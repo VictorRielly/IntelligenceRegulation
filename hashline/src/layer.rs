@@ -352,7 +352,8 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
         });
     }
     let w_pcs = params.pcs_for(LOG_WBLOCK);
-    let w_cm = pcs::commit(&w_pcs, &w_data, ntt);
+    // [UPERF3-AC] the per-model weight-commitment cache (`--wcache DIR`): pcs::commit when unconfigured.
+    let w_cm = crate::wcache::commit_w(&w_pcs, &w_data, ntt, &crate::wcache::WKey::new("v2", w.l, D, F, &w.wg_t, &w.wu_t, &w.wd_t));
     proof.w_com = Some(w_cm.commitment());
     absorb_com(tr, b"W", proof.w_com.as_ref().unwrap());
     lap("commit W", &mut timings, &mut tick);
@@ -1320,7 +1321,8 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
         }
     }
     let w_pcs = params.pcs_for(lay.log_wb);
-    let w_cm = pcs::commit(&w_pcs, &w_data, ntt);
+    // [UPERF3-AC] the per-model weight-commitment cache (`--wcache DIR`): pcs::commit when unconfigured.
+    let w_cm = crate::wcache::commit_w(&w_pcs, &w_data, ntt, &crate::wcache::WKey::new("v3", w.l, d, f, &w.wg_t, &w.wu_t, &w.wd_t));
     proof.w_com = Some(w_cm.commitment());
     absorb_com(tr, b"W", proof.w_com.as_ref().unwrap());
     lap("commit W", &mut timings, &mut tick);

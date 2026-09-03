@@ -15,6 +15,8 @@
 //!   frozen int16-out registry (15 members, digests = the exports' `NN table` rows / `uperf-v3 tables`).
 //!   v3 tampers: --tamper flipx|flipw|rem|table|requant|z|round|i16. The v2 path is untouched.
 //!       --zk  [UPERF3-ZA] the zero-knowledge form for the activations (mode P1; see src/zk.rs); --seed N seeds its randomness
+//!       --wcache DIR  [UPERF3-AC] the per-model weight-commitment cache (src/wcache.rs): each layer's W Merkle tree
+//!   committed once and reused (verified on load); the proof bytes do not change. HL_WCACHE_VERBOSE=1 per layer.
 
 use hashline::chain::{derive, LayerWitness};
 use hashline::export::{export_dir, load_layer, Sidecar, D, F, LAYERS};
@@ -42,11 +44,14 @@ struct Opts {
     tamper_idx: usize,
     /// [UPERF3-ZA] `--zk` + `--seed`: the zero-knowledge form (default off: the byte-identical path).
     zk: hashline::zk::ZkConfig,
+    /// [UPERF3-AC] `--wcache DIR`: the per-model weight-commitment cache (default off).
+    wcache: Option<String>,
 }
 
 fn parse_opts(args: &[String]) -> Opts {
     let mut o = Opts { threads: 0, log_cols: 14, col_checks: 256, inv_rate: 4, tamper: Tamper::None, verify: true, all_tampers: false, proof_out: None,
-        profile: "v2".to_string(), export: None, t_rows: None, tamper_kind: "none".to_string(), tamper_idx: 12345, zk: hashline::zk::ZkConfig::default() };
+        profile: "v2".to_string(), export: None, t_rows: None, tamper_kind: "none".to_string(), tamper_idx: 12345, zk: hashline::zk::ZkConfig::default(),
+        wcache: None };
     let mut i = 0;
     let mut tkind = "none".to_string();
     let mut tidx = 12345usize;
@@ -67,10 +72,12 @@ fn parse_opts(args: &[String]) -> Opts {
             "--t" => { o.t_rows = Some(args[i + 1].parse().unwrap()); i += 1; }
             "--zk" => { o.zk.enabled = true; }
             "--seed" => { o.zk.seed = args[i + 1].parse().unwrap(); i += 1; }
+            "--wcache" => { o.wcache = Some(args[i + 1].clone()); i += 1; } // [UPERF3-AC]
             other => { eprintln!("unknown option {other}"); std::process::exit(2); }
         }
         i += 1;
     }
+    hashline::wcache::configure(o.wcache.as_deref()); // [UPERF3-AC]
     o.tamper_kind = tkind.clone();
     o.tamper_idx = tidx;
     if o.profile == "v3" {
@@ -190,6 +197,23 @@ fn gpu_probe() {
             }
         }
         println!("gpu-probe: ntt checks {}", if fails == 0 { "GREEN" } else { "RED" });
+        if fails > 0 { std::process::exit(1); }
+    }
+    // [UPERF3-AC] rung 2: the CHUNKED commit — streaming blake3 leaves + the re-encoded opening columns == the CPU's,
+    // at row counts on both sides of every 128-row (one blake3 chunk) boundary and at several chunk sizes
+    #[cfg(feature = "gpu-cuda")]
+    {
+        let mut fails = 0;
+        for (log_cols, inv_rate, rows, chunk) in [(10u32, 4usize, 300usize, 128usize), (10, 4, 127, 128), (10, 4, 128, 128), (10, 4, 129, 128), (10, 4, 255, 128), (10, 4, 256, 128), (10, 4, 257, 128), (10, 4, 1024, 128), (10, 4, 1025, 256), (12, 4, 1000, 256), (14, 4, 64, 128), (14, 4, 700, 384), (13, 2, 4, 128), (12, 8, 3, 128), (14, 4, 2200, 1024)] {
+            match hashline::gpu::dev_commit_check_chunked(log_cols, inv_rate, rows, chunk) {
+                Ok((bl, bc)) => {
+                    println!("  chunked check log_cols {log_cols} inv_rate {inv_rate} rows {rows} chunk {chunk}: {bl} leaf mismatches, {bc} column mismatches");
+                    if bl > 0 || bc > 0 { fails += 1; }
+                }
+                Err(e) => { println!("  chunked check log_cols {log_cols} inv_rate {inv_rate} rows {rows} chunk {chunk}: ERROR {e}"); fails += 1; }
+            }
+        }
+        println!("gpu-probe: chunked-commit checks {}", if fails == 0 { "GREEN" } else { "RED" });
         if fails > 0 { std::process::exit(1); }
     }
 }
@@ -377,6 +401,7 @@ fn pass(n: usize, t: usize, o: &Opts) {
             "  gpu device-side (summed): h2d {:.3} s ({:.0} MB) | ntt {:.3} s | hash {:.3} s | sumcheck {:.3} s | fold {:.3} s | helpers {:.3} s | d2h {:.3} s ({:.0} MB) | vram peak {:.0} MB",
             g.secs_h2d, g.bytes_h2d as f64 / 1e6, g.secs_ntt, g.secs_hash, g.secs_sumcheck, g.secs_fold, g.secs_helpers, g.secs_d2h, g.bytes_d2h as f64 / 1e6, g.vram_peak as f64 / 1e6
         );
+        println!("  gpu chunked [UPERF3-AC]: chunked commits {} | opening re-encode {:.3} s", g.n_chunked, g.secs_reenc);
     }
     // [UPERF3-XX] the byte-identity gate: the flat encoding of every layer proof, concatenated, sha256'd
     {
@@ -405,6 +430,7 @@ fn pass(n: usize, t: usize, o: &Opts) {
         t_verify = t0.elapsed().as_secs_f64();
     }
     let macs = (n as f64) * (t as f64) * ((2.0 * D as f64 * F as f64) + (F as f64 * D as f64));
+    if let Some(r) = hashline::wcache::report() { println!("  {r}"); } // [UPERF3-AC]
     println!("PASS {}: {n} x {t}: witness load+chain {t_load:.2} s | PROVE {t_prove:.2} s | VERIFY {t_verify:.2} s | proof {bytes} B ({:.1} MB) | {:.3e} MACs | {:.3e} proven MAC/s (prove wall) | wall {:.2} s",
         if ok { "ACCEPT" } else { "REJECT" }, bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
     if !ok { std::process::exit(1); }
@@ -642,6 +668,7 @@ fn pass_v3(n: usize, t: usize, o: &Opts) {
             "  gpu device-side (summed): h2d {:.3} s ({:.0} MB) | ntt {:.3} s | hash {:.3} s | sumcheck {:.3} s | fold {:.3} s | helpers {:.3} s | d2h {:.3} s ({:.0} MB) | vram peak {:.0} MB",
             g.secs_h2d, g.bytes_h2d as f64 / 1e6, g.secs_ntt, g.secs_hash, g.secs_sumcheck, g.secs_fold, g.secs_helpers, g.secs_d2h, g.bytes_d2h as f64 / 1e6, g.vram_peak as f64 / 1e6
         );
+        println!("  gpu chunked [UPERF3-AC]: chunked commits {} | opening re-encode {:.3} s", g.n_chunked, g.secs_reenc);
     }
     {
         let mut all: Vec<u8> = Vec::with_capacity(bytes);
@@ -669,6 +696,7 @@ fn pass_v3(n: usize, t: usize, o: &Opts) {
         t_verify = t0.elapsed().as_secs_f64();
     }
     let macs = (n as f64) * (t as f64) * ((2.0 * dm.d as f64 * dm.f as f64) + (dm.f as f64 * dm.d as f64));
+    if let Some(r) = hashline::wcache::report() { println!("  {r}"); } // [UPERF3-AC]
     println!("PASS-V3 {}: {n} x {t} (d {} f {}): witness load+chain {t_load:.2} s | PROVE {t_prove:.2} s | VERIFY {t_verify:.2} s | proof {bytes} B ({:.1} MB) | {:.3e} MACs | {:.3e} proven MAC/s (prove wall) | wall {:.2} s",
         if ok { "ACCEPT" } else { "REJECT" }, dm.d, dm.f, bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
     if !ok { std::process::exit(1); }

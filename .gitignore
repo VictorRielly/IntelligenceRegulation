@@ -32,3 +32,8 @@ __pycache__/
 *.pyc
 .claude/
 zkmatrix-rs/target-gpu/
+
+## [UPERF3-AC] the hashline weight-commitment cache (never committed)
+*.wc
+*.wc.tmp
+results/hashline_8b_gpu_wcache/
