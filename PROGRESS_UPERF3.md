@@ -8604,6 +8604,51 @@ are uniform; the laptop's inverted scaling is the hybrid part),
   "replicated mask row" table kind on the device (a new TabSpec +
   kernel); it would return ~6.4 MB (-8%).
 
+### ZA rung 3 — committed multiplicities (nothing of the histogram or the helper sums is sent) + the small-sumcheck path (2026-09-02)
+
+- Construction (d) as built: the multiplicity tables (silu 256, int8
+  256, range(s) 2^s for each distinct shift; the export's shifts are
+  5-10 bits, so every table fits one row of the commitment) are rows
+  of A (committed BEFORE alpha, as LogUp needs), each with a mask row.
+  Their table side h_t[i] = m[i] / (alpha - tval[i]) is a committed
+  helper row of H (re/im, zero beyond the table) with an Fp2 mask,
+  tied to m by a masked zero-check over log n variables
+  (eq(tau3) sum_i mu3_i (h_t,i (alpha - tval_i) - m_i) = 0; the public
+  tval rows are recomputed by the verifier from beta, gamma and the
+  frozen table and evaluated at the point), and THE LOGUP IDENTITY is
+  one value-0 sum claim on H: witness helpers - table helpers + the
+  zero-sum row u. Gone from the proof and the transcript: the mults
+  tables, the helper sums, the verifier's shape/total checks and its
+  table-side evaluation. Soundness is unchanged in kind (the residue
+  argument does not need m to be small integers). The mask commitment
+  has a sixth row (the table zero-check's degree-3 mask) and a fourth
+  Gamma.
+- Correctness [MEASURED]: 3x16 ZK ACCEPT (PROOF ee9497e0.. at seed 1,
+  reproduced), `layer 0 16 --zk --all-tampers` 6/6 REJECT — the two
+  lookup legs (out-of-range remainder, wrong table entry) are now
+  caught at "H: pcs zk: group 4: <v, c> != combined claim" (the
+  value-0 LogUp claim) instead of the verifier's clear-text table
+  evaluation — and `pass 2 64 --zk --tamper z` REJECT; tests 24/24;
+  the mask-site enumeration now lists 5 A groups and 5 H groups
+  (A group 4 = the five m rows' masks; H group 3 = the five table
+  helpers' masks; H group 4 = the sum group's zero-sum row).
+- `sumcheck.rs`: rounds with half * k <= 2^16 run on one thread (the
+  field sums are order-independent; the values are identical). This
+  also speeds up the NON-zk pass, byte-identically: 12x512 CPU PROVE
+  16.89 -> 14.82 s at PROOF 50cf7bdf.. unchanged (zc20 3.72 -> 2.95,
+  zc17 1.73 -> 0.78, the matmul sumchecks 0.58 -> 0.35) [MEASURED,
+  WSL-BOX 8T NOISY-SHARED]. The table zero-check: 1.69 -> 0.59 s.
+- THE 12x512 ZK CPU ROW after rung 3 [MEASURED, WSL-BOX 8T
+  NOISY-SHARED, 1 run each, same binary, same hour]: ZK PROVE 18.45 s
+  / VERIFY 0.52 s / proof 87,080,688 B (87.1 MB) / RSS 1.81 GB /
+  1.57e9 proven MAC/s (PROOF 9b80855d.. at seed 1) vs non-zk 14.82 s
+  / 0.28 s / 66,844,928 B / 1.56 GB. Surcharge: prover +24%, verifier
+  +0.24 s (+86%), bytes +30%, RSS +16%. Phases zk vs non-zk: commit A
+  4.46 vs 3.65 (+26 rows, pads, coset, salts), helpers + commit H
+  5.26 vs 4.27 (+37 rows, the table helpers), zc20 3.29 vs 2.95, zc17
+  1.17 vs 0.78, table zero-check 0.59, zsum + mask open 0.07, mask
+  commit 0.11, openings 0.99 vs 0.83.
+
 ## Agent ZB status (wt-uperf3-zb) — round 11
 
 (lane appends below)

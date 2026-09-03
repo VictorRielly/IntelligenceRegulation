@@ -61,12 +61,13 @@ where
     let mut len = n_total;
     for _round in 0..n_rounds {
         let half = len / 2;
-        let chunk = 1024usize.min(half).max(1);
+        // [UPERF3-ZA] small rounds run on one thread: a rayon region per round and
+        // per table fold cost ~0.3 ms of pool wake-up each and dominated the 2^14
+        // sumchecks (the field sums are order-independent: the values are identical).
+        let small = half * k <= 1 << 16;
+        let chunk = if small { half.max(1) } else { 1024usize.min(half).max(1) };
         let n_chunks = (half + chunk - 1) / chunk;
-        // parallel over chunks of pair indices
-        let sums: Vec<Fp2> = (0..n_chunks)
-            .into_par_iter()
-            .map(|ci| {
+        let round_of = |ci: usize| {
                 let lo = ci * chunk;
                 let hi = (lo + chunk).min(half);
                 let mut acc = vec![Fp2::ZERO; degree + 1];
@@ -88,16 +89,23 @@ where
                     }
                 }
                 acc
-            })
-            .reduce(
-                || vec![Fp2::ZERO; degree + 1],
-                |mut a, b| {
-                    for (x, y) in a.iter_mut().zip(b.iter()) {
-                        *x = x.add(*y);
-                    }
-                    a
-                },
-            );
+            };
+        let sums: Vec<Fp2> = if small {
+            round_of(0)
+        } else {
+            (0..n_chunks)
+                .into_par_iter()
+                .map(round_of)
+                .reduce(
+                    || vec![Fp2::ZERO; degree + 1],
+                    |mut a, b| {
+                        for (x, y) in a.iter_mut().zip(b.iter()) {
+                            *x = x.add(*y);
+                        }
+                        a
+                    },
+                )
+        };
         tr.absorb_fp2(b"sc-round", &sums);
         let r = tr.challenge_fp2();
         challenges.push(r);
@@ -105,9 +113,15 @@ where
         // fold every table: new[i] = v0 + r (v1 - v0)
         for tb in tables.iter_mut() {
             let (lo, hi) = tb.split_at_mut(half);
-            lo.par_iter_mut().zip(hi[..half].par_iter()).for_each(|(a, b)| {
-                *a = a.add(r.mul(b.sub(*a)));
-            });
+            if small {
+                for (a, b) in lo.iter_mut().zip(hi[..half].iter()) {
+                    *a = a.add(r.mul(b.sub(*a)));
+                }
+            } else {
+                lo.par_iter_mut().zip(hi[..half].par_iter()).for_each(|(a, b)| {
+                    *a = a.add(r.mul(b.sub(*a)));
+                });
+            }
             tb.truncate(half);
         }
         len = half;
