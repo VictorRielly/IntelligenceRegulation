@@ -58,6 +58,32 @@ rulings; the Mac runbook unchanged):**
   the Route-B throughput model (lane TT's seven items for the hash
   line, incl. the ZK surcharge — Victor's ZK rule is non-negotiable —
   and the proof-size lever).
+- **LANE ZB LANDED (merged fast-forward; `results/hashline_v3_12x512.md`;
+  MAC_RUNBOOK M9).** (1) `--profile v3 --export DIR`: the widened-stack
+  semantics in hashline (15 frozen int16-out table members regenerated
+  and digest-pinned to the engine's; round-nearest requant as the
+  balanced-remainder identity; the exact up-scaling branch); the m8b
+  export reader: 96/96 (125M v3) and **256/256 (Mistral-7B, 7 GB of
+  bins found under wt-uperf3-aa)** tensor sha256s; the exact chain
+  reproduces a16/u16/h16/z16 on **12/12 (125M) and 32/32 (Mistral-7B)
+  layers**, every range fact holds. (2) The v3 proof at 125M 12x512:
+  sha256 5f368db6.. (70.8 MB) byte-identical CPU (3 runs) vs GPU (2);
+  CPU prove 17.40 s (+3.5% vs v2), GPU 2.74 s (parity); 8/8 tamper
+  legs reject on CPU and GPU incl. the two v3-only legs; the v2 gate
+  50cf7bdf.. unchanged. (3) **THE FIRST REAL 8B-WIDTH LAYER PROVEN IN
+  THIS PROJECT** [MEASURED, WSL-BOX CPU 8T NOISY-SHARED]: Mistral-7B
+  layer 0 at T=16 prove 10.53 s (commit W 8.58 s) / verify 0.03 s /
+  25.9 MB / RSS 7.48 GB; T=128 11.67 s / 8.78 GB; T=256 14.51 s /
+  10.28 GB — the split ~9 s + 7.0 GB of weight work per layer, ~13.5
+  ms + 11.7 MB per token row; T=512 models to ~18 s / 13.3 GB here
+  [MODEL]; `HL_GPU=1` declines the 5.4 GB weight commit on the 8 GB
+  part and falls back to CPU bytes (a chunked encoding is the
+  follow-on). (4) **MAC_RUNBOOK M9 = the first full 8B FFN proof on
+  the hash line, on the Mac CPU: all 32 layers at T=16, layer 0 at
+  T=512, then the 32x512 pass (~10 min, ~14 GB, 1.2 GB proof
+  [MODEL]).** Optional orchestrator-run posted: the 32x512 Mistral
+  pass on THIS box (~10 min, ~13.5 GB of 14 available; exit 137 is
+  the record) — queued after lane ZA frees the box.
 - **LANE XX LANDED (merged; `results/hashline_gpu_12x512.md`) — THE
   HASH LINE ON THE GPU [MEASURED, WSL-BOX 8T + RTX 4070 Laptop,
   NOISY-SHARED]: PROVE 3.40 s p50 (3.38-3.49), VERIFY 0.42 s, the

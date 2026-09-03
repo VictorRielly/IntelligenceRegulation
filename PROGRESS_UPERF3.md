@@ -8662,3 +8662,36 @@ member digest absorbed into the statement. v2 untouched.
   hashline/target/release/hashline pass 32 512 --profile v3 --export
   /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --threads 8
   --proof-out /tmp/hl_v3_32x512.bin` (with the ZB worktree's binary).
+
+## Orchestrator note 2026-09-03 — round 11: ZB merged (fast-forward da4c395)
+
+- The relaunch after the usage-limit cutoff found rungs 0-2 committed
+  (a40b338) and rung 3's edits uncommitted; the resumed lane kept
+  them in full and finished rungs 3-5. hashline now has `--profile
+  v3 --export DIR`, tables_v3.rs, export_v3.rs, the v3 prover/
+  verifier/tamper legs, `--log-cols`; MAC_RUNBOOK M9; results/
+  hashline_v3_12x512.md. Floors for the crate: recorded below once
+  the builds and the two byte gates (v2 50cf7bdf.., v3 5f368db6..)
+  re-run here.
+- THE MILESTONE: one real Mistral-7B FFN layer PROVEN on the WSL
+  laptop's CPU (T=16: 10.53 s, 7.48 GB; T=256: 14.51 s, 10.28 GB;
+  8/8 tamper legs reject) — the first 8B-width proof in this project
+  (the lattice line's T15 rung has never run: OOM at 15 GB here).
+  The Mistral v3 bins live under /home/victor/wt-uperf3-aa/results/
+  m8b_mistral_v3_export/ (7 GB, not in git).
+- QUEUED (orchestrator-run, after ZA frees the box): the full 32x512
+  Mistral pass here — `hashline pass 32 512 --profile v3 --export
+  /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --threads 8
+  --proof-out ...` (~10 min, ~13.5 GB [MODEL]; exit 137 = the record).
+  If it fits, it is the FIRST FULL 8B FFN PROOF, on the laptop.
+- Floors for the crate on the ZB-merged tree (this checkout; CPU
+  build 16.6 s, 22/22 tests; GPU build 19.0 s): the v2 gate `pass 12
+  512 --threads 8 --proof-out` -> sha256 50cf7bdf.. on CPU (PROVE
+  17.69 s) and GPU (PROVE 2.97 s); the v3 gate `pass 12 512 --profile
+  v3 --export <m125 v3 export> --threads 8 --proof-out` -> sha256
+  5f368db6.. (70,758,084 B) on CPU and GPU — both byte-identical to
+  ZB's record. NOTE FOR EVERY LATER LANE: the v3 export BINARIES are
+  not in git and live only under /home/victor/wt-uperf3-aa/results/
+  (m8b_test/m125_v3_export/, m8b_mistral_v3_export/ 7 GB,
+  m8b_gemma4_v3_export/); the main checkout's and other worktrees'
+  copies of those directories hold digests.txt + manifest.json only.
