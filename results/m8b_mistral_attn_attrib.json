@@ -101,6 +101,36 @@
    "wide": [],
    "perhead": [],
    "wall_s": 187.1
+  },
+  "probs": {
+   "loss": 1.649543998698325,
+   "delta_vs_fp_subset": 0.009242403986539305,
+   "sites": [
+    "probs"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 173.1
+  },
+  "ctx": {
+   "loss": 1.6423922314841923,
+   "delta_vs_fp_subset": 0.0020906367724067287,
+   "sites": [
+    "ctx"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 142.5
+  },
+  "ao": {
+   "loss": 1.7202319631359435,
+   "delta_vs_fp_subset": 0.0799303684241579,
+   "sites": [
+    "ao"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 111.1
   }
  }
 }
