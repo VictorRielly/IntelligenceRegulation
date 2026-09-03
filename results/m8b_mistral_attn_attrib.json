@@ -1,0 +1,76 @@
+{
+ "meta": {
+  "experiment": "m8b_mistral_attn_gate --phase attrib",
+  "checkpoint": "/home/victor/models/Mistral-7B-v0.1",
+  "seed": 1337,
+  "t": 512,
+  "val_take": 2,
+  "smoke": false,
+  "fE": 9,
+  "fP": 9,
+  "box": "[MEASURED WSL-BOX NT, val subset]",
+  "ref_full_committed_8win": 1.841096998602386,
+  "note": "first-order per-site attribution; FFN fp; exponents frozen from the cal-window stats pass; phases merge into the JSON across runs",
+  "ref_subset": 1.6403015947117856
+ },
+ "results": {
+  "none": {
+   "loss": 1.6403015947117856,
+   "delta_vs_fp_subset": null,
+   "sites": [],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 123.5
+  },
+  "Wattn": {
+   "loss": 1.6477498286021692,
+   "delta_vs_fp_subset": 0.0074482338903836265,
+   "sites": [
+    "Wattn"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 141.0
+  },
+  "Wnorm": {
+   "loss": 1.6398744644207608,
+   "delta_vs_fp_subset": -0.00042713029102481315,
+   "sites": [
+    "Wnorm"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 117.1
+  },
+  "xattn": {
+   "loss": 1.6448782280094536,
+   "delta_vs_fp_subset": 0.004576633297667998,
+   "sites": [
+    "xattn"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 125.2
+  },
+  "q": {
+   "loss": 1.6408605468184452,
+   "delta_vs_fp_subset": 0.0005589521066595715,
+   "sites": [
+    "q"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 132.1
+  },
+  "k": {
+   "loss": 1.6420064366810996,
+   "delta_vs_fp_subset": 0.001704841969313975,
+   "sites": [
+    "k"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 122.6
+  }
+ }
+}
