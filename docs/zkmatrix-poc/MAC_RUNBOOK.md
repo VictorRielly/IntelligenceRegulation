@@ -266,6 +266,142 @@ for n in 1 8 16 N; do ZK_MODEL_EXPORT_DIR=results/m8b_mistral_v3_export_mac ZK_T
 ```
 (replace N with `sysctl -n hw.ncpu`). RECORD: wall per n.
 
+## M9. THE FIRST 8B PROOF ON THE HASH LINE (hashline `--profile v3`; new 2026-09-02, lane ZB)
+
+WHY: the hash line (`hashline/`, the Ligero + sumcheck prover; ~100-
+bit hash-only soundness, no lattice) proves the SAME widened-stack v3
+statement as `ring_matmul uperf-v3` — the int16-out activation table,
+the int16 classes, round-to-nearest requant, the exact up-scaling
+branch — and on the laptop it is 6-7x the lattice line per proven MAC.
+Lane ZB proved ONE Mistral-7B layer with it on the laptop (T=16: 10.5
+s, 7.5 GB; T=256: 14.5 s, 10.3 GB, all 8 threads) and measured the
+T-split: a 7B layer at T=512 needs ~13.3 GB, which the laptop cannot
+hold safely, and the 32-layer pass holds ~14 GB with one witness
+resident at a time. The Mac runs what the laptop cannot: every layer
+of the 8B model, layer 0 at the full T=512, and THE FIRST FULL 32x512
+8B PASS in one transcript. All CPU, no CUDA (the crate's GPU feature is
+off by default and never built here). The proof bytes are
+deterministic (blake3 Fiat-Shamir): the Mac's proof of a given
+statement at given parameters equals the laptop's byte for byte, which
+the optional 125M leg checks against a committed digest.
+
+PREREQ: M4 step 1 done (`results/m8b_mistral_v3_export_mac/` with its
+256 .bin files; if the Mac's export differs from the committed digests
+only in the X/a16/u16/h16/z16 lines — the known float-rounding effect —
+it is still a valid witness: the reader below checks the export
+against ITS OWN sidecar). The Rust toolchain from M0. `mkdir -p
+results/uperf`. Every number: label QUIET / NOISY-SHARED per §0.
+N below = `sysctl -n hw.ncpu` (the cores are uniform; use them all).
+
+0. Build + tests (~1-2 min cold [MODEL]; no CUDA):
+```
+cargo build --release --manifest-path hashline/Cargo.toml
+cargo test --release --manifest-path hashline/Cargo.toml 2>&1 | grep 'test result'
+hashline/target/release/hashline tables-v3 | tail -2
+```
+   ACCEPT: build green; the first `test result` line says `22 passed;
+   0 failed`; `tables-v3` prints 15 member lines ending with a digest
+   and no panic (the 15 frozen int16-out members regenerated and
+   digest-pinned; the last line is `gelu-tanh-int16out-table-v3 (eGate
+   -1, eOut -9): ... digest 046effd433a6ca20..`).
+1. The reader + the exact chain against the Mac's export (~3 min at
+   N threads [MODEL: 9 s + 128 s at 8T on the laptop]; RSS < 1 GB):
+```
+/usr/bin/time -l hashline/target/release/hashline check-export --profile v3 --export results/m8b_mistral_v3_export_mac > results/uperf/mac_hl_checkexport.log 2>&1
+/usr/bin/time -l hashline/target/release/hashline chain --profile v3 --export results/m8b_mistral_v3_export_mac --threads N > results/uperf/mac_hl_chain.log 2>&1
+grep -h 'check-export v3\|chain v3:\|real\|maximum resident' results/uperf/mac_hl_checkexport.log results/uperf/mac_hl_chain.log
+```
+   ACCEPT: `check-export v3: 256/256 tensor digests reproduce` and
+   `chain v3: 32/32 layers reproduce the export's a16/u16/h16/z16`
+   (every per-layer line says `range facts HOLD`). Anything else:
+   STOP and paste (a mismatch here means the Mac's export and the
+   Rust chain disagree on the statement — a finding, not a failure).
+2. THE FIRST 8B-WIDTH LAYER ON THE MAC, T=16 (~10 s at 8T on the
+   laptop; RSS 7.5 GB [MEASURED there]; the eight tamper legs re-prove
+   the layer eight more times, ~1.5 min total [MODEL]):
+```
+/usr/bin/time -l hashline/target/release/hashline layer 0 16 --profile v3 --export results/m8b_mistral_v3_export_mac --threads N --all-tampers > results/uperf/mac_hl_l0_t16.log 2>&1
+grep -h 'statement\|tamper\|GREEN\|RED\|real\|maximum resident' results/uperf/mac_hl_l0_t16.log
+```
+   ACCEPT: `tamper None: ACCEPT ...`, eight `REJECT` lines, `layer 0
+   (v3): GREEN`. RECORD: the prove / verify seconds and proof bytes of
+   the ACCEPT line, `real`, peak RSS, the label.
+3. Every layer of the 8B model at T=16 (32 runs; ~6 min at 8T
+   [MODEL], less at N; STOP at the first RED):
+```
+for L in $(seq 0 31); do hashline/target/release/hashline layer $L 16 --profile v3 --export results/m8b_mistral_v3_export_mac --threads N > results/uperf/mac_hl_l${L}_t16.log 2>&1 || break; done
+grep -h 'GREEN\|RED' results/uperf/mac_hl_l*_t16.log | sort | uniq -c
+grep -h 'tamper None' results/uperf/mac_hl_l*_t16.log | awk '{print $5}' | sort -n | sed -n '1p;16p;32p'
+```
+   ACCEPT: `32 layer (v3): GREEN` (the uniq -c line), no RED. RECORD:
+   the count; the min / median / max per-layer prove seconds (the
+   second grep prints them); the label.
+4. Layer 0 at the FULL T=512 (the row the laptop cannot take: ~18-20
+   s at 8T and ~13.3 GB [MODEL from the laptop's T=16/128/256 rows:
+   ~9 s + ~7.0 GB of weight work per layer, plus ~13.5 ms + 11.7 MB per
+   token row]):
+```
+/usr/bin/time -l hashline/target/release/hashline layer 0 512 --profile v3 --export results/m8b_mistral_v3_export_mac --threads N > results/uperf/mac_hl_l0_t512.log 2>&1
+grep -h 'commit W\|commit A\|helpers\|zero-check\|openings\|tamper None\|GREEN\|RED\|real\|maximum resident' results/uperf/mac_hl_l0_t512.log
+```
+   ACCEPT: `ACCEPT` + `GREEN`. RECORD: prove / verify / proof bytes,
+   the eight phase lines (commit W is the weight part; commit A +
+   helpers + the zero-checks are the activation part), `real`, peak
+   RSS in GiB, the label. With the T=16 row this gives the Mac's own
+   weight/activation split.
+5. THE FIRST FULL 8B PASS: 32 layers x 512 tokens, one transcript
+   (~10 min at 8T [MODEL: 32 x ~18 s]; peak RSS ~14 GB [MODEL] — one
+   witness resident at a time, the 32 layer proofs held in memory,
+   ~1.2 GB; the proof file ~1.2 GB, NOT committed; run it detached):
+```
+nohup /usr/bin/time -l hashline/target/release/hashline pass 32 512 --profile v3 --export results/m8b_mistral_v3_export_mac --threads N --proof-out results/uperf/mac_hl_v3_32x512.bin > results/uperf/mac_hl_pass_32x512.log 2>&1 &
+```
+   then, when `tail -3 results/uperf/mac_hl_pass_32x512.log` shows
+   the `PASS-V3` line:
+```
+grep -h 'PASS-V3\|PROOF sha256\|real\|maximum resident' results/uperf/mac_hl_pass_32x512.log
+grep -h '^      ' results/uperf/mac_hl_pass_32x512.log
+```
+   ACCEPT: `PASS-V3 ACCEPT: 32 x 512 (d 4096 f 14336): ...`. RECORD
+   (§R): the whole PASS-V3 line (witness load, PROVE, VERIFY, proof
+   bytes, MACs, proven MAC/s, wall), the `PROOF sha256` line (the
+   Mac's digest of the first 8B pass proof — the laptop has none to
+   compare with; it becomes the reference), the eight summed phase
+   lines, `real`, peak RSS in GiB, the label. A `REJECT` or an exit
+   137: STOP, paste the last 30 lines.
+6. Optional legs (each a few minutes):
+   (a) the byte-identity gate on Apple silicon — copy the laptop's
+   125M v3 export (140 MB; the .bin files live on the laptop under
+   `/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export/`, the
+   digests are committed at `results/m8b_test/m125_v3_export/`) to
+   the committed path on the Mac, then
+   `hashline/target/release/hashline pass 12 512 --profile v3 --export results/m8b_test/m125_v3_export --threads 8 --proof-out results/uperf/mac_hl_v3_12x512.bin`
+   — ACCEPT: `PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)`,
+   the laptop's CPU AND GPU digest; RECORD the PROVE / VERIFY seconds
+   at 8 threads (the Mac's own 125M v3 row next to the laptop's 17.4 s
+   / 2.74 s) and at N threads;
+   (b) the v2 gate the same way with the laptop's
+   `results/m125_ffn_export_wsl/` copied over:
+   `M125_EXPORT_DIR=results/m125_ffn_export_wsl hashline/target/release/hashline pass 12 512 --threads 8 --proof-out results/uperf/mac_hl_v2_12x512.bin`
+   — ACCEPT: `PROOF sha256 50cf7bdfd6b5b182..` (66,844,928 B);
+   (c) the proof-size parameter at 7B: step 4 again with
+   `--log-cols 16` — the W matrix drops from 10,752 to 2,688 rows and
+   the proof roughly halves (25.9 -> 13.4 MB at T=16 on the laptop)
+   at the same wall; RECORD the bytes and prove seconds (its digest is
+   a different parameter set, not comparable to (a)).
+RECORD (§R), the paste-back template:
+```
+<date> M9 [MAC-BOX <N>T QUIET|NOISY-SHARED] commit <hash>
+  step 1: check-export <n>/256; chain <n>/32 (<s> s)
+  step 2: layer 0 T=16: ACCEPT prove <s> / verify <s> / <bytes> B / real <s> / RSS <GiB>; tampers <n>/8 REJECT
+  step 3: 32 layers T=16: <n>/32 GREEN; prove min/med/max <s>/<s>/<s>
+  step 4: layer 0 T=512: ACCEPT prove <s> (commit W <s>, A <s>, helpers <s>, zcF <s>, zcD <s>, open <s>) / verify <s> / <bytes> B / real <s> / RSS <GiB>
+  step 5: pass 32x512: PASS-V3 <ACCEPT|REJECT> PROVE <s> VERIFY <s> proof <bytes> B <MAC/s> proven MAC/s wall <s> / real <s> / RSS <GiB>; PROOF sha256 <digest>
+  step 6: (a) 12x512 v3 sha256 <digest> [= 5f368db6.. ?] PROVE <s>@8T <s>@NT; (b) v2 sha256 <digest> [= 50cf7bdf.. ?]; (c) log-cols 16: <bytes> B, prove <s>
+  notes: <anything odd>
+```
+Commit only the .md (the .log and .bin files stay on the Mac).
+
 ## R. RESULTS (append-only, newest last; paste here, commit, push)
 
 Format per entry:

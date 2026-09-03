@@ -8627,4 +8627,38 @@ member digest absorbed into the statement. v2 untouched.
   host by design. A `pass` fix in this rung: `pass_v3` now loads ONE
   witness at a time (load, prove, drop; the statement stays for the
   verifier) — 32 resident 7B witnesses would have been 11 GB before
-  the first commitment; byte-neutral (the 12x512 gate re-run below).
+  the first commitment; byte-neutral: the 12x512 v3 pass re-run after
+  the edit prints 5f368db6240e0614.. on the CPU binary (17.18 s) and
+  the GPU binary (2.78 s, RSS now 0.43 GB); the pass-level leg `pass
+  12 512 --profile v3 --tamper requant` REJECTs at layer 6 (sumcheck
+  round 0) as in XX's v2 table.
+
+- **RUNG 5 (2026-09-02): MAC_RUNBOOK item M9 + the record.** M9
+  (docs/zkmatrix-poc/MAC_RUNBOOK.md, before "## R. RESULTS"): THE
+  FIRST 8B PROOF ON THE HASH LINE on the Mac — build the crate CPU-
+  only, 22 tests, `check-export`/`chain --profile v3` against the
+  Mac's own M4 export (256/256 digests, 32/32 x 4 planes), then
+  `layer 0 16`, the 32-layer T=16 loop, `layer 0 512`, and the full
+  `pass 32 512 --profile v3 --proof-out` (modelled from this box's
+  T=16/128/256 rows: ~18-20 s and ~13.3 GB per 7B layer at T=512 at
+  8T, so ~10 min and ~14 GB peak for the 32x512 pass with one witness
+  resident; the Mac's 256 GB holds it many times over; the proof
+  file ~1.2 GB, not committed), `--threads $(sysctl -n hw.ncpu)`,
+  `/usr/bin/time -l`, the paste-back template; optional legs: the
+  125M v3 12x512 pass against the WSL v3 export copied over (the
+  byte gate 5f368db6240e0614.. on Apple silicon — the transcript is
+  deterministic, so the Mac's bytes must equal the laptop's), the v2
+  gate 50cf7bdfd6b5b182.. via M125_EXPORT_DIR, and `--log-cols 16`.
+  The record: results/hashline_v3_12x512.md (XX's form: the
+  statement, the gate, the 12x512 runs CPU/GPU vs v2, the phases,
+  the nine tamper legs incl. the two v3-only ones, the 7B rows and
+  their T-split, the side-by-side). LANE COMPLETE at this commit;
+  the next rungs are the Mac's (M9) and, on this box, a chunked W
+  encoding for the 7B GPU commit (declined at 5.4 GB) and the ZK form
+  (lane ZA) composed with v3.
+  ORCHESTRATOR-RUN (optional, ~10 min, ~13.5 GB peak of 14 GB
+  available — may exit 137; that exit is the record):
+  `flock /tmp/zk-heavy.lock /usr/bin/time -v
+  hashline/target/release/hashline pass 32 512 --profile v3 --export
+  /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --threads 8
+  --proof-out /tmp/hl_v3_32x512.bin` (with the ZB worktree's binary).
