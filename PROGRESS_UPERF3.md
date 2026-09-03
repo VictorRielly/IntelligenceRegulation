@@ -9626,6 +9626,24 @@ results/hashline_8b_gpu_wcache/mistral_gpu_cold is now warm with all 32
 entries, written by the GPU run — the CPU binary reads the same file
 format, so that run needs no cold pass first).
 
+**THE FOURTH CONFIGURATION CLOSED (2026-09-03, after rung 5).** The
+rung-4 ACCEPT asked for byte identity in four configurations; three
+were run at 32 layers and the fourth (cached CPU) is over this lane's
+600 s ceiling there. Closed instead at Mistral width at PASS scale, a
+2-layer triple run back to back on the same loaded box
+(`pass 2 512 --profile v3 --export .../m8b_mistral_v3_export`)
+[MEASURED, NOISY-SHARED, load 4-12]: **CPU no cache PROVE 44.69 s |
+CPU warm cache 37.67 s (2 hits, load+verify 0.032 s, re-encode 11.40 s)
+| GPU warm cache 10.74 s — all three 77,307,784 B, all three sha256
+b0efed43a7bb1d35ba99d534f31dcb95766ae99ff95c6f69f9df487d83ba31b4**
+(`sha256sum` over the three files). So every cache/device combination
+is now byte-identical at 7B width in a chained multi-layer transcript,
+not only in the single-layer form. Side result: at this width the CPU
+cache saves 3.5 s per layer under load (rung 1's quieter single-layer
+figure was 2.1), and the same-conditions GPU/CPU prove ratio at two
+layers is 4.2x (the 32-layer figure, 2.92x, is the one to quote — its
+CPU reference ran on a quieter box).
+
 ## Agent AD status (wt-uperf3-ad) — round 12
 
 (lane appends below)

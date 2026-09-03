@@ -42,12 +42,25 @@ each Merkle tree re-verified level by level on load). Checked by hand,
 not assumed: `sha256sum` over the three written files gives one digest.
 So at 8B the proof bytes are invariant under device vs host, under
 chunked vs resident commitment, and under cached vs freshly committed
-weights. (The fourth configuration, *cached CPU at 32x512*, is posted
-as an ORCHESTRATOR-RUN — it is ~575 s of wall, over this lane's ceiling.
-The cached CPU form is byte-identical at 12x512 in both profiles and at
-one Mistral layer, 179ec2fb..; the cache never enters the transcript,
-it only skips recomputing a tree whose root is already what the
-transcript absorbs.)
+weights.
+
+The fourth configuration, *cached CPU*, is not run at 32 layers (~575 s
+of wall, over this lane's ceiling; posted as an ORCHESTRATOR-RUN) but is
+closed at Mistral width at pass scale by a 2-layer triple — the same
+export, the same 4096 x 14336 weights, one transcript over two layers,
+run back to back on the same loaded box [MEASURED]:
+
+| `pass 2 512 --profile v3` | PROVE | VERIFY | proof | sha256 |
+|---|---:|---:|---:|---|
+| CPU, no cache | 44.69 s | 0.07 s | 77,307,784 B | **b0efed43a7bb1d35..** |
+| CPU, warm cache (2 hits, load+verify 0.032 s, re-encode 11.40 s) | 37.67 s | 0.07 s | 77,307,784 B | **b0efed43a7bb1d35..** |
+| GPU, warm cache | 10.74 s | 0.08 s | 77,307,784 B | **b0efed43a7bb1d35..** |
+
+One digest again, and the CPU cache's saving is visible in the open at
+7B width (44.69 -> 37.67 s for two layers, 3.5 s/layer under load 4-12;
+rung 1's quieter single-layer measurement was 2.1 s/layer). The cache
+never enters the transcript: it only skips recomputing a tree whose
+root is already what the transcript absorbs.
 
 ## The runs (`HL_GPU=1 hashline pass 32 512 --profile v3 --export ... --threads 8 --wcache DIR --proof-out F`)
 
