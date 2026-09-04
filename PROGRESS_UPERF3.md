@@ -10852,3 +10852,49 @@ and zc D. AC measured that as 46.64 + 7.48 s of host zero-check plus
 
 **THE FOUR BYTE GATES on both binaries and the BASELINE follow in this
 rung's second half.**
+
+**RUNG 0 — THE FOUR BYTE GATES ON BOTH BINARIES: ALL EIGHT GREEN, AND
+THE BASELINE (2026-09-03, WSL-BOX, 8T + RTX 4070 Laptop, box quiet at
+the time — load < 1, 14 GB available, GPU 30 MB used; lane AG was not
+running heavy work. [MEASURED], `flock /tmp/zk-heavy.lock`, one run
+each, proofs written and `sha256sum`'d by hand as well as by the
+binary).** Builds: CPU 36.3 s, GPU 41.0 s, both clean.
+
+| gate (`pass 12 512 --threads 8 --proof-out F`, + the flags) | CPU PROVE | GPU PROVE | sha256 | bytes |
+|---|---:|---:|---|---:|
+| v2 | 17.40 s | **2.46 s** | `50cf7bdfd6b5b182..` | 66,844,928 |
+| v3 `--profile v3 --export .../m125_v3_export` | 17.71 s | **2.51 s** | `5f368db6240e0614..` | 70,758,084 |
+| zk-v2 `--zk --seed 1` | 20.86 s | **4.02 s** | `021485e4f80ec695..` | 87,228,528 |
+| zk-v3 `--zk --seed 1 --profile v3 --export ...` | 17.94 s | **4.66 s** | `40eb54795e023c77..` | 87,697,008 |
+
+All four digests = the round-12 references, from both binaries. (The
+GPU zk-v3 4.66 s is this box's quiet reading of AD's 5.63 s p50, which
+was taken with three lanes on the CPU; AD's number stays the one to
+beat and both are quoted in rung 3.)
+
+**THE BASELINE THIS LANE MUST MOVE — one real Mistral-7B layer at
+T = 512 on the GPU** (`HL_GPU=1 pass 1 512 --profile v3 --export
+/home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --threads 8
+--proof-out F`, `/usr/bin/time`): **PROVE 5.515 s**, verify 0.04 s,
+proof 38,688,700 B, sha256 **179ec2fb8f99d0d6..** (= AC's rung-3
+digest, which is also the CPU's), RSS 4.17 GB, **VRAM peak 4,175 MB**;
+AC measured 5.56 s for the same run [MEASURED, WSL-BOX 8T GPU, QUIET].
+Phases, with the HOST share marked (d 4096, f 14336 -> nb_f 7, nb_d 1,
+so `dev_shape` is FALSE and three phases run on the CPU):
+
+| phase | s | on |
+|---|---:|---|
+| commit W | 1.291 | device (chunked, 3 chunks) |
+| commit A | 0.450 | device |
+| helpers + commit H | 1.022 | **HOST helpers** + device commit |
+| matmul g/u | 0.170 | host folds |
+| matmul d | 0.093 | host folds |
+| **zero-check F** | **1.454** | **HOST** |
+| **zero-check D** | **0.236** | **HOST** |
+| pcs openings | 0.785 | device folds + host Merkle/serialize |
+
+Device-side: h2d 0.498 s (2,257 MB), ntt 0.525 s, fold 0.228 s,
+opening re-encode 0.510 s. **THE HOST SHARE THIS LANE ATTACKS: 1.454 +
+0.236 + ~0.7 (the helper columns inside "helpers + commit H") = ~2.39 s
+of the 5.515 s = 43.3%** — AC's 44% reproduced at one layer
+[MEASURED/COUNTED].
