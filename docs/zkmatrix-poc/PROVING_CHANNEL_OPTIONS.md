@@ -166,8 +166,11 @@ architecture (U_PERF3_HEADLINE_ROUTES.md).
 | B hash-based, CPU after XX's byte-identical fixes (eq_table / group_claims) | WSL laptop, 8T CPU only | 20.4 s p50 (17.4-20.9 s) | 0.3-0.7 s | 66.8 MB | 1.56 GB | 1.4e9 | same | [MEASURED, NOISY-SHARED] |
 | **B hash-based `--zk` ON THE GPU (mode P1: activations private, weights public; lane ZA, 2026-09-02)** | **WSL laptop, 8T + RTX 4070 Laptop** | **3.93 s p50 (3.87-4.10 s over 4 runs; the non-zk prover on the same tree 2.46 s)** | **0.38 s** | **87.2 MB (+30.5%; sha256 021485e4.. at seed 1, CPU == GPU)** | **0.90 GB (+ 3.03 GB VRAM)** | **7.4e9** | **same soundness class (RS(n+Q, 4n) on a coset: 2^-105.6 at Q = 256); ZK for the activations: pads + mask rows on A/H, masked sumchecks (CFS) with the last-round extension, committed multiplicities, salted leaves; weights public** | **[MEASURED, NOISY-SHARED]** |
 | B hash-based `--zk`, CPU only (lane ZA) | WSL laptop, 8T CPU only | 16.55 s p50 (16.5-16.7 s; non-zk 14.78 s on the same tree) | 0.45 s | 87.2 MB | 1.68 GB | 1.75e9 | same | [MEASURED, NOISY-SHARED] |
+| **B hash-based `--zk --profile v3` — ZERO KNOWLEDGE ON THE WIDENED (8B-semantics) STATEMENT, GPU (mode P1; lane AD, 2026-09-03)** | **WSL laptop, 8T + RTX 4070 Laptop** | **5.63 s p50 of 3 (4.63-6.15 s; the non-zk v3 prover on the same tree in the same session 2.75 s, the ZK-v2 prover 3.98 s)** | **0.54 s** | **87.7 MB (+23.9% over non-zk v3; only +0.54% over ZK-v2; sha256 40eb5479.. at seed 1, CPU == GPU)** | **0.53 GB (+ 4.44 GB VRAM)** | **5.15e9** | **ZA's mode-P1 ZK form applied to ZB's v3 objects: multi-row committed multiplicity tables (the 2^16 INT16 class, the four balanced-remainder windows), the table zero-check over max(log n, 16) variables with the public prod(1-rho_j) coefficient; same soundness class (RS(n+Q, 4n) on a coset, 2^-105.6 at Q = 256); weights public** | **[MEASURED, NOISY-SHARED: three other lanes on the box, load average 5-21]** |
+| B hash-based `--zk --profile v3`, CPU only (lane AD) | WSL laptop, 8T CPU only | 18.41 s p50 of 3 (17.87-18.64 s; non-zk v3 15.76 s and ZK-v2 17.42 s on the same tree, same session) | 0.43 s | 87.7 MB | 1.27 GB | 1.58e9 | same | [MEASURED, NOISY-SHARED] |
 
 | **B hash-based, THE 8B ROW: Mistral-7B 32 x 512 x 4096 x 14336, `--profile v3` (2026-09-03)** | **WSL laptop, 8T CPU only** | **510.4 s (incl. the 225 s weight commitments)** | **1.21 s** | **1,234.9 MB** | **13.99 GB** | **5.66e9** | hash-only + ROM ~100-bit; ZK NO (the `--zk` form exists for v2 only today) | **[MEASURED, NOISY-SHARED] — the first full 8B FFN proof in this repository; the lattice line's 8B row is still [MODEL] (never run)** |
+| **B hash-based, ONE 8B-WIDTH LAYER IN ZERO KNOWLEDGE: Mistral-7B layer 0, 512 x 4096 x 14336, `--zk --profile v3` (lane AD, 2026-09-03)** | **WSL laptop, 8T CPU only** | **15.73 s p50 of 3 (15.14-18.67 s; the same layer non-zk 15.02 s p50 = a +4.7% ZK surcharge)** | **0.056 s** | **40.19 MB (non-zk 38.69 MB: +3.9%)** | **13.29 GB (non-zk 13.17 GB: +0.9%)** | **1.53e9** | mode P1 (inputs and activations private, weights public), the v3 statement; hash-only + ROM ~100-bit | **[MEASURED, NOISY-SHARED] — the ZK form now runs the 8B statement; the 32 x 512 pass in mode P1 models to ~534 s / ~1,283 MB [MODEL, this ratio x 32]** |
 | **B hash-based, THE 8B ROW ON THE GPU: the same Mistral-7B 32 x 512 statement, `--features gpu-cuda` + `HL_GPU=1`, chunked weight commitments + the per-model weight cache (lane AC, 2026-09-03)** | **WSL laptop, 8T + RTX 4070 Laptop (55-70 W)** | **175.1 s cold cache / 193.3 s warm (the warm run shared the box; per-layer 5.472 s mean, +/-3.5% over the 32 layers)** | **1.09 s** | **1,234.9 MB (BYTE-IDENTICAL to the CPU proof AND to the cached form: sha256 dc980e81..)** | **5.33 GB (+ 4,175 MB VRAM of the part's 8,188)** | **1.65e10** | same as the CPU row (same protocol, same parameters, ZK NO) | **[MEASURED, NOISY-SHARED] — 2.92x the CPU row; the first 8B proof on a GPU on either line. The 8 GB part no longer bounds the model width: every commitment is chunked, nothing is resident** |
 
 **The compact-PCS rows (lane AF, 2026-09-03): the proof-size lever.**
@@ -345,6 +348,62 @@ has 73 tables. A block-looping kernel takes the pass to ~105-125 s
 (4.1-4.9x) [MODEL] without changing a byte. Full record:
 results/hashline_8b_gpu.md; ledger: PROGRESS_UPERF3.md "Agent AC
 status".
+
+**Lane AD JOINED THE TWO (2026-09-03): zero knowledge on the 8B
+semantics.** Until this rung the two round-11 results were about
+DIFFERENT statements — the 8B proof ran lane ZB's widened `v3`
+statement, and lane ZA's zero-knowledge form existed for the older
+`v2` statement only. `--zk --profile v3` is one statement: ZA's five
+mode-P1 constructions (Ligero-ZK commitments with per-row pads on a
+coset and salted leaves, one mask row per private table per opening
+point, CFS-masked sumchecks with the last-round extension, a per-layer
+mask commitment opened by the product-form linear test, committed
+multiplicities) applied to every v3 object (the block-structured
+planes, the int16-out activation member, the 2^16-row INT16 class, the
+four balanced-remainder windows, the round-nearest requant identities,
+negative shifts). One construction had to be added: a multiplicity
+table can now be LARGER than a commitment row — the INT16 class is
+2^16 rows against n = 2^14, and a remainder window reaches 2^15 — so a
+slot occupies 2^log_size / n consecutive rows and the table zero-check
+runs over max(log n, 16) variables with every slot zero-extended and
+its opened claim carrying the public coefficient prod_{j<k}(1 - rho_j).
+Measured at 12 x 512: **18.41 s CPU / 5.63 s GPU, 87.7 MB, sha256
+40eb5479.. byte-identical CPU vs GPU at seed 1**, ACCEPT, and ZB's
+**eight** v3 tamper legs all REJECT under `--zk` on both provers at
+T = 512 — at layer 0 and at layer 3, the negative-shift branch — plus
+the pass-level leg in the 12-layer chained transcript. Against the
+same tree in the same session, hiding the activations costs **+16.8%
+CPU prover, +23.9% bytes** on the v3 statement (v2's were +14.9% /
++30.5%), and the widened semantics cost the ZK form almost nothing
+over ZK-v2: **+5.7% CPU and +0.54% bytes**. The GPU is the one
+outlier (+105% over non-zk v3) and one phase explains it: the table
+zero-check still runs ON THE HOST, and at 2^16 variables it is 1.14 s,
+20% of the GPU prover and +0.90 s of the +1.65 s that zk-v3 costs over
+zk-v2 — porting it to lane XX's device kernels is a known,
+byte-preserving fix that was listed by ZA and is still not applied.
+**And the row that matters for the product: ONE Mistral-7B layer at
+T = 512 under `--zk --profile v3` ACCEPTS on this laptop in 15.73 s
+against 15.02 s for the same layer in the clear — a +4.7% prover,
++3.9% byte and +0.9% memory surcharge at 8B width**, back INSIDE
+U_PERF3_ROUTE_B_THROUGHPUT.md's [COUNTED] +2-8% band that the 125M
+measurement had blown through. The reason is structural: mode P1
+leaves the WEIGHTS public, and as a model widens the prover and the
+proof are dominated by the weight commitment and its column openings,
+which the ZK form does not touch — so **the P1 surcharge shrinks as
+the model grows**. The 32 x 512 8B pass in mode P1 therefore models to
+~534 s / ~1,283 MB [MODEL, the one-layer ratio x 32] against the
+measured 510.4 s / 1,234.9 MB in the clear. `HL_GPU=1` at the 8B shape
+still declines the 5.4 GB weight commitment (cuMemAlloc OOM on the 8 GB
+part) and falls back to the host for W while the activation side runs
+on the device: composing lane AC's chunked weight encoding with this
+ZK path is the untaken measurement. What is STILL REVEALED, plainly:
+the weights and the whole W opening (the mode), the shapes and block
+structure, the four signed shifts — which publish the remainder
+windows' sizes — the table digests, and the uniform masked values;
+attention, the norms, the embeddings, the head and the layer seams are
+outside the statement entirely (lane AE). ZA's simulator caveat is
+inherited unchanged. Full record: results/hashline_zk_v3_12x512.md;
+ledger: PROGRESS_UPERF3.md "Agent AD status".
 
 | Context | Better fit | Why |
 |---|---|---|

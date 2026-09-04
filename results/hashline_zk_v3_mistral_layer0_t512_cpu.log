@@ -1,0 +1,66 @@
+layer 0 (v3) at T = 512 of 512 [ZK, mode P1, seed 1] (d 4096 f 14336; log_cols 14, inv_rate 4, col checks 256, threads 8); gpu: off (built without --features gpu-cuda)
+  statement: shifts g/u/h/z 11/2/15/6, silu-int16out-table-v3 (-3,-12) 859344ba5ed57bd3..
+      commit W                      9.144 s
+      commit A (zk)                 2.882 s
+      mask commit                   0.007 s
+      helpers + commit H (zk)       3.372 s
+      matmul g/u (zk)               0.221 s
+      matmul d (zk)                 0.160 s
+      zero-check F (zk)             1.660 s
+      zero-check D (zk)             0.212 s
+      table zero-check (zk)         0.103 s
+      zsum + mask open              0.005 s
+      pcs openings (zk)             0.902 s
+      mask sites (v3):
+        layout: n = 2^14 columns; table zero-check over 2^16 (the INT16 class spans 4 rows); A 3601 rows = 3520 data + 61 masks + 20 table/mask rows; H 3033 rows = 2944 data + 49 masks + 40 helper/mask rows
+        A masks: 49 f-planes (g8,rg,a16,u16,ru,h16,rh x 7 f-blocks) at rho_F -> rows [3520, 3521, 3522, 3523, 3524, 3525, 3526, 3527, 3528, 3529, 3530, 3531, 3532, 3533, 3534, 3535, 3536, 3537, 3538, 3539, 3540, 3541, 3542, 3543, 3544, 3545, 3546, 3547, 3548, 3549, 3550, 3551, 3552, 3553, 3554, 3555, 3556, 3557, 3558, 3559, 3560, 3561, 3562, 3563, 3564, 3565, 3566, 3567, 3568]; 3 d-planes (X,z16,rd x 1 d-blocks) at rho_D -> rows [3569, 3570, 3571]; X-blocks at p2 -> [3572]; h16-blocks at p5 -> [3573, 3574, 3575, 3576, 3577, 3578, 3579]; prox row 3580
+        table slot tag 3 (256 entries, 2^14 slice, 1 row(s)): m at A rows 3581.., mask at A rows 3582..; helper h_t at H rows re 2993.. im 2994.., its mask re 2995.. im 2996..
+        table slot tag 4 (65536 entries, 2^16 slice, 4 row(s)): m at A rows 3583.., mask at A rows 3587..; helper h_t at H rows re 2997.. im 3001.., its mask re 3005.. im 3009..
+        table slot tag 83 (2048 entries, 2^14 slice, 1 row(s)): m at A rows 3591.., mask at A rows 3592..; helper h_t at H rows re 3013.. im 3014.., its mask re 3015.. im 3016..
+        table slot tag 74 (4 entries, 2^14 slice, 1 row(s)): m at A rows 3593.., mask at A rows 3594..; helper h_t at H rows re 3017.. im 3018.., its mask re 3019.. im 3020..
+        table slot tag 87 (32768 entries, 2^15 slice, 2 row(s)): m at A rows 3595.., mask at A rows 3597..; helper h_t at H rows re 3021.. im 3023.., its mask re 3025.. im 3027..
+        table slot tag 78 (64 entries, 2^14 slice, 1 row(s)): m at A rows 3599.., mask at A rows 3600..; helper h_t at H rows re 3029.. im 3030.., its mask re 3031.. im 3032..
+        H masks: 21 helper planes (hg,hu,hh x 7 f-blocks) at rho_F -> rows [(2944, 2945), (2946, 2947), (2948, 2949), (2950, 2951), (2952, 2953), (2954, 2955), (2956, 2957), (2958, 2959), (2960, 2961), (2962, 2963), (2964, 2965), (2966, 2967), (2968, 2969), (2970, 2971), (2972, 2973), (2974, 2975), (2976, 2977), (2978, 2979), (2980, 2981), (2982, 2983), (2984, 2985)]; 1 hz planes at rho_D -> rows [(2986, 2987)]; zero-sum u rows (2988, 2989) (its extension mask u' (2990, 2991)) for the value-0 LogUp sum group; prox row 2992
+        A: 66 claims in 5 groups
+        A group vector 0: mask rows [3520, 3521, 3522, 3523, 3524, 3525, 3526, 3527, 3528, 3529, 3530, 3531, 3532, 3533, 3534, 3535, 3536, 3537, 3538, 3539, 3540, 3541, 3542, 3543, 3544, 3545, 3546, 3547, 3548, 3549, 3550, 3551, 3552, 3553, 3554, 3555, 3556, 3557, 3558, 3559, 3560, 3561, 3562, 3563, 3564, 3565, 3566, 3567, 3568]
+        A group vector 1: mask rows [3569, 3570, 3571]
+        A group vector 2: mask rows [3572]
+        A group vector 3: mask rows [3573, 3574, 3575, 3576, 3577, 3578, 3579]
+        A group vector 4: mask rows [3582, 3587, 3588, 3589, 3590, 3592, 3594, 3597, 3598, 3600]
+        A proximity vector: prox mask row 3580 (+ every mask row with its random rho)
+        A 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+        A 65536 Merkle leaves salted
+        H: 30 claims in 5 groups
+        H group vector 0: mask rows [2944, 2945, 2946, 2947, 2948, 2949, 2950, 2951, 2952, 2953, 2954, 2955, 2956, 2957, 2958, 2959, 2960, 2961, 2962, 2963, 2964, 2965, 2966, 2967, 2968, 2969, 2970, 2971, 2972, 2973, 2974, 2975, 2976, 2977, 2978, 2979, 2980, 2981, 2982, 2983, 2984, 2985]
+        H group vector 1: mask rows [2986, 2987]
+        H group vector 2: mask rows [2988, 2989, 2990, 2991]
+        H group vector 3: mask rows [2995, 2996, 3005, 3006, 3007, 3008, 3009, 3010, 3011, 3012, 3015, 3016, 3019, 3020, 3025, 3026, 3027, 3028, 3031, 3032]
+        H group vector 4: mask rows [2988, 2989]
+        H proximity vector: prox mask row 2992 (+ every mask row with its random rho)
+        H 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+        H 65536 Merkle leaves salted
+  tamper None: ACCEPT prove 18.668 s verify 0.064 s proof 40186228 B
+layer 0 (v3) [ZK]: GREEN
+	Command being timed: "/home/victor/wt-uperf3-ad/hashline/target/release/hashline layer 0 512 --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --threads 8"
+	User time (seconds): 110.35
+	System time (seconds): 9.51
+	Percent of CPU this job got: 529%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:22.65
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 13285196
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 3752642
+	Voluntary context switches: 86047
+	Involuntary context switches: 211
+	Swaps: 0
+	File system inputs: 1280
+	File system outputs: 24
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

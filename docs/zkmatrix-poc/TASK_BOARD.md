@@ -19,6 +19,33 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-09-03 late (LANE AD COMPLETE AND MERGED — ZERO KNOWLEDGE
+AND THE 8B SEMANTICS ARE NOW THE SAME PROOF; the P1 surcharge SHRINKS
+with model width):**
+- `--zk --profile v3` is a real path (it was a refusal). NEW GATE:
+  `pass 12 512 --zk --seed 1 --profile v3` -> sha256 **40eb5479..**
+  (87,697,008 B), CPU (3 runs) == GPU (3 runs); re-verified on the
+  merged tree. The other three gates unchanged. ZB's **eight** v3
+  tamper legs under `--zk` at T=512, at layer 0 AND at layer 3 (the
+  negative-shift branch), CPU and GPU: **8/8 reject each time**, with
+  identical rejection strings on both provers; the pass-level requant
+  tamper rejects at layer 6.
+- **THE HEADLINE, and it is good news for the product ruling**: the
+  mode-P1 zero-knowledge surcharge **SHRINKS as the model widens**.
+  At 125M it is +16.8% prover / +23.9% bytes; **at 8B width — one
+  real Mistral-7B layer at T=512, CPU — it is +4.7% prover (15.73 vs
+  15.02 s), +3.9% bytes (40.2 vs 38.7 MB), +0.9% memory** [MEASURED].
+  The reason is structural: P1 leaves the WEIGHTS public, and at a
+  wide model the weight commitment and its column openings dominate,
+  so the masked activation side is a shrinking share. The 32x512 8B
+  pass models to ~534 s / ~1,283 MB in mode P1 [MODEL]. **Privacy for
+  the inputs is close to free at 8B.**
+- One named, unapplied lever: the table zero-check still runs on the
+  HOST and is 1.14 s of the 5.63 s GPU ZK prove (20%) — porting it to
+  the existing kernels is byte-preserving. Also unapplied: composing
+  lane AC's chunked weight commitment so a GPU 8B ZK row exists (the
+  8 GB part still declines the 5.4 GB commit in AD's base).
+
 **AS OF 2026-09-03 late (LANE AF COMPLETE AND MERGED — THE PROOF-SIZE
 LEVER, with a soundness ruling for Victor):**
 - **`--pcs compact`** (`results/hashline_compact_12x512.md`): a
