@@ -1472,6 +1472,22 @@ fn seam_points(rho_d: &[hashline::field::Fp2], log_t: u32, log_dp: u32, log_db: 
 /// equality at a point drawn after both A commitments; layer l's A opening
 /// is deferred until then).
 fn attn_pass(prefix: &str, n: usize, o: &Opts) {
+    let ok = attn_pass_run(prefix, n, o, false);
+    let mut fails = usize::from(!ok);
+    if o.all_tampers {
+        // the LAYER seam alone: layer 1's input is changed by one, and its
+        // whole witness rebuilt on it, so every other relation still holds
+        hashline::attention::set_tamper_mode(true);
+        println!("  tamper [BROKEN LAYER SEAM: layer 1's x_in != layer 0's xres2]:");
+        let ok2 = attn_pass_run(prefix, 2.min(n), o, true);
+        hashline::attention::set_tamper_mode(false);
+        if ok2 { println!("    ACCEPTED (BUG)"); fails += 1; } else { println!("    REJECT"); }
+    }
+    println!("attn-pass: {}", if fails == 0 { "GREEN" } else { "RED" });
+    if fails > 0 { std::process::exit(1); }
+}
+
+fn attn_pass_run(prefix: &str, n: usize, o: &Opts, break_seam: bool) -> bool {
     use hashline::attention as at;
     use hashline::field::Fp2;
     use hashline::layer::{v3_zcd_point, LayoutV3};
@@ -1520,14 +1536,14 @@ fn attn_pass(prefix: &str, n: usize, o: &Opts) {
         let wx: Vec<Fp2> = (0..lay3.nb_d).map(|c| out3.proof.zcd_term[c]).collect();
         let wz: Vec<Fp2> = (0..lay3.nb_d).map(|c| out3.proof.zcd_term[lay3.nb_d + c]).collect();
         let a_data = pend.a_data.clone();
-        at::attn_seam(&mut pend.cc, &mut tr, &lay, Some(&a_data), &pts, &wx, &wz).unwrap();
+        let _ = at::attn_seam(&mut pend.cc, &mut tr, &lay, Some(&a_data), &pts, &wx, &wz);
         at::attn_open_wh(&mut pend, &mut proof_a, &mut tr);
         // ---- the layer seam with the PREVIOUS layer, then close its A ----
         if let Some(mut pv) = prev.take() {
             let r_seam = tr.challenge_fp2_vec(lay.log_d as usize);
             let ap = pv.a_data.clone();
             let lp = pv.lay.clone();
-            at::layer_seam(&mut pv.cc, &mut pend.cc, &mut tr, &lp, &lay, Some(&ap), Some(&a_data), &r_seam).unwrap();
+            let _ = at::layer_seam(&mut pv.cc, &mut pend.cc, &mut tr, &lp, &lay, Some(&ap), Some(&a_data), &r_seam);
             let li = pa.len() - 1;
             at::attn_open_a(pv, &mut pa[li], &mut tr);
         }
@@ -1535,7 +1551,9 @@ fn attn_pass(prefix: &str, n: usize, o: &Opts) {
         println!("  layer {l:2}: prove {:.3} s | attn {} B + ffn {} B{}", t1.elapsed().as_secs_f64(),
                  proof_a.size_bytes(), out3.proof.size_bytes(),
                  if bumps.iter().any(|&b| b != 0) { format!(" | FFN shifts bumped {bumps:?}") } else { String::new() });
-        seam_in = Some(at::SeamIn { x: r2.xres2.clone(), e_r: r2.c.e_r2, cls: r2.c.r2_cls });
+        let mut xs = r2.xres2.clone();
+        if break_seam && l == 0 { xs[3] += 1; }
+        seam_in = Some(at::SeamIn { x: xs, e_r: r2.c.e_r2, cls: r2.c.r2_cls });
         consts.push((wit.c.clone(), r2.c.clone(), st3));
         pa.push(proof_a);
         pf.push(out3.proof);
@@ -1593,10 +1611,13 @@ fn attn_pass(prefix: &str, n: usize, o: &Opts) {
     })();
     let tv_s = t2.elapsed().as_secs_f64();
     let (t, d, f) = (consts[0].0.shape.t, consts[0].0.shape.d, side.dims.f);
-    let macs = n as f64 * t as f64 * (3.0 * d as f64 * f as f64 + 4.0 * d as f64 * d as f64
-               + 2.0 * t as f64 * d as f64);
+    // per token per layer: the FFN's three matmuls, Q and O (d x d), K and V
+    // (d x d_kv, GQA), and the two attention matmuls over the full T x T
+    let d_kv = (consts[0].0.shape.kv_heads * consts[0].0.shape.head_dim) as f64;
+    let macs = n as f64 * t as f64 * (3.0 * d as f64 * f as f64 + 2.0 * d as f64 * d as f64
+               + 2.0 * d as f64 * d_kv + 2.0 * t as f64 * d as f64);
     println!("PASS-FULL {}: {n} x {t} (d {d} f {f}): witness {t_wit:.2} s | PROVE {t_prove:.2} s | VERIFY {tv_s:.2} s | proof {bytes} B ({:.1} MB) | {:.3e} MACs | {:.3e} proven MAC/s | wall {:.2} s",
              match &r { Ok(()) => "ACCEPT".to_string(), Err(e) => format!("REJECT: {e}") },
              bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
-    if r.is_err() { std::process::exit(1); }
+    r.is_ok()
 }

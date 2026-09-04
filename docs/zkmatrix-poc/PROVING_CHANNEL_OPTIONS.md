@@ -173,6 +173,31 @@ architecture (U_PERF3_HEADLINE_ROUTES.md).
 | **B hash-based, ONE 8B-WIDTH LAYER IN ZERO KNOWLEDGE: Mistral-7B layer 0, 512 x 4096 x 14336, `--zk --profile v3` (lane AD, 2026-09-03)** | **WSL laptop, 8T CPU only** | **15.73 s p50 of 3 (15.14-18.67 s; the same layer non-zk 15.02 s p50 = a +4.7% ZK surcharge)** | **0.056 s** | **40.19 MB (non-zk 38.69 MB: +3.9%)** | **13.29 GB (non-zk 13.17 GB: +0.9%)** | **1.53e9** | mode P1 (inputs and activations private, weights public), the v3 statement; hash-only + ROM ~100-bit | **[MEASURED, NOISY-SHARED] — the ZK form now runs the 8B statement; the 32 x 512 pass in mode P1 models to ~534 s / ~1,283 MB [MODEL, this ratio x 32]** |
 | **B hash-based, THE 8B ROW ON THE GPU: the same Mistral-7B 32 x 512 statement, `--features gpu-cuda` + `HL_GPU=1`, chunked weight commitments + the per-model weight cache (lane AC, 2026-09-03)** | **WSL laptop, 8T + RTX 4070 Laptop (55-70 W)** | **175.1 s cold cache / 193.3 s warm (the warm run shared the box; per-layer 5.472 s mean, +/-3.5% over the 32 layers)** | **1.09 s** | **1,234.9 MB (BYTE-IDENTICAL to the CPU proof AND to the cached form: sha256 dc980e81..)** | **5.33 GB (+ 4,175 MB VRAM of the part's 8,188)** | **1.65e10** | same as the CPU row (same protocol, same parameters, ZK NO) | **[MEASURED, NOISY-SHARED] — 2.92x the CPU row; the first 8B proof on a GPU on either line. The 8 GB part no longer bounds the model width: every commitment is chunked, nothing is resident** |
 
+**THE FULL-LAYER ROWS (lane AG, 2026-09-03): the statement stops being
+FFN-only.** Every row above proves the feed-forward half of each layer,
+with each layer's input committed afresh. These rows prove WHOLE layers —
+attention, both RMSNorms, the residual stream and the FFN — and, in the
+pass row, a whole model with the layer seams proven (layer l's output IS
+layer l+1's input). Same box, same protocol, same parameters, CPU only,
+NOT zero-knowledge. Full record: results/hashline_attn_fulllayer.md.
+
+| channel | device | prove (incl. commit) | verify | proof | peak RSS | proven MAC/s | assumptions / ZK | label |
+|---|---|---:|---:|---:|---:|---:|---|---|
+| **B hash-based, ONE FULL 125M LAYER (attention + norms + residual + FFN + the seam), T = 512** | WSL laptop, 8T CPU only | **10.12 s** (the FFN-only layer on the same tree 1.65 s: **6.1x**) | 0.23 s | 33.2 MB (FFN-only 5.90) | 5.10 GB (FFN-only 1.12) | 8.6e8 | hash-only + ROM ~100-bit; ZK NO | [MEASURED, NOISY-SHARED] — 12 tamper legs reject, including the seam-only ones |
+| **B hash-based, THE 12-LAYER 125M FULL-MODEL PASS, seams bound, 12 x 512** | **WSL laptop, 8T CPU only** | **94.54 s** (the FFN-only pass on the same tree 16.01 s: **5.9x**) | **2.03 s** | **404.3 MB** (FFN-only 70.8) | **6.56 GB** | **4.60e8** | same | **[MEASURED, NOISY-SHARED] — the first proof in this repository that covers whole layers of a whole model; PROOF sha256 c91f8713..** |
+| **B hash-based, ONE FULL MISTRAL-7B LAYER (int24 residual class), T = 16** | WSL laptop, 8T CPU only | **12.91 s** (the FFN-only layer on the same tree 11.03 s: **1.17x**) | 0.11 s | 48.5 MB (FFN-only 25.9) | 10.08 GB (FFN-only 7.48) | 2.7e8 | same | [MEASURED, NOISY-SHARED] — 10/10 tamper legs reject |
+| B hash-based, ONE FULL MISTRAL-7B LAYER, T = 64 | WSL laptop, 8T CPU only | 14.27 s (FFN-only 8.86 s: 1.61x) | 0.13 s | 52.8 MB | 11.24 GB | 9.8e8 | same | [MEASURED, NOISY-SHARED] |
+
+The full-layer surcharge SHRINKS with model width (6.1x at 125M, 1.17x at
+8B width and T = 16) and GROWS with context (1.61x at 8B width and
+T = 64), because attention's six committed T x T planes per head are
+quadratic in T while the weight commitments that dominate a wide model
+are constant in it. The 32-layer 8B full-model pass is NOT measured (its
+FFN-only row alone peaks at 14.0 GB on this 15 GB box). What is still
+outside the statement, on every row: the embedding gather, the final norm
+and the LM head, and the KV cache / decode regime (the statement is
+prefill-only).
+
 **The compact-PCS rows (lane AF, 2026-09-03): the proof-size lever.**
 The same statements, the same witnesses, the same box; only the
 polynomial commitment changes, behind `--pcs compact`. The default
