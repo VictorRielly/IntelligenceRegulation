@@ -1935,7 +1935,13 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
         }
     }
     let w_pcs = pcs_params(params, lay.log_wb);
-    let w_cm = pcs::commit(&w_pcs, &w_data, ntt);
+    // [UPERF3-AI] the per-model weight cache (lane AC's `--wcache DIR`) also serves the ZK
+    // prover: under mode P1 the weights are PUBLIC, so W's commitment is per-model work here
+    // exactly as it is in layer.rs's v3 FFN prover. Same `w_data`, same `PcsParams`, same
+    // `WKey::new("v3", l, d, f, ..)` key -> the same Ligero matrix, the same leaves, the same
+    // root; the ZK and non-zk passes share entries. `wcache::commit_w` falls back to
+    // `pcs::commit` (the previous line, byte for byte) when no `--wcache` dir is configured.
+    let w_cm = crate::wcache::commit_w(&w_pcs, &w_data, ntt, &crate::wcache::WKey::new("v3", w.l, d, f, &w.wg_t, &w.wu_t, &w.wd_t));
     proof.w_com = Some(w_cm.commitment());
     absorb_com(tr, b"W", proof.w_com.as_ref().unwrap());
     lap("commit W", &mut timings, &mut tick);
@@ -2000,10 +2006,30 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let g_rd = gamma.mul_base(Fp::new(tag_rem_v3(sh_z)));
     let h_pcs = pcs_params(params, lay.log_a_min);
     let h_zk = ZkOpts::standard(&h_pcs);
-    // the XX zero-check kernels are fixed at 13 / 15 tables: the 125M block shape
-    let dev_shape = nb_f == 1 && nb_d == 3;
+    // [UPERF3-AI] was `nb_f == 1 && nb_d == 3` — the XX zero-check kernels this prover called
+    // were fixed at 13 / 15 tables (the 125M block shape), which declined Mistral's (7, 1) =
+    // 73 / 7 and left the LogUp helpers AND both zero-checks on the host even after lane AH
+    // made the kernels shape-general for the non-zk prover. The block-looping kernels take any
+    // block count; the bound is their shared parameter array (gpu::SCG_MAX_PRM = 384).
+    let dev_shape = nb_f >= 1 && nb_d >= 1 && 17 + 14 * nb_f <= 384 && 7 + 6 * nb_d <= 384;
+    // [UPERF3-AI] (AH's safety rung, moved to where THIS prover needs it) the two zero-check
+    // table buffers are reserved through the pool BEFORE the decision, because in the ZK
+    // prover the host tables are built in the `!use_dev_h` branch BELOW: once the helpers go
+    // to the device there are no host tables and a later decline is a panic by design. The
+    // pool matches by exact length, so the reservation IS the later allocation. At Mistral
+    // width the zcF buffer alone is (3 + 10 x 7) x 2^20 x 2 u64 = 1.22 GB on top of the
+    // resident A / H commitments, on an 8,188 MB part — a live decline, not a formality.
     #[cfg(feature = "gpu-cuda")]
-    let use_dev_h = crate::gpu::enabled() && dev_shape && dev_of(&a_cmz.cm).is_some();
+    let use_dev_h = crate::gpu::enabled()
+        && dev_shape
+        && dev_of(&a_cmz.cm).is_some()
+        && match crate::gpu::dev_reserve(&[(3 + 10 * nb_f) * tfb * 2, (3 + 4 * nb_d) * tdb * 2]) {
+            Ok(()) => true,
+            Err(e) => {
+                eprintln!("[UPERF3-AI] gpu zero-check tables unaffordable ({e}); the whole layer takes the CPU path");
+                false
+            }
+        };
     #[cfg(not(feature = "gpu-cuda"))]
     let use_dev_h = false;
     #[cfg(not(feature = "gpu-cuda"))]
@@ -2080,11 +2106,13 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let h_cmz_dev: Option<pcs::CommittedZk> = if use_dev_h {
         use crate::gpu::HelperSpec;
         let a_dc = dev_of(&a_cmz.cm).unwrap();
-        let mut hspecs = vec![
-            HelperSpec { off_v1: lay.g8[0], off_w: Some(lay.a16[0]), off_v2: lay.rg[0], len: tfb, c1: g_act, c2: g_rg, off_re: lay.hg[0].0, off_im: lay.hg[0].1 },
-            HelperSpec { off_v1: lay.u16[0], off_w: None, off_v2: lay.ru[0], len: tfb, c1: g_i16, c2: g_ru, off_re: lay.hu[0].0, off_im: lay.hu[0].1 },
-            HelperSpec { off_v1: lay.h16[0], off_w: None, off_v2: lay.rh[0], len: tfb, c1: g_i16, c2: g_rh, off_re: lay.hh[0].0, off_im: lay.hh[0].1 },
-        ];
+        // [UPERF3-AI] every f-block, not only block 0 (`k_helper` is length-general).
+        let mut hspecs = Vec::with_capacity(3 * nb_f + nb_d);
+        for b in 0..nb_f {
+            hspecs.push(HelperSpec { off_v1: lay.g8[b], off_w: Some(lay.a16[b]), off_v2: lay.rg[b], len: tfb, c1: g_act, c2: g_rg, off_re: lay.hg[b].0, off_im: lay.hg[b].1 });
+            hspecs.push(HelperSpec { off_v1: lay.u16[b], off_w: None, off_v2: lay.ru[b], len: tfb, c1: g_i16, c2: g_ru, off_re: lay.hu[b].0, off_im: lay.hu[b].1 });
+            hspecs.push(HelperSpec { off_v1: lay.h16[b], off_w: None, off_v2: lay.rh[b], len: tfb, c1: g_i16, c2: g_rh, off_re: lay.hh[b].0, off_im: lay.hh[b].1 });
+        }
         for c in 0..nb_d {
             hspecs.push(HelperSpec { off_v1: lay.z[c], off_w: None, off_v2: lay.rd[c], len: tdb, c1: g_i16, c2: g_rd, off_re: lay.hz[c].0, off_im: lay.hz[c].1 });
         }
@@ -2249,22 +2277,46 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     #[cfg(feature = "gpu-cuda")]
     let dev_f = if let (true, true, Some(a_dc), Some(h_dc)) = (crate::gpu::enabled(), dev_shape, dev_of(&a_cmz.cm), dev_of(&h_cmz.cm)) {
         use crate::gpu::TabSpec;
-        let specs_t = vec![
-            TabSpec::Eq(&tau), TabSpec::Eq(&p1), TabSpec::Eq(&p5),
-            TabSpec::FromFp(a_dc, lay.g8[0], tfb), TabSpec::FromFp(a_dc, lay.rg[0], tfb), TabSpec::FromFp(a_dc, lay.a16[0], tfb),
-            TabSpec::FromFp(a_dc, lay.u16[0], tfb), TabSpec::FromFp(a_dc, lay.ru[0], tfb), TabSpec::FromFp(a_dc, lay.h16[0], tfb), TabSpec::FromFp(a_dc, lay.rh[0], tfb),
-            TabSpec::FromFp2(h_dc, lay.hg[0].0, lay.hg[0].1, tfb), TabSpec::FromFp2(h_dc, lay.hu[0].0, lay.hu[0].1, tfb), TabSpec::FromFp2(h_dc, lay.hh[0].0, lay.hh[0].1, tfb),
-        ];
-        let mut prm: Vec<u64> = Vec::new();
-        for v in [alpha, beta, g_act, g_rg, g_ru, g_rh, g_i16, mu[0], mu[1], mu[2], mu[3], nu[0], nu[1], nu[2]] {
+        // [UPERF3-AI] every f-block, in the CPU's table order (3 eq, then block-major
+        // g8 rg a16 u16 ru h16 rh hg hu hh) — the order `host_tabs.fb[b]` is built in.
+        let mut specs_t = Vec::with_capacity(3 + 10 * nb_f);
+        specs_t.extend([TabSpec::Eq(&tau), TabSpec::Eq(&p1), TabSpec::Eq(&p5)]);
+        for b in 0..nb_f {
+            specs_t.extend([
+                TabSpec::FromFp(a_dc, lay.g8[b], tfb), TabSpec::FromFp(a_dc, lay.rg[b], tfb), TabSpec::FromFp(a_dc, lay.a16[b], tfb),
+                TabSpec::FromFp(a_dc, lay.u16[b], tfb), TabSpec::FromFp(a_dc, lay.ru[b], tfb), TabSpec::FromFp(a_dc, lay.h16[b], tfb), TabSpec::FromFp(a_dc, lay.rh[b], tfb),
+                TabSpec::FromFp2(h_dc, lay.hg[b].0, lay.hg[b].1, tfb), TabSpec::FromFp2(h_dc, lay.hu[b].0, lay.hu[b].1, tfb), TabSpec::FromFp2(h_dc, lay.hh[b].0, lay.hh[b].1, tfb),
+            ]);
+        }
+        // [UPERF3-AI] the BLOCK-INDEXED parameter layout of `k_sc_round_zcf_gen` (kernels.cu):
+        // the seven Fp2 constants, then p_g / p_u / p_h at index 14 (the templated kernel put
+        // them LAST), then mu (4 per block) and nu (3 per block), both block-major.
+        let mut prm: Vec<u64> = Vec::with_capacity(17 + 14 * nb_f);
+        for v in [alpha, beta, g_act, g_rg, g_ru, g_rh, g_i16] {
             prm.push(v.c0.0);
             prm.push(v.c1.0);
         }
         prm.extend([p_g.0, p_u.0, p_h.0]);
-        tr.set_masker(Box::new(CfsMasker { mask: mc.masks[SC_ZC20].clone(), c: c_f, challenges: Vec::new() }));
-        let out = crate::gpu::dev_zerocheck(0, &specs_t, &prm, tr).expect("gpu zero-check F (zk v3)");
-        let (_, masked) = tr.take_masker();
-        Some((masked, out.challenges, out.finals))
+        for v in mu.iter().chain(nu.iter()) {
+            prm.push(v.c0.0);
+            prm.push(v.c1.0);
+        }
+        // the attempt rides a CLONED transcript state (AH's `dev_tab` pattern): a decline
+        // falls through to the host body with nothing absorbed.
+        let mut tr_try = Transcript::clone_state(tr);
+        tr_try.set_masker(Box::new(CfsMasker { mask: mc.masks[SC_ZC20].clone(), c: c_f, challenges: Vec::new() }));
+        match crate::gpu::dev_zerocheck_blocks(0, nb_f, &specs_t, &prm, &mut tr_try) {
+            Ok(out) => {
+                let (_, masked) = tr_try.take_masker();
+                *tr = tr_try;
+                Some((masked, out.challenges, out.finals))
+            }
+            Err(e) => {
+                let _ = tr_try.take_masker();
+                eprintln!("[UPERF3-AI] gpu zero-check F (zk v3) declined ({e}); CPU path");
+                None
+            }
+        }
     } else { None };
     #[cfg(not(feature = "gpu-cuda"))]
     let dev_f: Option<(Vec<Vec<Fp2>>, Vec<Fp2>, Vec<Fp2>)> = None;
@@ -2319,16 +2371,34 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
         for c in 0..nb_d { specs_t.push(TabSpec::FromFp(a_dc, lay.z[c], tdb)); }
         for c in 0..nb_d { specs_t.push(TabSpec::FromFp(a_dc, lay.rd[c], tdb)); }
         for c in 0..nb_d { specs_t.push(TabSpec::FromFp2(h_dc, lay.hz[c].0, lay.hz[c].1, tdb)); }
-        let mut prm: Vec<u64> = Vec::new();
-        for v in [alpha, g_i16, g_rd, mu2[0], mu2[1], mu2[2], Fp2::ZERO, Fp2::ZERO, Fp2::ZERO, nu_zb[0], nu_zb[1], nu_zb[2]] {
+        // [UPERF3-AI] the BLOCK-INDEXED parameter layout of `k_sc_round_zcd_gen` (kernels.cu):
+        // alpha, g_i16, g_rd, then p_z at index 6, then mu2 / nu_x / nu_z, nb_d each. The ZK
+        // D-side polynomial has NO x term (X is opened at p2 instead of folded here), so nu_x
+        // is nb_d ZEROs — with them the kernel computes exactly `zcd_poly` above.
+        let mut prm: Vec<u64> = Vec::with_capacity(7 + 6 * nb_d);
+        for v in [alpha, g_i16, g_rd] {
             prm.push(v.c0.0);
             prm.push(v.c1.0);
         }
         prm.push(p_z.0);
-        tr.set_masker(Box::new(CfsMasker { mask: mc.masks[SC_ZC17].clone(), c: c_dz, challenges: Vec::new() }));
-        let out = crate::gpu::dev_zerocheck(1, &specs_t, &prm, tr).expect("gpu zero-check D (zk v3)");
-        let (_, masked) = tr.take_masker();
-        Some((masked, out.challenges, out.finals))
+        for v in mu2.iter().chain(std::iter::repeat(&Fp2::ZERO).take(nb_d)).chain(nu_zb.iter()) {
+            prm.push(v.c0.0);
+            prm.push(v.c1.0);
+        }
+        let mut tr_try = Transcript::clone_state(tr);
+        tr_try.set_masker(Box::new(CfsMasker { mask: mc.masks[SC_ZC17].clone(), c: c_dz, challenges: Vec::new() }));
+        match crate::gpu::dev_zerocheck_blocks(1, nb_d, &specs_t, &prm, &mut tr_try) {
+            Ok(out) => {
+                let (_, masked) = tr_try.take_masker();
+                *tr = tr_try;
+                Some((masked, out.challenges, out.finals))
+            }
+            Err(e) => {
+                let _ = tr_try.take_masker();
+                eprintln!("[UPERF3-AI] gpu zero-check D (zk v3) declined ({e}); CPU path");
+                None
+            }
+        }
     } else { None };
     #[cfg(not(feature = "gpu-cuda"))]
     let dev_d: Option<(Vec<Vec<Fp2>>, Vec<Fp2>, Vec<Fp2>)> = None;
