@@ -39,7 +39,7 @@ pub use cuda::{dev_reserve, dev_tab_zerocheck, dev_zerocheck_blocks, TabSpecPad}
 // prover at Mistral width needs 1,168 MB for its zero-check F tables and the pool's
 // retained chunk scratch is what stands in the way).
 #[cfg(feature = "gpu-cuda")]
-pub use cuda::dev_reserve_hard;
+pub use cuda::{dev_mem_info, dev_pool_drain, dev_reserve_hard};
 
 #[cfg(not(feature = "gpu-cuda"))]
 mod stub {

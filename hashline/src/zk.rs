@@ -1916,6 +1916,33 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let mut proof = LayerProofZk::default();
     let mut sites: Vec<String> = zl.describe();
 
+    // [UPERF3-AI] VRAM accounting under HL_GPU_VERBOSE=1 (the ZK path at 8B width runs at the
+    // edge of an 8 GB part, so "what is held where" is the whole story of this rung).
+    #[cfg(feature = "gpu-cuda")]
+    let vnote = |tag: &str| {
+        if std::env::var("HL_GPU_VERBOSE").map(|v| v == "1").unwrap_or(false) {
+            if let Some((free, total, held)) = crate::gpu::dev_mem_info() {
+                eprintln!("[UPERF3-AI] vram {tag}: free {} MiB / {} MiB, pool {held}", free >> 20, total >> 20);
+            }
+        }
+    };
+    #[cfg(not(feature = "gpu-cuda"))]
+    let vnote = |_tag: &str| {};
+
+    // [UPERF3-AI] START THIS LAYER WITH A CLEAN CARD. The device buffer pool matches by exact
+    // length, and the ZK prover's A and H row counts differ from layer to layer (each layer's
+    // signed shifts give different remainder-window sizes, so different table rows — measured
+    // at Mistral: H is 3033 rows at layer 0 and 3028 at layer 1). At 8B width ONE layer's
+    // commitments already fill an 8 GB part, so the previous layer's pooled buffers are dead
+    // weight that makes the next layer's H commit fail (it did: `gpu zk commit H (v3):
+    // cuMemAlloc(1514 MB) OUT_OF_MEMORY` at layer 1 of the first 32-layer attempt). Draining
+    // is value-neutral — a pooled buffer holds nothing live — and costs only the first touch
+    // of the next allocation of each size.
+    #[cfg(feature = "gpu-cuda")]
+    if crate::gpu::enabled() {
+        let _ = crate::gpu::dev_pool_drain();
+    }
+
     // ---- W data + commit (as built: public weights; ZB's block layout) ----
     let mut w_data = vec![Fp::ZERO; lay.w_len];
     for c in 0..nb_d {
@@ -1945,6 +1972,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     proof.w_com = Some(w_cm.commitment());
     absorb_com(tr, b"W", proof.w_com.as_ref().unwrap());
     lap("commit W", &mut timings, &mut tick);
+    vnote("after commit W");
 
     // ---- A data + the committed multiplicities + mask rows + ZK commit ----
     let mut a_data = vec![Fp::ZERO; zl.a_len];
@@ -1986,6 +2014,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     proof.a_com = Some(a_cmz.commitment());
     absorb_com(tr, b"A", proof.a_com.as_ref().unwrap());
     lap("commit A (zk)", &mut timings, &mut tick);
+    vnote("after commit A");
 
     // ---- the mask commitment (the CFS masking polynomials of the six sumchecks) ----
     let specs = mask_specs_v3(&zl);
@@ -2118,6 +2147,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
         }
         let rows = zl.h_len / n;
         let (mut d_h, _sums) = crate::gpu::dev_helpers(a_dc, zl.h_len, &hspecs, alpha, beta).expect("gpu helpers (zk v3)");
+        vnote("after dev_helpers");
         crate::gpu::dev_upload_rows(&mut d_h, lay.h_len, &h_data[lay.h_len..zl.h_len]).expect("gpu upload of the H tail rows (zk v3)");
         Some(pcs::commit_zk_device(&h_pcs, d_h, rows, std::mem::take(&mut h_data), ntt, &h_zk, &mut rng).expect("gpu zk commit H (v3)"))
     } else { None };
@@ -2132,7 +2162,17 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let h_data: &[Fp] = &h_cmz.data;
     proof.h_com = Some(h_cmz.commitment());
     absorb_com(tr, b"H", proof.h_com.as_ref().unwrap());
+    // [UPERF3-AI] the H commit's NTT scratch (rows x n + rows x nn = 1,895 MiB at Mistral
+    // width) is in the pool and nothing later in this layer has those lengths; free it, so the
+    // zero-check tables (1,168 + 224 MiB) are allocated against a card holding only the three
+    // commitments. Without this the zero-check's table allocation is served by WSL's paging
+    // and its "tables" phase went from 0.003 s to 4.5 s (measured at Mistral, layer 1).
+    #[cfg(feature = "gpu-cuda")]
+    if crate::gpu::enabled() {
+        let _ = crate::gpu::dev_pool_drain();
+    }
     lap("helpers + commit H (zk)", &mut timings, &mut tick);
+    vnote("after helpers+H");
 
     // ---- g/u matmul sumcheck (masked; the claimed sum sent masked; the X-block terminals masked) ----
     let r_i = tr.challenge_fp2_vec(lay.log_t as usize);
@@ -2342,6 +2382,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let mut rho_fe = rho_f.clone();
     rho_fe.push(e_f);
     lap("zero-check F (zk)", &mut timings, &mut tick);
+    vnote("after zcF");
 
     // ---- zero-check D (masked; claim nu_z S''_d + Gamma_D; the X evaluation folded no more: opened at p2) ----
     let tau2 = tr.challenge_fp2_vec((lay.log_t + lay.log_db) as usize);
