@@ -19,6 +19,43 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-09-04 (LANE AH COMPLETE AND MERGED — THE 8B GPU PASS IS
+NOW 95 s; the 125M-shaped kernels are gone):**
+- **THE 8B GPU PASS: 175.09 s -> 95.48 s** [MEASURED], the proof
+  still sha256 dc980e81.. / 1,234,936,956 B (hand-verified); RSS 5.33
+  -> 3.80 GB; VRAM 4,175 -> 5,651 MB; **3.02e10 proven MAC/s = 5.35x
+  the CPU pass**. **AC's 76 s of declined kernels (44% of the prove)
+  is now ZERO**: over 32 layers the zero-check F went 46.64 -> 4.65
+  s, zero-check D 7.48 -> 0.79 s, helpers + commit H 35.24 -> 5.36 s,
+  and 12.3 GB less is uploaded per pass. One Mistral layer at T=512:
+  5.515 -> **3.090 s** (RSS 4.17 -> 2.48 GB). The GPU ZK prove at
+  12x512 v3: 4.56 -> **4.16 s**, its table zero-check 0.700 -> 0.322
+  s. At the 125M shape the looping kernels cost NOTHING (generic
+  0.327/0.085 s vs templated 0.338/0.095) — so the templated kernels
+  can be retired; they are kept only because earlier published rows
+  were taken with them.
+- **TOKENS/S AT 8B: 2.92 -> 5.36** [MEASURED, prefill T=512, P0,
+  FFN-only, laptop GPU] — **the low end of lane YY's modelled 5.2-16
+  band is now REACHED**, and proven MAC/s 3.02e10 sits inside the
+  memo's 2.9-8.8e10. The fix closed the entire share AC attributed to
+  declined kernels (1.83x against AC's 1.5x [MODEL]). The remaining
+  distance to the band's upper end is FOUR HOST items with known
+  byte-preserving fixes (plane->Fp conversion + pageable upload; the
+  encode NTT; the opening's re-encode; the Merkle and serialization
+  of a 1.23 GB proof) — **none of them a shape problem**.
+- **THE NEXT LEVER, now unblocked**: `zk.rs` has its OWN device-shape
+  gate (`nb_f == 1 && nb_d == 3`), so the ZK prover still declines the
+  device path at Mistral width even though the kernels now exist.
+  Generalizing it is the same three-edit pattern and yields **a GPU 8B
+  ZK row nobody has** — the product number under Victor's P1 ruling.
+  Lane AI opened for it.
+- Gates: all four green on BOTH binaries at every rung and re-verified
+  on the merged tree; 40/40 tests; 8/8 tamper legs reject through the
+  GPU ZK prover. Disclosed by the lane: rung 3 required one tagged
+  block in `zk.rs`, which its ownership listed read-only while the
+  rung asked for exactly that port; the host arm is the old code
+  verbatim and no other line changed.
+
 **AS OF 2026-09-03 late (LANE AE — THE ATTENTION VERDICT, both chains
 GREEN at Mistral-7B; the full-layer PROOF is the remaining core):**
 - **THE MISTRAL-7B ATTENTION VERDICT [MEASURED]: the attention core
