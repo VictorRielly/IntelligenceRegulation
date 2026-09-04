@@ -320,6 +320,25 @@ struct HostTabs {
     zf: Vec<Vec<Fp2>>, rdf: Vec<Vec<Fp2>>, hz: Vec<Vec<Fp2>>,
 }
 
+// [UPERF3-AL] Host-conversion instrumentation (round 15, lever L2b).
+// `HL_CONV_VERBOSE=1` prints, for every v3 layer, what it costs to BUILD the
+// committed vectors from the int8 witness planes (the allocation and the
+// `Fp::from_i64` fill) and what the two host matmul folds cost — the items
+// lane AJ attributed to this file (results/hashline_hostwall_gpu.md §7) but
+// could not own. Timing only: no value the transcript or the proof depends
+// on is read or written here.
+fn conv_verbose() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_CONV_VERBOSE").map(|v| v == "1").unwrap_or(false))
+}
+
+/// The device counters that `pcs_compact::commit` charges, for the residual
+/// (`commit call - device counters` = the host time inside the commit).
+fn dev_marks() -> (f64, f64, f64) {
+    let s = crate::gpu::dev_stats();
+    (s.secs_h2d, s.secs_ntt, s.secs_hash)
+}
+
 /// [UPERF3-XX] The device-resident commitment behind a `Committed`, when the GPU path made it.
 #[cfg(feature = "gpu-cuda")]
 fn dev_of<'a>(cm: &'a AnyCm) -> Option<&'a crate::gpu::DevCommit> {
@@ -1338,7 +1357,10 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let mut proof = LayerProofV3::default();
 
     // ---- W data + commit ------------------------------------------------
+    let cv = conv_verbose(); // [UPERF3-AL]
+    let t_conv = Instant::now();
     let mut w_data = vec![Fp::ZERO; lay.w_len];
+    let s_w_alloc = t_conv.elapsed().as_secs_f64();
     for c in 0..nb_d {
         for b in 0..nb_f {
             for (offs, src) in [(&lay.wg, &w.wg_t), (&lay.wu, &w.wu_t)] {
@@ -1355,7 +1377,10 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
             });
         }
     }
+    let s_w_fill = t_conv.elapsed().as_secs_f64() - s_w_alloc;
     let w_pcs = params.pcs_for(lay.log_wb);
+    let (m0h, m0n, m0s) = dev_marks(); // [UPERF3-AL]
+    let t_wcom = Instant::now();
     // [UPERF3-AC]+[UPERF3-AF] the per-model weight cache serves the LIGERO path (its entries are
     // Ligero commitments); `--pcs compact` bypasses it and commits compactly.
     let w_cm = if pcs_compact::selected() {
@@ -1363,12 +1388,20 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     } else {
         pcs_compact::AnyCm::Ligero(crate::wcache::commit_w(&w_pcs, &w_data, ntt, &crate::wcache::WKey::new("v3", w.l, d, f, &w.wg_t, &w.wu_t, &w.wd_t)))
     };
+    if cv {
+        let s = t_wcom.elapsed().as_secs_f64();
+        let (m1h, m1n, m1s) = dev_marks();
+        eprintln!("[UPERF3-AL] conv W  l{:02}: alloc {:.4} fill {:.4} | commit {:.4} (dev h2d {:.4} ntt {:.4} hash {:.4} -> host {:.4}) | {} Melem",
+            w.l, s_w_alloc, s_w_fill, s, m1h - m0h, m1n - m0n, m1s - m0s, s - (m1h - m0h) - (m1n - m0n) - (m1s - m0s), lay.w_len / 1_000_000);
+    }
     proof.w_com = Some(w_cm.commitment());
     absorb_com(tr, b"W", proof.w_com.as_ref().unwrap());
     lap("commit W", &mut timings, &mut tick);
 
     // ---- A data + commit ------------------------------------------------
+    let t_conv = Instant::now();
     let mut a_data = vec![Fp::ZERO; lay.a_len];
+    let s_a_alloc = t_conv.elapsed().as_secs_f64();
     for b in 0..nb_f {
         for (offs, col) in [(&lay.g8, &w.g8), (&lay.rg, &w.rg), (&lay.a16, &w.a16), (&lay.u16, &w.u16v), (&lay.ru, &w.ru), (&lay.h16, &w.h16), (&lay.rh, &w.rh)] {
             let off = offs[b];
@@ -1388,8 +1421,17 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
             });
         }
     }
+    let s_a_fill = t_conv.elapsed().as_secs_f64() - s_a_alloc;
     let a_pcs = params.pcs_for(lay.log_a_min);
+    let (m0h, m0n, m0s) = dev_marks(); // [UPERF3-AL]
+    let t_acom = Instant::now();
     let a_cm = pcs_compact::commit(&a_pcs, &a_data, ntt); // [UPERF3-AF]
+    if cv {
+        let s = t_acom.elapsed().as_secs_f64();
+        let (m1h, m1n, m1s) = dev_marks();
+        eprintln!("[UPERF3-AL] conv A  l{:02}: alloc {:.4} fill {:.4} | commit {:.4} (dev h2d {:.4} ntt {:.4} hash {:.4} -> host {:.4}) | {} Melem",
+            w.l, s_a_alloc, s_a_fill, s, m1h - m0h, m1n - m0n, m1s - m0s, s - (m1h - m0h) - (m1n - m0n) - (m1s - m0s), lay.a_len / 1_000_000);
+    }
     proof.a_com = Some(a_cm.commitment());
     absorb_com(tr, b"A", proof.a_com.as_ref().unwrap());
     lap("commit A", &mut timings, &mut tick);
@@ -1509,12 +1551,14 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
         proof.gu_claims.push(ev[4 * b + 2].mul_base(p_u).add(ev[4 * b + 3]));
     }
     tr.absorb_fp2(b"gu-claims", &proof.gu_claims);
+    let t_pre = Instant::now(); // [UPERF3-AL]
     let eq_ri = eq_table_msb(&r_i);
     let eq_rj = eq_table_msb(&r_j);
     let xk = fold_rows_i8(&w.x[..t_rows * d], t_rows, d, &eq_ri); // d
     let cw_gu: Vec<Fp2> = (0..f).into_par_iter().map(|j| lam_f[j / fb].mul(eq_rj[j % fb])).collect();
     let wgk = fold_cols_i8(&w.wg_t, d, f, &cw_gu); // d
     let wuk = fold_cols_i8(&w.wu_t, d, f, &cw_gu); // d
+    let s_gu_pre = t_pre.elapsed().as_secs_f64();
     let mut tables: Vec<Vec<Fp2>> = Vec::with_capacity(2 * nb_d);
     for c in 0..nb_d { tables.push(xk[c * db..(c + 1) * db].to_vec()); }
     for c in 0..nb_d {
@@ -1526,6 +1570,7 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let r_kp = out.challenges; // log_db
     let mut term = Vec::with_capacity(nb_d + 2 * nb_d * nb_f);
     for c in 0..nb_d { term.push(out.finals[c]); }
+    let t_blk = Instant::now(); // [UPERF3-AL]
     for offs in [&lay.wg, &lay.wu] {
         for c in 0..nb_d {
             for b in 0..nb_f {
@@ -1534,6 +1579,9 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
                 term.push(eval_mle_ext(&folded, &r_kp));
             }
         }
+    }
+    if cv {
+        eprintln!("[UPERF3-AL] fold gu l{:02}: pre (eq + i8 row/col folds) {:.4} | {} w_data blocks {:.4}", w.l, s_gu_pre, 2 * nb_d * nb_f, t_blk.elapsed().as_secs_f64());
     }
     proof.gu_term = term;
     tr.absorb_fp2(b"gu-term", &proof.gu_term);
@@ -1554,11 +1602,13 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let ev = eval_many_dev(&a_cm, &a_data, &sl, &p4);
     proof.d_claims = (0..nb_d).map(|c| ev[2 * c].mul_base(p_z).add(ev[2 * c + 1])).collect();
     tr.absorb_fp2(b"d-claims", &proof.d_claims);
+    let t_pre = Instant::now(); // [UPERF3-AL]
     let eq_rip = eq_table_msb(&r_ip);
     let eq_rjp = eq_table_msb(&r_jp);
     let hk = fold_rows_i32(&w.h16[..t_rows * f], t_rows, f, &eq_rip); // f
     let cw_d: Vec<Fp2> = (0..d).into_par_iter().map(|n| lam_d[n / db].mul(eq_rjp[n % db])).collect();
     let wdk = fold_cols_i8(&w.wd_t, f, d, &cw_d); // f
+    let s_d_pre = t_pre.elapsed().as_secs_f64();
     let mut tables: Vec<Vec<Fp2>> = Vec::with_capacity(2 * nb_f);
     for b in 0..nb_f { tables.push(hk[b * fb..(b + 1) * fb].to_vec()); }
     for b in 0..nb_f { tables.push(wdk[b * fb..(b + 1) * fb].to_vec()); }
@@ -1568,12 +1618,16 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let r_k = out.challenges; // log_fb
     let mut term = Vec::with_capacity(nb_f + nb_f * nb_d);
     for b in 0..nb_f { term.push(out.finals[b]); }
+    let t_blk = Instant::now(); // [UPERF3-AL]
     for b in 0..nb_f {
         for c in 0..nb_d {
             let blk = &w_data[lay.wd[b * nb_d + c]..lay.wd[b * nb_d + c] + wb];
             let folded = fold_cols_base(blk, fb, db, &eq_rjp);
             term.push(eval_mle_ext(&folded, &r_k));
         }
+    }
+    if cv {
+        eprintln!("[UPERF3-AL] fold d  l{:02}: pre (eq + i32 row / i8 col folds) {:.4} | {} w_data blocks {:.4}", w.l, s_d_pre, nb_f * nb_d, t_blk.elapsed().as_secs_f64());
     }
     proof.d_term = term;
     tr.absorb_fp2(b"d-term", &proof.d_term);
