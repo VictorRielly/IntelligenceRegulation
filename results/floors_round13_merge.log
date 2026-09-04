@@ -312,3 +312,23 @@ GATE OK   zk [gpu]  021485e4f80ec695  87228528 B
 
 === GATE zkv3 [gpu] ===
 2026-09-03 23:37:38
+  layer  0: prove 0.476 s, 7306036 B
+  layer  1: prove 0.453 s, 7318324 B
+  layer  2: prove 0.401 s, 7318324 B
+  layer  3: prove 0.424 s, 7306036 B
+  layer  4: prove 0.420 s, 7306036 B
+  layer  5: prove 0.410 s, 7306036 B
+  layer  6: prove 0.411 s, 7306036 B
+  layer  7: prove 0.410 s, 7306036 B
+  layer  8: prove 0.416 s, 7306036 B
+  layer  9: prove 0.403 s, 7306036 B
+  layer 10: prove 0.409 s, 7306036 B
+  layer 11: prove 0.412 s, 7306036 B
+prover phases (summed over layers):
+PROOF sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.60 s | PROVE 5.04 s | VERIFY 0.56 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 5.747e9 proven MAC/s (prove wall) | wall 7.33 s
+GATE OK   zkv3 [gpu]  40eb54795e023c77  87697008 B
+
+=== VERDICT ===
+2026-09-03 23:37:48
+ALL FLOORS GREEN (8 byte gates + tests + both builds)
