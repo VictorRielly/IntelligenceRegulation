@@ -13944,3 +13944,22 @@ harness on `gpu-probe` (`HL_BENCH_ROWS` takes a comma-separated sweep).
 **Nothing in `layer.rs` or `zk.rs` was touched** — they are lane AN's
 this round and no change there was needed.
 
+**PYTHON SUITE, and a PRE-EXISTING ENVIRONMENT RED worth flagging.**
+`python3 -m unittest discover -s tests` in this worktree: **81 tests, 80
+pass, 12 skipped, ONE error** — `ring_matmul freeze-check` aborts with
+`cannot read results/m125_ffn_export/layer00_X.bin`. It is NOT this
+lane's: `zkmatrix-rs/` is read-only here and untouched, and **the
+identical failure reproduces in `/home/victor/IntelligenceRegulation`
+itself** (the merged round-15 tree, no AO changes). Cause:
+`results/m125_ffn_export/` on this box holds 38 files — the WEIGHT planes
+only — while the activation planes `layer*_X.bin` live in
+`results/m125_ffn_export_wsl/` (51 files), which is what the byte gates
+already point at via `M125_EXPORT_DIR`. **With that variable set,
+`freeze-check` PASSES** (`freeze_check_uagb1_bk: all rows stable;
+freeze-check passed`, verified 2026-09-04). So the CLAUDE.md invariant
+"the test suite plus freeze-check must stay green" currently reads red on
+this box for a missing-data reason, and the fix is one environment
+variable in the test harness (or exporting the X planes into
+`results/m125_ffn_export/`). Recorded, not fixed — `tests/` is not this
+lane's file.
+

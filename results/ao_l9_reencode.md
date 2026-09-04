@@ -333,3 +333,18 @@ item is a host loop.
 | `HL_GPU_NTT_FAST=0` | on | the divide-indexed `k_dif_pa` / `k_ntt_p2` / `k_ntt_p2_gather` |
 | `HL_GPU_PRUNE_P2=0` | on | the dense fused last stage group |
 | `HL_GPU_BENCH_REENC=1` | off | the attribution harness on `gpu-probe` (`HL_BENCH_ROWS` accepts a comma-separated sweep) |
+
+### 6.4 A pre-existing environment red, found on the way out
+
+`python3 -m unittest discover -s tests`: **81 tests, 80 pass, 12 skipped,
+one error** — `ring_matmul freeze-check` aborts with `cannot read
+results/m125_ffn_export/layer00_X.bin`. Not this lane's: `zkmatrix-rs/`
+is read-only here and untouched, and the identical failure reproduces in
+`/home/victor/IntelligenceRegulation` itself. On this box
+`results/m125_ffn_export/` holds the WEIGHT planes only (38 files); the
+activation planes live in `results/m125_ffn_export_wsl/` (51 files),
+which is where the byte gates already point via `M125_EXPORT_DIR`.
+**With that variable set, `freeze-check` passes** ("freeze_check_uagb1_bk:
+all rows stable; freeze-check passed"). The fix is one environment
+variable in the test harness; `tests/` is not this lane's file, so it is
+recorded rather than changed.
