@@ -32,3 +32,11 @@ run fuse   HL_GPU_PIN_MB=0 HL_GPU_STREAM_COMMIT=0
 run stream HL_GPU_FUSE_GATHER=0
 run both   HL_DUMMY=1
 run both2  HL_DUMMY=1
+# the chunk size is a free parameter: a 1024-row chunk's encoded scratch is
+# 537 MB at the Mistral W shape (far beyond the 32 MB L2), a 128-row chunk
+# is 67 MB. Multiples of 128 rows only (a blake3 chunk of a column).
+run chunk256 HL_GPU_CHUNK_ROWS=256
+run chunk128 HL_GPU_CHUNK_ROWS=128
+run thr512   HL_GPU_NTT_THREADS=512
+run thr1024  HL_GPU_NTT_THREADS=1024
+run c128t512 HL_GPU_CHUNK_ROWS=128 HL_GPU_NTT_THREADS=512

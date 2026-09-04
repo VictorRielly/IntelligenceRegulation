@@ -1130,14 +1130,16 @@ impl Gpu {
             let words = dev.dtoh_sync_copy(&d_leaves).map_err(|e| format!("leaves download: {e}"))?;
             let mut leaves = vec![[0u8; 32]; nn];
             for (j, leaf) in leaves.iter_mut().enumerate() {
-                for w in 0..8 {
-                    leaf[4 * w..4 * w + 4].copy_from_slice(&words[j * 8 + w].to_le_bytes());
+                for k in 0..8 {
+                    leaf[4 * k..4 * k + 4].copy_from_slice(&words[j * 8 + k].to_le_bytes());
                 }
             }
             Ok(leaves)
         })();
         if r.is_err() {
+            // nothing may still be reading the packing scratch when it goes back to the pool
             let _ = up.wait();
+            let _ = dev.synchronize();
         }
         let secs_up = up.secs - secs0;
         self.up = Some(up);
