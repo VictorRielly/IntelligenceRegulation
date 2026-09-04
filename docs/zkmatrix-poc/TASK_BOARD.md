@@ -113,11 +113,45 @@ AND THE CULPRIT IS NOT THE ONE THE LEDGER NAMED):**
   1,285,578,368 B — the same digest the GPU gave this morning and the
   same one lane AI recorded in round 14. **Three reproductions, two
   device paths, two trees.**
-- **LANE AM's CHARTER IS MET** ("one binary produces both products, and
-  the first measured 8B row for each; P1 byte-identical to 930ce9a0..;
-  P3 with its own digest, its own tamper legs, and an honest per-proof
-  cost against P1"). **AM is ready to merge and it is the only unmerged
-  lane — merging it closes round 15.**
+- **ROUND 15 IS CLOSED.** Lane AM merged (0a59923) and the MERGED-TREE
+  FLOORS ARE GREEN: `results/floors_round15_am.log`, exit 0 —
+  **8 byte gates** (v2 `50cf7bdf..`, v3 `5f368db6..`, zk `021485e4..`,
+  zkv3 `40eb5479..`, each on BOTH binaries), **41/41 tests** (40 + lane
+  AM's new one asserting a P3 proof does not verify as P1, a P1 proof
+  does not verify as P3, and a function-1 proof does not verify as
+  function-2), and **both builds from scratch**. The `zkv3` gate is the
+  load-bearing one: it proves AM's mode selector left P1's bytes
+  untouched. AM's charter is met in full and no lane is now live.
+- **THEREFORE THE 5090 WINDOW IS OPEN, AND IT IS THE NEXT THING.** The
+  CUDA 12.1 -> 12.8+ / driver 566.14 -> 570+ upgrade **cannot run while
+  lanes are live** (`/home/victor/cuda-root` is shared by every
+  worktree), and right now none are. AJ already landed the code half
+  (`compute_100`/`compute_120` in `arch_str` + the loud generic-PTX
+  warning). The runbook's own precondition — "never schedule a headline
+  measurement before the host wall closes" — was satisfied by lane AL.
+  Procedure: `docs/zkmatrix-poc/BLACKWELL_5090_RUNBOOK.md`.
+  **VICTOR'S RULING STILL OUTSTANDING: the 5090 is a 575 W part against
+  the contract's 450 W bound — cap and record, or amend the contract.**
+  That gates the day-one procedure, NOT the toolkit upgrade.
+- **ROUND 16, TWO LANES, BOTH READY TO WRITE BRIEFS FOR:**
+  - **FUNCTION 2 — THE ZK CONTENT FILTER. Its trigger has now fired.**
+    The third ruling deferred it with "NOT a lane yet ... it becomes a
+    lane when AM reports"; AM has reported. **It needs no further
+    ruling**: `PROOF_FUNCTIONS.md` §5 already DECIDED the simplest form
+    — binary output, ONE non-negativity fact
+    (`y[accept] - y[reject] >= 0`), acceptable set frozen per
+    deployment, output committed because it already is, **no new
+    machinery** (the q46 remainder bit-plane range proofs tied to q31 by
+    the U-L modulus link do this today). Counted cost: one range fact
+    per proof, below measurement noise. It builds entirely on the FAST
+    tier, which is the tier Victor's second ruling put the headline on.
+  - **THE FAST TIER TOWARD 60 TOK/S** (the headline track per the second
+    ruling). Unowned device work: **L9**, the opening re-encode 13.83 s
+    (1.6e10 Goldilocks mul/s against a ~4.6e11 ALU ceiling and 66 of
+    256 GB/s — a latency and launch-structure problem, output pruning
+    counts at ~1.6x), the encode NTT 13.88 s, the sumchecks 5.47 s.
+  - Measure these ON the new card, not before: tuning against a board
+    that spills and freezes is optimising against the wrong machine.
 - **THE TELEGRAM ROUTER WAS DEAD ALL BOOT, and would have been every
   boot.** `tg-router`'s pidfile check was existence-only, and after a
   reboot the low pids are handed straight back out — pid 1200 had been
