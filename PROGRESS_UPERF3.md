@@ -10775,3 +10775,80 @@ GPU ZK prove re-measured (5.63 s at 12x512 v3 is AD's number).
 ## Agent AH status (wt-uperf3-ah) — round 13
 
 (lane appends below)
+
+### AH rung 0 — the plan (2026-09-03, WSL-BOX, wt-uperf3-ah, branch uperf3-ah)
+
+Read: START_HERE (whole), the round-13 block + this brief, Agent AC in
+full (the 8B GPU pass, its per-phase anatomy, the 44% host share),
+Agent AD (the table zero-check = 20% of the GPU ZK prove), Agent XX
+(the kernel inventory, the buffer pool, the byte-identity discipline);
+the code: gpu/{mod.rs,cuda.rs,kernels.cu}, layer.rs's v2 and v3 device
+regions, zk.rs's v3 device regions.
+
+**WHAT IS SHAPE-TEMPLATED TODAY (the finding, stated exactly).** Three
+places, not one:
+1. `kernels.cu`: `sc_round_impl<K, KIND>` holds `f2 cur[K], dif[K]` in
+   REGISTERS, so K must be a compile-time constant; the only two
+   instantiations are `k_sc_round_zc20 = <13, 0>` and
+   `k_sc_round_zc17 = <15, 1>`. 13 = 3 eq + 10 x nb_f at nb_f = 1;
+   15 = 3 eq + 4 x nb_d at nb_d = 3. `zc20_poly` / `zc17_poly` read the
+   per-block coefficients out of a 32-u64 shared array (`sprm[32]`),
+   which is exactly big enough for ONE f-block (4 mu + 3 nu) or THREE
+   d-blocks.
+2. `cuda.rs::dev_zerocheck`: `assert_eq!(k, want_k)` (13 / 15) and
+   `assert!(prm.len() <= 32)`.
+3. `layer.rs`, the three device regions of `prove_layer_v3`: the
+   helper-spec list hard-codes f-block **[0]** (three specs) and the
+   two `TabSpec` lists hard-code block [0] on the F side; only the
+   d-side loops. Hence the gate at line 1411 (and its twin in zk.rs at
+   2004): `let dev_shape = nb_f == 1 && nb_d == 3;`
+
+**WHAT THE GATE DECLINES, AND WHY IT COSTS 44%.** `LayoutV3` splits d
+into `nb_d` blocks of 2^log_db (log_db = min(v2(d), 12)) and f into
+`nb_f` blocks of 2^log_fb. 125M: d 768 = 3 x 256, f 2048 = 1 x 2048 ->
+(nb_f, nb_d) = (1, 3) = the templated shape. **Mistral-7B: d 4096 =
+1 x 4096, f 14336 = 7 x 2048 -> (nb_f, nb_d) = (7, 1)**, so zero-check
+F has 3 + 10 x 7 = **73** tables and zero-check D has 3 + 4 x 1 = **7**;
+neither is 13 or 15, the gate is false, and THREE phases fall back to
+the host: the LogUp helper columns (inside "helpers + commit H"), zc F
+and zc D. AC measured that as 46.64 + 7.48 s of host zero-check plus
+~0.7 s/layer of host helpers in the 175.09 s 8B GPU prove = the 44%.
+
+**THE APPROACH (byte-preserving by construction).**
+- (R1/R2) A BLOCK-LOOPING round kernel per side. The round polynomial
+  is `eqt*ZC + eq1*F1 + eq5*F5` where ZC/F1/F5 are SUMS OVER BLOCKS of
+  terms that read only that block's 10 (F) / 4 (D) tables. So the
+  kernel keeps 15 f2 accumulators (3 partial sums x 5 evaluation
+  points), loops over blocks loading 10 (or 4) `cur`/`dif` pairs into
+  registers per block, and joins with the three eq tables at the end —
+  register footprint ~ the templated kernel's, independent of the
+  block count. Parameters move to a larger shared array with the
+  length passed at launch. The 13/15 templated kernels STAY and stay
+  the default at their shapes, so XX's measured 125M numbers cannot
+  move; the generic kernels are used only where the gate is false
+  today (and are A/B'd against the templated ones at 12x512).
+- `dev_zerocheck` derives the block count from `specs.len()`
+  ((k-3)/10 for kind 0, (k-3)/4 for kind 1), so the v2 and zk.rs call
+  sites need NO change.
+- (R2) The helper-spec list in layer.rs loops `for b in 0..nb_f` (the
+  `k_helper` kernel is already length-general); the TabSpec lists loop
+  the same way. These are three small edits inside the v3 FFN prover,
+  each tagged `[UPERF3-AH]`; lane AG owns the NEW attention functions
+  in that file and the v2/v3 FFN functions are read-only for AG, so
+  the lanes do not overlap.
+- SAFETY (a real hazard, handled): when the device helper path runs,
+  `host_tabs` is never built, and a LATER device decline panics by
+  design. At Mistral the zcF table buffer is 73 x 2^20 x 2 u64 = 1.22
+  GB of VRAM on top of AC's measured 4,175 MB peak, so a decline is
+  possible. The device path therefore RESERVES both zero-check table
+  buffers (through the XX pool, which matches by exact length, so the
+  reservation IS the later allocation) before it commits to device
+  helpers; failure -> the whole layer takes today's host path, exactly
+  as now.
+- (R3) The table zero-check (zk.rs) runs `masked_prove`, not
+  `sumcheck::prove`; it is a different kernel family (mask rows), so
+  it comes after R1/R2 and only if the byte gates and the 8B pass are
+  in hand.
+
+**THE FOUR BYTE GATES on both binaries and the BASELINE follow in this
+rung's second half.**
