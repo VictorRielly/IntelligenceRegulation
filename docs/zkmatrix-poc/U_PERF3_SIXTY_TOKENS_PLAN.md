@@ -54,6 +54,43 @@ that decides whether 30B ever follows.** Everything else — the host
 marshalling, the attention port, claim folding, batching — is
 necessary and none of it is sufficient.
 
+> ### CORRECTION, 2026-09-04 (lane AI, rung 3) — the ZK divisor was wrong
+>
+> The tables above used **D2 = 1.047** for mode-P1 zero knowledge,
+> taken from lane AD's `+4.7%` at 8B width. **That figure was measured
+> on the CPU.** Lane AI has now run the same statement on the GPU —
+> the first 8B proof anywhere in this project that is private AND on a
+> device — and the surcharge is **2.78x, not 1.047x**:
+> `pass 32 512 --zk --profile v3` proves in **265.34 s** against AH's
+> 95.48 s, ACCEPT, sha256 `930ce9a0..`, 1,285,578,368 B
+> [MEASURED WSL-BOX GPU]. The BYTES carried over almost exactly
+> (+4.10% against AD's +3.9%); the TIME did not (+178% against +4.7%).
+> On the CPU the ZK work hid inside 15 s of host arithmetic. On a fast
+> device it does not hide. **No P1 projection may multiply a GPU row
+> by 1.047 again.**
+>
+> The statement divisor is therefore **9.41x, not 3.55x**, and every
+> honest cell moves:
+>
+> | honest statement | with D2 = 1.047 | **with D2 = 2.78 [MEASURED]** |
+> |---|---:|---:|
+> | 8B prefill, counted floor | 39.5-112.8 | **14.9-42.5 tok/s** |
+> | 8B prefill, scaled | 7.3-52.7 | **2.8-19.9 tok/s** |
+> | 30B prefill, counted floor | 13.3-38.9 | **5.0-14.7 tok/s** |
+> | 30B prefill, scaled | 2.3-16.9 | **0.9-6.4 tok/s** |
+>
+> **60 tok/s is now outside the counted floor at 8B as well.** Two
+> things keep the 8B ruling right rather than overturning it. First,
+> 30B moved further away by the same factor, so 8B is still the only
+> shape in reach — and now by a wider margin. Second, and decisively:
+> **the surcharge is concentrated, so it is a lever and not a wall.**
+> Helpers + commit H is 146.26 s of the 265.34 (55%) against AH's
+> 5.36 s, and the device NTT is 119.10 s against 15.85. Two named
+> phases hold essentially all of it. Recovering them to a 1.3x
+> surcharge puts the 8B floor back at **31.8-90.9 tok/s** and 60 back
+> inside it. That recovery is now lever **L8**, and it is the single
+> largest newly-actionable item in this plan.
+
 ---
 
 ## 1. What "60 tokens per second" has to mean
@@ -103,22 +140,25 @@ Every lever, with what it multiplies and how well it is known:
 | L6 | reduce attention's T^2 committed planes | up to **1.6x** on the statement divisor | [MODEL]; unexplored |
 | L7 | batching B >= 4-16 | decode only; nothing at prefill | [COUNTED] |
 | D1 | attention in the statement | **/2.87** at 8B, T = 512 (less at 30B: the surcharge shrinks with width) | [COUNTED, AE]; AG measured 1.17x at T = 16 and 1.61x at T = 64 |
-| D2 | zero knowledge, mode P1 | **/1.047** | [MEASURED, AD, at 8B width] |
+| **L8** | **recover the ZK surcharge on the device** (helpers + commit H, and the device NTT) | **up to 2.1x** | [COUNTED] from AI's phase table; the newest and largest actionable lever |
+| D2 | zero knowledge, mode P1 | **/2.78 on a GPU** [MEASURED, AI]; /1.047 on a CPU [MEASURED, AD] | the CPU figure hid ZK inside slow host arithmetic — **never apply it to a device row** |
 | D3 | the range facts the contract owes | **/1.15-1.20** | [MODEL] |
 
 Composed, at 30B, honest statement:
 
 ```
 3.02e10  x 13 (L1)  x 2.5 (L2)              = 9.8e11   -> 31.6 tok/s FFN-only
-         / 2.5 (D1) / 1.047 (D2) / 1.18 (D3) =          ->  10.2 tok/s honest
-         x 3 (L4)   x (2.5/1.75) (L6)        =          ->  43.7 tok/s
-         x 1.5 (L3)                          =          ->  65.5 tok/s
+         / 2.5 (D1) / 2.78 (D2) / 1.18 (D3)  =          ->   3.9 tok/s honest  [D2 CORRECTED]
+         x 3 (L4)   x 1.43 (L6)              =          ->  16.5 tok/s
+         x 1.5 (L3)                          =          ->  24.8 tok/s
+         x 2.14 (L8, the ZK surcharge recovered to 1.3x) ->  53.1 tok/s
 ```
 
-**Read that honestly: 60 tok/s at 30B needs essentially every lever
-to land at or above its midpoint.** It is not a plan with slack. The
-same composition at 8B clears the bar with L1 + L2 + L3 alone, which
-is why the PoC targets 8B.
+**Read that honestly: with the corrected ZK divisor, 30B does NOT
+reach 60 tok/s even with every lever at its midpoint — it lands at
+~53.** That is the strongest argument yet for the 8B ruling, not
+against it. At 8B the same composition clears the bar on L1 + L2 + L3
++ L8, and L8 is work on two named phases rather than a design change.
 
 ---
 

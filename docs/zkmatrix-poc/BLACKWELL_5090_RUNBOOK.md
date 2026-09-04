@@ -23,19 +23,30 @@ matters:
 | H100 SXM | 3350 GB/s | 80 GB | 13.1x |
 
 So a 5090 is **0.90x an H100 PCIe and 0.53x an H100 SXM** on the
-dominant term. Applying that to the plan's 8B cells, with the 3.55x
-statement divisor (attention + ZK P1 + the range facts):
+dominant term. Applying that to the plan's 8B cells, with the
+**corrected 9.41x statement divisor** (attention 2.87x, ZK P1 **2.78x
+as MEASURED ON A GPU by lane AI** — not the 1.047x measured on a CPU —
+and the range facts 1.18x):
 
-| 8B prefill, honest statement, one 5090 | tok/s |
-|---|---:|
-| by scaled constants [MODEL] | **8-39** |
-| at the counted spec-sheet floor [COUNTED] | **21-60** |
+| 8B prefill, honest statement, one 5090 | today's divisor (9.41x) | with lever L8 landed (4.40x) |
+|---|---:|---:|
+| by scaled constants [MODEL] | 3.0-14.8 | 6.5-31.6 |
+| at the counted spec-sheet floor [COUNTED] | **8.0-22.7** | **17.0-48.6** |
 
-**60 tok/s sits exactly at the top edge of the floor band.** It is
-reachable on a 5090 only if the kernels land essentially at the
-spec-sheet floor; an H100 SXM carries ~1.9x more headroom (40-113 at
-the floor). Treat the 5090 as sufficient to do all the work and
-marginal for the headline claim — see §6.
+**THE HONEST READ, REVISED 2026-09-04: a 5090 does not reach 60 tok/s,
+even with the ZK surcharge recovered.** The same composition on an H100
+SXM gives 31.8-90.9 at the floor, which does contain 60. So the two
+machines have different jobs, and this is clearer than the first
+version of this page suggested:
+
+* **The 5090 is the development and validation machine.** It settles
+  the hardware factor, it settles the card-size prediction in §6 on
+  day one, and with >= 64 GB of host RAM it brings the 32-layer 8B
+  full-model pass home from the Mac. All of that is necessary.
+* **The headline claim still wants the H100.** Renting it at the END,
+  once the levers have landed and the 5090 has told us where we are,
+  remains the plan — and this correction makes that rental more
+  clearly necessary rather than less.
 
 ## 2. THE AMDAHL WARNING — the board buys ~1.4x, not 7x, today
 
@@ -108,6 +119,22 @@ the contract's power bound — is a Victor ruling and should not be made
 silently by whoever happens to run the benchmark.
 
 ## 6. What the 5090 settles, and what it does not
+
+**A SECOND, CHEAPER THING IT SETTLES — measured 2026-09-04 (lane AI).**
+The 8B ZK pass on the 8 GB laptop part proves **layer 0 in 4.36 s and
+layers 1-31 in 8.42 s each**, because under WSL `cuMemAlloc` is served
+from HOST memory rather than failing, so the 1,392 MB of zero-check
+tables are paged. The pass reported **8,585 MB of VRAM on an 8,188 MB
+card** — it is already spilling. A third pool drain written to force
+real VRAM killed layer 0 outright, so this is a card-size fact and not
+a code fact.
+
+**PREDICTION, NOT MEASURED: a 16 GB+ board gives 32 x 4.36 ~= 140 s
+instead of 265 s with NO code change** — a free ~1.9x on the private 8B
+pass. The 5090's 32 GB settles this on day one, and it is the single
+cheapest result the hardware step can produce. Run the private 8B pass
+(`pass 32 512 --zk --seed 1 --profile v3`, `HL_GPU=1`) early and
+compare the per-layer times against 4.36 / 8.42 s before anything else.
 
 **Settles:**
 - The plan's largest [MODEL] term. Every desktop and H100 column is the
