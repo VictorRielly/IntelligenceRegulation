@@ -93,11 +93,27 @@ where a budget is not yet met (or not yet measurable) it says so.
   185H (6P + 8E + 2LP cores, 22 threads), 15 GB RAM, WSL2, stock power
   limits, no accelerator. All current measurements are from this box.
 - **GPU rung:** the 5-15 s headline is only claimable on one consumer
-  GPU (<= 450 W board power, exact model and driver to be named in the
-  benchmark artifact when a kernel exists). Today **no GPU kernel
-  exists in this repo**; every GPU row in the cost documents is an
-  assumption, and this contract makes the headline claim CONDITIONAL on
-  that rung being built and measured (audit H-02/H-03 sequencing).
+  GPU (**<= 600 W board power** — see the ruling below; exact model and
+  driver to be named in the benchmark artifact).
+  - **RULING (Victor, console 2026-09-04): 575 W IS FINE — the bound is
+    amended from 450 W rather than the card being capped to it.** The
+    question put to him was "the RTX 5090 is a 575 W part against the
+    contract's 450 W bound — cap and record, or amend the contract";
+    the answer was to amend. The bound is set at 600 W so it names a
+    class of part rather than one product's exact TDP. The alternative
+    the runbook describes (`nvidia-smi -pl 450`, take the contract
+    number capped) is therefore NOT required. A capped number may still
+    be recorded alongside as a comparability point against every row
+    measured before this ruling, and `BLACKWELL_5090_RUNBOOK.md` §5 is
+    superseded on this point.
+  - **STALE CLAUSE, FLAGGED NOT REWRITTEN (2026-09-04):** this bullet
+    used to continue "Today **no GPU kernel exists in this repo**;
+    every GPU row in the cost documents is an assumption". That has
+    been false since round 13 — the GPU kernels exist, and the 8B rows
+    (`930ce9a0..` at 1,285,578,368 B, prove 238-265 s) are MEASURED, on
+    two device paths, byte-identical. The conditional structure of the
+    headline claim is left for a deliberate contract revision rather
+    than edited in passing here.
 - **Statistic:** the claim uses **p95** (95th-percentile) wall-clock
   over at least 20 warm runs on an otherwise idle machine, with p50
   (the median) reported alongside; cold-start (first run after setup)

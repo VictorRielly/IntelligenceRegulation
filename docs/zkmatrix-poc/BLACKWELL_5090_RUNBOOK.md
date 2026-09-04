@@ -102,6 +102,65 @@ Schedule the upgrade for a quiet box, and re-run the floors afterwards
 (§4) before trusting any number taken on the new toolkit — including on
 the old 4070.
 
+### 3a. THE BLOCKERS ARE ORDERED: DRIVER FIRST, THEN TOOLKIT [TESTED 2026-09-04]
+
+The table above lists driver and toolkit as two independent blockers.
+**They are not independent, and the order is forced.** Tried on a quiet
+box with round 15 closed and no lane live:
+
+- NVRTC was moved 12.1.105 -> **12.8.93**, `cuda-root` re-pointed at it.
+- The very next GPU run said:
+  `gpu: off (HL_GPU=1 but init failed: cuModuleLoadData:
+  DriverError(CUDA_ERROR_UNSUPPORTED_PTX_VERSION, "the provided PTX was
+  compiled with an unsupported toolchain."))`
+- **NVRTC 12.8 emits a PTX ISA version that driver 566.14 cannot load.**
+  Minor-version compatibility does not save this: it covers the driver
+  API, not the PTX ISA the compiler emits.
+
+**So upgrading the toolkit BEFORE the driver does not "get a blocker out
+of the way" — it takes the GPU away entirely.** Reverted the same
+minute; `gpu: ON — RTX 4070 Laptop (sm_89)` restored and the floors
+re-certified 8/8.
+
+**AND THE FAILURE IS QUIET, WHICH IS THE DANGEROUS PART.** The binary
+did NOT crash. It fell back to the CPU path and still printed
+`PASS ACCEPT`, with the reason on one `gpu: off` line that scrolls past
+in any real log. A timing taken in that state would look like a
+catastrophic regression with no obvious cause, and a *correctness* run
+would pass while silently proving nothing on the device. **Always grep a
+run's header for `gpu: ON` before believing a GPU number.**
+
+**THE ORDER, THEN:**
+1. Windows-side NVIDIA driver -> **>= 570** (Victor; not doable from
+   inside WSL — the WSL GPU stack takes its driver from the host).
+2. THEN NVRTC/toolkit -> >= 12.8, and re-run the floors (§4).
+3. THEN the `cudarc` feature `cuda-12040` -> `cuda-12080`
+   (`hashline/Cargo.toml`; cudarc 0.13.9 does offer `cuda-12080`).
+   Deliberately NOT bumped ahead of the driver: that feature selects the
+   driver-API binding, so moving it under a 566 driver is the same class
+   of mistake in the other direction.
+
+**A HEAD START IS ALREADY ON DISK.** NVRTC 12.8.93 is installed, unused,
+at `/home/victor/cuda-nvrtc-128` (217 MB, via
+`pip install --target`). It is deliberately SIDE-BY-SIDE rather than an
+in-place upgrade, because `torch 2.4.1+cu121` pins
+`nvidia-cuda-nvrtc-cu12==12.1.105` and an in-place upgrade would break
+the Python stack on this box. Step 2 above is then only:
+
+```
+ln -sfn /home/victor/cuda-nvrtc-128/nvidia/cuda_nvrtc/lib/libnvrtc.so.12 \
+        /home/victor/cuda-root/lib64/libnvrtc.so
+ln -sfn /home/victor/cuda-nvrtc-128/nvidia/cuda_nvrtc/lib/libnvrtc-builtins.so.12.8 \
+        /home/victor/cuda-root/lib64/libnvrtc-builtins.so.12.8
+rm -f /home/victor/cuda-root/lib64/libnvrtc-builtins.so.12.1
+```
+
+To undo, restore `/home/victor/cuda-root.bak-12.1-20260904` over
+`cuda-root`. **Note also** that the `CUDA_LD` in every lane script still
+lists the old pip NVRTC directory as its second entry; `cuda-root/lib64`
+comes first so it wins, but that stale entry should be cleaned up when
+the toolkit move is made permanent.
+
 The `arch_str` arm is owned by whichever lane owns `gpu/cuda.rs` (lane
 AJ in round 14); it must not be edited from the orchestrator's checkout.
 
@@ -127,13 +186,26 @@ that gets tested, so:
 consumer GPU of **at most 450 W**". The RTX 5090's TDP is **575 W**, so
 a stock-clocked result does not satisfy our own contract as written.
 
-The fix is deliberate, not a workaround: **power-limit the card to 450 W
-(`nvidia-smi -pl 450`) and record that it was capped.** These parts are
-pushed hard at stock and give up relatively little at that cap. Take the
-contract number capped; an uncapped number may also be recorded, clearly
-labelled, as an out-of-contract data point. The alternative — amending
-the contract's power bound — is a Victor ruling and should not be made
-silently by whoever happens to run the benchmark.
+**RULED 2026-09-04 (Victor, console): "575 W is fine." THE CONTRACT'S
+BOUND IS AMENDED, NOT THE CARD CAPPED.** The question put to him was
+exactly the choice below — cap and record, or amend the contract — and
+he chose to amend. `TARGET_CONTRACT.md` §4 now reads **<= 600 W** (a
+class of part, rather than one product's exact TDP). **So capping is NOT
+required and the paragraph below is superseded.**
+
+Still worth doing, and cheap: take an additional `nvidia-smi -pl 450`
+number alongside the stock one, clearly labelled. Not for the contract —
+for COMPARABILITY, since every row measured before this ruling was taken
+under the 450 W regime, and a capped row keeps that series continuous.
+
+~~The fix is deliberate, not a workaround: **power-limit the card to
+450 W (`nvidia-smi -pl 450`) and record that it was capped.** These
+parts are pushed hard at stock and give up relatively little at that
+cap. Take the contract number capped; an uncapped number may also be
+recorded, clearly labelled, as an out-of-contract data point. The
+alternative — amending the contract's power bound — is a Victor ruling
+and should not be made silently by whoever happens to run the
+benchmark.~~ (Superseded by the ruling above.)
 
 ## 6. What the 5090 settles, and what it does not
 

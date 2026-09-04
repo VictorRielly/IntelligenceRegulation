@@ -122,17 +122,40 @@ AND THE CULPRIT IS NOT THE ONE THE LEDGER NAMED):**
   function-2), and **both builds from scratch**. The `zkv3` gate is the
   load-bearing one: it proves AM's mode selector left P1's bytes
   untouched. AM's charter is met in full and no lane is now live.
-- **THEREFORE THE 5090 WINDOW IS OPEN, AND IT IS THE NEXT THING.** The
-  CUDA 12.1 -> 12.8+ / driver 566.14 -> 570+ upgrade **cannot run while
-  lanes are live** (`/home/victor/cuda-root` is shared by every
-  worktree), and right now none are. AJ already landed the code half
-  (`compute_100`/`compute_120` in `arch_str` + the loud generic-PTX
-  warning). The runbook's own precondition — "never schedule a headline
-  measurement before the host wall closes" — was satisfied by lane AL.
-  Procedure: `docs/zkmatrix-poc/BLACKWELL_5090_RUNBOOK.md`.
-  **VICTOR'S RULING STILL OUTSTANDING: the 5090 is a 575 W part against
-  the contract's 450 W bound — cap and record, or amend the contract.**
-  That gates the day-one procedure, NOT the toolkit upgrade.
+- **RULED (Victor, console 2026-09-04): "575 W is fine" — THE CONTRACT
+  BOUND IS AMENDED, THE CARD IS NOT CAPPED.** `TARGET_CONTRACT.md` §4
+  now reads **<= 600 W** (a class of part, not one product's TDP), and
+  `BLACKWELL_5090_RUNBOOK.md` §5's cap-and-record paragraph is
+  superseded. Still worth taking one `-pl 450` row alongside the stock
+  one — not for the contract, for COMPARABILITY with every row measured
+  before the ruling.
+- **THE TOOLKIT UPGRADE WAS ATTEMPTED AND REVERTED: THE BLOCKERS ARE
+  ORDERED, DRIVER FIRST. [TESTED]** NVRTC was moved 12.1.105 -> 12.8.93
+  on the quiet box; the next GPU run said `gpu: off (... 
+  CUDA_ERROR_UNSUPPORTED_PTX_VERSION, "the provided PTX was compiled
+  with an unsupported toolchain.")`. **NVRTC 12.8 emits a PTX ISA that
+  driver 566.14 cannot load** — minor-version compatibility covers the
+  driver API, not the emitted PTX ISA. Reverted the same minute, GPU
+  restored (`gpu: ON — RTX 4070 Laptop, sm_89`), floors re-certified.
+  **Upgrading the toolkit ahead of the driver does not clear a blocker;
+  it removes the GPU.** Runbook §3a now carries this.
+  - **AND IT FAILS QUIETLY**: the binary did NOT crash — it fell back to
+    CPU and still printed `PASS ACCEPT`, the reason on one `gpu: off`
+    line. **Always grep a run header for `gpu: ON` before believing a
+    GPU number.**
+- **SO THE NEXT STEP IS VICTOR'S, AND IT IS ON WINDOWS**: install the
+  NVIDIA driver **>= 570** host-side. This CANNOT be done from inside
+  WSL — the WSL GPU stack takes its driver from the Windows host.
+  Everything after it is scripted and quick (runbook §3a): re-point two
+  symlinks at `/home/victor/cuda-nvrtc-128` (**NVRTC 12.8.93 is already
+  downloaded and waiting**, installed side-by-side so `torch
+  2.4.1+cu121` keeps its pinned 12.1.105), bump `cudarc` `cuda-12040`
+  -> `cuda-12080`, re-run the floors. ~15 min of quiet box, not a
+  tranche-sized window.
+- **THEREFORE ROUND 16 IS NOT GATED ON THE UPGRADE** and should open
+  now. The old worry — that opening lanes shuts the upgrade window —
+  was based on the upgrade being a big operation; it is three commands
+  and a floors run, so a short pause later is enough.
 - **ROUND 16, TWO LANES, BOTH READY TO WRITE BRIEFS FOR:**
   - **FUNCTION 2 — THE ZK CONTENT FILTER. Its trigger has now fired.**
     The third ruling deferred it with "NOT a lane yet ... it becomes a
