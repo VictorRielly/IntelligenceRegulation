@@ -168,3 +168,80 @@ pays layer 0's allocation over 4 layers instead of 32.
   `fold_rows_i32` over h16. Moving it to the device is a `gpu/*` item.
 * **`pcs.rs`.** This lane owns it and did not need to change it: with
   `dev_commit`'s signature fixed, every lever was on the caller's side.
+
+## 7. Rung 3 — the floor, and the 8B pass before and after
+
+**THE FLOOR: ALL TWELVE BYTE GATES GREEN** — the four on the CPU binary,
+the four on the GPU binary, and the same four re-run with
+`HL_GPU_CHUNK_BYTES` forced small so the frozen 125M digests exercise the
+chunked commit as well. `cargo test --release` **40/40**.
+(`results/hashline_convert_r3.log`, `results/cargo_test_r3.log`.)
+
+| gate | digest | bytes | cpu | gpu | gpu chunk-forced |
+|---|---|---:|---|---|---|
+| v2 | `50cf7bdfd6b5b182` | 66,844,928 | OK | OK | OK |
+| v3 | `5f368db6240e0614` | 70,758,084 | OK | OK | OK |
+| zk-v2 | `021485e4f80ec695` | 87,228,528 | OK | OK | OK |
+| zk-v3 | `40eb54795e023c77` | 87,697,008 | OK | OK | OK |
+
+**THE 8B PASS, both arms in ONE session on ONE binary** (`pass 32 512
+--profile v3 --export .../m8b_mistral_v3_export --wcache <fresh dir>
+--threads 8 --proof-out F`, cold cache in both arms — 32 misses, 0 hits
+each — `/usr/bin/time -v`) [MEASURED, 2026-09-04, WSL-BOX, 8T, GPU,
+NOISY-SHARED]:
+
+| | BEFORE (`HL_AL_POOL=0 HL_AL_I8FOLD=0`) | **AFTER (lane defaults)** | |
+|---|---:|---:|---|
+| **PROVE** | **98.54 s** | **58.40 s** | **1.687x** |
+| commit W | 43.901 | **19.823** | 2.21x |
+| commit A | 16.155 | **4.838** | 3.34x |
+| helpers + commit H | 5.552 | 5.555 | — |
+| matmul g/u | 5.816 | **3.441** | 1.69x |
+| matmul d | 3.070 | **2.092** | 1.47x |
+| zero-check F + D | 5.490 | 5.468 | — |
+| pcs openings | 18.557 | 17.176 | |
+| witness load + chain | 141.76 | 134.50 | |
+| verify | 1.65 | 1.08 | |
+| wall | 244.45 | **196.79** | |
+| **proof sha256** | `dc980e81..4536c` | `dc980e81..4536c` | **IDENTICAL**, 1,234,936,956 B |
+| device h2d | 9.734 s (9,328 MB) | 8.597 s (9,328 MB) | |
+| device ntt / hash | 14.860 / 0.467 | 13.877 / 0.481 | |
+| device sumcheck / fold / helpers | 5.488 / 2.878 / 1.384 | 5.465 / 2.850 / 1.378 | |
+| opening re-encode | 13.961 | 13.826 | |
+| **VRAM peak** | 5,249 MB | 5,249 MB | unchanged |
+| peak RSS | 3.93 GB | **4.69 GB** | +0.76 GB (see below) |
+| **proven MAC/s** | 2.929e10 | **4.943e10** | |
+| **tokens/s at 8B prefill** | 5.20 | **8.77** | |
+
+**1.687x on the prove, the proof byte-identical, every gate green.**
+
+**THE HOST WALL IS GONE.** Summing the device counters: before, 48.77 s
+of the 98.54 s prove is device, so **49.8 s (50.5%) is host**; after,
+46.47 s of 58.40 s is device, so **11.9 s (20.4%) is host**. The host
+time inside the 8B prove fell **49.8 -> 11.9 s** and every second of that
+came out of `layer.rs`. The device columns are unchanged to within 1-7%,
+as they must be — this lane did not touch a kernel.
+
+**Two honest framings of the factor.** The controlled in-session A/B is
+**1.687x** (98.54 -> 58.40). Against lane AJ's recorded 86.00 s the
+number is **1.47x** — today's box ran the switches-off arm at 98.54 s
+where AJ's session ran the same configuration at 88.90 s, about 11%
+slower, which is inside the ±6%-per-phase noise this box has shown twice
+now once compounded over a 4-minute run. The A/B is the number to quote;
+the 86.00 -> 58.40 comparison is the one to use against the round-14
+ledger, and it is the more conservative of the two.
+
+**Peak RSS is up 0.76 GB and that is the pool, by design**: the two
+staging buffers (1.409 + 0.461 GB) stay resident for the life of the
+process instead of being allocated and freed 32 times. On this 15 GB box
+that is a good trade for 40 s of prove; `HL_AL_POOL=0` gives the memory
+back on a tighter box. VRAM is untouched at 5,249 MB.
+
+**Where the 58.40 s sits now.** The layer.rs host residue is fill 0.049 +
+0.035 s and ~0.017 s of commit residual and 0.135 s of folds per layer =
+**~7.5 s of the 58.40**; the rest of the 11.9 s host is the openings'
+and helpers' host tails. **The next factor is device work again** — the
+opening re-encode (13.83 s, AJ's §7 kernel project), the encode NTT
+(13.88 s) and the sumchecks (5.47 s) — plus the ZK prover, which still
+declines the device path at Mistral width (lane AI's item, untouched
+here).

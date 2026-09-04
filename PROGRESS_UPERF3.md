@@ -12706,13 +12706,76 @@ rung-0 note would still be worth in TIME; its bigger prize is VRAM and
 bus, since the device would then hold the widened matrix chunk by chunk
 instead of whole.
 
-### AL rung 3 — IN FLIGHT: the twelve byte gates on both binaries, then the 8B pass before and after
+### AL rung 3 — THE FLOOR AND THE 8B PASS: PROVE 98.54 -> 58.40 s (1.687x), the proof dc980e81.. BYTE-IDENTICAL (2026-09-04)
 
-Launched detached under `flock /tmp/zk-heavy.lock`
-(results/hashline_convert_r3.sh); log
-results/hashline_convert_r3.log, marker
-results/hashline_convert_r3.done, plus results/cargo_test_r3.{log,done}
-queued behind the same lock. Both 8B arms run in ONE session on ONE
-binary with a FRESH `--wcache` directory each, exactly as AJ's
-results/hashline_hostwall_r4.sh did. The row is written into
-results/hashline_convert_gpu.md §7 and here when the markers land.
+Detached under `flock /tmp/zk-heavy.lock`
+(results/hashline_convert_r3.sh, log results/hashline_convert_r3.log,
+marker exit 0); `cargo test --release` queued behind the same lock
+(results/cargo_test_r3.log, exit 0).
+
+**THE FLOOR: ALL TWELVE BYTE GATES GREEN** — four on the CPU binary,
+four on the GPU binary, and the same four re-run with
+`HL_GPU_CHUNK_BYTES` forced small so the frozen 125M digests exercise
+the chunked commit (v2 `50cf7bdfd6b5b182..` 66,844,928 B; v3
+`5f368db6240e0614..` 70,758,084 B; zk-v2 `021485e4f80ec695..`
+87,228,528 B; zk-v3 `40eb54795e023c77..` 87,697,008 B).
+**`cargo test --release` 40/40.**
+
+**THE 8B PASS, both arms in ONE session on ONE binary**, `pass 32 512
+--profile v3 --export .../m8b_mistral_v3_export --wcache <fresh dir>
+--threads 8 --proof-out F`, cold cache both arms (32 misses, 0 hits),
+`/usr/bin/time -v` [MEASURED, WSL-BOX, 8T, GPU, NOISY-SHARED]:
+
+| 8B pass, 32 x 512, GPU | BEFORE (`HL_AL_POOL=0 HL_AL_I8FOLD=0`) | **AFTER** | |
+|---|---:|---:|---|
+| **PROVE** | **98.54 s** | **58.40 s** | **1.687x** |
+| commit W | 43.901 | **19.823** | 2.21x |
+| commit A | 16.155 | **4.838** | 3.34x |
+| helpers + commit H | 5.552 | 5.555 | — |
+| matmul g/u | 5.816 | **3.441** | 1.69x |
+| matmul d | 3.070 | **2.092** | 1.47x |
+| zero-check F + D | 5.490 | 5.468 | — |
+| pcs openings | 18.557 | 17.176 | |
+| witness load + chain | 141.76 | 134.50 | |
+| verify / wall | 1.65 / 244.45 | 1.08 / **196.79** | |
+| **proof sha256** | `dc980e81..4536c` | `dc980e81..4536c` | **IDENTICAL**, 1,234,936,956 B |
+| device h2d / ntt / re-encode | 9.734 / 14.860 / 13.961 | 8.597 / 13.877 / 13.826 | unchanged, as they must be |
+| VRAM peak | 5,249 MB | 5,249 MB | unchanged |
+| peak RSS | 3.93 GB | 4.69 GB | +0.76 GB = the pool, by design |
+| **proven MAC/s** | 2.929e10 | **4.943e10** | |
+| **tokens/s at 8B prefill** | 5.20 | **8.77** | |
+
+**THE HOST WALL IS GONE.** Device counters sum to 48.77 s of the 98.54 s
+before (host **49.8 s = 50.5%**) and 46.47 s of the 58.40 s after (host
+**11.9 s = 20.4%**). The host time inside the 8B prove fell **49.8 ->
+11.9 s** and all of it came out of `layer.rs`; the device columns move by
+1-7%, as they must — this lane did not touch a kernel.
+
+**Two honest framings.** The controlled in-session A/B is **1.687x**.
+Against AJ's recorded 86.00 s the number is **1.47x**: today's box ran
+the switches-off arm at 98.54 s where AJ's session ran the same
+configuration at 88.90 s (~11% slower, compounded box noise over a
+4-minute run). Quote the A/B for the lane; quote **86.00 -> 58.40 s** —
+the more conservative figure — against the round-14 ledger.
+
+**Peak RSS +0.76 GB is the pool by design** (the 1.409 + 0.461 GB
+staging buffers stay resident instead of being allocated and freed 32
+times). `HL_AL_POOL=0` gives it back on a tighter box; VRAM is
+untouched.
+
+**Where the 58.40 s sits now.** The layer.rs host residue is ~7.5 s of
+it (fill 0.049 + 0.035, commit residual 0.017, folds 0.135 per layer);
+the rest of the 11.9 s host is the openings' and helpers' host tails.
+**The next factor is device work again**: the opening re-encode
+(13.83 s — AJ's §7 kernel project), the encode NTT (13.88 s), the
+sumchecks (5.47 s), and the ZK prover still declining the device path at
+Mistral width (lane AI's item, untouched here).
+
+125M informational timings from the gate runs, NOT a controlled A/B (a
+different session from AJ's): GPU v3 2.02 / 2.30 s, GPU zk-v3 5.62 /
+5.25 s against AJ's post-lane 2.75/2.81 and 4.22/4.32. The v3 shape
+improves; the zk-v3 numbers are higher, and they CANNOT be this lane's
+doing — `zk.rs` carries its own v3-ZK prover body with its own `w_data`
+/ `a_data` (zk.rs:925-966) and this lane did not touch it. Its digest is
+byte-identical either way. Recorded so nobody reads a box difference as
+a regression.
