@@ -11038,3 +11038,46 @@ the encode NTT (15.8 s).
 **THE 8B FFN PASS NOW PROVES IN 95.5 s ON A LAPTOP GPU AGAINST 510.4 s
 ON 8 CPU THREADS — 5.35x — in 3.80 GB of host RSS and 5,651 MB of the
 part's 8,188** [MEASURED].
+
+**RUNG 3 — THE ZK TABLE ZERO-CHECK ON THE DEVICE (lane AD's item):
+GREEN, BYTE-IDENTICAL (2026-09-03, WSL-BOX 8T + RTX 4070 Laptop,
+[MEASURED], 3 runs).** What landed: `k_sc_round_tab_gen` (the DEGREE-3
+round — 4 evaluation points, not 5; `scg_emit` templated on the value
+count) and **`dev_tab_zerocheck`** in cuda.rs with a new
+`TabSpecPad` (a table whose live length is shorter than the sumcheck's
+2^log_S: the buffer is zeroed once and only the live prefix written,
+which is the host's `resize(big, ZERO)` exactly). The public table
+values (`tvals`) are the one uploaded table; m comes from the resident
+A data, h from the resident H data. ONE tagged edit in zk.rs's v3
+prover (the file is otherwise untouched): the device attempt runs on a
+**cloned transcript state** and a decline falls through to the
+unchanged host body with nothing absorbed — proven live, since the
+first build declined for a missing kernel name and the 3x16 ZK proof
+came out at AD's digest `4d9f7632..` anyway.
+
+| at 12x512 v3 `--zk --seed 1`, GPU | before | after |
+|---|---:|---:|
+| **table zero-check (zk) phase** | **0.700 s** | **0.322 s** (2.2x) |
+| zero-check F (zk) | 0.374 | 0.362 |
+| zero-check D (zk) | 0.122 | 0.120 |
+| **PROVE p50 (3 runs)** | **4.56 s** | **4.16 s** |
+| proof | 87,697,008 B `40eb5479..` | **identical** |
+
+(AD's records, taken with three lanes loading the box, were 1.14 s of a
+5.63 s prove = 20%; this tree's quiet before/after is 0.700 of 4.56 =
+15.4% -> 0.322 of 4.16 = 7.7%. The residual 0.322 s is NOT the
+sumcheck any more: it is the phase's host tail — the 12 `eval_slice`
+mask evaluations, the extension round and the absorbs.)
+LEGS: `HL_GPU=1 layer 0 512 --zk --seed 1 --profile v3 --all-tampers`
+-> **8/8 REJECT, GREEN**, with AD's exact split (the four lookup legs
+at `H: pcs zk: group 4`, the other four at `sumcheck round 0`).
+GATES after this rung: all four on both binaries green again
+(`50cf7bdf..` CPU 14.72 / GPU 2.52 s, `5f368db6..` 15.17 / 2.70,
+`021485e4..` 16.94 / 3.91, `40eb5479..` 19.25 / 4.16); `cargo test
+--release` 40/40.
+OWNERSHIP NOTE, stated plainly: this rung needed one edit in zk.rs,
+which the lane brief lists as READ-ONLY while the rung-3 assignment
+asks for exactly this port. The edit is one `[UPERF3-AH]`-tagged block
+that wraps the existing host body in a `match` (the host body is byte
+for byte the old code, moved into the `None` arm); no other line of
+zk.rs changed, and no round-13 lane owns that file.

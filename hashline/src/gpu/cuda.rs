@@ -25,7 +25,7 @@ const FUNCS: &[&str] = &[
     "k_fold_rows", "k_helper", "k_sum_fp", "k_eq_join", "k_dot_slices", "k_dif_pa", "k_dif_pb", "k_dit_p1_pad",
     "k_zk_pad_scale", // [UPERF3-ZA]
     "k_hash_cols_stream", "k_gather_cols_off", // [UPERF3-AC]
-    "k_sc_round_zcf_gen", "k_sc_round_zcd_gen", // [UPERF3-AH]
+    "k_sc_round_zcf_gen", "k_sc_round_zcd_gen", "k_sc_round_tab_gen", // [UPERF3-AH]
 ];
 const SC_THREADS: u32 = 256;
 const SC_MAX_BLOCKS: u32 = 1024;
@@ -1040,6 +1040,125 @@ fn zerocheck_impl(kind: i32, nblk: Option<usize>, specs: &[TabSpec], prm: &[u64]
             "[UPERF3-XX] zero-check kind {kind} (2^{nv} x {k}): tables {:.4} s | rounds {:.4} s | folds {:.4} s | sync/absorb {:.4} s | total {:.4} s",
             t_tab, t_round, t_fold, t_sync, t0.elapsed().as_secs_f64()
         );
+    }
+    stats_with(|s| s.secs_sumcheck += t0.elapsed().as_secs_f64());
+    Ok(ProverOutput { proof: SumcheckProof { rounds }, challenges, finals })
+}
+
+/// [UPERF3-AH] One table of the ZK TABLE zero-check: each is ZERO-EXTENDED
+/// from its own length to the sumcheck's 2^log_S (the host does the same
+/// with `resize(big, ZERO)`).
+pub enum TabSpecPad<'a> {
+    /// eq(point, .) over 2^len(point) entries, MSB convention (full length)
+    Eq(&'a [Fp2]),
+    /// (commitment, element offset, live length): dst[i] = (data[off + i], 0), then zeros
+    FromFp(&'a DevCommit, usize, usize),
+    /// (commitment, re offset, im offset, live length)
+    FromFp2(&'a DevCommit, usize, usize, usize),
+    /// a host vector (the PUBLIC table values), uploaded, then zeros
+    Host(&'a [Fp2]),
+}
+
+/// [UPERF3-AH] (rung 3; lane AD's 20%-of-the-GPU-ZK-prove item) The ZK
+/// table zero-check on the device: the same DEGREE-3 sumcheck over
+/// log_S = max(log n, 16) variables that `masked_prove` runs on the host,
+/// with the tables built on the device from the resident A / H data plus
+/// the uploaded public table values. The transcript is the caller's (the
+/// ZK masker is set on it), so the absorbed round polynomials — and the
+/// proof bytes — are the host path's. `Err` -> the caller runs the host
+/// body (the attempt is made on a cloned transcript state).
+pub fn dev_tab_zerocheck(specs: &[TabSpecPad], prm: &[u64], tr: &mut Transcript) -> Result<ProverOutput, String> {
+    const NV: usize = 4; // degree 3
+    let g = gpu().ok_or_else(init_err)?;
+    let g = g.lock().unwrap();
+    let dev = g.dev.clone();
+    let t0 = Instant::now();
+    let k = specs.len();
+    assert!(k >= 4 && (k - 1) % 3 == 0, "table zero-check: 1 eq + 3 per slot, got {k}");
+    let ns = (k - 1) / 3;
+    let l = match &specs[0] {
+        TabSpecPad::Eq(r) => 1usize << r.len(),
+        _ => return Err("table zero-check: table 0 must be the eq table".to_string()),
+    };
+    assert!(l.is_power_of_two());
+    let nv = l.trailing_zeros() as usize;
+    let prm_len = prm.len();
+    if prm_len != 2 + 2 * ns {
+        return Err(format!("table zero-check: {ns} slots expect {} parameters, got {prm_len}", 2 + 2 * ns));
+    }
+    if prm_len > SCG_MAX_PRM {
+        return Err(format!("table zero-check: {prm_len} parameters (kernel holds {SCG_MAX_PRM})"));
+    }
+    let mut tabs_p = Pooled::take(&dev, k * l * 2)?;
+    // one zeroing pass: every table's tail beyond its live length is the host's ZERO padding
+    dev.memset_zeros(tabs_p.get_mut()).map_err(|e| format!("tab zerocheck memset: {e}"))?;
+    let tabs = tabs_p.get_mut();
+    let f_fp = dev.get_func(MODULE, "k_tab_from_fp").ok_or("k_tab_from_fp missing")?;
+    let f_fp2 = dev.get_func(MODULE, "k_tab_from_fp2").ok_or("k_tab_from_fp2 missing")?;
+    let mut eq_pts: Vec<CudaSlice<u64>> = Vec::new();
+    for (t, sp) in specs.iter().enumerate() {
+        let mut dst = tabs.slice_mut(t * l * 2..(t + 1) * l * 2);
+        match sp {
+            TabSpecPad::Eq(r) => {
+                assert_eq!(1usize << r.len(), l);
+                let keep = g.eq_table_into(r, &mut dst)?;
+                eq_pts.extend(keep);
+            }
+            TabSpecPad::FromFp(dc, off, n) => {
+                assert!(*n <= l);
+                let src = dc.data.get().slice(*off..*off + *n);
+                let cfg = LaunchConfig::for_num_elems(*n as u32);
+                unsafe { f_fp.clone().launch(cfg, (&src, &mut dst, *n as i32)) }.map_err(|e| format!("k_tab_from_fp: {e}"))?;
+            }
+            TabSpecPad::FromFp2(dc, ore, oim, n) => {
+                assert!(*n <= l);
+                let re = dc.data.get().slice(*ore..*ore + *n);
+                let im = dc.data.get().slice(*oim..*oim + *n);
+                let cfg = LaunchConfig::for_num_elems(*n as u32);
+                unsafe { f_fp2.clone().launch(cfg, (&re, &im, &mut dst, *n as i32)) }.map_err(|e| format!("k_tab_from_fp2: {e}"))?;
+            }
+            TabSpecPad::Host(v) => {
+                assert!(v.len() <= l);
+                let flat = as_u64s_f2(v);
+                let mut head = dst.slice_mut(0..flat.len());
+                dev.htod_sync_copy_into(&flat, &mut head).map_err(|e| format!("tab values upload: {e}"))?;
+            }
+        }
+    }
+    let d_prm = dev.htod_sync_copy(&prm.to_vec()).map_err(|e| e.to_string())?;
+    let mut d_part = unsafe { dev.alloc::<u64>(SC_MAX_BLOCKS as usize * NV * 2) }.map_err(|e| e.to_string())?;
+    let mut d_sums = unsafe { dev.alloc::<u64>(NV * 2) }.map_err(|e| e.to_string())?;
+    let f_round = dev.get_func(MODULE, "k_sc_round_tab_gen").ok_or("k_sc_round_tab_gen missing")?;
+    let f_red = dev.get_func(MODULE, "k_reduce_f2").ok_or("k_reduce_f2 missing")?;
+    let f_fold = dev.get_func(MODULE, "k_sc_fold").ok_or("k_sc_fold missing")?;
+    note_vram(&g);
+    let mut rounds = Vec::with_capacity(nv);
+    let mut challenges = Vec::with_capacity(nv);
+    let mut half = l / 2;
+    for _round in 0..nv {
+        let blocks = (((half as u32) + SCG_THREADS - 1) / SCG_THREADS).clamp(1, SC_MAX_BLOCKS);
+        let cfg = LaunchConfig { grid_dim: (blocks, 1, 1), block_dim: (SCG_THREADS, 1, 1), shared_mem_bytes: 0 };
+        unsafe { f_round.clone().launch(cfg, (&*tabs, half as i32, l as i32, &d_prm, prm_len as i32, ns as i32, &mut d_part)) }
+            .map_err(|e| format!("k_sc_round_tab_gen: {e}"))?;
+        let cfg_r = LaunchConfig { grid_dim: (1, 1, 1), block_dim: (1024, 1, 1), shared_mem_bytes: 0 };
+        unsafe { f_red.clone().launch(cfg_r, (&d_part, blocks as i32, NV as i32, &mut d_sums)) }.map_err(|e| format!("k_reduce_f2: {e}"))?;
+        let h = dev.dtoh_sync_copy(&d_sums).map_err(|e| e.to_string())?;
+        let sums: Vec<Fp2> = (0..NV).map(|d| Fp2::new(Fp(h[2 * d]), Fp(h[2 * d + 1]))).collect();
+        tr.absorb_fp2(b"sc-round", &sums);
+        let r = tr.challenge_fp2();
+        challenges.push(r);
+        rounds.push(sums);
+        let cfg_f = LaunchConfig::for_num_elems((k * half) as u32);
+        unsafe { f_fold.clone().launch(cfg_f, (&mut *tabs, k as i32, half as i32, l as i32, r.c0.0, r.c1.0)) }.map_err(|e| format!("k_sc_fold: {e}"))?;
+        half /= 2;
+    }
+    let mut finals: Vec<Fp2> = Vec::with_capacity(k);
+    for t in 0..k {
+        let v = dev.dtoh_sync_copy(&tabs.slice(t * l * 2..t * l * 2 + 2)).map_err(|e| e.to_string())?;
+        finals.push(Fp2::new(Fp(v[0]), Fp(v[1])));
+    }
+    if verbose() {
+        eprintln!("[UPERF3-AH] table zero-check (2^{nv} x {k}, {ns} slots): {:.4} s", t0.elapsed().as_secs_f64());
     }
     stats_with(|s| s.secs_sumcheck += t0.elapsed().as_secs_f64());
     Ok(ProverOutput { proof: SumcheckProof { rounds }, challenges, finals })

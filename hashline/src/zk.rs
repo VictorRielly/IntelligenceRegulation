@@ -2377,21 +2377,66 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
         v[0].mul(acc)
     };
     let big = 1usize << log_s;
-    let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau3)];
-    for (t, tv) in zl.tabs.iter().zip(tvals.iter()) {
-        let len = 1usize << t.log_size;
-        let mut m: Vec<Fp2> = (0..len).into_par_iter().map(|j| Fp2::from_base(a_data[t.a_row * n + j])).collect();
-        m.resize(big, Fp2::ZERO);
-        let mut h: Vec<Fp2> = (0..len).into_par_iter().map(|j| Fp2::new(h_data[t.h_re * n + j], h_data[t.h_im * n + j])).collect();
-        h.resize(big, Fp2::ZERO);
-        let mut tvx = tv.clone();
-        tvx.resize(big, Fp2::ZERO);
-        tables.push(m);
-        tables.push(h);
-        tables.push(tvx);
-    }
-    let (mut rounds_tab, rho_tab, fin_tab) = masked_prove(&mut tables, 3, &tab_poly, &mc.masks[SC_TAB], c_tab, tr);
-    drop(tables);
+    // [UPERF3-AH] (rung 3) THE TABLE ZERO-CHECK ON THE DEVICE — lane AD's item: at v3 this
+    // sumcheck runs over 2^16 variables and was the last host sumcheck of the ZK prover
+    // (AD: 1.14 s = 20% of the GPU ZK prove). The tables are built on the device from the
+    // resident A / H data plus the uploaded PUBLIC table values, each zero-extended to 2^log_S
+    // exactly as the host's `resize(big, ZERO)`; the ZK masker rides the transcript as in the
+    // other two device zero-checks. Attempted on a CLONED transcript state, so a decline
+    // (allocation, an unexpected shape) falls through to the host body with nothing absorbed.
+    #[cfg(feature = "gpu-cuda")]
+    let dev_tab = if let (true, Some(a_dc), Some(h_dc)) = (crate::gpu::enabled(), dev_of(&a_cmz.cm), dev_of(&h_cmz.cm)) {
+        use crate::gpu::TabSpecPad;
+        let mut specs: Vec<TabSpecPad> = Vec::with_capacity(1 + 3 * n_tabs);
+        specs.push(TabSpecPad::Eq(&tau3));
+        for (t, tv) in zl.tabs.iter().zip(tvals.iter()) {
+            let len = 1usize << t.log_size;
+            specs.push(TabSpecPad::FromFp(a_dc, t.a_row * n, len));
+            specs.push(TabSpecPad::FromFp2(h_dc, t.h_re * n, t.h_im * n, len));
+            specs.push(TabSpecPad::Host(tv));
+        }
+        let mut prm: Vec<u64> = Vec::with_capacity(2 + 2 * n_tabs);
+        prm.push(alpha.c0.0);
+        prm.push(alpha.c1.0);
+        for v in mu3.iter() { prm.push(v.c0.0); prm.push(v.c1.0); }
+        let mut tr_try = Transcript::clone_state(tr);
+        tr_try.set_masker(Box::new(CfsMasker { mask: mc.masks[SC_TAB].clone(), c: c_tab, challenges: Vec::new() }));
+        match crate::gpu::dev_tab_zerocheck(&specs, &prm, &mut tr_try) {
+            Ok(out) => {
+                let (_, masked) = tr_try.take_masker();
+                *tr = tr_try;
+                Some((masked, out.challenges, out.finals))
+            }
+            Err(e) => {
+                let _ = tr_try.take_masker();
+                eprintln!("[UPERF3-AH] gpu table zero-check declined ({e}); CPU path");
+                None
+            }
+        }
+    } else { None };
+    #[cfg(not(feature = "gpu-cuda"))]
+    let dev_tab: Option<(Vec<Vec<Fp2>>, Vec<Fp2>, Vec<Fp2>)> = None;
+    let (mut rounds_tab, rho_tab, fin_tab) = match dev_tab {
+        Some(x) => x,
+        None => {
+            let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau3)];
+            for (t, tv) in zl.tabs.iter().zip(tvals.iter()) {
+                let len = 1usize << t.log_size;
+                let mut m: Vec<Fp2> = (0..len).into_par_iter().map(|j| Fp2::from_base(a_data[t.a_row * n + j])).collect();
+                m.resize(big, Fp2::ZERO);
+                let mut h: Vec<Fp2> = (0..len).into_par_iter().map(|j| Fp2::new(h_data[t.h_re * n + j], h_data[t.h_im * n + j])).collect();
+                h.resize(big, Fp2::ZERO);
+                let mut tvx = tv.clone();
+                tvx.resize(big, Fp2::ZERO);
+                tables.push(m);
+                tables.push(h);
+                tables.push(tvx);
+            }
+            let out = masked_prove(&mut tables, 3, &tab_poly, &mc.masks[SC_TAB], c_tab, tr);
+            drop(tables);
+            out
+        }
+    };
     let mut exts = vec![Fp2::ZERO; 1 + 3 * n_tabs];
     for (i, t) in zl.tabs.iter().enumerate() {
         let k = log_s - t.log_size as usize;

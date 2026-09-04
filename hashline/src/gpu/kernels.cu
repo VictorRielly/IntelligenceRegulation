@@ -484,17 +484,19 @@ extern "C" __global__ void k_sc_round_zc17(const u64* __restrict__ tabs, int hal
 #define SCG_THREADS 128
 #define SCG_MAX_PRM 384
 
-// The block reduction and the partial write, shared by both kernels.
+// The block reduction and the partial write (NV = degree + 1 values per
+// round), shared by the block-looping kernels.
+template <int NV>
 __device__ __forceinline__ void scg_emit(const f2* acc, u64* red, u64* __restrict__ partial) {
     #pragma unroll
-    for (int d = 0; d <= SC_DEG; d++) { red[(threadIdx.x * (SC_DEG + 1) + d) * 2] = acc[d].c0; red[(threadIdx.x * (SC_DEG + 1) + d) * 2 + 1] = acc[d].c1; }
+    for (int d = 0; d < NV; d++) { red[(threadIdx.x * NV + d) * 2] = acc[d].c0; red[(threadIdx.x * NV + d) * 2 + 1] = acc[d].c1; }
     __syncthreads();
     for (int s = blockDim.x / 2; s > 0; s >>= 1) {
         if (threadIdx.x < s) {
             #pragma unroll
-            for (int d = 0; d <= SC_DEG; d++) {
-                int a = (threadIdx.x * (SC_DEG + 1) + d) * 2;
-                int b = ((threadIdx.x + s) * (SC_DEG + 1) + d) * 2;
+            for (int d = 0; d < NV; d++) {
+                int a = (threadIdx.x * NV + d) * 2;
+                int b = ((threadIdx.x + s) * NV + d) * 2;
                 red[a] = gl_add(red[a], red[b]);
                 red[a + 1] = gl_add(red[a + 1], red[b + 1]);
             }
@@ -503,7 +505,7 @@ __device__ __forceinline__ void scg_emit(const f2* acc, u64* red, u64* __restric
     }
     if (threadIdx.x == 0) {
         #pragma unroll
-        for (int d = 0; d <= SC_DEG; d++) { partial[(blockIdx.x * (SC_DEG + 1) + d) * 2] = red[d * 2]; partial[(blockIdx.x * (SC_DEG + 1) + d) * 2 + 1] = red[d * 2 + 1]; }
+        for (int d = 0; d < NV; d++) { partial[(blockIdx.x * NV + d) * 2] = red[d * 2]; partial[(blockIdx.x * NV + d) * 2 + 1] = red[d * 2 + 1]; }
     }
 }
 
@@ -562,7 +564,7 @@ extern "C" __global__ __launch_bounds__(SCG_THREADS, 1) void k_sc_round_zcf_gen(
             acc[d] = f2_add(acc[d], f2_add(f2_add(f2_mul(e0, zc[d]), f2_mul(e1, fa[d])), f2_mul(e5, fb[d])));
         }
     }
-    scg_emit(acc, red, partial);
+    scg_emit<SC_DEG + 1>(acc, red, partial);
 }
 
 extern "C" __global__ __launch_bounds__(SCG_THREADS, 1) void k_sc_round_zcd_gen(
@@ -613,7 +615,7 @@ extern "C" __global__ __launch_bounds__(SCG_THREADS, 1) void k_sc_round_zcd_gen(
             acc[d] = f2_add(acc[d], f2_add(f2_add(f2_mul(e0, zc[d]), f2_mul(e2, fx[d])), f2_mul(e4, fz[d])));
         }
     }
-    scg_emit(acc, red, partial);
+    scg_emit<SC_DEG + 1>(acc, red, partial);
 }
 
 // out[m f2] = sum over n entries of m f2 each (one block).
@@ -1077,4 +1079,60 @@ extern "C" __global__ void k_gather_cols_off(const u64* __restrict__ enc, u64* _
     int c = g / rc;
     int i = g - c * rc;
     out[(size_t)c * (size_t)rows + (size_t)(row0 + i)] = enc[(size_t)i * (size_t)nn + (size_t)idx[c]];
+}
+
+// [UPERF3-AH] (rung 3, lane AD's item) The ZK TABLE zero-check on the
+// device: eq(tau3) * sum_i mu3_i (h_i (alpha - tval_i) - m_i) over
+// log_S = max(log n, 16) variables, DEGREE 3 (4 evaluation points per
+// round, not 5). Tables: 0 = eq(tau3), then per slot i the multiplicity
+// row m (a base-field row of the A data), the helper h (an (re, im) pair
+// of H rows) and the PUBLIC table values tval (uploaded), each
+// ZERO-EXTENDED from its own 2^log_size to 2^log_S — the host builds the
+// same three vectors with `resize(big, ZERO)`, so the device buffer is
+// zeroed once and only the live prefix is written.
+//   prm: alpha 0, mu3[ns] 2..
+
+extern "C" __global__ __launch_bounds__(SCG_THREADS, 1) void k_sc_round_tab_gen(
+        const u64* __restrict__ tabs, int half, int L, const u64* __restrict__ prm, int prm_len, int ns, u64* __restrict__ partial) {
+    __shared__ u64 sprm[SCG_MAX_PRM];
+    __shared__ u64 red[SCG_THREADS * 4 * 2];
+    for (int i = threadIdx.x; i < prm_len; i += blockDim.x) sprm[i] = prm[i];
+    __syncthreads();
+    const f2 alpha = prm_f2(sprm, 0);
+    f2 acc[4];
+    #pragma unroll
+    for (int d = 0; d < 4; d++) acc[d] = f2_zero();
+    for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < half; i += gridDim.x * blockDim.x) {
+        f2 sum[4];
+        #pragma unroll
+        for (int d = 0; d < 4; d++) sum[d] = f2_zero();
+        for (int t = 0; t < ns; t++) {
+            f2 cur[3], dif[3];
+            #pragma unroll
+            for (int r = 0; r < 3; r++) {
+                size_t off = (size_t)(1 + 3 * t + r) * (size_t)L;
+                f2 v0 = ld_f2(tabs, off + i);
+                f2 v1 = ld_f2(tabs, off + i + half);
+                cur[r] = v0;
+                dif[r] = f2_sub(v1, v0);
+            }
+            const f2 mu = prm_f2(sprm, 2 + 2 * t);
+            #pragma unroll
+            for (int d = 0; d < 4; d++) {
+                if (d) {
+                    #pragma unroll
+                    for (int r = 0; r < 3; r++) cur[r] = f2_add(cur[r], dif[r]);
+                }
+                sum[d] = f2_add(sum[d], f2_mul(mu, f2_sub(f2_mul(cur[1], f2_sub(alpha, cur[2])), cur[0])));
+            }
+        }
+        f2 e = ld_f2(tabs, (size_t)i);
+        f2 de = f2_sub(ld_f2(tabs, (size_t)i + half), e);
+        #pragma unroll
+        for (int d = 0; d < 4; d++) {
+            if (d) e = f2_add(e, de);
+            acc[d] = f2_add(acc[d], f2_mul(e, sum[d]));
+        }
+    }
+    scg_emit<4>(acc, red, partial);
 }

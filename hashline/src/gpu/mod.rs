@@ -34,7 +34,7 @@ pub use cuda::{dev_commit_check_chunked, dev_encode_only};
 // device-buffer reservation that keeps the "declined -> host path" discipline
 // honest once the helper columns have already gone to the device.
 #[cfg(feature = "gpu-cuda")]
-pub use cuda::{dev_reserve, dev_zerocheck_blocks};
+pub use cuda::{dev_reserve, dev_tab_zerocheck, dev_zerocheck_blocks, TabSpecPad};
 
 #[cfg(not(feature = "gpu-cuda"))]
 mod stub {
