@@ -11154,3 +11154,39 @@ row, which nobody has yet;
 deleted in favour of the general ones (measured equal at their own
 shape) — kept only because XX's and ZA's published rows were taken
 with them.
+
+### Lane AI — the GPU 8B ZK row: generalize zk.rs's own device gate (wt-uperf3-ai) — RUST/CUDA (round 13 addendum)
+OWNS: hashline/src/zk.rs (its `dev_shape` gate ~line 2004,
+`nb_f == 1 && nb_d == 3`, plus whatever the same three-edit pattern
+lane AH applied to layer.rs requires — AH's tagged block in zk.rs is
+the model), hashline/src/gpu/* (ADDITIVE only, if a kernel needs a
+ZK-specific entry), NEW results/hashline_zk_8b_gpu_*, the ZK rows in
+docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md §3 and the P1 cells in
+U_PERF3_ROUTE_B_THROUGHPUT.md §6, "Agent AI status". READ-ONLY:
+layer.rs (lane AG is building the full-layer prover there), pcs.rs,
+pcs_compact.rs, sumcheck.rs, transcript.rs, wcache.rs, attention.rs,
+norm.rs, export_v3.rs, tables_v3.rs, silu.rs, zkmatrix-rs/, scripts/.
+WHY: under Victor's P1 ruling (private inputs, public weights) the
+product number is the 8B proof, on a GPU, with privacy. Today: the 8B
+GPU pass is 95.48 s WITHOUT privacy, and the ZK prover still declines
+the device path at Mistral width because zk.rs carries its own
+125M-shaped gate — so no such row exists, only a ~534 s CPU [MODEL].
+Lane AD measured the P1 surcharge at +4.7% prover / +3.9% bytes on
+one Mistral layer, so the row should land near 100 s.
+RUNGS (prefix "U-PERF3 AI:"): 0 the plan + the four byte gates
+re-run on both binaries; 1 the gate generalized, `--zk` on the device
+at Mistral width, bytes identical to the CPU ZK proof at one Mistral
+layer (AD's T=512 layer row: 15.73 s CPU, 40,186,228 B) — record the
+wall and the digest; 2 the 12x512 zk-v3 GPU wall re-measured (4.16 s
+is the number to beat) with the gate green at both shapes; 3 **THE
+GPU 8B ZK PASS**: `pass 32 512 --zk --seed 1 --profile v3 --export
+/home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --wcache DIR
+--threads 8 --proof-out F` with `HL_GPU=1` — the proof byte-identical
+to the CPU ZK proof of the same statement (run the CPU one too, or
+state why it is out of reach and compare at a smaller layer count);
+walls, RSS, VRAM, bytes, proven MAC/s; 4 the record + the §3 ZK rows
++ the P1 tokens/s cells against lane YY's band.
+
+## Agent AI status (wt-uperf3-ai) — round 13
+
+(lane appends below)
