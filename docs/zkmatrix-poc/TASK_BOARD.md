@@ -80,22 +80,32 @@ FLOORS ARE GREEN; A LOST-COMMIT RECOVERY, AND ITS ROOT CAUSE FIXED):**
   the box itself is off, and this is the SECOND hard stop in ~6 hours of
   wall time (see the 2026-09-04-late block below). If it recurs, the
   host's sleep/hibernate settings are the thing to look at, not the runs.
-- **LANE AM IS MID-FLIGHT (uperf3-am, b026b04), rungs 0-1 committed and
-  now pushed.** MODE P3 EXISTS: the hiding per-proof weight commitment,
-  and the clear-value scan goes **61 runs of raw int8 weight columns
-  under P1 -> ZERO under P3**; 41/41 tests; P1's 12x512 v3 still
-  `40eb5479..` byte-identical. Its rung 2 (P3 at Mistral width) was
-  killed 10 s before the lost commit with 3 lines in the log; it was
-  RE-ENQUEUED on `/tmp/zk-heavy.lock` and self-started at 10:46:09 when
-  the floors released it (`results/am_r2_mistral.log`, marker
-  `am_r2_mistral.done`; the truncated first attempt is kept as
-  `am_r2_mistral.crashed.log`). Rung 3's script `am_r3_8b.sh` is staged
-  and has never been run.
-- **IF YOU ARE PICKING THIS UP**: check
-  `wt-uperf3-am/results/am_r2_mistral.done` first. Exit 0 means rung 2
-  finished and the lane should record it and go to rung 3; no marker and
-  no `hashline` process means it died again — re-enqueue with the same
-  wrapper.
+- **LANE AM (uperf3-am, 9893832) — rungs 0-2 DONE and pushed, rung 3
+  never run.** MODE P3 EXISTS: the hiding per-proof weight commitment;
+  41/41 tests; P1's 12x512 v3 still `40eb5479..` byte-identical.
+- **RUNG 2 RE-RAN GREEN AFTER THE TEARDOWN** (killed at 01:37:13 with 3
+  lines in the log, re-enqueued on the heavy lock, self-started 10:46:09,
+  exit 0). One Mistral layer, d 4096 / f 14336, T=512, GPU binary
+  [MEASURED]: **8/8 tamper legs REJECT** and the honest run ACCEPTs
+  (`layer 0 (v3) [ZK]: GREEN`); **the clear-value scan goes 180,450
+  int8-class words under P1 -> ZERO under P3**, and the size cost is
+  **+65,632 B = +0.16%** (40,186,228 -> 40,251,860 B). The privacy claim
+  holds at real width and costs essentially no bytes.
+- **DO NOT QUOTE 4.26 -> 15.82 s AS THE P3 SURCHARGE.** The P1 arm ran
+  the device commit; the P3 arm DECLINED it —
+  `cuMemAlloc(5387 MB): CUDA_ERROR_OUT_OF_MEMORY` — and fell back to CPU,
+  because P3 forbids the weight cache and must commit W hidingly every
+  proof, and that allocation cannot fit an 8,188 MB card already spilling
+  at 8,585 MB under P1. So 3.71x is P3-on-CPU against P1-on-GPU on THIS
+  box, NOT P3's structural cost, which is still unmeasured at Mistral
+  width. **This sizes lane AI's "the ZK prover declines the device path"
+  item at 5,387 MB** and makes the 16 GB+ board decisive for the full
+  tier as well as the fast one — the 5090 settles both at once.
+- **IF YOU ARE PICKING UP LANE AM**: rung 2's artifacts are committed but
+  its LEDGER PROSE IS NOT WRITTEN — that is the next AM agent's first
+  job (`results/am_r2_mistral.log` has everything). Then rung 3:
+  `results/am_r3_8b.sh` is staged, has NEVER been run, and must go out
+  detached under `flock /tmp/zk-heavy.lock` with a `.done` marker.
 
 **AS OF 2026-09-05 (ROUND 14 CLOSED — all three lanes merged, floors
 green — AND TWO CORRECTIONS THAT MOVED THE PLAN'S ARITHMETIC TWICE):**
