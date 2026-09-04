@@ -11868,6 +11868,114 @@ B1b, B2, B3, B4a/B4b — and that is what the rungs below do.
 `40eb54795e023c77..` 87,697,008 B), plus `cargo test --release`. The
 8B row moves only when the 125M gates are green.
 
+**RUNG 0 (second half) — THE BASELINE AND THE ANATOMY (2026-09-03/04,
+WSL-BOX 8T + RTX 4070 Laptop, `flock /tmp/zk-heavy.lock`, [MEASURED],
+NOISY-SHARED by convention: lanes AI and AK were on the CPU, the GPU was
+exclusive under the lock).** Builds: CPU + GPU clean.
+
+THE BASELINE THIS LANE MUST MOVE — one real Mistral-7B layer at T = 512
+on the GPU, `HL_GPU=1 pass 1 512 --profile v3 --export
+/home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --threads 8
+--proof-out F`: **PROVE 3.134 s**, verify 0.04 s, proof 38,688,700 B,
+sha256 **179ec2fb8f99d0d6..** (AH's, AC's and the CPU prover's digest),
+RSS 2.47 GB, VRAM peak 5,651 MB, wall 6.61 s. (AH measured 3.090 s for
+the same command; the 1.4% is the box.)
+
+| phase | s | what is inside it |
+|---|---:|---|
+| commit W | 1.402 | h2d(W) ~0.379 + chunked encode+hash 0.331 + **~0.69 HOST** |
+| commit A | 0.461 | h2d(A) ~0.124 + chunked 0.105 + **~0.23 HOST** |
+| helpers + commit H | 0.267 | device helpers 0.103 + chunked 0.087 |
+| matmul g/u + d | 0.255 | **HOST folds over `w_data`** (layer.rs) |
+| zero-check F + D | 0.169 | device (lane AH) |
+| pcs openings | 0.573 | chunked re-encode 0.442 + device fold 0.084 |
+
+Device counters: h2d 0.504 s (1,871 MB = W 1,409 + A 461; H is built on
+the device), ntt 0.450, hash 0.073, sumcheck 0.169, fold 0.091, helpers
+0.103, opening re-encode 0.442 = **1.832 s**. So **1.302 s (41.6%) of
+the prove is host time**, and — measured phase by phase — **1.17 s of
+that 1.30 is in layer.rs**: the `Fp::from_i64` conversion and the 1.4 GB
+`w_data` allocation (~0.69 s), the same for `a_data` (~0.23), and the
+host matmul folds (0.255). **layer.rs is READ-ONLY for this lane, so the
+ceiling on what this lane can move is h2d + ntt + re-encode = 1.47 s of
+the 3.13 (47%)** — recorded here because it caps the lane's factor at
+~1.9x even if every device item went to zero, against the plan's 2.4-2.9x
+for L2. THE ITEM THE ORCHESTRATOR MUST REASSIGN IF L2 IS TO LAND IN FULL:
+one call site in `prove_layer_v3` (layer.rs:1341-1391) building `w_data`
+/ `a_data` from the int8 planes, which rung 3 below makes unnecessary on
+the device side but cannot delete.
+
+**RUNG 1 — PINNED, DOUBLE-BUFFERED, INTERLEAVED UPLOADS (2026-09-04,
+[MEASURED]).** What landed in gpu/cuda.rs: `PinBuf` (cuMemHostAlloc,
+write-combined), `Uploader` (two staging buffers, a non-blocking copy
+stream, one event per buffer), `Gpu::upload_sync` (a drop-in for
+`htod_sync_copy_into` at the four block-upload sites) and
+`commit_chunked_upload`, which sends chunk k+1's bytes on the copy
+stream while chunk k encodes and hashes on the default stream. Switches:
+`HL_GPU_PIN_MB=0`, `HL_GPU_STREAM_COMMIT=0`.
+
+THE FINDING THAT SHAPED EVERYTHING AFTER IT — the h2d probe
+(`HL_GPU_BENCH_H2D=1 gpu-probe`, 1.07 GB x3): **pageable 5.56 GB/s |
+pinned host fill 29.13 | pinned staged serial 5.17 | pinned
+double-buffered 5.44 GB/s**. **Page-locked staging does NOT raise the
+host-to-device rate on this WSL box** (the paravirtualized WDDM path
+already stages every copy); the DMA is capped near 5.5-6.3 GB/s whatever
+the source. So the only levers on h2d are (a) overlapping it with
+compute and (b) putting fewer bytes on the wire — which is rung 3.
+
+**RUNG 2 — THE COLUMN GATHER FUSED INTO THE LAST NTT STAGE GROUP
+(2026-09-04, [MEASURED]).** `k_ntt_p2_gather` in kernels.cu: identical
+arithmetic to `k_ntt_p2` (same shared tile, same twiddles, same order),
+but instead of writing the whole encoded row back it stores only the
+`sel`-marked columns, so the opening's re-encode neither writes the
+encoded chunk (537 MB per 1024-row chunk at the Mistral W shape) nor
+re-reads it to gather — 1.07 GB of the 2.82 GB of per-chunk traffic
+[COUNTED]. Duplicate column indices (which `challenge_indices` produces
+about half the time at Q = 256 over nn = 65,536) get one device slot each
+and are expanded on the host. Switch: `HL_GPU_FUSE_GATHER=0`.
+
+**THE A/B, one Mistral layer, all five arms byte-identical
+(`179ec2fb..`, 38,688,700 B):**
+
+| arm | PROVE s | opening re-encode s | commit W (upload+encode+hash) s |
+|---|---:|---:|---:|
+| base (rungs 1-2 off) | 2.97 | 0.444 | ~0.72 |
+| fused gather only | 3.00 | 0.442 | ~0.72 |
+| interleaved upload only | **2.76** | 0.449 | 0.569 |
+| both | 2.79 / 2.86 | 0.442 / 0.444 | 0.636 / 0.545 |
+
+VERDICT, stated honestly: **the interleaved upload is worth ~0.2 s of the
+3.0 (7%); the fused gather is PARITY** — 0.442 against 0.444 s. The
+re-encode is therefore NOT bandwidth-bound at this shape, which is a
+result in itself (it rules out the "fewer bytes" family of fixes for B3
+and points at occupancy). The fused kernel is kept ON because it moves
+1.07 GB less per chunk at no cost and needs less device memory for its
+output; it is switchable and it is exercised by the probe's chunked
+checks and by four forced-chunked byte gates.
+
+**THE PARAMETER SWEEP THAT PAID MORE THAN EITHER RUNG** (same command,
+same digest in every arm): the chunked commit's row chunk and the NTT
+block size are free parameters nobody had swept at a real model width.
+`HL_GPU_CHUNK_ROWS` 1024 -> 128 shrinks the encoded scratch from 537 MB
+to 67 MB; `HL_GPU_NTT_THREADS` 256 -> 512 takes the 32 KB-shared NTT
+kernels from 50% to 100% occupancy on sm_89 (3 blocks x 512 threads =
+1,536 = the SM's limit).
+
+| arm | PROVE s |
+|---|---:|
+| chunk 1024, 256 threads (the built defaults) | 2.79-2.86 |
+| chunk 256, 256 threads | 2.87 |
+| chunk 128, 256 threads | 2.81 |
+| chunk 1024, 512 threads | 2.85 |
+| chunk 1024, 1024 threads | 2.83 |
+| **chunk 128, 512 threads** | **2.46** |
+
+Neither parameter alone does anything; together they are **1.27x over the
+rung-0 baseline** (3.134 -> 2.46 s) with the same proof bytes. The
+streamed commit of W runs in 0.385 s against ~0.72 s, of which 0.303 s is
+now the DMA itself — which is what rung 3 attacks.
+
+
 ## Agent AK status (wt-uperf3-ak) — round 14
 
 (lane appends below)
