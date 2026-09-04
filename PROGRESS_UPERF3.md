@@ -9270,7 +9270,10 @@ form keep ZA's pads/masks? what changes?).
 
 ## Agent AE status (wt-uperf3-ae) — round 12
 
-(lane appends below)
+(lane appends below — NOTE: this lane's log is the block at the END of
+this file, the one beginning "LANE: attention, norms and the
+layer-to-layer seams"; it was opened there in rung 0 and left in place
+so that moving it cannot conflict with the other lanes' appends.)
 
 ## Agent AF status (wt-uperf3-af) — round 12
 
