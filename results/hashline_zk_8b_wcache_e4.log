@@ -1,0 +1,46 @@
+
+=== RUN 1  ZK + --wcache (COLD) ===
+2026-09-03 23:51:45
+[UPERF3-AC] wcache MISS -> wrote /home/victor/wt-uperf3-ai/results/scratch-ai/wc_e4/v3-l00-646419fd3939abf9.wc (4.2 MB, commit 0.773 s, write 0.002 s)
+  layer  0: prove 4.543 s, 40186228 B
+[UPERF3-AC] wcache MISS -> wrote /home/victor/wt-uperf3-ai/results/scratch-ai/wc_e4/v3-l01-e873a379bcc06793.wc (4.2 MB, commit 0.655 s, write 0.002 s)
+  layer  1: prove 7.928 s, 40173940 B
+prover phases (summed over layers):
+      commit W                      2.671 s
+PROOF sha256 5c766868d6dfaffe42d4696f155dcdd6beadf925224a5f0ff03b3f6406c71986 (80360168 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 2 x 512 (d 4096 f 14336): witness load+chain 5.85 s | PROVE 12.47 s | VERIFY 0.11 s | proof 80360168 B (80.4 MB) | 1.804e11 MACs | 1.447e10 proven MAC/s (prove wall) | wall 18.54 s
+PROOF RUN 1  ZK + --wcache (COLD): 5c766868d6dfaffe42d4696f155dcdd6beadf925224a5f0ff03b3f6406c71986  80360168 B
+wcache dir after run 1: 8.1M, 2 files
+
+=== RUN 2  ZK + --wcache (WARM) ===
+2026-09-03 23:52:07
+[UPERF3-AC] wcache HIT /home/victor/wt-uperf3-ai/results/scratch-ai/wc_e4/v3-l00-646419fd3939abf9.wc (rows 10752, 4.2 MB, load+verify 0.009 s, re-encode 0.386 s)
+thread 'main' (20895) panicked at src/zk.rs:2163:94:
+gpu helpers (zk v3): "cuMemAlloc(379 MB): DriverError(CUDA_ERROR_OUT_OF_MEMORY, \"out of memory\")"
+
+=== RUN 3  ZK, NO --wcache ===
+2026-09-03 23:52:54
+  layer  0: prove 4.326 s, 40186228 B
+  layer  1: prove 7.924 s, 40173940 B
+prover phases (summed over layers):
+      commit W                      2.514 s
+PROOF sha256 5c766868d6dfaffe42d4696f155dcdd6beadf925224a5f0ff03b3f6406c71986 (80360168 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 2 x 512 (d 4096 f 14336): witness load+chain 5.63 s | PROVE 12.25 s | VERIFY 0.11 s | proof 80360168 B (80.4 MB) | 1.804e11 MACs | 1.473e10 proven MAC/s (prove wall) | wall 18.10 s
+PROOF RUN 3  ZK, NO --wcache: 5c766868d6dfaffe42d4696f155dcdd6beadf925224a5f0ff03b3f6406c71986  80360168 B
+
+=== RUN 4  NON-ZK v3 + --wcache (WARM, written by the ZK prover) ===
+2026-09-03 23:53:15
+[UPERF3-AC] wcache HIT /home/victor/wt-uperf3-ai/results/scratch-ai/wc_e4/v3-l00-646419fd3939abf9.wc (rows 10752, 4.2 MB, load+verify 0.005 s, re-encode 0.388 s)
+  layer  0: prove 2.636 s, 38688700 B
+[UPERF3-AC] wcache HIT /home/victor/wt-uperf3-ai/results/scratch-ai/wc_e4/v3-l01-e873a379bcc06793.wc (rows 10752, 4.2 MB, load+verify 0.007 s, re-encode 0.240 s)
+  layer  1: prove 2.325 s, 38619084 B
+prover phases (summed over layers):
+      commit W                  1.610 s
+PROOF sha256 b0efed43a7bb1d35ba99d534f31dcb95766ae99ff95c6f69f9df487d83ba31b4 (77307784 B)
+  wcache /home/victor/wt-uperf3-ai/results/scratch-ai/wc_e4: hits 2 | misses 0 | rejected 0 | read 8.4 MB | wrote 0.0 MB | key 0.029 s | load+verify 0.012 s | re-encode 0.628 s | commit(miss) 0.000 s | save 0.000 s
+PASS-V3 ACCEPT: 2 x 512 (d 4096 f 14336): witness load+chain 5.56 s | PROVE 4.96 s | VERIFY 0.07 s | proof 77307784 B (77.3 MB) | 1.804e11 MACs | 3.636e10 proven MAC/s (prove wall) | wall 10.72 s
+PROOF RUN 4  NON-ZK v3 + --wcache (WARM, written by the ZK prover): b0efed43a7bb1d35ba99d534f31dcb95766ae99ff95c6f69f9df487d83ba31b4  77307784 B
+
+=== E4 VERDICT ===
+FAILURE: cold != warm
+2026-09-03 23:53:29
