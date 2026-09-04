@@ -11081,3 +11081,76 @@ asks for exactly this port. The edit is one `[UPERF3-AH]`-tagged block
 that wraps the existing host body in a `match` (the host body is byte
 for byte the old code, moved into the `None` arm); no other line of
 zk.rs changed, and no round-13 lane owns that file.
+
+**RUNG 5 — THE RECORD, AND THE 8B PASS RE-RUN ON THE FINAL BINARY
+(2026-09-03).** The rung-4 run was taken before rung 3 landed, so the
+whole pass was repeated on the final binary with a fresh cache dir
+(cold, as before): **PROVE 104.42 s**, verify 1.01 s, witness load
+130.30 s, wall 237.57 s, RSS 3.85 GB, VRAM 5,651 MB, **sha256
+`dc980e810085b2ddf4688eb4a6cf4dd931c209bf7c5a9a7692d57ec14bc4536c`
+(1,234,936,956 B) — the same digest, verified by hand**. The 8.9 s
+against run 1's 95.48 s is entirely `commit W` (41.94 -> 50.56 s): run
+2 started with 2 GB free and 11 GB of page cache left by run 1's 1.23
+GB proof write and the 7 GB export re-read, so its host-side plane
+conversion and pageable upload paid more. The phases THIS LANE moved
+reproduced to three digits (zcF 4.645 / 4.649, zcD 0.792 / 0.789,
+helpers + H 5.361 / 5.408). **Quote 95.5-104.4 s; 95.5 is the
+quiet-box figure and 175.09 s the number it replaces.**
+
+THE THREE RECORD ARTIFACTS:
+(1) **NEW results/hashline_gpu_shapegen.md** — in the form of XX's
+results/hashline_gpu_12x512.md: what was templated and why it declined
+the real model (the block-count table: 125M (1, 3) = 13/15 tables vs
+Mistral (7, 1) = 73/7), the fix and why the bytes cannot move, the 8B
+row with both cold runs against AC's and the CPU's, the per-phase
+table, the residual-host table with each item's lever, the one-layer
+isolation, the 125M A/B, the ZK table zero-check, the four gates, and
+the tokens/s verdict against YY's band.
+(2) **docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md §3** — a new row
+under AC's 8B GPU row ("...WITH SHAPE-GENERAL KERNELS": 95.5 / 104.4 s,
+verify 1.16 s, 1,234.9 MB byte-identical dc980e81.., 3.80 GB + 5,651 MB
+VRAM, 3.02e10 MAC/s, 5.35x the CPU row and 1.83x AC's) plus the "Lane
+AH BUILT THAT KERNEL, and it beat its own model" paragraph after AC's.
+(3) **docs/zkmatrix-poc/U_PERF3_ROUTE_B_THROUGHPUT.md §6.2 / §6.5** —
+the re-measured GPU cell beside AC's, and a measured 8B row in the
+MAC/s table. (That file is not in this lane's OWNS block; the addition
+is one tagged block appended after AC's cells and one added table row,
+so a merge is mechanical. Flagged for the orchestrator.)
+
+**THE TOKENS/S VERDICT (the question rung 5 asked).** At 8B prefill
+T = 512, mode P0, FFN-only, prover clock, laptop GPU:
+
+| cell | YY [MODEL] §6.2 | AC [MEASURED] | **AH [MEASURED]** | verdict |
+|---|---|---:|---:|---|
+| tokens/s | 5.2-16 | 2.92 | **5.36** (slow run 4.90) | **the band's low end reached** |
+| proven MAC/s §6.5 | 2.9e10-8.8e10 | 1.65e10 | **3.02e10** (2.76e10) | **inside at the low end** |
+| laptop CPU 8T | 1.0 | 1.00 | 1.00 | inside — exact |
+
+WHERE THE FIX LANDS: it closes the entire share AC attributed to the
+declined kernels (2.92 -> 5.36 tok/s = 1.83x, against the 1.5x AC's
+[MODEL] expected) and moves the measured row from 1.8x below the band
+to inside it. The distance to the band's UPPER end is now four host
+items, none of them a shape problem and all with known byte-preserving
+fixes: the witness planes -> Fp conversion + pageable upload (~13-20 s
+per 8B pass), the encode NTT (15.8 s), the opening's chunked re-encode
+(14.3 s), and the Merkle levels + serialization of a 1.23 GB proof
+(~13 s). The caution AC attached to the desktop-board and H100 columns
+can be narrowed: the "Route B is device-shaped" premise now HOLDS for
+the checks and the helpers at a real model width, and fails only for
+witness marshalling and proof handling.
+
+**WHERE THIS LANE STOPPED.** Rungs 0-5 green, committed, gates green at
+every rung. Not done, in the order the next agent should take them:
+(a) the raw-plane upload with device-side i8/i32 -> Fp conversion and
+pinned staging (~13-20 s of the 8B pass, XX's and AC's item (b));
+(b) the opening's re-encode / Merkle / serialization (~27 s);
+(c) zk.rs's OWN `dev_shape` gate (line ~2004) is still `nb_f == 1 &&
+nb_d == 3` — the ZK prover therefore still declines the device path at
+Mistral width even though the kernels it needs now exist. Generalizing
+it is the same three-edit pattern this lane applied to layer.rs (the
+gate, the helper specs, the two spec lists) and would give a GPU 8B ZK
+row, which nobody has yet;
+(d) the templated `k_sc_round_zc20 / zc17` kernels could now be
+deleted in favour of the general ones (measured equal at their own
+shape) — kept only because XX's and ZA's published rows were taken
+with them.

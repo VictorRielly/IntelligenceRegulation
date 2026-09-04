@@ -172,6 +172,7 @@ architecture (U_PERF3_HEADLINE_ROUTES.md).
 | **B hash-based, THE 8B ROW: Mistral-7B 32 x 512 x 4096 x 14336, `--profile v3` (2026-09-03)** | **WSL laptop, 8T CPU only** | **510.4 s (incl. the 225 s weight commitments)** | **1.21 s** | **1,234.9 MB** | **13.99 GB** | **5.66e9** | hash-only + ROM ~100-bit; ZK NO (the `--zk` form exists for v2 only today) | **[MEASURED, NOISY-SHARED] — the first full 8B FFN proof in this repository; the lattice line's 8B row is still [MODEL] (never run)** |
 | **B hash-based, ONE 8B-WIDTH LAYER IN ZERO KNOWLEDGE: Mistral-7B layer 0, 512 x 4096 x 14336, `--zk --profile v3` (lane AD, 2026-09-03)** | **WSL laptop, 8T CPU only** | **15.73 s p50 of 3 (15.14-18.67 s; the same layer non-zk 15.02 s p50 = a +4.7% ZK surcharge)** | **0.056 s** | **40.19 MB (non-zk 38.69 MB: +3.9%)** | **13.29 GB (non-zk 13.17 GB: +0.9%)** | **1.53e9** | mode P1 (inputs and activations private, weights public), the v3 statement; hash-only + ROM ~100-bit | **[MEASURED, NOISY-SHARED] — the ZK form now runs the 8B statement; the 32 x 512 pass in mode P1 models to ~534 s / ~1,283 MB [MODEL, this ratio x 32]** |
 | **B hash-based, THE 8B ROW ON THE GPU: the same Mistral-7B 32 x 512 statement, `--features gpu-cuda` + `HL_GPU=1`, chunked weight commitments + the per-model weight cache (lane AC, 2026-09-03)** | **WSL laptop, 8T + RTX 4070 Laptop (55-70 W)** | **175.1 s cold cache / 193.3 s warm (the warm run shared the box; per-layer 5.472 s mean, +/-3.5% over the 32 layers)** | **1.09 s** | **1,234.9 MB (BYTE-IDENTICAL to the CPU proof AND to the cached form: sha256 dc980e81..)** | **5.33 GB (+ 4,175 MB VRAM of the part's 8,188)** | **1.65e10** | same as the CPU row (same protocol, same parameters, ZK NO) | **[MEASURED, NOISY-SHARED] — 2.92x the CPU row; the first 8B proof on a GPU on either line. The 8 GB part no longer bounds the model width: every commitment is chunked, nothing is resident** |
+| **B hash-based, THE 8B ROW ON THE GPU WITH SHAPE-GENERAL KERNELS: the same Mistral-7B 32 x 512 statement, `HL_GPU=1`, the zero-check and LogUp-helper kernels looping over blocks (lane AH, 2026-09-03)** | **WSL laptop, 8T + RTX 4070 Laptop (55-70 W)** | **95.5 s / 104.4 s (two cold-cache runs; the 8.9 s spread is `commit W` on a page-cache-loaded box — the phases this lane moved reproduced to three digits)** | **1.16 s** | **1,234.9 MB (STILL BYTE-IDENTICAL: sha256 dc980e81.., the same digest as the CPU pass and AC's GPU pass)** | **3.80 GB (+ 5,651 MB VRAM: +1.48 GB of zero-check tables that the HOST used to build)** | **3.02e10** | same as the CPU row (same protocol, same parameters, ZK NO) | **[MEASURED] — 5.35x the CPU row and 1.83x AC's GPU row; the 44% host share is gone (zcF 46.6 -> 4.6 s, zcD 7.5 -> 0.8, helpers+H 35.2 -> 5.4). 5.36 tok/s at 8B prefill: INSIDE lane YY's modelled 5.2-16 band at its low end** |
 
 **The compact-PCS rows (lane AF, 2026-09-03): the proof-size lever.**
 The same statements, the same witnesses, the same box; only the
@@ -347,6 +348,39 @@ on 13/15 tables — to the 125M block shape while Mistral's F-side check
 has 73 tables. A block-looping kernel takes the pass to ~105-125 s
 (4.1-4.9x) [MODEL] without changing a byte. Full record:
 results/hashline_8b_gpu.md; ledger: PROGRESS_UPERF3.md "Agent AC
+status".
+
+**Lane AH BUILT THAT KERNEL, and it beat its own model (2026-09-03).**
+The zero-check and LogUp-helper kernels now LOOP OVER BLOCKS instead of
+being compiled for one block shape: both zero-check polynomials are
+`eq_t*ZC + eq_a*F_a + eq_b*F_b` with `ZC / F_a / F_b` summed over
+blocks, each term reading only its own block's tables, so one block's
+`cur`/`dif` live in registers and the register footprint stops
+depending on the block count. With the spec lists in `layer.rs` looping
+too, and the two zero-check table buffers RESERVED through the device
+pool before the helper columns leave the host (a decline after that
+point has no host tables to fall back to), the `dev_shape` gate accepts
+Mistral's (nb_f, nb_d) = (7, 1). **Measured on the same 32 x 512
+statement: PROVE 95.5 s (a second cold run on a page-cache-loaded box:
+104.4 s) against AC's 175.1 and the CPU's 510.4 — 1.83x and 5.35x — at
+3.80 GB of RSS, 5,651 MB of VRAM, 3.02e10 proven MAC/s, verify 1.16 s,
+and the proof is still the one sha256 dc980e81..** The 44% host share
+is zero: zero-check F 46.6 -> 4.6 s, zero-check D 7.5 -> 0.8 s, helpers
++ commit H 35.2 -> 5.4 s over the 32 layers, and 12.3 GB less is
+uploaded per pass because the H columns are no longer built on the host.
+At the 125M shape the general kernels cost nothing measurable against
+the templated ones (0.327 / 0.085 s vs 0.338 / 0.095 s), and all four
+byte gates are green on both binaries. The same lane put the ZK TABLE
+zero-check on the device (lane AD's 20% item): that phase 0.700 ->
+0.322 s and the 12x512 GPU ZK prove 4.56 -> 4.16 s, proof `40eb5479..`
+unchanged, 8/8 tamper legs still rejecting. **Against lane YY's model
+(U_PERF3_ROUTE_B_THROUGHPUT.md section 6.2, 5.2-16 tok/s at 8B
+prefill): measured 5.36 tok/s (AC: 2.92) — the band's low end reached,
+and the remaining distance to its upper end is now entirely the witness
+marshalling (plane -> Fp conversion + pageable upload), the encode NTT,
+the opening's re-encode and the Merkle/serialization of a 1.23 GB
+proof, none of them a shape problem.** Full record:
+results/hashline_gpu_shapegen.md; ledger: PROGRESS_UPERF3.md "Agent AH
 status".
 
 **Lane AD JOINED THE TWO (2026-09-03): zero knowledge on the 8B

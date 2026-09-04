@@ -847,6 +847,34 @@ for the desktop/H100 columns: they rest on the same "entirely
 device-shaped" premise, and this is its first test at a real model
 width. Decode (T = 1) and P1 at 8B are not yet measured.
 
+**THE GPU CELL RE-MEASURED WITH SHAPE-GENERAL KERNELS (lane AH,
+2026-09-03; record results/hashline_gpu_shapegen.md, row in S4 §3).**
+The block-looping kernel the paragraph above calls for was built, and it
+beat its own [MODEL]: the same 32 x 512 Mistral statement, the same
+byte-identical proof (sha256 dc980e81..), now **PROVE 95.5 s** (a second
+cold run on a page-cache-loaded box: 104.4 s).
+
+| P0, 8B prefill (T = 512), laptop GPU | this table's [MODEL] | AC [MEASURED] | **AH [MEASURED]** |
+|---|---|---:|---:|
+| tokens/s | 5.2-16 | 2.92 | **5.36** (104.4 s run: 4.90) |
+| proven MAC/s (§6.5) | 2.9e10-8.8e10 | 1.65e10 | **3.02e10** (2.76e10) |
+| peak RSS / VRAM | — | 5.33 GB / 4,175 MB | **3.80 GB / 5,651 MB** |
+
+**So the model cell is now met at its low end, and the premise it rested
+on is half-vindicated:** the CHECKS and the helper columns are
+device-shaped at a real model width (zero-check F 46.6 -> 4.6 s,
+zero-check D 7.5 -> 0.8 s, helpers + commit H 35.2 -> 5.4 s over the 32
+layers, 12.3 GB less uploaded per pass), and the declined-kernel share
+AC measured at 44% is **zero**. What still is NOT device-shaped is the
+witness marshalling and the proof handling: the plane -> Fp conversions
+and their pageable upload (~13-20 s), the encode NTT (15.8 s), the
+opening's chunked re-encode (14.3 s) and the Merkle levels +
+serialization of a 1.23 GB proof (~13 s). Those four items are the whole
+distance from 5.4 tok/s to the band's upper end, they all have known
+byte-preserving fixes, and none of them is a shape problem — which is
+the honest form of the caution on the desktop-board and H100 columns:
+their factor now needs those four items, not a kernel rewrite.
+
 ### 6.3 30B (the §1.3 stand-in shape), proven FFN tokens per second [MODEL on MODEL]; each cell "prefill / decode"
 
 | design | laptop CPU (8T) | laptop GPU | one desktop board (4090 class) | one H100 |
@@ -889,6 +917,7 @@ kernel-quality unknown (the analogue of S0's (c)/(c') spread):
 | Route B, 125M 12x512 [MEASURED, S1] | 1.26e9 | — | — | — |
 | lattice, 125M 12x512 [MEASURED, S0] | (3.6e8 CPU-only) | 1.4e9 wall / 1.6e9 clock | — | — |
 | Route B, 8B prefill P0 [MODEL] | 5.9e9 | 2.9-8.8e10 | 0.9-4.4e11 | 1.5e11-1.1e12 |
+| **Route B, 8B prefill P0, the two measured cells (AC / AH)** | **5.66e9 [MEASURED]** | **1.65e10 -> 3.02e10 [MEASURED]** | — | — |
 | Route B, 30B prefill P0 [MODEL on MODEL] | 7.1e9 | 3.6e10-1.1e11 | 1.1-5.3e11 | **1.8e11-1.3e12** |
 | Route B, 30B decode P0 | 3.7e7 | 1.9-5.6e8 | 0.6-2.8e9 | 0.9-6.7e9; **counted floor 2.7-7.2e11** |
 | lattice (c), 30B prefill [S0 §4.4] | — | 2.4-4.1e10 | 0.5-2.5e11 | 0.5-3.3e11 |
