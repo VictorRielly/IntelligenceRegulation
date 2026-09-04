@@ -13689,3 +13689,79 @@ Still open at rung 0: everything. Next: read the re-encode path end to
 end (`pcs.rs` opening -> `gpu/cuda.rs` -> `kernels.cu`), instrument it,
 and publish the attribution table before touching a kernel.
 
+### Rung 1 — THE ATTRIBUTION, AND IT CONTRADICTS THE BRIEF (2026-09-04)
+
+Built the harness AJ's way (`HL_GPU_BENCH_REENC=1 hashline gpu-probe`,
+`reenc_bench` in `gpu/cuda.rs`, the shape of AJ's `HL_GPU_BENCH_H2D`
+hook): it times `columns_chunked` — the function the opening actually
+calls — and then each of its kernels separately over the same chunk plan.
+Nothing in it runs on a proof path. Full table:
+`results/ao_l9_reencode.md`; raw: `results/ao_l9_baseline.log`.
+
+**No 8B pass was run.** The harness reproduces the 8B pass's PCS shape
+exactly (`log_cols` 14 -> `log_nn` 16, `inv_rate` 4, q = 256, chunk 128
+rows, 512 threads) and sweeps rows 1,024 / 3,584 / **10,752 — which IS
+the 8B pass's W row count** (three Mistral FFN matrices flattened into
+rows of 2^14). Peak VRAM ~1.5 GB of the 8,188 MB card. `nvidia-smi` was
+161 MiB before and the run header carried the device line.
+
+**THE THREE PREMISES OF THE LANE BRIEF DO NOT SURVIVE MEASUREMENT**
+(the brief's numbers came from AJ §7, which labelled them [COUNTED]):
+
+* "1.6e10 Goldilocks mul/s" -> the four kernels do 6.870e9 butterflies in
+  **0.1715 s = 4.00e10 butterfly/s** [MEASURED], 2.5x the briefed rate.
+  The 1.6e10 divided W's butterfly count by `secs_reenc`, which also
+  holds the d2h, the pool allocations, the host assembly of the 256
+  output columns, and the A and H openings.
+* "66 of 256 GB/s, so not bandwidth" -> per kernel [MEASURED]:
+  `k_dif_pa` **197.6 GB/s**, `k_ntt_p2` (dense) **200.5**,
+  `k_ntt_p2_gather` **141.1**, `k_dif_pb` **100.2**, `k_dit_p1_pad`
+  **79.1**. Two of the four are at **77-78% of the 256 GB/s roof**.
+  They are bandwidth-bound and CLOSED.
+* "a launch-structure problem, fix the launch shape" -> the launch
+  residue is **0.9% at 1,024 rows** [MEASURED]. It reaches 17.3% at
+  10,752 rows, but that is not launch gaps: it is a 22 MB output
+  allocation, the `sel`/`idx` uploads, and the HOST loop that copies
+  2.75 M `Fp` into 256 `Vec<Fp>`.
+
+**THE REAL ATTRIBUTION at the 8B W shape** (10,752 rows, best of 7)
+[MEASURED]: `columns_chunked` 0.22231 s = four kernels 0.17153 (77.2%) +
+d2h 0.01241 (5.6%) + residue 0.03836 (17.3%).
+
+| kernel | s | share | butterfly/s | GB/s | verdict |
+|---|---:|---:|---:|---:|---|
+| `k_dit_p1_pad` | 0.08904 | **51.9%** | 47.5e9 | 79.1 | **the elephant** — 10% of ALU, 31% of bandwidth: the one true latency item |
+| `k_ntt_p2_gather` | 0.04010 | 23.4% | 35.2e9 | 141.1 | 55% of the roof; the lever is fewer LOADS |
+| `k_dif_pb` | 0.02813 | 16.4% | 37.6e9 | 100.2 | `p1_pad`'s family, a quarter the size |
+| `k_dif_pa` | 0.01426 | 8.3% | 12.4e9 | **197.6** | **closed** |
+| *(ref)* `k_ntt_p2` dense | 0.05622 | — | 25.1e9 | **200.5** | **closed** |
+
+So L9 is not one item and there is no free 2x in an inner loop: the four
+kernels are within 1.2x of each other in efficiency, and
+`k_dit_p1_pad` is 61.5% of the arithmetic against 51.9% of the time.
+
+**Two levers follow from this, and neither is "launch shape":**
+1. `k_dit_p1_pad`'s first `rb = log_nn - log_n = 2` stages are provably a
+   BROADCAST, not arithmetic: the input is R = 2^rb-fold zero-padded in
+   bit-reversed order, so within each group of R only index 0 is nonzero
+   and a butterfly with a zero odd leg writes u to both legs
+   (`gl_mul(0,w) = 0`, `gl_add(u,0) = gl_sub(u,0) = u` for canonical u).
+   After stage rb, `sh[x] == s[x >> rb]` exactly. Skipping them is
+   byte-identical and removes 2 of 12 stages AND 2 of 12 barriers from
+   the single largest kernel — and it is on the COMMIT's encode path too
+   (`encode_rows_view`), i.e. the 13.88 s encode-NTT item as well as the
+   14.0 s re-encode. [PREDICTION: ~17% of `p1_pad`, ~9% of the four.]
+2. The tile kernels (`k_dif_pa`, `k_ntt_p2`, `k_ntt_p2_gather`) index
+   with `b % J`, `b / J` and `q / J` where `J = NTT_BLK >> lt` is a power
+   of two that is NOT a compile-time constant — so nvrtc emits a full
+   32-bit integer division for each, several times the instruction count
+   of the butterfly it indexes. Strength-reducing to `>> lj` / `& (J-1)`
+   is bit-exact. [PREDICTION: matters for `k_ntt_p2_gather`, which is not
+   at the bandwidth roof; nothing for `k_dif_pa`, which is.]
+
+Still open: the two levers above (rung 2), and the output-pruned last
+stage group (only ~246 of 4,096 column positions per block have any
+sampled output — the counted ~1.6x), which is a real kernel project.
+Gates not yet run in this worktree; `results/ao_floors.sh` is in place
+(AM's copy re-pointed at `/home/victor/wt-uperf3-ao`).
+

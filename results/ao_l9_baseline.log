@@ -1,0 +1,34 @@
+[UPERF3-AO] L9 re-encode bench: rows 1024 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 8 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.02663 s  (the opening's call; 24.57 e9 bf/s over 0.654 e9 butterflies)
+[UPERF3-AO]   k_dif_pa         0.00156 s    6.05% of the four     10.72 e9 bf/s    171.6 GB/s
+[UPERF3-AO]   k_dif_pb         0.00379 s   14.66% of the four     26.53 e9 bf/s     70.7 GB/s
+[UPERF3-AO]   k_dit_p1_pad     0.01361 s   52.58% of the four     29.59 e9 bf/s     49.3 GB/s
+[UPERF3-AO]   k_ntt_p2_gather  0.00692 s   26.72% of the four     19.41 e9 bf/s     77.9 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2         0.00720 s   27.81% of the four     18.65 e9 bf/s    149.2 GB/s
+[UPERF3-AO]   k_gather_cols_off 0.00015 s    0.58% of the four      0.00 e9 bf/s   3593.3 GB/s
+[UPERF3-AO]   four kernels 0.02588 s | d2h 0.00050 s | columns_chunked 0.02663 s => launch/alloc/host residue 0.00025 s (0.9%)
+[UPERF3-AO] L9 re-encode bench: rows 3584 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 28 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.09148 s  (the opening's call; 25.03 e9 bf/s over 2.290 e9 butterflies)
+[UPERF3-AO]   k_dif_pa         0.00518 s    6.32% of the four     11.33 e9 bf/s    181.2 GB/s
+[UPERF3-AO]   k_dif_pb         0.01251 s   15.26% of the four     28.16 e9 bf/s     75.1 GB/s
+[UPERF3-AO]   k_dit_p1_pad     0.04335 s   52.88% of the four     32.51 e9 bf/s     54.2 GB/s
+[UPERF3-AO]   k_ntt_p2_gather  0.02094 s   25.54% of the four     22.43 e9 bf/s     90.1 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2         0.02296 s   28.00% of the four     20.46 e9 bf/s    163.7 GB/s
+[UPERF3-AO]   k_gather_cols_off 0.00045 s    0.55% of the four      0.00 e9 bf/s   4215.8 GB/s
+[UPERF3-AO]   four kernels 0.08199 s | d2h 0.00133 s | columns_chunked 0.09148 s => launch/alloc/host residue 0.00815 s (8.9%)
+[UPERF3-AO] L9 re-encode bench: rows 10752 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 84 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.22231 s  (the opening's call; 30.90 e9 bf/s over 6.870 e9 butterflies)
+[UPERF3-AO]   k_dif_pa         0.01426 s    8.32% of the four     12.35 e9 bf/s    197.6 GB/s
+[UPERF3-AO]   k_dif_pb         0.02813 s   16.40% of the four     37.58 e9 bf/s    100.2 GB/s
+[UPERF3-AO]   k_dit_p1_pad     0.08904 s   51.91% of the four     47.48 e9 bf/s     79.1 GB/s
+[UPERF3-AO]   k_ntt_p2_gather  0.04010 s   23.38% of the four     35.15 e9 bf/s    141.1 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2         0.05622 s   32.77% of the four     25.07 e9 bf/s    200.5 GB/s
+[UPERF3-AO]   k_gather_cols_off 0.00111 s    0.65% of the four      0.00 e9 bf/s   5080.6 GB/s
+[UPERF3-AO]   four kernels 0.17153 s | d2h 0.01241 s | columns_chunked 0.22231 s => launch/alloc/host residue 0.03836 s (17.3%)
+gpu-probe: NVIDIA GeForce RTX 4070 Laptop GPU — 1048576 pairs (incl. edge values): mul/add/sub mismatches 0 ; 4.7 G mul/s (the 3-op kernel, 50 launches)
+gpu-probe: blake3 checks GREEN (322 row counts x 64 columns; 0 failing)
+gpu-probe: ntt checks GREEN
+gpu-probe: chunked-commit checks GREEN
