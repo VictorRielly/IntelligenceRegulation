@@ -12614,3 +12614,74 @@ converted 64-bit vector, and give the two host matmul folds
 must not move.
 EVIDENCE TO READ FIRST: results/hashline_hostwall_gpu.md §7 and §9.1 —
 AJ attributed this item to functions and measured it; do not re-derive.
+
+## RULING (Victor, console 2026-09-05): TWO PRODUCTS — FULL ZK IS THE FOCUS, PUBLIC WEIGHTS IS THE FAST TIER
+
+"Let's make a Proof with ZK weights and one without. There are
+applications where the faster proofs with public weights might be
+useful." — and then: "We should focus on the full ZK proofs but also
+have this as an additional product (non ZK weights)."
+
+THIS SUPERSEDES the 2026-09-03 P1 ruling as a statement of PRIORITY.
+P1 is not withdrawn; it becomes the second product. The primary target
+is now P3 (private inputs AND private weights).
+
+WHAT THE TWO PRODUCTS ARE, exactly:
+
+* **Fast tier — P1 (private inputs, public weights).** What is built
+  and measured today: the 8B GPU row at 265.34 s, sha256 930ce9a0..
+  The weight commitment is PER-MODEL CACHEABLE, so its ~37 s (of an
+  86.00 s non-ZK prove, lane AJ's measured phase table) amortises to
+  ~0 across proofs. This is the tier where 60 tok/s is reachable.
+* **Full tier — P3 (private inputs AND weights).** The weight cache is
+  FORBIDDEN here, and not as a policy choice: a cached hash-based
+  weight commitment reveals 256 of its encoded columns per proof and
+  after ~65 proofs the weights are recoverable by linear algebra
+  (lane ZZ, U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md §1). So W must be
+  re-committed with fresh randomness on EVERY proof, and committed
+  hidingly.
+
+THE STRUCTURAL COST, already priced by lane ZZ [COUNTED]: the
+re-commit is +9.6% at 125M, +44% at 8B x 512, +54% at 30B x 512 on the
+laptop, and a 7-23 s per-proof hashing floor at 30B on an H100 — which
+is 70-230% of the whole prefill budget by itself. Under P2/P3 as
+counted, NO cell reaches 50 tok/s at one request per proof; option 1
+tops out at 48 at 30B and reaches 50 only at >= 16 stacked 512-token
+prefills.
+
+THE THREE DESIGNS, and which one the primary product needs:
+1. **Re-commit every proof.** Cheap to BUILD — `zk.rs` already commits
+   W with plain `pcs::commit` while A and H use `commit_zk_owned` /
+   `commit_zk_device`, so the change is to use the ZK commit for W too
+   and refuse `--wcache` in the mode. Expensive per proof. **This is
+   what we build first: it makes the full-ZK product EXIST and gives
+   the honest baseline every later design is measured against.**
+2. **Never send the sampled weight columns** (T18, lane ZZ option 2).
+   Commit the weight tree once per model under an arithmetic hash
+   (Poseidon2) and prove the verifier's column check inside a fresh ZK
+   inner proof, clear vectors masked per proof. Per-proof surcharge
+   50-180 ms at the counted floor on an H100 — it puts the full tier
+   back on P0's own cells. **~2 lane-weeks to a first measured row**,
+   and it needs a WRITTEN SIMULATOR for the composition: the published
+   construction it descends from was found unsound (ePrint 2024/1164).
+   This is now the primary product's throughput path.
+3. **The lattice hybrid.** An audit channel, not a throughput route;
+   its cross-commitment link is unsolved (§4 of the memo).
+
+OPEN FOR VICTOR (one question, stated in the report): which product
+carries the 60 tok/s headline. Recommendation: the FAST TIER keeps it,
+because that is where the counted floor contains it; the FULL TIER gets
+its own honest number and its natural shape is batched (>= 16 prefills
+per proof), which is what option 1 needs to reach 50 at all.
+
+### Lane AM — the two privacy tiers, both first-class (wt-uperf3-am) — RUST
+OWNS: hashline/src/zk.rs, the mode flag lines in src/bin/hashline.rs,
+NEW results/hashline_p3_*, "Agent AM status". READ-ONLY: pcs.rs (lane
+AL owns it — use the EXISTING `commit_zk_owned` / `commit_zk_device`
+entry points; if you genuinely need a pcs.rs change, STOP and report
+it rather than editing), layer.rs (lane AL's), gpu/* , attention.rs,
+norm.rs, tables_*.rs, wcache.rs, zkmatrix-rs/, scripts/.
+TARGET: design 1 above — a mode selector so ONE binary produces both
+products, and the first measured 8B row for each. P1's row must stay
+byte-identical to 930ce9a0..; P3 is a new statement and gets its own
+digest, its own tamper legs, and an honest per-proof cost against P1.
