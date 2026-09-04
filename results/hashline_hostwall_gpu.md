@@ -50,3 +50,86 @@ and 1.4 GB allocation of `w_data` (~0.69 s), the same for `a_data`
 (~0.23 s), and the host matmul folds (0.255 s). layer.rs is READ-ONLY
 for this lane, so the ceiling on what this lane can move is
 h2d + ntt + re-encode = **1.47 s of the 3.13 (47%)**.
+
+## 2. Rung 1 — pinned, double-buffered, interleaved uploads
+
+What landed in `hashline/src/gpu/cuda.rs`:
+
+- `PinBuf` — a page-locked host buffer (`cuMemHostAlloc`, write-combined:
+  the host only ever writes it, the DMA engine only ever reads it).
+- `Uploader` — two staging buffers, a non-blocking copy stream
+  (`fork_default_stream`), one event per buffer. `send` fills a buffer and
+  hands it to the DMA without waiting; `wait` is the only synchronization.
+- `Gpu::upload_sync` — the drop-in for `htod_sync_copy_into` at the block
+  upload sites (`dev_commit`'s resident class, `dev_encode_only`, the ZK
+  commit), declining to the built pageable call on any error.
+- `Gpu::commit_chunked_upload` — the chunked commit with the upload
+  INTERLEAVED: chunk k+1's bytes ride the copy stream while chunk k
+  encodes and hashes on the default stream.
+
+Switches for the A/B: `HL_GPU_PIN_MB=0`, `HL_GPU_STREAM_COMMIT=0`.
+
+**The probe that shaped everything after it** (`HL_GPU_BENCH_H2D=1
+hashline gpu-probe`, 1.07 GB x 3) [MEASURED]:
+
+| form | s | GB/s |
+|---|---:|---:|
+| pageable `htod_sync_copy_into` (the built path) | 0.1932 | **5.56** |
+| host fill of a pinned write-combined buffer (8 threads) | 0.0369 | 29.13 |
+| pinned, staged serially (fill then DMA) | 0.2076 | 5.17 |
+| pinned, double-buffered on a copy stream | 0.1975 | **5.44** |
+
+**Page-locked staging does not raise the host-to-device rate on this
+box.** WSL2's paravirtualized GPU path already stages every copy through
+the driver, so the wire is capped near 5.5-6.3 GB/s whatever the source.
+That leaves exactly two levers on the 13.05 s of h2d in the 8B pass:
+overlap it with compute (this rung) and put fewer bytes on it (rung 3).
+
+## 3. Rung 2 — the column gather fused into the last NTT stage group
+
+`k_ntt_p2_gather` (kernels.cu) is `k_ntt_p2` with one difference: instead
+of writing the whole encoded row back to global memory it stores only the
+sampled columns, straight into the opening's output. The separate
+`k_gather_cols_off` read then disappears too. At the Mistral W shape that
+is 1.07 GB of the 2.82 GB a 1024-row chunk moves [COUNTED]. Duplicate
+column indices — `challenge_indices` draws 256 of 65,536, so about half
+of all openings contain one — get a single device slot each and are
+expanded on the host, which is what the old gather kernel did implicitly.
+Switch: `HL_GPU_FUSE_GATHER=0`.
+
+## 4. The A/B, one Mistral-7B layer at T = 512 [MEASURED]
+
+Every arm produced `179ec2fb..`, 38,688,700 B.
+
+| arm | PROVE s | re-encode s | commit W s |
+|---|---:|---:|---:|
+| rung-0 baseline (separate session) | 3.134 | 0.442 | 1.402 (phase) |
+| base: rungs 1-2 off | 2.97 | 0.444 | ~0.72 (upload+encode) |
+| fused gather only | 3.00 | 0.442 | ~0.72 |
+| interleaved upload only | **2.76** | 0.449 | 0.569 |
+| both | 2.79 / 2.86 | 0.442 / 0.444 | 0.636 / 0.545 |
+| chunk 256 rows | 2.87 | 0.457 | 0.640 |
+| chunk 128 rows | 2.81 | 0.461 | 0.567 |
+| 512 NTT threads | 2.85 | 0.432 | 0.723 |
+| 1024 NTT threads | 2.83 | 0.536 | 0.588 |
+| **chunk 128 rows + 512 NTT threads** | **2.46** | 0.440 | **0.385** |
+
+Three verdicts:
+
+1. **The interleaved upload is worth ~0.2 s of 3.0 (7%)** — real but far
+   from the 13 s the plan attributed to B1, because the plan counted the
+   host-side conversion (layer.rs) in the same item.
+2. **The fused gather is parity** (0.442 vs 0.444 s). The opening's
+   re-encode is therefore NOT bandwidth-bound at this shape — which rules
+   out the whole "move fewer bytes" family for B3 and points at occupancy
+   and launch structure instead. The kernel is kept on (strictly less
+   traffic, strictly less output memory, switchable) but it is not a
+   speedup and is not counted as one.
+3. **The two free parameters nobody had swept are worth more than either
+   rung**: a 128-row chunk (encoded scratch 537 MB -> 67 MB) together with
+   512 threads per NTT block (32 KB of shared memory per block, so 3
+   blocks x 512 threads = 1,536 = the sm_89 limit, against 50% occupancy
+   at 256) give **3.134 -> 2.46 s, 1.27x**. Neither alone moves anything:
+   the chunk size only pays once the kernels have the occupancy to use the
+   smaller working set, and the occupancy only pays once the working set
+   is small enough to stay near cache.
