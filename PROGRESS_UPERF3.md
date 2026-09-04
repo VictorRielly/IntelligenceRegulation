@@ -10942,3 +10942,117 @@ reference here.
 
 Commits: b18e114 (the witness refactor), 37b9a29 (the attention prover and
 verifier, first green), the tamper-leg commit, 715fc48 (the full layer).
+
+### AG rung 5 — THE 12-LAYER FULL-MODEL PASS + ONE FULL MISTRAL LAYER (2026-09-03) [MEASURED WSL-BOX 8T CPU NOISY-SHARED]
+
+**THE 12-LAYER 125M FULL-MODEL PASS, SEAMS BOUND, ACCEPTS.** Every layer's
+attention half and FFN half on ONE transcript; both seams proven; nothing
+committed twice.
+
+    hashline attn-pass <attn-export-prefix> 12 --export <v3-export> --t 512 --threads 8
+
+| pass | witness | PROVE | VERIFY | proof | peak RSS | verdict |
+|---|---:|---:|---:|---:|---:|---|
+| **12 FULL layers x 512, seams bound** | 4.95 s | **94.54 s** | **2.03 s** | **404.3 MB** | **6.56 GB** | **ACCEPT** |
+| 12 FFN-only layers x 512 (`pass 12 512 --profile v3`) | 1.60 s | 16.01 s | 0.43 s | 70.8 MB | ~1.2 GB | ACCEPT |
+| ratio | | **5.9x** | 4.7x | 5.7x | 5.5x | |
+| 12 FULL layers x 64 | 1.13 s | 17.37 s | 1.59 s | 281.5 MB | — | ACCEPT |
+
+PROOF sha256 **c91f8713e2ed805543c1ca3a5f1c752734278606e7b13d199f1348dbf22f0ece**
+(404,327,452 B; at T = 64: 05f54591e28630d8.., 281,521,404 B). Proven work
+4.349e10 MACs (3 d f + 2 d^2 + 2 d d_kv + 2 T d per token per layer) =
+**4.60e8 proven MAC/s** against 1.8e9 for the FFN-only pass: the full
+statement proves 3.9x fewer MAC/s because attention's committed planes are
+quadratic in T while its MACs are not.
+
+**THE LAYER SEAM, exactly.** Layer l's xres2 IS layer l+1's x_in: ONE MLE
+equality at a point drawn after BOTH layers' A commitments. Layer l's A
+opening is deferred until layer l+1 has committed (its W and H close
+early, so only one extra A commitment is resident: that is what keeps the
+pass at 6.56 GB). The leg that tests it: layer 1's x_in changed by one and
+its WHOLE witness rebuilt on it, so every other relation still holds —
+**REJECT: "layers 0->1: layer seam: the previous layer's xres2 != this
+layer's x_in"**.
+
+**ONE FULL MISTRAL-7B LAYER (int24 residual, ao int16), layer 0:**
+
+| shape | PROVE | VERIFY | proof | peak RSS | verdict |
+|---|---:|---:|---:|---:|---|
+| **FULL layer, T = 16** | **12.91 s** | 0.11 s | 48.5 MB | 10.08 GB | ACCEPT, **10/10 legs reject** |
+| FFN-only layer, T = 16 | 11.03 s | 0.04 s | 25.9 MB | 7.48 GB | ACCEPT |
+| **FULL layer, T = 64** | **14.27 s** | 0.13 s | 52.8 MB | 11.24 GB | ACCEPT |
+| FFN-only layer, T = 64 | 8.86 s | 0.02 s | 27.1 MB | 8.04 GB | ACCEPT |
+
+**THE HEADLINE SHAPE OF THE COST: the full-layer surcharge SHRINKS with
+width and GROWS with context** — 6.1x at 125M/T512, **1.17x at 8B width
+and T = 16**, 1.61x at 8B width and T = 64 — for the same reason the ZK
+surcharge shrinks with width: the weight commitments dominate a wide model
+and attention adds only four more weight matrices, while its six committed
+H x T x T planes are quadratic in T. AE's counted 2.87x is the T = 512
+number at 8B; the 32-layer 8B full-model pass is NOT measured (the
+FFN-only row alone peaks at 14.0 GB on this 15 GB box; the attention half
+adds ~2 GB plus the quadratic planes, so it needs the Mac).
+
+**THE MISTRAL CHAIN GATE re-run here: 64/64 tensor digests + CHAIN
+4085604b8d61ce8c.. (4.40 s)**, so the int24 path proves the exact chain AE
+recorded. The 125M gate is 64/64 at layers 0 and 2-11; **layer 1 differs**
+and the reason is recorded: the ORACLE fits the score requant shift PER
+HEAD (`fit_requant` inside its head loop), this statement uses ONE score
+shift per layer (a per-head shift would need a per-head window table and a
+per-head coefficient in the score claim — the head-restricted claims are
+cheap, ~hp claims in one PCS group, but it was not worth the build here).
+At layer 1 one head wanted a bump, so all 12 heads take it: one bit of
+score resolution on that layer, no soundness consequence.
+
+**TWO CALIBRATION FACTS the composition forced (both public statement
+constants, never silent clamps).** (1) The mlp norm's OUTPUT exponent is
+pinned to the FFN export's X exponent, so the two halves meet on one grid.
+(2) The FFN half's four requant shifts are FITTED to the attention half's
+xm8 — its export was calibrated on its own X plane, which the composed
+statement replaces — and when the gate shift rises, the FROZEN int16-out
+table member for the new gate exponent is re-selected from the registry
+(never a re-derived table). Over the 12 layers exactly one bump occurred
+(layer 4, the Hadamard shift, +1).
+
+**THE FOUR BYTE GATES, re-run on this tree after every Rust change:** v2
+**50cf7bdfd6b5b182..**, v3 **5f368db6240e0614..**, zk **021485e4f80ec695..**,
+zk-v3 **40eb54795e023c77..** — all unchanged; `cargo test --release` 40/40.
+
+RECORD -> results/hashline_attn_fulllayer.md; the §3 FULL-LAYER rows are in
+docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md.
+
+### WHERE THIS LANE STANDS (for the next session)
+
+Rungs 0, 4 and 5 are done and committed; the full-layer statement is real,
+measured and non-vacuous at both model widths. What the next agent should
+pick up, in the order the numbers argue for:
+
+1. **FOLD THE CLAIMS** (proof size). The attention half opens A/W/H at ~20
+   points; the v3 FFN prover folds every pending claim into its two
+   zero-checks and opens at two. About 8 MB per 125M layer — two thirds of
+   the attention half's 27.3 MB — is group vectors that folding removes.
+   No soundness change, no new machinery: the same `nu`-weighted eq terms
+   the v3 zero-checks already carry.
+2. **BLOCK, DON'T PAD** (prover time at 125M). d 768 -> 1024 and 12 heads
+   -> 16 slots cost 1.33x on the two dominant domains. Nothing at Mistral.
+3. **THE 32-LAYER 8B FULL-MODEL PASS.** Needs the Mac (256 GB): the
+   FFN-only row alone peaks at 14.0 GB here. The Mistral attention exports
+   are ~30 s each (`scripts/attention_hash_ref.py --arch mistral --layer L
+   --tokens-cache <cache> --export DIR`); the token cache is
+   scratchpad/mistral_toks.npy (tokenizing from scratch is ~5.5 min).
+4. **THE GPU.** The attention half is CPU-only. Its zero-checks have the
+   same shape as the v3 ones (eq * a sum of helper constraints), so lane
+   AH's shape-general kernels should apply directly; the S-domain
+   zero-check (13 tables, degree 5, hp T^2 rows) is 40-50% of the
+   attention half's wall at T = 512 and is the first kernel to port.
+5. **ZERO KNOWLEDGE for the attention half.** ZA's mask/pad treatment
+   applies plane for plane; the only new object is the fused (d, E) LogUp
+   row (its l1 is degree 2, so the CFS mask degree rises by one).
+6. **The statement's remaining holes**, unchanged and stated in the record:
+   the embedding gather, the final norm and the LM head, the KV cache /
+   decode regime (prefill only), sliding windows.
+
+New CLI (all tagged [UPERF3-AG]): `attn-layer <dir>` (the attention half
+alone, 12 legs), `attn-full <dir> --export <v3>` (one full layer, 10 legs),
+`attn-pass <prefix> <n> --export <v3>` (the full-model pass, seams bound,
++ the layer-seam leg), all with `--t T` to truncate the token axis.
