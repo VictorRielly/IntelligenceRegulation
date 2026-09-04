@@ -1,0 +1,15 @@
+{
+ "experiment": "m8b_mistral_attn_gate --phase equiv",
+ "checkpoint": "/home/victor/models/Mistral-7B-v0.1",
+ "seed": 1337,
+ "t": 512,
+ "smoke": false,
+ "hidden_bit_exact": true,
+ "hidden_sha256": "97deb9f42de12310714a19fbf071ea90a9e56b23e9fb5032ff6ade181f55db96",
+ "logits_w0_sha256": "885b401beecd7d6a3e416d74ed0bf6e659e0ebe09f7f86fde7dd7512e33a1a86",
+ "loss_val_subset": 1.6403015947117856,
+ "val_take": 2,
+ "loss_ref_committed_8win": 1.841096998602386,
+ "one_window_walk_s": 89.6,
+ "note": "hooked walker with all hooks off vs the validated m8b hf Walker: final hidden array_equal on val window 0, loss equal on the val subset"
+}

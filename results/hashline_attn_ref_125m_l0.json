@@ -1,0 +1,373 @@
+{
+ "experiment": "attention_hash_ref (rung 2 oracle)",
+ "params": {
+  "arch": "125m",
+  "checkpoint": "/home/victor/models/125m-best-adamw-val3.0816/model.safetensors",
+  "layer": 0,
+  "window": 0,
+  "T": 512,
+  "d": 768,
+  "H": 12,
+  "Hkv": 4,
+  "d_h": 64,
+  "fE": 9,
+  "fP": 9,
+  "fRo": 7,
+  "rope_base": 10000.0,
+  "rms_eps": 1e-05,
+  "x_in": {
+   "cls": "int8",
+   "e8": -9,
+   "e_lsb": -9
+  },
+  "e_w": {
+   "wq": -9,
+   "wk": -10,
+   "wv": -10,
+   "wo": -10,
+   "gA": -6,
+   "gM": -6
+  },
+  "norm_div": "round",
+  "anorm": {
+   "e_xn": -5,
+   "tn": 7,
+   "cn": 1774,
+   "ceps": 2013,
+   "wrho": 18,
+   "limbs": 2,
+   "ss_bits": 20,
+   "num_bits": 25
+  },
+  "qkv": {
+   "sh_q": 12,
+   "e_q": -2,
+   "sh_k": 11,
+   "e_k": -4,
+   "sh_v": 10,
+   "e_v": -5
+  },
+  "rope": {
+   "e_qr": -2,
+   "e_kr": -4,
+   "table_digest": "236f03f3d04a0f12b62b4ef911691ae2d2ffa4d65fe7fcbfcd03a09626c16290"
+  },
+  "scores": {
+   "sh_s": 7,
+   "e_s_raw": 1,
+   "e_s_record": -2,
+   "raw_convention_shift": 3,
+   "wrho_softmax": 18,
+   "exp_member": "(exp-neg, eS_raw 1, d_h 64, fE 9)",
+   "exp_digest": "4ac5f565c3ca06afa876d1a481fe45732aa91b94e74953a70899f0bf87e2aa93"
+  },
+  "pv": {
+   "sh_o": 9,
+   "e_o": -5
+  },
+  "wo": {
+   "sh_ao": 10,
+   "e_ao": -5,
+   "cls": "int8"
+  },
+  "res1": {
+   "sh_r1": -4,
+   "e_r1": -13,
+   "cls": "int16"
+  },
+  "mnorm": {
+   "e_xm": -3,
+   "tn": 9,
+   "cn": 1774,
+   "ceps": 515396,
+   "wrho": 26,
+   "limbs": 2,
+   "ss_bits": 32,
+   "num_bits": 33
+  },
+  "requant_bumps": {},
+  "wall_s": 2.5
+ },
+ "entries": {
+  "xsqA": "a6564440c56f13341430367bb52e783bd55c98e356665f76805027116ea6e911",
+  "SSA": "e79e965a3a4226f194d53731c2ed954ff4a7c93673e2971b34f9bc52938a2546",
+  "DA": "14dd90aa59e2422f1f154293e1c25b77f013a6581729629dae1f2a898202536d",
+  "DsqA": "cf21b172fa8b93858a2f0b90efe684d56aeebd1d75a6b39d425a0a09e9142dc3",
+  "a1A": "702eda9f7fa98161df4934621a4ec3c9bdfe86f7a821f131b4f2b8f4d5d9b15c",
+  "a2A": "80d6cb1a741f655422caa076abff21ddd0a7a8f9837bae54e7cb353ef4571148",
+  "xn8": "cc19787c86ff0747065ab86527a93aaebc4aff7bd5cd37dd9a9c9a9f56ec1319",
+  "rhoA_l0": "003ff0d330338845b84e5a6031d571dd5730e19b3164a1bdf535d8f1854e5e83",
+  "rhoA_l1": "daf10f8a75ba02283d1d02edb145662d31a3111f752024357d7752ba2c2ec894",
+  "sigA_l0": "fdff4c70a16db4b6d86a5c916311ad53aba988c4c880e16805b579b5615af1dc",
+  "sigA_l1": "5d2632b27066c3557802362fce1c74395f7d7a45abc57abfd4e4006c8466b4e6",
+  "Qacc": "314c8ec096303daed192e3f2ab8fb95a047c78c55cd1b4a112f07488b8e8219c",
+  "q8": "52e71041f021353be817283c593e92ed62f8fde1568c7175fa92743e20a3ef5e",
+  "rQ": "c6f9c46310db2a8541838205dd896afe50ede2ac953be6e04f9f5cae65540890",
+  "Kacc": "8cbf4fdc4be43039118097639907f8c3f64ac122be5a2512f43c91b90814e098",
+  "k8": "d54a48dfd7fb3dc07ee3ca056eb7885c0667e794aa0a0e520db934ce0a600d37",
+  "rK": "e07269e90dc338fb88a10896ac9b13664bdcc15cd059fd0a07b9338c3a0ae5c0",
+  "Vacc": "d7d219c993af49e3dd747b88b08b4cfe969610f5c53b40605d947194d0c2b9bd",
+  "v8": "93bfbff3464d689fe9ed38e78e6d37e57a392ca31d52f9e17aa6c7af84b24ed6",
+  "rV": "ffeef19f3cb94d81be271571af9bf749e72f322f7f9d69b3070ba1f6b51ae2fc",
+  "QRacc": "ab75e186e8c97c2b73310b545f15c4cebc851d99bbe7bcf57095e0ab4447d7bd",
+  "qr8": "a71c99da0a04e13fda73241ea6aec373dac5d00952a0f75a7a4a59286afd794c",
+  "rQR": "8d0d811f8e30dd2a3467589108ade83aa1b2a11f585532101656d2acbfdc9b88",
+  "KRacc": "88b611eeb471a77edfe344291d53d04f498efcadeacf0e145b7a220e19dd43b7",
+  "kr8": "08fba1ae6f7ba2d1a516827a9751ae7bc27b4b6a4ea87cc193571746a3154b2b",
+  "rKR": "098b186e99bcfbea995a4b1c9ec8b4b58cba9efd36b311b4814804653a43f9f4",
+  "Sacc": "9bffa40a425f3390adc7a64dcdc082c69be4d9b11e9acf2edf533e04400287ff",
+  "s8": "9bd84b727049d33d3224a29cc5da5ba9f539b7196bc6dc0363faca946b74ec38",
+  "rS": "83fd46a8311b2a0df869d27e87a51b61461add913dedcb2598d809349f6e1cde",
+  "m": "69cd6df936c927b2a9981677671b4258d2129b286e7d7800f6be01aeb564c00a",
+  "dmat": "4411684913c793a3925b505f6682d15c7e4704d388d4b19c47a704165a46fc4a",
+  "zsel": "f0504fe1861bc3d84f8ce82dbeaa68e7aa02e18ebdabc86e15939f280b9b953a",
+  "E": "88fffe50924471b594a83bcfa07c246a99d410378f2123e2ee303d3f8eb91c40",
+  "Sum": "8ae1106197d3d2b09667affff105ee2616250fc832963c9850bc3f06dfc8879e",
+  "P": "50bebbf7bd056756ca6e9ff9ab02a9cfb98a6af308fada6b8aa3dd613f5adc82",
+  "rho": "750cefd32a7c6502ab40af22a18bafec912edb122343cb6ced943f1d6477a24c",
+  "sig": "566e6d4a54500c67809a5e8f576f6b69224a7004de0a355b8d15fa941c0f163b",
+  "Oacc": "874e96575a8dd7fb3b8de277e4a93de3a19865aae624dada70b80137ee74e505",
+  "o8": "a755fc49c15c10f1e4f4649b739dc105fe8b9d2605034bcd4e3854e137ac8465",
+  "rO": "82de2fcd612249ff85f6e5683b6b95d92cffb6f452a69a7c2f7fa58ac172d0f4",
+  "AOacc": "7473314b5fb9669b9e729fae43b0f734d37c783e59e7fc1bbf5c78c3acd28905",
+  "ao8": "af1543bb8266e531a5a7ace4602457715b58831a51dc9db4eb9f845842d8c16f",
+  "rAO": "a3c822b7ccaa2a87f3766767adf4e8206476487169de6ab43b31c7a9e2adbc24",
+  "xw1": "fd3f855a5deb2666b3aa43f3d129d1c648afa857de3b9679779697f773237245",
+  "xres1": "7c619a806d59a9a796d150038c114d0f1e6caabdb7eb3be4671a504318403473",
+  "rr1": "bbd05cf6097ac9b1f89ea29d2542c1b7b67ee46848393895f5a9e43fa1f621e5",
+  "xsqM": "966ce116486d068b059e35c63481a14e5fe2a4ff1f2094261f1970f1a6f8d957",
+  "SSM": "1b9b88d3544f730f93613d6a95a7cc195acdc245d5b654c76471f794e10825ed",
+  "DM": "06b1486d45cf7ada017f02dc66367e77747c68f0bc44c9f6a57b0de29a283fd4",
+  "DsqM": "a363be9056095394df6a3aa6ad7a09a0c66719d032bf7713480ef6de7a4ad5d8",
+  "a1M": "c9b01d9cfbe2691306a4409b9222bf5a3a35c2d998c3820ed9ab98273f71865c",
+  "a2M": "bec5df0cf6c0a0ba0add45b35b6439520aad1cd97bcef626c17305a71c0efc4c",
+  "xm8": "664fba3cc6d6965c7c9c045e45a46dc982a453c6ecc41cd3715d6ee4d2677824",
+  "rhoM_l0": "02fe1e745345aaa54fd15099548a999b2d7eab0306152fd892012616efc7a6fd",
+  "rhoM_l1": "8c444dedcd1d4497f40429836976b325b97eb619e360ff8fffa78ef42f266507",
+  "sigM_l0": "2521f60846712f192f9b7d1dfd48bfa1b440199ca7ea1c1aa88ed36c13751cde",
+  "sigM_l1": "72ac5cfca9e291b3a49387bb449111d358911537ee427ecdd73303a4422f6365",
+  "x_in": "7ae329c6a88953186a1a575515c3a1c9cc0038755f9e446af678f72559b9ae36",
+  "Wq": "9a57e78c4ed05cb2cafdaf0472ddeb9e824b9f801f676caa5b8241bfeacbbad2",
+  "Wk": "b2b2df3acf41077f587c784efa076369d40525b1cd3f31dc735d21e724805318",
+  "Wv": "c649084d95dc2c2f4acdd42cba1f0f59d275178498f0b408e93483a4ec299288",
+  "Wo": "2782d1eccd97728d896f9f18473c9b1203c8c9b0dc3768521ef1917c0ddd632c",
+  "gA": "b8064a3a6d865b57d70cc65548b826c41518d6c6191ea12fcf948ff6b595f9a0",
+  "gM": "b8064a3a6d865b57d70cc65548b826c41518d6c6191ea12fcf948ff6b595f9a0"
+ },
+ "entry_order": [
+  "xsqA",
+  "SSA",
+  "DA",
+  "DsqA",
+  "a1A",
+  "a2A",
+  "xn8",
+  "rhoA_l0",
+  "rhoA_l1",
+  "sigA_l0",
+  "sigA_l1",
+  "Qacc",
+  "q8",
+  "rQ",
+  "Kacc",
+  "k8",
+  "rK",
+  "Vacc",
+  "v8",
+  "rV",
+  "QRacc",
+  "qr8",
+  "rQR",
+  "KRacc",
+  "kr8",
+  "rKR",
+  "Sacc",
+  "s8",
+  "rS",
+  "m",
+  "dmat",
+  "zsel",
+  "E",
+  "Sum",
+  "P",
+  "rho",
+  "sig",
+  "Oacc",
+  "o8",
+  "rO",
+  "AOacc",
+  "ao8",
+  "rAO",
+  "xw1",
+  "xres1",
+  "rr1",
+  "xsqM",
+  "SSM",
+  "DM",
+  "DsqM",
+  "a1M",
+  "a2M",
+  "xm8",
+  "rhoM_l0",
+  "rhoM_l1",
+  "sigM_l0",
+  "sigM_l1",
+  "x_in",
+  "Wq",
+  "Wk",
+  "Wv",
+  "Wo",
+  "gA",
+  "gM"
+ ],
+ "chain_sha256": "aed541fcc8d16f3c3b82782951c3b016b168cedfa6709113d7d43b8ebd8bcb21",
+ "agreement_local": {
+  "xn8": {
+   "n": 393216,
+   "equal": 380982,
+   "frac_equal": 0.9688873291015625,
+   "max_delta_steps": 1
+  },
+  "q8": {
+   "n": 393216,
+   "equal": 393216,
+   "frac_equal": 1.0,
+   "max_delta_steps": 0
+  },
+  "k8": {
+   "n": 131072,
+   "equal": 131072,
+   "frac_equal": 1.0,
+   "max_delta_steps": 0
+  },
+  "v8": {
+   "n": 131072,
+   "equal": 131072,
+   "frac_equal": 1.0,
+   "max_delta_steps": 0
+  },
+  "qr8": {
+   "n": 393216,
+   "equal": 390147,
+   "frac_equal": 0.9921951293945312,
+   "max_delta_steps": 1
+  },
+  "kr8": {
+   "n": 131072,
+   "equal": 127983,
+   "frac_equal": 0.9764328002929688,
+   "max_delta_steps": 1
+  },
+  "s8": {
+   "n": 3145728,
+   "equal": 3145728,
+   "frac_equal": 1.0,
+   "max_delta_steps": 0
+  },
+  "P": {
+   "n": 3145728,
+   "equal": 2398132,
+   "frac_equal": 0.7623456319173177,
+   "max_delta_steps": 33
+  },
+  "o8": {
+   "n": 393216,
+   "equal": 351572,
+   "frac_equal": 0.8940938313802084,
+   "max_delta_steps": 14
+  },
+  "ao8": {
+   "n": 393216,
+   "equal": 393216,
+   "frac_equal": 1.0,
+   "max_delta_steps": 0
+  },
+  "xres1": {
+   "n": 393216,
+   "equal": 393216,
+   "frac_equal": 1.0,
+   "max_delta_steps": 0
+  },
+  "xm8": {
+   "n": 393216,
+   "equal": 392808,
+   "frac_equal": 0.99896240234375,
+   "max_delta_steps": 1
+  }
+ },
+ "agreement_cascade": {
+  "xn8": {
+   "n": 393216,
+   "equal": 277937,
+   "frac_equal": 0.7068303426106771,
+   "max_delta_steps": 1
+  },
+  "q8": {
+   "n": 393216,
+   "equal": 370312,
+   "frac_equal": 0.9417521158854166,
+   "max_delta_steps": 1
+  },
+  "k8": {
+   "n": 131072,
+   "equal": 112622,
+   "frac_equal": 0.8592376708984375,
+   "max_delta_steps": 1
+  },
+  "v8": {
+   "n": 131072,
+   "equal": 104091,
+   "frac_equal": 0.7941513061523438,
+   "max_delta_steps": 2
+  },
+  "qr8": {
+   "n": 393216,
+   "equal": 307622,
+   "frac_equal": 0.7823232014973959,
+   "max_delta_steps": 1
+  },
+  "kr8": {
+   "n": 131072,
+   "equal": 95400,
+   "frac_equal": 0.72784423828125,
+   "max_delta_steps": 2
+  },
+  "s8": {
+   "n": 3145728,
+   "equal": 2418706,
+   "frac_equal": 0.7688859303792318,
+   "max_delta_steps": 3
+  },
+  "P": {
+   "n": 3145728,
+   "equal": 2378260,
+   "frac_equal": 0.7560284932454427,
+   "max_delta_steps": 71
+  },
+  "o8": {
+   "n": 393216,
+   "equal": 343220,
+   "frac_equal": 0.8728535970052084,
+   "max_delta_steps": 14
+  },
+  "ao8": {
+   "n": 393216,
+   "equal": 338184,
+   "frac_equal": 0.86004638671875,
+   "max_delta_steps": 13
+  },
+  "xres1": {
+   "n": 393216,
+   "equal": 1575,
+   "frac_equal": 0.00400543212890625,
+   "max_delta_steps": 3225
+  },
+  "xm8": {
+   "n": 393216,
+   "equal": 121985,
+   "frac_equal": 0.31022389729817706,
+   "max_delta_steps": 27
+  }
+ },
+ "note": "the integer attention+norm+residual chain of one layer at the measured exponents; v3 round-to-nearest requants with balanced remainders, floor divisions in the norm and softmax gadgets; the LOCAL agreement quantizes each gadget's fp counterpart computed on the SAME dequantized integer inputs (does the gadget compute the op?); CASCADE quantizes the true fp layer forward onto each site's grid (how far the whole integer chain has drifted). An exact integer chain cannot be bit-equal to an fp forward \u2014 see the ledger's rung-2 note"
+}

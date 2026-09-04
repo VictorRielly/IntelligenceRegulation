@@ -9854,7 +9854,316 @@ measurement.
 
 ## Agent AE status (wt-uperf3-ae) — round 12
 
-(lane appends below)
+LANE: attention, norms and the layer-to-layer seams in the hash-line
+statement — the FULL-LAYER proof (the round-12 Lane AE brief above).
+Worktree wt-uperf3-ae, branch uperf3-ae. Multi-day; one commit per
+rung; every wall [WSL-BOX] [8T] [CPU|GPU] [NOISY-SHARED] (lanes AC/AD/AF
+build and run on the same box).
+
+OWNS (recorded): NEW hashline/src/{attention,norm,tables_attn}.rs (+ the
+three `pub mod` lines in lib.rs), NEW attention functions in layer.rs
+tagged [UPERF3-AE] (additive; AD's v3 ZK variants and AC's W-commit call
+site untouched), the `--attn` flag lines + dispatch arms in
+src/bin/hashline.rs tagged [UPERF3-AE], NEW scripts/m8b_mistral_attn_gate.py,
+NEW scripts/attention_hash_ref.py, NEW results/m8b_mistral_attn_*,
+results/hashline_attn_*, the §3 FULL-LAYER row, this section.
+
+RUNG PLAN (prefix "U-PERF3 AE:"): 0 skeleton + THE STATEMENT SPEC +
+the gates re-run [DONE below]; 1 the Mistral attention calibration gate
+(scripts/m8b_mistral_attn_gate.py, the CC/PP pattern on the hf adapter)
+-> results/m8b_mistral_attn_at_o1.json; 2 the python oracle
+scripts/attention_hash_ref.py (one layer, 125M + Mistral l0, per-tensor
+sha256s); 3 the Rust chain reproducing the oracle's digests; 4 THE
+PROOF of one full layer at 125M (+ tamper legs, CPU/GPU byte-identical,
+walls vs FFN-only); 5 the 12-layer 125M full-model pass with seams +
+one Mistral full layer at T=16; the §3 row; what remains.
+
+- **RUNG 0 GREEN (2026-09-03, WSL-BOX).** Fresh CPU build of the crate
+  in this worktree (28.7 s); the three byte gates re-run here [8T CPU
+  NOISY-SHARED]: v2 `pass 12 512 --threads 8 --proof-out` -> PROOF
+  sha256 **50cf7bdfd6b5b182..** (66,844,928 B; PROVE 15.67 s); v3
+  `pass 12 512 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export`
+  -> **5f368db6240e0614..** (70,758,084 B; 15.69 s); zk `pass 12 512
+  --zk --seed 1` -> **021485e4f80ec695..** (87,228,528 B; 17.88 s) —
+  all three unchanged. Skeleton: hashline/src/tables_attn.rs (the
+  exp-neg-table-v1 generator + spec digest and the rope-cs-table-v1
+  generator + digest, BYTE-EXACT with scripts/attention_spec_spike.py —
+  unit tests reproduce JJ's pinned members eS -1 15903694.. / eS -2
+  b4f01aca.. and NN's rope pins t16 355be440.. / t32 e0de1cf4..; the
+  attention LogUp tags >= 128, disjoint from the FFN's), norm.rs (the
+  RMSNorm integer gadget: window rule, Ceps, isqrt fact pair, the
+  division relation with rho/sigma; 2 tests), attention.rs (the module
+  doc = the statement in one page + the shape record), lib.rs (+3 mod
+  lines), the two python skeletons. `cargo test --release`: 31/31
+  (27 + 4 new).
+
+THE STATEMENT SPEC (rung 0; one Mistral-7B-v0.1 layer: T rows, d 4096,
+f 14336, H 32 / H_kv 8 (GQA group 4: kv head = h / 4 = the high 3 bits
+of h), d_h 128, RoPE theta 10000 rotate-half, rms eps 1e-5, sliding
+window 4096 so T <= 4096 is plain causal; the 125M instance: d 768, f
+2048, H 12 / H_kv 4, d_h 64. Classes int8 = [-127,127] proven as the
+INT8 table [-128,127]; int16 = the 2^16-row INT16 class; requants are
+ROUND-to-nearest with the v3 balanced remainder r in [-2^(sh-1),
+2^(sh-1)) (the window table of the shift), except the two DIVISIONS by
+committed divisors which are floor with rho in [0, div). Exponent
+sources: 125M = results/m125_attn_at_o1.json (PP, per layer per site);
+Mistral = results/m8b_mistral_attn_at_o1.json (rung 1); weights and
+norm gammas int8 per-tensor at absmax-derived power-of-two exponents.)
+
+| tensor (per layer) | shape | class | exponent source | proven by |
+|---|---|---|---|---|
+| x_in | T x d | int16 (layer 0: int8 embedding at eX0) | previous layer's e_r2 (l=0: the input's absmax) | the SEAM (l>0): MLE equality with layer l-1's xres2 at a point drawn after both A commitments (layer l-1's A opening deferred); INT16 lookup; l=0: a committed input (public in P0) |
+| gA, gM (norm gammas) | d | int8 | absmax of the gamma vector (NEW site; the CC/PP gates kept gammas fp — measured in rung 1 / rung 2's quality leg) | committed in W (aux row); read column-broadcast in the norm zero-check (PW-4) |
+| SS, D, a1, a2 (attn_norm rows) | T each | SS < d 2^30 (int16 in); D < 2^21; a1, a2 <= 2D | structural | SS: one degree-2 row-sum sumcheck of x_in^2 tied to the committed vector; a1 = SS + Ceps - D^2, a2 = 2D - a1: per-row zero-checks; a1, a2 as 16-bit limb pairs in the U16 table (D >= 0 and D = isqrt follow) |
+| tn, Cn, Ceps (per norm site) | scalars | public | the window rule from (e_g, e_y, d); Ceps from eps, d, e_x | statement constants (absorbed) |
+| xn8 | T x d | int8 | xattn e8 (gate) | the division zero-check y D 2^tn + rho = x g Cn over (t, i) with D row-broadcast and g column-broadcast; INT8 lookup |
+| rho, sigma (norm) | T x d | [0, D 2^tn) < 2^31 | structural | 16-bit limb pairs (4 U16 lookups per element); sigma = D 2^tn - 1 - rho linear |
+| Wq, Wk, Wv, Wo | 4096x4096, 4096x1024, 4096x1024, 4096x4096 | int8 | per-tensor absmax | committed in W (block-structured like Wg/Wu/Wd); opened at the matmul terminals |
+| Qacc, Kacc, Vacc | T x 4096 / T x 1024 / T x 1024 (inner d: |acc| <= 2^26) | accumulator (not committed) | — | matmul sumchecks (the g/u form: X folded by eq(r_t), W by eq(r_j)); the requant identity acc = 2^sh y + r folded LINEARLY into the claim |
+| q8, k8, v8 (+ rQ, rK, rV) | as above | int8 (+ balanced window) | q/k/v e8 (gate); sh = e_y - e_xn - e_w | INT8 lookups; window lookups |
+| QRacc, KRacc | T x 4096 / T x 1024 (|acc| <= 2 x 128 x 127) | accumulator | — | the RoPE zero-check with the PUBLIC rope-cs tables (fRo 7) read at the terminal by the verifier, q8 read at the coordinate-flipped point (PW-1: one extra opening point) |
+| qr8, kr8 (+ rQR, rKR) | as q8/k8 | int8 (scale-preserving: e_qr = e_q) + the 2^7 window | qr/kr e8 == q/k e8 (gate: no extra bit) | INT8 + window lookups |
+| Sacc | H x T x T (inner d_h: |acc| <= 128 x 127^2 = 2^21) | accumulator | — | the per-head matmul sumcheck over (h, i): claim Sacc~(r_h, r_t, r_j) = sum_{h,i} eq(r_h,h) Qfold(h,i) Kfold(h/4, i); the GQA map is the kv index bits (PW-2, free) |
+| s8 (+ rS) | H x T x T | int8 at eS_raw = e_q + e_k + sh_s (+ window) | scores e8 (gate; RAW convention — see the note) | INT8 + window lookups; the requant folded into the score claim |
+| m | H x T | int8 | structural (the exact row max of sM = s8 on support, -127 off it) | committed (aux row); dominance = (d, E) in the exp member (d in [0,255]); attainment = zsel |
+| zsel | H x T x T | binary | structural | zero-checks z(1 - z) = 0 and z d = 0; the row-sum sumcheck sum_j z = 1 |
+| E | H x T x T | u10, E in [0, 2^9] | the exp member (exp-neg, eS_raw, d_h, fE 9): ONE per distinct eS_raw | the fused (d, E) LogUp lookup, d = m - sM computed in the helper zero-check (not committed) |
+| Sum | H x T | [2^9, T 2^9] | structural | the masked row-sum sumcheck of E (the mask public, PW-3) tied to the committed vector |
+| P (+ rho, sigma) | H x T x T | P in [0, 2^9]; rho, sigma in [0, 2^wrho), wrho = 9 + log2 T | fP 9 (gate: the probs floor) | zero-check mask (P Sum + rho - 2^9 E) + (1 - mask)(P + rho) = 0 with Sum row-broadcast (PW-4); PROB and SREM lookups (sigma = Sum - 1 - rho computed in the helper) |
+| Oacc | T x H x d_h (inner T: |acc| <= T 2^9 127) | accumulator | — | the per-head matmul sumcheck over (h, j): Oacc~(r_t, r_h, r_i) = sum_{h,j} eq(r_h,h) Pfold(h,j) Vfold(h/4, j) |
+| o8 (+ rO) | T x 4096 | int8 at e_o (sh_o = e_o - (e_v - 9)) | ctx e8 (gate) | INT8 + window lookups |
+| AOacc; ao8 (+ rAO) | T x d (inner 4096) | int8 at e_ao | ao e8 (gate) | matmul sumcheck (the Wo form); INT8 + window lookups |
+| xres1 (+ rr1) | T x d | int16 at e_r1 (sh_r1 = e_r1 - min(e_r, e_ao)) | xres e8 - 8 (gate: int16 class) | the linear identity 2^sh xres1 + rr1 = 2^a x_in + 2^b ao8 folded into one claim; INT16 + window lookups |
+| SS/D/a1/a2, xm8, rho/sigma (mlp_norm) | as attn_norm on xres1 | int8 xm8 | the FFN export's eX (= the v3 statement's X exponent) | as attn_norm; xm8 IS the FFN's X plane (one commitment, two consumers) |
+| g8, rg, a16, u16, ru, h16, rh, z16, rd | the v3 FFN planes | as ZB's statement | the v3 export rows | layer.rs prove_layer_v3's checks, with X = xm8 |
+| xres2 (+ rr2) | T x d | int16 at e_r2 | the next layer's xres e8 - 8 | the linear identity 2^sh xres2 + rr2 = 2^a xres1 + 2^b z16; INT16 + window lookups; = layer l+1's x_in (the seam) |
+
+DEFERRED (stated, not proven): the KV cache / decode regime (the
+statement is prefill-only: every position's K/V is recomputed inside
+the proof; a decode step would carry the cached K/V planes as committed
+inputs bound by seams across proofs); the embedding (X0 is a committed
+input; its gather from token ids is not proven — the PW-5 selector of
+the design memo); the final norm and the LM head (the last layer's
+xres2 is the proven output); the sliding window at T > 4096.
+
+THE exp-MEMBER KEY NOTE (a reconciliation of the records, recorded
+here so nobody re-derives it): PP's results/m125_attn_at_o1.json keys
+the member "(exp-neg, eS -2, d_h 64, fE 9)" with eS = the SCALED score
+exponent (the 125M walker applies d_h^-0.5 before the s8 hook); the
+design memo / JJ's member keys eS as the exponent of the RAW q.k score
+with 1/sqrt(d_h) in the table's decay. At d_h = 64 (sqrt = 8) the two
+differ by exactly 3 bits: the statement's member is (eS_raw = +1, 64, 9)
+and its function exp(-d 2^1 / 8) = exp(-d / 4) IS the gate's
+exp(-d 2^-2). At Mistral (d_h 128, sqrt irrational) only the RAW
+convention is an integer statement; the rung-1 gate therefore records
+the RAW score exponent (the Gemma/CC convention, scaling 1.0 at the
+hook) and the scaled one beside it.
+
+ON "BIT-EXACT VS THE HOOKED WALKER" (the rung-2 acceptance, read
+honestly before building): the PP/CC hooked walkers are fp32
+quantize-dequant forwards, and an exact integer chain cannot equal them
+bit for bit: (a) np.round is half-to-even while the v3 requant is
+half-up (they differ at exact halves, 2^-sh of the accumulator
+elements); (b) RMSNorm is fp32 sqrt/divide vs the isqrt + floor
+division gadget; (c) RoPE is fp32 cos/sin vs the fRo = 7 integer
+tables (a systematic 2^-8 rotation error); (d) exp is fp32 vs the
+round_half_up table. The FFN precedent (lane AA/ZB) resolved this by
+making the ORACLE the definition (m8b_margins.py's v3 chain) and
+measuring its quality (the val-loss delta). Rung 2 does the same:
+attention_hash_ref.py IS the semantics; its legs are (i) the Rust
+chain's digests (bit-exact, rung 3), (ii) per-site agreement vs the
+hooked walker (fraction of equal integers, max |delta| in grid steps),
+(iii) the end-to-end 12-layer INTEGER forward's val loss on the gate's
+val windows vs the fp reference — the number that says whether the
+full integer statement still models the text.
+
+- **RUNG 1 GREEN — THE MISTRAL-7B ATTENTION ANSWER (2026-09-03,
+  [MEASURED WSL-BOX NT CPU NOISY-SHARED]).** scripts/m8b_mistral_attn_gate.py
+  (5 phases; attrib/widen rows MERGE into their JSON per site, so a
+  killed run resumes — this lane died once mid-attrib and lost nothing
+  but the in-flight site). Ref: the hf Walker's val-subset loss
+  1.6403015947117856 (2 windows of T=512; the committed 8-window
+  reference is 1.8411).
+  - **EQUIV**: the hooked walker with all hooks off is BIT-EXACT vs the
+    validated m8b hf Walker at 32 layers — final hidden sha256
+    97deb9f4.., logits 885b401b.., identical loss. The precondition
+    holds. -> results/m8b_mistral_attn_equiv.json
+  - **STATS** (263.6 s, 4 cal windows): per-site per-layer absmax/p999/
+    e8, per head where head-structured; scores in the RAW q.k
+    convention (e8_scaled beside it). e8 spans and worst absmax/p999
+    ratios: xattn [-2,1] 6.9, q [-3,-2] 2.1, k [-4,-2] 2.0, v [-7,-3]
+    3.0, scores [1,2] 2.3, ctx [-7,-3] 11.5, ao [-10,1] 193, **xres
+    [-10,2] ratio 2348** — and xres's e8 jumps to +2 at layer 2 and
+    STAYS there for 30 layers: the Mistral massive-activation residual.
+    -> results/m8b_mistral_attn_stats.json
+  - **ATTRIB** (12 sites, ~120-190 s each, first order, FFN fp):
+    Wattn +0.0074, Wnorm -0.0004, xattn +0.0046, q +0.0006, k +0.0017,
+    v +0.0037, scores +0.0017, exps +0.0038, probs +0.0092 (the fP=9
+    floor), ctx +0.0021, ao +0.0799, **xres +9.7232** (loss 11.36);
+    composed all_int8 +8.7118 = xres's damage. THE CORE AND THE SEAMS
+    ARE int8-CLEAN — like 125M, unlike Gemma, whose QK-norm sites were
+    dirty. -> results/m8b_mistral_attn_attrib.json
+  - **WIDEN** (the widened class is now per-site parameterized:
+    `--wide-bits xres:16,ao:8`, `--stack-label`): xres16 +0.1205 (a
+    9.6-nat rescue that still MISSES the +0.1 class, where 125M's
+    xres16 was +0.0000), ao16 +0.0001, **xres24 +0.0000**. Composed
+    rows: stack_wide (all int8 + xres16) +0.3615; +ao16 +0.2403;
+    stack_wide_xres24 (ao left int8) +0.1150; **stack_wide_xres24_ao16
+    +0.0266** — inside the +0.1-nat class, better than Gemma's +0.0854.
+    -> results/m8b_mistral_attn_widen.json
+  - **THE VERDICT**: Mistral-7B attention IS int8-clean per tensor at
+    every core and seam site (q, k, v, scores, exps, probs, ctx, the
+    weights, the norm gammas and the attention input), the residual
+    stream xres is THE ONE poisoned site (the third model in a row),
+    and the rescue costs ONE class MORE than at 125M: xres needs
+    **int24**, and ao — clean alone at +0.0799 — must be int16 or the
+    composed stack loses the class (+0.1150 vs +0.0266). First-order
+    per-site deltas UNDER-count: the composed row is the number the
+    statement must quote.
+  - **RECORD** -> results/m8b_mistral_attn_at_o1.json: per-site
+    per-layer e8 + adopted class (classes adopted FROM the composed row
+    stack_wide_xres24_ao16, not from the per-site threshold), qr/kr and
+    the two gamma exponents, probs floor stats, and the exp members —
+    **only 2 members over 32 layers**: (exp-neg, eS_raw 1, d_h 128,
+    fE 9) and (exp-neg, eS_raw 2, d_h 128, fE 9); wrho = fE + log2 T =
+    18. qr/kr sit at q/k's exponent at every layer EXCEPT kr at
+    layer 0 (+1 bit) and qr at layer 26 (-1) — the rope requant is
+    therefore scale-CHANGING in general (sh = fRo + (e_qr - e_q)),
+    not scale-preserving as the spike's toy instance assumed
+    [corrected in rung 2].
+  - **STATEMENT CONSEQUENCE (amends the rung-0 spec table above)**: the
+    xres1/xres2 planes and therefore the SEAM are **int24**, not int16
+    — proven as two 16-bit limbs against the existing U16 table (no new
+    table, one extra committed plane per residual site), and ao8 becomes
+    ao16 (INT16 lookup). The int8 rows of the spec table are unchanged.
+    At 125M (PP's record) int16 suffices for xres, so the Rust chain
+    must carry the residual class as a per-instance parameter.
+  - Commits: 233069a (checkpoint: equiv + stats + 6 attrib sites),
+    6dcbe20, f90a4f4, d6fd96a (attrib complete), 2131623, 0da65e8
+    (widen), + this record commit.
+
+- **RUNG 2 GREEN — THE ORACLE (2026-09-03, [MEASURED WSL-BOX NT CPU
+  NOISY-SHARED]).** scripts/attention_hash_ref.py: the integer
+  attention + norm + residual chain of ONE REAL layer at the REAL
+  measured exponents (lane NN's attention_x1_layer_ref.py is the
+  toy-shape seeded sibling; this one drives checkpoints). Semantics:
+  v3 round-to-nearest requants with BALANCED remainders at every
+  requant edge (hashline export_v3::requant_round), divisions with
+  rho/sigma in the norm and softmax gadgets, the spike's exp and rope
+  table generators imported VERBATIM (the bytes tables_attn.rs emits),
+  the residual and ao planes in their rung-1 classes.
+  - 125M layer 0 (2.3 s): CHAIN **aed541fcc8d16f3c..**, 66 witness
+    tensors; eXn -5, tn 7, Cn 1774, Ceps 2013, wrho 18 (2 limbs); eQ -2
+    eK -4 eV -5; **exp member (exp-neg, eS_raw 1, d_h 64, fE 9)** — the
+    ledger's raw/scaled reconciliation CONFIRMED by the running chain
+    (PP's scaled eS -2, +3 bits); ropedig 236f03f3..; eO -5, eAo -5,
+    res1 int16 at eR1 -13; mnorm eXm -3 tn 9 wrho 26.
+  - Mistral-7B layer 0 (22.2 s): CHAIN **4085604b8d61ce8c..**; eXn -2,
+    tn 6, Cn 1024 (sqrt(4096) = 64 exact -> Cn a pure shift), Ceps
+    171799, wrho 17; eQ -3 eK -4 eV -7; **exp member (exp-neg, eS_raw
+    2, d_h 128, fE 9)**, expdig 423a43e7..; eO -7; **ao int16 at eAo
+    -18**; **res1 int24 at eR1 -26**; mnorm SS 49 bits, wrho 32 (2
+    limbs) — every width inside i64 and far inside the Goldilocks
+    field. -> results/hashline_attn_ref_{125m,mistral}_l0.json
+  - **NO REQUANT BUMPS at either instance**: the fp-derived exponents of
+    the AT-O1 records admit the integer chain at every edge (nothing
+    saturates, nothing was clamped) — the measured tables are directly
+    usable as statement constants.
+  - **THE LOCAL LEGS** (each gadget vs its fp counterpart on the SAME
+    dequantized integer inputs — "does the gadget compute the op"):
+    q8/k8/v8/s8/ao8/xres1 **1.000000 exact** at both models (matmul +
+    balanced-remainder requant IS the fp op to the last bit); rope
+    0.976-0.983 with max 1 grid step (the fRo = 7 table error, as
+    designed); the norms 0.9998-1.000000 max 1 step; softmax P
+    0.76 (125M) / 0.82 (Mistral) with max 34 / 28 steps out of 512 —
+    the fE/fP = 9 floor, the cost rung 1 already priced (+0.0167 /
+    +0.0092 nats). The CASCADE legs (vs the true fp layer) are far
+    looser and SHOULD be: they carry the int8 embedding's own error.
+  - **SPEC AMENDMENT (rung 2, adopted)**: the RMSNorm division is now
+    ROUND-to-nearest, not floor. Floor cost half a grid step on ~49% of
+    every norm output (local agreement 0.51, max 1 step); round lifts it
+    to 0.97-1.000. It needs NO parity witness and no new commitment:
+    double both sides — y = floor((2 num + div)/(2 div)) with the
+    proven relation y (2 div) + rho = 2 num + div, 2 div = D << (tn+1)
+    still linear in the committed D, rho one bit wider. This works at
+    tn = 0 (Mistral's mnorm, sqrt(4096) exact), where adding
+    floor(div/2) would have needed D's parity bit. `--norm-div floor`
+    reproduces the old semantics for the comparison.
+
+- **RUNG 3 GREEN — THE RUST CHAIN (2026-09-03, [MEASURED WSL-BOX 8T CPU
+  NOISY-SHARED]).** hashline/src/attention.rs now carries the exact
+  integer value chain of one attention half-layer (norm gadget with the
+  round division, QKV/Wo matmuls with v3 round requants and balanced
+  remainders, RoPE against tables_attn's generated tables, the per-head
+  score/softmax/PV stage streamed head by head, the residual add, the
+  mlp norm) and `hashline attn-chain <export-dir>` diffs every digest
+  against the oracle's manifest (exit non-zero on any difference).
+  scripts/attention_hash_ref.py --export DIR writes the layer's integer
+  inputs as i32 LE planes + manifest.txt (a flat key/value file so the
+  crate needs no JSON dependency); the planes are binary and live in
+  scratch, NEVER in the repo.
+  - **125M layer 0: 64/64 tensor digests + CHAIN aed541fc.. in 0.64 s**
+    (the oracle takes 2.3 s).
+  - **Mistral-7B layer 0: 64/64 + CHAIN 4085604b.. in 4.52 s** (oracle
+    24.1 s).
+  - Negative control: flipping ONE integer of x_in by +1 breaks 54 of
+    the 64 tensors and the CHAIN — the gate is not vacuous.
+  - The three byte gates re-run on this build: v2 **50cf7bdfd6b5b182..**,
+    v3 **5f368db6240e0614..**, zk **021485e4f80ec695..**, all unchanged;
+    `cargo test --release` **33/33** (31 + 2 new: the round-division
+    relation and the balanced requant window).
+  -> results/hashline_attn_chain_rung3.json
+
+- **RUNG 3.5 — WHAT RUNG 4 WILL COST (`attention_hash_ref.py --cost`;
+  [COUNTED] volumes, [MODEL] projection).** The statement's
+  committed/derived split from the rung-0 table (accumulators, d = m - sM
+  and sigma are DERIVED in helper zero-checks, never committed):
+  - 125M (T 512, d 768, H 12/4): **42 committed attention planes,
+    29.11 M elements** vs the v3 FFN half's 8.13 M -> attention is
+    **3.58x the FFN**, a full layer **4.58x the FFN-only layer**.
+    12.19 M more elements are derived and never committed.
+  - Mistral (T 512, d 4096, H 32/8): **103.85 M committed** vs the FFN's
+    55.57 M -> **1.87x**, a full layer **2.87x**.
+  - **THE SHAPE OF THE COST**: the six committed H x T x T planes (s8,
+    rS, zsel, E, P, rho) are **65% of the 125M attention witness and 48%
+    of Mistral's**, and they are QUADRATIC in T while the FFN half is
+    linear. At T 1024 they quadruple (75.5 M / 201.3 M) — attention, not
+    the FFN, sets the context-length cost of the hash line.
+  - [MODEL] at each instance's own measured v3 rate (125M 1.876 s/layer
+    = 0.2307 s per M committed elements; Mistral 15.95 s/layer = 0.287
+    s/M — the 8B rate is 24% slower per element): a 125M full layer
+    **~8.6 s** vs 1.88 s FFN-only; a Mistral full layer **~45.8 s** vs
+    15.95 s, so a 32-layer Mistral full-model prove projects to **~24
+    min** against the measured 510 s FFN-only. Rung 4 replaces this
+    model with a measurement. -> results/hashline_attn_cost_{125m,mistral}.json
+
+**WHERE THE LANE STANDS (for the next session).** Rungs 0-3 + 3.5 are
+done and committed; the remaining work is the PROOF itself:
+- **RUNG 4** (the long pole): prove one FULL 125M layer — the attention
+  planes committed alongside the v3 FFN planes, the matmul sumchecks
+  (QKV/Wo per the g/u form, the per-head score and PV sumchecks with the
+  GQA map as free index bits), the RoPE zero-check at the
+  coordinate-flipped point, the softmax's fused (d, E) LogUp + the
+  masked row-sum sumcheck + the division zero-check, the norm's isqrt
+  pair + division + U16 limb lookups, the two residual linear pins, and
+  the seam; then the tamper legs (a flipped score, a wrong exp entry, a
+  wrong softmax quotient, a wrong norm, a broken seam) + CPU/GPU
+  byte-identity + walls vs the FFN-only layer.
+- **RUNG 5**: the 12-layer 125M full-model pass with seams bound, ONE
+  Mistral full layer at T=16 on CPU, the §3 FULL-LAYER row, and what
+  remains for end-to-end (embeddings, head, KV cache/decode).
+- ORCHESTRATOR-RUN (nothing blocking; both are conveniences): the
+  Mistral token stream is cached at
+  /tmp/claude-1000/-home-victor-IntelligenceRegulation/<session>/scratchpad/mistral_toks.npy
+  (tokenizing from scratch costs ~5.5 min of the 6-min setup), and the
+  rung-3 exports live beside it (attn_export_{125m,mistral}_l0) — both
+  are scratch, regenerate with `--export`.
+
+
+(lane appends below — NOTE: this lane's log is the block at the END of
+this file, the one beginning "LANE: attention, norms and the
+layer-to-layer seams"; it was opened there in rung 0 and left in place
+so that moving it cannot conflict with the other lanes' appends.)
 
 ## Agent AF status (wt-uperf3-af) — round 12
 

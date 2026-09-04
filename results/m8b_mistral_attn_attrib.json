@@ -1,0 +1,167 @@
+{
+ "meta": {
+  "experiment": "m8b_mistral_attn_gate --phase attrib",
+  "checkpoint": "/home/victor/models/Mistral-7B-v0.1",
+  "seed": 1337,
+  "t": 512,
+  "val_take": 2,
+  "smoke": false,
+  "fE": 9,
+  "fP": 9,
+  "box": "[MEASURED WSL-BOX NT, val subset]",
+  "ref_full_committed_8win": 1.841096998602386,
+  "note": "first-order per-site attribution; FFN fp; exponents frozen from the cal-window stats pass; phases merge into the JSON across runs",
+  "ref_subset": 1.6403015947117856
+ },
+ "results": {
+  "none": {
+   "loss": 1.6403015947117856,
+   "delta_vs_fp_subset": null,
+   "sites": [],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 123.5
+  },
+  "Wattn": {
+   "loss": 1.6477498286021692,
+   "delta_vs_fp_subset": 0.0074482338903836265,
+   "sites": [
+    "Wattn"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 141.0
+  },
+  "Wnorm": {
+   "loss": 1.6398744644207608,
+   "delta_vs_fp_subset": -0.00042713029102481315,
+   "sites": [
+    "Wnorm"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 117.1
+  },
+  "xattn": {
+   "loss": 1.6448782280094536,
+   "delta_vs_fp_subset": 0.004576633297667998,
+   "sites": [
+    "xattn"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 125.2
+  },
+  "q": {
+   "loss": 1.6408605468184452,
+   "delta_vs_fp_subset": 0.0005589521066595715,
+   "sites": [
+    "q"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 132.1
+  },
+  "k": {
+   "loss": 1.6420064366810996,
+   "delta_vs_fp_subset": 0.001704841969313975,
+   "sites": [
+    "k"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 122.6
+  },
+  "v": {
+   "loss": 1.6440250044104698,
+   "delta_vs_fp_subset": 0.0037234096986842324,
+   "sites": [
+    "v"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 138.7
+  },
+  "scores": {
+   "loss": 1.6420439590622726,
+   "delta_vs_fp_subset": 0.0017423643504870245,
+   "sites": [
+    "scores"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 122.2
+  },
+  "exps": {
+   "loss": 1.6440612147478892,
+   "delta_vs_fp_subset": 0.003759620036103639,
+   "sites": [
+    "exps"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 187.1
+  },
+  "probs": {
+   "loss": 1.649543998698325,
+   "delta_vs_fp_subset": 0.009242403986539305,
+   "sites": [
+    "probs"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 173.1
+  },
+  "ctx": {
+   "loss": 1.6423922314841923,
+   "delta_vs_fp_subset": 0.0020906367724067287,
+   "sites": [
+    "ctx"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 142.5
+  },
+  "ao": {
+   "loss": 1.7202319631359435,
+   "delta_vs_fp_subset": 0.0799303684241579,
+   "sites": [
+    "ao"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 111.1
+  },
+  "xres": {
+   "loss": 11.363471312325768,
+   "delta_vs_fp_subset": 9.723169717613981,
+   "sites": [
+    "xres"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 167.9
+  },
+  "all_int8": {
+   "loss": 10.352098588571943,
+   "delta_vs_fp_subset": 8.711796993860158,
+   "sites": [
+    "Wattn",
+    "Wnorm",
+    "ao",
+    "ctx",
+    "exps",
+    "k",
+    "probs",
+    "q",
+    "scores",
+    "v",
+    "xattn",
+    "xres"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 163.0
+  }
+ }
+}

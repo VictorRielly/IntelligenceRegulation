@@ -19,6 +19,59 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-09-03 late (LANE AE — THE ATTENTION VERDICT, both chains
+GREEN at Mistral-7B; the full-layer PROOF is the remaining core):**
+- **THE MISTRAL-7B ATTENTION VERDICT [MEASURED]: the attention core
+  AND the seams are int8-clean; the residual stream is the one
+  poisoned site — as at 125M, unlike Gemma** (whose QK-norm sites
+  were dirty). Per-site int8 deltas (nats, first order, 2 val
+  windows, ref 1.640302): Wattn +0.0074, Wnorm -0.0004, xattn
+  +0.0046, q +0.0006, k +0.0017, v +0.0037, scores +0.0017, exps
+  +0.0038, probs +0.0092 (the fixed-point floor), ctx +0.0021, ao
+  +0.0799, **xres +9.7232**.
+- **THE RESCUE COSTS ONE CLASS MORE THAN AT 125M.** xres at int16
+  gives +0.1205 — a 9.6-nat rescue that still MISSES the +0.1 class
+  (at 125M int16 gave +0.0000). **xres needs int24**; and `ao`,
+  clean on its own, costs the composed stack its class unless it is
+  int16. The row to quote: **stack_wide (xres int24, ao int16) =
+  +0.0266**, inside the class and better than Gemma's +0.0854. Cause:
+  Mistral's massive-activation residual — xres's exponent jumps at
+  layer 2 and stays for 30 layers, absmax/p999 ratio 2348. Statement
+  consequence: xres and therefore THE SEAM are int24 (two 16-bit
+  limbs against the existing table, no new table); ao is an int16
+  lookup; the residual class is a per-instance parameter (125M needs
+  only int16). Only **2 exp members over 32 layers**. Record:
+  `results/m8b_mistral_attn_at_o1.json`.
+- **BOTH CHAINS GREEN**: the python oracle (`scripts/attention_hash_ref.py`)
+  and the Rust chain (`hashline attn-chain`) reproduce **64/64 tensor
+  digests + the chain digest at BOTH 125M layer 0 and Mistral-7B
+  layer 0**; a negative control (one flipped input integer) breaks 54
+  of 64. No requant bumps at either instance. **Two spec corrections
+  the running chain found**: the RMSNorm division is ROUND, not floor
+  (floor lost half a step on ~49% of every norm output; no parity
+  witness needed — double both sides), and the RoPE requant is
+  scale-changing in general (kr needs +1 bit at Mistral layer 0).
+- **WHAT ATTENTION COSTS THE PROVER [COUNTED]**: committed elements —
+  125M attention 29.11 M vs the FFN half's 8.13 M (**3.58x**; a full
+  layer 4.58x); Mistral 103.85 M vs 55.57 M (1.87x; a full layer
+  **2.87x**). The six committed per-head T x T planes are 48-65% of
+  the attention witness and are **QUADRATIC in the token count**
+  while the FFN half is linear — **attention, not the FFN, sets the
+  context-length cost**. [MODEL] at each instance's measured rate: a
+  125M full layer ~8.6 s (vs 1.88 s FFN-only), a Mistral full layer
+  ~45.8 s (vs 15.95 s), a 32-layer FULL-MODEL prove **~24 min**
+  against the measured 510 s FFN-only. So the FFN-only 8B proof is
+  ~35% of a full proof's cost (it is ~70-78% of the MACs — the two
+  fractions differ because attention commits more per MAC).
+- **RUNGS 4-5 NOT STARTED** (the full-layer prover/verifier: per-head
+  matmul sumchecks with the GQA index, the RoPE coordinate-flip
+  zero-check, the fused LogUp with the masked row-sum and division
+  checks, the inverse-sqrt limb lookups, two residual pins, the seam;
+  then tamper legs and CPU/GPU byte-identity). The lane stopped at a
+  fully committed, fully gated boundary with a "WHERE THE LANE
+  STANDS" block listing exactly what remains. THE FULL-LAYER ROW IN
+  PROVING_CHANNEL_OPTIONS §3 STAYS EMPTY UNTIL IT IS MEASURED.
+
 **AS OF 2026-09-03 late (LANE AD COMPLETE AND MERGED — ZERO KNOWLEDGE
 AND THE 8B SEMANTICS ARE NOW THE SAME PROOF; the P1 surcharge SHRINKS
 with model width):**

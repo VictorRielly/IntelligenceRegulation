@@ -36,3 +36,9 @@ pub mod zk;
 // [UPERF3-AC] the per-model weight-commitment cache (`--wcache DIR`); the
 // chunked device encoding lives in gpu/.
 pub mod wcache;
+// [UPERF3-AE] the attention half of the layer: the exp / rope table
+// members and LogUp tags, the RMSNorm gadget, the attention chain + the
+// full-layer prover behind `--attn`.
+pub mod tables_attn;
+pub mod norm;
+pub mod attention;
