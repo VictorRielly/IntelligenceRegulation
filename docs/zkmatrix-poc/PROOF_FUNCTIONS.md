@@ -150,18 +150,78 @@ first content filter is:
 |---|---|
 | output shape | **BINARY** — one acceptable class against one unacceptable class (or a single score against a public threshold) |
 | the predicate | **one non-negativity fact**: `y[accept] - y[reject] >= 0`, or `y - tau >= 0` for the single-score form |
-| machinery needed | **none that is new.** The remainder bit-plane range proofs at the q46 gadget modulus, tied to the q31 value commitments by the U-L modulus link, prove exactly this today |
+| machinery needed | ~~**none that is new.** The remainder bit-plane range proofs at the q46 gadget modulus, tied to the q31 value commitments by the U-L modulus link, prove exactly this today~~ **— WRONG, AND WRONG ABOUT THE CHANNEL. See the correction below.** |
 | acceptable set | **frozen per deployment** — implicit in the statement, no set commitment, no lookup |
 | the output | **committed**, because it already is: the output is an activation and the ZK path commits every activation. Not committing it would be a special case, i.e. more work, not less |
 | counted cost | **one range fact per proof.** Negligible against a 265 s 8B pass — below measurement noise |
 
 That is the whole content filter. It needs no committed class index, no
-LogUp membership lookup, no V − 1 comparisons, and no new primitive:
-**one comparison, using machinery that has been running since the
-project's first integer chain.**
+LogUp membership lookup and no V − 1 comparisons.
 
 The generality is what costs, and none of it is needed to ship the
 function.
+
+### 5a. CORRECTION 2026-09-04, after lane AN BUILT it — §5 named machinery from the WRONG PROVING CHANNEL
+
+§5 was written as a design ruling and got the shape of the answer right:
+the filter really is one comparison, it really needs no class index, no
+membership lookup and no V − 1 range facts, and its measured cost really
+is below noise. **Three specifics in it were wrong, and they only
+surfaced when someone tried to execute it literally.**
+
+1. **`q46` AND THE "U-L MODULUS LINK" DO NOT EXIST IN THIS CHANNEL.**
+   `grep -rl q46 hashline/src` returns NOTHING; every hit is in
+   `zkmatrix-rs/` and the lattice documents. But the ZK statement, the
+   P1/P3 header, the eight byte gates and the 8B pass are ALL hashline.
+   §5 reached across the two proving channels
+   (`PROVING_CHANNEL_OPTIONS.md`) for a gadget the target channel does
+   not have. **"Reuse the q46 remainder bit-planes" was not executable.**
+2. **hashline's OWN range machinery could not take the value without
+   crossing a lane boundary.** Its range proofs are the LogUp
+   window/class tables. The table side is generic over `zl.tabs`, but
+   the witness side is hard-wired into both the plane layout and the
+   CUDA `HelperSpec` list feeding `gpu::dev_helpers` — so adding one
+   looked-up value edits `gpu/*`, which was lane AO's this round.
+3. **"NO NEW PRIMITIVE" over-promised.** What shipped is ~200 lines of
+   new gadget, assembled entirely from primitives lanes ZA and AM had
+   already built (masked sumcheck, the CFS mask slot, the extension
+   round, `ZClaim`/`OpeningZk`, the mask-site assertion). No new
+   CRYPTOGRAPHY was needed — that part of the claim held — but "none
+   that is new" should have read **"no new primitive; roughly a couple
+   hundred lines of new gadget."**
+
+**WHAT WAS ACTUALLY BUILT** (lane AN, branch `uperf3-an`, `af514ac`) is
+the **single-score form**, `z16[row][col] - tau >= 0` — the simpler of
+the two §5 offered, and the frozen acceptable set is literally the
+triple `PredicateSpec { row, col, tau }`: no set commitment, no
+per-proof set, no lookup. It rides `ZkStatementMode` beside `model_id`,
+so the header reads
+`out=commit+pred:binary-acceptable(row=0,col=0,tau=-32768)|model=w-root`
+— **predicate id and model identity in the same header under the same
+transcript, absorbed before any challenge**, which is §3's requirement.
+The argument is one masked degree-3 sumcheck over one d-block cube whose
+claimed sum is the PUBLIC threshold, so the sumcheck itself reveals no
+witness quantity. It rides the LAST LAYER ONLY, so a pass pays it once
+rather than n times.
+
+**MEASURED** (12x512 v3, CPU, one binary one session,
+`results/an_r3_f2.log`): prove **18.54 -> 18.23 s** (the predicate arm
+is the FASTER one — run-to-run variance, i.e. the cost is under the
+noise floor, exactly as §5 predicted); bytes **87,697,008 ->
+87,974,688 = +0.3166%**, all of it on the single layer carrying the
+predicate, and **only 1,200 B of that is the argument itself** (266,240
+B is one extra column-weight group in the A opening at `log_cols 14`).
+Against the 8B pass the same fixed cost is **+0.022%** [arithmetic, not
+measured]. Gates: `ALL FLOORS GREEN` twice, 8 byte gates on both
+binaries at their round-15 bytes, **42/42 tests**, and the new statement
+has its own digest `3143d424e8990993`, byte-identical CPU vs GPU.
+
+**THE LESSON FOR FUTURE DESIGN RULINGS**, which is worth more than the
+correction: a ruling that names specific machinery must name **which
+proving channel** it lives in, and should be checked with a `grep`
+before it is written down. §5's *judgement* was sound and its cost
+estimate was right; its *citation* was not, and a lane spent real time
+discovering that the named gadget was in the other channel.
 
 ## 6. Documented for future exploration, with what each is worth
 
