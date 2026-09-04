@@ -10898,3 +10898,86 @@ opening re-encode 0.510 s. **THE HOST SHARE THIS LANE ATTACKS: 1.454 +
 0.236 + ~0.7 (the helper columns inside "helpers + commit H") = ~2.39 s
 of the 5.515 s = 43.3%** — AC's 44% reproduced at one layer
 [MEASURED/COUNTED].
+
+**RUNGS 1 + 2 — THE BLOCK-LOOPING ZERO-CHECK KERNELS AND THE LOGUP
+HELPER COLUMNS AT ANY BLOCK COUNT: GREEN, BYTE-IDENTICAL (2026-09-03,
+WSL-BOX 8T + RTX 4070 Laptop, [MEASURED], box quiet).** The two rungs
+landed in one change because they are the same gate: the helper
+columns and the two zero-checks are all-or-nothing (once the helpers
+go to the device there are no host tables to fall back to).
+
+WHAT LANDED (gpu/*, additive; three tagged edits in layer.rs's v3 FFN
+prover):
+- `kernels.cu`: **`k_sc_round_zcf_gen` / `k_sc_round_zcd_gen`** — the
+  round polynomial is `eq_t*ZC + eq_a*F_a + eq_b*F_b` with ZC/F_a/F_b
+  sums over blocks of terms reading only that block's own tables, so
+  the kernel loops over blocks holding ONE block's cur/dif in
+  registers (10 tables on the F side, 4 on the D side) and accumulates
+  the three partial sums at the five evaluation points; the eq tables
+  join once per element. The register footprint no longer depends on
+  the block count — which is exactly what `sc_round_impl<K, KIND>`
+  could not do. `__launch_bounds__(128, 1)`; the block-indexed
+  parameters live in a 384-u64 shared array (bounds nb_f <= 26,
+  nb_d <= 62 — Mistral needs 115 u64 at nb_f = 7).
+- `cuda.rs`: `dev_zerocheck` split into `zerocheck_impl` +
+  **`dev_zerocheck_blocks(kind, nb, ..)`**; the templated 13/15 path is
+  untouched and is still what the v2 prover and zk.rs call.
+  **`dev_reserve(&lens)`** takes both zero-check table buffers through
+  the XX pool (exact-length match, so the reservation IS the later
+  allocation) and gives them back — the device path now proves it can
+  finish BEFORE it takes the helpers off the host.
+- `layer.rs` (3 edits, all `[UPERF3-AH]`, none in lane AG's regions):
+  the gate `nb_f == 1 && nb_d == 3` -> the kernels' real bound; the
+  helper-spec list loops `for b in 0..nb_f` (3 nb_f + nb_d specs, was
+  3 + nb_d with block [0] hard-coded); the two TabSpec lists loop the
+  same way with the block-indexed parameter layout.
+
+**THE RESULT — ONE MISTRAL-7B LAYER AT T = 512 ON THE GPU** (the same
+command as rung 0's baseline, same box, same session):
+
+| phase | before (rung 0) | after | factor |
+|---|---:|---:|---:|
+| commit W | 1.291 | 1.366 | 0.95 |
+| commit A | 0.450 | 0.453 | 0.99 |
+| **helpers + commit H** | **1.022** | **0.261** | **3.9x** |
+| matmul g/u + d | 0.263 | 0.250 | 1.05 |
+| **zero-check F** | **1.454** (HOST) | **0.144** | **10.1x** |
+| **zero-check D** | **0.236** (HOST) | **0.024** | **9.8x** |
+| pcs openings | 0.785 | 0.584 | 1.34 |
+| **PROVE** | **5.515 s** | **3.090 s** | **1.79x** |
+| RSS | 4.17 GB | **2.48 GB** | 1.68x less |
+| VRAM peak | 4,175 MB | 5,651 MB | +1,476 MB (the zc tables) |
+
+**PROOF sha256 `179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b`
+(38,688,700 B) — IDENTICAL to the rung-0 baseline, to AC's rung-3 GPU
+row and to the CPU prover's.** Device-side after: h2d 0.467 s (1,871
+MB — 386 MB less uploaded, the H columns are no longer built on the
+host and copied up), ntt 0.524, **sumcheck 0.168**, fold 0.091,
+**helpers 0.113**, opening re-encode 0.449. The host share AC measured
+at 44% (the two zero-checks + the helper columns) is **0** — those
+three phases are 0.429 s of device work now; the residual ~1.28 s of
+host time in the 3.09 s is the witness-plane -> Fp conversions and
+their upload, the Merkle levels, the claim bookkeeping and
+serialization (XX's and AC's listed next levers, none of them a
+declined kernel).
+
+**NO REGRESSION AT THE 125M SHAPE, measured as an A/B in one session**
+(2 runs each, `pass 12 512` on the GPU): the generic kernels on the v3
+statement zcF **0.327 / 0.323 s**, zcD **0.085 / 0.079 s**; XX's
+templated kernels on the v2 statement zc20 0.338 / 0.340 s, zc17 0.095
+/ 0.103 s. Same shape (13 / 15 tables), same work, no measurable cost
+for looping — so the shape-general form could replace the templated
+one everywhere; it is kept beside it because XX's and ZA's measured
+rows were taken with it.
+
+**THE FOUR BYTE GATES, BOTH BINARIES, AFTER THE CHANGE: ALL EIGHT
+GREEN** [MEASURED, one run each, `flock /tmp/zk-heavy.lock`; sha256
+both from the binary and by hand]:
+| gate | CPU | GPU |
+|---|---|---|
+| v2 | `50cf7bdfd6b5b182..` 14.61 s | `50cf7bdfd6b5b182..` 2.83 s |
+| v3 | `5f368db6240e0614..` 15.15 s | `5f368db6240e0614..` 2.84 s |
+| zk-v2 | `021485e4f80ec695..` 16.50 s | `021485e4f80ec695..` 4.09 s |
+| zk-v3 | `40eb54795e023c77..` 18.78 s | `40eb54795e023c77..` 4.74 s |
+Plus `pass 3 16 --profile v3` CPU == GPU (`5d49ab312eb720f5..`) and
+`cargo test --release` **40/40**.

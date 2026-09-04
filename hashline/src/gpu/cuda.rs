@@ -25,9 +25,14 @@ const FUNCS: &[&str] = &[
     "k_fold_rows", "k_helper", "k_sum_fp", "k_eq_join", "k_dot_slices", "k_dif_pa", "k_dif_pb", "k_dit_p1_pad",
     "k_zk_pad_scale", // [UPERF3-ZA]
     "k_hash_cols_stream", "k_gather_cols_off", // [UPERF3-AC]
+    "k_sc_round_zcf_gen", "k_sc_round_zcd_gen", // [UPERF3-AH]
 ];
 const SC_THREADS: u32 = 256;
 const SC_MAX_BLOCKS: u32 = 1024;
+/// [UPERF3-AH] the block-looping round kernels' block size and the shared
+/// parameter array they can hold (kernels.cu: SCG_THREADS / SCG_MAX_PRM).
+const SCG_THREADS: u32 = 128;
+pub const SCG_MAX_PRM: usize = 384;
 const NTT_LOG_BLK: u32 = 12;
 fn ntt_threads() -> u32 {
     static V: OnceLock<u32> = OnceLock::new();
@@ -891,6 +896,36 @@ fn as_u64s_f2(v: &[Fp2]) -> Vec<u64> {
 /// exactly as sumcheck::prove would on the same tables. `Err` -> the
 /// caller runs the CPU body (with the tables it builds itself).
 pub fn dev_zerocheck(kind: i32, specs: &[TabSpec], prm: &[u64], tr: &mut Transcript) -> Result<ProverOutput, String> {
+    zerocheck_impl(kind, None, specs, prm, tr)
+}
+
+/// [UPERF3-AH] The SHAPE-GENERAL form: the same sumcheck over `nb` blocks
+/// (nb_f on the F side, nb_d on the D side) through the block-looping
+/// round kernels, with the block-indexed parameter layout kernels.cu
+/// states. `dev_zerocheck` above stays the templated 13 / 15-table path
+/// (the 125M block shape) and is what the v2 prover and zk.rs still call.
+pub fn dev_zerocheck_blocks(kind: i32, nb: usize, specs: &[TabSpec], prm: &[u64], tr: &mut Transcript) -> Result<ProverOutput, String> {
+    zerocheck_impl(kind, Some(nb), specs, prm, tr)
+}
+
+/// [UPERF3-AH] Reserve device buffers of exactly these lengths through the
+/// pool (which matches by exact length, so the reservation IS the later
+/// allocation) and return them to it. `Err` iff the device cannot hold
+/// them now — the caller then takes the host path BEFORE it commits to any
+/// device work whose fallback no longer exists.
+pub fn dev_reserve(lens: &[usize]) -> Result<(), String> {
+    let g = gpu().ok_or_else(init_err)?;
+    let g = g.lock().unwrap();
+    let dev = g.dev.clone();
+    let mut held: Vec<Pooled> = Vec::with_capacity(lens.len());
+    for &len in lens {
+        held.push(Pooled::take(&dev, len)?);
+    }
+    note_vram(&g);
+    Ok(())
+}
+
+fn zerocheck_impl(kind: i32, nblk: Option<usize>, specs: &[TabSpec], prm: &[u64], tr: &mut Transcript) -> Result<ProverOutput, String> {
     let g = gpu().ok_or_else(init_err)?;
     let g = g.lock().unwrap();
     let dev = g.dev.clone();
@@ -900,7 +935,7 @@ pub fn dev_zerocheck(kind: i32, specs: &[TabSpec], prm: &[u64], tr: &mut Transcr
         TabSpec::FromFp(_, _, n) | TabSpec::FromFp2(_, _, _, n) => *n,
         TabSpec::Eq(r) => 1usize << r.len(),
     };
-    assert!(l.is_power_of_two() && k <= 16);
+    assert!(l.is_power_of_two() && (k <= 16 || nblk.is_some()));
     let nv = l.trailing_zeros() as usize;
     let mut tabs_p = Pooled::take(&dev, k * l * 2)?;
     let tabs = tabs_p.get_mut();
@@ -929,14 +964,31 @@ pub fn dev_zerocheck(kind: i32, specs: &[TabSpec], prm: &[u64], tr: &mut Transcr
             }
         }
     }
-    assert!(prm.len() <= 32);
+    let prm_len = prm.len();
+    let (kname, threads) = match nblk {
+        None => {
+            assert!(prm_len <= 32);
+            let (kname, want_k) = if kind == 0 { ("k_sc_round_zc20", 13) } else { ("k_sc_round_zc17", 15) };
+            assert_eq!(k, want_k, "zero-check kind {kind} expects {want_k} tables");
+            (kname, SC_THREADS)
+        }
+        // [UPERF3-AH] any block count: the tables are 3 eq + 10 nb (F) / 4 nb (D)
+        // and the parameters are block-indexed (kernels.cu's layout).
+        Some(nb) => {
+            let (kname, want_k, want_prm) = if kind == 0 { ("k_sc_round_zcf_gen", 3 + 10 * nb, 17 + 14 * nb) } else { ("k_sc_round_zcd_gen", 3 + 4 * nb, 7 + 6 * nb) };
+            assert_eq!(k, want_k, "zero-check kind {kind} with {nb} blocks expects {want_k} tables");
+            assert_eq!(prm_len, want_prm, "zero-check kind {kind} with {nb} blocks expects {want_prm} parameters");
+            if prm_len > SCG_MAX_PRM {
+                return Err(format!("zero-check kind {kind}: {nb} blocks need {prm_len} parameters (kernel holds {SCG_MAX_PRM})"));
+            }
+            (kname, SCG_THREADS)
+        }
+    };
     let mut prm32 = prm.to_vec();
-    prm32.resize(32, 0);
+    prm32.resize(prm_len.max(32), 0);
     let d_prm = dev.htod_sync_copy(&prm32).map_err(|e| e.to_string())?;
     let mut d_part = unsafe { dev.alloc::<u64>(SC_MAX_BLOCKS as usize * 5 * 2) }.map_err(|e| e.to_string())?;
     let mut d_sums = unsafe { dev.alloc::<u64>(5 * 2) }.map_err(|e| e.to_string())?;
-    let (kname, want_k) = if kind == 0 { ("k_sc_round_zc20", 13) } else { ("k_sc_round_zc17", 15) };
-    assert_eq!(k, want_k, "zero-check kind {kind} expects {want_k} tables");
     let f_round = dev.get_func(MODULE, kname).ok_or("k_sc_round missing")?;
     let f_red = dev.get_func(MODULE, "k_reduce_f2").ok_or("k_reduce_f2 missing")?;
     let f_fold = dev.get_func(MODULE, "k_sc_fold").ok_or("k_sc_fold missing")?;
@@ -951,9 +1003,13 @@ pub fn dev_zerocheck(kind: i32, specs: &[TabSpec], prm: &[u64], tr: &mut Transcr
     let mut half = l / 2;
     for _round in 0..nv {
         let ta = Instant::now();
-        let blocks = (((half as u32) + SC_THREADS - 1) / SC_THREADS).clamp(1, SC_MAX_BLOCKS);
-        let cfg = LaunchConfig { grid_dim: (blocks, 1, 1), block_dim: (SC_THREADS, 1, 1), shared_mem_bytes: 0 };
-        unsafe { f_round.clone().launch(cfg, (&*tabs, half as i32, l as i32, &d_prm, &mut d_part)) }.map_err(|e| format!("k_sc_round: {e}"))?;
+        let blocks = (((half as u32) + threads - 1) / threads).clamp(1, SC_MAX_BLOCKS);
+        let cfg = LaunchConfig { grid_dim: (blocks, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+        match nblk {
+            None => unsafe { f_round.clone().launch(cfg, (&*tabs, half as i32, l as i32, &d_prm, &mut d_part)) },
+            Some(nb) => unsafe { f_round.clone().launch(cfg, (&*tabs, half as i32, l as i32, &d_prm, prm_len as i32, nb as i32, &mut d_part)) },
+        }
+        .map_err(|e| format!("k_sc_round: {e}"))?;
         let cfg_r = LaunchConfig { grid_dim: (1, 1, 1), block_dim: (1024, 1, 1), shared_mem_bytes: 0 };
         unsafe { f_red.clone().launch(cfg_r, (&d_part, blocks as i32, 5i32, &mut d_sums)) }.map_err(|e| format!("k_reduce_f2: {e}"))?;
         sync(vb)?;

@@ -1407,8 +1407,11 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let g_rh = gamma.mul_base(Fp::new(tag_rem_v3(sh_h)));
     let g_rd = gamma.mul_base(Fp::new(tag_rem_v3(sh_z)));
     let h_pcs = params.pcs_for(lay.log_a_min);
-    // the XX zero-check kernels are fixed at 13 / 15 tables: the 125M block shape
-    let dev_shape = nb_f == 1 && nb_d == 3;
+    // [UPERF3-AH] was `nb_f == 1 && nb_d == 3` — the XX zero-check kernels were fixed at
+    // 13 / 15 tables (the 125M block shape), which declined Mistral's (7, 1) = 73 / 7 and
+    // left the helpers and both zero-checks on the host. The block-looping kernels take any
+    // block count; the bound is the kernels' shared parameter array (gpu::SCG_MAX_PRM).
+    let dev_shape = nb_f >= 1 && nb_d >= 1 && 17 + 14 * nb_f <= 384 && 7 + 6 * nb_d <= 384;
     #[cfg(not(feature = "gpu-cuda"))]
     let _ = dev_shape;
     let mut host_tabs: Option<HostTabsV3> = None;
@@ -1417,16 +1420,24 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     #[cfg(feature = "gpu-cuda")]
     let h_cm_dev: Option<AnyCm> = if let (true, true, Some(a_dc)) = (crate::gpu::enabled(), dev_shape, dev_of(&a_cm)) {
         use crate::gpu::HelperSpec;
-        let mut specs = vec![
-            HelperSpec { off_v1: lay.g8[0], off_w: Some(lay.a16[0]), off_v2: lay.rg[0], len: tfb, c1: g_act, c2: g_rg, off_re: lay.hg[0].0, off_im: lay.hg[0].1 },
-            HelperSpec { off_v1: lay.u16[0], off_w: None, off_v2: lay.ru[0], len: tfb, c1: g_i16, c2: g_ru, off_re: lay.hu[0].0, off_im: lay.hu[0].1 },
-            HelperSpec { off_v1: lay.h16[0], off_w: None, off_v2: lay.rh[0], len: tfb, c1: g_i16, c2: g_rh, off_re: lay.hh[0].0, off_im: lay.hh[0].1 },
-        ];
+        // [UPERF3-AH] every f-block, not only block 0 (`k_helper` is length-general).
+        let mut specs = Vec::with_capacity(3 * nb_f + nb_d);
+        for b in 0..nb_f {
+            specs.push(HelperSpec { off_v1: lay.g8[b], off_w: Some(lay.a16[b]), off_v2: lay.rg[b], len: tfb, c1: g_act, c2: g_rg, off_re: lay.hg[b].0, off_im: lay.hg[b].1 });
+            specs.push(HelperSpec { off_v1: lay.u16[b], off_w: None, off_v2: lay.ru[b], len: tfb, c1: g_i16, c2: g_ru, off_re: lay.hu[b].0, off_im: lay.hu[b].1 });
+            specs.push(HelperSpec { off_v1: lay.h16[b], off_w: None, off_v2: lay.rh[b], len: tfb, c1: g_i16, c2: g_rh, off_re: lay.hh[b].0, off_im: lay.hh[b].1 });
+        }
         for c in 0..nb_d {
             specs.push(HelperSpec { off_v1: lay.z[c], off_w: None, off_v2: lay.rd[c], len: tdb, c1: g_i16, c2: g_rd, off_re: lay.hz[c].0, off_im: lay.hz[c].1 });
         }
         let rows = lay.h_len / h_pcs.cols();
-        let r = crate::gpu::dev_helpers(a_dc, lay.h_len, &specs, alpha, beta)
+        // [UPERF3-AH] the two zero-check table buffers are reserved through the pool BEFORE
+        // the helpers go to the device: once they have, `host_tabs` no longer exists and a
+        // later decline is a panic by design, so the whole layer must fall back here or not
+        // at all.
+        let zc_tabs = [(3 + 10 * nb_f) * tfb * 2, (3 + 4 * nb_d) * tdb * 2];
+        let r = crate::gpu::dev_reserve(&zc_tabs)
+            .and_then(|()| crate::gpu::dev_helpers(a_dc, lay.h_len, &specs, alpha, beta))
             .and_then(|(d_h, sums)| crate::gpu::dev_commit_from(&h_pcs, d_h, rows, ntt).map(|(dc, leaves)| (dc, leaves, sums)));
         match r {
             Ok((dc, leaves, sums)) => {
@@ -1579,20 +1590,29 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     #[cfg(feature = "gpu-cuda")]
     let dev_out = if let (true, true, Some(a_dc), Some(h_dc)) = (crate::gpu::enabled(), dev_shape, dev_of(&a_cm), dev_of(&h_cm)) {
         use crate::gpu::TabSpec;
-        let specs = vec![
-            TabSpec::Eq(&tau), TabSpec::Eq(&p1), TabSpec::Eq(&p5),
-            TabSpec::FromFp(a_dc, lay.g8[0], tfb), TabSpec::FromFp(a_dc, lay.rg[0], tfb), TabSpec::FromFp(a_dc, lay.a16[0], tfb),
-            TabSpec::FromFp(a_dc, lay.u16[0], tfb), TabSpec::FromFp(a_dc, lay.ru[0], tfb), TabSpec::FromFp(a_dc, lay.h16[0], tfb), TabSpec::FromFp(a_dc, lay.rh[0], tfb),
-            TabSpec::FromFp2(h_dc, lay.hg[0].0, lay.hg[0].1, tfb), TabSpec::FromFp2(h_dc, lay.hu[0].0, lay.hu[0].1, tfb), TabSpec::FromFp2(h_dc, lay.hh[0].0, lay.hh[0].1, tfb),
-        ];
-        let mut prm: Vec<u64> = Vec::new();
-        for v in [alpha, beta, g_act, g_rg, g_ru, g_rh, g_i16, mu[0], mu[1], mu[2], mu[3], nu[0], nu[1], nu[2]] {
+        // [UPERF3-AH] every f-block, in the CPU's table order (3 eq, then block-major
+        // g8 rg a16 u16 ru h16 rh hg hu hh); the parameters block-indexed as kernels.cu states.
+        let mut specs = Vec::with_capacity(3 + 10 * nb_f);
+        specs.extend([TabSpec::Eq(&tau), TabSpec::Eq(&p1), TabSpec::Eq(&p5)]);
+        for b in 0..nb_f {
+            specs.extend([
+                TabSpec::FromFp(a_dc, lay.g8[b], tfb), TabSpec::FromFp(a_dc, lay.rg[b], tfb), TabSpec::FromFp(a_dc, lay.a16[b], tfb),
+                TabSpec::FromFp(a_dc, lay.u16[b], tfb), TabSpec::FromFp(a_dc, lay.ru[b], tfb), TabSpec::FromFp(a_dc, lay.h16[b], tfb), TabSpec::FromFp(a_dc, lay.rh[b], tfb),
+                TabSpec::FromFp2(h_dc, lay.hg[b].0, lay.hg[b].1, tfb), TabSpec::FromFp2(h_dc, lay.hu[b].0, lay.hu[b].1, tfb), TabSpec::FromFp2(h_dc, lay.hh[b].0, lay.hh[b].1, tfb),
+            ]);
+        }
+        let mut prm: Vec<u64> = Vec::with_capacity(17 + 14 * nb_f);
+        for v in [alpha, beta, g_act, g_rg, g_ru, g_rh, g_i16] {
             prm.push(v.c0.0);
             prm.push(v.c1.0);
         }
         prm.extend([p_g.0, p_u.0, p_h.0]);
+        for v in mu.iter().chain(nu.iter()) {
+            prm.push(v.c0.0);
+            prm.push(v.c1.0);
+        }
         let mut tr_try = Transcript::clone_state(tr);
-        match crate::gpu::dev_zerocheck(0, &specs, &prm, &mut tr_try) {
+        match crate::gpu::dev_zerocheck_blocks(0, nb_f, &specs, &prm, &mut tr_try) {
             Ok(out) => { *tr = tr_try; Some(out) }
             Err(e) => { eprintln!("[UPERF3-ZB] gpu zero-check F declined ({e}); CPU path"); None }
         }
@@ -1648,14 +1668,19 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
         for c in 0..nb_d { specs.push(TabSpec::FromFp(a_dc, lay.z[c], tdb)); }
         for c in 0..nb_d { specs.push(TabSpec::FromFp(a_dc, lay.rd[c], tdb)); }
         for c in 0..nb_d { specs.push(TabSpec::FromFp2(h_dc, lay.hz[c].0, lay.hz[c].1, tdb)); }
-        let mut prm: Vec<u64> = Vec::new();
-        for v in [alpha, g_i16, g_rd, mu2[0], mu2[1], mu2[2], nu_x[0], nu_x[1], nu_x[2], nu_z[0], nu_z[1], nu_z[2]] {
+        // [UPERF3-AH] the block-indexed parameter layout (alpha, g_i16, g_rd, p_z, then mu2, nu_x, nu_z)
+        let mut prm: Vec<u64> = Vec::with_capacity(7 + 6 * nb_d);
+        for v in [alpha, g_i16, g_rd] {
             prm.push(v.c0.0);
             prm.push(v.c1.0);
         }
         prm.push(p_z.0);
+        for v in mu2.iter().chain(nu_x.iter()).chain(nu_z.iter()) {
+            prm.push(v.c0.0);
+            prm.push(v.c1.0);
+        }
         let mut tr_try = Transcript::clone_state(tr);
-        match crate::gpu::dev_zerocheck(1, &specs, &prm, &mut tr_try) {
+        match crate::gpu::dev_zerocheck_blocks(1, nb_d, &specs, &prm, &mut tr_try) {
             Ok(out) => { *tr = tr_try; Some(out) }
             Err(e) => { eprintln!("[UPERF3-ZB] gpu zero-check D declined ({e}); CPU path"); None }
         }

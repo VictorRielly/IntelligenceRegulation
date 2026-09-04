@@ -30,6 +30,11 @@ pub use cuda::{dev_commit_zk, dev_commit_zk_from, dev_upload_rows};
 // [UPERF3-AC] the cached-W device entry (upload + encode, no hash) and the chunked-commit probe
 #[cfg(feature = "gpu-cuda")]
 pub use cuda::{dev_commit_check_chunked, dev_encode_only};
+// [UPERF3-AH] the shape-general zero-check (any block count) and the up-front
+// device-buffer reservation that keeps the "declined -> host path" discipline
+// honest once the helper columns have already gone to the device.
+#[cfg(feature = "gpu-cuda")]
+pub use cuda::{dev_reserve, dev_zerocheck_blocks};
 
 #[cfg(not(feature = "gpu-cuda"))]
 mod stub {

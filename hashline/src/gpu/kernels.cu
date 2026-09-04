@@ -457,6 +457,165 @@ extern "C" __global__ void k_sc_round_zc17(const u64* __restrict__ tabs, int hal
     sc_round_impl<15, 1>(tabs, half, L, prm, partial);
 }
 
+// ---------------------------------------------------------------------------
+// [UPERF3-AH] THE BLOCK-LOOPING ROUND KERNELS. The two zero-check
+// polynomials are
+//     eq_t * ZC + eq_a * F_a + eq_b * F_b,
+// where ZC / F_a / F_b are SUMS OVER BLOCKS of terms that read only that
+// block's own tables (10 on the F side, 4 on the D side). So a kernel can
+// loop over the blocks, holding ONE block's cur/dif in registers, and
+// accumulate the three partial sums at the five evaluation points; the eq
+// tables join once per element. The register footprint is therefore
+// independent of the block count, which is what the templated
+// `sc_round_impl<K, KIND>` above could not do (its cur[K] / dif[K] force K
+// to be a compile-time constant, i.e. one block shape per kernel).
+// Everything is a field expression identical to the CPU closure's, term
+// for term, and every sum is a field sum (order-free), so the round
+// polynomials — and hence the transcript and the proof bytes — are the
+// templated kernels' and the CPU's.
+//   prm, F side: alpha 0, beta 2, g_act 4, g_rg 6, g_ru 8, g_rh 10,
+//     g_i16 12, p_g 14, p_u 15, p_h 16, mu[4 nb] 17.., nu[3 nb] 17+8nb..
+//   prm, D side: alpha 0, g_i16 2, g_rd 4, p_z 6, mu2[nb] 7..,
+//     nu_x[nb] 7+2nb.., nu_z[nb] 7+4nb..
+// Table order (== the CPU's `tables` vector): 3 eq tables, then the F side
+// BLOCK-major (g8, rg, a16, u16, ru, h16, rh, hg, hu, hh per block) and
+// the D side ROLE-major (x for every block, then z, then rd, then h).
+
+#define SCG_THREADS 128
+#define SCG_MAX_PRM 384
+
+// The block reduction and the partial write, shared by both kernels.
+__device__ __forceinline__ void scg_emit(const f2* acc, u64* red, u64* __restrict__ partial) {
+    #pragma unroll
+    for (int d = 0; d <= SC_DEG; d++) { red[(threadIdx.x * (SC_DEG + 1) + d) * 2] = acc[d].c0; red[(threadIdx.x * (SC_DEG + 1) + d) * 2 + 1] = acc[d].c1; }
+    __syncthreads();
+    for (int s = blockDim.x / 2; s > 0; s >>= 1) {
+        if (threadIdx.x < s) {
+            #pragma unroll
+            for (int d = 0; d <= SC_DEG; d++) {
+                int a = (threadIdx.x * (SC_DEG + 1) + d) * 2;
+                int b = ((threadIdx.x + s) * (SC_DEG + 1) + d) * 2;
+                red[a] = gl_add(red[a], red[b]);
+                red[a + 1] = gl_add(red[a + 1], red[b + 1]);
+            }
+        }
+        __syncthreads();
+    }
+    if (threadIdx.x == 0) {
+        #pragma unroll
+        for (int d = 0; d <= SC_DEG; d++) { partial[(blockIdx.x * (SC_DEG + 1) + d) * 2] = red[d * 2]; partial[(blockIdx.x * (SC_DEG + 1) + d) * 2 + 1] = red[d * 2 + 1]; }
+    }
+}
+
+extern "C" __global__ __launch_bounds__(SCG_THREADS, 1) void k_sc_round_zcf_gen(
+        const u64* __restrict__ tabs, int half, int L, const u64* __restrict__ prm, int prm_len, int nb, u64* __restrict__ partial) {
+    __shared__ u64 sprm[SCG_MAX_PRM];
+    __shared__ u64 red[SCG_THREADS * (SC_DEG + 1) * 2];
+    for (int i = threadIdx.x; i < prm_len; i += blockDim.x) sprm[i] = prm[i];
+    __syncthreads();
+    const f2 alpha = prm_f2(sprm, 0), beta = prm_f2(sprm, 2), g_act = prm_f2(sprm, 4);
+    const f2 g_rg = prm_f2(sprm, 6), g_ru = prm_f2(sprm, 8), g_rh = prm_f2(sprm, 10), g_i16 = prm_f2(sprm, 12);
+    const u64 p_g = sprm[14], p_u = sprm[15], p_h = sprm[16];
+    f2 acc[SC_DEG + 1];
+    #pragma unroll
+    for (int d = 0; d <= SC_DEG; d++) acc[d] = f2_zero();
+    for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < half; i += gridDim.x * blockDim.x) {
+        f2 zc[SC_DEG + 1], fa[SC_DEG + 1], fb[SC_DEG + 1];
+        #pragma unroll
+        for (int d = 0; d <= SC_DEG; d++) { zc[d] = f2_zero(); fa[d] = f2_zero(); fb[d] = f2_zero(); }
+        for (int b = 0; b < nb; b++) {
+            const u64* base = tabs + (size_t)(3 + 10 * b) * (size_t)L * 2;
+            f2 cur[10], dif[10];
+            #pragma unroll
+            for (int t = 0; t < 10; t++) {
+                f2 v0 = ld_f2(base, (size_t)t * L + i);
+                f2 v1 = ld_f2(base, (size_t)t * L + i + half);
+                cur[t] = v0;
+                dif[t] = f2_sub(v1, v0);
+            }
+            const f2 mu0 = prm_f2(sprm, 17 + 8 * b), mu1 = prm_f2(sprm, 19 + 8 * b), mu2 = prm_f2(sprm, 21 + 8 * b), mu3 = prm_f2(sprm, 23 + 8 * b);
+            const int no = 17 + 8 * nb + 6 * b;
+            const f2 nu0 = prm_f2(sprm, no), nu1 = prm_f2(sprm, no + 2), nu2 = prm_f2(sprm, no + 4);
+            #pragma unroll
+            for (int d = 0; d <= SC_DEG; d++) {
+                if (d) {
+                    #pragma unroll
+                    for (int t = 0; t < 10; t++) cur[t] = f2_add(cur[t], dif[t]);
+                }
+                f2 g8 = cur[0], rg = cur[1], a16 = cur[2], u16 = cur[3], ru = cur[4], h16 = cur[5], rh = cur[6], hg = cur[7], hu = cur[8], hh = cur[9];
+                f2 c_had = f2_sub(f2_sub(f2_mul(a16, u16), f2_mul_base(h16, p_h)), rh);
+                f2 c_hg = helper_constraint(hg, f2_add(f2_add(g8, f2_mul(beta, a16)), g_act), f2_add(rg, g_rg), alpha);
+                f2 c_hu = helper_constraint(hu, f2_add(u16, g_i16), f2_add(ru, g_ru), alpha);
+                f2 c_hh = helper_constraint(hh, f2_add(h16, g_i16), f2_add(rh, g_rh), alpha);
+                zc[d] = f2_add(zc[d], f2_add(f2_add(f2_mul(mu0, c_had), f2_mul(mu1, c_hg)), f2_add(f2_mul(mu2, c_hu), f2_mul(mu3, c_hh))));
+                fa[d] = f2_add(fa[d], f2_add(f2_mul(nu0, f2_add(f2_mul_base(g8, p_g), rg)), f2_mul(nu1, f2_add(f2_mul_base(u16, p_u), ru))));
+                fb[d] = f2_add(fb[d], f2_mul(nu2, h16));
+            }
+        }
+        f2 e0 = ld_f2(tabs, (size_t)i), e1 = ld_f2(tabs, (size_t)L + i), e5 = ld_f2(tabs, (size_t)2 * L + i);
+        f2 d0 = f2_sub(ld_f2(tabs, (size_t)i + half), e0);
+        f2 d1 = f2_sub(ld_f2(tabs, (size_t)L + i + half), e1);
+        f2 d5 = f2_sub(ld_f2(tabs, (size_t)2 * L + i + half), e5);
+        #pragma unroll
+        for (int d = 0; d <= SC_DEG; d++) {
+            if (d) { e0 = f2_add(e0, d0); e1 = f2_add(e1, d1); e5 = f2_add(e5, d5); }
+            acc[d] = f2_add(acc[d], f2_add(f2_add(f2_mul(e0, zc[d]), f2_mul(e1, fa[d])), f2_mul(e5, fb[d])));
+        }
+    }
+    scg_emit(acc, red, partial);
+}
+
+extern "C" __global__ __launch_bounds__(SCG_THREADS, 1) void k_sc_round_zcd_gen(
+        const u64* __restrict__ tabs, int half, int L, const u64* __restrict__ prm, int prm_len, int nb, u64* __restrict__ partial) {
+    __shared__ u64 sprm[SCG_MAX_PRM];
+    __shared__ u64 red[SCG_THREADS * (SC_DEG + 1) * 2];
+    for (int i = threadIdx.x; i < prm_len; i += blockDim.x) sprm[i] = prm[i];
+    __syncthreads();
+    const f2 alpha = prm_f2(sprm, 0), g_i16 = prm_f2(sprm, 2), g_rd = prm_f2(sprm, 4);
+    const u64 p_z = sprm[6];
+    f2 acc[SC_DEG + 1];
+    #pragma unroll
+    for (int d = 0; d <= SC_DEG; d++) acc[d] = f2_zero();
+    for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < half; i += gridDim.x * blockDim.x) {
+        f2 zc[SC_DEG + 1], fx[SC_DEG + 1], fz[SC_DEG + 1];
+        #pragma unroll
+        for (int d = 0; d <= SC_DEG; d++) { zc[d] = f2_zero(); fx[d] = f2_zero(); fz[d] = f2_zero(); }
+        for (int c = 0; c < nb; c++) {
+            f2 cur[4], dif[4];
+            #pragma unroll
+            for (int t = 0; t < 4; t++) {
+                size_t off = (size_t)(3 + t * nb + c) * (size_t)L;
+                f2 v0 = ld_f2(tabs, off + i);
+                f2 v1 = ld_f2(tabs, off + i + half);
+                cur[t] = v0;
+                dif[t] = f2_sub(v1, v0);
+            }
+            const f2 mu2 = prm_f2(sprm, 7 + 2 * c), nux = prm_f2(sprm, 7 + 2 * nb + 2 * c), nuz = prm_f2(sprm, 7 + 4 * nb + 2 * c);
+            #pragma unroll
+            for (int d = 0; d <= SC_DEG; d++) {
+                if (d) {
+                    #pragma unroll
+                    for (int t = 0; t < 4; t++) cur[t] = f2_add(cur[t], dif[t]);
+                }
+                f2 x = cur[0], z = cur[1], rd = cur[2], h = cur[3];
+                zc[d] = f2_add(zc[d], f2_mul(mu2, helper_constraint(h, f2_add(z, g_i16), f2_add(rd, g_rd), alpha)));
+                fx[d] = f2_add(fx[d], f2_mul(nux, x));
+                fz[d] = f2_add(fz[d], f2_mul(nuz, f2_add(f2_mul_base(z, p_z), rd)));
+            }
+        }
+        f2 e0 = ld_f2(tabs, (size_t)i), e2 = ld_f2(tabs, (size_t)L + i), e4 = ld_f2(tabs, (size_t)2 * L + i);
+        f2 d0 = f2_sub(ld_f2(tabs, (size_t)i + half), e0);
+        f2 d2 = f2_sub(ld_f2(tabs, (size_t)L + i + half), e2);
+        f2 d4 = f2_sub(ld_f2(tabs, (size_t)2 * L + i + half), e4);
+        #pragma unroll
+        for (int d = 0; d <= SC_DEG; d++) {
+            if (d) { e0 = f2_add(e0, d0); e2 = f2_add(e2, d2); e4 = f2_add(e4, d4); }
+            acc[d] = f2_add(acc[d], f2_add(f2_add(f2_mul(e0, zc[d]), f2_mul(e2, fx[d])), f2_mul(e4, fz[d])));
+        }
+    }
+    scg_emit(acc, red, partial);
+}
+
 // out[m f2] = sum over n entries of m f2 each (one block).
 extern "C" __global__ void k_reduce_f2(const u64* __restrict__ partial, int n, int m, u64* __restrict__ out) {
     __shared__ u64 red[1024 * 2];
