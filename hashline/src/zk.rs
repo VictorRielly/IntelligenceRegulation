@@ -2210,6 +2210,15 @@ fn eval_slice(data: &[Fp], off: usize, point: &[Fp2]) -> Fp2 {
     eval_many(data, &[(off, 1usize << point.len())], point)[0]
 }
 
+#[cfg(test)]
+thread_local! {
+    /// [UPERF3-AN] TEST ONLY (it does not exist in the shipped binary): replace the
+    /// honest bit row with a chosen sparse one, so the two facts the predicate gadget
+    /// rests on -- the planes are BOOLEAN, and only the 16 weighted columns count --
+    /// can be attacked directly rather than argued.
+    static PRED_BIT_TAMPER: std::cell::RefCell<Option<Vec<(usize, i64)>>> = const { std::cell::RefCell::new(None) };
+}
+
 /// [UPERF3-AN] FUNCTION 2. The number of bit planes the predicate slack needs:
 /// both the score and the threshold are int16, so `y - tau` lies in
 /// [-65535, 65535] and "non-negative" is exactly "16 bits recompose it".
@@ -2426,6 +2435,13 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
             );
         }
         for i in 0..PRED_BITS { a_data[zl.a_pb * n + i] = Fp::new(((slack >> i) & 1) as u64); }
+        #[cfg(test)]
+        PRED_BIT_TAMPER.with(|t| {
+            if let Some(cells) = t.borrow().as_ref() {
+                for i in 0..n { a_data[zl.a_pb * n + i] = Fp::ZERO; }
+                for (i, v) in cells { a_data[zl.a_pb * n + i] = Fp::from_i64(*v); }
+            }
+        });
     }
     for r in zl.a_mask_rows().into_iter().chain(std::iter::once(zl.a_prox)) {
         let v = rng.fp_vec(n);
@@ -3857,6 +3873,27 @@ mod tests_v3 {
             let o = prove_layer_zk_v3(&wt, 2, &params, &ntt, &cfg2, &mut tr);
             let mut tv = Transcript::new(b"t");
             assert!(verify_layer_zk_v3(&st, &o.proof, &params, &ntt, &mut tv, &acc).is_err(), "function 2 accepted {tm:?}");
+        }
+
+        // (5b) THE TWO FACTS THE GADGET RESTS ON, ATTACKED DIRECTLY. The honest bit
+        // row is replaced with a cheating one and the proof must still fail:
+        //   - NON-BOOLEAN: put the whole slack in column 0 (whose public weight is
+        //     2^0 = 1), so the recomposition is right and only booleanity is wrong;
+        //   - OUT OF THE WINDOW: put the honest bits in columns 16.., whose public
+        //     weight is ZERO, so booleanity is right and only the recomposition is
+        //     wrong. This is what makes a negative slack unprovable.
+        let slack = score - acc.pred.as_ref().unwrap().tau;
+        for (what, cells) in [
+            ("a NON-BOOLEAN bit plane", vec![(0usize, slack)]),
+            ("bits outside the 16 weighted columns", (0..PRED_BITS).map(|i| (PRED_BITS + i, (slack >> i) & 1)).collect::<Vec<_>>()),
+            ("every plane set, recomposing to nothing", (0..PRED_BITS).map(|i| (i, 1i64)).collect::<Vec<_>>()),
+        ] {
+            PRED_BIT_TAMPER.with(|t| *t.borrow_mut() = Some(cells));
+            let mut tr = Transcript::new(b"t");
+            let o = prove_layer_zk_v3(&w, 2, &params, &ntt, &cfg2, &mut tr);
+            PRED_BIT_TAMPER.with(|t| *t.borrow_mut() = None);
+            let mut tv = Transcript::new(b"t");
+            assert!(verify_layer_zk_v3(&st, &o.proof, &params, &ntt, &mut tv, &acc).is_err(), "function 2 accepted {what}");
         }
 
         // (6) the score, the threshold and the slack are nowhere in the clear

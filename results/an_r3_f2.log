@@ -1,0 +1,62 @@
+
+=== function 1 (--zk), 12x512, CPU ===
+2026-09-04 13:35:28
+  MODE P1 (fast tier) [v3] header "P1-v3": private = {the input X, EVERY activation plane including the output z16, the remainders, the multiplicities}; public = {the weights W, the shapes, the signed shifts, the activation-table digest}; output claim: function 1 (attested inference) — the output is committed, nothing more is claimed; model identity: the W commitment root (public weights: stable per model)
+  layer  0: prove 1.523 s, 7306036 B
+  layer  1: prove 1.498 s, 7318324 B
+  layer  2: prove 1.556 s, 7318324 B
+  layer  3: prove 1.507 s, 7306036 B
+  layer  4: prove 1.580 s, 7306036 B
+  layer  5: prove 1.567 s, 7306036 B
+  layer  6: prove 1.551 s, 7306036 B
+  layer  7: prove 1.559 s, 7306036 B
+  layer  8: prove 1.563 s, 7306036 B
+  layer  9: prove 1.535 s, 7306036 B
+  layer 10: prove 1.568 s, 7306036 B
+  layer 11: prove 1.534 s, 7306036 B
+prover phases (summed over layers):
+PROOF sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.52 s | PROVE 18.54 s | VERIFY 0.49 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 1.564e9 proven MAC/s (prove wall) | wall 20.66 s
+
+=== function 2 (--predicate 0:0:-32768), 12x512, CPU ===
+2026-09-04 13:35:49
+FUNCTION 2 (the ZK content filter). The verifier learns ONE BIT — that the predicate holds.
+  Deployment posture: NO VALID PROOF => REJECT. The absence of a proof is not evidence of
+  unacceptable content — the prover may simply not have tried (PROOF_FUNCTIONS.md section 3).
+  The PROVER always learns the classification; function 2 hides it from the VERIFIER only.
+  The acceptable set is FROZEN in this statement's header and cannot be swapped per proof.
+  MODE P1 (fast tier) [v3] header "HL-ZK/1|profile=v3|priv=in+act+out|pub=weights+shapes+shifts+table-digest|out=commit+pred:binary-acceptable(row=0,col=0,tau=-32768)|model=w-root": private = {the input X, EVERY activation plane including the output z16, the remainders, the multiplicities}; public = {the weights W, the shapes, the signed shifts, the activation-table digest}; output claim: function 2 (validated classification, binary form) — the output is committed AND z16[row 0][col 0] - -32768 >= 0 is PROVEN; the acceptable set is frozen per deployment and is exactly this triple; posture: NO VALID PROOF => REJECT (PROOF_FUNCTIONS.md section 3); model identity: the W commitment root (public weights: stable per model)
+  layer  0: prove 1.580 s, 7306036 B
+  layer  1: prove 1.601 s, 7318324 B
+  layer  2: prove 1.578 s, 7318324 B
+  layer  3: prove 1.441 s, 7306036 B
+  layer  4: prove 1.485 s, 7306036 B
+  layer  5: prove 1.551 s, 7306036 B
+  layer  6: prove 1.519 s, 7306036 B
+  layer  7: prove 1.452 s, 7306036 B
+  layer  8: prove 1.464 s, 7306036 B
+  layer  9: prove 1.535 s, 7306036 B
+  layer 10: prove 1.489 s, 7306036 B
+  layer 11: prove 1.538 s, 7583716 B
+prover phases (summed over layers):
+PROOF sha256 3143d424e89909931a982f1727ebb46d2782538d294837c898be101481cbaecc (87974688 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.50 s | PROVE 18.23 s | VERIFY 0.52 s | proof 87974688 B (88.0 MB) | 2.899e10 MACs | 1.590e9 proven MAC/s (prove wall) | wall 20.33 s
+
+=== the two proofs, side by side ===
+2026-09-04 13:36:09
+/home/victor/wt-uperf3-an/results/an_scratch/f1.proof 87697008 B
+/home/victor/wt-uperf3-an/results/an_scratch/f2.proof 87974688 B
+function 1 87697008 B; function 2 87974688 B; +277680 B; +0.3166%
+
+=== an UNACCEPTABLE classification: tau above every int16 score (must NOT verify) ===
+2026-09-04 13:36:09
+  Deployment posture: NO VALID PROOF => REJECT. The absence of a proof is not evidence of
+  unacceptable content — the prover may simply not have tried (PROOF_FUNCTIONS.md section 3).
+  The acceptable set is FROZEN in this statement's header and cannot be swapped per proof.
+  MODE P1 (fast tier) [v3] header "HL-ZK/1|profile=v3|priv=in+act+out|pub=weights+shapes+shifts+table-digest|out=commit+pred:binary-acceptable(row=0,col=0,tau=40000)|model=w-root": private = {the input X, EVERY activation plane including the output z16, the remainders, the multiplicities}; public = {the weights W, the shapes, the signed shifts, the activation-table digest}; output claim: function 2 (validated classification, binary form) — the output is committed AND z16[row 0][col 0] - 40000 >= 0 is PROVEN; the acceptable set is frozen per deployment and is exactly this triple; posture: NO VALID PROOF => REJECT (PROOF_FUNCTIONS.md section 3); model identity: the W commitment root (public weights: stable per model)
+[UPERF3-AN] FUNCTION 2: THE PREDICATE DOES NOT HOLD at layer 11 — z16[0][0] = 120, tau = 40000, y - tau = -39880 is outside [0, 65535]. A proof is still emitted and WILL NOT VERIFY (no valid proof => reject).
+  layer 11: REJECT: sumcheck round 0: s(0) + s(1) != claim
+PASS-V3 REJECT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.52 s | PROVE 18.29 s | VERIFY 0.49 s | proof 87974688 B (88.0 MB) | 2.899e10 MACs | 1.585e9 proven MAC/s (prove wall) | wall 20.35 s
+
+=== DONE ===
+2026-09-04 13:36:29

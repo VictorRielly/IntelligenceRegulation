@@ -90,6 +90,29 @@ fn parse_opts(args: &[String]) -> Opts {
             }
             // [UPERF3-AM] the declared model identity digest, bound in the same header.
             "--model-id" => { o.zk.mode.model_id = Some(args[i + 1].clone()); i += 1; }
+            // [UPERF3-AN] FUNCTION 2's predicate: `--predicate <row>:<col>:<tau>`, the
+            // deployment's FROZEN acceptable class and threshold. Implies --zk and the
+            // `binary-acceptable` output claim; the triple is printed into the statement
+            // header beside the model identity digest, so a proof of "acceptable under
+            // this predicate against this model" cannot be re-presented under another.
+            "--predicate" => {
+                let f: Vec<&str> = args[i + 1].split(':').collect();
+                if f.len() != 3 {
+                    eprintln!("--predicate wants <row>:<col>:<tau> (the frozen acceptable class and its public threshold)");
+                    std::process::exit(2);
+                }
+                let parse = |s: &str, what: &str| -> i64 {
+                    s.parse().unwrap_or_else(|_| { eprintln!("--predicate: {what} `{s}` is not an integer"); std::process::exit(2) })
+                };
+                o.zk.enabled = true;
+                o.zk.mode.output = hashline::zk::OutputClaim::BinaryAcceptable;
+                o.zk.mode.pred = Some(hashline::zk::PredicateSpec {
+                    row: parse(f[0], "row") as usize,
+                    col: parse(f[1], "col") as usize,
+                    tau: parse(f[2], "tau"),
+                });
+                i += 1;
+            }
             "--seed" => { o.zk.seed = args[i + 1].parse().unwrap(); i += 1; }
             "--wcache" => { o.wcache = Some(args[i + 1].clone()); i += 1; } // [UPERF3-AC]
             // [UPERF3-AF] the compact-PCS selection (default `ligero`: the byte-identical path)
@@ -123,12 +146,26 @@ fn parse_opts(args: &[String]) -> Opts {
             std::process::exit(2);
         }
     }
-    if o.zk.mode.output != hashline::zk::OutputClaim::Committed {
-        eprintln!("REFUSED: --output-claim {} is NOT BUILT.", o.zk.mode.output.tag());
-        eprintln!("  The statement header carries the field (it is enumerated and transcript-bound, so a");
-        eprintln!("  function-1 proof can never be read as a function-2 one), but the predicate gadget");
-        eprintln!("  does not exist yet — see docs/zkmatrix-poc/PROOF_FUNCTIONS.md.");
+    // [UPERF3-AN] FUNCTION 2's refusals. The output claim and the predicate are ONE
+    // statement: a claim without parameters names no predicate, and parameters under
+    // the function-1 claim would be proven and not claimed.
+    if let Err(e) = o.zk.mode.predicate() {
+        eprintln!("REFUSED: {e}");
+        eprintln!("  Use `--predicate <row>:<col>:<tau>` (it implies --zk and the binary-acceptable claim),");
+        eprintln!("  or leave the output claim at `commit` for function 1 (attested inference).");
+        eprintln!("  See docs/zkmatrix-poc/PROOF_FUNCTIONS.md sections 1, 3 and 5.");
         std::process::exit(2);
+    }
+    if o.zk.mode.pred.is_some() && o.profile != "v3" {
+        eprintln!("REFUSED: --predicate needs --profile v3 (the predicate gadget is built on the v3 statement, the shipping one).");
+        std::process::exit(2);
+    }
+    if o.zk.mode.pred.is_some() {
+        eprintln!("FUNCTION 2 (the ZK content filter). The verifier learns ONE BIT — that the predicate holds.");
+        eprintln!("  Deployment posture: NO VALID PROOF => REJECT. The absence of a proof is not evidence of");
+        eprintln!("  unacceptable content — the prover may simply not have tried (PROOF_FUNCTIONS.md section 3).");
+        eprintln!("  The PROVER always learns the classification; function 2 hides it from the VERIFIER only.");
+        eprintln!("  The acceptable set is FROZEN in this statement's header and cannot be swapped per proof.");
     }
     hashline::wcache::configure(o.wcache.as_deref()); // [UPERF3-AC]
     o.tamper_kind = tkind.clone();
@@ -1149,6 +1186,12 @@ fn pass_zk_v3(n: usize, t: usize, o: &Opts) {
     let n = n.min(dm.layers);
     println!("pass (v3) [ZK, seed {}]: {n} layers x {t} tokens of {} — {} (d {} f {}; log_cols {}, inv_rate {}, col checks {}, threads {})", o.zk.seed, dm.t, dir.display(), dm.d, dm.f, o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads());
     println!("  {}", o.zk.mode.describe("v3"));
+    // [UPERF3-AN] the predicate is a claim about the PASS's output, so it rides the
+    // last layer only; every earlier layer's header says function 1, and the
+    // verifier reads the same rule.
+    if o.zk.mode.pred.is_some() {
+        println!("  the predicate rides LAYER {} ONLY (the pass's output plane); layers 0..{} are function 1", n - 1, n.saturating_sub(2));
+    }
     println!("  {}", hashline::gpu::label());
     let t_all = Instant::now();
     let tamper = tamper_v3_from(&o.tamper_kind, o.tamper_idx);
@@ -1163,6 +1206,17 @@ fn pass_zk_v3(n: usize, t: usize, o: &Opts) {
     let mut sites: Vec<String> = Vec::new();
     let mut t_load = 0.0f64;
     let mut t_prove = 0.0f64;
+    // [UPERF3-AN] FUNCTION 2 is a claim about THE PASS'S OUTPUT, which is the LAST
+    // layer's output plane. Every earlier layer is proven under function 1 and only
+    // the last one carries the predicate, so the pass costs ONE predicate, not n.
+    // Prover and verifier read the same per-layer header out of the same rule.
+    let layer_mode = |l: usize| -> hashline::zk::ZkStatementMode {
+        if o.zk.mode.pred.is_some() && l + 1 != n {
+            hashline::zk::ZkStatementMode { output: hashline::zk::OutputClaim::Committed, pred: None, ..o.zk.mode.clone() }
+        } else {
+            o.zk.mode.clone()
+        }
+    };
     // ONE witness resident at a time (ZB's pass_v3 discipline; the 7B layer's planes are ~0.4 GB)
     for l in 0..n {
         let t0 = Instant::now();
@@ -1172,7 +1226,8 @@ fn pass_zk_v3(n: usize, t: usize, o: &Opts) {
         }
         t_load += t0.elapsed().as_secs_f64();
         let t1 = Instant::now();
-        let out = prove_layer_zk_v3(&w, t, &p, &ntt, &o.zk, &mut tr);
+        let cfg_l = hashline::zk::ZkConfig { mode: layer_mode(l), ..o.zk.clone() };
+        let out = prove_layer_zk_v3(&w, t, &p, &ntt, &cfg_l, &mut tr);
         let dt = t1.elapsed().as_secs_f64();
         t_prove += dt;
         for (name, s) in &out.timings {
@@ -1211,8 +1266,8 @@ fn pass_zk_v3(n: usize, t: usize, o: &Opts) {
     if o.verify {
         let mut tv = Transcript::new(b"hashline-pass-zk-v3");
         let t0 = Instant::now();
-        for (st, pr) in stmts.iter().zip(proofs.iter()) {
-            if let Err(e) = verify_layer_zk_v3(st, pr, &p, &ntt, &mut tv, &o.zk.mode) {
+        for (l, (st, pr)) in stmts.iter().zip(proofs.iter()).enumerate() {
+            if let Err(e) = verify_layer_zk_v3(st, pr, &p, &ntt, &mut tv, &layer_mode(l)) {
                 println!("  layer {}: REJECT: {e}", st.l);
                 ok = false;
                 break;
