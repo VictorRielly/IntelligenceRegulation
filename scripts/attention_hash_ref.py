@@ -567,6 +567,45 @@ def run(args):
                  c.get("frac_equal", float("nan")), c.get("max_delta_steps", -1)))
     print("  wall %.1f s [MEASURED WSL-BOX NT CPU NOISY-SHARED]" % wall)
 
+    if args.export:
+        ed = Path(args.export)
+        ed.mkdir(parents=True, exist_ok=True)
+        planes = dict(x_in=x8, wq=wq8, wk=wk8, wv=wv8, wo=wo8, gA=gA8, gM=gM8)
+        for nm_, v in planes.items():
+            np.ascontiguousarray(v, dtype="<i4").tofile(str(ed / ("%s.i32" % nm_)))
+        man = dict(
+            arch=args.arch, layer=L, window=args.window, T=T, d=d, heads=H, kv_heads=Hk,
+            head_dim=hd, fE=FE, fP=FP, fRo=FRO, rope_base=arch.rope_base, eps=arch.eps,
+            norm_div=args.norm_div,
+            e_r=e_r, e_wq=e_wq, e_wk=e_wk, e_wv=e_wv, e_wo=e_wo, e_gA=e_gA, e_gM=e_gM,
+            e_xn=e_xn, sh_q=sh_q, e_q=e_q, sh_k=sh_k, e_k=e_k, sh_v=sh_v, e_v=e_v,
+            sh_qr=FRO + (e_qr - e_q), e_qr=e_qr, sh_kr=FRO + (e_kr - e_k), e_kr=e_kr,
+            sh_s=sh_s, e_s_raw=e_s_raw, sh_o=sh_o_used, e_o=e_o, sh_ao=sh_ao, e_ao=e_ao,
+            ao_lim=ao_lim, e_c1=e_c1, sh_r1=sh_r1, e_r1=e_r1, r1_lim=r1_lim, e_xm=e_xm,
+            anorm=dict(tn=na["tn"], cn=na["cn"], ceps=na["ceps"], wrho=na["wrho"],
+                       limbs=na["n_limbs"]),
+            mnorm=dict(tn=nm["tn"], cn=nm["cn"], ceps=nm["ceps"], wrho=nm["wrho"],
+                       limbs=nm["n_limbs"]),
+            rope_digest=rope_dig, exp_digest=exp_dig,
+            entry_order=[n for n, _ in entries], entries=dict(entries),
+            chain_sha256=chain)
+        (ed / "manifest.json").write_text(json.dumps(man, indent=1))
+        # a flat whitespace manifest for the Rust chain (no JSON parser
+        # in the hashline crate): "key value" lines, then the entries.
+        flat = []
+        for k, v in man.items():
+            if k in ("entry_order", "entries", "anorm", "mnorm"):
+                continue
+            flat.append("%s %s" % (k, v))
+        for k in ("anorm", "mnorm"):
+            for kk, vv in man[k].items():
+                flat.append("%s_%s %s" % (k, kk, vv))
+        for nm_, dgx in entries:
+            flat.append("entry %s %s" % (nm_, dgx))
+        flat.append("chain %s" % chain)
+        (ed / "manifest.txt").write_text("\n".join(flat) + "\n")
+        print("  EXPORT -> %s (%d planes + manifest.json)" % (ed, len(planes)))
+
     if args.json:
         out = ROOT / "results" / ("hashline_attn_ref_%s_l%d.json" % (args.arch, L))
         out.write_text(json.dumps(dict(
@@ -595,6 +634,10 @@ def main():
                     help="the RMSNorm division relation: floor (the rung-0 spec) or "
                          "round-to-nearest (num + floor(div/2), same degree-2 relation)")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--export", default=None,
+                    help="write the layer's integer inputs (i32 LE planes) + manifest.json "
+                         "into DIR for the Rust chain (rung 3). NEVER inside the repo: the "
+                         "planes are binary and must not be committed.")
     return run(ap.parse_args())
 
 

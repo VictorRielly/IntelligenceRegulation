@@ -136,6 +136,25 @@ fn main() {
             let o = parse_opts(&args[4..]);
             if o.zk.enabled && o.profile == "v3" { eprintln!("--zk with --profile v3 is not built yet (lane ZA built the v2 ZK form; composing it with v3 is a follow-on)"); std::process::exit(2) } else if o.zk.enabled { pass_zk(n, t, &o) } else if o.profile == "v3" { pass_v3(n, t, &o) } else { pass(n, t, &o) }
         }
+        // [UPERF3-AE] rung 3: the attention value chain from an oracle
+        // export (scripts/attention_hash_ref.py --export DIR); diffs every
+        // per-tensor digest and the CHAIN against the oracle's manifest.
+        "attn-chain" => {
+            let dir = args.get(2).map(|s| s.as_str()).unwrap_or_else(|| {
+                eprintln!("usage: hashline attn-chain <export-dir> [--attn-verbose]");
+                std::process::exit(2)
+            });
+            let verbose = args.iter().any(|a| a == "--attn-verbose");
+            let t0 = std::time::Instant::now();
+            let (ok, n) = hashline::attention::verify_export(dir, verbose);
+            println!(
+                "attn-chain {dir}: {ok}/{n} tensor digests match the oracle ({:.2} s)",
+                t0.elapsed().as_secs_f64()
+            );
+            if ok != n {
+                std::process::exit(1);
+            }
+        }
         "gpu-probe" => gpu_probe(),
         _ => {
             eprintln!("usage: hashline check-export | chain [layers] | matmul <layers> <t> | layer <l> <t> | pass <layers> <t>  [opts] | gpu-probe | tables-v3   (opts incl. --profile v2|v3 --export DIR)");

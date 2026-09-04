@@ -1,0 +1,48 @@
+{
+ "experiment": "hashline attn-chain (rung 3): the Rust integer attention chain vs the python oracle",
+ "box": "[MEASURED WSL-BOX 8T CPU NOISY-SHARED]",
+ "date": "2026-09-03",
+ "gate": "hashline attn-chain <export-dir>; the export comes from scripts/attention_hash_ref.py --export",
+ "instances": [
+  {
+   "arch": "125m",
+   "layer": 0,
+   "T": 512,
+   "d": 768,
+   "heads": "12/4",
+   "head_dim": 64,
+   "tensor_digests_matched": 64,
+   "of": 64,
+   "chain_sha256": "aed541fcc8d16f3c3b82782951c3b016b168cedfa6709113d7d43b8ebd8bcb21",
+   "rust_wall_s": 0.64,
+   "oracle_wall_s": 2.3
+  },
+  {
+   "arch": "mistral",
+   "layer": 0,
+   "T": 512,
+   "d": 4096,
+   "heads": "32/8",
+   "head_dim": 128,
+   "tensor_digests_matched": 64,
+   "of": 64,
+   "chain_sha256": "4085604b8d61ce8c8be0299111f364d8cf070877e0cf97cfcb860622b3cbc2a4",
+   "rust_wall_s": 4.52,
+   "oracle_wall_s": 24.1
+  }
+ ],
+ "negative_control": {
+  "what": "one input value of x_in flipped by +1 at 125M",
+  "tensors_mismatched": 54,
+  "of": 64,
+  "chain": "35c8538d26096926.. != aed541fcc8d16f3c..",
+  "verdict": "the chain gate catches a single flipped integer"
+ },
+ "byte_gates": {
+  "v2": "50cf7bdfd6b5b182..",
+  "v3": "5f368db6240e0614..",
+  "zk": "021485e4f80ec695..",
+  "tests": "33/33 (31 + 2 new)"
+ },
+ "note": "the oracle IS the semantics (the ledger's rung-2 note); this file records that the Rust value chain reproduces it digest for digest at both instances, unproven (rung 4 proves it)"
+}
