@@ -19,6 +19,74 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-09-05 (ROUND 14 CLOSED — all three lanes merged, floors
+green — AND TWO CORRECTIONS THAT MOVED THE PLAN'S ARITHMETIC TWICE):**
+- **ROUND 14 IS CLOSED.** AK, AI and AJ all merged; the merged-tree
+  floors are GREEN (8 byte gates on both binaries, tests, both builds:
+  `results/floors_round14_ai.log`, exit 0).
+- **AK — the crash damage is undone, and lever L5 landed.** AG's
+  digests reproduce BYTE FOR BYTE on the merged tree (the 12-layer
+  full-model pass c91f8713.. at 404,327,452 B exactly, the Mistral
+  layer's byte counts exactly, 10/10 legs rejecting) against exports
+  regenerated from scratch. Then the CLAIM FOLD: the 12-layer proof
+  **404.3 -> 282.2 MB (-30.2%)** with **VERIFY -69%** for +7.1% prove.
+  `HL_NO_FOLD=1` still reproduces c91f8713.., so every pre-fold record
+  stays checkable. The cause was bigger than AG estimated: a PCS group
+  is keyed by the claim's COLUMN TAIL, so 41 points on A cost 13.25 MB
+  of the attention half's 27.3.
+- **AI — THE PRODUCT NUMBER EXISTS**: the 8B proof, on a GPU, with
+  privacy. `pass 32 512 --zk --profile v3`, mode P1, ACCEPT, **265.34 s
+  prove / 2.33 s verify / 1,285,578,368 B / sha256 930ce9a0..**, 1.93
+  tok/s. **CORRECTION 1, RULING-GRADE: the P1 surcharge is +178% on a
+  GPU, not the +4.7% AD measured on a CPU** — the bytes carried over
+  (+4.10%) but the time did not, because on the CPU the ZK work hides
+  inside 15 s of host arithmetic. NEVER multiply a GPU row by 1.047.
+  It is a lever not a wall: helpers + commit H is 146.26 s of the
+  265.34 (55%) and the device NTT 119.10 vs 15.85 — recorded as lever
+  **L8**. Also: the per-layer VRAM drain is NECESSARY (proven — with it
+  off, layer 1 dies at `cuMemAlloc(1514 MB)`), and the 8 GB part SPILLS
+  (8,585 MB VRAM on an 8,188 MB card), so layer 0 proves in 4.36 s and
+  layers 1-31 in 8.42 s. **A 16 GB+ board should give ~140 s instead of
+  265 with NO code change** [PREDICTION] — the cheapest thing the 5090
+  settles, on day one.
+- **AJ — the host wall gave 1.034x, not 2.4-2.9x.** 8B prove **88.90 ->
+  86.00 s**, proof dc980e81.. byte-identical, uploaded 59,861 -> 9,328
+  MB (6.4x), VRAM 5,651 -> 5,249 MB, h2d 12.81 -> 8.31 s. Twelve byte
+  gates green (four per binary, plus four with the chunked path FORCED
+  so the frozen 125M digests exercise the new code). **CORRECTION 2:
+  the plan's items were mis-attributed.** B1 conflated the upload
+  (13.05 s, AJ's, fixed) with the plane -> Fp CONVERSION, which is in
+  `layer.rs`; B4 was wrong outright (serialization is 0.03 s and runs
+  outside the prove clock); pinned staging does not raise the h2d rate
+  on this box. **38.7 s of the remaining 86.00 s is host work in
+  `layer.rs`** — the conversion, the 1.4 GB `w_data` allocation, and
+  the folds (8.1 s measured) — a file NO round-14 lane owned. That was
+  an orchestration error in the round-14 briefs, not a lane failure.
+- **ROUND 15 OPEN: lane AL** owns exactly that item (layer.rs's v2/v3
+  FFN prover bodies + pcs.rs). Ceiling **~1.82x** on the prove. The
+  device half is already built and byte-gated — AJ's `k_widen`
+  reconstructs field elements from packed signed integers and is
+  already on the live path. **This item also decides whether the RTX
+  5090 buys ~1.4x or ~4x**, so NO headline measurement is scheduled
+  before it lands (the card-size test in the runbook is the exception —
+  it needs no code).
+- **5090 readiness, code half DONE**: AJ added `(10,0) => compute_100`
+  and `(12,0) => compute_120` to `arch_str` plus a LOUD stderr warning
+  on any generic-PTX fallback. Remaining: CUDA >= 12.8 and driver >=
+  570, which must NOT be done while lanes are live (`cuda-root` is
+  shared by every worktree).
+- **A NEW LEVER NOBODY HAS TAKEN (L9)**: the opening's re-encode runs
+  at 1.6e10 Goldilocks mul/s against a ~4.6e11 ALU ceiling and 66 of
+  256 GB/s — a latency and launch-structure problem, not a bandwidth
+  one; output pruning counts at ~1.6x.
+- **WHERE THE PLAN STANDS AFTER BOTH CORRECTIONS**: the 8B VERDICT IS
+  UNCHANGED — the counted floor is a hardware bound, not a statement
+  about our code, so the honest 8B band (14.9-42.5 today, 31.8-90.9
+  with L8) still contains 60 at its top. What moved is how far our code
+  sits from that floor. 30B receded twice and now lands at ~32 tok/s
+  with every lever at its midpoint, which is the strongest argument yet
+  FOR the 8B ruling.
+
 **AS OF 2026-09-04 late (THE HARD REBOOT AND THE RECOVERY; AG AND AI
 MERGED; THE 60 TOKENS/S PLAN; ROUND 14 OPEN):**
 - **THE BOX STOPPED HARD at 19:14:34 on 2026-09-03** (truncated agent
