@@ -21,6 +21,10 @@ pub mod chain;
 pub mod mle;
 pub mod sumcheck;
 pub mod pcs;
+// [UPERF3-AF] the compact (BaseFold-class FRI) multilinear commitment behind
+// `--pcs compact`: the same Claim/Commitment interface as pcs.rs, one batched
+// opening per layer. The Ligero form of pcs.rs stays the DEFAULT and byte-identical.
+pub mod pcs_compact;
 pub mod layer;
 pub mod gpu;
 // [UPERF3-ZB] the widened-stack (v3) profile: the frozen int16-out table

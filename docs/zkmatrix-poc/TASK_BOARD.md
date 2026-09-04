@@ -19,6 +19,48 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-09-03 late (LANE AF COMPLETE AND MERGED — THE PROOF-SIZE
+LEVER, with a soundness ruling for Victor):**
+- **`--pcs compact`** (`results/hashline_compact_12x512.md`): a
+  BaseFold-class commitment (ePrint 2023/1705 [EXTERNAL]) — a batched
+  sumcheck whose challenges drive a FRI fold of the same polynomial's
+  Reed-Solomon codeword; ALL of a layer's claims on W, A and H become
+  one random combination, so it is **one opening per layer instead of
+  three**, and the opening's size does not depend on the claim count.
+  [MEASURED]: 12x512 v2 **13.5 MB vs 66.8 (4.96x smaller) at 1.87x
+  the prover**; v3 17.4 vs 70.8 MB (4.07x, 1.82x); **one Mistral-7B
+  layer at T=512: 1.94 MB vs 38.7 (19.9x smaller) at 4.36x the
+  prover**. [COUNTED] for the 32x512 8B pass: **~62 MB vs 1.23 GB
+  (19.9x)** at ~2,163 s vs 510. The ratio GROWS with the model
+  because the old opening grows as the square root of the witness and
+  this one grows logarithmically. Tampers: 3 PCS legs at every size +
+  4 in unit tests, 6/6 v2 statement legs, 8/8 v3 legs, all rejecting
+  at the same sites. Two byte-identical memory fixes on the way
+  (no codeword clones; one group streamed at a time) also took
+  12x512 from 31.8 to 28.8 s and 2.23 to 1.78 GB.
+- **RULING FOR VICTOR (soundness)**: the compact form's total
+  soundness is **2^-98.2 at 125M and 2^-95.1 at 8B, i.e. 3-11 bits
+  BELOW the Ligero form's 2^-106** and just under the project's
+  "~100-bit" class. The deficit is the per-fold field term, so it is
+  recovered by a LARGER FIELD or smaller pieces, NOT by more queries.
+  Adopt the compact form as a size option at 95-98 bits, or hold it
+  until a bigger field lands? Recorded, not assumed; the Ligero form
+  remains the DEFAULT and byte-identical (all three gates green).
+- **TWO HONEST NON-COMPOSITIONS.** (1) **The size win and the GPU
+  speed win do not compose today**: a compact commitment is never
+  device-resident, so `--pcs compact` on the GPU binary is 34.96 s —
+  SLOWER than CPU-only. The choice is 2.50 s / 66.8 MB (GPU+Ligero)
+  or 28.8 s / 13.5 MB (CPU+compact); the four kernels a port needs
+  are listed in the record. (2) **The compact form is not hiding**:
+  `--pcs compact --zk` is refused. Lane ZA's pad rows and mask rows
+  do NOT survive (there are no rows and no systematic positions), and
+  four new surfaces are exposed; ZA's CFS-masked sumchecks, salted
+  leaves and committed multiplicities DO survive. A ZK-compact form
+  needs randomness in extra multilinear VARIABLES (one extra random
+  piece in the batch). Free lever counted: a **Merkle cap** removes a
+  further 29% of the bytes at zero soundness and zero prover cost
+  (~9.6 MB at 125M, ~44 MB at 8B).
+
 **AS OF 2026-09-03 late (LANE AC COMPLETE AND MERGED — THE 8B PASS ON
 A GPU, and an honest correction to the throughput model):**
 - **THE 8B GPU ROW** [MEASURED, WSL-BOX 8T GPU NOISY-SHARED;

@@ -9654,4 +9654,541 @@ CPU reference ran on a quieter box).
 
 ## Agent AF status (wt-uperf3-af) — round 12
 
-(lane appends below)
+**RESUME NOTE (2026-09-03).** The first attempt at this lane was cut off
+by a usage limit before it committed anything. It left an UNCOMMITTED
+`hashline/src/pcs_compact.rs` (1351 lines, with 5 unit tests) and a
+tagged PCS-selection seam in `layer.rs`. **VERDICT: KEPT.** The reason:
+the module is a complete construction, not a sketch — commit, the
+batched sumcheck+FRI opening, the verifier walk, and a test that runs
+commit/open/verify plus seven tamper legs were all present; the only
+things missing were the `pub mod` line in `lib.rs`, the `--pcs` flag in
+the driver, and the `cpcs_open` field on `LayerProofV3` (the v2
+`LayerProof` had it). Three edits, and it compiled and passed 32/32
+tests first try. Discarding it to restart from a blank file would have
+thrown away a working construction to prove a point. Everything below
+was re-derived and re-verified in this session; nothing is taken on
+trust from the lost one.
+
+### Rung 0 — THE CONSTRUCTION, ITS PARAMETERS, ITS SOUNDNESS
+
+**The choice: a BaseFold-class commitment** (Zeilberger-Chen-Fisch,
+ePrint 2023/1705 [EXTERNAL]) — a batched-evaluation *sumcheck* whose
+round challenges simultaneously drive a *FRI fold* of the Reed-Solomon
+codeword of the same polynomial. Why this and not Ligero-with-more-
+folding, STIR, or WHIR:
+
+- The proof size is `O(k^2 * lambda / log(1/rate))` hashes instead of
+  Ligero's `O(sqrt(N))` field elements. That is the whole point of the
+  lane: 66.8 MB and 1.23 GB are square-root-class numbers.
+- BaseFold needs *no new primitives*. The existing Goldilocks field,
+  its two-adic roots, blake3, and the Merkle module already serve it.
+  The one thing this repo did not have is a decimation-in-frequency NTT
+  whose bit-reversed output puts a fold coset in one contiguous block;
+  that is ~80 lines in `pcs_compact.rs` (`ntt_dif`), verified against
+  Horner evaluation in `ntt_dif_is_bitreversed_evaluation`.
+- Crucially, BaseFold's sumcheck *is* the evaluation proof. The Ligero
+  form answers each claim with a proximity test plus a column opening;
+  BaseFold answers ALL claims on ALL of a layer's commitments with ONE
+  sumcheck and ONE FRI, because the claims are all linear functionals
+  `<f, w_c>` and a random `lambda`-combination of linear functionals is
+  another linear functional. That collapses 3 openings per layer to 1.
+- STIR/WHIR would cut the query count further (they are the right
+  answer at 128-bit security over a big field), but both need the
+  list-decoding regime to pay off, and the Johnson-bound field term is
+  ~`L^2/|F|` — over `F_{p^2}` with `p` Goldilocks that is `2^-64` at
+  `L = 2^24`, i.e. it does not even reach the target. Unique decoding
+  is what this field can carry, and inside unique decoding BaseFold's
+  simplicity wins.
+
+**How the pieces fit** (details in the module header):
+1. A committed vector of `N` base-field values is the Lagrange table of
+   a multilinear `f` in `k = ceil(log2 N)` variables, variable `j` =
+   bit `j` of the index, LSB folded first. `N` is cut into at most
+   `max_pieces = 3` power-of-two PIECES (the top set bits of `N`,
+   rounded up); a piece may run past `N` with zeros and no claim ever
+   weights the pad. Committed lengths here are not powers of two (a
+   125M layer's `W` is `9 x 2^19`), so pieces are not optional.
+2. Each piece is Mobius-transformed to coefficient form, read as a
+   univariate, and RS-encoded at rate `1/4` by one DIF NTT. Its
+   bit-reversed output makes the 16 positions that fold together over
+   four rounds ONE contiguous block, so a Merkle leaf is exactly a
+   fold coset. Pieces of the same size share a tree (leaf = their
+   blocks concatenated); the commitment root is the blake3 of the
+   per-size roots.
+3. OPENING, once per layer over `W`, `A`, `H` together. Every claim in
+   this prover is `<f, w_c>` with `w_c` either `eq(point)` on an
+   aligned slice or the constant 1 on a slice (the LogUp helper sums).
+   With random `lambda_c` the batched claim is
+   `sum_p sum_b f_p(b) g_p(b)`, a degree-2 sumcheck. `g_p` is NEVER
+   materialised at full size: it is stored as a sum over distinct eq
+   tables `E_t` of `sel_t[b >> s_t] * E_t[b mod 2^s_t]` with small
+   selector tables, and LSB-first folding collapses each `E_t` into an
+   explicit table over the slice-index bits only when its arity runs
+   out. A slice that is unaligned or crosses a piece boundary is split
+   recursively, the point's leading variables becoming `(1-p0)`/`p0`
+   coefficients — so the arbitrary offsets `build_claims` produces are
+   handled exactly, not by padding.
+4. A piece with `k_p < k_max` joins at round `k_max - k_p` as
+   `prod_{i<join}(1 - X_i) * f_p g_p`; before the join its round
+   message is the affine pair `(beta*S_p, 0, -beta*S_p)`. The same
+   challenges fold its codeword into the running
+   `R = sum_p mu_p Enc(f_p)` at the round where the domains coincide.
+5. Every 4th round the prover commits `Enc(folded R)` as a fold tree
+   (recomputed from the folded tables, not folded symbol-wise — the
+   folded codeword IS the encoding of the folded polynomial). At
+   `2^k_end <= 2^log_final` coefficients the final polynomial is sent
+   in the clear. Then `f_p(r)` per piece. The verifier checks the
+   sumcheck terminal `sum_p beta_p f_p(r) g_p(r)` (a product of `O(k)`
+   eq factors, no tables), checks the final polynomial against
+   `sum_p mu_p f_p(r)`, and runs `Q` query walks: a random 16-coset of
+   the largest domain, four folds per stretch, adding `mu_p` times the
+   joining pieces' opened values, matched against the next fold tree's
+   leaf and finally against the final polynomial.
+
+**PARAMETERS** (`--pcs-*` overrides all of them):
+`inv_rate = 4`, `target_bits = 106`, `queries = 157` (derived),
+`log_final = 7`, `max_pieces = 3`, `reencode` off. `COSET_LOG = 4`
+(fold-by-16 per commitment) is a compile-time constant.
+
+**SOUNDNESS ARITHMETIC** (error terms, per proof):
+- Query term `(1 - delta)^Q` with `delta = (1 - 1/inv_rate)/2 = 3/8`
+  the unique-decoding radius: `(5/8)^157 = 2^-106.45`. This meets the
+  Ligero form's `2^-106` (`inv_rate 4`, 256 column checks). Unique
+  decoding is the regime in which BaseFold's Thm 3 and FRI soundness
+  are proven with a per-fold affine-line error of `L/|F|` [BCIKS20 Thm
+  1.2, EXTERNAL].
+- Fold/batching field terms `~(k_max + pieces) * L_0 / |F_{p^2}|`.
+  `|F_{p^2}| ~ 2^128`. At 12x512 the largest committed vector is
+  `H` at `2^23` -> `L_0 = 2^25`, `k_max = 23`: `28 * 2^25 / 2^128 =
+  2^-98.2`. At the 8B shape `W` is `4096 x 14336 = 2^25.48` ->
+  `L_0 = 2^28`, `k_max = 26`: `29 * 2^28 / 2^128 = 2^-95.1`.
+- Sumcheck: `2 * k_max / |F_{p^2}| < 2^-122`.
+- TOTAL: `2^-98.2` at 12x512, `2^-95.1` at 8B — dominated by the field
+  term, not the queries. Honest reading: this is 3-11 bits BELOW the
+  Ligero form's `2^-106` at the same shapes, because Ligero's proximity
+  test never pays a per-round affine-line term. To recover the margin
+  one raises `|F|` (a degree-3 extension) or lowers `L_0` (more, smaller
+  pieces); it is NOT recovered by more queries. Recorded, not papered
+  over.
+- The list-decoding (Johnson) regime would roughly halve `Q`, but its
+  field term is `~L^2/|F| = 2^-64` at `L = 2^24` over `F_{p^2}` — not
+  usable at this field. Hence unique decoding.
+- NOT zero-knowledge: `--pcs compact` with `--zk` is refused by the
+  driver with a message. See the ZK-interaction statement at rung 5.
+
+**THE PLAN**: rung 1 the PCS alone at `2^14..2^20` with tamper legs and
+a bytes/walls table vs Ligero; rung 2 the 12x512 v2 pass under
+`--pcs compact`; rung 3 the same in v3; rung 4 one Mistral layer at
+T=512 and the 32x512 projection; rung 5 the §3 row, the record file,
+and the ZK-interaction statement.
+
+**THE THREE BYTE GATES, re-run on this binary** [MEASURED, WSL-BOX, 8T,
+CPU, NOISY-SHARED: three sibling lanes active]:
+- v2 `pass 12 512 --threads 8`: `50cf7bdfd6b5b182f9c029c3d62087ca..`
+  (66,844,928 B), PROVE 15.40 s / VERIFY 0.30 s — **GREEN**.
+- v3 `pass 12 512 --profile v3`: `5f368db6240e061428a90eccdb22ff45..`
+  (70,758,084 B), PROVE 16.48 s / VERIFY 0.30 s — **GREEN**.
+- zk `pass 12 512 --zk --seed 1`: `021485e4f80ec695ddc0b05423a941e1..`
+  (87,228,528 B), PROVE 17.11 s / VERIFY 0.38 s — **GREEN**.
+The default path is byte-identical: `--pcs` defaults to `ligero`, and
+`pcs_compact::commit` forwards to `pcs::commit` when it is not selected.
+32/32 tests (5 of them new: the DIF NTT vs Horner, the Mobius transform
+vs the multilinear evaluation, the piece cut and the query count, the
+single-commitment open/verify + 7 tamper legs, and a 3-commitment batch
+with a late-joining piece).
+
+### Rung 1 — THE PCS ALONE: `hashline pcs-bench <log_lo> <log_hi>`
+
+A new `[UPERF3-AF]`-tagged subcommand in the driver. For each size it
+builds a random int8-valued vector of `2^k` entries, answers the SAME
+claim set with both commitments (Ligero from the untouched `pcs.rs`,
+compact from `pcs_compact.rs`), and runs the three named tamper legs on
+the compact opening. Bytes are the opening plus the 44-byte commitment.
+`HL_BENCH_CLAIMS=N` sets the claim count.
+
+**ONE claim** (the canonical single-evaluation PCS benchmark)
+[MEASURED, WSL-BOX, 8T, CPU, NOISY-SHARED]:
+
+| log N | Ligero B | compact B |  x   | Lig P s | cmp P s |  x   | Lig V s | cmp V s |
+|------:|---------:|----------:|-----:|--------:|--------:|-----:|--------:|--------:|
+| 14 |   659,500 | 162,588 | 4.06 | 0.169 | 0.035 | 0.20 | 0.0408 | 0.0003 |
+| 15 |   661,548 | 173,708 | 3.81 | 0.022 | 0.025 | 1.14 | 0.0135 | 0.0039 |
+| 16 |   665,644 | 252,380 | 2.64 | 0.016 | 0.042 | 2.61 | 0.0195 | 0.0004 |
+| 17 |   673,836 | 267,756 | 2.52 | 0.022 | 0.066 | 3.03 | 0.0121 | 0.0005 |
+| 18 |   690,220 | 283,388 | 2.44 | 0.042 | 0.073 | 1.73 | 0.0108 | 0.0025 |
+| 19 |   722,988 | 299,532 | 2.41 | 0.060 | 0.117 | 1.95 | 0.0147 | 0.0005 |
+| 20 |   788,524 | 383,228 | 2.06 | 0.088 | 0.239 | 2.72 | 0.0137 | 0.0007 |
+
+**EIGHT claims** (what a real layer looks like):
+
+| log N | Ligero B | compact B |   x   | Lig P s | cmp P s | Lig V s | cmp V s |
+|------:|---------:|----------:|------:|--------:|--------:|--------:|--------:|
+| 14 | 2,494,508 | 162,588 | 15.34 | 0.028 | 0.037 | 0.0212 | 0.0004 |
+| 16 | 2,500,652 | 252,380 |  9.91 | 0.024 | 0.044 | 0.0178 | 0.0004 |
+| 18 | 2,525,228 | 283,388 |  8.91 | 0.027 | 0.156 | 0.0164 | 0.0050 |
+| 20 | 2,623,532 | 383,228 |  6.85 | 0.131 | 0.510 | 0.0480 | 0.0010 |
+
+**READING IT.** Three facts, and the third is the lane's real lever.
+
+1. **The compact opening's size does not depend on the claim count.**
+   162,588 B at `2^14` and 383,228 B at `2^20` for ONE claim; the same
+   bytes to the byte for EIGHT. Every claim is folded into the
+   `lambda`-combination before the sumcheck starts, so more claims cost
+   nothing but the terminal `f_p(r)` values (one per PIECE, not per
+   claim). The Ligero form pays a fresh `group_vec` of `rows` field
+   elements per distinct column-weight group, so its bytes grow ~linearly
+   in the claim count: 659 KB -> 2.49 MB going from 1 to 8. This — not
+   the single-claim ratio — is where the pass-level win comes from.
+2. **The compact opening grows logarithmically, the Ligero one as
+   `sqrt`.** From `2^14` to `2^20` (64x the data) the compact opening
+   grows 2.36x (162 KB -> 383 KB) and would keep growing by ~2 Merkle
+   levels per doubling; Ligero grows 1.20x here only because at these
+   sizes it is still dominated by the fixed 256 column checks — its
+   `sqrt` term takes over at the layer shapes of rung 2 onward.
+   Honest note: at these SMALL sizes the compact form is only 2-4x
+   smaller on a single claim. The MB-class collapse this lane is after
+   does not come from one small polynomial; it comes from (a) the claim
+   independence above and (b) the 3-commitments-to-1-opening batching in
+   `layer.rs`.
+3. **The compact prover is 1.1-3.9x SLOWER at these sizes; the compact
+   verifier is 20-100x FASTER.** The prover cost is the sumcheck over
+   the full `2^k` table plus one re-encode per fold stretch; the
+   verifier does `Q = 157` walks of ~30 hashes and no NTT at all, which
+   is why it lands at sub-millisecond where Ligero needs 10-50 ms (it
+   re-encodes the row combinations). The `2^14` row's 0.169 s Ligero
+   prove is first-call table warm-up, not a real cost.
+
+**TAMPERS**: at every size, all three legs REJECT — a wrong claimed
+evaluation, a corrupted opening value, and a swapped Merkle path.
+(The unit test `compact_commit_open_verify_and_tampers` carries four
+more: a corrupted fold leaf, a corrupted round message, a corrupted
+terminal, a corrupted final polynomial, plus an honest opening of a
+DIFFERENT witness checked against both its own and the original
+commitment — 9 legs in all, all rejecting.)
+
+### Rung 2 — THE 12x512 v2 PASS UNDER `--pcs compact`: 66.8 MB -> 13.5 MB
+
+`hashline pass 12 512 --pcs compact --threads 8`, the same statement,
+the same witness (`results/m125_ffn_export_wsl`), the same transcript
+structure. **PASS ACCEPT.** Reproduced twice, byte-identical:
+proof sha256 `f84432ea509524fea247264cc3743f25019edd858f580555606e6c743..`
+(13,487,744 B). [MEASURED, WSL-BOX, 8T, CPU, NOISY-SHARED, both rows
+taken under `flock /tmp/zk-heavy.lock`]
+
+| | Ligero (default) | compact | ratio |
+|---|---:|---:|---:|
+| proof bytes | 66,844,928 (66.8 MB) | **13,487,744 (13.5 MB)** | **4.96x smaller** |
+| PROVE | 15.40 s | 31.78 s | 2.06x slower |
+| VERIFY | 0.30 s | **0.02 s** | **15x faster** |
+| peak RSS | 1.56 GB | 2.23 GB | +43% |
+| proven MAC/s | 1.88e9 | 9.12e8 | 0.48x |
+
+**Prover phases, summed over the 12 layers:**
+
+| phase | Ligero | compact | delta |
+|---|---:|---:|---|
+| commit W | 2.009 | 3.659 | +82% |
+| commit A | 3.626 | 7.553 | +108% |
+| helpers + commit H | 4.438 | 7.358 | +66% |
+| matmul g/u | 0.226 | 0.241 | = |
+| matmul d | 0.142 | 0.151 | = |
+| zero-check 20 | 3.141 | 3.105 | = |
+| zero-check 17 | 0.912 | 0.906 | = |
+| PCS openings | 0.880 | 8.793 | 10.0x |
+| **PROVE** | **15.40** | **31.78** | **2.06x** |
+
+**THE HONEST VERDICT AGAINST THE COUNT.** U_PERF3_ROUTE_B_THROUGHPUT.md
+§5 counted the trade at **x0.94-1.4 prover for 3-12 MB per pass**. This
+construction lands at **x2.06 prover for 13.5 MB** — outside the count
+on both axes, though not far. Where the two disagreements come from,
+measured, not guessed:
+- The commit is ~2x slower and that is STRUCTURAL, not a bug. Ligero
+  encodes each 2^14-column row independently (`4N log 4n` butterflies,
+  `n = 2^14`); the compact form encodes the whole vector as ONE
+  polynomial (`4N log 4N`, i.e. 25/16 = 1.56x the butterflies at
+  `N = 2^23`) and pays a Mobius transform on top (`k` memory passes
+  over the data). Both those terms are the price of having a single
+  low-degree codeword to fold.
+- The opening is 10x slower because it IS a full sumcheck over the
+  combined `2^23` table plus a re-encode per fold stretch, where
+  Ligero's opening is a handful of row-combinations.
+
+**WHERE THE BYTES ARE, and the one lever left [COUNTED].** Per layer the
+batched opening is 1,113,888 B of the layer's 1,127,136 B — 98.8%; the
+sumchecks, multiplicities and commitments are 13 KB. The opening at
+`Q = 157`, `k_max = 23`, `k_end = 7`, 7 pieces / ~7 group trees + 3 fold
+trees is ~7,095 B per query, of which roughly half is Merkle path
+digests (~110 levels x 32 B across the ~10 trees). **A Merkle CAP** —
+truncate every tree at a fixed level and send that level once per proof
+— is the standard, contained fix: at a 2^8-node cap it removes 8 levels
+x 10 trees x 32 B x 157 queries = 402 KB per layer and adds 10 x 256 x
+32 = 82 KB, a net -29%, i.e. **13.5 MB -> ~9.6 MB [COUNTED]**, inside
+the counted 3-12 MB band. It is not implemented in this lane; it is the
+next lever and it costs no soundness. Raising `inv_rate` to 8 (`Q` 157
+-> 128) is the other knob and is measured below.
+
+**TAMPERS: 6/6 REJECT** through the compact prover
+(`layer 0 512 --pcs compact --all-tampers`), at the same sites as the
+Ligero path: flipped X -> matmul round 0; flipped Wg -> matmul round 0;
+out-of-range remainder -> LogUp identity; wrong table entry -> LogUp
+identity; wrong requant (h8) -> zero-check round 0; wrong z -> matmul
+round 0. Plus the three PCS-internal legs of rung 1 and the four more in
+the unit test. The compact opening never masks a statement tamper: the
+claims it answers are the same claims.
+
+**GPU: NOT PORTED, and here is exactly what a port needs.** The device
+module's NTT kernels (`k_ntt_p1`/`k_ntt_p2`, `k_dif_pa`/`k_dif_pb`,
+`k_dit_p1_pad`) are built for the Ligero LAYOUT — a batch of `rows`
+independent transforms of `2^log_cols` each, twiddles stage-major, and
+`k_hash_cols` hashes one blake3 leaf per COLUMN of that matrix. The
+compact form needs (1) a SINGLE transform of up to `2^28` elements with
+the DIF bit-reversed output order this module's `ntt_dif` produces —
+the existing `k_dif_pa/pb` pair is the right shape but is sized for one
+row, so it needs the strided multi-block tail stages that `k_ntt_p2`
+has; (2) a blake3 kernel over 16-symbol CONTIGUOUS blocks rather than
+strided columns (`k_hash_cols`'s gather is the only thing that changes);
+(3) the Mobius transform (a `k`-pass in-place kernel, trivial); and (4)
+the sumcheck round kernel over an `f * g` product where `g` is the
+selector/eq-table structure — `k_sc_round_zc20` is the closest existing
+kernel but its `g` is a fixed table set, not this module's `GTab` list.
+(1)-(3) are a day; (4) is the real work and is where 8.8 of the 31.8 s
+sit. Nothing in the port changes a byte of the proof.
+
+**THE RATE KNOB** [MEASURED, same box, NOISY-SHARED — this run started
+the moment the heavy lock freed with three sibling lanes active, so its
+wall carries more noise than the rows above]:
+`--pcs compact --pcs-inv-rate 8` (RS rate 1/8, `delta = 7/16`,
+`Q = 128` for the same 106 bits: `(9/16)^128 = 2^-106.2`) gives
+**11,518,208 B (11.5 MB)** — inside the counted 3-12 MB band — at
+PROVE **47.93 s** (3.11x Ligero), VERIFY 0.02 s, sha256
+`3c02420be01d78c0f8ec217f08aae1551687bfa617b76bfb9cf2f5b09265a54c`,
+ACCEPT. Trading rate for bytes costs more prover than it saves: -15%
+bytes for +51% prove. **The recommended operating point stays
+`inv_rate 4`** (13.5 MB at 2.06x), with the Merkle cap above as the way
+into the band without touching the prover.
+
+### Rung 3 — THE 12x512 v3 PASS UNDER `--pcs compact`: 70.8 MB -> 17.4 MB
+
+`hashline pass 12 512 --profile v3 --export .../m125_v3_export
+--pcs compact --threads 8`. **PASS-V3 ACCEPT**, proof sha256
+`621c263375a4629283773e627f7167319b5a917be950e42f1ee4e33183dc2875`
+(17,400,900 B). [MEASURED, WSL-BOX, 8T, CPU, NOISY-SHARED, under
+`flock /tmp/zk-heavy.lock`]
+
+| | Ligero (default) | compact | ratio |
+|---|---:|---:|---:|
+| proof bytes | 70,758,084 (70.8 MB) | **17,400,900 (17.4 MB)** | **4.07x smaller** |
+| PROVE | 16.48 s | 29.92 s | 1.82x slower |
+| VERIFY | 0.30 s | **0.03 s** | **10x faster** |
+| peak RSS | 1.58 GB | 1.80 GB | +14% |
+
+Phases (12 layers, compact): commit W 3.755, commit A 6.816,
+helpers + commit H 6.901, matmul g/u 0.282, matmul d 0.135, zero-check
+F 2.882, zero-check D 0.751, PCS openings 8.359.
+
+**THE CLEAN FACT THIS RUNG ADDS.** The v3 surcharge over v2 is
+`70,758,084 - 66,844,928 = 3,913,156 B` under Ligero and
+`17,400,900 - 13,487,744 = 3,913,156 B` under compact — **the same
+number to the byte**. The widened statement's extra cost is entirely
+the committed MULTIPLICITY vectors, which no polynomial commitment
+touches; the compact form carries it through unchanged. So the compact
+opening itself is the same size in v2 and v3, and the v3 ratio (4.07x)
+is worse than v2's (4.96x) only because a fixed 3.9 MB of non-PCS bytes
+is now a larger share of a smaller proof. A Merkle cap would take the
+v3 pass to ~13.5 MB [COUNTED].
+
+**TAMPERS: 8/8 REJECT** through the compact v3 prover
+(`layer 0 512 --profile v3 --pcs compact --all-tampers`): flipped X,
+flipped Wg -> matmul round 0; out-of-range remainder, wrong int16 table
+entry -> LogUp identity; wrong requant (h16), wrong z -> matmul/
+zero-check round 0; wrong rounding (floor), out-of-range int16 (z16) ->
+LogUp identity. Same sites as the Ligero v3 path.
+
+**MEMORY FIX before rung 4** (`pcs_compact::group_codewords`). The
+query phase built its codeword table with `g.codewords.clone()` when
+the codewords were resident — a full copy of every commitment's
+codeword at the moment of peak use. At 12x512 that is ~270 MB; at the
+Mistral shapes it is GIGABYTES, and it would have decided rung 4 by
+OOM rather than by measurement. Resident groups are now BORROWED and
+only the `--pcs-reencode` path allocates. [MEASURED] 12x512 v2 compact:
+proof `f84432ea..` UNCHANGED to the byte, PROVE 31.78 -> **28.76 s**
+(-9.5%), peak RSS 2.23 -> **1.78 GB** (-20%, now only +14% over
+Ligero's 1.56 GB). Gates re-run on the fixed binary: v2
+`50cf7bdfd6b5b182..`, v3 `5f368db6240e0614..`, zk `021485e4f80ec695..`
+— all three GREEN. 32/32 tests.
+
+### Rung 4 — ONE MISTRAL LAYER AT T=512: 38.7 MB -> 1.94 MB (19.9x)
+
+`hashline layer 0 512 --profile v3 --export
+.../m8b_mistral_v3_export --threads 8`, d 4096, f 14336, the FFN-only
+v3 statement; the same witness for both forms; both runs under
+`flock /tmp/zk-heavy.lock` with `free -g` >= 14 GB before each.
+[MEASURED, WSL-BOX, 8T, CPU, NOISY-SHARED]
+
+| | Ligero (default) | compact (`--pcs-reencode`) | ratio |
+|---|---:|---:|---:|
+| **proof bytes (one layer)** | **38,688,700 (38.7 MB)** | **1,940,684 (1.94 MB)** | **19.94x smaller** |
+| PROVE | 15.497 s | 67.593 s | 4.36x slower |
+| VERIFY | 0.041 s | **0.010 s** | 4.1x faster |
+| peak RSS | 13.17 GB | 13.92 GB | +6% |
+| ACCEPT | yes | yes | |
+
+Phases: commit W 7.326 -> 15.916, commit A 2.425 -> 5.253, helpers +
+commit H 2.705 -> 5.381, matmul g/u 0.182 -> 0.189, matmul d 0.106 ->
+0.103, zero-check F 1.620 -> 1.653, zero-check D 0.235 -> 0.239,
+**PCS openings 0.881 -> 38.818**.
+
+**WHY 19.9x HERE AND ONLY 4-5x AT 12x512.** This is the lane's whole
+point and it is the square-root law showing itself. The Ligero opening
+grows as `sqrt(N)` — from a `2^23` commitment to a `2^27` one it grows
+~4x — while the compact opening grows LOGARITHMICALLY: 1.11 MB of
+opening at `k_max = 23` becomes ~1.9 MB at `k_max = 27`, four more
+Merkle levels per tree and nothing else. The bigger the model, the
+bigger the win. At 125M the compact form buys 5x; at 8B it buys 20x.
+
+**THE 32x512 PROJECTION [COUNTED from a MEASURED layer].** Every layer
+of the Mistral pass has the same shape, and the measured Ligero layer
+(38,688,700 B) matches the measured 32x512 pass's per-layer average
+(1,234,936,956 / 32 = 38,591,780 B) to 0.25%. So:
+
+| 8B FFN pass, 32 x 512 | Ligero [MEASURED] | compact [COUNTED] |
+|---|---:|---:|
+| proof bytes | 1,234,936,956 (1.235 GB) | **62,101,888 (62.1 MB)** |
+| prove | 510.38 s | ~2,163 s (~36 min), 4.24x |
+| verify | 1.21 s | ~0.3 s |
+| peak RSS | 13.99 GB | ~13.9 GB |
+
+**The 1.23 GB per-proof number becomes 62 MB.** That is the
+square-root class leaving and the log class arriving — and with the
+Merkle cap of rung 2 (-29% [COUNTED]) it would be ~44 MB. It is NOT
+the "3-12 MB per pass" of the §5 count, because that count was written
+against a 125M pass; the same construction on the 125M pass IS 13.5 MB
+(rung 2), and ~9.6 MB with the cap.
+
+**THE MEMORY WALL, and why `--pcs-reencode` is not optional here.**
+Ligero's Merkle tree has only `enc_cols = 2^16` leaves however large
+the commitment is (it hashes COLUMNS of a rows x enc_cols matrix); the
+compact tree has `L/16` leaves, which at `L = 2^29` is 33.5M — ~1.4 GB
+of tree for W alone. Holding the codewords resident as well
+(5.64 GB for W, ~10 GB across W/A/H) puts the layer at ~15.4 GB
+[COUNTED] on a 15 GB box, i.e. OOM. `--pcs-reencode` drops each
+group's codeword the moment its tree is built and re-encodes it at
+query time, and this session also restructured the query phase to run
+ONE GROUP AT A TIME so that only one codeword is ever materialised
+(byte-identical: `f84432ea..` at 12x512 with and without the flag).
+The cost is visible: of the 38.8 s opening phase, ~16 s is that
+re-encode. On a box with ~20 GB the resident path would prove the
+layer in ~52 s [COUNTED], i.e. ~1,654 s / 3.24x for the 32x512 pass.
+
+**THE PROVER COST, stated plainly.** 4.36x at 8B against the §5 count
+of x0.94-1.4. Three quarters of the excess is the opening (38.8 s of
+the 52.1 s of extra prove), and the opening is a full degree-2
+sumcheck over a `2^27` table plus a re-encode per fold stretch plus the
+memory-forced re-encode. None of it is on the GPU, where the Ligero
+form already runs 5x faster; the port items are listed at rung 2.
+
+### Rung 5 — THE RECORD, THE §3 ROW, AND THE ZK INTERACTION
+
+- **NEW `results/hashline_compact_12x512.md`**, in the form of lane
+  XX's `results/hashline_gpu_12x512.md`: what changed and what did not,
+  the construction, the parameters and the soundness arithmetic, the
+  125M and 8B rows with the 32x512 projection, why the ratio grows with
+  the model, the prover phases, the honest verdict against the §5
+  count, the two levers left, the memory wall and the two fixes, the
+  tamper table, the GPU port list, the ZK interaction, and every one of
+  the B row's caveats unchanged.
+- **The §3 row** in `docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md`:
+  five compact rows (12x512 v2, 12x512 v3, the inv_rate-8 knob, the
+  Mistral layer, the 32x512 projection) below the 8B row, with the
+  reading, the cost stated plainly, the Merkle-cap lever and the ZK
+  pointer.
+
+### THE ZK INTERACTION — the statement
+
+**The compact form as built is NOT hiding.** The driver refuses
+`--pcs compact --zk` with a message rather than emitting a proof that
+looks private and is not. Lane ZA's `--zk` path is untouched and
+byte-identical (`021485e4..`) on the Ligero form.
+
+**Does the compact form keep ZA's pad rows and mask rows? No — and the
+reason is structural, not an omission.**
+
+- **PAD ROWS do NOT survive.** ZA's pads are per-ROW (`f_data +
+  Z_n g_pad`, `Q` fresh coefficients per row) with the evaluation
+  domain moved to a coset `h G_{4n}` disjoint from `G_n` so that no
+  opened position is systematic and any `Q` opened COLUMNS are jointly
+  uniform. The compact form has no rows and no systematic positions —
+  it encodes the coefficient form of ONE polynomial over the whole
+  domain. The coset half of the device is not needed; the randomness
+  half still is, in a different shape.
+- **MASK ROWS do NOT survive**, and what they hid is exposed by four
+  different surfaces here: (i) `terminals`, i.e. `f_p(r)` per piece —
+  precisely the evaluation the mask rows existed to hide; (ii)
+  `final_coeffs`, the `2^k_end = 128` coefficients of the fully folded
+  polynomial; (iii) `rounds`, 3 `F_{p^2}` values over 23-27 rounds;
+  (iv) the query cosets, `157 x 16` codeword symbols per group. ZA's
+  "every opening site carries a mask" assertion is written against
+  Ligero's opening sites and does not transfer; it must be re-derived
+  for these four.
+- **CFS-masked sumchecks and the last-round extension DO survive** and
+  are the right tool: the batched opening is a sumcheck, and
+  `sumcheck.rs`'s masking applies directly. The BaseFold-specific
+  catch: the mask must also be carried by the FRI fold, or the codeword
+  and the sumcheck decouple and the query walks stop closing.
+- **SALTED LEAVES survive verbatim** — one line in `group_leaf_hash`
+  and `hash_fp2_block` — and are needed: the compact trees are
+  currently unsalted, so identical cosets hash identically.
+- **COMMITTED MULTIPLICITIES survive unchanged** (statement-side, not
+  PCS-side). Rung 3 measured it: the multiplicity bytes pass through
+  the compact form identically, to the byte.
+
+**What a ZK-compact form needs**: (1) randomness in extra multilinear
+VARIABLES — equivalently one extra random PIECE of size `2^c` in the
+batch, `c ~ log Q` — so the folded object stays a multilinear encoding
+and the FRI still closes (a naive `P(Y) + Y^{2^k} R(Y)` pad would break
+exactly that); (2) the CFS mask on the batched opening sumcheck,
+committed as a piece of the same batch so the fold carries it (this
+covers surfaces (i) and (iii), and (ii) too, since `final_coeffs` then
+includes the mask); (3) salted leaves on the group and fold trees,
+covering (iv) with (1); (4) a re-derived query count and field term
+(the extra piece raises `pieces` in the `(k_max + pieces) L_0 / |F|`
+bound). Counted cost: bytes up by the extra piece's share of the
+queries (a few percent — it is tiny and joins late), prover up by one
+piece in the sumcheck and one mask commitment. **None of it is built
+here; this is the specification, not a claim.**
+
+### THE FINAL GATES — CPU AND GPU, both binaries
+
+[MEASURED, WSL-BOX, 8T, under `flock /tmp/zk-heavy.lock`]
+
+| gate | CPU binary | gpu-cuda binary, `HL_GPU=1` |
+|---|---|---|
+| v2 `pass 12 512 --threads 8` | `50cf7bdfd6b5b182..` (66,844,928 B), 15.33 s | **same sha256**, 2.50 s |
+| v3 `--profile v3` | `5f368db6240e0614..` (70,758,084 B), 15.68 s | **same sha256**, 3.06 s |
+| zk `--zk --seed 1` | `021485e4f80ec695..` (87,228,528 B), 16.61 s | **same sha256**, 4.79 s |
+
+**All six GREEN.** 32/32 tests. And one more, not required but worth
+having: `--pcs compact` on the **gpu-cuda binary with `HL_GPU=1`**
+produces `f84432ea..` — byte-identical to the CPU-only binary's compact
+proof — at PROVE 34.96 s, i.e. SLOWER than the CPU-only 28.76 s. That
+is the expected and honest outcome: a compact commitment is never
+device-resident (`dev_of` returns `None` for it), so the device helper
+and commit paths decline and the GPU contributes nothing while the
+process still pays the CUDA context. **There is no GPU benefit for the
+compact form until the four kernels listed at rung 2 exist** — which
+matters, because the Ligero form on the GPU proves the same pass in
+2.50 s. Today the choice is 2.50 s / 66.8 MB (GPU + Ligero) or 28.76 s
+/ 13.5 MB (CPU + compact); the two wins do not yet compose.
+
+### WHERE THIS LANE STOPPED
+
+Rungs 0-5 complete. Not done, in priority order: (1) the **Merkle cap**
+(-29% bytes [COUNTED], zero soundness and zero prover cost — the
+cheapest remaining win, and it puts 125M inside the counted 3-12 MB
+band at ~9.6 MB and 8B at ~44 MB); (2) the **four GPU kernels**, which
+is what would let the size win and the speed win compose; (3) the
+**ZK-compact form** specified above; (4) the **full 32x512 compact
+pass** actually run rather than projected (~36 min under the current
+prover, and it wants a quiescent box); (5) the soundness margin
+(`2^-98.2` / `2^-95.1` vs Ligero's `2^-106`), which needs a degree-3
+extension field or a smaller-piece cut, not more queries.
