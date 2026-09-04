@@ -11784,6 +11784,90 @@ the ZK path (zk.rs commits W with plain `pcs::commit`), one tagged line.
 
 (lane appends below)
 
+### AJ rung 0 (first half) — THE PLAN: the four host items attributed to functions and lines (2026-09-04, WSL-BOX, wt-uperf3-aj, branch uperf3-aj)
+
+Read: START_HERE (whole), U_PERF3_SIXTY_TOKENS_PLAN (Track B, items
+B1-B4), the round-14 block + this brief, Agent AH IN FULL (its host-item
+table is where the four numbers come from), Agent AC (the 8B GPU pass
+anatomy); the code: gpu/{mod.rs,cuda.rs,kernels.cu}, pcs.rs, and the
+call sites in layer.rs and src/bin/hashline.rs (both READ-ONLY here).
+
+**WHERE THE 95.5 s ACTUALLY GOES [COUNTED from AH's rung-4 counters].**
+The device counters of the 8B pass sum to h2d 13.05 + ntt 15.85 +
+sumcheck 5.44 + fold 2.89 + helpers 1.38 + opening re-encode 14.28 =
+**52.89 s**; the prove is 95.48 s, so **42.6 s is host time inside the
+prove clock** and the h2d is 13.05 s of host-blocking copy on top of it
+= the plan's "56-63 s". Note two accounting facts that the plan's item
+list does not make explicit and that decide what this lane can move:
+- `ntt` and `opening re-encode` are ALREADY device work (the chunked
+  path's `secs_ntt` even absorbs the chunked hash when
+  `HL_GPU_VERBOSE` is off — cuda.rs:596). B2 and B3 are therefore
+  **kernel-quality and algorithm** items, not "move it to the device"
+  items. This lane will not pretend otherwise.
+- The 1.23 GB proof's **serialization is OUTSIDE the prove clock**
+  (bin/hashline.rs:855-862: `to_bytes` + sha256 + `fs::write` run
+  after the per-layer `t_prove` accumulation). B4's "~13 s" is a WALL
+  item, not a prove item; the only part of B4 inside the prove is the
+  Merkle level build (`MerkleTree::build`, pcs.rs:174/178) and the 256
+  `tree.path(j)` per opening (pcs.rs:361).
+
+**THE FOUR ITEMS, ATTRIBUTED.**
+
+| item | where the time is | file:line | mine? |
+|---|---|---|---|
+| **B1a** plane -> Fp conversion | `w_data` / `a_data` / `h_data` built element-wise by `Fp::from_i64` over the int8 planes | layer.rs:1341-1357, 1371-1391, 1456-1486 | **NO — layer.rs is READ-ONLY for this lane** |
+| **B1b** the pageable upload | `htod_sync_copy_into` of the whole (rows x n x 8 B) buffer, synchronous, on the default stream, from PAGEABLE host memory | cuda.rs:435 (`dev_commit`), 459 (`dev_encode_only`), 1446 (`dev_commit_zk`), 1462 (`dev_upload_rows`) | **YES** |
+| **B2** the encode NTT (+ the chunked hash folded into the same counter) | `encode_rows_view` -> `k_dif_pa`/`k_dif_pb`/`k_dit_p1_pad`/`k_ntt_p2`, then `k_hash_cols_stream` | cuda.rs:525-560, 562-608; kernels.cu:852, 894, 930, 150, 1003 | **YES** |
+| **B3** the opening's chunked re-encode | `columns_chunked` re-encodes EVERY row of the commitment a second time (inverse NTT of size n, forward NTT of size nn) only to gather Q = 256 of the nn = 262,144 columns | cuda.rs:610-645, entered from `dev_columns` cuda.rs:809 | **YES** |
+| **B4a** Merkle levels (in the prove) | `MerkleTree::build` over nn leaves per commitment; `tree.path(j)` x 256 per opening | pcs.rs:174, 178, 361 | **YES (pcs.rs)**; merkle.rs itself is not in the OWNS block |
+| **B4b** serializing 1.23 GB | `LayerProofV3::to_bytes` -> `Opening::write_bytes`, byte-at-a-time `extend_from_slice` into one Vec, single-threaded, then sha256 and `fs::write` | pcs.rs:101-120 (mine), layer.rs:1224+ and bin/hashline.rs:855-862 (not mine) | **PARTLY** |
+
+**WHAT THIS LANE CAN AND CANNOT DO, STATED UP FRONT.** The single
+largest host item — the `Fp::from_i64` conversion of the int8 planes
+and the 1.4 GB `w_data` allocation per Mistral layer — lives in
+`prove_layer_v3` in layer.rs, which this lane's OWNS block makes
+READ-ONLY (round 14 gives layer.rs's v3 FFN functions to nobody: lane
+AK holds only the [UPERF3-AG] full-layer functions there). The same is
+true of the host matmul folds (`fold_cols_base` over `w_data`,
+layer.rs:1532/1573 = the 8.13 s of "matmul g/u" + "matmul d"). Both are
+recorded here as B1a/B7-class items for the orchestrator to assign; they
+are NOT attempted in this lane. What is left inside gpu/* and pcs.rs is
+B1b, B2, B3, B4a/B4b — and that is what the rungs below do.
+
+**THE RUNGS, cheapest and most certain first.**
+- **R1 (B1b): pinned staging + a pipelined upload.** Today every
+  commitment blocks the host for the whole copy (4.59 GB/s measured:
+  59,861 MB in 13.05 s) and only then starts the encode. The chunked
+  path already walks the data in row chunks, so chunk k+1's copy can
+  ride a second stream while chunk k encodes; with a pinned staging
+  buffer the copy is a real DMA and can overlap. Byte-preserving by
+  construction: the same bytes reach the same device addresses.
+  Expected: 13.05 s -> 3-6 s of visible time [MODEL].
+- **R2 (B4a/B4b + pcs.rs's host tail): the opening's host work.**
+  `Opening::write_bytes` is a single-threaded byte-at-a-time encode of
+  ~38 MB per layer; `pcs::open`'s `group_claims` allocates a
+  `rows`-long Fp2 row-weight vector per claim (21 + 31 + 34 claims per
+  Mistral layer) and `eq_table_msb` per claim. Both are host-only,
+  additive, and cannot move a byte.
+- **R3 (B3): the re-encode.** Two candidate forms, in order of
+  certainty: (a) reuse — the commit already computes exactly this
+  encoding once; nothing but VRAM stops the CHUNK's coefficient buffer
+  being reused, so measure what a larger `HL_GPU_CHUNK_ROWS` and a
+  fused encode+gather buy first; (b) output pruning — only 256 of the
+  262,144 outputs are wanted, and a pruned forward transform costs
+  ~1.31M butterflies per row against 2.36M [COUNTED], i.e. ~1.8x on
+  the forward half.
+- **R4 (B2): the encode NTT itself.** Bandwidth arithmetic first (the
+  encoded matrix is ~5.6 GB per Mistral W commitment and every stage
+  group is a full pass over it), then the cheapest of: fusing the DIF
+  tail into the DIT head, raising `NTT_LOG_BLK`, or a radix-4 stage.
+
+**THE FLOOR:** the four byte gates on BOTH binaries at every rung
+(v2 `50cf7bdfd6b5b182..` 66,844,928 B; v3 `5f368db6240e0614..`
+70,758,084 B; zk-v2 `021485e4f80ec695..` 87,228,528 B; zk-v3
+`40eb54795e023c77..` 87,697,008 B), plus `cargo test --release`. The
+8B row moves only when the 125M gates are green.
+
 ## Agent AK status (wt-uperf3-ak) — round 14
 
 (lane appends below)
