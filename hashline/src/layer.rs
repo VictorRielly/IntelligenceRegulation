@@ -392,6 +392,44 @@ mod hostbuf {
     }
 }
 
+/// [UPERF3-AL] `HL_AL_I8FOLD=0` restores the pre-lane matmul folds (two
+/// passes over each int8 plane plus one over the 8x larger `w_data`), so
+/// the A/B runs on one binary.
+fn i8fold() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_AL_I8FOLD").map(|v| v != "0").unwrap_or(true))
+}
+
+/// [UPERF3-AL] `fold_cols_base` over ONE `w_data` block, read straight from
+/// the int8 source plane instead of from the converted 64-bit copy.
+///
+/// `prove_layer_v3` lays the block at `wg[c * nb_f + b]` out as
+/// `blk[kp * fb + jp] = Fp::from_i64(wg_t[(c * db + kp) * f + b * fb + jp])`,
+/// so folding the block's columns is a STRIDED fold over the plane: rows
+/// `row0 .. row0 + rows` of a `stride`-wide matrix, columns
+/// `col0 .. col0 + cols`. Byte-identical by construction — the field is
+/// Z_p, every operation is exact, and skipping a zero adds zero (which is
+/// what `fold_cols_i8` already does elsewhere in this file).
+fn fold_block_i8(src: &[i8], row0: usize, rows: usize, stride: usize, col0: usize, cols: usize, c: &[Fp2]) -> Vec<Fp2> {
+    debug_assert_eq!(c.len(), cols);
+    (0..rows)
+        .into_par_iter()
+        .map(|i| {
+            let base = (row0 + i) * stride + col0;
+            let row = &src[base..base + cols];
+            let mut acc = Fp2::ZERO;
+            for (&v, &cw) in row.iter().zip(c.iter()) {
+                let v = v as i64;
+                if v == 0 {
+                    continue;
+                }
+                acc = acc.add(cw.mul_base(Fp::from_i64(v)));
+            }
+            acc
+        })
+        .collect()
+}
+
 // [UPERF3-AL] Host-conversion instrumentation (round 15, lever L2b).
 // `HL_CONV_VERBOSE=1` prints, for every v3 layer, what it costs to BUILD the
 // committed vectors from the int8 witness planes (the allocation and the
@@ -1627,9 +1665,46 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let eq_ri = eq_table_msb(&r_i);
     let eq_rj = eq_table_msb(&r_j);
     let xk = fold_rows_i8(&w.x[..t_rows * d], t_rows, d, &eq_ri); // d
-    let cw_gu: Vec<Fp2> = (0..f).into_par_iter().map(|j| lam_f[j / fb].mul(eq_rj[j % fb])).collect();
-    let wgk = fold_cols_i8(&w.wg_t, d, f, &cw_gu); // d
-    let wuk = fold_cols_i8(&w.wu_t, d, f, &cw_gu); // d
+    // [UPERF3-AL] ONE pass over each int8 plane where there were two, and
+    // the second of them was over `w_data` (8x the bytes). The per-block
+    // column folds are what `gu_term` needs after the sumcheck, and they are
+    // ALSO what `wgk`/`wuk` are: `cw_gu[j] = lam_f[b] * eq_rj[jp]` with
+    // j = b * fb + jp, so
+    //     wgk[c*db+kp] = sum_j cw_gu[j] . src = sum_b lam_f[b] * blk_b[kp].
+    // Regrouping is exact — Fp2 multiplication is bilinear over the base
+    // field, so (lam * eq) . v and lam * (eq . v) are the same element.
+    let mut gu_blocks: Vec<Vec<Fp2>> = Vec::new();
+    let wgk: Vec<Fp2>;
+    let wuk: Vec<Fp2>;
+    if i8fold() {
+        gu_blocks.reserve(2 * nb_d * nb_f);
+        for src in [&w.wg_t[..], &w.wu_t[..]] {
+            for c in 0..nb_d {
+                for b in 0..nb_f {
+                    gu_blocks.push(fold_block_i8(src, c * db, db, f, b * fb, fb, &eq_rj));
+                }
+            }
+        }
+        let comb = |half: usize| -> Vec<Fp2> {
+            (0..d)
+                .into_par_iter()
+                .map(|k| {
+                    let (c, kp) = (k / db, k % db);
+                    let mut acc = Fp2::ZERO;
+                    for b in 0..nb_f {
+                        acc = acc.add(lam_f[b].mul(gu_blocks[half * nb_d * nb_f + c * nb_f + b][kp]));
+                    }
+                    acc
+                })
+                .collect()
+        };
+        wgk = comb(0);
+        wuk = comb(1);
+    } else {
+        let cw_gu: Vec<Fp2> = (0..f).into_par_iter().map(|j| lam_f[j / fb].mul(eq_rj[j % fb])).collect();
+        wgk = fold_cols_i8(&w.wg_t, d, f, &cw_gu); // d
+        wuk = fold_cols_i8(&w.wu_t, d, f, &cw_gu); // d
+    }
     let s_gu_pre = t_pre.elapsed().as_secs_f64();
     let mut tables: Vec<Vec<Fp2>> = Vec::with_capacity(2 * nb_d);
     for c in 0..nb_d { tables.push(xk[c * db..(c + 1) * db].to_vec()); }
@@ -1643,12 +1718,20 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let mut term = Vec::with_capacity(nb_d + 2 * nb_d * nb_f);
     for c in 0..nb_d { term.push(out.finals[c]); }
     let t_blk = Instant::now(); // [UPERF3-AL]
-    for offs in [&lay.wg, &lay.wu] {
-        for c in 0..nb_d {
-            for b in 0..nb_f {
-                let blk = &w_data[offs[c * nb_f + b]..offs[c * nb_f + b] + wb];
-                let folded = fold_cols_base(blk, db, fb, &eq_rj);
-                term.push(eval_mle_ext(&folded, &r_kp));
+    if i8fold() {
+        // [UPERF3-AL] the same blocks, folded above in the single plane pass
+        // (wg's nb_d x nb_f then wu's — the order this loop used).
+        for folded in &gu_blocks {
+            term.push(eval_mle_ext(folded, &r_kp));
+        }
+    } else {
+        for offs in [&lay.wg, &lay.wu] {
+            for c in 0..nb_d {
+                for b in 0..nb_f {
+                    let blk = &w_data[offs[c * nb_f + b]..offs[c * nb_f + b] + wb];
+                    let folded = fold_cols_base(blk, db, fb, &eq_rj);
+                    term.push(eval_mle_ext(&folded, &r_kp));
+                }
             }
         }
     }
@@ -1678,8 +1761,33 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let eq_rip = eq_table_msb(&r_ip);
     let eq_rjp = eq_table_msb(&r_jp);
     let hk = fold_rows_i32(&w.h16[..t_rows * f], t_rows, f, &eq_rip); // f
-    let cw_d: Vec<Fp2> = (0..d).into_par_iter().map(|n| lam_d[n / db].mul(eq_rjp[n % db])).collect();
-    let wdk = fold_cols_i8(&w.wd_t, f, d, &cw_d); // f
+    // [UPERF3-AL] the same fusion on the d side: `wd`'s block at
+    // `wd[b*nb_d+c]` is `blk[jp*db+np] = wd_t[(b*fb+jp)*d + c*db+np]`, and
+    // `wdk[b*fb+jp] = sum_c lam_d[c] * blk_c[jp]`.
+    let mut d_blocks: Vec<Vec<Fp2>> = Vec::new();
+    let wdk: Vec<Fp2>;
+    if i8fold() {
+        d_blocks.reserve(nb_f * nb_d);
+        for b in 0..nb_f {
+            for c in 0..nb_d {
+                d_blocks.push(fold_block_i8(&w.wd_t, b * fb, fb, d, c * db, db, &eq_rjp));
+            }
+        }
+        wdk = (0..f)
+            .into_par_iter()
+            .map(|j| {
+                let (b, jp) = (j / fb, j % fb);
+                let mut acc = Fp2::ZERO;
+                for c in 0..nb_d {
+                    acc = acc.add(lam_d[c].mul(d_blocks[b * nb_d + c][jp]));
+                }
+                acc
+            })
+            .collect();
+    } else {
+        let cw_d: Vec<Fp2> = (0..d).into_par_iter().map(|n| lam_d[n / db].mul(eq_rjp[n % db])).collect();
+        wdk = fold_cols_i8(&w.wd_t, f, d, &cw_d); // f
+    }
     let s_d_pre = t_pre.elapsed().as_secs_f64();
     let mut tables: Vec<Vec<Fp2>> = Vec::with_capacity(2 * nb_f);
     for b in 0..nb_f { tables.push(hk[b * fb..(b + 1) * fb].to_vec()); }
@@ -1691,11 +1799,17 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let mut term = Vec::with_capacity(nb_f + nb_f * nb_d);
     for b in 0..nb_f { term.push(out.finals[b]); }
     let t_blk = Instant::now(); // [UPERF3-AL]
-    for b in 0..nb_f {
-        for c in 0..nb_d {
-            let blk = &w_data[lay.wd[b * nb_d + c]..lay.wd[b * nb_d + c] + wb];
-            let folded = fold_cols_base(blk, fb, db, &eq_rjp);
-            term.push(eval_mle_ext(&folded, &r_k));
+    if i8fold() {
+        for folded in &d_blocks {
+            term.push(eval_mle_ext(folded, &r_k));
+        }
+    } else {
+        for b in 0..nb_f {
+            for c in 0..nb_d {
+                let blk = &w_data[lay.wd[b * nb_d + c]..lay.wd[b * nb_d + c] + wb];
+                let folded = fold_cols_base(blk, fb, db, &eq_rjp);
+                term.push(eval_mle_ext(&folded, &r_k));
+            }
         }
     }
     if cv {
