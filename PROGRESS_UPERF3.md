@@ -13930,5 +13930,305 @@ PROOF_FUNCTIONS.md amendment above are for the orchestrator.
 
 ## Agent AO status (wt-uperf3-ao) — round 16
 
-(lane appends below)
+### Rung 0 — SKELETON, lane opened (2026-09-04)
+
+Lane AO is live in `/home/victor/wt-uperf3-ao` (branch `uperf3-ao`, from
+`ec02f0d`). Target: **lever L9, the opening's chunked re-encode**, plus
+the encode NTT and the sumchecks if L9 lands early. Files owned:
+`hashline/src/pcs.rs`, `hashline/src/ntt.rs`, `hashline/src/gpu/*`, new
+`results/ao_*`. `layer.rs`/`zk.rs` are lane AN's and READ-ONLY here.
+
+Read first, as briefed: the project CLAUDE.md, this ledger's round-16
+block, and lane AJ's `results/hashline_hostwall_gpu.md` (the model for
+attributing a device item BEFORE optimising it — §7's last bullet is
+this lane's starting hypothesis).
+
+The starting hypothesis, from AJ §7 [COUNTED, not this lane's number
+yet]: the re-encode is 6.87e9 butterflies in 0.44 s = 1.6e10 Goldilocks
+mul/s against a ~4.6e11 ALU ceiling, and 66 of 256 GB/s — so it is
+latency/launch-structure bound, and output pruning (256 of 65,536
+columns wanted) counts at ~1.6x.
+
+MEASUREMENT DISCIPLINE for this lane, restated so no later reader
+mistakes a number: **no 8B headline from this box.** 8 GB card, spills
+at 8,585 MB on the 8B pass, froze three times on 2026-09-04. A/B ratios
+on SMALL shapes only; gate on bytes; the 8B headline waits for the 5090.
+
+Still open at rung 0: everything. Next: read the re-encode path end to
+end (`pcs.rs` opening -> `gpu/cuda.rs` -> `kernels.cu`), instrument it,
+and publish the attribution table before touching a kernel.
+
+### Rung 1 — THE ATTRIBUTION, AND IT CONTRADICTS THE BRIEF (2026-09-04)
+
+Built the harness AJ's way (`HL_GPU_BENCH_REENC=1 hashline gpu-probe`,
+`reenc_bench` in `gpu/cuda.rs`, the shape of AJ's `HL_GPU_BENCH_H2D`
+hook): it times `columns_chunked` — the function the opening actually
+calls — and then each of its kernels separately over the same chunk plan.
+Nothing in it runs on a proof path. Full table:
+`results/ao_l9_reencode.md`; raw: `results/ao_l9_baseline.log`.
+
+**No 8B pass was run.** The harness reproduces the 8B pass's PCS shape
+exactly (`log_cols` 14 -> `log_nn` 16, `inv_rate` 4, q = 256, chunk 128
+rows, 512 threads) and sweeps rows 1,024 / 3,584 / **10,752 — which IS
+the 8B pass's W row count** (three Mistral FFN matrices flattened into
+rows of 2^14). Peak VRAM ~1.5 GB of the 8,188 MB card. `nvidia-smi` was
+161 MiB before and the run header carried the device line.
+
+**THE THREE PREMISES OF THE LANE BRIEF DO NOT SURVIVE MEASUREMENT**
+(the brief's numbers came from AJ §7, which labelled them [COUNTED]):
+
+* "1.6e10 Goldilocks mul/s" -> the four kernels do 6.870e9 butterflies in
+  **0.1715 s = 4.00e10 butterfly/s** [MEASURED], 2.5x the briefed rate.
+  The 1.6e10 divided W's butterfly count by `secs_reenc`, which also
+  holds the d2h, the pool allocations, the host assembly of the 256
+  output columns, and the A and H openings.
+* "66 of 256 GB/s, so not bandwidth" -> per kernel [MEASURED]:
+  `k_dif_pa` **197.6 GB/s**, `k_ntt_p2` (dense) **200.5**,
+  `k_ntt_p2_gather` **141.1**, `k_dif_pb` **100.2**, `k_dit_p1_pad`
+  **79.1**. Two of the four are at **77-78% of the 256 GB/s roof**.
+  They are bandwidth-bound and CLOSED.
+* "a launch-structure problem, fix the launch shape" -> the launch
+  residue is **0.9% at 1,024 rows** [MEASURED]. It reaches 17.3% at
+  10,752 rows, but that is not launch gaps: it is a 22 MB output
+  allocation, the `sel`/`idx` uploads, and the HOST loop that copies
+  2.75 M `Fp` into 256 `Vec<Fp>`.
+
+**THE REAL ATTRIBUTION at the 8B W shape** (10,752 rows, best of 7)
+[MEASURED]: `columns_chunked` 0.22231 s = four kernels 0.17153 (77.2%) +
+d2h 0.01241 (5.6%) + residue 0.03836 (17.3%).
+
+| kernel | s | share | butterfly/s | GB/s | verdict |
+|---|---:|---:|---:|---:|---|
+| `k_dit_p1_pad` | 0.08904 | **51.9%** | 47.5e9 | 79.1 | **the elephant** — 10% of ALU, 31% of bandwidth: the one true latency item |
+| `k_ntt_p2_gather` | 0.04010 | 23.4% | 35.2e9 | 141.1 | 55% of the roof; the lever is fewer LOADS |
+| `k_dif_pb` | 0.02813 | 16.4% | 37.6e9 | 100.2 | `p1_pad`'s family, a quarter the size |
+| `k_dif_pa` | 0.01426 | 8.3% | 12.4e9 | **197.6** | **closed** |
+| *(ref)* `k_ntt_p2` dense | 0.05622 | — | 25.1e9 | **200.5** | **closed** |
+
+So L9 is not one item and there is no free 2x in an inner loop: the four
+kernels are within 1.2x of each other in efficiency, and
+`k_dit_p1_pad` is 61.5% of the arithmetic against 51.9% of the time.
+
+**Two levers follow from this, and neither is "launch shape":**
+1. `k_dit_p1_pad`'s first `rb = log_nn - log_n = 2` stages are provably a
+   BROADCAST, not arithmetic: the input is R = 2^rb-fold zero-padded in
+   bit-reversed order, so within each group of R only index 0 is nonzero
+   and a butterfly with a zero odd leg writes u to both legs
+   (`gl_mul(0,w) = 0`, `gl_add(u,0) = gl_sub(u,0) = u` for canonical u).
+   After stage rb, `sh[x] == s[x >> rb]` exactly. Skipping them is
+   byte-identical and removes 2 of 12 stages AND 2 of 12 barriers from
+   the single largest kernel — and it is on the COMMIT's encode path too
+   (`encode_rows_view`), i.e. the 13.88 s encode-NTT item as well as the
+   14.0 s re-encode. [PREDICTION: ~17% of `p1_pad`, ~9% of the four.]
+2. The tile kernels (`k_dif_pa`, `k_ntt_p2`, `k_ntt_p2_gather`) index
+   with `b % J`, `b / J` and `q / J` where `J = NTT_BLK >> lt` is a power
+   of two that is NOT a compile-time constant — so nvrtc emits a full
+   32-bit integer division for each, several times the instruction count
+   of the butterfly it indexes. Strength-reducing to `>> lj` / `& (J-1)`
+   is bit-exact. [PREDICTION: matters for `k_ntt_p2_gather`, which is not
+   at the bandwidth roof; nothing for `k_dif_pa`, which is.]
+
+Still open: the two levers above (rung 2), and the output-pruned last
+stage group (only ~246 of 4,096 column positions per block have any
+sampled output — the counted ~1.6x), which is a real kernel project.
+Gates not yet run in this worktree; `results/ao_floors.sh` is in place
+(AM's copy re-pointed at `/home/victor/wt-uperf3-ao`).
+
+### Rung 2 — TWO BYTE-IDENTICAL KERNEL LEVERS, 1.220x ON THE FOUR KERNELS [MEASURED] (2026-09-04)
+
+Neither lever is "launch shape"; both came straight out of rung 1's
+attribution. Full write-up `results/ao_l9_reencode.md` §4; raw
+`results/ao_l9_rung2_kernel_ab.log`.
+
+**(1) `k_dit_p1_pad_s` — the zero-padding stages are a BROADCAST, not
+arithmetic.** The forward DIT's first pass reads the coefficient buffer
+in bit-reversed order zero-padded R = 2^rb-fold: position x holds
+`s[x >> rb]` at x == 0 (mod R) and 0 otherwise. Stages 1..rb mix only
+within each aligned group of R, whose only nonzero member is index 0, and
+a butterfly with a zero odd leg writes u to BOTH legs (`gl_mul(0,w) = 0`;
+`gl_add(u,0) = gl_sub(u,0) = u` for canonical u). So after stage rb the
+tile holds `sh[x] == s[x >> rb]` at every x — exactly the load. rb = 2
+everywhere in the 8B pass, so 2 of 12 stages and 2 of 12 barriers go, and
+they are the two WORST stages for shared-memory bank conflicts (for
+st <= 4 a warp lands on only 8 distinct 64-bit banks; from st = 6 the
+index is the identity). Declined when rb > lb. **On the COMMIT's encode
+path too** (`encode_rows_view`), so it touches the 13.88 s encode-NTT
+item as well as the 14.0 s re-encode.
+
+**(2) `_f` — the tile kernels were doing a 32-bit integer DIVISION per
+butterfly.** `k_dif_pa`, `k_ntt_p2` and `k_ntt_p2_gather` index a
+`[2^lt] x [J]` strided tile with `q / J`, `b % J`, `b / J`. **J is a
+power of two but NOT a compile-time constant** (it comes off a kernel
+argument), so nvrtc emits a full integer division for each — two per
+butterfly plus one per load and per store — several times the
+instruction count of the Goldilocks butterfly being indexed.
+`lj = NTT_LOG_BLK - lt` makes them a shift and a mask. Same operands,
+same twiddles, same order, same stores.
+
+Both are switchable (`HL_GPU_PAD_SKIP=0`, `HL_GPU_NTT_FAST=0`) via
+templated bodies with two instantiations, so the divide/12-stage arms are
+still in the binary for the A/B and for rollback.
+
+**THE KERNEL A/B, BOTH ARMS IN ONE PROCESS, at 10,752 rows = the 8B
+pass's own W row count** (best of 7, chunk 128, 512 threads) [MEASURED]:
+
+| kernel | base s | lane s | ratio | GB/s -> |
+|---|---:|---:|---:|---|
+| `k_dit_p1_pad` -> `_s` | 0.08841 | **0.06467** | **1.367x** | 79.7 -> 109.0 |
+| `k_ntt_p2_gather` -> `_f` | 0.03430 | **0.02897** | **1.184x** | 165.0 -> **195.3** |
+| `k_dif_pa` -> `_f` | 0.01451 | 0.01352 | 1.073x | 194.2 -> **208.4** |
+| `k_dif_pb` (untouched) | 0.02939 | 0.02939 | 1.000 | 95.9 |
+| **THE FOUR KERNELS** | **0.16662** | **0.13657** | **1.220x** | |
+| *(control)* dense `k_ntt_p2` -> `_f` | 0.05657 | 0.05723 | **0.988x** | 199.3 -> 197.0 |
+
+At 1,024 rows the same pair gives 0.02555 -> 0.02178 = **1.173x**.
+
+**The control is the point.** The dense `k_ntt_p2` got the IDENTICAL
+strength reduction and came out at parity (0.988x) because at 199 GB/s it
+was already at 78% of the 256 GB/s roof. The same rewrite is worth 1.18x
+on `k_ntt_p2_gather`, which was at 165 and is now at 195. The win is
+fewer instructions **on the kernels that were not yet at the memory
+roof** — which is what rung 1 predicted, and it is the opposite of the
+brief's "the fix is launch shape rather than a better inner loop".
+
+**Byte identity, so far:** `cargo test --release` **41/41**, and every
+`gpu-probe` oracle GREEN on the lane's defaults — these compare the
+DEVICE output against the CPU encoder element for element at `inv_rate`
+2, 4 and 8 (rb = 1, 2, 3: all three padding depths): blake3 checks (322
+row counts), ntt checks (7 shapes), and chunked-commit checks (15
+shapes), the last of which checks the re-encoded OPENING COLUMNS against
+the CPU encoding directly. The twelve byte gates
+(`results/ao_floors.sh`, AJ's twelve-gate form: 4 CPU + 4 GPU + 4 with
+`HL_GPU_CHUNK_BYTES` forced small) are RUNNING under the heavy lock as
+this is committed; the end-to-end `columns_chunked` A/B
+(`results/ao_ab_reenc.sh`, ABBA over four processes) is queued behind
+them on the same lock and will self-start.
+
+**RUNG 2 CLOSED** (appended after the queued runs landed):
+**ALL TWELVE BYTE GATES GREEN** (`results/ao_l9_rung2_gates.log`,
+exit 0) — the four on the CPU binary, the four on the GPU binary, and the
+same four with `HL_GPU_CHUNK_BYTES=100000000 HL_GPU_CHUNK_ROWS=128` so
+the frozen 125M digests are forced through the chunked commit and the
+opening re-encode this lane rewrote. `50cf7bdf..`/`5f368db6..`/
+`021485e4..`/`40eb5479..` at 66,844,928 / 70,758,084 / 87,228,528 /
+87,697,008 B, all unmoved.
+**THE END-TO-END A/B on `columns_chunked`** (ABBA over four processes,
+`gpu: ON` in every arm, `nvidia-smi` 161 MiB before each)
+[MEASURED]: base 0.22999 / 0.22760, lane 0.20075 / 0.20923 -> means
+**0.22880 -> 0.20499 = 1.116x**. The four kernels came out at
+1.238 / 1.231 / 1.260 / 1.246 across those same four processes — **mean
+1.244x, spread 2%**, which is the real stability of the measurement. The
+end-to-end number is smaller only because the d2h and the host tail do
+not shrink.
+
+### Rung 3 — THE OUTPUT-PRUNED LAST STAGE GROUP: 4.38x on that kernel, 1.461x on the four (2026-09-04)
+
+This is the one suggestion in the brief that survives, and it is worth
+more than it was priced at. Write-up `results/ao_l9_reencode.md` §5; raw
+`results/ao_l9_rung3_kernel_ab.log`, gates
+`results/ao_l9_rung3_gates.log`.
+
+The last group of forward stages is, for each of the `NTT_BLK` = 4,096
+positions `qq` inside a contiguous block, an INDEPENDENT `nt`-point
+transform over the block index t, producing column
+`col = t * NTT_BLK + qq`. The opening keeps 256 of 65,536 columns, so
+**only the distinct residues `qq = col mod 4096` can produce anything —
+244 of 4,096 (6.0%) at the measured draw**. The dense kernel computes,
+stores and discards the other 3,852 transforms.
+
+`k_ntt_p2_gather_sp` is `k_ntt_p2_gather` with the tile's column axis
+replaced by a compact list of those residues. For a given `qq` the
+operand pairs, the twiddles `tws[tl * NTT_BLK + qq]`, the stage order and
+the store are the dense kernel's, unchanged — it removes work, it does
+not change arithmetic. The list is padded to a multiple of 64 by
+repeating its last entry; padding lanes compute and are never stored, so
+no output address is written twice. Declined when `nq * 4 > NTT_BLK` or
+`log_nn - NTT_LOG_BLK > 5`, and by `HL_GPU_PRUNE_P2=0`.
+
+**[MEASURED] at 10,752 rows, all arms in one process:**
+
+| | s | ratio |
+|---|---:|---:|
+| `k_ntt_p2_gather` (inherited) | 0.03412 | — |
+| `k_ntt_p2_gather_f` (rung 2) | 0.02878 | 1.185x |
+| **`k_ntt_p2_gather_sp` (pruned)** | **0.00657** | **4.379x over rung 2, 5.19x over the inherited kernel** |
+| the four kernels, inherited | 0.17423 | — |
+| the four kernels, rung 2 | 0.14149 | 1.231x |
+| **the four kernels, rungs 2+3** | **0.11928** | **1.461x** |
+
+The last stage group falls from 19.6% of the four kernels to **5.5%**;
+`k_dit_p1_pad_s` is now 56% of what remains.
+
+**ALL TWELVE BYTE GATES GREEN AGAIN with rung 3 in** (exit 0), and every
+`gpu-probe` device-vs-CPU oracle GREEN including the chunked-commit check
+that compares the re-encoded OPENING COLUMNS against the CPU encoding
+directly — which is the pruned kernel's own oracle. `cargo test` 41/41.
+
+**THE END-TO-END A/B WITH ALL THREE LEVERS, ABBA over four processes**
+(`gpu: ON` in every arm, `nvidia-smi` 161 MiB before each)
+[MEASURED]: base 0.23084 / 0.22997, lane 0.18079 / 0.17577 -> means
+**`columns_chunked` 0.23041 -> 0.17828 = 1.292x**, with the four kernels
+at 1.472 / 1.508 / 1.472 / 1.484 = **mean 1.484x, spread 2.5%**. Raw:
+`results/ao_l9_rung3_endtoend_ab.log`.
+
+### Lane AO — WHAT IT IS ACTUALLY WORTH, AND WHAT IS LEFT (2026-09-04)
+
+**THE HONEST PROJECTION, AND IT IS THE POINT [PREDICTION].** This box
+cannot measure the 8B pass and this lane did not try. From AJ's 8B
+counters (`device ntt` 14.714 s, `device re-encode` 14.020 s, `PROVE`
+86.00 s) and this lane's measured ratios: the re-encode 14.020 -> ~10.9 s
+(1.292x end to end) and the commit encode 14.714 -> ~12.7 s (1.156x; the
+dense `k_ntt_p2` is at parity and `secs_ntt` also holds the chunked
+hash). **That is ~4 s off an 86 s prove, about 1.05x** — and THAT is the
+number to record, not the 1.484x. The re-encode and the encode together
+are only ~29 s of the 86 s pass; **the other 38.7 s is host time in
+`layer.rs`**, which AJ identified in round 14 and which STILL has no
+lane. A 1.48x on the device kernels cannot move a pass whose largest
+single item is a host loop.
+
+**What is left inside L9, in the order the counters give:**
+1. `k_dit_p1_pad_s` is STILL 56% of the four kernels (0.06685 of
+   0.11928), at 105 GB/s (41% of the roof) and 52.7e9 butterfly/s (11% of
+   the ALU roof) — still the one kernel that is neither. Two things are
+   visible and neither was taken: the remaining shared-memory bank
+   conflicts (stages 3-4 send a warp to 8 distinct 64-bit banks instead
+   of 16), and the fact that its 537 MB of writes per 10,752 rows are
+   read exactly once, by the very next kernel.
+2. The HOST TAIL of `columns_chunked` — a 22 MB `cuMemAlloc` that is not
+   pooled, a 22 MB download, and a serial loop copying 2.75 M `Fp` into
+   256 `Vec<Fp>`. Jittery (3.6%-21% of the call depending on allocator
+   state) but both base arms showed ~0.048 s, which is 40% of what the
+   four kernels now cost. All of it is in `gpu/cuda.rs`, this lane's own
+   file, with zero byte risk.
+3. `k_dif_pb`, untouched, is now 27% of the four kernels at 88-100 GB/s;
+   same family as `k_dit_p1_pad`, same bank-conflict work.
+4. `k_dif_pa_f` (206 GB/s) and the dense `k_ntt_p2_f` (197 GB/s) are
+   CLOSED at 77-80% of the 256 GB/s roof.
+
+**Switches left behind** (all default ON, all restoring the inherited
+kernel exactly): `HL_GPU_PAD_SKIP=0`, `HL_GPU_NTT_FAST=0`,
+`HL_GPU_PRUNE_P2=0`; plus `HL_GPU_BENCH_REENC=1` for the attribution
+harness on `gpu-probe` (`HL_BENCH_ROWS` takes a comma-separated sweep).
+
+**Nothing in `layer.rs` or `zk.rs` was touched** — they are lane AN's
+this round and no change there was needed.
+
+**PYTHON SUITE, and a PRE-EXISTING ENVIRONMENT RED worth flagging.**
+`python3 -m unittest discover -s tests` in this worktree: **81 tests, 80
+pass, 12 skipped, ONE error** — `ring_matmul freeze-check` aborts with
+`cannot read results/m125_ffn_export/layer00_X.bin`. It is NOT this
+lane's: `zkmatrix-rs/` is read-only here and untouched, and **the
+identical failure reproduces in `/home/victor/IntelligenceRegulation`
+itself** (the merged round-15 tree, no AO changes). Cause:
+`results/m125_ffn_export/` on this box holds 38 files — the WEIGHT planes
+only — while the activation planes `layer*_X.bin` live in
+`results/m125_ffn_export_wsl/` (51 files), which is what the byte gates
+already point at via `M125_EXPORT_DIR`. **With that variable set,
+`freeze-check` PASSES** (`freeze_check_uagb1_bk: all rows stable;
+freeze-check passed`, verified 2026-09-04). So the CLAUDE.md invariant
+"the test suite plus freeze-check must stay green" currently reads red on
+this box for a missing-data reason, and the fix is one environment
+variable in the test harness (or exporting the X planes into
+`results/m125_ffn_export/`). Recorded, not fixed — `tests/` is not this
+lane's file.
 

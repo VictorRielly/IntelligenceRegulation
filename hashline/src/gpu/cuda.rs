@@ -27,6 +27,11 @@ const FUNCS: &[&str] = &[
     "k_hash_cols_stream", "k_gather_cols_off", // [UPERF3-AC]
     "k_sc_round_zcf_gen", "k_sc_round_zcd_gen", "k_sc_round_tab_gen", // [UPERF3-AH]
     "k_ntt_p2_gather", "k_widen", // [UPERF3-AJ]
+    // [UPERF3-AO] lever L9: the same transforms with the power-of-two tile
+    // indexing strength-reduced, and the zero-padding stages of the forward
+    // DIT's first pass dropped. Same values, byte for byte.
+    "k_dif_pa_f", "k_ntt_p2_f", "k_ntt_p2_gather_f", "k_dit_p1_pad_s",
+    "k_ntt_p2_gather_sp",
 ];
 const SC_THREADS: u32 = 256;
 const SC_MAX_BLOCKS: u32 = 1024;
@@ -43,6 +48,41 @@ fn ntt_threads() -> u32 {
     // Measured with `HL_GPU_CHUNK_ROWS=128` at the Mistral shape: 3.03 ->
     // 2.50 s for one layer, byte-identical (results/hashline_hostwall_gpu.md).
     *V.get_or_init(|| std::env::var("HL_GPU_NTT_THREADS").ok().and_then(|v| v.parse().ok()).unwrap_or(512u32).clamp(32, 1024))
+}
+
+/// [UPERF3-AO] lever L9. `HL_GPU_NTT_FAST=0` restores the divide-indexed
+/// strided-tile kernels (`k_dif_pa`, `k_ntt_p2`, `k_ntt_p2_gather`); the
+/// default `_f` forms index with a shift and a mask instead of a runtime
+/// 32-bit integer division, and are bit-for-bit the same transform.
+fn ntt_fast() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_GPU_NTT_FAST").map(|v| v != "0").unwrap_or(true))
+}
+/// [UPERF3-AO] lever L9. `HL_GPU_PAD_SKIP=0` restores the full 12-stage
+/// `k_dit_p1_pad`; the default `_s` form drops the first `rb` stages,
+/// which on an R = 2^rb-fold zero-padded bit-reversed input are a
+/// broadcast, not arithmetic (see kernels.cu). Same output buffer.
+fn pad_skip() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_GPU_PAD_SKIP").map(|v| v != "0").unwrap_or(true))
+}
+fn kn_dif_pa() -> &'static str { if ntt_fast() { "k_dif_pa_f" } else { "k_dif_pa" } }
+fn kn_ntt_p2() -> &'static str { if ntt_fast() { "k_ntt_p2_f" } else { "k_ntt_p2" } }
+fn kn_ntt_p2_gather() -> &'static str { if ntt_fast() { "k_ntt_p2_gather_f" } else { "k_ntt_p2_gather" } }
+fn kn_dit_p1_pad() -> &'static str { if pad_skip() { "k_dit_p1_pad_s" } else { "k_dit_p1_pad" } }
+
+/// [UPERF3-AO] lever L9 rung 3: the column count of one pruned tile
+/// (kernels.cu `P2SP_NC`). The opening's compact residue list is padded to
+/// a multiple of this.
+const P2SP_NC: usize = 64;
+/// [UPERF3-AO] `HL_GPU_PRUNE_P2=0` restores the DENSE fused last stage
+/// group. On the default the opening's last stage group runs only over the
+/// distinct residues `col mod 2^NTT_LOG_BLK` of the sampled columns —
+/// ~250 of 4,096 — which is the same arithmetic on the same operands with
+/// the ~3,850 transforms nobody reads left undone.
+fn prune_p2() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_GPU_PRUNE_P2").map(|v| v != "0").unwrap_or(true))
 }
 
 pub(super) struct Gpu {
@@ -318,7 +358,7 @@ pub struct ProbeReport {
 /// mul / add / sub on the device compared against field.rs.
 pub fn probe() -> Result<ProbeReport, String> {
     let g = gpu().ok_or_else(init_err)?;
-    let g = g.lock().unwrap();
+    let mut g = g.lock().unwrap();
     let dev = &g.dev;
     let f = dev.get_func(MODULE, "k_probe").ok_or("k_probe missing")?;
     let n = 1usize << 20;
@@ -368,6 +408,10 @@ pub fn probe() -> Result<ProbeReport, String> {
     }
     if env_flag("HL_GPU_BENCH_H2D") {
         h2d_bench(&g);
+    }
+    // [UPERF3-AO] lever L9's attribution harness
+    if env_flag("HL_GPU_BENCH_REENC") {
+        reenc_bench(&mut g);
     }
     Ok(ProbeReport { device: g.name.clone(), n, mismatches: bad, gmul_per_s: reps as f64 * n as f64 / dt / 1e9 })
 }
@@ -746,6 +790,295 @@ fn h2d_bench(g: &Gpu) {
     );
 }
 
+/// [UPERF3-AO] `HL_GPU_BENCH_REENC=1` on `gpu-probe`: LEVER L9's
+/// attribution harness — the opening's chunked re-encode, kernel by
+/// kernel, at the 8B pass's PCS shape (`log_cols` 14, `inv_rate` 4, 256
+/// opened columns) but at a row count small enough to be safe on an 8 GB
+/// card. Diagnostic only: nothing here runs on a proof path and no proof
+/// byte depends on it. Knobs: `HL_BENCH_ROWS` (default 1024),
+/// `HL_BENCH_LOGN` (14), `HL_BENCH_RATE` (4), `HL_BENCH_Q` (256),
+/// `HL_BENCH_REPS` (5).
+fn reenc_bench(g: &mut Gpu) {
+    let envu = |k: &str, d: usize| std::env::var(k).ok().and_then(|v| v.parse().ok()).unwrap_or(d);
+    let list: Vec<usize> = std::env::var("HL_BENCH_ROWS")
+        .ok()
+        .map(|v| v.split(',').filter_map(|x| x.trim().parse().ok()).collect())
+        .filter(|v: &Vec<usize>| !v.is_empty())
+        .unwrap_or_else(|| vec![1024]);
+    for rows in list {
+        reenc_bench_at(g, rows);
+    }
+}
+
+fn reenc_bench_at(g: &mut Gpu, rows: usize) {
+    let envu = |k: &str, d: usize| std::env::var(k).ok().and_then(|v| v.parse().ok()).unwrap_or(d);
+    let log_n = envu("HL_BENCH_LOGN", 14) as u32;
+    let inv_rate = envu("HL_BENCH_RATE", 4);
+    let q = envu("HL_BENCH_Q", 256);
+    let reps = envu("HL_BENCH_REPS", 5).max(1);
+    let chunk = chunk_rows();
+    let log_nn = log_n + inv_rate.trailing_zeros();
+    let n = 1usize << log_n;
+    let nn = 1usize << log_nn;
+    let ntt = NttTables::new(log_nn);
+    if let Err(e) = g.ensure_twiddles(&ntt) {
+        eprintln!("[UPERF3-AO] reenc bench: twiddles: {e}");
+        return;
+    }
+    let dev = g.dev.clone();
+    let mut s = 0x5EED_A0A0_0000_0001u64;
+    let host: Vec<u64> = (0..rows * n)
+        .map(|_| {
+            s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            s % P
+        })
+        .collect();
+    let mut d_data = match Pooled::take(&dev, rows * n) {
+        Ok(b) => b,
+        Err(e) => { eprintln!("[UPERF3-AO] reenc bench: data alloc: {e}"); return; }
+    };
+    if let Err(e) = dev.htod_sync_copy_into(&host, d_data.get_mut()) {
+        eprintln!("[UPERF3-AO] reenc bench: upload: {e}");
+        return;
+    }
+    drop(host);
+    // indices in the shape `Transcript::challenge_indices` draws them
+    let mut t = 0x1234_5678_9ABC_DEF0u64;
+    let idx: Vec<usize> = (0..q)
+        .map(|_| {
+            t = t.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            ((t >> 33) as usize) % nn
+        })
+        .collect();
+    let dc = DevCommit { rows, log_n, log_nn, data: d_data, enc: None };
+
+    // ---- the whole thing, as the opening calls it
+    let mut full = f64::MAX;
+    for _ in 0..reps.max(2) {
+        let t0 = Instant::now();
+        match g.columns_chunked(&dc, &idx, chunk) {
+            Ok(_) => {}
+            Err(e) => { eprintln!("[UPERF3-AO] reenc bench: columns_chunked: {e}"); return; }
+        }
+        full = full.min(t0.elapsed().as_secs_f64());
+    }
+
+    // ---- kernel by kernel over the same chunk plan
+    let plan = chunk_plan(rows, chunk);
+    let rmax = plan.iter().map(|&(_, rc)| rc).max().unwrap();
+    let (mut d_coef, mut d_enc) = match (Pooled::take_min(&dev, rmax * n), Pooled::take_min(&dev, rmax * nn)) {
+        (Ok(a), Ok(b)) => (a, b),
+        _ => { eprintln!("[UPERF3-AO] reenc bench: scratch alloc failed"); return; }
+    };
+    let mut sel: Vec<i32> = vec![-1; nn];
+    let mut uniq = 0usize;
+    for &j in &idx {
+        if sel[j] < 0 { sel[j] = uniq as i32; uniq += 1; }
+    }
+    let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
+    let d_sel = dev.htod_sync_copy(&sel).unwrap();
+    let d_idx = dev.htod_sync_copy(&idx32).unwrap();
+    // [UPERF3-AO] rung 3's compact residue list, exactly as `columns_chunked` builds it
+    let blk = 1usize << NTT_LOG_BLK;
+    let mut qs: Vec<i32> = idx.iter().map(|&j| (j & (blk - 1)) as i32).collect();
+    qs.sort_unstable();
+    qs.dedup();
+    let nq = qs.len();
+    let last = *qs.last().unwrap();
+    qs.resize(nq.div_ceil(P2SP_NC) * P2SP_NC, last);
+    let d_ql = dev.htod_sync_copy(&qs).unwrap();
+    let mut d_out = unsafe { dev.alloc::<u64>(rows * q) }.unwrap();
+    let threads = ntt_threads();
+    let scale: u64 = Fp::new(1u64 << log_n).inv().0;
+    let rb = log_nn - log_n;
+    let (_, tf, ti) = g.tw.as_ref().unwrap();
+
+    macro_rules! timed {
+        ($body:block) => {{
+            $body
+            dev.synchronize().unwrap();
+            let mut best = f64::MAX;
+            for _ in 0..reps {
+                let t0 = Instant::now();
+                $body
+                dev.synchronize().unwrap();
+                best = best.min(t0.elapsed().as_secs_f64());
+            }
+            best
+        }};
+    }
+
+    // [UPERF3-AO] BOTH arms of each kernel in one process: the divide-indexed
+    // form the lane inherited and the strength-reduced `_f` form, and the
+    // 12-stage `k_dit_p1_pad` against the `_s` form that drops the rb
+    // broadcast stages. Same inputs, same launch shape, back to back.
+    macro_rules! bench_pa {
+        ($name:expr) => {{
+            let f = dev.get_func(MODULE, $name).unwrap();
+            timed!({
+                for &(r0, rc) in &plan {
+                    let view = dc.data.get().slice(r0 * n..(r0 + rc) * n);
+                    let tiles = 1u32 << (log_n - NTT_LOG_BLK);
+                    let cfg = LaunchConfig { grid_dim: (rc as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+                    unsafe { f.clone().launch(cfg, (&view, d_coef.get_mut(), ti, log_n as i32)) }.unwrap();
+                }
+            })
+        }};
+    }
+    macro_rules! bench_p1 {
+        ($name:expr) => {{
+            let f = dev.get_func(MODULE, $name).unwrap();
+            timed!({
+                for &(_r0, rc) in &plan {
+                    let lb = log_nn.min(NTT_LOG_BLK);
+                    let bpr = 1u32 << (log_nn - lb);
+                    let cfg = LaunchConfig { grid_dim: (rc as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+                    unsafe { f.clone().launch(cfg, (d_coef.get(), d_enc.get_mut(), tf, log_nn as i32, n as i32, rb as i32)) }.unwrap();
+                }
+            })
+        }};
+    }
+    macro_rules! bench_p2 {
+        ($name:expr) => {{
+            let f = dev.get_func(MODULE, $name).unwrap();
+            timed!({
+                for &(_r0, rc) in &plan {
+                    let tiles = 1u32 << (log_nn - NTT_LOG_BLK);
+                    let cfg = LaunchConfig { grid_dim: (rc as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+                    unsafe { f.clone().launch(cfg, (d_enc.get_mut(), tf, log_nn as i32, 1u64)) }.unwrap();
+                }
+            })
+        }};
+    }
+    macro_rules! bench_p2g {
+        ($name:expr) => {{
+            let f = dev.get_func(MODULE, $name).unwrap();
+            timed!({
+                for &(r0, rc) in &plan {
+                    let tiles = 1u32 << (log_nn - NTT_LOG_BLK);
+                    let cfg = LaunchConfig { grid_dim: (rc as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+                    unsafe { f.clone().launch(cfg, (d_enc.get(), tf, log_nn as i32, 1u64, &d_sel, &mut d_out, r0 as i32, rows as i32)) }.unwrap();
+                }
+            })
+        }};
+    }
+
+    let (t_pa, t_pa_f) = if log_n > NTT_LOG_BLK { (bench_pa!("k_dif_pa"), bench_pa!("k_dif_pa_f")) } else { (0.0, 0.0) };
+
+    let pb = dev.get_func(MODULE, "k_dif_pb").unwrap();
+    let t_pb = timed!({
+        for &(_r0, rc) in &plan {
+            let bpr = 1u32 << (log_n - log_n.min(NTT_LOG_BLK));
+            let cfg = LaunchConfig { grid_dim: (rc as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            let cptr: sys::CUdeviceptr = *d_coef.get().device_ptr();
+            unsafe { pb.clone().launch(cfg, (cptr, d_coef.get_mut(), ti, log_n as i32, scale)) }.unwrap();
+        }
+    });
+
+    let t_p1 = bench_p1!("k_dit_p1_pad");
+    let t_p1_s = bench_p1!("k_dit_p1_pad_s");
+
+    let (t_p2, t_p2_f) = if log_nn > NTT_LOG_BLK { (bench_p2!("k_ntt_p2"), bench_p2!("k_ntt_p2_f")) } else { (0.0, 0.0) };
+    let (t_p2g, t_p2g_f) = if log_nn > NTT_LOG_BLK { (bench_p2g!("k_ntt_p2_gather"), bench_p2g!("k_ntt_p2_gather_f")) } else { (0.0, 0.0) };
+    let t_p2g_sp = if log_nn > NTT_LOG_BLK && log_nn - NTT_LOG_BLK <= 5 {
+        let f = dev.get_func(MODULE, "k_ntt_p2_gather_sp").unwrap();
+        let gx = (nq.div_ceil(P2SP_NC)) as u32;
+        timed!({
+            for &(r0, rc) in &plan {
+                let cfg = LaunchConfig { grid_dim: (gx, rc as u32, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+                unsafe { f.clone().launch(cfg, (d_enc.get(), tf, log_nn as i32, 1u64, &d_sel, &mut d_out, r0 as i32, rows as i32, &d_ql, nq as i32)) }.unwrap();
+            }
+        })
+    } else { 0.0 };
+
+    let gc = dev.get_func(MODULE, "k_gather_cols_off").unwrap();
+    let t_gc = timed!({
+        for &(r0, rc) in &plan {
+            let cfg = LaunchConfig::for_num_elems((rc * q) as u32);
+            unsafe { gc.clone().launch(cfg, (d_enc.get(), &mut d_out, &d_idx, rc as i32, r0 as i32, rows as i32, nn as i32, q as i32)) }.unwrap();
+        }
+    });
+
+    let t_d2h = {
+        let t0 = Instant::now();
+        let _ = dev.dtoh_sync_copy(&d_out).unwrap();
+        t0.elapsed().as_secs_f64()
+    };
+
+    // butterflies per row, pass by pass
+    let bf = |stages: u32, half: usize| stages as f64 * half as f64 * rows as f64;
+    let bf_pa = bf(log_n.saturating_sub(NTT_LOG_BLK), n / 2);
+    let bf_pb = bf(log_n.min(NTT_LOG_BLK), n / 2);
+    let bf_p1 = bf(log_nn.min(NTT_LOG_BLK), nn / 2);
+    let bf_p2 = bf(log_nn.saturating_sub(NTT_LOG_BLK), nn / 2);
+    let bf_all = bf_pa + bf_pb + bf_p1 + bf_p2;
+    // the `_s` arm does rb fewer stages of the forward DIT's first pass
+    let bf_p1_s = bf(log_nn.min(NTT_LOG_BLK) - (log_nn - log_n).min(log_nn.min(NTT_LOG_BLK)), nn / 2);
+    // global traffic per pass (bytes)
+    let gb_pa = 2.0 * (rows * n * 8) as f64;
+    let gb_pb = 2.0 * (rows * n * 8) as f64;
+    let gb_p1 = (rows * (n + nn) * 8) as f64;
+    let gb_p2 = 2.0 * (rows * nn * 8) as f64;
+    let gb_p2g = (rows * nn * 8) as f64 + (rows * uniq * 8) as f64;
+    let gb_gc = (rows * nn * 8) as f64 + (rows * q * 8) as f64;
+    let kern = t_pa + t_pb + t_p1 + t_p2g;
+    let kern_f = t_pa_f + t_pb + t_p1_s + t_p2g_f;
+    let kern_sp = t_pa_f + t_pb + t_p1_s + t_p2g_sp;
+    let line = |name: &str, t: f64, b: f64, gb: f64| {
+        eprintln!(
+            "[UPERF3-AO]   {name:<18} {t:.5} s  {:>6.2}% of the four  {:>8.2} e9 bf/s  {:>7.1} GB/s",
+            if kern > 0.0 { 100.0 * t / kern } else { 0.0 },
+            if t > 0.0 { b / t / 1e9 } else { 0.0 },
+            if t > 0.0 { gb / t / 1e9 } else { 0.0 }
+        );
+    };
+    let ab = |name: &str, base: f64, fast: f64| {
+        eprintln!(
+            "[UPERF3-AO]   A/B {name:<18} base {base:.5} -> {fast:.5} s   {:.3}x",
+            if fast > 0.0 { base / fast } else { 0.0 }
+        );
+    };
+    eprintln!(
+        "[UPERF3-AO] L9 re-encode bench: rows {rows} log_n {log_n} -> log_nn {log_nn} (inv_rate {inv_rate}), q {q} ({uniq} distinct), chunk {chunk} rows x {} chunks, {threads} threads/block, best of {reps}",
+        plan.len()
+    );
+    eprintln!(
+        "[UPERF3-AO]   columns_chunked  {full:.5} s  (the opening's call; {:.2} e9 bf/s over {:.3} e9 butterflies)",
+        bf_all / full / 1e9,
+        bf_all / 1e9
+    );
+    line("k_dif_pa", t_pa, bf_pa, gb_pa);
+    line("k_dif_pb", t_pb, bf_pb, gb_pb);
+    line("k_dit_p1_pad", t_p1, bf_p1, gb_p1);
+    line("k_ntt_p2_gather", t_p2g, bf_p2, gb_p2g);
+    eprintln!("[UPERF3-AO]   --- not in the fused path, for reference ---");
+    line("k_ntt_p2", t_p2, bf_p2, gb_p2);
+    line("k_gather_cols_off", t_gc, 0.0, gb_gc);
+    eprintln!("[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---");
+    line("k_dif_pa_f", t_pa_f, bf_pa, gb_pa);
+    line("k_dit_p1_pad_s", t_p1_s, bf_p1_s, gb_p1);
+    line("k_ntt_p2_gather_f", t_p2g_f, bf_p2, gb_p2g);
+    line("k_ntt_p2_f", t_p2_f, bf_p2, gb_p2);
+    ab("k_dif_pa", t_pa, t_pa_f);
+    ab("k_dit_p1_pad", t_p1, t_p1_s);
+    ab("k_ntt_p2_gather", t_p2g, t_p2g_f);
+    ab("k_ntt_p2", t_p2, t_p2_f);
+    ab("four kernels", kern, kern_f);
+    eprintln!("[UPERF3-AO]   --- lever L9 rung 3, the output-pruned last stage group ---");
+    eprintln!(
+        "[UPERF3-AO]   k_ntt_p2_gather_sp {t_p2g_sp:.5} s over {nq} distinct residues of {} ({:.1}% of the dense axis)",
+        1usize << NTT_LOG_BLK,
+        100.0 * nq as f64 / (1usize << NTT_LOG_BLK) as f64
+    );
+    ab("p2_gather_f -> sp", t_p2g_f, t_p2g_sp);
+    ab("four kernels (sp)", kern, kern_sp);
+    eprintln!(
+        "[UPERF3-AO]   four kernels {kern:.5} s | d2h {t_d2h:.5} s | columns_chunked {full:.5} s => launch/alloc/host residue {:.5} s ({:.1}%)",
+        full - kern - t_d2h,
+        100.0 * (full - kern - t_d2h) / full
+    );
+}
+
 // ---------------------------------------------------------------------------
 // [rung 1] The device-resident commitment: the systematic data (rows x n)
 // and the RS-encoded matrix (rows x nn) stay on the device; the column
@@ -810,7 +1143,7 @@ impl Gpu {
         if vb { self.dev.synchronize().map_err(|e| e.to_string())?; }
         let tb = Instant::now();
         if log_n > NTT_LOG_BLK {
-            let p2 = self.dev.get_func(MODULE, "k_ntt_p2").ok_or("k_ntt_p2 missing")?;
+            let p2 = self.dev.get_func(MODULE, kn_ntt_p2()).ok_or("k_ntt_p2 missing")?;
             let tiles = 1u32 << (log_n - NTT_LOG_BLK);
             let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (ntt_threads(), 1, 1), shared_mem_bytes: 0 };
             unsafe { p2.launch(cfg2, (&mut *dst, tw, log_n as i32, scale)) }.map_err(|e| format!("k_ntt_p2: {e}"))?;
@@ -957,7 +1290,7 @@ impl Gpu {
         let scale: u64 = Fp::new(1u64 << log_n).inv().0;
         let threads = ntt_threads();
         if log_n > NTT_LOG_BLK {
-            let pa = self.dev.get_func(MODULE, "k_dif_pa").ok_or("k_dif_pa missing")?;
+            let pa = self.dev.get_func(MODULE, kn_dif_pa()).ok_or("k_dif_pa missing")?;
             let tiles = 1u32 << (log_n - NTT_LOG_BLK);
             let cfg = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             unsafe { pa.launch(cfg, (data, &mut *coef, ti, log_n as i32)) }.map_err(|e| format!("k_dif_pa: {e}"))?;
@@ -972,13 +1305,13 @@ impl Gpu {
             unsafe { pb.launch(cfg, (data, &mut *coef, ti, log_n as i32, scale)) }.map_err(|e| format!("k_dif_pb: {e}"))?;
         }
         let rb = log_nn - log_n;
-        let p1 = self.dev.get_func(MODULE, "k_dit_p1_pad").ok_or("k_dit_p1_pad missing")?;
+        let p1 = self.dev.get_func(MODULE, kn_dit_p1_pad()).ok_or("k_dit_p1_pad missing")?;
         let lb = log_nn.min(NTT_LOG_BLK);
         let bpr = 1u32 << (log_nn - lb);
         let cfg = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
         unsafe { p1.launch(cfg, (&*coef, &mut *enc, tf, log_nn as i32, (1usize << log_n) as i32, rb as i32)) }.map_err(|e| format!("k_dit_p1_pad: {e}"))?;
         if log_nn > NTT_LOG_BLK {
-            let p2 = self.dev.get_func(MODULE, "k_ntt_p2").ok_or("k_ntt_p2 missing")?;
+            let p2 = self.dev.get_func(MODULE, kn_ntt_p2()).ok_or("k_ntt_p2 missing")?;
             let tiles = 1u32 << (log_nn - NTT_LOG_BLK);
             let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             unsafe { p2.launch(cfg2, (&mut *enc, tf, log_nn as i32, 1u64)) }.map_err(|e| format!("k_ntt_p2: {e}"))?;
@@ -993,7 +1326,8 @@ impl Gpu {
     /// re-encode's traffic on the encoded matrix, are gone). Identical
     /// values: the same kernels, the same twiddles, the same order.
     fn encode_rows_view_gather(&self, data: &CudaView<u64>, coef: &mut CudaSlice<u64>, enc: &mut CudaSlice<u64>, rows: usize, log_n: u32, log_nn: u32,
-                               d_sel: &CudaSlice<i32>, out: &mut CudaSlice<u64>, row0: usize, rows_total: usize) -> Result<(), String> {
+                               d_sel: &CudaSlice<i32>, out: &mut CudaSlice<u64>, row0: usize, rows_total: usize,
+                               sp: Option<(&CudaSlice<i32>, usize)>) -> Result<(), String> {
         if log_nn <= NTT_LOG_BLK {
             return Err("gather fusion needs log_nn > NTT_LOG_BLK".into());
         }
@@ -1003,7 +1337,7 @@ impl Gpu {
         let scale: u64 = Fp::new(1u64 << log_n).inv().0;
         let threads = ntt_threads();
         if log_n > NTT_LOG_BLK {
-            let pa = self.dev.get_func(MODULE, "k_dif_pa").ok_or("k_dif_pa missing")?;
+            let pa = self.dev.get_func(MODULE, kn_dif_pa()).ok_or("k_dif_pa missing")?;
             let tiles = 1u32 << (log_n - NTT_LOG_BLK);
             let cfg = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             unsafe { pa.launch(cfg, (data, &mut *coef, ti, log_n as i32)) }.map_err(|e| format!("k_dif_pa: {e}"))?;
@@ -1018,16 +1352,26 @@ impl Gpu {
             unsafe { pb.launch(cfg, (data, &mut *coef, ti, log_n as i32, scale)) }.map_err(|e| format!("k_dif_pb: {e}"))?;
         }
         let rb = log_nn - log_n;
-        let p1 = self.dev.get_func(MODULE, "k_dit_p1_pad").ok_or("k_dit_p1_pad missing")?;
+        let p1 = self.dev.get_func(MODULE, kn_dit_p1_pad()).ok_or("k_dit_p1_pad missing")?;
         let lb = log_nn.min(NTT_LOG_BLK);
         let bpr = 1u32 << (log_nn - lb);
         let cfg = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
         unsafe { p1.launch(cfg, (&*coef, &mut *enc, tf, log_nn as i32, (1usize << log_n) as i32, rb as i32)) }.map_err(|e| format!("k_dit_p1_pad: {e}"))?;
-        let p2 = self.dev.get_func(MODULE, "k_ntt_p2_gather").ok_or("k_ntt_p2_gather missing")?;
-        let tiles = 1u32 << (log_nn - NTT_LOG_BLK);
-        let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
-        unsafe { p2.launch(cfg2, (&*enc, tf, log_nn as i32, 1u64, d_sel, &mut *out, row0 as i32, rows_total as i32)) }
-            .map_err(|e| format!("k_ntt_p2_gather: {e}"))?;
+        // [UPERF3-AO] rung 3: the pruned form when the caller supplied the
+        // compact residue list; otherwise the dense fused kernel.
+        if let Some((ql, nq)) = sp {
+            let p2 = self.dev.get_func(MODULE, "k_ntt_p2_gather_sp").ok_or("k_ntt_p2_gather_sp missing")?;
+            let gx = ((nq + P2SP_NC - 1) / P2SP_NC) as u32;
+            let cfg2 = LaunchConfig { grid_dim: (gx, rows as u32, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            unsafe { p2.launch(cfg2, (&*enc, tf, log_nn as i32, 1u64, d_sel, &mut *out, row0 as i32, rows_total as i32, ql, nq as i32)) }
+                .map_err(|e| format!("k_ntt_p2_gather_sp: {e}"))?;
+        } else {
+            let p2 = self.dev.get_func(MODULE, kn_ntt_p2_gather()).ok_or("k_ntt_p2_gather missing")?;
+            let tiles = 1u32 << (log_nn - NTT_LOG_BLK);
+            let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            unsafe { p2.launch(cfg2, (&*enc, tf, log_nn as i32, 1u64, d_sel, &mut *out, row0 as i32, rows_total as i32)) }
+                .map_err(|e| format!("k_ntt_p2_gather: {e}"))?;
+        }
         Ok(())
     }
 
@@ -1216,13 +1560,37 @@ impl Gpu {
         let nu = uniq.len();
         let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
         let d_idx = dev.htod_sync_copy(if fused { &sel } else { &idx32 }).map_err(|e| e.to_string())?;
+        // [UPERF3-AO] rung 3: the distinct residues qq = col mod 2^NTT_LOG_BLK.
+        // The last stage group is an independent nt-point transform per qq, so
+        // only these can produce a sampled column; the list is padded to a
+        // multiple of P2SP_NC by repeating its last entry (those lanes compute
+        // and are never stored). Declined when it would not be materially
+        // smaller than the dense axis, or when the tile would not fit.
+        let blk = 1usize << NTT_LOG_BLK;
+        let sp_list: Option<(CudaSlice<i32>, usize)> = if fused && prune_p2() && log_nn - NTT_LOG_BLK <= 5 {
+            let mut qs: Vec<i32> = idx.iter().map(|&j| (j & (blk - 1)) as i32).collect();
+            qs.sort_unstable();
+            qs.dedup();
+            let nq = qs.len();
+            if nq * 4 <= blk {
+                let pad = nq.div_ceil(P2SP_NC) * P2SP_NC;
+                let last = *qs.last().unwrap();
+                qs.resize(pad, last);
+                Some((dev.htod_sync_copy(&qs).map_err(|e| e.to_string())?, nq))
+            } else {
+                None
+            }
+        } else {
+            None
+        };
         let cols_out = if fused { nu } else { q };
         let mut d_out = unsafe { dev.alloc::<u64>(rows * cols_out) }.map_err(|e| e.to_string())?;
         let f = dev.get_func(MODULE, "k_gather_cols_off").ok_or("k_gather_cols_off missing")?;
         for &(r0, rc) in &plan {
             let view = dc.data.get().slice(r0 * n..(r0 + rc) * n);
             if fused {
-                self.encode_rows_view_gather(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn, &d_idx, &mut d_out, r0, rows)?;
+                let sp = sp_list.as_ref().map(|(b, n)| (b, *n));
+                self.encode_rows_view_gather(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn, &d_idx, &mut d_out, r0, rows, sp)?;
             } else {
                 self.encode_rows_view(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn)?;
                 let cfg = LaunchConfig::for_num_elems((rc * q) as u32);
@@ -1992,7 +2360,7 @@ impl Gpu {
         let threads = ntt_threads();
         // inverse: DIF pass A (strided stages) into coef, then pass B (contiguous) in place
         if log_n > NTT_LOG_BLK {
-            let pa = self.dev.get_func(MODULE, "k_dif_pa").ok_or("k_dif_pa missing")?;
+            let pa = self.dev.get_func(MODULE, kn_dif_pa()).ok_or("k_dif_pa missing")?;
             let tiles = 1u32 << (log_n - NTT_LOG_BLK);
             let cfg = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             unsafe { pa.launch(cfg, (data, &mut *coef, ti, log_n as i32)) }.map_err(|e| format!("k_dif_pa: {e}"))?;
@@ -2011,13 +2379,13 @@ impl Gpu {
         let tb = Instant::now();
         // forward: DIT p1 with the contiguous padded load, then p2
         let rb = log_nn - log_n;
-        let p1 = self.dev.get_func(MODULE, "k_dit_p1_pad").ok_or("k_dit_p1_pad missing")?;
+        let p1 = self.dev.get_func(MODULE, kn_dit_p1_pad()).ok_or("k_dit_p1_pad missing")?;
         let lb = log_nn.min(NTT_LOG_BLK);
         let bpr = 1u32 << (log_nn - lb);
         let cfg = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
         unsafe { p1.launch(cfg, (&*coef, &mut *enc, tf, log_nn as i32, (1usize << log_n) as i32, rb as i32)) }.map_err(|e| format!("k_dit_p1_pad: {e}"))?;
         if log_nn > NTT_LOG_BLK {
-            let p2 = self.dev.get_func(MODULE, "k_ntt_p2").ok_or("k_ntt_p2 missing")?;
+            let p2 = self.dev.get_func(MODULE, kn_ntt_p2()).ok_or("k_ntt_p2 missing")?;
             let tiles = 1u32 << (log_nn - NTT_LOG_BLK);
             let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             unsafe { p2.launch(cfg2, (&mut *enc, tf, log_nn as i32, 1u64)) }.map_err(|e| format!("k_ntt_p2: {e}"))?;

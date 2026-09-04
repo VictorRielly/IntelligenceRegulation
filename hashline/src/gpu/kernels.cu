@@ -147,19 +147,30 @@ extern "C" __global__ void k_ntt_p1(const u64* __restrict__ src, u64* __restrict
     }
 }
 
-extern "C" __global__ void k_ntt_p2(u64* __restrict__ a, const u64* __restrict__ tw, int log_n, u64 scale) {
-    __shared__ u64 sh[NTT_BLK];
+// [UPERF3-AO] The three strided-tile kernels (`k_dif_pa`, `k_ntt_p2`,
+// `k_ntt_p2_gather`) index with `q / J`, `b % J` and `b / J`, where
+// J = NTT_BLK >> lt is a POWER OF TWO that is not a compile-time constant
+// — so nvrtc has to emit a full 32-bit integer division for every one of
+// them, several times the instruction count of the butterfly being
+// indexed. `lj = NTT_LOG_BLK - lt` makes each a shift or a mask. The
+// arithmetic on FIELD elements is untouched: same operands, same
+// twiddles, same order, bit-for-bit the same stores. `FAST = false` keeps
+// the divide form so the two can be A/B'd in one process
+// (`HL_GPU_NTT_FAST=0`).
+template <bool FAST>
+__device__ __forceinline__ void ntt_p2_body(u64* sh, u64* __restrict__ a, const u64* __restrict__ tw, int log_n, u64 scale) {
     const int n = 1 << log_n;
     const int lt = log_n - NTT_LOG_BLK;
     const int nt = 1 << lt;
+    const int lj = NTT_LOG_BLK - lt;
     const int J = NTT_BLK >> lt;
     const int tiles_per_row = nt;
-    const int row = blockIdx.x / tiles_per_row;
+    const int row = FAST ? (int)(blockIdx.x >> lt) : (int)(blockIdx.x / tiles_per_row);
     const int tile = blockIdx.x - row * tiles_per_row;
     const int j0 = tile * J;
     u64* r = a + (size_t)row * (size_t)n;
     for (int q = threadIdx.x; q < NTT_BLK; q += blockDim.x) {
-        int t = q / J, jj = q - t * J;
+        int t = FAST ? (q >> lj) : (q / J), jj = q - t * J;
         sh[q] = r[t * NTT_BLK + j0 + jj];
     }
     __syncthreads();
@@ -168,8 +179,8 @@ extern "C" __global__ void k_ntt_p2(u64* __restrict__ a, const u64* __restrict__
         const int halft = 1 << hs;
         const u64* tws = tw + ((size_t)1 << (st - 1)) - 1;
         for (int b = threadIdx.x; b < (NTT_BLK >> 1); b += blockDim.x) {
-            int jj = b % J;
-            int tb = b / J;
+            int jj = FAST ? (b & (J - 1)) : (b % J);
+            int tb = FAST ? (b >> lj) : (b / J);
             int tl = tb & (halft - 1);
             int t = ((tb >> hs) << (hs + 1)) + tl;
             int k = tl * NTT_BLK + j0 + jj;
@@ -184,11 +195,21 @@ extern "C" __global__ void k_ntt_p2(u64* __restrict__ a, const u64* __restrict__
         __syncthreads();
     }
     for (int q = threadIdx.x; q < NTT_BLK; q += blockDim.x) {
-        int t = q / J, jj = q - t * J;
+        int t = FAST ? (q >> lj) : (q / J), jj = q - t * J;
         u64 v = sh[q];
         if (scale != 1ULL) v = gl_mul(v, scale);
         r[t * NTT_BLK + j0 + jj] = v;
     }
+}
+
+extern "C" __global__ void k_ntt_p2(u64* __restrict__ a, const u64* __restrict__ tw, int log_n, u64 scale) {
+    __shared__ u64 sh[NTT_BLK];
+    ntt_p2_body<false>(sh, a, tw, log_n, scale);
+}
+
+extern "C" __global__ void k_ntt_p2_f(u64* __restrict__ a, const u64* __restrict__ tw, int log_n, u64 scale) {
+    __shared__ u64 sh[NTT_BLK];
+    ntt_p2_body<true>(sh, a, tw, log_n, scale);
 }
 
 // [UPERF3-AJ] Widen a packed narrow witness plane back to canonical
@@ -214,20 +235,21 @@ extern "C" __global__ void k_widen(const void* __restrict__ src, u64* __restrict
 // twiddles, same order) and stores ONLY the sampled columns, so the
 // encoded matrix is never written and never re-read. `sel[j]` is the
 // output slot of column j, or -1. The VALUES are k_ntt_p2's values.
-extern "C" __global__ void k_ntt_p2_gather(const u64* __restrict__ a, const u64* __restrict__ tw, int log_n, u64 scale,
-                                           const int* __restrict__ sel, u64* __restrict__ out, int row0, int rows_total) {
-    __shared__ u64 sh[NTT_BLK];
+template <bool FAST>
+__device__ __forceinline__ void ntt_p2_gather_body(u64* sh, const u64* __restrict__ a, const u64* __restrict__ tw, int log_n, u64 scale,
+                                                   const int* __restrict__ sel, u64* __restrict__ out, int row0, int rows_total) {
     const int n = 1 << log_n;
     const int lt = log_n - NTT_LOG_BLK;
     const int nt = 1 << lt;
+    const int lj = NTT_LOG_BLK - lt;
     const int J = NTT_BLK >> lt;
     const int tiles_per_row = nt;
-    const int row = blockIdx.x / tiles_per_row;
+    const int row = FAST ? (int)(blockIdx.x >> lt) : (int)(blockIdx.x / tiles_per_row);
     const int tile = blockIdx.x - row * tiles_per_row;
     const int j0 = tile * J;
     const u64* r = a + (size_t)row * (size_t)n;
     for (int q = threadIdx.x; q < NTT_BLK; q += blockDim.x) {
-        int t = q / J, jj = q - t * J;
+        int t = FAST ? (q >> lj) : (q / J), jj = q - t * J;
         sh[q] = r[t * NTT_BLK + j0 + jj];
     }
     __syncthreads();
@@ -236,8 +258,8 @@ extern "C" __global__ void k_ntt_p2_gather(const u64* __restrict__ a, const u64*
         const int halft = 1 << hs;
         const u64* tws = tw + ((size_t)1 << (st - 1)) - 1;
         for (int b = threadIdx.x; b < (NTT_BLK >> 1); b += blockDim.x) {
-            int jj = b % J;
-            int tb = b / J;
+            int jj = FAST ? (b & (J - 1)) : (b % J);
+            int tb = FAST ? (b >> lj) : (b / J);
             int tl = tb & (halft - 1);
             int t = ((tb >> hs) << (hs + 1)) + tl;
             int k = tl * NTT_BLK + j0 + jj;
@@ -252,8 +274,91 @@ extern "C" __global__ void k_ntt_p2_gather(const u64* __restrict__ a, const u64*
         __syncthreads();
     }
     for (int q = threadIdx.x; q < NTT_BLK; q += blockDim.x) {
-        int t = q / J, jj = q - t * J;
+        int t = FAST ? (q >> lj) : (q / J), jj = q - t * J;
         int col = t * NTT_BLK + j0 + jj;
+        int c = sel[col];
+        if (c >= 0) {
+            u64 v = sh[q];
+            if (scale != 1ULL) v = gl_mul(v, scale);
+            out[(size_t)c * (size_t)rows_total + (size_t)(row0 + row)] = v;
+        }
+    }
+}
+
+extern "C" __global__ void k_ntt_p2_gather(const u64* __restrict__ a, const u64* __restrict__ tw, int log_n, u64 scale,
+                                           const int* __restrict__ sel, u64* __restrict__ out, int row0, int rows_total) {
+    __shared__ u64 sh[NTT_BLK];
+    ntt_p2_gather_body<false>(sh, a, tw, log_n, scale, sel, out, row0, rows_total);
+}
+
+extern "C" __global__ void k_ntt_p2_gather_f(const u64* __restrict__ a, const u64* __restrict__ tw, int log_n, u64 scale,
+                                             const int* __restrict__ sel, u64* __restrict__ out, int row0, int rows_total) {
+    __shared__ u64 sh[NTT_BLK];
+    ntt_p2_gather_body<true>(sh, a, tw, log_n, scale, sel, out, row0, rows_total);
+}
+
+// [UPERF3-AO] lever L9, rung 3: THE OUTPUT-PRUNED LAST STAGE GROUP.
+//
+// The last group of forward stages (NTT_LOG_BLK+1 .. log_n) is, for each
+// of the NTT_BLK positions qq inside a contiguous block, an INDEPENDENT
+// nt = 2^lt-point transform over the block index t; the encoded column it
+// produces is col = t * NTT_BLK + qq. The opening keeps only 256 of the
+// 2^log_n columns, so only the ~250 distinct residues qq = col mod
+// NTT_BLK can produce anything at all: of NTT_BLK = 4096 transforms per
+// block, ~250 are wanted and ~3,850 are computed, stored and thrown away.
+//
+// This kernel is `k_ntt_p2_gather` with the tile's column axis replaced by
+// a COMPACT LIST of those residues. Everything else is the same: for a
+// given qq the operand pairs, the twiddles tws[tl * NTT_BLK + qq], the
+// stage order and the store are identical to the dense kernel's, so the
+// bytes are identical — this removes work, it does not change any
+// arithmetic. `qlist` is padded to a multiple of P2SP_NC by repeating its
+// last entry; the padding lanes compute and are simply never stored
+// (jc >= nc_real), so no address is written twice.
+//
+// Grid: x over groups of P2SP_NC residues, y over the chunk's rows.
+#define P2SP_LNC 6
+#define P2SP_NC (1 << P2SP_LNC)
+extern "C" __global__ void k_ntt_p2_gather_sp(const u64* __restrict__ a, const u64* __restrict__ tw, int log_n, u64 scale,
+                                              const int* __restrict__ sel, u64* __restrict__ out, int row0, int rows_total,
+                                              const int* __restrict__ qlist, int nq) {
+    __shared__ u64 sh[P2SP_NC * 32];
+    const int n = 1 << log_n;
+    const int lt = log_n - NTT_LOG_BLK;
+    const int nt = 1 << lt;
+    const int row = blockIdx.y;
+    const int base = blockIdx.x * P2SP_NC;
+    const int nc_real = nq - base;
+    const int span = nt * P2SP_NC;
+    const u64* r = a + (size_t)row * (size_t)n;
+    for (int q = threadIdx.x; q < span; q += blockDim.x) {
+        int t = q >> P2SP_LNC, jc = q & (P2SP_NC - 1);
+        sh[q] = r[(size_t)t * NTT_BLK + qlist[base + jc]];
+    }
+    __syncthreads();
+    for (int st = NTT_LOG_BLK + 1; st <= log_n; st++) {
+        const int hs = st - 1 - NTT_LOG_BLK;
+        const int halft = 1 << hs;
+        const u64* tws = tw + ((size_t)1 << (st - 1)) - 1;
+        for (int b = threadIdx.x; b < (span >> 1); b += blockDim.x) {
+            int jc = b & (P2SP_NC - 1);
+            int tb = b >> P2SP_LNC;
+            int tl = tb & (halft - 1);
+            int t = ((tb >> hs) << (hs + 1)) + tl;
+            u64 w = tws[(size_t)tl * NTT_BLK + qlist[base + jc]];
+            int i = t * P2SP_NC + jc;
+            int ip = i + halft * P2SP_NC;
+            u64 u = sh[i];
+            u64 v = gl_mul(sh[ip], w);
+            sh[i] = gl_add(u, v);
+            sh[ip] = gl_sub(u, v);
+        }
+        __syncthreads();
+    }
+    for (int q = threadIdx.x; q < span; q += blockDim.x) {
+        int t = q >> P2SP_LNC, jc = q & (P2SP_NC - 1);
+        if (jc >= nc_real) continue;
+        int col = t * NTT_BLK + qlist[base + jc];
         int c = sel[col];
         if (c >= 0) {
             u64 v = sh[q];
@@ -921,19 +1026,20 @@ extern "C" __global__ void k_dot_slices(const u64* __restrict__ data, const int*
 // (rev_{log_nn}(m R) == rev_{log_n}(m)) and every other position is 0 —
 // a contiguous load. Values: the same evaluations (unique), as before.
 
-extern "C" __global__ void k_dif_pa(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw, int log_n) {
-    __shared__ u64 sh[NTT_BLK];
+template <bool FAST>
+__device__ __forceinline__ void dif_pa_body(u64* sh, const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw, int log_n) {
     const int n = 1 << log_n;
     const int lt = log_n - NTT_LOG_BLK;
     const int nt = 1 << lt;
+    const int lj = NTT_LOG_BLK - lt;
     const int J = NTT_BLK >> lt;
-    const int row = blockIdx.x / nt;
+    const int row = FAST ? (int)(blockIdx.x >> lt) : (int)(blockIdx.x / nt);
     const int tile = blockIdx.x - row * nt;
     const int j0 = tile * J;
     const u64* s = src + (size_t)row * (size_t)n;
     u64* d = dst + (size_t)row * (size_t)n;
     for (int q = threadIdx.x; q < NTT_BLK; q += blockDim.x) {
-        int t = q / J, jj = q - t * J;
+        int t = FAST ? (q >> lj) : (q / J), jj = q - t * J;
         sh[q] = s[t * NTT_BLK + j0 + jj];
     }
     __syncthreads();
@@ -942,8 +1048,8 @@ extern "C" __global__ void k_dif_pa(const u64* __restrict__ src, u64* __restrict
         const int halft = 1 << hs;
         const u64* tws = tw + ((size_t)1 << (st - 1)) - 1;
         for (int b = threadIdx.x; b < (NTT_BLK >> 1); b += blockDim.x) {
-            int jj = b % J;
-            int tb = b / J;
+            int jj = FAST ? (b & (J - 1)) : (b % J);
+            int tb = FAST ? (b >> lj) : (b / J);
             int tl = tb & (halft - 1);
             int t = ((tb >> hs) << (hs + 1)) + tl;
             int k = tl * NTT_BLK + j0 + jj;
@@ -958,9 +1064,19 @@ extern "C" __global__ void k_dif_pa(const u64* __restrict__ src, u64* __restrict
         __syncthreads();
     }
     for (int q = threadIdx.x; q < NTT_BLK; q += blockDim.x) {
-        int t = q / J, jj = q - t * J;
+        int t = FAST ? (q >> lj) : (q / J), jj = q - t * J;
         d[t * NTT_BLK + j0 + jj] = sh[q];
     }
+}
+
+extern "C" __global__ void k_dif_pa(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw, int log_n) {
+    __shared__ u64 sh[NTT_BLK];
+    dif_pa_body<false>(sh, src, dst, tw, log_n);
+}
+
+extern "C" __global__ void k_dif_pa_f(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw, int log_n) {
+    __shared__ u64 sh[NTT_BLK];
+    dif_pa_body<true>(sh, src, dst, tw, log_n);
 }
 
 extern "C" __global__ void k_dif_pb(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw, int log_n, u64 scale) {
@@ -999,9 +1115,22 @@ extern "C" __global__ void k_dif_pb(const u64* __restrict__ src, u64* __restrict
 // The forward DIT's first pass with the bit-reversed-order coefficient
 // buffer (rows x n_src) as input, zero-padded by R = 2^rb (log_n = log of
 // n_src + rb): position x = m R reads src[m], others are 0 (contiguous).
-extern "C" __global__ void k_dit_p1_pad(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw,
-                                        int log_n, int n_src, int rb) {
-    __shared__ u64 sh[NTT_BLK];
+// [UPERF3-AO] SKIP = true drops the first `rb` stages, which on this input
+// are not arithmetic at all but a BROADCAST. The source is the size-n_src
+// coefficient buffer in bit-reversed order, zero-padded R = 2^rb-fold:
+// position x holds s[x >> rb] when x == 0 (mod R) and 0 otherwise, and
+// stages 1..rb mix only WITHIN each aligned group of R positions, whose
+// only nonzero member is index 0. A butterfly with a zero odd leg writes u
+// to both legs — gl_mul(0, w) = 0 for every w, and gl_add(u, 0) =
+// gl_sub(u, 0) = u for canonical u < P — so after stage rb the tile holds
+// sh[x] == s[x >> rb] at EVERY x, which is exactly the load below. (Each
+// block covers a bs = 2^lb-aligned span and R | bs, so no group straddles
+// a block.) Byte-identical, rb fewer stages and rb fewer barriers, on the
+// largest kernel of both the commit encode and the opening re-encode.
+// SKIP = false is the original, for the A/B (`HL_GPU_PAD_SKIP=0`).
+template <bool SKIP>
+__device__ __forceinline__ void dit_p1_pad_body(u64* sh, const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw,
+                                                int log_n, int n_src, int rb) {
     const int n = 1 << log_n;
     const int lb = log_n < NTT_LOG_BLK ? log_n : NTT_LOG_BLK;
     const int bs = 1 << lb;
@@ -1011,12 +1140,13 @@ extern "C" __global__ void k_dit_p1_pad(const u64* __restrict__ src, u64* __rest
     const u64* s = src + (size_t)row * (size_t)n_src;
     u64* d = dst + (size_t)row * (size_t)n + (size_t)blk * (size_t)bs;
     const int mask = (1 << rb) - 1;
+    const int st0 = (SKIP && rb > 0 && rb <= lb) ? rb : 0;
     for (int q = threadIdx.x; q < bs; q += blockDim.x) {
         int x = blk * bs + q;
-        sh[q] = ((x & mask) == 0) ? s[x >> rb] : 0ULL;
+        sh[q] = (st0 != 0 || (x & mask) == 0) ? s[x >> rb] : 0ULL;
     }
     __syncthreads();
-    for (int st = 1; st <= lb; st++) {
+    for (int st = st0 + 1; st <= lb; st++) {
         const int half = 1 << (st - 1);
         const u64* tws = tw + (half - 1);
         for (int b = threadIdx.x; b < (bs >> 1); b += blockDim.x) {
@@ -1031,6 +1161,18 @@ extern "C" __global__ void k_dit_p1_pad(const u64* __restrict__ src, u64* __rest
         __syncthreads();
     }
     for (int q = threadIdx.x; q < bs; q += blockDim.x) d[q] = sh[q];
+}
+
+extern "C" __global__ void k_dit_p1_pad(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw,
+                                        int log_n, int n_src, int rb) {
+    __shared__ u64 sh[NTT_BLK];
+    dit_p1_pad_body<false>(sh, src, dst, tw, log_n, n_src, rb);
+}
+
+extern "C" __global__ void k_dit_p1_pad_s(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw,
+                                          int log_n, int n_src, int rb) {
+    __shared__ u64 sh[NTT_BLK];
+    dit_p1_pad_body<true>(sh, src, dst, tw, log_n, n_src, rb);
 }
 
 // [UPERF3-ZA] The ZK row encoding's coefficient step (new kernel; nothing
