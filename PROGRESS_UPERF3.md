@@ -11883,3 +11883,66 @@ same export):
 
 −32% of the layer's proof for no measurable prover time; −49% for +39% of
 prover time at this shape. `cargo test --release` 40/40 with the fold in.
+### AK rung 3 — THE FOLD IS THE DEFAULT: THE STATEMENT RE-VALIDATED AT BOTH WIDTHS (2026-09-04) [MEASURED WSL-BOX 8T CPU NOISY-SHARED]
+
+The T = 512 measurement decided the default. `collapse_plan` now
+collapses the **binary decomposition of the whole A range** (four aligned
+power-of-two blocks at 125M); `HL_FOLD=small` keeps the packed-slice-only
+plan, `HL_FOLD=nos` skips the six S-domain planes, and `HL_NO_FOLD=1`
+turns the lever off.
+
+**ONE 125M FULL LAYER, T = 512, 8 threads:**
+
+| mode | Aa groups | attention half | FULL LAYER proof | PROVE | VERIFY | peak RSS |
+|---|---:|---:|---:|---:|---:|---:|
+| `HL_NO_FOLD=1` (AG's proof) | 41 | 27.3 MB | **33,234,332 B** | 7.661 s | 0.146 s | 5.102 GB |
+| `HL_FOLD=small` | 25 | 23.1 MB | 29,041,500 B | 7.499 s | 0.148 s | 5.102 GB |
+| **default (whole range)** | **4** | **17.6 MB** | **23,539,100 B** | 8.297 s | **0.077 s** | 5.102 GB |
+
+**−29.2% of the layer's proof, −35.5% of the attention half, for +8.3% of
+prover time, with peak RSS unchanged and VERIFY nearly halved** — inside
+the plan's modelled L5 band (bytes x0.44-0.50 on the group vectors, time
+x1.05-1.15).
+
+**ONE FULL MISTRAL-7B LAYER, T = 16:** 48,478,456 -> **42,977,736 B**
+(−11.3% on the layer, **−24% on the attention half**) for **+1.2% prove**
+(12.712 -> 12.865 s), verify 0.097 -> 0.072 s, peak 10.10 -> 10.09 GB.
+The surcharge shrinks with width because the weight commitment dominates
+and `cols_log` drops to 13 there (a group vector is 131,072 B, not
+262,144).
+
+**THE 12-LAYER 125M FULL-MODEL PASS, FOLDED — the deliverable:**
+
+| pass (12 FULL layers x 512, seams bound) | witness | PROVE | VERIFY | proof | peak RSS | verdict |
+|---|---:|---:|---:|---:|---:|---|
+| pre-fold (AG / AK rung 0) | 5.22 s | 100.47 s | 2.66 s | **404,327,452 B** | 6.62 GB | ACCEPT |
+| **folded (default)** | 4.94 s | **107.63 s** | **0.83 s** | **282,217,500 B** | 6.44 GB | **ACCEPT** |
+| change | | +7.1% | **-69%** | **-30.2%** | -2.7% | |
+
+    PROOF sha256 2d5791ff8e153b4946086386b508ce65f6f9b8b6e48bf95a4a67f1b22eefdf43  (folded)
+    PROOF sha256 c91f8713e2ed805543c1ca3a5f1c752734278606e7b13d199f1348dbf22f0ece  (HL_NO_FOLD=1)
+
+The verify time is the surprise: the verifier checks four group vectors
+per layer instead of forty-one.
+
+**EVERY TAMPER LEG STILL REJECTS WITH THE FOLD ON** — the collapse
+reduces the claims, not the statement:
+
+* `attn-full` 125M T = 512 — **10/10 REJECT**, `attn-full: GREEN`.
+* `attn-layer` 125M T = 512 (the attention half alone) — **10/10
+  REJECT**, including *wrong isqrt D* (the isqrt pair), *attainment
+  selector moved* and *broken residual/seam plane*, `attn-layer: GREEN`.
+* `attn-full` Mistral T = 16 — **10/10 REJECT**, `attn-full: GREEN`.
+* `attn-pass --all-tampers` — the LAYER SEAM leg still rejects
+  (`layers 0->1: layer seam: the previous layer's xres2 != this layer's
+  x_in`), `attn-pass: GREEN`.
+
+RECORD -> results/hashline_attn_fold.md. Logs: results/ak_r3_validate.log
+/ .done (exit 0), results/ak_r2_fold_512.log, results/ak_r0_attnpass12.log,
+results/ak_r1_mistral.log, results/ak_r1_floors.log.
+
+**NOT IN THIS LANE'S OWNERSHIP, OWED AT MERGE:**
+`docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md` section 3 and
+`results/hashline_attn_fulllayer.md` still carry the PRE-FOLD proof sizes
+(33.2 MB per 125M layer, 404.3 MB for the pass). The folded numbers are
+in results/hashline_attn_fold.md.

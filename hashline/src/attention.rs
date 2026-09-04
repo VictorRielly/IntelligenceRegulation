@@ -3013,34 +3013,56 @@ fn collapse_range(claims: &mut Vec<Claim>, base: usize, base_log: u32, data: Opt
 /// [UPERF3-AK] WHICH ranges the A commitment is collapsed over, in a fixed
 /// order shared by prover and verifier (it depends only on the layout).
 ///
-/// * default — the two PACKED SMALL slices `sm` and `lm`. They hold the
-///   norm rows (D, Dsq, a1, a2) and the isqrt limbs as T-long sub-rows, so
-///   ONE claim on a 512-element row costs a whole 256 KiB group vector,
-///   and 24 of the A commitment's 49 groups at 125M/T=128 are these. The
-///   two sumchecks are over 2^14 and 2^15 — free next to the layer.
-/// * `HL_FOLD_ALL=1` — the BINARY DECOMPOSITION of the whole A range into
-///   aligned power-of-two blocks. Every plane is allocated aligned to its
-///   own size, so each plane sits wholly inside one block and every claim
-///   is collapsible; the A commitment then opens at as many points as the
-///   decomposition has blocks (4 at 125M). It costs one degree-2 sumcheck
-///   over the whole witness — the byte/time trade measured in the ledger.
-fn collapse_plan(lay: &AttnLayout) -> Vec<(usize, u32)> {
-    if std::env::var("HL_FOLD_ALL").ok().as_deref() != Some("1") {
-        return vec![(lay.sm, lay.log_sm), (lay.lm, lay.log_lm)];
-    }
-    let mut out = Vec::new();
-    let mut off = 0usize;
-    let mut left = lay.a_len;
-    while left > 0 {
-        // the largest aligned power of two that fits at `off`
-        let mut log = 63 - (left as u64).leading_zeros().min(63);
-        let log = loop {
-            if off % (1usize << log) == 0 { break log; }
+/// * DEFAULT — the BINARY DECOMPOSITION of the whole A range into aligned
+///   power-of-two blocks. Every plane is allocated aligned to its own
+///   size, so each plane sits wholly inside one block and every claim is
+///   collapsible; A then opens at as many points as the decomposition has
+///   blocks (4 at 125M, against 41 points before). Measured at
+///   125M/T = 512: the full layer 33.23 -> 23.54 MB (-29%), the attention
+///   half 27.3 -> 17.6 MB (-36%), prove +8.3%, peak RSS unchanged.
+/// * `HL_FOLD=small` — the two PACKED SMALL slices `sm` and `lm` only.
+///   They hold the norm rows (D, Dsq, a1, a2) and the isqrt limbs as
+///   T-long sub-rows, so ONE claim on a 512-element row costs a whole
+///   262,144 B group vector and 24 of the 49 groups at T = 128 are these.
+///   Two sumchecks over 2^14 and 2^15: free, and -13% of the layer.
+/// * `HL_FOLD=nos` — the whole range minus the six S-domain planes, whose
+///   H x T x T size is the bulk of A at large T and which carry only a
+///   handful of distinct points. Measured WORSE than the default on both
+///   axes at 125M; kept because at Mistral T = 512 the S planes are ~60%
+///   of A and the trade may invert.
+fn blocks(lo: usize, hi: usize, out: &mut Vec<(usize, u32)>) {
+    let mut off = lo;
+    while off < hi {
+        let mut log = 63 - ((hi - off) as u64).leading_zeros().min(63);
+        while off % (1usize << log) != 0 {
             log -= 1;
-        };
+        }
         out.push((off, log));
         off += 1usize << log;
-        left -= 1usize << log;
+    }
+}
+
+fn collapse_plan(lay: &AttnLayout) -> Vec<(usize, u32)> {
+    let mode = std::env::var("HL_FOLD").unwrap_or_default();
+    let mut out = Vec::new();
+    match mode.as_str() {
+        // the two PACKED SMALL slices only (2^14 and 2^15 — free, but it
+        // leaves the sumcheck terminals unfolded)
+        "small" => out = vec![(lay.sm, lay.log_sm), (lay.lm, lay.log_lm)],
+        // everything EXCEPT the six S-domain planes (s8, rs, zsel, et, pp,
+        // rho_s: 6 x 2^log_s, quadratic in T and the bulk of A at large T).
+        // They carry only a handful of distinct points, so skipping them
+        // gives up ~4 group vectors and takes the collapse's dominant term
+        // out of the prover.
+        "nos" => {
+            blocks(0, lay.s8, &mut out);
+            blocks(lay.s8 + 6 * (1usize << lay.log_s), lay.a_len, &mut out);
+        }
+        // DEFAULT: the binary decomposition of the whole A range — every
+        // claim collapses, A opens at one point per block (4 at 125M).
+        // Measured at 125M/T=512: proof 33.23 -> 23.54 MB for +8.3% prove
+        // and no change in peak RSS.
+        _ => blocks(0, lay.a_len, &mut out),
     }
     out
 }
