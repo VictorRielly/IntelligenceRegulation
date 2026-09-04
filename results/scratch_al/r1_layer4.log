@@ -1,0 +1,27 @@
+[UPERF3-AL] conv W  l00: alloc 0.6243 fill 0.0500 | commit 0.6732 (dev h2d 0.3112 ntt 0.3341 hash 0.0000 -> host 0.0279) | 176 Melem
+[UPERF3-AL] conv A  l00: alloc 0.2204 fill 0.0371 | commit 0.1367 (dev h2d 0.0785 ntt 0.0485 hash 0.0000 -> host 0.0097) | 57 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0867 | 14 w_data blocks 0.0842
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0451 | 7 w_data blocks 0.0415
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0487 | commit 0.4473 (dev h2d 0.1527 ntt 0.2847 hash 0.0000 -> host 0.0100) | 176 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0403 | commit 0.1134 (dev h2d 0.0510 ntt 0.0541 hash 0.0000 -> host 0.0083) | 57 Melem
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0925 | 14 w_data blocks 0.0770
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0485 | 7 w_data blocks 0.0378
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0468 | commit 0.5603 (dev h2d 0.1997 ntt 0.3528 hash 0.0000 -> host 0.0077) | 176 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0295 | commit 0.1070 (dev h2d 0.0649 ntt 0.0351 hash 0.0000 -> host 0.0070) | 57 Melem
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0822 | 14 w_data blocks 0.0844
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0400 | 7 w_data blocks 0.0376
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0447 | commit 0.5488 (dev h2d 0.1853 ntt 0.3549 hash 0.0000 -> host 0.0085) | 176 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0362 | commit 0.1060 (dev h2d 0.0593 ntt 0.0403 hash 0.0000 -> host 0.0064) | 57 Melem
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0794 | 14 w_data blocks 0.0858
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0472 | 7 w_data blocks 0.0402
+prover phases (summed over layers):
+      commit W                  3.044 s
+      commit A                  0.827 s
+      helpers + commit H        0.804 s
+      matmul g/u                0.685 s
+      matmul d                  0.358 s
+      zero-check F              0.581 s
+      zero-check D              0.103 s
+      pcs openings              2.163 s
+PROOF sha256 e029e489d1bde1aab8ae5b115c45a9e6566620fef0c84508472c20db5c1b5e76 (154507884 B)
+PASS-V3 ACCEPT: 4 x 512 (d 4096 f 14336): witness load+chain 13.59 s | PROVE 8.56 s | VERIFY 0.14 s | proof 154507884 B (154.5 MB) | 3.608e11 MACs | 4.213e10 proven MAC/s (prove wall) | wall 22.51 s

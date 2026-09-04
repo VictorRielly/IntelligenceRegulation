@@ -1,0 +1,45 @@
+[UPERF3-AL] conv W  l00: alloc 0.5823 fill 0.0531 | commit 0.6158 (dev h2d 0.2057 ntt 0.3715 hash 0.0000 -> host 0.0385) | 176 Melem
+[UPERF3-AL] conv A  l00: alloc 0.2100 fill 0.0353 | commit 0.1402 (dev h2d 0.0769 ntt 0.0497 hash 0.0000 -> host 0.0136) | 57 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0767 | 14 w_data blocks 0.0715
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0450 | 7 w_data blocks 0.0376
+prover phases (summed over layers):
+      commit W                  1.251 s
+      commit A                  0.385 s
+      helpers + commit H        0.263 s
+      matmul g/u                0.151 s
+      matmul d                  0.087 s
+      zero-check F              0.143 s
+      zero-check D              0.026 s
+      pcs openings              0.536 s
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.17 s | PROVE 2.84 s | VERIFY 0.04 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 3.172e10 proven MAC/s (prove wall) | wall 6.09 s
+[UPERF3-AL] conv W  l00: alloc 0.5845 fill 0.0554 | commit 0.5405 (dev h2d 0.2014 ntt 0.3107 hash 0.0000 -> host 0.0285) | 176 Melem
+[UPERF3-AL] conv A  l00: alloc 0.2246 fill 0.0399 | commit 0.1369 (dev h2d 0.0806 ntt 0.0464 hash 0.0000 -> host 0.0099) | 57 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0840 | 14 w_data blocks 0.0863
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0432 | 7 w_data blocks 0.0386
+prover phases (summed over layers):
+      commit W                  1.180 s
+      commit A                  0.401 s
+      helpers + commit H        0.270 s
+      matmul g/u                0.174 s
+      matmul d                  0.086 s
+      zero-check F              0.144 s
+      zero-check D              0.025 s
+      pcs openings              0.552 s
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.27 s | PROVE 2.83 s | VERIFY 0.04 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 3.185e10 proven MAC/s (prove wall) | wall 6.18 s
+[UPERF3-AL] conv W  l00: alloc 0.6218 fill 0.0479 | commit 0.5998 (dev h2d 0.2787 ntt 0.2917 hash 0.0000 -> host 0.0294) | 176 Melem
+[UPERF3-AL] conv A  l00: alloc 0.2127 fill 0.0291 | commit 0.1385 (dev h2d 0.0735 ntt 0.0530 hash 0.0000 -> host 0.0119) | 57 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0819 | 14 w_data blocks 0.0724
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0443 | 7 w_data blocks 0.0397
+prover phases (summed over layers):
+      commit W                  1.270 s
+      commit A                  0.380 s
+      helpers + commit H        0.272 s
+      matmul g/u                0.157 s
+      matmul d                  0.089 s
+      zero-check F              0.145 s
+      zero-check D              0.025 s
+      pcs openings              0.541 s
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.31 s | PROVE 2.88 s | VERIFY 0.04 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 3.133e10 proven MAC/s (prove wall) | wall 6.27 s

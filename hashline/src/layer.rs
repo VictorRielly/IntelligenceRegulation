@@ -320,6 +320,135 @@ struct HostTabs {
     zf: Vec<Vec<Fp2>>, rdf: Vec<Vec<Fp2>>, hz: Vec<Vec<Fp2>>,
 }
 
+/// [UPERF3-AL] THE HOST STAGING POOL for the committed vectors (round 15,
+/// lever L2b).
+///
+/// `prove_layer_v3` used to say `vec![Fp::ZERO; lay.w_len]` on every layer.
+/// At the Mistral shape that is 176,160,768 elements = 1.409 GB, and it is
+/// NOT the cheap allocation it looks like: `Fp` is a user type, so `vec!`
+/// does not specialize to `alloc_zeroed`, and the macro expands to an
+/// allocation plus a SINGLE-THREADED write of 1.4 GB of zeros over 344k
+/// first-touch page faults — measured on this box at **0.573-0.631 s for W
+/// and 0.209-0.260 s for A, against 0.044-0.054 s for the `Fp::from_i64`
+/// fill that follows it** (results/hashline_convert_plan.md §4). Every one
+/// of those zeros is then overwritten. Over 32 layers that is ~28 s of an
+/// 86 s prove spent zeroing memory nobody reads.
+///
+/// So the buffers are pooled and handed back at the end of the layer. What
+/// makes that safe is that `LayoutV3`'s blocks TILE the buffer exactly —
+/// `w_len` is the 3 x nb_d x nb_f weight blocks and nothing else, `a_len`
+/// the 7 x nb_f + 3 x nb_d witness columns and nothing else — so every
+/// element is written before any element is read. The 12-layer byte gates
+/// are the test of that claim: a buffer that was not fully overwritten
+/// would carry layer k-1's weights into layer k's commitment and move the
+/// digest on the second of twelve layers.
+mod hostbuf {
+    use crate::field::Fp;
+    use std::sync::Mutex;
+
+    pub const W: usize = 0;
+    pub const A: usize = 1;
+    /// One retired buffer per slot. A second concurrent prover (the test
+    /// suite runs several) allocates its own and drops it on return, so the
+    /// pool cannot grow with the thread count.
+    const KEEP: usize = 1;
+    static POOL: Mutex<[Vec<Vec<Fp>>; 2]> = Mutex::new([Vec::new(), Vec::new()]);
+
+    /// `HL_AL_POOL=0` restores the pre-lane form (a fresh `vec![Fp::ZERO; len]`
+    /// per layer, freed at the end of it) so the A/B runs on ONE binary.
+    pub fn on() -> bool {
+        static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+        *V.get_or_init(|| std::env::var("HL_AL_POOL").map(|v| v != "0").unwrap_or(true))
+    }
+
+    /// A buffer of exactly `len` elements whose CONTENTS ARE ARBITRARY: the
+    /// caller must write every element before reading any. The first call
+    /// per slot pays the zeroing once; every later call pays nothing.
+    pub fn take(slot: usize, len: usize) -> Vec<Fp> {
+        if !on() {
+            return vec![Fp::ZERO; len];
+        }
+        let mut v = POOL.lock().unwrap()[slot].pop().unwrap_or_default();
+        if v.capacity() < len {
+            drop(v);
+            return vec![Fp::ZERO; len];
+        }
+        if v.len() < len {
+            v.resize(len, Fp::ZERO);
+        } else {
+            v.truncate(len);
+        }
+        v
+    }
+
+    pub fn give(slot: usize, v: Vec<Fp>) {
+        if !on() {
+            return;
+        }
+        let mut p = POOL.lock().unwrap();
+        if p[slot].len() < KEEP {
+            p[slot].push(v);
+        }
+    }
+}
+
+/// [UPERF3-AL] `HL_AL_I8FOLD=0` restores the pre-lane matmul folds (two
+/// passes over each int8 plane plus one over the 8x larger `w_data`), so
+/// the A/B runs on one binary.
+fn i8fold() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_AL_I8FOLD").map(|v| v != "0").unwrap_or(true))
+}
+
+/// [UPERF3-AL] `fold_cols_base` over ONE `w_data` block, read straight from
+/// the int8 source plane instead of from the converted 64-bit copy.
+///
+/// `prove_layer_v3` lays the block at `wg[c * nb_f + b]` out as
+/// `blk[kp * fb + jp] = Fp::from_i64(wg_t[(c * db + kp) * f + b * fb + jp])`,
+/// so folding the block's columns is a STRIDED fold over the plane: rows
+/// `row0 .. row0 + rows` of a `stride`-wide matrix, columns
+/// `col0 .. col0 + cols`. Byte-identical by construction — the field is
+/// Z_p, every operation is exact, and skipping a zero adds zero (which is
+/// what `fold_cols_i8` already does elsewhere in this file).
+fn fold_block_i8(src: &[i8], row0: usize, rows: usize, stride: usize, col0: usize, cols: usize, c: &[Fp2]) -> Vec<Fp2> {
+    debug_assert_eq!(c.len(), cols);
+    (0..rows)
+        .into_par_iter()
+        .map(|i| {
+            let base = (row0 + i) * stride + col0;
+            let row = &src[base..base + cols];
+            let mut acc = Fp2::ZERO;
+            for (&v, &cw) in row.iter().zip(c.iter()) {
+                let v = v as i64;
+                if v == 0 {
+                    continue;
+                }
+                acc = acc.add(cw.mul_base(Fp::from_i64(v)));
+            }
+            acc
+        })
+        .collect()
+}
+
+// [UPERF3-AL] Host-conversion instrumentation (round 15, lever L2b).
+// `HL_CONV_VERBOSE=1` prints, for every v3 layer, what it costs to BUILD the
+// committed vectors from the int8 witness planes (the allocation and the
+// `Fp::from_i64` fill) and what the two host matmul folds cost — the items
+// lane AJ attributed to this file (results/hashline_hostwall_gpu.md §7) but
+// could not own. Timing only: no value the transcript or the proof depends
+// on is read or written here.
+fn conv_verbose() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_CONV_VERBOSE").map(|v| v == "1").unwrap_or(false))
+}
+
+/// The device counters that `pcs_compact::commit` charges, for the residual
+/// (`commit call - device counters` = the host time inside the commit).
+fn dev_marks() -> (f64, f64, f64) {
+    let s = crate::gpu::dev_stats();
+    (s.secs_h2d, s.secs_ntt, s.secs_hash)
+}
+
 /// [UPERF3-XX] The device-resident commitment behind a `Committed`, when the GPU path made it.
 #[cfg(feature = "gpu-cuda")]
 fn dev_of<'a>(cm: &'a AnyCm) -> Option<&'a crate::gpu::DevCommit> {
@@ -1338,7 +1467,10 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let mut proof = LayerProofV3::default();
 
     // ---- W data + commit ------------------------------------------------
-    let mut w_data = vec![Fp::ZERO; lay.w_len];
+    let cv = conv_verbose(); // [UPERF3-AL]
+    let t_conv = Instant::now();
+    let mut w_data = hostbuf::take(hostbuf::W, lay.w_len); // [UPERF3-AL] arbitrary contents; every element is written below
+    let s_w_alloc = t_conv.elapsed().as_secs_f64();
     for c in 0..nb_d {
         for b in 0..nb_f {
             for (offs, src) in [(&lay.wg, &w.wg_t), (&lay.wu, &w.wu_t)] {
@@ -1355,7 +1487,10 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
             });
         }
     }
+    let s_w_fill = t_conv.elapsed().as_secs_f64() - s_w_alloc;
     let w_pcs = params.pcs_for(lay.log_wb);
+    let (m0h, m0n, m0s) = dev_marks(); // [UPERF3-AL]
+    let t_wcom = Instant::now();
     // [UPERF3-AC]+[UPERF3-AF] the per-model weight cache serves the LIGERO path (its entries are
     // Ligero commitments); `--pcs compact` bypasses it and commits compactly.
     let w_cm = if pcs_compact::selected() {
@@ -1363,12 +1498,20 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     } else {
         pcs_compact::AnyCm::Ligero(crate::wcache::commit_w(&w_pcs, &w_data, ntt, &crate::wcache::WKey::new("v3", w.l, d, f, &w.wg_t, &w.wu_t, &w.wd_t)))
     };
+    if cv {
+        let s = t_wcom.elapsed().as_secs_f64();
+        let (m1h, m1n, m1s) = dev_marks();
+        eprintln!("[UPERF3-AL] conv W  l{:02}: alloc {:.4} fill {:.4} | commit {:.4} (dev h2d {:.4} ntt {:.4} hash {:.4} -> host {:.4}) | {} Melem",
+            w.l, s_w_alloc, s_w_fill, s, m1h - m0h, m1n - m0n, m1s - m0s, s - (m1h - m0h) - (m1n - m0n) - (m1s - m0s), lay.w_len / 1_000_000);
+    }
     proof.w_com = Some(w_cm.commitment());
     absorb_com(tr, b"W", proof.w_com.as_ref().unwrap());
     lap("commit W", &mut timings, &mut tick);
 
     // ---- A data + commit ------------------------------------------------
-    let mut a_data = vec![Fp::ZERO; lay.a_len];
+    let t_conv = Instant::now();
+    let mut a_data = hostbuf::take(hostbuf::A, lay.a_len); // [UPERF3-AL] arbitrary contents; every element is written below
+    let s_a_alloc = t_conv.elapsed().as_secs_f64();
     for b in 0..nb_f {
         for (offs, col) in [(&lay.g8, &w.g8), (&lay.rg, &w.rg), (&lay.a16, &w.a16), (&lay.u16, &w.u16v), (&lay.ru, &w.ru), (&lay.h16, &w.h16), (&lay.rh, &w.rh)] {
             let off = offs[b];
@@ -1388,8 +1531,17 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
             });
         }
     }
+    let s_a_fill = t_conv.elapsed().as_secs_f64() - s_a_alloc;
     let a_pcs = params.pcs_for(lay.log_a_min);
+    let (m0h, m0n, m0s) = dev_marks(); // [UPERF3-AL]
+    let t_acom = Instant::now();
     let a_cm = pcs_compact::commit(&a_pcs, &a_data, ntt); // [UPERF3-AF]
+    if cv {
+        let s = t_acom.elapsed().as_secs_f64();
+        let (m1h, m1n, m1s) = dev_marks();
+        eprintln!("[UPERF3-AL] conv A  l{:02}: alloc {:.4} fill {:.4} | commit {:.4} (dev h2d {:.4} ntt {:.4} hash {:.4} -> host {:.4}) | {} Melem",
+            w.l, s_a_alloc, s_a_fill, s, m1h - m0h, m1n - m0n, m1s - m0s, s - (m1h - m0h) - (m1n - m0n) - (m1s - m0s), lay.a_len / 1_000_000);
+    }
     proof.a_com = Some(a_cm.commitment());
     absorb_com(tr, b"A", proof.a_com.as_ref().unwrap());
     lap("commit A", &mut timings, &mut tick);
@@ -1509,12 +1661,51 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
         proof.gu_claims.push(ev[4 * b + 2].mul_base(p_u).add(ev[4 * b + 3]));
     }
     tr.absorb_fp2(b"gu-claims", &proof.gu_claims);
+    let t_pre = Instant::now(); // [UPERF3-AL]
     let eq_ri = eq_table_msb(&r_i);
     let eq_rj = eq_table_msb(&r_j);
     let xk = fold_rows_i8(&w.x[..t_rows * d], t_rows, d, &eq_ri); // d
-    let cw_gu: Vec<Fp2> = (0..f).into_par_iter().map(|j| lam_f[j / fb].mul(eq_rj[j % fb])).collect();
-    let wgk = fold_cols_i8(&w.wg_t, d, f, &cw_gu); // d
-    let wuk = fold_cols_i8(&w.wu_t, d, f, &cw_gu); // d
+    // [UPERF3-AL] ONE pass over each int8 plane where there were two, and
+    // the second of them was over `w_data` (8x the bytes). The per-block
+    // column folds are what `gu_term` needs after the sumcheck, and they are
+    // ALSO what `wgk`/`wuk` are: `cw_gu[j] = lam_f[b] * eq_rj[jp]` with
+    // j = b * fb + jp, so
+    //     wgk[c*db+kp] = sum_j cw_gu[j] . src = sum_b lam_f[b] * blk_b[kp].
+    // Regrouping is exact — Fp2 multiplication is bilinear over the base
+    // field, so (lam * eq) . v and lam * (eq . v) are the same element.
+    let mut gu_blocks: Vec<Vec<Fp2>> = Vec::new();
+    let wgk: Vec<Fp2>;
+    let wuk: Vec<Fp2>;
+    if i8fold() {
+        gu_blocks.reserve(2 * nb_d * nb_f);
+        for src in [&w.wg_t[..], &w.wu_t[..]] {
+            for c in 0..nb_d {
+                for b in 0..nb_f {
+                    gu_blocks.push(fold_block_i8(src, c * db, db, f, b * fb, fb, &eq_rj));
+                }
+            }
+        }
+        let comb = |half: usize| -> Vec<Fp2> {
+            (0..d)
+                .into_par_iter()
+                .map(|k| {
+                    let (c, kp) = (k / db, k % db);
+                    let mut acc = Fp2::ZERO;
+                    for b in 0..nb_f {
+                        acc = acc.add(lam_f[b].mul(gu_blocks[half * nb_d * nb_f + c * nb_f + b][kp]));
+                    }
+                    acc
+                })
+                .collect()
+        };
+        wgk = comb(0);
+        wuk = comb(1);
+    } else {
+        let cw_gu: Vec<Fp2> = (0..f).into_par_iter().map(|j| lam_f[j / fb].mul(eq_rj[j % fb])).collect();
+        wgk = fold_cols_i8(&w.wg_t, d, f, &cw_gu); // d
+        wuk = fold_cols_i8(&w.wu_t, d, f, &cw_gu); // d
+    }
+    let s_gu_pre = t_pre.elapsed().as_secs_f64();
     let mut tables: Vec<Vec<Fp2>> = Vec::with_capacity(2 * nb_d);
     for c in 0..nb_d { tables.push(xk[c * db..(c + 1) * db].to_vec()); }
     for c in 0..nb_d {
@@ -1526,14 +1717,26 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let r_kp = out.challenges; // log_db
     let mut term = Vec::with_capacity(nb_d + 2 * nb_d * nb_f);
     for c in 0..nb_d { term.push(out.finals[c]); }
-    for offs in [&lay.wg, &lay.wu] {
-        for c in 0..nb_d {
-            for b in 0..nb_f {
-                let blk = &w_data[offs[c * nb_f + b]..offs[c * nb_f + b] + wb];
-                let folded = fold_cols_base(blk, db, fb, &eq_rj);
-                term.push(eval_mle_ext(&folded, &r_kp));
+    let t_blk = Instant::now(); // [UPERF3-AL]
+    if i8fold() {
+        // [UPERF3-AL] the same blocks, folded above in the single plane pass
+        // (wg's nb_d x nb_f then wu's — the order this loop used).
+        for folded in &gu_blocks {
+            term.push(eval_mle_ext(folded, &r_kp));
+        }
+    } else {
+        for offs in [&lay.wg, &lay.wu] {
+            for c in 0..nb_d {
+                for b in 0..nb_f {
+                    let blk = &w_data[offs[c * nb_f + b]..offs[c * nb_f + b] + wb];
+                    let folded = fold_cols_base(blk, db, fb, &eq_rj);
+                    term.push(eval_mle_ext(&folded, &r_kp));
+                }
             }
         }
+    }
+    if cv {
+        eprintln!("[UPERF3-AL] fold gu l{:02}: pre (eq + i8 row/col folds) {:.4} | {} w_data blocks {:.4}", w.l, s_gu_pre, 2 * nb_d * nb_f, t_blk.elapsed().as_secs_f64());
     }
     proof.gu_term = term;
     tr.absorb_fp2(b"gu-term", &proof.gu_term);
@@ -1554,11 +1757,38 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let ev = eval_many_dev(&a_cm, &a_data, &sl, &p4);
     proof.d_claims = (0..nb_d).map(|c| ev[2 * c].mul_base(p_z).add(ev[2 * c + 1])).collect();
     tr.absorb_fp2(b"d-claims", &proof.d_claims);
+    let t_pre = Instant::now(); // [UPERF3-AL]
     let eq_rip = eq_table_msb(&r_ip);
     let eq_rjp = eq_table_msb(&r_jp);
     let hk = fold_rows_i32(&w.h16[..t_rows * f], t_rows, f, &eq_rip); // f
-    let cw_d: Vec<Fp2> = (0..d).into_par_iter().map(|n| lam_d[n / db].mul(eq_rjp[n % db])).collect();
-    let wdk = fold_cols_i8(&w.wd_t, f, d, &cw_d); // f
+    // [UPERF3-AL] the same fusion on the d side: `wd`'s block at
+    // `wd[b*nb_d+c]` is `blk[jp*db+np] = wd_t[(b*fb+jp)*d + c*db+np]`, and
+    // `wdk[b*fb+jp] = sum_c lam_d[c] * blk_c[jp]`.
+    let mut d_blocks: Vec<Vec<Fp2>> = Vec::new();
+    let wdk: Vec<Fp2>;
+    if i8fold() {
+        d_blocks.reserve(nb_f * nb_d);
+        for b in 0..nb_f {
+            for c in 0..nb_d {
+                d_blocks.push(fold_block_i8(&w.wd_t, b * fb, fb, d, c * db, db, &eq_rjp));
+            }
+        }
+        wdk = (0..f)
+            .into_par_iter()
+            .map(|j| {
+                let (b, jp) = (j / fb, j % fb);
+                let mut acc = Fp2::ZERO;
+                for c in 0..nb_d {
+                    acc = acc.add(lam_d[c].mul(d_blocks[b * nb_d + c][jp]));
+                }
+                acc
+            })
+            .collect();
+    } else {
+        let cw_d: Vec<Fp2> = (0..d).into_par_iter().map(|n| lam_d[n / db].mul(eq_rjp[n % db])).collect();
+        wdk = fold_cols_i8(&w.wd_t, f, d, &cw_d); // f
+    }
+    let s_d_pre = t_pre.elapsed().as_secs_f64();
     let mut tables: Vec<Vec<Fp2>> = Vec::with_capacity(2 * nb_f);
     for b in 0..nb_f { tables.push(hk[b * fb..(b + 1) * fb].to_vec()); }
     for b in 0..nb_f { tables.push(wdk[b * fb..(b + 1) * fb].to_vec()); }
@@ -1568,12 +1798,22 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let r_k = out.challenges; // log_fb
     let mut term = Vec::with_capacity(nb_f + nb_f * nb_d);
     for b in 0..nb_f { term.push(out.finals[b]); }
-    for b in 0..nb_f {
-        for c in 0..nb_d {
-            let blk = &w_data[lay.wd[b * nb_d + c]..lay.wd[b * nb_d + c] + wb];
-            let folded = fold_cols_base(blk, fb, db, &eq_rjp);
-            term.push(eval_mle_ext(&folded, &r_k));
+    let t_blk = Instant::now(); // [UPERF3-AL]
+    if i8fold() {
+        for folded in &d_blocks {
+            term.push(eval_mle_ext(folded, &r_k));
         }
+    } else {
+        for b in 0..nb_f {
+            for c in 0..nb_d {
+                let blk = &w_data[lay.wd[b * nb_d + c]..lay.wd[b * nb_d + c] + wb];
+                let folded = fold_cols_base(blk, fb, db, &eq_rjp);
+                term.push(eval_mle_ext(&folded, &r_k));
+            }
+        }
+    }
+    if cv {
+        eprintln!("[UPERF3-AL] fold d  l{:02}: pre (eq + i32 row / i8 col folds) {:.4} | {} w_data blocks {:.4}", w.l, s_d_pre, nb_f * nb_d, t_blk.elapsed().as_secs_f64());
     }
     proof.d_term = term;
     tr.absorb_fp2(b"d-term", &proof.d_term);
@@ -1744,18 +1984,19 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
         // [UPERF3-AF] ONE batched compact opening of the three commitments
         proof.cpcs_open = Some(pcs_compact::open_batch(&[(w_cm.compact(), &w_claims), (a_cm.compact(), &a_claims), (h_cm.compact(), &h_claims)], tr));
         drop(w_cm);
-        drop(w_data);
+        hostbuf::give(hostbuf::W, w_data); // [UPERF3-AL] was drop(w_data)
         drop(a_cm);
         drop(h_cm);
     } else {
         proof.w_open = pcs::open(w_cm.lig(), &w_claims, tr);
         drop(w_cm);
-        drop(w_data);
+        hostbuf::give(hostbuf::W, w_data); // [UPERF3-AL] was drop(w_data)
         proof.a_open = pcs::open(a_cm.lig(), &a_claims, tr);
         drop(a_cm);
         proof.h_open = pcs::open(h_cm.lig(), &h_claims, tr);
         drop(h_cm);
     }
+    hostbuf::give(hostbuf::A, a_data); // [UPERF3-AL]
     lap("pcs openings", &mut timings, &mut tick);
     ProveOutputV3 { proof, timings }
 }
