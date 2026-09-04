@@ -12685,3 +12685,147 @@ TARGET: design 1 above — a mode selector so ONE binary produces both
 products, and the first measured 8B row for each. P1's row must stay
 byte-identical to 930ce9a0..; P3 is a new statement and gets its own
 digest, its own tamper legs, and an honest per-proof cost against P1.
+
+## Agent AM status (wt-uperf3-am) — round 15
+
+(lane appends below)
+
+### AM rung 0 — THE OUTPUT-PRIVACY QUESTION (asked ahead of everything else), the mode design, and the baseline (2026-09-04)
+
+**THE QUESTION (Victor, via the orchestrator): under `--zk` today, does the
+statement publish the OUTPUT tensor values in the clear?
+TARGET_CONTRACT.md §3 says the "declared output tensor values" are public;
+U_PERF3_ROUTE_B_THROUGHPUT.md §4.5 puts activations — the output is one —
+in P1's private set. Which is it, from the code and from a real proof?**
+
+**THE ANSWER: NO. Nothing of the output tensor is in the statement — the
+statement carries no tensor values at all, of any kind, input or output.
+The contract's §3 line does not describe what this prover proves.**
+
+The evidence, in code (`hashline/src/layer.rs`, read-only for this lane;
+line numbers on the round-15 tree):
+
+    pub struct StatementV3 {           // layer.rs:1125
+        pub l: usize, pub t_rows: usize, pub d: usize, pub f: usize,
+        pub shifts: (i32, i32, i32, i32),
+        pub act: Act16Fn, pub table: [i16; 256], pub table_digest: String,
+    }
+    pub struct Statement {             // layer.rs:40 (the v2 statement)
+        pub l: usize, pub t_rows: usize, pub shifts: (u32, u32, u32, u32),
+        pub table: [i8; 256], pub table_digest: String,
+    }
+
+Eight fields, all of them shape or quantization metadata: the layer index,
+the token count, (d, f), the four signed requant shifts, the frozen
+activation table and its digest. There is no X, no z16, no digest of
+either. `zk.rs`'s `absorb_statement_v3` absorbs exactly those fields and
+then the mode tag; `bin/hashline.rs`'s `stmt_v3(w, t)` builds the statement
+from the witness by copying exactly those fields and nothing else; and
+`verify_layer_zk_v3(st, proof, params, ntt, tr)` reads only `st` and the
+proof bytes. So the verifier is never handed an output value to compare
+against, and there is no code path by which one could reach it.
+
+WHERE THE OUTPUT ACTUALLY LIVES: the output plane z16 (and its remainder
+plane rd) are rows of the **A commitment**, which under `--zk` is
+`pcs::commit_zk_owned` — ZA's hiding form: Q = 256 uniform pad symbols per
+row on the coset 7·G_4n (no systematic position is ever opened), salted
+Merkle leaves, and a mask row at every opening site, so each opened claim
+is the two-part masked claim (1 − e)·T~(p) + e·R~(tail p) with R a fresh
+uniform row. Every evaluation of z16 that leaves the prover is that masked
+combination; the terminals are `masked_terminal(...)`; the clear vectors
+are `rho^T[M | pads]` with the mask rows inside rho. That is exactly the
+treatment every other activation gets — the output is not a special case
+and gets no weaker protection.
+
+WHAT THE VERIFIER THEREFORE LEARNS, stated precisely (mode P1 today):
+"there exist activations, committed under the root `a_com`, consistent
+with the public weights, these shapes, these shifts and this activation
+table, satisfying every layer identity, every range/lookup fact and the
+requant identities." It does NOT learn the input, the output, or any
+intermediate value. Consequently:
+
+* A deployment declaring "inputs and outputs private" under `--zk` is
+  making a claim its statement SUPPORTS, not one it contradicts. Victor's
+  fast-tier phrasing ("ZK for inputs and outputs, weights public") is what
+  the code does.
+* `TARGET_CONTRACT.md` §3's "the declared output tensor values" is the
+  line that is out of date. Not this lane's file to edit — reported here
+  for Victor's ruling. `U_PERF3_ROUTE_B_THROUGHPUT.md` §4.5 is the one
+  that matches the build.
+
+**THE NUANCE THAT IS THE REAL FINDING, and it cuts the other way.** The
+output is hidden — but it is also not BOUND to anything a verifier could
+name. Two gaps, both stated as findings, neither fixed by this lane:
+
+1. **No declared output commitment.** z16 is committed, but only as some
+   rows of A, fused with the input X, the seven intermediate f-planes, the
+   remainders and the multiplicity tables under one root. A deployment
+   that wants "this model, on the committed input C_in, produced the
+   committed output C_out" — so that C_out can be matched later against a
+   served response, or fed to the next stage — has no such object to point
+   at. The honest fix is a per-layer declaration in the statement naming
+   the (slice, root) that carries X and z16, or a small separate
+   commitment to each with a claim tying it to A's rows. That is a
+   statement change: it moves proof bytes and would break the frozen
+   digests, so it is a ruling, not a lane decision.
+2. **No cross-layer value binding.** `pass_zk_v3` proves n independent
+   layer statements that share ONE Fiat-Shamir transcript. The shared
+   transcript orders them and stops a proof being reused out of place; it
+   does NOT assert that layer l's z16 equals layer l+1's X. The witnesses
+   are chained OUTSIDE the proof (`chain --profile v3` re-executes the
+   chain and reproduces every plane digest — ZB's rung 2), which is a
+   prover-side check, not something the verifier is shown. So "the model
+   ran end to end" is today an argument about how the witness was built,
+   not a proven statement. Same class of ruling: fixing it means the
+   statement (or a claim) grows.
+
+**What the trade in the orchestrator's question (2) would have been, had
+the answer been yes** — recorded because the answer being "no" is only
+half the story, and (1) above is the same trade under another name.
+Binding the output as a commitment instead of a value: the verifier can
+still check every internal identity, the ranges, the lookups, the requant
+rounding and (given the same committed input) the determinism of the pass;
+it can no longer check the output against anything it holds — it must
+receive the opening later, or compare C_out with a commitment produced by
+someone it trusts. The privacy is real and the loss is real: a verifier
+alone can no longer answer "did the model output THIS", only "the output
+is whatever is inside C_out".
+
+**MODE (3): THE DECLARATION NAMES THE PRIVATE SET, AND IT IS IN THE
+TRANSCRIPT.** The mode already rides in the statement: `zk.rs` absorbs
+`tr.absorb(b"zk", b"P1-v3")` (line 1914, prover; 2766, verifier) right
+after the statement fields, before any challenge. Two consequences that
+are exactly what the design note asks for: the mode is part of the
+Fiat-Shamir domain, so every challenge in the proof depends on it, and a
+verifier that checks with the wrong mode diverges at the first challenge
+and REJECTS. **A P1 proof therefore cannot be presented as a P3 one, and a
+P3 proof cannot be checked as P1.** This lane's additions:
+
+* the P3 tag is `P3-v3/priv=in+act+out+weights/pub=shape+shifts+tabdigest`
+  — the wire tag itself names the private set, so a P3 proof is
+  self-describing from the first byte of its transcript;
+* the P1 tag stays `P1-v3` byte for byte (the round-13/14 gates
+  `40eb5479..` and the 8B row `930ce9a0..` freeze it), and prover and
+  verifier both PRINT the mode line naming P1's private set exactly:
+  private = {X, every activation plane incl. the output z16, the
+  remainders, the multiplicities}; public = {W, shapes, shifts, the
+  activation-table digest};
+* `verify_layer_zk_v3` takes the mode as an argument — the verifier is
+  TOLD which privacy claim it is checking, and cannot infer it from
+  prover-supplied bytes.
+
+**THE PLAN FOR THE REST OF THE LANE** (design 1 of the 2026-09-05 ruling):
+P3 = W committed with `pcs::commit_zk_owned` (fresh pads, salted leaves,
+fresh per proof), W mask rows at both of its opening sites — one per W
+BLOCK terminal, because a single shared mask row would leave block
+differences in the clear — the matmul W terminals masked exactly as A's
+are (the sumcheck's extension round already carries the selector: set the
+W tables' `exts` to the combined mask evaluation and the verifier's `want`
+absorbs the (1 − e) factor), and `--wcache` REFUSED, loudly, because a
+cached hash commitment reveals 256 encoded columns per proof and is
+recoverable after ~65 proofs (lane ZZ §1). v2 keeps P1 only.
+
+**BASELINE** [WSL-BOX] [8T] [NOISY-SHARED — lane AL is building] the four
+byte gates on both binaries of THIS tree, and the P1 8B row's digest
+re-confirmed here: results/am_r0_floors.log (see the next rung for the
+verdict; the run is detached under the heavy lock with a `.done` marker).
