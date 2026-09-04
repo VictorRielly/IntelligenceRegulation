@@ -61,29 +61,63 @@ AND THE CULPRIT IS NOT THE ONE THE LEDGER NAMED):**
   - **VERIFY DOES NOT MOVE** — 1.99 s vs P1's 2.02 s. Hiding the weights
     costs the verifier NOTHING. For a deployed product this is the line
     that matters most.
-  - **`commit W` IS 43.6% OF THE PROVE** (217.694 s of 499.04, vs P1's
-    46.978 s with device + cache). The full tier's whole structural cost
-    is ONE phase — exactly the phase the declined 5,387 MB device
-    commitment would take. **A 16 GB+ board attacks 43.6% of this row
-    directly.** Sharpest statement yet of what the 5090 buys the full
-    tier.
-  - PRIVACY: **ZERO runs of >= 100 consecutive int8-class words in
-    160,959,824.** A weight column is a run; there is none. Caveat kept
-    honest in the ledger: the raw class counts (148 int8-class, 10,323
-    int16-class) are NOT rung 2's clean zero and do not scale from it —
-    most likely serialization metadata, but NOT YET DEMONSTRATED.
-  - Do NOT read 238 -> 499 s as P3's surcharge: the arms differ on mode
-    AND device. P3's structural cost at 8B is still unmeasured.
   - Operational: leaving `HL_GPU=1` when the device commit cannot fit
     costs **~25%** (19.6/20.5 s per declining layer vs ~15.3 s with the
     GPU off) — launch a P3 pass with `HL_GPU` UNSET, do not merely let
     it decline. And max RSS is **13.97 GB on a 15 GB box**: nothing may
     run beside the full tier at 8B.
-- **IN FLIGHT**: `results/am_r3_8b_p1_scan_cpu.sh` on lane AM — the
-  MISSING P1 BASELINE for the clear-value scan, on the CPU path. Rung
-  3's original script deleted `8b-p1.proof` before scanning it, so the
-  8B privacy row currently has only the P3 side. This settles whether
-  the 148 is metadata. Marker `results/am_r3_8b_p1_scan_cpu.done`.
+- **THE ONE-AXIS ANSWER, AND IT IS THE HEADLINE: HIDING THE WEIGHTS
+  COSTS UNDER 3%** (32fbad7). The P1 baseline on the SAME CPU path,
+  same binary, seed and shape — mode the ONLY variable:
+
+  | | P1 (public W) | P3 (private W) | cost of hiding |
+  |---|---:|---:|---:|
+  | PROVE | 485.33 s | 499.04 s | **+2.82%** |
+  | `commit W` | 214.337 s | 217.694 s | **+1.57%** |
+  | VERIFY | 1.95 s | 1.99 s | +2.1% |
+  | bytes | 1,285,578,368 | 1,287,678,592 | **+0.163%** |
+
+  **The privacy tier is not a different regime; it is a rounding error
+  on the same argument.** Round 14's ruling-grade +178% was ZK vs
+  NON-ZK — a DIFFERENT step. Once you are already paying for ZK,
+  hiding the weights too is nearly free.
+- **THIS CORRECTED AN EARLIER CLAIM IN THIS SAME BLOCK.** It said
+  `commit W` was "the full tier's structural cost, 43.6% of the prove",
+  comparing 217.694 s to P1's **46.978 s** — but that was P1 ON THE GPU
+  WITH THE CACHE, i.e. the two-axis trap. On one axis P1's `commit W` is
+  **214.337 s**. `commit W` is ~44% of the prove **in BOTH modes**: it
+  is the cost of committing the weights at all, NOT of hiding them.
+- **THE HARDWARE ARGUMENT, RESTATED CORRECTLY AND MORE SHARPLY**: the
+  16 GB+ board is what makes sub-3% the **DEPLOYED** figure instead of a
+  CPU-path figure. On a GPU P1 reaches the device (`commit W` 46.978 s —
+  a **4.6x on 44% of the prove**) and P3 cannot get on it at all at this
+  width (`cuMemAlloc(5387 MB)` on 8,188 MB). **The full tier is already
+  nearly free in principle; only the card stands between that and
+  practice.**
+- **THE PRIVACY CLAIM AT 8B IS NOW TWO-SIDED AND DECISIVE:**
+
+  | | P1 | P3 |
+  |---|---:|---:|
+  | int8-class words | 13,845,980 | **148** |
+  | runs of >= 100 | 1,009 | **0** |
+  | words inside runs | 10,848,770 | **0** |
+
+  **93,554x**, and the structure names itself: P1's run lengths are
+  `[(10752, 1007), (10753, 2)]` — 1,007 runs of EXACTLY 10,752 — and the
+  W commitment is **10,752 DATA rows**. Those runs ARE the weight
+  columns, lying in the P1 proof in full, one per opened position. P3
+  removes every one. The 148 caveat is RETIRED: it is one ten-thousandth
+  of one percent of the P1 count with no run structure.
+- **A GATE PASSED ON THE WAY: the CPU and GPU paths agree BYTE FOR BYTE
+  at 8B.** The baseline ran on the CPU and produced `930ce9a0..` /
+  1,285,578,368 B — the same digest the GPU gave this morning and the
+  same one lane AI recorded in round 14. **Three reproductions, two
+  device paths, two trees.**
+- **LANE AM's CHARTER IS MET** ("one binary produces both products, and
+  the first measured 8B row for each; P1 byte-identical to 930ce9a0..;
+  P3 with its own digest, its own tamper legs, and an honest per-proof
+  cost against P1"). **AM is ready to merge and it is the only unmerged
+  lane — merging it closes round 15.**
 - **THE TELEGRAM ROUTER WAS DEAD ALL BOOT, and would have been every
   boot.** `tg-router`'s pidfile check was existence-only, and after a
   reboot the low pids are handed straight back out — pid 1200 had been
