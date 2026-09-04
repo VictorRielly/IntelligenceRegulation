@@ -9315,18 +9315,166 @@ form keep ZA's pads/masks? what changes?).
 
 (lane appends below)
 
-### AD rung 2 — the 12x512 v3 ZK pass, CPU == GPU (2026-09-03) [IN FLIGHT]
+### AD rung 2 — the 12x512 v3 ZK pass, CPU == GPU, the eight legs (2026-09-03)
 
-- THE NEW GATE (`pass 12 512 --zk --seed 1 --profile v3 --export
+- **THE NEW GATE** (`pass 12 512 --zk --seed 1 --profile v3 --export
   results/m8b_test/m125_v3_export --threads 8 --proof-out`):
 
       sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17
       87,697,008 B [ZK v3 seed 1]
 
-  from the CPU-only binary AND from the gpu-cuda binary with
-  `HL_GPU=1` — byte-identical. ACCEPT on both.
-- First runs [WSL-BOX] [8T] [NOISY-SHARED: load average 15+, three
-  other lanes building and running]: CPU PROVE 17.87 s / VERIFY
-  0.41 s / RSS 1.26 GB; GPU PROVE 5.63 s / VERIFY 0.44 s / RSS
-  0.53 GB / VRAM peak 4.44 GB.
-- (the timing ladder and the tamper legs follow in the rung-2 record)
+  from the CPU-only binary (3 runs) AND from the gpu-cuda binary with
+  `HL_GPU=1` (3 runs); `cmp` of the written files agrees. ACCEPT on
+  both. 3x16: `4d9f7632..` (10,272,540 B) CPU and GPU (rung 1's,
+  reconfirmed); seed 2 at 3x16 `ff8cbbd3..` — a different proof of the
+  same statement, the same size.
+- **THE THREE OLD GATES, re-run on this tree at this rung, CPU and
+  GPU: UNCHANGED.** v2 `50cf7bdfd6b5b182..` (66,844,928 B, CPU 15.16 s
+  / GPU 2.53 s), v3 `5f368db6240e0614..` (70,758,084 B, CPU 15.76 s
+  p50 / GPU 2.75 s p50), zk-v2 `021485e4f80ec695..` (87,228,528 B, CPU
+  17.42 s / GPU 3.98 s).
+- The ladder [WSL-BOX] [8T] [GPU|CPU] [NOISY-SHARED — and noisy for
+  real: lanes AC/AE/AF built and ran throughout, load average 5-21,
+  three of these runs queued 5-13 min on `flock /tmp/zk-heavy.lock`],
+  `/usr/bin/time -v`, 3 runs each:
+
+  | row | PROVE p50 | VERIFY | bytes | RSS | VRAM |
+  |---|---:|---:|---:|---:|---:|
+  | CPU zk-v3 (17.87/18.41/18.64) | **18.41 s** | 0.43 s | 87,697,008 | 1.27 GB | — |
+  | CPU v3 non-zk (15.58/16.13/15.76) | 15.76 s | 0.29 s | 70,758,084 | 1.21 GB | — |
+  | GPU zk-v3 (5.63/4.63/6.15) | **5.63 s** | 0.54 s | 87,697,008 | 0.53 GB | 4.44 GB |
+  | GPU v3 non-zk (3.04/2.75/2.63) | 2.75 s | 0.31 s | 70,758,084 | 0.42 GB | 2.43 GB |
+
+  ZK surcharge on v3: CPU +16.8% prove / +23.9% bytes / +5.0% RSS;
+  GPU +105% / +23.9% / +25% RSS / +83% VRAM. zk-v3 over zk-v2: CPU
+  +5.7%, **bytes +0.54% (+468,480 B)** — the widened statement is not
+  more expensive to HIDE.
+- **THE FINDING (and the one lever).** The table zero-check runs ON THE
+  HOST (ZA built it there; the device port was a listed, unapplied
+  lever). At v3 it is a sumcheck over **2^16** variables — the INT16
+  class alone is 4 rows of m, 4 of its mask, 8 of its Fp2 helper and 8
+  of that helper's mask — and costs **1.14 s on the GPU run: 20% of
+  the whole GPU prover, and +0.90 s of the +1.65 s that zk-v3 costs
+  over zk-v2** (on the CPU the same phase is 1.26 vs 0.40 s, +0.86 of
+  +0.99 s — the same absolute work, invisible against a 15 s CPU
+  baseline). Porting it to lane XX's device kernels is byte-preserving
+  and would put the GPU zk-v3 prover back at ~4.7 s. NOT done here.
+- **THE EIGHT LEGS, at T = 512, under `--zk`, on BOTH provers**
+  (`layer L 512 --zk --seed 1 --profile v3 ... --all-tampers`), at
+  **layer 0** (shifts 9/1/14/10) and at **layer 3** (8/-1/14/9, the
+  exact up-scaling branch): 8/8 REJECT each time, `GREEN` four times.
+  The split is ZA's: flipped X, flipped Wg, wrong requant (h16) and
+  wrong z die at `sumcheck round 0: s(0) + s(1) != claim`; the four
+  LOOKUP legs (out-of-range remainder, wrong int16 table entry, WRONG
+  ROUNDING, out-of-range int16) die at `H: pcs zk: group 4: <v, c> !=
+  combined claim` — the value-0 LogUp sum claim, where the non-zk
+  verifier rejected in clear text. Identical rejection strings CPU and
+  GPU. The two legs v3 adds over v2 are both lookup legs and both are
+  caught at layer 3 as well: the negative-shift branch is inside the
+  masked form, not beside it. Pass-level: `pass 12 512 --zk --seed 1
+  --profile v3 --tamper requant` -> `layer 6: REJECT: sumcheck round 0`
+  on CPU and GPU.
+
+### AD rung 3 — ONE Mistral-7B layer in zero knowledge at T = 512 (2026-09-03)
+
+`layer 0 T --zk --seed 1 --profile v3 --export
+results/m8b_mistral_v3_export --threads 8`, d 4096, f 14336, log_cols
+14; statement shifts 11/2/15/6, member `silu-int16out-table-v3`
+(-3,-12) 859344ba5ed57bd3.. `free -g` showed 13 GB available at the
+start (below the 14 the brief asked for), so the T = 256 pair was run
+first as the safe rung; T = 512 then fitted with ~1.7 GB to spare and
+**no swapping** (`Swaps: 0`). [WSL-BOX] [8T] [CPU] [NOISY-SHARED]:
+
+| row | PROVE | VERIFY | bytes | RSS |
+|---|---:|---:|---:|---:|
+| **T=512 ZK CPU (18.67/15.14/15.73)** | **15.73 s p50** | 0.056 s | **40,186,228** | **13.29 GB** |
+| T=512 non-zk v3 CPU (15.40/14.65/15.02) | 15.02 s p50 | 0.038 s | 38,688,700 | 13.17 GB |
+| **surcharge** | **+4.7%** | +0.018 s | **+3.9%** | **+0.9%** |
+| T=512 ZK `HL_GPU=1` | 17.01 s | 0.053 s | 40,186,228 | 10.13 GB |
+| T=256 ZK CPU (1 run, quiet window) | 11.80 s | 0.046 s | 33,566,932 | 10.40 GB |
+| T=256 non-zk v3 CPU (1 run) | 15.64 s | 0.045 s | 32,069,404 | 10.28 GB |
+
+ACCEPT on every row. (The T = 256 ZK run is FASTER than its own
+baseline — one run each, a quiet window; that is the box, not a
+discovery. Read the T = 512 triples.)
+
+**THE READING — the important result of this lane.** At 125M the P1 ZK
+form costs +17% prover / +24% bytes; at 8B WIDTH it costs **+4.7% /
++3.9%**, back inside U_PERF3_ROUTE_B_THROUGHPUT.md's [COUNTED] +2-8% /
++1-8% band that the 125M measurement had blown through. Structural,
+not lucky: mode P1 hides the activations and leaves the WEIGHTS
+public, and as the model widens the prover and the proof are dominated
+by the weight commitment (6.6-9.1 s of a 15 s prover) and its 256-
+column openings (~22 MB of a 39 MB proof), neither of which the ZK
+form touches; the masked objects grow with T x (d + f), not d x f.
+**The P1 surcharge shrinks as the model grows.** The 32 x 512 8B pass
+in mode P1 therefore models to **~534 s / ~1,283 MB** [MODEL, this
+one-layer ratio x 32] against the measured 510.4 s / 1,234.9 MB in the
+clear — the 8B FFN proof is affordable in zero knowledge on this
+laptop today.
+
+**The GPU at the 8B shape**, as the brief anticipated: `HL_GPU=1`
+DECLINES the weight commitment —
+`[UPERF3-XX] gpu commit declined (cuMemAlloc(5376 MB):
+DriverError(CUDA_ERROR_OUT_OF_MEMORY, "out of memory")); CPU path` —
+and falls back to the host for W (8.07 s) while the ACTIVATION side
+does run on the device (commit A 0.98 s vs 2.88 s on the host); the
+two zero-checks stay on the host by design at this block shape (nb_f
+7, nb_d 1). Net 17.01 s, no faster than CPU-only, same proof bytes.
+**Lane AC's chunked/streamed W encoding is not in this lane's base** —
+composing it with this ZK path is a base change and an untaken
+measurement.
+
+### AD rungs 4-5 — the surcharge table, the §3 row, the record (2026-09-03)
+
+- The surcharge table is rung 2's ladder plus rung 3's rows, all on
+  THIS tree in THIS session (so the four channels are comparable):
+
+  | statement / form | CPU prove | GPU prove | bytes |
+  |---|---:|---:|---:|
+  | v2 non-zk | 15.16 s | 2.53 s | 66,844,928 |
+  | v3 non-zk | 15.76 s | 2.75 s | 70,758,084 |
+  | ZK v2 (ZA's form) | 17.42 s | 3.98 s | 87,228,528 |
+  | **ZK v3 (this lane)** | **18.41 s** | **5.63 s** | **87,697,008** |
+  | ZB's v3 record (quieter box) | 17.40 s | 2.74 s | 70,758,084 |
+  | ZA's v2 ZK record (quieter box) | 16.55 s | 3.93 s | 87,228,528 |
+  | **Mistral-7B layer 0, T=512, ZK v3** | **15.73 s** | 17.01 s (W declined) | **40,186,228** |
+  | Mistral-7B layer 0, T=512, non-zk v3 | 15.02 s | — | 38,688,700 |
+
+- results/hashline_zk_v3_12x512.md written in the form of
+  results/hashline_zk_12x512.md (what is proven / hidden / STILL
+  REVEALED, the one structural addition, the gate block, the
+  enumerated v3 opening sites as the driver prints them, the runs, the
+  phases, the legs, the 8B row, the soundness parameters, the
+  uniformity test, the commands).
+- docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md §3: two ZK-v3 rows in
+  the main table (GPU and CPU), a ZK 8B-layer row next to the 8B row,
+  and the "Lane AD JOINED THE TWO" paragraph.
+- **WHAT MODE P1 NOW COVERS at the 8B semantics**: one FFN layer and a
+  12-layer FFN pass of the WIDENED (v3) statement — the statement the
+  8B proof runs — with the inputs and every activation private, on the
+  laptop CPU and (at 125M) byte-identically on the laptop GPU.
+  **STILL REVEALED**: the weights and the entire W opening (mode P1 by
+  definition; private weights are T18); the shapes and the block
+  structure; the four SIGNED shifts, which publish the remainder
+  windows' sizes; the table digests and the activation member's family
+  name; the uniform masked values. **Outside the statement entirely**:
+  attention, the norms, the embeddings, the head and the layer seams
+  (X_l is still committed fresh per layer — lane AE's build). ZA's
+  simulator caveat is inherited unchanged: per-object uniformity is
+  what is established (the uniformity test + the run-time site
+  assertion), not a composed simulator for the chained transcript.
+- Suites at close: `cargo test --release` 28/28 green.
+  `python3 -m unittest discover -s tests` 81 tests, 12 skipped, **1
+  pre-existing environment error**: `ring_matmul freeze-check` aborts
+  at the m125-export section because `results/m125_ffn_export/*.bin`
+  is gitignored and **the WSL box has no m125 export (Mac-only rig)**
+  — 102 freeze rows pass before it, the binary is zkmatrix-rs
+  (READ-ONLY, untouched by this lane), and the condition is present in
+  every worktree on this box. Not a regression from this work.
+- NOT DONE / next: the table zero-check on the device (the one
+  byte-preserving lever, ~-0.9 s GPU); the composition with lane AC's
+  chunked W encoding for a GPU 8B ZK row; the 32 x 512 8B pass under
+  `--zk` (measured, not modelled); ZA's other listed levers (DIF/DIT
+  NTT for the ZK encode, folding the matmul terminals back into the
+  zero-checks) still unapplied.
