@@ -925,6 +925,49 @@ pub fn dev_reserve(lens: &[usize]) -> Result<(), String> {
     Ok(())
 }
 
+/// [UPERF3-AI] (free, total) device memory in BYTES, plus how many buffers
+/// the pool is holding — for the ZK prover's VRAM accounting at 8B width.
+pub fn dev_mem_info() -> Option<(usize, usize, usize)> {
+    let held = POOL.lock().unwrap().len();
+    cu::mem_get_info().ok().map(|(free, total)| (free, total, held))
+}
+
+/// [UPERF3-AI] Free every buffer the pool is holding and report how many.
+///
+/// The pool matches by EXACT length, so buffers from a layer whose row
+/// counts differ by even one row are dead weight that no later allocation
+/// can reuse. The ZK prover's per-layer row counts DO differ (each layer's
+/// signed shifts give different remainder-window sizes, hence different
+/// table rows in A and H — measured: Mistral layer 0 commits H with 3033
+/// rows, layer 1 with 3028), and at 8B width one layer's commitments
+/// already fill an 8 GB part, so carrying the previous layer's pooled
+/// buffers into the next one is what makes layer 1 fail. Draining is
+/// value-neutral: a pooled buffer holds nothing live (every element a
+/// kernel reads is written first); the only cost is the first-touch price
+/// of the next allocation of each size.
+pub fn dev_pool_drain() -> usize {
+    let n = {
+        let mut pool = POOL.lock().unwrap();
+        let n = pool.len();
+        pool.clear();
+        n
+    };
+    // THE DRIVER FREES ASYNCHRONOUSLY on this box, and that is the whole trick: measured with
+    // `dev_mem_info` at Mistral width, dropping 2.5 GB of pooled buffers left `cuMemGetInfo`
+    // reporting the SAME 494 MiB free, and the memory only appeared several allocations later.
+    // Without this synchronize the next big allocation (the H commit's rows x nn buffers) sees
+    // a full card and either fails outright or is served by WSL's host-memory paging, which is
+    // what made layer 1 of the 32-layer pass 2.7x slower than layer 0 (and, in another run,
+    // panic). Syncing is value-neutral: it only waits for work already enqueued.
+    if n > 0 {
+        if let Some(g) = gpu() {
+            let g = g.lock().unwrap();
+            let _ = g.dev.synchronize();
+        }
+    }
+    n
+}
+
 /// [UPERF3-AI] `dev_reserve` that, when the device cannot serve the request,
 /// DRAINS the buffer pool and tries once more.
 ///
@@ -943,12 +986,7 @@ pub fn dev_reserve_hard(lens: &[usize]) -> Result<(), String> {
     match dev_reserve(lens) {
         Ok(()) => Ok(()),
         Err(first) => {
-            let freed = {
-                let mut pool = POOL.lock().unwrap();
-                let n = pool.len();
-                pool.clear();
-                n
-            };
+            let freed = dev_pool_drain();
             if verbose() {
                 eprintln!("[UPERF3-AI] reserve failed ({first}); drained {freed} pooled buffers and retrying");
             }

@@ -1,0 +1,30 @@
+=== GPU: pass 4 512 --zk --seed 1 --profile v3 (Mistral-7B) ===
+2026-09-04 00:00:18
+  layer  0: prove 5.244 s, 40186228 B
+  layer  1: prove 8.848 s, 40173940 B
+  layer  2: prove 8.440 s, 40173940 B
+  layer  3: prove 8.225 s, 40173940 B
+prover phases (summed over layers):
+  gpu device-side (summed): h2d 2.171 s (7628 MB) | ntt 13.334 s | hash 0.974 s | sumcheck 1.056 s | fold 0.603 s | helpers 2.117 s | d2h 0.000 s (183 MB) | vram peak 8585 MB
+PROOF sha256 9f2f35a383295118256f70086034efa433ed42bcc109e9182fe98ccd5ea38549 (160708048 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 4 x 512 (d 4096 f 14336): witness load+chain 15.07 s | PROVE 30.76 s | VERIFY 0.23 s | proof 160708048 B (160.7 MB) | 3.608e11 MACs | 1.173e10 proven MAC/s (prove wall) | wall 46.34 s
+	Maximum resident set size (kbytes): 3092960
+
+=== CPU: the same statement, no GPU ===
+2026-09-04 00:01:08
+  layer  0: prove 20.994 s, 40186228 B
+  layer  1: prove 17.484 s, 40173940 B
+  layer  2: prove 18.405 s, 40173940 B
+  layer  3: prove 17.598 s, 40173940 B
+prover phases (summed over layers):
+PROOF sha256 9f2f35a383295118256f70086034efa433ed42bcc109e9182fe98ccd5ea38549 (160708048 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 4 x 512 (d 4096 f 14336): witness load+chain 14.83 s | PROVE 74.48 s | VERIFY 0.32 s | proof 160708048 B (160.7 MB) | 3.608e11 MACs | 4.844e9 proven MAC/s (prove wall) | wall 90.70 s
+	Maximum resident set size (kbytes): 13009160
+
+=== VERDICT ===
+2026-09-04 00:02:39
+9f2f35a383295118256f70086034efa433ed42bcc109e9182fe98ccd5ea38549  /home/victor/wt-uperf3-ai/results/scratch-ai/cmp_gpu.bin
+9f2f35a383295118256f70086034efa433ed42bcc109e9182fe98ccd5ea38549  /home/victor/wt-uperf3-ai/results/scratch-ai/cmp_cpu.bin
+/home/victor/wt-uperf3-ai/results/scratch-ai/cmp_gpu.bin 160708048 B
+/home/victor/wt-uperf3-ai/results/scratch-ai/cmp_cpu.bin 160708048 B
+BYTE-IDENTICAL: the 4-layer chained Mistral ZK proof is the same on CPU and GPU

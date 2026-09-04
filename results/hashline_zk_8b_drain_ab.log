@@ -1,0 +1,179 @@
+
+=== RUN drain (HL_ZK_DRAIN=1, 4 layers x 512, Mistral-7B, GPU, ZK v3) ===
+2026-09-03 23:49:53
+157 MiB
+pass (v3) [ZK, mode P1, seed 1]: 4 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export (d 4096 f 14336; log_cols 14, inv_rate 4, col checks 256, threads 8)
+[UPERF3-XX] gpu init: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB), NVRTC compile 3.14s
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AI] drain layer top: freed 0 pooled buffers
+[UPERF3-AC]   commit rows 10752 2^14 -> 2^16 (5637 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 10752 2^14 -> 2^16 in 11 chunks of <= 1024: ntt 0.2806 | hash 0.0389 | total 0.3253 s
+[UPERF3-AI] vram after commit W: free 5006 MiB / 8187 MiB, pool 3
+[UPERF3-XX]   ntt rows 3601 2^14 (n_src 16384, inverse true): p1 0.0334 | p2 0.0058 s
+[UPERF3-XX]   ntt rows 3601 2^16 (n_src 65536, inverse false): p1 0.1973 | p2 0.0267 s
+[UPERF3-AI] vram after commit A: free 494 MiB / 8187 MiB, pool 5
+[UPERF3-AI] reserve failed (cuMemAlloc(1168 MB): DriverError(CUDA_ERROR_OUT_OF_MEMORY, "out of memory")); drained 5 pooled buffers and retrying
+[UPERF3-AI] vram after dev_helpers: free 1614 MiB / 8187 MiB, pool 2
+[UPERF3-XX]   ntt rows 3033 2^14 (n_src 16384, inverse true): p1 0.0278 | p2 0.0049 s
+[UPERF3-XX]   ntt rows 3033 2^16 (n_src 65536, inverse false): p1 1.1565 | p2 0.3087 s
+[UPERF3-AI] drain after H: freed 4 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 1422 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 73): tables 0.0730 s | rounds 0.1061 s | folds 0.0218 s | sync/absorb 0.0022 s | total 0.2049 s
+[UPERF3-AI] vram after zcF: free 270 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^21 x 7): tables 0.0389 s | rounds 0.0164 s | folds 0.0042 s | sync/absorb 0.0012 s | total 0.0608 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0070 s
+[UPERF3-AC]   chunked re-encode + gather rows 10752 (11 chunks): 0.2803 s
+  layer  0: prove 5.654 s, 40186228 B
+[UPERF3-AI] drain layer top: freed 8 pooled buffers
+[UPERF3-AC]   commit rows 10752 2^14 -> 2^16 (5637 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 10752 2^14 -> 2^16 in 11 chunks of <= 1024: ntt 0.2978 | hash 0.0411 | total 0.3661 s
+[UPERF3-AI] vram after commit W: free 5006 MiB / 8187 MiB, pool 3
+[UPERF3-XX]   ntt rows 3599 2^14 (n_src 16384, inverse true): p1 0.0326 | p2 0.0059 s
+[UPERF3-XX]   ntt rows 3599 2^16 (n_src 65536, inverse false): p1 0.1997 | p2 0.0266 s
+[UPERF3-AI] vram after commit A: free 494 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 0 MiB / 8187 MiB, pool 7
+[UPERF3-XX]   ntt rows 3029 2^14 (n_src 16384, inverse true): p1 0.6270 | p2 0.0831 s
+[UPERF3-XX]   ntt rows 3029 2^16 (n_src 65536, inverse false): p1 2.9231 | p2 0.3365 s
+[UPERF3-AI] drain after H: freed 9 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 1390 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 73): tables 0.0991 s | rounds 0.1480 s | folds 0.1387 s | sync/absorb 0.0018 s | total 0.3904 s
+[UPERF3-AI] vram after zcF: free 238 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^21 x 7): tables 0.0151 s | rounds 0.0159 s | folds 0.0038 s | sync/absorb 0.0010 s | total 0.0359 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0045 s
+[UPERF3-AC]   chunked re-encode + gather rows 10752 (11 chunks): 0.2707 s
+  layer  1: prove 9.132 s, 40173940 B
+[UPERF3-AI] drain layer top: freed 8 pooled buffers
+[UPERF3-AC]   commit rows 10752 2^14 -> 2^16 (5637 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 10752 2^14 -> 2^16 in 11 chunks of <= 1024: ntt 0.2869 | hash 0.0392 | total 0.3338 s
+[UPERF3-AI] vram after commit W: free 5006 MiB / 8187 MiB, pool 3
+[UPERF3-XX]   ntt rows 3599 2^14 (n_src 16384, inverse true): p1 0.0334 | p2 0.0058 s
+[UPERF3-XX]   ntt rows 3599 2^16 (n_src 65536, inverse false): p1 0.2031 | p2 0.0261 s
+[UPERF3-AI] vram after commit A: free 494 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 0 MiB / 8187 MiB, pool 7
+[UPERF3-XX]   ntt rows 3029 2^14 (n_src 16384, inverse true): p1 0.3763 | p2 0.0768 s
+[UPERF3-XX]   ntt rows 3029 2^16 (n_src 65536, inverse false): p1 2.3722 | p2 0.2900 s
+[UPERF3-AI] drain after H: freed 9 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 1390 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 73): tables 0.0962 s | rounds 0.1061 s | folds 0.0187 s | sync/absorb 0.0019 s | total 0.2254 s
+[UPERF3-AI] vram after zcF: free 238 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^21 x 7): tables 0.0146 s | rounds 0.0169 s | folds 0.0038 s | sync/absorb 0.0018 s | total 0.0375 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0054 s
+[UPERF3-AC]   chunked re-encode + gather rows 10752 (11 chunks): 0.2764 s
+  layer  2: prove 8.020 s, 40173940 B
+[UPERF3-AI] drain layer top: freed 8 pooled buffers
+[UPERF3-AC]   commit rows 10752 2^14 -> 2^16 (5637 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 10752 2^14 -> 2^16 in 11 chunks of <= 1024: ntt 0.2851 | hash 0.0393 | total 0.3318 s
+[UPERF3-AI] vram after commit W: free 5006 MiB / 8187 MiB, pool 3
+[UPERF3-XX]   ntt rows 3599 2^14 (n_src 16384, inverse true): p1 0.0328 | p2 0.0058 s
+[UPERF3-XX]   ntt rows 3599 2^16 (n_src 65536, inverse false): p1 0.2042 | p2 0.0266 s
+[UPERF3-AI] vram after commit A: free 494 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 0 MiB / 8187 MiB, pool 7
+[UPERF3-XX]   ntt rows 3029 2^14 (n_src 16384, inverse true): p1 0.3805 | p2 0.0781 s
+[UPERF3-XX]   ntt rows 3029 2^16 (n_src 65536, inverse false): p1 2.3691 | p2 0.3335 s
+[UPERF3-AI] drain after H: freed 9 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 1390 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 73): tables 0.0972 s | rounds 0.1477 s | folds 0.1220 s | sync/absorb 0.0020 s | total 0.3712 s
+[UPERF3-AI] vram after zcF: free 238 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^21 x 7): tables 0.0156 s | rounds 0.0163 s | folds 0.0040 s | sync/absorb 0.0012 s | total 0.0374 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0050 s
+[UPERF3-AC]   chunked re-encode + gather rows 10752 (11 chunks): 0.2713 s
+  layer  3: prove 8.342 s, 40173940 B
+prover phases (summed over layers):
+      commit W                      5.971 s
+      commit A (zk)                 3.005 s
+      mask commit                   0.028 s
+      helpers + commit H (zk)      17.098 s
+      matmul g/u (zk)               0.743 s
+      matmul d (zk)                 0.550 s
+      zero-check F (zk)             1.221 s
+      zero-check D (zk)             0.184 s
+      table zero-check (zk)         0.241 s
+      zsum + mask open              0.016 s
+      pcs openings (zk)             2.092 s
+mask sites (v3; layer 0 — every layer identical in structure up to its window sizes):
+      layout: n = 2^14 columns; table zero-check over 2^16 (the INT16 class spans 4 rows); A 3601 rows = 3520 data + 61 masks + 20 table/mask rows; H 3033 rows = 2944 data + 49 masks + 40 helper/mask rows
+      A masks: 49 f-planes (g8,rg,a16,u16,ru,h16,rh x 7 f-blocks) at rho_F -> rows [3520, 3521, 3522, 3523, 3524, 3525, 3526, 3527, 3528, 3529, 3530, 3531, 3532, 3533, 3534, 3535, 3536, 3537, 3538, 3539, 3540, 3541, 3542, 3543, 3544, 3545, 3546, 3547, 3548, 3549, 3550, 3551, 3552, 3553, 3554, 3555, 3556, 3557, 3558, 3559, 3560, 3561, 3562, 3563, 3564, 3565, 3566, 3567, 3568]; 3 d-planes (X,z16,rd x 1 d-blocks) at rho_D -> rows [3569, 3570, 3571]; X-blocks at p2 -> [3572]; h16-blocks at p5 -> [3573, 3574, 3575, 3576, 3577, 3578, 3579]; prox row 3580
+      table slot tag 3 (256 entries, 2^14 slice, 1 row(s)): m at A rows 3581.., mask at A rows 3582..; helper h_t at H rows re 2993.. im 2994.., its mask re 2995.. im 2996..
+      table slot tag 4 (65536 entries, 2^16 slice, 4 row(s)): m at A rows 3583.., mask at A rows 3587..; helper h_t at H rows re 2997.. im 3001.., its mask re 3005.. im 3009..
+      table slot tag 83 (2048 entries, 2^14 slice, 1 row(s)): m at A rows 3591.., mask at A rows 3592..; helper h_t at H rows re 3013.. im 3014.., its mask re 3015.. im 3016..
+      table slot tag 74 (4 entries, 2^14 slice, 1 row(s)): m at A rows 3593.., mask at A rows 3594..; helper h_t at H rows re 3017.. im 3018.., its mask re 3019.. im 3020..
+      table slot tag 87 (32768 entries, 2^15 slice, 2 row(s)): m at A rows 3595.., mask at A rows 3597..; helper h_t at H rows re 3021.. im 3023.., its mask re 3025.. im 3027..
+      table slot tag 78 (64 entries, 2^14 slice, 1 row(s)): m at A rows 3599.., mask at A rows 3600..; helper h_t at H rows re 3029.. im 3030.., its mask re 3031.. im 3032..
+      H masks: 21 helper planes (hg,hu,hh x 7 f-blocks) at rho_F -> rows [(2944, 2945), (2946, 2947), (2948, 2949), (2950, 2951), (2952, 2953), (2954, 2955), (2956, 2957), (2958, 2959), (2960, 2961), (2962, 2963), (2964, 2965), (2966, 2967), (2968, 2969), (2970, 2971), (2972, 2973), (2974, 2975), (2976, 2977), (2978, 2979), (2980, 2981), (2982, 2983), (2984, 2985)]; 1 hz planes at rho_D -> rows [(2986, 2987)]; zero-sum u rows (2988, 2989) (its extension mask u' (2990, 2991)) for the value-0 LogUp sum group; prox row 2992
+      A: 66 claims in 5 groups
+      A group vector 0: mask rows [3520, 3521, 3522, 3523, 3524, 3525, 3526, 3527, 3528, 3529, 3530, 3531, 3532, 3533, 3534, 3535, 3536, 3537, 3538, 3539, 3540, 3541, 3542, 3543, 3544, 3545, 3546, 3547, 3548, 3549, 3550, 3551, 3552, 3553, 3554, 3555, 3556, 3557, 3558, 3559, 3560, 3561, 3562, 3563, 3564, 3565, 3566, 3567, 3568]
+      A group vector 1: mask rows [3569, 3570, 3571]
+      A group vector 2: mask rows [3572]
+      A group vector 3: mask rows [3573, 3574, 3575, 3576, 3577, 3578, 3579]
+      A group vector 4: mask rows [3582, 3587, 3588, 3589, 3590, 3592, 3594, 3597, 3598, 3600]
+      A proximity vector: prox mask row 3580 (+ every mask row with its random rho)
+      A 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      A 65536 Merkle leaves salted
+      H: 30 claims in 5 groups
+      H group vector 0: mask rows [2944, 2945, 2946, 2947, 2948, 2949, 2950, 2951, 2952, 2953, 2954, 2955, 2956, 2957, 2958, 2959, 2960, 2961, 2962, 2963, 2964, 2965, 2966, 2967, 2968, 2969, 2970, 2971, 2972, 2973, 2974, 2975, 2976, 2977, 2978, 2979, 2980, 2981, 2982, 2983, 2984, 2985]
+      H group vector 1: mask rows [2986, 2987]
+      H group vector 2: mask rows [2988, 2989, 2990, 2991]
+      H group vector 3: mask rows [2995, 2996, 3005, 3006, 3007, 3008, 3009, 3010, 3011, 3012, 3015, 3016, 3019, 3020, 3025, 3026, 3027, 3028, 3031, 3032]
+      H group vector 4: mask rows [2988, 2989]
+      H proximity vector: prox mask row 2992 (+ every mask row with its random rho)
+      H 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      H 65536 Merkle leaves salted
+  gpu device-side (summed): h2d 2.036 s (7628 MB) | ntt 14.304 s | hash 1.145 s | sumcheck 1.386 s | fold 0.613 s | helpers 2.104 s | d2h 0.000 s (183 MB) | vram peak 8585 MB
+PROOF sha256 9f2f35a383295118256f70086034efa433ed42bcc109e9182fe98ccd5ea38549 (160708048 B) [ZK v3 seed 1]
+  proof written to /home/victor/wt-uperf3-ai/results/scratch-ai/zk8b_ab_drain.bin
+PASS-V3 ACCEPT [ZK]: 4 x 512 (d 4096 f 14336): witness load+chain 14.60 s | PROVE 31.15 s | VERIFY 0.28 s | proof 160708048 B (160.7 MB) | 3.608e11 MACs | 1.158e10 proven MAC/s (prove wall) | wall 46.33 s
+	Command being timed: "/home/victor/wt-uperf3-ai/hashline/target-gpu/release/hashline pass 4 512 --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --threads 8 --proof-out /home/victor/wt-uperf3-ai/results/scratch-ai/zk8b_ab_drain.bin"
+	User time (seconds): 137.92
+	System time (seconds): 7.57
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:49.94
+	Maximum resident set size (kbytes): 3028916
+--- exit: 0 ---
+PROOF drain: 9f2f35a383295118256f70086034efa433ed42bcc109e9182fe98ccd5ea38549  160708048 B
+
+=== RUN nodrain (HL_ZK_DRAIN=0, 4 layers x 512, Mistral-7B, GPU, ZK v3) ===
+2026-09-03 23:50:44
+157 MiB
+pass (v3) [ZK, mode P1, seed 1]: 4 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export (d 4096 f 14336; log_cols 14, inv_rate 4, col checks 256, threads 8)
+[UPERF3-XX] gpu init: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB), NVRTC compile 3.21s
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AC]   commit rows 10752 2^14 -> 2^16 (5637 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 10752 2^14 -> 2^16 in 11 chunks of <= 1024: ntt 0.3003 | hash 0.0410 | total 0.3471 s
+[UPERF3-AI] vram after commit W: free 5006 MiB / 8187 MiB, pool 3
+[UPERF3-XX]   ntt rows 3601 2^14 (n_src 16384, inverse true): p1 0.0328 | p2 0.0058 s
+[UPERF3-XX]   ntt rows 3601 2^16 (n_src 65536, inverse false): p1 0.1877 | p2 0.0266 s
+[UPERF3-AI] vram after commit A: free 494 MiB / 8187 MiB, pool 5
+[UPERF3-AI] reserve failed (cuMemAlloc(1168 MB): DriverError(CUDA_ERROR_OUT_OF_MEMORY, "out of memory")); drained 5 pooled buffers and retrying
+[UPERF3-AI] vram after dev_helpers: free 1614 MiB / 8187 MiB, pool 2
+[UPERF3-XX]   ntt rows 3033 2^14 (n_src 16384, inverse true): p1 0.0271 | p2 0.0049 s
+[UPERF3-XX]   ntt rows 3033 2^16 (n_src 65536, inverse false): p1 0.3550 | p2 0.2661 s
+[UPERF3-AI] vram after helpers+H: free 0 MiB / 8187 MiB, pool 4
+[UPERF3-XX] zero-check kind 0 (2^20 x 73): tables 0.0146 s | rounds 0.1070 s | folds 0.0225 s | sync/absorb 0.0019 s | total 0.1478 s
+[UPERF3-AI] vram after zcF: free 0 MiB / 8187 MiB, pool 4
+[UPERF3-XX] zero-check kind 1 (2^21 x 7): tables 0.0030 s | rounds 0.0166 s | folds 0.0042 s | sync/absorb 0.0010 s | total 0.0250 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0075 s
+[UPERF3-AC]   chunked re-encode + gather rows 10752 (11 chunks): 0.2796 s
+  layer  0: prove 4.777 s, 40186228 B
+[UPERF3-AC]   commit rows 10752 2^14 -> 2^16 (5637 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 10752 2^14 -> 2^16 in 11 chunks of <= 1024: ntt 0.3210 | hash 0.0449 | total 0.3672 s
+[UPERF3-AI] vram after commit W: free 0 MiB / 8187 MiB, pool 9
+[UPERF3-XX]   ntt rows 3599 2^14 (n_src 16384, inverse true): p1 0.4090 | p2 0.0919 s
+[UPERF3-XX]   ntt rows 3599 2^16 (n_src 65536, inverse false): p1 2.8453 | p2 0.3657 s
+[UPERF3-AI] vram after commit A: free 0 MiB / 8187 MiB, pool 11
+[UPERF3-AI] vram after dev_helpers: free 0 MiB / 8187 MiB, pool 11
+[UPERF3-XX]   ntt rows 3029 2^14 (n_src 16384, inverse true): p1 0.4138 | p2 0.0893 s
+
+thread 'main' (20325) panicked at src/zk.rs:2166:106:
+gpu zk commit H (v3): "cuMemAlloc(1514 MB): DriverError(CUDA_ERROR_OUT_OF_MEMORY, \"out of memory\")"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+Command terminated by signal 6
+	Command being timed: "/home/victor/wt-uperf3-ai/hashline/target-gpu/release/hashline pass 4 512 --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --threads 8 --proof-out /home/victor/wt-uperf3-ai/results/scratch-ai/zk8b_ab_nodrain.bin"
+	User time (seconds): 56.09
+	System time (seconds): 5.01
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:01.03
+	Maximum resident set size (kbytes): 2947700
+--- exit: 134 ---
+PROOF nodrain: NONE (run produced no proof)
+
+=== VALUE-NEUTRALITY (cmp of the two proofs) ===
+cannot compare: one of the runs produced no proof
+2026-09-03 23:51:45
