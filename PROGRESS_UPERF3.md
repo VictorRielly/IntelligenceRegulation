@@ -13765,3 +13765,73 @@ sampled output — the counted ~1.6x), which is a real kernel project.
 Gates not yet run in this worktree; `results/ao_floors.sh` is in place
 (AM's copy re-pointed at `/home/victor/wt-uperf3-ao`).
 
+### Rung 2 — TWO BYTE-IDENTICAL KERNEL LEVERS, 1.220x ON THE FOUR KERNELS [MEASURED] (2026-09-04)
+
+Neither lever is "launch shape"; both came straight out of rung 1's
+attribution. Full write-up `results/ao_l9_reencode.md` §4; raw
+`results/ao_l9_rung2_kernel_ab.log`.
+
+**(1) `k_dit_p1_pad_s` — the zero-padding stages are a BROADCAST, not
+arithmetic.** The forward DIT's first pass reads the coefficient buffer
+in bit-reversed order zero-padded R = 2^rb-fold: position x holds
+`s[x >> rb]` at x == 0 (mod R) and 0 otherwise. Stages 1..rb mix only
+within each aligned group of R, whose only nonzero member is index 0, and
+a butterfly with a zero odd leg writes u to BOTH legs (`gl_mul(0,w) = 0`;
+`gl_add(u,0) = gl_sub(u,0) = u` for canonical u). So after stage rb the
+tile holds `sh[x] == s[x >> rb]` at every x — exactly the load. rb = 2
+everywhere in the 8B pass, so 2 of 12 stages and 2 of 12 barriers go, and
+they are the two WORST stages for shared-memory bank conflicts (for
+st <= 4 a warp lands on only 8 distinct 64-bit banks; from st = 6 the
+index is the identity). Declined when rb > lb. **On the COMMIT's encode
+path too** (`encode_rows_view`), so it touches the 13.88 s encode-NTT
+item as well as the 14.0 s re-encode.
+
+**(2) `_f` — the tile kernels were doing a 32-bit integer DIVISION per
+butterfly.** `k_dif_pa`, `k_ntt_p2` and `k_ntt_p2_gather` index a
+`[2^lt] x [J]` strided tile with `q / J`, `b % J`, `b / J`. **J is a
+power of two but NOT a compile-time constant** (it comes off a kernel
+argument), so nvrtc emits a full integer division for each — two per
+butterfly plus one per load and per store — several times the
+instruction count of the Goldilocks butterfly being indexed.
+`lj = NTT_LOG_BLK - lt` makes them a shift and a mask. Same operands,
+same twiddles, same order, same stores.
+
+Both are switchable (`HL_GPU_PAD_SKIP=0`, `HL_GPU_NTT_FAST=0`) via
+templated bodies with two instantiations, so the divide/12-stage arms are
+still in the binary for the A/B and for rollback.
+
+**THE KERNEL A/B, BOTH ARMS IN ONE PROCESS, at 10,752 rows = the 8B
+pass's own W row count** (best of 7, chunk 128, 512 threads) [MEASURED]:
+
+| kernel | base s | lane s | ratio | GB/s -> |
+|---|---:|---:|---:|---|
+| `k_dit_p1_pad` -> `_s` | 0.08841 | **0.06467** | **1.367x** | 79.7 -> 109.0 |
+| `k_ntt_p2_gather` -> `_f` | 0.03430 | **0.02897** | **1.184x** | 165.0 -> **195.3** |
+| `k_dif_pa` -> `_f` | 0.01451 | 0.01352 | 1.073x | 194.2 -> **208.4** |
+| `k_dif_pb` (untouched) | 0.02939 | 0.02939 | 1.000 | 95.9 |
+| **THE FOUR KERNELS** | **0.16662** | **0.13657** | **1.220x** | |
+| *(control)* dense `k_ntt_p2` -> `_f` | 0.05657 | 0.05723 | **0.988x** | 199.3 -> 197.0 |
+
+At 1,024 rows the same pair gives 0.02555 -> 0.02178 = **1.173x**.
+
+**The control is the point.** The dense `k_ntt_p2` got the IDENTICAL
+strength reduction and came out at parity (0.988x) because at 199 GB/s it
+was already at 78% of the 256 GB/s roof. The same rewrite is worth 1.18x
+on `k_ntt_p2_gather`, which was at 165 and is now at 195. The win is
+fewer instructions **on the kernels that were not yet at the memory
+roof** — which is what rung 1 predicted, and it is the opposite of the
+brief's "the fix is launch shape rather than a better inner loop".
+
+**Byte identity, so far:** `cargo test --release` **41/41**, and every
+`gpu-probe` oracle GREEN on the lane's defaults — these compare the
+DEVICE output against the CPU encoder element for element at `inv_rate`
+2, 4 and 8 (rb = 1, 2, 3: all three padding depths): blake3 checks (322
+row counts), ntt checks (7 shapes), and chunked-commit checks (15
+shapes), the last of which checks the re-encoded OPENING COLUMNS against
+the CPU encoding directly. The twelve byte gates
+(`results/ao_floors.sh`, AJ's twelve-gate form: 4 CPU + 4 GPU + 4 with
+`HL_GPU_CHUNK_BYTES` forced small) are RUNNING under the heavy lock as
+this is committed; the end-to-end `columns_chunked` A/B
+(`results/ao_ab_reenc.sh`, ABBA over four processes) is queued behind
+them on the same lock and will self-start.
+

@@ -85,3 +85,93 @@ x 10,752 rows = 6.870e9 butterflies, which is exactly AJ's counted number.
 `k_dit_p1_pad` is 61.5% of the arithmetic and 51.9% of the time, so the
 four kernels are within a factor of 1.2 of each other in efficiency —
 there is no single broken kernel, and no free 2x sitting in an inner loop.
+
+## 4. RUNG 2 — the two levers the attribution actually pointed at
+
+Neither is "launch shape". Both are byte-identical rewrites of the SAME
+transform, and both are switchable for the A/B.
+
+### 4.1 `k_dit_p1_pad_s` — the zero-padding stages are a broadcast, not arithmetic
+
+The forward DIT's first pass reads the size-`n_src` coefficient buffer in
+bit-reversed order, zero-padded R = 2^rb-fold: position x holds
+`s[x >> rb]` when x == 0 (mod R) and 0 otherwise. Stages 1..rb mix only
+WITHIN each aligned group of R positions, and the only nonzero member of
+such a group is index 0. A butterfly whose odd leg is zero writes u to
+both legs — `gl_mul(0, w) = 0` for every w, and `gl_add(u, 0) =
+gl_sub(u, 0) = u` for canonical u < P. **So after stage rb the tile holds
+`sh[x] == s[x >> rb]` at EVERY x**, which is exactly what the load can
+write directly. (Each block covers a `bs = 2^lb`-aligned span and R | bs,
+so no group straddles a block; the skip is declined when rb > lb.)
+
+`rb = log_nn - log_n = 2` at every shape in the 8B pass, so this drops
+**2 of the 12 stages and 2 of the 12 barriers** — and it drops the two
+CHEAPEST stages in butterflies but the two WORST in shared-memory bank
+conflicts (at stage st the tile index is `((b >> (st-1)) << st) + k`,
+which for st <= 4 sends a 32-thread warp to only 8 distinct 64-bit banks;
+from st = 6 on it is the identity and conflict-free). That is why the
+measured win is 1.37x on the pass rather than the 12/10 = 1.20x the stage
+count alone predicts.
+
+It is on the COMMIT's encode path (`encode_rows_view`) as well as the
+opening's re-encode, so it touches BOTH the 13.88 s encode-NTT item and
+the 14.0 s re-encode item of the 8B pass.
+
+### 4.2 `_f` — the tile kernels were doing a 32-bit integer DIVISION per butterfly
+
+`k_dif_pa`, `k_ntt_p2` and `k_ntt_p2_gather` walk a `[2^lt] x [J]` strided
+tile and index it with `q / J`, `b % J` and `b / J`. **`J = NTT_BLK >> lt`
+is a power of two, but it is not a compile-time constant** — it is
+derived from a kernel argument — so nvrtc must emit a full 32-bit integer
+division for each of them: two in the butterfly loop (per butterfly) and
+one in each of the load and store loops. On Ada that is several times the
+instruction count of the Goldilocks butterfly being indexed.
+`lj = NTT_LOG_BLK - lt` turns them into `>> lj` and `& (J - 1)`. Nothing
+about the field arithmetic changes: same operands, same twiddles, same
+order, same stores.
+
+### 4.3 The kernel A/B, both arms in ONE process, back to back [MEASURED]
+
+`HL_GPU_BENCH_REENC=1`, best of 7, chunk 128 rows, 512 threads/block.
+
+At **10,752 rows — the 8B pass's W row count**:
+
+| kernel | base s | lane s | ratio | GB/s before -> after |
+|---|---:|---:|---:|---|
+| `k_dit_p1_pad` -> `_s` | 0.08841 | **0.06467** | **1.367x** | 79.7 -> 109.0 |
+| `k_ntt_p2_gather` -> `_f` | 0.03430 | **0.02897** | **1.184x** | 165.0 -> **195.3** |
+| `k_dif_pa` -> `_f` | 0.01451 | 0.01352 | 1.073x | 194.2 -> **208.4** |
+| `k_dif_pb` (untouched) | 0.02939 | 0.02939 | 1.000 | 95.9 |
+| **the four kernels** | **0.16662** | **0.13657** | **1.220x** | |
+| *(ref)* `k_ntt_p2` dense -> `_f` | 0.05657 | 0.05723 | **0.988x** | 199.3 -> 197.0 |
+
+At 1,024 rows (a shape too small to fill 36 SMs, for the trend):
+
+| kernel | base s | lane s | ratio |
+|---|---:|---:|---:|
+| `k_dit_p1_pad` -> `_s` | 0.01336 | 0.01111 | 1.202x |
+| `k_ntt_p2_gather` -> `_f` | 0.00683 | 0.00545 | 1.254x |
+| `k_dif_pa` -> `_f` | 0.00155 | 0.00142 | 1.093x |
+| **the four kernels** | **0.02555** | **0.02178** | **1.173x** |
+
+**The dense `k_ntt_p2` is the control, and it says the right thing.** It
+got the identical strength reduction and came out at **0.988x — parity**,
+because at 199 GB/s it was already at 78% of the 256 GB/s roof and had no
+stall to give back. The same rewrite is worth 1.18x on
+`k_ntt_p2_gather`, which was at 165 GB/s and is now at 195. So the win is
+not "fewer instructions" in the abstract: it is fewer instructions **on
+the kernels that were not yet at the memory roof**, which is exactly what
+the rung-1 attribution said to expect.
+
+### 4.4 Byte identity
+
+Every correctness oracle in `gpu-probe` is green on the lane's defaults —
+these compare the DEVICE output against the CPU encoder element for
+element, at `inv_rate` 2, 4 and 8 (so rb = 1, 2 and 3, all three
+zero-padding depths the code can see):
+
+* `blake3 checks GREEN` (322 row counts x 64 columns)
+* `ntt checks GREEN` (7 shapes; device RS encoding == CPU encoding)
+* `chunked-commit checks GREEN` (15 shapes; streamed leaves == CPU
+  `hash_columns`, AND the re-encoded opening columns == the CPU encoding
+  at 16 indices — the direct oracle for `columns_chunked`)

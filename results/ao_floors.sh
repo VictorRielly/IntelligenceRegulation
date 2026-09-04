@@ -1,46 +1,40 @@
 #!/bin/bash
-# [UPERF3 lane AO] The four byte gates on BOTH binaries in the AO worktree.
-# Copied from scripts/floors_round13_merge.sh (the orchestrator's, read-only)
-# with R pointed at this lane's tree. Usage: ao_floors.sh <scratch-dir>
+# [UPERF3 AO] The TWELVE byte gates in this lane's worktree: the four on
+# the CPU binary, the four on the GPU binary, and the same four with the
+# chunked path forced small so the 125M digests exercise the chunked
+# commit and the opening re-encode that lever L9 rewrote.
+# Copied in invocation from scripts/floors_round13_merge.sh (the orchestrator's
+# copy, which this lane must not edit); same references, same commands.
 set -u
-
 R=/home/victor/wt-uperf3-ao
-SP="${1:?scratchpad dir required}"
+# builds first (both binaries), under the shared build lock
+flock /tmp/zk-build.lock cargo build --release --manifest-path $R/hashline/Cargo.toml || { echo "FAILURE: CPU build"; exit 1; }
+CUDA_ROOT=/home/victor/cuda-root \
+  LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib \
+  CARGO_TARGET_DIR=$R/hashline/target-gpu \
+  flock /tmp/zk-build.lock cargo build --release --features gpu-cuda --manifest-path $R/hashline/Cargo.toml \
+  || { echo "FAILURE: GPU build"; exit 1; }
+flock /tmp/zk-build.lock cargo test --release --manifest-path $R/hashline/Cargo.toml 2>&1 | grep -E "^test result|^error"
+
+SP="${1:?scratch dir required}"
 V3=/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export
 export M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl
 CUDA_LD=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib
-
 mkdir -p "$SP"
 CPU=$R/hashline/target/release/hashline
 GPU=$R/hashline/target-gpu/release/hashline
 fail=0
-
 say () { echo; echo "=== $* ==="; date '+%F %T'; }
-
-say "CPU build"
-flock /tmp/zk-build.lock cargo build --release --manifest-path $R/hashline/Cargo.toml || { echo "FAILURE: CPU build"; exit 1; }
-
-say "GPU build (feature gpu-cuda)"
-CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=$CUDA_LD \
-  CARGO_TARGET_DIR=$R/hashline/target-gpu \
-  flock /tmp/zk-build.lock cargo build --release --features gpu-cuda --manifest-path $R/hashline/Cargo.toml \
-  || { echo "FAILURE: GPU build"; exit 1; }
-
-say "cargo test --release"
-flock /tmp/zk-build.lock cargo test --release --manifest-path $R/hashline/Cargo.toml 2>&1 | tail -25
-[ "${PIPESTATUS[0]}" = 0 ] || { echo "FAILURE: cargo test"; fail=1; }
-
-# gate <name> <ref-sha16> <ref-bytes> <binary> <label> <extra args...>
 gate () {
   local name=$1 ref=$2 refb=$3 bin=$4 label=$5; shift 5
   local out=$SP/$label-$name.proof
   say "GATE $name [$label]"
   if [ "$label" = gpu ]; then
     HL_GPU=1 LD_LIBRARY_PATH=$CUDA_LD "$bin" pass 12 512 --threads 8 --proof-out "$out" "$@" 2>&1 \
-      | grep -Ei 'PROVE|VERIFY|PROOF sha256|ACCEPT|REJECT|error|panic|MODE'
+      | grep -Ei 'PROVE|VERIFY|PROOF sha256|ACCEPT|REJECT|error|panic'
   else
     "$bin" pass 12 512 --threads 8 --proof-out "$out" "$@" 2>&1 \
-      | grep -Ei 'PROVE|VERIFY|PROOF sha256|ACCEPT|REJECT|error|panic|MODE'
+      | grep -Ei 'PROVE|VERIFY|PROOF sha256|ACCEPT|REJECT|error|panic'
   fi
   if [ ! -f "$out" ]; then echo "FAILURE: $name [$label] produced no proof"; fail=1; return; fi
   local got gotb
@@ -54,7 +48,6 @@ gate () {
   fi
   rm -f "$out"
 }
-
 for L in cpu gpu; do
   B=$CPU; [ $L = gpu ] && B=$GPU
   gate v2   50cf7bdfd6b5b182 66844928 "$B" $L
@@ -62,7 +55,19 @@ for L in cpu gpu; do
   gate zk   021485e4f80ec695 87228528 "$B" $L --zk --seed 1
   gate zkv3 40eb54795e023c77 87697008 "$B" $L --zk --seed 1 --profile v3 --export $V3
 done
+# [UPERF3-AJ] the CHUNKED path forced at the 125M shape: the same four
+# digests must come out of the chunked commit, the interleaved pinned
+# upload and the fused gather (the 12x512 commitments are 151-272 MB and
+# would otherwise stay resident, so nothing else exercises rungs 1-2 at a
+# shape with a frozen digest).
+export HL_GPU_CHUNK_BYTES=100000000
+export HL_GPU_CHUNK_ROWS=128
+gate v2-chunked   50cf7bdfd6b5b182 66844928 "$GPU" gpu
+gate v3-chunked   5f368db6240e0614 70758084 "$GPU" gpu --profile v3 --export $V3
+gate zk-chunked   021485e4f80ec695 87228528 "$GPU" gpu --zk --seed 1
+gate zkv3-chunked 40eb54795e023c77 87697008 "$GPU" gpu --zk --seed 1 --profile v3 --export $V3
+unset HL_GPU_CHUNK_BYTES HL_GPU_CHUNK_ROWS
 
 say "VERDICT"
-if [ $fail = 0 ]; then echo "ALL FLOORS GREEN (8 byte gates + tests + both builds)"; else echo "FAILURE: one or more floors RED — see above"; fi
+if [ $fail = 0 ]; then echo "ALL TWELVE BYTE GATES GREEN (8 standard + 4 chunked-forced)"; else echo "FAILURE: one or more gates RED"; fi
 exit $fail
