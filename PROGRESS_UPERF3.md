@@ -10981,3 +10981,60 @@ both from the binary and by hand]:
 | zk-v3 | `40eb54795e023c77..` 18.78 s | `40eb54795e023c77..` 4.74 s |
 Plus `pass 3 16 --profile v3` CPU == GPU (`5d49ab312eb720f5..`) and
 `cargo test --release` **40/40**.
+
+**RUNG 4 — THE 8B GPU PASS RE-MEASURED: 175.09 s -> 95.48 s (1.83x),
+THE PROOF BYTE-IDENTICAL (2026-09-03, WSL-BOX 8T + RTX 4070 Laptop 8.6
+GB, `flock /tmp/zk-heavy.lock /usr/bin/time -v`, cold cache = AC's cold
+configuration, load 1.0 at the start, 14 GB available, GPU otherwise
+idle; [MEASURED, NOISY-SHARED by convention — in fact quiet]).**
+
+`HL_GPU=1 hashline pass 32 512 --profile v3 --export /home/victor/
+wt-uperf3-aa/results/m8b_mistral_v3_export --wcache <fresh dir>
+--threads 8 --proof-out F`
+
+| | AC (round 12, cold) | **AH (this rung, cold)** | |
+|---|---:|---:|---|
+| witness load + chain | 130.75 s | 126.97 s | — |
+| **PROVE** | **175.09 s** | **95.48 s** | **1.83x** |
+| VERIFY | 1.09 s | 1.16 s | — |
+| wall | 308.82 s | **225.35 s** | 1.37x |
+| proof | 1,234,936,956 B | **1,234,936,956 B** | — |
+| **sha256** | `dc980e81..4536c` | **`dc980e810085b2ddf4688eb4a6cf4dd931c209bf7c5a9a7692d57ec14bc4536c`** | **IDENTICAL** |
+| peak RSS | 5.33 GB | **3.80 GB** | 1.40x less |
+| VRAM peak | 4,175 MB | 5,651 MB | +1.48 GB |
+| proven MAC/s | 1.648e10 | **3.023e10** | 1.83x |
+
+(`sha256sum` run by hand over the written 1.23 GB file as well as by
+the binary. So the 8B proof is now also invariant under the
+shape-general kernels — device vs host, chunked vs resident, cached vs
+fresh, 125M-shaped vs block-looping kernels: one digest.)
+
+PHASES, summed over the 32 layers [MEASURED, s]:
+| phase | AC GPU cold | **AH GPU cold** | factor | CPU reference |
+|---|---:|---:|---:|---:|
+| commit W | 38.85 | 41.94 | 0.93 | 224.97 |
+| commit A | 13.53 | 15.85 | 0.85 | 81.77 |
+| **helpers + commit H** | 35.24 | **5.36** | **6.6x** | 102.74 |
+| matmul g/u | 5.38 | 5.25 | 1.02 | 6.58 |
+| matmul d | 2.86 | 2.88 | 0.99 | 3.52 |
+| **zero-check F** | 46.64 | **4.65** | **10.0x** | 50.82 |
+| **zero-check D** | 7.48 | **0.79** | **9.5x** | 7.75 |
+| pcs openings | 24.61 | 18.48 | 1.33 | 31.68 |
+| **total** | **175.09** | **95.48** | **1.83x** | 510.38 |
+
+Device-side: h2d 13.05 s (59,861 MB — 12.3 GB less uploaded than AC's
+72,209 MB, the host-built H columns are gone), ntt 15.85, **sumcheck
+5.44**, fold 2.89, **helpers 1.38**, opening re-encode 14.28, 96
+chunked commits, d2h 1,413 MB. wcache: 32 misses, 134.2 MB written,
+commit(miss) 20.61 s.
+**THE HOST SHARE: AC's 76 s of declined kernels (44% of 175 s) is
+0.** The three phases that were host work are 10.80 s of device work.
+What is left in the 95.48 s is the same list XX and AC recorded, none
+of it a declined kernel: the witness planes -> Fp conversions and
+their pageable upload (13.0 s of h2d alone, ~0.6 GB/s per layer), the
+opening's chunked re-encode (14.3 s), the Merkle levels + claim
+bookkeeping + serializing 1.23 GB (~13 s of the 18.5 s openings), and
+the encode NTT (15.8 s).
+**THE 8B FFN PASS NOW PROVES IN 95.5 s ON A LAPTOP GPU AGAINST 510.4 s
+ON 8 CPU THREADS — 5.35x — in 3.80 GB of host RSS and 5,651 MB of the
+part's 8,188** [MEASURED].
