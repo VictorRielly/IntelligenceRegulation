@@ -12579,3 +12579,140 @@ converted 64-bit vector, and give the two host matmul folds
 must not move.
 EVIDENCE TO READ FIRST: results/hashline_hostwall_gpu.md §7 and §9.1 —
 AJ attributed this item to functions and measured it; do not re-derive.
+
+## Agent AL status (wt-uperf3-al) — round 15
+
+(lane appends below)
+
+### AL rung 0 — THE PLAN, AND THE INSTRUMENTATION THAT CHANGED THE ITEM'S NAME (2026-09-04, WSL-BOX, wt-uperf3-al, branch uperf3-al, commit 69ea133)
+
+Read: results/hashline_hostwall_gpu.md IN FULL (§7 is this lane's
+specification, §9.1 the measured 8B before/after, §8 why it decides the
+hardware step), the round-15 block and this brief, Agent AJ's status in
+full, U_PERF3_SIXTY_TOKENS_PLAN §0 CORRECTION 2 and the L2b row; the
+code: layer.rs (`prove_layer_v3`, `fold_cols_base`), pcs.rs, wcache.rs,
+pcs_compact.rs and gpu/cuda.rs (`dev_commit`, `commit_chunked_upload`,
+`send_packed`, `k_widen`, `dev_commit_from`, `Pooled`) — READ-ONLY.
+
+**WHAT THE OWNERSHIP ACTUALLY ALLOWS, stated up front.** `gpu/*` is
+READ-ONLY for this lane and **`Pooled::take` is private to
+`gpu/cuda.rs`**, so nothing outside that file can stage a device buffer.
+The only device commit entry callable from here is
+`dev_commit(params, data: &[Fp], ntt)`: **a contiguous `&[Fp]` of the
+whole matrix cannot be avoided from this lane.** "Hand `pcs::commit` the
+int8 planes" in its literal form — int8 on the bus, `k_widen` on the
+device, no 64-bit host copy at all — needs ONE new entry point in
+`gpu/cuda.rs` (a chunk-wise `dev_upload_narrow` + `dev_commit_from`, or
+a source enum on `dev_commit`). Recorded for whoever owns `gpu/*` next,
+with its measured remaining value in the rung-2 entry.
+
+**THE BASELINE ON THIS TREE**, one Mistral-7B layer at T = 512,
+`HL_GPU=1 pass 1 512 --profile v3 --export .../m8b_mistral_v3_export
+--threads 8 --proof-out F`, x3 [MEASURED, GPU, 8T, NOISY-SHARED]:
+**PROVE 2.95 / 2.87 / 3.01 s**, proof 179ec2fb8f99d0d6.., 38,688,700 B.
+
+**AND THE FINDING THAT RENAMES THE ITEM.** The new `HL_CONV_VERBOSE=1`
+instrumentation charges the allocation, the fill, the commit call and
+the device counters inside the commit separately, so the commit's HOST
+residual is measured, not subtracted across runs:
+
+| | alloc s | fill s | commit s | commit host s |
+|---|---:|---:|---:|---:|
+| W (176 Melem = 1.409 GB) | **0.573 / 0.611 / 0.631** | 0.044 / 0.054 / 0.053 | 0.68 / 0.56 / 0.62 | 0.028 / 0.029 / 0.034 |
+| A (57 Melem = 0.461 GB) | **0.209 / 0.218 / 0.260** | 0.028 / 0.033 / 0.036 | 0.14 / 0.14 / 0.14 | 0.010 / 0.009 / 0.012 |
+
+**The `Fp::from_i64` fill of 1.4 GB costs 0.05 s. The
+`vec![Fp::ZERO; lay.w_len]` in front of it costs 0.60.** `Fp` is a user
+type, so `vec!` does NOT specialize to `alloc_zeroed`; the macro expands
+to an allocation plus a SINGLE-THREADED write of 1.4 GB of zeros over
+~344k first-touch page faults, every one of which the fill then
+overwrites. Over 32 layers that is ~27 s of an 86 s prove spent zeroing
+memory nobody reads. **AJ's ~29 s item is real and is exactly where AJ
+said it was; it is an ALLOCATION item, not an arithmetic one** — which
+is the coordinator's point 1, and stronger than it was stated.
+
+The instrumentation also closes the phase accounting: `commit W` is
+alloc + fill + commit and nothing else (1.30 s measured against a
+1.302 s phase), and the two matmul phases are 95% host fold (0.080 +
+0.074 = 0.154 s against a 0.162 s `matmul g/u`).
+
+Also in this rung: results/hashline_convert_plan.md, the twelve-gate
+floors script (copied in invocation from scripts/floors_round13_merge.sh,
+which is untouched), and results/hashline_convert_faultbench.rs — a
+standalone microbenchmark at the exact Mistral shape showing a reused
+buffer filling in 0.041 s against 0.091-0.138 s for a fresh one.
+
+### AL rung 1 — THE HOST STAGING POOL: 4-layer prove 10.94 -> 8.78 s (1.246x), byte-identical (2026-09-04, commit a885695)
+
+`hostbuf`: a two-slot pool of host buffers, taken at the top of
+`prove_layer_v3`, given back after the W opening and at the end of the
+layer. The first layer pays the zeroing once; **every layer after it
+reports `alloc 0.0000`** (measured on every layer of every multi-layer
+run). Safe because `LayoutV3`'s blocks TILE the buffers exactly (`w_len`
+is the 3 x nb_d x nb_f weight blocks and nothing else, `a_len` the
+7 x nb_f + 3 x nb_d witness columns and nothing else), so every element
+is written before any is read — **and the 12-layer byte gates are the
+test of that claim**: a buffer not fully overwritten would carry layer
+k-1's weights into layer k's commitment and move the digest on the
+second of twelve layers. Switch `HL_AL_POOL=0`.
+
+A/B on ONE binary, 4 x 512 Mistral, two rounds [MEASURED]: PROVE
+10.57 / 11.30 (before) -> 9.21 / 8.34 (after); `commit W` 4.175 / 4.883
+-> 3.400 / 2.866; `commit A` 1.550 / 1.586 -> 1.099 / 0.846. All four
+arms e029e489d1bde1aa.., 154,507,884 B.
+
+NOT touched, deliberately: `prove_layer` (v2 — the same allocation is
+12 MB at the 125M shape, the only shape v2 runs at) and the `h_data`
+CPU-path buffer (built only when the device helper path declines).
+Neither is worth the risk to a byte gate.
+
+### AL rung 2 — THE FOLDS READ THE INT8 PLANES, AND TWO PASSES BECOME ONE: matmul g/u 0.66 -> 0.39 s, matmul d 0.36 -> 0.24 s (2026-09-04, commit a0a342b)
+
+The v3 prover folded each weight block TWICE over two different copies
+of the same numbers: `fold_cols_i8` over the whole int8 plane (58.7 M
+elements) for the sumcheck's weight tables, then `fold_cols_base` over
+the `w_data` blocks — the same numbers as Fp, 8x the bytes — for
+`gu_term` / `d_term`. 1.06 GB of reads per layer on the g/u pair, 0.53 GB
+on d.
+
+They are the same fold: with `cw_gu[j] = lam_f[b] * eq_rj[jp]` and
+j = b*fb + jp, `wgk[c*db+kp] = sum_b lam_f[b] * blk_b[kp]`, and `blk_b`
+is exactly the block fold `gu_term` wants. The block fold needs only
+`eq_rj`, drawn BEFORE the sumcheck, so it is computed first and the
+plane fold is read off it. `fold_block_i8` does the block fold as a
+strided fold over the int8 plane, so the 64-bit copy is never read.
+Byte-identical by construction: Z_p arithmetic is exact, Fp2
+multiplication is bilinear over the base field so `(lam * eq) . v` and
+`lam * (eq . v)` are the same element, summation order is irrelevant in
+an abelian group, and skipping a zero adds zero (which `fold_cols_i8`
+already did). Switch `HL_AL_I8FOLD=0`.
+
+A/B on ONE binary, 4 x 512 Mistral, both switches together, two rounds
+[MEASURED]: PROVE **10.75 / 11.18 -> 8.12 / 8.67**, mean **10.97 ->
+8.40 s = 1.306x**; `matmul g/u` 0.676 / 0.648 -> 0.383 / 0.389; `matmul
+d` 0.362 / 0.364 -> 0.235 / 0.242. The `w_data` block-fold timer went
+0.074 -> 0.006 s (g/u) and 0.039 -> 0.003 s (d) while the fused plane
+pass that absorbed them did not grow (0.085 s either way) — the second
+pass is simply gone. All four arms e029e489d1bde1aa.., 154,507,884 B.
+
+**The 4-layer figure UNDERSTATES the 32-layer one**: the after arm still
+amortizes layer 0's allocation over 4 layers instead of 32.
+
+**What is left of the item after rungs 1-2** [MEASURED, per layer]: the
+host cost of building both committed vectors is fill 0.049 + 0.035 s
+plus 0.017 s of commit residual = **~0.10 s of a ~1.9 s layer**, about
+3 s of the 8B prove. That is what the new `gpu/*` entry point in the
+rung-0 note would still be worth in TIME; its bigger prize is VRAM and
+bus, since the device would then hold the widened matrix chunk by chunk
+instead of whole.
+
+### AL rung 3 — IN FLIGHT: the twelve byte gates on both binaries, then the 8B pass before and after
+
+Launched detached under `flock /tmp/zk-heavy.lock`
+(results/hashline_convert_r3.sh); log
+results/hashline_convert_r3.log, marker
+results/hashline_convert_r3.done, plus results/cargo_test_r3.{log,done}
+queued behind the same lock. Both 8B arms run in ONE session on ONE
+binary with a FRESH `--wcache` directory each, exactly as AJ's
+results/hashline_hostwall_r4.sh did. The row is written into
+results/hashline_convert_gpu.md §7 and here when the markers land.
