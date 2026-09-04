@@ -158,15 +158,43 @@ is sublinear by a structure not known to this repository, or the
 figure is amortised. **This plan does not target batch-1 decode**,
 and any published number must name its workload.
 
-**THE PoC CLAIM — RULED 2026-09-04 (Victor, console)**: *60 proven
-tokens per second, 8B-class model, complete transformer layers, zero
-knowledge for the inputs (mode P1), 512-token prefill, one H100, p95
-over 20 warm runs.* It is inside the counted floor, it is a complete
-and rigorous statement, and it beats the competitor's rate on a
-workload we can define precisely. 30B follows from §5, or it does not
-follow — and the same ruling defers the field/rate change with it,
-while making the hardware question binding, because this claim names
-its machine.
+**TWO PRODUCTS — RULED 2026-09-05 (Victor, console): "focus on the
+full ZK proofs but also have this as an additional product (non ZK
+weights)".** The 2026-09-04 ruling below is not withdrawn; it is
+re-scoped. There are two tiers, and every published number must say
+which one it is:
+
+| | **FULL TIER — P3** (the focus) | **FAST TIER — P1** (the second product) |
+|---|---|---|
+| private | inputs **and weights** | inputs only; weights public |
+| weight commitment | **re-committed every proof, hidingly** | per-model, **cacheable** |
+| why | a cached hash commitment reveals 256 encoded columns per proof; after ~65 proofs the weights are recoverable by linear algebra | nothing to hide, so the ~37 s `commit W` amortises to ~0 |
+| counted cost | **+44% at 8B x 512**; a 7-23 s per-proof hashing floor at 30B on an H100 | the measured 8B GPU row: 265.34 s, sha256 930ce9a0.. |
+| reaches 50 tok/s? | only at **>= 16 stacked prefills per proof**, and only via lane ZZ's option 2 | yes, inside the counted floor |
+
+**THE 60 TOK/S CLAIM, as recommended and pending Victor's word: it
+attaches to the FAST TIER** — *60 proven tokens per second, 8B-class
+model, complete transformer layers, private inputs, public weights,
+512-token prefill, one H100, p95 over 20 warm runs* — because that is
+where the counted floor contains it. **The FULL TIER gets its own
+honest number**, and its natural product shape is batched, because
+that is the only shape in which a weights-private design reaches 50 at
+all. Claiming 60 under full ZK would mean committing to option 2 AND
+>= 16-request batching before a single full-ZK row has been measured.
+
+The full tier's throughput path is lane ZZ's **option 2, "never send
+the sampled weight columns"** (T18): commit the weight tree once per
+model under an arithmetic hash and prove the verifier's column check
+inside a fresh ZK inner proof each time — 50-180 ms per proof at the
+counted floor, which puts the full tier back on the fast tier's own
+cells. ~2 lane-weeks to a first measured row, and it needs a WRITTEN
+SIMULATOR: the construction it descends from was found unsound
+(ePrint 2024/1164). Lane AM is building the cheap re-commit form first
+so the product exists and option 2 has a baseline to beat.
+
+30B follows from §5, or it does not follow — and the 2026-09-04 ruling
+defers the field/rate change with it, while making the hardware
+question binding, because these claims name their machine.
 
 ---
 
