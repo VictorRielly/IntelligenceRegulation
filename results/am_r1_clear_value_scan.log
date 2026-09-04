@@ -1,0 +1,24 @@
+/home/victor/wt-uperf3-am/results/am_scratch/p_nonzk.proof
+  8473868 B = 1059233 aligned 8-byte words
+  words in the int8 class  [-127, 127]:      107711
+  words in the int16 class [-32768, 32767]:  107714   (uniform expectation: 3.76e-09)
+  RUNS of >= 100 consecutive int8-class words: 41, 78092 words
+    run lengths:       [(9080, 1), (743, 1), (554, 1), (387, 1), (437, 1), (114, 1)]
+    run-start strides: [(288, 2), (9081, 1), (744, 1), (555, 1), (388, 1), (904, 1)]
+    first runs:        [(148, 9080), (9229, 743), (9973, 554), (10528, 387)]
+/home/victor/wt-uperf3-am/results/am_scratch/p_zk.proof
+  10272540 B = 1284067 aligned 8-byte words
+  words in the int8 class  [-127, 127]:      19516
+  words in the int16 class [-32768, 32767]:  20416   (uniform expectation: 4.56e-09)
+  RUNS of >= 100 consecutive int8-class words: 61, 17568 words
+    run lengths:       [(288, 61)]
+    run-start strides: [(353, 12), (706, 11), (1059, 10), (1412, 8), (1765, 5), (2118, 3)]
+    first runs:        [(545809, 288), (546162, 288), (547927, 288), (552516, 288)]
+/home/victor/wt-uperf3-am/results/am_scratch/p3_3x16.proof
+  10395708 B = 1299463 aligned 8-byte words
+  words in the int8 class  [-127, 127]:      15
+  words in the int16 class [-32768, 32767]:  913   (uniform expectation: 4.62e-09)
+  RUNS of >= 100 consecutive int8-class words: 0, 0 words
+    run lengths:       []
+    run-start strides: []
+    first runs:        []

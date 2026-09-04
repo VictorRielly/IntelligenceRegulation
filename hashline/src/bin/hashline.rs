@@ -75,6 +75,21 @@ fn parse_opts(args: &[String]) -> Opts {
             "--export" => { o.export = Some(args[i + 1].clone()); i += 1; }
             "--t" => { o.t_rows = Some(args[i + 1].parse().unwrap()); i += 1; }
             "--zk" => { o.zk.enabled = true; }
+            // [UPERF3-AM] the FULL TIER: private inputs, activations, output AND weights.
+            // Implies --zk; the weight commitment becomes hiding and per-proof.
+            "--p3" => { o.zk.enabled = true; o.zk.mode.privacy = hashline::zk::ZkPrivacy::P3; }
+            // [UPERF3-AM] the statement's OUTPUT CLAIM (PROOF_FUNCTIONS.md): an enumerated,
+            // transcript-bound field. `commit` (function 1) is the only one built.
+            "--output-claim" => {
+                o.zk.mode.output = match args[i + 1].as_str() {
+                    "commit" => hashline::zk::OutputClaim::Committed,
+                    "binary-acceptable" => hashline::zk::OutputClaim::BinaryAcceptable,
+                    other => { eprintln!("unknown --output-claim {other} (commit|binary-acceptable)"); std::process::exit(2); }
+                };
+                i += 1;
+            }
+            // [UPERF3-AM] the declared model identity digest, bound in the same header.
+            "--model-id" => { o.zk.mode.model_id = Some(args[i + 1].clone()); i += 1; }
             "--seed" => { o.zk.seed = args[i + 1].parse().unwrap(); i += 1; }
             "--wcache" => { o.wcache = Some(args[i + 1].clone()); i += 1; } // [UPERF3-AC]
             // [UPERF3-AF] the compact-PCS selection (default `ligero`: the byte-identical path)
@@ -88,6 +103,32 @@ fn parse_opts(args: &[String]) -> Opts {
             other => { eprintln!("unknown option {other}"); std::process::exit(2); }
         }
         i += 1;
+    }
+    // [UPERF3-AM] THE P3 REFUSALS, stated loudly. Each is a soundness or a scope fact.
+    if o.zk.mode.privacy == hashline::zk::ZkPrivacy::P3 {
+        if o.wcache.is_some() {
+            eprintln!("REFUSED: --wcache with --p3.");
+            eprintln!("  Under P3 the WEIGHTS are private, and a cached hash-based weight commitment is");
+            eprintln!("  not merely suboptimal — it is unsound as a privacy claim: each proof opens 256");
+            eprintln!("  of the cached codeword's columns, so the union over proofs is a linear system in");
+            eprintln!("  the weight rows and after ~(n + Q)/Q proofs (65 at the measured 125M n = 2^14,");
+            eprintln!("  257 at 8B, 513 at 30B) the weights are recoverable by linear algebra.");
+            eprintln!("  See docs/zkmatrix-poc/U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md section 1.");
+            eprintln!("  P3 re-commits W with FRESH randomness on every proof; there is nothing to cache.");
+            eprintln!("  (--wcache remains correct and per-model cacheable under the fast tier, --zk.)");
+            std::process::exit(2);
+        }
+        if o.profile != "v3" {
+            eprintln!("REFUSED: --p3 needs --profile v3 (the v3 statement is the shipping one; the v2 ZK prover is mode P1 only)");
+            std::process::exit(2);
+        }
+    }
+    if o.zk.mode.output != hashline::zk::OutputClaim::Committed {
+        eprintln!("REFUSED: --output-claim {} is NOT BUILT.", o.zk.mode.output.tag());
+        eprintln!("  The statement header carries the field (it is enumerated and transcript-bound, so a");
+        eprintln!("  function-1 proof can never be read as a function-2 one), but the predicate gadget");
+        eprintln!("  does not exist yet — see docs/zkmatrix-poc/PROOF_FUNCTIONS.md.");
+        std::process::exit(2);
     }
     hashline::wcache::configure(o.wcache.as_deref()); // [UPERF3-AC]
     o.tamper_kind = tkind.clone();
@@ -1049,7 +1090,7 @@ fn run_layer_zk_v3(w: &V3Witness, t: usize, o: &Opts, tamper: TamperV3, ntt: &Nt
     }
     let mut tv = Transcript::new(b"hashline-layer-zk-v3");
     let t1 = Instant::now();
-    let r = verify_layer_zk_v3(&st, &out.proof, &p, ntt, &mut tv);
+    let r = verify_layer_zk_v3(&st, &out.proof, &p, ntt, &mut tv, &o.zk.mode);
     let tvv = t1.elapsed().as_secs_f64();
     if matches!(tamper, TamperV3::None) {
         for (name, s) in &out.timings {
@@ -1106,7 +1147,8 @@ fn pass_zk_v3(n: usize, t: usize, o: &Opts) {
     let (dir, side) = v3_dir_side(o);
     let dm = side.dims;
     let n = n.min(dm.layers);
-    println!("pass (v3) [ZK, mode P1, seed {}]: {n} layers x {t} tokens of {} — {} (d {} f {}; log_cols {}, inv_rate {}, col checks {}, threads {})", o.zk.seed, dm.t, dir.display(), dm.d, dm.f, o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads());
+    println!("pass (v3) [ZK, seed {}]: {n} layers x {t} tokens of {} — {} (d {} f {}; log_cols {}, inv_rate {}, col checks {}, threads {})", o.zk.seed, dm.t, dir.display(), dm.d, dm.f, o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads());
+    println!("  {}", o.zk.mode.describe("v3"));
     println!("  {}", hashline::gpu::label());
     let t_all = Instant::now();
     let tamper = tamper_v3_from(&o.tamper_kind, o.tamper_idx);
@@ -1170,7 +1212,7 @@ fn pass_zk_v3(n: usize, t: usize, o: &Opts) {
         let mut tv = Transcript::new(b"hashline-pass-zk-v3");
         let t0 = Instant::now();
         for (st, pr) in stmts.iter().zip(proofs.iter()) {
-            if let Err(e) = verify_layer_zk_v3(st, pr, &p, &ntt, &mut tv) {
+            if let Err(e) = verify_layer_zk_v3(st, pr, &p, &ntt, &mut tv, &o.zk.mode) {
                 println!("  layer {}: REJECT: {e}", st.l);
                 ok = false;
                 break;

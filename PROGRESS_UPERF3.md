@@ -13006,3 +13006,570 @@ doing — `zk.rs` carries its own v3-ZK prover body with its own `w_data`
 / `a_data` (zk.rs:925-966) and this lane did not touch it. Its digest is
 byte-identical either way. Recorded so nobody reads a box difference as
 a regression.
+## Agent AM status (wt-uperf3-am) — round 15
+
+(lane appends below)
+
+### AM rung 0 — THE OUTPUT-PRIVACY QUESTION (asked ahead of everything else), the mode design, and the baseline (2026-09-04)
+
+**THE QUESTION (Victor, via the orchestrator): under `--zk` today, does the
+statement publish the OUTPUT tensor values in the clear?
+TARGET_CONTRACT.md §3 says the "declared output tensor values" are public;
+U_PERF3_ROUTE_B_THROUGHPUT.md §4.5 puts activations — the output is one —
+in P1's private set. Which is it, from the code and from a real proof?**
+
+**THE ANSWER: NO. Nothing of the output tensor is in the statement — the
+statement carries no tensor values at all, of any kind, input or output.
+The contract's §3 line does not describe what this prover proves.**
+
+The evidence, in code (`hashline/src/layer.rs`, read-only for this lane;
+line numbers on the round-15 tree):
+
+    pub struct StatementV3 {           // layer.rs:1125
+        pub l: usize, pub t_rows: usize, pub d: usize, pub f: usize,
+        pub shifts: (i32, i32, i32, i32),
+        pub act: Act16Fn, pub table: [i16; 256], pub table_digest: String,
+    }
+    pub struct Statement {             // layer.rs:40 (the v2 statement)
+        pub l: usize, pub t_rows: usize, pub shifts: (u32, u32, u32, u32),
+        pub table: [i8; 256], pub table_digest: String,
+    }
+
+Eight fields, all of them shape or quantization metadata: the layer index,
+the token count, (d, f), the four signed requant shifts, the frozen
+activation table and its digest. There is no X, no z16, no digest of
+either. `zk.rs`'s `absorb_statement_v3` absorbs exactly those fields and
+then the mode tag; `bin/hashline.rs`'s `stmt_v3(w, t)` builds the statement
+from the witness by copying exactly those fields and nothing else; and
+`verify_layer_zk_v3(st, proof, params, ntt, tr)` reads only `st` and the
+proof bytes. So the verifier is never handed an output value to compare
+against, and there is no code path by which one could reach it.
+
+WHERE THE OUTPUT ACTUALLY LIVES: the output plane z16 (and its remainder
+plane rd) are rows of the **A commitment**, which under `--zk` is
+`pcs::commit_zk_owned` — ZA's hiding form: Q = 256 uniform pad symbols per
+row on the coset 7·G_4n (no systematic position is ever opened), salted
+Merkle leaves, and a mask row at every opening site, so each opened claim
+is the two-part masked claim (1 − e)·T~(p) + e·R~(tail p) with R a fresh
+uniform row. Every evaluation of z16 that leaves the prover is that masked
+combination; the terminals are `masked_terminal(...)`; the clear vectors
+are `rho^T[M | pads]` with the mask rows inside rho. That is exactly the
+treatment every other activation gets — the output is not a special case
+and gets no weaker protection.
+
+WHAT THE VERIFIER THEREFORE LEARNS, stated precisely (mode P1 today):
+"there exist activations, committed under the root `a_com`, consistent
+with the public weights, these shapes, these shifts and this activation
+table, satisfying every layer identity, every range/lookup fact and the
+requant identities." It does NOT learn the input, the output, or any
+intermediate value. Consequently:
+
+* A deployment declaring "inputs and outputs private" under `--zk` is
+  making a claim its statement SUPPORTS, not one it contradicts. Victor's
+  fast-tier phrasing ("ZK for inputs and outputs, weights public") is what
+  the code does.
+* `TARGET_CONTRACT.md` §3's "the declared output tensor values" is the
+  line that is out of date. Not this lane's file to edit — reported here
+  for Victor's ruling. `U_PERF3_ROUTE_B_THROUGHPUT.md` §4.5 is the one
+  that matches the build.
+
+**THE NUANCE THAT IS THE REAL FINDING, and it cuts the other way.** The
+output is hidden — but it is also not BOUND to anything a verifier could
+name. Two gaps, both stated as findings, neither fixed by this lane:
+
+1. **No declared output commitment.** z16 is committed, but only as some
+   rows of A, fused with the input X, the seven intermediate f-planes, the
+   remainders and the multiplicity tables under one root. A deployment
+   that wants "this model, on the committed input C_in, produced the
+   committed output C_out" — so that C_out can be matched later against a
+   served response, or fed to the next stage — has no such object to point
+   at. The honest fix is a per-layer declaration in the statement naming
+   the (slice, root) that carries X and z16, or a small separate
+   commitment to each with a claim tying it to A's rows. That is a
+   statement change: it moves proof bytes and would break the frozen
+   digests, so it is a ruling, not a lane decision.
+2. **No cross-layer value binding.** `pass_zk_v3` proves n independent
+   layer statements that share ONE Fiat-Shamir transcript. The shared
+   transcript orders them and stops a proof being reused out of place; it
+   does NOT assert that layer l's z16 equals layer l+1's X. The witnesses
+   are chained OUTSIDE the proof (`chain --profile v3` re-executes the
+   chain and reproduces every plane digest — ZB's rung 2), which is a
+   prover-side check, not something the verifier is shown. So "the model
+   ran end to end" is today an argument about how the witness was built,
+   not a proven statement. Same class of ruling: fixing it means the
+   statement (or a claim) grows.
+
+**What the trade in the orchestrator's question (2) would have been, had
+the answer been yes** — recorded because the answer being "no" is only
+half the story, and (1) above is the same trade under another name.
+Binding the output as a commitment instead of a value: the verifier can
+still check every internal identity, the ranges, the lookups, the requant
+rounding and (given the same committed input) the determinism of the pass;
+it can no longer check the output against anything it holds — it must
+receive the opening later, or compare C_out with a commitment produced by
+someone it trusts. The privacy is real and the loss is real: a verifier
+alone can no longer answer "did the model output THIS", only "the output
+is whatever is inside C_out".
+
+**MODE (3): THE DECLARATION NAMES THE PRIVATE SET, AND IT IS IN THE
+TRANSCRIPT.** The mode already rides in the statement: `zk.rs` absorbs
+`tr.absorb(b"zk", b"P1-v3")` (line 1914, prover; 2766, verifier) right
+after the statement fields, before any challenge. Two consequences that
+are exactly what the design note asks for: the mode is part of the
+Fiat-Shamir domain, so every challenge in the proof depends on it, and a
+verifier that checks with the wrong mode diverges at the first challenge
+and REJECTS. **A P1 proof therefore cannot be presented as a P3 one, and a
+P3 proof cannot be checked as P1.** This lane's additions:
+
+* the P3 tag is `P3-v3/priv=in+act+out+weights/pub=shape+shifts+tabdigest`
+  — the wire tag itself names the private set, so a P3 proof is
+  self-describing from the first byte of its transcript;
+* the P1 tag stays `P1-v3` byte for byte (the round-13/14 gates
+  `40eb5479..` and the 8B row `930ce9a0..` freeze it), and prover and
+  verifier both PRINT the mode line naming P1's private set exactly:
+  private = {X, every activation plane incl. the output z16, the
+  remainders, the multiplicities}; public = {W, shapes, shifts, the
+  activation-table digest};
+* `verify_layer_zk_v3` takes the mode as an argument — the verifier is
+  TOLD which privacy claim it is checking, and cannot infer it from
+  prover-supplied bytes.
+
+**THE PLAN FOR THE REST OF THE LANE** (design 1 of the 2026-09-05 ruling):
+P3 = W committed with `pcs::commit_zk_owned` (fresh pads, salted leaves,
+fresh per proof), W mask rows at both of its opening sites — one per W
+BLOCK terminal, because a single shared mask row would leave block
+differences in the clear — the matmul W terminals masked exactly as A's
+are (the sumcheck's extension round already carries the selector: set the
+W tables' `exts` to the combined mask evaluation and the verifier's `want`
+absorbs the (1 − e) factor), and `--wcache` REFUSED, loudly, because a
+cached hash commitment reveals 256 encoded columns per proof and is
+recoverable after ~65 proofs (lane ZZ §1). v2 keeps P1 only.
+
+**BASELINE** [WSL-BOX] [8T] [NOISY-SHARED — lane AL is building] the four
+byte gates on both binaries of THIS tree, and the P1 8B row's digest
+re-confirmed here: results/am_r0_floors.log (see the next rung for the
+verdict; the run is detached under the heavy lock with a `.done` marker).
+
+### AM rung 0 (concluded) — the four byte gates GREEN on this tree, and the empirical half of the output answer (2026-09-04)
+
+- **BASELINE GREEN** [WSL-BOX] [8T] [CPU+GPU] [NOISY-SHARED] [MEASURED],
+  results/am_r0_floors.log, detached under the heavy lock: both binaries
+  built, 40/40 tests, and **all eight byte gates** (v2 `50cf7bdf..`, v3
+  `5f368db6..`, zk `021485e4..`, zk-v3 `40eb5479..`, each on the CPU and
+  the GPU binary) — "ALL FLOORS GREEN". The P1 8B row's digest is
+  re-confirmed in rung 3; its 12x512 ancestor `40eb5479..` is gate 4 here.
+- **THE EMPIRICAL HALF OF THE OUTPUT ANSWER** (results/am_r0_output_scan.py,
+  results/am_r0_output_scan.log). The scan reads every aligned 8-byte word of
+  a produced proof as a field element and asks whether its signed
+  representative is in the int8 class (weights) or the int16 class (every v3
+  activation, the OUTPUT plane z16 included). A uniform field element lands
+  there with probability 2^-47; what identifies a real leak is a RUN, because
+  an opened SYSTEMATIC column is `rows` consecutive words of raw witness.
+  Two 3x16 v3 proofs of the same witness, one non-zk and one `--zk`:
+
+  | | non-zk v3 | `--zk` v3 (mode P1) |
+  |---|---:|---:|
+  | words in the int16 class | 107,714 | 20,416 |
+  | runs of >= 100 clear values | **41** | **61** |
+  | run lengths | 9,080 / 743 / 554 / 437 / 387 / 114 ... | **288, every one of them** |
+  | run-start strides | irregular | **multiples of 353** |
+
+  353 = 1 index word + 288 rows + 64 Merkle-path words: the W opening's
+  column record, and 288 = W's row count at this shape. **So in a `--zk`
+  proof every run of clear witness values is a W column and nothing else —
+  the public weights, which is exactly what mode P1 declares.** The non-zk
+  proof's 9,080-word run is an A/H systematic column: the activations, the
+  output plane among them, in the clear. The activations are gone under
+  `--zk` and the output with them.
+
+### AM rung 1 — MODE P3 IS BUILT: the hiding weight commitment, the cache refusal, the mode in the statement (2026-09-04)
+
+**WHAT `--p3` DOES**, all of it in `hashline/src/zk.rs` and the flag lines of
+`src/bin/hashline.rs` (pcs.rs, layer.rs, gpu/* untouched — lane AL owns them):
+
+1. **W is committed hidingly, fresh every proof.** `pcs::commit_zk_owned`
+   with `ZkOpts::standard` — Q = 256 uniform pad symbols per row, the coset
+   7·G_4n encoding (no systematic position exists to open), salted Merkle
+   leaves — in place of `wcache::commit_w`/`pcs::commit`. Same entry points
+   lane ZA built for A and H; no pcs.rs change was needed.
+2. **A mask row per W BLOCK terminal**, plus a proximity row: `ZkLayoutV3`
+   gains `w_mgu` (2·nb_d·nb_f rows, the Wg and Wu blocks at the g/u point
+   p3), `w_mdd` (nb_f·nb_d, the Wd blocks at the d point p6) and `w_prox`.
+   ONE SHARED ROW WOULD NOT DO: the block terminals are sent individually, so
+   a common mask cancels in every difference and leaves W_b~(p) − W_b'~(p) in
+   the clear. `pcs::assert_mask_sites` then passes at both W groups and the
+   proximity vector — the enumeration is printed with the A and H sites.
+3. **The matmul terminals are masked, and that needed a SECOND EXTENSION
+   VARIABLE.** Lane ZA's masking trick appends one sumcheck round in which
+   table T becomes (1−y)T + yR; it is an identity only while poly(exts) = 0.
+   The matmul polynomial is BILINEAR — activation x weight — so masking both
+   factors in one round leaves Σ_c m^A_c·m^W_c behind and the round stops
+   summing to its claim (measured: the first build REJECTED at "sumcheck
+   round 8: s(0) + s(1) != claim", the extension round of the g/u sumcheck).
+   Under P3 each matmul sumcheck therefore gets TWO extension rounds — the
+   activation side masked in round k (weight extension zero), the weight side
+   in round k+1 (activation extension zero) — so poly(exts) = 0 in both. Cost:
+   one degree-2 round per matmul, three field elements. The opening
+   coefficients become the pair ((1−e₁)(1−e₂), (1−e₂)e₁) on the activation
+   side and ((1−e₁)(1−e₂), e₂) on the weight side; `mask_specs_v3` gives the
+   two masks one more variable under P3 and the same specs under P1.
+4. **`--wcache` is REFUSED under `--p3`**, loudly, with the reason and the
+   citation, at flag-parse time, plus an assert in the prover as a second
+   stop. `--p3` also refuses `--profile v2` (the v2 ZK prover is P1 only).
+5. **The statement header names the private set and the output claim.**
+   `ZkStatementMode { privacy, output, model_id }` is absorbed into the
+   transcript right after the statement fields and before any challenge. The
+   P1 tuple keeps the frozen tag `P1-v3`; P3's header is
+   `HL-ZK/1|profile=v3|priv=in+act+out+weights|pub=shapes+shifts+table-digest|out=commit|model=w-root`.
+   `verify_layer_zk_v3` takes the mode as an ARGUMENT — the verifier is told
+   which claim it is checking and cannot read it off prover-supplied bytes.
+6. **The output-claim SLOT (PROOF_FUNCTIONS.md), enumerated, not a
+   framework.** `OutputClaim::{Committed, BinaryAcceptable}`: `commit` is
+   function 1 (attested inference) and is the only one built;
+   `commit+pred:binary-acceptable` is function 2's first form (the single
+   non-negativity fact y[accept] − y[reject] >= 0) and the driver REFUSES it —
+   the variant exists so the gadget is added as a variant, not as a header
+   redesign. The predicate name and the model identity sit in the SAME header
+   under the SAME transcript, so a proof under one (P, M) cannot be presented
+   under another. A `--model-id` flag declares the identity.
+
+**MEASURED [WSL-BOX] [8T] [CPU] [NOISY-SHARED] [MEASURED]** (the 12x512 CPU
+and GPU rows and the GPU legs are rung 2's detached run):
+
+- `pass 3 16 --p3 --seed 1 --profile v3`: **ACCEPT**, PROOF sha256
+  `7bbc0312e2887975..` (10,395,708 B) — a new statement with its own digest.
+- **The eight tamper legs REJECT under P3**: `layer 0 16 --p3 --all-tampers`
+  GREEN (flipped X, flipped Wg, out-of-range remainder, wrong int16 table
+  entry, wrong requant, wrong z, wrong rounding, out-of-range int16), plus the
+  pass-level wrong-z leg on `pass 2 64 --p3 --tamper z`.
+- **P1 IS UNMOVED**: `pass 12 512 --zk --seed 1 --profile v3` still
+  `40eb54795e023c77..` (87,697,008 B) on the rebuilt binary. The new
+  `w_open_zk` field is EMPTY under P1 and an empty `OpeningZk` writes zero
+  bytes, so the P1 serialization is byte-for-byte what it was.
+- **THE ACCEPTANCE TEST FOR WEIGHT PRIVACY** (results/am_r1_clear_value_scan.log),
+  the same scan as rung 0 on a P3 proof of the same witness:
+
+  | 3x16 v3 proof | non-zk | `--zk` (P1) | **`--p3` (P3)** |
+  |---|---:|---:|---:|
+  | words in the int8 class | 107,711 | 19,516 | **15** |
+  | runs of >= 100 clear values | 41 | 61 | **0** |
+  | clear words in runs | 78,092 | 17,568 | **0** |
+
+  The 61 weight columns of the P1 proof are GONE. The 15 residual int8-class
+  words are serializer artifacts (row counts and column indices), not witness.
+- **41/41 unit tests**, including the new
+  `zk_v3_p3_hides_the_weights_and_the_header_binds_the_claim`: P3 round-trips;
+  across 3 seeds x 2 witnesses every opened W column entry and clear-vector
+  entry is distinct and none lies within 2^40 of 0 or p; a P3 proof verified
+  as P1 is REJECTED and a P1 proof verified as P3 is REJECTED; a function-1
+  proof verified as function-2 is REJECTED; `P1-v3` has not moved; and the
+  seven in-test tamper legs reject under P3.
+
+**AN HONESTY NOTE THAT BELONGS TO VICTOR, NOT TO THIS LANE.** Under P1 the
+model identity IS the W commitment root: the weights are public, the root is
+stable per model, and it is in every proof. **Under P3 that identity is
+gone** — the root is re-randomised on every proof by construction, so a P3
+proof as built proves "SOME weights of this shape", not "THIS model". The
+header carries a `model=` field and `--model-id` declares one, which binds
+the proof to the declaration (the prover cannot afterwards claim a different
+model for the same proof) but does NOT force the declaration to be true;
+binding it needs a stable hiding commitment plus a proof that the per-proof
+commitment opens to the same weights — lane ZZ's option 2, or a
+re-randomisable commitment. **Function 1 of PROOF_FUNCTIONS.md asks for "this
+exact model"; the FAST tier delivers that today and the FULL tier does not.**
+Stated, not fixed.
+
+### AM rung 2 — MODE P3 AT MISTRAL WIDTH: 8/8 tamper legs REJECT, the clear-value scan 180,450 -> 0, and the size cost is +0.16% (2026-09-04, RE-RUN after the box froze)
+
+**THIS RUNG WAS RUN TWICE.** The first attempt died at 01:37:13 with three
+lines in the log when the WSL box FROZE (see the note at the end of this
+entry — the freeze has a diagnosed cause and it is this lane's own
+allocation). The truncated log is kept as `results/am_r2_mistral.crashed.log`.
+The re-run went out detached under `flock /tmp/zk-heavy.lock`, self-started
+at 10:46:09 when round 15's merged floors released the lock, and finished
+exit 0: `results/am_r2_mistral.log`, marker `results/am_r2_mistral.done`.
+
+**THE SOUNDNESS FLOOR AT REAL WIDTH.** Layer 0 at T=16, d 4096 / f 14336,
+P3, GPU binary: the honest run ACCEPTs (prove 9.860 s, verify 0.107 s,
+27,426,484 B) and **all eight tamper legs REJECT** — flipped X entry,
+flipped Wg entry, out-of-range remainder, wrong int16 table entry, wrong
+requant (h16), wrong z, wrong rounding (floor), out-of-range int16 (z16).
+`layer 0 (v3) [ZK]: GREEN`. Every leg that rejects in round 14's P1 battery
+still rejects with the weights hidden, which is the claim that mattered:
+the two extension rounds per matmul sumcheck (rung 1's fix for the bilinear
+mask cross-term) did not cost soundness anywhere the battery can see.
+
+**THE PRIVACY CLAIM AT REAL WIDTH**, one Mistral layer at T=512
+[MEASURED, WSL-BOX, 8T, GPU binary]:
+
+| | P1 (fast tier) | P3 (full tier) |
+|---|---:|---:|
+| PROVE | 4.26 s | 15.82 s (SEE THE WARNING) |
+| VERIFY | 0.06 s | 0.06 s |
+| proof | 40,186,228 B | 40,251,860 B |
+| sha256 | `b5da6c38..` | `190e85a1..` |
+| **int8-class words in the proof** | **180,450** | **0** |
+| int16-class words | 180,452 | 2 |
+| runs >= 100 consecutive int8-class | 0 | 0 |
+
+**180,450 -> 0.** The scan that found raw int8 weight columns sitting in a
+P1 proof finds NOTHING of the class in a P3 proof at the real model width.
+The two int16-class words that remain are two aligned words out of
+5,031,482 with no run structure — noise, not a column. **And the size cost
+is +65,632 B = +0.16%**, so the full tier's overhead is TIME, not bytes.
+
+**DO NOT QUOTE 4.26 -> 15.82 s AS P3's SURCHARGE.** The two arms did not run
+on the same hardware path. The P1 arm took the device commit (device-side
+h2d 0.393 s / ntt 1.195 s / hash 0.202 s, VRAM peak 8,585 MB). The P3 arm
+DECLINED it — `[UPERF3-ZA] gpu zk commit declined (cuMemAlloc(5387 MB):
+CUDA_ERROR_OUT_OF_MEMORY); CPU path` — because P3 forbids the weight cache
+and must commit W hidingly on every proof, and a 5,387 MB allocation does
+not fit an 8,188 MB card that P1 already spills at 8,585 MB. So 3.71x is
+**P3-on-CPU measured against P1-on-GPU on an 8 GB box**, and P3's structural
+cost at Mistral width REMAINS UNMEASURED. It needs a card that can hold the
+allocation.
+
+**THIS SIZES LANE AI's ITEM: 5,387 MB.** "The ZK prover declines the device
+path at Mistral width" now has the number that decides it. It is the same
+prediction as AI's 16 GB+ row (~140 s instead of 265 with no code change),
+and it now applies to the FULL tier as well as the fast one — **the 5090
+settles both at once**, which strengthens the case already in the round-15
+block. Note the asymmetry for whoever plans the hardware step: P1 spills but
+runs on the device; P3 cannot get on the device AT ALL at this width.
+
+**THE BOX FREEZE, DIAGNOSED — this lane's allocation is the prime suspect.**
+The kernel's LAST message before the 2026-09-04 freeze, at 01:37:17, four
+seconds after this rung's tamper legs started, was
+`misc dxg: dxgk: dxgkio_make_resident: Ioctl failed: -12` twice — `-12` is
+ENOMEM, and `dxgkio_make_resident` is WSL's GPU RESIDENCY ioctl. So the box
+died of **VRAM exhaustion, not host RAM**; under WSL a residency request is
+backed by host paging, which is why the whole VM froze instead of one
+process dying. The same message appears at 00:11:03 and 00:27:52 that night,
+just after a `hashline` SIGABRT from lane AI's binary at 00:10:19 — so
+VRAM was already contended when this rung asked for its 5,387 MB.
+
+**WHY THE RE-RUN WAS SAFE AND WHAT IT MEANS FOR RUNG 3**: on a clean box
+(0 of 8,188 MiB used, one process under the lock) the identical allocation
+failed CLEANLY at the CUDA layer and fell back to CPU. The per-layer
+allocation at 8B is the SAME shape as this rung's, so rung 3's P3 arm should
+be 32 clean fallbacks rather than a freeze — but that is a prediction, and
+the rule it produces is a standing one: **never let a second GPU process
+run beside a P3 pass on the 8 GB box, and check `nvidia-smi` reads 0 MiB
+before launching one.**
+
+### AM rung 3 — BOTH TIERS NOW EXIST AT 8B: the fast tier reproduces the product number BYTE FOR BYTE, and the full tier PROVES AN 8B MODEL (ACCEPT, +0.163% bytes, VERIFY UNCHANGED, no weight column in 161M words) — via a THIRD box freeze whose cause was NOT P3 (2026-09-04)
+
+**WHAT RAN.** `results/am_r3_8b.sh` went out detached under the heavy lock and
+started at 10:59:22. Its FAST TIER (P1) arm ran to completion, exit status 0.
+Its FULL TIER (P3) arm started at 11:05:40, proved two layers, and then **THE
+BOX FROZE at ~11:06** — the third hard stop of 2026-09-04. Victor found it and
+force-restarted at 11:07. The log is kept whole as `results/am_r3_8b.log`;
+there is no `.done` marker for it and there should not be one.
+
+**THE FAST TIER AT 8B — THE PRODUCT NUMBER, REPRODUCED ON A SECOND TREE**
+[MEASURED, WSL-BOX, 8T, GPU binary, cold weight cache (32 misses)]:
+
+| | lane AI, round 14 | **lane AM rung 3** |
+|---|---:|---:|
+| sha256 | `930ce9a0..` | **`930ce9a0..`** |
+| proof | 1,285,578,368 B | **1,285,578,368 B** |
+| PROVE | 265.34 s | 238.37 s |
+| VERIFY | 2.33 s | 2.02 s |
+| witness load+chain | — | 128.94 s |
+| wall | — | 372.04 s |
+| max RSS | — | 4.56 GB |
+| VRAM peak | — | **8,585 MB on an 8,188 MB card** |
+
+**THE DIGEST IS THE RESULT. THE SECONDS ARE NOT.** `930ce9a0..` at
+1,285,578,368 B reproducing exactly, on a lane whose tree is NOT lane AL's,
+is a real byte gate on the 8B product number — it says the round-14 headline
+is a property of the argument and not of one worktree. **Do NOT read
+265.34 -> 238.37 s as a speedup.** AM branched at c0eba73, BEFORE AL's
+host-wall work merged at 22b975f, so there is no mechanism here to explain
+10%; this box's own documented run-to-run variance (~2x) swallows it whole.
+Two cold runs of the same binary differing by 10% is the noise floor, and the
+quiescing rule in CLAUDE.md is the reason no headline is quoted from it.
+
+**THE FULL TIER GOT TWO LAYERS**, and they say the mechanism works:
+`layer 0: prove 19.616 s, 40,251,860 B` and `layer 1: prove 20.489 s,
+40,239,572 B`, each after a CLEAN decline of the device commit. Layer 0's
+40,251,860 B is byte-for-byte the size rung 2 measured for a P3 Mistral
+layer, which is the shape check passing at 8B.
+
+**THE FREEZE, DIAGNOSED — AND RUNG 2's PREDICTION WAS HALF WRONG.** Rung 2
+predicted "rung 3's P3 arm should be 32 clean fallbacks rather than a
+freeze". The FALLBACK half held perfectly: both P3 layers declined
+(`cuMemAlloc(5387 MB)`, then `449 MB`, then `378 MB`) and proved on the CPU.
+The FREEZE half did not, and the reason is that **the freeze risk was never
+P3's to carry — it is the P1 arm's.** The evidence:
+
+- **The P1 arm SPILLS THE CARD: `vram peak 8585 MB` against 8,188 MB.**
+- The kernel logged `dxgkio_make_resident: Ioctl failed: -12` **in pairs
+  every ~2 minutes for the whole P1 arm** — 10:59:30, 11:01:35, 11:03:41,
+  11:05:48 — i.e. the spill was being backed by host residency continuously,
+  not once at a peak.
+- journald's LAST record of that boot is **11:05:48**, three seconds BEFORE
+  the P3 arm even started. The box was already dying during P1's tail.
+- P3 then could not get **378 MB** on a card whose only user had exited
+  three seconds earlier. VRAM is not returned promptly on WSL, so **chaining
+  a second pass behind an 8B P1 pass starts it against a full card.**
+
+**NEW STANDING RULE, replacing the narrower one at the end of rung 2:** the
+8B P1 pass is ITSELF a freeze risk on this 8 GB card, because it spills by
+~400 MB for six continuous minutes. Never chain a second GPU pass behind it
+in one script; run the two tiers as SEPARATE detached jobs with the card
+verified idle between them. The rung-2 rule (no second GPU process beside a
+P3 pass, check `nvidia-smi` first) still stands and is not enough on its own.
+
+**THE SALVAGE**: `results/am_r3_8b_p3_cpu.sh` — the P3 arm ALONE, with
+`HL_GPU` unset so `gpu::enabled()` is false and the binary cannot ask the
+device for anything. Same `target-gpu` binary, so rung 3's one-binary
+property survives. It buys the full tier's PRIVACY and INTEGRITY claims at
+8B — the digest, the size, the clear-value scan — at zero freeze risk, and
+it explicitly does NOT buy a P3-on-GPU 8B time. That row still needs the
+16 GB+ board and stays booked there, exactly as rung 2 left it.
+
+**RESULT OF THE SALVAGE RUN: THE FULL TIER PROVES AN 8B MODEL. ACCEPT.**
+`results/am_r3_8b_p3_cpu.log`, marker `.done` = 0, 11:13:51 -> 11:25:25.
+[MEASURED, WSL-BOX, 8T, CPU PATH, HL_GPU unset]
+
+| | P1 (fast tier, GPU) | **P3 (full tier, CPU)** |
+|---|---:|---:|
+| verdict | ACCEPT | **ACCEPT** |
+| sha256 | `930ce9a0..` | `1fee4813..` |
+| proof | 1,285,578,368 B | **1,287,678,592 B** |
+| PROVE | 238.37 s | 499.04 s (NOT A SURCHARGE — see below) |
+| VERIFY | 2.02 s | **1.99 s** |
+| witness load+chain | 128.94 s | 134.25 s |
+| wall | 372.04 s | 647.58 s |
+| max RSS | 4.56 GB | **13.97 GB** |
+| proven MAC/s | 1.211e10 | 5.784e9 |
+
+**THE SIZE COST OF HIDING THE WEIGHTS AT 8B IS +2,100,224 B = +0.163%.**
+Rung 2 measured **+0.16%** for one Mistral layer. The full model agrees
+with the single layer to three digits, which is the strongest form this
+claim has taken: **the full tier's overhead is TIME, not bytes**, and
+that now holds at product scale.
+
+**VERIFY DOES NOT MOVE: 1.99 s against P1's 2.02 s (2.33 s in round 14).**
+Hiding the weights costs the VERIFIER nothing. For a deployed product this
+is the line that matters most — whoever checks the proof cannot tell, from
+cost, whether the model was public or private.
+
+**COMMIT W IS 43.6% OF THE PROVE.** Phases summed over layers: **commit W
+217.694 s**, helpers + commit H 95.236, commit A 86.948, zero-check F
+50.688, pcs openings 26.892, zero-check D 7.070, matmul g/u 6.387, table
+zero-check 4.069, matmul d 3.690, mask commit 0.239, zsum + mask open
+0.124.
+
+**CORRECTION, WRITTEN THE SAME DAY AND BEFORE THIS ENTRY WAS EVER READ
+BY ANYONE ELSE.** The first version of this paragraph called `commit W`
+"the full tier's structural cost" because it set 217.694 s beside P1's
+**46.978 s** — but that P1 figure is P1 **on the GPU, with the cache**.
+That is the two-axis trap this very entry warns about two paragraphs
+down, and the entry walked into it. The baseline run
+(`am_r3_8b_p1_scan_cpu.log`) settles it: **P1 on the SAME CPU path spends
+214.337 s in `commit W` against P3's 217.694 s.** So `commit W` is ~44%
+of the prove **in BOTH modes**, and it is the cost of committing the
+weights AT ALL — not the cost of HIDING them. The 46.978 s was the
+DEVICE talking, not the mode.
+
+**DO NOT QUOTE 238 -> 499 s AS P3's SURCHARGE** — those arms differ on
+TWO axes, mode AND device. Quote the one-axis number below instead.
+
+**THE ONE-AXIS ANSWER — THE NUMBER THIS LANE WAS CHARTERED TO PRODUCE.**
+The baseline run gives P1 on the SAME CPU path, same binary, same seed,
+same shape, so mode is the ONLY thing that varies:
+
+| | **P1 (public W)** | **P3 (private W)** | cost of hiding |
+|---|---:|---:|---:|
+| PROVE | 485.33 s | 499.04 s | **+2.82%** |
+| `commit W` | 214.337 s | 217.694 s | **+1.57%** |
+| VERIFY | 1.95 s | 1.99 s | +2.1% |
+| proof bytes | 1,285,578,368 | 1,287,678,592 | **+0.163%** |
+| witness load+chain | 134.93 s | 134.25 s | -0.5% |
+
+# **HIDING THE WEIGHTS COSTS UNDER 3%.**
+
+That is the honest per-proof cost of the full tier against the fast one,
+and it replaces "REMAINS UNMEASURED" for the CPU path. The privacy tier
+is not a different regime; it is a rounding error on the same argument.
+Round 14's ruling-grade correction — "the P1 surcharge is +178% on a GPU,
+not the +4.7% AD measured on a CPU" — was about ZK vs NON-ZK. **This is a
+different step: once you are already paying for ZK, hiding the WEIGHTS
+too is nearly free.**
+
+**TWO CAVEATS, BOTH SMALL AND BOTH STATED.** (1) P1 ran with `--wcache`
+on a cold cache; with 32 distinct layers every lookup is a miss, so
+there is no reuse benefit, and P1 additionally pays a cache STORE that
+P3 does not — if anything this flatters P3 slightly, and the gap is
+2.82% either way. (2) This is the CPU path. **On a GPU the gap is much
+larger, but that is HARDWARE, not mode**: P1 reaches the device
+(`commit W` 46.978 s, a 4.6x on 44% of the prove) and P3 cannot get on
+it at all at this width — `cuMemAlloc(5387 MB)` on an 8,188 MB card.
+**So the 16 GB+ board is what makes the sub-3% figure the DEPLOYED
+figure instead of a CPU-path figure.** That is the sharpest form of the
+hardware argument this project has: the full tier is already nearly free
+in principle, and only the card is standing between that and practice.
+
+**A GATE NOBODY ASKED FOR, PASSED ON THE WAY: THE CPU AND GPU PATHS
+AGREE BYTE FOR BYTE AT 8B.** This P1 run was on the CPU and produced
+`930ce9a0..` / 1,285,578,368 B — the same digest the GPU produced this
+morning and the same one lane AI recorded in round 14. **Three
+reproductions now, across two device paths and two trees.**
+
+**A NEW, USEFUL NUMBER: LEAVING THE GPU ON WHEN IT CANNOT BE USED COSTS
+~25%.** The frozen run had `HL_GPU=1` and the device commit declining;
+its two layers took **19.616 s and 20.489 s**. This run, with `HL_GPU`
+unset, does the same CPU work in **~15.3 s/layer** (layer 0 17.978 s,
+layers 1-31 15.0-15.6 s). The try-allocate-fail-fall-back path is not
+free. **On this card, a P3 pass should be launched with `HL_GPU` unset,
+not merely allowed to decline.**
+
+**THE PRIVACY CLAIM AT 8B** — the clear-value scan of the 1.29 GB P3
+proof, 160,959,824 aligned 8-byte words:
+
+| | count |
+|---|---:|
+| int8-class words `[-127,127]` | 148 |
+| int16-class words | 10,323 |
+| **RUNS of >= 100 consecutive int8-class words** | **0** |
+
+**THE DECISIVE LINE IS THE RUN COUNT, AND IT IS ZERO.** The scan exists
+because a P1 proof carries raw int8 weight columns, and a column is a RUN.
+At 8B, with the weights private, there is no run anywhere in 161 million
+words: no weight column survives into the proof.
+
+**THE BASELINE LANDED AND SETTLES THE 148 COMPLETELY**
+(`results/am_r3_8b_p1_scan_cpu.log`, marker 0, 11:27 -> 11:38). The SAME
+scan on the SAME shape's P1 proof, both proofs produced by the same
+binary on the same CPU path:
+
+| | **P1 (weights public)** | **P3 (weights private)** |
+|---|---:|---:|
+| aligned 8-byte words | 160,697,296 | 160,959,824 |
+| int8-class `[-127,127]` | **13,845,980** | **148** |
+| int16-class | 13,856,110 | 10,323 |
+| **runs of >= 100 int8-class** | **1,009** | **0** |
+| **words inside those runs** | **10,848,770** | **0** |
+
+**13,845,980 -> 148 is a 93,554x reduction, and 10,848,770 structured
+words -> ZERO.** The 148 is one ten-thousandth of one percent of the P1
+count and carries no run structure; the metadata reading was right, and
+it is now demonstrated rather than asserted.
+
+**AND THE RUN STRUCTURE NAMES ITSELF.** The P1 run lengths are
+`[(10752, 1007), (10753, 2)]` — **1,007 runs of EXACTLY 10,752 words**,
+at a start stride of 10,817. From this same run's own mask-site dump,
+the W commitment is `10774 rows of 2^14 = 10752 data + 21 block masks
++ 1 prox row`. **10,752 is exactly the number of DATA rows in the weight
+commitment**, so those runs are not "small numbers" — they are the
+weight columns themselves, lying in the P1 proof in full, one contiguous
+column per opened position. That is the leak the scan was built to find,
+and P3 removes every one of them.
+
+**THE HOST-RAM CEILING IS NOW IN SIGHT: max RSS 13.97 GB on a 15 GB box.**
+The full tier on the CPU path very nearly exhausts host memory at 8B.
+Nothing else may run beside it, and this is a SECOND reason (beside
+`commit W`) that the full tier at 8B wants the bigger machine.
+
