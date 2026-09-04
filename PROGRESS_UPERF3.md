@@ -13770,6 +13770,64 @@ degree-3 sumcheck over one d-block, on the final layer only.
 MEASURED: nothing yet (rung 2 builds it, rung 3 measures).
 OPEN: the build; the two-way interchange test; the eight byte gates.
 
+### AN rung 2 — 2026-09-04 — FUNCTION 2 EXISTS: the ZK content filter proves and verifies, 42/42
+
+BUILT, all of it in `hashline/src/zk.rs` (no `pcs.rs`, no `gpu/*`, no
+`layer.rs`):
+
+* `PredicateSpec { row, col, tau }` — the frozen acceptable set, and it IS
+  the whole set: no set commitment, no per-proof set, no lookup. It is
+  carried in `ZkStatementMode` beside `model_id` and printed into the
+  header body, so the predicate id and the model identity digest are in
+  the SAME header under the SAME transcript (`out=commit+pred:binary-
+  acceptable(row=..,col=..,tau=..)`).
+* `ZkStatementMode::predicate()` — the output-claim slot and the
+  parameters must agree, so a bare `binary-acceptable` claim (which names
+  no predicate) is refused rather than silently proving nothing.
+* three A rows appended AFTER every existing row and allocated ONLY under
+  function 2: the bit row (16 planes in columns 0..16) and the two mask
+  rows its two claims need.
+* a 7th mask slot `SC_PRED` and one masked degree-3 sumcheck over the
+  d-block cube (`nv = log_t + log_db` rounds + the extension round):
+  `sum_y [eq(y,pt) z_c(y) - w(y) B(y) + nu eqr(y) (B(y)^2 - B(y))] = tau`.
+  THE CLAIMED SUM IS THE PUBLIC THRESHOLD, so the sumcheck reveals no
+  witness quantity; it is sent masked in the same CFS form as the other
+  six, and its two private terminals are masked by the extension round.
+* `PredProofV3` on `LayerProofZk` as an `Option`, which writes ZERO bytes
+  under function 1.
+
+MEASURED [MEASURED], `cargo test --release` at the tiny test shape
+(t=2, d=f=16, log_cols=5):
+
+* the whole suite is **42/42** (41 before + the new one), zero failures;
+* **function 1: 1,686,500 B; function 2: 1,692,020 B — +5,520 B,
+  +0.3273%**; the predicate sumcheck is 6 rounds. Most of those bytes are
+  the 3 extra A rows in the Ligero opening and the 7th mask slot, i.e. a
+  FIXED cost that amortises: at the tiny shape the whole proof is only
+  1.69 MB. (The real-shape figure is rung 3.)
+* the function-1 proof of the same witness is **byte for byte** what it
+  was: the test asserts `out1.to_bytes() == out1b.to_bytes()`, `pred` is
+  `None`, and the size accounting is unchanged.
+
+THE NEW TEST (the 42nd) asserts seven things, and (3) is the shape lane AM
+asked for, in BOTH directions:
+1. an ACCEPTABLE classification proves and verifies;
+2. an UNACCEPTABLE one does NOT — `y - tau = -1` produces a proof that
+   fails, so the filter is enforced by soundness, not by a policy layer;
+3. a function-1 proof does not verify as function 2 AND a function-2 proof
+   does not verify as function 1;
+4. the predicate is the statement's identity: the same proof under a
+   different `tau`, a different `col`, a different `row`, or a different
+   `model_id`, is rejected — and the headers differ in every case;
+5. all seven tamper legs still reject with the predicate on;
+6. nothing of the output is in the clear: the two terminals are never the
+   score, the threshold or the slack, never land in the witness range, and
+   are all distinct across four seeds of one and the same statement;
+7. byte-preservation, as above.
+
+OPEN: the driver flag; the eight byte gates on the real binaries; the
+measured cost at a real shape.
+
 ## Agent AO status (wt-uperf3-ao) — round 16
 
 (lane appends below)
