@@ -11711,6 +11711,155 @@ wrong int16 table entry, wrong requant (h16), wrong z, wrong rounding
 first time the eight legs have been run at a real 8B width with the
 zero-checks and the LogUp helpers on the device.
 
+### AI rung 3 — **THE 8B PROOF, ON A GPU, WITH PRIVACY: 32 x 512 Mistral-7B in mode P1, PROVE 265.34 s, `930ce9a0..` (1,285,578,368 B), ACCEPT** (2026-09-04, WSL-BOX, [MEASURED])
+
+Resumed after the 2026-09-03 hard reboot. The trunk (round 14: lane AG, this
+lane's rungs 0-2, the 60 tok/s plan) merged in clean, both binaries rebuilt,
+and **the four byte gates re-run on both binaries BEFORE any measurement:
+all eight green** (results/hashline_zk_8b_gates.log). The crash-recovery
+commit `1c225d4`'s claims were treated as hypotheses and re-established by
+running; every log lives in results/, not /tmp.
+
+**THE ROW** [WSL-BOX] [8T] [GPU] [NOISY-SHARED — another lane compiled
+throughout] [MEASURED], detached under `flock /tmp/zk-heavy.lock` with a
+`.done` marker, one run, `/usr/bin/time -v`; full log
+results/hashline_zk_8b_pass_gpu.log, record results/hashline_zk_8b_gpu.md:
+
+    HL_GPU=1 hashline pass 32 512 --zk --seed 1 --profile v3 \
+      --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export \
+      --wcache <fresh dir> --threads 8 --proof-out F
+
+| | AH's 8B GPU pass (no privacy) | **THIS ROW (mode P1)** | ratio |
+|---|---:|---:|---:|
+| **PROVE** | 95.48 s | **265.34 s** | **2.78x** |
+| VERIFY | 1.16 s | **2.33 s** | 2.01x |
+| proof bytes | 1,234,936,956 | **1,285,578,368** | **+4.10%** |
+| **sha256** | `dc980e81..` | **`930ce9a043a03721..c982e`** | — |
+| peak RSS | 3.80 GB | **4.30 GB** | +13% |
+| VRAM peak | 5,651 MB | **8,585 MB** of 8,188 MiB | +52% |
+| proven MAC/s | 3.02e10 | **1.088e10** | 0.36x |
+| witness load+chain / wall | 126.97 / 225.35 s | **131.79 / 402.29 s** | — |
+| tokens/s (512 / prove) | 5.36 | **1.93** | — |
+
+Digest by hand over the file as well as by the binary:
+`930ce9a043a037210f62ac1384384e3a88607f29046b56284c6308ed272c982e`,
+1,285,578,368 B, `PASS-V3 ACCEPT [ZK]`, wcache 32 misses / 129 MB (cold).
+
+**THE FINDING THAT MATTERS FOR EVERY PROJECTION IN THE PLAN: the P1
+surcharge at 8B ON A DEVICE is +178% on the prover, not AD's +4.7%.** AD's
++4.7% / +3.9% was measured on the CPU, where the base is 15 s of host
+arithmetic and the ZK work hides inside it. **The bytes carried over exactly
+(+4.10%); the time did not** — on a device the base is 3 s of kernels and the
+ZK work (masked commitments with salted leaves, the committed multiplicity
+tables, the extra H rows) is most of the layer. The round-13 addendum's
+"expected near 100 s" came from 95.48 x 1.047; that multiplication is not
+valid across channels, and this lane's job was to replace it with a
+measurement. 265.34 s is the measurement.
+
+PHASES, summed over 32 layers [MEASURED, s]: commit W 54.18 (AH 41.94),
+commit A 24.57 (15.85), mask commit 0.23, **helpers + commit H 146.26
+(5.36)**, matmul g/u+d 10.64 (8.13), zero-check F 8.62 (4.65), zero-check D
+1.34 (0.79), table zero-check 1.58 (0.32), zsum+mask 0.12, pcs openings 17.80
+(18.48). Device-side: h2d 16.86 s (61,018 MB), **ntt 119.10 s** (AH 15.85),
+hash 8.07, sumcheck 9.80, fold 5.87, helpers 19.63, d2h 1,466 MB.
+**55% of the prove is helpers + commit H.**
+
+**THE DRAIN: NECESSARY, AND RE-ESTABLISHED BY RUNNING** (the dead agent's
+testimony was a comment; this is evidence). `HL_ZK_DRAIN=0` was added so the
+A/B runs in ONE binary; 4 real Mistral layers, same statement, drain the only
+difference (results/hashline_zk_8b_drain_ab.log):
+
+| | drain ON (shipped) | drain OFF |
+|---|---|---|
+| result | 4/4 layers **ACCEPT**, prove 31.15 s | layer 0 fine (4.78 s), **layer 1 PANICS** |
+| failure | — | `gpu zk commit H (v3): cuMemAlloc(1514 MB): CUDA_ERROR_OUT_OF_MEMORY` |
+| proof | `9f2f35a3..` / 160,708,048 B | none |
+
+So **without the drain the 32-layer 8B ZK pass cannot run at all** — the
+1,514 MB failure the crash-recovery commit described, reproduced to the
+megabyte. Mechanism, from the HL_GPU_VERBOSE trace: the pool matches by EXACT
+length and the ZK row counts differ per layer (layer 0's proof is 40,186,228
+B, every later layer's 40,173,940 B — different remainder windows, different
+table rows), so the previous layer's pooled buffers are dead weight; without
+the drain the card reads `free 0 MiB` with 9 pooled buffers before layer 1 has
+finished committing W. Cost of the drain, measured where it frees nothing at
+the top: layer 0 4.78 -> 5.65 s (the first-touch price after the "after H"
+drain).
+
+**WHAT THE DRAIN CANNOT BUY, AND THE NEGATIVE RESULT THAT PROVES IT.** Layer 0
+proves in 4.36 s; layers 1..31 average 8.42 s. The trace's only difference: at
+layer 0 the zero-check table reservation FAILS, `dev_reserve_hard` drains and
+retries, and the layer runs with 1,614 MiB of real VRAM; at later layers the
+same reservation SUCCEEDS with 494 MiB free — **on WSL `cuMemAlloc` is served
+from HOST memory instead of failing** — so 1,392 MB of tables are paged and the
+helpers/H/zero-check phase runs against host memory. A third drain placed
+before that reservation (to force real VRAM) was written and A/B'd
+(results/hashline_zk_8b_drain_pre_ab.log): **it kills layer 0** with
+`gpu zk commit H (v3): cuMemAlloc(1516 MB) OUT_OF_MEMORY`. On an 8,188 MiB
+part the resident A commitment + 1,392 MB of tables + a 1.5 GB H commit do not
+fit, and the paging is what makes the layer possible at all. Reverted, with
+the reasoning and the failure left as a comment at the site.
+**So the 2x per-layer penalty is a card-size fact, not a code fact: 32 x 4.36
+= 140 s is what this row would be if every layer ran like layer 0, which a
+16 GB+ board should give with no code change [PREDICTION, not measured].**
+That is now the cheapest question lane E's hardware ruling can answer.
+
+**BYTE IDENTITY, CPU vs GPU, ON A CHAINED MULTI-LAYER PROOF**
+(results/hashline_zk_8b_cpu_gpu_cmp.log): `pass 4 512 --zk --seed 1 --profile
+v3` on the Mistral export — GPU `9f2f35a383295118..` / 160,708,048 B / PROVE
+30.76 s / RSS 3.09 GB; CPU **the same digest and byte count** (`cmp`
+identical) / PROVE 74.48 s / RSS 13.01 GB. **The GPU is 2.42x the CPU on the
+ZK path at 8B width.** Rung 1 proved this for one layer; this chains four. The
+32-layer CPU run was NOT taken: ~596 s [COUNTED from this row] at 13 GB RSS
+would risk a 15 GB box shared with two live lanes, for a digest the 4-layer
+gate already pins.
+
+**E4 — `--wcache` ON THE ZK PATH** (results/hashline_zk_8b_wcache_e4.log,
+2 Mistral layers per run). The one-line change landed in rung 1; this rung
+proved it rather than assuming it. ZK + cold `--wcache`: **MISS x2, entries
+written** (4.2 MB/layer, where before the flag wrote nothing). ZK with no
+`--wcache`: **the same digest `5c766868..`, the same 80,360,168 B** — the
+cache changes no bytes. The **non-ZK v3 prover** against the dir the ZK prover
+wrote: **hits 2 | misses 0** — the two passes share entries, which is exactly
+what the shared `WKey::new("v3", l, d, f, ..)` key was for; commit W 2.51-2.67
+s cold -> 1.61 s warm over two layers. **BUT the WARM path CRASHES the GPU ZK
+prover at Mistral width**: `gpu helpers (zk v3): cuMemAlloc(379 MB)
+OUT_OF_MEMORY` right after the layer-0 HIT. Cause, from wcache.rs (lane AC's
+file, READ-ONLY here): on a HIT `reencode_store` calls `gpu::dev_encode_only`
+and keeps the re-encoded W **device-resident for the layer**, where the MISS
+path's `pcs::commit` uses the CHUNKED device commit and leaves nothing
+resident; at 10,752 rows that store plus the resident A commitment does not
+leave the helpers their 379 MB. `--wcache` is safe on the GPU ZK path only
+while it MISSES — a fresh dir, which is what this row and AH's used. Owed to
+whoever owns wcache.rs; the cached form's byte-identity is not in question,
+its VRAM budget is.
+
+**FLOORS ON THE FINAL TREE** [MEASURED]: the four byte gates on BOTH binaries
+**all eight green** (v2 `50cf7bdf..` 66,844,928 B; v3 `5f368db6..` 70,758,084
+B; zk-v2 `021485e4..` 87,228,528 B; zk-v3 `40eb5479..` 87,697,008 B —
+results/hashline_zk_8b_gates_final.log), `cargo test --release` **40/40**, and
+**the eight v3 tamper legs at MISTRAL width through the GPU ZK prover: honest
+ACCEPT (4.182 s), then 8/8 REJECT, `layer 0 (v3) [ZK]: GREEN`**
+(results/hashline_zk_8b_legs.log).
+
+**WHERE THIS LANE STANDS.** Rung 3 done: the product number exists, with its
+digest, and every claim in the crash-recovery commit is now either measured or
+disproved. NOT done, for the next agent:
+(a) **the §3 row and the P1 tokens/s cells** — docs/zkmatrix-poc/
+PROVING_CHANNEL_OPTIONS.md §3 wants a row under AH's 8B GPU row (265.34 s,
+2.33 s verify, 1,285,578,368 B `930ce9a0..`, 4.30 GB + 8,585 MB VRAM,
+1.088e10 MAC/s, 1.93 tok/s, mode P1) and U_PERF3_ROUTE_B_THROUGHPUT.md §6.2/
+§6.5 the matching P1 cells. Those files are NOT in this lane's round-14 OWNS
+block, so they are flagged for the orchestrator rather than edited;
+(b) **helpers + commit H is 55% of the prove** (146.26 s) and the device NTT
+is 119.10 s against AH's 15.85 — the next real lever on this row, and the part
+most likely to be paging rather than arithmetic;
+(c) **the warm `--wcache` GPU crash** above;
+(d) the 32-layer CPU ZK pass, if a quiet box with 16 GB+ ever exists, to turn
+the ~596 s [COUNTED] into a measured CPU/GPU factor at full depth;
+(e) the chained-transcript simulator argument (plan item A6) is still owed
+before any of this is published as a ZK claim.
+
 ## ROUND 14 — THE 60 TOKENS/S PLAN, TRACKS B AND C (opened 2026-09-04)
 
 Ground: lane AG merged (the first full-layer proof) and lane AI merged
