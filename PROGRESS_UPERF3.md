@@ -10707,3 +10707,71 @@ pass** actually run rather than projected (~36 min under the current
 prover, and it wants a quiescent box); (5) the soundness margin
 (`2^-98.2` / `2^-95.1` vs Ligero's `2^-106`), which needs a degree-3
 extension field or a smaller-piece cut, not more queries.
+
+## ROUND 13 — THE FULL LAYER, AND THE KERNELS THAT ARE STILL 125M-SHAPED (opened 2026-09-03)
+
+Ground: round 12 merged (159a511; build + 40 tests + FOUR byte gates
+green: v2 50cf7bdf.., v3 5f368db6.., zk-v2 021485e4.., zk-v3
+40eb5479..). What round 12 established: the 8B FFN proof runs on a
+GPU in 175 s (2.9x the CPU) with byte-identical output; mode-P1
+privacy costs +4.7% at 8B width; the proof shrinks 19.9x under a
+compact commitment (at 95-98 bits, Victor's ruling pending); and
+Mistral's attention is int8-clean except its residual stream, with
+both integer chains reproducing 64/64 digests at 8B width.
+
+THE TWO GAPS THIS ROUND ATTACKS, in the order they matter:
+1. **The statement is still FFN-only.** Lane AE built everything up
+   to the proof and stopped at a gated boundary. Its counted cost:
+   a full layer is 2.87x the FFN-only cost at Mistral width, so a
+   32-layer full-model prove models to ~24 min on this CPU. Lane AG
+   builds the prover/verifier (AE's rungs 4-5).
+2. **The GPU kernels are templated on the 125M block shape.** Lane
+   AC measured 44% of the 8B GPU prove still on the HOST because the
+   device-shape gate declines Mistral's shape (13/15 tables vs 73),
+   and lane AD measured the table zero-check at 20% of the GPU ZK
+   prove for the same reason. Both fixes are byte-preserving and
+   worth ~1.5x on the 8B pass. Lane AH does them.
+
+Standing rules unchanged (no background runs; > ~8 min posted as
+ORCHESTRATOR-RUN; commit rung 0 within 15 minutes AND after every
+rung — the 2026-09-03 cutout proved this is what saves a lane; the
+four byte gates must stay green; append ONLY to your own status
+section, which exists below, so merges stay mechanical).
+
+### Lane AG — the FULL-LAYER proof (wt-uperf3-ag) — RUST (lane AE's rungs 4-5)
+OWNS: hashline/src/attention.rs, norm.rs, tables_attn.rs (ADDITIVE),
+the NEW full-layer prover/verifier functions in layer.rs (tagged
+[UPERF3-AG]), the `--attn` flag lines in src/bin/hashline.rs, NEW
+results/hashline_attn_*, the FULL-LAYER row in
+docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md §3 (only when MEASURED),
+"Agent AG status". READ-ONLY: pcs.rs, pcs_compact.rs, sumcheck.rs,
+transcript.rs, zk.rs, wcache.rs, gpu/* (lane AH's), export_v3.rs,
+tables_v3.rs, silu.rs, the v2/v3 FFN functions in layer.rs,
+zkmatrix-rs/, scripts/ (import, never edit).
+SPEC: the "WHERE THE LANE STANDS" block at the end of "## Agent AE
+status" lists exactly what rungs 4 and 5 must build. Read AE's whole
+status section first, then attention.rs and norm.rs (the value chain
+is already green and digest-checked at 125M and Mistral layer 0).
+
+### Lane AH — shape-general device kernels (wt-uperf3-ah) — RUST/CUDA
+OWNS: hashline/src/gpu/* (kernels.cu, cuda.rs, mod.rs), the
+`dev_shape` gate line in layer.rs (tagged [UPERF3-AH]; lane AG adds
+NEW attention functions to that file — never edit its regions), NEW
+results/hashline_gpu_shapegen_*, "Agent AH status". READ-ONLY:
+everything else.
+GOAL: make the zero-check and LogUp-helper kernels loop over blocks
+instead of being compiled for one block shape, so the device-shape
+gate stops declining Mistral's shape; and put the table zero-check
+on the device (lane AD's 20%-of-the-GPU-ZK-prove item). ACCEPT: the
+four byte gates unchanged; the 8B GPU pass's host share measured
+before and after (AC's 44%); the 8B GPU prove wall re-measured
+(175.09 s is the number to beat; ~105-125 s is AC's [MODEL]); the
+GPU ZK prove re-measured (5.63 s at 12x512 v3 is AD's number).
+
+## Agent AG status (wt-uperf3-ag) — round 13
+
+(lane appends below)
+
+## Agent AH status (wt-uperf3-ah) — round 13
+
+(lane appends below)
