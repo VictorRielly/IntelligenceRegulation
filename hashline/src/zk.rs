@@ -1938,10 +1938,24 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     // cuMemAlloc(1514 MB) OUT_OF_MEMORY` at layer 1 of the first 32-layer attempt). Draining
     // is value-neutral — a pooled buffer holds nothing live — and costs only the first touch
     // of the next allocation of each size.
+    //
+    // ALL OF THE ABOVE IS A HYPOTHESIS THE DEAD AGENT LEFT IN A COMMENT (its logs died with the
+    // box); `HL_ZK_DRAIN=0` turns BOTH drains off so the A/B can be run in ONE binary, which is
+    // how rung 3 re-establishes it. Default = on.
     #[cfg(feature = "gpu-cuda")]
-    if crate::gpu::enabled() {
-        let _ = crate::gpu::dev_pool_drain();
-    }
+    let drain_on = std::env::var("HL_ZK_DRAIN").map(|v| v != "0").unwrap_or(true);
+    #[cfg(feature = "gpu-cuda")]
+    let drain = |tag: &str| {
+        if crate::gpu::enabled() && drain_on {
+            let n = crate::gpu::dev_pool_drain();
+            if std::env::var("HL_GPU_VERBOSE").map(|v| v == "1").unwrap_or(false) {
+                eprintln!("[UPERF3-AI] drain {tag}: freed {n} pooled buffers");
+            }
+        }
+    };
+    #[cfg(not(feature = "gpu-cuda"))]
+    let drain = |_tag: &str| {};
+    drain("layer top");
 
     // ---- W data + commit (as built: public weights; ZB's block layout) ----
     let mut w_data = vec![Fp::ZERO; lay.w_len];
@@ -2166,11 +2180,9 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     // width) is in the pool and nothing later in this layer has those lengths; free it, so the
     // zero-check tables (1,168 + 224 MiB) are allocated against a card holding only the three
     // commitments. Without this the zero-check's table allocation is served by WSL's paging
-    // and its "tables" phase went from 0.003 s to 4.5 s (measured at Mistral, layer 1).
-    #[cfg(feature = "gpu-cuda")]
-    if crate::gpu::enabled() {
-        let _ = crate::gpu::dev_pool_drain();
-    }
+    // and its "tables" phase went from 0.003 s to 4.5 s (measured at Mistral, layer 1) — again
+    // the dead agent's testimony, re-established (or not) by the HL_ZK_DRAIN=0 A/B in rung 3.
+    drain("after H");
     lap("helpers + commit H (zk)", &mut timings, &mut tick);
     vnote("after helpers+H");
 
