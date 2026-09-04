@@ -185,11 +185,52 @@ AND THE CULPRIT IS NOT THE ONE THE LEDGER NAMED):**
     corrected with §5a. **Lesson recorded: a ruling that names specific
     machinery must say WHICH PROVING CHANNEL it lives in, and should be
     grepped before it is written down.**
-- **ROUND 16 IS STILL OPEN: LANE AO (L9) IS LIVE.** It serializes heavy
-  runs on `flock /tmp/zk-heavy.lock` and was briefed on the freeze
-  history, the `gpu: ON` check and the detached-run protocol. **Note for
-  the 5090 step: a lane being live means the toolkit swap wants a short
-  quiet pause — see the driver-first bullet above.** The lane briefs:
+- **LANE AO IS MERGED — L9 IS TAKEN, AND THE BRIEF WAS WRONG ABOUT IT
+  IN EVERY PREMISE.** Merged-tree floors GREEN
+  (`results/floors_round16_close.log`, exit 0, 8 gates, 42/42, both
+  builds); AO's own gates were TWELVE green, twice (8 standard + 4 with
+  the chunked path forced). AO built the attribution harness BEFORE
+  optimising — the right order, and it is what exposed the following.
+  - **THE THREE PREMISES WERE AJ ROUND-14 FIGURES LABELLED [COUNTED]
+    AND NEVER MEASURED.** "1.6e10 butterfly/s vs a 4.6e11 roof" -> the
+    kernels actually run at **4.00e10**; the old figure divided W's
+    butterfly count by a span that also held the d2h, the allocations,
+    the host column assembly and the A and H openings. "66 of 256 GB/s,
+    not bandwidth" -> `k_dif_pa` **197.6 GB/s** and dense `k_ntt_p2`
+    **200.5**, i.e. **77-78% of the roof and CLOSED — it IS bandwidth
+    bound.** "A launch-structure problem" -> launch residue **0.9%**.
+    **LESSON, and it is the same shape as §5's: a [COUNTED] number is
+    not a [MEASURED] one, and a lane brief must not promote it to a
+    premise.**
+  - **THREE LEVERS, ALL BYTE-IDENTICAL**: the first `rb` stages of a
+    zero-padded bit-reversed transform are a BROADCAST not arithmetic
+    (**1.37x**, also on the commit's encode path); a runtime integer
+    division per butterfly where the stride is a power of two but not a
+    compile-time constant, replaced by shift+mask (**1.18x**, and
+    PARITY on the dense kernel already at the memory roof — the
+    control); and output pruning, the brief's one surviving suggestion,
+    since only **244 of 4,096** residues can produce a sampled column
+    (**4.38x** on that kernel).
+  - **MEASURED** (small shapes only, as briefed): four re-encode
+    kernels **1.484x** (ABBA over four processes, spread 2.5%),
+    `columns_chunked` **1.292x**, commit encode NTT 1.156x.
+- **ORCHESTRATOR CORRECTION TO AO's OWN PROJECTION — IT UNDERSELLS
+  ITSELF.** AO closed by projecting "~4 s off an **86 s** prove, about
+  1.05x", and said the pass's largest item is "**38.7 s of host time in
+  `layer.rs`**, identified by AJ in round 14 and STILL UNASSIGNED".
+  **That is round-14 state and it is stale: lane AL took exactly that
+  item in round 15 and merged it** (22b975f). Post-AL the 8B prove is
+  **58.40 s**, host time inside the prove is **11.9 s**, and the
+  `layer.rs` residue is **~7.5 s**. So the same ~4 s lands on 58.40 s,
+  not 86 — **about 1.07x** — and, more to the point, **the device is
+  now ~80% of the prove, so device work is worth MORE than it was, not
+  less.** The closing line "a 1.48x on device kernels cannot move a
+  pass whose largest item is a host loop" describes a pass that no
+  longer exists. **This is my error, not the lane's: my brief pointed
+  it at round-14 evidence (`hashline_hostwall_gpu.md`) without saying
+  AL had superseded the host-wall half of it.**
+- **ROUND 16 IS CLOSED**, both lanes merged, merged-tree floors green.
+  The lane briefs:
   - **FUNCTION 2 — THE ZK CONTENT FILTER. Its trigger has now fired.**
     The third ruling deferred it with "NOT a lane yet ... it becomes a
     lane when AM reports"; AM has reported. **It needs no further
