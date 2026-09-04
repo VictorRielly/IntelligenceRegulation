@@ -146,25 +146,6 @@ fn dig_i64(v: &[i64]) -> String {
     crate::silu::hex(&h.finalize())
 }
 
-/// A streaming digest (the per-head tensors are hashed head by head, which
-/// is byte-identical to hashing the stacked head-major tensor).
-struct Stream(Sha256);
-impl Stream {
-    fn new() -> Stream {
-        Stream(Sha256::new())
-    }
-    fn push(&mut self, v: &[i64]) {
-        let mut buf = Vec::with_capacity(v.len() * 8);
-        for &x in v {
-            buf.extend_from_slice(&x.to_le_bytes());
-        }
-        self.0.update(&buf);
-    }
-    fn finish(self) -> String {
-        crate::silu::hex(&self.0.finalize())
-    }
-}
-
 /// The v3 requant: round to nearest, balanced remainder (export_v3's rule).
 fn requant_round(acc: &[i64], sh: i64) -> (Vec<i64>, Vec<i64>) {
     if sh <= 0 {
@@ -202,9 +183,152 @@ fn limbs(v: &[i64], wrho: u32) -> Vec<Vec<i64>> {
         .collect()
 }
 
-/// Run the whole chain from an export directory; returns the ordered
-/// (name, digest) list and the CHAIN digest.
-pub fn chain_from_export(dir: &str) -> (Vec<(String, String)>, String) {
+// ==========================================================================
+// [UPERF3-AG] THE WITNESS. The chain above is now `build_attn_witness` +
+// `witness_digests`: ONE implementation, so the rung-3 digest gate (the
+// oracle's 64 tensors) covers the plane the rung-4 prover commits, plane
+// for plane. `chain_from_export` is the pair composed.
+// ==========================================================================
+
+/// The integer class of a committed activation plane.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Cls {
+    Int8,
+    Int16,
+    Int24,
+}
+
+impl Cls {
+    pub fn limit(self) -> i64 {
+        match self {
+            Cls::Int8 => 127,
+            Cls::Int16 => 32767,
+            Cls::Int24 => 8388607,
+        }
+    }
+    pub fn of_limit(l: i64) -> Cls {
+        match l {
+            127 => Cls::Int8,
+            32767 => Cls::Int16,
+            8388607 => Cls::Int24,
+            _ => panic!("class limit {l}"),
+        }
+    }
+    /// Number of 16-bit limbs the class is proven with (int24 only).
+    pub fn limbs(self) -> usize {
+        match self {
+            Cls::Int24 => 2,
+            _ => 1,
+        }
+    }
+}
+
+/// The public constants of one norm site.
+#[derive(Clone, Copy, Debug)]
+pub struct NormConsts {
+    pub tn: u32,
+    pub cn: i64,
+    pub ceps: i64,
+    pub wrho: u32,
+    pub n_limbs: usize,
+}
+
+/// The public constants of one attention layer's statement (everything the
+/// verifier absorbs; the exponents are documentation, the shifts and
+/// classes are load-bearing).
+#[derive(Clone, Debug)]
+pub struct AttnConsts {
+    pub shape: AttnShape,
+    pub layer: usize,
+    pub f_e: u32,
+    pub f_p: u32,
+    pub f_ro: u32,
+    pub rope_base: f64,
+    pub norm_round: bool,
+    pub x_cls: Cls,
+    pub e_r: i32,
+    pub e_xn: i32,
+    pub sh_q: i32,
+    pub sh_k: i32,
+    pub sh_v: i32,
+    pub sh_qr: i32,
+    pub sh_kr: i32,
+    pub sh_s: i32,
+    pub e_s_raw: i32,
+    pub sh_o: i32,
+    pub sh_ao: i32,
+    pub ao_cls: Cls,
+    /// xres1 = requant(x_in << sh_x1 + ao << sh_a1, sh_r1)
+    pub sh_x1: u32,
+    pub sh_a1: u32,
+    pub sh_r1: i32,
+    pub r1_cls: Cls,
+    pub anorm: NormConsts,
+    pub mnorm: NormConsts,
+    pub exp_digest: String,
+    pub rope_digest: String,
+    /// the softmax remainder width (fE + log2 T)
+    pub wrho_s: u32,
+}
+
+/// Every plane of one attention half-layer's chain.
+pub struct AttnWitness {
+    pub c: AttnConsts,
+    pub x_in: Vec<i64>,
+    pub wq: Vec<i64>,
+    pub wk: Vec<i64>,
+    pub wv: Vec<i64>,
+    pub wo: Vec<i64>,
+    pub g_a: Vec<i64>,
+    pub g_m: Vec<i64>,
+    pub na: crate::norm::NormChain,
+    pub nm: crate::norm::NormChain,
+    pub qacc: Vec<i64>,
+    pub q8: Vec<i64>,
+    pub rq: Vec<i64>,
+    pub kacc: Vec<i64>,
+    pub k8: Vec<i64>,
+    pub rk: Vec<i64>,
+    pub vacc: Vec<i64>,
+    pub v8: Vec<i64>,
+    pub rv: Vec<i64>,
+    pub qracc: Vec<i64>,
+    pub qr8: Vec<i64>,
+    pub rqr: Vec<i64>,
+    pub kracc: Vec<i64>,
+    pub kr8: Vec<i64>,
+    pub rkr: Vec<i64>,
+    /// head-major (h, t, j)
+    pub sacc: Vec<i64>,
+    pub s8: Vec<i64>,
+    pub rs: Vec<i64>,
+    pub dmat: Vec<i64>,
+    pub zsel: Vec<i64>,
+    pub e_t: Vec<i64>,
+    pub p: Vec<i64>,
+    pub rho_s: Vec<i64>,
+    pub sig_s: Vec<i64>,
+    /// (h, t)
+    pub m_row: Vec<i64>,
+    pub sum: Vec<i64>,
+    /// head-major (h, t, i)
+    pub oacc: Vec<i64>,
+    /// (t, h * d_h)
+    pub o8: Vec<i64>,
+    pub r_o: Vec<i64>,
+    pub aoacc: Vec<i64>,
+    pub ao8: Vec<i64>,
+    pub r_ao: Vec<i64>,
+    pub xw1: Vec<i64>,
+    pub xres1: Vec<i64>,
+    pub rr1: Vec<i64>,
+    pub exp_tab: [i64; 256],
+    pub ctab: Vec<i64>,
+    pub stab: Vec<i64>,
+}
+
+/// Run the chain from an export directory, keeping every plane.
+pub fn build_attn_witness(dir: &str) -> AttnWitness {
     let m = Manifest::load(dir);
     let (t, d) = (m.u("T"), m.u("d"));
     let (h_q, h_kv, hd) = (m.u("heads"), m.u("kv_heads"), m.u("head_dim"));
@@ -220,41 +344,22 @@ pub fn chain_from_export(dir: &str) -> (Vec<(String, String)>, String) {
     let wo = load_i32(dir, "wo");
     let g_a = load_i32(dir, "gA");
     let g_m = load_i32(dir, "gM");
-    let mut out: Vec<(String, String)> = Vec::new();
 
     // --- attn_norm ---------------------------------------------------
     let dmode = if round { crate::norm::DivMode::Round } else { crate::norm::DivMode::Floor };
     let na = crate::norm::rmsnorm_chain(&x_in, &g_a, d, m.i("anorm_ceps"),
                                         m.i("anorm_tn") as u32, m.i("anorm_cn"), dmode);
-    out.push(("xsqA".to_string(), dig_i64(&na.xsq)));
-    out.push(("SSA".to_string(), dig_i64(&na.sse)));
-    out.push(("DA".to_string(), dig_i64(&na.dd)));
-    out.push(("DsqA".to_string(), dig_i64(&na.dsq)));
-    out.push(("a1A".to_string(), dig_i64(&na.a1)));
-    out.push(("a2A".to_string(), dig_i64(&na.a2)));
-    out.push(("xn8".to_string(), dig_i64(&na.y)));
-    let wr_a = m.i("anorm_wrho") as u32;
-    for (i, l) in limbs(&na.rho, wr_a).iter().enumerate() {
-        out.push((format!("rhoA_l{i}"), dig_i64(l)));
-    }
-    for (i, l) in limbs(&na.sig, wr_a).iter().enumerate() {
-        out.push((format!("sigA_l{i}"), dig_i64(l)));
-    }
 
     // --- QKV -----------------------------------------------------------
-    let mm = |w: &[i64], d_out: usize, sh: i64, name: &str, lim: i64,
-                  out: &mut Vec<(String, String)>| -> Vec<i64> {
+    let mm = |w: &[i64], d_out: usize, sh: i64, lim: i64| -> (Vec<i64>, Vec<i64>, Vec<i64>) {
         let acc = matmul_wt(&na.y, w, t, d, d_out);
         let (y, r) = requant_round(&acc, sh);
-        assert!(y.iter().all(|&v| v.abs() <= lim), "{name}: narrowing saturates");
-        out.push((format!("{name}acc"), dig_i64(&acc)));
-        out.push((name.to_lowercase() + "8", dig_i64(&y)));
-        out.push((format!("r{}", name.to_uppercase()), dig_i64(&r)));
-        y
+        assert!(y.iter().all(|&v| v.abs() <= lim), "narrowing saturates");
+        (acc, y, r)
     };
-    let q8 = mm(&wq, h_q * hd, m.i("sh_q"), "Q", 127, &mut out);
-    let k8 = mm(&wk, h_kv * hd, m.i("sh_k"), "K", 127, &mut out);
-    let v8 = mm(&wv, h_kv * hd, m.i("sh_v"), "V", 127, &mut out);
+    let (qacc, q8, rq) = mm(&wq, h_q * hd, m.i("sh_q"), 127);
+    let (kacc, k8, rk) = mm(&wk, h_kv * hd, m.i("sh_k"), 127);
+    let (vacc, v8, rv) = mm(&wv, h_kv * hd, m.i("sh_v"), 127);
 
     // --- RoPE ----------------------------------------------------------
     let (ctab, stab) = crate::tables_attn::rope_tables_generate(t, hd, m.f("rope_base"), f_ro);
@@ -282,31 +387,34 @@ pub fn chain_from_export(dir: &str) -> (Vec<(String, String)>, String) {
     };
     let (qracc, qr8, rqr) = rope(&q8, h_q, m.i("sh_qr"));
     let (kracc, kr8, rkr) = rope(&k8, h_kv, m.i("sh_kr"));
-    out.push(("QRacc".to_string(), dig_i64(&qracc)));
-    out.push(("qr8".to_string(), dig_i64(&qr8)));
-    out.push(("rQR".to_string(), dig_i64(&rqr)));
-    out.push(("KRacc".to_string(), dig_i64(&kracc)));
-    out.push(("kr8".to_string(), dig_i64(&kr8)));
-    out.push(("rKR".to_string(), dig_i64(&rkr)));
 
-    // --- scores, softmax, PV (streamed per head) -----------------------
+    // --- scores, softmax, PV (head-major planes) -----------------------
     let (exp_tab, exp_dig) = crate::tables_attn::exp_member(m.i("e_s_raw") as i32, hd, f_e);
     assert_eq!(exp_dig, m.s("exp_digest"), "exp member digest");
     let sh_s = m.i("sh_s");
     let sh_o = m.i("sh_o");
-    let mut st: HashMap<&str, Stream> = HashMap::new();
-    for n in ["Sacc", "s8", "rS", "m", "dmat", "zsel", "E", "Sum", "P", "rho", "sig", "Oacc"] {
-        st.insert(n, Stream::new());
-    }
     let qw = h_q * hd;
     let kw = h_kv * hd;
+    let ht = h_q * t;
+    let htt = h_q * t * t;
+    let mut sacc = vec![0i64; htt];
+    let mut s8 = vec![0i64; htt];
+    let mut rs = vec![0i64; htt];
+    let mut dmat = vec![0i64; htt];
+    let mut zsel = vec![0i64; htt];
+    let mut e_t = vec![0i64; htt];
+    let mut p = vec![0i64; htt];
+    let mut rho_s = vec![0i64; htt];
+    let mut sig_s = vec![0i64; htt];
+    let mut m_row = vec![0i64; ht];
+    let mut sum = vec![0i64; ht];
+    let mut oacc = vec![0i64; h_q * t * hd];
     let mut o8 = vec![0i64; t * qw];
     let mut r_o = vec![0i64; t * qw];
     for h in 0..h_q {
         let g = h / rep;
-        // Sacc(h) = qr8[:, h, :] . kr8[:, g, :]^T
-        let mut sacc = vec![0i64; t * t];
-        sacc.par_chunks_mut(t).enumerate().for_each(|(ti, row)| {
+        let sa = &mut sacc[h * t * t..(h + 1) * t * t];
+        sa.par_chunks_mut(t).enumerate().for_each(|(ti, row)| {
             let qrow = &qr8[ti * qw + h * hd..ti * qw + h * hd + hd];
             for (j, slot) in row.iter_mut().enumerate() {
                 let krow = &kr8[j * kw + g * hd..j * kw + g * hd + hd];
@@ -317,58 +425,48 @@ pub fn chain_from_export(dir: &str) -> (Vec<(String, String)>, String) {
                 *slot = s;
             }
         });
-        let (s8, rs) = requant_round(&sacc, sh_s);
-        assert!(s8.iter().all(|&v| v.abs() <= 127), "s8 narrowing saturates");
-        // softmax
-        let mut m_row = vec![i64::MIN; t];
-        let mut zsel = vec![0i64; t * t];
-        let mut dmat = vec![0i64; t * t];
-        let mut e_t = vec![0i64; t * t];
-        let mut sum = vec![0i64; t];
-        let mut p = vec![0i64; t * t];
-        let mut rho = vec![0i64; t * t];
-        let mut sig = vec![0i64; t * t];
+        let (s8h, rsh) = requant_round(sa, sh_s);
+        assert!(s8h.iter().all(|&v| v.abs() <= 127), "s8 narrowing saturates");
+        let (mh, sumh) = (&mut m_row[h * t..(h + 1) * t], &mut sum[h * t..(h + 1) * t]);
+        let base = h * t * t;
         for ti in 0..t {
             let mut best = i64::MIN;
             let mut arg = 0usize;
             for j in 0..t {
-                let sm = if j <= ti { s8[ti * t + j] } else { -127 };
+                let sm = if j <= ti { s8h[ti * t + j] } else { -127 };
                 if sm > best {
                     best = sm;
                     arg = j;
                 }
             }
-            m_row[ti] = best;
-            zsel[ti * t + arg] = 1;
+            mh[ti] = best;
+            zsel[base + ti * t + arg] = 1;
             let mut s = 0i64;
             for j in 0..t {
-                let sm = if j <= ti { s8[ti * t + j] } else { -127 };
+                let sm = if j <= ti { s8h[ti * t + j] } else { -127 };
                 let dv = best - sm;
                 assert!((0..256).contains(&dv), "dominance {dv}");
-                dmat[ti * t + j] = dv;
+                dmat[base + ti * t + j] = dv;
                 let e = exp_tab[dv as usize];
-                e_t[ti * t + j] = e;
+                e_t[base + ti * t + j] = e;
                 if j <= ti {
                     s += e;
                 }
             }
             assert!(s >= 1i64 << f_e, "attainment");
-            sum[ti] = s;
-            for j in 0..t {
-                if j <= ti {
-                    let num = e_t[ti * t + j] << f_p;
-                    let q = num.div_euclid(s);
-                    p[ti * t + j] = q;
-                    rho[ti * t + j] = num - q * s;
-                    sig[ti * t + j] = s - 1 - rho[ti * t + j];
-                }
+            sumh[ti] = s;
+            for j in 0..=ti {
+                let num = e_t[base + ti * t + j] << f_p;
+                let q = num.div_euclid(s);
+                p[base + ti * t + j] = q;
+                rho_s[base + ti * t + j] = num - q * s;
+                sig_s[base + ti * t + j] = s - 1 - rho_s[base + ti * t + j];
             }
         }
-        // Oacc(h) = P . v8[:, g, :]
-        let mut oacc = vec![0i64; t * hd];
-        oacc.par_chunks_mut(hd).enumerate().for_each(|(ti, row)| {
+        let oa = &mut oacc[h * t * hd..(h + 1) * t * hd];
+        oa.par_chunks_mut(hd).enumerate().for_each(|(ti, row)| {
             for j in 0..=ti {
-                let pv = p[ti * t + j];
+                let pv = p[base + ti * t + j];
                 if pv == 0 {
                     continue;
                 }
@@ -378,7 +476,7 @@ pub fn chain_from_export(dir: &str) -> (Vec<(String, String)>, String) {
                 }
             }
         });
-        let (oy, orr) = requant_round(&oacc, sh_o);
+        let (oy, orr) = requant_round(oa, sh_o);
         assert!(oy.iter().all(|&v| v.abs() <= 127), "o8 narrowing saturates");
         for ti in 0..t {
             for i in 0..hd {
@@ -386,33 +484,15 @@ pub fn chain_from_export(dir: &str) -> (Vec<(String, String)>, String) {
                 r_o[ti * qw + h * hd + i] = orr[ti * hd + i];
             }
         }
-        st.get_mut("Sacc").unwrap().push(&sacc);
-        st.get_mut("s8").unwrap().push(&s8);
-        st.get_mut("rS").unwrap().push(&rs);
-        st.get_mut("m").unwrap().push(&m_row);
-        st.get_mut("dmat").unwrap().push(&dmat);
-        st.get_mut("zsel").unwrap().push(&zsel);
-        st.get_mut("E").unwrap().push(&e_t);
-        st.get_mut("Sum").unwrap().push(&sum);
-        st.get_mut("P").unwrap().push(&p);
-        st.get_mut("rho").unwrap().push(&rho);
-        st.get_mut("sig").unwrap().push(&sig);
-        st.get_mut("Oacc").unwrap().push(&oacc);
+        s8[base..base + t * t].copy_from_slice(&s8h);
+        rs[base..base + t * t].copy_from_slice(&rsh);
     }
-    for n in ["Sacc", "s8", "rS", "m", "dmat", "zsel", "E", "Sum", "P", "rho", "sig", "Oacc"] {
-        let s = st.remove(n).unwrap();
-        out.push((n.to_string(), s.finish()));
-    }
-    out.push(("o8".to_string(), dig_i64(&o8)));
-    out.push(("rO".to_string(), dig_i64(&r_o)));
 
     // --- Wo + ao -------------------------------------------------------
     let aoacc = matmul_wt(&o8, &wo, t, qw, d);
+    let ao_lim = m.i("ao_lim");
     let (ao8, r_ao) = requant_round(&aoacc, m.i("sh_ao"));
-    assert!(ao8.iter().all(|&v| v.abs() <= m.i("ao_lim")), "ao narrowing saturates");
-    out.push(("AOacc".to_string(), dig_i64(&aoacc)));
-    out.push(("ao8".to_string(), dig_i64(&ao8)));
-    out.push(("rAO".to_string(), dig_i64(&r_ao)));
+    assert!(ao8.iter().all(|&v| v.abs() <= ao_lim), "ao narrowing saturates");
 
     // --- residual add 1 -------------------------------------------------
     let (sh_x, sh_a) = ((m.i("e_r") - m.i("e_c1")) as u32, (m.i("e_ao") - m.i("e_c1")) as u32);
@@ -421,15 +501,100 @@ pub fn chain_from_export(dir: &str) -> (Vec<(String, String)>, String) {
         .zip(ao8.par_iter())
         .map(|(&x, &a)| (x << sh_x) + (a << sh_a))
         .collect();
+    let r1_lim = m.i("r1_lim");
     let (xres1, rr1) = requant_round(&xw1, m.i("sh_r1"));
-    assert!(xres1.iter().all(|&v| v.abs() <= m.i("r1_lim")), "xres1 narrowing saturates");
-    out.push(("xw1".to_string(), dig_i64(&xw1)));
-    out.push(("xres1".to_string(), dig_i64(&xres1)));
-    out.push(("rr1".to_string(), dig_i64(&rr1)));
+    assert!(xres1.iter().all(|&v| v.abs() <= r1_lim), "xres1 narrowing saturates");
 
     // --- mlp_norm (the FFN's X plane) -----------------------------------
     let nm = crate::norm::rmsnorm_chain(&xres1, &g_m, d, m.i("mnorm_ceps"),
                                         m.i("mnorm_tn") as u32, m.i("mnorm_cn"), dmode);
+
+    let x_cls = if m.i("layer") == 0 { Cls::Int8 } else { Cls::of_limit(m.i("r1_lim")) };
+    let c = AttnConsts {
+        shape: AttnShape { t, d, heads: h_q, kv_heads: h_kv, head_dim: hd, f: 0 },
+        layer: m.u("layer"),
+        f_e, f_p, f_ro,
+        rope_base: m.f("rope_base"),
+        norm_round: round,
+        x_cls,
+        e_r: m.i("e_r") as i32,
+        e_xn: m.i("e_xn") as i32,
+        sh_q: m.i("sh_q") as i32,
+        sh_k: m.i("sh_k") as i32,
+        sh_v: m.i("sh_v") as i32,
+        sh_qr: m.i("sh_qr") as i32,
+        sh_kr: m.i("sh_kr") as i32,
+        sh_s: sh_s as i32,
+        e_s_raw: m.i("e_s_raw") as i32,
+        sh_o: sh_o as i32,
+        sh_ao: m.i("sh_ao") as i32,
+        ao_cls: Cls::of_limit(ao_lim),
+        sh_x1: sh_x,
+        sh_a1: sh_a,
+        sh_r1: m.i("sh_r1") as i32,
+        r1_cls: Cls::of_limit(r1_lim),
+        anorm: NormConsts { tn: m.i("anorm_tn") as u32, cn: m.i("anorm_cn"), ceps: m.i("anorm_ceps"),
+                            wrho: m.i("anorm_wrho") as u32, n_limbs: m.u("anorm_limbs") },
+        mnorm: NormConsts { tn: m.i("mnorm_tn") as u32, cn: m.i("mnorm_cn"), ceps: m.i("mnorm_ceps"),
+                            wrho: m.i("mnorm_wrho") as u32, n_limbs: m.u("mnorm_limbs") },
+        exp_digest: exp_dig,
+        rope_digest: rope_dig,
+        wrho_s: f_e + t.trailing_zeros(),
+    };
+    AttnWitness {
+        c, x_in, wq, wk, wv, wo, g_a, g_m, na, nm,
+        qacc, q8, rq, kacc, k8, rk, vacc, v8, rv,
+        qracc, qr8, rqr, kracc, kr8, rkr,
+        sacc, s8, rs, dmat, zsel, e_t, p, rho_s, sig_s, m_row, sum,
+        oacc, o8, r_o, aoacc, ao8, r_ao, xw1, xres1, rr1,
+        exp_tab, ctab, stab,
+    }
+}
+
+/// The ordered (name, digest) list of the oracle's 64 tensors + the CHAIN
+/// digest, computed from the witness.
+pub fn witness_digests(w: &AttnWitness) -> (Vec<(String, String)>, String) {
+    let mut out: Vec<(String, String)> = Vec::new();
+    let na = &w.na;
+    out.push(("xsqA".to_string(), dig_i64(&na.xsq)));
+    out.push(("SSA".to_string(), dig_i64(&na.sse)));
+    out.push(("DA".to_string(), dig_i64(&na.dd)));
+    out.push(("DsqA".to_string(), dig_i64(&na.dsq)));
+    out.push(("a1A".to_string(), dig_i64(&na.a1)));
+    out.push(("a2A".to_string(), dig_i64(&na.a2)));
+    out.push(("xn8".to_string(), dig_i64(&na.y)));
+    for (i, l) in limbs(&na.rho, w.c.anorm.wrho).iter().enumerate() {
+        out.push((format!("rhoA_l{i}"), dig_i64(l)));
+    }
+    for (i, l) in limbs(&na.sig, w.c.anorm.wrho).iter().enumerate() {
+        out.push((format!("sigA_l{i}"), dig_i64(l)));
+    }
+    for (nm_, acc, y, r) in [("Q", &w.qacc, &w.q8, &w.rq), ("K", &w.kacc, &w.k8, &w.rk),
+                             ("V", &w.vacc, &w.v8, &w.rv)] {
+        out.push((format!("{nm_}acc"), dig_i64(acc)));
+        out.push((nm_.to_lowercase() + "8", dig_i64(y)));
+        out.push((format!("r{nm_}"), dig_i64(r)));
+    }
+    out.push(("QRacc".to_string(), dig_i64(&w.qracc)));
+    out.push(("qr8".to_string(), dig_i64(&w.qr8)));
+    out.push(("rQR".to_string(), dig_i64(&w.rqr)));
+    out.push(("KRacc".to_string(), dig_i64(&w.kracc)));
+    out.push(("kr8".to_string(), dig_i64(&w.kr8)));
+    out.push(("rKR".to_string(), dig_i64(&w.rkr)));
+    for (nm_, v) in [("Sacc", &w.sacc), ("s8", &w.s8), ("rS", &w.rs), ("m", &w.m_row),
+                     ("dmat", &w.dmat), ("zsel", &w.zsel), ("E", &w.e_t), ("Sum", &w.sum),
+                     ("P", &w.p), ("rho", &w.rho_s), ("sig", &w.sig_s), ("Oacc", &w.oacc)] {
+        out.push((nm_.to_string(), dig_i64(v)));
+    }
+    out.push(("o8".to_string(), dig_i64(&w.o8)));
+    out.push(("rO".to_string(), dig_i64(&w.r_o)));
+    out.push(("AOacc".to_string(), dig_i64(&w.aoacc)));
+    out.push(("ao8".to_string(), dig_i64(&w.ao8)));
+    out.push(("rAO".to_string(), dig_i64(&w.r_ao)));
+    out.push(("xw1".to_string(), dig_i64(&w.xw1)));
+    out.push(("xres1".to_string(), dig_i64(&w.xres1)));
+    out.push(("rr1".to_string(), dig_i64(&w.rr1)));
+    let nm = &w.nm;
     out.push(("xsqM".to_string(), dig_i64(&nm.xsq)));
     out.push(("SSM".to_string(), dig_i64(&nm.sse)));
     out.push(("DM".to_string(), dig_i64(&nm.dd)));
@@ -437,20 +602,16 @@ pub fn chain_from_export(dir: &str) -> (Vec<(String, String)>, String) {
     out.push(("a1M".to_string(), dig_i64(&nm.a1)));
     out.push(("a2M".to_string(), dig_i64(&nm.a2)));
     out.push(("xm8".to_string(), dig_i64(&nm.y)));
-    let wr_m = m.i("mnorm_wrho") as u32;
-    for (i, l) in limbs(&nm.rho, wr_m).iter().enumerate() {
+    for (i, l) in limbs(&nm.rho, w.c.mnorm.wrho).iter().enumerate() {
         out.push((format!("rhoM_l{i}"), dig_i64(l)));
     }
-    for (i, l) in limbs(&nm.sig, wr_m).iter().enumerate() {
+    for (i, l) in limbs(&nm.sig, w.c.mnorm.wrho).iter().enumerate() {
         out.push((format!("sigM_l{i}"), dig_i64(l)));
     }
-
-    // --- the committed inputs -------------------------------------------
-    for (n, v) in [("x_in", &x_in), ("Wq", &wq), ("Wk", &wk), ("Wv", &wv), ("Wo", &wo),
-                   ("gA", &g_a), ("gM", &g_m)] {
+    for (n, v) in [("x_in", &w.x_in), ("Wq", &w.wq), ("Wk", &w.wk), ("Wv", &w.wv), ("Wo", &w.wo),
+                   ("gA", &w.g_a), ("gM", &w.g_m)] {
         out.push((n.to_string(), dig_i64(v)));
     }
-
     let mut comb = Sha256::new();
     for (_, dg) in out.iter() {
         let mut b = [0u8; 32];
@@ -461,6 +622,12 @@ pub fn chain_from_export(dir: &str) -> (Vec<(String, String)>, String) {
     }
     let chain = crate::silu::hex(&comb.finalize());
     (out, chain)
+}
+
+/// Run the whole chain from an export directory; returns the ordered
+/// (name, digest) list and the CHAIN digest.
+pub fn chain_from_export(dir: &str) -> (Vec<(String, String)>, String) {
+    witness_digests(&build_attn_witness(dir))
 }
 
 /// The rung-3 gate: run the chain and diff every digest against the
