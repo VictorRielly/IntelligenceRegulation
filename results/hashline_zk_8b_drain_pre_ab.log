@@ -1,0 +1,68 @@
+
+=== RUN on (HL_ZK_DRAIN_PRE=1, 4 Mistral layers x 512, GPU, ZK v3) ===
+2026-09-04 00:10:10
+[UPERF3-AI] drain layer top: freed 0 pooled buffers
+[UPERF3-AI] vram after commit W: free 5006 MiB / 8187 MiB, pool 3
+[UPERF3-AI] vram after commit A: free 494 MiB / 8187 MiB, pool 5
+[UPERF3-AI] drain before the zero-check reservation: freed 5 pooled buffers
+[UPERF3-AI] vram after dev_helpers: free 1614 MiB / 8187 MiB, pool 2
+thread 'main' (28826) panicked at src/zk.rs:2183:106:
+gpu zk commit H (v3): "cuMemAlloc(1516 MB): DriverError(CUDA_ERROR_OUT_OF_MEMORY, \"out of memory\")"
+	Maximum resident set size (kbytes): 2848220
+--- exit: 134 ---
+
+=== RUN off (HL_ZK_DRAIN_PRE=0, 4 Mistral layers x 512, GPU, ZK v3) ===
+2026-09-04 00:10:55
+[UPERF3-AI] drain layer top: freed 0 pooled buffers
+[UPERF3-AI] vram after commit W: free 5006 MiB / 8187 MiB, pool 3
+[UPERF3-AI] vram after commit A: free 494 MiB / 8187 MiB, pool 5
+[UPERF3-AI] reserve failed (cuMemAlloc(1168 MB): DriverError(CUDA_ERROR_OUT_OF_MEMORY, "out of memory")); drained 5 pooled buffers and retrying
+[UPERF3-AI] vram after dev_helpers: free 1614 MiB / 8187 MiB, pool 2
+[UPERF3-AI] drain after H: freed 4 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 1422 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 73): tables 0.0725 s | rounds 0.1057 s | folds 0.0215 s | sync/absorb 0.0018 s | total 0.2035 s
+[UPERF3-AI] vram after zcF: free 270 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^21 x 7): tables 0.0128 s | rounds 0.0163 s | folds 0.0042 s | sync/absorb 0.0008 s | total 0.0344 s
+  layer  0: prove 4.525 s, 40186228 B
+[UPERF3-AI] drain layer top: freed 8 pooled buffers
+[UPERF3-AI] vram after commit W: free 5006 MiB / 8187 MiB, pool 3
+[UPERF3-AI] vram after commit A: free 494 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 0 MiB / 8187 MiB, pool 7
+[UPERF3-AI] drain after H: freed 9 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 1390 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 73): tables 0.0946 s | rounds 0.1059 s | folds 0.0185 s | sync/absorb 0.0015 s | total 0.2230 s
+[UPERF3-AI] vram after zcF: free 238 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^21 x 7): tables 0.0148 s | rounds 0.0163 s | folds 0.0037 s | sync/absorb 0.0015 s | total 0.0367 s
+  layer  1: prove 7.876 s, 40173940 B
+[UPERF3-AI] drain layer top: freed 8 pooled buffers
+[UPERF3-AI] vram after commit W: free 5006 MiB / 8187 MiB, pool 3
+[UPERF3-AI] vram after commit A: free 494 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 0 MiB / 8187 MiB, pool 7
+[UPERF3-AI] drain after H: freed 9 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 1390 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 73): tables 0.0953 s | rounds 0.1060 s | folds 0.0184 s | sync/absorb 0.0014 s | total 0.2249 s
+[UPERF3-AI] vram after zcF: free 238 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^21 x 7): tables 0.0189 s | rounds 0.0170 s | folds 0.0038 s | sync/absorb 0.0019 s | total 0.0420 s
+  layer  2: prove 7.867 s, 40173940 B
+[UPERF3-AI] drain layer top: freed 8 pooled buffers
+[UPERF3-AI] vram after commit W: free 5006 MiB / 8187 MiB, pool 3
+[UPERF3-AI] vram after commit A: free 494 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 0 MiB / 8187 MiB, pool 7
+[UPERF3-AI] drain after H: freed 9 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 1390 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 73): tables 0.1001 s | rounds 0.1061 s | folds 0.0186 s | sync/absorb 0.0018 s | total 0.2312 s
+[UPERF3-AI] vram after zcF: free 238 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^21 x 7): tables 0.0149 s | rounds 0.0165 s | folds 0.0038 s | sync/absorb 0.0009 s | total 0.0364 s
+  layer  3: prove 7.896 s, 40173940 B
+prover phases (summed over layers):
+  gpu device-side (summed): h2d 2.018 s (7628 MB) | ntt 12.699 s | hash 1.067 s | sumcheck 1.054 s | fold 0.590 s | helpers 2.082 s | d2h 0.000 s (183 MB) | vram peak 8585 MB
+PROOF sha256 9f2f35a383295118256f70086034efa433ed42bcc109e9182fe98ccd5ea38549 (160708048 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 4 x 512 (d 4096 f 14336): witness load+chain 14.00 s | PROVE 28.16 s | VERIFY 0.23 s | proof 160708048 B (160.7 MB) | 3.608e11 MACs | 1.281e10 proven MAC/s (prove wall) | wall 42.62 s
+	Maximum resident set size (kbytes): 3233228
+--- exit: 0 ---
+PROOF off: 9f2f35a383295118256f70086034efa433ed42bcc109e9182fe98ccd5ea38549  160708048 B
+
+=== VALUE-NEUTRALITY ===
+cannot compare: a run produced no proof
+(the reference from the pre-site-3 binary at 4 layers: 9f2f35a383295118.. / 160,708,048 B / PROVE 31.15 s)
+2026-09-04 00:11:41

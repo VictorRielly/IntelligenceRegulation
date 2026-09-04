@@ -19,7 +19,7 @@ fail=0
 say () { echo; echo "=== $* ==="; date '+%F %T'; }
 
 say "cargo test --release"
-cargo test --release --manifest-path $R/hashline/Cargo.toml 2>&1 | tail -6
+cargo test --release --manifest-path $R/hashline/Cargo.toml 2>&1 | grep -E 'test result|running [0-9]+ tests|^error'
 [ "${PIPESTATUS[0]}" = 0 ] || { echo "FAILURE: cargo test"; fail=1; }
 
 gate () {
