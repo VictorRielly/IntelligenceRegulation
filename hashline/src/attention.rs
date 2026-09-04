@@ -2737,9 +2737,9 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
 /// committed its own planes).
 pub struct AttnPending {
     pub lay: AttnLayout,
-    pub w_cm: pcs::Committed,
+    pub w_cm: Option<pcs::Committed>,
     pub a_cm: pcs::Committed,
-    pub h_cm: pcs::Committed,
+    pub h_cm: Option<pcs::Committed>,
     pub a_data: Vec<Fp>,
     pub cc: Cc,
 }
@@ -2831,7 +2831,7 @@ pub fn prove_attn(wit: &AttnWitness, r2: &Resid2, params: &LayerParams, ntt: &Nt
         .expect("the attention prover's own argument failed");
     lap("attn sumchecks", &mut timings, &mut tick);
     drop(h_data);
-    (proof, AttnPending { lay, w_cm, a_cm, h_cm, a_data: pk.a, cc }, timings)
+    (proof, AttnPending { lay, w_cm: Some(w_cm), a_cm, h_cm: Some(h_cm), a_data: pk.a, cc }, timings)
 }
 
 /// The SEAM claims: the FFN half's X plane IS this layer's xm8, and the
@@ -2854,17 +2854,63 @@ pub fn attn_seam(cc: &mut Cc, tr: &mut Transcript, lay: &AttnLayout, a: Option<&
     Ok(())
 }
 
-/// The deferred openings.
-pub fn attn_open(pend: AttnPending, proof: &mut AttnProof, tr: &mut Transcript) {
-    let AttnPending { w_cm, a_cm, h_cm, a_data, cc, .. } = pend;
-    // the seam claims land AFTER the argument: re-take the value list
-    proof.vals = cc.vals.clone();
-    proof.w_open = pcs::open(&w_cm, &cc.ww, tr);
+/// One claim per limb of a class plane; returns the reconstructed value.
+pub fn cls_claim(cc: &mut Cc, tr: &mut Transcript, a: Option<&[Fp]>, cp: &ClsPlane, log: u32,
+                 pt: &[Fp2]) -> Fp2 {
+    let (coef, cst) = cp.recon();
+    let mut v = Fp2::from_i64(cst);
+    for (k, &off) in cp.offs.iter().enumerate() {
+        let c = claim_at(cc, tr, a, off, log, pt);
+        v = v.add(c.mul_base(Fp::from_i64(coef[k])));
+    }
+    v
+}
+
+/// THE LAYER SEAM: layer l's xres2 IS layer l+1's x_in, proven as one MLE
+/// equality at a point drawn AFTER BOTH layers' A commitments (layer l's
+/// opening is deferred until here).
+#[allow(clippy::too_many_arguments)]
+pub fn layer_seam(prev: &mut Cc, cur: &mut Cc, tr: &mut Transcript, lay_prev: &AttnLayout,
+                  lay_cur: &AttnLayout, a_prev: Option<&[Fp]>, a_cur: Option<&[Fp]>,
+                  pt: &[Fp2]) -> Result<(), String> {
+    let out = cls_claim(prev, tr, a_prev, &lay_prev.xres2, lay_prev.log_d, pt);
+    let inp = cls_claim(cur, tr, a_cur, &lay_cur.x_in, lay_cur.log_d, pt);
+    if out == inp {
+        Ok(())
+    } else if prev.proving && !tamper_mode() {
+        panic!("[UPERF3-AG] layer seam: xres2 != the next layer's x_in");
+    } else if prev.proving {
+        Ok(())
+    } else {
+        Err("layer seam: the previous layer's xres2 != this layer's x_in".into())
+    }
+}
+
+/// The deferred openings (single-layer path: W, H, then A).
+pub fn attn_open(mut pend: AttnPending, proof: &mut AttnProof, tr: &mut Transcript) {
+    attn_open_wh(&mut pend, proof, tr);
+    attn_open_a(pend, proof, tr);
+}
+
+/// The W and H openings: nothing that lands later (the inner seam, the
+/// layer seam) touches those two commitments, so they can close early and
+/// free their memory while the next layer runs.
+pub fn attn_open_wh(pend: &mut AttnPending, proof: &mut AttnProof, tr: &mut Transcript) {
+    let w_cm = pend.w_cm.take().expect("W already opened");
+    proof.w_open = pcs::open(&w_cm, &pend.cc.ww, tr);
     drop(w_cm);
+    let h_cm = pend.h_cm.take().expect("H already opened");
+    proof.h_open = pcs::open(&h_cm, &pend.cc.hh, tr);
+}
+
+/// The A opening — DEFERRED until every seam claim on this layer's planes
+/// has been made (the FFN's X/z16 seam, and the next layer's input seam).
+pub fn attn_open_a(pend: AttnPending, proof: &mut AttnProof, tr: &mut Transcript) {
+    let AttnPending { a_cm, a_data, cc, .. } = pend;
+    proof.vals = cc.vals.clone();
     proof.a_open = pcs::open(&a_cm, &cc.aw, tr);
     drop(a_cm);
     drop(a_data);
-    proof.h_open = pcs::open(&h_cm, &cc.hh, tr);
 }
 
 /// Verify the attention half-layer up to (not including) the openings; the
@@ -2906,14 +2952,25 @@ pub fn verify_attn(proof: &AttnProof, c: &AttnConsts, fc: &FullConsts, params: &
 /// The verifier's PCS step (after the seam claims).
 pub fn verify_attn_open(proof: &AttnProof, lay: &AttnLayout, cc: &Cc, params: &LayerParams,
                         ntt: &NttTables, tr: &mut Transcript) -> Result<(), String> {
+    verify_attn_open_wh(proof, lay, cc, params, ntt, tr)?;
+    verify_attn_open_a(proof, lay, cc, params, ntt, tr)
+}
+
+pub fn verify_attn_open_wh(proof: &AttnProof, lay: &AttnLayout, cc: &Cc, params: &LayerParams,
+                           ntt: &NttTables, tr: &mut Transcript) -> Result<(), String> {
+    let pp = PcsParams { log_cols: lay.cols_log, inv_rate: params.inv_rate, num_col_checks: params.num_col_checks };
+    pcs::verify(&pp, proof.w_com.as_ref().unwrap(), &cc.ww, &proof.w_open, ntt, tr).map_err(|e| format!("Wa: {e}"))?;
+    pcs::verify(&pp, proof.h_com.as_ref().unwrap(), &cc.hh, &proof.h_open, ntt, tr).map_err(|e| format!("Ha: {e}"))?;
+    Ok(())
+}
+
+pub fn verify_attn_open_a(proof: &AttnProof, lay: &AttnLayout, cc: &Cc, params: &LayerParams,
+                          ntt: &NttTables, tr: &mut Transcript) -> Result<(), String> {
     if cc.idx != cc.vals.len() {
         return Err(format!("claim count {} != {} sent", cc.idx, cc.vals.len()));
     }
     let pp = PcsParams { log_cols: lay.cols_log, inv_rate: params.inv_rate, num_col_checks: params.num_col_checks };
-    pcs::verify(&pp, proof.w_com.as_ref().unwrap(), &cc.ww, &proof.w_open, ntt, tr).map_err(|e| format!("Wa: {e}"))?;
-    pcs::verify(&pp, proof.a_com.as_ref().unwrap(), &cc.aw, &proof.a_open, ntt, tr).map_err(|e| format!("Aa: {e}"))?;
-    pcs::verify(&pp, proof.h_com.as_ref().unwrap(), &cc.hh, &proof.h_open, ntt, tr).map_err(|e| format!("Ha: {e}"))?;
-    Ok(())
+    pcs::verify(&pp, proof.a_com.as_ref().unwrap(), &cc.aw, &proof.a_open, ntt, tr).map_err(|e| format!("Aa: {e}"))
 }
 
 
