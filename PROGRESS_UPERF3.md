@@ -11710,3 +11710,80 @@ wrong int16 table entry, wrong requant (h16), wrong z, wrong rounding
 (floor), out-of-range int16 — **`layer 0 (v3) [ZK]: GREEN`**. This is the
 first time the eight legs have been run at a real 8B width with the
 zero-checks and the LogUp helpers on the device.
+
+## ROUND 14 — THE 60 TOKENS/S PLAN, TRACKS B AND C (opened 2026-09-04)
+
+Ground: lane AG merged (the first full-layer proof) and lane AI merged
+at rung 2 (the ZK prover's device gate generalized); the merged-tree
+floors are running (results/floors_round13_merge.log + .done).
+
+The round is scheduled from `docs/zkmatrix-poc/U_PERF3_SIXTY_TOKENS_PLAN.md`,
+which replaced the lane-by-lane menu with one factor budget. Its
+finding: completing the statement costs 3.55x (attention 2.87x
+[COUNTED], ZK P1 1.047x [MEASURED], the range facts 1.18x [MODEL]), so
+60 tok/s at 30B is outside even the counted floor (13-39 tok/s honest)
+while at 8B it is inside it (40-113 honest). The PoC is therefore
+retargeted at 8B, and this round takes the two levers that are
+measurable on this box today.
+
+THREE LANES, disjoint files, the usual discipline: commit rung 0 within
+15 minutes and after EVERY rung (the 2026-09-03 cutout and the
+2026-09-03 hard reboot each proved this is what saves a lane); the four
+byte gates stay green; append ONLY to your own status section.
+
+NOTE ON THE REBOOT: the box stopped hard at 19:14 on 2026-09-03 and
+/tmp was wiped. The attention EXPORT DIRECTORIES that lane AG's
+full-layer gates consume lived there and are GONE; regenerating them is
+lane AK's rung 0, and until it lands AG's digests (the 12-layer pass
+c91f8713.., the full Mistral layer) are unverified on the merged tree.
+
+### Lane AJ — the host wall (wt-uperf3-aj) — RUST/CUDA
+OWNS: hashline/src/gpu/{cuda.rs,kernels.cu,mod.rs} EXCEPT the two
+functions tagged [UPERF3-AI] (`dev_mem_info`, `dev_pool_drain`, which
+belong to lane AI's rung 3 and must not be edited), hashline/src/pcs.rs,
+NEW results/hashline_hostwall_*, "Agent AJ status". READ-ONLY:
+zk.rs, layer.rs, attention.rs, norm.rs, tables_*.rs, pcs_compact.rs,
+sumcheck.rs, transcript.rs, wcache.rs, export_v3.rs, zkmatrix-rs/,
+scripts/.
+TARGET: the four host items that are 56-63 s of the measured 95.5 s 8B
+GPU pass — the plane->Fp conversion and its pageable upload (~13-20 s),
+the encode NTT (15.8 s), the opening's chunked re-encode (14.3 s), and
+the Merkle levels + serialization of a 1.23 GB proof (~13 s). All four
+are byte-preserving by construction. This is the plan's lever L2,
+2.4-2.9x, and the most certain factor in the whole budget.
+
+### Lane AK — the attention exports, AG's gates, then the claim fold (wt-uperf3-ak) — RUST
+OWNS: hashline/src/attention.rs, norm.rs, tables_attn.rs, the
+[UPERF3-AG]-tagged full-layer functions in layer.rs, the `--attn` flag
+lines in src/bin/hashline.rs, NEW results/hashline_attn_*, "Agent AK
+status". READ-ONLY: gpu/* (lane AJ's), zk.rs (lane AI's), pcs.rs, the
+v2/v3 FFN functions in layer.rs, zkmatrix-rs/, scripts/ (import, never
+edit).
+TARGET: rung 0 regenerates the attention exports the reboot destroyed
+and re-establishes AG's digests ON THE MERGED TREE (this is the only
+thing that makes AG's measured results verifiable again); then lever L5
+— fold the claims. The attention half opens A/W/H at ~20 points where
+the v3 FFN prover folds every pending claim into its two zero-checks and
+opens at two; ~8 MB of the 27.3 MB per 125M layer is group vectors that
+folding removes. No soundness change and no new machinery: the same
+nu-weighted eq terms the zero-checks already carry.
+
+### Lane AI (continuing, wt-uperf3-ai) — rung 3 — RUST/CUDA
+OWNS: hashline/src/zk.rs, the two [UPERF3-AI] functions in
+hashline/src/gpu/cuda.rs, NEW results/hashline_zk_8b_*, "Agent AI
+status". READ-ONLY: everything else, and in particular the rest of
+gpu/* (lane AJ's).
+TARGET: the 32-layer 8B ZK pass on the GPU — the product number under
+the P1 ruling, expected near 100 s. The rung-3 code is committed
+(1c225d4) and compiles but was NEVER MEASURED; its scratch logs died
+with the reboot, so its claims survive only as code comments and must be
+re-established by running. Also owed: `--wcache` is a silent no-op on
+the ZK path (zk.rs commits W with plain `pcs::commit`), one tagged line.
+
+## Agent AJ status (wt-uperf3-aj) — round 14
+
+(lane appends below)
+
+## Agent AK status (wt-uperf3-ak) — round 14
+
+(lane appends below)
