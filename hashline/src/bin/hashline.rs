@@ -285,6 +285,17 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        // [UPERF3-AG] rung 4: the attention half-layer proof alone (no FFN):
+        // prove + verify one layer's attention + norms + residual over an
+        // oracle export, with --t to truncate the token axis.
+        "attn-layer" => {
+            let dir = args.get(2).cloned().unwrap_or_else(|| {
+                eprintln!("usage: hashline attn-layer <export-dir> [--t T] [--all-tampers]");
+                std::process::exit(2)
+            });
+            let o = parse_opts(&args[3..]);
+            attn_layer(&dir, &o)
+        }
         "gpu-probe" => gpu_probe(),
         // [UPERF3-AF] rung 1: the PCS alone, Ligero vs compact, on random multilinears
         "pcs-bench" => {
@@ -1150,4 +1161,44 @@ fn pass_zk_v3(n: usize, t: usize, o: &Opts) {
     println!("PASS-V3 {} [ZK]: {n} x {t} (d {} f {}): witness load+chain {t_load:.2} s | PROVE {t_prove:.2} s | VERIFY {t_verify:.2} s | proof {bytes} B ({:.1} MB) | {:.3e} MACs | {:.3e} proven MAC/s (prove wall) | wall {:.2} s",
         if ok { "ACCEPT" } else { "REJECT" }, dm.d, dm.f, bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
     if !ok { std::process::exit(1); }
+}
+
+// ===========================================================================
+// [UPERF3-AG] the full-layer path
+// ===========================================================================
+
+fn attn_layer(dir: &str, o: &Opts) {
+    use hashline::attention as at;
+    let ntt = NttTables::new(o.log_cols + o.inv_rate.trailing_zeros());
+    let p = params(o);
+    let t0 = Instant::now();
+    let wit = at::build_attn_witness_t(dir, o.t_rows);
+    let s = wit.c.shape;
+    println!("attn-layer {dir}: T {} d {} H {}/{} d_h {} (witness {:.2} s, {} threads)",
+             s.t, s.d, s.heads, s.kv_heads, s.head_dim, t0.elapsed().as_secs_f64(),
+             rayon::current_num_threads());
+    let z16 = vec![0i64; s.t * s.d];
+    let r2 = at::residual2(&wit, z16, wit.c.e_r1, wit.c.e_r1, wit.c.r1_cls);
+    println!("  residual2 (no FFN half in this mode): sh_x2 {} sh_z2 {} sh_r2 {} e_r2 {}",
+             r2.c.sh_x2, r2.c.sh_z2, r2.c.sh_r2, r2.c.e_r2);
+    let mut tr = Transcript::new(b"hashline-attn-layer");
+    let t1 = Instant::now();
+    let (mut proof, pend, timings) = at::prove_attn(&wit, &r2, &p, &ntt, &mut tr);
+    let lay = pend.lay.clone();
+    at::attn_open(pend, &mut proof, &mut tr);
+    let tp = t1.elapsed().as_secs_f64();
+    for (n, x) in &timings { println!("      {n:<24} {x:8.3} s"); }
+    println!("  PROVE {tp:.3} s, proof {} B ({:.1} MB); a_len {} h_len {} w_len {} cols 2^{}",
+             proof.size_bytes(), proof.size_bytes() as f64 / 1e6, lay.a_len, lay.h_len, lay.w_len, lay.cols_log);
+    let t2 = Instant::now();
+    let mut tv = Transcript::new(b"hashline-attn-layer");
+    let r = (|| -> Result<(), String> {
+        let (lay2, cc) = at::verify_attn(&proof, &wit.c, &r2.c, &p, &mut tv)?;
+        at::verify_attn_open(&proof, &lay2, &cc, &p, &ntt, &mut tv)
+    })();
+    let tvv = t2.elapsed().as_secs_f64();
+    match &r {
+        Ok(()) => println!("  VERIFY {tvv:.3} s: ACCEPT"),
+        Err(e) => { println!("  VERIFY {tvv:.3} s: REJECT: {e}"); std::process::exit(1); }
+    }
 }

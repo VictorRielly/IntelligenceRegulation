@@ -59,6 +59,26 @@ pub fn tag_win(sh: i32) -> u64 {
     192 + sh as u64
 }
 
+// ---- [UPERF3-AG] the rung-4 tag map (the rung-0 tags above are kept for
+// the spike's records; the prover uses these, which are disjoint from the
+// FFN's and admit SIGNED window shifts and any remainder width).
+/// the int8 class [-128, 127]
+pub const TAG_INT8A: u64 = 131;
+/// the int16 class [-32768, 32767]
+pub const TAG_INT16A: u64 = 132;
+/// the unsigned 8-bit limb class [0, 256) (the int24 high limb)
+pub const TAG_U8: u64 = 133;
+/// the softmax remainder class [0, 2^w)
+pub fn tag_srem_a(w: u32) -> u64 {
+    assert!(w <= 40, "srem tag: width {w}");
+    256 + w as u64
+}
+/// the balanced round-requant window of a SIGNED shift sh in -16..=40
+pub fn tag_win_a(sh: i32) -> u64 {
+    assert!((-16..=40).contains(&sh), "window tag: shift {sh} out of -16..=40");
+    320 + (sh + 16) as u64
+}
+
 /// round_half_up(x) = floor(x + 1/2), the spike's rounding.
 #[inline]
 pub fn round_half_up(x: f64) -> i64 {
