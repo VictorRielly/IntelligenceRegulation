@@ -13699,6 +13699,77 @@ it; rung 3 = the two-way test + the eight byte gates + the measured cost.
 MEASURED: nothing yet.
 OPEN: everything below rung 1.
 
+### AN rung 1 — 2026-09-04 — the range machinery, located; TWO FINDINGS AGAINST THE BRIEF; the construction fixed
+
+**FINDING 1 — the machinery the brief names is in the OTHER proving
+channel.** The brief says "the q46 remainder bit-plane range proofs, tied
+to the q31 value commitments by the U-L modulus link, prove exactly this
+today. Find that machinery and reuse it." `grep -rl q46` over the tree
+returns `zkmatrix-rs/src/ring/{digits,link,gkr_masked,eval_proof,
+ct_engine}.rs` and the lattice docs — i.e. the LATTICE channel. There is
+NO q46 and no modulus link anywhere in `hashline/src`. But the ZK
+statement, the P1/P3 header, the eight byte gates and the 8B pass are all
+the HASHLINE channel, and lane AN's owned file set is entirely hashline.
+So "reuse it" cannot be executed literally: the two channels do not share
+a range gadget. (`zkmatrix-rs/` is also READ-ONLY for this lane.)
+
+**FINDING 2 — hashline's own range machinery cannot take a new value
+without a change in lane AO's files.** hashline's range proofs are the
+LogUp window/class tables (`TAG_INT16`, `TAG_ACT16`, `tag_rem_v3(sh)` —
+`layer.rs:1228..1250`, `zk.rs:1867`). Their TABLE side is generic over
+`zl.tabs`, but their WITNESS side is hard-wired twice: into the fixed
+plane layout (`multiplicities_zk_v3`, the `hg/hu/hh/hz` helper columns)
+and into the CUDA `HelperSpec` list (`zk.rs:2415..2423` ->
+`gpu::dev_helpers`). Adding one more looked-up value therefore edits
+`gpu/*`, which is lane AO's this round. Per the ownership block I did NOT
+edit it — I built the predicate so it needs no LogUp entry at all.
+
+**THE CONSTRUCTION (single-score form, PROOF_FUNCTIONS.md 5's second
+option `y - tau >= 0`, which is the strictly simpler of the two the
+ruling offers).** The output plane `z16` is committed in A and every one
+of its entries is ALREADY proven int16 by the existing `TAG_INT16`
+lookup, so `y = z16[row][col]` lies in `[-32768, 32767]` and
+`p = y - tau` (public int16 `tau`) lies in `[-65535, 65535]`. Hence
+
+>   `p >= 0`  <=>  `p` is a sum of 16 bits with weights `2^i`.
+
+One masked sumcheck over the d-block cube (`log_t + log_db` variables,
+degree 3) proves, in one shot, both halves — the binding to the committed
+output and the range:
+
+```
+sum_y [ eq(y, pt) * z_c(y)  -  w(y) * B(y)  +  nu * eqr(y) * (B(y)^2 - B(y)) ]  =  tau
+```
+
+* `pt` = the Boolean point of the public entry `(row, col)`, `c = col/db`;
+* `B` = ONE new A row holding the 16 bits of `p` in its first 16 columns,
+  zero-extended into the cube exactly as the multiplicity tables are
+  (`ext_coef`, `zk.rs:2093`);
+* `w` = the PUBLIC weight table, `2^i` on `i < 16` and ZERO elsewhere —
+  so a bit planted outside the 16 columns buys nothing and no separate
+  tail constraint is needed;
+* the `eqr*(B^2 - B)` term sums to zero exactly when the 16 entries are
+  boolean;
+* the claimed sum is the PUBLIC constant `tau`, so the sumcheck reveals
+  no witness quantity, and it is sent masked (`tau + c_pred G_pred`) in
+  the CFS form every other sumcheck here uses.
+
+Everything else follows the existing patterns byte for byte: a 7th mask
+slot (`SC_PRED`), the extension round for the two private terminals
+(`z_c` and `B`), and two `masked`-form `ZClaim`s on A that share ONE
+column-weight group. Three new A rows (bits + 2 mask rows), appended
+AFTER every existing row, and allocated ONLY when the predicate is on —
+so under function 1 the A layout, the mask spec list and every byte are
+untouched.
+
+WHY THIS IS STILL "ONE RANGE FACT": the 16 bits ARE the one
+non-negativity fact; bit-planes are how the brief's own reference
+implements it ("remainder BIT-PLANE range proofs"). The cost is one
+degree-3 sumcheck over one d-block, on the final layer only.
+
+MEASURED: nothing yet (rung 2 builds it, rung 3 measures).
+OPEN: the build; the two-way interchange test; the eight byte gates.
+
 ## Agent AO status (wt-uperf3-ao) — round 16
 
 (lane appends below)
