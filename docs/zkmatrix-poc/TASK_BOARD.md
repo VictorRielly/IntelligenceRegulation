@@ -75,10 +75,31 @@ MERGED; THE 60 TOKENS/S PLAN; ROUND 14 OPEN):**
   the 30B follow-on's first question), and **HARDWARE BECOMES BINDING**
   rather than merely cheap information, because the ruled claim names
   its machine and "one H100" cannot be claimed from a laptop.
-- **AWAITING VICTOR (one ruling left)**: hardware — rent an H100 block
-  for the measurement passes, buy a 4090/5090-class board for capacity,
-  or both. Already answered and not to be reopened: the privacy mode is
-  P1, and the PoC shape is 8B.
+- **HARDWARE (Victor, 2026-09-04): AN RTX 5090 IS AVAILABLE** and
+  becomes the primary development and measurement machine. Full setup
+  requirements in `docs/zkmatrix-poc/BLACKWELL_5090_RUNBOOK.md`. The
+  three things anyone touching this must know: (1) **it buys only ~1.4x
+  until lane AJ's host wall lands** — 56-63 s of the measured 95.5 s 8B
+  pass is HOST work a faster device does not touch, so the headline
+  measurement must not be scheduled before AJ closes; (2) **the box is
+  not Blackwell-ready** — driver 566.14 and CUDA 12.1 against the 570+
+  and 12.8+ that `sm_120` needs, plus an `arch_str` arm in
+  `gpu/cuda.rs` (owned by lane AJ, requested from it), and the toolkit
+  upgrade must NOT happen while lanes are running because
+  `/home/victor/cuda-root` is shared by every worktree; (3) **the 5090
+  is a 575 W part against the contract's 450 W bound** — cap it with
+  `nvidia-smi -pl 450` and record the cap, or amend the contract, which
+  is a ruling and not a benchmark-runner's choice. Counted worth:
+  1792 GB/s vs the laptop part's 256 (7.0x), 0.53x an H100 SXM, giving
+  **21-60 tok/s at 8B honest at the counted floor** — 60 at the top
+  edge. With >= 64 GB of host RAM it also brings the 32-layer 8B
+  full-model pass home from the Mac.
+- **AWAITING VICTOR (one ruling, DEFERRED ON PURPOSE)**: the H100. Do
+  not decide it until AJ's host wall has landed and a real 5090 number
+  exists — only then is the gap to 60 tok/s known, and the choice
+  between renting for a day and doing more kernel work is made with a
+  number instead of a band. Already answered and not to be reopened:
+  the privacy mode is P1, and the PoC shape is 8B.
 
 **AS OF 2026-09-04 (LANE AH COMPLETE AND MERGED — THE 8B GPU PASS IS
 NOW 95 s; the 125M-shaped kernels are gone):**

@@ -235,13 +235,21 @@ Opens after A3 gives the measured T = 512 number.
 ### Track E — hardware, measured early (L1)
 
 Every device column in this plan divides a laptop row by a factor
-nobody has run. **This should happen early, not last, because it
-decides whether Track C's ruling is optional or mandatory.** A rented
-H100 block for a day, running the existing 12x512 and 8B statements
-with 20 warm runs, converts L1 from [MODEL] to [MEASURED] and tells
-us which of L3/L4/L6 we actually need. A purchased 4090/5090-class
-board additionally lifts the 15 GB ceiling that currently forces A3
-onto the Mac.
+nobody has run. **AN RTX 5090 IS AVAILABLE** (Victor, 2026-09-04) and
+becomes the primary development and measurement machine; the full
+setup requirements, the Amdahl warning and the day-one procedure are
+in `BLACKWELL_5090_RUNBOOK.md`. In short: 1792 GB/s against the
+laptop part's 256 (7.0x), 0.90x an H100 PCIe and 0.53x an H100 SXM on
+the dominant term, giving **21-60 tok/s at 8B with the honest
+statement at the counted floor** — 60 exactly at the top edge. Two
+things gate it: the board buys only ~1.4x until Track B's host wall
+lands (56-63 s of the 95.5 s pass is host work a faster device does
+not touch), and the box is not Blackwell-ready today (driver 566.14
+and CUDA 12.1 against the 570+ / 12.8+ that `sm_120` needs, plus an
+`arch_str` arm in `gpu/cuda.rs`). With >= 64 GB of host RAM it also
+**brings the 32-layer 8B full-model pass home from the Mac**, which is
+this plan's most valuable single measurement. The H100 rental is
+therefore DEFERRED, not dropped — see §5.
 
 ---
 
@@ -297,13 +305,21 @@ plan cannot pick for you. One is now ruled and one is deferred by it.
    follow-on. Nobody writes code for it before then, and when it is
    taken up it starts with a costed design memo — it changes the
    soundness accounting and every frozen digest in the repository.
-3. **Hardware (E) — OPEN, and ruling 1 makes it BINDING.** The PoC
-   claim now names its machine: "one H100". We cannot make that claim
-   from a laptop, so this is no longer only the cheapest information
-   in the plan, it is on the critical path to the deliverable. Rent an
-   H100 block for the measurement passes, buy a 4090/5090-class board
-   for capacity, or both. Every [MODEL] column in §2 and every cell in
-   §0 waits on it.
+3. **Hardware (E) — PARTLY ANSWERED 2026-09-04: an RTX 5090 is
+   available.** It becomes the primary development and measurement
+   machine (`BLACKWELL_5090_RUNBOOK.md`), which converts the plan's
+   largest [MODEL] term into a measurement and, with >= 64 GB of host
+   RAM, brings the 32-layer 8B full-model pass home from the Mac.
+   **What remains open is the H100, and it is DEFERRED ON PURPOSE**
+   until Track B's host wall has landed and a real 5090 number exists:
+   only then is the remaining gap to 60 tok/s known, and the choice
+   between "rent an H100 for a day and the claim is done" (~1.5x gap)
+   and "more kernel work first" (~6x gap) is made with a number
+   instead of a band. Waiting costs nothing. Note also that the ruled
+   claim names "one H100" while a 5090 result may be worth MORE
+   commercially — the machine a customer might own — in which case the
+   contract's 450 W cap is the right frame and the rental becomes
+   optional. That is a later ruling, flagged now.
 
 A fourth, already answered and recorded here so it is not reopened:
 **the privacy mode is P1** (private inputs, public weights), ruled
