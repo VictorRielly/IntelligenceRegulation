@@ -10845,3 +10845,100 @@ residual pins, the inner seam and the assembled full-layer prover/verifier
 with the tamper legs; (f) the 12-layer pass with the layer seams bound.
 
 ORCHESTRATOR-RUN (only if a step needs > ~8 min): none yet.
+
+### AG rung 4 — THE FULL LAYER IS PROVEN (2026-09-03) [MEASURED WSL-BOX 8T CPU NOISY-SHARED]
+
+**One full transformer layer of the 125M model — attention + both RMSNorms
++ the residual stream + the v3 FFN half + the seam between them — proves
+and verifies.** This is the first proof in this project that covers a whole
+layer rather than its feed-forward half.
+
+    hashline attn-full <attn-export> --export <v3-export> --t 512 --threads 8
+
+| shape (125M layer 0) | PROVE | VERIFY | proof | peak RSS | verdict |
+|---|---:|---:|---:|---:|---|
+| FULL layer, T = 512 | **10.12 s** (8.77 s on a second run) | 0.23 s | 33.2 MB (attention half 27.3) | 5.10 GB | ACCEPT |
+| FFN-only layer, T = 512 (`layer 0 512 --profile v3`) | 1.65 s | 0.03 s | 5.90 MB | 1.12 GB | ACCEPT |
+| **full / FFN-only** | **6.1x** | 7.4x | 5.6x | 4.5x | — |
+| FULL layer, T = 256 | 4.21 s | 0.29 s | 27.0 MB | 2.11 GB | ACCEPT |
+| FULL layer, T = 128 | 2.68 s | 0.28 s | 24.1 MB | 1.06 GB | ACCEPT |
+| FULL layer, T = 64 | 1.15 s | 0.13 s | 23.0 MB | — | ACCEPT |
+
+AE's rung-3.5 count predicted 4.58x on committed elements; the measured
+6.1x is that plus this build's two deliberate trades (below). The wall
+grows sub-quadratically in T here only because the T-independent parts
+(the weight commitment, the group vectors) still dominate at T <= 256.
+
+**THE TAMPER LEGS — 10 of 10 REJECT at T = 512** (and at T = 64; a
+cheating prover's own consistency asserts are silenced by
+`set_tamper_mode`, so the VERIFIER is what rejects):
+
+| leg | rejected by |
+|---|---|
+| flipped score s8 | the score matmul sumcheck |
+| wrong exponential-table entry (E) | the LogUp identity |
+| wrong softmax quotient (P) | the softmax zero-check |
+| wrong norm output (xn8) | the D-domain zero-check |
+| wrong RoPE rotation (qr8) | the Q-domain zero-check |
+| wrong row maximum (m) | the softmax zero-check |
+| flipped layer input x_in | the SS row-sum sumcheck |
+| **BROKEN SEAM** (the z16 copy changed and the residual pin *recomputed* so only the seam can catch it) | **the seam claim** |
+| FFN half: wrong int16 table entry | the FFN's LogUp identity |
+| FFN half: wrong requant h16 | the FFN's zero-check |
+
+plus, in the attention-half-alone mode (`hashline attn-layer`), wrong
+isqrt D (the isqrt pair) and a moved attainment selector (the softmax
+zero-check): **12 distinct legs in all**.
+
+**WHAT THE STATEMENT PROVES** (the object list of rung 0, as built):
+x_in -> attn_norm (SS row-sum sumcheck; D = isqrt via the a1/a2 pair with
+U16 limbs; Dsq = D D; the ROUND division y (2 div) + rho = 2 x g Cn + div
+with D row-broadcast and gamma column-broadcast, both free) -> Q/K/V by ONE
+batched matmul sumcheck over the inner d -> RoPE as a zero-check reading q8
+at the coordinate-FLIPPED point against the public cos/sin tables -> the
+per-head score matmul (ONE sumcheck over (kv head, head dim): the GQA map
+is the high bits of the padded head index, so it costs nothing) -> the
+softmax (int8 + window lookups on s8/rS; dominance and the exponential by
+the FUSED (d, E) LogUp with d = m - mask s8 computed in the constraint;
+zsel binary with row sum 1 and zsel d = 0; the division P Sum + rho = 2^fP E
+on the mask and P = rho = 0 off it; P in the PROB table, rho and the DERIVED
+sigma = Sum - 1 - rho in the SREM table) -> the masked row sum of E batched
+with sum_j zsel = 1 -> the PV matmul (one sumcheck over (kv head, j)) ->
+o8 -> the Wo matmul -> ao -> residual pin 1 -> mlp_norm -> **xm8, which IS
+the FFN half's X plane** -> the v3 FFN (unchanged `prove_layer_v3`) -> z16
+-> residual pin 2 -> xres2, the layer's output.
+
+**THE SEAM, exactly.** The attention half commits its planes FIRST; the FFN
+half then commits its own on the same transcript; the FFN's zero-check D
+draws rho_d AFTER both commitments; the attention half's PCS opening is
+DEFERRED until then and adds two claims per d-block — xm8~(rho_d) and the
+z16 copy~(rho_d) — checked equal to the FFN proof's own zcd_term values.
+`layer.rs::v3_zcd_point` [UPERF3-AG] recovers rho_d by replaying the v3
+transcript walk on a clone (neither prove_layer_v3 nor verify_layer_v3
+returns it, and both are read-only for this lane).
+
+**TWO DELIBERATE TRADES, recorded so the next agent can undo them.**
+(1) *Padding, not blocking.* Every axis is padded to a power of two (d 768
+-> 1024, the 12 query heads -> 16 slots with the GQA group as the high bits)
+so one plane is ONE slice; the padding is INERT because the pad columns and
+pad heads carry the values the chain itself produces on zero inputs (a zero
+gamma column: rho = div, sigma = div - 1; a zero query head: its own
+softmax and PV). Cost at 125M: 1.33x on the two dominant domains, nothing
+at Mistral (d 4096, H 32 are already powers of two).
+(2) *Many opening points, not folded claims.* The v3 FFN prover folds every
+pending claim into its two zero-checks so A and H open at two points; this
+prover opens at ~20 points (one group vector of 2^log_cols Fp2 each). That
+is why the attention half's proof is 27.3 MB where the FFN half's is 5.9:
+about 8 MB of it is group vectors that folding would remove. Folding is the
+named next optimization; it changes no soundness property.
+
+**The honest note on composition.** The FFN half is proven on the attention
+half's OWN xm8, not on the v3 export's X plane; the two agree on 31% of
+elements at T = 512 (0.3102), which is the integer chain's drift from the
+fp forward that AE's rung-2 cascade leg already measured (xm8 cascade
+agreement 0.31). A full-layer proof MUST use the attention half's output —
+that is the point of the seam — so the export's X plane is only a
+reference here.
+
+Commits: b18e114 (the witness refactor), 37b9a29 (the attention prover and
+verifier, first green), the tamper-leg commit, 715fc48 (the full layer).
