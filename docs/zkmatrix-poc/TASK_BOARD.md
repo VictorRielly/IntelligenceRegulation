@@ -52,8 +52,9 @@ FLOORS ARE GREEN; A LOST-COMMIT RECOVERY, AND ITS ROOT CAUSE FIXED):**
   width (lane AI's item). The layer.rs host residue is down to ~7.5 s.
 - **A COMMIT WAS LOST AND RECOVERED — READ THIS BEFORE TRUSTING ANY
   REFLOG.** WSL was torn down after 01:37:23 on 2026-09-04 without a
-  clean unmount (the VM's own boot record runs 23:01 -> 10:16, so this
-  was a HOST-side teardown, not a kernel panic). The lane-AL merge
+  clean unmount — **THE BOX FROZE** (Victor found it frozen and
+  force-restarted it; journald's last record for that boot is 01:37:17,
+  six seconds before the corrupt objects' mtime). The lane-AL merge
   commit was in flight: three loose objects were left ZERO-BYTE and the
   branch ref pointed at a commit never written to disk, so every git
   command failed with `loose object ... is corrupt`. **Nothing was
@@ -65,11 +66,29 @@ FLOORS ARE GREEN; A LOST-COMMIT RECOVERY, AND ITS ROOT CAUSE FIXED):**
   redone merge's root tree hashed to `58b0fa85` — one of the three
   quarantined zero-byte objects — which is byte-level proof the
   reconstruction matches what was lost.
-- **ROOT CAUSE FIXED, one line.** git 2.34.1 leaves
+- **WHY THE FREEZE HAPPENED — VRAM, NOT HOST RAM. This is the important
+  one.** The kernel's LAST message of that boot, at 01:37:17, was
+  `misc dxg: dxgk: dxgkio_make_resident: Ioctl failed: -12`, twice.
+  `-12` is ENOMEM and `dxgkio_make_resident` is WSL's GPU RESIDENCY
+  ioctl, so **the box died of VRAM exhaustion**; under WSL a residency
+  request is backed by host paging, which is why the whole VM froze
+  instead of one process dying. It fired four seconds after lane AM's
+  rung-2 tamper legs started asking for their **5,387 MB** hiding-W
+  commitment on an 8,188 MB card. VRAM was ALREADY contended: the same
+  message appears at 00:11:03 and 00:27:52 that night, right after a
+  `hashline` SIGABRT (signal 6) from lane AI's binary at 00:10:19.
+  **STANDING RULE FROM THIS: never run a second GPU process beside a P3
+  pass on the 8 GB box, and check `nvidia-smi` reads 0 MiB before
+  launching one.** On a clean box the identical allocation fails CLEANLY
+  at the CUDA layer (`cuMemAlloc(5387 MB): CUDA_ERROR_OUT_OF_MEMORY`)
+  and falls back to the CPU path — that is the whole difference between
+  a completed rung and a nine-hour outage.
+- **THE GIT DAMAGE WAS A CONSEQUENCE, AND ITS OWN CAUSE IS ALSO FIXED.**
+  A freeze plus a force-restart loses the page cache; git 2.34.1 leaves
   `core.fsyncObjectFiles` at **false**, so loose objects are written and
-  never fsynced; on ext4 `data=ordered` with delayed allocation, a host
-  teardown keeps the directory entry and drops the data blocks — exactly
-  the zero-byte signature. Now set to `true` in this repo's local config.
+  never fsynced, and on ext4 `data=ordered` with delayed allocation the
+  directory entry survives while the data blocks do not — exactly the
+  zero-byte signature. Now `true` in this repo's local config.
   **Worktrees share the main repo's config, so every lane inherits it**;
   other repos on this box (frugal-lm) do NOT — set it there too, or
   globally, if a lost commit would hurt.
@@ -77,9 +96,9 @@ FLOORS ARE GREEN; A LOST-COMMIT RECOVERY, AND ITS ROOT CAUSE FIXED):**
   standing Grok-resumable rule restated: this crash could only ever have
   destroyed work that had not been pushed. It also cost **~9 hours of
   idle box** (01:37 -> 10:31) — the no-hangup protocol cannot help when
-  the box itself is off, and this is the SECOND hard stop in ~6 hours of
-  wall time (see the 2026-09-04-late block below). If it recurs, the
-  host's sleep/hibernate settings are the thing to look at, not the runs.
+  the box is frozen, and this is the SECOND hard stop in ~6 hours of
+  wall time (see the 2026-09-04-late block below). Both are now
+  attributable to GPU memory pressure, not to sleep settings.
 - **LANE AM (uperf3-am, 9893832) — rungs 0-2 DONE and pushed, rung 3
   never run.** MODE P3 EXISTS: the hiding per-proof weight commitment;
   41/41 tests; P1's 12x512 v3 still `40eb5479..` byte-identical.
