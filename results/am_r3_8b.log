@@ -1,0 +1,118 @@
+
+=== FAST TIER (P1) — 8B GPU, 32 x 512, cold weight cache ===
+2026-09-04 10:59:22
+               total        used        free      shared  buff/cache   available
+Mem:              15           0          13           0           0          14
+pass (v3) [ZK, seed 1]: 32 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export (d 4096 f 14336; log_cols 14, inv_rate 4, col checks 256, threads 8)
+  MODE P1 (fast tier) [v3] header "P1-v3": private = {the input X, EVERY activation plane including the output z16, the remainders, the multiplicities}; public = {the weights W, the shapes, the signed shifts, the activation-table digest}; output claim: function 1 (attested inference) — the output is committed, nothing more is claimed; model identity: the W commitment root (public weights: stable per model)
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 4.439 s, 40186228 B
+  layer  1: prove 7.512 s, 40173940 B
+  layer  2: prove 7.654 s, 40173940 B
+  layer  3: prove 7.574 s, 40173940 B
+  layer  4: prove 7.577 s, 40173940 B
+  layer  5: prove 8.174 s, 40173940 B
+  layer  6: prove 7.451 s, 40173940 B
+  layer  7: prove 7.777 s, 40173940 B
+  layer  8: prove 7.515 s, 40173940 B
+  layer  9: prove 7.816 s, 40173940 B
+  layer 10: prove 7.650 s, 40173940 B
+  layer 11: prove 4.868 s, 40173940 B
+  layer 12: prove 8.110 s, 40173940 B
+  layer 13: prove 8.038 s, 40173940 B
+  layer 14: prove 7.612 s, 40173940 B
+  layer 15: prove 7.373 s, 40173940 B
+  layer 16: prove 7.731 s, 40173940 B
+  layer 17: prove 7.452 s, 40173940 B
+  layer 18: prove 7.699 s, 40173940 B
+  layer 19: prove 7.411 s, 40173940 B
+  layer 20: prove 7.521 s, 40173940 B
+  layer 21: prove 8.048 s, 40173940 B
+  layer 22: prove 4.506 s, 40173940 B
+  layer 23: prove 7.683 s, 40173940 B
+  layer 24: prove 7.811 s, 40173940 B
+  layer 25: prove 7.894 s, 40173940 B
+  layer 26: prove 7.967 s, 40173940 B
+  layer 27: prove 7.723 s, 40173940 B
+  layer 28: prove 7.721 s, 40173940 B
+  layer 29: prove 7.735 s, 40173940 B
+  layer 30: prove 7.933 s, 40173940 B
+  layer 31: prove 8.392 s, 40173940 B
+prover phases (summed over layers):
+      commit W                     46.978 s
+      commit A (zk)                23.836 s
+      mask commit                   0.239 s
+      helpers + commit H (zk)     130.933 s
+      matmul g/u (zk)               5.633 s
+      matmul d (zk)                 3.977 s
+      zero-check F (zk)             7.647 s
+      zero-check D (zk)             1.253 s
+      table zero-check (zk)         1.547 s
+      zsum + mask open              0.129 s
+      pcs openings (zk)            16.190 s
+mask sites (v3; layer 0 — every layer identical in structure up to its window sizes):
+      A: 66 claims in 5 groups
+      A group vector 0: mask rows [3520, 3521, 3522, 3523, 3524, 3525, 3526, 3527, 3528, 3529, 3530, 3531, 3532, 3533, 3534, 3535, 3536, 3537, 3538, 3539, 3540, 3541, 3542, 3543, 3544, 3545, 3546, 3547, 3548, 3549, 3550, 3551, 3552, 3553, 3554, 3555, 3556, 3557, 3558, 3559, 3560, 3561, 3562, 3563, 3564, 3565, 3566, 3567, 3568]
+      A group vector 1: mask rows [3569, 3570, 3571]
+      A group vector 2: mask rows [3572]
+      A group vector 3: mask rows [3573, 3574, 3575, 3576, 3577, 3578, 3579]
+      A group vector 4: mask rows [3582, 3587, 3588, 3589, 3590, 3592, 3594, 3597, 3598, 3600]
+      A proximity vector: prox mask row 3580 (+ every mask row with its random rho)
+      A 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      A 65536 Merkle leaves salted
+      H: 30 claims in 5 groups
+      H group vector 0: mask rows [2944, 2945, 2946, 2947, 2948, 2949, 2950, 2951, 2952, 2953, 2954, 2955, 2956, 2957, 2958, 2959, 2960, 2961, 2962, 2963, 2964, 2965, 2966, 2967, 2968, 2969, 2970, 2971, 2972, 2973, 2974, 2975, 2976, 2977, 2978, 2979, 2980, 2981, 2982, 2983, 2984, 2985]
+      H group vector 1: mask rows [2986, 2987]
+      H group vector 2: mask rows [2988, 2989, 2990, 2991]
+      H group vector 3: mask rows [2995, 2996, 3005, 3006, 3007, 3008, 3009, 3010, 3011, 3012, 3015, 3016, 3019, 3020, 3025, 3026, 3027, 3028, 3031, 3032]
+      H group vector 4: mask rows [2988, 2989]
+      H proximity vector: prox mask row 2992 (+ every mask row with its random rho)
+      H 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      H 65536 Merkle leaves salted
+  gpu device-side (summed): h2d 13.648 s (21558 MB) | ntt 115.735 s | hash 7.175 s | sumcheck 8.744 s | fold 4.367 s | helpers 8.490 s | d2h 0.000 s (1465 MB) | vram peak 8585 MB
+PROOF sha256 930ce9a043a037210f62ac1384384e3a88607f29046b56284c6308ed272c982e (1285578368 B) [ZK v3 seed 1]
+  proof written to /home/victor/wt-uperf3-am/results/am_scratch/8b-p1.proof
+PASS-V3 ACCEPT [ZK]: 32 x 512 (d 4096 f 14336): witness load+chain 128.94 s | PROVE 238.37 s | VERIFY 2.02 s | proof 1285578368 B (1285.6 MB) | 2.886e12 MACs | 1.211e10 proven MAC/s (prove wall) | wall 372.04 s
+	Command being timed: "/home/victor/wt-uperf3-am/hashline/target-gpu/release/hashline pass 32 512 --threads 8 --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --wcache /home/victor/wt-uperf3-am/results/am_scratch/wcache-8b --proof-out /home/victor/wt-uperf3-am/results/am_scratch/8b-p1.proof"
+	User time (seconds): 1194.15
+	System time (seconds): 63.44
+	Percent of CPU this job got: 334%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 6:15.43
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 4556752
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 51
+	Minor (reclaiming a frame) page faults: 26357305
+	Voluntary context switches: 965246
+	Involuntary context switches: 2769
+	Swaps: 0
+	File system inputs: 14297862
+	File system outputs: 2773296
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+=== P1 digest ===
+2026-09-04 11:05:37
+               total        used        free      shared  buff/cache   available
+Mem:              15           0           5           0           8          14
+930ce9a043a037210f62ac1384384e3a88607f29046b56284c6308ed272c982e  /home/victor/wt-uperf3-am/results/am_scratch/8b-p1.proof
+1285578368 B
+
+=== FULL TIER (P3) — 8B GPU, 32 x 512, no cache (refused by the mode) ===
+2026-09-04 11:05:40
+               total        used        free      shared  buff/cache   available
+Mem:              15           0           7           0           7          14
+pass (v3) [ZK, seed 1]: 32 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export (d 4096 f 14336; log_cols 14, inv_rate 4, col checks 256, threads 8)
+  MODE P3 (full tier) [v3] header "HL-ZK/1|profile=v3|priv=in+act+out+weights|pub=shapes+shifts+table-digest|out=commit|model=w-root": private = {the input X, EVERY activation plane including the output z16, the remainders, the multiplicities, AND the weights W}; public = {the shapes, the signed shifts, the activation-table digest}; output claim: function 1 (attested inference) — the output is committed, nothing more is claimed; model identity: NONE — the W root is re-randomised every proof; this proof does not name a model
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-ZA] gpu zk commit declined (cuMemAlloc(5387 MB): DriverError(CUDA_ERROR_OUT_OF_MEMORY, "out of memory")); CPU path
+  layer  0: prove 19.616 s, 40251860 B
+[UPERF3-ZA] gpu zk commit declined (cuMemAlloc(449 MB): DriverError(CUDA_ERROR_OUT_OF_MEMORY, "out of memory")); CPU path
+[UPERF3-ZA] gpu zk commit declined (cuMemAlloc(378 MB): DriverError(CUDA_ERROR_OUT_OF_MEMORY, "out of memory")); CPU path
+  layer  1: prove 20.489 s, 40239572 B

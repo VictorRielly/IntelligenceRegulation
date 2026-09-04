@@ -13037,3 +13037,81 @@ the rule it produces is a standing one: **never let a second GPU process
 run beside a P3 pass on the 8 GB box, and check `nvidia-smi` reads 0 MiB
 before launching one.**
 
+### AM rung 3 — THE FAST TIER REPRODUCES THE 8B PRODUCT NUMBER BYTE FOR BYTE; the full tier's arm was killed by a THIRD box freeze, and the freeze was NOT P3's fault (2026-09-04)
+
+**WHAT RAN.** `results/am_r3_8b.sh` went out detached under the heavy lock and
+started at 10:59:22. Its FAST TIER (P1) arm ran to completion, exit status 0.
+Its FULL TIER (P3) arm started at 11:05:40, proved two layers, and then **THE
+BOX FROZE at ~11:06** — the third hard stop of 2026-09-04. Victor found it and
+force-restarted at 11:07. The log is kept whole as `results/am_r3_8b.log`;
+there is no `.done` marker for it and there should not be one.
+
+**THE FAST TIER AT 8B — THE PRODUCT NUMBER, REPRODUCED ON A SECOND TREE**
+[MEASURED, WSL-BOX, 8T, GPU binary, cold weight cache (32 misses)]:
+
+| | lane AI, round 14 | **lane AM rung 3** |
+|---|---:|---:|
+| sha256 | `930ce9a0..` | **`930ce9a0..`** |
+| proof | 1,285,578,368 B | **1,285,578,368 B** |
+| PROVE | 265.34 s | 238.37 s |
+| VERIFY | 2.33 s | 2.02 s |
+| witness load+chain | — | 128.94 s |
+| wall | — | 372.04 s |
+| max RSS | — | 4.56 GB |
+| VRAM peak | — | **8,585 MB on an 8,188 MB card** |
+
+**THE DIGEST IS THE RESULT. THE SECONDS ARE NOT.** `930ce9a0..` at
+1,285,578,368 B reproducing exactly, on a lane whose tree is NOT lane AL's,
+is a real byte gate on the 8B product number — it says the round-14 headline
+is a property of the argument and not of one worktree. **Do NOT read
+265.34 -> 238.37 s as a speedup.** AM branched at c0eba73, BEFORE AL's
+host-wall work merged at 22b975f, so there is no mechanism here to explain
+10%; this box's own documented run-to-run variance (~2x) swallows it whole.
+Two cold runs of the same binary differing by 10% is the noise floor, and the
+quiescing rule in CLAUDE.md is the reason no headline is quoted from it.
+
+**THE FULL TIER GOT TWO LAYERS**, and they say the mechanism works:
+`layer 0: prove 19.616 s, 40,251,860 B` and `layer 1: prove 20.489 s,
+40,239,572 B`, each after a CLEAN decline of the device commit. Layer 0's
+40,251,860 B is byte-for-byte the size rung 2 measured for a P3 Mistral
+layer, which is the shape check passing at 8B.
+
+**THE FREEZE, DIAGNOSED — AND RUNG 2's PREDICTION WAS HALF WRONG.** Rung 2
+predicted "rung 3's P3 arm should be 32 clean fallbacks rather than a
+freeze". The FALLBACK half held perfectly: both P3 layers declined
+(`cuMemAlloc(5387 MB)`, then `449 MB`, then `378 MB`) and proved on the CPU.
+The FREEZE half did not, and the reason is that **the freeze risk was never
+P3's to carry — it is the P1 arm's.** The evidence:
+
+- **The P1 arm SPILLS THE CARD: `vram peak 8585 MB` against 8,188 MB.**
+- The kernel logged `dxgkio_make_resident: Ioctl failed: -12` **in pairs
+  every ~2 minutes for the whole P1 arm** — 10:59:30, 11:01:35, 11:03:41,
+  11:05:48 — i.e. the spill was being backed by host residency continuously,
+  not once at a peak.
+- journald's LAST record of that boot is **11:05:48**, three seconds BEFORE
+  the P3 arm even started. The box was already dying during P1's tail.
+- P3 then could not get **378 MB** on a card whose only user had exited
+  three seconds earlier. VRAM is not returned promptly on WSL, so **chaining
+  a second pass behind an 8B P1 pass starts it against a full card.**
+
+**NEW STANDING RULE, replacing the narrower one at the end of rung 2:** the
+8B P1 pass is ITSELF a freeze risk on this 8 GB card, because it spills by
+~400 MB for six continuous minutes. Never chain a second GPU pass behind it
+in one script; run the two tiers as SEPARATE detached jobs with the card
+verified idle between them. The rung-2 rule (no second GPU process beside a
+P3 pass, check `nvidia-smi` first) still stands and is not enough on its own.
+
+**THE SALVAGE**: `results/am_r3_8b_p3_cpu.sh` — the P3 arm ALONE, with
+`HL_GPU` unset so `gpu::enabled()` is false and the binary cannot ask the
+device for anything. Same `target-gpu` binary, so rung 3's one-binary
+property survives. It buys the full tier's PRIVACY and INTEGRITY claims at
+8B — the digest, the size, the clear-value scan — at zero freeze risk, and
+it explicitly does NOT buy a P3-on-GPU 8B time. That row still needs the
+16 GB+ board and stays booked there, exactly as rung 2 left it.
+
+**RESULT OF THE SALVAGE RUN: PENDING** (launched 11:13:51 detached under
+`flock /tmp/zk-heavy.lock`; log `results/am_r3_8b_p3_cpu.log`, marker
+`results/am_r3_8b_p3_cpu.done`). This entry is committed BEFORE that run
+lands on purpose: three freezes in one day is the reason the ledger does not
+wait on a running job.
+
