@@ -13659,6 +13659,275 @@ attributed before it is optimised.
 
 (lane appends below)
 
+### AN rung 0 — 2026-09-04 — lane opened, ground read, plan fixed
+
+READ: `CLAUDE.md`; the round-16 lane AN ownership block above;
+`docs/zkmatrix-poc/PROOF_FUNCTIONS.md` sections 2, 3, 5 (section 5 is a
+RULING — no design work in this lane); lane AM's commit `b026b04`.
+
+WHAT I FOUND THAT CHANGES THE SHAPE OF THE WORK (good news): lane AM
+already built **the whole statement-header half** of function 2 and left
+the gadget half empty on purpose. Concretely, in `hashline/src/zk.rs`:
+
+- `enum OutputClaim { Committed, BinaryAcceptable }` — the function-2
+  variant EXISTS, with tag `commit+pred:binary-acceptable`;
+- `ZkStatementMode { privacy, output, model_id }` — the predicate id and
+  the model identity digest are already in the SAME header struct, and
+  `header_v3()` is absorbed into the transcript as `b"zk"` immediately
+  after `absorb_statement_v3`, so both are already under the SAME
+  transcript before any challenge. The MUST-HOLD binding is therefore
+  inherited, not re-built;
+- `verify_layer_zk_v3` currently hard-refuses the variant:
+  `if mode.output != OutputClaim::Committed { return Err("output claim
+  not built (only \`commit\`, function 1, exists)") }` — this is the line
+  the lane replaces;
+- the 41st test (zk.rs, `mode_headers_are_not_interchangeable`-shaped,
+  around :3442) already asserts a function-1 proof does not verify as
+  function-2. It asserts one DIRECTION against a refusal, not against a
+  real function-2 proof; making the gadget real turns that into the
+  two-way test the brief asks for.
+
+So the lane's actual job is: (1) the predicate witness + its ONE
+non-negativity range fact, reusing the q46 remainder bit-plane range
+machinery, (2) the predicate parameters into the header, (3) the driver
+flag, (4) the two-way interchange test, (5) the byte gates unmoved.
+
+PLAN: rung 1 = locate and characterise the range machinery to reuse and
+write down exactly which columns the predicate rides on; rung 2 = build
+it; rung 3 = the two-way test + the eight byte gates + the measured cost.
+
+MEASURED: nothing yet.
+OPEN: everything below rung 1.
+
+### AN rung 1 — 2026-09-04 — the range machinery, located; TWO FINDINGS AGAINST THE BRIEF; the construction fixed
+
+**FINDING 1 — the machinery the brief names is in the OTHER proving
+channel.** The brief says "the q46 remainder bit-plane range proofs, tied
+to the q31 value commitments by the U-L modulus link, prove exactly this
+today. Find that machinery and reuse it." `grep -rl q46` over the tree
+returns `zkmatrix-rs/src/ring/{digits,link,gkr_masked,eval_proof,
+ct_engine}.rs` and the lattice docs — i.e. the LATTICE channel. There is
+NO q46 and no modulus link anywhere in `hashline/src`. But the ZK
+statement, the P1/P3 header, the eight byte gates and the 8B pass are all
+the HASHLINE channel, and lane AN's owned file set is entirely hashline.
+So "reuse it" cannot be executed literally: the two channels do not share
+a range gadget. (`zkmatrix-rs/` is also READ-ONLY for this lane.)
+
+**FINDING 2 — hashline's own range machinery cannot take a new value
+without a change in lane AO's files.** hashline's range proofs are the
+LogUp window/class tables (`TAG_INT16`, `TAG_ACT16`, `tag_rem_v3(sh)` —
+`layer.rs:1228..1250`, `zk.rs:1867`). Their TABLE side is generic over
+`zl.tabs`, but their WITNESS side is hard-wired twice: into the fixed
+plane layout (`multiplicities_zk_v3`, the `hg/hu/hh/hz` helper columns)
+and into the CUDA `HelperSpec` list (`zk.rs:2415..2423` ->
+`gpu::dev_helpers`). Adding one more looked-up value therefore edits
+`gpu/*`, which is lane AO's this round. Per the ownership block I did NOT
+edit it — I built the predicate so it needs no LogUp entry at all.
+
+**THE CONSTRUCTION (single-score form, PROOF_FUNCTIONS.md 5's second
+option `y - tau >= 0`, which is the strictly simpler of the two the
+ruling offers).** The output plane `z16` is committed in A and every one
+of its entries is ALREADY proven int16 by the existing `TAG_INT16`
+lookup, so `y = z16[row][col]` lies in `[-32768, 32767]` and
+`p = y - tau` (public int16 `tau`) lies in `[-65535, 65535]`. Hence
+
+>   `p >= 0`  <=>  `p` is a sum of 16 bits with weights `2^i`.
+
+One masked sumcheck over the d-block cube (`log_t + log_db` variables,
+degree 3) proves, in one shot, both halves — the binding to the committed
+output and the range:
+
+```
+sum_y [ eq(y, pt) * z_c(y)  -  w(y) * B(y)  +  nu * eqr(y) * (B(y)^2 - B(y)) ]  =  tau
+```
+
+* `pt` = the Boolean point of the public entry `(row, col)`, `c = col/db`;
+* `B` = ONE new A row holding the 16 bits of `p` in its first 16 columns,
+  zero-extended into the cube exactly as the multiplicity tables are
+  (`ext_coef`, `zk.rs:2093`);
+* `w` = the PUBLIC weight table, `2^i` on `i < 16` and ZERO elsewhere —
+  so a bit planted outside the 16 columns buys nothing and no separate
+  tail constraint is needed;
+* the `eqr*(B^2 - B)` term sums to zero exactly when the 16 entries are
+  boolean;
+* the claimed sum is the PUBLIC constant `tau`, so the sumcheck reveals
+  no witness quantity, and it is sent masked (`tau + c_pred G_pred`) in
+  the CFS form every other sumcheck here uses.
+
+Everything else follows the existing patterns byte for byte: a 7th mask
+slot (`SC_PRED`), the extension round for the two private terminals
+(`z_c` and `B`), and two `masked`-form `ZClaim`s on A that share ONE
+column-weight group. Three new A rows (bits + 2 mask rows), appended
+AFTER every existing row, and allocated ONLY when the predicate is on —
+so under function 1 the A layout, the mask spec list and every byte are
+untouched.
+
+WHY THIS IS STILL "ONE RANGE FACT": the 16 bits ARE the one
+non-negativity fact; bit-planes are how the brief's own reference
+implements it ("remainder BIT-PLANE range proofs"). The cost is one
+degree-3 sumcheck over one d-block, on the final layer only.
+
+MEASURED: nothing yet (rung 2 builds it, rung 3 measures).
+OPEN: the build; the two-way interchange test; the eight byte gates.
+
+### AN rung 2 — 2026-09-04 — FUNCTION 2 EXISTS: the ZK content filter proves and verifies, 42/42
+
+BUILT, all of it in `hashline/src/zk.rs` (no `pcs.rs`, no `gpu/*`, no
+`layer.rs`):
+
+* `PredicateSpec { row, col, tau }` — the frozen acceptable set, and it IS
+  the whole set: no set commitment, no per-proof set, no lookup. It is
+  carried in `ZkStatementMode` beside `model_id` and printed into the
+  header body, so the predicate id and the model identity digest are in
+  the SAME header under the SAME transcript (`out=commit+pred:binary-
+  acceptable(row=..,col=..,tau=..)`).
+* `ZkStatementMode::predicate()` — the output-claim slot and the
+  parameters must agree, so a bare `binary-acceptable` claim (which names
+  no predicate) is refused rather than silently proving nothing.
+* three A rows appended AFTER every existing row and allocated ONLY under
+  function 2: the bit row (16 planes in columns 0..16) and the two mask
+  rows its two claims need.
+* a 7th mask slot `SC_PRED` and one masked degree-3 sumcheck over the
+  d-block cube (`nv = log_t + log_db` rounds + the extension round):
+  `sum_y [eq(y,pt) z_c(y) - w(y) B(y) + nu eqr(y) (B(y)^2 - B(y))] = tau`.
+  THE CLAIMED SUM IS THE PUBLIC THRESHOLD, so the sumcheck reveals no
+  witness quantity; it is sent masked in the same CFS form as the other
+  six, and its two private terminals are masked by the extension round.
+* `PredProofV3` on `LayerProofZk` as an `Option`, which writes ZERO bytes
+  under function 1.
+
+MEASURED [MEASURED], `cargo test --release` at the tiny test shape
+(t=2, d=f=16, log_cols=5):
+
+* the whole suite is **42/42** (41 before + the new one), zero failures;
+* **function 1: 1,686,500 B; function 2: 1,692,020 B — +5,520 B,
+  +0.3273%**; the predicate sumcheck is 6 rounds. Most of those bytes are
+  the 3 extra A rows in the Ligero opening and the 7th mask slot, i.e. a
+  FIXED cost that amortises: at the tiny shape the whole proof is only
+  1.69 MB. (The real-shape figure is rung 3.)
+* the function-1 proof of the same witness is **byte for byte** what it
+  was: the test asserts `out1.to_bytes() == out1b.to_bytes()`, `pred` is
+  `None`, and the size accounting is unchanged.
+
+THE NEW TEST (the 42nd) asserts seven things, and (3) is the shape lane AM
+asked for, in BOTH directions:
+1. an ACCEPTABLE classification proves and verifies;
+2. an UNACCEPTABLE one does NOT — `y - tau = -1` produces a proof that
+   fails, so the filter is enforced by soundness, not by a policy layer;
+3. a function-1 proof does not verify as function 2 AND a function-2 proof
+   does not verify as function 1;
+4. the predicate is the statement's identity: the same proof under a
+   different `tau`, a different `col`, a different `row`, or a different
+   `model_id`, is rejected — and the headers differ in every case;
+5. all seven tamper legs still reject with the predicate on;
+6. nothing of the output is in the clear: the two terminals are never the
+   score, the threshold or the slack, never land in the witness range, and
+   are all distinct across four seeds of one and the same statement;
+7. byte-preservation, as above.
+
+OPEN: the driver flag; the eight byte gates on the real binaries; the
+measured cost at a real shape.
+
+### AN rung 3 — 2026-09-04 — MEASURED at the 125M shape: the predicate is FREE in time and one opening group in bytes
+
+`results/an_r3_f2.sh` -> `results/an_r3_f2.log` (exit 0), 12 x 512 v3 on the
+CPU binary, same binary, same session:
+
+| | function 1 (`--zk`) | function 2 (`--predicate 0:0:-32768`) |
+|---|---|---|
+| PROVE | **18.54 s** [MEASURED] | **18.23 s** [MEASURED] |
+| VERIFY | 0.49 s | 0.52 s |
+| proof | 87,697,008 B | 87,974,688 B |
+| digest | `40eb54795e023c77..` (THE FROZEN zkv3 GATE) | `3143d424e8990993..` (its own) |
+
+* **TIME: below noise, exactly as the brief predicted.** 18.23 s against
+  18.54 s — the predicate arm is the FASTER of the two, which is run-to-run
+  variance and not a speedup. Per layer: the predicate layer proves in
+  **1.538 s against 1.534 s** for the same layer under function 1.
+* **BYTES: +277,680 B, +0.3166%**, and ALL OF IT ON ONE LAYER: layers 0..10
+  are **7,306,036 B each, identical to function 1 to the byte**; layer 11
+  (the only one that carries the predicate) is 7,583,716 B. The pass pays
+  the predicate ONCE, not n times, because `--predicate` rides the LAST
+  layer only — the predicate is a claim about the PASS's output.
+* WHERE THE 277,680 B GO: **one extra column-weight group in the A
+  opening** — a group vector is (n + q_pad) Fp2 = (16,384 + 256) x 16 =
+  **266,240 B at the default log_cols 14** — plus 256 opened columns x 3
+  new rows x 8 B = 6,144 B, plus the sumcheck itself (18 rounds x 4 Fp2 +
+  gamma + 2 terminals = **1,200 B**) and the 7th mask slot. So the
+  ARGUMENT is 1.2 KB; the rest is the fixed price of touching the
+  commitment at one more point, and it does not grow with the model.
+  Against the 8B pass's 1,234,936,956 B the same fixed cost is **+0.022%**
+  [PREDICTION, arithmetic not benchmark].
+* **THE REFUSAL LEG, END TO END:** `--predicate 0:0:40000` (a threshold
+  above every int16 score) prints the prover's loud "THE PREDICATE DOES NOT
+  HOLD ... y - tau = -39880", emits the proof anyway, and the pass reports
+  **REJECT at layer 11, `sumcheck round 0: s(0) + s(1) != claim`** — the
+  predicate sumcheck, refusing it. An unacceptable classification cannot be
+  given a passing proof, which is function 2's whole point.
+
+**THE SOUNDNESS OF THE NEW GADGET, ATTACKED DIRECTLY (test (5b)).** The
+gadget rests on exactly two facts, and each is now attacked by replacing
+the honest bit row through a `#[cfg(test)]` hook that does not exist in
+the shipped binary:
+
+* a NON-BOOLEAN plane — the whole slack in column 0, whose public weight is
+  2^0 = 1, so the recomposition is RIGHT and only booleanity is wrong;
+* bits OUTSIDE the 16 weighted columns — honest bits at columns 16.., whose
+  public weight is ZERO, so booleanity is RIGHT and only the recomposition
+  is wrong. This is the fact that makes a NEGATIVE slack unprovable: a
+  negative slack as a field element is P - |slack|, which no 16 weighted
+  boolean planes can reach;
+* every plane set — a legal boolean assignment recomposing to 65535, which
+  is not the slack.
+
+All three REJECT.
+
+**WHAT THE PREDICATE COSTS THE PROVER, STRUCTURALLY.** Three A rows, one
+7th CFS mask slot, and one degree-3 sumcheck over ONE d-block cube
+(`log_t + log_db` rounds). No new lookup, no new table, no new
+multiplicity vector, and nothing in `pcs.rs`, `gpu/*` or `layer.rs` — the
+whole gadget is 200-odd lines of `zk.rs` built out of primitives lane ZA
+and lane AM already put there (masked sumcheck, CFS mask, the extension
+round, `ZClaim`/`OpeningZk`, the mask-site assertion).
+
+**WHAT SHOULD BE AMENDED OUTSIDE THIS LANE (not touched, because it is not
+this lane's file):** `docs/zkmatrix-poc/PROOF_FUNCTIONS.md` section 5 says
+"machinery needed: **none that is new**". In the HASHLINE channel that is
+not true and section 5 should say so — see rung 1's two findings. The form
+it rules is exactly what was built and the ruling itself stands; only the
+"no new machinery" line needs the amendment, plus a sentence recording that
+the built form is the SINGLE-SCORE one (`y - tau >= 0`), which section 5
+already offers as the alternative.
+
+**THE EIGHT BYTE GATES: GREEN, ON BOTH BINARIES** (`results/an_floors.sh`
+-> `results/an_floors_pre.log`, exit 0). Every one at its round-15 value,
+none moved:
+
+| gate | cpu | gpu |
+|---|---|---|
+| v2 | `50cf7bdfd6b5b182` 66,844,928 B | same |
+| v3 | `5f368db6240e0614` 70,758,084 B | same |
+| zk | `021485e4f80ec695` 87,228,528 B | same |
+| zkv3 | `40eb54795e023c77` 87,697,008 B | same |
+
+plus `cargo test --release` **42/42** and both builds. And the NEW
+statement gets its own digest and its own parity gate: function 2 at
+12 x 512 is `3143d424e8990993..` (87,974,688 B) and the CPU and GPU proofs
+are **BYTE-IDENTICAL**, so the predicate gadget is on the shape-generic
+path like everything else in this prover.
+
+**RE-RUN AGAINST THE FINAL TREE: ALSO GREEN** (`results/an_floors.log`,
+exit 0) — the same eight digests on both binaries, the same 42/42, the same
+`3143d424e8990993..` for function 2 and the same CPU/GPU BYTE-IDENTITY, on
+the tree that also carries the `#[cfg(test)]` bit-row hook and the driver's
+per-layer note. So the gates are green on the tree that is committed, not
+only on the one that was measured. The run queued behind lane AO's floors
+on `/tmp/zk-heavy.lock` and self-started when AO released it, session
+untouched — the no-hangup protocol doing its job.
+
+OPEN: nothing in the lane's target. The two rung-1 findings and the
+PROOF_FUNCTIONS.md amendment above are for the orchestrator.
+
 ## Agent AO status (wt-uperf3-ao) — round 16
 
 (lane appends below)
