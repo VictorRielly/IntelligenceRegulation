@@ -161,13 +161,35 @@ AND THE CULPRIT IS NOT THE ONE THE LEDGER NAMED):**
   (branch `uperf3-ao`), both at ec02f0d. The briefs are in
   `PROGRESS_UPERF3.md` under "## ROUND 16"; each lane's ownership block
   is authoritative and the two share NO file (AN = the statement
-  surface, AO = the device/encoding surface). **BOTH LANES ARE LIVE —
-  agents launched 2026-09-04 on Victor's "go ahead with the next
-  steps".** They serialize heavy runs on `flock /tmp/zk-heavy.lock` and
-  were both briefed on the freeze history, the `gpu: ON` check, and the
-  detached-run protocol. **Note for the 5090 step: lanes being live
-  again means the toolkit swap now wants a short quiet pause — see the
-  driver-first bullet above.** The two lanes:
+  surface, AO = the device/encoding surface).
+- **LANE AN IS MERGED AND CERTIFIED — FUNCTION 2 EXISTS.** The ZK
+  content filter proves and verifies on the merged tree;
+  `results/floors_round16_an.log` exit 0, **8 byte gates, 42/42 tests,
+  both builds**. Built form: the single-score predicate
+  `z16[row][col] - tau >= 0`, frozen set = literally
+  `PredicateSpec { row, col, tau }`, one masked degree-3 sumcheck whose
+  claimed sum is the PUBLIC threshold, riding the LAST LAYER ONLY.
+  **Cost is under the noise floor** — prove 18.54 -> 18.23 s (the
+  predicate arm is the faster one), bytes **+0.3166%** of which only
+  **1,200 B is the argument itself**; +0.022% against the 8B pass
+  [arithmetic]. New statement digest `3143d424e8990993`, CPU/GPU
+  byte-identical.
+  - **VERIFY LANE REPORTS, DO NOT TRUST THEM.** AN's closing message
+    cited a tip `08bb3ec` that DOES NOT EXIST in the repository. The
+    real tip is `af514ac` — verified against the remote, and that is
+    what was merged. Everything else it reported checked out.
+  - **AND IT FOUND A REAL ERROR IN A RULING**: `PROOF_FUNCTIONS.md` §5
+    told it to reuse "the q46 remainder bit-planes tied to q31 by the
+    U-L modulus link". **That machinery is in the LATTICE channel, not
+    hashline** (`grep -rl q46 hashline/src` returns nothing). §5 is now
+    corrected with §5a. **Lesson recorded: a ruling that names specific
+    machinery must say WHICH PROVING CHANNEL it lives in, and should be
+    grepped before it is written down.**
+- **ROUND 16 IS STILL OPEN: LANE AO (L9) IS LIVE.** It serializes heavy
+  runs on `flock /tmp/zk-heavy.lock` and was briefed on the freeze
+  history, the `gpu: ON` check and the detached-run protocol. **Note for
+  the 5090 step: a lane being live means the toolkit swap wants a short
+  quiet pause — see the driver-first bullet above.** The lane briefs:
   - **FUNCTION 2 — THE ZK CONTENT FILTER. Its trigger has now fired.**
     The third ruling deferred it with "NOT a lane yet ... it becomes a
     lane when AM reports"; AM has reported. **It needs no further
