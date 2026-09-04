@@ -1,0 +1,336 @@
+
+=== GATE v2 [cpu] ===
+2026-09-04 00:32:54
+  layer  0: prove 1.282 s, 5573568 B
+  layer  1: prove 1.251 s, 5568692 B
+  layer  2: prove 1.210 s, 5570752 B
+  layer  3: prove 1.251 s, 5571020 B
+  layer  4: prove 1.226 s, 5572032 B
+  layer  5: prove 1.246 s, 5568832 B
+  layer  6: prove 1.255 s, 5568436 B
+  layer  7: prove 1.219 s, 5568832 B
+  layer  8: prove 1.237 s, 5568960 B
+  layer  9: prove 1.228 s, 5568960 B
+  layer 10: prove 1.285 s, 5570368 B
+  layer 11: prove 1.214 s, 5574476 B
+prover phases (summed over layers):
+PROOF sha256 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d (66844928 B)
+PASS ACCEPT: 12 x 512: witness load+chain 1.08 s | PROVE 14.91 s | VERIFY 0.30 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.945e9 proven MAC/s (prove wall) | wall 16.35 s
+GATE OK   v2 [cpu]  50cf7bdfd6b5b182  66844928 B
+
+=== GATE v3 [cpu] ===
+2026-09-04 00:33:11
+  layer  0: prove 1.282 s, 5899988 B
+  layer  1: prove 1.333 s, 5960912 B
+  layer  2: prove 1.309 s, 5960392 B
+  layer  3: prove 1.312 s, 5896912 B
+  layer  4: prove 1.256 s, 5898448 B
+  layer  5: prove 1.352 s, 5862608 B
+  layer  6: prove 1.270 s, 5895120 B
+  layer  7: prove 1.277 s, 5862608 B
+  layer  8: prove 1.266 s, 5895376 B
+  layer  9: prove 1.305 s, 5895376 B
+  layer 10: prove 1.282 s, 5864148 B
+  layer 11: prove 1.309 s, 5866196 B
+prover phases (summed over layers):
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.59 s | PROVE 15.55 s | VERIFY 0.25 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.864e9 proven MAC/s (prove wall) | wall 17.50 s
+GATE OK   v3 [cpu]  5f368db6240e0614  70758084 B
+
+=== GATE zk [cpu] ===
+2026-09-04 00:33:28
+  layer  0: prove 1.425 s, 7269044 B
+  layer  1: prove 1.437 s, 7269044 B
+  layer  2: prove 1.428 s, 7269044 B
+  layer  3: prove 1.433 s, 7269044 B
+  layer  4: prove 1.351 s, 7269044 B
+  layer  5: prove 1.385 s, 7269044 B
+  layer  6: prove 1.322 s, 7269044 B
+  layer  7: prove 1.398 s, 7269044 B
+  layer  8: prove 1.352 s, 7269044 B
+  layer  9: prove 1.375 s, 7269044 B
+  layer 10: prove 1.405 s, 7269044 B
+  layer 11: prove 1.361 s, 7269044 B
+prover phases (summed over layers):
+PROOF sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d (87228528 B) [ZK seed 1]
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 1.08 s | PROVE 16.67 s | VERIFY 0.38 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 1.739e9 proven MAC/s (prove wall) | wall 18.22 s
+GATE OK   zk [cpu]  021485e4f80ec695  87228528 B
+
+=== GATE zkv3 [cpu] ===
+2026-09-04 00:33:47
+  layer  0: prove 1.536 s, 7306036 B
+  layer  1: prove 1.576 s, 7318324 B
+  layer  2: prove 1.530 s, 7318324 B
+  layer  3: prove 1.504 s, 7306036 B
+  layer  4: prove 1.545 s, 7306036 B
+  layer  5: prove 1.520 s, 7306036 B
+  layer  6: prove 1.573 s, 7306036 B
+  layer  7: prove 1.585 s, 7306036 B
+  layer  8: prove 1.523 s, 7306036 B
+  layer  9: prove 1.523 s, 7306036 B
+  layer 10: prove 1.521 s, 7306036 B
+  layer 11: prove 1.530 s, 7306036 B
+prover phases (summed over layers):
+PROOF sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.51 s | PROVE 18.47 s | VERIFY 0.42 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 1.570e9 proven MAC/s (prove wall) | wall 20.51 s
+GATE OK   zkv3 [cpu]  40eb54795e023c77  87697008 B
+
+=== GATE v2 [gpu] ===
+2026-09-04 00:34:07
+  layer  0: prove 0.326 s, 5573568 B
+  layer  1: prove 0.180 s, 5568692 B
+  layer  2: prove 0.174 s, 5570752 B
+  layer  3: prove 0.193 s, 5571020 B
+  layer  4: prove 0.178 s, 5572032 B
+  layer  5: prove 0.183 s, 5568832 B
+  layer  6: prove 0.187 s, 5568436 B
+  layer  7: prove 0.192 s, 5568832 B
+  layer  8: prove 0.186 s, 5568960 B
+  layer  9: prove 0.189 s, 5568960 B
+  layer 10: prove 0.185 s, 5570368 B
+  layer 11: prove 0.180 s, 5574476 B
+prover phases (summed over layers):
+PROOF sha256 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d (66844928 B)
+PASS ACCEPT: 12 x 512: witness load+chain 1.12 s | PROVE 2.35 s | VERIFY 0.25 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.232e10 proven MAC/s (prove wall) | wall 3.81 s
+GATE OK   v2 [gpu]  50cf7bdfd6b5b182  66844928 B
+
+=== GATE v3 [gpu] ===
+2026-09-04 00:34:14
+  layer  0: prove 0.363 s, 5899988 B
+  layer  1: prove 0.224 s, 5960912 B
+  layer  2: prove 0.224 s, 5960392 B
+  layer  3: prove 0.217 s, 5896912 B
+  layer  4: prove 0.228 s, 5898448 B
+  layer  5: prove 0.235 s, 5862608 B
+  layer  6: prove 0.224 s, 5895120 B
+  layer  7: prove 0.200 s, 5862608 B
+  layer  8: prove 0.210 s, 5895376 B
+  layer  9: prove 0.199 s, 5895376 B
+  layer 10: prove 0.206 s, 5864148 B
+  layer 11: prove 0.215 s, 5866196 B
+prover phases (summed over layers):
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.65 s | PROVE 2.75 s | VERIFY 0.26 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.056e10 proven MAC/s (prove wall) | wall 4.77 s
+GATE OK   v3 [gpu]  5f368db6240e0614  70758084 B
+
+=== GATE zk [gpu] ===
+2026-09-04 00:34:22
+  layer  0: prove 0.479 s, 7269044 B
+  layer  1: prove 0.322 s, 7269044 B
+  layer  2: prove 0.313 s, 7269044 B
+  layer  3: prove 0.337 s, 7269044 B
+  layer  4: prove 0.307 s, 7269044 B
+  layer  5: prove 0.315 s, 7269044 B
+  layer  6: prove 0.317 s, 7269044 B
+  layer  7: prove 0.313 s, 7269044 B
+  layer  8: prove 0.330 s, 7269044 B
+  layer  9: prove 0.325 s, 7269044 B
+  layer 10: prove 0.332 s, 7269044 B
+  layer 11: prove 0.348 s, 7269044 B
+prover phases (summed over layers):
+PROOF sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d (87228528 B) [ZK seed 1]
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 1.11 s | PROVE 4.04 s | VERIFY 0.40 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 7.177e9 proven MAC/s (prove wall) | wall 5.67 s
+GATE OK   zk [gpu]  021485e4f80ec695  87228528 B
+
+=== GATE zkv3 [gpu] ===
+2026-09-04 00:34:31
+  layer  0: prove 0.467 s, 7306036 B
+  layer  1: prove 0.398 s, 7318324 B
+  layer  2: prove 0.327 s, 7318324 B
+  layer  3: prove 0.340 s, 7306036 B
+  layer  4: prove 0.345 s, 7306036 B
+  layer  5: prove 0.328 s, 7306036 B
+  layer  6: prove 0.343 s, 7306036 B
+  layer  7: prove 0.337 s, 7306036 B
+  layer  8: prove 0.350 s, 7306036 B
+  layer  9: prove 0.343 s, 7306036 B
+  layer 10: prove 0.321 s, 7306036 B
+  layer 11: prove 0.323 s, 7306036 B
+prover phases (summed over layers):
+PROOF sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.65 s | PROVE 4.22 s | VERIFY 0.43 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 6.867e9 proven MAC/s (prove wall) | wall 6.44 s
+GATE OK   zkv3 [gpu]  40eb54795e023c77  87697008 B
+
+=== GATE v2-chunked [gpu] ===
+2026-09-04 00:34:41
+  layer  0: prove 0.327 s, 5573568 B
+  layer  1: prove 0.204 s, 5568692 B
+  layer  2: prove 0.212 s, 5570752 B
+  layer  3: prove 0.212 s, 5571020 B
+  layer  4: prove 0.209 s, 5572032 B
+  layer  5: prove 0.202 s, 5568832 B
+  layer  6: prove 0.216 s, 5568436 B
+  layer  7: prove 0.207 s, 5568832 B
+  layer  8: prove 0.214 s, 5568960 B
+  layer  9: prove 0.221 s, 5568960 B
+  layer 10: prove 0.208 s, 5570368 B
+  layer 11: prove 0.215 s, 5574476 B
+prover phases (summed over layers):
+PROOF sha256 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d (66844928 B)
+PASS ACCEPT: 12 x 512: witness load+chain 1.08 s | PROVE 2.65 s | VERIFY 0.26 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.096e10 proven MAC/s (prove wall) | wall 4.08 s
+GATE OK   v2-chunked [gpu]  50cf7bdfd6b5b182  66844928 B
+
+=== GATE v3-chunked [gpu] ===
+2026-09-04 00:34:48
+  layer  0: prove 0.334 s, 5899988 B
+  layer  1: prove 0.229 s, 5960912 B
+  layer  2: prove 0.228 s, 5960392 B
+  layer  3: prove 0.230 s, 5896912 B
+  layer  4: prove 0.221 s, 5898448 B
+  layer  5: prove 0.223 s, 5862608 B
+  layer  6: prove 0.223 s, 5895120 B
+  layer  7: prove 0.225 s, 5862608 B
+  layer  8: prove 0.230 s, 5895376 B
+  layer  9: prove 0.217 s, 5895376 B
+  layer 10: prove 0.225 s, 5864148 B
+  layer 11: prove 0.221 s, 5866196 B
+prover phases (summed over layers):
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.64 s | PROVE 2.81 s | VERIFY 0.28 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.033e10 proven MAC/s (prove wall) | wall 4.86 s
+GATE OK   v3-chunked [gpu]  5f368db6240e0614  70758084 B
+
+=== GATE zk-chunked [gpu] ===
+2026-09-04 00:34:56
+  layer  0: prove 0.508 s, 7269044 B
+  layer  1: prove 0.317 s, 7269044 B
+  layer  2: prove 0.317 s, 7269044 B
+  layer  3: prove 0.331 s, 7269044 B
+  layer  4: prove 0.351 s, 7269044 B
+  layer  5: prove 0.318 s, 7269044 B
+  layer  6: prove 0.313 s, 7269044 B
+  layer  7: prove 0.304 s, 7269044 B
+  layer  8: prove 0.325 s, 7269044 B
+  layer  9: prove 0.334 s, 7269044 B
+  layer 10: prove 0.335 s, 7269044 B
+  layer 11: prove 0.320 s, 7269044 B
+prover phases (summed over layers):
+PROOF sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d (87228528 B) [ZK seed 1]
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 1.08 s | PROVE 4.07 s | VERIFY 0.42 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 7.116e9 proven MAC/s (prove wall) | wall 5.69 s
+GATE OK   zk-chunked [gpu]  021485e4f80ec695  87228528 B
+
+=== GATE zkv3-chunked [gpu] ===
+2026-09-04 00:35:05
+  layer  0: prove 0.477 s, 7306036 B
+  layer  1: prove 0.392 s, 7318324 B
+  layer  2: prove 0.349 s, 7318324 B
+  layer  3: prove 0.350 s, 7306036 B
+  layer  4: prove 0.327 s, 7306036 B
+  layer  5: prove 0.340 s, 7306036 B
+  layer  6: prove 0.326 s, 7306036 B
+  layer  7: prove 0.370 s, 7306036 B
+  layer  8: prove 0.341 s, 7306036 B
+  layer  9: prove 0.344 s, 7306036 B
+  layer 10: prove 0.346 s, 7306036 B
+  layer 11: prove 0.354 s, 7306036 B
+prover phases (summed over layers):
+PROOF sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.64 s | PROVE 4.32 s | VERIFY 0.52 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 6.717e9 proven MAC/s (prove wall) | wall 6.60 s
+GATE OK   zkv3-chunked [gpu]  40eb54795e023c77  87697008 B
+
+=== VERDICT ===
+2026-09-04 00:35:14
+ALL TWELVE BYTE GATES GREEN (8 standard + 4 chunked-forced)
+
+=== ONE MISTRAL LAYER T=512 GPU — r0base ===
+2026-09-04 00:35:14
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.27 s | PROVE 2.83 s | VERIFY 0.04 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 3.187e10 proven MAC/s (prove wall) | wall 6.22 s
+179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b  /home/victor/wt-uperf3-aj/results/scratch_r4/l.bin
+
+=== ONE MISTRAL LAYER T=512 GPU — after ===
+2026-09-04 00:35:24
+[UPERF3-AJ]   streamed commit rows 10752 2^14 -> 2^16 in 84 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.2115 | total 0.5819 s
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.31 s | PROVE 2.68 s | VERIFY 0.03 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 3.364e10 proven MAC/s (prove wall) | wall 6.07 s
+179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b  /home/victor/wt-uperf3-aj/results/scratch_r4/l.bin
+
+=== ONE MISTRAL LAYER T=512 GPU — after_wide ===
+2026-09-04 00:35:33
+[UPERF3-AJ]   streamed commit rows 10752 2^14 -> 2^16 in 84 chunks of <= 128 (8 B/elem on the wire): h2d visible 0.4272 | total 0.5879 s
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.27 s | PROVE 2.70 s | VERIFY 0.04 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 3.344e10 proven MAC/s (prove wall) | wall 6.06 s
+179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b  /home/victor/wt-uperf3-aj/results/scratch_r4/l.bin
+
+=== ONE MISTRAL LAYER T=512 GPU — r0base ===
+2026-09-04 00:35:42
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.29 s | PROVE 2.92 s | VERIFY 0.03 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 3.087e10 proven MAC/s (prove wall) | wall 6.32 s
+179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b  /home/victor/wt-uperf3-aj/results/scratch_r4/l.bin
+
+=== ONE MISTRAL LAYER T=512 GPU — after ===
+2026-09-04 00:35:51
+[UPERF3-AJ]   streamed commit rows 10752 2^14 -> 2^16 in 84 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.2147 | total 0.5616 s
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.26 s | PROVE 2.65 s | VERIFY 0.04 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 3.397e10 proven MAC/s (prove wall) | wall 6.00 s
+179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b  /home/victor/wt-uperf3-aj/results/scratch_r4/l.bin
+
+=== ONE MISTRAL LAYER T=512 GPU — after_wide ===
+2026-09-04 00:36:00
+[UPERF3-AJ]   streamed commit rows 10752 2^14 -> 2^16 in 84 chunks of <= 128 (8 B/elem on the wire): h2d visible 0.4189 | total 0.5921 s
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.22 s | PROVE 2.69 s | VERIFY 0.05 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 3.351e10 proven MAC/s (prove wall) | wall 6.00 s
+179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b  /home/victor/wt-uperf3-aj/results/scratch_r4/l.bin
+
+=== ONE MISTRAL LAYER T=512 GPU — r0base ===
+2026-09-04 00:36:09
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.22 s | PROVE 2.95 s | VERIFY 0.04 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 3.059e10 proven MAC/s (prove wall) | wall 6.25 s
+179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b  /home/victor/wt-uperf3-aj/results/scratch_r4/l.bin
+
+=== ONE MISTRAL LAYER T=512 GPU — after ===
+2026-09-04 00:36:18
+[UPERF3-AJ]   streamed commit rows 10752 2^14 -> 2^16 in 84 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.2173 | total 0.5773 s
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.29 s | PROVE 2.67 s | VERIFY 0.03 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 3.381e10 proven MAC/s (prove wall) | wall 6.07 s
+179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b  /home/victor/wt-uperf3-aj/results/scratch_r4/l.bin
+
+=== ONE MISTRAL LAYER T=512 GPU — after_wide ===
+2026-09-04 00:36:27
+[UPERF3-AJ]   streamed commit rows 10752 2^14 -> 2^16 in 84 chunks of <= 128 (8 B/elem on the wire): h2d visible 0.4321 | total 0.5874 s
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.28 s | PROVE 2.65 s | VERIFY 0.04 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 3.398e10 proven MAC/s (prove wall) | wall 6.02 s
+179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b  /home/victor/wt-uperf3-aj/results/scratch_r4/l.bin
+
+=== 8B PASS 32x512 GPU — before ===
+2026-09-04 00:36:36
+prover phases (summed over layers):
+      commit W                 37.267 s
+      commit A                 13.821 s
+      helpers + commit H        5.390 s
+      matmul g/u                5.127 s
+      matmul d                  2.954 s
+      zero-check F              4.668 s
+      zero-check D              0.820 s
+      pcs openings             18.563 s
+  gpu device-side (summed): h2d 12.810 s (59861 MB) | ntt 13.958 s | hash 2.188 s | sumcheck 5.486 s | fold 2.895 s | helpers 1.371 s | d2h 0.000 s (1413 MB) | vram peak 5651 MB
+  gpu chunked [UPERF3-AC]: chunked commits 96 | opening re-encode 14.238 s
+PROOF sha256 dc980e810085b2ddf4688eb4a6cf4dd931c209bf7c5a9a7692d57ec14bc4536c (1234936956 B)
+  wcache /home/victor/wt-uperf3-aj/results/scratch_r4/wc_before: hits 0 | misses 32 | rejected 0 | read 0.0 MB | wrote 134.2 MB | key 0.434 s | load+verify 0.000 s | re-encode 0.000 s | commit(miss) 20.648 s | save 0.070 s
+PASS-V3 ACCEPT: 32 x 512 (d 4096 f 14336): witness load+chain 126.29 s | PROVE 88.90 s | VERIFY 1.08 s | proof 1234936956 B (1234.9 MB) | 2.886e12 MACs | 3.246e10 proven MAC/s (prove wall) | wall 218.23 s
+	Command being timed: "/home/victor/wt-uperf3-aj/hashline/target-gpu/release/hashline pass 32 512 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --threads 8 --wcache /home/victor/wt-uperf3-aj/results/scratch_r4/wc_before --proof-out /home/victor/wt-uperf3-aj/results/scratch_r4/p_before.bin"
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:41.15
+	Maximum resident set size (kbytes): 3867172
+dc980e810085b2ddf4688eb4a6cf4dd931c209bf7c5a9a7692d57ec14bc4536c  /home/victor/wt-uperf3-aj/results/scratch_r4/p_before.bin
+-rw-r--r-- 1 victor victor 1234936956 Sep  4 00:40 /home/victor/wt-uperf3-aj/results/scratch_r4/p_before.bin
+
+=== 8B PASS 32x512 GPU — after ===
+2026-09-04 00:40:20
+prover phases (summed over layers):
+      commit W                 36.251 s
+      commit A                 12.009 s
+      helpers + commit H        5.532 s
+      matmul g/u                5.246 s
+      matmul d                  2.901 s
+      zero-check F              4.682 s
+      zero-check D              0.837 s
+      pcs openings             18.278 s
+  gpu device-side (summed): h2d 8.309 s (9328 MB) | ntt 14.714 s | hash 0.469 s | sumcheck 5.517 s | fold 2.886 s | helpers 1.372 s | d2h 0.000 s (1411 MB) | vram peak 5249 MB
+  gpu chunked [UPERF3-AC]: chunked commits 96 | opening re-encode 14.020 s
+PROOF sha256 dc980e810085b2ddf4688eb4a6cf4dd931c209bf7c5a9a7692d57ec14bc4536c (1234936956 B)
+  wcache /home/victor/wt-uperf3-aj/results/scratch_r4/wc_after: hits 0 | misses 32 | rejected 0 | read 0.0 MB | wrote 134.2 MB | key 0.461 s | load+verify 0.000 s | re-encode 0.000 s | commit(miss) 17.333 s | save 0.077 s
+PASS-V3 ACCEPT: 32 x 512 (d 4096 f 14336): witness load+chain 123.86 s | PROVE 86.00 s | VERIFY 1.30 s | proof 1234936956 B (1234.9 MB) | 2.886e12 MACs | 3.356e10 proven MAC/s (prove wall) | wall 213.25 s
+	Command being timed: "/home/victor/wt-uperf3-aj/hashline/target-gpu/release/hashline pass 32 512 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --threads 8 --wcache /home/victor/wt-uperf3-aj/results/scratch_r4/wc_after --proof-out /home/victor/wt-uperf3-aj/results/scratch_r4/p_after.bin"
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:36.37
+	Maximum resident set size (kbytes): 3992648
+dc980e810085b2ddf4688eb4a6cf4dd931c209bf7c5a9a7692d57ec14bc4536c  /home/victor/wt-uperf3-aj/results/scratch_r4/p_after.bin
+-rw-r--r-- 1 victor victor 1234936956 Sep  4 00:43 /home/victor/wt-uperf3-aj/results/scratch_r4/p_after.bin

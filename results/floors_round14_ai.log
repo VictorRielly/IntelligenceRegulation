@@ -1,0 +1,200 @@
+
+=== CPU build ===
+2026-09-04 00:44:00
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2009:9
+     |
+2009 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2061:9
+     |
+2061 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2810:9
+     |
+2810 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1918:8
+     |
+1917 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1918 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+    Finished `release` profile [optimized] target(s) in 43.71s
+
+=== GPU build (feature gpu-cuda) ===
+2026-09-04 00:44:44
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2009:9
+     |
+2009 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2061:9
+     |
+2061 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2810:9
+     |
+2810 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1918:8
+     |
+1917 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1918 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+    Finished `release` profile [optimized] target(s) in 48.00s
+
+=== cargo test --release ===
+2026-09-04 00:45:32
+test pcs_compact::tests::ntt_dif_is_bitreversed_evaluation ... ok
+test mle::tests::mle_eval_at_boolean_points_is_lookup ... ok
+test pcs::tests::commit_open_verify_and_tampers ... ok
+test wcache::tests::tree_roundtrip_and_every_corruption_rejected ... ok
+test export_v3::tests::requant_round_is_the_prescaled_floor ... ok
+test pcs::zk_tests::zk_commit_open_verify_and_tampers ... ok
+test pcs_compact::tests::compact_batch_of_three_commitments ... ok
+test pcs_compact::tests::compact_commit_open_verify_and_tampers ... ok
+test pcs::zk_tests::zk_openings_are_uniform_and_every_site_is_masked ... ok
+test zk::tests_v3::zk_v3_layer_roundtrip_tampers_and_uniform_openings ... ok
+
+test result: ok. 40 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.73s
+
+     Running unittests src/bin/hashline.rs (hashline/target/release/deps/hashline-b6f5291fb888b1eb)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests hashline
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+=== GATE v2 [cpu] ===
+2026-09-04 00:46:12
+  layer  0: prove 1.356 s, 5573568 B
+  layer  1: prove 1.252 s, 5568692 B
+  layer  2: prove 1.223 s, 5570752 B
+  layer  3: prove 1.245 s, 5571020 B
+  layer  4: prove 1.235 s, 5572032 B
+  layer  5: prove 1.197 s, 5568832 B
+  layer  6: prove 1.220 s, 5568436 B
+  layer  7: prove 1.218 s, 5568832 B
+  layer  8: prove 1.181 s, 5568960 B
+  layer  9: prove 1.207 s, 5568960 B
+  layer 10: prove 1.228 s, 5570368 B
+  layer 11: prove 1.205 s, 5574476 B
+prover phases (summed over layers):
+PROOF sha256 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d (66844928 B)
+PASS ACCEPT: 12 x 512: witness load+chain 1.10 s | PROVE 14.77 s | VERIFY 0.30 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.963e9 proven MAC/s (prove wall) | wall 16.23 s
+GATE OK   v2 [cpu]  50cf7bdfd6b5b182  66844928 B
+
+=== GATE v3 [cpu] ===
+2026-09-04 00:46:29

@@ -11933,6 +11933,321 @@ the ZK path (zk.rs commits W with plain `pcs::commit`), one tagged line.
 
 (lane appends below)
 
+### AJ rung 0 (first half) — THE PLAN: the four host items attributed to functions and lines (2026-09-04, WSL-BOX, wt-uperf3-aj, branch uperf3-aj)
+
+Read: START_HERE (whole), U_PERF3_SIXTY_TOKENS_PLAN (Track B, items
+B1-B4), the round-14 block + this brief, Agent AH IN FULL (its host-item
+table is where the four numbers come from), Agent AC (the 8B GPU pass
+anatomy); the code: gpu/{mod.rs,cuda.rs,kernels.cu}, pcs.rs, and the
+call sites in layer.rs and src/bin/hashline.rs (both READ-ONLY here).
+
+**WHERE THE 95.5 s ACTUALLY GOES [COUNTED from AH's rung-4 counters].**
+The device counters of the 8B pass sum to h2d 13.05 + ntt 15.85 +
+sumcheck 5.44 + fold 2.89 + helpers 1.38 + opening re-encode 14.28 =
+**52.89 s**; the prove is 95.48 s, so **42.6 s is host time inside the
+prove clock** and the h2d is 13.05 s of host-blocking copy on top of it
+= the plan's "56-63 s". Note two accounting facts that the plan's item
+list does not make explicit and that decide what this lane can move:
+- `ntt` and `opening re-encode` are ALREADY device work (the chunked
+  path's `secs_ntt` even absorbs the chunked hash when
+  `HL_GPU_VERBOSE` is off — cuda.rs:596). B2 and B3 are therefore
+  **kernel-quality and algorithm** items, not "move it to the device"
+  items. This lane will not pretend otherwise.
+- The 1.23 GB proof's **serialization is OUTSIDE the prove clock**
+  (bin/hashline.rs:855-862: `to_bytes` + sha256 + `fs::write` run
+  after the per-layer `t_prove` accumulation). B4's "~13 s" is a WALL
+  item, not a prove item; the only part of B4 inside the prove is the
+  Merkle level build (`MerkleTree::build`, pcs.rs:174/178) and the 256
+  `tree.path(j)` per opening (pcs.rs:361).
+
+**THE FOUR ITEMS, ATTRIBUTED.**
+
+| item | where the time is | file:line | mine? |
+|---|---|---|---|
+| **B1a** plane -> Fp conversion | `w_data` / `a_data` / `h_data` built element-wise by `Fp::from_i64` over the int8 planes | layer.rs:1341-1357, 1371-1391, 1456-1486 | **NO — layer.rs is READ-ONLY for this lane** |
+| **B1b** the pageable upload | `htod_sync_copy_into` of the whole (rows x n x 8 B) buffer, synchronous, on the default stream, from PAGEABLE host memory | cuda.rs:435 (`dev_commit`), 459 (`dev_encode_only`), 1446 (`dev_commit_zk`), 1462 (`dev_upload_rows`) | **YES** |
+| **B2** the encode NTT (+ the chunked hash folded into the same counter) | `encode_rows_view` -> `k_dif_pa`/`k_dif_pb`/`k_dit_p1_pad`/`k_ntt_p2`, then `k_hash_cols_stream` | cuda.rs:525-560, 562-608; kernels.cu:852, 894, 930, 150, 1003 | **YES** |
+| **B3** the opening's chunked re-encode | `columns_chunked` re-encodes EVERY row of the commitment a second time (inverse NTT of size n, forward NTT of size nn) only to gather Q = 256 of the nn = 262,144 columns | cuda.rs:610-645, entered from `dev_columns` cuda.rs:809 | **YES** |
+| **B4a** Merkle levels (in the prove) | `MerkleTree::build` over nn leaves per commitment; `tree.path(j)` x 256 per opening | pcs.rs:174, 178, 361 | **YES (pcs.rs)**; merkle.rs itself is not in the OWNS block |
+| **B4b** serializing 1.23 GB | `LayerProofV3::to_bytes` -> `Opening::write_bytes`, byte-at-a-time `extend_from_slice` into one Vec, single-threaded, then sha256 and `fs::write` | pcs.rs:101-120 (mine), layer.rs:1224+ and bin/hashline.rs:855-862 (not mine) | **PARTLY** |
+
+**WHAT THIS LANE CAN AND CANNOT DO, STATED UP FRONT.** The single
+largest host item — the `Fp::from_i64` conversion of the int8 planes
+and the 1.4 GB `w_data` allocation per Mistral layer — lives in
+`prove_layer_v3` in layer.rs, which this lane's OWNS block makes
+READ-ONLY (round 14 gives layer.rs's v3 FFN functions to nobody: lane
+AK holds only the [UPERF3-AG] full-layer functions there). The same is
+true of the host matmul folds (`fold_cols_base` over `w_data`,
+layer.rs:1532/1573 = the 8.13 s of "matmul g/u" + "matmul d"). Both are
+recorded here as B1a/B7-class items for the orchestrator to assign; they
+are NOT attempted in this lane. What is left inside gpu/* and pcs.rs is
+B1b, B2, B3, B4a/B4b — and that is what the rungs below do.
+
+**THE RUNGS, cheapest and most certain first.**
+- **R1 (B1b): pinned staging + a pipelined upload.** Today every
+  commitment blocks the host for the whole copy (4.59 GB/s measured:
+  59,861 MB in 13.05 s) and only then starts the encode. The chunked
+  path already walks the data in row chunks, so chunk k+1's copy can
+  ride a second stream while chunk k encodes; with a pinned staging
+  buffer the copy is a real DMA and can overlap. Byte-preserving by
+  construction: the same bytes reach the same device addresses.
+  Expected: 13.05 s -> 3-6 s of visible time [MODEL].
+- **R2 (B4a/B4b + pcs.rs's host tail): the opening's host work.**
+  `Opening::write_bytes` is a single-threaded byte-at-a-time encode of
+  ~38 MB per layer; `pcs::open`'s `group_claims` allocates a
+  `rows`-long Fp2 row-weight vector per claim (21 + 31 + 34 claims per
+  Mistral layer) and `eq_table_msb` per claim. Both are host-only,
+  additive, and cannot move a byte.
+- **R3 (B3): the re-encode.** Two candidate forms, in order of
+  certainty: (a) reuse — the commit already computes exactly this
+  encoding once; nothing but VRAM stops the CHUNK's coefficient buffer
+  being reused, so measure what a larger `HL_GPU_CHUNK_ROWS` and a
+  fused encode+gather buy first; (b) output pruning — only 256 of the
+  262,144 outputs are wanted, and a pruned forward transform costs
+  ~1.31M butterflies per row against 2.36M [COUNTED], i.e. ~1.8x on
+  the forward half.
+- **R4 (B2): the encode NTT itself.** Bandwidth arithmetic first (the
+  encoded matrix is ~5.6 GB per Mistral W commitment and every stage
+  group is a full pass over it), then the cheapest of: fusing the DIF
+  tail into the DIT head, raising `NTT_LOG_BLK`, or a radix-4 stage.
+
+**THE FLOOR:** the four byte gates on BOTH binaries at every rung
+(v2 `50cf7bdfd6b5b182..` 66,844,928 B; v3 `5f368db6240e0614..`
+70,758,084 B; zk-v2 `021485e4f80ec695..` 87,228,528 B; zk-v3
+`40eb54795e023c77..` 87,697,008 B), plus `cargo test --release`. The
+8B row moves only when the 125M gates are green.
+
+**RUNG 0 (second half) — THE BASELINE AND THE ANATOMY (2026-09-03/04,
+WSL-BOX 8T + RTX 4070 Laptop, `flock /tmp/zk-heavy.lock`, [MEASURED],
+NOISY-SHARED by convention: lanes AI and AK were on the CPU, the GPU was
+exclusive under the lock).** Builds: CPU + GPU clean.
+
+THE BASELINE THIS LANE MUST MOVE — one real Mistral-7B layer at T = 512
+on the GPU, `HL_GPU=1 pass 1 512 --profile v3 --export
+/home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --threads 8
+--proof-out F`: **PROVE 3.134 s**, verify 0.04 s, proof 38,688,700 B,
+sha256 **179ec2fb8f99d0d6..** (AH's, AC's and the CPU prover's digest),
+RSS 2.47 GB, VRAM peak 5,651 MB, wall 6.61 s. (AH measured 3.090 s for
+the same command; the 1.4% is the box.)
+
+| phase | s | what is inside it |
+|---|---:|---|
+| commit W | 1.402 | h2d(W) ~0.379 + chunked encode+hash 0.331 + **~0.69 HOST** |
+| commit A | 0.461 | h2d(A) ~0.124 + chunked 0.105 + **~0.23 HOST** |
+| helpers + commit H | 0.267 | device helpers 0.103 + chunked 0.087 |
+| matmul g/u + d | 0.255 | **HOST folds over `w_data`** (layer.rs) |
+| zero-check F + D | 0.169 | device (lane AH) |
+| pcs openings | 0.573 | chunked re-encode 0.442 + device fold 0.084 |
+
+Device counters: h2d 0.504 s (1,871 MB = W 1,409 + A 461; H is built on
+the device), ntt 0.450, hash 0.073, sumcheck 0.169, fold 0.091, helpers
+0.103, opening re-encode 0.442 = **1.832 s**. So **1.302 s (41.6%) of
+the prove is host time**, and — measured phase by phase — **1.17 s of
+that 1.30 is in layer.rs**: the `Fp::from_i64` conversion and the 1.4 GB
+`w_data` allocation (~0.69 s), the same for `a_data` (~0.23), and the
+host matmul folds (0.255). **layer.rs is READ-ONLY for this lane, so the
+ceiling on what this lane can move is h2d + ntt + re-encode = 1.47 s of
+the 3.13 (47%)** — recorded here because it caps the lane's factor at
+~1.9x even if every device item went to zero, against the plan's 2.4-2.9x
+for L2. THE ITEM THE ORCHESTRATOR MUST REASSIGN IF L2 IS TO LAND IN FULL:
+one call site in `prove_layer_v3` (layer.rs:1341-1391) building `w_data`
+/ `a_data` from the int8 planes, which rung 3 below makes unnecessary on
+the device side but cannot delete.
+
+**RUNG 1 — PINNED, DOUBLE-BUFFERED, INTERLEAVED UPLOADS (2026-09-04,
+[MEASURED]).** What landed in gpu/cuda.rs: `PinBuf` (cuMemHostAlloc,
+write-combined), `Uploader` (two staging buffers, a non-blocking copy
+stream, one event per buffer), `Gpu::upload_sync` (a drop-in for
+`htod_sync_copy_into` at the four block-upload sites) and
+`commit_chunked_upload`, which sends chunk k+1's bytes on the copy
+stream while chunk k encodes and hashes on the default stream. Switches:
+`HL_GPU_PIN_MB=0`, `HL_GPU_STREAM_COMMIT=0`.
+
+THE FINDING THAT SHAPED EVERYTHING AFTER IT — the h2d probe
+(`HL_GPU_BENCH_H2D=1 gpu-probe`, 1.07 GB x3): **pageable 5.56 GB/s |
+pinned host fill 29.13 | pinned staged serial 5.17 | pinned
+double-buffered 5.44 GB/s**. **Page-locked staging does NOT raise the
+host-to-device rate on this WSL box** (the paravirtualized WDDM path
+already stages every copy); the DMA is capped near 5.5-6.3 GB/s whatever
+the source. So the only levers on h2d are (a) overlapping it with
+compute and (b) putting fewer bytes on the wire — which is rung 3.
+
+**RUNG 2 — THE COLUMN GATHER FUSED INTO THE LAST NTT STAGE GROUP
+(2026-09-04, [MEASURED]).** `k_ntt_p2_gather` in kernels.cu: identical
+arithmetic to `k_ntt_p2` (same shared tile, same twiddles, same order),
+but instead of writing the whole encoded row back it stores only the
+`sel`-marked columns, so the opening's re-encode neither writes the
+encoded chunk (537 MB per 1024-row chunk at the Mistral W shape) nor
+re-reads it to gather — 1.07 GB of the 2.82 GB of per-chunk traffic
+[COUNTED]. Duplicate column indices (which `challenge_indices` produces
+about half the time at Q = 256 over nn = 65,536) get one device slot each
+and are expanded on the host. Switch: `HL_GPU_FUSE_GATHER=0`.
+
+**THE A/B, one Mistral layer, all five arms byte-identical
+(`179ec2fb..`, 38,688,700 B):**
+
+| arm | PROVE s | opening re-encode s | commit W (upload+encode+hash) s |
+|---|---:|---:|---:|
+| base (rungs 1-2 off) | 2.97 | 0.444 | ~0.72 |
+| fused gather only | 3.00 | 0.442 | ~0.72 |
+| interleaved upload only | **2.76** | 0.449 | 0.569 |
+| both | 2.79 / 2.86 | 0.442 / 0.444 | 0.636 / 0.545 |
+
+VERDICT, stated honestly: **the interleaved upload is worth ~0.2 s of the
+3.0 (7%); the fused gather is PARITY** — 0.442 against 0.444 s. The
+re-encode is therefore NOT bandwidth-bound at this shape, which is a
+result in itself (it rules out the "fewer bytes" family of fixes for B3
+and points at occupancy). The fused kernel is kept ON because it moves
+1.07 GB less per chunk at no cost and needs less device memory for its
+output; it is switchable and it is exercised by the probe's chunked
+checks and by four forced-chunked byte gates.
+
+**THE PARAMETER SWEEP THAT PAID MORE THAN EITHER RUNG** (same command,
+same digest in every arm): the chunked commit's row chunk and the NTT
+block size are free parameters nobody had swept at a real model width.
+`HL_GPU_CHUNK_ROWS` 1024 -> 128 shrinks the encoded scratch from 537 MB
+to 67 MB; `HL_GPU_NTT_THREADS` 256 -> 512 takes the 32 KB-shared NTT
+kernels from 50% to 100% occupancy on sm_89 (3 blocks x 512 threads =
+1,536 = the SM's limit).
+
+| arm | PROVE s |
+|---|---:|
+| chunk 1024, 256 threads (the built defaults) | 2.79-2.86 |
+| chunk 256, 256 threads | 2.87 |
+| chunk 128, 256 threads | 2.81 |
+| chunk 1024, 512 threads | 2.85 |
+| chunk 1024, 1024 threads | 2.83 |
+| **chunk 128, 512 threads** | **2.46** |
+
+Neither parameter alone does anything; together they are **1.27x over the
+rung-0 baseline** (3.134 -> 2.46 s) with the same proof bytes. The
+streamed commit of W runs in 0.385 s against ~0.72 s, of which 0.303 s is
+now the DMA itself — which is what rung 3 attacks.
+
+
+**RUNG 3 — THE NARROW UPLOAD, AND THE TWO DEFAULTS (2026-09-04,
+[MEASURED], ten arms, every one byte-identical `179ec2fb..`).**
+`Fp::from_i64` maps x >= 0 to x and x < 0 to P + x, so an int8 plane's
+field elements are exactly the two ends of the field and the upload does
+not need 64 bits per element. `Uploader::send_packed` packs w bytes per
+element straight into the page-locked staging buffer (w chosen by a
+strided sample, then VERIFIED on every element while packing; a
+violation leaves the destination untouched and falls back), and the new
+`k_widen` restores the identical 64-bit image on the device. At the
+Mistral shape the sample picks **1 byte for W (1,409 -> 176 MB) and 2
+for A (461 -> 115 MB)**. Switch: `HL_GPU_NARROW=0`.
+
+| arm (one Mistral layer, T = 512, GPU) | PROVE s | commit W h2d visible / total | B/elem |
+|---|---:|---|---:|
+| r0base — everything off, chunk 1024, 256 threads | 3.03 | — | 8 |
+| chunk 128 + 512 threads, narrow OFF | 2.51 | 0.299 / 0.388 | 8 |
+| **chunk 128 + 512 threads (the new defaults)** | **2.50** | 0.265 / 0.399 | 1 / 2 |
+| the same, repeated | 2.66 | 0.300 / 0.585 | 1 |
+| chunk 256 / chunk 512 (512 threads) | 2.73 / 2.60 | | 1 |
+| chunk 128 + 256 / 1024 threads | 2.68 / 2.85 | | 1 |
+| chunk 128 + 512, fused gather OFF | 2.67 | | 1 |
+| chunk 128 + 512, 32 MB staging | 2.82 | | 1 |
+
+TWO HONEST READINGS. (1) The two repeats of the SAME configuration (2.50
+and 2.66; `commit W` 0.399 vs 0.585) put this box's noise floor at ~+/-6%
+on the prove with lanes AI and AK on the CPU, so nothing below ~0.15 s is
+real. (2) **The narrow upload is PARITY here** (2.50 vs 2.51): once the
+chunk is small enough for the interleaving to hide the DMA behind the
+encode, 8x fewer bytes on the bus only trades bus time for host packing
+time. It is kept ON — switchable, byte-gated both ways, and the right
+structure the moment the device is faster than the bus (the RTX 5090
+case the coordinator flagged mid-round) — but it is NOT counted as a
+speedup on this box.
+
+WHAT DEFAULTS CHANGED (both byte-preserving, both in gpu/cuda.rs):
+`HL_GPU_CHUNK_ROWS` **1024 -> 128** (the encoded scratch of one chunk at
+the Mistral W shape drops 537 MB -> 67 MB; 128 rows is one blake3 chunk
+of a column, the smallest legal step, and only CHUNKED commitments are
+affected, so nothing at the 125M shape moves) and `HL_GPU_NTT_THREADS`
+**256 -> 512** (the NTT kernels hold a 32 KB shared tile, so sm_89 fits 3
+blocks per SM: 3 x 256 = 768 of the SM's 1,536 threads, against 3 x 512 =
+1,536 exactly). **Neither is worth anything alone — 2.81 and 2.85 — and
+together they are 3.03 -> 2.50 s.** The chunk size only pays once the
+kernels have the occupancy to use the smaller working set, and the
+occupancy only pays once the working set is near cache.
+
+ALSO IN THIS RUNG, at the coordinator's request (the RTX 5090 becomes the
+measurement machine): Blackwell arms in `arch_str` — (10, 0) =>
+`compute_100`, (12, 0) => `compute_120` — and a LOUD stderr warning
+whenever the NVRTC compile falls through to generic PTX, either because
+the compute capability has no arm or because the toolkit rejects the
+arch. Inert on this box (the 4070 Laptop is sm_89 and still takes
+`compute_89`), and the byte gates are unchanged by it.
+
+
+**RUNG 4 — THE FOUR BYTE GATES AND THE 8B PASS, BEFORE AND AFTER, IN ONE
+SESSION ON ONE BOX (2026-09-04, WSL-BOX 8T + RTX 4070 Laptop,
+`flock /tmp/zk-heavy.lock`, [MEASURED], the box quiet by the end).**
+
+**THE FLOOR: ALL TWELVE BYTE GATES GREEN.** The four gates on the CPU
+binary, the four on the GPU binary, and — new in this lane — the same
+four re-run with `HL_GPU_CHUNK_BYTES` forced small so that the frozen
+125M digests actually exercise the chunked commit, the interleaved
+pinned upload, the narrow packing and the fused gather (nothing else at
+the 125M shape does: those commitments are 151-272 MB and stay
+resident). `50cf7bdfd6b5b182..` 66,844,928 B; `5f368db6240e0614..`
+70,758,084 B; `021485e4f80ec695..` 87,228,528 B; `40eb54795e023c77..`
+87,697,008 B — every one from both binaries and in both the resident and
+the forced-chunked form. `cargo test --release` 40/40. No regression at
+125M on the GPU either (v3 2.75/2.81 s, zk-v3 4.22/4.32 s against the
+pre-lane 2.80 / 4.58).
+
+**ONE MISTRAL LAYER, THREE REPEATS EACH, QUIET BOX** (proof `179ec2fb..`
+every time): baseline 2.83 / 2.92 / 2.95 s; this lane 2.68 / 2.65 / 2.69;
+this lane with `HL_GPU_NARROW=0` 2.70 / 2.69. So **~1.10x at one layer on
+a quiet box**, against the 1.21-1.27x the same A/B showed while lanes AI
+and AK were loading the CPU — the baseline suffers more from a busy box
+than this lane's configuration does, which is itself a (small) result.
+
+**THE 8B PASS — THE NUMBER THIS LANE IS ACCOUNTABLE FOR** (`pass 32 512
+--profile v3 --export .../m8b_mistral_v3_export --wcache <fresh>
+--threads 8 --proof-out F`, `/usr/bin/time -v`, cold cache, both arms
+back to back in the same session):
+
+| | BEFORE (this lane's switches all off, chunk 1024, 256 threads) | **AFTER (the lane's defaults)** | |
+|---|---:|---:|---|
+| **PROVE** | **88.90 s** | **86.00 s** | **1.034x** |
+| witness load + chain | 126.29 | 123.86 | |
+| VERIFY | 1.08 | 1.30 | |
+| wall | 218.23 | **213.25** | |
+| proof | 1,234,936,956 B | 1,234,936,956 B | — |
+| **sha256** | `dc980e81..4536c` | **`dc980e810085b2ddf4688eb4a6cf4dd931c209bf7c5a9a7692d57ec14bc4536c`** | **IDENTICAL** |
+| peak RSS | 3.87 GB | 3.99 GB | |
+| **VRAM peak** | 5,651 MB | **5,249 MB** | **-402 MB** |
+| **bytes uploaded** | **59,861 MB** | **9,328 MB** | **6.4x fewer** |
+| device h2d | 12.810 s | **8.309 s** | 1.54x |
+| device ntt (+ the streamed path's own accounting) | 13.958 | 14.714 | |
+| device hash | 2.188 | 0.469 | |
+| device opening re-encode | 14.238 | 14.020 | |
+| phases: commit W / commit A / openings | 37.27 / 13.82 / 18.56 | 36.25 / 12.01 / 18.28 | |
+
+**THE VERDICT, PLAINLY: 1.034x on the 8B prove, 6.4x fewer bytes on the
+bus, 402 MB less video memory, the proof byte-identical.** That is far
+below the plan's 2.4-2.9x for lever L2, and rung 0 predicted exactly why
+before any of it was built: **the plan's L2 item list attributes to
+"host marshalling" work that is either already on the device (the encode
+NTT, the opening re-encode), outside the prove clock (the 1.23 GB
+serialization, measured at 0.03 s per layer), or in layer.rs — and
+layer.rs is READ-ONLY for this lane.**
+
+WHERE THE 86.00 s NOW SITS [MEASURED counters / COUNTED split]: device
+counters sum to 47.3 s (h2d 8.31 + ntt 14.71 + hash 0.47 + sumcheck 5.52
++ fold 2.89 + helpers 1.37 + re-encode 14.02), so **38.7 s (45%) is host
+time inside the prove — and essentially all of it is in layer.rs**: the
+`Fp::from_i64` conversion and the 1.4 GB `w_data` / 0.46 GB `a_data`
+allocations (~29 s over 32 layers, counted from the one-layer phases)
+plus the host matmul folds (8.1 s, measured directly as the "matmul g/u"
+and "matmul d" phases). **After this lane, the host wall of the 8B GPU
+pass is a layer.rs problem, not a gpu/ problem.** That is the single
+sentence the orchestrator needs: the next 1.5x of L2 is one owner
+change, not one more kernel.
+
+
 ## Agent AK status (wt-uperf3-ak) — round 14
 
 (lane appends below)
