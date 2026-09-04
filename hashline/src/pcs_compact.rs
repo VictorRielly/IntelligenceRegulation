@@ -915,38 +915,36 @@ pub fn open_batch(batch: &[(&CompactCommitted<'_>, &[Claim])], tr: &mut Transcri
     let l0 = (1usize << k_max) * inv_rate;
     let q_count = c.effective_queries();
     let idx = tr.challenge_indices(q_count, l0 / COSET);
-    // Re-encoded groups (only under `reencode`); resident groups are BORROWED, never cloned.
-    let reenc: Vec<Vec<Vec<Vec<Fp>>>> = batch.iter().map(|(cm, _)| cm.groups.iter().map(|g| cm.group_codewords(g)).collect()).collect();
-    let group_cws: Vec<Vec<&[Vec<Fp>]>> = batch.iter().enumerate()
-        .map(|(ci, (cm, _))| cm.groups.iter().enumerate()
-            .map(|(gi, g)| if g.codewords.is_empty() { reenc[ci][gi].as_slice() } else { g.codewords.as_slice() })
-            .collect())
-        .collect();
-    proof.queries = idx.par_iter().map(|&t0q| {
-        let mut qo = QueryOpen::default();
-        for (ci, (cm, _)) in batch.iter().enumerate() {
-            for (gi, g) in cm.groups.iter().enumerate() {
-                let lg = (1usize << g.log_size) * inv_rate;
-                let leaves = lg / COSET;
-                let u = t0q % leaves;
-                let ls = bitrev(u, leaves.trailing_zeros());
-                let cws = group_cws[ci][gi];
+    // The query phase runs ONE GROUP AT A TIME, not one query at a time: at the 8B
+    // shapes a single group's codeword is gigabytes, so under `--pcs-reencode` only
+    // one of them may be materialised at once. Resident codewords are BORROWED (never
+    // cloned); the output order is unchanged, so the proof bytes are unchanged.
+    let mut qgroups: Vec<Vec<(Vec<Fp>, Vec<Digest>)>> = vec![Vec::new(); q_count];
+    for (cm, _) in batch.iter() {
+        for g in cm.groups.iter() {
+            let owned = cm.group_codewords(g); // empty when the codewords are resident
+            let cws: &[Vec<Fp>] = if g.codewords.is_empty() { &owned } else { &g.codewords };
+            let lg = (1usize << g.log_size) * inv_rate;
+            let leaves = lg / COSET;
+            let per: Vec<(Vec<Fp>, Vec<Digest>)> = idx.par_iter().map(|&t0q| {
+                let ls = bitrev(t0q % leaves, leaves.trailing_zeros());
                 let mut vals = Vec::with_capacity(cws.len() * COSET);
                 for cw in cws { vals.extend_from_slice(&cw[ls * COSET..(ls + 1) * COSET]); }
-                let path = g.tree.path(ls, |i| group_leaf_hash(cws, i));
-                qo.groups.push((vals, path));
-            }
+                (vals, g.tree.path(ls, |i| group_leaf_hash(cws, i)))
+            }).collect();
+            for (qi, e) in per.into_iter().enumerate() { qgroups[qi].push(e); }
         }
-        for (cw, tree) in &fold_layers {
-            let leaves = cw.len() / COSET;
-            let u = t0q % leaves;
-            let ls = bitrev(u, leaves.trailing_zeros());
-            let vals = cw[ls * COSET..(ls + 1) * COSET].to_vec();
-            let path = tree.path(ls, |i| hash_fp2_block(&cw[i * COSET..(i + 1) * COSET]));
-            qo.folds.push((vals, path));
-        }
-        qo
-    }).collect();
+    }
+    let mut qfolds: Vec<Vec<(Vec<Fp2>, Vec<Digest>)>> = vec![Vec::new(); q_count];
+    for (cw, tree) in &fold_layers {
+        let leaves = cw.len() / COSET;
+        let per: Vec<(Vec<Fp2>, Vec<Digest>)> = idx.par_iter().map(|&t0q| {
+            let ls = bitrev(t0q % leaves, leaves.trailing_zeros());
+            (cw[ls * COSET..(ls + 1) * COSET].to_vec(), tree.path(ls, |i| hash_fp2_block(&cw[i * COSET..(i + 1) * COSET])))
+        }).collect();
+        for (qi, e) in per.into_iter().enumerate() { qfolds[qi].push(e); }
+    }
+    proof.queries = qgroups.into_iter().zip(qfolds).map(|(groups, folds)| QueryOpen { groups, folds }).collect();
     if vb {
         eprintln!("[cpcs::open] pieces {} claims {} k_max {k_max} k_end {k_end} Q {q_count}: plan {:.3} | rounds {:.3} | folds {:.3} | queries {:.3} s | {} B",
             plan.all.len(), plan.n_claims, t_plan, t_rounds, t_folds, tq.elapsed().as_secs_f64(), proof.size_bytes());

@@ -9636,3 +9636,73 @@ proof `f84432ea..` UNCHANGED to the byte, PROVE 31.78 -> **28.76 s**
 Ligero's 1.56 GB). Gates re-run on the fixed binary: v2
 `50cf7bdfd6b5b182..`, v3 `5f368db6240e0614..`, zk `021485e4f80ec695..`
 — all three GREEN. 32/32 tests.
+
+### Rung 4 — ONE MISTRAL LAYER AT T=512: 38.7 MB -> 1.94 MB (19.9x)
+
+`hashline layer 0 512 --profile v3 --export
+.../m8b_mistral_v3_export --threads 8`, d 4096, f 14336, the FFN-only
+v3 statement; the same witness for both forms; both runs under
+`flock /tmp/zk-heavy.lock` with `free -g` >= 14 GB before each.
+[MEASURED, WSL-BOX, 8T, CPU, NOISY-SHARED]
+
+| | Ligero (default) | compact (`--pcs-reencode`) | ratio |
+|---|---:|---:|---:|
+| **proof bytes (one layer)** | **38,688,700 (38.7 MB)** | **1,940,684 (1.94 MB)** | **19.94x smaller** |
+| PROVE | 15.497 s | 67.593 s | 4.36x slower |
+| VERIFY | 0.041 s | **0.010 s** | 4.1x faster |
+| peak RSS | 13.17 GB | 13.92 GB | +6% |
+| ACCEPT | yes | yes | |
+
+Phases: commit W 7.326 -> 15.916, commit A 2.425 -> 5.253, helpers +
+commit H 2.705 -> 5.381, matmul g/u 0.182 -> 0.189, matmul d 0.106 ->
+0.103, zero-check F 1.620 -> 1.653, zero-check D 0.235 -> 0.239,
+**PCS openings 0.881 -> 38.818**.
+
+**WHY 19.9x HERE AND ONLY 4-5x AT 12x512.** This is the lane's whole
+point and it is the square-root law showing itself. The Ligero opening
+grows as `sqrt(N)` — from a `2^23` commitment to a `2^27` one it grows
+~4x — while the compact opening grows LOGARITHMICALLY: 1.11 MB of
+opening at `k_max = 23` becomes ~1.9 MB at `k_max = 27`, four more
+Merkle levels per tree and nothing else. The bigger the model, the
+bigger the win. At 125M the compact form buys 5x; at 8B it buys 20x.
+
+**THE 32x512 PROJECTION [COUNTED from a MEASURED layer].** Every layer
+of the Mistral pass has the same shape, and the measured Ligero layer
+(38,688,700 B) matches the measured 32x512 pass's per-layer average
+(1,234,936,956 / 32 = 38,591,780 B) to 0.25%. So:
+
+| 8B FFN pass, 32 x 512 | Ligero [MEASURED] | compact [COUNTED] |
+|---|---:|---:|
+| proof bytes | 1,234,936,956 (1.235 GB) | **62,101,888 (62.1 MB)** |
+| prove | 510.38 s | ~2,163 s (~36 min), 4.24x |
+| verify | 1.21 s | ~0.3 s |
+| peak RSS | 13.99 GB | ~13.9 GB |
+
+**The 1.23 GB per-proof number becomes 62 MB.** That is the
+square-root class leaving and the log class arriving — and with the
+Merkle cap of rung 2 (-29% [COUNTED]) it would be ~44 MB. It is NOT
+the "3-12 MB per pass" of the §5 count, because that count was written
+against a 125M pass; the same construction on the 125M pass IS 13.5 MB
+(rung 2), and ~9.6 MB with the cap.
+
+**THE MEMORY WALL, and why `--pcs-reencode` is not optional here.**
+Ligero's Merkle tree has only `enc_cols = 2^16` leaves however large
+the commitment is (it hashes COLUMNS of a rows x enc_cols matrix); the
+compact tree has `L/16` leaves, which at `L = 2^29` is 33.5M — ~1.4 GB
+of tree for W alone. Holding the codewords resident as well
+(5.64 GB for W, ~10 GB across W/A/H) puts the layer at ~15.4 GB
+[COUNTED] on a 15 GB box, i.e. OOM. `--pcs-reencode` drops each
+group's codeword the moment its tree is built and re-encodes it at
+query time, and this session also restructured the query phase to run
+ONE GROUP AT A TIME so that only one codeword is ever materialised
+(byte-identical: `f84432ea..` at 12x512 with and without the flag).
+The cost is visible: of the 38.8 s opening phase, ~16 s is that
+re-encode. On a box with ~20 GB the resident path would prove the
+layer in ~52 s [COUNTED], i.e. ~1,654 s / 3.24x for the 32x512 pass.
+
+**THE PROVER COST, stated plainly.** 4.36x at 8B against the §5 count
+of x0.94-1.4. Three quarters of the excess is the opening (38.8 s of
+the 52.1 s of extra prove), and the opening is a full degree-2
+sumcheck over a `2^27` table plus a re-encode per fold stretch plus the
+memory-forced re-encode. None of it is on the GPU, where the Ligero
+form already runs 5x faster; the port items are listed at rung 2.
