@@ -1,0 +1,59 @@
+layer 3 (v3) at T = 512 of 512 [ZK, mode P1, seed 1] (d 768 f 2048; log_cols 14, inv_rate 4, col checks 256, threads 8); gpu: off (built without --features gpu-cuda)
+  statement: shifts g/u/h/z 8/-1/14/9, silu-int16out-table-v3 (-3,-11) 1001c138ce0d00f0..
+      commit W                      0.184 s
+      commit A (zk)                 0.375 s
+      mask commit                   0.009 s
+      helpers + commit H (zk)       0.424 s
+      matmul g/u (zk)               0.024 s
+      matmul d (zk)                 0.016 s
+      zero-check F (zk)             0.260 s
+      zero-check D (zk)             0.083 s
+      table zero-check (zk)         0.126 s
+      zsum + mask open              0.004 s
+      pcs openings (zk)             0.108 s
+      mask sites (v3):
+        layout: n = 2^14 columns; table zero-check over 2^16 (the INT16 class spans 4 rows); A 559 rows = 520 data + 21 masks + 18 table/mask rows; H 485 rows = 432 data + 17 masks + 36 helper/mask rows
+        A masks: 7 f-planes (g8,rg,a16,u16,ru,h16,rh x 1 f-blocks) at rho_F -> rows [520, 521, 522, 523, 524, 525, 526]; 9 d-planes (X,z16,rd x 3 d-blocks) at rho_D -> rows [527, 528, 529, 530, 531, 532, 533, 534, 535]; X-blocks at p2 -> [536, 537, 538]; h16-blocks at p5 -> [539]; prox row 540
+        table slot tag 3 (256 entries, 2^14 slice, 1 row(s)): m at A rows 541.., mask at A rows 542..; helper h_t at H rows re 449.. im 450.., its mask re 451.. im 452..
+        table slot tag 4 (65536 entries, 2^16 slice, 4 row(s)): m at A rows 543.., mask at A rows 547..; helper h_t at H rows re 453.. im 457.., its mask re 461.. im 465..
+        table slot tag 80 (256 entries, 2^14 slice, 1 row(s)): m at A rows 551.., mask at A rows 552..; helper h_t at H rows re 469.. im 470.., its mask re 471.. im 472..
+        table slot tag 71 (1 entries, 2^14 slice, 1 row(s)): m at A rows 553.., mask at A rows 554..; helper h_t at H rows re 473.. im 474.., its mask re 475.. im 476..
+        table slot tag 86 (16384 entries, 2^14 slice, 1 row(s)): m at A rows 555.., mask at A rows 556..; helper h_t at H rows re 477.. im 478.., its mask re 479.. im 480..
+        table slot tag 81 (512 entries, 2^14 slice, 1 row(s)): m at A rows 557.., mask at A rows 558..; helper h_t at H rows re 481.. im 482.., its mask re 483.. im 484..
+        H masks: 3 helper planes (hg,hu,hh x 1 f-blocks) at rho_F -> rows [(432, 433), (434, 435), (436, 437)]; 3 hz planes at rho_D -> rows [(438, 439), (440, 441), (442, 443)]; zero-sum u rows (444, 445) (its extension mask u' (446, 447)) for the value-0 LogUp sum group; prox row 448
+        A: 26 claims in 5 groups
+        A group vector 0: mask rows [520, 521, 522, 523, 524, 525, 526]
+        A group vector 1: mask rows [527, 528, 529, 530, 531, 532, 533, 534, 535]
+        A group vector 2: mask rows [536, 537, 538]
+        A group vector 3: mask rows [539]
+        A group vector 4: mask rows [542, 547, 548, 549, 550, 552, 554, 556, 558]
+        A proximity vector: prox mask row 540 (+ every mask row with its random rho)
+        A 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+        A 65536 Merkle leaves salted
+        H: 14 claims in 5 groups
+        H group vector 0: mask rows [432, 433, 434, 435, 436, 437]
+        H group vector 1: mask rows [438, 439, 440, 441, 442, 443]
+        H group vector 2: mask rows [444, 445, 446, 447]
+        H group vector 3: mask rows [451, 452, 461, 462, 463, 464, 465, 466, 467, 468, 471, 472, 475, 476, 479, 480, 483, 484]
+        H group vector 4: mask rows [444, 445]
+        H proximity vector: prox mask row 448 (+ every mask row with its random rho)
+        H 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+        H 65536 Merkle leaves salted
+  tamper None: ACCEPT prove 1.614 s verify 0.044 s proof 7306036 B
+      reject: sumcheck round 0: s(0) + s(1) != claim
+  tamper [flipped X entry]: REJECT (prove 1.53 s, verify 0.00 s)
+      reject: sumcheck round 0: s(0) + s(1) != claim
+  tamper [flipped Wg entry]: REJECT (prove 1.55 s, verify 0.00 s)
+      reject: H: pcs zk: group 4: <v, c> != combined claim
+  tamper [out-of-range remainder]: REJECT (prove 1.54 s, verify 0.04 s)
+      reject: H: pcs zk: group 4: <v, c> != combined claim
+  tamper [wrong int16 table entry]: REJECT (prove 1.58 s, verify 0.04 s)
+      reject: sumcheck round 0: s(0) + s(1) != claim
+  tamper [wrong requant (h16)]: REJECT (prove 1.58 s, verify 0.00 s)
+      reject: sumcheck round 0: s(0) + s(1) != claim
+  tamper [wrong z]: REJECT (prove 1.56 s, verify 0.00 s)
+      reject: H: pcs zk: group 4: <v, c> != combined claim
+  tamper [wrong rounding (floor)]: REJECT (prove 1.56 s, verify 0.04 s)
+      reject: H: pcs zk: group 4: <v, c> != combined claim
+  tamper [out-of-range int16 (z16)]: REJECT (prove 1.57 s, verify 0.04 s)
+layer 3 (v3) [ZK]: GREEN
