@@ -1,0 +1,373 @@
+{
+ "experiment": "attention_hash_ref (rung 2 oracle)",
+ "params": {
+  "arch": "mistral",
+  "checkpoint": "/home/victor/models/Mistral-7B-v0.1",
+  "layer": 0,
+  "window": 0,
+  "T": 512,
+  "d": 4096,
+  "H": 32,
+  "Hkv": 8,
+  "d_h": 128,
+  "fE": 9,
+  "fP": 9,
+  "fRo": 7,
+  "rope_base": 10000.0,
+  "rms_eps": 1e-05,
+  "x_in": {
+   "cls": "int8",
+   "e8": -11,
+   "e_lsb": -11
+  },
+  "e_w": {
+   "wq": -8,
+   "wk": -9,
+   "wv": -12,
+   "wo": -11,
+   "gA": -4,
+   "gM": -6
+  },
+  "norm_div": "round",
+  "anorm": {
+   "e_xn": -2,
+   "tn": 6,
+   "cn": 1024,
+   "ceps": 171799,
+   "wrho": 17,
+   "limbs": 2,
+   "ss_bits": 19,
+   "num_bits": 23
+  },
+  "qkv": {
+   "sh_q": 7,
+   "e_q": -3,
+   "sh_k": 7,
+   "e_k": -4,
+   "sh_v": 7,
+   "e_v": -7
+  },
+  "rope": {
+   "e_qr": -3,
+   "e_kr": -3,
+   "table_digest": "5bcf64bce057cf863aded45ac1949d1bb12919d760ae8a9de6286d4f9aef5d01"
+  },
+  "scores": {
+   "sh_s": 8,
+   "e_s_raw": 2,
+   "e_s_record": 2,
+   "raw_convention_shift": 0,
+   "wrho_softmax": 18,
+   "exp_member": "(exp-neg, eS_raw 2, d_h 128, fE 9)",
+   "exp_digest": "423a43e7b2cfdd6022c642930bfee973effc51462c883b108de3a24ff9fa7ab6"
+  },
+  "pv": {
+   "sh_o": 9,
+   "e_o": -7
+  },
+  "wo": {
+   "sh_ao": 0,
+   "e_ao": -18,
+   "cls": "int16"
+  },
+  "res1": {
+   "sh_r1": -8,
+   "e_r1": -26,
+   "cls": "int24"
+  },
+  "mnorm": {
+   "e_xm": -4,
+   "tn": 6,
+   "cn": 1024,
+   "ceps": 184467440737096,
+   "wrho": 32,
+   "limbs": 2,
+   "ss_bits": 49,
+   "num_bits": 38
+  },
+  "requant_bumps": {},
+  "wall_s": 22.2
+ },
+ "entries": {
+  "xsqA": "72ac9529aeeeed49e2d5674577ea89dce76010dfcec556cef5c4668cdd09abfe",
+  "SSA": "3aa4d494baef40e46e213e071e8b7d7da8121e7f339b2df02542ba89d6768827",
+  "DA": "56e77470757d68757ae7163e54c87ae82b0a4b7effc9c81ebb96f259aa327d31",
+  "DsqA": "95e00fd42e204369902cea2fa46e85b57eca64cc09df2eadd52812291301e932",
+  "a1A": "064db93dacece35ef57046fba364bf29df133ed5a990378e3fd52af550aff5da",
+  "a2A": "6ce5ec314d334ca6602d97916677102caf9e3bf462ab6dbf151b7344389f3d08",
+  "xn8": "b9ba43b39e3a7057d59a4eb3f088a079dd51d8a230e00eb2f0f08f4176037427",
+  "rhoA_l0": "78faa1c58b82fbe91f37e3e9af49ec5ef5fcce9b52818d445fc1e8c2a27d58c3",
+  "rhoA_l1": "fc5497eec005f9de6e59e288b9586f02289ec7dfc9b369ae8132aac4c7f3018b",
+  "sigA_l0": "f005fa274a8fcc5837f40624cadb724e7b4e8d5e7ac6603dcd7bd4abaf548243",
+  "sigA_l1": "ed7fbf8ac6c4e614f0c3f22374058667ee1c8252f87f1619467ea8b5a1ffcf6d",
+  "Qacc": "e9dd1233644ad18ac55d87b56603292a599d2d034598f5e6fb55d8bbe88fa2e2",
+  "q8": "1cbf0e134e94ab07339f2c370fb0f56322089ea96f6b81bfe1d178d4d09435cd",
+  "rQ": "7ef4fafc95b304dde561953b275c3634a64485ab6688a4d18e6e1bef2cac66ba",
+  "Kacc": "cb8c878d21100a1474ad4b44be3e24d413fbd100053d2bbb3f4d8e1b6a6b3e99",
+  "k8": "be049e03200e0baa4182ec8ca60f4e3b5dbd9118451369246e55dfec25381f18",
+  "rK": "d40283793bd642f27cdcf4d110f3e3ce154928e16dc46c4592300e2cf4393f4c",
+  "Vacc": "5e1eda8d16a34bd0c48aa7d522aa6afafa41e17854e5e3620489e91d5d498397",
+  "v8": "490d7a1637add40517b86e0b1fe82ce430a18f2a5123a4b43f5b36380d5892dd",
+  "rV": "2c18978b54bcc2b1ccc52ef247991f50d16a0e3d3f5feac05ebc997df9d473cc",
+  "QRacc": "a52b1c8145ff147c08d2e35ca3707e0dfe740ab81f7dac4a7a97554628095299",
+  "qr8": "6a4ac4697f275f319d6dc23dedae614b7f1161e531d1197288d7cacddcfa7fe8",
+  "rQR": "2e2d41d735a10709988f24f3c470e3329e78c2472c2b7fbba7c041b9c9b6c3bc",
+  "KRacc": "51422816d4140826592780cd121bc856c70f5bb23efbf86d77c4938921683b1a",
+  "kr8": "82f4e8cc7fbef4335d5d600ac2c7a6f7258a89d7e811e08b5958ef8e14d95aeb",
+  "rKR": "e654074be7da0c1a2224341ab187b114617015d3d60e688992c61ac39bebd19a",
+  "Sacc": "49a3e557665b9d6aa769aebbb520bbfd14ada2bb8d25e543160b401d8bb14b2f",
+  "s8": "af30c86e59741eae709bb8f34052affcd728f26a7526a5243682a580654c2b50",
+  "rS": "f9e4be9fb379728745fe79a3e9067bb5a162f4f90c8b41fbb3ea731090190319",
+  "m": "c4463049295bce5eeab1d4753e529f3302b3ed45e10bb7c064b38e3eff7f881d",
+  "dmat": "ecf90ab6c7435f0cfcf68fa3f1cc5598bb21d0725199c53f2827c0bc0da2bd9d",
+  "zsel": "c5c812b33591055e1298b6b54c7053e9c1d1b1a62adf2169e07f253307bd99b6",
+  "E": "c5f0175ff42e1c7e5c68a5897040dd350359cf1ac0ecad44d36bbb49a0429a8a",
+  "Sum": "879cbc32294702a6bcb610275f06f16da7b18fd35a88f9d8caccba862c409a8a",
+  "P": "5d1797e325c74b3640a4f2d7015cca1a89469e259bbb0aa1682e4e165d3d4fb3",
+  "rho": "58ef4614d30e2ba6f93709de8f4ccf1b9f3cff6909ad5f15d65c633c89f3d287",
+  "sig": "b70b561722aa0292afab07124fcbb58c47dcabfd8fea5cdf77e2603b973d06ea",
+  "Oacc": "031c71db40f0b51a8a8b5a1d8e9c6ea06fb9400f550fbffd799a725ac9275d5e",
+  "o8": "033e8a8d072daae0af1b0027c0fffa200365ae3156936768901db56f32ff8154",
+  "rO": "ecdab839bc42662bb6a464bcf9d73c012ac25cf47e0f8e14583123e27a77b533",
+  "AOacc": "bb52a3636d430986b4b4cce68180a413074f378151bad05a1d6fd72a0b80cafc",
+  "ao8": "bb52a3636d430986b4b4cce68180a413074f378151bad05a1d6fd72a0b80cafc",
+  "rAO": "080acf35a507ac9849cfcba47dc2ad83e01b75663a516279c8b9d243b719643e",
+  "xw1": "e450d9d4be19db8e6fd9314ee12fa1aee3eec51305c0633c6233e90e93526105",
+  "xres1": "a1613786fc6fb17fdd6a11576750545e3c84f9243f79946490cb35387e327771",
+  "rr1": "080acf35a507ac9849cfcba47dc2ad83e01b75663a516279c8b9d243b719643e",
+  "xsqM": "68aa322990f3c65b3067012854bc3007cc02324a35c114b8af8b5a478f80ef9f",
+  "SSM": "1e6186f145b774bf695884b6a3137a637e73542488f17c05f7f94e3947ebc2cb",
+  "DM": "4d97c5cfffc2cbe760c614d4ed385948b28a22d50087532cb2b404be5afa0734",
+  "DsqM": "f6d939e78903663a63f0af7b10e4ee45307543c04ee4204fa99a405b486df0cb",
+  "a1M": "1abd0db2a34ce3972bd8755b59e19223199f0065c4fc5c3e53c403562dcb0502",
+  "a2M": "2a38092053cc12baaf726a0ea8448079bc0010b18c24f775d3bc00b8ab87ab5c",
+  "xm8": "bef2365b534038136284fac985268c3ac09189609c4e7669887024b315ffa026",
+  "rhoM_l0": "245074bdff369d18c6fc8199a64b02ac9c2a77a2d5f2f767c49ccad782c8135a",
+  "rhoM_l1": "4f5bf96ebcc63ba0051b48823e462710da7df8d84cd0bdd2acfc5c05b9358c77",
+  "sigM_l0": "c96be6347eba48a3c38a31f4f5a2494209b7c06109a58da14939c201a4f40669",
+  "sigM_l1": "c585265a69eb1c00b07473a309bb172f3de8c61e72e76fbac304d7775c91661f",
+  "x_in": "950caaba4b0ae0e883e6964c478919c1204e2276cea6c98b6a3b2e842a3760c5",
+  "Wq": "f98a5ee5026a838c1b3e821a7e14313c94e14d7cdfc9c8a2cb2ea0cfd7a39977",
+  "Wk": "201f40445172fe8d14701246bdaddce86fc22664f33db5c13a3c21c6dd3a35bc",
+  "Wv": "d626b64b2954714d2bd2468b3c8357a65e3ab699ec9760d61fc3b3b636fc44d7",
+  "Wo": "92287b2892cddf3dbc56daadf7ccece95a22bc8183b926e1bdc4e4ec64d4c72b",
+  "gA": "e59241edd79f5c6733cc6c06d7edf80e8f5b04ddecad3713a7a576a201613f2c",
+  "gM": "f2a7cd9566984a94ddff9ab26b0c97aa08d3771bbf4e1ea9fbdfa0212fa62007"
+ },
+ "entry_order": [
+  "xsqA",
+  "SSA",
+  "DA",
+  "DsqA",
+  "a1A",
+  "a2A",
+  "xn8",
+  "rhoA_l0",
+  "rhoA_l1",
+  "sigA_l0",
+  "sigA_l1",
+  "Qacc",
+  "q8",
+  "rQ",
+  "Kacc",
+  "k8",
+  "rK",
+  "Vacc",
+  "v8",
+  "rV",
+  "QRacc",
+  "qr8",
+  "rQR",
+  "KRacc",
+  "kr8",
+  "rKR",
+  "Sacc",
+  "s8",
+  "rS",
+  "m",
+  "dmat",
+  "zsel",
+  "E",
+  "Sum",
+  "P",
+  "rho",
+  "sig",
+  "Oacc",
+  "o8",
+  "rO",
+  "AOacc",
+  "ao8",
+  "rAO",
+  "xw1",
+  "xres1",
+  "rr1",
+  "xsqM",
+  "SSM",
+  "DM",
+  "DsqM",
+  "a1M",
+  "a2M",
+  "xm8",
+  "rhoM_l0",
+  "rhoM_l1",
+  "sigM_l0",
+  "sigM_l1",
+  "x_in",
+  "Wq",
+  "Wk",
+  "Wv",
+  "Wo",
+  "gA",
+  "gM"
+ ],
+ "chain_sha256": "4085604b8d61ce8c8be0299111f364d8cf070877e0cf97cfcb860622b3cbc2a4",
+ "agreement_local": {
+  "xn8": {
+   "n": 2097152,
+   "equal": 2096760,
+   "frac_equal": 0.9998130798339844,
+   "max_delta_steps": 1
+  },
+  "q8": {
+   "n": 2097152,
+   "equal": 2097152,
+   "frac_equal": 1.0,
+   "max_delta_steps": 0
+  },
+  "k8": {
+   "n": 524288,
+   "equal": 524288,
+   "frac_equal": 1.0,
+   "max_delta_steps": 0
+  },
+  "v8": {
+   "n": 524288,
+   "equal": 524288,
+   "frac_equal": 1.0,
+   "max_delta_steps": 0
+  },
+  "qr8": {
+   "n": 2097152,
+   "equal": 2061389,
+   "frac_equal": 0.9829468727111816,
+   "max_delta_steps": 1
+  },
+  "kr8": {
+   "n": 524288,
+   "equal": 513801,
+   "frac_equal": 0.9799976348876953,
+   "max_delta_steps": 1
+  },
+  "s8": {
+   "n": 8388608,
+   "equal": 8388608,
+   "frac_equal": 1.0,
+   "max_delta_steps": 0
+  },
+  "P": {
+   "n": 8388608,
+   "equal": 6861018,
+   "frac_equal": 0.8178970813751221,
+   "max_delta_steps": 28
+  },
+  "o8": {
+   "n": 2097152,
+   "equal": 2002234,
+   "frac_equal": 0.9547395706176758,
+   "max_delta_steps": 8
+  },
+  "ao8": {
+   "n": 2097152,
+   "equal": 2097152,
+   "frac_equal": 1.0,
+   "max_delta_steps": 0
+  },
+  "xres1": {
+   "n": 2097152,
+   "equal": 2097152,
+   "frac_equal": 1.0,
+   "max_delta_steps": 0
+  },
+  "xm8": {
+   "n": 2097152,
+   "equal": 2097152,
+   "frac_equal": 1.0,
+   "max_delta_steps": 0
+  }
+ },
+ "agreement_cascade": {
+  "xn8": {
+   "n": 2097152,
+   "equal": 2070125,
+   "frac_equal": 0.9871125221252441,
+   "max_delta_steps": 2
+  },
+  "q8": {
+   "n": 2097152,
+   "equal": 1602390,
+   "frac_equal": 0.7640790939331055,
+   "max_delta_steps": 4
+  },
+  "k8": {
+   "n": 524288,
+   "equal": 349748,
+   "frac_equal": 0.6670913696289062,
+   "max_delta_steps": 4
+  },
+  "v8": {
+   "n": 524288,
+   "equal": 268601,
+   "frac_equal": 0.5123157501220703,
+   "max_delta_steps": 12
+  },
+  "qr8": {
+   "n": 2097152,
+   "equal": 1413079,
+   "frac_equal": 0.6738085746765137,
+   "max_delta_steps": 4
+  },
+  "kr8": {
+   "n": 524288,
+   "equal": 411435,
+   "frac_equal": 0.7847499847412109,
+   "max_delta_steps": 3
+  },
+  "s8": {
+   "n": 8388608,
+   "equal": 6180708,
+   "frac_equal": 0.7367978096008301,
+   "max_delta_steps": 5
+  },
+  "P": {
+   "n": 8388608,
+   "equal": 6752571,
+   "frac_equal": 0.8049691915512085,
+   "max_delta_steps": 86
+  },
+  "o8": {
+   "n": 2097152,
+   "equal": 1781065,
+   "frac_equal": 0.8492779731750488,
+   "max_delta_steps": 18
+  },
+  "ao8": {
+   "n": 2097152,
+   "equal": 6430,
+   "frac_equal": 0.0030660629272460938,
+   "max_delta_steps": 4148
+  },
+  "xres1": {
+   "n": 2097152,
+   "equal": 27,
+   "frac_equal": 1.2874603271484375e-05,
+   "max_delta_steps": 1047656
+  },
+  "xm8": {
+   "n": 2097152,
+   "equal": 898408,
+   "frac_equal": 0.4283943176269531,
+   "max_delta_steps": 25
+  }
+ },
+ "note": "the integer attention+norm+residual chain of one layer at the measured exponents; v3 round-to-nearest requants with balanced remainders, floor divisions in the norm and softmax gadgets; the LOCAL agreement quantizes each gadget's fp counterpart computed on the SAME dequantized integer inputs (does the gadget compute the op?); CASCADE quantizes the true fp layer forward onto each site's grid (how far the whole integer chain has drifted). An exact integer chain cannot be bit-equal to an fp forward \u2014 see the ledger's rung-2 note"
+}
