@@ -12737,3 +12737,72 @@ TARGET_CONTRACT.md needs an amendment once AM reports — the base text's
 "declared output tensor values" is public no longer describes the
 product's default tier. That amendment is Victor's ruling to make with
 AM's finding in hand, not an edit to slip in.
+
+## RULING (Victor, console 2026-09-05, third): TWO PROOF FUNCTIONS, NOT ONE
+
+"These proofs will have multiple different functions. One might be to
+prove that a feedforward did indeed happen through the model that is
+claimed. Such a proof needs to hide input, all activations and output.
+The other function would be to prove validity of a classification. (In
+this second use case, we will use models as ZK content filters) And the
+input and all activations would be hidden but whether the output is
+class acceptable or class unacceptible would be part of the proof. Only
+class acceptable proofs would be valid."
+
+Full treatment: `docs/zkmatrix-poc/PROOF_FUNCTIONS.md`. The short form:
+
+* **FUNCTION 1, ATTESTED INFERENCE** — hides input, all activations AND
+  output. The verifier learns "this exact model, on some committed
+  input, produced some committed output" and neither value. Nearly
+  built; the open question is lane AM's rung 0 (does the statement
+  still declare the output values in the clear).
+* **FUNCTION 2, VALIDATED CLASSIFICATION (the ZK content filter)** —
+  hides input and all activations, and proves a PREDICATE over the
+  committed output. **Only class-acceptable proofs verify at all**, so
+  the filter is enforced by the soundness of the proof system rather
+  than by a policy layer that can be bypassed.
+
+**FUNCTION 2 NEEDS MACHINERY THE STATEMENT DOES NOT HAVE**, and this is
+the substantive finding. A predicate must be PROVEN over the committed
+output without revealing it. Two instantiations:
+- (a) threshold on a named class: one non-negativity fact on
+  `y[j] - tau`. The existing range machinery (remainder bit planes at
+  q46, tied to q31 by the U-L modulus link) does this today. Free.
+- (b) argmax in an acceptable set S, WITHOUT revealing which class won:
+  commit the winning index c, prove `c IN S` by **LogUp table
+  membership** (the same subprotocol the activation tables use, with S
+  frozen), and prove `y[c] >= y[i]` for every other i with y[c] reached
+  through the committed index. **V - 1 range facts.** Free for a
+  handful of classes; ~128k range facts for a vocabulary-sized argmax,
+  affordable but to be COUNTED before it is promised.
+
+Both instantiations reuse subprotocols this repository already has. No
+new cryptographic primitive is required — but it is new statement
+machinery, it is not built, and nothing in it is measured.
+
+**THE MAPPING ONTO THE TIERS IS BETTER THAN IT LOOKS.** Function 2
+WANTS public weights: for a content filter, everyone concerned should
+be able to audit which filter was applied, so a publicly committed,
+publicly inspectable filter model is a feature. **The ZK content filter
+is therefore buildable entirely on the fast tier Victor just chose,
+with no private-weight machinery at all.** Function 1 is the one that
+may eventually want private weights (a vendor proving a proprietary
+model ran) — the full tier, and the reason to keep building toward it.
+
+**CONSEQUENCES TO STATE IN THE PRODUCT DESCRIPTION, not to leave for
+integrators to discover** (PROOF_FUNCTIONS.md §3): the deployment
+posture must be "no valid proof => reject", because the absence of a
+proof is not evidence of unacceptable content; the PROVER always learns
+the classification (they ran the model), so function 2 hides it from
+the verifier only; one bit is still a bit across many proofs; the
+predicate identifier and the model identity digest must sit in the same
+statement header bound by the same transcript; and a function-1 proof
+must not be presentable as a function-2 proof.
+
+OPEN, and named in PROOF_FUNCTIONS.md §5: the filter's output shape
+(binary or N classes — it decides whether (b) costs nothing or V - 1),
+whether S is frozen per deployment or committed per proof, whether
+function 2 commits the output at all, and the counted cost of either
+instantiation. NOT a lane yet: lane AM is mid-flight on the tiers and
+this would collide with its statement work. It becomes a lane when AM
+reports.
