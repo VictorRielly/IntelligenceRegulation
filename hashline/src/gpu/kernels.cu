@@ -191,6 +191,22 @@ extern "C" __global__ void k_ntt_p2(u64* __restrict__ a, const u64* __restrict__
     }
 }
 
+// [UPERF3-AJ] Widen a packed narrow witness plane back to canonical
+// Goldilocks u64. The host packs each element as a two's-complement signed
+// integer of w bytes (w = 1, 2 or 4) — which is exact for every value the
+// int8/int16/int32 witness planes produce, since `Fp::from_i64` maps
+// x >= 0 to x and x < 0 to P + x. This kernel is that map, so the device
+// buffer is bit-for-bit the buffer a 64-bit upload would have written.
+extern "C" __global__ void k_widen(const void* __restrict__ src, u64* __restrict__ dst, long long n, int w) {
+    long long i = (long long)blockIdx.x * blockDim.x + threadIdx.x;
+    if (i >= n) return;
+    long long x;
+    if (w == 1) x = (long long)((const signed char*)src)[i];
+    else if (w == 2) x = (long long)((const short*)src)[i];
+    else x = (long long)((const int*)src)[i];
+    dst[i] = (x >= 0) ? (u64)x : (P_GL - (u64)(-x));
+}
+
 // [UPERF3-AJ] The opening's LAST NTT stage group, fused with the column
 // gather. `k_ntt_p2` writes the whole encoded row back to global memory and
 // `k_gather_cols_off` then reads it again to keep 256 of the nn columns;

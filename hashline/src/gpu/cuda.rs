@@ -26,7 +26,7 @@ const FUNCS: &[&str] = &[
     "k_zk_pad_scale", // [UPERF3-ZA]
     "k_hash_cols_stream", "k_gather_cols_off", // [UPERF3-AC]
     "k_sc_round_zcf_gen", "k_sc_round_zcd_gen", "k_sc_round_tab_gen", // [UPERF3-AH]
-    "k_ntt_p2_gather", // [UPERF3-AJ]
+    "k_ntt_p2_gather", "k_widen", // [UPERF3-AJ]
 ];
 const SC_THREADS: u32 = 256;
 const SC_MAX_BLOCKS: u32 = 1024;
@@ -181,6 +181,13 @@ fn arch_str(cc: (i32, i32)) -> Option<&'static str> {
         (8, 6) => "compute_86",
         (8, 9) => "compute_89",
         (9, 0) => "compute_90",
+        // [UPERF3-AJ] Blackwell. Untestable on this box (RTX 4070 Laptop is
+        // sm_89, so these arms are never taken here); without them the NVRTC
+        // compile falls through to the generic-PTX path, which JITs and runs
+        // but gets no Blackwell codegen — a silent slowdown that would poison
+        // a headline measurement on the 5090.
+        (10, 0) => "compute_100", // datacenter Blackwell (B100/B200)
+        (12, 0) => "compute_120", // consumer Blackwell (RTX 50-series)
         _ => return None,
     })
 }
@@ -203,12 +210,25 @@ fn init_gpu() -> Result<Gpu, String> {
         let opts = CompileOptions { arch, ..Default::default() };
         compile_ptx_with_opts(KSRC, opts)
     };
-    let ptx = match compile(arch_str((major, minor))) {
+    // [UPERF3-AJ] a generic-PTX fallback is a QUIET slowdown, so it is announced
+    // on stderr whether or not HL_GPU_VERBOSE is set: either the compute
+    // capability has no arm in `arch_str` (new hardware — add one) or the
+    // toolkit's NVRTC is too old for that arch (bump the toolkit).
+    let arch = arch_str((major, minor));
+    if arch.is_none() {
+        eprintln!("[UPERF3-AJ] WARNING: compute capability {major}.{minor} has no arch arm in arch_str; compiling GENERIC PTX (JIT, no {major}.{minor} codegen — timings taken here are NOT this card's)");
+    }
+    let ptx = match compile(arch) {
         Ok(p) => p,
-        Err(e1) => match compile(None) {
-            Ok(p) => p,
-            Err(e2) => return Err(format!("NVRTC compile failed: {e1}; generic retry: {e2}")),
-        },
+        Err(e1) => {
+            if arch.is_some() {
+                eprintln!("[UPERF3-AJ] WARNING: NVRTC rejected arch compute_{major}{minor} ({e1}); compiling GENERIC PTX (JIT, no {major}.{minor} codegen — the toolkit at CUDA_ROOT is older than this card)");
+            }
+            match compile(None) {
+                Ok(p) => p,
+                Err(e2) => return Err(format!("NVRTC compile failed: {e1}; generic retry: {e2}")),
+            }
+        }
     };
     dev.load_ptx(ptx, MODULE, FUNCS).map_err(|e| format!("cuModuleLoadData: {e}"))?;
     let secs_compile = t0.elapsed().as_secs_f64();
@@ -464,6 +484,93 @@ impl Uploader {
     }
 }
 
+/// [UPERF3-AJ] `HL_GPU_NARROW=0` sends the 64-bit field image (the
+/// pre-rung-3 shape, for the A/B).
+fn narrow_on() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_GPU_NARROW").map(|v| v != "0").unwrap_or(true))
+}
+
+/// The signed byte width that represents a canonical Goldilocks value
+/// exactly: 1, 2 or 4 for the int8 / int16 / int32 witness planes, 8 for
+/// anything wider (`Fp::from_i64` maps x >= 0 to x and x < 0 to P + x, so
+/// a plane's values are exactly the two ends of the field).
+#[inline]
+fn narrow_class(v: u64) -> usize {
+    if v <= 0x7F || v >= P - 0x80 { 1 }
+    else if v <= 0x7FFF || v >= P - 0x8000 { 2 }
+    else if v <= 0x7FFF_FFFF || v >= P - 0x8000_0000 { 4 }
+    else { 8 }
+}
+
+/// A strided sample: which width to TRY. `pack_narrow` verifies every
+/// element, so a wrong guess costs a fallback, never a wrong byte.
+fn narrow_probe(src: &[u64]) -> usize {
+    let step = (src.len() / 4096).max(1);
+    let mut w = 1usize;
+    let mut i = 0;
+    while i < src.len() {
+        w = w.max(narrow_class(src[i]));
+        if w == 8 { return 8; }
+        i += step;
+    }
+    w.max(narrow_class(src[src.len() - 1]))
+}
+
+/// Pack `src` as w-byte two's-complement signed integers; false if any
+/// value does not fit (the caller then falls back to the 64-bit upload).
+fn pack_narrow(dst: &mut [u8], src: &[u64], w: usize) -> bool {
+    use std::sync::atomic::{AtomicBool, Ordering};
+    debug_assert_eq!(dst.len(), src.len() * w);
+    let hi = 1u64 << (8 * w - 1);
+    let ok = AtomicBool::new(true);
+    dst.par_chunks_mut(w * 8192).zip(src.par_chunks(8192)).for_each(|(d, s)| {
+        for (i, &v) in s.iter().enumerate() {
+            let x: i64 = if v < hi {
+                v as i64
+            } else if v >= P - hi {
+                (v as i128 - P as i128) as i64
+            } else {
+                ok.store(false, Ordering::Relaxed);
+                0
+            };
+            d[i * w..i * w + w].copy_from_slice(&x.to_le_bytes()[..w]);
+        }
+    });
+    ok.load(Ordering::Relaxed)
+}
+
+impl Uploader {
+    /// Pack `src` w bytes per element straight into the staging buffer and
+    /// hand it to the DMA — the int8 planes cross the bus as bytes, and the
+    /// device widens them back to the identical 64-bit image (`k_widen`).
+    fn send_packed(&mut self, dst_base: sys::CUdeviceptr, elem_off: usize, src: &[u64], w: usize) -> Result<(), String> {
+        let per = (self.pin[0].len * 8) / w; // elements per staging piece
+        let t0 = Instant::now();
+        let mut done = 0usize;
+        while done < src.len() {
+            let m = per.min(src.len() - done);
+            let b = self.cur;
+            if self.armed[b] {
+                unsafe { cu::event::synchronize(self.ev[b]) }.map_err(|e| format!("cuEventSynchronize: {e}"))?;
+                self.armed[b] = false;
+            }
+            let bytes: &mut [u8] = unsafe { std::slice::from_raw_parts_mut(self.pin[b].ptr as *mut u8, m * w) };
+            if !pack_narrow(bytes, &src[done..done + m], w) {
+                return Err("narrow pack: value out of range".into());
+            }
+            let dp = dst_base + ((elem_off + done) * w) as sys::CUdeviceptr;
+            unsafe { cu::memcpy_htod_async(dp, &bytes[..m * w], self.stream) }.map_err(|e| format!("cuMemcpyHtoDAsync: {e}"))?;
+            unsafe { cu::event::record(self.ev[b], self.stream) }.map_err(|e| format!("cuEventRecord: {e}"))?;
+            self.armed[b] = true;
+            self.cur ^= 1;
+            done += m;
+        }
+        self.secs += t0.elapsed().as_secs_f64();
+        Ok(())
+    }
+}
+
 impl Gpu {
     /// The upload engine, created on first use; `None` when pinned staging
     /// is off or unavailable (the caller then uses the pageable path).
@@ -484,11 +591,46 @@ impl Gpu {
         self.up.as_mut()
     }
 
+    /// [UPERF3-AJ] One whole upload in the NARROW form: pack w bytes per
+    /// element, DMA the bytes, widen on the device. `dst` is untouched
+    /// unless the whole thing succeeds, so a failure falls back cleanly.
+    fn upload_narrow(&mut self, dst: &mut CudaSlice<u64>, src: &[u64], w: usize) -> Result<(), String> {
+        let dev = self.dev.clone();
+        let f = dev.get_func(MODULE, "k_widen").ok_or("k_widen missing")?;
+        let mut d_pack = Pooled::take_min(&dev, (src.len() * w + 7) / 8)?;
+        let pack_base: sys::CUdeviceptr = *d_pack.get().device_ptr();
+        let data_base: sys::CUdeviceptr = *dst.device_ptr();
+        if self.up().is_none() {
+            return Err("pinned staging unavailable".into());
+        }
+        let mut up = self.up.take().unwrap();
+        let r = up.send_packed(pack_base, 0, src, w).and_then(|_| up.wait());
+        self.up = Some(up);
+        r?;
+        let cfg = LaunchConfig::for_num_elems(src.len() as u32);
+        unsafe { f.launch(cfg, (pack_base, data_base, src.len() as i64, w as i32)) }.map_err(|e| format!("k_widen: {e}"))?;
+        dev.synchronize().map_err(|e| e.to_string())?;
+        drop(d_pack.0.take().map(pool_put));
+        Ok(())
+    }
+
     /// One whole upload, host-synchronous — the drop-in for
     /// `htod_sync_copy_into` (identical bytes, identical destination).
     fn upload_sync(&mut self, dst: &mut CudaSlice<u64>, src: &[u64]) -> Result<(), String> {
         let dev = self.dev.clone();
         let t0 = Instant::now();
+        if narrow_on() && src.len() >= (1 << 20) {
+            let w = narrow_probe(src);
+            if w < 8 {
+                match self.upload_narrow(dst, src, w) {
+                    Ok(()) => {
+                        stats_with(|s| { s.secs_h2d += t0.elapsed().as_secs_f64(); s.bytes_h2d += (src.len() * w) as u64; });
+                        return Ok(());
+                    }
+                    Err(e) => eprintln!("[UPERF3-AJ] narrow upload declined ({e}); 64-bit upload"),
+                }
+            }
+        }
         let ok = match self.up() {
             Some(u) => match u.send(dst, 0, src).and_then(|_| u.wait()) {
                 Ok(()) => true,
@@ -932,14 +1074,43 @@ impl Gpu {
         if self.up().is_none() {
             return Err("pinned staging unavailable".into());
         }
+        // [UPERF3-AJ] the narrow class: the int8/int16/int32 witness planes
+        // cross the bus as BYTES and `k_widen` restores the identical 64-bit
+        // image on the device (8x less DMA for a weight tensor). The pinned
+        // DMA on this box runs at ~5.5 GB/s whatever the staging (the
+        // rung-1 probe), so the bytes on the wire are the lever.
+        let w = if narrow_on() { narrow_probe(host) } else { 8 };
+        let f_widen = self.dev.get_func(MODULE, "k_widen");
+        let mut d_pack = if w < 8 && f_widen.is_some() {
+            match Pooled::take_min(&dev, (host.len() * w + 7) / 8) {
+                Ok(b) => Some(b),
+                Err(_) => None,
+            }
+        } else {
+            None
+        };
+        let w = if d_pack.is_some() { w } else { 8 };
+        let pack_base: sys::CUdeviceptr = d_pack.as_ref().map(|b| *b.get().device_ptr()).unwrap_or(0);
+        let data_base: sys::CUdeviceptr = *d_data.get().device_ptr();
         let mut up = self.up.take().unwrap();
         let secs0 = up.secs;
         let vb = verbose();
         let r = (|| -> Result<Vec<Digest>, String> {
             let (r0, rc) = plan[0];
-            up.send(d_data.get_mut(), r0 * n, &host[r0 * n..(r0 + rc) * n])?;
+            if w < 8 {
+                up.send_packed(pack_base, r0 * n, &host[r0 * n..(r0 + rc) * n], w)?;
+            } else {
+                up.send(d_data.get_mut(), r0 * n, &host[r0 * n..(r0 + rc) * n])?;
+            }
             for (i, &(r0, rc)) in plan.iter().enumerate() {
                 up.wait()?;
+                if w < 8 {
+                    let f = f_widen.clone().ok_or("k_widen missing")?;
+                    let cfg = LaunchConfig::for_num_elems((rc * n) as u32);
+                    let sp = pack_base + (r0 * n * w) as sys::CUdeviceptr;
+                    let dp = data_base + (r0 * n * 8) as sys::CUdeviceptr;
+                    unsafe { f.launch(cfg, (sp, dp, (rc * n) as i64, w as i32)) }.map_err(|e| format!("k_widen: {e}"))?;
+                }
                 {
                     let view = d_data.get().slice(r0 * n..(r0 + rc) * n);
                     self.encode_rows_view(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn)?;
@@ -949,7 +1120,11 @@ impl Gpu {
                     .map_err(|e| format!("k_hash_cols_stream: {e}"))?;
                 if i + 1 < plan.len() {
                     let (r1, rc1) = plan[i + 1];
-                    up.send(d_data.get_mut(), r1 * n, &host[r1 * n..(r1 + rc1) * n])?;
+                    if w < 8 {
+                        up.send_packed(pack_base, r1 * n, &host[r1 * n..(r1 + rc1) * n], w)?;
+                    } else {
+                        up.send(d_data.get_mut(), r1 * n, &host[r1 * n..(r1 + rc1) * n])?;
+                    }
                 }
             }
             let words = dev.dtoh_sync_copy(&d_leaves).map_err(|e| format!("leaves download: {e}"))?;
@@ -961,16 +1136,20 @@ impl Gpu {
             }
             Ok(leaves)
         })();
+        if r.is_err() {
+            let _ = up.wait();
+        }
         let secs_up = up.secs - secs0;
         self.up = Some(up);
         let leaves = r?;
+        drop(d_pack.take());
         let total = t0.elapsed().as_secs_f64();
         if vb {
-            eprintln!("[UPERF3-AJ]   streamed commit rows {rows} 2^{log_n} -> 2^{log_nn} in {} chunks of <= {rmax}: h2d visible {secs_up:.4} | total {total:.4} s", plan.len());
+            eprintln!("[UPERF3-AJ]   streamed commit rows {rows} 2^{log_n} -> 2^{log_nn} in {} chunks of <= {rmax} ({} B/elem on the wire): h2d visible {secs_up:.4} | total {total:.4} s", plan.len(), w);
         }
         stats_with(|s| {
             s.secs_h2d += secs_up;
-            s.bytes_h2d += (host.len() * 8) as u64;
+            s.bytes_h2d += (host.len() * w) as u64;
             s.secs_ntt += total - secs_up;
             s.n_chunked += 1;
             s.bytes_d2h += (nn * 32) as u64;
