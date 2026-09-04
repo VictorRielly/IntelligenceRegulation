@@ -623,7 +623,12 @@ impl Gpu {
             return Err("pinned staging unavailable".into());
         }
         let mut up = self.up.take().unwrap();
-        let r = up.send_packed(pack_base, 0, src, w).and_then(|_| up.wait());
+        let mut r = up.send_packed(pack_base, 0, src, w).and_then(|_| up.wait());
+        if r.is_err() {
+            // a half-issued transfer must land before the scratch goes back to the pool
+            let _ = up.wait();
+            r = r.and(Err("narrow upload abandoned".to_string()));
+        }
         self.up = Some(up);
         r?;
         let cfg = LaunchConfig::for_num_elems(src.len() as u32);
