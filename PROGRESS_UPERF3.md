@@ -11946,3 +11946,63 @@ results/ak_r1_mistral.log, results/ak_r1_floors.log.
 `results/hashline_attn_fulllayer.md` still carry the PRE-FOLD proof sizes
 (33.2 MB per 125M layer, 404.3 MB for the pass). The folded numbers are
 in results/hashline_attn_fold.md.
+
+**THE FOLD IS THE ONLY CHANGE — PROVEN.** With `HL_NO_FOLD=1` the FOLDED
+tree re-runs the 12-layer pass and gives AG's digest back byte for byte:
+**c91f8713e2ed805543c1ca3a5f1c752734278606e7b13d199f1348dbf22f0ece
+(404,327,452 B), ACCEPT**, witness 5.11 s, PROVE 94.09 s (AG: 94.54),
+VERIFY 1.99 s. Nothing in the argument, the witness, the transcript or
+the commitments moved — the only difference between the 404.3 MB proof
+and the 282.2 MB one is how many points the A commitment is opened at.
+It also means **AG's round-13 record stays checkable on the merged tree**:
+`HL_NO_FOLD=1` is its gate. (results/ak_r3_nofold_gate.log / .done, exit 0)
+
+**THE FLOOR, WITH THE FOLD IN:** `results/ak_floors.sh` on BOTH binaries
+built from the folded tree — **ALL FLOORS GREEN, 8 byte gates** (v2
+50cf7bdfd6b5b182.. / 66,844,928 B, v3 5f368db6240e0614.. / 70,758,084 B,
+zk 021485e4f80ec695.. / 87,228,528 B, zk-v3 40eb54795e023c77.. /
+87,697,008 B, cpu and gpu) — and `cargo test --release` **40/40**.
+
+### WHERE THIS LANE STANDS (for the next session)
+
+Rungs 0-3 are done and committed. Part 1 of the brief is closed: **the
+attention exports exist again outside /tmp and AG's two headline digests
+reproduce byte for byte on the merged tree**, so every attention number
+in the ledger is verifiable once more. Part 2 (lever L5) is built,
+measured at both model widths, and is the DEFAULT.
+
+What the next agent should pick up, in the order the numbers argue for:
+
+1. **Fold Ha (and, at 125M only, Wa).** They are 6 groups each — 1.50 MB
+   apiece per 125M layer at T = 512, about 13% of the folded layer. The
+   same `collapse_range` applies verbatim; the only work is keeping the H
+   (and W) data alive in `AttnPending` until `attn_open_wh`, which today
+   keeps only `a_data`. At Mistral width W is 42M entries a layer and the
+   collapse would cost more than the 786 KB it saves — fold H, skip W.
+2. **Stop copying A into Fp2 for the collapse.** `collapse_range` calls
+   `tab2` to satisfy `sumcheck::prove`'s `Vec<Vec<Fp2>>`; a specialised
+   first round reading the base-field plane in place removes one
+   16-byte-per-element copy of the whole witness. Invisible at 125M (peak
+   RSS was 5.102 GB in every fold mode) but it will matter at Mistral
+   T = 512, where A is ~80M entries.
+3. **Re-measure `HL_FOLD=nos` at Mistral T = 512** (needs the Mac). At
+   125M it is worse than the default on both axes, but there the six
+   `H x T x T` S-domain planes are a minority of A; at 8B/T=512 they are
+   the majority and the trade may invert.
+4. **AG's items 2-6 are untouched by this lane**: block-don't-pad (1.33x
+   of prover time at 125M, nothing at Mistral), the 32-layer 8B
+   full-model pass (the Mac), the GPU port of the attention zero-checks
+   (plan item B6), zero knowledge for the attention half (A5), and the
+   statement's remaining holes (embedding, final norm + LM head, the
+   KV-cache/decode regime, sliding windows).
+5. **The plan's C2** — the batched-evaluation reduction proper (every
+   claim to ONE point, W/A/H merged into one commitment, `n`
+   re-optimised) — subsumes this rung. This rung is the evidence that its
+   first half alone is worth -30% of the full-model proof at +7% of
+   prove.
+
+New knobs, all tagged `[UPERF3-AK]`: `HL_ATTN_CLAIMS=1` (the
+claims/groups/bytes report on stderr, plus a line saying how many claims
+collapsed), `HL_FOLD=small|nos` (the two other collapse plans),
+`HL_NO_FOLD=1` (the lever off — this is what reproduces AG's pre-fold
+digests, and it is how the round-13 record stays checkable).

@@ -247,3 +247,30 @@ this layer's x_in`. `attn-pass: GREEN`.
 
 The verify time is the surprise: **2.66 s -> 0.83 s**, because the
 verifier now checks four group vectors per layer instead of forty-one.
+
+### 2.7 THE FOLD IS THE ONLY CHANGE — the pre-fold proof is bit-identical
+
+With `HL_NO_FOLD=1` the FOLDED tree re-runs the 12-layer pass and gives
+AG's digest back, byte for byte:
+
+    HL_NO_FOLD=1 hashline attn-pass ... 12 --export <v3> --t 512 --threads 8
+    PROOF sha256 c91f8713e2ed805543c1ca3a5f1c752734278606e7b13d199f1348dbf22f0ece
+                 (404,327,452 B)
+    PASS-FULL ACCEPT | witness 5.11 s | PROVE 94.09 s | VERIFY 1.99 s
+
+(prove 94.09 s here against 100.47 s for the same command at rung 0 —
+the box was quieter; AG measured 94.54 s.) So nothing in the argument,
+the witness, the transcript or the commitments moved: the ONLY difference
+between the 404.3 MB proof and the 282.2 MB one is how many points the A
+commitment is opened at. That also means **AG's round-13 record stays
+checkable on the merged tree** — `HL_NO_FOLD=1` is its gate.
+
+### 2.8 The floor, with the fold in
+
+`results/ak_floors.sh` on BOTH binaries built from the folded tree:
+**ALL FLOORS GREEN — 8 byte gates** (v2 `50cf7bdfd6b5b182..` /
+66,844,928 B, v3 `5f368db6240e0614..` / 70,758,084 B, zk
+`021485e4f80ec695..` / 87,228,528 B, zk-v3 `40eb54795e023c77..` /
+87,697,008 B, on cpu and gpu) — and `cargo test --release` **40/40**. The
+fold touches `attention.rs` only; the v2/v3/ZK FFN statements are
+untouched, as their digests say.
