@@ -624,6 +624,92 @@ def run(args):
     return 0
 
 
+# --------------------------------------------------------------------------
+# the witness-cost accounting (rung 3.5): what one attention half-layer
+# costs the prover next to the v3 FFN half, from the STATEMENT's
+# committed/derived split (the rung-0 spec table)
+# --------------------------------------------------------------------------
+
+def cost(args):
+    """[UPERF3-AE] COUNTED plane volumes + a MODEL prove-time projection
+    from the measured v3 rate. Committed = a plane the prover commits and
+    opens; derived = recomputed inside a helper zero-check (never
+    committed): Sacc/Qacc/... accumulators, d = m - sM, sigma."""
+    if args.arch == "125m":
+        T, d, H, Hk, hd, f = 512, 768, 12, 4, 64, 2048
+    else:
+        T, d, H, Hk, hd, f = 512, 4096, 32, 8, 128, 14336
+    T = args.t or T
+    qw, kw = H * hd, Hk * hd
+    tt = H * T * T
+    committed = [
+        ("xsqA", T * d), ("SSA", T), ("DA", T), ("a1A", T), ("a2A", T), ("xn8", T * d),
+        ("rhoA(2 limbs)", 2 * T * d), ("sigA(2 limbs)", 2 * T * d),
+        ("q8", T * qw), ("rQ", T * qw), ("k8", T * kw), ("rK", T * kw),
+        ("v8", T * kw), ("rV", T * kw),
+        ("qr8", T * qw), ("rQR", T * qw), ("kr8", T * kw), ("rKR", T * kw),
+        ("s8", tt), ("rS", tt), ("m", H * T), ("zsel", tt), ("E", tt),
+        ("Sum", H * T), ("P", tt), ("rho", tt),
+        ("o8", T * qw), ("rO", T * qw), ("ao8", T * d), ("rAO", T * d),
+        ("xres1", T * d), ("rr1", T * d),
+        ("xsqM", T * d), ("SSM", T), ("DM", T), ("a1M", T), ("a2M", T), ("xm8", T * d),
+        ("rhoM(2 limbs)", 2 * T * d), ("sigM(2 limbs)", 2 * T * d),
+        ("xres2", T * d), ("rr2", T * d),
+    ]
+    derived = [("Qacc", T * qw), ("Kacc", T * kw), ("Vacc", T * kw),
+               ("QRacc", T * qw), ("KRacc", T * kw), ("Sacc", tt),
+               ("dmat", tt), ("sigSm", tt), ("Oacc", T * qw), ("AOacc", T * d),
+               ("xw1", T * d), ("xw2", T * d)]
+    ffn = [("X(=xm8, shared)", 0), ("g8", T * f), ("rg", T * f), ("a16", T * f),
+           ("u16", T * f), ("ru", T * f), ("h16", T * f), ("rh", T * f),
+           ("z16", T * d), ("rd", T * d)]
+    ca = sum(n for _, n in committed)
+    da = sum(n for _, n in derived)
+    cf = sum(n for _, n in ffn)
+    quad = sum(n for k, n in committed if n == tt)
+    # the MEASURED v3 prove rates of the FFN-only statement on this box:
+    #   125M   PASS-V3 12 x 512 PROVE 22.51 s  -> 1.876 s/layer over 8.13 M
+    #   8B     Mistral 32 x 512 PROVE 510.38 s -> 15.95 s/layer over 55.57 M
+    # (the 8B rate is 24% slower per element — the bigger planes' memory
+    # traffic; each instance is modelled at its OWN measured rate.)
+    v3_layer_s = (22.51 / 12.0) if args.arch == "125m" else (510.38 / 32.0)
+    v3_ffn_M = 8.13 if args.arch == "125m" else 55.57
+    rate = v3_layer_s / v3_ffn_M
+    print("[UPERF3-AE] attention witness cost: %s T %d d %d H %d/%d dh %d f %d"
+          % (args.arch, T, d, H, Hk, hd, f))
+    print("  COMMITTED attention planes: %d (%.2f M elements); of which the "
+          "H x T x T softmax/score planes: %d (%.2f M, %.0f%%)"
+          % (len(committed), ca / 1e6, quad // (T * T * H), quad / 1e6, 100.0 * quad / ca))
+    print("  DERIVED (never committed): %.2f M elements in %d tensors" % (da / 1e6, len(derived)))
+    print("  the v3 FFN half of the same layer: %.2f M committed elements" % (cf / 1e6))
+    print("  ATTENTION / FFN committed volume: %.2f x   (a full layer is %.2f x the "
+          "FFN-only layer)" % (ca / cf, (ca + cf) / cf))
+    print("  [MODEL] at the measured v3 rate (%.3f s per layer, %.4f s per M committed "
+          "elements): attention %.2f s, full layer %.2f s vs FFN-only %.2f s"
+          % (v3_layer_s, rate, rate * ca / 1e6, rate * (ca + cf) / 1e6, v3_layer_s))
+    print("  [COUNTED] T-scaling: the score/softmax planes are H T^2 — at T %d they are "
+          "%.0f%% of the attention witness; doubling T makes them %.2f M (x4) while the "
+          "FFN half only doubles" % (T, 100.0 * quad / ca, 4 * quad / 1e6))
+    if args.json:
+        out = ROOT / "results" / ("hashline_attn_cost_%s.json" % args.arch)
+        out.write_text(json.dumps(dict(
+            experiment="attention witness cost (rung 3.5)",
+            shape=dict(T=T, d=d, H=H, Hkv=Hk, head_dim=hd, f=f),
+            committed=dict(committed), derived=dict(derived), ffn_v3=dict(ffn),
+            committed_elements=ca, derived_elements=da, ffn_elements=cf,
+            quadratic_elements=quad,
+            attn_over_ffn=ca / cf, full_layer_over_ffn=(ca + cf) / cf,
+            model=dict(v3_layer_s=v3_layer_s, s_per_M=rate, v3_ffn_M=v3_ffn_M,
+                       rate_source=("PASS-V3 12x512 PROVE 22.51 s" if args.arch == "125m"
+                                    else "Mistral 32x512 v3 PROVE 510.38 s"),
+                       attn_s=rate * ca / 1e6, full_layer_s=rate * (ca + cf) / 1e6),
+            labels="[COUNTED] volumes; [MODEL] the prove-time projection at the measured "
+                   "v3 rate (PASS-V3 12 x 512 PROVE 22.51 s); rung 4 replaces the model "
+                   "with a measurement"), indent=1))
+        print("  JSON -> %s" % out)
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--arch", choices=["125m", "mistral"], default="125m")
@@ -634,11 +720,15 @@ def main():
                     help="the RMSNorm division relation: floor (the rung-0 spec) or "
                          "round-to-nearest (num + floor(div/2), same degree-2 relation)")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--cost", action="store_true",
+                    help="print the witness-cost accounting instead of running the chain")
+    ap.add_argument("--t", type=int, default=None, help="cost: override T")
     ap.add_argument("--export", default=None,
                     help="write the layer's integer inputs (i32 LE planes) + manifest.json "
                          "into DIR for the Rust chain (rung 3). NEVER inside the repo: the "
                          "planes are binary and must not be committed.")
-    return run(ap.parse_args())
+    args = ap.parse_args()
+    return cost(args) if args.cost else run(args)
 
 
 if __name__ == "__main__":

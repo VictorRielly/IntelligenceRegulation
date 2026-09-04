@@ -9511,3 +9511,72 @@ full integer statement still models the text.
     tn = 0 (Mistral's mnorm, sqrt(4096) exact), where adding
     floor(div/2) would have needed D's parity bit. `--norm-div floor`
     reproduces the old semantics for the comparison.
+
+- **RUNG 3 GREEN — THE RUST CHAIN (2026-09-03, [MEASURED WSL-BOX 8T CPU
+  NOISY-SHARED]).** hashline/src/attention.rs now carries the exact
+  integer value chain of one attention half-layer (norm gadget with the
+  round division, QKV/Wo matmuls with v3 round requants and balanced
+  remainders, RoPE against tables_attn's generated tables, the per-head
+  score/softmax/PV stage streamed head by head, the residual add, the
+  mlp norm) and `hashline attn-chain <export-dir>` diffs every digest
+  against the oracle's manifest (exit non-zero on any difference).
+  scripts/attention_hash_ref.py --export DIR writes the layer's integer
+  inputs as i32 LE planes + manifest.txt (a flat key/value file so the
+  crate needs no JSON dependency); the planes are binary and live in
+  scratch, NEVER in the repo.
+  - **125M layer 0: 64/64 tensor digests + CHAIN aed541fc.. in 0.64 s**
+    (the oracle takes 2.3 s).
+  - **Mistral-7B layer 0: 64/64 + CHAIN 4085604b.. in 4.52 s** (oracle
+    24.1 s).
+  - Negative control: flipping ONE integer of x_in by +1 breaks 54 of
+    the 64 tensors and the CHAIN — the gate is not vacuous.
+  - The three byte gates re-run on this build: v2 **50cf7bdfd6b5b182..**,
+    v3 **5f368db6240e0614..**, zk **021485e4f80ec695..**, all unchanged;
+    `cargo test --release` **33/33** (31 + 2 new: the round-division
+    relation and the balanced requant window).
+  -> results/hashline_attn_chain_rung3.json
+
+- **RUNG 3.5 — WHAT RUNG 4 WILL COST (`attention_hash_ref.py --cost`;
+  [COUNTED] volumes, [MODEL] projection).** The statement's
+  committed/derived split from the rung-0 table (accumulators, d = m - sM
+  and sigma are DERIVED in helper zero-checks, never committed):
+  - 125M (T 512, d 768, H 12/4): **42 committed attention planes,
+    29.11 M elements** vs the v3 FFN half's 8.13 M -> attention is
+    **3.58x the FFN**, a full layer **4.58x the FFN-only layer**.
+    12.19 M more elements are derived and never committed.
+  - Mistral (T 512, d 4096, H 32/8): **103.85 M committed** vs the FFN's
+    55.57 M -> **1.87x**, a full layer **2.87x**.
+  - **THE SHAPE OF THE COST**: the six committed H x T x T planes (s8,
+    rS, zsel, E, P, rho) are **65% of the 125M attention witness and 48%
+    of Mistral's**, and they are QUADRATIC in T while the FFN half is
+    linear. At T 1024 they quadruple (75.5 M / 201.3 M) — attention, not
+    the FFN, sets the context-length cost of the hash line.
+  - [MODEL] at each instance's own measured v3 rate (125M 1.876 s/layer
+    = 0.2307 s per M committed elements; Mistral 15.95 s/layer = 0.287
+    s/M — the 8B rate is 24% slower per element): a 125M full layer
+    **~8.6 s** vs 1.88 s FFN-only; a Mistral full layer **~45.8 s** vs
+    15.95 s, so a 32-layer Mistral full-model prove projects to **~24
+    min** against the measured 510 s FFN-only. Rung 4 replaces this
+    model with a measurement. -> results/hashline_attn_cost_{125m,mistral}.json
+
+**WHERE THE LANE STANDS (for the next session).** Rungs 0-3 + 3.5 are
+done and committed; the remaining work is the PROOF itself:
+- **RUNG 4** (the long pole): prove one FULL 125M layer — the attention
+  planes committed alongside the v3 FFN planes, the matmul sumchecks
+  (QKV/Wo per the g/u form, the per-head score and PV sumchecks with the
+  GQA map as free index bits), the RoPE zero-check at the
+  coordinate-flipped point, the softmax's fused (d, E) LogUp + the
+  masked row-sum sumcheck + the division zero-check, the norm's isqrt
+  pair + division + U16 limb lookups, the two residual linear pins, and
+  the seam; then the tamper legs (a flipped score, a wrong exp entry, a
+  wrong softmax quotient, a wrong norm, a broken seam) + CPU/GPU
+  byte-identity + walls vs the FFN-only layer.
+- **RUNG 5**: the 12-layer 125M full-model pass with seams bound, ONE
+  Mistral full layer at T=16 on CPU, the §3 FULL-LAYER row, and what
+  remains for end-to-end (embeddings, head, KV cache/decode).
+- ORCHESTRATOR-RUN (nothing blocking; both are conveniences): the
+  Mistral token stream is cached at
+  /tmp/claude-1000/-home-victor-IntelligenceRegulation/<session>/scratchpad/mistral_toks.npy
+  (tokenizing from scratch costs ~5.5 min of the 6-min setup), and the
+  rung-3 exports live beside it (attn_export_{125m,mistral}_l0) — both
+  are scratch, regenerate with `--export`.
