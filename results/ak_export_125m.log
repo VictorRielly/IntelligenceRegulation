@@ -1,0 +1,46 @@
+=== layer 1 ===
+  REQUANT BUMPS (record exponent did not admit the integer result): {"q": 1, "qr": 1, "o8": 1, "s8": 1}
+  CHAIN f26061c4470b7138328389270771b161b9217f465dbd7b65ecaa96fb00adaf97
+  wall 2.7 s [MEASURED WSL-BOX NT CPU NOISY-SHARED]
+  EXPORT -> /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l1 (7 planes + manifest.json)
+=== layer 2 ===
+  CHAIN bf3997a7f768094b114556a6bd3aac6eee0c707bbd451514a17ce5c9d0aa5bd5
+  wall 3.1 s [MEASURED WSL-BOX NT CPU NOISY-SHARED]
+  EXPORT -> /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l2 (7 planes + manifest.json)
+=== layer 3 ===
+  CHAIN d4f78ca6a5cf50b656f5eeba016eadc6f45515938c44e84df0c0a97d561fef38
+  wall 3.4 s [MEASURED WSL-BOX NT CPU NOISY-SHARED]
+  EXPORT -> /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l3 (7 planes + manifest.json)
+=== layer 4 ===
+  CHAIN 8a5e4a23e64e8b98c6d4208dee83abbf0489d5738001bd4129f33ae4eb298846
+  wall 3.8 s [MEASURED WSL-BOX NT CPU NOISY-SHARED]
+  EXPORT -> /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l4 (7 planes + manifest.json)
+=== layer 5 ===
+  CHAIN 6bbd8b0d750b1006b539d818e4e1c0d7c2d3b4ec3672fa5a8c9354b31a4243b1
+  wall 4.3 s [MEASURED WSL-BOX NT CPU NOISY-SHARED]
+  EXPORT -> /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l5 (7 planes + manifest.json)
+=== layer 6 ===
+  CHAIN 4a5c13aa264278d7beaa58b7da9cad9158d5afeb1f756721168b5cfc7538f8a4
+  wall 4.0 s [MEASURED WSL-BOX NT CPU NOISY-SHARED]
+  EXPORT -> /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l6 (7 planes + manifest.json)
+=== layer 7 ===
+  REQUANT BUMPS (record exponent did not admit the integer result): {"v": 1}
+  CHAIN 109e9e12065d736630360b050de49daf15100f5e96e1d365269a09ea140171bf
+  wall 4.8 s [MEASURED WSL-BOX NT CPU NOISY-SHARED]
+  EXPORT -> /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l7 (7 planes + manifest.json)
+=== layer 8 ===
+  CHAIN 1165b4970dc3996ae3ccfdfd57d4d659ca4e83c7a8d7f63d888f318c7e99b9b4
+  wall 5.2 s [MEASURED WSL-BOX NT CPU NOISY-SHARED]
+  EXPORT -> /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l8 (7 planes + manifest.json)
+=== layer 9 ===
+  CHAIN 26f9463db3e5acdbbeb3cf4620f457f16efda94349e18d6612d8f90b9072b605
+  wall 5.9 s [MEASURED WSL-BOX NT CPU NOISY-SHARED]
+  EXPORT -> /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l9 (7 planes + manifest.json)
+=== layer 10 ===
+  CHAIN 90d87c05571d0a6cc09236e9acc27bf7a1c667c248d5891199782baa5b63cf2f
+  wall 5.8 s [MEASURED WSL-BOX NT CPU NOISY-SHARED]
+  EXPORT -> /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l10 (7 planes + manifest.json)
+=== layer 11 ===
+  CHAIN 7d811f316313fad4f0aafb40a0c0389ff9cad5619b195e9a622296aef4da2c48
+  wall 5.9 s [MEASURED WSL-BOX NT CPU NOISY-SHARED]
+  EXPORT -> /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l11 (7 planes + manifest.json)

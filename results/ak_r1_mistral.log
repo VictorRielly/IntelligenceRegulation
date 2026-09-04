@@ -1,0 +1,164 @@
++ python3 /home/victor/wt-uperf3-ak/scripts/attention_hash_ref.py --arch mistral --layer 0 --tokens-cache /home/victor/wt-uperf3-ak/results/ak_mistral_toks.npy --export /home/victor/wt-uperf3-ak/results/ak_attn_exports/mistral_l0
+[UPERF3-AE] attention_hash_ref mistral layer 0 window 0: T 512 d 4096 H 32/8 dh 128
+  norm division: round
+  x_in int8 e8 -11 (lsb -11) | eW q -8 k -9 v -12 o -11 | gA -4 gM -6
+  anorm eXn -2 tn 6 cn 1024 ceps 171799 wrho 17 limbs 2 (SS 19 bits, num 23 bits)
+  qkv shQ 7 eQ -3 shK 7 eK -4 shV 7 eV -7
+  rope eQr -3 eKr -3 ropedig 5bcf64bce057cf863aded45ac1949d1bb12919d760ae8a9de6286d4f9aef5d01
+  scores shS 8 eS_raw 2 wrhoSm 18 expdig 423a43e7b2cfdd6022c642930bfee973effc51462c883b108de3a24ff9fa7ab6
+  pv shO 9 eO -7 | wo shAO 0 eAo -18 (int16) | res1 shR1 -8 eR1 -26 (int24)
+  mnorm eXm -4 tn 6 cn 1024 ceps 184467440737096 wrho 32 limbs 2
+  xsqA      72ac9529aeeeed49e2d5674577ea89dce76010dfcec556cef5c4668cdd09abfe
+  SSA       3aa4d494baef40e46e213e071e8b7d7da8121e7f339b2df02542ba89d6768827
+  DA        56e77470757d68757ae7163e54c87ae82b0a4b7effc9c81ebb96f259aa327d31
+  DsqA      95e00fd42e204369902cea2fa46e85b57eca64cc09df2eadd52812291301e932
+  a1A       064db93dacece35ef57046fba364bf29df133ed5a990378e3fd52af550aff5da
+  a2A       6ce5ec314d334ca6602d97916677102caf9e3bf462ab6dbf151b7344389f3d08
+  xn8       b9ba43b39e3a7057d59a4eb3f088a079dd51d8a230e00eb2f0f08f4176037427
+  rhoA_l0   78faa1c58b82fbe91f37e3e9af49ec5ef5fcce9b52818d445fc1e8c2a27d58c3
+  rhoA_l1   fc5497eec005f9de6e59e288b9586f02289ec7dfc9b369ae8132aac4c7f3018b
+  sigA_l0   f005fa274a8fcc5837f40624cadb724e7b4e8d5e7ac6603dcd7bd4abaf548243
+  sigA_l1   ed7fbf8ac6c4e614f0c3f22374058667ee1c8252f87f1619467ea8b5a1ffcf6d
+  Qacc      e9dd1233644ad18ac55d87b56603292a599d2d034598f5e6fb55d8bbe88fa2e2
+  q8        1cbf0e134e94ab07339f2c370fb0f56322089ea96f6b81bfe1d178d4d09435cd
+  rQ        7ef4fafc95b304dde561953b275c3634a64485ab6688a4d18e6e1bef2cac66ba
+  Kacc      cb8c878d21100a1474ad4b44be3e24d413fbd100053d2bbb3f4d8e1b6a6b3e99
+  k8        be049e03200e0baa4182ec8ca60f4e3b5dbd9118451369246e55dfec25381f18
+  rK        d40283793bd642f27cdcf4d110f3e3ce154928e16dc46c4592300e2cf4393f4c
+  Vacc      5e1eda8d16a34bd0c48aa7d522aa6afafa41e17854e5e3620489e91d5d498397
+  v8        490d7a1637add40517b86e0b1fe82ce430a18f2a5123a4b43f5b36380d5892dd
+  rV        2c18978b54bcc2b1ccc52ef247991f50d16a0e3d3f5feac05ebc997df9d473cc
+  QRacc     a52b1c8145ff147c08d2e35ca3707e0dfe740ab81f7dac4a7a97554628095299
+  qr8       6a4ac4697f275f319d6dc23dedae614b7f1161e531d1197288d7cacddcfa7fe8
+  rQR       2e2d41d735a10709988f24f3c470e3329e78c2472c2b7fbba7c041b9c9b6c3bc
+  KRacc     51422816d4140826592780cd121bc856c70f5bb23efbf86d77c4938921683b1a
+  kr8       82f4e8cc7fbef4335d5d600ac2c7a6f7258a89d7e811e08b5958ef8e14d95aeb
+  rKR       e654074be7da0c1a2224341ab187b114617015d3d60e688992c61ac39bebd19a
+  Sacc      49a3e557665b9d6aa769aebbb520bbfd14ada2bb8d25e543160b401d8bb14b2f
+  s8        af30c86e59741eae709bb8f34052affcd728f26a7526a5243682a580654c2b50
+  rS        f9e4be9fb379728745fe79a3e9067bb5a162f4f90c8b41fbb3ea731090190319
+  m         c4463049295bce5eeab1d4753e529f3302b3ed45e10bb7c064b38e3eff7f881d
+  dmat      ecf90ab6c7435f0cfcf68fa3f1cc5598bb21d0725199c53f2827c0bc0da2bd9d
+  zsel      c5c812b33591055e1298b6b54c7053e9c1d1b1a62adf2169e07f253307bd99b6
+  E         c5f0175ff42e1c7e5c68a5897040dd350359cf1ac0ecad44d36bbb49a0429a8a
+  Sum       879cbc32294702a6bcb610275f06f16da7b18fd35a88f9d8caccba862c409a8a
+  P         5d1797e325c74b3640a4f2d7015cca1a89469e259bbb0aa1682e4e165d3d4fb3
+  rho       58ef4614d30e2ba6f93709de8f4ccf1b9f3cff6909ad5f15d65c633c89f3d287
+  sig       b70b561722aa0292afab07124fcbb58c47dcabfd8fea5cdf77e2603b973d06ea
+  Oacc      031c71db40f0b51a8a8b5a1d8e9c6ea06fb9400f550fbffd799a725ac9275d5e
+  o8        033e8a8d072daae0af1b0027c0fffa200365ae3156936768901db56f32ff8154
+  rO        ecdab839bc42662bb6a464bcf9d73c012ac25cf47e0f8e14583123e27a77b533
+  AOacc     bb52a3636d430986b4b4cce68180a413074f378151bad05a1d6fd72a0b80cafc
+  ao8       bb52a3636d430986b4b4cce68180a413074f378151bad05a1d6fd72a0b80cafc
+  rAO       080acf35a507ac9849cfcba47dc2ad83e01b75663a516279c8b9d243b719643e
+  xw1       e450d9d4be19db8e6fd9314ee12fa1aee3eec51305c0633c6233e90e93526105
+  xres1     a1613786fc6fb17fdd6a11576750545e3c84f9243f79946490cb35387e327771
+  rr1       080acf35a507ac9849cfcba47dc2ad83e01b75663a516279c8b9d243b719643e
+  xsqM      68aa322990f3c65b3067012854bc3007cc02324a35c114b8af8b5a478f80ef9f
+  SSM       1e6186f145b774bf695884b6a3137a637e73542488f17c05f7f94e3947ebc2cb
+  DM        4d97c5cfffc2cbe760c614d4ed385948b28a22d50087532cb2b404be5afa0734
+  DsqM      f6d939e78903663a63f0af7b10e4ee45307543c04ee4204fa99a405b486df0cb
+  a1M       1abd0db2a34ce3972bd8755b59e19223199f0065c4fc5c3e53c403562dcb0502
+  a2M       2a38092053cc12baaf726a0ea8448079bc0010b18c24f775d3bc00b8ab87ab5c
+  xm8       bef2365b534038136284fac985268c3ac09189609c4e7669887024b315ffa026
+  rhoM_l0   245074bdff369d18c6fc8199a64b02ac9c2a77a2d5f2f767c49ccad782c8135a
+  rhoM_l1   4f5bf96ebcc63ba0051b48823e462710da7df8d84cd0bdd2acfc5c05b9358c77
+  sigM_l0   c96be6347eba48a3c38a31f4f5a2494209b7c06109a58da14939c201a4f40669
+  sigM_l1   c585265a69eb1c00b07473a309bb172f3de8c61e72e76fbac304d7775c91661f
+  x_in      950caaba4b0ae0e883e6964c478919c1204e2276cea6c98b6a3b2e842a3760c5
+  Wq        f98a5ee5026a838c1b3e821a7e14313c94e14d7cdfc9c8a2cb2ea0cfd7a39977
+  Wk        201f40445172fe8d14701246bdaddce86fc22664f33db5c13a3c21c6dd3a35bc
+  Wv        d626b64b2954714d2bd2468b3c8357a65e3ab699ec9760d61fc3b3b636fc44d7
+  Wo        92287b2892cddf3dbc56daadf7ccece95a22bc8183b926e1bdc4e4ec64d4c72b
+  gA        e59241edd79f5c6733cc6c06d7edf80e8f5b04ddecad3713a7a576a201613f2c
+  gM        f2a7cd9566984a94ddff9ab26b0c97aa08d3771bbf4e1ea9fbdfa0212fa62007
+  CHAIN 4085604b8d61ce8c8be0299111f364d8cf070877e0cf97cfcb860622b3cbc2a4
+  agreement (fraction of integers equal / max |delta| in grid steps):
+    site   LOCAL (same inputs)    CASCADE (vs fp layer) 
+    P      0.817897  max 28       0.804969  max 86
+    ao8    1.000000  max 0        0.003066  max 4148
+    k8     1.000000  max 0        0.667091  max 4
+    kr8    0.979998  max 1        0.784750  max 3
+    o8     0.954740  max 8        0.849278  max 18
+    q8     1.000000  max 0        0.764079  max 4
+    qr8    0.982947  max 1        0.673809  max 4
+    s8     1.000000  max 0        0.736798  max 5
+    v8     1.000000  max 0        0.512316  max 12
+    xm8    1.000000  max 0        0.428394  max 25
+    xn8    0.999813  max 1        0.987113  max 2
+    xres1  1.000000  max 0        0.000013  max 1047656
+  wall 21.9 s [MEASURED WSL-BOX NT CPU NOISY-SHARED]
+  EXPORT -> /home/victor/wt-uperf3-ak/results/ak_attn_exports/mistral_l0 (7 planes + manifest.json)
++ /usr/bin/time -v /home/victor/wt-uperf3-ak/hashline/target/release/hashline attn-full /home/victor/wt-uperf3-ak/results/ak_attn_exports/mistral_l0 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --t 16 --threads 8 --all-tampers
+attn-full /home/victor/wt-uperf3-ak/results/ak_attn_exports/mistral_l0 + /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export: layer 0, T 16 d 4096 f 14336 H 32/8 d_h 128 (0.92 s, 8 threads)
+  shifts q/k/v 7/7/7 qr/kr 7/8 s 8 o 9 ao 0 r1 -8 | exps xn -2 q 5 k 0 v 0 s_raw 2 xm -4 ao -18 r1 -26 | anorm(tn 6 cn 1024 ceps 171799 wrho 17) mnorm(tn 6 cn 1024 ceps 184467440737096 wrho 32)
+  the attention half's xm8 vs the FFN export's own X plane: 22776/65536 equal (0.3475) — the FFN half is proven on xm8 either way
+  residual2: xres1 << 0 + z16 << 12 >> 4 -> e_r2 -22 (Int24)
+  FULL LAYER: PROVE 12.712 s | VERIFY 0.097 s | proof 48478456 B (48.5 MB; attention half 22.6 MB) | ACCEPT
+  tamper [flipped score s8]: REJECT (score matmul: sumcheck round 0: s(0) + s(1) != claim) [10.9 s]
+  tamper [wrong exp-table entry]: REJECT (zero-check S: sumcheck round 0: s(0) + s(1) != claim) [11.2 s]
+  tamper [wrong softmax quotient]: REJECT (zero-check S: sumcheck round 0: s(0) + s(1) != claim) [12.2 s]
+  tamper [wrong norm output]: REJECT (zero-check D: sumcheck round 0: s(0) + s(1) != claim) [12.5 s]
+  tamper [wrong RoPE rotation]: REJECT (zero-check Q: sumcheck round 0: s(0) + s(1) != claim) [12.9 s]
+  tamper [wrong row maximum]: REJECT (zero-check S: sumcheck round 0: s(0) + s(1) != claim) [12.3 s]
+  tamper [flipped x_in]: REJECT (SS row sums: sumcheck round 0: s(0) + s(1) != claim) [12.6 s]
+  tamper [BROKEN SEAM (z16 copy != the FFN's z16)]: REJECT (seam: z16 copy != the FFN's z16 at block 0) [12.9 s]
+  tamper [FFN half: wrong int16 table entry]: REJECT (FFN half: LogUp identity fails (a lookup is not in its table)) [12.6 s]
+  tamper [FFN half: wrong requant h16]: REJECT (FFN half: sumcheck round 0: s(0) + s(1) != claim) [13.1 s]
+attn-full: GREEN
+	Command being timed: "/home/victor/wt-uperf3-ak/hashline/target/release/hashline attn-full /home/victor/wt-uperf3-ak/results/ak_attn_exports/mistral_l0 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --t 16 --threads 8 --all-tampers"
+	User time (seconds): 620.31
+	System time (seconds): 68.02
+	Percent of CPU this job got: 493%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:19.46
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 10099852
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 27498440
+	Voluntary context switches: 1369355
+	Involuntary context switches: 1245
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 40
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
++ /usr/bin/time -v /home/victor/wt-uperf3-ak/hashline/target/release/hashline attn-full /home/victor/wt-uperf3-ak/results/ak_attn_exports/mistral_l0 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --t 64 --threads 8
+attn-full /home/victor/wt-uperf3-ak/results/ak_attn_exports/mistral_l0 + /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export: layer 0, T 64 d 4096 f 14336 H 32/8 d_h 128 (1.87 s, 8 threads)
+  shifts q/k/v 7/7/7 qr/kr 7/8 s 8 o 9 ao 0 r1 -8 | exps xn -2 q 5 k 0 v 0 s_raw 2 xm -4 ao -18 r1 -26 | anorm(tn 6 cn 1024 ceps 171799 wrho 17) mnorm(tn 6 cn 1024 ceps 184467440737096 wrho 32)
+  the attention half's xm8 vs the FFN export's own X plane: 101089/262144 equal (0.3856) — the FFN half is proven on xm8 either way
+  residual2: xres1 << 0 + z16 << 12 >> 4 -> e_r2 -22 (Int24)
+  FULL LAYER: PROVE 15.008 s | VERIFY 0.243 s | proof 52756584 B (52.8 MB; attention half 25.7 MB) | ACCEPT
+attn-full: GREEN
+	Command being timed: "/home/victor/wt-uperf3-ak/hashline/target/release/hashline attn-full /home/victor/wt-uperf3-ak/results/ak_attn_exports/mistral_l0 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --t 64 --threads 8"
+	User time (seconds): 79.41
+	System time (seconds): 8.35
+	Percent of CPU this job got: 505%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:17.36
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 11240716
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 3149890
+	Voluntary context switches: 166806
+	Involuntary context switches: 197
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
++ /home/victor/wt-uperf3-ak/hashline/target/release/hashline attn-chain /home/victor/wt-uperf3-ak/results/ak_attn_exports/mistral_l0
+  CHAIN 4085604b8d61ce8c8be0299111f364d8cf070877e0cf97cfcb860622b3cbc2a4 OK
+attn-chain /home/victor/wt-uperf3-ak/results/ak_attn_exports/mistral_l0: 64/64 tensor digests match the oracle (4.16 s)
