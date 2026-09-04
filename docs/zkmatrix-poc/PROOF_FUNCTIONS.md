@@ -140,18 +140,92 @@ right home for one of the two products outright.
 
 ---
 
-## 5. What is NOT decided here
+## 5. DECIDED 2026-09-05: build the simplest form
 
-- The filter's output shape: binary accept/reject, or N classes with an
-  acceptable subset. This changes whether §2(b) costs nothing or costs
-  V − 1 range facts, so it should be settled before the gadget is
-  built.
-- Whether the acceptable set S is fixed per deployment (a frozen table,
-  cheapest) or selectable per proof (a committed table, and then its
-  own commitment must be bound into the statement header).
-- Whether function 2 also commits the output at all, or only proves the
-  predicate. Committing it costs almost nothing and keeps the door open
-  to selective disclosure later; not committing it is marginally
-  cheaper and closes that door.
-- The counted cost of either instantiation. Nothing in §2 has been
-  measured, and the V − 1 figure is arithmetic, not a benchmark.
+Victor's standing rule — "start with the most simple option first, and
+document the alternative for future exploration as needed". So the
+first content filter is:
+
+| | the form we build |
+|---|---|
+| output shape | **BINARY** — one acceptable class against one unacceptable class (or a single score against a public threshold) |
+| the predicate | **one non-negativity fact**: `y[accept] - y[reject] >= 0`, or `y - tau >= 0` for the single-score form |
+| machinery needed | **none that is new.** The remainder bit-plane range proofs at the q46 gadget modulus, tied to the q31 value commitments by the U-L modulus link, prove exactly this today |
+| acceptable set | **frozen per deployment** — implicit in the statement, no set commitment, no lookup |
+| the output | **committed**, because it already is: the output is an activation and the ZK path commits every activation. Not committing it would be a special case, i.e. more work, not less |
+| counted cost | **one range fact per proof.** Negligible against a 265 s 8B pass — below measurement noise |
+
+That is the whole content filter. It needs no committed class index, no
+LogUp membership lookup, no V − 1 comparisons, and no new primitive:
+**one comparison, using machinery that has been running since the
+project's first integer chain.**
+
+The generality is what costs, and none of it is needed to ship the
+function.
+
+## 6. Documented for future exploration, with what each is worth
+
+Written down so the next agent does not re-derive them, and so nobody
+builds them before a measurement asks for it.
+
+### 6.1 N classes with an acceptable SUBSET, argmax hidden
+
+The general form of §2(b): the winning class must not be revealed, only
+its membership in the acceptable set S. Commit the winning index *c*,
+prove `c IN S` by LogUp membership against a frozen table for S, and
+prove `y[c] >= y[i]` for every other *i* with `y[c]` selected through
+the committed index.
+
+* **Worth:** the difference between a binary filter and a multi-category
+  one (say, a taxonomy of content classes where several are acceptable).
+* **Costs:** V − 1 range facts plus one LogUp membership. Free at V = 8;
+  ~128k range facts at a vocabulary-sized argmax, which is a real line
+  item and must be counted before it is promised.
+* **Build it when:** a deployment actually needs more than accept/reject,
+  AND the class count is known. Not before — the cost is entirely a
+  function of V.
+
+### 6.2 An acceptable set selected per proof
+
+S committed per proof instead of frozen per deployment, so one filter
+model can serve several policies.
+
+* **Worth:** one model, many policies, without re-freezing the statement.
+* **Costs:** S's commitment must be bound into the statement header
+  under the same transcript as the model identity digest, and the
+  membership lookup reads a committed table rather than a frozen one.
+* **Build it when:** more than one policy is in production against the
+  same filter model. Until then a frozen set is strictly simpler and
+  strictly safer — a frozen set cannot be swapped by a malicious prover.
+
+### 6.3 Selective disclosure of the output
+
+Reveal part of the committed output (a score, a rank) while keeping the
+rest hidden.
+
+* **Worth:** richer verifier semantics — "acceptable, and here is the
+  confidence" — without giving up the input.
+* **Costs:** an opening at a chosen point plus a decision about what the
+  revealed value leaks. The output is already committed (§5), so the
+  door is open; nothing needs to change now to keep it open.
+* **Build it when:** a customer asks for it. The commitment choice made
+  in §5 is what preserves the option.
+
+### 6.4 Not taken, and not recommended
+
+* **Proving a disjunction over classes directly** (`EXISTS c IN S`
+  without committing *c*) — the textbook route, and more expensive than
+  §6.1 for no benefit here, because committing *c* and looking it up is
+  cheaper with the machinery this repository already has.
+* **A policy layer outside the proof.** The whole value of function 2 is
+  that acceptability is enforced by soundness. Any check that lives
+  outside the statement can be bypassed and should not be described as
+  part of the guarantee.
+
+## 7. Still genuinely open
+
+* The counted cost of §6.1 at a real V. The V − 1 figure is arithmetic,
+  not a benchmark.
+* Whether the binary filter's two scores come from a dedicated
+  classification head or from a repurposed language-model head — that is
+  a modelling question, and it decides what the export contains.
