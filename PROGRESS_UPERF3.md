@@ -10775,3 +10775,73 @@ GPU ZK prove re-measured (5.63 s at 12x512 v3 is AD's number).
 ## Agent AH status (wt-uperf3-ah) — round 13
 
 (lane appends below)
+
+LANE: THE FULL-LAYER PROOF on the hash line — attention + the two norms +
+the residual stream + the seam, i.e. lane AE's rungs 4 and 5. Worktree
+wt-uperf3-ag, branch uperf3-ag. Every wall [WSL-BOX] [8T] [CPU|GPU]
+[NOISY-SHARED] (lane AH builds and runs on the same box).
+
+OWNS (recorded): hashline/src/{attention,norm,tables_attn}.rs (ADDITIVE),
+NEW full-layer functions in layer.rs tagged [UPERF3-AG] (never lane AH's
+`dev_shape` line), the `--attn` flag lines in src/bin/hashline.rs, NEW
+results/hashline_attn_*, the §3 FULL-LAYER row (only when MEASURED), this
+section. READ-ONLY: pcs.rs, pcs_compact.rs, sumcheck.rs, transcript.rs,
+zk.rs, wcache.rs, gpu/*, export_v3.rs, tables_v3.rs, silu.rs, the v2/v3
+FFN functions in layer.rs, zkmatrix-rs/, scripts/.
+
+### AG rung 0 — THE PLAN + THE FOUR GATES (2026-09-03) [WSL-BOX 8T CPU NOISY-SHARED]
+
+Fresh CPU build in this worktree (35.8 s). **The four byte gates re-run
+here, all unchanged**: v2 `pass 12 512 --threads 8 --proof-out F` ->
+**50cf7bdfd6b5b182..** (66,844,928 B; PROVE 14.86 s); v3 `--profile v3
+--export <aa v3 export>` -> **5f368db6240e0614..** (70,758,084 B; 16.01 s);
+zk `--zk --seed 1` -> **021485e4f80ec695..** (87,228,528 B; 21.44 s);
+zk-v3 `--zk --seed 1 --profile v3` -> **40eb54795e023c77..** (87,697,008 B;
+22.95 s).
+
+**THE SHAPE OF THE PROOF I AM BUILDING** (the object list of the full-layer
+statement, each object with the primitive that proves it; AE's rung-0 spec
+table is the semantics, this is its realization on the hash line's
+primitives). Three NEW commitments per layer beside the FFN's three:
+`Wa` (Wq/Wk/Wv/Wo + the two norm gammas), `Aa` (every committed attention
+plane), `Ha` (the LogUp helper columns of the attention domains). The
+attention half is proven by FOUR zero-checks (one per index domain) plus
+SIX sumchecks, and is bound to the FFN half by TWO seam claims:
+
+| # | what is proven | primitive | domain (125M) |
+|---|---|---|---|
+| 1 | SS_t = sum_i x_in(t,i)^2 (both norm sites) | degree-3 row-sum sumcheck, terminal = a claim on x_in | (t,i), T x d |
+| 2 | D = isqrt(SS + Ceps): Dsq = D D, a1 = SSe - Dsq, a2 = 2D - a1, a1/a2 as U16 limb pairs | row zero-check + U16 LogUp | t, T |
+| 3 | xn8 (and xm8) = round-divide(x g Cn, D 2^tn): y (2 div) + rho = 2 num + div, sigma = 2 div - 1 - rho, rho/sigma U16 limb pairs, y int8 | the d-domain zero-check (D row-broadcast, g column-broadcast: both free, the MLE of a broadcast table at (r_t, r_i) IS the small plane's MLE) + LogUp | (t,i), T x d |
+| 4 | Qacc/Kacc/Vacc = xn8 . W^T and the requant acc = 2^sh y + r | three matmul sumchecks over the inner d; the acc claim is 2^sh y~(p) + r~(p) at a fresh point p | inner d |
+| 5 | RoPE: QRacc = c q_lo - s q_hi \| s q_lo + c q_hi against the PUBLIC rope-cs tables, then the requant to qr8 | the q/kv-domain zero-checks reading q8 at the coordinate-FLIPPED point (PW-1: the flip is a public permutation of the low index bit, one extra opening point) | (t, h, i) |
+| 6 | Sacc(h,t,j) = sum_i qr8(t,h,i) kr8(j,g(h),i) | ONE per-head matmul sumcheck over i; the GQA map g(h) = high bits of h is FREE (sum_h eq(r_h,h) F(g(h)) = sum_g eq(r_h-high,g) F(g)) | inner d_h |
+| 7 | s8 int8 + rS in the balanced window; m dominance d = m - sM in [0,255]; zsel binary, sum_j zsel = 1, zsel d = 0 (attainment); E from the fused (d,E) LogUp; P Sum + rho = 2^fP E on the mask and P = rho = 0 off it; P in [0,2^fP]; rho, sigma = Sum - 1 - rho in [0,2^wrho) | the S-domain zero-check (degree 5: the fused exp row is degree 2 because sM = mask s8 + (1-mask)(-127)) + five LogUp tables (INT8, WIN, EXP, PROB, SREM) + the masked row-sum sumcheck (batched with sum_j zsel = 1) | (h,t,j), H x T x T |
+| 8 | Oacc(t,h,i) = sum_j P(h,t,j) v8(j,g(h),i) | one matmul sumcheck over j | inner T |
+| 9 | o8 requant + int8; AOacc = o8 . Wo^T; ao requant + class | the o-domain zero-check + one matmul sumcheck over the inner H d_h | (t,h,i) / inner d |
+| 10 | xres1 = requant(x_in 2^a + ao 2^b) and xres2 = requant(xres1 2^a' + z16 2^b') | two LINEAR pins in the d-domain zero-check + INT16/INT24 and window lookups | (t,i) |
+| 11 | THE FFN HALF on X = xm8 | the existing `prove_layer_v3` (READ-ONLY, byte-identical) on the same transcript | — |
+| 12 | THE INNER SEAM: the FFN's X IS this layer's xm8, and the copy z16c used by pin 2 IS the FFN's z16 | the v3 proof opens X and z16 at rho_d (its zero-check D point, drawn AFTER both A commitments); the attention opening is DEFERRED to after that and adds xm8~(rho_d) and z16c~(rho_d) as claims on Aa, checked equal to the v3 proof's zcd_term values | rho_d |
+| 13 | THE LAYER SEAM: layer l+1's x_in IS layer l's xres2 | the same mechanism one layer later: layer l's Aa opening is deferred until layer l+1's Aa is committed, then both are opened at one point drawn after both commitments | a fresh point |
+
+Deferred and stated (unchanged from AE): the embedding gather, the final
+norm and the LM head, the KV cache / decode regime, sliding windows.
+
+WHY THIS SHAPE. The v3 FFN prover folds every pending claim into its two
+zero-checks so that A and H open at exactly two points; that is a
+proof-SIZE optimization. The attention half has ~30 planes over five
+different index domains, and folding them all would double the build. I
+take the other trade: many claims at many points (the PCS batches claims
+that share a point into one group vector of 2^log_cols Fp2 each), which
+costs bytes and buys a prover I can land in one session. Every claim is
+still a real PCS opening of a committed plane — soundness is unchanged.
+
+BUILD ORDER (each its own commit, each green before the next): (a) the
+witness + layout: every plane of AE's chain as a committed vector, the
+digests still reproducing the oracle's; (b) the matmul sumchecks (QKV, the
+per-head score, PV, Wo) alone, checked against the chain's values; (c) the
+norms and RoPE; (d) the softmax LogUp + row sum + division; (e) the
+residual pins, the inner seam and the assembled full-layer prover/verifier
+with the tamper legs; (f) the 12-layer pass with the layer seams bound.
+
+ORCHESTRATOR-RUN (only if a step needs > ~8 min): none yet.
