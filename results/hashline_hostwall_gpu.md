@@ -211,3 +211,37 @@ not real. What survives that:
   ~1.6x on the forward transform [COUNTED]), a fused DIF/DIT, or a
   radix-4 stage. That is a kernel project, not a rung, and it is the
   right next item for whoever continues this lane.
+
+## 8. Where the time actually moved (device counters, one Mistral layer)
+
+| | r0base (chunk 1024, 256 thr) | chunk 128 + 512 thr, narrow OFF | chunk 128 + 512 thr, narrow ON |
+|---|---:|---:|---:|
+| commit W | 1.296 | **0.876** | 0.898 |
+| commit A | 0.408 | 0.317 | 0.310 |
+| helpers + commit H | 0.266 | 0.268 | 0.269 |
+| matmul g/u + d | 0.283 | 0.248 | 0.244 |
+| zero-check F + D | 0.171 | 0.182 | 0.172 |
+| pcs openings | 0.592 | 0.605 | 0.593 |
+| **PROVE** | **3.03** | **2.51** | **2.50** |
+| device h2d | 0.532 s (1,871 MB) | 0.412 s (1,871 MB) | **0.365 s (292 MB)** |
+| device ntt (encode + chunked hash) | 0.446 | **0.179** | 0.238 |
+| device opening re-encode | 0.444 | 0.451 | 0.441 |
+| **VRAM peak** | **5,651 MB** | **5,047 MB** | 5,249 MB |
+
+The whole of this lane's win is in the two commitments, and inside them
+it is the **encode: 0.446 -> 0.179 s, 2.5x**, from occupancy plus a
+working set the cache can hold. The upload is a second-order term once
+it is interleaved. The narrow form puts **292 MB on the bus instead of
+1,871 MB (6.4x)** and costs 0.06 s of host packing, which on this box
+is exactly a wash — and 202 MB of device memory for the packing scratch,
+against the 604 MB the smaller chunk gives back, so the tree is 402 MB
+lighter on VRAM than before this lane either way.
+
+**What this means for the RTX 5090 measurement** [MODEL]: the parts a
+faster device shrinks are now 0.179 (encode) + 0.441 (re-encode) + 0.172
+(zero-checks) + 0.091 (fold) + 0.115 (helpers) = ~1.0 s of the 2.50; the
+parts it does not touch are the ~1.2 s of layer.rs host conversion and
+folds plus whatever the bus costs. On a device 4x faster the host share
+becomes ~70% of a ~1.6 s layer, and the bus term stops being hidden —
+which is why the narrow upload is kept on and why the layer.rs item in
+§7 is the one that decides whether the 5090 buys 1.4x or 4x.
