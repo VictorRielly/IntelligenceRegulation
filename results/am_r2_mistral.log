@@ -1,0 +1,135 @@
+
+=== P3 tamper legs at Mistral width (layer 0, T=16), GPU prover ===
+2026-09-04 10:46:09
+[UPERF3-ZA] gpu zk commit declined (cuMemAlloc(5387 MB): DriverError(CUDA_ERROR_OUT_OF_MEMORY, "out of memory")); CPU path
+        W masks (P3): commitment 10774 rows of 2^14 = 10752 data + 21 block masks + 1 prox row; Wg/Wu blocks at p3 -> rows [10752, 10753, 10754, 10755, 10756, 10757, 10758, 10759, 10760, 10761, 10762, 10763, 10764, 10765]; Wd blocks at p6 -> rows [10766, 10767, 10768, 10769, 10770, 10771, 10772]; prox row 10773
+        W group vector 0: mask rows [10752, 10753, 10754, 10755, 10756, 10757, 10758, 10759, 10760, 10761, 10762, 10763, 10764, 10765]
+        W group vector 1: mask rows [10766, 10767, 10768, 10769, 10770, 10771, 10772]
+        W proximity vector: prox mask row 10773 (+ every mask row with its random rho)
+  tamper None: ACCEPT prove 9.860 s verify 0.107 s proof 27426484 B
+  tamper [flipped X entry]: REJECT (prove 12.46 s, verify 0.00 s)
+  tamper [flipped Wg entry]: REJECT (prove 10.06 s, verify 0.00 s)
+  tamper [out-of-range remainder]: REJECT (prove 9.26 s, verify 0.11 s)
+  tamper [wrong int16 table entry]: REJECT (prove 8.93 s, verify 0.09 s)
+  tamper [wrong requant (h16)]: REJECT (prove 8.65 s, verify 0.00 s)
+  tamper [wrong z]: REJECT (prove 8.42 s, verify 0.00 s)
+  tamper [wrong rounding (floor)]: REJECT (prove 8.41 s, verify 0.11 s)
+  tamper [out-of-range int16 (z16)]: REJECT (prove 8.16 s, verify 0.10 s)
+layer 0 (v3) [ZK]: GREEN
+
+=== P1 (fast tier), ONE Mistral layer at T=512, GPU, no weight cache ===
+2026-09-04 10:47:38
+  MODE P1 (fast tier) [v3] header "P1-v3": private = {the input X, EVERY activation plane including the output z16, the remainders, the multiplicities}; public = {the weights W, the shapes, the signed shifts, the activation-table digest}; output claim: function 1 (attested inference) — the output is committed, nothing more is claimed; model identity: the W commitment root (public weights: stable per model)
+  layer  0: prove 4.259 s, 40186228 B
+prover phases (summed over layers):
+      commit W                      1.164 s
+      commit A (zk)                 0.743 s
+      mask commit                   0.008 s
+      helpers + commit H (zk)       1.279 s
+      matmul g/u (zk)               0.174 s
+      matmul d (zk)                 0.121 s
+      zero-check F (zk)             0.209 s
+      zero-check D (zk)             0.038 s
+      table zero-check (zk)         0.046 s
+      zsum + mask open              0.004 s
+      pcs openings (zk)             0.472 s
+mask sites (v3; layer 0 — every layer identical in structure up to its window sizes):
+      layout: n = 2^14 columns; table zero-check over 2^16 (the INT16 class spans 4 rows); A 3601 rows = 3520 data + 61 masks + 20 table/mask rows; H 3033 rows = 2944 data + 49 masks + 40 helper/mask rows
+      A masks: 49 f-planes (g8,rg,a16,u16,ru,h16,rh x 7 f-blocks) at rho_F -> rows [3520, 3521, 3522, 3523, 3524, 3525, 3526, 3527, 3528, 3529, 3530, 3531, 3532, 3533, 3534, 3535, 3536, 3537, 3538, 3539, 3540, 3541, 3542, 3543, 3544, 3545, 3546, 3547, 3548, 3549, 3550, 3551, 3552, 3553, 3554, 3555, 3556, 3557, 3558, 3559, 3560, 3561, 3562, 3563, 3564, 3565, 3566, 3567, 3568]; 3 d-planes (X,z16,rd x 1 d-blocks) at rho_D -> rows [3569, 3570, 3571]; X-blocks at p2 -> [3572]; h16-blocks at p5 -> [3573, 3574, 3575, 3576, 3577, 3578, 3579]; prox row 3580
+      table slot tag 3 (256 entries, 2^14 slice, 1 row(s)): m at A rows 3581.., mask at A rows 3582..; helper h_t at H rows re 2993.. im 2994.., its mask re 2995.. im 2996..
+      table slot tag 4 (65536 entries, 2^16 slice, 4 row(s)): m at A rows 3583.., mask at A rows 3587..; helper h_t at H rows re 2997.. im 3001.., its mask re 3005.. im 3009..
+      table slot tag 83 (2048 entries, 2^14 slice, 1 row(s)): m at A rows 3591.., mask at A rows 3592..; helper h_t at H rows re 3013.. im 3014.., its mask re 3015.. im 3016..
+      table slot tag 74 (4 entries, 2^14 slice, 1 row(s)): m at A rows 3593.., mask at A rows 3594..; helper h_t at H rows re 3017.. im 3018.., its mask re 3019.. im 3020..
+      table slot tag 87 (32768 entries, 2^15 slice, 2 row(s)): m at A rows 3595.., mask at A rows 3597..; helper h_t at H rows re 3021.. im 3023.., its mask re 3025.. im 3027..
+      table slot tag 78 (64 entries, 2^14 slice, 1 row(s)): m at A rows 3599.., mask at A rows 3600..; helper h_t at H rows re 3029.. im 3030.., its mask re 3031.. im 3032..
+      H masks: 21 helper planes (hg,hu,hh x 7 f-blocks) at rho_F -> rows [(2944, 2945), (2946, 2947), (2948, 2949), (2950, 2951), (2952, 2953), (2954, 2955), (2956, 2957), (2958, 2959), (2960, 2961), (2962, 2963), (2964, 2965), (2966, 2967), (2968, 2969), (2970, 2971), (2972, 2973), (2974, 2975), (2976, 2977), (2978, 2979), (2980, 2981), (2982, 2983), (2984, 2985)]; 1 hz planes at rho_D -> rows [(2986, 2987)]; zero-sum u rows (2988, 2989) (its extension mask u' (2990, 2991)) for the value-0 LogUp sum group; prox row 2992
+      A group vector 0: mask rows [3520, 3521, 3522, 3523, 3524, 3525, 3526, 3527, 3528, 3529, 3530, 3531, 3532, 3533, 3534, 3535, 3536, 3537, 3538, 3539, 3540, 3541, 3542, 3543, 3544, 3545, 3546, 3547, 3548, 3549, 3550, 3551, 3552, 3553, 3554, 3555, 3556, 3557, 3558, 3559, 3560, 3561, 3562, 3563, 3564, 3565, 3566, 3567, 3568]
+      A group vector 1: mask rows [3569, 3570, 3571]
+      A group vector 2: mask rows [3572]
+      A group vector 3: mask rows [3573, 3574, 3575, 3576, 3577, 3578, 3579]
+      A group vector 4: mask rows [3582, 3587, 3588, 3589, 3590, 3592, 3594, 3597, 3598, 3600]
+      A proximity vector: prox mask row 3580 (+ every mask row with its random rho)
+      H group vector 0: mask rows [2944, 2945, 2946, 2947, 2948, 2949, 2950, 2951, 2952, 2953, 2954, 2955, 2956, 2957, 2958, 2959, 2960, 2961, 2962, 2963, 2964, 2965, 2966, 2967, 2968, 2969, 2970, 2971, 2972, 2973, 2974, 2975, 2976, 2977, 2978, 2979, 2980, 2981, 2982, 2983, 2984, 2985]
+      H group vector 1: mask rows [2986, 2987]
+      H group vector 2: mask rows [2988, 2989, 2990, 2991]
+      H group vector 3: mask rows [2995, 2996, 3005, 3006, 3007, 3008, 3009, 3010, 3011, 3012, 3015, 3016, 3019, 3020, 3025, 3026, 3027, 3028, 3031, 3032]
+      H group vector 4: mask rows [2988, 2989]
+      H proximity vector: prox mask row 2992 (+ every mask row with its random rho)
+  gpu device-side (summed): h2d 0.393 s (674 MB) | ntt 1.195 s | hash 0.202 s | sumcheck 0.245 s | fold 0.123 s | helpers 0.060 s | d2h 0.000 s (46 MB) | vram peak 8585 MB
+PROOF sha256 b5da6c38c77cf702f9873cffc4db3c1de0ae16cb0262cfae15c7ffe54f1c609d (40186228 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 1 x 512 (d 4096 f 14336): witness load+chain 3.36 s | PROVE 4.26 s | VERIFY 0.06 s | proof 40186228 B (40.2 MB) | 9.019e10 MACs | 2.118e10 proven MAC/s (prove wall) | wall 7.73 s
+	Maximum resident set size (kbytes): 3002240
+
+=== P3 (full tier), ONE Mistral layer at T=512, GPU ===
+2026-09-04 10:47:48
+  MODE P3 (full tier) [v3] header "HL-ZK/1|profile=v3|priv=in+act+out+weights|pub=shapes+shifts+table-digest|out=commit|model=w-root": private = {the input X, EVERY activation plane including the output z16, the remainders, the multiplicities, AND the weights W}; public = {the shapes, the signed shifts, the activation-table digest}; output claim: function 1 (attested inference) — the output is committed, nothing more is claimed; model identity: NONE — the W root is re-randomised every proof; this proof does not name a model
+[UPERF3-ZA] gpu zk commit declined (cuMemAlloc(5387 MB): DriverError(CUDA_ERROR_OUT_OF_MEMORY, "out of memory")); CPU path
+  layer  0: prove 15.824 s, 40251860 B
+prover phases (summed over layers):
+      commit W                      8.417 s
+      commit A (zk)                 0.989 s
+      mask commit                   0.007 s
+      helpers + commit H (zk)       5.175 s
+      matmul g/u (zk)               0.176 s
+      matmul d (zk)                 0.096 s
+      zero-check F (zk)             0.228 s
+      zero-check D (zk)             0.041 s
+      table zero-check (zk)         0.037 s
+      zsum + mask open              0.004 s
+      pcs openings (zk)             0.652 s
+mask sites (v3; layer 0 — every layer identical in structure up to its window sizes):
+      W masks (P3): commitment 10774 rows of 2^14 = 10752 data + 21 block masks + 1 prox row; Wg/Wu blocks at p3 -> rows [10752, 10753, 10754, 10755, 10756, 10757, 10758, 10759, 10760, 10761, 10762, 10763, 10764, 10765]; Wd blocks at p6 -> rows [10766, 10767, 10768, 10769, 10770, 10771, 10772]; prox row 10773
+      layout: n = 2^14 columns; table zero-check over 2^16 (the INT16 class spans 4 rows); A 3601 rows = 3520 data + 61 masks + 20 table/mask rows; H 3033 rows = 2944 data + 49 masks + 40 helper/mask rows
+      A masks: 49 f-planes (g8,rg,a16,u16,ru,h16,rh x 7 f-blocks) at rho_F -> rows [3520, 3521, 3522, 3523, 3524, 3525, 3526, 3527, 3528, 3529, 3530, 3531, 3532, 3533, 3534, 3535, 3536, 3537, 3538, 3539, 3540, 3541, 3542, 3543, 3544, 3545, 3546, 3547, 3548, 3549, 3550, 3551, 3552, 3553, 3554, 3555, 3556, 3557, 3558, 3559, 3560, 3561, 3562, 3563, 3564, 3565, 3566, 3567, 3568]; 3 d-planes (X,z16,rd x 1 d-blocks) at rho_D -> rows [3569, 3570, 3571]; X-blocks at p2 -> [3572]; h16-blocks at p5 -> [3573, 3574, 3575, 3576, 3577, 3578, 3579]; prox row 3580
+      table slot tag 3 (256 entries, 2^14 slice, 1 row(s)): m at A rows 3581.., mask at A rows 3582..; helper h_t at H rows re 2993.. im 2994.., its mask re 2995.. im 2996..
+      table slot tag 4 (65536 entries, 2^16 slice, 4 row(s)): m at A rows 3583.., mask at A rows 3587..; helper h_t at H rows re 2997.. im 3001.., its mask re 3005.. im 3009..
+      table slot tag 83 (2048 entries, 2^14 slice, 1 row(s)): m at A rows 3591.., mask at A rows 3592..; helper h_t at H rows re 3013.. im 3014.., its mask re 3015.. im 3016..
+      table slot tag 74 (4 entries, 2^14 slice, 1 row(s)): m at A rows 3593.., mask at A rows 3594..; helper h_t at H rows re 3017.. im 3018.., its mask re 3019.. im 3020..
+      table slot tag 87 (32768 entries, 2^15 slice, 2 row(s)): m at A rows 3595.., mask at A rows 3597..; helper h_t at H rows re 3021.. im 3023.., its mask re 3025.. im 3027..
+      table slot tag 78 (64 entries, 2^14 slice, 1 row(s)): m at A rows 3599.., mask at A rows 3600..; helper h_t at H rows re 3029.. im 3030.., its mask re 3031.. im 3032..
+      H masks: 21 helper planes (hg,hu,hh x 7 f-blocks) at rho_F -> rows [(2944, 2945), (2946, 2947), (2948, 2949), (2950, 2951), (2952, 2953), (2954, 2955), (2956, 2957), (2958, 2959), (2960, 2961), (2962, 2963), (2964, 2965), (2966, 2967), (2968, 2969), (2970, 2971), (2972, 2973), (2974, 2975), (2976, 2977), (2978, 2979), (2980, 2981), (2982, 2983), (2984, 2985)]; 1 hz planes at rho_D -> rows [(2986, 2987)]; zero-sum u rows (2988, 2989) (its extension mask u' (2990, 2991)) for the value-0 LogUp sum group; prox row 2992
+      W group vector 0: mask rows [10752, 10753, 10754, 10755, 10756, 10757, 10758, 10759, 10760, 10761, 10762, 10763, 10764, 10765]
+      W group vector 1: mask rows [10766, 10767, 10768, 10769, 10770, 10771, 10772]
+      W proximity vector: prox mask row 10773 (+ every mask row with its random rho)
+      A group vector 0: mask rows [3520, 3521, 3522, 3523, 3524, 3525, 3526, 3527, 3528, 3529, 3530, 3531, 3532, 3533, 3534, 3535, 3536, 3537, 3538, 3539, 3540, 3541, 3542, 3543, 3544, 3545, 3546, 3547, 3548, 3549, 3550, 3551, 3552, 3553, 3554, 3555, 3556, 3557, 3558, 3559, 3560, 3561, 3562, 3563, 3564, 3565, 3566, 3567, 3568]
+      A group vector 1: mask rows [3569, 3570, 3571]
+      A group vector 2: mask rows [3572]
+      A group vector 3: mask rows [3573, 3574, 3575, 3576, 3577, 3578, 3579]
+      A group vector 4: mask rows [3582, 3587, 3588, 3589, 3590, 3592, 3594, 3597, 3598, 3600]
+      A proximity vector: prox mask row 3580 (+ every mask row with its random rho)
+      H group vector 0: mask rows [2944, 2945, 2946, 2947, 2948, 2949, 2950, 2951, 2952, 2953, 2954, 2955, 2956, 2957, 2958, 2959, 2960, 2961, 2962, 2963, 2964, 2965, 2966, 2967, 2968, 2969, 2970, 2971, 2972, 2973, 2974, 2975, 2976, 2977, 2978, 2979, 2980, 2981, 2982, 2983, 2984, 2985]
+      H group vector 1: mask rows [2986, 2987]
+      H group vector 2: mask rows [2988, 2989, 2990, 2991]
+      H group vector 3: mask rows [2995, 2996, 3005, 3006, 3007, 3008, 3009, 3010, 3011, 3012, 3015, 3016, 3019, 3020, 3025, 3026, 3027, 3028, 3031, 3032]
+      H group vector 4: mask rows [2988, 2989]
+      H proximity vector: prox mask row 2992 (+ every mask row with its random rho)
+  gpu device-side (summed): h2d 0.743 s (1933 MB) | ntt 3.934 s | hash 0.198 s | sumcheck 0.266 s | fold 0.108 s | helpers 0.687 s | d2h 0.000 s (21 MB) | vram peak 8585 MB
+PROOF sha256 190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e (40251860 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 1 x 512 (d 4096 f 14336): witness load+chain 3.36 s | PROVE 15.82 s | VERIFY 0.06 s | proof 40251860 B (40.3 MB) | 9.019e10 MACs | 5.700e9 proven MAC/s (prove wall) | wall 19.32 s
+	Maximum resident set size (kbytes): 8569532
+
+=== sizes and the clear-value scan ===
+2026-09-04 10:48:11
+/home/victor/wt-uperf3-am/results/am_scratch/mi-p1.proof 40186228 B
+/home/victor/wt-uperf3-am/results/am_scratch/mi-p3.proof 40251860 B
+b5da6c38c77cf702f9873cffc4db3c1de0ae16cb0262cfae15c7ffe54f1c609d  /home/victor/wt-uperf3-am/results/am_scratch/mi-p1.proof
+190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e  /home/victor/wt-uperf3-am/results/am_scratch/mi-p3.proof
+/home/victor/wt-uperf3-am/results/am_scratch/mi-p1.proof
+  40186228 B = 5023278 aligned 8-byte words
+  words in the int8 class  [-127, 127]:      180450
+  words in the int16 class [-32768, 32767]:  180452   (uniform expectation: 1.78e-08)
+  RUNS of >= 100 consecutive int8-class words: 0, 0 words
+    run lengths:       []
+    run-start strides: []
+    first runs:        []
+/home/victor/wt-uperf3-am/results/am_scratch/mi-p3.proof
+  40251860 B = 5031482 aligned 8-byte words
+  words in the int8 class  [-127, 127]:      0
+  words in the int16 class [-32768, 32767]:  2   (uniform expectation: 1.79e-08)
+  RUNS of >= 100 consecutive int8-class words: 0, 0 words
+    run lengths:       []
+    run-start strides: []
+    first runs:        []
+
+=== DONE ===
+2026-09-04 10:48:14
