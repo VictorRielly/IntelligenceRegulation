@@ -13136,19 +13136,67 @@ Hiding the weights costs the VERIFIER nothing. For a deployed product this
 is the line that matters most — whoever checks the proof cannot tell, from
 cost, whether the model was public or private.
 
-**COMMIT W IS THE FULL TIER, AND IT IS 43.6% OF THE PROVE.** Phases summed
-over layers: **commit W 217.694 s**, helpers + commit H 95.236, commit A
-86.948, zero-check F 50.688, pcs openings 26.892, zero-check D 7.070,
-matmul g/u 6.387, table zero-check 4.069, matmul d 3.690, mask commit
-0.239, zsum + mask open 0.124. P1's own commit W was 46.978 s WITH the
-device and WITH the cache. **So the full tier's whole structural cost is
-one phase, and it is exactly the phase the 5,387 MB device commitment
-would take.** A 16 GB+ board attacks 43.6% of this row directly — the
-sharpest statement yet of what the 5090 buys the full tier.
+**COMMIT W IS 43.6% OF THE PROVE.** Phases summed over layers: **commit W
+217.694 s**, helpers + commit H 95.236, commit A 86.948, zero-check F
+50.688, pcs openings 26.892, zero-check D 7.070, matmul g/u 6.387, table
+zero-check 4.069, matmul d 3.690, mask commit 0.239, zsum + mask open
+0.124.
 
-**DO NOT QUOTE 238 -> 499 s AS P3's SURCHARGE.** Same trap as rung 2, one
-step worse: these arms differ on TWO axes, mode AND device (P1-on-GPU vs
-P3-on-CPU). P3's structural cost at 8B REMAINS UNMEASURED.
+**CORRECTION, WRITTEN THE SAME DAY AND BEFORE THIS ENTRY WAS EVER READ
+BY ANYONE ELSE.** The first version of this paragraph called `commit W`
+"the full tier's structural cost" because it set 217.694 s beside P1's
+**46.978 s** — but that P1 figure is P1 **on the GPU, with the cache**.
+That is the two-axis trap this very entry warns about two paragraphs
+down, and the entry walked into it. The baseline run
+(`am_r3_8b_p1_scan_cpu.log`) settles it: **P1 on the SAME CPU path spends
+214.337 s in `commit W` against P3's 217.694 s.** So `commit W` is ~44%
+of the prove **in BOTH modes**, and it is the cost of committing the
+weights AT ALL — not the cost of HIDING them. The 46.978 s was the
+DEVICE talking, not the mode.
+
+**DO NOT QUOTE 238 -> 499 s AS P3's SURCHARGE** — those arms differ on
+TWO axes, mode AND device. Quote the one-axis number below instead.
+
+**THE ONE-AXIS ANSWER — THE NUMBER THIS LANE WAS CHARTERED TO PRODUCE.**
+The baseline run gives P1 on the SAME CPU path, same binary, same seed,
+same shape, so mode is the ONLY thing that varies:
+
+| | **P1 (public W)** | **P3 (private W)** | cost of hiding |
+|---|---:|---:|---:|
+| PROVE | 485.33 s | 499.04 s | **+2.82%** |
+| `commit W` | 214.337 s | 217.694 s | **+1.57%** |
+| VERIFY | 1.95 s | 1.99 s | +2.1% |
+| proof bytes | 1,285,578,368 | 1,287,678,592 | **+0.163%** |
+| witness load+chain | 134.93 s | 134.25 s | -0.5% |
+
+# **HIDING THE WEIGHTS COSTS UNDER 3%.**
+
+That is the honest per-proof cost of the full tier against the fast one,
+and it replaces "REMAINS UNMEASURED" for the CPU path. The privacy tier
+is not a different regime; it is a rounding error on the same argument.
+Round 14's ruling-grade correction — "the P1 surcharge is +178% on a GPU,
+not the +4.7% AD measured on a CPU" — was about ZK vs NON-ZK. **This is a
+different step: once you are already paying for ZK, hiding the WEIGHTS
+too is nearly free.**
+
+**TWO CAVEATS, BOTH SMALL AND BOTH STATED.** (1) P1 ran with `--wcache`
+on a cold cache; with 32 distinct layers every lookup is a miss, so
+there is no reuse benefit, and P1 additionally pays a cache STORE that
+P3 does not — if anything this flatters P3 slightly, and the gap is
+2.82% either way. (2) This is the CPU path. **On a GPU the gap is much
+larger, but that is HARDWARE, not mode**: P1 reaches the device
+(`commit W` 46.978 s, a 4.6x on 44% of the prove) and P3 cannot get on
+it at all at this width — `cuMemAlloc(5387 MB)` on an 8,188 MB card.
+**So the 16 GB+ board is what makes the sub-3% figure the DEPLOYED
+figure instead of a CPU-path figure.** That is the sharpest form of the
+hardware argument this project has: the full tier is already nearly free
+in principle, and only the card is standing between that and practice.
+
+**A GATE NOBODY ASKED FOR, PASSED ON THE WAY: THE CPU AND GPU PATHS
+AGREE BYTE FOR BYTE AT 8B.** This P1 run was on the CPU and produced
+`930ce9a0..` / 1,285,578,368 B — the same digest the GPU produced this
+morning and the same one lane AI recorded in round 14. **Three
+reproductions now, across two device paths and two trees.**
 
 **A NEW, USEFUL NUMBER: LEAVING THE GPU ON WHEN IT CANNOT BE USED COSTS
 ~25%.** The frozen run had `HL_GPU=1` and the device commit declining;
@@ -13172,20 +13220,33 @@ because a P1 proof carries raw int8 weight columns, and a column is a RUN.
 At 8B, with the weights private, there is no run anywhere in 161 million
 words: no weight column survives into the proof.
 
-**BE HONEST ABOUT THE 148.** Rung 2 reported a clean ZERO int8-class at
-one layer; this is not zero, and the counts do not scale from rung 2's
-(2 int16-class x 32 layers would predict ~64, not 10,323). The likely
-reading is that the scan counts EVERY aligned word including
-serialization metadata — lengths, offsets, counts, group and claim
-tables — which a 32-layer proof has far more of, and which are small
-integers by construction and carry no weight information. **That reading
-is not yet demonstrated.** 148 scattered words also cannot encode a
-4096-wide int8 column even in principle. The clean way to settle it is
-the SAME scan on the SAME shape's P1 proof, which rung 3's original
-script never took: it deleted `8b-p1.proof` before scanning it. Launched
-as `results/am_r3_8b_p1_scan_cpu.sh` (CPU path — the P1 arm is what froze
-the box, so it does not get the device); until it lands, the 8B privacy
-row rests on the run count, not on the raw class counts.
+**THE BASELINE LANDED AND SETTLES THE 148 COMPLETELY**
+(`results/am_r3_8b_p1_scan_cpu.log`, marker 0, 11:27 -> 11:38). The SAME
+scan on the SAME shape's P1 proof, both proofs produced by the same
+binary on the same CPU path:
+
+| | **P1 (weights public)** | **P3 (weights private)** |
+|---|---:|---:|
+| aligned 8-byte words | 160,697,296 | 160,959,824 |
+| int8-class `[-127,127]` | **13,845,980** | **148** |
+| int16-class | 13,856,110 | 10,323 |
+| **runs of >= 100 int8-class** | **1,009** | **0** |
+| **words inside those runs** | **10,848,770** | **0** |
+
+**13,845,980 -> 148 is a 93,554x reduction, and 10,848,770 structured
+words -> ZERO.** The 148 is one ten-thousandth of one percent of the P1
+count and carries no run structure; the metadata reading was right, and
+it is now demonstrated rather than asserted.
+
+**AND THE RUN STRUCTURE NAMES ITSELF.** The P1 run lengths are
+`[(10752, 1007), (10753, 2)]` — **1,007 runs of EXACTLY 10,752 words**,
+at a start stride of 10,817. From this same run's own mask-site dump,
+the W commitment is `10774 rows of 2^14 = 10752 data + 21 block masks
++ 1 prox row`. **10,752 is exactly the number of DATA rows in the weight
+commitment**, so those runs are not "small numbers" — they are the
+weight columns themselves, lying in the P1 proof in full, one contiguous
+column per opened position. That is the leak the scan was built to find,
+and P3 removes every one of them.
 
 **THE HOST-RAM CEILING IS NOW IN SIGHT: max RSS 13.97 GB on a 15 GB box.**
 The full tier on the CPU path very nearly exhausts host memory at 8B.

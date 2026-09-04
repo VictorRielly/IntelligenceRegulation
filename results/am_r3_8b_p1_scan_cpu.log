@@ -1,0 +1,124 @@
+
+=== FAST TIER (P1) — 8B, 32 x 512, CPU PATH (HL_GPU unset), cold weight cache ===
+2026-09-04 11:26:44
+               total        used        free      shared  buff/cache   available
+Mem:              15           0          13           0           1          14
+memory.used [MiB], memory.total [MiB]
+161 MiB, 8188 MiB
+pass (v3) [ZK, seed 1]: 32 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export (d 4096 f 14336; log_cols 14, inv_rate 4, col checks 256, threads 8)
+  MODE P1 (fast tier) [v3] header "P1-v3": private = {the input X, EVERY activation plane including the output z16, the remainders, the multiplicities}; public = {the weights W, the shapes, the signed shifts, the activation-table digest}; output claim: function 1 (attested inference) — the output is committed, nothing more is claimed; model identity: the W commitment root (public weights: stable per model)
+  gpu: off (HL_GPU unset; built with gpu-cuda)
+  layer  0: prove 16.272 s, 40186228 B
+  layer  1: prove 15.199 s, 40173940 B
+  layer  2: prove 15.869 s, 40173940 B
+  layer  3: prove 15.443 s, 40173940 B
+  layer  4: prove 15.004 s, 40173940 B
+  layer  5: prove 15.192 s, 40173940 B
+  layer  6: prove 14.932 s, 40173940 B
+  layer  7: prove 15.231 s, 40173940 B
+  layer  8: prove 15.198 s, 40173940 B
+  layer  9: prove 15.123 s, 40173940 B
+  layer 10: prove 15.168 s, 40173940 B
+  layer 11: prove 15.055 s, 40173940 B
+  layer 12: prove 14.989 s, 40173940 B
+  layer 13: prove 15.346 s, 40173940 B
+  layer 14: prove 14.946 s, 40173940 B
+  layer 15: prove 14.923 s, 40173940 B
+  layer 16: prove 15.255 s, 40173940 B
+  layer 17: prove 15.064 s, 40173940 B
+  layer 18: prove 15.220 s, 40173940 B
+  layer 19: prove 15.282 s, 40173940 B
+  layer 20: prove 14.804 s, 40173940 B
+  layer 21: prove 15.036 s, 40173940 B
+  layer 22: prove 15.222 s, 40173940 B
+  layer 23: prove 15.080 s, 40173940 B
+  layer 24: prove 15.084 s, 40173940 B
+  layer 25: prove 15.077 s, 40173940 B
+  layer 26: prove 15.177 s, 40173940 B
+  layer 27: prove 14.960 s, 40173940 B
+  layer 28: prove 14.991 s, 40173940 B
+  layer 29: prove 15.168 s, 40173940 B
+  layer 30: prove 15.049 s, 40173940 B
+  layer 31: prove 14.976 s, 40173940 B
+prover phases (summed over layers):
+      commit W                    214.337 s
+      commit A (zk)                83.402 s
+      mask commit                   0.250 s
+      helpers + commit H (zk)      90.534 s
+      matmul g/u (zk)               6.162 s
+      matmul d (zk)                 4.555 s
+      zero-check F (zk)            49.792 s
+      zero-check D (zk)             6.974 s
+      table zero-check (zk)         4.238 s
+      zsum + mask open              0.125 s
+      pcs openings (zk)            24.962 s
+mask sites (v3; layer 0 — every layer identical in structure up to its window sizes):
+      A: 66 claims in 5 groups
+      A group vector 0: mask rows [3520, 3521, 3522, 3523, 3524, 3525, 3526, 3527, 3528, 3529, 3530, 3531, 3532, 3533, 3534, 3535, 3536, 3537, 3538, 3539, 3540, 3541, 3542, 3543, 3544, 3545, 3546, 3547, 3548, 3549, 3550, 3551, 3552, 3553, 3554, 3555, 3556, 3557, 3558, 3559, 3560, 3561, 3562, 3563, 3564, 3565, 3566, 3567, 3568]
+      A group vector 1: mask rows [3569, 3570, 3571]
+      A group vector 2: mask rows [3572]
+      A group vector 3: mask rows [3573, 3574, 3575, 3576, 3577, 3578, 3579]
+      A group vector 4: mask rows [3582, 3587, 3588, 3589, 3590, 3592, 3594, 3597, 3598, 3600]
+      A proximity vector: prox mask row 3580 (+ every mask row with its random rho)
+      A 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      A 65536 Merkle leaves salted
+      H: 30 claims in 5 groups
+      H group vector 0: mask rows [2944, 2945, 2946, 2947, 2948, 2949, 2950, 2951, 2952, 2953, 2954, 2955, 2956, 2957, 2958, 2959, 2960, 2961, 2962, 2963, 2964, 2965, 2966, 2967, 2968, 2969, 2970, 2971, 2972, 2973, 2974, 2975, 2976, 2977, 2978, 2979, 2980, 2981, 2982, 2983, 2984, 2985]
+      H group vector 1: mask rows [2986, 2987]
+      H group vector 2: mask rows [2988, 2989, 2990, 2991]
+      H group vector 3: mask rows [2995, 2996, 3005, 3006, 3007, 3008, 3009, 3010, 3011, 3012, 3015, 3016, 3019, 3020, 3025, 3026, 3027, 3028, 3031, 3032]
+      H group vector 4: mask rows [2988, 2989]
+      H proximity vector: prox mask row 2992 (+ every mask row with its random rho)
+      H 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      H 65536 Merkle leaves salted
+PROOF sha256 930ce9a043a037210f62ac1384384e3a88607f29046b56284c6308ed272c982e (1285578368 B) [ZK v3 seed 1]
+  proof written to /home/victor/wt-uperf3-am/results/am_scratch/8b-p1.proof
+PASS-V3 ACCEPT [ZK]: 32 x 512 (d 4096 f 14336): witness load+chain 134.93 s | PROVE 485.33 s | VERIFY 1.95 s | proof 1285578368 B (1285.6 MB) | 2.886e12 MACs | 5.947e9 proven MAC/s (prove wall) | wall 640.33 s
+	Command being timed: "/home/victor/wt-uperf3-am/hashline/target-gpu/release/hashline pass 32 512 --threads 8 --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --wcache /home/victor/wt-uperf3-am/results/am_scratch/wcache-8b-p1scan --proof-out /home/victor/wt-uperf3-am/results/am_scratch/8b-p1.proof"
+	User time (seconds): 3326.69
+	System time (seconds): 237.52
+	Percent of CPU this job got: 556%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 10:40.43
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 13274896
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 105189
+	Minor (reclaiming a frame) page faults: 116909990
+	Voluntary context switches: 2980891
+	Involuntary context switches: 5999
+	Swaps: 0
+	File system inputs: 16071504
+	File system outputs: 2773296
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+=== P1 digest ===
+2026-09-04 11:37:24
+               total        used        free      shared  buff/cache   available
+Mem:              15           0          11           0           2          14
+930ce9a043a037210f62ac1384384e3a88607f29046b56284c6308ed272c982e  /home/victor/wt-uperf3-am/results/am_scratch/8b-p1.proof
+1285578368 B
+
+=== THE BASELINE: the clear-value scan of the 8B P1 proof ===
+2026-09-04 11:37:28
+               total        used        free      shared  buff/cache   available
+Mem:              15           0          11           0           2          14
+/home/victor/wt-uperf3-am/results/am_scratch/8b-p1.proof
+  1285578368 B = 160697296 aligned 8-byte words
+  words in the int8 class  [-127, 127]:      13845980
+  words in the int16 class [-32768, 32767]:  13856110   (uniform expectation: 5.71e-07)
+  RUNS of >= 100 consecutive int8-class words: 1009, 10848770 words
+    run lengths:       [(10752, 1007), (10753, 2)]
+    run-start strides: [(10817, 250), (21634, 197), (32451, 139), (43268, 95), (54085, 79), (64902, 56)]
+    first runs:        [(5230950, 10752), (5241767, 10752), (5252584, 10752), (5295852, 10752)]
+
+=== DONE ===
+2026-09-04 11:38:11
+               total        used        free      shared  buff/cache   available
+Mem:              15           0          12           0           1          14
