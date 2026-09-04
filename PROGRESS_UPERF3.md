@@ -13037,7 +13037,7 @@ the rule it produces is a standing one: **never let a second GPU process
 run beside a P3 pass on the 8 GB box, and check `nvidia-smi` reads 0 MiB
 before launching one.**
 
-### AM rung 3 — THE FAST TIER REPRODUCES THE 8B PRODUCT NUMBER BYTE FOR BYTE; the full tier's arm was killed by a THIRD box freeze, and the freeze was NOT P3's fault (2026-09-04)
+### AM rung 3 — BOTH TIERS NOW EXIST AT 8B: the fast tier reproduces the product number BYTE FOR BYTE, and the full tier PROVES AN 8B MODEL (ACCEPT, +0.163% bytes, VERIFY UNCHANGED, no weight column in 161M words) — via a THIRD box freeze whose cause was NOT P3 (2026-09-04)
 
 **WHAT RAN.** `results/am_r3_8b.sh` went out detached under the heavy lock and
 started at 10:59:22. Its FAST TIER (P1) arm ran to completion, exit status 0.
@@ -13109,9 +13109,86 @@ property survives. It buys the full tier's PRIVACY and INTEGRITY claims at
 it explicitly does NOT buy a P3-on-GPU 8B time. That row still needs the
 16 GB+ board and stays booked there, exactly as rung 2 left it.
 
-**RESULT OF THE SALVAGE RUN: PENDING** (launched 11:13:51 detached under
-`flock /tmp/zk-heavy.lock`; log `results/am_r3_8b_p3_cpu.log`, marker
-`results/am_r3_8b_p3_cpu.done`). This entry is committed BEFORE that run
-lands on purpose: three freezes in one day is the reason the ledger does not
-wait on a running job.
+**RESULT OF THE SALVAGE RUN: THE FULL TIER PROVES AN 8B MODEL. ACCEPT.**
+`results/am_r3_8b_p3_cpu.log`, marker `.done` = 0, 11:13:51 -> 11:25:25.
+[MEASURED, WSL-BOX, 8T, CPU PATH, HL_GPU unset]
+
+| | P1 (fast tier, GPU) | **P3 (full tier, CPU)** |
+|---|---:|---:|
+| verdict | ACCEPT | **ACCEPT** |
+| sha256 | `930ce9a0..` | `1fee4813..` |
+| proof | 1,285,578,368 B | **1,287,678,592 B** |
+| PROVE | 238.37 s | 499.04 s (NOT A SURCHARGE — see below) |
+| VERIFY | 2.02 s | **1.99 s** |
+| witness load+chain | 128.94 s | 134.25 s |
+| wall | 372.04 s | 647.58 s |
+| max RSS | 4.56 GB | **13.97 GB** |
+| proven MAC/s | 1.211e10 | 5.784e9 |
+
+**THE SIZE COST OF HIDING THE WEIGHTS AT 8B IS +2,100,224 B = +0.163%.**
+Rung 2 measured **+0.16%** for one Mistral layer. The full model agrees
+with the single layer to three digits, which is the strongest form this
+claim has taken: **the full tier's overhead is TIME, not bytes**, and
+that now holds at product scale.
+
+**VERIFY DOES NOT MOVE: 1.99 s against P1's 2.02 s (2.33 s in round 14).**
+Hiding the weights costs the VERIFIER nothing. For a deployed product this
+is the line that matters most — whoever checks the proof cannot tell, from
+cost, whether the model was public or private.
+
+**COMMIT W IS THE FULL TIER, AND IT IS 43.6% OF THE PROVE.** Phases summed
+over layers: **commit W 217.694 s**, helpers + commit H 95.236, commit A
+86.948, zero-check F 50.688, pcs openings 26.892, zero-check D 7.070,
+matmul g/u 6.387, table zero-check 4.069, matmul d 3.690, mask commit
+0.239, zsum + mask open 0.124. P1's own commit W was 46.978 s WITH the
+device and WITH the cache. **So the full tier's whole structural cost is
+one phase, and it is exactly the phase the 5,387 MB device commitment
+would take.** A 16 GB+ board attacks 43.6% of this row directly — the
+sharpest statement yet of what the 5090 buys the full tier.
+
+**DO NOT QUOTE 238 -> 499 s AS P3's SURCHARGE.** Same trap as rung 2, one
+step worse: these arms differ on TWO axes, mode AND device (P1-on-GPU vs
+P3-on-CPU). P3's structural cost at 8B REMAINS UNMEASURED.
+
+**A NEW, USEFUL NUMBER: LEAVING THE GPU ON WHEN IT CANNOT BE USED COSTS
+~25%.** The frozen run had `HL_GPU=1` and the device commit declining;
+its two layers took **19.616 s and 20.489 s**. This run, with `HL_GPU`
+unset, does the same CPU work in **~15.3 s/layer** (layer 0 17.978 s,
+layers 1-31 15.0-15.6 s). The try-allocate-fail-fall-back path is not
+free. **On this card, a P3 pass should be launched with `HL_GPU` unset,
+not merely allowed to decline.**
+
+**THE PRIVACY CLAIM AT 8B** — the clear-value scan of the 1.29 GB P3
+proof, 160,959,824 aligned 8-byte words:
+
+| | count |
+|---|---:|
+| int8-class words `[-127,127]` | 148 |
+| int16-class words | 10,323 |
+| **RUNS of >= 100 consecutive int8-class words** | **0** |
+
+**THE DECISIVE LINE IS THE RUN COUNT, AND IT IS ZERO.** The scan exists
+because a P1 proof carries raw int8 weight columns, and a column is a RUN.
+At 8B, with the weights private, there is no run anywhere in 161 million
+words: no weight column survives into the proof.
+
+**BE HONEST ABOUT THE 148.** Rung 2 reported a clean ZERO int8-class at
+one layer; this is not zero, and the counts do not scale from rung 2's
+(2 int16-class x 32 layers would predict ~64, not 10,323). The likely
+reading is that the scan counts EVERY aligned word including
+serialization metadata — lengths, offsets, counts, group and claim
+tables — which a 32-layer proof has far more of, and which are small
+integers by construction and carry no weight information. **That reading
+is not yet demonstrated.** 148 scattered words also cannot encode a
+4096-wide int8 column even in principle. The clean way to settle it is
+the SAME scan on the SAME shape's P1 proof, which rung 3's original
+script never took: it deleted `8b-p1.proof` before scanning it. Launched
+as `results/am_r3_8b_p1_scan_cpu.sh` (CPU path — the P1 arm is what froze
+the box, so it does not get the device); until it lands, the 8B privacy
+row rests on the run count, not on the raw class counts.
+
+**THE HOST-RAM CEILING IS NOW IN SIGHT: max RSS 13.97 GB on a 15 GB box.**
+The full tier on the CPU path very nearly exhausts host memory at 8B.
+Nothing else may run beside it, and this is a SECOND reason (beside
+`commit W`) that the full tier at 8B wants the bigger machine.
 
