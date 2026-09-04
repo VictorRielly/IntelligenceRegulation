@@ -11,7 +11,7 @@ use crate::merkle::Digest;
 use crate::ntt::NttTables;
 use crate::pcs::PcsParams;
 use cudarc::driver::result as cu;
-use cudarc::driver::{sys, CudaDevice, CudaSlice, CudaView, DevicePtr, DeviceSlice, LaunchAsync, LaunchConfig};
+use cudarc::driver::{sys, CudaDevice, CudaSlice, CudaView, DevicePtr, DevicePtrMut, DeviceSlice, LaunchAsync, LaunchConfig};
 use cudarc::nvrtc::{compile_ptx_with_opts, CompileOptions};
 use rayon::prelude::*;
 use std::sync::{Arc, Mutex, OnceLock};
@@ -47,6 +47,8 @@ pub(super) struct Gpu {
     pub(super) vram_total: usize,
     /// The twiddle tables of the NttTables in use (keyed by max_log): forward, inverse.
     tw: Option<(u32, CudaSlice<u64>, CudaSlice<u64>)>,
+    /// [UPERF3-AJ] the pinned double-buffered upload path (created on first use).
+    up: Option<Uploader>,
 }
 
 // The driver handles are thread-agnostic (the context is bound per thread
@@ -215,7 +217,7 @@ fn init_gpu() -> Result<Gpu, String> {
             total as f64 / 1e9
         );
     }
-    Ok(Gpu { dev, name, cc: (major, minor), sms, vram_total: total, tw: None })
+    Ok(Gpu { dev, name, cc: (major, minor), sms, vram_total: total, tw: None, up: None })
 }
 
 fn note_vram(g: &Gpu) {
@@ -338,7 +340,243 @@ pub fn probe() -> Result<ProbeReport, String> {
             bad += 1;
         }
     }
+    if env_flag("HL_GPU_BENCH_H2D") {
+        h2d_bench(&g);
+    }
     Ok(ProbeReport { device: g.name.clone(), n, mismatches: bad, gmul_per_s: reps as f64 * n as f64 / dt / 1e9 })
+}
+
+/// [UPERF3-AJ] A page-locked host staging buffer (`cuMemHostAlloc`), the
+/// source a real DMA needs: a pageable `cuMemcpyHtoD` is staged by the
+/// driver through its own small pinned buffer and blocks the host for the
+/// whole transfer. Nothing about the BYTES changes — this is the same
+/// little-endian u64 image reaching the same device addresses.
+pub(super) struct PinBuf {
+    ptr: *mut u64,
+    len: usize,
+}
+unsafe impl Send for PinBuf {}
+impl PinBuf {
+    fn new(dev: &Arc<CudaDevice>, len: usize) -> Result<PinBuf, String> {
+        dev.bind_to_thread().map_err(|e| e.to_string())?;
+        // WRITECOMBINED: the host only ever WRITES this buffer and the DMA engine reads it.
+        let flags = if env_flag("HL_GPU_PIN_NOWC") { 0 } else { sys::CU_MEMHOSTALLOC_WRITECOMBINED };
+        let p = unsafe { cu::malloc_host(len * 8, flags) }.map_err(|e| format!("cuMemHostAlloc({} MB): {e}", len * 8 >> 20))?;
+        Ok(PinBuf { ptr: p as *mut u64, len })
+    }
+    #[inline]
+    fn as_mut_slice(&mut self) -> &mut [u64] {
+        unsafe { std::slice::from_raw_parts_mut(self.ptr, self.len) }
+    }
+    #[inline]
+    fn as_slice(&self) -> &[u64] {
+        unsafe { std::slice::from_raw_parts(self.ptr, self.len) }
+    }
+}
+impl Drop for PinBuf {
+    fn drop(&mut self) {
+        unsafe { let _ = cu::free_host(self.ptr as *mut std::ffi::c_void); }
+    }
+}
+
+/// Fill a staging buffer from a host slice (8 threads; the copy is the
+/// only host work the pinned path adds).
+fn pin_fill(dst: &mut [u64], src: &[u64]) {
+    dst.par_chunks_mut(1 << 18).zip(src.par_chunks(1 << 18)).for_each(|(a, b)| a.copy_from_slice(b));
+}
+
+/// [UPERF3-AJ] `HL_GPU_PIN_MB` — the size of ONE staging buffer (two are
+/// held); 0 turns the pinned path off entirely and every upload falls back
+/// to the built pageable `htod_sync_copy_into`.
+fn pin_mb() -> usize {
+    static V: OnceLock<usize> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_GPU_PIN_MB").ok().and_then(|v| v.parse().ok()).unwrap_or(64usize))
+}
+/// `HL_GPU_STREAM_COMMIT=0` keeps the chunked commit's upload in one block
+/// before the encode (the pre-rung-1 shape, for the A/B).
+fn stream_commit() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_GPU_STREAM_COMMIT").map(|v| v != "0").unwrap_or(true))
+}
+
+/// [UPERF3-AJ] The pinned, double-buffered upload engine: two page-locked
+/// staging buffers, one copy stream, one event per buffer. `send` fills a
+/// staging buffer and hands it to the DMA engine WITHOUT waiting, so the
+/// caller's kernels (queued on the default stream) run while the bytes
+/// move. `wait` is the only synchronization point.
+struct Uploader {
+    stream: sys::CUstream,
+    pin: [PinBuf; 2],
+    ev: [sys::CUevent; 2],
+    armed: [bool; 2],
+    cur: usize,
+    /// host seconds actually spent blocked in this engine (the honest h2d cost)
+    secs: f64,
+}
+
+impl Uploader {
+    fn new(dev: &Arc<CudaDevice>, cap: usize) -> Result<Uploader, String> {
+        dev.bind_to_thread().map_err(|e| e.to_string())?;
+        let stream = dev.fork_default_stream().map_err(|e| format!("copy stream: {e}"))?;
+        // the CudaStream wrapper would re-synchronize the default stream on drop; keep the raw handle
+        let raw = stream.stream;
+        std::mem::forget(stream);
+        let pin = [PinBuf::new(dev, cap)?, PinBuf::new(dev, cap)?];
+        let mk = || cu::event::create(sys::CUevent_flags::CU_EVENT_DISABLE_TIMING).map_err(|e| format!("cuEventCreate: {e}"));
+        Ok(Uploader { stream: raw, pin, ev: [mk()?, mk()?], armed: [false, false], cur: 0, secs: 0.0 })
+    }
+
+    /// Stage and issue `src` into `dst[off..]`, asynchronously. The bytes
+    /// are the caller's bytes: a host copy into page-locked memory and a
+    /// DMA of the same little-endian u64 image.
+    fn send(&mut self, dst: &mut CudaSlice<u64>, off: usize, src: &[u64]) -> Result<(), String> {
+        let cap = self.pin[0].len;
+        let t0 = Instant::now();
+        let mut done = 0usize;
+        while done < src.len() {
+            let w = cap.min(src.len() - done);
+            let b = self.cur;
+            if self.armed[b] {
+                unsafe { cu::event::synchronize(self.ev[b]) }.map_err(|e| format!("cuEventSynchronize: {e}"))?;
+                self.armed[b] = false;
+            }
+            pin_fill(&mut self.pin[b].as_mut_slice()[..w], &src[done..done + w]);
+            let mut view = dst.slice_mut(off + done..off + done + w);
+            unsafe { cu::memcpy_htod_async(*view.device_ptr_mut(), &self.pin[b].as_slice()[..w], self.stream) }
+                .map_err(|e| format!("cuMemcpyHtoDAsync: {e}"))?;
+            unsafe { cu::event::record(self.ev[b], self.stream) }.map_err(|e| format!("cuEventRecord: {e}"))?;
+            self.armed[b] = true;
+            self.cur ^= 1;
+            done += w;
+        }
+        self.secs += t0.elapsed().as_secs_f64();
+        Ok(())
+    }
+
+    /// Block until every issued copy has landed.
+    fn wait(&mut self) -> Result<(), String> {
+        let t0 = Instant::now();
+        unsafe { cu::stream::synchronize(self.stream) }.map_err(|e| format!("cuStreamSynchronize: {e}"))?;
+        self.armed = [false, false];
+        self.secs += t0.elapsed().as_secs_f64();
+        Ok(())
+    }
+}
+
+impl Gpu {
+    /// The upload engine, created on first use; `None` when pinned staging
+    /// is off or unavailable (the caller then uses the pageable path).
+    fn up(&mut self) -> Option<&mut Uploader> {
+        if pin_mb() == 0 {
+            return None;
+        }
+        if self.up.is_none() {
+            let cap = (pin_mb() << 20) / 8;
+            match Uploader::new(&self.dev.clone(), cap) {
+                Ok(u) => self.up = Some(u),
+                Err(e) => {
+                    eprintln!("[UPERF3-AJ] pinned staging unavailable ({e}); pageable uploads");
+                    return None;
+                }
+            }
+        }
+        self.up.as_mut()
+    }
+
+    /// One whole upload, host-synchronous — the drop-in for
+    /// `htod_sync_copy_into` (identical bytes, identical destination).
+    fn upload_sync(&mut self, dst: &mut CudaSlice<u64>, src: &[u64]) -> Result<(), String> {
+        let dev = self.dev.clone();
+        let t0 = Instant::now();
+        let ok = match self.up() {
+            Some(u) => match u.send(dst, 0, src).and_then(|_| u.wait()) {
+                Ok(()) => true,
+                Err(e) => {
+                    eprintln!("[UPERF3-AJ] pinned upload declined ({e}); pageable");
+                    false
+                }
+            },
+            None => false,
+        };
+        if !ok {
+            dev.htod_sync_copy_into(src, dst).map_err(|e| format!("data upload: {e}"))?;
+            dev.synchronize().map_err(|e| e.to_string())?;
+        }
+        stats_with(|s| { s.secs_h2d += t0.elapsed().as_secs_f64(); s.bytes_h2d += (src.len() * 8) as u64; });
+        Ok(())
+    }
+}
+
+/// [UPERF3-AJ] `HL_GPU_BENCH_H2D=1` on `gpu-probe`: the host-to-device
+/// upload rate of the forms the commit path can use — the built pageable
+/// `htod_sync_copy_into`, a pinned staging buffer filled then DMA'd, and
+/// the same double-buffered on a copy stream (the form rung 1 puts under
+/// the chunked commit). Diagnostic only; nothing here is on a proof path.
+fn h2d_bench(g: &Gpu) {
+    let dev = g.dev.clone();
+    let n = 128usize << 20; // 1 GiB of u64
+    let src: Vec<u64> = vec![0x0123_4567_89AB_CDEFu64; n];
+    let mut d = match unsafe { dev.alloc::<u64>(n) } {
+        Ok(b) => b,
+        Err(e) => { eprintln!("[UPERF3-AJ] h2d bench: alloc failed ({e})"); return; }
+    };
+    let gb = (n * 8) as f64 / 1e9;
+    let reps = 3;
+    let t = Instant::now();
+    for _ in 0..reps {
+        dev.htod_sync_copy_into(&src, &mut d).unwrap();
+    }
+    let pageable = t.elapsed().as_secs_f64() / reps as f64;
+    let chunk = 32usize << 20; // 256 MB staging buffers
+    let (mut p0, mut p1) = match (PinBuf::new(&dev, chunk), PinBuf::new(&dev, chunk)) {
+        (Ok(a), Ok(b)) => (a, b),
+        _ => { eprintln!("[UPERF3-AJ] h2d bench: cuMemHostAlloc failed — pinned staging is not available on this box"); return; }
+    };
+    let t = Instant::now();
+    for _ in 0..reps {
+        for (k, off) in (0..n).step_by(chunk).enumerate() {
+            let w = chunk.min(n - off);
+            let b = if k & 1 == 0 { &mut p0 } else { &mut p1 };
+            pin_fill(&mut b.as_mut_slice()[..w], &src[off..off + w]);
+        }
+    }
+    let fill = t.elapsed().as_secs_f64() / reps as f64;
+    let t = Instant::now();
+    for _ in 0..reps {
+        for (k, off) in (0..n).step_by(chunk).enumerate() {
+            let w = chunk.min(n - off);
+            let b = if k & 1 == 0 { &mut p0 } else { &mut p1 };
+            pin_fill(&mut b.as_mut_slice()[..w], &src[off..off + w]);
+            let mut view = d.slice_mut(off..off + w);
+            unsafe { cu::memcpy_htod_async(*view.device_ptr_mut(), &b.as_slice()[..w], *dev.cu_stream()) }.unwrap();
+            dev.synchronize().unwrap();
+        }
+    }
+    let staged = t.elapsed().as_secs_f64() / reps as f64;
+    // double-buffered on a copy stream: the fill of chunk k+1 rides the DMA of chunk k
+    let stream = dev.fork_default_stream().unwrap();
+    let t = Instant::now();
+    for _ in 0..reps {
+        let mut pending = false;
+        for (k, off) in (0..n).step_by(chunk).enumerate() {
+            let w = chunk.min(n - off);
+            if k >= 2 || (pending && k >= 1) {
+                // the buffer we are about to refill was handed to the DMA two chunks ago
+            }
+            let b = if k & 1 == 0 { &mut p0 } else { &mut p1 };
+            if k >= 2 { unsafe { cu::stream::synchronize(stream.stream) }.unwrap(); }
+            pin_fill(&mut b.as_mut_slice()[..w], &src[off..off + w]);
+            let mut view = d.slice_mut(off..off + w);
+            unsafe { cu::memcpy_htod_async(*view.device_ptr_mut(), &b.as_slice()[..w], stream.stream) }.unwrap();
+            pending = true;
+        }
+        unsafe { cu::stream::synchronize(stream.stream) }.unwrap();
+    }
+    let piped = t.elapsed().as_secs_f64() / reps as f64;
+    eprintln!(
+        "[UPERF3-AJ] h2d {gb:.2} GB x{reps}: pageable {pageable:.4} s = {:.2} GB/s | pin fill {fill:.4} = {:.2} | staged serial {staged:.4} = {:.2} | double-buffered {piped:.4} = {:.2} GB/s",
+        gb / pageable, gb / fill, gb / staged, gb / piped
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -425,16 +663,32 @@ impl Gpu {
 /// -> the caller runs the CPU body.
 pub fn dev_commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Result<(DevCommit, Vec<Digest>), String> {
     let g = gpu().ok_or_else(init_err)?;
-    let g = g.lock().unwrap();
+    let mut g = g.lock().unwrap();
     let n = params.cols();
     assert!(data.len() % n == 0 && !data.is_empty());
     let rows = data.len() / n;
+    let nn = params.enc_cols();
     let dev = g.dev.clone();
-    let t0 = Instant::now();
+    // [UPERF3-AJ] the chunked class with an INTERLEAVED pinned upload: the
+    // bytes of the next chunk move while the current one encodes and hashes.
+    // A decline here costs nothing — the block-upload body below runs.
+    if stream_commit() && pin_mb() > 0 && rows * nn * 8 > chunk_bytes() && nn.is_power_of_two() {
+        let log_nn = nn.trailing_zeros();
+        if let Err(e) = g.ensure_twiddles(ntt) {
+            eprintln!("[UPERF3-AJ] streamed commit declined ({e}); block upload");
+        } else {
+            let mut d_data = Pooled::take(&dev, data.len())?;
+            match g.commit_chunked_upload(as_u64s(data), &mut d_data, rows, params.log_cols, log_nn, chunk_rows()) {
+                Ok(leaves) => {
+                    note_vram(&g);
+                    return Ok((DevCommit { rows, log_n: params.log_cols, log_nn, data: d_data, enc: None }, leaves));
+                }
+                Err(e) => eprintln!("[UPERF3-AJ] streamed commit declined ({e}); block upload"),
+            }
+        }
+    }
     let mut d_data = Pooled::take(&dev, data.len())?;
-    dev.htod_sync_copy_into(as_u64s(data), d_data.get_mut()).map_err(|e| format!("data upload: {e}"))?;
-    dev.synchronize().map_err(|e| e.to_string())?;
-    stats_with(|s| { s.secs_h2d += t0.elapsed().as_secs_f64(); s.bytes_h2d += (data.len() * 8) as u64; });
+    g.upload_sync(d_data.get_mut(), as_u64s(data))?;
     drop(g);
     dev_commit_from(params, d_data, rows, ntt)
 }
@@ -454,12 +708,9 @@ pub fn dev_encode_only(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Resu
     let log_nn = nn.trailing_zeros();
     assert_eq!(1usize << log_nn, nn, "inv_rate must be a power of two on the device path");
     let dev = g.dev.clone();
-    let t0 = Instant::now();
     let mut d_data = Pooled::take(&dev, data.len())?;
-    dev.htod_sync_copy_into(as_u64s(data), d_data.get_mut()).map_err(|e| format!("data upload: {e}"))?;
-    dev.synchronize().map_err(|e| e.to_string())?;
+    g.upload_sync(d_data.get_mut(), as_u64s(data))?; // [UPERF3-AJ] pinned staging
     let t1 = Instant::now();
-    stats_with(|s| { s.secs_h2d += (t1 - t0).as_secs_f64(); s.bytes_h2d += (data.len() * 8) as u64; });
     if rows * nn * 8 > chunk_bytes() {
         // the chunked class: nothing to encode now — the opening re-encodes chunk by chunk
         return Ok(DevCommit { rows, log_n, log_nn, data: d_data, enc: None });
@@ -603,6 +854,75 @@ impl Gpu {
         }
         // when not verbose the ntt/hash split is not synchronized: charge the wall to ntt, the chunk count to the record
         stats_with(|s| { if vb { s.secs_ntt += t_ntt; s.secs_hash += total - t_ntt; } else { s.secs_ntt += total; } s.n_chunked += 1; s.bytes_d2h += (nn * 32) as u64; });
+        Ok(leaves)
+    }
+
+    /// [UPERF3-AJ] The chunked commit with the UPLOAD INTERLEAVED: chunk
+    /// k + 1's bytes ride the pinned copy stream while chunk k encodes and
+    /// hashes on the default stream. Identical values: the same rows reach
+    /// the same device addresses and the same kernels run on them, so the
+    /// leaves — and the proof — are the block-upload path's.
+    fn commit_chunked_upload(&mut self, host: &[u64], d_data: &mut Pooled, rows: usize, log_n: u32, log_nn: u32, chunk: usize) -> Result<Vec<Digest>, String> {
+        let dev = self.dev.clone();
+        let n = 1usize << log_n;
+        let nn = 1usize << log_nn;
+        let plan = chunk_plan(rows, chunk);
+        let rmax = plan.iter().map(|&(_, rc)| rc).max().unwrap();
+        let t0 = Instant::now();
+        let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
+        let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+        let state_words = B3_STATE_SLOTS * nn;
+        let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;
+        dev.memset_zeros(d_state.get_mut()).map_err(|e| format!("state memset: {e}"))?;
+        let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+        let f_hash = dev.get_func(MODULE, "k_hash_cols_stream").ok_or("k_hash_cols_stream missing")?;
+        note_vram(self);
+        if self.up().is_none() {
+            return Err("pinned staging unavailable".into());
+        }
+        let mut up = self.up.take().unwrap();
+        let secs0 = up.secs;
+        let vb = verbose();
+        let r = (|| -> Result<Vec<Digest>, String> {
+            let (r0, rc) = plan[0];
+            up.send(d_data.get_mut(), r0 * n, &host[r0 * n..(r0 + rc) * n])?;
+            for (i, &(r0, rc)) in plan.iter().enumerate() {
+                up.wait()?;
+                {
+                    let view = d_data.get().slice(r0 * n..(r0 + rc) * n);
+                    self.encode_rows_view(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn)?;
+                }
+                let cfg = LaunchConfig::for_num_elems(nn as u32);
+                unsafe { f_hash.clone().launch(cfg, (d_enc.get(), d_state.get_mut(), rc as i32, r0 as i32, rows as i32, nn as i32, &mut d_leaves)) }
+                    .map_err(|e| format!("k_hash_cols_stream: {e}"))?;
+                if i + 1 < plan.len() {
+                    let (r1, rc1) = plan[i + 1];
+                    up.send(d_data.get_mut(), r1 * n, &host[r1 * n..(r1 + rc1) * n])?;
+                }
+            }
+            let words = dev.dtoh_sync_copy(&d_leaves).map_err(|e| format!("leaves download: {e}"))?;
+            let mut leaves = vec![[0u8; 32]; nn];
+            for (j, leaf) in leaves.iter_mut().enumerate() {
+                for w in 0..8 {
+                    leaf[4 * w..4 * w + 4].copy_from_slice(&words[j * 8 + w].to_le_bytes());
+                }
+            }
+            Ok(leaves)
+        })();
+        let secs_up = up.secs - secs0;
+        self.up = Some(up);
+        let leaves = r?;
+        let total = t0.elapsed().as_secs_f64();
+        if vb {
+            eprintln!("[UPERF3-AJ]   streamed commit rows {rows} 2^{log_n} -> 2^{log_nn} in {} chunks of <= {rmax}: h2d visible {secs_up:.4} | total {total:.4} s", plan.len());
+        }
+        stats_with(|s| {
+            s.secs_h2d += secs_up;
+            s.bytes_h2d += (host.len() * 8) as u64;
+            s.secs_ntt += total - secs_up;
+            s.n_chunked += 1;
+            s.bytes_d2h += (nn * 32) as u64;
+        });
         Ok(leaves)
     }
 
@@ -1436,16 +1756,15 @@ pub fn dev_commit_zk_from(params: &PcsParams, d_data: Pooled, rows: usize, pads:
 /// Upload `data` and commit it in ZK mode (== pcs::commit_zk's encoding and leaves).
 pub fn dev_commit_zk(params: &PcsParams, data: &[Fp], pads: &[Fp], pows: &[Fp], ntt: &NttTables) -> Result<(DevCommit, Vec<Digest>), String> {
     let g = gpu().ok_or_else(init_err)?;
-    let g = g.lock().unwrap();
+    let mut g = g.lock().unwrap();
     let n = params.cols();
     assert!(data.len() % n == 0 && !data.is_empty());
     let rows = data.len() / n;
     let dev = g.dev.clone();
     let t0 = Instant::now();
     let mut d_data = Pooled::take(&dev, data.len())?;
-    dev.htod_sync_copy_into(as_u64s(data), d_data.get_mut()).map_err(|e| format!("data upload: {e}"))?;
-    dev.synchronize().map_err(|e| e.to_string())?;
-    stats_with(|s| { s.secs_h2d += t0.elapsed().as_secs_f64(); s.bytes_h2d += (data.len() * 8) as u64; });
+    g.upload_sync(d_data.get_mut(), as_u64s(data))?; // [UPERF3-AJ] pinned staging
+    let _ = t0;
     drop(g);
     dev_commit_zk_from(params, d_data, rows, pads, pows, ntt)
 }
