@@ -13661,5 +13661,31 @@ attributed before it is optimised.
 
 ## Agent AO status (wt-uperf3-ao) — round 16
 
-(lane appends below)
+### Rung 0 — SKELETON, lane opened (2026-09-04)
+
+Lane AO is live in `/home/victor/wt-uperf3-ao` (branch `uperf3-ao`, from
+`ec02f0d`). Target: **lever L9, the opening's chunked re-encode**, plus
+the encode NTT and the sumchecks if L9 lands early. Files owned:
+`hashline/src/pcs.rs`, `hashline/src/ntt.rs`, `hashline/src/gpu/*`, new
+`results/ao_*`. `layer.rs`/`zk.rs` are lane AN's and READ-ONLY here.
+
+Read first, as briefed: the project CLAUDE.md, this ledger's round-16
+block, and lane AJ's `results/hashline_hostwall_gpu.md` (the model for
+attributing a device item BEFORE optimising it — §7's last bullet is
+this lane's starting hypothesis).
+
+The starting hypothesis, from AJ §7 [COUNTED, not this lane's number
+yet]: the re-encode is 6.87e9 butterflies in 0.44 s = 1.6e10 Goldilocks
+mul/s against a ~4.6e11 ALU ceiling, and 66 of 256 GB/s — so it is
+latency/launch-structure bound, and output pruning (256 of 65,536
+columns wanted) counts at ~1.6x.
+
+MEASUREMENT DISCIPLINE for this lane, restated so no later reader
+mistakes a number: **no 8B headline from this box.** 8 GB card, spills
+at 8,585 MB on the 8B pass, froze three times on 2026-09-04. A/B ratios
+on SMALL shapes only; gate on bytes; the 8B headline waits for the 5090.
+
+Still open at rung 0: everything. Next: read the re-encode path end to
+end (`pcs.rs` opening -> `gpu/cuda.rs` -> `kernels.cu`), instrument it,
+and publish the attribution table before touching a kernel.
 
