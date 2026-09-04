@@ -179,3 +179,35 @@ not real. What survives that:
   it costs nothing here; it is switchable and byte-gated either way.
 - 1024 threads per NTT block is worse than 512 (1 block per SM instead of
   3), and a 32 MB staging buffer is worse than 64 MB.
+
+## 7. What this lane did NOT do, and why
+
+- **The plane -> Fp conversion itself (B1a).** `prove_layer_v3` builds
+  `w_data` (1.4 GB at the Mistral shape) and `a_data` element by element
+  with `Fp::from_i64` before any of this lane's code sees them; measured
+  at ~0.92 s of the 3.13 s baseline layer. That code is in `layer.rs`,
+  which the round-14 lane brief makes READ-ONLY for AJ. **It is the
+  single largest host item in the pass and it is not assigned to anyone
+  in round 14.** The device side is now ready for it: `k_widen` already
+  reconstructs field elements from packed signed integers on the device,
+  so the fix is to hand `pcs::commit` the int8 planes instead of a
+  converted 64-bit vector, and give the two host matmul folds
+  (`fold_cols_base` over `w_data`, another 0.26 s/layer) a device form.
+  Counted at the 8B pass: **~29 s of the 95.5 s** [COUNTED from the
+  one-layer phases].
+- **The proof serialization (B4b).** The plan attributes ~13 s to
+  "Merkle levels + serialization of a 1.23 GB proof". Measured: the
+  serialization runs OUTSIDE the prove clock and costs **0.03 s per
+  layer** (wall 6.61 minus load 3.39, prove 3.13, verify 0.04), i.e.
+  ~1 s of the 225 s pass wall — not 13 s. Parallelizing
+  `Opening::write_bytes` was therefore dropped as not worth the change to
+  a file whose only other job is byte-identity.
+- **A deeper NTT redesign.** At the winning configuration the opening's
+  re-encode is ~0.44 s of a 2.50 s layer and is neither ALU- nor
+  bandwidth-bound: 6.87e9 butterflies in 0.44 s is 1.6e10 Goldilocks
+  multiplies per second against a ~4.6e11 ALU ceiling [COUNTED], and
+  66 GB/s against 256 GB/s of bandwidth. It is a latency/launch-structure
+  problem — output pruning (only 256 of 65,536 columns are wanted, worth
+  ~1.6x on the forward transform [COUNTED]), a fused DIF/DIT, or a
+  radix-4 stage. That is a kernel project, not a rung, and it is the
+  right next item for whoever continues this lane.
