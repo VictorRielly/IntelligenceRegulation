@@ -25,7 +25,7 @@ use hashline::layer::{apply_tamper, matmul_differential, prove_layer, verify_lay
 use hashline::ntt::NttTables;
 use hashline::transcript::Transcript;
 use std::time::Instant;
-use hashline::export_v3::{clone_witness_v3, compare_planes, derive_v3, export_dir_v3, load_layer_v3, V3Sidecar, V3Witness};
+use hashline::export_v3::{clone_witness_v3, compare_planes, derive_v3, derive_v3_with_table, export_dir_v3, load_layer_v3, V3Sidecar, V3Witness};
 use hashline::layer::{apply_tamper_v3, prove_layer_v3, verify_layer_v3, StatementV3, TamperV3};
 
 struct Opts {
@@ -1266,7 +1266,13 @@ fn attn_full(dir: &str, o: &Opts) {
     let p = params(o);
     let (v3dir, side) = v3_dir_side(o);
     let t0 = Instant::now();
-    let wit = at::build_attn_witness_t(dir, o.t_rows);
+    let l0 = at::layer_of(dir);
+    let ex_e_x = {
+        let (dir2, side2) = v3_dir_side(o);
+        let _ = &dir2;
+        side2.exps(l0).e_x
+    };
+    let wit = at::build_attn_witness_full(dir, o.t_rows, None, Some(ex_e_x));
     let sh = wit.c.shape;
     let (t, d) = (sh.t, sh.d);
     let l = wit.c.layer;
@@ -1275,12 +1281,26 @@ fn attn_full(dir: &str, o: &Opts) {
     let mut ex = load_layer_v3(&v3dir, &side, l, false, true);
     let same = (0..t * d).filter(|&i| ex.x[i] as i64 == wit.nm.y[i]).count();
     for i in 0..t * d { ex.x[i] = wit.nm.y[i] as i8; }
-    let w3 = derive_v3(&ex, t);
+    // the FFN's own X exponent vs the attention half's xm8 exponent: the
+    // gate/up shifts absorb the difference so the frozen table member (keyed
+    // by the gate exponent) is unchanged.
+    let dx = wit.c.e_xm - ex.exps.e_x;
+    if dx != 0 {
+        println!("  the attention half's xm8 sits {dx} bit(s) from the FFN export's X exponent: g/u shifts adjusted, the frozen table member unchanged");
+        ex.shifts.0 -= dx;
+        ex.shifts.1 -= dx;
+        ex.exps.e_x += dx;
+    }
+    let (w3, bumps, e_z16) = derive_ffn_on(&ex, t);
     let z16: Vec<i64> = w3.z16[..t * d].iter().map(|&v| v as i64).collect();
-    let r2 = at::residual2(&wit, z16, wit.c.e_r1, ex.exps.e_z16, wit.c.r1_cls);
+    let r2 = at::residual2(&wit, z16, wit.c.e_r1, e_z16, wit.c.r1_cls);
+    if bumps.iter().any(|&b| b != 0) {
+        println!("  the FFN half's shifts fitted to this X plane: g/u/h/z bumped by {bumps:?} (public constants; the frozen table member re-selected for the new gate exponent)");
+    }
     println!("attn-full {dir} + {}: layer {l}, T {t} d {d} f {} H {}/{} d_h {} ({:.2} s, {} threads)",
              v3dir.display(), side.dims.f, sh.heads, sh.kv_heads, sh.head_dim,
              t0.elapsed().as_secs_f64(), rayon::current_num_threads());
+    println!("  {}", at::consts_line(&wit.c));
     println!("  the attention half's xm8 vs the FFN export's own X plane: {}/{} equal ({:.4}) — the FFN half is proven on xm8 either way",
              same, t * d, same as f64 / (t * d) as f64);
     println!("  residual2: xres1 << {} + z16 << {} >> {} -> e_r2 {} ({:?})",
@@ -1360,6 +1380,62 @@ fn attn_full(dir: &str, o: &Opts) {
     }
     println!("attn-full: {}", if fails == 0 { "GREEN" } else { "RED" });
     if fails > 0 { std::process::exit(1); }
+}
+
+/// [UPERF3-AG] Derive the v3 FFN witness on a REPLACED X plane (the
+/// attention half's xm8), FITTING the four requant shifts: the export was
+/// calibrated on its own X, and the composed layer's X is a different
+/// integer plane, so a shift may have to rise. Every shift is a public
+/// statement constant (never a silent clamp), and the gate shift's rise is
+/// matched by the FROZEN table member for the new gate exponent, so the
+/// activation table stays a registry member.
+fn derive_ffn_on(ex: &hashline::export_v3::V3LayerExport, t: usize) -> (V3Witness, [i32; 4], i32) {
+    use hashline::export_v3::{matmul_i32_i8_i64, requant_round};
+    let (d, f) = (ex.dims.d, ex.dims.f);
+    let xi: Vec<i32> = ex.x[..t * d].iter().map(|&v| v as i32).collect();
+    let fit = |accmax: i64, lim: i64, sh0: i32| -> i32 {
+        let mut sh = sh0;
+        loop {
+            let (y, _) = requant_round(&[accmax], sh);
+            if y[0].abs() <= lim { return sh; }
+            sh += 1;
+            assert!(sh - sh0 < 24, "runaway FFN shift fit");
+        }
+    };
+    let amax = |v: &[i64]| v.iter().map(|x| x.abs()).max().unwrap_or(0);
+    let gacc = matmul_i32_i8_i64(&xi, &ex.wg_t, t, d, f);
+    let uacc = matmul_i32_i8_i64(&xi, &ex.wu_t, t, d, f);
+    let sh_g = fit(amax(&gacc), 127, ex.shifts.0);
+    let sh_u = fit(amax(&uacc), 32767, ex.shifts.1);
+    let e_g = ex.exps.e_x + ex.exps.e_wg + sh_g;
+    let (table, tdig) = hashline::tables_v3::int16out_member(ex.act, e_g, ex.exps.e_a16)
+        .unwrap_or_else(|| panic!("no frozen {} member at (e_gate {e_g}, e_out {})", ex.act.spec_name(), ex.exps.e_a16));
+    let (g8, _) = requant_round(&gacc, sh_g);
+    let (u16v, _) = requant_round(&uacc, sh_u);
+    let hh: Vec<i64> = g8.iter().zip(u16v.iter())
+        .map(|(&g, &u)| table[((g + 128).clamp(0, 255)) as usize] as i64 * u).collect();
+    let sh_h = fit(amax(&hh), 32767, ex.shifts.2);
+    let (h16, _) = requant_round(&hh, sh_h);
+    let h32: Vec<i32> = h16.iter().map(|&v| v as i32).collect();
+    let dacc = matmul_i32_i8_i64(&h32, &ex.wd_t, t, f, d);
+    let sh_z = fit(amax(&dacc), 32767, ex.shifts.3);
+    let mut ex2 = clone_export_shifts(ex);
+    ex2.shifts = (sh_g, sh_u, sh_h, sh_z);
+    let w = derive_v3_with_table(&ex2, t, table, tdig);
+    assert!(w.range_ok, "the FFN half still does not fit its classes after the shift fit");
+    let e_u16 = ex.exps.e_x + ex.exps.e_wu + sh_u;
+    let e_h16 = ex.exps.e_a16 + e_u16 + sh_h;
+    let e_z16 = e_h16 + ex.exps.e_wd + sh_z;
+    (w, [sh_g - ex.shifts.0, sh_u - ex.shifts.1, sh_h - ex.shifts.2, sh_z - ex.shifts.3], e_z16)
+}
+
+fn clone_export_shifts(ex: &hashline::export_v3::V3LayerExport) -> hashline::export_v3::V3LayerExport {
+    hashline::export_v3::V3LayerExport {
+        l: ex.l, dims: ex.dims, x: ex.x.clone(), wg_t: ex.wg_t.clone(), wu_t: ex.wu_t.clone(),
+        wd_t: ex.wd_t.clone(), a16: ex.a16.clone(), u16: ex.u16.clone(), h16: ex.h16.clone(),
+        z16: ex.z16.clone(), exps: ex.exps, shifts: ex.shifts, act: ex.act, table: ex.table,
+        table_digest: ex.table_digest.clone(), digest_checks: ex.digest_checks.clone(),
+    }
 }
 
 /// The seam points: the FFN's zero-check-D point, lifted onto the padded

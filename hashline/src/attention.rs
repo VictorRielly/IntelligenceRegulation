@@ -250,6 +250,7 @@ pub struct AttnConsts {
     pub e_xn: i32,
     pub e_r1: i32,
     pub e_ao: i32,
+    pub e_xm: i32,
     pub sh_q: i32,
     pub sh_k: i32,
     pub sh_v: i32,
@@ -329,6 +330,11 @@ pub struct AttnWitness {
     pub stab: Vec<i64>,
 }
 
+/// The layer index an export directory names.
+pub fn layer_of(dir: &str) -> usize {
+    Manifest::load(dir).u("layer")
+}
+
 /// Run the chain from an export directory, keeping every plane.
 pub fn build_attn_witness(dir: &str) -> AttnWitness {
     build_attn_witness_t(dir, None)
@@ -338,6 +344,71 @@ pub fn build_attn_witness(dir: &str) -> AttnWitness {
 /// row prefix of the export IS the chain of that prefix; the digest gate
 /// applies at the export's own T).
 pub fn build_attn_witness_t(dir: &str, t_rows: Option<usize>) -> AttnWitness {
+    build_attn_witness_full(dir, t_rows, None, None)
+}
+
+/// [UPERF3-AG] The layer's input when it comes from the PREVIOUS layer's
+/// proven output (the multi-layer seam) rather than from the export.
+pub struct SeamIn {
+    pub x: Vec<i64>,
+    pub e_r: i32,
+    pub cls: Cls,
+}
+
+/// Requant at the declared shift, RAISING it while the narrowing would
+/// saturate (the shift is a public statement constant; the oracle's
+/// `fit_requant`). Returns (y, r, shift).
+fn fit_requant(acc: &[i64], sh0: i64, lim: i64) -> (Vec<i64>, Vec<i64>, i64) {
+    let mut sh = sh0;
+    loop {
+        let (y, r) = requant_round(acc, sh);
+        if y.iter().all(|&v| v.abs() <= lim) {
+            return (y, r, sh);
+        }
+        sh += 1;
+        assert!(sh - sh0 < 24, "runaway requant fit");
+    }
+}
+
+fn bits_u(v: i64) -> u32 {
+    if v <= 0 { 0 } else { 64 - (v as u64).leading_zeros() }
+}
+
+/// One norm site, with the output exponent SEARCHED the way the oracle
+/// searches it (the window rule fixes (tn, Cn) from e_y; e_y rises until
+/// the int8 narrowing holds).
+fn fit_norm(x: &[i64], gv: &[i64], d: usize, eps: f64, e_x: i32, e_g: i32, e_y_hint: i32,
+            mode: crate::norm::DivMode) -> (crate::norm::NormChain, NormConsts, i32) {
+    let ceps = crate::norm::ceps_of(eps, d, e_x);
+    for k in 0..48 {
+        let e_y = e_y_hint + k;
+        let (tn, cn) = crate::norm::window_rule(e_g, e_y, d);
+        let t_rows = x.len() / d;
+        // a cheap pre-check on the first rows, then the full chain
+        let ok = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            crate::norm::rmsnorm_chain(x, gv, d, ceps, tn, cn, mode)
+        }));
+        if let Ok(ch) = ok {
+            let dvp: i64 = (0..t_rows).map(|r| (ch.dd[r] << tn) * if mode == crate::norm::DivMode::Round { 2 } else { 1 }).max().unwrap_or(1);
+            let wrho = bits_u(dvp - 1);
+            let n_limbs = std::cmp::max(1, wrho.div_ceil(16)) as usize;
+            return (ch, NormConsts { tn, cn, ceps, wrho, n_limbs }, e_y);
+        }
+    }
+    panic!("norm: no admissible e_y");
+}
+
+/// A one-line summary of the fitted statement constants.
+pub fn consts_line(c: &AttnConsts) -> String {
+    format!("shifts q/k/v {}/{}/{} qr/kr {}/{} s {} o {} ao {} r1 {} | exps xn {} q {} k {} v {} s_raw {} xm {} ao {} r1 {} | anorm(tn {} cn {} ceps {} wrho {}) mnorm(tn {} cn {} ceps {} wrho {})",
+        c.sh_q, c.sh_k, c.sh_v, c.sh_qr, c.sh_kr, c.sh_s, c.sh_o, c.sh_ao, c.sh_r1,
+        c.e_xn, c.e_xn + c.sh_q, 0, 0, c.e_s_raw, c.e_xm, c.e_ao, c.e_r1,
+        c.anorm.tn, c.anorm.cn, c.anorm.ceps, c.anorm.wrho,
+        c.mnorm.tn, c.mnorm.cn, c.mnorm.ceps, c.mnorm.wrho)
+}
+
+pub fn build_attn_witness_full(dir: &str, t_rows: Option<usize>, seam: Option<SeamIn>,
+                               e_xm_target: Option<i32>) -> AttnWitness {
     let m = Manifest::load(dir);
     let (t, d) = (t_rows.unwrap_or(m.u("T")), m.u("d"));
     assert!(t <= m.u("T") && t.is_power_of_two(), "t_rows {t}");
@@ -347,32 +418,43 @@ pub fn build_attn_witness_t(dir: &str, t_rows: Option<usize>) -> AttnWitness {
     let f_p = m.i("fP") as u32;
     let f_ro = m.i("fRo") as u32;
     let round = m.s("norm_div") == "round";
-    let mut x_in = load_i32(dir, "x_in");
-    x_in.truncate(t * d);
     let wq = load_i32(dir, "wq");
     let wk = load_i32(dir, "wk");
     let wv = load_i32(dir, "wv");
     let wo = load_i32(dir, "wo");
     let g_a = load_i32(dir, "gA");
     let g_m = load_i32(dir, "gM");
-
-    // --- attn_norm ---------------------------------------------------
-    let dmode = if round { crate::norm::DivMode::Round } else { crate::norm::DivMode::Floor };
-    let na = crate::norm::rmsnorm_chain(&x_in, &g_a, d, m.i("anorm_ceps"),
-                                        m.i("anorm_tn") as u32, m.i("anorm_cn"), dmode);
-
-    // --- QKV -----------------------------------------------------------
-    let mm = |w: &[i64], d_out: usize, sh: i64, lim: i64| -> (Vec<i64>, Vec<i64>, Vec<i64>) {
-        let acc = matmul_wt(&na.y, w, t, d, d_out);
-        let (y, r) = requant_round(&acc, sh);
-        assert!(y.iter().all(|&v| v.abs() <= lim), "narrowing saturates");
-        (acc, y, r)
+    let (x_in, e_r, x_cls) = match seam {
+        Some(sm) => {
+            assert_eq!(sm.x.len(), t * d, "seam input size");
+            (sm.x, sm.e_r, sm.cls)
+        }
+        None => {
+            let mut x = load_i32(dir, "x_in");
+            x.truncate(t * d);
+            let cls = if m.u("layer") == 0 { Cls::Int8 } else { Cls::of_limit(m.i("r1_lim")) };
+            (x, m.i("e_r") as i32, cls)
+        }
     };
-    let (qacc, q8, rq) = mm(&wq, h_q * hd, m.i("sh_q"), 127);
-    let (kacc, k8, rk) = mm(&wk, h_kv * hd, m.i("sh_k"), 127);
-    let (vacc, v8, rv) = mm(&wv, h_kv * hd, m.i("sh_v"), 127);
+    let eps = m.f("eps");
+    let dmode = if round { crate::norm::DivMode::Round } else { crate::norm::DivMode::Floor };
 
-    // --- RoPE ----------------------------------------------------------
+    // --- attn_norm (the site's constants derived from THIS input's exponent) ---
+    let (na, anorm, e_xn) = fit_norm(&x_in, &g_a, d, eps, e_r, m.i("e_gA") as i32,
+                                     m.i("e_xn") as i32, dmode);
+
+    // --- QKV (each shift fitted to the record's target exponent) ---------
+    let mm = |w: &[i64], d_out: usize, e_w: i32, e_y: i32, lim: i64|
+        -> (Vec<i64>, Vec<i64>, Vec<i64>, i32, i32) {
+        let acc = matmul_wt(&na.y, w, t, d, d_out);
+        let (y, r, sh) = fit_requant(&acc, (e_y - e_xn - e_w) as i64, lim);
+        (acc, y, r, sh as i32, e_xn + e_w + sh as i32)
+    };
+    let (qacc, q8, rq, sh_q, e_q) = mm(&wq, h_q * hd, m.i("e_wq") as i32, m.i("e_q") as i32, 127);
+    let (kacc, k8, rk, sh_k, e_k) = mm(&wk, h_kv * hd, m.i("e_wk") as i32, m.i("e_k") as i32, 127);
+    let (vacc, v8, rv, sh_v, e_v) = mm(&wv, h_kv * hd, m.i("e_wv") as i32, m.i("e_v") as i32, 127);
+
+    // --- RoPE ------------------------------------------------------------
     let (ctab, stab) = crate::tables_attn::rope_tables_generate(t, hd, m.f("rope_base"), f_ro);
     let rope_dig = crate::tables_attn::rope_digest(t, hd, m.f("rope_base"), f_ro, &ctab, &stab);
     // the rope member is keyed by t_max: at the export's own T it must be the
@@ -381,7 +463,7 @@ pub fn build_attn_witness_t(dir: &str, t_rows: Option<usize>) -> AttnWitness {
         assert_eq!(rope_dig, m.s("rope_digest"), "rope table digest");
     }
     let half = hd / 2;
-    let rope = |src: &[i64], heads: usize, sh: i64| -> (Vec<i64>, Vec<i64>, Vec<i64>) {
+    let rope = |src: &[i64], heads: usize, sh0: i64| -> (Vec<i64>, Vec<i64>, Vec<i64>, i32) {
         let width = heads * hd;
         let mut acc = vec![0i64; t * width];
         acc.par_chunks_mut(width).enumerate().for_each(|(ti, row)| {
@@ -396,25 +478,41 @@ pub fn build_attn_witness_t(dir: &str, t_rows: Option<usize>) -> AttnWitness {
                 }
             }
         });
-        let (y, r) = requant_round(&acc, sh);
-        assert!(y.iter().all(|&v| v.abs() <= 127), "rope narrowing saturates");
-        (acc, y, r)
+        let (y, r, sh) = fit_requant(&acc, sh0, 127);
+        (acc, y, r, sh as i32)
     };
-    let (qracc, qr8, rqr) = rope(&q8, h_q, m.i("sh_qr"));
-    let (kracc, kr8, rkr) = rope(&k8, h_kv, m.i("sh_kr"));
+    let (qracc, qr8, rqr, sh_qr) = rope(&q8, h_q, (f_ro as i32 + (m.i("e_qr") as i32 - e_q)) as i64);
+    let e_qr = e_q - f_ro as i32 + sh_qr;
+    let (kracc, kr8, rkr, sh_kr) = rope(&k8, h_kv, (f_ro as i32 + (m.i("e_kr") as i32 - e_k)) as i64);
+    let e_kr = e_k - f_ro as i32 + sh_kr;
 
-    // --- scores, softmax, PV (head-major planes) -----------------------
-    let (exp_tab, exp_dig) = crate::tables_attn::exp_member(m.i("e_s_raw") as i32, hd, f_e);
-    assert_eq!(exp_dig, m.s("exp_digest"), "exp member digest");
-    let sh_s = m.i("sh_s");
-    let sh_o = m.i("sh_o");
+    // --- the scores (one shift over all heads, fitted) -------------------
     let qw = h_q * hd;
     let kw = h_kv * hd;
     let ht = h_q * t;
     let htt = h_q * t * t;
     let mut sacc = vec![0i64; htt];
-    let mut s8 = vec![0i64; htt];
-    let mut rs = vec![0i64; htt];
+    for h in 0..h_q {
+        let g = h / rep;
+        let sa = &mut sacc[h * t * t..(h + 1) * t * t];
+        sa.par_chunks_mut(t).enumerate().for_each(|(ti, row)| {
+            let qrow = &qr8[ti * qw + h * hd..ti * qw + h * hd + hd];
+            for (j, slot) in row.iter_mut().enumerate() {
+                let krow = &kr8[j * kw + g * hd..j * kw + g * hd + hd];
+                let mut acc = 0i64;
+                for i in 0..hd {
+                    acc += qrow[i] * krow[i];
+                }
+                *slot = acc;
+            }
+        });
+    }
+    let (s8, rs, sh_s) = fit_requant(&sacc, (m.i("e_s_raw") as i32 - e_qr - e_kr) as i64, 127);
+    let sh_s = sh_s as i32;
+    let e_s_raw = e_qr + e_kr + sh_s;
+
+    // --- the softmax and PV (per head) -----------------------------------
+    let (exp_tab, exp_dig) = crate::tables_attn::exp_member(e_s_raw, hd, f_e);
     let mut dmat = vec![0i64; htt];
     let mut zsel = vec![0i64; htt];
     let mut e_t = vec![0i64; htt];
@@ -424,58 +522,45 @@ pub fn build_attn_witness_t(dir: &str, t_rows: Option<usize>) -> AttnWitness {
     let mut m_row = vec![0i64; ht];
     let mut sum = vec![0i64; ht];
     let mut oacc = vec![0i64; h_q * t * hd];
-    let mut o8 = vec![0i64; t * qw];
-    let mut r_o = vec![0i64; t * qw];
     for h in 0..h_q {
         let g = h / rep;
-        let sa = &mut sacc[h * t * t..(h + 1) * t * t];
-        sa.par_chunks_mut(t).enumerate().for_each(|(ti, row)| {
-            let qrow = &qr8[ti * qw + h * hd..ti * qw + h * hd + hd];
-            for (j, slot) in row.iter_mut().enumerate() {
-                let krow = &kr8[j * kw + g * hd..j * kw + g * hd + hd];
-                let mut s = 0i64;
-                for i in 0..hd {
-                    s += qrow[i] * krow[i];
-                }
-                *slot = s;
-            }
-        });
-        let (s8h, rsh) = requant_round(sa, sh_s);
-        assert!(s8h.iter().all(|&v| v.abs() <= 127), "s8 narrowing saturates");
-        let (mh, sumh) = (&mut m_row[h * t..(h + 1) * t], &mut sum[h * t..(h + 1) * t]);
         let base = h * t * t;
         for ti in 0..t {
             let mut best = i64::MIN;
             let mut arg = 0usize;
             for j in 0..t {
-                let sm = if j <= ti { s8h[ti * t + j] } else { -127 };
+                let sm = if j <= ti { s8[base + ti * t + j] } else { -127 };
                 if sm > best {
                     best = sm;
                     arg = j;
                 }
             }
-            mh[ti] = best;
+            m_row[h * t + ti] = best;
             zsel[base + ti * t + arg] = 1;
-            let mut s = 0i64;
+            let mut acc = 0i64;
             for j in 0..t {
-                let sm = if j <= ti { s8h[ti * t + j] } else { -127 };
+                let sm = if j <= ti { s8[base + ti * t + j] } else { -127 };
                 let dv = best - sm;
                 assert!((0..256).contains(&dv), "dominance {dv}");
                 dmat[base + ti * t + j] = dv;
                 let e = exp_tab[dv as usize];
                 e_t[base + ti * t + j] = e;
                 if j <= ti {
-                    s += e;
+                    acc += e;
                 }
             }
-            assert!(s >= 1i64 << f_e, "attainment");
-            sumh[ti] = s;
+            assert!(acc >= 1i64 << f_e, "attainment");
+            sum[h * t + ti] = acc;
             for j in 0..=ti {
                 let num = e_t[base + ti * t + j] << f_p;
-                let q = num.div_euclid(s);
+                let q = num.div_euclid(acc);
                 p[base + ti * t + j] = q;
-                rho_s[base + ti * t + j] = num - q * s;
-                sig_s[base + ti * t + j] = s - 1 - rho_s[base + ti * t + j];
+                rho_s[base + ti * t + j] = num - q * acc;
+            }
+        }
+        for ti in 0..t {
+            for j in 0..=ti {
+                sig_s[base + ti * t + j] = sum[h * t + ti] - 1 - rho_s[base + ti * t + j];
             }
         }
         let oa = &mut oacc[h * t * hd..(h + 1) * t * hd];
@@ -491,40 +576,49 @@ pub fn build_attn_witness_t(dir: &str, t_rows: Option<usize>) -> AttnWitness {
                 }
             }
         });
-        let (oy, orr) = requant_round(oa, sh_o);
-        assert!(oy.iter().all(|&v| v.abs() <= 127), "o8 narrowing saturates");
+    }
+    // o8: one shift over all heads (the accumulators are head-major)
+    let (oy, orr, sh_o) = fit_requant(&oacc, (m.i("e_o") as i32 - (e_v - f_p as i32)) as i64, 127);
+    let sh_o = sh_o as i32;
+    let e_o = e_v - f_p as i32 + sh_o;
+    let mut o8 = vec![0i64; t * qw];
+    let mut r_o = vec![0i64; t * qw];
+    for h in 0..h_q {
         for ti in 0..t {
             for i in 0..hd {
-                o8[ti * qw + h * hd + i] = oy[ti * hd + i];
-                r_o[ti * qw + h * hd + i] = orr[ti * hd + i];
+                o8[ti * qw + h * hd + i] = oy[(h * t + ti) * hd + i];
+                r_o[ti * qw + h * hd + i] = orr[(h * t + ti) * hd + i];
             }
         }
-        s8[base..base + t * t].copy_from_slice(&s8h);
-        rs[base..base + t * t].copy_from_slice(&rsh);
     }
 
-    // --- Wo + ao -------------------------------------------------------
+    // --- Wo + ao ----------------------------------------------------------
     let aoacc = matmul_wt(&o8, &wo, t, qw, d);
     let ao_lim = m.i("ao_lim");
-    let (ao8, r_ao) = requant_round(&aoacc, m.i("sh_ao"));
-    assert!(ao8.iter().all(|&v| v.abs() <= ao_lim), "ao narrowing saturates");
+    let (ao8, r_ao, sh_ao) = fit_requant(&aoacc, (m.i("e_ao") as i32 - e_o - m.i("e_wo") as i32) as i64, ao_lim);
+    let sh_ao = sh_ao as i32;
+    let e_ao = e_o + m.i("e_wo") as i32 + sh_ao;
 
-    // --- residual add 1 -------------------------------------------------
-    let (sh_x, sh_a) = ((m.i("e_r") - m.i("e_c1")) as u32, (m.i("e_ao") - m.i("e_c1")) as u32);
+    // --- residual add 1 ----------------------------------------------------
+    let e_c1 = std::cmp::min(e_r, e_ao);
+    let (sh_x, sh_a) = ((e_r - e_c1) as u32, (e_ao - e_c1) as u32);
     let xw1: Vec<i64> = x_in
         .par_iter()
         .zip(ao8.par_iter())
         .map(|(&x, &a)| (x << sh_x) + (a << sh_a))
         .collect();
     let r1_lim = m.i("r1_lim");
-    let (xres1, rr1) = requant_round(&xw1, m.i("sh_r1"));
-    assert!(xres1.iter().all(|&v| v.abs() <= r1_lim), "xres1 narrowing saturates");
+    let (xres1, rr1, sh_r1) = fit_requant(&xw1, (m.i("e_r1") as i32 - e_c1) as i64, r1_lim);
+    let sh_r1 = sh_r1 as i32;
+    let e_r1 = e_c1 + sh_r1;
 
-    // --- mlp_norm (the FFN's X plane) -----------------------------------
-    let nm = crate::norm::rmsnorm_chain(&xres1, &g_m, d, m.i("mnorm_ceps"),
-                                        m.i("mnorm_tn") as u32, m.i("mnorm_cn"), dmode);
+    // --- mlp_norm (the FFN's X plane) --------------------------------------
+    // the mlp norm's OUTPUT exponent is the FFN half's X exponent when the
+    // caller supplies it (the two halves must meet on one grid); otherwise
+    // the attention record's own hint.
+    let (nm, mnorm, e_xm) = fit_norm(&xres1, &g_m, d, eps, e_r1, m.i("e_gM") as i32,
+                                     e_xm_target.unwrap_or(m.i("e_xm") as i32), dmode);
 
-    let x_cls = if m.i("layer") == 0 { Cls::Int8 } else { Cls::of_limit(m.i("r1_lim")) };
     let c = AttnConsts {
         shape: AttnShape { t, d, heads: h_q, kv_heads: h_kv, head_dim: hd, f: 0 },
         layer: m.u("layer"),
@@ -532,28 +626,22 @@ pub fn build_attn_witness_t(dir: &str, t_rows: Option<usize>) -> AttnWitness {
         rope_base: m.f("rope_base"),
         norm_round: round,
         x_cls,
-        e_r: m.i("e_r") as i32,
-        e_xn: m.i("e_xn") as i32,
-        e_r1: m.i("e_r1") as i32,
-        e_ao: m.i("e_ao") as i32,
-        sh_q: m.i("sh_q") as i32,
-        sh_k: m.i("sh_k") as i32,
-        sh_v: m.i("sh_v") as i32,
-        sh_qr: m.i("sh_qr") as i32,
-        sh_kr: m.i("sh_kr") as i32,
-        sh_s: sh_s as i32,
-        e_s_raw: m.i("e_s_raw") as i32,
-        sh_o: sh_o as i32,
-        sh_ao: m.i("sh_ao") as i32,
+        e_r,
+        e_xn,
+        e_r1,
+        e_ao,
+        e_xm,
+        sh_q, sh_k, sh_v, sh_qr, sh_kr, sh_s,
+        e_s_raw,
+        sh_o,
+        sh_ao,
         ao_cls: Cls::of_limit(ao_lim),
         sh_x1: sh_x,
         sh_a1: sh_a,
-        sh_r1: m.i("sh_r1") as i32,
+        sh_r1,
         r1_cls: Cls::of_limit(r1_lim),
-        anorm: NormConsts { tn: m.i("anorm_tn") as u32, cn: m.i("anorm_cn"), ceps: m.i("anorm_ceps"),
-                            wrho: m.i("anorm_wrho") as u32, n_limbs: m.u("anorm_limbs") },
-        mnorm: NormConsts { tn: m.i("mnorm_tn") as u32, cn: m.i("mnorm_cn"), ceps: m.i("mnorm_ceps"),
-                            wrho: m.i("mnorm_wrho") as u32, n_limbs: m.u("mnorm_limbs") },
+        anorm,
+        mnorm,
         exp_digest: exp_dig,
         rope_digest: rope_dig,
         wrho_s: f_e + t.trailing_zeros(),
@@ -1096,11 +1184,14 @@ pub fn residual2(w: &AttnWitness, z16: Vec<i64>, e_r1: i32, e_z16: i32, cls: Cls
 pub struct MultSet {
     pub f_p: u32,
     pub m: std::collections::BTreeMap<Tbl, Vec<u32>>,
+    /// values that fell OUTSIDE their table (only a tampered — or
+    /// mis-calibrated — witness gets here; reported, never silent)
+    pub bad: std::collections::BTreeMap<Tbl, (u64, i64)>,
 }
 
 impl MultSet {
     pub fn new(f_p: u32) -> MultSet {
-        MultSet { f_p, m: std::collections::BTreeMap::new() }
+        MultSet { f_p, m: std::collections::BTreeMap::new(), bad: std::collections::BTreeMap::new() }
     }
     pub fn ensure(&mut self, t: Tbl) {
         let f_p = self.f_p;
@@ -1109,21 +1200,23 @@ impl MultSet {
     /// Count one witness value; a value outside its table lands in row 0 so
     /// the totals still match and only the LogUp identity catches it.
     pub fn count(&mut self, t: Tbl, v: i64) {
-        let f_p = self.f_p;
-        let h = self.m.entry(t).or_insert_with(|| vec![0u32; t.rows(f_p)]);
-        match t.index(v, f_p) {
-            Some(i) => h[i] += 1,
-            None => h[0] += 1,
-        }
+        self.count_all(t, &[v]);
     }
     pub fn count_all(&mut self, t: Tbl, vs: &[i64]) {
         let f_p = self.f_p;
         let h = self.m.entry(t).or_insert_with(|| vec![0u32; t.rows(f_p)]);
+        let mut bad = 0u64;
+        let mut worst = 0i64;
         for &v in vs {
             match t.index(v, f_p) {
                 Some(i) => h[i] += 1,
-                None => h[0] += 1,
+                None => { h[0] += 1; bad += 1; if v.abs() > worst.abs() { worst = v; } }
             }
+        }
+        if bad > 0 {
+            let e = self.bad.entry(t).or_insert((0, 0));
+            e.0 += bad;
+            if worst.abs() > e.1.abs() { e.1 = worst; }
         }
     }
     pub fn into_vec(self) -> Vec<(u64, Vec<u32>)> {
@@ -1407,6 +1500,11 @@ pub fn pack(wit: &AttnWitness, r2: &Resid2, lay: &AttnLayout) -> Packed {
         if i >= d { 0 } else if s == 0 { wit.g_a[i] } else { wit.g_m[i] }
     }, &mut nul, None);
 
+    if !ms.bad.is_empty() && !tamper_mode() {
+        let rep: Vec<String> = ms.bad.iter()
+            .map(|(t, (n, w))| format!("{t:?}: {n} values outside, worst {w}")).collect();
+        panic!("[UPERF3-AG] the witness does not fit its statement's tables — {}", rep.join("; "));
+    }
     Packed { a, w: wv_, mults: ms.into_vec() }
 }
 
