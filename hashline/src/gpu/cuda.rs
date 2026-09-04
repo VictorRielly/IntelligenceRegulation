@@ -26,6 +26,7 @@ const FUNCS: &[&str] = &[
     "k_zk_pad_scale", // [UPERF3-ZA]
     "k_hash_cols_stream", "k_gather_cols_off", // [UPERF3-AC]
     "k_sc_round_zcf_gen", "k_sc_round_zcd_gen", "k_sc_round_tab_gen", // [UPERF3-AH]
+    "k_ntt_p2_gather", // [UPERF3-AJ]
 ];
 const SC_THREADS: u32 = 256;
 const SC_MAX_BLOCKS: u32 = 1024;
@@ -748,6 +749,12 @@ fn chunk_bytes() -> usize {
     static V: OnceLock<usize> = OnceLock::new();
     *V.get_or_init(|| std::env::var("HL_GPU_CHUNK_BYTES").ok().and_then(|v| v.parse().ok()).unwrap_or(1usize << 30))
 }
+/// [UPERF3-AJ] `HL_GPU_FUSE_GATHER=0` restores the separate
+/// `k_ntt_p2` + `k_gather_cols_off` pair (the pre-rung-2 shape, for the A/B).
+fn fuse_gather() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_GPU_FUSE_GATHER").map(|v| v != "0").unwrap_or(true))
+}
 fn chunk_rows() -> usize {
     static V: OnceLock<usize> = OnceLock::new();
     *V.get_or_init(|| std::env::var("HL_GPU_CHUNK_ROWS").ok().and_then(|v| v.parse().ok()).unwrap_or(1024usize).max(128))
@@ -806,6 +813,51 @@ impl Gpu {
             let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             unsafe { p2.launch(cfg2, (&mut *enc, tf, log_nn as i32, 1u64)) }.map_err(|e| format!("k_ntt_p2: {e}"))?;
         }
+        Ok(())
+    }
+
+    /// [UPERF3-AJ] `encode_rows_view` for the OPENING: the last NTT stage
+    /// group writes only the `sel`-marked columns straight into `out`, so
+    /// the encoded chunk is never written back and never re-read (the
+    /// `k_ntt_p2` store + the `k_gather_cols_off` load, 2/3 of the
+    /// re-encode's traffic on the encoded matrix, are gone). Identical
+    /// values: the same kernels, the same twiddles, the same order.
+    fn encode_rows_view_gather(&self, data: &CudaView<u64>, coef: &mut CudaSlice<u64>, enc: &mut CudaSlice<u64>, rows: usize, log_n: u32, log_nn: u32,
+                               d_sel: &CudaSlice<i32>, out: &mut CudaSlice<u64>, row0: usize, rows_total: usize) -> Result<(), String> {
+        if log_nn <= NTT_LOG_BLK {
+            return Err("gather fusion needs log_nn > NTT_LOG_BLK".into());
+        }
+        let (max_log, tf, ti) = self.tw.as_ref().ok_or("twiddles not uploaded")?;
+        assert!(log_nn <= *max_log && log_n <= log_nn);
+        assert!(coef.len() >= rows << log_n && enc.len() >= rows << log_nn);
+        let scale: u64 = Fp::new(1u64 << log_n).inv().0;
+        let threads = ntt_threads();
+        if log_n > NTT_LOG_BLK {
+            let pa = self.dev.get_func(MODULE, "k_dif_pa").ok_or("k_dif_pa missing")?;
+            let tiles = 1u32 << (log_n - NTT_LOG_BLK);
+            let cfg = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            unsafe { pa.launch(cfg, (data, &mut *coef, ti, log_n as i32)) }.map_err(|e| format!("k_dif_pa: {e}"))?;
+            let pb = self.dev.get_func(MODULE, "k_dif_pb").ok_or("k_dif_pb missing")?;
+            let bpr = 1u32 << (log_n - NTT_LOG_BLK);
+            let cfg = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            let cptr: sys::CUdeviceptr = *coef.device_ptr();
+            unsafe { pb.launch(cfg, (cptr, &mut *coef, ti, log_n as i32, scale)) }.map_err(|e| format!("k_dif_pb: {e}"))?;
+        } else {
+            let pb = self.dev.get_func(MODULE, "k_dif_pb").ok_or("k_dif_pb missing")?;
+            let cfg = LaunchConfig { grid_dim: (rows as u32, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            unsafe { pb.launch(cfg, (data, &mut *coef, ti, log_n as i32, scale)) }.map_err(|e| format!("k_dif_pb: {e}"))?;
+        }
+        let rb = log_nn - log_n;
+        let p1 = self.dev.get_func(MODULE, "k_dit_p1_pad").ok_or("k_dit_p1_pad missing")?;
+        let lb = log_nn.min(NTT_LOG_BLK);
+        let bpr = 1u32 << (log_nn - lb);
+        let cfg = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+        unsafe { p1.launch(cfg, (&*coef, &mut *enc, tf, log_nn as i32, (1usize << log_n) as i32, rb as i32)) }.map_err(|e| format!("k_dit_p1_pad: {e}"))?;
+        let p2 = self.dev.get_func(MODULE, "k_ntt_p2_gather").ok_or("k_ntt_p2_gather missing")?;
+        let tiles = 1u32 << (log_nn - NTT_LOG_BLK);
+        let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+        unsafe { p2.launch(cfg2, (&*enc, tf, log_nn as i32, 1u64, d_sel, &mut *out, row0 as i32, rows_total as i32)) }
+            .map_err(|e| format!("k_ntt_p2_gather: {e}"))?;
         Ok(())
     }
 
@@ -938,24 +990,49 @@ impl Gpu {
         let t0 = Instant::now();
         let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
         let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+        // [UPERF3-AJ] the fused form needs one output slot per DISTINCT index
+        // (`challenge_indices` may repeat one; the duplicates are filled from
+        // the first occurrence on the host, exactly as the gather kernel did).
+        let fused = fuse_gather() && log_nn > NTT_LOG_BLK;
+        let mut uniq: Vec<usize> = Vec::with_capacity(q);
+        let mut slot: Vec<usize> = Vec::with_capacity(q);
+        let mut sel: Vec<i32> = vec![-1; nn];
+        for &j in idx {
+            if sel[j] < 0 {
+                sel[j] = uniq.len() as i32;
+                uniq.push(j);
+            }
+            slot.push(sel[j] as usize);
+        }
+        let nu = uniq.len();
         let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
-        let d_idx = dev.htod_sync_copy(&idx32).map_err(|e| e.to_string())?;
-        let mut d_out = unsafe { dev.alloc::<u64>(rows * q) }.map_err(|e| e.to_string())?;
+        let d_idx = dev.htod_sync_copy(if fused { &sel } else { &idx32 }).map_err(|e| e.to_string())?;
+        let cols_out = if fused { nu } else { q };
+        let mut d_out = unsafe { dev.alloc::<u64>(rows * cols_out) }.map_err(|e| e.to_string())?;
         let f = dev.get_func(MODULE, "k_gather_cols_off").ok_or("k_gather_cols_off missing")?;
         for &(r0, rc) in &plan {
             let view = dc.data.get().slice(r0 * n..(r0 + rc) * n);
-            self.encode_rows_view(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn)?;
-            let cfg = LaunchConfig::for_num_elems((rc * q) as u32);
-            unsafe { f.clone().launch(cfg, (d_enc.get(), &mut d_out, &d_idx, rc as i32, r0 as i32, rows as i32, nn as i32, q as i32)) }
-                .map_err(|e| format!("k_gather_cols_off: {e}"))?;
+            if fused {
+                self.encode_rows_view_gather(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn, &d_idx, &mut d_out, r0, rows)?;
+            } else {
+                self.encode_rows_view(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn)?;
+                let cfg = LaunchConfig::for_num_elems((rc * q) as u32);
+                unsafe { f.clone().launch(cfg, (d_enc.get(), &mut d_out, &d_idx, rc as i32, r0 as i32, rows as i32, nn as i32, q as i32)) }
+                    .map_err(|e| format!("k_gather_cols_off: {e}"))?;
+            }
         }
         let out = dev.dtoh_sync_copy(&d_out).map_err(|e| e.to_string())?;
         let dt = t0.elapsed().as_secs_f64();
         if verbose() {
-            eprintln!("[UPERF3-AC]   chunked re-encode + gather rows {rows} ({} chunks): {dt:.4} s", plan.len());
+            eprintln!("[UPERF3-AC]   chunked re-encode + gather rows {rows} ({} chunks{}): {dt:.4} s", plan.len(), if fused { ", fused" } else { "" });
         }
-        stats_with(|s| { s.secs_reenc += dt; s.bytes_d2h += (rows * q * 8) as u64; });
-        Ok((0..q).map(|c| out[c * rows..(c + 1) * rows].iter().map(|&v| Fp(v)).collect()).collect())
+        stats_with(|s| { s.secs_reenc += dt; s.bytes_d2h += (rows * cols_out * 8) as u64; });
+        Ok((0..q)
+            .map(|c| {
+                let s0 = if fused { slot[c] } else { c } * rows;
+                out[s0..s0 + rows].iter().map(|&v| Fp(v)).collect()
+            })
+            .collect())
     }
 }
 

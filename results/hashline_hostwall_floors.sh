@@ -43,6 +43,19 @@ for L in cpu gpu; do
   gate zk   021485e4f80ec695 87228528 "$B" $L --zk --seed 1
   gate zkv3 40eb54795e023c77 87697008 "$B" $L --zk --seed 1 --profile v3 --export $V3
 done
+# [UPERF3-AJ] the CHUNKED path forced at the 125M shape: the same four
+# digests must come out of the chunked commit, the interleaved pinned
+# upload and the fused gather (the 12x512 commitments are 151-272 MB and
+# would otherwise stay resident, so nothing else exercises rungs 1-2 at a
+# shape with a frozen digest).
+export HL_GPU_CHUNK_BYTES=100000000
+export HL_GPU_CHUNK_ROWS=128
+gate v2-chunked   50cf7bdfd6b5b182 66844928 "$GPU" gpu
+gate v3-chunked   5f368db6240e0614 70758084 "$GPU" gpu --profile v3 --export $V3
+gate zk-chunked   021485e4f80ec695 87228528 "$GPU" gpu --zk --seed 1
+gate zkv3-chunked 40eb54795e023c77 87697008 "$GPU" gpu --zk --seed 1 --profile v3 --export $V3
+unset HL_GPU_CHUNK_BYTES HL_GPU_CHUNK_ROWS
+
 say "VERDICT"
-if [ $fail = 0 ]; then echo "ALL EIGHT BYTE GATES GREEN"; else echo "FAILURE: one or more gates RED"; fi
+if [ $fail = 0 ]; then echo "ALL TWELVE BYTE GATES GREEN (8 standard + 4 chunked-forced)"; else echo "FAILURE: one or more gates RED"; fi
 exit $fail

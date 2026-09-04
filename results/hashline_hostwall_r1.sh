@@ -1,7 +1,8 @@
 #!/bin/bash
-# [UPERF3 AJ] rung 1 measurement: the pinned + interleaved upload.
-# A/B at one real Mistral-7B layer (T = 512) on the GPU, then the four byte
-# gates on both binaries.
+# [UPERF3 AJ] rungs 1+2 measurement: the pinned INTERLEAVED upload and the
+# gather fused into the last NTT stage group. Four arms at one real
+# Mistral-7B layer (T = 512) on the GPU; arm 1 must reproduce the lane's
+# rung-0 baseline exactly (3.134 s, sha256 179ec2fb..).
 set -u
 R=/home/victor/wt-uperf3-aj
 CUDA_LD=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib
@@ -11,20 +12,23 @@ SP=$R/results/scratch_r1
 mkdir -p $SP
 say () { echo; echo "=== $* ==="; date '+%F %T'; }
 
-say "H2D BANDWIDTH PROBE"
-HL_GPU=1 HL_GPU_BENCH_H2D=1 LD_LIBRARY_PATH=$CUDA_LD $GPU gpu-probe 2>&1 | grep -E "UPERF3-AJ|gpu-probe:"
+say "GPU PROBE (kernel correctness incl. the chunked commit + fused gather path)"
+HL_GPU=1 LD_LIBRARY_PATH=$CUDA_LD $GPU gpu-probe 2>&1 | grep -E "gpu-probe:|chunked check|ERROR|RED"
 
-for mode in off on; do
-  say "ONE MISTRAL LAYER T=512, GPU, streamed upload $mode"
-  if [ $mode = off ]; then
-    ENV="HL_GPU_PIN_MB=0 HL_GPU_STREAM_COMMIT=0"
-  else
-    ENV=""
-  fi
-  env $ENV HL_GPU=1 HL_TIMING=1 HL_GPU_VERBOSE=1 LD_LIBRARY_PATH=$CUDA_LD \
+run () {
+  local name=$1; shift
+  say "ONE MISTRAL LAYER T=512, GPU — $name"
+  env "$@" HL_GPU=1 HL_TIMING=1 HL_GPU_VERBOSE=1 LD_LIBRARY_PATH=$CUDA_LD \
     /usr/bin/time -v $GPU pass 1 512 --profile v3 --export $M8B --threads 8 \
-    --proof-out $SP/layer_$mode.bin 2>&1 \
+    --proof-out $SP/layer_$name.bin 2>&1 \
     | grep -vE "^\[UPERF3-XX\]   ntt rows" \
-    | grep -E "commit|chunked|zero-check|pcs::open|layer  0|PROVE|PROOF sha256|gpu device|Maximum resident|Elapsed|prover phases|^      "
-  sha256sum $SP/layer_$mode.bin
-done
+    | grep -E "chunked|streamed|layer  0|PROVE|PROOF sha256|gpu device|Maximum resident|Elapsed|prover phases|^      "
+  sha256sum $SP/layer_$name.bin
+  rm -f $SP/layer_$name.bin
+}
+
+run base   HL_GPU_PIN_MB=0 HL_GPU_STREAM_COMMIT=0 HL_GPU_FUSE_GATHER=0
+run fuse   HL_GPU_PIN_MB=0 HL_GPU_STREAM_COMMIT=0
+run stream HL_GPU_FUSE_GATHER=0
+run both   HL_DUMMY=1
+run both2  HL_DUMMY=1
