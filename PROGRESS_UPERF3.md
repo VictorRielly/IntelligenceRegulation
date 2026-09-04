@@ -13895,3 +13895,52 @@ The last stage group falls from 19.6% of the four kernels to **5.5%**;
 that compares the re-encoded OPENING COLUMNS against the CPU encoding
 directly — which is the pruned kernel's own oracle. `cargo test` 41/41.
 
+**THE END-TO-END A/B WITH ALL THREE LEVERS, ABBA over four processes**
+(`gpu: ON` in every arm, `nvidia-smi` 161 MiB before each)
+[MEASURED]: base 0.23084 / 0.22997, lane 0.18079 / 0.17577 -> means
+**`columns_chunked` 0.23041 -> 0.17828 = 1.292x**, with the four kernels
+at 1.472 / 1.508 / 1.472 / 1.484 = **mean 1.484x, spread 2.5%**. Raw:
+`results/ao_l9_rung3_endtoend_ab.log`.
+
+### Lane AO — WHAT IT IS ACTUALLY WORTH, AND WHAT IS LEFT (2026-09-04)
+
+**THE HONEST PROJECTION, AND IT IS THE POINT [PREDICTION].** This box
+cannot measure the 8B pass and this lane did not try. From AJ's 8B
+counters (`device ntt` 14.714 s, `device re-encode` 14.020 s, `PROVE`
+86.00 s) and this lane's measured ratios: the re-encode 14.020 -> ~10.9 s
+(1.292x end to end) and the commit encode 14.714 -> ~12.7 s (1.156x; the
+dense `k_ntt_p2` is at parity and `secs_ntt` also holds the chunked
+hash). **That is ~4 s off an 86 s prove, about 1.05x** — and THAT is the
+number to record, not the 1.484x. The re-encode and the encode together
+are only ~29 s of the 86 s pass; **the other 38.7 s is host time in
+`layer.rs`**, which AJ identified in round 14 and which STILL has no
+lane. A 1.48x on the device kernels cannot move a pass whose largest
+single item is a host loop.
+
+**What is left inside L9, in the order the counters give:**
+1. `k_dit_p1_pad_s` is STILL 56% of the four kernels (0.06685 of
+   0.11928), at 105 GB/s (41% of the roof) and 52.7e9 butterfly/s (11% of
+   the ALU roof) — still the one kernel that is neither. Two things are
+   visible and neither was taken: the remaining shared-memory bank
+   conflicts (stages 3-4 send a warp to 8 distinct 64-bit banks instead
+   of 16), and the fact that its 537 MB of writes per 10,752 rows are
+   read exactly once, by the very next kernel.
+2. The HOST TAIL of `columns_chunked` — a 22 MB `cuMemAlloc` that is not
+   pooled, a 22 MB download, and a serial loop copying 2.75 M `Fp` into
+   256 `Vec<Fp>`. Jittery (3.6%-21% of the call depending on allocator
+   state) but both base arms showed ~0.048 s, which is 40% of what the
+   four kernels now cost. All of it is in `gpu/cuda.rs`, this lane's own
+   file, with zero byte risk.
+3. `k_dif_pb`, untouched, is now 27% of the four kernels at 88-100 GB/s;
+   same family as `k_dit_p1_pad`, same bank-conflict work.
+4. `k_dif_pa_f` (206 GB/s) and the dense `k_ntt_p2_f` (197 GB/s) are
+   CLOSED at 77-80% of the 256 GB/s roof.
+
+**Switches left behind** (all default ON, all restoring the inherited
+kernel exactly): `HL_GPU_PAD_SKIP=0`, `HL_GPU_NTT_FAST=0`,
+`HL_GPU_PRUNE_P2=0`; plus `HL_GPU_BENCH_REENC=1` for the attribution
+harness on `gpu-probe` (`HL_BENCH_ROWS` takes a comma-separated sweep).
+
+**Nothing in `layer.rs` or `zk.rs` was touched** — they are lane AN's
+this round and no change there was needed.
+

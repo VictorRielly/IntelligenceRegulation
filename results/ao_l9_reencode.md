@@ -256,3 +256,80 @@ pruned form is declined when `nq * 4 > NTT_BLK` (no material saving) or
 
 So the last stage group falls from 19.6% of the four kernels to **5.5%**,
 and `k_dit_p1_pad_s` is now 56% of what remains.
+
+### 5.1 The END-TO-END A/B with all three levers, ABBA [MEASURED]
+
+`results/ao_ab_reenc.sh`, raw `results/ao_l9_rung3_endtoend_ab.log`.
+10,752 rows, four processes, `gpu: ON` in every arm, `nvidia-smi` 161 MiB
+before each:
+
+| arm | `columns_chunked` | four kernels, base -> lane |
+|---|---:|---|
+| base | 0.23084 s | 0.17028 -> 0.11570 (1.472x) |
+| lane | 0.18079 s | 0.18452 -> 0.12239 (1.508x) |
+| lane | 0.17577 s | 0.18965 -> 0.12881 (1.472x) |
+| base | 0.22997 s | 0.16891 -> 0.11380 (1.484x) |
+| **means** | **0.23041 -> 0.17828 = 1.292x** | **1.484x, spread 2.5%** |
+
+### 5.2 The twelve byte gates, again, with rung 3 in [MEASURED]
+
+`results/ao_l9_rung3_gates.log`, exit 0: **ALL TWELVE GREEN**, the same
+four digests at the same four byte counts on the CPU binary, the GPU
+binary, and the GPU binary with the chunked path forced —
+`50cf7bdfd6b5b182..` 66,844,928 B, `5f368db6240e0614..` 70,758,084 B,
+`021485e4f80ec695..` 87,228,528 B, `40eb54795e023c77..` 87,697,008 B.
+`cargo test --release` 41/41. Plus every `gpu-probe` device-vs-CPU
+oracle, including the chunked-commit check that compares the re-encoded
+OPENING COLUMNS against the CPU encoding directly — the pruned kernel's
+own oracle.
+
+## 6. WHAT THIS IS WORTH, AND WHAT IS LEFT
+
+### 6.1 The honest projection onto the 8B pass [PREDICTION]
+
+**This box cannot measure it and the lane did not try.** What can be said
+from AJ's 8B counters (`device ntt` 14.714 s, `device re-encode` 14.020
+s, `PROVE` 86.00 s) and this lane's measured ratios:
+
+| item | 8B counter | ratio this lane measures | projected |
+|---|---:|---:|---:|
+| the opening's re-encode | 14.020 s | 1.292x (end to end) | ~10.9 s |
+| the commit's encode NTT | 14.714 s | 1.156x (`k_dif_pa_f` + `k_dit_p1_pad_s`; the dense `k_ntt_p2` is at parity and `secs_ntt` also holds the chunked hash) | ~12.7 s, and less if the hash is a large part of it |
+
+So **~4 s off an 86 s prove, about 1.05x** — and that is the point worth
+recording, not the 1.484x. The re-encode and the encode together are only
+~29 s of the 86 s pass; **the other 38.7 s is host time in `layer.rs`**,
+which AJ identified in round 14 and which no lane has yet been given.
+A 1.48x on the device kernels cannot move a pass whose largest single
+item is a host loop.
+
+### 6.2 What is left inside L9, in order of what the counters say
+
+1. **`k_dit_p1_pad_s` is still 56% of the four kernels** (0.06685 s of
+   0.11928 at 10,752 rows), at 105 GB/s (41% of the roof) and 52.7e9
+   butterfly/s (11% of the ALU roof) — still the one kernel that is
+   neither. Two things are visible in it and neither was taken: the
+   remaining shared-memory bank conflicts (stages 3 and 4 send a warp to
+   8 distinct 64-bit banks instead of 16), and the fact that its 537 MB
+   of writes per 10,752 rows are read exactly once, by the very next
+   kernel.
+2. **The host tail of `columns_chunked`** — the 22 MB `cuMemAlloc` for
+   the output block (not pooled), the 22 MB host download, and the serial
+   loop that copies 2.75 M `Fp` into 256 `Vec<Fp>`. Measured between 3.6%
+   and 21% of the call depending on allocator state, so it is jittery
+   rather than a clean item, but at 10,752 rows the base arms both showed
+   ~0.048 s, which is 40% of what the four kernels now cost.
+3. **`k_dif_pb`**, untouched by this lane, is now 27% of the four kernels
+   at 88-100 GB/s. It is `k_dit_p1_pad`'s family (contiguous 4,096-blocks,
+   12 stages) and would take the same bank-conflict work.
+4. `k_dif_pa_f` (206 GB/s) and the dense `k_ntt_p2_f` (197 GB/s) are
+   **closed** — 77-80% of the 256 GB/s roof. Nothing there.
+
+### 6.3 The switches this lane leaves behind
+
+| switch | default | restores |
+|---|---|---|
+| `HL_GPU_PAD_SKIP=0` | on | the full 12-stage `k_dit_p1_pad` |
+| `HL_GPU_NTT_FAST=0` | on | the divide-indexed `k_dif_pa` / `k_ntt_p2` / `k_ntt_p2_gather` |
+| `HL_GPU_PRUNE_P2=0` | on | the dense fused last stage group |
+| `HL_GPU_BENCH_REENC=1` | off | the attribution harness on `gpu-probe` (`HL_BENCH_ROWS` accepts a comma-separated sweep) |
