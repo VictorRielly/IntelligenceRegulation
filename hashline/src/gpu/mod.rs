@@ -35,6 +35,11 @@ pub use cuda::{dev_commit_check_chunked, dev_encode_only};
 // honest once the helper columns have already gone to the device.
 #[cfg(feature = "gpu-cuda")]
 pub use cuda::{dev_reserve, dev_tab_zerocheck, dev_zerocheck_blocks, TabSpecPad};
+// [UPERF3-AI] the reservation that drains the buffer pool before it gives up (the ZK
+// prover at Mistral width needs 1,168 MB for its zero-check F tables and the pool's
+// retained chunk scratch is what stands in the way).
+#[cfg(feature = "gpu-cuda")]
+pub use cuda::dev_reserve_hard;
 
 #[cfg(not(feature = "gpu-cuda"))]
 mod stub {

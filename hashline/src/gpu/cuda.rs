@@ -925,6 +925,38 @@ pub fn dev_reserve(lens: &[usize]) -> Result<(), String> {
     Ok(())
 }
 
+/// [UPERF3-AI] `dev_reserve` that, when the device cannot serve the request,
+/// DRAINS the buffer pool and tries once more.
+///
+/// Why it is needed: the pool retains up to 64 freed buffers and matches by
+/// EXACT length (that reuse is what makes the chunked commit fast across 32
+/// layers), so after a wide layer's commitments the pool can be holding a
+/// gigabyte or more of chunk scratch that no live object needs. At the
+/// 125M block shape that never mattered; at Mistral width the zero-check F
+/// table buffer is (3 + 10 x 7) x 2^20 x 2 u64 = 1,168 MB and it is exactly
+/// what fails — measured on the RTX 4070 Laptop (8,188 MB), where the live
+/// commitments at that moment are ~1.9 GB. Draining is value-neutral: a
+/// pooled buffer holds no live data (every element a kernel reads is
+/// written first), so the only cost of freeing it is the first-touch price
+/// of the next allocation of that size.
+pub fn dev_reserve_hard(lens: &[usize]) -> Result<(), String> {
+    match dev_reserve(lens) {
+        Ok(()) => Ok(()),
+        Err(first) => {
+            let freed = {
+                let mut pool = POOL.lock().unwrap();
+                let n = pool.len();
+                pool.clear();
+                n
+            };
+            if verbose() {
+                eprintln!("[UPERF3-AI] reserve failed ({first}); drained {freed} pooled buffers and retrying");
+            }
+            dev_reserve(lens).map_err(|e| format!("{e}; {first} even after draining {freed} pooled buffers"))
+        }
+    }
+}
+
 fn zerocheck_impl(kind: i32, nblk: Option<usize>, specs: &[TabSpec], prm: &[u64], tr: &mut Transcript) -> Result<ProverOutput, String> {
     let g = gpu().ok_or_else(init_err)?;
     let g = g.lock().unwrap();

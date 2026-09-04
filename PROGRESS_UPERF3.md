@@ -11190,3 +11190,242 @@ walls, RSS, VRAM, bytes, proven MAC/s; 4 the record + the §3 ZK rows
 ## Agent AI status (wt-uperf3-ai) — round 13
 
 (lane appends below)
+
+### AI rung 0 — the plan, and the four byte gates on BOTH binaries (2026-09-03, WSL-BOX, wt-uperf3-ai, branch uperf3-ai)
+
+Read: START_HERE (whole), this lane's brief, **Agent AH in full** (the
+model: the block-looping kernels, `dev_zerocheck_blocks`, `dev_reserve`,
+the three tagged edits in layer.rs, the 8B GPU pass 175.09 -> 95.48 s at
+`dc980e81..`), **Agent AD** (the ZK-v3 statement, the Mistral layer row
+15.73 s / 40,186,228 B / 13.29 GB CPU, the +4.7% / +3.9% surcharge, and
+its own "NOT DONE" list, whose item 2 is exactly this lane); the code:
+zk.rs (the gate at 2004 and AH's tagged `dev_tab_zerocheck` block at
+2380 as the pattern), gpu/{mod.rs,cuda.rs,kernels.cu} (`zerocheck_impl`,
+the `nblk` arm, `k_sc_round_zcf_gen` / `k_sc_round_zcd_gen` and their
+parameter layouts), layer.rs READ-ONLY (AH's three edits at 1410, 1423,
+1593, 1671 — the exact pattern to mirror; lane AG is building the
+full-layer prover in that file and this lane will not write it).
+
+**WHERE THE GATE IS AND WHAT IT DECLINES.** `hashline/src/zk.rs:2004`
+
+    // the XX zero-check kernels are fixed at 13 / 15 tables: the 125M block shape
+    let dev_shape = nb_f == 1 && nb_d == 3;
+
+feeds THREE device regions of `prove_layer_v3_zk`, all-or-nothing by
+construction (once `use_dev_h` is true the host tables are never built,
+so a later decline panics):
+1. `use_dev_h` (line 2006) — the LogUp helper columns on the device
+   (`dev_helpers`) + `commit_zk_device` for H; its `HelperSpec` list
+   hard-codes f-block **[0]** for the three F-side helpers (`lay.g8[0]`,
+   `lay.u16[0]`, `lay.h16[0]`) and only the d-side loops.
+2. `dev_f` (line 2250) — zero-check F through the TEMPLATED
+   `dev_zerocheck(0, ..)` = `k_sc_round_zc20`, 13 tables, prm <= 32; its
+   `TabSpec` list also hard-codes block [0].
+3. `dev_d` (line 2315) — zero-check D through `dev_zerocheck(1, ..)` =
+   `k_sc_round_zc17`, 15 tables; its spec list already loops `nb_d`, but
+   the templated kernel demands exactly 15 tables and 3 mu / 3 nu.
+AH's table zero-check (`dev_tab`, line 2380) is NOT gated by
+`dev_shape` — it already runs at any shape and is untouched here.
+
+125M: (nb_f, nb_d) = (1, 3) -> 13 / 15 tables = the templated shape.
+**Mistral-7B: d 4096 = 1 x 4096, f 14336 = 7 x 2048 -> (nb_f, nb_d) =
+(7, 1)** -> zcF 3 + 10 x 7 = **73** tables, zcD 3 + 4 x 1 = **7**;
+neither is 13 or 15, the gate is false, and all three phases run on the
+host. AD measured the consequence at one Mistral layer: `HL_GPU=1`
+gave 17.01 s against 15.73 s CPU — the GPU bought nothing.
+
+**THE THREE EDITS (byte-preserving by construction; the kernels already
+exist, this lane adds no new CUDA).**
+- **E1, the gate**: `nb_f == 1 && nb_d == 3` -> AH's real bound, the
+  kernels' shared parameter array (`gpu::SCG_MAX_PRM` = 384):
+  `nb_f >= 1 && nb_d >= 1 && 17 + 14 * nb_f <= 384 && 7 + 6 * nb_d <= 384`
+  (Mistral needs 115 and 13). Plus AH's safety rung: `dev_reserve` of the
+  two zero-check table buffers `[(3 + 10 nb_f) * tfb * 2, (3 + 4 nb_d) *
+  tdb * 2]` BEFORE the helpers leave the host, so a VRAM shortfall takes
+  the whole layer to the host path instead of panicking. At Mistral the
+  zcF buffer alone is 73 x 2^20 x 2 u64 = **1.22 GB** on top of AH's
+  measured 5,651 MB peak, on an 8,188 MB part — this is a live hazard,
+  not a formality.
+- **E2, the helper specs**: `for b in 0..nb_f` for the three F-side
+  `HelperSpec`s (3 nb_f + nb_d specs, was 3 + nb_d); `k_helper` is
+  already length-general.
+- **E3, the two spec lists + the call**: the F list loops the blocks in
+  the CPU's block-major table order (g8 rg a16 u16 ru h16 rh hg hu hh),
+  and both calls move from `dev_zerocheck(kind, ..)` to
+  `dev_zerocheck_blocks(kind, nb, ..)` with the **block-indexed**
+  parameter layout the generic kernels read: F = alpha, beta, g_act,
+  g_rg, g_ru, g_rh, g_i16 (7 Fp2), p_g, p_u, p_h (3 u64), then mu
+  (4 nb_f) and nu (3 nb_f) — note the templated layout put p_* LAST, the
+  generic one puts them at index 14; D = alpha, g_i16, g_rd (3 Fp2),
+  p_z (1 u64), then mu2, **nu_x, nu_z** (nb_d each). The ZK D-side
+  polynomial has no x term (X is opened at p2 instead), so `nu_x` is
+  passed as nb_d ZEROs — the kernel then computes exactly `zcd_poly`.
+  Both attempts run on a CLONED transcript (AH's `dev_tab` pattern), so
+  a decline falls through to the unchanged host body with nothing
+  absorbed.
+- **E4 (recorded now, not part of the pattern): `--wcache` is a no-op
+  for the ZK prover.** zk.rs commits W with plain `pcs::commit`; only
+  layer.rs's v3 FFN prover calls `wcache::commit_w`. The rung-3 command
+  passes `--wcache DIR`, so without this the flag does nothing on the ZK
+  path. The fix is one tagged line in zk.rs (the same `WKey::new("v3",
+  l, d, f, ..)` key, the same `w_data`, the same `PcsParams` — so the
+  same tree, the same root, the same bytes, and the ZK and non-zk passes
+  share cache entries). The chunked device W commit is NOT a problem any
+  more: `pcs::commit` already routes through `gpu::dev_commit` ->
+  `dev_commit_from`, which is lane AC's chunked path (AD's
+  `cuMemAlloc(5376 MB)` decline predates it).
+
+**THE FOUR BYTE GATES ON BOTH BINARIES: ALL EIGHT GREEN, BASELINE
+BEFORE ANY CODE** (2026-09-03, [WSL-BOX] [8T] [CPU|GPU]
+[NOISY-SHARED by convention; in fact quiet — load < 1, 13 GB available,
+GPU 30 MB used], [MEASURED], `flock /tmp/zk-heavy.lock`, one run each,
+`M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl`,
+v3 export `/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export`;
+every proof written to a file and `sha256sum`'d there). Builds from a
+cold worktree: CPU 35.4 s, GPU 40.3 s, both clean.
+
+| gate (`pass 12 512 --threads 8 --proof-out F`, + flags) | CPU PROVE | GPU PROVE | sha256 | bytes |
+|---|---:|---:|---|---:|
+| v2 | 16.04 s | **2.52 s** | `50cf7bdfd6b5b182..` | 66,844,928 |
+| v3 `--profile v3 --export <v3dir>` | 16.54 s | **2.83 s** | `5f368db6240e0614..` | 70,758,084 |
+| zk-v2 `--zk --seed 1` | 17.30 s | **4.95 s** | `021485e4f80ec695..` | 87,228,528 |
+| zk-v3 `--zk --seed 1 --profile v3 --export <v3dir>` | 19.75 s | **4.84 s** | `40eb54795e023c77..` | 87,697,008 |
+
+All eight digests = the round-12/13 references. **The number rung 2 must
+beat is AH's quiet 4.16 s p50 for GPU zk-v3; this tree's single cold
+reading is 4.84 s, so rung 2 will be a 3-run p50 against a 3-run p50 on
+the same tree, not against a quoted figure.**
+
+### AI rung 1 — THE GATE GENERALIZED: one Mistral-7B layer in ZERO KNOWLEDGE on the GPU, 16.34 s -> 4.94 s, THE PROOF BYTE-IDENTICAL (2026-09-03, WSL-BOX, [MEASURED])
+
+WHAT LANDED (zk.rs, owned; gpu/* ADDITIVE; layer.rs NOT touched):
+- **E1 the gate** (zk.rs:2014): `nb_f == 1 && nb_d == 3` ->
+  `nb_f >= 1 && nb_d >= 1 && 17 + 14 * nb_f <= 384 && 7 + 6 * nb_d <= 384`
+  (`gpu::SCG_MAX_PRM`). Mistral needs 115 / 13 parameters.
+- **E2 the helper specs**: `for b in 0..nb_f` for the three F-side
+  `HelperSpec`s (3 nb_f + nb_d, was 3 + nb_d with block [0] hard-coded).
+- **E3 the two zero-checks**: the F `TabSpec` list loops the blocks in the
+  CPU's block-major order; both calls moved from the templated
+  `dev_zerocheck` to AH's `dev_zerocheck_blocks(kind, nb, ..)` with the
+  block-indexed parameter layout (F: the 7 Fp2 constants, then p_g/p_u/p_h
+  at index 14 — the templated layout put them LAST — then mu 4/block and
+  nu 3/block; D: alpha/g_i16/g_rd, p_z at index 6, then mu2, **nu_x = nb_d
+  ZEROs** because the ZK D-side polynomial has no x term, then nu_z). Both
+  attempts ride a CLONED transcript, so a decline falls through to the
+  unchanged host body with nothing absorbed.
+- **E4 `--wcache` now serves the ZK prover**: zk.rs committed W with plain
+  `pcs::commit`, so lane AC's per-model weight cache was a no-op on this
+  path. One tagged line, the same `WKey::new("v3", l, d, f, ..)` key as
+  layer.rs's v3 FFN prover, so the ZK and non-zk passes share entries.
+- **E5 (the one that actually decided the rung) `gpu::dev_reserve_hard`,
+  a NEW ADDITIVE function in gpu/cuda.rs + one export line in gpu/mod.rs.**
+  The reservation has to be folded into `use_dev_h` here (unlike layer.rs,
+  the ZK prover builds its host tables in the `!use_dev_h` branch BEFORE
+  the zero-checks, so the decision must be made before that branch). The
+  first build did exactly that with AH's `dev_reserve` — **and it declined
+  at Mistral width**: `[UPERF3-AI] gpu zero-check tables unaffordable
+  (cuMemAlloc(1168 MB): CUDA_ERROR_OUT_OF_MEMORY)`. The reason is not the
+  live objects (~1.9 GB at that moment) but **the buffer pool**: it retains
+  up to 64 freed buffers and matches by EXACT length (the reuse that makes
+  the chunked commit fast across 32 layers), so after the W and A
+  commitments it was sitting on the gigabyte the zero-check F tables need
+  ((3 + 10 x 7) x 2^20 x 2 u64 = **1,168 MB**). `dev_reserve_hard` tries
+  `dev_reserve`, and on failure DRAINS the pool and tries once more —
+  value-neutral, since a pooled buffer holds nothing live (every element a
+  kernel reads is written first); the only cost is the first-touch price of
+  the next allocation of that size. Live proof, from the run:
+  `[UPERF3-AI] reserve failed (cuMemAlloc(1168 MB): ..OUT_OF_MEMORY);
+  drained 5 pooled buffers and retrying` — and the layer then ran entirely
+  on the device.
+
+**THE MEASURED ROW — one real Mistral-7B FFN layer at T = 512, mode P1
+(private inputs and activations, public weights), `pass 1 512 --zk --seed 1
+--profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export
+--threads 8 --proof-out F`** [WSL-BOX] [8T] [GPU|CPU] [NOISY-SHARED],
+`flock /tmp/zk-heavy.lock /usr/bin/time -v`, one run each, back to back:
+
+| | CPU (this tree) | **GPU (`HL_GPU=1`)** | factor |
+|---|---:|---:|---:|
+| **PROVE** | **16.34 s** | **4.94 s** | **3.31x** |
+| VERIFY | 0.06 s | 0.06 s | — |
+| proof bytes | 40,186,228 | 40,186,228 | — |
+| **PROOF sha256** | `b5da6c38c77cf702..` | **`b5da6c38c77cf702..`** | **`cmp` IDENTICAL** |
+| peak RSS | 12.90 GB | **2.85 GB** | 4.5x less |
+| VRAM peak | — | 8,585 MB | of an 8.6 GB part |
+| proven MAC/s | 5.52e9 | **1.83e10** | 3.31x |
+| witness load + chain | 3.47 s | 3.37 s | — |
+
+The full sha256 is
+`b5da6c38c77cf702f9873cffc4db3c1de0ae16cb0262cfae15c7ffe54f1c609d`;
+40,186,228 B is **AD's byte count for this statement to the byte**
+(AD's `layer 0 512 --zk` row; `pass 1 512` differs from `layer 0 512`
+only in the transcript's domain string, so the digests are not comparable
+across the two commands but the sizes are). The equivalent `layer 0 512
+--zk --seed 1 --profile v3` run on the GPU: **prove 4.736 s, verify 0.058
+s, 40,186,228 B, ACCEPT, GREEN** against AD's 15.73 s p50 CPU.
+
+PHASES, one Mistral layer at T = 512 [MEASURED, s]:
+
+| phase | CPU | **GPU** | factor |
+|---|---:|---:|---:|
+| commit W | 7.471 | 1.571 | 4.8x |
+| commit A (zk) | 2.551 | 0.773 | 3.3x |
+| mask commit | 0.007 | 0.007 | — |
+| **helpers + commit H (zk)** | 3.001 | **1.211** | **2.5x** |
+| matmul g/u + d | 0.346 | 0.624 | 0.55x |
+| **zero-check F (zk)** | 1.650 | **0.154** | **10.7x** |
+| **zero-check D (zk)** | 0.234 | **0.029** | **8.1x** |
+| table zero-check (zk) | 0.139 | 0.075 | 1.9x |
+| pcs openings (zk) | 0.934 | 0.492 | 1.9x |
+| **PROVE** | **16.34** | **4.94** | **3.31x** |
+
+Device-side: h2d 0.598 s (1,908 MB), ntt 1.281 s, hash 0.215, sumcheck
+0.180, fold 0.440, helpers 0.053, d2h 46 MB.
+
+**THE BEFORE PICTURE, worth recording because it is the cost of the gate.**
+With the gate still 125M-shaped (or with the reservation declining), the
+same layer under `HL_GPU=1` ran the helpers and both zero-checks on the
+host and took **47.5 s** — zero-check F alone 31.2 s — i.e. the GPU made
+the ZK layer 1.6-3x SLOWER than CPU-only, which is AD's "17.01 s, no
+faster than CPU-only" finding reproduced and amplified at this tree's
+witness. (That host-fallback path under `HL_GPU=1` is itself anomalously
+slow — 31.2 s against the CPU-only binary's 1.65 s for the same host
+sumcheck, at 152% CPU against 455% — a real and unexplained effect worth a
+later look; it is now unreachable at this shape and is NOT on the measured
+path of any row above.)
+
+GATES: re-run in rung 2 below (the `dev_reserve_hard` edit landed between).
+
+### AI rung 2 — the 12x512 zk-v3 GPU wall, the gate green at BOTH shapes, the four gates, and the eight legs at Mistral width (2026-09-03, WSL-BOX, [MEASURED])
+
+**THE 125M SHAPE IS NOT DISTURBED.** `pass 12 512 --zk --seed 1 --profile
+v3 --export <v3dir> --threads 8` on the GPU, 3 runs: **4.06 / 4.03 /
+4.16 s -> p50 4.06 s**, every run `40eb54795e023c77..` (87,697,008 B).
+AH's quiet p50 for the same row was 4.16 s and this tree's rung-0 cold
+single reading was 4.84 s, so the shape-general path costs **nothing** at
+(nb_f, nb_d) = (1, 3) — AH's A/B finding for the non-zk prover reproduced
+inside the ZK prover. The gate is now green at BOTH shapes in the SAME
+binary: 125M (1, 3) and Mistral (7, 1), each byte-identical to its CPU
+proof.
+
+**THE FOUR BYTE GATES, BOTH BINARIES, AFTER `dev_reserve_hard`: ALL EIGHT
+GREEN** [MEASURED, one run each, `flock /tmp/zk-heavy.lock`, sha256 taken
+from the written file]:
+
+| gate | CPU | GPU |
+|---|---|---|
+| v2 | `50cf7bdfd6b5b182..` 14.96 s | `50cf7bdfd6b5b182..` 2.40 s |
+| v3 | `5f368db6240e0614..` 15.74 s | `5f368db6240e0614..` 2.50 s |
+| zk-v2 | `021485e4f80ec695..` 17.38 s | `021485e4f80ec695..` 3.98 s |
+| zk-v3 | `40eb54795e023c77..` 18.64 s | `40eb54795e023c77..` 4.06 s |
+
+`cargo test --release` **40/40**.
+
+**THE EIGHT TAMPER LEGS AT MISTRAL WIDTH, THROUGH THE GPU ZK PROVER**
+(`HL_GPU=1 layer 0 512 --zk --seed 1 --profile v3 --export <mistral v3
+export> --threads 8 --all-tampers`): honest run ACCEPT (prove 4.794 s),
+then **8 of 8 REJECT** — flipped X, flipped Wg, out-of-range remainder,
+wrong int16 table entry, wrong requant (h16), wrong z, wrong rounding
+(floor), out-of-range int16 — **`layer 0 (v3) [ZK]: GREEN`**. This is the
+first time the eight legs have been run at a real 8B width with the
+zero-checks and the LogUp helpers on the device.
