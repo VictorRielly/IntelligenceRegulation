@@ -12958,3 +12958,82 @@ commitment opens to the same weights — lane ZZ's option 2, or a
 re-randomisable commitment. **Function 1 of PROOF_FUNCTIONS.md asks for "this
 exact model"; the FAST tier delivers that today and the FULL tier does not.**
 Stated, not fixed.
+
+### AM rung 2 — MODE P3 AT MISTRAL WIDTH: 8/8 tamper legs REJECT, the clear-value scan 180,450 -> 0, and the size cost is +0.16% (2026-09-04, RE-RUN after the box froze)
+
+**THIS RUNG WAS RUN TWICE.** The first attempt died at 01:37:13 with three
+lines in the log when the WSL box FROZE (see the note at the end of this
+entry — the freeze has a diagnosed cause and it is this lane's own
+allocation). The truncated log is kept as `results/am_r2_mistral.crashed.log`.
+The re-run went out detached under `flock /tmp/zk-heavy.lock`, self-started
+at 10:46:09 when round 15's merged floors released the lock, and finished
+exit 0: `results/am_r2_mistral.log`, marker `results/am_r2_mistral.done`.
+
+**THE SOUNDNESS FLOOR AT REAL WIDTH.** Layer 0 at T=16, d 4096 / f 14336,
+P3, GPU binary: the honest run ACCEPTs (prove 9.860 s, verify 0.107 s,
+27,426,484 B) and **all eight tamper legs REJECT** — flipped X entry,
+flipped Wg entry, out-of-range remainder, wrong int16 table entry, wrong
+requant (h16), wrong z, wrong rounding (floor), out-of-range int16 (z16).
+`layer 0 (v3) [ZK]: GREEN`. Every leg that rejects in round 14's P1 battery
+still rejects with the weights hidden, which is the claim that mattered:
+the two extension rounds per matmul sumcheck (rung 1's fix for the bilinear
+mask cross-term) did not cost soundness anywhere the battery can see.
+
+**THE PRIVACY CLAIM AT REAL WIDTH**, one Mistral layer at T=512
+[MEASURED, WSL-BOX, 8T, GPU binary]:
+
+| | P1 (fast tier) | P3 (full tier) |
+|---|---:|---:|
+| PROVE | 4.26 s | 15.82 s (SEE THE WARNING) |
+| VERIFY | 0.06 s | 0.06 s |
+| proof | 40,186,228 B | 40,251,860 B |
+| sha256 | `b5da6c38..` | `190e85a1..` |
+| **int8-class words in the proof** | **180,450** | **0** |
+| int16-class words | 180,452 | 2 |
+| runs >= 100 consecutive int8-class | 0 | 0 |
+
+**180,450 -> 0.** The scan that found raw int8 weight columns sitting in a
+P1 proof finds NOTHING of the class in a P3 proof at the real model width.
+The two int16-class words that remain are two aligned words out of
+5,031,482 with no run structure — noise, not a column. **And the size cost
+is +65,632 B = +0.16%**, so the full tier's overhead is TIME, not bytes.
+
+**DO NOT QUOTE 4.26 -> 15.82 s AS P3's SURCHARGE.** The two arms did not run
+on the same hardware path. The P1 arm took the device commit (device-side
+h2d 0.393 s / ntt 1.195 s / hash 0.202 s, VRAM peak 8,585 MB). The P3 arm
+DECLINED it — `[UPERF3-ZA] gpu zk commit declined (cuMemAlloc(5387 MB):
+CUDA_ERROR_OUT_OF_MEMORY); CPU path` — because P3 forbids the weight cache
+and must commit W hidingly on every proof, and a 5,387 MB allocation does
+not fit an 8,188 MB card that P1 already spills at 8,585 MB. So 3.71x is
+**P3-on-CPU measured against P1-on-GPU on an 8 GB box**, and P3's structural
+cost at Mistral width REMAINS UNMEASURED. It needs a card that can hold the
+allocation.
+
+**THIS SIZES LANE AI's ITEM: 5,387 MB.** "The ZK prover declines the device
+path at Mistral width" now has the number that decides it. It is the same
+prediction as AI's 16 GB+ row (~140 s instead of 265 with no code change),
+and it now applies to the FULL tier as well as the fast one — **the 5090
+settles both at once**, which strengthens the case already in the round-15
+block. Note the asymmetry for whoever plans the hardware step: P1 spills but
+runs on the device; P3 cannot get on the device AT ALL at this width.
+
+**THE BOX FREEZE, DIAGNOSED — this lane's allocation is the prime suspect.**
+The kernel's LAST message before the 2026-09-04 freeze, at 01:37:17, four
+seconds after this rung's tamper legs started, was
+`misc dxg: dxgk: dxgkio_make_resident: Ioctl failed: -12` twice — `-12` is
+ENOMEM, and `dxgkio_make_resident` is WSL's GPU RESIDENCY ioctl. So the box
+died of **VRAM exhaustion, not host RAM**; under WSL a residency request is
+backed by host paging, which is why the whole VM froze instead of one
+process dying. The same message appears at 00:11:03 and 00:27:52 that night,
+just after a `hashline` SIGABRT from lane AI's binary at 00:10:19 — so
+VRAM was already contended when this rung asked for its 5,387 MB.
+
+**WHY THE RE-RUN WAS SAFE AND WHAT IT MEANS FOR RUNG 3**: on a clean box
+(0 of 8,188 MiB used, one process under the lock) the identical allocation
+failed CLEANLY at the CUDA layer and fell back to CPU. The per-layer
+allocation at 8B is the SAME shape as this rung's, so rung 3's P3 arm should
+be 32 clean fallbacks rather than a freeze — but that is a prediction, and
+the rule it produces is a standing one: **never let a second GPU process
+run beside a P3 pass on the 8 GB box, and check `nvidia-smi` reads 0 MiB
+before launching one.**
+
