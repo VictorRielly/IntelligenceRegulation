@@ -28,5 +28,19 @@ pass8b () {
   rm -rf $SP/wc_$name
 }
 
+layer1 () {
+  local name=$1; shift
+  say "ONE MISTRAL LAYER T=512 GPU — $name"
+  env "$@" HL_GPU=1 HL_GPU_VERBOSE=1 LD_LIBRARY_PATH=$CUDA_LD $GPU pass 1 512 --profile v3 \
+    --export $M8B --threads 8 --proof-out $SP/l.bin 2>&1 \
+    | grep -E "streamed commit rows 10752|PASS-V3|PROOF sha256|declined|WARNING"
+  sha256sum $SP/l.bin; rm -f $SP/l.bin
+}
+for i in 1 2 3; do
+  layer1 r0base HL_GPU_PIN_MB=0 HL_GPU_STREAM_COMMIT=0 HL_GPU_FUSE_GATHER=0 HL_GPU_NARROW=0 HL_GPU_CHUNK_ROWS=1024 HL_GPU_NTT_THREADS=256
+  layer1 after HL_DUMMY=1
+  layer1 after_wide HL_GPU_NARROW=0
+done
+
 pass8b before HL_GPU_PIN_MB=0 HL_GPU_STREAM_COMMIT=0 HL_GPU_FUSE_GATHER=0 HL_GPU_NARROW=0 HL_GPU_CHUNK_ROWS=1024 HL_GPU_NTT_THREADS=256
 pass8b after  HL_DUMMY=1

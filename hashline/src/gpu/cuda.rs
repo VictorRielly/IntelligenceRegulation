@@ -37,7 +37,12 @@ pub const SCG_MAX_PRM: usize = 384;
 const NTT_LOG_BLK: u32 = 12;
 fn ntt_threads() -> u32 {
     static V: OnceLock<u32> = OnceLock::new();
-    *V.get_or_init(|| std::env::var("HL_GPU_NTT_THREADS").ok().and_then(|v| v.parse().ok()).unwrap_or(256u32).clamp(32, 1024))
+    // [UPERF3-AJ] 256 -> 512: the NTT kernels hold a 32 KB shared tile, so
+    // sm_89 fits 3 blocks per SM; at 256 threads that is 768 of the SM's
+    // 1,536 threads (50% occupancy) and at 512 it is exactly 1,536.
+    // Measured with `HL_GPU_CHUNK_ROWS=128` at the Mistral shape: 3.03 ->
+    // 2.50 s for one layer, byte-identical (results/hashline_hostwall_gpu.md).
+    *V.get_or_init(|| std::env::var("HL_GPU_NTT_THREADS").ok().and_then(|v| v.parse().ok()).unwrap_or(512u32).clamp(32, 1024))
 }
 
 pub(super) struct Gpu {
@@ -524,17 +529,31 @@ fn pack_narrow(dst: &mut [u8], src: &[u64], w: usize) -> bool {
     debug_assert_eq!(dst.len(), src.len() * w);
     let hi = 1u64 << (8 * w - 1);
     let ok = AtomicBool::new(true);
+    // the width is fixed per call, so the inner loop is a straight store, not
+    // a slice copy — this runs over ~176M elements per Mistral weight tensor
     dst.par_chunks_mut(w * 8192).zip(src.par_chunks(8192)).for_each(|(d, s)| {
-        for (i, &v) in s.iter().enumerate() {
-            let x: i64 = if v < hi {
-                v as i64
-            } else if v >= P - hi {
-                (v as i128 - P as i128) as i64
-            } else {
-                ok.store(false, Ordering::Relaxed);
-                0
-            };
-            d[i * w..i * w + w].copy_from_slice(&x.to_le_bytes()[..w]);
+        let mut good = true;
+        match w {
+            1 => {
+                for (o, &v) in d.iter_mut().zip(s.iter()) {
+                    *o = if v < hi { v as u8 } else if v >= P - hi { v.wrapping_sub(P) as u8 } else { good = false; 0 };
+                }
+            }
+            2 => {
+                for (o, &v) in d.chunks_exact_mut(2).zip(s.iter()) {
+                    let x = if v < hi { v as u16 } else if v >= P - hi { v.wrapping_sub(P) as u16 } else { good = false; 0 };
+                    o.copy_from_slice(&x.to_le_bytes());
+                }
+            }
+            _ => {
+                for (o, &v) in d.chunks_exact_mut(4).zip(s.iter()) {
+                    let x = if v < hi { v as u32 } else if v >= P - hi { v.wrapping_sub(P) as u32 } else { good = false; 0 };
+                    o.copy_from_slice(&x.to_le_bytes());
+                }
+            }
+        }
+        if !good {
+            ok.store(false, Ordering::Relaxed);
         }
     });
     ok.load(Ordering::Relaxed)
@@ -899,7 +918,11 @@ fn fuse_gather() -> bool {
 }
 fn chunk_rows() -> usize {
     static V: OnceLock<usize> = OnceLock::new();
-    *V.get_or_init(|| std::env::var("HL_GPU_CHUNK_ROWS").ok().and_then(|v| v.parse().ok()).unwrap_or(1024usize).max(128))
+    // [UPERF3-AJ] 1024 -> 128: a 1024-row chunk's encoded scratch is 537 MB at
+    // the Mistral W shape, far past the 32 MB L2; a 128-row chunk is 67 MB (and
+    // 128 rows is one blake3 chunk of a column, the smallest legal step).
+    // Only chunked commitments are affected — nothing at the 125M shape.
+    *V.get_or_init(|| std::env::var("HL_GPU_CHUNK_ROWS").ok().and_then(|v| v.parse().ok()).unwrap_or(128usize).max(128))
 }
 
 /// (row0, rc) per chunk: every chunk but the last a multiple of 128 rows.
