@@ -9448,7 +9448,11 @@ full integer statement still models the text.
     the two gamma exponents, probs floor stats, and the exp members —
     **only 2 members over 32 layers**: (exp-neg, eS_raw 1, d_h 128,
     fE 9) and (exp-neg, eS_raw 2, d_h 128, fE 9); wrho = fE + log2 T =
-    18. qr/kr need no extra bit over q/k at any layer.
+    18. qr/kr sit at q/k's exponent at every layer EXCEPT kr at
+    layer 0 (+1 bit) and qr at layer 26 (-1) — the rope requant is
+    therefore scale-CHANGING in general (sh = fRo + (e_qr - e_q)),
+    not scale-preserving as the spike's toy instance assumed
+    [corrected in rung 2].
   - **STATEMENT CONSEQUENCE (amends the rung-0 spec table above)**: the
     xres1/xres2 planes and therefore the SEAM are **int24**, not int16
     — proven as two 16-bit limbs against the existing U16 table (no new
@@ -9459,3 +9463,51 @@ full integer statement still models the text.
   - Commits: 233069a (checkpoint: equiv + stats + 6 attrib sites),
     6dcbe20, f90a4f4, d6fd96a (attrib complete), 2131623, 0da65e8
     (widen), + this record commit.
+
+- **RUNG 2 GREEN — THE ORACLE (2026-09-03, [MEASURED WSL-BOX NT CPU
+  NOISY-SHARED]).** scripts/attention_hash_ref.py: the integer
+  attention + norm + residual chain of ONE REAL layer at the REAL
+  measured exponents (lane NN's attention_x1_layer_ref.py is the
+  toy-shape seeded sibling; this one drives checkpoints). Semantics:
+  v3 round-to-nearest requants with BALANCED remainders at every
+  requant edge (hashline export_v3::requant_round), divisions with
+  rho/sigma in the norm and softmax gadgets, the spike's exp and rope
+  table generators imported VERBATIM (the bytes tables_attn.rs emits),
+  the residual and ao planes in their rung-1 classes.
+  - 125M layer 0 (2.3 s): CHAIN **aed541fcc8d16f3c..**, 66 witness
+    tensors; eXn -5, tn 7, Cn 1774, Ceps 2013, wrho 18 (2 limbs); eQ -2
+    eK -4 eV -5; **exp member (exp-neg, eS_raw 1, d_h 64, fE 9)** — the
+    ledger's raw/scaled reconciliation CONFIRMED by the running chain
+    (PP's scaled eS -2, +3 bits); ropedig 236f03f3..; eO -5, eAo -5,
+    res1 int16 at eR1 -13; mnorm eXm -3 tn 9 wrho 26.
+  - Mistral-7B layer 0 (22.2 s): CHAIN **4085604b8d61ce8c..**; eXn -2,
+    tn 6, Cn 1024 (sqrt(4096) = 64 exact -> Cn a pure shift), Ceps
+    171799, wrho 17; eQ -3 eK -4 eV -7; **exp member (exp-neg, eS_raw
+    2, d_h 128, fE 9)**, expdig 423a43e7..; eO -7; **ao int16 at eAo
+    -18**; **res1 int24 at eR1 -26**; mnorm SS 49 bits, wrho 32 (2
+    limbs) — every width inside i64 and far inside the Goldilocks
+    field. -> results/hashline_attn_ref_{125m,mistral}_l0.json
+  - **NO REQUANT BUMPS at either instance**: the fp-derived exponents of
+    the AT-O1 records admit the integer chain at every edge (nothing
+    saturates, nothing was clamped) — the measured tables are directly
+    usable as statement constants.
+  - **THE LOCAL LEGS** (each gadget vs its fp counterpart on the SAME
+    dequantized integer inputs — "does the gadget compute the op"):
+    q8/k8/v8/s8/ao8/xres1 **1.000000 exact** at both models (matmul +
+    balanced-remainder requant IS the fp op to the last bit); rope
+    0.976-0.983 with max 1 grid step (the fRo = 7 table error, as
+    designed); the norms 0.9998-1.000000 max 1 step; softmax P
+    0.76 (125M) / 0.82 (Mistral) with max 34 / 28 steps out of 512 —
+    the fE/fP = 9 floor, the cost rung 1 already priced (+0.0167 /
+    +0.0092 nats). The CASCADE legs (vs the true fp layer) are far
+    looser and SHOULD be: they carry the int8 embedding's own error.
+  - **SPEC AMENDMENT (rung 2, adopted)**: the RMSNorm division is now
+    ROUND-to-nearest, not floor. Floor cost half a grid step on ~49% of
+    every norm output (local agreement 0.51, max 1 step); round lifts it
+    to 0.97-1.000. It needs NO parity witness and no new commitment:
+    double both sides — y = floor((2 num + div)/(2 div)) with the
+    proven relation y (2 div) + rho = 2 num + div, 2 div = D << (tn+1)
+    still linear in the committed D, rho one bit wider. This works at
+    tn = 0 (Mistral's mnorm, sqrt(4096) exact), where adding
+    floor(div/2) would have needed D's parity bit. `--norm-div floor`
+    reproduces the old semantics for the comparison.
