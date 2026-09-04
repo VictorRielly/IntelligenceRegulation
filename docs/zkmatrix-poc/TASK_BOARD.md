@@ -19,6 +19,59 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-09-04 late (THE HARD REBOOT AND THE RECOVERY; AG AND AI
+MERGED; THE 60 TOKENS/S PLAN; ROUND 14 OPEN):**
+- **THE BOX STOPPED HARD at 19:14:34 on 2026-09-03** (truncated agent
+  transcript, no shutdown record, new boot 23:01) with two lanes in
+  flight. Nothing committed was lost: lane AG had committed through
+  rung 5 and lane AI through rung 2, and both branches are now pushed.
+  What WAS lost is everything the lanes kept in `/tmp` — including the
+  ATTENTION EXPORT DIRECTORIES that lane AG's full-layer gates consume,
+  so AG's digests are unverifiable until lane AK regenerates them.
+  **The lesson is the standing one: durable artifacts go in `results/`,
+  never `/tmp`.**
+- **LANE AG MERGED (6854d2c) — THE FIRST FULL-LAYER PROOF.** Attention,
+  the two norms, the residual stream and the layer-to-layer seam are in
+  the statement. The 12-layer 125M full-model pass with seams bound
+  ACCEPTS at 94.54 s / 404.3 MB (sha256 c91f8713..), 5.9x the FFN-only
+  pass; one full Mistral-7B layer proves in 12.91 s at T = 16 with
+  10/10 tamper legs rejecting. **The full-layer surcharge SHRINKS with
+  width and GROWS with context** — 6.1x at 125M/T512, 1.17x at 8B/T16,
+  1.61x at 8B/T64, AE's counted 2.87x at 8B/T512.
+- **LANE AI MERGED AT RUNG 2 (fd8c8c1)**, deliberately not at its head:
+  the ZK prover's own device gate is generalized (one Mistral layer in
+  ZK on the GPU 16.34 -> 4.94 s, byte-identical; 12x512 GPU ZK wall
+  4.06 s p50; 8/8 legs reject at Mistral width), but its rung-3 code
+  compiles and was NEVER MEASURED, so it stays on the branch.
+- **THE 60 TOKENS/S PLAN (b0c4821), `docs/zkmatrix-poc/U_PERF3_SIXTY_TOKENS_PLAN.md`.**
+  Completing the statement costs **3.55x** (attention 2.87x [COUNTED],
+  ZK P1 1.047x [MEASURED], the range facts 1.18x [MODEL]). Applied to
+  lane YY's H100 cells: **30B honest = 2.3-17 tok/s scaled, 13-39 at
+  the counted floor — 60 is OUTSIDE both**; **8B honest = 7.3-53
+  scaled, 40-113 at the floor — 60 is INSIDE the floor.** The floor at
+  30B is set by hashing 311 GB of encoded activations per proof, which
+  no kernel work touches. **THE PoC IS THEREFORE RETARGETED AT 8B** and
+  the hashed-byte volume (rate 1/2 and/or a 31-32-bit field) is named
+  as the one design change that decides whether 30B follows.
+- **ROUND 14 OPEN (e994bb7)**, three lanes on disjoint files: **AJ** =
+  the host wall (the four items that are 56-63 s of the measured 95.5 s
+  8B GPU pass; lever L2, 2.4-2.9x, the most certain factor in the
+  budget); **AK** = regenerate the attention exports, re-establish AG's
+  digests on the merged tree, then fold the claims (lever L5); **AI**
+  continuing at rung 3 (the 32-layer 8B ZK pass on the GPU — the
+  product number under P1).
+- Merged-tree floors: `results/floors_round13_merge.log` with a `.done`
+  marker; the runner is `scripts/floors_round13_merge.sh`, which carries
+  the four gates' exact commands, reference sha256 prefixes and byte
+  counts for BOTH binaries. **Check the marker before trusting the
+  merge.**
+- **AWAITING VICTOR (three rulings, stated in the plan's section 5)**:
+  (1) the PoC's target shape — 8B recommended; (2) hashed bytes, the
+  rate/field change, which moves every frozen digest and needs a costed
+  memo first; (3) hardware — rent an H100 block for the measurement
+  pass, buy a 4090/5090-class board, or neither. Already answered and
+  not to be reopened: the privacy mode is P1.
+
 **AS OF 2026-09-04 (LANE AH COMPLETE AND MERGED — THE 8B GPU PASS IS
 NOW 95 s; the 125M-shaped kernels are gone):**
 - **THE 8B GPU PASS: 175.09 s -> 95.48 s** [MEASURED], the proof
