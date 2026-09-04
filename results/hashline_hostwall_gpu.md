@@ -133,3 +133,49 @@ Three verdicts:
    the chunk size only pays once the kernels have the occupancy to use the
    smaller working set, and the occupancy only pays once the working set
    is small enough to stay near cache.
+
+## 5. Rung 3 — the narrow (int8/int16/int32) upload
+
+`Fp::from_i64` maps x >= 0 to x and x < 0 to P + x, so a witness plane's
+field elements are exactly the two ends of the field: every value of an
+int8 plane is < 2^7 or >= P - 2^7. The upload therefore does not need 64
+bits per element. `Uploader::send_packed` packs w bytes per element
+(w = 1, 2 or 4, chosen by a strided sample and then VERIFIED on every
+element during packing) straight into the page-locked staging buffer, and
+`k_widen` restores the identical 64-bit image on the device. At the
+Mistral shape the sample picks **1 byte for W (1,409 -> 176 MB) and 2
+bytes for A (461 -> 115 MB)**. If any element does not fit, the pack
+fails and the destination is untouched, so the caller falls back to the
+64-bit upload with nothing to undo. Switch: `HL_GPU_NARROW=0`.
+
+## 6. The rung-3 sweep — ten arms, all byte-identical [MEASURED]
+
+| arm | PROVE s | commit W: h2d visible / total s | B/elem on the wire |
+|---|---:|---|---:|
+| r0base (everything off, chunk 1024, 256 threads) | 3.03 | — | 8 |
+| chunk 128 + 512 threads, narrow OFF | 2.51 | 0.299 / 0.388 | 8 |
+| **chunk 128 + 512 threads (defaults)** | **2.50** | 0.265 / 0.399 | **1 (W), 2 (A)** |
+| the same, repeated | 2.66 | 0.300 / 0.585 | 1 |
+| chunk 256 + 512 threads | 2.73 | 0.275 / 0.650 | 1 |
+| chunk 512 + 512 threads | 2.60 | 0.257 / 0.520 | 1 |
+| chunk 128 + 256 threads | 2.68 | 0.286 / 0.565 | 1 |
+| chunk 128 + 1024 threads | 2.85 | 0.282 / 0.613 | 1 |
+| chunk 128 + 512 threads, fused gather OFF | 2.67 | 0.286 / 0.593 | 1 |
+| chunk 128 + 512 threads, 32 MB staging | 2.82 | 0.377 / 0.638 | 1 |
+
+The two repeats of the same configuration (2.50 and 2.66, and a `commit
+W` total of 0.399 against 0.585) fix the noise floor of this box at
+about **+/-6% on the prove and much worse on a single phase** — lanes AI
+and AK were running on the CPU throughout. Differences below ~0.15 s are
+not real. What survives that:
+
+- **chunk 128 + 512 threads is the winning configuration** and is now the
+  default (`HL_GPU_CHUNK_ROWS`, `HL_GPU_NTT_THREADS`). 3.03 -> 2.50 s.
+- **The narrow upload is PARITY on this box** (2.50 vs 2.51). Once the
+  chunk is small enough for the interleaving to hide the DMA behind the
+  encode, moving 8x fewer bytes only trades bus time for host packing
+  time. It is kept on because the structure is right where the device is
+  faster than the bus — which is exactly the RTX 5090 case — and because
+  it costs nothing here; it is switchable and byte-gated either way.
+- 1024 threads per NTT block is worse than 512 (1 block per SM instead of
+  3), and a 32 MB staging buffer is worse than 64 MB.

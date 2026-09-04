@@ -11976,6 +11976,61 @@ streamed commit of W runs in 0.385 s against ~0.72 s, of which 0.303 s is
 now the DMA itself — which is what rung 3 attacks.
 
 
+**RUNG 3 — THE NARROW UPLOAD, AND THE TWO DEFAULTS (2026-09-04,
+[MEASURED], ten arms, every one byte-identical `179ec2fb..`).**
+`Fp::from_i64` maps x >= 0 to x and x < 0 to P + x, so an int8 plane's
+field elements are exactly the two ends of the field and the upload does
+not need 64 bits per element. `Uploader::send_packed` packs w bytes per
+element straight into the page-locked staging buffer (w chosen by a
+strided sample, then VERIFIED on every element while packing; a
+violation leaves the destination untouched and falls back), and the new
+`k_widen` restores the identical 64-bit image on the device. At the
+Mistral shape the sample picks **1 byte for W (1,409 -> 176 MB) and 2
+for A (461 -> 115 MB)**. Switch: `HL_GPU_NARROW=0`.
+
+| arm (one Mistral layer, T = 512, GPU) | PROVE s | commit W h2d visible / total | B/elem |
+|---|---:|---|---:|
+| r0base — everything off, chunk 1024, 256 threads | 3.03 | — | 8 |
+| chunk 128 + 512 threads, narrow OFF | 2.51 | 0.299 / 0.388 | 8 |
+| **chunk 128 + 512 threads (the new defaults)** | **2.50** | 0.265 / 0.399 | 1 / 2 |
+| the same, repeated | 2.66 | 0.300 / 0.585 | 1 |
+| chunk 256 / chunk 512 (512 threads) | 2.73 / 2.60 | | 1 |
+| chunk 128 + 256 / 1024 threads | 2.68 / 2.85 | | 1 |
+| chunk 128 + 512, fused gather OFF | 2.67 | | 1 |
+| chunk 128 + 512, 32 MB staging | 2.82 | | 1 |
+
+TWO HONEST READINGS. (1) The two repeats of the SAME configuration (2.50
+and 2.66; `commit W` 0.399 vs 0.585) put this box's noise floor at ~+/-6%
+on the prove with lanes AI and AK on the CPU, so nothing below ~0.15 s is
+real. (2) **The narrow upload is PARITY here** (2.50 vs 2.51): once the
+chunk is small enough for the interleaving to hide the DMA behind the
+encode, 8x fewer bytes on the bus only trades bus time for host packing
+time. It is kept ON — switchable, byte-gated both ways, and the right
+structure the moment the device is faster than the bus (the RTX 5090
+case the coordinator flagged mid-round) — but it is NOT counted as a
+speedup on this box.
+
+WHAT DEFAULTS CHANGED (both byte-preserving, both in gpu/cuda.rs):
+`HL_GPU_CHUNK_ROWS` **1024 -> 128** (the encoded scratch of one chunk at
+the Mistral W shape drops 537 MB -> 67 MB; 128 rows is one blake3 chunk
+of a column, the smallest legal step, and only CHUNKED commitments are
+affected, so nothing at the 125M shape moves) and `HL_GPU_NTT_THREADS`
+**256 -> 512** (the NTT kernels hold a 32 KB shared tile, so sm_89 fits 3
+blocks per SM: 3 x 256 = 768 of the SM's 1,536 threads, against 3 x 512 =
+1,536 exactly). **Neither is worth anything alone — 2.81 and 2.85 — and
+together they are 3.03 -> 2.50 s.** The chunk size only pays once the
+kernels have the occupancy to use the smaller working set, and the
+occupancy only pays once the working set is near cache.
+
+ALSO IN THIS RUNG, at the coordinator's request (the RTX 5090 becomes the
+measurement machine): Blackwell arms in `arch_str` — (10, 0) =>
+`compute_100`, (12, 0) => `compute_120` — and a LOUD stderr warning
+whenever the NVRTC compile falls through to generic PTX, either because
+the compute capability has no arm or because the toolkit rejects the
+arch. Inert on this box (the 4070 Laptop is sm_89 and still takes
+`compute_89`), and the byte gates are unchanged by it.
+
+
 ## Agent AK status (wt-uperf3-ak) — round 14
 
 (lane appends below)
