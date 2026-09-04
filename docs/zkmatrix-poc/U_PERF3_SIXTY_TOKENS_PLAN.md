@@ -74,12 +74,15 @@ is sublinear by a structure not known to this repository, or the
 figure is amortised. **This plan does not target batch-1 decode**,
 and any published number must name its workload.
 
-**Recommended PoC claim**: *60 proven tokens per second, 8B-class
-model, complete transformer layers, zero knowledge for the inputs
-(mode P1), 512-token prefill, one H100, p95 over 20 warm runs.* It is
-inside the counted floor, it is a complete and rigorous statement,
-and it beats the competitor's rate on a workload we can define
-precisely. 30B follows from §5, or it does not follow.
+**THE PoC CLAIM — RULED 2026-09-04 (Victor, console)**: *60 proven
+tokens per second, 8B-class model, complete transformer layers, zero
+knowledge for the inputs (mode P1), 512-token prefill, one H100, p95
+over 20 warm runs.* It is inside the counted floor, it is a complete
+and rigorous statement, and it beats the competitor's rate on a
+workload we can define precisely. 30B follows from §5, or it does not
+follow — and the same ruling defers the field/rate change with it,
+while making the hardware question binding, because this claim names
+its machine.
 
 ---
 

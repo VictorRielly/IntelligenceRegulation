@@ -65,12 +65,20 @@ MERGED; THE 60 TOKENS/S PLAN; ROUND 14 OPEN):**
   the four gates' exact commands, reference sha256 prefixes and byte
   counts for BOTH binaries. **Check the marker before trusting the
   merge.**
-- **AWAITING VICTOR (three rulings, stated in the plan's section 5)**:
-  (1) the PoC's target shape — 8B recommended; (2) hashed bytes, the
-  rate/field change, which moves every frozen digest and needs a costed
-  memo first; (3) hardware — rent an H100 block for the measurement
-  pass, buy a 4090/5090-class board, or neither. Already answered and
-  not to be reopened: the privacy mode is P1.
+- **RULING (Victor, console 2026-09-04): THE PoC TARGET SHAPE IS 8B** —
+  the claim is *60 proven tokens per second, 8B-class model, complete
+  transformer layers, mode P1, 512-token prefill, one H100, p95 over 20
+  warm runs*, which sits inside the counted floor (40-113 tok/s honest),
+  so the remaining distance is kernel quality and not design. TWO
+  CONSEQUENCES: the rate/field change is **DEFERRED** (it moves the 30B
+  floor, 8B does not need it — no code before a costed memo, and it is
+  the 30B follow-on's first question), and **HARDWARE BECOMES BINDING**
+  rather than merely cheap information, because the ruled claim names
+  its machine and "one H100" cannot be claimed from a laptop.
+- **AWAITING VICTOR (one ruling left)**: hardware — rent an H100 block
+  for the measurement passes, buy a 4090/5090-class board for capacity,
+  or both. Already answered and not to be reopened: the privacy mode is
+  P1, and the PoC shape is 8B.
 
 **AS OF 2026-09-04 (LANE AH COMPLETE AND MERGED — THE 8B GPU PASS IS
 NOW 95 s; the 125M-shaped kernels are gone):**
