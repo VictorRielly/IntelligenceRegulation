@@ -1,0 +1,28 @@
+=== A: NO FOLD [the pre-fold reference] T=512 ===
+[attn-claims] Wa: 6 claims -> 6 groups; group vectors 1572864 B (1.50 MB) + prox 262144 B
+[attn-claims] Ha: 38 claims -> 6 groups; group vectors 1572864 B (1.50 MB) + prox 262144 B
+[attn-claims] Aa: 93 claims -> 41 groups; group vectors 10747904 B (10.25 MB) + prox 262144 B
+  FULL LAYER: PROVE 7.661 s | VERIFY 0.146 s | proof 33234332 B (33.2 MB; attention half 27.3 MB) | ACCEPT
+attn-full: GREEN
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:08.48
+	Maximum resident set size (kbytes): 5102236
+=== B: FOLD sm+lm [default] T=512 ===
+[attn-claims] Wa: 6 claims -> 6 groups; group vectors 1572864 B (1.50 MB) + prox 262144 B
+[attn-claims] Ha: 38 claims -> 6 groups; group vectors 1572864 B (1.50 MB) + prox 262144 B
+[attn-fold] Aa: 27 of 93 claims collapsed -> 68 claims
+[attn-claims] Aa: 68 claims -> 25 groups; group vectors 6553600 B (6.25 MB) + prox 262144 B
+[attn-fold] Aa: 27 of 93 claims collapsed -> 68 claims
+  FULL LAYER: PROVE 7.499 s | VERIFY 0.148 s | proof 29041500 B (29.0 MB; attention half 23.1 MB) | ACCEPT
+attn-full: GREEN
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:08.28
+	Maximum resident set size (kbytes): 5102360
+=== C: FOLD ALL T=512 ===
+[attn-claims] Wa: 6 claims -> 6 groups; group vectors 1572864 B (1.50 MB) + prox 262144 B
+[attn-claims] Ha: 38 claims -> 6 groups; group vectors 1572864 B (1.50 MB) + prox 262144 B
+[attn-fold] Aa: 93 of 93 claims collapsed -> 4 claims
+[attn-claims] Aa: 4 claims -> 4 groups; group vectors 1048576 B (1.00 MB) + prox 262144 B
+[attn-fold] Aa: 93 of 93 claims collapsed -> 4 claims
+  FULL LAYER: PROVE 8.297 s | VERIFY 0.077 s | proof 23539100 B (23.5 MB; attention half 17.6 MB) | ACCEPT
+attn-full: GREEN
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:09.01
+	Maximum resident set size (kbytes): 5102176

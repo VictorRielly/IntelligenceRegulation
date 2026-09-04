@@ -1,5 +1,16 @@
 # THE FULL-LAYER PROOF on the hash line (U-PERF3 lane AG, 2026-09-03)
 
+> **SUPERSEDED IN PART, 2026-09-04.** Every number below is lane AG's
+> round-13 measurement and is left exactly as recorded — it is the
+> history, not the current default. Lane AK then built the claim fold
+> (the 60 tok/s plan's lever L5), which is now ON by default and moves
+> the proof BYTES: the 12-layer pass 404,327,452 -> 282,217,500 B
+> (-30.2%, verify -69%, prove +7.1%), one 125M layer at T=512
+> 33,234,332 -> 23,539,100 B, one Mistral layer at T=16 48,478,456 ->
+> 42,977,736 B. Setting `HL_NO_FOLD=1` reproduces every digest on this
+> page byte for byte, which is how these results stay checkable.
+> Current record: `results/hashline_attn_fold.md`.
+
 The measured record behind the FULL-LAYER rows in
 docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md section 3, in the form of
 lane XX's results/hashline_gpu_12x512.md. Every number is [MEASURED] on

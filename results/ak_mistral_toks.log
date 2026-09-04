@@ -1,0 +1,2 @@
+token stream: /home/victor/models/fineweb-edu/sample_text.txt tokenized with tokenizers -> 4748171 tokens
+SAVED /home/victor/wt-uperf3-ak/results/ak_mistral_toks.npy 4748171 tokens

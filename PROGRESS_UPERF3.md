@@ -11787,3 +11787,294 @@ the ZK path (zk.rs commits W with plain `pcs::commit`), one tagged line.
 ## Agent AK status (wt-uperf3-ak) — round 14
 
 (lane appends below)
+LANE: the attention exports the 2026-09-03 hard reboot destroyed, AG's
+digests re-established ON THE MERGED TREE, then lever L5 — FOLD THE
+CLAIMS. Worktree wt-uperf3-ak, branch uperf3-ak, based on 6854d2c (the
+AG merge). Every wall [WSL-BOX] [8T] [CPU] [NOISY-SHARED] (lanes AI and
+AJ build and run on the same box).
+
+OWNS (recorded): hashline/src/{attention,norm,tables_attn}.rs, the
+[UPERF3-AG]-tagged full-layer functions in layer.rs, the `--attn`/`attn-*`
+lines in src/bin/hashline.rs, NEW results/hashline_attn_* and
+results/ak_*, this section. READ-ONLY: gpu/* (lane AJ's), zk.rs (lane
+AI's), pcs.rs, pcs_compact.rs, sumcheck.rs, transcript.rs, the v2/v3 FFN
+functions in layer.rs, export_v3.rs, tables_v3.rs, zkmatrix-rs/,
+scripts/.
+
+NOTE ON THIS SECTION: the round-14 block and this section's header live
+in the ORCHESTRATOR's working copy of PROGRESS_UPERF3.md and were never
+committed, so this branch had neither. The header above is reproduced
+verbatim from the orchestrator's copy so the merge is a text merge, not a
+reconstruction.
+
+### AK rung 0 — THE ATTENTION EXPORTS REGENERATED, AND AG'S 12-LAYER DIGEST REPRODUCES ON THE MERGED TREE (2026-09-03/04) [MEASURED WSL-BOX 8T CPU NOISY-SHARED]
+
+**THE HEADLINE: AG's full-model digest is real again.** The 12-layer
+125M full-model pass — every layer's attention + both norms + the
+residual stream + the v3 FFN half on one transcript, both seams bound —
+re-run on the MERGED tree (6854d2c: AG merged on top of AH's
+shape-general kernels and AI's rung-2 ZK device gate) against exports
+regenerated from scratch:
+
+    PROOF sha256 c91f8713e2ed805543c1ca3a5f1c752734278606e7b13d199f1348dbf22f0ece
+                 (404,327,452 B)  ==  AG's rung-5 digest, BYTE FOR BYTE
+
+| run | PROVE | VERIFY | proof | peak RSS | verdict |
+|---|---:|---:|---:|---:|---|
+| AK, merged tree, regenerated exports | **100.47 s** | 2.66 s | 404,327,452 B | 6.62 GB | **ACCEPT** |
+| AG, rung 5, pre-merge tree, /tmp exports | 94.54 s | 2.03 s | 404,327,452 B | 6.56 GB | ACCEPT |
+
+The 6% wall difference is box noise (two other lanes building and running
+on this box); every BYTE of the proof is identical, which is the gate
+that matters. The AG merge did not disturb the full-layer statement.
+
+Exact command (detached, heavy lock, `.done` marker per the no-hangup
+protocol):
+
+    M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl \
+    hashline attn-pass /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l 12 \
+      --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export \
+      --t 512 --threads 8
+    -> results/ak_r0_attnpass12.log / .done (exit 0)
+
+**THE REGENERATED EXPORTS — where they live now, and why not /tmp.**
+`/home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l{0..11}` (91 MB,
+7 int32 planes + manifest.json + manifest.txt each), made with
+
+    python3 scripts/attention_hash_ref.py --arch 125m --layer L \
+      --export /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_lL
+
+2.6 s (layer 0) to 5.9 s (layer 11) each — the 125M oracle needs NO token
+cache (it reads `m125_attn_gate.TOKENS` = /home/victor/shard-00000.npy,
+which survived). Total 45 s for all twelve; log results/ak_export_125m.log.
+The layer-4 FFN Hadamard shift bump `[0, 0, 1, 0]` that AG recorded
+reproduces exactly, and layer 0's cascade agreement xm8 = 0.310224 is
+AG's 0.31. These directories are DELIBERATELY untracked (91 MB of int32
+planes): they are worktree-local artifacts, never committed, and they are
+in results/ rather than /tmp precisely because /tmp is what the
+2026-09-03 19:14 reboot destroyed.
+
+**THE MISTRAL TOKEN CACHE, likewise regenerated and kept:**
+`/home/victor/wt-uperf3-ak/results/ak_mistral_toks.npy` (4,748,171 tokens,
+19 MB), tokenized from ~/models/fineweb-edu/sample_text.txt with the
+checkpoint's own tokenizer — the ~5.5 min step AG warned about, so REUSE
+this file rather than re-tokenizing (log results/ak_mistral_toks.log).
+
+### AK rung 1 — ONE FULL MISTRAL-7B LAYER RE-ESTABLISHED, 10/10 LEGS REJECT (2026-09-04) [MEASURED WSL-BOX 8T CPU NOISY-SHARED]
+
+The Mistral attention export regenerated (`--arch mistral --layer 0
+--tokens-cache results/ak_mistral_toks.npy --export
+results/ak_attn_exports/mistral_l0`, 21.9 s once the token cache exists),
+then AG's rung-5 Mistral rows re-run on the merged tree:
+
+| shape (Mistral-7B layer 0, int24 residual) | PROVE | VERIFY | proof | peak RSS | verdict |
+|---|---:|---:|---:|---:|---|
+| **FULL layer, T = 16** (AK) | **12.712 s** | 0.097 s | 48,478,456 B (48.5 MB; attention half 22.6) | 10.10 GB | **ACCEPT, 10/10 legs REJECT** |
+| FULL layer, T = 16 (AG) | 12.91 s | 0.11 s | 48.5 MB (attention half 22.6) | 10.08 GB | ACCEPT, 10/10 |
+| **FULL layer, T = 64** (AK) | **15.008 s** | 0.243 s | 52,756,584 B (52.8 MB) | 11.24 GB | **ACCEPT** |
+| FULL layer, T = 64 (AG) | 14.27 s | 0.13 s | 52.8 MB | 11.24 GB | ACCEPT |
+
+Every proof-byte count and peak RSS matches AG to the byte / to 0.01 GB;
+the walls differ by box noise only. The ten legs and what rejects them:
+flipped score s8 (score matmul sumcheck), wrong exp-table entry (S
+zero-check), wrong softmax quotient (S), wrong norm output (D), wrong
+RoPE rotation (Q), wrong row maximum (S), flipped x_in (SS row-sum
+sumcheck), BROKEN SEAM (the seam claim), FFN wrong int16 table entry
+(FFN LogUp), FFN wrong requant h16 (FFN zero-check).
+
+**THE MISTRAL CHAIN GATE:** `attn-chain results/ak_attn_exports/mistral_l0`
+-> **64/64 tensor digests match the oracle** (4.16 s), oracle CHAIN
+**4085604b8d61ce8c..** — AG's digest exactly. Log:
+results/ak_r1_mistral.log / .done (exit 0).
+
+### AK rung 2 — LEVER L5, THE CLAIM FOLD (2026-09-04) [MEASURED WSL-BOX CPU NOISY-SHARED]
+
+**THE FINDING, first — the lever is bigger than AG's estimate and the
+mechanism is exactly identified.** A Ligero opening costs ONE clear row
+combination of 2^log_cols Fp2 per GROUP, and `pcs::group_claims` keys a
+group by the claim's COLUMN TAIL — the last log_cols coordinates of its
+point. Claims at different points are different groups whatever they say,
+and at log_cols = 14 each group vector is **262,144 B**. Measured with the
+new `HL_ATTN_CLAIMS=1` report (`attention::claim_groups_report`, stderr
+only — it touches neither transcript nor proof), one 125M full layer at
+T = 128 before any change:
+
+| commitment | claims | groups | group vectors |
+|---|---:|---:|---:|
+| Wa | 6 | 6 | 1.50 MB |
+| Ha | 38 | 6 | 1.50 MB |
+| **Aa** | **93** | **49** | **12.25 MB** |
+| total | 137 | 61 | **15.25 MB** of a 19.7 MB attention half |
+
+So it is **15.25 MB per 125M layer, not 8**, and **24 of Aa's 49 groups
+are single claims on the two PACKED SMALL slices** `sm` and `lm` — the
+norm rows (D, Dsq, a1, a2) and the isqrt limbs, each a T-long sub-row of
+a 2^14 / 2^15 packed slice, each costing a whole 262,144 B group vector.
+
+**THE MECHANISM.** The v3 FFN prover folds every pending claim into its
+two zero-checks (one nu-weighted eq term each), so A and H open at two
+points. The attention argument runs its five zero-checks BEFORE its four
+matmul sumchecks, so most of its claims are raised after the last
+zero-check and cannot ride one — folding them into the zero-checks would
+mean reordering the whole argument. The SAME arithmetic as its own
+reduction is what this rung builds (`attention::collapse_range`): for a
+committed range and the claims inside it,
+
+    sum_c nu_c P(p_c) = sum_x [ sum_c nu_c eq(p_c^full, x) ] P(x)
+
+is ONE degree-2 sumcheck over the range whose terminal is ONE claim at
+ONE point; the verifier evaluates the bracket itself as
+sum_c nu_c eq(p_c^full, rho), each term O(log). p_c^full is the claim's
+point lifted to the range's arity by the existing `sub_point` (the
+sub-block index in the high bits). **No soundness property changes**
+(Schwartz-Zippel on nu, then the sumcheck) and **no new primitive is
+introduced**; it costs `n_rounds x 3 x 16 B` of sumcheck plus one Fp2
+terminal, and it MOVES THE PROOF BYTES by design.
+
+Two collapse plans, both selected by `collapse_plan(lay)` from the layout
+alone (public, so prover and verifier agree by construction):
+
+* **default** — the two packed small slices `sm` and `lm` (sumchecks over
+  2^14 and 2^15: free next to the layer).
+* **`HL_FOLD_ALL=1`** — the binary decomposition of the WHOLE A range into
+  aligned power-of-two blocks. Every plane is allocated aligned to its own
+  size, so each plane lies wholly inside one block and every claim
+  collapses; A then opens at as many points as the decomposition has
+  blocks (4 at 125M).
+
+`HL_NO_FOLD=1` restores the pre-fold proof for a before/after count.
+
+**MEASURED, one 125M full layer at T = 128** (4 threads, the same binary,
+same export):
+
+| mode | Aa claims -> groups | attention half | full layer | PROVE | verdict |
+|---|---|---:|---:|---:|---|
+| no fold (AG's proof) | 93 -> 49 | 19.7 MB | 24,102,524 B | 2.37 s | ACCEPT |
+| **fold sm+lm (default)** | 93 -> 68 claims, **25 groups** | **13.4 MB** | **17,812,492 B** | 2.39 s | **ACCEPT** |
+| **fold all** | 93 -> **4 claims, 4 groups** | **7.9 MB** | **12,309,708 B** | 3.31 s | **ACCEPT** |
+
+−32% of the layer's proof for no measurable prover time; −49% for +39% of
+prover time at this shape. `cargo test --release` 40/40 with the fold in.
+### AK rung 3 — THE FOLD IS THE DEFAULT: THE STATEMENT RE-VALIDATED AT BOTH WIDTHS (2026-09-04) [MEASURED WSL-BOX 8T CPU NOISY-SHARED]
+
+The T = 512 measurement decided the default. `collapse_plan` now
+collapses the **binary decomposition of the whole A range** (four aligned
+power-of-two blocks at 125M); `HL_FOLD=small` keeps the packed-slice-only
+plan, `HL_FOLD=nos` skips the six S-domain planes, and `HL_NO_FOLD=1`
+turns the lever off.
+
+**ONE 125M FULL LAYER, T = 512, 8 threads:**
+
+| mode | Aa groups | attention half | FULL LAYER proof | PROVE | VERIFY | peak RSS |
+|---|---:|---:|---:|---:|---:|---:|
+| `HL_NO_FOLD=1` (AG's proof) | 41 | 27.3 MB | **33,234,332 B** | 7.661 s | 0.146 s | 5.102 GB |
+| `HL_FOLD=small` | 25 | 23.1 MB | 29,041,500 B | 7.499 s | 0.148 s | 5.102 GB |
+| **default (whole range)** | **4** | **17.6 MB** | **23,539,100 B** | 8.297 s | **0.077 s** | 5.102 GB |
+
+**−29.2% of the layer's proof, −35.5% of the attention half, for +8.3% of
+prover time, with peak RSS unchanged and VERIFY nearly halved** — inside
+the plan's modelled L5 band (bytes x0.44-0.50 on the group vectors, time
+x1.05-1.15).
+
+**ONE FULL MISTRAL-7B LAYER, T = 16:** 48,478,456 -> **42,977,736 B**
+(−11.3% on the layer, **−24% on the attention half**) for **+1.2% prove**
+(12.712 -> 12.865 s), verify 0.097 -> 0.072 s, peak 10.10 -> 10.09 GB.
+The surcharge shrinks with width because the weight commitment dominates
+and `cols_log` drops to 13 there (a group vector is 131,072 B, not
+262,144).
+
+**THE 12-LAYER 125M FULL-MODEL PASS, FOLDED — the deliverable:**
+
+| pass (12 FULL layers x 512, seams bound) | witness | PROVE | VERIFY | proof | peak RSS | verdict |
+|---|---:|---:|---:|---:|---:|---|
+| pre-fold (AG / AK rung 0) | 5.22 s | 100.47 s | 2.66 s | **404,327,452 B** | 6.62 GB | ACCEPT |
+| **folded (default)** | 4.94 s | **107.63 s** | **0.83 s** | **282,217,500 B** | 6.44 GB | **ACCEPT** |
+| change | | +7.1% | **-69%** | **-30.2%** | -2.7% | |
+
+    PROOF sha256 2d5791ff8e153b4946086386b508ce65f6f9b8b6e48bf95a4a67f1b22eefdf43  (folded)
+    PROOF sha256 c91f8713e2ed805543c1ca3a5f1c752734278606e7b13d199f1348dbf22f0ece  (HL_NO_FOLD=1)
+
+The verify time is the surprise: the verifier checks four group vectors
+per layer instead of forty-one.
+
+**EVERY TAMPER LEG STILL REJECTS WITH THE FOLD ON** — the collapse
+reduces the claims, not the statement:
+
+* `attn-full` 125M T = 512 — **10/10 REJECT**, `attn-full: GREEN`.
+* `attn-layer` 125M T = 512 (the attention half alone) — **10/10
+  REJECT**, including *wrong isqrt D* (the isqrt pair), *attainment
+  selector moved* and *broken residual/seam plane*, `attn-layer: GREEN`.
+* `attn-full` Mistral T = 16 — **10/10 REJECT**, `attn-full: GREEN`.
+* `attn-pass --all-tampers` — the LAYER SEAM leg still rejects
+  (`layers 0->1: layer seam: the previous layer's xres2 != this layer's
+  x_in`), `attn-pass: GREEN`.
+
+RECORD -> results/hashline_attn_fold.md. Logs: results/ak_r3_validate.log
+/ .done (exit 0), results/ak_r2_fold_512.log, results/ak_r0_attnpass12.log,
+results/ak_r1_mistral.log, results/ak_r1_floors.log.
+
+**NOT IN THIS LANE'S OWNERSHIP, OWED AT MERGE:**
+`docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md` section 3 and
+`results/hashline_attn_fulllayer.md` still carry the PRE-FOLD proof sizes
+(33.2 MB per 125M layer, 404.3 MB for the pass). The folded numbers are
+in results/hashline_attn_fold.md.
+
+**THE FOLD IS THE ONLY CHANGE — PROVEN.** With `HL_NO_FOLD=1` the FOLDED
+tree re-runs the 12-layer pass and gives AG's digest back byte for byte:
+**c91f8713e2ed805543c1ca3a5f1c752734278606e7b13d199f1348dbf22f0ece
+(404,327,452 B), ACCEPT**, witness 5.11 s, PROVE 94.09 s (AG: 94.54),
+VERIFY 1.99 s. Nothing in the argument, the witness, the transcript or
+the commitments moved — the only difference between the 404.3 MB proof
+and the 282.2 MB one is how many points the A commitment is opened at.
+It also means **AG's round-13 record stays checkable on the merged tree**:
+`HL_NO_FOLD=1` is its gate. (results/ak_r3_nofold_gate.log / .done, exit 0)
+
+**THE FLOOR, WITH THE FOLD IN:** `results/ak_floors.sh` on BOTH binaries
+built from the folded tree — **ALL FLOORS GREEN, 8 byte gates** (v2
+50cf7bdfd6b5b182.. / 66,844,928 B, v3 5f368db6240e0614.. / 70,758,084 B,
+zk 021485e4f80ec695.. / 87,228,528 B, zk-v3 40eb54795e023c77.. /
+87,697,008 B, cpu and gpu) — and `cargo test --release` **40/40**.
+
+### WHERE THIS LANE STANDS (for the next session)
+
+Rungs 0-3 are done and committed. Part 1 of the brief is closed: **the
+attention exports exist again outside /tmp and AG's two headline digests
+reproduce byte for byte on the merged tree**, so every attention number
+in the ledger is verifiable once more. Part 2 (lever L5) is built,
+measured at both model widths, and is the DEFAULT.
+
+What the next agent should pick up, in the order the numbers argue for:
+
+1. **Fold Ha (and, at 125M only, Wa).** They are 6 groups each — 1.50 MB
+   apiece per 125M layer at T = 512, about 13% of the folded layer. The
+   same `collapse_range` applies verbatim; the only work is keeping the H
+   (and W) data alive in `AttnPending` until `attn_open_wh`, which today
+   keeps only `a_data`. At Mistral width W is 42M entries a layer and the
+   collapse would cost more than the 786 KB it saves — fold H, skip W.
+2. **Stop copying A into Fp2 for the collapse.** `collapse_range` calls
+   `tab2` to satisfy `sumcheck::prove`'s `Vec<Vec<Fp2>>`; a specialised
+   first round reading the base-field plane in place removes one
+   16-byte-per-element copy of the whole witness. Invisible at 125M (peak
+   RSS was 5.102 GB in every fold mode) but it will matter at Mistral
+   T = 512, where A is ~80M entries.
+3. **Re-measure `HL_FOLD=nos` at Mistral T = 512** (needs the Mac). At
+   125M it is worse than the default on both axes, but there the six
+   `H x T x T` S-domain planes are a minority of A; at 8B/T=512 they are
+   the majority and the trade may invert.
+4. **AG's items 2-6 are untouched by this lane**: block-don't-pad (1.33x
+   of prover time at 125M, nothing at Mistral), the 32-layer 8B
+   full-model pass (the Mac), the GPU port of the attention zero-checks
+   (plan item B6), zero knowledge for the attention half (A5), and the
+   statement's remaining holes (embedding, final norm + LM head, the
+   KV-cache/decode regime, sliding windows).
+5. **The plan's C2** — the batched-evaluation reduction proper (every
+   claim to ONE point, W/A/H merged into one commitment, `n`
+   re-optimised) — subsumes this rung. This rung is the evidence that its
+   first half alone is worth -30% of the full-model proof at +7% of
+   prove.
+
+New knobs, all tagged `[UPERF3-AK]`: `HL_ATTN_CLAIMS=1` (the
+claims/groups/bytes report on stderr, plus a line saying how many claims
+collapsed), `HL_FOLD=small|nos` (the two other collapse plans),
+`HL_NO_FOLD=1` (the lever off — this is what reproduces AG's pre-fold
+digests, and it is how the round-13 record stays checkable).

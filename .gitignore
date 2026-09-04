@@ -37,3 +37,9 @@ zkmatrix-rs/target-gpu/
 *.wc
 *.wc.tmp
 results/hashline_8b_gpu_wcache/
+
+## [UPERF3-AK] the regenerated attention oracle exports, the Mistral token
+## stream and the snapshot binary (worktree-local, 286 MB; never committed)
+results/ak_attn_exports/
+results/ak_mistral_toks.npy
+results/ak_hashline_fold.bin
