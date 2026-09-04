@@ -12099,6 +12099,41 @@ sentence the orchestrator needs: the next 1.5x of L2 is one owner
 change, not one more kernel.
 
 
+**WHERE THIS LANE STOPPED (2026-09-04).** Rungs 0-5, every one committed,
+the byte gates green at every rung. The whole lane, at a glance:
+
+| rung | what landed | measured |
+|---|---|---|
+| 0 | the plan, the attribution, the baseline | one Mistral layer 3.134 s; 41.6% of the prove is host, 1.17 s of the 1.30 in layer.rs |
+| 1 | `PinBuf` / `Uploader` / `upload_sync` / `commit_chunked_upload` — pinned, double-buffered, interleaved uploads | pinned staging does NOT raise the h2d rate on this box (5.56 pageable vs 5.44 GB/s pinned); the interleaving is worth ~0.2 s of 3.0 |
+| 2 | `k_ntt_p2_gather` — the opening's column gather fused into the last NTT stage group | PARITY (0.442 vs 0.444 s): the re-encode is not bandwidth-bound |
+| 3 | `k_widen` + `send_packed` — the int8/int16 planes cross the bus as bytes; and the two defaults (chunk 128 rows, 512 NTT threads) | 3.03 -> 2.50 s at one layer on a loaded box, 2.92 -> 2.66 on a quiet one; narrow is parity here and 6.4x fewer bytes |
+| 4 | the twelve byte gates and the 8B pass, before and after, in one session | **PROVE 88.90 -> 86.00 s, proof byte-identical, VRAM -402 MB, bytes on the bus 6.4x fewer** |
+| 5 | the gates and the tests re-run on the final binary | (recorded below) |
+
+NOT DONE, and why — each with the number that says how much it is worth:
+- **(a) THE ONE THAT MATTERS: the int8-plane -> Fp conversion and the
+  host matmul folds in `prove_layer_v3` (layer.rs:1341-1391, 1532, 1573).
+  ~29 s + 8.1 s of the remaining 86 s.** READ-ONLY for this lane and
+  owned by nobody in round 14. The device half is already built and
+  gated: `k_widen` reconstructs field elements from packed signed
+  integers on the device, so the change is to hand `pcs::commit` the
+  int8 planes instead of a converted 64-bit vector (and give the two
+  folds a device form). **This is the whole remainder of lever L2 and it
+  is an ownership decision, not a kernel problem.**
+- (b) the proof serialization: measured at 0.03 s per layer and OUTSIDE
+  the prove clock, against the plan's ~13 s. Not worth the change.
+- (c) a deeper NTT redesign: the opening's re-encode is 0.44 s of a 2.50 s
+  layer at 1.6e10 Goldilocks multiplies/s against a ~4.6e11 ALU ceiling
+  and 66 against 256 GB/s — a latency and launch-structure problem.
+  Output pruning (only 256 of 65,536 columns are wanted) counts at ~1.6x
+  on the forward transform. A kernel project, not a rung.
+- (d) `HL_GPU_NARROW` is ON by default at time PARITY on this box. It is
+  kept because it is the right structure the moment the device is faster
+  than the bus, which is the RTX 5090 case; `HL_GPU_NARROW=0` is the
+  switch and both settings are byte-gated.
+
+
 ## Agent AK status (wt-uperf3-ak) — round 14
 
 (lane appends below)
