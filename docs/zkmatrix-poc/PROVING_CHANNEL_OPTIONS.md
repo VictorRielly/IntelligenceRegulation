@@ -169,6 +169,63 @@ architecture (U_PERF3_HEADLINE_ROUTES.md).
 
 | **B hash-based, THE 8B ROW: Mistral-7B 32 x 512 x 4096 x 14336, `--profile v3` (2026-09-03)** | **WSL laptop, 8T CPU only** | **510.4 s (incl. the 225 s weight commitments)** | **1.21 s** | **1,234.9 MB** | **13.99 GB** | **5.66e9** | hash-only + ROM ~100-bit; ZK NO (the `--zk` form exists for v2 only today) | **[MEASURED, NOISY-SHARED] — the first full 8B FFN proof in this repository; the lattice line's 8B row is still [MODEL] (never run)** |
 
+**The compact-PCS rows (lane AF, 2026-09-03): the proof-size lever.**
+The same statements, the same witnesses, the same box; only the
+polynomial commitment changes, behind `--pcs compact`. The default
+`--pcs ligero` path stays byte-identical (all three gates green). The
+construction is BaseFold-class [EXTERNAL, ePrint 2023/1705]: a batched
+evaluation sumcheck over all of a layer's claims on W, A and H at once,
+whose challenges drive a FRI fold of the RS codeword; `inv_rate 4`,
+`Q = 157` at the unique-decoding radius. Full record:
+results/hashline_compact_12x512.md.
+
+| channel | device | prove (incl. commit) | verify | proof | peak RSS | proven MAC/s | assumptions / ZK | label |
+|---|---|---:|---:|---:|---:|---:|---|---|
+| **B hash-based, `--pcs compact`, 12x512 v2** | WSL laptop, 8T CPU only | **28.76 s** (Ligero 15.40 s on the same tree) | **0.01 s** (Ligero 0.30 s) | **13.5 MB (13,487,744 B; 4.96x smaller; sha256 f84432ea..)** | 1.78 GB | 1.01e9 | hash-only + ROM; total error **2^-98.2** (query `(5/8)^157 = 2^-106.45`, fold/batching `(k+p) L_0/|F_p2|`); **ZK NO** (`--zk` refused) | [MEASURED, NOISY-SHARED] |
+| B hash-based, `--pcs compact`, 12x512 v3 | WSL laptop, 8T CPU only | 29.92 s (Ligero 16.48 s) | 0.03 s | 17.4 MB (17,400,900 B; 4.07x smaller; sha256 621c2633..) | 1.80 GB | 9.7e8 | same | [MEASURED, NOISY-SHARED] |
+| B hash-based, `--pcs compact --pcs-inv-rate 8`, 12x512 v2 | WSL laptop, 8T CPU only | 47.93 s | 0.02 s | 11.5 MB (Q = 128, `(9/16)^128 = 2^-106.2`) | — | 6.0e8 | same | [MEASURED, NOISY-SHARED] — measured and NOT recommended: -15% bytes for +51% prove |
+| **B hash-based, `--pcs compact`, ONE Mistral-7B layer at T=512** | WSL laptop, 8T CPU only | **67.59 s** (Ligero 15.50 s) | **0.010 s** (Ligero 0.041 s) | **1.94 MB (1,940,684 B) vs 38.7 MB — 19.94x smaller** | 13.92 GB (Ligero 13.17) | — | same | [MEASURED, NOISY-SHARED] |
+| **B hash-based, `--pcs compact`, THE 8B PROJECTION: 32 x 512** | WSL laptop, 8T CPU only | ~2,163 s (4.24x the 510.4 s Ligero row) | ~0.3 s | **~62.1 MB vs 1,234.9 MB — 19.9x smaller** | ~13.9 GB | — | same | **[COUNTED] from the MEASURED layer above (which matches the measured pass's per-layer average to 0.25%)** |
+
+Reading these rows. **The per-proof bytes leave the square-root class.**
+At 125M the compact form buys 4-5x; at 8B it buys **19.9x — 1.23 GB
+becomes ~62 MB** — because the Ligero opening grows as `sqrt(N)` while
+the compact opening grows logarithmically (four more Merkle levels per
+tree from `2^23` to `2^27`, and nothing else). A second effect drives
+the 125M row: the compact opening's size does not depend on the claim
+count at all (measured alone: identical bytes for 1 claim and for 8,
+where Ligero goes 659 KB -> 2.49 MB), and a layer here has 37 claims
+across three commitments. The verifier gets 10-15x FASTER (`Q = 157`
+walks of ~30 hashes, no NTT).
+
+What it costs, stated plainly. **The prover is 1.8-2.1x at 125M and
+4.36x at 8B, against the x0.94-1.4 that
+`U_PERF3_ROUTE_B_THROUGHPUT.md` §5 counted for this trade** — outside
+the count. The commit is ~2x slower structurally (one `4N log 4N`
+codeword plus a Mobius pass, against Ligero's independent `2^14` rows);
+the opening is 10x slower because it IS a full sumcheck over the
+combined table. The soundness total is `2^-98.2` at 125M and `2^-95.1`
+at 8B — 3 to 11 bits BELOW the Ligero form's `2^-106`, recoverable by a
+bigger field or smaller pieces, not by more queries. And there is no
+GPU code for this PCS (the record lists the four kernels a port needs).
+
+The one lever left, counted not measured: a **Merkle cap** would remove
+a net 29% of the bytes at zero soundness and zero prover cost —
+**13.5 MB -> ~9.6 MB at 125M and 62 MB -> ~44 MB at 8B [COUNTED]** —
+because ~half the opening is path digests (110 levels x 32 B across ~10
+trees, times 157 queries). Not implemented.
+
+ZK: the compact form is NOT hiding and `--pcs compact --zk` is refused
+rather than answered. Lane ZA's pads and mask rows are Ligero-LAYOUT
+devices and do not transfer (there are no rows, and no systematic
+positions); ZA's CFS-masked sumchecks, the last-round extension, salted
+leaves and committed multiplicities all do. A ZK-compact form needs
+randomness in extra multilinear VARIABLES (equivalently one extra
+random piece in the batch) rather than pad rows, so that the folded
+object stays a multilinear encoding and the FRI still closes — the
+specification is in results/hashline_compact_12x512.md, "THE ZK
+INTERACTION".
+
 Caveats on the B row (all stated in results/hashline_pass_12x512.md):
 FFN-only, no attention, no layer seams (X_l committed fresh, as the
 lattice tower); X and weight ranges declared, not range-proven (the

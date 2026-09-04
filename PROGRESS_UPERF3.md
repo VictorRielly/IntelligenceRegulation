@@ -9706,3 +9706,109 @@ the 52.1 s of extra prove), and the opening is a full degree-2
 sumcheck over a `2^27` table plus a re-encode per fold stretch plus the
 memory-forced re-encode. None of it is on the GPU, where the Ligero
 form already runs 5x faster; the port items are listed at rung 2.
+
+### Rung 5 — THE RECORD, THE §3 ROW, AND THE ZK INTERACTION
+
+- **NEW `results/hashline_compact_12x512.md`**, in the form of lane
+  XX's `results/hashline_gpu_12x512.md`: what changed and what did not,
+  the construction, the parameters and the soundness arithmetic, the
+  125M and 8B rows with the 32x512 projection, why the ratio grows with
+  the model, the prover phases, the honest verdict against the §5
+  count, the two levers left, the memory wall and the two fixes, the
+  tamper table, the GPU port list, the ZK interaction, and every one of
+  the B row's caveats unchanged.
+- **The §3 row** in `docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md`:
+  five compact rows (12x512 v2, 12x512 v3, the inv_rate-8 knob, the
+  Mistral layer, the 32x512 projection) below the 8B row, with the
+  reading, the cost stated plainly, the Merkle-cap lever and the ZK
+  pointer.
+
+### THE ZK INTERACTION — the statement
+
+**The compact form as built is NOT hiding.** The driver refuses
+`--pcs compact --zk` with a message rather than emitting a proof that
+looks private and is not. Lane ZA's `--zk` path is untouched and
+byte-identical (`021485e4..`) on the Ligero form.
+
+**Does the compact form keep ZA's pad rows and mask rows? No — and the
+reason is structural, not an omission.**
+
+- **PAD ROWS do NOT survive.** ZA's pads are per-ROW (`f_data +
+  Z_n g_pad`, `Q` fresh coefficients per row) with the evaluation
+  domain moved to a coset `h G_{4n}` disjoint from `G_n` so that no
+  opened position is systematic and any `Q` opened COLUMNS are jointly
+  uniform. The compact form has no rows and no systematic positions —
+  it encodes the coefficient form of ONE polynomial over the whole
+  domain. The coset half of the device is not needed; the randomness
+  half still is, in a different shape.
+- **MASK ROWS do NOT survive**, and what they hid is exposed by four
+  different surfaces here: (i) `terminals`, i.e. `f_p(r)` per piece —
+  precisely the evaluation the mask rows existed to hide; (ii)
+  `final_coeffs`, the `2^k_end = 128` coefficients of the fully folded
+  polynomial; (iii) `rounds`, 3 `F_{p^2}` values over 23-27 rounds;
+  (iv) the query cosets, `157 x 16` codeword symbols per group. ZA's
+  "every opening site carries a mask" assertion is written against
+  Ligero's opening sites and does not transfer; it must be re-derived
+  for these four.
+- **CFS-masked sumchecks and the last-round extension DO survive** and
+  are the right tool: the batched opening is a sumcheck, and
+  `sumcheck.rs`'s masking applies directly. The BaseFold-specific
+  catch: the mask must also be carried by the FRI fold, or the codeword
+  and the sumcheck decouple and the query walks stop closing.
+- **SALTED LEAVES survive verbatim** — one line in `group_leaf_hash`
+  and `hash_fp2_block` — and are needed: the compact trees are
+  currently unsalted, so identical cosets hash identically.
+- **COMMITTED MULTIPLICITIES survive unchanged** (statement-side, not
+  PCS-side). Rung 3 measured it: the multiplicity bytes pass through
+  the compact form identically, to the byte.
+
+**What a ZK-compact form needs**: (1) randomness in extra multilinear
+VARIABLES — equivalently one extra random PIECE of size `2^c` in the
+batch, `c ~ log Q` — so the folded object stays a multilinear encoding
+and the FRI still closes (a naive `P(Y) + Y^{2^k} R(Y)` pad would break
+exactly that); (2) the CFS mask on the batched opening sumcheck,
+committed as a piece of the same batch so the fold carries it (this
+covers surfaces (i) and (iii), and (ii) too, since `final_coeffs` then
+includes the mask); (3) salted leaves on the group and fold trees,
+covering (iv) with (1); (4) a re-derived query count and field term
+(the extra piece raises `pieces` in the `(k_max + pieces) L_0 / |F|`
+bound). Counted cost: bytes up by the extra piece's share of the
+queries (a few percent — it is tiny and joins late), prover up by one
+piece in the sumcheck and one mask commitment. **None of it is built
+here; this is the specification, not a claim.**
+
+### THE FINAL GATES — CPU AND GPU, both binaries
+
+[MEASURED, WSL-BOX, 8T, under `flock /tmp/zk-heavy.lock`]
+
+| gate | CPU binary | gpu-cuda binary, `HL_GPU=1` |
+|---|---|---|
+| v2 `pass 12 512 --threads 8` | `50cf7bdfd6b5b182..` (66,844,928 B), 15.33 s | **same sha256**, 2.50 s |
+| v3 `--profile v3` | `5f368db6240e0614..` (70,758,084 B), 15.68 s | **same sha256**, 3.06 s |
+| zk `--zk --seed 1` | `021485e4f80ec695..` (87,228,528 B), 16.61 s | **same sha256**, 4.79 s |
+
+**All six GREEN.** 32/32 tests. And one more, not required but worth
+having: `--pcs compact` on the **gpu-cuda binary with `HL_GPU=1`**
+produces `f84432ea..` — byte-identical to the CPU-only binary's compact
+proof — at PROVE 34.96 s, i.e. SLOWER than the CPU-only 28.76 s. That
+is the expected and honest outcome: a compact commitment is never
+device-resident (`dev_of` returns `None` for it), so the device helper
+and commit paths decline and the GPU contributes nothing while the
+process still pays the CUDA context. **There is no GPU benefit for the
+compact form until the four kernels listed at rung 2 exist** — which
+matters, because the Ligero form on the GPU proves the same pass in
+2.50 s. Today the choice is 2.50 s / 66.8 MB (GPU + Ligero) or 28.76 s
+/ 13.5 MB (CPU + compact); the two wins do not yet compose.
+
+### WHERE THIS LANE STOPPED
+
+Rungs 0-5 complete. Not done, in priority order: (1) the **Merkle cap**
+(-29% bytes [COUNTED], zero soundness and zero prover cost — the
+cheapest remaining win, and it puts 125M inside the counted 3-12 MB
+band at ~9.6 MB and 8B at ~44 MB); (2) the **four GPU kernels**, which
+is what would let the size win and the speed win compose; (3) the
+**ZK-compact form** specified above; (4) the **full 32x512 compact
+pass** actually run rather than projected (~36 min under the current
+prover, and it wants a quiescent box); (5) the soundness margin
+(`2^-98.2` / `2^-95.1` vs Ligero's `2^-106`), which needs a degree-3
+extension field or a smaller-piece cut, not more queries.
