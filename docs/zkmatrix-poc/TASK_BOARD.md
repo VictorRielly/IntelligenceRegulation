@@ -19,7 +19,53 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
-**AS OF 2026-09-04 10:31+ (WSL box clock — NEWEST BLOCK; the blocks
+**AS OF 2026-09-04 11:1x (WSL box clock — NEWEST BLOCK. THE 8B PRODUCT
+NUMBER REPRODUCED BYTE FOR BYTE ON A SECOND TREE; A THIRD BOX FREEZE,
+AND THE CULPRIT IS NOT THE ONE THE LEDGER NAMED):**
+- **THE BOX FROZE A THIRD TIME, at ~11:06.** Boots today: 10:15, 10:31,
+  11:07. Nothing was lost — the tree is clean, `git fsck` exits 0, there
+  are no zero-byte objects (the `core.fsyncObjectFiles=true` fix from
+  the block below did its job) and nothing was unpushed.
+- **LANE AM RUNG 3 RAN, and its FAST TIER IS GREEN**: the 8B P1 pass
+  reproduces lane AI's round-14 product number EXACTLY — sha256
+  `930ce9a0..`, **1,285,578,368 B** — on a tree that does NOT carry AL's
+  host-wall fix. Recorded in **80c2ecd** (lane pushed). Prove read
+  238.37 s against AI's 265.34; **that is noise, not a speedup** — there
+  is no mechanism for it in AM's tree and this box's ~2x run-to-run
+  variance covers 10%. **The byte identity is the result.**
+- **THE FREEZE WAS THE P1 ARM's SPILL, NOT P3's ALLOCATION.** This
+  corrects the prediction rung 2 left behind. The P1 arm's `vram peak
+  8585 MB` on an **8,188 MB** card made the kernel log
+  `dxgkio_make_resident: Ioctl failed: -12` in pairs **every ~2 minutes
+  for that arm's whole six minutes** (10:59:30, 11:01:35, 11:03:41,
+  11:05:48), and journald's last record of the boot is 11:05:48 —
+  **three seconds BEFORE the P3 arm even started.** P3's clean-fallback
+  half worked exactly as predicted (declined 5387/449/378 MB, proved
+  layers 0 and 1 on the CPU at 19.6/20.5 s, layer 0's 40,251,860 B
+  matching rung 2's P3 layer size byte for byte); it was simply started
+  against a card that P1 had not released.
+- **NEW STANDING RULE (widens rung 2's, which is not enough alone): the
+  8B P1 pass is ITSELF a freeze risk on this 8 GB card.** Never chain a
+  second GPU pass behind it inside one script — WSL does not return VRAM
+  promptly, so the second pass starts against a full card. Run the tiers
+  as SEPARATE detached jobs with `nvidia-smi` verified idle between them.
+- **IN FLIGHT**: `results/am_r3_8b_p3_cpu.sh` on lane AM — rung 3's P3
+  arm ALONE with `HL_GPU` unset, so `gpu::enabled()` is false and the
+  binary cannot ask the device for anything and cannot freeze the box.
+  Same `target-gpu` binary, so rung 3's one-binary property holds. Buys
+  the full tier's **privacy and integrity** claims at 8B (digest, size,
+  clear-value scan); explicitly does NOT buy a P3-on-GPU 8B time, which
+  still needs the 16 GB+ board. Launched 11:13:51 under the heavy lock;
+  marker `results/am_r3_8b_p3_cpu.done`.
+- **THE TELEGRAM ROUTER WAS DEAD ALL BOOT, and would have been every
+  boot.** `tg-router`'s pidfile check was existence-only, and after a
+  reboot the low pids are handed straight back out — pid 1200 had been
+  inherited by a `claude` worker thread, so the router refused to start
+  and every approval would have missed its window. `alive()` now also
+  requires `tg-router` in the pid's `/proc/<pid>/cmdline`. Running as
+  pid 3000.
+
+**AS OF 2026-09-04 10:31+ (WSL box clock — the blocks
 below labelled 2026-09-05 are earlier work, the box clock and the
 console labels have drifted a day. LANE AL MERGED AND THE MERGED-TREE
 FLOORS ARE GREEN; A LOST-COMMIT RECOVERY, AND ITS ROOT CAUSE FIXED):**
@@ -120,11 +166,10 @@ FLOORS ARE GREEN; A LOST-COMMIT RECOVERY, AND ITS ROOT CAUSE FIXED):**
   width. **This sizes lane AI's "the ZK prover declines the device path"
   item at 5,387 MB** and makes the 16 GB+ board decisive for the full
   tier as well as the fast one — the 5090 settles both at once.
-- **IF YOU ARE PICKING UP LANE AM**: rung 2's artifacts are committed but
-  its LEDGER PROSE IS NOT WRITTEN — that is the next AM agent's first
-  job (`results/am_r2_mistral.log` has everything). Then rung 3:
-  `results/am_r3_8b.sh` is staged, has NEVER been run, and must go out
-  detached under `flock /tmp/zk-heavy.lock` with a `.done` marker.
+- **IF YOU ARE PICKING UP LANE AM — THIS BULLET IS SUPERSEDED.** Both jobs
+  it used to name are done: rung 2's ledger prose was written in 3e8d0c7,
+  and rung 3 HAS run (its fast tier is green and recorded in 80c2ecd).
+  Read the 2026-09-04 11:1x block at the TOP of this section instead.
 
 **AS OF 2026-09-05 (ROUND 14 CLOSED — all three lanes merged, floors
 green — AND TWO CORRECTIONS THAT MOVED THE PLAN'S ARITHMETIC TWICE):**
