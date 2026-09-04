@@ -2023,7 +2023,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let use_dev_h = crate::gpu::enabled()
         && dev_shape
         && dev_of(&a_cmz.cm).is_some()
-        && match crate::gpu::dev_reserve(&[(3 + 10 * nb_f) * tfb * 2, (3 + 4 * nb_d) * tdb * 2]) {
+        && match crate::gpu::dev_reserve_hard(&[(3 + 10 * nb_f) * tfb * 2, (3 + 4 * nb_d) * tdb * 2]) {
             Ok(()) => true,
             Err(e) => {
                 eprintln!("[UPERF3-AI] gpu zero-check tables unaffordable ({e}); the whole layer takes the CPU path");
