@@ -13916,10 +13916,14 @@ statement gets its own digest and its own parity gate: function 2 at
 are **BYTE-IDENTICAL**, so the predicate gadget is on the shape-generic
 path like everything else in this prover.
 
-A SECOND floors run against the final tree (it adds only the
-`#[cfg(test)]` bit-row hook and one `println!` in the driver, neither of
-which can move a proof byte) is QUEUED on `/tmp/zk-heavy.lock` behind lane
-AO's own floors -> `results/an_floors.log` / `.done`.
+**RE-RUN AGAINST THE FINAL TREE: ALSO GREEN** (`results/an_floors.log`,
+exit 0) — the same eight digests on both binaries, the same 42/42, the same
+`3143d424e8990993..` for function 2 and the same CPU/GPU BYTE-IDENTITY, on
+the tree that also carries the `#[cfg(test)]` bit-row hook and the driver's
+per-layer note. So the gates are green on the tree that is committed, not
+only on the one that was measured. The run queued behind lane AO's floors
+on `/tmp/zk-heavy.lock` and self-started when AO released it, session
+untouched — the no-hangup protocol doing its job.
 
 OPEN: nothing in the lane's target. The two rung-1 findings and the
 PROOF_FUNCTIONS.md amendment above are for the orchestrator.
