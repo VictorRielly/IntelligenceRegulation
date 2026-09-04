@@ -245,3 +245,49 @@ folds plus whatever the bus costs. On a device 4x faster the host share
 becomes ~70% of a ~1.6 s layer, and the bus term stops being hidden —
 which is why the narrow upload is kept on and why the layer.rs item in
 §7 is the one that decides whether the 5090 buys 1.4x or 4x.
+
+## 9. Rung 4 — the floor, and the 8B pass before and after
+
+**The floor: ALL TWELVE BYTE GATES GREEN** — the four on the CPU binary,
+the four on the GPU binary, and the same four re-run with
+`HL_GPU_CHUNK_BYTES` forced small so the frozen 125M digests exercise the
+chunked commit, the interleaved pinned upload, the narrow packing and the
+fused gather (nothing else at that shape does: those commitments are
+151-272 MB and stay resident). `cargo test --release` 40/40. No 125M
+regression on the GPU: v3 2.75/2.81 s and zk-v3 4.22/4.32 s against the
+pre-lane 2.80 / 4.58.
+
+**The 8B pass, both arms back to back in one session** (`pass 32 512
+--profile v3 --export .../m8b_mistral_v3_export --wcache <fresh dir>
+--threads 8 --proof-out F`, cold cache, `/usr/bin/time -v`):
+
+| | BEFORE (lane switches off, chunk 1024, 256 threads) | **AFTER (lane defaults)** | |
+|---|---:|---:|---|
+| **PROVE** | **88.90 s** | **86.00 s** | **1.034x** |
+| witness load + chain | 126.29 | 123.86 | |
+| verify | 1.08 | 1.30 | |
+| wall | 218.23 | 213.25 | |
+| proof sha256 | `dc980e81..4536c` | `dc980e81..4536c` | **IDENTICAL**, 1,234,936,956 B |
+| peak RSS | 3.87 GB | 3.99 GB | |
+| **VRAM peak** | 5,651 MB | **5,249 MB** | **-402 MB** |
+| **bytes uploaded** | **59,861 MB** | **9,328 MB** | **6.4x fewer** |
+| device h2d | 12.810 s | **8.309 s** | 1.54x |
+| device ntt | 13.958 | 14.714 | (the streamed path charges its own residual here) |
+| device hash | 2.188 | 0.469 | |
+| device re-encode | 14.238 | 14.020 | |
+| commit W / commit A / openings | 37.27 / 13.82 / 18.56 | 36.25 / 12.01 / 18.28 | |
+
+**1.034x on the prove, 6.4x fewer bytes on the bus, 402 MB less video
+memory, the proof byte-identical.** That is far below the plan's 2.4-2.9x
+for L2, and §1 predicted why before any of it was built: the plan's item
+list attributes to "host marshalling" work that is either already on the
+device, outside the prove clock, or in `layer.rs`.
+
+**Where the 86.00 s sits now.** Device counters sum to 47.3 s, so
+**38.7 s (45%) is host time inside the prove, and essentially all of it
+is in layer.rs**: the `Fp::from_i64` conversion plus the 1.4 GB `w_data`
+and 0.46 GB `a_data` allocations (~29 s over 32 layers [COUNTED from the
+one-layer phases]) and the host matmul folds (8.1 s, measured directly as
+the two matmul phases). **After this lane, the host wall of the 8B GPU
+pass is a layer.rs problem, not a gpu/ problem** — the next factor of L2
+is one ownership change, not one more kernel.

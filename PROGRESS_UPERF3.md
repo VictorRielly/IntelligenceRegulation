@@ -12031,6 +12031,74 @@ arch. Inert on this box (the 4070 Laptop is sm_89 and still takes
 `compute_89`), and the byte gates are unchanged by it.
 
 
+**RUNG 4 — THE FOUR BYTE GATES AND THE 8B PASS, BEFORE AND AFTER, IN ONE
+SESSION ON ONE BOX (2026-09-04, WSL-BOX 8T + RTX 4070 Laptop,
+`flock /tmp/zk-heavy.lock`, [MEASURED], the box quiet by the end).**
+
+**THE FLOOR: ALL TWELVE BYTE GATES GREEN.** The four gates on the CPU
+binary, the four on the GPU binary, and — new in this lane — the same
+four re-run with `HL_GPU_CHUNK_BYTES` forced small so that the frozen
+125M digests actually exercise the chunked commit, the interleaved
+pinned upload, the narrow packing and the fused gather (nothing else at
+the 125M shape does: those commitments are 151-272 MB and stay
+resident). `50cf7bdfd6b5b182..` 66,844,928 B; `5f368db6240e0614..`
+70,758,084 B; `021485e4f80ec695..` 87,228,528 B; `40eb54795e023c77..`
+87,697,008 B — every one from both binaries and in both the resident and
+the forced-chunked form. `cargo test --release` 40/40. No regression at
+125M on the GPU either (v3 2.75/2.81 s, zk-v3 4.22/4.32 s against the
+pre-lane 2.80 / 4.58).
+
+**ONE MISTRAL LAYER, THREE REPEATS EACH, QUIET BOX** (proof `179ec2fb..`
+every time): baseline 2.83 / 2.92 / 2.95 s; this lane 2.68 / 2.65 / 2.69;
+this lane with `HL_GPU_NARROW=0` 2.70 / 2.69. So **~1.10x at one layer on
+a quiet box**, against the 1.21-1.27x the same A/B showed while lanes AI
+and AK were loading the CPU — the baseline suffers more from a busy box
+than this lane's configuration does, which is itself a (small) result.
+
+**THE 8B PASS — THE NUMBER THIS LANE IS ACCOUNTABLE FOR** (`pass 32 512
+--profile v3 --export .../m8b_mistral_v3_export --wcache <fresh>
+--threads 8 --proof-out F`, `/usr/bin/time -v`, cold cache, both arms
+back to back in the same session):
+
+| | BEFORE (this lane's switches all off, chunk 1024, 256 threads) | **AFTER (the lane's defaults)** | |
+|---|---:|---:|---|
+| **PROVE** | **88.90 s** | **86.00 s** | **1.034x** |
+| witness load + chain | 126.29 | 123.86 | |
+| VERIFY | 1.08 | 1.30 | |
+| wall | 218.23 | **213.25** | |
+| proof | 1,234,936,956 B | 1,234,936,956 B | — |
+| **sha256** | `dc980e81..4536c` | **`dc980e810085b2ddf4688eb4a6cf4dd931c209bf7c5a9a7692d57ec14bc4536c`** | **IDENTICAL** |
+| peak RSS | 3.87 GB | 3.99 GB | |
+| **VRAM peak** | 5,651 MB | **5,249 MB** | **-402 MB** |
+| **bytes uploaded** | **59,861 MB** | **9,328 MB** | **6.4x fewer** |
+| device h2d | 12.810 s | **8.309 s** | 1.54x |
+| device ntt (+ the streamed path's own accounting) | 13.958 | 14.714 | |
+| device hash | 2.188 | 0.469 | |
+| device opening re-encode | 14.238 | 14.020 | |
+| phases: commit W / commit A / openings | 37.27 / 13.82 / 18.56 | 36.25 / 12.01 / 18.28 | |
+
+**THE VERDICT, PLAINLY: 1.034x on the 8B prove, 6.4x fewer bytes on the
+bus, 402 MB less video memory, the proof byte-identical.** That is far
+below the plan's 2.4-2.9x for lever L2, and rung 0 predicted exactly why
+before any of it was built: **the plan's L2 item list attributes to
+"host marshalling" work that is either already on the device (the encode
+NTT, the opening re-encode), outside the prove clock (the 1.23 GB
+serialization, measured at 0.03 s per layer), or in layer.rs — and
+layer.rs is READ-ONLY for this lane.**
+
+WHERE THE 86.00 s NOW SITS [MEASURED counters / COUNTED split]: device
+counters sum to 47.3 s (h2d 8.31 + ntt 14.71 + hash 0.47 + sumcheck 5.52
++ fold 2.89 + helpers 1.37 + re-encode 14.02), so **38.7 s (45%) is host
+time inside the prove — and essentially all of it is in layer.rs**: the
+`Fp::from_i64` conversion and the 1.4 GB `w_data` / 0.46 GB `a_data`
+allocations (~29 s over 32 layers, counted from the one-layer phases)
+plus the host matmul folds (8.1 s, measured directly as the "matmul g/u"
+and "matmul d" phases). **After this lane, the host wall of the 8B GPU
+pass is a layer.rs problem, not a gpu/ problem.** That is the single
+sentence the orchestrator needs: the next 1.5x of L2 is one owner
+change, not one more kernel.
+
+
 ## Agent AK status (wt-uperf3-ak) — round 14
 
 (lane appends below)
