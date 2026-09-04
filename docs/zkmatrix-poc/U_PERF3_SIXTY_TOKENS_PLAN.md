@@ -276,22 +276,31 @@ onto the Mac.
 
 ## 5. What genuinely needs a ruling
 
-These are not a menu to choose one from; they are the three places
-where the plan cannot pick for you.
+These are not a menu to choose one from; they are the places where the
+plan cannot pick for you. One is now ruled and one is deferred by it.
 
-1. **The PoC's target shape.** This plan recommends *60 tok/s, 8B,
-   full statement, ZK P1, 512-token prefill, one H100* because it is
-   inside the counted floor and honest. Targeting 30B instead means
-   committing to C4 (the field/rate change) up front, with its
-   soundness bookkeeping, as a precondition rather than a follow-on.
-2. **Hashed bytes: rate 1/2 and/or a 31-32-bit field (C4).** The only
-   lever that moves the 30B floor. It changes the soundness
-   accounting and every frozen digest in the repository. Worth
-   opening a costed design memo before anyone writes code.
-3. **Hardware (E).** Rent an H100 block for the measurement pass, buy
-   a 4090/5090-class board for capacity, or neither. Every [MODEL]
-   column in §2 and every cell in §0 waits on this. Cheapest
-   information in the plan.
+1. **The PoC's target shape — RULED 2026-09-04 (Victor, console):
+   8B.** The PoC claim is *60 proven tokens per second, 8B-class
+   model, complete transformer layers, zero knowledge for the inputs
+   (mode P1), 512-token prefill, one H100, p95 over 20 warm runs.* It
+   sits inside the counted floor (40-113 tok/s honest), so the whole
+   remaining distance is kernel quality rather than design. Every
+   lane brief and every published number from here on states this
+   shape.
+2. **Hashed bytes: rate 1/2 and/or a 31-32-bit field (C4).**
+   **DEFERRED BY RULING 1.** It is the only lever that moves the 30B
+   floor, but the 8B target does not need it, so it stops being a
+   precondition for the PoC and becomes the first question of the 30B
+   follow-on. Nobody writes code for it before then, and when it is
+   taken up it starts with a costed design memo — it changes the
+   soundness accounting and every frozen digest in the repository.
+3. **Hardware (E) — OPEN, and ruling 1 makes it BINDING.** The PoC
+   claim now names its machine: "one H100". We cannot make that claim
+   from a laptop, so this is no longer only the cheapest information
+   in the plan, it is on the critical path to the deliverable. Rent an
+   H100 block for the measurement passes, buy a 4090/5090-class board
+   for capacity, or both. Every [MODEL] column in §2 and every cell in
+   §0 waits on it.
 
 A fourth, already answered and recorded here so it is not reopened:
 **the privacy mode is P1** (private inputs, public weights), ruled
