@@ -2627,8 +2627,8 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     }
     if proving {
         proof.vals = cc.vals.clone();
-    } else if cc.idx != cc.vals.len() {
-        return Err(format!("claim count {} != {} sent", cc.idx, cc.vals.len()));
+    } else if cc.idx > cc.vals.len() {
+        return Err(format!("claim count {} > {} sent", cc.idx, cc.vals.len()));
     }
     Ok(cc)
 }
@@ -2759,6 +2759,8 @@ pub fn attn_seam(cc: &mut Cc, tr: &mut Transcript, lay: &AttnLayout, a: Option<&
 /// The deferred openings.
 pub fn attn_open(pend: AttnPending, proof: &mut AttnProof, tr: &mut Transcript) {
     let AttnPending { w_cm, a_cm, h_cm, a_data, cc, .. } = pend;
+    // the seam claims land AFTER the argument: re-take the value list
+    proof.vals = cc.vals.clone();
     proof.w_open = pcs::open(&w_cm, &cc.ww, tr);
     drop(w_cm);
     proof.a_open = pcs::open(&a_cm, &cc.aw, tr);
@@ -2806,6 +2808,9 @@ pub fn verify_attn(proof: &AttnProof, c: &AttnConsts, fc: &FullConsts, params: &
 /// The verifier's PCS step (after the seam claims).
 pub fn verify_attn_open(proof: &AttnProof, lay: &AttnLayout, cc: &Cc, params: &LayerParams,
                         ntt: &NttTables, tr: &mut Transcript) -> Result<(), String> {
+    if cc.idx != cc.vals.len() {
+        return Err(format!("claim count {} != {} sent", cc.idx, cc.vals.len()));
+    }
     let pp = PcsParams { log_cols: lay.cols_log, inv_rate: params.inv_rate, num_col_checks: params.num_col_checks };
     pcs::verify(&pp, proof.w_com.as_ref().unwrap(), &cc.ww, &proof.w_open, ntt, tr).map_err(|e| format!("Wa: {e}"))?;
     pcs::verify(&pp, proof.a_com.as_ref().unwrap(), &cc.aw, &proof.a_open, ntt, tr).map_err(|e| format!("Aa: {e}"))?;
@@ -2899,6 +2904,19 @@ fn clone_norm(n: &crate::norm::NormChain) -> crate::norm::NormChain {
         a1: n.a1.clone(), a2: n.a2.clone(), y: n.y.clone(), rho: n.rho.clone(), sig: n.sig.clone(),
     }
 }
+/// Break the SEAM alone: change the z16 copy the residual pin consumed and
+/// recompute xres2/rr2 so that the PIN still holds — only the seam claim
+/// (z16 copy == the FFN's z16) can catch it.
+pub fn break_seam(r2: &mut Resid2, wit: &AttnWitness, i: usize) {
+    let n = r2.z16.len();
+    let i = i % n;
+    r2.z16[i] += 1;
+    let xw = (wit.xres1[i] << r2.c.sh_x2) + (r2.z16[i] << r2.c.sh_z2);
+    let (y, r) = requant_round(&[xw], r2.c.sh_r2 as i64);
+    r2.xres2[i] = y[0];
+    r2.rr2[i] = r[0];
+}
+
 pub fn clone_resid2(r: &Resid2) -> Resid2 {
     Resid2 { c: r.c.clone(), z16: r.z16.clone(), xres2: r.xres2.clone(), rr2: r.rr2.clone() }
 }
