@@ -12685,3 +12685,55 @@ TARGET: design 1 above — a mode selector so ONE binary produces both
 products, and the first measured 8B row for each. P1's row must stay
 byte-identical to 930ce9a0..; P3 is a new statement and gets its own
 digest, its own tamper legs, and an honest per-proof cost against P1.
+
+## RULING (Victor, console 2026-09-05, second): THE 60 TOK/S TRACK IS "ZK FOR INPUTS AND OUTPUTS", WEIGHTS PUBLIC
+
+"Let's start with a proof that is only ZK for inputs and outputs for now
+as the 60 tokens/second track and build from there."
+
+So the headline claim attaches to the FAST TIER, as recommended, and
+the full tier (private weights) is the thing we build toward rather
+than the thing the 60 is claimed on. Lane AM's work is unchanged in
+substance — it still builds both tiers from one mode flag — but the
+PRIORITY is now: get the fast tier to 60, then extend.
+
+**A SPECIFICATION POINT THIS RAISES, and it must be settled in code
+before any privacy claim is published.** Victor said inputs AND
+OUTPUTS. The two documents disagree about the output:
+
+* `TARGET_CONTRACT.md` §3 lists, as PUBLIC: "the statement (shapes,
+  quantization metadata, digests), **the declared output tensor
+  values**, the proof" — amended by A1 (2026-07-27) to make the private
+  set a per-deployment declaration.
+* `U_PERF3_ROUTE_B_THROUGHPUT.md` §4.5 gives P1's private set as
+  "inputs / activations", which would COVER the final output, since
+  the output is an activation, and lists outputs as in-the-clear only
+  under P2.
+
+Both can be true of different things: the prover may commit the output
+hidingly (it is an activation, and lane ZA's treatment covers every
+activation) while the STATEMENT still declares the output values in the
+clear for the verifier to check against. If that is what happens today,
+then a deployment that declares "inputs and outputs private" is making
+a claim the statement contradicts.
+
+**THIS IS ASSIGNED TO LANE AM** (it owns zk.rs and the mode/statement
+design) as a rung-0 determination, ahead of its other work:
+1. Does the statement publish the output tensor values in the clear
+   today, under `--zk`? Answer from the code and from a produced proof,
+   not from the documents.
+2. If yes, the fast tier's mode must bind the output as a COMMITMENT
+   instead — the verifier learns "this model, on some committed input,
+   produced this committed output" and neither value.
+3. Either way the mode name and the statement must say which set is
+   private, so a proof cannot be presented as claiming more privacy
+   than it delivers.
+
+Under the 2026-09-05 first ruling the mode already had to be carried in
+the statement; this makes the CONTENT of that declaration load-bearing
+rather than cosmetic.
+
+TARGET_CONTRACT.md needs an amendment once AM reports — the base text's
+"declared output tensor values" is public no longer describes the
+product's default tier. That amendment is Victor's ruling to make with
+AM's finding in hand, not an edit to slip in.
