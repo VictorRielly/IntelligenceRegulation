@@ -69,6 +69,89 @@ impl NormSite {
     }
 }
 
+/// [UPERF3-AE] RUNG-2 AMENDMENT — the division relation is ROUND, not
+/// floor. Floor cost half a grid step on ~49% of every norm output
+/// (measured: local agreement 0.51 vs the fp op, max 1 step; round
+/// lifts it to 0.97-1.000). Round needs NO parity witness and no extra
+/// commitment: double both sides —
+///
+///   y = floor((2 num + div) / (2 div)),  y (2 div) + rho = 2 num + div,
+///   rho in [0, 2 div),  sigma = 2 div - 1 - rho,  2 div = D << (tn+1)
+///
+/// still linear in the committed D, with rho one bit wider. That form
+/// also works at tn = 0 (Mistral's mlp_norm, where sqrt(4096) = 64 makes
+/// Cn an exact shift), where adding floor(div/2) would have needed D's
+/// parity bit.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DivMode {
+    Floor,
+    Round,
+}
+
+/// The full value chain of one norm site: every witness tensor the
+/// oracle (scripts/attention_hash_ref.py) hashes, in its classes.
+pub struct NormChain {
+    pub xsq: Vec<i64>,
+    pub sse: Vec<i64>,
+    pub dd: Vec<i64>,
+    pub dsq: Vec<i64>,
+    pub a1: Vec<i64>,
+    pub a2: Vec<i64>,
+    pub y: Vec<i64>,
+    pub rho: Vec<i64>,
+    pub sig: Vec<i64>,
+}
+
+/// x: (T x d) row-major in ANY integer class (int8/int16/int24 residual),
+/// g: the int8 gamma row. `ceps`, `tn`, `cn` are the site's public
+/// constants (ceps_of / window_rule).
+pub fn rmsnorm_chain(x: &[i64], g: &[i64], d: usize, ceps: i64, tn: u32, cn: i64,
+                     mode: DivMode) -> NormChain {
+    let t_rows = x.len() / d;
+    let round = mode == DivMode::Round;
+    let mut o = NormChain {
+        xsq: vec![0; t_rows * d],
+        sse: vec![0; t_rows],
+        dd: vec![0; t_rows],
+        dsq: vec![0; t_rows],
+        a1: vec![0; t_rows],
+        a2: vec![0; t_rows],
+        y: vec![0; t_rows * d],
+        rho: vec![0; t_rows * d],
+        sig: vec![0; t_rows * d],
+    };
+    for t in 0..t_rows {
+        let row = &x[t * d..(t + 1) * d];
+        let mut s = 0i64;
+        for (i, &v) in row.iter().enumerate() {
+            let sq = v * v;
+            o.xsq[t * d + i] = sq;
+            s += sq;
+        }
+        let sse = s + ceps;
+        let dd = isqrt(sse);
+        o.sse[t] = sse;
+        o.dd[t] = dd;
+        o.dsq[t] = dd * dd;
+        o.a1[t] = sse - dd * dd;
+        o.a2[t] = 2 * dd - o.a1[t];
+        let dv = dd << tn;
+        let dvp = if round { 2 * dv } else { dv };
+        for i in 0..d {
+            let num0 = row[i] * g[i] * cn;
+            let num = if round { 2 * num0 + dv } else { num0 };
+            let q = num.div_euclid(dvp);
+            let rr = num - q * dvp;
+            o.y[t * d + i] = q;
+            o.rho[t * d + i] = rr;
+            o.sig[t * d + i] = dvp - 1 - rr;
+            assert!((-127..=127).contains(&q), "norm narrow: {q}");
+            assert!(rr >= 0 && rr < dvp, "norm division fact");
+        }
+    }
+    o
+}
+
 /// Integer square root (floor) of a nonnegative i64.
 pub fn isqrt(v: i64) -> i64 {
     assert!(v >= 0);

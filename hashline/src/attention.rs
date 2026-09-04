@@ -195,65 +195,6 @@ fn matmul_wt(x: &[i64], w: &[i64], t_rows: usize, d_in: usize, d_out: usize) -> 
     acc
 }
 
-/// The norm gadget's witness (round or floor division, per the manifest).
-struct NormOut {
-    xsq: Vec<i64>,
-    sse: Vec<i64>,
-    dd: Vec<i64>,
-    dsq: Vec<i64>,
-    a1: Vec<i64>,
-    a2: Vec<i64>,
-    y: Vec<i64>,
-    rho: Vec<i64>,
-    sig: Vec<i64>,
-}
-
-fn norm_chain(x: &[i64], g: &[i64], d: usize, ceps: i64, tn: u32, cn: i64, round: bool) -> NormOut {
-    let t_rows = x.len() / d;
-    let mut o = NormOut {
-        xsq: vec![0; t_rows * d],
-        sse: vec![0; t_rows],
-        dd: vec![0; t_rows],
-        dsq: vec![0; t_rows],
-        a1: vec![0; t_rows],
-        a2: vec![0; t_rows],
-        y: vec![0; t_rows * d],
-        rho: vec![0; t_rows * d],
-        sig: vec![0; t_rows * d],
-    };
-    for t in 0..t_rows {
-        let row = &x[t * d..(t + 1) * d];
-        let mut s = 0i64;
-        for (i, &v) in row.iter().enumerate() {
-            let sq = v * v;
-            o.xsq[t * d + i] = sq;
-            s += sq;
-        }
-        let sse = s + ceps;
-        let dd = crate::norm::isqrt(sse);
-        o.sse[t] = sse;
-        o.dd[t] = dd;
-        o.dsq[t] = dd * dd;
-        o.a1[t] = sse - dd * dd;
-        o.a2[t] = 2 * dd - o.a1[t];
-        let dv = dd << tn;
-        // round mode doubles both sides: y = floor((2 num + div)/(2 div))
-        let (dvp, base) = if round { (2 * dv, dv) } else { (dv, 0) };
-        for i in 0..d {
-            let num0 = row[i] * g[i] * cn;
-            let num = if round { 2 * num0 + base } else { num0 };
-            let q = num.div_euclid(dvp);
-            let rr = num - q * dvp;
-            o.y[t * d + i] = q;
-            o.rho[t * d + i] = rr;
-            o.sig[t * d + i] = dvp - 1 - rr;
-            assert!((-127..=127).contains(&q), "norm narrow: {q}");
-            assert!(rr >= 0 && rr < dvp, "norm division fact");
-        }
-    }
-    o
-}
-
 fn limbs(v: &[i64], wrho: u32) -> Vec<Vec<i64>> {
     let n = std::cmp::max(1, wrho.div_ceil(16)) as usize;
     (0..n)
@@ -282,8 +223,9 @@ pub fn chain_from_export(dir: &str) -> (Vec<(String, String)>, String) {
     let mut out: Vec<(String, String)> = Vec::new();
 
     // --- attn_norm ---------------------------------------------------
-    let na = norm_chain(&x_in, &g_a, d, m.i("anorm_ceps"), m.i("anorm_tn") as u32,
-                        m.i("anorm_cn"), round);
+    let dmode = if round { crate::norm::DivMode::Round } else { crate::norm::DivMode::Floor };
+    let na = crate::norm::rmsnorm_chain(&x_in, &g_a, d, m.i("anorm_ceps"),
+                                        m.i("anorm_tn") as u32, m.i("anorm_cn"), dmode);
     out.push(("xsqA".to_string(), dig_i64(&na.xsq)));
     out.push(("SSA".to_string(), dig_i64(&na.sse)));
     out.push(("DA".to_string(), dig_i64(&na.dd)));
@@ -486,8 +428,8 @@ pub fn chain_from_export(dir: &str) -> (Vec<(String, String)>, String) {
     out.push(("rr1".to_string(), dig_i64(&rr1)));
 
     // --- mlp_norm (the FFN's X plane) -----------------------------------
-    let nm = norm_chain(&xres1, &g_m, d, m.i("mnorm_ceps"), m.i("mnorm_tn") as u32,
-                        m.i("mnorm_cn"), round);
+    let nm = crate::norm::rmsnorm_chain(&xres1, &g_m, d, m.i("mnorm_ceps"),
+                                        m.i("mnorm_tn") as u32, m.i("mnorm_cn"), dmode);
     out.push(("xsqM".to_string(), dig_i64(&nm.xsq)));
     out.push(("SSM".to_string(), dig_i64(&nm.sse)));
     out.push(("DM".to_string(), dig_i64(&nm.dd)));
@@ -556,7 +498,7 @@ mod chain_tests {
         let x: Vec<i64> = (0..4 * d).map(|i| ((i * 37) % 255) as i64 - 127).collect();
         let g: Vec<i64> = (0..d).map(|i| 49 + (i % 31) as i64).collect();
         let (tn, cn) = crate::norm::window_rule(-6, -2, d);
-        let o = norm_chain(&x, &g, d, 1, tn, cn, true);
+        let o = crate::norm::rmsnorm_chain(&x, &g, d, 1, tn, cn, crate::norm::DivMode::Round);
         for t in 0..4 {
             let dv = o.dd[t] << tn;
             for i in 0..d {
