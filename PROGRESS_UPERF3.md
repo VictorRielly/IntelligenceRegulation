@@ -12829,3 +12829,132 @@ recoverable after ~65 proofs (lane ZZ §1). v2 keeps P1 only.
 byte gates on both binaries of THIS tree, and the P1 8B row's digest
 re-confirmed here: results/am_r0_floors.log (see the next rung for the
 verdict; the run is detached under the heavy lock with a `.done` marker).
+
+### AM rung 0 (concluded) — the four byte gates GREEN on this tree, and the empirical half of the output answer (2026-09-04)
+
+- **BASELINE GREEN** [WSL-BOX] [8T] [CPU+GPU] [NOISY-SHARED] [MEASURED],
+  results/am_r0_floors.log, detached under the heavy lock: both binaries
+  built, 40/40 tests, and **all eight byte gates** (v2 `50cf7bdf..`, v3
+  `5f368db6..`, zk `021485e4..`, zk-v3 `40eb5479..`, each on the CPU and
+  the GPU binary) — "ALL FLOORS GREEN". The P1 8B row's digest is
+  re-confirmed in rung 3; its 12x512 ancestor `40eb5479..` is gate 4 here.
+- **THE EMPIRICAL HALF OF THE OUTPUT ANSWER** (results/am_r0_output_scan.py,
+  results/am_r0_output_scan.log). The scan reads every aligned 8-byte word of
+  a produced proof as a field element and asks whether its signed
+  representative is in the int8 class (weights) or the int16 class (every v3
+  activation, the OUTPUT plane z16 included). A uniform field element lands
+  there with probability 2^-47; what identifies a real leak is a RUN, because
+  an opened SYSTEMATIC column is `rows` consecutive words of raw witness.
+  Two 3x16 v3 proofs of the same witness, one non-zk and one `--zk`:
+
+  | | non-zk v3 | `--zk` v3 (mode P1) |
+  |---|---:|---:|
+  | words in the int16 class | 107,714 | 20,416 |
+  | runs of >= 100 clear values | **41** | **61** |
+  | run lengths | 9,080 / 743 / 554 / 437 / 387 / 114 ... | **288, every one of them** |
+  | run-start strides | irregular | **multiples of 353** |
+
+  353 = 1 index word + 288 rows + 64 Merkle-path words: the W opening's
+  column record, and 288 = W's row count at this shape. **So in a `--zk`
+  proof every run of clear witness values is a W column and nothing else —
+  the public weights, which is exactly what mode P1 declares.** The non-zk
+  proof's 9,080-word run is an A/H systematic column: the activations, the
+  output plane among them, in the clear. The activations are gone under
+  `--zk` and the output with them.
+
+### AM rung 1 — MODE P3 IS BUILT: the hiding weight commitment, the cache refusal, the mode in the statement (2026-09-04)
+
+**WHAT `--p3` DOES**, all of it in `hashline/src/zk.rs` and the flag lines of
+`src/bin/hashline.rs` (pcs.rs, layer.rs, gpu/* untouched — lane AL owns them):
+
+1. **W is committed hidingly, fresh every proof.** `pcs::commit_zk_owned`
+   with `ZkOpts::standard` — Q = 256 uniform pad symbols per row, the coset
+   7·G_4n encoding (no systematic position exists to open), salted Merkle
+   leaves — in place of `wcache::commit_w`/`pcs::commit`. Same entry points
+   lane ZA built for A and H; no pcs.rs change was needed.
+2. **A mask row per W BLOCK terminal**, plus a proximity row: `ZkLayoutV3`
+   gains `w_mgu` (2·nb_d·nb_f rows, the Wg and Wu blocks at the g/u point
+   p3), `w_mdd` (nb_f·nb_d, the Wd blocks at the d point p6) and `w_prox`.
+   ONE SHARED ROW WOULD NOT DO: the block terminals are sent individually, so
+   a common mask cancels in every difference and leaves W_b~(p) − W_b'~(p) in
+   the clear. `pcs::assert_mask_sites` then passes at both W groups and the
+   proximity vector — the enumeration is printed with the A and H sites.
+3. **The matmul terminals are masked, and that needed a SECOND EXTENSION
+   VARIABLE.** Lane ZA's masking trick appends one sumcheck round in which
+   table T becomes (1−y)T + yR; it is an identity only while poly(exts) = 0.
+   The matmul polynomial is BILINEAR — activation x weight — so masking both
+   factors in one round leaves Σ_c m^A_c·m^W_c behind and the round stops
+   summing to its claim (measured: the first build REJECTED at "sumcheck
+   round 8: s(0) + s(1) != claim", the extension round of the g/u sumcheck).
+   Under P3 each matmul sumcheck therefore gets TWO extension rounds — the
+   activation side masked in round k (weight extension zero), the weight side
+   in round k+1 (activation extension zero) — so poly(exts) = 0 in both. Cost:
+   one degree-2 round per matmul, three field elements. The opening
+   coefficients become the pair ((1−e₁)(1−e₂), (1−e₂)e₁) on the activation
+   side and ((1−e₁)(1−e₂), e₂) on the weight side; `mask_specs_v3` gives the
+   two masks one more variable under P3 and the same specs under P1.
+4. **`--wcache` is REFUSED under `--p3`**, loudly, with the reason and the
+   citation, at flag-parse time, plus an assert in the prover as a second
+   stop. `--p3` also refuses `--profile v2` (the v2 ZK prover is P1 only).
+5. **The statement header names the private set and the output claim.**
+   `ZkStatementMode { privacy, output, model_id }` is absorbed into the
+   transcript right after the statement fields and before any challenge. The
+   P1 tuple keeps the frozen tag `P1-v3`; P3's header is
+   `HL-ZK/1|profile=v3|priv=in+act+out+weights|pub=shapes+shifts+table-digest|out=commit|model=w-root`.
+   `verify_layer_zk_v3` takes the mode as an ARGUMENT — the verifier is told
+   which claim it is checking and cannot read it off prover-supplied bytes.
+6. **The output-claim SLOT (PROOF_FUNCTIONS.md), enumerated, not a
+   framework.** `OutputClaim::{Committed, BinaryAcceptable}`: `commit` is
+   function 1 (attested inference) and is the only one built;
+   `commit+pred:binary-acceptable` is function 2's first form (the single
+   non-negativity fact y[accept] − y[reject] >= 0) and the driver REFUSES it —
+   the variant exists so the gadget is added as a variant, not as a header
+   redesign. The predicate name and the model identity sit in the SAME header
+   under the SAME transcript, so a proof under one (P, M) cannot be presented
+   under another. A `--model-id` flag declares the identity.
+
+**MEASURED [WSL-BOX] [8T] [CPU] [NOISY-SHARED] [MEASURED]** (the 12x512 CPU
+and GPU rows and the GPU legs are rung 2's detached run):
+
+- `pass 3 16 --p3 --seed 1 --profile v3`: **ACCEPT**, PROOF sha256
+  `7bbc0312e2887975..` (10,395,708 B) — a new statement with its own digest.
+- **The eight tamper legs REJECT under P3**: `layer 0 16 --p3 --all-tampers`
+  GREEN (flipped X, flipped Wg, out-of-range remainder, wrong int16 table
+  entry, wrong requant, wrong z, wrong rounding, out-of-range int16), plus the
+  pass-level wrong-z leg on `pass 2 64 --p3 --tamper z`.
+- **P1 IS UNMOVED**: `pass 12 512 --zk --seed 1 --profile v3` still
+  `40eb54795e023c77..` (87,697,008 B) on the rebuilt binary. The new
+  `w_open_zk` field is EMPTY under P1 and an empty `OpeningZk` writes zero
+  bytes, so the P1 serialization is byte-for-byte what it was.
+- **THE ACCEPTANCE TEST FOR WEIGHT PRIVACY** (results/am_r1_clear_value_scan.log),
+  the same scan as rung 0 on a P3 proof of the same witness:
+
+  | 3x16 v3 proof | non-zk | `--zk` (P1) | **`--p3` (P3)** |
+  |---|---:|---:|---:|
+  | words in the int8 class | 107,711 | 19,516 | **15** |
+  | runs of >= 100 clear values | 41 | 61 | **0** |
+  | clear words in runs | 78,092 | 17,568 | **0** |
+
+  The 61 weight columns of the P1 proof are GONE. The 15 residual int8-class
+  words are serializer artifacts (row counts and column indices), not witness.
+- **41/41 unit tests**, including the new
+  `zk_v3_p3_hides_the_weights_and_the_header_binds_the_claim`: P3 round-trips;
+  across 3 seeds x 2 witnesses every opened W column entry and clear-vector
+  entry is distinct and none lies within 2^40 of 0 or p; a P3 proof verified
+  as P1 is REJECTED and a P1 proof verified as P3 is REJECTED; a function-1
+  proof verified as function-2 is REJECTED; `P1-v3` has not moved; and the
+  seven in-test tamper legs reject under P3.
+
+**AN HONESTY NOTE THAT BELONGS TO VICTOR, NOT TO THIS LANE.** Under P1 the
+model identity IS the W commitment root: the weights are public, the root is
+stable per model, and it is in every proof. **Under P3 that identity is
+gone** — the root is re-randomised on every proof by construction, so a P3
+proof as built proves "SOME weights of this shape", not "THIS model". The
+header carries a `model=` field and `--model-id` declares one, which binds
+the proof to the declaration (the prover cannot afterwards claim a different
+model for the same proof) but does NOT force the declaration to be true;
+binding it needs a stable hiding commitment plus a proof that the per-proof
+commitment opens to the same weights — lane ZZ's option 2, or a
+re-randomisable commitment. **Function 1 of PROOF_FUNCTIONS.md asks for "this
+exact model"; the FAST tier delivers that today and the FULL tier does not.**
+Stated, not fixed.

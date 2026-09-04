@@ -98,11 +98,175 @@
 
 use crate::field::{Fp, Fp2};
 
+// ===========================================================================
+// [UPERF3-AM] THE STATEMENT HEADER: WHICH PRIVACY CLAIM, AND WHAT IS CLAIMED
+// ABOUT THE OUTPUT.
+//
+// One binary ships two products (the 2026-09-05 ruling) and, in time, two
+// proof FUNCTIONS (docs/zkmatrix-poc/PROOF_FUNCTIONS.md). A verifier has to
+// know which claim it is checking, and no proof may be presentable as a
+// stronger claim than it delivers. Both facts therefore live in the
+// TRANSCRIPT, absorbed immediately after the statement fields and before any
+// challenge, so every challenge in the proof depends on them: a verifier that
+// checks with the wrong header diverges at the first challenge and REJECTS.
+//
+// The header has three named parts:
+//   priv=  the private set, named exactly (P1 = inputs + activations + the
+//          output; P3 = those AND the weights);
+//   out=   what is claimed about the OUTPUT -- `commit` (function 1, attested
+//          inference: the output is committed and nothing more is claimed) or
+//          `commit+pred:<id>` (function 2, validated classification: committed
+//          AND a named predicate holds). Function 2's gadget is NOT BUILT in
+//          this lane; the SLOT is, so adding it is a variant and not a header
+//          redesign;
+//   model= the model identity digest, in the same header and under the same
+//          transcript as the predicate id, so "acceptable under predicate P
+//          against filter model M" cannot be re-presented under another P or M.
+//
+// ONE FROZEN EXCEPTION: the tuple (P1, commit, no declared model id) keeps the
+// legacy tag `P1-v3` (`P1` for the v2 statement) byte for byte, because the
+// round-13/14 byte gates and the 8B row 930ce9a0.. freeze it. That tuple IS
+// the tuple the legacy tag has always meant; `describe()` prints it in full so
+// the declaration is never implicit.
+// ===========================================================================
+
+/// The private set a proof claims. Named, not numbered, in the header.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum ZkPrivacy {
+    /// FAST TIER: private inputs, every activation (the output plane included)
+    /// private; the weights PUBLIC (their commitment is per-model cacheable).
+    #[default]
+    P1,
+    /// FULL TIER: as P1, and the weights private too -- committed hidingly and
+    /// RE-COMMITTED with fresh randomness on every proof (a cached hash-based
+    /// weight commitment reveals 256 encoded columns per proof and is
+    /// recoverable by linear algebra after ~65 of them: lane ZZ,
+    /// U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md section 1).
+    P3,
+}
+
+impl ZkPrivacy {
+    pub fn private_set(&self) -> &'static str {
+        match self {
+            ZkPrivacy::P1 => "in+act+out",
+            ZkPrivacy::P3 => "in+act+out+weights",
+        }
+    }
+    pub fn public_set(&self) -> &'static str {
+        match self {
+            ZkPrivacy::P1 => "weights+shapes+shifts+table-digest",
+            ZkPrivacy::P3 => "shapes+shifts+table-digest",
+        }
+    }
+    pub fn long(&self) -> &'static str {
+        match self {
+            ZkPrivacy::P1 => "private = {the input X, EVERY activation plane including the output z16, the remainders, the multiplicities}; public = {the weights W, the shapes, the signed shifts, the activation-table digest}",
+            ZkPrivacy::P3 => "private = {the input X, EVERY activation plane including the output z16, the remainders, the multiplicities, AND the weights W}; public = {the shapes, the signed shifts, the activation-table digest}",
+        }
+    }
+}
+
+/// What the proof claims about the OUTPUT (PROOF_FUNCTIONS.md sections 1-2).
+/// THE OUTPUT IS COMMITTED IN EVERY VARIANT -- it is an activation and the ZK
+/// path commits every activation, so "uncommitted" would be extra work, not
+/// less. What varies is whether anything FURTHER is asserted about it. This is
+/// a plain enumerated field, not a predicate framework: a future predicate is a
+/// new variant and a new tag, and nothing else here moves.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum OutputClaim {
+    /// Function 1, ATTESTED INFERENCE: the output is bound as a commitment and
+    /// nothing further is asserted about it.
+    #[default]
+    Committed,
+    /// Function 2, VALIDATED CLASSIFICATION, first (binary) form: committed AND
+    /// the single non-negativity fact y[accept] - y[reject] >= 0 is proven
+    /// against the deployment's frozen acceptable class. NOT BUILT in this lane
+    /// -- the driver refuses it; the variant reserves the transcript slot so the
+    /// gadget is added as a variant and not as a header redesign.
+    BinaryAcceptable,
+}
+
+impl OutputClaim {
+    pub fn tag(&self) -> &'static str {
+        match self {
+            OutputClaim::Committed => "commit",
+            OutputClaim::BinaryAcceptable => "commit+pred:binary-acceptable",
+        }
+    }
+}
+
+/// The statement header: the privacy mode, the output claim and the model
+/// identity, bound together in the transcript.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct ZkStatementMode {
+    pub privacy: ZkPrivacy,
+    pub output: OutputClaim,
+    /// The declared model identity digest. `None` means "the W commitment root
+    /// in this proof IS the identity", which is true under P1 (the weights are
+    /// public and the root is stable per model) and NOT true under P3, where
+    /// the root is re-randomised every proof -- see the honesty note in the AM
+    /// status section.
+    pub model_id: Option<String>,
+}
+
+impl ZkStatementMode {
+    pub fn p1() -> ZkStatementMode {
+        ZkStatementMode::default()
+    }
+    fn legacy(&self) -> bool {
+        self.privacy == ZkPrivacy::P1 && self.output == OutputClaim::Committed && self.model_id.is_none()
+    }
+    fn body(&self, profile: &str) -> Vec<u8> {
+        format!(
+            "HL-ZK/1|profile={profile}|priv={}|pub={}|out={}|model={}",
+            self.privacy.private_set(),
+            self.privacy.public_set(),
+            self.output.tag(),
+            self.model_id.as_deref().unwrap_or("w-root")
+        )
+        .into_bytes()
+    }
+    /// The bytes absorbed after the v3 statement fields.
+    pub fn header_v3(&self) -> Vec<u8> {
+        if self.legacy() { b"P1-v3".to_vec() } else { self.body("v3") }
+    }
+    /// The bytes absorbed after the v2 statement fields.
+    pub fn header_v2(&self) -> Vec<u8> {
+        if self.legacy() { b"P1".to_vec() } else { self.body("v2") }
+    }
+    /// The one-line declaration prover and verifier both print.
+    pub fn describe(&self, profile: &str) -> String {
+        format!(
+            "MODE {} [{profile}] header {:?}: {}; output claim: {}; model identity: {}",
+            match self.privacy { ZkPrivacy::P1 => "P1 (fast tier)", ZkPrivacy::P3 => "P3 (full tier)" },
+            String::from_utf8_lossy(&if profile == "v3" { self.header_v3() } else { self.header_v2() }),
+            self.privacy.long(),
+            match &self.output {
+                OutputClaim::Committed => "function 1 (attested inference) — the output is committed, nothing more is claimed",
+                OutputClaim::BinaryAcceptable => "function 2 (validated classification, binary form) — committed AND y[accept] - y[reject] >= 0 proven",
+            },
+            match (&self.model_id, self.privacy) {
+                (Some(id), _) => format!("declared: {id}"),
+                (None, ZkPrivacy::P1) => "the W commitment root (public weights: stable per model)".to_string(),
+                (None, ZkPrivacy::P3) => "NONE — the W root is re-randomised every proof; this proof does not name a model".to_string(),
+            }
+        )
+    }
+}
+
 /// The ZK configuration of a pass (rung 0: the flag and the seed).
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct ZkConfig {
     pub enabled: bool,
     pub seed: u64,
+    /// [UPERF3-AM] the statement header (privacy mode, output claim, model id).
+    pub mode: ZkStatementMode,
+}
+
+impl ZkConfig {
+    pub fn p3(&self) -> bool {
+        self.mode.privacy == ZkPrivacy::P3
+    }
 }
 
 /// A deterministic blake3 stream: the source of every pad, mask, salt
@@ -594,6 +758,10 @@ pub struct LayerProofZk {
     pub tab_term: Vec<Fp2>,
     pub mask_open: MaskOpening,
     pub w_open: Opening,
+    /// [UPERF3-AM] MODE P3 ONLY: W's HIDING opening. Empty under P1, and an
+    /// empty `OpeningZk` writes zero bytes — so the P1 serialization, and every
+    /// frozen P1 digest, is untouched by this field.
+    pub w_open_zk: OpeningZk,
     pub a_open: OpeningZk,
     pub h_open: OpeningZk,
 }
@@ -605,7 +773,7 @@ impl LayerProofZk {
         coms + 16 + self.gu_sc.size_bytes() + f2(&self.gu_term) + 16 + self.d_sc.size_bytes() + f2(&self.d_term)
             + 16 + self.zc20_sc.size_bytes() + f2(&self.zc20_term) + 16 + self.zc17_sc.size_bytes() + f2(&self.zc17_term)
             + 16 + self.zs_sc.size_bytes() + 16 + 16 + self.tab_sc.size_bytes() + f2(&self.tab_term)
-            + self.mask_open.size_bytes() + self.w_open.size_bytes() + self.a_open.size_bytes() + self.h_open.size_bytes()
+            + self.mask_open.size_bytes() + self.w_open.size_bytes() + self.w_open_zk.size_bytes() + self.a_open.size_bytes() + self.h_open.size_bytes()
     }
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut out = Vec::with_capacity(self.size_bytes());
@@ -628,6 +796,7 @@ impl LayerProofZk {
         f2(&mut out, &[self.gamma_tab]); self.tab_sc.write_bytes(&mut out); f2(&mut out, &self.tab_term);
         self.mask_open.write_bytes(&mut out);
         self.w_open.write_bytes(&mut out);
+        self.w_open_zk.write_bytes(&mut out);
         self.a_open.write_bytes(&mut out);
         self.h_open.write_bytes(&mut out);
         debug_assert_eq!(out.len(), self.size_bytes());
@@ -1723,6 +1892,19 @@ pub struct ZkLayoutV3 {
     pub h_prox: usize,
     pub h_len: usize,
     pub tabs: Vec<TabRowsV3>,
+    /// [UPERF3-AM] MODE P3 ONLY (unused under P1, where W is committed plainly).
+    /// W's own commitment width and mask rows: ONE mask row per W BLOCK
+    /// terminal — a single shared row would leave the DIFFERENCES of two
+    /// blocks' evaluations in the clear — plus the reserved proximity row.
+    pub w_n: usize,
+    pub log_wn: usize,
+    /// 2 * nb_d * nb_f rows: the Wg then the Wu blocks, at the g/u point p3
+    pub w_mgu: Vec<usize>,
+    /// nb_f * nb_d rows: the Wd blocks, at the d point p6
+    pub w_mdd: Vec<usize>,
+    pub w_prox: usize,
+    /// the W commitment's length under P3 (lay.w_len + the mask rows)
+    pub w_len_p3: usize,
 }
 
 impl ZkLayoutV3 {
@@ -1766,7 +1948,24 @@ impl ZkLayoutV3 {
             t.h_mim = next(t.rows);
         }
         let h_len = r * a_n;
-        ZkLayoutV3 { lay, a_n, log_n, log_s, a_mf, a_md, a_mgu, a_mdd, a_prox, a_len, h_mf, h_md, h_u, h_up, h_prox, h_len, tabs }
+        // [UPERF3-AM] the P3 W layout (indices only; nothing is allocated under P1)
+        let log_wn = params.log_cols.min(lay.log_wb) as usize;
+        let w_n = 1usize << log_wn;
+        let mut r = lay.w_len / w_n;
+        let mut next = |k: usize| { let v = r; r += k; v };
+        let w_mgu: Vec<usize> = (0..2 * nb_d * nb_f).map(|_| next(1)).collect();
+        let w_mdd: Vec<usize> = (0..nb_f * nb_d).map(|_| next(1)).collect();
+        let w_prox = next(1);
+        let w_len_p3 = r * w_n;
+        ZkLayoutV3 { lay, a_n, log_n, log_s, a_mf, a_md, a_mgu, a_mdd, a_prox, a_len, h_mf, h_md, h_u, h_up, h_prox, h_len, tabs, w_n, log_wn, w_mgu, w_mdd, w_prox, w_len_p3 }
+    }
+
+    /// The W mask rows (mode P3 only), in the order `assert_mask_sites` reports.
+    pub fn w_mask_rows(&self) -> Vec<usize> {
+        let mut v: Vec<usize> = Vec::new();
+        v.extend(&self.w_mgu);
+        v.extend(&self.w_mdd);
+        v
     }
     fn a_mask_rows(&self) -> Vec<usize> {
         let mut v: Vec<usize> = Vec::new();
@@ -1784,6 +1983,14 @@ impl ZkLayoutV3 {
         for t in &self.tabs { v.extend(t.h_mre..t.h_mre + t.rows); v.extend(t.h_mim..t.h_mim + t.rows); }
         v
     }
+    /// [UPERF3-AM] The W mask sites, reported only when the layer is proven in mode P3.
+    pub fn describe_w_p3(&self) -> String {
+        format!(
+            "W masks (P3): commitment {} rows of 2^{} = {} data + {} block masks + 1 prox row; Wg/Wu blocks at p3 -> rows {:?}; Wd blocks at p6 -> rows {:?}; prox row {}",
+            self.w_len_p3 / self.w_n, self.log_wn, self.lay.w_len / self.w_n, self.w_mgu.len() + self.w_mdd.len(), self.w_mgu, self.w_mdd, self.w_prox
+        )
+    }
+
     /// The enumerated mask sites of the layout (which mask row masks which plane at which point).
     pub fn describe(&self) -> Vec<String> {
         let lay = &self.lay;
@@ -1815,11 +2022,19 @@ impl ZkLayoutV3 {
 /// The sumchecks of a v3 layer in mask-commitment order (ZA's SC_* slots):
 /// gu (log_db vars, degree 2), d (log_fb, 2), zero-check F (log_t + log_fb, 4),
 /// zero-check D (log_t + log_db, 4), zsum (log n, 2), table (log_S, 3); +1 each for the extension.
-pub fn mask_specs_v3(zl: &ZkLayoutV3) -> Vec<(usize, usize)> {
+pub fn mask_specs_v3(zl: &ZkLayoutV3, is_p3: bool) -> Vec<(usize, usize)> {
     let lay = &zl.lay;
+    // [UPERF3-AM] MODE P3 gives the two MATMUL sumchecks a SECOND extension variable.
+    // The extension round is only an identity when poly(exts) = 0, and the matmul poly is
+    // BILINEAR (activation x weight): masking both factors in one round leaves the product
+    // of the two masks behind and the round stops summing to its claim. Two rounds, each
+    // with one side's extension zero, keep poly(exts) = 0 in both — the activation side is
+    // masked in round k, the weight side in round k + 1. Cost: one round of a degree-2
+    // sumcheck per matmul, i.e. three field elements.
+    let x = usize::from(is_p3);
     vec![
-        (lay.log_db as usize + 1, 2),
-        (lay.log_fb as usize + 1, 2),
+        (lay.log_db as usize + 1 + x, 2),
+        (lay.log_fb as usize + 1 + x, 2),
         ((lay.log_t + lay.log_fb) as usize + 1, 4),
         ((lay.log_t + lay.log_db) as usize + 1, 4),
         (zl.log_n + 1, 2),
@@ -1911,10 +2126,14 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let (sh_g, sh_u, sh_h, sh_z) = w.shifts;
     let st = StatementV3 { l: w.l, t_rows, d, f, shifts: w.shifts, act: w.act, table: w.table, table_digest: w.table_digest.clone() };
     absorb_statement_v3(tr, &st);
-    tr.absorb(b"zk", b"P1-v3");
+    // [UPERF3-AM] the statement header: the privacy mode, the output claim and the model
+    // identity, in the Fiat-Shamir domain before any challenge (see ZkStatementMode).
+    let is_p3 = cfg.p3();
+    tr.absorb(b"zk", &cfg.mode.header_v3());
     let mut rng = ZkRng::new(cfg.seed, format!("layer-v3-{}", w.l).as_bytes());
     let mut proof = LayerProofZk::default();
     let mut sites: Vec<String> = zl.describe();
+    if is_p3 { sites.insert(0, zl.describe_w_p3()); }
 
     // [UPERF3-AI] VRAM accounting under HL_GPU_VERBOSE=1 (the ZK path at 8B width runs at the
     // edge of an 8 GB part, so "what is held where" is the whole story of this rung).
@@ -1957,8 +2176,9 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let drain = |_tag: &str| {};
     drain("layer top");
 
-    // ---- W data + commit (as built: public weights; ZB's block layout) ----
-    let mut w_data = vec![Fp::ZERO; lay.w_len];
+    // ---- W data + commit (P1: public weights, ZB's block layout; P3: the same
+    // matrix with one mask row per block terminal and the HIDING commitment) ----
+    let mut w_data = vec![Fp::ZERO; if is_p3 { zl.w_len_p3 } else { lay.w_len }];
     for c in 0..nb_d {
         for b in 0..nb_f {
             for (offs, src) in [(&lay.wg, &w.wg_t), (&lay.wu, &w.wu_t)] {
@@ -1976,14 +2196,41 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
         }
     }
     let w_pcs = pcs_params(params, lay.log_wb);
+    // [UPERF3-AM] MODE P3: the mask rows, drawn BEFORE the commitment (a mask chosen after
+    // the challenges would not hide). One per block terminal, plus the proximity row.
+    if is_p3 {
+        for r in zl.w_mask_rows().into_iter().chain(std::iter::once(zl.w_prox)) {
+            let v = rng.fp_vec(zl.w_n);
+            w_data[r * zl.w_n..(r + 1) * zl.w_n].copy_from_slice(&v);
+        }
+    }
     // [UPERF3-AI] the per-model weight cache (lane AC's `--wcache DIR`) also serves the ZK
     // prover: under mode P1 the weights are PUBLIC, so W's commitment is per-model work here
     // exactly as it is in layer.rs's v3 FFN prover. Same `w_data`, same `PcsParams`, same
     // `WKey::new("v3", l, d, f, ..)` key -> the same Ligero matrix, the same leaves, the same
     // root; the ZK and non-zk passes share entries. `wcache::commit_w` falls back to
     // `pcs::commit` (the previous line, byte for byte) when no `--wcache` dir is configured.
-    let w_cm = crate::wcache::commit_w(&w_pcs, &w_data, ntt, &crate::wcache::WKey::new("v3", w.l, d, f, &w.wg_t, &w.wu_t, &w.wd_t));
-    proof.w_com = Some(w_cm.commitment());
+    // [UPERF3-AM] ... and under P3 the cache is FORBIDDEN, which is a soundness fact and not a
+    // preference: a cached hash-based weight commitment opens 256 of its encoded columns per
+    // proof, so after ~(n + Q)/Q proofs (65 at the measured 125M n = 2^14) the weight rows are
+    // recoverable by linear algebra (lane ZZ, U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md section 1).
+    // The driver refuses the flag combination; this is the belt-and-braces stop.
+    let (w_cm, w_cmz) = if is_p3 {
+        assert!(
+            crate::wcache::dir().is_none(),
+            "mode P3: --wcache is REFUSED — a cached weight commitment reveals 256 encoded columns per proof and the weights are recoverable after ~65 proofs (U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md section 1). The weights must be re-committed with fresh randomness on EVERY proof."
+        );
+        let w_zk = ZkOpts::standard(&w_pcs);
+        let mut cmz = pcs::commit_zk_owned(&w_pcs, std::mem::take(&mut w_data), ntt, &w_zk, &mut rng);
+        cmz.mask_rows = zl.w_mask_rows();
+        cmz.prox_mask_row = Some(zl.w_prox);
+        (None, Some(cmz))
+    } else {
+        (Some(crate::wcache::commit_w(&w_pcs, &w_data, ntt, &crate::wcache::WKey::new("v3", w.l, d, f, &w.wg_t, &w.wu_t, &w.wd_t))), None)
+    };
+    proof.w_com = Some(match (&w_cm, &w_cmz) { (Some(c), _) => c.commitment(), (_, Some(c)) => c.commitment(), _ => unreachable!() });
+    // the block terminals below read the systematic W matrix; under P3 it lives in the commitment
+    let w_data_ref: &[Fp] = match &w_cmz { Some(c) => &c.data, None => &w_data };
     absorb_com(tr, b"W", proof.w_com.as_ref().unwrap());
     lap("commit W", &mut timings, &mut tick);
     vnote("after commit W");
@@ -2031,7 +2278,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     vnote("after commit A");
 
     // ---- the mask commitment (the CFS masking polynomials of the six sumchecks) ----
-    let specs = mask_specs_v3(&zl);
+    let specs = mask_specs_v3(&zl, is_p3);
     let mc = mask_commit(&specs, ntt, &mut rng);
     proof.mask_root = mc.tree.root();
     tr.absorb(b"M", &proof.mask_root);
@@ -2237,28 +2484,63 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let (mut gu_rounds, r_kp, gu_fin) = masked_prove(&mut tables, 2, gu_poly, &mc.masks[SC_GU], c_gu, tr);
     let mut p2 = r_i.clone();
     p2.extend_from_slice(&r_kp);
+    let mut p3 = r_kp.clone();
+    p3.extend_from_slice(&r_j);
     let mp = MaskPoint::new(&tail_of(&p2, log_n), n);
     let mut exts = vec![Fp2::ZERO; 2 * nb_d];
     for c in 0..nb_d { exts[c] = mp.eval(a_data, zl.a_mgu[c]); }
+    // [UPERF3-AM] MODE P3: the W block terminals are masked exactly as A's are, with ONE
+    // mask row per block (a shared row would leave block DIFFERENCES in the clear). The
+    // sumcheck's extension round carries the selector: setting the W tables' extension to
+    // the SAME lam_f / lam_gu combination of the block masks makes the extended W table
+    // value equal the combination the verifier forms from the masked block terminals, so
+    // the verifier's check closes with no extra term.
+    let w_mev: Vec<Fp2> = if is_p3 {
+        let mpw = MaskPoint::new(&tail_of(&p3, zl.log_wn), zl.w_n);
+        zl.w_mgu.iter().map(|&r| mpw.eval(w_data_ref, r)).collect()
+    } else { Vec::new() };
+    // round k: the ACTIVATION side's extension (the weight side's is zero, so poly(exts) = 0)
     let e_gu = extension(&gu_fin, &exts, 2, gu_poly, &mc.masks[SC_GU], c_gu, &r_kp, &mut gu_rounds, tr);
+    let mut rho_gu = r_kp.clone();
+    rho_gu.push(e_gu);
+    // round k+1 (P3 only): the WEIGHT side's extension, over the values round k left
+    let (e_gu2, fin_gu2) = if is_p3 {
+        let fin1: Vec<Fp2> = gu_fin.iter().zip(exts.iter()).map(|(f, e)| masked_terminal(*f, *e, e_gu)).collect();
+        let mut exts2 = vec![Fp2::ZERO; 2 * nb_d];
+        for c in 0..nb_d {
+            let mut s = Fp2::ZERO;
+            for b in 0..nb_f {
+                let g = w_mev[c * nb_f + b];
+                let u = w_mev[nb_d * nb_f + c * nb_f + b];
+                s = s.add(lam_f[b].mul(g.add(lam_gu.mul(u))));
+            }
+            exts2[nb_d + c] = s;
+        }
+        let e2 = extension(&fin1, &exts2, 2, gu_poly, &mc.masks[SC_GU], c_gu, &rho_gu, &mut gu_rounds, tr);
+        rho_gu.push(e2);
+        (e2, fin1)
+    } else { (Fp2::ZERO, Vec::new()) };
     proof.gu_sc = SumcheckProof { rounds: gu_rounds };
+    // the two claim coefficients each opening site carries: (data, mask)
+    let sel2 = Fp2::ONE.sub(e_gu2);
+    let (cd_gu, cm_gu) = if is_p3 { (sel2.mul(Fp2::ONE.sub(e_gu)), sel2.mul(e_gu)) } else { (Fp2::ONE.sub(e_gu), e_gu) };
+    let cd_w_gu = if is_p3 { sel2.mul(Fp2::ONE.sub(e_gu)) } else { Fp2::ONE };
     let mut term = Vec::with_capacity(nb_d + 2 * nb_d * nb_f);
-    for c in 0..nb_d { term.push(masked_terminal(gu_fin[c], exts[c], e_gu)); }
-    for offs in [&lay.wg, &lay.wu] {
+    for c in 0..nb_d {
+        term.push(if is_p3 { sel2.mul(fin_gu2[c]) } else { masked_terminal(gu_fin[c], exts[c], e_gu) });
+    }
+    for (ri, offs) in [(0usize, &lay.wg), (1, &lay.wu)] {
         for c in 0..nb_d {
             for b in 0..nb_f {
-                let blk = &w_data[offs[c * nb_f + b]..offs[c * nb_f + b] + wb];
+                let blk = &w_data_ref[offs[c * nb_f + b]..offs[c * nb_f + b] + wb];
                 let folded = fold_cols_base(blk, db, fb, &eq_rj);
-                term.push(eval_mle_ext(&folded, &r_kp));
+                let v = eval_mle_ext(&folded, &r_kp);
+                term.push(if is_p3 { cd_w_gu.mul(v).add(e_gu2.mul(w_mev[ri * nb_d * nb_f + c * nb_f + b])) } else { v });
             }
         }
     }
     proof.gu_term = term;
     tr.absorb_fp2(b"gu-term", &proof.gu_term);
-    let mut rho_gu = r_kp.clone();
-    rho_gu.push(e_gu);
-    let mut p3 = r_kp.clone();
-    p3.extend_from_slice(&r_j);
     lap("matmul g/u (zk)", &mut timings, &mut tick);
 
     // ---- d matmul sumcheck (masked; the h16-block terminals masked) ----
@@ -2288,27 +2570,52 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let (mut d_rounds, r_k, d_fin) = masked_prove(&mut tables, 2, d_poly, &mc.masks[SC_D], c_d, tr);
     let mut p5 = r_ip.clone();
     p5.extend_from_slice(&r_k);
+    let mut p6 = r_k.clone();
+    p6.extend_from_slice(&r_jp);
     let mp = MaskPoint::new(&tail_of(&p5, log_n), n);
     let mut exts = vec![Fp2::ZERO; 2 * nb_f];
     for b in 0..nb_f { exts[b] = mp.eval(a_data, zl.a_mdd[b]); }
+    // [UPERF3-AM] MODE P3: the Wd block terminals, masked as the g/u ones are.
+    let wd_mev: Vec<Fp2> = if is_p3 {
+        let mpw = MaskPoint::new(&tail_of(&p6, zl.log_wn), zl.w_n);
+        zl.w_mdd.iter().map(|&r| mpw.eval(w_data_ref, r)).collect()
+    } else { Vec::new() };
     let e_d = extension(&d_fin, &exts, 2, d_poly, &mc.masks[SC_D], c_d, &r_k, &mut d_rounds, tr);
+    let mut rho_dm = r_k.clone();
+    rho_dm.push(e_d);
+    let (e_d2, fin_d2) = if is_p3 {
+        let fin1: Vec<Fp2> = d_fin.iter().zip(exts.iter()).map(|(f, e)| masked_terminal(*f, *e, e_d)).collect();
+        let mut exts2 = vec![Fp2::ZERO; 2 * nb_f];
+        for b in 0..nb_f {
+            let mut s = Fp2::ZERO;
+            for c in 0..nb_d { s = s.add(lam_d[c].mul(wd_mev[b * nb_d + c])); }
+            exts2[nb_f + b] = s;
+        }
+        let e2 = extension(&fin1, &exts2, 2, d_poly, &mc.masks[SC_D], c_d, &rho_dm, &mut d_rounds, tr);
+        rho_dm.push(e2);
+        (e2, fin1)
+    } else { (Fp2::ZERO, Vec::new()) };
     proof.d_sc = SumcheckProof { rounds: d_rounds };
+    let sel2d = Fp2::ONE.sub(e_d2);
+    let (cd_d, cm_d) = if is_p3 { (sel2d.mul(Fp2::ONE.sub(e_d)), sel2d.mul(e_d)) } else { (Fp2::ONE.sub(e_d), e_d) };
+    let cd_w_d = if is_p3 { sel2d.mul(Fp2::ONE.sub(e_d)) } else { Fp2::ONE };
     let mut term = Vec::with_capacity(nb_f + nb_f * nb_d);
-    for b in 0..nb_f { term.push(masked_terminal(d_fin[b], exts[b], e_d)); }
+    for b in 0..nb_f {
+        term.push(if is_p3 { sel2d.mul(fin_d2[b]) } else { masked_terminal(d_fin[b], exts[b], e_d) });
+    }
     for b in 0..nb_f {
         for c in 0..nb_d {
-            let blk = &w_data[lay.wd[b * nb_d + c]..lay.wd[b * nb_d + c] + wb];
+            let blk = &w_data_ref[lay.wd[b * nb_d + c]..lay.wd[b * nb_d + c] + wb];
             let folded = fold_cols_base(blk, fb, db, &eq_rjp);
-            term.push(eval_mle_ext(&folded, &r_k));
+            let v = eval_mle_ext(&folded, &r_k);
+            term.push(if is_p3 { cd_w_d.mul(v).add(e_d2.mul(wd_mev[b * nb_d + c])) } else { v });
         }
     }
     proof.d_term = term;
     tr.absorb_fp2(b"d-term", &proof.d_term);
-    let mut rho_dm = r_k.clone();
-    rho_dm.push(e_d);
-    let mut p6 = r_k.clone();
-    p6.extend_from_slice(&r_jp);
-    // the systematic W data is dead from here (its encoding lives in w_cm): 1.4 GB at the 7B shape
+    // the systematic W data is dead from here (its encoding lives in w_cm): 1.4 GB at the 7B
+    // shape. Under P3 it is not: the ZK commitment owns it (`pcs::CommittedZk::data`) and the
+    // host fold at the opening reads it, so the P3 row carries it to the end of the layer.
     drop(w_data);
     lap("matmul d (zk)", &mut timings, &mut tick);
 
@@ -2613,9 +2920,23 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     lap("zsum + mask open", &mut timings, &mut tick);
 
     // ---- PCS openings ----
-    let (wc, ac, hc) = build_claims_zk_v3(&zl, &proof, &p2, &p5, &rho_f, &rho_d, &rho_zs, &rho_tab, e_gu, e_d, e_f, e_dz, e_zs, e_tab, &p3, &p6);
-    proof.w_open = pcs::open(&w_cm, &wc, tr);
+    let (wc, ac, hc) = build_claims_zk_v3(&zl, &proof, &p2, &p5, &rho_f, &rho_d, &rho_zs, &rho_tab, (cd_gu, cm_gu), (cd_d, cm_d), e_f, e_dz, e_zs, e_tab, &p3, &p6);
+    match (&w_cm, &w_cmz) {
+        (Some(cm), _) => { proof.w_open = pcs::open(cm, &wc, tr); }
+        (_, Some(cmz)) => {
+            // [UPERF3-AM] MODE P3: the hiding opening. Every group's clear vector carries the
+            // block mask rows (assert_mask_sites refuses an unmasked site), the prox vector
+            // carries the reserved prox row, and the 256 sampled columns are coset positions
+            // with 256 pad symbols per row — no systematic entry of W is ever opened.
+            let wcz = build_w_zclaims_v3(&zl, &proof, &p3, &p6, (cd_w_gu, e_gu2), (cd_w_d, e_d2));
+            sites.push(format!("W: {} claims in {} groups", wcz.len(), pcs::zk_groups_for_record(cmz, &wcz)));
+            proof.w_open_zk = pcs::open_zk(cmz, &wcz, tr);
+            sites.extend(pcs::last_mask_sites().into_iter().map(|s| format!("W {s}")));
+        }
+        _ => unreachable!(),
+    }
     drop(w_cm);
+    drop(w_cmz);
     sites.push(format!("A: {} claims in {} groups", ac.len(), pcs::zk_groups_for_record(&a_cmz, &ac)));
     proof.a_open = pcs::open_zk(&a_cmz, &ac, tr);
     sites.extend(pcs::last_mask_sites().into_iter().map(|s| format!("A {s}")));
@@ -2628,9 +2949,45 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     ProveOutputZk { proof, timings, sites }
 }
 
+/// [UPERF3-AM] MODE P3: the HIDING claims on W, shared by the prover and the
+/// verifier. Each block claim is the two-part masked claim
+/// `(1 - e) W_blk~(p) + e R_blk~(tail p)` against the block's own mask row —
+/// the same form lane ZA gave every A and H opening site, with one mask row per
+/// block so that no difference of two blocks' evaluations is in the clear. The
+/// two points (p3 for the g/u blocks, p6 for the d blocks) give exactly two
+/// column-weight groups, each of which therefore touches a mask row.
+fn build_w_zclaims_v3(zl: &ZkLayoutV3, proof: &LayerProofZk, w_p3: &[Fp2], w_p6: &[Fp2], k_gu: (Fp2, Fp2), k_d: (Fp2, Fp2)) -> Vec<ZClaim> {
+    let lay = &zl.lay;
+    let (nb_d, nb_f) = (lay.nb_d, lay.nb_f);
+    let wn = zl.w_n;
+    let log_wn = zl.log_wn;
+    let s_w = |off: usize| Slice { offset: off, log_size: lay.log_wb };
+    let s_row = |row: usize| Slice { offset: row * wn, log_size: log_wn as u32 };
+    let tail = |p: &[Fp2]| p[p.len() - log_wn..].to_vec();
+    let masked = |sl: Slice, mask_row: usize, p: &[Fp2], k: (Fp2, Fp2), value: Fp2| ZClaim {
+        parts: vec![ZPart { slice: sl, coef: k.0, point: p.to_vec() }, ZPart { slice: s_row(mask_row), coef: k.1, point: tail(p) }],
+        value,
+    };
+    let mut wc = Vec::with_capacity(3 * nb_d * nb_f);
+    for (ri, offs) in [(0usize, &lay.wg), (1, &lay.wu)] {
+        for c in 0..nb_d {
+            for b in 0..nb_f {
+                let k = ri * nb_d * nb_f + c * nb_f + b;
+                wc.push(masked(s_w(offs[c * nb_f + b]), zl.w_mgu[k], w_p3, k_gu, proof.gu_term[nb_d + k]));
+            }
+        }
+    }
+    for b in 0..nb_f {
+        for c in 0..nb_d {
+            wc.push(masked(s_w(lay.wd[b * nb_d + c]), zl.w_mdd[b * nb_d + c], w_p6, k_d, proof.d_term[nb_f + b * nb_d + c]));
+        }
+    }
+    wc
+}
+
 /// The claims on W (plain), A and H (ZK) of a v3 layer proof, shared by the prover and the verifier.
 #[allow(clippy::too_many_arguments)]
-fn build_claims_zk_v3(zl: &ZkLayoutV3, proof: &LayerProofZk, p2: &[Fp2], p5: &[Fp2], rho_f: &[Fp2], rho_d: &[Fp2], rho_zs: &[Fp2], rho_tab: &[Fp2], e_gu: Fp2, e_d: Fp2, e_f: Fp2, e_dz: Fp2, e_zs: Fp2, e_tab: Fp2, w_p3: &[Fp2], w_p6: &[Fp2]) -> (Vec<Claim>, Vec<ZClaim>, Vec<ZClaim>) {
+fn build_claims_zk_v3(zl: &ZkLayoutV3, proof: &LayerProofZk, p2: &[Fp2], p5: &[Fp2], rho_f: &[Fp2], rho_d: &[Fp2], rho_zs: &[Fp2], rho_tab: &[Fp2], k_gu: (Fp2, Fp2), k_d: (Fp2, Fp2), e_f: Fp2, e_dz: Fp2, e_zs: Fp2, e_tab: Fp2, w_p3: &[Fp2], w_p6: &[Fp2]) -> (Vec<Claim>, Vec<ZClaim>, Vec<ZClaim>) {
     let lay = &zl.lay;
     let (nb_d, nb_f) = (lay.nb_d, lay.nb_f);
     let one = Fp2::ONE;
@@ -2671,8 +3028,14 @@ fn build_claims_zk_v3(zl: &ZkLayoutV3, proof: &LayerProofZk, p2: &[Fp2], p5: &[F
         ac.push(masked(s_d(lay.z[c]), zl.a_md[3 * c + 1], rho_d, e_dz, proof.zc17_term[nb_d + c]));
         ac.push(masked(s_d(lay.rd[c]), zl.a_md[3 * c + 2], rho_d, e_dz, proof.zc17_term[2 * nb_d + c]));
     }
-    for c in 0..nb_d { ac.push(masked(s_d(lay.x[c]), zl.a_mgu[c], p2, e_gu, proof.gu_term[c])); }
-    for b in 0..nb_f { ac.push(masked(s_f(lay.h16[b]), zl.a_mdd[b], p5, e_d, proof.d_term[b])); }
+    // [UPERF3-AM] the two matmul-opened planes carry the coefficient PAIR, because under P3
+    // their sumcheck has a second extension round (see mask_specs_v3).
+    let masked2 = |sl: Slice, mask_row: usize, p: &[Fp2], k: (Fp2, Fp2), value: Fp2| ZClaim {
+        parts: vec![ZPart { slice: sl, coef: k.0, point: p.to_vec() }, ZPart { slice: s_row(mask_row), coef: k.1, point: tail(p) }],
+        value,
+    };
+    for c in 0..nb_d { ac.push(masked2(s_d(lay.x[c]), zl.a_mgu[c], p2, k_gu, proof.gu_term[c])); }
+    for b in 0..nb_f { ac.push(masked2(s_f(lay.h16[b]), zl.a_mdd[b], p5, k_d, proof.d_term[b])); }
     // the multiplicity slots at rho_tab[k..] with the zero-extension coefficient prod_{j<k}(1 - rho_j)
     for (i, t) in zl.tabs.iter().enumerate() {
         let k = zl.log_s - t.log_size as usize;
@@ -2754,7 +3117,7 @@ fn build_claims_zk_v3(zl: &ZkLayoutV3, proof: &LayerProofZk, p2: &[Fp2], p5: &[F
 }
 
 /// Verify one v3 ZK layer proof against the public statement.
-pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &LayerParams, ntt: &NttTables, tr: &mut Transcript) -> Result<(), String> {
+pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &LayerParams, ntt: &NttTables, tr: &mut Transcript, mode: &ZkStatementMode) -> Result<(), String> {
     let zl = ZkLayoutV3::new(st.t_rows, st.d, st.f, params, st.shifts);
     let lay = zl.lay.clone();
     let (nb_d, nb_f) = (lay.nb_d, lay.nb_f);
@@ -2763,19 +3126,26 @@ pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &Layer
     let log_s = zl.log_s;
     let (sh_g, sh_u, sh_h, sh_z) = st.shifts;
     absorb_statement_v3(tr, st);
-    tr.absorb(b"zk", b"P1-v3");
+    // [UPERF3-AM] the verifier is TOLD which privacy claim and which output claim it is
+    // checking; the header is in the Fiat-Shamir domain, so a proof made under one header
+    // diverges at the first challenge under any other. A P1 proof cannot be presented as P3,
+    // and a function-1 proof cannot be presented as function-2.
+    let is_p3 = mode.privacy == ZkPrivacy::P3;
+    if mode.output != OutputClaim::Committed { return Err("output claim not built (only `commit`, function 1, exists)".into()); }
+    tr.absorb(b"zk", &mode.header_v3());
     let w_com = proof.w_com.as_ref().ok_or("missing W commitment")?;
     let a_com = proof.a_com.as_ref().ok_or("missing A commitment")?;
     let h_com = proof.h_com.as_ref().ok_or("missing H commitment")?;
     let w_pcs = pcs_params(params, lay.log_wb);
     let a_pcs = pcs_params(params, lay.log_a_min);
     let h_pcs = pcs_params(params, lay.log_a_min);
-    if w_com.rows != lay.w_len / w_pcs.cols() { return Err("W commitment rows".into()); }
+    let w_rows_want = if is_p3 { zl.w_len_p3 } else { lay.w_len } / w_pcs.cols();
+    if w_com.rows != w_rows_want { return Err("W commitment rows".into()); }
     if a_com.rows != zl.a_len / n { return Err("A commitment rows".into()); }
     if h_com.rows != zl.h_len / n { return Err("H commitment rows".into()); }
     absorb_com(tr, b"W", w_com);
     absorb_com(tr, b"A", a_com);
-    let specs = mask_specs_v3(&zl);
+    let specs = mask_specs_v3(&zl, is_p3);
     tr.absorb(b"M", &proof.mask_root);
     let beta = tr.challenge_fp2();
     let gamma = tr.challenge_fp2();
@@ -2799,11 +3169,20 @@ pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &Layer
     p1.extend_from_slice(&r_j);
     let c_gu = tr.challenge_fp2();
     tr.absorb_fp2(b"gu-claim", &[proof.gu_claim]);
-    let (fin, rho_gu) = sumcheck::verify(proof.gu_claim, 2, lay.log_db as usize + 1, &proof.gu_sc, tr)?;
+    let ext_rounds = 1 + usize::from(is_p3);
+    let (fin, rho_gu) = sumcheck::verify(proof.gu_claim, 2, lay.log_db as usize + ext_rounds, &proof.gu_sc, tr)?;
     let r_kp = rho_gu[..lay.log_db as usize].to_vec();
     let e_gu = rho_gu[lay.log_db as usize];
+    let e_gu2 = if is_p3 { rho_gu[lay.log_db as usize + 1] } else { Fp2::ZERO };
+    let sel2 = Fp2::ONE.sub(e_gu2);
+    let (cd_gu, cm_gu) = if is_p3 { (sel2.mul(Fp2::ONE.sub(e_gu)), sel2.mul(e_gu)) } else { (Fp2::ONE.sub(e_gu), e_gu) };
+    let cd_w_gu = if is_p3 { sel2.mul(Fp2::ONE.sub(e_gu)) } else { Fp2::ONE };
     if proof.gu_term.len() != nb_d + 2 * nb_d * nb_f { return Err("gu terminal".into()); }
-    let sel = Fp2::ONE.sub(e_gu);
+    // [UPERF3-AM] under P1 the W block terminals are in the clear and the extension round's
+    // (1 - e) selector is applied here; under P3 they are the MASKED terminals, whose
+    // combination already IS the extended W table value (the prover set the W tables'
+    // extension to the same combination of the block masks), so the selector is not applied.
+    let sel = if is_p3 { Fp2::ONE } else { Fp2::ONE.sub(e_gu) };
     let mut want = Fp2::ZERO;
     for c in 0..nb_d {
         let mut wsum = Fp2::ZERO;
@@ -2829,11 +3208,15 @@ pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &Layer
     p4.extend_from_slice(&r_jp);
     let c_d = tr.challenge_fp2();
     tr.absorb_fp2(b"d-claim", &[proof.d_claim]);
-    let (fin, rho_dm) = sumcheck::verify(proof.d_claim, 2, lay.log_fb as usize + 1, &proof.d_sc, tr)?;
+    let (fin, rho_dm) = sumcheck::verify(proof.d_claim, 2, lay.log_fb as usize + ext_rounds, &proof.d_sc, tr)?;
     let r_k = rho_dm[..lay.log_fb as usize].to_vec();
     let e_d = rho_dm[lay.log_fb as usize];
+    let e_d2 = if is_p3 { rho_dm[lay.log_fb as usize + 1] } else { Fp2::ZERO };
+    let sel2d = Fp2::ONE.sub(e_d2);
+    let (cd_d, cm_d) = if is_p3 { (sel2d.mul(Fp2::ONE.sub(e_d)), sel2d.mul(e_d)) } else { (Fp2::ONE.sub(e_d), e_d) };
+    let cd_w_d = if is_p3 { sel2d.mul(Fp2::ONE.sub(e_d)) } else { Fp2::ONE };
     if proof.d_term.len() != nb_f + nb_f * nb_d { return Err("d terminal".into()); }
-    let sel = Fp2::ONE.sub(e_d);
+    let sel = if is_p3 { Fp2::ONE } else { Fp2::ONE.sub(e_d) };
     let mut want = Fp2::ZERO;
     for b in 0..nb_f {
         let wd_comb = (0..nb_d).fold(Fp2::ZERO, |a, c| a.add(lam_d[c].mul(proof.d_term[nb_f + b * nb_d + c])));
@@ -2944,8 +3327,13 @@ pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &Layer
     mask_verify(&proof.mask_root, &specs, &fs, &proof.mask_open, ntt, tr).map_err(|e| format!("M: {e}"))?;
 
     // ---- PCS openings ----
-    let (wc, ac, hc) = build_claims_zk_v3(&zl, proof, &p2, &p5, &rho_f, &rho_d, &rho_zs, &rho_tab, e_gu, e_d, e_f, e_dz, e_zs, e_tab, &p3, &p6);
-    pcs::verify(&w_pcs, w_com, &wc, &proof.w_open, ntt, tr).map_err(|e| format!("W: {e}"))?;
+    let (wc, ac, hc) = build_claims_zk_v3(&zl, proof, &p2, &p5, &rho_f, &rho_d, &rho_zs, &rho_tab, (cd_gu, cm_gu), (cd_d, cm_d), e_f, e_dz, e_zs, e_tab, &p3, &p6);
+    if is_p3 {
+        let wcz = build_w_zclaims_v3(&zl, proof, &p3, &p6, (cd_w_gu, e_gu2), (cd_w_d, e_d2));
+        pcs::verify_zk(&w_pcs, &ZkOpts::standard(&w_pcs), w_com, &wcz, &proof.w_open_zk, ntt, tr).map_err(|e| format!("W: {e}"))?;
+    } else {
+        pcs::verify(&w_pcs, w_com, &wc, &proof.w_open, ntt, tr).map_err(|e| format!("W: {e}"))?;
+    }
     pcs::verify_zk(&a_pcs, &ZkOpts::standard(&a_pcs), a_com, &ac, &proof.a_open, ntt, tr).map_err(|e| format!("A: {e}"))?;
     pcs::verify_zk(&h_pcs, &ZkOpts::standard(&h_pcs), h_com, &hc, &proof.h_open, ntt, tr).map_err(|e| format!("H: {e}"))?;
     Ok(())
@@ -3000,17 +3388,86 @@ mod tests_v3 {
     /// range, chi-square of the top byte against uniform at 256 bins; the mask-site assertion ran at
     /// every group (enumerated). The contrast (ZB's non-zk v3 opening reveals raw int16 values at its
     /// systematic columns) is the non-zk path itself.
+    /// [UPERF3-AM] MODE P3 (the FULL tier): the weight commitment is hiding and per-proof.
+    /// Three things are asserted: (1) it round-trips and every tamper leg still rejects;
+    /// (2) NO opened value of W lies in the witness range and no two openings repeat — the
+    /// int8 weights are gone from the proof, which under P1 they are not; (3) THE HEADER
+    /// BINDS THE CLAIM: a P1 proof checked as P3, or a P3 proof checked as P1, is rejected,
+    /// so no proof can be presented as claiming more privacy than it delivers.
+    #[test]
+    fn zk_v3_p3_hides_the_weights_and_the_header_binds_the_claim() {
+        let params = LayerParams { log_cols: 5, inv_rate: 4, num_col_checks: 12 };
+        let ntt = NttTables::new(16);
+        let w = synth(1);
+        let st = stmt(&w);
+        let p1 = ZkConfig { enabled: true, seed: 1, ..Default::default() };
+        let p3 = ZkConfig { enabled: true, seed: 1, mode: ZkStatementMode { privacy: ZkPrivacy::P3, ..Default::default() } };
+        let mut tr = Transcript::new(b"t");
+        let out = prove_layer_zk_v3(&w, 2, &params, &ntt, &p3, &mut tr);
+        let mut tv = Transcript::new(b"t");
+        verify_layer_zk_v3(&st, &out.proof, &params, &ntt, &mut tv, &p3.mode).unwrap();
+        assert!(out.sites.iter().any(|s| s.starts_with("W masks (P3)")), "no W mask site reported");
+        assert!(out.sites.iter().any(|s| s.starts_with("W group vector")), "no W opening group reported");
+
+        // (2) nothing of W in the clear: every opened W column entry and clear-vector entry is
+        // a fresh field element far from the witness range, across seeds and witnesses.
+        let w2 = synth(2);
+        let mut all: Vec<u64> = Vec::new();
+        for seed in 0..3u64 {
+            for (wi, wit) in [&w, &w2].iter().enumerate() {
+                let cfg = ZkConfig { enabled: true, seed: 200 + seed + 100 * wi as u64, mode: p3.mode.clone() };
+                let mut tr = Transcript::new(b"t");
+                let o = prove_layer_zk_v3(wit, 2, &params, &ntt, &cfg, &mut tr);
+                let op = &o.proof.w_open_zk;
+                assert!(o.proof.w_open.group_vecs.is_empty() && o.proof.w_open.columns.is_empty(), "P3 wrote a plain W opening");
+                let mut seen = std::collections::HashSet::new();
+                for (j, col, _, _) in &op.columns { if seen.insert(*j) { all.extend(col.iter().map(|x| x.0)); } }
+                for v in op.group_vecs.iter().chain(std::iter::once(&op.prox_vec)) { all.extend(v.iter().flat_map(|x| [x.c0.0, x.c1.0])); }
+            }
+        }
+        let total = all.len();
+        assert!(total > 1000, "only {total} opened W values");
+        all.sort_unstable();
+        all.dedup();
+        assert_eq!(all.len(), total, "a repeated opened W value");
+        assert!(all.iter().all(|&v| v > 1u64 << 40 && v < crate::field::P - (1u64 << 40)), "an opened W value in the witness range");
+
+        // (3) the header binds the claim, in both directions
+        let mut tv = Transcript::new(b"t");
+        assert!(verify_layer_zk_v3(&st, &out.proof, &params, &ntt, &mut tv, &p1.mode).is_err(), "a P3 proof verified as P1");
+        let mut tr = Transcript::new(b"t");
+        let out1 = prove_layer_zk_v3(&w, 2, &params, &ntt, &p1, &mut tr);
+        let mut tv = Transcript::new(b"t");
+        assert!(verify_layer_zk_v3(&st, &out1.proof, &params, &ntt, &mut tv, &p3.mode).is_err(), "a P1 proof verified as P3");
+        // ... and so does the OUTPUT-CLAIM slot: a function-1 proof is not a function-2 proof
+        let f2 = ZkStatementMode { output: OutputClaim::BinaryAcceptable, ..Default::default() };
+        assert_ne!(p1.mode.header_v3(), f2.header_v3());
+        let mut tv = Transcript::new(b"t");
+        assert!(verify_layer_zk_v3(&st, &out1.proof, &params, &ntt, &mut tv, &f2).is_err(), "a function-1 proof verified as function-2");
+        assert_eq!(p1.mode.header_v3(), b"P1-v3".to_vec(), "the frozen P1 tag moved");
+
+        // (1) the tamper legs, under P3
+        for tm in [TamperV3::FlipX(3), TamperV3::FlipW(5), TamperV3::RemainderOutOfRange(9), TamperV3::WrongTableEntry(5), TamperV3::WrongRequant(7), TamperV3::WrongZ(4), TamperV3::OutOfRangeInt16(2)] {
+            let mut wt = clone_witness_v3(&w);
+            apply_tamper_v3(&mut wt, tm);
+            let mut tr = Transcript::new(b"t");
+            let o = prove_layer_zk_v3(&wt, 2, &params, &ntt, &p3, &mut tr);
+            let mut tv = Transcript::new(b"t");
+            assert!(verify_layer_zk_v3(&st, &o.proof, &params, &ntt, &mut tv, &p3.mode).is_err(), "P3 accepted {tm:?}");
+        }
+    }
+
     #[test]
     fn zk_v3_layer_roundtrip_tampers_and_uniform_openings() {
         let params = LayerParams { log_cols: 5, inv_rate: 4, num_col_checks: 12 };
         let ntt = NttTables::new(16);
         let w = synth(1);
         let st = stmt(&w);
-        let cfg = ZkConfig { enabled: true, seed: 1 };
+        let cfg = ZkConfig { enabled: true, seed: 1, ..Default::default() };
         let mut tr = Transcript::new(b"t");
         let out = prove_layer_zk_v3(&w, 2, &params, &ntt, &cfg, &mut tr);
         let mut tv = Transcript::new(b"t");
-        verify_layer_zk_v3(&st, &out.proof, &params, &ntt, &mut tv).unwrap();
+        verify_layer_zk_v3(&st, &out.proof, &params, &ntt, &mut tv, &cfg.mode).unwrap();
         println!("v3 zk sites:");
         for s in &out.sites { if s.len() > 160 { println!("  {}... ({} chars)", &s[..160], s.len()); } else { println!("  {s}"); } }
         let a_groups = out.sites.iter().filter(|s| s.starts_with("A group vector")).count();
@@ -3018,10 +3475,10 @@ mod tests_v3 {
         assert!(a_groups >= 5 && h_groups >= 4, "sites: A {a_groups} H {h_groups}");
         // a second seed proves the same statement with different bytes
         let mut tr = Transcript::new(b"t");
-        let out_b = prove_layer_zk_v3(&w, 2, &params, &ntt, &ZkConfig { enabled: true, seed: 2 }, &mut tr);
+        let out_b = prove_layer_zk_v3(&w, 2, &params, &ntt, &ZkConfig { enabled: true, seed: 2, ..Default::default() }, &mut tr);
         assert_ne!(out.proof.to_bytes(), out_b.proof.to_bytes());
         let mut tv = Transcript::new(b"t");
-        verify_layer_zk_v3(&st, &out_b.proof, &params, &ntt, &mut tv).unwrap();
+        verify_layer_zk_v3(&st, &out_b.proof, &params, &ntt, &mut tv, &cfg.mode).unwrap();
         // tamper legs (the wrong-rounding leg needs a round-up element; the driver's 3x16 run covers it)
         for tm in [TamperV3::FlipX(3), TamperV3::FlipW(5), TamperV3::RemainderOutOfRange(9), TamperV3::WrongTableEntry(5), TamperV3::WrongRequant(7), TamperV3::WrongZ(4), TamperV3::OutOfRangeInt16(2)] {
             let mut w2 = clone_witness_v3(&w);
@@ -3029,7 +3486,7 @@ mod tests_v3 {
             let mut tr = Transcript::new(b"t");
             let out2 = prove_layer_zk_v3(&w2, 2, &params, &ntt, &cfg, &mut tr);
             let mut tv = Transcript::new(b"t");
-            let r = verify_layer_zk_v3(&st, &out2.proof, &params, &ntt, &mut tv);
+            let r = verify_layer_zk_v3(&st, &out2.proof, &params, &ntt, &mut tv, &cfg.mode);
             assert!(r.is_err(), "{tm:?} was accepted");
             println!("  tamper {tm:?}: REJECT ({})", r.err().unwrap());
         }
@@ -3043,7 +3500,7 @@ mod tests_v3 {
                 let mut tr = Transcript::new(b"t");
                 // disjoint seeds per witness: under ONE seed the mask rows, pads and salts are the same for both
                 // witnesses and every row equal between them (masks, zero rows) would open to equal values
-                let o = prove_layer_zk_v3(wit, 2, &params, &ntt, &ZkConfig { enabled: true, seed: 100 + seed + 100 * wi as u64 }, &mut tr);
+                let o = prove_layer_zk_v3(wit, 2, &params, &ntt, &ZkConfig { enabled: true, seed: 100 + seed + 100 * wi as u64, ..Default::default() }, &mut tr);
                 let cols = if wi == 0 { &mut cols_a } else { &mut cols_b };
                 for op in [&o.proof.a_open, &o.proof.h_open] {
                     let mut seen = std::collections::HashSet::new();
