@@ -12109,7 +12109,7 @@ the byte gates green at every rung. The whole lane, at a glance:
 | 2 | `k_ntt_p2_gather` — the opening's column gather fused into the last NTT stage group | PARITY (0.442 vs 0.444 s): the re-encode is not bandwidth-bound |
 | 3 | `k_widen` + `send_packed` — the int8/int16 planes cross the bus as bytes; and the two defaults (chunk 128 rows, 512 NTT threads) | 3.03 -> 2.50 s at one layer on a loaded box, 2.92 -> 2.66 on a quiet one; narrow is parity here and 6.4x fewer bytes |
 | 4 | the twelve byte gates and the 8B pass, before and after, in one session | **PROVE 88.90 -> 86.00 s, proof byte-identical, VRAM -402 MB, bytes on the bus 6.4x fewer** |
-| 5 | the gates and the tests re-run on the final binary | (recorded below) |
+| 5 | the gates and the tests re-run on the FINAL binary (results/hashline_hostwall_r5.log) | **ALL TWELVE BYTE GATES GREEN, `cargo test --release` 40/40** |
 
 NOT DONE, and why — each with the number that says how much it is worth:
 - **(a) THE ONE THAT MATTERS: the int8-plane -> Fp conversion and the
