@@ -13573,3 +13573,93 @@ The full tier on the CPU path very nearly exhausts host memory at 8B.
 Nothing else may run beside it, and this is a SECOND reason (beside
 `commit W`) that the full tier at 8B wants the bigger machine.
 
+## ROUND 16 — THE FIRST PRODUCT FEATURE, AND THE LAST BIG DEVICE ITEM (opened 2026-09-04)
+
+Ground: round 15 merged in full (AL, AM) and the merged-tree floors are
+green — 8 byte gates, 41/41 tests, both builds
+(`results/floors_round15_am.log`). Two things changed what this round
+should be.
+
+**(1) THE FULL TIER IS ESSENTIALLY FREE, SO IT IS NO LONGER THE RISK.**
+Lane AM measured it on one axis: prove **+2.82%**, bytes **+0.163%**,
+verify unchanged. The thing the project was building toward turns out to
+cost almost nothing once ZK is already being paid for. What it needs is
+not more argument work but a card that can hold a 5,387 MB commitment —
+a HARDWARE item, and one that is now waiting on a Windows driver
+install. So no round-16 lane is pointed at P3.
+
+**(2) FUNCTION 2's TRIGGER FIRED.** The third ruling deferred the ZK
+content filter with "NOT a lane yet ... it becomes a lane when AM
+reports". AM has reported. `PROOF_FUNCTIONS.md` §5 already decided the
+form, so this opens as a BUILD lane with no design left to do.
+
+The round is therefore one PRODUCT lane and one PERFORMANCE lane, and
+they were chosen to have no file in common.
+
+### Lane AN — FUNCTION 2, the ZK content filter (wt-uperf3-an) — RUST
+OWNS: `hashline/src/layer.rs` (`StatementV3` at :1254,
+`absorb_statement_v3` at :1391, `verify_layer_v3` at :2055 — the
+statement/predicate surface ONLY), `hashline/src/zk.rs`, the predicate
+flag lines in `src/bin/hashline.rs`, NEW `results/an_*`,
+"Agent AN status".
+READ-ONLY: `pcs.rs` and `gpu/*` (lane AO's this round — if you genuinely
+need a change there, STOP and report it), `attention.rs`, `norm.rs`,
+`tables_*.rs`, `wcache.rs`, `zkmatrix-rs/`, `scripts/`.
+TARGET: build the SIMPLEST form and only that, per `PROOF_FUNCTIONS.md`
+§5 — **binary output, ONE non-negativity fact**
+(`y[accept] - y[reject] >= 0`, or `y - tau >= 0` for the single-score
+form), acceptable set **frozen per deployment** (no set commitment, no
+LogUp lookup), output committed because it already is. **NO NEW
+PRIMITIVE IS REQUIRED**: the q46 remainder bit-plane range proofs, tied
+to the q31 value commitments by the U-L modulus link, prove exactly this
+today. §6's generalisations (N classes, per-proof sets, selective
+disclosure) are DOCUMENTED, NOT BUILT — do not drift into them.
+COUNTED COST: one range fact per proof, which is below measurement
+noise against a 238 s 8B pass; if your measurement disagrees with that
+by more than a little, something is wrong with the construction and
+that is a finding worth stopping on.
+MUST HOLD: the predicate identifier and the model identity digest sit in
+the SAME statement header under the SAME transcript, and **a function-1
+proof must not verify as a function-2 proof or vice versa** — lane AM
+already has a test of exactly this shape (the 41st) to copy.
+BYTE-PRESERVING: the eight gates must not move. Function 2 is a new
+statement; it gets its own digest, and every existing digest stays put.
+EVIDENCE TO READ FIRST: `PROOF_FUNCTIONS.md` §2 (what the predicate
+needs), §3 (the consequences that must be stated, not discovered — "no
+valid proof => reject", the prover always learns the class, one bit is
+still a bit across many proofs) and §5. Do not re-derive the design; it
+is ruled.
+
+### Lane AO — L9, the opening re-encode (wt-uperf3-ao) — RUST/CUDA
+OWNS: `hashline/src/pcs.rs`, `hashline/src/ntt.rs`,
+`hashline/src/gpu/*`, NEW `results/ao_*`, "Agent AO status".
+READ-ONLY: `layer.rs` and `zk.rs` (lane AN's this round), `attention.rs`,
+`norm.rs`, `tables_*.rs`, `wcache.rs`, `zkmatrix-rs/`, `scripts/`.
+TARGET: **lever L9, which no lane has ever taken.** The opening's
+re-encode runs at **1.6e10 Goldilocks mul/s against a ~4.6e11 ALU
+ceiling**, and moves **66 of 256 GB/s** — so it is a LATENCY AND
+LAUNCH-STRUCTURE problem, not a bandwidth one, and the fix is launch
+shape rather than a better inner loop. **Output pruning counts at
+~1.6x.** Adjacent and in the same file set: the encode NTT (13.88 s on
+the 8B pass) and the sumchecks (5.47 s).
+BYTE-PRESERVING, and this is the whole discipline of the lane: the four
+gates on both binaries must not move, and neither may `dc980e81..` or
+`930ce9a0..`. A re-encode that changes a digest is a bug, not a
+speedup.
+MEASUREMENT WARNING: **do NOT quote a headline from this box.** It has
+an 8 GB card that spills at 8,585 MB on the 8B pass and froze three
+times on 2026-09-04; the 5090 step is pending a driver install. Take A/B
+ratios on small shapes, gate on bytes, and leave the 8B headline for the
+new card.
+EVIDENCE TO READ FIRST: the L9 note in the round-14 block, and lane AJ's
+`results/hashline_hostwall_gpu.md` for how a device item in this repo is
+attributed before it is optimised.
+
+## Agent AN status (wt-uperf3-an) — round 16
+
+(lane appends below)
+
+## Agent AO status (wt-uperf3-ao) — round 16
+
+(lane appends below)
+
