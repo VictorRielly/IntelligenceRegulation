@@ -1835,7 +1835,7 @@ impl<'a> Ctx<'a> {
                 assert_eq!(tables[0].len(), 1usize << nvars, "{name}: table size");
                 let out = sumcheck::prove(&mut tables, degree, poly, tr);
                 let s0 = out.proof.rounds[0][0].add(out.proof.rounds[0][1]);
-                assert!(s0 == claim, "[UPERF3-AG] {name}: the prover's own sum != the claim it made");
+                assert!(s0 == claim || tamper_mode(), "[UPERF3-AG] {name}: the prover's own sum != the claim it made");
                 proof.sc.push(out.proof);
                 Ok((out.challenges, out.finals, Fp2::ZERO))
             }
@@ -1850,7 +1850,7 @@ impl<'a> Ctx<'a> {
     }
     fn check(&self, got: Fp2, want: Fp2, what: &str) -> Result<(), String> {
         if self.side.proving() {
-            assert!(got == want, "[UPERF3-AG] prover-side {what} fails");
+            assert!(got == want || tamper_mode(), "[UPERF3-AG] prover-side {what} fails");
             Ok(())
         } else if got == want {
             Ok(())
@@ -2746,8 +2746,8 @@ pub fn attn_seam(cc: &mut Cc, tr: &mut Transcript, lay: &AttnLayout, a: Option<&
         let gx = claim_at(cc, tr, a, lay.xm8, lay.log_d, pt);
         let gz = claim_at(cc, tr, a, lay.z16c, lay.log_d, pt);
         if cc.proving {
-            assert!(gx == want_x[b], "[UPERF3-AG] seam: xm8 != the FFN's X at block {b}");
-            assert!(gz == want_z[b], "[UPERF3-AG] seam: z16 copy != the FFN's z16 at block {b}");
+            assert!(gx == want_x[b] || tamper_mode(), "[UPERF3-AG] seam: xm8 != the FFN's X at block {b}");
+            assert!(gz == want_z[b] || tamper_mode(), "[UPERF3-AG] seam: z16 copy != the FFN's z16 at block {b}");
         } else {
             if gx != want_x[b] { return Err(format!("seam: xm8 != the FFN's X at block {b}")); }
             if gz != want_z[b] { return Err(format!("seam: z16 copy != the FFN's z16 at block {b}")); }
@@ -2811,6 +2811,96 @@ pub fn verify_attn_open(proof: &AttnProof, lay: &AttnLayout, cc: &Cc, params: &L
     pcs::verify(&pp, proof.a_com.as_ref().unwrap(), &cc.aw, &proof.a_open, ntt, tr).map_err(|e| format!("Aa: {e}"))?;
     pcs::verify(&pp, proof.h_com.as_ref().unwrap(), &cc.hh, &proof.h_open, ntt, tr).map_err(|e| format!("Ha: {e}"))?;
     Ok(())
+}
+
+
+// ---- tamper legs ---------------------------------------------------------
+use std::sync::atomic::{AtomicBool, Ordering};
+static TAMPER: AtomicBool = AtomicBool::new(false);
+/// In tamper mode the prover's own consistency asserts are silenced: a
+/// CHEATING prover would not run them, and the point of a leg is that the
+/// VERIFIER rejects.
+pub fn set_tamper_mode(b: bool) {
+    TAMPER.store(b, Ordering::Relaxed);
+}
+pub fn tamper_mode() -> bool {
+    TAMPER.load(Ordering::Relaxed)
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum AttnTamper {
+    None,
+    /// x_in[i] += 1 (the layer's input)
+    FlipX(usize),
+    /// s8[i] += 1: a flipped score
+    FlipScore(usize),
+    /// E[i] += 1: a wrong exponential-table entry
+    WrongExp(usize),
+    /// P[i] += 1: a wrong softmax quotient
+    WrongQuot(usize),
+    /// xn8[i] += 1: a wrong norm output
+    WrongNorm(usize),
+    /// D[i] += 1: a wrong inverse-square-root
+    WrongIsqrt(usize),
+    /// qr8[i] += 1: a wrong RoPE rotation
+    WrongRope(usize),
+    /// m[i] += 1: a wrong row maximum
+    WrongMax(usize),
+    /// zsel: the attainment selector moved off the maximum
+    WrongZsel(usize),
+    /// z16[i] += 1 in the residual pin (the seam plane)
+    BreakSeam(usize),
+}
+
+pub fn apply_attn_tamper(w: &mut AttnWitness, r2: &mut Resid2, t: AttnTamper) {
+    let m = |v: &mut Vec<i64>, i: usize| { let n = v.len(); v[i % n] += 1; };
+    match t {
+        AttnTamper::None => {}
+        AttnTamper::FlipX(i) => m(&mut w.x_in, i),
+        AttnTamper::FlipScore(i) => m(&mut w.s8, i),
+        AttnTamper::WrongExp(i) => m(&mut w.e_t, i),
+        AttnTamper::WrongQuot(i) => m(&mut w.p, i),
+        AttnTamper::WrongNorm(i) => m(&mut w.na.y, i),
+        AttnTamper::WrongIsqrt(i) => m(&mut w.na.dd, i),
+        AttnTamper::WrongRope(i) => m(&mut w.qr8, i),
+        AttnTamper::WrongMax(i) => m(&mut w.m_row, i),
+        AttnTamper::WrongZsel(i) => {
+            let n = w.zsel.len();
+            let t_ = w.c.shape.t;
+            let row = (i % n) / t_ * t_;
+            // move the selector one column along (still binary, still one per row)
+            for j in 0..t_ { if w.zsel[row + j] == 1 { w.zsel[row + j] = 0; w.zsel[row + (j + 1) % t_] = 1; break; } }
+        }
+        AttnTamper::BreakSeam(i) => m(&mut r2.z16, i),
+    }
+}
+
+
+/// A deep copy of the witness (the tamper legs prove a mutated copy).
+pub fn clone_attn_witness(w: &AttnWitness) -> AttnWitness {
+    AttnWitness {
+        c: w.c.clone(), x_in: w.x_in.clone(), wq: w.wq.clone(), wk: w.wk.clone(), wv: w.wv.clone(),
+        wo: w.wo.clone(), g_a: w.g_a.clone(), g_m: w.g_m.clone(),
+        na: clone_norm(&w.na), nm: clone_norm(&w.nm),
+        qacc: w.qacc.clone(), q8: w.q8.clone(), rq: w.rq.clone(), kacc: w.kacc.clone(), k8: w.k8.clone(),
+        rk: w.rk.clone(), vacc: w.vacc.clone(), v8: w.v8.clone(), rv: w.rv.clone(),
+        qracc: w.qracc.clone(), qr8: w.qr8.clone(), rqr: w.rqr.clone(), kracc: w.kracc.clone(),
+        kr8: w.kr8.clone(), rkr: w.rkr.clone(), sacc: w.sacc.clone(), s8: w.s8.clone(), rs: w.rs.clone(),
+        dmat: w.dmat.clone(), zsel: w.zsel.clone(), e_t: w.e_t.clone(), p: w.p.clone(),
+        rho_s: w.rho_s.clone(), sig_s: w.sig_s.clone(), m_row: w.m_row.clone(), sum: w.sum.clone(),
+        oacc: w.oacc.clone(), o8: w.o8.clone(), r_o: w.r_o.clone(), aoacc: w.aoacc.clone(),
+        ao8: w.ao8.clone(), r_ao: w.r_ao.clone(), xw1: w.xw1.clone(), xres1: w.xres1.clone(),
+        rr1: w.rr1.clone(), exp_tab: w.exp_tab, ctab: w.ctab.clone(), stab: w.stab.clone(),
+    }
+}
+fn clone_norm(n: &crate::norm::NormChain) -> crate::norm::NormChain {
+    crate::norm::NormChain {
+        xsq: n.xsq.clone(), sse: n.sse.clone(), dd: n.dd.clone(), dsq: n.dsq.clone(),
+        a1: n.a1.clone(), a2: n.a2.clone(), y: n.y.clone(), rho: n.rho.clone(), sig: n.sig.clone(),
+    }
+}
+pub fn clone_resid2(r: &Resid2) -> Resid2 {
+    Resid2 { c: r.c.clone(), z16: r.z16.clone(), xres2: r.xres2.clone(), rr2: r.rr2.clone() }
 }
 
 #[cfg(test)]

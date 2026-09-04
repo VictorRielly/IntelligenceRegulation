@@ -1181,6 +1181,18 @@ fn attn_layer(dir: &str, o: &Opts) {
     let r2 = at::residual2(&wit, z16, wit.c.e_r1, wit.c.e_r1, wit.c.r1_cls);
     println!("  residual2 (no FFN half in this mode): sh_x2 {} sh_z2 {} sh_r2 {} e_r2 {}",
              r2.c.sh_x2, r2.c.sh_z2, r2.c.sh_r2, r2.c.e_r2);
+    let legs: Vec<(&str, at::AttnTamper)> = vec![
+        ("flipped x_in", at::AttnTamper::FlipX(777)),
+        ("flipped score s8", at::AttnTamper::FlipScore(4242)),
+        ("wrong exp-table entry", at::AttnTamper::WrongExp(1000)),
+        ("wrong softmax quotient", at::AttnTamper::WrongQuot(555)),
+        ("wrong norm output", at::AttnTamper::WrongNorm(321)),
+        ("wrong isqrt D", at::AttnTamper::WrongIsqrt(11)),
+        ("wrong RoPE rotation", at::AttnTamper::WrongRope(999)),
+        ("wrong row maximum", at::AttnTamper::WrongMax(17)),
+        ("attainment selector moved", at::AttnTamper::WrongZsel(2048)),
+        ("broken residual/seam plane", at::AttnTamper::BreakSeam(123)),
+    ];
     let mut tr = Transcript::new(b"hashline-attn-layer");
     let t1 = Instant::now();
     let (mut proof, pend, timings) = at::prove_attn(&wit, &r2, &p, &ntt, &mut tr);
@@ -1197,8 +1209,36 @@ fn attn_layer(dir: &str, o: &Opts) {
         at::verify_attn_open(&proof, &lay2, &cc, &p, &ntt, &mut tv)
     })();
     let tvv = t2.elapsed().as_secs_f64();
+    let mut fails = 0;
     match &r {
         Ok(()) => println!("  VERIFY {tvv:.3} s: ACCEPT"),
-        Err(e) => { println!("  VERIFY {tvv:.3} s: REJECT: {e}"); std::process::exit(1); }
+        Err(e) => { println!("  VERIFY {tvv:.3} s: REJECT: {e}"); fails += 1; }
     }
+    if o.all_tampers {
+        at::set_tamper_mode(true);
+        for (name, tm) in legs {
+            let mut w2 = at::clone_attn_witness(&wit);
+            let mut r22 = at::clone_resid2(&r2);
+            at::apply_attn_tamper(&mut w2, &mut r22, tm);
+            let mut trp = Transcript::new(b"hashline-attn-layer");
+            let (mut pf, pend, _) = at::prove_attn(&w2, &r22, &p, &ntt, &mut trp);
+            at::attn_open(pend, &mut pf, &mut trp);
+            let mut trv = Transcript::new(b"hashline-attn-layer");
+            let rr = (|| -> Result<(), String> {
+                let (l2, cc) = at::verify_attn(&pf, &w2.c, &r22.c, &p, &mut trv)?;
+                at::verify_attn_open(&pf, &l2, &cc, &p, &ntt, &mut trv)
+            })();
+            match rr {
+                Ok(()) => { println!("  tamper [{name}]: ACCEPTED (BUG)"); fails += 1; }
+                Err(e) => println!("  tamper [{name}]: REJECT ({})", first_line(&e)),
+            }
+        }
+        at::set_tamper_mode(false);
+    }
+    println!("attn-layer: {}", if fails == 0 { "GREEN" } else { "RED" });
+    if fails > 0 { std::process::exit(1); }
+}
+
+fn first_line(e: &str) -> String {
+    e.chars().take(72).collect()
 }
