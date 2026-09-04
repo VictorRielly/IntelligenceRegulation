@@ -11395,3 +11395,37 @@ later look; it is now unreachable at this shape and is NOT on the measured
 path of any row above.)
 
 GATES: re-run in rung 2 below (the `dev_reserve_hard` edit landed between).
+
+### AI rung 2 — the 12x512 zk-v3 GPU wall, the gate green at BOTH shapes, the four gates, and the eight legs at Mistral width (2026-09-03, WSL-BOX, [MEASURED])
+
+**THE 125M SHAPE IS NOT DISTURBED.** `pass 12 512 --zk --seed 1 --profile
+v3 --export <v3dir> --threads 8` on the GPU, 3 runs: **4.06 / 4.03 /
+4.16 s -> p50 4.06 s**, every run `40eb54795e023c77..` (87,697,008 B).
+AH's quiet p50 for the same row was 4.16 s and this tree's rung-0 cold
+single reading was 4.84 s, so the shape-general path costs **nothing** at
+(nb_f, nb_d) = (1, 3) — AH's A/B finding for the non-zk prover reproduced
+inside the ZK prover. The gate is now green at BOTH shapes in the SAME
+binary: 125M (1, 3) and Mistral (7, 1), each byte-identical to its CPU
+proof.
+
+**THE FOUR BYTE GATES, BOTH BINARIES, AFTER `dev_reserve_hard`: ALL EIGHT
+GREEN** [MEASURED, one run each, `flock /tmp/zk-heavy.lock`, sha256 taken
+from the written file]:
+
+| gate | CPU | GPU |
+|---|---|---|
+| v2 | `50cf7bdfd6b5b182..` 14.96 s | `50cf7bdfd6b5b182..` 2.40 s |
+| v3 | `5f368db6240e0614..` 15.74 s | `5f368db6240e0614..` 2.50 s |
+| zk-v2 | `021485e4f80ec695..` 17.38 s | `021485e4f80ec695..` 3.98 s |
+| zk-v3 | `40eb54795e023c77..` 18.64 s | `40eb54795e023c77..` 4.06 s |
+
+`cargo test --release` **40/40**.
+
+**THE EIGHT TAMPER LEGS AT MISTRAL WIDTH, THROUGH THE GPU ZK PROVER**
+(`HL_GPU=1 layer 0 512 --zk --seed 1 --profile v3 --export <mistral v3
+export> --threads 8 --all-tampers`): honest run ACCEPT (prove 4.794 s),
+then **8 of 8 REJECT** — flipped X, flipped Wg, out-of-range remainder,
+wrong int16 table entry, wrong requant (h16), wrong z, wrong rounding
+(floor), out-of-range int16 — **`layer 0 (v3) [ZK]: GREEN`**. This is the
+first time the eight legs have been run at a real 8B width with the
+zero-checks and the LogUp helpers on the device.
