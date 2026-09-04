@@ -11710,3 +11710,81 @@ wrong int16 table entry, wrong requant (h16), wrong z, wrong rounding
 (floor), out-of-range int16 — **`layer 0 (v3) [ZK]: GREEN`**. This is the
 first time the eight legs have been run at a real 8B width with the
 zero-checks and the LogUp helpers on the device.
+
+## Agent AK status (wt-uperf3-ak) — round 14
+
+(lane appends below)
+
+LANE: the attention exports the 2026-09-03 hard reboot destroyed, AG's
+digests re-established ON THE MERGED TREE, then lever L5 — FOLD THE
+CLAIMS. Worktree wt-uperf3-ak, branch uperf3-ak, based on 6854d2c (the
+AG merge). Every wall [WSL-BOX] [8T] [CPU] [NOISY-SHARED] (lanes AI and
+AJ build and run on the same box).
+
+OWNS (recorded): hashline/src/{attention,norm,tables_attn}.rs, the
+[UPERF3-AG]-tagged full-layer functions in layer.rs, the `--attn`/`attn-*`
+lines in src/bin/hashline.rs, NEW results/hashline_attn_* and
+results/ak_*, this section. READ-ONLY: gpu/* (lane AJ's), zk.rs (lane
+AI's), pcs.rs, pcs_compact.rs, sumcheck.rs, transcript.rs, the v2/v3 FFN
+functions in layer.rs, export_v3.rs, tables_v3.rs, zkmatrix-rs/,
+scripts/.
+
+NOTE ON THIS SECTION: the round-14 block and this section's header live
+in the ORCHESTRATOR's working copy of PROGRESS_UPERF3.md and were never
+committed, so this branch had neither. The header above is reproduced
+verbatim from the orchestrator's copy so the merge is a text merge, not a
+reconstruction.
+
+### AK rung 0 — THE ATTENTION EXPORTS REGENERATED, AND AG'S 12-LAYER DIGEST REPRODUCES ON THE MERGED TREE (2026-09-03/04) [MEASURED WSL-BOX 8T CPU NOISY-SHARED]
+
+**THE HEADLINE: AG's full-model digest is real again.** The 12-layer
+125M full-model pass — every layer's attention + both norms + the
+residual stream + the v3 FFN half on one transcript, both seams bound —
+re-run on the MERGED tree (6854d2c: AG merged on top of AH's
+shape-general kernels and AI's rung-2 ZK device gate) against exports
+regenerated from scratch:
+
+    PROOF sha256 c91f8713e2ed805543c1ca3a5f1c752734278606e7b13d199f1348dbf22f0ece
+                 (404,327,452 B)  ==  AG's rung-5 digest, BYTE FOR BYTE
+
+| run | PROVE | VERIFY | proof | peak RSS | verdict |
+|---|---:|---:|---:|---:|---|
+| AK, merged tree, regenerated exports | **100.47 s** | 2.66 s | 404,327,452 B | 6.62 GB | **ACCEPT** |
+| AG, rung 5, pre-merge tree, /tmp exports | 94.54 s | 2.03 s | 404,327,452 B | 6.56 GB | ACCEPT |
+
+The 6% wall difference is box noise (two other lanes building and running
+on this box); every BYTE of the proof is identical, which is the gate
+that matters. The AG merge did not disturb the full-layer statement.
+
+Exact command (detached, heavy lock, `.done` marker per the no-hangup
+protocol):
+
+    M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl \
+    hashline attn-pass /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l 12 \
+      --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export \
+      --t 512 --threads 8
+    -> results/ak_r0_attnpass12.log / .done (exit 0)
+
+**THE REGENERATED EXPORTS — where they live now, and why not /tmp.**
+`/home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_l{0..11}` (91 MB,
+7 int32 planes + manifest.json + manifest.txt each), made with
+
+    python3 scripts/attention_hash_ref.py --arch 125m --layer L \
+      --export /home/victor/wt-uperf3-ak/results/ak_attn_exports/m125_lL
+
+2.6 s (layer 0) to 5.9 s (layer 11) each — the 125M oracle needs NO token
+cache (it reads `m125_attn_gate.TOKENS` = /home/victor/shard-00000.npy,
+which survived). Total 45 s for all twelve; log results/ak_export_125m.log.
+The layer-4 FFN Hadamard shift bump `[0, 0, 1, 0]` that AG recorded
+reproduces exactly, and layer 0's cascade agreement xm8 = 0.310224 is
+AG's 0.31. These directories are DELIBERATELY untracked (91 MB of int32
+planes): they are worktree-local artifacts, never committed, and they are
+in results/ rather than /tmp precisely because /tmp is what the
+2026-09-03 19:14 reboot destroyed.
+
+**THE MISTRAL TOKEN CACHE, likewise regenerated and kept:**
+`/home/victor/wt-uperf3-ak/results/ak_mistral_toks.npy` (4,748,171 tokens,
+19 MB), tokenized from ~/models/fineweb-edu/sample_text.txt with the
+checkpoint's own tokenizer — the ~5.5 min step AG warned about, so REUSE
+this file rather than re-tokenizing (log results/ak_mistral_toks.log).
+
