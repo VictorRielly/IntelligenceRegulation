@@ -1720,6 +1720,11 @@ pub struct AttnProof {
     pub vals: Vec<Fp2>,
     pub sc: Vec<SumcheckProof>,
     pub helper_sums: Vec<Fp2>,
+    /// [UPERF3-AK] lever L5: one (sumcheck, terminal value) per CLAIM
+    /// COLLAPSE — many evaluation claims on one committed range reduced to
+    /// ONE claim at ONE point, so the PCS opens one group vector instead
+    /// of one per point.
+    pub collapse: Vec<(SumcheckProof, Fp2)>,
     pub w_open: Opening,
     pub a_open: Opening,
     pub h_open: Opening,
@@ -1731,6 +1736,7 @@ impl AttnProof {
         let mults: usize = self.mults.iter().map(|(_, m)| 8 + 4 + m.len() * 4).sum();
         coms + mults + self.vals.len() * 16 + self.sc.iter().map(|s| s.size_bytes()).sum::<usize>()
             + self.helper_sums.len() * 16
+            + self.collapse.iter().map(|(s, _)| s.size_bytes() + 16).sum::<usize>()
             + self.w_open.size_bytes() + self.a_open.size_bytes() + self.h_open.size_bytes()
     }
     pub fn to_bytes(&self) -> Vec<u8> {
@@ -1755,6 +1761,10 @@ impl AttnProof {
             s.write_bytes(&mut out);
         }
         for v in &self.helper_sums {
+            out.extend_from_slice(&v.to_bytes());
+        }
+        for (s, v) in &self.collapse {
+            s.write_bytes(&mut out);
             out.extend_from_slice(&v.to_bytes());
         }
         self.w_open.write_bytes(&mut out);
@@ -2886,6 +2896,214 @@ pub fn layer_seam(prev: &mut Cc, cur: &mut Cc, tr: &mut Transcript, lay_prev: &A
     }
 }
 
+// ==========================================================================
+// [UPERF3-AK] LEVER L5 — FOLD THE CLAIMS.
+//
+// A Ligero opening costs one clear row-combination of 2^log_cols Fp2 per
+// GROUP, and `pcs::group_claims` keys a group by the claim's COLUMN TAIL
+// (the last log_cols coordinates of its point). Two claims at different
+// points are two groups and two 256 KiB vectors, however small the plane
+// they speak about. The attention half raises ~90 evaluation claims at
+// ~50 distinct points on its A commitment, one per sumcheck terminal and
+// one per packed small-plane row — 12.2 MB of the 19.7 MB attention proof
+// at 125M/T=128 is group vectors.
+//
+// The v3 FFN prover avoids this by folding every pending claim into its
+// two zero-checks (a nu-weighted eq term each), so A and H open at two
+// points. The attention argument runs its zero-checks BEFORE its four
+// matmul sumchecks, so most of its claims are raised after the last
+// zero-check and cannot ride one. The same arithmetic done as its own
+// reduction is `collapse_range` below: for a committed RANGE and the
+// claims that live inside it,
+//
+//     sum_c nu_c * P(p_c)  =  sum_x [ sum_c nu_c eq(p_c^full, x) ] P(x)
+//
+// is one degree-2 sumcheck over the range, whose terminal is ONE claim on
+// the range at ONE point — the verifier evaluates the bracket itself as
+// sum_c nu_c eq(p_c^full, rho), each term O(log). No soundness property
+// changes (Schwartz-Zippel on nu, then the sumcheck), and no new
+// primitive is introduced. It DOES move the attention proof's bytes: that
+// is the point of the lever.
+// ==========================================================================
+
+/// Collapse every single-part, unit-coefficient evaluation claim whose
+/// slice lies inside `[base, base + 2^base_log)` into ONE claim on that
+/// range. `data` is `Some` for the prover and `None` for the verifier;
+/// `store` is the proof's `collapse` vector (pushed by the prover, read at
+/// `cursor` by the verifier). Returns the number of claims collapsed.
+fn collapse_range(claims: &mut Vec<Claim>, base: usize, base_log: u32, data: Option<&[Fp]>,
+                  store: &mut Vec<(SumcheckProof, Fp2)>, cursor: &mut usize,
+                  tr: &mut Transcript) -> Result<usize, String> {
+    let n = 1usize << base_log;
+    let inside = |c: &Claim| -> bool {
+        !c.sum && c.parts.len() == 1 && c.parts[0].1 == Fp2::ONE
+            && c.parts[0].0.offset >= base
+            && c.parts[0].0.offset + (1usize << c.parts[0].0.log_size) <= base + n
+            && c.parts[0].0.log_size <= base_log
+    };
+    let sel: Vec<usize> = claims.iter().enumerate().filter(|(_, c)| inside(c)).map(|(i, _)| i).collect();
+    if sel.len() < 2 {
+        return Ok(0);
+    }
+    // the claims' points lifted to the range's own arity (the sub-block
+    // index in the HIGH bits, exactly `sub_point`)
+    let full: Vec<Vec<Fp2>> = sel.iter()
+        .map(|&i| {
+            let c = &claims[i];
+            sub_point(base, base_log, c.parts[0].0.offset, c.parts[0].0.log_size, &c.point)
+        })
+        .collect();
+    let nu = tr.challenge_fp2_vec(sel.len());
+    let mut claimed = Fp2::ZERO;
+    for (k, &i) in sel.iter().enumerate() {
+        claimed = claimed.add(nu[k].mul(claims[i].value));
+    }
+    let (rho, aval) = match data {
+        Some(a) => {
+            // G = sum_c nu_c eq(p_c^full) built block by block: eq over the
+            // sub-block's own arity, scaled by the eq of the high bits
+            // (which is 1 at the block's own index and 0 elsewhere).
+            let mut g = vec![Fp2::ZERO; n];
+            for (k, &i) in sel.iter().enumerate() {
+                let c = &claims[i];
+                let off = c.parts[0].0.offset - base;
+                let e = eq_table_msb(&c.point);
+                let nk = nu[k];
+                g[off..off + e.len()].par_iter_mut().zip(e.par_iter())
+                    .for_each(|(gx, ex)| *gx = gx.add(nk.mul(*ex)));
+            }
+            let mut tabs = vec![g, tab2(a, base, n)];
+            let out = sumcheck::prove(&mut tabs, 2, |v| v[0].mul(v[1]), tr);
+            let aval = out.finals[1];
+            tr.absorb_fp2(b"collapse", &[aval]);
+            store.push((out.proof, aval));
+            (out.challenges, aval)
+        }
+        None => {
+            let (pf, aval) = store.get(*cursor).ok_or("collapse: proof missing")?.clone();
+            *cursor += 1;
+            let (fin, rho) = sumcheck::verify(claimed, 2, base_log as usize, &pf, tr)
+                .map_err(|e| format!("collapse: {e}"))?;
+            tr.absorb_fp2(b"collapse", &[aval]);
+            let mut grho = Fp2::ZERO;
+            for (k, p) in full.iter().enumerate() {
+                grho = grho.add(nu[k].mul(eq_point(p, &rho)));
+            }
+            if fin != grho.mul(aval) {
+                return Err("collapse: terminal != G(rho) * P(rho)".into());
+            }
+            (rho, aval)
+        }
+    };
+    let mut kept: Vec<Claim> = Vec::with_capacity(claims.len() - sel.len() + 1);
+    let mut si = 0usize;
+    for (i, c) in claims.iter().enumerate() {
+        if si < sel.len() && sel[si] == i {
+            si += 1;
+        } else {
+            kept.push(c.clone());
+        }
+    }
+    kept.push(Claim { parts: vec![(Slice { offset: base, log_size: base_log }, Fp2::ONE)],
+                      point: rho, sum: false, value: aval });
+    *claims = kept;
+    Ok(sel.len())
+}
+
+/// [UPERF3-AK] WHICH ranges the A commitment is collapsed over, in a fixed
+/// order shared by prover and verifier (it depends only on the layout).
+///
+/// * default — the two PACKED SMALL slices `sm` and `lm`. They hold the
+///   norm rows (D, Dsq, a1, a2) and the isqrt limbs as T-long sub-rows, so
+///   ONE claim on a 512-element row costs a whole 256 KiB group vector,
+///   and 24 of the A commitment's 49 groups at 125M/T=128 are these. The
+///   two sumchecks are over 2^14 and 2^15 — free next to the layer.
+/// * `HL_FOLD_ALL=1` — the BINARY DECOMPOSITION of the whole A range into
+///   aligned power-of-two blocks. Every plane is allocated aligned to its
+///   own size, so each plane sits wholly inside one block and every claim
+///   is collapsible; the A commitment then opens at as many points as the
+///   decomposition has blocks (4 at 125M). It costs one degree-2 sumcheck
+///   over the whole witness — the byte/time trade measured in the ledger.
+fn collapse_plan(lay: &AttnLayout) -> Vec<(usize, u32)> {
+    if std::env::var("HL_FOLD_ALL").ok().as_deref() != Some("1") {
+        return vec![(lay.sm, lay.log_sm), (lay.lm, lay.log_lm)];
+    }
+    let mut out = Vec::new();
+    let mut off = 0usize;
+    let mut left = lay.a_len;
+    while left > 0 {
+        // the largest aligned power of two that fits at `off`
+        let mut log = 63 - (left as u64).leading_zeros().min(63);
+        let log = loop {
+            if off % (1usize << log) == 0 { break log; }
+            log -= 1;
+        };
+        out.push((off, log));
+        off += 1usize << log;
+        left -= 1usize << log;
+    }
+    out
+}
+
+/// [UPERF3-AK] The collapses applied to the A commitment's claim list, in
+/// a FIXED order that prover and verifier share. `HL_NO_FOLD=1` turns the
+/// lever off (the pre-fold proof, for a before/after byte count).
+fn collapse_a(cc: &mut Cc, lay: &AttnLayout, data: Option<&[Fp]>,
+              store: &mut Vec<(SumcheckProof, Fp2)>, cursor: &mut usize,
+              tr: &mut Transcript) -> Result<(), String> {
+    if std::env::var("HL_NO_FOLD").ok().as_deref() == Some("1") {
+        return Ok(());
+    }
+    let before = cc.aw.len();
+    let mut folded = 0usize;
+    for (base, log) in collapse_plan(lay) {
+        folded += collapse_range(&mut cc.aw, base, log, data, store, cursor, tr)?;
+    }
+    if std::env::var("HL_ATTN_CLAIMS").ok().as_deref() == Some("1") {
+        eprintln!("[attn-fold] Aa: {folded} of {before} claims collapsed -> {} claims", cc.aw.len());
+    }
+    Ok(())
+}
+
+/// [UPERF3-AK] Diagnostic for lever L5 (HL_ATTN_CLAIMS=1, stderr only —
+/// it touches neither the transcript nor the proof). A Ligero opening
+/// costs ONE clear row-combination of 2^log_cols Fp2 (16 * 2^log_cols
+/// bytes) per GROUP, and `pcs::group_claims` keys a group by the claim's
+/// COLUMN TAIL: the last log_cols coordinates of its point (the all-ones
+/// sum is its own key). So the group count — not the claim count — is the
+/// attention half's proof-size lever, and this report says where the
+/// groups come from.
+pub fn claim_groups_report(tag: &str, claims: &[Claim], log_cols: u32) {
+    if std::env::var("HL_ATTN_CLAIMS").ok().as_deref() != Some("1") {
+        return;
+    }
+    let mut groups: Vec<(Option<Vec<Fp2>>, Vec<(usize, u32)>)> = Vec::new();
+    for c in claims {
+        let key = if c.sum {
+            None
+        } else {
+            let lr = (c.parts[0].0.log_size - log_cols) as usize;
+            Some(c.point[lr..].to_vec())
+        };
+        let sl = (c.parts[0].0.offset, c.parts[0].0.log_size);
+        match groups.iter_mut().find(|(k, _)| *k == key) {
+            Some(e) => e.1.push(sl),
+            None => groups.push((key, vec![sl])),
+        }
+    }
+    let per = 16usize << log_cols;
+    eprintln!(
+        "[attn-claims] {tag}: {} claims -> {} groups; group vectors {} B ({:.2} MB) + prox {} B",
+        claims.len(), groups.len(), groups.len() * per,
+        (groups.len() * per) as f64 / 1.048576e6, per
+    );
+    for (i, (k, sl)) in groups.iter().enumerate() {
+        eprintln!("   g{i:<3} {:>3} claim(s) {} slices(off,log) {:?}{}",
+                  sl.len(), if k.is_none() { "SUM " } else { "eval" },
+                  &sl[..sl.len().min(8)], if sl.len() > 8 { " .." } else { "" });
+    }
+}
+
 /// The deferred openings (single-layer path: W, H, then A).
 pub fn attn_open(mut pend: AttnPending, proof: &mut AttnProof, tr: &mut Transcript) {
     attn_open_wh(&mut pend, proof, tr);
@@ -2897,17 +3115,23 @@ pub fn attn_open(mut pend: AttnPending, proof: &mut AttnProof, tr: &mut Transcri
 /// free their memory while the next layer runs.
 pub fn attn_open_wh(pend: &mut AttnPending, proof: &mut AttnProof, tr: &mut Transcript) {
     let w_cm = pend.w_cm.take().expect("W already opened");
+    claim_groups_report("Wa", &pend.cc.ww, pend.lay.cols_log);
     proof.w_open = pcs::open(&w_cm, &pend.cc.ww, tr);
     drop(w_cm);
     let h_cm = pend.h_cm.take().expect("H already opened");
+    claim_groups_report("Ha", &pend.cc.hh, pend.lay.cols_log);
     proof.h_open = pcs::open(&h_cm, &pend.cc.hh, tr);
 }
 
 /// The A opening — DEFERRED until every seam claim on this layer's planes
 /// has been made (the FFN's X/z16 seam, and the next layer's input seam).
 pub fn attn_open_a(pend: AttnPending, proof: &mut AttnProof, tr: &mut Transcript) {
-    let AttnPending { a_cm, a_data, cc, .. } = pend;
+    let AttnPending { a_cm, a_data, mut cc, lay, .. } = pend;
     proof.vals = cc.vals.clone();
+    let mut cursor = 0usize;
+    collapse_a(&mut cc, &lay, Some(&a_data), &mut proof.collapse, &mut cursor, tr)
+        .expect("collapse (prover)");
+    claim_groups_report("Aa", &cc.aw, lay.cols_log);
     proof.a_open = pcs::open(&a_cm, &cc.aw, tr);
     drop(a_cm);
     drop(a_data);
@@ -2969,8 +3193,15 @@ pub fn verify_attn_open_a(proof: &AttnProof, lay: &AttnLayout, cc: &Cc, params: 
     if cc.idx != cc.vals.len() {
         return Err(format!("claim count {} != {} sent", cc.idx, cc.vals.len()));
     }
+    let mut cc2 = Cc { aw: cc.aw.clone(), ww: Vec::new(), hh: Vec::new(), vals: Vec::new(), idx: 0, proving: false };
+    let mut store = proof.collapse.clone();
+    let mut cursor = 0usize;
+    collapse_a(&mut cc2, lay, None, &mut store, &mut cursor, tr)?;
+    if cursor != proof.collapse.len() {
+        return Err(format!("collapse: {} proofs sent, {cursor} used", proof.collapse.len()));
+    }
     let pp = PcsParams { log_cols: lay.cols_log, inv_rate: params.inv_rate, num_col_checks: params.num_col_checks };
-    pcs::verify(&pp, proof.a_com.as_ref().unwrap(), &cc.aw, &proof.a_open, ntt, tr).map_err(|e| format!("Aa: {e}"))
+    pcs::verify(&pp, proof.a_com.as_ref().unwrap(), &cc2.aw, &proof.a_open, ntt, tr).map_err(|e| format!("Aa: {e}"))
 }
 
 

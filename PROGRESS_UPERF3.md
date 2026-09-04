@@ -11788,3 +11788,98 @@ in results/ rather than /tmp precisely because /tmp is what the
 checkpoint's own tokenizer — the ~5.5 min step AG warned about, so REUSE
 this file rather than re-tokenizing (log results/ak_mistral_toks.log).
 
+### AK rung 1 — ONE FULL MISTRAL-7B LAYER RE-ESTABLISHED, 10/10 LEGS REJECT (2026-09-04) [MEASURED WSL-BOX 8T CPU NOISY-SHARED]
+
+The Mistral attention export regenerated (`--arch mistral --layer 0
+--tokens-cache results/ak_mistral_toks.npy --export
+results/ak_attn_exports/mistral_l0`, 21.9 s once the token cache exists),
+then AG's rung-5 Mistral rows re-run on the merged tree:
+
+| shape (Mistral-7B layer 0, int24 residual) | PROVE | VERIFY | proof | peak RSS | verdict |
+|---|---:|---:|---:|---:|---|
+| **FULL layer, T = 16** (AK) | **12.712 s** | 0.097 s | 48,478,456 B (48.5 MB; attention half 22.6) | 10.10 GB | **ACCEPT, 10/10 legs REJECT** |
+| FULL layer, T = 16 (AG) | 12.91 s | 0.11 s | 48.5 MB (attention half 22.6) | 10.08 GB | ACCEPT, 10/10 |
+| **FULL layer, T = 64** (AK) | **15.008 s** | 0.243 s | 52,756,584 B (52.8 MB) | 11.24 GB | **ACCEPT** |
+| FULL layer, T = 64 (AG) | 14.27 s | 0.13 s | 52.8 MB | 11.24 GB | ACCEPT |
+
+Every proof-byte count and peak RSS matches AG to the byte / to 0.01 GB;
+the walls differ by box noise only. The ten legs and what rejects them:
+flipped score s8 (score matmul sumcheck), wrong exp-table entry (S
+zero-check), wrong softmax quotient (S), wrong norm output (D), wrong
+RoPE rotation (Q), wrong row maximum (S), flipped x_in (SS row-sum
+sumcheck), BROKEN SEAM (the seam claim), FFN wrong int16 table entry
+(FFN LogUp), FFN wrong requant h16 (FFN zero-check).
+
+**THE MISTRAL CHAIN GATE:** `attn-chain results/ak_attn_exports/mistral_l0`
+-> **64/64 tensor digests match the oracle** (4.16 s), oracle CHAIN
+**4085604b8d61ce8c..** — AG's digest exactly. Log:
+results/ak_r1_mistral.log / .done (exit 0).
+
+### AK rung 2 — LEVER L5, THE CLAIM FOLD (2026-09-04) [MEASURED WSL-BOX CPU NOISY-SHARED]
+
+**THE FINDING, first — the lever is bigger than AG's estimate and the
+mechanism is exactly identified.** A Ligero opening costs ONE clear row
+combination of 2^log_cols Fp2 per GROUP, and `pcs::group_claims` keys a
+group by the claim's COLUMN TAIL — the last log_cols coordinates of its
+point. Claims at different points are different groups whatever they say,
+and at log_cols = 14 each group vector is **262,144 B**. Measured with the
+new `HL_ATTN_CLAIMS=1` report (`attention::claim_groups_report`, stderr
+only — it touches neither transcript nor proof), one 125M full layer at
+T = 128 before any change:
+
+| commitment | claims | groups | group vectors |
+|---|---:|---:|---:|
+| Wa | 6 | 6 | 1.50 MB |
+| Ha | 38 | 6 | 1.50 MB |
+| **Aa** | **93** | **49** | **12.25 MB** |
+| total | 137 | 61 | **15.25 MB** of a 19.7 MB attention half |
+
+So it is **15.25 MB per 125M layer, not 8**, and **24 of Aa's 49 groups
+are single claims on the two PACKED SMALL slices** `sm` and `lm` — the
+norm rows (D, Dsq, a1, a2) and the isqrt limbs, each a T-long sub-row of
+a 2^14 / 2^15 packed slice, each costing a whole 262,144 B group vector.
+
+**THE MECHANISM.** The v3 FFN prover folds every pending claim into its
+two zero-checks (one nu-weighted eq term each), so A and H open at two
+points. The attention argument runs its five zero-checks BEFORE its four
+matmul sumchecks, so most of its claims are raised after the last
+zero-check and cannot ride one — folding them into the zero-checks would
+mean reordering the whole argument. The SAME arithmetic as its own
+reduction is what this rung builds (`attention::collapse_range`): for a
+committed range and the claims inside it,
+
+    sum_c nu_c P(p_c) = sum_x [ sum_c nu_c eq(p_c^full, x) ] P(x)
+
+is ONE degree-2 sumcheck over the range whose terminal is ONE claim at
+ONE point; the verifier evaluates the bracket itself as
+sum_c nu_c eq(p_c^full, rho), each term O(log). p_c^full is the claim's
+point lifted to the range's arity by the existing `sub_point` (the
+sub-block index in the high bits). **No soundness property changes**
+(Schwartz-Zippel on nu, then the sumcheck) and **no new primitive is
+introduced**; it costs `n_rounds x 3 x 16 B` of sumcheck plus one Fp2
+terminal, and it MOVES THE PROOF BYTES by design.
+
+Two collapse plans, both selected by `collapse_plan(lay)` from the layout
+alone (public, so prover and verifier agree by construction):
+
+* **default** — the two packed small slices `sm` and `lm` (sumchecks over
+  2^14 and 2^15: free next to the layer).
+* **`HL_FOLD_ALL=1`** — the binary decomposition of the WHOLE A range into
+  aligned power-of-two blocks. Every plane is allocated aligned to its own
+  size, so each plane lies wholly inside one block and every claim
+  collapses; A then opens at as many points as the decomposition has
+  blocks (4 at 125M).
+
+`HL_NO_FOLD=1` restores the pre-fold proof for a before/after count.
+
+**MEASURED, one 125M full layer at T = 128** (4 threads, the same binary,
+same export):
+
+| mode | Aa claims -> groups | attention half | full layer | PROVE | verdict |
+|---|---|---:|---:|---:|---|
+| no fold (AG's proof) | 93 -> 49 | 19.7 MB | 24,102,524 B | 2.37 s | ACCEPT |
+| **fold sm+lm (default)** | 93 -> 68 claims, **25 groups** | **13.4 MB** | **17,812,492 B** | 2.39 s | **ACCEPT** |
+| **fold all** | 93 -> **4 claims, 4 groups** | **7.9 MB** | **12,309,708 B** | 3.31 s | **ACCEPT** |
+
+−32% of the layer's proof for no measurable prover time; −49% for +39% of
+prover time at this shape. `cargo test --release` 40/40 with the fold in.
