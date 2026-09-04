@@ -59,11 +59,28 @@ of a 1.23 GB proof). A 7x faster device speeds only the other 33-40 s:
     host   56-63 s      =  unchanged
     total               =  61-69 s  ->  7.5-8.5 tok/s (from 5.36)
 
-**So the host wall (lane AJ, round 14) must land BEFORE the board is
-worth its bandwidth.** On a 5090 the unfixed host share would be ~90%
-of the wall. Do not schedule the headline measurement pass before AJ
-closes; the number would be a measurement of our marshalling code, not
-of the hardware.
+**UPDATED 2026-09-04, lane AJ rung 4 — the warning stands but the item
+has a name now.** AJ built and gated all four host items and measured
+the 8B pass before and after: **88.90 -> 86.00 s, 1.034x**, proof
+byte-identical. The plan's B1 item had conflated the upload (13.05 s,
+AJ's, fixed) with the plane -> Fp CONVERSION, which is host work in
+`layer.rs` — `prove_layer_v3` building `w_data` and `a_data` element by
+element with `Fp::from_i64`, **~29 s of the 8B pass and the single
+largest host item in it**. B4 was wrong outright: serialization is
+0.03 s and runs outside the prove clock. Pinned staging does not raise
+the h2d rate on this box.
+
+AJ's own projection, and it is the sentence that matters for this page:
+the parts a faster device shrinks are ~1.0 s of a 2.50 s layer; the
+parts it does not touch are the ~1.2 s of `layer.rs` conversion and
+folds. **On a device 4x faster the host share becomes ~70% of the
+layer. The `layer.rs` item is what decides whether the 5090 buys 1.4x
+or 4x.**
+
+So: **do not schedule the headline measurement pass before the
+`layer.rs` conversion lands** — the number would be a measurement of
+our marshalling code, not of the hardware. The card-size test in §6 is
+the exception: it needs no code and should be run on day one.
 
 ## 3. Blockers to clear BEFORE the board arrives
 

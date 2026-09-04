@@ -198,3 +198,117 @@ GATE OK   v2 [cpu]  50cf7bdfd6b5b182  66844928 B
 
 === GATE v3 [cpu] ===
 2026-09-04 00:46:29
+  layer  0: prove 1.319 s, 5899988 B
+  layer  1: prove 1.269 s, 5960912 B
+  layer  2: prove 1.269 s, 5960392 B
+  layer  3: prove 1.300 s, 5896912 B
+  layer  4: prove 1.274 s, 5898448 B
+  layer  5: prove 1.295 s, 5862608 B
+  layer  6: prove 1.296 s, 5895120 B
+  layer  7: prove 1.280 s, 5862608 B
+  layer  8: prove 1.285 s, 5895376 B
+  layer  9: prove 1.279 s, 5895376 B
+  layer 10: prove 1.324 s, 5864148 B
+  layer 11: prove 1.304 s, 5866196 B
+prover phases (summed over layers):
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.65 s | PROVE 15.50 s | VERIFY 0.26 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.871e9 proven MAC/s (prove wall) | wall 17.52 s
+GATE OK   v3 [cpu]  5f368db6240e0614  70758084 B
+
+=== GATE zk [cpu] ===
+2026-09-04 00:46:46
+  layer  0: prove 1.444 s, 7269044 B
+  layer  1: prove 1.434 s, 7269044 B
+  layer  2: prove 1.366 s, 7269044 B
+  layer  3: prove 1.410 s, 7269044 B
+  layer  4: prove 1.425 s, 7269044 B
+  layer  5: prove 1.381 s, 7269044 B
+  layer  6: prove 1.372 s, 7269044 B
+  layer  7: prove 1.385 s, 7269044 B
+  layer  8: prove 1.375 s, 7269044 B
+  layer  9: prove 1.359 s, 7269044 B
+  layer 10: prove 1.322 s, 7269044 B
+  layer 11: prove 1.323 s, 7269044 B
+prover phases (summed over layers):
+PROOF sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d (87228528 B) [ZK seed 1]
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 1.09 s | PROVE 16.60 s | VERIFY 0.39 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 1.747e9 proven MAC/s (prove wall) | wall 18.16 s
+GATE OK   zk [cpu]  021485e4f80ec695  87228528 B
+
+=== GATE zkv3 [cpu] ===
+2026-09-04 00:47:05
+  layer  0: prove 1.520 s, 7306036 B
+  layer  1: prove 1.527 s, 7318324 B
+  layer  2: prove 1.501 s, 7318324 B
+  layer  3: prove 1.567 s, 7306036 B
+  layer  4: prove 1.514 s, 7306036 B
+  layer  5: prove 1.563 s, 7306036 B
+  layer  6: prove 1.525 s, 7306036 B
+  layer  7: prove 1.543 s, 7306036 B
+  layer  8: prove 1.517 s, 7306036 B
+  layer  9: prove 1.500 s, 7306036 B
+  layer 10: prove 1.513 s, 7306036 B
+  layer 11: prove 1.517 s, 7306036 B
+prover phases (summed over layers):
+PROOF sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.55 s | PROVE 18.31 s | VERIFY 0.42 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 1.584e9 proven MAC/s (prove wall) | wall 20.37 s
+GATE OK   zkv3 [cpu]  40eb54795e023c77  87697008 B
+
+=== GATE v2 [gpu] ===
+2026-09-04 00:47:25
+  layer  0: prove 0.278 s, 5573568 B
+  layer  1: prove 0.194 s, 5568692 B
+  layer  2: prove 0.210 s, 5570752 B
+  layer  3: prove 0.216 s, 5571020 B
+  layer  4: prove 0.186 s, 5572032 B
+  layer  5: prove 0.196 s, 5568832 B
+  layer  6: prove 0.188 s, 5568436 B
+  layer  7: prove 0.209 s, 5568832 B
+  layer  8: prove 0.186 s, 5568960 B
+  layer  9: prove 0.189 s, 5568960 B
+  layer 10: prove 0.195 s, 5570368 B
+  layer 11: prove 0.197 s, 5574476 B
+prover phases (summed over layers):
+PROOF sha256 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d (66844928 B)
+PASS ACCEPT: 12 x 512: witness load+chain 1.13 s | PROVE 2.44 s | VERIFY 0.28 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.186e10 proven MAC/s (prove wall) | wall 3.94 s
+GATE OK   v2 [gpu]  50cf7bdfd6b5b182  66844928 B
+
+=== GATE v3 [gpu] ===
+2026-09-04 00:47:32
+  layer  0: prove 0.283 s, 5899988 B
+  layer  1: prove 0.213 s, 5960912 B
+  layer  2: prove 0.211 s, 5960392 B
+  layer  3: prove 0.216 s, 5896912 B
+  layer  4: prove 0.207 s, 5898448 B
+  layer  5: prove 0.200 s, 5862608 B
+  layer  6: prove 0.207 s, 5895120 B
+  layer  7: prove 0.209 s, 5862608 B
+  layer  8: prove 0.207 s, 5895376 B
+  layer  9: prove 0.211 s, 5895376 B
+  layer 10: prove 0.207 s, 5864148 B
+  layer 11: prove 0.203 s, 5866196 B
+prover phases (summed over layers):
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.65 s | PROVE 2.58 s | VERIFY 0.28 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.126e10 proven MAC/s (prove wall) | wall 4.64 s
+GATE OK   v3 [gpu]  5f368db6240e0614  70758084 B
+
+=== GATE zk [gpu] ===
+2026-09-04 00:47:40
+  layer  0: prove 0.421 s, 7269044 B
+  layer  1: prove 0.319 s, 7269044 B
+  layer  2: prove 0.316 s, 7269044 B
+  layer  3: prove 0.334 s, 7269044 B
+  layer  4: prove 0.334 s, 7269044 B
+  layer  5: prove 0.357 s, 7269044 B
+  layer  6: prove 0.355 s, 7269044 B
+  layer  7: prove 0.364 s, 7269044 B
+  layer  8: prove 0.314 s, 7269044 B
+  layer  9: prove 0.339 s, 7269044 B
+  layer 10: prove 0.335 s, 7269044 B
+  layer 11: prove 0.364 s, 7269044 B
+prover phases (summed over layers):
+PROOF sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d (87228528 B) [ZK seed 1]
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 1.10 s | PROVE 4.15 s | VERIFY 0.45 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 6.981e9 proven MAC/s (prove wall) | wall 5.81 s
+GATE OK   zk [gpu]  021485e4f80ec695  87228528 B
+
+=== GATE zkv3 [gpu] ===
+2026-09-04 00:47:49

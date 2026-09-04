@@ -12542,3 +12542,40 @@ claims/groups/bytes report on stderr, plus a line saying how many claims
 collapsed), `HL_FOLD=small|nos` (the two other collapse plans),
 `HL_NO_FOLD=1` (the lever off — this is what reproduces AG's pre-fold
 digests, and it is how the round-13 record stays checkable).
+
+## ROUND 15 — THE ITEM NOBODY OWNED (opened 2026-09-04)
+
+Ground: round 14 merged in full (AJ, AK, AI at rung 3). Its one
+orchestration error is this round's whole content.
+
+Lane AJ built and gated every host item the 60 tok/s plan named and the
+8B pass moved 88.90 -> 86.00 s: **1.034x against a modelled 2.4-2.9x**.
+The cause is not the lane. The plan's B1 item conflated the UPLOAD
+(13.05 s of device counter, AJ's, fixed) with the plane -> Fp
+CONVERSION, which lives in `layer.rs` — `prove_layer_v3` building
+`w_data` (1.4 GB at Mistral width) and `a_data` element by element with
+`Fp::from_i64`, measured at 0.92 s of a 3.13 s layer = **~29 s of the
+8B pass, the single largest host item in it**. `layer.rs` was READ-ONLY
+for AJ and assigned to no round-14 lane.
+
+It is also the gate on the hardware step: AJ's §8 counts the parts a
+faster device shrinks at ~1.0 s of a 2.50 s layer and the parts it does
+not touch at ~1.2 s of `layer.rs` conversion and folds, so on a device
+4x faster the host share becomes ~70% of the layer. **This item decides
+whether the RTX 5090 buys 1.4x or 4x**, and no headline measurement
+should be scheduled before it lands.
+
+### Lane AL — the layer.rs conversion (wt-uperf3-al) — RUST/CUDA
+OWNS: the v2/v3 FFN prover bodies in hashline/src/layer.rs (NOT the
+[UPERF3-AG] full-layer functions, NOT lane AH's `dev_shape` line),
+hashline/src/pcs.rs, NEW results/hashline_convert_*, "Agent AL status".
+READ-ONLY: gpu/* (AJ's kernels are DONE and correct — `k_widen` is the
+device half of this fix and must be used, not rewritten), zk.rs,
+attention.rs, norm.rs, tables_*.rs, wcache.rs, zkmatrix-rs/, scripts/.
+TARGET, in AJ's words: hand `pcs::commit` the int8 planes instead of a
+converted 64-bit vector, and give the two host matmul folds
+(`fold_cols_base` over `w_data`, ~0.26 s/layer) a device form. Ceiling
+~1.5x on the 8B prove. BYTE-PRESERVING: the four gates and dc980e81..
+must not move.
+EVIDENCE TO READ FIRST: results/hashline_hostwall_gpu.md §7 and §9.1 —
+AJ attributed this item to functions and measured it; do not re-derive.

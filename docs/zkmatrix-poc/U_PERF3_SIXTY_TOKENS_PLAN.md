@@ -91,6 +91,53 @@ necessary and none of it is sufficient.
 > inside it. That recovery is now lever **L8**, and it is the single
 > largest newly-actionable item in this plan.
 
+> ### CORRECTION 2, 2026-09-04 (lane AJ, rung 4) — L2 was the budget's most certain lever, and it was 3.3%
+>
+> Lane AJ built and gated all four of Track B's host items and measured
+> the 8B pass before and after, in one session on a quiet box, with a
+> fresh weight cache in both arms:
+>
+> | 8B pass, 32 x 512, GPU | PROVE | proof |
+> |---|---:|---|
+> | before | **88.90 s** | dc980e81.. |
+> | after | **86.00 s** | dc980e81.., identical |
+>
+> **1.034x, against the plan's modelled 2.4-2.9x.** The kernels work —
+> the encode went 0.446 -> 0.179 s (2.5x) — but the items were
+> mis-attributed when this plan was written, and lane AJ's rung-0
+> accounting says exactly how:
+>
+> * **B1 conflated two different things.** The upload is 13.05 s of
+>   device counter, which AJ owned and fixed. The CONVERSION is host
+>   work in `layer.rs` — `prove_layer_v3` building `w_data` (1.4 GB at
+>   Mistral width) and `a_data` element by element with `Fp::from_i64`
+>   — measured at 0.92 s of a 3.13 s layer, **~29 s of the 8B pass, the
+>   single largest host item in it**. `layer.rs` was READ-ONLY for AJ
+>   and assigned to NO round-14 lane. **That is an orchestration error
+>   in the round-14 briefs, not a lane failure.**
+> * **B4 was simply wrong.** Proof serialization runs OUTSIDE the prove
+>   clock and costs 0.03 s, not ~13 s.
+> * **Pinned page-locked staging does not raise the host-to-device rate
+>   on this box** — a measured negative.
+>
+> So L2 becomes **L2b**: hand `pcs::commit` the int8 planes instead of a
+> converted 64-bit vector (`k_widen` already reconstructs field elements
+> on the device, so the device half exists) and give the two host matmul
+> folds a device form. Ceiling ~1.5x, not 2.9x.
+>
+> **What this does NOT change: the 8B verdict.** The counted floor is a
+> spec-sheet bound on the hardware, not a statement about our code, so
+> the 8B honest band (14.9-42.5 today, 31.8-90.9 with L8) is untouched.
+> What moved is how far our actual code sits from that floor — the road
+> is longer, the destination is where it was.
+>
+> **And it sharpens the hardware step.** AJ's §8: the parts a faster
+> device shrinks are ~1.0 s of a 2.50 s layer; the parts it does not
+> touch are the ~1.2 s of `layer.rs` conversion and folds. On a device
+> 4x faster the host share becomes ~70% of the layer. **The L2b item is
+> what decides whether the 5090 buys 1.4x or 4x**, which makes it the
+> gate on the hardware measurement as well.
+
 ---
 
 ## 1. What "60 tokens per second" has to mean
@@ -133,7 +180,8 @@ Every lever, with what it multiplies and how well it is known:
 | # | lever | factor | evidence class |
 |---|---|---:|---|
 | L1 | laptop RTX 4070 -> one H100 | **4.7-33.6x** (central ~13x on HBM bandwidth 256 GB/s -> 3.35 TB/s) | [MODEL]; never measured on any board |
-| L2 | the four host marshalling items | **2.4-2.9x** | [MEASURED share]: 56-63 s of the 95.5 s pass is host work with known byte-preserving fixes |
+| L2 | the four host marshalling items | **1.034x MEASURED (lane AJ), not 2.4-2.9x** — see correction 2 | [MEASURED]: the items were mis-attributed; what is left is L2b |
+| **L2b** | **the `layer.rs` plane -> Fp conversion and the host matmul folds** | **up to ~1.5x** (~29 s of an 88.9 s prove) | [COUNTED, AJ]; owned by nobody in round 14 — the round-15 lane |
 | L3 | kernel quality toward the counted floor | **1.5-5x** | [COUNTED]: the scaled cells carry ~10x on streaming loops, 3.5x on the small zero-check |
 | L4 | halve/quarter the hashed bytes (rate 1/2, and/or a 31-32-bit field) | **2-4x** | [MODEL]: moves the activation floor from 7-21 to 2-10 ms/token; the dominant floor term |
 | L5 | fold the claims (AG's item 1 + the batched-evaluation reduction) | bytes **x0.44-0.50**, time **x1.05-1.15** | [COUNTED bytes, MODEL time] — a byte lever, a slight time cost |
@@ -147,11 +195,11 @@ Every lever, with what it multiplies and how well it is known:
 Composed, at 30B, honest statement:
 
 ```
-3.02e10  x 13 (L1)  x 2.5 (L2)              = 9.8e11   -> 31.6 tok/s FFN-only
-         / 2.5 (D1) / 2.78 (D2) / 1.18 (D3)  =          ->   3.9 tok/s honest  [D2 CORRECTED]
-         x 3 (L4)   x 1.43 (L6)              =          ->  16.5 tok/s
-         x 1.5 (L3)                          =          ->  24.8 tok/s
-         x 2.14 (L8, the ZK surcharge recovered to 1.3x) ->  53.1 tok/s
+3.02e10  x 13 (L1)  x 1.5 (L2b)             = 5.9e11   -> 19.0 tok/s FFN-only  [L2 CORRECTED]
+         / 2.5 (D1) / 2.78 (D2) / 1.18 (D3)  =          ->   2.3 tok/s honest  [D2 CORRECTED]
+         x 3 (L4)   x 1.43 (L6)              =          ->   9.9 tok/s
+         x 1.5 (L3)                          =          ->  14.9 tok/s
+         x 2.14 (L8, the ZK surcharge recovered to 1.3x) ->  31.8 tok/s
 ```
 
 **Read that honestly: with the corrected ZK divisor, 30B does NOT
