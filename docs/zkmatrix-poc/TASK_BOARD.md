@@ -49,14 +49,41 @@ AND THE CULPRIT IS NOT THE ONE THE LEDGER NAMED):**
   second GPU pass behind it inside one script — WSL does not return VRAM
   promptly, so the second pass starts against a full card. Run the tiers
   as SEPARATE detached jobs with `nvidia-smi` verified idle between them.
-- **IN FLIGHT**: `results/am_r3_8b_p3_cpu.sh` on lane AM — rung 3's P3
-  arm ALONE with `HL_GPU` unset, so `gpu::enabled()` is false and the
-  binary cannot ask the device for anything and cannot freeze the box.
-  Same `target-gpu` binary, so rung 3's one-binary property holds. Buys
-  the full tier's **privacy and integrity** claims at 8B (digest, size,
-  clear-value scan); explicitly does NOT buy a P3-on-GPU 8B time, which
-  still needs the 16 GB+ board. Launched 11:13:51 under the heavy lock;
-  marker `results/am_r3_8b_p3_cpu.done`.
+- **RUNG 3 IS COMPLETE — THE FULL TIER PROVES AN 8B MODEL** (c6089fe,
+  lane pushed). The salvage arm (P3 alone, `HL_GPU` unset so the binary
+  cannot touch the device and cannot freeze the box) came back
+  **ACCEPT**: `1fee4813..`, **1,287,678,592 B**, PROVE 499.04 s,
+  **VERIFY 1.99 s**, exit 0. Three results:
+  - **Hiding the weights at 8B costs +2,100,224 B = +0.163% of bytes.**
+    Rung 2 measured +0.16% at ONE Mistral layer; full model and single
+    layer agree to three digits. **The full tier's overhead is TIME,
+    not bytes**, and that now holds at product scale.
+  - **VERIFY DOES NOT MOVE** — 1.99 s vs P1's 2.02 s. Hiding the weights
+    costs the verifier NOTHING. For a deployed product this is the line
+    that matters most.
+  - **`commit W` IS 43.6% OF THE PROVE** (217.694 s of 499.04, vs P1's
+    46.978 s with device + cache). The full tier's whole structural cost
+    is ONE phase — exactly the phase the declined 5,387 MB device
+    commitment would take. **A 16 GB+ board attacks 43.6% of this row
+    directly.** Sharpest statement yet of what the 5090 buys the full
+    tier.
+  - PRIVACY: **ZERO runs of >= 100 consecutive int8-class words in
+    160,959,824.** A weight column is a run; there is none. Caveat kept
+    honest in the ledger: the raw class counts (148 int8-class, 10,323
+    int16-class) are NOT rung 2's clean zero and do not scale from it —
+    most likely serialization metadata, but NOT YET DEMONSTRATED.
+  - Do NOT read 238 -> 499 s as P3's surcharge: the arms differ on mode
+    AND device. P3's structural cost at 8B is still unmeasured.
+  - Operational: leaving `HL_GPU=1` when the device commit cannot fit
+    costs **~25%** (19.6/20.5 s per declining layer vs ~15.3 s with the
+    GPU off) — launch a P3 pass with `HL_GPU` UNSET, do not merely let
+    it decline. And max RSS is **13.97 GB on a 15 GB box**: nothing may
+    run beside the full tier at 8B.
+- **IN FLIGHT**: `results/am_r3_8b_p1_scan_cpu.sh` on lane AM — the
+  MISSING P1 BASELINE for the clear-value scan, on the CPU path. Rung
+  3's original script deleted `8b-p1.proof` before scanning it, so the
+  8B privacy row currently has only the P3 side. This settles whether
+  the 148 is metadata. Marker `results/am_r3_8b_p1_scan_cpu.done`.
 - **THE TELEGRAM ROUTER WAS DEAD ALL BOOT, and would have been every
   boot.** `tg-router`'s pidfile check was existence-only, and after a
   reboot the low pids are handed straight back out — pid 1200 had been
