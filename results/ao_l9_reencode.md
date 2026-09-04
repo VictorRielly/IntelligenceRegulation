@@ -175,3 +175,84 @@ zero-padding depths the code can see):
 * `chunked-commit checks GREEN` (15 shapes; streamed leaves == CPU
   `hash_columns`, AND the re-encoded opening columns == the CPU encoding
   at 16 indices — the direct oracle for `columns_chunked`)
+
+### 4.5 The END-TO-END A/B on `columns_chunked`, rung 2 [MEASURED]
+
+The switches are read once per process (`OnceLock`), so each arm is its
+own process; the order is A-B-B-A so any drift cancels
+(`results/ao_ab_reenc.sh`, raw `results/ao_l9_rung2_endtoend_ab.log`).
+10,752 rows, `gpu: ON` confirmed in every arm, `nvidia-smi` 161 MiB
+before each:
+
+| arm | `columns_chunked` |
+|---|---:|
+| base | 0.22999 s |
+| lane | 0.20075 s |
+| lane | 0.20923 s |
+| base | 0.22760 s |
+| **means** | **0.22880 -> 0.20499 = 1.116x** |
+
+The four kernels came out at 1.238 / 1.231 / 1.260 / 1.246 across the
+four processes — **mean 1.244x, spread 2%**, which is the real stability
+of this measurement. The end-to-end 1.116x is smaller than 1.244x only
+because the d2h and the host tail do not shrink.
+
+### 4.6 The twelve byte gates, rung 2 [MEASURED]
+
+`results/ao_floors.sh` (AJ's twelve-gate form re-pointed at this
+worktree): the four gates on the CPU binary, the four on the GPU binary,
+and the same four with `HL_GPU_CHUNK_BYTES=100000000
+HL_GPU_CHUNK_ROWS=128` so the frozen 125M digests are forced through the
+chunked commit and the opening re-encode this lane rewrote — nothing else
+at that shape exercises it. Raw: `results/ao_l9_rung2_gates.log`.
+
+| gate | CPU | GPU | GPU, chunked forced |
+|---|---|---|---|
+| v2 | `50cf7bdfd6b5b182..` 66,844,928 B | same | same |
+| v3 | `5f368db6240e0614..` 70,758,084 B | same | same |
+| zk-v2 | `021485e4f80ec695..` 87,228,528 B | same | same |
+| zk-v3 | `40eb54795e023c77..` 87,697,008 B | same | same |
+
+**ALL TWELVE GREEN**, `cargo test --release` **41/41**, both builds, exit 0.
+
+## 5. RUNG 3 — THE OUTPUT-PRUNED LAST STAGE GROUP, 4.38x ON THAT KERNEL
+
+This is the lever the brief priced at "~1.6x on the forward transform",
+and it is the only one of the brief's suggestions that survives.
+
+**The structure.** The last group of forward stages (`NTT_LOG_BLK+1 ..
+log_nn`) is, for each of the `NTT_BLK` = 4,096 positions `qq` inside a
+contiguous block, an INDEPENDENT `nt` = 2^lt-point transform over the
+block index t; the column it produces is `col = t * NTT_BLK + qq`. The
+opening keeps 256 of the 65,536 columns, so **only the distinct residues
+`qq = col mod 4096` can produce anything at all — 244 of 4,096 at the
+measured draw (6.0%)**. The dense kernel computes, stores and discards the
+other 3,852.
+
+`k_ntt_p2_gather_sp` is `k_ntt_p2_gather` with the tile's column axis
+replaced by a compact list of those residues. For a given `qq` the
+operand pairs, the twiddles `tws[tl * NTT_BLK + qq]`, the stage order and
+the store are the dense kernel's, unchanged — this removes work, it does
+not change arithmetic. The list is padded to a multiple of 64 by
+repeating its last entry, and the padding lanes compute but are never
+stored (`jc >= nc_real`), so no output address is written twice. The
+pruned form is declined when `nq * 4 > NTT_BLK` (no material saving) or
+`log_nn - NTT_LOG_BLK > 5` (the tile would not fit), and by
+`HL_GPU_PRUNE_P2=0`.
+
+**The A/B at 10,752 rows** [MEASURED], all arms in one process:
+
+| kernel | s | ratio |
+|---|---:|---:|
+| `k_ntt_p2_gather` (dense, divide-indexed) | 0.03412 | — |
+| `k_ntt_p2_gather_f` (dense, rung 2) | 0.02878 | 1.185x |
+| **`k_ntt_p2_gather_sp` (pruned)** | **0.00657** | **4.379x over `_f`, 5.19x over the inherited kernel** |
+
+| the four kernels | s | ratio |
+|---|---:|---:|
+| as inherited | 0.17423 | — |
+| rung 2 | 0.14149 | 1.231x |
+| **rung 2 + rung 3** | **0.11928** | **1.461x** |
+
+So the last stage group falls from 19.6% of the four kernels to **5.5%**,
+and `k_dit_p1_pad_s` is now 56% of what remains.

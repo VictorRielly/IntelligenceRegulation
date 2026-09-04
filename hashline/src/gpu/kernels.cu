@@ -297,6 +297,77 @@ extern "C" __global__ void k_ntt_p2_gather_f(const u64* __restrict__ a, const u6
     ntt_p2_gather_body<true>(sh, a, tw, log_n, scale, sel, out, row0, rows_total);
 }
 
+// [UPERF3-AO] lever L9, rung 3: THE OUTPUT-PRUNED LAST STAGE GROUP.
+//
+// The last group of forward stages (NTT_LOG_BLK+1 .. log_n) is, for each
+// of the NTT_BLK positions qq inside a contiguous block, an INDEPENDENT
+// nt = 2^lt-point transform over the block index t; the encoded column it
+// produces is col = t * NTT_BLK + qq. The opening keeps only 256 of the
+// 2^log_n columns, so only the ~250 distinct residues qq = col mod
+// NTT_BLK can produce anything at all: of NTT_BLK = 4096 transforms per
+// block, ~250 are wanted and ~3,850 are computed, stored and thrown away.
+//
+// This kernel is `k_ntt_p2_gather` with the tile's column axis replaced by
+// a COMPACT LIST of those residues. Everything else is the same: for a
+// given qq the operand pairs, the twiddles tws[tl * NTT_BLK + qq], the
+// stage order and the store are identical to the dense kernel's, so the
+// bytes are identical — this removes work, it does not change any
+// arithmetic. `qlist` is padded to a multiple of P2SP_NC by repeating its
+// last entry; the padding lanes compute and are simply never stored
+// (jc >= nc_real), so no address is written twice.
+//
+// Grid: x over groups of P2SP_NC residues, y over the chunk's rows.
+#define P2SP_LNC 6
+#define P2SP_NC (1 << P2SP_LNC)
+extern "C" __global__ void k_ntt_p2_gather_sp(const u64* __restrict__ a, const u64* __restrict__ tw, int log_n, u64 scale,
+                                              const int* __restrict__ sel, u64* __restrict__ out, int row0, int rows_total,
+                                              const int* __restrict__ qlist, int nq) {
+    __shared__ u64 sh[P2SP_NC * 32];
+    const int n = 1 << log_n;
+    const int lt = log_n - NTT_LOG_BLK;
+    const int nt = 1 << lt;
+    const int row = blockIdx.y;
+    const int base = blockIdx.x * P2SP_NC;
+    const int nc_real = nq - base;
+    const int span = nt * P2SP_NC;
+    const u64* r = a + (size_t)row * (size_t)n;
+    for (int q = threadIdx.x; q < span; q += blockDim.x) {
+        int t = q >> P2SP_LNC, jc = q & (P2SP_NC - 1);
+        sh[q] = r[(size_t)t * NTT_BLK + qlist[base + jc]];
+    }
+    __syncthreads();
+    for (int st = NTT_LOG_BLK + 1; st <= log_n; st++) {
+        const int hs = st - 1 - NTT_LOG_BLK;
+        const int halft = 1 << hs;
+        const u64* tws = tw + ((size_t)1 << (st - 1)) - 1;
+        for (int b = threadIdx.x; b < (span >> 1); b += blockDim.x) {
+            int jc = b & (P2SP_NC - 1);
+            int tb = b >> P2SP_LNC;
+            int tl = tb & (halft - 1);
+            int t = ((tb >> hs) << (hs + 1)) + tl;
+            u64 w = tws[(size_t)tl * NTT_BLK + qlist[base + jc]];
+            int i = t * P2SP_NC + jc;
+            int ip = i + halft * P2SP_NC;
+            u64 u = sh[i];
+            u64 v = gl_mul(sh[ip], w);
+            sh[i] = gl_add(u, v);
+            sh[ip] = gl_sub(u, v);
+        }
+        __syncthreads();
+    }
+    for (int q = threadIdx.x; q < span; q += blockDim.x) {
+        int t = q >> P2SP_LNC, jc = q & (P2SP_NC - 1);
+        if (jc >= nc_real) continue;
+        int col = t * NTT_BLK + qlist[base + jc];
+        int c = sel[col];
+        if (c >= 0) {
+            u64 v = sh[q];
+            if (scale != 1ULL) v = gl_mul(v, scale);
+            out[(size_t)c * (size_t)rows_total + (size_t)(row0 + row)] = v;
+        }
+    }
+}
+
 // [rung 1] Column gather for the PCS opening: out[c * rows + i] = enc[i * nn + idx[c]].
 extern "C" __global__ void k_gather_cols(const u64* __restrict__ enc, u64* __restrict__ out, const int* __restrict__ idx,
                                          int rows, int nn, int q) {

@@ -1,0 +1,13 @@
+GATE OK   v2 [cpu]  50cf7bdfd6b5b182  66844928 B
+GATE OK   v3 [cpu]  5f368db6240e0614  70758084 B
+GATE OK   zk [cpu]  021485e4f80ec695  87228528 B
+GATE OK   zkv3 [cpu]  40eb54795e023c77  87697008 B
+GATE OK   v2 [gpu]  50cf7bdfd6b5b182  66844928 B
+GATE OK   v3 [gpu]  5f368db6240e0614  70758084 B
+GATE OK   zk [gpu]  021485e4f80ec695  87228528 B
+GATE OK   zkv3 [gpu]  40eb54795e023c77  87697008 B
+GATE OK   v2-chunked [gpu]  50cf7bdfd6b5b182  66844928 B
+GATE OK   v3-chunked [gpu]  5f368db6240e0614  70758084 B
+GATE OK   zk-chunked [gpu]  021485e4f80ec695  87228528 B
+GATE OK   zkv3-chunked [gpu]  40eb54795e023c77  87697008 B
+ALL TWELVE BYTE GATES GREEN (8 standard + 4 chunked-forced)

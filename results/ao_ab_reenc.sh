@@ -14,17 +14,17 @@ CUDA_LD=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-pac
 GPU=$R/hashline/target-gpu/release/hashline
 
 arm () {
-  local label=$1 fast=$2 skip=$3
-  echo "=== ARM $label (HL_GPU_NTT_FAST=$fast HL_GPU_PAD_SKIP=$skip) ===" >> "$LOG"
+  local label=$1 v=$2
+  echo "=== ARM $label (HL_GPU_NTT_FAST/PAD_SKIP/PRUNE_P2 = $v) ===" >> "$LOG"
   nvidia-smi --query-gpu=memory.used --format=csv,noheader >> "$LOG"
   HL_GPU=1 HL_GPU_BENCH_REENC=1 HL_BENCH_ROWS=10752 HL_BENCH_REPS=7 \
-    HL_GPU_NTT_FAST=$fast HL_GPU_PAD_SKIP=$skip \
+    HL_GPU_NTT_FAST=$v HL_GPU_PAD_SKIP=$v HL_GPU_PRUNE_P2=$v \
     LD_LIBRARY_PATH=$CUDA_LD "$GPU" gpu-probe 2>&1 \
     | grep -E 'UPERF3-AO|gpu-probe:|GeForce' >> "$LOG"
 }
 
-arm base 0 0
-arm lane 1 1
-arm lane 1 1
-arm base 0 0
+arm base 0
+arm lane 1
+arm lane 1
+arm base 0
 echo "=== A/B DONE ===" >> "$LOG"

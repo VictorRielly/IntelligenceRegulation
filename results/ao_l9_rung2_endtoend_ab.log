@@ -1,0 +1,109 @@
+=== ARM base (HL_GPU_NTT_FAST=0 HL_GPU_PAD_SKIP=0) ===
+161 MiB
+gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AO] L9 re-encode bench: rows 10752 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 84 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.22999 s  (the opening's call; 29.87 e9 bf/s over 6.870 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.01428 s    8.43% of the four     12.34 e9 bf/s    197.4 GB/s
+[UPERF3-AO]   k_dif_pb           0.02843 s   16.78% of the four     37.18 e9 bf/s     99.2 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.09240 s   54.54% of the four     45.76 e9 bf/s     76.3 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.03432 s   20.26% of the four     41.06 e9 bf/s    164.9 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.05610 s   33.11% of the four     25.12 e9 bf/s    201.0 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00098 s    0.58% of the four      0.00 e9 bf/s   5798.6 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.01341 s    7.91% of the four     13.14 e9 bf/s    210.3 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.06609 s   39.01% of the four     53.31 e9 bf/s    106.6 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.02888 s   17.05% of the four     48.80 e9 bf/s    196.0 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.05708 s   33.69% of the four     24.69 e9 bf/s    197.5 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.01428 -> 0.01341 s   1.065x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.09240 -> 0.06609 s   1.398x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.03432 -> 0.02888 s   1.189x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.05610 -> 0.05708 s   0.983x
+[UPERF3-AO]   A/B four kernels       base 0.16942 -> 0.13680 s   1.238x
+[UPERF3-AO]   four kernels 0.16942 s | d2h 0.01307 s | columns_chunked 0.22999 s => launch/alloc/host residue 0.04750 s (20.7%)
+gpu-probe: NVIDIA GeForce RTX 4070 Laptop GPU — 1048576 pairs (incl. edge values): mul/add/sub mismatches 0 ; 4.7 G mul/s (the 3-op kernel, 50 launches)
+gpu-probe: blake3 checks GREEN (322 row counts x 64 columns; 0 failing)
+gpu-probe: ntt checks GREEN
+gpu-probe: chunked-commit checks GREEN
+=== ARM lane (HL_GPU_NTT_FAST=1 HL_GPU_PAD_SKIP=1) ===
+161 MiB
+gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AO] L9 re-encode bench: rows 10752 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 84 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.20075 s  (the opening's call; 34.22 e9 bf/s over 6.870 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.01432 s    8.66% of the four     12.30 e9 bf/s    196.8 GB/s
+[UPERF3-AO]   k_dif_pb           0.02962 s   17.91% of the four     35.68 e9 bf/s     95.2 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.08719 s   52.72% of the four     48.49 e9 bf/s     80.8 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.03425 s   20.71% of the four     41.15 e9 bf/s    165.2 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.05627 s   34.03% of the four     25.04 e9 bf/s    200.3 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00094 s    0.57% of the four      0.00 e9 bf/s   6007.9 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.01349 s    8.16% of the four     13.06 e9 bf/s    208.9 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.06229 s   37.67% of the four     56.56 e9 bf/s    113.1 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.02892 s   17.49% of the four     48.73 e9 bf/s    195.7 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.05705 s   34.50% of the four     24.70 e9 bf/s    197.6 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.01432 -> 0.01349 s   1.062x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.08719 -> 0.06229 s   1.400x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.03425 -> 0.02892 s   1.184x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.05627 -> 0.05705 s   0.986x
+[UPERF3-AO]   A/B four kernels       base 0.16538 -> 0.13432 s   1.231x
+[UPERF3-AO]   four kernels 0.16538 s | d2h 0.01266 s | columns_chunked 0.20075 s => launch/alloc/host residue 0.02271 s (11.3%)
+gpu-probe: NVIDIA GeForce RTX 4070 Laptop GPU — 1048576 pairs (incl. edge values): mul/add/sub mismatches 0 ; 4.7 G mul/s (the 3-op kernel, 50 launches)
+gpu-probe: blake3 checks GREEN (322 row counts x 64 columns; 0 failing)
+gpu-probe: ntt checks GREEN
+gpu-probe: chunked-commit checks GREEN
+=== ARM lane (HL_GPU_NTT_FAST=1 HL_GPU_PAD_SKIP=1) ===
+161 MiB
+gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AO] L9 re-encode bench: rows 10752 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 84 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.20923 s  (the opening's call; 32.84 e9 bf/s over 6.870 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.01458 s    7.83% of the four     12.08 e9 bf/s    193.3 GB/s
+[UPERF3-AO]   k_dif_pb           0.03136 s   16.83% of the four     33.71 e9 bf/s     89.9 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.10389 s   55.76% of the four     40.69 e9 bf/s     67.8 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.03648 s   19.58% of the four     38.63 e9 bf/s    155.1 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.05587 s   29.99% of the four     25.23 e9 bf/s    201.8 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00099 s    0.53% of the four      0.00 e9 bf/s   5705.0 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.01365 s    7.33% of the four     12.90 e9 bf/s    206.4 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.07370 s   39.56% of the four     47.81 e9 bf/s     95.6 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.02911 s   15.63% of the four     48.41 e9 bf/s    194.4 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.05705 s   30.62% of the four     24.70 e9 bf/s    197.6 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.01458 -> 0.01365 s   1.068x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.10389 -> 0.07370 s   1.410x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.03648 -> 0.02911 s   1.253x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.05587 -> 0.05705 s   0.979x
+[UPERF3-AO]   A/B four kernels       base 0.18631 -> 0.14782 s   1.260x
+[UPERF3-AO]   four kernels 0.18631 s | d2h 0.01545 s | columns_chunked 0.20923 s => launch/alloc/host residue 0.00746 s (3.6%)
+gpu-probe: NVIDIA GeForce RTX 4070 Laptop GPU — 1048576 pairs (incl. edge values): mul/add/sub mismatches 0 ; 4.7 G mul/s (the 3-op kernel, 50 launches)
+gpu-probe: blake3 checks GREEN (322 row counts x 64 columns; 0 failing)
+gpu-probe: ntt checks GREEN
+gpu-probe: chunked-commit checks GREEN
+=== ARM base (HL_GPU_NTT_FAST=0 HL_GPU_PAD_SKIP=0) ===
+161 MiB
+gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AO] L9 re-encode bench: rows 10752 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 84 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.22760 s  (the opening's call; 30.19 e9 bf/s over 6.870 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.01421 s    7.65% of the four     12.40 e9 bf/s    198.3 GB/s
+[UPERF3-AO]   k_dif_pb           0.02963 s   15.95% of the four     35.68 e9 bf/s     95.1 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.10465 s   56.34% of the four     40.40 e9 bf/s     67.3 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.03728 s   20.07% of the four     37.81 e9 bf/s    151.8 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.05597 s   30.13% of the four     25.18 e9 bf/s    201.4 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00107 s    0.58% of the four      0.00 e9 bf/s   5290.6 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.01343 s    7.23% of the four     13.12 e9 bf/s    209.9 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.07690 s   41.39% of the four     45.82 e9 bf/s     91.6 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.02920 s   15.72% of the four     48.27 e9 bf/s    193.8 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.05686 s   30.61% of the four     24.78 e9 bf/s    198.3 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.01421 -> 0.01343 s   1.058x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.10465 -> 0.07690 s   1.361x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.03728 -> 0.02920 s   1.277x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.05597 -> 0.05686 s   0.984x
+[UPERF3-AO]   A/B four kernels       base 0.18577 -> 0.14915 s   1.246x
+[UPERF3-AO]   four kernels 0.18577 s | d2h 0.01507 s | columns_chunked 0.22760 s => launch/alloc/host residue 0.02676 s (11.8%)
+gpu-probe: NVIDIA GeForce RTX 4070 Laptop GPU — 1048576 pairs (incl. edge values): mul/add/sub mismatches 0 ; 4.7 G mul/s (the 3-op kernel, 50 launches)
+gpu-probe: blake3 checks GREEN (322 row counts x 64 columns; 0 failing)
+gpu-probe: ntt checks GREEN
+gpu-probe: chunked-commit checks GREEN
+=== A/B DONE ===

@@ -31,6 +31,7 @@ const FUNCS: &[&str] = &[
     // indexing strength-reduced, and the zero-padding stages of the forward
     // DIT's first pass dropped. Same values, byte for byte.
     "k_dif_pa_f", "k_ntt_p2_f", "k_ntt_p2_gather_f", "k_dit_p1_pad_s",
+    "k_ntt_p2_gather_sp",
 ];
 const SC_THREADS: u32 = 256;
 const SC_MAX_BLOCKS: u32 = 1024;
@@ -69,6 +70,20 @@ fn kn_dif_pa() -> &'static str { if ntt_fast() { "k_dif_pa_f" } else { "k_dif_pa
 fn kn_ntt_p2() -> &'static str { if ntt_fast() { "k_ntt_p2_f" } else { "k_ntt_p2" } }
 fn kn_ntt_p2_gather() -> &'static str { if ntt_fast() { "k_ntt_p2_gather_f" } else { "k_ntt_p2_gather" } }
 fn kn_dit_p1_pad() -> &'static str { if pad_skip() { "k_dit_p1_pad_s" } else { "k_dit_p1_pad" } }
+
+/// [UPERF3-AO] lever L9 rung 3: the column count of one pruned tile
+/// (kernels.cu `P2SP_NC`). The opening's compact residue list is padded to
+/// a multiple of this.
+const P2SP_NC: usize = 64;
+/// [UPERF3-AO] `HL_GPU_PRUNE_P2=0` restores the DENSE fused last stage
+/// group. On the default the opening's last stage group runs only over the
+/// distinct residues `col mod 2^NTT_LOG_BLK` of the sampled columns —
+/// ~250 of 4,096 — which is the same arithmetic on the same operands with
+/// the ~3,850 transforms nobody reads left undone.
+fn prune_p2() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_GPU_PRUNE_P2").map(|v| v != "0").unwrap_or(true))
+}
 
 pub(super) struct Gpu {
     pub(super) dev: Arc<CudaDevice>,
@@ -863,6 +878,15 @@ fn reenc_bench_at(g: &mut Gpu, rows: usize) {
     let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
     let d_sel = dev.htod_sync_copy(&sel).unwrap();
     let d_idx = dev.htod_sync_copy(&idx32).unwrap();
+    // [UPERF3-AO] rung 3's compact residue list, exactly as `columns_chunked` builds it
+    let blk = 1usize << NTT_LOG_BLK;
+    let mut qs: Vec<i32> = idx.iter().map(|&j| (j & (blk - 1)) as i32).collect();
+    qs.sort_unstable();
+    qs.dedup();
+    let nq = qs.len();
+    let last = *qs.last().unwrap();
+    qs.resize(nq.div_ceil(P2SP_NC) * P2SP_NC, last);
+    let d_ql = dev.htod_sync_copy(&qs).unwrap();
     let mut d_out = unsafe { dev.alloc::<u64>(rows * q) }.unwrap();
     let threads = ntt_threads();
     let scale: u64 = Fp::new(1u64 << log_n).inv().0;
@@ -956,6 +980,16 @@ fn reenc_bench_at(g: &mut Gpu, rows: usize) {
 
     let (t_p2, t_p2_f) = if log_nn > NTT_LOG_BLK { (bench_p2!("k_ntt_p2"), bench_p2!("k_ntt_p2_f")) } else { (0.0, 0.0) };
     let (t_p2g, t_p2g_f) = if log_nn > NTT_LOG_BLK { (bench_p2g!("k_ntt_p2_gather"), bench_p2g!("k_ntt_p2_gather_f")) } else { (0.0, 0.0) };
+    let t_p2g_sp = if log_nn > NTT_LOG_BLK && log_nn - NTT_LOG_BLK <= 5 {
+        let f = dev.get_func(MODULE, "k_ntt_p2_gather_sp").unwrap();
+        let gx = (nq.div_ceil(P2SP_NC)) as u32;
+        timed!({
+            for &(r0, rc) in &plan {
+                let cfg = LaunchConfig { grid_dim: (gx, rc as u32, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+                unsafe { f.clone().launch(cfg, (d_enc.get(), tf, log_nn as i32, 1u64, &d_sel, &mut d_out, r0 as i32, rows as i32, &d_ql, nq as i32)) }.unwrap();
+            }
+        })
+    } else { 0.0 };
 
     let gc = dev.get_func(MODULE, "k_gather_cols_off").unwrap();
     let t_gc = timed!({
@@ -989,6 +1023,7 @@ fn reenc_bench_at(g: &mut Gpu, rows: usize) {
     let gb_gc = (rows * nn * 8) as f64 + (rows * q * 8) as f64;
     let kern = t_pa + t_pb + t_p1 + t_p2g;
     let kern_f = t_pa_f + t_pb + t_p1_s + t_p2g_f;
+    let kern_sp = t_pa_f + t_pb + t_p1_s + t_p2g_sp;
     let line = |name: &str, t: f64, b: f64, gb: f64| {
         eprintln!(
             "[UPERF3-AO]   {name:<18} {t:.5} s  {:>6.2}% of the four  {:>8.2} e9 bf/s  {:>7.1} GB/s",
@@ -1029,6 +1064,14 @@ fn reenc_bench_at(g: &mut Gpu, rows: usize) {
     ab("k_ntt_p2_gather", t_p2g, t_p2g_f);
     ab("k_ntt_p2", t_p2, t_p2_f);
     ab("four kernels", kern, kern_f);
+    eprintln!("[UPERF3-AO]   --- lever L9 rung 3, the output-pruned last stage group ---");
+    eprintln!(
+        "[UPERF3-AO]   k_ntt_p2_gather_sp {t_p2g_sp:.5} s over {nq} distinct residues of {} ({:.1}% of the dense axis)",
+        1usize << NTT_LOG_BLK,
+        100.0 * nq as f64 / (1usize << NTT_LOG_BLK) as f64
+    );
+    ab("p2_gather_f -> sp", t_p2g_f, t_p2g_sp);
+    ab("four kernels (sp)", kern, kern_sp);
     eprintln!(
         "[UPERF3-AO]   four kernels {kern:.5} s | d2h {t_d2h:.5} s | columns_chunked {full:.5} s => launch/alloc/host residue {:.5} s ({:.1}%)",
         full - kern - t_d2h,
@@ -1283,7 +1326,8 @@ impl Gpu {
     /// re-encode's traffic on the encoded matrix, are gone). Identical
     /// values: the same kernels, the same twiddles, the same order.
     fn encode_rows_view_gather(&self, data: &CudaView<u64>, coef: &mut CudaSlice<u64>, enc: &mut CudaSlice<u64>, rows: usize, log_n: u32, log_nn: u32,
-                               d_sel: &CudaSlice<i32>, out: &mut CudaSlice<u64>, row0: usize, rows_total: usize) -> Result<(), String> {
+                               d_sel: &CudaSlice<i32>, out: &mut CudaSlice<u64>, row0: usize, rows_total: usize,
+                               sp: Option<(&CudaSlice<i32>, usize)>) -> Result<(), String> {
         if log_nn <= NTT_LOG_BLK {
             return Err("gather fusion needs log_nn > NTT_LOG_BLK".into());
         }
@@ -1313,11 +1357,21 @@ impl Gpu {
         let bpr = 1u32 << (log_nn - lb);
         let cfg = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
         unsafe { p1.launch(cfg, (&*coef, &mut *enc, tf, log_nn as i32, (1usize << log_n) as i32, rb as i32)) }.map_err(|e| format!("k_dit_p1_pad: {e}"))?;
-        let p2 = self.dev.get_func(MODULE, kn_ntt_p2_gather()).ok_or("k_ntt_p2_gather missing")?;
-        let tiles = 1u32 << (log_nn - NTT_LOG_BLK);
-        let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
-        unsafe { p2.launch(cfg2, (&*enc, tf, log_nn as i32, 1u64, d_sel, &mut *out, row0 as i32, rows_total as i32)) }
-            .map_err(|e| format!("k_ntt_p2_gather: {e}"))?;
+        // [UPERF3-AO] rung 3: the pruned form when the caller supplied the
+        // compact residue list; otherwise the dense fused kernel.
+        if let Some((ql, nq)) = sp {
+            let p2 = self.dev.get_func(MODULE, "k_ntt_p2_gather_sp").ok_or("k_ntt_p2_gather_sp missing")?;
+            let gx = ((nq + P2SP_NC - 1) / P2SP_NC) as u32;
+            let cfg2 = LaunchConfig { grid_dim: (gx, rows as u32, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            unsafe { p2.launch(cfg2, (&*enc, tf, log_nn as i32, 1u64, d_sel, &mut *out, row0 as i32, rows_total as i32, ql, nq as i32)) }
+                .map_err(|e| format!("k_ntt_p2_gather_sp: {e}"))?;
+        } else {
+            let p2 = self.dev.get_func(MODULE, kn_ntt_p2_gather()).ok_or("k_ntt_p2_gather missing")?;
+            let tiles = 1u32 << (log_nn - NTT_LOG_BLK);
+            let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            unsafe { p2.launch(cfg2, (&*enc, tf, log_nn as i32, 1u64, d_sel, &mut *out, row0 as i32, rows_total as i32)) }
+                .map_err(|e| format!("k_ntt_p2_gather: {e}"))?;
+        }
         Ok(())
     }
 
@@ -1506,13 +1560,37 @@ impl Gpu {
         let nu = uniq.len();
         let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
         let d_idx = dev.htod_sync_copy(if fused { &sel } else { &idx32 }).map_err(|e| e.to_string())?;
+        // [UPERF3-AO] rung 3: the distinct residues qq = col mod 2^NTT_LOG_BLK.
+        // The last stage group is an independent nt-point transform per qq, so
+        // only these can produce a sampled column; the list is padded to a
+        // multiple of P2SP_NC by repeating its last entry (those lanes compute
+        // and are never stored). Declined when it would not be materially
+        // smaller than the dense axis, or when the tile would not fit.
+        let blk = 1usize << NTT_LOG_BLK;
+        let sp_list: Option<(CudaSlice<i32>, usize)> = if fused && prune_p2() && log_nn - NTT_LOG_BLK <= 5 {
+            let mut qs: Vec<i32> = idx.iter().map(|&j| (j & (blk - 1)) as i32).collect();
+            qs.sort_unstable();
+            qs.dedup();
+            let nq = qs.len();
+            if nq * 4 <= blk {
+                let pad = nq.div_ceil(P2SP_NC) * P2SP_NC;
+                let last = *qs.last().unwrap();
+                qs.resize(pad, last);
+                Some((dev.htod_sync_copy(&qs).map_err(|e| e.to_string())?, nq))
+            } else {
+                None
+            }
+        } else {
+            None
+        };
         let cols_out = if fused { nu } else { q };
         let mut d_out = unsafe { dev.alloc::<u64>(rows * cols_out) }.map_err(|e| e.to_string())?;
         let f = dev.get_func(MODULE, "k_gather_cols_off").ok_or("k_gather_cols_off missing")?;
         for &(r0, rc) in &plan {
             let view = dc.data.get().slice(r0 * n..(r0 + rc) * n);
             if fused {
-                self.encode_rows_view_gather(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn, &d_idx, &mut d_out, r0, rows)?;
+                let sp = sp_list.as_ref().map(|(b, n)| (b, *n));
+                self.encode_rows_view_gather(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn, &d_idx, &mut d_out, r0, rows, sp)?;
             } else {
                 self.encode_rows_view(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn)?;
                 let cfg = LaunchConfig::for_num_elems((rc * q) as u32);

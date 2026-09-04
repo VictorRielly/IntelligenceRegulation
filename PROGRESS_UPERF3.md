@@ -13835,3 +13835,63 @@ this is committed; the end-to-end `columns_chunked` A/B
 (`results/ao_ab_reenc.sh`, ABBA over four processes) is queued behind
 them on the same lock and will self-start.
 
+**RUNG 2 CLOSED** (appended after the queued runs landed):
+**ALL TWELVE BYTE GATES GREEN** (`results/ao_l9_rung2_gates.log`,
+exit 0) — the four on the CPU binary, the four on the GPU binary, and the
+same four with `HL_GPU_CHUNK_BYTES=100000000 HL_GPU_CHUNK_ROWS=128` so
+the frozen 125M digests are forced through the chunked commit and the
+opening re-encode this lane rewrote. `50cf7bdf..`/`5f368db6..`/
+`021485e4..`/`40eb5479..` at 66,844,928 / 70,758,084 / 87,228,528 /
+87,697,008 B, all unmoved.
+**THE END-TO-END A/B on `columns_chunked`** (ABBA over four processes,
+`gpu: ON` in every arm, `nvidia-smi` 161 MiB before each)
+[MEASURED]: base 0.22999 / 0.22760, lane 0.20075 / 0.20923 -> means
+**0.22880 -> 0.20499 = 1.116x**. The four kernels came out at
+1.238 / 1.231 / 1.260 / 1.246 across those same four processes — **mean
+1.244x, spread 2%**, which is the real stability of the measurement. The
+end-to-end number is smaller only because the d2h and the host tail do
+not shrink.
+
+### Rung 3 — THE OUTPUT-PRUNED LAST STAGE GROUP: 4.38x on that kernel, 1.461x on the four (2026-09-04)
+
+This is the one suggestion in the brief that survives, and it is worth
+more than it was priced at. Write-up `results/ao_l9_reencode.md` §5; raw
+`results/ao_l9_rung3_kernel_ab.log`, gates
+`results/ao_l9_rung3_gates.log`.
+
+The last group of forward stages is, for each of the `NTT_BLK` = 4,096
+positions `qq` inside a contiguous block, an INDEPENDENT `nt`-point
+transform over the block index t, producing column
+`col = t * NTT_BLK + qq`. The opening keeps 256 of 65,536 columns, so
+**only the distinct residues `qq = col mod 4096` can produce anything —
+244 of 4,096 (6.0%) at the measured draw**. The dense kernel computes,
+stores and discards the other 3,852 transforms.
+
+`k_ntt_p2_gather_sp` is `k_ntt_p2_gather` with the tile's column axis
+replaced by a compact list of those residues. For a given `qq` the
+operand pairs, the twiddles `tws[tl * NTT_BLK + qq]`, the stage order and
+the store are the dense kernel's, unchanged — it removes work, it does
+not change arithmetic. The list is padded to a multiple of 64 by
+repeating its last entry; padding lanes compute and are never stored, so
+no output address is written twice. Declined when `nq * 4 > NTT_BLK` or
+`log_nn - NTT_LOG_BLK > 5`, and by `HL_GPU_PRUNE_P2=0`.
+
+**[MEASURED] at 10,752 rows, all arms in one process:**
+
+| | s | ratio |
+|---|---:|---:|
+| `k_ntt_p2_gather` (inherited) | 0.03412 | — |
+| `k_ntt_p2_gather_f` (rung 2) | 0.02878 | 1.185x |
+| **`k_ntt_p2_gather_sp` (pruned)** | **0.00657** | **4.379x over rung 2, 5.19x over the inherited kernel** |
+| the four kernels, inherited | 0.17423 | — |
+| the four kernels, rung 2 | 0.14149 | 1.231x |
+| **the four kernels, rungs 2+3** | **0.11928** | **1.461x** |
+
+The last stage group falls from 19.6% of the four kernels to **5.5%**;
+`k_dit_p1_pad_s` is now 56% of what remains.
+
+**ALL TWELVE BYTE GATES GREEN AGAIN with rung 3 in** (exit 0), and every
+`gpu-probe` device-vs-CPU oracle GREEN including the chunked-commit check
+that compares the re-encoded OPENING COLUMNS against the CPU encoding
+directly — which is the pruned kernel's own oracle. `cargo test` 41/41.
+
