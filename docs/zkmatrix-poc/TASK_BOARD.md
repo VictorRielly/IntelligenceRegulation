@@ -156,7 +156,14 @@ AND THE CULPRIT IS NOT THE ONE THE LEDGER NAMED):**
   now. The old worry — that opening lanes shuts the upgrade window —
   was based on the upgrade being a big operation; it is three commands
   and a floors run, so a short pause later is enough.
-- **ROUND 16, TWO LANES, BOTH READY TO WRITE BRIEFS FOR:**
+- **ROUND 16 IS OPEN (ec02f0d). BRIEFS ARE WRITTEN AND BOTH WORKTREES
+  EXIST** — `wt-uperf3-an` (branch `uperf3-an`) and `wt-uperf3-ao`
+  (branch `uperf3-ao`), both at ec02f0d. The briefs are in
+  `PROGRESS_UPERF3.md` under "## ROUND 16"; each lane's ownership block
+  is authoritative and the two share NO file (AN = the statement
+  surface, AO = the device/encoding surface). **No agent has been
+  launched yet — that is the next action, and it is Victor's to
+  authorise.** The two lanes:
   - **FUNCTION 2 — THE ZK CONTENT FILTER. Its trigger has now fired.**
     The third ruling deferred it with "NOT a lane yet ... it becomes a
     lane when AM reports"; AM has reported. **It needs no further
