@@ -25,7 +25,7 @@ use hashline::layer::{apply_tamper, matmul_differential, prove_layer, verify_lay
 use hashline::ntt::NttTables;
 use hashline::transcript::Transcript;
 use std::time::Instant;
-use hashline::export_v3::{clone_witness_v3, compare_planes, derive_v3, export_dir_v3, load_layer_v3, V3Sidecar, V3Witness};
+use hashline::export_v3::{clone_witness_v3, compare_planes, derive_v3, derive_v3_with_table, export_dir_v3, load_layer_v3, V3Sidecar, V3Witness};
 use hashline::layer::{apply_tamper_v3, prove_layer_v3, verify_layer_v3, StatementV3, TamperV3};
 
 struct Opts {
@@ -284,6 +284,38 @@ fn main() {
             if ok != n {
                 std::process::exit(1);
             }
+        }
+        // [UPERF3-AG] rung 4: the attention half-layer proof alone (no FFN):
+        // prove + verify one layer's attention + norms + residual over an
+        // oracle export, with --t to truncate the token axis.
+        "attn-layer" => {
+            let dir = args.get(2).cloned().unwrap_or_else(|| {
+                eprintln!("usage: hashline attn-layer <export-dir> [--t T] [--all-tampers]");
+                std::process::exit(2)
+            });
+            let o = parse_opts(&args[3..]);
+            attn_layer(&dir, &o)
+        }
+        // [UPERF3-AG] rung 4: THE FULL LAYER — attention + norms + residual
+        // + the v3 FFN half on the same transcript, bound by the seam.
+        "attn-full" => {
+            let dir = args.get(2).cloned().unwrap_or_else(|| {
+                eprintln!("usage: hashline attn-full <attn-export-dir> --export <v3-export> [--t T] [--all-tampers]");
+                std::process::exit(2)
+            });
+            let o = parse_opts(&args[3..]);
+            attn_full(&dir, &o)
+        }
+        // [UPERF3-AG] rung 5: the FULL-MODEL pass — every layer's attention
+        // and FFN halves on one transcript, the layer seams bound.
+        "attn-pass" => {
+            let prefix = args.get(2).cloned().unwrap_or_else(|| {
+                eprintln!("usage: hashline attn-pass <attn-export-prefix> <layers> --export <v3-export> [--t T]");
+                std::process::exit(2)
+            });
+            let n: usize = args.get(3).and_then(|x| x.parse().ok()).unwrap_or(12);
+            let o = parse_opts(&args[4.min(args.len())..]);
+            attn_pass(&prefix, n, &o)
         }
         "gpu-probe" => gpu_probe(),
         // [UPERF3-AF] rung 1: the PCS alone, Ligero vs compact, on random multilinears
@@ -1150,4 +1182,442 @@ fn pass_zk_v3(n: usize, t: usize, o: &Opts) {
     println!("PASS-V3 {} [ZK]: {n} x {t} (d {} f {}): witness load+chain {t_load:.2} s | PROVE {t_prove:.2} s | VERIFY {t_verify:.2} s | proof {bytes} B ({:.1} MB) | {:.3e} MACs | {:.3e} proven MAC/s (prove wall) | wall {:.2} s",
         if ok { "ACCEPT" } else { "REJECT" }, dm.d, dm.f, bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
     if !ok { std::process::exit(1); }
+}
+
+// ===========================================================================
+// [UPERF3-AG] the full-layer path
+// ===========================================================================
+
+fn attn_layer(dir: &str, o: &Opts) {
+    use hashline::attention as at;
+    let ntt = NttTables::new(o.log_cols + o.inv_rate.trailing_zeros());
+    let p = params(o);
+    let t0 = Instant::now();
+    let wit = at::build_attn_witness_t(dir, o.t_rows);
+    let s = wit.c.shape;
+    println!("attn-layer {dir}: T {} d {} H {}/{} d_h {} (witness {:.2} s, {} threads)",
+             s.t, s.d, s.heads, s.kv_heads, s.head_dim, t0.elapsed().as_secs_f64(),
+             rayon::current_num_threads());
+    let z16 = vec![0i64; s.t * s.d];
+    let r2 = at::residual2(&wit, z16, wit.c.e_r1, wit.c.e_r1, wit.c.r1_cls);
+    println!("  residual2 (no FFN half in this mode): sh_x2 {} sh_z2 {} sh_r2 {} e_r2 {}",
+             r2.c.sh_x2, r2.c.sh_z2, r2.c.sh_r2, r2.c.e_r2);
+    let legs: Vec<(&str, at::AttnTamper)> = vec![
+        ("flipped x_in", at::AttnTamper::FlipX(777)),
+        ("flipped score s8", at::AttnTamper::FlipScore(4242)),
+        ("wrong exp-table entry", at::AttnTamper::WrongExp(1000)),
+        ("wrong softmax quotient", at::AttnTamper::WrongQuot(555)),
+        ("wrong norm output", at::AttnTamper::WrongNorm(321)),
+        ("wrong isqrt D", at::AttnTamper::WrongIsqrt(11)),
+        ("wrong RoPE rotation", at::AttnTamper::WrongRope(999)),
+        ("wrong row maximum", at::AttnTamper::WrongMax(17)),
+        ("attainment selector moved", at::AttnTamper::WrongZsel(2048)),
+        ("broken residual/seam plane", at::AttnTamper::BreakSeam(123)),
+    ];
+    let mut tr = Transcript::new(b"hashline-attn-layer");
+    let t1 = Instant::now();
+    let (mut proof, pend, timings) = at::prove_attn(&wit, &r2, &p, &ntt, &mut tr);
+    let lay = pend.lay.clone();
+    at::attn_open(pend, &mut proof, &mut tr);
+    let tp = t1.elapsed().as_secs_f64();
+    for (n, x) in &timings { println!("      {n:<24} {x:8.3} s"); }
+    println!("  PROVE {tp:.3} s, proof {} B ({:.1} MB); a_len {} h_len {} w_len {} cols 2^{}",
+             proof.size_bytes(), proof.size_bytes() as f64 / 1e6, lay.a_len, lay.h_len, lay.w_len, lay.cols_log);
+    let t2 = Instant::now();
+    let mut tv = Transcript::new(b"hashline-attn-layer");
+    let r = (|| -> Result<(), String> {
+        let (lay2, cc) = at::verify_attn(&proof, &wit.c, &r2.c, &p, &mut tv)?;
+        at::verify_attn_open(&proof, &lay2, &cc, &p, &ntt, &mut tv)
+    })();
+    let tvv = t2.elapsed().as_secs_f64();
+    let mut fails = 0;
+    match &r {
+        Ok(()) => println!("  VERIFY {tvv:.3} s: ACCEPT"),
+        Err(e) => { println!("  VERIFY {tvv:.3} s: REJECT: {e}"); fails += 1; }
+    }
+    if o.all_tampers {
+        at::set_tamper_mode(true);
+        for (name, tm) in legs {
+            let mut w2 = at::clone_attn_witness(&wit);
+            let mut r22 = at::clone_resid2(&r2);
+            at::apply_attn_tamper(&mut w2, &mut r22, tm);
+            let mut trp = Transcript::new(b"hashline-attn-layer");
+            let (mut pf, pend, _) = at::prove_attn(&w2, &r22, &p, &ntt, &mut trp);
+            at::attn_open(pend, &mut pf, &mut trp);
+            let mut trv = Transcript::new(b"hashline-attn-layer");
+            let rr = (|| -> Result<(), String> {
+                let (l2, cc) = at::verify_attn(&pf, &w2.c, &r22.c, &p, &mut trv)?;
+                at::verify_attn_open(&pf, &l2, &cc, &p, &ntt, &mut trv)
+            })();
+            match rr {
+                Ok(()) => { println!("  tamper [{name}]: ACCEPTED (BUG)"); fails += 1; }
+                Err(e) => println!("  tamper [{name}]: REJECT ({})", first_line(&e)),
+            }
+        }
+        at::set_tamper_mode(false);
+    }
+    println!("attn-layer: {}", if fails == 0 { "GREEN" } else { "RED" });
+    if fails > 0 { std::process::exit(1); }
+}
+
+fn first_line(e: &str) -> String {
+    e.chars().take(72).collect()
+}
+
+/// [UPERF3-AG] one FULL layer: the attention half (its own W/A/H
+/// commitments) and the v3 FFN half on ONE transcript, bound by the SEAM
+/// (the FFN's X IS the attention's xm8; the residual pin's z16 copy IS the
+/// FFN's z16), both checked at the point the FFN's zero-check D drew after
+/// both A commitments.
+fn attn_full(dir: &str, o: &Opts) {
+    use hashline::attention as at;
+    use hashline::field::Fp2;
+    use hashline::layer::{v3_zcd_point, LayoutV3};
+    let ntt = NttTables::new(o.log_cols + o.inv_rate.trailing_zeros());
+    let p = params(o);
+    let (v3dir, side) = v3_dir_side(o);
+    let t0 = Instant::now();
+    let l0 = at::layer_of(dir);
+    let ex_e_x = {
+        let (dir2, side2) = v3_dir_side(o);
+        let _ = &dir2;
+        side2.exps(l0).e_x
+    };
+    let wit = at::build_attn_witness_full(dir, o.t_rows, None, Some(ex_e_x));
+    let sh = wit.c.shape;
+    let (t, d) = (sh.t, sh.d);
+    let l = wit.c.layer;
+    assert_eq!(d, side.dims.d, "the two exports disagree on d");
+    // the FFN half runs on THIS layer's xm8 (not the export's X plane)
+    let mut ex = load_layer_v3(&v3dir, &side, l, false, true);
+    let same = (0..t * d).filter(|&i| ex.x[i] as i64 == wit.nm.y[i]).count();
+    for i in 0..t * d { ex.x[i] = wit.nm.y[i] as i8; }
+    // the FFN's own X exponent vs the attention half's xm8 exponent: the
+    // gate/up shifts absorb the difference so the frozen table member (keyed
+    // by the gate exponent) is unchanged.
+    let dx = wit.c.e_xm - ex.exps.e_x;
+    if dx != 0 {
+        println!("  the attention half's xm8 sits {dx} bit(s) from the FFN export's X exponent: g/u shifts adjusted, the frozen table member unchanged");
+        ex.shifts.0 -= dx;
+        ex.shifts.1 -= dx;
+        ex.exps.e_x += dx;
+    }
+    let (w3, bumps, e_z16) = derive_ffn_on(&ex, t);
+    let z16: Vec<i64> = w3.z16[..t * d].iter().map(|&v| v as i64).collect();
+    let r2 = at::residual2(&wit, z16, wit.c.e_r1, e_z16, wit.c.r1_cls);
+    if bumps.iter().any(|&b| b != 0) {
+        println!("  the FFN half's shifts fitted to this X plane: g/u/h/z bumped by {bumps:?} (public constants; the frozen table member re-selected for the new gate exponent)");
+    }
+    println!("attn-full {dir} + {}: layer {l}, T {t} d {d} f {} H {}/{} d_h {} ({:.2} s, {} threads)",
+             v3dir.display(), side.dims.f, sh.heads, sh.kv_heads, sh.head_dim,
+             t0.elapsed().as_secs_f64(), rayon::current_num_threads());
+    println!("  {}", at::consts_line(&wit.c));
+    println!("  the attention half's xm8 vs the FFN export's own X plane: {}/{} equal ({:.4}) — the FFN half is proven on xm8 either way",
+             same, t * d, same as f64 / (t * d) as f64);
+    println!("  residual2: xres1 << {} + z16 << {} >> {} -> e_r2 {} ({:?})",
+             r2.c.sh_x2, r2.c.sh_z2, r2.c.sh_r2, r2.c.e_r2, r2.c.r2_cls);
+    let st3 = stmt_v3(&w3, t);
+    let lay3 = LayoutV3::new(t, d, side.dims.f);
+
+    let run = |tamper_a: at::AttnTamper, tamper_f: TamperV3, z_break: bool|
+        -> (Result<(), String>, f64, f64, usize, usize) {
+        let mut w = at::clone_attn_witness(&wit);
+        let mut r22 = at::clone_resid2(&r2);
+        at::apply_attn_tamper(&mut w, &mut r22, tamper_a);
+        if z_break { at::break_seam(&mut r22, &w, 7); }
+        let mut w32 = clone_witness_v3(&w3);
+        apply_tamper_v3(&mut w32, tamper_f);
+        // ---- prove ----
+        let t1 = Instant::now();
+        let mut tr = Transcript::new(b"hashline-full-layer");
+        let (mut pa, pend, _tm) = at::prove_attn(&w, &r22, &p, &ntt, &mut tr);
+        let lay = pend.lay.clone();
+        let a_data = pend.a_data.clone();
+        let before = Transcript::clone_state(&tr);
+        let out3 = prove_layer_v3(&w32, t, &p, &ntt, &mut tr);
+        let rho_d = v3_zcd_point(&st3, &out3.proof, &before);
+        let pts = seam_points(&rho_d, lay.log_t, lay.log_dp, lay3.log_db, lay3.nb_d);
+        let wx: Vec<Fp2> = (0..lay3.nb_d).map(|c| out3.proof.zcd_term[c]).collect();
+        let wz: Vec<Fp2> = (0..lay3.nb_d).map(|c| out3.proof.zcd_term[lay3.nb_d + c]).collect();
+        let mut pend = pend;
+        at::attn_seam(&mut pend.cc, &mut tr, &lay, Some(&a_data), &pts, &wx, &wz).ok();
+        at::attn_open(pend, &mut pa, &mut tr);
+        let tp = t1.elapsed().as_secs_f64();
+        let bytes = pa.size_bytes() + out3.proof.size_bytes();
+        let abytes = pa.size_bytes();
+        // ---- verify ----
+        let t2 = Instant::now();
+        let mut tv = Transcript::new(b"hashline-full-layer");
+        let r = (|| -> Result<(), String> {
+            let (lay2, mut cc) = at::verify_attn(&pa, &w.c, &r22.c, &p, &mut tv)?;
+            let before = Transcript::clone_state(&tv);
+            verify_layer_v3(&st3, &out3.proof, &p, &ntt, &mut tv).map_err(|e| format!("FFN half: {e}"))?;
+            let rho_d = v3_zcd_point(&st3, &out3.proof, &before);
+            let pts = seam_points(&rho_d, lay2.log_t, lay2.log_dp, lay3.log_db, lay3.nb_d);
+            let wx: Vec<Fp2> = (0..lay3.nb_d).map(|c| out3.proof.zcd_term[c]).collect();
+            let wz: Vec<Fp2> = (0..lay3.nb_d).map(|c| out3.proof.zcd_term[lay3.nb_d + c]).collect();
+            at::attn_seam(&mut cc, &mut tv, &lay2, None, &pts, &wx, &wz)?;
+            at::verify_attn_open(&pa, &lay2, &cc, &p, &ntt, &mut tv)
+        })();
+        (r, tp, t2.elapsed().as_secs_f64(), bytes, abytes)
+    };
+
+    let (r, tp, tv, bytes, ab) = run(at::AttnTamper::None, TamperV3::None, false);
+    println!("  FULL LAYER: PROVE {tp:.3} s | VERIFY {tv:.3} s | proof {bytes} B ({:.1} MB; attention half {:.1} MB) | {}",
+             bytes as f64 / 1e6, ab as f64 / 1e6, match &r { Ok(()) => "ACCEPT".to_string(), Err(e) => format!("REJECT: {e}") });
+    let mut fails = usize::from(r.is_err());
+    if o.all_tampers {
+        at::set_tamper_mode(true);
+        let legs: Vec<(&str, at::AttnTamper, TamperV3, bool)> = vec![
+            ("flipped score s8", at::AttnTamper::FlipScore(4242), TamperV3::None, false),
+            ("wrong exp-table entry", at::AttnTamper::WrongExp(1000), TamperV3::None, false),
+            ("wrong softmax quotient", at::AttnTamper::WrongQuot(555), TamperV3::None, false),
+            ("wrong norm output", at::AttnTamper::WrongNorm(321), TamperV3::None, false),
+            ("wrong RoPE rotation", at::AttnTamper::WrongRope(999), TamperV3::None, false),
+            ("wrong row maximum", at::AttnTamper::WrongMax(17), TamperV3::None, false),
+            ("flipped x_in", at::AttnTamper::FlipX(777), TamperV3::None, false),
+            ("BROKEN SEAM (z16 copy != the FFN's z16)", at::AttnTamper::None, TamperV3::None, true),
+            ("FFN half: wrong int16 table entry", at::AttnTamper::None, TamperV3::WrongTableEntry(1000), false),
+            ("FFN half: wrong requant h16", at::AttnTamper::None, TamperV3::WrongRequant(555), false),
+        ];
+        for (name, ta, tf, zb) in legs {
+            let (r, tp, _tv, _b, _a) = run(ta, tf, zb);
+            match r {
+                Ok(()) => { println!("  tamper [{name}]: ACCEPTED (BUG)"); fails += 1; }
+                Err(e) => println!("  tamper [{name}]: REJECT ({}) [{tp:.1} s]", first_line(&e)),
+            }
+        }
+        at::set_tamper_mode(false);
+    }
+    println!("attn-full: {}", if fails == 0 { "GREEN" } else { "RED" });
+    if fails > 0 { std::process::exit(1); }
+}
+
+/// [UPERF3-AG] Derive the v3 FFN witness on a REPLACED X plane (the
+/// attention half's xm8), FITTING the four requant shifts: the export was
+/// calibrated on its own X, and the composed layer's X is a different
+/// integer plane, so a shift may have to rise. Every shift is a public
+/// statement constant (never a silent clamp), and the gate shift's rise is
+/// matched by the FROZEN table member for the new gate exponent, so the
+/// activation table stays a registry member.
+fn derive_ffn_on(ex: &hashline::export_v3::V3LayerExport, t: usize) -> (V3Witness, [i32; 4], i32) {
+    use hashline::export_v3::{matmul_i32_i8_i64, requant_round};
+    let (d, f) = (ex.dims.d, ex.dims.f);
+    let xi: Vec<i32> = ex.x[..t * d].iter().map(|&v| v as i32).collect();
+    let fit = |accmax: i64, lim: i64, sh0: i32| -> i32 {
+        let mut sh = sh0;
+        loop {
+            let (y, _) = requant_round(&[accmax], sh);
+            if y[0].abs() <= lim { return sh; }
+            sh += 1;
+            assert!(sh - sh0 < 24, "runaway FFN shift fit");
+        }
+    };
+    let amax = |v: &[i64]| v.iter().map(|x| x.abs()).max().unwrap_or(0);
+    let gacc = matmul_i32_i8_i64(&xi, &ex.wg_t, t, d, f);
+    let uacc = matmul_i32_i8_i64(&xi, &ex.wu_t, t, d, f);
+    let sh_g = fit(amax(&gacc), 127, ex.shifts.0);
+    let sh_u = fit(amax(&uacc), 32767, ex.shifts.1);
+    let e_g = ex.exps.e_x + ex.exps.e_wg + sh_g;
+    let (table, tdig) = hashline::tables_v3::int16out_member(ex.act, e_g, ex.exps.e_a16)
+        .unwrap_or_else(|| panic!("no frozen {} member at (e_gate {e_g}, e_out {})", ex.act.spec_name(), ex.exps.e_a16));
+    let (g8, _) = requant_round(&gacc, sh_g);
+    let (u16v, _) = requant_round(&uacc, sh_u);
+    let hh: Vec<i64> = g8.iter().zip(u16v.iter())
+        .map(|(&g, &u)| table[((g + 128).clamp(0, 255)) as usize] as i64 * u).collect();
+    let sh_h = fit(amax(&hh), 32767, ex.shifts.2);
+    let (h16, _) = requant_round(&hh, sh_h);
+    let h32: Vec<i32> = h16.iter().map(|&v| v as i32).collect();
+    let dacc = matmul_i32_i8_i64(&h32, &ex.wd_t, t, f, d);
+    let sh_z = fit(amax(&dacc), 32767, ex.shifts.3);
+    let mut ex2 = clone_export_shifts(ex);
+    ex2.shifts = (sh_g, sh_u, sh_h, sh_z);
+    let w = derive_v3_with_table(&ex2, t, table, tdig);
+    assert!(w.range_ok, "the FFN half still does not fit its classes after the shift fit");
+    let e_u16 = ex.exps.e_x + ex.exps.e_wu + sh_u;
+    let e_h16 = ex.exps.e_a16 + e_u16 + sh_h;
+    let e_z16 = e_h16 + ex.exps.e_wd + sh_z;
+    (w, [sh_g - ex.shifts.0, sh_u - ex.shifts.1, sh_h - ex.shifts.2, sh_z - ex.shifts.3], e_z16)
+}
+
+fn clone_export_shifts(ex: &hashline::export_v3::V3LayerExport) -> hashline::export_v3::V3LayerExport {
+    hashline::export_v3::V3LayerExport {
+        l: ex.l, dims: ex.dims, x: ex.x.clone(), wg_t: ex.wg_t.clone(), wu_t: ex.wu_t.clone(),
+        wd_t: ex.wd_t.clone(), a16: ex.a16.clone(), u16: ex.u16.clone(), h16: ex.h16.clone(),
+        z16: ex.z16.clone(), exps: ex.exps, shifts: ex.shifts, act: ex.act, table: ex.table,
+        table_digest: ex.table_digest.clone(), digest_checks: ex.digest_checks.clone(),
+    }
+}
+
+/// The seam points: the FFN's zero-check-D point, lifted onto the padded
+/// d axis one block at a time (the block index is the high bits of i).
+fn seam_points(rho_d: &[hashline::field::Fp2], log_t: u32, log_dp: u32, log_db: u32, nb_d: usize)
+    -> Vec<Vec<hashline::field::Fp2>> {
+    use hashline::field::Fp2;
+    let extra = log_dp - log_db;
+    (0..nb_d).map(|c| {
+        let mut pt: Vec<Fp2> = rho_d[..log_t as usize].to_vec();
+        for b in (0..extra).rev() {
+            pt.push(if (c >> b) & 1 == 1 { Fp2::ONE } else { Fp2::ZERO });
+        }
+        pt.extend_from_slice(&rho_d[log_t as usize..]);
+        pt
+    }).collect()
+}
+
+/// [UPERF3-AG] RUNG 5: the FULL-MODEL pass. Every layer's attention half
+/// and FFN half on ONE transcript, with BOTH seams bound: inside a layer
+/// (the FFN's X is the attention's xm8, its z16 is the residual pin's
+/// copy) and between layers (layer l's xres2 IS layer l+1's x_in, one MLE
+/// equality at a point drawn after both A commitments; layer l's A opening
+/// is deferred until then).
+fn attn_pass(prefix: &str, n: usize, o: &Opts) {
+    let ok = attn_pass_run(prefix, n, o, false);
+    let mut fails = usize::from(!ok);
+    if o.all_tampers {
+        // the LAYER seam alone: layer 1's input is changed by one, and its
+        // whole witness rebuilt on it, so every other relation still holds
+        hashline::attention::set_tamper_mode(true);
+        println!("  tamper [BROKEN LAYER SEAM: layer 1's x_in != layer 0's xres2]:");
+        let ok2 = attn_pass_run(prefix, 2.min(n), o, true);
+        hashline::attention::set_tamper_mode(false);
+        if ok2 { println!("    ACCEPTED (BUG)"); fails += 1; } else { println!("    REJECT"); }
+    }
+    println!("attn-pass: {}", if fails == 0 { "GREEN" } else { "RED" });
+    if fails > 0 { std::process::exit(1); }
+}
+
+fn attn_pass_run(prefix: &str, n: usize, o: &Opts, break_seam: bool) -> bool {
+    use hashline::attention as at;
+    use hashline::field::Fp2;
+    use hashline::layer::{v3_zcd_point, LayoutV3};
+    let ntt = NttTables::new(o.log_cols + o.inv_rate.trailing_zeros());
+    let p = params(o);
+    let (v3dir, side) = v3_dir_side(o);
+    let n = n.min(side.dims.layers);
+    let t_all = Instant::now();
+    println!("attn-pass: {n} FULL layers (attention + norms + residual + FFN, seams bound) — {prefix}* + {}",
+             v3dir.display());
+    println!("  {} threads", rayon::current_num_threads());
+
+    let mut tr = Transcript::new(b"hashline-full-pass");
+    let mut pa: Vec<at::AttnProof> = Vec::new();
+    let mut pf: Vec<hashline::layer::LayerProofV3> = Vec::new();
+    let mut consts: Vec<(at::AttnConsts, at::FullConsts, StatementV3)> = Vec::new();
+    let mut prev: Option<at::AttnPending> = None;
+    let mut seam_in: Option<at::SeamIn> = None;
+    let mut t_wit = 0.0f64;
+    let mut t_prove = 0.0f64;
+    for l in 0..n {
+        let dir = format!("{prefix}{l}");
+        let t0 = Instant::now();
+        let e_x = side.exps(l).e_x;
+        let wit = at::build_attn_witness_full(&dir, o.t_rows, seam_in.take(), Some(e_x));
+        let (t, d) = (wit.c.shape.t, wit.c.shape.d);
+        let mut ex = load_layer_v3(&v3dir, &side, l, false, true);
+        for i in 0..t * d { ex.x[i] = wit.nm.y[i] as i8; }
+        ex.exps.e_x = wit.c.e_xm;
+        let (w3, bumps, e_z16) = derive_ffn_on(&ex, t);
+        let z16: Vec<i64> = w3.z16[..t * d].iter().map(|&v| v as i64).collect();
+        let r2 = at::residual2(&wit, z16, wit.c.e_r1, e_z16, wit.c.r1_cls);
+        let st3 = stmt_v3(&w3, t);
+        let lay3 = LayoutV3::new(t, d, side.dims.f);
+        t_wit += t0.elapsed().as_secs_f64();
+        let t1 = Instant::now();
+        // ---- the attention half ----
+        let (mut proof_a, mut pend, _tm) = at::prove_attn(&wit, &r2, &p, &ntt, &mut tr);
+        let lay = pend.lay.clone();
+        // ---- the FFN half + the inner seam ----
+        let before = Transcript::clone_state(&tr);
+        let out3 = prove_layer_v3(&w3, t, &p, &ntt, &mut tr);
+        drop(w3);
+        let rho_d = v3_zcd_point(&st3, &out3.proof, &before);
+        let pts = seam_points(&rho_d, lay.log_t, lay.log_dp, lay3.log_db, lay3.nb_d);
+        let wx: Vec<Fp2> = (0..lay3.nb_d).map(|c| out3.proof.zcd_term[c]).collect();
+        let wz: Vec<Fp2> = (0..lay3.nb_d).map(|c| out3.proof.zcd_term[lay3.nb_d + c]).collect();
+        let a_data = pend.a_data.clone();
+        let _ = at::attn_seam(&mut pend.cc, &mut tr, &lay, Some(&a_data), &pts, &wx, &wz);
+        at::attn_open_wh(&mut pend, &mut proof_a, &mut tr);
+        // ---- the layer seam with the PREVIOUS layer, then close its A ----
+        if let Some(mut pv) = prev.take() {
+            let r_seam = tr.challenge_fp2_vec(lay.log_d as usize);
+            let ap = pv.a_data.clone();
+            let lp = pv.lay.clone();
+            let _ = at::layer_seam(&mut pv.cc, &mut pend.cc, &mut tr, &lp, &lay, Some(&ap), Some(&a_data), &r_seam);
+            let li = pa.len() - 1;
+            at::attn_open_a(pv, &mut pa[li], &mut tr);
+        }
+        t_prove += t1.elapsed().as_secs_f64();
+        println!("  layer {l:2}: prove {:.3} s | attn {} B + ffn {} B{}", t1.elapsed().as_secs_f64(),
+                 proof_a.size_bytes(), out3.proof.size_bytes(),
+                 if bumps.iter().any(|&b| b != 0) { format!(" | FFN shifts bumped {bumps:?}") } else { String::new() });
+        let mut xs = r2.xres2.clone();
+        if break_seam && l == 0 { xs[3] += 1; }
+        seam_in = Some(at::SeamIn { x: xs, e_r: r2.c.e_r2, cls: r2.c.r2_cls });
+        consts.push((wit.c.clone(), r2.c.clone(), st3));
+        pa.push(proof_a);
+        pf.push(out3.proof);
+        prev = Some(pend);
+    }
+    if let Some(pv) = prev.take() {
+        let t1 = Instant::now();
+        let li = pa.len() - 1;
+        at::attn_open_a(pv, &mut pa[li], &mut tr);
+        t_prove += t1.elapsed().as_secs_f64();
+    }
+    let bytes: usize = pa.iter().map(|x| x.size_bytes()).sum::<usize>()
+        + pf.iter().map(|x| x.size_bytes()).sum::<usize>();
+    {
+        let mut all: Vec<u8> = Vec::with_capacity(bytes);
+        for (a, f) in pa.iter().zip(pf.iter()) {
+            all.extend_from_slice(&a.to_bytes());
+            all.extend_from_slice(&f.to_bytes());
+        }
+        let digest = hashline::export::sha256_hex(&all);
+        println!("PROOF sha256 {digest} ({} B)", all.len());
+        if let Some(path) = &o.proof_out {
+            std::fs::write(path, &all).unwrap();
+        }
+    }
+    // ---- verify ----
+    let t2 = Instant::now();
+    let mut tv = Transcript::new(b"hashline-full-pass");
+    let r = (|| -> Result<(), String> {
+        let mut prev: Option<(at::AttnLayout, at::Cc, usize)> = None;
+        for l in 0..n {
+            let (c, fc, st3) = &consts[l];
+            let (lay, mut cc) = at::verify_attn(&pa[l], c, fc, &p, &mut tv)?;
+            let before = Transcript::clone_state(&tv);
+            verify_layer_v3(st3, &pf[l], &p, &ntt, &mut tv).map_err(|e| format!("layer {l} FFN: {e}"))?;
+            let lay3 = LayoutV3::new(c.shape.t, c.shape.d, side.dims.f);
+            let rho_d = v3_zcd_point(st3, &pf[l], &before);
+            let pts = seam_points(&rho_d, lay.log_t, lay.log_dp, lay3.log_db, lay3.nb_d);
+            let wx: Vec<Fp2> = (0..lay3.nb_d).map(|k| pf[l].zcd_term[k]).collect();
+            let wz: Vec<Fp2> = (0..lay3.nb_d).map(|k| pf[l].zcd_term[lay3.nb_d + k]).collect();
+            at::attn_seam(&mut cc, &mut tv, &lay, None, &pts, &wx, &wz).map_err(|e| format!("layer {l}: {e}"))?;
+            at::verify_attn_open_wh(&pa[l], &lay, &cc, &p, &ntt, &mut tv).map_err(|e| format!("layer {l}: {e}"))?;
+            if let Some((lp, mut cp, li)) = prev.take() {
+                let r_seam = tv.challenge_fp2_vec(lay.log_d as usize);
+                at::layer_seam(&mut cp, &mut cc, &mut tv, &lp, &lay, None, None, &r_seam)
+                    .map_err(|e| format!("layers {li}->{l}: {e}"))?;
+                at::verify_attn_open_a(&pa[li], &lp, &cp, &p, &ntt, &mut tv).map_err(|e| format!("layer {li}: {e}"))?;
+            }
+            prev = Some((lay, cc, l));
+        }
+        if let Some((lp, cp, li)) = prev.take() {
+            at::verify_attn_open_a(&pa[li], &lp, &cp, &p, &ntt, &mut tv).map_err(|e| format!("layer {li}: {e}"))?;
+        }
+        Ok(())
+    })();
+    let tv_s = t2.elapsed().as_secs_f64();
+    let (t, d, f) = (consts[0].0.shape.t, consts[0].0.shape.d, side.dims.f);
+    // per token per layer: the FFN's three matmuls, Q and O (d x d), K and V
+    // (d x d_kv, GQA), and the two attention matmuls over the full T x T
+    let d_kv = (consts[0].0.shape.kv_heads * consts[0].0.shape.head_dim) as f64;
+    let macs = n as f64 * t as f64 * (3.0 * d as f64 * f as f64 + 2.0 * d as f64 * d as f64
+               + 2.0 * d as f64 * d_kv + 2.0 * t as f64 * d as f64);
+    println!("PASS-FULL {}: {n} x {t} (d {d} f {f}): witness {t_wit:.2} s | PROVE {t_prove:.2} s | VERIFY {tv_s:.2} s | proof {bytes} B ({:.1} MB) | {:.3e} MACs | {:.3e} proven MAC/s | wall {:.2} s",
+             match &r { Ok(()) => "ACCEPT".to_string(), Err(e) => format!("REJECT: {e}") },
+             bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
+    r.is_ok()
 }
