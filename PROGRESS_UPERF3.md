@@ -13659,6 +13659,46 @@ attributed before it is optimised.
 
 (lane appends below)
 
+### AN rung 0 — 2026-09-04 — lane opened, ground read, plan fixed
+
+READ: `CLAUDE.md`; the round-16 lane AN ownership block above;
+`docs/zkmatrix-poc/PROOF_FUNCTIONS.md` sections 2, 3, 5 (section 5 is a
+RULING — no design work in this lane); lane AM's commit `b026b04`.
+
+WHAT I FOUND THAT CHANGES THE SHAPE OF THE WORK (good news): lane AM
+already built **the whole statement-header half** of function 2 and left
+the gadget half empty on purpose. Concretely, in `hashline/src/zk.rs`:
+
+- `enum OutputClaim { Committed, BinaryAcceptable }` — the function-2
+  variant EXISTS, with tag `commit+pred:binary-acceptable`;
+- `ZkStatementMode { privacy, output, model_id }` — the predicate id and
+  the model identity digest are already in the SAME header struct, and
+  `header_v3()` is absorbed into the transcript as `b"zk"` immediately
+  after `absorb_statement_v3`, so both are already under the SAME
+  transcript before any challenge. The MUST-HOLD binding is therefore
+  inherited, not re-built;
+- `verify_layer_zk_v3` currently hard-refuses the variant:
+  `if mode.output != OutputClaim::Committed { return Err("output claim
+  not built (only \`commit\`, function 1, exists)") }` — this is the line
+  the lane replaces;
+- the 41st test (zk.rs, `mode_headers_are_not_interchangeable`-shaped,
+  around :3442) already asserts a function-1 proof does not verify as
+  function-2. It asserts one DIRECTION against a refusal, not against a
+  real function-2 proof; making the gadget real turns that into the
+  two-way test the brief asks for.
+
+So the lane's actual job is: (1) the predicate witness + its ONE
+non-negativity range fact, reusing the q46 remainder bit-plane range
+machinery, (2) the predicate parameters into the header, (3) the driver
+flag, (4) the two-way interchange test, (5) the byte gates unmoved.
+
+PLAN: rung 1 = locate and characterise the range machinery to reuse and
+write down exactly which columns the predicate rides on; rung 2 = build
+it; rung 3 = the two-way test + the eight byte gates + the measured cost.
+
+MEASURED: nothing yet.
+OPEN: everything below rung 1.
+
 ## Agent AO status (wt-uperf3-ao) — round 16
 
 (lane appends below)
