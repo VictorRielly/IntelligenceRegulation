@@ -1,0 +1,115 @@
+=== 8B ZK PASS [gpu]: 32 x 512, Mistral-7B, --zk --seed 1 --profile v3 ===
+2026-09-03 23:53:29
+ 23:53:29 up 51 min,  1 user,  load average: 3.31, 4.16, 3.22
+157 MiB, 8188 MiB
+binary: /home/victor/wt-uperf3-ai/hashline/target-gpu/release/hashline
+-rwxr-xr-x 2 victor victor 4964128 Sep  3 23:43 /home/victor/wt-uperf3-ai/hashline/target-gpu/release/hashline
+pass (v3) [ZK, mode P1, seed 1]: 32 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export (d 4096 f 14336; log_cols 14, inv_rate 4, col checks 256, threads 8)
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 4.360 s, 40186228 B
+  layer  1: prove 7.840 s, 40173940 B
+  layer  2: prove 8.093 s, 40173940 B
+  layer  3: prove 8.115 s, 40173940 B
+  layer  4: prove 8.201 s, 40173940 B
+  layer  5: prove 8.252 s, 40173940 B
+  layer  6: prove 8.329 s, 40173940 B
+  layer  7: prove 8.501 s, 40173940 B
+  layer  8: prove 8.286 s, 40173940 B
+  layer  9: prove 8.487 s, 40173940 B
+  layer 10: prove 8.751 s, 40173940 B
+  layer 11: prove 5.055 s, 40173940 B
+  layer 12: prove 9.483 s, 40173940 B
+  layer 13: prove 9.093 s, 40173940 B
+  layer 14: prove 8.829 s, 40173940 B
+  layer 15: prove 8.608 s, 40173940 B
+  layer 16: prove 9.070 s, 40173940 B
+  layer 17: prove 8.576 s, 40173940 B
+  layer 18: prove 8.631 s, 40173940 B
+  layer 19: prove 8.921 s, 40173940 B
+  layer 20: prove 8.686 s, 40173940 B
+  layer 21: prove 5.111 s, 40173940 B
+  layer 22: prove 9.475 s, 40173940 B
+  layer 23: prove 9.127 s, 40173940 B
+  layer 24: prove 9.439 s, 40173940 B
+  layer 25: prove 9.509 s, 40173940 B
+  layer 26: prove 8.977 s, 40173940 B
+  layer 27: prove 9.525 s, 40173940 B
+  layer 28: prove 8.475 s, 40173940 B
+  layer 29: prove 9.375 s, 40173940 B
+  layer 30: prove 8.766 s, 40173940 B
+  layer 31: prove 5.397 s, 40173940 B
+prover phases (summed over layers):
+      commit W                     54.176 s
+      commit A (zk)                24.568 s
+      mask commit                   0.230 s
+      helpers + commit H (zk)     146.259 s
+      matmul g/u (zk)               6.353 s
+      matmul d (zk)                 4.289 s
+      zero-check F (zk)             8.620 s
+      zero-check D (zk)             1.344 s
+      table zero-check (zk)         1.575 s
+      zsum + mask open              0.124 s
+      pcs openings (zk)            17.797 s
+mask sites (v3; layer 0 — every layer identical in structure up to its window sizes):
+      layout: n = 2^14 columns; table zero-check over 2^16 (the INT16 class spans 4 rows); A 3601 rows = 3520 data + 61 masks + 20 table/mask rows; H 3033 rows = 2944 data + 49 masks + 40 helper/mask rows
+      A masks: 49 f-planes (g8,rg,a16,u16,ru,h16,rh x 7 f-blocks) at rho_F -> rows [3520, 3521, 3522, 3523, 3524, 3525, 3526, 3527, 3528, 3529, 3530, 3531, 3532, 3533, 3534, 3535, 3536, 3537, 3538, 3539, 3540, 3541, 3542, 3543, 3544, 3545, 3546, 3547, 3548, 3549, 3550, 3551, 3552, 3553, 3554, 3555, 3556, 3557, 3558, 3559, 3560, 3561, 3562, 3563, 3564, 3565, 3566, 3567, 3568]; 3 d-planes (X,z16,rd x 1 d-blocks) at rho_D -> rows [3569, 3570, 3571]; X-blocks at p2 -> [3572]; h16-blocks at p5 -> [3573, 3574, 3575, 3576, 3577, 3578, 3579]; prox row 3580
+      table slot tag 3 (256 entries, 2^14 slice, 1 row(s)): m at A rows 3581.., mask at A rows 3582..; helper h_t at H rows re 2993.. im 2994.., its mask re 2995.. im 2996..
+      table slot tag 4 (65536 entries, 2^16 slice, 4 row(s)): m at A rows 3583.., mask at A rows 3587..; helper h_t at H rows re 2997.. im 3001.., its mask re 3005.. im 3009..
+      table slot tag 83 (2048 entries, 2^14 slice, 1 row(s)): m at A rows 3591.., mask at A rows 3592..; helper h_t at H rows re 3013.. im 3014.., its mask re 3015.. im 3016..
+      table slot tag 74 (4 entries, 2^14 slice, 1 row(s)): m at A rows 3593.., mask at A rows 3594..; helper h_t at H rows re 3017.. im 3018.., its mask re 3019.. im 3020..
+      table slot tag 87 (32768 entries, 2^15 slice, 2 row(s)): m at A rows 3595.., mask at A rows 3597..; helper h_t at H rows re 3021.. im 3023.., its mask re 3025.. im 3027..
+      table slot tag 78 (64 entries, 2^14 slice, 1 row(s)): m at A rows 3599.., mask at A rows 3600..; helper h_t at H rows re 3029.. im 3030.., its mask re 3031.. im 3032..
+      H masks: 21 helper planes (hg,hu,hh x 7 f-blocks) at rho_F -> rows [(2944, 2945), (2946, 2947), (2948, 2949), (2950, 2951), (2952, 2953), (2954, 2955), (2956, 2957), (2958, 2959), (2960, 2961), (2962, 2963), (2964, 2965), (2966, 2967), (2968, 2969), (2970, 2971), (2972, 2973), (2974, 2975), (2976, 2977), (2978, 2979), (2980, 2981), (2982, 2983), (2984, 2985)]; 1 hz planes at rho_D -> rows [(2986, 2987)]; zero-sum u rows (2988, 2989) (its extension mask u' (2990, 2991)) for the value-0 LogUp sum group; prox row 2992
+      A: 66 claims in 5 groups
+      A group vector 0: mask rows [3520, 3521, 3522, 3523, 3524, 3525, 3526, 3527, 3528, 3529, 3530, 3531, 3532, 3533, 3534, 3535, 3536, 3537, 3538, 3539, 3540, 3541, 3542, 3543, 3544, 3545, 3546, 3547, 3548, 3549, 3550, 3551, 3552, 3553, 3554, 3555, 3556, 3557, 3558, 3559, 3560, 3561, 3562, 3563, 3564, 3565, 3566, 3567, 3568]
+      A group vector 1: mask rows [3569, 3570, 3571]
+      A group vector 2: mask rows [3572]
+      A group vector 3: mask rows [3573, 3574, 3575, 3576, 3577, 3578, 3579]
+      A group vector 4: mask rows [3582, 3587, 3588, 3589, 3590, 3592, 3594, 3597, 3598, 3600]
+      A proximity vector: prox mask row 3580 (+ every mask row with its random rho)
+      A 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      A 65536 Merkle leaves salted
+      H: 30 claims in 5 groups
+      H group vector 0: mask rows [2944, 2945, 2946, 2947, 2948, 2949, 2950, 2951, 2952, 2953, 2954, 2955, 2956, 2957, 2958, 2959, 2960, 2961, 2962, 2963, 2964, 2965, 2966, 2967, 2968, 2969, 2970, 2971, 2972, 2973, 2974, 2975, 2976, 2977, 2978, 2979, 2980, 2981, 2982, 2983, 2984, 2985]
+      H group vector 1: mask rows [2986, 2987]
+      H group vector 2: mask rows [2988, 2989, 2990, 2991]
+      H group vector 3: mask rows [2995, 2996, 3005, 3006, 3007, 3008, 3009, 3010, 3011, 3012, 3015, 3016, 3019, 3020, 3025, 3026, 3027, 3028, 3031, 3032]
+      H group vector 4: mask rows [2988, 2989]
+      H proximity vector: prox mask row 2992 (+ every mask row with its random rho)
+      H 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      H 65536 Merkle leaves salted
+  gpu device-side (summed): h2d 16.862 s (61018 MB) | ntt 119.101 s | hash 8.068 s | sumcheck 9.804 s | fold 5.874 s | helpers 19.625 s | d2h 0.000 s (1466 MB) | vram peak 8585 MB
+PROOF sha256 930ce9a043a037210f62ac1384384e3a88607f29046b56284c6308ed272c982e (1285578368 B) [ZK v3 seed 1]
+  proof written to /home/victor/wt-uperf3-ai/results/scratch-ai/zk8b_gpu.bin
+PASS-V3 ACCEPT [ZK]: 32 x 512 (d 4096 f 14336): witness load+chain 131.79 s | PROVE 265.34 s | VERIFY 2.33 s | proof 1285578368 B (1285.6 MB) | 2.886e12 MACs | 1.088e10 proven MAC/s (prove wall) | wall 402.29 s
+	Command being timed: "/home/victor/wt-uperf3-ai/hashline/target-gpu/release/hashline pass 32 512 --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --wcache /home/victor/wt-uperf3-ai/results/scratch-ai/wc8b_gpu --threads 8 --proof-out /home/victor/wt-uperf3-ai/results/scratch-ai/zk8b_gpu.bin"
+	User time (seconds): 1211.41
+	System time (seconds): 66.85
+	Percent of CPU this job got: 315%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 6:45.40
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 4296916
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 27435681
+	Voluntary context switches: 793747
+	Involuntary context switches: 2601
+	Swaps: 0
+	File system inputs: 12395982
+	File system outputs: 2773392
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+--- exit: 0 ---
+2026-09-04 00:00:14
+=== THE DIGEST, TAKEN BY HAND OVER THE WRITTEN FILE ===
+930ce9a043a037210f62ac1384384e3a88607f29046b56284c6308ed272c982e  /home/victor/wt-uperf3-ai/results/scratch-ai/zk8b_gpu.bin
+/home/victor/wt-uperf3-ai/results/scratch-ai/zk8b_gpu.bin 1285578368 B
+129M	/home/victor/wt-uperf3-ai/results/scratch-ai/wc8b_gpu
+wcache files: 32
+157 MiB

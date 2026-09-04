@@ -2055,6 +2055,23 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     // made the kernels shape-general for the non-zk prover. The block-looping kernels take any
     // block count; the bound is their shared parameter array (gpu::SCG_MAX_PRM = 384).
     let dev_shape = nb_f >= 1 && nb_d >= 1 && 17 + 14 * nb_f <= 384 && 7 + 6 * nb_d <= 384;
+    // [UPERF3-AI] THE THIRD DRAIN, and on this box the one that costs the most to omit.
+    // Measured (results/hashline_zk_8b_drain_ab.log, HL_GPU_VERBOSE trace): at layer 0 the
+    // reservation below FAILS, `dev_reserve_hard` drains, retries, and the layer then runs with
+    // 1,614 MiB free and proves in 4.36 s. At every LATER layer the same reservation SUCCEEDS
+    // outright with only 494 MiB free — because this is WSL, where cuMemAlloc can be backed by
+    // host memory instead of failing — so the 1,168 + 224 MB of zero-check tables are PAGED,
+    // the card reads `free 0 MiB` through the whole helpers/H phase, and the layer takes 8.2 s.
+    // Draining here (value-neutral: the pool holds nothing live) gives the reservation real
+    // VRAM to land in, which is exactly what the retry does at layer 0. HL_ZK_DRAIN_PRE=0
+    // turns just this site off; HL_ZK_DRAIN=0 turns off all three.
+    #[cfg(feature = "gpu-cuda")]
+    if crate::gpu::enabled() && drain_on && std::env::var("HL_ZK_DRAIN_PRE").map(|v| v != "0").unwrap_or(true) {
+        let n = crate::gpu::dev_pool_drain();
+        if std::env::var("HL_GPU_VERBOSE").map(|v| v == "1").unwrap_or(false) {
+            eprintln!("[UPERF3-AI] drain before the zero-check reservation: freed {n} pooled buffers");
+        }
+    }
     // [UPERF3-AI] (AH's safety rung, moved to where THIS prover needs it) the two zero-check
     // table buffers are reserved through the pool BEFORE the decision, because in the ZK
     // prover the host tables are built in the `!use_dev_h` branch BELOW: once the helpers go
