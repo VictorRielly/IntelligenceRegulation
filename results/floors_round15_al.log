@@ -1,0 +1,349 @@
+
+=== CPU build ===
+2026-09-04 10:42:09
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2009:9
+     |
+2009 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2061:9
+     |
+2061 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2810:9
+     |
+2810 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1918:8
+     |
+1917 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1918 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+    Finished `release` profile [optimized] target(s) in 43.73s
+
+=== GPU build (feature gpu-cuda) ===
+2026-09-04 10:42:52
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2009:9
+     |
+2009 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2061:9
+     |
+2061 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2810:9
+     |
+2810 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1918:8
+     |
+1917 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1918 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: calls to `std::mem::drop` with a value that implements `Copy` does nothing
+   --> src/gpu/cuda.rs:637:9
+    |
+637 |         drop(d_pack.0.take().map(pool_put));
+    |         ^^^^^-----------------------------^
+    |              |
+    |              argument has type `Option<()>`
+    |
+    = note: `#[warn(dropping_copy_types)]` on by default
+help: use `let _ = ...` to ignore the expression or result
+    |
+637 -         drop(d_pack.0.take().map(pool_put));
+637 +         let _ = d_pack.0.take().map(pool_put);
+    |
+
+warning: `hashline` (lib) generated 9 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+    Finished `release` profile [optimized] target(s) in 47.11s
+
+=== cargo test --release ===
+2026-09-04 10:43:40
+test pcs::tests::commit_open_verify_and_tampers ... ok
+test sumcheck::zk_tests::masked_zero_check_with_extension_roundtrip ... ok
+test mle::tests::mle_eval_at_boolean_points_is_lookup ... ok
+test export_v3::tests::requant_round_is_the_prescaled_floor ... ok
+test wcache::tests::tree_roundtrip_and_every_corruption_rejected ... ok
+test pcs::zk_tests::zk_commit_open_verify_and_tampers ... ok
+test pcs_compact::tests::compact_commit_open_verify_and_tampers ... ok
+test pcs_compact::tests::compact_batch_of_three_commitments ... ok
+test pcs::zk_tests::zk_openings_are_uniform_and_every_site_is_masked ... ok
+test zk::tests_v3::zk_v3_layer_roundtrip_tampers_and_uniform_openings ... ok
+
+test result: ok. 40 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.22s
+
+     Running unittests src/bin/hashline.rs (hashline/target/release/deps/hashline-b6f5291fb888b1eb)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests hashline
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+=== GATE v2 [cpu] ===
+2026-09-04 10:44:21
+  layer  0: prove 1.442 s, 5573568 B
+  layer  1: prove 1.254 s, 5568692 B
+  layer  2: prove 1.312 s, 5570752 B
+  layer  3: prove 1.260 s, 5571020 B
+  layer  4: prove 1.232 s, 5572032 B
+  layer  5: prove 1.215 s, 5568832 B
+  layer  6: prove 1.293 s, 5568436 B
+  layer  7: prove 1.199 s, 5568832 B
+  layer  8: prove 1.181 s, 5568960 B
+  layer  9: prove 1.181 s, 5568960 B
+  layer 10: prove 1.200 s, 5570368 B
+  layer 11: prove 1.204 s, 5574476 B
+prover phases (summed over layers):
+PROOF sha256 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d (66844928 B)
+PASS ACCEPT: 12 x 512: witness load+chain 1.16 s | PROVE 14.97 s | VERIFY 0.29 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.936e9 proven MAC/s (prove wall) | wall 16.48 s
+GATE OK   v2 [cpu]  50cf7bdfd6b5b182  66844928 B
+
+=== GATE v3 [cpu] ===
+2026-09-04 10:44:37
+  layer  0: prove 1.327 s, 5899988 B
+  layer  1: prove 1.269 s, 5960912 B
+  layer  2: prove 1.246 s, 5960392 B
+  layer  3: prove 1.221 s, 5896912 B
+  layer  4: prove 1.235 s, 5898448 B
+  layer  5: prove 1.285 s, 5862608 B
+  layer  6: prove 1.238 s, 5895120 B
+  layer  7: prove 1.227 s, 5862608 B
+  layer  8: prove 1.270 s, 5895376 B
+  layer  9: prove 1.221 s, 5895376 B
+  layer 10: prove 1.235 s, 5864148 B
+  layer 11: prove 1.273 s, 5866196 B
+prover phases (summed over layers):
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.74 s | PROVE 15.05 s | VERIFY 0.28 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.927e9 proven MAC/s (prove wall) | wall 17.16 s
+GATE OK   v3 [cpu]  5f368db6240e0614  70758084 B
+
+=== GATE zk [cpu] ===
+2026-09-04 10:44:55
+  layer  0: prove 1.564 s, 7269044 B
+  layer  1: prove 1.431 s, 7269044 B
+  layer  2: prove 1.515 s, 7269044 B
+  layer  3: prove 1.431 s, 7269044 B
+  layer  4: prove 1.494 s, 7269044 B
+  layer  5: prove 1.404 s, 7269044 B
+  layer  6: prove 1.371 s, 7269044 B
+  layer  7: prove 1.442 s, 7269044 B
+  layer  8: prove 1.391 s, 7269044 B
+  layer  9: prove 1.343 s, 7269044 B
+  layer 10: prove 1.432 s, 7269044 B
+  layer 11: prove 1.353 s, 7269044 B
+prover phases (summed over layers):
+PROOF sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d (87228528 B) [ZK seed 1]
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 1.12 s | PROVE 17.17 s | VERIFY 0.52 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 1.688e9 proven MAC/s (prove wall) | wall 18.88 s
+GATE OK   zk [cpu]  021485e4f80ec695  87228528 B
+
+=== GATE zkv3 [cpu] ===
+2026-09-04 10:45:14
+  layer  0: prove 1.586 s, 7306036 B
+  layer  1: prove 1.533 s, 7318324 B
+  layer  2: prove 1.578 s, 7318324 B
+  layer  3: prove 1.582 s, 7306036 B
+  layer  4: prove 1.580 s, 7306036 B
+  layer  5: prove 1.518 s, 7306036 B
+  layer  6: prove 1.520 s, 7306036 B
+  layer  7: prove 1.536 s, 7306036 B
+  layer  8: prove 1.508 s, 7306036 B
+  layer  9: prove 1.500 s, 7306036 B
+  layer 10: prove 1.587 s, 7306036 B
+  layer 11: prove 1.521 s, 7306036 B
+prover phases (summed over layers):
+PROOF sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.55 s | PROVE 18.55 s | VERIFY 0.53 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 1.563e9 proven MAC/s (prove wall) | wall 20.72 s
+GATE OK   zkv3 [cpu]  40eb54795e023c77  87697008 B
+
+=== GATE v2 [gpu] ===
+2026-09-04 10:45:35
+  layer  0: prove 0.341 s, 5573568 B
+  layer  1: prove 0.183 s, 5568692 B
+  layer  2: prove 0.194 s, 5570752 B
+  layer  3: prove 0.181 s, 5571020 B
+  layer  4: prove 0.189 s, 5572032 B
+  layer  5: prove 0.187 s, 5568832 B
+  layer  6: prove 0.193 s, 5568436 B
+  layer  7: prove 0.186 s, 5568832 B
+  layer  8: prove 0.185 s, 5568960 B
+  layer  9: prove 0.182 s, 5568960 B
+  layer 10: prove 0.187 s, 5570368 B
+  layer 11: prove 0.186 s, 5574476 B
+prover phases (summed over layers):
+PROOF sha256 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d (66844928 B)
+PASS ACCEPT: 12 x 512: witness load+chain 1.08 s | PROVE 2.40 s | VERIFY 0.27 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.210e10 proven MAC/s (prove wall) | wall 3.85 s
+GATE OK   v2 [gpu]  50cf7bdfd6b5b182  66844928 B
+
+=== GATE v3 [gpu] ===
+2026-09-04 10:45:42
+  layer  0: prove 0.314 s, 5899988 B
+  layer  1: prove 0.182 s, 5960912 B
+  layer  2: prove 0.181 s, 5960392 B
+  layer  3: prove 0.173 s, 5896912 B
+  layer  4: prove 0.185 s, 5898448 B
+  layer  5: prove 0.187 s, 5862608 B
+  layer  6: prove 0.179 s, 5895120 B
+  layer  7: prove 0.185 s, 5862608 B
+  layer  8: prove 0.177 s, 5895376 B
+  layer  9: prove 0.185 s, 5895376 B
+  layer 10: prove 0.186 s, 5864148 B
+  layer 11: prove 0.181 s, 5866196 B
+prover phases (summed over layers):
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.59 s | PROVE 2.31 s | VERIFY 0.30 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.253e10 proven MAC/s (prove wall) | wall 4.31 s
+GATE OK   v3 [gpu]  5f368db6240e0614  70758084 B
+
+=== GATE zk [gpu] ===
+2026-09-04 10:45:49
+  layer  0: prove 0.521 s, 7269044 B
+  layer  1: prove 0.314 s, 7269044 B
+  layer  2: prove 0.309 s, 7269044 B
+  layer  3: prove 0.320 s, 7269044 B
+  layer  4: prove 0.329 s, 7269044 B
+  layer  5: prove 0.320 s, 7269044 B
+  layer  6: prove 0.335 s, 7269044 B
+  layer  7: prove 0.316 s, 7269044 B
+  layer  8: prove 0.308 s, 7269044 B
+  layer  9: prove 0.345 s, 7269044 B
+  layer 10: prove 0.323 s, 7269044 B
+  layer 11: prove 0.311 s, 7269044 B
+prover phases (summed over layers):
+PROOF sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d (87228528 B) [ZK seed 1]
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 1.08 s | PROVE 4.05 s | VERIFY 0.45 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 7.158e9 proven MAC/s (prove wall) | wall 5.70 s
+GATE OK   zk [gpu]  021485e4f80ec695  87228528 B
+
+=== GATE zkv3 [gpu] ===
+2026-09-04 10:45:58
+  layer  0: prove 0.513 s, 7306036 B
+  layer  1: prove 0.438 s, 7318324 B
+  layer  2: prove 0.459 s, 7318324 B
+  layer  3: prove 0.435 s, 7306036 B
+  layer  4: prove 0.417 s, 7306036 B
+  layer  5: prove 0.424 s, 7306036 B
+  layer  6: prove 0.438 s, 7306036 B
+  layer  7: prove 0.437 s, 7306036 B
+  layer  8: prove 0.442 s, 7306036 B
+  layer  9: prove 0.432 s, 7306036 B
+  layer 10: prove 0.469 s, 7306036 B
+  layer 11: prove 0.468 s, 7306036 B
+prover phases (summed over layers):
+PROOF sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) [ZK v3 seed 1]
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.75 s | PROVE 5.37 s | VERIFY 0.49 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 5.396e9 proven MAC/s (prove wall) | wall 7.74 s
+GATE OK   zkv3 [gpu]  40eb54795e023c77  87697008 B
+
+=== VERDICT ===
+2026-09-04 10:46:09
+ALL FLOORS GREEN (8 byte gates + tests + both builds)

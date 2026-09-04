@@ -19,6 +19,84 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-09-04 10:31+ (WSL box clock — NEWEST BLOCK; the blocks
+below labelled 2026-09-05 are earlier work, the box clock and the
+console labels have drifted a day. LANE AL MERGED AND THE MERGED-TREE
+FLOORS ARE GREEN; A LOST-COMMIT RECOVERY, AND ITS ROOT CAUSE FIXED):**
+- **LANE AL IS MERGED (22b975f) — THE HOST WALL IS GONE.** 8B prove
+  **98.54 -> 58.40 s** in a controlled one-session A/B (**1.687x**), or
+  **86.00 -> 58.40 s = 1.47x** against the round-14 ledger — quote the
+  second against the ledger, it is the conservative one. Proof
+  `dc980e81..4536c` BYTE-IDENTICAL, 1,234,936,956 B. **8.77 tok/s at 8B
+  prefill, up from 5.20.** Host time INSIDE the prove fell 49.8 -> 11.9 s
+  (50.5% -> 20.4% of the total) and all of it came out of `layer.rs`;
+  the device columns moved 1-7%, as they must — the lane touched no
+  kernel.
+- **THE ITEM WAS MISNAMED.** L2b was booked as the plane -> Fp
+  *conversion*; it is an **ALLOCATION** item. `vec![Fp::ZERO; w_len]`
+  does NOT specialize to `alloc_zeroed` because `Fp` is a user type, so
+  every layer single-threadedly wrote 1.4 GB of zeros over ~344k
+  first-touch page faults that the fill then overwrote — ~27 s of an
+  86 s prove. Fixed by a two-slot host staging pool (`HL_AL_POOL=0` to
+  switch off) plus folding the matmuls straight off the int8 planes
+  (`HL_AL_I8FOLD=0`). Peak RSS +0.76 GB is the pool by design; VRAM
+  unchanged.
+- **MERGED-TREE FLOORS GREEN** (`results/floors_round15_al.log`,
+  exit 0): 8 byte gates — four per binary — plus `cargo test` 40/40 and
+  both builds from scratch. The merged tree's `hashline/` is
+  byte-identical to AL's tip 4b00f4a, which additionally passed AL's
+  twelve-gate variant.
+- **NEXT FACTOR IS DEVICE WORK AGAIN**: the opening re-encode 13.83 s
+  (lever L9, still unowned), the encode NTT 13.88 s, the sumchecks
+  5.47 s, and the ZK prover still declining the device path at Mistral
+  width (lane AI's item). The layer.rs host residue is down to ~7.5 s.
+- **A COMMIT WAS LOST AND RECOVERED — READ THIS BEFORE TRUSTING ANY
+  REFLOG.** WSL was torn down after 01:37:23 on 2026-09-04 without a
+  clean unmount (the VM's own boot record runs 23:01 -> 10:16, so this
+  was a HOST-side teardown, not a kernel panic). The lane-AL merge
+  commit was in flight: three loose objects were left ZERO-BYTE and the
+  branch ref pointed at a commit never written to disk, so every git
+  command failed with `loose object ... is corrupt`. **Nothing was
+  lost** — both merge parents were already pushed (87da3169 and
+  4b00f4a). Recovery: quarantine the empty objects (git skips
+  re-creating an object whose file already exists, so a repo stays
+  broken until they are moved), `git reset --hard 87da3169`, re-merge,
+  re-resolve the append/append ledger conflict keeping BOTH sides. The
+  redone merge's root tree hashed to `58b0fa85` — one of the three
+  quarantined zero-byte objects — which is byte-level proof the
+  reconstruction matches what was lost.
+- **ROOT CAUSE FIXED, one line.** git 2.34.1 leaves
+  `core.fsyncObjectFiles` at **false**, so loose objects are written and
+  never fsynced; on ext4 `data=ordered` with delayed allocation, a host
+  teardown keeps the directory entry and drops the data blocks — exactly
+  the zero-byte signature. Now set to `true` in this repo's local config.
+  **Worktrees share the main repo's config, so every lane inherits it**;
+  other repos on this box (frugal-lm) do NOT — set it there too, or
+  globally, if a lost commit would hurt.
+- **THE REAL EXPOSURE IS UNPUSHED LANE COMMITS**, which is Victor's
+  standing Grok-resumable rule restated: this crash could only ever have
+  destroyed work that had not been pushed. It also cost **~9 hours of
+  idle box** (01:37 -> 10:31) — the no-hangup protocol cannot help when
+  the box itself is off, and this is the SECOND hard stop in ~6 hours of
+  wall time (see the 2026-09-04-late block below). If it recurs, the
+  host's sleep/hibernate settings are the thing to look at, not the runs.
+- **LANE AM IS MID-FLIGHT (uperf3-am, b026b04), rungs 0-1 committed and
+  now pushed.** MODE P3 EXISTS: the hiding per-proof weight commitment,
+  and the clear-value scan goes **61 runs of raw int8 weight columns
+  under P1 -> ZERO under P3**; 41/41 tests; P1's 12x512 v3 still
+  `40eb5479..` byte-identical. Its rung 2 (P3 at Mistral width) was
+  killed 10 s before the lost commit with 3 lines in the log; it was
+  RE-ENQUEUED on `/tmp/zk-heavy.lock` and self-started at 10:46:09 when
+  the floors released it (`results/am_r2_mistral.log`, marker
+  `am_r2_mistral.done`; the truncated first attempt is kept as
+  `am_r2_mistral.crashed.log`). Rung 3's script `am_r3_8b.sh` is staged
+  and has never been run.
+- **IF YOU ARE PICKING THIS UP**: check
+  `wt-uperf3-am/results/am_r2_mistral.done` first. Exit 0 means rung 2
+  finished and the lane should record it and go to rung 3; no marker and
+  no `hashline` process means it died again — re-enqueue with the same
+  wrapper.
+
 **AS OF 2026-09-05 (ROUND 14 CLOSED — all three lanes merged, floors
 green — AND TWO CORRECTIONS THAT MOVED THE PLAN'S ARITHMETIC TWICE):**
 - **ROUND 14 IS CLOSED.** AK, AI and AJ all merged; the merged-tree
