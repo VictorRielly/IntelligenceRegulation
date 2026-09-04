@@ -332,3 +332,20 @@ device shrinks are ~1.0 s of a 2.50 s layer; the parts it does not touch
 are the ~1.2 s of `layer.rs` conversion and folds. On a device 4x faster
 the host share becomes ~70% of the layer. **The `layer.rs` item is what
 decides whether the 5090 buys 1.4x or 4x.**
+
+## 10. Rung 5 — the final floor
+
+The twelve byte gates and the crate tests re-run on the final binary
+(`results/hashline_hostwall_r5.log`, `results/hashline_hostwall_r5.sh`):
+`cargo test --release` **40/40**, and
+
+| gate | CPU binary | GPU binary | GPU, chunked path forced |
+|---|---|---|---|
+| v2 | `50cf7bdfd6b5b182..` 66,844,928 B | same | same |
+| v3 | `5f368db6240e0614..` 70,758,084 B | same | same |
+| zk-v2 | `021485e4f80ec695..` 87,228,528 B | same | same |
+| zk-v3 | `40eb54795e023c77..` 87,697,008 B | same | same |
+
+**ALL TWELVE GREEN.** Together with the 8B pass's `dc980e81..4536c`
+(1,234,936,956 B) and the one-layer `179ec2fb..` (38,688,700 B) from
+every arm of every sweep, nothing this lane did moved a proof byte.

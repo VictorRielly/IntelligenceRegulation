@@ -181,7 +181,8 @@ Every lever, with what it multiplies and how well it is known:
 |---|---|---:|---|
 | L1 | laptop RTX 4070 -> one H100 | **4.7-33.6x** (central ~13x on HBM bandwidth 256 GB/s -> 3.35 TB/s) | [MODEL]; never measured on any board |
 | L2 | the four host marshalling items | **1.034x MEASURED (lane AJ), not 2.4-2.9x** — see correction 2 | [MEASURED]: the items were mis-attributed; what is left is L2b |
-| **L2b** | **the `layer.rs` plane -> Fp conversion and the host matmul folds** | **up to ~1.5x** (~29 s of an 88.9 s prove) | [COUNTED, AJ]; owned by nobody in round 14 — the round-15 lane |
+| **L2b** | **the `layer.rs` plane -> Fp conversion, the 1.4 GB `w_data` allocation, and the host matmul folds** | **up to ~1.82x** (**38.7 s of the 86.00 s prove**, MEASURED not counted) | [MEASURED, AJ rung 5]; owned by nobody in round 14 — now lane AL |
+| **L9** | **the opening's re-encode: a latency / launch-structure problem, not a bandwidth one** | **~1.6x** (output pruning) | [COUNTED, AJ]: it runs at 1.6e10 Goldilocks mul/s against a ~4.6e11 ALU ceiling and 66 of 256 GB/s — nobody has taken this |
 | L3 | kernel quality toward the counted floor | **1.5-5x** | [COUNTED]: the scaled cells carry ~10x on streaming loops, 3.5x on the small zero-check |
 | L4 | halve/quarter the hashed bytes (rate 1/2, and/or a 31-32-bit field) | **2-4x** | [MODEL]: moves the activation floor from 7-21 to 2-10 ms/token; the dominant floor term |
 | L5 | fold the claims (AG's item 1 + the batched-evaluation reduction) | bytes **x0.44-0.50**, time **x1.05-1.15** | [COUNTED bytes, MODEL time] — a byte lever, a slight time cost |
