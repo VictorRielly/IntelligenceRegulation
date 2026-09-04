@@ -2008,6 +2008,64 @@ pub fn verify_layer_v3(st: &StatementV3, proof: &LayerProofV3, params: &LayerPar
     Ok(())
 }
 
+
+// ===========================================================================
+// [UPERF3-AG] THE SEAM POINT of a v3 layer proof. The full-layer statement
+// binds the attention half's xm8 to the FFN half's X (and its z16 copy to
+// the FFN's z16) at the point the v3 zero-check D drew — a point drawn
+// AFTER both A commitments, which is exactly what the seam needs. Neither
+// `prove_layer_v3` nor `verify_layer_v3` returns it, so this replays their
+// (identical) transcript walk on a CLONE and returns rho_d. It absorbs
+// nothing into the caller's transcript.
+// ===========================================================================
+
+fn replay_sc(tr: &mut Transcript, sc: &SumcheckProof) -> Vec<Fp2> {
+    let mut ch = Vec::with_capacity(sc.rounds.len());
+    for s in &sc.rounds {
+        tr.absorb_fp2(b"sc-round", s);
+        ch.push(tr.challenge_fp2());
+    }
+    ch
+}
+
+/// rho_d: the zero-check-D challenge point of a v3 layer proof, given the
+/// transcript state BEFORE `prove_layer_v3` / `verify_layer_v3` ran.
+pub fn v3_zcd_point(st: &StatementV3, proof: &LayerProofV3, before: &Transcript) -> Vec<Fp2> {
+    let lay = LayoutV3::new(st.t_rows, st.d, st.f);
+    let mut tr = Transcript::clone_state(before);
+    absorb_statement_v3(&mut tr, st);
+    absorb_com(&mut tr, b"W", proof.w_com.as_ref().expect("W"));
+    absorb_com(&mut tr, b"A", proof.a_com.as_ref().expect("A"));
+    absorb_mults(&mut tr, &proof.mults);
+    let _beta = tr.challenge_fp2();
+    let _gamma = tr.challenge_fp2();
+    let _alpha = tr.challenge_fp2();
+    absorb_com(&mut tr, b"H", proof.h_com.as_ref().expect("H"));
+    let _r_i = tr.challenge_fp2_vec(lay.log_t as usize);
+    let _r_j = tr.challenge_fp2_vec(lay.log_fb as usize);
+    let _lam_gu = tr.challenge_fp2();
+    let _lam_f = tr.challenge_fp2_vec(lay.nb_f);
+    tr.absorb_fp2(b"gu-claims", &proof.gu_claims);
+    replay_sc(&mut tr, &proof.gu_sc);
+    tr.absorb_fp2(b"gu-term", &proof.gu_term);
+    let _r_ip = tr.challenge_fp2_vec(lay.log_t as usize);
+    let _r_jp = tr.challenge_fp2_vec(lay.log_db as usize);
+    let _lam_d = tr.challenge_fp2_vec(lay.nb_d);
+    tr.absorb_fp2(b"d-claims", &proof.d_claims);
+    replay_sc(&mut tr, &proof.d_sc);
+    tr.absorb_fp2(b"d-term", &proof.d_term);
+    let _tau = tr.challenge_fp2_vec((lay.log_t + lay.log_fb) as usize);
+    let _mu = tr.challenge_fp2_vec(4 * lay.nb_f);
+    let _nu = tr.challenge_fp2_vec(3 * lay.nb_f);
+    replay_sc(&mut tr, &proof.zcf_sc);
+    tr.absorb_fp2(b"zcf-term", &proof.zcf_term);
+    let _tau2 = tr.challenge_fp2_vec((lay.log_t + lay.log_db) as usize);
+    let _mu2 = tr.challenge_fp2_vec(lay.nb_d);
+    let _nu_x = tr.challenge_fp2_vec(lay.nb_d);
+    let _nu_z = tr.challenge_fp2_vec(lay.nb_d);
+    replay_sc(&mut tr, &proof.zcd_sc)
+}
+
 /// Tamper legs applied to a v3 witness before proving (plane indices are
 /// row-major over the first t_rows rows).
 #[derive(Clone, Copy, Debug)]
