@@ -320,6 +320,78 @@ struct HostTabs {
     zf: Vec<Vec<Fp2>>, rdf: Vec<Vec<Fp2>>, hz: Vec<Vec<Fp2>>,
 }
 
+/// [UPERF3-AL] THE HOST STAGING POOL for the committed vectors (round 15,
+/// lever L2b).
+///
+/// `prove_layer_v3` used to say `vec![Fp::ZERO; lay.w_len]` on every layer.
+/// At the Mistral shape that is 176,160,768 elements = 1.409 GB, and it is
+/// NOT the cheap allocation it looks like: `Fp` is a user type, so `vec!`
+/// does not specialize to `alloc_zeroed`, and the macro expands to an
+/// allocation plus a SINGLE-THREADED write of 1.4 GB of zeros over 344k
+/// first-touch page faults — measured on this box at **0.573-0.631 s for W
+/// and 0.209-0.260 s for A, against 0.044-0.054 s for the `Fp::from_i64`
+/// fill that follows it** (results/hashline_convert_plan.md §4). Every one
+/// of those zeros is then overwritten. Over 32 layers that is ~28 s of an
+/// 86 s prove spent zeroing memory nobody reads.
+///
+/// So the buffers are pooled and handed back at the end of the layer. What
+/// makes that safe is that `LayoutV3`'s blocks TILE the buffer exactly —
+/// `w_len` is the 3 x nb_d x nb_f weight blocks and nothing else, `a_len`
+/// the 7 x nb_f + 3 x nb_d witness columns and nothing else — so every
+/// element is written before any element is read. The 12-layer byte gates
+/// are the test of that claim: a buffer that was not fully overwritten
+/// would carry layer k-1's weights into layer k's commitment and move the
+/// digest on the second of twelve layers.
+mod hostbuf {
+    use crate::field::Fp;
+    use std::sync::Mutex;
+
+    pub const W: usize = 0;
+    pub const A: usize = 1;
+    /// One retired buffer per slot. A second concurrent prover (the test
+    /// suite runs several) allocates its own and drops it on return, so the
+    /// pool cannot grow with the thread count.
+    const KEEP: usize = 1;
+    static POOL: Mutex<[Vec<Vec<Fp>>; 2]> = Mutex::new([Vec::new(), Vec::new()]);
+
+    /// `HL_AL_POOL=0` restores the pre-lane form (a fresh `vec![Fp::ZERO; len]`
+    /// per layer, freed at the end of it) so the A/B runs on ONE binary.
+    pub fn on() -> bool {
+        static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+        *V.get_or_init(|| std::env::var("HL_AL_POOL").map(|v| v != "0").unwrap_or(true))
+    }
+
+    /// A buffer of exactly `len` elements whose CONTENTS ARE ARBITRARY: the
+    /// caller must write every element before reading any. The first call
+    /// per slot pays the zeroing once; every later call pays nothing.
+    pub fn take(slot: usize, len: usize) -> Vec<Fp> {
+        if !on() {
+            return vec![Fp::ZERO; len];
+        }
+        let mut v = POOL.lock().unwrap()[slot].pop().unwrap_or_default();
+        if v.capacity() < len {
+            drop(v);
+            return vec![Fp::ZERO; len];
+        }
+        if v.len() < len {
+            v.resize(len, Fp::ZERO);
+        } else {
+            v.truncate(len);
+        }
+        v
+    }
+
+    pub fn give(slot: usize, v: Vec<Fp>) {
+        if !on() {
+            return;
+        }
+        let mut p = POOL.lock().unwrap();
+        if p[slot].len() < KEEP {
+            p[slot].push(v);
+        }
+    }
+}
+
 // [UPERF3-AL] Host-conversion instrumentation (round 15, lever L2b).
 // `HL_CONV_VERBOSE=1` prints, for every v3 layer, what it costs to BUILD the
 // committed vectors from the int8 witness planes (the allocation and the
@@ -1359,7 +1431,7 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     // ---- W data + commit ------------------------------------------------
     let cv = conv_verbose(); // [UPERF3-AL]
     let t_conv = Instant::now();
-    let mut w_data = vec![Fp::ZERO; lay.w_len];
+    let mut w_data = hostbuf::take(hostbuf::W, lay.w_len); // [UPERF3-AL] arbitrary contents; every element is written below
     let s_w_alloc = t_conv.elapsed().as_secs_f64();
     for c in 0..nb_d {
         for b in 0..nb_f {
@@ -1400,7 +1472,7 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
 
     // ---- A data + commit ------------------------------------------------
     let t_conv = Instant::now();
-    let mut a_data = vec![Fp::ZERO; lay.a_len];
+    let mut a_data = hostbuf::take(hostbuf::A, lay.a_len); // [UPERF3-AL] arbitrary contents; every element is written below
     let s_a_alloc = t_conv.elapsed().as_secs_f64();
     for b in 0..nb_f {
         for (offs, col) in [(&lay.g8, &w.g8), (&lay.rg, &w.rg), (&lay.a16, &w.a16), (&lay.u16, &w.u16v), (&lay.ru, &w.ru), (&lay.h16, &w.h16), (&lay.rh, &w.rh)] {
@@ -1798,18 +1870,19 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
         // [UPERF3-AF] ONE batched compact opening of the three commitments
         proof.cpcs_open = Some(pcs_compact::open_batch(&[(w_cm.compact(), &w_claims), (a_cm.compact(), &a_claims), (h_cm.compact(), &h_claims)], tr));
         drop(w_cm);
-        drop(w_data);
+        hostbuf::give(hostbuf::W, w_data); // [UPERF3-AL] was drop(w_data)
         drop(a_cm);
         drop(h_cm);
     } else {
         proof.w_open = pcs::open(w_cm.lig(), &w_claims, tr);
         drop(w_cm);
-        drop(w_data);
+        hostbuf::give(hostbuf::W, w_data); // [UPERF3-AL] was drop(w_data)
         proof.a_open = pcs::open(a_cm.lig(), &a_claims, tr);
         drop(a_cm);
         proof.h_open = pcs::open(h_cm.lig(), &h_claims, tr);
         drop(h_cm);
     }
+    hostbuf::give(hostbuf::A, a_data); // [UPERF3-AL]
     lap("pcs openings", &mut timings, &mut tick);
     ProveOutputV3 { proof, timings }
 }

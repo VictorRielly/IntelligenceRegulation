@@ -1,0 +1,124 @@
+
+=== 4-LAYER MISTRAL T=512 GPU — before ===
+2026-09-04 01:12:42
+[UPERF3-AL] conv W  l00: alloc 0.6154 fill 0.0522 | commit 0.4269 (dev h2d 0.1723 ntt 0.2197 hash 0.0000 -> host 0.0349) | 176 Melem
+[UPERF3-AL] conv A  l00: alloc 0.2071 fill 0.0358 | commit 0.1378 (dev h2d 0.0756 ntt 0.0515 hash 0.0000 -> host 0.0108) | 57 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0797 | 14 w_data blocks 0.0718
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0463 | 7 w_data blocks 0.0417
+[UPERF3-AL] conv W  l01: alloc 0.4151 fill 0.0546 | commit 0.4612 (dev h2d 0.1625 ntt 0.2914 hash 0.0000 -> host 0.0073) | 176 Melem
+[UPERF3-AL] conv A  l01: alloc 0.2400 fill 0.0365 | commit 0.1163 (dev h2d 0.0545 ntt 0.0544 hash 0.0000 -> host 0.0074) | 57 Melem
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0909 | 14 w_data blocks 0.0785
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0481 | 7 w_data blocks 0.0376
+[UPERF3-AL] conv W  l02: alloc 0.5127 fill 0.0530 | commit 0.4975 (dev h2d 0.2052 ntt 0.2840 hash 0.0000 -> host 0.0083) | 176 Melem
+[UPERF3-AL] conv A  l02: alloc 0.2189 fill 0.0339 | commit 0.1186 (dev h2d 0.0623 ntt 0.0473 hash 0.0000 -> host 0.0090) | 57 Melem
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0776 | 14 w_data blocks 0.0753
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0435 | 7 w_data blocks 0.0380
+[UPERF3-AL] conv W  l03: alloc 0.5179 fill 0.0567 | commit 0.5118 (dev h2d 0.2029 ntt 0.3000 hash 0.0000 -> host 0.0089) | 176 Melem
+[UPERF3-AL] conv A  l03: alloc 0.2497 fill 0.0382 | commit 0.1173 (dev h2d 0.0666 ntt 0.0435 hash 0.0000 -> host 0.0072) | 57 Melem
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0907 | 14 w_data blocks 0.0873
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0458 | 7 w_data blocks 0.0388
+prover phases (summed over layers):
+      commit W                  4.175 s
+      commit A                  1.550 s
+      helpers + commit H        0.816 s
+      matmul g/u                0.666 s
+      matmul d                  0.359 s
+      zero-check F              0.588 s
+      zero-check D              0.103 s
+      pcs openings              2.316 s
+PROOF sha256 e029e489d1bde1aab8ae5b115c45a9e6566620fef0c84508472c20db5c1b5e76 (154507884 B)
+PASS-V3 ACCEPT: 4 x 512 (d 4096 f 14336): witness load+chain 13.68 s | PROVE 10.57 s | VERIFY 0.15 s | proof 154507884 B (154.5 MB) | 3.608e11 MACs | 3.413e10 proven MAC/s (prove wall) | wall 24.64 s
+e029e489d1bde1aab8ae5b115c45a9e6566620fef0c84508472c20db5c1b5e76  /home/victor/wt-uperf3-al/results/scratch_al/ab.bin
+
+=== 4-LAYER MISTRAL T=512 GPU — after ===
+2026-09-04 01:13:10
+[UPERF3-AL] conv W  l00: alloc 0.9042 fill 0.0516 | commit 0.6715 (dev h2d 0.2611 ntt 0.3805 hash 0.0000 -> host 0.0298) | 176 Melem
+[UPERF3-AL] conv A  l00: alloc 0.5192 fill 0.0315 | commit 0.1390 (dev h2d 0.0786 ntt 0.0479 hash 0.0000 -> host 0.0124) | 57 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0885 | 14 w_data blocks 0.0815
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0445 | 7 w_data blocks 0.0422
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0490 | commit 0.4908 (dev h2d 0.1636 ntt 0.3162 hash 0.0000 -> host 0.0109) | 176 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0304 | commit 0.1090 (dev h2d 0.0510 ntt 0.0483 hash 0.0000 -> host 0.0096) | 57 Melem
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0890 | 14 w_data blocks 0.0757
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0449 | 7 w_data blocks 0.0354
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0477 | commit 0.6104 (dev h2d 0.2049 ntt 0.3969 hash 0.0000 -> host 0.0085) | 176 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0283 | commit 0.1060 (dev h2d 0.0667 ntt 0.0335 hash 0.0000 -> host 0.0058) | 57 Melem
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0902 | 14 w_data blocks 0.0812
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0459 | 7 w_data blocks 0.0395
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0466 | commit 0.5281 (dev h2d 0.1922 ntt 0.3271 hash 0.0000 -> host 0.0088) | 176 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0278 | commit 0.1075 (dev h2d 0.0625 ntt 0.0378 hash 0.0000 -> host 0.0072) | 57 Melem
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0934 | 14 w_data blocks 0.0917
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0499 | 7 w_data blocks 0.0434
+prover phases (summed over layers):
+      commit W                  3.400 s
+      commit A                  1.099 s
+      helpers + commit H        0.804 s
+      matmul g/u                0.703 s
+      matmul d                  0.364 s
+      zero-check F              0.576 s
+      zero-check D              0.100 s
+      pcs openings              2.165 s
+PROOF sha256 e029e489d1bde1aab8ae5b115c45a9e6566620fef0c84508472c20db5c1b5e76 (154507884 B)
+PASS-V3 ACCEPT: 4 x 512 (d 4096 f 14336): witness load+chain 13.69 s | PROVE 9.21 s | VERIFY 0.14 s | proof 154507884 B (154.5 MB) | 3.608e11 MACs | 3.916e10 proven MAC/s (prove wall) | wall 23.28 s
+e029e489d1bde1aab8ae5b115c45a9e6566620fef0c84508472c20db5c1b5e76  /home/victor/wt-uperf3-al/results/scratch_al/ab.bin
+
+=== 4-LAYER MISTRAL T=512 GPU — before ===
+2026-09-04 01:13:36
+[UPERF3-AL] conv W  l00: alloc 0.7588 fill 0.0551 | commit 0.7414 (dev h2d 0.3671 ntt 0.3459 hash 0.0000 -> host 0.0284) | 176 Melem
+[UPERF3-AL] conv A  l00: alloc 0.2475 fill 0.0328 | commit 0.1391 (dev h2d 0.0801 ntt 0.0467 hash 0.0000 -> host 0.0123) | 57 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0922 | 14 w_data blocks 0.0840
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0431 | 7 w_data blocks 0.0384
+[UPERF3-AL] conv W  l01: alloc 0.4969 fill 0.0590 | commit 0.4932 (dev h2d 0.1616 ntt 0.3243 hash 0.0000 -> host 0.0072) | 176 Melem
+[UPERF3-AL] conv A  l01: alloc 0.2395 fill 0.0308 | commit 0.1174 (dev h2d 0.0538 ntt 0.0547 hash 0.0000 -> host 0.0089) | 57 Melem
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0911 | 14 w_data blocks 0.0855
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0472 | 7 w_data blocks 0.0384
+[UPERF3-AL] conv W  l02: alloc 0.5634 fill 0.0555 | commit 0.5243 (dev h2d 0.2064 ntt 0.3090 hash 0.0000 -> host 0.0088) | 176 Melem
+[UPERF3-AL] conv A  l02: alloc 0.2425 fill 0.0312 | commit 0.1145 (dev h2d 0.0656 ntt 0.0442 hash 0.0000 -> host 0.0047) | 57 Melem
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0937 | 14 w_data blocks 0.0839
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0454 | 7 w_data blocks 0.0387
+[UPERF3-AL] conv W  l03: alloc 0.5839 fill 0.0552 | commit 0.4958 (dev h2d 0.2009 ntt 0.2844 hash 0.0000 -> host 0.0104) | 176 Melem
+[UPERF3-AL] conv A  l03: alloc 0.2367 fill 0.0332 | commit 0.1206 (dev h2d 0.0622 ntt 0.0470 hash 0.0000 -> host 0.0113) | 57 Melem
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0864 | 14 w_data blocks 0.0800
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0467 | 7 w_data blocks 0.0369
+prover phases (summed over layers):
+      commit W                  4.883 s
+      commit A                  1.586 s
+      helpers + commit H        0.802 s
+      matmul g/u                0.709 s
+      matmul d                  0.352 s
+      zero-check F              0.578 s
+      zero-check D              0.102 s
+      pcs openings              2.289 s
+PROOF sha256 e029e489d1bde1aab8ae5b115c45a9e6566620fef0c84508472c20db5c1b5e76 (154507884 B)
+PASS-V3 ACCEPT: 4 x 512 (d 4096 f 14336): witness load+chain 13.61 s | PROVE 11.30 s | VERIFY 0.15 s | proof 154507884 B (154.5 MB) | 3.608e11 MACs | 3.192e10 proven MAC/s (prove wall) | wall 25.23 s
+e029e489d1bde1aab8ae5b115c45a9e6566620fef0c84508472c20db5c1b5e76  /home/victor/wt-uperf3-al/results/scratch_al/ab.bin
+
+=== 4-LAYER MISTRAL T=512 GPU — after ===
+2026-09-04 01:14:05
+[UPERF3-AL] conv W  l00: alloc 0.6459 fill 0.0548 | commit 0.5709 (dev h2d 0.2455 ntt 0.2673 hash 0.0000 -> host 0.0581) | 176 Melem
+[UPERF3-AL] conv A  l00: alloc 0.2416 fill 0.0346 | commit 0.1388 (dev h2d 0.0839 ntt 0.0429 hash 0.0000 -> host 0.0120) | 57 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0852 | 14 w_data blocks 0.0802
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0452 | 7 w_data blocks 0.0375
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0500 | commit 0.4686 (dev h2d 0.1556 ntt 0.3022 hash 0.0000 -> host 0.0108) | 176 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0341 | commit 0.1065 (dev h2d 0.0491 ntt 0.0503 hash 0.0000 -> host 0.0071) | 57 Melem
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0848 | 14 w_data blocks 0.0703
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0476 | 7 w_data blocks 0.0398
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0473 | commit 0.4981 (dev h2d 0.1954 ntt 0.2915 hash 0.0000 -> host 0.0112) | 176 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0309 | commit 0.1143 (dev h2d 0.0611 ntt 0.0462 hash 0.0000 -> host 0.0070) | 57 Melem
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0783 | 14 w_data blocks 0.0738
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0440 | 7 w_data blocks 0.0384
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0475 | commit 0.4829 (dev h2d 0.1677 ntt 0.3033 hash 0.0000 -> host 0.0120) | 176 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0371 | commit 0.1079 (dev h2d 0.0626 ntt 0.0376 hash 0.0000 -> host 0.0078) | 57 Melem
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0796 | 14 w_data blocks 0.0732
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0439 | 7 w_data blocks 0.0367
+prover phases (summed over layers):
+      commit W                  2.866 s
+      commit A                  0.846 s
+      helpers + commit H        0.805 s
+      matmul g/u                0.638 s
+      matmul d                  0.352 s
+      zero-check F              0.580 s
+      zero-check D              0.103 s
+      pcs openings              2.146 s
+PROOF sha256 e029e489d1bde1aab8ae5b115c45a9e6566620fef0c84508472c20db5c1b5e76 (154507884 B)
+PASS-V3 ACCEPT: 4 x 512 (d 4096 f 14336): witness load+chain 13.57 s | PROVE 8.34 s | VERIFY 0.13 s | proof 154507884 B (154.5 MB) | 3.608e11 MACs | 4.328e10 proven MAC/s (prove wall) | wall 22.29 s
+e029e489d1bde1aab8ae5b115c45a9e6566620fef0c84508472c20db5c1b5e76  /home/victor/wt-uperf3-al/results/scratch_al/ab.bin

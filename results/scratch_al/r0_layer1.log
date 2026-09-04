@@ -1,0 +1,48 @@
+[UPERF3-AL] conv W  l00: alloc 0.5731 fill 0.0442 | commit 0.6785 (dev h2d 0.3579 ntt 0.2929 hash 0.0000 -> host 0.0276) | 176 Melem
+[UPERF3-AL] conv A  l00: alloc 0.2089 fill 0.0277 | commit 0.1381 (dev h2d 0.0776 ntt 0.0506 hash 0.0000 -> host 0.0099) | 57 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0798 | 14 w_data blocks 0.0789
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0505 | 7 w_data blocks 0.0383
+prover phases (summed over layers):
+      commit W                  1.296 s
+      commit A                  0.375 s
+      helpers + commit H        0.270 s
+      matmul g/u                0.162 s
+      matmul d                  0.094 s
+      zero-check F              0.144 s
+      zero-check D              0.029 s
+      pcs openings              0.568 s
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.33 s | PROVE 2.95 s | VERIFY 0.04 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 3.062e10 proven MAC/s (prove wall) | wall 6.36 s
+179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b  /home/victor/wt-uperf3-al/results/scratch_al/l.bin
+[UPERF3-AL] conv W  l00: alloc 0.6112 fill 0.0543 | commit 0.5556 (dev h2d 0.2083 ntt 0.3178 hash 0.0000 -> host 0.0294) | 176 Melem
+[UPERF3-AL] conv A  l00: alloc 0.2184 fill 0.0334 | commit 0.1358 (dev h2d 0.0765 ntt 0.0504 hash 0.0000 -> host 0.0089) | 57 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0795 | 14 w_data blocks 0.0715
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0455 | 7 w_data blocks 0.0443
+prover phases (summed over layers):
+      commit W                  1.221 s
+      commit A                  0.388 s
+      helpers + commit H        0.270 s
+      matmul g/u                0.154 s
+      matmul d                  0.095 s
+      zero-check F              0.145 s
+      zero-check D              0.027 s
+      pcs openings              0.562 s
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.36 s | PROVE 2.87 s | VERIFY 0.04 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 3.141e10 proven MAC/s (prove wall) | wall 6.35 s
+179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b  /home/victor/wt-uperf3-al/results/scratch_al/l.bin
+[UPERF3-AL] conv W  l00: alloc 0.6312 fill 0.0534 | commit 0.6176 (dev h2d 0.2129 ntt 0.3703 hash 0.0000 -> host 0.0344) | 176 Melem
+[UPERF3-AL] conv A  l00: alloc 0.2597 fill 0.0357 | commit 0.1394 (dev h2d 0.0767 ntt 0.0504 hash 0.0000 -> host 0.0123) | 57 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0809 | 14 w_data blocks 0.0743
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0451 | 7 w_data blocks 0.0389
+prover phases (summed over layers):
+      commit W                  1.302 s
+      commit A                  0.435 s
+      helpers + commit H        0.272 s
+      matmul g/u                0.158 s
+      matmul d                  0.089 s
+      zero-check F              0.146 s
+      zero-check D              0.027 s
+      pcs openings              0.576 s
+PROOF sha256 179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b (38688700 B)
+PASS-V3 ACCEPT: 1 x 512 (d 4096 f 14336): witness load+chain 3.31 s | PROVE 3.01 s | VERIFY 0.04 s | proof 38688700 B (38.7 MB) | 9.019e10 MACs | 2.993e10 proven MAC/s (prove wall) | wall 6.41 s
+179ec2fb8f99d0d622dc2f868167c67c0ba2822c676b826fa1b01bdb3882a79b  /home/victor/wt-uperf3-al/results/scratch_al/l.bin
