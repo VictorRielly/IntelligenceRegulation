@@ -16,12 +16,55 @@
 #![cfg(feature = "gpu-cuda")]
 
 use hashline::gpu;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Mutex, MutexGuard, OnceLock};
 
 /// The allocation cap and chunk-mode hooks are PROCESS-GLOBAL, and Rust runs
 /// tests in parallel threads. Without this, a strict-mode test's injected cap
 /// makes every concurrently-running test fail — which is exactly what happened
 /// the first time this file was run. Every test takes the lock.
+
+/// [ZK60-CL4] A GPU-required gate. Returning `true` from a skip is how a
+/// suite reports a vacuous success: on a box with no device every test here
+/// printed SKIP and PASSED, so "6 passed" meant nothing at all. Under
+/// `HL_GPU_REQUIRED=1` a missing feature or device is a FAILURE.
+///
+/// `EXECUTED_CASES` then proves the run was not vacuous in the other
+/// direction either: a device can be present while zero cases actually ran.
+static EXECUTED_CASES: AtomicUsize = AtomicUsize::new(0);
+
+fn gpu_required() -> bool {
+    std::env::var("HL_GPU_REQUIRED").map(|v| v != "0").unwrap_or(false)
+}
+
+/// true = run the case. Panics instead of skipping when a GPU is required.
+fn gpu_ready() -> bool {
+    if gpu::enabled() {
+        return true;
+    }
+    if gpu_required() {
+        panic!(
+            "HL_GPU_REQUIRED=1 but no usable device: {}. A skipped GPU case must FAIL this \
+             gate, not report success.",
+            gpu::label()
+        );
+    }
+    eprintln!("SKIP (no device: {}) — set HL_GPU_REQUIRED=1 to make this a failure", gpu::label());
+    false
+}
+
+fn note_case() {
+    EXECUTED_CASES.fetch_add(1, Ordering::SeqCst);
+}
+
+/// Machine-readable summary for the gate script.
+fn emit_summary() {
+    println!(
+        "ZK60_CL4_SUMMARY {{\"executed_cases\":{},\"gpu_enabled\":{},\"gpu_required\":{},\"device\":\"{}\"}}",
+        EXECUTED_CASES.load(Ordering::SeqCst), gpu::enabled(), gpu_required(), gpu::label()
+    );
+}
+
 fn serial() -> MutexGuard<'static, ()> {
     static L: OnceLock<Mutex<()>> = OnceLock::new();
     let m = L.get_or_init(|| Mutex::new(()));
@@ -30,10 +73,10 @@ fn serial() -> MutexGuard<'static, ()> {
 
 /// `(0, 0)` or the test fails with the shape printed.
 fn check(log_cols: u32, inv_rate: usize, rows: usize, q_pad: usize, chunk: usize) {
-    if !gpu::enabled() {
-        eprintln!("SKIP zk60_gpu_commit: no device ({})", gpu::label());
+    if !gpu_ready() {
         return;
     }
+    note_case();
     match gpu::dev_commit_zk_check_chunked(log_cols, inv_rate, rows, q_pad, chunk, false) {
         Ok((bad_leaves, bad_cols)) => assert_eq!(
             (bad_leaves, bad_cols),
@@ -98,10 +141,10 @@ fn zk_chunked_matches_cpu_at_wider_shapes() {
 #[test]
 fn plain_reencode_of_a_hiding_commitment_is_detected_as_wrong() {
     let _g = serial();
-    if !gpu::enabled() {
-        eprintln!("SKIP zk60_gpu_commit negative control: no device ({})", gpu::label());
+    if !gpu_ready() {
         return;
     }
+    note_case();
     let (rows, q_pad) = (300usize, 16usize);
     let (bad_leaves, bad_cols) =
         gpu::dev_commit_zk_check_chunked(10, 4, rows, q_pad, 128, true).expect("negative control ran");
@@ -157,10 +200,10 @@ fn stage_major_twiddles_are_a_prefix_extension() {
 #[test]
 fn deferred_openings_survive_a_later_smaller_commitment() {
     let _g = serial();
-    if !gpu::enabled() {
-        eprintln!("SKIP: no device ({})", gpu::label());
+    if !gpu_ready() {
         return;
     }
+    note_case();
     // descending width: the later, smaller tables must not strand the first
     let specs = [(14u32, 4usize, 200usize, 16usize), (10, 4, 300, 16), (8, 4, 200, 16)];
     let (bad_leaves, bad_cols) =
@@ -173,10 +216,10 @@ fn deferred_openings_survive_a_later_smaller_commitment() {
 #[test]
 fn deferred_openings_survive_alternating_rates_and_widths() {
     let _g = serial();
-    if !gpu::enabled() {
-        eprintln!("SKIP: no device ({})", gpu::label());
+    if !gpu_ready() {
         return;
     }
+    note_case();
     let specs = [
         (12u32, 8usize, 200usize, 16usize),
         (10, 2, 300, 64),
@@ -200,10 +243,10 @@ fn deferred_openings_survive_alternating_rates_and_widths() {
 #[test]
 fn strict_off_reports_allocation_failure_instead_of_chunking() {
     let _g = serial();
-    if !gpu::enabled() {
-        eprintln!("SKIP: no device ({})", gpu::label());
+    if !gpu_ready() {
         return;
     }
+    note_case();
     // Cap fresh allocations below the resident need but above the witness
     // upload, so the failure lands on the resident commit buffers.
     // Drain first: pool REUSE legitimately bypasses the cap (it needs no new
@@ -236,10 +279,10 @@ fn strict_off_reports_allocation_failure_instead_of_chunking() {
 #[test]
 fn auto_falls_back_to_chunking_under_the_same_injected_failure() {
     let _g = serial();
-    if !gpu::enabled() {
-        eprintln!("SKIP: no device ({})", gpu::label());
+    if !gpu_ready() {
         return;
     }
+    note_case();
     gpu::dev_pool_drain();
     let prev_mode = gpu::set_zk_chunk_mode_for_test(1); // 1 = auto
     let prev_cap = gpu::set_alloc_cap_for_test(1 << 19);
@@ -259,10 +302,10 @@ fn auto_falls_back_to_chunking_under_the_same_injected_failure() {
 #[test]
 fn strict_off_still_produces_correct_results_when_it_fits() {
     let _g = serial();
-    if !gpu::enabled() {
-        eprintln!("SKIP: no device ({})", gpu::label());
+    if !gpu_ready() {
         return;
     }
+    note_case();
     gpu::dev_pool_drain();
     let prev_mode = gpu::set_zk_chunk_mode_for_test(0);
     let chunked = gpu::dev_commit_zk_from_probe(10, 4, 300, 16);
@@ -285,10 +328,10 @@ fn strict_off_still_produces_correct_results_when_it_fits() {
 #[test]
 fn the_last_resident_allocation_retries_chunking_rather_than_giving_up() {
     let _g = serial();
-    if !gpu::enabled() {
-        eprintln!("SKIP: no device ({})", gpu::label());
+    if !gpu_ready() {
         return;
     }
+    note_case();
     gpu::dev_pool_drain();
     let prev_mode = gpu::set_zk_chunk_mode_for_test(1); // auto
     // fresh allocations in order: witness upload, d_coef, d_coef2, then d_enc.
@@ -311,10 +354,10 @@ fn the_last_resident_allocation_retries_chunking_rather_than_giving_up() {
 #[test]
 fn the_last_resident_allocation_is_also_strict_under_off() {
     let _g = serial();
-    if !gpu::enabled() {
-        eprintln!("SKIP: no device ({})", gpu::label());
+    if !gpu_ready() {
         return;
     }
+    note_case();
     gpu::dev_pool_drain();
     let prev_mode = gpu::set_zk_chunk_mode_for_test(0); // off/strict
     let prev_fail = gpu::set_alloc_fail_after_for_test(3);
@@ -342,10 +385,10 @@ fn the_last_resident_allocation_is_also_strict_under_off() {
 #[test]
 fn the_chunked_retry_reuses_pooled_capacity_rather_than_allocating_more() {
     let _g = serial();
-    if !gpu::enabled() {
-        eprintln!("SKIP: no device ({})", gpu::label());
+    if !gpu_ready() {
         return;
     }
+    note_case();
     gpu::dev_pool_drain();
     let prev_mode = gpu::set_zk_chunk_mode_for_test(1);
     // Warm the pool with a full resident commitment of this exact shape.
@@ -370,4 +413,34 @@ fn the_chunked_retry_reuses_pooled_capacity_rather_than_allocating_more() {
         fresh <= 4,
         "the chunked path should reuse pooled capacity; it made {fresh} fresh allocations"
     );
+}
+
+/// [ZK60-CL4] The gate that proves the run was not vacuous, from BOTH sides:
+/// a device must be present when required, AND real cases must have executed.
+/// A green suite that skipped everything is the failure mode this closes.
+#[test]
+fn zzz_gpu_required_gate_proves_nonzero_executed_cases() {
+    let _g = serial();
+    emit_summary();
+    if !gpu_required() {
+        eprintln!("HL_GPU_REQUIRED not set: this gate is advisory in this run");
+        return;
+    }
+    assert!(gpu::enabled(), "HL_GPU_REQUIRED=1 but no device: {}", gpu::label());
+    // Execute a real case here so the gate never depends on test ORDER: even
+    // if this runs first, it proves at least one genuine case ran.
+    gpu::dev_pool_drain();
+    let (bad_leaves, bad_cols) =
+        gpu::dev_commit_zk_check_chunked(10, 4, 300, 16, 128, false).expect("required gate case ran");
+    assert_eq!((bad_leaves, bad_cols), (0, 0));
+    note_case();
+    let n = EXECUTED_CASES.load(Ordering::SeqCst);
+    assert!(n > 0, "GPU-required gate executed {n} cases; a zero-case run is not evidence");
+
+    // and the negative control must have run too — a suite of positives only
+    // cannot distinguish a correct build from an oracle that never fails
+    let neg = gpu::dev_commit_zk_check_chunked(10, 4, 300, 16, 128, true)
+        .expect("negative control ran under the required gate");
+    assert!(neg.1 > 300, "the negative control must still detect the wrong re-encode, got {neg:?}");
+    emit_summary();
 }

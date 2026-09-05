@@ -2870,8 +2870,11 @@ pub fn dev_commit_zk_from(params: &PcsParams, d_data: Pooled, rows: usize, pads:
     // pads and powers are needed by BOTH paths, uploaded exactly as before; a
     // chunked commitment KEEPS them so `dev_columns` can re-encode through the
     // pad/coset step (~21.5 MiB at the Mistral W shape, against 5,387 freed).
+    let t_up0 = Instant::now();
     let d_pads = dev.htod_sync_copy(as_u64s(pads)).map_err(|e| format!("pads upload: {e}"))?;
     let d_pows = dev.htod_sync_copy(as_u64s(pows)).map_err(|e| format!("pows upload: {e}"))?;
+    // [ZK60-CL4] the caller's own EXCLUSIVE interval: a TRANSFER, not an NTT.
+    let t_upload = t_up0.elapsed().as_secs_f64();
     stats_with(|s| s.bytes_h2d += ((pads.len() + pows.len()) * 8) as u64);
 
     // Chunk by size, or because the resident pair will not fit. Never a silent
@@ -2913,7 +2916,11 @@ pub fn dev_commit_zk_from(params: &PcsParams, d_data: Pooled, rows: usize, pads:
             }
             let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q, nn, log_n, log_nn, chunk_rows())?;
             note_vram(&g);
-            stats_with(|s| s.secs_ntt += t1.elapsed().as_secs_f64());
+            // [ZK60-CL4] NO secs_ntt charge here. commit_zk_chunked already
+            // charged its own encode+hash wall, and t1.elapsed() SPANS that
+            // call, so adding it again DOUBLE-CHARGED the chunked path. The
+            // caller's exclusive work is the upload, and it is a transfer.
+            stats_with(|s| s.secs_h2d += t_upload);
             let zk = ZkReenc { pads: d_pads, pows: d_pows, q };
             return Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: None, zk: Some(zk) }, leaves));
         }
@@ -2949,9 +2956,15 @@ pub fn dev_commit_zk_from(params: &PcsParams, d_data: Pooled, rows: usize, pads:
             if verbose() {
                 eprintln!("[ZK60-CL3]   zk commit rows {rows} 2^{log_n} -> 2^{log_nn}: the encoded buffer was refused ({why}); RETRYING CHUNKED");
             }
+            // [ZK60-CL4] exclusive split for the fallback: everything spent so
+            // far MINUS the upload is the resident attempt's discarded NTT and
+            // pad/scale. It really ran, so it is charged; the callee then
+            // charges the chunked encode. upload + discarded + chunked = wall,
+            // with no interval counted twice.
+            let t_discarded = (t1.elapsed().as_secs_f64() - t_upload).max(0.0);
             let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q, nn, log_n, log_nn, chunk_rows())?;
             note_vram(&g);
-            stats_with(|s| s.secs_ntt += t1.elapsed().as_secs_f64());
+            stats_with(|s| { s.secs_h2d += t_upload; s.secs_ntt += t_discarded; });
             let zk = ZkReenc { pads: d_pads, pows: d_pows, q };
             return Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: None, zk: Some(zk) }, leaves));
         }
