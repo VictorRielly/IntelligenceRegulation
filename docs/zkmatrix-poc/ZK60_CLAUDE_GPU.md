@@ -83,6 +83,32 @@ that allocation had succeeded, **phase C needs 12,142 MiB and the card has
 also that **phase B at 8,102 MiB fits under 8,188 by 86 MiB** — which is
 why the failure lands where it does and not earlier.
 
+### CORRECTION to the bound above — it was LOW by 1,349 MiB, in the unsafe direction
+
+**`drop(d_coef)` is NOT a device free.** `Pooled::drop` calls `pool_put`,
+which retains the buffer (up to 64 buffers, with NO byte cap), and
+`pool_take` only reuses a buffer on an **exact** length match
+(`b.len() == len`). `d_coef` is `rows·n` and `d_enc` is `rows·nn`, so
+`d_coef` can never be reused for `d_enc`: its memory is still resident when
+`d_enc` is allocated. The phase table above treated the `drop` as a free and
+so understated the peak.
+
+```
+corrected peak = [ rows·(2n + q + 2·nn) + nn ]·8 + leaves + twiddles
+               = 13,491 MiB  (+ ~1 MiB twiddles)
+```
+
+**This reconciles with round 1's M1 count of 13,492 MiB** — derived
+independently, by a different worker, from a pure planner
+(`scripts/hashline_memory_plan.py`), and agreeing to within 1 MiB. M1 was
+right and this document's first figure was wrong. It matters because a
+memory bound that is 1.3 GB LOW is wrong in the direction that authorises a
+run it should have refused.
+
+The conclusion is unchanged and slightly strengthened: the resident hiding
+commitment never fitted an 8,188 MiB card, and by a wider margin than rung 1
+claimed.
+
 ### What chunking buys [DERIVED, not yet measured]
 
 Row-chunked at the existing default `HL_GPU_CHUNK_ROWS=128`:
@@ -311,3 +337,98 @@ before believing any number in it.
 2. **`d_data` is now 86% of the chunked peak** (1,346.8 of 1,562.5 MiB). If a
    future shape needs more headroom, that buffer — not the encode scratch —
    is where it is.
+
+---
+
+## Rung 5 — the WHOLE-LAYER memory account, as `ZK60_STATUS.md` requires before scaling
+
+`ZK60_STATUS.md`: *"M1's 13,492 MiB count is a single cold-pool P3
+W-commitment component ... Pending attention/FFN states add overlapping
+lifetime costs. Claude must account for those before scaling; nominal card
+capacity does not authorize a large run."* This rung is that accounting.
+
+### First: M1 was right and rung 1 was wrong
+
+See the correction above. `drop` is a pool return, not a free; the resident
+W commitment peaks at **13,491 MiB**, reconciling with M1's 13,492 to within
+1 MiB by an independent route. Rung 1's 12,142 was low by 1,349 MiB.
+
+### The overlap was the real killer, worse than any single allocation
+
+There are **three** hiding commitments per layer, and the pool drain is
+**after H**, not after each. Measured shapes at Mistral width (d 4096 /
+f 14336, T=512), with each component's resident cost from M1's planner:
+
+| commitment | rows | component peak (resident) | live + pool retained after it returns |
+|---|---:|---:|---:|
+| W | 10,774 | **13,492.0 MiB** | 6,733.8 live + 6,733.8 pool = **13,467.5** |
+| A | 3,601 | 4,511.8 MiB | 2,250.6 + 2,250.6 = 4,501.2 |
+| H | 3,033 | 3,800.7 MiB | 1,895.6 + 1,895.6 = 3,791.2 |
+
+Because nothing is released until after H, **A commits on top of W's
+retained 13,467 MiB**: ≈ **17,979 MiB before H or the zero-checks are even
+reached**, on an 8,188 MiB card. So P3 at real width was never "one 5,387 MiB
+allocation short". It was over budget by more than 2x, and the single failing
+`cuMemAlloc` was just the first place that became visible.
+
+### What the chunked path actually does — MEASURED, whole layer
+
+All three hiding commitments now chunk (`HL_GPU_VERBOSE=1`, one Mistral
+layer, P3, `gpu: ON`):
+
+```
+drain layer top: freed 0 pooled buffers
+zk commit rows 10774 (5649 MB resident): CHUNKED (by size), 85 chunks
+vram after commit W:    free 5486 / 8187 MiB   (used ~2701)   pool 4
+zk commit rows  3601 (1888 MB resident): CHUNKED (by size), 29 chunks
+vram after commit A:    free 5006 / 8187 MiB   (used ~3181)   pool 4
+vram after dev_helpers: free 3246 / 8187 MiB   (used ~4941)   pool 6   <- max
+zk commit rows  3033 (1590 MB resident): CHUNKED (by size), 24 chunks
+drain after H: freed 6 pooled buffers
+vram after helpers+H:   free 4750 / 8187 MiB   (used ~3437)   pool 0
+vram after zcF:         free 3598 / 8187 MiB   (used ~4589)   pool 1
+reported vram peak: 5182 MB
+```
+
+Three things worth naming:
+
+1. **No `rows·nn` buffer is ever allocated any more**, so the pool cannot
+   accumulate the 6.7 GB / 2.25 GB / 1.9 GB retentions that made the overlap
+   fatal. The pool holds 4-6 small chunk buffers and drains to **0** after H.
+2. **The peak is no longer the commitments.** The maximum observed in-flight
+   usage is **~4,941 MiB after `dev_helpers`** — the helper/zero-check phase,
+   not any commit. Whoever attacks memory next should start there, not here.
+3. **Headroom on this card: 8,187 − 5,182 = 3,005 MiB, i.e. 37%.**
+
+### Does this authorise a large run? Partly — and the honest answer is split
+
+**For the FFN-only coverage that exists today: yes, and it is accounted.**
+The per-layer peak is flat at 5,182 MB across a 4-layer run (4.159/3.834/
+3.849/3.977 s, peak identical), the drain returns the pool to 0 each layer,
+and 37% headroom remains. A 32-layer 8B P3 FFN pass is therefore a
+**bounded, per-layer-constant** run at ~5.2 GB, not a gamble on nominal
+capacity.
+
+**For the pending attention/FFN states: NO, and it cannot be.** Those
+relations are not written yet (the current pass reports
+`"coverage":"ffn-only"`). I cannot account for the lifetime of state that
+does not exist, and 37% headroom today is not a budget for it — the moment
+attention state joins the same layer, this account is void and must be
+redone. Nominal capacity does not authorise that run, exactly as
+`ZK60_STATUS.md` says.
+
+**So the run I flagged as "newly possible" is authorised only in its
+FFN-only form**, still under the detached/`flock`/`.done`/`nvidia-smi`/
+`gpu: ON` protocol, and it remains Victor's or Codex's call rather than
+something this lane should do unasked while the 5090 is unavailable.
+
+### One correction owed to the planner
+
+`scripts/hashline_memory_plan.py` lists under `unaccounted`: *"Future
+chunked hiding commitment: the current implementation still allocates both
+full expanded buffers."* That is **no longer true** as of `da845fa` — with
+`HL_ZK_CHUNK` unset the hiding commitment chunks by size and on allocation
+failure, and allocates neither full `rows·nn` buffer. The planner still
+correctly describes the RESIDENT path, which `HL_ZK_CHUNK=0` retains, so its
+numbers stay valid for that mode and for the historical record. It is
+Codex's file; this is a note, not an edit.
