@@ -11,7 +11,10 @@ Victor requested continued implementation and a substantial Claude queue:
 Codex's read-only [CL1 review](ZK60_CL1_INTEGRATION_REVIEW.md) holds integration
 pending explicit correctness/fallback/measurement follow-ups. Observed
 `c9fc897` adds the pooled-memory correction to `15eeda6`; CUDA source is unchanged.
-Codex workers continue verifier hardening and full Python fixture selection;
+Codex verifier hardening and full Python fixture selection are validated:
+129 Rust tests, 144 full Python/native tests without skips, four frozen CPU
+artifacts and public receipt byte parity pass. Full evidence is in
+`results/zk60_round5_validation.json`; all Codex workers/jobs are complete.
 Claude retains GPU/PCS and takes the memory planner for CL3. Fable's review
 remains independent and outstanding.
 

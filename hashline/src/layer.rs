@@ -19,7 +19,7 @@
 
 use crate::chain::LayerWitness;
 use crate::export::{D, F};
-use crate::field::{batch_inverse2, Fp, Fp2};
+use crate::field::{batch_inverse2, batch_inverse2_checked, Fp, Fp2};
 use crate::mle::{eq_point, eq_table_msb, eval_mle_ext, fold_cols_base, fold_cols_i8, fold_rows_i32, fold_rows_i8};
 use crate::ntt::NttTables;
 use crate::pcs::{self, Claim, Commitment, Opening, PcsParams, Slice};
@@ -1029,11 +1029,14 @@ pub fn verify_layer(st: &Statement, proof: &LayerProof, params: &LayerParams, nt
             } else {
                 Fp2::from_u64(i as u64).add(gamma.mul_base(Fp::new(*tag)))
             };
+            #[cfg(test)]
+            let alpha = crate::field::verifier_hardening_tests::lookup_alpha("layer-v2", alpha, tval);
             dens.push(alpha.sub(tval));
             nums.push(Fp::new(cnt as u64));
         }
     }
-    batch_inverse2(&mut dens);
+    batch_inverse2_checked(&mut dens)
+        .map_err(|_| "FFN v2 LogUp: zero lookup denominator".to_string())?;
     let table_side = dens.iter().zip(nums.iter()).fold(Fp2::ZERO, |a, (d, n)| a.add(d.mul_base(*n)));
     if witness_side != table_side { return Err("LogUp identity fails (a lookup is not in its table)".into()); }
 
@@ -2225,11 +2228,14 @@ pub fn verify_layer_v3(st: &StatementV3, proof: &LayerProofV3, params: &LayerPar
                 let sh = *tag as i32 - 64 - 8;
                 Fp2::from_i64(rem_value(sh, i)).add(gamma.mul_base(Fp::new(*tag)))
             };
+            #[cfg(test)]
+            let alpha = crate::field::verifier_hardening_tests::lookup_alpha("layer-v3", alpha, tval);
             dens.push(alpha.sub(tval));
             nums.push(Fp::new(cnt as u64));
         }
     }
-    batch_inverse2(&mut dens);
+    batch_inverse2_checked(&mut dens)
+        .map_err(|_| "FFN v3 LogUp: zero lookup denominator".to_string())?;
     let table_side = dens.iter().zip(nums.iter()).fold(Fp2::ZERO, |a, (d, n)| a.add(d.mul_base(*n)));
     if witness_side != table_side { return Err("LogUp identity fails (a lookup is not in its table)".into()); }
 

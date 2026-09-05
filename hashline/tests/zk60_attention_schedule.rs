@@ -238,7 +238,9 @@ fn source_hook_inventory_cannot_silently_lose_a_recorder_family() {
     let source = include_str!("../src/attention.rs");
     use sha2::Digest;
     assert_eq!(hashline::silu::hex(&sha2::Sha256::digest(source.as_bytes())),
-        "fec19c0f03a50052a92bf71579446d0885f543fc6fc45282a04f229aa9a732b2",
+        // H1: reviewed import, unit-only collision hook and verifier-only
+        // denominator refusal; recorder families/roles and trace pins unchanged.
+        "e5ab96f35018dfcfe44c9a24879a3ab2fc5cae5394809bd489ddc16eb5d9b6d8",
         "attention source changed: review instrumentation/argument coverage before accepting a new snapshot");
     for family in [
         "take",

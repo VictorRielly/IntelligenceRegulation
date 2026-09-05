@@ -2,7 +2,7 @@
 
 Snapshot: round 4 is committed and pushed as `5657a8d`, with the concurrent
 board-only handoff `2c88e4a` preserved. [Round 5](ZK60_PARALLEL_ROUND5.md)
-continues verifier hardening, Python fixture repair and CL1 review; the
+has validated verifier hardening, Python fixture repair and CL1 review; the
 [expanded Claude queue](ZK60_CLAUDE_QUEUE.md) has ten substantive tasks.
 The public receipt is byte-verified in
 a separate process and all four frozen CPU compatibility gates pass.
@@ -20,20 +20,22 @@ This map separates passed gates from proposed or currently executing work.
 | Standalone experimental private equality | [S2](ZK60_PRIVATE_SEAM.md) has fresh paired masks, one-shot ownership, bounded framing and a separate-process byte-verifier demonstration. | It proves equality at standalone commitments, not provenance from actual attention/FFN arithmetic. It is **not integrated private-block composition** or a complete security theorem. |
 | Executed schedule and composition design | [A01](ZK60_ATTENTION_SCHEDULE.md) records actual public attention metadata and preserves on/off proof bytes. [A03](ZK60_PENDING_FFN.md) specifies pending ownership, mask reservations and finalization; layout/count tests pass. | A01 does not observe challenge coordinates, PCS group rank or FFN internals; cross-layer coverage is a synthetic hook replay. A03 is a **reviewed interface proposal**, not an implemented pending private prover. |
 
-The round-4 integrated gate passed **124 release Rust tests, 48 targeted Python
-tests and four unchanged frozen CPU proof artifacts**. These are compatibility
+The round-5 integrated gate passed **129 release Rust tests, 144 full Python/native
+tests (zero skips) and four unchanged frozen CPU proof artifacts**. These are compatibility
 and tested-correctness results, not whole-profile security certification.
 Exact commands, source hashes and results:
-[round-4 validation](../../results/zk60_round4_validation.json),
-[round-4 handoff](ZK60_PARALLEL_ROUND4.md). The broader Python/native suite
-was not rerun here; Claude's board handoff reports existing export-path
-failures there, assigned to Codex for a separate regression-infrastructure fix.
+[round-5 validation](../../results/zk60_round5_validation.json),
+[round-5 handoff](ZK60_PARALLEL_ROUND5.md). The native export-path failures
+are repaired; all six fixture-dependent methods passed, including both
+previously skipped two-layer smokes. The full CPU suite took 921.316 s with
+two threads, maximum reported RSS 1,707,192 KiB and no swaps. Concurrent
+Claude CL8 tests added after discovery are not part of that count.
 
 ## Next gates and owners
 
 | Gate | Owner / current state | Evidence required to advance |
 |---|---|---|
-| B4 externally bound public receipt | **Codex lead + codec worker: acceptance passed**, [round-4 handoff](ZK60_PARALLEL_ROUND4.md). 124 Rust/48 Python tests and four frozen CPU artifacts pass; complete 2,144,946-byte public receipt verifies in a separate process. | Actual input/output/context linkage, internal seams, approved roots and complete bounded decoding are exercised. Wrong freshly proven expectations, malformed bytes and changed messages reject. Remaining deployment hardening includes exceptional legacy zero-denominator handling; this is not a production verification service or private proof. |
+| B4 externally bound public receipt | **Acceptance passed**, [round-4 handoff](ZK60_PARALLEL_ROUND4.md). Complete 2,144,946-byte receipt verifies in a separate process and retains its full hash after round-5 H1. | Actual input/output/context linkage, internal seams, approved roots and bounded decoding are exercised. H1 now explicitly refuses zero lookup denominators in all three related verifier paths. Wider typed-input/resource/deployment hardening remains; this is not a production service or private proof. |
 | Whole-profile privacy and identity | **Fable: independent review remains outstanding**, [F1 brief](ZK60_EXECUTION.md#f1--task-for-fable-prove-which-model-ran); Codex supplies diagnostics and implements only reviewed changes. | Audit actual joint opening groups, masks, proximity vectors, functionals, challenge order and reuse. Resolve the diagnosed singleton-mask hazard at the actual supported profiles. For P3, specify and test consistency between fresh private W roots and independently approved stable model identity. |
 | One complete private block, then two | **Codex: after reviewed privacy/interface prerequisites**, [private-block tasks](zk60_private_block_tasks.json). | Implement pending attention/FFN ownership, private lookup/norm/attention relations and both internal seams on the **actual** commitments. Reserve all masks before commitment and open once. Establish integer/range/no-wrap obligations; then test two-block residual linkage with freshly rebuilt adversarial witnesses. |
 | Complete generated-response relation | **Codex: subsequent coverage gate**, [execution milestones](ZK60_EXECUTION.md#c1-and-subsequent-milestones). | Bind all layers, embedding, final norm/head, token selection and request/model/calibration state. Prove position/KV/window transitions and the chosen generation/receipt policy; report generation time, proof readiness and post-generation proof lag separately. |

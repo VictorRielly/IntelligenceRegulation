@@ -3,7 +3,7 @@
   "created_local_date": "2026-09-04",
   "lane": "A1",
   "status": "round-4 supporting public receipt validated; private block remains partial, no complete private block or generation proof",
-  "baseline": "round3 source base 87c5338; concurrent board-only 2c88e4a preserved; round4 source and evidence validated but not yet committed",
+  "baseline": "round4 pushed as5657a8d; Claude queue/review pushed as4a58f12; round5 verifier hardening and regression infrastructure validated separately, no new private-block acceptance",
   "owner": "Codex private-block worker; not Fable or Claude",
   "hardware_policy": "CPU-first; no large GPU runs while 5090 is unavailable; Claude gpu/pcs lane reserved",
   "first_complete_milestone": "A07: one tiny fixed-calibration P1 transformer block",

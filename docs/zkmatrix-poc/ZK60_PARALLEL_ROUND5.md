@@ -43,4 +43,39 @@ early enough for its independent session to pick up work.
 
 ## Handoff
 
-In progress. No CL1 merge or throughput claim is implied by this round.
+Implementation reviewed and integrated in the working tree; all final
+acceptance checks pass. H1 adds explicit checked inversion at the three verifier call
+sites without changing the prover or valid transcript. All five exceptional
+branch regressions pass. The lead reviewed the three-line categories of
+attention source changes before updating its drift guard; all frozen runtime
+schedule fingerprints remain unchanged.
+
+R1 selects complete local fixtures, honors explicit overrides without
+fallback and refuses the higher-precedence incompatible model override. Its
+15 configuration/wiring tests pass. The full suite's four failure sites and
+two previously skipped real-data smokes are kept distinct; the latter now run.
+
+Combined Rust release gate: **129 tests pass**, including the ordinary-library
+receipt/wire and schedule tests. Four complete frozen CPU artifacts preserve
+full SHA-256 and length. The persisted B4 receipt verifies independently and a
+fresh receipt preserves its full SHA-256/length. Full Python/native validation
+passed **144 tests, zero failures, zero skips**, exit 0, in 921.316 s. All six
+fixture-dependent methods ran, including both formerly skipped smokes. The
+detached run used two threads, no GPU switches and an 8 GiB per-process
+address-space cap (not an aggregate RSS bound), after an offline native build.
+Reported maximum RSS: **1,707,192 KiB**, no swaps. Logs/exit marker:
+`/tmp/zk60-round5-mO246D/python-gate/`. The first sandbox launcher did not start
+its child; an approved host launch ran the resource-capped job successfully.
+
+The second independent read-only review found no actionable introduced H1/R1
+issue. All Codex workers/jobs are complete. Formatting of the new Rust test,
+whitespace and JSON checks pass. Eight inherited hashline attention warnings
+remain; existing native warnings were not globally cleaned up. Evidence:
+[round-5 validation](../../results/zk60_round5_validation.json).
+
+Concurrent CL8 files appeared after Python discovery and were left untouched;
+they are not included in the 144-test count or this continuation commit.
+No Claude GPU/PCS/memory-planner file or Fable-owned file was edited.
+
+Round-4 code is pushed at `5657a8d`; the ten-task Claude queue and CL1 review
+are pushed at `4a58f12`. No CL1 merge or throughput claim is implied.

@@ -6,27 +6,28 @@ The full pass tamper battery (6 legs, ~7 min) runs via
 `ring_matmul m125-pass battery small`; the full-shape per-layer proofs
 via `ring_matmul m125-pass prove <layer>` (see M125_PASS_REPORT.md).
 This module keeps the suite-budget subset: the v4 battery and freeze
-rows always; the smoke leg (honest layer 0 at T = 16, ~75 s) only when
-the read-only checkpoint exports exist (regenerate with
-`scripts/m125_export_ffn.py` under the frugal-lm venv).
+rows always; the smoke leg (honest layer 0 at T = 16, ~75 s) requires
+a complete read-only checkpoint export. Missing/invalid fixture configuration
+fails visibly; see regression_fixtures.py for explicit/default selection.
 """
 
 import pathlib
 import subprocess
 import unittest
+from regression_fixtures import m125_environment
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 BIN = ROOT / "zkmatrix-rs" / "target" / "release" / "ring_matmul"
-EXPORTS = ROOT / "results" / "m125_ffn_export" / "digests.txt"
 
 
-def _run(args, timeout):
+def _run(args, timeout, requires_exports=False):
     return subprocess.run(
         [str(BIN), *args],
         cwd=ROOT,
         capture_output=True,
         text=True,
         timeout=timeout,
+        env=m125_environment(ROOT) if requires_exports else None,
     )
 
 
@@ -46,7 +47,7 @@ class UagB1PassTests(unittest.TestCase):
         (regeneration, the (-4,-4)==v1 identity, member separation,
         clamp-never-fires) and the v3 digest-stability pins — with every
         pre-existing freeze row still green."""
-        proc = _run(["freeze-check"], timeout=300)
+        proc = _run(["freeze-check"], timeout=300, requires_exports=True)
         self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
         self.assertIn("freeze-check passed", proc.stdout)
         for row in ["UAGB1-BF-1a", "UAGB1-BF-1b", "UAGB1-BF-1c",
@@ -54,16 +55,12 @@ class UagB1PassTests(unittest.TestCase):
                     "UAGB1-BF-2c"]:
             self.assertIn(row, proc.stdout)
 
-    @unittest.skipUnless(
-        EXPORTS.exists(),
-        "125M exports not generated (scripts/m125_export_ffn.py, frugal venv)",
-    )
     def test_pass_smoke_real_data(self):
         """The pass machinery end to end on real checkpoint data:
         honest layer 0 at T = 16 — statement gate, 3 matmul sumchecks,
         Hadamard, requant pins, 8 lookup instances, masked wave rounds,
         closing — ACCEPT."""
-        proc = _run(["m125-pass", "battery", "smoke"], timeout=900)
+        proc = _run(["m125-pass", "battery", "smoke"], timeout=900, requires_exports=True)
         self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
         self.assertIn("honest layer 0 ACCEPT", proc.stdout)
         self.assertIn("pass smoke passed", proc.stdout)

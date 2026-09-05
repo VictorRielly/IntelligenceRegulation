@@ -221,6 +221,22 @@ pub fn batch_inverse2(vals: &mut [Fp2]) {
     }
 }
 
+/// Checked batch inversion of canonical extension-field elements.
+/// Rejects any zero before allocating, mutating the slice, or inverting;
+/// otherwise uses exactly the existing batch inversion arithmetic. Empty is OK.
+/// Like the rest of this field API, callers must supply canonical Fp limbs.
+pub fn batch_inverse2_checked(vals: &mut [Fp2]) -> Result<(), &'static str> {
+    if vals.iter().any(|v| v.is_zero()) {
+        return Err("zero extension-field batch denominator");
+    }
+    batch_inverse2(vals);
+    Ok(())
+}
+
+// Private fault injection and regression tests; absent from production builds.
+#[cfg(test)]
+pub(crate) mod verifier_hardening_tests;
+
 #[cfg(test)]
 mod tests {
     use super::*;
