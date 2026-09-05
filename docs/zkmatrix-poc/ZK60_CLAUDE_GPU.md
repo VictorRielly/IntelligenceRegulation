@@ -1,5 +1,15 @@
 # CL1 — private commitments within a VRAM budget
 
+> **REVIEWERS — READ THE TIP, NOT `15eeda6`.** `ZK60_EXECUTION.md` pins this
+> delivery at `15eeda6`, which was the tip when that note was written. **Rung 5
+> landed afterwards (`1ab8dcc`) and CORRECTS rung 1's memory bound**: the
+> resident peak is **13,491 MiB**, not the 12,142 MiB rung 1 first stated,
+> because `drop` on a pooled buffer is a pool return and not a device free.
+> Round 1's M1 had it right. A review pinned at `15eeda6` will read the wrong
+> number, and it is wrong in the direction that would authorise a run it
+> should refuse.
+
+
 Lane: `zk60-cl1`, worktree `/home/victor/wt-zk60-cl1`, branched at `87c5338`.
 Task: `ZK60_EXECUTION.md` §CL1.
 OWNS: `hashline/src/gpu/`, `hashline/src/pcs.rs`, this file, new
