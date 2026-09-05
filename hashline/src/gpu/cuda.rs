@@ -850,7 +850,7 @@ fn reenc_bench_at(g: &mut Gpu, rows: usize) {
             ((t >> 33) as usize) % nn
         })
         .collect();
-    let dc = DevCommit { rows, log_n, log_nn, data: d_data, enc: None };
+    let dc = DevCommit { rows, log_n, log_nn, data: d_data, enc: None, zk: None };
 
     // ---- the whole thing, as the opening calls it
     let mut full = f64::MAX;
@@ -1094,6 +1094,21 @@ pub struct DevCommit {
     /// resident (hashed chunk by chunk) and the opening re-encodes it chunk
     /// by chunk from `data` (`dev_columns`).
     pub(super) enc: Option<Pooled>,
+    /// [ZK60-CL1] Present only for a chunked HIDING commitment. A hiding
+    /// encoding is `expand(pad_scale(ntt(data), pads, pows))`, so re-encoding
+    /// it from `data` alone would drop the pads and the coset scaling and
+    /// return the WRONG columns. Keeping the pads (`rows*q`) and powers
+    /// (`nn`) resident costs ~21.5 MiB at the Mistral W shape against the
+    /// 5,387 MiB the dropped `enc` frees, and lets `dev_columns` stay the
+    /// single opening entry point.
+    pub(super) zk: Option<ZkReenc>,
+}
+
+/// [ZK60-CL1] What a chunked hiding commitment needs to re-encode itself.
+pub(super) struct ZkReenc {
+    pads: CudaSlice<u64>,
+    pows: CudaSlice<u64>,
+    q: usize,
 }
 
 impl Gpu {
@@ -1154,6 +1169,133 @@ impl Gpu {
         }
         Ok(())
     }
+
+    /// [ZK60-CL1] `ntt_rows` over a VIEW of the source (a row chunk). Same
+    /// kernels, same launch shapes, same twiddles, same scale — the only
+    /// difference is where the rows are read from, so a chunked encode is
+    /// bit-for-bit the resident encode.
+    fn ntt_rows_view(&self, src: &CudaView<u64>, dst: &mut CudaSlice<u64>, rows: usize, n_src: usize, log_n: u32, inverse: bool) -> Result<(), String> {
+        let (max_log, tf, ti) = self.tw.as_ref().ok_or("twiddles not uploaded")?;
+        let max_log = *max_log;
+        assert!(log_n <= max_log, "device ntt size 2^{log_n} exceeds tables (2^{max_log})");
+        assert!(log_n <= NTT_LOG_BLK + 12);
+        let tw = if inverse { ti } else { tf };
+        let scale: u64 = if inverse { Fp::new(1u64 << log_n).inv().0 } else { 1 };
+        let p1 = self.dev.get_func(MODULE, "k_ntt_p1").ok_or("k_ntt_p1 missing")?;
+        let lb = log_n.min(NTT_LOG_BLK);
+        let blocks_per_row = 1u32 << (log_n - lb);
+        let cfg1 = LaunchConfig { grid_dim: (rows as u32 * blocks_per_row, 1, 1), block_dim: (ntt_threads(), 1, 1), shared_mem_bytes: 0 };
+        unsafe { p1.launch(cfg1, (src, &mut *dst, tw, log_n as i32, n_src as i32, scale)) }.map_err(|e| format!("k_ntt_p1: {e}"))?;
+        if log_n > NTT_LOG_BLK {
+            let p2 = self.dev.get_func(MODULE, kn_ntt_p2()).ok_or("k_ntt_p2 missing")?;
+            let tiles = 1u32 << (log_n - NTT_LOG_BLK);
+            let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (ntt_threads(), 1, 1), shared_mem_bytes: 0 };
+            unsafe { p2.launch(cfg2, (&mut *dst, tw, log_n as i32, scale)) }.map_err(|e| format!("k_ntt_p2: {e}"))?;
+        }
+        Ok(())
+    }
+
+    /// [ZK60-CL1] One row chunk of the HIDING encode: exactly the three steps
+    /// `dev_commit_zk_from` runs resident — forward NTT to coefficients, then
+    /// `k_zk_pad_scale` (append this chunk's `q` pads and scale by the coset
+    /// powers), then the expand NTT. `pads` is sliced to the chunk because it
+    /// is per ROW; `pows` is per COLUMN and shared by every chunk.
+    #[allow(clippy::too_many_arguments)]
+    fn encode_rows_view_zk(&self, data: &CudaView<u64>, pads: &CudaView<u64>, pows: &CudaSlice<u64>,
+                           coef: &mut CudaSlice<u64>, coef2: &mut CudaSlice<u64>, enc: &mut CudaSlice<u64>,
+                           rows: usize, n: usize, q: usize, nn: usize, log_n: u32, log_nn: u32) -> Result<(), String> {
+        self.ntt_rows_view(data, coef, rows, n, log_n, true)?;
+        let f = self.dev.get_func(MODULE, "k_zk_pad_scale").ok_or("k_zk_pad_scale missing")?;
+        let cfg = LaunchConfig::for_num_elems((rows * nn) as u32);
+        unsafe { f.launch(cfg, (&*coef, pads, pows, &mut *coef2, rows as i32, n as i32, q as i32, nn as i32)) }
+            .map_err(|e| format!("k_zk_pad_scale: {e}"))?;
+        self.ntt_rows(coef2, enc, rows, nn, log_nn, false)?;
+        Ok(())
+    }
+
+    /// [ZK60-CL1] The chunked HIDING commitment. Mirrors `commit_chunked`:
+    /// walk `chunk_plan`, encode each row chunk, fold it into the per-column
+    /// blake3 state with `k_hash_cols_stream`, and take the leaves from the
+    /// last chunk. Same kernels and same order as the resident path, so the
+    /// leaves are bit-for-bit identical; only the peak memory differs.
+    #[allow(clippy::too_many_arguments)]
+    fn commit_zk_chunked(&self, d_data: &Pooled, d_pads: &CudaSlice<u64>, d_pows: &CudaSlice<u64>,
+                         rows: usize, n: usize, q: usize, nn: usize, log_n: u32, log_nn: u32,
+                         chunk: usize) -> Result<Vec<Digest>, String> {
+        let dev = self.dev.clone();
+        let plan = chunk_plan(rows, chunk);
+        let rmax = plan.iter().map(|&(_, rc)| rc).max().unwrap();
+        let t0 = Instant::now();
+        let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
+        let mut d_coef2 = Pooled::take_min(&dev, rmax * nn)?;
+        let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+        let state_words = B3_STATE_SLOTS * nn;
+        let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;
+        dev.memset_zeros(d_state.get_mut()).map_err(|e| format!("state memset: {e}"))?;
+        let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+        let f_hash = dev.get_func(MODULE, "k_hash_cols_stream").ok_or("k_hash_cols_stream missing")?;
+        note_vram(self);
+        for &(r0, rc) in &plan {
+            let dview = d_data.get().slice(r0 * n..(r0 + rc) * n);
+            let pview = d_pads.slice(r0 * q..(r0 + rc) * q);
+            self.encode_rows_view_zk(&dview, &pview, d_pows, d_coef.get_mut(), d_coef2.get_mut(), d_enc.get_mut(),
+                                     rc, n, q, nn, log_n, log_nn)?;
+            let cfg = LaunchConfig::for_num_elems(nn as u32);
+            unsafe { f_hash.clone().launch(cfg, (d_enc.get(), d_state.get_mut(), rc as i32, r0 as i32, rows as i32, nn as i32, &mut d_leaves)) }
+                .map_err(|e| format!("k_hash_cols_stream: {e}"))?;
+        }
+        let words = dev.dtoh_sync_copy(&d_leaves).map_err(|e| format!("leaves download: {e}"))?;
+        let mut leaves = vec![[0u8; 32]; nn];
+        for (j, leaf) in leaves.iter_mut().enumerate() {
+            for w in 0..8 {
+                leaf[4 * w..4 * w + 4].copy_from_slice(&words[j * 8 + w].to_le_bytes());
+            }
+        }
+        let total = t0.elapsed().as_secs_f64();
+        if verbose() {
+            eprintln!("[ZK60-CL1]   chunked ZK commit rows {rows} 2^{log_n} -> 2^{log_nn} (q {q}) in {} chunks of <= {rmax}: {total:.4} s", plan.len());
+        }
+        stats_with(|s| { s.secs_ntt += total; s.n_chunked += 1; s.bytes_d2h += (nn * 32) as u64; });
+        Ok(leaves)
+    }
+
+    /// [ZK60-CL1] The opening for a chunked HIDING commitment: re-encode each
+    /// row chunk THROUGH THE PAD/COSET STEP and gather the sampled columns.
+    /// `columns_chunked` cannot serve this — it re-encodes with neither the
+    /// pads nor the coset scaling, so it would return the wrong columns.
+    fn columns_chunked_zk(&self, dc: &DevCommit, zk: &ZkReenc, idx: &[usize], chunk: usize) -> Result<Vec<Vec<Fp>>, String> {
+        let dev = self.dev.clone();
+        let (rows, log_n, log_nn) = (dc.rows, dc.log_n, dc.log_nn);
+        let n = 1usize << log_n;
+        let nn = 1usize << log_nn;
+        let q_open = idx.len();
+        let plan = chunk_plan(rows, chunk);
+        let rmax = plan.iter().map(|&(_, rc)| rc).max().unwrap();
+        let t0 = Instant::now();
+        let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
+        let mut d_coef2 = Pooled::take_min(&dev, rmax * nn)?;
+        let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+        let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
+        let d_idx = dev.htod_sync_copy(&idx32).map_err(|e| e.to_string())?;
+        let mut d_out = unsafe { dev.alloc::<u64>(rows * q_open) }.map_err(|e| e.to_string())?;
+        let f = dev.get_func(MODULE, "k_gather_cols_off").ok_or("k_gather_cols_off missing")?;
+        for &(r0, rc) in &plan {
+            let dview = dc.data.get().slice(r0 * n..(r0 + rc) * n);
+            let pview = zk.pads.slice(r0 * zk.q..(r0 + rc) * zk.q);
+            self.encode_rows_view_zk(&dview, &pview, &zk.pows, d_coef.get_mut(), d_coef2.get_mut(), d_enc.get_mut(),
+                                     rc, n, zk.q, nn, log_n, log_nn)?;
+            let cfg = LaunchConfig::for_num_elems((rc * q_open) as u32);
+            unsafe { f.clone().launch(cfg, (d_enc.get(), &mut d_out, &d_idx, rc as i32, r0 as i32, rows as i32, nn as i32, q_open as i32)) }
+                .map_err(|e| format!("k_gather_cols_off: {e}"))?;
+        }
+        let out = dev.dtoh_sync_copy(&d_out).map_err(|e| e.to_string())?;
+        let dt = t0.elapsed().as_secs_f64();
+        if verbose() {
+            eprintln!("[ZK60-CL1]   chunked ZK re-encode + gather rows {rows} ({} chunks): {dt:.4} s", plan.len());
+        }
+        stats_with(|s| { s.secs_reenc += dt; s.bytes_d2h += (rows * q_open * 8) as u64; });
+        Ok((0..q_open).map(|c| out[c * rows..(c + 1) * rows].iter().map(|&v| Fp(v)).collect()).collect())
+    }
 }
 
 /// Commit on the device: upload `data`, encode every row (inverse NTT of
@@ -1181,7 +1323,7 @@ pub fn dev_commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Result<(D
             match g.commit_chunked_upload(as_u64s(data), &mut d_data, rows, params.log_cols, log_nn, chunk_rows()) {
                 Ok(leaves) => {
                     note_vram(&g);
-                    return Ok((DevCommit { rows, log_n: params.log_cols, log_nn, data: d_data, enc: None }, leaves));
+                    return Ok((DevCommit { rows, log_n: params.log_cols, log_nn, data: d_data, enc: None, zk: None }, leaves));
                 }
                 Err(e) => eprintln!("[UPERF3-AJ] streamed commit declined ({e}); block upload"),
             }
@@ -1213,19 +1355,19 @@ pub fn dev_encode_only(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Resu
     let t1 = Instant::now();
     if rows * nn * 8 > chunk_bytes() {
         // the chunked class: nothing to encode now — the opening re-encodes chunk by chunk
-        return Ok(DevCommit { rows, log_n, log_nn, data: d_data, enc: None });
+        return Ok(DevCommit { rows, log_n, log_nn, data: d_data, enc: None, zk: None });
     }
     let mut d_coef = Pooled::take(&dev, rows * n)?;
     let mut d_enc = match Pooled::take(&dev, rows * nn) {
         Ok(b) => b,
-        Err(_) => return Ok(DevCommit { rows, log_n, log_nn, data: d_data, enc: None }),
+        Err(_) => return Ok(DevCommit { rows, log_n, log_nn, data: d_data, enc: None, zk: None }),
     };
     g.encode_rows(d_data.get(), d_coef.get_mut(), d_enc.get_mut(), rows, log_n, log_nn)?;
     dev.synchronize().map_err(|e| e.to_string())?;
     stats_with(|s| s.secs_ntt += t1.elapsed().as_secs_f64());
     note_vram(&g);
     drop(d_coef);
-    Ok(DevCommit { rows, log_n, log_nn, data: d_data, enc: Some(d_enc) })
+    Ok(DevCommit { rows, log_n, log_nn, data: d_data, enc: Some(d_enc), zk: None })
 }
 
 // ---------------------------------------------------------------------------
@@ -1247,6 +1389,25 @@ pub fn dev_encode_only(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Resu
 fn chunk_bytes() -> usize {
     static V: OnceLock<usize> = OnceLock::new();
     *V.get_or_init(|| std::env::var("HL_GPU_CHUNK_BYTES").ok().and_then(|v| v.parse().ok()).unwrap_or(1usize << 30))
+}
+
+/// [ZK60-CL1] The hiding commitment's chunking switch, and the REFERENCE
+/// PATH RETAINER the acceptance criteria ask for.
+///   unset / `auto` — chunk by size, and also whenever the resident buffers
+///                    cannot be allocated (the non-ZK path's own rule)
+///   `0` / `off`    — never chunk: the pre-CL1 resident path, byte-for-byte
+///   `1` / `force`  — always chunk, so a small shape exercises the chunked
+///                    code in the byte gates
+#[derive(Clone, Copy, PartialEq)]
+enum ZkChunk { Auto, Off, Force }
+fn zk_chunk_mode() -> ZkChunk {
+    static V: OnceLock<u8> = OnceLock::new();
+    let v = *V.get_or_init(|| match std::env::var("HL_ZK_CHUNK").ok().as_deref() {
+        Some("0") | Some("off") => 0,
+        Some("1") | Some("force") => 2,
+        _ => 1,
+    });
+    match v { 0 => ZkChunk::Off, 2 => ZkChunk::Force, _ => ZkChunk::Auto }
 }
 /// [UPERF3-AJ] `HL_GPU_FUSE_GATHER=0` restores the separate
 /// `k_ntt_p2` + `k_gather_cols_off` pair (the pre-rung-2 shape, for the A/B).
@@ -1644,7 +1805,7 @@ pub fn dev_commit_check_chunked(log_cols: u32, inv_rate: usize, rows: usize, chu
     dev.htod_sync_copy_into(as_u64s(&data), d_data.get_mut()).map_err(|e| format!("data upload: {e}"))?;
     let leaves = g.commit_chunked(&d_data, rows, params.log_cols, nn.trailing_zeros(), chunk)?;
     let bad_leaves = leaves.iter().zip(cpu_leaves.iter()).filter(|(a, b)| a != b).count();
-    let dc = DevCommit { rows, log_n: params.log_cols, log_nn: nn.trailing_zeros(), data: d_data, enc: None };
+    let dc = DevCommit { rows, log_n: params.log_cols, log_nn: nn.trailing_zeros(), data: d_data, enc: None, zk: None };
     let idx: Vec<usize> = (0..16).map(|i| (i * 7919 + 13) % nn).collect();
     let cols = g.columns_chunked(&dc, &idx, chunk)?;
     let mut bad_cols = 0;
@@ -1687,7 +1848,7 @@ pub fn dev_commit_from(params: &PcsParams, d_data: Pooled, rows: usize, ntt: &Nt
             if verbose() { eprintln!("[UPERF3-AC]   commit rows {rows} 2^{log_n} -> 2^{log_nn} ({:.0} MB): CHUNKED ({})", (rows * nn * 8) as f64 / 1e6, if chunked_now { "by size" } else { "resident alloc failed" }); }
             let leaves = g.commit_chunked(&d_data, rows, log_n, log_nn, chunk_rows())?;
             note_vram(&g);
-            return Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: None }, leaves));
+            return Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: None, zk: None }, leaves));
         }
     };
     if gather_ntt() {
@@ -1717,7 +1878,7 @@ pub fn dev_commit_from(params: &PcsParams, d_data: Pooled, rows: usize, ntt: &Nt
         stats_with(|s| { s.secs_hash += (t3 - t2).as_secs_f64(); s.bytes_d2h += (nn * 32) as u64; });
         leaves
     };
-    Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: Some(d_enc) }, leaves))
+    Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: Some(d_enc), zk: None }, leaves))
 }
 
 /// `HL_GPU_GATHER_NTT=1`: rung 1's gather-based DIT NTT pair (for the A/B).
@@ -1779,9 +1940,13 @@ pub fn dev_columns(dc: &DevCommit, idx: &[usize]) -> Result<Vec<Vec<Fp>>, String
     let rows = dc.rows;
     let nn = 1usize << dc.log_nn;
     // [UPERF3-AC] a chunked commitment: re-encode chunk by chunk and gather
-    let enc = match &dc.enc {
-        Some(e) => e,
-        None => return g.columns_chunked(dc, idx, chunk_rows()),
+    let enc = match (&dc.enc, &dc.zk) {
+        (Some(e), _) => e,
+        // [ZK60-CL1] a chunked HIDING commitment re-encodes THROUGH the
+        // pad/coset step. `columns_chunked` drops both and would return the
+        // wrong columns — this arm is the reason `zk` is carried at all.
+        (None, Some(zk)) => return g.columns_chunked_zk(dc, zk, idx, chunk_rows()),
+        (None, None) => return g.columns_chunked(dc, idx, chunk_rows()),
     };
     let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
     let d_idx = dev.htod_sync_copy(&idx32).map_err(|e| e.to_string())?;
@@ -2422,12 +2587,51 @@ pub fn dev_commit_zk_from(params: &PcsParams, d_data: Pooled, rows: usize, pads:
     assert_eq!(1usize << log_nn, nn, "inv_rate must be a power of two on the device path");
     let dev = g.dev.clone();
     let t1 = Instant::now();
-    let mut d_coef = Pooled::take(&dev, rows * n)?;
-    g.ntt_rows(d_data.get(), d_coef.get_mut(), rows, n, log_n, true)?;
+
+    // [ZK60-CL1] The hiding commitment's peak is
+    //   [rows*(n + q + 2*nn) + nn] * 8 bytes
+    // because BOTH `rows*nn` buffers are live across the expand NTT. At the
+    // Mistral W shape that is 12,142 MiB, and the single `rows*nn` take is
+    // 5,387 MiB — the allocation that died on 2026-09-04. The non-hiding twin
+    // has chunked by size, and fallen back to chunked on allocation failure,
+    // since [UPERF3-AC]; this path simply never learned to. Chunked, the same
+    // shape peaks at ~1,563 MiB. See ZK60_CLAUDE_GPU.md.
+    let want = (rows * nn * 8) as u64;
+    let mode = zk_chunk_mode();
+    let chunked_now = mode == ZkChunk::Force || (mode == ZkChunk::Auto && want as usize > chunk_bytes());
+
+    // pads and powers are needed by BOTH paths, uploaded exactly as before; a
+    // chunked commitment KEEPS them so `dev_columns` can re-encode through the
+    // pad/coset step (~21.5 MiB at the Mistral W shape, against 5,387 freed).
     let d_pads = dev.htod_sync_copy(as_u64s(pads)).map_err(|e| format!("pads upload: {e}"))?;
     let d_pows = dev.htod_sync_copy(as_u64s(pows)).map_err(|e| format!("pows upload: {e}"))?;
     stats_with(|s| s.bytes_h2d += ((pads.len() + pows.len()) * 8) as u64);
-    let mut d_coef2 = Pooled::take(&dev, rows * nn)?;
+
+    // Chunk by size, or because the resident pair will not fit. Never a silent
+    // CPU fallback: the caller's CPU path is only reached on a real `Err`.
+    let resident = if chunked_now { None } else {
+        match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {
+            (Ok(c), Ok(c2)) => Some((c, c2)),
+            _ => None,
+        }
+    };
+    let (mut d_coef, mut d_coef2) = match resident {
+        Some(x) => x,
+        None => {
+            if verbose() {
+                eprintln!("[ZK60-CL1]   zk commit rows {rows} 2^{log_n} -> 2^{log_nn} (q {q}, {:.0} MB resident): CHUNKED ({})",
+                          (rows * nn * 8) as f64 / 1e6,
+                          if chunked_now { if mode == ZkChunk::Force { "forced" } else { "by size" } } else { "resident alloc failed" });
+            }
+            let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q, nn, log_n, log_nn, chunk_rows())?;
+            note_vram(&g);
+            stats_with(|s| s.secs_ntt += t1.elapsed().as_secs_f64());
+            let zk = ZkReenc { pads: d_pads, pows: d_pows, q };
+            return Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: None, zk: Some(zk) }, leaves));
+        }
+    };
+
+    g.ntt_rows(d_data.get(), d_coef.get_mut(), rows, n, log_n, true)?;
     let f = dev.get_func(MODULE, "k_zk_pad_scale").ok_or("k_zk_pad_scale missing")?;
     let cfg = LaunchConfig::for_num_elems((rows * nn) as u32);
     unsafe { f.launch(cfg, (d_coef.get(), &d_pads, &d_pows, d_coef2.get_mut(), rows as i32, n as i32, q as i32, nn as i32)) }.map_err(|e| format!("k_zk_pad_scale: {e}"))?;
@@ -2442,7 +2646,7 @@ pub fn dev_commit_zk_from(params: &PcsParams, d_data: Pooled, rows: usize, pads:
     let leaves = g.hash_cols(d_enc.get(), rows, nn)?;
     let t3 = Instant::now();
     stats_with(|s| { s.secs_hash += (t3 - t2).as_secs_f64(); s.bytes_d2h += (nn * 32) as u64; });
-    Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: Some(d_enc) }, leaves))
+    Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: Some(d_enc), zk: None }, leaves))
 }
 
 /// Upload `data` and commit it in ZK mode (== pcs::commit_zk's encoding and leaves).
