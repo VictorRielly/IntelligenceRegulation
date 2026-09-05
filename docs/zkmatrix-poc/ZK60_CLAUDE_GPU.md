@@ -264,3 +264,50 @@ headline. An ABBA repeat is the next thing to do.
 *at Mistral width*: chunking puts it there on 8 GB. The bigger card is still
 what the 8B pass and the fast tier's spill want; the full tier's commitment
 is no longer the reason.
+
+---
+
+## CL1 status: rungs 1-4 delivered. Acceptance, checked against the brief
+
+| criterion | evidence |
+|---|---|
+| documented peak bound | rung 1: `[rows·(n+q+2·nn)+nn]·8` = 12,142.3 MiB, derived before running, and its 5,387.0 MiB single allocation matches the observed `cuMemAlloc` failure exactly |
+| unchanged deterministic artifacts | **12 byte gates green** (4 fixtures x CPU / GPU / GPU-with-chunking-forced), `results/cl1_floors.log` exit 0; plus both Mistral-width digests reproducing lane AM's rung-2 values |
+| meaningful negative tests | the negative control: opening a hiding commitment with the non-ZK `columns_chunked` must and does disagree, with leaves right and columns wrong |
+| forced-chunk CPU/GPU comparisons | `dev_commit_zk_check_chunked` over rates 2/4/8, ragged rows, one-chunk, `q_pad` 1-256, wider shapes — 6/6, against the CPU's `encode_row_zk` |
+| honest before/after on named hardware | rung 4, RTX 4070 Laptop 8 GB, with the single-run caveat stated |
+| gains attributed to the portion changed | the COMMITMENT, at one Mistral layer. No 8B number, no pass-level speedup claimed |
+| reference switch retained | `HL_ZK_CHUNK=0` keeps the pre-CL1 resident path byte-for-byte |
+
+**Files touched — all inside the lane's ownership**: `gpu/cuda.rs`,
+`gpu/mod.rs` (one re-export), `tests/zk60_gpu_commit.rs`, this document,
+`results/cl1_*`. **`zk.rs` and `src/bin/hashline.rs` were NOT touched**, as
+the brief requires. `pcs.rs` is in the lane's ownership but needed no change
+either: carrying the pads in `DevCommit` kept `dev_columns` the single
+opening entry point, so the pcs-level opening code is untouched.
+
+**Nothing is proposed for Codex to integrate** — there are no caller changes.
+The one optional extra, if it is ever wanted: `dev_commit_zk_check_chunked`
+could be surfaced as a `gpu-probe` subcommand the way
+`dev_commit_check_chunked` is, but the test file already covers it and that
+would require editing the CLI, which is read-only to this lane.
+
+### What is now newly possible, and is a decision rather than a task
+
+The 32-layer 8B P3 pass on the device. It was impossible before this lane
+(the commitment could not be allocated); the 4-layer run shows the peak flat
+at 5,182 MB, so it should now fit this 8 GB card. It is NOT run here because
+the brief says to stay at safe small shapes while the 5090 is unavailable,
+and this box froze three times on 2026-09-04. Whoever picks it up should
+launch it detached under `flock /tmp/zk-heavy.lock` with a `.done` marker,
+check `nvidia-smi` reads near 0 first, and grep the run header for `gpu: ON`
+before believing any number in it.
+
+### Two limits worth stating plainly
+
+1. **The seconds are single runs on a box that is not quiesced-certified.**
+   The byte results are exact; the timings are indicative. An ABBA repeat
+   would firm up the +20.0%.
+2. **`d_data` is now 86% of the chunked peak** (1,346.8 of 1,562.5 MiB). If a
+   future shape needs more headroom, that buffer — not the encode scratch —
+   is where it is.
