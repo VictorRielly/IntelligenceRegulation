@@ -1,0 +1,322 @@
+{
+  "schema": 1,
+  "local_date": "2026-09-04",
+  "base": "19ebd18 plus C0 foundation patch",
+  "worktree_state": "uncommitted; no branch switch, commit or push",
+  "goal_met": false,
+  "worker_lanes": {
+    "I1": "Completed and integrated: opt-in P1 approval boundary plus known P3 gap diagnostic",
+    "W1": "Completed and integrated: tests and experimental benchmark only; no production blocking promotion",
+    "A1": "Completed and integrated: source-review design and 11 proposed tasks, no private block implementation",
+    "M1": "Completed and integrated: component accounting only, not full-prover memory bound"
+  },
+  "source_hashes": [
+    {
+      "path": "hashline/src/model_identity.rs",
+      "sha256": "e6ef35710dfbdcbd3d4342f84b590e1aab39f61f0b843ff7ef2864cef8d6831c"
+    },
+    {
+      "path": "hashline/src/chain.rs",
+      "sha256": "6c4be4f0501caf1c4f67a587e5f3f81e65771d39074b6902027e3718b4a13a42"
+    },
+    {
+      "path": "hashline/src/export_v3.rs",
+      "sha256": "7011c9374415786abe13c094a23c69bfd6f347b8d64b74d1a8d4bd98bebf62f9"
+    },
+    {
+      "path": "hashline/src/lib.rs",
+      "sha256": "b936ee058de747015907d5381c23d102426718b5cb966cca52cada3119787268"
+    },
+    {
+      "path": "scripts/hashline_memory_plan.py",
+      "sha256": "2709f501df7e9ff3b03961112ac480fdf3f45af09d69ed8a461046b17c311ac9"
+    },
+    {
+      "path": "hashline/examples/zk60_witness_bench.rs",
+      "sha256": "55cdc891bbc0de4a62f3ef449c0a836d5008406f9cc72422da947d8849461f28"
+    }
+  ],
+  "checks": [
+    {
+      "command": "env CARGO_TARGET_DIR=/tmp/zk60-parallel-OrrY0T/identity/hashline/target RAYON_NUM_THREADS=2 cargo test --release --offline --manifest-path hashline/Cargo.toml --all-targets -- --test-threads=2",
+      "exit_code": 0,
+      "library_passed": 51,
+      "cli_passed": 3,
+      "identity_passed": 5,
+      "memory_layout_passed": 1,
+      "experimental_example_passed": 3,
+      "total_passed": 63
+    },
+    {
+      "command": "python3 -m unittest discover -s tests -p 'test_hashline_*.py'",
+      "exit_code": 0,
+      "total_passed": 37,
+      "collector_passed": 28,
+      "memory_plan_passed": 9
+    },
+    {
+      "command": "python3 /tmp/zk60-parallel-OrrY0T/validate_cpu.py",
+      "exit_code": 0,
+      "fixtures_passed": 4,
+      "artifacts": "/tmp/zk60-parallel-OrrY0T/cpu-gates",
+      "shared_lock": "/tmp/zk-heavy.lock"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "cpu_fixtures": [
+    {
+      "case": "v2",
+      "ok": true,
+      "exit_code": 0,
+      "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+      "bytes": 66844928,
+      "elapsed_s": 16.741534241999034,
+      "command": [
+        "/tmp/zk60-parallel-OrrY0T/identity/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-parallel-OrrY0T/cpu-gates/v2.proof"
+      ]
+    },
+    {
+      "case": "v3",
+      "ok": true,
+      "exit_code": 0,
+      "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+      "bytes": 70758084,
+      "elapsed_s": 17.449676508000266,
+      "command": [
+        "/tmp/zk60-parallel-OrrY0T/identity/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-parallel-OrrY0T/cpu-gates/v3.proof",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ]
+    },
+    {
+      "case": "zk",
+      "ok": true,
+      "exit_code": 0,
+      "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+      "bytes": 87228528,
+      "elapsed_s": 18.715428600997257,
+      "command": [
+        "/tmp/zk60-parallel-OrrY0T/identity/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-parallel-OrrY0T/cpu-gates/zk.proof",
+        "--zk",
+        "--seed",
+        "1"
+      ]
+    },
+    {
+      "case": "zkv3",
+      "ok": true,
+      "exit_code": 0,
+      "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+      "bytes": 87697008,
+      "elapsed_s": 20.776424002000567,
+      "command": [
+        "/tmp/zk60-parallel-OrrY0T/identity/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-parallel-OrrY0T/cpu-gates/zkv3.proof",
+        "--zk",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ]
+    }
+  ],
+  "memory_component_plan": {
+    "schema": 1,
+    "scope": "one resident hiding commitment; code-derived buffer accounting",
+    "measured": false,
+    "safe_to_run": false,
+    "sources": {
+      "layout": "hashline/src/zk.rs::ZkLayoutV3::new",
+      "allocation": "hashline/src/gpu/cuda.rs::dev_commit_zk_from",
+      "pool": "hashline/src/gpu/cuda.rs::pool_put / Pooled::drop",
+      "twiddles": "hashline/src/gpu/cuda.rs::Gpu::ensure_twiddles",
+      "hash": "hashline/src/gpu/cuda.rs::Gpu::hash_cols",
+      "host": "hashline/src/pcs.rs::commit_zk_owned / commit_zk_device"
+    },
+    "shape": {
+      "rows": 10774,
+      "log_cols": 14,
+      "columns": 16384,
+      "encoded_columns": 65536,
+      "inv_rate": 4,
+      "checks": 256,
+      "q_pad": 256,
+      "ntt_max_log": 16
+    },
+    "buffers_bytes": {
+      "systematic_data": 1412169728,
+      "inverse_coefficients": 1412169728,
+      "pads": 22065152,
+      "coset_powers": 524288,
+      "expanded_coefficients": 5648678912,
+      "encoded_matrix": 5648678912,
+      "device_leaf_hashes": 2097152
+    },
+    "stages": [
+      {
+        "stage": "inverse NTT",
+        "live_buffers": [
+          "systematic_data",
+          "inverse_coefficients"
+        ],
+        "pooled_buffers": [],
+        "live_bytes": 2824339456,
+        "retained_pool_bytes": 0,
+        "accounted_device_bytes": 2824339456
+      },
+      {
+        "stage": "pad and coset scale",
+        "live_buffers": [
+          "systematic_data",
+          "inverse_coefficients",
+          "pads",
+          "coset_powers",
+          "expanded_coefficients"
+        ],
+        "pooled_buffers": [],
+        "live_bytes": 8495607808,
+        "retained_pool_bytes": 0,
+        "accounted_device_bytes": 8495607808
+      },
+      {
+        "stage": "forward NTT",
+        "live_buffers": [
+          "systematic_data",
+          "pads",
+          "coset_powers",
+          "expanded_coefficients",
+          "encoded_matrix"
+        ],
+        "pooled_buffers": [
+          "inverse_coefficients"
+        ],
+        "live_bytes": 12732116992,
+        "retained_pool_bytes": 1412169728,
+        "accounted_device_bytes": 14144286720
+      },
+      {
+        "stage": "column hashes",
+        "live_buffers": [
+          "systematic_data",
+          "pads",
+          "coset_powers",
+          "encoded_matrix",
+          "device_leaf_hashes"
+        ],
+        "pooled_buffers": [
+          "inverse_coefficients",
+          "expanded_coefficients"
+        ],
+        "live_bytes": 7085535232,
+        "retained_pool_bytes": 7060848640,
+        "accounted_device_bytes": 14146383872
+      },
+      {
+        "stage": "return commitment",
+        "live_buffers": [
+          "systematic_data",
+          "encoded_matrix"
+        ],
+        "pooled_buffers": [
+          "inverse_coefficients",
+          "expanded_coefficients"
+        ],
+        "live_bytes": 7060848640,
+        "retained_pool_bytes": 7060848640,
+        "accounted_device_bytes": 14121697280
+      }
+    ],
+    "twiddle_bytes": 1048560,
+    "commitment_live_after_return_bytes": 7060848640,
+    "new_pool_bytes_after_return": 7060848640,
+    "component_peak_accounted_bytes": 14147432432,
+    "prior_live_bytes": 0,
+    "prior_pool_bytes": 0,
+    "subtotal_accounted_bytes": 14147432432,
+    "subtotal_accounted_mib": 13492.042953491211,
+    "component_budget_bytes": 34359738368,
+    "exceeds_component_budget": false,
+    "host_retained_payload_bytes": {
+      "systematic_data": 1412169728,
+      "pads": 22065152,
+      "salts": 2097152,
+      "merkle_tree": 4194272
+    },
+    "assumptions": [
+      "One successful resident dev_commit_zk_from call, no CPU fallback.",
+      "Cold empty pool for the component; drop(coef) and drop(coef2) retain allocations because the pool holds up to 64 buffers, not a byte budget.",
+      "Twiddles counted once here, assuming cold setup or already matching tables. If different-max tables are replaced, count the old tables separately in prior_live_bytes for the replacement transient.",
+      "Prior buffers are additive and assumed not reusable; that can overcount actual reuse.",
+      "Component budget is an explicitly assigned total allowance, not a measured free-VRAM reading."
+    ],
+    "unaccounted": [
+      "Other simultaneous W/A/H commitments unless explicitly supplied as prior_live_bytes.",
+      "Helper generation, reserved zero-check tables, matmul/sumcheck/opening workspaces.",
+      "CUDA context, loaded kernels, driver allocations, local-memory spills, fragmentation and display usage.",
+      "Host witness/export tensors, staging buffers, temporary encodings, serialized proofs and allocator overhead.",
+      "Future chunked hiding commitment: the current implementation still allocates both full expanded buffers."
+    ],
+    "p3_weight_layout": {
+      "d": 4096,
+      "f": 14336,
+      "data_rows": 10752,
+      "block_mask_rows": 21,
+      "proximity_rows": 1,
+      "rows": 10774,
+      "log_cols": 14
+    }
+  },
+  "witness_experiment": {
+    "scope": "WSL shared-host paired synthetic CPU diagnostics; no complete-witness or 8B speed claim",
+    "production_promoted": false,
+    "lane_tests": {
+      "debug_passed": 8,
+      "release_passed": 8
+    },
+    "raw_logs": {
+      "one-thread": "ZK60_WITNESS_BENCH threads=1 reps=5 cpu=\"model name\\t: Intel(R) Core(TM) Ultra 9 185H\" rustflags=Err(NotPresent)\nScope: synthetic CPU matmul only, allocation included, comparisons excluded; no 8B or complete-witness throughput claim.\nAB kind=i8xi8_i32 shape=32x768x2048 baseline_s=0.008873 blocked_s=0.008366 speedup=1.061 equal=true samples_baseline=[0.008873039, 0.008764886, 0.008764149, 0.009226134, 0.008894766] samples_blocked=[0.008394698, 0.008327821, 0.008685605, 0.00836584, 0.008281242]\nAB kind=i32xi8_i64 shape=32x768x2048 baseline_s=0.010364 blocked_s=0.016000 speedup=0.648 equal=true samples_baseline=[0.01024717, 0.010489828, 0.010364108, 0.010439375, 0.010254721] samples_blocked=[0.016344795, 0.015866535, 0.015994124, 0.016012216, 0.015999989]\nAB kind=i8xi8_i32 shape=64x1024x2048 baseline_s=0.024274 blocked_s=0.021085 speedup=1.151 equal=true samples_baseline=[0.023717922, 0.024423797, 0.02427431, 0.023346496, 0.025075033] samples_blocked=[0.02108467, 0.021060717, 0.02381232, 0.021685533, 0.02105071]\nAB kind=i32xi8_i64 shape=64x1024x2048 baseline_s=0.027964 blocked_s=0.034604 speedup=0.808 equal=true samples_baseline=[0.027105856, 0.027500655, 0.028998504, 0.028237345, 0.027963938] samples_blocked=[0.034328355, 0.034604496, 0.035926483, 0.036733209, 0.034024196]\nAB kind=i8xi8_i32 shape=17x769x2049 baseline_s=0.004826 blocked_s=0.005548 speedup=0.870 equal=true samples_baseline=[0.004807486, 0.004882204, 0.004848673, 0.004826497, 0.004786171] samples_blocked=[0.005510811, 0.005590262, 0.005547926, 0.005700443, 0.005384572]\nAB kind=i32xi8_i64 shape=17x769x2049 baseline_s=0.005723 blocked_s=0.007824 speedup=0.732 equal=true samples_baseline=[0.005653736, 0.005802994, 0.005723458, 0.005748627, 0.005699613] samples_blocked=[0.007730409, 0.007873155, 0.00782367, 0.007816558, 0.00796109]\nAB kind=i8xi8_i32 shape=32x2048x768 baseline_s=0.009039 blocked_s=0.007606 speedup=1.188 equal=true samples_baseline=[0.008945754, 0.009043239, 0.008950651, 0.009104447, 0.009038677] samples_blocked=[0.0083478, 0.007606197, 0.007479524, 0.007495941, 0.008246092]\nAB kind=i32xi8_i64 shape=32x2048x768 baseline_s=0.010954 blocked_s=0.015792 speedup=0.694 equal=true samples_baseline=[0.011087221, 0.010979676, 0.010907124, 0.010939397, 0.010953882] samples_blocked=[0.015729936, 0.016397218, 0.016067217, 0.015792441, 0.015715908]\nAB kind=i8xi8_i32 shape=64x2048x1024 baseline_s=0.024381 blocked_s=0.021489 speedup=1.135 equal=true samples_baseline=[0.024853373, 0.024381084, 0.024264065, 0.024093347, 0.024405407] samples_blocked=[0.02112891, 0.021488735, 0.021365384, 0.021533629, 0.022008851]\nAB kind=i32xi8_i64 shape=64x2048x1024 baseline_s=0.029423 blocked_s=0.039241 speedup=0.750 equal=true samples_baseline=[0.028595306, 0.032212187, 0.028620356, 0.031299563, 0.029423271] samples_blocked=[0.039241333, 0.038722283, 0.039607818, 0.039068828, 0.041048867]\nAB kind=i8xi8_i32 shape=17x2049x769 baseline_s=0.004790 blocked_s=0.004036 speedup=1.187 equal=true samples_baseline=[0.00478429, 0.004790011, 0.004746257, 0.004971787, 0.004809278] samples_blocked=[0.006610248, 0.004036129, 0.004298234, 0.004028176, 0.004024559]\nAB kind=i32xi8_i64 shape=17x2049x769 baseline_s=0.005899 blocked_s=0.006675 speedup=0.884 equal=true samples_baseline=[0.005936345, 0.005898921, 0.005956491, 0.005811219, 0.005748622] samples_blocked=[0.006564003, 0.006675148, 0.006843204, 0.007037904, 0.006668633]\nDONE elapsed_s=3.154 independent_scalar_oracle=true\n",
+      "eight-thread": "ZK60_WITNESS_BENCH threads=8 reps=5 cpu=\"model name\\t: Intel(R) Core(TM) Ultra 9 185H\" rustflags=Err(NotPresent)\nScope: synthetic CPU matmul only, allocation included, comparisons excluded; no 8B or complete-witness throughput claim.\nAB kind=i8xi8_i32 shape=32x768x2048 baseline_s=0.002363 blocked_s=0.002263 speedup=1.044 equal=true samples_baseline=[0.002588936, 0.002748588, 0.002318163, 0.002363178, 0.002269613] samples_blocked=[0.002442687, 0.002249473, 0.00259248, 0.002102828, 0.002263071]\nAB kind=i32xi8_i64 shape=32x768x2048 baseline_s=0.002910 blocked_s=0.003735 speedup=0.779 equal=true samples_baseline=[0.002910023, 0.003039512, 0.002917992, 0.002614057, 0.002629987] samples_blocked=[0.003648282, 0.003426526, 0.003735093, 0.003770988, 0.00422152]\nAB kind=i8xi8_i32 shape=64x1024x2048 baseline_s=0.006076 blocked_s=0.005957 speedup=1.020 equal=true samples_baseline=[0.005008324, 0.005056084, 0.006214793, 0.00628347, 0.006076458] samples_blocked=[0.005956748, 0.006019758, 0.006018055, 0.00592848, 0.005825055]\nAB kind=i32xi8_i64 shape=64x1024x2048 baseline_s=0.006929 blocked_s=0.017428 speedup=0.398 equal=true samples_baseline=[0.006928511, 0.006535989, 0.0075741, 0.007498078, 0.006506046] samples_blocked=[0.01929594, 0.016286254, 0.016520492, 0.017553585, 0.01742822]\nAB kind=i8xi8_i32 shape=17x769x2049 baseline_s=0.001407 blocked_s=0.001484 speedup=0.948 equal=true samples_baseline=[0.001337821, 0.001406552, 0.001431802, 0.001313392, 0.001503127] samples_blocked=[0.001565206, 0.001927837, 0.001299118, 0.001258603, 0.001484235]\nAB kind=i32xi8_i64 shape=17x769x2049 baseline_s=0.001562 blocked_s=0.002918 speedup=0.535 equal=true samples_baseline=[0.001562309, 0.0014826, 0.002002361, 0.001514969, 0.002170983] samples_blocked=[0.002918314, 0.003257845, 0.002999385, 0.002825713, 0.00289015]\nAB kind=i8xi8_i32 shape=32x2048x768 baseline_s=0.002424 blocked_s=0.002203 speedup=1.100 equal=true samples_baseline=[0.002322936, 0.002531155, 0.00242422, 0.002610258, 0.002334558] samples_blocked=[0.002316032, 0.002290655, 0.002203094, 0.002160643, 0.002179555]\nAB kind=i32xi8_i64 shape=32x2048x768 baseline_s=0.003376 blocked_s=0.003805 speedup=0.887 equal=true samples_baseline=[0.003456287, 0.002948998, 0.003245402, 0.003577625, 0.003376482] samples_blocked=[0.003988056, 0.00381467, 0.003783471, 0.003786486, 0.003805075]\nAB kind=i8xi8_i32 shape=64x2048x1024 baseline_s=0.006288 blocked_s=0.005629 speedup=1.117 equal=true samples_baseline=[0.006287997, 0.00582353, 0.006294356, 0.005852996, 0.006301201] samples_blocked=[0.005854529, 0.005342994, 0.005628864, 0.005255348, 0.005820155]\nAB kind=i32xi8_i64 shape=64x2048x1024 baseline_s=0.007824 blocked_s=0.012059 speedup=0.649 equal=true samples_baseline=[0.008270999, 0.007409594, 0.007833754, 0.007824013, 0.007364556] samples_blocked=[0.012311671, 0.015342426, 0.011759624, 0.012036663, 0.012059428]\nAB kind=i8xi8_i32 shape=17x2049x769 baseline_s=0.001546 blocked_s=0.001316 speedup=1.175 equal=true samples_baseline=[0.001812489, 0.001546283, 0.001752243, 0.001512764, 0.001522201] samples_blocked=[0.001316262, 0.001231882, 0.001413705, 0.001142321, 0.001832385]\nAB kind=i32xi8_i64 shape=17x2049x769 baseline_s=0.001824 blocked_s=0.003431 speedup=0.532 equal=true samples_baseline=[0.001937195, 0.001785155, 0.001822969, 0.001824248, 0.001884512] samples_blocked=[0.003430762, 0.003022142, 0.003236784, 0.004244949, 0.003553537]\nDONE elapsed_s=1.570 independent_scalar_oracle=true\n"
+    }
+  },
+  "limitations": [
+    "P1 registration must be independently authenticated; old CLI/verifier entrypoints unchanged",
+    "P3 stable-commitment consistency remains missing",
+    "Private block and complete generation are future tasks",
+    "5090 not available; no GPU or full-model performance claim",
+    "Full repository/native suite not rerun this round; prior C0 suite is a separate validation record"
+  ]
+}

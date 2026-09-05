@@ -1,5 +1,25 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-04 execution queue:** Victor requested implementation of the
+60-tokens/s plan and documented work for Fable and Claude. See
+[ZK60_EXECUTION.md](ZK60_EXECUTION.md) for scope, ownership, acceptance
+gates and handoffs. Fable's identity review is ready for pickup; Claude's
+GPU-memory task is **queued after its current task**, not an interruption
+or replacement of that work. Codex's foundation changes were developed in
+an isolated checkout; the validation record distinguishes completed checks
+from the full-scale benchmarks still pending.
+
+**Integrated: complete-PoC parallel round 2:** see
+[ZK60_PARALLEL_ROUND2.md](ZK60_PARALLEL_ROUND2.md). Victor approved
+autonomous work on complete private proofs, end-to-end profiling and a
+focused literature review. The fixed block contract, causal witness oracle,
+experimental equality receipt, CPU attribution and research are integrated:
+94 Rust tests, 48 targeted Python tests and four frozen CPU proof gates pass.
+A pre-existing singleton mask-rank hazard requires independent review before
+private application use. [Round 1](ZK60_PARALLEL_ROUND1.md) is also integrated.
+Claude's current task and reserved GPU/PCS files were not reassigned; no full
+private 8B GPU runs on this laptop. No complete private LLM/60-tokens/s result yet.
+
 Status: LIVE (opened 2026-08-17). Companion to CONTINUATION.md (the
 phase plan) and PROGRESS_UPERF.md (the ledger). This page exists so
 that ANY agent — Claude, Grok/Cursor, a human — can advance the

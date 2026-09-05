@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "coverage": "experimental-equality-only",
+  "fixture": "public-synthetic",
+  "goal_met": false,
+  "proof": "results/zk60_round2_seam.proof",
+  "bytes": 416456,
+  "sha256": "967f249e4ff78b4c0cf4516092ce4e3dcab3843d58e1181016a164e6b97b498f",
+  "root_authority": "producer handles for a synthetic demonstration, NOT independent model approval",
+  "left_root": "b4f501f6d65ed9b72ab9c1e752944567ba5a73e72d2efe07c01467dc5ce2e503",
+  "right_root": "5076ea8b6a483bf6d9a7ac72d1e00e91926e0d71cea0df42693e6b837add80a3",
+  "context": "[37;32] fixed public demo context; T32 d16 scale -8 left slot10 right slot11",
+  "build_command": "flock /tmp/zk-heavy.lock env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 cargo build --release --offline --manifest-path hashline/Cargo.toml --example zk60_seam_receipt",
+  "reproduce_verify_command": "hashline/target/release/examples/zk60_seam_receipt verify results/zk60_round2_seam.proof b4f501f6d65ed9b72ab9c1e752944567ba5a73e72d2efe07c01467dc5ce2e503 5076ea8b6a483bf6d9a7ac72d1e00e91926e0d71cea0df42693e6b837add80a3",
+  "actual_verify_command": "flock /tmp/zk-heavy.lock env RAYON_NUM_THREADS=2 /tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_seam_receipt verify /home/victor/IntelligenceRegulation/results/zk60_round2_seam.proof b4f501f6d65ed9b72ab9c1e752944567ba5a73e72d2efe07c01467dc5ce2e503 5076ea8b6a483bf6d9a7ac72d1e00e91926e0d71cea0df42693e6b837add80a3",
+  "verify_exit": 0,
+  "verified_from_bytes": true,
+  "wrong_expected_root_exit": 1,
+  "overwrite_refusal_exit": 1,
+  "limitations": [
+    "No arithmetic commitment provenance or full transformer relation",
+    "No complete joint-transcript ZK theorem or sensitive-data deployment approval",
+    "Fresh create commands use OS randomness and intentionally produce different roots/bytes"
+  ]
+}

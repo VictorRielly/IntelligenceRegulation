@@ -14,7 +14,8 @@
 //!   check-export | chain [layers] [--t T] | layer <l> <t> | pass <layers> <t> as above; `tables-v3` prints the
 //!   frozen int16-out registry (15 members, digests = the exports' `NN table` rows / `uperf-v3 tables`).
 //!   v3 tampers: --tamper flipx|flipw|rem|table|requant|z|round|i16. The v2 path is untouched.
-//!       --zk  [UPERF3-ZA] the zero-knowledge form for the activations (mode P1; see src/zk.rs); --seed N seeds its randomness
+//!       --zk  the zero-knowledge form for the activations (mode P1; see src/zk.rs), with fresh secret OS randomness.
+//!       --seed N  INSECURE deterministic test fixtures only; reproduces historical CPU/GPU proof bytes.
 //!       --wcache DIR  [UPERF3-AC] the per-model weight-commitment cache (src/wcache.rs): each layer's W Merkle tree
 //!   committed once and reused (verified on load); the proof bytes do not change. HL_WCACHE_VERBOSE=1 per layer.
 //!       --zk --profile v3  [UPERF3-AD] the ZK form of the widened-stack statement (mode P1 composed with v3; the [UPERF3-AD] section of src/zk.rs)
@@ -50,12 +51,14 @@ struct Opts {
     /// [UPERF3-AF] `--pcs ligero|compact` (default ligero: the byte-identical path) + its `--pcs-*` knobs.
     pcs: String,
     cpcs: hashline::pcs_compact::CompactCfg,
+    /// Explicit private CPU timing diagnostics, separate from proof semantics.
+    phase_profile: bool,
 }
 
 fn parse_opts(args: &[String]) -> Opts {
     let mut o = Opts { threads: 0, log_cols: 14, col_checks: 256, inv_rate: 4, tamper: Tamper::None, verify: true, all_tampers: false, proof_out: None,
         profile: "v2".to_string(), export: None, t_rows: None, tamper_kind: "none".to_string(), tamper_idx: 12345, zk: hashline::zk::ZkConfig::default(),
-        wcache: None, pcs: "ligero".to_string(), cpcs: hashline::pcs_compact::CompactCfg::DEFAULT };
+        wcache: None, pcs: "ligero".to_string(), cpcs: hashline::pcs_compact::CompactCfg::DEFAULT, phase_profile: false };
     let mut i = 0;
     let mut tkind = "none".to_string();
     let mut tidx = 12345usize;
@@ -68,6 +71,7 @@ fn parse_opts(args: &[String]) -> Opts {
             "--tamper" => { tkind = args[i + 1].clone(); i += 1; }
             "--tamper-idx" => { tidx = args[i + 1].parse().unwrap(); i += 1; }
             "--no-verify" => { o.verify = false; }
+            "--phase-profile" => { o.phase_profile = true; }
             "--all-tampers" => { o.all_tampers = true; }
             "--proof-out" => { o.proof_out = Some(args[i + 1].clone()); i += 1; }
             // [UPERF3-ZB]
@@ -113,7 +117,7 @@ fn parse_opts(args: &[String]) -> Opts {
                 });
                 i += 1;
             }
-            "--seed" => { o.zk.seed = args[i + 1].parse().unwrap(); i += 1; }
+            "--seed" => { o.zk.seed = Some(args[i + 1].parse().unwrap()); i += 1; }
             "--wcache" => { o.wcache = Some(args[i + 1].clone()); i += 1; } // [UPERF3-AC]
             // [UPERF3-AF] the compact-PCS selection (default `ligero`: the byte-identical path)
             "--pcs" => { o.pcs = args[i + 1].clone(); i += 1; }
@@ -166,6 +170,20 @@ fn parse_opts(args: &[String]) -> Opts {
         eprintln!("  unacceptable content — the prover may simply not have tried (PROOF_FUNCTIONS.md section 3).");
         eprintln!("  The PROVER always learns the classification; function 2 hides it from the VERIFIER only.");
         eprintln!("  The acceptable set is FROZEN in this statement's header and cannot be swapped per proof.");
+    }
+    if o.zk.mode.model_id.is_some() && (!o.zk.enabled || o.profile != "v3") {
+        eprintln!("REFUSED: --model-id requires --zk --profile v3; other paths do not bind that declaration");
+        std::process::exit(2);
+    }
+    if o.zk.enabled && o.zk.seed.is_some() {
+        eprintln!("INSECURE TEST RANDOMNESS: --seed reproduces public masks and provides no privacy; use only for fixtures.");
+    }
+    if o.phase_profile {
+        if o.profile != "v3" {
+            eprintln!("REFUSED: --phase-profile requires --profile v3");
+            std::process::exit(2);
+        }
+        eprintln!("PRIVATE TIMING DIAGNOSTICS: --phase-profile may reveal properties of private inputs/weights; keep profiling logs private.");
     }
     hashline::wcache::configure(o.wcache.as_deref()); // [UPERF3-AC]
     o.tamper_kind = tkind.clone();
@@ -312,6 +330,10 @@ fn pcs_bench(lo: u32, hi: u32, o: &Opts) {
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let cmd = args.get(1).map(|s| s.as_str()).unwrap_or("help");
+    if let Err(e) = validate_command_claims(cmd, &args[2.min(args.len())..]) {
+        eprintln!("REFUSED: {e}");
+        std::process::exit(2);
+    }
     match cmd {
         "tables-v3" => tables_v3(),
         "check-export" => {
@@ -391,7 +413,7 @@ fn main() {
                 eprintln!("usage: hashline attn-pass <attn-export-prefix> <layers> --export <v3-export> [--t T]");
                 std::process::exit(2)
             });
-            let n: usize = args.get(3).and_then(|x| x.parse().ok()).unwrap_or(12);
+            let n: usize = args[3].parse().expect("validated attn-pass layer count");
             let o = parse_opts(&args[4.min(args.len())..]);
             attn_pass(&prefix, n, &o)
         }
@@ -409,6 +431,52 @@ fn main() {
             std::process::exit(2);
         }
     }
+}
+
+/// Reject requested guarantees a command cannot provide, before reading any
+/// witness or allocating device memory. Parsing a flag is not implementing it.
+fn validate_command_claims(cmd: &str, args: &[String]) -> Result<(), String> {
+    let profiles = args.iter().filter(|a| a.as_str() == "--phase-profile").count();
+    if profiles > 0 {
+        if profiles != 1 || cmd != "pass" {
+            return Err("--phase-profile is supported exactly once on pass --profile v3 only".into());
+        }
+        if std::env::var("HL_GPU").map(|s| !s.is_empty() && s != "0").unwrap_or(false) {
+            return Err("--phase-profile currently supports CPU execution only; unset HL_GPU".into());
+        }
+    }
+    let privacy_flags = ["--zk", "--p3", "--predicate", "--output-claim", "--model-id"];
+    if !matches!(cmd, "layer" | "pass")
+        && args.iter().any(|a| privacy_flags.contains(&a.as_str())) {
+        return Err(format!("{cmd} does not implement ZK, predicates or model declarations; no proof was produced"));
+    }
+    if cmd == "attn-chain" && args.iter().skip(1).any(|a| a != "--attn-verbose") {
+        return Err("attn-chain accepts only <export-dir> and --attn-verbose".into());
+    }
+    if cmd == "attn-pass" && args.get(1).and_then(|a| a.parse::<usize>().ok()).filter(|&n| n > 0).is_none() {
+        return Err("attn-pass requires <export-prefix> <positive layer count>".into());
+    }
+    Ok(())
+}
+
+/// A conservative input/export-to-proof clock, excluding subsequent
+/// in-memory verification. These are prefill rows, not generated tokens.
+/// The timing record is diagnostics only and never enters the transcript.
+#[allow(clippy::too_many_arguments)]
+fn report_timing(o: &Opts, coverage: &str, layers: usize, tokens: usize, d: usize, f: usize,
+    witness_s: f64, prove_s: f64, serialize_s: f64, proof_ready_s: f64,
+    verify_s: f64, verified: bool, proof_bytes: usize) {
+    let privacy = if !o.zk.enabled { "P0" } else if o.zk.p3() { "P3" } else { "P1" };
+    let randomness = if o.zk.enabled { o.zk.randomness_label() } else { "none" };
+    let gpu_requested = std::env::var("HL_GPU").map(|s| s == "1").unwrap_or(false);
+    let gpu_enabled = hashline::gpu::enabled();
+    // All strings are fixed enums supplied by this binary, never user input.
+    println!(concat!("HASHLINE_TIMING {{\"schema\":1,\"coverage\":\"{}\",\"privacy\":\"{}\",",
+        "\"layers\":{},\"tokens\":{},\"d\":{},\"f\":{},\"witness_s\":{:.9},\"prove_s\":{:.9},",
+        "\"serialize_s\":{:.9},\"proof_ready_s\":{:.9},\"verify_s\":{:.9},\"verified\":{},",
+        "\"proof_bytes\":{},\"serialized\":true,\"gpu_requested\":{},\"gpu_enabled\":{},\"randomness\":\"{}\"}}"),
+        coverage, privacy, layers, tokens, d, f, witness_s, prove_s, serialize_s, proof_ready_s,
+        verify_s, verified, proof_bytes, gpu_requested, gpu_enabled, randomness);
 }
 
 /// [UPERF3-XX] rung 0: the device field probe.
@@ -664,6 +732,7 @@ fn pass(n: usize, t: usize, o: &Opts) {
         println!("  gpu chunked [UPERF3-AC]: chunked commits {} | opening re-encode {:.3} s", g.n_chunked, g.secs_reenc);
     }
     // [UPERF3-XX] the byte-identity gate: the flat encoding of every layer proof, concatenated, sha256'd
+    let t_serial = Instant::now();
     {
         let mut all: Vec<u8> = Vec::with_capacity(bytes);
         for p in &proofs { all.extend_from_slice(&p.to_bytes()); }
@@ -675,6 +744,8 @@ fn pass(n: usize, t: usize, o: &Opts) {
             println!("  proof written to {path}");
         }
     }
+    let serialize_s = t_serial.elapsed().as_secs_f64();
+    let proof_ready_s = t_all.elapsed().as_secs_f64();
     let mut ok = true;
     let mut t_verify = 0.0;
     if o.verify {
@@ -693,6 +764,7 @@ fn pass(n: usize, t: usize, o: &Opts) {
     if let Some(r) = hashline::wcache::report() { println!("  {r}"); } // [UPERF3-AC]
     println!("PASS {}: {n} x {t}: witness load+chain {t_load:.2} s | PROVE {t_prove:.2} s | VERIFY {t_verify:.2} s | proof {bytes} B ({:.1} MB) | {:.3e} MACs | {:.3e} proven MAC/s (prove wall) | wall {:.2} s",
         if ok { "ACCEPT" } else { "REJECT" }, bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
+    report_timing(o, "ffn-only", n, t, D, F, t_load, t_prove, serialize_s, proof_ready_s, t_verify, o.verify && ok, bytes);
     if !ok { std::process::exit(1); }
 }
 
@@ -795,9 +867,10 @@ fn tamper_v3_from(kind: &str, idx: usize) -> TamperV3 {
 /// Load + derive layer `l`'s v3 witness over `t_rows` rows, gated by the export's planes (element-wise on
 /// the first t_rows rows; the full-plane sha256s at t_rows == T).
 fn load_witness_v3(dir: &std::path::Path, side: &V3Sidecar, l: usize, t_rows: usize) -> V3Witness {
+    let _scope = hashline::phase_profile::span("witness_unattributed");
     let ex = load_layer_v3(dir, side, l, true, false);
     let w = derive_v3(&ex, t_rows);
-    for (name, mism) in compare_planes(&w, &ex) {
+    for (name, mism) in hashline::phase_profile::measure("check.export_planes", || compare_planes(&w, &ex)) {
         assert_eq!(mism, 0, "layer {l}: derived {name} != the export's plane on the first {t_rows} rows ({mism} elements)");
     }
     if t_rows == side.dims.t {
@@ -902,16 +975,20 @@ fn pass_v3(n: usize, t: usize, o: &Opts) {
     // would be 11 GB before the first commitment). Load, prove, drop; the statement stays for the
     // verifier. The proof bytes do not depend on when the witness was loaded.
     for l in 0..n {
+        let capture = hashline::phase_profile::Capture::begin(o.phase_profile);
         let t0 = Instant::now();
         let mut w: V3Witness = load_witness_v3(&dir, &side, l, t);
         if l == victim && !matches!(tamper, TamperV3::None) {
             apply_tamper_v3(&mut w, tamper);
         }
-        t_load += t0.elapsed().as_secs_f64();
+        let witness_dt = t0.elapsed().as_secs_f64();
+        t_load += witness_dt;
+        let phases = capture.finish();
         let t1 = Instant::now();
         let out = prove_layer_v3(&w, t, &p, &ntt, &mut tr);
         let dt = t1.elapsed().as_secs_f64();
         t_prove += dt;
+        hashline::phase_profile::report(phases, "P0", l, t, dm.d, dm.f, witness_dt, dt, &out.timings);
         for (name, s) in &out.timings {
             if let Some(e) = agg.iter_mut().find(|e| &e.0 == name) { e.1 += s; } else { agg.push((name.clone(), *s)); }
         }
@@ -930,6 +1007,7 @@ fn pass_v3(n: usize, t: usize, o: &Opts) {
         );
         println!("  gpu chunked [UPERF3-AC]: chunked commits {} | opening re-encode {:.3} s", g.n_chunked, g.secs_reenc);
     }
+    let t_serial = Instant::now();
     {
         let mut all: Vec<u8> = Vec::with_capacity(bytes);
         for p in &proofs { all.extend_from_slice(&p.to_bytes()); }
@@ -941,6 +1019,8 @@ fn pass_v3(n: usize, t: usize, o: &Opts) {
             println!("  proof written to {path}");
         }
     }
+    let serialize_s = t_serial.elapsed().as_secs_f64();
+    let proof_ready_s = t_all.elapsed().as_secs_f64();
     let mut ok = true;
     let mut t_verify = 0.0;
     if o.verify {
@@ -959,6 +1039,7 @@ fn pass_v3(n: usize, t: usize, o: &Opts) {
     if let Some(r) = hashline::wcache::report() { println!("  {r}"); } // [UPERF3-AC]
     println!("PASS-V3 {}: {n} x {t} (d {} f {}): witness load+chain {t_load:.2} s | PROVE {t_prove:.2} s | VERIFY {t_verify:.2} s | proof {bytes} B ({:.1} MB) | {:.3e} MACs | {:.3e} proven MAC/s (prove wall) | wall {:.2} s",
         if ok { "ACCEPT" } else { "REJECT" }, dm.d, dm.f, bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
+    report_timing(o, "ffn-only", n, t, dm.d, dm.f, t_load, t_prove, serialize_s, proof_ready_s, t_verify, o.verify && ok, bytes);
     if !ok { std::process::exit(1); }
 }
 
@@ -1003,7 +1084,7 @@ fn run_layer_zk(w: &LayerWitness, t: usize, o: &Opts, tamper: Tamper, ntt: &NttT
 fn layer_zk(l: usize, t: usize, o: &Opts) {
     let ntt = NttTables::new(o.log_cols + o.inv_rate.trailing_zeros());
     let w = load_witness(l);
-    println!("layer {l} at T = {t} [ZK, mode P1, seed {}] (log_cols {}, inv_rate {}, col checks {}, threads {})", o.zk.seed, o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads());
+    println!("layer {l} at T = {t} [ZK, mode P1, randomness {}] (log_cols {}, inv_rate {}, col checks {}, threads {})", o.zk.randomness_label(), o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads());
     let (ok, tp, tv, bytes) = run_layer_zk(&w, t, o, o.tamper, &ntt);
     println!("  tamper {:?}: {} prove {tp:.3} s verify {tv:.3} s proof {bytes} B", o.tamper, if ok { "ACCEPT" } else { "REJECT" });
     let mut fails = 0;
@@ -1032,7 +1113,7 @@ fn pass_zk(n: usize, t: usize, o: &Opts) {
     use hashline::zk::{prove_layer_zk, verify_layer_zk};
     let ntt = NttTables::new(o.log_cols + o.inv_rate.trailing_zeros());
     let p = params(o);
-    println!("pass [ZK, mode P1, seed {}]: {n} layers x {t} tokens (log_cols {}, inv_rate {}, col checks {}, threads {})", o.zk.seed, o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads());
+    println!("pass [ZK, mode P1, randomness {}]: {n} layers x {t} tokens (log_cols {}, inv_rate {}, col checks {}, threads {})", o.zk.randomness_label(), o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads());
     println!("  {}", hashline::gpu::label());
     let t_all = Instant::now();
     let t0 = Instant::now();
@@ -1073,17 +1154,20 @@ fn pass_zk(n: usize, t: usize, o: &Opts) {
             g.secs_h2d, g.bytes_h2d as f64 / 1e6, g.secs_ntt, g.secs_hash, g.secs_sumcheck, g.secs_fold, g.secs_helpers, g.secs_d2h, g.bytes_d2h as f64 / 1e6, g.vram_peak as f64 / 1e6
         );
     }
+    let t_serial = Instant::now();
     {
         let mut all: Vec<u8> = Vec::with_capacity(bytes);
         for p in &proofs { all.extend_from_slice(&p.to_bytes()); }
         assert_eq!(all.len(), bytes, "serializer/size_bytes disagree");
         let digest = hashline::export::sha256_hex(&all);
-        println!("PROOF sha256 {digest} ({} B) [ZK seed {}]", all.len(), o.zk.seed);
+        println!("PROOF sha256 {digest} ({} B) [ZK randomness {}]", all.len(), o.zk.randomness_label());
         if let Some(path) = &o.proof_out {
             std::fs::write(path, &all).unwrap_or_else(|e| panic!("cannot write {path}: {e}"));
             println!("  proof written to {path}");
         }
     }
+    let serialize_s = t_serial.elapsed().as_secs_f64();
+    let proof_ready_s = t_all.elapsed().as_secs_f64();
     let mut ok = true;
     let mut t_verify = 0.0;
     if o.verify {
@@ -1101,6 +1185,7 @@ fn pass_zk(n: usize, t: usize, o: &Opts) {
     let macs = (n as f64) * (t as f64) * ((2.0 * D as f64 * F as f64) + (F as f64 * D as f64));
     println!("PASS {} [ZK]: {n} x {t}: witness load+chain {t_load:.2} s | PROVE {t_prove:.2} s | VERIFY {t_verify:.2} s | proof {bytes} B ({:.1} MB) | {:.3e} MACs | {:.3e} proven MAC/s (prove wall) | wall {:.2} s",
         if ok { "ACCEPT" } else { "REJECT" }, bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
+    report_timing(o, "ffn-only", n, t, D, F, t_load, t_prove, serialize_s, proof_ready_s, t_verify, o.verify && ok, bytes);
     if !ok { std::process::exit(1); }
 }
 
@@ -1148,7 +1233,7 @@ fn layer_zk_v3(l: usize, t: usize, o: &Opts) {
     let dm = side.dims;
     let w = load_witness_v3(&dir, &side, l, t);
     let tamper = tamper_v3_from(&o.tamper_kind, o.tamper_idx);
-    println!("layer {l} (v3) at T = {t} of {} [ZK, mode P1, seed {}] (d {} f {}; log_cols {}, inv_rate {}, col checks {}, threads {}); {}", dm.t, o.zk.seed, dm.d, dm.f, o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads(), hashline::gpu::label());
+    println!("layer {l} (v3) at T = {t} of {} [ZK, mode {:?}, randomness {}] (d {} f {}; log_cols {}, inv_rate {}, col checks {}, threads {}); {}", dm.t, o.zk.mode.privacy, o.zk.randomness_label(), dm.d, dm.f, o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads(), hashline::gpu::label());
     let (sg, su, sh, sz) = w.shifts;
     println!("  statement: shifts g/u/h/z {sg}/{su}/{sh}/{sz}, {} ({},{}) {}..", w.act.spec_name(), w.exps.e_g, w.exps.e_a16, &w.table_digest[..16]);
     let (ok, tp, tv, bytes) = run_layer_zk_v3(&w, t, o, tamper, &ntt);
@@ -1184,7 +1269,7 @@ fn pass_zk_v3(n: usize, t: usize, o: &Opts) {
     let (dir, side) = v3_dir_side(o);
     let dm = side.dims;
     let n = n.min(dm.layers);
-    println!("pass (v3) [ZK, seed {}]: {n} layers x {t} tokens of {} — {} (d {} f {}; log_cols {}, inv_rate {}, col checks {}, threads {})", o.zk.seed, dm.t, dir.display(), dm.d, dm.f, o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads());
+    println!("pass (v3) [ZK, randomness {}]: {n} layers x {t} tokens of {} — {} (d {} f {}; log_cols {}, inv_rate {}, col checks {}, threads {})", o.zk.randomness_label(), dm.t, dir.display(), dm.d, dm.f, o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads());
     println!("  {}", o.zk.mode.describe("v3"));
     // [UPERF3-AN] the predicate is a claim about the PASS's output, so it rides the
     // last layer only; every earlier layer's header says function 1, and the
@@ -1219,17 +1304,21 @@ fn pass_zk_v3(n: usize, t: usize, o: &Opts) {
     };
     // ONE witness resident at a time (ZB's pass_v3 discipline; the 7B layer's planes are ~0.4 GB)
     for l in 0..n {
+        let capture = hashline::phase_profile::Capture::begin(o.phase_profile);
         let t0 = Instant::now();
         let mut w: V3Witness = load_witness_v3(&dir, &side, l, t);
         if l == victim && !matches!(tamper, TamperV3::None) {
             apply_tamper_v3(&mut w, tamper);
         }
-        t_load += t0.elapsed().as_secs_f64();
+        let witness_dt = t0.elapsed().as_secs_f64();
+        t_load += witness_dt;
+        let phases = capture.finish();
         let t1 = Instant::now();
         let cfg_l = hashline::zk::ZkConfig { mode: layer_mode(l), ..o.zk.clone() };
         let out = prove_layer_zk_v3(&w, t, &p, &ntt, &cfg_l, &mut tr);
         let dt = t1.elapsed().as_secs_f64();
         t_prove += dt;
+        hashline::phase_profile::report(phases, if o.zk.p3() { "P3" } else { "P1" }, l, t, dm.d, dm.f, witness_dt, dt, &out.timings);
         for (name, s) in &out.timings {
             if let Some(e) = agg.iter_mut().find(|e| &e.0 == name) { e.1 += s; } else { agg.push((name.clone(), *s)); }
         }
@@ -1250,17 +1339,20 @@ fn pass_zk_v3(n: usize, t: usize, o: &Opts) {
             g.secs_h2d, g.bytes_h2d as f64 / 1e6, g.secs_ntt, g.secs_hash, g.secs_sumcheck, g.secs_fold, g.secs_helpers, g.secs_d2h, g.bytes_d2h as f64 / 1e6, g.vram_peak as f64 / 1e6
         );
     }
+    let t_serial = Instant::now();
     {
         let mut all: Vec<u8> = Vec::with_capacity(bytes);
         for p in &proofs { all.extend_from_slice(&p.to_bytes()); }
         assert_eq!(all.len(), bytes, "serializer/size_bytes disagree");
         let digest = hashline::export::sha256_hex(&all);
-        println!("PROOF sha256 {digest} ({} B) [ZK v3 seed {}]", all.len(), o.zk.seed);
+        println!("PROOF sha256 {digest} ({} B) [ZK v3 randomness {}]", all.len(), o.zk.randomness_label());
         if let Some(path) = &o.proof_out {
             std::fs::write(path, &all).unwrap_or_else(|e| panic!("cannot write {path}: {e}"));
             println!("  proof written to {path}");
         }
     }
+    let serialize_s = t_serial.elapsed().as_secs_f64();
+    let proof_ready_s = t_all.elapsed().as_secs_f64();
     let mut ok = true;
     let mut t_verify = 0.0;
     if o.verify {
@@ -1278,6 +1370,7 @@ fn pass_zk_v3(n: usize, t: usize, o: &Opts) {
     let macs = (n as f64) * (t as f64) * ((2.0 * dm.d as f64 * dm.f as f64) + (dm.f as f64 * dm.d as f64));
     println!("PASS-V3 {} [ZK]: {n} x {t} (d {} f {}): witness load+chain {t_load:.2} s | PROVE {t_prove:.2} s | VERIFY {t_verify:.2} s | proof {bytes} B ({:.1} MB) | {:.3e} MACs | {:.3e} proven MAC/s (prove wall) | wall {:.2} s",
         if ok { "ACCEPT" } else { "REJECT" }, dm.d, dm.f, bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
+    report_timing(o, "ffn-only", n, t, dm.d, dm.f, t_load, t_prove, serialize_s, proof_ready_s, t_verify, o.verify && ok, bytes);
     if !ok { std::process::exit(1); }
 }
 
@@ -1664,6 +1757,7 @@ fn attn_pass_run(prefix: &str, n: usize, o: &Opts, break_seam: bool) -> bool {
     }
     let bytes: usize = pa.iter().map(|x| x.size_bytes()).sum::<usize>()
         + pf.iter().map(|x| x.size_bytes()).sum::<usize>();
+    let t_serial = Instant::now();
     {
         let mut all: Vec<u8> = Vec::with_capacity(bytes);
         for (a, f) in pa.iter().zip(pf.iter()) {
@@ -1676,6 +1770,8 @@ fn attn_pass_run(prefix: &str, n: usize, o: &Opts, break_seam: bool) -> bool {
             std::fs::write(path, &all).unwrap();
         }
     }
+    let serialize_s = t_serial.elapsed().as_secs_f64();
+    let proof_ready_s = t_all.elapsed().as_secs_f64();
     // ---- verify ----
     let t2 = Instant::now();
     let mut tv = Transcript::new(b"hashline-full-pass");
@@ -1716,5 +1812,6 @@ fn attn_pass_run(prefix: &str, n: usize, o: &Opts, break_seam: bool) -> bool {
     println!("PASS-FULL {}: {n} x {t} (d {d} f {f}): witness {t_wit:.2} s | PROVE {t_prove:.2} s | VERIFY {tv_s:.2} s | proof {bytes} B ({:.1} MB) | {:.3e} MACs | {:.3e} proven MAC/s | wall {:.2} s",
              match &r { Ok(()) => "ACCEPT".to_string(), Err(e) => format!("REJECT: {e}") },
              bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
+    report_timing(o, "transformer-blocks", n, t, d, f, t_wit, t_prove, serialize_s, proof_ready_s, tv_s, r.is_ok(), bytes);
     r.is_ok()
 }

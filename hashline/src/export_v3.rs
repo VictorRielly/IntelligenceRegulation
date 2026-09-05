@@ -49,6 +49,7 @@
 //! export's honest-witness assert is the tighter +-32767, a subset.
 
 use crate::tables_v3::{int16out_member, Act16Fn};
+use crate::phase_profile::{measure, span};
 use rayon::prelude::*;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
@@ -165,6 +166,7 @@ impl V3Sidecar {
 }
 
 pub fn sha256_hex(bytes: &[u8]) -> String {
+    let _scope = span("hash.sha256");
     let mut h = Sha256::new();
     h.update(bytes);
     crate::silu::hex(&h.finalize())
@@ -178,6 +180,7 @@ fn i8_bytes(v: &[i8]) -> &[u8] {
 /// sha256 of an int16-LE serialization of the values (the sidecar's plane
 /// convention; values outside i16 wrap — an honest witness has none).
 pub fn i16_digest_of_i32(v: &[i32]) -> String {
+    let _scope = span("copy.digest_encoding");
     let mut bytes = Vec::with_capacity(v.len() * 2);
     for &x in v {
         bytes.extend_from_slice(&(x as i16).to_le_bytes());
@@ -186,16 +189,16 @@ pub fn i16_digest_of_i32(v: &[i32]) -> String {
 }
 
 fn read_i8(path: &Path, n: usize) -> Vec<i8> {
-    let bytes = std::fs::read(path).unwrap_or_else(|e| panic!("cannot read {} ({e})", path.display()));
+    let bytes = measure("read.export_including_buffer_allocation", || std::fs::read(path)).unwrap_or_else(|e| panic!("cannot read {} ({e})", path.display()));
     assert_eq!(bytes.len(), n, "{}: wrong size", path.display());
-    bytes.into_iter().map(|b| b as i8).collect()
+    measure("copy.decode_export", || bytes.into_iter().map(|b| b as i8).collect())
 }
 
 fn read_i16(path: &Path, n: usize) -> (Vec<i16>, String) {
-    let bytes = std::fs::read(path).unwrap_or_else(|e| panic!("cannot read {} ({e})", path.display()));
+    let bytes = measure("read.export_including_buffer_allocation", || std::fs::read(path)).unwrap_or_else(|e| panic!("cannot read {} ({e})", path.display()));
     assert_eq!(bytes.len(), 2 * n, "{}: wrong size", path.display());
     let d = sha256_hex(&bytes);
-    (bytes.chunks_exact(2).map(|c| i16::from_le_bytes([c[0], c[1]])).collect(), d)
+    (measure("copy.decode_export", || bytes.chunks_exact(2).map(|c| i16::from_le_bytes([c[0], c[1]])).collect()), d)
 }
 
 /// One layer's raw export: the int8 tensors, the int16 witness planes
@@ -226,6 +229,7 @@ pub struct V3LayerExport {
 /// mismatches are recorded in `digest_checks` (and asserted unless
 /// `lenient`); everything structural is asserted.
 pub fn load_layer_v3(dir: &Path, side: &V3Sidecar, l: usize, with_planes: bool, lenient: bool) -> V3LayerExport {
+    let _scope = span("export_structure_and_checks");
     let dm = side.dims;
     assert!(l < dm.layers, "layer {l} >= {}", dm.layers);
     let mut checks = Vec::new();
@@ -256,7 +260,7 @@ pub fn load_layer_v3(dir: &Path, side: &V3Sidecar, l: usize, with_planes: bool, 
     let (fname, e_in, e_out, tdig) = side.table(l);
     let act = Act16Fn::from_spec_name(&fname).unwrap_or_else(|| panic!("layer {l}: unknown table function `{fname}`"));
     assert_eq!((e_in, e_out), (exps.e_g, exps.e_a16), "layer {l}: table row member != (eGate, eA - 8)");
-    let (table, table_digest) = int16out_member(act, e_in, e_out).unwrap_or_else(|| panic!("layer {l}: ({e_in},{e_out}) is not a frozen {fname} member"));
+    let (table, table_digest) = measure("activation.public_table", || int16out_member(act, e_in, e_out)).unwrap_or_else(|| panic!("layer {l}: ({e_in},{e_out}) is not a frozen {fname} member"));
     assert_eq!(table_digest, tdig, "layer {l}: the table row's digest != the frozen member's");
     if let Some(n) = side.zclamps(l) {
         assert_eq!(n, 0, "layer {l}: {n} z-clamped elements in the witness — the clamp-selector relation is not built on this line");
@@ -270,7 +274,7 @@ pub fn load_layer_v3(dir: &Path, side: &V3Sidecar, l: usize, with_planes: bool, 
 
 /// c[i][j] = sum_k a[i][k] * b_t[k][j] in i64 (a i32 rows x inner, b_t int8 inner x cols).
 pub fn matmul_i32_i8_i64(a: &[i32], b_t: &[i8], rows: usize, inner: usize, cols: usize) -> Vec<i64> {
-    let mut c = vec![0i64; rows * cols];
+    let mut c = measure("allocation.matmul_output", || vec![0i64; rows * cols]);
     c.par_chunks_mut(cols).enumerate().for_each(|(i, crow)| {
         for k in 0..inner {
             let av = a[i * inner + k] as i64;
@@ -344,6 +348,7 @@ pub struct V3Witness {
 }
 
 fn to_i32(v: Vec<i64>) -> Vec<i32> {
+    let _scope = span("copy.narrow_planes");
     v.into_par_iter().map(|x| x.clamp(i32::MIN as i64, i32::MAX as i64) as i32).collect()
 }
 
@@ -354,35 +359,36 @@ pub fn derive_v3(ex: &V3LayerExport, t_rows: usize) -> V3Witness {
 }
 
 pub fn derive_v3_with_table(ex: &V3LayerExport, t_rows: usize, table: [i16; 256], table_digest: String) -> V3Witness {
+    let _scope = span("derive_unattributed");
     let dm = ex.dims;
     assert!(t_rows >= 1 && t_rows <= dm.t);
     let (sh_g, sh_u, sh_h, sh_z) = ex.shifts;
     let (d, f) = (dm.d, dm.f);
-    let gacc: Vec<i64> = crate::chain::matmul_i8_i32(&ex.x[..t_rows * d], &ex.wg_t, t_rows, d, f).into_par_iter().map(|v| v as i64).collect();
-    let uacc: Vec<i64> = crate::chain::matmul_i8_i32(&ex.x[..t_rows * d], &ex.wu_t, t_rows, d, f).into_par_iter().map(|v| v as i64).collect();
-    let (g8, rg) = requant_round(&gacc, sh_g);
-    let (u16v, ru) = requant_round(&uacc, sh_u);
-    drop(gacc);
-    drop(uacc);
-    let g_ok = g8.iter().all(|&g| (-128..=127).contains(&g));
-    let u_ok = u16v.iter().all(|&u| in_i16_class(u));
-    let a16: Vec<i64> = g8.par_iter().map(|&g| table[((g + 128).clamp(0, 255)) as usize] as i64).collect();
-    let hh: Vec<i64> = a16.par_iter().zip(u16v.par_iter()).map(|(&a, &u)| a * u).collect();
-    let (h16, rh) = requant_round(&hh, sh_h);
-    drop(hh);
-    let h_ok = h16.iter().all(|&h| in_i16_class(h));
+    let gacc = measure("matmul.gate", || crate::chain::matmul_i8_i32(&ex.x[..t_rows * d], &ex.wg_t, t_rows, d, f));
+    let gacc: Vec<i64> = measure("copy.widen_accumulators", || gacc.into_par_iter().map(|v| v as i64).collect());
+    let uacc = measure("matmul.up", || crate::chain::matmul_i8_i32(&ex.x[..t_rows * d], &ex.wu_t, t_rows, d, f));
+    let uacc: Vec<i64> = measure("copy.widen_accumulators", || uacc.into_par_iter().map(|v| v as i64).collect());
+    let (g8, rg) = measure("requant.gate", || requant_round(&gacc, sh_g));
+    let (u16v, ru) = measure("requant.up", || requant_round(&uacc, sh_u));
+    measure("deallocation.temporary", || { drop(gacc); drop(uacc); });
+    let (g_ok, u_ok) = measure("check.ranges", || (g8.iter().all(|&g| (-128..=127).contains(&g)), u16v.iter().all(|&u| in_i16_class(u))));
+    let a16: Vec<i64> = measure("activation.lookup", || g8.par_iter().map(|&g| table[((g + 128).clamp(0, 255)) as usize] as i64).collect());
+    let hh: Vec<i64> = measure("activation.hadamard", || a16.par_iter().zip(u16v.par_iter()).map(|(&a, &u)| a * u).collect());
+    let (h16, rh) = measure("requant.hadamard", || requant_round(&hh, sh_h));
+    measure("deallocation.temporary", || drop(hh));
+    let h_ok = measure("check.ranges", || h16.iter().all(|&h| in_i16_class(h)));
     let h16_32 = to_i32(h16);
-    let dacc = matmul_i32_i8_i64(&h16_32, &ex.wd_t, t_rows, f, d);
-    let (z16, rd) = requant_round(&dacc, sh_z);
-    drop(dacc);
-    let z_ok = z16.iter().all(|&z| in_i16_class(z));
-    let rem_ok = rg.iter().all(|&r| in_rem_window(r, sh_g))
+    let dacc = measure("matmul.down", || matmul_i32_i8_i64(&h16_32, &ex.wd_t, t_rows, f, d));
+    let (z16, rd) = measure("requant.down", || requant_round(&dacc, sh_z));
+    measure("deallocation.temporary", || drop(dacc));
+    let z_ok = measure("check.ranges", || z16.iter().all(|&z| in_i16_class(z)));
+    let rem_ok = measure("check.ranges", || rg.iter().all(|&r| in_rem_window(r, sh_g))
         && ru.iter().all(|&r| in_rem_window(r, sh_u))
         && rh.iter().all(|&r| in_rem_window(r, sh_h))
-        && rd.iter().all(|&r| in_rem_window(r, sh_z));
+        && rd.iter().all(|&r| in_rem_window(r, sh_z)));
     let (g8, rg, a16, u16v, ru, rh, z16, rd) = (to_i32(g8), to_i32(rg), to_i32(a16), to_i32(u16v), to_i32(ru), to_i32(rh), to_i32(z16), to_i32(rd));
     let digests = [i16_digest_of_i32(&a16), i16_digest_of_i32(&u16v), i16_digest_of_i32(&h16_32), i16_digest_of_i32(&z16)];
-    V3Witness {
+    measure("copy.clone_witness", || V3Witness {
         l: ex.l,
         dims: dm,
         t_rows,
@@ -400,7 +406,7 @@ pub fn derive_v3_with_table(ex: &V3LayerExport, t_rows: usize, table: [i16; 256]
         rh, z16, rd,
         range_ok: g_ok && u_ok && h_ok && z_ok && rem_ok,
         digests,
-    }
+    })
 }
 
 /// Element-wise comparison of the derived planes against the export's
@@ -453,5 +459,35 @@ mod tests {
         let b: Vec<i8> = vec![127, 8, 9, 10, 11, 12]; // 3 x 2
         let c = matmul_i32_i8_i64(&a, &b, 2, 3, 2);
         assert_eq!(c, vec![30000 * 127 - 18 + 33, 30000 * 8 - 20 + 36, 508 + 45 + 66, 32 + 50 + 72]);
+    }
+
+    #[test]
+    fn witness_i64_matmul_scalar_oracle_signed_extremes_and_tails() {
+        for &(rows, inner, cols) in &[(0, 3, 5), (1, 0, 7), (1, 1, 1), (3, 7, 5),
+                                     (4, 9, 127), (5, 13, 128), (7, 17, 129), (9, 33, 259)] {
+            let values = [i32::MIN, i32::MAX, -32768, 32767, -1, 0, 1];
+            let weights = [i8::MIN, i8::MAX, -1, 0, 1];
+            let a: Vec<i32> = (0..rows * inner).map(|i| values[(i * 3 + 1) % values.len()]).collect();
+            let b: Vec<i8> = (0..inner * cols).map(|i| weights[(i * 7 + 2) % weights.len()]).collect();
+            let mut expected = vec![0i64; rows * cols];
+            for r in 0..rows {
+                for j in 0..cols {
+                    let mut sum = 0i128;
+                    for k in 0..inner { sum += i128::from(a[r * inner + k]) * i128::from(b[k * cols + j]); }
+                    expected[r * cols + j] = i64::try_from(sum).unwrap();
+                }
+            }
+            assert_eq!(matmul_i32_i8_i64(&a, &b, rows, inner, cols), expected, "shape {rows}/{inner}/{cols}");
+            assert_eq!(matmul_i32_i8_i64(&vec![0; a.len()], &b, rows, inner, cols), vec![0; rows * cols]);
+            assert_eq!(matmul_i32_i8_i64(&a, &vec![0; b.len()], rows, inner, cols), vec![0; rows * cols]);
+        }
+        // Multiplication must widen before the product, not after i32 overflow.
+        assert_eq!(matmul_i32_i8_i64(&[i32::MIN], &[i8::MIN], 1, 1, 1), vec![1i64 << 38]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn witness_i64_matmul_zero_columns_still_rejects() {
+        matmul_i32_i8_i64(&[], &[], 0, 0, 0);
     }
 }

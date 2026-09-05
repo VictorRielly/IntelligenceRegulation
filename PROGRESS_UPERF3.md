@@ -14232,3 +14232,125 @@ variable in the test harness (or exporting the X planes into
 `results/m125_ffn_export/`). Recorded, not fixed — `tests/` is not this
 lane's file.
 
+## ZK60 parallel round 1 — Codex work before the 5090 (2026-09-04)
+
+Victor requested parallel agents; the 5090 will take one or two days to
+set up. Base `19ebd18` plus the uncommitted C0 foundations (49 Rust tests,
+109 Python tests with 2 skipped, eight frozen CPU/GPU proof gates green;
+details in `docs/zkmatrix-poc/ZK60_EXECUTION.md`). No new commit or push.
+The C0 full-suite run uses the existing WSL export via `M125_EXPORT_DIR`
+and is green; it does not replace missing data in other checkouts.
+
+Ownership for this round (isolated checkouts under
+`/tmp/zk60-parallel-OrrY0T`, full acceptance in
+`docs/zkmatrix-poc/ZK60_PARALLEL_ROUND1.md`):
+
+- **I1, Codex identity worker — OWNS** `hashline/src/model_identity.rs`,
+  `hashline/tests/zk60_identity_gap.rs`, `docs/zkmatrix-poc/ZK60_IDENTITY_WORKER.md`,
+  local `lib.rs` module registration. Tiny P3 gap reproduction and opt-in
+  approved-model P1 verification boundary; no P3 consistency claim.
+- **W1, Codex witness worker — OWNS** `hashline/src/chain.rs`,
+  `hashline/src/export_v3.rs`, `hashline/examples/zk60_witness_bench.rs`,
+  `docs/zkmatrix-poc/ZK60_WITNESS_WORKER.md`. Exact scalar oracles and a
+  bounded CPU matmul A/B; promote a production change only with evidence.
+- **A1, Codex private-block worker — OWNS** `docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK.md`
+  and `docs/zkmatrix-poc/zk60_private_block_tasks.json`. Source-based privacy
+  coverage map and ordered implementation tasks, production source read-only.
+- **M1, Codex lead — OWNS** `scripts/hashline_memory_plan.py`,
+  `tests/test_hashline_memory_plan.py`, `hashline/tests/zk60_memory_layout.rs`, queue/ledger integration and reviewed
+  lane integration. Pure allocation accounting, no model-sized allocations.
+
+These are Codex workers, not Fable or Claude. Fable's independent review
+files stay reserved. Claude's GPU/PCS task stays queued after its current
+task; no worker changes that code or the driver/toolkit. Only small CPU
+checks and bounded locked microbenchmarks are authorized in this round.
+Full private 8B GPU runs remain prohibited on the 8 GB laptop.
+
+Initial M1 result [COUNTED, not a measurement]: one P3 W commitment at
+4096/14336, log_cols 14, rate 4, 256 pads/checks accounts for 13,492 MiB
+including retained cold-pool buffers. This is not a full-prover bound or
+a safe-to-run decision. Initial eight pure Python planner tests passed.
+
+**Round-1 integration complete:** I1's opt-in single-layer P1 approval
+boundary and five identity tests, W1's exact-arithmetic tests/experimental
+benchmark (NO production blocking change), A1's private-block review and
+11-task queue, and M1's planner/layout oracle are integrated. Independent
+M1 review added unsupported-padding/hash-width/log-zero guards; nine
+planner tests now pass. Claude's GPU/PCS source and Fable's own files were
+not touched. No private-block or P3-consistency implementation is claimed.
+
+Validation on the main working tree: 63 release Rust tests (`--all-targets`),
+37 targeted Python collection/memory tests and four frozen CPU proof gates
+pass, exit 0; all old byte digests unchanged. W1's eight tests passed debug
+and release in its lane. No GPU/full-native-suite rerun is claimed in this
+round. Exact commands, hashes, raw CPU A/B logs and component accounting:
+`results/zk60_round1_validation.json`. Next assignments are in
+`docs/zkmatrix-poc/ZK60_PARALLEL_ROUND1.md`; the card-dependent baseline
+remains queued until the 5090 and the memory/oracle gates are ready.
+
+## ZK60 round 2 — autonomous PoC / profiling / research
+
+Victor approved this direction and parallel agents while away. Base
+`19ebd18` plus the integrated uncommitted C0/round-1 work; no commit/push
+or unrelated edits. Ownership and checkouts are in
+`docs/zkmatrix-poc/ZK60_PARALLEL_ROUND2.md` (authoritative for this round):
+A00 correctness worker = new fixed block contract/tests; P2 profile worker =
+chain/export/CLI attribution and analyzer; R2 research worker = decision
+memo; S2 lead = new experimental private equality module/tests and two
+crate-private helper visibility changes in `zk.rs`. Shared integration is
+lead-only. `gpu/`, `pcs.rs` and Claude's current task remain untouched.
+
+The product direction is a complete experimental response proof receipt
+after sequence generation, public approved weights and private inputs.
+Neither this direction nor a seam gadget is a completed LLM proof. Safe
+small CPU work proceeds before the 5090; heavy jobs share the lock.
+
+**Round-2 bounded integration complete.** A00 approved fixed-T32 contract
+and E1 CPU full attention/FFN/residual witness oracle are integrated, with
+seven tests each. E1 refuses range failures instead of adapting constants;
+same-shape future-suffix checks and an independently reviewed asymmetric
+signed-matrix test pass. This is a witness oracle, not a private block proof
+or variable-length/KV/token-generation equivalence theorem.
+
+S2 adds an experimental independently masked plane-equality proof, one-shot
+opening ownership and exact bounded wire decoder; nine tests pass. Fresh
+`results/zk60_round2_seam.proof` is 416,456 bytes and verifies in a separate
+process from bytes/public handles, without witness or export access. Wrong
+expected roots and attempted overwrite reject. Root metadata/commands are
+in `results/zk60_round2_seam.json`. The fixture is public synthetic data and
+does not prove model approval, full block arithmetic or generation.
+
+P2's opt-in exclusive CPU profiler and collector are integrated. Nine
+one-layer 125M P0/P1/P3 samples at 16/32/64 rows verify; uncached W commitment
+is the largest phase (348–452 ms), with <0.078% unattributed proof-ready
+time. On/off byte parity passes in all three modes in the worker tree,
+and a P1 seeded fixture repeats this check in the integrated main tree.
+Samples are not statistical/GPU/full-model evidence. No production matmul
+optimization or protocol performance claim was promoted. Exact read/hash/
+matmul/allocation/lookup/prover attribution and limits are in
+`docs/zkmatrix-poc/ZK60_PROFILE_SWEEP.md`.
+
+R2's primary-source research distinguishes vendor results from reproduced
+evidence, full-sequence certification from per-token proof release, and
+private commitment batching from repeated reuse. See
+`docs/zkmatrix-poc/ZK60_RESEARCH_DECISIONS.md`. No external implementation
+was copied or benchmark reproduced.
+
+**Required privacy gate:** the review found and reproduced a tiny inherited
+PCS singleton-claim configuration where one base-field mask fails to hide
+its extension-field opening vector. Two diagnostic/control tests pass;
+that records the known issue, not a privacy certificate. Actual FFN group
+impact, proximity/functional joint rank and simulation remain to be audited.
+S2 uses paired masks but does not repair other callers. Fable's documented
+review now includes this gate alongside P3 approved-model consistency.
+Do not use experimental/private paths for sensitive application data yet.
+
+Final main-tree checks: **94 release Rust tests, 48 targeted Python tests,
+four frozen CPU proof gates passed, exit0**, all complete SHA-256 values and
+sizes unchanged. The two-thread locked CPU gates took ~149 s. No GPU or
+full Python/native-suite rerun was claimed in this round; no outstanding
+round jobs, commits or pushes. `gpu/`, `pcs.rs` and named agents' reserved
+files remain untouched. Full evidence/source hashes/commands are in
+`results/zk60_round2_validation.json`; next ownership and acceptance are
+in `docs/zkmatrix-poc/ZK60_PARALLEL_ROUND2.md`. Full private LLM coverage and
+60 generated tokens/s have NOT been demonstrated.

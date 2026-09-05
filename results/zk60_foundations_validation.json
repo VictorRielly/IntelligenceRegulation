@@ -1,0 +1,985 @@
+{
+  "schema": 1,
+  "date": "2026-09-04",
+  "scope": "C0 correctness and measurement foundations; not a performance certification",
+  "base_revision": "da626dbfc87e361640c18f303677eac8d705afae",
+  "integrated_against": "19ebd18",
+  "goal_met": false,
+  "limitations": [
+    "FFN-only coverage for private pass",
+    "P3 approved-model consistency still missing",
+    "Full private transformer and generation interface still missing",
+    "In-memory verification only; no standalone artifact decoding measured",
+    "GPU initialization alone cannot establish every operation stayed on GPU",
+    "Small correctness fixtures and one-warm-sample smokes are not 8B p95 performance evidence"
+  ],
+  "source_hashes": [
+    {
+      "path": "hashline/src/zk.rs",
+      "sha256": "49ade3dfeceb855a901aee3dc53a6f3b206df4bff8d0d596da6c46abe0f39dd7"
+    },
+    {
+      "path": "hashline/src/bin/hashline.rs",
+      "sha256": "b25a06aa8c4e59795d1f066ee61a8cdf7833cd29797d3cef52862dbadc34363b"
+    },
+    {
+      "path": "hashline/tests/cli_claims.rs",
+      "sha256": "20e5a14b8dd523bf0e98ef13ac9ccb38bf7071585c335e745d1da2918cb2ae4b"
+    }
+  ],
+  "binary_and_input_manifest_hashes": [
+    {
+      "path": "/tmp/zk60-codex-SA3FDq/hashline/target/release/hashline",
+      "sha256": "ee6e240786060ab447084b61b15254e89700fa25f08c34a29edbd7177acf5f15"
+    },
+    {
+      "path": "/tmp/zk60-codex-SA3FDq/hashline/target-gpu/release/hashline",
+      "sha256": "ee2faa5f432c638daac61b258f928aca716d88199d79d3ac588f2c4ce14a6550"
+    },
+    {
+      "path": "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export/digests.txt",
+      "sha256": "f5896cb01a0d0634a5ed5a52855fc1528c31490b726f3fd5a2edd5822830d85f"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl/digests.txt",
+      "sha256": "9d5728da78849c03b61ca59f7c2db79797f19a419759912ad1558d17250e9753"
+    }
+  ],
+  "hardware": {
+    "gpu": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "vram_mib": 8188,
+    "driver": "566.14"
+  },
+  "scratch_directory": "/tmp/zk60-fixtures-pAtLMl",
+  "validation_script": "/tmp/zk60-fixtures-pAtLMl/validate.py",
+  "markers": {
+    "cpu": 0,
+    "gpu": 0,
+    "suite": 0,
+    "all": 0,
+    "smoke": 0
+  },
+  "checks": [
+    {
+      "name": "hashline CPU release tests",
+      "command": "cargo test --release --offline --manifest-path hashline/Cargo.toml",
+      "cwd": "/tmp/zk60-codex-SA3FDq",
+      "unit_tests_passed": 46,
+      "cli_tests_passed": 3,
+      "exit_code": 0
+    },
+    {
+      "name": "collector unit tests",
+      "command": "python3 -m unittest discover -s tests -p test_hashline_benchmark.py",
+      "tests_passed": 28,
+      "exit_code": 0
+    },
+    {
+      "name": "repository Python suite (including native freeze-check tests)",
+      "command": "env M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl python3 -m unittest discover -s tests",
+      "tests_run": 109,
+      "tests_passed": 107,
+      "skipped": 2,
+      "elapsed_s": 526.455,
+      "exit_code": 0,
+      "log": "/tmp/zk60-fixtures-pAtLMl/all-validation.log"
+    },
+    {
+      "name": "CUDA release build",
+      "command": "env CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib CARGO_TARGET_DIR=/tmp/zk60-codex-SA3FDq/hashline/target-gpu cargo build --release --offline --features gpu-cuda --manifest-path hashline/Cargo.toml",
+      "exit_code": 0
+    },
+    {
+      "name": "GPU probe",
+      "command": "env HL_GPU=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /tmp/zk60-codex-SA3FDq/hashline/target-gpu/release/hashline gpu-probe",
+      "checks": "field arithmetic, BLAKE3, NTT, chunked commitments/opened columns",
+      "exit_code": 0
+    }
+  ],
+  "fixtures": [
+    {
+      "case": "cpu-v2",
+      "ok": true,
+      "exit_code": 0,
+      "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+      "bytes": 66844928,
+      "elapsed_s": 16.99051401199904,
+      "timing": [
+        {
+          "schema": 1,
+          "coverage": "ffn-only",
+          "privacy": "P0",
+          "layers": 12,
+          "tokens": 512,
+          "d": 768,
+          "f": 2048,
+          "witness_s": 1.262390073,
+          "prove_s": 15.295539092,
+          "serialize_s": 0.055430468,
+          "proof_ready_s": 16.613418722,
+          "verify_s": 0.294305853,
+          "verified": true,
+          "proof_bytes": 66844928,
+          "serialized": true,
+          "gpu_requested": false,
+          "gpu_enabled": false,
+          "randomness": "none"
+        }
+      ],
+      "command": [
+        "/tmp/zk60-codex-SA3FDq/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fixtures-pAtLMl/cpu-v2.proof"
+      ]
+    },
+    {
+      "case": "cpu-v3",
+      "ok": true,
+      "exit_code": 0,
+      "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+      "bytes": 70758084,
+      "elapsed_s": 17.35664664500291,
+      "timing": [
+        {
+          "schema": 1,
+          "coverage": "ffn-only",
+          "privacy": "P0",
+          "layers": 12,
+          "tokens": 512,
+          "d": 768,
+          "f": 2048,
+          "witness_s": 1.711242509,
+          "prove_s": 15.118305196,
+          "serialize_s": 0.081974842,
+          "proof_ready_s": 16.912055608,
+          "verify_s": 0.322397079,
+          "verified": true,
+          "proof_bytes": 70758084,
+          "serialized": true,
+          "gpu_requested": false,
+          "gpu_enabled": false,
+          "randomness": "none"
+        }
+      ],
+      "command": [
+        "/tmp/zk60-codex-SA3FDq/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fixtures-pAtLMl/cpu-v3.proof",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ]
+    },
+    {
+      "case": "cpu-zk",
+      "ok": true,
+      "exit_code": 0,
+      "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+      "bytes": 87228528,
+      "elapsed_s": 19.46998988300038,
+      "timing": [
+        {
+          "schema": 1,
+          "coverage": "ffn-only",
+          "privacy": "P1",
+          "layers": 12,
+          "tokens": 512,
+          "d": 768,
+          "f": 2048,
+          "witness_s": 1.105923053,
+          "prove_s": 17.655608996,
+          "serialize_s": 0.070090635,
+          "proof_ready_s": 18.83172383,
+          "verify_s": 0.515061215,
+          "verified": true,
+          "proof_bytes": 87228528,
+          "serialized": true,
+          "gpu_requested": false,
+          "gpu_enabled": false,
+          "randomness": "deterministic-test"
+        }
+      ],
+      "command": [
+        "/tmp/zk60-codex-SA3FDq/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fixtures-pAtLMl/cpu-zk.proof",
+        "--zk",
+        "--seed",
+        "1"
+      ]
+    },
+    {
+      "case": "cpu-zkv3",
+      "ok": true,
+      "exit_code": 0,
+      "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+      "bytes": 87697008,
+      "elapsed_s": 20.423504832000617,
+      "timing": [
+        {
+          "schema": 1,
+          "coverage": "ffn-only",
+          "privacy": "P1",
+          "layers": 12,
+          "tokens": 512,
+          "d": 768,
+          "f": 2048,
+          "witness_s": 1.505365541,
+          "prove_s": 18.162044915,
+          "serialize_s": 0.081461258,
+          "proof_ready_s": 19.749504533,
+          "verify_s": 0.547734372,
+          "verified": true,
+          "proof_bytes": 87697008,
+          "serialized": true,
+          "gpu_requested": false,
+          "gpu_enabled": false,
+          "randomness": "deterministic-test"
+        }
+      ],
+      "command": [
+        "/tmp/zk60-codex-SA3FDq/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fixtures-pAtLMl/cpu-zkv3.proof",
+        "--zk",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ]
+    },
+    {
+      "case": "gpu-v2",
+      "ok": true,
+      "exit_code": 0,
+      "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+      "bytes": 66844928,
+      "elapsed_s": 6.943961703997047,
+      "timing": [
+        {
+          "schema": 1,
+          "coverage": "ffn-only",
+          "privacy": "P0",
+          "layers": 12,
+          "tokens": 512,
+          "d": 768,
+          "f": 2048,
+          "witness_s": 1.075495489,
+          "prove_s": 2.520671174,
+          "serialize_s": 0.090860043,
+          "proof_ready_s": 3.687105724,
+          "verify_s": 0.300966094,
+          "verified": true,
+          "proof_bytes": 66844928,
+          "serialized": true,
+          "gpu_requested": true,
+          "gpu_enabled": true,
+          "randomness": "none"
+        }
+      ],
+      "command": [
+        "/tmp/zk60-codex-SA3FDq/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fixtures-pAtLMl/gpu-v2.proof"
+      ]
+    },
+    {
+      "case": "gpu-v3",
+      "ok": true,
+      "exit_code": 0,
+      "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+      "bytes": 70758084,
+      "elapsed_s": 7.24620035100088,
+      "timing": [
+        {
+          "schema": 1,
+          "coverage": "ffn-only",
+          "privacy": "P0",
+          "layers": 12,
+          "tokens": 512,
+          "d": 768,
+          "f": 2048,
+          "witness_s": 1.6196263,
+          "prove_s": 2.286325207,
+          "serialize_s": 0.096113795,
+          "proof_ready_s": 4.014910167,
+          "verify_s": 0.304986539,
+          "verified": true,
+          "proof_bytes": 70758084,
+          "serialized": true,
+          "gpu_requested": true,
+          "gpu_enabled": true,
+          "randomness": "none"
+        }
+      ],
+      "command": [
+        "/tmp/zk60-codex-SA3FDq/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fixtures-pAtLMl/gpu-v3.proof",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ]
+    },
+    {
+      "case": "gpu-zk",
+      "ok": true,
+      "exit_code": 0,
+      "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+      "bytes": 87228528,
+      "elapsed_s": 8.666080075003265,
+      "timing": [
+        {
+          "schema": 1,
+          "coverage": "ffn-only",
+          "privacy": "P1",
+          "layers": 12,
+          "tokens": 512,
+          "d": 768,
+          "f": 2048,
+          "witness_s": 1.134999774,
+          "prove_s": 4.01050064,
+          "serialize_s": 0.114802942,
+          "proof_ready_s": 5.260438084,
+          "verify_s": 0.433859062,
+          "verified": true,
+          "proof_bytes": 87228528,
+          "serialized": true,
+          "gpu_requested": true,
+          "gpu_enabled": true,
+          "randomness": "deterministic-test"
+        }
+      ],
+      "command": [
+        "/tmp/zk60-codex-SA3FDq/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fixtures-pAtLMl/gpu-zk.proof",
+        "--zk",
+        "--seed",
+        "1"
+      ]
+    },
+    {
+      "case": "gpu-zkv3",
+      "ok": true,
+      "exit_code": 0,
+      "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+      "bytes": 87697008,
+      "elapsed_s": 10.823378580997087,
+      "timing": [
+        {
+          "schema": 1,
+          "coverage": "ffn-only",
+          "privacy": "P1",
+          "layers": 12,
+          "tokens": 512,
+          "d": 768,
+          "f": 2048,
+          "witness_s": 1.746863958,
+          "prove_s": 5.525969286,
+          "serialize_s": 0.115774791,
+          "proof_ready_s": 7.395730683,
+          "verify_s": 0.481510712,
+          "verified": true,
+          "proof_bytes": 87697008,
+          "serialized": true,
+          "gpu_requested": true,
+          "gpu_enabled": true,
+          "randomness": "deterministic-test"
+        }
+      ],
+      "command": [
+        "/tmp/zk60-codex-SA3FDq/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fixtures-pAtLMl/gpu-zkv3.proof",
+        "--zk",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ]
+    }
+  ],
+  "smoke_reports": [
+    {
+      "schema": 1,
+      "privacy": "P1",
+      "coverage": "ffn-only",
+      "device": "cpu",
+      "timing_scope": "proof_ready_s measures exported input loading/witness computation through serialized proof readiness, before in-memory verification. Tokens are prefill rows, not autoregressively generated tokens. Process wall includes startup, verification and teardown and is reported separately.",
+      "warm_definition": "subsequent fresh processes; weight cache reused for P0/P1, fresh commitments for P3; OS page cache not flushed",
+      "warm_count": 1,
+      "cold_count": 1,
+      "percentile_method": "nearest-rank ceil(p*N)",
+      "warm_metrics": {
+        "witness_s": {
+          "count": 1,
+          "p50": 0.029090094,
+          "p95": 0.029090094
+        },
+        "prove_s": {
+          "count": 1,
+          "p50": 0.340308025,
+          "p95": 0.340308025
+        },
+        "serialize_s": {
+          "count": 1,
+          "p50": 0.004908878,
+          "p95": 0.004908878
+        },
+        "proof_ready_s": {
+          "count": 1,
+          "p50": 0.374375652,
+          "p95": 0.374375652
+        },
+        "verify_s": {
+          "count": 1,
+          "p50": 0.016604959,
+          "p95": 0.016604959
+        },
+        "proof_bytes": {
+          "count": 1,
+          "p50": 4386116,
+          "p95": 4386116
+        },
+        "process_wall_s": {
+          "count": 1,
+          "p50": 0.39472743700025603,
+          "p95": 0.39472743700025603
+        },
+        "legacy_pass_wall_s": {
+          "count": 1,
+          "p50": 0.39,
+          "p95": 0.39
+        }
+      },
+      "measurement_eligible": false,
+      "ineligible_reasons": [
+        "at least 20 warm runs required"
+      ],
+      "measured_scope_reaches_60_rows_s_at_p95": false,
+      "goal_met": false,
+      "goal_limitation": "Current coverage omits complete private LLM generation; 60 prefill rows/s is not 60 generated tokens/s.",
+      "samples": [
+        {
+          "privacy": "P1",
+          "coverage": "ffn-only",
+          "device": "cpu",
+          "errors": [],
+          "timing": {
+            "schema": 1,
+            "coverage": "ffn-only",
+            "privacy": "P1",
+            "layers": 1,
+            "tokens": 2,
+            "d": 768,
+            "f": 2048,
+            "witness_s": 0.030494279,
+            "prove_s": 0.391323893,
+            "serialize_s": 0.005374911,
+            "proof_ready_s": 0.427265213,
+            "verify_s": 0.017330237,
+            "verified": true,
+            "proof_bytes": 4386116,
+            "serialized": true,
+            "gpu_requested": false,
+            "gpu_enabled": false,
+            "randomness": "os"
+          },
+          "process_wall_s": 0.448379728000873,
+          "gpu_before": null,
+          "exit_code": 0,
+          "layers": 1,
+          "tokens": 2,
+          "d": 768,
+          "f": 2048,
+          "witness_s": 0.03,
+          "prove_s": 0.39,
+          "verify_s": 0.02,
+          "proof_bytes": 4386116,
+          "legacy_pass_wall_s": 0.44,
+          "prefill_rows_per_prove_second": 5.128205128205128,
+          "parameters": [
+            "14",
+            "4",
+            "256",
+            "8"
+          ],
+          "gpu_label": "gpu: off (built without --features gpu-cuda)",
+          "proof_sha256": "59b58e2e7bccf1b1fb72cb492342313c06648b4bea837aec1e9a531e81a0f19e",
+          "prefill_rows_per_proof_ready_second": 4.6809333855129465,
+          "measurement_eligible": true,
+          "goal_met": false,
+          "verification_scope": "in-memory verifier; standalone proof decoding/verification not measured",
+          "sample_kind": "cold",
+          "log": "cold-000.log"
+        },
+        {
+          "privacy": "P1",
+          "coverage": "ffn-only",
+          "device": "cpu",
+          "errors": [],
+          "timing": {
+            "schema": 1,
+            "coverage": "ffn-only",
+            "privacy": "P1",
+            "layers": 1,
+            "tokens": 2,
+            "d": 768,
+            "f": 2048,
+            "witness_s": 0.029090094,
+            "prove_s": 0.340308025,
+            "serialize_s": 0.004908878,
+            "proof_ready_s": 0.374375652,
+            "verify_s": 0.016604959,
+            "verified": true,
+            "proof_bytes": 4386116,
+            "serialized": true,
+            "gpu_requested": false,
+            "gpu_enabled": false,
+            "randomness": "os"
+          },
+          "process_wall_s": 0.39472743700025603,
+          "gpu_before": null,
+          "exit_code": 0,
+          "layers": 1,
+          "tokens": 2,
+          "d": 768,
+          "f": 2048,
+          "witness_s": 0.03,
+          "prove_s": 0.34,
+          "verify_s": 0.02,
+          "proof_bytes": 4386116,
+          "legacy_pass_wall_s": 0.39,
+          "prefill_rows_per_prove_second": 5.88235294117647,
+          "parameters": [
+            "14",
+            "4",
+            "256",
+            "8"
+          ],
+          "gpu_label": "gpu: off (built without --features gpu-cuda)",
+          "proof_sha256": "d7097c1d2a8b3ded04c217c64be12e4568b1a689b9fd2589ae78af5dd03dab59",
+          "prefill_rows_per_proof_ready_second": 5.342227757909854,
+          "measurement_eligible": true,
+          "goal_met": false,
+          "verification_scope": "in-memory verifier; standalone proof decoding/verification not measured",
+          "sample_kind": "warm",
+          "log": "warm-001.log"
+        }
+      ]
+    },
+    {
+      "schema": 1,
+      "privacy": "P3",
+      "coverage": "ffn-only",
+      "device": "cpu",
+      "timing_scope": "proof_ready_s measures exported input loading/witness computation through serialized proof readiness, before in-memory verification. Tokens are prefill rows, not autoregressively generated tokens. Process wall includes startup, verification and teardown and is reported separately.",
+      "warm_definition": "subsequent fresh processes; weight cache reused for P0/P1, fresh commitments for P3; OS page cache not flushed",
+      "warm_count": 1,
+      "cold_count": 1,
+      "percentile_method": "nearest-rank ceil(p*N)",
+      "warm_metrics": {
+        "witness_s": {
+          "count": 1,
+          "p50": 0.024629502,
+          "p95": 0.024629502
+        },
+        "prove_s": {
+          "count": 1,
+          "p50": 0.451476009,
+          "p95": 0.451476009
+        },
+        "serialize_s": {
+          "count": 1,
+          "p50": 0.00448461,
+          "p95": 0.00448461
+        },
+        "proof_ready_s": {
+          "count": 1,
+          "p50": 0.480687208,
+          "p95": 0.480687208
+        },
+        "verify_s": {
+          "count": 1,
+          "p50": 0.021680822,
+          "p95": 0.021680822
+        },
+        "proof_bytes": {
+          "count": 1,
+          "p50": 4427172,
+          "p95": 4427172
+        },
+        "process_wall_s": {
+          "count": 1,
+          "p50": 0.5062479129992425,
+          "p95": 0.5062479129992425
+        },
+        "legacy_pass_wall_s": {
+          "count": 1,
+          "p50": 0.5,
+          "p95": 0.5
+        }
+      },
+      "measurement_eligible": false,
+      "ineligible_reasons": [
+        "at least 20 warm runs required"
+      ],
+      "measured_scope_reaches_60_rows_s_at_p95": false,
+      "goal_met": false,
+      "goal_limitation": "Current coverage omits complete private LLM generation; 60 prefill rows/s is not 60 generated tokens/s.",
+      "samples": [
+        {
+          "privacy": "P3",
+          "coverage": "ffn-only",
+          "device": "cpu",
+          "errors": [],
+          "timing": {
+            "schema": 1,
+            "coverage": "ffn-only",
+            "privacy": "P3",
+            "layers": 1,
+            "tokens": 2,
+            "d": 768,
+            "f": 2048,
+            "witness_s": 0.031405158,
+            "prove_s": 0.398757057,
+            "serialize_s": 0.004735763,
+            "proof_ready_s": 0.434973308,
+            "verify_s": 0.016050658,
+            "verified": true,
+            "proof_bytes": 4427172,
+            "serialized": true,
+            "gpu_requested": false,
+            "gpu_enabled": false,
+            "randomness": "os"
+          },
+          "process_wall_s": 0.45485089599969797,
+          "gpu_before": null,
+          "exit_code": 0,
+          "layers": 1,
+          "tokens": 2,
+          "d": 768,
+          "f": 2048,
+          "witness_s": 0.03,
+          "prove_s": 0.4,
+          "verify_s": 0.02,
+          "proof_bytes": 4427172,
+          "legacy_pass_wall_s": 0.45,
+          "prefill_rows_per_prove_second": 5,
+          "parameters": [
+            "14",
+            "4",
+            "256",
+            "8"
+          ],
+          "gpu_label": "gpu: off (built without --features gpu-cuda)",
+          "proof_sha256": "d139bb244a811ab0a773a8637a1f8aa36d4b0540959ecc4e91a286e692f7c457",
+          "prefill_rows_per_proof_ready_second": 4.597983285907741,
+          "measurement_eligible": true,
+          "goal_met": false,
+          "verification_scope": "in-memory verifier; standalone proof decoding/verification not measured",
+          "sample_kind": "cold",
+          "log": "cold-000.log"
+        },
+        {
+          "privacy": "P3",
+          "coverage": "ffn-only",
+          "device": "cpu",
+          "errors": [],
+          "timing": {
+            "schema": 1,
+            "coverage": "ffn-only",
+            "privacy": "P3",
+            "layers": 1,
+            "tokens": 2,
+            "d": 768,
+            "f": 2048,
+            "witness_s": 0.024629502,
+            "prove_s": 0.451476009,
+            "serialize_s": 0.00448461,
+            "proof_ready_s": 0.480687208,
+            "verify_s": 0.021680822,
+            "verified": true,
+            "proof_bytes": 4427172,
+            "serialized": true,
+            "gpu_requested": false,
+            "gpu_enabled": false,
+            "randomness": "os"
+          },
+          "process_wall_s": 0.5062479129992425,
+          "gpu_before": null,
+          "exit_code": 0,
+          "layers": 1,
+          "tokens": 2,
+          "d": 768,
+          "f": 2048,
+          "witness_s": 0.02,
+          "prove_s": 0.45,
+          "verify_s": 0.02,
+          "proof_bytes": 4427172,
+          "legacy_pass_wall_s": 0.5,
+          "prefill_rows_per_prove_second": 4.444444444444445,
+          "parameters": [
+            "14",
+            "4",
+            "256",
+            "8"
+          ],
+          "gpu_label": "gpu: off (built without --features gpu-cuda)",
+          "proof_sha256": "e17025d72aaa55e21e4712611d0694c09dfe60eb40e987da6c0042a3226b631b",
+          "prefill_rows_per_proof_ready_second": 4.160709847722846,
+          "measurement_eligible": true,
+          "goal_met": false,
+          "verification_scope": "in-memory verifier; standalone proof decoding/verification not measured",
+          "sample_kind": "warm",
+          "log": "warm-001.log"
+        }
+      ]
+    }
+  ],
+  "historical_reports": [
+    {
+      "schema": 1,
+      "privacy": "P1",
+      "coverage": "ffn-only",
+      "device": "cpu",
+      "timing_scope": "proof_ready_s measures exported input loading/witness computation through serialized proof readiness, before in-memory verification. Tokens are prefill rows, not autoregressively generated tokens. Process wall includes startup, verification and teardown and is reported separately.",
+      "warm_definition": "subsequent fresh processes; weight cache reused for P0/P1, fresh commitments for P3; OS page cache not flushed",
+      "warm_count": 0,
+      "cold_count": 1,
+      "percentile_method": "nearest-rank ceil(p*N)",
+      "warm_metrics": {
+        "witness_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        },
+        "prove_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        },
+        "serialize_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        },
+        "proof_ready_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verify_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        },
+        "proof_bytes": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        },
+        "process_wall_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        },
+        "legacy_pass_wall_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "measurement_eligible": false,
+      "ineligible_reasons": [
+        "at least 20 warm runs required",
+        "one or more samples failed validation; inspect sample errors"
+      ],
+      "measured_scope_reaches_60_rows_s_at_p95": false,
+      "goal_met": false,
+      "goal_limitation": "Current coverage omits complete private LLM generation; 60 prefill rows/s is not 60 generated tokens/s.",
+      "samples": [
+        {
+          "privacy": "P1",
+          "coverage": "ffn-only",
+          "device": "cpu",
+          "errors": [
+            "one HASHLINE_TIMING record required for measured proof readiness"
+          ],
+          "timing": null,
+          "process_wall_s": 640.43,
+          "exit_code": 0,
+          "layers": 32,
+          "tokens": 512,
+          "d": 4096,
+          "f": 14336,
+          "witness_s": 134.93,
+          "prove_s": 485.33,
+          "verify_s": 1.95,
+          "proof_bytes": 1285578368,
+          "legacy_pass_wall_s": 640.33,
+          "prefill_rows_per_prove_second": 1.0549523004965693,
+          "parameters": [
+            "14",
+            "4",
+            "256",
+            "8"
+          ],
+          "gpu_label": "gpu: off (HL_GPU unset; built with gpu-cuda)",
+          "proof_sha256": "930ce9a043a037210f62ac1384384e3a88607f29046b56284c6308ed272c982e",
+          "measurement_eligible": false,
+          "goal_met": false,
+          "verification_scope": "in-memory verifier; standalone proof decoding/verification not measured",
+          "sample_kind": "cold",
+          "log": "cold-000.log",
+          "source": "/home/victor/IntelligenceRegulation/results/am_r3_8b_p1_scan_cpu.log"
+        }
+      ]
+    },
+    {
+      "schema": 1,
+      "privacy": "P3",
+      "coverage": "ffn-only",
+      "device": "cpu",
+      "timing_scope": "proof_ready_s measures exported input loading/witness computation through serialized proof readiness, before in-memory verification. Tokens are prefill rows, not autoregressively generated tokens. Process wall includes startup, verification and teardown and is reported separately.",
+      "warm_definition": "subsequent fresh processes; weight cache reused for P0/P1, fresh commitments for P3; OS page cache not flushed",
+      "warm_count": 0,
+      "cold_count": 1,
+      "percentile_method": "nearest-rank ceil(p*N)",
+      "warm_metrics": {
+        "witness_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        },
+        "prove_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        },
+        "serialize_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        },
+        "proof_ready_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verify_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        },
+        "proof_bytes": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        },
+        "process_wall_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        },
+        "legacy_pass_wall_s": {
+          "count": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "measurement_eligible": false,
+      "ineligible_reasons": [
+        "at least 20 warm runs required",
+        "one or more samples failed validation; inspect sample errors"
+      ],
+      "measured_scope_reaches_60_rows_s_at_p95": false,
+      "goal_met": false,
+      "goal_limitation": "Current coverage omits complete private LLM generation; 60 prefill rows/s is not 60 generated tokens/s.",
+      "samples": [
+        {
+          "privacy": "P3",
+          "coverage": "ffn-only",
+          "device": "cpu",
+          "errors": [
+            "one HASHLINE_TIMING record required for measured proof readiness"
+          ],
+          "timing": null,
+          "process_wall_s": 647.66,
+          "exit_code": 0,
+          "layers": 32,
+          "tokens": 512,
+          "d": 4096,
+          "f": 14336,
+          "witness_s": 134.25,
+          "prove_s": 499.04,
+          "verify_s": 1.99,
+          "proof_bytes": 1287678592,
+          "legacy_pass_wall_s": 647.58,
+          "prefill_rows_per_prove_second": 1.0259698621352997,
+          "parameters": [
+            "14",
+            "4",
+            "256",
+            "8"
+          ],
+          "gpu_label": "gpu: off (HL_GPU unset; built with gpu-cuda)",
+          "proof_sha256": "1fee4813b5f426bd7c37cbe551e3f9e95e59cf82b5e102800202d06f01b3006f",
+          "measurement_eligible": false,
+          "goal_met": false,
+          "verification_scope": "in-memory verifier; standalone proof decoding/verification not measured",
+          "sample_kind": "cold",
+          "log": "cold-000.log",
+          "source": "/home/victor/IntelligenceRegulation/results/am_r3_8b_p3_cpu.log"
+        }
+      ]
+    }
+  ]
+}

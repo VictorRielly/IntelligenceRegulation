@@ -84,10 +84,12 @@
 //!     32 fresh random bytes per column (the device hash kernel is
 //!     unchanged; the salting is one extra host hash per leaf).
 //!
-//! Randomness: every pad, mask, salt and mask polynomial is derived from
-//! `--seed` through a blake3 stream (`ZkRng`), so the CPU and GPU provers
-//! produce byte-identical `--zk` proofs under the same seed (the parity
-//! gate of rung 4). A deployment draws the seed from OS entropy.
+//! Randomness: each prover invocation draws 32 secret bytes from the OS
+//! for its blake3 stream. Reusing or cloning a default `ZkConfig` does
+//! not reuse pads, masks or salts. Explicit `--seed N` selects the old
+//! deterministic stream ONLY for test fixtures and CPU/GPU byte gates;
+//! it provides no privacy. No production seed is stored in the config
+//! or printed. Entropy failure aborts proving; there is no fallback.
 //!
 //! What remains in the clear under P1 (stated, not hidden): the weights
 //! and everything of the W commitment (public by the mode); the shapes,
@@ -310,11 +312,12 @@ impl ZkStatementMode {
     }
 }
 
-/// The ZK configuration of a pass (rung 0: the flag and the seed).
+/// The ZK configuration. `None` draws fresh OS entropy for EACH proof.
+/// `Some(seed)` is a public deterministic test fixture, not a privacy mode.
 #[derive(Clone, Debug, Default)]
 pub struct ZkConfig {
     pub enabled: bool,
-    pub seed: u64,
+    pub seed: Option<u64>,
     /// [UPERF3-AM] the statement header (privacy mode, output claim, model id).
     pub mode: ZkStatementMode,
 }
@@ -322,6 +325,18 @@ pub struct ZkConfig {
 impl ZkConfig {
     pub fn p3(&self) -> bool {
         self.mode.privacy == ZkPrivacy::P3
+    }
+
+    pub fn randomness_label(&self) -> &'static str {
+        if self.seed.is_some() { "deterministic-test" } else { "os" }
+    }
+
+    fn rng(&self, domain: &[u8]) -> ZkRng {
+        match self.seed {
+            Some(seed) => ZkRng::new(seed, domain),
+            None => ZkRng::from_os(domain)
+                .unwrap_or_else(|e| panic!("cannot obtain secret proof randomness: {e}")),
+        }
     }
 }
 
@@ -338,12 +353,38 @@ pub struct ZkRng {
 const RNG_BLOCK: usize = 8192;
 
 impl ZkRng {
+    /// Legacy deterministic stream for public test fixtures ONLY.
     pub fn new(seed: u64, domain: &[u8]) -> ZkRng {
         let mut h = blake3::Hasher::new();
         h.update(b"hashline-zk-rng/");
         h.update(domain);
         h.update(&seed.to_le_bytes());
         ZkRng { key: *h.finalize().as_bytes(), counter: 0, buf: vec![0u8; RNG_BLOCK], pos: RNG_BLOCK }
+    }
+
+    /// OS entropy on the supported Linux/WSL and macOS hosts. Unsupported
+    /// hosts fail closed, rather than falling back to a clock or public seed.
+    pub fn from_os(domain: &[u8]) -> std::io::Result<ZkRng> {
+        #[cfg(unix)]
+        {
+            let mut source = std::fs::File::open("/dev/urandom")?;
+            Self::from_entropy_reader(domain, &mut source)
+        }
+        #[cfg(not(unix))]
+        {
+            let _ = domain;
+            Err(std::io::Error::new(std::io::ErrorKind::Unsupported,
+                "OS randomness backend is implemented for Linux/WSL and macOS only"))
+        }
+    }
+
+    fn from_entropy_reader(domain: &[u8], source: &mut impl std::io::Read) -> std::io::Result<ZkRng> {
+        let mut entropy = [0u8; 32];
+        source.read_exact(&mut entropy)?;
+        let mut h = blake3::Hasher::new_keyed(&entropy);
+        h.update(b"hashline-zk-os-rng/v1/");
+        h.update(domain);
+        Ok(ZkRng { key: *h.finalize().as_bytes(), counter: 0, buf: vec![0u8; RNG_BLOCK], pos: RNG_BLOCK })
     }
 
     fn refill(&mut self) {
@@ -1005,7 +1046,7 @@ fn eval_many_dev(cmz: &pcs::CommittedZk, slices: &[(usize, usize)], point: &[Fp2
 }
 
 /// Run one masked sumcheck body (CPU) under the masker: returns (masked rounds, challenges, finals).
-fn masked_prove<F>(tables: &mut Vec<Vec<Fp2>>, degree: usize, poly: F, mask: &CfsMask, c: Fp2, tr: &mut Transcript) -> (Vec<Vec<Fp2>>, Vec<Fp2>, Vec<Fp2>)
+pub(crate) fn masked_prove<F>(tables: &mut Vec<Vec<Fp2>>, degree: usize, poly: F, mask: &CfsMask, c: Fp2, tr: &mut Transcript) -> (Vec<Vec<Fp2>>, Vec<Fp2>, Vec<Fp2>)
 where
     F: Fn(&[Fp2]) -> Fp2 + Sync,
 {
@@ -1016,7 +1057,7 @@ where
 }
 
 /// The extension round on the host: absorbs s_k + c g_k, draws rho_k; returns (rho_k, the masked terminals of the private tables).
-fn extension<F>(finals: &[Fp2], exts: &[Fp2], degree: usize, poly: F, mask: &CfsMask, c: Fp2, prev: &[Fp2], rounds: &mut Vec<Vec<Fp2>>, tr: &mut Transcript) -> Fp2
+pub(crate) fn extension<F>(finals: &[Fp2], exts: &[Fp2], degree: usize, poly: F, mask: &CfsMask, c: Fp2, prev: &[Fp2], rounds: &mut Vec<Vec<Fp2>>, tr: &mut Transcript) -> Fp2
 where
     F: Fn(&[Fp2]) -> Fp2,
 {
@@ -1160,11 +1201,13 @@ fn tail_of(p: &[Fp2], log_n: usize) -> Vec<Fp2> {
 }
 
 fn layer_rng(cfg: &ZkConfig, l: usize) -> ZkRng {
-    ZkRng::new(cfg.seed, format!("layer-{l}").as_bytes())
+    cfg.rng(format!("layer-{l}").as_bytes())
 }
 
 /// Prove one layer in ZK mode (P1) over the first `t_rows` rows of the witness.
 pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &NttTables, cfg: &ZkConfig, tr: &mut Transcript) -> ProveOutputZk {
+    assert!(cfg.mode.legacy() && cfg.mode.pred.is_none(),
+        "v2 ZK supports only legacy P1; use v3 for private weights, predicates or model declarations");
     use std::time::Instant;
     let mut timings = Vec::new();
     let mut tick = Instant::now();
@@ -1855,6 +1898,41 @@ mod tests {
     use super::*;
 
     #[test]
+    fn entropy_errors_do_not_produce_a_generator() {
+        let mut short = std::io::Cursor::new([0u8; 31]);
+        assert!(matches!(ZkRng::from_entropy_reader(b"test", &mut short),
+            Err(e) if e.kind() == std::io::ErrorKind::UnexpectedEof));
+        struct Failed;
+        impl std::io::Read for Failed {
+            fn read(&mut self, _: &mut [u8]) -> std::io::Result<usize> {
+                Err(std::io::Error::new(std::io::ErrorKind::PermissionDenied, "injected entropy failure"))
+            }
+        }
+        assert!(matches!(ZkRng::from_entropy_reader(b"test", &mut Failed),
+            Err(e) if e.kind() == std::io::ErrorKind::PermissionDenied));
+    }
+
+    #[test]
+    fn explicit_zero_seed_keeps_legacy_stream_across_refills() {
+        let cfg = ZkConfig { seed: Some(0), ..Default::default() };
+        let mut legacy = ZkRng::new(0, b"layer-v3-0");
+        let mut fixture = cfg.rng(b"layer-v3-0");
+        for _ in 0..(RNG_BLOCK / 8 + 16) { assert_eq!(legacy.next_u64(), fixture.next_u64()); }
+        assert_eq!(cfg.randomness_label(), "deterministic-test");
+    }
+
+    #[test]
+    #[cfg(unix)]
+    fn cloned_default_configs_never_reuse_a_mask_stream() {
+        let cfg = ZkConfig::default();
+        assert_eq!(cfg.seed, None);
+        assert_eq!(cfg.randomness_label(), "os");
+        let mut a = cfg.rng(b"layer-v3-0");
+        let mut b = cfg.clone().rng(b"layer-v3-0");
+        assert_ne!(a.bytes32(), b.bytes32());
+    }
+
+    #[test]
     fn rng_is_deterministic_and_domain_separated() {
         let mut a = ZkRng::new(7, b"x");
         let mut b = ZkRng::new(7, b"x");
@@ -2286,7 +2364,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     // identity, in the Fiat-Shamir domain before any challenge (see ZkStatementMode).
     let is_p3 = cfg.p3();
     tr.absorb(b"zk", &cfg.mode.header_v3());
-    let mut rng = ZkRng::new(cfg.seed, format!("layer-v3-{}", w.l).as_bytes());
+    let mut rng = cfg.rng(format!("layer-v3-{}", w.l).as_bytes());
     let mut proof = LayerProofZk::default();
     let mut sites: Vec<String> = zl.describe();
     if is_p3 { sites.insert(0, zl.describe_w_p3()); }
@@ -3701,6 +3779,29 @@ mod tests_v3 {
         StatementV3 { l: w.l, t_rows: w.t_rows, d: w.dims.d, f: w.dims.f, shifts: w.shifts, act: w.act, table: w.table, table_digest: w.table_digest.clone() }
     }
 
+    #[test]
+    #[cfg(unix)]
+    fn fresh_os_proofs_verify_for_both_privacy_modes_with_reused_config() {
+        let params = LayerParams { log_cols: 5, inv_rate: 4, num_col_checks: 12 };
+        let ntt = NttTables::new(16);
+        let w = synth(1);
+        let st = stmt(&w);
+        for privacy in [ZkPrivacy::P1, ZkPrivacy::P3] {
+            let cfg = ZkConfig { enabled: true, mode: ZkStatementMode { privacy, ..Default::default() }, ..Default::default() };
+            let mut proofs = Vec::new();
+            for _ in 0..2 {
+                let out = prove_layer_zk_v3(&w, 2, &params, &ntt, &cfg.clone(), &mut Transcript::new(b"fresh-os-test"));
+                verify_layer_zk_v3(&st, &out.proof, &params, &ntt, &mut Transcript::new(b"fresh-os-test"), &cfg.mode).unwrap();
+                proofs.push(out.proof);
+            }
+            assert_ne!(proofs[0].to_bytes(), proofs[1].to_bytes());
+            assert_ne!(proofs[0].a_com.as_ref().unwrap().root, proofs[1].a_com.as_ref().unwrap().root);
+            if privacy == ZkPrivacy::P3 {
+                assert_ne!(proofs[0].w_com.as_ref().unwrap().root, proofs[1].w_com.as_ref().unwrap().root);
+            }
+        }
+    }
+
     fn chi2_top_byte(vals: &[u64]) -> f64 {
         let mut bins = [0f64; 256];
         for v in vals { bins[(v >> 56) as usize] += 1.0; }
@@ -3727,8 +3828,8 @@ mod tests_v3 {
         let ntt = NttTables::new(16);
         let w = synth(1);
         let st = stmt(&w);
-        let p1 = ZkConfig { enabled: true, seed: 1, ..Default::default() };
-        let p3 = ZkConfig { enabled: true, seed: 1, mode: ZkStatementMode { privacy: ZkPrivacy::P3, ..Default::default() } };
+        let p1 = ZkConfig { enabled: true, seed: Some(1), ..Default::default() };
+        let p3 = ZkConfig { enabled: true, seed: Some(1), mode: ZkStatementMode { privacy: ZkPrivacy::P3, ..Default::default() } };
         let mut tr = Transcript::new(b"t");
         let out = prove_layer_zk_v3(&w, 2, &params, &ntt, &p3, &mut tr);
         let mut tv = Transcript::new(b"t");
@@ -3742,7 +3843,7 @@ mod tests_v3 {
         let mut all: Vec<u64> = Vec::new();
         for seed in 0..3u64 {
             for (wi, wit) in [&w, &w2].iter().enumerate() {
-                let cfg = ZkConfig { enabled: true, seed: 200 + seed + 100 * wi as u64, mode: p3.mode.clone() };
+                let cfg = ZkConfig { enabled: true, seed: Some(200 + seed + 100 * wi as u64), mode: p3.mode.clone() };
                 let mut tr = Transcript::new(b"t");
                 let o = prove_layer_zk_v3(wit, 2, &params, &ntt, &cfg, &mut tr);
                 let op = &o.proof.w_open_zk;
@@ -3822,8 +3923,8 @@ mod tests_v3 {
             ..Default::default()
         };
         let acc = f2mode(prow, pcol, score - 7); // slack 7 >= 0: ACCEPTABLE
-        let cfg2 = ZkConfig { enabled: true, seed: 1, mode: acc.clone() };
-        let p1 = ZkConfig { enabled: true, seed: 1, ..Default::default() };
+        let cfg2 = ZkConfig { enabled: true, seed: Some(1), mode: acc.clone() };
+        let p1 = ZkConfig { enabled: true, seed: Some(1), ..Default::default() };
 
         // (1) an acceptable classification proves and verifies
         let mut tr = Transcript::new(b"t");
@@ -3835,7 +3936,7 @@ mod tests_v3 {
 
         // (2) an UNACCEPTABLE classification cannot be given a passing proof
         let rej = f2mode(prow, pcol, score + 1); // slack -1
-        let cfgr = ZkConfig { enabled: true, seed: 1, mode: rej.clone() };
+        let cfgr = ZkConfig { enabled: true, seed: Some(1), mode: rej.clone() };
         let mut tr = Transcript::new(b"t");
         let outr = prove_layer_zk_v3(&w, 2, &params, &ntt, &cfgr, &mut tr);
         let mut tv = Transcript::new(b"t");
@@ -3900,7 +4001,7 @@ mod tests_v3 {
         let leaks = [score, acc.pred.as_ref().unwrap().tau, 7i64];
         let mut terms: Vec<[u64; 4]> = Vec::new();
         for seed in 1..5u64 {
-            let cfg = ZkConfig { enabled: true, seed, mode: acc.clone() };
+            let cfg = ZkConfig { enabled: true, seed: Some(seed), mode: acc.clone() };
             let mut tr = Transcript::new(b"t");
             let o = prove_layer_zk_v3(&w, 2, &params, &ntt, &cfg, &mut tr);
             let t = o.proof.pred.as_ref().unwrap().term.clone();
@@ -3941,7 +4042,7 @@ mod tests_v3 {
         let ntt = NttTables::new(16);
         let w = synth(1);
         let st = stmt(&w);
-        let cfg = ZkConfig { enabled: true, seed: 1, ..Default::default() };
+        let cfg = ZkConfig { enabled: true, seed: Some(1), ..Default::default() };
         let mut tr = Transcript::new(b"t");
         let out = prove_layer_zk_v3(&w, 2, &params, &ntt, &cfg, &mut tr);
         let mut tv = Transcript::new(b"t");
@@ -3953,7 +4054,7 @@ mod tests_v3 {
         assert!(a_groups >= 5 && h_groups >= 4, "sites: A {a_groups} H {h_groups}");
         // a second seed proves the same statement with different bytes
         let mut tr = Transcript::new(b"t");
-        let out_b = prove_layer_zk_v3(&w, 2, &params, &ntt, &ZkConfig { enabled: true, seed: 2, ..Default::default() }, &mut tr);
+        let out_b = prove_layer_zk_v3(&w, 2, &params, &ntt, &ZkConfig { enabled: true, seed: Some(2), ..Default::default() }, &mut tr);
         assert_ne!(out.proof.to_bytes(), out_b.proof.to_bytes());
         let mut tv = Transcript::new(b"t");
         verify_layer_zk_v3(&st, &out_b.proof, &params, &ntt, &mut tv, &cfg.mode).unwrap();
@@ -3978,7 +4079,7 @@ mod tests_v3 {
                 let mut tr = Transcript::new(b"t");
                 // disjoint seeds per witness: under ONE seed the mask rows, pads and salts are the same for both
                 // witnesses and every row equal between them (masks, zero rows) would open to equal values
-                let o = prove_layer_zk_v3(wit, 2, &params, &ntt, &ZkConfig { enabled: true, seed: 100 + seed + 100 * wi as u64, ..Default::default() }, &mut tr);
+                let o = prove_layer_zk_v3(wit, 2, &params, &ntt, &ZkConfig { enabled: true, seed: Some(100 + seed + 100 * wi as u64), ..Default::default() }, &mut tr);
                 let cols = if wi == 0 { &mut cols_a } else { &mut cols_b };
                 for op in [&o.proof.a_open, &o.proof.h_open] {
                     let mut seen = std::collections::HashSet::new();

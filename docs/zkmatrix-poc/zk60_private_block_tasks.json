@@ -1,0 +1,439 @@
+{
+  "schema_version": 1,
+  "created_local_date": "2026-09-04",
+  "lane": "A1",
+  "status": "round-2 partial implementation; no complete private block or generation proof",
+  "baseline": "19ebd18 plus C0 randomness/CLI patch",
+  "owner": "Codex private-block worker; not Fable or Claude",
+  "hardware_policy": "CPU-first; no large GPU runs while 5090 is unavailable; Claude gpu/pcs lane reserved",
+  "first_complete_milestone": "A07: one tiny fixed-calibration P1 transformer block",
+  "first_implementation_rung": "A02: private equality seam after contract/inventory gates",
+  "report": "ZK60_PRIVATE_BLOCK.md",
+  "global_acceptance": [
+    "Preserve existing P0/P1/P3 explicit-seed frozen artifact bytes on unchanged legacy profiles.",
+    "No unsupported CLI privacy enablement, model-identity assertion or whole-proof ZK theorem inferred from diagnostics.",
+    "Actual complete generation requires A10; P3 requires A09 and approved-model consistency.",
+    "Resource-heavy validation belongs to lead and shared /tmp/zk-heavy.lock; >5 minute jobs detach with exit markers.",
+    "Before sensitive application use, resolve per-group extension/base-field mask-rank and joint-opening audit; singleton interface diagnostic is not a whole-FFN impact assessment."
+  ],
+  "tasks": [
+    {
+      "id": "A00",
+      "title": "Freeze the P1 block statement and exact integer oracle",
+      "depends_on": [],
+      "risk": "high",
+      "files": [
+        "hashline/src/attention.rs",
+        "hashline/src/norm.rs",
+        "hashline/src/attention_zk.rs (new)",
+        "hashline/tests/zk60_private_block.rs (new)"
+      ],
+      "functions": [
+        "attention::AttnConsts",
+        "attention::FullConsts",
+        "attention::PadShape::new",
+        "attention::fit_norm",
+        "attention::fit_requant",
+        "attention::residual2",
+        "norm::rmsnorm_chain",
+        "attention::Extra::NormDiv",
+        "bin/hashline::derive_ffn_on"
+      ],
+      "changes": [
+        "Define a new approved fixed-round P1 statement with independently supplied shape, scales/classes, table policy, proof parameters and W/gamma roots.",
+        "Add checked shape/range/allocation preconditions and no-field-wrap bounds; require norm_round=true until floor is separately implemented.",
+        "Build deterministic exact-integer fixture T=4,d=16,H=2,Hkv=1,dh=8,f=16 without export downloads; fixed calibration rejects overflow rather than fitting shifts."
+      ],
+      "positive_tests": [
+        "Every integer witness plane equals a scalar oracle; T=1,2,4 fixtures fit their fixed classes.",
+        "Supported GQA/padded query-head cases and class endpoints pass stated preconditions."
+      ],
+      "negative_tests": [
+        "Reject adaptive shift/table/width changes against approved statement, floor mode, unsupported shape, zero dimensions and invalid GQA divisibility.",
+        "Reject or explicitly constrain modular-alias candidates for D/Dsq/SS, norm division, scaled residuals, oversized limb counts and shifts.",
+        "Reject same integer seam words with mismatched exponents/classes."
+      ],
+      "acceptance": "Documented integer bounds and fixed statement are shared by prover/verifier; no GPU required.",
+      "estimate_kind": "scope only; no delivery-time or throughput forecast",
+      "implementation_status": "partial: approved tiny fixed-T32 contract and fixed-calibration full block witness oracle integrated; no proof-level integer-vs-field soundness certificate",
+      "implementation_files": [
+        "hashline/src/private_block_contract.rs",
+        "hashline/tests/zk60_block_contract.rs",
+        "docs/zkmatrix-poc/ZK60_BLOCK_CONTRACT.md",
+        "hashline/src/causal_oracle.rs",
+        "hashline/tests/zk60_sequence_equivalence.rs",
+        "docs/zkmatrix-poc/ZK60_CAUSAL_ORACLE.md"
+      ],
+      "scope_adjustment": "T=32, d=f=16, H=2,Hkv=1,dh=8 supports the current 256-check PCS column width; original T1/2/4 intent is not claimed. Host arithmetic envelope is conditional, not a proof-level no-wrap/range certificate."
+    },
+    {
+      "id": "A01",
+      "title": "Freeze relation and private-opening inventory",
+      "depends_on": [],
+      "risk": "medium",
+      "files": [
+        "hashline/src/attention_zk.rs (new)",
+        "hashline/tests/zk60_private_block.rs (new)"
+      ],
+      "functions": [
+        "attention::attn_argument",
+        "attention::Cc",
+        "attention::TabDesc",
+        "attention::Ctx::sc",
+        "attention::AttnProof",
+        "attention::collapse_range",
+        "attention::AttnTamper"
+      ],
+      "changes": [
+        "Enumerate current 13 argument sections plus direct linear facts, both seam types and optional claim collapse in a versioned schedule.",
+        "Specify MaskedClaimSite roles for all private ordinary/flipped/subslice/limb points and helper sums.",
+        "Add malicious-prover fixture helpers that reach verification after witness mutation; retain P0 as read-only oracle."
+      ],
+      "positive_tests": [
+        "Inventory enumerates every Cc A/H claim and all private SC initial/terminal messages.",
+        "Shape-derived public table totals agree with lookup_totals at tiny and padded shapes."
+      ],
+      "negative_tests": [
+        "Missing/extra/reordered claim, SC, table, mask site or opening is rejected by schedule checks.",
+        "Test fixtures can distinguish prover-assertion failure from verifier rejection."
+      ],
+      "acceptance": "A complete machine-checkable schedule/exposure inventory exists before masking source changes.",
+      "implementation_status": "open: source-based relation inventory documented; machine-checkable complete exposure schedule still required"
+    },
+    {
+      "id": "A02",
+      "title": "Implement a standalone private equality seam",
+      "depends_on": [
+        "A00",
+        "A01"
+      ],
+      "risk": "high",
+      "files": [
+        "hashline/src/attention_zk.rs (new)",
+        "hashline/src/zk.rs",
+        "hashline/tests/zk60_private_seam.rs (new)"
+      ],
+      "functions": [
+        "zk::CfsMask",
+        "zk::MaskFunctional",
+        "zk::mask_commit",
+        "zk::mask_open",
+        "zk::mask_verify",
+        "zk::masked_prove",
+        "zk::extension",
+        "pcs::ZClaim",
+        "pcs::ZPart",
+        "pcs::commit_zk_owned",
+        "pcs::open_zk",
+        "pcs::verify_zk"
+      ],
+      "changes": [
+        "Extract only necessary crate-internal masked-sumcheck helpers while preserving legacy behavior.",
+        "Reserve independent A/B terminal mask rows before committing and bind both roots before equality challenge.",
+        "Prove an equality-weighted A-B zero relation with masked rounds, valid vanishing extension branch and authenticated mask functionals; return typed ZClaims, never raw equality MLEs."
+      ],
+      "positive_tests": [
+        "Equal committed planes verify with independent masks and repeated fresh default configurations.",
+        "Equality remains valid for subplanes/limb reconstruction after explicit layout mapping; every extension branch has polynomial value zero."
+      ],
+      "negative_tests": [
+        "Change one side, commitment root, mask coefficient, correction functional or point mapping and verifier rejects.",
+        "Missing/reused unauthorized mask site and finalize-before-commit state reject.",
+        "Privacy diagnostics find no raw A/B evaluation fields; diagnostics are not presented as a formal ZK proof."
+      ],
+      "acceptance": "CPU-only standalone equality proof passes positive/adversarial tests; it is explicitly not a block proof.",
+      "implementation_status": "experimental subset integrated: independent full-plane equality with paired masks and bounded wire decoder; not connected to FFN or attention commitments",
+      "implementation_files": [
+        "hashline/src/private_seam.rs",
+        "hashline/tests/zk60_private_seam.rs",
+        "hashline/examples/zk60_seam_receipt.rs",
+        "docs/zkmatrix-poc/ZK60_PRIVATE_SEAM.md"
+      ],
+      "remaining_acceptance": [
+        "General subplane/limb-layout equality mappings are not implemented.",
+        "Complete joint-transcript/simulation and mask-rank review is not supplied.",
+        "A03 must connect actual arithmetic commitments; copied planes alone do not establish block linkage."
+      ]
+    },
+    {
+      "id": "A03",
+      "title": "Add an opt-in pending FFN ZK lifecycle",
+      "depends_on": [
+        "A02"
+      ],
+      "risk": "high",
+      "files": [
+        "hashline/src/zk.rs",
+        "hashline/tests/zk60_private_seam.rs (new)"
+      ],
+      "functions": [
+        "zk::ZkLayoutV3",
+        "zk::mask_specs_v3",
+        "zk::prove_layer_zk_v3",
+        "zk::verify_layer_zk_v3",
+        "zk::build_claims_zk_v3"
+      ],
+      "changes": [
+        "Introduce a new block-profile lifecycle that reserves FFN X/Z seam mask sites and delays A opening until boundary claims are complete.",
+        "Keep the legacy standalone FFN wrapper and seeded transcript/layout unchanged.",
+        "Make pending completion explicit; retain only required commitments and forbid adding unplanned late masks."
+      ],
+      "positive_tests": [
+        "Old standalone P1/P3 proofs and all frozen fixture bytes remain identical with explicit test seeds.",
+        "New profile can register both X/Z private boundary equalities before A finalize."
+      ],
+      "negative_tests": [
+        "Missing seam, wrong boundary slice, late mask insertion, double finalize and proof replay across profiles reject.",
+        "Old P0 zcd_term and masked ZK zc17_term cannot be substituted through the typed boundary API."
+      ],
+      "acceptance": "Integrator-owned shared-file refactor lands only after API review; no edits to Claude's gpu/pcs lane."
+    },
+    {
+      "id": "A04",
+      "title": "Privatize attention lookup commitments and table side",
+      "depends_on": [
+        "A00",
+        "A01",
+        "A02"
+      ],
+      "risk": "high",
+      "files": [
+        "hashline/src/attention_zk.rs (new)",
+        "hashline/tests/zk60_private_block.rs (new)"
+      ],
+      "functions": [
+        "attention::AttnLayout",
+        "attention::Tbl",
+        "attention::ClsPlane",
+        "attention::d_lookups",
+        "attention::q_lookups",
+        "attention::kv_lookups",
+        "attention::lookup_totals",
+        "attention::build_helpers",
+        "zk::ZkLayoutV3"
+      ],
+      "changes": [
+        "Allocate hiding A/H and planned masks, commit multiplicities before lookup challenges, and add private table-side helpers.",
+        "Replace individual helper sums/histograms by a constrained masked zero-sum identity, adapting the existing FFN pattern to variable table/domain sizes.",
+        "Use fixed explicit no-collapse policy; never invoke P0 collapse_a on private claims."
+      ],
+      "positive_tests": [
+        "Every attention table tag/size/total and INT24 U16+U8 reconstruction agrees with P0 oracle.",
+        "Fresh default proof calls differ in commitments and preserve all lookup facts."
+      ],
+      "negative_tests": [
+        "Out-of-table value, bad multiplicity, wrong tag/digest, invalid top limb and helper tampering reject at verifier.",
+        "No clear histogram bins, helper sums or collapse aval appears in private proof schema."
+      ],
+      "acceptance": "Private lookup module passes isolated CPU tests; not yet full attention or block coverage."
+    },
+    {
+      "id": "A05",
+      "title": "Privatize norms, residuals and projection/RoPE relations",
+      "depends_on": [
+        "A04"
+      ],
+      "risk": "high",
+      "files": [
+        "hashline/src/attention_zk.rs (new)",
+        "hashline/tests/zk60_private_block.rs (new)"
+      ],
+      "functions": [
+        "attention::attn_argument sections 1-5,8,9,12",
+        "attention::Extra::NormDiv",
+        "attention::Extra::Rope",
+        "attention::ZcPlan",
+        "attention::rope_mle",
+        "attention::sub_point"
+      ],
+      "changes": [
+        "Mask norm statistics/SS claimed sums, square/D/Q/KV zero-checks and QKV/O projection sums and terminals.",
+        "Turn direct residual, isqrt reconstruction and sigma linear comparisons into authenticated masked relation checks.",
+        "Reserve distinct point-role mask sites for RoPE coordinate flips, row/column broadcasts and class limbs; keep P1 weights public and approved."
+      ],
+      "positive_tests": [
+        "Round norm, two residual relations, QKV/RoPE/O witness planes match exact oracle for all tiny fixtures.",
+        "Per-polynomial degree and vanishing mask-branch tests pass."
+      ],
+      "negative_tests": [
+        "Wrong norm quotient, D, isqrt limbs, gamma root, residual remainder, QKV entry and rotated coordinate reject.",
+        "One mask row incorrectly reused across independent opening points is detected by site audit."
+      ],
+      "acceptance": "All listed linear-in-T argument families have CPU correctness gates and per-family diagnostics; P0 compatibility preserved."
+    },
+    {
+      "id": "A06",
+      "title": "Privatize score, exact softmax and PV relations",
+      "depends_on": [
+        "A05"
+      ],
+      "risk": "high",
+      "files": [
+        "hashline/src/attention_zk.rs (new)",
+        "hashline/tests/zk60_private_block.rs (new)"
+      ],
+      "functions": [
+        "attention::attn_argument sections 6,7,10,11",
+        "attention::SPlan::eval",
+        "attention::mask_mle",
+        "attention::PadShape::hpad",
+        "attention::PadShape::hnat"
+      ],
+      "changes": [
+        "Mask score/PV products, softmax S-domain degree-5 zero-check and row sums without altering integer exp or causal policy.",
+        "Handle both-private-factor products even in P1 using a verified vanishing selector extension.",
+        "Record quadratic padded-head/T-squared table and proof costs separately from linear projection work."
+      ],
+      "positive_tests": [
+        "T=1,2,4, tied maxima, all-masked-score boundary values and padded GQA cases verify against exact oracle.",
+        "All Boolean and terminal polynomial identities pass under proposed extension degrees."
+      ],
+      "negative_tests": [
+        "Wrong score, exp E, quotient P, rho/sigma, max/selector, off-causal entry and GQA mapping reject.",
+        "Replay under different RoPE/causal/table policy or malformed S remainder width rejects."
+      ],
+      "acceptance": "One private attention half has complete mapped arithmetic coverage; no FFN/block claim until A07."
+    },
+    {
+      "id": "A07",
+      "title": "Compose the first complete P1 transformer block",
+      "depends_on": [
+        "A03",
+        "A06"
+      ],
+      "external_dependencies": [
+        "I1 approved P1 model boundary reviewed and extended to attention/gamma roots",
+        "Independent review of masking and composition obligations"
+      ],
+      "risk": "high",
+      "files": [
+        "hashline/src/attention_zk.rs (new)",
+        "hashline/src/zk.rs",
+        "hashline/tests/zk60_private_block.rs (new)"
+      ],
+      "functions": [
+        "attention::attn_seam (reference only)",
+        "bin/hashline::seam_points (reference only)",
+        "zk::prove_layer_zk_v3",
+        "zk::verify_layer_zk_v3"
+      ],
+      "changes": [
+        "Compose private attention and pending private FFN on a new transcript/profile, including xm8=X_ffn and z16copy=z16_ffn.",
+        "Verify only against independently approved public weights, frozen constants and proof parameters.",
+        "Use a typed library API first; maintain CLI unsupported-privacy guards."
+      ],
+      "positive_tests": [
+        "One tiny P1 block verifies end-to-end, every witness plane matches reference and both seam obligations are consumed.",
+        "Fresh runs hide all private fields in the schema and retain the approved public W/gamma roots."
+      ],
+      "negative_tests": [
+        "Rebuild FFN on another X or use another z16 residual copy and verifier rejects.",
+        "Wrong approved root, mixed P0/private subproof, P3-as-P1 replay and omitted subproof reject."
+      ],
+      "acceptance": "First complete private transformer block, explicitly excluding embedding/head/token selection and P3 identity."
+    },
+    {
+      "id": "A08",
+      "title": "Compose blocks and verify framed bytes independently",
+      "depends_on": [
+        "A07"
+      ],
+      "risk": "high",
+      "files": [
+        "hashline/src/attention_zk.rs (new)",
+        "hashline/src/bin/hashline.rs",
+        "hashline/tests/zk60_private_block.rs (new)",
+        "hashline/tests/cli_claims.rs"
+      ],
+      "functions": [
+        "attention::layer_seam (reference only)",
+        "attention::cls_claim (reference only)",
+        "bin/hashline::attn_pass_run",
+        "bin/hashline::validate_command_claims"
+      ],
+      "changes": [
+        "Add private inter-layer residual equality after both roots and bound layer order/scales; hold only previous/current pending A.",
+        "Introduce versioned bounded framed encoding/decoding that includes or authenticates approved statement context and uses an independent verifier invocation.",
+        "Enable only the specific proven P1 profile after complete gates; label coverage transformer-blocks and preserve rejection of P3/unsupported outputs."
+      ],
+      "positive_tests": [
+        "Two connected tiny blocks verify from serialized bytes in a separate process; then 125M one/two-layer CPU rung before longer chain.",
+        "Timing reports witness/prove/serialization/decoding/verification separately; no full-generation goal flag."
+      ],
+      "negative_tests": [
+        "Rebuild second block on modified input, swap/duplicate/drop layers, change exponents, append/truncate bytes, overflow lengths and mismatch declared layer count; verifier rejects.",
+        "Malformed input never causes an unbounded allocation or silent P0 fallback."
+      ],
+      "acceptance": "Private block chain and independent artifact verification are implemented; larger runs use shared heavy lock."
+    },
+    {
+      "id": "A09",
+      "title": "Extend full blocks to P3 with approved private-model consistency",
+      "depends_on": [
+        "A08"
+      ],
+      "external_dependencies": [
+        "Fable-reviewed stable hiding commitment/per-proof weight consistency construction",
+        "Reviewed repeated-proof privacy and concrete security accounting"
+      ],
+      "risk": "very high",
+      "files": [
+        "hashline/src/attention_zk.rs (new)",
+        "hashline/src/zk.rs",
+        "hashline/src/model_identity.rs",
+        "hashline/tests/zk60_private_block.rs (new)"
+      ],
+      "functions": [
+        "zk::ZkStatementMode",
+        "zk::mask_specs_v3",
+        "attention::AttnLayout weight/gamma layout"
+      ],
+      "changes": [
+        "Hidingly commit attention projection/gamma weights and mask all their terminals under a reviewed profile.",
+        "Bind every per-proof private FFN/attention/gamma commitment to the independently approved stable model commitment.",
+        "Prove or justify all extra extension rounds; account for preprocessing, retained memory and repeated private openings."
+      ],
+      "positive_tests": [
+        "Fresh repeated P3 full-block proofs verify against the same approved model with new hiding commitments."
+      ],
+      "negative_tests": [
+        "Different weights under same model label, inconsistent layer roots, substituted gamma/quantization and replayed old consistency proofs reject."
+      ],
+      "acceptance": "No P3 product claim without actual approved-model consistency; model-id header alone never suffices."
+    },
+    {
+      "id": "A10",
+      "title": "Complete the token-generation and stateful-window statement",
+      "depends_on": [
+        "A08"
+      ],
+      "external_dependencies": [
+        "Explicit product decision: delayed window/sequence proofs versus proof before token release",
+        "Approved complete integer model including embeddings/head and token-selection semantics"
+      ],
+      "risk": "very high",
+      "files": [
+        "hashline/src/generation.rs (proposed new)",
+        "hashline/src/attention_zk.rs (new)",
+        "hashline/tests/zk60_generation.rs (proposed new)"
+      ],
+      "functions": [
+        "attention::build_attn_witness_full (prefill reference)",
+        "attention::SeamIn (not a KV-state proof)"
+      ],
+      "changes": [
+        "Prove token-ID embedding gather, final RMSNorm, vocabulary projection/quantization and actual emitted-token decision with fixed tie/sampling policy.",
+        "Bind request, absolute RoPE positions, prior context and output disclosures.",
+        "Prove KV-cache read/update and window state commitment transitions, causal/sliding-window semantics and output/input continuity across windows."
+      ],
+      "positive_tests": [
+        "Tiny autoregressive reference emits identical tokens; consecutive windows verify with bound state and stated proof lag."
+      ],
+      "negative_tests": [
+        "Wrong embedding row, head weight, token argmax/tie/randomness, stale KV, wrong position, reordered window and altered context reject."
+      ],
+      "acceptance": "Only this complete relation can support a generated-token throughput claim; 512 prefill rows remain a separately labeled milestone."
+    }
+  ],
+  "round2_report": "ZK60_PARALLEL_ROUND2.md"
+}

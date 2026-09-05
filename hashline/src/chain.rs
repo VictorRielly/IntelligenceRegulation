@@ -44,7 +44,7 @@ pub struct LayerWitness {
 /// c[i][j] = sum_k a[i][k] * b_t[k][j]; a rows x inner (i8), b_t inner x cols (i8).
 /// Exact in i32 for inner <= 2^15 with int8 inputs.
 pub fn matmul_i8_i32(a: &[i8], b_t: &[i8], rows: usize, inner: usize, cols: usize) -> Vec<i32> {
-    let mut c = vec![0i32; rows * cols];
+    let mut c = crate::phase_profile::measure("allocation.matmul_output", || vec![0i32; rows * cols]);
     c.par_chunks_mut(cols).enumerate().for_each(|(i, crow)| {
         for k in 0..inner {
             let av = a[i * inner + k] as i32;
@@ -151,5 +151,56 @@ mod tests {
         let b: Vec<i8> = vec![7, 8, 9, 10, 11, 12]; // 3 x 2
         let c = matmul_i8_i32(&a, &b, 2, 3, 2);
         assert_eq!(c, vec![58, 64, 139, 154]);
+    }
+
+    #[test]
+    fn witness_i8_matmul_scalar_oracle_signed_extremes_and_tails() {
+        // Independent row/column/k order and a wider sum, rather than the
+        // production row/k/column update loop. These dimensions cannot overflow.
+        for &(rows, inner, cols) in &[(0, 3, 5), (1, 0, 7), (1, 1, 1), (3, 7, 5),
+                                     (4, 9, 127), (5, 13, 128), (7, 17, 129),
+                                     (9, 33, 259), (1, 32768, 2)] {
+            let values = [i8::MIN, -127, -1, 0, 1, i8::MAX];
+            let a: Vec<i8> = (0..rows * inner).map(|i| values[(i * 5 + 1) % values.len()]).collect();
+            let b: Vec<i8> = (0..inner * cols).map(|i| values[(i * 7 + 2) % values.len()]).collect();
+            let mut expected = vec![0i32; rows * cols];
+            for r in 0..rows {
+                for j in 0..cols {
+                    let mut sum = 0i64;
+                    for k in 0..inner { sum += i64::from(a[r * inner + k]) * i64::from(b[k * cols + j]); }
+                    expected[r * cols + j] = i32::try_from(sum).unwrap();
+                }
+            }
+            assert_eq!(matmul_i8_i32(&a, &b, rows, inner, cols), expected, "shape {rows}/{inner}/{cols}");
+            assert_eq!(matmul_i8_i32(&vec![0; a.len()], &b, rows, inner, cols), vec![0; rows * cols]);
+            assert_eq!(matmul_i8_i32(&a, &vec![0; b.len()], rows, inner, cols), vec![0; rows * cols]);
+        }
+    }
+
+    #[test]
+    fn witness_i8_matmul_preserves_prefix_overflow_behavior() {
+        // Outside the documented <=2^15 inner bound, preserve ordinary Rust
+        // overflow behavior too. The second case overflows a prefix but has a
+        // representable final exact sum: wider accumulation would erase a panic.
+        let checked = std::panic::catch_unwind(|| std::hint::black_box(i32::MAX) + 1).is_err();
+        let inner = 131073;
+        let a = vec![i8::MIN; 4 * inner];
+        for last in [i8::MIN, i8::MAX] {
+            let mut b = vec![i8::MIN; inner];
+            b[inner - 1] = last;
+            let result = std::panic::catch_unwind(|| matmul_i8_i32(&a, &b, 4, inner, 1));
+            if checked {
+                assert!(result.is_err(), "checked accumulation must reject the overflowing prefix");
+            } else {
+                let sum = 131072i64 * 16384 + i64::from(i8::MIN) * i64::from(last);
+                assert_eq!(result.unwrap(), vec![sum as i32; 4]);
+            }
+        }
+    }
+
+    #[test]
+    #[should_panic]
+    fn witness_i8_matmul_zero_columns_still_rejects() {
+        matmul_i8_i32(&[], &[], 0, 0, 0);
     }
 }

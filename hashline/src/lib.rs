@@ -33,6 +33,14 @@ pub mod gpu;
 pub mod tables_v3;
 pub mod export_v3;
 pub mod zk;
+// Opt-in single-layer P1 approval boundary; does not change existing verifier calls.
+pub mod model_identity;
+// Experimental one-shot private equality gadget; not integrated into full blocks.
+pub mod private_seam;
+pub mod phase_profile;
+pub mod causal_oracle;
+// Fixed-calibration metadata preflight; not a private-block verifier.
+pub mod private_block_contract;
 // [UPERF3-AC] the per-model weight-commitment cache (`--wcache DIR`); the
 // chunked device encoding lives in gpu/.
 pub mod wcache;

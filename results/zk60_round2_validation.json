@@ -1,0 +1,1071 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-09-05 03:07:31 UTC",
+  "local_date": "2026-09-04",
+  "scope": "ZK60 bounded autonomous parallel round2, CPU-only; main working tree uncommitted",
+  "goal_met": false,
+  "complete_private_llm_proof": false,
+  "base": "19ebd18bea8fa7558874c73dc3b5132ac378666b plus preserved uncommitted C0 and round1",
+  "source_tree": "/home/victor/IntelligenceRegulation",
+  "source_files_sha256": {
+    "hashline/src/private_block_contract.rs": "cba18955d162d6e5acf1302681e0a214d5bbeab27a8231a18401244532fdcb72",
+    "hashline/src/private_seam.rs": "ae539c9cb7799d67e60d05e98377e64b701eae20e569df4f42f7f4fa0edcb435",
+    "hashline/src/causal_oracle.rs": "caaa9642690777a3bcf149b53e920554a3cdd1f6ed7357e401f0838e5683510e",
+    "hashline/src/phase_profile.rs": "9b6948473f4750c72ecc5940badda96ad4b86dcfd0b1c6889008c0996e4c44d8",
+    "hashline/src/chain.rs": "dd6a902a91edf5ba878c9ad987e6c6750c46e2b919238487f17f65621e807180",
+    "hashline/src/export_v3.rs": "e0394ab4113d150336ee91353d7ba26589d5e4dffcb3cb7d2ad0fea833842acb",
+    "hashline/src/bin/hashline.rs": "287ea759ab934c004fc014fa3caf91b2faa4c1819e0ee698c058299ecee2e2e8",
+    "hashline/src/zk.rs": "95c1c3d25805eeb6049790c8ba354b83f30d98dfa72096906ba9fce50eb4551f",
+    "hashline/src/lib.rs": "9a0227742ad77418387fde06f6974ba908910c4c19f61a536fbd765b5b616313",
+    "hashline/tests/zk60_block_contract.rs": "41ee46d3a835e8a87029a660fae02ee5cd629e0c1d7ffd4812ee30f03627195e",
+    "hashline/tests/zk60_sequence_equivalence.rs": "bba717851affd8475935a4bb60f24d305ede3b919ec32088ed2f0f7bb1ab18d6",
+    "hashline/tests/zk60_private_seam.rs": "6080ffe9ac9e451b5b26a0d6936f9f3b013b921ac93e6123bffaca6ad7ed20f1",
+    "hashline/tests/zk60_mask_rank.rs": "2913afeeb9047c6a449f462170e7e6112fd55c41ea89d0b16ee6c2305b78fa81",
+    "hashline/tests/zk60_phase_profile.rs": "bf5ff5a26cab24eadd75e6aedbe5e973fd6a1a9d942d2f139f6297a086fe71f9",
+    "hashline/examples/zk60_seam_receipt.rs": "ac1929dc9d35af2fd48c87baf151452873c6a8e5a546c16c914bab148b7d624a",
+    "scripts/hashline_profile.py": "062d3f95e45ffc838a60c7031e7573a82ded0690b3170550c617479872c7818a",
+    "tests/test_hashline_profile.py": "97296fa814a4cff9fdbc9c50d75e8e1158844a64ace7ca1d2d98d81e342696e4"
+  },
+  "artifact_sha256": {
+    "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline": "bf6b64ad26cddebae1fa53f58cab22735a1ac447614e5f560f5c8b732d18e54d",
+    "/tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_seam_receipt": "444611bf4419161b5affe01915279e1c23fa11d2473bd57e14e248d21951b61a",
+    "results/zk60_round2_seam.proof": "967f249e4ff78b4c0cf4516092ce4e3dcab3843d58e1181016a164e6b97b498f"
+  },
+  "boundaries": {
+    "gpu_pcs_source_unchanged": true,
+    "claude_reserved_lane_untouched": true,
+    "fable_reserved_lane_untouched": true,
+    "no_commits_or_pushes": true,
+    "no_gpu_runs": true,
+    "no_active_round_jobs": true
+  },
+  "rust": {
+    "command": "flock /tmp/zk-heavy.lock env CARGO_TARGET_DIR=/tmp/zk60-round2-oNXEVd/lead-target CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 cargo test --release --offline --manifest-path hashline/Cargo.toml --all-targets -- --test-threads=2",
+    "exit_code": 0,
+    "passed": 94,
+    "output": "warning: unused import: `eval_mle_ext`\n   --> src/attention.rs:787:42\n    |\n787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};\n    |                                          ^^^^^^^^^^^^\n    |\n    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:1046:13\n     |\n1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {\n     |             ----^^^^^^^^^\n     |             |\n     |             help: remove this `mut`\n     |\n     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:1086:13\n     |\n1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {\n     |             ----^^^^\n     |             |\n     |             help: remove this `mut`\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:2009:9\n     |\n2009 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {\n     |         ----^^^^^^^^\n     |         |\n     |         help: remove this `mut`\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:2061:9\n     |\n2061 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {\n     |         ----^^^\n     |         |\n     |         help: remove this `mut`\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:2810:9\n     |\n2810 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {\n     |         ----^^^\n     |         |\n     |         help: remove this `mut`\n\nwarning: associated function `of` is never used\n    --> src/attention.rs:1593:8\n     |\n1585 | impl Recon {\n     | ---------- associated function in this implementation\n...\n1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {\n     |        ^^\n     |\n     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: method `pd` is never used\n    --> src/attention.rs:1918:8\n     |\n1917 | impl<'a> Side<'a> {\n     | ----------------- method in this implementation\n1918 |     fn pd(&self) -> Option<&ProvData<'a>> {\n     |        ^^\n\nwarning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)\nwarning: `hashline` (lib) generated 8 warnings (8 duplicates)\n   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/hashline)\nwarning: `hashline` (lib test) generated 8 warnings (8 duplicates)\n    Finished `release` profile [optimized] target(s) in 9.31s\n     Running unittests src/lib.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/hashline-72d1cf268ba37d0a)\n\nrunning 54 tests\ntest attention::chain_tests::norm_round_matches_the_relation ... ok\ntest attention::chain_tests::requant_round_is_balanced ... ok\ntest chain::tests::floor_requant_is_euclidean ... ok\ntest chain::tests::matmul_small ... ok\ntest chain::tests::witness_i8_matmul_preserves_prefix_overflow_behavior ... ok\ntest chain::tests::witness_i8_matmul_zero_columns_still_rejects - should panic ... ok\ntest export_v3::tests::matmul_i64_small ... ok\ntest chain::tests::witness_i8_matmul_scalar_oracle_signed_extremes_and_tails ... ok\ntest export_v3::tests::witness_i64_matmul_scalar_oracle_signed_extremes_and_tails ... ok\ntest export_v3::tests::witness_i64_matmul_zero_columns_still_rejects - should panic ... ok\ntest field::tests::add_sub_match_reference ... ok\ntest field::tests::ext_arith ... ok\ntest field::tests::inverse_and_batch ... ok\ntest export_v3::tests::requant_round_is_the_prescaled_floor ... ok\ntest field::tests::two_adic_roots ... ok\ntest merkle::tests::paths_verify_and_tampers_fail ... ok\ntest mle::tests::eq_table_sums_to_one_and_matches_point ... ok\ntest field::tests::mul_matches_u128_reference ... ok\ntest mle::tests::interpolation ... ok\ntest mle::tests::matrix_folds_are_tensor_evaluations ... ok\ntest norm::tests::gadget_facts_hold_on_random_rows ... ok\ntest norm::tests::window_rule_examples ... ok\ntest mle::tests::mle_eval_at_boolean_points_is_lookup ... ok\ntest ntt::tests::rs_encode_is_evaluation ... ok\ntest pcs::tests::commit_open_verify_and_tampers ... ok\ntest ntt::tests::ntt_matches_naive_and_roundtrips ... ok\ntest pcs::zk_tests::zk_commit_open_verify_and_tampers ... ok\ntest pcs_compact::tests::compact_batch_of_three_commitments ... ok\ntest pcs_compact::tests::compact_commit_open_verify_and_tampers ... ok\ntest pcs_compact::tests::mobius_matches_multilinear_evaluation ... ok\ntest pcs_compact::tests::ntt_dif_is_bitreversed_evaluation ... ok\ntest pcs_compact::tests::pieces_and_queries ... ok\ntest phase_profile::tests::disabled_profiling_preserves_result_and_records_nothing ... ok\ntest phase_profile::tests::nested_profile_costs_are_exclusive ... ok\ntest phase_profile::tests::profile_capture_cleans_up_after_unwind ... ok\ntest silu::tests::frozen_members_regenerate_to_their_pins ... ok\ntest sumcheck::tests::product_sumcheck_roundtrip_and_tamper ... ok\ntest sumcheck::tests::zero_check_with_eq ... ok\ntest sumcheck::zk_tests::cfs_mask_rounds_match_brute_force ... ok\ntest sumcheck::zk_tests::masked_zero_check_with_extension_roundtrip ... ok\ntest tables_attn::tests::exp_members_match_the_python_generator ... ok\ntest tables_attn::tests::rope_members_match_the_python_pins ... ok\ntest tables_v3::tests::all_frozen_members_regenerate_to_their_pins ... ok\ntest transcript::tests::deterministic_and_sensitive ... ok\ntest wcache::tests::tree_roundtrip_and_every_corruption_rejected ... ok\ntest zk::tests::cloned_default_configs_never_reuse_a_mask_stream ... ok\ntest zk::tests::entropy_errors_do_not_produce_a_generator ... ok\ntest zk::tests::explicit_zero_seed_keeps_legacy_stream_across_refills ... ok\ntest zk::tests::rng_is_deterministic_and_domain_separated ... ok\ntest pcs::zk_tests::zk_openings_are_uniform_and_every_site_is_masked ... ok\ntest zk::tests_v3::fresh_os_proofs_verify_for_both_privacy_modes_with_reused_config ... ok\ntest zk::tests_v3::zk_v3_function2_binary_predicate_is_a_separate_statement ... ok\ntest zk::tests_v3::zk_v3_layer_roundtrip_tampers_and_uniform_openings ... ok\ntest zk::tests_v3::zk_v3_p3_hides_the_weights_and_the_header_binds_the_claim ... ok\n\ntest result: ok. 54 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.61s\n\n     Running unittests src/bin/hashline.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/hashline-b6f5291fb888b1eb)\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests/cli_claims.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/cli_claims-21617586eca4dbdd)\n\nrunning 3 tests\ntest a_model_declaration_cannot_be_silently_ignored ... ok\ntest attention_requires_a_real_layer_count_and_known_chain_options ... ok\ntest attention_never_silently_drops_privacy_requests ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n     Running tests/zk60_block_contract.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_block_contract-fc511f7e24edccd7)\n\nrunning 7 tests\ntest equivalent_integer_words_with_changed_boundary_scale_are_not_equal_values ... ok\ntest adjacent_boundary_preflight_checks_order_identity_and_scale_but_not_values ... ok\ntest honest_fixed_registration_matches_actual_layout_and_tables ... ok\ntest hostile_public_fields_fail_closed_without_panics_or_value_disclosure ... ok\ntest fixed_norm_and_ffn_have_an_honest_exact_integer_fixture_without_fitting ... ok\ntest registration_snapshot_cannot_mutate_approved_state_and_digest_binds_transcript ... ok\ntest valid_metadata_changes_still_require_new_independent_approval ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests/zk60_identity_gap.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_identity_gap-952232e423ac9883)\n\nrunning 5 tests\ntest approved_p1_rejects_every_changed_statement_parameter_mode_and_commitment_field ... ok\ntest approved_p1_rejects_incompatible_ntt_and_replay_under_another_registered_domain ... ok\ntest approved_p1_accepts_registered_weights_and_rejects_valid_substitute_and_forged_root ... ok\ntest registration_rejects_unsupported_policy_invalid_shape_table_and_parameters ... ok\ntest known_p3_gap_same_declared_model_and_input_different_weights_both_verify ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s\n\n     Running tests/zk60_mask_rank.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_mask_rank-b4fcc0907011c752)\n\nrunning 2 tests\ntest known_interface_hazard_verified_single_base_mask_reveals_entire_private_row ... ok\ntest independent_fp2_mask_pair_blocks_this_specific_coordinate_extractor ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests/zk60_memory_layout.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_memory_layout-d3decc1304a03832)\n\nrunning 1 test\ntest p3_weight_planner_examples_match_rust_layout_without_large_tensors ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests/zk60_phase_profile.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_phase_profile-524d9e103d0c2af2)\n\nrunning 3 tests\ntest phase_profile_keeps_exact_signed_matmul_output ... ok\ntest phase_profile_refuses_gpu_without_initializing_it ... ok\ntest phase_profile_rejects_unsupported_commands_before_export_access ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests/zk60_private_seam.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_private_seam-7808b60f2c890e35)\n\nrunning 9 tests\ntest every_message_family_is_authenticated ... ok\ntest equal_unweighted_sums_do_not_substitute_for_pointwise_equality ... ok\ntest exact_counts_and_canonical_fields_reject_before_low_level_verifier ... ok\ntest framed_decoder_rejects_truncation_extension_wrong_version_and_field_aliases ... ok\ntest invalid_shapes_inputs_and_prepared_contexts_fail_closed ... ok\ntest normal_calls_use_fresh_masks_and_changed_ntt_metadata_is_rejected ... ok\ntest proof_cannot_choose_its_endpoint_roots_or_replay_connection ... ok\ntest honest_independent_commitments_roundtrip_at_subrow_row_and_multirow_shapes ... ok\ntest unequal_recommitted_witnesses_fail_at_verifier_not_prover ... ok\n\ntest result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s\n\n     Running tests/zk60_sequence_equivalence.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_sequence_equivalence-fe596e0b37c306f2)\n\nrunning 7 tests\ntest causal_maximum_ties_select_an_on_support_first_position ... ok\ntest asymmetric_signed_weights_pin_matmul_and_commitment_orientations ... ok\ntest hostile_ffn_is_refused_before_derive_clamping ... ok\ntest hostile_norm_is_refused_before_the_source_assertion ... ok\ntest future_suffix_mutation_preserves_prefix_at_the_same_fixed_t32 ... ok\ntest root_shape_and_input_errors_are_static_and_do_not_autofit ... ok\ntest nontrivial_fixed_block_satisfies_integer_relations_and_existing_pack_layout ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n     Running unittests examples/zk60_seam_receipt.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_seam_receipt-67ad8657a2f1f8a7)\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running unittests examples/zk60_witness_bench.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_witness_bench-d9f5d82d755fbb28)\n\nrunning 3 tests\ntest tests::witness_blocked_candidates_keep_zero_column_rejection ... ok\ntest tests::witness_blocked_candidate_preserves_prefix_overflow_behavior ... ok\ntest tests::witness_blocked_candidates_match_independent_oracle_with_tails ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+  },
+  "python": {
+    "command": "python3 -m unittest discover -s tests -p 'test_hashline_*.py'",
+    "exit_code": 0,
+    "passed": 48,
+    "output": "...hashline benchmark: duplicate log contents cannot count as independent samples\n...{\"summary\": \"/tmp/tmpbnsqwna_/report/summary.json\", \"measurement_eligible\": false, \"goal_met\": false}\ncold sample 0/2: /tmp/tmpyka751j1/report/cold-000.log\nwarm sample 1/2: /tmp/tmpyka751j1/report/warm-001.log\nStopping after ineligible sample: nonzero process exit; failure diagnostic present; expected exactly one pass header and one pass summary; positive layers required; positive tokens required; positive d required; positive f required; missing or mixed proof parameters; privacy declaration mismatch; GPU execution declaration mismatch; missing or ambiguous serialized proof digest; one HASHLINE_TIMING record required for measured proof readiness; observed layers differs from requested manifest; observed tokens differs from requested manifest; observed d differs from requested manifest; observed f differs from requested manifest; written proof missing or length mismatch\n..hashline benchmark: requested shape exceeds export or has zero rows/layers\nhashline benchmark: requested shape exceeds export or has zero rows/layers\nhashline benchmark: tokens must be a power of two\nhashline benchmark: requested shape exceeds export or has zero rows/layers\nhashline benchmark: requested shape exceeds export or has zero rows/layers\nhashline benchmark: seed must be in 0..2^64-1\nhashline benchmark: seed must be in 0..2^64-1\nhashline benchmark: all export dimensions must be positive\n.............{\"summary\": \"/tmp/tmpyka751j1/report/summary.json\", \"measurement_eligible\": false, \"goal_met\": false}\ncold sample 0/0: /tmp/tmpwt07b52i/report/cold-000.log\n.{\"summary\": \"/tmp/tmpwt07b52i/report/summary.json\", \"measurement_eligible\": false, \"goal_met\": false}\ncold sample 0/20: /tmp/tmpzqc6lu63/report/cold-000.log\nStopping after ineligible sample: nonzero process exit; failure diagnostic present; expected exactly one pass header and one pass summary; positive layers required; positive tokens required; positive d required; positive f required; missing or mixed proof parameters; privacy declaration mismatch; GPU execution declaration mismatch; missing or ambiguous serialized proof digest; one HASHLINE_TIMING record required for measured proof readiness; observed layers differs from requested manifest; observed tokens differs from requested manifest; observed d differs from requested manifest; observed f differs from requested manifest; written proof missing or length mismatch\n.{\"summary\": \"/tmp/tmpzqc6lu63/report/summary.json\", \"measurement_eligible\": false, \"goal_met\": false}\nWaiting for /tmp/zk-heavy.lock\n.cold sample 0/0: /tmp/tmp3l4bqjfn/report/cold-000.log\nStopping after ineligible sample: observed layers differs from requested manifest\n..............{\"summary\": \"/tmp/tmp3l4bqjfn/report/summary.json\", \"measurement_eligible\": false, \"goal_met\": false}\n{\"summary\": \"/tmp/tmpsck4f1qp/out/summary.json\", \"samples\": 3, \"goal_met\": false}\nPrivate diagnostic: P0, one 125M layer, 16 rows\n........{\"summary\": \"/tmp/tmp7e9v_qyd/out/summary.json\", \"samples\": 1, \"goal_met\": false}\nPrivate diagnostic: P0, one 125M layer, 16 rows\nhashline profile: one-layer diagnostic exceeded 120 seconds; process terminated\n..\n----------------------------------------------------------------------\nRan 48 tests in 0.059s\n\nOK\n"
+  },
+  "cpu_frozen_fixtures": {
+    "driver": "/tmp/zk60-round2-oNXEVd/validate_cpu.py",
+    "command": "python3 -u /tmp/zk60-round2-oNXEVd/validate_cpu.py",
+    "environment": {
+      "HL_GPU": "unset",
+      "RAYON_NUM_THREADS": "2",
+      "M125_EXPORT_DIR": "/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl"
+    },
+    "exit_marker": "/tmp/zk60-round2-oNXEVd/cpu-gates/validation.done",
+    "exit_code": 0,
+    "cases": [
+      {
+        "case": "v2",
+        "ok": true,
+        "exit_code": 0,
+        "expected_sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "bytes": 66844928,
+        "elapsed_s": 36.315589022000495,
+        "command": [
+          "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline",
+          "pass",
+          "12",
+          "512",
+          "--threads",
+          "2",
+          "--proof-out",
+          "/tmp/zk60-round2-oNXEVd/cpu-gates/v2.proof"
+        ],
+        "timing": [
+          {
+            "schema": 1,
+            "coverage": "ffn-only",
+            "privacy": "P0",
+            "layers": 12,
+            "tokens": 512,
+            "d": 768,
+            "f": 2048,
+            "witness_s": 2.854696216,
+            "prove_s": 32.938615002,
+            "serialize_s": 0.063877799,
+            "proof_ready_s": 35.857249342,
+            "verify_s": 0.357968694,
+            "verified": true,
+            "proof_bytes": 66844928,
+            "serialized": true,
+            "gpu_requested": false,
+            "gpu_enabled": false,
+            "randomness": "none"
+          }
+        ]
+      },
+      {
+        "case": "v3",
+        "ok": true,
+        "exit_code": 0,
+        "expected_sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "bytes": 70758084,
+        "elapsed_s": 36.2647768909992,
+        "command": [
+          "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline",
+          "pass",
+          "12",
+          "512",
+          "--threads",
+          "2",
+          "--proof-out",
+          "/tmp/zk60-round2-oNXEVd/cpu-gates/v3.proof",
+          "--profile",
+          "v3",
+          "--export",
+          "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+        ],
+        "timing": [
+          {
+            "schema": 1,
+            "coverage": "ffn-only",
+            "privacy": "P0",
+            "layers": 12,
+            "tokens": 512,
+            "d": 768,
+            "f": 2048,
+            "witness_s": 3.953576741,
+            "prove_s": 31.782297432,
+            "serialize_s": 0.097785395,
+            "proof_ready_s": 35.845703574,
+            "verify_s": 0.341833359,
+            "verified": true,
+            "proof_bytes": 70758084,
+            "serialized": true,
+            "gpu_requested": false,
+            "gpu_enabled": false,
+            "randomness": "none"
+          }
+        ]
+      },
+      {
+        "case": "zk",
+        "ok": true,
+        "exit_code": 0,
+        "expected_sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "bytes": 87228528,
+        "elapsed_s": 37.93065810299959,
+        "command": [
+          "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline",
+          "pass",
+          "12",
+          "512",
+          "--threads",
+          "2",
+          "--proof-out",
+          "/tmp/zk60-round2-oNXEVd/cpu-gates/zk.proof",
+          "--zk",
+          "--seed",
+          "1"
+        ],
+        "timing": [
+          {
+            "schema": 1,
+            "coverage": "ffn-only",
+            "privacy": "P1",
+            "layers": 12,
+            "tokens": 512,
+            "d": 768,
+            "f": 2048,
+            "witness_s": 2.93600361,
+            "prove_s": 34.317448266,
+            "serialize_s": 0.074860762,
+            "proof_ready_s": 37.328452111,
+            "verify_s": 0.476894852,
+            "verified": true,
+            "proof_bytes": 87228528,
+            "serialized": true,
+            "gpu_requested": false,
+            "gpu_enabled": false,
+            "randomness": "deterministic-test"
+          }
+        ]
+      },
+      {
+        "case": "zkv3",
+        "ok": true,
+        "exit_code": 0,
+        "expected_sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008,
+        "elapsed_s": 38.58941236300234,
+        "command": [
+          "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline",
+          "pass",
+          "12",
+          "512",
+          "--threads",
+          "2",
+          "--proof-out",
+          "/tmp/zk60-round2-oNXEVd/cpu-gates/zkv3.proof",
+          "--zk",
+          "--seed",
+          "1",
+          "--profile",
+          "v3",
+          "--export",
+          "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+        ],
+        "timing": [
+          {
+            "schema": 1,
+            "coverage": "ffn-only",
+            "privacy": "P1",
+            "layers": 12,
+            "tokens": 512,
+            "d": 768,
+            "f": 2048,
+            "witness_s": 3.73226501,
+            "prove_s": 34.180995339,
+            "serialize_s": 0.082760511,
+            "proof_ready_s": 37.998015098,
+            "verify_s": 0.47719702,
+            "verified": true,
+            "proof_bytes": 87697008,
+            "serialized": true,
+            "gpu_requested": false,
+            "gpu_enabled": false,
+            "randomness": "deterministic-test"
+          }
+        ]
+      }
+    ],
+    "note": "Monitored tool session; initial detached launch did not survive sandbox process lifetime and ran no case. Final bounded run completed in about149s. These are correctness fixtures, not privacy or statistical performance evidence."
+  },
+  "phase_profile": {
+    "worker_tree": "/tmp/zk60-round2-oNXEVd/profile",
+    "worker_binary_sha256": "d75a074b34a5ed4a27ff986fbb6c5728788d525962f15a8e4f3c650248bd52d9",
+    "source_binding": "Source/binary correspondence supplied, not attested. Exact source hashes, CPU/toolchain details are in each cohort manifest; no GPU/whole-model inference.",
+    "trials": [
+      {
+        "artifact_directory": "/tmp/zk60-profile-evidence-XVTqjl/p0-final",
+        "log": "rows-16.log",
+        "privacy": "P0",
+        "shape": {
+          "layers": 1,
+          "tokens": 16,
+          "d": 768,
+          "f": 2048
+        },
+        "randomness": "none",
+        "proof_bytes": 2784180,
+        "clock_s": {
+          "witness_s": 0.023243657,
+          "prove_s": 0.4849256,
+          "serialize_s": 0.002806923,
+          "proof_ready_s": 0.511032472,
+          "verify_s": 0.013062571
+        },
+        "unknown_within_proof_ready_s": 0.00038399499999999066,
+        "largest_phases": [
+          {
+            "phase": "prover.commit W",
+            "seconds": 0.373624547,
+            "fraction_of_proof_ready": 0.7311170375098981
+          },
+          {
+            "phase": "prover.pcs openings",
+            "seconds": 0.03130705,
+            "fraction_of_proof_ready": 0.06126234968489439
+          },
+          {
+            "phase": "prover.helpers + commit H",
+            "seconds": 0.025312761,
+            "fraction_of_proof_ready": 0.04953258821486396
+          },
+          {
+            "phase": "prover.commit A",
+            "seconds": 0.022134423,
+            "fraction_of_proof_ready": 0.04331314390526635
+          },
+          {
+            "phase": "prover.zero-check F",
+            "seconds": 0.019062651,
+            "fraction_of_proof_ready": 0.0373022303756854
+          }
+        ],
+        "command": {
+          "profiled_command": [
+            "/tmp/zk60-round2-oNXEVd/profile/hashline/target/release/hashline",
+            "pass",
+            "1",
+            "16",
+            "--profile",
+            "v3",
+            "--export",
+            "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+            "--threads",
+            "2",
+            "--proof-out",
+            "/tmp/zk60-profile-evidence-XVTqjl/p0-final/rows-16.proof",
+            "--phase-profile"
+          ],
+          "export": "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+          "environment_enforced": {
+            "HL_GPU": "unset",
+            "RAYON_NUM_THREADS": "2"
+          },
+          "weight_cache": false,
+          "subprocess_timeout_s": 120,
+          "proof_parameters": "binary defaults; no proof parameter overrides",
+          "written_proof_sha256": "ca2964ead5cf29e216dcbd5686ed098a9b922f22efb901e7fa5dd62bb96a4e31",
+          "written_proof_bytes": 2784180
+        }
+      },
+      {
+        "artifact_directory": "/tmp/zk60-profile-evidence-XVTqjl/p0-final",
+        "log": "rows-32.log",
+        "privacy": "P0",
+        "shape": {
+          "layers": 1,
+          "tokens": 32,
+          "d": 768,
+          "f": 2048
+        },
+        "randomness": "none",
+        "proof_bytes": 3259476,
+        "clock_s": {
+          "witness_s": 0.033818762,
+          "prove_s": 0.541273473,
+          "serialize_s": 0.003662258,
+          "proof_ready_s": 0.578813002,
+          "verify_s": 0.019275709
+        },
+        "unknown_within_proof_ready_s": 0.00044979399999991977,
+        "largest_phases": [
+          {
+            "phase": "prover.commit W",
+            "seconds": 0.348432122,
+            "fraction_of_proof_ready": 0.6019770129489939
+          },
+          {
+            "phase": "prover.helpers + commit H",
+            "seconds": 0.053883735,
+            "fraction_of_proof_ready": 0.09309351174526657
+          },
+          {
+            "phase": "prover.commit A",
+            "seconds": 0.045007036,
+            "fraction_of_proof_ready": 0.07775747235201189
+          },
+          {
+            "phase": "prover.pcs openings",
+            "seconds": 0.037792672,
+            "fraction_of_proof_ready": 0.06529340541662539
+          },
+          {
+            "phase": "prover.zero-check F",
+            "seconds": 0.03649922,
+            "fraction_of_proof_ready": 0.06305874241574139
+          }
+        ],
+        "command": {
+          "profiled_command": [
+            "/tmp/zk60-round2-oNXEVd/profile/hashline/target/release/hashline",
+            "pass",
+            "1",
+            "32",
+            "--profile",
+            "v3",
+            "--export",
+            "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+            "--threads",
+            "2",
+            "--proof-out",
+            "/tmp/zk60-profile-evidence-XVTqjl/p0-final/rows-32.proof",
+            "--phase-profile"
+          ],
+          "export": "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+          "environment_enforced": {
+            "HL_GPU": "unset",
+            "RAYON_NUM_THREADS": "2"
+          },
+          "weight_cache": false,
+          "subprocess_timeout_s": 120,
+          "proof_parameters": "binary defaults; no proof parameter overrides",
+          "written_proof_sha256": "acce5dacff5c494cad5d7f2bfe07805c2aaa7e089e4a8415871bbc69b03101f6",
+          "written_proof_bytes": 3259476
+        }
+      },
+      {
+        "artifact_directory": "/tmp/zk60-profile-evidence-XVTqjl/p0-final",
+        "log": "rows-64.log",
+        "privacy": "P0",
+        "shape": {
+          "layers": 1,
+          "tokens": 64,
+          "d": 768,
+          "f": 2048
+        },
+        "randomness": "none",
+        "proof_bytes": 4193524,
+        "clock_s": {
+          "witness_s": 0.053847576,
+          "prove_s": 0.767969443,
+          "serialize_s": 0.003977758,
+          "proof_ready_s": 0.825855186,
+          "verify_s": 0.025919071
+        },
+        "unknown_within_proof_ready_s": 0.0003975439999999707,
+        "largest_phases": [
+          {
+            "phase": "prover.commit W",
+            "seconds": 0.401473049,
+            "fraction_of_proof_ready": 0.48613008164847926
+          },
+          {
+            "phase": "prover.helpers + commit H",
+            "seconds": 0.111739881,
+            "fraction_of_proof_ready": 0.13530202739442507
+          },
+          {
+            "phase": "prover.commit A",
+            "seconds": 0.107995893,
+            "fraction_of_proof_ready": 0.1307685594650973
+          },
+          {
+            "phase": "prover.zero-check F",
+            "seconds": 0.077629642,
+            "fraction_of_proof_ready": 0.09399909731873986
+          },
+          {
+            "phase": "prover.pcs openings",
+            "seconds": 0.04366083,
+            "fraction_of_proof_ready": 0.05286741639471887
+          }
+        ],
+        "command": {
+          "profiled_command": [
+            "/tmp/zk60-round2-oNXEVd/profile/hashline/target/release/hashline",
+            "pass",
+            "1",
+            "64",
+            "--profile",
+            "v3",
+            "--export",
+            "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+            "--threads",
+            "2",
+            "--proof-out",
+            "/tmp/zk60-profile-evidence-XVTqjl/p0-final/rows-64.proof",
+            "--phase-profile"
+          ],
+          "export": "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+          "environment_enforced": {
+            "HL_GPU": "unset",
+            "RAYON_NUM_THREADS": "2"
+          },
+          "weight_cache": false,
+          "subprocess_timeout_s": 120,
+          "proof_parameters": "binary defaults; no proof parameter overrides",
+          "written_proof_sha256": "15ee2f97cb50194670acab3429d1e9318876915bd3fffcd9f2a57e37a2f57ec8",
+          "written_proof_bytes": 4193524
+        }
+      },
+      {
+        "artifact_directory": "/tmp/zk60-profile-evidence-XVTqjl/p1-final",
+        "log": "rows-16.log",
+        "privacy": "P1",
+        "shape": {
+          "layers": 1,
+          "tokens": 16,
+          "d": 768,
+          "f": 2048
+        },
+        "randomness": "os",
+        "proof_bytes": 3391412,
+        "clock_s": {
+          "witness_s": 0.023946992,
+          "prove_s": 0.596444084,
+          "serialize_s": 0.003395751,
+          "proof_ready_s": 0.62387425,
+          "verify_s": 0.01801033
+        },
+        "unknown_within_proof_ready_s": 0.0003826180000000686,
+        "largest_phases": [
+          {
+            "phase": "prover.commit W",
+            "seconds": 0.358434352,
+            "fraction_of_proof_ready": 0.5745298062870844
+          },
+          {
+            "phase": "prover.helpers + commit H (zk)",
+            "seconds": 0.067555079,
+            "fraction_of_proof_ready": 0.10828316603866886
+          },
+          {
+            "phase": "prover.commit A (zk)",
+            "seconds": 0.04882381,
+            "fraction_of_proof_ready": 0.07825905621204915
+          },
+          {
+            "phase": "prover.pcs openings (zk)",
+            "seconds": 0.040816023,
+            "fraction_of_proof_ready": 0.06542347756779511
+          },
+          {
+            "phase": "prover.table zero-check (zk)",
+            "seconds": 0.035290949,
+            "fraction_of_proof_ready": 0.056567407614595416
+          }
+        ],
+        "command": {
+          "profiled_command": [
+            "/tmp/zk60-round2-oNXEVd/profile/hashline/target/release/hashline",
+            "pass",
+            "1",
+            "16",
+            "--profile",
+            "v3",
+            "--export",
+            "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+            "--threads",
+            "2",
+            "--proof-out",
+            "/tmp/zk60-profile-evidence-XVTqjl/p1-final/rows-16.proof",
+            "--zk",
+            "--phase-profile"
+          ],
+          "export": "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+          "environment_enforced": {
+            "HL_GPU": "unset",
+            "RAYON_NUM_THREADS": "2"
+          },
+          "weight_cache": false,
+          "subprocess_timeout_s": 120,
+          "proof_parameters": "binary defaults; no proof parameter overrides",
+          "written_proof_sha256": "e27f3d2eaa71852fcc522d429c5730bc19e8d6ad2c40cf903b9cfb478e48e9ca",
+          "written_proof_bytes": 3391412
+        }
+      },
+      {
+        "artifact_directory": "/tmp/zk60-profile-evidence-XVTqjl/p1-final",
+        "log": "rows-32.log",
+        "privacy": "P1",
+        "shape": {
+          "layers": 1,
+          "tokens": 32,
+          "d": 768,
+          "f": 2048
+        },
+        "randomness": "os",
+        "proof_bytes": 4071556,
+        "clock_s": {
+          "witness_s": 0.029853402,
+          "prove_s": 0.786449217,
+          "serialize_s": 0.004065531,
+          "proof_ready_s": 0.820456559,
+          "verify_s": 0.023536895
+        },
+        "unknown_within_proof_ready_s": 0.0003605219999999979,
+        "largest_phases": [
+          {
+            "phase": "prover.commit W",
+            "seconds": 0.427133243,
+            "fraction_of_proof_ready": 0.5206043370786192
+          },
+          {
+            "phase": "prover.helpers + commit H (zk)",
+            "seconds": 0.118618964,
+            "fraction_of_proof_ready": 0.1445767758192789
+          },
+          {
+            "phase": "prover.commit A (zk)",
+            "seconds": 0.091967451,
+            "fraction_of_proof_ready": 0.1120930169808052
+          },
+          {
+            "phase": "prover.pcs openings (zk)",
+            "seconds": 0.043148853,
+            "fraction_of_proof_ready": 0.052591270709800006
+          },
+          {
+            "phase": "prover.zero-check F (zk)",
+            "seconds": 0.041034749,
+            "fraction_of_proof_ready": 0.050014529775975626
+          }
+        ],
+        "command": {
+          "profiled_command": [
+            "/tmp/zk60-round2-oNXEVd/profile/hashline/target/release/hashline",
+            "pass",
+            "1",
+            "32",
+            "--profile",
+            "v3",
+            "--export",
+            "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+            "--threads",
+            "2",
+            "--proof-out",
+            "/tmp/zk60-profile-evidence-XVTqjl/p1-final/rows-32.proof",
+            "--zk",
+            "--phase-profile"
+          ],
+          "export": "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+          "environment_enforced": {
+            "HL_GPU": "unset",
+            "RAYON_NUM_THREADS": "2"
+          },
+          "weight_cache": false,
+          "subprocess_timeout_s": 120,
+          "proof_parameters": "binary defaults; no proof parameter overrides",
+          "written_proof_sha256": "085204363a761ee6c72c62423de0637ba44024b7c04b40dd95de2929d783f9e1",
+          "written_proof_bytes": 4071556
+        }
+      },
+      {
+        "artifact_directory": "/tmp/zk60-profile-evidence-XVTqjl/p1-final",
+        "log": "rows-64.log",
+        "privacy": "P1",
+        "shape": {
+          "layers": 1,
+          "tokens": 64,
+          "d": 768,
+          "f": 2048
+        },
+        "randomness": "os",
+        "proof_bytes": 5599572,
+        "clock_s": {
+          "witness_s": 0.047829067,
+          "prove_s": 0.920419622,
+          "serialize_s": 0.005022867,
+          "proof_ready_s": 0.973363717,
+          "verify_s": 0.036065823
+        },
+        "unknown_within_proof_ready_s": 0.00035783299999998656,
+        "largest_phases": [
+          {
+            "phase": "prover.commit W",
+            "seconds": 0.364622041,
+            "fraction_of_proof_ready": 0.3745999924096205
+          },
+          {
+            "phase": "prover.helpers + commit H (zk)",
+            "seconds": 0.193354777,
+            "fraction_of_proof_ready": 0.1986459671991246
+          },
+          {
+            "phase": "prover.commit A (zk)",
+            "seconds": 0.167821414,
+            "fraction_of_proof_ready": 0.17241387887072845
+          },
+          {
+            "phase": "prover.zero-check F (zk)",
+            "seconds": 0.07240357,
+            "fraction_of_proof_ready": 0.07438490744565117
+          },
+          {
+            "phase": "prover.pcs openings (zk)",
+            "seconds": 0.053768357,
+            "fraction_of_proof_ready": 0.05523973830226507
+          }
+        ],
+        "command": {
+          "profiled_command": [
+            "/tmp/zk60-round2-oNXEVd/profile/hashline/target/release/hashline",
+            "pass",
+            "1",
+            "64",
+            "--profile",
+            "v3",
+            "--export",
+            "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+            "--threads",
+            "2",
+            "--proof-out",
+            "/tmp/zk60-profile-evidence-XVTqjl/p1-final/rows-64.proof",
+            "--zk",
+            "--phase-profile"
+          ],
+          "export": "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+          "environment_enforced": {
+            "HL_GPU": "unset",
+            "RAYON_NUM_THREADS": "2"
+          },
+          "weight_cache": false,
+          "subprocess_timeout_s": 120,
+          "proof_parameters": "binary defaults; no proof parameter overrides",
+          "written_proof_sha256": "0b5c2604ad998785aa30c31f86961cc127f19d92e4cb87986d37e2b5baca03c2",
+          "written_proof_bytes": 5599572
+        }
+      },
+      {
+        "artifact_directory": "/tmp/zk60-profile-evidence-XVTqjl/p3-final",
+        "log": "rows-16.log",
+        "privacy": "P3",
+        "shape": {
+          "layers": 1,
+          "tokens": 16,
+          "d": 768,
+          "f": 2048
+        },
+        "randomness": "os",
+        "proof_bytes": 3432468,
+        "clock_s": {
+          "witness_s": 0.023649158,
+          "prove_s": 0.677553821,
+          "serialize_s": 0.003410003,
+          "proof_ready_s": 0.70470834,
+          "verify_s": 0.019277962
+        },
+        "unknown_within_proof_ready_s": 0.00036564100000001625,
+        "largest_phases": [
+          {
+            "phase": "prover.commit W",
+            "seconds": 0.43747305,
+            "fraction_of_proof_ready": 0.6207859694125373
+          },
+          {
+            "phase": "prover.helpers + commit H (zk)",
+            "seconds": 0.071607271,
+            "fraction_of_proof_ready": 0.10161263452622116
+          },
+          {
+            "phase": "prover.commit A (zk)",
+            "seconds": 0.04900342,
+            "fraction_of_proof_ready": 0.06953716483616469
+          },
+          {
+            "phase": "prover.table zero-check (zk)",
+            "seconds": 0.038969367,
+            "fraction_of_proof_ready": 0.055298575010478794
+          },
+          {
+            "phase": "prover.pcs openings (zk)",
+            "seconds": 0.033734579,
+            "fraction_of_proof_ready": 0.04787027069950669
+          }
+        ],
+        "command": {
+          "profiled_command": [
+            "/tmp/zk60-round2-oNXEVd/profile/hashline/target/release/hashline",
+            "pass",
+            "1",
+            "16",
+            "--profile",
+            "v3",
+            "--export",
+            "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+            "--threads",
+            "2",
+            "--proof-out",
+            "/tmp/zk60-profile-evidence-XVTqjl/p3-final/rows-16.proof",
+            "--p3",
+            "--phase-profile"
+          ],
+          "export": "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+          "environment_enforced": {
+            "HL_GPU": "unset",
+            "RAYON_NUM_THREADS": "2"
+          },
+          "weight_cache": false,
+          "subprocess_timeout_s": 120,
+          "proof_parameters": "binary defaults; no proof parameter overrides",
+          "written_proof_sha256": "7f3ae36cbccb2cc14c7f66459227dfffe47162fd608495415f2d5959f2b6bbca",
+          "written_proof_bytes": 3432468
+        }
+      },
+      {
+        "artifact_directory": "/tmp/zk60-profile-evidence-XVTqjl/p3-final",
+        "log": "rows-32.log",
+        "privacy": "P3",
+        "shape": {
+          "layers": 1,
+          "tokens": 32,
+          "d": 768,
+          "f": 2048
+        },
+        "randomness": "os",
+        "proof_bytes": 4112612,
+        "clock_s": {
+          "witness_s": 0.030885646,
+          "prove_s": 0.730185367,
+          "serialize_s": 0.003867805,
+          "proof_ready_s": 0.765028909,
+          "verify_s": 0.0252767
+        },
+        "unknown_within_proof_ready_s": 0.00030909000000019595,
+        "largest_phases": [
+          {
+            "phase": "prover.commit W",
+            "seconds": 0.383374387,
+            "fraction_of_proof_ready": 0.50112405229382
+          },
+          {
+            "phase": "prover.helpers + commit H (zk)",
+            "seconds": 0.114344342,
+            "fraction_of_proof_ready": 0.14946407992537705
+          },
+          {
+            "phase": "prover.commit A (zk)",
+            "seconds": 0.089180035,
+            "fraction_of_proof_ready": 0.11657080399297697
+          },
+          {
+            "phase": "prover.pcs openings (zk)",
+            "seconds": 0.0397299,
+            "fraction_of_proof_ready": 0.051932547296719214
+          },
+          {
+            "phase": "prover.zero-check F (zk)",
+            "seconds": 0.037136773,
+            "fraction_of_proof_ready": 0.04854296689067994
+          }
+        ],
+        "command": {
+          "profiled_command": [
+            "/tmp/zk60-round2-oNXEVd/profile/hashline/target/release/hashline",
+            "pass",
+            "1",
+            "32",
+            "--profile",
+            "v3",
+            "--export",
+            "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+            "--threads",
+            "2",
+            "--proof-out",
+            "/tmp/zk60-profile-evidence-XVTqjl/p3-final/rows-32.proof",
+            "--p3",
+            "--phase-profile"
+          ],
+          "export": "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+          "environment_enforced": {
+            "HL_GPU": "unset",
+            "RAYON_NUM_THREADS": "2"
+          },
+          "weight_cache": false,
+          "subprocess_timeout_s": 120,
+          "proof_parameters": "binary defaults; no proof parameter overrides",
+          "written_proof_sha256": "f23d5bfe8a5424d19ff05b43c0c7bc0157c1050ff3efdb4d80027088436c055c",
+          "written_proof_bytes": 4112612
+        }
+      },
+      {
+        "artifact_directory": "/tmp/zk60-profile-evidence-XVTqjl/p3-final",
+        "log": "rows-64.log",
+        "privacy": "P3",
+        "shape": {
+          "layers": 1,
+          "tokens": 64,
+          "d": 768,
+          "f": 2048
+        },
+        "randomness": "os",
+        "proof_bytes": 5640628,
+        "clock_s": {
+          "witness_s": 0.050051355,
+          "prove_s": 1.009220041,
+          "serialize_s": 0.004743011,
+          "proof_ready_s": 1.064205955,
+          "verify_s": 0.037681652
+        },
+        "unknown_within_proof_ready_s": 0.00044977099999990943,
+        "largest_phases": [
+          {
+            "phase": "prover.commit W",
+            "seconds": 0.45196576,
+            "fraction_of_proof_ready": 0.4246976422904906
+          },
+          {
+            "phase": "prover.helpers + commit H (zk)",
+            "seconds": 0.203617766,
+            "fraction_of_proof_ready": 0.19133304511531324
+          },
+          {
+            "phase": "prover.commit A (zk)",
+            "seconds": 0.159004613,
+            "fraction_of_proof_ready": 0.1494115046556002
+          },
+          {
+            "phase": "prover.zero-check F (zk)",
+            "seconds": 0.07052384,
+            "fraction_of_proof_ready": 0.06626897704213655
+          },
+          {
+            "phase": "prover.pcs openings (zk)",
+            "seconds": 0.053985734,
+            "fraction_of_proof_ready": 0.05072865242517836
+          }
+        ],
+        "command": {
+          "profiled_command": [
+            "/tmp/zk60-round2-oNXEVd/profile/hashline/target/release/hashline",
+            "pass",
+            "1",
+            "64",
+            "--profile",
+            "v3",
+            "--export",
+            "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+            "--threads",
+            "2",
+            "--proof-out",
+            "/tmp/zk60-profile-evidence-XVTqjl/p3-final/rows-64.proof",
+            "--p3",
+            "--phase-profile"
+          ],
+          "export": "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+          "environment_enforced": {
+            "HL_GPU": "unset",
+            "RAYON_NUM_THREADS": "2"
+          },
+          "weight_cache": false,
+          "subprocess_timeout_s": 120,
+          "proof_parameters": "binary defaults; no proof parameter overrides",
+          "written_proof_sha256": "11c81d28c941081e4d448c0f15e0e3baaca9494d767936b21b366d9ab49c902e",
+          "written_proof_bytes": 5640628
+        }
+      }
+    ],
+    "on_off_bytegates": [
+      {
+        "directory": "/tmp/zk60-profile-evidence-XVTqjl/p0-pilot",
+        "records": [
+          {
+            "privacy": "P0",
+            "shape": {
+              "layers": 1,
+              "tokens": 16,
+              "d": 768,
+              "f": 2048
+            },
+            "byte_identical": true,
+            "randomness": "none"
+          }
+        ]
+      },
+      {
+        "directory": "/tmp/zk60-profile-evidence-XVTqjl/p1-bytegate",
+        "records": [
+          {
+            "privacy": "P1",
+            "shape": {
+              "layers": 1,
+              "tokens": 16,
+              "d": 768,
+              "f": 2048
+            },
+            "byte_identical": true,
+            "randomness": "deterministic-test"
+          }
+        ]
+      },
+      {
+        "directory": "/tmp/zk60-profile-evidence-XVTqjl/p3-bytegate",
+        "records": [
+          {
+            "privacy": "P3",
+            "shape": {
+              "layers": 1,
+              "tokens": 16,
+              "d": 768,
+              "f": 2048
+            },
+            "byte_identical": true,
+            "randomness": "deterministic-test"
+          }
+        ]
+      }
+    ],
+    "integrated_p1_smoke": {
+      "exit_code": 0,
+      "directory": "/tmp/zk60-round2-oNXEVd/integrated-p1-profile",
+      "byte_identical": true,
+      "command": {
+        "profiled_command": [
+          "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline",
+          "pass",
+          "1",
+          "16",
+          "--profile",
+          "v3",
+          "--export",
+          "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+          "--threads",
+          "2",
+          "--proof-out",
+          "/tmp/zk60-round2-oNXEVd/integrated-p1-profile/rows-16.proof",
+          "--zk",
+          "--seed",
+          "1",
+          "--phase-profile"
+        ],
+        "export": "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+        "environment_enforced": {
+          "HL_GPU": "unset",
+          "RAYON_NUM_THREADS": "2"
+        },
+        "weight_cache": false,
+        "subprocess_timeout_s": 120,
+        "proof_parameters": "binary defaults; no proof parameter overrides",
+        "written_proof_sha256": "53815b21a059a409185677f2514cbcaeebe144d4a6af2d920ac5c2f83ae0aed2",
+        "written_proof_bytes": 3391412,
+        "unprofiled_command": [
+          "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline",
+          "pass",
+          "1",
+          "16",
+          "--profile",
+          "v3",
+          "--export",
+          "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+          "--threads",
+          "2",
+          "--proof-out",
+          "/tmp/zk60-round2-oNXEVd/integrated-p1-profile/rows-16-unprofiled.proof",
+          "--zk",
+          "--seed",
+          "1"
+        ],
+        "unprofiled_proof_sha256": "53815b21a059a409185677f2514cbcaeebe144d4a6af2d920ac5c2f83ae0aed2"
+      },
+      "role": "deterministic fixture integration check, not a privacy/performance sample"
+    }
+  },
+  "receipt": {
+    "schema": 1,
+    "coverage": "experimental-equality-only",
+    "fixture": "public-synthetic",
+    "goal_met": false,
+    "proof": "results/zk60_round2_seam.proof",
+    "bytes": 416456,
+    "sha256": "967f249e4ff78b4c0cf4516092ce4e3dcab3843d58e1181016a164e6b97b498f",
+    "root_authority": "producer handles for a synthetic demonstration, NOT independent model approval",
+    "left_root": "b4f501f6d65ed9b72ab9c1e752944567ba5a73e72d2efe07c01467dc5ce2e503",
+    "right_root": "5076ea8b6a483bf6d9a7ac72d1e00e91926e0d71cea0df42693e6b837add80a3",
+    "context": "[37;32] fixed public demo context; T32 d16 scale -8 left slot10 right slot11",
+    "build_command": "flock /tmp/zk-heavy.lock env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 cargo build --release --offline --manifest-path hashline/Cargo.toml --example zk60_seam_receipt",
+    "reproduce_verify_command": "hashline/target/release/examples/zk60_seam_receipt verify results/zk60_round2_seam.proof b4f501f6d65ed9b72ab9c1e752944567ba5a73e72d2efe07c01467dc5ce2e503 5076ea8b6a483bf6d9a7ac72d1e00e91926e0d71cea0df42693e6b837add80a3",
+    "actual_verify_command": "flock /tmp/zk-heavy.lock env RAYON_NUM_THREADS=2 /tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_seam_receipt verify /home/victor/IntelligenceRegulation/results/zk60_round2_seam.proof b4f501f6d65ed9b72ab9c1e752944567ba5a73e72d2efe07c01467dc5ce2e503 5076ea8b6a483bf6d9a7ac72d1e00e91926e0d71cea0df42693e6b837add80a3",
+    "verify_exit": 0,
+    "verified_from_bytes": true,
+    "wrong_expected_root_exit": 1,
+    "overwrite_refusal_exit": 1,
+    "limitations": [
+      "No arithmetic commitment provenance or full transformer relation",
+      "No complete joint-transcript ZK theorem or sensitive-data deployment approval",
+      "Fresh create commands use OS randomness and intentionally produce different roots/bytes"
+    ]
+  },
+  "unresolved": [
+    "A verified tiny PCS singleton claim reproduces a pre-existing one-base-mask extension-vector privacy hazard; actual FFN group impact and joint-transcript rank need independent audit. The diagnostic is not a full-FFN extraction.",
+    "S2 paired masks avoid this singleton configuration but are experimental, not a complete simulator/composition proof.",
+    "A00 conditional host bounds and E1 witness computations are not proof-level range/no-wrap soundness.",
+    "No private attention/block composition, embeddings/head/token selection or independently decoded full generation receipt.",
+    "P3 approved-model consistency is not solved.",
+    "Full Python/native suite and GPU frozen gates were not rerun in round2; no5090 throughput measured."
+  ]
+}
