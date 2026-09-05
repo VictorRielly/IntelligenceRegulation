@@ -59,7 +59,28 @@ def weight_shape(d, f, log_cols):
 
 def commitment_plan(rows, log_cols=14, inv_rate=4, checks=256, q_pad=None,
                     ntt_max_log=None, prior_live_bytes=0, prior_pool_bytes=0,
-                    component_budget_bytes=None):
+                    component_budget_bytes=None, mode="resident", chunk_rows=128,
+                    pool_state="cold"):
+    """[ZK60-CL3] `mode` selects which code path is counted.
+
+    resident  the original path: both full rows*nn buffers. Default, and its
+              rows are UNCHANGED from before this extension.
+    chunked   CL1's path: no full rows*nn buffer is ever allocated.
+    fallback  the resident attempt that gets partway and then retries chunked.
+              This is the one the old planner could not express, and it is the
+              interesting case: the resident buffers that DID allocate are
+              released to the pool, not freed, and take_min then reuses them as
+              chunk scratch. So held capacity stays high while newly REQUESTED
+              scratch is small — the distinction CL3 asks to be made explicit.
+
+    `pool_state="warm"` says equivalent buffers are already pooled, so the path
+    needs no NEW capacity; held bytes are unchanged. Cold vs warm changes what
+    is allocated, never what is occupied.
+    """
+    if mode not in ("resident", "chunked", "fallback"):
+        raise ValueError("mode must be resident, chunked or fallback")
+    if pool_state not in ("cold", "warm"):
+        raise ValueError("pool_state must be cold or warm")
     integer("rows", rows, 1)
     integer("log_cols", log_cols, 1)
     if log_cols > 24:
@@ -98,6 +119,41 @@ def commitment_plan(rows, log_cols=14, inv_rate=4, checks=256, q_pad=None,
         ("column hashes", ["systematic_data", "pads", "coset_powers", "encoded_matrix", "device_leaf_hashes"], ["inverse_coefficients", "expanded_coefficients"]),
         ("return commitment", ["systematic_data", "encoded_matrix"], ["inverse_coefficients", "expanded_coefficients"]),
     ]
+
+    # [ZK60-CL3] the non-resident paths. B3_STATE_SLOTS mirrors gpu/cuda.rs.
+    b3_slots = 8 * 24 + 1
+    rmax = min(rows, integer("chunk_rows", chunk_rows, 1))
+    chunk_coef, chunk_enc = rmax * n * 8, rmax * nn * 8
+    state_bytes = b3_slots * nn * 4
+    if mode in ("chunked", "fallback"):
+        buffers = dict(buffers)
+        buffers.update({"chunk_coefficients": chunk_coef,
+                        "chunk_expanded": chunk_enc, "chunk_encoded": chunk_enc,
+                        "blake3_column_state": state_bytes})
+        chunk_live = ["systematic_data", "pads", "coset_powers", "chunk_coefficients",
+                      "chunk_expanded", "chunk_encoded", "blake3_column_state"]
+        if mode == "chunked":
+            phases = [
+                ("upload", ["systematic_data", "pads", "coset_powers"], []),
+                ("chunk loop", chunk_live, []),
+                ("leaves", chunk_live + ["device_leaf_hashes"], []),
+                ("return commitment", ["systematic_data", "pads", "coset_powers", "device_leaf_hashes"], []),
+            ]
+        else:
+            # The resident pair allocated, the third take refused, the pair
+            # RELEASED to the pool, then the chunked retry reusing it.
+            phases = [
+                ("resident attempt: inverse NTT", ["systematic_data", "inverse_coefficients"], []),
+                ("resident attempt: pad and coset scale",
+                 ["systematic_data", "inverse_coefficients", "pads", "coset_powers", "expanded_coefficients"], []),
+                ("encoded buffer REFUSED; release to pool",
+                 ["systematic_data", "pads", "coset_powers"], ["inverse_coefficients", "expanded_coefficients"]),
+                ("chunked retry loop", chunk_live, ["inverse_coefficients", "expanded_coefficients"]),
+                ("leaves", chunk_live + ["device_leaf_hashes"], ["inverse_coefficients", "expanded_coefficients"]),
+                ("return commitment", ["systematic_data", "pads", "coset_powers", "device_leaf_hashes"],
+                 ["inverse_coefficients", "expanded_coefficients"]),
+            ]
+
     stages = []
     for label, active, pooled in phases:
         live = sum(buffers[key] for key in active)
@@ -109,7 +165,14 @@ def commitment_plan(rows, log_cols=14, inv_rate=4, checks=256, q_pad=None,
     component_peak = max(row["accounted_device_bytes"] for row in stages) + twiddles
     subtotal = component_peak + prior_live_bytes + prior_pool_bytes
     return {
-        "schema": 1, "scope": "one resident hiding commitment; code-derived buffer accounting",
+        "schema": 1, "scope": f"one hiding commitment on the {mode} path; code-derived buffer accounting",
+        "mode": mode, "pool_state": pool_state,
+        "chunk_rows": rmax if mode in ("chunked", "fallback") else None,
+        # [ZK60-CL3] held vs newly requested. On a warm pool the path occupies
+        # the same bytes but allocates none of them; conflating the two is how
+        # a "chunk-only count" gets mistaken for a whole-prover bound.
+        "newly_allocated_capacity_bytes": 0 if pool_state == "warm" else max(
+            row["accounted_device_bytes"] for row in stages),
         "measured": False, "safe_to_run": False, "sources": SOURCES,
         "shape": {"rows": rows, "log_cols": log_cols, "columns": n,
                   "encoded_columns": nn, "inv_rate": inv_rate, "checks": checks,
@@ -136,7 +199,8 @@ def commitment_plan(rows, log_cols=14, inv_rate=4, checks=256, q_pad=None,
             "Helper generation, reserved zero-check tables, matmul/sumcheck/opening workspaces.",
             "CUDA context, loaded kernels, driver allocations, local-memory spills, fragmentation and display usage.",
             "Host witness/export tensors, staging buffers, temporary encodings, serialized proofs and allocator overhead.",
-            "Future chunked hiding commitment: the current implementation still allocates both full expanded buffers.",
+            "Helper/zero-check overlap and any pending attention/FFN state are counted SEPARATELY and are not in this component; see ZK60_CLAUDE_PENDING_GPU.md.",
+            "A chunk-only count is NOT a fallback bound and NOT a whole-prover bound: the fallback mode holds the released resident pair as well.",
         ],
     }
 

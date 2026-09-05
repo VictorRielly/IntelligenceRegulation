@@ -93,3 +93,73 @@ class MemoryPlanTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Cl3Modes(unittest.TestCase):
+    """[ZK60-CL3] resident / chunked / fallback and cold vs warm pool."""
+
+    SHAPE = dict(rows=10774, log_cols=14, inv_rate=4, q_pad=256, ntt_max_log=16)
+
+    def test_resident_rows_are_unchanged_by_the_extension(self):
+        """The extension must not move the number three routes already agree on."""
+        r = plan.commitment_plan(**self.SHAPE)
+        self.assertAlmostEqual(r["subtotal_accounted_mib"], 13492.042953491211, places=6)
+        self.assertEqual(r["mode"], "resident")
+
+    def test_chunked_allocates_no_full_expanded_buffer(self):
+        r = plan.commitment_plan(**self.SHAPE, mode="chunked")
+        full = self.SHAPE["rows"] * (1 << 16) * 8
+        for stage in r["stages"]:
+            self.assertNotIn("expanded_coefficients", stage["live_buffers"])
+            self.assertNotIn("encoded_matrix", stage["live_buffers"])
+        self.assertLess(r["subtotal_accounted_bytes"], full)
+
+    def test_fallback_holds_the_released_resident_pair_as_well(self):
+        """THE POINT OF CL3: a chunk-only count is not a fallback bound. The
+        refused resident attempt released its buffers to the POOL, not to the
+        driver, so the chunked retry runs on top of them."""
+        chunked = plan.commitment_plan(**self.SHAPE, mode="chunked")
+        fallback = plan.commitment_plan(**self.SHAPE, mode="fallback")
+        self.assertGreater(fallback["subtotal_accounted_bytes"],
+                           3 * chunked["subtotal_accounted_bytes"])
+        # and the released pair must be visible as POOLED, not gone
+        retained = [s for s in fallback["stages"] if s["retained_pool_bytes"] > 0]
+        self.assertTrue(retained, "the released resident pair must show as pooled")
+
+    def test_fallback_is_only_reachable_below_the_chunk_size_threshold(self):
+        """Honest scoping: at Mistral width the commitment chunks BY SIZE, so
+        the resident attempt never happens and the fallback figure there is
+        hypothetical. Where it is genuinely reachable the ratio is ~3-4x."""
+        chunk_bytes = 1 << 30  # HL_GPU_CHUNK_BYTES default
+        rows = 2000
+        self.assertLessEqual(rows * (1 << 16) * 8, chunk_bytes, "shape must be reachable")
+        c = plan.commitment_plan(rows=rows, log_cols=14, inv_rate=4, q_pad=256,
+                                 ntt_max_log=16, mode="chunked")
+        f = plan.commitment_plan(rows=rows, log_cols=14, inv_rate=4, q_pad=256,
+                                 ntt_max_log=16, mode="fallback")
+        ratio = f["subtotal_accounted_bytes"] / c["subtotal_accounted_bytes"]
+        self.assertGreater(ratio, 2.5)
+        self.assertLess(ratio, 5.0)
+        # the Mistral-width shape is NOT reachable on this path
+        self.assertGreater(self.SHAPE["rows"] * (1 << 16) * 8, chunk_bytes)
+
+    def test_warm_pool_occupies_the_same_bytes_but_allocates_none(self):
+        """capacity vs request: cold and warm HOLD the same bytes; only the
+        newly allocated capacity differs."""
+        cold = plan.commitment_plan(**self.SHAPE, mode="chunked", pool_state="cold")
+        warm = plan.commitment_plan(**self.SHAPE, mode="chunked", pool_state="warm")
+        self.assertEqual(cold["subtotal_accounted_bytes"], warm["subtotal_accounted_bytes"])
+        self.assertGreater(cold["newly_allocated_capacity_bytes"], 0)
+        self.assertEqual(warm["newly_allocated_capacity_bytes"], 0)
+
+    def test_bad_mode_and_pool_state_are_rejected(self):
+        with self.assertRaises(ValueError):
+            plan.commitment_plan(**self.SHAPE, mode="magic")
+        with self.assertRaises(ValueError):
+            plan.commitment_plan(**self.SHAPE, pool_state="lukewarm")
+
+    def test_the_stale_chunking_note_is_gone(self):
+        r = plan.commitment_plan(**self.SHAPE)
+        joined = " ".join(r["unaccounted"])
+        self.assertNotIn("still allocates both full expanded buffers", joined)
+        self.assertIn("NOT a whole-prover bound", joined)
