@@ -1819,6 +1819,74 @@ pub fn dev_commit_check_chunked(log_cols: u32, inv_rate: usize, rows: usize, chu
     Ok((bad_leaves, bad_cols))
 }
 
+/// [ZK60-CL1] The chunked HIDING commitment's oracle. Checks BOTH halves that
+/// the byte gates can only check together: the chunked leaves, and the
+/// chunked pad/coset-aware opening columns, each against the CPU's own
+/// `encode_row_zk` — not against the device's resident path, so a shared bug
+/// could not hide. Returns (bad leaves, bad column entries); (0, 0) is a pass.
+/// `plain_reencode` opens the SAME hiding commitment with the non-ZK
+/// `columns_chunked` instead. That is the wrong function for a hiding
+/// commitment — it drops the pads and the coset scaling — so a correct build
+/// must report a LARGE `bad_cols` for it. It is the negative control that
+/// proves this oracle discriminates at all, and it is the direct evidence for
+/// rung 1's claim that `columns_chunked_zk` was mandatory rather than tidy.
+pub fn dev_commit_zk_check_chunked(log_cols: u32, inv_rate: usize, rows: usize, q_pad: usize, chunk: usize, plain_reencode: bool) -> Result<(usize, usize), String> {
+    let params = PcsParams { log_cols, inv_rate, num_col_checks: 16 };
+    let ntt = NttTables::new(log_cols + inv_rate.trailing_zeros());
+    let n = params.cols();
+    let nn = params.enc_cols();
+    let coset = Fp::new(7);
+    let mut s = 0x21C0_FFEEu64 ^ ((log_cols as u64) << 40) ^ ((rows as u64) << 8) ^ chunk as u64 ^ ((q_pad as u64) << 24);
+    let mut next = move || {
+        s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        Fp::new(s % P)
+    };
+    let data: Vec<Fp> = (0..rows * n).map(|_| next()).collect();
+    let pads: Vec<Fp> = (0..rows * q_pad).map(|_| next()).collect();
+    let pows = crate::pcs::coset_powers(coset, nn);
+
+    // CPU reference: the hiding encode, row by row, through the same function
+    // the CPU prover uses.
+    let mut cpu = vec![Fp::ZERO; rows * nn];
+    for (i, erow) in cpu.chunks_mut(nn).enumerate() {
+        crate::pcs::encode_row_zk(&ntt, &data[i * n..(i + 1) * n], &pads[i * q_pad..(i + 1) * q_pad], &pows, erow);
+    }
+    let cpu_leaves = crate::pcs::hash_columns(&cpu, rows, nn);
+
+    let g = gpu().ok_or_else(init_err)?;
+    let mut g = g.lock().unwrap();
+    g.ensure_twiddles(&ntt)?;
+    let dev = g.dev.clone();
+    let mut d_data = Pooled::take(&dev, data.len())?;
+    dev.htod_sync_copy_into(as_u64s(&data), d_data.get_mut()).map_err(|e| format!("data upload: {e}"))?;
+    let d_pads = dev.htod_sync_copy(as_u64s(&pads)).map_err(|e| format!("pads upload: {e}"))?;
+    let d_pows = dev.htod_sync_copy(as_u64s(&pows)).map_err(|e| format!("pows upload: {e}"))?;
+    let log_nn = nn.trailing_zeros();
+
+    let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q_pad, nn, log_cols, log_nn, chunk)?;
+    let bad_leaves = leaves.iter().zip(cpu_leaves.iter()).filter(|(a, b)| a != b).count();
+
+    let dc = DevCommit {
+        rows, log_n: log_cols, log_nn, data: d_data, enc: None,
+        zk: Some(ZkReenc { pads: d_pads, pows: d_pows, q: q_pad }),
+    };
+    let idx: Vec<usize> = (0..16).map(|i| (i * 7919 + 13) % nn).collect();
+    let cols = if plain_reencode {
+        g.columns_chunked(&dc, &idx, chunk)?
+    } else {
+        g.columns_chunked_zk(&dc, dc.zk.as_ref().unwrap(), &idx, chunk)?
+    };
+    let mut bad_cols = 0;
+    for (c, &j) in idx.iter().enumerate() {
+        for i in 0..rows {
+            if cols[c][i] != cpu[i * nn + j] {
+                bad_cols += 1;
+            }
+        }
+    }
+    Ok((bad_leaves, bad_cols))
+}
+
 /// Commit a device-resident data buffer (rows x n u64, row-major) — the
 /// encode + hash half of `dev_commit`, also used for the H data the helper
 /// kernels write on the device.

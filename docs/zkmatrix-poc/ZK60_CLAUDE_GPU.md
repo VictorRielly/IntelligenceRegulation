@@ -141,7 +141,7 @@ CL1 is genuinely more than "mirror the non-ZK code".
 
 ---
 
-## Rung 2 plan (not yet implemented)
+## Rung 2 — THE PLAN, recorded before implementing (kept so the design can be judged against what shipped)
 
 Smallest change consistent with the existing design:
 
@@ -160,3 +160,107 @@ Smallest change consistent with the existing design:
 Acceptance for rung 3 is CPU/GPU equality of **both** commitments and opened
 columns on small shapes with forced chunking, varied rows, varied `q`, every
 supported rate, plus the four frozen fixtures on both binaries.
+
+---
+
+## Rung 2 — implemented (commit `da845fa`)
+
+`gpu/cuda.rs` gains `ntt_rows_view` (the NTT over a row-chunk view, same
+kernels/launches/twiddles/scale), `encode_rows_view_zk` (one chunk of the
+hiding encode: forward NTT → `k_zk_pad_scale` with the chunk's pad slice →
+expand NTT), `commit_zk_chunked` (mirrors `commit_chunked`, folding each
+chunk into the per-column blake3 state via `k_hash_cols_stream`), and
+`columns_chunked_zk` (the pad/coset-aware opening that rung 1 showed was
+mandatory). `DevCommit` carries a `ZkReenc { pads, pows, q }` so `dev_columns`
+stays the single opening entry point.
+
+`HL_ZK_CHUNK` — unset/`auto`: chunk by size AND on allocation failure, the
+non-ZK path's own rule; `0`/`off`: the pre-CL1 resident path retained
+byte-for-byte (the reference switch the acceptance criteria require);
+`1`/`force`: always chunk, so small shapes exercise it in the gates.
+
+**No silent CPU fallback and no privacy downgrade.** Chunking is a memory
+decision *inside* the device path; the mode is announced under
+`HL_GPU_VERBOSE`; the CPU body is still reached only on a real `Err`.
+
+## Rung 3 — validation
+
+**The oracle.** `dev_commit_zk_check_chunked` compares the chunked leaves AND
+the chunked opening columns against the CPU's own `encode_row_zk` — not
+against the device's resident path, so a bug shared by both device paths
+could not hide. `hashline/tests/zk60_gpu_commit.rs` runs it over every
+supported rate (`inv_rate` 2/4/8), ragged row counts that leave a short final
+chunk (129/255/256/257/384/400), the degenerate single-chunk plan, varied pad
+counts (`q_pad` 1/16/64/256) and wider shapes (`log_cols` 12 and 14).
+**6/6 pass.**
+
+**The negative control, which is what makes the other five mean anything.**
+The same hiding commitment opened with the non-ZK `columns_chunked` must
+DISAGREE with the CPU. It does, and the failure has exactly the predicted
+shape: `bad_leaves = 0` (the commitment is still the correct chunked hiding
+one) with `bad_cols` far above `rows` (only the opening is wrong). If that
+test ever reports 0 bad columns, the positive tests prove nothing.
+
+**The frozen fixtures, with chunking FORCED** — `HL_ZK_CHUNK=1`, `gpu: ON`
+confirmed in every run:
+
+| gate | digest | bytes | result |
+|---|---|---:|---|
+| `zk` | `021485e4f80ec695` | 87,228,528 | **unmoved** |
+| `zkv3` | `40eb54795e023c77` | 87,697,008 | **unmoved** |
+
+and the 12x512 `zk` gate really chunks — **4 and 5 chunks of ≤128 rows**
+across its commitments — so the streaming column hash, the per-chunk pad
+slicing and the chunked ZK opening are all exercised rather than degenerate.
+The proof carries the opened columns, so a wrong `columns_chunked_zk` would
+have moved the digest.
+
+## Rung 4 — measurement: P3 IS ON THE DEVICE AT MISTRAL WIDTH
+
+The shape that failed on 2026-09-04. One Mistral layer, `d 4096 / f 14336`,
+T=512, same binary and seed, **one session, both arms on the GPU**, so mode
+is the only variable [MEASURED, WSL-BOX, RTX 4070 8 GB, single run]:
+
+| | P1 (public W) | P3 (private W) | cost of hiding |
+|---|---:|---:|---:|
+| PROVE | 3.453 s | **4.142 s** | **+20.0%** |
+| proof | 40,186,228 B | 40,251,860 B | **+0.163%** |
+| sha256 | `b5da6c38c77cf702` | `190e85a1d3bebdc3` | — |
+| VRAM peak | 5,282 MB | **5,182 MB** | −100 MB |
+| device commit | taken | **taken** (was DECLINED) | — |
+
+**Both digests reproduce lane AM's rung-2 values exactly** (`b5da6c38..` /
+40,186,228 B and `190e85a1..` / 40,251,860 B), and AM's P3 arm produced that
+digest on the CPU fallback — so this is also a **CPU/GPU byte-identity gate
+for the hiding commitment at real width**.
+
+**What this retires.** Lane AM's rung 2 recorded "P3's structural cost at
+Mistral width REMAINS UNMEASURED" and warned "DO NOT QUOTE 4.26 → 15.82 s AS
+P3's SURCHARGE" because its P3 arm had fallen back to the CPU. **It is
+measured now: +20.0% on prove, one axis, both arms on the device.** The old
+3.71x was an artefact of the device decline, exactly as rung 2 suspected. The
+same layer goes **15.82 s → 4.142 s = 3.82x** purely by getting onto the
+device it could not previously fit on.
+
+**Four layers, to check the peak does not accumulate**: 4.159 / 3.834 / 3.849
+/ 3.977 s, and **VRAM peak is FLAT at 5,182 MB** across all four — the
+per-layer drain holds, so the peak is a per-layer property, not a pass-length
+one.
+
+**NOT ESTABLISHED, and deliberately not run.** The 32-layer 8B P3 pass. The
+brief says to stay at safe small shapes while the 5090 is unavailable, and
+this box froze three times on 2026-09-04. The flat 4-layer peak makes it a
+reasonable **[PREDICTION]** that an 8B P3 pass would now fit this 8 GB card
+at ~5.2 GB — but that is a prediction, no 8B number is claimed here, and no
+speedup is attributed to any part of the pass this lane did not change.
+
+**One honest limit on the timings above**: single runs, not p95 over ≥20 on a
+quiesced box, and this box is not quiesced-certified. The BYTE results are
+exact and carry no such caveat; the seconds are indicative and are not a
+headline. An ABBA repeat is the next thing to do.
+
+**A consequence for the hardware plan.** Earlier today's board entry said the
+16 GB+ board is what puts the full tier on the device. That is now too strong
+*at Mistral width*: chunking puts it there on 8 GB. The bigger card is still
+what the 8B pass and the fast tier's spill want; the full tier's commitment
+is no longer the reason.
