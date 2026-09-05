@@ -1,6 +1,8 @@
 # B4 — externally bound public block receipt
 
-Experimental CPU-only P0, fixed B3 T32/d16/f16 calibration and layer0.
+Experimental CPU-only P0, fixed B3 T32/d16/f16 calibration. The original B4
+fixture/example uses layer 0; [round-6 B5](ZK60_PUBLIC_CHAIN.md) extends the
+checked library profile to layers 0/1 only, with unchanged layer-zero bytes.
 This is **not a private proof or a token-generation statement**. All fixture
 inputs/outputs are public; never send sensitive data through this path.
 The existing P1 approval object supplies authenticated metadata/weight roots,

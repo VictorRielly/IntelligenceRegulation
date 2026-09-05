@@ -1,0 +1,489 @@
+{
+  "scope": "CPU correctness/compatibility, not target benchmarking",
+  "address_space_limit_bytes_per_process": 8589934592,
+  "stages": [
+    {
+      "stage": "rust_all",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/rust_all.time",
+        "cargo",
+        "test",
+        "--release",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--all-targets",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "timeout_s": 600,
+      "timed_out": false,
+      "elapsed_s": 5.683248992005247,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/rust_all.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/rust_all.time",
+      "ok": true
+    },
+    {
+      "stage": "build",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/build.time",
+        "cargo",
+        "build",
+        "--release",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--bin",
+        "hashline",
+        "--example",
+        "zk60_block_receipt",
+        "--example",
+        "zk60_chain_receipt"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "timeout_s": 600,
+      "timed_out": false,
+      "elapsed_s": 0.03288984300161246,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/build.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/build.time",
+      "ok": true
+    },
+    {
+      "stage": "chain_prepare",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/chain_prepare.time",
+        "/tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_chain_receipt",
+        "prepare",
+        "/home/victor/IntelligenceRegulation/results/zk60_round6_expected.bin"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "timeout_s": 180,
+      "timed_out": false,
+      "elapsed_s": 0.017031388997565955,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/chain_prepare.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/chain_prepare.time",
+      "ok": true
+    },
+    {
+      "stage": "chain_prove",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/chain_prove.time",
+        "/tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_chain_receipt",
+        "prove",
+        "/home/victor/IntelligenceRegulation/results/zk60_round6_expected.bin",
+        "/home/victor/IntelligenceRegulation/results/zk60_round6_receipt.proof"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "timeout_s": 180,
+      "timed_out": false,
+      "elapsed_s": 0.16506258400477236,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/chain_prove.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/chain_prove.time",
+      "ok": true
+    },
+    {
+      "stage": "chain_verify",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/chain_verify.time",
+        "/tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_chain_receipt",
+        "verify",
+        "/home/victor/IntelligenceRegulation/results/zk60_round6_expected.bin",
+        "/home/victor/IntelligenceRegulation/results/zk60_round6_receipt.proof",
+        "f20dc692c421abae9bfcb15ac4c15d8cdce64ef6f49e256c635dcc4bf2354d36",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "f20dc692c421abae9bfcb15ac4c15d8cdce64ef6f49e256c635dcc4bf2354d36",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "timeout_s": 180,
+      "timed_out": false,
+      "elapsed_s": 0.03290964099869598,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/chain_verify.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/chain_verify.time",
+      "ok": true
+    },
+    {
+      "stage": "chain_wrong_root",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/chain_wrong_root.time",
+        "/tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_chain_receipt",
+        "verify",
+        "/home/victor/IntelligenceRegulation/results/zk60_round6_expected.bin",
+        "/home/victor/IntelligenceRegulation/results/zk60_round6_receipt.proof",
+        "f20dc692c421abae9bfcb15ac4c15d8cdce64ef6f49e256c635dcc4bf2354d36",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "0000000000000000000000000000000000000000000000000000000000000000",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "timeout_s": 180,
+      "timed_out": false,
+      "elapsed_s": 0.002641364000737667,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/chain_wrong_root.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/chain_wrong_root.time",
+      "ok": true
+    },
+    {
+      "stage": "chain_no_overwrite",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/chain_no_overwrite.time",
+        "/tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_chain_receipt",
+        "prepare",
+        "/home/victor/IntelligenceRegulation/results/zk60_round6_expected.bin"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "timeout_s": 180,
+      "timed_out": false,
+      "elapsed_s": 0.01624130299751414,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/chain_no_overwrite.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/chain_no_overwrite.time",
+      "ok": true
+    },
+    {
+      "stage": "chain_gpu_refusal",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/chain_gpu_refusal.time",
+        "/tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_chain_receipt",
+        "verify",
+        "/home/victor/IntelligenceRegulation/results/zk60_round6_expected.bin",
+        "/home/victor/IntelligenceRegulation/results/zk60_round6_receipt.proof",
+        "f20dc692c421abae9bfcb15ac4c15d8cdce64ef6f49e256c635dcc4bf2354d36",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "f20dc692c421abae9bfcb15ac4c15d8cdce64ef6f49e256c635dcc4bf2354d36",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "timeout_s": 180,
+      "timed_out": false,
+      "elapsed_s": 0.0022210330062080175,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/chain_gpu_refusal.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/chain_gpu_refusal.time",
+      "ok": true
+    },
+    {
+      "stage": "b4_reprove",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/b4_reprove.time",
+        "/tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_block_receipt",
+        "prove",
+        "/home/victor/IntelligenceRegulation/results/zk60_round4_expected.bin",
+        "/tmp/zk60-round6-scuFsJ/validation2/b4.proof"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "timeout_s": 180,
+      "timed_out": false,
+      "elapsed_s": 0.1155460329973721,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/b4_reprove.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/b4_reprove.time",
+      "ok": true
+    },
+    {
+      "stage": "frozen_v2",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/frozen_v2.time",
+        "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round6-scuFsJ/validation2/v2.proof"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "timeout_s": 180,
+      "timed_out": false,
+      "elapsed_s": 36.262477611002396,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/frozen_v2.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/frozen_v2.time",
+      "ok": true
+    },
+    {
+      "stage": "frozen_v3",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/frozen_v3.time",
+        "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round6-scuFsJ/validation2/v3.proof",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "timeout_s": 180,
+      "timed_out": false,
+      "elapsed_s": 36.76808853900002,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/frozen_v3.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/frozen_v3.time",
+      "ok": true
+    },
+    {
+      "stage": "frozen_zk",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/frozen_zk.time",
+        "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round6-scuFsJ/validation2/zk.proof",
+        "--zk",
+        "--seed",
+        "1"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "timeout_s": 180,
+      "timed_out": false,
+      "elapsed_s": 36.614683275998686,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/frozen_zk.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/frozen_zk.time",
+      "ok": true
+    },
+    {
+      "stage": "frozen_zkv3",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/frozen_zkv3.time",
+        "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round6-scuFsJ/validation2/zkv3.proof",
+        "--zk",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "timeout_s": 180,
+      "timed_out": false,
+      "elapsed_s": 39.531694833000074,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/frozen_zkv3.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/frozen_zkv3.time",
+      "ok": true
+    },
+    {
+      "stage": "native_build",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/native_build.time",
+        "cargo",
+        "build",
+        "--release",
+        "--offline",
+        "--manifest-path",
+        "zkmatrix-rs/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "timeout_s": 600,
+      "timed_out": false,
+      "elapsed_s": 0.11631140800454887,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/native_build.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/native_build.time",
+      "ok": true
+    },
+    {
+      "stage": "python_full",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/zk60-round6-scuFsJ/validation2/python_full.time",
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "timeout_s": 1800,
+      "timed_out": false,
+      "elapsed_s": 943.976866173005,
+      "log": "/tmp/zk60-round6-scuFsJ/validation2/python_full.log",
+      "resource_log": "/tmp/zk60-round6-scuFsJ/validation2/python_full.time",
+      "ok": true
+    }
+  ],
+  "exit_code": 0,
+  "source_sha256": {
+    "hashline/src/public_chain_receipt.rs": "2d7c224756acf7439c52d12a80d5d70010f4c087bf7022b2617db3b4929544a1",
+    "hashline/src/public_block_receipt.rs": "2f99ae965d0efb5a12579b4668573798c3d1b109f3b38d13cceeea624b0ba9e0",
+    "hashline/src/zk.rs": "95c1c3d25805eeb6049790c8ba354b83f30d98dfa72096906ba9fce50eb4551f",
+    "hashline/examples/zk60_chain_receipt.rs": "f71bbcda9d50b5c83d356541d9cd6a29795333dacde3e97018a5e5aaff7168cf",
+    "hashline/src/lib.rs": "943a52cbd1270191f720edd0d7b166453095c55f5bc90d709fdb5a2246471624",
+    "hashline/tests/zk60_public_chain.rs": "a0bff3d3120b958e6b3cff908c2ffc74077d948235e7c6d5d9c4c13686422060"
+  },
+  "binary_sha256": {
+    "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline": "93055aa612a4fd3a958953c1b445dfff7cc5bd0d98df5819180eaeee9cd8ad52",
+    "/tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_chain_receipt": "4b9bfc84756b14b73357b91eaad3bd6d15b3fc763d5e118048a3238fdd15b518"
+  },
+  "chain": {
+    "results/zk60_round6_expected.bin": {
+      "bytes": 2160,
+      "sha256": "dd5bb09b8d33d58c314c774e155c49e1250ba240cdd1af661dea02f79a32f5ec"
+    },
+    "results/zk60_round6_receipt.proof": {
+      "bytes": 4290981,
+      "sha256": "264a2cf4b026a27783c2c70fcca062081fd42c60ef9d394f082a9d6cb8331495"
+    }
+  },
+  "b4_parity": {
+    "ok": true,
+    "sha256": "ba5d82150b92e1ef4f58a29fe90fc65c756ac2f49c18f6df6b5de3f6f2fc6b94",
+    "bytes": 2144946
+  },
+  "frozen_cpu": [
+    {
+      "case": "v2",
+      "bytes": 66844928,
+      "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+      "ok": true
+    },
+    {
+      "case": "v3",
+      "bytes": 70758084,
+      "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+      "ok": true
+    },
+    {
+      "case": "zk",
+      "bytes": 87228528,
+      "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+      "ok": true
+    },
+    {
+      "case": "zkv3",
+      "bytes": 87697008,
+      "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+      "ok": true
+    }
+  ],
+  "schema_version": 1,
+  "integration_base": "606a24e (handoff docs); implementation based on a118da4",
+  "validation_status": "complete CPU correctness/compatibility; source hashes pin pre-commit working tree",
+  "rust_tests": {
+    "passed": 143,
+    "failed": 0,
+    "ignored": 0
+  },
+  "python_tests": {
+    "passed": 144,
+    "failed": 0,
+    "skipped": 0,
+    "unittest_elapsed_s": 943.832
+  },
+  "first_attempt": {
+    "path": "/tmp/zk60-round6-scuFsJ/validation/summary.json",
+    "exit_code": 1,
+    "error": "AttributeError(\"module 'hashlib' has no attribute 'file_digest'\")",
+    "completed_stages": [
+      "rust_all",
+      "build"
+    ],
+    "resolution": "Temporary runner used hashlib.file_digest unavailable on Python3.10; replaced with bounded incremental SHA-256, reran complete gates in fresh validation2 directory; no repository source change needed."
+  },
+  "independent_review": {
+    "scope": "read-only B5 source/CLI and final adversarial tests",
+    "result": "no introduced blocker found",
+    "limits": "not a privacy/no-wrap audit or independent GPU reproduction"
+  },
+  "private_diagnostic": {
+    "status": "source inventory only; reproduction not implemented/executed",
+    "reason": "implementation sub-agent tool refusal; isolated checkout remained clean",
+    "reports": [
+      "docs/zkmatrix-poc/ZK60_FFN_MASK_INVENTORY.md",
+      "docs/zkmatrix-poc/ZK60_FABLE_QUEUE.md"
+    ]
+  },
+  "gpu": {
+    "executed": false,
+    "claude_review_pin": "6e28b6fe780bbc19151986ecf024907b52a018a1",
+    "integration": "held pending CL3/CL4 follow-ups",
+    "target_met": false
+  },
+  "python_resource_report": "\tCommand being timed: \"python3 -m unittest discover -s tests -v\"\n\tUser time (seconds): 1422.20\n\tSystem time (seconds): 10.00\n\tPercent of CPU this job got: 151%\n\tElapsed (wall clock) time (h:mm:ss or m:ss): 15:43.92\n\tAverage shared text size (kbytes): 0\n\tAverage unshared data size (kbytes): 0\n\tAverage stack size (kbytes): 0\n\tAverage total size (kbytes): 0\n\tMaximum resident set size (kbytes): 1707152\n\tAverage resident set size (kbytes): 0\n\tMajor (requiring I/O) page faults: 0\n\tMinor (reclaiming a frame) page faults: 4438278\n\tVoluntary context switches: 44547\n\tInvoluntary context switches: 161930\n\tSwaps: 0\n\tFile system inputs: 0\n\tFile system outputs: 9032\n\tSocket messages sent: 0\n\tSocket messages received: 0\n\tSignals delivered: 0\n\tPage size (bytes): 4096\n\tExit status: 0\n",
+  "public_chain_fixture_difference": {
+    "unit_test": "distinct second-layer weights, SHA256 30f9c105c8ac389f0d84691778f0068bb31b4c1fa3455bfb93ea456637b295fb",
+    "persisted_cli": "same public synthetic weights at two distinct layer positions; see chain artifact hashes"
+  },
+  "native_binary_sha256": {
+    "zkmatrix-rs/target/release/zkmatrix-rs": "a90e59faaa0c3f49f346ac1aef70320ef06f30dce5aaae83eb5bc117881543c4",
+    "zkmatrix-rs/target/release/section3_kzg": "dd177e857e3a7e51d6f708039cf1a932a8d9508c79e60860f6dd3ab93b614cfa",
+    "zkmatrix-rs/target/release/curve_ipa": "a3dbd205374c399034677a5e67ea4c67ff4f3ee6836363b82dc62ff733761166",
+    "zkmatrix-rs/target/release/structured_matrix": "f81a4db9c36d0b24f683fe0f9ee587fac29972b57244ccee8e6e65d506054ebb",
+    "zkmatrix-rs/target/release/lattice_matmul": "ada0213cdabde2afa6d662deafe07bcadb148c20725188572d3821fc7cc61a25",
+    "zkmatrix-rs/target/release/ring_matmul": "34fd2da1fbaa6bd85022dd669213dfe27d0355c03112b299f1fdbee351aa2654"
+  }
+}

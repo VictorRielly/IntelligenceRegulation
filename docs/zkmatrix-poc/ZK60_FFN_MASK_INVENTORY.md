@@ -34,7 +34,9 @@ same key. `zk_rhos` draws group lambdas and then proximity coefficients
 **before** the vectors are absorbed. Analyze that actual code ordering.
 `assert_mask_sites` establishes nonzero mask support, not joint base-field rank.
 
-All mask rows also enter proximity observations. X is used at both `rho_d`
+Each A, H and P3 W commitment additionally reserves **one base-field proximity
+row**; H's dedicated proximity reservation is not an Fp2 pair. All mask rows
+also enter proximity observations. X is used at both `rho_d`
 and `p2`; h16 at both `rho_f` and `p5`, with separate masks. H helpers enter
 point openings, the LogUp sum and proximity. H's constrained u participates
 in its zsum opening, LogUp sum and proximity. Local paired masking alone
@@ -62,8 +64,10 @@ included in round 6. The source investigation above was completed separately.
 ## Fable handoff and acceptance
 
 1. Capture actual verifier-reconstructed claims, approved parameters/root and
-   public transcript at A verification. No private data, pads, salts or RNG
-   state may enter the observer. Any shared-source test hook needs Codex review;
+   public transcript at A verification. No private witness, unexposed per-row
+   pad/full salt tables or RNG state may enter the observer. Public opening
+   fields (including folded pad coordinates and sampled salts already exposed
+   in `OpeningZk`) are allowed and needed for replay. Any shared-source test hook needs Codex review;
    do not edit Claude-owned `pcs.rs` concurrently.
 2. First require complete FFN verification. Reconstruct the exact grouping and
    challenge schedule; cross-check against ordinary PCS verification, including
