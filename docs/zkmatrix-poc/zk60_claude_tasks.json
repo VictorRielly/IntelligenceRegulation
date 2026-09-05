@@ -3,7 +3,7 @@
   "created_local_date": "2026-09-04",
   "source_base": "5657a8d",
   "owner": "Claude in its own session; queued, not represented as executed by Codex",
-  "latest_observed_cl1": "c9fc897 (docs correction after15eeda6; code unchanged)",
+  "latest_observed_cl1": "6e28b6fe780bbc19151986ecf024907b52a018a1 (CL2/CL3 and CL8/CL10 committed; concurrent uncommitted CL4 excluded from review)",
   "integration_state": "hold pending CL2/CL3/CL4 fixes and Codex re-review",
   "tasks": [
     {
@@ -11,7 +11,7 @@
       "priority": 0,
       "title": "Close deferred-opening correctness and reference-mode gaps",
       "depends_on": [],
-      "status": "ready",
+      "status": "source fixes reviewed at 6e28b6f; final full-digest GPU-required evidence pending CL4",
       "files": [
         "hashline/src/gpu/cuda.rs",
         "hashline/src/gpu/mod.rs",
@@ -36,7 +36,12 @@
       "depends_on": [
         "CL2"
       ],
-      "status": "queued",
+      "status": "follow-up required after 6e28b6f review; late retry implemented but allocation tests/planner incomplete",
+      "review_followups": [
+        "Instrument pool_take_min fresh allocations as well as pool_take; include raw pads/powers/leaves or explicitly delimit counter scope.",
+        "CPU-check leaves and opened columns from actual injected fallback, not only enc.is_none().",
+        "Mirror CUDA 128-row minimum/rounding and oversized capacity reuse without double counting; fix warm raw allocations, post-return state and CLI mode flags."
+      ],
       "files": [
         "hashline/src/gpu/cuda.rs",
         "hashline/tests/zk60_gpu_commit.rs",
@@ -64,7 +69,11 @@
         "CL2",
         "CL3"
       ],
-      "status": "queued",
+      "status": "Claude working tree edits observed; not reviewed or accepted at 6e28b6f",
+      "review_followups": [
+        "Replace 16-hex floor comparisons with full SHA-256 and fresh-artifact checks; require proof subprocess exit and verifier success.",
+        "Pin final source/binary and actual GPU case/device counts; preserve prior positive diagnostic logs without treating them as full gate closure."
+      ],
       "files": [
         "hashline/src/gpu/cuda.rs",
         "hashline/tests/zk60_gpu_commit.rs",
@@ -173,7 +182,7 @@
       "priority": 1,
       "title": "Design GPU support for actual pending private blocks",
       "depends_on": [],
-      "status": "ready_design",
+      "status": "supporting design/tool committed on Claude branch as 87e6765; not merged or private-protocol acceptance",
       "files": [
         "docs/zkmatrix-poc/ZK60_CLAUDE_PENDING_GPU.md",
         "scripts/hashline_cl_pending_memory.py",
@@ -223,7 +232,7 @@
       "priority": 2,
       "title": "Measure proof-size and serialization costs before redesign",
       "depends_on": [],
-      "status": "ready_analysis",
+      "status": "supporting artifact inventory committed on Claude branch as e968c3e; not merged, not a serialization timing or security result",
       "files": [
         "scripts/hashline_cl_artifact_profile.py",
         "tests/test_hashline_cl_artifact_profile.py",

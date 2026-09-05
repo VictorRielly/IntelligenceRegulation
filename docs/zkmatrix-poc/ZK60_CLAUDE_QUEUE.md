@@ -10,8 +10,15 @@ as `5657a8d`. Read the latest task board and actual branch tip before pickup.
 
 **Hold CL1 integration pending the concrete CL2/CL3/CL4 review findings.**
 The read-only [integration review](ZK60_CL1_INTEGRATION_REVIEW.md) records the
-source locations and limits. Observed tip `c9fc897` adds the pooled-memory
-correction to `15eeda6`; the CUDA source is unchanged. Preserve that correction.
+source locations and limits. Round 6 reviewed committed tip `6e28b6f`:
+CL2's strict off/monotonic twiddle fixes and CL3's late allocation retry are
+present. **CL3 needs follow-ups** on uncounted `take_min`/raw allocations,
+actual fallback numerical parity, and planner chunk rounding/reuse/lifetimes.
+CL4 is being edited in Claude's checkout and is not yet accepted. Its final
+gate must compare full hashes, check proof subprocess exit/verification and
+require actual GPU execution. The detailed review is the pickup list; Codex
+has not edited Claude's owned source. CL8/CL10 supporting work is committed
+on Claude's branch, not merged or a private-block implementation.
 
 Work in a separate checkout, record the base and claim a task in your own
 report. One active writer may own `gpu/cuda.rs`/kernels at a time; use serial

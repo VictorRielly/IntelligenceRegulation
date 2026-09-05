@@ -1,5 +1,34 @@
 # CL1 integration review — hold pending follow-ups
 
+## Round-6 follow-up: pinned `6e28b6f`
+
+Reviewed commit: `6e28b6fe780bbc19151986ecf024907b52a018a1`.
+Claude's concurrent uncommitted CL4 edits were deliberately excluded. This
+is a read-only source/evidence review, not independent GPU reproduction.
+**Integration remains held**, with these concrete follow-ups for Claude:
+
+| Task | Evidence at this pin | Remaining acceptance |
+|---|---|---|
+| CL2 | Strict off refuses resident allocation failure; twiddle cache is monotonic and has prefix/interleaving tests. | Keep the fixes; rerun their GPU-required gates with the final combined source. |
+| CL3 allocation | Late `d_enc` now retries chunking. `pool_take` counts/injects fresh allocations, but `pool_take_min` directly allocates outside that counter/cap. | Instrument all intended allocation paths or narrow the assertion. The current counter cannot establish that chunk fallback makes no fresh allocation. Include raw pads/powers/leaves in capacity accounting. |
+| CL3 correctness | Injected-failure probe returns only `dc.enc.is_none()` and discards leaves. | CPU-check leaves and opened columns from the **actual injected-failure path**, not just its routing flag. |
+| CL3 planner | New resident/chunked/fallback modes exist. | Mirror the device's minimum/rounded 128-row chunk plan; count oversized reused buffers once, with their actual capacity. Fix warm-pool zero-allocation claims (raw allocations remain), resident-only post-return fields/assumptions and missing CLI mode controls. |
+| CL4 | Chunking still adds time inside `commit_zk_chunked` and again in its caller; GPU tests still return success without a device. | Finish exclusive attribution and process-isolated, fail-closed GPU-required execution with visible case/device counts. |
+| CL4 evidence | `results/cl1_floors.sh` compares only 16 hex characters and does not inspect each proof subprocess's exit code. `cl2_floors.log` retains shortened digests. | Record/compare **full SHA-256**, fresh artifacts, subprocess success, verifier success, actual device execution, source/binary identity and exact case count. |
+
+Relevant pinned paths: `hashline/src/gpu/cuda.rs` (`pool_take`,
+`pool_take_min`, `commit_zk_chunked`, `dev_commit_zk_from_probe`),
+`hashline/tests/zk60_gpu_commit.rs`, `scripts/hashline_memory_plan.py`
+and `results/cl1_floors.sh`. Line numbers in a live Claude checkout may move.
+
+The fallback planner's double counting is generally conservative, but it is
+not an accurate lifetime model; the too-small chunk-row count can undercount.
+Neither should be used as a whole-model launch authorization. CL8's symbolic
+pending-state inventory and CL10's artifact inventory are separate supporting
+work, not completion of these gates or private-block implementation.
+
+## Original review (historical source)
+
 Source reviewed at `15eeda6`; observed branch `zk60-cl1` subsequently reaches
 `c9fc897` with docs-only changes. The later report corrects pool accounting:
 the resident W component is about **13,492 MiB**, not the original 12,142 MiB.
