@@ -442,3 +442,32 @@ failure, and allocates neither full `rows·nn` buffer. The planner still
 correctly describes the RESIDENT path, which `HL_ZK_CHUNK=0` retains, so its
 numbers stay valid for that mode and for the historical record. It is
 Codex's file; this is a note, not an edit.
+
+---
+
+## CL4 correction to this document's own measurements — scope, stated precisely
+
+CL4 found that `commit_zk_chunked` charged its own encode+hash wall to
+`secs_ntt` while `dev_commit_zk_from` ALSO charged `t1.elapsed()`, which spans
+that call. Every chunked commitment was counted twice in the device-side NTT
+column. Fixed in `309d3f9`; at Mistral width the reported device-side ntt goes
+**1.262 → 0.603 s**.
+
+**What this does and does not invalidate, exactly:**
+
+- **Rung 4's table is UNAFFECTED.** It quotes prove, verify, proof bytes, VRAM
+  peak and whether the device commit was taken — none of which come from
+  `secs_ntt`. The +20.0% surcharge, the byte-identical digests and the 5,182 MB
+  peak all stand.
+- **The `gpu device-side (summed)` lines quoted in rung 5's verbose trace and
+  in any log written before `309d3f9` overstate `ntt`.** Read those as
+  inflated; re-run for a corrected figure.
+- **No timing improved.** Prove is 3.996 s against 4.142 s before, i.e.
+  unchanged within this box's noise, and the proof is still 40,251,860 B. This
+  is a measurement correction, and calling it anything else would be the exact
+  error CL4's limits warn about.
+
+I recorded in `309d3f9`'s message that the inflated figure appeared "including
+ones in my own CL1 rung-4 write-up". That was itself slightly wrong — rung 4's
+table never quoted a device-side NTT number. The correction's true scope is the
+verbose traces, as above.
