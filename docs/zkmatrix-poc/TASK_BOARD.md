@@ -1,5 +1,15 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**ZK60 round 4 validated, not yet committed:** [overall milestone map](ZK60_STATUS.md) separates
+completed public/private components from the full private-LLM and performance
+gates. [Round-4 ownership](ZK60_PARALLEL_ROUND4.md) covers the new externally
+bound public receipt and bounded component codec. 124 Rust tests, 48 targeted
+Python tests and four frozen CPU proof artifacts pass; separate-process
+verification of the 2,144,946-byte public receipt passes. Claude's CL1 handoff
+below is delivered on `zk60-cl1`, not merged; integration review and the broader
+Python fixture-path repair are Codex's next tasks. GPU/PCS ownership and
+Fable's independent privacy review remain reserved.
+
 **ZK60 round 3 integrated:** prior work is pushed as `24ae746` on the existing
 performance branch. [Round-3 handoff](ZK60_PARALLEL_ROUND3.md) covers the
 executed attention metadata schedule, fixed-oracle P0 block proof and reviewed
@@ -48,7 +58,61 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
-**AS OF 2026-09-04 11:1x (WSL box clock — NEWEST BLOCK. THE 8B PRODUCT
+**AS OF 2026-09-04 22:xx (NEWEST BLOCK. ZK60 TASK CL1 IS DONE:
+**P3 RUNS ON THE DEVICE AT MISTRAL WIDTH**, which it could not do this
+morning, and the surcharge lane AM had to leave unmeasured is +20.0%):**
+- **LANE `zk60-cl1` (worktree `wt-zk60-cl1`), branched at `87c5338`,
+  pushed, NOT MERGED** — integration is Codex's/Victor's call, not this
+  lane's. Full record: `docs/zkmatrix-poc/ZK60_CLAUDE_GPU.md`.
+- **THE DEFECT WAS AN ASYMMETRY.** `dev_commit_from` (non-hiding) has
+  chunked by size AND fallen back to chunked on allocation failure since
+  [UPERF3-AC]; `dev_commit_zk_from` (hiding) took both `rows*nn` buffers
+  unconditionally and died. Rung 1 derived the peak BEFORE running
+  anything: `[rows*(n+q+2*nn)+nn]*8` = **12,142 MiB on an 8,188 MiB
+  card**, whose largest single take is **5,387.0 MiB — exactly the
+  `cuMemAlloc(5387 MB)` of the morning's failure**, pinning it to
+  `d_coef2`. Even had that succeeded, the phase needs 12.1 GB.
+- **IT COULD NOT SIMPLY MIRROR THE NON-ZK CODE**: `columns_chunked`
+  re-encodes with neither pads nor coset scaling, so dropping `enc`
+  without a pad/coset-aware opening would have **silently produced wrong
+  openings**. `columns_chunked_zk` was mandatory, not tidy.
+- **MEASURED** (one Mistral layer, d 4096 / f 14336, T=512, one session,
+  same binary and seed, BOTH ARMS ON THE GPU, single run):
+  **PROVE P1 3.453 s -> P3 4.142 s = +20.0%**; bytes +0.163%; VRAM peak
+  5,182 MB (P3) vs 5,282 (P1); the device commit **TAKEN** where it was
+  DECLINED. Both digests reproduce lane AM's rung-2 values exactly
+  (`b5da6c38..`, `190e85a1..`), and AM made its P3 digest on the CPU
+  fallback — so this is also a CPU/GPU byte-identity gate at real width.
+  Four layers: VRAM peak **FLAT** at 5,182 MB.
+- **THIS RETIRES AM's CAVEAT.** "P3's structural cost at Mistral width
+  REMAINS UNMEASURED" and "do not quote 4.26 -> 15.82 s" are answered:
+  the 3.71x was an artefact of the device decline, as rung 2 suspected.
+  The same layer is **15.82 -> 4.142 s = 3.82x** purely by fitting.
+- **AND IT CORRECTS THIS BOARD'S OWN EARLIER ENTRY TODAY.** The line
+  "the 16 GB+ board is what makes sub-3% the DEPLOYED figure ... P3
+  cannot get on the device at all at this width" is **too strong at
+  Mistral width** — chunking puts it there on 8 GB. The bigger card is
+  still what the 8B pass and the fast tier's spill want.
+- **GATES**: `results/cl1_floors.log` exit 0 — **12 byte gates** (4
+  fixtures x CPU / GPU / GPU with `HL_ZK_CHUNK=1` forced), the CL1 GPU
+  oracle suite 6/6 **including a negative control** that proves the
+  oracle discriminates, and **105 crate tests**. `HL_ZK_CHUNK=0` retains
+  the pre-CL1 resident path byte-for-byte.
+- **NEWLY POSSIBLE, DELIBERATELY NOT RUN**: the 32-layer 8B P3 pass on
+  the device. The brief says stay small without the 5090 and this box
+  froze three times today. Launch it detached under the heavy lock with
+  a `.done` marker, `nvidia-smi` near 0 first, and grep for `gpu: ON`.
+- **A PRE-EXISTING RED, NOT THIS WORK's**: `python3 -m unittest discover
+  -s tests` is **3 failures + 1 error** of 81 (lane AO reported "one
+  error"; the fuller count is `test_ring_freeze_check`,
+  `test_freeze_rows_uagb1_bf`, `test_pass_smoke_real_data`,
+  `test_freeze_rows`). ONE root cause: they want
+  `results/m125_ffn_export/`, and this box has the activation planes in
+  `results/m125_ffn_export_wsl/` (which is what `M125_EXPORT_DIR` and
+  the byte gates already point at). `tests/` is nobody's lane right now
+  — it needs an owner, and CLAUDE.md treats this suite as load-bearing.
+
+**AS OF 2026-09-04 11:1x (THE 8B PRODUCT
 NUMBER REPRODUCED BYTE FOR BYTE ON A SECOND TREE; A THIRD BOX FREEZE,
 AND THE CULPRIT IS NOT THE ONE THE LEDGER NAMED):**
 - **THE BOX FROZE A THIRD TIME, at ~11:06.** Boots today: 10:15, 10:31,

@@ -41,6 +41,9 @@ pub mod phase_profile;
 pub mod causal_oracle;
 // Public P0 arithmetic validation only; does not satisfy the P1 block policy.
 pub mod public_block_oracle;
+// Experimental public-only bounded wire and external-I/O receipt profile.
+pub mod public_block_wire;
+pub mod public_block_receipt;
 // Opt-in public execution metadata; not a private-proof security inventory.
 pub mod attention_schedule;
 // Fixed-calibration metadata preflight; not a private-block verifier.
