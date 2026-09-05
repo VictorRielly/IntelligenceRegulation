@@ -27,7 +27,9 @@ CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=$CUDA_LD \
   || { echo "FAILURE: GPU build"; exit 1; }
 
 say "cargo test --release (CPU)"
-flock /tmp/zk-build.lock cargo test --release --manifest-path $R/hashline/Cargo.toml 2>&1 | tail -20
+# record EVERY binary's result line: `tail` hid the lib suite's count on the
+# first run, which left the log unable to show what the exit code had checked.
+flock /tmp/zk-build.lock cargo test --release --manifest-path $R/hashline/Cargo.toml 2>&1 | grep -E '^test result:|^error|panicked' 
 [ "${PIPESTATUS[0]}" = 0 ] || { echo "FAILURE: cargo test"; fail=1; }
 
 say "CL1 GPU oracle suite (chunked hiding commit vs the CPU, + negative control)"
