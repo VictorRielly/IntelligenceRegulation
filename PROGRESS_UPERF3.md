@@ -14400,3 +14400,55 @@ No GPU/PCS/private-core source or named agents' reserved files changed.
 The next public receipt/private-review/Claude-after-current-task assignments
 are in `docs/zkmatrix-poc/ZK60_PARALLEL_ROUND3.md`. Full private LLM coverage
 and 60 generated tokens/s have NOT been demonstrated.
+
+## ZK60 round 4 — public receipt continuation
+
+Victor requested continuation and an overall plan update after both
+checkpoints were pushed through `87c5338`. Ownership is declared before
+changes in `docs/zkmatrix-poc/ZK60_PARALLEL_ROUND4.md`: lead = external
+input/output/context binding and integration; codec worker = new bounded
+component wire codec; planning worker = overall status map. CPU/public
+synthetic only, no legacy transcript or Claude GPU/PCS changes. Victor
+reports Claude will start its queue; actual job execution is not inferred.
+
+### ZK60 round 4 closure — externally bound public receipt
+
+B4 is implemented and validated in the working tree, not yet committed.
+The NEW public receipt domain binds independent expected input/output,
+request context and approved metadata before challenges. Actual attention
+input and final residual class claims join the same arithmetic A opening;
+both internal FFN seams and approved W roots remain checked. Tests rebuild
+fresh arithmetic under wrong expected input/output and reach verifier refusal
+at the external boundary. This is a tiny CPU P0 profile, not private A07.
+
+Complete bounded framing carries all component commitments, arguments and
+openings. Canonical field words, exact counts/consumption and requested
+decoded allocation limits are checked before low-level verification.
+The separate-process verifier executes no witness, weights, exports or
+prover. Public synthetic artifacts: `results/zk60_round4_expected.bin`
+(2,120 B) and `results/zk60_round4_receipt.proof` (2,144,946 B).
+Wrong independent roots and attempted output overwrites refuse.
+
+Final main-tree checks: **124 release Rust tests, 48 targeted Python tests,
+four frozen CPU proof artifacts pass, exit 0**. Full hashes and lengths
+match v2/v3/P1-seed-1 fixtures. Exact evidence is in
+`results/zk60_round4_validation.json`. Existing attention/FFN/ZK/PCS/GPU
+arithmetic paths are unchanged; eight inherited attention warnings remain.
+All Codex workers and substantive jobs are finished. The broader Python
+suite and GPU-feature tests were not rerun by Codex in this round.
+
+Review fixed an environment-only GPU refusal weakness by refusing GPU-enabled
+builds outright in this CPU receipt. A separate legacy zero-denominator
+assertion path was identified by inspection, not reproduced; explicit refusal
+and wider hostile-input hardening remain required before a network service.
+No privacy, no-wrap, universally panic-free or throughput theorem is claimed.
+
+During the round Claude delivered CL1 on `zk60-cl1` through `15eeda6`; its
+floor log reports exit 0. Concurrent main-tree board-only commit `2c88e4a`
+is preserved. Codex waited behind its lock and read the source/results
+handoff report, but has not reviewed or merged the code. Next assignments:
+Codex = public verifier hardening, CL1 review and broader Python fixture-path
+repair; Fable = independent privacy/identity audit; private block integration
+follows reviewed prerequisites. See `ZK60_PARALLEL_ROUND4.md` and
+`ZK60_STATUS.md`. Complete private LLM proofs and 60 tokens/s on one GPU
+remain unachieved; no 5090 measurement was made.

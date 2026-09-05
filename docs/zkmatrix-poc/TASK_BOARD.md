@@ -1,11 +1,14 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
-**Active ZK60 round 4:** [overall milestone map](ZK60_STATUS.md) separates
+**ZK60 round 4 validated, not yet committed:** [overall milestone map](ZK60_STATUS.md) separates
 completed public/private components from the full private-LLM and performance
 gates. [Round-4 ownership](ZK60_PARALLEL_ROUND4.md) covers the new externally
-bound public receipt and bounded component codec; final integration validation
-is in progress. Victor says Claude will start its queue; no execution handoff
-is inferred. GPU/PCS ownership and Fable's independent review remain reserved.
+bound public receipt and bounded component codec. 124 Rust tests, 48 targeted
+Python tests and four frozen CPU proof artifacts pass; separate-process
+verification of the 2,144,946-byte public receipt passes. Claude's CL1 handoff
+below is delivered on `zk60-cl1`, not merged; integration review and the broader
+Python fixture-path repair are Codex's next tasks. GPU/PCS ownership and
+Fable's independent privacy review remain reserved.
 
 **ZK60 round 3 integrated:** prior work is pushed as `24ae746` on the existing
 performance branch. [Round-3 handoff](ZK60_PARALLEL_ROUND3.md) covers the

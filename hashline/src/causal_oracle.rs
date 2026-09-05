@@ -30,14 +30,6 @@ const KV: usize = 8;
 /// The immutable contract retains its P1 policy; using its arithmetic in a P0
 /// test does not turn that test into a P1 proof.
 pub fn public_synthetic_fixture() -> (ApprovedP1BlockContract, PublicBlockWeights, Vec<i16>) {
-    use crate::attention::{AttnConsts, FullConsts};
-    use crate::export_v3::V3Exps;
-    use crate::layer::{LayerParams, StatementV3};
-    use crate::private_block_contract::AttentionExponents;
-    use crate::tables_attn::rope_digest;
-    use crate::tables_v3::{int16out_member, Act16Fn};
-    use crate::zk::ZkStatementMode;
-
     let mut w = PublicBlockWeights {
         wq: vec![0; 256],
         wk: vec![0; 128],
@@ -72,6 +64,27 @@ pub fn public_synthetic_fixture() -> (ApprovedP1BlockContract, PublicBlockWeight
     w.wd_t[2 * 16 + 11] = 19;
     w.wd_t[11 * 16 + 2] = -13;
     let (aw, fw) = cpu_weight_commitments(&w).expect("public fixture weights");
+    let approved = ApprovedP1BlockContract::from_trusted_registration(
+        public_synthetic_registration(aw, fw),
+    ).expect("public fixture contract");
+    let input = (0..T * D)
+        .map(|i| ((i / D) % 5) as i16 - 2 + (i % 3) as i16 - 1)
+        .collect();
+    (approved, w, input)
+}
+
+/// Public fixed-fixture metadata only: no weight tensors, witness construction,
+/// commitment generation or proving. Callers must independently authenticate
+/// the supplied roots. This function does NOT approve a candidate proof.
+pub fn public_synthetic_registration(aw: Commitment, fw: Commitment) -> BlockRegistration {
+    use crate::attention::{AttnConsts, FullConsts};
+    use crate::export_v3::V3Exps;
+    use crate::layer::{LayerParams, StatementV3};
+    use crate::private_block_contract::AttentionExponents;
+    use crate::tables_attn::rope_digest;
+    use crate::tables_v3::{int16out_member, Act16Fn};
+    use crate::zk::ZkStatementMode;
+
     let (ct, sn) = rope_tables_generate(T, HD, 10000.0, 7);
     let norm = NormConsts {
         tn: 11,
@@ -83,7 +96,7 @@ pub fn public_synthetic_fixture() -> (ApprovedP1BlockContract, PublicBlockWeight
     let (table, table_digest) =
         int16out_member(Act16Fn::Silu, -3, -11).expect("public fixture table");
     let model_identity = *blake3::hash(b"B3 public synthetic signed weights v1").as_bytes();
-    let r = BlockRegistration {
+    BlockRegistration {
         attention: AttnConsts {
             shape: AttnShape {
                 t: T,
@@ -181,13 +194,7 @@ pub fn public_synthetic_fixture() -> (ApprovedP1BlockContract, PublicBlockWeight
         calibration_identity: *blake3::hash(b"B3 public fixed calibration v1").as_bytes(),
         attention_weights: aw,
         ffn_weights: fw,
-    };
-    let approved =
-        ApprovedP1BlockContract::from_trusted_registration(r).expect("public fixture contract");
-    let input = (0..T * D)
-        .map(|i| ((i / D) % 5) as i16 - 2 + (i % 3) as i16 - 1)
-        .collect();
-    (approved, w, input)
+    }
 }
 
 /// Attention matrices are (output,input); FFN matrices are (input,output),
