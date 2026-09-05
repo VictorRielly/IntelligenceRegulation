@@ -1,6 +1,16 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
-**ZK60 round 4 validated, not yet committed:** [overall milestone map](ZK60_STATUS.md) separates
+**ZK60 round 5 active:** round 4 is committed and pushed as `5657a8d`.
+Victor requested continued implementation and a substantial Claude queue:
+[ten Claude tasks, CL2–CL11](ZK60_CLAUDE_QUEUE.md), with explicit dependencies,
+file ownership and acceptance. [CL1 review](ZK60_CL1_INTEGRATION_REVIEW.md)
+holds integration pending correctness/fallback/measurement follow-ups; observed
+tip `c9fc897` includes the pooled-memory correction. Codex workers own verifier
+hardening and full Python fixture selection in [round 5](ZK60_PARALLEL_ROUND5.md).
+Claude's GPU/PCS ownership continues; the memory planner transfers to Claude
+for CL3. Fable's independent privacy/identity gate remains outstanding.
+
+**ZK60 round 4 validated and pushed:** [overall milestone map](ZK60_STATUS.md) separates
 completed public/private components from the full private-LLM and performance
 gates. [Round-4 ownership](ZK60_PARALLEL_ROUND4.md) covers the new externally
 bound public receipt and bounded component codec. 124 Rust tests, 48 targeted

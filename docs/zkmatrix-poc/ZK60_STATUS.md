@@ -1,8 +1,10 @@
 # ZK60 milestone map
 
-Snapshot: round 4 is implemented and validated on the round-3 source base
-`87c5338`; concurrent board-only handoff `2c88e4a` is preserved. Round-4 code
-and artifacts are not yet committed. The public receipt is byte-verified in
+Snapshot: round 4 is committed and pushed as `5657a8d`, with the concurrent
+board-only handoff `2c88e4a` preserved. [Round 5](ZK60_PARALLEL_ROUND5.md)
+continues verifier hardening, Python fixture repair and CL1 review; the
+[expanded Claude queue](ZK60_CLAUDE_QUEUE.md) has ten substantive tasks.
+The public receipt is byte-verified in
 a separate process and all four frozen CPU compatibility gates pass.
 **We have a verified tiny public transformer block and useful private-proof
 components, not a complete private LLM proof or a 60-tokens/s result.**
@@ -35,7 +37,7 @@ failures there, assigned to Codex for a separate regression-infrastructure fix.
 | Whole-profile privacy and identity | **Fable: independent review remains outstanding**, [F1 brief](ZK60_EXECUTION.md#f1--task-for-fable-prove-which-model-ran); Codex supplies diagnostics and implements only reviewed changes. | Audit actual joint opening groups, masks, proximity vectors, functionals, challenge order and reuse. Resolve the diagnosed singleton-mask hazard at the actual supported profiles. For P3, specify and test consistency between fresh private W roots and independently approved stable model identity. |
 | One complete private block, then two | **Codex: after reviewed privacy/interface prerequisites**, [private-block tasks](zk60_private_block_tasks.json). | Implement pending attention/FFN ownership, private lookup/norm/attention relations and both internal seams on the **actual** commitments. Reserve all masks before commitment and open once. Establish integer/range/no-wrap obligations; then test two-block residual linkage with freshly rebuilt adversarial witnesses. |
 | Complete generated-response relation | **Codex: subsequent coverage gate**, [execution milestones](ZK60_EXECUTION.md#c1-and-subsequent-milestones). | Bind all layers, embedding, final norm/head, token selection and request/model/calibration state. Prove position/KV/window transitions and the chosen generation/receipt policy; report generation time, proof readiness and post-generation proof lag separately. |
-| Bounded-memory GPU execution | **Claude: CL1 handoff delivered**, branch `zk60-cl1` at `15eeda6`, not merged. Report/floor log: 12 byte gates, six GPU oracle tests, 105 crate tests and both builds; exit marker 0 at local 2026-09-04 21:40:45. Codex has read the handoff, not reviewed the code. [CL1 brief](ZK60_EXECUTION.md#cl1--task-for-claude-private-commitments-within-a-vram-budget). | Review allocation lifetimes, chunked hiding commitments and opened-column parity, then preserve merged-tree fixtures and safely measure supported scales. The reported Mistral-width one-layer P1/P3 prove times are 3.453/4.142 s on an RTX 4070 Laptop, single runs, not full-model or target-clock results. Its reserved GPU/PCS files stay under its ownership. |
+| Bounded-memory GPU execution | **Claude: CL1 delivered; integration held after source review.** Observed tip `c9fc897` adds the pooled-memory correction to `15eeda6`; source is unchanged. Existing hardware log reports 12 byte gates, six GPU oracle tests, 105 crate tests and both builds. [Review findings](ZK60_CL1_INTEGRATION_REVIEW.md) queue CL2/CL3/CL4 before merge. | Resolve deferred-opening twiddle state, strict off-mode semantics, complete bounded allocation fallback, double-counted NTT time and non-vacuous GPU-required tests. These are source-inspected, not independently GPU-reproduced. One-layer RTX 4070 Laptop times remain single-run diagnostics, not full-model or target-clock results. |
 | Target measurement | **Codex integration + Claude hardware evidence: pending.** | Complete supported relation and reviewed security, named-device memory headroom, stable model/calibration, independently decoded verification, and the statistical clock below. No 5090 benchmark has been recorded in this work. |
 
 B4 follow-ups, Fable's review and Claude's bounded-memory lane can proceed

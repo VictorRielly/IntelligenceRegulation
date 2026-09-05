@@ -49,6 +49,10 @@ No GPU/8B runs or whole-private-proof, no-wrap or throughput claims.
 
 ## Handoff
 
+Publication update: round 4 committed and pushed as `5657a8d` on
+`perf/zk-batch-optimizations`. The closure snapshot below intentionally records
+the validation-time state. Current work is [round 5](ZK60_PARALLEL_ROUND5.md).
+
 Implemented and validated in the main working tree; **not yet committed**.
 The concurrent board-only commit `2c88e4a` is preserved and changes no source
 covered by these tests. All Codex workers and substantive jobs have finished.

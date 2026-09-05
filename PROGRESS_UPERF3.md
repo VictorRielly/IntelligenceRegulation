@@ -14452,3 +14452,26 @@ repair; Fable = independent privacy/identity audit; private block integration
 follows reviewed prerequisites. See `ZK60_PARALLEL_ROUND4.md` and
 `ZK60_STATUS.md`. Complete private LLM proofs and 60 tokens/s on one GPU
 remain unachieved; no 5090 measurement was made.
+
+## ZK60 round 5 — publication, hardening and a substantial Claude queue
+
+Victor requested commit/push and continued work, with enough tasks to use
+Claude's speed. Round 4 committed and pushed as `5657a8d`. Ownership declared
+before work in `docs/zkmatrix-poc/ZK60_PARALLEL_ROUND5.md`: isolated Codex
+workers handle verifier denominator refusal and Python fixture configuration;
+independent reviewer inspects CL1 read-only; lead integrates and publishes.
+
+CL1 review now holds unconditional integration pending concrete deferred-NTT,
+strict reference mode, incomplete fallback/pool accounting, double timing and
+vacuous-device-test findings. No GPU reproduction or privacy audit by Codex.
+Observed Claude tip `c9fc897` adds a docs-only pool-memory correction after
+`15eeda6`; the corrected resident component peak agrees with M1 (~13,492 MiB).
+No CL1 code was discarded or merged, and no large laptop GPU run was launched.
+
+The ten-task queue CL2–CL11 in `ZK60_CLAUDE_QUEUE.md` and
+`zk60_claude_tasks.json` covers correctness/fallback, required GPU gates,
+phase profiling, chunk scheduling, residency, pending-block memory, safe
+public-weight caches, artifact costs and 5090 qualification. GPU/PCS ownership
+stays with Claude; the memory planner/tests explicitly transfer for CL3.
+One active GPU core writer at a time, with disjoint report/test tasks available
+in parallel. These are documented assignments, not claims Claude has run them.
