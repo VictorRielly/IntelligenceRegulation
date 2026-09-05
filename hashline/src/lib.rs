@@ -39,6 +39,10 @@ pub mod model_identity;
 pub mod private_seam;
 pub mod phase_profile;
 pub mod causal_oracle;
+// Public P0 arithmetic validation only; does not satisfy the P1 block policy.
+pub mod public_block_oracle;
+// Opt-in public execution metadata; not a private-proof security inventory.
+pub mod attention_schedule;
 // Fixed-calibration metadata preflight; not a private-block verifier.
 pub mod private_block_contract;
 // [UPERF3-AC] the per-model weight-commitment cache (`--wcache DIR`); the

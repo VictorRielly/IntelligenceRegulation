@@ -24,6 +24,172 @@ const H: usize = 2;
 const HD: usize = 8;
 const KV: usize = 8;
 
+/// Public, deterministic synthetic fixture for tiny CPU arithmetic/proof tests.
+/// This is NOT model authorization: all weights, inputs and identities here
+/// are deliberately public test data, independently fixed before any proof.
+/// The immutable contract retains its P1 policy; using its arithmetic in a P0
+/// test does not turn that test into a P1 proof.
+pub fn public_synthetic_fixture() -> (ApprovedP1BlockContract, PublicBlockWeights, Vec<i16>) {
+    use crate::attention::{AttnConsts, FullConsts};
+    use crate::export_v3::V3Exps;
+    use crate::layer::{LayerParams, StatementV3};
+    use crate::private_block_contract::AttentionExponents;
+    use crate::tables_attn::rope_digest;
+    use crate::tables_v3::{int16out_member, Act16Fn};
+    use crate::zk::ZkStatementMode;
+
+    let mut w = PublicBlockWeights {
+        wq: vec![0; 256],
+        wk: vec![0; 128],
+        wv: vec![0; 128],
+        wo: vec![0; 256],
+        gamma_a: vec![64; 16],
+        gamma_m: vec![64; 16],
+        wg_t: vec![1; 256],
+        wu_t: vec![1; 256],
+        wd_t: vec![0; 256],
+    };
+    for i in 0..16 {
+        w.wq[i * 16 + i] = 64;
+        w.wo[i * 16 + i] = 64;
+        w.wd_t[i * 16 + i] = 64;
+    }
+    for i in 0..8 {
+        w.wk[i * 16 + i] = 64;
+        w.wv[i * 16 + i] = 64;
+    }
+    // Non-symmetric signed off-diagonal entries expose orientation mistakes.
+    w.wq[3] = 7;
+    w.wq[7 * 16 + 2] = -5;
+    w.wk[5 * 16 + 14] = 9;
+    w.wv[3 * 16 + 11] = -6;
+    w.wo[2 * 16 + 9] = 11;
+    w.wo[11 * 16 + 4] = -7;
+    w.wg_t[16 + 13] = -4;
+    w.wg_t[13 * 16 + 1] = 2;
+    w.wu_t[4 * 16 + 15] = -3;
+    w.wu_t[15 * 16 + 4] = 5;
+    w.wd_t[2 * 16 + 11] = 19;
+    w.wd_t[11 * 16 + 2] = -13;
+    let (aw, fw) = cpu_weight_commitments(&w).expect("public fixture weights");
+    let (ct, sn) = rope_tables_generate(T, HD, 10000.0, 7);
+    let norm = NormConsts {
+        tn: 11,
+        cn: 1024,
+        ceps: 1,
+        wrho: 29,
+        n_limbs: 2,
+    };
+    let (table, table_digest) =
+        int16out_member(Act16Fn::Silu, -3, -11).expect("public fixture table");
+    let model_identity = *blake3::hash(b"B3 public synthetic signed weights v1").as_bytes();
+    let r = BlockRegistration {
+        attention: AttnConsts {
+            shape: AttnShape {
+                t: T,
+                d: D,
+                f: F,
+                heads: H,
+                kv_heads: 1,
+                head_dim: HD,
+            },
+            layer: 0,
+            f_e: 9,
+            f_p: 9,
+            f_ro: 7,
+            rope_base: 10000.0,
+            norm_round: true,
+            x_cls: Cls::Int16,
+            e_r: 0,
+            e_xn: -3,
+            e_r1: 0,
+            e_ao: 0,
+            e_xm: -3,
+            sh_q: 7,
+            sh_k: 7,
+            sh_v: 7,
+            sh_qr: 7,
+            sh_kr: 7,
+            sh_s: 6,
+            e_s_raw: 0,
+            sh_o: 9,
+            sh_ao: 7,
+            ao_cls: Cls::Int16,
+            sh_x1: 0,
+            sh_a1: 0,
+            sh_r1: 0,
+            r1_cls: Cls::Int16,
+            anorm: norm,
+            mnorm: norm,
+            exp_digest: exp_member(0, HD, 9).1,
+            rope_digest: rope_digest(T, HD, 10000.0, 7, &ct, &sn),
+            wrho_s: 14,
+        },
+        residual: FullConsts {
+            sh_x2: 0,
+            sh_z2: 0,
+            sh_r2: 0,
+            r2_cls: Cls::Int16,
+            e_r2: 0,
+            e_z16: 0,
+        },
+        ffn: StatementV3 {
+            l: 0,
+            t_rows: T,
+            d: D,
+            f: F,
+            shifts: (7, 0, 14, 6),
+            act: Act16Fn::Silu,
+            table,
+            table_digest,
+        },
+        attention_exponents: AttentionExponents {
+            e_wq: -7,
+            e_wk: -7,
+            e_wv: -7,
+            e_wo: -4,
+            e_q: -3,
+            e_k: -3,
+            e_v: -3,
+            e_qr: -3,
+            e_kr: -3,
+            e_o: -3,
+            e_gamma_a: -6,
+            e_gamma_m: -6,
+        },
+        ffn_exponents: V3Exps {
+            e_x: -3,
+            e_g: -3,
+            e_a16: -11,
+            e_u16: 0,
+            e_h16: 3,
+            e_z16: 0,
+            e_wg: -7,
+            e_wu: 3,
+            e_wd: -9,
+        },
+        params: LayerParams {
+            log_cols: 8,
+            inv_rate: 8,
+            num_col_checks: 256,
+        },
+        mode: ZkStatementMode {
+            model_id: Some(crate::silu::hex(&model_identity)),
+            ..Default::default()
+        },
+        model_identity,
+        calibration_identity: *blake3::hash(b"B3 public fixed calibration v1").as_bytes(),
+        attention_weights: aw,
+        ffn_weights: fw,
+    };
+    let approved =
+        ApprovedP1BlockContract::from_trusted_registration(r).expect("public fixture contract");
+    let input = (0..T * D)
+        .map(|i| ((i / D) % 5) as i16 - 2 + (i % 3) as i16 - 1)
+        .collect();
+    (approved, w, input)
+}
+
 /// Attention matrices are (output,input); FFN matrices are (input,output),
 /// exactly as V3LayerExport's *_t fields. Gamma and weights are public in P1.
 #[derive(Clone)]

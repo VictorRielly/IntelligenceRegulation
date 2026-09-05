@@ -1,0 +1,337 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-09-05 04:04:58 UTC",
+  "local_date": "2026-09-04",
+  "scope": "ZK60 round3 CPU-only bounded continuation; validation before separate publication checkpoint",
+  "goal_met": false,
+  "complete_private_llm_proof": false,
+  "complete_private_block_proof": false,
+  "publication": {
+    "prior_committed_and_pushed": "24ae7466aad9e0f56be442ed2a8fad04cf7b5f15",
+    "branch": "perf/zk-batch-optimizations",
+    "remote": "origin",
+    "continuation": "These tests precede the lead's separate round3 commit; consult the containing commit/history for publication."
+  },
+  "source_tree": "/home/victor/IntelligenceRegulation",
+  "source_files_sha256": {
+    "hashline/src/attention.rs": "fec19c0f03a50052a92bf71579446d0885f543fc6fc45282a04f229aa9a732b2",
+    "hashline/src/attention_schedule.rs": "e6f818d784587fa02ea9c3d189b0294e6cf2a69e0127de460b4a4002ab877bb9",
+    "hashline/src/causal_oracle.rs": "3ed77c940ead4d12ba200e41fb37d36cf0cde48110f23dab4212674826b5027e",
+    "hashline/src/public_block_oracle.rs": "0cc821e8c8c30bf842ea11442845d3156a522fc3d8f3e82d6f9fdfa55a58a83f",
+    "hashline/src/lib.rs": "b4bc5d73ce95b2ccd774ff90a43e05d6f1ffda722dc833d3d914995ff43d2b4b",
+    "hashline/src/pcs.rs": "60ac5f2f37e30b8aa3d648f5069fa0c2cefc5b73b8e42e3fb34933f77960ab1b",
+    "hashline/src/zk.rs": "95c1c3d25805eeb6049790c8ba354b83f30d98dfa72096906ba9fce50eb4551f",
+    "hashline/tests/zk60_attention_schedule.rs": "7ab6f4ef15027a47132b630c96650db3d9a344f20c982238e217afe4dac8ebb6",
+    "hashline/tests/zk60_public_block.rs": "ea885943025e01cc037334056a24ffbeb70ad46199fefd83b7e8a607df4d7454",
+    "hashline/tests/zk60_pending_layout.rs": "ab41d87f356d715af913870d89ebf77795fa8dbb63e867928e4f477f78d62f91"
+  },
+  "artifact_sha256": {
+    "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline": "c96b27a259a8aa1b81328e0529a21198a76e4ad7a3e445acbed1b230efd9d721",
+    "/tmp/zk60-round3-Uz3L1F/validate_cpu.py": "93b606fa47986fab2fe17cf9379c1d77159b69d2312d09a3e2dd91b8e2877b18"
+  },
+  "boundaries": {
+    "no_gpu_runs": true,
+    "no_large_8b_jobs": true,
+    "claude_gpu_pcs_untouched": true,
+    "private_core_unchanged": true,
+    "named_review_files_untouched": true,
+    "all_codex_workers_finished": true,
+    "no_active_round_jobs": true
+  },
+  "rust": {
+    "command": "flock /tmp/zk-heavy.lock env CARGO_TARGET_DIR=/tmp/zk60-round2-oNXEVd/lead-target CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 cargo test --release --offline --manifest-path hashline/Cargo.toml --all-targets -- --test-threads=2",
+    "exit_code": 0,
+    "passed": 108,
+    "output": "   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/hashline)\nwarning: unused import: `eval_mle_ext`\n   --> src/attention.rs:787:42\n    |\n787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};\n    |                                          ^^^^^^^^^^^^\n    |\n    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:1046:13\n     |\n1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {\n     |             ----^^^^^^^^^\n     |             |\n     |             help: remove this `mut`\n     |\n     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:1086:13\n     |\n1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {\n     |             ----^^^^\n     |             |\n     |             help: remove this `mut`\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:2025:9\n     |\n2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {\n     |         ----^^^^^^^^\n     |         |\n     |         help: remove this `mut`\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:2077:9\n     |\n2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {\n     |         ----^^^\n     |         |\n     |         help: remove this `mut`\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:2845:9\n     |\n2845 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {\n     |         ----^^^\n     |         |\n     |         help: remove this `mut`\n\nwarning: associated function `of` is never used\n    --> src/attention.rs:1593:8\n     |\n1585 | impl Recon {\n     | ---------- associated function in this implementation\n...\n1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {\n     |        ^^\n     |\n     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: method `pd` is never used\n    --> src/attention.rs:1932:8\n     |\n1931 | impl<'a> Side<'a> {\n     | ----------------- method in this implementation\n1932 |     fn pd(&self) -> Option<&ProvData<'a>> {\n     |        ^^\n\nwarning: `hashline` (lib) generated 8 warnings (1 duplicate) (run `cargo fix --lib -p hashline` to apply 5 suggestions)\nwarning: `hashline` (lib) generated 8 warnings (7 duplicates) (run `cargo fix --lib -p hashline` to apply 1 suggestion)\nwarning: `hashline` (lib test) generated 8 warnings (8 duplicates)\n    Finished `release` profile [optimized] target(s) in 2m 12s\n     Running unittests src/lib.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/hashline-72d1cf268ba37d0a)\n\nrunning 54 tests\ntest attention::chain_tests::norm_round_matches_the_relation ... ok\ntest attention::chain_tests::requant_round_is_balanced ... ok\ntest chain::tests::floor_requant_is_euclidean ... ok\ntest chain::tests::matmul_small ... ok\ntest chain::tests::witness_i8_matmul_preserves_prefix_overflow_behavior ... ok\ntest chain::tests::witness_i8_matmul_zero_columns_still_rejects - should panic ... ok\ntest export_v3::tests::matmul_i64_small ... ok\ntest chain::tests::witness_i8_matmul_scalar_oracle_signed_extremes_and_tails ... ok\ntest export_v3::tests::witness_i64_matmul_scalar_oracle_signed_extremes_and_tails ... ok\ntest export_v3::tests::witness_i64_matmul_zero_columns_still_rejects - should panic ... ok\ntest field::tests::add_sub_match_reference ... ok\ntest field::tests::ext_arith ... ok\ntest export_v3::tests::requant_round_is_the_prescaled_floor ... ok\ntest field::tests::inverse_and_batch ... ok\ntest field::tests::two_adic_roots ... ok\ntest merkle::tests::paths_verify_and_tampers_fail ... ok\ntest mle::tests::eq_table_sums_to_one_and_matches_point ... ok\ntest field::tests::mul_matches_u128_reference ... ok\ntest mle::tests::interpolation ... ok\ntest mle::tests::matrix_folds_are_tensor_evaluations ... ok\ntest norm::tests::gadget_facts_hold_on_random_rows ... ok\ntest norm::tests::window_rule_examples ... ok\ntest mle::tests::mle_eval_at_boolean_points_is_lookup ... ok\ntest ntt::tests::rs_encode_is_evaluation ... ok\ntest pcs::tests::commit_open_verify_and_tampers ... ok\ntest ntt::tests::ntt_matches_naive_and_roundtrips ... ok\ntest pcs::zk_tests::zk_commit_open_verify_and_tampers ... ok\ntest pcs_compact::tests::compact_batch_of_three_commitments ... ok\ntest pcs_compact::tests::compact_commit_open_verify_and_tampers ... ok\ntest pcs_compact::tests::mobius_matches_multilinear_evaluation ... ok\ntest pcs_compact::tests::ntt_dif_is_bitreversed_evaluation ... ok\ntest pcs_compact::tests::pieces_and_queries ... ok\ntest phase_profile::tests::disabled_profiling_preserves_result_and_records_nothing ... ok\ntest phase_profile::tests::nested_profile_costs_are_exclusive ... ok\ntest phase_profile::tests::profile_capture_cleans_up_after_unwind ... ok\ntest silu::tests::frozen_members_regenerate_to_their_pins ... ok\ntest sumcheck::tests::product_sumcheck_roundtrip_and_tamper ... ok\ntest sumcheck::tests::zero_check_with_eq ... ok\ntest sumcheck::zk_tests::cfs_mask_rounds_match_brute_force ... ok\ntest sumcheck::zk_tests::masked_zero_check_with_extension_roundtrip ... ok\ntest tables_attn::tests::exp_members_match_the_python_generator ... ok\ntest tables_attn::tests::rope_members_match_the_python_pins ... ok\ntest tables_v3::tests::all_frozen_members_regenerate_to_their_pins ... ok\ntest transcript::tests::deterministic_and_sensitive ... ok\ntest wcache::tests::tree_roundtrip_and_every_corruption_rejected ... ok\ntest zk::tests::cloned_default_configs_never_reuse_a_mask_stream ... ok\ntest zk::tests::entropy_errors_do_not_produce_a_generator ... ok\ntest zk::tests::explicit_zero_seed_keeps_legacy_stream_across_refills ... ok\ntest zk::tests::rng_is_deterministic_and_domain_separated ... ok\ntest pcs::zk_tests::zk_openings_are_uniform_and_every_site_is_masked ... ok\ntest zk::tests_v3::fresh_os_proofs_verify_for_both_privacy_modes_with_reused_config ... ok\ntest zk::tests_v3::zk_v3_function2_binary_predicate_is_a_separate_statement ... ok\ntest zk::tests_v3::zk_v3_layer_roundtrip_tampers_and_uniform_openings ... ok\ntest zk::tests_v3::zk_v3_p3_hides_the_weights_and_the_header_binds_the_claim ... ok\n\ntest result: ok. 54 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.61s\n\n     Running unittests src/bin/hashline.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/hashline-b6f5291fb888b1eb)\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests/cli_claims.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/cli_claims-21617586eca4dbdd)\n\nrunning 3 tests\ntest a_model_declaration_cannot_be_silently_ignored ... ok\ntest attention_requires_a_real_layer_count_and_known_chain_options ... ok\ntest attention_never_silently_drops_privacy_requests ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n     Running tests/zk60_attention_schedule.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_attention_schedule-9b8c251c59d467dd)\n\nrunning 4 tests\ntest capture_lifetime_is_explicit_and_metadata_encoding_is_framed ... ok\ntest cross_layer_hook_is_observed_with_synthetic_replay_not_a_two_layer_proof ... ok\ntest source_hook_inventory_cannot_silently_lose_a_recorder_family ... ok\ntest executed_fixed_a00_schedule_replays_and_preserves_public_proof_bytes ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s\n\n     Running tests/zk60_block_contract.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_block_contract-fc511f7e24edccd7)\n\nrunning 7 tests\ntest equivalent_integer_words_with_changed_boundary_scale_are_not_equal_values ... ok\ntest adjacent_boundary_preflight_checks_order_identity_and_scale_but_not_values ... ok\ntest honest_fixed_registration_matches_actual_layout_and_tables ... ok\ntest hostile_public_fields_fail_closed_without_panics_or_value_disclosure ... ok\ntest fixed_norm_and_ffn_have_an_honest_exact_integer_fixture_without_fitting ... ok\ntest registration_snapshot_cannot_mutate_approved_state_and_digest_binds_transcript ... ok\ntest valid_metadata_changes_still_require_new_independent_approval ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests/zk60_identity_gap.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_identity_gap-952232e423ac9883)\n\nrunning 5 tests\ntest approved_p1_rejects_every_changed_statement_parameter_mode_and_commitment_field ... ok\ntest approved_p1_rejects_incompatible_ntt_and_replay_under_another_registered_domain ... ok\ntest approved_p1_accepts_registered_weights_and_rejects_valid_substitute_and_forged_root ... ok\ntest registration_rejects_unsupported_policy_invalid_shape_table_and_parameters ... ok\ntest known_p3_gap_same_declared_model_and_input_different_weights_both_verify ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s\n\n     Running tests/zk60_mask_rank.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_mask_rank-b4fcc0907011c752)\n\nrunning 2 tests\ntest independent_fp2_mask_pair_blocks_this_specific_coordinate_extractor ... ok\ntest known_interface_hazard_verified_single_base_mask_reveals_entire_private_row ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests/zk60_memory_layout.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_memory_layout-d3decc1304a03832)\n\nrunning 1 test\ntest p3_weight_planner_examples_match_rust_layout_without_large_tensors ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests/zk60_pending_layout.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_pending_layout-552467b64bad9ea4)\n\nrunning 4 tests\ntest actual_boundary_slices_are_not_terminal_mask_rows ... ok\ntest legacy_cfs_manifest_distinguishes_modes_and_has_no_seam_polynomials ... ok\ntest legacy_reservations_have_no_free_terminal_or_histogram_rows ... ok\ntest legacy_tiny_counts_pin_the_real_retained_commitment_budget ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests/zk60_phase_profile.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_phase_profile-524d9e103d0c2af2)\n\nrunning 3 tests\ntest phase_profile_keeps_exact_signed_matmul_output ... ok\ntest phase_profile_refuses_gpu_without_initializing_it ... ok\ntest phase_profile_rejects_unsupported_commands_before_export_access ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests/zk60_private_seam.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_private_seam-7808b60f2c890e35)\n\nrunning 9 tests\ntest every_message_family_is_authenticated ... ok\ntest equal_unweighted_sums_do_not_substitute_for_pointwise_equality ... ok\ntest exact_counts_and_canonical_fields_reject_before_low_level_verifier ... ok\ntest framed_decoder_rejects_truncation_extension_wrong_version_and_field_aliases ... ok\ntest invalid_shapes_inputs_and_prepared_contexts_fail_closed ... ok\ntest normal_calls_use_fresh_masks_and_changed_ntt_metadata_is_rejected ... ok\ntest proof_cannot_choose_its_endpoint_roots_or_replay_connection ... ok\ntest honest_independent_commitments_roundtrip_at_subrow_row_and_multirow_shapes ... ok\ntest unequal_recommitted_witnesses_fail_at_verifier_not_prover ... ok\n\ntest result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s\n\n     Running tests/zk60_public_block.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_public_block-9e813e14b0a58f55)\n\nrunning 6 tests\ntest changed_public_weights_and_hostile_input_refuse_before_legacy_prover ... ok\ntest honest_fixed_block_proves_and_verifies_with_approved_roots ... ok\ntest freshly_proven_other_weights_cannot_be_relabelled_as_approved_model ... ok\ntest recommitted_correct_ffn_on_different_x_reaches_seam_refusal ... ok\ntest short_weight_lifting_preserves_both_halves_and_rejects_unsupported_claims ... ok\ntest recommitted_residual_with_wrong_z_copy_reaches_second_seam_refusal ... ok\n\ntest result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s\n\n     Running tests/zk60_sequence_equivalence.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_sequence_equivalence-fe596e0b37c306f2)\n\nrunning 7 tests\ntest causal_maximum_ties_select_an_on_support_first_position ... ok\ntest asymmetric_signed_weights_pin_matmul_and_commitment_orientations ... ok\ntest hostile_ffn_is_refused_before_derive_clamping ... ok\ntest hostile_norm_is_refused_before_the_source_assertion ... ok\ntest future_suffix_mutation_preserves_prefix_at_the_same_fixed_t32 ... ok\ntest root_shape_and_input_errors_are_static_and_do_not_autofit ... ok\ntest nontrivial_fixed_block_satisfies_integer_relations_and_existing_pack_layout ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n     Running unittests examples/zk60_seam_receipt.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_seam_receipt-67ad8657a2f1f8a7)\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running unittests examples/zk60_witness_bench.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/examples/zk60_witness_bench-d9f5d82d755fbb28)\n\nrunning 3 tests\ntest tests::witness_blocked_candidates_keep_zero_column_rejection ... ok\ntest tests::witness_blocked_candidate_preserves_prefix_overflow_behavior ... ok\ntest tests::witness_blocked_candidates_match_independent_oracle_with_tails ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+  },
+  "python": {
+    "command": "python3 -m unittest discover -s tests -p 'test_hashline_*.py'",
+    "exit_code": 0,
+    "passed": 48,
+    "output": "...hashline benchmark: duplicate log contents cannot count as independent samples\n...{\"summary\": \"/tmp/tmplngbihnn/report/summary.json\", \"measurement_eligible\": false, \"goal_met\": false}\ncold sample 0/2: /tmp/tmp4yhxw2l1/report/cold-000.log\nwarm sample 1/2: /tmp/tmp4yhxw2l1/report/warm-001.log\nStopping after ineligible sample: nonzero process exit; failure diagnostic present; expected exactly one pass header and one pass summary; positive layers required; positive tokens required; positive d required; positive f required; missing or mixed proof parameters; privacy declaration mismatch; GPU execution declaration mismatch; missing or ambiguous serialized proof digest; one HASHLINE_TIMING record required for measured proof readiness; observed layers differs from requested manifest; observed tokens differs from requested manifest; observed d differs from requested manifest; observed f differs from requested manifest; written proof missing or length mismatch\n..hashline benchmark: requested shape exceeds export or has zero rows/layers\nhashline benchmark: requested shape exceeds export or has zero rows/layers\nhashline benchmark: tokens must be a power of two\nhashline benchmark: requested shape exceeds export or has zero rows/layers\nhashline benchmark: requested shape exceeds export or has zero rows/layers\nhashline benchmark: seed must be in 0..2^64-1\nhashline benchmark: seed must be in 0..2^64-1\nhashline benchmark: all export dimensions must be positive\n.............{\"summary\": \"/tmp/tmp4yhxw2l1/report/summary.json\", \"measurement_eligible\": false, \"goal_met\": false}\ncold sample 0/0: /tmp/tmpaadcaytl/report/cold-000.log\n.{\"summary\": \"/tmp/tmpaadcaytl/report/summary.json\", \"measurement_eligible\": false, \"goal_met\": false}\ncold sample 0/20: /tmp/tmpxhnfbb_f/report/cold-000.log\nStopping after ineligible sample: nonzero process exit; failure diagnostic present; expected exactly one pass header and one pass summary; positive layers required; positive tokens required; positive d required; positive f required; missing or mixed proof parameters; privacy declaration mismatch; GPU execution declaration mismatch; missing or ambiguous serialized proof digest; one HASHLINE_TIMING record required for measured proof readiness; observed layers differs from requested manifest; observed tokens differs from requested manifest; observed d differs from requested manifest; observed f differs from requested manifest; written proof missing or length mismatch\n.{\"summary\": \"/tmp/tmpxhnfbb_f/report/summary.json\", \"measurement_eligible\": false, \"goal_met\": false}\nWaiting for /tmp/zk-heavy.lock\n.cold sample 0/0: /tmp/tmpf2dl4u5e/report/cold-000.log\nStopping after ineligible sample: observed layers differs from requested manifest\n..............{\"summary\": \"/tmp/tmpf2dl4u5e/report/summary.json\", \"measurement_eligible\": false, \"goal_met\": false}\n{\"summary\": \"/tmp/tmp8y967jlc/out/summary.json\", \"samples\": 3, \"goal_met\": false}\nPrivate diagnostic: P0, one 125M layer, 16 rows\n........{\"summary\": \"/tmp/tmpgpy1m6xb/out/summary.json\", \"samples\": 1, \"goal_met\": false}\nPrivate diagnostic: P0, one 125M layer, 16 rows\nhashline profile: one-layer diagnostic exceeded 120 seconds; process terminated\n..\n----------------------------------------------------------------------\nRan 48 tests in 0.060s\n\nOK\n"
+  },
+  "integrated_tiny": {
+    "command": "flock /tmp/zk-heavy.lock env CARGO_TARGET_DIR=/tmp/zk60-round2-oNXEVd/lead-target CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 A01_TRACE_DIR=/tmp/zk60-round3-lead-trace-1yrS8r cargo test --release --offline --manifest-path hashline/Cargo.toml --test zk60_attention_schedule --test zk60_public_block -- --test-threads=1 --nocapture",
+    "exit_code": 0,
+    "passed": 10,
+    "output": "warning: unused import: `eval_mle_ext`\n   --> src/attention.rs:787:42\n    |\n787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};\n    |                                          ^^^^^^^^^^^^\n    |\n    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:1046:13\n     |\n1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {\n     |             ----^^^^^^^^^\n     |             |\n     |             help: remove this `mut`\n     |\n     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:1086:13\n     |\n1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {\n     |             ----^^^^\n     |             |\n     |             help: remove this `mut`\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:2025:9\n     |\n2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {\n     |         ----^^^^^^^^\n     |         |\n     |         help: remove this `mut`\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:2077:9\n     |\n2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {\n     |         ----^^^\n     |         |\n     |         help: remove this `mut`\n\nwarning: variable does not need to be mutable\n    --> src/attention.rs:2845:9\n     |\n2845 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {\n     |         ----^^^\n     |         |\n     |         help: remove this `mut`\n\nwarning: associated function `of` is never used\n    --> src/attention.rs:1593:8\n     |\n1585 | impl Recon {\n     | ---------- associated function in this implementation\n...\n1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {\n     |        ^^\n     |\n     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: method `pd` is never used\n    --> src/attention.rs:1932:8\n     |\n1931 | impl<'a> Side<'a> {\n     | ----------------- method in this implementation\n1932 |     fn pd(&self) -> Option<&ProvData<'a>> {\n     |        ^^\n\nwarning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)\nwarning: `hashline` (lib) generated 8 warnings (8 duplicates)\n    Finished `release` profile [optimized] target(s) in 0.01s\n     Running tests/zk60_attention_schedule.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_attention_schedule-9b8c251c59d467dd)\n\nrunning 4 tests\ntest capture_lifetime_is_explicit_and_metadata_encoding_is_framed ... ok\ntest cross_layer_hook_is_observed_with_synthetic_replay_not_a_two_layer_proof ... ok\ntest executed_fixed_a00_schedule_replays_and_preserves_public_proof_bytes ... A01 PUBLIC METADATA prove=990fbb5a199e8e59aff18e606be729e0a8c4547fb63f9078630aa710dbd32162 replay=1ce8017710e21fc9c098d0d7513aef3239d02731ab0f26d764c50ac8a4b66429 shared=2d8d3be42c90b66dfa61af40b338effad3741fd8832dc2f54274a2db4751c7ce counts=593/586/562 proof_bytes=2137764\nA01 COUNTS [(\"claim_A\", 89), (\"claim_W\", 6), (\"claim_H\", 19), (\"helper_sum\", 19), (\"take\", 133), (\"check\", 12), (\"term\", 99), (\"lookup\", 30), (\"histogram_shape\", 10), (\"histogram_visit\", 10), (\"collapse_range\", 4), (\"collapse_sumcheck\", 4)]\nok\ntest source_hook_inventory_cannot_silently_lose_a_recorder_family ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s\n\n     Running tests/zk60_public_block.rs (/tmp/zk60-round2-oNXEVd/lead-target/release/deps/zk60_public_block-9e813e14b0a58f55)\n\nrunning 6 tests\ntest changed_public_weights_and_hostile_input_refuse_before_legacy_prover ... ok\ntest freshly_proven_other_weights_cannot_be_relabelled_as_approved_model ... ok\ntest honest_fixed_block_proves_and_verifies_with_approved_roots ... B3 PUBLIC P0 T32 d16 f16 one block: prove=45.153541ms verify=4.378031ms attention=1408532 FFN=729232 payload=2137764 B; NO privacy/generation claim\nok\ntest recommitted_correct_ffn_on_different_x_reaches_seam_refusal ... ok\ntest recommitted_residual_with_wrong_z_copy_reaches_second_seam_refusal ... ok\ntest short_weight_lifting_preserves_both_halves_and_rejects_unsupported_claims ... ok\n\ntest result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s\n\n",
+    "public_only": true,
+    "shape": {
+      "t": 32,
+      "d": 16,
+      "f": 16,
+      "heads": 2,
+      "kv_heads": 1,
+      "head_dim": 8
+    },
+    "payload_bytes": {
+      "attention": 1408532,
+      "ffn": 729232,
+      "total": 2137764,
+      "excludes": "Approved metadata and complete wrapper framing"
+    },
+    "honest_prove_ms": 45.153541,
+    "honest_verify_ms": 4.378031,
+    "timing_caveat": "WSL shared CPU2T; correctness only, excludes fixture setup and constructor root check; not a throughput/statistical/GPU result.",
+    "external_input_output_binding": false,
+    "complete_wire_decoder": false,
+    "negatives": "Recommitted correct FFN with different X and recomputed-valid residual with a different Z-copy reach verifier internal seam refusal; changed approved W/gamma and statements reject.",
+    "short_weight_adapter": "Pinned 128-value Wk/Wv MLE claims lifted to enclosing 256-value public PCS row with selector0/1, unchanged data/roots/parameters, explicit domain, both proof sides."
+  },
+  "attention_schedule": {
+    "events": {
+      "prove": 593,
+      "replay": 586,
+      "shared": 562
+    },
+    "argument_sumchecks": 12,
+    "claim_slots": 133,
+    "claims": {
+      "A": 89,
+      "W": 6,
+      "H_evaluations": 19,
+      "H_sums": 19
+    },
+    "shared_excludes": [
+      "check",
+      "helper_build"
+    ],
+    "metadata_fingerprints_blake3": {
+      "prove": "990fbb5a199e8e59aff18e606be729e0a8c4547fb63f9078630aa710dbd32162",
+      "replay": "1ce8017710e21fc9c098d0d7513aef3239d02731ab0f26d764c50ac8a4b66429",
+      "shared": "2d8d3be42c90b66dfa61af40b338effad3741fd8832dc2f54274a2db4751c7ce"
+    },
+    "raw_local_traces_sha256": {
+      "/tmp/zk60-round3-lead-trace-1yrS8r/prove.txt": "0df319a67f82d7f722aaeb3246c0b3a9318b926d8cd0ee24212d0a34dc926cf8",
+      "/tmp/zk60-round3-lead-trace-1yrS8r/replay.txt": "5df49d819c1c101661229b5eb8422b0eda7f4cf1cdf49d9343aa75bb52246f57",
+      "/tmp/zk60-round3-lead-trace-1yrS8r/shared.txt": "e40d1ab8d28cc4a9a14f79596f6a834bb1439491c97045a06a683192cb7d0d0c"
+    },
+    "persisted_traces_sha256": {
+      "results/zk60_round3_attention/prove.txt": "c24acaa19182dcd5829de4dbc0d6d8aa5cc3197b475a5ebb6bb1522d6eaaee15",
+      "results/zk60_round3_attention/replay.txt": "4a1c781028093c3c44cc175a67b3b665d8fa41c888d1f527613e8ede6c305163",
+      "results/zk60_round3_attention/shared.txt": "99c10326b7086730213c637b25ef71245c4a12977fe85cac98c6a32d7454c911"
+    },
+    "persistence_normalization": "Removed only the final extra blank line from each raw listing for repository whitespace hygiene; all event lines and metadata fingerprints unchanged.",
+    "coverage": "One fixed public default-folding reference; synthetic cross-layer hook only. Does not establish coefficient/point-transform correctness, private opening groups or whole-protocol security."
+  },
+  "pending_ffn": {
+    "status": "reviewed proposal only",
+    "layout_tests": 4,
+    "legacy_tiny_A_H_W_data_rows": [
+      20,
+      16,
+      3
+    ],
+    "legacy_full_A_H_rows": [
+      681,
+      1325
+    ],
+    "data_plus_encoding_bytes": 36974592,
+    "memory_caveat": "Count only, excludes pads/salts/trees/temporaries/proofs/attention; not measured peak.",
+    "review_fixes": [
+      "Enclosing block owner routes both peers' claims before either finalizes.",
+      "Different independently supplied expected request context must reject; exact replay consumption is application state.",
+      "Terminal groups are X[0..nb_d], Z[0..nb_d], rd[0..nb_d], hz[0..nb_d], not interleaved."
+    ],
+    "private_prover_implemented": false,
+    "privacy_review_completed": false
+  },
+  "cpu_frozen_fixtures": {
+    "driver": "/tmp/zk60-round3-Uz3L1F/validate_cpu.py",
+    "command": "python3 -u /tmp/zk60-round3-Uz3L1F/validate_cpu.py",
+    "exit_marker": "/tmp/zk60-round3-Uz3L1F/cpu-gates/validation.done",
+    "exit_code": 0,
+    "environment": {
+      "HL_GPU": "unset",
+      "RAYON_NUM_THREADS": "2",
+      "M125_EXPORT_DIR": "/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl"
+    },
+    "cases": [
+      {
+        "case": "v2",
+        "ok": true,
+        "exit_code": 0,
+        "expected_sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "bytes": 66844928,
+        "elapsed_s": 36.7159366939959,
+        "command": [
+          "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline",
+          "pass",
+          "12",
+          "512",
+          "--threads",
+          "2",
+          "--proof-out",
+          "/tmp/zk60-round3-Uz3L1F/cpu-gates/v2.proof"
+        ],
+        "timing": [
+          {
+            "schema": 1,
+            "coverage": "ffn-only",
+            "privacy": "P0",
+            "layers": 12,
+            "tokens": 512,
+            "d": 768,
+            "f": 2048,
+            "witness_s": 3.059859878,
+            "prove_s": 33.164135541,
+            "serialize_s": 0.058325534,
+            "proof_ready_s": 36.282394424,
+            "verify_s": 0.345606209,
+            "verified": true,
+            "proof_bytes": 66844928,
+            "serialized": true,
+            "gpu_requested": false,
+            "gpu_enabled": false,
+            "randomness": "none"
+          }
+        ]
+      },
+      {
+        "case": "v3",
+        "ok": true,
+        "exit_code": 0,
+        "expected_sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "bytes": 70758084,
+        "elapsed_s": 36.91816269500123,
+        "command": [
+          "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline",
+          "pass",
+          "12",
+          "512",
+          "--threads",
+          "2",
+          "--proof-out",
+          "/tmp/zk60-round3-Uz3L1F/cpu-gates/v3.proof",
+          "--profile",
+          "v3",
+          "--export",
+          "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+        ],
+        "timing": [
+          {
+            "schema": 1,
+            "coverage": "ffn-only",
+            "privacy": "P0",
+            "layers": 12,
+            "tokens": 512,
+            "d": 768,
+            "f": 2048,
+            "witness_s": 4.155446382,
+            "prove_s": 32.224109369,
+            "serialize_s": 0.095364123,
+            "proof_ready_s": 36.486449015,
+            "verify_s": 0.317333752,
+            "verified": true,
+            "proof_bytes": 70758084,
+            "serialized": true,
+            "gpu_requested": false,
+            "gpu_enabled": false,
+            "randomness": "none"
+          }
+        ]
+      },
+      {
+        "case": "zk",
+        "ok": true,
+        "exit_code": 0,
+        "expected_sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "bytes": 87228528,
+        "elapsed_s": 39.094072688996675,
+        "command": [
+          "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline",
+          "pass",
+          "12",
+          "512",
+          "--threads",
+          "2",
+          "--proof-out",
+          "/tmp/zk60-round3-Uz3L1F/cpu-gates/zk.proof",
+          "--zk",
+          "--seed",
+          "1"
+        ],
+        "timing": [
+          {
+            "schema": 1,
+            "coverage": "ffn-only",
+            "privacy": "P1",
+            "layers": 12,
+            "tokens": 512,
+            "d": 768,
+            "f": 2048,
+            "witness_s": 3.055421494,
+            "prove_s": 35.361496465,
+            "serialize_s": 0.071003629,
+            "proof_ready_s": 38.488022361,
+            "verify_s": 0.496394309,
+            "verified": true,
+            "proof_bytes": 87228528,
+            "serialized": true,
+            "gpu_requested": false,
+            "gpu_enabled": false,
+            "randomness": "deterministic-test"
+          }
+        ]
+      },
+      {
+        "case": "zkv3",
+        "ok": true,
+        "exit_code": 0,
+        "expected_sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008,
+        "elapsed_s": 39.3409350840011,
+        "command": [
+          "/tmp/zk60-round2-oNXEVd/lead-target/release/hashline",
+          "pass",
+          "12",
+          "512",
+          "--threads",
+          "2",
+          "--proof-out",
+          "/tmp/zk60-round3-Uz3L1F/cpu-gates/zkv3.proof",
+          "--zk",
+          "--seed",
+          "1",
+          "--profile",
+          "v3",
+          "--export",
+          "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+        ],
+        "timing": [
+          {
+            "schema": 1,
+            "coverage": "ffn-only",
+            "privacy": "P1",
+            "layers": 12,
+            "tokens": 512,
+            "d": 768,
+            "f": 2048,
+            "witness_s": 3.854645761,
+            "prove_s": 34.81863425,
+            "serialize_s": 0.083802808,
+            "proof_ready_s": 38.759185007,
+            "verify_s": 0.47648828,
+            "verified": true,
+            "proof_bytes": 87697008,
+            "serialized": true,
+            "gpu_requested": false,
+            "gpu_enabled": false,
+            "randomness": "deterministic-test"
+          }
+        ]
+      }
+    ],
+    "elapsed_s": 152.0691071619949,
+    "note": "Monitored bounded tool session, shared lock; old FFN compatibility only, not an attention/GPU/security or performance certificate."
+  },
+  "limitations": [
+    "P0 tiny arithmetic only; no private full block/LLM, external request input/output binding or complete decoder.",
+    "Whole-profile privacy, mask/claim composition, integer/range and P3 identity gates remain open.",
+    "No GPU or full Python/native-suite rerun; eight inherited attention warnings remain."
+  ]
+}

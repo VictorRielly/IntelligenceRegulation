@@ -1,5 +1,14 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**ZK60 round 3 integrated:** prior work is pushed as `24ae746` on the existing
+performance branch. [Round-3 handoff](ZK60_PARALLEL_ROUND3.md) covers the
+executed attention metadata schedule, fixed-oracle P0 block proof and reviewed
+pending private-FFN interface proposal. The tiny public block's real internal
+X/Z seams and approved weight roots verify; rebuilt mismatches reject.
+This is not a private block or an application input/output-bound receipt.
+Privacy audit remains a gate; Claude's existing task and reserved files remain
+untouched. Exact combined checks are in `results/zk60_round3_validation.json`.
+
 **2026-09-04 execution queue:** Victor requested implementation of the
 60-tokens/s plan and documented work for Fable and Claude. See
 [ZK60_EXECUTION.md](ZK60_EXECUTION.md) for scope, ownership, acceptance

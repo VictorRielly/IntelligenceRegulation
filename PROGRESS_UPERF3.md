@@ -14354,3 +14354,49 @@ files remain untouched. Full evidence/source hashes/commands are in
 `results/zk60_round2_validation.json`; next ownership and acceptance are
 in `docs/zkmatrix-poc/ZK60_PARALLEL_ROUND2.md`. Full private LLM coverage and
 60 generated tokens/s have NOT been demonstrated.
+
+## ZK60 round 3 — continuation after publication
+
+Victor requested commit/push and continuation. The reviewed 45-file C0 plus
+round-1/round-2 snapshot is committed as `24ae746` and pushed normally to
+`origin/perf/zk-batch-optimizations` (no force; clean tree at publication).
+Ownership for the next bounded round is declared before source changes in
+`docs/zkmatrix-poc/ZK60_PARALLEL_ROUND3.md`: A01 executed attention schedule,
+B3 fixed-oracle P0 block proof validation, lead A03 interface preparation
+and integration. Public block validation is not a private proof; the
+unresolved privacy gate is preserved. No GPU/PCS edits or large GPU jobs.
+
+**Round-3 bounded continuation complete and validated for publication.**
+B3 connects the fixed oracle to an actual P0 attention+FFN block proof with
+both internal X/Z seams and independently approved W/gamma roots. Six tests
+pass, including rebuilt inconsistent halves that reach verifier seam refusal.
+The first proof exposed 128-value Wk/Wv claims under a 256-column PCS row;
+an exact, domain-bound public subcube adapter fixes only that tiny shape,
+without changing roots or parameters. Payload is 2,137,764 bytes, excluding
+wrapper metadata/framing. No external input/output binding or decoder yet.
+
+A01 adds opt-in metadata-only executed scheduling and four tests. Frozen
+traces are 593 prover / 586 replay / 562 shared events, with 12 argument
+sumchecks and 133 claim-value slots. On/off public proof bytes match. Full
+source and side-specific drift guards are explicit; no automatic snapshot
+approval. Persisted trace listings contain only public structural metadata,
+not evaluations, roots or tensor data. This is not a complete private masking
+inventory; the cross-layer test is only a synthetic hook replay.
+
+A03's interface proposal and four counted-layout tests are independently
+reviewed for ownership, order and counts. The enclosing block must own both
+pending components until their seam claims are closed. The review's context
+replay and grouped-terminal ordering corrections are incorporated. Counted
+tiny legacy A+H data/encoding retention is 36,974,592 bytes, excluding many
+live allocations and attention; it is not measured peak memory. No private
+pending implementation or privacy theorem was promoted.
+
+Final main-tree checks: **108 release Rust tests, 48 targeted Python tests,
+four frozen CPU proof gates pass, exit0**. Complete hashes and lengths match
+the old fixtures; locked two-thread gates took ~152s. New-file formatting and
+whitespace checks pass; eight inherited attention warnings remain. Evidence:
+`results/zk60_round3_validation.json`. All Codex workers/jobs have finished.
+No GPU/PCS/private-core source or named agents' reserved files changed.
+The next public receipt/private-review/Claude-after-current-task assignments
+are in `docs/zkmatrix-poc/ZK60_PARALLEL_ROUND3.md`. Full private LLM coverage
+and 60 generated tokens/s have NOT been demonstrated.

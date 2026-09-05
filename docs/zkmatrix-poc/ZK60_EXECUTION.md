@@ -128,6 +128,14 @@ uses in-memory proof objects, not a standalone decoder.
 
 ## F1 — task for Fable: prove which model ran
 
+Round-3 handoff adds [the executed public attention schedule](ZK60_ATTENTION_SCHEDULE.md)
+and [the reviewed pending-FFN interface proposal](ZK60_PENDING_FFN.md).
+Use these to locate actual claim sites and ownership boundaries; neither
+is an independent privacy audit. The P0 block tests in
+`hashline/tests/zk60_public_block.rs` now exercise real internal X/Z linkage
+and independently approved W roots. They do not establish private composition.
+Fable's reserved review file/tests remain unmodified and ready for pickup.
+
 Read `hashline/src/zk.rs` (`ZkStatementMode`, `prove_layer_zk_v3`,
 `verify_layer_zk_v3`), `hashline/src/layer.rs` (`StatementV3`),
 `U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md`, and the AM model-identity honesty note

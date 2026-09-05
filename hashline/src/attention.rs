@@ -1791,6 +1791,7 @@ impl Cc {
         Cc { aw: Vec::new(), ww: Vec::new(), hh: Vec::new(), vals, idx: 0, proving }
     }
     fn take(&mut self, tr: &mut Transcript, v: Fp2) -> Fp2 {
+        crate::attention_schedule::record("take", "claim transcript slot", &[("index", if self.proving { self.vals.len() } else { self.idx })]);
         let out = if self.proving {
             self.vals.push(v);
             v
@@ -1803,21 +1804,25 @@ impl Cc {
         out
     }
     fn a1(&mut self, tr: &mut Transcript, sl: Slice, pt: &[Fp2], v: Fp2) -> Fp2 {
+        crate::attention_schedule::record("claim_A", "A evaluation", &[("index", self.aw.len()), ("offset", sl.offset), ("log", sl.log_size as usize), ("point_arity", pt.len())]);
         let val = self.take(tr, v);
         self.aw.push(Claim { parts: vec![(sl, Fp2::ONE)], point: pt.to_vec(), sum: false, value: val });
         val
     }
     fn w1(&mut self, tr: &mut Transcript, sl: Slice, pt: &[Fp2], v: Fp2) -> Fp2 {
+        crate::attention_schedule::record("claim_W", "W evaluation", &[("index", self.ww.len()), ("offset", sl.offset), ("log", sl.log_size as usize), ("point_arity", pt.len())]);
         let val = self.take(tr, v);
         self.ww.push(Claim { parts: vec![(sl, Fp2::ONE)], point: pt.to_vec(), sum: false, value: val });
         val
     }
     fn h1(&mut self, tr: &mut Transcript, re: Slice, im: Slice, pt: &[Fp2], v: Fp2) -> Fp2 {
+        crate::attention_schedule::record("claim_H", "extension helper evaluation", &[("index", self.hh.len()), ("re_offset", re.offset), ("im_offset", im.offset), ("log", re.log_size as usize), ("point_arity", pt.len())]);
         let val = self.take(tr, v);
         self.hh.push(Claim { parts: vec![(re, Fp2::ONE), (im, Fp2::U)], point: pt.to_vec(), sum: false, value: val });
         val
     }
     fn hsum(&mut self, tr: &mut Transcript, re: Slice, im: Slice, v: Fp2) -> Fp2 {
+        crate::attention_schedule::record("helper_sum", "extension helper sum", &[("index", self.hh.len()), ("re_offset", re.offset), ("im_offset", im.offset), ("log", re.log_size as usize), ("length", 1usize << re.log_size)]);
         let val = self.take(tr, v);
         self.hh.push(Claim { parts: vec![(re, Fp2::ONE), (im, Fp2::U)], point: vec![], sum: true, value: val });
         val
@@ -1840,8 +1845,17 @@ pub enum TabDesc {
 /// Register the terminal claims of one sumcheck and return the terminal
 /// values in table order (prover: its own finals; verifier: the proof's).
 fn terms(cc: &mut Cc, tr: &mut Transcript, descs: &[TabDesc], finals: &[Fp2], a: Option<&[Fp]>) -> Vec<Fp2> {
+    crate::attention_schedule::record("terms", "sumcheck terminal tables", &[("count", descs.len())]);
     let mut out = Vec::with_capacity(descs.len());
     for (i, d) in descs.iter().enumerate() {
+        let (site, parts, arity) = match d {
+            TabDesc::Pub(_) => ("public", 0, 0),
+            TabDesc::A { pt, .. } => ("A", 1, pt.len()),
+            TabDesc::W { pt, .. } => ("W", 1, pt.len()),
+            TabDesc::H { pt, .. } => ("H extension", 2, pt.len()),
+            TabDesc::ACls { offs, pt, .. } => ("A class reconstruction", offs.len(), pt.len()),
+        };
+        crate::attention_schedule::record("term", site, &[("index", i), ("parts", parts), ("point_arity", arity)]);
         let fin = finals.get(i).copied().unwrap_or(Fp2::ZERO);
         let v = match d {
             TabDesc::Pub(v) => *v,
@@ -1932,11 +1946,12 @@ impl<'a> Ctx<'a> {
     /// One sumcheck: the prover builds the tables and proves; the verifier
     /// replays the rounds. Returns (challenges, finals, final claim).
     fn sc<B, F>(&mut self, proof: &mut AttnProof, tr: &mut Transcript, claim: Fp2, degree: usize,
-                nvars: usize, build: B, poly: F, name: &str) -> Result<(Vec<Fp2>, Vec<Fp2>, Fp2), String>
+                nvars: usize, build: B, poly: F, name: &'static str) -> Result<(Vec<Fp2>, Vec<Fp2>, Fp2), String>
     where
         B: FnOnce() -> Vec<Vec<Fp2>>,
         F: Fn(&[Fp2]) -> Fp2 + Sync,
     {
+        crate::attention_schedule::record("sumcheck", name, &[("degree", degree), ("variables", nvars), ("length", 1usize << nvars)]);
         match self.side {
             Side::Prove(_) => {
                 let mut tables = build();
@@ -1956,7 +1971,8 @@ impl<'a> Ctx<'a> {
             }
         }
     }
-    fn check(&self, got: Fp2, want: Fp2, what: &str) -> Result<(), String> {
+    fn check(&self, got: Fp2, want: Fp2, what: &'static str) -> Result<(), String> {
+        crate::attention_schedule::record("check", what, &[]);
         if self.side.proving() {
             assert!(got == want || tamper_mode(), "[UPERF3-AG] prover-side {what} fails");
             Ok(())
@@ -2060,6 +2076,7 @@ pub fn build_helpers(a: &[Fp], lay: &AttnLayout, c: &AttnConsts, fc: &FullConsts
     let g = |t: Tbl| gamma.mul_base(Fp::new(t.tag()));
     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
         let n = col.len();
+        crate::attention_schedule::record("helper_build", "H extension column pair", &[("re_offset", re), ("im_offset", im), ("length", n)]);
         h[re..re + n].par_iter_mut().zip(col.par_iter()).for_each(|(o, v)| *o = v.c0);
         h[im..im + n].par_iter_mut().zip(col.par_iter()).for_each(|(o, v)| *o = v.c1);
     };
@@ -2194,6 +2211,9 @@ fn claim_sub(cc: &mut Cc, tr: &mut Transcript, a: Option<&[Fp]>, base: usize, ba
 pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullConsts,
                      alpha: Fp2, beta: Fp2, gamma: Fp2, proof: &mut AttnProof,
                      tr: &mut Transcript) -> Result<Cc, String> {
+    crate::attention_schedule::role("argument");
+    crate::attention_schedule::record("begin", "attention argument", &[("T", c.shape.t), ("d", c.shape.d), ("f", c.shape.f), ("heads", c.shape.heads), ("kv_heads", c.shape.kv_heads), ("head_dim", c.shape.head_dim), ("cols_log", lay.cols_log as usize), ("A_length", lay.a_len), ("W_length", lay.w_len), ("H_length", lay.h_len)]);
+    crate::attention_schedule::lookup_layout(lay, c, fc);
     let proving = side.proving();
     let (adat, hdat, wdat) = match &side {
         Side::Prove(p) => (Some(p.a), Some(p.h), Some(p.w)),
@@ -2215,6 +2235,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     }
 
     // ===== 1. the isqrt row facts at one point + the two SS row sums =====
+    crate::attention_schedule::role("norm row facts and SS sums");
     let r_t = tr.challenge_fp2_vec(lay.log_t as usize);
     let mut ss = Vec::new();
     for site in 0..2 {
@@ -2253,6 +2274,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     }
 
     // ===== 2. Dsq = D D at both norm sites =====
+    crate::attention_schedule::role("norm squares");
     let tau1 = tr.challenge_fp2_vec(lay.log_t as usize);
     let mu1 = tr.challenge_fp2_vec(2);
     let poly_sq = |v: &[Fp2]| v[0].mul(mu1[0].mul(v[2].sub(v[1].mul(v[1]))).add(mu1[1].mul(v[4].sub(v[3].mul(v[3])))));
@@ -2277,6 +2299,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     }
 
     // ===== 3. the D-domain zero-check =====
+    crate::attention_schedule::role("D ranges norm and residuals");
     let (d_offs, d_tbl) = d_lookups(lay, c, fc);
     let n_lk = d_offs.len();
     let pos = |off: usize| 1 + d_offs.iter().position(|&x| x == off).unwrap();
@@ -2359,6 +2382,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
                   "residual pin 2")?;
     }
     // ===== 4. the Q-domain zero-check (lookups + the RoPE rotation) =====
+    crate::attention_schedule::role("Q ranges and RoPE");
     let (q_offs, q_tbl) = q_lookups(lay, c);
     let tau_q = tr.challenge_fp2_vec(lay.log_q as usize);
     let mu_q = tr.challenge_fp2_vec(4);
@@ -2398,6 +2422,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     }
 
     // ===== 5. the KV-domain zero-check =====
+    crate::attention_schedule::role("KV ranges and RoPE");
     let (kv_offs, kv_tbl) = kv_lookups(lay, c);
     let tau_kv = tr.challenge_fp2_vec(lay.log_kv as usize);
     let mu_kv = tr.challenge_fp2_vec(4);
@@ -2437,6 +2462,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     }
 
     // ===== 6. the softmax zero-check =====
+    crate::attention_schedule::role("softmax identities and ranges");
     let tau_s = tr.challenge_fp2_vec(lay.log_s as usize);
     let mu_s = tr.challenge_fp2_vec(6);
     let splan = SPlan { alpha, beta, g_int8: g(Tbl::Int8), g_win: g(Tbl::Win(c.sh_s)), g_exp: g(Tbl::Exp),
@@ -2478,6 +2504,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     }
 
     // ===== 7. the masked row sums (Sum) batched with sum_j zsel = 1 =====
+    crate::attention_schedule::role("masked row sums and selector");
     let p_ht = tr.challenge_fp2_vec((lay.log_hp + lay.log_t) as usize);
     let sum_cl = claim_sub(&mut cc, tr, adat, lay.sm, lay.log_sm, lay.sm_sum(),
                            lay.log_hp + lay.log_t, &p_ht);
@@ -2503,6 +2530,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     }
 
     // ===== 8. the packed limb slice's helper zero-check =====
+    crate::attention_schedule::role("packed norm limb ranges");
     let tau_l = tr.challenge_fp2_vec((lay.log_lm - 1) as usize);
     let mu_l = tr.challenge_fp2_vec(1);
     let plan_l = ZcPlan { alpha, pairs: vec![(1, g(Tbl::U16), Some((2, g(Tbl::U16))), 3)],
@@ -2528,6 +2556,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     }
 
     // ===== 9. the QKV matmul (one sumcheck over the inner d) =====
+    crate::attention_schedule::role("QKV projections");
     let rq_t = tr.challenge_fp2_vec(lay.log_t as usize);
     let r_jq = tr.challenge_fp2_vec(lay.log_qp as usize);
     let r_jk = tr.challenge_fp2_vec(lay.log_vp as usize);
@@ -2567,6 +2596,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     }
 
     // ===== 10. the per-head score matmul (the GQA map is free) =====
+    crate::attention_schedule::role("GQA score product");
     let p_s = tr.challenge_fp2_vec(lay.log_s as usize);
     let cs8 = claim_at(&mut cc, tr, adat, lay.s8, lay.log_s, &p_s);
     let crs = claim_at(&mut cc, tr, adat, lay.rs, lay.log_s, &p_s);
@@ -2619,6 +2649,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     }
 
     // ===== 11. the PV matmul =====
+    crate::attention_schedule::role("probability value product");
     let p_o = tr.challenge_fp2_vec(lay.log_q as usize);
     let co8 = claim_at(&mut cc, tr, adat, lay.o8, lay.log_q, &p_o);
     let cro = claim_at(&mut cc, tr, adat, lay.ro, lay.log_q, &p_o);
@@ -2670,6 +2701,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     }
 
     // ===== 12. the Wo matmul =====
+    crate::attention_schedule::role("output projection");
     let p_a = tr.challenge_fp2_vec(lay.log_d as usize);
     let mut ao_v = Fp2::from_i64(lay.ao.recon().1);
     for (k, &o) in lay.ao.offs.iter().enumerate() {
@@ -2695,6 +2727,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     }
 
     // ===== 13. the LogUp identity: the helper sums vs the multiplicity side =====
+    crate::attention_schedule::role("LogUp helper histogram identity");
     let mut hsum = Fp2::ZERO;
     let all_h: Vec<((usize, usize), u32)> = lay.h_d.iter().map(|x| (*x, lay.log_d))
         .chain(lay.h_q.iter().map(|x| (*x, lay.log_q)))
@@ -2719,6 +2752,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
         let mut dens: Vec<Fp2> = Vec::new();
         let mut nums: Vec<Fp> = Vec::new();
         for (tag, m) in &proof.mults {
+            crate::attention_schedule::record("histogram_visit", "LogUp table rows (counts excluded)", &[("tag", *tag as usize), ("rows", m.len())]);
             let tb = tbl_of_tag(*tag, c, fc, lay).ok_or_else(|| format!("unknown table tag {tag}"))?;
             let gt = gamma.mul_base(Fp::new(*tag));
             for (i, &cnt) in m.iter().enumerate() {
@@ -2738,6 +2772,7 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     } else if cc.idx > cc.vals.len() {
         return Err(format!("claim count {} > {} sent", cc.idx, cc.vals.len()));
     }
+    crate::attention_schedule::record("end", "attention argument", &[("A_claims", cc.aw.len()), ("W_claims", cc.ww.len()), ("H_claims", cc.hh.len()), ("values", if proving { cc.vals.len() } else { cc.idx })]);
     Ok(cc)
 }
 
@@ -2850,9 +2885,12 @@ pub fn prove_attn(wit: &AttnWitness, r2: &Resid2, params: &LayerParams, ntt: &Nt
 #[allow(clippy::too_many_arguments)]
 pub fn attn_seam(cc: &mut Cc, tr: &mut Transcript, lay: &AttnLayout, a: Option<&[Fp]>,
                  pts: &[Vec<Fp2>], want_x: &[Fp2], want_z: &[Fp2]) -> Result<(), String> {
+    crate::attention_schedule::role("internal FFN seam");
+    crate::attention_schedule::record("seam", "xm8=X and z16=FFN output", &[("points", pts.len()), ("X_claims", want_x.len()), ("Z_claims", want_z.len())]);
     for (b, pt) in pts.iter().enumerate() {
         let gx = claim_at(cc, tr, a, lay.xm8, lay.log_d, pt);
         let gz = claim_at(cc, tr, a, lay.z16c, lay.log_d, pt);
+        crate::attention_schedule::record("check", "internal X/Z equalities", &[("block", b)]);
         if cc.proving {
             assert!(gx == want_x[b] || tamper_mode(), "[UPERF3-AG] seam: xm8 != the FFN's X at block {b}");
             assert!(gz == want_z[b] || tamper_mode(), "[UPERF3-AG] seam: z16 copy != the FFN's z16 at block {b}");
@@ -2883,8 +2921,11 @@ pub fn cls_claim(cc: &mut Cc, tr: &mut Transcript, a: Option<&[Fp]>, cp: &ClsPla
 pub fn layer_seam(prev: &mut Cc, cur: &mut Cc, tr: &mut Transcript, lay_prev: &AttnLayout,
                   lay_cur: &AttnLayout, a_prev: Option<&[Fp]>, a_cur: Option<&[Fp]>,
                   pt: &[Fp2]) -> Result<(), String> {
+    crate::attention_schedule::role("cross-layer seam");
+    crate::attention_schedule::record("seam", "previous xres2=current x_in", &[("point_arity", pt.len()), ("previous_log", lay_prev.log_d as usize), ("current_log", lay_cur.log_d as usize)]);
     let out = cls_claim(prev, tr, a_prev, &lay_prev.xres2, lay_prev.log_d, pt);
     let inp = cls_claim(cur, tr, a_cur, &lay_cur.x_in, lay_cur.log_d, pt);
+    crate::attention_schedule::record("check", "cross-layer equality", &[]);
     if out == inp {
         Ok(())
     } else if prev.proving && !tamper_mode() {
@@ -2942,9 +2983,11 @@ fn collapse_range(claims: &mut Vec<Claim>, base: usize, base_log: u32, data: Opt
             && c.parts[0].0.log_size <= base_log
     };
     let sel: Vec<usize> = claims.iter().enumerate().filter(|(_, c)| inside(c)).map(|(i, _)| i).collect();
+    crate::attention_schedule::record("collapse_range", "A public range selection", &[("offset", base), ("log", base_log as usize), ("selected_claims", sel.len())]);
     if sel.len() < 2 {
         return Ok(0);
     }
+    crate::attention_schedule::record("collapse_sumcheck", "A claim folding", &[("degree", 2), ("variables", base_log as usize), ("length", n)]);
     // the claims' points lifted to the range's own arity (the sub-block
     // index in the HIGH bits, exactly `sub_point`)
     let full: Vec<Vec<Fp2>> = sel.iter()
@@ -3073,6 +3116,7 @@ fn collapse_plan(lay: &AttnLayout) -> Vec<(usize, u32)> {
 fn collapse_a(cc: &mut Cc, lay: &AttnLayout, data: Option<&[Fp]>,
               store: &mut Vec<(SumcheckProof, Fp2)>, cursor: &mut usize,
               tr: &mut Transcript) -> Result<(), String> {
+    crate::attention_schedule::role("A claim collapse");
     if std::env::var("HL_NO_FOLD").ok().as_deref() == Some("1") {
         return Ok(());
     }
@@ -3127,6 +3171,17 @@ pub fn claim_groups_report(tag: &str, claims: &[Claim], log_cols: u32) {
 }
 
 /// The deferred openings (single-layer path: W, H, then A).
+fn schedule_opening(site: &'static str, claims: &[Claim]) {
+    if !crate::attention_schedule::enabled() { return; }
+    for (index, claim) in claims.iter().enumerate() {
+        for (part, (slice, _)) in claim.parts.iter().enumerate() {
+            crate::attention_schedule::record("opening_slice", site, &[("claim", index), ("part", part),
+                ("offset", slice.offset), ("log", slice.log_size as usize), ("point_arity", claim.point.len()), ("sum", usize::from(claim.sum))]);
+        }
+    }
+}
+
+/// The deferred openings (single-layer path: W, H, then A).
 pub fn attn_open(mut pend: AttnPending, proof: &mut AttnProof, tr: &mut Transcript) {
     attn_open_wh(&mut pend, proof, tr);
     attn_open_a(pend, proof, tr);
@@ -3136,6 +3191,10 @@ pub fn attn_open(mut pend: AttnPending, proof: &mut AttnProof, tr: &mut Transcri
 /// layer seam) touches those two commitments, so they can close early and
 /// free their memory while the next layer runs.
 pub fn attn_open_wh(pend: &mut AttnPending, proof: &mut AttnProof, tr: &mut Transcript) {
+    crate::attention_schedule::role("W H openings");
+    crate::attention_schedule::record("open", "W H PCS claims", &[("W_claims", pend.cc.ww.len()), ("H_claims", pend.cc.hh.len())]);
+    schedule_opening("W", &pend.cc.ww);
+    schedule_opening("H", &pend.cc.hh);
     let w_cm = pend.w_cm.take().expect("W already opened");
     claim_groups_report("Wa", &pend.cc.ww, pend.lay.cols_log);
     proof.w_open = pcs::open(&w_cm, &pend.cc.ww, tr);
@@ -3155,6 +3214,8 @@ pub fn attn_open_a(pend: AttnPending, proof: &mut AttnProof, tr: &mut Transcript
         .expect("collapse (prover)");
     claim_groups_report("Aa", &cc.aw, lay.cols_log);
     proof.a_open = pcs::open(&a_cm, &cc.aw, tr);
+    crate::attention_schedule::record("open", "A PCS claims", &[("A_claims", cc.aw.len())]);
+    schedule_opening("A", &cc.aw);
     drop(a_cm);
     drop(a_data);
 }
@@ -3204,6 +3265,10 @@ pub fn verify_attn_open(proof: &AttnProof, lay: &AttnLayout, cc: &Cc, params: &L
 
 pub fn verify_attn_open_wh(proof: &AttnProof, lay: &AttnLayout, cc: &Cc, params: &LayerParams,
                            ntt: &NttTables, tr: &mut Transcript) -> Result<(), String> {
+    crate::attention_schedule::role("W H openings");
+    crate::attention_schedule::record("open", "W H PCS claims", &[("W_claims", cc.ww.len()), ("H_claims", cc.hh.len())]);
+    schedule_opening("W", &cc.ww);
+    schedule_opening("H", &cc.hh);
     let pp = PcsParams { log_cols: lay.cols_log, inv_rate: params.inv_rate, num_col_checks: params.num_col_checks };
     pcs::verify(&pp, proof.w_com.as_ref().unwrap(), &cc.ww, &proof.w_open, ntt, tr).map_err(|e| format!("Wa: {e}"))?;
     pcs::verify(&pp, proof.h_com.as_ref().unwrap(), &cc.hh, &proof.h_open, ntt, tr).map_err(|e| format!("Ha: {e}"))?;
@@ -3222,6 +3287,8 @@ pub fn verify_attn_open_a(proof: &AttnProof, lay: &AttnLayout, cc: &Cc, params: 
     if cursor != proof.collapse.len() {
         return Err(format!("collapse: {} proofs sent, {cursor} used", proof.collapse.len()));
     }
+    crate::attention_schedule::record("open", "A PCS claims", &[("A_claims", cc2.aw.len())]);
+    schedule_opening("A", &cc2.aw);
     let pp = PcsParams { log_cols: lay.cols_log, inv_rate: params.inv_rate, num_col_checks: params.num_col_checks };
     pcs::verify(&pp, proof.a_com.as_ref().unwrap(), &cc2.aw, &proof.a_open, ntt, tr).map_err(|e| format!("Aa: {e}"))
 }

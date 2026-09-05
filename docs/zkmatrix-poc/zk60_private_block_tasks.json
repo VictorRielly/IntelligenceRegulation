@@ -2,8 +2,8 @@
   "schema_version": 1,
   "created_local_date": "2026-09-04",
   "lane": "A1",
-  "status": "round-2 partial implementation; no complete private block or generation proof",
-  "baseline": "19ebd18 plus C0 randomness/CLI patch",
+  "status": "round-3 partial implementation; public tiny block proof and observed schedule, no complete private block or generation proof",
+  "baseline": "24ae746 (C0/round1/round2 committed and pushed); round3 validation precedes its separate continuation commit",
   "owner": "Codex private-block worker; not Fable or Claude",
   "hardware_policy": "CPU-first; no large GPU runs while 5090 is unavailable; Claude gpu/pcs lane reserved",
   "first_complete_milestone": "A07: one tiny fixed-calibration P1 transformer block",
@@ -64,7 +64,7 @@
         "hashline/tests/zk60_sequence_equivalence.rs",
         "docs/zkmatrix-poc/ZK60_CAUSAL_ORACLE.md"
       ],
-      "scope_adjustment": "T=32, d=f=16, H=2,Hkv=1,dh=8 supports the current 256-check PCS column width; original T1/2/4 intent is not claimed. Host arithmetic envelope is conditional, not a proof-level no-wrap/range certificate."
+      "scope_adjustment": "T=32, d=f=16, H=2,Hkv=1,dh=8 supports the 256-column KV activation width; original T1/2/4 intent is not claimed. Round3 B3 additionally needs exact public subcube lifting for 128-value Wk/Wv claims into the 256-value PCS row. A00 preflight alone does not certify legacy proof support. Host arithmetic envelope is conditional, not a proof-level no-wrap/range certificate."
     },
     {
       "id": "A01",
@@ -98,7 +98,18 @@
         "Test fixtures can distinguish prover-assertion failure from verifier rejection."
       ],
       "acceptance": "A complete machine-checkable schedule/exposure inventory exists before masking source changes.",
-      "implementation_status": "open: source-based relation inventory documented; machine-checkable complete exposure schedule still required"
+      "implementation_status": "partial: executed fixed-profile P0 attention metadata schedule, side-specific/shared reference fingerprints and source drift guard; not a complete private exposure/masking inventory",
+      "implementation_files": [
+        "hashline/src/attention_schedule.rs",
+        "hashline/src/attention.rs",
+        "hashline/tests/zk60_attention_schedule.rs",
+        "docs/zkmatrix-poc/ZK60_ATTENTION_SCHEDULE.md"
+      ],
+      "remaining_acceptance": [
+        "Specify and review point transforms, opening groups, coefficients, mask sites and joint transcript observations; metadata arity/order alone cannot certify these.",
+        "Extend coverage beyond the fixed T32 public reference; the synthetic cross-layer hook test is not a two-block proof.",
+        "Complete independent privacy review before implementing private attention."
+      ]
     },
     {
       "id": "A02",
@@ -186,7 +197,17 @@
         "Missing seam, wrong boundary slice, late mask insertion, double finalize and proof replay across profiles reject.",
         "Old P0 zcd_term and masked ZK zc17_term cannot be substituted through the typed boundary API."
       ],
-      "acceptance": "Integrator-owned shared-file refactor lands only after API review; no edits to Claude's gpu/pcs lane."
+      "acceptance": "Integrator-owned shared-file refactor lands only after API review; no edits to Claude's gpu/pcs lane.",
+      "implementation_status": "proposal reviewed for ownership, order and counted layout facts; four metadata-only tests added, no pending private FFN source implementation",
+      "implementation_files": [
+        "docs/zkmatrix-poc/ZK60_PENDING_FFN.md",
+        "hashline/tests/zk60_pending_layout.rs"
+      ],
+      "remaining_acceptance": [
+        "Resolve whole-profile privacy/mask allocation and new transcript schedule before implementing the proposed API.",
+        "Enclosing block owner must retain both attention and FFN states and route claims to both before either opens.",
+        "Wrong independently supplied request context must reject; exact replay consumption belongs to application state."
+      ]
     },
     {
       "id": "A04",
