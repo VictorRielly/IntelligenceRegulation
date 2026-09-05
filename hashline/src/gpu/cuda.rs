@@ -127,6 +127,29 @@ pub fn set_alloc_cap_for_test(elems: usize) -> usize {
     ALLOC_CAP_ELEMS.swap(elems, Ordering::SeqCst)
 }
 
+/// [ZK60-CL3] Fail the Nth and every later FRESH allocation (`usize::MAX`
+/// disables it, the default).
+///
+/// A size cap alone cannot isolate a particular allocation SITE: in
+/// `dev_commit_zk_from` the `d_coef2` and `d_enc` takes are the same size, so
+/// any cap that refuses one refuses the other and the later site is never
+/// reached. Counting fresh allocations targets each site exactly, which is
+/// what "narrowly scoped deterministic failure injection" has to mean here.
+static ALLOC_FAIL_AFTER: AtomicUsize = AtomicUsize::new(usize::MAX);
+static ALLOC_FRESH_COUNT: AtomicUsize = AtomicUsize::new(0);
+
+/// Allow `n` fresh allocations, then fail every one after. Resets the counter.
+pub fn set_alloc_fail_after_for_test(n: usize) -> usize {
+    ALLOC_FRESH_COUNT.store(0, Ordering::SeqCst);
+    ALLOC_FAIL_AFTER.swap(n, Ordering::SeqCst)
+}
+
+/// Fresh device allocations since the last arming. Lets a test assert that a
+/// fallback REUSED pooled capacity instead of allocating more.
+pub fn fresh_alloc_count_for_test() -> usize {
+    ALLOC_FRESH_COUNT.load(Ordering::SeqCst)
+}
+
 fn pool_take(dev: &Arc<CudaDevice>, len: usize) -> Result<CudaSlice<u64>, String> {
     let mut pool = POOL.lock().unwrap();
     if let Some(i) = pool.iter().position(|b| b.len() == len) {
@@ -140,6 +163,13 @@ fn pool_take(dev: &Arc<CudaDevice>, len: usize) -> Result<CudaSlice<u64>, String
         return Err(format!(
             "cuMemAlloc({} B): injected allocation cap ({} B / {} elements)",
             len * 8, cap * 8, cap
+        ));
+    }
+    let seen = ALLOC_FRESH_COUNT.fetch_add(1, Ordering::SeqCst);
+    if seen >= ALLOC_FAIL_AFTER.load(Ordering::SeqCst) {
+        return Err(format!(
+            "cuMemAlloc({} B): injected failure at fresh allocation #{}",
+            len * 8, seen
         ));
     }
     unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!("cuMemAlloc({} MB): {e}", len * 8 >> 20))
@@ -2894,7 +2924,38 @@ pub fn dev_commit_zk_from(params: &PcsParams, d_data: Pooled, rows: usize, pads:
     let cfg = LaunchConfig::for_num_elems((rows * nn) as u32);
     unsafe { f.launch(cfg, (d_coef.get(), &d_pads, &d_pows, d_coef2.get_mut(), rows as i32, n as i32, q as i32, nn as i32)) }.map_err(|e| format!("k_zk_pad_scale: {e}"))?;
     drop(d_coef);
-    let mut d_enc = Pooled::take(&dev, rows * nn)?;
+    // [ZK60-CL3] The LAST resident allocation. It used to be a bare `?`, which
+    // handed the whole commitment to the caller's CPU path — a much larger and
+    // slower fallback than the chunked one that is right there. The first two
+    // takes get a chunked retry; this one did not, purely because it happens
+    // later in the function.
+    //
+    // Retrying is sound: chunking re-derives everything from `d_data`, which
+    // is still live, so the work done so far is discarded rather than reused.
+    // Dropping `d_coef2` first matters — it returns that buffer to the pool,
+    // and `take_min` can then reuse it as chunk scratch (a chunk needs
+    // `rmax*nn <= rows*nn`), so the retry usually needs NO new device memory.
+    let mut d_enc = match Pooled::take(&dev, rows * nn) {
+        Ok(e) => e,
+        Err(why) => {
+            if mode == ZkChunk::Off {
+                return Err(format!(
+                    "HL_ZK_CHUNK=off (strict reference mode): the resident encoded buffer \
+                     could not be allocated and strict mode forbids the chunked retry — {why}. \
+                     Unset HL_ZK_CHUNK (auto) to allow chunking."
+                ));
+            }
+            drop(d_coef2);
+            if verbose() {
+                eprintln!("[ZK60-CL3]   zk commit rows {rows} 2^{log_n} -> 2^{log_nn}: the encoded buffer was refused ({why}); RETRYING CHUNKED");
+            }
+            let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q, nn, log_n, log_nn, chunk_rows())?;
+            note_vram(&g);
+            stats_with(|s| s.secs_ntt += t1.elapsed().as_secs_f64());
+            let zk = ZkReenc { pads: d_pads, pows: d_pows, q };
+            return Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: None, zk: Some(zk) }, leaves));
+        }
+    };
     g.ntt_rows(d_coef2.get(), d_enc.get_mut(), rows, nn, log_nn, false)?;
     dev.synchronize().map_err(|e| e.to_string())?;
     let t2 = Instant::now();

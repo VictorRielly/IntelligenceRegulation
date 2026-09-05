@@ -269,3 +269,105 @@ fn strict_off_still_produces_correct_results_when_it_fits() {
     gpu::set_zk_chunk_mode_for_test(prev_mode);
     assert_eq!(chunked.expect("strict off ran"), false, "strict off must stay RESIDENT when it fits");
 }
+
+// ---------------------------------------------------------------------------
+// [ZK60-CL3] Every resident allocation site, not just the first pair.
+// ---------------------------------------------------------------------------
+
+/// FINDING: the LAST resident take (`d_enc`) used a bare `?`, so a failure
+/// there handed the whole commitment to the caller's CPU path instead of the
+/// chunked one sitting right beside it. The first two takes got a chunked
+/// retry; this one did not, purely because it happens later in the function.
+///
+/// A size cap cannot isolate this site — `d_coef2` and `d_enc` are the same
+/// size — so the injection counts fresh allocations instead and fails only the
+/// third one.
+#[test]
+fn the_last_resident_allocation_retries_chunking_rather_than_giving_up() {
+    let _g = serial();
+    if !gpu::enabled() {
+        eprintln!("SKIP: no device ({})", gpu::label());
+        return;
+    }
+    gpu::dev_pool_drain();
+    let prev_mode = gpu::set_zk_chunk_mode_for_test(1); // auto
+    // fresh allocations in order: witness upload, d_coef, d_coef2, then d_enc.
+    // Allowing 3 lets the pair succeed and fails exactly the d_enc take.
+    let prev_fail = gpu::set_alloc_fail_after_for_test(3);
+    let r = gpu::dev_commit_zk_from_probe(10, 4, 300, 16);
+    gpu::set_alloc_fail_after_for_test(prev_fail);
+    gpu::set_zk_chunk_mode_for_test(prev_mode);
+
+    match r {
+        Ok(chunked) => assert!(
+            chunked,
+            "a refused encoded buffer must fall back to CHUNKING, not to the caller's CPU path"
+        ),
+        Err(e) => panic!("the d_enc site must retry chunked instead of erroring out: {e}"),
+    }
+}
+
+/// The same site under STRICT off must refuse, not quietly chunk.
+#[test]
+fn the_last_resident_allocation_is_also_strict_under_off() {
+    let _g = serial();
+    if !gpu::enabled() {
+        eprintln!("SKIP: no device ({})", gpu::label());
+        return;
+    }
+    gpu::dev_pool_drain();
+    let prev_mode = gpu::set_zk_chunk_mode_for_test(0); // off/strict
+    let prev_fail = gpu::set_alloc_fail_after_for_test(3);
+    let r = gpu::dev_commit_zk_from_probe(10, 4, 300, 16);
+    gpu::set_alloc_fail_after_for_test(prev_fail);
+    gpu::set_zk_chunk_mode_for_test(prev_mode);
+
+    match r {
+        Err(e) => assert!(
+            e.contains("strict reference mode"),
+            "strict off must name itself when it refuses the encoded buffer: {e}"
+        ),
+        Ok(chunked) => panic!("strict off must not chunk at the d_enc site (chunked = {chunked})"),
+    }
+}
+
+/// ACCEPTANCE: "distinguish live ownership from pool reservation and allocated
+/// capacity from requested scratch."
+///
+/// After a fallback, the released resident buffers sit in the POOL, and
+/// `take_min` reuses an oversized pooled buffer as chunk scratch. So the retry
+/// should need essentially NO new device memory — the capacity was already
+/// paid for. This asserts that directly by counting fresh allocations, which
+/// also pins the difference between "allocated capacity" and "requested size".
+#[test]
+fn the_chunked_retry_reuses_pooled_capacity_rather_than_allocating_more() {
+    let _g = serial();
+    if !gpu::enabled() {
+        eprintln!("SKIP: no device ({})", gpu::label());
+        return;
+    }
+    gpu::dev_pool_drain();
+    let prev_mode = gpu::set_zk_chunk_mode_for_test(1);
+    // Warm the pool with a full resident commitment of this exact shape.
+    let warm = gpu::dev_commit_zk_from_probe(10, 4, 300, 16);
+    assert_eq!(warm.expect("warm-up ran"), false, "warm-up should be resident");
+
+    // Now force the chunked path on the SAME shape. Its scratch is smaller than
+    // the pooled buffers, so take_min should reuse them.
+    gpu::set_alloc_fail_after_for_test(usize::MAX);
+    let before = gpu::fresh_alloc_count_for_test();
+    let prev2 = gpu::set_zk_chunk_mode_for_test(2); // force chunked
+    let r = gpu::dev_commit_zk_from_probe(10, 4, 300, 16);
+    let fresh = gpu::fresh_alloc_count_for_test() - before;
+    gpu::set_zk_chunk_mode_for_test(prev2);
+    gpu::set_zk_chunk_mode_for_test(prev_mode);
+
+    assert_eq!(r.expect("forced chunked ran"), true, "must have chunked");
+    // The blake3 column state and the leaves are genuinely new shapes; the big
+    // encode scratch must NOT be. A handful of small allocations is expected;
+    // a fresh full-size pair would mean pooled capacity was ignored.
+    assert!(
+        fresh <= 4,
+        "the chunked path should reuse pooled capacity; it made {fresh} fresh allocations"
+    );
+}
