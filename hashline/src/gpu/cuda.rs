@@ -138,10 +138,59 @@ pub fn set_alloc_cap_for_test(elems: usize) -> usize {
 static ALLOC_FAIL_AFTER: AtomicUsize = AtomicUsize::new(usize::MAX);
 static ALLOC_FRESH_COUNT: AtomicUsize = AtomicUsize::new(0);
 
-/// Allow `n` fresh allocations, then fail every one after. Resets the counter.
+/// Fail EXACTLY the nth fresh allocation (0-based), then disarm.
+///
+/// [ZK60-CL4 review] This was "fail n and everything after", which made a
+/// fallback impossible to test end to end: once armed, the chunked retry could
+/// not allocate either. A transient refusal is also the more realistic model of
+/// a momentarily full card. One-shot lets the failure land on one site and the
+/// recovery path then run for real.
 pub fn set_alloc_fail_after_for_test(n: usize) -> usize {
     ALLOC_FRESH_COUNT.store(0, Ordering::SeqCst);
     ALLOC_FAIL_AFTER.swap(n, Ordering::SeqCst)
+}
+
+/// [ZK60-CL4 review] Device allocations made OUTSIDE the pool
+/// (`htod_sync_copy`, `alloc::<u32>`): pads, coset powers, leaves, gather
+/// output. They are real device capacity and were invisible to the counter,
+/// so any "made no fresh allocation" claim that ignored them was untestable.
+static RAW_ALLOC_COUNT: AtomicUsize = AtomicUsize::new(0);
+static RAW_ALLOC_BYTES: AtomicUsize = AtomicUsize::new(0);
+
+pub fn raw_alloc_stats_for_test() -> (usize, usize) {
+    (RAW_ALLOC_COUNT.load(Ordering::SeqCst), RAW_ALLOC_BYTES.load(Ordering::SeqCst))
+}
+pub fn reset_alloc_counters_for_test() {
+    ALLOC_FRESH_COUNT.store(0, Ordering::SeqCst);
+    RAW_ALLOC_COUNT.store(0, Ordering::SeqCst);
+    RAW_ALLOC_BYTES.store(0, Ordering::SeqCst);
+}
+fn note_raw_alloc(bytes: usize) {
+    RAW_ALLOC_COUNT.fetch_add(1, Ordering::SeqCst);
+    RAW_ALLOC_BYTES.fetch_add(bytes, Ordering::SeqCst);
+}
+
+/// The shared gate for a FRESH pool allocation: cap, one-shot injection and
+/// the counter. `pool_take_min` used to allocate straight from the device,
+/// outside all three — so the chunked path, which uses take_min exclusively,
+/// was invisible to every assertion built on this counter.
+fn fresh_alloc_gate(len: usize) -> Result<(), String> {
+    let cap = ALLOC_CAP_ELEMS.load(Ordering::SeqCst);
+    if cap != 0 && len > cap {
+        return Err(format!(
+            "cuMemAlloc({} B): injected allocation cap ({} B / {} elements)",
+            len * 8, cap * 8, cap
+        ));
+    }
+    let seen = ALLOC_FRESH_COUNT.fetch_add(1, Ordering::SeqCst);
+    if seen == ALLOC_FAIL_AFTER.load(Ordering::SeqCst) {
+        ALLOC_FAIL_AFTER.store(usize::MAX, Ordering::SeqCst); // one-shot
+        return Err(format!(
+            "cuMemAlloc({} B): injected one-shot failure at fresh allocation #{}",
+            len * 8, seen
+        ));
+    }
+    Ok(())
 }
 
 /// Fresh device allocations since the last arming. Lets a test assert that a
@@ -156,22 +205,7 @@ fn pool_take(dev: &Arc<CudaDevice>, len: usize) -> Result<CudaSlice<u64>, String
         return Ok(pool.swap_remove(i));
     }
     drop(pool);
-    let cap = ALLOC_CAP_ELEMS.load(Ordering::SeqCst);
-    if cap != 0 && len > cap {
-        // Report BYTES, not truncated MB: a 32 KiB cap printed as "0 MB" is a
-        // diagnostic that tells the reader nothing.
-        return Err(format!(
-            "cuMemAlloc({} B): injected allocation cap ({} B / {} elements)",
-            len * 8, cap * 8, cap
-        ));
-    }
-    let seen = ALLOC_FRESH_COUNT.fetch_add(1, Ordering::SeqCst);
-    if seen >= ALLOC_FAIL_AFTER.load(Ordering::SeqCst) {
-        return Err(format!(
-            "cuMemAlloc({} B): injected failure at fresh allocation #{}",
-            len * 8, seen
-        ));
-    }
+    fresh_alloc_gate(len)?;
     unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!("cuMemAlloc({} MB): {e}", len * 8 >> 20))
 }
 
@@ -197,6 +231,10 @@ fn pool_take_min(dev: &Arc<CudaDevice>, len: usize) -> Result<CudaSlice<u64>, St
         return Ok(pool.swap_remove(i));
     }
     drop(pool);
+    // [ZK60-CL4 review] this allocated straight from the device, outside the
+    // cap, the injection and the counter. The chunked path uses take_min for
+    // ALL its scratch, so it was invisible to every assertion built on them.
+    fresh_alloc_gate(len)?;
     unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!("cuMemAlloc({} MB): {e}", len * 8 >> 20))
 }
 
@@ -1365,6 +1403,7 @@ impl Gpu {
         let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
         let d_idx = dev.htod_sync_copy(&idx32).map_err(|e| e.to_string())?;
         let mut d_out = unsafe { dev.alloc::<u64>(rows * q_open) }.map_err(|e| e.to_string())?;
+        note_raw_alloc(rows * q_open * 8 + idx32.len() * 4);
         let f = dev.get_func(MODULE, "k_gather_cols_off").ok_or("k_gather_cols_off missing")?;
         for &(r0, rc) in &plan {
             let dview = dc.data.get().slice(r0 * n..(r0 + rc) * n);
@@ -2063,7 +2102,7 @@ pub fn dev_commit_zk_check_interleaved(specs: &[(u32, usize, usize, usize)], chu
 /// right for checking values but means they never touch the mode/fallback
 /// decision — so a "strict mode" assertion built on them would be vacuous.
 /// This one exercises the branch the CL1 review actually flagged.
-pub fn dev_commit_zk_from_probe(log_cols: u32, inv_rate: usize, rows: usize, q_pad: usize) -> Result<bool, String> {
+pub fn dev_commit_zk_from_probe(log_cols: u32, inv_rate: usize, rows: usize, q_pad: usize) -> Result<ProbeOutcome, String> {
     let params = PcsParams { log_cols, inv_rate, num_col_checks: 16 };
     let ntt = NttTables::new(log_cols + inv_rate.trailing_zeros());
     let n = params.cols();
@@ -2082,8 +2121,39 @@ pub fn dev_commit_zk_from_probe(log_cols: u32, inv_rate: usize, rows: usize, q_p
         dev.htod_sync_copy_into(as_u64s(&data), d.get_mut()).map_err(|e| format!("data upload: {e}"))?;
         d
     };
-    let (dc, _leaves) = dev_commit_zk_from(&params, d_data, rows, &pads, &pows, &ntt)?;
-    Ok(dc.enc.is_none())
+    // [ZK60-CL4 review] The first version returned only `dc.enc.is_none()` and
+    // DISCARDED the leaves, so it proved which path was taken and nothing about
+    // whether that path was correct. An injected-failure test built on it could
+    // not have caught a fallback that routed correctly and computed garbage.
+    // Now the leaves AND the opened columns from the ACTUAL path are checked
+    // against the CPU encoding.
+    let cpu = {
+        let mut e = vec![Fp::ZERO; rows * nn];
+        for (i, erow) in e.chunks_mut(nn).enumerate() {
+            crate::pcs::encode_row_zk(&ntt, &data[i * n..(i + 1) * n], &pads[i * q_pad..(i + 1) * q_pad], &pows, erow);
+        }
+        e
+    };
+    let cpu_leaves = crate::pcs::hash_columns(&cpu, rows, nn);
+    let (dc, leaves) = dev_commit_zk_from(&params, d_data, rows, &pads, &pows, &ntt)?;
+    let bad_leaves = leaves.iter().zip(cpu_leaves.iter()).filter(|(a, b)| a != b).count();
+    let idx: Vec<usize> = (0..16).map(|i| (i * 7919 + 13) % nn).collect();
+    let cols = dev_columns(&dc, &idx)?;
+    let mut bad_cols = 0usize;
+    for (c, &j) in idx.iter().enumerate() {
+        for i in 0..rows {
+            if cols[c][i] != cpu[i * nn + j] { bad_cols += 1; }
+        }
+    }
+    Ok(ProbeOutcome { chunked: dc.enc.is_none(), bad_leaves, bad_cols })
+}
+
+/// [ZK60-CL4 review] What path was taken AND whether it was right.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ProbeOutcome {
+    pub chunked: bool,
+    pub bad_leaves: usize,
+    pub bad_cols: usize,
 }
 
 /// Commit a device-resident data buffer (rows x n u64, row-major) — the
@@ -2873,6 +2943,10 @@ pub fn dev_commit_zk_from(params: &PcsParams, d_data: Pooled, rows: usize, pads:
     let t_up0 = Instant::now();
     let d_pads = dev.htod_sync_copy(as_u64s(pads)).map_err(|e| format!("pads upload: {e}"))?;
     let d_pows = dev.htod_sync_copy(as_u64s(pows)).map_err(|e| format!("pows upload: {e}"))?;
+    // [ZK60-CL4 review] pads/powers are RAW device capacity, not pooled, and a
+    // chunked commitment RETAINS them for its deferred opening. Counting them
+    // is the difference between a capacity claim and an untestable one.
+    note_raw_alloc((pads.len() + pows.len()) * 8);
     // [ZK60-CL4] the caller's own EXCLUSIVE interval: a TRANSFER, not an NTT.
     let t_upload = t_up0.elapsed().as_secs_f64();
     stats_with(|s| s.bytes_h2d += ((pads.len() + pows.len()) * 8) as u64);

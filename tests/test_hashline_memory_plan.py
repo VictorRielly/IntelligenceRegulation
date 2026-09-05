@@ -143,14 +143,40 @@ class Cl3Modes(unittest.TestCase):
         # the Mistral-width shape is NOT reachable on this path
         self.assertGreater(self.SHAPE["rows"] * (1 << 16) * 8, chunk_bytes)
 
-    def test_warm_pool_occupies_the_same_bytes_but_allocates_none(self):
-        """capacity vs request: cold and warm HOLD the same bytes; only the
-        newly allocated capacity differs."""
+    def test_warm_pool_still_pays_the_raw_non_poolable_allocations(self):
+        """capacity vs request: cold and warm HOLD the same bytes, and warm
+        allocates LESS — but not nothing.
+
+        CORRECTED after the round-6 review. This test previously asserted warm
+        allocates ZERO, which was wrong: pads, coset powers and the leaf buffer
+        are raw allocations (htod_sync_copy / alloc::<u32>), never pooled, so
+        they are paid on every call whatever the pool holds. The device
+        counters agree — a forced-chunk commitment reports 2 raw allocations."""
         cold = plan.commitment_plan(**self.SHAPE, mode="chunked", pool_state="cold")
         warm = plan.commitment_plan(**self.SHAPE, mode="chunked", pool_state="warm")
         self.assertEqual(cold["subtotal_accounted_bytes"], warm["subtotal_accounted_bytes"])
-        self.assertGreater(cold["newly_allocated_capacity_bytes"], 0)
-        self.assertEqual(warm["newly_allocated_capacity_bytes"], 0)
+        self.assertGreater(cold["newly_allocated_capacity_bytes"],
+                           warm["newly_allocated_capacity_bytes"])
+        self.assertEqual(warm["newly_allocated_capacity_bytes"], warm["raw_non_poolable_bytes"])
+        self.assertGreater(warm["newly_allocated_capacity_bytes"], 0,
+                           "pads/powers/leaves are never pooled; warm cannot be free")
+
+    def test_chunk_rows_mirror_the_device_plan(self):
+        """chunk_rows() clamps to >= 128 and chunk_plan rounds the step down to
+        a multiple of 128, so an unrounded count here would undercount."""
+        for asked, expect in ((1, 128), (64, 128), (128, 128), (200, 128), (256, 256), (300, 256)):
+            r = plan.commitment_plan(**self.SHAPE, mode="chunked", chunk_rows=asked)
+            self.assertEqual(r["chunk_rows"], expect, f"chunk_rows={asked}")
+
+    def test_post_return_fields_are_mode_aware(self):
+        """A chunked commitment returns NO encoded matrix and retains pads and
+        powers instead; the resident-only fields were wrong for it."""
+        res = plan.commitment_plan(**self.SHAPE)
+        chu = plan.commitment_plan(**self.SHAPE, mode="chunked")
+        self.assertGreater(res["new_pool_bytes_after_return"], 0)
+        self.assertEqual(chu["new_pool_bytes_after_return"], 0)
+        self.assertLess(chu["commitment_live_after_return_bytes"],
+                        res["commitment_live_after_return_bytes"])
 
     def test_bad_mode_and_pool_state_are_rejected(self):
         with self.assertRaises(ValueError):

@@ -122,7 +122,12 @@ def commitment_plan(rows, log_cols=14, inv_rate=4, checks=256, q_pad=None,
 
     # [ZK60-CL3] the non-resident paths. B3_STATE_SLOTS mirrors gpu/cuda.rs.
     b3_slots = 8 * 24 + 1
-    rmax = min(rows, integer("chunk_rows", chunk_rows, 1))
+    # [ZK60-CL4 review] mirror the DEVICE plan: chunk_rows() clamps to >= 128
+    # and chunk_plan uses step = (chunk // 128) * 128, so a too-small or
+    # unrounded chunk count here would undercount the scratch.
+    _cr = max(128, integer("chunk_rows", chunk_rows, 1))
+    _step = max(1, _cr // 128) * 128
+    rmax = min(rows, _step)
     chunk_coef, chunk_enc = rmax * n * 8, rmax * nn * 8
     state_bytes = b3_slots * nn * 4
     if mode in ("chunked", "fallback"):
@@ -171,15 +176,25 @@ def commitment_plan(rows, log_cols=14, inv_rate=4, checks=256, q_pad=None,
         # [ZK60-CL3] held vs newly requested. On a warm pool the path occupies
         # the same bytes but allocates none of them; conflating the two is how
         # a "chunk-only count" gets mistaken for a whole-prover bound.
-        "newly_allocated_capacity_bytes": 0 if pool_state == "warm" else max(
+        # [ZK60-CL4 review] The earlier "warm => 0 new bytes" was WRONG: pads,
+        # coset powers and the leaf buffer are RAW allocations
+        # (htod_sync_copy / alloc::<u32>), never pooled, so they are paid on
+        # every call whatever the pool holds. Only the poolable scratch can be
+        # reused. Confirmed against the device counters, which report 2 raw
+        # allocations on a forced-chunk commitment.
+        "raw_non_poolable_bytes": pads + powers + leaves,
+        "newly_allocated_capacity_bytes": (pads + powers + leaves) if pool_state == "warm" else max(
             row["accounted_device_bytes"] for row in stages),
         "measured": False, "safe_to_run": False, "sources": SOURCES,
         "shape": {"rows": rows, "log_cols": log_cols, "columns": n,
                   "encoded_columns": nn, "inv_rate": inv_rate, "checks": checks,
                   "q_pad": q, "ntt_max_log": ml},
         "buffers_bytes": buffers, "stages": stages, "twiddle_bytes": twiddles,
-        "commitment_live_after_return_bytes": data + encoded,
-        "new_pool_bytes_after_return": data + encoded,
+        # [ZK60-CL4 review] these were resident-only. A chunked commitment
+        # returns NO encoded matrix (enc is None) and instead RETAINS pads and
+        # powers for its deferred opening.
+        "commitment_live_after_return_bytes": (data + encoded) if mode == "resident" else (data + pads + powers),
+        "new_pool_bytes_after_return": (data + encoded) if mode == "resident" else 0,
         "component_peak_accounted_bytes": component_peak,
         "prior_live_bytes": prior_live_bytes, "prior_pool_bytes": prior_pool_bytes,
         "subtotal_accounted_bytes": subtotal, "subtotal_accounted_mib": subtotal / MIB,
@@ -188,7 +203,11 @@ def commitment_plan(rows, log_cols=14, inv_rate=4, checks=256, q_pad=None,
         "host_retained_payload_bytes": {"systematic_data": data, "pads": pads,
                                         "salts": leaves, "merkle_tree": (2 * nn - 1) * 32},
         "assumptions": [
-            "One successful resident dev_commit_zk_from call, no CPU fallback.",
+            f"Mode {mode}: " + {
+                "resident": "one successful resident dev_commit_zk_from call, no CPU fallback.",
+                "chunked": "one chunked commitment; no rows*nn buffer is allocated and the opening re-encodes from retained data/pads/powers.",
+                "fallback": "a resident attempt refused partway, its buffers RELEASED TO THE POOL (not freed), then a chunked retry on top of them.",
+            }[mode],
             "Cold empty pool for the component; drop(coef) and drop(coef2) retain allocations because the pool holds up to 64 buffers, not a byte budget.",
             "Twiddles counted once here, assuming cold setup or already matching tables. If different-max tables are replaced, count the old tables separately in prior_live_bytes for the replacement transient.",
             "Prior buffers are additive and assumed not reusable; that can overcount actual reuse.",
@@ -218,6 +237,9 @@ def main(argv=None):
     parser.add_argument("--prior-live-mib", type=int, default=0)
     parser.add_argument("--prior-pool-mib", type=int, default=0)
     parser.add_argument("--component-budget-mib", type=int)
+    parser.add_argument("--mode", choices=("resident","chunked","fallback"), default="resident")
+    parser.add_argument("--chunk-rows", type=int, default=128)
+    parser.add_argument("--pool-state", choices=("cold","warm"), default="cold")
     args = parser.parse_args(argv)
     try:
         weights = weight_shape(*args.p3_weights, args.log_cols) if args.p3_weights else None
@@ -226,7 +248,8 @@ def main(argv=None):
             weights["log_cols"] if weights else args.log_cols,
             args.inv_rate, args.checks, args.q_pad, args.ntt_max_log,
             args.prior_live_mib * MIB, args.prior_pool_mib * MIB,
-            None if args.component_budget_mib is None else args.component_budget_mib * MIB)
+            None if args.component_budget_mib is None else args.component_budget_mib * MIB,
+            mode=args.mode, chunk_rows=args.chunk_rows, pool_state=args.pool_state)
         report["p3_weight_layout"] = weights
     except ValueError as error:
         parser.exit(2, f"memory plan: {error}\n")
