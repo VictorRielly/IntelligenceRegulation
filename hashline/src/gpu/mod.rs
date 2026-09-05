@@ -30,6 +30,10 @@ pub use cuda::{dev_commit_zk, dev_commit_zk_from, dev_upload_rows};
 // [UPERF3-AC] the cached-W device entry (upload + encode, no hash) and the chunked-commit probe
 #[cfg(feature = "gpu-cuda")]
 pub use cuda::{dev_commit_check_chunked, dev_commit_zk_check_chunked, dev_encode_only};
+// [ZK60-CL2] deferred-opening interleaving oracle, the strict/injection test
+// hooks, and the stage-major twiddle layout used to assert the monotonic cache
+#[cfg(feature = "gpu-cuda")]
+pub use cuda::{dev_commit_zk_check_interleaved, dev_commit_zk_from_probe, set_alloc_cap_for_test, set_zk_chunk_mode_for_test, stage_major_twiddles_for_test};
 // [UPERF3-AH] the shape-general zero-check (any block count) and the up-front
 // device-buffer reservation that keeps the "declined -> host path" discipline
 // honest once the helper columns have already gone to the device.

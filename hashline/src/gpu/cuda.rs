@@ -14,6 +14,7 @@ use cudarc::driver::result as cu;
 use cudarc::driver::{sys, CudaDevice, CudaSlice, CudaView, DevicePtr, DevicePtrMut, DeviceSlice, LaunchAsync, LaunchConfig};
 use cudarc::nvrtc::{compile_ptx_with_opts, CompileOptions};
 use rayon::prelude::*;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Instant;
 
@@ -111,12 +112,36 @@ static INIT_ERR: Mutex<Option<String>> = Mutex::new(None);
 // (every element a kernel reads is written first).
 static POOL: Mutex<Vec<CudaSlice<u64>>> = Mutex::new(Vec::new());
 
+/// [ZK60-CL2] Deterministic allocation-failure injection, so the exceptional
+/// paths the CL1 review found by SOURCE INSPECTION can be exercised for real
+/// instead of argued about. A fresh `cuMemAlloc` of more than this many
+/// elements fails exactly as an out-of-memory device would; 0 = no cap.
+/// Runtime-settable (not a `OnceLock`) so one test process can vary it, and
+/// it deliberately does NOT gate pool REUSE — only new device allocations,
+/// which is what a full card actually refuses.
+static ALLOC_CAP_ELEMS: AtomicUsize = AtomicUsize::new(0);
+
+/// Set the injected allocation cap in ELEMENTS (u64 slots), 0 to disable.
+/// Returns the previous value so a test can restore it.
+pub fn set_alloc_cap_for_test(elems: usize) -> usize {
+    ALLOC_CAP_ELEMS.swap(elems, Ordering::SeqCst)
+}
+
 fn pool_take(dev: &Arc<CudaDevice>, len: usize) -> Result<CudaSlice<u64>, String> {
     let mut pool = POOL.lock().unwrap();
     if let Some(i) = pool.iter().position(|b| b.len() == len) {
         return Ok(pool.swap_remove(i));
     }
     drop(pool);
+    let cap = ALLOC_CAP_ELEMS.load(Ordering::SeqCst);
+    if cap != 0 && len > cap {
+        // Report BYTES, not truncated MB: a 32 KiB cap printed as "0 MB" is a
+        // diagnostic that tells the reader nothing.
+        return Err(format!(
+            "cuMemAlloc({} B): injected allocation cap ({} B / {} elements)",
+            len * 8, cap * 8, cap
+        ));
+    }
     unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!("cuMemAlloc({} MB): {e}", len * 8 >> 20))
 }
 
@@ -1111,10 +1136,52 @@ pub(super) struct ZkReenc {
     q: usize,
 }
 
+/// [rung 2] stage-major layout: stage s (half = 2^(s-1)) owns entries
+/// [half - 1, 2 half - 1) = the CPU table's `t[k << (ml - s)]`, k < half.
+///
+/// [ZK60-CL2] Factored out of `ensure_twiddles` so the monotonic-cache
+/// invariant can be asserted against THE REAL LAYOUT rather than a copy of it
+/// in a test. Note the stored value, `t[k << (ml - s)]`, equals `w_{2^s}^k`
+/// for every `ml >= s` — so this function's output for a larger `ml` extends
+/// its output for a smaller one, entry for entry.
+fn stage_major(t: &[Fp], ml: u32) -> Vec<u64> {
+    let mut out = Vec::with_capacity((1usize << ml) - 1);
+    for s in 1..=ml {
+        let half = 1usize << (s - 1);
+        for k in 0..half {
+            out.push(t[k << (ml - s)].0);
+        }
+    }
+    out
+}
+
+/// [ZK60-CL2] The stage-major forward/inverse tables a given `max_log` would
+/// upload — exposed so the prefix invariant is testable without a device.
+pub fn stage_major_twiddles_for_test(max_log: u32) -> (Vec<u64>, Vec<u64>) {
+    let ntt = NttTables::new(max_log);
+    let (f, i) = ntt.twiddle_tables();
+    (stage_major(f, max_log), stage_major(i, max_log))
+}
+
 impl Gpu {
+    /// [ZK60-CL2] MONOTONIC: keep the LARGEST tables seen, never shrink.
+    ///
+    /// This used to replace the tables on `*ml != ntt.max_log`, i.e. it also
+    /// installed SMALLER ones. That was harmless while every opening read a
+    /// retained `enc` (a pure gather, no NTT). CL1's deferred opening
+    /// re-encodes, so a commitment outlives the tables it needs: commit big,
+    /// commit small (tables shrink), open big -> `log_n <= max_log` fails.
+    ///
+    /// Growing only is CORRECT, not merely safe, and the invariant is exact.
+    /// `twiddles[j] = w_{2^ml}^j`, and the stage-major layout stores stage `s`
+    /// entry `k` at `t[k << (ml - s)] = w_{2^ml}^(k·2^(ml-s)) = w_{2^s}^k`,
+    /// which does not mention `ml`. So a table built at a larger `max_log`
+    /// holds bit-identical entries for every stage a smaller one covers, and
+    /// is a strict prefix-extension of it. `zk60_gpu_commit.rs` asserts that
+    /// prefix equality directly rather than trusting this comment.
     fn ensure_twiddles(&mut self, ntt: &NttTables) -> Result<(), String> {
         if let Some((ml, _, _)) = &self.tw {
-            if *ml == ntt.max_log {
+            if *ml >= ntt.max_log {
                 return Ok(());
             }
         }
@@ -1122,18 +1189,8 @@ impl Gpu {
         // [half - 1, 2 half - 1) = the CPU table's tw[k << (max_log - s)], k < half.
         let (f, i) = ntt.twiddle_tables();
         let ml = ntt.max_log;
-        let stage_major = |t: &[Fp]| -> Vec<u64> {
-            let mut out = Vec::with_capacity((1usize << ml) - 1);
-            for s in 1..=ml {
-                let half = 1usize << (s - 1);
-                for k in 0..half {
-                    out.push(t[k << (ml - s)].0);
-                }
-            }
-            out
-        };
-        let df = self.dev.htod_sync_copy(&stage_major(f)).map_err(|e| format!("twiddle upload: {e}"))?;
-        let di = self.dev.htod_sync_copy(&stage_major(i)).map_err(|e| format!("twiddle upload: {e}"))?;
+        let df = self.dev.htod_sync_copy(&stage_major(f, ml)).map_err(|e| format!("twiddle upload: {e}"))?;
+        let di = self.dev.htod_sync_copy(&stage_major(i, ml)).map_err(|e| format!("twiddle upload: {e}"))?;
         self.tw = Some((ml, df, di));
         Ok(())
     }
@@ -1395,18 +1452,32 @@ fn chunk_bytes() -> usize {
 /// PATH RETAINER the acceptance criteria ask for.
 ///   unset / `auto` — chunk by size, and also whenever the resident buffers
 ///                    cannot be allocated (the non-ZK path's own rule)
-///   `0` / `off`    — never chunk: the pre-CL1 resident path, byte-for-byte
+///   `0` / `off`    — **STRICT**: never chunk, for any reason. The pre-CL1
+///                    resident path byte-for-byte, and an allocation failure
+///                    is REPORTED, not silently worked around. [ZK60-CL2]
 ///   `1` / `force`  — always chunk, so a small shape exercises the chunked
 ///                    code in the byte gates
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 enum ZkChunk { Auto, Off, Force }
+
+/// [ZK60-CL2] Runtime override (255 = follow the environment) so one test
+/// process can exercise every mode. Production reads the env exactly as before.
+static ZK_CHUNK_OVERRIDE: AtomicUsize = AtomicUsize::new(255);
+
+/// 0 = off/strict, 1 = auto, 2 = force, 255 = follow `HL_ZK_CHUNK`.
+/// Returns the previous value so a test can restore it.
+pub fn set_zk_chunk_mode_for_test(mode: usize) -> usize {
+    ZK_CHUNK_OVERRIDE.swap(mode, Ordering::SeqCst)
+}
+
 fn zk_chunk_mode() -> ZkChunk {
-    static V: OnceLock<u8> = OnceLock::new();
-    let v = *V.get_or_init(|| match std::env::var("HL_ZK_CHUNK").ok().as_deref() {
+    static V: OnceLock<usize> = OnceLock::new();
+    let env = *V.get_or_init(|| match std::env::var("HL_ZK_CHUNK").ok().as_deref() {
         Some("0") | Some("off") => 0,
         Some("1") | Some("force") => 2,
         _ => 1,
     });
+    let v = match ZK_CHUNK_OVERRIDE.load(Ordering::SeqCst) { 255 => env, x => x };
     match v { 0 => ZkChunk::Off, 2 => ZkChunk::Force, _ => ZkChunk::Auto }
 }
 /// [UPERF3-AJ] `HL_GPU_FUSE_GATHER=0` restores the separate
@@ -1885,6 +1956,104 @@ pub fn dev_commit_zk_check_chunked(log_cols: u32, inv_rate: usize, rows: usize, 
         }
     }
     Ok((bad_leaves, bad_cols))
+}
+
+/// [ZK60-CL2] The INTERLEAVING oracle. Commits several hiding commitments
+/// and keeps them all live, THEN opens each one `opens` times, comparing
+/// leaves and columns against each commitment's own CPU reference.
+///
+/// This is the shape the CL1 review asked for, and it is the shape that
+/// catches the twiddle hazard: give it specs with DECREASING `log_cols` and
+/// the second commitment's `ensure_twiddles` used to shrink the tables out
+/// from under the first commitment's deferred opening. A resident commitment
+/// never cared — it opened by gathering a retained `enc`. A chunked one
+/// re-encodes, so it depends on tables installed a commitment ago.
+///
+/// specs: `(log_cols, inv_rate, rows, q_pad)`. Returns (bad leaves, bad cols).
+pub fn dev_commit_zk_check_interleaved(specs: &[(u32, usize, usize, usize)], chunk: usize, opens: usize) -> Result<(usize, usize), String> {
+    struct Live { dc: DevCommit, cpu: Vec<Fp>, nn: usize, rows: usize }
+    let g = gpu().ok_or_else(init_err)?;
+    let mut g = g.lock().unwrap();
+    let dev = g.dev.clone();
+    let mut live: Vec<Live> = Vec::with_capacity(specs.len());
+    let mut bad_leaves = 0usize;
+
+    for (si, &(log_cols, inv_rate, rows, q_pad)) in specs.iter().enumerate() {
+        let params = PcsParams { log_cols, inv_rate, num_col_checks: 16 };
+        let ntt = NttTables::new(log_cols + inv_rate.trailing_zeros());
+        let n = params.cols();
+        let nn = params.enc_cols();
+        let coset = Fp::new(7);
+        let mut s = 0xC12_0000u64 ^ ((si as u64) << 48) ^ ((log_cols as u64) << 40) ^ ((rows as u64) << 8) ^ q_pad as u64;
+        let mut next = move || { s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407); Fp::new(s % P) };
+        let data: Vec<Fp> = (0..rows * n).map(|_| next()).collect();
+        let pads: Vec<Fp> = (0..rows * q_pad).map(|_| next()).collect();
+        let pows = crate::pcs::coset_powers(coset, nn);
+        let mut cpu = vec![Fp::ZERO; rows * nn];
+        for (i, erow) in cpu.chunks_mut(nn).enumerate() {
+            crate::pcs::encode_row_zk(&ntt, &data[i * n..(i + 1) * n], &pads[i * q_pad..(i + 1) * q_pad], &pows, erow);
+        }
+        let cpu_leaves = crate::pcs::hash_columns(&cpu, rows, nn);
+
+        // each spec installs its own tables — the shrink point
+        g.ensure_twiddles(&ntt)?;
+        let mut d_data = Pooled::take(&dev, data.len())?;
+        dev.htod_sync_copy_into(as_u64s(&data), d_data.get_mut()).map_err(|e| format!("data upload: {e}"))?;
+        let d_pads = dev.htod_sync_copy(as_u64s(&pads)).map_err(|e| format!("pads upload: {e}"))?;
+        let d_pows = dev.htod_sync_copy(as_u64s(&pows)).map_err(|e| format!("pows upload: {e}"))?;
+        let log_nn = nn.trailing_zeros();
+        let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q_pad, nn, log_cols, log_nn, chunk)?;
+        bad_leaves += leaves.iter().zip(cpu_leaves.iter()).filter(|(a, b)| a != b).count();
+        let dc = DevCommit { rows, log_n: log_cols, log_nn, data: d_data, enc: None,
+                             zk: Some(ZkReenc { pads: d_pads, pows: d_pows, q: q_pad }) };
+        live.push(Live { dc, cpu, nn, rows });
+    }
+
+    // Everything committed; only NOW open. Repeated opens must be stable.
+    let mut bad_cols = 0usize;
+    for _ in 0..opens.max(1) {
+        for l in &live {
+            let idx: Vec<usize> = (0..16).map(|i| (i * 7919 + 13) % l.nn).collect();
+            let cols = g.columns_chunked_zk(&l.dc, l.dc.zk.as_ref().unwrap(), &idx, chunk)?;
+            for (c, &j) in idx.iter().enumerate() {
+                for i in 0..l.rows {
+                    if cols[c][i] != l.cpu[i * l.nn + j] {
+                        bad_cols += 1;
+                    }
+                }
+            }
+        }
+    }
+    Ok((bad_leaves, bad_cols))
+}
+
+/// [ZK60-CL2] Drive the REAL entry point, `dev_commit_zk_from`, and report
+/// which strategy it chose: `Ok(true)` = chunked (`enc` deferred), `Ok(false)`
+/// = resident. The other oracles call `commit_zk_chunked` directly, which is
+/// right for checking values but means they never touch the mode/fallback
+/// decision — so a "strict mode" assertion built on them would be vacuous.
+/// This one exercises the branch the CL1 review actually flagged.
+pub fn dev_commit_zk_from_probe(log_cols: u32, inv_rate: usize, rows: usize, q_pad: usize) -> Result<bool, String> {
+    let params = PcsParams { log_cols, inv_rate, num_col_checks: 16 };
+    let ntt = NttTables::new(log_cols + inv_rate.trailing_zeros());
+    let n = params.cols();
+    let nn = params.enc_cols();
+    let mut s = 0xF00D_5EEDu64 ^ ((log_cols as u64) << 40) ^ ((rows as u64) << 8) ^ q_pad as u64;
+    let mut next = move || { s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407); Fp::new(s % P) };
+    let data: Vec<Fp> = (0..rows * n).map(|_| next()).collect();
+    let pads: Vec<Fp> = (0..rows * q_pad).map(|_| next()).collect();
+    let pows = crate::pcs::coset_powers(Fp::new(7), nn);
+    let d_data = {
+        let g = gpu().ok_or_else(init_err)?;
+        let mut g = g.lock().unwrap();
+        g.ensure_twiddles(&ntt)?;
+        let dev = g.dev.clone();
+        let mut d = Pooled::take(&dev, data.len())?;
+        dev.htod_sync_copy_into(as_u64s(&data), d.get_mut()).map_err(|e| format!("data upload: {e}"))?;
+        d
+    };
+    let (dc, _leaves) = dev_commit_zk_from(&params, d_data, rows, &pads, &pows, &ntt)?;
+    Ok(dc.enc.is_none())
 }
 
 /// Commit a device-resident data buffer (rows x n u64, row-major) — the
@@ -2677,10 +2846,31 @@ pub fn dev_commit_zk_from(params: &PcsParams, d_data: Pooled, rows: usize, pads:
 
     // Chunk by size, or because the resident pair will not fit. Never a silent
     // CPU fallback: the caller's CPU path is only reached on a real `Err`.
+    //
+    // [ZK60-CL2] EXCEPT under `HL_ZK_CHUNK=off`, which is STRICT. The first
+    // version of this took the chunked branch on allocation failure even in
+    // "off", so the reference-mode switch did not actually retain the
+    // reference path — the one job it had. An allocation failure in strict
+    // mode is now REPORTED, because a switch that silently changes strategy
+    // under load is worse than no switch: it makes the reference arm of an
+    // A/B secretly the same as the test arm.
     let resident = if chunked_now { None } else {
         match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {
             (Ok(c), Ok(c2)) => Some((c, c2)),
-            _ => None,
+            (a, b) => {
+                if mode == ZkChunk::Off {
+                    let which = if a.is_err() { "coefficient (rows*n)" } else { "expanded (rows*nn)" };
+                    let why = a.err().or(b.err()).unwrap_or_else(|| "unknown".to_string());
+                    // `a`/`b` drop here: any buffer that DID allocate returns
+                    // to the pool rather than leaking.
+                    return Err(format!(
+                        "HL_ZK_CHUNK=off (strict reference mode): the resident {which} buffer could not be allocated \
+                         and strict mode forbids falling back to the chunked path — {why}. \
+                         Unset HL_ZK_CHUNK (auto) to allow chunking."
+                    ));
+                }
+                None
+            }
         }
     };
     let (mut d_coef, mut d_coef2) = match resident {
