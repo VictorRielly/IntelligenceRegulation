@@ -37,6 +37,9 @@ pub use cuda::{dev_commit_zk_check_interleaved, dev_commit_zk_from_probe, fresh_
 // [ZK60 round-7 review] byte-level pool accounting, the reuse negative control, and the counter's stated scope
 #[cfg(feature = "gpu-cuda")]
 pub use cuda::{pool_stats_for_test, set_pool_reuse_for_test, PoolStats, RAW_ALLOC_SCOPE};
+// [ZK60-CL7] the fused/pruned hiding opening's switches and the index-parameterised oracle
+#[cfg(feature = "gpu-cuda")]
+pub use cuda::{dev_commit_zk_check_chunked_with, set_prune_p2_for_test, set_zk_fuse_gather_for_test};
 // [UPERF3-AH] the shape-general zero-check (any block count) and the up-front
 // device-buffer reservation that keeps the "declined -> host path" discipline
 // honest once the helper columns have already gone to the device.

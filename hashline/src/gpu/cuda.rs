@@ -83,7 +83,36 @@ const P2SP_NC: usize = 64;
 /// the ~3,850 transforms nobody reads left undone.
 fn prune_p2() -> bool {
     static V: OnceLock<bool> = OnceLock::new();
-    *V.get_or_init(|| std::env::var("HL_GPU_PRUNE_P2").map(|v| v != "0").unwrap_or(true))
+    let env = *V.get_or_init(|| std::env::var("HL_GPU_PRUNE_P2").map(|v| v != "0").unwrap_or(true));
+    match PRUNE_P2_OVERRIDE.load(Ordering::SeqCst) { 255 => env, x => x != 0 }
+}
+/// [ZK60-CL7] Runtime override for `prune_p2` (0 = dense fused last stage,
+/// 1 = pruned, 255 = follow the environment) so ONE test process can exercise
+/// both forms of the fused opening against the CPU. Production reads the
+/// environment exactly as before.
+static PRUNE_P2_OVERRIDE: AtomicUsize = AtomicUsize::new(255);
+pub fn set_prune_p2_for_test(mode: usize) -> usize {
+    PRUNE_P2_OVERRIDE.swap(mode, Ordering::SeqCst)
+}
+
+/// [ZK60-CL7] `HL_ZK_FUSE_GATHER=0` restores the UNFUSED chunked HIDING
+/// opening: the full expand NTT written back to the chunk buffer and then
+/// read again by `k_gather_cols_off` (the CL1 form). On the default the
+/// hiding opening takes the form the NON-hiding opening has had since
+/// [UPERF3-AJ]/[UPERF3-AO]: the expand NTT's last stage group writes only the
+/// sampled columns straight into the output, pruned to the ~250 residues
+/// `col mod 2^NTT_LOG_BLK` that can produce one. Same operands, same
+/// twiddles, same stage order — the opened columns are bit-identical; what
+/// changes is that the encoded chunk (rmax x nn) is never stored and never
+/// re-read. `fuse_gather()` (HL_GPU_FUSE_GATHER) still gates both openings.
+static ZK_FUSE_OVERRIDE: AtomicUsize = AtomicUsize::new(255);
+pub fn set_zk_fuse_gather_for_test(mode: usize) -> usize {
+    ZK_FUSE_OVERRIDE.swap(mode, Ordering::SeqCst)
+}
+fn zk_fuse_gather() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    let env = *V.get_or_init(|| std::env::var("HL_ZK_FUSE_GATHER").map(|v| v != "0").unwrap_or(true));
+    match ZK_FUSE_OVERRIDE.load(Ordering::SeqCst) { 255 => env, x => x != 0 }
 }
 
 pub(super) struct Gpu {
@@ -1416,6 +1445,54 @@ impl Gpu {
         Ok(())
     }
 
+    /// [ZK60-CL7] `encode_rows_view_zk` for the OPENING. The inverse NTT and
+    /// `k_zk_pad_scale` are exactly `encode_rows_view_zk`'s. The expand NTT's
+    /// first stage group is `k_ntt_p1` launched exactly as `ntt_rows` launches
+    /// it (forward, scale 1, `n_src = nn`), so `k_ntt_p2_gather*` reads the
+    /// layout `k_ntt_p2` would have read; its last stage group then writes
+    /// only the `sel`-marked columns straight into `out` — pruned to the
+    /// compact residue list when the caller supplied one, dense otherwise.
+    /// Identical values: the same kernels, the same twiddles, the same order.
+    /// The `k_ntt_p2` store and the `k_gather_cols_off` load of the encoded
+    /// chunk are what disappear.
+    #[allow(clippy::too_many_arguments)]
+    fn encode_rows_view_zk_gather(&self, data: &CudaView<u64>, pads: &CudaView<u64>, pows: &CudaSlice<u64>,
+                                  coef: &mut CudaSlice<u64>, coef2: &mut CudaSlice<u64>, enc: &mut CudaSlice<u64>,
+                                  rows: usize, n: usize, q: usize, nn: usize, log_n: u32, log_nn: u32,
+                                  d_sel: &CudaSlice<i32>, out: &mut CudaSlice<u64>, row0: usize, rows_total: usize,
+                                  sp: Option<(&CudaSlice<i32>, usize)>) -> Result<(), String> {
+        if log_nn <= NTT_LOG_BLK {
+            return Err("gather fusion needs log_nn > NTT_LOG_BLK".into());
+        }
+        self.ntt_rows_view(data, coef, rows, n, log_n, true)?;
+        let f = self.dev.get_func(MODULE, "k_zk_pad_scale").ok_or("k_zk_pad_scale missing")?;
+        let cfg = LaunchConfig::for_num_elems((rows * nn) as u32);
+        unsafe { f.launch(cfg, (&*coef, pads, pows, &mut *coef2, rows as i32, n as i32, q as i32, nn as i32)) }
+            .map_err(|e| format!("k_zk_pad_scale: {e}"))?;
+        let (max_log, tf, _ti) = self.tw.as_ref().ok_or("twiddles not uploaded")?;
+        assert!(log_nn <= *max_log, "device ntt size 2^{log_nn} exceeds tables (2^{max_log})");
+        assert!(coef2.len() >= rows * nn && enc.len() >= rows * nn);
+        let threads = ntt_threads();
+        let p1 = self.dev.get_func(MODULE, "k_ntt_p1").ok_or("k_ntt_p1 missing")?;
+        let bpr = 1u32 << (log_nn - NTT_LOG_BLK);
+        let cfg1 = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+        unsafe { p1.launch(cfg1, (&*coef2, &mut *enc, tf, log_nn as i32, nn as i32, 1u64)) }.map_err(|e| format!("k_ntt_p1: {e}"))?;
+        if let Some((ql, nq)) = sp {
+            let p2 = self.dev.get_func(MODULE, "k_ntt_p2_gather_sp").ok_or("k_ntt_p2_gather_sp missing")?;
+            let gx = ((nq + P2SP_NC - 1) / P2SP_NC) as u32;
+            let cfg2 = LaunchConfig { grid_dim: (gx, rows as u32, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            unsafe { p2.launch(cfg2, (&*enc, tf, log_nn as i32, 1u64, d_sel, &mut *out, row0 as i32, rows_total as i32, ql, nq as i32)) }
+                .map_err(|e| format!("k_ntt_p2_gather_sp: {e}"))?;
+        } else {
+            let p2 = self.dev.get_func(MODULE, kn_ntt_p2_gather()).ok_or("k_ntt_p2_gather missing")?;
+            let tiles = 1u32 << (log_nn - NTT_LOG_BLK);
+            let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            unsafe { p2.launch(cfg2, (&*enc, tf, log_nn as i32, 1u64, d_sel, &mut *out, row0 as i32, rows_total as i32)) }
+                .map_err(|e| format!("k_ntt_p2_gather: {e}"))?;
+        }
+        Ok(())
+    }
+
     /// [ZK60-CL1] The chunked HIDING commitment. Mirrors `commit_chunked`:
     /// walk `chunk_plan`, encode each row chunk, fold it into the per-column
     /// blake3 state with `k_hash_cols_stream`, and take the leaves from the
@@ -1479,28 +1556,84 @@ impl Gpu {
         let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
         let mut d_coef2 = Pooled::take_min(&dev, rmax * nn)?;
         let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+        // [ZK60-CL7] the fused form, built exactly as `columns_chunked` builds
+        // it: one output slot per DISTINCT index (`challenge_indices` may
+        // repeat one; duplicates are filled from the first occurrence on the
+        // host), a per-column slot map for the gather kernel, and the compact
+        // residue list for the pruned last stage group when it is materially
+        // smaller than the dense axis. Declined below NTT_LOG_BLK, where there
+        // is no second stage group to fuse.
+        let fused = zk_fuse_gather() && fuse_gather() && log_nn > NTT_LOG_BLK;
+        let mut uniq: Vec<usize> = Vec::with_capacity(q_open);
+        let mut slot: Vec<usize> = Vec::with_capacity(q_open);
+        let mut sel: Vec<i32> = vec![-1; nn];
+        for &j in idx {
+            if sel[j] < 0 {
+                sel[j] = uniq.len() as i32;
+                uniq.push(j);
+            }
+            slot.push(sel[j] as usize);
+        }
+        let nu = uniq.len();
         let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
-        let d_idx = dev.htod_sync_copy(&idx32).map_err(|e| e.to_string())?;
-        note_raw_alloc(idx32.len() * 4);
-        let mut d_out = unsafe { dev.alloc::<u64>(rows * q_open) }.map_err(|e| e.to_string())?;
-        note_raw_alloc(rows * q_open * 8);
+        let d_idx = dev.htod_sync_copy(if fused { &sel } else { &idx32 }).map_err(|e| e.to_string())?;
+        note_raw_alloc(if fused { sel.len() } else { idx32.len() } * 4);
+        let blk = 1usize << NTT_LOG_BLK;
+        let sp_list: Option<(CudaSlice<i32>, usize)> = if fused && prune_p2() && log_nn - NTT_LOG_BLK <= 5 {
+            let mut qs: Vec<i32> = idx.iter().map(|&j| (j & (blk - 1)) as i32).collect();
+            qs.sort_unstable();
+            qs.dedup();
+            let nq = qs.len();
+            if nq * 4 <= blk {
+                let pad = nq.div_ceil(P2SP_NC) * P2SP_NC;
+                let last = *qs.last().unwrap();
+                qs.resize(pad, last);
+                let b = dev.htod_sync_copy(&qs).map_err(|e| e.to_string())?;
+                note_raw_alloc(qs.len() * 4);
+                Some((b, nq))
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+        let cols_out = if fused { nu } else { q_open };
+        let mut d_out = unsafe { dev.alloc::<u64>(rows * cols_out) }.map_err(|e| e.to_string())?;
+        note_raw_alloc(rows * cols_out * 8);
         let f = dev.get_func(MODULE, "k_gather_cols_off").ok_or("k_gather_cols_off missing")?;
         for &(r0, rc) in &plan {
             let dview = dc.data.get().slice(r0 * n..(r0 + rc) * n);
             let pview = zk.pads.slice(r0 * zk.q..(r0 + rc) * zk.q);
-            self.encode_rows_view_zk(&dview, &pview, &zk.pows, d_coef.get_mut(), d_coef2.get_mut(), d_enc.get_mut(),
-                                     rc, n, zk.q, nn, log_n, log_nn)?;
-            let cfg = LaunchConfig::for_num_elems((rc * q_open) as u32);
-            unsafe { f.clone().launch(cfg, (d_enc.get(), &mut d_out, &d_idx, rc as i32, r0 as i32, rows as i32, nn as i32, q_open as i32)) }
-                .map_err(|e| format!("k_gather_cols_off: {e}"))?;
+            if fused {
+                let sp = sp_list.as_ref().map(|(b, k)| (b, *k));
+                self.encode_rows_view_zk_gather(&dview, &pview, &zk.pows, d_coef.get_mut(), d_coef2.get_mut(), d_enc.get_mut(),
+                                                rc, n, zk.q, nn, log_n, log_nn, &d_idx, &mut d_out, r0, rows, sp)?;
+            } else {
+                // the CL1 reference form, retained under HL_ZK_FUSE_GATHER=0
+                self.encode_rows_view_zk(&dview, &pview, &zk.pows, d_coef.get_mut(), d_coef2.get_mut(), d_enc.get_mut(),
+                                         rc, n, zk.q, nn, log_n, log_nn)?;
+                let cfg = LaunchConfig::for_num_elems((rc * q_open) as u32);
+                unsafe { f.clone().launch(cfg, (d_enc.get(), &mut d_out, &d_idx, rc as i32, r0 as i32, rows as i32, nn as i32, q_open as i32)) }
+                    .map_err(|e| format!("k_gather_cols_off: {e}"))?;
+            }
         }
         let out = dev.dtoh_sync_copy(&d_out).map_err(|e| e.to_string())?;
         let dt = t0.elapsed().as_secs_f64();
         if verbose() {
-            eprintln!("[ZK60-CL1]   chunked ZK re-encode + gather rows {rows} ({} chunks): {dt:.4} s", plan.len());
+            let how = match (&sp_list, fused) {
+                (Some((_, nq)), _) => format!(", fused, pruned {nq}/{blk}"),
+                (None, true) => ", fused".to_string(),
+                _ => String::new(),
+            };
+            eprintln!("[ZK60-CL1]   chunked ZK re-encode + gather rows {rows} ({} chunks{how}): {dt:.4} s", plan.len());
         }
-        stats_with(|s| { s.secs_reenc += dt; s.bytes_d2h += (rows * q_open * 8) as u64; });
-        Ok((0..q_open).map(|c| out[c * rows..(c + 1) * rows].iter().map(|&v| Fp(v)).collect()).collect())
+        stats_with(|s| { s.secs_reenc += dt; s.bytes_d2h += (rows * cols_out * 8) as u64; });
+        Ok((0..q_open)
+            .map(|c| {
+                let s0 = if fused { slot[c] } else { c } * rows;
+                out[s0..s0 + rows].iter().map(|&v| Fp(v)).collect()
+            })
+            .collect())
     }
 }
 
@@ -2057,6 +2190,15 @@ pub fn dev_commit_check_chunked(log_cols: u32, inv_rate: usize, rows: usize, chu
 /// proves this oracle discriminates at all, and it is the direct evidence for
 /// rung 1's claim that `columns_chunked_zk` was mandatory rather than tidy.
 pub fn dev_commit_zk_check_chunked(log_cols: u32, inv_rate: usize, rows: usize, q_pad: usize, chunk: usize, plain_reencode: bool) -> Result<(usize, usize), String> {
+    dev_commit_zk_check_chunked_with(log_cols, inv_rate, rows, q_pad, chunk, plain_reencode, None)
+}
+
+/// [ZK60-CL7] The same oracle with the OPENED INDICES supplied by the caller
+/// (`None` = the fixed 16 the tests have always used), so the fused opening's
+/// distinct-slot expansion can be checked against REPEATED indices, which
+/// `Transcript::challenge_indices` can produce. Out-of-range indices are an
+/// error, not a panic.
+pub fn dev_commit_zk_check_chunked_with(log_cols: u32, inv_rate: usize, rows: usize, q_pad: usize, chunk: usize, plain_reencode: bool, idx: Option<&[usize]>) -> Result<(usize, usize), String> {
     let params = PcsParams { log_cols, inv_rate, num_col_checks: 16 };
     let ntt = NttTables::new(log_cols + inv_rate.trailing_zeros());
     let n = params.cols();
@@ -2098,7 +2240,15 @@ pub fn dev_commit_zk_check_chunked(log_cols: u32, inv_rate: usize, rows: usize, 
         rows, log_n: log_cols, log_nn, data: d_data, enc: None,
         zk: Some(ZkReenc { pads: d_pads, pows: d_pows, q: q_pad }),
     };
-    let idx: Vec<usize> = (0..16).map(|i| (i * 7919 + 13) % nn).collect();
+    let idx: Vec<usize> = match idx {
+        Some(v) => {
+            if let Some(&bad) = v.iter().find(|&&j| j >= nn) {
+                return Err(format!("opened index {bad} is out of range for {nn} encoded columns"));
+            }
+            v.to_vec()
+        }
+        None => (0..16).map(|i| (i * 7919 + 13) % nn).collect(),
+    };
     let cols = if plain_reencode {
         g.columns_chunked(&dc, &idx, chunk)?
     } else {

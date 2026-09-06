@@ -522,6 +522,77 @@ fn the_chunked_retry_reuses_pooled_capacity_rather_than_allocating_more() {
         "reuse OFF must allocate fresh exactly what reuse ON served from the pool: ON {on:?} vs OFF {off:?}");
 }
 
+// ---------------------------------------------------------------------------
+// [ZK60-CL6] Chunk-row choices are a MEMORY decision, not a proof decision.
+// ---------------------------------------------------------------------------
+
+/// Every chunk-row choice must reproduce the CPU's leaves AND opened columns:
+/// the multiples of 128, a choice that is NOT a multiple of 128 (300 steps by
+/// 256), and the `rows <= choice` corner where the device takes all rows as
+/// ONE chunk (700 on 700, 1000 on 1024). 700 rows leaves a ragged tail at
+/// 128/256/512; rate 8 with 64 pads widens the pad slice each chunk carries.
+/// This is the oracle behind the CL6 sweep: if any choice moved a leaf or a
+/// column, a chunk-row sweep would be comparing different proofs.
+#[test]
+fn every_chunk_row_choice_matches_the_cpu() {
+    let _g = serial();
+    for &chunk in &[128usize, 256, 300, 384, 512, 700] {
+        check(10, 4, 700, 16, chunk);
+        check(10, 8, 300, 64, chunk);
+    }
+    // rows <= choice at a wider shape: one chunk of all 1000 rows (131 MB of scratch)
+    check(12, 4, 1000, 16, 1024);
+}
+
+// ---------------------------------------------------------------------------
+// [ZK60-CL7] The fused, output-pruned hiding opening.
+// ---------------------------------------------------------------------------
+
+/// The hiding opening now takes the non-hiding opening's fused form: the
+/// expand NTT's last stage group writes only the sampled columns, pruned to
+/// the residues that can produce one. Against the CPU's `encode_row_zk`:
+/// pruned AND dense at three shapes where fusion is eligible (log_nn 14, 15,
+/// 15; ragged rows; rates 2/4/8; pads 16-256; chunk 128/256), REPEATED
+/// indices (the distinct-slot expansion), a shape where fusion is NOT
+/// eligible (log_nn = 10) and must fall through to the reference form, and
+/// the reference form itself under `HL_ZK_FUSE_GATHER=0`. The negative
+/// control above still uses the non-ZK opening and still fails loudly.
+#[test]
+fn fused_hiding_openings_match_the_cpu_in_every_form() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    let prev_fuse = gpu::set_zk_fuse_gather_for_test(1);
+    let prev_prune = gpu::set_prune_p2_for_test(1);
+    for &(lc, rate, rows, q, chunk) in &[(12u32, 4usize, 300usize, 16usize, 128usize), (14, 2, 200, 256, 128), (12, 8, 260, 64, 256)] {
+        for prune in [1usize, 0] {
+            gpu::set_prune_p2_for_test(prune);
+            note_case();
+            let r = gpu::dev_commit_zk_check_chunked(lc, rate, rows, q, chunk, false).expect("fused oracle ran");
+            assert_eq!(r, (0, 0), "fused opening (prune {prune}) mismatch at ({lc},{rate},{rows},{q},{chunk})");
+        }
+    }
+    gpu::set_prune_p2_for_test(1);
+    // repeated indices: the fused path keeps one slot per DISTINCT column and
+    // expands duplicates on the host; every repeat must come back identical
+    let idx = [5usize, 4099, 5, 16383, 4099, 0, 0, 8191, 5, 4095, 4096];
+    note_case();
+    let r = gpu::dev_commit_zk_check_chunked_with(12, 4, 300, 16, 128, false, Some(&idx)).expect("duplicate-index oracle ran");
+    assert_eq!(r, (0, 0), "fused opening with repeated indices mismatch");
+    assert!(gpu::dev_commit_zk_check_chunked_with(12, 4, 300, 16, 128, false, Some(&[1usize << 14])).is_err(),
+            "an out-of-range index must be refused, not panic");
+    // not eligible (log_nn = 10 <= NTT_LOG_BLK): the unfused form must serve it
+    note_case();
+    assert_eq!(gpu::dev_commit_zk_check_chunked(8, 4, 200, 16, 128, false).expect("ineligible shape ran"), (0, 0));
+    // the reference form, retained
+    gpu::set_zk_fuse_gather_for_test(0);
+    note_case();
+    assert_eq!(gpu::dev_commit_zk_check_chunked(12, 4, 300, 16, 128, false).expect("reference form ran"), (0, 0));
+    gpu::set_prune_p2_for_test(prev_prune);
+    gpu::set_zk_fuse_gather_for_test(prev_fuse);
+}
+
 /// [ZK60-CL4] The gate that proves the run was not vacuous, from BOTH sides:
 /// a device must be present when required, AND real cases must have executed.
 /// A green suite that skipped everything is the failure mode this closes.
