@@ -45,6 +45,7 @@ SOURCES = {
     "host": "hashline/src/pcs.rs::commit_zk_owned / commit_zk_device",
 }
 B3_STATE_SLOTS = 8 * 24 + 1   # mirrors gpu/cuda.rs
+POOL_CAP = 64                 # gpu/cuda.rs pool_put: `if pool.len() < 64`
 POOL_STATES = ("cold", "warm", "warm-resident")
 
 
@@ -91,6 +92,7 @@ class _Pool:
         self.reuse = reuse
         self.fresh_bytes = self.fresh_count = 0
         self.reuse_count = self.reuse_capacity = self.reuse_requested = 0
+        self.freed_at_cap_bytes, self.freed_at_cap = 0, []
 
     def take(self, want):
         """pool_take: EXACT length match only. Returns (capacity, origin, fresh)."""
@@ -112,7 +114,16 @@ class _Pool:
         return self._fresh(want)
 
     def put(self, cap, label, fresh):
+        """Pooled::drop -> pool_put, which RETAINS up to POOL_CAP buffers and
+        FREES the rest (`if pool.len() < 64 { pool.push(buf) }`)."""
+        if len(self.pool) >= POOL_CAP:
+            self.freed_at_cap_bytes += cap
+            self.freed_at_cap.append(f"{label}:{cap}")
+            return
         self.pool.append((cap, label, fresh))
+
+    def has_exact(self, want):
+        return self.reuse and any(cap == want for cap, _, _ in self.pool)
 
     def total(self):
         return sum(cap for cap, _, _ in self.pool)
@@ -166,6 +177,7 @@ def _simulate(mode, size, inventory, reuse=True):
     raw["pads"], raw["coset_powers"] = size["pads"], size["pows"]
     snap("upload: data (caller's exact take), pads and coset powers (raw)")
     refused = None
+    outcome = mode
     if mode == "fallback":
         take("inverse_coefficients", size["res_coef"], exact=True)
         snap("resident attempt: inverse NTT")
@@ -173,6 +185,30 @@ def _simulate(mode, size, inventory, reuse=True):
         snap("resident attempt: pad and coset scale")
         release("inverse_coefficients")
         snap("drop(coef): released to the POOL, not freed")
+        # [round-7 review, Codex] `pool_take` returns an EXACT pooled match
+        # BEFORE any fresh allocation can be refused. If the pool holds a
+        # rows*nn buffer at this point, the late refusal is unreachable and
+        # the resident path simply completes; inventing the failure here
+        # would count a fallback the device cannot take.
+        if pool.has_exact(size["res_enc"]):
+            outcome = "resident (fallback unreachable: the exact encoded buffer was already pooled)"
+            take("encoded_matrix", size["res_enc"], exact=True)
+            snap("resident: forward NTT — the encoded buffer was served from the POOL, no refusal is reachable",
+                 note="requested mode fallback; simulated outcome resident")
+            release("expanded_coefficients")
+            raw["device_leaf_hashes"] = size["leaves"]
+            snap("resident: column hashes")
+            del raw["device_leaf_hashes"]
+            snap("return commitment: data + encoded matrix retained (RESIDENT outcome)")
+            peak = max(row["accounted_device_bytes"] for row in events)
+            return {"events": events, "peak_bytes": peak, "pool_after_bytes": pool.total(),
+                    "fresh_pooled_after_bytes": pool.fresh_in_pool(),
+                    "pool_after": pool.labels(), "fresh_pool_bytes": pool.fresh_bytes,
+                    "fresh_pool_count": pool.fresh_count, "reuse_count": pool.reuse_count,
+                    "reuse_capacity_bytes": pool.reuse_capacity, "reuse_requested_bytes": pool.reuse_requested,
+                    "refused_request_bytes": None, "outcome": outcome, "fallback_reachable": False,
+                    "freed_at_pool_cap_bytes": pool.freed_at_cap_bytes, "freed_at_pool_cap": pool.freed_at_cap,
+                    "live_after_return_bytes": size["data"] + size["res_enc"]}
         refused = size["res_enc"]
         snap("encoded buffer (rows*nn) REFUSED: no allocation happened",
              note=f"exact take of {refused} B refused; nothing pooled matches exactly")
@@ -195,7 +231,8 @@ def _simulate(mode, size, inventory, reuse=True):
             "pool_after": pool.labels(), "fresh_pool_bytes": pool.fresh_bytes,
             "fresh_pool_count": pool.fresh_count, "reuse_count": pool.reuse_count,
             "reuse_capacity_bytes": pool.reuse_capacity, "reuse_requested_bytes": pool.reuse_requested,
-            "refused_request_bytes": refused,
+            "refused_request_bytes": refused, "outcome": outcome, "fallback_reachable": mode == "fallback",
+            "freed_at_pool_cap_bytes": pool.freed_at_cap_bytes, "freed_at_pool_cap": pool.freed_at_cap,
             "live_after_return_bytes": size["data"] + size["pads"] + size["pows"]}
 
 
@@ -256,6 +293,8 @@ def commitment_plan(rows, log_cols=14, inv_rate=4, checks=256, q_pad=None,
             raise ValueError("an explicit pool inventory is modelled for the chunked and fallback modes only")
         if not isinstance(pool_inventory_bytes, (list, tuple)) or not pool_inventory_bytes:
             raise ValueError("pool_inventory_bytes must be a non-empty list of byte capacities")
+        if len(pool_inventory_bytes) > POOL_CAP:
+            raise ValueError(f"pool inventory of {len(pool_inventory_bytes)} buffers exceeds the device pool's {POOL_CAP}-buffer cap; pool_put frees beyond it")
         for b in pool_inventory_bytes:
             integer("pool inventory entry", b, 1)
 
@@ -308,6 +347,7 @@ def commitment_plan(rows, log_cols=14, inv_rate=4, checks=256, q_pad=None,
         live_after, new_pool_after, pool_after = data + encoded, data + encoded, (data + encoded)
         pool_delta_after = data + encoded
         no_reuse_bound = None
+        outcome = "resident"
     else:
         buffers = dict(buffers)
         buffers.update({"chunk_coefficients": chunk_coef, "chunk_expanded": chunk_enc,
@@ -337,6 +377,7 @@ def commitment_plan(rows, log_cols=14, inv_rate=4, checks=256, q_pad=None,
         newly = sim["fresh_pool_bytes"] + pads + powers + leaves
         live_after = sim["live_after_return_bytes"]
         pool_after = sim["pool_after_bytes"]
+        outcome = sim["outcome"]
         # capacity in the pool after return that THIS call allocated fresh
         # (a warm pool's own buffers coming back are not new); the signed
         # pool delta is reported separately, since a warm inventory's data
@@ -347,7 +388,7 @@ def commitment_plan(rows, log_cols=14, inv_rate=4, checks=256, q_pad=None,
     subtotal = component_peak + prior_live_bytes + prior_pool_bytes
     report = {
         "schema": 2, "scope": f"one hiding commitment on the {mode} path; code-derived buffer accounting",
-        "mode": mode, "pool_state": pool_state, "pool_inventory": inventory_desc,
+        "mode": mode, "outcome": outcome, "pool_state": pool_state, "pool_inventory": inventory_desc,
         "chunk_rows": rmax if mode in ("chunked", "fallback") else None,
         # [ZK60-CL3] held vs newly requested. On a warm pool the path occupies
         # the same bytes but allocates fewer of them; conflating the two is how

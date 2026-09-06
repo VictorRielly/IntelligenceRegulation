@@ -323,6 +323,48 @@ class PoolLifetimes(unittest.TestCase):
         with self.assertRaises(ValueError):
             plan.commitment_plan(**self.SMALL, mode="chunked", pool_inventory_bytes=[0])
 
+    def test_a_fallback_whose_exact_buffer_is_pooled_is_unreachable_and_completes_resident(self):
+        """[round-7 review, Codex] at (300, 10, 4, 16) with a resident-warmed
+        pool the simulator reported a REFUSED 9,830,400 B exact take while its
+        own inventory held a 9,830,400 B buffer. pool_take returns an exact
+        match before any refusal, so that fallback cannot happen: the resident
+        path completes. The planner now simulates that outcome and says so."""
+        s = self.sizes(rows=300, log_cols=10, inv_rate=4, q_pad=16)
+        r = plan.commitment_plan(300, 10, 4, 16, mode="fallback", pool_state="warm-resident")
+        sim = r["pool_simulation"]
+        self.assertEqual(sim["refused_request_bytes"], None)
+        self.assertFalse(sim["fallback_reachable"])
+        self.assertTrue(r["outcome"].startswith("resident (fallback unreachable"))
+        self.assertEqual(r["commitment_live_after_return_bytes"], s["data"] + s["res_enc"])
+        self.assertEqual(r["stages"][-1]["stage"], "return commitment: data + encoded matrix retained (RESIDENT outcome)")
+        self.assertTrue(any("no refusal is reachable" in e["stage"] for e in r["stages"]))
+        # every take served from the resident inventory: data, coef, coef2, enc
+        self.assertEqual(sim["fresh_pool_bytes"], 0)
+        self.assertEqual(sim["reuse_count"], 4)
+        # and on a COLD pool the same shape's fallback IS reachable and refuses
+        cold = plan.commitment_plan(300, 10, 4, 16, mode="fallback")
+        self.assertEqual(cold["pool_simulation"]["refused_request_bytes"], s["res_enc"])
+        self.assertTrue(cold["pool_simulation"]["fallback_reachable"])
+        self.assertEqual(cold["outcome"], "fallback")
+
+    def test_the_pool_cap_frees_rather_than_retains(self):
+        """pool_put keeps at most 64 buffers and FREES the rest. An inventory
+        beyond the cap is refused; a full inventory makes the callee's returns
+        free instead of pool, and the report says which."""
+        s = self.sizes(**self.SMALL)
+        with self.assertRaises(ValueError):
+            plan.commitment_plan(**self.SMALL, mode="chunked", pool_inventory_bytes=[8] * 65)
+        full = [8] * 64
+        r = plan.commitment_plan(**self.SMALL, mode="chunked", pool_inventory_bytes=full)
+        sim = r["pool_simulation"]
+        # nothing of 8 bytes serves a take: all five takes are fresh ...
+        self.assertEqual(sim["reuse_count"], 0)
+        # ... and on return the 64-entry pool is full, so all four scratch buffers are FREED
+        self.assertEqual(sim["freed_at_pool_cap_bytes"], s["coef"] + 2 * s["enc"] + s["state"])
+        self.assertEqual(len(sim["freed_at_pool_cap"]), 4)
+        self.assertEqual(r["pool_bytes_after_return"], 64 * 8)
+        self.assertEqual(r["new_pool_bytes_after_return"], 0)
+
     def test_cli_accepts_the_inventory_forms(self):
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
