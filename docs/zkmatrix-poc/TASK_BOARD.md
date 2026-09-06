@@ -1,5 +1,23 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**Immediate Claude pickup, round 8:** the final floor launcher has deadlocked
+**twice** by taking `/tmp/zk-build.lock` outside `cl1_floors.sh`, which requests
+the same lock inside. Both attempts stopped before compilation; Codex
+terminated only their waiting lock requests with approval. **Do not repeat
+that wrapper.** Use the outer heavy lock only:
+
+```sh
+flock /tmp/zk-heavy.lock /home/victor/wt-zk60-cl1/results/cl1_floors.sh /tmp/zk60-final-floors-fresh
+```
+
+Choose a fresh scratch directory and put that command inside the usual
+detached log/exit-marker wrapper, without an outer build lock. Pick up H1
+isolation from published `3ff8d5f` before the final gate.
+[Round-8 review](ZK60_ROUND8_CLAUDE_REVIEW.md) records 215 passing CPU tool
+tests, resolved findings and new CL6/CL7/CL11 follow-ups. Codex owns CL9's
+`wcache.rs` and ZK driver-report fix; its final Rust/cache checks are running
+after a completed 144-test Python/native suite.
+
 **ZK60 round 7 validated:** the [actual FFN diagnostic](ZK60_FFN_MASK_DIAGNOSTIC.md)
 reproduces tiny X/h16 recovery and T32 linear-functional disclosure from
 verified P1/P3 proofs, including fresh randomness. It changes only unit-test

@@ -3,8 +3,8 @@
   "created_local_date": "2026-09-04",
   "source_base": "5657a8d",
   "owner": "Claude in its own session; queued, not represented as executed by Codex",
-  "latest_observed_cl1": "9b249755e4bc14447578111e28df080ed5f0785b (reviewed committed planner response; later working-tree edits excluded)",
-  "integration_state": "hold on remaining allocation/capacity/lifetime and final evidence gates; see 2026-09-06 review",
+  "latest_observed_cl1": "a1aa2b7eb56a59c543c9ba9ca4f8f3430c122b96 (pinned round-8 review)",
+  "integration_state": "hold on final combined-source floor evidence; nested-lock launcher deadlock aborted before build; relaunch with outer heavy lock only",
   "tasks": [
     {
       "id": "CL2",
@@ -36,11 +36,10 @@
       "depends_on": [
         "CL2"
       ],
-      "status": "9b24975 reviewed: 25 planner tests pass; earlier capacity/lifetime gaps fixed; reject unreachable warm-pool late refusal and model/refuse >64-buffer inventories",
+      "status": "a1aa2b7 reviewed: earlier capacity/return/fallback findings fixed; 27 tests pass; remove raw pads/powers from the successful resident-outcome return snapshot",
       "review_followups": [
-        "Keep c346236 individual raw/fresh/reuse byte counters and actual fallback leaves/columns tests.",
-        "Keep 9b24975 capacity-transfer and chunked-return fixes plus explicit warm inventories.",
-        "Refuse unreachable fallback when the exact encoded buffer is already pooled, or simulate resident success; respect the 64-buffer pool limit."
+        "Keep the corrected per-buffer counters, fallback parity, capacity transfer and 64-buffer cap.",
+        "The resident-outcome return snapshot retains raw pads/powers that the declared post-return field excludes (71168 B at 300-row probe); align the lifetime snapshot."
       ],
       "files": [
         "hashline/src/gpu/cuda.rs",
@@ -69,10 +68,11 @@
         "CL2",
         "CL3"
       ],
-      "status": "c346236 reviewed: missing-feature refusal independently passes CPU checks; embedded Python oracle parser has reproduced SyntaxError; fix before final full gate",
+      "status": "parser fixed and CPU controls pass; final launch deadlocked on nested build lock, recorded exit 1 before build; relaunch correctly after H1 isolation pickup",
       "review_followups": [
-        "Replace 16-hex floor comparisons with full SHA-256 and fresh-artifact checks; require proof subprocess exit and verifier success.",
-        "Pin final source/binary and actual GPU case/device counts; preserve prior positive diagnostic logs without treating them as full gate closure."
+        "Use only the outer heavy lock around cl1_floors.sh; it already acquires the build lock internally.",
+        "Pick up H1 isolation from 3ff8d5f; run full final-source CPU/GPU/forced-chunk gates with retained logs and exact identities.",
+        "Move the embedded parser self-test before the hardware oracle."
       ],
       "files": [
         "hashline/src/gpu/cuda.rs",
@@ -101,7 +101,7 @@
       "depends_on": [
         "CL4"
       ],
-      "status": "39272d6 reviewed: 10 parser tests pass; nonzero-exit/impossible-phase ranking and matrix fail-closed evidence follow-ups required (ZK60_CL5_CL9_REVIEW.md)",
+      "status": "response reviewed: 34 parser tests and all 15 archived matrix rows pass; retain noisy diagnostic scope",
       "files": [
         "scripts/hashline_cl_profile.py",
         "tests/test_hashline_cl_profile.py",
@@ -129,7 +129,7 @@
         "CL3",
         "CL5"
       ],
-      "status": "queued",
+      "status": "24 tests pass; new reproduction accepts negative prove_s with exit 1; validate exit/verdict/finite clocks before comparing choices",
       "files": [
         "hashline/src/gpu/cuda.rs",
         "hashline/tests/zk60_gpu_commit.rs",
@@ -157,7 +157,7 @@
         "CL5",
         "CL6"
       ],
-      "status": "queued",
+      "status": "source reviewed: fused hiding gather with duplicate handling/reference switch; final full GPU floor/oracle gate pending",
       "files": [
         "hashline/src/gpu/cuda.rs",
         "hashline/src/gpu/kernels.cu",
@@ -175,14 +175,18 @@
         "Allocation-lifetime and asynchronous cleanup tests accompany any memory ownership change.",
         "Measured improvement is attributed to the changed fraction; phase-only gains are not reported as full-pass gains."
       ],
-      "limits": "Do not alter attention.rs/layer.rs/zk.rs caller semantics; propose any caller change to Codex before editing."
+      "limits": "Do not alter attention.rs/layer.rs/zk.rs caller semantics; propose any caller change to Codex before editing.",
+      "review_followups": [
+        "Final combined-source CPU/GPU/forced-chunk floor and oracle gate after H1 isolation pickup.",
+        "Source-derived empty query boundary: new helper accepts Some(&[]) but fused/pruned code calls qs.last().unwrap(); reject early or return empty and test it."
+      ]
     },
     {
       "id": "CL8",
       "priority": 1,
       "title": "Design GPU support for actual pending private blocks",
       "depends_on": [],
-      "status": "39272d6 reviewed: 13 tests pass; reproduced negative-byte plan and chunk undercount; correct units, raw-buffer frees and reuse lifetimes (ZK60_CL8_CL10_REVIEW.md)",
+      "status": "42 tests pass; prior negative count/chunk/unit/lifetime findings fixed; pending dimensions remain symbolic",
       "files": [
         "docs/zkmatrix-poc/ZK60_CLAUDE_PENDING_GPU.md",
         "scripts/hashline_cl_pending_memory.py",
@@ -208,7 +212,7 @@
         "CL2",
         "CL4"
       ],
-      "status": "39272d6 reviewed: 6 tests pass together; key-separation test fails alone; fix order dependency and complete actual proof/P3/process tests (ZK60_CL5_CL9_REVIEW.md)",
+      "status": "explicit production handoff accepted by Codex: atomic cache publication and ZK cache report implemented locally; full validation running",
       "files": [
         "hashline/src/gpu/",
         "hashline/src/pcs.rs",
@@ -232,7 +236,7 @@
       "priority": 2,
       "title": "Measure proof-size and serialization costs before redesign",
       "depends_on": [],
-      "status": "39272d6 reviewed: 9 tests pass but P1/P3 layouts incorrectly shared; 53248 bytes misattributed to residual; correct plain/hiding counts and group-vector category (ZK60_CL8_CL10_REVIEW.md)",
+      "status": "27 tests pass; corrected P1/P3 rows/salts/vectors and 65632-byte mode delta reviewed; byte accounting only",
       "files": [
         "scripts/hashline_cl_artifact_profile.py",
         "tests/test_hashline_cl_artifact_profile.py",
@@ -258,7 +262,7 @@
         "CL3",
         "CL4"
       ],
-      "status": "queued_prepare_only",
+      "status": "61 tests pass but reproduced missing/wrong binary digest, zero floor cases and flag-only full-target go; bind complete evidence and refuse unsupported target eligibility",
       "files": [
         "docs/zkmatrix-poc/ZK60_CLAUDE_5090.md",
         "scripts/hashline_cl_5090_preflight.py",

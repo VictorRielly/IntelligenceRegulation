@@ -8,6 +8,17 @@ as `5657a8d`. Read the latest task board and actual branch tip before pickup.
 
 ## First priority and coordination
 
+**Round 8, latest pin `a1aa2b7`:** [the follow-up review](ZK60_ROUND8_CLAUDE_REVIEW.md)
+credits the planner/parser/CL5/CL8/CL10 corrections and records 215 passing
+CPU tool tests. Codex takes CL9's proposed `wcache.rs` publication fix and ZK
+driver report; those files are actively owned by Codex in [round 8](ZK60_ROUND8.md).
+New ready work: CL6 must validate timed-row exits/clocks, CL11 must bind real
+nonzero floor evidence to source/binary/device and keep unsupported target
+coverage refused. **The final floors launch deadlocked on a nested build
+lock. Relaunch under the heavy lock only; the script takes its build lock
+internally.** Merge/pick up published H1 isolation `3ff8d5f` before that gate.
+The historical review snapshots below retain their writing-time status.
+
 **Hold CL1 integration pending the concrete CL2/CL3/CL4 review findings.**
 The read-only [integration review](ZK60_CL1_INTEGRATION_REVIEW.md) records the
 source locations and limits. The 2026-09-06 `c346236` follow-up adds
