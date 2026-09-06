@@ -471,3 +471,70 @@ I recorded in `309d3f9`'s message that the inflated figure appeared "including
 ones in my own CL1 rung-4 write-up". That was itself slightly wrong — rung 4's
 table never quoted a device-side NTT number. The correction's true scope is the
 verbose traces, as above.
+
+---
+
+## Lane status, 2026-09-06 (round 7) — the queue is worked through; integration is Codex's call
+
+Base: the lane merged the perf tip `9cf1372` as `25f8b6d` (Codex's verifier
+hardening, public chain receipts, fixture repair; no lane-owned file
+changed). Every commit below is pushed on `zk60-cl1`. Codex reviewed the
+first two live (`c346236`, `9b24975`) and re-issued findings, which are
+answered in place; the reviews are `ZK60_CL1_INTEGRATION_REVIEW.md`,
+`ZK60_CL5_CL9_REVIEW.md`, `ZK60_CL8_CL10_REVIEW.md`.
+
+| commit | task | what it settles | evidence |
+|---|---|---|---|
+| `c346236` | CL3/CL4 round-7 | raw allocations counted one by one (5 events / 240,704 B at the probe shape); pool reuse asserted in BYTES with a reuse-disabled negative control (ON fresh 3,162,112 B vs OFF 24,494,080 B, the identity exact); the oracle file fails closed WITHOUT the feature | 17 tests / 27 device cases; CPU target: `HL_GPU_REQUIRED=1` -> exit 101 with the reason, unset -> 0 cases |
+| `9b24975` | CL3 planner | chunked/fallback are a pool SIMULATION (exact `take`, smallest-fitting `take_min`, `put`), each buffer once by capacity, `no_reuse_bound_bytes` beside it, return lifetimes from the source, warm pools as inventories | 25 tests; reconciles with the device counters to the byte |
+| `1250115` | CL6 | chunk rows are a MEMORY knob: 128/256/512 prove 4.0-4.2 s with commits 0.62 s and re-encodes 0.57 s at every choice; VRAM 5,182 / 5,349 / 5,651 MB as the planner predicts; frozen fixture byte-identical at 128-1024; no selector promoted | `cl6_chunk_sweep.log`, 24 tool tests, 13 oracle cases |
+| `3d5c90a` | CL7 | the hiding opening gets the fused, output-pruned last stage group: 0.575 -> 0.470 s on the three re-encodes (1.22x), 2.6% of the prove, byte-identical, VRAM unchanged; the next lever named, not taken | `cl7_reenc_ab.log`, 19 tests / 49 device cases |
+| `64f3e54` | CL5 round-7 | rows gated before ranking; negative-Amdahl refused; cache state from the log; the matrix runner fail-closed (not re-executed) | 34 tests |
+| `de911a0` | CL4 | the floors script's embedded parser could not run on Python 3.10 (Codex reproduced it); self-tested now; dirty-delta content hash in the identity block | `bash -n`, parser self-test |
+| `4cda3da` | CL3 planner | an unreachable warm-pool fallback completes resident instead of inventing a refusal; the 64-buffer pool cap frees; oversize inventories refused | 27 tests |
+| `15ddb8b` | CL11 | fourteen-check fail-closed 5090 preflight, the ladder, the three clocks; dry run on the laptop refuses for the right reasons and reproduces the 5,182 MB peak in `planner_margin` | 61 tests |
+| `ded8dc4` | CL10 round-7 | separate P1/P3 opening layouts from the layout mirror; the whole 65,632 B delta derived (45,056 + 8,192 + 12,288 + 96); the identity cross-check replaced | 27 tests |
+| `81abdda` | CL8 round-7 | the pending-memory tool imports the shared planner instead of copying its rules: chunk rounding mirrored (1,048,576 B not 8,192 at the review's case), invalid dimensions refused, raw buffers freed vs pooled scratch, bare row counts refused for explicit layouts, oversize reuse counted once; every builder reconciles with the planner at six shapes | 42 tests |
+| `09742d8` | CL5 evidence | the hardened matrix runner re-executed: 15/15 exit 0, `gpu: ON`, ACCEPT, per-run digests; P1 cold == warm == nocache == the frozen `zkv3` digest, P0 == the frozen `v3` digest, P3 `be8d13cc..` — the same digest CL9's CPU process produced (a P3 CPU/GPU identity at 12x512); seconds inflated by an overlapping agent and not promoted | `cl5_matrix_r7.log`, `cl5_r7/` |
+| `a1aa2b7` | CL9 round-7 | the order-dependent test primes its own namespace; separate-process cold/warm proof comparison (byte-identical, the frozen digest); the caller's real packing tied to the key; the ACTUAL `--p3 --wcache` refusal (exit 2, before any work) and a fresh uncached P3 ACCEPT; remaining key fields; 8 same-key writers x 12 keys — one verifying entry each, but 15 of 96 saves LOST to the shared `.wc.tmp` name (a `wcache.rs` defect, proposed fix: per-writer temp names) | 12 tests: full file, each alone, 8 threads, 1 thread |
+| `82314a1` | CL4 | the floors gate's own `${SUMMARY:-{}}` appended a literal `}` and turned a green oracle run RED; quoted; three false-start logs archived (a self-deadlock on the build lock twice, then this) | `bash -n`, self-test through the same expansion |
+
+**Final floors on the tip — `results/cl_round7_floors.log`, marker 0, HEAD
+`82314a1`, dirty delta under `hashline/` empty (`e3b0c442..`), CPU binary
+`93055aa6..` / 4,629,656 B, GPU binary `e7e1535b..` / 5,326,472 B:**
+**ALL CL1 FLOORS GREEN** — 12/12 byte gates at full SHA-256 (four fixtures
+x CPU / GPU / GPU with chunking forced, every GPU gate `gpu: ON`, every
+proof ACCEPT), the crate suites at `--test-threads=2` (twenty `test result:
+ok` lines, the 12 cache tests included), the oracle suite uncaptured on one
+thread with **49 executed device cases** (floor 20), the missing-feature
+refusal (CPU target under `HL_GPU_REQUIRED=1`: exit 101 with the reason) and
+the zero-case status without it (exit 0). Codex's `3ff8d5f` (the FFN
+disclosure diagnostic and the H1 fixture isolation) was merged AFTER this
+run; it touches no lane-owned file and was validated by Codex's own 147-test
+run on the perf branch.
+
+### Suggestions brought to the table (for Codex / the integrator)
+
+1. **The CPU/GPU byte gates and the oracle suite are green on the merged
+   tree; integration of `zk60-cl1` is a review decision, not a build one.**
+   Every lane-owned change is behind a retained reference switch
+   (`HL_ZK_CHUNK=0`, `HL_ZK_FUSE_GATHER=0`, `HL_GPU_PRUNE_P2=0`).
+2. **`pcs_compact` lib tests mutate a process-global configuration**;
+   Codex's process isolation of the three H1 fixtures fixes the symptom.
+   The cleaner fix is a `#[serial]`-style lock shared by every lib test that
+   calls `pcs_compact::configure`, or a scoped-configure guard that restores
+   the default on drop.
+3. **A `LayerProofZk::size_breakdown()`** printed with the mask-site dump
+   would turn CL10's derived bytes into printed ones (proposal in
+   `ZK60_CLAUDE_ARTIFACTS.md` §7.5).
+4. **`pass_zk` should print `wcache::report()`** like `pass_v3` does, so a ZK
+   log carries its cache hits/misses without `HL_WCACHE_VERBOSE`.
+5. **The next byte-preserving device lever** is the zero tail of the
+   pad/scale output: `k_ntt_p1` with `n_src = n + q` over a `rmax x (n + q)`
+   buffer drops ~30% of the hiding re-encode's AND the commit's remaining
+   traffic (`ZK60_CLAUDE_RESIDENCY.md` §5). One measured bottleneck per
+   commit, so it waits for its own task.
+6. **The 32-layer 8B P3 pass on the device remains newly possible and
+   deliberately not run** (rung 5): the CL6 sweep's flat 5,182 MB per-layer
+   peak at chunk 128 is a fourth confirmation of the bound; the launch is
+   still a safety decision above this lane.
