@@ -90,10 +90,16 @@ ok = s.get("gpu_enabled") is True and s.get("gpu_required") is True and isinstan
 print("oracle cases executed: %s (floor %d); device: %s" % (cases, floor, device))
 sys.exit(0 if ok else 1)
 '
-if ! python3 -c "$ORACLE_PARSE" '{"executed_cases":99,"gpu_enabled":true,"gpu_required":true,"device":"self-test"}' 1 >/dev/null; then
-  echo "FAILURE: the embedded oracle-summary parser does not run on this Python"; fail=1
+SELFTEST='{"executed_cases":99,"gpu_enabled":true,"gpu_required":true,"device":"self-test — non-ASCII on purpose"}'
+# the self-test goes through the SAME expansion the real check uses
+if ! python3 -c "$ORACLE_PARSE" "${SELFTEST:-"{}"}" 1 >/dev/null; then
+  echo "FAILURE: the embedded oracle-summary parser does not run on this Python (or the expansion mangles it)"; fail=1
 fi
-if ! python3 -c "$ORACLE_PARSE" "${SUMMARY:-{}}" "$ORACLE_MIN_CASES"; then
+# `${SUMMARY:-{}}` is NOT a JSON default in bash: the expansion ends at the
+# first `}`, so a literal `}` was appended to a perfectly good summary and
+# the decoder saw "extra data" — the gate went RED on a 49-case green run
+# (results/cl_round7_floors_attempt3_bracebug.log). Quote the default.
+if ! python3 -c "$ORACLE_PARSE" "${SUMMARY:-"{}"}" "$ORACLE_MIN_CASES"; then
   echo "FAILURE: the oracle suite did not prove >= $ORACLE_MIN_CASES executed cases on an enabled device"; fail=1
 fi
 
