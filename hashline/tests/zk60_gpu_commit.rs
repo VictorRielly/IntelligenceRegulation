@@ -1,9 +1,15 @@
 //! [ZK60-CL1] The chunked HIDING commitment against the CPU oracle.
 //!
 //! Run with `cargo test --release --features gpu-cuda --test zk60_gpu_commit`.
-//! Without the feature the file compiles to nothing; with the feature but no
-//! usable device every test SKIPS loudly rather than passing vacuously — a
-//! green run on a box with no GPU must not be mistaken for evidence.
+//!
+//! [ZK60 round-7 review] This file no longer compiles to NOTHING without the
+//! feature. `gpu_required_gate_refuses_a_build_without_the_feature` below is
+//! compiled in every configuration, and under `HL_GPU_REQUIRED=1` it FAILS a
+//! binary built without `gpu-cuda` — before, such a run compiled every device
+//! test away and reported success. With the feature but no usable device
+//! every test SKIPS loudly (and fails under `HL_GPU_REQUIRED=1`) rather than
+//! passing vacuously — a green run on a box with no GPU must not be mistaken
+//! for evidence.
 //!
 //! Each case compares BOTH halves against the CPU's own `encode_row_zk`, not
 //! against the device's resident path, so a bug shared by the two device
@@ -13,7 +19,29 @@
 //! the second being the half `columns_chunked` cannot serve, because it
 //! re-encodes with neither the pads nor the coset scaling.
 
-#![cfg(feature = "gpu-cuda")]
+/// [ZK60 round-7 review] Compiled WITH and WITHOUT the feature. Asking for a
+/// GPU-required run of a binary built without `gpu-cuda` is a FAILURE with a
+/// visible reason, not a vacuous pass. Without the requirement it prints the
+/// same machine-readable summary the device tests print, with zero cases, so
+/// a gate script can see that nothing ran rather than infer it from silence.
+#[test]
+fn gpu_required_gate_refuses_a_build_without_the_feature() {
+    let required = std::env::var("HL_GPU_REQUIRED").map(|v| v != "0").unwrap_or(false);
+    if !cfg!(feature = "gpu-cuda") {
+        println!(
+            "ZK60_CL4_SUMMARY {{\"executed_cases\":0,\"gpu_enabled\":false,\"gpu_required\":{required},\"device\":\"built without --features gpu-cuda\"}}"
+        );
+        assert!(
+            !required,
+            "HL_GPU_REQUIRED=1 but this test binary was built WITHOUT --features gpu-cuda: every \
+             device test was compiled away, so a green result would be vacuous. Build with \
+             CARGO_TARGET_DIR=hashline/target-gpu and --features gpu-cuda."
+        );
+    }
+}
+
+#[cfg(feature = "gpu-cuda")]
+mod device {
 
 use hashline::gpu;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -390,6 +418,16 @@ fn the_last_resident_allocation_is_also_strict_under_off() {
 /// now behind the same gate, and RAW (non-pool) allocations — pads, powers,
 /// leaves, gather output — are counted separately, because they are real
 /// device capacity that the old claim ignored entirely.
+///
+/// [ZK60 round-7 review] THE SECOND VERSION WAS STILL TOO WEAK: "at most 3
+/// fresh pooled allocations" is satisfied by a fresh coef2/enc pair plus the
+/// hash state, `raw_n > 0` says nothing about capacity, and its illustrative
+/// `full_pair_elems` used 2^16 columns for a 2^12-column probe. This version
+/// asserts BYTES — exactly what the chunked path was allowed to allocate
+/// fresh, exactly what it reused and at what capacity, exactly which raw
+/// allocations it made — and then DISABLES pool reuse and shows the same path
+/// allocates the whole request fresh, so the reuse assertion is demonstrably
+/// not vacuous.
 #[test]
 fn the_chunked_retry_reuses_pooled_capacity_rather_than_allocating_more() {
     let _g = serial();
@@ -397,39 +435,91 @@ fn the_chunked_retry_reuses_pooled_capacity_rather_than_allocating_more() {
         return;
     }
     note_case();
+    // The probe's shape: n = 2^10, nn = 2^12, chunk 128 -> rmax 128, 16 opened
+    // columns. B3 state slots mirror cuda.rs (8 * 24 + 1), as the planner does.
+    let (log_cols, inv_rate, rows, q_pad, q_open) = (10u32, 4usize, 300usize, 16usize, 16usize);
+    let n = 1usize << log_cols;
+    let nn = n * inv_rate;
+    let rmax = 128usize;
+    let state_elems = ((8 * 24 + 1) * nn + 1) / 2;
+    let data_b = rows * n * 8;
+    let coef_b = rmax * n * 8;
+    let big_b = rmax * nn * 8;
+    let state_b = state_elems * 8;
+    // What the forced-chunk probe ASKS the pool for, in order: the probe's data
+    // upload (exact take); the commit's coef / coef2 / enc / state (take_min);
+    // the opening's coef / coef2 / enc (take_min; the commit returned its own).
+    let requested = data_b + (coef_b + 2 * big_b + state_b) + (coef_b + 2 * big_b);
+    // What the warm-up leaves in the pool: coef and coef2 released mid-commit,
+    // then data and enc when the resident DevCommit drops. Deterministic after
+    // a drain.
+    let warm_pool_b = 2 * data_b + 2 * rows * nn * 8;
+
     gpu::dev_pool_drain();
     let prev_mode = gpu::set_zk_chunk_mode_for_test(1);
-    // Warm the pool with a full resident commitment of this exact shape.
-    let warm = gpu::dev_commit_zk_from_probe(10, 4, 300, 16).expect("warm-up ran");
+    let warm = gpu::dev_commit_zk_from_probe(log_cols, inv_rate, rows, q_pad).expect("warm-up ran");
     assert!(!warm.chunked, "warm-up should be resident");
     assert_eq!((warm.bad_leaves, warm.bad_cols), (0, 0), "warm-up must be correct: {warm:?}");
 
-    // Now force chunking on the SAME shape. Its scratch is smaller than the
-    // pooled buffers, so take_min should reuse them.
+    // ---- reuse ON: forced chunking on the SAME shape
     gpu::reset_alloc_counters_for_test();
-    let prev2 = gpu::set_zk_chunk_mode_for_test(2); // force chunked
-    let o = gpu::dev_commit_zk_from_probe(10, 4, 300, 16).expect("forced chunked ran");
-    let pooled_fresh = gpu::fresh_alloc_count_for_test();
-    let (raw_n, raw_bytes) = gpu::raw_alloc_stats_for_test();
+    let prev2 = gpu::set_zk_chunk_mode_for_test(2);
+    let o = gpu::dev_commit_zk_from_probe(log_cols, inv_rate, rows, q_pad).expect("forced chunked ran");
+    let on = gpu::pool_stats_for_test();
     gpu::set_zk_chunk_mode_for_test(prev2);
-    gpu::set_zk_chunk_mode_for_test(prev_mode);
-
     assert!(o.chunked, "must have chunked");
     assert_eq!((o.bad_leaves, o.bad_cols), (0, 0), "the chunked path must be correct: {o:?}");
-    eprintln!("[CL4] forced-chunk capacity: pooled fresh {pooled_fresh}, raw {raw_n} allocs / {raw_bytes} B");
+    eprintln!("[CL3] forced-chunk, reuse ON:  {on:?}");
 
-    // The big encode scratch must come from the pool. The blake3 column state
-    // is a genuinely new SHAPE and may allocate; the bound is deliberately
-    // stated in terms of what must NOT happen — a fresh full-size pair.
-    let full_pair_elems = 2 * 300 * (1usize << 16);
-    assert!(
-        pooled_fresh <= 3,
-        "the chunked path should reuse pooled capacity; it made {pooled_fresh} fresh pooled allocations \
-         (a fresh full pair would be {full_pair_elems} elements of new capacity)"
-    );
-    // RAW allocations are real capacity too and are now visible rather than
-    // silently excluded from any "no new allocation" claim.
-    assert!(raw_n > 0, "pads/powers/leaves are raw allocations and must be counted, not invisible");
+    // The ONLY fresh pooled allocation a warm pool cannot serve is the blake3
+    // column state: nothing of that size was ever pooled and the leftover
+    // rows*n buffer is too small for it. EXACT, in bytes — not "<= 3 events".
+    assert_eq!((on.fresh_count, on.fresh_bytes), (1, state_b),
+        "reuse ON: the chunked path may allocate ONLY the blake3 state fresh ({state_b} B); saw {on:?}");
+    // Every other take was served from the pool, by requested size ...
+    assert_eq!(on.reuse_requested_bytes, requested - state_b,
+        "reuse ON: every take but the state must be a reuse; saw {on:?}");
+    // ... at the capacity of the RELEASED RESIDENT buffers (oversize reuse,
+    // each buffer counted once): the data take is exact, the commit's three
+    // scratch takes consume the other three warm buffers, and the opening's
+    // three takes get the commit's scratch back. Capacity is what the card
+    // holds; requested is what the kernels use.
+    let capacity_expect = data_b + (data_b + 2 * rows * nn * 8) + (data_b + 2 * rows * nn * 8);
+    assert_eq!(on.reuse_capacity_bytes, capacity_expect,
+        "reuse ON: the capacity handed out must be the warm pool's ({warm_pool_b} B) plus the commit scratch re-served to the opening; saw {on:?}");
+    assert!(on.reuse_capacity_bytes > on.reuse_requested_bytes, "oversize reuse must show capacity above request");
+    // RAW allocations, one event each, EXACT: pads, coset powers, the chunked
+    // leaf buffer, then the opening's index list and gather output.
+    let raw_expect_b = rows * q_pad * 8 + nn * 8 + nn * 8 * 4 + q_open * 4 + rows * q_open * 8;
+    assert_eq!((on.raw_count, on.raw_bytes), (5, raw_expect_b),
+        "raw allocations on the commit+opening path must be counted one by one (scope: {}); saw {on:?}", gpu::RAW_ALLOC_SCOPE);
+
+    // ---- NEGATIVE CONTROL: reuse OFF, same forced-chunk probe.
+    // Every take is now fresh, so the fresh bytes must equal the whole request
+    // and no reuse may be recorded. Had reuse been silently absent above, the
+    // ON numbers would have looked like these.
+    gpu::reset_alloc_counters_for_test();
+    let prev_reuse = gpu::set_pool_reuse_for_test(false);
+    let prev3 = gpu::set_zk_chunk_mode_for_test(2);
+    let o2 = gpu::dev_commit_zk_from_probe(log_cols, inv_rate, rows, q_pad);
+    let off = gpu::pool_stats_for_test();
+    gpu::set_zk_chunk_mode_for_test(prev3);
+    gpu::set_pool_reuse_for_test(prev_reuse);
+    gpu::set_zk_chunk_mode_for_test(prev_mode);
+    gpu::dev_pool_drain();
+    let o2 = o2.expect("forced chunked with reuse disabled ran");
+    assert!(o2.chunked, "reuse OFF must still chunk");
+    assert_eq!((o2.bad_leaves, o2.bad_cols), (0, 0), "reuse OFF must still be correct: {o2:?}");
+    eprintln!("[CL3] forced-chunk, reuse OFF: {off:?}");
+    assert_eq!(off.reuse_count, 0, "reuse OFF: no take may be served from the pool; saw {off:?}");
+    assert_eq!(off.fresh_bytes, requested,
+        "reuse OFF: the whole request ({requested} B) must be allocated fresh; saw {off:?}");
+    assert_eq!((off.raw_count, off.raw_bytes), (5, raw_expect_b), "raw allocations do not depend on pool reuse");
+    // The exact identity the control establishes: every byte the ON run took
+    // from the pool is a byte the OFF run had to allocate. (Measured on the
+    // RTX 4070: ON fresh 3,162,112 B vs OFF fresh 24,494,080 B, 7.75x.)
+    assert_eq!(off.fresh_bytes, on.fresh_bytes + on.reuse_requested_bytes,
+        "reuse OFF must allocate fresh exactly what reuse ON served from the pool: ON {on:?} vs OFF {off:?}");
 }
 
 /// [ZK60-CL4] The gate that proves the run was not vacuous, from BOTH sides:
@@ -461,3 +551,5 @@ fn zzz_gpu_required_gate_proves_nonzero_executed_cases() {
     assert!(neg.1 > 300, "the negative control must still detect the wrong re-encode, got {neg:?}");
     emit_summary();
 }
+
+} // mod device

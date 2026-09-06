@@ -14,7 +14,7 @@ use cudarc::driver::result as cu;
 use cudarc::driver::{sys, CudaDevice, CudaSlice, CudaView, DevicePtr, DevicePtrMut, DeviceSlice, LaunchAsync, LaunchConfig};
 use cudarc::nvrtc::{compile_ptx_with_opts, CompileOptions};
 use rayon::prelude::*;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Instant;
 
@@ -154,20 +154,90 @@ pub fn set_alloc_fail_after_for_test(n: usize) -> usize {
 /// (`htod_sync_copy`, `alloc::<u32>`): pads, coset powers, leaves, gather
 /// output. They are real device capacity and were invisible to the counter,
 /// so any "made no fresh allocation" claim that ignored them was untestable.
+///
+/// [ZK60 round-7 review] Counted ONE ALLOCATION PER CALL, on the COMMITMENT
+/// and OPENING paths. The first version noted pads+powers as a single event
+/// and never noted the leaf buffers, so "2 events / 109,632 B" was neither a
+/// count nor a capacity. Now every `note_raw_alloc` is exactly one device
+/// allocation of exactly that many bytes: pads, coset powers, each leaf
+/// buffer (`alloc::<u32>(nn*8)` in the resident hash, both chunked commits
+/// and the pinned-upload commit), index/residue lists and gather output.
+/// SCOPE IS STATED, not implied: the sumcheck, fold, helper and zero-check
+/// paths keep their own scratch outside this counter (`RAW_ALLOC_SCOPE`).
 static RAW_ALLOC_COUNT: AtomicUsize = AtomicUsize::new(0);
 static RAW_ALLOC_BYTES: AtomicUsize = AtomicUsize::new(0);
+pub const RAW_ALLOC_SCOPE: &str =
+    "commitment + opening paths only: pads, coset powers, leaf buffers, index/residue lists, gather output";
 
+/// [ZK60 round-7 review] Pool traffic in BYTES, not just events. "At most 3
+/// fresh pooled allocations" bounded nothing: a full fresh scratch pair plus
+/// the hash state is 3 allocations. These record the fresh bytes actually
+/// allocated through the pool, and for every reuse both the CAPACITY handed
+/// out and the length that was asked for — so a test can assert that the
+/// chunked retry's scratch came out of the released resident buffers, by
+/// size, and that the oversize was reuse rather than new memory.
+static FRESH_ALLOC_BYTES: AtomicUsize = AtomicUsize::new(0);
+static POOL_REUSE_COUNT: AtomicUsize = AtomicUsize::new(0);
+static POOL_REUSE_CAPACITY_BYTES: AtomicUsize = AtomicUsize::new(0);
+static POOL_REUSE_REQUESTED_BYTES: AtomicUsize = AtomicUsize::new(0);
+/// NEGATIVE CONTROL for the reuse assertions: with reuse disabled every take
+/// is a fresh allocation, so a test that claims "reused" can show the claim
+/// would have failed had reuse not happened. Test-only; production never
+/// touches it.
+static POOL_REUSE_ENABLED: AtomicBool = AtomicBool::new(true);
+
+/// Everything the allocation-accounting tests read, in one snapshot.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct PoolStats {
+    /// fresh pool allocations ATTEMPTED (the injection counter; a one-shot
+    /// failure is an attempt), and the bytes of those that SUCCEEDED
+    pub fresh_count: usize,
+    pub fresh_bytes: usize,
+    /// reuses: events, capacity handed out, length requested
+    pub reuse_count: usize,
+    pub reuse_capacity_bytes: usize,
+    pub reuse_requested_bytes: usize,
+    /// raw (non-pool) device allocations on the commitment/opening paths
+    pub raw_count: usize,
+    pub raw_bytes: usize,
+}
+
+pub fn pool_stats_for_test() -> PoolStats {
+    PoolStats {
+        fresh_count: ALLOC_FRESH_COUNT.load(Ordering::SeqCst),
+        fresh_bytes: FRESH_ALLOC_BYTES.load(Ordering::SeqCst),
+        reuse_count: POOL_REUSE_COUNT.load(Ordering::SeqCst),
+        reuse_capacity_bytes: POOL_REUSE_CAPACITY_BYTES.load(Ordering::SeqCst),
+        reuse_requested_bytes: POOL_REUSE_REQUESTED_BYTES.load(Ordering::SeqCst),
+        raw_count: RAW_ALLOC_COUNT.load(Ordering::SeqCst),
+        raw_bytes: RAW_ALLOC_BYTES.load(Ordering::SeqCst),
+    }
+}
+/// Returns the previous setting so a test can restore it.
+pub fn set_pool_reuse_for_test(enabled: bool) -> bool {
+    POOL_REUSE_ENABLED.swap(enabled, Ordering::SeqCst)
+}
 pub fn raw_alloc_stats_for_test() -> (usize, usize) {
     (RAW_ALLOC_COUNT.load(Ordering::SeqCst), RAW_ALLOC_BYTES.load(Ordering::SeqCst))
 }
 pub fn reset_alloc_counters_for_test() {
     ALLOC_FRESH_COUNT.store(0, Ordering::SeqCst);
+    FRESH_ALLOC_BYTES.store(0, Ordering::SeqCst);
+    POOL_REUSE_COUNT.store(0, Ordering::SeqCst);
+    POOL_REUSE_CAPACITY_BYTES.store(0, Ordering::SeqCst);
+    POOL_REUSE_REQUESTED_BYTES.store(0, Ordering::SeqCst);
     RAW_ALLOC_COUNT.store(0, Ordering::SeqCst);
     RAW_ALLOC_BYTES.store(0, Ordering::SeqCst);
 }
+/// ONE raw device allocation of `bytes`. Call once per allocation.
 fn note_raw_alloc(bytes: usize) {
     RAW_ALLOC_COUNT.fetch_add(1, Ordering::SeqCst);
     RAW_ALLOC_BYTES.fetch_add(bytes, Ordering::SeqCst);
+}
+fn note_reuse(capacity_elems: usize, requested_elems: usize) {
+    POOL_REUSE_COUNT.fetch_add(1, Ordering::SeqCst);
+    POOL_REUSE_CAPACITY_BYTES.fetch_add(capacity_elems * 8, Ordering::SeqCst);
+    POOL_REUSE_REQUESTED_BYTES.fetch_add(requested_elems * 8, Ordering::SeqCst);
 }
 
 /// The shared gate for a FRESH pool allocation: cap, one-shot injection and
@@ -200,13 +270,17 @@ pub fn fresh_alloc_count_for_test() -> usize {
 }
 
 fn pool_take(dev: &Arc<CudaDevice>, len: usize) -> Result<CudaSlice<u64>, String> {
-    let mut pool = POOL.lock().unwrap();
-    if let Some(i) = pool.iter().position(|b| b.len() == len) {
-        return Ok(pool.swap_remove(i));
+    if POOL_REUSE_ENABLED.load(Ordering::SeqCst) {
+        let mut pool = POOL.lock().unwrap();
+        if let Some(i) = pool.iter().position(|b| b.len() == len) {
+            note_reuse(len, len);
+            return Ok(pool.swap_remove(i));
+        }
     }
-    drop(pool);
     fresh_alloc_gate(len)?;
-    unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!("cuMemAlloc({} MB): {e}", len * 8 >> 20))
+    let b = unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!("cuMemAlloc({} MB): {e}", len * 8 >> 20))?;
+    FRESH_ALLOC_BYTES.fetch_add(len * 8, Ordering::SeqCst);
+    Ok(b)
 }
 
 fn pool_put(buf: CudaSlice<u64>) {
@@ -220,22 +294,26 @@ fn pool_put(buf: CudaSlice<u64>) {
 /// fits, else a fresh allocation of exactly `len`) — for chunk scratch
 /// whose kernels take explicit row counts, so the extra tail is inert.
 fn pool_take_min(dev: &Arc<CudaDevice>, len: usize) -> Result<CudaSlice<u64>, String> {
-    let mut pool = POOL.lock().unwrap();
-    let mut best: Option<usize> = None;
-    for (i, b) in pool.iter().enumerate() {
-        if b.len() >= len && best.map(|j| b.len() < pool[j].len()).unwrap_or(true) {
-            best = Some(i);
+    if POOL_REUSE_ENABLED.load(Ordering::SeqCst) {
+        let mut pool = POOL.lock().unwrap();
+        let mut best: Option<usize> = None;
+        for (i, b) in pool.iter().enumerate() {
+            if b.len() >= len && best.map(|j| b.len() < pool[j].len()).unwrap_or(true) {
+                best = Some(i);
+            }
+        }
+        if let Some(i) = best {
+            note_reuse(pool[i].len(), len);
+            return Ok(pool.swap_remove(i));
         }
     }
-    if let Some(i) = best {
-        return Ok(pool.swap_remove(i));
-    }
-    drop(pool);
     // [ZK60-CL4 review] this allocated straight from the device, outside the
     // cap, the injection and the counter. The chunked path uses take_min for
     // ALL its scratch, so it was invisible to every assertion built on them.
     fresh_alloc_gate(len)?;
-    unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!("cuMemAlloc({} MB): {e}", len * 8 >> 20))
+    let b = unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!("cuMemAlloc({} MB): {e}", len * 8 >> 20))?;
+    FRESH_ALLOC_BYTES.fetch_add(len * 8, Ordering::SeqCst);
+    Ok(b)
 }
 
 /// A pooled buffer: returned to the pool on drop.
@@ -1358,6 +1436,7 @@ impl Gpu {
         let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;
         dev.memset_zeros(d_state.get_mut()).map_err(|e| format!("state memset: {e}"))?;
         let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+        note_raw_alloc(nn * 8 * 4); // [round-7 review] the leaf buffer is a raw allocation too
         let f_hash = dev.get_func(MODULE, "k_hash_cols_stream").ok_or("k_hash_cols_stream missing")?;
         note_vram(self);
         for &(r0, rc) in &plan {
@@ -1402,8 +1481,9 @@ impl Gpu {
         let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
         let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
         let d_idx = dev.htod_sync_copy(&idx32).map_err(|e| e.to_string())?;
+        note_raw_alloc(idx32.len() * 4);
         let mut d_out = unsafe { dev.alloc::<u64>(rows * q_open) }.map_err(|e| e.to_string())?;
-        note_raw_alloc(rows * q_open * 8 + idx32.len() * 4);
+        note_raw_alloc(rows * q_open * 8);
         let f = dev.get_func(MODULE, "k_gather_cols_off").ok_or("k_gather_cols_off missing")?;
         for &(r0, rc) in &plan {
             let dview = dc.data.get().slice(r0 * n..(r0 + rc) * n);
@@ -1691,6 +1771,7 @@ impl Gpu {
         let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;
         dev.memset_zeros(d_state.get_mut()).map_err(|e| format!("state memset: {e}"))?;
         let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+        note_raw_alloc(nn * 8 * 4);
         let f_hash = dev.get_func(MODULE, "k_hash_cols_stream").ok_or("k_hash_cols_stream missing")?;
         note_vram(self);
         let vb = verbose();
@@ -1742,6 +1823,7 @@ impl Gpu {
         let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;
         dev.memset_zeros(d_state.get_mut()).map_err(|e| format!("state memset: {e}"))?;
         let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+        note_raw_alloc(nn * 8 * 4);
         let f_hash = dev.get_func(MODULE, "k_hash_cols_stream").ok_or("k_hash_cols_stream missing")?;
         note_vram(self);
         if self.up().is_none() {
@@ -1861,6 +1943,7 @@ impl Gpu {
         let nu = uniq.len();
         let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
         let d_idx = dev.htod_sync_copy(if fused { &sel } else { &idx32 }).map_err(|e| e.to_string())?;
+        note_raw_alloc(if fused { sel.len() } else { idx32.len() } * 4);
         // [UPERF3-AO] rung 3: the distinct residues qq = col mod 2^NTT_LOG_BLK.
         // The last stage group is an independent nt-point transform per qq, so
         // only these can produce a sampled column; the list is padded to a
@@ -1877,7 +1960,9 @@ impl Gpu {
                 let pad = nq.div_ceil(P2SP_NC) * P2SP_NC;
                 let last = *qs.last().unwrap();
                 qs.resize(pad, last);
-                Some((dev.htod_sync_copy(&qs).map_err(|e| e.to_string())?, nq))
+                let b = dev.htod_sync_copy(&qs).map_err(|e| e.to_string())?;
+                note_raw_alloc(qs.len() * 4);
+                Some((b, nq))
             } else {
                 None
             }
@@ -1886,6 +1971,7 @@ impl Gpu {
         };
         let cols_out = if fused { nu } else { q };
         let mut d_out = unsafe { dev.alloc::<u64>(rows * cols_out) }.map_err(|e| e.to_string())?;
+        note_raw_alloc(rows * cols_out * 8);
         let f = dev.get_func(MODULE, "k_gather_cols_off").ok_or("k_gather_cols_off missing")?;
         for &(r0, rc) in &plan {
             let view = dc.data.get().slice(r0 * n..(r0 + rc) * n);
@@ -2000,7 +2086,9 @@ pub fn dev_commit_zk_check_chunked(log_cols: u32, inv_rate: usize, rows: usize, 
     let mut d_data = Pooled::take(&dev, data.len())?;
     dev.htod_sync_copy_into(as_u64s(&data), d_data.get_mut()).map_err(|e| format!("data upload: {e}"))?;
     let d_pads = dev.htod_sync_copy(as_u64s(&pads)).map_err(|e| format!("pads upload: {e}"))?;
+    note_raw_alloc(pads.len() * 8);
     let d_pows = dev.htod_sync_copy(as_u64s(&pows)).map_err(|e| format!("pows upload: {e}"))?;
+    note_raw_alloc(pows.len() * 8);
     let log_nn = nn.trailing_zeros();
 
     let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q_pad, nn, log_cols, log_nn, chunk)?;
@@ -2069,7 +2157,9 @@ pub fn dev_commit_zk_check_interleaved(specs: &[(u32, usize, usize, usize)], chu
         let mut d_data = Pooled::take(&dev, data.len())?;
         dev.htod_sync_copy_into(as_u64s(&data), d_data.get_mut()).map_err(|e| format!("data upload: {e}"))?;
         let d_pads = dev.htod_sync_copy(as_u64s(&pads)).map_err(|e| format!("pads upload: {e}"))?;
+        note_raw_alloc(pads.len() * 8);
         let d_pows = dev.htod_sync_copy(as_u64s(&pows)).map_err(|e| format!("pows upload: {e}"))?;
+        note_raw_alloc(pows.len() * 8);
         let log_nn = nn.trailing_zeros();
         let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q_pad, nn, log_cols, log_nn, chunk)?;
         bad_leaves += leaves.iter().zip(cpu_leaves.iter()).filter(|(a, b)| a != b).count();
@@ -2235,6 +2325,7 @@ impl Gpu {
     fn hash_cols(&self, enc: &CudaSlice<u64>, rows: usize, nn: usize) -> Result<Vec<Digest>, String> {
         let f = self.dev.get_func(MODULE, "k_hash_cols").ok_or("k_hash_cols missing")?;
         let mut d_leaves = unsafe { self.dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+        note_raw_alloc(nn * 8 * 4);
         let cfg = LaunchConfig::for_num_elems(nn as u32);
         unsafe { f.launch(cfg, (enc, &mut d_leaves, rows as i32, nn as i32)) }.map_err(|e| format!("k_hash_cols: {e}"))?;
         let words = self.dev.dtoh_sync_copy(&d_leaves).map_err(|e| format!("leaves download: {e}"))?;
@@ -2287,7 +2378,9 @@ pub fn dev_columns(dc: &DevCommit, idx: &[usize]) -> Result<Vec<Vec<Fp>>, String
     };
     let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
     let d_idx = dev.htod_sync_copy(&idx32).map_err(|e| e.to_string())?;
+    note_raw_alloc(idx32.len() * 4);
     let mut d_out = unsafe { dev.alloc::<u64>(rows * q) }.map_err(|e| e.to_string())?;
+    note_raw_alloc(rows * q * 8);
     let f = dev.get_func(MODULE, "k_gather_cols").ok_or("k_gather_cols missing")?;
     let cfg = LaunchConfig::for_num_elems((rows * q) as u32);
     unsafe { f.launch(cfg, (enc.get(), &mut d_out, &d_idx, rows as i32, nn as i32, q as i32)) }.map_err(|e| format!("k_gather_cols: {e}"))?;
@@ -2942,11 +3035,13 @@ pub fn dev_commit_zk_from(params: &PcsParams, d_data: Pooled, rows: usize, pads:
     // pad/coset step (~21.5 MiB at the Mistral W shape, against 5,387 freed).
     let t_up0 = Instant::now();
     let d_pads = dev.htod_sync_copy(as_u64s(pads)).map_err(|e| format!("pads upload: {e}"))?;
+    note_raw_alloc(pads.len() * 8);
     let d_pows = dev.htod_sync_copy(as_u64s(pows)).map_err(|e| format!("pows upload: {e}"))?;
+    note_raw_alloc(pows.len() * 8);
     // [ZK60-CL4 review] pads/powers are RAW device capacity, not pooled, and a
     // chunked commitment RETAINS them for its deferred opening. Counting them
     // is the difference between a capacity claim and an untestable one.
-    note_raw_alloc((pads.len() + pows.len()) * 8);
+    // [round-7 review] one note per allocation, not one per pair.
     // [ZK60-CL4] the caller's own EXCLUSIVE interval: a TRANSFER, not an NTT.
     let t_upload = t_up0.elapsed().as_secs_f64();
     stats_with(|s| s.bytes_h2d += ((pads.len() + pows.len()) * 8) as u64);
