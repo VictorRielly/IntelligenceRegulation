@@ -170,13 +170,26 @@ class Cl3Modes(unittest.TestCase):
 
     def test_post_return_fields_are_mode_aware(self):
         """A chunked commitment returns NO encoded matrix and retains pads and
-        powers instead; the resident-only fields were wrong for it."""
+        powers instead; the resident-only fields were wrong for it.
+
+        [round-7 review] and its scratch goes back to the POOL: the earlier
+        `new_pool_bytes_after_return == 0` for a cold chunked call was WRONG —
+        coef, coef2, enc and the blake3 state are Pooled and return on drop.
+        Only the raw leaf buffer is freed."""
         res = plan.commitment_plan(**self.SHAPE)
         chu = plan.commitment_plan(**self.SHAPE, mode="chunked")
         self.assertGreater(res["new_pool_bytes_after_return"], 0)
-        self.assertEqual(chu["new_pool_bytes_after_return"], 0)
+        b = chu["buffers_bytes"]
+        scratch = b["chunk_coefficients"] + b["chunk_expanded"] + b["chunk_encoded"] + b["blake3_column_state"]
+        self.assertEqual(chu["new_pool_bytes_after_return"], scratch)
+        self.assertEqual(chu["pool_bytes_after_return"], scratch)
         self.assertLess(chu["commitment_live_after_return_bytes"],
                         res["commitment_live_after_return_bytes"])
+        self.assertEqual(chu["commitment_live_after_return_bytes"],
+                         b["systematic_data"] + b["pads"] + b["coset_powers"])
+        last = chu["stages"][-1]
+        self.assertNotIn("device_leaf_hashes", last["live_buffers"], "the leaf buffer is FREED by the callee")
+        self.assertEqual(len(last["pooled_buffers"]), 4)
 
     def test_bad_mode_and_pool_state_are_rejected(self):
         with self.assertRaises(ValueError):
@@ -189,3 +202,138 @@ class Cl3Modes(unittest.TestCase):
         joined = " ".join(r["unaccounted"])
         self.assertNotIn("still allocates both full expanded buffers", joined)
         self.assertIn("NOT a whole-prover bound", joined)
+
+
+class PoolLifetimes(unittest.TestCase):
+    """[ZK60 round-7 review] Ownership across reuse: each buffer counted once by
+    capacity; take_min transfers a pooled capacity to its new owner; a warm
+    pool is an inventory. Pure arithmetic — and one case is reconciled against
+    the device counters the Rust test measured."""
+
+    SMALL = dict(rows=2000, log_cols=14, inv_rate=4, q_pad=256, ntt_max_log=16)
+
+    def sizes(self, rows, log_cols, inv_rate, q_pad, chunk=128, **_):
+        n, nn = 1 << log_cols, (1 << log_cols) * inv_rate
+        return dict(data=rows * n * 8, pads=rows * q_pad * 8, pows=nn * 8, leaves=nn * 32,
+                    res_coef=rows * n * 8, res_enc=rows * nn * 8,
+                    coef=chunk * n * 8, enc=chunk * nn * 8,
+                    state=((plan.B3_STATE_SLOTS * nn + 1) // 2) * 8)
+
+    def test_fallback_serves_the_retry_from_the_released_pair_by_capacity(self):
+        s = self.sizes(**self.SMALL)
+        f = plan.commitment_plan(**self.SMALL, mode="fallback")
+        loop = next(e for e in f["stages"] if e["stage"] == "chunked retry loop")
+        live = {b.split(" [")[0]: b for b in loop["live_buffers"]}
+        self.assertIn("reused inverse_coefficients", live["chunk_coefficients"])
+        self.assertIn("reused expanded_coefficients", live["chunk_expanded"])
+        self.assertIn("[fresh]", live["chunk_encoded"])
+        self.assertIn("[fresh]", live["blake3_column_state"])
+        self.assertEqual(loop["retained_pool_bytes"], 0, "both released buffers are OWNED again, not pooled")
+        # peak = data + pads + pows + rows*n (as coef) + rows*nn (as coef2) + enc + state + leaves
+        expect = (s["data"] + s["pads"] + s["pows"] + s["res_coef"] + s["res_enc"]
+                  + s["enc"] + s["state"] + s["leaves"] + f["twiddle_bytes"])
+        self.assertEqual(f["component_peak_accounted_bytes"], expect)
+        # the additive no-reuse count is larger by exactly the two reused takes
+        self.assertEqual(f["no_reuse_bound_bytes"] - f["component_peak_accounted_bytes"], s["coef"] + s["enc"])
+        sim = f["pool_simulation"]
+        self.assertEqual(sim["refused_request_bytes"], s["res_enc"])
+        self.assertEqual(sim["reuse_count"], 2)
+        self.assertEqual(sim["reuse_capacity_bytes"], s["res_coef"] + s["res_enc"])
+        self.assertEqual(sim["reuse_requested_bytes"], s["coef"] + s["enc"])
+        self.assertEqual(sim["fresh_pool_bytes"], s["data"] + s["res_coef"] + s["res_enc"] + s["enc"] + s["state"])
+
+    def test_the_refused_take_allocates_nothing(self):
+        f = plan.commitment_plan(**self.SMALL, mode="fallback")
+        stages = {e["stage"].split(":")[0]: e for e in f["stages"]}
+        before = stages["drop(coef)"]
+        refused = stages["encoded buffer (rows*nn) REFUSED"]
+        self.assertEqual(before["accounted_device_bytes"], refused["accounted_device_bytes"])
+        self.assertEqual(refused["fresh_pool_bytes_so_far"], before["fresh_pool_bytes_so_far"])
+
+    def test_warm_is_an_inventory_of_the_previous_calls_shapes(self):
+        s = self.sizes(**self.SMALL)
+        cold = plan.commitment_plan(**self.SMALL, mode="chunked", pool_state="cold")
+        warm = plan.commitment_plan(**self.SMALL, mode="chunked", pool_state="warm")
+        self.assertEqual(sorted(warm["pool_simulation"]["inventory"]),
+                         sorted(["prior chunk_coefficients:%d" % s["coef"], "prior chunk_expanded:%d" % s["enc"],
+                                 "prior chunk_encoded:%d" % s["enc"], "prior blake3_column_state:%d" % s["state"],
+                                 "prior systematic_data:%d" % s["data"]]))
+        self.assertEqual(warm["pool_simulation"]["fresh_pool_bytes"], 0)
+        self.assertEqual(warm["newly_allocated_capacity_bytes"], warm["raw_non_poolable_bytes"])
+        self.assertEqual(warm["new_pool_bytes_after_return"], 0, "nothing NEW enters the pool on a warm call")
+        self.assertEqual(warm["pool_delta_bytes_after_return"], -s["data"], "the data buffer left the pool for the commitment")
+        self.assertEqual(cold["component_peak_accounted_bytes"], warm["component_peak_accounted_bytes"])
+        # with reuse disabled the warm inventory is dead weight on top of fresh scratch
+        self.assertGreater(warm["no_reuse_bound_bytes"], cold["no_reuse_bound_bytes"])
+
+    def test_a_resident_warmed_pool_serves_chunked_scratch_oversize(self):
+        s = self.sizes(**self.SMALL)
+        r = plan.commitment_plan(**self.SMALL, mode="chunked", pool_state="warm-resident")
+        sim = r["pool_simulation"]
+        # data: exact rows*n; coef: the other rows*n; coef2 and enc: the two rows*nn; state: fresh
+        self.assertEqual(sim["reuse_count"], 4)
+        self.assertEqual(sim["reuse_capacity_bytes"], 2 * s["res_coef"] + 2 * s["res_enc"])
+        self.assertEqual(sim["reuse_requested_bytes"], s["data"] + s["coef"] + 2 * s["enc"])
+        self.assertEqual(sim["fresh_pool_bytes"], s["state"])
+        self.assertEqual(r["new_pool_bytes_after_return"], s["state"], "only the fresh state is NEW pool capacity")
+        # capacity is what the card holds: the oversize buffers dominate the peak
+        self.assertGreater(r["component_peak_accounted_bytes"],
+                           plan.commitment_plan(**self.SMALL, mode="chunked")["component_peak_accounted_bytes"])
+
+    def test_reconciles_with_the_device_counters_at_the_oracle_probe_shape(self):
+        """The Rust test `the_chunked_retry_reuses_pooled_capacity...` measured,
+        on the RTX 4070 (results in c346236's message), a forced-chunk probe at
+        (log_cols 10, rate 4, rows 300, q 16) on a pool warmed by a RESIDENT
+        commit of the same shape: fresh 3,162,112 B in 1 allocation, reuse
+        capacity 46,694,400 B against 21,331,968 B requested. The probe also
+        OPENS the commitment (3 more take_min reuses: rows*n + 2 x rows*nn
+        capacity for coef + 2 x enc requested), which this component does not
+        model; subtracting that share must land exactly on the planner."""
+        s = self.sizes(rows=300, log_cols=10, inv_rate=4, q_pad=16)
+        r = plan.commitment_plan(300, 10, 4, 16, mode="chunked", pool_state="warm-resident")
+        sim = r["pool_simulation"]
+        measured_fresh, measured_capacity, measured_requested = 3_162_112, 46_694_400, 21_331_968
+        opening_capacity = s["res_coef"] + 2 * s["res_enc"]
+        opening_requested = s["coef"] + 2 * s["enc"]
+        self.assertEqual(sim["fresh_pool_bytes"], measured_fresh)
+        self.assertEqual(sim["fresh_pool_count"], 1)
+        self.assertEqual(sim["reuse_capacity_bytes"], measured_capacity - opening_capacity)
+        self.assertEqual(sim["reuse_requested_bytes"], measured_requested - opening_requested)
+        # and the raw side: pads + powers + leaves here; the device adds the opening's idx + out
+        measured_raw = 240_704
+        self.assertEqual(r["raw_non_poolable_bytes"], measured_raw - (16 * 4 + 300 * 16 * 8))
+
+    def test_explicit_inventory_and_its_refusals(self):
+        s = self.sizes(**self.SMALL)
+        r = plan.commitment_plan(**self.SMALL, mode="chunked", pool_inventory_bytes=[s["state"]])
+        sim = r["pool_simulation"]
+        # take_min serves the FIRST fitting request from the inventory: the
+        # 16 MiB coefficient scratch is served by the 48 MiB state-sized
+        # buffer (oversize reuse), so the state itself is then allocated fresh.
+        self.assertEqual(sim["reuse_count"], 1)
+        self.assertEqual(sim["reuse_capacity_bytes"], s["state"])
+        self.assertEqual(sim["reuse_requested_bytes"], s["coef"])
+        self.assertEqual(sim["fresh_pool_bytes"], s["data"] + 2 * s["enc"] + s["state"])
+        loop = next(e for e in r["stages"] if e["stage"] == "chunk loop")
+        self.assertTrue(any(b.startswith("chunk_coefficients [reused inventory") for b in loop["live_buffers"]))
+        with self.assertRaises(ValueError):
+            plan.commitment_plan(**self.SMALL, mode="resident", pool_inventory_bytes=[1])
+        with self.assertRaises(ValueError):
+            plan.commitment_plan(**self.SMALL, mode="chunked", pool_inventory_bytes=[])
+        with self.assertRaises(ValueError):
+            plan.commitment_plan(**self.SMALL, mode="chunked", pool_inventory_bytes=[0])
+
+    def test_cli_accepts_the_inventory_forms(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(plan.main(["--rows", "2000", "--mode", "fallback", "--pool-state", "warm-resident",
+                                        "--ntt-max-log", "16"]), 0)
+        r = json.loads(out.getvalue())
+        self.assertEqual(r["pool_state"], "warm-resident")
+        self.assertIn("no_reuse_bound_bytes", r)
+        self.assertFalse(r["safe_to_run"])
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(plan.main(["--rows", "2000", "--mode", "chunked", "--pool-inventory-bytes", "50593792",
+                                        "--ntt-max-log", "16"]), 0)
+        self.assertEqual(json.loads(out.getvalue())["pool_simulation"]["inventory"], ["inventory:50593792"])
