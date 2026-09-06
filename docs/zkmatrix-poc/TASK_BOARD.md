@@ -1,5 +1,15 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**ZK60 round 8 validated:** Codex completes CL9's production handoff with
+exclusive per-writer cache files and atomic publication, preserving complete
+entries for concurrent readers. The old code lost 65/96 saves in the new
+regression; thread/process, stale-name, reader and cleanup controls pass with
+the fix. ZK v3 now reports cache hits/misses. **151 Rust tests, 144 Python/native
+tests with zero skips, four frozen proofs, cold/warm full-byte cache parity
+and public-receipt checks pass.** [Closure and validation provenance](ZK60_ROUND8.md)
+separate the full run from the final cleanup retest. Reviews/todos are already
+pushed as `a0495dc`; independent privacy review and final GPU gates remain open.
+
 **Immediate Claude pickup, round 8:** the final floor launcher has deadlocked
 **twice** by taking `/tmp/zk-build.lock` outside `cl1_floors.sh`, which requests
 the same lock inside. Both attempts stopped before compilation; Codex
@@ -15,8 +25,8 @@ detached log/exit-marker wrapper, without an outer build lock. Pick up H1
 isolation from published `3ff8d5f` before the final gate.
 [Round-8 review](ZK60_ROUND8_CLAUDE_REVIEW.md) records 215 passing CPU tool
 tests, resolved findings and new CL6/CL7/CL11 follow-ups. Codex owns CL9's
-`wcache.rs` and ZK driver-report fix; its final Rust/cache checks are running
-after a completed 144-test Python/native suite.
+`wcache.rs` and ZK driver-report fix; its final Rust/cache checks and the
+144-test Python/native suite pass as recorded above.
 
 **ZK60 round 7 validated:** the [actual FFN diagnostic](ZK60_FFN_MASK_DIAGNOSTIC.md)
 reproduces tiny X/h16 recovery and T32 linear-functional disclosure from

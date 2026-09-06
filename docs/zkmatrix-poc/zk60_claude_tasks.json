@@ -68,7 +68,7 @@
         "CL2",
         "CL3"
       ],
-      "status": "parser fixed and CPU controls pass; final launch deadlocked on nested build lock, recorded exit 1 before build; relaunch correctly after H1 isolation pickup",
+      "status": "parser fixed and CPU controls pass; two final launches deadlocked on nested build lock before compilation, both recorded exit 1; use outer heavy lock only and pick up H1 isolation before relaunch",
       "review_followups": [
         "Use only the outer heavy lock around cl1_floors.sh; it already acquires the build lock internally.",
         "Pick up H1 isolation from 3ff8d5f; run full final-source CPU/GPU/forced-chunk gates with retained logs and exact identities.",
@@ -212,7 +212,7 @@
         "CL2",
         "CL4"
       ],
-      "status": "explicit production handoff accepted by Codex: atomic cache publication and ZK cache report implemented locally; full validation running",
+      "status": "Codex production handoff validated: exclusive per-writer atomic cache publication, final cleanup ownership and ZK cache report; 151 Rust tests and cold/warm full-byte frozen parity; ready for lane pickup",
       "files": [
         "hashline/src/gpu/",
         "hashline/src/pcs.rs",

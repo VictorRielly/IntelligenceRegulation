@@ -50,8 +50,21 @@ Python/native suite passes **144 tests with zero skips in 915.287 seconds**.
 The full run completes under `/tmp/zk60-round8/validation` with exit marker 0.
 A final cleanup correction disarms the temporary pathname after successful
 publication; its extended reader test checks reuse by a new owner. Final
-Rust/cache checks for that adjustment are running in
-`/tmp/zk60-round8/final-cache`; Python/native code is unchanged.
+Rust/cache checks for that adjustment also pass: 151 all-target tests,
+67 library tests with sixteen test threads, identical cold/warm frozen ZK v3
+proofs and the expected P3 refusal. The final marker is 0 under
+`/tmp/zk60-round8/final-cache`.
+
+The [validation record](../../results/zk60_round8_validation.json) records
+both runs, their source/binary/log hashes and the test-stage provenance.
+Python/native code is unchanged after its full successful run. The final
+guard adjustment affects configured cache writes only; the four uncached
+frozen proofs and public-receipt checks retain their full-run evidence.
+Maximum reported RSS is 1,707,400 KiB with zero swaps. No GPU was launched.
+
+Round-7 source/evidence is published as `3ff8d5f`; the reviewed Claude queue
+and urgent launcher correction are published as `a0495dc`. This closure
+publishes the validated cache fix and evidence on the same performance branch.
 
 The [pinned Claude review](ZK60_ROUND8_CLAUDE_REVIEW.md) runs 215 Python tool
 tests and reviews all fifteen archived matrix rows. Several earlier findings

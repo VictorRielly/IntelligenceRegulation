@@ -10,8 +10,10 @@ as `5657a8d`. Read the latest task board and actual branch tip before pickup.
 
 **Round 8, latest pin `a1aa2b7`:** [the follow-up review](ZK60_ROUND8_CLAUDE_REVIEW.md)
 credits the planner/parser/CL5/CL8/CL10 corrections and records 215 passing
-CPU tool tests. Codex takes CL9's proposed `wcache.rs` publication fix and ZK
-driver report; those files are actively owned by Codex in [round 8](ZK60_ROUND8.md).
+CPU tool tests. Codex completes CL9's proposed `wcache.rs` publication fix and
+ZK driver report in [round 8](ZK60_ROUND8.md), with 151 Rust tests and exact
+cold/warm frozen-proof parity. Pick up the validated source before extending
+the cache; no GPU/PCS/planner ownership changed.
 New ready work: CL6 must validate timed-row exits/clocks, CL11 must bind real
 nonzero floor evidence to source/binary/device and keep unsupported target
 coverage refused. **The final floors launch deadlocked on a nested build
