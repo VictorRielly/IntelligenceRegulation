@@ -37,6 +37,10 @@ say "source identity"
 echo "HEAD      $(git --no-pager -C $R rev-parse HEAD)"
 echo "branch    $(git --no-pager -C $R rev-parse --abbrev-ref HEAD)"
 echo "dirty     $(git --no-pager -C $R status --porcelain --untracked-files=no | wc -l) tracked file(s) modified"
+# [round-7 review] HEAD plus a dirty count cannot identify dirty build inputs;
+# the content hash of the uncommitted delta under hashline/ can. On a clean
+# checkout this is the hash of the empty diff (e3b0c442..).
+echo "dirty-delta sha256 (hashline/)  $(git --no-pager -C $R diff HEAD -- hashline | sha256sum | cut -d' ' -f1)"
 echo "scratch   $SP (per-gate prover logs are retained here)"
 
 say "CPU build"
@@ -73,13 +77,23 @@ grep -E '^test result:|panicked|FAILED' "$ORACLE_LOG" | head -5
 SUMMARY=$(grep 'ZK60_CL4_SUMMARY' "$ORACLE_LOG" | tail -1 | sed 's/^.*ZK60_CL4_SUMMARY //')
 echo "oracle summary: ${SUMMARY:-<none emitted>}"
 if [ "$orc" != 0 ]; then echo "FAILURE: CL1 GPU oracle suite exited $orc"; fail=1; fi
-if ! python3 -c '
+# [round-7 review, Codex] the first version of this parser put `\"` escapes
+# inside f-string expressions, which Python 3.10 refuses (SyntaxError:
+# f-string expression part cannot include a backslash) — so the gate could
+# not have passed. Values are bound to plain names first now, and the parser
+# is exercised on its own by `python3 -c` below before any oracle run.
+ORACLE_PARSE='
 import json, sys
 s = json.loads(sys.argv[1]); floor = int(sys.argv[2])
-ok = s["gpu_enabled"] is True and s["gpu_required"] is True and s["executed_cases"] >= floor
-print(f"oracle cases executed: {s[\"executed_cases\"]} (floor {floor}); device: {s[\"device\"]}")
+cases = s.get("executed_cases"); device = s.get("device")
+ok = s.get("gpu_enabled") is True and s.get("gpu_required") is True and isinstance(cases, int) and cases >= floor
+print("oracle cases executed: %s (floor %d); device: %s" % (cases, floor, device))
 sys.exit(0 if ok else 1)
-' "${SUMMARY:-{}}" "$ORACLE_MIN_CASES"; then
+'
+if ! python3 -c "$ORACLE_PARSE" '{"executed_cases":99,"gpu_enabled":true,"gpu_required":true,"device":"self-test"}' 1 >/dev/null; then
+  echo "FAILURE: the embedded oracle-summary parser does not run on this Python"; fail=1
+fi
+if ! python3 -c "$ORACLE_PARSE" "${SUMMARY:-{}}" "$ORACLE_MIN_CASES"; then
   echo "FAILURE: the oracle suite did not prove >= $ORACLE_MIN_CASES executed cases on an enabled device"; fail=1
 fi
 
