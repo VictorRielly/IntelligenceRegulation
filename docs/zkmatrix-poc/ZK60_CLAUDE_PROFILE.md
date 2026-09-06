@@ -302,6 +302,36 @@ sits inside a 14.9% three-run spread. Not separated; not extrapolated.
   archived as `cl5_sample_p1cold.log`. The re-run makes all fifteen
   reproducible from committed evidence.
 
+### 5.4 The hardened runner WAS re-executed (2026-09-06 10:00, after §5.2 was written)
+
+`results/cl5_matrix_r7.log`, marker 0; per-run logs and
+`results/cl5_r7/cl5_evidence.tsv` committed (the run's 49 MB weight-cache
+directory is not). **15 of 15 cases executed, every one exit 0, `gpu: ON`,
+ACCEPT, `verified:true`, proof file sha256 and length equal to the prover's
+own PROOF line.** The bytes:
+
+| config | proof sha256 (all three reps) | bytes | wcache |
+|---|---|---:|---|
+| p0 | `5f368db6240e0614..` — the frozen `v3` gate digest | 70,758,084 | none |
+| p1cold | `40eb54795e023c77..` — the frozen `zkv3` gate digest | 87,697,008 | 12 MISS / 0 HIT |
+| p1warm | identical | 87,697,008 | 12 HIT / 0 MISS |
+| p1nocache | identical | 87,697,008 | none |
+| p3 | `be8d13cc5c2d1b2d..` | 88,189,680 | none (refused by the mode) |
+
+The P1 byte gate the runner enforces — cold == warm == nocache — held, and
+the parser marks all fifteen rows eligible with the cache state read from
+each log itself. The P3 digest is the one CL9's fresh uncached CPU process
+produced the same morning (`ZK60_CLAUDE_CACHE.md` §7): a CPU/GPU byte
+identity for P3 at 12x512 that neither run set out to measure.
+
+**The seconds from this run are NOT comparable to §1** and are not
+promoted into it: P0 proved in 2.64-2.66 s, P1 in 5.78-7.88 s, P3 in
+7.28-7.35 s against §1's 2.24 / 5.38-5.48 / 5.82 s. The run overlapped a
+parallel agent's CPU prover passes on this box (the build lock serialises
+builds, not running binaries), so the clocks are inflated 20-35% and the
+spread is wider. The byte evidence is what this re-execution was for; a
+quiet-box repeat is still the way to refresh §1's numbers.
+
 ### 5.3 Proposed for files this lane does not own
 
 - `hashline/src/bin/hashline.rs`: `pass_v3` prints `wcache::report()` (the

@@ -1,0 +1,130 @@
+git HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 (uncommitted tracked changes under hashline/: 1)
+binary /home/victor/wt-zk60-cl1/hashline/target-gpu/release/hashline sha256 e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export
+NVIDIA GeForce RTX 4070 Laptop GPU, 161 MiB, 8188 MiB
+
+=== P0 — no ZK, public everything ===
+2026-09-06 09:59:43
+
+=== p0 rep 1 ===
+2026-09-06 09:59:43
+161 MiB
+exit 0
+EVIDENCE p0 rep 1: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B) | wcache hits 0 misses 0 (none) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.797045911,"prove_s":2.656337264,"serialize_s":0.091457931,"proof_ready_s":4.558179442,"verify_s":0.454887448,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}
+
+=== p0 rep 2 ===
+2026-09-06 09:59:52
+161 MiB
+exit 0
+EVIDENCE p0 rep 2: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B) | wcache hits 0 misses 0 (none) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.795356093,"prove_s":2.658635219,"serialize_s":0.116994332,"proof_ready_s":4.588546998,"verify_s":0.454039286,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}
+
+=== p0 rep 3 ===
+2026-09-06 10:00:00
+161 MiB
+exit 0
+EVIDENCE p0 rep 3: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B) | wcache hits 0 misses 0 (none) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.865944557,"prove_s":2.641317548,"serialize_s":0.107462018,"proof_ready_s":4.625987275,"verify_s":0.434064391,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}
+
+=== P1 — hiding activations, PUBLIC weights, COLD weight cache ===
+2026-09-06 10:00:09
+
+=== p1cold rep 1 ===
+2026-09-06 10:00:09
+161 MiB
+exit 0
+EVIDENCE p1cold rep 1: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) | wcache hits 0 misses 12 (cold) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.809625825,"prove_s":7.058444036,"serialize_s":0.123552575,"proof_ready_s":9.003896631,"verify_s":0.762227318,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+
+=== p1cold rep 2 ===
+2026-09-06 10:00:23
+161 MiB
+exit 0
+EVIDENCE p1cold rep 2: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) | wcache hits 0 misses 12 (cold) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.996078940,"prove_s":7.110600227,"serialize_s":0.131365175,"proof_ready_s":9.243014090,"verify_s":0.939714373,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+
+=== p1cold rep 3 ===
+2026-09-06 10:00:37
+161 MiB
+exit 0
+EVIDENCE p1cold rep 3: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) | wcache hits 0 misses 12 (cold) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":2.151776911,"prove_s":7.883746493,"serialize_s":0.152149224,"proof_ready_s":10.204071164,"verify_s":0.929981487,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+
+=== P1 — WARM weight cache (same directory reused, populated by the last cold rep) ===
+2026-09-06 10:00:53
+
+=== p1warm rep 1 ===
+2026-09-06 10:00:53
+161 MiB
+exit 0
+EVIDENCE p1warm rep 1: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) | wcache hits 12 misses 0 (warm) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":2.090743786,"prove_s":7.420112405,"serialize_s":0.123858040,"proof_ready_s":9.651280816,"verify_s":0.794896598,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+
+=== p1warm rep 2 ===
+2026-09-06 10:01:08
+161 MiB
+exit 0
+EVIDENCE p1warm rep 2: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) | wcache hits 12 misses 0 (warm) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.816898320,"prove_s":6.927665441,"serialize_s":0.130730834,"proof_ready_s":8.884474015,"verify_s":0.741524848,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+
+=== p1warm rep 3 ===
+2026-09-06 10:01:22
+161 MiB
+exit 0
+EVIDENCE p1warm rep 3: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) | wcache hits 12 misses 0 (warm) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.885468339,"prove_s":7.165142707,"serialize_s":0.124666357,"proof_ready_s":9.183169215,"verify_s":0.741231346,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+
+=== P3 — PRIVATE weights, cache refused by the mode (so none is configured) ===
+2026-09-06 10:01:35
+
+=== p3 rep 1 ===
+2026-09-06 10:01:35
+161 MiB
+exit 0
+EVIDENCE p3 rep 1: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 be8d13cc5c2d1b2d515854c30dbc8330c5e4165c0cdc4cb641472ae5744d3bea (88189680 B) | wcache hits 0 misses 0 (none) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P3","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.821527634,"prove_s":7.348940722,"serialize_s":0.118902000,"proof_ready_s":9.295847462,"verify_s":0.763560972,"verified":true,"proof_bytes":88189680,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+
+=== p3 rep 2 ===
+2026-09-06 10:01:49
+161 MiB
+exit 0
+EVIDENCE p3 rep 2: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 be8d13cc5c2d1b2d515854c30dbc8330c5e4165c0cdc4cb641472ae5744d3bea (88189680 B) | wcache hits 0 misses 0 (none) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P3","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.829039829,"prove_s":7.279967148,"serialize_s":0.134614005,"proof_ready_s":9.251510544,"verify_s":0.771806095,"verified":true,"proof_bytes":88189680,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+
+=== p3 rep 3 ===
+2026-09-06 10:02:03
+161 MiB
+exit 0
+EVIDENCE p3 rep 3: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 be8d13cc5c2d1b2d515854c30dbc8330c5e4165c0cdc4cb641472ae5744d3bea (88189680 B) | wcache hits 0 misses 0 (none) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P3","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.786963446,"prove_s":7.340886515,"serialize_s":0.128126026,"proof_ready_s":9.263931693,"verify_s":0.743598975,"verified":true,"proof_bytes":88189680,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+
+=== P1 — no cache directory (the byte-gate configuration) ===
+2026-09-06 10:02:17
+
+=== p1nocache rep 1 ===
+2026-09-06 10:02:17
+161 MiB
+exit 0
+EVIDENCE p1nocache rep 1: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) | wcache hits 0 misses 0 (none) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.766651732,"prove_s":6.867197867,"serialize_s":0.121934365,"proof_ready_s":8.764590791,"verify_s":0.759232297,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+
+=== p1nocache rep 2 ===
+2026-09-06 10:02:30
+161 MiB
+exit 0
+EVIDENCE p1nocache rep 2: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) | wcache hits 0 misses 0 (none) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.815900633,"prove_s":6.897260267,"serialize_s":0.125288967,"proof_ready_s":8.846627888,"verify_s":0.722507512,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+
+=== p1nocache rep 3 ===
+2026-09-06 10:02:43
+161 MiB
+exit 0
+EVIDENCE p1nocache rep 3: exit 0 | gpu ON | PASS-V3 ACCEPT | proof sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) | wcache hits 0 misses 0 (none) | HEAD ded8dc4c9eed5f38f9807a37333ca8428b63e0d4 | binary e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.772777189,"prove_s":5.779105720,"serialize_s":0.116459590,"proof_ready_s":7.678473416,"verify_s":0.478970873,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+P1 byte gate: cold == warm == nocache == 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17
+executed matrix cases: 15 (expect 15)
+evidence: /home/victor/wt-zk60-cl1/results/cl5_r7/cl5_evidence.tsv
+
+=== DONE ===
+2026-09-06 10:02:55
