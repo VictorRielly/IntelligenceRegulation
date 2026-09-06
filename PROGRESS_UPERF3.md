@@ -14452,3 +14452,64 @@ repair; Fable = independent privacy/identity audit; private block integration
 follows reviewed prerequisites. See `ZK60_PARALLEL_ROUND4.md` and
 `ZK60_STATUS.md`. Complete private LLM proofs and 60 tokens/s on one GPU
 remain unachieved; no 5090 measurement was made.
+
+## ZK60 round 5 — publication, hardening and a substantial Claude queue
+
+Victor requested commit/push and continued work, with enough tasks to use
+Claude's speed. Round 4 committed and pushed as `5657a8d`. Ownership declared
+before work in `docs/zkmatrix-poc/ZK60_PARALLEL_ROUND5.md`: isolated Codex
+workers handle verifier denominator refusal and Python fixture configuration;
+independent reviewer inspects CL1 read-only; lead integrates and publishes.
+
+CL1 review now holds unconditional integration pending concrete deferred-NTT,
+strict reference mode, incomplete fallback/pool accounting, double timing and
+vacuous-device-test findings. No GPU reproduction or privacy audit by Codex.
+Observed Claude tip `c9fc897` adds a docs-only pool-memory correction after
+`15eeda6`; the corrected resident component peak agrees with M1 (~13,492 MiB).
+No CL1 code was discarded or merged, and no large laptop GPU run was launched.
+
+The ten-task queue CL2–CL11 in `ZK60_CLAUDE_QUEUE.md` and
+`zk60_claude_tasks.json` covers correctness/fallback, required GPU gates,
+phase profiling, chunk scheduling, residency, pending-block memory, safe
+public-weight caches, artifact costs and 5090 qualification. GPU/PCS ownership
+stays with Claude; the memory planner/tests explicitly transfer for CL3.
+One active GPU core writer at a time, with disjoint report/test tasks available
+in parallel. These are documented assignments, not claims Claude has run them.
+
+### ZK60 round 5 closure — H1/R1 green, no CL1 merge
+
+H1 adds a canonical-Fp2 checked batch inverse and explicit errors in the
+attention and FFN v2/v3 verifier paths. Prover arithmetic, RNG order and
+accepted transcripts remain unchanged. Five deterministic unit-only
+late-challenge collision tests exercise actual production refusal branches
+and caller propagation; no production override or found Fiat–Shamir preimage
+is claimed. The lead reviewed the narrow attention source change and accepted
+its new drift hash explicitly; all three frozen runtime trace pins remain.
+
+R1 fixes native fixture selection without copying tensors or weakening freeze
+assertions. The helper checks complete fixed export metadata/byte sizes,
+honors explicit M125_EXPORT_DIR without silent fallback, and rejects the
+higher-precedence incompatible ZK_MODEL_EXPORT_DIR. Invalid configuration
+fails visibly. Fifteen configuration tests and six native caller checks pass.
+
+Final combined gate: **129 release Rust tests; 144 full Python/native tests,
+zero failures and zero skips; four unchanged frozen CPU proof artifacts**,
+all exit 0. The existing public receipt independently verifies and reproves
+to the same full SHA-256 and 2,144,946 B. Full Python ran 921.316 s under two
+threads, CPU-only/offline, an 8 GiB per-process address-space cap, maximum
+reported RSS 1,707,192 KiB, no swaps. Both formerly skipped two-layer native
+smokes ran and passed. The first sandbox detached child never started; an
+approved host launcher ran the scoped job with persistent logs/exit marker.
+
+Exact commands, source/binary hashes, output summaries and limitations:
+`results/zk60_round5_validation.json`. New Rust-file formatting, whitespace
+and JSON checks pass. Independent H1/R1 review found no actionable introduced
+issue; all Codex workers/jobs completed. No legacy native, GPU/PCS, memory
+planner or Fable-owned source changed. Concurrent CL8 additions after Python
+discovery were preserved and excluded from this count/commit.
+
+Already pushed: `5657a8d` (round4 receipt) and `4a58f12` (ten Claude tasks and
+CL1 review). The H1/R1 source/evidence is now ready for its continuation commit.
+Claude still owns CL2–CL11; CL1 merge waits on the concrete review fixes.
+Fable's whole-profile privacy/identity audit, actual private block composition,
+generation coverage and the one-GPU 60-tokens/s measurement remain open.

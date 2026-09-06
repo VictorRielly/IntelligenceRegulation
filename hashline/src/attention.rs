@@ -782,7 +782,7 @@ pub fn verify_export(dir: &str, verbose: bool) -> (usize, usize) {
 //   LM packed limbs       a1/a2 16-bit limb pairs per norm site (T each)
 // ==========================================================================
 
-use crate::field::{batch_inverse2, Fp, Fp2};
+use crate::field::{batch_inverse2, batch_inverse2_checked, Fp, Fp2};
 use crate::layer::LayerParams;
 use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
 use crate::ntt::NttTables;
@@ -2759,11 +2759,20 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
                 if cnt == 0 { continue; }
                 let (v, aux) = tb.row(i, &exp);
                 let tv = Fp2::from_i64(v).add(beta.mul_base(Fp::from_i64(aux))).add(gt);
+                #[cfg(test)]
+                let alpha = if proving { alpha } else {
+                    crate::field::verifier_hardening_tests::lookup_alpha("attention", alpha, tv)
+                };
                 dens.push(alpha.sub(tv));
                 nums.push(Fp::new(cnt as u64));
             }
         }
-        batch_inverse2(&mut dens);
+        if proving {
+            batch_inverse2(&mut dens);
+        } else {
+            batch_inverse2_checked(&mut dens)
+                .map_err(|_| "attention LogUp: zero lookup denominator".to_string())?;
+        }
         let table_side = dens.iter().zip(nums.iter()).fold(Fp2::ZERO, |a, (d, n)| a.add(d.mul_base(*n)));
         ctx.check(hsum, table_side, "LogUp identity (a lookup is not in its table)")?;
     }

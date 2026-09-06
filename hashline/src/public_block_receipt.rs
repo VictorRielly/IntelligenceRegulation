@@ -131,14 +131,19 @@ impl PublicBlockReceipt {
     }
 }
 
-/// Pin the B3 fixed calibration and layer0. Approved model/calibration IDs and
+/// Pin the B3 fixed calibration and layer0/1. Approved model/calibration IDs and
 /// W roots may differ, but are trusted inputs and bound by the contract digest.
 /// This is intentionally narrower than all A00 contracts. No proof is executed
 /// to discover schema bounds, and no weights are generated during this check.
-fn check_profile(approved: &ApprovedP1BlockContract) -> Result<(), String> {
+pub(crate) fn check_profile(approved: &ApprovedP1BlockContract) -> Result<(), String> {
     let r = approved.registration();
+    if r.attention.layer > 1 || r.ffn.l != r.attention.layer {
+        return Err("unsupported public receipt calibration/layer".into());
+    }
     let mut reference =
         public_synthetic_registration(r.attention_weights.clone(), r.ffn_weights.clone());
+    reference.attention.layer = r.attention.layer;
+    reference.ffn.l = r.ffn.l;
     reference.model_identity = r.model_identity;
     reference.calibration_identity = r.calibration_identity;
     reference.mode = r.mode.clone();

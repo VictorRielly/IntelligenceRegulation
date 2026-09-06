@@ -2,6 +2,7 @@ import shutil
 import subprocess
 import unittest
 from pathlib import Path
+from regression_fixtures import m125_environment
 
 from zk_matrix import (
     commit_matmul,
@@ -118,6 +119,7 @@ class NativeBackendTests(unittest.TestCase):
             check=True,
             text=True,
             stdout=subprocess.PIPE,
+            env=m125_environment(ROOT),
         )
         self.assertIn("freeze-check passed", result.stdout)
 

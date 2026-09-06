@@ -5,21 +5,23 @@
 # printer (`t-blind expect`) are fast (real K arithmetic, toy shapes) and
 # run always. The composed P2+T_blind smoke on real ckpt data is a
 # minutes-scale lane/merge gate (`pass-agg prove .. p2`) and rides only
-# when the m125 exports exist, with a generous timeout.
+# with a complete selected m125 export, with a generous timeout. Missing or
+# invalid fixture configuration fails visibly rather than hiding a data gate.
 
 import os
 import subprocess
 import unittest
+from regression_fixtures import m125_environment
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RS = os.path.join(REPO, "zkmatrix-rs")
 BIN = os.path.join(RS, "target", "release", "ring_matmul")
-EXPORTS = os.path.join(REPO, "results", "m125_ffn_export", "layer00_X.bin")
 
 
-def run(args, timeout):
+def run(args, timeout, requires_exports=False):
     return subprocess.run(
-        [BIN] + args, cwd=RS, capture_output=True, text=True, timeout=timeout
+        [BIN] + args, cwd=RS, capture_output=True, text=True, timeout=timeout,
+        env=m125_environment(REPO) if requires_exports else None,
     )
 
 
@@ -51,7 +53,7 @@ class TBlindCertificate(unittest.TestCase):
     def test_freeze_rows(self):
         """freeze-check carries the UAGB1-BL rows and stays green (every
         pre-existing digest unmoved)."""
-        p = run(["freeze-check"], timeout=300)
+        p = run(["freeze-check"], timeout=300, requires_exports=True)
         self.assertEqual(p.returncode, 0, p.stdout[-3000:] + p.stderr[-3000:])
         self.assertIn("UAGB1-BL-1a", p.stdout)
         self.assertIn("UAGB1-BL-1b", p.stdout)
@@ -66,16 +68,12 @@ class TBlindCertificate(unittest.TestCase):
         self.assertNotEqual(p.returncode, 0)
         self.assertIn("ACTIVATION-side", p.stdout + p.stderr)
 
-    @unittest.skipUnless(
-        os.path.exists(EXPORTS),
-        "m125 exports absent - run scripts/m125_export_ffn.py under the frugal venv",
-    )
     def test_composed_p2_blind_smoke(self):
         """P2 + T_blind composed pass at 2 layers, T = 16 on REAL ckpt
         data: the weight round polynomials are masked, G/g_open grounded
         through the one weight-group opening, accept = true. Minutes-scale
         (level-0-dominated prover)."""
-        p = run(["pass-agg", "prove", "2", "16", "p2"], timeout=3600)
+        p = run(["pass-agg", "prove", "2", "16", "p2"], timeout=3600, requires_exports=True)
         self.assertEqual(p.returncode, 0, p.stdout[-4000:] + p.stderr[-4000:])
         self.assertIn("accept true", p.stdout)
         self.assertIn("T_blind", p.stdout)

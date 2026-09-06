@@ -1,6 +1,8 @@
 # B4 — externally bound public block receipt
 
-Experimental CPU-only P0, fixed B3 T32/d16/f16 calibration and layer0.
+Experimental CPU-only P0, fixed B3 T32/d16/f16 calibration. The original B4
+fixture/example uses layer 0; [round-6 B5](ZK60_PUBLIC_CHAIN.md) extends the
+checked library profile to layers 0/1 only, with unchanged layer-zero bytes.
 This is **not a private proof or a token-generation statement**. All fixture
 inputs/outputs are public; never send sensitive data through this path.
 The existing P1 approval object supplies authenticated metadata/weight roots,
@@ -128,12 +130,13 @@ tests, cross-domain tests and pre-extraction B3 root/metadata literal pins
 were added. This review is not a cryptographic security audit.
 
 The parser review found no structural count/slicing/consumption defect in
-the reviewed codec. This is **not a universally panic-free verifier**:
-legacy attention/FFN lookup code can assert if a challenge-derived denominator
-is zero. That exceptional path was identified by inspection, not reproduced.
-Explicit degenerate-denominator refusal and broader hostile-input hardening
-remain required before exposing a verification service. The bounded demo
-must not be advertised as a production-safe network endpoint.
+the reviewed codec. Round-5 [H1](ZK60_VERIFIER_HARDENING.md) now explicitly
+refuses zero lookup denominators in attention and both FFN verifier versions.
+Unit-only late-challenge injection exercises the actual refusal branches;
+it is not a naturally sampled collision or a Fiat–Shamir preimage attack.
+This is **not a universally panic-free verifier**: broader hostile-input,
+typed-input, resource and deployment hardening remains required. The bounded
+demo must not be advertised as a production-safe network endpoint.
 
 Still missing: private attention/FFN composition and its joint-transcript
 privacy review; full integer/range/no-wrap soundness; multi-block linkage in

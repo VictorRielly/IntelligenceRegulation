@@ -5,7 +5,20 @@ provide tasks for Fable and Claude. This is an execution queue, not a claim
 that the target has been achieved. Implementation began from `da626db`;
 Claude's subsequent round-16 handoff `19ebd18` is acknowledged.
 
-**Current continuation:** round 3 is committed/pushed through `87c5338`.
+**Current continuation:** round 4 is committed/pushed as `5657a8d`.
+Victor requested continued implementation and a substantial Claude queue:
+[ten tasks CL2–CL11](ZK60_CLAUDE_QUEUE.md) and [round-5 ownership](ZK60_PARALLEL_ROUND5.md).
+Codex's read-only [CL1 review](ZK60_CL1_INTEGRATION_REVIEW.md) holds integration
+pending explicit correctness/fallback/measurement follow-ups. Observed
+`c9fc897` adds the pooled-memory correction to `15eeda6`; CUDA source is unchanged.
+Codex verifier hardening and full Python fixture selection are validated:
+129 Rust tests, 144 full Python/native tests without skips, four frozen CPU
+artifacts and public receipt byte parity pass. Full evidence is in
+`results/zk60_round5_validation.json`; all Codex workers/jobs are complete.
+Claude retains GPU/PCS and takes the memory planner for CL3. Fable's review
+remains independent and outstanding.
+
+**Round-4 validation snapshot before publication:**
 [Overall milestone map](ZK60_STATUS.md) and [round-4 scope](ZK60_PARALLEL_ROUND4.md)
 track the externally bound public receipt/codec and remaining private/full-LLM
 gates. Round 4 is validated but not yet committed: 124 Rust/48 targeted Python
@@ -37,7 +50,7 @@ Round 16's predicate and L9 kernel work have landed; neither is a new task.
 |---|---|---|---|
 | Codex | C0: secure randomness, truthful command claims, complete timing, benchmark collector | `hashline/src/zk.rs`, `hashline/src/bin/hashline.rs`, `hashline/tests/cli_claims.rs`, `scripts/hashline_benchmark.py`, `tests/test_hashline_benchmark.py`, `results/zk60_foundations_validation.json`, this file | Implemented and integrated; see validation record below |
 | Fable | F1: adversarial model-identity review and consistency-proof design | `docs/zkmatrix-poc/ZK60_FABLE_REVIEW.md`, new `hashline/tests/zk60_model_identity.rs` | Ready for pickup in its own checkout |
-| Claude | CL1: bounded-memory private commitments on GPU | `hashline/src/gpu/`, `hashline/src/pcs.rs`, `docs/zkmatrix-poc/ZK60_CLAUDE_GPU.md`, new `hashline/tests/zk60_gpu_commit.rs` | Delivered on `zk60-cl1` at `15eeda6`; Codex review/integration pending |
+| Claude | CL1 delivered; CL2–CL11 follow-up queue | GPU/PCS plus task-specific files in [expanded queue](ZK60_CLAUDE_QUEUE.md); CL3 owns memory planner/tests | CL1 observed at `c9fc897`; merge held for CL2/CL3/CL4 review fixes. Ten tasks queued, not claimed running |
 | Codex | C1: integrate reviewed identity mechanism and complete private transformer statement | Reassign shared Rust files explicitly after C0/F1/CL1 handoffs | Next |
 
 Use separate worktrees/checkouts and report the exact base revision. For a

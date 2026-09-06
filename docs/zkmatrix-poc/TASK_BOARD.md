@@ -1,6 +1,36 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
-**ZK60 round 4 validated, not yet committed:** [overall milestone map](ZK60_STATUS.md) separates
+**ZK60 round 6 validated:** [B5 public two-block composition](ZK60_PUBLIC_CHAIN.md)
+passes 143 integrated Rust tests, all 144 Python/native tests (zero skips),
+four frozen CPU artifacts and separate-process byte verification of a
+4,290,981-byte receipt. Layer order, external context/tensors and the actual
+public residual seam are authenticated; genuine inconsistent constituents and
+freshly rebuilt boundary mismatches reject. [Round-6 ownership and closure](ZK60_PARALLEL_ROUND6.md)
+and `results/zk60_round6_validation.json` record exact evidence. This remains
+public-only, not private generation or a speed result.
+The reviewed Claude/Fable handoff is pushed as `606a24e`: CL2 source fixes are
+present at pinned `6e28b6f`, but CL3 accounting/fallback parity and CL4 timing/
+GPU-required/full-hash gates still hold integration. Claude's concurrent edits
+were excluded. [Fable's priority queue](ZK60_FABLE_QUEUE.md) includes the
+source-derived actual-FFN mask inventory; the attempted reproduction worker
+produced no implementation or executed result. The independent privacy gate
+remains outstanding. GPU/PCS ownership is unchanged.
+
+**ZK60 round 5 validated:** round 4 is committed and pushed as `5657a8d`;
+the expanded Claude queue/review is pushed as `4a58f12`. H1/R1 continuation
+passes 129 Rust tests, 144 full Python/native tests (zero skips), four frozen
+CPU artifacts and public receipt byte parity. The reported fixture-path
+failures are repaired; both formerly skipped real-data smokes now pass.
+Victor requested continued implementation and a substantial Claude queue:
+[ten Claude tasks, CL2–CL11](ZK60_CLAUDE_QUEUE.md), with explicit dependencies,
+file ownership and acceptance. [CL1 review](ZK60_CL1_INTEGRATION_REVIEW.md)
+holds integration pending correctness/fallback/measurement follow-ups; observed
+tip `c9fc897` includes the pooled-memory correction. Codex verifier hardening
+and full Python fixture selection are validated in [round 5](ZK60_PARALLEL_ROUND5.md).
+Claude's GPU/PCS ownership continues; the memory planner transfers to Claude
+for CL3. Fable's independent privacy/identity gate remains outstanding.
+
+**ZK60 round 4 validated and pushed:** [overall milestone map](ZK60_STATUS.md) separates
 completed public/private components from the full private-LLM and performance
 gates. [Round-4 ownership](ZK60_PARALLEL_ROUND4.md) covers the new externally
 bound public receipt and bounded component codec. 124 Rust tests, 48 targeted
