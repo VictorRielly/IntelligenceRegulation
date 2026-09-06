@@ -10,13 +10,24 @@ as `5657a8d`. Read the latest task board and actual branch tip before pickup.
 
 **Hold CL1 integration pending the concrete CL2/CL3/CL4 review findings.**
 The read-only [integration review](ZK60_CL1_INTEGRATION_REVIEW.md) records the
-source locations and limits. Round 6 reviewed committed tip `6e28b6f`:
-CL2's strict off/monotonic twiddle fixes and CL3's late allocation retry are
-present. **CL3 needs follow-ups** on uncounted `take_min`/raw allocations,
-actual fallback numerical parity, and planner chunk rounding/reuse/lifetimes.
-CL4 is being edited in Claude's checkout and is not yet accepted. Its final
-gate must compare full hashes, check proof subprocess exit/verification and
-require actual GPU execution. The detailed review is the pickup list; Codex
+source locations and limits. The 2026-09-06 `c346236` follow-up adds
+individual leaf/raw allocation counters, exact reuse-byte assertions and
+their negative control. Codex independently checked the CPU
+missing-feature refusal. The latest `9b24975` planner response fixes reuse
+and return lifetimes; **25 CPU tests pass**. CL3's remaining boundary is an
+unreachable warm-pool fallback: the simulator refuses an exact buffer that
+its own inventory can serve. See the new pinned reproduction in the review.
+**CL4 must first fix the reproduced Python syntax error in the embedded
+oracle-summary parser**, then retain a complete successful gate with final
+source identity. The earlier twelve archived byte gates remain useful evidence.
+CL5/CL9 reports are now delivered on the lane; this targeted review does not
+accept their completion claims. The [CL5/CL9 follow-up review](ZK60_CL5_CL9_REVIEW.md)
+reproduces a cache test that fails alone and parser ranking gaps, and lists
+the remaining actual-proof/process tests. The [CL8/CL10 review](ZK60_CL8_CL10_REVIEW.md)
+adds reproduced chunk-count/unit/lifetime gaps and corrects the P1/P3 column
+byte attribution. Codex also fixed the H1 unit-test
+configuration race exposed by Claude Fable's new combined-suite run.
+The detailed reviews are the pickup list; Codex
 has not edited Claude's owned source. CL8/CL10 supporting work is committed
 on Claude's branch, not merged or a private-block implementation.
 

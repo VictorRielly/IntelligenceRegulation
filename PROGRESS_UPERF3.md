@@ -14513,3 +14513,42 @@ CL1 review). The H1/R1 source/evidence is now ready for its continuation commit.
 Claude still owns CL2–CL11; CL1 merge waits on the concrete review fixes.
 Fable's whole-profile privacy/identity audit, actual private block composition,
 generation coverage and the one-GPU 60-tokens/s measurement remain open.
+
+
+## ZK60 round 7 — actual FFN disclosure diagnostic and Claude review
+
+Victor requested continuation, then authorized updating Claude Fable's todos
+and reviewing its pushes while that lane works. No subagents were used.
+From baseline `9cf1372`, Codex adds a test-only observer after the actual v3
+FFN verifier's A opening and publishes only after the final H accepts. Four
+diagnostic tests authenticate twelve real synthetic FFN proofs and replay
+24 singleton-plane observations using only verifier-visible data. P1 and P3
+both disclose all 32 X and h16 values at T2/d16/f16; T32 exposes 256 actual
+base-field functionals per plane, including fresh OS randomness. This is a
+reproduced privacy defect, not a repair or an upper bound on disclosure.
+Independent joint A/H/W analysis remains the private-lifecycle gate.
+
+The existing H1 CPU verifier tests raced process-global compact-PCS settings.
+Each now re-executes its original assertions in an isolated test process;
+all 63 library cases pass together at sixteen test threads. Production PCS,
+transcripts, layouts and RNG order are unchanged.
+
+Final closure: 147 release Rust tests, all 144 Python/native tests with zero
+skips (929.502 s), four frozen CPU artifacts at full SHA-256/length, unchanged
+2,144,946-byte B4 receipt and separate-process B5 verification. CPU-only,
+offline, two build/Rayon/native threads, shared heavy lock and 8 GiB address
+space cap per subprocess. The initial runner's HL_GPU=0 configuration error
+is preserved separately; the corrected run removes HL overrides and every
+stage exits zero. Exact source/binary/log hashes and resources are in
+`results/zk60_round7_validation.json`; report: `ZK60_ROUND7.md`.
+
+Read-only Claude reviews pin 39272d6, c346236 and 9b24975. Credits include
+individual raw/fresh/reuse byte counters, non-vacuous missing-feature refusal,
+capacity ownership transfer and accurate chunked-return lifetimes. Codex ran
+25 latest planner tests and CPU missing-feature controls. Remaining findings
+include an unreachable warm-pool refusal, the embedded gate parser's Python
+syntax error, CL5 invalid ranking inputs, CL9's test-order dependency,
+CL8 count/unit/lifetime gaps and CL10's 53,248-byte P1/P3 misattribution.
+Reproductions and queue updates preserve prior positive hardware evidence.
+No GPU/PCS/planner source was edited or merged, no GPU was launched, and
+no complete private block, generation proof or 60-tokens/s result is claimed.

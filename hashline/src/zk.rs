@@ -3739,10 +3739,21 @@ pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &Layer
     } else {
         pcs::verify(&w_pcs, w_com, &wc, &proof.w_open, ntt, tr).map_err(|e| format!("W: {e}"))?;
     }
+    // Test-only public observation: publish only after the complete FFN accepts.
+    #[cfg(test)]
+    let diagnostic = mask_diagnostic::capture(&a_pcs, a_com, &ac, &proof.a_open, tr);
     pcs::verify_zk(&a_pcs, &ZkOpts::standard(&a_pcs), a_com, &ac, &proof.a_open, ntt, tr).map_err(|e| format!("A: {e}"))?;
+    #[cfg(test)]
+    let diagnostic_end = diagnostic.as_ref().map(|_| Transcript::clone_state(tr));
     pcs::verify_zk(&h_pcs, &ZkOpts::standard(&h_pcs), h_com, &hc, &proof.h_open, ntt, tr).map_err(|e| format!("H: {e}"))?;
+    #[cfg(test)]
+    mask_diagnostic::publish(diagnostic, diagnostic_end);
     Ok(())
 }
+
+#[cfg(test)]
+#[path = "zk_ffn_mask_diagnostic.rs"]
+mod mask_diagnostic;
 
 #[cfg(test)]
 mod tests_v3 {

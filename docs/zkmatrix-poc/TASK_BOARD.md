@@ -1,5 +1,24 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**ZK60 round 7 validated:** the [actual FFN diagnostic](ZK60_FFN_MASK_DIAGNOSTIC.md)
+reproduces tiny X/h16 recovery and T32 linear-functional disclosure from
+verified P1/P3 proofs, including fresh randomness. It changes only unit-test
+instrumentation; the independent joint privacy audit and repair remain open.
+H1 verifier fixtures are process-isolated to fix their compact-PCS test race.
+**147 Rust tests, 144 Python/native tests with zero skips, four frozen full
+proof hashes, B4 parity and separate-process B5 verification pass**; the 63
+library tests also pass at sixteen test threads. [Round-7 closure](ZK60_ROUND7.md)
+and [evidence](../../results/zk60_round7_validation.json) record the result.
+
+Claude Fable's committed responses are reviewed through `9b24975`. Earlier
+raw-allocation, missing-feature and planner lifetime findings are superseded;
+the remaining warm-pool fallback boundary and CL4 parser/final-source gate
+are in the [integration review](ZK60_CL1_INTEGRATION_REVIEW.md). The
+[CL5/CL9](ZK60_CL5_CL9_REVIEW.md) and [CL8/CL10](ZK60_CL8_CL10_REVIEW.md)
+reviews add reproducible CPU findings to the existing todos. Lane source was
+not edited or merged. The historical round snapshots below retain their
+original counts and writing-time status.
+
 **ZK60 round 6 validated:** [B5 public two-block composition](ZK60_PUBLIC_CHAIN.md)
 passes 143 integrated Rust tests, all 144 Python/native tests (zero skips),
 four frozen CPU artifacts and separate-process byte verification of a

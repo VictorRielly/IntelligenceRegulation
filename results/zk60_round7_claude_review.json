@@ -1,0 +1,213 @@
+{
+  "source_pin": "39272d6417c0063aee0ee30c591756e4e233d4c4",
+  "scope": "CPU-only review reproductions; no lane mutations or GPU runs",
+  "checks": [
+    {
+      "name": "cl5_unit",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/tmp/zk60-round7/claude-review/tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "matches_expected": true,
+      "log": "/tmp/zk60-round7/claude-review/cl5_unit.log",
+      "log_sha256": "c9b1bd0ec19c3b67468874615f32e646b0c82907e1bad54b0d337c055de691da"
+    },
+    {
+      "name": "cl9_full_serial",
+      "command": [
+        "/tmp/zk60-round7/cl9-review/cache-test",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "matches_expected": true,
+      "log": "/tmp/zk60-round7/claude-review/cl9_full_serial.log",
+      "log_sha256": "28a7bdea735361497754dc44fad135c8e2e3c0a7905c75ab93eeef01fc73c6fd"
+    },
+    {
+      "name": "cl9_key_test_alone",
+      "command": [
+        "/tmp/zk60-round7/cl9-review/cache-test",
+        "--exact",
+        "every_keyed_field_separates_the_entry",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 101,
+      "expected_exit_code": 101,
+      "matches_expected": true,
+      "log": "/tmp/zk60-round7/claude-review/cl9_key_test_alone.log",
+      "log_sha256": "7a43b6aeb568dfef6c9100d9f8dd59818301160d0e81a643b1a7b16ab86ca9c5"
+    },
+    {
+      "name": "test_hashline_cl_pending_memory.py",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/tmp/zk60-round7/claude-review/tests",
+        "-p",
+        "test_hashline_cl_pending_memory.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "matches_expected": true,
+      "log": "/tmp/zk60-round7/claude-review/test_hashline_cl_pending_memory.py.log",
+      "log_sha256": "3cfd80e4ac1e44bed99ba0044aadafb42ba40439837c173b5c55a65d5181fce7"
+    },
+    {
+      "name": "test_hashline_cl_artifact_profile.py",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/tmp/zk60-round7/claude-review/tests",
+        "-p",
+        "test_hashline_cl_artifact_profile.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "matches_expected": true,
+      "log": "/tmp/zk60-round7/claude-review/test_hashline_cl_artifact_profile.py.log",
+      "log_sha256": "8b2190e3a5a0c2471f8f3b66a794b1b1129a35bef014ea824757c0a30c3044f2"
+    }
+  ],
+  "cl5_ranked_nonzero_exit": {
+    "exit_code": 1,
+    "ranking_returned": true
+  },
+  "cl5_impossible_phase_bound": -7.34575353,
+  "cache_fixture_uses_pinned_source_with_current_identical_wcache": true,
+  "cl8_negative_count_accepted": {
+    "schema": 1,
+    "scope": "symbolic buffer/lifetime count; not measured, not a safety bound",
+    "measured": false,
+    "safe_to_run": false,
+    "release_is_not_free": true,
+    "stages": [
+      {
+        "event": "begin",
+        "live_bytes": -8,
+        "pooled_bytes": 0,
+        "accounted_bytes": -8,
+        "live_symbolic": [],
+        "pooled_symbolic": []
+      }
+    ],
+    "symbolic_buffers": [],
+    "symbolic_count": 0,
+    "complete": true,
+    "unaccounted": [],
+    "peak_event": "begin",
+    "peak_accounted_bytes": -8,
+    "peak_accounted_mib": -7.62939453125e-06
+  },
+  "cl8_chunk_rounding": {
+    "chunk_argument": 1,
+    "reported_coefficient_bytes": 8192,
+    "actual_minimum_128_row_coefficient_bytes": 1048576
+  },
+  "cl10_rust_layout_counts": {
+    "plain_w_rows": 10752,
+    "private_w_rows": 10774,
+    "w_mask_rows": 22,
+    "w_cols": 16384
+  },
+  "cl10_p1_p3_attribution": {
+    "pinned_p1_column_data_bytes": 35651584,
+    "pinned_p1_column_framing_bytes": 423936,
+    "corrected_p1_column_data_bytes_using_declared_ah_rows": 35606528,
+    "corrected_p1_column_framing_bytes": 415744,
+    "p3_minus_p1_extra_w_column_data_bytes": 45056,
+    "p3_minus_p1_extra_w_salt_bytes": 8192,
+    "observed_proof_delta_bytes": 65632,
+    "remaining_residual_delta_bytes": 12384,
+    "limits": "Metadata/serializer counts only; no new full-width proof generated. A/H rows taken from the declared handoff."
+  },
+  "c346236_followup": {
+    "parser": {
+      "source_pin": "c346236b4b90bb6583c8d0a8d7b82d0da3896004",
+      "scope": "CPU syntax check of the embedded oracle-summary parser",
+      "syntax_valid": false,
+      "error": "f-string expression part cannot include a backslash (cl1_floors.sh:oracle-parser, line 5)"
+    },
+    "missing_feature_checks": [
+      {
+        "required": false,
+        "command": [
+          "/tmp/zk60-round7/claude-review/gpu-gate-c346236",
+          "--nocapture"
+        ],
+        "exit_code": 0,
+        "log": "/tmp/zk60-round7/claude-review/c346236_required_False.log",
+        "log_sha256": "ee2b1dfef9af4038abcdaf2211f5c351fa4cfbddef4cbeb2337f7004625aa06c"
+      },
+      {
+        "required": true,
+        "command": [
+          "/tmp/zk60-round7/claude-review/gpu-gate-c346236",
+          "--nocapture"
+        ],
+        "exit_code": 101,
+        "log": "/tmp/zk60-round7/claude-review/c346236_required_True.log",
+        "log_sha256": "b90e8c40fa1f55af81c6ad9a97f658a594bacc2276121e70806810277fa2b665"
+      }
+    ]
+  },
+  "9b24975_followup": {
+    "pin": "9b249755e4bc14447578111e28df080ed5f0785b",
+    "tests": {
+      "passed": 25,
+      "exit_code": 0,
+      "log": "/tmp/zk60-round7/claude-review/planner-9b24975/tests.log",
+      "log_sha256": "e530241667d9f5bf9d52e71fc6297edc3fd6d0b4153c5b8a714407160a671bd7"
+    },
+    "source_sha256": {
+      "scripts/hashline_memory_plan.py": "6fff4991a6d96cb9d1a132f66fbf109c7e22d330f7408fa968445d71b76abb70",
+      "tests/test_hashline_memory_plan.py": "a10e49fdf4ca084afb227bb046c49bef31488b0126d6d73dbfaf0df6fa10942a"
+    },
+    "credits": [
+      "Capacity ownership transfer avoids double counting",
+      "Correct chunked scratch/pads/powers/leaves return lifetimes",
+      "Warm inventories and byte-counter reconciliation",
+      "Non-multiple single-chunk rounding fixed"
+    ],
+    "remaining": {
+      "command": "commitment_plan(300,10,4,16,mode=\"fallback\",pool_state=\"warm-resident\")",
+      "refused_bytes": 9830400,
+      "refusal_snapshot": {
+        "stage": "encoded buffer (rows*nn) REFUSED: no allocation happened",
+        "live_buffers": [
+          "systematic_data [reused prior inverse_coefficients capacity]",
+          "expanded_coefficients [reused prior expanded_coefficients capacity]",
+          "pads",
+          "coset_powers"
+        ],
+        "pooled_buffers": [
+          "prior encoded_matrix:9830400",
+          "inverse_coefficients:2457600"
+        ],
+        "live_bytes": 12359168,
+        "retained_pool_bytes": 12288000,
+        "accounted_device_bytes": 24647168,
+        "fresh_pool_bytes_so_far": 0,
+        "note": "exact take of 9830400 B refused; nothing pooled matches exactly"
+      },
+      "exact_refused_size_already_pooled": true
+    },
+    "gpu_executed": false
+  }
+}

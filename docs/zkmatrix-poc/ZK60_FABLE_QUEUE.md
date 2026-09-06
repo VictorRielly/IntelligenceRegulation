@@ -6,12 +6,17 @@ Codex workers are Fable or that independent review has finished. The original
 in force. No sensitive application inputs until the shared privacy gate closes.
 
 1. **FA1: reproduce actual FFN opening-group behavior.** Start with the
+   [executed Codex diagnostic](ZK60_FFN_MASK_DIAGNOSTIC.md) and the
    [source-derived inventory](ZK60_FFN_MASK_INVENTORY.md), especially X-at-p2
-   and h16-at-p5 at the tiny one-row profile. Deliver independently verified
+   and h16-at-p5 at the tiny one-row profile. Codex now reproduces full tiny
+   plane disclosure and T32 per-column functionals in actual P1/P3 proofs.
+   Independently reproduce and review the public-only replay. Deliver independently verified
    proof/public-observation evidence, exact grouping/challenge replay, default
    fresh-randomness coverage and negative controls. The existing isolated
    singleton diagnostic is already executed; do not count it again as real-FFN
-   evidence. The round-6 reproduction attempt produced no implementation.
+   evidence. The round-6 reproduction attempt produced no implementation;
+   the round-7 test-only observer and diagnostic supersede that gap, without
+   completing Fable's independent review or the broader joint analysis.
 2. **FA2: joint privacy assessment.** Cover actual A/H/W groups, terminal and
    proximity vectors, helper sums, CFS functionals, pads, table histograms and
    mask reuse across all observations. State base/extension-field rank and

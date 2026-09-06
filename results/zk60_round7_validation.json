@@ -1,0 +1,385 @@
+{
+  "schema_version": 1,
+  "base": "9cf1372",
+  "stages": [
+    {
+      "stage": "rust_all",
+      "command": [
+        "cargo",
+        "test",
+        "--release",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--all-targets",
+        "--",
+        "--nocapture",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 57.78219401000001,
+      "log": "/tmp/zk60-round7/validation2/rust_all.log",
+      "log_sha256": "ffc92097492948e962aa6dde50252320e9ad3883b82d2d733838270161f8982c",
+      "resource_log": "/tmp/zk60-round7/validation2/rust_all.time"
+    },
+    {
+      "stage": "rust_concurrent",
+      "command": [
+        "cargo",
+        "test",
+        "--release",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--lib",
+        "--",
+        "--test-threads=16"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 3.977992471999869,
+      "log": "/tmp/zk60-round7/validation2/rust_concurrent.log",
+      "log_sha256": "21282bdce0d6e432d43c153c75b7d8eb7b40af8b0a47fcd5041d77786bc8ef30",
+      "resource_log": "/tmp/zk60-round7/validation2/rust_concurrent.time"
+    },
+    {
+      "stage": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--bin",
+        "hashline",
+        "--example",
+        "zk60_block_receipt",
+        "--example",
+        "zk60_chain_receipt"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 12.97246194100012,
+      "log": "/tmp/zk60-round7/validation2/build.log",
+      "log_sha256": "ecc9c78ae9ee8238b4300d564ee6b00bcea19d00e5c72b330ca57e2c980d3afb",
+      "resource_log": "/tmp/zk60-round7/validation2/build.time"
+    },
+    {
+      "stage": "frozen_v2",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round7/validation2/v2.proof"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 35.50605280200011,
+      "log": "/tmp/zk60-round7/validation2/frozen_v2.log",
+      "log_sha256": "ad2a32c95cd9bf67ca08b366ded6bcdf25b5922ca969366f0aaf09684d072849",
+      "resource_log": "/tmp/zk60-round7/validation2/frozen_v2.time"
+    },
+    {
+      "stage": "frozen_v3",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round7/validation2/v3.proof",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 36.756503117999955,
+      "log": "/tmp/zk60-round7/validation2/frozen_v3.log",
+      "log_sha256": "9645a0a4db02f856ae466ca13cad356826e8051b238ca11ed01ca80135b51b10",
+      "resource_log": "/tmp/zk60-round7/validation2/frozen_v3.time"
+    },
+    {
+      "stage": "frozen_zk",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round7/validation2/zk.proof",
+        "--zk",
+        "--seed",
+        "1"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 37.2510535670001,
+      "log": "/tmp/zk60-round7/validation2/frozen_zk.log",
+      "log_sha256": "9f18c7466b500be5f213a70e5401878b3facd02cd9437258728a1d5842ac65d5",
+      "resource_log": "/tmp/zk60-round7/validation2/frozen_zk.time"
+    },
+    {
+      "stage": "frozen_zkv3",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round7/validation2/zkv3.proof",
+        "--zk",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 39.06328461599992,
+      "log": "/tmp/zk60-round7/validation2/frozen_zkv3.log",
+      "log_sha256": "78747ae26926c4903d113c2df84e69cbc70bfa171f9408c0e31f58bd51f755b6",
+      "resource_log": "/tmp/zk60-round7/validation2/frozen_zkv3.time"
+    },
+    {
+      "stage": "b4_reprove",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_block_receipt",
+        "prove",
+        "/home/victor/IntelligenceRegulation/results/zk60_round4_expected.bin",
+        "/tmp/zk60-round7/validation2/b4.proof"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.11564832799990654,
+      "log": "/tmp/zk60-round7/validation2/b4_reprove.log",
+      "log_sha256": "705490de2a43b3fa12341d3443d873aa4bf20a42661173634c3d5f537556aa35",
+      "resource_log": "/tmp/zk60-round7/validation2/b4_reprove.time"
+    },
+    {
+      "stage": "chain_verify",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_chain_receipt",
+        "verify",
+        "/home/victor/IntelligenceRegulation/results/zk60_round6_expected.bin",
+        "/home/victor/IntelligenceRegulation/results/zk60_round6_receipt.proof",
+        "f20dc692c421abae9bfcb15ac4c15d8cdce64ef6f49e256c635dcc4bf2354d36",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "f20dc692c421abae9bfcb15ac4c15d8cdce64ef6f49e256c635dcc4bf2354d36",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.0335188990000006,
+      "log": "/tmp/zk60-round7/validation2/chain_verify.log",
+      "log_sha256": "e990d70e26f7317b37881cafb06e9ee9c87baf89ea84889a6f4442417189f29d",
+      "resource_log": "/tmp/zk60-round7/validation2/chain_verify.time"
+    },
+    {
+      "stage": "native_build",
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--offline",
+        "--manifest-path",
+        "zkmatrix-rs/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.1657489239998995,
+      "log": "/tmp/zk60-round7/validation2/native_build.log",
+      "log_sha256": "752e5cbd09fd620d26d061888f8a23fed51663928527a6394a3ac143c0f128a2",
+      "resource_log": "/tmp/zk60-round7/validation2/native_build.time"
+    },
+    {
+      "stage": "python_full",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 929.6630890610002,
+      "log": "/tmp/zk60-round7/validation2/python_full.log",
+      "log_sha256": "b3449d4e2fc9f00851a47242a061ace9d83561f40de621e4b6607e6ba677183a",
+      "resource_log": "/tmp/zk60-round7/validation2/python_full.time"
+    }
+  ],
+  "scope": "CPU correctness/compatibility and test-only FFN disclosure diagnostic",
+  "threads": 2,
+  "address_space_limit_bytes_per_process": 8589934592,
+  "gpu_executed": false,
+  "independent_privacy_review_complete": false,
+  "rust_tests": {
+    "passed": 147,
+    "failed": 0,
+    "ignored": 0
+  },
+  "diagnostic_observations": [
+    "FFN_DIAGNOSTIC privacy=P1 T=2 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=6dab19a20d8d27493f127ed83a0690114e77240a9798a5c8314cb1561cf4dc55",
+    "FFN_DIAGNOSTIC privacy=P1 T=2 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=6dab19a20d8d27493f127ed83a0690114e77240a9798a5c8314cb1561cf4dc55",
+    "FFN_DIAGNOSTIC privacy=P1 T=2 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=30b390755fda91b784b9dd6d13cc957f57cb67f8441657a0266c26ac139815d2",
+    "FFN_DIAGNOSTIC privacy=P1 T=2 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=30b390755fda91b784b9dd6d13cc957f57cb67f8441657a0266c26ac139815d2",
+    "FFN_DIAGNOSTIC privacy=P1 T=2 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=9ce61efc214b868840a3f904ee3b1b974b62431eaf5cbe5b6a8364b83594c1a7",
+    "FFN_DIAGNOSTIC privacy=P1 T=2 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=9ce61efc214b868840a3f904ee3b1b974b62431eaf5cbe5b6a8364b83594c1a7",
+    "FFN_DIAGNOSTIC privacy=P1 T=2 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=7833dc3372cb6be7cca680b5bda34e7602e9ee7a1d13e0625f4629e023add910",
+    "FFN_DIAGNOSTIC privacy=P1 T=2 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=7833dc3372cb6be7cca680b5bda34e7602e9ee7a1d13e0625f4629e023add910",
+    "FFN_DIAGNOSTIC privacy=P3 T=2 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615",
+    "FFN_DIAGNOSTIC privacy=P3 T=2 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615",
+    "FFN_DIAGNOSTIC privacy=P3 T=2 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=cc21a42c1a4b9f355e36e3caa3b28ab53faf424c7bd057d3b4f2f523eb8756e4",
+    "FFN_DIAGNOSTIC privacy=P3 T=2 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=cc21a42c1a4b9f355e36e3caa3b28ab53faf424c7bd057d3b4f2f523eb8756e4",
+    "FFN_DIAGNOSTIC privacy=P3 T=2 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297",
+    "FFN_DIAGNOSTIC privacy=P3 T=2 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297",
+    "FFN_DIAGNOSTIC privacy=P3 T=2 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=df9cb942ec3184de52c60f1135203f16391702d23bbe32a6d49068da1b6ec55e",
+    "FFN_DIAGNOSTIC privacy=P3 T=2 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=df9cb942ec3184de52c60f1135203f16391702d23bbe32a6d49068da1b6ec55e",
+    "FFN_DIAGNOSTIC privacy=P1 T=32 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df",
+    "FFN_DIAGNOSTIC privacy=P1 T=32 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df",
+    "FFN_DIAGNOSTIC privacy=P1 T=32 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=8f58362e9390ecec3066432ed447bc7ee49ba765b2ed7f866d828d32b60e710d",
+    "FFN_DIAGNOSTIC privacy=P1 T=32 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=8f58362e9390ecec3066432ed447bc7ee49ba765b2ed7f866d828d32b60e710d",
+    "FFN_DIAGNOSTIC privacy=P3 T=32 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe",
+    "FFN_DIAGNOSTIC privacy=P3 T=32 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe",
+    "FFN_DIAGNOSTIC privacy=P3 T=32 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=b9a715d502c537760e47a33e8829cb78e8611c42572f4addc72ef78f69cc05f2",
+    "FFN_DIAGNOSTIC privacy=P3 T=32 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=b9a715d502c537760e47a33e8829cb78e8611c42572f4addc72ef78f69cc05f2"
+  ],
+  "frozen_cpu": [
+    {
+      "case": "v2",
+      "bytes": 66844928,
+      "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+      "ok": true
+    },
+    {
+      "case": "v3",
+      "bytes": 70758084,
+      "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+      "ok": true
+    },
+    {
+      "case": "zk",
+      "bytes": 87228528,
+      "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+      "ok": true
+    },
+    {
+      "case": "zkv3",
+      "bytes": 87697008,
+      "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+      "ok": true
+    }
+  ],
+  "b4_parity": {
+    "bytes": 2144946,
+    "sha256": "ba5d82150b92e1ef4f58a29fe90fc65c756ac2f49c18f6df6b5de3f6f2fc6b94"
+  },
+  "python_tests": {
+    "passed": 144,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_s": 929.502
+  },
+  "source_sha256": {
+    "hashline/src/zk.rs": "50d37b51085ac40db965559e42e0d6bc9a8a1b8c5ad857a16dabab90259f8a19",
+    "hashline/src/zk_ffn_mask_diagnostic.rs": "ab6df4ec1fcf12658b4c90ccd2b19e24bc7b06a56fcb914f56d9af858e05a1d2",
+    "hashline/src/pcs.rs": "60ac5f2f37e30b8aa3d648f5069fa0c2cefc5b73b8e42e3fb34933f77960ab1b",
+    "hashline/src/field/verifier_hardening_tests.rs": "76bb4cbb9fb60c6d3b01729abd5a96e93a5fdc335f49b0f36b8821e4fbdd0332"
+  },
+  "binary_sha256": {
+    "/home/victor/IntelligenceRegulation/hashline/target/release/hashline": "93055aa612a4fd3a958953c1b445dfff7cc5bd0d98df5819180eaeee9cd8ad52",
+    "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_chain_receipt": "4b9bfc84756b14b73357b91eaad3bd6d15b3fc763d5e118048a3238fdd15b518"
+  },
+  "validation_status": "complete",
+  "exit_code": 0,
+  "runner": {
+    "path": "/tmp/zk60-round7/validate.py",
+    "sha256": "59f229ad5abc01e7aac59b3d467d56bdad5fefe83e79ac56090462c715e5db9f"
+  },
+  "first_attempt": {
+    "path": "/tmp/zk60-round7/validation",
+    "status": "stopped at existing CPU schedule gate after library pass",
+    "reason": "Temporary runner set HL_GPU=0 while the gate requires that variable absent; rerun clears HL overrides and uses CPU-only builds",
+    "source_changed_for_runner_error": false
+  },
+  "h1_isolation": {
+    "pre_fix_reproduction": "63 library tests at 16 test threads: 60 passed and three H1 CPU tests failed due to process-global compact PCS configuration",
+    "fixed_retest": {
+      "passed": 63,
+      "failed": 0,
+      "test_threads": 16
+    },
+    "assertions_retained": true
+  },
+  "claude_review": {
+    "record": "results/zk60_round7_claude_review.json",
+    "latest_pin": "9b249755e4bc14447578111e28df080ed5f0785b",
+    "source_merged": false,
+    "gpu_reproduced": false
+  },
+  "resources": [
+    {
+      "stage": "b4_reprove",
+      "max_rss_kib": 11588,
+      "swaps": 0
+    },
+    {
+      "stage": "build",
+      "max_rss_kib": 348172,
+      "swaps": 0
+    },
+    {
+      "stage": "chain_verify",
+      "max_rss_kib": 12032,
+      "swaps": 0
+    },
+    {
+      "stage": "frozen_v2",
+      "max_rss_kib": 1563820,
+      "swaps": 0
+    },
+    {
+      "stage": "frozen_v3",
+      "max_rss_kib": 1188120,
+      "swaps": 0
+    },
+    {
+      "stage": "frozen_zk",
+      "max_rss_kib": 1667880,
+      "swaps": 0
+    },
+    {
+      "stage": "frozen_zkv3",
+      "max_rss_kib": 1250144,
+      "swaps": 0
+    },
+    {
+      "stage": "native_build",
+      "max_rss_kib": 32412,
+      "swaps": 0
+    },
+    {
+      "stage": "python_full",
+      "max_rss_kib": 1707156,
+      "swaps": 0
+    },
+    {
+      "stage": "rust_all",
+      "max_rss_kib": 863808,
+      "swaps": 0
+    },
+    {
+      "stage": "rust_concurrent",
+      "max_rss_kib": 395664,
+      "swaps": 0
+    }
+  ],
+  "max_reported_rss_kib": 1707156
+}

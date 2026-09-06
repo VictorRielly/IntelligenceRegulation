@@ -94,7 +94,38 @@ mod cpu {
         PublicBlockProof,
     };
     use crate::transcript::Transcript;
+    use std::process::Command;
     use std::sync::OnceLock;
+
+    // Compact PCS unit tests mutate process-global configuration. A mutex
+    // private to either module cannot isolate these ordinary-PCS fixtures:
+    // the backend can change between commitment and opening. Re-execute each
+    // full verifier case alone, preserving every existing assertion and fault
+    // injection, without changing production PCS configuration or its owner.
+    fn run_in_isolated_process(case: &str) -> bool {
+        const CHILD: &str = "HL_HARDENING_ISOLATED_CASE";
+        if std::env::var(CHILD).as_deref() == Ok(case) {
+            return false;
+        }
+        let name = format!("field::verifier_hardening_tests::cpu::{case}");
+        let output = Command::new(std::env::current_exe().expect("unit-test executable"))
+            .args(["--exact", &name, "--nocapture", "--test-threads=1"])
+            .env(CHILD, case)
+            .output()
+            .expect("launch isolated verifier fixture");
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        assert!(
+            output.status.success(),
+            "{name}: {}\n{stdout}\n{stderr}",
+            output.status
+        );
+        assert!(
+            stdout.contains("1 passed; 0 failed; 0 ignored"),
+            "isolated verifier case did not execute exactly once: {name}\n{stdout}"
+        );
+        true
+    }
 
     fn public_proof() -> &'static PublicBlockProof {
         static PROOF: OnceLock<PublicBlockProof> = OnceLock::new();
@@ -110,6 +141,11 @@ mod cpu {
 
     #[test]
     fn hardening_attention_production_verifier_refuses_collision_and_preserves_bytes() {
+        if run_in_isolated_process(
+            "hardening_attention_production_verifier_refuses_collision_and_preserves_bytes",
+        ) {
+            return;
+        }
         let (approved, _, _) = public_synthetic_fixture();
         let r = approved.registration();
         let proof = public_proof();
@@ -146,6 +182,11 @@ mod cpu {
 
     #[test]
     fn hardening_v3_production_verifier_refuses_collision_and_propagates() {
+        if run_in_isolated_process(
+            "hardening_v3_production_verifier_refuses_collision_and_propagates",
+        ) {
+            return;
+        }
         let (approved, _, _) = public_synthetic_fixture();
         let r = approved.registration();
         let proof = public_proof();
@@ -172,6 +213,11 @@ mod cpu {
 
     #[test]
     fn hardening_v2_production_verifier_refuses_collision_after_honest_prefix() {
+        if run_in_isolated_process(
+            "hardening_v2_production_verifier_refuses_collision_after_honest_prefix",
+        ) {
+            return;
+        }
         use crate::chain::LayerWitness;
         use crate::export::{D, F};
         // Existing v2 has fixed d768/f2048. T1 and reduced public test PCS
