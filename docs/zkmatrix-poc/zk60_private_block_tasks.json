@@ -11,7 +11,14 @@
     "report": "ZK60_PUBLIC_CHAIN.md",
     "status": "validated: 143 integrated Rust tests, 144 Python/native tests with zero skips, four frozen CPU artifacts and separate-process byte verification pass",
     "private_audit_support": "ZK60_FFN_MASK_INVENTORY.md and ZK60_FABLE_QUEUE.md; source hypotheses only, attempted reproduction produced no implementation or executed result",
-    "does_not_complete": ["A03", "A04", "A07", "A08 private two-block composition", "A09", "A10"]
+    "does_not_complete": [
+      "A03",
+      "A04",
+      "A07",
+      "A08 private two-block composition",
+      "A09",
+      "A10"
+    ]
   },
   "first_complete_milestone": "A07: one tiny fixed-calibration P1 transformer block",
   "first_implementation_rung": "A02: private equality seam after contract/inventory gates",
@@ -22,7 +29,13 @@
     "report": "ZK60_PUBLIC_RECEIPT.md",
     "validation": "../../results/zk60_round4_validation.json",
     "provides": "Complete bounded component codec and separate-process receipt verification, actual external input/output/context linkage, approved roots and internal FFN seams",
-    "does_not_complete": ["A03 private pending prover", "A04 private attention relations", "A07 complete P1 block", "A09 P3 stable-model consistency", "A10 complete generation"],
+    "does_not_complete": [
+      "A03 private pending prover",
+      "A04 private attention relations",
+      "A07 complete P1 block",
+      "A09 P3 stable-model consistency",
+      "A10 complete generation"
+    ],
     "private_gate": "Fable independent actual joint-opening/mask-rank privacy audit remains outstanding; public receipt is not private composition"
   },
   "global_acceptance": [
@@ -472,5 +485,14 @@
       "acceptance": "Only this complete relation can support a generated-token throughput claim; 512 prefill rows remain a separately labeled milestone."
     }
   ],
-  "round2_report": "ZK60_PARALLEL_ROUND2.md"
+  "round2_report": "ZK60_PARALLEL_ROUND2.md",
+  "round7_support": {
+    "baseline": "9cf1372",
+    "status": "validated: 147 Rust, 144 Python/native zero skips, four frozen proofs, B4 parity and B5 verification; independent privacy review and repair pending",
+    "private_audit_support": "ZK60_FFN_MASK_DIAGNOSTIC.md: actual verified P1/P3 X/h16 tiny-plane recovery and T32 linear functionals; fresh OS coverage; no protocol repair",
+    "independent_review_complete": false,
+    "private_pending_implementation": "still gated on the reviewed complete mask plan",
+    "report": "ZK60_ROUND7.md",
+    "validation": "../../results/zk60_round7_validation.json"
+  }
 }

@@ -1,4 +1,11 @@
-# Actual FFN mask inventory — source findings, reproduction pending
+# Actual FFN mask inventory — source findings and diagnostic follow-up
+
+**2026-09-06:** the round-6 X-at-p2/h16-at-p5 hypothesis is now reproduced
+on actual verified FFN proofs. See [the executed diagnostic](ZK60_FFN_MASK_DIAGNOSTIC.md)
+for complete tiny-row recovery and T32 linear-functional observations under
+P1/P3, public-data replay and controls. The source inventory below is retained
+as historical evidence; its statements about the failed round-6 attempt do
+not describe the new implementation. Joint A/H/W review remains open.
 
 Read-only Codex investigation at `a118da4`, reviewed during round 6. This
 narrows the outstanding Fable audit; **it is not an executed real-FFN
