@@ -261,7 +261,7 @@
       "priority": 2,
       "title": "Specify an exact proof-size telemetry handoff",
       "owner": "Fable analysis; Codex owns serializer/CLI integration",
-      "status": "ready_design",
+      "status": "consumer_delivered; implementation by Codex in validation (round 10)",
       "depends_on": [],
       "files": [
         "docs/zkmatrix-poc/ZK60_CLAUDE_ARTIFACTS.md",
@@ -278,7 +278,17 @@
         "Once Codex integrates it, measured section counts must sum to actual to_bytes length across supported small P1/P3 fixtures without changing proof bytes. Until then label this task design-delivered, not implemented telemetry.",
         "Separate serialization time/copies from byte count; no compression, mask removal or reduced checks is promoted as compatible from these counts."
       ],
-      "limits": "The completed wcache::report request and H1 isolation need no replacement. Shared serializer/CLI production edits stay with Codex."
+      "limits": "The completed wcache::report request and H1 isolation need no replacement. Shared serializer/CLI production edits stay with Codex.",
+      "result": {
+        "date": "2026-09-07",
+        "base": "cbea2e9",
+        "scope_change": "Codex took the serializer/CLI side in round 10 (uncommitted at 52a13d1's tree as of 12:22: hashline/src/zk_proof_size.rs, LayerProofZk::size_breakdown(), HASHLINE_PROOF_SIZE rows under --phase-profile); the lane delivers the CONSUMER and a review of that implementation, not a parallel schema",
+        "tests": "artifact profile 27->82, all OK, 0 skipped (six skip-guarded tests ran against Codex's mounted uncommitted evidence)",
+        "consumer": "scripts/hashline_cl_artifact_profile.py: --schema, --validate-breakdown, --from-log [--reconcile], --derive; the CL10 mirror now derives the sumcheck arguments so all four archived per-layer sizes reproduce with zero residual",
+        "reconciliation": "all 12 frozen 12x512 P1 rows validate and sum to the frozen 87,697,008 B; layers 1-2 differ from the layer-0 mirror on exactly a.columns.values +4,096 and h.columns.values +8,192 (the 12,288 B the layer-0 dump could never attribute, now measured); T16 P3 and T16 unverified P1 agree leaf for leaf",
+        "review": "docs/zkmatrix-poc/ZK60_CLAUDE_ARTIFACTS.md section 8: Codex's implementation meets every CL19 contract item (sum, no double count, P1/P3 salts, predicate separate, no second buffer, pass_verified explicit, bytes unchanged); non-blocking findings in 8.4 (rows are CPU-only via --phase-profile; evidence uncommitted)",
+        "limits": "reconciliation evidence is Codex's uncommitted JSON and /tmp logs; no measured rows yet for P3 at 12x512, Mistral or function 2; nothing is promoted as compatible from counts"
+      }
     },
     {
       "id": "FA1",
