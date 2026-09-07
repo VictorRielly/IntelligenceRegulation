@@ -515,10 +515,14 @@ run on the perf branch.
 
 ### Suggestions brought to the table (for Codex / the integrator)
 
-1. **The CPU/GPU byte gates and the oracle suite are green on the merged
-   tree; integration of `zk60-cl1` is a review decision, not a build one.**
+1. **The CPU/GPU byte gates and the oracle suite are green on `82314a1`;
+   integration of `zk60-cl1` is a review decision, not a build one.**
    Every lane-owned change is behind a retained reference switch
    (`HL_ZK_CHUNK=0`, `HL_ZK_FUSE_GATHER=0`, `HL_GPU_PRUNE_P2=0`).
+   *[Corrected 2026-09-07, CL12: this item originally said "on the merged
+   tree". It is not. The floors ran on `82314a1`, one commit BEFORE the
+   H1 merge `c84668f`; the merged tree has not been gated. See the round-9
+   section below.]*
 2. **`pcs_compact` lib tests mutate a process-global configuration**;
    Codex's process isolation of the three H1 fixtures fixes the symptom.
    The cleaner fix is a `#[serial]`-style lock shared by every lib test that
@@ -529,6 +533,7 @@ run on the perf branch.
    `ZK60_CLAUDE_ARTIFACTS.md` §7.5).
 4. **`pass_zk` should print `wcache::report()`** like `pass_v3` does, so a ZK
    log carries its cache hits/misses without `HL_WCACHE_VERBOSE`.
+   *[Delivered by Codex in `44d72ff`, adopted by CL12 below.]*
 5. **The next byte-preserving device lever** is the zero tail of the
    pad/scale output: `k_ntt_p1` with `n_src = n + q` over a `rmax x (n + q)`
    buffer drops ~30% of the hiding re-encode's AND the commit's remaining
@@ -538,3 +543,54 @@ run on the perf branch.
    deliberately not run** (rung 5): the CL6 sweep's flat 5,182 MB per-layer
    peak at chunk 128 is a fourth confirmation of the bound; the launch is
    still a safety decision above this lane.
+
+---
+
+## Lane status, 2026-09-07 (round 9, CL12) — the lane is synchronized; the provenance of every archived gate stated exactly
+
+**Merge:** the performance tip `52a13d1` is merged into `zk60-cl1` as
+**`d092c09`** (parents: lane `3ad4d97`, performance `52a13d1`). It brings
+Codex's `44d72ff` (below), `a0495dc` and `52a13d1` (the round-8/9 reviews,
+the Fable queue CL12–CL20 / FA1–FA5, the `zkp-core` scaffold). No lane-owned
+file changed in the merge; there were no conflicts. H1 `3ff8d5f` was already
+on the lane as `c84668f` and is not duplicated.
+
+**Adopted, not re-done (CL9's proposed fix and suggestion 4 above):**
+`44d72ff` publishes public weight-cache entries through exclusive per-writer
+temporaries with an atomic rename (`wcache.rs` `publish()`), adds
+`wcache_atomic_tests.rs` (the concurrent-writer regression: the old code lost
+65/96 saves; thread/process, stale-name, reader and cleanup controls), and
+`pass_zk` now prints `wcache::report()` (`bin/hashline.rs:1374`). CL9's
+`a1aa2b7` finding (15 of 96 saves lost to the shared `.wc.tmp` name) is
+therefore CLOSED by Codex's implementation; the lane recreates neither.
+
+**Which source each archived gate tested — the correction this section
+exists for.** The round-7 closure record (`3ad4d97`) and suggestion 1 above
+called the floors "green on the merged tree". That wording was wrong:
+
+| archived log | HEAD it ran on | dirty delta (`hashline/`) | outcome |
+|---|---|---|---|
+| `cl_round7_floors_attempt1_terminated.log` | `a1aa2b7` | empty (`e3b0c442..`) | terminated: the launcher took `/tmp/zk-build.lock` OUTSIDE a script that takes it inside (self-deadlock before compilation) |
+| `cl_round7_floors_attempt2_selfdeadlock.log` | `a1aa2b7` | empty | the same self-deadlock, repeated |
+| `cl_round7_floors_attempt3_bracebug.log` | `a1aa2b7` | empty | ran to the verdict; RED only because `${SUMMARY:-{}}` appended a `}` to a valid 49-case oracle summary (the parser bug fixed in `82314a1`) |
+| **`cl_round7_floors.log`** (marker 0) | **`82314a1`** | empty | **GREEN**: 12/12 full-SHA-256 byte cases, 49 device oracle cases, both missing-feature controls, twenty green suites |
+
+`82314a1` is one commit BEFORE `c84668f` (the merge of Codex's `3ff8d5f`:
+FFN disclosure diagnostic + H1 fixture process isolation) and does not
+contain `44d72ff` (the atomic cache) at all. **So: no combined-tree
+acceptance follows from the `82314a1` log.** What it establishes is exactly
+what it ran: the lane's own GPU/PCS/tools source at `82314a1`, with the four
+frozen fixtures byte-identical on CPU / GPU / forced chunking, 49 oracle
+cases on the RTX 4070 Laptop GPU, and the missing-feature refusal. That
+evidence stands as historical evidence of that source. The tree that now
+exists (`d092c09`: lane + H1 + atomic cache) has NOT been gated; **CL17
+supplies that evidence** with CL13's corrected, portable runner and its
+manifest. Integration into the performance branch remains Codex's.
+
+The "twenty green suites" of the round-7 floors also predate
+`wcache_atomic_tests.rs`; the CL17 combined CPU suite must include it and the
+H1 isolation tests alongside the lane tests.
+
+Nothing in this section is a GPU launch, a throughput claim, or a privacy
+statement. The validated H1 process isolation is kept as is; no replacement
+global-configuration scheme is introduced.

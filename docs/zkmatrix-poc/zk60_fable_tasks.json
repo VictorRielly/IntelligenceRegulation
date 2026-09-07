@@ -35,7 +35,7 @@
       "priority": 0,
       "title": "Synchronize the lane and preserve exact validation provenance",
       "owner": "Fable / existing Claude GPU lane",
-      "status": "ready",
+      "status": "done",
       "depends_on": [],
       "files": [
         "existing zk60-cl1 checkout and branch",
@@ -50,7 +50,17 @@
         "Record both parent pins, the resulting source tree, and exactly which source each archived gate tested.",
         "No combined-tree acceptance is claimed from the 82314a1 log. Integration into the performance branch remains Codex-owned; CL17 supplies the new combined evidence."
       ],
-      "limits": "This is baseline synchronization, not a GPU launch. Keep the validated H1 process isolation; a replacement global-config scheme is not needed for this queue."
+      "limits": "This is baseline synchronization, not a GPU launch. Keep the validated H1 process isolation; a replacement global-config scheme is not needed for this queue.",
+      "result": {
+        "date": "2026-09-07",
+        "merge_commit": "d092c09",
+        "parents": [
+          "3ad4d97",
+          "52a13d1"
+        ],
+        "report": "docs/zkmatrix-poc/ZK60_CLAUDE_GPU.md#lane-status-2026-09-07-round-9-cl12",
+        "note": "archived green floors ran on 82314a1 (pre-H1, pre-44d72ff); no combined-tree acceptance claimed; CL17 supplies it"
+      }
     },
     {
       "id": "CL13",
