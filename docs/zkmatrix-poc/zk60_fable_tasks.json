@@ -201,7 +201,7 @@
       "priority": 0,
       "title": "Deliver final combined-source correctness evidence",
       "owner": "Fable / Claude lane; Codex reviews integration",
-      "status": "queued",
+      "status": "done",
       "depends_on": [
         "CL12",
         "CL13",
@@ -226,7 +226,23 @@
         "Actual cold/warm proof bytes are identical with correct hit/miss counts; P3 cache refusal occurs before cache creation. Source/binary identity matches the artifact manifest.",
         "A final CPU combined-suite result covers H1 and the atomic cache tests alongside lane tests. Any source edits after a run are identified with their required retests."
       ],
-      "limits": "Safe existing small fixtures only, shared heavy lock, two threads, detached logs/marker for long runs. No 32-layer laptop run, new hardware installation or target-throughput claim follows from this gate."
+      "limits": "Safe existing small fixtures only, shared heavy lock, two threads, detached logs/marker for long runs. No 32-layer laptop run, new hardware installation or target-throughput claim follows from this gate.",
+      "result": {
+        "date": "2026-09-07",
+        "source": "4a0ce56, 0 dirty, hashline delta empty",
+        "manifest": "results/cl_round9_floors/manifest.json verdict GREEN, suite v2, 21/21 cases; validate ok; launcher log results/cl_round9_floors.log, marker 0; run 12:52:09-13:01:10",
+        "binaries": {
+          "cpu": "bdd045d4cf2ce6151819165af440838073dc4af8ba2e75849b2d5db155e8a730",
+          "gpu": "9f20229a680d6adafca21c50fcc742629eef4e1c949f0dff2e44842f2f4dba02"
+        },
+        "crate_suites": "167 tests / 0 failed over 19 result lines incl. atomic wcache and H1 hardening tests",
+        "oracle": "141 executed device cases / 31 tests, gpu_enabled+gpu_required, RTX 4070 Laptop GPU",
+        "byte_gates": "12/12 full SHA-256 + length (v2/v3/zk/zkv3 x cpu/gpu/gpu-zkchunk), all ACCEPT, all GPU cases gpu: ON",
+        "cache": "cold 12 MISS / warm 12 HIT, frozen zkv3 digest both; --p3 --wcache refused exit 2 before any work",
+        "controls": "HL_GPU_REQUIRED=1 without the feature exit 101; plain no-feature exit 0 with executed_cases 0",
+        "preflight": "go=True for a diagnostic FFN-only claim bound to the manifest (results/cl_round9_preflight.json)",
+        "limits": "safe frozen fixtures only, two threads, laptop seconds are diagnostics; no privacy/identity/coverage/target claim; integration remains Codex's"
+      }
     },
     {
       "id": "CL18",

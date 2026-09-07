@@ -594,3 +594,72 @@ H1 isolation tests alongside the lane tests.
 Nothing in this section is a GPU launch, a throughput claim, or a privacy
 statement. The validated H1 process isolation is kept as is; no replacement
 global-configuration scheme is introduced.
+
+---
+
+## Lane status, 2026-09-07 (round 9 pickup) — CL13–CL17 and CL19 delivered; the COMBINED tree is gated GREEN with a manifest
+
+Base after CL12: `d092c09` (lane `3ad4d97` + performance `52a13d1`). Every
+commit below is on `zk60-cl1` and pushed. Codex's round-9 findings
+(`ZK60_ROUND9_REVIEW.md`) are each answered in place with tests; the
+independent review lane (FA1/FA4/FA5, then FA2) is on a separate branch,
+`zk60-fable-review`, off `52a13d1`, so provenance stays separate.
+
+| commit | task | what it settles | evidence |
+|---|---|---|---|
+| `ac5ff0f` | CL12 | lane synchronized; the archived GREEN floors ran on `82314a1` (pre-H1, without `44d72ff`) — no combined-tree acceptance from them (section above) | `d092c09` merge, no conflicts |
+| `4c3e869` | CL16 | the fallback-that-completes-RESIDENT return snapshot frees the raw pads/powers before the return, as `dev_commit_zk_from` does: 12,359,168 -> 12,288,000 B at the review's shape, peak unchanged | planner 27 -> 34, pending 42 -> 44 |
+| `6dce8a9` | CL15 | an EMPTY query list opens zero columns and an out-of-range index is an `Err`, decided by a pure plan (`gpu/mod.rs open_plan`, compiled everywhere) BEFORE any device work; the three `qs.last().unwrap()` sites are gone; both chunked openings consume one plan | oracle 49 -> 141 device cases (31 tests); v2/zk frozen gates at `--threads 2` match; `results/cl15_*` |
+| `df6fdb6` | CL14 | the chunk sweep's `measure` holds every row to CL5's validated-row contract before comparing digests: exit via three channels (absent = missing-evidence), ACCEPT, verified+serialized, finite positive clocks that contain each other, one proof identity; the review's `prove_s=-1` + `exit 1` fixture refused | 24 -> 44 tests; archived CL6 sweep revalidated 6/6 eligible (`results/cl6_round9_revalidation.*`), conclusion survives, no selector |
+| `cbea2e9` | CL13 | qualification evidence is a versioned RUN MANIFEST (`scripts/hashline_cl_gpu_gates.py`): every case start/recorded with exit, verdict, `gpu: ON`, full SHA-256 + length, log sha256, argv, binary digest; `finalize` computes the verdict; the preflight binds `verified_artifact` to validator + HEAD + GPU-binary digest; all four round-9 probes refuse; the runner is portable, two threads, self-test first, `--dry-run` | preflight 61 -> 78, gates 60; `bash -n`; 96-command dry run |
+| `18a72eb` | CL19 (redirected) | Codex implemented the serializer side in round 10 (`zk_proof_size.rs`, `HASHLINE_PROOF_SIZE` rows); the lane CONSUMES it: validate/reconcile rows, all 12 frozen 12x512 P1 rows sum to 87,697,008 B; the 12,288 B CL10 could only reach by subtraction is now measured (layers 1-2: A +4,096, H +8,192) | artifact profile 27 -> 82 |
+| `4a0ce56` | CL13 follow-up | suite version 2: the oracle expects 141 executed cases (CL15); v1 keeps 82314a1's 49 | gates 61 |
+
+### CL17 — the combined source, gated: `results/cl_round9_floors/manifest.json`, verdict GREEN
+
+Run 2026-09-07 12:52:09 -> 13:01:10 (9 min, warm builds), launched detached
+under the OUTER heavy lock only (the script takes its build lock inside),
+marker `results/cl_round9_floors.done` = 0, launcher log
+`results/cl_round9_floors.log`, per-case logs retained beside the manifest
+(the 49 MB `wcache/` scratch was removed after the run; the manifest records
+its hits/misses).
+
+| what | recorded |
+|---|---|
+| source | HEAD `4a0ce562e8d10a4dd4c2b6d5703039b56f2723fb`, branch `zk60-cl1`, **0 dirty tracked files**, dirty delta under `hashline/` empty (`e3b0c442..`) |
+| binaries | CPU `bdd045d4cf2ce615..` / 4,632,624 B; GPU `9f20229a680d6ada..` / 5,328,264 B (full digests in the manifest) |
+| build | CARGO_BUILD_JOBS 2, RAYON_NUM_THREADS 2, prover `--threads 2`, shape 12x512 (frozen) |
+| device | `gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)`; nvidia-smi `NVIDIA GeForce RTX 4070 Laptop GPU, 566.14` |
+| crate suites | `cargo test --release -- --test-threads=2`: 19 `test result` lines, **167 tests, 0 failed**, including the atomic wcache tests (4 named `atomic`) and the H1 verifier-hardening tests (5) alongside the lane tests |
+| oracle | `zk60_gpu_commit` under `HL_GPU_REQUIRED=1`: 31 passed, **141 executed device cases (the suite's expectation, not a floor)**, gpu_enabled + gpu_required true, the plain-reencode negative control among them |
+| controls | CPU target under `HL_GPU_REQUIRED=1`: exit 101 with "built WITHOUT --features gpu-cuda"; without the requirement: exit 0 and `executed_cases: 0` |
+| byte gates | 12/12 at FULL SHA-256 + exact length: v2 `50cf7bdf..` 66,844,928 B; v3 `5f368db6..` 70,758,084 B; zk `021485e4..` 87,228,528 B; zkv3 `40eb5479..` 87,697,008 B — each on CPU, GPU (`gpu: ON`) and GPU with hiding chunking FORCED; every prover exit 0, every verifier ACCEPT |
+| cache | separate processes: cold `--wcache` into an empty dir -> 12 MISS, `hits 0 / misses 12`; warm -> 12 HIT, `hits 12 / misses 0`; both the frozen zkv3 digest; `--p3 --wcache` refused with exit 2, first line `REFUSED: --wcache with --p3.`, nothing proved, no cache dir created |
+| validator | `hashline_cl_gpu_gates.py validate`: ok, 21/21 cases, no reasons |
+| preflight | `hashline_cl_5090_preflight.py --run-manifest ... --claim diagnostic --coverage ffn-only`: **go = True**, failed = [] (`results/cl_round9_preflight.json`) — the first manifest-bound `verified_artifact` / `binary_identity` pass; a DIAGNOSTIC claim for the 125M FFN-only shape on the RTX 4070, not a target claim and not a 5090 |
+
+What this establishes: the lane's GPU/PCS/tools source AS MERGED with
+Codex's H1 isolation and atomic cache (`d092c09` and after) reproduces the
+four frozen fixtures byte-for-byte on CPU, GPU and forced chunking, the
+device oracle executes its full case set including the new empty-query
+boundary, both missing-feature controls behave, and the adopted cache is
+byte-identical cold/warm across processes with P3 refused before cache
+creation. Integration into the performance branch is Codex's decision;
+this is the evidence CL17 was asked to supply.
+
+What it does not establish: privacy (the FFN disclosure stands, see the
+review lane), P3 identity, full-relation coverage, any p95 or the 60/s
+target; the seconds in the retained logs are two-thread laptop diagnostics.
+
+### For the integrator
+
+1. Merge `zk60-cl1` at `4a0ce56` (or later) after review; the manifest
+   above is the combined-tree gate the round-9 review asked for.
+2. Adopt `hashline_cl_gpu_gates.py validate` in the round validation record
+   instead of green-substring checks; a changed `zk60_gpu_commit.rs` cuts a
+   new suite version (v3) rather than moving v2's 141.
+3. The review lane `zk60-fable-review` (FA1 `8cd939b`, FA5 `73d93bd`, FA4
+   `b5ad7e9`, FA2 in progress) carries a HIGH finding for deployment
+   profiles (FA5 R09: the norm isqrt row accepts a half-p alias whenever
+   `n_limbs >= 3`; the A00 profile is safe only by a parameter coincidence)
+   and the P3 substitute-weight gap recorded as a MISSING constraint (FA4).
