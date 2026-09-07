@@ -50,6 +50,134 @@ pub use cuda::{dev_reserve, dev_tab_zerocheck, dev_zerocheck_blocks, TabSpecPad}
 // retained chunk scratch is what stands in the way).
 #[cfg(feature = "gpu-cuda")]
 pub use cuda::{dev_mem_info, dev_pool_drain, dev_reserve_hard};
+// [ZK60-CL15] the allocation-scoped opening probes (commit, snapshot the
+// counters, open with the caller's indices, report the counters' movement
+// across the OPEN alone) and the two kernel constants the pure plan below
+// mirrors, so a test can pin the mirror to its owner.
+#[cfg(feature = "gpu-cuda")]
+pub use cuda::{dev_commit_open_probe, dev_commit_zk_open_probe, OpenProbe, NTT_LOG_BLK, P2SP_NC};
+
+/// [ZK60-CL15] The chunked openings' HOST-SIDE index preprocessing, factored
+/// out of `columns_chunked` and `columns_chunked_zk` (cuda.rs), which used to
+/// build it twice inline, and compiled in EVERY configuration so the boundary
+/// is testable without a device.
+///
+/// WHY: Codex's round-9 review found, by source inspection, that the hiding
+/// fused/pruned opening reached `qs.last().unwrap()` with no guard for an
+/// empty query list — after it had already taken three scratch buffers,
+/// uploaded the index list and allocated the output. The decision here is
+/// that an EMPTY query list opens ZERO columns (`OpenPlan::Empty`) and an
+/// out-of-range index is an `Err`, both decided by this pure function BEFORE
+/// any device work, so neither case allocates, uploads or launches anything.
+///
+/// The values are exactly what the device code built before (bit-identical,
+/// so no proof byte can move): one output slot per DISTINCT index in
+/// first-occurrence order (`uniq`), the per-column slot map the fused gather
+/// kernels read (`sel`, `-1` = not sampled), the per-index slot (`slot`, how
+/// duplicates are filled from the first occurrence on the host), the plain
+/// `i32` index list the unfused gather kernel reads (`idx32`), and — on the
+/// pruned route — the compact residue list `col mod blk`, sorted, deduped,
+/// kept only when at most a quarter of the block (`nq * 4 <= blk`) and
+/// padded to a multiple of `p2sp_nc` by repeating its last entry (those lanes
+/// compute and are never stored). Fusion is declined when `log_nn <= log_blk`
+/// (there is no second stage group to fuse) and pruning when
+/// `log_nn - log_blk > 5` (the tile would not fit), exactly as before.
+///
+/// `blk` (= `1 << NTT_LOG_BLK`) and `p2sp_nc` (= `P2SP_NC`) are passed in:
+/// cuda.rs stays the owner of the kernel constants.
+pub mod open_plan {
+    /// One nonempty opening's host-side plan. See the module doc for each field.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct OpenIndices {
+        /// the fused form serves this opening: requested AND `log_nn > log_blk`
+        pub fused: bool,
+        /// per encoded column (`nn` entries): `-1`, or the output slot of that column
+        pub sel: Vec<i32>,
+        /// per opened index: its output slot
+        pub slot: Vec<usize>,
+        /// the distinct opened indices, first-occurrence order (one output slot each)
+        pub uniq: Vec<usize>,
+        /// the opened indices as `i32`, in the caller's order (the unfused gather list)
+        pub idx32: Vec<i32>,
+        /// the pruned last stage group's residue list, padded, with its distinct count
+        pub residues: Option<(Vec<i32>, usize)>,
+    }
+
+    impl OpenIndices {
+        /// The list the device gather reads: the slot map when fused, else the indices.
+        pub fn device_index_list(&self) -> &[i32] {
+            if self.fused { &self.sel } else { &self.idx32 }
+        }
+        /// Output columns the device writes: one per distinct index when fused, else one per index.
+        pub fn cols_out(&self) -> usize {
+            if self.fused { self.uniq.len() } else { self.idx32.len() }
+        }
+        /// The output column holding opened index number `c`.
+        pub fn out_slot(&self, c: usize) -> usize {
+            if self.fused { self.slot[c] } else { c }
+        }
+    }
+
+    /// The decision for a query list.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum OpenPlan {
+        /// no indices: open zero columns, touch nothing on the device
+        Empty,
+        Open(OpenIndices),
+    }
+
+    /// The compact residue list `j mod blk` of `idx`: sorted, deduplicated,
+    /// then padded to a multiple of `p2sp_nc` by repeating its LAST entry.
+    /// Returns `(list, distinct count)`; `None` for an empty `idx` — the
+    /// site the round-9 review flagged unwrapped the last entry of an empty
+    /// list. This does NOT apply the `nq * 4 <= blk` size rule (the bench
+    /// wants the list regardless); `plan_open_indices` applies it.
+    pub fn residue_list(idx: &[usize], blk: usize, p2sp_nc: usize) -> Option<(Vec<i32>, usize)> {
+        let mut qs: Vec<i32> = idx.iter().map(|&j| (j & (blk - 1)) as i32).collect();
+        qs.sort_unstable();
+        qs.dedup();
+        let nq = qs.len();
+        let last = *qs.last()?;
+        qs.resize(nq.div_ceil(p2sp_nc) * p2sp_nc, last);
+        Some((qs, nq))
+    }
+
+    /// Plan one opening of `idx` over `nn` encoded columns. `fused` and
+    /// `prune` are the caller's switch settings (`HL_GPU_FUSE_GATHER` /
+    /// `HL_ZK_FUSE_GATHER`, `HL_GPU_PRUNE_P2`); eligibility by shape is
+    /// decided here. Errors: a malformed shape, or any index `>= nn`.
+    pub fn plan_open_indices(idx: &[usize], nn: usize, blk: usize, p2sp_nc: usize, fused: bool, prune: bool) -> Result<OpenPlan, String> {
+        if !nn.is_power_of_two() || !blk.is_power_of_two() || p2sp_nc == 0 {
+            return Err(format!("open plan: malformed shape (nn {nn}, blk {blk}, p2sp_nc {p2sp_nc})"));
+        }
+        if idx.is_empty() {
+            return Ok(OpenPlan::Empty);
+        }
+        if let Some(&bad) = idx.iter().find(|&&j| j >= nn) {
+            return Err(format!("opened index {bad} is out of range for {nn} encoded columns"));
+        }
+        let log_nn = nn.trailing_zeros();
+        let log_blk = blk.trailing_zeros();
+        let fused = fused && log_nn > log_blk;
+        let mut uniq: Vec<usize> = Vec::with_capacity(idx.len());
+        let mut slot: Vec<usize> = Vec::with_capacity(idx.len());
+        let mut sel: Vec<i32> = vec![-1; nn];
+        for &j in idx {
+            if sel[j] < 0 {
+                sel[j] = uniq.len() as i32;
+                uniq.push(j);
+            }
+            slot.push(sel[j] as usize);
+        }
+        let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
+        let residues = if fused && prune && log_nn - log_blk <= 5 {
+            residue_list(idx, blk, p2sp_nc).filter(|&(_, nq)| nq * 4 <= blk)
+        } else {
+            None
+        };
+        Ok(OpenPlan::Open(OpenIndices { fused, sel, slot, uniq, idx32, residues }))
+    }
+}
 
 #[cfg(not(feature = "gpu-cuda"))]
 mod stub {

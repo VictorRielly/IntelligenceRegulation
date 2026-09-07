@@ -17,6 +17,8 @@ use rayon::prelude::*;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Instant;
+// [ZK60-CL15] the openings' pure index plan (mod.rs; compiled without the feature too)
+use super::open_plan::{plan_open_indices, residue_list, OpenPlan};
 
 const KSRC: &str = include_str!("kernels.cu");
 const MODULE: &str = "hlgpu";
@@ -40,7 +42,9 @@ const SC_MAX_BLOCKS: u32 = 1024;
 /// parameter array they can hold (kernels.cu: SCG_THREADS / SCG_MAX_PRM).
 const SCG_THREADS: u32 = 128;
 pub const SCG_MAX_PRM: usize = 384;
-const NTT_LOG_BLK: u32 = 12;
+/// [ZK60-CL15] `pub` so the test file can pin the mirror the no-feature
+/// `open_plan` tests use (`1 << 12`) to this, its owner.
+pub const NTT_LOG_BLK: u32 = 12;
 fn ntt_threads() -> u32 {
     static V: OnceLock<u32> = OnceLock::new();
     // [UPERF3-AJ] 256 -> 512: the NTT kernels hold a 32 KB shared tile, so
@@ -74,8 +78,8 @@ fn kn_dit_p1_pad() -> &'static str { if pad_skip() { "k_dit_p1_pad_s" } else { "
 
 /// [UPERF3-AO] lever L9 rung 3: the column count of one pruned tile
 /// (kernels.cu `P2SP_NC`). The opening's compact residue list is padded to
-/// a multiple of this.
-const P2SP_NC: usize = 64;
+/// a multiple of this. [ZK60-CL15] `pub` for the same pinning as `NTT_LOG_BLK`.
+pub const P2SP_NC: usize = 64;
 /// [UPERF3-AO] `HL_GPU_PRUNE_P2=0` restores the DENSE fused last stage
 /// group. On the default the opening's last stage group runs only over the
 /// distinct residues `col mod 2^NTT_LOG_BLK` of the sampled columns —
@@ -229,6 +233,25 @@ pub struct PoolStats {
     /// raw (non-pool) device allocations on the commitment/opening paths
     pub raw_count: usize,
     pub raw_bytes: usize,
+}
+
+impl PoolStats {
+    /// [ZK60-CL15] The counters' movement between two snapshots (every field
+    /// only grows between resets, so this is exact). Lets a probe report what
+    /// ONE step allocated — the opening alone, after its commit — without
+    /// resetting the process-global counters under a test that may be
+    /// tracking them.
+    pub fn delta_since(&self, before: &PoolStats) -> PoolStats {
+        PoolStats {
+            fresh_count: self.fresh_count.saturating_sub(before.fresh_count),
+            fresh_bytes: self.fresh_bytes.saturating_sub(before.fresh_bytes),
+            reuse_count: self.reuse_count.saturating_sub(before.reuse_count),
+            reuse_capacity_bytes: self.reuse_capacity_bytes.saturating_sub(before.reuse_capacity_bytes),
+            reuse_requested_bytes: self.reuse_requested_bytes.saturating_sub(before.reuse_requested_bytes),
+            raw_count: self.raw_count.saturating_sub(before.raw_count),
+            raw_bytes: self.raw_bytes.saturating_sub(before.raw_bytes),
+        }
+    }
 }
 
 pub fn pool_stats_for_test() -> PoolStats {
@@ -1020,6 +1043,12 @@ fn reenc_bench_at(g: &mut Gpu, rows: usize) {
     let log_nn = log_n + inv_rate.trailing_zeros();
     let n = 1usize << log_n;
     let nn = 1usize << log_nn;
+    // [ZK60-CL15] nothing to open: say so and stop, rather than reach the
+    // residue list's last entry (the site the round-9 review flagged).
+    if q == 0 {
+        eprintln!("[UPERF3-AO] reenc bench: HL_BENCH_Q=0 opens no columns; nothing to time, skipping rows {rows}");
+        return;
+    }
     let ntt = NttTables::new(log_nn);
     if let Err(e) = g.ensure_twiddles(&ntt) {
         eprintln!("[UPERF3-AO] reenc bench: twiddles: {e}");
@@ -1070,22 +1099,26 @@ fn reenc_bench_at(g: &mut Gpu, rows: usize) {
         (Ok(a), Ok(b)) => (a, b),
         _ => { eprintln!("[UPERF3-AO] reenc bench: scratch alloc failed"); return; }
     };
-    let mut sel: Vec<i32> = vec![-1; nn];
-    let mut uniq = 0usize;
-    for &j in &idx {
-        if sel[j] < 0 { sel[j] = uniq as i32; uniq += 1; }
-    }
-    let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
-    let d_sel = dev.htod_sync_copy(&sel).unwrap();
-    let d_idx = dev.htod_sync_copy(&idx32).unwrap();
-    // [UPERF3-AO] rung 3's compact residue list, exactly as `columns_chunked` builds it
+    // [ZK60-CL15] the slot map and index list from the SAME pure plan the
+    // openings consume (fusion requested, no pruning: the bench uploads both
+    // the dense-fused selector and the plain list and times each kernel).
+    let p = match plan_open_indices(&idx, nn, 1usize << NTT_LOG_BLK, P2SP_NC, true, false) {
+        Ok(OpenPlan::Open(p)) => p,
+        Ok(OpenPlan::Empty) => { eprintln!("[UPERF3-AO] reenc bench: no indices to open, skipping"); return; }
+        Err(e) => { eprintln!("[UPERF3-AO] reenc bench: index plan: {e}"); return; }
+    };
+    let uniq = p.uniq.len();
+    let d_sel = dev.htod_sync_copy(&p.sel).unwrap();
+    let d_idx = dev.htod_sync_copy(&p.idx32).unwrap();
+    // [UPERF3-AO] rung 3's compact residue list, exactly as `columns_chunked`
+    // builds it — [ZK60-CL15] through the shared `residue_list` (the bench
+    // times the pruned kernel regardless of the `nq * 4 <= blk` rule, so it
+    // asks for the list directly; `q > 0` was checked above, so it exists).
     let blk = 1usize << NTT_LOG_BLK;
-    let mut qs: Vec<i32> = idx.iter().map(|&j| (j & (blk - 1)) as i32).collect();
-    qs.sort_unstable();
-    qs.dedup();
-    let nq = qs.len();
-    let last = *qs.last().unwrap();
-    qs.resize(nq.div_ceil(P2SP_NC) * P2SP_NC, last);
+    let (qs, nq) = match residue_list(&idx, blk, P2SP_NC) {
+        Some(v) => v,
+        None => { eprintln!("[UPERF3-AO] reenc bench: empty residue list, skipping"); return; }
+    };
     let d_ql = dev.htod_sync_copy(&qs).unwrap();
     let mut d_out = unsafe { dev.alloc::<u64>(rows * q) }.unwrap();
     let threads = ntt_threads();
@@ -1550,12 +1583,6 @@ impl Gpu {
         let n = 1usize << log_n;
         let nn = 1usize << log_nn;
         let q_open = idx.len();
-        let plan = chunk_plan(rows, chunk);
-        let rmax = plan.iter().map(|&(_, rc)| rc).max().unwrap();
-        let t0 = Instant::now();
-        let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
-        let mut d_coef2 = Pooled::take_min(&dev, rmax * nn)?;
-        let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
         // [ZK60-CL7] the fused form, built exactly as `columns_chunked` builds
         // it: one output slot per DISTINCT index (`challenge_indices` may
         // repeat one; duplicates are filled from the first occurrence on the
@@ -1563,41 +1590,36 @@ impl Gpu {
         // residue list for the pruned last stage group when it is materially
         // smaller than the dense axis. Declined below NTT_LOG_BLK, where there
         // is no second stage group to fuse.
-        let fused = zk_fuse_gather() && fuse_gather() && log_nn > NTT_LOG_BLK;
-        let mut uniq: Vec<usize> = Vec::with_capacity(q_open);
-        let mut slot: Vec<usize> = Vec::with_capacity(q_open);
-        let mut sel: Vec<i32> = vec![-1; nn];
-        for &j in idx {
-            if sel[j] < 0 {
-                sel[j] = uniq.len() as i32;
-                uniq.push(j);
-            }
-            slot.push(sel[j] as usize);
-        }
-        let nu = uniq.len();
-        let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
-        let d_idx = dev.htod_sync_copy(if fused { &sel } else { &idx32 }).map_err(|e| e.to_string())?;
-        note_raw_alloc(if fused { sel.len() } else { idx32.len() } * 4);
-        let blk = 1usize << NTT_LOG_BLK;
-        let sp_list: Option<(CudaSlice<i32>, usize)> = if fused && prune_p2() && log_nn - NTT_LOG_BLK <= 5 {
-            let mut qs: Vec<i32> = idx.iter().map(|&j| (j & (blk - 1)) as i32).collect();
-            qs.sort_unstable();
-            qs.dedup();
-            let nq = qs.len();
-            if nq * 4 <= blk {
-                let pad = nq.div_ceil(P2SP_NC) * P2SP_NC;
-                let last = *qs.last().unwrap();
-                qs.resize(pad, last);
-                let b = dev.htod_sync_copy(&qs).map_err(|e| e.to_string())?;
-                note_raw_alloc(qs.len() * 4);
-                Some((b, nq))
-            } else {
-                None
-            }
-        } else {
-            None
+        //
+        // [ZK60-CL15] All of that is now the ONE pure plan in mod.rs, decided
+        // FIRST: an empty query list opens zero columns and an out-of-range
+        // index is an error, both before any scratch is taken, any list is
+        // uploaded or any output is allocated. Same values as before, so the
+        // proof bytes cannot move. `prune_p2()` is read here unconditionally;
+        // it only reads a switch.
+        let p = match plan_open_indices(idx, nn, 1usize << NTT_LOG_BLK, P2SP_NC, zk_fuse_gather() && fuse_gather(), prune_p2())? {
+            OpenPlan::Empty => return Ok(Vec::new()),
+            OpenPlan::Open(p) => p,
         };
-        let cols_out = if fused { nu } else { q_open };
+        let fused = p.fused;
+        let plan = chunk_plan(rows, chunk);
+        let rmax = plan.iter().map(|&(_, rc)| rc).max().unwrap();
+        let t0 = Instant::now();
+        let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
+        let mut d_coef2 = Pooled::take_min(&dev, rmax * nn)?;
+        let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+        let d_idx = dev.htod_sync_copy(p.device_index_list()).map_err(|e| e.to_string())?;
+        note_raw_alloc(p.device_index_list().len() * 4);
+        let blk = 1usize << NTT_LOG_BLK;
+        let sp_list: Option<(CudaSlice<i32>, usize)> = match &p.residues {
+            Some((qs, nq)) => {
+                let b = dev.htod_sync_copy(qs).map_err(|e| e.to_string())?;
+                note_raw_alloc(qs.len() * 4);
+                Some((b, *nq))
+            }
+            None => None,
+        };
+        let cols_out = p.cols_out();
         let mut d_out = unsafe { dev.alloc::<u64>(rows * cols_out) }.map_err(|e| e.to_string())?;
         note_raw_alloc(rows * cols_out * 8);
         let f = dev.get_func(MODULE, "k_gather_cols_off").ok_or("k_gather_cols_off missing")?;
@@ -1630,7 +1652,7 @@ impl Gpu {
         stats_with(|s| { s.secs_reenc += dt; s.bytes_d2h += (rows * cols_out * 8) as u64; });
         Ok((0..q_open)
             .map(|c| {
-                let s0 = if fused { slot[c] } else { c } * rows;
+                let s0 = p.out_slot(c) * rows;
                 out[s0..s0 + rows].iter().map(|&v| Fp(v)).collect()
             })
             .collect())
@@ -2054,55 +2076,40 @@ impl Gpu {
         let n = 1usize << log_n;
         let nn = 1usize << log_nn;
         let q = idx.len();
-        let plan = chunk_plan(rows, chunk);
-        let rmax = plan.iter().map(|&(_, rc)| rc).max().unwrap();
-        let t0 = Instant::now();
-        let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
-        let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
         // [UPERF3-AJ] the fused form needs one output slot per DISTINCT index
         // (`challenge_indices` may repeat one; the duplicates are filled from
         // the first occurrence on the host, exactly as the gather kernel did).
-        let fused = fuse_gather() && log_nn > NTT_LOG_BLK;
-        let mut uniq: Vec<usize> = Vec::with_capacity(q);
-        let mut slot: Vec<usize> = Vec::with_capacity(q);
-        let mut sel: Vec<i32> = vec![-1; nn];
-        for &j in idx {
-            if sel[j] < 0 {
-                sel[j] = uniq.len() as i32;
-                uniq.push(j);
-            }
-            slot.push(sel[j] as usize);
-        }
-        let nu = uniq.len();
-        let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
-        let d_idx = dev.htod_sync_copy(if fused { &sel } else { &idx32 }).map_err(|e| e.to_string())?;
-        note_raw_alloc(if fused { sel.len() } else { idx32.len() } * 4);
         // [UPERF3-AO] rung 3: the distinct residues qq = col mod 2^NTT_LOG_BLK.
         // The last stage group is an independent nt-point transform per qq, so
         // only these can produce a sampled column; the list is padded to a
         // multiple of P2SP_NC by repeating its last entry (those lanes compute
         // and are never stored). Declined when it would not be materially
         // smaller than the dense axis, or when the tile would not fit.
-        let blk = 1usize << NTT_LOG_BLK;
-        let sp_list: Option<(CudaSlice<i32>, usize)> = if fused && prune_p2() && log_nn - NTT_LOG_BLK <= 5 {
-            let mut qs: Vec<i32> = idx.iter().map(|&j| (j & (blk - 1)) as i32).collect();
-            qs.sort_unstable();
-            qs.dedup();
-            let nq = qs.len();
-            if nq * 4 <= blk {
-                let pad = nq.div_ceil(P2SP_NC) * P2SP_NC;
-                let last = *qs.last().unwrap();
-                qs.resize(pad, last);
-                let b = dev.htod_sync_copy(&qs).map_err(|e| e.to_string())?;
-                note_raw_alloc(qs.len() * 4);
-                Some((b, nq))
-            } else {
-                None
-            }
-        } else {
-            None
+        //
+        // [ZK60-CL15] Both are the ONE pure plan in mod.rs, decided FIRST: an
+        // empty query list opens zero columns and an out-of-range index is an
+        // error, before any scratch, upload or output allocation. Same values.
+        let p = match plan_open_indices(idx, nn, 1usize << NTT_LOG_BLK, P2SP_NC, fuse_gather(), prune_p2())? {
+            OpenPlan::Empty => return Ok(Vec::new()),
+            OpenPlan::Open(p) => p,
         };
-        let cols_out = if fused { nu } else { q };
+        let fused = p.fused;
+        let plan = chunk_plan(rows, chunk);
+        let rmax = plan.iter().map(|&(_, rc)| rc).max().unwrap();
+        let t0 = Instant::now();
+        let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
+        let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+        let d_idx = dev.htod_sync_copy(p.device_index_list()).map_err(|e| e.to_string())?;
+        note_raw_alloc(p.device_index_list().len() * 4);
+        let sp_list: Option<(CudaSlice<i32>, usize)> = match &p.residues {
+            Some((qs, nq)) => {
+                let b = dev.htod_sync_copy(qs).map_err(|e| e.to_string())?;
+                note_raw_alloc(qs.len() * 4);
+                Some((b, *nq))
+            }
+            None => None,
+        };
+        let cols_out = p.cols_out();
         let mut d_out = unsafe { dev.alloc::<u64>(rows * cols_out) }.map_err(|e| e.to_string())?;
         note_raw_alloc(rows * cols_out * 8);
         let f = dev.get_func(MODULE, "k_gather_cols_off").ok_or("k_gather_cols_off missing")?;
@@ -2126,7 +2133,7 @@ impl Gpu {
         stats_with(|s| { s.secs_reenc += dt; s.bytes_d2h += (rows * cols_out * 8) as u64; });
         Ok((0..q)
             .map(|c| {
-                let s0 = if fused { slot[c] } else { c } * rows;
+                let s0 = p.out_slot(c) * rows;
                 out[s0..s0 + rows].iter().map(|&v| Fp(v)).collect()
             })
             .collect())
@@ -2138,6 +2145,61 @@ impl Gpu {
 /// encoding at 16 indices, for `rows` rows in chunks of `chunk` rows.
 /// Returns (bad leaves, bad column entries).
 pub fn dev_commit_check_chunked(log_cols: u32, inv_rate: usize, rows: usize, chunk: usize) -> Result<(usize, usize), String> {
+    let nn = PcsParams { log_cols, inv_rate, num_col_checks: 16 }.enc_cols();
+    let idx: Vec<usize> = (0..16).map(|i| (i * 7919 + 13) % nn).collect();
+    let p = dev_commit_open_probe(log_cols, inv_rate, rows, chunk, &idx)?;
+    let (_, bad_cols) = p.open?;
+    Ok((p.bad_leaves, bad_cols))
+}
+
+/// [ZK60-CL15] What an opening did, on its own. The oracle helpers commit
+/// first, and the commit allocates, so a "the empty open allocated nothing"
+/// claim needs the counters read around the OPEN alone: `alloc` is the
+/// movement of every pool/raw counter across the open call and nothing else.
+/// `open` is the opening's own outcome — `Ok((columns returned, bad column
+/// entries against the CPU))` or the error it returned — kept as a value so
+/// a test can assert that an out-of-range list is an `Err` AND allocated
+/// nothing, from one call.
+#[derive(Debug, Clone)]
+pub struct OpenProbe {
+    /// mismatching leaves of the chunked commitment (always computed)
+    pub bad_leaves: usize,
+    /// the OPEN's outcome
+    pub open: Result<(usize, usize), String>,
+    /// the allocation counters' movement across the OPEN alone
+    pub alloc: PoolStats,
+}
+
+/// Open `dc` with `idx` through `open`, comparing every returned column against
+/// `cpu` (row-major, `nn` wide), with the counters snapshotted around the call.
+fn open_probe_run<F>(open: F, idx: &[usize], cpu: &[Fp], rows: usize, nn: usize) -> (Result<(usize, usize), String>, PoolStats)
+where
+    F: FnOnce() -> Result<Vec<Vec<Fp>>, String>,
+{
+    let before = pool_stats_for_test();
+    let r = open();
+    let alloc = pool_stats_for_test().delta_since(&before);
+    let open = r.map(|cols| {
+        let mut bad_cols = 0;
+        for (c, &j) in idx.iter().enumerate() {
+            for i in 0..rows {
+                if cols[c][i] != cpu[i * nn + j] {
+                    bad_cols += 1;
+                }
+            }
+        }
+        (cols.len(), bad_cols)
+    });
+    (open, alloc)
+}
+
+/// [ZK60-CL15] The NON-hiding chunked oracle with the opened indices supplied
+/// by the caller (the body `dev_commit_check_chunked` always had, with the
+/// index list a parameter): commit with `commit_chunked`, open with
+/// `columns_chunked`, compare to the CPU encoding. The index list is NOT
+/// pre-checked here — the point is to exercise the opening's own boundary
+/// (empty, duplicate, out-of-range) and report what it allocated.
+pub fn dev_commit_open_probe(log_cols: u32, inv_rate: usize, rows: usize, chunk: usize, idx: &[usize]) -> Result<OpenProbe, String> {
     let params = PcsParams { log_cols, inv_rate, num_col_checks: 16 };
     let ntt = NttTables::new(log_cols + inv_rate.trailing_zeros());
     let n = params.cols();
@@ -2165,17 +2227,8 @@ pub fn dev_commit_check_chunked(log_cols: u32, inv_rate: usize, rows: usize, chu
     let leaves = g.commit_chunked(&d_data, rows, params.log_cols, nn.trailing_zeros(), chunk)?;
     let bad_leaves = leaves.iter().zip(cpu_leaves.iter()).filter(|(a, b)| a != b).count();
     let dc = DevCommit { rows, log_n: params.log_cols, log_nn: nn.trailing_zeros(), data: d_data, enc: None, zk: None };
-    let idx: Vec<usize> = (0..16).map(|i| (i * 7919 + 13) % nn).collect();
-    let cols = g.columns_chunked(&dc, &idx, chunk)?;
-    let mut bad_cols = 0;
-    for (c, &j) in idx.iter().enumerate() {
-        for i in 0..rows {
-            if cols[c][i] != cpu[i * nn + j] {
-                bad_cols += 1;
-            }
-        }
-    }
-    Ok((bad_leaves, bad_cols))
+    let (open, alloc) = open_probe_run(|| g.columns_chunked(&dc, idx, chunk), idx, &cpu, rows, nn);
+    Ok(OpenProbe { bad_leaves, open, alloc })
 }
 
 /// [ZK60-CL1] The chunked HIDING commitment's oracle. Checks BOTH halves that
@@ -2199,6 +2252,27 @@ pub fn dev_commit_zk_check_chunked(log_cols: u32, inv_rate: usize, rows: usize, 
 /// `Transcript::challenge_indices` can produce. Out-of-range indices are an
 /// error, not a panic.
 pub fn dev_commit_zk_check_chunked_with(log_cols: u32, inv_rate: usize, rows: usize, q_pad: usize, chunk: usize, plain_reencode: bool, idx: Option<&[usize]>) -> Result<(usize, usize), String> {
+    let nn = PcsParams { log_cols, inv_rate, num_col_checks: 16 }.enc_cols();
+    let idx: Vec<usize> = match idx {
+        Some(v) => {
+            if let Some(&bad) = v.iter().find(|&&j| j >= nn) {
+                return Err(format!("opened index {bad} is out of range for {nn} encoded columns"));
+            }
+            v.to_vec()
+        }
+        None => (0..16).map(|i| (i * 7919 + 13) % nn).collect(),
+    };
+    let p = dev_commit_zk_open_probe(log_cols, inv_rate, rows, q_pad, chunk, plain_reencode, &idx)?;
+    let (_, bad_cols) = p.open?;
+    Ok((p.bad_leaves, bad_cols))
+}
+
+/// [ZK60-CL15] The hiding oracle's body with the opening's own outcome and
+/// allocation movement reported (`OpenProbe`), and the index list passed to
+/// the opening UNCHECKED so its boundary is what gets exercised. `Err` from
+/// this function is a failure of the fixture or the COMMIT; the open's error,
+/// if any, is inside `open`.
+pub fn dev_commit_zk_open_probe(log_cols: u32, inv_rate: usize, rows: usize, q_pad: usize, chunk: usize, plain_reencode: bool, idx: &[usize]) -> Result<OpenProbe, String> {
     let params = PcsParams { log_cols, inv_rate, num_col_checks: 16 };
     let ntt = NttTables::new(log_cols + inv_rate.trailing_zeros());
     let n = params.cols();
@@ -2240,29 +2314,15 @@ pub fn dev_commit_zk_check_chunked_with(log_cols: u32, inv_rate: usize, rows: us
         rows, log_n: log_cols, log_nn, data: d_data, enc: None,
         zk: Some(ZkReenc { pads: d_pads, pows: d_pows, q: q_pad }),
     };
-    let idx: Vec<usize> = match idx {
-        Some(v) => {
-            if let Some(&bad) = v.iter().find(|&&j| j >= nn) {
-                return Err(format!("opened index {bad} is out of range for {nn} encoded columns"));
-            }
-            v.to_vec()
-        }
-        None => (0..16).map(|i| (i * 7919 + 13) % nn).collect(),
-    };
-    let cols = if plain_reencode {
-        g.columns_chunked(&dc, &idx, chunk)?
-    } else {
-        g.columns_chunked_zk(&dc, dc.zk.as_ref().unwrap(), &idx, chunk)?
-    };
-    let mut bad_cols = 0;
-    for (c, &j) in idx.iter().enumerate() {
-        for i in 0..rows {
-            if cols[c][i] != cpu[i * nn + j] {
-                bad_cols += 1;
-            }
-        }
-    }
-    Ok((bad_leaves, bad_cols))
+    let (open, alloc) = open_probe_run(
+        || if plain_reencode {
+            g.columns_chunked(&dc, idx, chunk)
+        } else {
+            g.columns_chunked_zk(&dc, dc.zk.as_ref().unwrap(), idx, chunk)
+        },
+        idx, &cpu, rows, nn,
+    );
+    Ok(OpenProbe { bad_leaves, open, alloc })
 }
 
 /// [ZK60-CL2] The INTERLEAVING oracle. Commits several hiding commitments
@@ -2511,12 +2571,24 @@ pub fn dev_hash_check(rows: usize) -> Result<usize, String> {
 
 /// The opened columns: for each index j, the column's `rows` entries of the encoded matrix.
 pub fn dev_columns(dc: &DevCommit, idx: &[usize]) -> Result<Vec<Vec<Fp>>, String> {
-    let g = gpu().ok_or_else(init_err)?;
-    let g = g.lock().unwrap();
-    let dev = g.dev.clone();
     let q = idx.len();
     let rows = dc.rows;
     let nn = 1usize << dc.log_nn;
+    // [ZK60-CL15] The public entry's boundary, decided before the device is
+    // even locked, for all three arms: an EMPTY query list opens zero columns
+    // (nothing to gather, nothing to allocate — a zero-length upload would in
+    // fact be a driver error), and an out-of-range index is an error rather
+    // than an out-of-bounds device read. `challenge_indices` never produces
+    // either, so no caller's proof bytes move.
+    if q == 0 {
+        return Ok(Vec::new());
+    }
+    if let Some(&bad) = idx.iter().find(|&&j| j >= nn) {
+        return Err(format!("opened index {bad} is out of range for {nn} encoded columns"));
+    }
+    let g = gpu().ok_or_else(init_err)?;
+    let g = g.lock().unwrap();
+    let dev = g.dev.clone();
     // [UPERF3-AC] a chunked commitment: re-encode chunk by chunk and gather
     let enc = match (&dc.enc, &dc.zk) {
         (Some(e), _) => e,

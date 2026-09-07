@@ -1,0 +1,15 @@
+== build 2026-09-07T12:33:37-07:00
+build exit=0
+== v2 2026-09-07T12:33:37-07:00  (HL_GPU=1 HL_ZK_CHUNK=1 pass 12 512 --threads 2)
+v2 exit=0
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+PROOF sha256 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d (66844928 B)
+PASS ACCEPT: 12 x 512: witness load+chain 2.93 s | PROVE 2.42 s | VERIFY 0.30 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.200e10 proven MAC/s (prove wall) | wall 5.73 s
+v2 sha256 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d  bytes 66844928
+== zk 2026-09-07T12:33:45-07:00  (HL_GPU=1 HL_ZK_CHUNK=1 pass 12 512 --threads 2 --zk --seed 1)
+zk exit=0
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+PROOF sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d (87228528 B) [ZK randomness deterministic-test]
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 2.96 s | PROVE 3.83 s | VERIFY 0.48 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 7.565e9 proven MAC/s (prove wall) | wall 7.39 s
+zk sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d  bytes 87228528
+== done 2026-09-07T12:33:56-07:00

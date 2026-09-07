@@ -120,7 +120,7 @@
       "priority": 0,
       "title": "Define and test empty GPU opening queries",
       "owner": "Fable / Claude GPU lane",
-      "status": "ready",
+      "status": "done",
       "depends_on": [],
       "files": [
         "hashline/src/gpu/cuda.rs",
@@ -136,7 +136,15 @@
         "The device oracle explicitly executes the empty boundary plus duplicate, out-of-range, ragged and below-fusion-threshold cases on applicable routes.",
         "Valid nonempty leaves/opened columns retain CPU parity and frozen proof bytes under CL17."
       ],
-      "limits": "The round-9 finding is source-derived, not a Codex GPU reproduction. One GPU core writer; do not change PCS transcripts or caller semantics outside the agreed interface."
+      "limits": "The round-9 finding is source-derived, not a Codex GPU reproduction. One GPU core writer; do not change PCS transcripts or caller semantics outside the agreed interface.",
+      "result": {
+        "date": "2026-09-07",
+        "base": "4c3e869",
+        "device_oracle": "31 passed / 0 failed; ZK60_CL4_SUMMARY executed_cases 141 (was 49), gpu_enabled+gpu_required true, RTX 4070 Laptop GPU; results/cl15_oracle_gpu.log",
+        "no_feature": "CPU target: exit 0 with executed_cases 0; HL_GPU_REQUIRED=1 exit 101 with the built-WITHOUT reason",
+        "frozen_gates_threads2_forced_chunk": "v2 50cf7bdf..46a17d 66844928 B and zk 021485e4..02282d 87228528 B both MATCH (archived runs used --threads 8); results/cl15_frozen_gates.log",
+        "limits": "columns_chunked unfused route covered by shape only; dev_columns' guard by inspection; v3/zkv3 fixtures left to CL17"
+      }
     },
     {
       "id": "CL16",

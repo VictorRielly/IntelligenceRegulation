@@ -40,6 +40,189 @@ fn gpu_required_gate_refuses_a_build_without_the_feature() {
     }
 }
 
+// ---------------------------------------------------------------------------
+// [ZK60-CL15] The openings' index boundary, WITHOUT a device. Codex's round-9
+// review found (by source inspection) that the hiding fused/pruned opening
+// reached `qs.last().unwrap()` on an empty query list after it had already
+// taken scratch, uploaded the index list and allocated the output. The
+// preprocessing both chunked openings duplicated is now ONE pure function in
+// `gpu/mod.rs`, compiled in every configuration, and these tests run in the
+// no-feature build: an empty list is `Empty`, an out-of-range index is `Err`,
+// and every other value is exactly what the device code used to build inline.
+// ---------------------------------------------------------------------------
+mod open_plan_boundary {
+    use hashline::gpu::open_plan::{plan_open_indices, residue_list, OpenPlan};
+
+    /// Mirrors of cuda.rs `NTT_LOG_BLK` (12) and `P2SP_NC` (64); the feature
+    /// build pins them to their owner in `device::open_plan_mirrors_the_kernel_constants`.
+    const BLK: usize = 1 << 12;
+    const NC: usize = 64;
+
+    /// The CL7 duplicate list: 11 indices, 7 distinct, at nn = 2^14.
+    const DUPS: [usize; 11] = [5, 4099, 5, 16383, 4099, 0, 0, 8191, 5, 4095, 4096];
+
+    #[test]
+    fn an_empty_query_list_is_empty_on_every_route() {
+        for &nn in &[1usize << 10, 1 << 12, 1 << 14, 1 << 17] {
+            for fused in [true, false] {
+                for prune in [true, false] {
+                    assert_eq!(
+                        plan_open_indices(&[], nn, BLK, NC, fused, prune),
+                        Ok(OpenPlan::Empty),
+                        "empty list at nn {nn}, fused {fused}, prune {prune}"
+                    );
+                }
+            }
+        }
+        assert_eq!(residue_list(&[], BLK, NC), None, "an empty residue list has no last entry to pad with");
+    }
+
+    #[test]
+    fn an_out_of_range_index_is_an_error_not_a_panic() {
+        let nn = 1usize << 14;
+        for bad in [vec![nn], vec![5, nn, 5], vec![0, nn + 1], vec![usize::MAX], vec![nn - 1, nn]] {
+            for fused in [true, false] {
+                let r = plan_open_indices(&bad, nn, BLK, NC, fused, true);
+                let e = r.expect_err(&format!("{bad:?} must be refused"));
+                assert!(e.contains("out of range"), "the error must say why: {e}");
+            }
+        }
+        // the largest legal index is fine
+        assert!(matches!(plan_open_indices(&[nn - 1], nn, BLK, NC, true, true), Ok(OpenPlan::Open(_))));
+    }
+
+    #[test]
+    fn duplicates_collapse_to_one_slot_each_in_first_occurrence_order() {
+        let nn = 1usize << 14;
+        let p = match plan_open_indices(&DUPS, nn, BLK, NC, true, true) {
+            Ok(OpenPlan::Open(p)) => p,
+            other => panic!("expected a plan, got {other:?}"),
+        };
+        assert!(p.fused, "log_nn 14 > 12 is fusion-eligible");
+        assert_eq!(p.uniq, vec![5, 4099, 16383, 0, 8191, 4095, 4096]);
+        assert_eq!(p.slot, vec![0, 1, 0, 2, 1, 3, 3, 4, 0, 5, 6]);
+        assert_eq!(p.idx32, DUPS.iter().map(|&j| j as i32).collect::<Vec<_>>());
+        assert_eq!(p.sel.len(), nn);
+        for (slot, &j) in p.uniq.iter().enumerate() {
+            assert_eq!(p.sel[j], slot as i32, "sel[{j}]");
+        }
+        assert_eq!(p.sel.iter().filter(|&&s| s >= 0).count(), 7, "exactly the distinct columns are selected");
+        assert_eq!(p.cols_out(), 7);
+        assert_eq!(p.device_index_list(), &p.sel[..], "fused: the device reads the slot map");
+        for c in 0..DUPS.len() {
+            assert_eq!(p.out_slot(c), p.slot[c]);
+        }
+    }
+
+    #[test]
+    fn the_residue_list_is_sorted_deduped_and_padded_with_its_last_entry() {
+        // residues of DUPS mod 4096: 5,3,5,4095,3,0,0,4095,5,4095,0 -> {0,3,5,4095}
+        let (qs, nq) = residue_list(&DUPS, BLK, NC).expect("nonempty");
+        assert_eq!(nq, 4);
+        assert_eq!(qs.len(), NC, "padded to one tile of P2SP_NC");
+        assert_eq!(&qs[..4], &[0, 3, 5, 4095]);
+        assert!(qs[4..].iter().all(|&r| r == 4095), "padding repeats the LAST entry");
+        // exactly one tile: 64 distinct residues need no padding; 65 need two tiles
+        let (qs64, n64) = residue_list(&(0..64usize).collect::<Vec<_>>(), BLK, NC).unwrap();
+        assert_eq!((n64, qs64.len()), (64, 64));
+        let (qs65, n65) = residue_list(&(0..65usize).collect::<Vec<_>>(), BLK, NC).unwrap();
+        assert_eq!((n65, qs65.len()), (65, 128));
+        assert!(qs65[65..].iter().all(|&r| r == 64));
+        // the plan carries the same list on the pruned route
+        let p = match plan_open_indices(&DUPS, 1 << 14, BLK, NC, true, true) {
+            Ok(OpenPlan::Open(p)) => p,
+            other => panic!("{other:?}"),
+        };
+        assert_eq!(p.residues, Some((qs, nq)));
+    }
+
+    #[test]
+    fn pruning_declines_above_a_quarter_of_the_block() {
+        let nn = 1usize << 14;
+        // 1,024 distinct residues is exactly a quarter: kept
+        let quarter: Vec<usize> = (0..BLK / 4).collect();
+        match plan_open_indices(&quarter, nn, BLK, NC, true, true) {
+            Ok(OpenPlan::Open(p)) => {
+                assert!(p.fused);
+                let (qs, nq) = p.residues.expect("nq * 4 == blk is still pruned");
+                assert_eq!((nq, qs.len()), (BLK / 4, BLK / 4));
+            }
+            other => panic!("{other:?}"),
+        }
+        // 1,100 distinct residues: declined to the DENSE fused last stage
+        let many: Vec<usize> = (0..1100usize).collect();
+        match plan_open_indices(&many, nn, BLK, NC, true, true) {
+            Ok(OpenPlan::Open(p)) => {
+                assert!(p.fused, "the decline is of PRUNING, not of fusion");
+                assert_eq!(p.residues, None);
+                assert_eq!(p.cols_out(), 1100);
+            }
+            other => panic!("{other:?}"),
+        }
+    }
+
+    #[test]
+    fn fusion_is_declined_at_or_below_the_block() {
+        // log_nn <= NTT_LOG_BLK: no second stage group to fuse, so the plan is
+        // the unfused one whatever the switches say — the device reads the
+        // plain index list and writes one column per index, duplicates included
+        for &nn in &[1usize << 10, 1 << 12] {
+            let idx = [5usize, 1023, 5, 0, 0, 512, 5];
+            for prune in [true, false] {
+                let p = match plan_open_indices(&idx, nn, BLK, NC, true, prune) {
+                    Ok(OpenPlan::Open(p)) => p,
+                    other => panic!("{other:?}"),
+                };
+                assert!(!p.fused, "nn {nn} must not fuse");
+                assert_eq!(p.residues, None, "no pruning without fusion");
+                assert_eq!(p.device_index_list(), &p.idx32[..]);
+                assert_eq!(p.cols_out(), idx.len());
+                for c in 0..idx.len() {
+                    assert_eq!(p.out_slot(c), c);
+                }
+                // the distinct-slot expansion is still computed (same values)
+                assert_eq!(p.uniq, vec![5, 1023, 0, 512]);
+                assert_eq!(p.slot, vec![0, 1, 0, 2, 2, 3, 0]);
+            }
+        }
+    }
+
+    #[test]
+    fn pruning_needs_the_switch_the_fusion_and_a_small_tile_count() {
+        // switch off
+        match plan_open_indices(&DUPS, 1 << 14, BLK, NC, true, false) {
+            Ok(OpenPlan::Open(p)) => { assert!(p.fused); assert_eq!(p.residues, None); }
+            other => panic!("{other:?}"),
+        }
+        // fusion not requested (HL_ZK_FUSE_GATHER=0 / HL_GPU_FUSE_GATHER=0)
+        match plan_open_indices(&DUPS, 1 << 14, BLK, NC, false, true) {
+            Ok(OpenPlan::Open(p)) => {
+                assert!(!p.fused);
+                assert_eq!(p.residues, None);
+                assert_eq!(p.device_index_list(), &p.idx32[..]);
+                assert_eq!(p.cols_out(), DUPS.len());
+            }
+            other => panic!("{other:?}"),
+        }
+        // log_nn - log_blk = 5 is the last pruned width; 6 is not
+        match plan_open_indices(&DUPS, 1 << 17, BLK, NC, true, true) {
+            Ok(OpenPlan::Open(p)) => { assert!(p.fused); assert!(p.residues.is_some()); }
+            other => panic!("{other:?}"),
+        }
+        match plan_open_indices(&DUPS, 1 << 18, BLK, NC, true, true) {
+            Ok(OpenPlan::Open(p)) => { assert!(p.fused); assert_eq!(p.residues, None); }
+            other => panic!("{other:?}"),
+        }
+    }
+
+    #[test]
+    fn a_malformed_shape_is_an_error() {
+        assert!(plan_open_indices(&[1], 3, BLK, NC, true, true).is_err(), "nn must be a power of two");
+        assert!(plan_open_indices(&[1], 1 << 14, 100, NC, true, true).is_err(), "blk must be a power of two");
+        assert!(plan_open_indices(&[1], 1 << 14, BLK, 0, true, true).is_err(), "p2sp_nc must be nonzero");
+    }
+}
+
 #[cfg(feature = "gpu-cuda")]
 mod device {
 
@@ -591,6 +774,269 @@ fn fused_hiding_openings_match_the_cpu_in_every_form() {
     assert_eq!(gpu::dev_commit_zk_check_chunked(12, 4, 300, 16, 128, false).expect("reference form ran"), (0, 0));
     gpu::set_prune_p2_for_test(prev_prune);
     gpu::set_zk_fuse_gather_for_test(prev_fuse);
+}
+
+// ---------------------------------------------------------------------------
+// [ZK60-CL15] Empty, out-of-range, duplicate, ragged and below-threshold
+// openings EXECUTED on every applicable route — hiding (`columns_chunked_zk`)
+// under fused/reference x pruned/dense, the plain re-encode of a hiding
+// commitment, and the non-hiding opening (`columns_chunked`) on its own
+// commitment — with the empty and the out-of-range case proven to allocate
+// NOTHING on the device, by the counters read around the open alone.
+// ---------------------------------------------------------------------------
+
+/// The no-feature `open_plan_boundary` tests mirror the kernel constants as
+/// literals; this pins the mirror to its owner, so a change on either side is
+/// a failing test rather than a silent divergence. Needs no device.
+#[test]
+fn open_plan_mirrors_the_kernel_constants() {
+    assert_eq!(1usize << gpu::NTT_LOG_BLK, 1 << 12, "cuda.rs NTT_LOG_BLK moved; update open_plan_boundary::BLK");
+    assert_eq!(gpu::P2SP_NC, 64, "cuda.rs P2SP_NC moved; update open_plan_boundary::NC");
+}
+
+/// (log_cols, inv_rate, rows, q_pad, chunk): a fusion-eligible shape
+/// (log_nn 14 > NTT_LOG_BLK) and one below the threshold (log_nn 10).
+const ELIGIBLE: (u32, usize, usize, usize, usize) = (12, 4, 300, 16, 128);
+const BELOW: (u32, usize, usize, usize, usize) = (8, 4, 200, 16, 128);
+/// The CL7 duplicate list (11 indices, 7 distinct) for nn = 2^14, and a
+/// duplicate list for nn = 2^10.
+const DUPS: [usize; 11] = [5, 4099, 5, 16383, 4099, 0, 0, 8191, 5, 4095, 4096];
+const DUPS_SMALL: [usize; 7] = [5, 1023, 5, 0, 0, 512, 5];
+
+/// Sets both opening switches to their defaults (fused, pruned) and RESTORES
+/// the previous settings on drop — including when an assertion panics, so a
+/// failing case cannot leak its switch state into the tests that follow.
+struct Switches {
+    fuse: usize,
+    prune: usize,
+}
+impl Switches {
+    fn set() -> Switches {
+        Switches { fuse: gpu::set_zk_fuse_gather_for_test(1), prune: gpu::set_prune_p2_for_test(1) }
+    }
+    fn select(&self, fuse: usize, prune: usize) {
+        gpu::set_zk_fuse_gather_for_test(fuse);
+        gpu::set_prune_p2_for_test(prune);
+    }
+}
+impl Drop for Switches {
+    fn drop(&mut self) {
+        gpu::set_prune_p2_for_test(self.prune);
+        gpu::set_zk_fuse_gather_for_test(self.fuse);
+    }
+}
+
+/// An opening that really ran: exactly `takes` pool takes (fresh or reused —
+/// the chunk scratch), exactly `raw_count` raw device allocations of exactly
+/// `raw_bytes` (index/residue lists and the gather output).
+fn expect_alloc(a: &gpu::PoolStats, takes: usize, raw_count: usize, raw_bytes: usize, tag: &str) {
+    assert_eq!(a.fresh_count + a.reuse_count, takes, "{tag}: pool takes across the open; saw {a:?}");
+    assert_eq!((a.raw_count, a.raw_bytes), (raw_count, raw_bytes), "{tag}: raw allocations across the open; saw {a:?}");
+}
+
+/// The raw bytes an opening of `idx` MUST allocate on the device, from the
+/// pure plan: its device index list, its residue list if pruned, its output.
+fn planned_raw(idx: &[usize], nn: usize, rows: usize, fused: bool, prune: bool) -> (usize, usize) {
+    use hashline::gpu::open_plan::{plan_open_indices, OpenPlan};
+    match plan_open_indices(idx, nn, 1 << gpu::NTT_LOG_BLK, gpu::P2SP_NC, fused, prune) {
+        Ok(OpenPlan::Open(p)) => {
+            let mut count = 2;
+            let mut bytes = p.device_index_list().len() * 4 + rows * p.cols_out() * 8;
+            if let Some((qs, _)) = &p.residues {
+                count += 1;
+                bytes += qs.len() * 4;
+            }
+            (count, bytes)
+        }
+        other => panic!("planned_raw wants a nonempty plan, got {other:?}"),
+    }
+}
+
+/// THE EMPTY BOUNDARY. An empty query list opens ZERO columns and touches
+/// nothing on the device: through the public oracle (`Ok((0, 0))`), and
+/// through the allocation-scoped probe, whose counters — pool fresh and reuse,
+/// raw count and bytes — must not move at all across the open. Every route:
+/// hiding under fused/reference x pruned/dense, the plain re-encode of the
+/// hiding commitment, and the non-hiding commitment's own opening; at the
+/// fusion-eligible shape and the below-threshold one.
+///
+/// Then the POSITIVE CONTROL: the same probes with 16 indices allocate
+/// exactly what their route needs, so the zero above is a measurement and not
+/// a counter that never moves.
+#[test]
+fn empty_openings_return_zero_columns_and_allocate_nothing() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    let sw = Switches::set();
+    let zero = gpu::PoolStats::default();
+    for &(lc, rate, rows, q, chunk) in &[ELIGIBLE, BELOW] {
+        for plain in [false, true] {
+            for fuse in [1usize, 0] {
+                for prune in [1usize, 0] {
+                    sw.select(fuse, prune);
+                    let tag = format!("({lc},{rate},{rows},{q},{chunk}) plain_reencode {plain} fuse {fuse} prune {prune}");
+                    // the public oracle, as the contract asks
+                    note_case();
+                    let r = gpu::dev_commit_zk_check_chunked_with(lc, rate, rows, q, chunk, plain, Some(&[]))
+                        .unwrap_or_else(|e| panic!("the empty open must succeed at {tag}: {e}"));
+                    assert_eq!(r, (0, 0), "the empty open at {tag}");
+                    // the same open with the counters read around IT alone
+                    note_case();
+                    let p = gpu::dev_commit_zk_open_probe(lc, rate, rows, q, chunk, plain, &[])
+                        .unwrap_or_else(|e| panic!("the empty probe's commit failed at {tag}: {e}"));
+                    assert_eq!(p.bad_leaves, 0, "the commit under the empty open at {tag}");
+                    assert_eq!(p.open, Ok((0, 0)), "an empty query list opens zero columns at {tag}");
+                    assert_eq!(p.alloc, zero, "the empty open must not touch the device at {tag}; saw {:?}", p.alloc);
+                }
+            }
+        }
+    }
+    // the NON-hiding opening on its own commitment (pruned and dense)
+    for &(lc, rate, rows, _q, chunk) in &[ELIGIBLE, BELOW] {
+        for prune in [1usize, 0] {
+            sw.select(1, prune);
+            let tag = format!("plain commitment ({lc},{rate},{rows},{chunk}) prune {prune}");
+            note_case();
+            let p = gpu::dev_commit_open_probe(lc, rate, rows, chunk, &[]).unwrap_or_else(|e| panic!("{tag}: {e}"));
+            assert_eq!(p.bad_leaves, 0, "{tag}");
+            assert_eq!(p.open, Ok((0, 0)), "{tag}");
+            assert_eq!(p.alloc, zero, "the empty plain open must not touch the device at {tag}; saw {:?}", p.alloc);
+        }
+    }
+
+    // ---- POSITIVE CONTROL: 16 indices allocate exactly the route's needs.
+    for &(lc, rate, rows, q, chunk) in &[ELIGIBLE, BELOW] {
+        let nn = (1usize << lc) * rate;
+        let idx: Vec<usize> = (0..16).map(|i| (i * 7919 + 13) % nn).collect();
+        for fuse in [1usize, 0] {
+            for prune in [1usize, 0] {
+                sw.select(fuse, prune);
+                let tag = format!("positive control ({lc},{rate},{rows},{q},{chunk}) fuse {fuse} prune {prune}");
+                note_case();
+                let p = gpu::dev_commit_zk_open_probe(lc, rate, rows, q, chunk, false, &idx).unwrap_or_else(|e| panic!("{tag}: {e}"));
+                assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((16, 0))), "{tag}");
+                // three scratch takes (coef, coef2, enc) and the plan's raw lists
+                let (rc, rb) = planned_raw(&idx, nn, rows, fuse == 1, prune == 1);
+                expect_alloc(&p.alloc, 3, rc, rb, &tag);
+                assert!(p.alloc.raw_count > 0 && p.alloc.fresh_count + p.alloc.reuse_count > 0, "{tag}: the counters must see a real open");
+            }
+        }
+        // the non-hiding opening: two scratch takes (coef, enc); fusion follows HL_GPU_FUSE_GATHER (default on)
+        for prune in [1usize, 0] {
+            sw.select(1, prune);
+            let tag = format!("positive control, plain commitment ({lc},{rate},{rows},{chunk}) prune {prune}");
+            note_case();
+            let p = gpu::dev_commit_open_probe(lc, rate, rows, chunk, &idx).unwrap_or_else(|e| panic!("{tag}: {e}"));
+            assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((16, 0))), "{tag}");
+            let (rc, rb) = planned_raw(&idx, nn, rows, true, prune == 1);
+            expect_alloc(&p.alloc, 2, rc, rb, &tag);
+        }
+    }
+}
+
+/// An out-of-range index is an `Err` from the opening itself — never a panic,
+/// never an out-of-bounds device read — and, like the empty list, it is
+/// decided before any device work: the counters must not move. The probe hands
+/// the list to the opening UNCHECKED, so this is the helper's own boundary, not
+/// the oracle's pre-check (which is also retained, and asserted last).
+#[test]
+fn out_of_range_indices_are_refused_before_any_allocation() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    let sw = Switches::set();
+    let zero = gpu::PoolStats::default();
+    for &(lc, rate, rows, q, chunk) in &[ELIGIBLE, BELOW] {
+        let nn = (1usize << lc) * rate;
+        let lists: [Vec<usize>; 3] = [vec![nn], vec![5, nn, 5], vec![nn - 1, usize::MAX]];
+        for plain in [false, true] {
+            for list in &lists {
+                for fuse in [1usize, 0] {
+                    sw.select(fuse, 1);
+                    let tag = format!("({lc},{rate},{rows},{q},{chunk}) plain_reencode {plain} fuse {fuse} idx {list:?}");
+                    note_case();
+                    let p = gpu::dev_commit_zk_open_probe(lc, rate, rows, q, chunk, plain, list).unwrap_or_else(|e| panic!("{tag}: {e}"));
+                    assert_eq!(p.bad_leaves, 0, "{tag}");
+                    let e = p.open.clone().expect_err(&format!("{tag}: an out-of-range index must be refused"));
+                    assert!(e.contains("out of range"), "{tag}: the error must say why: {e}");
+                    assert_eq!(p.alloc, zero, "{tag}: a refused open must not touch the device; saw {:?}", p.alloc);
+                }
+            }
+        }
+        // the non-hiding opening on its own commitment
+        sw.select(1, 1);
+        note_case();
+        let p = gpu::dev_commit_open_probe(lc, rate, rows, chunk, &[5, nn]).expect("plain probe ran");
+        assert!(p.open.clone().expect_err("plain open must refuse").contains("out of range"));
+        assert_eq!(p.alloc, zero, "plain commitment ({lc},{rate},{rows},{chunk}): a refused open must not touch the device; saw {:?}", p.alloc);
+        // and the oracle's own pre-check, retained from CL7
+        assert!(gpu::dev_commit_zk_check_chunked_with(lc, rate, rows, q, chunk, false, Some(&[nn])).is_err());
+    }
+}
+
+/// Repeated indices come back identical to the CPU on EVERY route — the
+/// distinct-slot expansion is what the fused forms rely on — at the eligible
+/// shape with a whole number of chunks (300 = 128 + 128 + 44) and a RAGGED
+/// one (257 = 128 + 128 + 1, the one-row last chunk), under every switch
+/// setting, for the hiding opening AND the non-hiding one; below the fusion
+/// threshold, where the unfused route must serve both; and with 1,100
+/// distinct residues, where pruning must DECLINE to the dense fused last
+/// stage (and the device's allocations show it did).
+#[test]
+fn duplicate_indices_open_identically_on_every_route() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    let sw = Switches::set();
+    // hiding, eligible shape, whole and ragged row counts, every switch setting
+    for &rows in &[300usize, 257] {
+        for fuse in [1usize, 0] {
+            for prune in [1usize, 0] {
+                sw.select(fuse, prune);
+                note_case();
+                let r = gpu::dev_commit_zk_check_chunked_with(12, 4, rows, 16, 128, false, Some(&DUPS))
+                    .unwrap_or_else(|e| panic!("duplicate open failed at rows {rows} fuse {fuse} prune {prune}: {e}"));
+                assert_eq!(r, (0, 0), "hiding opening with repeated indices at rows {rows} fuse {fuse} prune {prune}");
+            }
+        }
+    }
+    // non-hiding, on its own commitment (fused by default; pruned and dense)
+    for &rows in &[300usize, 257] {
+        for prune in [1usize, 0] {
+            sw.select(1, prune);
+            note_case();
+            let p = gpu::dev_commit_open_probe(12, 4, rows, 128, &DUPS).expect("plain duplicate probe ran");
+            assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((DUPS.len(), 0))), "plain opening with repeated indices at rows {rows} prune {prune}");
+        }
+    }
+    // below the fusion threshold (log_nn 10): the unfused route, whole and ragged
+    sw.select(1, 1);
+    for &rows in &[200usize, 129] {
+        note_case();
+        let r = gpu::dev_commit_zk_check_chunked_with(8, 4, rows, 16, 128, false, Some(&DUPS_SMALL)).expect("below-threshold hiding open ran");
+        assert_eq!(r, (0, 0), "below-threshold hiding opening with repeated indices at rows {rows}");
+        note_case();
+        let p = gpu::dev_commit_open_probe(8, 4, rows, 128, &DUPS_SMALL).expect("below-threshold plain open ran");
+        assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((DUPS_SMALL.len(), 0))), "below-threshold plain opening at rows {rows}");
+        // unfused: the plain index list and one output column per index, no residue list
+        expect_alloc(&p.alloc, 2, 2, DUPS_SMALL.len() * 4 + rows * DUPS_SMALL.len() * 8, &format!("below-threshold plain open at rows {rows}"));
+    }
+    // the pruning DECLINE: 1,100 distinct residues of 4,096 is more than a
+    // quarter of the block, so the fused last stage runs DENSE
+    let many: Vec<usize> = (0..1100).collect();
+    sw.select(1, 1);
+    note_case();
+    let r = gpu::dev_commit_zk_check_chunked_with(12, 4, 300, 16, 128, false, Some(&many)).expect("declined-prune hiding open ran");
+    assert_eq!(r, (0, 0), "hiding opening at 1,100 distinct residues (pruning declined)");
+    note_case();
+    let p = gpu::dev_commit_open_probe(12, 4, 300, 128, &many).expect("declined-prune plain open ran");
+    assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((1100, 0))), "plain opening at 1,100 distinct residues");
+    // fused (the selector, nn * 4 B) and the output, and NO residue list: the decline happened on the device
+    expect_alloc(&p.alloc, 2, 2, (1 << 14) * 4 + 300 * 1100 * 8, "declined-prune plain open");
 }
 
 /// [ZK60-CL4] The gate that proves the run was not vacuous, from BOTH sides:
