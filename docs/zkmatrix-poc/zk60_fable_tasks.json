@@ -143,7 +143,7 @@
       "priority": 1,
       "title": "Reconcile the successful resident return snapshot",
       "owner": "Fable / Claude planner lane",
-      "status": "ready",
+      "status": "done",
       "depends_on": [],
       "files": [
         "scripts/hashline_memory_plan.py",
@@ -160,7 +160,15 @@
         "The final stage agrees with commitment_live_after_return_bytes, while the peak includes pads/powers during their actual lifetime.",
         "Warm exact reuse remains a successful resident outcome; capacity is counted once, the 64-buffer cap is preserved, and existing planner/pending tests pass."
       ],
-      "limits": "This corrects an overcount, not evidence of unsafe peak underestimation. Component accounting alone does not authorize a whole private-block run."
+      "limits": "This corrects an overcount, not evidence of unsafe peak underestimation. Component accounting alone does not authorize a whole private-block run.",
+      "result": {
+        "date": "2026-09-07",
+        "base": "ac5ff0f",
+        "tests": "planner 27->34, pending 42->44, all OK",
+        "reproduction": "rows=300 log_cols=10 inv_rate=4 checks=q_pad=16 fallback/warm-resident: return live 12,288,000 (was 12,359,168; excess 71,168 = pads 38,400 + coset powers 32,768); peak unchanged 24,843,760",
+        "source": "cuda.rs dev_commit_zk_from resident return (line 3300) drops d_pads/d_pows; only chunked returns move them into ZkReenc",
+        "note": "overcount corrected, not evidence of unsafe peak underestimation; component accounting does not authorize a whole-block run"
+      }
     },
     {
       "id": "CL17",

@@ -28,6 +28,14 @@ Return lifetimes follow the source: the callee's scratch goes back to the
 POOL (it is not freed), the raw leaf buffer is FREED before return, and the
 commitment retains data + pads + powers. A warm pool is an explicit
 INVENTORY of capacities, never a flag.
+
+[ZK60-CL16, round-9 review] ... and that retention is the CHUNKED
+commitment's (`zk: Some(ZkReenc)`). A fallback that completes RESIDENT
+(the exact rows*nn buffer was already pooled) returns `enc: Some, zk: None`
+and its raw pads and coset powers are FREED at the return, so its last
+snapshot is data + encoded matrix, the same figure the report declares as
+`commitment_live_after_return_bytes`. The peak is unchanged: pads and
+powers are still counted for as long as the source holds them.
 """
 
 import argparse
@@ -199,6 +207,26 @@ def _simulate(mode, size, inventory, reuse=True):
             raw["device_leaf_hashes"] = size["leaves"]
             snap("resident: column hashes")
             del raw["device_leaf_hashes"]
+            # [ZK60-CL16, round-9 review] A RESIDENT completion returns
+            # WITHOUT ZkReenc, so the raw pads and coset powers END here — the
+            # source (hashline/src/gpu/cuda.rs::dev_commit_zk_from) returns
+            #   `Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: Some(d_enc), zk: None }, leaves))`
+            # and `d_pads` / `d_pows` (locals from `dev.htod_sync_copy`, two
+            # raw device allocations) drop at that return; only the two
+            # CHUNKED returns move them into `ZkReenc { pads: d_pads, pows:
+            # d_pows, q }`. This branch used to keep both in `raw` through the
+            # return snapshot, so the last event reported data + enc + pads +
+            # powers (12,359,168 B at rows 300 / log_cols 10 / rate 4 / q 16)
+            # while `live_after_return_bytes` below said data + enc
+            # (12,288,000 B): a 71,168 B overcount of the RETURN state only.
+            # The peak is untouched — pads and powers were live through the
+            # pad/scale, forward NTT and column-hash snapshots above, exactly
+            # as long as the source holds them. This corrects an overcount;
+            # it is not evidence of unsafe peak underestimation, and component
+            # accounting alone does not authorize any whole-block run.
+            del raw["pads"], raw["coset_powers"]
+            snap("resident: pads and coset powers FREED (raw) — a resident commitment returns without ZkReenc; "
+                 "the leaf buffer was FREED inside hash_cols")
             snap("return commitment: data + encoded matrix retained (RESIDENT outcome)")
             peak = max(row["accounted_device_bytes"] for row in events)
             return {"events": events, "peak_bytes": peak, "pool_after_bytes": pool.total(),
@@ -329,6 +357,11 @@ def commitment_plan(rows, log_cols=14, inv_rate=4, checks=256, q_pad=None,
             ("pad and coset scale", ["systematic_data", "inverse_coefficients", "pads", "coset_powers", "expanded_coefficients"], []),
             ("forward NTT", ["systematic_data", "pads", "coset_powers", "expanded_coefficients", "encoded_matrix"], ["inverse_coefficients"]),
             ("column hashes", ["systematic_data", "pads", "coset_powers", "encoded_matrix", "device_leaf_hashes"], ["inverse_coefficients", "expanded_coefficients"]),
+            # [ZK60-CL16] the return row already EXCLUDES pads and coset
+            # powers: `dev_commit_zk_from` returns `enc: Some(d_enc), zk: None`
+            # and drops the two raw uploads. The fallback simulator's resident
+            # outcome now ends their lifetimes at the same point (see
+            # _simulate), so the two resident return snapshots agree.
             ("return commitment", ["systematic_data", "encoded_matrix"], ["inverse_coefficients", "expanded_coefficients"]),
         ]
         stages = []
@@ -406,6 +439,11 @@ def commitment_plan(rows, log_cols=14, inv_rate=4, checks=256, q_pad=None,
         # [round-7 review] return lifetimes from the source: a chunked
         # commitment returns NO encoded matrix; it retains data + pads +
         # powers; its scratch goes back to the POOL; the leaf buffer is freed.
+        # [ZK60-CL16] and a RESIDENT outcome — the resident mode's table, or
+        # a fallback whose exact rows*nn take was served from the pool —
+        # retains data + encoded matrix ONLY: pads and powers are raw locals
+        # freed at the return (no ZkReenc). The last entry of `stages` now
+        # carries the same figure as this field on every mode and pool state.
         "commitment_live_after_return_bytes": live_after,
         "pool_bytes_after_return": pool_after,
         "new_pool_bytes_after_return": new_pool_after,

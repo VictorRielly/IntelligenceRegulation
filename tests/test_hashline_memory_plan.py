@@ -379,3 +379,213 @@ class PoolLifetimes(unittest.TestCase):
             self.assertEqual(plan.main(["--rows", "2000", "--mode", "chunked", "--pool-inventory-bytes", "50593792",
                                         "--ntt-max-log", "16"]), 0)
         self.assertEqual(json.loads(out.getvalue())["pool_simulation"]["inventory"], ["inventory:50593792"])
+
+
+class Cl16ReturnSnapshot(unittest.TestCase):
+    """[ZK60-CL16, round-9 review] A fallback that completes RESIDENT (the
+    exact rows*nn buffer was already pooled) returns like the resident path
+    does: `dev_commit_zk_from` ends with `Ok((DevCommit { .., enc: Some(d_enc),
+    zk: None }, leaves))` and its two raw uploads `d_pads` / `d_pows` drop at
+    that return; only a CHUNKED return keeps them in `ZkReenc`. The simulator
+    used to keep both in its return snapshot. Codex reproduced the old last
+    event at (rows 300, log_cols 10, rate 4, q 16) on a resident-warmed pool:
+    live_bytes 12,359,168 against a declared commitment_live_after_return_bytes
+    of 12,288,000 — an excess of 71,168 B = pads (300*16*8 = 38,400) + coset
+    powers (4096*8 = 32,768). Pure arithmetic; no device is opened."""
+
+    REPRO = dict(rows=300, log_cols=10, inv_rate=4, checks=16, q_pad=16)
+    RETURN_STAGE = "return commitment: data + encoded matrix retained (RESIDENT outcome)"
+    SHAPES = [
+        dict(rows=300, log_cols=10, inv_rate=4, checks=16, q_pad=16),      # the reproduction = the oracle probe shape
+        dict(rows=100, log_cols=10, inv_rate=4, checks=16, q_pad=16),      # rows <= chunk: a plain WARM fallback also completes resident
+        dict(rows=2000, log_cols=14, inv_rate=4, checks=256, q_pad=256, ntt_max_log=16),
+        dict(rows=17, log_cols=10, inv_rate=8, checks=256, q_pad=300),
+    ]
+
+    @staticmethod
+    def sizes(rows, log_cols, inv_rate, q_pad):
+        n, nn = 1 << log_cols, (1 << log_cols) * inv_rate
+        return dict(data=rows * n * 8, pads=rows * q_pad * 8, pows=nn * 8, leaves=nn * 32, res_enc=rows * nn * 8)
+
+    @staticmethod
+    def names(stage_row):
+        return {b.split(" [")[0] for b in stage_row["live_buffers"]}
+
+    def test_the_reproduction_shape_returns_data_plus_encoded_only(self):
+        """The exact CL16 acceptance: 12,288,000 B at the return, in the last
+        stage AND in the declared field; the old event said 12,359,168."""
+        s = self.sizes(300, 10, 4, 16)
+        r = plan.commitment_plan(**self.REPRO, mode="fallback", pool_state="warm-resident")
+        last = r["stages"][-1]
+        self.assertEqual(last["stage"], self.RETURN_STAGE)
+        self.assertEqual(last["live_bytes"], 12_288_000)
+        self.assertEqual(r["commitment_live_after_return_bytes"], 12_288_000)
+        self.assertEqual(r["pool_simulation"]["live_after_return_bytes"], 12_288_000)
+        self.assertEqual(12_288_000, s["data"] + s["res_enc"])
+        # the old figure and its decomposition, so the record survives here
+        self.assertEqual(12_359_168 - 12_288_000, 71_168)
+        self.assertEqual(71_168, s["pads"] + s["pows"])
+        self.assertEqual(self.names(last), {"systematic_data", "encoded_matrix"})
+        # the raw frees are their own visible event, immediately before the return
+        freed = r["stages"][-2]
+        self.assertIn("pads and coset powers FREED (raw)", freed["stage"])
+        self.assertIn("without ZkReenc", freed["stage"])
+        self.assertEqual(freed["live_bytes"], 12_288_000)
+        self.assertEqual(freed["live_buffers"], last["live_buffers"])
+        self.assertEqual(freed["pooled_buffers"], last["pooled_buffers"])
+
+    def test_the_peak_still_counts_pads_and_powers_for_their_actual_lifetime(self):
+        """Ending the lifetimes at the return must not move the peak: pads and
+        powers are live from the upload through the column hashes, exactly as
+        long as the source holds them, and gone only in the two return rows."""
+        s = self.sizes(300, 10, 4, 16)
+        r = plan.commitment_plan(**self.REPRO, mode="fallback", pool_state="warm-resident")
+        stages = r["stages"]
+        hashes = next(i for i, e in enumerate(stages) if e["stage"] == "resident: column hashes")
+        self.assertEqual(hashes, len(stages) - 3, "column hashes, then the raw frees, then the return")
+        for e in stages[:hashes + 1]:
+            self.assertTrue({"pads", "coset_powers"} <= self.names(e), e["stage"])
+        for e in stages[hashes + 1:]:
+            self.assertFalse({"pads", "coset_powers"} & self.names(e), e["stage"])
+        # the peak is the column-hash snapshot: every inventory capacity ONCE
+        # (live or pooled) plus the three raw buffers — unchanged by the fix
+        inventory_total = 2 * s["data"] + 2 * s["res_enc"]
+        sim = r["pool_simulation"]
+        self.assertEqual(sim["peak_bytes"], inventory_total + s["pads"] + s["pows"] + s["leaves"])
+        self.assertEqual(sim["peak_bytes"], 24_778_240)
+        self.assertEqual(sim["peak_bytes"], stages[hashes]["accounted_device_bytes"])
+        self.assertEqual(r["component_peak_accounted_bytes"], sim["peak_bytes"] + r["twiddle_bytes"])
+        self.assertEqual(r["component_peak_accounted_bytes"], 24_843_760)
+        # and it is strictly above the return state: the correction is an OVERCOUNT of the return, not an underestimate of the peak
+        self.assertGreater(sim["peak_bytes"], stages[-1]["accounted_device_bytes"])
+
+    def test_every_last_stage_agrees_with_the_declared_return_and_peak(self):
+        """The general invariant, every mode x every pool state x several
+        shapes: the LAST stage's live_bytes equals commitment_live_after_return_bytes,
+        its retained pool equals pool_bytes_after_return, the component peak is
+        the stage maximum plus twiddles, and (simulated modes) pooled capacity
+        is conserved — inventory + fresh = pooled after + pooled-kind capacity
+        inside the commitment + freed at the cap — with the pool never above
+        POOL_CAP entries."""
+        for shape in self.SHAPES:
+            for mode in ("resident", "chunked", "fallback"):
+                for pool_state in plan.POOL_STATES:
+                    with self.subTest(mode=mode, pool_state=pool_state, **shape):
+                        r = plan.commitment_plan(**shape, mode=mode, pool_state=pool_state)
+                        last = r["stages"][-1]
+                        self.assertEqual(last["live_bytes"], r["commitment_live_after_return_bytes"])
+                        self.assertEqual(last["retained_pool_bytes"], r["pool_bytes_after_return"])
+                        self.assertEqual(last["accounted_device_bytes"],
+                                         r["commitment_live_after_return_bytes"] + r["pool_bytes_after_return"])
+                        self.assertEqual(r["component_peak_accounted_bytes"],
+                                         max(e["accounted_device_bytes"] for e in r["stages"]) + r["twiddle_bytes"])
+                        if mode == "resident":
+                            continue
+                        sim = r["pool_simulation"]
+                        s = self.sizes(shape["rows"], shape["log_cols"], shape["inv_rate"], shape["q_pad"])
+                        self.assertEqual(sim["live_after_return_bytes"], r["commitment_live_after_return_bytes"])
+                        resident_outcome = r["outcome"].startswith("resident")
+                        # a resident outcome returns data + enc (both pooled-kind capacities);
+                        # a chunked one returns data + the two RAW retained buffers (ZkReenc)
+                        retained_raw = 0 if resident_outcome else s["pads"] + s["pows"]
+                        self.assertEqual(r["commitment_live_after_return_bytes"],
+                                         s["data"] + (s["res_enc"] if resident_outcome else retained_raw))
+                        self.assertEqual(self.names(last) & {"pads", "coset_powers"},
+                                         set() if resident_outcome else {"pads", "coset_powers"})
+                        inventory_total = sum(int(x.rsplit(":", 1)[1]) for x in sim["inventory"])
+                        self.assertEqual(inventory_total + sim["fresh_pool_bytes"],
+                                         r["pool_bytes_after_return"] + (r["commitment_live_after_return_bytes"] - retained_raw)
+                                         + sim["freed_at_pool_cap_bytes"])
+                        self.assertEqual(r["pool_delta_bytes_after_return"], r["pool_bytes_after_return"] - inventory_total)
+                        self.assertEqual(r["raw_non_poolable_bytes"], s["pads"] + s["pows"] + s["leaves"])
+                        self.assertEqual(r["newly_allocated_capacity_bytes"], sim["fresh_pool_bytes"] + r["raw_non_poolable_bytes"])
+                        for e in r["stages"]:
+                            self.assertLessEqual(len(e["pooled_buffers"]), plan.POOL_CAP, e["stage"])
+
+    def test_a_warm_fallback_at_rows_within_one_chunk_also_completes_resident(self):
+        """Found by the invariant sweep: when rows <= chunk the previous call's
+        single-chunk `chunk_encoded` capacity IS rows*nn, so a plain `warm`
+        fallback finds the exact encoded buffer pooled and completes resident
+        too. Its return snapshot must follow the same rule."""
+        s = self.sizes(100, 10, 4, 16)
+        r = plan.commitment_plan(100, 10, 4, 16, mode="fallback", pool_state="warm")
+        self.assertTrue(r["outcome"].startswith("resident (fallback unreachable"))
+        self.assertFalse(r["pool_simulation"]["fallback_reachable"])
+        self.assertEqual(r["stages"][-1]["stage"], self.RETURN_STAGE)
+        self.assertEqual(r["stages"][-1]["live_bytes"], s["data"] + s["res_enc"])
+        self.assertEqual(r["commitment_live_after_return_bytes"], s["data"] + s["res_enc"])
+        self.assertEqual(self.names(r["stages"][-1]), {"systematic_data", "encoded_matrix"})
+
+    def test_resident_outcome_bookkeeping_is_consistent(self):
+        """Requested size vs allocated capacity vs pool ownership vs raw frees
+        vs the returned commitment, all on the reproduction: the warm exact
+        reuse is still a SUCCESSFUL resident outcome (unchanged string, no
+        refusal), every capacity is counted once, and the split of the
+        inventory between 'pooled again' and 'inside the commitment' is exact."""
+        s = self.sizes(300, 10, 4, 16)
+        r = plan.commitment_plan(**self.REPRO, mode="fallback", pool_state="warm-resident")
+        sim = r["pool_simulation"]
+        self.assertEqual(r["outcome"], "resident (fallback unreachable: the exact encoded buffer was already pooled)")
+        self.assertFalse(sim["fallback_reachable"])
+        self.assertIsNone(sim["refused_request_bytes"])
+        self.assertTrue(any("no refusal is reachable" in e["stage"] for e in r["stages"]))
+        # four EXACT takes served from the inventory at exactly the requested size; nothing fresh is pooled
+        self.assertEqual(sim["reuse_count"], 4)
+        self.assertEqual(sim["reuse_capacity_bytes"], sim["reuse_requested_bytes"])
+        self.assertEqual(sim["reuse_capacity_bytes"], 2 * s["data"] + 2 * s["res_enc"])
+        self.assertEqual((sim["fresh_pool_bytes"], sim["fresh_pool_count"]), (0, 0))
+        # raw: pads, powers and leaves are allocated on every call and all three are FREED before the return
+        self.assertEqual(r["raw_non_poolable_bytes"], s["pads"] + s["pows"] + s["leaves"])
+        self.assertEqual(r["newly_allocated_capacity_bytes"], r["raw_non_poolable_bytes"])
+        # pool ownership: coef and coef2 are pooled again; data and enc left the pool inside the commitment
+        self.assertEqual(sorted(sim["pool_after"]),
+                         sorted([f"inverse_coefficients:{s['data']}", f"expanded_coefficients:{s['res_enc']}"]))
+        self.assertEqual(r["pool_bytes_after_return"], s["data"] + s["res_enc"])
+        self.assertEqual(r["new_pool_bytes_after_return"], 0)
+        self.assertEqual(r["pool_delta_bytes_after_return"], -(s["data"] + s["res_enc"]))
+        self.assertEqual(sim["freed_at_pool_cap_bytes"], 0)
+        # conservation: the whole inventory is either pooled again or live in the commitment
+        inventory_total = sum(int(x.rsplit(":", 1)[1]) for x in sim["inventory"])
+        self.assertEqual(inventory_total, r["pool_bytes_after_return"] + r["commitment_live_after_return_bytes"])
+        self.assertEqual(r["stages"][-1]["accounted_device_bytes"], inventory_total)
+        # capacity counted once: no stage holds more than the inventory plus the three raw buffers
+        self.assertEqual(max(e["accounted_device_bytes"] for e in r["stages"]),
+                         inventory_total + s["pads"] + s["pows"] + s["leaves"])
+
+    def test_the_pool_cap_holds_through_a_resident_outcome(self):
+        """A FULL 64-entry inventory that still holds two exact rows*nn
+        capacities: the call completes resident, its two releases are covered
+        by the two takes that were served, so the pool never exceeds POOL_CAP
+        and nothing is turned away — while the return snapshot follows the
+        same rule as the warm-resident case."""
+        s = self.sizes(300, 10, 4, 16)
+        inventory = [s["res_enc"], s["res_enc"]] + [8] * (plan.POOL_CAP - 2)
+        r = plan.commitment_plan(300, 10, 4, 16, mode="fallback", pool_inventory_bytes=inventory)
+        sim = r["pool_simulation"]
+        self.assertTrue(r["outcome"].startswith("resident (fallback unreachable"))
+        # data and coef find no exact rows*n: fresh; coef2 and enc are served from the two rows*nn
+        self.assertEqual((sim["fresh_pool_count"], sim["fresh_pool_bytes"]), (2, 2 * s["data"]))
+        self.assertEqual((sim["reuse_count"], sim["reuse_capacity_bytes"]), (2, 2 * s["res_enc"]))
+        self.assertEqual(len(sim["pool_after"]), plan.POOL_CAP)
+        self.assertEqual(sim["freed_at_pool_cap_bytes"], 0)
+        for e in r["stages"]:
+            self.assertLessEqual(len(e["pooled_buffers"]), plan.POOL_CAP, e["stage"])
+        self.assertEqual(r["stages"][-1]["live_bytes"], r["commitment_live_after_return_bytes"])
+        self.assertEqual(r["commitment_live_after_return_bytes"], s["data"] + s["res_enc"])
+        self.assertEqual(self.names(r["stages"][-1]), {"systematic_data", "encoded_matrix"})
+        # the two fresh rows*n buffers are what is NEW in the pool after return (coef pooled; data is in the commitment)
+        self.assertEqual(r["new_pool_bytes_after_return"], s["data"])
+
+    def test_the_chunked_return_still_retains_pads_and_powers(self):
+        """The other half of the source: a CHUNKED commitment (`zk: Some(ZkReenc)`)
+        keeps pads and powers for the deferred re-encode. That snapshot is
+        untouched by CL16, on the cold fallback and on the chunked mode."""
+        s = self.sizes(300, 10, 4, 16)
+        for mode, pool_state in (("fallback", "cold"), ("chunked", "cold"), ("chunked", "warm-resident")):
+            with self.subTest(mode=mode, pool_state=pool_state):
+                r = plan.commitment_plan(**self.REPRO, mode=mode, pool_state=pool_state)
+                last = r["stages"][-1]
+                self.assertEqual(last["stage"], "return commitment: data + pads + coset powers retained")
+                self.assertEqual(self.names(last), {"systematic_data", "pads", "coset_powers"})
+                self.assertEqual(last["live_bytes"], s["data"] + s["pads"] + s["pows"])
+                self.assertEqual(r["commitment_live_after_return_bytes"], last["live_bytes"])

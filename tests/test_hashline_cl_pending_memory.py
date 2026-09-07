@@ -572,6 +572,77 @@ class PendingBlocks(unittest.TestCase):
                 mem.pending_private_block(bad)
 
 
+class Cl16ResidentOutcomeReconciliation(unittest.TestCase):
+    """[ZK60-CL16, round-9 review] The planner's fallback simulator used to
+    keep raw pads and coset powers in its RESIDENT-outcome return snapshot
+    (12,359,168 B at the probe shape against a declared 12,288,000 B). This
+    tool was checked for the same use and did not carry it: resident_hiding_commit
+    drops pads and powers as RAW at `return` (freed BEFORE that event's
+    snapshot), fallback_hiding_commit REFUSES the unreachable-fallback
+    inventory and points at the resident builder, pending_private_block's
+    resident layouts reuse the same _commit_buffers lifetimes, and _shape
+    reads only `shape.ntt_max_log` and `chunk_rows` from the planner's report.
+    This test pins the two tools to the same return state for that outcome,
+    so the planner's last event can no longer drift from it unnoticed."""
+
+    def test_resident_outcome_on_a_resident_warmed_pool_matches_the_planner(self):
+        s = sizes(300, 10, 4, 16)
+        warm_resident = [(s["data"], "prior inverse_coefficients"), (s["enc"], "prior expanded_coefficients"),
+                         (s["data"], "prior systematic_data"), (s["enc"], "prior encoded_matrix")]
+        # this tool refuses to count the fallback: two exact rows*nn pooled means the device completes resident ...
+        with self.assertRaisesRegex(mem.PlanError, "unreachable"):
+            mem.fallback_hiding_commit(300, 10, 4, 16, 128, None, warm_resident)
+        # ... and the planner simulates exactly that outcome for the same request
+        ref = memplan.commitment_plan(300, 10, 4, 16, mode="fallback", pool_state="warm-resident")
+        self.assertTrue(ref["outcome"].startswith("resident (fallback unreachable"))
+        self.assertFalse(ref["pool_simulation"]["fallback_reachable"])
+        r = mem.resident_hiding_commit(300, 10, 4, 16, None, warm_resident).report()
+        ret = stage(r, "return")
+        tw = live_map(ret)["gpu::twiddles"]["capacity_bytes"]
+        self.assertEqual(tw, ref["twiddle_bytes"])
+        # the return state is data + encoded matrix, 12,288,000 B, in this tool,
+        # in the planner's declared field AND in the planner's own last event
+        self.assertEqual(ret["live_bytes"] - tw, 12_288_000)
+        self.assertEqual(ref["commitment_live_after_return_bytes"], 12_288_000)
+        self.assertEqual(ref["stages"][-1]["live_bytes"], 12_288_000)
+        self.assertEqual(set(live_map(ret)) - {"gpu::twiddles"}, {"commit::systematic_data", "commit::encoded_matrix"})
+        self.assertEqual(set(ret["freed_here"]), {"commit::pads", "commit::coset_powers", "commit::device_leaf_hashes"})
+        self.assertEqual(ret["freed_bytes_so_far"], s["pads"] + s["pows"] + s["leaves"])
+        self.assertEqual(ret["pooled_bytes"], ref["pool_bytes_after_return"])
+        self.assertEqual(pooled_bytes(r["end_state"]["pooled"]), s["data"] + s["enc"])
+        # the peak still holds pads and powers (column_hashes), and the two tools agree on it
+        self.assertEqual(r["peak_event"], "column_hashes")
+        self.assertEqual(r["peak_accounted_bytes"], ref["component_peak_accounted_bytes"])
+        self.assertEqual(r["peak_accounted_bytes"], 24_843_760)
+        hashes = live_map(stage(r, "column_hashes"))
+        self.assertIn("commit::pads", hashes)
+        self.assertIn("commit::coset_powers", hashes)
+        # allocation bookkeeping: four exact reuses, nothing fresh pooled, raw = twiddles + pads + powers + leaves
+        a, sim = r["allocation"], ref["pool_simulation"]
+        self.assertEqual((a["reuse_count"], a["reuse_capacity_bytes"], a["reuse_requested_bytes"]),
+                         (sim["reuse_count"], sim["reuse_capacity_bytes"], sim["reuse_requested_bytes"]))
+        self.assertEqual((a["fresh_pool_bytes"], a["fresh_pool_count"]), (sim["fresh_pool_bytes"], 0))
+        self.assertEqual(a["fresh_raw_bytes"], ref["raw_non_poolable_bytes"] + tw)
+
+    def test_a_resident_layout_in_a_pending_block_frees_pads_and_powers_at_the_next_event(self):
+        """The composed-block path uses the same lifetimes: a resident FFN
+        layout's retained set until final_open is data + encoded matrix; its
+        pads, powers and leaves are FREED at the next event, never retained."""
+        w = sizes(300, 10, 4, 16)
+        r = mem.pending_private_block(1, {"W": {"rows": 300, "log_cols": 10, "inv_rate": 4, "q_pad": 16, "path": "resident"}},
+                                      ntt_max_log=12).report()
+        nxt = stage(r, "b0_ffn_A_commit")
+        self.assertEqual(set(nxt["freed_here"]),
+                         {"block0::ffn_W_pads", "block0::ffn_W_coset_powers", "block0::ffn_W_device_leaf_hashes"})
+        tw = 2 * ((1 << 12) - 1) * 8
+        self.assertEqual(nxt["live_bytes"], tw + w["data"] + w["enc"])
+        self.assertEqual(nxt["pooled_bytes"], w["data"] + w["enc"])
+        before_open = stage(r, "b0_seam")
+        self.assertEqual(set(live_map(before_open)) - {"gpu::twiddles"},
+                         {"block0::ffn_W_systematic_data", "block0::ffn_W_encoded_matrix"})
+        self.assertFalse(r["complete"], "attention, seam and challenge state stay symbolic")
+
+
 class Authorization(unittest.TestCase):
     def test_no_plan_ever_authorises_a_run(self):
         lay = {"rows": 300, "log_cols": 10, "inv_rate": 4, "q_pad": 16, "path": "chunked"}
