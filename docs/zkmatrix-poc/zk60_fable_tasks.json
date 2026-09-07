@@ -1,0 +1,403 @@
+{
+  "schema_version": 1,
+  "created_local_date": "2026-09-07",
+  "round": 9,
+  "integrator_base": "44d72ffa5cb28d69bbedfa19d5f2a5026d9aa87a",
+  "reviewed_lane_tip": "3ad4d97ce4cb47b9eeeb76647a5a9159d15d2357",
+  "review": "ZK60_ROUND9_REVIEW.md",
+  "owner": "Fable in its own session; work assigned, not executed by Codex",
+  "coordination": "CL12-CL19 continue the existing Claude GPU/tools lane; CL20 is the lower-priority refactoring subproject; FA1-FA5 retain the independent review role. One writer per shared source file; no subagents launched by this handoff.",
+  "engineering_order": [
+    "CL12",
+    "CL13",
+    "CL14",
+    "CL15",
+    "CL16",
+    "CL17",
+    "CL18"
+  ],
+  "independent_ready": [
+    "CL19",
+    "FA1",
+    "FA4",
+    "FA5"
+  ],
+  "lower_priority_design": [
+    "CL20"
+  ],
+  "private_implementation_gate": [
+    "FA2",
+    "FA3"
+  ],
+  "tasks": [
+    {
+      "id": "CL12",
+      "priority": 0,
+      "title": "Synchronize the lane and preserve exact validation provenance",
+      "owner": "Fable / existing Claude GPU lane",
+      "status": "ready",
+      "depends_on": [],
+      "files": [
+        "existing zk60-cl1 checkout and branch",
+        "docs/zkmatrix-poc/ZK60_CLAUDE_GPU.md"
+      ],
+      "work": [
+        "Fetch and inspect the actual lane and performance tips. Merge the published performance baseline through 44d72ff into the existing lane, preserving its history and any concurrent work; record the resulting commit. H1 3ff8d5f is already merged as c84668f and must not be duplicated.",
+        "Pick up the completed atomic public-cache publication and ZK cache summary from 44d72ff. Credit CL9 and the report request as implemented; do not recreate either fix.",
+        "Correct the closure wording: the successful floor run used 82314a1, before the H1 merge. Retain that successful evidence, the failed attempts and their distinct source identities."
+      ],
+      "acceptance": [
+        "Record both parent pins, the resulting source tree, and exactly which source each archived gate tested.",
+        "No combined-tree acceptance is claimed from the 82314a1 log. Integration into the performance branch remains Codex-owned; CL17 supplies the new combined evidence."
+      ],
+      "limits": "This is baseline synchronization, not a GPU launch. Keep the validated H1 process isolation; a replacement global-config scheme is not needed for this queue."
+    },
+    {
+      "id": "CL13",
+      "priority": 0,
+      "title": "Bind qualification evidence and make the runner portable",
+      "owner": "Fable / Claude tools lane",
+      "status": "ready",
+      "depends_on": [],
+      "files": [
+        "scripts/hashline_cl_5090_preflight.py",
+        "tests/test_hashline_cl_5090_preflight.py",
+        "results/cl1_floors.sh",
+        "scripts/hashline_cl_gpu_gates.py (new if useful)",
+        "tests/test_hashline_cl_gpu_gates.py (new if useful)",
+        "docs/zkmatrix-poc/ZK60_CLAUDE_5090.md"
+      ],
+      "work": [
+        "Replace green-substring/timestamp qualification with a versioned run manifest identifying source inputs, CPU/GPU binaries, build configuration, device, each expected/executed case, exits, verification verdicts, full proof hashes and lengths. Tie the chosen binary and run evidence together; a dirty count is not source identity.",
+        "Keep unsupported full/target requests refused. The generated pass commands still implement FFN-only coverage; flags cannot supply generation, decoded full-relation verification or security evidence.",
+        "Make the selected repository/export/scratch/device/threads explicit and propagate the requested layers/tokens and memory budget into every emitted command. Remove the hardcoded checkout and fixed 32-layer campaign assumptions. Test shell quoting with paths containing spaces.",
+        "Move parser self-tests ahead of builds and hardware work. Keep the corrected quoted JSON default. Use one outer heavy lock; the script acquires its build lock internally. Honor two build/Rayon/prover threads on this shared laptop instead of hardcoded --threads 8."
+      ],
+      "acceptance": [
+        "The four reproduced probes all refuse: absent binary digest, unrelated binary digest, zero expected/executed cases, and flag-only full/target coverage.",
+        "Reject missing/duplicate/unexpected case identities, missing negative controls, mismatched source/binary/device/artifacts, failed exits and stale/incomplete manifests. A complete supported diagnostic manifest passes.",
+        "CPU-only tests inspect emitted commands and simulate parser/build failure before any GPU invocation; parser regression covers valid JSON, empty/missing data and the former extra-brace expansion.",
+        "A dry-run emits no hardware jobs. Case expectations are tied to the suite version, not merely a threshold of 20 that could miss removed cases."
+      ],
+      "limits": "Do not change scripts/hashline_benchmark.py eligibility semantics. The manifest establishes recorded provenance; it is not independent privacy or security certification."
+    },
+    {
+      "id": "CL14",
+      "priority": 0,
+      "title": "Reject invalid chunk-sweep measurement rows",
+      "owner": "Fable / Claude tools lane",
+      "status": "ready",
+      "depends_on": [],
+      "files": [
+        "scripts/hashline_cl_chunk_sweep.py",
+        "tests/test_hashline_cl_chunk_sweep.py",
+        "results/cl6_*"
+      ],
+      "work": [
+        "Reuse CL5 validated-row logic or an equivalent common contract before parse_measured_log/reconcile ranks choices.",
+        "Require a known successful invocation exit, accepted verification, consistent shape/privacy/cache/device metadata, serialized proof identity and finite nonnegative clocks. Define how exit status reaches the parser; absent status must not mean success.",
+        "Revalidate the archived sweep against the corrected contract and retain any missing-evidence classification; do not invent successful exits for legacy logs."
+      ],
+      "acceptance": [
+        "The existing fixture with prove_s=-1 followed by exit 1 is refused; zero/NaN/infinite/negative and contradictory clocks have explicit outcomes.",
+        "Tests reject conflicting verdicts/digests/metadata and missing or nonzero exits while preserving a valid comparison with complete evidence.",
+        "Report whether the prior chunk-size conclusion survives. No automatic selector is promoted solely from equal digests or noisy timings."
+      ],
+      "limits": "CPU-only work is ready now. The archived sweep is not declared invalid merely because the parser accepted a malformed synthetic input."
+    },
+    {
+      "id": "CL15",
+      "priority": 0,
+      "title": "Define and test empty GPU opening queries",
+      "owner": "Fable / Claude GPU lane",
+      "status": "ready",
+      "depends_on": [],
+      "files": [
+        "hashline/src/gpu/cuda.rs",
+        "hashline/src/gpu/mod.rs",
+        "hashline/tests/zk60_gpu_commit.rs"
+      ],
+      "work": [
+        "Define the public/helper behavior for an empty query list: return an empty result or a clear error before device allocations. Carry it through hiding/non-hiding, fused/reference and pruned/dense routes where the API exposes them.",
+        "Remove the reachable empty-list assumption around qs.last().unwrap() in the hiding pruned route. Retain duplicate-index expansion, index bounds and the reference switches."
+      ],
+      "acceptance": [
+        "A CPU-testable boundary rejects or returns empty without requiring a GPU or allocating scratch.",
+        "The device oracle explicitly executes the empty boundary plus duplicate, out-of-range, ragged and below-fusion-threshold cases on applicable routes.",
+        "Valid nonempty leaves/opened columns retain CPU parity and frozen proof bytes under CL17."
+      ],
+      "limits": "The round-9 finding is source-derived, not a Codex GPU reproduction. One GPU core writer; do not change PCS transcripts or caller semantics outside the agreed interface."
+    },
+    {
+      "id": "CL16",
+      "priority": 1,
+      "title": "Reconcile the successful resident return snapshot",
+      "owner": "Fable / Claude planner lane",
+      "status": "ready",
+      "depends_on": [],
+      "files": [
+        "scripts/hashline_memory_plan.py",
+        "tests/test_hashline_memory_plan.py",
+        "scripts/hashline_cl_pending_memory.py",
+        "tests/test_hashline_cl_pending_memory.py"
+      ],
+      "work": [
+        "In fallback mode that completes resident from an exact warm pool, end raw pad/power lifetimes before recording the return snapshot, as the resident source does.",
+        "Keep requested size, allocated capacity, pool ownership, raw frees and returned commitment state consistent. Check dependent pending-memory reports for the same snapshot use."
+      ],
+      "acceptance": [
+        "At rows=300, log_cols=10, inv_rate=4, checks=q_pad=16, mode=fallback, pool_state=warm-resident, return live bytes equal 12,288,000; the old event reported 12,359,168, an excess of 71,168.",
+        "The final stage agrees with commitment_live_after_return_bytes, while the peak includes pads/powers during their actual lifetime.",
+        "Warm exact reuse remains a successful resident outcome; capacity is counted once, the 64-buffer cap is preserved, and existing planner/pending tests pass."
+      ],
+      "limits": "This corrects an overcount, not evidence of unsafe peak underestimation. Component accounting alone does not authorize a whole private-block run."
+    },
+    {
+      "id": "CL17",
+      "priority": 0,
+      "title": "Deliver final combined-source correctness evidence",
+      "owner": "Fable / Claude lane; Codex reviews integration",
+      "status": "queued",
+      "depends_on": [
+        "CL12",
+        "CL13",
+        "CL14",
+        "CL15",
+        "CL16"
+      ],
+      "files": [
+        "results/cl1_floors.sh",
+        "results/cl_round9_* (new, distinct run paths)",
+        "docs/zkmatrix-poc/ZK60_CLAUDE_GPU.md"
+      ],
+      "work": [
+        "Freeze the combined source after the preceding fixes. Run the complete release CPU suite, required GPU oracle and all four frozen artifacts under CPU/GPU/forced hiding chunking.",
+        "Include both missing-feature controls, named negative controls, and the new empty-query boundary. Test the adopted cache with actual separate cold/warm prover processes and P3 refusal.",
+        "Produce the CL13 manifest, retained per-case logs and exit marker from that same build. Record CPU/GPU device dispatch and fallback evidence, not just a gpu: ON startup line.",
+        "Hand the pinned changes and validation to Codex for integration. Preserve the prior 82314a1 success as historical evidence."
+      ],
+      "acceptance": [
+        "All 12 full SHA-256/length byte cases match; the exact oracle case set and negative controls execute on the named device.",
+        "No required test is silently skipped; missing-feature-required mode refuses, ordinary no-feature mode explicitly reports zero device cases.",
+        "Actual cold/warm proof bytes are identical with correct hit/miss counts; P3 cache refusal occurs before cache creation. Source/binary identity matches the artifact manifest.",
+        "A final CPU combined-suite result covers H1 and the atomic cache tests alongside lane tests. Any source edits after a run are identified with their required retests."
+      ],
+      "limits": "Safe existing small fixtures only, shared heavy lock, two threads, detached logs/marker for long runs. No 32-layer laptop run, new hardware installation or target-throughput claim follows from this gate."
+    },
+    {
+      "id": "CL18",
+      "priority": 2,
+      "title": "Evaluate compact pad/scale output as one bounded GPU optimization",
+      "owner": "Fable / Claude GPU lane",
+      "status": "queued",
+      "depends_on": [
+        "CL17"
+      ],
+      "files": [
+        "hashline/src/gpu/cuda.rs",
+        "hashline/src/gpu/kernels.cu",
+        "hashline/tests/zk60_gpu_commit.rs",
+        "docs/zkmatrix-poc/ZK60_CLAUDE_RESIDENCY.md",
+        "results/cl18_* (new)"
+      ],
+      "work": [
+        "First derive the compact output stride and ownership for n+q coefficients versus nn; check k_ntt_p1 n_src handling in both commit and fused-opening paths. Quantify live and pooled capacities before implementing.",
+        "If the derivation supports it, add a separately switchable compact pad/scale path with the full-output reference retained. Do not bundle other kernel changes.",
+        "Measure the changed phase and end-to-end proof readiness at an already permitted small shape using identical seeds/mode/cache/chunk settings. Record neutral or negative results as valid outcomes."
+      ],
+      "acceptance": [
+        "CPU oracle verifies leaves AND openings across every supported rate, pad boundaries, ragged chunks, duplicate queries, interleaved commitments and fused/reference routes.",
+        "Failure/cleanup ownership and memory counters agree with the planner; no stale stride or unsupported n+q path is silently used.",
+        "Full frozen gates pass at the new source before promotion. The measured phase gain and whole-proof change are reported separately; the traffic reduction remains a hypothesis until measured."
+      ],
+      "limits": "This task authorizes a bounded optimization investigation, not a claimed speedup, altered security parameters, a private repair, or a full-model run."
+    },
+    {
+      "id": "CL19",
+      "priority": 2,
+      "title": "Specify an exact proof-size telemetry handoff",
+      "owner": "Fable analysis; Codex owns serializer/CLI integration",
+      "status": "ready_design",
+      "depends_on": [],
+      "files": [
+        "docs/zkmatrix-poc/ZK60_CLAUDE_ARTIFACTS.md",
+        "scripts/hashline_cl_artifact_profile.py",
+        "tests/test_hashline_cl_artifact_profile.py"
+      ],
+      "work": [
+        "Specify LayerProofZk size-breakdown fields and the actual serializer boundaries that would supply them. Replace subtraction-only residual claims with a proposed independent measurement for each serialized section.",
+        "Cover plain P1 W versus salted hiding P3 W, A/H/mask openings, group/proximity vectors, sumcheck messages and framing. Describe an API that counts without allocating a second complete proof.",
+        "Provide a narrow proposed patch/test contract for Codex-owned zk.rs/CLI integration; keep the current working source read-only."
+      ],
+      "acceptance": [
+        "The handoff lists exact insertion sites, API/schema, ownership, and positive/negative tests that would fail if a section were omitted or assigned twice.",
+        "Once Codex integrates it, measured section counts must sum to actual to_bytes length across supported small P1/P3 fixtures without changing proof bytes. Until then label this task design-delivered, not implemented telemetry.",
+        "Separate serialization time/copies from byte count; no compression, mask removal or reduced checks is promoted as compatible from these counts."
+      ],
+      "limits": "The completed wcache::report request and H1 isolation need no replacement. Shared serializer/CLI production edits stay with Codex."
+    },
+    {
+      "id": "FA1",
+      "priority": 0,
+      "title": "Independently reproduce the actual FFN disclosure",
+      "owner": "Fable as reviewer of Codex diagnostic",
+      "status": "ready",
+      "depends_on": [],
+      "files": [
+        "docs/zkmatrix-poc/ZK60_FABLE_PRIVACY_REVIEW.md (new)",
+        "results/zk60_fable_fa1_* (new)",
+        "hashline/src/zk_ffn_mask_diagnostic.rs (read-only baseline)",
+        "hashline/tests/zk60_mask_rank.rs (read-only baseline)"
+      ],
+      "work": [
+        "Run the actual mask_diagnostic tests at the recorded baseline, then independently inspect/reconstruct the public-observation replay and extraction. A rerun alone is not an independent algebraic review.",
+        "Verify the extractor receives only verifier-visible commitment/claims/opening/transcript, and observations publish only after the whole FFN verifies. Witness truth belongs only in the separate comparison harness.",
+        "Cover T2 and T32 under P1 and P3, explicit fixture seeds and default fresh randomness; verify groups [7,3,1,1,6], X-at-p2 and h16-at-p5 mappings and challenge endpoints without resampling."
+      ],
+      "acceptance": [
+        "Record reviewer identity, exact source, commands/exits, profile parameters, proof hashes, group membership and observed rank/output dimensions; no recovered values or secret randomness in reports.",
+        "Confirm or refute complete 32-value tiny-plane recovery and the T32 per-column functionals with independent reasoning. T32 extraction is not an upper bound on leakage.",
+        "Independently inspect or add controls for malformed grouping/indices/roots/columns/final-H, zero/degenerate coefficients and paired masks. State the in-process observation boundary; do not claim a standalone FFN byte decoder."
+      ],
+      "limits": "CPU-only synthetic inputs. Existing tests are reproducible now; any additional hook in zk.rs/pcs.rs needs an exact cross-owner patch handoff before shared-source edits."
+    },
+    {
+      "id": "FA2",
+      "priority": 0,
+      "title": "Determine joint exposure and affected profiles",
+      "owner": "Fable independent privacy reviewer",
+      "status": "queued",
+      "depends_on": [
+        "FA1"
+      ],
+      "files": [
+        "docs/zkmatrix-poc/ZK60_FABLE_PRIVACY_REVIEW.md (new)",
+        "scripts/zk60_fable_joint_rank.py (new, analysis only)",
+        "tests/test_zk60_fable_joint_rank.py (new if a rank tool is implemented)",
+        "results/zk60_fable_fa2_* (new)"
+      ],
+      "work": [
+        "Enumerate actual joint A/H/W opening groups and repeated mask occurrences from verifier data: terminal/proximity vectors, sampled encoded columns, folded pads, helper sums, CFS functionals, table multiplicities and constrained zero-sum rows.",
+        "Express base-field observation and mask matrices with actual extension coefficients and transcript-conditioning assumptions. State what the rank calculation models and what nonlinear or adaptive observations it does not settle.",
+        "Expand beyond the two singleton A groups to P3 W and H. Classify tested tiny/T32 and larger supported layout families as affected, unresolved or covered by a stated argument; begin with symbolic/tiny cases instead of full-model jobs."
+      ],
+      "acceptance": [
+        "Each observation has a source/role, domain, coefficient provenance, mask support and reuse identity. Missing observations are explicit, never assigned zero cost.",
+        "An implemented rank tool checks known deficient and independent-mask fixtures and agrees with an independent calculation; numerical rank alone is not called a simulation proof.",
+        "Deliver an impact matrix and a precise list of unresolved assumptions that FA3 must address. Keep single-proof and repeated-proof observations distinct."
+      ],
+      "limits": "A/H/W local mask counts and passing paired-mask controls do not by themselves settle joint privacy. Additional public-only capture hooks remain an agreed Codex/PCS handoff."
+    },
+    {
+      "id": "FA3",
+      "priority": 0,
+      "title": "Review a complete repair and pending-block mask contract",
+      "owner": "Fable reviewer; Codex implements the accepted protocol",
+      "status": "queued",
+      "depends_on": [
+        "FA2"
+      ],
+      "files": [
+        "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md (new)",
+        "docs/zkmatrix-poc/ZK60_PENDING_FFN.md (read-only design input)",
+        "docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK.md (read-only design input)"
+      ],
+      "work": [
+        "Specify masks for existing FFN A/H/W and future attention/seams together: independent randomness dimensions, role-to-row mapping, permitted point transforms, proximity/helper constraints and all commitments/openings.",
+        "Define reserve-before-commit and one-shot finalization order on actual arithmetic commitments. Cover late claims, repeated/missing masks, discarded/error paths and two simultaneously pending blocks.",
+        "Give the new profile/domain/version boundary, verifier obligations, CPU adversarial test matrix and memory/layout delta for CL8 tooling. Preserve legacy fixtures as legacy behavior, not as repaired privacy evidence."
+      ],
+      "acceptance": [
+        "Every FA2 observation is addressed by an explicit argument or remains an identified blocker; a seam-only mask pair is not accepted as a core FFN repair.",
+        "The proposed P1 block API consumes both internal seams exactly once and prohibits copied-plane substitutes or unreserved late claims.",
+        "A reviewer independent of the eventual implementation records the construction, assumptions and disposition. Codex can implement from the concrete schema without guessing mask counts or transcript order."
+      ],
+      "limits": "Design and review are the deliverable. Production private attention/FFN composition remains gated on acceptance of this complete plan; this queue does not certify a construction in advance."
+    },
+    {
+      "id": "FA4",
+      "priority": 1,
+      "title": "Specify approved private-model consistency",
+      "owner": "Fable independent identity reviewer",
+      "status": "ready",
+      "depends_on": [],
+      "files": [
+        "docs/zkmatrix-poc/ZK60_FABLE_MODEL_IDENTITY.md (new)",
+        "hashline/tests/zk60_model_identity.rs (new dedicated review tests)",
+        "hashline/tests/zk60_identity_gap.rs (read-only baseline)",
+        "hashline/src/model_identity.rs (read-only baseline)"
+      ],
+      "work": [
+        "Independently reproduce known_p3_gap_same_declared_model_and_input_different_weights_both_verify. Review the independently registered P1 boundary as the positive comparison.",
+        "Specify how fresh hiding W/gamma commitments prove consistency with an independently approved stable model commitment, including registration/authentication, layer order, calibration/quantization and repeated-proof assumptions.",
+        "Provide an explicit statement/API and adversarial matrix: substitute W/gamma, copied candidate root, changed calibration, wrong approved identity, layer swap and replayed consistency proof."
+      ],
+      "acceptance": [
+        "The current substitute-weight diagnostic is recorded as a missing constraint, not successful P3 identity enforcement.",
+        "The proposed approval source is independent of the candidate proof; a model-name string or copied root cannot satisfy it.",
+        "State the new proof relation, privacy/security obligations and implementation handoff. Review the final construction with FA2/FA3 before any P3 product acceptance."
+      ],
+      "limits": "P1 private-block work may proceed after its shared privacy prerequisites without waiting for P3 identity. Existing model_identity.rs ownership remains Codex."
+    },
+    {
+      "id": "FA5",
+      "priority": 1,
+      "title": "Close arithmetic and security obligations for the precise MVP",
+      "owner": "Fable independent arithmetic/security reviewer",
+      "status": "ready_analysis",
+      "depends_on": [],
+      "files": [
+        "docs/zkmatrix-poc/ZK60_FABLE_SECURITY_OBLIGATIONS.md (new)",
+        "results/zk60_fable_fa5_* (new)",
+        "docs/zkmatrix-poc/ZK60_BLOCK_CONTRACT.md (read-only input)",
+        "docs/zkmatrix-poc/ZK60_CAUSAL_ORACLE.md (read-only input)"
+      ],
+      "work": [
+        "Create an obligation table for the exact fixed integer profile: field/integer conversion, no-wrap bounds, quotient/remainder and range checks, lookup membership/multiplicities, norms, attention/softmax, seams and zero-denominator behavior.",
+        "For each obligation distinguish an actual verifier constraint, a checked public precondition, a host-only assertion and an unproved assumption. Give a concrete counterexample/test or derivation where applicable.",
+        "Review challenge distributions, degrees, code parameters, cumulative query counts and whole-proof composition against the eventual FA3/FA4 construction. Separate tiny test profiles from any deployment profile."
+      ],
+      "acceptance": [
+        "Deliver source locations, exact parameter assumptions and remaining gaps for every row. Host-oracle agreement and frozen bytes are not substituted for a proof-level bound.",
+        "Any soundness/privacy estimate states its derivation and dependencies; do not inherit an old security number for a changed composition.",
+        "Mark analysis-delivered separately from final closure. Final security acceptance incorporates the implemented repair and independent verification of its obligations."
+      ],
+      "limits": "Analysis can start now. Final closure depends on the concrete repair and, for P3, approved-model consistency; no target-throughput eligibility is granted by this document alone."
+    },
+    {
+      "id": "CL20",
+      "priority": 3,
+      "title": "Create and maintain a minimal refactored ZKP subproject",
+      "owner": "Fable refactoring lane; Codex reviews shared-core extraction",
+      "status": "ready_design",
+      "depends_on": [
+        "CL17"
+      ],
+      "files": [
+        "zkp-core/README.md",
+        "zkp-core/Cargo.toml (new at implementation)",
+        "zkp-core/src/ (new at implementation)",
+        "zkp-core/tests/ (new at implementation)",
+        "zkp-core/examples/ (new at implementation)",
+        "hashline/Cargo.toml and extracted core modules (coordinated adapter changes)"
+      ],
+      "work": [
+        "Use zkp-core/ as the small maintained library subproject, with a manifest, explicit supported-profile contract, architecture/API guide and tiny prove/verify example. Design can begin now; source extraction follows the validated CL17 baseline and does not delay privacy/integration work.",
+        "Map the actual transitive dependency closure before moving code. In particular, PCS and sumcheck currently obtain ZkRng from zk.rs, PCS embeds GPU dispatch, and layer.rs mixes compact PCS/cache/export paths. Extract randomness/parameters/statement/proof primitives into coherent modules instead of copying those large modules wholesale.",
+        "Keep the default library CPU-first with typed inputs, explicit parameters/backend selection, bounded proof decoding and clear errors. Exclude CLI, model download/export plumbing, benchmark campaign scripts, CUDA tooling and unused proof backends from its default dependency closure. Add adapters only for concrete consumers.",
+        "Move one vertical proof/verification path at a time. Select and document the exact currently implemented profile, including any unresolved privacy limitation; preserve its relation, transcript and RNG semantics. A public-only example or a thin dependency on the entire hashline crate is not completion of the ZKP subproject.",
+        "Keep hashline, zkmatrix-rs, experiments, reports, benchmarks and alternative paths available. Prefer one canonical extracted implementation consumed by existing adapters. A temporary duplicate must have explicit source pins, differential tests, maintenance ownership and a removal/convergence milestone.",
+        "Establish a fast isolated test command and parity gates in CI or the existing local gate runner. Document how an accepted protocol repair is promoted into the small core and how experimental code stays outside it."
+      ],
+      "acceptance": [
+        "zkp-core builds/tests independently from its manifest with dependencies provisioned and has a runnable tiny prove/verify example; no CUDA installation, downloaded model or unrelated experimental binary is required.",
+        "A supported-profile matrix identifies what is included, deliberately excluded and still unreviewed. Refactoring does not claim to repair the known FFN privacy defect or P3 identity gap.",
+        "For the extracted profile, seeded proofs retain exact bytes, existing/new prover and verifier paths cross-check where interfaces permit, and malformed/tampered proofs reject consistently. Fresh randomness tests and applicable disclosure regressions remain present.",
+        "Legacy entry points and frozen artifact gates still pass. Existing experiments are neither deleted nor silently redirected to different semantics.",
+        "Document one source of truth per primitive, the dependency graph, module responsibilities, public API and migration ledger. Compare dependency/module surface before and after; do not reduce line count by discarding validation or hiding the whole legacy crate behind a wrapper.",
+        "Completion means a working maintained subproject and adapters, not just this README or a copied snapshot. Implementation is split into bounded reviewable commits."
+      ],
+      "limits": "Lower priority than correctness, privacy repair and integration. The README created with this queue is a design scaffold only; no proof code has been extracted. Coordinate shared-source ownership and keep protocol redesign separate from mechanical refactoring."
+    }
+  ]
+}

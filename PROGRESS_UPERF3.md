@@ -14603,3 +14603,38 @@ reused the first log path; the second log is separately archived and the
 first recorded hash remains historical. A successful final-source GPU floor
 run is still required. Independent joint privacy review, private protocol
 repair/composition and complete generation/60-tokens/s claims remain open.
+
+## ZK60 round 9 — next Fable queue and minimal-core refactoring brief
+
+Victor requested a reviewed next task list for Fable, then added a
+lower-priority subproject containing a minimal maintained ZKP implementation
+while retaining the experiments. Codex fetched and reviewed lane tip
+`3ad4d97` against the published `44d72ff` integrator baseline, read-only.
+No production source was changed, no lane was merged, and no GPU or
+subagent was launched during this review.
+
+The lane's archived `82314a1` run is successful: marker 0, twelve exact
+CPU/GPU/forced-chunk proof hash/length cases, 49 device oracle cases, both
+missing-feature controls and twenty green Rust result lines. All twelve
+retained prover logs were inspected independently. This credits the later
+successful launch and JSON-default fix; it does not cover the subsequent
+H1 merge or round-8 cache pickup. All 215 pinned CPU tool tests were rerun
+successfully. The CL6 invalid timing/exit and four CL11 preflight probes
+still reproduce, as does the 71,168-byte planner return-snapshot overcount.
+The empty-query issue remains source-derived. Exact evidence is recorded
+in `results/zk60_round9_review.json` and `ZK60_ROUND9_REVIEW.md`.
+
+`ZK60_FABLE_QUEUE.md` and `zk60_fable_tasks.json` define fourteen tasks:
+CL12 baseline sync, CL13 evidence/portable runner, CL14 timing validation,
+CL15 empty GPU queries, CL16 planner return lifetimes, CL17 combined gate,
+CL18 bounded compact-pad optimization, CL19 exact size telemetry handoff,
+and CL20 the priority-3 minimal-core subproject; FA1–FA5 retain and expand
+independent disclosure/joint privacy/repair/identity/security review.
+Existing cache/report and H1 work is credited rather than reassigned.
+
+`zkp-core/README.md` is a design scaffold only. CL20 requires an independently
+buildable library, explicit support boundary, tiny prove/verify example,
+meaningful parity/adversarial gates, adapters and a single source of truth
+for extracted primitives. It preserves `hashline`, `zkmatrix-rs` and all
+experimental paths. No empty manifest or copied implementation is presented
+as a completed refactor, and code organization does not repair privacy.

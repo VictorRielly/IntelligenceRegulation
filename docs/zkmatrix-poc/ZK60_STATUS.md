@@ -1,5 +1,13 @@
 # ZK60 milestone map
 
+**2026-09-07, round 9:** [the latest review](ZK60_ROUND9_REVIEW.md) pins
+lane `3ad4d97`, credits the successful archived `82314a1` GPU gate (12 byte
+cases, 49 oracle cases), and reruns 215 CPU tool tests. H1 was merged after
+that run and the cache fix still needs lane pickup; final combined validation
+remains open. [Fable's next queue](ZK60_FABLE_QUEUE.md) has 14 concrete tasks,
+including independent privacy review and a lower-priority maintained
+[ZKP core subproject](../../zkp-core/README.md). That subproject currently has
+only its design scaffold. No new private-protocol or throughput acceptance.
 **2026-09-06, round 8:** the public-weight cache now publishes through
 exclusive per-writer files, fixing concurrent lost saves and partial-entry
 exposure. ZK v3 reports cache activity. **151 Rust tests, 144 Python/native

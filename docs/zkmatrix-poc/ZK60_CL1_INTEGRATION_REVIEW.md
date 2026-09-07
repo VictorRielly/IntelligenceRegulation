@@ -1,6 +1,14 @@
 # CL1 integration review — hold pending follow-ups
 
-## Latest: round-8 review at `a1aa2b7`
+**2026-09-07 update:** [round-9 review](ZK60_ROUND9_REVIEW.md) pins
+`3ad4d97` and credits its archived `82314a1` success: 12 matching byte cases,
+49 oracle cases and both missing-feature controls. Codex rechecked all twelve
+retained prover logs and reran 215 tool tests. The run precedes H1 merge and
+round-8 cache pickup. Current follow-ups are CL12–CL17 in
+[Fable's queue](ZK60_FABLE_QUEUE.md); older parser/deadlock findings below
+are superseded as described in the latest review. No lane merge or new GPU
+execution was performed by this review.
+## Historical round-8 review at `a1aa2b7`
 
 The [round-8 review](ZK60_ROUND8_CLAUDE_REVIEW.md) supersedes the earlier
 warm-fallback and Python-parser blockers. All 215 pinned Python tool tests

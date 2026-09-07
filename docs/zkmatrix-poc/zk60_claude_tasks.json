@@ -3,15 +3,15 @@
   "created_local_date": "2026-09-04",
   "source_base": "5657a8d",
   "owner": "Claude in its own session; queued, not represented as executed by Codex",
-  "latest_observed_cl1": "a1aa2b7eb56a59c543c9ba9ca4f8f3430c122b96 (pinned round-8 review)",
-  "integration_state": "hold on final combined-source floor evidence; nested-lock launcher deadlock aborted before build; relaunch with outer heavy lock only",
+  "latest_observed_cl1": "3ad4d97ce4cb47b9eeeb76647a5a9159d15d2357 (pinned round-9 review)",
+  "integration_state": "archived 82314a1 GPU gate reviewed and credited; remaining input/boundary findings and final combined-source gate assigned CL12-CL17; no lane integration yet",
   "tasks": [
     {
       "id": "CL2",
       "priority": 0,
       "title": "Close deferred-opening correctness and reference-mode gaps",
       "depends_on": [],
-      "status": "source fixes retained; archived CL4 full-hash gates recorded; no new GPU reproduction",
+      "status": "source fixes and archived 82314a1 CPU/GPU/forced-chunk gates credited; final combined gate CL17",
       "files": [
         "hashline/src/gpu/cuda.rs",
         "hashline/src/gpu/mod.rs",
@@ -27,7 +27,10 @@
         "Forced off cannot report CHUNKED after injected resident failure.",
         "Small CPU/GPU/forced-chunk frozen artifacts retain full SHA-256 and exact lengths; no transcript/RNG changes."
       ],
-      "limits": "Source-inspected defects, not independently GPU-reproduced by Codex. Keep one GPU core writer."
+      "limits": "Source-inspected defects, not independently GPU-reproduced by Codex. Keep one GPU core writer.",
+      "successor_tasks": [
+        "CL17"
+      ]
     },
     {
       "id": "CL3",
@@ -36,7 +39,7 @@
       "depends_on": [
         "CL2"
       ],
-      "status": "a1aa2b7 reviewed: earlier capacity/return/fallback findings fixed; 27 tests pass; remove raw pads/powers from the successful resident-outcome return snapshot",
+      "status": "round-9 CPU reproduction confirms 71168-byte resident-return snapshot overcount; earlier reuse/capacity fixes retained",
       "review_followups": [
         "Keep the corrected per-buffer counters, fallback parity, capacity transfer and 64-buffer cap.",
         "The resident-outcome return snapshot retains raw pads/powers that the declared post-return field excludes (71168 B at 300-row probe); align the lifetime snapshot."
@@ -58,7 +61,11 @@
         "Tests distinguish live ownership from pool reservation and allocated capacity from requested scratch.",
         "Measured small-shape high-water marks are reconciled with conservative bounds; do not use a chunk-only count as a fallback or whole-prover bound."
       ],
-      "limits": "Planner ownership explicitly transfers to Claude for this queue; Codex will not edit it concurrently. No destructive global pool draining while another owner still uses state."
+      "limits": "Planner ownership explicitly transfers to Claude for this queue; Codex will not edit it concurrently. No destructive global pool draining while another owner still uses state.",
+      "successor_tasks": [
+        "CL16",
+        "CL17"
+      ]
     },
     {
       "id": "CL4",
@@ -68,11 +75,11 @@
         "CL2",
         "CL3"
       ],
-      "status": "parser fixed and CPU controls pass; two final launches deadlocked on nested build lock before compilation, both recorded exit 1; use outer heavy lock only and pick up H1 isolation before relaunch",
+      "status": "82314a1 JSON expansion fix and archived 12 byte / 49 device cases reviewed; run precedes H1 merge and cache pickup",
       "review_followups": [
-        "Use only the outer heavy lock around cl1_floors.sh; it already acquires the build lock internally.",
-        "Pick up H1 isolation from 3ff8d5f; run full final-source CPU/GPU/forced-chunk gates with retained logs and exact identities.",
-        "Move the embedded parser self-test before the hardware oracle."
+        "Preserve the successful archived 82314a1 run and correct pre/post-merge provenance (CL12).",
+        "Use a portable resource-bounded manifest runner with parser self-test before hardware and outer heavy lock only (CL13).",
+        "Validate the final combined source and exact case set including cache/H1 updates (CL17)."
       ],
       "files": [
         "hashline/src/gpu/cuda.rs",
@@ -92,7 +99,12 @@
         "Attribution has no duplicate parent/child charging; enqueue/wait/transfer/device intervals are labelled and testable.",
         "Do not retroactively discard CL1's observed hardware log; correct the gate semantics for subsequent evidence."
       ],
-      "limits": "Clock fixes are measurement corrections, not speedups. Do not change existing top-level benchmark eligibility semantics without Codex review."
+      "limits": "Clock fixes are measurement corrections, not speedups. Do not change existing top-level benchmark eligibility semantics without Codex review.",
+      "successor_tasks": [
+        "CL12",
+        "CL13",
+        "CL17"
+      ]
     },
     {
       "id": "CL5",
@@ -129,7 +141,7 @@
         "CL3",
         "CL5"
       ],
-      "status": "24 tests pass; new reproduction accepts negative prove_s with exit 1; validate exit/verdict/finite clocks before comparing choices",
+      "status": "round-9 reproduction still accepts prove_s=-1 and exit 1; 24 existing tests pass",
       "files": [
         "hashline/src/gpu/cuda.rs",
         "hashline/tests/zk60_gpu_commit.rs",
@@ -147,7 +159,10 @@
         "Selector refuses unsupported/overflowing budgets and never assumes nominal VRAM is free memory.",
         "Promote only a measured proof-ready or memory-headroom improvement; report regressions and do not hardcode a 5090 speed factor."
       ],
-      "limits": "One active cuda.rs writer; no live large-model search on the laptop."
+      "limits": "One active cuda.rs writer; no live large-model search on the laptop.",
+      "successor_tasks": [
+        "CL14"
+      ]
     },
     {
       "id": "CL7",
@@ -157,7 +172,7 @@
         "CL5",
         "CL6"
       ],
-      "status": "source reviewed: fused hiding gather with duplicate handling/reference switch; final full GPU floor/oracle gate pending",
+      "status": "archived 82314a1 full byte/oracle evidence credited; empty query boundary remains source-derived and unhandled",
       "files": [
         "hashline/src/gpu/cuda.rs",
         "hashline/src/gpu/kernels.cu",
@@ -177,8 +192,13 @@
       ],
       "limits": "Do not alter attention.rs/layer.rs/zk.rs caller semantics; propose any caller change to Codex before editing.",
       "review_followups": [
-        "Final combined-source CPU/GPU/forced-chunk floor and oracle gate after H1 isolation pickup.",
-        "Source-derived empty query boundary: new helper accepts Some(&[]) but fused/pruned code calls qs.last().unwrap(); reject early or return empty and test it."
+        "Empty query behavior must be explicit and tested before device allocation (CL15).",
+        "Run final combined-source full gate after the boundary fix and cache pickup (CL17)."
+      ],
+      "successor_tasks": [
+        "CL15",
+        "CL17",
+        "CL18"
       ]
     },
     {
@@ -212,7 +232,7 @@
         "CL2",
         "CL4"
       ],
-      "status": "Codex production handoff validated: exclusive per-writer atomic cache publication, final cleanup ownership and ZK cache report; 151 Rust tests and cold/warm full-byte frozen parity; ready for lane pickup",
+      "status": "44d72ff atomic public-cache fix and ZK summary validated and pushed; lane must adopt then validate combined source",
       "files": [
         "hashline/src/gpu/",
         "hashline/src/pcs.rs",
@@ -229,14 +249,18 @@
         "P3 cannot reuse private hiding commitments, masks or randomness across proofs through this cache.",
         "Distinguish existing performance behavior from newly implemented improvements; changes outside GPU/PCS require Codex handoff."
       ],
-      "limits": "This is public-weight reuse, not a solution to P3 approved-model consistency or the singleton-mask privacy gate."
+      "limits": "This is public-weight reuse, not a solution to P3 approved-model consistency or the singleton-mask privacy gate.",
+      "successor_tasks": [
+        "CL12",
+        "CL17"
+      ]
     },
     {
       "id": "CL10",
       "priority": 2,
       "title": "Measure proof-size and serialization costs before redesign",
       "depends_on": [],
-      "status": "27 tests pass; corrected P1/P3 rows/salts/vectors and 65632-byte mode delta reviewed; byte accounting only",
+      "status": "corrected byte accounting retained; exact serializer telemetry handoff assigned CL19",
       "files": [
         "scripts/hashline_cl_artifact_profile.py",
         "tests/test_hashline_cl_artifact_profile.py",
@@ -252,7 +276,10 @@
         "No candidate compression is called compatible or private without its own codec/security gates.",
         "Provide a concrete handoff for Codex's codec/CLI owners; do not edit their current receipt modules."
       ],
-      "limits": "No sensitive proof exports. Existing compact PCS is not an approved GPU/private substitute; changed security parameters require explicit review."
+      "limits": "No sensitive proof exports. Existing compact PCS is not an approved GPU/private substitute; changed security parameters require explicit review.",
+      "successor_tasks": [
+        "CL19"
+      ]
     },
     {
       "id": "CL11",
@@ -262,7 +289,7 @@
         "CL3",
         "CL4"
       ],
-      "status": "61 tests pass but reproduced missing/wrong binary digest, zero floor cases and flag-only full-target go; bind complete evidence and refuse unsupported target eligibility",
+      "status": "round-9 probes still allow absent/wrong digest, zero floor cases and flag-only full target; 61 existing tests pass",
       "files": [
         "docs/zkmatrix-poc/ZK60_CLAUDE_5090.md",
         "scripts/hashline_cl_5090_preflight.py",
@@ -279,7 +306,12 @@
         "All heavy jobs use the shared lock and detached logs/markers when expected over five minutes.",
         "Hardware measurements run only after Victor has the card ready; no rental, purchase, driver installation or risky laptop 8B run is implied."
       ],
-      "limits": "Hardware preparation is ready work; actual 5090 throughput is blocked on hardware availability and full supported proof relation."
+      "limits": "Hardware preparation is ready work; actual 5090 throughput is blocked on hardware availability and full supported proof relation.",
+      "successor_tasks": [
+        "CL13"
+      ]
     }
-  ]
+  ],
+  "successor_queue": "zk60_fable_tasks.json",
+  "latest_review": "ZK60_ROUND9_REVIEW.md"
 }

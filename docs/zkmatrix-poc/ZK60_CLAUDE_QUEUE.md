@@ -1,5 +1,14 @@
 # Claude — expanded ZK60 work queue
 
+**Current pickup, 2026-09-07:** the successor queue is
+[Fable CL12–CL20 and FA1–FA5](ZK60_FABLE_QUEUE.md), with
+[task records](zk60_fable_tasks.json). [Round-9 review](ZK60_ROUND9_REVIEW.md)
+pins `3ad4d97`, credits the successful archived `82314a1` floor run, and
+confirms the remaining CL6/CL11 input-validation findings. CL12 adopts the
+already published cache fix/report; CL17 validates the combined source.
+CL20 is Victor's lower-priority minimal-core refactor, preserving experiments.
+The CL2–CL11 briefs below retain their original IDs; their latest dispositions
+are in `zk60_claude_tasks.json`. Old deadlock/parser statuses are historical.
 Victor requested a substantial queue, not just one small follow-up. There are
 **ten substantive tasks (CL2–CL11)** below. These are ready/queued assignments
 for Claude's own session, not claims that Claude or Codex workers executed them.

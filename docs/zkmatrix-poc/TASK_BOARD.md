@@ -1,5 +1,20 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-07, next Fable queue:** [round-9 review](ZK60_ROUND9_REVIEW.md)
+credits lane `3ad4d97`: the archived `82314a1` run passed 12 full-hash byte
+cases and 49 device oracle cases. Codex checked all 12 retained prover logs
+and reran 215 CPU tool tests. This supersedes the old pending/deadlocked-run
+status below, but the run predates H1 merge and cache pickup. The remaining
+CL6/CL11 probes still reproduce; final combined-source validation stays open.
+
+**Pickup:** [14 Fable tasks](ZK60_FABLE_QUEUE.md), with
+[matching task records](zk60_fable_tasks.json): CL12–CL20 plus FA1–FA5.
+Start baseline synchronization, evidence/runner fixes, timing validation,
+empty-query and planner corrections, then the combined gate. Independent
+privacy/identity analysis can proceed now. Victor also requested **CL20,
+priority 3: a maintained minimal ZKP subproject**; [zkp-core](../../zkp-core/README.md)
+is its design scaffold, not an extracted library. Existing experiments remain.
+No production source was changed or GPU launched by this round.
 **ZK60 round 8 validated:** Codex completes CL9's production handoff with
 exclusive per-writer cache files and atomic publication, preserving complete
 entries for concurrent readers. The old code lost 65/96 saves in the new
@@ -10,7 +25,7 @@ and public-receipt checks pass.** [Closure and validation provenance](ZK60_ROUND
 separate the full run from the final cleanup retest. Reviews/todos are already
 pushed as `a0495dc`; independent privacy review and final GPU gates remain open.
 
-**Immediate Claude pickup, round 8:** the final floor launcher has deadlocked
+**Historical round-8 launcher correction (successful later run reviewed above):** the final floor launcher has deadlocked
 **twice** by taking `/tmp/zk-build.lock` outside `cl1_floors.sh`, which requests
 the same lock inside. Both attempts stopped before compilation; Codex
 terminated only their waiting lock requests with approval. **Do not repeat
