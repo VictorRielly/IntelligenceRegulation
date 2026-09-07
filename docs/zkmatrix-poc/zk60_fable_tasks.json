@@ -330,7 +330,7 @@
       "priority": 1,
       "title": "Specify approved private-model consistency",
       "owner": "Fable independent identity reviewer",
-      "status": "ready",
+      "status": "done",
       "depends_on": [],
       "files": [
         "docs/zkmatrix-poc/ZK60_FABLE_MODEL_IDENTITY.md (new)",
@@ -348,7 +348,19 @@
         "The proposed approval source is independent of the candidate proof; a model-name string or copied root cannot satisfy it.",
         "State the new proof relation, privacy/security obligations and implementation handoff. Review the final construction with FA2/FA3 before any P3 product acceptance."
       ],
-      "limits": "P1 private-block work may proceed after its shared privacy prerequisites without waiting for P3 identity. Existing model_identity.rs ownership remains Codex."
+      "limits": "P1 private-block work may proceed after its shared privacy prerequisites without waiting for P3 identity. Existing model_identity.rs ownership remains Codex.",
+      "result": {
+        "date": "2026-09-07",
+        "reviewer": "Claude Fable 5.1, independent reviewer",
+        "source_pin": "52a13d1 (worktree /home/victor/wt-zk60-fa)",
+        "reproduction": "zk60_identity_gap: 5 passed, exit 0 (results/zk60_fable_fa4_identity_gap.log); both known_p3_gap proofs verify under one declared model, statement and input with digests identical to Codex's I1 record",
+        "new_tests": "hashline/tests/zk60_model_identity.rs (public API only, tiny shape): 5 passed, exit 0 on run 2 (run 1 exit 101 on the reviewer's own invariant, fixed with an Obligation::{Verifier, Prover} field; both logs retained); 3 gap_* pins asserting today's ACCEPT and saying they must flip; a P1 positive comparison; an 18-row adversarial matrix asserting the exact not-enforced set {M1, M2, M6, M9, M11, M13, M15, M16}",
+        "findings": "the substitute-weight case is a MISSING constraint (P3 re-randomises the W commitment, the verifier absorbs whatever root the proof carries, model= binds only the declaration; two proofs of the same approved weights have different roots); calibration exponents (7 of 9 V3Exps) are outside the proof; layer index bound but not which tensors sit at a layer; request replay undetectable at this API; randomness is witness-independent",
+        "recommendation": "construction (b): a per-layer independently approved BUDGETED stable hiding commitment (q_pad = k*Q, k precommitted mask-row sets selected by a public slot, write-ahead counter) opened directly by the FFN proof with the verifier comparing proof.w_com == C*_l as P1 does, ZkOpts from the manifest; removes the largest measured P3 phase (commit W 8.417 of 15.824 s at Mistral T=512); construction (a) fresh commit + equality sumcheck kept as the rotation primitive; counted costs from the planner (registration peak 14.2-28.9 GiB, stored codewords 174-380 GiB for 32 layers; RS distance 0.746 -> 0.5 at k = 64 unless the W rate is raised)",
+        "citation_honesty": "ePrint 2024/1164 not opened; cited only as recorded by prior repo reviews; construction (b) rests on a bounded-reuse argument whose simulator must be written and checked by FA2/FA3 (handoff H1)",
+        "handoff": "H1 FA2/FA3/FA5 simulator + rate bound -> H2-H5 Codex (stable-commitment module, zk.rs prover/verifier under a new profile, ApprovedP3Layer + manifest in model_identity.rs) -> H6 Claude CL1 (chunked commit at budgeted width) -> H7 pass-level identity and request binding -> H8 rotation; P1 private-block work proceeds without waiting for P3 identity",
+        "report": "docs/zkmatrix-poc/ZK60_FABLE_MODEL_IDENTITY.md, results/zk60_fable_fa4_review.json, results/zk60_fable_fa4_memory_plan_*.json"
+      }
     },
     {
       "id": "FA5",
