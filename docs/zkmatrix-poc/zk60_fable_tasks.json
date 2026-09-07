@@ -241,7 +241,7 @@
       "priority": 0,
       "title": "Independently reproduce the actual FFN disclosure",
       "owner": "Fable as reviewer of Codex diagnostic",
-      "status": "ready",
+      "status": "done",
       "depends_on": [],
       "files": [
         "docs/zkmatrix-poc/ZK60_FABLE_PRIVACY_REVIEW.md (new)",
@@ -259,7 +259,18 @@
         "Confirm or refute complete 32-value tiny-plane recovery and the T32 per-column functionals with independent reasoning. T32 extraction is not an upper bound on leakage.",
         "Independently inspect or add controls for malformed grouping/indices/roots/columns/final-H, zero/degenerate coefficients and paired masks. State the in-process observation boundary; do not claim a standalone FFN byte decoder."
       ],
-      "limits": "CPU-only synthetic inputs. Existing tests are reproducible now; any additional hook in zk.rs/pcs.rs needs an exact cross-owner patch handoff before shared-source edits."
+      "limits": "CPU-only synthetic inputs. Existing tests are reproducible now; any additional hook in zk.rs/pcs.rs needs an exact cross-owner patch handoff before shared-source edits.",
+      "result": {
+        "date": "2026-09-07",
+        "reviewer": "Claude Fable 5.1, independent reviewer",
+        "source_pin": "52a13d1 (worktree /home/victor/wt-zk60-fa, branch zk60-fable-review)",
+        "run": "mask_diagnostic 4 passed / 0 failed, exit marker 0, cold two-thread build under the heavy lock; results/zk60_fable_fa1_mask_diagnostic.log",
+        "confirmed": "groups [7,3,1,1,6] derived from build_claims_zk_v3 + group_zclaims key; X-at-p2 / h16-at-p5 singletons; lambdas -> proximity coefficients -> absorb -> sample order and endpoints; observer boundary verifier-visible, publish after H; T2 32-value recovery and T32 per-column functional confirmed by independent algebra; the six seeded proof hashes match Codex's round-7 record",
+        "refuted": "nothing",
+        "handed_to_fa2_fa3": "affected-profile predicate (X-at-p2 singleton iff nb_d = 1: d=4096 yes, d=768 no; h16-at-p5 iff nb_f = 1), integer-range solvability of T32 two-row functionals, repeated-proof linear recovery, proximity-vector chaining, P3 Wd-at-p6 singleton at nb_d*nb_f = 1 (needs the proposed cfg(test) W observer hook)",
+        "report": "docs/zkmatrix-poc/ZK60_FABLE_PRIVACY_REVIEW.md (Part 1), results/zk60_fable_fa1_review.json",
+        "limits": "one CPU run; d=f=16 synthetic fixtures; not an approval of P3 identity, joint privacy or a repair"
+      }
     },
     {
       "id": "FA2",
