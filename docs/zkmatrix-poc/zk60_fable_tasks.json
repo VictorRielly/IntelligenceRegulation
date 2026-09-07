@@ -355,7 +355,7 @@
       "priority": 1,
       "title": "Close arithmetic and security obligations for the precise MVP",
       "owner": "Fable independent arithmetic/security reviewer",
-      "status": "ready_analysis",
+      "status": "analysis_delivered; closure open",
       "depends_on": [],
       "files": [
         "docs/zkmatrix-poc/ZK60_FABLE_SECURITY_OBLIGATIONS.md (new)",
@@ -373,7 +373,18 @@
         "Any soundness/privacy estimate states its derivation and dependencies; do not inherit an old security number for a changed composition.",
         "Mark analysis-delivered separately from final closure. Final security acceptance incorporates the implemented repair and independent verification of its obligations."
       ],
-      "limits": "Analysis can start now. Final closure depends on the concrete repair and, for P3, approved-model consistency; no target-throughput eligibility is granted by this document alone."
+      "limits": "Analysis can start now. Final closure depends on the concrete repair and, for P3, approved-model consistency; no target-throughput eligibility is granted by this document alone.",
+      "result": {
+        "date": "2026-09-07",
+        "reviewer": "Claude Fable 5.1, independent reviewer",
+        "source_pin": "52a13d1 (worktree /home/victor/wt-zk60-fa)",
+        "deliverable": "docs/zkmatrix-poc/ZK60_FABLE_SECURITY_OBLIGATIONS.md (38-row obligation table, parameter/composition review, tiny-vs-deployment separation, prioritized gaps); results/zk60_fable_fa5_obligations.json; results/zk60_fable_fa5_isqrt_alias.txt and _bounds.txt (the python checks)",
+        "highest_severity": "R09 norm isqrt: the committed D row has no direct range fact; the half-p alias D = k + (p-1)/2 satisfies the SS sumcheck, both isqrt pins, the Square zero-check and the a1/a2 limb ranges for every int16 row and the round NormDiv with an all-zero output whenever the remainder limbs admit ~2^(31+tn). The A00 fixed profile escapes only because n_limbs = 2 caps rho/sigma at 2^32 while the alias needs ~2^42 — a parameter coincidence recorded nowhere in code or tests; any profile with n_limbs >= 3 and tn >= 1 accepts a wrong norm output. Fix: a direct range fact on D plus a tamper leg.",
+        "other": "R31 W/gamma word ranges never proven at the registrar boundary (all no-wrap bounds assume int8 behind the approved roots); R10 proven remainder width is 2^(16*n_limbs) not wrho; R29 exponents/norm_round bound only via the A00 digest; R32 typed B3 API ignores extra proof.sc/helper_sums; R02/R20 proof classes admit -128/-32768 the oracle refuses; R14 no LogUp error term stated in code",
+        "estimates": "two-block fixed-profile receipt ~2^-110 statistical soundness (Ligero column test (17/24)^256 = 2^-127.4 per opening x 6 openings/block; attention LogUp 4N/|F_p2| = 2^-111.3 dominates; sumchecks ~2^-119), capped by blake3-256 Fiat-Shamir; projected 125M/8B profile (log_cols 14, rate 1/4, Q 256, 32 layers x 6 openings) near 2^-94; nothing quantitative carries over from the lattice-era SOUNDNESS_REFERENCE.md; the P1 hiding code's column term is 2^-106",
+        "fixed_profile": "no false-acceptance path found; every reviewed relation is an ACTUAL verifier constraint or a CHECKED A00 precondition",
+        "limits": "read-only source review plus python arithmetic; no cargo run; Ligero bounds in the documented e < d/3 regime; deployment row is a projection; closure depends on the FA3 repair, FA4's P3 consistency and independent verification incl. a Rust tamper leg for the R09 alias; no throughput eligibility"
+      }
     },
     {
       "id": "CL20",
