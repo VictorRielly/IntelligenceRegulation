@@ -67,7 +67,7 @@
       "priority": 0,
       "title": "Bind qualification evidence and make the runner portable",
       "owner": "Fable / Claude tools lane",
-      "status": "ready",
+      "status": "done",
       "depends_on": [],
       "files": [
         "scripts/hashline_cl_5090_preflight.py",
@@ -89,7 +89,17 @@
         "CPU-only tests inspect emitted commands and simulate parser/build failure before any GPU invocation; parser regression covers valid JSON, empty/missing data and the former extra-brace expansion.",
         "A dry-run emits no hardware jobs. Case expectations are tied to the suite version, not merely a threshold of 20 that could miss removed cases."
       ],
-      "limits": "Do not change scripts/hashline_benchmark.py eligibility semantics. The manifest establishes recorded provenance; it is not independent privacy or security certification."
+      "limits": "Do not change scripts/hashline_benchmark.py eligibility semantics. The manifest establishes recorded provenance; it is not independent privacy or security certification.",
+      "result": {
+        "date": "2026-09-07",
+        "base": "df6fdb6",
+        "tests": "preflight 61->78, gates 60 (new), all OK; bash -n clean; dry run emits 96 quoted commands in the order self-test -> builds -> tests -> oracle -> controls -> gates -> cache -> finalize with no hardware job",
+        "probes": "all four round-9 probes refuse: absent binary digest, unrelated binary digest, zero expected/executed cases, flag-only full/target coverage",
+        "manifest": "scripts/hashline_cl_gpu_gates.py: versioned suite (v1 = 21 cases incl. 12 frozen byte gates, oracle, two missing-feature controls, cargo tests, three cache cases), run-manifest schema, validator computes the verdict; preflight --run-manifest binds verified_artifact to validator+HEAD+GPU binary sha256",
+        "runner": "results/cl1_floors.sh portable (repo from its own location, export/CUDA/scratch/device/threads as flags+env), prover --threads / CARGO_BUILD_JOBS / RAYON_NUM_THREADS default 2, self-test first, --dry-run; build lock internal, heavy lock is the launcher's",
+        "follow_up": "suite v1 pins 49 oracle cases (82314a1); CL15 raised the oracle to 141 executed cases, so a suite v2 is added in the next commit before CL17",
+        "limits": "no real manifest exists until CL17 runs; the binary has no memory-budget flag, so the budget is propagated as HL_GPU_CHUNK_ROWS plus a recorded memory_budget_mib"
+      }
     },
     {
       "id": "CL14",

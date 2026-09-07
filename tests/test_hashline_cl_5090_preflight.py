@@ -8,6 +8,16 @@ few cascades (a missing device or export starves other checks of a fact) are
 asserted in full, so a new cascade is a test failure, not a surprise. The
 live probes are exercised only by the operator's dry run; nothing here
 depends on this box.
+
+[ZK60-CL13] The ready box now carries a RUN MANIFEST (the CL13 evidence, a
+complete suite-version-1 manifest built through the gates module's real
+record path, bound to the fixture HEAD `0123abcd` and the fixture GPU binary
+digest `ab..`). Fixtures that changed meaning: an absent or unrelated binary
+digest, zero executed oracle cases and a manifest whose HEAD/binary differ
+now REFUSE; `--coverage full --claim target` with nothing recorded behind it
+REFUSES (it used to be go); a missing git fact also fails verified_artifact
+(nothing to bind the manifest to). The floors-log fixtures became
+deprecated-hint fixtures: a green log alone can never pass.
 """
 
 import contextlib
@@ -15,17 +25,22 @@ import importlib.util
 import io
 import json
 import os
+import shlex
 import sys
 import tempfile
 import unittest
 from unittest import mock
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-_SRC = os.path.join(os.path.dirname(_HERE), "scripts", "hashline_cl_5090_preflight.py")
+_SCRIPTS = os.path.join(os.path.dirname(_HERE), "scripts")
+_SRC = os.path.join(_SCRIPTS, "hashline_cl_5090_preflight.py")
 _spec = importlib.util.spec_from_file_location("hashline_cl_5090_preflight", _SRC)
 pf = importlib.util.module_from_spec(_spec)
 sys.modules[_spec.name] = pf
 _spec.loader.exec_module(pf)
+_gspec = importlib.util.spec_from_file_location("hashline_cl_gpu_gates", os.path.join(_SCRIPTS, "hashline_cl_gpu_gates.py"))
+gg = importlib.util.module_from_spec(_gspec)
+_gspec.loader.exec_module(gg)
 
 GIB_KIB = 1024 ** 2
 CHECK_NAMES = ["device_present", "compute_capability", "driver_version", "nvrtc_toolkit", "cudarc_feature",
@@ -35,8 +50,22 @@ CHECK_NAMES = ["device_present", "compute_capability", "driver_version", "nvrtc_
 # (they bind only once a Blackwell part is identified), nor does anything host-side.
 NO_DEVICE_CASCADE = ["device_present", "compute_capability", "driver_version", "device_idle", "planner_margin"]
 BINARY_MTIME = 2000.0
+HEAD, GPU_SHA, CPU_SHA = "0123abcd", "ab" * 32, "ee" * 32
+DEVICE = "gpu: ON — NVIDIA GeForce RTX 5090 (sm_120, 170 SMs, 34.1 GB)"
+MANIFEST_PATH = "/r/results/floors/manifest.json"
 BASE_ARGV = ["--repo", "/r", "--binary", "/r/hashline/target-gpu/release/hashline", "--export", "/e",
-             "--floors-log", "/r/results/5090_floors.log"]
+             "--run-manifest", MANIFEST_PATH]
+
+
+def green_manifest(**kw):
+    """A complete, green suite-v1 manifest bound to the fixture HEAD and binary."""
+    params = {"suite_version": 1, "head": HEAD, "gpu_sha256": GPU_SHA, "cpu_sha256": CPU_SHA, "device": DEVICE}
+    params.update(kw)
+    return gg.synthetic_manifest(**params)
+
+
+def manifest_fact(manifest):
+    return {"path": MANIFEST_PATH, "exists": True, "mtime": BINARY_MTIME + 1000.0, "manifest": manifest}
 
 
 def ready_facts():
@@ -51,14 +80,16 @@ def ready_facts():
         "arch_arms": {"8.9": "compute_89", "9.0": "compute_90", "10.0": "compute_100", "12.0": "compute_120"},
         "host": {"mem_total_kib": 128 * GIB_KIB, "mem_available_kib": 64 * GIB_KIB, "loadavg1": 0.5, "logical_cpus": 32},
         "heavy_lock_free": True,
-        "git": {"head": "0123abcd", "branch": "zk60-cl1", "dirty_paths": []},
+        "git": {"head": HEAD, "branch": "zk60-cl1", "dirty_paths": []},
         "binary": {"path": "/r/hashline/target-gpu/release/hashline", "exists": True, "size": 5318584, "mtime": BINARY_MTIME,
-                   "sha256": "ab" * 32, "mentions_nvrtc": True, "mentions_cu_module_load": True},
+                   "sha256": GPU_SHA, "mentions_nvrtc": True, "mentions_cu_module_load": True},
         "sources": {"newest_mtime": BINARY_MTIME - 1000.0, "newest_path": "hashline/src/gpu/cuda.rs"},
         "export": {"path": "/e", "exists": True, "sidecar_sha256": "cd" * 32, "dims": [512, 4096, 14336, 32],
                    "profile": "v3-widened", "model": "hf-model"},
+        # the deprecated hint, green, present — and never sufficient
         "floors_log": {"path": "/r/results/5090_floors.log", "exists": True, "mtime": BINARY_MTIME + 1000.0, "green": True,
                        "cases": 12, "cases_expected": 12, "done_marker_exit": 0},
+        "run_manifest": manifest_fact(green_manifest()),
     }
 
 
@@ -90,6 +121,10 @@ def patched(section, **fields):
     return facts
 
 
+def with_manifest(**kw):
+    return flipped(run_manifest=manifest_fact(green_manifest(**kw)))
+
+
 def evaluate(facts, extra=()):
     args = pf.build_parser().parse_args(BASE_ARGV + list(extra))
     return pf.evaluate(facts, args)
@@ -112,7 +147,7 @@ class Refusals(unittest.TestCase):
     # ------------------------------------------------------------ ready box
     def test_ready_box_is_go_with_every_check_ok(self):
         report = evaluate(ready_facts())
-        self.assertTrue(report["go"])
+        self.assertTrue(report["go"], report["failed"])
         self.assertEqual(report["failed"], [])
         self.assertEqual([c["check"] for c in report["checks"]], CHECK_NAMES)
         self.assertTrue(all(c["ok"] and c["reason"] is None for c in report["checks"]))
@@ -124,11 +159,17 @@ class Refusals(unittest.TestCase):
         self.assertEqual(pm["reserve_mib"], pf.DEFAULT_RESERVE_MIB)
         self.assertTrue(pm["fits"])
         self.assertEqual(check(report, "host_memory")["evidence"]["required_gib"], 16)   # FFN-only at width 4096
+        va = check(report, "verified_artifact")["evidence"]
+        self.assertTrue(va["validator"]["ok"])
+        self.assertEqual(va["validator"]["summary"]["oracle_executed_cases"], 49)
+        self.assertEqual(va["bound_to"], {"head": HEAD, "gpu_binary_sha256": GPU_SHA})
+        self.assertTrue(check(report, "binary_identity")["evidence"]["digest_matches_manifest"])
         # the report is a JSON document (allow_nan=False is what main uses)
         json.dumps(report, allow_nan=False)
 
-    def test_ready_box_still_authorizes_nothing_it_does_not_check(self):
+    def test_ready_box_is_a_diagnostic_claim_only(self):
         report = evaluate(ready_facts())
+        self.assertEqual(report["request"]["claim"], "diagnostic")
         self.assertIn("installing a driver or toolkit", report["does_not_authorize"])
         self.assertIn("a target-eligible claim from FFN-only coverage", report["does_not_authorize"])
 
@@ -227,14 +268,16 @@ class Refusals(unittest.TestCase):
 
     # ------------------------------------------------------------- sources
     def test_dirty_tree(self):
+        # the manifest still binds (same HEAD); the tree itself is the refusal
         self.refused(patched("git", dirty_paths=["hashline/src/gpu/cuda.rs"]), "source_identity")
 
     def test_git_unreadable(self):
-        self.refused(flipped(git=None), "source_identity")
+        # [CL13] no HEAD fact also means nothing to bind the manifest to
+        self.refused(flipped(git=None), "source_identity", cascade=["verified_artifact"])
 
     # -------------------------------------------------------------- binary
     def test_missing_binary(self):
-        # no binary also means nothing the floors log could have verified
+        # no binary also means no digest the manifest could be bound to
         self.refused(flipped(binary={"path": "/r/none", "exists": False}), "binary_identity", cascade=["verified_artifact"])
 
     def test_stale_binary(self):
@@ -242,6 +285,21 @@ class Refusals(unittest.TestCase):
 
     def test_binary_not_gpu_featured(self):
         self.refused(patched("binary", mentions_nvrtc=False), "binary_identity")
+
+    def test_absent_binary_digest_refuses(self):
+        # [CL13 probe 1] round-9: this returned go with no failed check
+        for absent in (None, "", "not-a-digest"):
+            report = self.refused(patched("binary", sha256=absent), "binary_identity", cascade=["verified_artifact"])
+            self.assertFalse(check(report, "binary_identity")["evidence"]["digest_present"])
+
+    def test_unrelated_binary_digest_refuses(self):
+        # [CL13 probe 2] a digest that is not the manifest's GPU binary
+        report = self.refused(patched("binary", sha256="ff" * 32), "binary_identity", cascade=["verified_artifact"])
+        ev = check(report, "binary_identity")["evidence"]
+        self.assertTrue(ev["digest_present"])
+        self.assertFalse(ev["digest_matches_manifest"])
+        self.assertEqual(ev["manifest_gpu_sha256"], GPU_SHA)
+        self.assertTrue(any("binary in hand" in r for r in check(report, "verified_artifact")["evidence"]["validator"]["reasons"]))
 
     # --------------------------------------------------------------- shape
     def test_export_missing(self):
@@ -274,6 +332,16 @@ class Refusals(unittest.TestCase):
     def test_planner_margin_reserve_argument(self):
         self.refused(ready_facts(), "planner_margin", extra=["--reserve-mib", "30000"])
 
+    def test_memory_budget_binds_the_planner(self):
+        # [CL13] an explicit budget below the need refuses; one above it passes and is recorded
+        report = self.refused(ready_facts(), "planner_margin", extra=["--memory-budget-mib", "4000"])
+        ev = check(report, "planner_margin")["evidence"]
+        self.assertEqual((ev["memory_budget_mib"], ev["allowed_mib"]), (4000, 4000.0))
+        report = evaluate(ready_facts(), ["--memory-budget-mib", "20000"])
+        self.assertTrue(report["go"])
+        self.assertEqual(check(report, "planner_margin")["evidence"]["allowed_mib"], 20000.0)
+        self.assertEqual(report["request"]["memory_budget_mib"], 20000)
+
     def test_resident_mode_is_the_larger_component(self):
         chunked = check(evaluate(ready_facts()), "planner_margin")["evidence"]
         resident = check(evaluate(ready_facts(), ["--chunk-mode", "resident"]), "planner_margin")["evidence"]
@@ -288,23 +356,76 @@ class Refusals(unittest.TestCase):
         self.refused(ready_facts(), "planner_margin", extra=["--inv-rate", "3"])
 
     # ------------------------------------------------------------ artifact
-    def test_floors_log_missing(self):
-        self.refused(flipped(floors_log={"path": "/r/none.log", "exists": False}), "verified_artifact")
+    # Without a manifest there is also no recorded GPU-binary digest for the
+    # binary in hand to be bound to, so binary_identity fails alongside.
+    NO_MANIFEST_CASCADE = ["verified_artifact"]
 
-    def test_floors_log_not_green(self):
-        self.refused(patched("floors_log", green=False), "verified_artifact")
+    def test_run_manifest_missing(self):
+        report = self.refused(flipped(run_manifest={"path": MANIFEST_PATH, "exists": False}), "binary_identity", cascade=self.NO_MANIFEST_CASCADE)
+        self.assertIn("--run-manifest", check(report, "verified_artifact")["evidence"]["validator"]["reasons"][0])
+        self.assertIsNone(check(report, "binary_identity")["evidence"]["manifest_gpu_sha256"])
 
-    def test_floors_cases_mismatch(self):
-        self.refused(patched("floors_log", cases=11), "verified_artifact")
+    def test_run_manifest_not_json(self):
+        self.refused(flipped(run_manifest={"path": MANIFEST_PATH, "exists": True, "error": "not a JSON document: x"}),
+                     "binary_identity", cascade=self.NO_MANIFEST_CASCADE)
 
-    def test_floors_done_marker_nonzero(self):
-        self.refused(patched("floors_log", done_marker_exit=1), "verified_artifact")
+    def test_green_floors_log_alone_cannot_pass(self):
+        # the deprecated hint is present and green in ready_facts(); without the manifest it counts for nothing
+        report = self.refused(flipped(run_manifest={"path": MANIFEST_PATH, "exists": False}), "binary_identity", cascade=self.NO_MANIFEST_CASCADE)
+        ev = check(report, "verified_artifact")["evidence"]
+        self.assertTrue(ev["deprecated_floors_log_hint"]["green"])
+        self.assertIn("deprecated", check(report, "verified_artifact")["reason"])
+        self.assertIn("never sufficient", check(report, "verified_artifact")["reason"])
 
-    def test_floors_done_marker_missing(self):
-        self.refused(patched("floors_log", done_marker_exit=None), "verified_artifact")
+    def test_manifest_head_mismatch(self):
+        # the tree is clean at a different HEAD: the manifest tested another source
+        report = self.refused(patched("git", head="deadbeef"), "verified_artifact")
+        self.assertTrue(any("!= the current HEAD deadbeef" in r for r in check(report, "verified_artifact")["evidence"]["validator"]["reasons"]))
 
-    def test_floors_log_older_than_binary(self):
-        self.refused(patched("floors_log", mtime=BINARY_MTIME - 1.0), "verified_artifact")
+    def test_manifest_binary_mismatch(self):
+        # the manifest recorded another GPU binary than the one in hand
+        report = self.refused(with_manifest(gpu_sha256="12" * 32), "binary_identity", cascade=["verified_artifact"])
+        self.assertTrue(any("binary in hand" in r for r in check(report, "verified_artifact")["evidence"]["validator"]["reasons"]))
+
+    def test_zero_executed_oracle_cases_refuses(self):
+        # [CL13 probe 3a] a manifest whose oracle executed nothing
+        def zero(m):
+            r = next(c for c in m["cases"] if c["id"] == "oracle_gpu")
+            r["oracle_summary"] = json.dumps({"executed_cases": 0, "gpu_enabled": True, "gpu_required": True, "device": DEVICE})
+        report = self.refused(with_manifest(mutate=zero), "verified_artifact")
+        self.assertTrue(any("zero-case" in r for r in check(report, "verified_artifact")["evidence"]["validator"]["reasons"]))
+
+    def test_zero_expected_cases_refuses(self):
+        # [CL13 probe 3b] a manifest with no cases at all
+        report = self.refused(with_manifest(mutate=lambda m: m["cases"].clear()), "verified_artifact")
+        self.assertTrue(any("missing case" in r for r in check(report, "verified_artifact")["evidence"]["validator"]["reasons"]))
+
+    def test_oracle_count_not_the_suites_refuses(self):
+        def off(m):
+            r = next(c for c in m["cases"] if c["id"] == "oracle_gpu")
+            r["oracle_summary"] = json.dumps({"executed_cases": 20, "gpu_enabled": True, "gpu_required": True, "device": DEVICE})
+        self.refused(with_manifest(mutate=off), "verified_artifact")
+
+    def test_incomplete_manifest_refuses(self):
+        self.refused(with_manifest(mutate=lambda m: m["started"].update({"gpu-v2": 1.0})), "verified_artifact")
+        self.refused(with_manifest(finalize=False), "verified_artifact")
+
+    def test_missing_negative_control_refuses(self):
+        def drop(m):
+            m["cases"] = [c for c in m["cases"] if c["id"] != "cache_p3_refusal"]
+        self.refused(with_manifest(mutate=drop), "verified_artifact")
+
+    def test_failed_case_refuses(self):
+        def fail(m):
+            next(c for c in m["cases"] if c["id"] == "gpu-zkchunk-zkv3")["gpu_on"] = False
+        self.refused(with_manifest(mutate=fail), "verified_artifact")
+
+    def test_synthetic_suite_manifest_is_not_evidence(self):
+        report = self.refused(with_manifest(suite_version=0), "verified_artifact")
+        self.assertTrue(any("not production" in r for r in check(report, "verified_artifact")["evidence"]["validator"]["reasons"]))
+
+    def test_non_frozen_shape_manifest_refuses(self):
+        self.refused(with_manifest(layers=32), "verified_artifact")
 
     # ------------------------------------------------------------ coverage
     def test_target_claim_needs_full_coverage(self):
@@ -313,10 +434,28 @@ class Refusals(unittest.TestCase):
     def test_target_claim_refuses_a_seed(self):
         self.refused(ready_facts(), "coverage_eligibility", extra=["--claim", "target", "--coverage", "full", "--seed", "1"])
 
-    def test_target_claim_with_full_coverage_and_no_seed_is_go(self):
-        report = evaluate(ready_facts(), ["--claim", "target", "--coverage", "full"])
-        self.assertTrue(report["go"])
-        self.assertEqual(report["request"]["claim"], "target")
+    def test_flag_only_full_target_is_refused(self):
+        # [CL13 probe 4] `--coverage full --claim target` with nothing recorded behind
+        # it used to be go; the flag cannot supply coverage
+        report = self.refused(ready_facts(), "coverage_eligibility", extra=["--claim", "target", "--coverage", "full"])
+        c = check(report, "coverage_eligibility")
+        self.assertIn("flag cannot supply coverage", c["reason"])
+        self.assertEqual(c["evidence"]["coverage_recorded"], "ffn-only")
+        self.assertFalse(c["evidence"]["recorded_full_and_decoded"])
+
+    def test_manifest_claiming_full_coverage_is_refused_by_the_validator(self):
+        # a hand-edited coverage block fails the suite (v1 covers FFN-only) and still
+        # does not carry decoded verification, so both checks refuse
+        def claim(m):
+            m["coverage"]["coverage"] = "full"
+        self.refused(with_manifest(mutate=claim), "verified_artifact", extra=["--claim", "target", "--coverage", "full"],
+                     cascade=["coverage_eligibility"])
+
+    def test_recorded_full_and_decoded_evidence_passes_coverage_but_needs_a_suite_that_covers_it(self):
+        def claim(m):
+            m["coverage"] = {"coverage": "full", "verification": "decoded-full-relation"}
+        report = self.refused(with_manifest(mutate=claim), "verified_artifact", extra=["--claim", "target", "--coverage", "full"])
+        self.assertTrue(check(report, "coverage_eligibility")["ok"])
 
     def test_diagnostic_claim_tolerates_a_seed(self):
         self.assertTrue(evaluate(ready_facts(), ["--seed", "1"])["go"])
@@ -331,8 +470,9 @@ class Parsing(unittest.TestCase):
         self.assertEqual(pf.cc_tuple("sm_89"), ())      # not a dotted capability
         self.assertEqual(pf.cc_tuple("570.86.16"), ())
 
-    def test_export_and_floors_probes_read_the_real_formats(self):
-        # the sidecar and floors-log formats are the collector's and cl1_floors.sh's
+    def test_export_floors_and_manifest_probes_read_the_real_formats(self):
+        # the sidecar and floors-log formats are the collector's and cl1_floors.sh's;
+        # the manifest is the gates module's document
         with tempfile.TemporaryDirectory() as root:
             export = os.path.join(root, "export")
             os.mkdir(export)
@@ -350,8 +490,18 @@ class Parsing(unittest.TestCase):
             fl = pf.probe_floors_log(log)
             self.assertTrue(fl["green"])
             self.assertEqual((fl["cases"], fl["cases_expected"], fl["done_marker_exit"]), (12, 12, 0))
+            man = os.path.join(root, "manifest.json")
+            with open(man, "w", encoding="utf-8") as fh:
+                json.dump(green_manifest(), fh)
+            rm = pf.probe_run_manifest(man)
+            self.assertTrue(rm["exists"])
+            self.assertEqual(rm["manifest"]["suite_version"], 1)
+            with open(man, "w", encoding="utf-8") as fh:
+                fh.write("{not json")
+            self.assertIn("error", pf.probe_run_manifest(man))
             self.assertFalse(pf.probe_export(os.path.join(root, "nowhere"))["exists"])
             self.assertFalse(pf.probe_floors_log(os.path.join(root, "nowhere.log"))["exists"])
+            self.assertFalse(pf.probe_run_manifest(os.path.join(root, "nowhere.json"))["exists"])
 
 
 class Cli(unittest.TestCase):
@@ -390,6 +540,13 @@ class Cli(unittest.TestCase):
                 with contextlib.redirect_stderr(io.StringIO()):
                     pf.main(BASE_ARGV + ["--facts-json", self.facts_path(ready_facts()), "--margin-fraction", bad])
             self.assertEqual(error.exception.code, 2, bad)
+
+    def test_bad_threads_or_budget_exit_two(self):
+        for extra in (["--threads", "0"], ["--memory-budget-mib", "0"], ["--parity-layers", "0"]):
+            with self.assertRaises(SystemExit) as error:
+                with contextlib.redirect_stderr(io.StringIO()):
+                    pf.main(BASE_ARGV + ["--facts-json", self.facts_path(ready_facts()), *extra])
+            self.assertEqual(error.exception.code, 2, extra)
 
     def test_missing_facts_file_exits_two(self):
         with self.assertRaises(SystemExit) as error:
@@ -449,6 +606,83 @@ class Cli(unittest.TestCase):
         self.assertFalse(stages[6]["heavy"])
         self.assertEqual(plan["device"]["name"], "NVIDIA GeForce RTX 5090")
 
+    def test_plan_propagates_shape_threads_and_budget_into_every_command(self):
+        # [CL13] no 32-layer campaign is hardcoded: the request is what the commands carry
+        code, report = self.run_main(BASE_ARGV + ["--facts-json", self.facts_path(ready_facts()), "--emit-plan",
+                                                  "--layers", "8", "--tokens", "256", "--threads", "4", "--memory-budget-mib", "20000",
+                                                  "--chunk-rows", "256"])
+        self.assertEqual(code, 0)
+        plan = report["campaign_plan"]
+        heavy = [s for s in plan["ordered_stages"] if s["heavy"]]
+        self.assertEqual(len(heavy), 6)
+        for s in heavy:
+            self.assertIn("HL_GPU_CHUNK_ROWS=256", s["command"], s["stage"])
+            self.assertIn("--threads 4", s["command"], s["stage"])
+            self.assertEqual(s["memory_budget_mib"], 20000, s["stage"])
+            self.assertEqual(s["chunk_rows"], 256)
+            self.assertIn("HL_GPU_CHUNK_ROWS=256", s["detached"])
+        # the campaign stages carry the requested shape
+        self.assertIn(" pass 8 256 ", heavy[2]["command"])
+        for i in (3, 4, 5):
+            self.assertIn("--layers 8 --tokens 256", heavy[i]["command"])
+        # stage 0 runs the suite's FROZEN shape and says so; stage 1 the one-layer gate
+        self.assertIn("--layers 12 --tokens 512", heavy[0]["command"])
+        self.assertIn("--threads 4 --build-jobs 4 --rayon-threads 4", heavy[0]["command"])
+        self.assertEqual(heavy[0]["shape"]["layers"], 12)
+        self.assertIn("FROZEN", heavy[0]["shape"]["why"])
+        self.assertIn(" pass 1 256 ", heavy[1]["command"])
+        self.assertEqual(plan["request"]["memory_budget_mib"], 20000)
+        text = json.dumps(plan)
+        self.assertNotIn("/home/victor/wt-zk60-cl1", text)
+        self.assertNotIn("pass 32", text)
+        self.assertNotIn("--threads 8", text)
+        # without an explicit budget the planner's allowance is the budget
+        _, report = self.run_main(BASE_ARGV + ["--facts-json", self.facts_path(ready_facts()), "--emit-plan"])
+        pm = check(report, "planner_margin")["evidence"]
+        self.assertEqual(report["campaign_plan"]["request"]["memory_budget_mib"], pm["allowed_mib"])
+        self.assertEqual(report["campaign_plan"]["request"]["threads"], 2)
+
+    def test_plan_quotes_paths_with_spaces(self):
+        repo, export, scratch = "/tmp/a b/repo", "/tmp/a b/export dir", "/tmp/a b/scratch"
+        binary = repo + "/hashline/target-gpu/release/hashline"
+        argv = ["--repo", repo, "--binary", binary, "--export", export, "--scratch", scratch, "--run-manifest", MANIFEST_PATH,
+                "--facts-json", self.facts_path(ready_facts()), "--emit-plan"]
+        code, report = self.run_main(argv)
+        self.assertEqual(code, 0)
+        for s in report["campaign_plan"]["ordered_stages"]:
+            if not s["heavy"]:
+                continue
+            toks = shlex.split(s["command"])
+            self.assertTrue(any(t.startswith(scratch + "/") for t in toks), s["command"])
+            if "pass" in toks:
+                self.assertEqual(toks[toks.index("pass") - 1], binary)
+                self.assertEqual(toks[toks.index("--export") + 1], export)
+            elif "run" in toks:
+                self.assertEqual(toks[toks.index("--binary") + 1], binary)
+                self.assertEqual(toks[toks.index("--export") + 1], export)
+            else:
+                self.assertEqual(toks[toks.index("--repo") + 1], repo)
+                self.assertEqual(toks[toks.index("--v3-export") + 1], export)
+            wrapper = shlex.split(s["detached"])
+            self.assertEqual(wrapper[:4], ["setsid", "nohup", "bash", "-c"])
+            body = shlex.split(wrapper[4])
+            self.assertIn(binary if "cl1_floors.sh" not in s["command"] else repo, body)
+            self.assertTrue(s["done_marker"].startswith(scratch + "/"))
+
+    def test_dry_run_emits_no_hardware_job(self):
+        # facts injected, plan emitted: no probe, no subprocess, no lock, no file under the scratch dir
+        with tempfile.TemporaryDirectory() as scratch:
+            with mock.patch.object(pf, "gather_facts", side_effect=AssertionError("a probe ran")), \
+                 mock.patch.object(pf.subprocess, "run", side_effect=AssertionError("a process ran")), \
+                 mock.patch.object(pf.subprocess, "Popen", side_effect=AssertionError("a process ran")):
+                code, report = self.run_main(BASE_ARGV + ["--facts-json", self.facts_path(ready_facts()), "--emit-plan",
+                                                          "--scratch", scratch])
+            self.assertEqual(code, 0)
+            self.assertEqual(os.listdir(scratch), [])
+            for s in report["campaign_plan"]["ordered_stages"]:
+                if s["heavy"]:
+                    self.assertIsInstance(s["detached"], str)
+
     def test_plan_is_emitted_even_when_not_go_and_says_so(self):
         code, report = self.run_main(BASE_ARGV + ["--facts-json", self.facts_path(flipped(heavy_lock_free=False)), "--emit-plan"])
         self.assertEqual(code, 3)
@@ -457,6 +691,20 @@ class Cli(unittest.TestCase):
     def test_no_plan_without_the_flag(self):
         _, report = self.run_main(BASE_ARGV + ["--facts-json", self.facts_path(ready_facts())])
         self.assertNotIn("campaign_plan", report)
+
+    def test_round9_probes_end_to_end(self):
+        # the four reproduced acceptances, through main: every one is exit 3 now
+        probes = {
+            "missing_binary_digest": (patched("binary", sha256=None), []),
+            "wrong_binary_digest": (patched("binary", sha256="ff" * 32), []),
+            "zero_floor_cases": (with_manifest(mutate=lambda m: m["cases"].clear()), []),
+            "flag_only_full_target": (ready_facts(), ["--coverage", "full", "--claim", "target"]),
+        }
+        for name, (facts, extra) in probes.items():
+            code, report = self.run_main(BASE_ARGV + ["--facts-json", self.facts_path(facts, name + ".json"), *extra])
+            self.assertEqual(code, 3, name)
+            self.assertFalse(report["go"], name)
+            self.assertTrue(report["failed"], name)
 
 
 if __name__ == "__main__":

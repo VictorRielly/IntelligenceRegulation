@@ -22,9 +22,13 @@ verification and the security gates, none of which this page supplies.
 ```
 python3 scripts/hashline_cl_5090_preflight.py \
   --repo <checkout> --binary <checkout>/hashline/target-gpu/release/hashline \
-  --export <v3-widened export dir> --floors-log <checkout>/results/cl1_floors.log \
-  --layers 32 --tokens 512 --privacy P1 --require-cc 12.0 --emit-plan --out <new file>
+  --export <v3-widened export dir> --run-manifest <floors scratch>/manifest.json \
+  --layers 32 --tokens 512 --threads 2 --memory-budget-mib <MiB> --scratch <dir> \
+  --privacy P1 --require-cc 12.0 --emit-plan --out <new file>
 ```
+
+(`--run-manifest` is the CL13 manifest `results/cl1_floors.sh` writes; see §7.
+`--floors-log` still parses but is a deprecated hint that cannot pass a check.)
 
 Fourteen checks; each carries its evidence and, when it fails, the reason.
 Any failure is `go: false` (exit 3). `--facts-json` replaces every probe with
@@ -42,11 +46,11 @@ themselves are tested without a device.
 | `host_memory` | MemAvailable >= the band for the width and `--coverage`: 4 GiB narrow, 16 GiB FFN-only at d >= 4096, 64 GiB full coverage (runbook §3); override `--host-min-gib` | the 15 GB box for the 8B pass (13.95 GiB available on the dry run) |
 | `host_idle` | heavy lock free, 1-min load <= half the CPUs | a box that is proving or building |
 | `source_identity` | HEAD recorded, tracked tree clean | uncommitted source |
-| `binary_identity` | binary exists, is the gpu-cuda build, newer than every source file; sha256 recorded | a stale binary |
+| `binary_identity` | binary exists, is the gpu-cuda build, newer than every source file; sha256 PRESENT and equal to the run manifest's GPU-binary digest (CL13) | a stale binary; an absent or unrelated digest |
 | `shape_supported` | v3-widened sidecar covers the layers; tokens a power of two | an export that cannot serve the request |
-| `planner_margin` | chunked W component (CL3 planner) + measured reserve <= 80% of nominal VRAM | a shape the card cannot hold; nominal VRAM is never treated as free |
-| `verified_artifact` | a green byte-gate log (12/12, `.done` = 0) NEWER than the binary | a binary whose proofs have not been byte-gated |
-| `coverage_eligibility` | `--claim diagnostic`, or full coverage with fresh randomness | a target claim from FFN-only coverage or a seeded row |
+| `planner_margin` | chunked W component (CL3 planner) + measured reserve <= 80% of nominal VRAM, and <= `--memory-budget-mib` when given | a shape the card cannot hold; nominal VRAM is never treated as free |
+| `verified_artifact` | a CL13 run manifest the gates validator accepts (complete, every case green, controls present, production suite) whose HEAD is the current HEAD and whose GPU binary is this one (§7) | a binary whose proofs have not been byte-gated; another source or binary; a green log alone |
+| `coverage_eligibility` | `--claim diagnostic`, or full coverage RECORDED with decoded full-relation verification and fresh randomness | a target claim from FFN-only coverage, from the flag alone, or from a seeded row |
 
 The three Blackwell version checks bind ONLY for compute >= 10.0. On the
 4070 (8.9, driver 566.14, NVRTC 12.1, `cuda-12040`) they pass, which is what
@@ -93,7 +97,7 @@ second GPU pass started against a card the first had not released.
 
 | stage | what | gate before the next stage |
 |---|---|---|
-| 0 | `results/cl1_floors.sh` on the new box | 12/12 byte gates at full SHA-256, `gpu: ON` in every GPU gate, the oracle suite's executed-case summary, the missing-feature refusal — a digest that moves on new hardware is a codegen bug, not a hardware finding (runbook §4) |
+| 0 | `results/cl1_floors.sh` on the new box (portable flags, `--threads 2`, the suite's frozen 12x512 shape) | 12/12 byte gates at full SHA-256, `gpu: ON` in every GPU gate, the oracle suite's executed-case count equal to the suite's, the missing-feature refusals, the cache cases — and the run MANIFEST green (§7), which is what the preflight then binds to; a digest that moves on new hardware is a codegen bug, not a hardware finding (runbook §4) |
 | 1 | single Mistral layer, P1 and P3, GPU | digests equal the laptop's `b5da6c38..` / `190e85a1..` (CL1 rung 4); CPU/GPU/device-to-device byte identity at real width |
 | 2 | the card-size prediction (runbook §6): `pass 32 512 --zk --seed 1 --profile v3`, GPU, detached | layers 1-31 no slower than layer 0 (the laptop's 8,585 MB spill gone); VRAM peak < total. Cheapest thing the card settles; ONE run |
 | 3 | P1 8B prefill: `hashline_benchmark.py run --privacy P1 --device gpu --warm-runs 20` | `measurement_eligible: true`; p50/p95 nearest-rank; proof-ready clock |
@@ -155,6 +159,138 @@ tokens/s-with-proof figure.
 
 - Nothing here has run on a 5090. The tool, the ladder and the clocks are
   prepared; the numbers are not.
+- The qualification evidence (§7) is RECORDED provenance: a manifest the
+  runner wrote and a validator recomputed. It is not independent privacy or
+  security certification, and nothing in it makes FFN-only coverage more
+  than diagnostic.
+
+---
+
+## 7. CL13 — qualification evidence is a run manifest; the runner is portable (2026-09-07)
+
+Codex's round-9 review (`ZK60_ROUND9_REVIEW.md`, evidence
+`results/zk60_round9_review.json`) reproduced four acceptances of the CL11
+preflight against a passing facts file: the binary digest **absent**, an
+**unrelated** binary digest, **zero** expected/executed floor cases, and
+`--coverage full --claim target` with nothing behind the flag — all four
+returned `go` with no failed check. `verified_artifact` read a green
+substring, a case count printed by the same script, a `.done` marker and an
+mtime; `binary_identity` never looked at the digest; `coverage_eligibility`
+trusted the flag. On the runner side: the parser self-test ran AFTER the
+hardware oracle, `--threads 8` was hardcoded three times, the checkout,
+export, CUDA and scratch paths were fixed, and `ORACLE_MIN_CASES=20` was a
+floor that would not have noticed removed cases in a 49-case suite.
+
+### 7.1 What replaced it
+
+**`scripts/hashline_cl_gpu_gates.py`** (new; stdlib, CPU-only) owns three
+things, tested in `tests/test_hashline_cl_gpu_gates.py`:
+
+- the **versioned suite definition** — suite version 1 is the CL1 floors:
+  both builds, the CPU crate tests, the device oracle (`zk60_gpu_commit.rs`,
+  **49 executed cases**, the count at 82314a1 and unchanged through ac5ff0f),
+  the two missing-feature controls, the 12 byte gates ({v2, v3, zk, zkv3} x
+  {cpu, gpu, gpu-zkchunk}) with their frozen full SHA-256 and exact length,
+  and three separate-process cache cases modelled on `zk60_gpu_cache.rs`
+  (`cache_cold_zkv3`, `cache_warm_zkv3` with `hits > 0` in the prover's
+  `wcache ...: hits N | misses M` report line, `cache_p3_refusal`: exit 2,
+  `REFUSED: --wcache with --p3.` first, no proof). The oracle's expected
+  count is part of the version: a test file that gains or loses cases must
+  cut a new version or the gate goes red. Version 0 is a synthetic
+  self-check suite (tiny fixed strings stand in for proofs); it is never
+  production evidence and the preflight refuses it.
+- the **run manifest** — source identity (HEAD, branch, dirty count, the
+  dirty-delta sha256 under `hashline/`, which must be the empty diff),
+  build configuration (features, target dirs, `CARGO_BUILD_JOBS`,
+  `RAYON_NUM_THREADS`, prover threads, shape), CPU and GPU binary sha256 +
+  size + path, device identity (the oracle's `gpu: ON — ...` label and the
+  `nvidia-smi` name/driver line), and one record per case: argv, exit,
+  verdict, `gpu: ON`, produced proof sha256 + length against the frozen
+  expectation, retained-log path + sha256, start/end timestamps, the binary
+  digest the case ran. `start` before each case and `record` after; a case
+  started and never recorded is an incomplete manifest.
+- the **validator** — refuses missing / duplicate / unexpected case ids, a
+  missing negative control, a HEAD or GPU-binary digest that differs from
+  the one supplied (the preflight supplies the current HEAD and the digest
+  of the binary in hand), a device label that differs between the oracle and
+  a GPU case, any nonzero exit (or a control that exited 0), a non-ACCEPT
+  verdict on a proving case, a GPU-labelled case without `gpu: ON`, a digest
+  or length off the frozen expectation, zero (or off-by-one) oracle cases, a
+  non-empty source delta, a coverage claim the suite does not cover, a
+  non-frozen shape (`no_frozen_expectation`), an unfinalized manifest, and a
+  stored verdict that disagrees with the recomputed one (verdicts are
+  computed, never written). A complete supported diagnostic manifest passes.
+
+**`results/cl1_floors.sh`** now: runs the helper's self-test and the
+quoted-JSON shell expansion check FIRST (a helper that does not run stops the
+script before any build); takes repository (from its own location), export
+dirs, CUDA paths, scratch, `CUDA_VISIBLE_DEVICES` and threads as flags/env
+with the archived values as defaults; **prover `--threads`,
+`CARGO_BUILD_JOBS` and `RAYON_NUM_THREADS` all default to 2**; propagates
+`--layers/--tokens` (default `12 512`) into every prover command and says in
+its usage that any other shape has no frozen expectation and cannot be
+green; records every step through `init` / `binaries` / `start` / `record`
+/ `finalize`; and has `--dry-run`, which prints every command fully resolved
+and `printf %q`-quoted, runs nothing heavy and writes nothing under the
+scratch dir. The outer heavy lock is the launcher's; the script takes
+`/tmp/zk-build.lock` inside each cargo step (never wrap it in the build
+lock). The tests exercise `bash -n` and `--dry-run` on paths with spaces:
+95 commands, 15 prover invocations at `--threads 2`, self-test before build
+before tests before oracle before controls before gates before cache before
+finalize; a missing or broken helper exits 1 with no build emitted.
+
+**`scripts/hashline_cl_5090_preflight.py`**: `--run-manifest PATH`.
+`verified_artifact` = the validator accepts the manifest (production suite)
+AND its HEAD equals the git fact AND its GPU-binary sha256 equals the binary
+in hand; `--floors-log` is a deprecated hint recorded in the evidence that
+can never pass the check. `binary_identity` also requires a present digest
+equal to the manifest's GPU-binary digest. `coverage_eligibility` requires
+RECORDED full coverage and decoded full-relation verification for a target
+claim; no current runner records either, so `--coverage full --claim target`
+refuses by construction. `--emit-plan` shlex-quotes every path, carries the
+requested `--layers/--tokens`, `--threads` (default 2) and the memory lever
+`HL_GPU_CHUNK_ROWS=<chunk_rows>` in every command, records
+`memory_budget_mib` (`--memory-budget-mib`, default the planner's allowance;
+`planner_margin` refuses a need above it) on every heavy stage, and takes
+the scratch dir from `--scratch` and the checkout from `--repo`. Two stages
+have a shape by definition and say so: stage 0 runs the floors at the
+suite's frozen 12x512 (the byte expectations exist only there), stage 1
+the one-layer parity gate (`--parity-layers`).
+
+### 7.2 The four probes, and what else the tests pin
+
+| probe (round 9) | now | test |
+|---|---|---|
+| absent binary digest | `binary_identity` + `verified_artifact` refuse | `test_absent_binary_digest_refuses` |
+| unrelated binary digest | both refuse; the validator names the digest in hand | `test_unrelated_binary_digest_refuses` |
+| zero expected / executed cases | `verified_artifact` refuses (`missing case ...` / `zero-case`) | `test_zero_expected_cases_refuses`, `test_zero_executed_oracle_cases_refuses` |
+| flag-only full/target | `coverage_eligibility` refuses: "the flag cannot supply coverage" | `test_flag_only_full_target_is_refused` |
+
+Also pinned: HEAD mismatch, manifest-binary mismatch, incomplete and
+unfinalized manifests, a missing control, a failed case, the synthetic suite
+and a non-frozen shape all refuse; the ready box with a valid manifest is
+still `go` for a diagnostic claim; the parser regression (valid JSON, empty,
+missing fields, the former `${SUMMARY:-{}}` extra brace through a real
+`bash -c`, and the count as the suite's rather than a floor); the
+record/finalize CLI round trip over synthetic logs and proof files.
+
+Fixtures whose meaning changed: `test_target_claim_with_full_coverage_and_no_seed_is_go`
+became `test_flag_only_full_target_is_refused`; a missing git fact now also
+fails `verified_artifact` (nothing to bind the manifest to); a missing
+manifest fails `binary_identity` too (no recorded digest to bind against);
+the floors-log fixtures are deprecated-hint fixtures.
+
+### 7.3 Not done here
+
+No build, no prover, no GPU job and no real floors run were executed for
+CL13 — the runner was exercised by `bash -n` and `--dry-run` only. CL17
+produces the first real manifest from the combined source; until then no
+manifest exists and the preflight refuses `verified_artifact` on every box,
+which is the intended state. The manifest validator reads the manifest
+document; it does not re-hash the retained logs or re-derive the proofs (the
+`record` step did, and stored the hashes). If `zk60_gpu_commit.rs` changes
+its case set (CL15 adds the empty-query boundary), the oracle count moves and
+suite version 2 must record the new count.
 - The reserve in `planner_margin` is a laptop measurement at one shape and
   one chunk height; the pending attention/FFN states are not implemented and
   are not in it.

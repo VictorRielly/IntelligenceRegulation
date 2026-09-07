@@ -16,11 +16,27 @@ Checks (each carries its evidence and, when it fails, the reason):
   host_memory               MemAvailable >= the shape's requirement (64 GiB for full coverage)
   host_idle                 heavy lock free, load average below half the CPUs
   source_identity           git HEAD recorded, tracked tree clean
-  binary_identity           binary present, GPU-featured, newer than every source
+  binary_identity           binary present, GPU-featured, newer than every source,
+                            digest PRESENT and equal to the run manifest's GPU binary
   shape_supported           export sidecar dims/profile cover the request
   planner_margin            chunked W component + measured reserve <= margin x VRAM
-  verified_artifact         a green byte-gate log newer than the binary
-  coverage_eligibility      a target-eligible claim needs full coverage and no seed
+                            (and <= --memory-budget-mib when given)
+  verified_artifact         a CL13 run manifest the gates validator accepts, whose
+                            HEAD is the current HEAD and whose GPU binary is this one
+  coverage_eligibility      a target-eligible claim needs RECORDED full coverage and
+                            decoded full-relation verification, and no seed; the
+                            --coverage flag cannot supply coverage
+
+[ZK60-CL13] Codex's round-9 review reproduced four acceptances of the CL11
+version: an absent binary digest, an unrelated binary digest, zero
+expected/executed floor cases and flag-only `--coverage full --claim target`
+all returned go. `verified_artifact` then read a green substring, a case
+count printed by the same script, a marker and an mtime; `binary_identity`
+never looked at the digest; `coverage_eligibility` trusted the flag. The
+evidence is now the run manifest written by results/cl1_floors.sh through
+scripts/hashline_cl_gpu_gates.py (versioned suite, per-case exits/verdicts/
+digests, a computed verdict), bound here to the HEAD and binary in hand.
+`--floors-log` remains only as a deprecated hint; it can never pass the check.
 
 The runbook's order is enforced, not re-derived: driver first, then NVRTC,
 then the cudarc feature (BLACKWELL_5090_RUNBOOK.md §3a). The measurement
@@ -28,21 +44,35 @@ ladder it emits (`--emit-plan`) reuses scripts/hashline_benchmark.py for the
 >= 20 warm-run p50/p95 collection; it does not define a new clock. The
 collector HOLDS /tmp/zk-heavy.lock itself, so its stages are detached
 without an outer flock (an outer one deadlocks against it); the raw-binary
-stages take the lock outside, the standing way.
+stages take the lock outside, the standing way. Every emitted command is
+shlex-quoted and carries the requested shape, the thread count and the
+memory lever (HL_GPU_CHUNK_ROWS, the chunk height the planner's budget check
+was made with); the byte-gate stage runs the suite's FROZEN shape, the
+parity stage its one-layer gate shape, both by definition, not by default.
 """
 
 import argparse
 import fcntl
 import hashlib
+import importlib.util
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
 import time
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.dirname(_HERE)
+
+
+def _gates():
+    """The CL13 suite/manifest module, loaded beside this file (no package)."""
+    spec = importlib.util.spec_from_file_location("hashline_cl_gpu_gates", os.path.join(_HERE, "hashline_cl_gpu_gates.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
 
 MIB = 1024 ** 2
 GIB = 1024 ** 3
@@ -278,13 +308,26 @@ def probe_floors_log(path):
             "done_marker_exit": marker}
 
 
+def probe_run_manifest(path):
+    """[ZK60-CL13] The floors run manifest as a fact: loaded, not judged here
+    (the evaluation runs the gates validator on it)."""
+    if not path or not os.path.isfile(path):
+        return {"path": path, "exists": False}
+    try:
+        manifest = json.loads(_read_text(path))
+    except ValueError as error:
+        return {"path": path, "exists": True, "error": f"not a JSON document: {error}"}
+    return {"path": path, "exists": True, "mtime": os.stat(path).st_mtime, "manifest": manifest}
+
+
 def gather_facts(args):
     return {"schema": 1, "gathered_at": time.time(), "gpus": probe_gpus(args.device_index),
             "compute_apps": probe_compute_apps(), "nvrtc_version": probe_nvrtc(args.cuda_root),
             "cudarc_feature": probe_cudarc_feature(args.repo), "arch_arms": probe_arch_arms(args.repo),
             "host": probe_host(), "heavy_lock_free": probe_heavy_lock(), "git": probe_git(args.repo),
             "binary": probe_binary(args.binary), "sources": probe_sources(args.repo),
-            "export": probe_export(args.export), "floors_log": probe_floors_log(args.floors_log)}
+            "export": probe_export(args.export), "floors_log": probe_floors_log(args.floors_log),
+            "run_manifest": probe_run_manifest(args.run_manifest)}
 
 
 # ---------------------------------------------------------------- evaluate
@@ -293,11 +336,13 @@ def _check(name, ok, evidence, reason=None):
     return {"check": name, "ok": bool(ok), "evidence": evidence, "reason": None if ok else reason}
 
 
-def planner_margin(d, f, log_cols, inv_rate, chunk_rows, mode, device_total_mib, reserve_mib, fraction):
+def planner_margin(d, f, log_cols, inv_rate, chunk_rows, mode, device_total_mib, reserve_mib, fraction, budget_mib=None):
     """Chunked (or resident) W component from the CL3 planner plus the measured
-    non-commit reserve, against a FRACTION of nominal VRAM. Nominal VRAM is not
-    free memory; the fraction and the reserve are both explicit."""
-    import importlib.util
+    non-commit reserve, against a FRACTION of nominal VRAM — and against an
+    explicit --memory-budget-mib when one is given (the smaller wins). Nominal
+    VRAM is not free memory; the fraction, the reserve and the budget are all
+    explicit. The chunk height this check was made with is the memory lever
+    every emitted command carries (HL_GPU_CHUNK_ROWS)."""
     spec = importlib.util.spec_from_file_location("hashline_memory_plan", os.path.join(_HERE, "hashline_memory_plan.py"))
     mp = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mp)
@@ -307,9 +352,11 @@ def planner_margin(d, f, log_cols, inv_rate, chunk_rows, mode, device_total_mib,
     component_mib = report["component_peak_accounted_bytes"] / MIB
     need = component_mib + reserve_mib
     allow = device_total_mib * fraction
+    if budget_mib is not None:
+        allow = min(allow, budget_mib)
     return {"w_rows": w["rows"], "mode": mode, "chunk_rows": chunk_rows, "w_component_mib": round(component_mib, 1),
             "reserve_mib": reserve_mib, "reserve_basis": "measured whole-layer minus W component at Mistral width, chunk 128, FFN-only (laptop)",
-            "need_mib": round(need, 1), "allowed_mib": round(allow, 1), "fraction": fraction,
+            "need_mib": round(need, 1), "allowed_mib": round(allow, 1), "fraction": fraction, "memory_budget_mib": budget_mib,
             "device_total_mib": device_total_mib, "fits": need <= allow,
             "not_covered": ["pending attention/FFN state (not implemented; see ZK60_CLAUDE_PENDING_GPU.md)",
                             "inference engine residency when proving overlaps generation on the same card"]}
@@ -383,13 +430,24 @@ def evaluate(facts, args):
 
     b = facts.get("binary") or {}
     s = facts.get("sources") or {}
+    # [ZK60-CL13] the manifest is read once here; verified_artifact runs the
+    # validator on it, binary_identity binds the digest in hand to its record.
+    rm = facts.get("run_manifest") or {}
+    manifest = rm.get("manifest") if isinstance(rm.get("manifest"), dict) else None
+    manifest_gpu_sha = ((manifest or {}).get("binaries") or {}).get("gpu", {}).get("sha256") if manifest else None
+    digest = b.get("sha256")
+    digest_ok = isinstance(digest, str) and re.fullmatch(r"[0-9a-f]{64}", digest) is not None
     bin_ok = (b.get("exists") and b.get("mentions_nvrtc") and b.get("mtime") is not None and s.get("newest_mtime") is not None
-              and b["mtime"] >= s["newest_mtime"])
+              and b["mtime"] >= s["newest_mtime"] and digest_ok and manifest_gpu_sha == digest)
     checks.append(_check("binary_identity", bool(bin_ok),
-                         {"path": b.get("path"), "exists": b.get("exists"), "sha256": b.get("sha256"), "size": b.get("size"),
+                         {"path": b.get("path"), "exists": b.get("exists"), "sha256": digest, "size": b.get("size"),
                           "gpu_featured": b.get("mentions_nvrtc"), "binary_mtime": b.get("mtime"),
-                          "newest_source": s.get("newest_path"), "newest_source_mtime": s.get("newest_mtime")},
-                         "the binary must exist, be the gpu-cuda build, and be newer than every source file (stale binary)"))
+                          "newest_source": s.get("newest_path"), "newest_source_mtime": s.get("newest_mtime"),
+                          "digest_present": digest_ok, "manifest_gpu_sha256": manifest_gpu_sha,
+                          "digest_matches_manifest": digest_ok and manifest_gpu_sha == digest},
+                         "the binary must exist, be the gpu-cuda build, be newer than every source file (stale binary), "
+                         "have a recorded sha256, and that sha256 must equal the run manifest's GPU binary digest "
+                         "(an absent or unrelated digest is not an identity)"))
 
     ex = facts.get("export") or {}
     dims = ex.get("dims")
@@ -403,29 +461,58 @@ def evaluate(facts, args):
     if dims and gpu and gpu.get("memory_total_mib"):
         try:
             pm = planner_margin(dims[1], dims[2], args.log_cols, args.inv_rate, args.chunk_rows, args.chunk_mode,
-                                gpu["memory_total_mib"], args.reserve_mib, args.margin_fraction)
+                                gpu["memory_total_mib"], args.reserve_mib, args.margin_fraction, args.memory_budget_mib)
             checks.append(_check("planner_margin", pm["fits"], pm,
-                                 "the chunked W component plus the measured reserve exceeds the allowed fraction of VRAM"))
+                                 "the chunked W component plus the measured reserve exceeds the allowed fraction of VRAM (or the memory budget)"))
         except ValueError as error:
             checks.append(_check("planner_margin", False, {"error": str(error)}, "the planner refused this shape"))
     else:
         checks.append(_check("planner_margin", False, {"dims": dims, "gpu": gpu}, "no shape or device to plan against"))
 
+    # [ZK60-CL13] verified_artifact = the gates validator accepts the manifest
+    # AND its HEAD is the current HEAD AND its GPU binary is the one in hand.
+    # The floors log is a deprecated hint: recorded, never sufficient.
+    head = (git or {}).get("head") if git else None
+    if manifest is None:
+        verdict = {"ok": False, "reasons": [rm.get("error") or "no run manifest (--run-manifest); results/cl1_floors.sh writes one per run"],
+                   "summary": {}}
+    elif not head or not digest_ok:
+        verdict = {"ok": False, "reasons": [("no current HEAD" if not head else "") + (" and " if not head and not digest_ok else "")
+                                            + ("no binary digest" if not digest_ok else "") + ": the manifest cannot be bound to this box"],
+                   "summary": {}}
+    else:
+        verdict = _gates().validate_manifest(manifest, expect_head=head, expect_gpu_sha256=digest, require_production=True)
     fl = facts.get("floors_log") or {}
-    fl_ok = (fl.get("exists") and fl.get("green") and fl.get("cases") is not None and fl["cases"] == fl.get("cases_expected")
-             and fl.get("done_marker_exit") == 0 and b.get("mtime") is not None and fl.get("mtime", 0) >= b["mtime"])
-    checks.append(_check("verified_artifact", bool(fl_ok), fl,
-                         "a green byte-gate floors log (all cases, exit marker 0) NEWER than the binary is required; run the gates on this binary first"))
+    checks.append(_check("verified_artifact", verdict["ok"],
+                         {"manifest_path": rm.get("path"), "manifest_present": manifest is not None, "validator": verdict,
+                          "bound_to": {"head": head, "gpu_binary_sha256": digest},
+                          "deprecated_floors_log_hint": {"path": fl.get("path"), "exists": fl.get("exists"), "green": fl.get("green"),
+                                                         "note": "a floors log is a hint only; it cannot make this check pass"}},
+                         "a run manifest the gates validator accepts (complete, every case green, negative controls present) "
+                         "whose source HEAD is the current HEAD and whose GPU binary sha256 is this binary's is required; "
+                         "run results/cl1_floors.sh on this checkout and binary first. --floors-log is a deprecated hint "
+                         "and never sufficient on its own"))
 
-    cov_ok = args.claim == "diagnostic" or (args.coverage == "full" and args.seed is None)
-    checks.append(_check("coverage_eligibility", cov_ok, {"claim": args.claim, "coverage": args.coverage, "seed": args.seed,
+    # [ZK60-CL13] the --coverage flag is a request, not evidence. A target-
+    # eligible claim needs the run manifest (or an injected coverage fact) to
+    # RECORD full coverage and decoded full-relation verification; the floors
+    # suite records FFN-only coverage with the in-memory verifier, so no
+    # current runner can satisfy this and the check refuses by construction.
+    cov_ev = ((manifest or {}).get("coverage") if manifest else None) or facts.get("coverage_evidence") or {}
+    recorded_full = cov_ev.get("coverage") == "full" and cov_ev.get("verification") == "decoded-full-relation"
+    cov_ok = args.claim == "diagnostic" or (args.coverage == "full" and args.seed is None and recorded_full)
+    checks.append(_check("coverage_eligibility", cov_ok, {"claim": args.claim, "coverage_requested": args.coverage, "seed": args.seed,
+                                                          "coverage_recorded": cov_ev.get("coverage"), "verification_recorded": cov_ev.get("verification"),
+                                                          "recorded_full_and_decoded": recorded_full,
                                                           "note": "existing FFN-only runs stay labelled diagnostic; a seeded row is ineligible in the collector"},
-                         "a target-eligible claim needs full coverage and fresh randomness; FFN-only coverage cannot support it"))
+                         "a target-eligible claim needs RECORDED full coverage and decoded full-relation verification plus fresh "
+                         "randomness; the --coverage flag cannot supply coverage, and the FFN-only floors suite records neither"))
 
     go = all(c["ok"] for c in checks)
     return {"schema": 1, "go": go, "blackwell": blackwell, "device": gpu,
             "request": {"layers": args.layers, "tokens": args.tokens, "privacy": args.privacy, "coverage": args.coverage,
-                        "claim": args.claim, "seed": args.seed, "chunk_mode": args.chunk_mode, "chunk_rows": args.chunk_rows},
+                        "claim": args.claim, "seed": args.seed, "chunk_mode": args.chunk_mode, "chunk_rows": args.chunk_rows,
+                        "threads": args.threads, "memory_budget_mib": args.memory_budget_mib},
             "checks": checks, "failed": [c["check"] for c in checks if not c["ok"]],
             "does_not_authorize": ["renting or buying hardware", "installing a driver or toolkit", "a power cap",
                                    "any run while another job holds the heavy lock", "a target-eligible claim from FFN-only coverage"]}
@@ -441,55 +528,86 @@ HEAVY_LOCK = "/tmp/zk-heavy.lock"
 #          lock itself (its heavy_lock, "detached wrappers must invoke it
 #          directly without holding the same lock outside"); a second flock on
 #          the same file from the parent would block the child forever.
-_WRAP_OUTER = "setsid nohup bash -c 'flock " + HEAVY_LOCK + " {cmd} >> {log} 2>&1; echo $? > {stem}.done' >/dev/null 2>&1 &"
-_WRAP_INNER = "setsid nohup bash -c '{cmd} >> {log} 2>&1; echo $? > {stem}.done' >/dev/null 2>&1 &"
-
-
 def detached(cmd, stem, lock_outside):
-    wrap = _WRAP_OUTER if lock_outside else _WRAP_INNER
-    return {"detached": wrap.format(cmd=cmd, log=f"{stem}.log", stem=stem), "done_marker": f"{stem}.done",
+    """[ZK60-CL13] the body is shlex-quoted as ONE `bash -c` argument, so a
+    path with a space (already quoted inside `cmd`) survives the nesting; the
+    old `bash -c '{cmd}'` template would have broken on the inner quotes."""
+    log, done = f"{stem}.log", f"{stem}.done"
+    body = (f"flock {HEAVY_LOCK} " if lock_outside else "") + f"{cmd} >> {shlex.quote(log)} 2>&1; echo $? > {shlex.quote(done)}"
+    return {"detached": f"setsid nohup bash -c {shlex.quote(body)} >/dev/null 2>&1 &", "done_marker": done,
             "lock": (f"{HEAVY_LOCK} taken by the wrapper (flock)" if lock_outside
                      else f"{HEAVY_LOCK} taken INSIDE by hashline_benchmark.py run; an outer flock would deadlock")}
 
 
 def campaign_plan(args, facts, report):
     """The ordered ladder. Every heavy stage is a DETACHED job under the shared
-    lock with a .done marker; nothing in it starts until the preflight is go."""
+    lock with a .done marker; nothing in it starts until the preflight is go.
+    [ZK60-CL13] every path is shlex-quoted; the requested --layers/--tokens,
+    --threads and the memory lever (HL_GPU_CHUNK_ROWS = the chunk height the
+    planner_margin/--memory-budget-mib check was made with) are in EVERY
+    command. Two stages have a shape by DEFINITION rather than by request and
+    say so: stage 0 runs the floors suite at its frozen fixture shape (the
+    byte expectations exist only there), stage 1 the one-layer parity gate."""
+    q = shlex.quote
     repo = args.repo
-    binary = args.binary or f"{repo}/hashline/target-gpu/release/hashline"
+    binary = args.binary or os.path.join(repo, "hashline", "target-gpu", "release", "hashline")
     export = args.export or "<export dir>"
-    bench = f"python3 {repo}/scripts/hashline_benchmark.py"
+    scratch = args.scratch or os.path.join(repo, "results", "5090_scratch")
+    frozen_layers, frozen_tokens = _gates().suite(_gates().DEFAULT_SUITE)["shape"]
+    pm = next((c["evidence"] for c in report["checks"] if c["check"] == "planner_margin"), {})
+    budget = args.memory_budget_mib if args.memory_budget_mib is not None else pm.get("allowed_mib")
+    lever = f"HL_GPU_CHUNK_ROWS={args.chunk_rows}"
+    bench = f"{lever} python3 {q(os.path.join(repo, 'scripts', 'hashline_benchmark.py'))}"
     shape = f"--layers {args.layers} --tokens {args.tokens}"
-    floors = f"{repo}/results/cl1_floors.sh <scratch>"
-    parity = f"HL_GPU=1 {binary} pass 1 512 --threads 8 --p3 --seed 1 --profile v3 --export {export} --proof-out <scratch>/p3.proof"
-    predict = f"HL_GPU=1 {binary} pass 32 512 --zk --seed 1 --profile v3 --export {export} --proof-out <scratch>/p1-32.proof"
-    p1 = f"{bench} run --binary {binary} --export {export} {shape} --privacy P1 --device gpu --gpu-index {args.device_index} --warm-runs 20 --out <new dir>"
-    p3 = f"{bench} run --binary {binary} --export {export} {shape} --privacy P3 --device gpu --gpu-index {args.device_index} --warm-runs 20 --out <new dir>"
+    threads = f"--threads {args.threads}"
+    floors = (f"{lever} {q(os.path.join(repo, 'results', 'cl1_floors.sh'))} --repo {q(repo)} --v3-export {q(export)} "
+              f"{threads} --build-jobs {args.threads} --rayon-threads {args.threads} --layers {frozen_layers} --tokens {frozen_tokens} "
+              f"--device {args.device_index} {q(os.path.join(scratch, 'floors'))}")
+    parity = (f"{lever} HL_GPU=1 {q(binary)} pass {args.parity_layers} {args.tokens} {threads} --p3 --seed 1 --profile v3 "
+              f"--export {q(export)} --proof-out {q(os.path.join(scratch, 'parity_p3.proof'))}")
+    predict = (f"{lever} HL_GPU=1 {q(binary)} pass {args.layers} {args.tokens} {threads} --zk --seed 1 --profile v3 "
+               f"--export {q(export)} --proof-out {q(os.path.join(scratch, f'predict_p1_{args.layers}.proof'))}")
+
+    def collector(privacy, out):
+        return (f"{bench} run --binary {q(binary)} --export {q(export)} {shape} {threads} --privacy {privacy} --device gpu "
+                f"--gpu-index {args.device_index} --warm-runs 20 --out {q(os.path.join(scratch, out))}")
+
+    p1, p3, p1_450 = collector("P1", "p1_warm20"), collector("P3", "p3_warm20"), collector("P1", "p1_warm20_450w")
+    common = {"threads": args.threads, "memory_budget_mib": budget, "chunk_rows": args.chunk_rows,
+              "memory_lever": lever + " (the only memory knob the binary reads for the W commit; planner_margin checked need <= budget at this chunk height)"}
     stages = [
-        {"stage": 0, "name": "byte gates on the new device (BEFORE any timing)", "gate": "12/12 byte gates, full SHA-256, gpu: ON",
-         "heavy": True, "command": floors, **detached(floors, f"{repo}/results/5090_floors", lock_outside=True),
-         "why": "a digest that moves on new hardware is a codegen bug, not a hardware finding (runbook §4)"},
+        {"stage": 0, "name": "byte gates on the new device (BEFORE any timing)", "gate": "12/12 byte gates, full SHA-256, gpu: ON, the manifest green",
+         "heavy": True, "command": floors, **detached(floors, os.path.join(scratch, "floors_run"), lock_outside=True), **common,
+         "shape": {"layers": frozen_layers, "tokens": frozen_tokens, "why": "the suite's FROZEN fixture shape; the byte expectations exist only there"},
+         "why": "a digest that moves on new hardware is a codegen bug, not a hardware finding (runbook §4); the manifest is what the preflight binds to"},
         {"stage": 1, "name": "single-layer CPU/GPU parity ladder at Mistral width", "gate": "P1 and P3 digests equal the laptop's (b5da6c38.., 190e85a1..)",
-         "heavy": True, "command": parity, **detached(parity, f"{repo}/results/5090_parity_l1", lock_outside=True),
+         "heavy": True, "command": parity, **detached(parity, os.path.join(scratch, "parity_l1"), lock_outside=True), **common,
+         "shape": {"layers": args.parity_layers, "tokens": args.tokens, "why": "the one-layer gate (--parity-layers); the laptop digests are one-layer"},
          "why": "CL1 rung 4's byte identity across devices, extended to the 5090"},
-        {"stage": 2, "name": "card-size prediction (runbook §6)", "gate": "layers 1-31 no longer slower than layer 0; VRAM peak < total",
-         "heavy": True, "command": predict, **detached(predict, f"{repo}/results/5090_predict_32", lock_outside=True),
+        {"stage": 2, "name": f"card-size prediction (runbook §6) at {args.layers}x{args.tokens}", "gate": "later layers no longer slower than layer 0; VRAM peak < total",
+         "heavy": True, "command": predict, **detached(predict, os.path.join(scratch, f"predict_{args.layers}"), lock_outside=True), **common,
+         "shape": {"layers": args.layers, "tokens": args.tokens},
          "why": "the laptop's 8,585 MB spill is the cheapest thing the card settles; run once, detached"},
         {"stage": 3, "name": f"P1 {args.layers}x{args.tokens} prefill, cold + >= 20 warm", "gate": "measurement_eligible true; p50/p95 nearest-rank; proof_ready clock",
-         "heavy": True, "command": p1, **detached(p1, f"{repo}/results/5090_p1_warm20", lock_outside=False),
+         "heavy": True, "command": p1, **detached(p1, os.path.join(scratch, "p1_warm20"), lock_outside=False), **common,
+         "shape": {"layers": args.layers, "tokens": args.tokens},
          "why": "the fast tier, the headline track per the second ruling"},
         {"stage": 4, "name": f"P3 {args.layers}x{args.tokens} prefill, cold + >= 20 warm (SEPARATE job, nvidia-smi idle first)", "gate": "as stage 3; P3 recommits weights every run",
-         "heavy": True, "command": p3, **detached(p3, f"{repo}/results/5090_p3_warm20", lock_outside=False),
+         "heavy": True, "command": p3, **detached(p3, os.path.join(scratch, "p3_warm20"), lock_outside=False), **common,
+         "shape": {"layers": args.layers, "tokens": args.tokens},
          "why": "never chain a GPU pass behind another in one script (2026-09-04 standing rule)"},
         {"stage": 5, "name": "comparability row at 450 W", "gate": "same as stage 3 with `nvidia-smi -pl 450` recorded in the manifest",
-         "heavy": True, "command": "(operator) nvidia-smi -pl 450; then stage 3 again into a new out dir; then restore the stock limit",
-         **detached(p1.replace("<new dir>", "<new dir, 450 W>"), f"{repo}/results/5090_p1_warm20_450w", lock_outside=False),
+         "heavy": True, "command": p1_450, "operator": "(operator) nvidia-smi -pl 450 first; restore the stock limit afterwards",
+         **detached(p1_450, os.path.join(scratch, "p1_warm20_450w"), lock_outside=False), **common,
+         "shape": {"layers": args.layers, "tokens": args.tokens},
          "why": "not for the contract (amended to <= 600 W); for continuity with every row measured before the ruling"},
         {"stage": 6, "name": "one-GPU inference/proving overlap", "gate": "generation, proof-ready and proof-lag clocks reported SEPARATELY",
          "heavy": False, "command": "NOT RUNNABLE IN THIS REPOSITORY: no generation harness exists; tokens are prefill rows. Define per ZK60_CLAUDE_5090.md §4 before running.",
          "why": "60 tok/s is a generation claim; proving alone on an idle card is an upper bound on it"},
     ]
-    return {"schema": 1, "preflight_go": report["go"], "ordered_stages": stages,
+    return {"schema": 2, "preflight_go": report["go"], "ordered_stages": stages,
+            "request": {"layers": args.layers, "tokens": args.tokens, "threads": args.threads, "memory_budget_mib": budget,
+                        "chunk_rows": args.chunk_rows, "repo": repo, "binary": binary, "export": export, "scratch": scratch},
             "labels": ["[5090-BOX]", "[QUIET]", "[MEASURED]", "diagnostic until coverage is full"],
             "statistic": "p95 nearest-rank over >= 20 warm runs, p50 alongside, cold reported separately (MEASUREMENT_PROTOCOL.md §1)",
             "device": (facts.get("gpus") or [None])[0]}
@@ -502,11 +620,16 @@ def build_parser():
     parser.add_argument("--repo", default=_ROOT)
     parser.add_argument("--binary", help="the gpu-cuda hashline binary")
     parser.add_argument("--export", help="v3-widened export directory")
-    parser.add_argument("--floors-log", help="the byte-gate log to accept as artifact verification")
+    parser.add_argument("--run-manifest", help="[CL13] the floors run manifest (results/cl1_floors.sh <scratch>/manifest.json)")
+    parser.add_argument("--floors-log", help="DEPRECATED hint: a byte-gate log; recorded in the evidence, never sufficient (use --run-manifest)")
     parser.add_argument("--cuda-root", default="/home/victor/cuda-root")
     parser.add_argument("--device-index", type=int, default=0)
     parser.add_argument("--layers", type=int, default=32)
     parser.add_argument("--tokens", type=int, default=512)
+    parser.add_argument("--threads", type=int, default=2, help="prover --threads in every emitted command (2: the shared-laptop rule)")
+    parser.add_argument("--memory-budget-mib", type=int, help="device memory the plan may use; planner_margin need must fit it (default: margin fraction x VRAM)")
+    parser.add_argument("--scratch", help="where emitted stages write (default <repo>/results/5090_scratch)")
+    parser.add_argument("--parity-layers", type=int, default=1, help="stage 1's layer count (the laptop parity digests are one-layer)")
     parser.add_argument("--privacy", choices=("P0", "P1", "P3"), default="P1")
     parser.add_argument("--coverage", choices=("ffn-only", "full"), default="ffn-only")
     parser.add_argument("--claim", choices=("diagnostic", "target"), default="diagnostic")
@@ -534,6 +657,8 @@ def main(argv=None):
             raise PreflightError("margin fraction must be in (0, 1]")
         if args.reserve_mib < 0 or args.chunk_rows < 1:
             raise PreflightError("reserve and chunk rows must be nonnegative / positive")
+        if args.threads < 1 or args.parity_layers < 1 or (args.memory_budget_mib is not None and args.memory_budget_mib < 1):
+            raise PreflightError("threads, parity layers and the memory budget must be positive")
         # Refuse an existing --out BEFORE probing: a refused write should not
         # cost a probe pass, and the report must never land on top of an old one.
         if args.out and os.path.exists(args.out):
