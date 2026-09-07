@@ -96,7 +96,7 @@
       "priority": 0,
       "title": "Reject invalid chunk-sweep measurement rows",
       "owner": "Fable / Claude tools lane",
-      "status": "ready",
+      "status": "done",
       "depends_on": [],
       "files": [
         "scripts/hashline_cl_chunk_sweep.py",
@@ -113,7 +113,15 @@
         "Tests reject conflicting verdicts/digests/metadata and missing or nonzero exits while preserving a valid comparison with complete evidence.",
         "Report whether the prior chunk-size conclusion survives. No automatic selector is promoted solely from equal digests or noisy timings."
       ],
-      "limits": "CPU-only work is ready now. The archived sweep is not declared invalid merely because the parser accepted a malformed synthetic input."
+      "limits": "CPU-only work is ready now. The archived sweep is not declared invalid merely because the parser accepted a malformed synthetic input.",
+      "result": {
+        "date": "2026-09-07",
+        "base": "6dce8a9",
+        "tests": "chunk sweep 24->44, all OK; Codex's prove_s=-1 + exit 1 fixture refused (negative clock, contradictory clocks, exit 1, missing PASS verdict named); no exit channel => missing-evidence",
+        "contract": "CL5 hashline_cl_profile parse_log+attribute reused as the validated-row gate; exit channels: --exit LABEL=N, `exit N` line, CL6_RUN exit= (per-run log and/or --sweep-log bound by chunk_rows/rep, digests cross-checked)",
+        "revalidation": "results/cl6_round9_revalidation.{json,md}: 6 eligible / 0 refused / 0 missing-evidence; the CL6 conclusion (chunk rows are a memory knob, not a speed knob) survives; selector_promoted false",
+        "limits": "a row now also requires the prover-phases block; cache state uniformly unknown on the archived logs (no CMD line); the sweep evidence is at 9b24975, not the combined tree"
+      }
     },
     {
       "id": "CL15",
