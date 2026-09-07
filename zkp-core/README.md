@@ -71,3 +71,16 @@ wrapper whose default dependency is the entire experimental application.
 There is deliberately no placeholder Cargo manifest or claim of runnable
 proof code in this scaffold. CL20 closes only when the library, example,
 tests, compatibility adapters and maintenance policy actually work.
+
+## Design phase (2026-09-07)
+
+Design phase; no extraction yet. [DESIGN.md](DESIGN.md) records, against
+integrator baseline `52a13d1`, the chosen first extraction profile (the
+non-hiding v3 FFN layer proof, parity gate `5f368db6…` / 70,758,084 B, privacy
+class P0), the measured dependency closure of that profile before and after
+the planned cuts, the couplings that block a clean cut with `file:line`
+evidence, the proposed module layout and public API, the transcript/RNG/byte
+constraints and differential tests, the default dependency closure, the
+migration ledger template and the maintenance policy. The graph is generated
+by `tools/dep_closure.py` (standard library only) into
+`dependency_graph.json`; re-run it after every extraction step and diff.

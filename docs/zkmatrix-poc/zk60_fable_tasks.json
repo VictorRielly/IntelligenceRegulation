@@ -369,7 +369,7 @@
       "priority": 3,
       "title": "Create and maintain a minimal refactored ZKP subproject",
       "owner": "Fable refactoring lane; Codex reviews shared-core extraction",
-      "status": "ready_design",
+      "status": "design_delivered; extraction pending (CL17 baseline is now green at lane c02d86c; Codex boundary review next)",
       "depends_on": [
         "CL17"
       ],
@@ -397,7 +397,15 @@
         "Document one source of truth per primitive, the dependency graph, module responsibilities, public API and migration ledger. Compare dependency/module surface before and after; do not reduce line count by discarding validation or hiding the whole legacy crate behind a wrapper.",
         "Completion means a working maintained subproject and adapters, not just this README or a copied snapshot. Implementation is split into bounded reviewable commits."
       ],
-      "limits": "Lower priority than correctness, privacy repair and integration. The README created with this queue is a design scaffold only; no proof code has been extracted. Coordinate shared-source ownership and keep protocol redesign separate from mechanical refactoring."
+      "limits": "Lower priority than correctness, privacy repair and integration. The README created with this queue is a design scaffold only; no proof code has been extracted. Coordinate shared-source ownership and keep protocol redesign separate from mechanical refactoring.",
+      "result": {
+        "date": "2026-09-07",
+        "branch": "zk60-cl20-core (worktree /home/victor/wt-zk60-cl20, off 52a13d1)",
+        "deliverable": "zkp-core/DESIGN.md (639 lines: purpose/boundary, first extraction profile, dependency inventory, module layout + public API, randomness/transcript/byte constraints and differential tests, default closure, migration ledger, before/after surface, what it does not do, verified-edge appendix); zkp-core/tools/dep_closure.py (stdlib generator: cfg-gate-aware intra-crate module graph with file:line evidence per edge, closures, --cut, --trace); zkp-core/dependency_graph.json (54 nodes, 313 edge records, deterministic: two runs byte-identical); one pointer paragraph in zkp-core/README.md",
+        "recommended_first_profile": "the non-hiding v3 FFN layer proof (layer::prove_layer_v3 / verify_layer_v3), parity gate pass 12 512 --profile v3 -> 5f368db6.. / 70,758,084 B on CPU and GPU; smallest closure exercising every primitive (10 modules / 3,934 code lines after nine planned cuts vs 18 / 8,781 today); deterministic (no RNG) so byte parity is the strongest gate; privacy class stated honestly: P0, not zero-knowledge. The hiding ZK v3 (40eb5479.., known FFN disclosure + P3 identity gap) is the second vertical, after repair or explicitly limitation-classified, with its disclosure/identity tests moved unchanged.",
+        "decisions_for_codex": "sha2 stays in the core for the table-spec digest; GPU seam = Store::External + a Backend trait with default-None hooks, HL_GPU=1 moves to the CLI; layer.rs stops routing through pcs_compact::commit and wcache::commit_w (byte-identical fall-throughs), the core takes an optional pre-built W commitment; ZkRng moves verbatim to zkp_core::rng and is re-exported; bounded decoding is shape-directed and must reject non-canonical field elements (Fp::new silently reduces v >= P today)",
+        "limits": "design only: no code moved, no manifest, no privacy repair, no P3 identity, no throughput claim; the scanner counts crate::-prefixed and use-declared references, not unprefixed calls through an imported name; line numbers are at 52a13d1 and drift; the authoritative parity gate needs the gitignored m125_v3_export, so the fast isolated gate uses synthetic fixtures recorded at step 3"
+      }
     }
   ]
 }
