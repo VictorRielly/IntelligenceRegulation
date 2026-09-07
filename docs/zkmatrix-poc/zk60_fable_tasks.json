@@ -277,7 +277,7 @@
       "priority": 0,
       "title": "Determine joint exposure and affected profiles",
       "owner": "Fable independent privacy reviewer",
-      "status": "queued",
+      "status": "done (linear-model analysis; H/P3-W rows source-derived, awaiting Codex capture hook)",
       "depends_on": [
         "FA1"
       ],
@@ -297,7 +297,19 @@
         "An implemented rank tool checks known deficient and independent-mask fixtures and agrees with an independent calculation; numerical rank alone is not called a simulation proof.",
         "Deliver an impact matrix and a precise list of unresolved assumptions that FA3 must address. Keep single-proof and repeated-proof observations distinct."
       ],
-      "limits": "A/H/W local mask counts and passing paired-mask controls do not by themselves settle joint privacy. Additional public-only capture hooks remain an agreed Codex/PCS handoff."
+      "limits": "A/H/W local mask counts and passing paired-mask controls do not by themselves settle joint privacy. Additional public-only capture hooks remain an agreed Codex/PCS handoff.",
+      "result": {
+        "date": "2026-09-07",
+        "reviewer": "Claude Fable 5.1, independent reviewer",
+        "source_pin": "52a13d1 + FA1 8cd939b (worktree /home/victor/wt-zk60-fa)",
+        "deliverable": "docs/zkmatrix-poc/ZK60_FABLE_PRIVACY_REVIEW.md Part 2 (sections 11-21); scripts/zk60_fable_joint_rank.py (exact mod-p rank tool: Fp2 observation -> two base rows, rank(B), rank([A|B]), left-null(B).A, per-unknown recovered/disclosed/protected; fixtures, whole-commitment and per-column layout models, layout_v3 predicate, impact matrix; CLI analyze|fixtures|impact); tests/test_zk60_fable_joint_rank.py 22 OK; results/zk60_fable_fa2_{impact,rank_cases,observations}.json",
+        "new_finding": "the m terminal values of a group are individually public; only their lambda-combination is implied by the group vector. For an all-base-mask group the mask map has rank 2m+2n-4 (kernel K1 (x) K2, dim (m-2)(n-2)), so exactly 2 base-field functionals of the members' data leak per proof for every m >= 2 (n for m = 1, FA1's case); confirmed at six (m, n) pairs. Any Fp2-effective member covers the group. Hence A rho_f, rho_d, X@p2 (nb_d >= 2), h16@p5 (nb_f >= 2), the function-2 pair and BOTH P3 W groups leak 2 exact functionals per proof.",
+        "proximity": "the reserved prox row is one base row in A/H/W and covers one of two dims per column, the other borrowed from other groups; fine for A and H but tiny P3 W (nb_d*nb_f = 1) is starved (4 masks vs 6 dims/column): +1 functional of (Wg[j], Wu[j]) per column atop the Wd singleton; two proofs recover W entirely (linear)",
+        "covered": "H in the linear model (pairs); the zero-sum u leaves exactly the public LogUp identity; pads/columns by the Vandermonde/pad-bijection argument plus the hash assumption",
+        "unresolved": "CFS channel (outside the model); twelve assumptions for FA3 in section 18; capture fields needed from Codex in section 19",
+        "predicate": "125M (nb_d 3, nb_f 1) -> h16@p5 singleton, 8-row functionals per column; 8B (nb_d 1, nb_f 7) -> X@p2 singleton, T/4 rows (T <= 8: 16 bits, enumerable) — derived, not executed",
+        "limits": "all H / P3-W statements source-derived awaiting the round-10 capture hook; rank results use stand-in coefficients with the source's structure; numerical rank is not a simulation proof; single-proof and repeated-proof observations kept distinct"
+      }
     },
     {
       "id": "FA3",

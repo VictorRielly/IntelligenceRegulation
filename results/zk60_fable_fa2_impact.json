@@ -1,0 +1,1335 @@
+{
+ "schema_version": 1,
+ "task": "FA2 -- joint exposure and affected profiles",
+ "reviewer": "Claude Fable 5.1, independent reviewer, 2026-09-07 session",
+ "rule": "The rule the fixtures establish (see the doc, Part 2 section 4):\n    all-base-mask group, m = 1  -> n surviving functionals per proof (one per\n                                  column) of the member's `rows` rows;\n    all-base-mask group, m >= 2 -> 2 surviving base functionals per proof of\n                                  the members' data (from the terminal values);\n    any Fp2-effective member     -> 0 in the (vector + values + prox) model.",
+ "profiles": [
+  {
+   "profile": {
+    "family": "tiny T2/d16/f16",
+    "t_rows": 2,
+    "d": 16,
+    "f": 16,
+    "log_cols": 5,
+    "inv_rate": 4,
+    "q": 12,
+    "tested": "FA1/Codex executed (A roles only)"
+   },
+   "layout": {
+    "t_rows": 2,
+    "d": 16,
+    "f": 16,
+    "log_cols": 5,
+    "log_t": 1,
+    "log_db": 4,
+    "log_fb": 4,
+    "nb_d": 1,
+    "nb_f": 1,
+    "log_a_min": 5,
+    "log_n": 5,
+    "n": 32,
+    "rows_per_f_plane": 1,
+    "rows_per_d_plane": 1,
+    "log_wb": 8,
+    "log_wn": 5,
+    "w_n": 32,
+    "rows_per_w_block": 8,
+    "table_rows": [
+     8,
+     2048,
+     4,
+     1,
+     512,
+     2
+    ],
+    "a_mask_rows": 2588,
+    "h_mask_rows": 5163,
+    "w_mask_rows_p3": 4
+   },
+   "t_sweep": [
+    {
+     "t_rows": 2,
+     "log_n": 5,
+     "n": 32,
+     "rows_per_f_plane": 1,
+     "rows_per_d_plane": 1,
+     "rows_per_w_block": 8,
+     "w_n": 32,
+     "X_at_p2_singleton": "exact recovery (1 row, 8-bit entries)",
+     "h16_at_p5_singleton": "exact recovery (1 row, 16-bit entries)",
+     "Wd_at_p6_singleton_P3": "64 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    {
+     "t_rows": 4,
+     "log_n": 5,
+     "n": 32,
+     "rows_per_f_plane": 2,
+     "rows_per_d_plane": 2,
+     "rows_per_w_block": 8,
+     "w_n": 32,
+     "X_at_p2_singleton": "16 unknown bits per column vs 64-bit modulus: unique w.h.p., enumerable (derived, not executed)",
+     "h16_at_p5_singleton": "32 unknown bits per column vs 64-bit modulus: unique w.h.p., enumerable (derived, not executed)",
+     "Wd_at_p6_singleton_P3": "64 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    {
+     "t_rows": 8,
+     "log_n": 5,
+     "n": 32,
+     "rows_per_f_plane": 4,
+     "rows_per_d_plane": 4,
+     "rows_per_w_block": 8,
+     "w_n": 32,
+     "X_at_p2_singleton": "32 unknown bits per column vs 64-bit modulus: unique w.h.p., enumerable (derived, not executed)",
+     "h16_at_p5_singleton": "64 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 4 repeated proofs recover linearly",
+     "Wd_at_p6_singleton_P3": "64 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    {
+     "t_rows": 16,
+     "log_n": 5,
+     "n": 32,
+     "rows_per_f_plane": 8,
+     "rows_per_d_plane": 8,
+     "rows_per_w_block": 8,
+     "w_n": 32,
+     "X_at_p2_singleton": "64 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly",
+     "h16_at_p5_singleton": "128 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly",
+     "Wd_at_p6_singleton_P3": "64 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    {
+     "t_rows": 32,
+     "log_n": 5,
+     "n": 32,
+     "rows_per_f_plane": 16,
+     "rows_per_d_plane": 16,
+     "rows_per_w_block": 8,
+     "w_n": 32,
+     "X_at_p2_singleton": "128 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 16 repeated proofs recover linearly",
+     "h16_at_p5_singleton": "256 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 16 repeated proofs recover linearly",
+     "Wd_at_p6_singleton_P3": "64 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    {
+     "t_rows": 64,
+     "log_n": 5,
+     "n": 32,
+     "rows_per_f_plane": 32,
+     "rows_per_d_plane": 32,
+     "rows_per_w_block": 8,
+     "w_n": 32,
+     "X_at_p2_singleton": "256 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 32 repeated proofs recover linearly",
+     "h16_at_p5_singleton": "512 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 32 repeated proofs recover linearly",
+     "Wd_at_p6_singleton_P3": "64 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    {
+     "t_rows": 128,
+     "log_n": 5,
+     "n": 32,
+     "rows_per_f_plane": 64,
+     "rows_per_d_plane": 64,
+     "rows_per_w_block": 8,
+     "w_n": 32,
+     "X_at_p2_singleton": "512 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 64 repeated proofs recover linearly",
+     "h16_at_p5_singleton": "1024 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 64 repeated proofs recover linearly",
+     "Wd_at_p6_singleton_P3": "64 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    }
+   ],
+   "roles": {
+    "A rho_f (g8,rg,a16,u16,ru,h16,rh x nb_f)": {
+     "members": 7,
+     "mask": "one base row per plane",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2
+    },
+    "A rho_d (X,z,rd x nb_d)": {
+     "members": 3,
+     "mask": "one base row per plane",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2
+    },
+    "A X at p2 (nb_d)": {
+     "members": 1,
+     "mask": "a_mgu, one base row per X block",
+     "verdict": "affected (singleton: one functional per column)",
+     "functionals_per_proof": 32,
+     "rows_per_functional": 1,
+     "full_plane_from_one_proof": true,
+     "integer_range": "exact recovery (1 row, 8-bit entries)"
+    },
+    "A h16 at p5 (nb_f)": {
+     "members": 1,
+     "mask": "a_mdd, one base row per h16 block",
+     "verdict": "affected (singleton: one functional per column)",
+     "functionals_per_proof": 32,
+     "rows_per_functional": 1,
+     "full_plane_from_one_proof": true,
+     "integer_range": "exact recovery (1 row, 16-bit entries)"
+    },
+    "A tables (6 multiplicity slots)": {
+     "members": 6,
+     "mask": "same-shaped base rows; slot rows [8, 2048, 4, 1, 512, 2]",
+     "verdict": "covered (linear model, generic coefficients)",
+     "functionals_per_proof": 0,
+     "note": "the INT16 slot spans >= 2 rows for log_n <= 15, so its mask is Fp2-effective and covers the group's values; at log_n = 16 every slot is one row and the group falls back to 2 functionals"
+    },
+    "A predicate group (function 2 only)": {
+     "members": 2,
+     "mask": "a_pmz (z block), a_pmb (bit row): base rows",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2,
+     "note": "leaks two base functionals of (z block, 16 predicate slack bits) per function-2 proof"
+    },
+    "A proximity vector": {
+     "members": "all rows",
+     "mask": "a_prox (one base row) + every mask row with its own coefficient",
+     "verdict": "covered per column given the other groups' residual mask freedom (numerically confirmed in the per-column model); a_prox alone covers one of the two base dimensions"
+    },
+    "H rho_f / rho_d / zsum / tables": {
+     "mask": "Fp2 pairs (re, im)",
+     "verdict": "covered (linear model, generic coefficients): Fp2-effective masks make vector + values Fp2-linear",
+     "functionals_per_proof": 0
+    },
+    "H LogUp sum (value 0; u pair with cross-column zero sum)": {
+     "mask": "u pair, constrained sum_j u[j] = 0",
+     "verdict": "covered by argument: the single surviving functional is sum_j v_sum[j] = the public claim value 0 (the LogUp identity itself); u's other n-1 columns pad the rest",
+     "functionals_per_proof": 0
+    },
+    "H proximity vector": {
+     "mask": "h_prox (base row) + all H mask rows",
+     "verdict": "covered per column (numerically confirmed in the per-column model)"
+    },
+    "W (P3) Wg/Wu at p3 (2 nb_d nb_f)": {
+     "members": 2,
+     "mask": "w_mgu, one base row per block",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2
+    },
+    "W (P3) Wd at p6 (nb_d nb_f)": {
+     "members": 1,
+     "mask": "w_mdd, one base row per block",
+     "verdict": "affected (singleton: one functional per column)",
+     "functionals_per_proof": 32,
+     "rows_per_functional": 8,
+     "full_plane_from_one_proof": false,
+     "integer_range": "64 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    "W (P3) proximity vector": {
+     "mask": "w_prox + 3 nb_d nb_f block masks",
+     "verdict": "AFFECTED at nb_d nb_f = 1: 4 mask rows vs 6 base observation dims per column -> one extra functional of (Wg[j], Wu[j]) per column (numerically confirmed)"
+    },
+    "W (P1)": {
+     "verdict": "n/a: public weights, plain opening (no privacy claim)"
+    },
+    "sampled columns + folded pads (A, H, W)": {
+     "verdict": "covered by argument: the Q pads per row are a bijection onto the <= Q distinct sampled coset points (Vandermonde, Z_n != 0 on the coset), and the folded pad coordinates are determined by the message parts + sampled columns; unopened columns rest on salted-leaf hash hiding (computational, outside the linear model)"
+    },
+    "CFS mask commitment (sumcheck round messages, masked claimed sums)": {
+     "verdict": "outside the linear row model: nonlinear in the data; relies on the CFS/Libra-style masking argument, not reviewed here -> UNRESOLVED for FA3/FA5"
+    },
+    "H / P3-W openings: executed capture": {
+     "verdict": "AWAITING CAPTURE (Codex round-10 hook does not exist yet): every H and P3-W statement above is source-derived only"
+    }
+   },
+   "per_column_models": {
+    "A (P1)": {
+     "disclosed_dim": 2,
+     "rank_mask": 10,
+     "base_obs_rows": 12,
+     "mask_unknowns": 2588,
+     "data_unknowns": 2585,
+     "disclosed_or_recovered": [
+      "rho_f/h160/D0",
+      "rho_d/X0/D0"
+     ]
+    },
+    "H": {
+     "disclosed_dim": 0,
+     "rank_mask": 10,
+     "base_obs_rows": 10,
+     "mask_unknowns": 5161,
+     "data_unknowns": 5160,
+     "disclosed_or_recovered": []
+    },
+    "W (P3)": {
+     "disclosed_dim": 2,
+     "rank_mask": 4,
+     "base_obs_rows": 6,
+     "mask_unknowns": 4,
+     "data_unknowns": 24,
+     "disclosed_or_recovered": [
+      "p3/Wg_0_0/D0",
+      "p3/Wg_0_0/D1",
+      "p3/Wg_0_0/D2",
+      "p3/Wg_0_0/D3",
+      "p3/Wg_0_0/D4",
+      "p3/Wg_0_0/D5",
+      "p3/Wg_0_0/D6",
+      "p3/Wg_0_0/D7",
+      "p3/Wu_0_0/D0",
+      "p3/Wu_0_0/D1",
+      "p3/Wu_0_0/D2",
+      "p3/Wu_0_0/D3",
+      "p3/Wu_0_0/D4",
+      "p3/Wu_0_0/D5",
+      "p3/Wu_0_0/D6",
+      "p3/Wu_0_0/D7",
+      "p6/Wd_0_0/D0",
+      "p6/Wd_0_0/D1",
+      "p6/Wd_0_0/D2",
+      "p6/Wd_0_0/D3",
+      "p6/Wd_0_0/D4",
+      "p6/Wd_0_0/D5",
+      "p6/Wd_0_0/D6",
+      "p6/Wd_0_0/D7"
+     ]
+    }
+   },
+   "group_value_models_n4": {
+    "A rho_f": {
+     "members": 7,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 18,
+     "base_obs_rows": 22
+    },
+    "A rho_d": {
+     "members": 3,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 10,
+     "base_obs_rows": 14
+    },
+    "A X@p2": {
+     "members": 1,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 4,
+     "rank_mask": 4,
+     "base_obs_rows": 10
+    },
+    "A h16@p5": {
+     "members": 1,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 4,
+     "rank_mask": 4,
+     "base_obs_rows": 10
+    },
+    "A tables": {
+     "members": 6,
+     "kinds": [
+      "base1",
+      "base2"
+     ],
+     "disclosed_dim": 0,
+     "rank_mask": 18,
+     "base_obs_rows": 20
+    },
+    "W(P3) p3": {
+     "members": 2,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 8,
+     "base_obs_rows": 12
+    },
+    "W(P3) p6": {
+     "members": 1,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 4,
+     "rank_mask": 4,
+     "base_obs_rows": 10
+    },
+    "H rho_f": {
+     "members": 3,
+     "kinds": [
+      "pair"
+     ],
+     "disclosed_dim": 0,
+     "rank_mask": 12,
+     "base_obs_rows": 14
+    }
+   }
+  },
+  {
+   "profile": {
+    "family": "tiny T32/d16/f16",
+    "t_rows": 32,
+    "d": 16,
+    "f": 16,
+    "log_cols": 8,
+    "inv_rate": 8,
+    "q": 256,
+    "tested": "FA1/Codex executed (A roles only)"
+   },
+   "layout": {
+    "t_rows": 32,
+    "d": 16,
+    "f": 16,
+    "log_cols": 8,
+    "log_t": 5,
+    "log_db": 4,
+    "log_fb": 4,
+    "nb_d": 1,
+    "nb_f": 1,
+    "log_a_min": 9,
+    "log_n": 8,
+    "n": 256,
+    "rows_per_f_plane": 2,
+    "rows_per_d_plane": 2,
+    "log_wb": 8,
+    "log_wn": 8,
+    "w_n": 256,
+    "rows_per_w_block": 1,
+    "table_rows": [
+     1,
+     256,
+     1,
+     1,
+     64,
+     1
+    ],
+    "a_mask_rows": 337,
+    "h_mask_rows": 661,
+    "w_mask_rows_p3": 4
+   },
+   "t_sweep": [
+    {
+     "t_rows": 2,
+     "log_n": 5,
+     "n": 32,
+     "rows_per_f_plane": 1,
+     "rows_per_d_plane": 1,
+     "rows_per_w_block": 1,
+     "w_n": 256,
+     "X_at_p2_singleton": "exact recovery (1 row, 8-bit entries)",
+     "h16_at_p5_singleton": "exact recovery (1 row, 16-bit entries)",
+     "Wd_at_p6_singleton_P3": "exact recovery (1 row, 8-bit entries)"
+    },
+    {
+     "t_rows": 4,
+     "log_n": 6,
+     "n": 64,
+     "rows_per_f_plane": 1,
+     "rows_per_d_plane": 1,
+     "rows_per_w_block": 1,
+     "w_n": 256,
+     "X_at_p2_singleton": "exact recovery (1 row, 8-bit entries)",
+     "h16_at_p5_singleton": "exact recovery (1 row, 16-bit entries)",
+     "Wd_at_p6_singleton_P3": "exact recovery (1 row, 8-bit entries)"
+    },
+    {
+     "t_rows": 8,
+     "log_n": 7,
+     "n": 128,
+     "rows_per_f_plane": 1,
+     "rows_per_d_plane": 1,
+     "rows_per_w_block": 1,
+     "w_n": 256,
+     "X_at_p2_singleton": "exact recovery (1 row, 8-bit entries)",
+     "h16_at_p5_singleton": "exact recovery (1 row, 16-bit entries)",
+     "Wd_at_p6_singleton_P3": "exact recovery (1 row, 8-bit entries)"
+    },
+    {
+     "t_rows": 16,
+     "log_n": 8,
+     "n": 256,
+     "rows_per_f_plane": 1,
+     "rows_per_d_plane": 1,
+     "rows_per_w_block": 1,
+     "w_n": 256,
+     "X_at_p2_singleton": "exact recovery (1 row, 8-bit entries)",
+     "h16_at_p5_singleton": "exact recovery (1 row, 16-bit entries)",
+     "Wd_at_p6_singleton_P3": "exact recovery (1 row, 8-bit entries)"
+    },
+    {
+     "t_rows": 32,
+     "log_n": 8,
+     "n": 256,
+     "rows_per_f_plane": 2,
+     "rows_per_d_plane": 2,
+     "rows_per_w_block": 1,
+     "w_n": 256,
+     "X_at_p2_singleton": "16 unknown bits per column vs 64-bit modulus: unique w.h.p., enumerable (derived, not executed)",
+     "h16_at_p5_singleton": "32 unknown bits per column vs 64-bit modulus: unique w.h.p., enumerable (derived, not executed)",
+     "Wd_at_p6_singleton_P3": "exact recovery (1 row, 8-bit entries)"
+    },
+    {
+     "t_rows": 64,
+     "log_n": 8,
+     "n": 256,
+     "rows_per_f_plane": 4,
+     "rows_per_d_plane": 4,
+     "rows_per_w_block": 1,
+     "w_n": 256,
+     "X_at_p2_singleton": "32 unknown bits per column vs 64-bit modulus: unique w.h.p., enumerable (derived, not executed)",
+     "h16_at_p5_singleton": "64 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 4 repeated proofs recover linearly",
+     "Wd_at_p6_singleton_P3": "exact recovery (1 row, 8-bit entries)"
+    },
+    {
+     "t_rows": 128,
+     "log_n": 8,
+     "n": 256,
+     "rows_per_f_plane": 8,
+     "rows_per_d_plane": 8,
+     "rows_per_w_block": 1,
+     "w_n": 256,
+     "X_at_p2_singleton": "64 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly",
+     "h16_at_p5_singleton": "128 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly",
+     "Wd_at_p6_singleton_P3": "exact recovery (1 row, 8-bit entries)"
+    }
+   ],
+   "roles": {
+    "A rho_f (g8,rg,a16,u16,ru,h16,rh x nb_f)": {
+     "members": 7,
+     "mask": "one base row per plane",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2
+    },
+    "A rho_d (X,z,rd x nb_d)": {
+     "members": 3,
+     "mask": "one base row per plane",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2
+    },
+    "A X at p2 (nb_d)": {
+     "members": 1,
+     "mask": "a_mgu, one base row per X block",
+     "verdict": "affected (singleton: one functional per column)",
+     "functionals_per_proof": 256,
+     "rows_per_functional": 2,
+     "full_plane_from_one_proof": false,
+     "integer_range": "16 unknown bits per column vs 64-bit modulus: unique w.h.p., enumerable (derived, not executed)"
+    },
+    "A h16 at p5 (nb_f)": {
+     "members": 1,
+     "mask": "a_mdd, one base row per h16 block",
+     "verdict": "affected (singleton: one functional per column)",
+     "functionals_per_proof": 256,
+     "rows_per_functional": 2,
+     "full_plane_from_one_proof": false,
+     "integer_range": "32 unknown bits per column vs 64-bit modulus: unique w.h.p., enumerable (derived, not executed)"
+    },
+    "A tables (6 multiplicity slots)": {
+     "members": 6,
+     "mask": "same-shaped base rows; slot rows [1, 256, 1, 1, 64, 1]",
+     "verdict": "covered (linear model, generic coefficients)",
+     "functionals_per_proof": 0,
+     "note": "the INT16 slot spans >= 2 rows for log_n <= 15, so its mask is Fp2-effective and covers the group's values; at log_n = 16 every slot is one row and the group falls back to 2 functionals"
+    },
+    "A predicate group (function 2 only)": {
+     "members": 2,
+     "mask": "a_pmz (z block), a_pmb (bit row): base rows",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2,
+     "note": "leaks two base functionals of (z block, 16 predicate slack bits) per function-2 proof"
+    },
+    "A proximity vector": {
+     "members": "all rows",
+     "mask": "a_prox (one base row) + every mask row with its own coefficient",
+     "verdict": "covered per column given the other groups' residual mask freedom (numerically confirmed in the per-column model); a_prox alone covers one of the two base dimensions"
+    },
+    "H rho_f / rho_d / zsum / tables": {
+     "mask": "Fp2 pairs (re, im)",
+     "verdict": "covered (linear model, generic coefficients): Fp2-effective masks make vector + values Fp2-linear",
+     "functionals_per_proof": 0
+    },
+    "H LogUp sum (value 0; u pair with cross-column zero sum)": {
+     "mask": "u pair, constrained sum_j u[j] = 0",
+     "verdict": "covered by argument: the single surviving functional is sum_j v_sum[j] = the public claim value 0 (the LogUp identity itself); u's other n-1 columns pad the rest",
+     "functionals_per_proof": 0
+    },
+    "H proximity vector": {
+     "mask": "h_prox (base row) + all H mask rows",
+     "verdict": "covered per column (numerically confirmed in the per-column model)"
+    },
+    "W (P3) Wg/Wu at p3 (2 nb_d nb_f)": {
+     "members": 2,
+     "mask": "w_mgu, one base row per block",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2
+    },
+    "W (P3) Wd at p6 (nb_d nb_f)": {
+     "members": 1,
+     "mask": "w_mdd, one base row per block",
+     "verdict": "affected (singleton: one functional per column)",
+     "functionals_per_proof": 256,
+     "rows_per_functional": 1,
+     "full_plane_from_one_proof": true,
+     "integer_range": "exact recovery (1 row, 8-bit entries)"
+    },
+    "W (P3) proximity vector": {
+     "mask": "w_prox + 3 nb_d nb_f block masks",
+     "verdict": "AFFECTED at nb_d nb_f = 1: 4 mask rows vs 6 base observation dims per column -> one extra functional of (Wg[j], Wu[j]) per column (numerically confirmed)"
+    },
+    "W (P1)": {
+     "verdict": "n/a: public weights, plain opening (no privacy claim)"
+    },
+    "sampled columns + folded pads (A, H, W)": {
+     "verdict": "covered by argument: the Q pads per row are a bijection onto the <= Q distinct sampled coset points (Vandermonde, Z_n != 0 on the coset), and the folded pad coordinates are determined by the message parts + sampled columns; unopened columns rest on salted-leaf hash hiding (computational, outside the linear model)"
+    },
+    "CFS mask commitment (sumcheck round messages, masked claimed sums)": {
+     "verdict": "outside the linear row model: nonlinear in the data; relies on the CFS/Libra-style masking argument, not reviewed here -> UNRESOLVED for FA3/FA5"
+    },
+    "H / P3-W openings: executed capture": {
+     "verdict": "AWAITING CAPTURE (Codex round-10 hook does not exist yet): every H and P3-W statement above is source-derived only"
+    }
+   },
+   "per_column_models": {
+    "A (P1)": {
+     "disclosed_dim": 2,
+     "rank_mask": 10,
+     "base_obs_rows": 12,
+     "mask_unknowns": 337,
+     "data_unknowns": 344,
+     "disclosed_or_recovered": [
+      "rho_f/h160/D0",
+      "rho_f/h160/D1",
+      "rho_d/X0/D0",
+      "rho_d/X0/D1"
+     ]
+    },
+    "H": {
+     "disclosed_dim": 0,
+     "rank_mask": 10,
+     "base_obs_rows": 10,
+     "mask_unknowns": 659,
+     "data_unknowns": 666,
+     "disclosed_or_recovered": []
+    },
+    "W (P3)": {
+     "disclosed_dim": 2,
+     "rank_mask": 4,
+     "base_obs_rows": 6,
+     "mask_unknowns": 4,
+     "data_unknowns": 3,
+     "disclosed_or_recovered": [
+      "p6/Wd_0_0/D0",
+      "p3/Wg_0_0/D0",
+      "p3/Wu_0_0/D0"
+     ]
+    }
+   },
+   "group_value_models_n4": {
+    "A rho_f": {
+     "members": 7,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 18,
+     "base_obs_rows": 22
+    },
+    "A rho_d": {
+     "members": 3,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 10,
+     "base_obs_rows": 14
+    },
+    "A X@p2": {
+     "members": 1,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 4,
+     "rank_mask": 4,
+     "base_obs_rows": 10
+    },
+    "A h16@p5": {
+     "members": 1,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 4,
+     "rank_mask": 4,
+     "base_obs_rows": 10
+    },
+    "A tables": {
+     "members": 6,
+     "kinds": [
+      "base1",
+      "base2"
+     ],
+     "disclosed_dim": 0,
+     "rank_mask": 18,
+     "base_obs_rows": 20
+    },
+    "W(P3) p3": {
+     "members": 2,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 8,
+     "base_obs_rows": 12
+    },
+    "W(P3) p6": {
+     "members": 1,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 4,
+     "rank_mask": 4,
+     "base_obs_rows": 10
+    },
+    "H rho_f": {
+     "members": 3,
+     "kinds": [
+      "pair"
+     ],
+     "disclosed_dim": 0,
+     "rank_mask": 12,
+     "base_obs_rows": 14
+    }
+   }
+  },
+  {
+   "profile": {
+    "family": "125M d768/f2048",
+    "t_rows": 32,
+    "d": 768,
+    "f": 2048,
+    "log_cols": 14,
+    "inv_rate": 4,
+    "q": 256,
+    "tested": "not executed; source-derived"
+   },
+   "layout": {
+    "t_rows": 32,
+    "d": 768,
+    "f": 2048,
+    "log_cols": 14,
+    "log_t": 5,
+    "log_db": 8,
+    "log_fb": 11,
+    "nb_d": 3,
+    "nb_f": 1,
+    "log_a_min": 13,
+    "log_n": 13,
+    "n": 8192,
+    "rows_per_f_plane": 8,
+    "rows_per_d_plane": 1,
+    "log_wb": 19,
+    "log_wn": 14,
+    "w_n": 16384,
+    "rows_per_w_block": 32,
+    "table_rows": [
+     1,
+     8,
+     1,
+     1,
+     2,
+     1
+    ],
+    "a_mask_rows": 35,
+    "h_mask_rows": 45,
+    "w_mask_rows_p3": 10
+   },
+   "t_sweep": [
+    {
+     "t_rows": 2,
+     "log_n": 9,
+     "n": 512,
+     "rows_per_f_plane": 8,
+     "rows_per_d_plane": 1,
+     "rows_per_w_block": 32,
+     "w_n": 16384,
+     "h16_at_p5_singleton": "128 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    {
+     "t_rows": 4,
+     "log_n": 10,
+     "n": 1024,
+     "rows_per_f_plane": 8,
+     "rows_per_d_plane": 1,
+     "rows_per_w_block": 32,
+     "w_n": 16384,
+     "h16_at_p5_singleton": "128 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    {
+     "t_rows": 8,
+     "log_n": 11,
+     "n": 2048,
+     "rows_per_f_plane": 8,
+     "rows_per_d_plane": 1,
+     "rows_per_w_block": 32,
+     "w_n": 16384,
+     "h16_at_p5_singleton": "128 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    {
+     "t_rows": 16,
+     "log_n": 12,
+     "n": 4096,
+     "rows_per_f_plane": 8,
+     "rows_per_d_plane": 1,
+     "rows_per_w_block": 32,
+     "w_n": 16384,
+     "h16_at_p5_singleton": "128 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    {
+     "t_rows": 32,
+     "log_n": 13,
+     "n": 8192,
+     "rows_per_f_plane": 8,
+     "rows_per_d_plane": 1,
+     "rows_per_w_block": 32,
+     "w_n": 16384,
+     "h16_at_p5_singleton": "128 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    {
+     "t_rows": 64,
+     "log_n": 14,
+     "n": 16384,
+     "rows_per_f_plane": 8,
+     "rows_per_d_plane": 1,
+     "rows_per_w_block": 32,
+     "w_n": 16384,
+     "h16_at_p5_singleton": "128 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    {
+     "t_rows": 128,
+     "log_n": 14,
+     "n": 16384,
+     "rows_per_f_plane": 16,
+     "rows_per_d_plane": 2,
+     "rows_per_w_block": 32,
+     "w_n": 16384,
+     "h16_at_p5_singleton": "256 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 16 repeated proofs recover linearly"
+    }
+   ],
+   "roles": {
+    "A rho_f (g8,rg,a16,u16,ru,h16,rh x nb_f)": {
+     "members": 7,
+     "mask": "one base row per plane",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2
+    },
+    "A rho_d (X,z,rd x nb_d)": {
+     "members": 9,
+     "mask": "one base row per plane",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2
+    },
+    "A X at p2 (nb_d)": {
+     "members": 3,
+     "mask": "a_mgu, one base row per X block",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2,
+     "integer_range": "n/a (multi-member)"
+    },
+    "A h16 at p5 (nb_f)": {
+     "members": 1,
+     "mask": "a_mdd, one base row per h16 block",
+     "verdict": "affected (singleton: one functional per column)",
+     "functionals_per_proof": 8192,
+     "rows_per_functional": 8,
+     "full_plane_from_one_proof": false,
+     "integer_range": "128 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    "A tables (6 multiplicity slots)": {
+     "members": 6,
+     "mask": "same-shaped base rows; slot rows [1, 8, 1, 1, 2, 1]",
+     "verdict": "covered (linear model, generic coefficients)",
+     "functionals_per_proof": 0,
+     "note": "the INT16 slot spans >= 2 rows for log_n <= 15, so its mask is Fp2-effective and covers the group's values; at log_n = 16 every slot is one row and the group falls back to 2 functionals"
+    },
+    "A predicate group (function 2 only)": {
+     "members": 2,
+     "mask": "a_pmz (z block), a_pmb (bit row): base rows",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2,
+     "note": "leaks two base functionals of (z block, 16 predicate slack bits) per function-2 proof"
+    },
+    "A proximity vector": {
+     "members": "all rows",
+     "mask": "a_prox (one base row) + every mask row with its own coefficient",
+     "verdict": "covered per column given the other groups' residual mask freedom (numerically confirmed in the per-column model); a_prox alone covers one of the two base dimensions"
+    },
+    "H rho_f / rho_d / zsum / tables": {
+     "mask": "Fp2 pairs (re, im)",
+     "verdict": "covered (linear model, generic coefficients): Fp2-effective masks make vector + values Fp2-linear",
+     "functionals_per_proof": 0
+    },
+    "H LogUp sum (value 0; u pair with cross-column zero sum)": {
+     "mask": "u pair, constrained sum_j u[j] = 0",
+     "verdict": "covered by argument: the single surviving functional is sum_j v_sum[j] = the public claim value 0 (the LogUp identity itself); u's other n-1 columns pad the rest",
+     "functionals_per_proof": 0
+    },
+    "H proximity vector": {
+     "mask": "h_prox (base row) + all H mask rows",
+     "verdict": "covered per column (numerically confirmed in the per-column model)"
+    },
+    "W (P3) Wg/Wu at p3 (2 nb_d nb_f)": {
+     "members": 6,
+     "mask": "w_mgu, one base row per block",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2
+    },
+    "W (P3) Wd at p6 (nb_d nb_f)": {
+     "members": 3,
+     "mask": "w_mdd, one base row per block",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2
+    },
+    "W (P3) proximity vector": {
+     "mask": "w_prox + 3 nb_d nb_f block masks",
+     "verdict": "covered per column (numerically confirmed)"
+    },
+    "W (P1)": {
+     "verdict": "n/a: public weights, plain opening (no privacy claim)"
+    },
+    "sampled columns + folded pads (A, H, W)": {
+     "verdict": "covered by argument: the Q pads per row are a bijection onto the <= Q distinct sampled coset points (Vandermonde, Z_n != 0 on the coset), and the folded pad coordinates are determined by the message parts + sampled columns; unopened columns rest on salted-leaf hash hiding (computational, outside the linear model)"
+    },
+    "CFS mask commitment (sumcheck round messages, masked claimed sums)": {
+     "verdict": "outside the linear row model: nonlinear in the data; relies on the CFS/Libra-style masking argument, not reviewed here -> UNRESOLVED for FA3/FA5"
+    },
+    "H / P3-W openings: executed capture": {
+     "verdict": "AWAITING CAPTURE (Codex round-10 hook does not exist yet): every H and P3-W statement above is source-derived only"
+    }
+   },
+   "per_column_models": {
+    "A (P1)": {
+     "disclosed_dim": 1,
+     "rank_mask": 11,
+     "base_obs_rows": 12,
+     "mask_unknowns": 35,
+     "data_unknowns": 79,
+     "disclosed_or_recovered": [
+      "rho_f/h160/D0",
+      "rho_f/h160/D1",
+      "rho_f/h160/D2",
+      "rho_f/h160/D3",
+      "rho_f/h160/D4",
+      "rho_f/h160/D5",
+      "rho_f/h160/D6",
+      "rho_f/h160/D7"
+     ]
+    },
+    "H": {
+     "disclosed_dim": 0,
+     "rank_mask": 10,
+     "base_obs_rows": 10,
+     "mask_unknowns": 43,
+     "data_unknowns": 84,
+     "disclosed_or_recovered": []
+    },
+    "W (P3)": {
+     "disclosed_dim": 0,
+     "rank_mask": 6,
+     "base_obs_rows": 6,
+     "mask_unknowns": 10,
+     "data_unknowns": 288,
+     "disclosed_or_recovered": []
+    }
+   },
+   "group_value_models_n4": {
+    "A rho_f": {
+     "members": 7,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 18,
+     "base_obs_rows": 22
+    },
+    "A rho_d": {
+     "members": 9,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 22,
+     "base_obs_rows": 26
+    },
+    "A X@p2": {
+     "members": 3,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 10,
+     "base_obs_rows": 14
+    },
+    "A h16@p5": {
+     "members": 1,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 4,
+     "rank_mask": 4,
+     "base_obs_rows": 10
+    },
+    "A tables": {
+     "members": 6,
+     "kinds": [
+      "base1",
+      "base2"
+     ],
+     "disclosed_dim": 0,
+     "rank_mask": 18,
+     "base_obs_rows": 20
+    },
+    "W(P3) p3": {
+     "members": 6,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 16,
+     "base_obs_rows": 20
+    },
+    "W(P3) p6": {
+     "members": 3,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 10,
+     "base_obs_rows": 14
+    },
+    "H rho_f": {
+     "members": 3,
+     "kinds": [
+      "pair"
+     ],
+     "disclosed_dim": 0,
+     "rank_mask": 12,
+     "base_obs_rows": 14
+    }
+   }
+  },
+  {
+   "profile": {
+    "family": "8B d4096/f14336",
+    "t_rows": 32,
+    "d": 4096,
+    "f": 14336,
+    "log_cols": 14,
+    "inv_rate": 4,
+    "q": 256,
+    "tested": "not executed; source-derived"
+   },
+   "layout": {
+    "t_rows": 32,
+    "d": 4096,
+    "f": 14336,
+    "log_cols": 14,
+    "log_t": 5,
+    "log_db": 12,
+    "log_fb": 11,
+    "nb_d": 1,
+    "nb_f": 7,
+    "log_a_min": 16,
+    "log_n": 14,
+    "n": 16384,
+    "rows_per_f_plane": 4,
+    "rows_per_d_plane": 8,
+    "log_wb": 23,
+    "log_wn": 14,
+    "w_n": 16384,
+    "rows_per_w_block": 512,
+    "table_rows": [
+     1,
+     4,
+     1,
+     1,
+     1,
+     1
+    ],
+    "a_mask_rows": 70,
+    "h_mask_rows": 67,
+    "w_mask_rows_p3": 22
+   },
+   "t_sweep": [
+    {
+     "t_rows": 2,
+     "log_n": 12,
+     "n": 4096,
+     "rows_per_f_plane": 1,
+     "rows_per_d_plane": 2,
+     "rows_per_w_block": 512,
+     "w_n": 16384,
+     "X_at_p2_singleton": "16 unknown bits per column vs 64-bit modulus: unique w.h.p., enumerable (derived, not executed)"
+    },
+    {
+     "t_rows": 4,
+     "log_n": 13,
+     "n": 8192,
+     "rows_per_f_plane": 1,
+     "rows_per_d_plane": 2,
+     "rows_per_w_block": 512,
+     "w_n": 16384,
+     "X_at_p2_singleton": "16 unknown bits per column vs 64-bit modulus: unique w.h.p., enumerable (derived, not executed)"
+    },
+    {
+     "t_rows": 8,
+     "log_n": 14,
+     "n": 16384,
+     "rows_per_f_plane": 1,
+     "rows_per_d_plane": 2,
+     "rows_per_w_block": 512,
+     "w_n": 16384,
+     "X_at_p2_singleton": "16 unknown bits per column vs 64-bit modulus: unique w.h.p., enumerable (derived, not executed)"
+    },
+    {
+     "t_rows": 16,
+     "log_n": 14,
+     "n": 16384,
+     "rows_per_f_plane": 2,
+     "rows_per_d_plane": 4,
+     "rows_per_w_block": 512,
+     "w_n": 16384,
+     "X_at_p2_singleton": "32 unknown bits per column vs 64-bit modulus: unique w.h.p., enumerable (derived, not executed)"
+    },
+    {
+     "t_rows": 32,
+     "log_n": 14,
+     "n": 16384,
+     "rows_per_f_plane": 4,
+     "rows_per_d_plane": 8,
+     "rows_per_w_block": 512,
+     "w_n": 16384,
+     "X_at_p2_singleton": "64 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    {
+     "t_rows": 64,
+     "log_n": 14,
+     "n": 16384,
+     "rows_per_f_plane": 8,
+     "rows_per_d_plane": 16,
+     "rows_per_w_block": 512,
+     "w_n": 16384,
+     "X_at_p2_singleton": "128 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 16 repeated proofs recover linearly"
+    },
+    {
+     "t_rows": 128,
+     "log_n": 14,
+     "n": 16384,
+     "rows_per_f_plane": 16,
+     "rows_per_d_plane": 32,
+     "rows_per_w_block": 512,
+     "w_n": 16384,
+     "X_at_p2_singleton": "256 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 32 repeated proofs recover linearly"
+    }
+   ],
+   "roles": {
+    "A rho_f (g8,rg,a16,u16,ru,h16,rh x nb_f)": {
+     "members": 49,
+     "mask": "one base row per plane",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2
+    },
+    "A rho_d (X,z,rd x nb_d)": {
+     "members": 3,
+     "mask": "one base row per plane",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2
+    },
+    "A X at p2 (nb_d)": {
+     "members": 1,
+     "mask": "a_mgu, one base row per X block",
+     "verdict": "affected (singleton: one functional per column)",
+     "functionals_per_proof": 16384,
+     "rows_per_functional": 8,
+     "full_plane_from_one_proof": false,
+     "integer_range": "64 unknown bits per column vs 64-bit modulus: NOT unique from one proof; 8 repeated proofs recover linearly"
+    },
+    "A h16 at p5 (nb_f)": {
+     "members": 7,
+     "mask": "a_mdd, one base row per h16 block",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2,
+     "integer_range": "n/a (multi-member)"
+    },
+    "A tables (6 multiplicity slots)": {
+     "members": 6,
+     "mask": "same-shaped base rows; slot rows [1, 4, 1, 1, 1, 1]",
+     "verdict": "covered (linear model, generic coefficients)",
+     "functionals_per_proof": 0,
+     "note": "the INT16 slot spans >= 2 rows for log_n <= 15, so its mask is Fp2-effective and covers the group's values; at log_n = 16 every slot is one row and the group falls back to 2 functionals"
+    },
+    "A predicate group (function 2 only)": {
+     "members": 2,
+     "mask": "a_pmz (z block), a_pmb (bit row): base rows",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2,
+     "note": "leaks two base functionals of (z block, 16 predicate slack bits) per function-2 proof"
+    },
+    "A proximity vector": {
+     "members": "all rows",
+     "mask": "a_prox (one base row) + every mask row with its own coefficient",
+     "verdict": "covered per column given the other groups' residual mask freedom (numerically confirmed in the per-column model); a_prox alone covers one of the two base dimensions"
+    },
+    "H rho_f / rho_d / zsum / tables": {
+     "mask": "Fp2 pairs (re, im)",
+     "verdict": "covered (linear model, generic coefficients): Fp2-effective masks make vector + values Fp2-linear",
+     "functionals_per_proof": 0
+    },
+    "H LogUp sum (value 0; u pair with cross-column zero sum)": {
+     "mask": "u pair, constrained sum_j u[j] = 0",
+     "verdict": "covered by argument: the single surviving functional is sum_j v_sum[j] = the public claim value 0 (the LogUp identity itself); u's other n-1 columns pad the rest",
+     "functionals_per_proof": 0
+    },
+    "H proximity vector": {
+     "mask": "h_prox (base row) + all H mask rows",
+     "verdict": "covered per column (numerically confirmed in the per-column model)"
+    },
+    "W (P3) Wg/Wu at p3 (2 nb_d nb_f)": {
+     "members": 14,
+     "mask": "w_mgu, one base row per block",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2
+    },
+    "W (P3) Wd at p6 (nb_d nb_f)": {
+     "members": 7,
+     "mask": "w_mdd, one base row per block",
+     "verdict": "affected (multi-member all-base: two base functionals from the terminal values)",
+     "functionals_per_proof": 2
+    },
+    "W (P3) proximity vector": {
+     "mask": "w_prox + 3 nb_d nb_f block masks",
+     "verdict": "covered per column (numerically confirmed)"
+    },
+    "W (P1)": {
+     "verdict": "n/a: public weights, plain opening (no privacy claim)"
+    },
+    "sampled columns + folded pads (A, H, W)": {
+     "verdict": "covered by argument: the Q pads per row are a bijection onto the <= Q distinct sampled coset points (Vandermonde, Z_n != 0 on the coset), and the folded pad coordinates are determined by the message parts + sampled columns; unopened columns rest on salted-leaf hash hiding (computational, outside the linear model)"
+    },
+    "CFS mask commitment (sumcheck round messages, masked claimed sums)": {
+     "verdict": "outside the linear row model: nonlinear in the data; relies on the CFS/Libra-style masking argument, not reviewed here -> UNRESOLVED for FA3/FA5"
+    },
+    "H / P3-W openings: executed capture": {
+     "verdict": "AWAITING CAPTURE (Codex round-10 hook does not exist yet): every H and P3-W statement above is source-derived only"
+    }
+   },
+   "per_column_models": {
+    "A (P1)": {
+     "disclosed_dim": 1,
+     "rank_mask": 11,
+     "base_obs_rows": 12,
+     "mask_unknowns": 70,
+     "data_unknowns": 229,
+     "disclosed_or_recovered": [
+      "rho_d/X0/D0",
+      "rho_d/X0/D1",
+      "rho_d/X0/D2",
+      "rho_d/X0/D3",
+      "rho_d/X0/D4",
+      "rho_d/X0/D5",
+      "rho_d/X0/D6",
+      "rho_d/X0/D7"
+     ]
+    },
+    "H": {
+     "disclosed_dim": 0,
+     "rank_mask": 10,
+     "base_obs_rows": 10,
+     "mask_unknowns": 65,
+     "data_unknowns": 204,
+     "disclosed_or_recovered": []
+    },
+    "W (P3)": {
+     "disclosed_dim": 0,
+     "rank_mask": 6,
+     "base_obs_rows": 6,
+     "mask_unknowns": 22,
+     "data_unknowns": 10752,
+     "disclosed_or_recovered": []
+    }
+   },
+   "group_value_models_n4": {
+    "A rho_f": {
+     "members": 49,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 102,
+     "base_obs_rows": 106
+    },
+    "A rho_d": {
+     "members": 3,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 10,
+     "base_obs_rows": 14
+    },
+    "A X@p2": {
+     "members": 1,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 4,
+     "rank_mask": 4,
+     "base_obs_rows": 10
+    },
+    "A h16@p5": {
+     "members": 7,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 18,
+     "base_obs_rows": 22
+    },
+    "A tables": {
+     "members": 6,
+     "kinds": [
+      "base1",
+      "base2"
+     ],
+     "disclosed_dim": 0,
+     "rank_mask": 18,
+     "base_obs_rows": 20
+    },
+    "W(P3) p3": {
+     "members": 14,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 32,
+     "base_obs_rows": 36
+    },
+    "W(P3) p6": {
+     "members": 7,
+     "kinds": [
+      "base1"
+     ],
+     "disclosed_dim": 2,
+     "rank_mask": 18,
+     "base_obs_rows": 22
+    },
+    "H rho_f": {
+     "members": 21,
+     "kinds": [
+      "pair"
+     ],
+     "disclosed_dim": 0,
+     "rank_mask": 48,
+     "base_obs_rows": 50
+    }
+   }
+  }
+ ],
+ "repeated_proofs": {
+  "singleton roles": "R proofs of the same witness with fresh challenges give R independent row-combination functionals per column: the R-row plane is recovered linearly (no range assumption)",
+  "multi-member all-base roles": "2 fresh base functionals of the group's data per proof; linear recovery after (data dims)/2 proofs, sooner with integer ranges",
+  "P3 weights": "the weights are the same in every proof by construction, so the repeated-proof accumulation applies to W in full; at nb_d nb_f = 1 two proofs recover Wg, Wu, Wd entirely in the linear model",
+  "activations": "accumulation applies only when the same X is re-proven (re-verification, shared prefixes)"
+ }
+}
