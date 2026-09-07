@@ -14552,3 +14552,89 @@ CL8 count/unit/lifetime gaps and CL10's 53,248-byte P1/P3 misattribution.
 Reproductions and queue updates preserve prior positive hardware evidence.
 No GPU/PCS/planner source was edited or merged, no GPU was launched, and
 no complete private block, generation proof or 60-tokens/s result is claimed.
+
+
+## ZK60 round 8 — public-cache publication, reviewed todos and lock recovery
+
+Victor requested commit/push and continued implementation. Round 7 was
+published as `3ff8d5f`. Codex accepted the explicit CL9 production handoff
+from Claude's `a1aa2b7`: per-writer cache temporary files and the missing
+ZK v3 cache report. GPU/PCS/planner ownership remains with Claude; no
+subagents or GPU executions were used by Codex.
+
+The old shared `.wc.tmp` path loses 65 of 96 saves in the new regression.
+`create_new` now exclusively reserves a PID/counter temporary file, skips
+stale names, writes the complete unchanged cache entry, and publishes it by
+same-directory rename. Cleanup removes only unpublished files still owned
+by that writer; after publication the name can be reused safely, including
+across PID namespaces. Four dedicated tests cover concurrent thread and
+process saves/readers, stale names, interleaved partial writers and cleanup
+on failure. Cache bytes/keys and proof transcripts are unchanged. Abrupt
+termination can leave a temporary file; no unsafe global cleanup sweep or
+new crash-durability guarantee is added.
+
+Validation: 151 all-target release Rust tests, 67 library tests at sixteen
+test threads, all 144 Python/native tests (915.287 s, zero skips), four frozen
+CPU proofs, B4 receipt parity and separate-process B5 verification. Cold and
+warm cache processes reproduce the 87,697,008-byte frozen ZK v3 proof exactly
+(12 misses then 12 hits, no rejections or leftover temporary files). P3 with
+a cache still refuses before creating its directory, expected exit 2.
+After the final cleanup-ownership adjustment, all Rust tests and the real
+cold/warm proof/P3 refusal gates were rerun. The unchanged Python/native and
+uncached proof/receipt results retain their completed full-run provenance.
+Exact source/binary/log hashes and both runs: `results/zk60_round8_validation.json`.
+Maximum reported RSS 1,707,400 KiB, zero swaps, two build/Rayon/native threads,
+8 GiB address-space cap per checked process, offline, shared heavy lock.
+
+The committed Claude follow-ups through a1aa2b7 receive read-only review:
+215 Python tool tests pass, the formerly order-dependent cache test passes
+alone and all ten fixture-free cache tests pass, and all 15 archived CL5
+matrix rows pass the hardened parser. Earlier planner/parser/CL5/CL8/CL10
+findings are superseded. New CL6/CL7/CL11 evidence/input boundaries are in
+the updated queue. Review/task handoff published separately as `a0495dc`.
+
+Two floor launches deadlocked by taking the build lock outside a script
+that requests it inside. The first held the shared queue for over five
+hours; both stopped before any build/GPU work. With execution approval,
+Codex terminated only the waiting lock requests (29033 then 123888), letting
+the scripts write failure markers and release locks. The corrected outer-
+heavy-lock-only command is at the top of TASK_BOARD.md. The second launcher
+reused the first log path; the second log is separately archived and the
+first recorded hash remains historical. A successful final-source GPU floor
+run is still required. Independent joint privacy review, private protocol
+repair/composition and complete generation/60-tokens/s claims remain open.
+
+## ZK60 round 9 — next Fable queue and minimal-core refactoring brief
+
+Victor requested a reviewed next task list for Fable, then added a
+lower-priority subproject containing a minimal maintained ZKP implementation
+while retaining the experiments. Codex fetched and reviewed lane tip
+`3ad4d97` against the published `44d72ff` integrator baseline, read-only.
+No production source was changed, no lane was merged, and no GPU or
+subagent was launched during this review.
+
+The lane's archived `82314a1` run is successful: marker 0, twelve exact
+CPU/GPU/forced-chunk proof hash/length cases, 49 device oracle cases, both
+missing-feature controls and twenty green Rust result lines. All twelve
+retained prover logs were inspected independently. This credits the later
+successful launch and JSON-default fix; it does not cover the subsequent
+H1 merge or round-8 cache pickup. All 215 pinned CPU tool tests were rerun
+successfully. The CL6 invalid timing/exit and four CL11 preflight probes
+still reproduce, as does the 71,168-byte planner return-snapshot overcount.
+The empty-query issue remains source-derived. Exact evidence is recorded
+in `results/zk60_round9_review.json` and `ZK60_ROUND9_REVIEW.md`.
+
+`ZK60_FABLE_QUEUE.md` and `zk60_fable_tasks.json` define fourteen tasks:
+CL12 baseline sync, CL13 evidence/portable runner, CL14 timing validation,
+CL15 empty GPU queries, CL16 planner return lifetimes, CL17 combined gate,
+CL18 bounded compact-pad optimization, CL19 exact size telemetry handoff,
+and CL20 the priority-3 minimal-core subproject; FA1–FA5 retain and expand
+independent disclosure/joint privacy/repair/identity/security review.
+Existing cache/report and H1 work is credited rather than reassigned.
+
+`zkp-core/README.md` is a design scaffold only. CL20 requires an independently
+buildable library, explicit support boundary, tiny prove/verify example,
+meaningful parity/adversarial gates, adapters and a single source of truth
+for extracted primitives. It preserves `hashline`, `zkmatrix-rs` and all
+experimental paths. No empty manifest or copied implementation is presented
+as a completed refactor, and code organization does not repair privacy.

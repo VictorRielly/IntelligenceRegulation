@@ -1,5 +1,48 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-07, next Fable queue:** [round-9 review](ZK60_ROUND9_REVIEW.md)
+credits lane `3ad4d97`: the archived `82314a1` run passed 12 full-hash byte
+cases and 49 device oracle cases. Codex checked all 12 retained prover logs
+and reran 215 CPU tool tests. This supersedes the old pending/deadlocked-run
+status below, but the run predates H1 merge and cache pickup. The remaining
+CL6/CL11 probes still reproduce; final combined-source validation stays open.
+
+**Pickup:** [14 Fable tasks](ZK60_FABLE_QUEUE.md), with
+[matching task records](zk60_fable_tasks.json): CL12–CL20 plus FA1–FA5.
+Start baseline synchronization, evidence/runner fixes, timing validation,
+empty-query and planner corrections, then the combined gate. Independent
+privacy/identity analysis can proceed now. Victor also requested **CL20,
+priority 3: a maintained minimal ZKP subproject**; [zkp-core](../../zkp-core/README.md)
+is its design scaffold, not an extracted library. Existing experiments remain.
+No production source was changed or GPU launched by this round.
+**ZK60 round 8 validated:** Codex completes CL9's production handoff with
+exclusive per-writer cache files and atomic publication, preserving complete
+entries for concurrent readers. The old code lost 65/96 saves in the new
+regression; thread/process, stale-name, reader and cleanup controls pass with
+the fix. ZK v3 now reports cache hits/misses. **151 Rust tests, 144 Python/native
+tests with zero skips, four frozen proofs, cold/warm full-byte cache parity
+and public-receipt checks pass.** [Closure and validation provenance](ZK60_ROUND8.md)
+separate the full run from the final cleanup retest. Reviews/todos are already
+pushed as `a0495dc`; independent privacy review and final GPU gates remain open.
+
+**Historical round-8 launcher correction (successful later run reviewed above):** the final floor launcher has deadlocked
+**twice** by taking `/tmp/zk-build.lock` outside `cl1_floors.sh`, which requests
+the same lock inside. Both attempts stopped before compilation; Codex
+terminated only their waiting lock requests with approval. **Do not repeat
+that wrapper.** Use the outer heavy lock only:
+
+```sh
+flock /tmp/zk-heavy.lock /home/victor/wt-zk60-cl1/results/cl1_floors.sh /tmp/zk60-final-floors-fresh
+```
+
+Choose a fresh scratch directory and put that command inside the usual
+detached log/exit-marker wrapper, without an outer build lock. Pick up H1
+isolation from published `3ff8d5f` before the final gate.
+[Round-8 review](ZK60_ROUND8_CLAUDE_REVIEW.md) records 215 passing CPU tool
+tests, resolved findings and new CL6/CL7/CL11 follow-ups. Codex owns CL9's
+`wcache.rs` and ZK driver-report fix; its final Rust/cache checks and the
+144-test Python/native suite pass as recorded above.
+
 **ZK60 round 7 validated:** the [actual FFN diagnostic](ZK60_FFN_MASK_DIAGNOSTIC.md)
 reproduces tiny X/h16 recovery and T32 linear-functional disclosure from
 verified P1/P3 proofs, including fresh randomness. It changes only unit-test

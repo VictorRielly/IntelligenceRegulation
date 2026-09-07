@@ -1371,6 +1371,7 @@ fn pass_zk_v3(n: usize, t: usize, o: &Opts) {
     println!("PASS-V3 {} [ZK]: {n} x {t} (d {} f {}): witness load+chain {t_load:.2} s | PROVE {t_prove:.2} s | VERIFY {t_verify:.2} s | proof {bytes} B ({:.1} MB) | {:.3e} MACs | {:.3e} proven MAC/s (prove wall) | wall {:.2} s",
         if ok { "ACCEPT" } else { "REJECT" }, dm.d, dm.f, bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
     report_timing(o, "ffn-only", n, t, dm.d, dm.f, t_load, t_prove, serialize_s, proof_ready_s, t_verify, o.verify && ok, bytes);
+    if let Some(r) = hashline::wcache::report() { println!("  {r}"); }
     if !ok { std::process::exit(1); }
 }
 

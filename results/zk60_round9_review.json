@@ -1,0 +1,401 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-09-07",
+  "source_pin": "3ad4d97ce4cb47b9eeeb76647a5a9159d15d2357",
+  "integrator_base": "44d72ffa5cb28d69bbedfa19d5f2a5026d9aa87a",
+  "gpu_executed_by_codex": false,
+  "source_merged": false,
+  "review_runner_sha256": "a43ac901e8f2e1d4e0df43ecf72678b9039e7520909efc18fd79df8352d3484f",
+  "cpu_test_runs": [
+    {
+      "test_file": "test_hashline_memory_plan.py",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_hashline_memory_plan.py",
+        "-v"
+      ],
+      "cwd": "/tmp/zk60-round9-review/lane",
+      "exit_code": 0,
+      "count": 27,
+      "elapsed_s": 0.03410639399953652,
+      "log": "/tmp/zk60-round9-review/test_hashline_memory_plan.py.log",
+      "log_sha256": "df300e8919d7c6e04bf9f0a3a4b0d2297111f8f6a5f3a127fee2140653aa9d1f"
+    },
+    {
+      "test_file": "test_hashline_cl_profile.py",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_hashline_cl_profile.py",
+        "-v"
+      ],
+      "cwd": "/tmp/zk60-round9-review/lane",
+      "exit_code": 0,
+      "count": 34,
+      "elapsed_s": 0.040461619006237015,
+      "log": "/tmp/zk60-round9-review/test_hashline_cl_profile.py.log",
+      "log_sha256": "acdba082b408c09054d94def88ca5a5ddbe8786fee7e7f45d30347ead4f603cd"
+    },
+    {
+      "test_file": "test_hashline_cl_chunk_sweep.py",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_hashline_cl_chunk_sweep.py",
+        "-v"
+      ],
+      "cwd": "/tmp/zk60-round9-review/lane",
+      "exit_code": 0,
+      "count": 24,
+      "elapsed_s": 0.031187529995804653,
+      "log": "/tmp/zk60-round9-review/test_hashline_cl_chunk_sweep.py.log",
+      "log_sha256": "a1f6c73f06fce31fe715c5a373cdc252a9502da2d9391343a6c73050510fd449"
+    },
+    {
+      "test_file": "test_hashline_cl_pending_memory.py",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_hashline_cl_pending_memory.py",
+        "-v"
+      ],
+      "cwd": "/tmp/zk60-round9-review/lane",
+      "exit_code": 0,
+      "count": 42,
+      "elapsed_s": 0.0576799169939477,
+      "log": "/tmp/zk60-round9-review/test_hashline_cl_pending_memory.py.log",
+      "log_sha256": "f234957c869e73b3f8e74482119f8908cf6307ef42dad8a00fa64a07308e7174"
+    },
+    {
+      "test_file": "test_hashline_cl_artifact_profile.py",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_hashline_cl_artifact_profile.py",
+        "-v"
+      ],
+      "cwd": "/tmp/zk60-round9-review/lane",
+      "exit_code": 0,
+      "count": 27,
+      "elapsed_s": 0.031464625004446134,
+      "log": "/tmp/zk60-round9-review/test_hashline_cl_artifact_profile.py.log",
+      "log_sha256": "284a8fba84c40c92de15e85cf7a2fcaf81fbf8911983e9a5500c5ae017d28d9d"
+    },
+    {
+      "test_file": "test_hashline_cl_5090_preflight.py",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_hashline_cl_5090_preflight.py",
+        "-v"
+      ],
+      "cwd": "/tmp/zk60-round9-review/lane",
+      "exit_code": 0,
+      "count": 61,
+      "elapsed_s": 0.08975991499028169,
+      "log": "/tmp/zk60-round9-review/test_hashline_cl_5090_preflight.py.log",
+      "log_sha256": "232383a4dd3de8d03b5c401667e46b4446a5c1a3ee44693339bbe510f9b8ca3e"
+    }
+  ],
+  "python_tests_passed": 215,
+  "reproductions": {
+    "missing_binary_digest": {
+      "go": true,
+      "failed": []
+    },
+    "wrong_binary_digest": {
+      "go": true,
+      "failed": []
+    },
+    "zero_floor_cases": {
+      "go": true,
+      "failed": []
+    },
+    "flag_only_full_target": {
+      "go": true,
+      "failed": []
+    },
+    "negative_time_failed_exit": {
+      "prove_s": -1.0,
+      "byte_identical": true
+    },
+    "resident_return_snapshot": {
+      "outcome": "resident (fallback unreachable: the exact encoded buffer was already pooled)",
+      "last_event": {
+        "stage": "return commitment: data + encoded matrix retained (RESIDENT outcome)",
+        "live_buffers": [
+          "systematic_data [reused prior inverse_coefficients capacity]",
+          "encoded_matrix [reused prior encoded_matrix capacity]",
+          "pads",
+          "coset_powers"
+        ],
+        "pooled_buffers": [
+          "inverse_coefficients:2457600",
+          "expanded_coefficients:9830400"
+        ],
+        "live_bytes": 12359168,
+        "retained_pool_bytes": 12288000,
+        "accounted_device_bytes": 24647168,
+        "fresh_pool_bytes_so_far": 0
+      },
+      "declared_live_after_return": 12288000
+    }
+  },
+  "floor_script_checks": {
+    "bash_syntax_exit": 0,
+    "parser_cases": [
+      {
+        "input": {
+          "executed_cases": 49,
+          "gpu_enabled": true,
+          "gpu_required": true,
+          "device": "fixture"
+        },
+        "exit_code": 0,
+        "stdout": "oracle cases executed: 49 (floor 20); device: fixture"
+      },
+      {
+        "input": {
+          "executed_cases": 0,
+          "gpu_enabled": true,
+          "gpu_required": true,
+          "device": "fixture"
+        },
+        "exit_code": 1,
+        "stdout": "oracle cases executed: 0 (floor 20); device: fixture"
+      },
+      {
+        "input": {},
+        "exit_code": 1,
+        "stdout": "oracle cases executed: None (floor 20); device: None"
+      }
+    ],
+    "selftest_after_hardware_oracle": true,
+    "prover_threads_hardcoded_8": 3,
+    "hardcoded_repository": "/home/victor/wt-zk60-cl1"
+  },
+  "archived_gpu_gate_review": {
+    "log": "results/cl_round7_floors.log",
+    "log_sha256": "3755b6f0ef68dc020c9c1310e5f69970e90ffb15ad13644ceca624fcb0b00f8d",
+    "marker_exit": 0,
+    "run_source": "82314a1559328fa9cf05c47334c65a2feafb3cd6",
+    "oracle_summary": {
+      "executed_cases": 49,
+      "gpu_enabled": true,
+      "gpu_required": true,
+      "device": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)"
+    },
+    "matched_full_hash_length_cases": 12,
+    "rows": [
+      {
+        "profile": "v2",
+        "mode": "cpu",
+        "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "bytes": 66844928
+      },
+      {
+        "profile": "v3",
+        "mode": "cpu",
+        "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "bytes": 70758084
+      },
+      {
+        "profile": "zk",
+        "mode": "cpu",
+        "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "bytes": 87228528
+      },
+      {
+        "profile": "zkv3",
+        "mode": "cpu",
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008
+      },
+      {
+        "profile": "v2",
+        "mode": "gpu",
+        "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "bytes": 66844928
+      },
+      {
+        "profile": "v3",
+        "mode": "gpu",
+        "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "bytes": 70758084
+      },
+      {
+        "profile": "zk",
+        "mode": "gpu",
+        "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "bytes": 87228528
+      },
+      {
+        "profile": "zkv3",
+        "mode": "gpu",
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008
+      },
+      {
+        "profile": "v2",
+        "mode": "gpu-zkchunk",
+        "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "bytes": 66844928
+      },
+      {
+        "profile": "v3",
+        "mode": "gpu-zkchunk",
+        "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "bytes": 70758084
+      },
+      {
+        "profile": "zk",
+        "mode": "gpu-zkchunk",
+        "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "bytes": 87228528
+      },
+      {
+        "profile": "zkv3",
+        "mode": "gpu-zkchunk",
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008
+      }
+    ],
+    "both_missing_feature_controls_present": true,
+    "rust_test_result_lines": 20,
+    "changed_after_run": [
+      "hashline/src/field/verifier_hardening_tests.rs",
+      "hashline/src/zk.rs",
+      "hashline/src/zk_ffn_mask_diagnostic.rs"
+    ],
+    "retained_scratch": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final",
+    "retained_scratch_available": true,
+    "note": "Archived lane evidence, no new GPU execution. Run precedes H1 merge and round-8 cache fix; no combined-tree acceptance.",
+    "retained_prover_logs_checked": [
+      {
+        "file": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/cpu-v2.out",
+        "sha256": "8ff79c5f9c41e994b4cd130e84d622c175c2ee84e275dc790873494e4ebdc106",
+        "proof_line_matches": true,
+        "accept": true
+      },
+      {
+        "file": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/cpu-v3.out",
+        "sha256": "620e0c7d853b1ab87e4ab8c7e9a1722a4ec5c28071d5271e4cb62f012efe59d5",
+        "proof_line_matches": true,
+        "accept": true
+      },
+      {
+        "file": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/cpu-zk.out",
+        "sha256": "710cf8354b66345c55b77dc4de654735a55c9bd718cf141a97233d83dd739420",
+        "proof_line_matches": true,
+        "accept": true
+      },
+      {
+        "file": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/cpu-zkv3.out",
+        "sha256": "2e457d08a000b758f86945bfb23281b38a61eb7c8129b8186460355f651c378b",
+        "proof_line_matches": true,
+        "accept": true
+      },
+      {
+        "file": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-v2.out",
+        "sha256": "e925523deb65cba2272e7704cb9b9edba648cbaa09f914c6d8eb7cbf54ce1050",
+        "proof_line_matches": true,
+        "accept": true
+      },
+      {
+        "file": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-v3.out",
+        "sha256": "9374be65bf93280c5939ee857dcf6c4c2dfd64e1589f944770853009064a6ca2",
+        "proof_line_matches": true,
+        "accept": true
+      },
+      {
+        "file": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-zk.out",
+        "sha256": "9eb8138ef3ba4d7cda17a3e78d4a1c05a7be18526f56620d00a17d32c12053ed",
+        "proof_line_matches": true,
+        "accept": true
+      },
+      {
+        "file": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-zkv3.out",
+        "sha256": "06e6aedc384e38bedd9c449c985b4bd4307471cef1df85487ac317e6ad0d2402",
+        "proof_line_matches": true,
+        "accept": true
+      },
+      {
+        "file": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-zkchunk-v2.out",
+        "sha256": "5a6588e32a9289b789a2748283a5d1f4270f8099065096062a57793dcc02caa2",
+        "proof_line_matches": true,
+        "accept": true
+      },
+      {
+        "file": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-zkchunk-v3.out",
+        "sha256": "592d9a8feab3ef2ead7a79b6976fc58c55b2411b5c1be8a37ae9526dca858dcf",
+        "proof_line_matches": true,
+        "accept": true
+      },
+      {
+        "file": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-zkchunk-zk.out",
+        "sha256": "ec475a3c84e30ef8e7755a40be20c73fc9b06bf759047aa3311a488a67819666",
+        "proof_line_matches": true,
+        "accept": true
+      },
+      {
+        "file": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-zkchunk-zkv3.out",
+        "sha256": "3ae0722e931b56a5ac70b9bdf398049b885c6e37e2ae3d0741e203a199ab4314",
+        "proof_line_matches": true,
+        "accept": true
+      }
+    ],
+    "binary_identity_lines": [
+      "CPU binary  93055aa612a4fd3a958953c1b445dfff7cc5bd0d98df5819180eaeee9cd8ad52  4629656 B  /home/victor/wt-zk60-cl1/hashline/target/release/hashline",
+      "GPU binary  e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c  5326472 B  /home/victor/wt-zk60-cl1/hashline/target-gpu/release/hashline"
+    ],
+    "proof_artifacts_retained": false
+  },
+  "unchanged_since_round8": {
+    "base": "a1aa2b7",
+    "changed_paths": []
+  },
+  "source_hashes": {
+    "scripts/hashline_cl_5090_preflight.py": "5f355d5ca1ff97ab9f260dbd5d086bb564f2caa511570996186547e13e005c17",
+    "scripts/hashline_cl_chunk_sweep.py": "e4381df31dd149b87fbcef6b0014ed79f52799904aedae3266e5a3c1e637a2bd",
+    "scripts/hashline_memory_plan.py": "c4bd297b4814fdcae8fe22dccf30cb3e1b3042f8232ee4720eba2bbdc4b46e1a",
+    "hashline/src/gpu/cuda.rs": "7371959c277cdcac6abdfc302eedec09f2ab9576748c4e6bb26bbfd36f215a0c",
+    "results/cl1_floors.sh": "a5dfe8e021dcee79b58eda149b04723eca0d5899d5fedb43870578b18e91ee9a"
+  },
+  "review_scope": {
+    "production_files_changed": false,
+    "full_rust_native_suite_rerun": false,
+    "new_subproject": "zkp-core/README.md design scaffold only",
+    "queue_tasks": 14
+  }
+}

@@ -1,5 +1,25 @@
 # CL1 integration review — hold pending follow-ups
 
+**2026-09-07 update:** [round-9 review](ZK60_ROUND9_REVIEW.md) pins
+`3ad4d97` and credits its archived `82314a1` success: 12 matching byte cases,
+49 oracle cases and both missing-feature controls. Codex rechecked all twelve
+retained prover logs and reran 215 tool tests. The run precedes H1 merge and
+round-8 cache pickup. Current follow-ups are CL12–CL17 in
+[Fable's queue](ZK60_FABLE_QUEUE.md); older parser/deadlock findings below
+are superseded as described in the latest review. No lane merge or new GPU
+execution was performed by this review.
+## Historical round-8 review at `a1aa2b7`
+
+The [round-8 review](ZK60_ROUND8_CLAUDE_REVIEW.md) supersedes the earlier
+warm-fallback and Python-parser blockers. All 215 pinned Python tool tests
+pass and all fifteen archived CL5 matrix rows pass the hardened parser.
+New CL6/CL11 evidence checks remain in the queue; Codex takes the explicit
+CL9 atomic-cache publication handoff. Final GPU integration still requires
+a successful combined-source floor run. Its attempted launch deadlocked by
+acquiring the build lock both outside and inside the floor script; Codex
+stopped only the blocked waiter with approval and preserved exit marker 1.
+Relaunch under the heavy lock only. See the linked review for exact evidence.
+
 ## Planner follow-up reviewed: `9b24975` (2026-09-06)
 
 Pinned commit `9b249755e4bc14447578111e28df080ed5f0785b` fixes the

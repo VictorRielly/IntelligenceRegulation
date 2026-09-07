@@ -47,7 +47,9 @@ use crate::merkle::{hash_pair, Digest, MerkleTree};
 use crate::ntt::NttTables;
 use crate::pcs::{self, Committed, PcsParams, Store};
 use rayon::prelude::*;
+use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock};
 use std::time::Instant;
 
@@ -144,6 +146,51 @@ fn entry_path(dir: &Path, key: &WKey, kd: &Digest) -> PathBuf {
     dir.join(format!("{}-l{:02}-{}.wc", key.profile, key.l, &hex(kd)[..16]))
 }
 
+static NEXT_TEMP: AtomicU64 = AtomicU64::new(0);
+
+/// A writer owns its temporary file exclusively. Readers see only complete
+/// entries: publishing renames this file within the same directory. A stale
+/// temporary file (including PID reuse) is never opened or truncated.
+struct PendingEntry {
+    path: PathBuf,
+    file: Option<std::fs::File>,
+}
+
+impl PendingEntry {
+    fn create(destination: &Path) -> std::io::Result<Self> {
+        for _ in 0..128 {
+            let id = NEXT_TEMP.fetch_add(1, Ordering::Relaxed);
+            let path = destination.with_extension(format!("wc.tmp.{}.{id}", std::process::id()));
+            match std::fs::OpenOptions::new().write(true).create_new(true).open(&path) {
+                Ok(file) => return Ok(Self { path, file: Some(file) }),
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+                Err(error) => return Err(error),
+            }
+        }
+        Err(std::io::Error::new(std::io::ErrorKind::AlreadyExists, "wcache: temporary filename collisions"))
+    }
+
+    fn publish(&mut self, destination: &Path) -> std::io::Result<()> {
+        // write_all uses an unbuffered File; close it before rename for hosts
+        // that disallow renaming open files. This is atomic publication, not
+        // a durable-storage promise: a lost cache entry can be recomputed.
+        drop(self.file.take());
+        std::fs::rename(&self.path, destination)?;
+        self.path.clear(); // This pathname can now belong to another writer.
+        Ok(())
+    }
+}
+
+impl Drop for PendingEntry {
+    fn drop(&mut self) {
+        drop(self.file.take());
+        // Only remove an unpublished file owned by this writer.
+        if !self.path.as_os_str().is_empty() {
+            let _ = std::fs::remove_file(&self.path);
+        }
+    }
+}
+
 /// Serialize the tree (all levels) under its key.
 fn save_tree(path: &Path, kd: &Digest, params: &PcsParams, rows: usize, tree: &MerkleTree) -> std::io::Result<u64> {
     let nn = tree.num_leaves();
@@ -161,9 +208,9 @@ fn save_tree(path: &Path, kd: &Digest, params: &PcsParams, rows: usize, tree: &M
             out.extend_from_slice(d);
         }
     }
-    let tmp = path.with_extension("wc.tmp");
-    std::fs::write(&tmp, &out)?;
-    std::fs::rename(&tmp, path)?;
+    let mut pending = PendingEntry::create(path)?;
+    pending.file.as_mut().unwrap().write_all(&out)?;
+    pending.publish(path)?;
     Ok(out.len() as u64)
 }
 
@@ -295,6 +342,10 @@ pub fn report() -> Option<String> {
         d.display(), s.hits, s.misses, s.rejected, s.bytes_read as f64 / 1e6, s.bytes_written as f64 / 1e6, s.secs_key, s.secs_load, s.secs_reencode, s.secs_commit, s.secs_save
     ))
 }
+
+#[cfg(test)]
+#[path = "wcache_atomic_tests.rs"]
+mod atomic_tests;
 
 #[cfg(test)]
 mod tests {
