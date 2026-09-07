@@ -290,7 +290,7 @@ which is the intended state. The manifest validator reads the manifest
 document; it does not re-hash the retained logs or re-derive the proofs (the
 `record` step did, and stored the hashes). If `zk60_gpu_commit.rs` changes
 its case set (CL15 adds the empty-query boundary), the oracle count moves and
-suite version 2 must record the new count.
+suite version 2 must record the new count. **Done in the same round (CL13 follow-up, after CL15 `6dce8a9`): suite version 2 exists and is the default — identical to v1 except the oracle expects 141 executed cases (31 tests; `results/cl15_oracle_gpu.log`). v1 keeps 82314a1's 49 so the archived round-7 run stays describable.**
 - The reserve in `planner_margin` is a laptop measurement at one shape and
   one chunk height; the pending attention/FFN states are not implemented and
   are not in it.

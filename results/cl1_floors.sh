@@ -63,7 +63,7 @@
 #   --device LIST       CUDA_VISIBLE_DEVICES passthrough (env CUDA_VISIBLE_DEVICES)
 #   --python BIN        the Python for the helper (default python3; env HL_FLOORS_PYTHON)
 #   --gates FILE        the helper (default <repo>/scripts/hashline_cl_gpu_gates.py; env HL_FLOORS_GATES)
-#   --suite-version V   the helper's suite version (default 1; env HL_FLOORS_SUITE_VERSION)
+#   --suite-version V   the helper's suite version (default 2 = CL15's 141-case oracle; env HL_FLOORS_SUITE_VERSION)
 #   --dry-run           print every command, run nothing heavy, write nothing under scratch
 #   --plan FILE         with --dry-run: also write the command list to FILE
 # The manifest lands at <scratch-dir>/manifest.json; per-case logs beside it.
@@ -83,7 +83,7 @@ TOKENS=${HL_FLOORS_TOKENS:-512}
 DEVICES=${CUDA_VISIBLE_DEVICES-}
 PY=${HL_FLOORS_PYTHON:-python3}
 GATES=${HL_FLOORS_GATES:-}
-SUITE=${HL_FLOORS_SUITE_VERSION:-1}
+SUITE=${HL_FLOORS_SUITE_VERSION:-2}
 DRY=0
 PLAN=""
 SP=""

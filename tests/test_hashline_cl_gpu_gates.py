@@ -163,6 +163,26 @@ class SuiteDefinition(unittest.TestCase):
         self.assertIn("--p3", p3["args"])
         self.assertIn("/nonexistent/zk60-cl13-export", p3["args"])
 
+    def test_v2_expects_cl15s_141_oracle_cases_and_is_the_default(self):
+        # [ZK60-CL15 -> CL13 follow-up] CL15 (lane 6dce8a9) grew the device oracle
+        # from 49 to 141 executed cases; the count is the SUITE'S, so that cut v2.
+        # v1 keeps 82314a1's 49 — the archived round-7 manifest-less run is still
+        # describable — and everything but the oracle expectation is identical.
+        v1, v2 = gg.suite(1), gg.suite(2)
+        self.assertEqual(gg.DEFAULT_SUITE, 2)
+        self.assertEqual(gg.case_definition(1, "oracle_gpu")["expect"]["executed_cases"], 49)
+        self.assertEqual(gg.case_definition(2, "oracle_gpu")["expect"]["executed_cases"], 141)
+        self.assertIn("6dce8a9", gg.case_definition(2, "oracle_gpu")["established"])
+        self.assertEqual(gg.expected_cases(1), gg.expected_cases(2))
+        self.assertTrue(v2["production"])
+        for c1, c2 in zip(v1["cases"], v2["cases"]):
+            if c1["id"] != "oracle_gpu":
+                self.assertEqual(c1, c2, c1["id"])
+        # 49 is now a REFUSAL against the default suite, 141 passes
+        with self.assertRaisesRegex(gg.GatesError, "49 != the suite's expected 141"):
+            gg.parse_oracle_summary(GOOD, gg.case_definition(gg.DEFAULT_SUITE, "oracle_gpu")["expect"]["executed_cases"])
+        self.assertEqual(gg.parse_oracle_summary(GOOD.replace('"executed_cases":49', '"executed_cases":141'), 141)["executed_cases"], 141)
+
     def test_synthetic_suite_is_not_production(self):
         self.assertFalse(gg.suite(0)["production"])
         for c in gg.suite(0)["cases"]:
@@ -599,7 +619,9 @@ class FloorsRunner(unittest.TestCase):
         self.assertEqual(finalize, len(self.lines) - 1)
         # the self-test actually RAN in the dry run (it is CPU-only) and passed
         self.assertIn("gates self-test OK", self.result.stdout)
-        self.assertIn("suite version 1 expects 49 executed oracle cases", self.result.stdout)
+        # [CL13 follow-up] the runner announces the DEFAULT suite's expectation (v2: CL15's 141)
+        expected = gg.case_definition(gg.DEFAULT_SUITE, "oracle_gpu")["expect"]["executed_cases"]
+        self.assertIn(f"suite version {gg.DEFAULT_SUITE} expects {expected} executed oracle cases", self.result.stdout)
 
     def test_gpu_gates_carry_the_device_env_and_the_cpu_gates_do_not(self):
         gpu = [l for l in self.lines if " pass 12 512 " in l and "HL_GPU=1" in l and "record" not in l]

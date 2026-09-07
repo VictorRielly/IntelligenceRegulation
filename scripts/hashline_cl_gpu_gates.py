@@ -155,8 +155,30 @@ def _suite_v0():
     return suite
 
 
-SUITES = {1: _suite_v1(), 0: _suite_v0()}
-DEFAULT_SUITE = 1
+def _suite_v2():
+    """[ZK60-CL15 -> CL13 follow-up] The oracle's expected executed-case count
+    is the SUITE'S, so a changed hashline/tests/zk60_gpu_commit.rs cuts a new
+    version rather than moving v1's number. CL15 (lane 6dce8a9) added the
+    empty-query boundary, the allocation-scoped open probes, duplicate /
+    out-of-range / ragged / below-fusion-threshold cases on every route: the
+    device oracle went from 49 to 141 executed cases (31 tests) on the RTX
+    4070 Laptop GPU under HL_GPU_REQUIRED=1 (results/cl15_oracle_gpu.log).
+    Everything else — the 12 frozen byte gates, the controls, the cache cases —
+    is unchanged from v1; CL15's own v2/zk gates at --threads 2 reproduced the
+    frozen digests (results/cl15_frozen_gates.log)."""
+    suite = copy.deepcopy(_suite_v1())
+    suite["version"] = 2
+    for case in suite["cases"]:
+        if case["id"] == "oracle_gpu":
+            case["expect"]["executed_cases"] = 141
+            case["established"] = ("141 executed cases / 31 tests at lane 6dce8a9 (CL15: results/cl15_oracle_gpu.log, "
+                                   "RTX 4070 Laptop GPU, HL_GPU_REQUIRED=1). v1's 49 was the count at 82314a1. "
+                                   "A changed hashline/tests/zk60_gpu_commit.rs cuts a new version.")
+    return suite
+
+
+SUITES = {2: _suite_v2(), 1: _suite_v1(), 0: _suite_v0()}
+DEFAULT_SUITE = 2
 
 
 def suite(version):
