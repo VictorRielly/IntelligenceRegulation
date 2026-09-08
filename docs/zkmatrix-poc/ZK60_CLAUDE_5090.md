@@ -298,3 +298,179 @@ suite version 2 must record the new count. **Done in the same round (CL13 follow
   harness exists; stage 6 is a definition, not a command.
 - FFN-only coverage keeps every result diagnostic; the preflight refuses a
   target claim on it by construction.
+
+## 8. CL21 — the extracted core is in the qualification provenance (2026-09-08, round 12)
+
+`hashline/Cargo.toml` line 26: `zkp-core = { path = "../zkp-core" }`. The
+core Codex extracted in round 11 (`c8a342f`) is a build input of every
+binary the floors gate, and both `Cargo.lock` files pin what those builds
+resolve. Round 11's outer validator
+(`results/zk60_round11_evidence/validate.py`) hashed both crates and ran the
+core's tests and example around the floors; the standalone manifest §7
+defines still identified `hashline/` alone (HEAD + the delta under
+`hashline/`), so a checkout with an edited or absent `zkp-core/` could have
+produced a manifest the preflight accepted. CL21 (`d4f0758` on `zk60-cl1`)
+closes that: the identity covers both crates and both lockfiles, the
+validator refuses a dirty or missing core, the preflight binds the recorded
+identity to the tree in hand, and suite version 4 gates the core's own tests
+and example with tied expectations. Archived v1–v3 meanings are preserved.
+
+### 8.1 The identity (manifest schema 2; schema-1 manifests still read)
+
+`source` keeps `head`, `branch`, `dirty_tracked_count`, `dirty_delta_sha256`
+(the hashline delta, unchanged in meaning) and gains:
+
+| field | what it is | read by |
+|---|---|---|
+| `source.crates.hashline.tree`, `.zkp_core.tree` | `git rev-parse HEAD:<crate>` — the crate's tree id at HEAD | `probe_source_identity` (gates module) |
+| `source.crates.<crate>.dirty_delta_sha256` | sha256 of `git diff HEAD -- <crate>` (bytes, exactly as the runner's `\| sha256sum`); empty = `e3b0c442..` | same |
+| `source.crates.<crate>.present` (+ `manifest`, `src`, `example` for the core) | `Cargo.toml` exists; for the core also `src/` and `examples/public_sumcheck.rs` | same |
+| `source.lockfiles.<crate>.{path, sha256, size}` | each `Cargo.lock` as it is in the working tree — what `--locked` builds against | same |
+| `build.repo` | the checkout the identity was read from | `init --repo` |
+
+The runner passes `init --repo <checkout>`; the helper probes the identity
+itself and cross-checks the runner's `--head` / `--dirty-delta-sha256`
+against what it reads (a disagreement is "the checkout moved", exit 2).
+`source-identity --repo` prints the same document; `finalize --repo` and
+`validate --repo` re-probe and BIND (`expect_trees` / `expect_lockfiles` in
+the API): a recorded tree id or lockfile hash that differs from the tree in
+hand is a reason, and a manifest that records none "cannot be bound". The
+validator's rules whenever the block is recorded: both crates present, both
+tree ids present, both deltas empty, both lockfile identities present, the
+top-level hashline delta equal to the crate's. When it is absent: a v1–v3
+manifest validates under its own version (the round-11 manifest at
+`results/zk60_round11_evidence/floors/manifest.json` does, unbound); a v4
+manifest refuses ("requires the recorded source identity").
+
+### 8.2 Suite version 4 (the default; v0 mirrors it)
+
+v3 plus two cases, inserted after `cargo_test_cpu`, both under the build
+lock, both `--locked --offline` (cargo refuses rather than rewrites the
+lockfile the manifest hashed; the registry is not part of the identity, the
+lockfile is):
+
+| case | command (as emitted, quoted) | expectation (the suite's) | established |
+|---|---|---|---|
+| `core_tests` | `env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-build.lock cargo test --release --locked --offline --manifest-path <repo>/zkp-core/Cargo.toml -- --test-threads=2` | exit 0; **19 passed / 0 failed / 0 ignored** summed over every `test result:` line, every line `ok`; argv names `zkp-core/Cargo.toml` and carries `--locked` | `results/zk60_round11_evidence/core_tests.log` at `c8a342f`: field 5, merkle 1, mle 4, ntt 2, rng 2, sumcheck 4, transcript 1 (the example's zero-test binary and the doc-test section add 0) |
+| `core_example` | `... cargo run --release --locked --offline --manifest-path <repo>/zkp-core/Cargo.toml --example public_sumcheck` | exit 0; the whole line `public dot-product sumcheck verified; altered round refused (primitive example, no privacy claim)`; argv carries `--example public_sumcheck`, the core manifest, `--locked` | `core_example.log` at `c8a342f` |
+
+The example binary's sha256/size is recorded informationally
+(`record --artifact <repo>/zkp-core/target/release/examples/public_sumcheck`),
+no expectation attached. **A changed zkp-core test set or example cuts suite
+version 5; the 19 does not move** (the oracle rule from §7, applied to the
+core). `expected-cases --suite-version 4` lists 23 ids; `DEFAULT_SUITE` is 4
+with every test that assumed 3 updated deliberately; the synthetic v0 suite
+now mirrors v4 (23 cases, a two-test synthetic core count that cannot pass
+as the real one) so `self-test` round-trips the core record path.
+
+### 8.3 The runner (`results/cl1_floors.sh`)
+
+After the parser self-tests, before any build: HEAD, both tree ids, both
+deltas, both lockfile hashes and the core's presence are printed. Not a dry
+run and any of — not a checkout, core missing/incomplete, nonempty delta
+under `zkp-core/`, nonempty delta under `hashline/` — is `FAILURE ...
+nothing was built`, exit 1, before the manifest is even initialized (a
+dirty crate can never be green; twelve minutes on it are pure cost). The
+two core cases run after the hashline crate tests with retained logs
+(`core_tests.out`, `core_example.out`); a v1–v3 run skips them and says so.
+`finalize --repo` binds the verdict to the tree as it is at the END of the
+run. `--dry-run` prints the core commands, writes nothing (102 commands at
+v4, 96 + 6). The success line names the core gates and the identity.
+Lock contract unchanged: the launcher takes the heavy lock outside, the
+script takes the build lock inside around each cargo step (now eight).
+
+### 8.4 The preflight (`scripts/hashline_cl_5090_preflight.py`)
+
+Facts gain `source_identity` (the gates module's probe) and `sources` now
+walks both crates (`hashline/{src,Cargo.toml,Cargo.lock,build.rs}`,
+`zkp-core/{src,Cargo.toml,Cargo.lock,examples}`; the newest source over
+both is what `binary_identity` compares the binary's mtime against);
+`probe_git` names the core's dirty paths apart. `source_identity` now also
+requires the core present, both tree ids, both deltas empty and both
+lockfiles readable. `verified_artifact` = the validator accepts the
+manifest AND HEAD AND GPU-binary digest AND both crate trees AND both
+lockfile hashes equal the tree in hand's; an unreadable identity or a
+pre-CL21 manifest cannot be bound and refuses.
+
+### 8.5 Refusals pinned (tests: gates 61 -> 86, preflight 78 -> 92)
+
+| refusal | validator / preflight | test |
+|---|---|---|
+| dirty core (nonempty delta under `zkp-core/`) | "uncommitted changes under zkp-core/" / `source_identity` | `test_dirty_core_refuses`, `test_dirty_core_delta_refuses`, `test_dirty_core_path_refuses` |
+| missing or incomplete core | "crate zkp-core/ is missing from the source tree" / `source_identity` + `verified_artifact` | `test_missing_core_refuses`, `test_incomplete_core_refuses` |
+| mismatched dependency identity (lockfile hash or crate tree) | "`Cargo.lock sha256 .. != the lockfile in hand`", "`tree .. != the tree in hand`" / `verified_artifact` | `test_mismatched_dependency_identity_refuses`, `test_mismatched_lockfile_identity_refuses`, `test_mismatched_crate_tree_refuses` |
+| missing core cases in a v4 manifest | "missing case core_tests" | `test_missing_core_cases_refuses`, `test_v4_manifest_missing_core_cases_refuses` |
+| v4 manifest without the identity block | "requires the recorded source identity" | `test_v4_without_the_identity_refuses` |
+| pre-CL21 manifest offered to the preflight | "cannot bind ... records no crate tree ids" | `test_pre_cl21_manifest_cannot_be_bound`, `test_the_round11_archived_manifest_validates_and_cannot_be_bound` |
+| core totals not the suite's / example line absent | "core tests: 18 passed ..." / "core example: its identifying line was not recorded" | `test_core_test_totals_not_the_suites_refuses`, `test_core_example_line_missing_refuses`, `test_core_record_failure_modes` |
+| the runner on a missing/dirty core, a dirty hashline, a non-checkout | `FAILURE ... nothing was built` before any cargo command (real temp `git init` checkouts) | `test_missing_or_dirty_core_refuses_to_start_before_any_build` |
+
+Also pinned: archived v1–v3 manifests (schema 1, no identity) validate
+under their own versions and the round-11 manifest itself does; a complete
+synthetic v4 manifest passes bound to its own identity (23 cases, summary
+`crate_trees` / `lockfiles` / `core_tests_passed` = 19); the core-log
+parsers on the round-11 logs themselves (19 / 0 / 0 over two result lines),
+empty, failed, ignored, the old two-field result form, a prefix or a
+containing line is not the example line; the dry-run plan's core commands
+with spaced paths (`printf %q`-quoted, `--locked --offline`, the core
+manifest, `--test-threads=2`, `--example public_sumcheck`, the artifact
+path, the build lock); `init --repo` on a real temp checkout records the
+tree ids git reports and refuses a moved HEAD / changed delta; `finalize
+--repo` goes red when a lockfile is edited after init; the preflight's
+`probe_sources` over both crates; a v4 manifest with the core cases is `go`
+on the ready box.
+
+### 8.6 The run — suite v4 on `d4f0758`: `results/cl21_floors_v4/manifest.json`, verdict GREEN
+
+Launched detached under the heavy lock (outer `flock /tmp/zk-heavy.lock`,
+the build lock inside, two threads everywhere) on the WSL laptop, 2026-09-08
+10:28:35 local; queued ~4 min 39 s behind another lane; ran 10:33:14 to
+10:45:44 (12 min 30 s inside the lock, not a quiesced-box timing; four
+other agents on the box). Marker `floors_v4.done` = 0. Everything the runner
+retained is under `results/cl21_floors_v4/`: `manifest.json` (byte-identical
+to the scratch copy, sha256 `4f6f87ba679430722111dcbe767b84035f84f61b53dfbf67e6493fdb3cac36cc`),
+every per-case `*.out`, the launcher log, the marker, `timing.txt`, the
+102-command dry-run plan, the bound validator output (`validate_bound.json`)
+and the preflight report (`preflight_d4f0758.json`).
+
+| what | value |
+|---|---|
+| source | HEAD `d4f0758ed293cadd3adeacfcc6ef0ea31e879696` (`zk60-cl1`); hashline delta empty; zkp-core delta empty; core present (Cargo.toml, src/, example) |
+| crate trees | hashline/ `e5d1a6af575d3943aa5c15315b91e34a54674868`; zkp-core/ `c18bc0c93eaa5568edf44e6f9c28957010d1e3b6` (the same core tree as round 11's `c8a342f`: `zkp-core/` is unchanged since) |
+| lockfiles | hashline/Cargo.lock `31a00627c01e35a38562e0559f2d4e9c3983860c420d91970ecfd827bcf6b0f4` (6,093 B); zkp-core/Cargo.lock `4ff606b9c497d9040dde49c4d226ebcb5b91c82e98e815a4a6e1d1d88cf1d006` (3,465 B) |
+| dirty tracked files | 2 — this document and `ZK60_CLAUDE_GPU.md`, being written during the run; neither is under a crate (both deltas empty), and the preflight below was run with them parked and the tree clean |
+| binaries | CPU `b13dcf273fb64ff93f5ff2226dd59366d67195ae2ccca846eb7f04477bef8444` / 4,661,720 B; GPU `be358ec107b03658525620a28f8b7b964085a121eafdbea36a3579665763c347` / 5,363,944 B |
+| device | `gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)`, driver 566.14 |
+| cases | 23/23 recorded, 21 of v3 + the 2 core cases, every record ok, no start left unrecorded |
+| hashline crate tests | 21 result lines, 159 passed / 0 failed / 0 ignored (summed from the manifest's `test_results`) |
+| **core_tests** | exit 0; `test result: ok. 19 passed; 0 failed; 0 ignored` (lib) + `0 passed` (doc-tests) = **19 / 0 / 0**, the suite's; `--locked --offline` accepted the hashed lockfile (11.9 s build incl. deps from the registry cache) |
+| **core_example** | exit 0; the identifying line printed; artifact `zkp-core/target/release/examples/public_sumcheck` sha256 `7838c154b42ffa607f75283f447d811bfd1a2c0c8567cec4be263a508b974057` / 612,264 B (informational) |
+| oracle | 189 executed cases / 34 tests, `gpu_enabled` + `gpu_required` true |
+| controls | `HL_GPU_REQUIRED=1` without the feature refused (exit 101, the reason line present); plain run reports `executed_cases 0 / gpu_enabled false`; `--p3 --wcache` refused (exit 2, first line), no cache dir created |
+| byte gates | 12/12 at the frozen full SHA-256 and length: v2 `50cf7bdf..` 66,844,928 B, v3 `5f368db6..` 70,758,084 B, zk `021485e4..` 87,228,528 B, zkv3 `40eb5479..` 87,697,008 B on cpu, gpu and gpu-zkchunk, `gpu: ON` on the eight device gates |
+| cache | cold 12 MISS / warm 12 HIT, both at the frozen zkv3 digest |
+| finalize | `finalize --repo` re-probed the tree at the end: trees and lockfiles unchanged; **MANIFEST GREEN** |
+| validator, bound | `validate --repo <checkout> --expect-head d4f0758.. --expect-gpu-sha256 be358ec1.. --require-production`: ok, no reasons (`validate_bound.json`) |
+| preflight, bound | `hashline_cl_5090_preflight.py --repo <checkout> --binary <gpu binary> --export <125M v3 export> --run-manifest ... --layers 12 --tokens 512 --claim diagnostic --coverage ffn-only` on the clean tree at `d4f0758`: **13 of 14 checks pass** — `source_identity` (clean, core present, both trees, both lockfiles), `binary_identity` (digest = the manifest's, newer than every source of both crates; newest source `zkp-core/src/rng.rs`), `verified_artifact` (validator ok, bound to HEAD + binary + both trees + both lockfiles), the device/version/shape/planner/coverage checks; the ONE refusal is `host_idle` (the heavy lock held by another lane, load 3.88 on 22 CPUs) — a box-state check, so **no `go` on the shared box**; a `go` needs the quiesced box, not more provenance |
+
+What this run establishes: the CL21 code at `d4f0758` gates the same
+frozen bytes as round 11 (`c8a342f`) on the same core tree, with the core's
+own tests and example now cases in the manifest and the dependency identity
+recorded and bound. What it does not establish: anything beyond the
+FFN-only 12x512 diagnostic shape (§8.7).
+
+### 8.7 Limits
+
+- No private-block, deployment or throughput acceptance follows from this:
+  the manifest says which source, which dependencies and which binaries
+  produced the frozen 12x512 FFN-only diagnostic bytes, nothing more
+  (`coverage_eligibility` is untouched).
+- The identity is the checkout's: `--offline` keeps the registry out of it
+  and `--locked` pins resolution to the hashed lockfile, but the compiler
+  and toolchain are not in the manifest (they were not before either).
+- The example binary's digest is informational; nothing compares it across
+  runs (a release build of a tiny example is not reproducible across
+  toolchains, and no claim rests on it).
+- Shared production edits (`hashline/src`, `zkp-core/`) remain with their
+  owners; CL21 touched only the lane's runner, helper, preflight, tests and
+  this document.
