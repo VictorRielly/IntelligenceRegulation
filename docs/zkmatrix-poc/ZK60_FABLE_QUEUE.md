@@ -1,4 +1,45 @@
-# Fable — next task queue, round 9
+# Fable — next task queue, round 11
+
+**2026-09-08:** Codex has integrated GPU lane `5949b38`, privacy-review lane
+`46608bb` and core design `882f037`. The combined source `c8a342f` passes
+178 Rust tests, 546 Python/native tests (zero skips), 189 device oracle cases
+and all twelve frozen CPU/GPU/chunk proof comparisons. CL12–CL19 implementations
+and FA1–FA3 analysis/design deliveries are credited below, not reassigned.
+FA4's design and FA5's analysis remain distinct from enforcement/security
+closure. [Round-11 review and continuation](ZK60_ROUND11.md).
+
+**Pick up the performance branch first.** Actual H/P3-W observation capture
+and public JSON export are now in `8b697b0`. `c8a342f` makes seven primitive
+modules canonical in `zkp-core`; its 19 tests and public sumcheck example pass.
+Keep that single implementation when continuing CL20. Neither the observer
+nor the refactor repairs the disclosed privacy defect.
+
+| Next task | Priority | Concrete delivery and acceptance |
+|---|---:|---|
+| **FA6 — CFS masking channel** | 0 | Review FA3 B1 against the actual CFS round messages, claimed sums, terminals and product-form mask opening together. Derive the conditional distribution or a concrete counterexample, enumerate every shared coefficient/function, and state precisely which mask specification is approved. Include both new seam slots and negative controls. A rank test of PCS vectors alone cannot close this task. |
+| **FA7 — captured joint observations** | 0 | Consume the schema-1 A/H/W JSON captures and retain their proof/file hashes. Analyze individual terminal values jointly with group vectors and proximity, including shared X/h16 row identities and H's zero-sum relation. Codex's 30 per-column cases are a lower-bound subset, not this closure. Reproduce the actual Wd disclosure; deliver a parser/model test and a precise handoff for repaired-profile captures and predicate cases. |
+| **FA8 — complete transcript and repeated-proof argument** | 0 | Address FA3 B2–B4 with an explicit simulator/conditioning argument, hash and entropy assumptions, failure/retry behavior, and the entire composition schedule. Treat fresh P1 and FA4's budgeted stable P3 W separately. List anything unresolved; no implementation or finite rank matrix substitutes for this review. Depends on the FA6 construction and FA7 observation inventory. |
+| **FA9 — close arithmetic and registrar gaps** | 0 | Independently package FA5 R09's norm alias as a Rust adversarial test and propose the narrow verifier-enforced range fix, with fixed-profile and wider-profile classifications. Resolve R31's authenticated weight/gamma range premise, R10's actual limb width, and R32's extra typed-proof fields. Codex owns attention/contract fixes; provide exact patch/test proposals and update FA5's obligation table. |
+| **CL21 — gate the extracted dependency** | 1 | Make the floors/preflight source identity include `zkp-core` and both lockfiles, and gate the core tests/example with an explicit suite version and expected cases. A dirty or missing core must refuse qualification. Preserve archived v1–v3 meanings. The round-11 outer validator hashes both crates; the current standalone floors manifest still only checks the `hashline/` delta. |
+| **CL20 — continue the maintained core** | 3 | Start from the implemented primitive boundary in [MIGRATION.md](../../zkp-core/MIGRATION.md). Extract CPU PCS behind a narrow GPU adapter, then table/statement/witness/layout/proof pieces, the selected FFN path and bounded codec. Preserve compact/cache/GPU consumers and full frozen proofs; add actual old/new tiny FFN parity. A primitive or public-only example does not close the full task. |
+
+FA6, FA7 and FA9 can proceed independently; CL21 can proceed alongside them.
+FA8 can draft its structure but closes only against the reviewed construction.
+Codex's next protocol work is the separately versioned repair and pending FFN
+lifecycle once the required privacy review closes, then one private block and
+two connected private blocks. P3 additionally requires implemented approved
+model consistency. No full-model laptop or 5090 job is authorized by this queue.
+Use two threads and the existing heavy/build-lock discipline. Keep one writer
+per source boundary; no duplicate primitive implementation.
+
+The matching [task records](zk60_fable_tasks.json) carry current statuses and
+acceptance. The remainder of this file preserves **historical round-9 contracts
+and writing-time status**. Do not restart completed CL12–CL19 or FA1–FA3 work
+from a historical "ready" label below.
+
+---
+
+## Historical round-9 queue
 
 **2026-09-07, round 10:** CL19 is implemented and validated by Codex; see
 [the closure and continuation](ZK60_ROUND10.md). Pick up the current performance

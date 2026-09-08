@@ -1,0 +1,825 @@
+{
+  "scope": "independent review of Fable GPU fixes, retained validation, privacy analysis and core design",
+  "review_pins": {
+    "gpu": "d63c55a",
+    "privacy": "daed46f",
+    "core": "882f037"
+  },
+  "checks": [
+    {
+      "name": "gpu_python_review",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_hashline_cl_*.py"
+      ],
+      "cwd": "/tmp/zk60-round11/gpu",
+      "exit_code": 0,
+      "log": "/tmp/zk60-round11/gpu_python_review.log",
+      "log_sha256": "ec3880b115a3a3b2289d845418433a861127f0dfa4e1192709f5a3d5a18d69c3"
+    },
+    {
+      "name": "memory_python_review",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_hashline_memory_plan.py"
+      ],
+      "cwd": "/tmp/zk60-round11/gpu",
+      "exit_code": 0,
+      "log": "/tmp/zk60-round11/memory_python_review.log",
+      "log_sha256": "c703e17c6b38f4411f827cd922189a427693c26f52c9d49473f57c4542cc5b99"
+    },
+    {
+      "name": "privacy_rank_review",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_fable_joint_rank.py"
+      ],
+      "cwd": "/tmp/zk60-round11/privacy",
+      "exit_code": 0,
+      "log": "/tmp/zk60-round11/privacy_rank_review.log",
+      "log_sha256": "519bd988c2eee62d547774c81500d9ac173ee19eafe685e7b9600946e8acdfe8"
+    },
+    {
+      "name": "core_graph_review",
+      "command": [
+        "python3",
+        "zkp-core/tools/dep_closure.py",
+        "--out",
+        "/tmp/zk60-round11/core-graph.json",
+        "--md",
+        ""
+      ],
+      "cwd": "/tmp/zk60-round11/core",
+      "exit_code": 0,
+      "log": "/tmp/zk60-round11/core_graph_review.log",
+      "log_sha256": "0b2108c6206c4ed7a8512c875acd78834717a9463f4ea1635161811c02426bbe"
+    }
+  ],
+  "core_graph": {
+    "graph_identical": true,
+    "original_sha256": "cd379a37c3ecbff2431fa8849a376e890a23fc2cd98bb81a980e59ae3407cf23",
+    "baseline_annotation": "52a13d1 (zk60-cl20-core)",
+    "snapshot_baseline_annotation": "unknown (no .git in snapshot)"
+  },
+  "manifests": [
+    {
+      "path": "/home/victor/wt-zk60-cl1/results/cl_round9_floors/manifest.json",
+      "sha256": "b7dcfae122b799cdc51b66bd67a56f17657b7aff538885c3696f60e3c6ea3995",
+      "validation": {
+        "ok": true,
+        "reasons": [],
+        "summary": {
+          "suite_version": 2,
+          "production": true,
+          "cases_recorded": 21,
+          "cases_expected": 21,
+          "head": "4a0ce562e8d10a4dd4c2b6d5703039b56f2723fb",
+          "gpu_binary_sha256": "9f20229a680d6adafca21c50fcc742629eef4e1c949f0dff2e44842f2f4dba02",
+          "device": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)",
+          "oracle_executed_cases": 141
+        }
+      },
+      "logs": [
+        {
+          "case": "build_cpu",
+          "sha256": "dc1dc84daea7a0901a55f559767e76843c33754e3ed07172ede76fc6f2197741",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "build_gpu",
+          "sha256": "9c33df42b52246dfadb7573aa6a37a6a1585eb1644fa6c8f599cee06a5a7686b",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cargo_test_cpu",
+          "sha256": "fc8bf20883cfd5e45ccc9012bb48172fc19c2235dc471769e0652747c98fadc9",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "oracle_gpu",
+          "sha256": "236db29a9851c5edf1a7ae10c88d526bfb4c1936fae14f7b6bd4794df0a1a9e7",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "nofeature_required_refuses",
+          "sha256": "a2b86412a948db7d5f3464ac8ac50596b6f4f98bb2024b9747a1b4f795442d2e",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "nofeature_plain_reports_zero",
+          "sha256": "d007445675e9b4b8f1b5b2a0c520b5c80bcf9156eaf4c3c42cac1386ed857968",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cpu-v2",
+          "sha256": "3941ac6e1095ba3c2e2b7cf2ea319ca47f540473678d6b0dcb58267c85845c1f",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cpu-v3",
+          "sha256": "517049644979d460700666c9033d1a0f1709500d2a6309119733d1d2980e7b8d",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cpu-zk",
+          "sha256": "24f09b97e5b9d367dc6d2dcbb42b2f4a4159c607fc13012635cc0254fcd961ed",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cpu-zkv3",
+          "sha256": "6a5b21d0afbfc2a7b6cd9ddd1d858a6de7ebc52eaf992532c8235f9e9d8b1a93",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-v2",
+          "sha256": "2371719fe14a399e8fd98c3a95c3a6702663efeed3f0eca99b79cec9043e9b11",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-v3",
+          "sha256": "290cfd62ce4abb897efe65ccb62fb7f679ed37326584684cad5fb9867387b5b4",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-zk",
+          "sha256": "0ee383e86093accaee1242c22b7c6a0128944a5b1c60c77fac57bbb84deed2a5",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-zkv3",
+          "sha256": "0c597937465bad8976979d49815f103c76df6863db126f83c54f81eb0b6e0fd1",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-zkchunk-v2",
+          "sha256": "fc7be3d1e96b98533649b48481a6ada2956a1c064d00773a04946a0f6540cbb2",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-zkchunk-v3",
+          "sha256": "9aa2450b1d723a22671a90eb689f853e888a503db5e53b065a40211b89ee2fd7",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-zkchunk-zk",
+          "sha256": "6277a8c15ef2887810fbafa0b92767bdd7d03cac0b528848baa77bdc35ad4e13",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-zkchunk-zkv3",
+          "sha256": "27bda5373c482f6563c6fd636c8f3ecbf0c23f7d5a7520ba59b4f83c3493f5a7",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cache_cold_zkv3",
+          "sha256": "6447107795b4419bef4deb05e20f51710177d14568402900111e3e85b1e8a3f7",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cache_warm_zkv3",
+          "sha256": "de30fd2627f8461d59aa9fef745a4320f5267877f8834de2fd43a45ca2b602bc",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cache_p3_refusal",
+          "sha256": "403373be8f8df9a1d26138d00438128c7f53fc0b165c87079eb89aac28d178e7",
+          "checks_rebuilt_from_log": true
+        }
+      ]
+    },
+    {
+      "path": "/home/victor/wt-zk60-cl1/results/cl_round9b_floors/manifest.json",
+      "sha256": "df687f07ed52be41fd9c6052fd030c2c795cafd20bf07d428e77769e63dba9e0",
+      "validation": {
+        "ok": true,
+        "reasons": [],
+        "summary": {
+          "suite_version": 3,
+          "production": true,
+          "cases_recorded": 21,
+          "cases_expected": 21,
+          "head": "5bb154676dab6ecf9d5677e07fcc1549b4927451",
+          "gpu_binary_sha256": "9887a375f0a7dff4ecbae8c3852da147cdad09a451867ddd4702c60290a26856",
+          "device": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)",
+          "oracle_executed_cases": 189
+        }
+      },
+      "logs": [
+        {
+          "case": "build_cpu",
+          "sha256": "7274b034ec970dc4def501870dd7956bb899161549eb4549aacb286754f91b04",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "build_gpu",
+          "sha256": "ff588a6931da8d377c9158d8d81c4764fedd386b2a325b45541542ebd1d41c52",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cargo_test_cpu",
+          "sha256": "e7baaf87fff9debf31c83459554065ef8a74d93085e94b5189eddf4598a64b2e",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "oracle_gpu",
+          "sha256": "02605a12c2fda3efa23ff72b182995cf9629fbb2274aa9361b19bbfc413f0771",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "nofeature_required_refuses",
+          "sha256": "cac1676e994e90826c83680d3076285b086d1bec872495557eb3027593e93805",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "nofeature_plain_reports_zero",
+          "sha256": "d007445675e9b4b8f1b5b2a0c520b5c80bcf9156eaf4c3c42cac1386ed857968",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cpu-v2",
+          "sha256": "89f23e284124dff617202503afb5fd0e1c23be9383271e02aae8abd027cdccf2",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cpu-v3",
+          "sha256": "f1659314e1b19bb7d34c84ff70090afb85eada275b27fd3ad559aaa9cc4a4f52",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cpu-zk",
+          "sha256": "9d5aeff2d45f126db503b827e1c1846a5026e3ed97b981fd4c35c2bbe0b45f79",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cpu-zkv3",
+          "sha256": "6951bcb700f208933c7cdc31046f4bbbeb3dde9c6eba66df187204534e0412ef",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-v2",
+          "sha256": "e1ddd0002afa367942a3cda41571c489492f4c3772d8201f8e5570184e68b417",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-v3",
+          "sha256": "409ac6d22c2524011a0c516d4ccb2dced6011ab29246dc0a40bdee4d67ceb143",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-zk",
+          "sha256": "c6a883e6ebfa2c313bb6dc973221e37b183ac102ca0456daf9da41b84fd2af28",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-zkv3",
+          "sha256": "14968151dd75b5bdfd99f8a85ca25d69b7a1da194315cf832a4943acbd7ef051",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-zkchunk-v2",
+          "sha256": "6a1c60fe02347b27b2be76336aa33cad94dba8c4eb1f9d2e2a95c0fdcb55697c",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-zkchunk-v3",
+          "sha256": "0537357704e9224ab267ee60ff187f616a08d25e3a09e9bc1cf9e458556a8608",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-zkchunk-zk",
+          "sha256": "d7e4a19013d5c6e642622194beab8f8184b4d3f28c46e9ff754da330ddc6676e",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "gpu-zkchunk-zkv3",
+          "sha256": "d9298f0954aabac6a32a4cd40417356e907cee959ba7de468b9fc1b020f6ef27",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cache_cold_zkv3",
+          "sha256": "11e75aeacc15d32e44e2d788d4684a098387254484a24195cf82bedb1c032ab7",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cache_warm_zkv3",
+          "sha256": "eb5b88fd72dcf587d35bb77b631842fe18774e0e2a78fa140d6044eb022a3118",
+          "checks_rebuilt_from_log": true
+        },
+        {
+          "case": "cache_p3_refusal",
+          "sha256": "403373be8f8df9a1d26138d00438128c7f53fc0b165c87079eb89aac28d178e7",
+          "checks_rebuilt_from_log": true
+        }
+      ]
+    }
+  ],
+  "latest_binary_files_match_manifest": true,
+  "latest_gpu_source_equal_to_review_pin": true,
+  "observations": [
+    {
+      "path": "/tmp/zk60-round11/observations/0f021e132c54c56d4c7c4c02961df2a36000401b14b880977c4719a86dcc354e.json",
+      "sha256": "77afb10005c5d9cba8203881ace92300c74df94015f2324dd6503f16dc351d65",
+      "bytes": 4767114,
+      "proof_sha256": "0f021e132c54c56d4c7c4c02961df2a36000401b14b880977c4719a86dcc354e",
+      "privacy": "P1",
+      "shape": {
+        "t": 2,
+        "d": 16,
+        "f": 16
+      },
+      "roles": [
+        {
+          "role": "A",
+          "rows": 5173,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6
+          ]
+        },
+        {
+          "role": "H",
+          "rows": 10321,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/tmp/zk60-round11/observations/2084e511d8fc65a1f806e8095e0328f5d1daf3d3ce7e4ff9a7036acd9d746036.json",
+      "sha256": "bf14ab09b1f6ce5247320f01c3f9276cf382a9abec1750f2756785d3ef7d265a",
+      "bytes": 4800230,
+      "proof_sha256": "2084e511d8fc65a1f806e8095e0328f5d1daf3d3ce7e4ff9a7036acd9d746036",
+      "privacy": "P3",
+      "shape": {
+        "t": 2,
+        "d": 16,
+        "f": 16
+      },
+      "roles": [
+        {
+          "role": "W",
+          "rows": 28,
+          "groups": [
+            2,
+            1
+          ]
+        },
+        {
+          "role": "A",
+          "rows": 5173,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6
+          ]
+        },
+        {
+          "role": "H",
+          "rows": 10321,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/tmp/zk60-round11/observations/30b390755fda91b784b9dd6d13cc957f57cb67f8441657a0266c26ac139815d2.json",
+      "sha256": "6802f9a6fd3c2f0cc1d7aaaf82a5d7f86f543e64062868a00fe6e3941c37484c",
+      "bytes": 4767291,
+      "proof_sha256": "30b390755fda91b784b9dd6d13cc957f57cb67f8441657a0266c26ac139815d2",
+      "privacy": "P1",
+      "shape": {
+        "t": 2,
+        "d": 16,
+        "f": 16
+      },
+      "roles": [
+        {
+          "role": "A",
+          "rows": 5173,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6
+          ]
+        },
+        {
+          "role": "H",
+          "rows": 10321,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/tmp/zk60-round11/observations/39677c8cc2882da76b413c2edf348bdb58b4db607984afcbd003556cd1ea6b3c.json",
+      "sha256": "1d4e456775e2c218351a8e7eeadcdcf5ebddfff851afd6d15107119f04330766",
+      "bytes": 4800191,
+      "proof_sha256": "39677c8cc2882da76b413c2edf348bdb58b4db607984afcbd003556cd1ea6b3c",
+      "privacy": "P3",
+      "shape": {
+        "t": 2,
+        "d": 16,
+        "f": 16
+      },
+      "roles": [
+        {
+          "role": "W",
+          "rows": 28,
+          "groups": [
+            2,
+            1
+          ]
+        },
+        {
+          "role": "A",
+          "rows": 5173,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6
+          ]
+        },
+        {
+          "role": "H",
+          "rows": 10321,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/tmp/zk60-round11/observations/3b1affac2ad55d754e5b86a591c1c6a35a0c0cc79f3e481fd99e35e9ac96c60d.json",
+      "sha256": "1ff06f18a3d72a41b19fd98ffda1f4f55d632c2aeaa30ba9a792644307a90213",
+      "bytes": 4767522,
+      "proof_sha256": "3b1affac2ad55d754e5b86a591c1c6a35a0c0cc79f3e481fd99e35e9ac96c60d",
+      "privacy": "P1",
+      "shape": {
+        "t": 2,
+        "d": 16,
+        "f": 16
+      },
+      "roles": [
+        {
+          "role": "A",
+          "rows": 5173,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6
+          ]
+        },
+        {
+          "role": "H",
+          "rows": 10321,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/tmp/zk60-round11/observations/5e5f2a63f5f8ed7186009b6572510fed335eb330d480c23885a8a4af0927a3e0.json",
+      "sha256": "a2a025b1d29e617023ef66df9cf5c4177e4e1ac3563ea1af214623eb59128d9c",
+      "bytes": 12911518,
+      "proof_sha256": "5e5f2a63f5f8ed7186009b6572510fed335eb330d480c23885a8a4af0927a3e0",
+      "privacy": "P3",
+      "shape": {
+        "t": 32,
+        "d": 16,
+        "f": 16
+      },
+      "roles": [
+        {
+          "role": "W",
+          "rows": 7,
+          "groups": [
+            2,
+            1
+          ]
+        },
+        {
+          "role": "A",
+          "rows": 681,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6
+          ]
+        },
+        {
+          "role": "H",
+          "rows": 1325,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/tmp/zk60-round11/observations/6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297.json",
+      "sha256": "9e5b400cdbc7e2817636d70a3313999af90b0b9ab16f229e6655a5ce7b37f2de",
+      "bytes": 4800760,
+      "proof_sha256": "6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297",
+      "privacy": "P3",
+      "shape": {
+        "t": 2,
+        "d": 16,
+        "f": 16
+      },
+      "roles": [
+        {
+          "role": "W",
+          "rows": 28,
+          "groups": [
+            2,
+            1
+          ]
+        },
+        {
+          "role": "A",
+          "rows": 5173,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6
+          ]
+        },
+        {
+          "role": "H",
+          "rows": 10321,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/tmp/zk60-round11/observations/7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df.json",
+      "sha256": "25f65afff3815aac7a1f881c746a6a0b31e60fd55d166d37acd41a0a785ea4f3",
+      "bytes": 12336408,
+      "proof_sha256": "7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df",
+      "privacy": "P1",
+      "shape": {
+        "t": 32,
+        "d": 16,
+        "f": 16
+      },
+      "roles": [
+        {
+          "role": "A",
+          "rows": 681,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6
+          ]
+        },
+        {
+          "role": "H",
+          "rows": 1325,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/tmp/zk60-round11/observations/9ce61efc214b868840a3f904ee3b1b974b62431eaf5cbe5b6a8364b83594c1a7.json",
+      "sha256": "4045e9bc9266d8651ad3136c2a9be30db5d5f4f0e7ee9339c9bb90d5ddbf6d70",
+      "bytes": 4767080,
+      "proof_sha256": "9ce61efc214b868840a3f904ee3b1b974b62431eaf5cbe5b6a8364b83594c1a7",
+      "privacy": "P1",
+      "shape": {
+        "t": 2,
+        "d": 16,
+        "f": 16
+      },
+      "roles": [
+        {
+          "role": "A",
+          "rows": 5173,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6
+          ]
+        },
+        {
+          "role": "H",
+          "rows": 10321,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/tmp/zk60-round11/observations/ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe.json",
+      "sha256": "e883bc01944df266c48046826ab9732c0f66ab6216f543704e9c3500a3b06240",
+      "bytes": 12914057,
+      "proof_sha256": "ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe",
+      "privacy": "P3",
+      "shape": {
+        "t": 32,
+        "d": 16,
+        "f": 16
+      },
+      "roles": [
+        {
+          "role": "W",
+          "rows": 7,
+          "groups": [
+            2,
+            1
+          ]
+        },
+        {
+          "role": "A",
+          "rows": 681,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6
+          ]
+        },
+        {
+          "role": "H",
+          "rows": 1325,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/tmp/zk60-round11/observations/d7cfdc8d99c7a795e73e0aed9004ac2e43c85003bae0ac2c130e97211599b31e.json",
+      "sha256": "5f2040ad2c868b39d3a42c39c276e7d65da06ad1bfcef315171426c29dd9d54a",
+      "bytes": 12338302,
+      "proof_sha256": "d7cfdc8d99c7a795e73e0aed9004ac2e43c85003bae0ac2c130e97211599b31e",
+      "privacy": "P1",
+      "shape": {
+        "t": 32,
+        "d": 16,
+        "f": 16
+      },
+      "roles": [
+        {
+          "role": "A",
+          "rows": 681,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6
+          ]
+        },
+        {
+          "role": "H",
+          "rows": 1325,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/tmp/zk60-round11/observations/dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615.json",
+      "sha256": "056a60db4383b81cd7460d24f4ea3e02b32c96f80f889d45f328b33a40b90930",
+      "bytes": 4800333,
+      "proof_sha256": "dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615",
+      "privacy": "P3",
+      "shape": {
+        "t": 2,
+        "d": 16,
+        "f": 16
+      },
+      "roles": [
+        {
+          "role": "W",
+          "rows": 28,
+          "groups": [
+            2,
+            1
+          ]
+        },
+        {
+          "role": "A",
+          "rows": 5173,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6
+          ]
+        },
+        {
+          "role": "H",
+          "rows": 10321,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        }
+      ]
+    }
+  ],
+  "caveats": [
+    "Archived proof files were removed by the runner; log/file identities were recorded by that runner. This review rehashes and reparses retained logs and checks current binary files, not deleted proof files.",
+    "These manifests validate the Fable source before Codex round10 telemetry and round11 observation changes; a combined integration validation follows.",
+    "FA2 stand-in-coefficient model tests are not a completed actual-coefficient rank or simulation review.",
+    "No new GPU job was run by this read-only review."
+  ],
+  "exit_code": 0
+}

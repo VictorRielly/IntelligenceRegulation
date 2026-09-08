@@ -1,0 +1,146 @@
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2854:9
+     |
+2854 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 8 warnings (run `cargo fix --lib -p hashline --tests` to apply 6 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running unittests src/lib.rs (hashline/target/release/deps/hashline-f0c407b41a453e79)
+
+running 5 tests
+FFN_OBSERVATION privacy=P1 T=2 role=A rows=5173 cols=32 groups=[7, 3, 1, 1, 6] sampled_columns=12 proof_sha256=30b390755fda91b784b9dd6d13cc957f57cb67f8441657a0266c26ac139815d2
+FFN_OBSERVATION privacy=P1 T=2 role=A rows=5173 cols=32 groups=[7, 3, 1, 1, 6] sampled_columns=12 proof_sha256=722ad4fa3792da4de444525850ee27fdef4a0cd04ad4550a3938d4ce2cdedcf9
+FFN_OBSERVATION privacy=P1 T=2 role=H rows=10321 cols=32 groups=[3, 1, 1, 6, 1] sampled_columns=12 proof_sha256=30b390755fda91b784b9dd6d13cc957f57cb67f8441657a0266c26ac139815d2
+FFN_OBSERVATION privacy=P1 T=2 role=H rows=10321 cols=32 groups=[3, 1, 1, 6, 1] sampled_columns=12 proof_sha256=722ad4fa3792da4de444525850ee27fdef4a0cd04ad4550a3938d4ce2cdedcf9
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=30b390755fda91b784b9dd6d13cc957f57cb67f8441657a0266c26ac139815d2
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=722ad4fa3792da4de444525850ee27fdef4a0cd04ad4550a3938d4ce2cdedcf9
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=30b390755fda91b784b9dd6d13cc957f57cb67f8441657a0266c26ac139815d2
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=722ad4fa3792da4de444525850ee27fdef4a0cd04ad4550a3938d4ce2cdedcf9
+FFN_OBSERVATION privacy=P1 T=2 role=A rows=5173 cols=32 groups=[7, 3, 1, 1, 6] sampled_columns=12 proof_sha256=9ce61efc214b868840a3f904ee3b1b974b62431eaf5cbe5b6a8364b83594c1a7
+FFN_OBSERVATION privacy=P1 T=2 role=A rows=5173 cols=32 groups=[7, 3, 1, 1, 6] sampled_columns=12 proof_sha256=de66bd63823e51c15ecff4c78508559d1bf57d3a39ca7860e51774d9dab4bd5a
+FFN_OBSERVATION privacy=P1 T=2 role=H rows=10321 cols=32 groups=[3, 1, 1, 6, 1] sampled_columns=12 proof_sha256=9ce61efc214b868840a3f904ee3b1b974b62431eaf5cbe5b6a8364b83594c1a7
+FFN_OBSERVATION privacy=P1 T=2 role=H rows=10321 cols=32 groups=[3, 1, 1, 6, 1] sampled_columns=12 proof_sha256=de66bd63823e51c15ecff4c78508559d1bf57d3a39ca7860e51774d9dab4bd5a
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=9ce61efc214b868840a3f904ee3b1b974b62431eaf5cbe5b6a8364b83594c1a7
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=9ce61efc214b868840a3f904ee3b1b974b62431eaf5cbe5b6a8364b83594c1a7
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=de66bd63823e51c15ecff4c78508559d1bf57d3a39ca7860e51774d9dab4bd5a
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=de66bd63823e51c15ecff4c78508559d1bf57d3a39ca7860e51774d9dab4bd5a
+FFN_OBSERVATION privacy=P3 T=2 role=W rows=28 cols=32 groups=[2, 1] sampled_columns=12 proof_sha256=dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615
+FFN_OBSERVATION privacy=P3 T=2 role=A rows=5173 cols=32 groups=[7, 3, 1, 1, 6] sampled_columns=12 proof_sha256=dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615
+FFN_OBSERVATION privacy=P3 T=2 role=W rows=28 cols=32 groups=[2, 1] sampled_columns=12 proof_sha256=fa4a493ad42f52e71e04b70f4f83f2841898405af7aa2e200de5641b19d7ae67
+FFN_OBSERVATION privacy=P3 T=2 role=A rows=5173 cols=32 groups=[7, 3, 1, 1, 6] sampled_columns=12 proof_sha256=fa4a493ad42f52e71e04b70f4f83f2841898405af7aa2e200de5641b19d7ae67
+FFN_OBSERVATION privacy=P3 T=2 role=H rows=10321 cols=32 groups=[3, 1, 1, 6, 1] sampled_columns=12 proof_sha256=dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615
+FFN_DIAGNOSTIC privacy=P3 T=2 role=Wd-at-p6 data_rows=8 disclosed_base_functionals=32 full_plane_recovered=false proof_sha256=dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615
+FFN_OBSERVATION privacy=P3 T=2 role=H rows=10321 cols=32 groups=[3, 1, 1, 6, 1] sampled_columns=12 proof_sha256=fa4a493ad42f52e71e04b70f4f83f2841898405af7aa2e200de5641b19d7ae67
+FFN_DIAGNOSTIC privacy=P3 T=2 role=Wd-at-p6 data_rows=8 disclosed_base_functionals=32 full_plane_recovered=false proof_sha256=fa4a493ad42f52e71e04b70f4f83f2841898405af7aa2e200de5641b19d7ae67
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=fa4a493ad42f52e71e04b70f4f83f2841898405af7aa2e200de5641b19d7ae67
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=fa4a493ad42f52e71e04b70f4f83f2841898405af7aa2e200de5641b19d7ae67
+FFN_OBSERVATION privacy=P3 T=2 role=W rows=28 cols=32 groups=[2, 1] sampled_columns=12 proof_sha256=9506f86e7f3e5fdf3c4c3d6a16ccbb6faa042f5fa47ce0dc3d81e8bc73d1d913
+FFN_OBSERVATION privacy=P3 T=2 role=W rows=28 cols=32 groups=[2, 1] sampled_columns=12 proof_sha256=6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297
+FFN_OBSERVATION privacy=P3 T=2 role=A rows=5173 cols=32 groups=[7, 3, 1, 1, 6] sampled_columns=12 proof_sha256=9506f86e7f3e5fdf3c4c3d6a16ccbb6faa042f5fa47ce0dc3d81e8bc73d1d913
+FFN_OBSERVATION privacy=P3 T=2 role=A rows=5173 cols=32 groups=[7, 3, 1, 1, 6] sampled_columns=12 proof_sha256=6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297
+FFN_OBSERVATION privacy=P3 T=2 role=H rows=10321 cols=32 groups=[3, 1, 1, 6, 1] sampled_columns=12 proof_sha256=6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297
+FFN_OBSERVATION privacy=P3 T=2 role=H rows=10321 cols=32 groups=[3, 1, 1, 6, 1] sampled_columns=12 proof_sha256=9506f86e7f3e5fdf3c4c3d6a16ccbb6faa042f5fa47ce0dc3d81e8bc73d1d913
+FFN_DIAGNOSTIC privacy=P3 T=2 role=Wd-at-p6 data_rows=8 disclosed_base_functionals=32 full_plane_recovered=false proof_sha256=9506f86e7f3e5fdf3c4c3d6a16ccbb6faa042f5fa47ce0dc3d81e8bc73d1d913
+FFN_DIAGNOSTIC privacy=P3 T=2 role=Wd-at-p6 data_rows=8 disclosed_base_functionals=32 full_plane_recovered=false proof_sha256=6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=9506f86e7f3e5fdf3c4c3d6a16ccbb6faa042f5fa47ce0dc3d81e8bc73d1d913
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=9506f86e7f3e5fdf3c4c3d6a16ccbb6faa042f5fa47ce0dc3d81e8bc73d1d913
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297
+test zk::mask_diagnostic::actual_ffn_seeded_singleton_rows_are_recovered_in_p1_and_p3 ... ok
+test zk::mask_diagnostic::actual_ffn_fresh_os_singleton_rows_are_recovered_without_resampling ... ok
+
+thread 'zk::mask_diagnostic::capture_guard_resets_on_unwind_and_rejects_nested_capture' (263555) panicked at src/zk_ffn_mask_diagnostic.rs:49:13:
+nested diagnostic capture
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test zk::mask_diagnostic::capture_guard_resets_on_unwind_and_rejects_nested_capture ... ok
+test zk::mask_diagnostic::diagnostic_refuses_degenerate_and_paired_mask_controls ... ok
+FFN_OBSERVATION privacy=P1 T=32 role=A rows=681 cols=256 groups=[7, 3, 1, 1, 6] sampled_columns=256 proof_sha256=7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df
+FFN_OBSERVATION privacy=P1 T=32 role=H rows=1325 cols=256 groups=[3, 1, 1, 6, 1] sampled_columns=256 proof_sha256=7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df
+FFN_DIAGNOSTIC privacy=P1 T=32 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df
+FFN_DIAGNOSTIC privacy=P1 T=32 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df
+FFN_OBSERVATION privacy=P1 T=32 role=A rows=681 cols=256 groups=[7, 3, 1, 1, 6] sampled_columns=256 proof_sha256=882ffeb5d73dbb4db565c2632c32709f0ce053a71f858b0cc503571bc6b809c7
+FFN_OBSERVATION privacy=P1 T=32 role=H rows=1325 cols=256 groups=[3, 1, 1, 6, 1] sampled_columns=256 proof_sha256=882ffeb5d73dbb4db565c2632c32709f0ce053a71f858b0cc503571bc6b809c7
+FFN_DIAGNOSTIC privacy=P1 T=32 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=882ffeb5d73dbb4db565c2632c32709f0ce053a71f858b0cc503571bc6b809c7
+FFN_DIAGNOSTIC privacy=P1 T=32 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=882ffeb5d73dbb4db565c2632c32709f0ce053a71f858b0cc503571bc6b809c7
+FFN_OBSERVATION privacy=P3 T=32 role=W rows=7 cols=256 groups=[2, 1] sampled_columns=256 proof_sha256=ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe
+FFN_OBSERVATION privacy=P3 T=32 role=A rows=681 cols=256 groups=[7, 3, 1, 1, 6] sampled_columns=256 proof_sha256=ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe
+FFN_OBSERVATION privacy=P3 T=32 role=H rows=1325 cols=256 groups=[3, 1, 1, 6, 1] sampled_columns=256 proof_sha256=ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe
+FFN_DIAGNOSTIC privacy=P3 T=32 role=Wd-at-p6 data_rows=1 disclosed_base_functionals=256 full_plane_recovered=true proof_sha256=ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe
+FFN_DIAGNOSTIC privacy=P3 T=32 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe
+FFN_DIAGNOSTIC privacy=P3 T=32 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe
+FFN_OBSERVATION privacy=P3 T=32 role=W rows=7 cols=256 groups=[2, 1] sampled_columns=256 proof_sha256=224abfdd76d8082c815ccd20fdee878d42708178786d60def7c8b4e97f1482f6
+FFN_OBSERVATION privacy=P3 T=32 role=A rows=681 cols=256 groups=[7, 3, 1, 1, 6] sampled_columns=256 proof_sha256=224abfdd76d8082c815ccd20fdee878d42708178786d60def7c8b4e97f1482f6
+FFN_OBSERVATION privacy=P3 T=32 role=H rows=1325 cols=256 groups=[3, 1, 1, 6, 1] sampled_columns=256 proof_sha256=224abfdd76d8082c815ccd20fdee878d42708178786d60def7c8b4e97f1482f6
+FFN_DIAGNOSTIC privacy=P3 T=32 role=Wd-at-p6 data_rows=1 disclosed_base_functionals=256 full_plane_recovered=true proof_sha256=224abfdd76d8082c815ccd20fdee878d42708178786d60def7c8b4e97f1482f6
+FFN_DIAGNOSTIC privacy=P3 T=32 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=224abfdd76d8082c815ccd20fdee878d42708178786d60def7c8b4e97f1482f6
+FFN_DIAGNOSTIC privacy=P3 T=32 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=224abfdd76d8082c815ccd20fdee878d42708178786d60def7c8b4e97f1482f6
+test zk::mask_diagnostic::actual_ffn_t32_recovers_one_functional_per_column_of_two_row_planes ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 44 filtered out; finished in 1.72s
+

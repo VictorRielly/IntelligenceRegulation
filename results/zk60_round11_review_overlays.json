@@ -1,0 +1,17 @@
+{
+  "base": "d63c55a",
+  "overlay_source": "31544ce",
+  "files": [
+    {
+      "path": "results/zk60_round10_validation.json",
+      "sha256": "323903057a41087167118400ce94f1f35968b4923de5f35bba5b56011a5dd273",
+      "matches_round10": true
+    },
+    {
+      "path": "hashline/src/zk_proof_size.rs",
+      "sha256": "a7598d0ac02fe3de45075c7f82e0a447e6376a381690dd3fd695e890d8c04fcf",
+      "matches_round10": true
+    }
+  ],
+  "reason": "CL19 consumers inspect the round10 proof-size source module and actual-object validation record, not yet present in the GPU lane snapshot."
+}

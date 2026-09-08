@@ -1,32 +1,29 @@
 {
   "schema_version": 1,
   "created_local_date": "2026-09-07",
-  "round": 9,
-  "integrator_base": "44d72ffa5cb28d69bbedfa19d5f2a5026d9aa87a",
-  "reviewed_lane_tip": "3ad4d97ce4cb47b9eeeb76647a5a9159d15d2357",
-  "review": "ZK60_ROUND9_REVIEW.md",
-  "owner": "Fable in its own session; work assigned, not executed by Codex",
-  "coordination": "CL12-CL19 continue the existing Claude GPU/tools lane; CL20 is the lower-priority refactoring subproject; FA1-FA5 retain the independent review role. One writer per shared source file; no subagents launched by this handoff.",
+  "round": 11,
+  "integrator_base": "c8a342f",
+  "reviewed_lane_tip": "5949b38",
+  "review": "ZK60_ROUND11.md",
+  "owner": "Fable owns follow-up analysis and remaining core/GPU work; Codex owns integration, observation instrumentation and protocol implementation",
+  "coordination": "Fable owns FA6-FA9 analysis, CL21 tooling and remaining CL20 extraction; Codex owns integration and protocol implementation. One writer per shared source boundary.",
   "engineering_order": [
-    "CL12",
-    "CL13",
-    "CL14",
-    "CL15",
-    "CL16",
-    "CL17",
-    "CL18"
+    "CL21",
+    "CL20"
   ],
   "independent_ready": [
-    "FA1",
-    "FA4",
-    "FA5"
+    "FA6",
+    "FA7",
+    "FA9"
   ],
   "lower_priority_design": [
     "CL20"
   ],
   "private_implementation_gate": [
-    "FA2",
-    "FA3"
+    "FA6",
+    "FA7",
+    "FA8",
+    "FA5 arithmetic/security closure"
   ],
   "tasks": [
     {
@@ -59,6 +56,13 @@
         ],
         "report": "docs/zkmatrix-poc/ZK60_CLAUDE_GPU.md#lane-status-2026-09-07-round-9-cl12",
         "note": "archived green floors ran on 82314a1 (pre-H1, pre-44d72ff); no combined-tree acceptance claimed; CL17 supplies it"
+      },
+      "integration": {
+        "commit": "6548c8d",
+        "validation_source": "c8a342f",
+        "status": "integrated_and_combined_validation_passed",
+        "report": "ZK60_ROUND11.md",
+        "validation": "../../results/zk60_round11_validation.json"
       }
     },
     {
@@ -98,6 +102,13 @@
         "runner": "results/cl1_floors.sh portable (repo from its own location, export/CUDA/scratch/device/threads as flags+env), prover --threads / CARGO_BUILD_JOBS / RAYON_NUM_THREADS default 2, self-test first, --dry-run; build lock internal, heavy lock is the launcher's",
         "follow_up": "suite v1 pins 49 oracle cases (82314a1); CL15 raised the oracle to 141 executed cases, so a suite v2 is added in the next commit before CL17",
         "limits": "no real manifest exists until CL17 runs; the binary has no memory-budget flag, so the budget is propagated as HL_GPU_CHUNK_ROWS plus a recorded memory_budget_mib"
+      },
+      "integration": {
+        "commit": "6548c8d",
+        "validation_source": "c8a342f",
+        "status": "integrated_and_combined_validation_passed",
+        "report": "ZK60_ROUND11.md",
+        "validation": "../../results/zk60_round11_validation.json"
       }
     },
     {
@@ -130,6 +141,13 @@
         "contract": "CL5 hashline_cl_profile parse_log+attribute reused as the validated-row gate; exit channels: --exit LABEL=N, `exit N` line, CL6_RUN exit= (per-run log and/or --sweep-log bound by chunk_rows/rep, digests cross-checked)",
         "revalidation": "results/cl6_round9_revalidation.{json,md}: 6 eligible / 0 refused / 0 missing-evidence; the CL6 conclusion (chunk rows are a memory knob, not a speed knob) survives; selector_promoted false",
         "limits": "a row now also requires the prover-phases block; cache state uniformly unknown on the archived logs (no CMD line); the sweep evidence is at 9b24975, not the combined tree"
+      },
+      "integration": {
+        "commit": "6548c8d",
+        "validation_source": "c8a342f",
+        "status": "integrated_and_combined_validation_passed",
+        "report": "ZK60_ROUND11.md",
+        "validation": "../../results/zk60_round11_validation.json"
       }
     },
     {
@@ -161,6 +179,13 @@
         "no_feature": "CPU target: exit 0 with executed_cases 0; HL_GPU_REQUIRED=1 exit 101 with the built-WITHOUT reason",
         "frozen_gates_threads2_forced_chunk": "v2 50cf7bdf..46a17d 66844928 B and zk 021485e4..02282d 87228528 B both MATCH (archived runs used --threads 8); results/cl15_frozen_gates.log",
         "limits": "columns_chunked unfused route covered by shape only; dev_columns' guard by inspection; v3/zkv3 fixtures left to CL17"
+      },
+      "integration": {
+        "commit": "6548c8d",
+        "validation_source": "c8a342f",
+        "status": "integrated_and_combined_validation_passed",
+        "report": "ZK60_ROUND11.md",
+        "validation": "../../results/zk60_round11_validation.json"
       }
     },
     {
@@ -193,6 +218,13 @@
         "reproduction": "rows=300 log_cols=10 inv_rate=4 checks=q_pad=16 fallback/warm-resident: return live 12,288,000 (was 12,359,168; excess 71,168 = pads 38,400 + coset powers 32,768); peak unchanged 24,843,760",
         "source": "cuda.rs dev_commit_zk_from resident return (line 3300) drops d_pads/d_pows; only chunked returns move them into ZkReenc",
         "note": "overcount corrected, not evidence of unsafe peak underestimation; component accounting does not authorize a whole-block run"
+      },
+      "integration": {
+        "commit": "6548c8d",
+        "validation_source": "c8a342f",
+        "status": "integrated_and_combined_validation_passed",
+        "report": "ZK60_ROUND11.md",
+        "validation": "../../results/zk60_round11_validation.json"
       }
     },
     {
@@ -242,6 +274,13 @@
         "preflight": "go=True for a diagnostic FFN-only claim bound to the manifest (results/cl_round9_preflight.json)",
         "limits": "safe frozen fixtures only, two threads, laptop seconds are diagnostics; no privacy/identity/coverage/target claim; integration remains Codex's",
         "final_tip_manifest": "results/cl_round9b_floors/manifest.json: GREEN, suite v3, 21/21, HEAD 5bb1546 (after CL18 f9a8eb7 and suite v3 d63c55a), 0 dirty, GPU binary 9887a375.., oracle 189, 167 crate tests / 0 failed, all byte gates and cache cases match; the 4a0ce56 manifest remains the v2 record"
+      },
+      "integration": {
+        "commit": "6548c8d",
+        "validation_source": "c8a342f",
+        "status": "integrated_and_combined_validation_passed",
+        "report": "ZK60_ROUND11.md",
+        "validation": "../../results/zk60_round11_validation.json"
       }
     },
     {
@@ -280,6 +319,13 @@
         "frozen_gates": "results/cl18_frozen_gates.log marker 0, GPU binary 9887a375../5,333,616 B: v2/v3/zk/zkv3 OFF MATCH; zk/zkv3 ON MATCH (byte-preserving); two diagnostics MATCH",
         "measurement": "results/cl18_reenc_ab.log marker 0, Mistral one layer P3 T=512 ABAB x 2, two threads: three commits 0.6247 -> 0.5378 s (1.162x), three re-encodes 0.4656 -> 0.3848 s (1.21x), changed phase 1.090 -> 0.923 s, PROVE 4.346 -> 4.089 s (-0.258 s, 5.9%), proof_ready 13.25 -> 13.04 s, VRAM peak 5182 -> 5148 MB; proof byte-identical across arms and equal to CL7's 190e85a1../40,251,860 B",
         "limits": "one shape, one card, n = 2 per arm, two threads, single shared box: a diagnostic, not a p95; the MiB traffic reduction is a hypothesis (not profiled); switch stays OFF; the planner does not yet model the compact chunk_expanded (device counters pinned in the oracle instead)"
+      },
+      "integration": {
+        "commit": "6548c8d",
+        "validation_source": "c8a342f",
+        "status": "integrated_and_combined_validation_passed",
+        "report": "ZK60_ROUND11.md",
+        "validation": "../../results/zk60_round11_validation.json"
       }
     },
     {
@@ -318,6 +364,13 @@
         "reconciliation": "all 12 frozen 12x512 P1 rows validate and sum to the frozen 87,697,008 B; layers 1-2 differ from the layer-0 mirror on exactly a.columns.values +4,096 and h.columns.values +8,192 (the 12,288 B the layer-0 dump could never attribute, now measured); T16 P3 and T16 unverified P1 agree leaf for leaf",
         "review": "docs/zkmatrix-poc/ZK60_CLAUDE_ARTIFACTS.md section 8: Codex's implementation meets every CL19 contract item (sum, no double count, P1/P3 salts, predicate separate, no second buffer, pass_verified explicit, bytes unchanged); non-blocking findings in 8.4 (rows are CPU-only via --phase-profile; evidence uncommitted)",
         "limits": "reconciliation evidence is Codex's uncommitted JSON and /tmp logs; no measured rows yet for P3 at 12x512, Mistral or function 2; nothing is promoted as compatible from counts"
+      },
+      "integration": {
+        "commit": "6548c8d",
+        "validation_source": "c8a342f",
+        "status": "integrated_and_combined_validation_passed",
+        "report": "ZK60_ROUND11.md",
+        "validation": "../../results/zk60_round11_validation.json"
       }
     },
     {
@@ -361,7 +414,7 @@
       "priority": 0,
       "title": "Determine joint exposure and affected profiles",
       "owner": "Fable independent privacy reviewer",
-      "status": "done (linear-model analysis; H/P3-W rows source-derived, awaiting Codex capture hook)",
+      "status": "analysis_delivered; legacy A/H/W capture now implemented; full captured joint analysis continues in FA7",
       "depends_on": [
         "FA1"
       ],
@@ -391,7 +444,7 @@
         "proximity": "the reserved prox row is one base row in A/H/W and covers one of two dims per column, the other borrowed from other groups; fine for A and H but tiny P3 W (nb_d*nb_f = 1) is starved (4 masks vs 6 dims/column): +1 functional of (Wg[j], Wu[j]) per column atop the Wd singleton; two proofs recover W entirely (linear)",
         "covered": "H in the linear model (pairs); the zero-sum u leaves exactly the public LogUp identity; pads/columns by the Vandermonde/pad-bijection argument plus the hash assumption",
         "unresolved": "CFS channel (outside the model); twelve assumptions for FA3 in section 18; capture fields needed from Codex in section 19",
-        "predicate": "125M (nb_d 3, nb_f 1) -> h16@p5 singleton, 8-row functionals per column; 8B (nb_d 1, nb_f 7) -> X@p2 singleton, T/4 rows (T <= 8: 16 bits, enumerable) — derived, not executed",
+        "predicate": "125M (nb_d 3, nb_f 1) -> h16@p5 singleton, 8-row functionals per column; 8B (nb_d 1, nb_f 7) -> X@p2 singleton, T/4 rows (T <= 8: 16 bits, enumerable) \u2014 derived, not executed",
         "limits": "all H / P3-W statements source-derived awaiting the round-10 capture hook; rank results use stand-in coefficients with the source's structure; numerical rank is not a simulation proof; single-proof and repeated-proof observations kept distinct"
       }
     },
@@ -400,7 +453,7 @@
       "priority": 0,
       "title": "Review a complete repair and pending-block mask contract",
       "owner": "Fable reviewer; Codex implements the accepted protocol",
-      "status": "done (design + review delivered; production composition remains gated on acceptance)",
+      "status": "design_delivered; candidate ffn-v3-mr1 schedule; B1-B4 review remains open",
       "depends_on": [
         "FA2"
       ],
@@ -437,7 +490,7 @@
       "priority": 1,
       "title": "Specify approved private-model consistency",
       "owner": "Fable independent identity reviewer",
-      "status": "done",
+      "status": "design_delivered; approved private-model consistency not implemented",
       "depends_on": [],
       "files": [
         "docs/zkmatrix-poc/ZK60_FABLE_MODEL_IDENTITY.md (new)",
@@ -498,7 +551,7 @@
         "reviewer": "Claude Fable 5.1, independent reviewer",
         "source_pin": "52a13d1 (worktree /home/victor/wt-zk60-fa)",
         "deliverable": "docs/zkmatrix-poc/ZK60_FABLE_SECURITY_OBLIGATIONS.md (38-row obligation table, parameter/composition review, tiny-vs-deployment separation, prioritized gaps); results/zk60_fable_fa5_obligations.json; results/zk60_fable_fa5_isqrt_alias.txt and _bounds.txt (the python checks)",
-        "highest_severity": "R09 norm isqrt: the committed D row has no direct range fact; the half-p alias D = k + (p-1)/2 satisfies the SS sumcheck, both isqrt pins, the Square zero-check and the a1/a2 limb ranges for every int16 row and the round NormDiv with an all-zero output whenever the remainder limbs admit ~2^(31+tn). The A00 fixed profile escapes only because n_limbs = 2 caps rho/sigma at 2^32 while the alias needs ~2^42 — a parameter coincidence recorded nowhere in code or tests; any profile with n_limbs >= 3 and tn >= 1 accepts a wrong norm output. Fix: a direct range fact on D plus a tamper leg.",
+        "highest_severity": "R09 norm isqrt: the committed D row has no direct range fact; the half-p alias D = k + (p-1)/2 satisfies the SS sumcheck, both isqrt pins, the Square zero-check and the a1/a2 limb ranges for every int16 row and the round NormDiv with an all-zero output whenever the remainder limbs admit ~2^(31+tn). The A00 fixed profile escapes only because n_limbs = 2 caps rho/sigma at 2^32 while the alias needs ~2^42 \u2014 a parameter coincidence recorded nowhere in code or tests; any profile with n_limbs >= 3 and tn >= 1 accepts a wrong norm output. Fix: a direct range fact on D plus a tamper leg.",
         "other": "R31 W/gamma word ranges never proven at the registrar boundary (all no-wrap bounds assume int8 behind the approved roots); R10 proven remainder width is 2^(16*n_limbs) not wrho; R29 exponents/norm_round bound only via the A00 digest; R32 typed B3 API ignores extra proof.sc/helper_sums; R02/R20 proof classes admit -128/-32768 the oracle refuses; R14 no LogUp error term stated in code",
         "estimates": "two-block fixed-profile receipt ~2^-110 statistical soundness (Ligero column test (17/24)^256 = 2^-127.4 per opening x 6 openings/block; attention LogUp 4N/|F_p2| = 2^-111.3 dominates; sumchecks ~2^-119), capped by blake3-256 Fiat-Shamir; projected 125M/8B profile (log_cols 14, rate 1/4, Q 256, 32 layers x 6 openings) near 2^-94; nothing quantitative carries over from the lattice-era SOUNDNESS_REFERENCE.md; the P1 hiding code's column term is 2^-106",
         "fixed_profile": "no false-acceptance path found; every reviewed relation is an ACTUAL verifier constraint or a CHECKED A00 precondition",
@@ -510,21 +563,22 @@
       "priority": 3,
       "title": "Create and maintain a minimal refactored ZKP subproject",
       "owner": "Fable refactoring lane; Codex reviews shared-core extraction",
-      "status": "design_delivered; extraction pending (CL17 baseline is now green at lane c02d86c; Codex boundary review next)",
+      "status": "primitive_boundary_implemented; PCS/FFN/codec and ZKP path remain open",
       "depends_on": [
         "CL17"
       ],
       "files": [
         "zkp-core/README.md",
-        "zkp-core/Cargo.toml (new at implementation)",
-        "zkp-core/src/ (new at implementation)",
-        "zkp-core/tests/ (new at implementation)",
-        "zkp-core/examples/ (new at implementation)",
-        "hashline/Cargo.toml and extracted core modules (coordinated adapter changes)"
+        "zkp-core/MIGRATION.md",
+        "zkp-core/Cargo.toml",
+        "zkp-core/src/",
+        "zkp-core/tests/ (as required by vertical extraction)",
+        "zkp-core/examples/",
+        "hashline/Cargo.toml and coordinated adapters"
       ],
       "work": [
-        "Use zkp-core/ as the small maintained library subproject, with a manifest, explicit supported-profile contract, architecture/API guide and tiny prove/verify example. Design can begin now; source extraction follows the validated CL17 baseline and does not delay privacy/integration work.",
-        "Map the actual transitive dependency closure before moving code. In particular, PCS and sumcheck currently obtain ZkRng from zk.rs, PCS embeds GPU dispatch, and layer.rs mixes compact PCS/cache/export paths. Extract randomness/parameters/statement/proof primitives into coherent modules instead of copying those large modules wholesale.",
+        "Continue the independently buildable primitive crate delivered in c8a342f. Its 19 tests and public sumcheck example pass. Extract CPU PCS, then a complete selected FFN path and bounded codec without delaying privacy work.",
+        "Use the historical dependency inventory and current migration ledger. RNG and sumcheck are already canonical in zkp-core; PCS still embeds GPU dispatch and layer.rs still mixes compact PCS/cache/export paths. Extend the boundary without duplicating primitives.",
         "Keep the default library CPU-first with typed inputs, explicit parameters/backend selection, bounded proof decoding and clear errors. Exclude CLI, model download/export plumbing, benchmark campaign scripts, CUDA tooling and unused proof backends from its default dependency closure. Add adapters only for concrete consumers.",
         "Move one vertical proof/verification path at a time. Select and document the exact currently implemented profile, including any unresolved privacy limitation; preserve its relation, transcript and RNG semantics. A public-only example or a thin dependency on the entire hashline crate is not completion of the ZKP subproject.",
         "Keep hashline, zkmatrix-rs, experiments, reports, benchmarks and alternative paths available. Prefer one canonical extracted implementation consumed by existing adapters. A temporary duplicate must have explicit source pins, differential tests, maintenance ownership and a removal/convergence milestone.",
@@ -538,7 +592,7 @@
         "Document one source of truth per primitive, the dependency graph, module responsibilities, public API and migration ledger. Compare dependency/module surface before and after; do not reduce line count by discarding validation or hiding the whole legacy crate behind a wrapper.",
         "Completion means a working maintained subproject and adapters, not just this README or a copied snapshot. Implementation is split into bounded reviewable commits."
       ],
-      "limits": "Lower priority than correctness, privacy repair and integration. The README created with this queue is a design scaffold only; no proof code has been extracted. Coordinate shared-source ownership and keep protocol redesign separate from mechanical refactoring.",
+      "limits": "Lower priority than correctness and privacy repair. The primitive boundary is implemented; PCS, full FFN, bounded codec and reviewed ZKP path remain open. Keep protocol redesign separate from mechanical refactoring and preserve experiments.",
       "result": {
         "date": "2026-09-07",
         "branch": "zk60-cl20-core (worktree /home/victor/wt-zk60-cl20, off 52a13d1)",
@@ -546,12 +600,179 @@
         "recommended_first_profile": "the non-hiding v3 FFN layer proof (layer::prove_layer_v3 / verify_layer_v3), parity gate pass 12 512 --profile v3 -> 5f368db6.. / 70,758,084 B on CPU and GPU; smallest closure exercising every primitive (10 modules / 3,934 code lines after nine planned cuts vs 18 / 8,781 today); deterministic (no RNG) so byte parity is the strongest gate; privacy class stated honestly: P0, not zero-knowledge. The hiding ZK v3 (40eb5479.., known FFN disclosure + P3 identity gap) is the second vertical, after repair or explicitly limitation-classified, with its disclosure/identity tests moved unchanged.",
         "decisions_for_codex": "sha2 stays in the core for the table-spec digest; GPU seam = Store::External + a Backend trait with default-None hooks, HL_GPU=1 moves to the CLI; layer.rs stops routing through pcs_compact::commit and wcache::commit_w (byte-identical fall-throughs), the core takes an optional pre-built W commitment; ZkRng moves verbatim to zkp_core::rng and is re-exported; bounded decoding is shape-directed and must reject non-canonical field elements (Fp::new silently reduces v >= P today)",
         "limits": "design only: no code moved, no manifest, no privacy repair, no P3 identity, no throughput claim; the scanner counts crate::-prefixed and use-declared references, not unprefixed calls through an imported name; line numbers are at 52a13d1 and drift; the authoritative parity gate needs the gitignored m125_v3_export, so the fast isolated gate uses synthetic fixtures recorded at step 3"
+      },
+      "primitive_delivery": {
+        "commit": "c8a342f",
+        "owner": "Codex",
+        "modules": [
+          "field",
+          "ntt",
+          "merkle",
+          "transcript",
+          "mle",
+          "rng",
+          "sumcheck"
+        ],
+        "tests": 19,
+        "report": "../../zkp-core/MIGRATION.md",
+        "complete_task": false
       }
+    },
+    {
+      "id": "FA6",
+      "priority": 0,
+      "title": "Review the complete CFS masking channel",
+      "owner": "Fable independent review",
+      "status": "ready",
+      "depends_on": [],
+      "files": [
+        "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md",
+        "new independent CFS review and analysis tests"
+      ],
+      "work": [
+        "Enumerate joint round messages, masked claimed sums, terminal relations and product-form mask-opening observations from actual source.",
+        "Derive conditional masking/simulation or an explicit counterexample, including both seam slots and failure/retry behavior."
+      ],
+      "acceptance": [
+        "Give a construction-specific verdict with every mask coefficient and shared functional accounted for.",
+        "Use adversarial controls; PCS-vector rank alone cannot close FA3 B1."
+      ],
+      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner."
+    },
+    {
+      "id": "FA7",
+      "priority": 0,
+      "title": "Analyze captured A/H/W observations jointly",
+      "owner": "Fable independent review",
+      "status": "ready",
+      "depends_on": [],
+      "files": [
+        "schema-1 test capture JSON",
+        "scripts/zk60_fable_joint_rank.py",
+        "tests/test_zk60_fable_joint_rank.py",
+        "independent capture review"
+      ],
+      "work": [
+        "Consume digest-bound captures from the actual ordinary verifier, preserving exact field integers and row aliases.",
+        "Combine individual terminal values, group vectors, proximity and H zero-sum constraints; reproduce actual Wd recovery.",
+        "Specify repaired-profile and function-2 capture follow-ups; current captures cover legacy function 1."
+      ],
+      "acceptance": [
+        "Retain proof/file hashes and exact included/excluded observations; malformed inputs refuse.",
+        "Do not label Codex per-column lower bounds as a complete joint result or H privacy."
+      ],
+      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner."
+    },
+    {
+      "id": "FA8",
+      "priority": 0,
+      "title": "Review full transcript and repeated-proof privacy",
+      "owner": "Fable independent review",
+      "status": "ready_design; closure depends on reviewed inputs",
+      "depends_on": [
+        "FA6",
+        "FA7"
+      ],
+      "files": [
+        "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md",
+        "docs/zkmatrix-poc/ZK60_FABLE_MODEL_IDENTITY.md",
+        "independent simulator review"
+      ],
+      "work": [
+        "Address FA3 B2-B4 with explicit conditioning, hash, entropy, retry and composition assumptions.",
+        "Separate fresh P1 and FA4 budgeted stable P3 commitments; account for all k transcripts and enforcement of consumption."
+      ],
+      "acceptance": [
+        "State a construction-specific acceptance or remaining blocker for each observation channel.",
+        "Finite rank tests and a declaration of model identity cannot substitute for the argument or enforcement."
+      ],
+      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner."
+    },
+    {
+      "id": "FA9",
+      "priority": 0,
+      "title": "Close arithmetic and authenticated registrar obligations",
+      "owner": "Fable independent review",
+      "status": "ready",
+      "depends_on": [],
+      "files": [
+        "docs/zkmatrix-poc/ZK60_FABLE_SECURITY_OBLIGATIONS.md",
+        "new independent arithmetic adversarial tests",
+        "Codex-owned verifier/contract patch proposals"
+      ],
+      "work": [
+        "Reproduce FA5 R09 norm alias as an adversarial Rust case and propose the narrow range-enforcement fix.",
+        "Resolve R31 weight/gamma range premise, R10 limb width and R32 extra typed-proof fields with explicit source/contract boundaries."
+      ],
+      "acceptance": [
+        "Distinguish current fixed-profile exclusion from wider-profile false acceptance; test the proposed refusal.",
+        "No changed protocol bytes hidden in a refactor; update FA5 classifications and remaining gaps."
+      ],
+      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner."
+    },
+    {
+      "id": "CL21",
+      "priority": 1,
+      "title": "Include extracted core in validation provenance",
+      "owner": "Fable GPU/tools lane",
+      "status": "ready",
+      "depends_on": [],
+      "files": [
+        "results/cl1_floors.sh",
+        "scripts/hashline_cl_gpu_gates.py",
+        "scripts/hashline_cl_5090_preflight.py",
+        "tests/test_hashline_cl_gpu_gates.py",
+        "tests/test_hashline_cl_5090_preflight.py"
+      ],
+      "work": [
+        "Track source identity for hashline, zkp-core and both dependency lockfiles.",
+        "Version explicit core-test/example cases in the gate suite while preserving archived v1-v3 meanings."
+      ],
+      "acceptance": [
+        "Dirty or missing core, mismatched dependency identity and missing core cases refuse qualification.",
+        "Gate both the standalone core and existing CPU/GPU frozen fixtures with exact case/source/binary identities."
+      ],
+      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner."
     }
   ],
   "round10_codex_work": "CL19 implementation complete and validated: 156 Rust, 39 Python consumers, four unchanged frozen proofs, P3 on/off byte parity; see ZK60_ROUND10.md. GPU/PCS/planner ownership unchanged.",
-  "codex_next_work": "Test-only full-verifier public capture/replay for H and P3 W alongside A, supporting FA2 independent joint review; no protocol repair before reviewed mask plan.",
+  "codex_next_work": [
+    "Integrate construction-specific FA6-FA9 conclusions and exact-coefficient analysis.",
+    "Implement the separately versioned masking repair and pending FFN lifecycle after required review closure.",
+    "Validate one private block, then two connected private blocks; review remaining CL20 boundaries."
+  ],
   "completed_successor_tasks": [
+    "CL12",
+    "CL13",
+    "CL14",
+    "CL15",
+    "CL16",
+    "CL17",
+    "CL18",
     "CL19"
-  ]
+  ],
+  "updated_local_date": "2026-09-08",
+  "round11_codex_work": {
+    "status": "implemented_scope_validated; privacy repair and complete core remain open",
+    "source": "c8a342f",
+    "implemented": [
+      "atomic A/H/P3-W verifier observations and JSON export",
+      "actual seeded/fresh Wd singleton disclosure",
+      "reviewed Fable branch integrations",
+      "canonical CPU primitive crate with legacy adapters"
+    ],
+    "privacy_repair_implemented": false,
+    "private_block_implemented": false,
+    "full_cl20_complete": false,
+    "validation": "../../results/zk60_round11_validation.json",
+    "report": "ZK60_ROUND11.md",
+    "tests": {
+      "rust_passed": 178,
+      "python_passed": 546,
+      "python_skipped": 0,
+      "gpu_oracle_cases": 189,
+      "frozen_proof_cases": 12,
+      "floor_cases": 21
+    }
+  }
 }

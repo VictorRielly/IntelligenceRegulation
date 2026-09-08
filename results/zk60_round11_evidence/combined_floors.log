@@ -1,0 +1,315 @@
+
+=== configuration ===
+2026-09-08 09:19:25
+repo        /home/victor/IntelligenceRegulation
+v3 export   /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export
+M125 export /home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl
+CUDA root   /home/victor/cuda-root
+CUDA LD     /home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib
+threads     prover --threads 2 | CARGO_BUILD_JOBS 2 | RAYON_NUM_THREADS 2
+shape       pass 12 512 (the frozen fixtures)
+devices     CUDA_VISIBLE_DEVICES=<unset: all>
+helper      python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py (suite version 3)
+scratch     /tmp/zk60-round11/floors (manifest + per-case logs are retained here)
+
+=== parser self-tests (before any build or hardware step) ===
+2026-09-08 09:19:25
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py self-test
+gates self-test OK {"suite_versions": [0, 1, 2, 3], "synthetic_round_trip": "green", "cases": 21}
+self-tests OK; suite version 3 expects 189 executed oracle cases
+
+=== source identity ===
+2026-09-08 09:19:25
+HEAD      c8a342fa332a17d406582356f52899bd2e13a559
+branch    perf/zk-batch-optimizations
+dirty     0 tracked file(s) modified
+dirty-delta sha256 (hashline/)  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py init --out /tmp/zk60-round11/floors/manifest.json --suite-version 3 --head c8a342fa332a17d406582356f52899bd2e13a559 --branch perf/zk-batch-optimizations --dirty-count 0 --dirty-delta-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 --layers 12 --tokens 512 --prover-threads 2 --build-jobs 2 --rayon-threads 2 --cpu-target-dir /home/victor/IntelligenceRegulation/hashline/target --gpu-target-dir /home/victor/IntelligenceRegulation/hashline/target-gpu --v3-export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export --m125-export /home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl --cuda-root /home/victor/cuda-root --scratch /tmp/zk60-round11/floors --device-selection '' --nvidia-smi NVIDIA\ GeForce\ RTX\ 4070\ Laptop\ GPU\,\ 566.14
+manifest /tmp/zk60-round11/floors/manifest.json: suite version 3, 21 expected cases, shape 12x512 (frozen)
+
+=== build_cpu ===
+2026-09-08 09:19:25
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case build_cpu
++ env CARGO_BUILD_JOBS=2 flock /tmp/zk-build.lock cargo build --release --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml > /tmp/zk60-round11/floors/build_cpu.out 2>&1
+warning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+    Finished `release` profile [optimized] target(s) in 45.51s
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case build_cpu --exit 0 --log /tmp/zk60-round11/floors/build_cpu.out -- env CARGO_BUILD_JOBS=2 flock /tmp/zk-build.lock cargo build --release --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml
+CASE OK   build_cpu  (log retained: /tmp/zk60-round11/floors/build_cpu.out)
+
+=== build_gpu ===
+2026-09-08 09:20:11
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case build_gpu
++ env CARGO_BUILD_JOBS=2 CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib CARGO_TARGET_DIR=/home/victor/IntelligenceRegulation/hashline/target-gpu flock /tmp/zk-build.lock cargo build --release --features gpu-cuda --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml > /tmp/zk60-round11/floors/build_gpu.out 2>&1
+warning: `hashline` (lib) generated 10 warnings (run `cargo fix --lib -p hashline` to apply 7 suggestions)
+    Finished `release` profile [optimized] target(s) in 51.54s
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case build_gpu --exit 0 --log /tmp/zk60-round11/floors/build_gpu.out -- env CARGO_BUILD_JOBS=2 CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib CARGO_TARGET_DIR=/home/victor/IntelligenceRegulation/hashline/target-gpu flock /tmp/zk-build.lock cargo build --release --features gpu-cuda --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml
+CASE OK   build_gpu  (log retained: /tmp/zk60-round11/floors/build_gpu.out)
+
+=== binary identity ===
+2026-09-08 09:21:02
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py binaries --manifest /tmp/zk60-round11/floors/manifest.json --cpu /home/victor/IntelligenceRegulation/hashline/target/release/hashline --gpu /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline
+CPU binary  1da71f4b5f5505d756bb016db678c7fccce5be5269bcd2d55134495f04938086  4661784 B  /home/victor/IntelligenceRegulation/hashline/target/release/hashline
+GPU binary  108c60d9d58ecb0aaf4db9061e71489243249811688958035c3ca57f815487d3  5364072 B  /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline
+
+=== cargo test --release (CPU, --test-threads=2) ===
+2026-09-08 09:21:02
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case cargo_test_cpu
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-build.lock cargo test --release --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml -- --test-threads=2 > /tmp/zk60-round11/floors/cargo_test_cpu.out 2>&1
+test result: ok. 49 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.26s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 52.87s
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.45s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.59s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.80s
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case cargo_test_cpu --exit 0 --log /tmp/zk60-round11/floors/cargo_test_cpu.out -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-build.lock cargo test --release --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml -- --test-threads=2
+CASE OK   cargo_test_cpu  (log retained: /tmp/zk60-round11/floors/cargo_test_cpu.out)
+
+=== CL1 GPU oracle suite (chunked hiding commit vs the CPU, + negative control) — uncaptured, one thread ===
+2026-09-08 09:24:47
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case oracle_gpu
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib CARGO_TARGET_DIR=/home/victor/IntelligenceRegulation/hashline/target-gpu HL_GPU=1 HL_GPU_REQUIRED=1 flock /tmp/zk-build.lock cargo test --release --features gpu-cuda --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml --test zk60_gpu_commit -- --test-threads=1 --nocapture > /tmp/zk60-round11/floors/oracle_gpu.out 2>&1
+test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.21s
+oracle summary: {"executed_cases":189,"gpu_enabled":true,"gpu_required":true,"device":"gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)"}
+oracle cases executed: 189 (expected 189); device: gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case oracle_gpu --exit 0 --log /tmp/zk60-round11/floors/oracle_gpu.out -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib CARGO_TARGET_DIR=/home/victor/IntelligenceRegulation/hashline/target-gpu HL_GPU=1 HL_GPU_REQUIRED=1 flock /tmp/zk-build.lock cargo test --release --features gpu-cuda --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml --test zk60_gpu_commit -- --test-threads=1 --nocapture
+CASE OK   oracle_gpu  (log retained: /tmp/zk60-round11/floors/oracle_gpu.out)
+
+=== missing-feature refusal (CPU target, no gpu-cuda): HL_GPU_REQUIRED=1 must FAIL ===
+2026-09-08 09:25:50
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case nofeature_required_refuses
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU_REQUIRED=1 flock /tmp/zk-build.lock cargo test --release --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml --test zk60_gpu_commit -- --nocapture > /tmp/zk60-round11/floors/nofeature_required_refuses.out 2>&1
+refused as required (exit 101): HL_GPU_REQUIRED=1 but this test binary was built WITHOUT --features gpu-cuda
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case nofeature_required_refuses --exit 101 --log /tmp/zk60-round11/floors/nofeature_required_refuses.out -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU_REQUIRED=1 flock /tmp/zk-build.lock cargo test --release --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml --test zk60_gpu_commit -- --nocapture
+CASE OK   nofeature_required_refuses  (log retained: /tmp/zk60-round11/floors/nofeature_required_refuses.out)
+
+=== missing-feature status (CPU target, no gpu-cuda): without the requirement it must report ZERO cases, not success as evidence ===
+2026-09-08 09:25:50
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case nofeature_plain_reports_zero
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-build.lock cargo test --release --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml --test zk60_gpu_commit -- --nocapture > /tmp/zk60-round11/floors/nofeature_plain_reports_zero.out 2>&1
+no-feature summary (exit 0): {"executed_cases":0,"gpu_enabled":false,"gpu_required":false,"device":"built without --features gpu-cuda"}
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case nofeature_plain_reports_zero --exit 0 --log /tmp/zk60-round11/floors/nofeature_plain_reports_zero.out -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-build.lock cargo test --release --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml --test zk60_gpu_commit -- --nocapture
+CASE OK   nofeature_plain_reports_zero  (log retained: /tmp/zk60-round11/floors/nofeature_plain_reports_zero.out)
+
+=== GATE v2 [cpu] ===
+2026-09-08 09:25:50
++ rm -f /tmp/zk60-round11/floors/cpu-v2.proof
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case cpu-v2
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 /home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/cpu-v2.proof > /tmp/zk60-round11/floors/cpu-v2.out 2>&1
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 2.792 s, 5573568 B
+  layer  1: prove 2.719 s, 5568692 B
+  layer  2: prove 2.570 s, 5570752 B
+  layer  3: prove 2.495 s, 5571020 B
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case cpu-v2 --exit 0 --log /tmp/zk60-round11/floors/cpu-v2.out --proof /tmp/zk60-round11/floors/cpu-v2.proof --binary-role cpu --binary-path /home/victor/IntelligenceRegulation/hashline/target/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 /home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/cpu-v2.proof
+CASE OK   cpu-v2  50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d  66844928 B  (log retained: /tmp/zk60-round11/floors/cpu-v2.out)
++ rm -f /tmp/zk60-round11/floors/cpu-v2.proof
+
+=== GATE v3 [cpu] ===
+2026-09-08 09:26:25
++ rm -f /tmp/zk60-round11/floors/cpu-v3.proof
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case cpu-v3
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 /home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/cpu-v3.proof --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export > /tmp/zk60-round11/floors/cpu-v3.out 2>&1
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 2.470 s, 5899988 B
+  layer  1: prove 2.518 s, 5960912 B
+  layer  2: prove 2.515 s, 5960392 B
+  layer  3: prove 2.531 s, 5896912 B
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case cpu-v3 --exit 0 --log /tmp/zk60-round11/floors/cpu-v3.out --proof /tmp/zk60-round11/floors/cpu-v3.proof --binary-role cpu --binary-path /home/victor/IntelligenceRegulation/hashline/target/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 /home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/cpu-v3.proof --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export
+CASE OK   cpu-v3  5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d  70758084 B  (log retained: /tmp/zk60-round11/floors/cpu-v3.out)
++ rm -f /tmp/zk60-round11/floors/cpu-v3.proof
+
+=== GATE zk [cpu] ===
+2026-09-08 09:27:00
++ rm -f /tmp/zk60-round11/floors/cpu-zk.proof
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case cpu-zk
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 /home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/cpu-zk.proof --zk --seed 1 > /tmp/zk60-round11/floors/cpu-zk.out 2>&1
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 2.808 s, 7269044 B
+  layer  1: prove 2.922 s, 7269044 B
+  layer  2: prove 2.769 s, 7269044 B
+  layer  3: prove 2.710 s, 7269044 B
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case cpu-zk --exit 0 --log /tmp/zk60-round11/floors/cpu-zk.out --proof /tmp/zk60-round11/floors/cpu-zk.proof --binary-role cpu --binary-path /home/victor/IntelligenceRegulation/hashline/target/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 /home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/cpu-zk.proof --zk --seed 1
+CASE OK   cpu-zk  021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d  87228528 B  (log retained: /tmp/zk60-round11/floors/cpu-zk.out)
++ rm -f /tmp/zk60-round11/floors/cpu-zk.proof
+
+=== GATE zkv3 [cpu] ===
+2026-09-08 09:27:37
++ rm -f /tmp/zk60-round11/floors/cpu-zkv3.proof
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case cpu-zkv3
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 /home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/cpu-zkv3.proof --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export > /tmp/zk60-round11/floors/cpu-zkv3.out 2>&1
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 2.728 s, 7306036 B
+  layer  1: prove 2.690 s, 7318324 B
+  layer  2: prove 2.897 s, 7318324 B
+  layer  3: prove 3.211 s, 7306036 B
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case cpu-zkv3 --exit 0 --log /tmp/zk60-round11/floors/cpu-zkv3.out --proof /tmp/zk60-round11/floors/cpu-zkv3.proof --binary-role cpu --binary-path /home/victor/IntelligenceRegulation/hashline/target/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 /home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/cpu-zkv3.proof --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export
+CASE OK   cpu-zkv3  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B  (log retained: /tmp/zk60-round11/floors/cpu-zkv3.out)
++ rm -f /tmp/zk60-round11/floors/cpu-zkv3.proof
+
+=== GATE v2 [gpu] ===
+2026-09-08 09:28:16
++ rm -f /tmp/zk60-round11/floors/gpu-v2.proof
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-v2
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-v2.proof > /tmp/zk60-round11/floors/gpu-v2.out 2>&1
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.310 s, 5573568 B
+  layer  1: prove 0.182 s, 5568692 B
+  layer  2: prove 0.178 s, 5570752 B
+  layer  3: prove 0.189 s, 5571020 B
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-v2 --exit 0 --log /tmp/zk60-round11/floors/gpu-v2.out --proof /tmp/zk60-round11/floors/gpu-v2.proof --binary-role gpu --binary-path /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-v2.proof
+CASE OK   gpu-v2  50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d  66844928 B  (log retained: /tmp/zk60-round11/floors/gpu-v2.out)
++ rm -f /tmp/zk60-round11/floors/gpu-v2.proof
+
+=== GATE v3 [gpu] ===
+2026-09-08 09:28:24
++ rm -f /tmp/zk60-round11/floors/gpu-v3.proof
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-v3
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-v3.proof --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export > /tmp/zk60-round11/floors/gpu-v3.out 2>&1
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.303 s, 5899988 B
+  layer  1: prove 0.159 s, 5960912 B
+  layer  2: prove 0.162 s, 5960392 B
+  layer  3: prove 0.163 s, 5896912 B
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-v3 --exit 0 --log /tmp/zk60-round11/floors/gpu-v3.out --proof /tmp/zk60-round11/floors/gpu-v3.proof --binary-role gpu --binary-path /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-v3.proof --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export
+CASE OK   gpu-v3  5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d  70758084 B  (log retained: /tmp/zk60-round11/floors/gpu-v3.out)
++ rm -f /tmp/zk60-round11/floors/gpu-v3.proof
+
+=== GATE zk [gpu] ===
+2026-09-08 09:28:33
++ rm -f /tmp/zk60-round11/floors/gpu-zk.proof
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-zk
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-zk.proof --zk --seed 1 > /tmp/zk60-round11/floors/gpu-zk.out 2>&1
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.447 s, 7269044 B
+  layer  1: prove 0.283 s, 7269044 B
+  layer  2: prove 0.280 s, 7269044 B
+  layer  3: prove 0.283 s, 7269044 B
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-zk --exit 0 --log /tmp/zk60-round11/floors/gpu-zk.out --proof /tmp/zk60-round11/floors/gpu-zk.proof --binary-role gpu --binary-path /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-zk.proof --zk --seed 1
+CASE OK   gpu-zk  021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d  87228528 B  (log retained: /tmp/zk60-round11/floors/gpu-zk.out)
++ rm -f /tmp/zk60-round11/floors/gpu-zk.proof
+
+=== GATE zkv3 [gpu] ===
+2026-09-08 09:28:43
++ rm -f /tmp/zk60-round11/floors/gpu-zkv3.proof
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-zkv3
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-zkv3.proof --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export > /tmp/zk60-round11/floors/gpu-zkv3.out 2>&1
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.450 s, 7306036 B
+  layer  1: prove 0.401 s, 7318324 B
+  layer  2: prove 0.404 s, 7318324 B
+  layer  3: prove 0.393 s, 7306036 B
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-zkv3 --exit 0 --log /tmp/zk60-round11/floors/gpu-zkv3.out --proof /tmp/zk60-round11/floors/gpu-zkv3.proof --binary-role gpu --binary-path /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-zkv3.proof --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export
+CASE OK   gpu-zkv3  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B  (log retained: /tmp/zk60-round11/floors/gpu-zkv3.out)
++ rm -f /tmp/zk60-round11/floors/gpu-zkv3.proof
+
+=== GATE v2 [gpu-zkchunk] ===
+2026-09-08 09:28:55
++ rm -f /tmp/zk60-round11/floors/gpu-zkchunk-v2.proof
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-zkchunk-v2
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 HL_ZK_CHUNK=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-zkchunk-v2.proof > /tmp/zk60-round11/floors/gpu-zkchunk-v2.out 2>&1
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.313 s, 5573568 B
+  layer  1: prove 0.183 s, 5568692 B
+  layer  2: prove 0.183 s, 5570752 B
+  layer  3: prove 0.179 s, 5571020 B
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-zkchunk-v2 --exit 0 --log /tmp/zk60-round11/floors/gpu-zkchunk-v2.out --proof /tmp/zk60-round11/floors/gpu-zkchunk-v2.proof --binary-role gpu --binary-path /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 HL_ZK_CHUNK=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-zkchunk-v2.proof
+CASE OK   gpu-zkchunk-v2  50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d  66844928 B  (log retained: /tmp/zk60-round11/floors/gpu-zkchunk-v2.out)
++ rm -f /tmp/zk60-round11/floors/gpu-zkchunk-v2.proof
+
+=== GATE v3 [gpu-zkchunk] ===
+2026-09-08 09:29:03
++ rm -f /tmp/zk60-round11/floors/gpu-zkchunk-v3.proof
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-zkchunk-v3
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 HL_ZK_CHUNK=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-zkchunk-v3.proof --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export > /tmp/zk60-round11/floors/gpu-zkchunk-v3.out 2>&1
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.330 s, 5899988 B
+  layer  1: prove 0.160 s, 5960912 B
+  layer  2: prove 0.160 s, 5960392 B
+  layer  3: prove 0.161 s, 5896912 B
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-zkchunk-v3 --exit 0 --log /tmp/zk60-round11/floors/gpu-zkchunk-v3.out --proof /tmp/zk60-round11/floors/gpu-zkchunk-v3.proof --binary-role gpu --binary-path /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 HL_ZK_CHUNK=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-zkchunk-v3.proof --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export
+CASE OK   gpu-zkchunk-v3  5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d  70758084 B  (log retained: /tmp/zk60-round11/floors/gpu-zkchunk-v3.out)
++ rm -f /tmp/zk60-round11/floors/gpu-zkchunk-v3.proof
+
+=== GATE zk [gpu-zkchunk] ===
+2026-09-08 09:29:13
++ rm -f /tmp/zk60-round11/floors/gpu-zkchunk-zk.proof
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-zkchunk-zk
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 HL_ZK_CHUNK=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-zkchunk-zk.proof --zk --seed 1 > /tmp/zk60-round11/floors/gpu-zkchunk-zk.out 2>&1
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.447 s, 7269044 B
+  layer  1: prove 0.303 s, 7269044 B
+  layer  2: prove 0.301 s, 7269044 B
+  layer  3: prove 0.301 s, 7269044 B
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-zkchunk-zk --exit 0 --log /tmp/zk60-round11/floors/gpu-zkchunk-zk.out --proof /tmp/zk60-round11/floors/gpu-zkchunk-zk.proof --binary-role gpu --binary-path /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 HL_ZK_CHUNK=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-zkchunk-zk.proof --zk --seed 1
+CASE OK   gpu-zkchunk-zk  021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d  87228528 B  (log retained: /tmp/zk60-round11/floors/gpu-zkchunk-zk.out)
++ rm -f /tmp/zk60-round11/floors/gpu-zkchunk-zk.proof
+
+=== GATE zkv3 [gpu-zkchunk] ===
+2026-09-08 09:29:23
++ rm -f /tmp/zk60-round11/floors/gpu-zkchunk-zkv3.proof
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-zkchunk-zkv3
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 HL_ZK_CHUNK=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-zkchunk-zkv3.proof --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export > /tmp/zk60-round11/floors/gpu-zkchunk-zkv3.out 2>&1
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.420 s, 7306036 B
+  layer  1: prove 0.371 s, 7318324 B
+  layer  2: prove 0.376 s, 7318324 B
+  layer  3: prove 0.377 s, 7306036 B
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case gpu-zkchunk-zkv3 --exit 0 --log /tmp/zk60-round11/floors/gpu-zkchunk-zkv3.out --proof /tmp/zk60-round11/floors/gpu-zkchunk-zkv3.proof --binary-role gpu --binary-path /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=1 HL_ZK_CHUNK=1 LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/gpu-zkchunk-zkv3.proof --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export
+CASE OK   gpu-zkchunk-zkv3  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B  (log retained: /tmp/zk60-round11/floors/gpu-zkchunk-zkv3.out)
++ rm -f /tmp/zk60-round11/floors/gpu-zkchunk-zkv3.proof
++ rm -rf /tmp/zk60-round11/floors/wcache
+
+=== CACHE cache_cold_zkv3 ===
+2026-09-08 09:29:34
++ rm -f /tmp/zk60-round11/floors/cache_cold_zkv3.proof
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case cache_cold_zkv3
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_WCACHE_VERBOSE=1 /home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/cache_cold_zkv3.proof --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export --wcache /tmp/zk60-round11/floors/wcache > /tmp/zk60-round11/floors/cache_cold_zkv3.out 2>&1
+PROOF sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) [ZK v3 randomness deterministic-test]
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 3.67 s | PROVE 34.61 s | VERIFY 0.51 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 8.377e8 proven MAC/s (prove wall) | wall 38.87 s
+  wcache /tmp/zk60-round11/floors/wcache: hits 0 | misses 12 | rejected 0 | read 0.0 MB | wrote 50.3 MB | key 0.013 s | load+verify 0.000 s | re-encode 0.000 s | commit(miss) 4.414 s | save 0.028 s
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case cache_cold_zkv3 --exit 0 --log /tmp/zk60-round11/floors/cache_cold_zkv3.out --proof /tmp/zk60-round11/floors/cache_cold_zkv3.proof --binary-role cpu --binary-path /home/victor/IntelligenceRegulation/hashline/target/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_WCACHE_VERBOSE=1 /home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/cache_cold_zkv3.proof --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export --wcache /tmp/zk60-round11/floors/wcache
+CASE OK   cache_cold_zkv3  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B  (log retained: /tmp/zk60-round11/floors/cache_cold_zkv3.out)
++ rm -f /tmp/zk60-round11/floors/cache_cold_zkv3.proof
+
+=== CACHE cache_warm_zkv3 ===
+2026-09-08 09:30:13
++ rm -f /tmp/zk60-round11/floors/cache_warm_zkv3.proof
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case cache_warm_zkv3
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_WCACHE_VERBOSE=1 /home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/cache_warm_zkv3.proof --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export --wcache /tmp/zk60-round11/floors/wcache > /tmp/zk60-round11/floors/cache_warm_zkv3.out 2>&1
+PROOF sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) [ZK v3 randomness deterministic-test]
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 3.67 s | PROVE 33.26 s | VERIFY 0.46 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 8.716e8 proven MAC/s (prove wall) | wall 37.48 s
+  wcache /tmp/zk60-round11/floors/wcache: hits 12 | misses 0 | rejected 0 | read 50.3 MB | wrote 0.0 MB | key 0.014 s | load+verify 0.045 s | re-encode 3.814 s | commit(miss) 0.000 s | save 0.000 s
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case cache_warm_zkv3 --exit 0 --log /tmp/zk60-round11/floors/cache_warm_zkv3.out --proof /tmp/zk60-round11/floors/cache_warm_zkv3.proof --binary-role cpu --binary-path /home/victor/IntelligenceRegulation/hashline/target/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_WCACHE_VERBOSE=1 /home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 12 512 --threads 2 --proof-out /tmp/zk60-round11/floors/cache_warm_zkv3.proof --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export --wcache /tmp/zk60-round11/floors/wcache
+CASE OK   cache_warm_zkv3  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B  (log retained: /tmp/zk60-round11/floors/cache_warm_zkv3.out)
++ rm -f /tmp/zk60-round11/floors/cache_warm_zkv3.proof
+
+=== CACHE cache_p3_refusal (--p3 with --wcache must be refused before any work) ===
+2026-09-08 09:30:51
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round11/floors/manifest.json --case cache_p3_refusal
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 /home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 12 512 --threads 2 --profile v3 --seed 1 --export /nonexistent/zk60-cl13-export --p3 --wcache /tmp/zk60-round11/floors/wcache-p3-must-not-exist > /tmp/zk60-round11/floors/cache_p3_refusal.out 2>&1
+REFUSED: --wcache with --p3.
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round11/floors/manifest.json --case cache_p3_refusal --exit 2 --log /tmp/zk60-round11/floors/cache_p3_refusal.out --binary-role cpu --binary-path /home/victor/IntelligenceRegulation/hashline/target/release/hashline -- env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 /home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 12 512 --threads 2 --profile v3 --seed 1 --export /nonexistent/zk60-cl13-export --p3 --wcache /tmp/zk60-round11/floors/wcache-p3-must-not-exist
+CASE OK   cache_p3_refusal  (log retained: /tmp/zk60-round11/floors/cache_p3_refusal.out)
+
+=== VERDICT ===
+2026-09-08 09:30:51
+executed byte-gate cases: 12 (expect 12)
+retained logs: 21 in /tmp/zk60-round11/floors
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py finalize --manifest /tmp/zk60-round11/floors/manifest.json
+MANIFEST GREEN  suite v3  21 cases  head c8a342fa332a17d406582356f52899bd2e13a559  gpu binary 108c60d9d58ecb0aaf4db9061e71489243249811688958035c3ca57f815487d3  device gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+ALL CL1 FLOORS GREEN (12 byte gates + oracle suite + missing-feature refusal + cache cases + tests + both builds) — manifest /tmp/zk60-round11/floors/manifest.json

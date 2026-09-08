@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "initial_directory": "/tmp/zk60-round11/observations",
+  "final_directory": "/tmp/zk60-round11/final-observations",
+  "initial_captures": 12,
+  "final_captures": 12,
+  "seeded_captures_identical": [
+    {
+      "proof_sha256": "30b390755fda91b784b9dd6d13cc957f57cb67f8441657a0266c26ac139815d2",
+      "capture_sha256": "6802f9a6fd3c2f0cc1d7aaaf82a5d7f86f543e64062868a00fe6e3941c37484c"
+    },
+    {
+      "proof_sha256": "6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297",
+      "capture_sha256": "9e5b400cdbc7e2817636d70a3313999af90b0b9ab16f229e6655a5ce7b37f2de"
+    },
+    {
+      "proof_sha256": "7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df",
+      "capture_sha256": "25f65afff3815aac7a1f881c746a6a0b31e60fd55d166d37acd41a0a785ea4f3"
+    },
+    {
+      "proof_sha256": "9ce61efc214b868840a3f904ee3b1b974b62431eaf5cbe5b6a8364b83594c1a7",
+      "capture_sha256": "4045e9bc9266d8651ad3136c2a9be30db5d5f4f0e7ee9339c9bb90d5ddbf6d70"
+    },
+    {
+      "proof_sha256": "ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe",
+      "capture_sha256": "e883bc01944df266c48046826ab9732c0f66ab6216f543704e9c3500a3b06240"
+    },
+    {
+      "proof_sha256": "dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615",
+      "capture_sha256": "056a60db4383b81cd7460d24f4ea3e02b32c96f80f889d45f328b33a40b90930"
+    }
+  ],
+  "fresh_capture_hashes_differ": true,
+  "limit": "Identity checks for synthetic diagnostic fixtures, not a privacy argument."
+}

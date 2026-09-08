@@ -1,0 +1,1172 @@
+warning: variable does not need to be mutable
+    --> src/bin/../manifest.rs:3259:13
+     |
+3259 |         let mut fuzz_ok = true;
+     |             ----^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/bin/lattice_matmul.rs:2648:9
+     |
+2648 |     let mut commit_cols = |cols: &[Vec<u64>], rng: &mut u64| {
+     |         ----^^^^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/bin/lattice_matmul.rs:3574:9
+     |
+3574 |     let mut commit_group = |cols: &[Vec<u64>], rng: &mut u64| {
+     |         ----^^^^^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: `zkmatrix-rs` (bin "lattice_matmul") generated 3 warnings (run `cargo fix --bin "lattice_matmul" -p zkmatrix-rs` to apply 3 suggestions)
+warning: unused import: `witness_coeff_bound`
+    --> src/bin/ring_matmul.rs:4933:36
+     |
+4933 |     use ring::params::{a1_enforce, witness_coeff_bound};
+     |                                    ^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `ring::lookup::silu_v2_member`
+     --> src/bin/ring_matmul.rs:25015:9
+      |
+25015 |     use ring::lookup::silu_v2_member;
+      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `K_DEG`
+     --> src/bin/ring_matmul.rs:31459:39
+      |
+31459 |     use ring::kfield::{KElem, KField, K_DEG};
+      |                                       ^^^^^
+
+warning: unused import: `ring::kfield::K_DEG`
+     --> src/bin/ring_matmul.rs:34465:9
+      |
+34465 |     use ring::kfield::K_DEG;
+      |         ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `MACS_PER_KMUL`
+     --> src/bin/ring_matmul.rs:44277:26
+      |
+44277 |     use ring::zc_range::{MACS_PER_KMUL, logup_sumcheck_prove, logup_sumcheck_verify, masked_pair_kmuls};
+      |                          ^^^^^^^^^^^^^
+
+warning: unused import: `SumcheckProof`
+     --> src/bin/ring_matmul.rs:56561:41
+      |
+56561 |     use ring::sumcheck::{LkpTranscript, SumcheckProof, sumcheck_prove, sumcheck_verify};
+      |                                         ^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+    --> src/bin/ring_matmul.rs:3800:9
+     |
+3800 |     let mut commit_cols = |mat: &[u64], n: usize, cols: usize, rng: &mut u64| {
+     |         ----^^^^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: unused variable: `rhos`
+     --> src/bin/ring_matmul.rs:14084:9
+      |
+14084 |     let rhos: Vec<Vec<Vec<i64>>> = (0..n_c)
+      |         ^^^^ help: if this is intentional, prefix it with an underscore: `_rhos`
+      |
+      = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `t`
+     --> src/bin/ring_matmul.rs:25604:5
+      |
+25604 |     t: usize,
+      |     ^ help: if this is intentional, prefix it with an underscore: `_t`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:25892:9
+      |
+25892 |     let mut push_commit = |m: Vec<Poly>,
+      |         ----^^^^^^^^^^^
+      |         |
+      |         help: remove this `mut`
+
+warning: unused variable: `end`
+     --> src/bin/ring_matmul.rs:26972:21
+      |
+26972 |         let (proof, end) = masked_gkr_prove(&kf, &[tree], masks, &mut tr);
+      |                     ^^^ help: if this is intentional, prefix it with an underscore: `_end`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:31478:9
+      |
+31478 |     let mut fail = |v: &mut BgVerdict, what: &'static str| {
+      |         ----^^^^
+      |         |
+      |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:34968:9
+      |
+34968 |     let mut fail = |v: &mut BkVerdict, what: String| {
+      |         ----^^^^
+      |         |
+      |         help: remove this `mut`
+
+warning: value assigned to `lays` is never read
+     --> src/bin/ring_matmul.rs:35841:13
+      |
+35841 |             lays = Vec::new();
+      |             ^^^^
+      |
+      = help: maybe it is overwritten before being read?
+      = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: value assigned to `lays` is never read
+     --> src/bin/ring_matmul.rs:35556:5
+      |
+35556 |     lays = Vec::new();
+      |     ^^^^
+      |
+      = help: maybe it is overwritten before being read?
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:40055:9
+      |
+40055 |     let mut two_coord = |rd: &mut XofReader| -> KElem {
+      |         ----^^^^^^^^^
+      |         |
+      |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:40965:13
+      |
+40965 |         let mut rand_p = |rd: &mut XofReader| -> u64 { rd.next_field(P) };
+      |             ----^^^^^^
+      |             |
+      |             help: remove this `mut`
+
+warning: value assigned to `cpu` is never read
+     --> src/bin/ring_matmul.rs:41799:23
+      |
+41799 |           let mut cpu = 0.0;
+      |                         ^^^ this value is reassigned later and never used
+41800 |           ring::gpu::set_bypass(true);
+41801 | /         cpu = time(&mut || {
+41802 | |             let _ = uperf_l_run_layer(&kf, &lay, 5, false);
+41803 | |         });
+      | |__________- `cpu` is overwritten here before the previous value is read
+
+warning: unused variable: `t`
+     --> src/bin/ring_matmul.rs:45238:5
+      |
+45238 |     t: usize,
+      |     ^ help: if this is intentional, prefix it with an underscore: `_t`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:45676:9
+      |
+45676 |     let mut push_commit = |mv: Vec<Poly>,
+      |         ----^^^^^^^^^^^
+      |         |
+      |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:46007:9
+      |
+46007 |     let mut edge_pin = |tr_or_tv: &mut LkpTranscript, pins_out: &mut Vec<PinnedValue>| {
+      |         ----^^^^^^^^
+      |         |
+      |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:47184:21
+      |
+47184 |                 let mut give = |sh: &mut i32, deficit: &mut i32| {
+      |                     ----^^^^
+      |                     |
+      |                     help: remove this `mut`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:47718:13
+      |
+47718 |         let mut push_commit = |mv: Vec<Poly>,
+      |             ----^^^^^^^^^^^
+      |             |
+      |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:50103:9
+      |
+50103 |     let mut lap = |timings: &mut Option<&mut Vec<(&'static str, f64)>>, tag: &'static str, tick: &mut std::time::Instant| {
+      |         ----^^^
+      |         |
+      |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:50297:9
+      |
+50297 |     let mut lap = |timings: &mut Option<&mut Vec<(&'static str, f64)>>, tag: &'static str, tick: &mut std::time::Instant| {
+      |         ----^^^
+      |         |
+      |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:50482:9
+      |
+50482 |     let mut w0_tt = tt_build_witness(&inst.group, seed);
+      |         ----^^^^^
+      |         |
+      |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:51822:9
+      |
+51822 |     let mut lap = |timings: &mut Option<&mut Vec<(&'static str, f64)>>, tag: &'static str, tick: &mut std::time::Instant| {
+      |         ----^^^
+      |         |
+      |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:51958:9
+      |
+51958 |     let mut lap = |timings: &mut Option<&mut Vec<(&'static str, f64)>>, tag: &'static str, tick: &mut std::time::Instant| {
+      |         ----^^^
+      |         |
+      |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:54073:9
+      |
+54073 |     let mut fail = |acc: &mut bool, ff: &mut Option<String>, what: String| {
+      |         ----^^^^
+      |         |
+      |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:54455:9
+      |
+54455 |     let mut ss_cols: Vec<Vec<ring::stage_a::full::LookupCol>> = (0..specs.len()).map(|_| Vec::new()).collect();
+      |         ----^^^^^^^
+      |         |
+      |         help: remove this `mut`
+
+warning: unused variable: `ss_cols`
+     --> src/bin/ring_matmul.rs:54455:9
+      |
+54455 |     let mut ss_cols: Vec<Vec<ring::stage_a::full::LookupCol>> = (0..specs.len()).map(|_| Vec::new()).collect();
+      |         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_ss_cols`
+
+warning: value assigned to `u0_h_bytes` is never read
+     --> src/bin/ring_matmul.rs:54389:35
+      |
+54389 |     let mut u0_h_bytes: Vec<u8> = Vec::new();
+      |                                   ^^^^^^^^^^ this value is reassigned later and never used
+...
+54510 |         u0_h_bytes = polys_bytes(&p.u0);
+      |         ---------- `u0_h_bytes` is overwritten here before the previous value is read
+
+warning: value assigned to `ss_hs` is never read
+     --> src/bin/ring_matmul.rs:54726:9
+      |
+54726 |         ss_hs = Vec::new();
+      |         ^^^^^
+      |
+      = help: maybe it is overwritten before being read?
+
+warning: value assigned to `gc_h_v` is never read
+     --> src/bin/ring_matmul.rs:55253:34
+      |
+55253 |                 let mut gc_h_v = GroupClaims::new(g.tensors.len());
+      |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ this value is reassigned later and never used
+...
+55258 |                 gc_h_v = gc_h_comb;
+      |                 ------ `gc_h_v` is overwritten here before the previous value is read
+
+warning: variable does not need to be mutable
+     --> src/bin/ring_matmul.rs:56708:9
+      |
+56708 |     let mut push_commit = |mv: Vec<Poly>,
+      |         ----^^^^^^^^^^^
+      |         |
+      |         help: remove this `mut`
+
+warning: fields `wm_c`, `tm_c`, and `g_groups` are never read
+     --> src/bin/ring_matmul.rs:10223:5
+      |
+10211 | struct P3Layout {
+      |        -------- fields in this struct
+...
+10223 |     wm_c: usize,
+      |     ^^^^
+10224 |     tm_c: usize,
+      |     ^^^^
+...
+10227 |     g_groups: usize,
+      |     ^^^^^^^^
+      |
+      = note: `P3Layout` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+      = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: variant `Decode` is never constructed
+     --> src/bin/ring_matmul.rs:10506:5
+      |
+10505 | enum P3Error {
+      |      ------- variant in this enum
+10506 |     Decode(manifest::DecodeError),
+      |     ^^^^^^
+      |
+      = note: `P3Error` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: function `bf_t` is never used
+     --> src/bin/ring_matmul.rs:24767:4
+      |
+24767 | fn bf_t() -> usize {
+      |    ^^^^
+
+warning: field `name` is never read
+     --> src/bin/ring_matmul.rs:25450:5
+      |
+25449 | struct BfInst {
+      |        ------ field in this struct
+25450 |     name: &'static str,
+      |     ^^^^
+      |
+      = note: `BfInst` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+
+warning: field `data_cap` is never read
+     --> src/bin/ring_matmul.rs:25521:5
+      |
+25510 | struct BfLayout {
+      |        -------- field in this struct
+...
+25521 |     data_cap: usize,
+      |     ^^^^^^^^
+
+warning: field `migrated` is never read
+     --> src/bin/ring_matmul.rs:29508:5
+      |
+29503 | struct BgRegistry {
+      |        ---------- field in this struct
+...
+29508 |     migrated: Option<(usize, usize)>,
+      |     ^^^^^^^^
+
+warning: field `in_weight` is never read
+     --> src/bin/ring_matmul.rs:29706:5
+      |
+29705 | struct BgClaim {
+      |        ------- field in this struct
+29706 |     in_weight: bool,
+      |     ^^^^^^^^^
+
+warning: function `bl_flatten_k` is never used
+     --> src/bin/ring_matmul.rs:33369:4
+      |
+33369 | fn bl_flatten_k(kf: &ring::kfield::KField, elems: &[ring::kfield::KElem]) -> Vec<u64> {
+      |    ^^^^^^^^^^^^
+
+warning: fields `n` and `beta` are never read
+     --> src/bin/ring_matmul.rs:33381:5
+      |
+33380 | struct BlInst {
+      |        ------ fields in this struct
+33381 |     n: usize,
+      |     ^
+...
+33390 |     beta: Vec<ring::kfield::KElem>,
+      |     ^^^^
+
+warning: fields `round_polys` and `g_hyper` are never read
+     --> src/bin/ring_matmul.rs:33449:5
+      |
+33448 | struct BlExposures {
+      |        ----------- fields in this struct
+33449 |     round_polys: Vec<Vec<ring::kfield::KElem>>,
+      |     ^^^^^^^^^^^
+33450 |     g_hyper: ring::kfield::KElem,
+      |     ^^^^^^^
+
+warning: fields `h0` and `pair_alphas` are never read
+     --> src/bin/ring_matmul.rs:34788:5
+      |
+34787 | struct BkArtifacts {
+      |        ----------- fields in this struct
+34788 |     h0: [u8; 32],
+      |     ^^
+...
+34792 |     pair_alphas: Vec<ring::kfield::KElem>,
+      |     ^^^^^^^^^^^
+
+warning: field `h_vals` is never read
+     --> src/bin/ring_matmul.rs:54008:5
+      |
+54003 | struct GgLogupMat {
+      |        ---------- field in this struct
+...
+54008 |     h_vals: Vec<i64>,
+      |     ^^^^^^
+
+warning: function `xs_statement_bytes` is never used
+     --> src/bin/ring_matmul.rs:56318:4
+      |
+56318 | fn xs_statement_bytes(t: usize, es: i32, commit_digests: &[Vec<u8>], crs_hash: &[u8]) -> Vec<u8> {
+      |    ^^^^^^^^^^^^^^^^^^
+
+warning: function `poly_to_small` is never used
+   --> src/bin/../ring/mod.rs:160:8
+    |
+160 | pub fn poly_to_small(zq: &Zq, a: &[u64]) -> Vec<i64> {
+    |        ^^^^^^^^^^^^^
+
+warning: function `poly_linf` is never used
+   --> src/bin/../ring/mod.rs:164:8
+    |
+164 | pub fn poly_linf(zq: &Zq, a: &[u64]) -> u64 {
+    |        ^^^^^^^^^
+
+warning: function `split_rows` is never used
+   --> src/bin/../ring/commit.rs:235:8
+    |
+235 | pub fn split_rows(ctx: &RingCtx, rows: &[Poly]) -> Vec<Vec<u64>> {
+    |        ^^^^^^^^^^
+
+warning: fields `t1` and `t2` are never read
+   --> src/bin/../ring/ct_engine.rs:220:9
+    |
+219 | pub struct StdOpening<'a> {
+    |            ---------- fields in this struct
+220 |     pub t1: &'a [Poly],
+    |         ^^
+221 |     pub t2: &'a [Poly],
+    |         ^^
+
+warning: fields `t1` and `t2` are never read
+   --> src/bin/../ring/ct_engine.rs:237:9
+    |
+236 | pub struct DigitOpening<'a> {
+    |            ------------ fields in this struct
+237 |     pub t1: &'a [Poly],
+    |         ^^
+238 |     pub t2: &'a [Poly],
+    |         ^^
+
+warning: variants `Padded` and `Revealed` are never constructed
+    --> src/bin/../ring/ct_engine.rs:1999:5
+     |
+1997 | pub enum SplitPolicy {
+     |          ----------- variants in this enum
+1998 |     /// Coset one-time pads: masked reveals sigma~ = functional + pad.
+1999 |     Padded,
+     |     ^^^^^^
+...
+2007 |     Revealed,
+     |     ^^^^^^^^
+     |
+     = note: `SplitPolicy` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: function `split_claims_prover_policy` is never used
+    --> src/bin/../ring/ct_engine.rs:2409:8
+     |
+2409 | pub fn split_claims_prover_policy(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `P_RESERVED_70` is never used
+    --> src/bin/../ring/ct_engine.rs:2560:15
+     |
+2560 |     pub const P_RESERVED_70: usize = 70;
+     |               ^^^^^^^^^^^^^
+
+warning: constant `P_RESERVED_71` is never used
+    --> src/bin/../ring/ct_engine.rs:2561:15
+     |
+2561 |     pub const P_RESERVED_71: usize = 71;
+     |               ^^^^^^^^^^^^^
+
+warning: constant `P_RESERVED_72` is never used
+    --> src/bin/../ring/ct_engine.rs:2562:15
+     |
+2562 |     pub const P_RESERVED_72: usize = 72;
+     |               ^^^^^^^^^^^^^
+
+warning: constant `P_RESERVED_73` is never used
+    --> src/bin/../ring/ct_engine.rs:2563:15
+     |
+2563 |     pub const P_RESERVED_73: usize = 73;
+     |               ^^^^^^^^^^^^^
+
+warning: constant `P_RESERVED_74` is never used
+    --> src/bin/../ring/ct_engine.rs:2564:15
+     |
+2564 |     pub const P_RESERVED_74: usize = 74;
+     |               ^^^^^^^^^^^^^
+
+warning: constant `P_RESERVED_75` is never used
+    --> src/bin/../ring/ct_engine.rs:2565:15
+     |
+2565 |     pub const P_RESERVED_75: usize = 75;
+     |               ^^^^^^^^^^^^^
+
+warning: constant `P_RESERVED_76` is never used
+    --> src/bin/../ring/ct_engine.rs:2566:15
+     |
+2566 |     pub const P_RESERVED_76: usize = 76;
+     |               ^^^^^^^^^^^^^
+
+warning: constant `P_RESERVED_77` is never used
+    --> src/bin/../ring/ct_engine.rs:2567:15
+     |
+2567 |     pub const P_RESERVED_77: usize = 77;
+     |               ^^^^^^^^^^^^^
+
+warning: constant `P_RESERVED_78` is never used
+    --> src/bin/../ring/ct_engine.rs:2568:15
+     |
+2568 |     pub const P_RESERVED_78: usize = 78;
+     |               ^^^^^^^^^^^^^
+
+warning: constant `P_RESERVED_79` is never used
+    --> src/bin/../ring/ct_engine.rs:2569:15
+     |
+2569 |     pub const P_RESERVED_79: usize = 79;
+     |               ^^^^^^^^^^^^^
+
+warning: constant `Q_LH_FILL` is never used
+    --> src/bin/../ring/ct_engine.rs:2570:15
+     |
+2570 |     pub const Q_LH_FILL: usize = 80; // [UPERF2-Q] gpu level-h session: host fill (value-ring pool + descriptors) + w pack per sta...
+     |               ^^^^^^^^^
+
+warning: constant `Q_LH_WAIT` is never used
+    --> src/bin/../ring/ct_engine.rs:2571:15
+     |
+2571 |     pub const Q_LH_WAIT: usize = 81; // [UPERF2-Q] gpu level-h session: host blocked on the device (staging reuse + the drain)
+     |               ^^^^^^^^^
+
+warning: constant `Q_LH_STREAM` is never used
+    --> src/bin/../ring/ct_engine.rs:2572:15
+     |
+2572 |     pub const Q_LH_STREAM: usize = 82; // [UPERF2-Q] gpu level-h session wall (the whole level's r x r table on the device)
+     |               ^^^^^^^^^^^
+
+warning: constant `Q_LH_SMAX` is never used
+    --> src/bin/../ring/ct_engine.rs:2573:15
+     |
+2573 |     pub const Q_LH_SMAX: usize = 83; // [UPERF2-Q] gpu level-h session: the level's s_max scan of the witness store
+     |               ^^^^^^^^^
+
+warning: constant `Q_CB_FILL` is never used
+    --> src/bin/../ring/ct_engine.rs:2574:15
+     |
+2574 |     pub const Q_CB_FILL: usize = 84; // [UPERF2-Q] gpu combine session (fold / psi0 / transport combines): host pack per stage
+     |               ^^^^^^^^^
+
+warning: constant `Q_CB_WAIT` is never used
+    --> src/bin/../ring/ct_engine.rs:2575:15
+     |
+2575 |     pub const Q_CB_WAIT: usize = 85; // [UPERF2-Q] gpu combine session: the drain
+     |               ^^^^^^^^^
+
+warning: constant `Q_RESERVED_89` is never used
+    --> src/bin/../ring/ct_engine.rs:2579:15
+     |
+2579 |     pub const Q_RESERVED_89: usize = 89;
+     |               ^^^^^^^^^^^^^
+
+warning: enum `DigitMode` is never used
+  --> src/bin/../ring/digits.rs:50:10
+   |
+50 | pub enum DigitMode {
+   |          ^^^^^^^^^
+
+warning: field `value_ring_base` is never read
+   --> src/bin/../ring/eval_proof.rs:110:9
+    |
+ 99 | pub struct AggTensor {
+    |            --------- field in this struct
+...
+110 |     pub value_ring_base: usize,
+    |         ^^^^^^^^^^^^^^^
+    |
+    = note: `AggTensor` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: field `n_in` is never read
+   --> src/bin/../ring/eval_proof.rs:194:9
+    |
+193 | pub struct LevelPlan {
+    |            --------- field in this struct
+194 |     pub n_in: usize,
+    |         ^^^^
+    |
+    = note: `LevelPlan` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: method `floor_coords` is never used
+   --> src/bin/../ring/eval_proof.rs:216:12
+    |
+215 | impl EvalSchedule {
+    | ----------------- method in this implementation
+216 |     pub fn floor_coords(&self) -> usize {
+    |            ^^^^^^^^^^^^
+
+warning: function `adaptive_base` is never used
+   --> src/bin/../ring/eval_proof.rs:224:8
+    |
+224 | pub fn adaptive_base(n_rings: usize, q: u64) -> u32 {
+    |        ^^^^^^^^^^^^^
+
+warning: methods `z_ring`, `t_ring`, and `h_ring` are never used
+   --> src/bin/../ring/eval_proof.rs:592:12
+    |
+564 | impl NextLayout {
+    | --------------- methods in this implementation
+...
+592 |     pub fn z_ring(&self, src: usize, limb: usize) -> usize {
+    |            ^^^^^^
+...
+595 |     pub fn t_ring(&self, j: usize, kap: usize, limb: usize) -> usize {
+    |            ^^^^^^
+...
+598 |     pub fn h_ring(&self, pair: usize, limb: usize) -> usize {
+    |            ^^^^^^
+
+warning: function `value_weight` is never used
+    --> src/bin/../ring/eval_proof.rs:2355:4
+     |
+2355 | fn value_weight(kf: &KField, ker: &TensorClaimKernel, cols: usize, f: usize) -> KElem {
+     |    ^^^^^^^^^^^^
+
+warning: struct `ClaimKernelCtx` is never constructed
+    --> src/bin/../ring/eval_proof.rs:2363:12
+     |
+2363 | pub struct ClaimKernelCtx<'a> {
+     |            ^^^^^^^^^^^^^^
+
+warning: methods `kw_row` and `bpolys` are never used
+    --> src/bin/../ring/eval_proof.rs:2371:12
+     |
+2369 | impl ClaimKernelCtx<'_> {
+     | ----------------------- methods in this implementation
+2370 |     /// K-weight row of digit ring u (length D).
+2371 |     pub fn kw_row(&self, u: usize) -> Vec<KElem> {
+     |            ^^^^^^
+...
+2399 |     pub fn bpolys(&self, zq: &Zq, u: usize) -> Vec<Poly> {
+     |            ^^^^^^
+
+warning: method `is_zero` is never used
+    --> src/bin/../ring/eval_proof.rs:6102:8
+     |
+6094 | pub trait SmallRings: Sync {
+     |           ---------- method in this trait
+...
+6102 |     fn is_zero(&self, u: usize) -> bool;
+     |        ^^^^^^^
+
+warning: methods `is_empty` and `heap_bytes` are never used
+    --> src/bin/../ring/eval_proof.rs:6214:12
+     |
+6193 | impl DigitCols {
+     | -------------- methods in this implementation
+...
+6214 |     pub fn is_empty(&self) -> bool {
+     |            ^^^^^^^^
+...
+6269 |     pub fn heap_bytes(&self) -> usize {
+     |            ^^^^^^^^^^
+
+warning: method `n_digit_rings` is never used
+    --> src/bin/../ring/eval_proof.rs:6416:12
+     |
+6381 | impl Phi0Source {
+     | --------------- method in this implementation
+...
+6416 |     pub fn n_digit_rings(&self) -> usize {
+     |            ^^^^^^^^^^^^^
+
+warning: associated items `is_empty`, `zeros`, `from_kelems`, and `get` are never used
+   --> src/bin/../ring/fold.rs:458:12
+    |
+447 | impl IxfTable {
+    | ------------- associated items in this implementation
+...
+458 |     pub fn is_empty(&self) -> bool {
+    |            ^^^^^^^^
+...
+463 |     pub fn zeros(n: usize) -> IxfTable {
+    |            ^^^^^
+...
+467 |     pub fn from_kelems(kf: &KField, v: &[KElem]) -> IxfTable {
+    |            ^^^^^^^^^^^
+...
+471 |     pub fn get(&self, i: usize) -> KElem {
+    |            ^^^
+
+warning: method `kind_id` is never used
+   --> src/bin/../ring/fold.rs:649:12
+    |
+647 | impl IxfZcSpec<'_> {
+    | ------------------ method in this implementation
+648 |     /// The kernel's kind id (1 had, 2 rq).
+649 |     pub fn kind_id(&self) -> u8 {
+    |            ^^^^^^^
+
+warning: field `macs` is never read
+   --> src/bin/../ring/gpu/mod.rs:151:13
+    |
+148 |     pub struct GpuStats {
+    |                -------- field in this struct
+...
+151 |         pub macs: u128,
+    |             ^^^^
+    |
+    = note: `GpuStats` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: fields `n` and `t` are never read
+   --> src/bin/../ring/gpu/mod.rs:306:13
+    |
+305 |     pub struct IxfDevChain {
+    |                ----------- fields in this struct
+306 |         pub n: usize,
+    |             ^
+307 |         pub t: usize,
+    |             ^
+
+warning: function `ixf_zc_abort` is never used
+   --> src/bin/../ring/gpu/mod.rs:326:12
+    |
+326 |     pub fn ixf_zc_abort(_ch: IxfDevChain) {}
+    |            ^^^^^^^^^^^^
+
+warning: fields `n`, `t`, and `stop_n` are never read
+   --> src/bin/../ring/gpu/mod.rs:359:13
+    |
+358 |     pub struct ZcDevChain {
+    |                ---------- fields in this struct
+359 |         pub n: usize,
+    |             ^
+360 |         pub t: usize,
+    |             ^
+361 |         pub stop_n: usize,
+    |             ^^^^^^
+
+warning: function `zc_agg_abort` is never used
+   --> src/bin/../ring/gpu/mod.rs:380:12
+    |
+380 |     pub fn zc_agg_abort(_ch: ZcDevChain) {}
+    |            ^^^^^^^^^^^^
+
+warning: function `zc_set_bypass` is never used
+   --> src/bin/../ring/gpu/mod.rs:385:12
+    |
+385 |     pub fn zc_set_bypass(_on: bool) {}
+    |            ^^^^^^^^^^^^^
+
+warning: function `zc_set_min_pairs` is never used
+   --> src/bin/../ring/gpu/mod.rs:386:12
+    |
+386 |     pub fn zc_set_min_pairs(_p: usize) {}
+    |            ^^^^^^^^^^^^^^^^
+
+warning: struct `ZcStats` is never constructed
+   --> src/bin/../ring/gpu/mod.rs:392:16
+    |
+392 |     pub struct ZcStats {
+    |                ^^^^^^^
+
+warning: function `zc_stats` is never used
+   --> src/bin/../ring/gpu/mod.rs:404:12
+    |
+404 |     pub fn zc_stats() -> ZcStats {
+    |            ^^^^^^^^
+
+warning: function `zc_stats_reset` is never used
+   --> src/bin/../ring/gpu/mod.rs:407:12
+    |
+407 |     pub fn zc_stats_reset() {}
+    |            ^^^^^^^^^^^^^^
+
+warning: field `secs_total` is never read
+   --> src/bin/../ring/gpu/mod.rs:429:13
+    |
+420 |     pub struct LhStats {
+    |                ------- field in this struct
+...
+429 |         pub secs_total: f64,
+    |             ^^^^^^^^^^
+    |
+    = note: `LhStats` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: field `0` is never read
+   --> src/bin/../ring/gpu/mod.rs:441:14
+    |
+441 |         Pool(&'a Phi0Source),
+    |         ---- ^^^^^^^^^^^^^^
+    |         |
+    |         field in this variant
+    |
+help: consider changing the field to be of unit type to suppress this warning while preserving the field numbering, or remove the field
+    |
+441 -         Pool(&'a Phi0Source),
+441 +         Pool(()),
+    |
+
+warning: field `0` is never read
+   --> src/bin/../ring/gpu/mod.rs:442:15
+    |
+442 |         Small(&'a [&'a B]),
+    |         ----- ^^^^^^^^^^^
+    |         |
+    |         field in this variant
+    |
+help: consider changing the field to be of unit type to suppress this warning while preserving the field numbering, or remove the field
+    |
+442 -         Small(&'a [&'a B]),
+442 +         Small(()),
+    |
+
+warning: field `0` is never read
+   --> src/bin/../ring/gpu/mod.rs:443:14
+    |
+443 |         ModQ(&'a [&'a [Poly]]),
+    |         ---- ^^^^^^^^^^^^^^^^
+    |         |
+    |         field in this variant
+    |
+help: consider changing the field to be of unit type to suppress this warning while preserving the field numbering, or remove the field
+    |
+443 -         ModQ(&'a [&'a [Poly]]),
+443 +         ModQ(()),
+    |
+
+warning: variants `ModQ` and `I64` are never constructed
+   --> src/bin/../ring/gpu/mod.rs:451:9
+    |
+450 |     pub enum CombineResult {
+    |              ------------- variants in this enum
+451 |         ModQ(Vec<Poly>),
+    |         ^^^^
+452 |         I64(Vec<Vec<i64>>),
+    |         ^^^
+
+warning: fields `declined`, `bytes_h2d`, `secs_fill`, `secs_wait`, and `secs_total` are never read
+   --> src/bin/../ring/gpu/mod.rs:474:13
+    |
+472 |     pub struct CbStats {
+    |                ------- fields in this struct
+473 |         pub sessions: u64,
+474 |         pub declined: u64,
+    |             ^^^^^^^^
+475 |         pub stages: u64,
+476 |         pub bytes_h2d: u64,
+    |             ^^^^^^^^^
+477 |         pub secs_fill: f64,
+    |             ^^^^^^^^^
+478 |         pub secs_wait: f64,
+    |             ^^^^^^^^^
+479 |         pub secs_total: f64,
+    |             ^^^^^^^^^^
+    |
+    = note: `CbStats` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: function `cb_stats_reset` is never used
+   --> src/bin/../ring/gpu/mod.rs:484:12
+    |
+484 |     pub fn cb_stats_reset() {}
+    |            ^^^^^^^^^^^^^^
+
+warning: function `set_cb_session` is never used
+   --> src/bin/../ring/gpu/mod.rs:485:12
+    |
+485 |     pub fn set_cb_session(_on: bool) {}
+    |            ^^^^^^^^^^^^^^
+
+warning: method `n` is never used
+   --> src/bin/../ring/gkr.rs:160:19
+    |
+126 | impl<'a> LayerSrc<'a> {
+    | --------------------- method in this implementation
+...
+160 |     pub(crate) fn n(&self) -> usize {
+    |                   ^
+
+warning: function `neutral_leaf` is never used
+   --> src/bin/../ring/gkr.rs:978:8
+    |
+978 | pub fn neutral_leaf(kf: &KField) -> (KElem, KElem) {
+    |        ^^^^^^^^^^^^
+
+warning: function `aligned_leaf` is never used
+   --> src/bin/../ring/descent_fold.rs:154:8
+    |
+154 | pub fn aligned_leaf(base: usize, cols: usize, cols_pad: usize, f: usize) -> usize {
+    |        ^^^^^^^^^^^^
+
+warning: method `coord` is never used
+   --> src/bin/../ring/kfield.rs:128:12
+    |
+ 84 | impl KField {
+    | ----------- method in this implementation
+...
+128 |     pub fn coord(&self, a: &KElem, c: usize) -> u64 {
+    |            ^^^^^
+
+warning: field `n` is never read
+    --> src/bin/../ring/kfield.rs:1468:5
+     |
+1463 | pub(crate) struct EqTab<'a> {
+     |                   ----- field in this struct
+...
+1468 |     n: usize,
+     |     ^
+
+warning: method `n` is never used
+    --> src/bin/../ring/kfield.rs:1492:19
+     |
+1476 | impl<'a> EqTab<'a> {
+     | ------------------ method in this implementation
+...
+1492 |     pub(crate) fn n(&self) -> usize {
+     |                   ^
+
+warning: function `harness_eq_table_portable` is never used
+    --> src/bin/../ring/kfield.rs:2601:8
+     |
+2601 | pub fn harness_eq_table_portable(kf: &KField, z: &[KElem]) -> Vec<KElem> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `k9_arena_clear` is never used
+    --> src/bin/../ring/kfield.rs:2823:8
+     |
+2823 | pub fn k9_arena_clear() {
+     |        ^^^^^^^^^^^^^^
+
+warning: methods `n_exceptions`, `words`, `alpha_words`, and `exceptions` are never used
+    --> src/bin/../ring/kfield.rs:2983:19
+     |
+2953 | impl CompactLeaves {
+     | ------------------ methods in this implementation
+...
+2983 |     pub(crate) fn n_exceptions(&self) -> usize {
+     |                   ^^^^^^^^^^^^
+...
+2989 |     pub(crate) fn words(&self) -> &[u32] {
+     |                   ^^^^^
+...
+2994 |     pub(crate) fn alpha_words(&self) -> &[u32; K_DEG] {
+     |                   ^^^^^^^^^^^
+...
+2999 |     pub(crate) fn exceptions(&self) -> &[(usize, [u32; K_DEG], [u32; K_DEG])] {
+     |                   ^^^^^^^^^^
+
+warning: fields `p`, `q`, and `n` are never read
+    --> src/bin/../ring/kfield.rs:3106:14
+     |
+3106 |     Packed { p: &'a [u32], q: &'a [u32], n: usize },
+     |     ------   ^             ^             ^
+     |     |
+     |     fields in this variant
+
+warning: field `0` is never read
+    --> src/bin/../ring/kfield.rs:3107:13
+     |
+3107 |     Compact(&'a CompactLeaves),
+     |     ------- ^^^^^^^^^^^^^^^^^
+     |     |
+     |     field in this variant
+     |
+help: consider changing the field to be of unit type to suppress this warning while preserving the field numbering, or remove the field
+     |
+3107 -     Compact(&'a CompactLeaves),
+3107 +     Compact(()),
+     |
+
+warning: function `k9_kernel_label` is never used
+    --> src/bin/../ring/kfield.rs:4590:8
+     |
+4590 | pub fn k9_kernel_label() -> &'static str {
+     |        ^^^^^^^^^^^^^^^
+
+warning: fields `sigma_f` and `beta_f` are never read
+  --> src/bin/../ring/link.rs:59:9
+   |
+57 | pub struct GadgetLayer {
+   |            ----------- fields in this struct
+58 |     pub shape: CommitShape,
+59 |     pub sigma_f: f64,
+   |         ^^^^^^^
+60 |     pub beta_f: f64,
+   |         ^^^^^^
+
+warning: function `kelem_coord_weights` is never used
+    --> src/bin/../ring/lookup.rs:1104:8
+     |
+1104 | pub fn kelem_coord_weights(kf: &KField, weights: &[KElem]) -> Vec<KElem> {
+     |        ^^^^^^^^^^^^^^^^^^^
+
+warning: multiple fields are never read
+  --> src/bin/../ring/params.rs:48:9
+   |
+46 | pub struct ProtoParams {
+   |            ----------- fields in this struct
+47 |     pub proto: Proto,
+48 |     pub rows: usize,
+   |         ^^^^
+49 |     pub inner: usize,
+   |         ^^^^^
+50 |     pub cols: usize,
+   |         ^^^^
+51 |     pub q: u64,
+   |         ^
+52 |     pub log2_q: f64,
+53 |     pub conc: bool,
+   |         ^^^^
+...
+62 |     pub d_lwe: usize,
+   |         ^^^^^
+63 |     pub sigma_f: f64,
+64 |     pub bound_f: f64,
+   |         ^^^^^^^
+...
+71 |     pub center_sq: u128,
+   |         ^^^^^^^^^
+   |
+   = note: `ProtoParams` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: function `combine` is never used
+  --> src/bin/../ring/params.rs:96:8
+   |
+96 | pub fn combine(t: usize, b0: f64, conc: bool) -> f64 {
+   |        ^^^^^^^
+
+warning: function `derive_plain` is never used
+   --> src/bin/../ring/params.rs:164:8
+    |
+164 | pub fn derive_plain(
+    |        ^^^^^^^^^^^^
+
+warning: field `beta` is never read
+  --> src/bin/../ring/sigma.rs:37:9
+   |
+34 | pub struct OpeningParams {
+   |            ------------- field in this struct
+...
+37 |     pub beta: u128,
+   |         ^^^^
+
+warning: field `w_inf` is never read
+  --> src/bin/../ring/sigma.rs:63:9
+   |
+59 | pub struct DigitParams {
+   |            ----------- field in this struct
+...
+63 |     pub w_inf: i64,
+   |         ^^^^^
+
+warning: function `pack_coeffs_to_rings` is never used
+   --> src/bin/../ring/t_blind.rs:313:8
+    |
+313 | pub fn pack_coeffs_to_rings(coeffs: &[KElem], n_rings: usize) -> Vec<Vec<i64>> {
+    |        ^^^^^^^^^^^^^^^^^^^^
+
+warning: method `neg` is never used
+   --> src/bin/../ring/zc_range.rs:178:12
+    |
+118 | impl SubExt {
+    | ----------- method in this implementation
+...
+178 |     pub fn neg(&self, a: &EElem) -> EElem {
+    |            ^^^
+
+warning: method `deg_f` is never used
+   --> src/bin/../ring/zc_range.rs:500:12
+    |
+490 | impl ZcRangeInstance<'_> {
+    | ------------------------ method in this implementation
+...
+500 |     pub fn deg_f(&self) -> usize {
+    |            ^^^^^
+
+warning: fields `e0` and `head_single` are never read
+   --> src/bin/../ring/two_tier.rs:106:9
+    |
+104 | pub struct TwoTierPlan {
+    |            ----------- fields in this struct
+105 |     pub n0: usize,
+106 |     pub e0: u32,
+    |         ^^
+...
+120 |     pub head_single: f64,
+    |         ^^^^^^^^^^^
+    |
+    = note: `TwoTierPlan` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: field `tensor_idx` is never read
+   --> src/bin/../ring/two_tier.rs:261:9
+    |
+260 | pub struct TtGridTensor {
+    |            ------------ field in this struct
+261 |     pub tensor_idx: usize,
+    |         ^^^^^^^^^^
+    |
+    = note: `TtGridTensor` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: field `tensor_idx` is never read
+    --> src/bin/../ring/two_tier.rs:1076:9
+     |
+1075 | pub struct TtBTensorPlan {
+     |            ------------- field in this struct
+1076 |     pub tensor_idx: usize,
+     |         ^^^^^^^^^^
+     |
+     = note: `TtBTensorPlan` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: field `secs_helper` is never read
+   --> src/bin/../ring/stage_a_full.rs:314:9
+    |
+300 | pub struct LookupOut {
+    |            --------- field in this struct
+...
+314 |     pub secs_helper: f64,
+    |         ^^^^^^^^^^^
+
+warning: function `round_reduce` is never used
+   --> src/bin/../ring/stage_a_full.rs:556:8
+    |
+556 | pub fn round_reduce(kf: &KField, g: &[KElem], r: &KElem) -> KElem {
+    |        ^^^^^^^^^^^^
+
+warning: field `t` is never read
+   --> src/bin/../ring/attn_softmax.rs:152:9
+    |
+151 | pub struct SoftmaxChain {
+    |            ------------ field in this struct
+152 |     pub t: usize,
+    |         ^
+    |
+    = note: `SoftmaxChain` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+
+warning: field `x8` is never read
+   --> src/bin/../ring/attn_entries.rs:466:9
+    |
+464 | pub struct X1Layer {
+    |            ------- field in this struct
+465 |     pub t: usize,
+466 |     pub x8: Vec<i64>, // the layer input (the FFN-17 "X" entry; context, not one of the 66)
+    |         ^^
+
+warning: `zkmatrix-rs` (bin "ring_matmul") generated 134 warnings (1 duplicate) (run `cargo fix --bin "ring_matmul" -p zkmatrix-rs` to apply 29 suggestions)
+warning: field `tau_g2` is never read
+  --> src/bin/structured_matrix.rs:66:5
+   |
+64 | struct StructuredSrs {
+   |        ------------- field in this struct
+65 |     powers: Vec<G1Projective>,
+66 |     tau_g2: G2Projective,
+   |     ^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `zkmatrix-rs` (bin "structured_matrix") generated 2 warnings (1 duplicate)
+    Finished `release` profile [optimized] target(s) in 0.10s

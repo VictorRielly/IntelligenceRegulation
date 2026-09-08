@@ -14678,3 +14678,39 @@ supporting FA2 without substituting for Fable's independent review. The
 accepted complete mask plan still gates repair and private-block composition.
 CL13–CL17 stay with Fable; minimal-core extraction remains lower priority.
 No new GPU run, privacy certification or target-throughput claim was made.
+
+## ZK60 round 11 — validated integration, actual observations and core extraction
+
+2026-09-08: Victor approved the four-step continuation. Codex implements
+atomic public verifier capture/replay for A/H/P3-W (`8b697b0`), reviews and
+merges the Fable GPU lane through `5949b38`, privacy review through `46608bb`,
+and minimal-core design `882f037`. `c8a342f` moves seven canonical primitive
+modules into independently buildable zkp-core, consumed through legacy
+re-exports. Its 19 tests and public sumcheck example pass; PCS, the full FFN
+and bounded codec still need extraction. Experiments remain available.
+
+The complete source passes 178 Rust tests, 546 Python/native tests with zero
+skips, 21/21 GPU floors cases with 189 actual device oracle cases and all
+twelve frozen CPU/GPU/chunk proof hashes and sizes. Cold/warm cache parity,
+P3 cache refusal, exact B4 reproduction and separate-process B5 verification
+pass. The detached runner finishes with marker 0, two threads, maximum
+reported stage RSS 1,707,284 KiB and zero swaps. Both crates and validation
+sources are hash-bound throughout. GPU work is bounded laptop correctness,
+not throughput qualification. Evidence: results/zk60_round11_validation.json.
+
+Twelve honest FFN diagnostic proofs export verifier-only exact-integer JSON;
+all six seeded captures stay byte-identical across the refactor. Actual P3
+Wd singleton extraction recovers all 256 fixture weights at T32 even with
+fresh randomness. A restricted actual-coefficient rank calculation covers
+30 role/proof cases, yielding A=2, H=0, W=2 per column for vectors/proximity
+alone; it excludes other observations and is not joint privacy or an upper
+bound. FA3's candidate repair leaves construction-specific CFS masking and
+full-transcript/repeated-proof arguments unresolved. Private repair/block
+composition and approved P3 weight enforcement remain open.
+
+The next Fable queue assigns FA6 CFS review, FA7 complete captured joint
+analysis, FA8 simulator/repetition review, FA9 arithmetic/registrar closure,
+CL21 core-aware validation provenance, and priority-3 CL20 continuation.
+Codex implements the separately versioned repair and pending FFN lifecycle
+after the required review, followed by one private block and then two.
+See docs/zkmatrix-poc/ZK60_ROUND11.md and ZK60_FABLE_QUEUE.md.

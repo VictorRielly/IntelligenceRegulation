@@ -1,5 +1,22 @@
 # ZK60 milestone map
 
+**2026-09-08, round 11:** Codex implements verified A/H/P3-W capture and
+replay, integrates Fable through GPU `5949b38` and privacy review `46608bb`,
+and moves seven canonical CPU primitive modules into a working `zkp-core`
+crate. Source `c8a342f` passes **178 Rust tests, 546 Python/native tests
+(zero skips), 189 executed GPU oracle cases and all 12 frozen proof gates**;
+cache parity and public B4/B5 receipts also pass.
+[Implementation, evidence and limits](ZK60_ROUND11.md).
+
+**Next:** [FA6–FA9, CL21 and the remaining CL20 work](ZK60_FABLE_QUEUE.md).
+FA3 delivers a candidate mask schedule, but its joint CFS masking and full
+transcript arguments remain open. No repaired FFN, private block or private
+two-block proof is claimed. PCS/FFN/codec extraction continues from the
+[implemented primitive boundary](../../zkp-core/MIGRATION.md); the full
+minimal ZKP subproject remains incomplete. The dated entries below retain
+their historical statuses; this update supersedes their pending GPU/capture
+and design-only core statements.
+
 **2026-09-07, round 10:** CL19 actual proof-size accounting is implemented
 and validated: **156 Rust tests, 39 Python profile/benchmark tests, all four
 unchanged frozen CPU proofs, exact per-layer byte totals and P3 profiling
