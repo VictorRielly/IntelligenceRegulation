@@ -241,7 +241,8 @@
         "cache": "cold 12 MISS / warm 12 HIT, frozen zkv3 digest both; --p3 --wcache refused exit 2 before any work",
         "controls": "HL_GPU_REQUIRED=1 without the feature exit 101; plain no-feature exit 0 with executed_cases 0",
         "preflight": "go=True for a diagnostic FFN-only claim bound to the manifest (results/cl_round9_preflight.json)",
-        "limits": "safe frozen fixtures only, two threads, laptop seconds are diagnostics; no privacy/identity/coverage/target claim; integration remains Codex's"
+        "limits": "safe frozen fixtures only, two threads, laptop seconds are diagnostics; no privacy/identity/coverage/target claim; integration remains Codex's",
+        "final_tip_manifest": "results/cl_round9b_floors/manifest.json: GREEN, suite v3, 21/21, HEAD 5bb1546 (after CL18 f9a8eb7 and suite v3 d63c55a), 0 dirty, GPU binary 9887a375.., oracle 189, 167 crate tests / 0 failed, all byte gates and cache cases match; the 4a0ce56 manifest remains the v2 record"
       }
     },
     {

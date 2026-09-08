@@ -674,4 +674,12 @@ manifest. CL18's own gates and oracle cover that source, but the full
 floors (crate suites, controls, cache cases) were re-run on the final tip
 `d63c55a` at suite version 3 (189 oracle cases): `results/cl_round9b_floors/manifest.json`,
 launcher log `results/cl_round9b_floors.log`, marker `results/cl_round9b_floors.done`
-— see the row appended below once the run finished.
+— run 2026-09-07 evening, marker 0, **MANIFEST GREEN, suite v3, 21/21
+cases, HEAD `5bb1546`, 0 dirty, hashline delta empty; GPU binary
+`9887a375..` / 5,333,616 B (the same binary CL18's gates and A/B used),
+CPU binary per the manifest; 167 crate tests / 0 failed over 19 result
+lines; oracle 189 executed cases / 34 tests; both controls; 12/12 byte
+gates at full SHA-256; cache cold 12 MISS / warm 12 HIT at the frozen zkv3
+digest; `--p3 --wcache` refused; validator ok.** This is the manifest for
+the lane tip Codex would merge; the `4a0ce56` manifest stays as the v2
+record of the pre-CL18 tree.
