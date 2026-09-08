@@ -1,0 +1,510 @@
+{
+  "base_commit": "f61ee77",
+  "claims_excluded": "No privacy claim: the FFN masking disclosure (ZK60_FFN_MASK_DIAGNOSTIC.md) and the P3 identity gap are untouched and their LIMITATION tests remain in hashline. No throughput claim. No GPU job was run.",
+  "dependency_surface": {
+    "after": {
+      "baseline": "f61ee77 (zk60-cl20-core)",
+      "closures": {
+        "after_cuts": {
+          "code_lines": 4487,
+          "excluding_test": 3846,
+          "members": [
+            "field",
+            "layer",
+            "mle",
+            "ntt",
+            "pcs",
+            "sumcheck",
+            "tables_v3",
+            "transcript",
+            "zkp_core::ffn_v3",
+            "zkp_core::field",
+            "zkp_core::merkle",
+            "zkp_core::mle",
+            "zkp_core::ntt",
+            "zkp_core::pcs",
+            "zkp_core::rng",
+            "zkp_core::sumcheck",
+            "zkp_core::tables",
+            "zkp_core::transcript"
+          ],
+          "modules": 18
+        },
+        "default_build": {
+          "code_lines": 6938,
+          "excluding_test": 5949,
+          "members": [
+            "chain",
+            "export",
+            "export_v3",
+            "field",
+            "gpu",
+            "layer",
+            "merkle",
+            "mle",
+            "ntt",
+            "pcs",
+            "pcs_compact",
+            "phase_profile",
+            "silu",
+            "sumcheck",
+            "tables_v3",
+            "transcript",
+            "wcache",
+            "zkp_core::ffn_v3",
+            "zkp_core::field",
+            "zkp_core::merkle",
+            "zkp_core::mle",
+            "zkp_core::ntt",
+            "zkp_core::pcs",
+            "zkp_core::rng",
+            "zkp_core::sumcheck",
+            "zkp_core::tables",
+            "zkp_core::transcript"
+          ],
+          "modules": 27
+        },
+        "literal": {
+          "code_lines": 6938,
+          "excluding_test": 5949,
+          "members": [
+            "chain",
+            "export",
+            "export_v3",
+            "field",
+            "gpu",
+            "layer",
+            "merkle",
+            "mle",
+            "ntt",
+            "pcs",
+            "pcs_compact",
+            "phase_profile",
+            "silu",
+            "sumcheck",
+            "tables_v3",
+            "transcript",
+            "wcache",
+            "zkp_core::ffn_v3",
+            "zkp_core::field",
+            "zkp_core::merkle",
+            "zkp_core::mle",
+            "zkp_core::ntt",
+            "zkp_core::pcs",
+            "zkp_core::rng",
+            "zkp_core::sumcheck",
+            "zkp_core::tables",
+            "zkp_core::transcript"
+          ],
+          "modules": 27
+        }
+      },
+      "cross_crate_edges": {
+        "hashline": [
+          "field->zkp_core::field",
+          "gpu->zkp_core::pcs",
+          "layer->zkp_core::ffn_v3",
+          "merkle->zkp_core::merkle",
+          "mle->zkp_core::mle",
+          "ntt->zkp_core::ntt",
+          "pcs->zkp_core::pcs",
+          "pcs->zkp_core::rng",
+          "silu->zkp_core::tables",
+          "sumcheck->zkp_core::sumcheck",
+          "tables_v3->zkp_core::tables",
+          "test:zk60_cl20_codec->zkp_core::ffn_v3",
+          "transcript->zkp_core::transcript",
+          "zk->zkp_core::rng"
+        ],
+        "zkp_core": []
+      },
+      "edge_records": 394,
+      "nodes": 79,
+      "per_crate": {
+        "hashline": {
+          "binary_code_lines": 1623,
+          "edge_records": 356,
+          "example_files": 4,
+          "integration_test_files": 20,
+          "library_code_lines": 19277,
+          "library_gpu_gated_lines": 3040,
+          "library_modules": 39,
+          "library_test_lines": 2379,
+          "nodes": 64
+        },
+        "zkp_core": {
+          "binary_code_lines": 0,
+          "edge_records": 38,
+          "example_files": 1,
+          "integration_test_files": 0,
+          "library_code_lines": 3325,
+          "library_gpu_gated_lines": 0,
+          "library_modules": 14,
+          "library_test_lines": 800,
+          "nodes": 15
+        }
+      }
+    },
+    "before": {
+      "baseline": "f61ee77 (zk60-cl20-core)",
+      "closures": {
+        "after_cuts": {
+          "code_lines": 4710,
+          "excluding_test": 4056,
+          "members": [
+            "field",
+            "layer",
+            "mle",
+            "ntt",
+            "pcs",
+            "silu",
+            "sumcheck",
+            "tables_v3",
+            "transcript",
+            "zkp_core::field",
+            "zkp_core::merkle",
+            "zkp_core::mle",
+            "zkp_core::ntt",
+            "zkp_core::pcs",
+            "zkp_core::rng",
+            "zkp_core::sumcheck",
+            "zkp_core::transcript"
+          ],
+          "modules": 17
+        },
+        "default_build": {
+          "code_lines": 7103,
+          "excluding_test": 6114,
+          "members": [
+            "chain",
+            "export",
+            "export_v3",
+            "field",
+            "gpu",
+            "layer",
+            "merkle",
+            "mle",
+            "ntt",
+            "pcs",
+            "pcs_compact",
+            "phase_profile",
+            "silu",
+            "sumcheck",
+            "tables_v3",
+            "transcript",
+            "wcache",
+            "zkp_core::field",
+            "zkp_core::merkle",
+            "zkp_core::mle",
+            "zkp_core::ntt",
+            "zkp_core::pcs",
+            "zkp_core::rng",
+            "zkp_core::sumcheck",
+            "zkp_core::transcript"
+          ],
+          "modules": 25
+        },
+        "literal": {
+          "code_lines": 7103,
+          "excluding_test": 6114,
+          "members": [
+            "chain",
+            "export",
+            "export_v3",
+            "field",
+            "gpu",
+            "layer",
+            "merkle",
+            "mle",
+            "ntt",
+            "pcs",
+            "pcs_compact",
+            "phase_profile",
+            "silu",
+            "sumcheck",
+            "tables_v3",
+            "transcript",
+            "wcache",
+            "zkp_core::field",
+            "zkp_core::merkle",
+            "zkp_core::mle",
+            "zkp_core::ntt",
+            "zkp_core::pcs",
+            "zkp_core::rng",
+            "zkp_core::sumcheck",
+            "zkp_core::transcript"
+          ],
+          "modules": 25
+        }
+      },
+      "cross_crate_edges": {
+        "hashline": [
+          "field->zkp_core::field",
+          "gpu->zkp_core::pcs",
+          "merkle->zkp_core::merkle",
+          "mle->zkp_core::mle",
+          "ntt->zkp_core::ntt",
+          "pcs->zkp_core::pcs",
+          "pcs->zkp_core::rng",
+          "sumcheck->zkp_core::sumcheck",
+          "transcript->zkp_core::transcript",
+          "zk->zkp_core::rng"
+        ],
+        "zkp_core": []
+      },
+      "edge_records": 377,
+      "graph": "/tmp/zk60-fable-r12/cl20/depgraph_merge_f61ee77.json",
+      "nodes": 74,
+      "per_crate": {
+        "hashline": {
+          "binary_code_lines": 1623,
+          "edge_records": 349,
+          "example_files": 4,
+          "integration_test_files": 19,
+          "library_code_lines": 19586,
+          "library_gpu_gated_lines": 3040,
+          "library_modules": 39,
+          "library_test_lines": 2394,
+          "nodes": 63
+        },
+        "zkp_core": {
+          "binary_code_lines": 0,
+          "edge_records": 28,
+          "example_files": 1,
+          "integration_test_files": 0,
+          "library_code_lines": 2472,
+          "library_gpu_gated_lines": 0,
+          "library_modules": 10,
+          "library_test_lines": 623,
+          "nodes": 11
+        }
+      }
+    },
+    "tool": "zkp-core/tools/dep_closure.py (two-crate form)"
+  },
+  "frozen_cases": {
+    "all_match": true,
+    "binary": "binary sha256=7b37f5ce15a01c0d421d62810ed6355f8085d650323937d5b4c21e4d600ebf32 size=4671688",
+    "cases": [
+      {
+        "argv": [
+          "pass",
+          "12",
+          "512",
+          "--threads",
+          "2",
+          "--proof-out",
+          "/tmp/zk60-fable-r12/cl20/s2b/cpu-v2.proof",
+          ""
+        ],
+        "case": "cpu-v2",
+        "ended": "2026-09-08T18:12:04Z",
+        "exit": 0,
+        "frozen": {
+          "bytes": 66844928,
+          "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d"
+        },
+        "log": "/tmp/zk60-fable-r12/cl20/s2final/cpu-v2.out",
+        "log_sha256": "9439721db57c2f2d2bc8cacd6ee12e7d55384e4ab6d9d1395e607e5bdc00b3f9",
+        "match": true,
+        "proof": {
+          "bytes": 66844928,
+          "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d"
+        },
+        "proof_line": {
+          "bytes": 66844928,
+          "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d"
+        },
+        "started": "2026-09-08T18:11:27Z",
+        "verdict_line": "ACCEPT"
+      },
+      {
+        "argv": [
+          "pass",
+          "12",
+          "512",
+          "--threads",
+          "2",
+          "--proof-out",
+          "/tmp/zk60-fable-r12/cl20/s2b/cpu-v3.proof",
+          "--profile",
+          "v3",
+          "--export",
+          "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+        ],
+        "case": "cpu-v3",
+        "ended": "2026-09-08T18:12:45Z",
+        "exit": 0,
+        "frozen": {
+          "bytes": 70758084,
+          "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d"
+        },
+        "log": "/tmp/zk60-fable-r12/cl20/s2final/cpu-v3.out",
+        "log_sha256": "03e54d3083273e23b4f016e877642f8282ae1b502e40a6a8fb989d98b21a4311",
+        "match": true,
+        "proof": {
+          "bytes": 70758084,
+          "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d"
+        },
+        "proof_line": {
+          "bytes": 70758084,
+          "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d"
+        },
+        "started": "2026-09-08T18:12:04Z",
+        "verdict_line": "ACCEPT"
+      },
+      {
+        "argv": [
+          "pass",
+          "12",
+          "512",
+          "--threads",
+          "2",
+          "--proof-out",
+          "/tmp/zk60-fable-r12/cl20/s2b/cpu-zk.proof",
+          "--zk",
+          "--seed",
+          "1"
+        ],
+        "case": "cpu-zk",
+        "ended": "2026-09-08T18:13:28Z",
+        "exit": 0,
+        "frozen": {
+          "bytes": 87228528,
+          "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d"
+        },
+        "log": "/tmp/zk60-fable-r12/cl20/s2final/cpu-zk.out",
+        "log_sha256": "4aaefab02bc5d0f26913093b0acf354065babeba74da0f7c09b43e253c0c8bc7",
+        "match": true,
+        "proof": {
+          "bytes": 87228528,
+          "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d"
+        },
+        "proof_line": {
+          "bytes": 87228528,
+          "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d"
+        },
+        "started": "2026-09-08T18:12:45Z",
+        "verdict_line": "ACCEPT"
+      },
+      {
+        "argv": [
+          "pass",
+          "12",
+          "512",
+          "--threads",
+          "2",
+          "--proof-out",
+          "/tmp/zk60-fable-r12/cl20/s2b/cpu-zkv3.proof",
+          "--zk",
+          "--seed",
+          "1",
+          "--profile",
+          "v3",
+          "--export",
+          "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+        ],
+        "case": "cpu-zkv3",
+        "ended": "2026-09-08T18:14:13Z",
+        "exit": 0,
+        "frozen": {
+          "bytes": 87697008,
+          "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17"
+        },
+        "log": "/tmp/zk60-fable-r12/cl20/s2final/cpu-zkv3.out",
+        "log_sha256": "0852ef37327214b9f8eb185e8661d4092f5d5454d29245ef4d62b90c7e4e00b0",
+        "match": true,
+        "proof": {
+          "bytes": 87697008,
+          "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17"
+        },
+        "proof_line": {
+          "bytes": 87697008,
+          "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17"
+        },
+        "started": "2026-09-08T18:13:28Z",
+        "verdict_line": "ACCEPT"
+      }
+    ]
+  },
+  "head_at_record": "f61ee774a4bb1d8795cf401337d7a0783715a565",
+  "heavy_lock": "/tmp/zk-heavy.lock",
+  "lane": "Fable refactoring lane, worktree /home/victor/wt-zk60-cl20 (branch zk60-cl20-core)",
+  "schema_version": 1,
+  "source_sha256": {
+    "hashline/Cargo.lock": "7859e6dec3d2d80b103e0c75907f3e7fa9a6df36f25216f513edbf43e7567c17",
+    "hashline/Cargo.toml": "8a3e441a2968636a36a6b228194ba18f8f59938755c8b3cb5223e24a5e1ee021",
+    "hashline/src/gpu/mod.rs": "a5ceeba218429637cb73f9dc5c28fcf3508c7d071ea288be110f7e43078b4229",
+    "hashline/src/layer.rs": "d66c385d87b86e95e3140422f6fa4f3156f2c25395a70a65794377d30807326f",
+    "hashline/src/lib.rs": "7f1a14023daed7b48f0412dd772fa1852ca7caa4d1e9df6850c291f522ace52d",
+    "hashline/src/pcs.rs": "6d27f3a5bc28fb7bb57ab14ddb395f4c6911db2b8541876af73344125520d8a8",
+    "hashline/src/silu.rs": "b4e396f46f3d57431171e7767ab8a60a19f4096eab5dc1deca23dbadb01c2cc0",
+    "hashline/src/tables_v3.rs": "726c9355f9e663ef1a43dc9efe17cb2c85aa3583977d0c794dad4cf21a24715d",
+    "hashline/tests/zk60_cl20_codec.rs": "0352721645160f678e14bea27829bc72a08c747a1af703a06a1532c6baad3127",
+    "zkp-core/Cargo.lock": "24fb1de3953c017d54113014882b05c4c52b941f900ef50f3c2554f06523fc7b",
+    "zkp-core/Cargo.toml": "b9038a52f34e0ee8313aa93eec656ff62ea29571a04b3df7f3db349d623ba842",
+    "zkp-core/dependency_graph.json": "5b889959a1aadcb4c66ea3cdfe68529175887e6a0883211b7deae8cc133b496a",
+    "zkp-core/ffn_v3_migration.json": "bf974620ab1d94f3f0e841e83330649629ccf3d37195e928224b62baa8c35855",
+    "zkp-core/src/ffn_v3/mod.rs": "f87236a4ab3466e31ae883cf9b2f3166887ca7aa5f831b54a936dca40068fd19",
+    "zkp-core/src/ffn_v3/proof.rs": "3d235050d28d7a8c24edd6d694312f5550280d83dad9bd344b6ffce8366f5b80",
+    "zkp-core/src/ffn_v3/statement.rs": "dd65d3276afe3960babc2c2d451a804369170fcf41458f2ada62dece5c106421",
+    "zkp-core/src/lib.rs": "1c2a6ce1755df396d0e9f8c87eece27ac23657a24005b6d286ab5f551b7453fa",
+    "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "zkp-core/src/pcs/backend.rs": "1734c03ce6897e784e8ac443581190a00f30f6a91c16479aa7a7a65e00617499",
+    "zkp-core/src/tables.rs": "8cc95bc8b576907a99f24755cd9d16ea8904cd9ccc514f32f471a95ca8f13e50",
+    "zkp-core/tools/dep_closure.py": "da1789544e2732c9bbd1cd81496a93f7837efb7cbe6ff3ebe5085bc643c67b1c"
+  },
+  "stages": [
+    {
+      "command": "env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=0 flock /tmp/zk-heavy.lock cargo test --release --offline --manifest-path /home/victor/wt-zk60-cl20/zkp-core/Cargo.toml --all-targets -- --test-threads=2",
+      "exit_code": 0,
+      "log": "/tmp/zk60-fable-r12/cl20/s2final/core_test.log",
+      "log_sha256": "c5aaeface404c69dc69a6a30bd670f3e33b24231bf6b49b8cc17b6cfd49e5e93",
+      "stage": "core_tests",
+      "tests": {
+        "all_ok": true,
+        "binaries": 2,
+        "failed": 0,
+        "ignored": 0,
+        "passed": 28
+      }
+    },
+    {
+      "binary": {
+        "path": "/home/victor/wt-zk60-cl20/hashline/target/release/hashline",
+        "sha256": "7b37f5ce15a01c0d421d62810ed6355f8085d650323937d5b4c21e4d600ebf32",
+        "size": 4671688
+      },
+      "command": "env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=0 flock /tmp/zk-heavy.lock cargo build --release --offline --manifest-path /home/victor/wt-zk60-cl20/hashline/Cargo.toml",
+      "exit_code": 0,
+      "log": "/tmp/zk60-fable-r12/cl20/s2final/hl_build.log",
+      "log_sha256": "a849953b788b4225a49e62b6e1b31f13d84e65d3f44a3b7b1148a1f23b151ed0",
+      "stage": "hashline_build_cpu"
+    },
+    {
+      "command": "env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-heavy.lock cargo test --release --offline --manifest-path /home/victor/wt-zk60-cl20/hashline/Cargo.toml -- --test-threads=2 (detached, marker hl_test.done)",
+      "exit_code": 0,
+      "log": "/tmp/zk60-fable-r12/cl20/s2final/hl_test.log",
+      "log_sha256": "167ae8e5c3e0cd7c5e119ebeb25603e88463aa97690dbcb71569ee182f97e927",
+      "stage": "hashline_tests",
+      "tests": {
+        "all_ok": true,
+        "binaries": 23,
+        "failed": 0,
+        "ignored": 0,
+        "passed": 171
+      }
+    },
+    {
+      "command": "env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib CARGO_TARGET_DIR=/home/victor/wt-zk60-cl20/hashline/target-gpu flock /tmp/zk-heavy.lock cargo check --release --offline --features gpu-cuda --manifest-path /home/victor/wt-zk60-cl20/hashline/Cargo.toml (detached, marker gpu_check.done)",
+      "exit_code": 0,
+      "log": "/tmp/zk60-fable-r12/cl20/s2final/gpu_check.log",
+      "log_sha256": "21c9d58103b484b6d2f52d239ff0db786812cd48e960dc79a46664989ca98cc1",
+      "note": "compile check of the gpu-cuda feature only; no device job",
+      "stage": "gpu_feature_check"
+    }
+  ],
+  "task": "CL20 step 2: table registry and the typed v3 pieces (statement, params, layout, proof object, shape-directed bounded decoder) into zkp-core; hashline adapters and a legacy-proof codec/tamper test",
+  "threads": 2,
+  "validation_status": "complete"
+}

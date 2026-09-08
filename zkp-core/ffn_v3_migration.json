@@ -1,0 +1,95 @@
+{
+  "source_pin": "f61ee77",
+  "moved": [
+    {
+      "module": "tables",
+      "original": "hashline/src/tables_v3.rs",
+      "original_sha256": "1dfe92dda380823532f6b1ff1f541b52cebf191d0ab976ac0b3d640a9d5bb4e6",
+      "core": "zkp-core/src/tables.rs",
+      "core_sha256": "8cc95bc8b576907a99f24755cd9d16ea8904cd9ccc514f32f471a95ca8f13e50",
+      "adjustments": [
+        "silu::hex moved in (five lines)",
+        "one test moved"
+      ]
+    },
+    {
+      "module": "ffn_v3::statement",
+      "original": "hashline/src/layer.rs (LayerParams; TAG_ACT16..pow2_signed; StatementV3; LayoutV3; absorb_statement_v3; absorb_com; absorb_mults)",
+      "original_sha256": "f0931f6364daabe38011dc3aa0101fd9cfe2525c225e9e531556e6da536d02d7",
+      "core": "zkp-core/src/ffn_v3/statement.rs",
+      "core_sha256": "dd65d3276afe3960babc2c2d451a804369170fcf41458f2ada62dece5c106421",
+      "adjustments": [
+        "names without the V3 suffix (Params, Statement, Layout, absorb_statement); hashline re-exports the legacy names",
+        "Layout::check and Params::check added; Layout::new keeps its panic text",
+        "s_f/s_d/s_w and pcs_for made pub",
+        "two tests added"
+      ]
+    },
+    {
+      "module": "ffn_v3::proof",
+      "original": "hashline/src/layer.rs (LayerProofV3, size_bytes, to_bytes)",
+      "original_sha256": "f0931f6364daabe38011dc3aa0101fd9cfe2525c225e9e531556e6da536d02d7",
+      "core": "zkp-core/src/ffn_v3/proof.rs",
+      "core_sha256": "3d235050d28d7a8c24edd6d694312f5550280d83dad9bd344b6ffce8366f5b80",
+      "adjustments": [
+        "Proof<X = NoExtra>: the compact-PCS slot cpcs_open is generic (ExtraOpening); hashline's LayerProofV3 = Proof<pcs_compact::BatchOpening>",
+        "NEW: Shape, OpeningShape, DecodeError, Proof::from_bytes (shape-directed bounded decoder); three tests"
+      ]
+    }
+  ],
+  "new": [
+    {
+      "module": "ffn_v3",
+      "path": "zkp-core/src/ffn_v3/mod.rs",
+      "sha256": "f87236a4ab3466e31ae883cf9b2f3166887ca7aa5f831b54a936dca40068fd19"
+    },
+    {
+      "test": "hashline/tests/zk60_cl20_codec.rs",
+      "sha256": "0352721645160f678e14bea27829bc72a08c747a1af703a06a1532c6baad3127"
+    }
+  ],
+  "adapters": [
+    {
+      "path": "hashline/src/layer.rs",
+      "original_sha256": "f0931f6364daabe38011dc3aa0101fd9cfe2525c225e9e531556e6da536d02d7",
+      "adapter_sha256": "d66c385d87b86e95e3140422f6fa4f3156f2c25395a70a65794377d30807326f"
+    },
+    {
+      "path": "hashline/src/tables_v3.rs",
+      "original_sha256": "1dfe92dda380823532f6b1ff1f541b52cebf191d0ab976ac0b3d640a9d5bb4e6",
+      "adapter_sha256": "726c9355f9e663ef1a43dc9efe17cb2c85aa3583977d0c794dad4cf21a24715d"
+    },
+    {
+      "path": "hashline/src/silu.rs",
+      "original_sha256": "66338f5bcaebdd893f65623c4702ed7faf869de8dbae3c8d56cee8f52e95e0a1",
+      "adapter_sha256": "b4e396f46f3d57431171e7767ab8a60a19f4096eab5dc1deca23dbadb01c2cc0"
+    },
+    {
+      "path": "zkp-core/src/lib.rs",
+      "original_sha256": "8cda0bf78e46499e72ba363c1b719689bff2ea51e1e95f18ee223d44e0ea44c2",
+      "adapter_sha256": "1c2a6ce1755df396d0e9f8c87eece27ac23657a24005b6d286ab5f551b7453fa"
+    },
+    {
+      "path": "zkp-core/Cargo.toml",
+      "original_sha256": "d87e36dec770a55e37c0b271c0e444afef11c1a640684ebe0c46d69d1aee93d7",
+      "adapter_sha256": "b9038a52f34e0ee8313aa93eec656ff62ea29571a04b3df7f3db349d623ba842"
+    },
+    {
+      "path": "zkp-core/Cargo.lock",
+      "original_sha256": "4ff606b9c497d9040dde49c4d226ebcb5b91c82e98e815a4a6e1d1d88cf1d006",
+      "adapter_sha256": "24fb1de3953c017d54113014882b05c4c52b941f900ef50f3c2554f06523fc7b"
+    }
+  ],
+  "untouched_consumers": [
+    "hashline/src/zk.rs",
+    "hashline/src/public_block_wire.rs",
+    "hashline/src/public_block_oracle.rs",
+    "hashline/src/model_identity.rs",
+    "hashline/src/causal_oracle.rs",
+    "hashline/src/private_block_contract.rs",
+    "hashline/src/export_v3.rs",
+    "hashline/src/bin/hashline.rs",
+    "every existing test under hashline/tests"
+  ],
+  "validation": "results/zk60_cl20_ffn_v3_validation.json"
+}
