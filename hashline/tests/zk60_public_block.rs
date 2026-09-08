@@ -87,6 +87,52 @@ fn honest_fixed_block_proves_and_verifies_with_approved_roots() {
 }
 
 #[test]
+fn typed_attention_and_block_reject_unused_proof_messages() {
+    let (approved, weights, input) = public_synthetic_fixture();
+    let proof = PublicBlockOracle::new(&approved, weights)
+        .unwrap()
+        .prove(&input)
+        .unwrap();
+    verify_public_block(&approved, &proof).unwrap();
+    let r = approved.registration();
+    for which in 0..4 {
+        let mut bad = proof.clone();
+        let expected = if which < 2 {
+            let mut extra = bad.attention.sc[0].clone();
+            if which == 1 {
+                extra.rounds.clear();
+            }
+            bad.attention.sc.push(extra);
+            "unused attention sumchecks"
+        } else {
+            bad.attention
+                .helper_sums
+                .push(if which == 2 { Fp2::ZERO } else { Fp2::ONE });
+            "unused attention helper_sums"
+        };
+        // Exercise the ordinary typed attention entry point, including the
+        // empty/zero payloads a value-only check could accidentally permit.
+        let mut tr = public_block_transcript(&approved);
+        let error = at::verify_attn(
+            &bad.attention,
+            &r.attention,
+            &r.residual,
+            &r.params,
+            &mut tr,
+        )
+        .err()
+        .expect("unused proof messages must not be silently accepted");
+        assert!(error.starts_with(expected), "{error}");
+        assert_eq!(
+            verify_public_block(&approved, &bad),
+            Err(PublicBlockError::Verification("attention argument"))
+        );
+    }
+    // Refusals do not mutate the original proof or approved context.
+    verify_public_block(&approved, &proof).unwrap();
+}
+
+#[test]
 fn short_weight_lifting_preserves_both_halves_and_rejects_unsupported_claims() {
     let (approved, weights, input) = public_synthetic_fixture();
     let b = FixedCausalOracle::new(&approved, weights)
