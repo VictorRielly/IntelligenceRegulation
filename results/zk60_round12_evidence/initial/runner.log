@@ -1,0 +1,11 @@
+WAIT shared heavy lock
+ACQUIRED shared heavy lock
+START hashline_tests
+END hashline_tests exit=101
+Traceback (most recent call last):
+  File "/tmp/zk60-round12/validate.py", line 69, in <module>
+    log = stage('hashline_tests', cargo + ['test', '--release', '--locked', '--offline',
+  File "/tmp/zk60-round12/validate.py", line 50, in stage
+    if result.returncode: raise RuntimeError('stage failed: ' + name)
+RuntimeError: stage failed: hashline_tests
+

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "source_commit": "72a884e9d2fb2d981f78a98be2114f91a9f0d7af",
+  "scope": "R32 typed attention message consumption and FA4 H2 public slot journal",
+  "threads": 2,
+  "address_space_limit_bytes": 8589934592,
+  "gpu_executed": false,
+  "stages": [
+    {
+      "stage": "hashline_tests",
+      "command": [
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 101,
+      "elapsed_s": 169.24188466000487,
+      "log": "/tmp/zk60-round12/hashline_tests.log",
+      "log_sha256": "b29f4846a22d584e7dcbcbfa80d60cebba0ba832f634741eb61ed754206899e9",
+      "resource_log": "/tmp/zk60-round12/hashline_tests.time"
+    }
+  ],
+  "limits": [
+    "No stable P3 prover/verifier, secret-material store or privacy acceptance.",
+    "Full Python/native suite unchanged; 546 tests passed at round11.",
+    "GPU algorithms unchanged; round11 GPU validation remains historical."
+  ],
+  "error": "Traceback (most recent call last):\n  File \"/tmp/zk60-round12/validate.py\", line 69, in <module>\n    log = stage('hashline_tests', cargo + ['test', '--release', '--locked', '--offline',\n  File \"/tmp/zk60-round12/validate.py\", line 50, in stage\n    if result.returncode: raise RuntimeError('stage failed: ' + name)\nRuntimeError: stage failed: hashline_tests\n",
+  "exit_code": 1
+}

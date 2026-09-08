@@ -1,0 +1,11 @@
+{
+  "source_before": "cfa46f6",
+  "source_after": "42471f0",
+  "old_sha256": "e5ab96f35018dfcfe44c9a24879a3ab2fc5cae5394809bd489ddc16eb5d9b6d8",
+  "new_sha256": "c5ae80ddc909aae40b9ec6b9766e5634cf3dc13172e8902f8f2dc33c77cdf979",
+  "recorder_call_lines_identical": true,
+  "recorder_call_lines": 45,
+  "sumcheck_sites": 12,
+  "role_sites": 19,
+  "change": "Only verifier refusal branches and comments added; existing fixed execution trace hashes remain unchanged and must pass on rerun."
+}

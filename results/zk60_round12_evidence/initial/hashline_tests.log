@@ -1,0 +1,182 @@
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/hashline)
+warning: `hashline` (lib) generated 8 warnings (8 duplicates)
+warning: `hashline` (lib test) generated 8 warnings (8 duplicates)
+    Finished `release` profile [optimized] target(s) in 2m 43s
+     Running unittests src/lib.rs (hashline/target/release/deps/hashline-f0c407b41a453e79)
+
+running 56 tests
+test attention::chain_tests::norm_round_matches_the_relation ... ok
+test attention::chain_tests::requant_round_is_balanced ... ok
+test chain::tests::floor_requant_is_euclidean ... ok
+test chain::tests::matmul_small ... ok
+test chain::tests::witness_i8_matmul_preserves_prefix_overflow_behavior ... ok
+test chain::tests::witness_i8_matmul_zero_columns_still_rejects - should panic ... ok
+test export_v3::tests::matmul_i64_small ... ok
+test chain::tests::witness_i8_matmul_scalar_oracle_signed_extremes_and_tails ... ok
+test export_v3::tests::witness_i64_matmul_scalar_oracle_signed_extremes_and_tails ... ok
+test export_v3::tests::witness_i64_matmul_zero_columns_still_rejects - should panic ... ok
+test export_v3::tests::requant_round_is_the_prescaled_floor ... ok
+test field::verifier_hardening_tests::cpu::hardening_attention_production_verifier_refuses_collision_and_preserves_bytes ... ok
+test field::verifier_hardening_tests::cpu::hardening_v3_production_verifier_refuses_collision_and_propagates ... ok
+test field::verifier_hardening_tests::hardening_checked_batch_matches_legacy_and_individual_inverses ... ok
+test field::verifier_hardening_tests::hardening_checked_batch_rejects_zero_without_mutation ... ok
+test norm::tests::gadget_facts_hold_on_random_rows ... ok
+test norm::tests::window_rule_examples ... ok
+test pcs::tests::commit_open_verify_and_tampers ... ok
+test pcs::zk_tests::zk_commit_open_verify_and_tampers ... ok
+test pcs::zk_tests::zk_openings_are_uniform_and_every_site_is_masked ... ok
+test pcs_compact::tests::compact_batch_of_three_commitments ... ok
+test pcs_compact::tests::compact_commit_open_verify_and_tampers ... ok
+test pcs_compact::tests::mobius_matches_multilinear_evaluation ... ok
+test pcs_compact::tests::ntt_dif_is_bitreversed_evaluation ... ok
+test pcs_compact::tests::pieces_and_queries ... ok
+test phase_profile::tests::disabled_profiling_preserves_result_and_records_nothing ... ok
+test phase_profile::tests::nested_profile_costs_are_exclusive ... ok
+test phase_profile::tests::profile_capture_cleans_up_after_unwind ... ok
+test silu::tests::frozen_members_regenerate_to_their_pins ... ok
+test stable_weight_slots::tests::binding_geometry_refuses_invalid_budgets_domains_and_aliases ... ok
+test stable_weight_slots::tests::corrupt_torn_reordered_and_over_budget_records_fail_closed ... ok
+test field::verifier_hardening_tests::cpu::hardening_v2_production_verifier_refuses_collision_after_honest_prefix ... ok
+test stable_weight_slots::tests::every_public_binding_field_is_checked_on_reopening ... ok
+test stable_weight_slots::tests::existing_missing_and_busy_stores_never_reset_the_counter ... ok
+test stable_weight_slots::tests::failed_sync_poisoning_never_reissues_a_written_slot ... ok
+test stable_weight_slots::tests::unexpected_file_length_poisoning_precedes_slot_exposure ... ok
+test tables_attn::tests::exp_members_match_the_python_generator ... ok
+test tables_attn::tests::rope_members_match_the_python_pins ... ok
+test tables_v3::tests::all_frozen_members_regenerate_to_their_pins ... ok
+test stable_weight_slots::tests::spent_slots_survive_reopening_drop_unwind_and_exhaustion ... ok
+test wcache::atomic_tests::concurrent_processes_publish_without_lost_saves_or_partial_reads ... ok
+test wcache::atomic_tests::readers_keep_complete_entries_while_other_writers_are_partial ... ok
+test wcache::atomic_tests::unfinished_and_failed_publications_clean_up_only_their_own_files ... ok
+test wcache::tests::tree_roundtrip_and_every_corruption_rejected ... ok
+test wcache::atomic_tests::concurrent_same_key_saves_all_publish_complete_entries ... ok
+test zk::mask_diagnostic::actual_ffn_fresh_os_singleton_rows_are_recovered_without_resampling ... ok
+test zk::mask_diagnostic::actual_ffn_seeded_singleton_rows_are_recovered_in_p1_and_p3 ... ok
+test zk::mask_diagnostic::capture_guard_resets_on_unwind_and_rejects_nested_capture ... ok
+test zk::mask_diagnostic::diagnostic_refuses_degenerate_and_paired_mask_controls ... ok
+test zk::tests::cloned_default_configs_never_reuse_a_mask_stream ... ok
+test zk::tests::explicit_zero_seed_keeps_legacy_stream_across_refills ... ok
+test zk::tests_v3::fresh_os_proofs_verify_for_both_privacy_modes_with_reused_config ... ok
+test zk::mask_diagnostic::actual_ffn_t32_recovers_one_functional_per_column_of_two_row_planes ... ok
+test zk::tests_v3::zk_v3_function2_binary_predicate_is_a_separate_statement ... ok
+test zk::tests_v3::zk_v3_layer_roundtrip_tampers_and_uniform_openings ... ok
+test zk::tests_v3::zk_v3_p3_hides_the_weights_and_the_header_binds_the_claim ... ok
+
+test result: ok. 56 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.33s
+
+     Running unittests src/bin/hashline.rs (hashline/target/release/deps/hashline-6058eb6dd34be32e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cli_claims.rs (hashline/target/release/deps/cli_claims-7cd318e47d242ae2)
+
+running 3 tests
+test a_model_declaration_cannot_be_silently_ignored ... ok
+test attention_requires_a_real_layer_count_and_known_chain_options ... ok
+test attention_never_silently_drops_privacy_requests ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/zk60_attention_schedule.rs (hashline/target/release/deps/zk60_attention_schedule-9bdeb9d02bea5990)
+
+running 4 tests
+test capture_lifetime_is_explicit_and_metadata_encoding_is_framed ... ok
+test executed_fixed_a00_schedule_replays_and_preserves_public_proof_bytes ... FAILED
+test source_hook_inventory_cannot_silently_lose_a_recorder_family ... FAILED
+test cross_layer_hook_is_observed_with_synthetic_replay_not_a_two_layer_proof ... ok
+
+failures:
+
+---- executed_fixed_a00_schedule_replays_and_preserves_public_proof_bytes stdout ----
+
+thread 'executed_fixed_a00_schedule_replays_and_preserves_public_proof_bytes' (269409) panicked at tests/zk60_attention_schedule.rs:8:5:
+unset HL_GPU for this CPU gate
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- source_hook_inventory_cannot_silently_lose_a_recorder_family stdout ----
+
+thread 'source_hook_inventory_cannot_silently_lose_a_recorder_family' (269412) panicked at tests/zk60_attention_schedule.rs:240:5:
+assertion `left == right` failed: attention source changed: review instrumentation/argument coverage before accepting a new snapshot
+  left: "c5ae80ddc909aae40b9ec6b9766e5634cf3dc13172e8902f8f2dc33c77cdf979"
+ right: "e5ab96f35018dfcfe44c9a24879a3ab2fc5cae5394809bd489ddc16eb5d9b6d8"
+
+
+failures:
+    executed_fixed_a00_schedule_replays_and_preserves_public_proof_bytes
+    source_hook_inventory_cannot_silently_lose_a_recorder_family
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test zk60_attention_schedule`

@@ -1,4 +1,14 @@
-# Fable — next task queue, round 11
+# Fable — current task queue, round 12
+
+**2026-09-08, Codex round 12:** Fable retains FA6–FA9, CL21 and the
+remaining CL20 work below. Codex fixes R32 typed attention extra-message
+acceptance in `42471f0` and implements H2's public slot journal in `72a884e`.
+Final source `972da4e` passes 191 Rust tests, four frozen CPU artifacts
+and public B4/B5 receipt checks; [round-12 status](ZK60_ROUND12.md) and
+[the slot-journal contract](ZK60_STABLE_WEIGHT_SLOTS.md) record the scope.
+FA9 should review the R32 fix; no duplicate production implementation is
+needed. R09/R10/R31 remain open. H2 secret-material storage and H3/H4 proof
+integration remain with Codex; the privacy review is still required.
 
 **2026-09-08:** Codex has integrated GPU lane `5949b38`, privacy-review lane
 `46608bb` and core design `882f037`. The combined source `c8a342f` passes
