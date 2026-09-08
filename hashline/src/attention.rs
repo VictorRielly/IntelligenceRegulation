@@ -2781,6 +2781,11 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
     } else if cc.idx > cc.vals.len() {
         return Err(format!("claim count {} > {} sent", cc.idx, cc.vals.len()));
     }
+    // Seam claims are appended later, but this argument owns every attention
+    // sumcheck. Derive the count from consumption instead of fixing one shape.
+    if !proving && ctx.sc_i != proof.sc.len() {
+        return Err(format!("unused attention sumchecks: {} sent, {} used", proof.sc.len(), ctx.sc_i));
+    }
     crate::attention_schedule::record("end", "attention argument", &[("A_claims", cc.aw.len()), ("W_claims", cc.ww.len()), ("H_claims", cc.hh.len()), ("values", if proving { cc.vals.len() } else { cc.idx })]);
     Ok(cc)
 }
@@ -3233,6 +3238,11 @@ pub fn attn_open_a(pend: AttnPending, proof: &mut AttnProof, tr: &mut Transcript
 /// caller adds the seam claims and calls `attn_verify_open`.
 pub fn verify_attn(proof: &AttnProof, c: &AttnConsts, fc: &FullConsts, params: &LayerParams,
                    tr: &mut Transcript) -> Result<(AttnLayout, Cc), String> {
+    // Attention helper sums are carried by vals. This legacy field has no
+    // meaning here; match the bounded B4/B5 decoder's empty-field requirement.
+    if !proof.helper_sums.is_empty() {
+        return Err("unused attention helper_sums".into());
+    }
     let lay = attn_layout_of(c, fc, params.log_cols);
     absorb_attn_statement(tr, c, fc, &lay);
     let pp = PcsParams { log_cols: lay.cols_log, inv_rate: params.inv_rate, num_col_checks: params.num_col_checks };
