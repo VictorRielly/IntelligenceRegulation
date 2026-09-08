@@ -9,6 +9,16 @@ over synthetic logs and tiny proof files under the synthetic suite (version
 0), and results/cl1_floors.sh is exercised ONLY with `bash -n` and
 `--dry-run` — on paths with spaces — so every command it would run is
 inspected without running one.
+
+[ZK60-CL21] Added: the source identity of BOTH crates (tree ids, deltas,
+lockfile hashes, the core's presence) and suite version 4's core cases. The
+four refusals (dirty core, missing core, mismatched dependency identity,
+missing core cases), archived v1–v3 manifests without the identity still
+validating, a complete synthetic v4 manifest passing, the core-test and
+example log parsers (valid — the round-11 logs themselves —, empty, failed,
+ignored), the dry-run plan carrying the core commands with quoted paths, and
+the runner refusing to START on a missing or dirty core (a real `git init`
+checkout under a temp dir; the refusal lands before any cargo command).
 """
 
 import copy
@@ -39,8 +49,41 @@ EXPECTED_V1 = ["build_cpu", "build_gpu", "cargo_test_cpu", "oracle_gpu", "nofeat
                "cpu-v2", "cpu-v3", "cpu-zk", "cpu-zkv3", "gpu-v2", "gpu-v3", "gpu-zk", "gpu-zkv3",
                "gpu-zkchunk-v2", "gpu-zkchunk-v3", "gpu-zkchunk-zk", "gpu-zkchunk-zkv3",
                "cache_cold_zkv3", "cache_warm_zkv3", "cache_p3_refusal"]
+# [ZK60-CL21] v4 = v3 + the two core cases, placed after the hashline crate tests
+EXPECTED_V4 = EXPECTED_V1[:3] + ["core_tests", "core_example"] + EXPECTED_V1[3:]
 HEAD, GPU_SHA, CPU_SHA = "0123abcd", "ab" * 32, "ee" * 32
 DEVICE = "gpu: ON — synthetic device (sm_00, 1 SMs, 0.0 GB)"
+_R11 = os.path.join(_ROOT, "results", "zk60_round11_evidence")
+CORE_LINE = "public dot-product sumcheck verified; altered round refused (primitive example, no privacy claim)"
+GIT_ENV = {"GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t", "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t",
+           "GIT_CONFIG_NOSYSTEM": "1", "HOME": tempfile.gettempdir()}
+
+
+def git(repo, *args):
+    """A read/write git call on a TEMP repository the test created (never on the
+    project's checkout); --no-pager and captured output, so it cannot hang."""
+    return subprocess.run(["git", "--no-pager", "-C", repo, "-c", "commit.gpgsign=false", *args], check=True,
+                          capture_output=True, text=True, env=dict(os.environ, **GIT_ENV)).stdout.strip()
+
+
+def make_checkout(root, core=True):
+    """A committed two-crate layout (hashline/ + zkp-core/ with Cargo.toml,
+    Cargo.lock, src/, the example) under `root`; `core=False` omits zkp-core."""
+    os.makedirs(root, exist_ok=True)
+    git(root, "init", "-q")
+    files = {"hashline/Cargo.toml": "[package]\nname = \"hashline\"\n", "hashline/Cargo.lock": "# lock\n",
+             "hashline/src/main.rs": "fn main() {}\n"}
+    if core:
+        files.update({"zkp-core/Cargo.toml": "[package]\nname = \"zkp-core\"\n", "zkp-core/Cargo.lock": "# core lock\n",
+                      "zkp-core/src/lib.rs": "pub fn f() {}\n", "zkp-core/examples/public_sumcheck.rs": "fn main() {}\n"})
+    for rel, text in files.items():
+        path = os.path.join(root, rel)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(text)
+    git(root, "add", "-A")
+    git(root, "commit", "-q", "-m", "fixture")
+    return root
 
 
 def bash_expand(template, value):
@@ -147,6 +190,8 @@ class SuiteDefinition(unittest.TestCase):
                              check=True, capture_output=True, text=True).stdout
         self.assertEqual(out.strip(), "49")
         out = subprocess.run([sys.executable, _SRC, "expected-cases"], check=True, capture_output=True, text=True).stdout
+        self.assertEqual(out.split(), EXPECTED_V4)      # [CL21] the default is v4
+        out = subprocess.run([sys.executable, _SRC, "expected-cases", "--suite-version", "3"], check=True, capture_output=True, text=True).stdout
         self.assertEqual(out.split(), EXPECTED_V1)
 
     def test_cache_cases_follow_the_cache_tests_flags(self):
@@ -169,11 +214,12 @@ class SuiteDefinition(unittest.TestCase):
         # v1 keeps 82314a1's 49 — the archived round-7 manifest-less run is still
         # describable — and everything but the oracle expectation is identical.
         v1, v2, v3 = gg.suite(1), gg.suite(2), gg.suite(3)
-        # [ZK60-CL18] v3 = CL18's 189; the default follows the newest oracle
-        self.assertEqual(gg.DEFAULT_SUITE, 3)
+        # [ZK60-CL18] v3 = CL18's 189; [ZK60-CL21] v4 = v3 + the core cases is the default
+        self.assertEqual(gg.DEFAULT_SUITE, 4)
         self.assertEqual(gg.case_definition(1, "oracle_gpu")["expect"]["executed_cases"], 49)
         self.assertEqual(gg.case_definition(2, "oracle_gpu")["expect"]["executed_cases"], 141)
         self.assertEqual(gg.case_definition(3, "oracle_gpu")["expect"]["executed_cases"], 189)
+        self.assertEqual(gg.case_definition(4, "oracle_gpu")["expect"]["executed_cases"], 189)
         self.assertIn("6dce8a9", gg.case_definition(2, "oracle_gpu")["established"])
         self.assertIn("cl18_oracle.log", gg.case_definition(3, "oracle_gpu")["established"])
         self.assertEqual(gg.expected_cases(1), gg.expected_cases(2))
@@ -183,6 +229,34 @@ class SuiteDefinition(unittest.TestCase):
             if c1["id"] != "oracle_gpu":
                 self.assertEqual(c1, c2, c1["id"])
                 self.assertEqual(c2, c3, c2["id"])
+        # v1–v3 never required the crate identity (archived meanings preserved)
+        for v in (1, 2, 3):
+            self.assertFalse(gg.suite(v).get("requires_source_identity"), v)
+
+    def test_v4_gates_the_extracted_core_with_tied_expectations(self):
+        # [ZK60-CL21] hashline depends on zkp-core by path; v4 = v3 plus the core's
+        # own tests and example, each with the SUITE'S expectation from round 11
+        v3, v4 = gg.suite(3), gg.suite(4)
+        self.assertEqual(gg.expected_cases(4), EXPECTED_V4)
+        self.assertEqual(len(EXPECTED_V4), 23)
+        self.assertTrue(v4["production"] and v4["requires_source_identity"])
+        self.assertEqual([c for c in v4["cases"] if c["id"] not in ("core_tests", "core_example")], v3["cases"])
+        ct = gg.case_definition(4, "core_tests")
+        self.assertEqual(ct["expect"], {"passed": 19, "failed": 0, "ignored": 0})
+        self.assertEqual((ct["kind"], ct["exit"], ct["manifest_path"]), ("core_tests", 0, "zkp-core/Cargo.toml"))
+        self.assertIn("c8a342f", ct["established"])
+        self.assertIn("v5", ct["established"])          # a changed core test set cuts v5, the count does not move
+        ce = gg.case_definition(4, "core_example")
+        self.assertEqual((ce["kind"], ce["exit"], ce["example"]), ("core_example", 0, "public_sumcheck"))
+        self.assertEqual(ce["expect"], {"line": CORE_LINE})
+        self.assertEqual(gg.CORE_EXAMPLE_LINE, CORE_LINE)
+        # the synthetic suite mirrors v4's structure with a count that cannot pass as the core's
+        self.assertEqual(gg.expected_cases(0), EXPECTED_V4)
+        self.assertEqual(gg.case_definition(0, "core_tests")["expect"]["passed"], 2)
+        self.assertFalse(gg.suite(0)["requires_source_identity"])
+        out = subprocess.run([sys.executable, _SRC, "expected-cases", "--suite-version", "4"], check=True, capture_output=True, text=True).stdout
+        self.assertEqual(out.split(), EXPECTED_V4)
+        self.assertEqual(gg.CRATES, {"hashline": "hashline", "zkp_core": "zkp-core"})
         # 49 is a REFUSAL against the default suite; the default's own count passes
         want = gg.case_definition(gg.DEFAULT_SUITE, "oracle_gpu")["expect"]["executed_cases"]
         with self.assertRaisesRegex(gg.GatesError, f"49 != the suite's expected {want}"):
@@ -334,6 +408,242 @@ class Validator(unittest.TestCase):
         self.assertFalse(gg.validate_manifest({"schema": 1})["ok"])
         self.assertFalse(gg.validate_manifest([])["ok"])
         self.assertFalse(gg.validate_manifest(dict(green(), suite_version=9))["ok"])
+        self.assertFalse(gg.validate_manifest(dict(green(), schema=3))["ok"])
+
+    # ------------------------------------------------ [CL21] source identity
+    def refused4(self, needle, mutate=None, **kw):
+        m = green(suite_version=4, mutate=mutate)
+        v = gg.validate_manifest(m, **kw)
+        self.assertFalse(v["ok"], needle)
+        self.assertTrue(any(needle in r for r in v["reasons"]), f"{needle!r} not in {v['reasons']}")
+        return v
+
+    def test_complete_v4_manifest_passes_and_binds_to_its_identity(self):
+        m = green(suite_version=4)
+        trees, locks = gg.identity_expectations(gg.SYNTHETIC_SOURCE)
+        v = gg.validate_manifest(m, expect_head=HEAD, expect_gpu_sha256=GPU_SHA, expect_device=DEVICE, require_production=True,
+                                 expect_trees=trees, expect_lockfiles=locks)
+        self.assertTrue(v["ok"], v["reasons"])
+        self.assertEqual(v["summary"]["cases_recorded"], 23)
+        self.assertEqual(v["summary"]["crate_trees"], {"hashline": "1" * 40, "zkp_core": "2" * 40})
+        self.assertEqual(v["summary"]["lockfiles"], {"hashline": "3" * 64, "zkp_core": "4" * 64})
+        self.assertEqual(v["summary"]["core_tests_passed"], 19)
+        self.assertEqual(m["schema"], 2)
+        self.assertEqual(m["source"]["crates"]["zkp_core"]["path"], "zkp-core")
+        self.assertEqual(record_of(m, "core_tests")["core_tests"]["result_lines"][0]["passed"], 19)
+        self.assertEqual(record_of(m, "core_example")["example_line"], CORE_LINE)
+        json.dumps(m, allow_nan=False)
+
+    def test_dirty_core_refuses(self):
+        self.refused4("uncommitted changes under zkp-core/", lambda m: m["source"]["crates"]["zkp_core"].update(dirty_delta_sha256="ab" * 32))
+
+    def test_missing_core_refuses(self):
+        v = self.refused4("crate zkp-core/ is missing from the source tree",
+                          lambda m: m["source"]["crates"]["zkp_core"].update(present=False, src=False, tree=None))
+        self.assertTrue(any("no tree id" in r for r in v["reasons"]))
+        self.refused4("crate hashline/ is missing", lambda m: m["source"]["crates"]["hashline"].update(present=False))
+
+    def test_missing_lockfile_identity_refuses(self):
+        self.refused4("lockfile identity missing for zkp-core/Cargo.lock", lambda m: m["source"]["lockfiles"]["zkp_core"].update(sha256=None))
+        self.refused4("lockfile identity missing for hashline/Cargo.lock", lambda m: m["source"]["lockfiles"].pop("hashline"))
+
+    def test_mismatched_dependency_identity_refuses(self):
+        self.refused4("zkp-core/Cargo.lock sha256", expect_lockfiles={"zkp_core": "f" * 64})
+        self.refused4("hashline/Cargo.lock sha256", expect_lockfiles={"hashline": "f" * 64, "zkp_core": "4" * 64})
+        self.refused4("zkp-core/ tree", expect_trees={"zkp_core": "f" * 40})
+        self.refused4("hashline/ tree", expect_trees={"hashline": "f" * 40})
+        # a None expectation (the tree in hand has no such crate) is a mismatch, not a pass
+        self.refused4("zkp-core/ tree", expect_trees={"zkp_core": None})
+
+    def test_missing_core_cases_refuses(self):
+        v = self.refused4("missing case core_tests", lambda m: m["cases"].remove(record_of(m, "core_tests")))
+        self.refused4("missing case core_example", lambda m: m["cases"].remove(record_of(m, "core_example")))
+
+    def test_core_test_totals_not_the_suites_refuses(self):
+        self.refused4("core tests: 18 passed", lambda m: record_of(m, "core_tests")["test_results"][0].update(passed=18))
+        self.refused4("core tests: 19 passed / 1 failed", lambda m: record_of(m, "core_tests")["test_results"][0].update(failed=1))
+        self.refused4("/ 1 ignored", lambda m: record_of(m, "core_tests")["test_results"][1].update(ignored=1))
+        self.refused4("core tests: 0 passed", lambda m: record_of(m, "core_tests").update(test_results=[]))
+
+    def test_core_example_line_missing_refuses(self):
+        self.refused4("core example: its identifying line was not recorded", lambda m: record_of(m, "core_example").update(example_line=None))
+
+    def test_v4_without_the_identity_refuses(self):
+        m = gg.synthetic_manifest(suite_version=4, head=HEAD, gpu_sha256=GPU_SHA, cpu_sha256=CPU_SHA, device=DEVICE, source_identity=None)
+        v = gg.validate_manifest(m)
+        self.assertFalse(v["ok"])
+        self.assertTrue(any("requires the recorded source identity" in r for r in v["reasons"]), v["reasons"])
+        self.assertIsNone(m["source"]["crates"])
+
+    def test_archived_v1_to_v3_manifests_without_the_identity_still_validate(self):
+        # the pre-CL21 form (results/zk60_round11_evidence/floors/manifest.json is one)
+        for v in (1, 2, 3):
+            m = gg.synthetic_manifest(suite_version=v, head=HEAD, gpu_sha256=GPU_SHA, cpu_sha256=CPU_SHA, device=DEVICE, source_identity=None)
+            m["schema"] = 1          # as written by the round 9–11 runner
+            self.assertTrue(gg.validate_manifest(m, expect_head=HEAD, expect_gpu_sha256=GPU_SHA, require_production=True)["ok"], v)
+            # ... but such a manifest cannot be BOUND to a tree: nothing recorded to compare
+            r = gg.validate_manifest(m, expect_trees={"hashline": "1" * 40, "zkp_core": "2" * 40})
+            self.assertFalse(r["ok"])
+            self.assertTrue(any("cannot bind" in x for x in r["reasons"]), r["reasons"])
+        # and whenever the identity IS recorded at an old suite version, it is validated
+        m = green(suite_version=3, mutate=lambda m: m["source"]["crates"]["zkp_core"].update(dirty_delta_sha256="ab" * 32))
+        self.assertFalse(gg.validate_manifest(m)["ok"])
+
+    def test_the_round11_archived_manifest_validates_and_cannot_be_bound(self):
+        path = os.path.join(_R11, "floors", "manifest.json")
+        if not os.path.isfile(path):
+            self.skipTest("round-11 evidence not present")
+        m = gg.load_manifest(path)
+        self.assertEqual((m["schema"], m["suite_version"]), (1, 3))
+        self.assertTrue(gg.validate_manifest(m, require_production=True)["ok"])
+        self.assertFalse(gg.validate_manifest(m, expect_trees={"zkp_core": "2" * 40})["ok"])
+
+
+class Parsers(unittest.TestCase):
+    """[ZK60-CL21] the core-test and example log parsers."""
+
+    def test_core_test_log_valid_is_the_round11_log(self):
+        path = os.path.join(_R11, "core_tests.log")
+        if not os.path.isfile(path):
+            self.skipTest("round-11 evidence not present")
+        with open(path, encoding="utf-8") as fh:
+            t = gg.parse_core_test_log(fh.read())
+        self.assertEqual((t["passed"], t["failed"], t["ignored"], t["all_ok"]), (19, 0, 0, True))
+        self.assertEqual(len(t["result_lines"]), 2)      # the lib suite and the example's zero-test binary
+        self.assertFalse(t["panicked"])
+
+    def test_core_test_log_synthetic_and_totals_are_summed(self):
+        case = gg.case_definition(4, "core_tests")
+        log = gg.synthetic_log(case, gg.synthetic_manifest(suite_version=4, finalize=False))
+        t = gg.parse_core_test_log(log)
+        self.assertEqual((t["passed"], t["failed"], t["ignored"], t["all_ok"]), (19, 0, 0, True))
+        # a doc-test section with its own zero line changes nothing; a second passing suite changes the total
+        self.assertEqual(gg.parse_core_test_log(log + "test result: ok. 1 passed; 0 failed; 0 ignored\n")["passed"], 20)
+
+    def test_core_test_log_empty_failed_ignored(self):
+        e = gg.parse_core_test_log("")
+        self.assertEqual((e["passed"], e["all_ok"], e["result_lines"]), (0, False, []))
+        self.assertFalse(gg.parse_core_test_log(None)["all_ok"])
+        f = gg.parse_core_test_log("running 19 tests\ntest x ... FAILED\ntest result: FAILED. 18 passed; 1 failed; 0 ignored; 0 measured\n")
+        self.assertEqual((f["passed"], f["failed"], f["all_ok"]), (18, 1, False))
+        i = gg.parse_core_test_log("test result: ok. 18 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out\n")
+        self.assertEqual((i["passed"], i["ignored"], i["all_ok"]), (18, 1, True))
+        # the old two-field form still parses (ignored defaults to 0)
+        self.assertEqual(gg.parse_core_test_log("test result: ok. 3 passed; 0 failed\n")["result_lines"], [{"ok": True, "passed": 3, "failed": 0, "ignored": 0}])
+        p = gg.parse_core_test_log("thread 'main' panicked at 'x'\n")
+        self.assertTrue(p["panicked"])
+
+    def test_core_example_log(self):
+        path = os.path.join(_R11, "core_example.log")
+        if os.path.isfile(path):
+            with open(path, encoding="utf-8") as fh:
+                self.assertTrue(gg.parse_core_example_log(fh.read())["line_present"])
+        self.assertTrue(gg.parse_core_example_log("   Compiling x\n" + CORE_LINE + "\n")["line_present"])
+        self.assertFalse(gg.parse_core_example_log("")["line_present"])
+        self.assertFalse(gg.parse_core_example_log(None)["line_present"])
+        self.assertFalse(gg.parse_core_example_log(CORE_LINE[:-5] + "\n")["line_present"])          # a prefix is not the line
+        self.assertFalse(gg.parse_core_example_log("x " + CORE_LINE + "\n")["line_present"])         # nor a line containing it
+        self.assertTrue(gg.parse_core_example_log("other\n", line="other")["line_present"])
+
+
+class SourceIdentityProbe(unittest.TestCase):
+    """[ZK60-CL21] `probe_source_identity` and `init --repo` on a real temp checkout."""
+
+    def setUp(self):
+        self.root = tempfile.TemporaryDirectory()
+        self.addCleanup(self.root.cleanup)
+        self.repo = make_checkout(os.path.join(self.root.name, "repo with space"))
+
+    def cli(self, *argv):
+        out, err = io.StringIO(), io.StringIO()
+        with redirect_stdout(out), redirect_stderr(err):
+            code = gg.main(list(argv))
+        return code, out.getvalue() + err.getvalue()
+
+    def test_probe_reads_both_crates(self):
+        ident = gg.probe_source_identity(self.repo)
+        self.assertEqual(ident["head"], git(self.repo, "rev-parse", "HEAD"))
+        self.assertEqual(ident["crates"]["hashline"]["tree"], git(self.repo, "rev-parse", "HEAD:hashline"))
+        self.assertEqual(ident["crates"]["zkp_core"]["tree"], git(self.repo, "rev-parse", "HEAD:zkp-core"))
+        for name in ("hashline", "zkp_core"):
+            self.assertEqual(ident["crates"][name]["dirty_delta_sha256"], gg.EMPTY_SHA256)
+            self.assertTrue(ident["crates"][name]["present"])
+            lock = os.path.join(self.repo, gg.CRATES[name], "Cargo.lock")
+            self.assertEqual(ident["lockfiles"][name], {"path": f"{gg.CRATES[name]}/Cargo.lock", "sha256": gg.sha256_file(lock), "size": os.stat(lock).st_size})
+        self.assertEqual({k: ident["crates"]["zkp_core"][k] for k in ("manifest", "src", "example")}, {"manifest": True, "src": True, "example": True})
+        self.assertEqual(ident["dirty_tracked_count"], 0)
+        self.assertEqual(ident["dirty_delta_sha256"], gg.EMPTY_SHA256)
+        # the CLI form prints the same document
+        code, out = self.cli("source-identity", "--repo", self.repo)
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["crates"], ident["crates"])
+
+    def test_probe_sees_a_dirty_core_and_a_missing_core(self):
+        with open(os.path.join(self.repo, "zkp-core", "src", "lib.rs"), "a", encoding="utf-8") as fh:
+            fh.write("// edited\n")
+        ident = gg.probe_source_identity(self.repo)
+        self.assertNotEqual(ident["crates"]["zkp_core"]["dirty_delta_sha256"], gg.EMPTY_SHA256)
+        self.assertEqual(ident["crates"]["hashline"]["dirty_delta_sha256"], gg.EMPTY_SHA256)
+        self.assertEqual(ident["dirty_tracked_count"], 1)
+        # the delta hashes exactly as the runner's `git diff HEAD -- zkp-core | sha256sum`
+        diff = subprocess.run(["git", "--no-pager", "-C", self.repo, "diff", "HEAD", "--", "zkp-core"], check=True, capture_output=True).stdout
+        self.assertEqual(ident["crates"]["zkp_core"]["dirty_delta_sha256"], hashlib.sha256(diff).hexdigest())
+        # remove the example: present flips, the tree id at HEAD stays
+        os.remove(os.path.join(self.repo, "zkp-core", "examples", "public_sumcheck.rs"))
+        ident = gg.probe_source_identity(self.repo)
+        self.assertFalse(ident["crates"]["zkp_core"]["present"])
+        self.assertFalse(ident["crates"]["zkp_core"]["example"])
+        self.assertTrue(ident["crates"]["zkp_core"]["tree"])
+        # a checkout that never had the core: no tree, not present, no lockfile
+        bare = make_checkout(os.path.join(self.root.name, "no core"), core=False)
+        ident = gg.probe_source_identity(bare)
+        self.assertIsNone(ident["crates"]["zkp_core"]["tree"])
+        self.assertFalse(ident["crates"]["zkp_core"]["present"])
+        self.assertIsNone(ident["lockfiles"]["zkp_core"]["sha256"])
+        # not a checkout at all: every fact None
+        ident = gg.probe_source_identity(self.root.name)
+        self.assertIsNone(ident["head"])
+        self.assertIsNone(ident["crates"]["hashline"]["tree"])
+        self.assertIsNone(ident["crates"]["hashline"]["dirty_delta_sha256"])
+
+    def test_init_with_repo_records_the_identity_and_cross_checks_the_runner(self):
+        head = git(self.repo, "rev-parse", "HEAD")
+        out_path = os.path.join(self.root.name, "manifest.json")
+        base = ["init", "--out", out_path, "--suite-version", "4", "--repo", self.repo, "--branch", "b", "--dirty-count", "0",
+                "--layers", "12", "--tokens", "512", "--prover-threads", "2", "--build-jobs", "2", "--rayon-threads", "2",
+                "--cpu-target-dir", "/t", "--gpu-target-dir", "/tg", "--v3-export", "/e", "--m125-export", "/m", "--cuda-root", "/c",
+                "--scratch", self.root.name]
+        code, out = self.cli(*base, "--head", head, "--dirty-delta-sha256", gg.EMPTY_SHA256)
+        self.assertEqual(code, 0, out)
+        self.assertIn("zkp-core tree", out)
+        m = gg.load_manifest(out_path)
+        self.assertEqual(m["schema"], 2)
+        self.assertEqual(m["build"]["repo"], self.repo)
+        self.assertEqual(m["source"]["crates"]["zkp_core"]["tree"], git(self.repo, "rev-parse", "HEAD:zkp-core"))
+        self.assertEqual(m["source"]["lockfiles"]["hashline"]["sha256"], gg.sha256_file(os.path.join(self.repo, "hashline", "Cargo.lock")))
+        # the runner's HEAD or hashline delta disagreeing with the tree is refused (the checkout moved)
+        os.remove(out_path)
+        code, out = self.cli(*base, "--head", "0" * 40, "--dirty-delta-sha256", gg.EMPTY_SHA256)
+        self.assertEqual(code, 2)
+        self.assertIn("checkout moved", out)
+        self.assertFalse(os.path.exists(out_path))
+        code, out = self.cli(*base, "--head", head, "--dirty-delta-sha256", "ab" * 32)
+        self.assertEqual(code, 2)
+        self.assertIn("the tree changed", out)
+        # validate/finalize --repo bind to the tree; a lockfile edited afterwards is a mismatch
+        code, _ = self.cli(*base, "--head", head, "--dirty-delta-sha256", gg.EMPTY_SHA256)
+        self.assertEqual(code, 0)
+        m = gg.load_manifest(out_path)
+        v = gg.validate_manifest(m, expect_trees=gg.identity_expectations(gg.probe_source_identity(self.repo))[0])
+        self.assertFalse(any("tree in hand" in r for r in v["reasons"]), v["reasons"])
+        with open(os.path.join(self.repo, "zkp-core", "Cargo.lock"), "a", encoding="utf-8") as fh:
+            fh.write("# bumped\n")
+        trees, locks = gg.identity_expectations(gg.probe_source_identity(self.repo))
+        v = gg.validate_manifest(m, expect_trees=trees, expect_lockfiles=locks)
+        self.assertTrue(any("zkp-core/Cargo.lock sha256" in r and "lockfile in hand" in r for r in v["reasons"]), v["reasons"])
+        code, out = self.cli("finalize", "--manifest", out_path, "--repo", self.repo)
+        self.assertEqual(code, 1)
+        self.assertIn("lockfile in hand", out)
 
 
 class RoundTrip(unittest.TestCase):
@@ -403,8 +713,11 @@ class RoundTrip(unittest.TestCase):
         self.assertEqual(code, 0, out)
         m = gg.load_manifest(self.manifest)
         self.assertTrue(m["verdict"]["green"])
-        self.assertEqual(len(m["cases"]), 21)
+        self.assertEqual(len(m["cases"]), 23)       # [CL21] the synthetic suite mirrors v4: the two core cases included
         self.assertEqual(m["started"], {})
+        self.assertEqual(record_of(m, "core_tests")["core_tests"]["passed"], 2)
+        self.assertEqual(record_of(m, "core_example")["example_line"], CORE_LINE)
+        self.assertIsNone(m["source"]["crates"])    # no --repo: the synthetic suite does not require the identity
         rec = record_of(m, "gpu-zkv3")
         self.assertEqual(rec["binary_sha256"], hashlib.sha256(b"gpu binary").hexdigest())
         self.assertTrue(rec["log"]["path"].startswith(self.sp))
@@ -528,6 +841,63 @@ class RoundTrip(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("no_frozen_expectation", out)
 
+    def test_core_record_failure_modes(self):
+        # [CL21] a failed suite, an ignored test, a missing example line, and argv
+        # that does not name the core's manifest or carry --locked all fail the record
+        self.init()
+        self.cli("binaries", "--manifest", self.manifest, "--cpu", self.cpu, "--gpu", self.gpu)
+        m = gg.load_manifest(self.manifest)
+        ct = gg.case_definition(0, "core_tests")
+        good = gg.synthetic_log(ct, m)
+        code, out = self.run_case(ct, m, log_text=good.replace("test result: ok. 2 passed; 0 failed; 0 ignored", "test result: FAILED. 1 passed; 1 failed; 0 ignored"))
+        self.assertEqual(code, 1)
+        self.assertIn("core_test_totals", out)
+        self.assertIn("1 passed / 1 failed", out)
+        ce = gg.case_definition(0, "core_example")
+        code, out = self.run_case(ce, m, log_text="    Finished `release`\n     Running `x`\n")
+        self.assertEqual(code, 1)
+        self.assertIn("example_output", out)
+        # the argv bindings, through the CLI with hand-built argv
+        for cid, case, argv, needle in (
+                ("core_tests", ct, ["cargo", "test", "--release", "--locked", "--manifest-path", "/r/hashline/Cargo.toml"], "argv_core_manifest"),
+                ("core_example", ce, ["cargo", "run", "--release", "--manifest-path", "/r/zkp-core/Cargo.toml", "--example", "public_sumcheck"], "argv_locked")):
+            sp2 = os.path.join(self.root.name, "sp2 " + cid)
+            os.makedirs(sp2, exist_ok=True)
+            man = os.path.join(sp2, "manifest.json")
+            self.cli("init", "--out", man, "--suite-version", "0", "--head", HEAD, "--branch", "b", "--dirty-count", "0",
+                     "--dirty-delta-sha256", gg.EMPTY_SHA256, "--layers", "12", "--tokens", "512", "--prover-threads", "2",
+                     "--build-jobs", "2", "--rayon-threads", "2", "--cpu-target-dir", "/t", "--gpu-target-dir", "/tg",
+                     "--v3-export", "/e", "--m125-export", "/m", "--cuda-root", "/c", "--scratch", sp2)
+            self.assertEqual(self.cli("start", "--manifest", man, "--case", cid)[0], 0)
+            log = os.path.join(sp2, cid + ".out")
+            with open(log, "w", encoding="utf-8") as fh:
+                fh.write(gg.synthetic_log(case, gg.load_manifest(man)))
+            code, out = self.cli("record", "--manifest", man, "--case", cid, "--exit", "0", "--log", log, "--", *argv)
+            self.assertEqual(code, 1, out)
+            self.assertIn(needle, out)
+        # the example's artifact is recorded informationally when present
+        case = gg.case_definition(0, "core_example")
+        sp3 = os.path.join(self.root.name, "sp3")
+        os.makedirs(sp3)
+        man = os.path.join(sp3, "manifest.json")
+        self.cli("init", "--out", man, "--suite-version", "0", "--head", HEAD, "--branch", "b", "--dirty-count", "0",
+                 "--dirty-delta-sha256", gg.EMPTY_SHA256, "--layers", "12", "--tokens", "512", "--prover-threads", "2",
+                 "--build-jobs", "2", "--rayon-threads", "2", "--cpu-target-dir", "/t", "--gpu-target-dir", "/tg",
+                 "--v3-export", "/e", "--m125-export", "/m", "--cuda-root", "/c", "--scratch", sp3)
+        self.cli("start", "--manifest", man, "--case", "core_example")
+        log = os.path.join(sp3, "core_example.out")
+        with open(log, "w", encoding="utf-8") as fh:
+            fh.write(gg.synthetic_log(case, gg.load_manifest(man)))
+        art = os.path.join(sp3, "public_sumcheck")
+        with open(art, "wb") as fh:
+            fh.write(b"example binary")
+        code, out = self.cli("record", "--manifest", man, "--case", "core_example", "--exit", "0", "--log", log, "--artifact", art,
+                             "--", *gg.synthetic_argv(case, gg.load_manifest(man)))
+        self.assertEqual(code, 0, out)
+        rec = record_of(gg.load_manifest(man), "core_example")
+        self.assertEqual(rec["artifact"]["sha256"], hashlib.sha256(b"example binary").hexdigest())
+        self.assertEqual(rec["artifact"]["size"], 14)
+
 
 class FloorsRunner(unittest.TestCase):
     """results/cl1_floors.sh under `bash -n` and `--dry-run` only."""
@@ -593,7 +963,9 @@ class FloorsRunner(unittest.TestCase):
             if "cargo" in toks:
                 self.assertIn("CARGO_BUILD_JOBS=2", toks)
                 self.assertIn("/tmp/zk-build.lock", toks)
-                self.assertEqual(toks[toks.index("--manifest-path") + 1], self.repo + "/hashline/Cargo.toml")
+                # [CL21] the two core steps name the core's manifest; everything else hashline's
+                want = self.repo + ("/zkp-core/Cargo.toml" if "--locked" in toks else "/hashline/Cargo.toml")
+                self.assertEqual(toks[toks.index("--manifest-path") + 1], want)
         # 12 byte gates + cold + warm + the P3 refusal, each emitted once as a run and once inside its `record`
         self.assertEqual(provers, 15 * 2)
         self.assertNotIn("--threads 8", self.result.stdout)
@@ -605,18 +977,22 @@ class FloorsRunner(unittest.TestCase):
         selftest = self.first(lambda l: l.endswith("self-test"))
         build_cpu = self.first(lambda l: "cargo build --release --manifest-path" in l and "gpu-cuda" not in l)
         build_gpu = self.first(lambda l: "cargo build --release --features gpu-cuda" in l)
-        tests = self.first(lambda l: "cargo test --release" in l and "--test-threads=2" in l)
+        tests = self.first(lambda l: "cargo test --release" in l and "--test-threads=2" in l and "zkp-core" not in l)
+        core_tests = self.first(lambda l: "cargo test --release --locked --offline" in l and "zkp-core/Cargo.toml" in l)
+        core_example = self.first(lambda l: "cargo run --release --locked --offline" in l and "--example public_sumcheck" in l)
         oracle = self.first(lambda l: "HL_GPU_REQUIRED=1" in l and "--features gpu-cuda" in l and "zk60_gpu_commit" in l)
         refusal = self.first(lambda l: "HL_GPU_REQUIRED=1" in l and "--features gpu-cuda" not in l and "zk60_gpu_commit" in l)
         gate = self.first(lambda l: " pass 12 512 " in l and "--proof-out" in l)
         cache = self.first(lambda l: "--wcache" in l)
         p3 = self.first(lambda l: "--p3 --wcache" in l)
         manifest = os.path.join(self.scratch, "manifest.json")
-        finalize = self.first(lambda l: " finalize --manifest " in l and shlex.split(l)[-1] == manifest)
+        finalize = self.first(lambda l: " finalize --manifest " in l and shlex.split(l)[shlex.split(l).index("--manifest") + 1] == manifest)
         self.assertLess(selftest, build_cpu)
         self.assertLess(build_cpu, build_gpu)
         self.assertLess(build_gpu, tests)
-        self.assertLess(tests, oracle)
+        self.assertLess(tests, core_tests)          # [CL21] the core after the hashline crate tests, before the device
+        self.assertLess(core_tests, core_example)
+        self.assertLess(core_example, oracle)
         self.assertLess(oracle, refusal)
         self.assertLess(refusal, gate)
         self.assertLess(gate, cache)
@@ -646,12 +1022,18 @@ class FloorsRunner(unittest.TestCase):
     def test_manifest_lifecycle_is_emitted_for_every_case(self):
         starts = [shlex.split(l)[-1] for l in self.lines if " start --manifest " in l]
         records = [shlex.split(l.split(" -- ")[0])[shlex.split(l.split(" -- ")[0]).index("--case") + 1] for l in self.lines if " record --manifest " in l]
-        self.assertEqual(starts, EXPECTED_V1)
-        self.assertEqual(records, EXPECTED_V1)
+        self.assertEqual(starts, EXPECTED_V4)        # [CL21] the default suite is v4
+        self.assertEqual(records, EXPECTED_V4)
         init = self.first(lambda l: " init --out " in l)
         self.assertLess(init, self.first(lambda l: "cargo build" in l))
         self.assertIn("--layers 12 --tokens 512", self.lines[init])
         self.assertIn("--prover-threads 2 --build-jobs 2 --rayon-threads 2", self.lines[init])
+        # [CL21] init records both crates from the checkout; finalize re-binds to it
+        toks = shlex.split(self.lines[init])
+        self.assertEqual(toks[toks.index("--repo") + 1], self.repo)
+        fin = shlex.split(self.lines[-1])
+        self.assertEqual(fin[fin.index("--repo") + 1], self.repo)
+        self.assertIn("finalize", fin)
         binaries = self.first(lambda l: " binaries --manifest " in l)
         self.assertLess(self.first(lambda l: "--features gpu-cuda" in l and "cargo build" in l), binaries)
         self.assertLess(binaries, self.first(lambda l: "cargo test" in l))
@@ -714,15 +1096,121 @@ class FloorsRunner(unittest.TestCase):
             text = fh.read()
         self.assertIn("OUTER heavy lock (/tmp/zk-heavy.lock) is the LAUNCHER's job", text)
         self.assertIn("NEVER wrap this script in the build lock", text)
-        # both builds, the crate tests, the oracle and the two controls take the build lock INSIDE
-        self.assertEqual(text.count("flock /tmp/zk-build.lock"), 6)
-        self.assertEqual(sum("/tmp/zk-build.lock" in l for l in self.lines if "cargo" in l and " record " not in l), 6)
+        # both builds, the crate tests, [CL21] the two core steps, the oracle and the two controls take the build lock INSIDE
+        self.assertEqual(text.count("flock /tmp/zk-build.lock"), 8)
+        self.assertEqual(sum("/tmp/zk-build.lock" in l for l in self.lines if "cargo" in l and " record " not in l), 8)
         self.assertNotIn("zk-heavy.lock", " ".join(self.lines))   # the heavy lock is never taken here
         # `--threads 8` survives only in the history comment that says it was removed
         self.assertEqual([l for l in text.splitlines() if "--threads 8" in l and not l.lstrip().startswith("#")], [])
         self.assertNotIn("ORACLE_MIN_CASES", text)
         self.assertIn('"${SUMMARY:-"{}"}"', text)
         self.assertIn('"${SELFTEST:-"{}"}"', text)
+
+    # ------------------------------------------------------------- [CL21]
+    def test_core_commands_are_emitted_with_quoted_paths_locked_and_offline(self):
+        core = [l for l in self.lines if "zkp-core/Cargo.toml" in l and " record " not in l]
+        self.assertEqual(len(core), 2)
+        test_toks = shlex.split(core[0].split(" > ")[0])
+        run_toks = shlex.split(core[1].split(" > ")[0])
+        for toks in (test_toks, run_toks):
+            self.assertEqual(toks[toks.index("--manifest-path") + 1], self.repo + "/zkp-core/Cargo.toml")
+            self.assertIn("--locked", toks)
+            self.assertIn("--offline", toks)
+            self.assertIn("--release", toks)
+            self.assertEqual(toks[:5], ["env", "CARGO_BUILD_JOBS=2", "RAYON_NUM_THREADS=2", "flock", "/tmp/zk-build.lock"])
+        self.assertEqual(test_toks[test_toks.index("cargo") + 1], "test")
+        self.assertEqual(test_toks[-2:], ["--", "--test-threads=2"])
+        self.assertEqual(run_toks[run_toks.index("cargo") + 1], "run")
+        self.assertEqual(run_toks[run_toks.index("--example") + 1], "public_sumcheck")
+        # the retained per-case logs, `printf %q`-quoted (a space survives the shell split)
+        self.assertEqual(shlex.split(core[0].split(" > ")[1]), [os.path.join(self.scratch, "core_tests.out"), "2>&1"])
+        self.assertEqual(shlex.split(core[1].split(" > ")[1]), [os.path.join(self.scratch, "core_example.out"), "2>&1"])
+        # the records carry the same argv and the example's artifact path
+        rec = next(l for l in self.lines if " record --manifest " in l and "--case core_example" in l)
+        toks = shlex.split(rec)
+        self.assertEqual(toks[toks.index("--artifact") + 1], self.repo + "/zkp-core/target/release/examples/public_sumcheck")
+        self.assertEqual(toks[toks.index("--") + 1:], run_toks)
+        self.assertIn("zkp-core cases: core_tests + core_example", self.result.stdout)
+
+    def test_dry_run_reports_both_crates_identity(self):
+        # read-only in the dry run; on a non-checkout every fact is absent and said so
+        out = self.result.stdout
+        self.assertIn("hashline/  tree <none>", out)
+        self.assertIn("zkp-core/  tree <none>", out)
+        self.assertIn("present 0 (Cargo.toml + src/ + examples/public_sumcheck.rs)", out)
+        self.assertIn("Cargo.lock sha256 <missing>", out)
+        self.assertIn("identity -> builds -> tests -> zkp-core -> oracle", out)
+        self.assertNotIn("FAILURE", out)
+
+    def test_suite_v3_dry_run_has_no_core_cases_but_records_the_identity(self):
+        r = self.dry_run("--suite-version", "3", scratch=os.path.join(self.tmp.name, "s6"))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        lines = [l[2:] for l in r.stdout.splitlines() if l.startswith("+ ")]
+        self.assertEqual([shlex.split(l)[-1] for l in lines if " start --manifest " in l], EXPECTED_V1)
+        self.assertEqual([l for l in lines if "zkp-core/Cargo.toml" in l], [])
+        self.assertIn("zkp-core cases: none (v1-v3)", r.stdout)
+        self.assertIn("none in suite version 3", r.stdout)
+        init = next(l for l in lines if " init --out " in l)
+        self.assertIn("--suite-version 3", init)
+        self.assertIn("--repo", init)
+
+    def test_usage_and_success_line_name_the_core(self):
+        r = subprocess.run(["bash", _FLOORS, "--help"], capture_output=True, text=True)
+        self.assertIn("default 4 = CL21", r.stdout)
+        self.assertIn("zkp-core tests/example", r.stdout)
+        with open(_FLOORS, encoding="utf-8") as fh:
+            text = fh.read()
+        self.assertIn("+ zkp-core tests + zkp-core example", text)
+        self.assertIn("identity: hashline + zkp-core trees, both lockfiles", text)
+
+    def test_missing_or_dirty_core_refuses_to_start_before_any_build(self):
+        # NOT a dry run: a real temp checkout, the self-test runs, the identity is
+        # read, and the run stops with FAILURE before any cargo command; the
+        # scratch dir holds no manifest. Nothing here builds anything.
+        def real_run(repo, scratch):
+            e = {k: v for k, v in os.environ.items() if k not in ("HL_FLOORS_GATES", "HL_FLOORS_REPO", "HL_FLOORS_SUITE_VERSION")}
+            return subprocess.run(["bash", _FLOORS, "--repo", repo, "--gates", _SRC, "--v3-export", self.export, scratch],
+                                  capture_output=True, text=True, env=e, timeout=120)
+        cases = {}
+        cases["missing core"] = (make_checkout(os.path.join(self.tmp.name, "nc repo"), core=False), "the extracted core is missing or incomplete")
+        dirty = make_checkout(os.path.join(self.tmp.name, "dc repo"))
+        with open(os.path.join(dirty, "zkp-core", "src", "lib.rs"), "a", encoding="utf-8") as fh:
+            fh.write("// edited\n")
+        cases["dirty core"] = (dirty, "uncommitted changes under zkp-core/")
+        dirty_hl = make_checkout(os.path.join(self.tmp.name, "dh repo"))
+        with open(os.path.join(dirty_hl, "hashline", "src", "main.rs"), "a", encoding="utf-8") as fh:
+            fh.write("// edited\n")
+        cases["dirty hashline"] = (dirty_hl, "uncommitted changes under hashline/")
+        cases["not a checkout"] = (os.path.join(self.tmp.name, "plain dir"), "is not a git checkout")
+        os.makedirs(cases["not a checkout"][0])
+        for name, (repo, needle) in cases.items():
+            scratch = os.path.join(self.tmp.name, "real " + name)
+            r = real_run(repo, scratch)
+            self.assertEqual(r.returncode, 1, f"{name}: {r.stdout}{r.stderr}")
+            self.assertIn("FAILURE: " if name == "not a checkout" else "FAILURE: " + needle[:20], r.stdout, name)
+            self.assertIn(needle, r.stdout, name)
+            self.assertIn("gates self-test OK", r.stdout, name)
+            self.assertNotIn("cargo", r.stdout.split("=== source identity ===")[1], name)
+            self.assertFalse(os.path.exists(os.path.join(scratch, "manifest.json")), name)
+            if name != "not a checkout":
+                self.assertIn("nothing was built", r.stdout, name)
+        # a clean two-crate checkout passes the identity gate: the FIRST command after it is the manifest init
+        # (the init runs for real — it only reads the checkout — and then cargo build would follow; we stop
+        # the run there by pointing cargo at nothing: PATH without cargo makes build_cpu fail, after init)
+        clean = make_checkout(os.path.join(self.tmp.name, "ok repo"))
+        scratch = os.path.join(self.tmp.name, "real ok")
+        e = {k: v for k, v in os.environ.items() if k not in ("HL_FLOORS_GATES", "HL_FLOORS_REPO", "HL_FLOORS_SUITE_VERSION")}
+        e["PATH"] = os.pathsep.join(p for p in e.get("PATH", "").split(os.pathsep) if not os.path.isfile(os.path.join(p, "cargo")))
+        r = subprocess.run(["bash", _FLOORS, "--repo", clean, "--gates", _SRC, "--v3-export", self.export, scratch],
+                           capture_output=True, text=True, env=e, timeout=120)
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("present 1", r.stdout)
+        self.assertNotIn("nothing was built", r.stdout)
+        self.assertIn("FAILURE: build_cpu", r.stdout)
+        m = gg.load_manifest(os.path.join(scratch, "manifest.json"))
+        self.assertEqual(m["source"]["crates"]["zkp_core"]["tree"], git(clean, "rev-parse", "HEAD:zkp-core"))
+        self.assertEqual(m["source"]["head"], git(clean, "rev-parse", "HEAD"))
+        self.assertEqual(m["suite_version"], 4)
 
 
 if __name__ == "__main__":
