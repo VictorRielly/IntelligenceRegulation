@@ -1,0 +1,353 @@
+{
+  "schema": 1,
+  "scope": "CL18 compact pad/scale A/B, Mistral one layer P3, two threads, single box, not a p95",
+  "runs": [
+    {
+      "log": "cl18_ab_compact_r1.log",
+      "arm": "compact",
+      "rep": 1,
+      "exit": 0,
+      "sha256": "190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e",
+      "bytes": "40251860",
+      "commits": [
+        {
+          "rows": 10774,
+          "log_n": 14,
+          "log_nn": 16,
+          "q": 256,
+          "chunks": 85,
+          "rmax": 128,
+          "how": "compact pad 16640 of 65536",
+          "s": 0.3278
+        },
+        {
+          "rows": 3601,
+          "log_n": 14,
+          "log_nn": 16,
+          "q": 256,
+          "chunks": 29,
+          "rmax": 128,
+          "how": "compact pad 16640 of 65536",
+          "s": 0.1153
+        },
+        {
+          "rows": 3033,
+          "log_n": 14,
+          "log_nn": 16,
+          "q": 256,
+          "chunks": 24,
+          "rmax": 128,
+          "how": "compact pad 16640 of 65536",
+          "s": 0.0962
+        }
+      ],
+      "reencs": [
+        {
+          "rows": 10774,
+          "chunks": 85,
+          "how": "fused, pruned 248/4096, compact pad 16640 of 65536",
+          "s": 0.2361
+        },
+        {
+          "rows": 3601,
+          "chunks": 29,
+          "how": "fused, pruned 251/4096, compact pad 16640 of 65536",
+          "s": 0.0781
+        },
+        {
+          "rows": 3033,
+          "chunks": 24,
+          "how": "fused, pruned 245/4096, compact pad 16640 of 65536",
+          "s": 0.0661
+        }
+      ],
+      "commit_total_s": 0.5393,
+      "reenc_total_s": 0.3803,
+      "dev": {
+        "h2d_s": 0.601,
+        "h2d_mb": 1933,
+        "ntt_s": 0.539,
+        "vram_peak_mb": 5148
+      },
+      "prove_s": 4.125700205,
+      "proof_ready_s": 13.301426408,
+      "witness_s": 9.134820355,
+      "verified": true
+    },
+    {
+      "log": "cl18_ab_compact_r2.log",
+      "arm": "compact",
+      "rep": 2,
+      "exit": 0,
+      "sha256": "190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e",
+      "bytes": "40251860",
+      "commits": [
+        {
+          "rows": 10774,
+          "log_n": 14,
+          "log_nn": 16,
+          "q": 256,
+          "chunks": 85,
+          "rmax": 128,
+          "how": "compact pad 16640 of 65536",
+          "s": 0.3259
+        },
+        {
+          "rows": 3601,
+          "log_n": 14,
+          "log_nn": 16,
+          "q": 256,
+          "chunks": 29,
+          "rmax": 128,
+          "how": "compact pad 16640 of 65536",
+          "s": 0.1138
+        },
+        {
+          "rows": 3033,
+          "log_n": 14,
+          "log_nn": 16,
+          "q": 256,
+          "chunks": 24,
+          "rmax": 128,
+          "how": "compact pad 16640 of 65536",
+          "s": 0.0967
+        }
+      ],
+      "reencs": [
+        {
+          "rows": 10774,
+          "chunks": 85,
+          "how": "fused, pruned 248/4096, compact pad 16640 of 65536",
+          "s": 0.2447
+        },
+        {
+          "rows": 3601,
+          "chunks": 29,
+          "how": "fused, pruned 251/4096, compact pad 16640 of 65536",
+          "s": 0.0783
+        },
+        {
+          "rows": 3033,
+          "chunks": 24,
+          "how": "fused, pruned 245/4096, compact pad 16640 of 65536",
+          "s": 0.0663
+        }
+      ],
+      "commit_total_s": 0.5364,
+      "reenc_total_s": 0.3893,
+      "dev": {
+        "h2d_s": 0.607,
+        "h2d_mb": 1933,
+        "ntt_s": 0.536,
+        "vram_peak_mb": 5148
+      },
+      "prove_s": 4.051693314,
+      "proof_ready_s": 12.777837531,
+      "witness_s": 8.662918454,
+      "verified": true
+    },
+    {
+      "log": "cl18_ab_reference_r1.log",
+      "arm": "reference",
+      "rep": 1,
+      "exit": 0,
+      "sha256": "190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e",
+      "bytes": "40251860",
+      "commits": [
+        {
+          "rows": 10774,
+          "log_n": 14,
+          "log_nn": 16,
+          "q": 256,
+          "chunks": 85,
+          "rmax": 128,
+          "how": "",
+          "s": 0.3871
+        },
+        {
+          "rows": 3601,
+          "log_n": 14,
+          "log_nn": 16,
+          "q": 256,
+          "chunks": 29,
+          "rmax": 128,
+          "how": "",
+          "s": 0.1324
+        },
+        {
+          "rows": 3033,
+          "log_n": 14,
+          "log_nn": 16,
+          "q": 256,
+          "chunks": 24,
+          "rmax": 128,
+          "how": "",
+          "s": 0.1097
+        }
+      ],
+      "reencs": [
+        {
+          "rows": 10774,
+          "chunks": 85,
+          "how": "fused, pruned 248/4096",
+          "s": 0.2891
+        },
+        {
+          "rows": 3601,
+          "chunks": 29,
+          "how": "fused, pruned 251/4096",
+          "s": 0.096
+        },
+        {
+          "rows": 3033,
+          "chunks": 24,
+          "how": "fused, pruned 245/4096",
+          "s": 0.0809
+        }
+      ],
+      "commit_total_s": 0.6292,
+      "reenc_total_s": 0.466,
+      "dev": {
+        "h2d_s": 0.566,
+        "h2d_mb": 1933,
+        "ntt_s": 0.629,
+        "vram_peak_mb": 5182
+      },
+      "prove_s": 4.363049913,
+      "proof_ready_s": 13.549520564,
+      "witness_s": 9.036328701,
+      "verified": true
+    },
+    {
+      "log": "cl18_ab_reference_r2.log",
+      "arm": "reference",
+      "rep": 2,
+      "exit": 0,
+      "sha256": "190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e",
+      "bytes": "40251860",
+      "commits": [
+        {
+          "rows": 10774,
+          "log_n": 14,
+          "log_nn": 16,
+          "q": 256,
+          "chunks": 85,
+          "rmax": 128,
+          "how": "",
+          "s": 0.3786
+        },
+        {
+          "rows": 3601,
+          "log_n": 14,
+          "log_nn": 16,
+          "q": 256,
+          "chunks": 29,
+          "rmax": 128,
+          "how": "",
+          "s": 0.1303
+        },
+        {
+          "rows": 3033,
+          "log_n": 14,
+          "log_nn": 16,
+          "q": 256,
+          "chunks": 24,
+          "rmax": 128,
+          "how": "",
+          "s": 0.1113
+        }
+      ],
+      "reencs": [
+        {
+          "rows": 10774,
+          "chunks": 85,
+          "how": "fused, pruned 248/4096",
+          "s": 0.2925
+        },
+        {
+          "rows": 3601,
+          "chunks": 29,
+          "how": "fused, pruned 251/4096",
+          "s": 0.0916
+        },
+        {
+          "rows": 3033,
+          "chunks": 24,
+          "how": "fused, pruned 245/4096",
+          "s": 0.0811
+        }
+      ],
+      "commit_total_s": 0.6202,
+      "reenc_total_s": 0.4652,
+      "dev": {
+        "h2d_s": 0.594,
+        "h2d_mb": 1933,
+        "ntt_s": 0.62,
+        "vram_peak_mb": 5182
+      },
+      "prove_s": 4.329532171,
+      "proof_ready_s": 12.95948169,
+      "witness_s": 8.591884866,
+      "verified": true
+    }
+  ],
+  "digests": [
+    [
+      "190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e",
+      "40251860"
+    ]
+  ],
+  "byte_identical_across_arms": true,
+  "summary": {
+    "compact": {
+      "n": 2,
+      "commit_total_s": 0.5378,
+      "reenc_total_s": 0.3848,
+      "commit_W_s": 0.3268,
+      "reenc_W_s": 0.2404,
+      "ntt_s": 0.5375,
+      "prove_s": 4.0887,
+      "proof_ready_s": 13.0396,
+      "vram_peak_mb": 5148
+    },
+    "reference": {
+      "n": 2,
+      "commit_total_s": 0.6247,
+      "reenc_total_s": 0.4656,
+      "commit_W_s": 0.3829,
+      "reenc_W_s": 0.2908,
+      "ntt_s": 0.6245,
+      "prove_s": 4.3463,
+      "proof_ready_s": 13.2545,
+      "vram_peak_mb": 5182
+    }
+  },
+  "changed_phase": {
+    "three_commits_s": {
+      "reference": 0.6247,
+      "compact": 0.5378,
+      "speedup_x": 1.162
+    },
+    "three_reencodes_s": {
+      "reference": 0.4656,
+      "compact": 0.3848,
+      "speedup_x": 1.21
+    },
+    "changed_phase_total_s": {
+      "reference": 1.0903,
+      "compact": 0.9226
+    }
+  },
+  "whole_proof": {
+    "prove_s": {
+      "reference": 4.3463,
+      "compact": 4.0887,
+      "delta_s": -0.2576
+    },
+    "proof_ready_s": {
+      "reference": 13.2545,
+      "compact": 13.0396,
+      "delta_s": -0.2149
+    }
+  }
+}

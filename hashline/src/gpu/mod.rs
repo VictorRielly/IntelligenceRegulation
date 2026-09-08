@@ -40,6 +40,9 @@ pub use cuda::{pool_stats_for_test, set_pool_reuse_for_test, PoolStats, RAW_ALLO
 // [ZK60-CL7] the fused/pruned hiding opening's switches and the index-parameterised oracle
 #[cfg(feature = "gpu-cuda")]
 pub use cuda::{dev_commit_zk_check_chunked_with, set_prune_p2_for_test, set_zk_fuse_gather_for_test};
+// [ZK60-CL18] the compact pad/scale switch (default OFF) and the pure width/refusal function the oracle pins
+#[cfg(feature = "gpu-cuda")]
+pub use cuda::{set_zk_compact_pad_for_test, zk_pad_width};
 // [UPERF3-AH] the shape-general zero-check (any block count) and the up-front
 // device-buffer reservation that keeps the "declined -> host path" discipline
 // honest once the helper columns have already gone to the device.

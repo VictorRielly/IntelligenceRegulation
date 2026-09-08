@@ -1,0 +1,268 @@
+INSECURE TEST RANDOMNESS: --seed reproduces public masks and provides no privacy; use only for fixtures.
+pass [ZK, mode P1, randomness deterministic-test]: 12 layers x 512 tokens (log_cols 14, inv_rate 4, col checks 256, threads 2)
+[UPERF3-XX] gpu init: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB), NVRTC compile 2.80s
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-XX]   encode rows 288 2^14 -> 2^16: dif inverse 0.0081 | dit forward 0.0049 s
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0097 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 41 2^16 (n_src 65536, inverse false): p1 0.0016 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0317 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0286 | p2 0.0067 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0160 | p2 0.0070 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0160 | p2 0.0068 s
+[UPERF3-XX]   ntt rows 89 2^16 (n_src 65536, inverse false): p1 0.0126 | p2 0.0047 s
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.1048 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0308 s | rounds 0.0346 s | folds 0.0265 s | sync/absorb 0.0012 s | total 0.0934 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0106 s | rounds 0.0056 s | folds 0.0010 s | sync/absorb 0.0010 s | total 0.0189 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 252/4096): 0.0153 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 473 (4 chunks, fused, pruned 249/4096): 0.0133 s
+  layer  0: prove 0.649 s, 7269044 B
+[UPERF3-XX]   encode rows 288 2^14 -> 2^16: dif inverse 0.0015 | dit forward 0.0049 s
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0039 | p2 0.0010 s
+[UPERF3-XX]   ntt rows 41 2^16 (n_src 65536, inverse false): p1 0.0017 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0223 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 89 2^16 (n_src 65536, inverse false): p1 0.0028 | p2 0.0006 s
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0204 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0030 s | rounds 0.0205 s | folds 0.0050 s | sync/absorb 0.0015 s | total 0.0308 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0015 s | rounds 0.0057 s | folds 0.0011 s | sync/absorb 0.0014 s | total 0.0104 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 246/4096): 0.0161 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 473 (4 chunks, fused, pruned 253/4096): 0.0132 s
+  layer  1: prove 0.348 s, 7269044 B
+[UPERF3-XX]   encode rows 288 2^14 -> 2^16: dif inverse 0.0015 | dit forward 0.0049 s
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0034 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 41 2^16 (n_src 65536, inverse false): p1 0.0016 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0220 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0034 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 89 2^16 (n_src 65536, inverse false): p1 0.0028 | p2 0.0006 s
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0196 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0030 s | rounds 0.0194 s | folds 0.0040 s | sync/absorb 0.0012 s | total 0.0279 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0011 s | rounds 0.0050 s | folds 0.0009 s | sync/absorb 0.0007 s | total 0.0081 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 248/4096): 0.0154 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 473 (4 chunks, fused, pruned 248/4096): 0.0132 s
+  layer  2: prove 0.316 s, 7269044 B
+[UPERF3-XX]   encode rows 288 2^14 -> 2^16: dif inverse 0.0015 | dit forward 0.0049 s
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 41 2^16 (n_src 65536, inverse false): p1 0.0016 | p2 0.0004 s
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0224 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 89 2^16 (n_src 65536, inverse false): p1 0.0028 | p2 0.0006 s
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0198 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0032 s | rounds 0.0200 s | folds 0.0043 s | sync/absorb 0.0019 s | total 0.0300 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0016 s | rounds 0.0055 s | folds 0.0008 s | sync/absorb 0.0014 s | total 0.0101 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 246/4096): 0.0153 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 473 (4 chunks, fused, pruned 251/4096): 0.0133 s
+  layer  3: prove 0.311 s, 7269044 B
+[UPERF3-XX]   encode rows 288 2^14 -> 2^16: dif inverse 0.0015 | dit forward 0.0049 s
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 41 2^16 (n_src 65536, inverse false): p1 0.0016 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0216 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 89 2^16 (n_src 65536, inverse false): p1 0.0028 | p2 0.0006 s
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0204 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0032 s | rounds 0.0194 s | folds 0.0040 s | sync/absorb 0.0009 s | total 0.0280 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0014 s | rounds 0.0053 s | folds 0.0009 s | sync/absorb 0.0009 s | total 0.0093 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 249/4096): 0.0155 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 473 (4 chunks, fused, pruned 250/4096): 0.0134 s
+  layer  4: prove 0.309 s, 7269044 B
+[UPERF3-XX]   encode rows 288 2^14 -> 2^16: dif inverse 0.0015 | dit forward 0.0048 s
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 41 2^16 (n_src 65536, inverse false): p1 0.0016 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0218 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0033 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 89 2^16 (n_src 65536, inverse false): p1 0.0028 | p2 0.0007 s
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0195 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0032 s | rounds 0.0194 s | folds 0.0039 s | sync/absorb 0.0010 s | total 0.0279 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0013 s | rounds 0.0051 s | folds 0.0010 s | sync/absorb 0.0008 s | total 0.0087 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 243/4096): 0.0151 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 473 (4 chunks, fused, pruned 251/4096): 0.0133 s
+  layer  5: prove 0.303 s, 7269044 B
+[UPERF3-XX]   encode rows 288 2^14 -> 2^16: dif inverse 0.0015 | dit forward 0.0071 s
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 41 2^16 (n_src 65536, inverse false): p1 0.0016 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0222 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 89 2^16 (n_src 65536, inverse false): p1 0.0028 | p2 0.0006 s
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0201 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0028 s | rounds 0.0194 s | folds 0.0040 s | sync/absorb 0.0010 s | total 0.0276 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0012 s | rounds 0.0050 s | folds 0.0008 s | sync/absorb 0.0006 s | total 0.0080 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 245/4096): 0.0153 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 473 (4 chunks, fused, pruned 249/4096): 0.0134 s
+  layer  6: prove 0.309 s, 7269044 B
+[UPERF3-XX]   encode rows 288 2^14 -> 2^16: dif inverse 0.0016 | dit forward 0.0049 s
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 41 2^16 (n_src 65536, inverse false): p1 0.0016 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0217 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 89 2^16 (n_src 65536, inverse false): p1 0.0028 | p2 0.0006 s
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0205 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0031 s | rounds 0.0192 s | folds 0.0038 s | sync/absorb 0.0008 s | total 0.0273 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0013 s | rounds 0.0049 s | folds 0.0008 s | sync/absorb 0.0005 s | total 0.0078 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 246/4096): 0.0153 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 473 (4 chunks, fused, pruned 249/4096): 0.0131 s
+  layer  7: prove 0.304 s, 7269044 B
+[UPERF3-XX]   encode rows 288 2^14 -> 2^16: dif inverse 0.0016 | dit forward 0.0049 s
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 41 2^16 (n_src 65536, inverse false): p1 0.0016 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0221 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 89 2^16 (n_src 65536, inverse false): p1 0.0028 | p2 0.0006 s
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0213 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0027 s | rounds 0.0194 s | folds 0.0039 s | sync/absorb 0.0009 s | total 0.0272 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0011 s | rounds 0.0050 s | folds 0.0008 s | sync/absorb 0.0006 s | total 0.0079 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 249/4096): 0.0157 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 473 (4 chunks, fused, pruned 247/4096): 0.0132 s
+  layer  8: prove 0.310 s, 7269044 B
+[UPERF3-XX]   encode rows 288 2^14 -> 2^16: dif inverse 0.0015 | dit forward 0.0049 s
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 41 2^16 (n_src 65536, inverse false): p1 0.0016 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0215 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0034 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 89 2^16 (n_src 65536, inverse false): p1 0.0028 | p2 0.0008 s
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0202 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0030 s | rounds 0.0205 s | folds 0.0049 s | sync/absorb 0.0018 s | total 0.0314 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0013 s | rounds 0.0051 s | folds 0.0008 s | sync/absorb 0.0006 s | total 0.0081 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 252/4096): 0.0153 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 473 (4 chunks, fused, pruned 254/4096): 0.0133 s
+  layer  9: prove 0.312 s, 7269044 B
+[UPERF3-XX]   encode rows 288 2^14 -> 2^16: dif inverse 0.0015 | dit forward 0.0048 s
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 41 2^16 (n_src 65536, inverse false): p1 0.0016 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0216 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 89 2^16 (n_src 65536, inverse false): p1 0.0028 | p2 0.0006 s
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0202 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0032 s | rounds 0.0195 s | folds 0.0039 s | sync/absorb 0.0010 s | total 0.0281 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0013 s | rounds 0.0052 s | folds 0.0009 s | sync/absorb 0.0008 s | total 0.0086 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 248/4096): 0.0153 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 473 (4 chunks, fused, pruned 246/4096): 0.0131 s
+  layer 10: prove 0.309 s, 7269044 B
+[UPERF3-XX]   encode rows 288 2^14 -> 2^16: dif inverse 0.0015 | dit forward 0.0048 s
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 41 2^16 (n_src 65536, inverse false): p1 0.0016 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0219 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 89 2^16 (n_src 65536, inverse false): p1 0.0028 | p2 0.0006 s
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0199 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0031 s | rounds 0.0192 s | folds 0.0038 s | sync/absorb 0.0009 s | total 0.0273 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0012 s | rounds 0.0049 s | folds 0.0008 s | sync/absorb 0.0005 s | total 0.0077 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 252/4096): 0.0154 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 473 (4 chunks, fused, pruned 251/4096): 0.0132 s
+  layer 11: prove 0.308 s, 7269044 B
+prover phases (summed over layers):
+      commit W                      0.512 s
+      commit A (zk)                 1.041 s
+      mask commit                   0.033 s
+      helpers + commit H (zk)       0.908 s
+      matmul g/u (zk)               0.108 s
+      matmul d (zk)                 0.118 s
+      zero-check 20 (zk)            0.418 s
+      zero-check 17 (zk)            0.125 s
+      table zero-check (zk)         0.125 s
+      zsum + mask open              0.027 s
+      pcs openings (zk)             0.663 s
+mask sites (layer 0; every layer identical in structure):
+      A: 26 claims in 5 groups
+      A group vector 0: mask rows [520, 521, 522, 523, 524, 525, 526]
+      A group vector 1: mask rows [527, 528, 529, 530, 531, 532, 533, 534, 535]
+      A group vector 2: mask rows [536, 537, 538]
+      A group vector 3: mask rows [539]
+      A group vector 4: mask rows [542, 544, 546, 548, 550, 552]
+      A proximity vector: prox mask row 540 (+ every mask row with its random rho)
+      A 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      A 65536 Merkle leaves salted
+      H group vector 0: mask rows [432, 433, 434, 435, 436, 437]
+      H group vector 1: mask rows [438, 439, 440, 441, 442, 443]
+      H group vector 2: mask rows [444, 445, 446, 447]
+      H group vector 3: mask rows [451, 452, 455, 456, 459, 460, 463, 464, 467, 468, 471, 472]
+      H group vector 4: mask rows [444, 445]
+      H proximity vector: prox mask row 448 (+ every mask row with its random rho)
+      H 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      H 65536 Merkle leaves salted
+  gpu device-side (summed): h2d 0.390 s (1029 MB) | ntt 0.687 s | hash 0.028 s | sumcheck 0.521 s | fold 0.203 s | helpers 0.117 s | d2h 0.000 s (155 MB) | vram peak 2027 MB
+PROOF sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d (87228528 B) [ZK randomness deterministic-test]
+  proof written to /tmp/claude-1000/-home-victor-IntelligenceRegulation/ee339e97-5d60-4550-9623-e998ecce960c/scratchpad/cl18_gates/cl18_zk_diag_off.proof
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 2.96 s | PROVE 4.09 s | VERIFY 0.46 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 7.091e9 proven MAC/s (prove wall) | wall 7.61 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":2.960660396,"prove_s":4.088706611,"serialize_s":0.106530571,"proof_ready_s":7.156020745,"verify_s":0.455761580,"verified":true,"proof_bytes":87228528,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+CL18_GATE label=zk_diag_off exit=0 sha256=021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d bytes=87228528 expect=021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d/87228528

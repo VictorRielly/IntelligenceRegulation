@@ -249,7 +249,7 @@
       "priority": 2,
       "title": "Evaluate compact pad/scale output as one bounded GPU optimization",
       "owner": "Fable / Claude GPU lane",
-      "status": "queued",
+      "status": "done (measured; switch default OFF; promotion is the integrator's decision)",
       "depends_on": [
         "CL17"
       ],
@@ -270,7 +270,17 @@
         "Failure/cleanup ownership and memory counters agree with the planner; no stale stride or unsupported n+q path is silently used.",
         "Full frozen gates pass at the new source before promotion. The measured phase gain and whole-proof change are reported separately; the traffic reduction remains a hypothesis until measured."
       ],
-      "limits": "This task authorizes a bounded optimization investigation, not a claimed speedup, altered security parameters, a private repair, or a full-model run."
+      "limits": "This task authorizes a bounded optimization investigation, not a claimed speedup, altered security parameters, a private repair, or a full-model run.",
+      "result": {
+        "date": "2026-09-07",
+        "base": "c02d86c + the CL18 diff (the agent was rate-limited after implementing and running the oracle; the orchestrator ran the prepared gate and A/B scripts and wrote the results sections)",
+        "derivation": "ZK60_CLAUDE_RESIDENCY.md 7.1-7.7: k_zk_pad_scale's nn is only the output stride/thread bound and k_ntt_p1's n_src is both source stride and zero-extension bound (1 <= n_src <= 2^log_nn, no power-of-two need); the zero tail is never load-bearing (gl_mul(0, x) == 0); only d_coef2 changes (rmax*(n+q)*8 vs rmax*nn*8: 17,039,360 vs 67,108,864 B at Mistral/12x512 shapes, -74.6%); a traffic lever, not a capacity lever (chunked peak is 86% d_data); verdict: supports",
+        "implementation": "HL_ZK_COMPACT_PAD=1 (default OFF), set_zk_compact_pad_for_test, zk_pad_width(n, q, nn, compact) decides or REFUSES (n + q > nn) before any scratch is taken; the three chunked routes launch k_zk_pad_scale with the compact stride and k_ntt_p1 with n_src = n + q; kernels unchanged (comments only); mod.rs: one re-export line",
+        "oracle": "34 passed / 0 failed, executed_cases 189 (was 141): width/refusal pin, ON/OFF parity of leaves and opened columns across rates, pad boundaries incl. n + q = nn, ragged, duplicates, interleaved, fused/reference/pruned/dense; allocation probes show the compact coef2 take and the reference full take; negative control detects",
+        "frozen_gates": "results/cl18_frozen_gates.log marker 0, GPU binary 9887a375../5,333,616 B: v2/v3/zk/zkv3 OFF MATCH; zk/zkv3 ON MATCH (byte-preserving); two diagnostics MATCH",
+        "measurement": "results/cl18_reenc_ab.log marker 0, Mistral one layer P3 T=512 ABAB x 2, two threads: three commits 0.6247 -> 0.5378 s (1.162x), three re-encodes 0.4656 -> 0.3848 s (1.21x), changed phase 1.090 -> 0.923 s, PROVE 4.346 -> 4.089 s (-0.258 s, 5.9%), proof_ready 13.25 -> 13.04 s, VRAM peak 5182 -> 5148 MB; proof byte-identical across arms and equal to CL7's 190e85a1../40,251,860 B",
+        "limits": "one shape, one card, n = 2 per arm, two threads, single shared box: a diagnostic, not a p95; the MiB traffic reduction is a hypothesis (not profiled); switch stays OFF; the planner does not yet model the compact chunk_expanded (device counters pinned in the oracle instead)"
+      }
     },
     {
       "id": "CL19",

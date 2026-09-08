@@ -1039,6 +1039,223 @@ fn duplicate_indices_open_identically_on_every_route() {
     expect_alloc(&p.alloc, 2, 2, (1 << 14) * 4 + 300 * 1100 * 8, "declined-prune plain open");
 }
 
+// ---------------------------------------------------------------------------
+// [ZK60-CL18] The compact pad/scale output (`HL_ZK_COMPACT_PAD=1`, default
+// OFF): the chunked hiding routes write the pad/scale output `rmax x (n + q)`
+// and launch the expand NTT's `k_ntt_p1` with `n_src = n + q`, instead of
+// `rmax x nn` / `n_src = nn`. Derivation: ZK60_CLAUDE_RESIDENCY.md §7. Every
+// case below runs the SAME oracle with the switch ON and OFF; the reference
+// form is retained and is what the frozen byte gates run by default.
+// ---------------------------------------------------------------------------
+
+/// Sets the compact switch and RESTORES the previous setting on drop — also
+/// when an assertion panics — so a failing case cannot leak its switch state
+/// into the tests that follow (the CL3 pool-accounting test assumes the
+/// full-width scratch).
+struct CompactPad(usize);
+impl CompactPad {
+    fn set(mode: usize) -> CompactPad {
+        CompactPad(gpu::set_zk_compact_pad_for_test(mode))
+    }
+    fn select(&self, mode: usize) {
+        gpu::set_zk_compact_pad_for_test(mode);
+    }
+}
+impl Drop for CompactPad {
+    fn drop(&mut self) {
+        gpu::set_zk_compact_pad_for_test(self.0);
+    }
+}
+
+/// The width function itself, no device needed: `nn` on the reference form,
+/// `n + q` on the compact one, `n + q == nn` ALLOWED (the compact width is
+/// then the full width — a boundary, not a refusal), and `n + q > nn` REFUSED
+/// with the shape in the message, so an unsupported `n + q` can never be
+/// launched silently.
+#[test]
+fn compact_pad_width_is_n_plus_q_and_refuses_an_oversize_pad() {
+    assert_eq!(gpu::zk_pad_width(1024, 16, 4096, false), Ok(4096), "reference form: the full width");
+    assert_eq!(gpu::zk_pad_width(1024, 16, 4096, true), Ok(1040), "compact form: n + q");
+    assert_eq!(gpu::zk_pad_width(1024, 1024, 2048, true), Ok(2048), "n + q == nn is the boundary, not a refusal");
+    assert_eq!(gpu::zk_pad_width(16384, 256, 65536, true), Ok(16640), "the Mistral W/A/H shape");
+    let e = gpu::zk_pad_width(1024, 1025, 2048, true).expect_err("n + q > nn must be refused");
+    assert!(e.contains("compact pad/scale refused") && e.contains("1024 + 1025"), "the refusal must name itself and the shape: {e}");
+    assert!(gpu::zk_pad_width(1024, 1025, 2048, false).is_ok(), "the reference form does not decide n + q; its callers assert it upstream");
+}
+
+/// CPU-oracle parity of leaves AND opened columns with the compact switch ON
+/// and OFF, at: every supported rate; pad boundaries (q = 1, 16, 256, and
+/// the exact `n + q == nn` boundary where the compact width equals the full
+/// one, and `nn - 1`, a one-element zero tail); the fusion threshold
+/// (log_nn 12 unfused, 13 first fused, 14 the eligible shape) and the pruning
+/// threshold (log_nn 17 the last pruned width, 18 pruning declined to the
+/// dense fused stage); ragged chunks (129 and 257 rows); duplicate queries;
+/// interleaved commitments with deferred repeated openings; every opening
+/// route (fused/reference x pruned/dense); and the negative control, which
+/// must keep detecting the wrong re-encode under the compact switch too.
+#[test]
+fn compact_pad_scale_matches_the_cpu_on_and_off() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    let cp = CompactPad::set(1);
+    let sw = Switches::set();
+    for compact in [1usize, 0] {
+        cp.select(compact);
+        sw.select(1, 1);
+        // every supported rate
+        for &rate in &[2usize, 4, 8] {
+            check(10, rate, 300, 16, 128);
+        }
+        // pad boundaries
+        for &q in &[1usize, 16, 256] {
+            check(10, 4, 300, q, 128);
+        }
+        check(10, 2, 300, 1024, 128); // n + q == nn: the compact width IS the full width
+        check(10, 2, 300, 1023, 128); // n + q == nn - 1: a single zero in the tail
+        // fusion and pruning thresholds (log_nn 12 is covered by (10, 4) above)
+        check(11, 4, 200, 16, 128); // log_nn 13: the first fused width
+        check(12, 4, 300, 16, 128); // log_nn 14: ELIGIBLE
+        check(14, 8, 130, 64, 128); // log_nn 17: the last pruned width, ragged (128 + 2)
+        check(15, 8, 40, 16, 128); // log_nn 18: pruning declined -> dense fused last stage
+        // ragged chunks
+        for &rows in &[129usize, 257] {
+            check(10, 4, rows, 16, 128);
+        }
+        // duplicate queries on the fused route
+        note_case();
+        let r = gpu::dev_commit_zk_check_chunked_with(12, 4, 300, 16, 128, false, Some(&DUPS))
+            .unwrap_or_else(|e| panic!("compact {compact}: duplicate-index oracle failed: {e}"));
+        assert_eq!(r, (0, 0), "compact {compact}: hiding opening with repeated indices");
+        // interleaved commitments, all live, then opened twice each (descending width)
+        note_case();
+        let r = gpu::dev_commit_zk_check_interleaved(&[(14u32, 4usize, 200usize, 16usize), (10, 4, 300, 16), (8, 4, 200, 16)], 128, 2)
+            .unwrap_or_else(|e| panic!("compact {compact}: interleaved oracle failed: {e}"));
+        assert_eq!(r, (0, 0), "compact {compact}: interleaved commitments with deferred openings");
+        // every opening route at the eligible shape
+        for fuse in [1usize, 0] {
+            for prune in [1usize, 0] {
+                sw.select(fuse, prune);
+                let (lc, rate, rows, q, chunk) = ELIGIBLE;
+                check(lc, rate, rows, q, chunk);
+            }
+        }
+        sw.select(1, 1);
+        // the negative control keeps detecting
+        note_case();
+        let (bad_leaves, bad_cols) = gpu::dev_commit_zk_check_chunked(10, 4, 300, 16, 128, true)
+            .unwrap_or_else(|e| panic!("compact {compact}: negative control failed to run: {e}"));
+        assert_eq!(bad_leaves, 0, "compact {compact}: the hiding leaves stay right in the negative control");
+        assert!(bad_cols > 300, "compact {compact}: the plain re-encode must still be detected, got {bad_cols}");
+    }
+}
+
+/// The allocation probes: the compact route takes the SMALLER `d_coef2`
+/// scratch and the reference route the full one, exact to the byte against
+/// the planner's formula (`chunk_expanded = rmax * width * 8`, width `n + q`
+/// or `nn`; ZK60_CLAUDE_RESIDENCY.md §7.5), read by the counters around the
+/// OPEN alone (reuse disabled, so fresh bytes ARE the scratch), then through
+/// the real entry point for commit + opening together, then the TRANSITION:
+/// a pool warmed by the reference route serves the compact route entirely by
+/// oversize reuse — the compact `coef2` request is served by the smallest
+/// pooled buffer that fits, which is the blake3 STATE buffer, not a full
+/// `rmax x nn` one — with zero fresh allocation. Also pins the DEFAULT: with
+/// `HL_ZK_COMPACT_PAD` unset the switch follows the environment and is OFF.
+#[test]
+fn compact_pad_scale_takes_the_smaller_scratch_and_the_reference_route_the_full_one() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    let cp = CompactPad::set(1);
+    let sw = Switches::set();
+    let (lc, rate, rows, q, chunk) = ELIGIBLE; // n 4096, nn 16384, rmax 128
+    let n = 1usize << lc;
+    let nn = n * rate;
+    let rmax = 128usize;
+    let coef_b = rmax * n * 8;
+    let big_b = rmax * nn * 8;
+    let cpad_b = rmax * (n + q) * 8;
+    let state_b = (((8 * 24 + 1) * nn + 1) / 2) * 8;
+    let data_b = rows * n * 8;
+    let idx: Vec<usize> = (0..16).map(|i| (i * 7919 + 13) % nn).collect();
+    assert_eq!((cpad_b, big_b, state_b), (4_210_688, 16_777_216, 12_648_448), "the derivation's numbers for the eligible shape");
+
+    // ---- (a) reuse OFF: the open's three scratch takes are all fresh, so
+    // fresh bytes are exactly coef + coef2 + enc, and only coef2 differs.
+    gpu::dev_pool_drain();
+    let prev_reuse = gpu::set_pool_reuse_for_test(false);
+    for (mode, want_coef2, tag) in [(1usize, cpad_b, "compact"), (0, big_b, "reference")] {
+        cp.select(mode);
+        note_case();
+        let p = gpu::dev_commit_zk_open_probe(lc, rate, rows, q, chunk, false, &idx).unwrap_or_else(|e| panic!("{tag}: {e}"));
+        assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((16, 0))), "{tag}: correctness first");
+        assert_eq!((p.alloc.fresh_count, p.alloc.reuse_count), (3, 0), "{tag}: reuse OFF means three fresh scratch takes; saw {:?}", p.alloc);
+        assert_eq!(p.alloc.fresh_bytes, coef_b + want_coef2 + big_b,
+            "{tag}: the open's scratch must be coef {coef_b} + coef2 {want_coef2} + enc {big_b}; saw {:?}", p.alloc);
+        let (rc, rb) = planned_raw(&idx, nn, rows, true, true);
+        assert_eq!((p.alloc.raw_count, p.alloc.raw_bytes), (rc, rb), "{tag}: raw allocations do not depend on the pad width; saw {:?}", p.alloc);
+    }
+    // the DEFAULT: unset in the environment -> follow it -> OFF -> full width
+    if std::env::var_os("HL_ZK_COMPACT_PAD").is_none() {
+        cp.select(255);
+        note_case();
+        let p = gpu::dev_commit_zk_open_probe(lc, rate, rows, q, chunk, false, &idx).expect("default-switch probe ran");
+        assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((16, 0))));
+        assert_eq!(p.alloc.fresh_bytes, coef_b + 2 * big_b, "HL_ZK_COMPACT_PAD unset must mean the full-width reference scratch; saw {:?}", p.alloc);
+    } else {
+        eprintln!("HL_ZK_COMPACT_PAD is set in this process; the default-OFF pin was not exercised");
+    }
+    gpu::set_pool_reuse_for_test(prev_reuse);
+    gpu::dev_pool_drain();
+
+    // ---- (b) the whole path through the REAL entry point (`dev_commit_zk_from`,
+    // forced chunked) plus its opening, reuse OFF: everything the path asks
+    // the pool for, in bytes — CL3's `requested` with coef2 at the pad width
+    // in BOTH the commit's and the opening's takes.
+    let prev_mode = gpu::set_zk_chunk_mode_for_test(2);
+    let prev_reuse = gpu::set_pool_reuse_for_test(false);
+    for (mode, want_coef2, tag) in [(1usize, cpad_b, "compact"), (0, big_b, "reference")] {
+        cp.select(mode);
+        gpu::reset_alloc_counters_for_test();
+        note_case();
+        let o = gpu::dev_commit_zk_from_probe(lc, rate, rows, q).unwrap_or_else(|e| panic!("{tag}: {e}"));
+        let s = gpu::pool_stats_for_test();
+        assert!(o.chunked, "{tag}: forced mode must chunk: {o:?}");
+        assert_eq!((o.bad_leaves, o.bad_cols), (0, 0), "{tag}: the real entry point must be correct: {o:?}");
+        let requested = data_b + (coef_b + want_coef2 + big_b + state_b) + (coef_b + want_coef2 + big_b);
+        assert_eq!((s.reuse_count, s.fresh_bytes), (0, requested),
+            "{tag}: forced-chunk commit + opening must allocate exactly data + commit scratch + opening scratch fresh ({requested} B); saw {s:?}");
+        gpu::dev_pool_drain();
+    }
+    gpu::set_pool_reuse_for_test(prev_reuse);
+    gpu::set_zk_chunk_mode_for_test(prev_mode);
+
+    // ---- (c) the TRANSITION from a reference-warmed pool. The warm-up leaves
+    // {coef 4 MiB, coef2 16 MiB, enc 16 MiB, state 12,648,448 B, data} pooled;
+    // the compact commit's coef2 request (4,210,688 B) is served by the
+    // smallest pooled buffer that fits — the STATE buffer — and its state take
+    // then gets a 16 MiB one; the opening sees the same inventory. Zero fresh
+    // allocation; capacity handed out ABOVE the request (oversize reuse).
+    gpu::dev_pool_drain();
+    sw.select(1, 1);
+    cp.select(0);
+    let warm = gpu::dev_commit_zk_open_probe(lc, rate, rows, q, chunk, false, &idx).expect("reference warm-up ran");
+    assert_eq!((warm.bad_leaves, warm.open.clone()), (0, Ok((16, 0))));
+    cp.select(1);
+    note_case();
+    let p = gpu::dev_commit_zk_open_probe(lc, rate, rows, q, chunk, false, &idx).expect("compact probe on a reference-warmed pool ran");
+    assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((16, 0))), "transition: correctness first");
+    assert_eq!((p.alloc.fresh_count, p.alloc.reuse_count), (0, 3),
+        "transition: a reference-warmed pool must serve the compact open entirely by reuse; saw {:?}", p.alloc);
+    assert_eq!(p.alloc.reuse_requested_bytes, coef_b + cpad_b + big_b, "transition: requested = coef + compact coef2 + enc; saw {:?}", p.alloc);
+    assert_eq!(p.alloc.reuse_capacity_bytes, coef_b + state_b + big_b,
+        "transition: the compact coef2 must be served by the pooled STATE buffer ({state_b} B), the smallest that fits; saw {:?}", p.alloc);
+    assert!(p.alloc.reuse_capacity_bytes > p.alloc.reuse_requested_bytes, "oversize reuse must show capacity above request");
+    gpu::dev_pool_drain();
+}
+
 /// [ZK60-CL4] The gate that proves the run was not vacuous, from BOTH sides:
 /// a device must be present when required, AND real cases must have executed.
 /// A green suite that skipped everything is the failure mode this closes.

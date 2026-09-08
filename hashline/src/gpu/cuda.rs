@@ -119,6 +119,57 @@ fn zk_fuse_gather() -> bool {
     match ZK_FUSE_OVERRIDE.load(Ordering::SeqCst) { 255 => env, x => x != 0 }
 }
 
+/// [ZK60-CL18] `HL_ZK_COMPACT_PAD=1` — DEFAULT OFF — makes the CHUNKED hiding
+/// routes (the chunked commit, the reference opening and the fused opening)
+/// write the pad/scale output `rmax x (n + q)` instead of `rmax x nn`, and
+/// launch the expand NTT's `k_ntt_p1` with `n_src = n + q`. Why it is
+/// byte-preserving: `k_zk_pad_scale`'s last argument is only its OUTPUT ROW
+/// STRIDE, and `k_ntt_p1`'s `n_src` is both its source row stride and its
+/// zero-extension bound (`sh[q] = r < n_src ? s[r] : 0`), so the tail the
+/// full form stores as `gl_mul(0, h^i) == 0ULL` is synthesized as the same
+/// `0ULL` on the load — identical shared-memory tiles, identical stages,
+/// identical leaves and columns (ZK60_CLAUDE_RESIDENCY.md §7). What changes
+/// is traffic: the pad/scale write and the `k_ntt_p1` read each shrink from
+/// `rmax*nn` to `rmax*(n+q)` per chunk, and the `d_coef2` scratch shrinks
+/// the same way. Nothing else moves: the resident path (`HL_ZK_CHUNK=0`, the
+/// reference) is untouched, `enc` stays `rmax x nn`, no kernel changed.
+/// OFF is the reference form; ON is a diagnostic until measured.
+static ZK_COMPACT_PAD_OVERRIDE: AtomicUsize = AtomicUsize::new(255);
+/// 0 = full-width reference, 1 = compact, 255 = follow `HL_ZK_COMPACT_PAD`.
+/// Returns the previous value so a test can restore it.
+pub fn set_zk_compact_pad_for_test(mode: usize) -> usize {
+    ZK_COMPACT_PAD_OVERRIDE.swap(mode, Ordering::SeqCst)
+}
+fn zk_compact_pad() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    let env = *V.get_or_init(|| matches!(std::env::var("HL_ZK_COMPACT_PAD").ok().as_deref(), Some("1") | Some("on")));
+    match ZK_COMPACT_PAD_OVERRIDE.load(Ordering::SeqCst) { 255 => env, x => x != 0 }
+}
+
+/// [ZK60-CL18] The pad/scale output ROW STRIDE for one hiding encode: `nn`
+/// on the reference form, `n + q` on the compact one. This is the single
+/// place the compact width is decided, and it REFUSES — with the shape in
+/// the message — rather than launching, when `n + q` does not meet
+/// `k_ntt_p1`'s requirement (`n_src <= 2^log_nn`, `n_src` an `int`). Both
+/// are already excluded upstream (`dev_commit_zk_from` asserts
+/// `n + q <= nn`, as does the CPU `encode_row_zk`); re-checking here is what
+/// makes "no unsupported `n + q` path is silently used" a property of the
+/// route itself. Pure; exported so the test file can pin the boundary.
+pub fn zk_pad_width(n: usize, q: usize, nn: usize, compact: bool) -> Result<usize, String> {
+    if !compact {
+        return Ok(nn);
+    }
+    let pw = n + q;
+    if pw == 0 || pw > nn || pw > i32::MAX as usize {
+        return Err(format!(
+            "[ZK60-CL18] compact pad/scale refused: n + q = {n} + {q} = {pw} must satisfy 1 <= n + q <= nn = {nn} \
+             (k_ntt_p1 zero-extends a source of n_src <= 2^log_nn entries; it cannot shorten a transform). \
+             Unset HL_ZK_COMPACT_PAD for the full-width reference form."
+        ));
+    }
+    Ok(pw)
+}
+
 pub(super) struct Gpu {
     pub(super) dev: Arc<CudaDevice>,
     pub(super) name: String,
@@ -1465,16 +1516,25 @@ impl Gpu {
     /// `k_zk_pad_scale` (append this chunk's `q` pads and scale by the coset
     /// powers), then the expand NTT. `pads` is sliced to the chunk because it
     /// is per ROW; `pows` is per COLUMN and shared by every chunk.
+    ///
+    /// [ZK60-CL18] `pw` is the pad/scale output's ROW STRIDE — `nn` (the
+    /// reference form) or `n + q` (the compact form), decided by
+    /// `zk_pad_width` at the caller that sized `coef2`. It is the width
+    /// argument of `k_zk_pad_scale` AND the `n_src` of the expand NTT's
+    /// `k_ntt_p1`, so the two can never disagree; `coef2` must hold
+    /// `rows * pw`, asserted here so a stale stride cannot read past it.
     #[allow(clippy::too_many_arguments)]
     fn encode_rows_view_zk(&self, data: &CudaView<u64>, pads: &CudaView<u64>, pows: &CudaSlice<u64>,
                            coef: &mut CudaSlice<u64>, coef2: &mut CudaSlice<u64>, enc: &mut CudaSlice<u64>,
-                           rows: usize, n: usize, q: usize, nn: usize, log_n: u32, log_nn: u32) -> Result<(), String> {
+                           rows: usize, n: usize, q: usize, nn: usize, pw: usize, log_n: u32, log_nn: u32) -> Result<(), String> {
+        assert!(pw == nn || pw == n + q, "[ZK60-CL18] pad/scale width {pw} is neither nn {nn} nor n + q {}", n + q);
+        assert!(coef2.len() >= rows * pw && enc.len() >= rows * nn && pw <= nn);
         self.ntt_rows_view(data, coef, rows, n, log_n, true)?;
         let f = self.dev.get_func(MODULE, "k_zk_pad_scale").ok_or("k_zk_pad_scale missing")?;
-        let cfg = LaunchConfig::for_num_elems((rows * nn) as u32);
-        unsafe { f.launch(cfg, (&*coef, pads, pows, &mut *coef2, rows as i32, n as i32, q as i32, nn as i32)) }
+        let cfg = LaunchConfig::for_num_elems((rows * pw) as u32);
+        unsafe { f.launch(cfg, (&*coef, pads, pows, &mut *coef2, rows as i32, n as i32, q as i32, pw as i32)) }
             .map_err(|e| format!("k_zk_pad_scale: {e}"))?;
-        self.ntt_rows(coef2, enc, rows, nn, log_nn, false)?;
+        self.ntt_rows(coef2, enc, rows, pw, log_nn, false)?;
         Ok(())
     }
 
@@ -1488,28 +1548,32 @@ impl Gpu {
     /// Identical values: the same kernels, the same twiddles, the same order.
     /// The `k_ntt_p2` store and the `k_gather_cols_off` load of the encoded
     /// chunk are what disappear.
+    ///
+    /// [ZK60-CL18] `pw` as in `encode_rows_view_zk`: the pad/scale row stride
+    /// and the `n_src` of the `k_ntt_p1` launch below, `nn` or `n + q`.
     #[allow(clippy::too_many_arguments)]
     fn encode_rows_view_zk_gather(&self, data: &CudaView<u64>, pads: &CudaView<u64>, pows: &CudaSlice<u64>,
                                   coef: &mut CudaSlice<u64>, coef2: &mut CudaSlice<u64>, enc: &mut CudaSlice<u64>,
-                                  rows: usize, n: usize, q: usize, nn: usize, log_n: u32, log_nn: u32,
+                                  rows: usize, n: usize, q: usize, nn: usize, pw: usize, log_n: u32, log_nn: u32,
                                   d_sel: &CudaSlice<i32>, out: &mut CudaSlice<u64>, row0: usize, rows_total: usize,
                                   sp: Option<(&CudaSlice<i32>, usize)>) -> Result<(), String> {
         if log_nn <= NTT_LOG_BLK {
             return Err("gather fusion needs log_nn > NTT_LOG_BLK".into());
         }
+        assert!(pw == nn || pw == n + q, "[ZK60-CL18] pad/scale width {pw} is neither nn {nn} nor n + q {}", n + q);
+        assert!(coef2.len() >= rows * pw && enc.len() >= rows * nn && pw <= nn);
         self.ntt_rows_view(data, coef, rows, n, log_n, true)?;
         let f = self.dev.get_func(MODULE, "k_zk_pad_scale").ok_or("k_zk_pad_scale missing")?;
-        let cfg = LaunchConfig::for_num_elems((rows * nn) as u32);
-        unsafe { f.launch(cfg, (&*coef, pads, pows, &mut *coef2, rows as i32, n as i32, q as i32, nn as i32)) }
+        let cfg = LaunchConfig::for_num_elems((rows * pw) as u32);
+        unsafe { f.launch(cfg, (&*coef, pads, pows, &mut *coef2, rows as i32, n as i32, q as i32, pw as i32)) }
             .map_err(|e| format!("k_zk_pad_scale: {e}"))?;
         let (max_log, tf, _ti) = self.tw.as_ref().ok_or("twiddles not uploaded")?;
         assert!(log_nn <= *max_log, "device ntt size 2^{log_nn} exceeds tables (2^{max_log})");
-        assert!(coef2.len() >= rows * nn && enc.len() >= rows * nn);
         let threads = ntt_threads();
         let p1 = self.dev.get_func(MODULE, "k_ntt_p1").ok_or("k_ntt_p1 missing")?;
         let bpr = 1u32 << (log_nn - NTT_LOG_BLK);
         let cfg1 = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
-        unsafe { p1.launch(cfg1, (&*coef2, &mut *enc, tf, log_nn as i32, nn as i32, 1u64)) }.map_err(|e| format!("k_ntt_p1: {e}"))?;
+        unsafe { p1.launch(cfg1, (&*coef2, &mut *enc, tf, log_nn as i32, pw as i32, 1u64)) }.map_err(|e| format!("k_ntt_p1: {e}"))?;
         if let Some((ql, nq)) = sp {
             let p2 = self.dev.get_func(MODULE, "k_ntt_p2_gather_sp").ok_or("k_ntt_p2_gather_sp missing")?;
             let gx = ((nq + P2SP_NC - 1) / P2SP_NC) as u32;
@@ -1538,9 +1602,13 @@ impl Gpu {
         let dev = self.dev.clone();
         let plan = chunk_plan(rows, chunk);
         let rmax = plan.iter().map(|&(_, rc)| rc).max().unwrap();
+        // [ZK60-CL18] the pad/scale output width — `nn`, or `n + q` under the
+        // compact switch — decided (or refused) BEFORE any scratch is taken,
+        // and the ONLY `take_min` it changes is `d_coef2`
+        let pw = zk_pad_width(n, q, nn, zk_compact_pad())?;
         let t0 = Instant::now();
         let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
-        let mut d_coef2 = Pooled::take_min(&dev, rmax * nn)?;
+        let mut d_coef2 = Pooled::take_min(&dev, rmax * pw)?;
         let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
         let state_words = B3_STATE_SLOTS * nn;
         let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;
@@ -1553,7 +1621,7 @@ impl Gpu {
             let dview = d_data.get().slice(r0 * n..(r0 + rc) * n);
             let pview = d_pads.slice(r0 * q..(r0 + rc) * q);
             self.encode_rows_view_zk(&dview, &pview, d_pows, d_coef.get_mut(), d_coef2.get_mut(), d_enc.get_mut(),
-                                     rc, n, q, nn, log_n, log_nn)?;
+                                     rc, n, q, nn, pw, log_n, log_nn)?;
             let cfg = LaunchConfig::for_num_elems(nn as u32);
             unsafe { f_hash.clone().launch(cfg, (d_enc.get(), d_state.get_mut(), rc as i32, r0 as i32, rows as i32, nn as i32, &mut d_leaves)) }
                 .map_err(|e| format!("k_hash_cols_stream: {e}"))?;
@@ -1567,7 +1635,8 @@ impl Gpu {
         }
         let total = t0.elapsed().as_secs_f64();
         if verbose() {
-            eprintln!("[ZK60-CL1]   chunked ZK commit rows {rows} 2^{log_n} -> 2^{log_nn} (q {q}) in {} chunks of <= {rmax}: {total:.4} s", plan.len());
+            let how = if pw != nn { format!(", compact pad {pw} of {nn}") } else { String::new() };
+            eprintln!("[ZK60-CL1]   chunked ZK commit rows {rows} 2^{log_n} -> 2^{log_nn} (q {q}) in {} chunks of <= {rmax}{how}: {total:.4} s", plan.len());
         }
         stats_with(|s| { s.secs_ntt += total; s.n_chunked += 1; s.bytes_d2h += (nn * 32) as u64; });
         Ok(leaves)
@@ -1604,9 +1673,12 @@ impl Gpu {
         let fused = p.fused;
         let plan = chunk_plan(rows, chunk);
         let rmax = plan.iter().map(|&(_, rc)| rc).max().unwrap();
+        // [ZK60-CL18] as in `commit_zk_chunked`: the pad/scale width decided
+        // (or refused) before any scratch is taken; only `d_coef2` changes
+        let pw = zk_pad_width(n, zk.q, nn, zk_compact_pad())?;
         let t0 = Instant::now();
         let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
-        let mut d_coef2 = Pooled::take_min(&dev, rmax * nn)?;
+        let mut d_coef2 = Pooled::take_min(&dev, rmax * pw)?;
         let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
         let d_idx = dev.htod_sync_copy(p.device_index_list()).map_err(|e| e.to_string())?;
         note_raw_alloc(p.device_index_list().len() * 4);
@@ -1629,11 +1701,11 @@ impl Gpu {
             if fused {
                 let sp = sp_list.as_ref().map(|(b, k)| (b, *k));
                 self.encode_rows_view_zk_gather(&dview, &pview, &zk.pows, d_coef.get_mut(), d_coef2.get_mut(), d_enc.get_mut(),
-                                                rc, n, zk.q, nn, log_n, log_nn, &d_idx, &mut d_out, r0, rows, sp)?;
+                                                rc, n, zk.q, nn, pw, log_n, log_nn, &d_idx, &mut d_out, r0, rows, sp)?;
             } else {
                 // the CL1 reference form, retained under HL_ZK_FUSE_GATHER=0
                 self.encode_rows_view_zk(&dview, &pview, &zk.pows, d_coef.get_mut(), d_coef2.get_mut(), d_enc.get_mut(),
-                                         rc, n, zk.q, nn, log_n, log_nn)?;
+                                         rc, n, zk.q, nn, pw, log_n, log_nn)?;
                 let cfg = LaunchConfig::for_num_elems((rc * q_open) as u32);
                 unsafe { f.clone().launch(cfg, (d_enc.get(), &mut d_out, &d_idx, rc as i32, r0 as i32, rows as i32, nn as i32, q_open as i32)) }
                     .map_err(|e| format!("k_gather_cols_off: {e}"))?;
@@ -1642,11 +1714,12 @@ impl Gpu {
         let out = dev.dtoh_sync_copy(&d_out).map_err(|e| e.to_string())?;
         let dt = t0.elapsed().as_secs_f64();
         if verbose() {
-            let how = match (&sp_list, fused) {
+            let mut how = match (&sp_list, fused) {
                 (Some((_, nq)), _) => format!(", fused, pruned {nq}/{blk}"),
                 (None, true) => ", fused".to_string(),
                 _ => String::new(),
             };
+            if pw != nn { how.push_str(&format!(", compact pad {pw} of {nn}")); } // [ZK60-CL18]
             eprintln!("[ZK60-CL1]   chunked ZK re-encode + gather rows {rows} ({} chunks{how}): {dt:.4} s", plan.len());
         }
         stats_with(|s| { s.secs_reenc += dt; s.bytes_d2h += (rows * cols_out * 8) as u64; });
