@@ -1,0 +1,1418 @@
+{
+ "schema_version": 1,
+ "task": "FA3 -- the repaired mask allocation: rank verdicts on every FA2 group shape and the schedule Codex implements from",
+ "reviewer": "Claude Fable 5.1, independent reviewer, 2026-09-07 session",
+ "caveat": "numerical rank of linear observations under stand-in coefficients; the CFS channel, adaptive conditioning, ranges and cross-proof correlation beyond the linear model remain the identified blockers of ZK60_FABLE_MASK_REPAIR.md section 11",
+ "schedule": {
+  "profile": "ffn-v3-mr1",
+  "transcript_domain_prefix": "hashline-zk-mr1/",
+  "header": "HL-ZK/2|profile=ffn-v3-mr1|priv=..|pub=..|out=..|model=..|layer=..|slot=..|block=..",
+  "legacy_untouched": "prove_layer_zk_v3 / verify_layer_zk_v3, header 'P1-v3' / 'HL-ZK/1', the frozen fixtures and their bytes: unchanged and NOT repaired privacy evidence",
+  "rule": "every single-row mask site is an Fp2 pair (re, im) with claim coefficients (k1, k1 U); every multi-row base mask block (table slots with rows >= 2) keeps its block form; every proximity row is a pair; every seam terminal is a pair-masked claim on the ACTUAL arithmetic commitment; every mask row is filled exactly once from the block's RNG before its commitment exists and is consumed by exactly one opening",
+  "mask_kinds": {
+   "pair": {
+    "rows": 2,
+    "claim_form": "parts = [ZPart{slice: DATA, coef: k0, point: p}, ZPart{slice: row(R_re), coef: k1, point: tail(p)}, ZPart{slice: row(R_im), coef: k1 * U, point: tail(p)}]; masked terminal = (1 - e) fin + e (R_re~(tail) + U R_im~(tail)) via MaskPoint::eval2",
+    "hiding_argument": "per column the contribution k1 (R_re + U R_im) ranges over Fp2 as (R_re, R_im) ranges over Fp^2 whenever k1 != 0; no dependence on e being outside Fp (FA1's degeneracy class disappears)"
+   },
+   "block": {
+    "rows": "rows_i = max(size_i, n) / n",
+    "claim_form": "parts = [ZPart{slice: (a_row, log_size), coef: (1 - e_tab) ext, point: rho_tab[k..]}, ZPart{slice: (a_mask, log_size), coef: e_tab ext, point: rho_tab[k..]}] (legacy form, unchanged; Fp2-effective through the row weights when rows >= 2)",
+    "hiding_argument": "per column the contribution e_tab ext sum_r eq_r R[r] ranges over Fp2 when two of the eq_r are Fp-independent (the row-bit coordinate rho_tab[k] outside Fp: fails with probability ~2^-64, the same class FA2 excludes)"
+   },
+   "zero_sum_pair": {
+    "rows": 2,
+    "claim_form": "the legacy h_u pair with sum_j u_re[j] = sum_j u_im[j] = 0, masked at rho_zs by the fresh unconstrained pair h_up",
+    "hiding_argument": "FA2 14.5 re-verified with the prox pair (repair verdict h_logup_sum_zero_sum_u_prox_pair_n4 / n8): the residual is exactly the public LogUp identity"
+   },
+   "prox_pair": {
+    "rows": 2,
+    "claim_form": "not a claim: two reserved rows entering ONLY the proximity combination with the two independent challenges rho[row_re], rho[row_im]",
+    "hiding_argument": "the prox vector's mask span per column is Fp-span{rho_re, rho_im} = Fp2 unless the two challenges are Fp-dependent (~2^-64): coverage no longer borrowed from other groups (U4)"
+   }
+  },
+  "commitments": {
+   "A": {
+    "fresh_per_proof": true,
+    "rows": "data rows (LayoutV3.a_len / n) + table data rows, then the mask rows below in this order (data offsets do not move)",
+    "mask_roles_in_allocation_order": [
+     {
+      "role": "a_mf[k]",
+      "count": "7 * nb_f",
+      "kind": "pair",
+      "group_key": "tail(rho_f)",
+      "data": "g8,rg,a16,u16,ru,h16,rh per f-block at rho_f",
+      "coefficients": "(1 - e_f, e_f)",
+      "proof_field": "zc20_term[10 b + i], i < 7",
+      "legacy_rows": 1,
+      "repaired_rows": 2
+     },
+     {
+      "role": "a_md[k]",
+      "count": "3 * nb_d",
+      "kind": "pair",
+      "group_key": "tail(rho_d)",
+      "data": "X, z, rd per d-block at rho_d",
+      "coefficients": "(1 - e_dz, e_dz)",
+      "proof_field": "zc17_term[c], [nb_d + c], [2 nb_d + c]",
+      "legacy_rows": 1,
+      "repaired_rows": 2
+     },
+     {
+      "role": "a_mgu[c]",
+      "count": "nb_d",
+      "kind": "pair",
+      "group_key": "tail(p2 = r_i || r_kp)",
+      "data": "X block c at p2 (the SAME rows as a_md[3c]'s data)",
+      "coefficients": "P1 (1 - e_gu, e_gu); P3 ((1 - e_gu2)(1 - e_gu), (1 - e_gu2) e_gu)",
+      "proof_field": "gu_term[c]",
+      "legacy_rows": 1,
+      "repaired_rows": 2
+     },
+     {
+      "role": "a_mdd[b]",
+      "count": "nb_f",
+      "kind": "pair",
+      "group_key": "tail(p5 = r_ip || r_k)",
+      "data": "h16 block b at p5 (the SAME rows as a_mf[7b + 5]'s data)",
+      "coefficients": "P1 (1 - e_d, e_d); P3 ((1 - e_d2)(1 - e_d), (1 - e_d2) e_d)",
+      "proof_field": "d_term[b]",
+      "legacy_rows": 1,
+      "repaired_rows": 2
+     },
+     {
+      "role": "a_prox",
+      "count": 1,
+      "kind": "prox_pair",
+      "group_key": "(proximity vector)",
+      "data": "-",
+      "coefficients": "rho_prox[re], rho_prox[im] (zk_rhos)",
+      "proof_field": "a_open.prox_vec",
+      "legacy_rows": 1,
+      "repaired_rows": 2
+     },
+     {
+      "role": "tab[i].a_mask",
+      "count": "6 slots",
+      "kind": "block if rows_i >= 2 else pair",
+      "group_key": "tail(rho_tab) (one group for all six slots)",
+      "data": "multiplicity slot i at rho_tab[k_i..]",
+      "coefficients": "((1 - e_tab) ext_i, e_tab ext_i)",
+      "proof_field": "tab_term[2 i]",
+      "legacy_rows": "rows_i",
+      "repaired_rows": "rows_i if rows_i >= 2 else 2"
+     },
+     {
+      "role": "a_pmz, a_pmb",
+      "count": "2 (function 2 only)",
+      "kind": "pair",
+      "group_key": "tail(rho_p)",
+      "data": "z block of the predicate entry; the bit row",
+      "coefficients": "(1 - e_p, e_p) (x ext for the bit row)",
+      "proof_field": "pred.term[0], [1]",
+      "legacy_rows": 1,
+      "repaired_rows": 2
+     },
+     {
+      "role": "a_sx[c]",
+      "count": "nb_d (block profile only)",
+      "kind": "pair",
+      "group_key": "tail(rho_sx)",
+      "data": "X block c at rho_sx (the X seam: the SAME rows as a_md[3c] / a_mgu[c])",
+      "coefficients": "(1 - e_sx, e_sx)",
+      "proof_field": "seam_x.term_ffn[c]",
+      "legacy_rows": 0,
+      "repaired_rows": 2
+     },
+     {
+      "role": "a_sz[c]",
+      "count": "nb_d (block profile only)",
+      "kind": "pair",
+      "group_key": "tail(rho_sz)",
+      "data": "z block c at rho_sz (the Z seam: the SAME rows as a_md[3c + 1])",
+      "coefficients": "(1 - e_sz, e_sz)",
+      "proof_field": "seam_z.term_ffn[c]",
+      "legacy_rows": 0,
+      "repaired_rows": 2
+     }
+    ]
+   },
+   "H": {
+    "fresh_per_proof": true,
+    "mask_roles_in_allocation_order": [
+     {
+      "role": "h_mf[k], h_md[c]",
+      "count": "3 nb_f + nb_d",
+      "kind": "pair (unchanged)",
+      "group_key": "tail(rho_f) / tail(rho_d)",
+      "legacy_rows": 2,
+      "repaired_rows": 2
+     },
+     {
+      "role": "h_u",
+      "count": 1,
+      "kind": "zero_sum_pair (unchanged)",
+      "group_key": "rho_zs (single-row point) and the value-0 sum claim (empty point)",
+      "legacy_rows": 2,
+      "repaired_rows": 2
+     },
+     {
+      "role": "h_up",
+      "count": 1,
+      "kind": "pair (unchanged)",
+      "group_key": "rho_zs",
+      "legacy_rows": 2,
+      "repaired_rows": 2
+     },
+     {
+      "role": "h_prox",
+      "count": 1,
+      "kind": "prox_pair",
+      "group_key": "(proximity vector)",
+      "legacy_rows": 1,
+      "repaired_rows": 2
+     },
+     {
+      "role": "tab[i].h_mre / h_mim",
+      "count": "6 slots",
+      "kind": "pair block (unchanged)",
+      "group_key": "tail(rho_tab)",
+      "legacy_rows": "2 rows_i",
+      "repaired_rows": "2 rows_i"
+     }
+    ]
+   },
+   "W_P3": {
+    "fresh_per_proof": false,
+    "owner": "FA4's budgeted stable commitment C*_l: data rows, then k slot sets, each set = the roles below; proof i uses set i exactly once; q_pad = k * Q",
+    "mask_roles_in_allocation_order_per_slot": [
+     {
+      "role": "w_mgu[k]",
+      "count": "2 nb_d nb_f",
+      "kind": "pair",
+      "group_key": "tail(p3 = r_kp || r_j)",
+      "coefficients": "((1 - e_gu2)(1 - e_gu), e_gu2)",
+      "proof_field": "gu_term[nb_d + k]",
+      "legacy_rows": 1,
+      "repaired_rows": 2
+     },
+     {
+      "role": "w_mdd[k]",
+      "count": "nb_d nb_f",
+      "kind": "pair",
+      "group_key": "tail(p6 = r_k || r_jp)",
+      "coefficients": "((1 - e_d2)(1 - e_d), e_d2)",
+      "proof_field": "d_term[nb_f + k]",
+      "legacy_rows": 1,
+      "repaired_rows": 2
+     },
+     {
+      "role": "w_prox",
+      "count": 1,
+      "kind": "prox_pair",
+      "group_key": "(proximity vector)",
+      "legacy_rows": 1,
+      "repaired_rows": 2
+     }
+    ]
+   },
+   "M_cfs": {
+    "fresh_per_proof": true,
+    "slots_in_order": [
+     "SC_GU (log_db + 1 + p3, 2)",
+     "SC_D (log_fb + 1 + p3, 2)",
+     "SC_ZC20 (log_t + log_fb + 1, 4)",
+     "SC_ZC17 (log_t + log_db + 1, 4)",
+     "SC_ZSUM (log_n + 1, 2)",
+     "SC_TAB (log_s + 1, 3)",
+     "SC_PRED (log_t + log_db + 1, 3) [function 2]",
+     "SC_SEAM_X (log_t + log_db + 1, 2) [block profile]",
+     "SC_SEAM_Z (log_t + log_db + 1, 2) [block profile]"
+    ],
+    "note": "the CFS channel is outside the linear model (blocker B1); the schedule only fixes its slot count and order"
+   }
+  },
+  "rng": {
+   "instance": "one ZkRng per component per block attempt (FFN: domain 'ffn-mr1/layer-{l}/attempt-{nonce}' under OS entropy; the attention component has its own); a seeded ZkRng exists only under cfg(test) fixtures and never in the block API",
+   "consumption_order": [
+    "A mask rows, allocation order, fp_vec(n) per row (re then im for a pair; the block rows in row order)",
+    "A pads (rows * Q), A salts (nn)  [commit_zk_owned]",
+    "M: per slot CfsMask::random then MASK_Q pads per re / im row; b_re, b_im, u_re, u_im; salts  [mask_commit]",
+    "H mask rows: h_mf pairs, h_md pairs, h_up pair, h_prox pair, table mre / mim blocks (fp_vec(n) each); then h_u: n - 1 draws per row, last entry = -sum",
+    "H pads, H salts"
+   ],
+   "p3_w": "no per-proof W randomness: the slot set was drawn at registration (FA4 H2) in the order w_mgu pairs, w_mdd pairs, w_prox pair per set; pads k * Q per row; salts nn",
+   "error_path": "the RNG instance is dropped with the discarded state; a retry is a new attempt nonce and a new instance; no mask row value is ever reused"
+  },
+  "transcript_order_block_profile": [
+   "block header (profile, domain, approved-contract digest, request context, manifest digest, layer, slot)",
+   "attention W root (P1: approved public) ; attention A root ; attention M root",
+   "FFN W root (P1: approved public root from the manifest; P3: C*_l from the manifest) ; FFN A root ; FFN M root",
+   "beta, gamma, alpha (FFN) ; FFN H root  [attention helpers likewise after their challenges]",
+   "FFN arguments in legacy order: gu, d, zcF, zcD, tab, zsum, [pred]; every masked claim and terminal absorbed before the next challenge",
+   "seam X: tau_sx, c_sx ; gamma_sx ; masked rounds ; masked terminals (ffn side, attention side) ; seam Z likewise",
+   "FFN mask_open (all slots incl. seams) ; attention mask_open",
+   "openings, one per owned commitment, fixed order: FFN W (P3 only), FFN A, FFN H, attention W (P3), attention A, attention H; each open_zk: lambdas per group -> prox rho -> vectors absorbed -> prox absorbed -> indices (FA1 4.4)"
+  ]
+ },
+ "rank_verdicts": {
+  "group_values_all_pairmask_m1_n4": {
+   "disclosed_dim": 0,
+   "rank_mask": 8,
+   "rank_joint": 8,
+   "base_obs_rows": 10,
+   "mask_unknowns": 8,
+   "data_unknowns": 4,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "rank(B) = 2m + 2n - 2 = 8: every member is Fp2-effective (FA2 14.3), so the only null functional is the trivial identity",
+   "legacy_disclosed_dim": 4
+  },
+  "group_values_all_pairmask_with_prox_pair_m1_n4": {
+   "disclosed_dim": 0,
+   "rank_mask": 16,
+   "rank_joint": 16,
+   "base_obs_rows": 18,
+   "mask_unknowns": 16,
+   "data_unknowns": 4,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "the prox vector is covered by its own pair, independent of the group",
+   "legacy_disclosed_dim": 4
+  },
+  "group_values_all_pairmask_m2_n2": {
+   "disclosed_dim": 0,
+   "rank_mask": 6,
+   "rank_joint": 6,
+   "base_obs_rows": 8,
+   "mask_unknowns": 8,
+   "data_unknowns": 4,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "rank(B) = 2m + 2n - 2 = 6: every member is Fp2-effective (FA2 14.3), so the only null functional is the trivial identity",
+   "legacy_disclosed_dim": 2
+  },
+  "group_values_all_pairmask_with_prox_pair_m2_n2": {
+   "disclosed_dim": 0,
+   "rank_mask": 10,
+   "rank_joint": 10,
+   "base_obs_rows": 12,
+   "mask_unknowns": 12,
+   "data_unknowns": 4,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "the prox vector is covered by its own pair, independent of the group",
+   "legacy_disclosed_dim": 4
+  },
+  "group_values_all_pairmask_m2_n4": {
+   "disclosed_dim": 0,
+   "rank_mask": 10,
+   "rank_joint": 10,
+   "base_obs_rows": 12,
+   "mask_unknowns": 16,
+   "data_unknowns": 8,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "rank(B) = 2m + 2n - 2 = 10: every member is Fp2-effective (FA2 14.3), so the only null functional is the trivial identity",
+   "legacy_disclosed_dim": 2
+  },
+  "group_values_all_pairmask_with_prox_pair_m2_n4": {
+   "disclosed_dim": 0,
+   "rank_mask": 18,
+   "rank_joint": 18,
+   "base_obs_rows": 20,
+   "mask_unknowns": 24,
+   "data_unknowns": 8,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "the prox vector is covered by its own pair, independent of the group",
+   "legacy_disclosed_dim": 6
+  },
+  "group_values_all_pairmask_m3_n4": {
+   "disclosed_dim": 0,
+   "rank_mask": 12,
+   "rank_joint": 12,
+   "base_obs_rows": 14,
+   "mask_unknowns": 24,
+   "data_unknowns": 12,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "rank(B) = 2m + 2n - 2 = 12: every member is Fp2-effective (FA2 14.3), so the only null functional is the trivial identity",
+   "legacy_disclosed_dim": 2
+  },
+  "group_values_all_pairmask_with_prox_pair_m3_n4": {
+   "disclosed_dim": 0,
+   "rank_mask": 20,
+   "rank_joint": 20,
+   "base_obs_rows": 22,
+   "mask_unknowns": 32,
+   "data_unknowns": 12,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "the prox vector is covered by its own pair, independent of the group",
+   "legacy_disclosed_dim": 4
+  },
+  "group_values_all_pairmask_m7_n4": {
+   "disclosed_dim": 0,
+   "rank_mask": 20,
+   "rank_joint": 20,
+   "base_obs_rows": 22,
+   "mask_unknowns": 56,
+   "data_unknowns": 28,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "rank(B) = 2m + 2n - 2 = 20: every member is Fp2-effective (FA2 14.3), so the only null functional is the trivial identity",
+   "legacy_disclosed_dim": 2
+  },
+  "group_values_all_pairmask_with_prox_pair_m7_n4": {
+   "disclosed_dim": 0,
+   "rank_mask": 28,
+   "rank_joint": 28,
+   "base_obs_rows": 30,
+   "mask_unknowns": 64,
+   "data_unknowns": 28,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "the prox vector is covered by its own pair, independent of the group",
+   "legacy_disclosed_dim": 2
+  },
+  "group_values_all_pairmask_m7_n8": {
+   "disclosed_dim": 0,
+   "rank_mask": 28,
+   "rank_joint": 28,
+   "base_obs_rows": 30,
+   "mask_unknowns": 112,
+   "data_unknowns": 56,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "rank(B) = 2m + 2n - 2 = 28: every member is Fp2-effective (FA2 14.3), so the only null functional is the trivial identity",
+   "legacy_disclosed_dim": 2
+  },
+  "group_values_all_pairmask_with_prox_pair_m7_n8": {
+   "disclosed_dim": 0,
+   "rank_mask": 44,
+   "rank_joint": 44,
+   "base_obs_rows": 46,
+   "mask_unknowns": 128,
+   "data_unknowns": 56,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "the prox vector is covered by its own pair, independent of the group",
+   "legacy_disclosed_dim": 2
+  },
+  "group_values_all_pairmask_m9_n4": {
+   "disclosed_dim": 0,
+   "rank_mask": 24,
+   "rank_joint": 24,
+   "base_obs_rows": 26,
+   "mask_unknowns": 72,
+   "data_unknowns": 36,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "rank(B) = 2m + 2n - 2 = 24: every member is Fp2-effective (FA2 14.3), so the only null functional is the trivial identity",
+   "legacy_disclosed_dim": 2
+  },
+  "group_values_all_pairmask_with_prox_pair_m9_n4": {
+   "disclosed_dim": 0,
+   "rank_mask": 32,
+   "rank_joint": 32,
+   "base_obs_rows": 34,
+   "mask_unknowns": 80,
+   "data_unknowns": 36,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "the prox vector is covered by its own pair, independent of the group",
+   "legacy_disclosed_dim": 2
+  },
+  "negative_control_one_pairmask_claim_single_prox_row": {
+   "disclosed_dim": 1,
+   "rank_mask": 3,
+   "rank_joint": 4,
+   "base_obs_rows": 4,
+   "mask_unknowns": 3,
+   "data_unknowns": 1,
+   "disclosed_or_recovered": [
+    "g/D/D0"
+   ],
+   "expected_disclosed_dim": 1,
+   "verdict": "PASS",
+   "argument": "3 mask unknowns per column against 4 base observation dims (vector 2 + prox 2): the prox borrows nothing and leaks one functional; this is the tiny-P3-W starvation of FA2 14.4 in its purest form"
+  },
+  "one_pairmask_claim_prox_pair": {
+   "disclosed_dim": 0,
+   "rank_mask": 4,
+   "rank_joint": 4,
+   "base_obs_rows": 4,
+   "mask_unknowns": 4,
+   "data_unknowns": 1,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "4 mask unknowns against 4 dims: the prox pair covers the prox vector by itself"
+  },
+  "mixed_group_one_base_member_covered_only_by_composition": {
+   "disclosed_dim": 0,
+   "rank_mask": 20,
+   "rank_joint": 20,
+   "base_obs_rows": 22,
+   "mask_unknowns": 28,
+   "data_unknowns": 12,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "FA2 14.3: any Fp2-effective member covers the group; the schedule nevertheless requires EVERY single-row mask to be a pair so that coverage never depends on which other claims share the tail (U4)"
+  },
+  "negative_control_seam_only_pairs_on_legacy_A": {
+   "disclosed_dim": 12,
+   "rank_mask": 78,
+   "rank_joint": 90,
+   "base_obs_rows": 104,
+   "mask_unknowns": 100,
+   "data_unknowns": 72,
+   "disclosed_or_recovered": [
+    "rho_f/h160/D0[0]",
+    "rho_f/h160/D0[1]",
+    "rho_f/h160/D0[2]",
+    "rho_f/h160/D0[3]",
+    "rho_d/X0/D0[0]",
+    "rho_d/X0/D0[1]",
+    "rho_d/X0/D0[2]",
+    "rho_d/X0/D0[3]",
+    "rho_f/g80/D0[0]",
+    "rho_f/g80/D0[1]",
+    "rho_f/g80/D0[2]",
+    "rho_f/g80/D0[3]",
+    "rho_f/rg0/D0[0]",
+    "rho_f/rg0/D0[1]",
+    "rho_f/rg0/D0[2]",
+    "rho_f/rg0/D0[3]",
+    "rho_f/a160/D0[0]",
+    "rho_f/a160/D0[1]",
+    "rho_f/a160/D0[2]",
+    "rho_f/a160/D0[3]",
+    "rho_f/u160/D0[0]",
+    "rho_f/u160/D0[1]",
+    "rho_f/u160/D0[2]",
+    "rho_f/u160/D0[3]",
+    "rho_f/ru0/D0[0]",
+    "rho_f/ru0/D0[1]",
+    "rho_f/ru0/D0[2]",
+    "rho_f/ru0/D0[3]",
+    "rho_f/rh0/D0[0]",
+    "rho_f/rh0/D0[1]",
+    "rho_f/rh0/D0[2]",
+    "rho_f/rh0/D0[3]",
+    "rho_d/z0/D0[0]",
+    "rho_d/z0/D0[1]",
+    "rho_d/z0/D0[2]",
+    "rho_d/z0/D0[3]",
+    "rho_d/rd0/D0[0]",
+    "rho_d/rd0/D0[1]",
+    "rho_d/rd0/D0[2]",
+    "rho_d/rd0/D0[3]"
+   ],
+   "expected_disclosed_dim": 12,
+   "verdict": "PASS",
+   "argument": "appending pair-masked seam claims to the LEGACY A leaves the two singletons (2n) and the rho_f / rho_d value leaks (2 + 2) exactly where FA2 found them: a seam-only mask pair is not a core FFN repair (queue acceptance)"
+  },
+  "whole_A_n4_rows1_p1": {
+   "disclosed_dim": 0,
+   "rank_mask": 74,
+   "rank_joint": 74,
+   "base_obs_rows": 84,
+   "mask_unknowns": 152,
+   "data_unknowns": 72,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "every group all-pair (rank 2m + 2n - 2 each), prox pair, X re-opened at rho_d / p2, h16 at rho_f / p5, z at rho_d: joint rank full",
+   "legacy_disclosed_dim": 12
+  },
+  "whole_A_n4_rows1_p1_seams": {
+   "disclosed_dim": 0,
+   "rank_mask": 90,
+   "rank_joint": 90,
+   "base_obs_rows": 104,
+   "mask_unknowns": 168,
+   "data_unknowns": 72,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "every group all-pair (rank 2m + 2n - 2 each), prox pair, X re-opened at rho_d / p2 / sx, h16 at rho_f / p5, z at rho_d / sz: joint rank full"
+  },
+  "whole_A_n4_rows1_p3": {
+   "disclosed_dim": 0,
+   "rank_mask": 74,
+   "rank_joint": 74,
+   "base_obs_rows": 84,
+   "mask_unknowns": 152,
+   "data_unknowns": 72,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "every group all-pair (rank 2m + 2n - 2 each), prox pair, X re-opened at rho_d / p2, h16 at rho_f / p5, z at rho_d: joint rank full",
+   "legacy_disclosed_dim": 12
+  },
+  "whole_A_n4_rows1_p3_seams": {
+   "disclosed_dim": 0,
+   "rank_mask": 90,
+   "rank_joint": 90,
+   "base_obs_rows": 104,
+   "mask_unknowns": 168,
+   "data_unknowns": 72,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "every group all-pair (rank 2m + 2n - 2 each), prox pair, X re-opened at rho_d / p2 / sx, h16 at rho_f / p5, z at rho_d / sz: joint rank full"
+  },
+  "whole_H_n4_rows1": {
+   "disclosed_dim": 0,
+   "rank_mask": 54,
+   "rank_joint": 54,
+   "base_obs_rows": 62,
+   "mask_unknowns": 112,
+   "data_unknowns": 104,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "H claims were already pairs; the prox pair removes the borrowed coverage of h_prox",
+   "legacy_disclosed_dim": 0
+  },
+  "whole_A_n4_rows2_p1": {
+   "disclosed_dim": 0,
+   "rank_mask": 74,
+   "rank_joint": 74,
+   "base_obs_rows": 84,
+   "mask_unknowns": 152,
+   "data_unknowns": 112,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "every group all-pair (rank 2m + 2n - 2 each), prox pair, X re-opened at rho_d / p2, h16 at rho_f / p5, z at rho_d: joint rank full",
+   "legacy_disclosed_dim": 12
+  },
+  "whole_A_n4_rows2_p1_seams": {
+   "disclosed_dim": 0,
+   "rank_mask": 90,
+   "rank_joint": 90,
+   "base_obs_rows": 104,
+   "mask_unknowns": 168,
+   "data_unknowns": 112,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "every group all-pair (rank 2m + 2n - 2 each), prox pair, X re-opened at rho_d / p2 / sx, h16 at rho_f / p5, z at rho_d / sz: joint rank full"
+  },
+  "whole_A_n4_rows2_p3": {
+   "disclosed_dim": 0,
+   "rank_mask": 74,
+   "rank_joint": 74,
+   "base_obs_rows": 84,
+   "mask_unknowns": 152,
+   "data_unknowns": 112,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "every group all-pair (rank 2m + 2n - 2 each), prox pair, X re-opened at rho_d / p2, h16 at rho_f / p5, z at rho_d: joint rank full",
+   "legacy_disclosed_dim": 12
+  },
+  "whole_A_n4_rows2_p3_seams": {
+   "disclosed_dim": 0,
+   "rank_mask": 90,
+   "rank_joint": 90,
+   "base_obs_rows": 104,
+   "mask_unknowns": 168,
+   "data_unknowns": 112,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "every group all-pair (rank 2m + 2n - 2 each), prox pair, X re-opened at rho_d / p2 / sx, h16 at rho_f / p5, z at rho_d / sz: joint rank full"
+  },
+  "whole_H_n4_rows2": {
+   "disclosed_dim": 0,
+   "rank_mask": 54,
+   "rank_joint": 54,
+   "base_obs_rows": 62,
+   "mask_unknowns": 112,
+   "data_unknowns": 136,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "H claims were already pairs; the prox pair removes the borrowed coverage of h_prox",
+   "legacy_disclosed_dim": 0
+  },
+  "whole_W_p3_n4_nb1": {
+   "disclosed_dim": 0,
+   "rank_mask": 26,
+   "rank_joint": 26,
+   "base_obs_rows": 30,
+   "mask_unknowns": 32,
+   "data_unknowns": 12,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "the starved tiny P3 W (FA2 14.4: 4 masks vs 6 dims per column) becomes 8 masks vs 6 dims: Wd@p6 no longer a base singleton, the (Wg, Wu) prox functional gone",
+   "legacy_disclosed_dim": 10
+  },
+  "whole_W_p3_n4_nbd3": {
+   "disclosed_dim": 0,
+   "rank_mask": 38,
+   "rank_joint": 38,
+   "base_obs_rows": 42,
+   "mask_unknowns": 80,
+   "data_unknowns": 36,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "the p3 / p6 value leaks (2 each) are gone",
+   "legacy_disclosed_dim": 4
+  },
+  "h_logup_sum_zero_sum_u_prox_pair_n4": {
+   "disclosed_dim": 2,
+   "rank_mask": 40,
+   "rank_joint": 42,
+   "base_obs_rows": 48,
+   "mask_unknowns": 46,
+   "data_unknowns": 24,
+   "disclosed_or_recovered": [
+    "h0_re[0]",
+    "h0_im[0]",
+    "h0_re[1]",
+    "h0_im[1]",
+    "h0_re[2]",
+    "h0_im[2]",
+    "h0_re[3]",
+    "h0_im[3]",
+    "h1_re[0]",
+    "h1_im[0]",
+    "h1_re[1]",
+    "h1_im[1]",
+    "h1_re[2]",
+    "h1_im[2]",
+    "h1_re[3]",
+    "h1_im[3]",
+    "t0_re[0]",
+    "t0_im[0]",
+    "t0_re[1]",
+    "t0_im[1]",
+    "t0_re[2]",
+    "t0_im[2]",
+    "t0_re[3]",
+    "t0_im[3]"
+   ],
+   "expected_disclosed_dim": 2,
+   "residual_equals_public_identity": true,
+   "verdict": "PASS",
+   "argument": "FA2 14.5 re-verified with the repaired prox: the 2 surviving base functionals span exactly the LogUp identity sum_j v_sum[j] = 0 (public claim value); u' fresh and unconstrained"
+  },
+  "h_logup_sum_zero_sum_u_prox_pair_n8": {
+   "disclosed_dim": 2,
+   "rank_mask": 84,
+   "rank_joint": 86,
+   "base_obs_rows": 92,
+   "mask_unknowns": 126,
+   "data_unknowns": 80,
+   "disclosed_or_recovered": [
+    "h0_re[0]",
+    "h0_im[0]",
+    "h0_re[1]",
+    "h0_im[1]",
+    "h0_re[2]",
+    "h0_im[2]",
+    "h0_re[3]",
+    "h0_im[3]",
+    "h0_re[4]",
+    "h0_im[4]",
+    "h0_re[5]",
+    "h0_im[5]",
+    "h0_re[6]",
+    "h0_im[6]",
+    "h0_re[7]",
+    "h0_im[7]",
+    "h1_re[0]",
+    "h1_im[0]",
+    "h1_re[1]",
+    "h1_im[1]",
+    "h1_re[2]",
+    "h1_im[2]",
+    "h1_re[3]",
+    "h1_im[3]",
+    "h1_re[4]",
+    "h1_im[4]",
+    "h1_re[5]",
+    "h1_im[5]",
+    "h1_re[6]",
+    "h1_im[6]",
+    "h1_re[7]",
+    "h1_im[7]",
+    "h2_re[0]",
+    "h2_im[0]",
+    "h2_re[1]",
+    "h2_im[1]",
+    "h2_re[2]",
+    "h2_im[2]",
+    "h2_re[3]",
+    "h2_im[3]",
+    "h2_re[4]",
+    "h2_im[4]",
+    "h2_re[5]",
+    "h2_im[5]",
+    "h2_re[6]",
+    "h2_im[6]",
+    "h2_re[7]",
+    "h2_im[7]",
+    "t0_re[0]",
+    "t0_im[0]",
+    "t0_re[1]",
+    "t0_im[1]",
+    "t0_re[2]",
+    "t0_im[2]",
+    "t0_re[3]",
+    "t0_im[3]",
+    "t0_re[4]",
+    "t0_im[4]",
+    "t0_re[5]",
+    "t0_im[5]",
+    "t0_re[6]",
+    "t0_im[6]",
+    "t0_re[7]",
+    "t0_im[7]",
+    "t1_re[0]",
+    "t1_im[0]",
+    "t1_re[1]",
+    "t1_im[1]",
+    "t1_re[2]",
+    "t1_im[2]",
+    "t1_re[3]",
+    "t1_im[3]",
+    "t1_re[4]",
+    "t1_im[4]",
+    "t1_re[5]",
+    "t1_im[5]",
+    "t1_re[6]",
+    "t1_im[6]",
+    "t1_re[7]",
+    "t1_im[7]"
+   ],
+   "expected_disclosed_dim": 2,
+   "residual_equals_public_identity": true,
+   "verdict": "PASS",
+   "argument": "FA2 14.5 re-verified with the repaired prox: the 2 surviving base functionals span exactly the LogUp identity sum_j v_sum[j] = 0 (public claim value); u' fresh and unconstrained"
+  },
+  "tables_at_log_n_16_all_single_row_slots": {
+   "disclosed_dim": 0,
+   "rank_mask": 26,
+   "rank_joint": 26,
+   "base_obs_rows": 28,
+   "mask_unknowns": 56,
+   "data_unknowns": 24,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "U10: at log_n = 16 every slot is one row, so the rule 'pair iff single row' pairs all six; legacy leaks 2 (FA2 14.2)",
+   "legacy_disclosed_dim": 2
+  },
+  "A_per_column_8B_log_cols_16_block": {
+   "disclosed_dim": 0,
+   "rank_mask": 16,
+   "rank_joint": 16,
+   "base_obs_rows": 16,
+   "mask_unknowns": 138,
+   "data_unknowns": 61,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "the 8B layout at log_cols 16: per-column joint rank full with all single-row slots paired"
+  },
+  "whole_A_n4_alternative_all_pair_table_blocks": {
+   "disclosed_dim": 0,
+   "rank_mask": 90,
+   "rank_joint": 90,
+   "base_obs_rows": 104,
+   "mask_unknowns": 184,
+   "data_unknowns": 72,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "the uniform alternative (every table mask block an Fp2 pair block) is also full rank; it removes the block form's row-bit degeneracy (rho_tab[k] in Fp, 2^-64) at the cost of sum(rows_i) extra rows per commitment"
+  },
+  "whole_A_n4_function2_predicate_pairs": {
+   "disclosed_dim": 0,
+   "rank_mask": 100,
+   "rank_joint": 100,
+   "base_obs_rows": 116,
+   "mask_unknowns": 184,
+   "data_unknowns": 76,
+   "disclosed_or_recovered": [],
+   "expected_disclosed_dim": 0,
+   "verdict": "PASS",
+   "argument": "U9: the (z block, bit row) group is two pair-masked members; the z block is re-opened at rho_d / sz under other pairs",
+   "legacy_disclosed_dim": 14
+  }
+ },
+ "families": {
+  "tiny T2/d16/f16": {
+   "layout": {
+    "nb_d": 1,
+    "nb_f": 1,
+    "log_n": 5,
+    "n": 32,
+    "rows_per_f_plane": 1,
+    "rows_per_d_plane": 1,
+    "rows_per_w_block": 8,
+    "table_rows": [
+     8,
+     2048,
+     4,
+     1,
+     512,
+     2
+    ]
+   },
+   "models": {
+    "A (P1) standalone": {
+     "disclosed_dim": 0,
+     "rank_mask": 12,
+     "rank_joint": 12,
+     "base_obs_rows": 12,
+     "mask_unknowns": 2602,
+     "data_unknowns": 2585,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "A (P1) block: + X / Z seam groups": {
+     "disclosed_dim": 0,
+     "rank_mask": 16,
+     "rank_joint": 16,
+     "base_obs_rows": 16,
+     "mask_unknowns": 2606,
+     "data_unknowns": 2585,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "A (P3) block": {
+     "disclosed_dim": 0,
+     "rank_mask": 16,
+     "rank_joint": 16,
+     "base_obs_rows": 16,
+     "mask_unknowns": 2606,
+     "data_unknowns": 2585,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "A (P1) block, function 2": {
+     "disclosed_dim": 0,
+     "rank_mask": 18,
+     "rank_joint": 18,
+     "base_obs_rows": 18,
+     "mask_unknowns": 2610,
+     "data_unknowns": 2586,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "H": {
+     "disclosed_dim": 0,
+     "rank_mask": 10,
+     "rank_joint": 10,
+     "base_obs_rows": 10,
+     "mask_unknowns": 5162,
+     "data_unknowns": 5160,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "W (P3), one slot set": {
+     "disclosed_dim": 0,
+     "rank_mask": 6,
+     "rank_joint": 6,
+     "base_obs_rows": 6,
+     "mask_unknowns": 8,
+     "data_unknowns": 24,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    }
+   },
+   "legacy_per_column_disclosed": {
+    "A (P1)": 2,
+    "W (P3)": 2
+   },
+   "rows": {
+    "A": {
+     "data_rows": 2585,
+     "legacy_mask_rows": 2588,
+     "repaired_mask_rows": 2606,
+     "legacy_rows": 5173,
+     "repaired_rows": 5191,
+     "extra_rows": 18,
+     "extra_breakdown": {
+      "plane_claim_pairs": 12,
+      "prox_pair": 1,
+      "single_row_table_slots_paired": 1,
+      "predicate_pairs": 0,
+      "seam_pairs": 4
+     }
+    },
+    "H": {
+     "data_rows": 5158,
+     "legacy_mask_rows": 5163,
+     "repaired_mask_rows": 5164,
+     "legacy_rows": 10321,
+     "repaired_rows": 10322,
+     "extra_rows": 1,
+     "extra_breakdown": {
+      "prox_pair": 1
+     }
+    },
+    "W_P3": {
+     "data_rows": 24,
+     "legacy_mask_rows": 4,
+     "repaired_mask_rows_per_slot": 8,
+     "legacy_rows": 28,
+     "repaired_rows_one_slot": 32,
+     "extra_rows_per_slot": 4,
+     "extra_breakdown": {
+      "block_terminal_pairs": 3,
+      "prox_pair": 1
+     },
+     "fa4_budgeted_rows": "data + k * 8 mask rows + the public slot; q_pad = k * Q (FA4 section 5.1)"
+    },
+    "M_cfs": {
+     "legacy_base_rows": "2 * (6 + pred) + 4 at 4096 encoded positions",
+     "repaired_base_rows": "2 * (6 + pred + 2 seams) + 4 (block profile); standalone unchanged",
+     "extra_rows_block_profile": 4
+    }
+   }
+  },
+  "tiny T32/d16/f16": {
+   "layout": {
+    "nb_d": 1,
+    "nb_f": 1,
+    "log_n": 8,
+    "n": 256,
+    "rows_per_f_plane": 2,
+    "rows_per_d_plane": 2,
+    "rows_per_w_block": 1,
+    "table_rows": [
+     1,
+     256,
+     1,
+     1,
+     64,
+     1
+    ]
+   },
+   "models": {
+    "A (P1) standalone": {
+     "disclosed_dim": 0,
+     "rank_mask": 12,
+     "rank_joint": 12,
+     "base_obs_rows": 12,
+     "mask_unknowns": 354,
+     "data_unknowns": 344,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "A (P1) block: + X / Z seam groups": {
+     "disclosed_dim": 0,
+     "rank_mask": 16,
+     "rank_joint": 16,
+     "base_obs_rows": 16,
+     "mask_unknowns": 358,
+     "data_unknowns": 344,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "A (P3) block": {
+     "disclosed_dim": 0,
+     "rank_mask": 16,
+     "rank_joint": 16,
+     "base_obs_rows": 16,
+     "mask_unknowns": 358,
+     "data_unknowns": 344,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "A (P1) block, function 2": {
+     "disclosed_dim": 0,
+     "rank_mask": 18,
+     "rank_joint": 18,
+     "base_obs_rows": 18,
+     "mask_unknowns": 362,
+     "data_unknowns": 345,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "H": {
+     "disclosed_dim": 0,
+     "rank_mask": 10,
+     "rank_joint": 10,
+     "base_obs_rows": 10,
+     "mask_unknowns": 660,
+     "data_unknowns": 666,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "W (P3), one slot set": {
+     "disclosed_dim": 0,
+     "rank_mask": 6,
+     "rank_joint": 6,
+     "base_obs_rows": 6,
+     "mask_unknowns": 8,
+     "data_unknowns": 3,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    }
+   },
+   "legacy_per_column_disclosed": {
+    "A (P1)": 2,
+    "W (P3)": 2
+   },
+   "rows": {
+    "A": {
+     "data_rows": 344,
+     "legacy_mask_rows": 337,
+     "repaired_mask_rows": 358,
+     "legacy_rows": 681,
+     "repaired_rows": 702,
+     "extra_rows": 21,
+     "extra_breakdown": {
+      "plane_claim_pairs": 12,
+      "prox_pair": 1,
+      "single_row_table_slots_paired": 4,
+      "predicate_pairs": 0,
+      "seam_pairs": 4
+     }
+    },
+    "H": {
+     "data_rows": 664,
+     "legacy_mask_rows": 661,
+     "repaired_mask_rows": 662,
+     "legacy_rows": 1325,
+     "repaired_rows": 1326,
+     "extra_rows": 1,
+     "extra_breakdown": {
+      "prox_pair": 1
+     }
+    },
+    "W_P3": {
+     "data_rows": 3,
+     "legacy_mask_rows": 4,
+     "repaired_mask_rows_per_slot": 8,
+     "legacy_rows": 7,
+     "repaired_rows_one_slot": 11,
+     "extra_rows_per_slot": 4,
+     "extra_breakdown": {
+      "block_terminal_pairs": 3,
+      "prox_pair": 1
+     },
+     "fa4_budgeted_rows": "data + k * 8 mask rows + the public slot; q_pad = k * Q (FA4 section 5.1)"
+    },
+    "M_cfs": {
+     "legacy_base_rows": "2 * (6 + pred) + 4 at 4096 encoded positions",
+     "repaired_base_rows": "2 * (6 + pred + 2 seams) + 4 (block profile); standalone unchanged",
+     "extra_rows_block_profile": 4
+    }
+   }
+  },
+  "125M d768/f2048": {
+   "layout": {
+    "nb_d": 3,
+    "nb_f": 1,
+    "log_n": 13,
+    "n": 8192,
+    "rows_per_f_plane": 8,
+    "rows_per_d_plane": 1,
+    "rows_per_w_block": 32,
+    "table_rows": [
+     1,
+     8,
+     1,
+     1,
+     2,
+     1
+    ]
+   },
+   "models": {
+    "A (P1) standalone": {
+     "disclosed_dim": 0,
+     "rank_mask": 12,
+     "rank_joint": 12,
+     "base_obs_rows": 12,
+     "mask_unknowns": 60,
+     "data_unknowns": 79,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "A (P1) block: + X / Z seam groups": {
+     "disclosed_dim": 0,
+     "rank_mask": 16,
+     "rank_joint": 16,
+     "base_obs_rows": 16,
+     "mask_unknowns": 72,
+     "data_unknowns": 79,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "A (P3) block": {
+     "disclosed_dim": 0,
+     "rank_mask": 16,
+     "rank_joint": 16,
+     "base_obs_rows": 16,
+     "mask_unknowns": 72,
+     "data_unknowns": 79,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "A (P1) block, function 2": {
+     "disclosed_dim": 0,
+     "rank_mask": 18,
+     "rank_joint": 18,
+     "base_obs_rows": 18,
+     "mask_unknowns": 76,
+     "data_unknowns": 80,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "H": {
+     "disclosed_dim": 0,
+     "rank_mask": 10,
+     "rank_joint": 10,
+     "base_obs_rows": 10,
+     "mask_unknowns": 44,
+     "data_unknowns": 84,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "W (P3), one slot set": {
+     "disclosed_dim": 0,
+     "rank_mask": 6,
+     "rank_joint": 6,
+     "base_obs_rows": 6,
+     "mask_unknowns": 20,
+     "data_unknowns": 288,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    }
+   },
+   "legacy_per_column_disclosed": {
+    "A (P1)": 1,
+    "W (P3)": 0
+   },
+   "rows": {
+    "A": {
+     "data_rows": 79,
+     "legacy_mask_rows": 35,
+     "repaired_mask_rows": 72,
+     "legacy_rows": 114,
+     "repaired_rows": 151,
+     "extra_rows": 37,
+     "extra_breakdown": {
+      "plane_claim_pairs": 20,
+      "prox_pair": 1,
+      "single_row_table_slots_paired": 4,
+      "predicate_pairs": 0,
+      "seam_pairs": 12
+     }
+    },
+    "H": {
+     "data_rows": 82,
+     "legacy_mask_rows": 45,
+     "repaired_mask_rows": 46,
+     "legacy_rows": 127,
+     "repaired_rows": 128,
+     "extra_rows": 1,
+     "extra_breakdown": {
+      "prox_pair": 1
+     }
+    },
+    "W_P3": {
+     "data_rows": 288,
+     "legacy_mask_rows": 10,
+     "repaired_mask_rows_per_slot": 20,
+     "legacy_rows": 298,
+     "repaired_rows_one_slot": 308,
+     "extra_rows_per_slot": 10,
+     "extra_breakdown": {
+      "block_terminal_pairs": 9,
+      "prox_pair": 1
+     },
+     "fa4_budgeted_rows": "data + k * 20 mask rows + the public slot; q_pad = k * Q (FA4 section 5.1)"
+    },
+    "M_cfs": {
+     "legacy_base_rows": "2 * (6 + pred) + 4 at 4096 encoded positions",
+     "repaired_base_rows": "2 * (6 + pred + 2 seams) + 4 (block profile); standalone unchanged",
+     "extra_rows_block_profile": 4
+    }
+   }
+  },
+  "8B d4096/f14336": {
+   "layout": {
+    "nb_d": 1,
+    "nb_f": 7,
+    "log_n": 14,
+    "n": 16384,
+    "rows_per_f_plane": 4,
+    "rows_per_d_plane": 8,
+    "rows_per_w_block": 512,
+    "table_rows": [
+     1,
+     4,
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   "models": {
+    "A (P1) standalone": {
+     "disclosed_dim": 0,
+     "rank_mask": 12,
+     "rank_joint": 12,
+     "base_obs_rows": 12,
+     "mask_unknowns": 136,
+     "data_unknowns": 229,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "A (P1) block: + X / Z seam groups": {
+     "disclosed_dim": 0,
+     "rank_mask": 16,
+     "rank_joint": 16,
+     "base_obs_rows": 16,
+     "mask_unknowns": 140,
+     "data_unknowns": 229,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "A (P3) block": {
+     "disclosed_dim": 0,
+     "rank_mask": 16,
+     "rank_joint": 16,
+     "base_obs_rows": 16,
+     "mask_unknowns": 140,
+     "data_unknowns": 229,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "A (P1) block, function 2": {
+     "disclosed_dim": 0,
+     "rank_mask": 18,
+     "rank_joint": 18,
+     "base_obs_rows": 18,
+     "mask_unknowns": 144,
+     "data_unknowns": 230,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "H": {
+     "disclosed_dim": 0,
+     "rank_mask": 10,
+     "rank_joint": 10,
+     "base_obs_rows": 10,
+     "mask_unknowns": 66,
+     "data_unknowns": 204,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    },
+    "W (P3), one slot set": {
+     "disclosed_dim": 0,
+     "rank_mask": 6,
+     "rank_joint": 6,
+     "base_obs_rows": 6,
+     "mask_unknowns": 44,
+     "data_unknowns": 10752,
+     "disclosed_or_recovered": [],
+     "expected_disclosed_dim": 0,
+     "verdict": "PASS"
+    }
+   },
+   "legacy_per_column_disclosed": {
+    "A (P1)": 1,
+    "W (P3)": 0
+   },
+   "rows": {
+    "A": {
+     "data_rows": 229,
+     "legacy_mask_rows": 70,
+     "repaired_mask_rows": 140,
+     "legacy_rows": 299,
+     "repaired_rows": 369,
+     "extra_rows": 70,
+     "extra_breakdown": {
+      "plane_claim_pairs": 60,
+      "prox_pair": 1,
+      "single_row_table_slots_paired": 5,
+      "predicate_pairs": 0,
+      "seam_pairs": 4
+     }
+    },
+    "H": {
+     "data_rows": 202,
+     "legacy_mask_rows": 67,
+     "repaired_mask_rows": 68,
+     "legacy_rows": 269,
+     "repaired_rows": 270,
+     "extra_rows": 1,
+     "extra_breakdown": {
+      "prox_pair": 1
+     }
+    },
+    "W_P3": {
+     "data_rows": 10752,
+     "legacy_mask_rows": 22,
+     "repaired_mask_rows_per_slot": 44,
+     "legacy_rows": 10774,
+     "repaired_rows_one_slot": 10796,
+     "extra_rows_per_slot": 22,
+     "extra_breakdown": {
+      "block_terminal_pairs": 21,
+      "prox_pair": 1
+     },
+     "fa4_budgeted_rows": "data + k * 44 mask rows + the public slot; q_pad = k * Q (FA4 section 5.1)"
+    },
+    "M_cfs": {
+     "legacy_base_rows": "2 * (6 + pred) + 4 at 4096 encoded positions",
+     "repaired_base_rows": "2 * (6 + pred + 2 seams) + 4 (block profile); standalone unchanged",
+     "extra_rows_block_profile": 4
+    }
+   }
+  }
+ },
+ "failures": 0
+}

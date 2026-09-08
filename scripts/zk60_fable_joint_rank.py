@@ -46,6 +46,7 @@ Usage:
     python3 scripts/zk60_fable_joint_rank.py analyze  MODEL.json   [-o OUT.json]
     python3 scripts/zk60_fable_joint_rank.py fixtures [-o OUT.json]
     python3 scripts/zk60_fable_joint_rank.py impact   [-o OUT.json]
+    python3 scripts/zk60_fable_joint_rank.py repair   [-o OUT.json]   # FA3: the repaired allocation's rank checks
 
 MODEL.json:
     {"name": "...", "data": ["D0", ...], "masks": ["R0", ...],
@@ -532,7 +533,7 @@ def fixture_reuse(seed: int = 4, reuse: bool = True) -> Model:
     return m
 
 
-def group_with_values(m_members: int, n_cols: int, kinds: Sequence[str], seed: int = 5, with_prox: bool = False, p3: bool = False, name: Optional[str] = None) -> Model:
+def group_with_values(m_members: int, n_cols: int, kinds: Sequence[str], seed: int = 5, with_prox: bool = False, p3: bool = False, name: Optional[str] = None, prox_pair: bool = False) -> Model:
     """A column-weight group of `m_members` claims over `n_cols` columns,
     modelling BOTH the group vector (n Fp2 entries) and the m terminal
     values (each an Fp2 claim value in the proof).  kinds[k] is the mask
@@ -541,6 +542,10 @@ def group_with_values(m_members: int, n_cols: int, kinds: Sequence[str], seed: i
       'pair'   Fp2 mask pair (re, im), Fp2 data pair      (H helper planes)
       'base2'  two base mask rows with eq row weights,
                two data rows                              (A table slots spanning >= 2 rows)
+      'pairmask' ONE base data row masked by an Fp2 mask
+               pair (re, im) with coefficients (c, c u)   (FA3's repaired A / P3-W claims)
+    `prox_pair` (with `with_prox`) gives the proximity observation TWO
+    reserved mask rows with independent coefficients (FA3's repaired prox).
     """
     assert len(kinds) == m_members
     rng = Rng(seed)
@@ -576,6 +581,10 @@ def group_with_values(m_members: int, n_cols: int, kinds: Sequence[str], seed: i
             terms.append((f"D{k}_r1", f2_mul(a, eq[1])))
             terms.append((f"R{k}_r0", f2_mul(c, eq[0])))
             terms.append((f"R{k}_r1", f2_mul(c, eq[1])))
+        elif kind == "pairmask":
+            terms.append((f"D{k}", a))
+            terms.append((f"R{k}_re", c))
+            terms.append((f"R{k}_im", f2_mul(c, U)))
         else:
             raise ValueError(kind)
         member_terms.append(terms)
@@ -587,6 +596,8 @@ def group_with_values(m_members: int, n_cols: int, kinds: Sequence[str], seed: i
     if with_prox:
         for j in range(n_cols):
             model.mask_unknown(f"R_prox[{j}]")
+            if prox_pair:
+                model.mask_unknown(f"R_prox_im[{j}]")
     # group vector entries
     for j in range(n_cols):
         coeffs: Dict[str, Fp2] = {}
@@ -608,6 +619,8 @@ def group_with_values(m_members: int, n_cols: int, kinds: Sequence[str], seed: i
                 for prefix, _ in terms:
                     coeffs[f"{prefix}[{j}]"] = rng.fp2()
             coeffs[f"R_prox[{j}]"] = rng.fp2()
+            if prox_pair:
+                coeffs[f"R_prox_im[{j}]"] = rng.fp2()
             model.observe(f"prox[{j}]", coeffs, role="proximity vector entry")
     return model
 
@@ -617,10 +630,29 @@ def group_with_values(m_members: int, n_cols: int, kinds: Sequence[str], seed: i
 # ----------------------------------------------------------------------------
 
 
-def commitment_with_values(name: str, groups: List[dict], n_cols: int, seed: int = 9, notes: Optional[List[str]] = None) -> Model:
+def _kind_suffixes(kind: str) -> Tuple[List[str], List[str]]:
+    """(data suffixes, mask suffixes) of a member kind.  An 'im' suffix
+    multiplies the coefficient by U (the Fp2 pair form (c, c u)):
+      'base'     ([''],        [''])        base data rows, base mask rows (the legacy A / P3-W form; a
+                                            multi-row block is Fp2-effective only through its row weights)
+      'pair'     (['re','im'], ['re','im']) Fp2-valued data (H helper planes) with an Fp2 mask pair
+      'pairmask' ([''],        ['re','im']) base data rows with an Fp2 mask pair -- FA3's repaired form
+                                            for every single-row mask site (S2's terminal_claim shape)
+    """
+    if kind == "base":
+        return [""], [""]
+    if kind == "pair":
+        return ["re", "im"], ["re", "im"]
+    if kind == "pairmask":
+        return [""], ["re", "im"]
+    raise ValueError(kind)
+
+
+def commitment_with_values(name: str, groups: List[dict], n_cols: int, seed: int = 9, notes: Optional[List[str]] = None, prox_pair: bool = False) -> Model:
     """A whole commitment over `n_cols` columns: every group vector (n Fp2
     entries each), every terminal value, and the proximity vector.  Same
     `groups` schema as `per_column_commitment` (data_alias re-opens rows).
+    `prox_pair` reserves TWO base rows for the proximity combination (FA3).
     Small n only (the unknown count is rows x n)."""
     rng = Rng(seed)
     model = Model(name, notes or [])
@@ -654,11 +686,11 @@ def commitment_with_values(name: str, groups: List[dict], n_cols: int, seed: int
             rb = dr.bit_length() - 1
             eq = eq_table_msb(rng.point(rb)) if rb else [ONE]
             meq = [ONE] if mr == 1 else eq
-            suffixes = ["re", "im"] if kind == "pair" else [""]
+            data_sfx, mask_sfx = _kind_suffixes(kind)
             data_prefix = mem.get("data_alias") or f"{g['name']}/{mem['name']}"
             terms: List[Tuple[str, Fp2]] = []  # (row prefix, per-column coefficient WITHOUT lambda)
             for r in range(dr):
-                for sfx in suffixes:
+                for sfx in data_sfx:
                     pre = f"{data_prefix}/D{r}{('_' + sfx) if sfx else ''}"
                     unk(pre, True)
                     coef = f2_mul(a, eq[r])
@@ -666,7 +698,7 @@ def commitment_with_values(name: str, groups: List[dict], n_cols: int, seed: int
                         coef = f2_mul(coef, U)
                     terms.append((pre, coef))
             for r in range(mr):
-                for sfx in suffixes:
+                for sfx in mask_sfx:
                     pre = f"{g['name']}/{mem['name']}/R{r}{('_' + sfx) if sfx else ''}"
                     unk(pre, False)
                     coef = f2_mul(c, meq[r])
@@ -683,12 +715,14 @@ def commitment_with_values(name: str, groups: List[dict], n_cols: int, seed: int
         for j in range(n_cols):
             model.observe(f"v[{g['name']}][{j}]", vec[j], role=f"group vector entry, {len(g['members'])} member(s)")
     unk("prox/R_prox", False)
+    if prox_pair:
+        unk("prox/R_prox_im", False)
     for j in range(n_cols):
         model.observe(f"v[prox][{j}]", {f"{pre}[{j}]": rng.fp2() for pre in all_rows}, role="proximity vector entry")
     return model
 
 
-def fixture_logup_sum(n_cols: int = 4, n_helper_pairs: int = 2, n_table_pairs: int = 1, seed: int = 8) -> Tuple[Model, List[Dict[str, int]]]:
+def fixture_logup_sum(n_cols: int = 4, n_helper_pairs: int = 2, n_table_pairs: int = 1, seed: int = 8, prox_pair: bool = False) -> Tuple[Model, List[Dict[str, int]]]:
     """The H commitment's LogUp sum claim (value 0; all-ones column weights)
     whose only mask is the zero-sum pair u = (u_re, u_im), sum_j u[j] = 0,
     modelled JOINTLY with the other H claims that touch the same rows: the
@@ -725,6 +759,8 @@ def fixture_logup_sum(n_cols: int = 4, n_helper_pairs: int = 2, n_table_pairs: i
         m.mask_unknown(f"up_im[{j}]")
     for j in range(n_cols):
         m.mask_unknown(f"R_prox[{j}]")
+        if prox_pair:
+            m.mask_unknown(f"R_prox_im[{j}]")
 
     def pair(prefix: str, j: int, scale: Fp2) -> Dict[str, Fp2]:
         return {f"{prefix}_re[{j}]": scale, f"{prefix}_im[{j}]": f2_mul(scale, U)}
@@ -859,22 +895,24 @@ def a_commitment_groups(lay: dict, p3: bool = False, predicate: bool = False) ->
     for b in range(nb_f):
         groups[3]["members"][b]["data_alias"] = f"rho_f/h16{b}"
     if predicate:
-        groups.append({"name": "rho_p", "members": [{"name": "z_pred", "data_rows": rd, "mask_rows": 1}, {"name": "bits", "data_rows": 1, "mask_rows": 1}]})
+        # the predicate re-opens the z block holding the frozen entry (block 0 in these models) under a_pmz
+        groups.append({"name": "rho_p", "members": [{"name": "z_pred", "data_rows": rd, "mask_rows": 1, "data_alias": "rho_d/z0"}, {"name": "bits", "data_rows": 1, "mask_rows": 1}]})
     return groups
 
 
-def per_column_commitment(name: str, groups: List[dict], seed: int = 7, notes: Optional[List[str]] = None) -> Model:
+def per_column_commitment(name: str, groups: List[dict], seed: int = 7, notes: Optional[List[str]] = None, prox_pair: bool = False) -> Model:
     """One column of a whole commitment: every group vector entry and the
     proximity vector entry.  `groups` = [{name, e_kind: 'p1'|'p3',
-    members: [{name, data_rows, mask_rows, kind: 'base'|'pair', ext_k,
-    data_alias}]}].  A member with data_rows = 2^rb spans rb row bits: its
-    data rows get eq row weights of a fresh point; mask_rows must be 1
-    (planes) or equal to data_rows (table slots).  `ext_k` (table slots)
-    multiplies both coefficients by prod_{j<k}(1 - rho_j) of a shared rho.
-    `data_alias` re-opens ANOTHER member's data rows under a new mask (X at
-    p2 re-opens X at rho_d; h16 at p5 re-opens h16 at rho_f).
+    members: [{name, data_rows, mask_rows, kind: 'base'|'pair'|'pairmask',
+    ext_k, data_alias}]}].  A member with data_rows = 2^rb spans rb row
+    bits: its data rows get eq row weights of a fresh point; mask_rows must
+    be 1 (planes) or equal to data_rows (table slots).  `ext_k` (table
+    slots) multiplies both coefficients by prod_{j<k}(1 - rho_j) of a shared
+    rho.  `data_alias` re-opens ANOTHER member's data rows under a new mask
+    (X at p2 re-opens X at rho_d; h16 at p5 re-opens h16 at rho_f).
+    `prox_pair` reserves two base rows for the proximity combination (FA3).
     Cross-column observations (terminal values) are NOT in this model; use
-    `group_with_values` for those."""
+    `group_with_values` / `commitment_with_values` for those."""
     rng = Rng(seed)
     model = Model(name, notes or [])
     all_rows: List[str] = []
@@ -896,10 +934,10 @@ def per_column_commitment(name: str, groups: List[dict], seed: int = 7, notes: O
             rb = dr.bit_length() - 1
             eq = eq_table_msb(rng.point(rb)) if rb else [ONE]
             meq = [ONE] if mr == 1 else eq
-            suffixes = ["re", "im"] if kind == "pair" else [""]
+            data_sfx, mask_sfx = _kind_suffixes(kind)
             data_prefix = mem.get("data_alias") or f"{g['name']}/{mem['name']}"
             for r in range(dr):
-                for sfx in suffixes:
+                for sfx in data_sfx:
                     nm = f"{data_prefix}/D{r}{('_' + sfx) if sfx else ''}"
                     if nm not in model._index:
                         model.data_unknown(nm)
@@ -909,7 +947,7 @@ def per_column_commitment(name: str, groups: List[dict], seed: int = 7, notes: O
                         coef = f2_mul(coef, U)
                     coeffs[nm] = f2_add(coeffs.get(nm, ZERO), coef)
             for r in range(mr):
-                for sfx in suffixes:
+                for sfx in mask_sfx:
                     nm = f"{g['name']}/{mem['name']}/R{r}{('_' + sfx) if sfx else ''}"
                     if nm not in model._index:
                         model.mask_unknown(nm)
@@ -921,6 +959,9 @@ def per_column_commitment(name: str, groups: List[dict], seed: int = 7, notes: O
         model.observe(f"v[{g['name']}]", coeffs, role=f"group vector entry, {len(g['members'])} member(s)")
     model.mask_unknown("prox/R_prox")
     all_rows.append("prox/R_prox")
+    if prox_pair:
+        model.mask_unknown("prox/R_prox_im")
+        all_rows.append("prox/R_prox_im")
     model.observe("v[prox]", {r: rng.fp2() for r in all_rows}, role="proximity vector entry (fresh Fp2 coefficient on every row)")
     return model
 
@@ -1095,6 +1136,243 @@ def fixtures_report() -> dict:
 
 
 # ----------------------------------------------------------------------------
+# FA3: the repaired allocation (ZK60_FABLE_MASK_REPAIR.md) evaluated on every
+# FA2 group shape, plus the machine-readable schedule Codex implements from
+# ----------------------------------------------------------------------------
+
+FA3_PROFILE = "ffn-v3-mr1"          # the repaired profile id (header field `profile=`)
+FA3_DOMAIN = "hashline-zk-mr1/"      # transcript domain prefix of the repaired construction
+FA3_HEADER = "HL-ZK/2|profile=ffn-v3-mr1|priv=..|pub=..|out=..|model=..|layer=..|slot=..|block=.."
+
+
+def repaired_kinds(groups: List[dict], tables_all_pairs: bool = False) -> List[dict]:
+    """FA3's rule applied to an FA2 group list: every SINGLE-ROW base mask
+    becomes an Fp2 pair ('pairmask'); a multi-row base block (a table slot
+    with rows >= 2) keeps its block form, which is Fp2-effective through its
+    row weights (FA2 section 14.3), unless `tables_all_pairs` asks for the
+    uniform all-pair alternative (2 x rows mask rows per slot)."""
+    out = []
+    for g in groups:
+        g2 = dict(g)
+        mems = []
+        for mem in g["members"]:
+            m2 = dict(mem)
+            m2["kind"] = m2.get("kind", "base")
+            if m2["kind"] == "base" and (m2["mask_rows"] == 1 or tables_all_pairs):
+                m2["kind"] = "pairmask"
+            mems.append(m2)
+        g2["members"] = mems
+        out.append(g2)
+    return out
+
+
+def a_commitment_groups_repaired(lay: dict, p3: bool = False, predicate: bool = False, seams: bool = False, tables_all_pairs: bool = False) -> List[dict]:
+    """The repaired A commitment: FA2's groups with pair masks, plus (block
+    profile) the two internal seam groups: X at tail(rho_sx) and z at
+    tail(rho_sz), nb_d pair-masked members each, re-opening the SAME X / z
+    rows the rho_d group opens (data_alias) under fresh reserved pairs."""
+    groups = repaired_kinds(a_commitment_groups(lay, p3=p3, predicate=predicate), tables_all_pairs)
+    if seams:
+        nb_d, rd = lay["nb_d"], lay["rows_per_d_plane"]
+        groups.append({"name": "sx", "members": [{"name": f"X{c}", "data_rows": rd, "mask_rows": 1, "kind": "pairmask", "data_alias": f"rho_d/X{c}"} for c in range(nb_d)]})
+        groups.append({"name": "sz", "members": [{"name": f"z{c}", "data_rows": rd, "mask_rows": 1, "kind": "pairmask", "data_alias": f"rho_d/z{c}"} for c in range(nb_d)]})
+    return groups
+
+
+def h_commitment_groups_repaired(lay: dict) -> List[dict]:
+    """H's claims are already Fp2 pairs; the repair only changes its prox row
+    (a pair, passed as `prox_pair=True` to the model builders)."""
+    return h_commitment_groups(lay)
+
+
+def w_commitment_groups_repaired(lay: dict) -> List[dict]:
+    """P3 W: every block terminal mask becomes a pair (one slot set of FA4's
+    budgeted stable commitment looks exactly like this per proof)."""
+    return repaired_kinds(w_commitment_groups(lay))
+
+
+def commitment_rows(lay: dict, predicate: bool = False, seams: bool = False, tables_all_pairs: bool = False) -> dict:
+    """Row counts of the legacy and the repaired A / H / W(P3) commitments,
+    mirroring ZkLayoutV3::new (legacy, checked against the pinned counts in
+    the tests) and FA3's schedule (repaired)."""
+    nb_d, nb_f = lay["nb_d"], lay["nb_f"]
+    rf, rd, rw = lay["rows_per_f_plane"], lay["rows_per_d_plane"], lay["rows_per_w_block"]
+    tab = lay["table_rows"]
+    plane_claims = 7 * nb_f + 3 * nb_d + nb_d + nb_f
+    a_data = 7 * nb_f * rf + 3 * nb_d * rd + sum(tab)
+    a_legacy_masks = plane_claims + 1 + sum(tab) + (2 if predicate else 0)
+    a_tab_rep = 2 * sum(tab) if tables_all_pairs else sum(2 if r == 1 else r for r in tab)
+    a_rep_masks = 2 * plane_claims + 2 + a_tab_rep + (4 if predicate else 0) + (4 * nb_d if seams else 0)
+    h_data = 2 * (3 * nb_f * rf + nb_d * rd) + 2 * sum(tab)
+    h_legacy_masks = 2 * (3 * nb_f + nb_d) + 4 + 1 + 2 * sum(tab)
+    h_rep_masks = h_legacy_masks + 1
+    w_data = 3 * nb_d * nb_f * rw
+    w_legacy_masks = 3 * nb_d * nb_f + 1
+    w_rep_masks = 2 * (3 * nb_d * nb_f) + 2
+    return {
+        "A": {"data_rows": a_data, "legacy_mask_rows": a_legacy_masks, "repaired_mask_rows": a_rep_masks, "legacy_rows": a_data + a_legacy_masks, "repaired_rows": a_data + a_rep_masks, "extra_rows": a_rep_masks - a_legacy_masks,
+              "extra_breakdown": {"plane_claim_pairs": plane_claims, "prox_pair": 1, "single_row_table_slots_paired": (sum(tab) if tables_all_pairs else sum(1 for r in tab if r == 1)), "predicate_pairs": (2 if predicate else 0), "seam_pairs": (4 * nb_d if seams else 0)}},
+        "H": {"data_rows": h_data, "legacy_mask_rows": h_legacy_masks, "repaired_mask_rows": h_rep_masks, "legacy_rows": h_data + h_legacy_masks, "repaired_rows": h_data + h_rep_masks, "extra_rows": 1, "extra_breakdown": {"prox_pair": 1}},
+        "W_P3": {"data_rows": w_data, "legacy_mask_rows": w_legacy_masks, "repaired_mask_rows_per_slot": w_rep_masks, "legacy_rows": w_data + w_legacy_masks, "repaired_rows_one_slot": w_data + w_rep_masks, "extra_rows_per_slot": w_rep_masks - w_legacy_masks,
+                 "extra_breakdown": {"block_terminal_pairs": 3 * nb_d * nb_f, "prox_pair": 1}, "fa4_budgeted_rows": f"data + k * {w_rep_masks} mask rows + the public slot; q_pad = k * Q (FA4 section 5.1)"},
+        "M_cfs": {"legacy_base_rows": "2 * (6 + pred) + 4 at 4096 encoded positions", "repaired_base_rows": "2 * (6 + pred + 2 seams) + 4 (block profile); standalone unchanged", "extra_rows_block_profile": 4},
+    }
+
+
+def _summ(res: dict) -> dict:
+    return {"disclosed_dim": res["disclosed_dim"], "rank_mask": res["rank_mask"], "rank_joint": res["rank_joint"], "base_obs_rows": res["counts"]["base_observation_rows"], "mask_unknowns": res["counts"]["mask_unknowns"], "data_unknowns": res["counts"]["data_unknowns"], "disclosed_or_recovered": res["summary"]["recovered"] + res["summary"]["disclosed"]}
+
+
+def repair_verdicts() -> dict:
+    """Every FA2 group shape under the repaired allocation, with the legacy
+    number beside it, and the negative controls that show which rule each
+    part of the repair is carrying.  A verdict is `expected` iff the model's
+    disclosed_dim equals the schedule's claim (0 for every repaired model; the
+    public LogUp identity (2) for the H sum model)."""
+    checks: Dict[str, dict] = {}
+
+    def record(name: str, res: dict, expect: int, argument: str, legacy: Optional[int] = None) -> None:
+        checks[name] = {**_summ(res), "expected_disclosed_dim": expect, "verdict": ("PASS" if res["disclosed_dim"] == expect else "FAIL"), "argument": argument}
+        if legacy is not None:
+            checks[name]["legacy_disclosed_dim"] = legacy
+
+    # (1) group + values: the "individually public terminal values" channel (FA2 14.2), repaired
+    for m, n in ((1, 4), (2, 2), (2, 4), (3, 4), (7, 4), (7, 8), (9, 4)):
+        res = analyze(group_with_values(m, n, ["pairmask"] * m, seed=500 + m + n))
+        legacy = analyze(group_with_values(m, n, ["base1"] * m, seed=500 + m + n))["disclosed_dim"]
+        record(f"group_values_all_pairmask_m{m}_n{n}", res, 0, f"rank(B) = 2m + 2n - 2 = {2 * m + 2 * n - 2}: every member is Fp2-effective (FA2 14.3), so the only null functional is the trivial identity", legacy)
+        assert res["rank_mask"] == 2 * m + 2 * n - 2, (m, n, res["rank_mask"])
+        res2 = analyze(group_with_values(m, n, ["pairmask"] * m, seed=600 + m + n, with_prox=True, prox_pair=True))
+        record(f"group_values_all_pairmask_with_prox_pair_m{m}_n{n}", res2, 0, "the prox vector is covered by its own pair, independent of the group", analyze(group_with_values(m, n, ["base1"] * m, seed=600 + m + n, with_prox=True))["disclosed_dim"])
+    # (2) the prox pair is REQUIRED, not optional: one pair-masked claim + a single prox row leaks one functional per column
+    single = [{"name": "g", "members": [{"name": "D", "data_rows": 1, "mask_rows": 1, "kind": "pairmask"}]}]
+    record("negative_control_one_pairmask_claim_single_prox_row", analyze(per_column_commitment("1 pair claim + 1 prox row", single, seed=71)), 1, "3 mask unknowns per column against 4 base observation dims (vector 2 + prox 2): the prox borrows nothing and leaks one functional; this is the tiny-P3-W starvation of FA2 14.4 in its purest form")
+    record("one_pairmask_claim_prox_pair", analyze(per_column_commitment("1 pair claim + prox pair", single, seed=71, prox_pair=True)), 0, "4 mask unknowns against 4 dims: the prox pair covers the prox vector by itself")
+    # (3) a mixed group: one member left base -- covered by composition (FA2 14.3) but NOT the rule
+    record("mixed_group_one_base_member_covered_only_by_composition", analyze(group_with_values(3, 4, ["pairmask", "base1", "pairmask"], seed=77, with_prox=True, prox_pair=True)), 0, "FA2 14.3: any Fp2-effective member covers the group; the schedule nevertheless requires EVERY single-row mask to be a pair so that coverage never depends on which other claims share the tail (U4)")
+    # (4) the seam-only pair is not a core repair: legacy A + seam pair groups still leaks FA2's number
+    tiny = {"nb_d": 1, "nb_f": 1, "rows_per_f_plane": 1, "rows_per_d_plane": 1, "table_rows": [1, 2, 1, 1, 2, 1], "n": 4, "log_n": 2, "rows_per_w_block": 1}
+    legacy_a = a_commitment_groups(tiny)
+    seam_only = legacy_a + [g for g in a_commitment_groups_repaired(tiny, seams=True) if g["name"] in ("sx", "sz")]
+    res = analyze(commitment_with_values("legacy A + seam pairs", seam_only, 4, seed=81))
+    checks["negative_control_seam_only_pairs_on_legacy_A"] = {**_summ(res), "expected_disclosed_dim": 2 * 4 + 4, "verdict": ("PASS" if res["disclosed_dim"] == 2 * 4 + 4 else "FAIL"), "argument": "appending pair-masked seam claims to the LEGACY A leaves the two singletons (2n) and the rho_f / rho_d value leaks (2 + 2) exactly where FA2 found them: a seam-only mask pair is not a core FFN repair (queue acceptance)"}
+    # (5) whole tiny commitments at n = 4: A (rows 1 / 2, P1 / P3, with and without seams), H, W
+    for tag, lay_ in (("rows1", tiny), ("rows2", dict(tiny, rows_per_f_plane=2, rows_per_d_plane=2))):
+        for p3 in (False, True):
+            for seams in (False, True):
+                nm = f"whole_A_n4_{tag}_{'p3' if p3 else 'p1'}{'_seams' if seams else ''}"
+                res = analyze(commitment_with_values(nm, a_commitment_groups_repaired(lay_, p3=p3, seams=seams), 4, seed=90, prox_pair=True))
+                legacy = None if seams else analyze(commitment_with_values(nm, a_commitment_groups(lay_, p3=p3), 4, seed=90))["disclosed_dim"]
+                record(nm, res, 0, "every group all-pair (rank 2m + 2n - 2 each), prox pair, X re-opened at rho_d / p2" + (" / sx" if seams else "") + ", h16 at rho_f / p5, z at rho_d" + (" / sz" if seams else "") + ": joint rank full", legacy)
+        res = analyze(commitment_with_values(f"whole_H_n4_{tag}", h_commitment_groups_repaired(lay_), 4, seed=91, prox_pair=True))
+        record(f"whole_H_n4_{tag}", res, 0, "H claims were already pairs; the prox pair removes the borrowed coverage of h_prox", analyze(commitment_with_values("H", h_commitment_groups(lay_), 4, seed=91))["disclosed_dim"])
+    res = analyze(commitment_with_values("W(P3) n4 nb=1", w_commitment_groups_repaired(tiny), 4, seed=92, prox_pair=True))
+    record("whole_W_p3_n4_nb1", res, 0, "the starved tiny P3 W (FA2 14.4: 4 masks vs 6 dims per column) becomes 8 masks vs 6 dims: Wd@p6 no longer a base singleton, the (Wg, Wu) prox functional gone", analyze(commitment_with_values("W", w_commitment_groups(tiny), 4, seed=92))["disclosed_dim"])
+    res = analyze(commitment_with_values("W(P3) n4 nb_d=3", w_commitment_groups_repaired(dict(tiny, nb_d=3)), 4, seed=93, prox_pair=True))
+    record("whole_W_p3_n4_nbd3", res, 0, "the p3 / p6 value leaks (2 each) are gone", analyze(commitment_with_values("W", w_commitment_groups(dict(tiny, nb_d=3)), 4, seed=93))["disclosed_dim"])
+    # (6) the H LogUp sum with the prox pair: the residual must still be exactly the public identity
+    for n, nh, nt in ((4, 2, 1), (8, 3, 2)):
+        model, ident = fixture_logup_sum(n, nh, nt, seed=94, prox_pair=True)
+        res = analyze(model)
+        F = [[f.get(x, 0) for x in model.data] for f in res["surviving_data_functionals"]]
+        I = [[r.get(x, 0) for x in model.data] for r in ident]
+        ok = res["disclosed_dim"] == 2 and rank(I) == 2 and rank(F + I) == 2
+        checks[f"h_logup_sum_zero_sum_u_prox_pair_n{n}"] = {**_summ(res), "expected_disclosed_dim": 2, "residual_equals_public_identity": ok, "verdict": ("PASS" if ok else "FAIL"), "argument": "FA2 14.5 re-verified with the repaired prox: the 2 surviving base functionals span exactly the LogUp identity sum_j v_sum[j] = 0 (public claim value); u' fresh and unconstrained"}
+    # (7) per-column models of the four FA2 families, repaired (P1 and P3 A with seams, H, W)
+    fam = {}
+    for prof in PROFILES:
+        lay = layout_v3(prof["t_rows"], prof["d"], prof["f"], prof["log_cols"])
+        entry = {"layout": {k: lay[k] for k in ("nb_d", "nb_f", "log_n", "n", "rows_per_f_plane", "rows_per_d_plane", "rows_per_w_block", "table_rows")}, "models": {}}
+        for nm, groups, seed in (
+            ("A (P1) standalone", a_commitment_groups_repaired(lay), 111),
+            ("A (P1) block: + X / Z seam groups", a_commitment_groups_repaired(lay, seams=True), 112),
+            ("A (P3) block", a_commitment_groups_repaired(lay, p3=True, seams=True), 113),
+            ("A (P1) block, function 2", a_commitment_groups_repaired(lay, predicate=True, seams=True), 114),
+            ("H", h_commitment_groups_repaired(lay), 115),
+            ("W (P3), one slot set", w_commitment_groups_repaired(lay), 116),
+        ):
+            res = analyze(per_column_commitment(nm, groups, seed=seed, prox_pair=True))
+            entry["models"][nm] = {**_summ(res), "expected_disclosed_dim": 0, "verdict": ("PASS" if res["disclosed_dim"] == 0 else "FAIL")}
+        # the legacy numbers beside them (FA2 impact.json)
+        la = analyze(per_column_commitment("A legacy", a_commitment_groups(lay), seed=11))
+        lw = analyze(per_column_commitment("W legacy", w_commitment_groups(lay), seed=13))
+        entry["legacy_per_column_disclosed"] = {"A (P1)": la["disclosed_dim"], "W (P3)": lw["disclosed_dim"]}
+        entry["rows"] = commitment_rows(lay, seams=True)
+        fam[prof["family"]] = entry
+    # (8) log_cols = 16 (every table slot one row): the legacy tab group leaks 2 (FA2 U10); repaired 0
+    lay16 = layout_v3(32, 4096, 14336, 16)
+    assert lay16["log_n"] == 16 and all(r == 1 for r in lay16["table_rows"]), lay16
+    tab_legacy = analyze(group_with_values(6, 4, ["base1"] * 6, seed=120))
+    tab_rep = analyze(group_with_values(6, 4, ["pairmask"] * 6, seed=120, with_prox=True, prox_pair=True))
+    record("tables_at_log_n_16_all_single_row_slots", tab_rep, 0, "U10: at log_n = 16 every slot is one row, so the rule 'pair iff single row' pairs all six; legacy leaks 2 (FA2 14.2)", tab_legacy["disclosed_dim"])
+    res16 = analyze(per_column_commitment("A (P1) block, log_cols 16", a_commitment_groups_repaired(lay16, seams=True), seed=121, prox_pair=True))
+    record("A_per_column_8B_log_cols_16_block", res16, 0, "the 8B layout at log_cols 16: per-column joint rank full with all single-row slots paired")
+    # (9) the uniform all-pair alternative for the table blocks (documented, not proposed first)
+    res_all = analyze(commitment_with_values("A n4 all-pair tables", a_commitment_groups_repaired(tiny, seams=True, tables_all_pairs=True), 4, seed=95, prox_pair=True))
+    record("whole_A_n4_alternative_all_pair_table_blocks", res_all, 0, "the uniform alternative (every table mask block an Fp2 pair block) is also full rank; it removes the block form's row-bit degeneracy (rho_tab[k] in Fp, 2^-64) at the cost of sum(rows_i) extra rows per commitment")
+    # (10) function 2: the predicate pair at n = 4
+    res_pred = analyze(commitment_with_values("A n4 function 2", a_commitment_groups_repaired(tiny, predicate=True, seams=True), 4, seed=96, prox_pair=True))
+    record("whole_A_n4_function2_predicate_pairs", res_pred, 0, "U9: the (z block, bit row) group is two pair-masked members; the z block is re-opened at rho_d / sz under other pairs", analyze(commitment_with_values("A", a_commitment_groups(tiny, predicate=True), 4, seed=96))["disclosed_dim"])
+    n_fail = sum(1 for c in checks.values() if c["verdict"] != "PASS") + sum(1 for e in fam.values() for m in e["models"].values() if m["verdict"] != "PASS")
+    return {"checks": checks, "families": fam, "failures": n_fail}
+
+
+def fa3_schedule() -> dict:
+    """The schedule Codex implements from (mirrored in ZK60_FABLE_MASK_REPAIR.md section 12)."""
+    pair_claim = "parts = [ZPart{slice: DATA, coef: k0, point: p}, ZPart{slice: row(R_re), coef: k1, point: tail(p)}, ZPart{slice: row(R_im), coef: k1 * U, point: tail(p)}]; masked terminal = (1 - e) fin + e (R_re~(tail) + U R_im~(tail)) via MaskPoint::eval2"
+    block_claim = "parts = [ZPart{slice: (a_row, log_size), coef: (1 - e_tab) ext, point: rho_tab[k..]}, ZPart{slice: (a_mask, log_size), coef: e_tab ext, point: rho_tab[k..]}] (legacy form, unchanged; Fp2-effective through the row weights when rows >= 2)"
+    return {
+        "profile": FA3_PROFILE, "transcript_domain_prefix": FA3_DOMAIN, "header": FA3_HEADER,
+        "legacy_untouched": "prove_layer_zk_v3 / verify_layer_zk_v3, header 'P1-v3' / 'HL-ZK/1', the frozen fixtures and their bytes: unchanged and NOT repaired privacy evidence",
+        "rule": "every single-row mask site is an Fp2 pair (re, im) with claim coefficients (k1, k1 U); every multi-row base mask block (table slots with rows >= 2) keeps its block form; every proximity row is a pair; every seam terminal is a pair-masked claim on the ACTUAL arithmetic commitment; every mask row is filled exactly once from the block's RNG before its commitment exists and is consumed by exactly one opening",
+        "mask_kinds": {
+            "pair": {"rows": 2, "claim_form": pair_claim, "hiding_argument": "per column the contribution k1 (R_re + U R_im) ranges over Fp2 as (R_re, R_im) ranges over Fp^2 whenever k1 != 0; no dependence on e being outside Fp (FA1's degeneracy class disappears)"},
+            "block": {"rows": "rows_i = max(size_i, n) / n", "claim_form": block_claim, "hiding_argument": "per column the contribution e_tab ext sum_r eq_r R[r] ranges over Fp2 when two of the eq_r are Fp-independent (the row-bit coordinate rho_tab[k] outside Fp: fails with probability ~2^-64, the same class FA2 excludes)"},
+            "zero_sum_pair": {"rows": 2, "claim_form": "the legacy h_u pair with sum_j u_re[j] = sum_j u_im[j] = 0, masked at rho_zs by the fresh unconstrained pair h_up", "hiding_argument": "FA2 14.5 re-verified with the prox pair (repair verdict h_logup_sum_zero_sum_u_prox_pair_n4 / n8): the residual is exactly the public LogUp identity"},
+            "prox_pair": {"rows": 2, "claim_form": "not a claim: two reserved rows entering ONLY the proximity combination with the two independent challenges rho[row_re], rho[row_im]", "hiding_argument": "the prox vector's mask span per column is Fp-span{rho_re, rho_im} = Fp2 unless the two challenges are Fp-dependent (~2^-64): coverage no longer borrowed from other groups (U4)"},
+        },
+        "commitments": {
+            "A": {"fresh_per_proof": True, "rows": "data rows (LayoutV3.a_len / n) + table data rows, then the mask rows below in this order (data offsets do not move)", "mask_roles_in_allocation_order": [
+                {"role": "a_mf[k]", "count": "7 * nb_f", "kind": "pair", "group_key": "tail(rho_f)", "data": "g8,rg,a16,u16,ru,h16,rh per f-block at rho_f", "coefficients": "(1 - e_f, e_f)", "proof_field": "zc20_term[10 b + i], i < 7", "legacy_rows": 1, "repaired_rows": 2},
+                {"role": "a_md[k]", "count": "3 * nb_d", "kind": "pair", "group_key": "tail(rho_d)", "data": "X, z, rd per d-block at rho_d", "coefficients": "(1 - e_dz, e_dz)", "proof_field": "zc17_term[c], [nb_d + c], [2 nb_d + c]", "legacy_rows": 1, "repaired_rows": 2},
+                {"role": "a_mgu[c]", "count": "nb_d", "kind": "pair", "group_key": "tail(p2 = r_i || r_kp)", "data": "X block c at p2 (the SAME rows as a_md[3c]'s data)", "coefficients": "P1 (1 - e_gu, e_gu); P3 ((1 - e_gu2)(1 - e_gu), (1 - e_gu2) e_gu)", "proof_field": "gu_term[c]", "legacy_rows": 1, "repaired_rows": 2},
+                {"role": "a_mdd[b]", "count": "nb_f", "kind": "pair", "group_key": "tail(p5 = r_ip || r_k)", "data": "h16 block b at p5 (the SAME rows as a_mf[7b + 5]'s data)", "coefficients": "P1 (1 - e_d, e_d); P3 ((1 - e_d2)(1 - e_d), (1 - e_d2) e_d)", "proof_field": "d_term[b]", "legacy_rows": 1, "repaired_rows": 2},
+                {"role": "a_prox", "count": 1, "kind": "prox_pair", "group_key": "(proximity vector)", "data": "-", "coefficients": "rho_prox[re], rho_prox[im] (zk_rhos)", "proof_field": "a_open.prox_vec", "legacy_rows": 1, "repaired_rows": 2},
+                {"role": "tab[i].a_mask", "count": "6 slots", "kind": "block if rows_i >= 2 else pair", "group_key": "tail(rho_tab) (one group for all six slots)", "data": "multiplicity slot i at rho_tab[k_i..]", "coefficients": "((1 - e_tab) ext_i, e_tab ext_i)", "proof_field": "tab_term[2 i]", "legacy_rows": "rows_i", "repaired_rows": "rows_i if rows_i >= 2 else 2"},
+                {"role": "a_pmz, a_pmb", "count": "2 (function 2 only)", "kind": "pair", "group_key": "tail(rho_p)", "data": "z block of the predicate entry; the bit row", "coefficients": "(1 - e_p, e_p) (x ext for the bit row)", "proof_field": "pred.term[0], [1]", "legacy_rows": 1, "repaired_rows": 2},
+                {"role": "a_sx[c]", "count": "nb_d (block profile only)", "kind": "pair", "group_key": "tail(rho_sx)", "data": "X block c at rho_sx (the X seam: the SAME rows as a_md[3c] / a_mgu[c])", "coefficients": "(1 - e_sx, e_sx)", "proof_field": "seam_x.term_ffn[c]", "legacy_rows": 0, "repaired_rows": 2},
+                {"role": "a_sz[c]", "count": "nb_d (block profile only)", "kind": "pair", "group_key": "tail(rho_sz)", "data": "z block c at rho_sz (the Z seam: the SAME rows as a_md[3c + 1])", "coefficients": "(1 - e_sz, e_sz)", "proof_field": "seam_z.term_ffn[c]", "legacy_rows": 0, "repaired_rows": 2},
+            ]},
+            "H": {"fresh_per_proof": True, "mask_roles_in_allocation_order": [
+                {"role": "h_mf[k], h_md[c]", "count": "3 nb_f + nb_d", "kind": "pair (unchanged)", "group_key": "tail(rho_f) / tail(rho_d)", "legacy_rows": 2, "repaired_rows": 2},
+                {"role": "h_u", "count": 1, "kind": "zero_sum_pair (unchanged)", "group_key": "rho_zs (single-row point) and the value-0 sum claim (empty point)", "legacy_rows": 2, "repaired_rows": 2},
+                {"role": "h_up", "count": 1, "kind": "pair (unchanged)", "group_key": "rho_zs", "legacy_rows": 2, "repaired_rows": 2},
+                {"role": "h_prox", "count": 1, "kind": "prox_pair", "group_key": "(proximity vector)", "legacy_rows": 1, "repaired_rows": 2},
+                {"role": "tab[i].h_mre / h_mim", "count": "6 slots", "kind": "pair block (unchanged)", "group_key": "tail(rho_tab)", "legacy_rows": "2 rows_i", "repaired_rows": "2 rows_i"},
+            ]},
+            "W_P3": {"fresh_per_proof": False, "owner": "FA4's budgeted stable commitment C*_l: data rows, then k slot sets, each set = the roles below; proof i uses set i exactly once; q_pad = k * Q", "mask_roles_in_allocation_order_per_slot": [
+                {"role": "w_mgu[k]", "count": "2 nb_d nb_f", "kind": "pair", "group_key": "tail(p3 = r_kp || r_j)", "coefficients": "((1 - e_gu2)(1 - e_gu), e_gu2)", "proof_field": "gu_term[nb_d + k]", "legacy_rows": 1, "repaired_rows": 2},
+                {"role": "w_mdd[k]", "count": "nb_d nb_f", "kind": "pair", "group_key": "tail(p6 = r_k || r_jp)", "coefficients": "((1 - e_d2)(1 - e_d), e_d2)", "proof_field": "d_term[nb_f + k]", "legacy_rows": 1, "repaired_rows": 2},
+                {"role": "w_prox", "count": 1, "kind": "prox_pair", "group_key": "(proximity vector)", "legacy_rows": 1, "repaired_rows": 2},
+            ]},
+            "M_cfs": {"fresh_per_proof": True, "slots_in_order": ["SC_GU (log_db + 1 + p3, 2)", "SC_D (log_fb + 1 + p3, 2)", "SC_ZC20 (log_t + log_fb + 1, 4)", "SC_ZC17 (log_t + log_db + 1, 4)", "SC_ZSUM (log_n + 1, 2)", "SC_TAB (log_s + 1, 3)", "SC_PRED (log_t + log_db + 1, 3) [function 2]", "SC_SEAM_X (log_t + log_db + 1, 2) [block profile]", "SC_SEAM_Z (log_t + log_db + 1, 2) [block profile]"], "note": "the CFS channel is outside the linear model (blocker B1); the schedule only fixes its slot count and order"},
+        },
+        "rng": {"instance": "one ZkRng per component per block attempt (FFN: domain 'ffn-mr1/layer-{l}/attempt-{nonce}' under OS entropy; the attention component has its own); a seeded ZkRng exists only under cfg(test) fixtures and never in the block API",
+                "consumption_order": ["A mask rows, allocation order, fp_vec(n) per row (re then im for a pair; the block rows in row order)", "A pads (rows * Q), A salts (nn)  [commit_zk_owned]", "M: per slot CfsMask::random then MASK_Q pads per re / im row; b_re, b_im, u_re, u_im; salts  [mask_commit]", "H mask rows: h_mf pairs, h_md pairs, h_up pair, h_prox pair, table mre / mim blocks (fp_vec(n) each); then h_u: n - 1 draws per row, last entry = -sum", "H pads, H salts"],
+                "p3_w": "no per-proof W randomness: the slot set was drawn at registration (FA4 H2) in the order w_mgu pairs, w_mdd pairs, w_prox pair per set; pads k * Q per row; salts nn",
+                "error_path": "the RNG instance is dropped with the discarded state; a retry is a new attempt nonce and a new instance; no mask row value is ever reused"},
+        "transcript_order_block_profile": ["block header (profile, domain, approved-contract digest, request context, manifest digest, layer, slot)", "attention W root (P1: approved public) ; attention A root ; attention M root", "FFN W root (P1: approved public root from the manifest; P3: C*_l from the manifest) ; FFN A root ; FFN M root", "beta, gamma, alpha (FFN) ; FFN H root  [attention helpers likewise after their challenges]", "FFN arguments in legacy order: gu, d, zcF, zcD, tab, zsum, [pred]; every masked claim and terminal absorbed before the next challenge", "seam X: tau_sx, c_sx ; gamma_sx ; masked rounds ; masked terminals (ffn side, attention side) ; seam Z likewise", "FFN mask_open (all slots incl. seams) ; attention mask_open", "openings, one per owned commitment, fixed order: FFN W (P3 only), FFN A, FFN H, attention W (P3), attention A, attention H; each open_zk: lambdas per group -> prox rho -> vectors absorbed -> prox absorbed -> indices (FA1 4.4)"],
+    }
+
+
+def repair_report() -> dict:
+    v = repair_verdicts()
+    return {"schema_version": 1, "task": "FA3 -- the repaired mask allocation: rank verdicts on every FA2 group shape and the schedule Codex implements from", "reviewer": "Claude Fable 5.1, independent reviewer, 2026-09-07 session",
+            "caveat": "numerical rank of linear observations under stand-in coefficients; the CFS channel, adaptive conditioning, ranges and cross-proof correlation beyond the linear model remain the identified blockers of ZK60_FABLE_MASK_REPAIR.md section 11",
+            "schedule": fa3_schedule(), "rank_verdicts": v["checks"], "families": v["families"], "failures": v["failures"]}
+
+
+# ----------------------------------------------------------------------------
 # CLI
 # ----------------------------------------------------------------------------
 
@@ -1110,12 +1388,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     i = sub.add_parser("impact", help="the role x profile impact matrix with per-column and group-value models")
     i.add_argument("-o", "--out")
     i.add_argument("--no-models", action="store_true")
+    r = sub.add_parser("repair", help="FA3: the repaired allocation's rank verdicts on every FA2 group shape + the schedule")
+    r.add_argument("-o", "--out")
     args = ap.parse_args(argv)
     if args.cmd == "analyze":
         with open(args.model) as fh:
             res = analyze_json(json.load(fh))
     elif args.cmd == "fixtures":
         res = fixtures_report()
+    elif args.cmd == "repair":
+        res = repair_report()
     else:
         res = impact_matrix(run_models=not args.no_models)
     text = json.dumps(res, indent=1, default=lambda o: list(o) if isinstance(o, tuple) else str(o))
@@ -1125,6 +1407,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(f"wrote {args.out}")
     else:
         print(text)
+    if args.cmd == "repair" and res.get("failures"):
+        print(f"repair: {res['failures']} rank verdict(s) FAILED", file=sys.stderr)
+        return 1
     return 0
 
 
