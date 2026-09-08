@@ -615,8 +615,8 @@ independent review lane (FA1/FA4/FA5, then FA2) is on a separate branch,
 | `18a72eb` | CL19 (redirected) | Codex implemented the serializer side in round 10 (`zk_proof_size.rs`, `HASHLINE_PROOF_SIZE` rows); the lane CONSUMES it: validate/reconcile rows, all 12 frozen 12x512 P1 rows sum to 87,697,008 B; the 12,288 B CL10 could only reach by subtraction is now measured (layers 1-2: A +4,096, H +8,192) | artifact profile 27 -> 82 |
 | `4a0ce56` | CL13 follow-up | suite version 2: the oracle expects 141 executed cases (CL15); v1 keeps 82314a1's 49 | gates 61 |
 | `c02d86c` | CL17 | the combined tree gated GREEN with a manifest (section below) | `results/cl_round9_floors/` |
-| (this commit) | CL18 | the compact pad/scale output DERIVED (n + q over nn is a stride and a zero-extension bound, the tail never load-bearing), then SWITCHED (`HL_ZK_COMPACT_PAD=1`, default OFF, full-width reference retained), then MEASURED at the Mistral one-layer P3 shape: commits 1.16x, re-encodes 1.21x, PROVE 4.346 -> 4.089 s (-0.258 s, 5.9%), VRAM 5,182 -> 5,148 MB, bytes identical across arms and equal to CL7's frozen digest; all four frozen fixtures OFF and both hiding fixtures ON byte-identical; nothing promoted by default | oracle 34 tests / 189 cases; `results/cl18_*`; `ZK60_CLAUDE_RESIDENCY.md` section 7 |
-| (next commit) | CL13 follow-up | suite version 3: the oracle expects 189 executed cases (CL18) | gates 61 |
+| `f9a8eb7` | CL18 | the compact pad/scale output DERIVED (n + q over nn is a stride and a zero-extension bound, the tail never load-bearing), then SWITCHED (`HL_ZK_COMPACT_PAD=1`, default OFF, full-width reference retained), then MEASURED at the Mistral one-layer P3 shape: commits 1.16x, re-encodes 1.21x, PROVE 4.346 -> 4.089 s (-0.258 s, 5.9%), VRAM 5,182 -> 5,148 MB, bytes identical across arms and equal to CL7's frozen digest; all four frozen fixtures OFF and both hiding fixtures ON byte-identical; nothing promoted by default | oracle 34 tests / 189 cases; `results/cl18_*`; `ZK60_CLAUDE_RESIDENCY.md` section 7 |
+| `d63c55a` | CL13 follow-up | suite version 3: the oracle expects 189 executed cases (CL18) | gates 61 |
 
 ### CL17 — the combined source, gated: `results/cl_round9_floors/manifest.json`, verdict GREEN
 
@@ -666,3 +666,12 @@ target; the seconds in the retained logs are two-thread laptop diagnostics.
    profiles (FA5 R09: the norm isqrt row accepts a half-p alias whenever
    `n_limbs >= 3`; the A00 profile is safe only by a parameter coincidence)
    and the P3 substitute-weight gap recorded as a MISSING constraint (FA4).
+
+### CL17 addendum — the manifest at the FINAL lane tip (suite v3)
+
+CL18 changed `cuda.rs`, `kernels.cu` and the oracle after the `4a0ce56`
+manifest. CL18's own gates and oracle cover that source, but the full
+floors (crate suites, controls, cache cases) were re-run on the final tip
+`d63c55a` at suite version 3 (189 oracle cases): `results/cl_round9b_floors/manifest.json`,
+launcher log `results/cl_round9b_floors.log`, marker `results/cl_round9b_floors.done`
+— see the row appended below once the run finished.
