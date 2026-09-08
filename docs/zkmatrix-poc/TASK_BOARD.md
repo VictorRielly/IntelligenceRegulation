@@ -1,5 +1,19 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-07, round 10 complete:** Codex implements CL19 exact proof-size
+accounting in a separate module and per-layer `HASHLINE_PROOF_SIZE` rows under
+existing CPU `--phase-profile`. **156 Rust tests, 39 Python consumer tests,
+four unchanged frozen proofs and P3 profiling on/off byte parity pass**.
+[Implementation, validation and continuation](ZK60_ROUND10.md).
+
+**Next Codex work:** test-only capture/replay for actual H and P3 W openings
+alongside A, published only after complete FFN verification, to support FA2's
+independent joint privacy review. Fable retains CL13–CL18 and FA1–FA5;
+CL19 needs no duplicate implementation. CL12/CL17 should pick up the current
+performance tip. The minimal `zkp-core` extraction remains priority 3 after
+the validated integration baseline. No private repair or GPU acceptance is
+claimed from byte accounting.
+
 **2026-09-07, next Fable queue:** [round-9 review](ZK60_ROUND9_REVIEW.md)
 credits lane `3ad4d97`: the archived `82314a1` run passed 12 full-hash byte
 cases and 49 device oracle cases. Codex checked all 12 retained prover logs

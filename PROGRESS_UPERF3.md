@@ -14638,3 +14638,43 @@ meaningful parity/adversarial gates, adapters and a single source of truth
 for extracted primitives. It preserves `hashline`, `zkmatrix-rs` and all
 experimental paths. No empty manifest or copied implementation is presented
 as a completed refactor, and code organization does not repair privacy.
+
+## ZK60 round 10 — exact proof-size accounting and continuation
+
+Victor requested continued implementation, status and the next work plan.
+Codex refreshed origin; lane 3ad4d97 remains the latest observed push. Codex
+implements the CL19 serializer/CLI handoff in its own files; GPU/PCS/planner
+ownership stays with Fable. No lane merge or subagents were used.
+
+LayerProofZk::size_breakdown counts every actual serialized field category,
+including plain/hiding W, mask functional/proximity responses, column
+values/salts/paths, all six argument families and the optional predicate.
+The new zk_proof_size.rs module neither serializes a second proof nor reads
+witness values. Existing layout and size_bytes/to_bytes source is unchanged.
+CPU pass --zk --profile v3 --phase-profile emits schema-1 per-layer size
+rows after captured clocks; default output stays unchanged and no-verify
+rows explicitly report pass_verified=false.
+
+All 156 release Rust tests pass, including five new independent-writer and
+mutation tests plus real fresh P1/P3 and predicate checks. All 39 relevant
+Python consumers pass (profile 11, benchmark 28). All four frozen CPU proofs
+retain full hashes/lengths; the profiled 12-layer ZK v3 artifact remains
+87,697,008 bytes. Fourteen profiled layer rows match their original sizes
+and sum to actual artifacts. P3 one-layer/T16 profiling on/off produces the
+same 3,432,468 bytes and full SHA-256
+8d9c66c3331e022d595bfbdbc6966224c68af5c1ed801389cd7e220f886c1642.
+
+Validation completes with marker 0 under /tmp/zk60-round10: two threads,
+8 GiB per-process address-space cap, offline, shared heavy lock, max reported
+RSS 1,667,800 KiB, zero swaps. The initial sandbox detached child stopped
+before execution; the approved detached relaunch completed all gates.
+Exact evidence: results/zk60_round10_validation.json. The unchanged broader
+Python/native suite retains round-8 validation and was not rerun here.
+
+CL19 is marked complete; Fable can consume actual-object counts for CL10.
+ZK60_ROUND10.md records the continuation: next Codex work adds test-only
+public H/P3-W captures and independent PCS replay after full FFN verification,
+supporting FA2 without substituting for Fable's independent review. The
+accepted complete mask plan still gates repair and private-block composition.
+CL13–CL17 stay with Fable; minimal-core extraction remains lower priority.
+No new GPU run, privacy certification or target-throughput claim was made.

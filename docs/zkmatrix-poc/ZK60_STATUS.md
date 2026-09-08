@@ -1,5 +1,13 @@
 # ZK60 milestone map
 
+**2026-09-07, round 10:** CL19 actual proof-size accounting is implemented
+and validated: **156 Rust tests, 39 Python profile/benchmark tests, all four
+unchanged frozen CPU proofs, exact per-layer byte totals and P3 profiling
+on/off byte parity**. [Closure and continuation](ZK60_ROUND10.md). The next
+Codex step is public-only H/P3-W opening capture to support the independent
+joint privacy review. GPU integration, privacy repair and private-block
+composition remain open; `zkp-core` is still a lower-priority design scaffold.
+
 **2026-09-07, round 9:** [the latest review](ZK60_ROUND9_REVIEW.md) pins
 lane `3ad4d97`, credits the successful archived `82314a1` GPU gate (12 byte
 cases, 49 oracle cases), and reruns 215 CPU tool tests. H1 was merged after
@@ -92,7 +100,7 @@ Claude CL8 tests added after discovery are not part of that count.
 | Whole-profile privacy and identity | **Fable: independent review remains outstanding**, [F1 brief](ZK60_EXECUTION.md#f1--task-for-fable-prove-which-model-ran); Codex's [actual FFN diagnostic](ZK60_FFN_MASK_DIAGNOSTIC.md) now reproduces the tiny/T32 cases. | Audit actual joint opening groups, masks, proximity vectors, functionals, challenge order and reuse. Resolve the demonstrated core FFN defect and determine all affected profiles. For P3, specify and test consistency between fresh private W roots and independently approved stable model identity. |
 | One complete private block, then two | **Codex: after reviewed privacy/interface prerequisites**, [private-block tasks](zk60_private_block_tasks.json). | Implement pending attention/FFN ownership, private lookup/norm/attention relations and both internal seams on the **actual** commitments. Reserve all masks before commitment and open once. Establish integer/range/no-wrap obligations; then test two-block residual linkage with freshly rebuilt adversarial witnesses. |
 | Complete generated-response relation | **Codex: subsequent coverage gate**, [execution milestones](ZK60_EXECUTION.md#c1-and-subsequent-milestones). | Bind all layers, embedding, final norm/head, token selection and request/model/calibration state. Prove position/KV/window transitions and the chosen generation/receipt policy; report generation time, proof readiness and post-generation proof lag separately. |
-| Bounded-memory GPU execution | **Claude Fable: integration remains held after reviewing `c346236`.** Individual allocation counters, byte-based reuse tests and missing-feature refusal now exist; [review follow-ups](ZK60_CL1_INTEGRATION_REVIEW.md) remain. | Fix the floor script's reproduced parser syntax error, finish actual planner lifetimes/reuse and retain the final source/binary/oracle gate. Complete [CL5/CL9](ZK60_CL5_CL9_REVIEW.md) and [CL8/CL10](ZK60_CL8_CL10_REVIEW.md) corrections. No full-model/target-clock acceptance follows from these component gates. |
+| Bounded-memory GPU execution | **Claude/Fable: archived `82314a1` gate reviewed at `3ad4d97`; final combined gate pending.** [Round-9 review](ZK60_ROUND9_REVIEW.md) credits 12 byte and 49 oracle cases. | Complete CL13–CL16 input/boundary fixes and CL17 on the current combined source, including atomic cache/H1 and round-10 telemetry. Earlier parser/reuse findings are superseded as recorded. No full-model/target-clock acceptance follows from component gates. |
 | Target measurement | **Codex integration + Claude hardware evidence: pending.** | Complete supported relation and reviewed security, named-device memory headroom, stable model/calibration, independently decoded verification, and the statistical clock below. No 5090 benchmark has been recorded in this work. |
 
 B4 follow-ups, Fable's review and Claude's bounded-memory lane can proceed

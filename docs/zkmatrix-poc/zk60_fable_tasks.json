@@ -17,7 +17,6 @@
     "CL18"
   ],
   "independent_ready": [
-    "CL19",
     "FA1",
     "FA4",
     "FA5"
@@ -217,7 +216,7 @@
       "priority": 2,
       "title": "Specify an exact proof-size telemetry handoff",
       "owner": "Fable analysis; Codex owns serializer/CLI integration",
-      "status": "ready_design",
+      "status": "complete_by_codex",
       "depends_on": [],
       "files": [
         "docs/zkmatrix-poc/ZK60_CLAUDE_ARTIFACTS.md",
@@ -234,7 +233,11 @@
         "Once Codex integrates it, measured section counts must sum to actual to_bytes length across supported small P1/P3 fixtures without changing proof bytes. Until then label this task design-delivered, not implemented telemetry.",
         "Separate serialization time/copies from byte count; no compression, mask removal or reduced checks is promoted as compatible from these counts."
       ],
-      "limits": "The completed wcache::report request and H1 isolation need no replacement. Shared serializer/CLI production edits stay with Codex."
+      "limits": "The completed wcache::report request and H1 isolation need no replacement. Shared serializer/CLI production edits stay with Codex.",
+      "implementation_owner": "Codex: hashline/src/zk.rs, hashline/src/zk_proof_size.rs, hashline/src/bin/hashline.rs, dedicated byte-accounting tests",
+      "implementation_report": "ZK60_ROUND10.md",
+      "implementation_validation": "../../results/zk60_round10_validation.json",
+      "implementation_result": "Typed actual-object byte counts and opt-in per-layer HASHLINE_PROOF_SIZE rows are implemented; consume these for CL10 reconciliation. Original design-only handoff is superseded."
     },
     {
       "id": "FA1",
@@ -399,5 +402,10 @@
       ],
       "limits": "Lower priority than correctness, privacy repair and integration. The README created with this queue is a design scaffold only; no proof code has been extracted. Coordinate shared-source ownership and keep protocol redesign separate from mechanical refactoring."
     }
+  ],
+  "round10_codex_work": "CL19 implementation complete and validated: 156 Rust, 39 Python consumers, four unchanged frozen proofs, P3 on/off byte parity; see ZK60_ROUND10.md. GPU/PCS/planner ownership unchanged.",
+  "codex_next_work": "Test-only full-verifier public capture/replay for H and P3 W alongside A, supporting FA2 independent joint review; no protocol repair before reviewed mask plan.",
+  "completed_successor_tasks": [
+    "CL19"
   ]
 }

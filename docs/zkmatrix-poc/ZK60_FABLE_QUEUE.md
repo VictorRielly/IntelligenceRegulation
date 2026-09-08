@@ -1,5 +1,10 @@
 # Fable — next task queue, round 9
 
+**2026-09-07, round 10:** CL19 is implemented and validated by Codex; see
+[the closure and continuation](ZK60_ROUND10.md). Pick up the current performance
+branch when synchronizing CL12/CL17 so the combined gate includes this module.
+CL13–CL18, the independent review and lower-priority CL20 retain their owners.
+
 Victor requested the next task list on 2026-09-07. This is the pickup queue
 for Fable's own session: **nine engineering tasks (CL12–CL20) and five
 independent review tasks (FA1–FA5)**. CL IDs continue the existing Claude
@@ -25,7 +30,7 @@ successful later run; the next gate is for the new combined source.
 ## Execution order and ownership
 
 Start **CL12 → CL13 → CL14 → CL15 → CL16 → CL17**. CL18 follows that
-validated baseline. CL19, FA1, FA4 and FA5 offer ready design/review work;
+validated baseline. CL19 is complete; FA1, FA4 and FA5 offer ready review work;
 FA2 follows FA1, and FA3 follows FA2. Do not wait for hardware to do CPU
 tooling or independent analysis. Final FA5 closure incorporates the repaired
 construction. P1 can proceed after the shared privacy review without P3 identity.
@@ -226,7 +231,9 @@ Limits: This task authorizes a bounded optimization investigation, not a claimed
 
 ### CL19 — Specify an exact proof-size telemetry handoff
 
-Priority 2; **ready_design**. Owner: Fable analysis; Codex owns serializer/CLI integration. Dependencies: none.
+Priority 2; **complete_by_codex**. Owner: Fable analysis; Codex owns serializer/CLI integration. Dependencies: none.
+
+**Round 10 completion:** Codex implemented the typed byte counter and opt-in per-layer CLI report. **156 Rust tests, 39 Python consumer tests, four unchanged frozen proofs and P3 profiling on/off byte parity pass.** See [the continuation record](ZK60_ROUND10.md). Fable should use the actual-object counts for CL10 reconciliation; no duplicate serializer implementation is needed. The original handoff contract follows.
 
 Files: `docs/zkmatrix-poc/ZK60_CLAUDE_ARTIFACTS.md`; `scripts/hashline_cl_artifact_profile.py`; `tests/test_hashline_cl_artifact_profile.py`.
 

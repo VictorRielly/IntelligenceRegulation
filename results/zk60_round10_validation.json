@@ -1,0 +1,1862 @@
+{
+  "schema_version": 1,
+  "base": "52a13d18695ab47a5c7951343cec9015e48069af",
+  "scope": "CL19 exact proof-size accounting and opt-in CPU CLI diagnostics",
+  "gpu_executed": false,
+  "threads": 2,
+  "address_space_limit_bytes": 8589934592,
+  "stages": [
+    {
+      "stage": "rust_all",
+      "command": [
+        "cargo",
+        "test",
+        "--release",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--all-targets",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 200.0459353960032,
+      "log": "/tmp/zk60-round10/rust_all.log",
+      "log_sha256": "4a10f4bfe3a47231a5edcd847b2eb7fff13a684774a43335b8849a59eabbcf39",
+      "resource_log": "/tmp/zk60-round10/rust_all.time"
+    },
+    {
+      "stage": "test_hashline_profile.py",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_hashline_profile.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.11510359299427364,
+      "log": "/tmp/zk60-round10/test_hashline_profile.py.log",
+      "log_sha256": "c23141dd463c79b6a396c4af57ff798d3cb0b20881c7e08b167765434c194498",
+      "resource_log": "/tmp/zk60-round10/test_hashline_profile.py.time"
+    },
+    {
+      "stage": "test_hashline_benchmark.py",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_hashline_benchmark.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.11566390799998771,
+      "log": "/tmp/zk60-round10/test_hashline_benchmark.py.log",
+      "log_sha256": "a2bd8942ba71f1f85668e036d6b2aedad95f9bb0560cea04b6ada1f5af571acc",
+      "resource_log": "/tmp/zk60-round10/test_hashline_benchmark.py.time"
+    },
+    {
+      "stage": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--bin",
+        "hashline"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.03322759999718983,
+      "log": "/tmp/zk60-round10/build.log",
+      "log_sha256": "d1fe78257110efa79e10177f1cf1b6ce1c471b20e100e1a728745a5c6b9589c2",
+      "resource_log": "/tmp/zk60-round10/build.time"
+    },
+    {
+      "stage": "frozen_v2",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round10/v2.proof"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 35.499960051995004,
+      "log": "/tmp/zk60-round10/frozen_v2.log",
+      "log_sha256": "4a3de03b88c51ae03e207d0b43d7c958e4fcac3010485db9d0abfaa88da9a5cd",
+      "resource_log": "/tmp/zk60-round10/frozen_v2.time"
+    },
+    {
+      "stage": "frozen_v3",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round10/v3.proof",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 37.16415865599993,
+      "log": "/tmp/zk60-round10/frozen_v3.log",
+      "log_sha256": "c0523e15b021c77754295c7aa50ab6c7efd2f8857d55dd100ad9eb92df133abb",
+      "resource_log": "/tmp/zk60-round10/frozen_v3.time"
+    },
+    {
+      "stage": "frozen_zk",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round10/zk.proof",
+        "--zk",
+        "--seed",
+        "1"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 38.81528861800325,
+      "log": "/tmp/zk60-round10/frozen_zk.log",
+      "log_sha256": "3141ca9765714a70ed3d1530007e42c8dda47ead87d7a29c60bc980d97e6ffe2",
+      "resource_log": "/tmp/zk60-round10/frozen_zk.time"
+    },
+    {
+      "stage": "frozen_zkv3",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round10/zkv3.proof",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+        "--zk",
+        "--seed",
+        "1",
+        "--phase-profile"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 40.719339364004554,
+      "log": "/tmp/zk60-round10/frozen_zkv3.log",
+      "log_sha256": "ceb0d4bc8e9b83896ce1b2c51d0446fe4e4346f4b96f6c2ef2aaa603b6d342e7",
+      "resource_log": "/tmp/zk60-round10/frozen_zkv3.time"
+    },
+    {
+      "stage": "p3_default",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "1",
+        "16",
+        "--threads",
+        "2",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+        "--proof-out",
+        "/tmp/zk60-round10/p3_default.proof",
+        "--p3"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.7184399249963462,
+      "log": "/tmp/zk60-round10/p3_default.log",
+      "log_sha256": "2ab15c9ee450d6640c07545b6b04762940739afbeb5f7754ea666da75fd5a144",
+      "resource_log": "/tmp/zk60-round10/p3_default.time"
+    },
+    {
+      "stage": "p3_profile",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "1",
+        "16",
+        "--threads",
+        "2",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+        "--proof-out",
+        "/tmp/zk60-round10/p3_profile.proof",
+        "--p3",
+        "--phase-profile"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.817886154007283,
+      "log": "/tmp/zk60-round10/p3_profile.log",
+      "log_sha256": "9e94be994c1a5635932e3363765ba4f800ec4464acacc7c69215a335da2f86ab",
+      "resource_log": "/tmp/zk60-round10/p3_profile.time"
+    },
+    {
+      "stage": "p1_unverified",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "1",
+        "16",
+        "--threads",
+        "2",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+        "--proof-out",
+        "/tmp/zk60-round10/p1_unverified.proof",
+        "--zk",
+        "--phase-profile",
+        "--no-verify"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.6675814079935662,
+      "log": "/tmp/zk60-round10/p1_unverified.log",
+      "log_sha256": "00eda09bc330f14251009d9d848fcad3fa08126bec585c5399a58efdb8a89112",
+      "resource_log": "/tmp/zk60-round10/p1_unverified.time"
+    }
+  ],
+  "rust_tests": {
+    "passed": 156,
+    "failed": 0,
+    "ignored": 0
+  },
+  "python_tests": [
+    {
+      "file": "test_hashline_profile.py",
+      "count": 11
+    },
+    {
+      "file": "test_hashline_benchmark.py",
+      "count": 28
+    }
+  ],
+  "binary": {
+    "bytes": 4643976,
+    "sha256": "696bfa27693e4aab583a2cb007d1506da99dd3e69a65c5671ca21d4f0235e19f"
+  },
+  "frozen_cpu": [
+    {
+      "case": "v2",
+      "bytes": 66844928,
+      "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d"
+    },
+    {
+      "case": "v3",
+      "bytes": 70758084,
+      "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d"
+    },
+    {
+      "case": "zk",
+      "bytes": 87228528,
+      "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d"
+    },
+    {
+      "case": "zkv3",
+      "bytes": 87697008,
+      "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17"
+    }
+  ],
+  "frozen_size_rows": [
+    {
+      "schema": 1,
+      "unit": "bytes",
+      "coverage": "ffn-only",
+      "profile": "v3",
+      "privacy": "P1",
+      "layer": 0,
+      "serialized": true,
+      "pass_verified": true,
+      "sizes": {
+        "total_bytes": 7306036,
+        "commitment_headers": 132,
+        "mask_root": 32,
+        "arguments": [
+          {
+            "name": "gu",
+            "claim_or_challenge": 16,
+            "round_evaluations": 432,
+            "terminals": 144
+          },
+          {
+            "name": "d",
+            "claim_or_challenge": 16,
+            "round_evaluations": 576,
+            "terminals": 64
+          },
+          {
+            "name": "zc20",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1680,
+            "terminals": 160
+          },
+          {
+            "name": "zc17",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1440,
+            "terminals": 192
+          },
+          {
+            "name": "zs",
+            "claim_or_challenge": 16,
+            "round_evaluations": 720,
+            "terminals": 16
+          },
+          {
+            "name": "table",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1088,
+            "terminals": 192
+          }
+        ],
+        "mask_opening": {
+          "functional_vector": 16384,
+          "proximity_vector": 16384,
+          "columns": {
+            "indices": 2048,
+            "values": 32768,
+            "salts": 8192,
+            "authentication_paths": 98304
+          }
+        },
+        "w_plain": {
+          "group_vectors": 524288,
+          "proximity_vector": 262144,
+          "columns": {
+            "indices": 2048,
+            "values": 589824,
+            "salts": 0,
+            "authentication_paths": 131072
+          }
+        },
+        "w_hiding": {
+          "group_vectors": 0,
+          "proximity_vector": 0,
+          "columns": {
+            "indices": 0,
+            "values": 0,
+            "salts": 0,
+            "authentication_paths": 0
+          }
+        },
+        "a": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 1144832,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "h": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 993280,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "predicate": null
+      }
+    },
+    {
+      "schema": 1,
+      "unit": "bytes",
+      "coverage": "ffn-only",
+      "profile": "v3",
+      "privacy": "P1",
+      "layer": 1,
+      "serialized": true,
+      "pass_verified": true,
+      "sizes": {
+        "total_bytes": 7318324,
+        "commitment_headers": 132,
+        "mask_root": 32,
+        "arguments": [
+          {
+            "name": "gu",
+            "claim_or_challenge": 16,
+            "round_evaluations": 432,
+            "terminals": 144
+          },
+          {
+            "name": "d",
+            "claim_or_challenge": 16,
+            "round_evaluations": 576,
+            "terminals": 64
+          },
+          {
+            "name": "zc20",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1680,
+            "terminals": 160
+          },
+          {
+            "name": "zc17",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1440,
+            "terminals": 192
+          },
+          {
+            "name": "zs",
+            "claim_or_challenge": 16,
+            "round_evaluations": 720,
+            "terminals": 16
+          },
+          {
+            "name": "table",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1088,
+            "terminals": 192
+          }
+        ],
+        "mask_opening": {
+          "functional_vector": 16384,
+          "proximity_vector": 16384,
+          "columns": {
+            "indices": 2048,
+            "values": 32768,
+            "salts": 8192,
+            "authentication_paths": 98304
+          }
+        },
+        "w_plain": {
+          "group_vectors": 524288,
+          "proximity_vector": 262144,
+          "columns": {
+            "indices": 2048,
+            "values": 589824,
+            "salts": 0,
+            "authentication_paths": 131072
+          }
+        },
+        "w_hiding": {
+          "group_vectors": 0,
+          "proximity_vector": 0,
+          "columns": {
+            "indices": 0,
+            "values": 0,
+            "salts": 0,
+            "authentication_paths": 0
+          }
+        },
+        "a": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 1148928,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "h": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 1001472,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "predicate": null
+      }
+    },
+    {
+      "schema": 1,
+      "unit": "bytes",
+      "coverage": "ffn-only",
+      "profile": "v3",
+      "privacy": "P1",
+      "layer": 2,
+      "serialized": true,
+      "pass_verified": true,
+      "sizes": {
+        "total_bytes": 7318324,
+        "commitment_headers": 132,
+        "mask_root": 32,
+        "arguments": [
+          {
+            "name": "gu",
+            "claim_or_challenge": 16,
+            "round_evaluations": 432,
+            "terminals": 144
+          },
+          {
+            "name": "d",
+            "claim_or_challenge": 16,
+            "round_evaluations": 576,
+            "terminals": 64
+          },
+          {
+            "name": "zc20",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1680,
+            "terminals": 160
+          },
+          {
+            "name": "zc17",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1440,
+            "terminals": 192
+          },
+          {
+            "name": "zs",
+            "claim_or_challenge": 16,
+            "round_evaluations": 720,
+            "terminals": 16
+          },
+          {
+            "name": "table",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1088,
+            "terminals": 192
+          }
+        ],
+        "mask_opening": {
+          "functional_vector": 16384,
+          "proximity_vector": 16384,
+          "columns": {
+            "indices": 2048,
+            "values": 32768,
+            "salts": 8192,
+            "authentication_paths": 98304
+          }
+        },
+        "w_plain": {
+          "group_vectors": 524288,
+          "proximity_vector": 262144,
+          "columns": {
+            "indices": 2048,
+            "values": 589824,
+            "salts": 0,
+            "authentication_paths": 131072
+          }
+        },
+        "w_hiding": {
+          "group_vectors": 0,
+          "proximity_vector": 0,
+          "columns": {
+            "indices": 0,
+            "values": 0,
+            "salts": 0,
+            "authentication_paths": 0
+          }
+        },
+        "a": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 1148928,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "h": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 1001472,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "predicate": null
+      }
+    },
+    {
+      "schema": 1,
+      "unit": "bytes",
+      "coverage": "ffn-only",
+      "profile": "v3",
+      "privacy": "P1",
+      "layer": 3,
+      "serialized": true,
+      "pass_verified": true,
+      "sizes": {
+        "total_bytes": 7306036,
+        "commitment_headers": 132,
+        "mask_root": 32,
+        "arguments": [
+          {
+            "name": "gu",
+            "claim_or_challenge": 16,
+            "round_evaluations": 432,
+            "terminals": 144
+          },
+          {
+            "name": "d",
+            "claim_or_challenge": 16,
+            "round_evaluations": 576,
+            "terminals": 64
+          },
+          {
+            "name": "zc20",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1680,
+            "terminals": 160
+          },
+          {
+            "name": "zc17",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1440,
+            "terminals": 192
+          },
+          {
+            "name": "zs",
+            "claim_or_challenge": 16,
+            "round_evaluations": 720,
+            "terminals": 16
+          },
+          {
+            "name": "table",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1088,
+            "terminals": 192
+          }
+        ],
+        "mask_opening": {
+          "functional_vector": 16384,
+          "proximity_vector": 16384,
+          "columns": {
+            "indices": 2048,
+            "values": 32768,
+            "salts": 8192,
+            "authentication_paths": 98304
+          }
+        },
+        "w_plain": {
+          "group_vectors": 524288,
+          "proximity_vector": 262144,
+          "columns": {
+            "indices": 2048,
+            "values": 589824,
+            "salts": 0,
+            "authentication_paths": 131072
+          }
+        },
+        "w_hiding": {
+          "group_vectors": 0,
+          "proximity_vector": 0,
+          "columns": {
+            "indices": 0,
+            "values": 0,
+            "salts": 0,
+            "authentication_paths": 0
+          }
+        },
+        "a": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 1144832,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "h": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 993280,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "predicate": null
+      }
+    },
+    {
+      "schema": 1,
+      "unit": "bytes",
+      "coverage": "ffn-only",
+      "profile": "v3",
+      "privacy": "P1",
+      "layer": 4,
+      "serialized": true,
+      "pass_verified": true,
+      "sizes": {
+        "total_bytes": 7306036,
+        "commitment_headers": 132,
+        "mask_root": 32,
+        "arguments": [
+          {
+            "name": "gu",
+            "claim_or_challenge": 16,
+            "round_evaluations": 432,
+            "terminals": 144
+          },
+          {
+            "name": "d",
+            "claim_or_challenge": 16,
+            "round_evaluations": 576,
+            "terminals": 64
+          },
+          {
+            "name": "zc20",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1680,
+            "terminals": 160
+          },
+          {
+            "name": "zc17",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1440,
+            "terminals": 192
+          },
+          {
+            "name": "zs",
+            "claim_or_challenge": 16,
+            "round_evaluations": 720,
+            "terminals": 16
+          },
+          {
+            "name": "table",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1088,
+            "terminals": 192
+          }
+        ],
+        "mask_opening": {
+          "functional_vector": 16384,
+          "proximity_vector": 16384,
+          "columns": {
+            "indices": 2048,
+            "values": 32768,
+            "salts": 8192,
+            "authentication_paths": 98304
+          }
+        },
+        "w_plain": {
+          "group_vectors": 524288,
+          "proximity_vector": 262144,
+          "columns": {
+            "indices": 2048,
+            "values": 589824,
+            "salts": 0,
+            "authentication_paths": 131072
+          }
+        },
+        "w_hiding": {
+          "group_vectors": 0,
+          "proximity_vector": 0,
+          "columns": {
+            "indices": 0,
+            "values": 0,
+            "salts": 0,
+            "authentication_paths": 0
+          }
+        },
+        "a": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 1144832,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "h": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 993280,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "predicate": null
+      }
+    },
+    {
+      "schema": 1,
+      "unit": "bytes",
+      "coverage": "ffn-only",
+      "profile": "v3",
+      "privacy": "P1",
+      "layer": 5,
+      "serialized": true,
+      "pass_verified": true,
+      "sizes": {
+        "total_bytes": 7306036,
+        "commitment_headers": 132,
+        "mask_root": 32,
+        "arguments": [
+          {
+            "name": "gu",
+            "claim_or_challenge": 16,
+            "round_evaluations": 432,
+            "terminals": 144
+          },
+          {
+            "name": "d",
+            "claim_or_challenge": 16,
+            "round_evaluations": 576,
+            "terminals": 64
+          },
+          {
+            "name": "zc20",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1680,
+            "terminals": 160
+          },
+          {
+            "name": "zc17",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1440,
+            "terminals": 192
+          },
+          {
+            "name": "zs",
+            "claim_or_challenge": 16,
+            "round_evaluations": 720,
+            "terminals": 16
+          },
+          {
+            "name": "table",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1088,
+            "terminals": 192
+          }
+        ],
+        "mask_opening": {
+          "functional_vector": 16384,
+          "proximity_vector": 16384,
+          "columns": {
+            "indices": 2048,
+            "values": 32768,
+            "salts": 8192,
+            "authentication_paths": 98304
+          }
+        },
+        "w_plain": {
+          "group_vectors": 524288,
+          "proximity_vector": 262144,
+          "columns": {
+            "indices": 2048,
+            "values": 589824,
+            "salts": 0,
+            "authentication_paths": 131072
+          }
+        },
+        "w_hiding": {
+          "group_vectors": 0,
+          "proximity_vector": 0,
+          "columns": {
+            "indices": 0,
+            "values": 0,
+            "salts": 0,
+            "authentication_paths": 0
+          }
+        },
+        "a": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 1144832,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "h": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 993280,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "predicate": null
+      }
+    },
+    {
+      "schema": 1,
+      "unit": "bytes",
+      "coverage": "ffn-only",
+      "profile": "v3",
+      "privacy": "P1",
+      "layer": 6,
+      "serialized": true,
+      "pass_verified": true,
+      "sizes": {
+        "total_bytes": 7306036,
+        "commitment_headers": 132,
+        "mask_root": 32,
+        "arguments": [
+          {
+            "name": "gu",
+            "claim_or_challenge": 16,
+            "round_evaluations": 432,
+            "terminals": 144
+          },
+          {
+            "name": "d",
+            "claim_or_challenge": 16,
+            "round_evaluations": 576,
+            "terminals": 64
+          },
+          {
+            "name": "zc20",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1680,
+            "terminals": 160
+          },
+          {
+            "name": "zc17",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1440,
+            "terminals": 192
+          },
+          {
+            "name": "zs",
+            "claim_or_challenge": 16,
+            "round_evaluations": 720,
+            "terminals": 16
+          },
+          {
+            "name": "table",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1088,
+            "terminals": 192
+          }
+        ],
+        "mask_opening": {
+          "functional_vector": 16384,
+          "proximity_vector": 16384,
+          "columns": {
+            "indices": 2048,
+            "values": 32768,
+            "salts": 8192,
+            "authentication_paths": 98304
+          }
+        },
+        "w_plain": {
+          "group_vectors": 524288,
+          "proximity_vector": 262144,
+          "columns": {
+            "indices": 2048,
+            "values": 589824,
+            "salts": 0,
+            "authentication_paths": 131072
+          }
+        },
+        "w_hiding": {
+          "group_vectors": 0,
+          "proximity_vector": 0,
+          "columns": {
+            "indices": 0,
+            "values": 0,
+            "salts": 0,
+            "authentication_paths": 0
+          }
+        },
+        "a": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 1144832,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "h": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 993280,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "predicate": null
+      }
+    },
+    {
+      "schema": 1,
+      "unit": "bytes",
+      "coverage": "ffn-only",
+      "profile": "v3",
+      "privacy": "P1",
+      "layer": 7,
+      "serialized": true,
+      "pass_verified": true,
+      "sizes": {
+        "total_bytes": 7306036,
+        "commitment_headers": 132,
+        "mask_root": 32,
+        "arguments": [
+          {
+            "name": "gu",
+            "claim_or_challenge": 16,
+            "round_evaluations": 432,
+            "terminals": 144
+          },
+          {
+            "name": "d",
+            "claim_or_challenge": 16,
+            "round_evaluations": 576,
+            "terminals": 64
+          },
+          {
+            "name": "zc20",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1680,
+            "terminals": 160
+          },
+          {
+            "name": "zc17",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1440,
+            "terminals": 192
+          },
+          {
+            "name": "zs",
+            "claim_or_challenge": 16,
+            "round_evaluations": 720,
+            "terminals": 16
+          },
+          {
+            "name": "table",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1088,
+            "terminals": 192
+          }
+        ],
+        "mask_opening": {
+          "functional_vector": 16384,
+          "proximity_vector": 16384,
+          "columns": {
+            "indices": 2048,
+            "values": 32768,
+            "salts": 8192,
+            "authentication_paths": 98304
+          }
+        },
+        "w_plain": {
+          "group_vectors": 524288,
+          "proximity_vector": 262144,
+          "columns": {
+            "indices": 2048,
+            "values": 589824,
+            "salts": 0,
+            "authentication_paths": 131072
+          }
+        },
+        "w_hiding": {
+          "group_vectors": 0,
+          "proximity_vector": 0,
+          "columns": {
+            "indices": 0,
+            "values": 0,
+            "salts": 0,
+            "authentication_paths": 0
+          }
+        },
+        "a": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 1144832,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "h": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 993280,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "predicate": null
+      }
+    },
+    {
+      "schema": 1,
+      "unit": "bytes",
+      "coverage": "ffn-only",
+      "profile": "v3",
+      "privacy": "P1",
+      "layer": 8,
+      "serialized": true,
+      "pass_verified": true,
+      "sizes": {
+        "total_bytes": 7306036,
+        "commitment_headers": 132,
+        "mask_root": 32,
+        "arguments": [
+          {
+            "name": "gu",
+            "claim_or_challenge": 16,
+            "round_evaluations": 432,
+            "terminals": 144
+          },
+          {
+            "name": "d",
+            "claim_or_challenge": 16,
+            "round_evaluations": 576,
+            "terminals": 64
+          },
+          {
+            "name": "zc20",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1680,
+            "terminals": 160
+          },
+          {
+            "name": "zc17",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1440,
+            "terminals": 192
+          },
+          {
+            "name": "zs",
+            "claim_or_challenge": 16,
+            "round_evaluations": 720,
+            "terminals": 16
+          },
+          {
+            "name": "table",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1088,
+            "terminals": 192
+          }
+        ],
+        "mask_opening": {
+          "functional_vector": 16384,
+          "proximity_vector": 16384,
+          "columns": {
+            "indices": 2048,
+            "values": 32768,
+            "salts": 8192,
+            "authentication_paths": 98304
+          }
+        },
+        "w_plain": {
+          "group_vectors": 524288,
+          "proximity_vector": 262144,
+          "columns": {
+            "indices": 2048,
+            "values": 589824,
+            "salts": 0,
+            "authentication_paths": 131072
+          }
+        },
+        "w_hiding": {
+          "group_vectors": 0,
+          "proximity_vector": 0,
+          "columns": {
+            "indices": 0,
+            "values": 0,
+            "salts": 0,
+            "authentication_paths": 0
+          }
+        },
+        "a": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 1144832,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "h": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 993280,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "predicate": null
+      }
+    },
+    {
+      "schema": 1,
+      "unit": "bytes",
+      "coverage": "ffn-only",
+      "profile": "v3",
+      "privacy": "P1",
+      "layer": 9,
+      "serialized": true,
+      "pass_verified": true,
+      "sizes": {
+        "total_bytes": 7306036,
+        "commitment_headers": 132,
+        "mask_root": 32,
+        "arguments": [
+          {
+            "name": "gu",
+            "claim_or_challenge": 16,
+            "round_evaluations": 432,
+            "terminals": 144
+          },
+          {
+            "name": "d",
+            "claim_or_challenge": 16,
+            "round_evaluations": 576,
+            "terminals": 64
+          },
+          {
+            "name": "zc20",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1680,
+            "terminals": 160
+          },
+          {
+            "name": "zc17",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1440,
+            "terminals": 192
+          },
+          {
+            "name": "zs",
+            "claim_or_challenge": 16,
+            "round_evaluations": 720,
+            "terminals": 16
+          },
+          {
+            "name": "table",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1088,
+            "terminals": 192
+          }
+        ],
+        "mask_opening": {
+          "functional_vector": 16384,
+          "proximity_vector": 16384,
+          "columns": {
+            "indices": 2048,
+            "values": 32768,
+            "salts": 8192,
+            "authentication_paths": 98304
+          }
+        },
+        "w_plain": {
+          "group_vectors": 524288,
+          "proximity_vector": 262144,
+          "columns": {
+            "indices": 2048,
+            "values": 589824,
+            "salts": 0,
+            "authentication_paths": 131072
+          }
+        },
+        "w_hiding": {
+          "group_vectors": 0,
+          "proximity_vector": 0,
+          "columns": {
+            "indices": 0,
+            "values": 0,
+            "salts": 0,
+            "authentication_paths": 0
+          }
+        },
+        "a": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 1144832,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "h": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 993280,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "predicate": null
+      }
+    },
+    {
+      "schema": 1,
+      "unit": "bytes",
+      "coverage": "ffn-only",
+      "profile": "v3",
+      "privacy": "P1",
+      "layer": 10,
+      "serialized": true,
+      "pass_verified": true,
+      "sizes": {
+        "total_bytes": 7306036,
+        "commitment_headers": 132,
+        "mask_root": 32,
+        "arguments": [
+          {
+            "name": "gu",
+            "claim_or_challenge": 16,
+            "round_evaluations": 432,
+            "terminals": 144
+          },
+          {
+            "name": "d",
+            "claim_or_challenge": 16,
+            "round_evaluations": 576,
+            "terminals": 64
+          },
+          {
+            "name": "zc20",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1680,
+            "terminals": 160
+          },
+          {
+            "name": "zc17",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1440,
+            "terminals": 192
+          },
+          {
+            "name": "zs",
+            "claim_or_challenge": 16,
+            "round_evaluations": 720,
+            "terminals": 16
+          },
+          {
+            "name": "table",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1088,
+            "terminals": 192
+          }
+        ],
+        "mask_opening": {
+          "functional_vector": 16384,
+          "proximity_vector": 16384,
+          "columns": {
+            "indices": 2048,
+            "values": 32768,
+            "salts": 8192,
+            "authentication_paths": 98304
+          }
+        },
+        "w_plain": {
+          "group_vectors": 524288,
+          "proximity_vector": 262144,
+          "columns": {
+            "indices": 2048,
+            "values": 589824,
+            "salts": 0,
+            "authentication_paths": 131072
+          }
+        },
+        "w_hiding": {
+          "group_vectors": 0,
+          "proximity_vector": 0,
+          "columns": {
+            "indices": 0,
+            "values": 0,
+            "salts": 0,
+            "authentication_paths": 0
+          }
+        },
+        "a": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 1144832,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "h": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 993280,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "predicate": null
+      }
+    },
+    {
+      "schema": 1,
+      "unit": "bytes",
+      "coverage": "ffn-only",
+      "profile": "v3",
+      "privacy": "P1",
+      "layer": 11,
+      "serialized": true,
+      "pass_verified": true,
+      "sizes": {
+        "total_bytes": 7306036,
+        "commitment_headers": 132,
+        "mask_root": 32,
+        "arguments": [
+          {
+            "name": "gu",
+            "claim_or_challenge": 16,
+            "round_evaluations": 432,
+            "terminals": 144
+          },
+          {
+            "name": "d",
+            "claim_or_challenge": 16,
+            "round_evaluations": 576,
+            "terminals": 64
+          },
+          {
+            "name": "zc20",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1680,
+            "terminals": 160
+          },
+          {
+            "name": "zc17",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1440,
+            "terminals": 192
+          },
+          {
+            "name": "zs",
+            "claim_or_challenge": 16,
+            "round_evaluations": 720,
+            "terminals": 16
+          },
+          {
+            "name": "table",
+            "claim_or_challenge": 16,
+            "round_evaluations": 1088,
+            "terminals": 192
+          }
+        ],
+        "mask_opening": {
+          "functional_vector": 16384,
+          "proximity_vector": 16384,
+          "columns": {
+            "indices": 2048,
+            "values": 32768,
+            "salts": 8192,
+            "authentication_paths": 98304
+          }
+        },
+        "w_plain": {
+          "group_vectors": 524288,
+          "proximity_vector": 262144,
+          "columns": {
+            "indices": 2048,
+            "values": 589824,
+            "salts": 0,
+            "authentication_paths": 131072
+          }
+        },
+        "w_hiding": {
+          "group_vectors": 0,
+          "proximity_vector": 0,
+          "columns": {
+            "indices": 0,
+            "values": 0,
+            "salts": 0,
+            "authentication_paths": 0
+          }
+        },
+        "a": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 1144832,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "h": {
+          "group_vectors": 1331200,
+          "proximity_vector": 266240,
+          "columns": {
+            "indices": 2048,
+            "values": 993280,
+            "salts": 8192,
+            "authentication_paths": 131072
+          }
+        },
+        "predicate": null
+      }
+    }
+  ],
+  "cli_checks": [
+    {
+      "case": "p3_default",
+      "bytes": 3432468,
+      "sha256": "8d9c66c3331e022d595bfbdbc6966224c68af5c1ed801389cd7e220f886c1642"
+    },
+    {
+      "case": "p3_profile",
+      "bytes": 3432468,
+      "sha256": "8d9c66c3331e022d595bfbdbc6966224c68af5c1ed801389cd7e220f886c1642",
+      "size_rows": [
+        {
+          "schema": 1,
+          "unit": "bytes",
+          "coverage": "ffn-only",
+          "profile": "v3",
+          "privacy": "P3",
+          "layer": 0,
+          "serialized": true,
+          "pass_verified": true,
+          "sizes": {
+            "total_bytes": 3432468,
+            "commitment_headers": 132,
+            "mask_root": 32,
+            "arguments": [
+              {
+                "name": "gu",
+                "claim_or_challenge": 16,
+                "round_evaluations": 480,
+                "terminals": 144
+              },
+              {
+                "name": "d",
+                "claim_or_challenge": 16,
+                "round_evaluations": 624,
+                "terminals": 64
+              },
+              {
+                "name": "zc20",
+                "claim_or_challenge": 16,
+                "round_evaluations": 1280,
+                "terminals": 160
+              },
+              {
+                "name": "zc17",
+                "claim_or_challenge": 16,
+                "round_evaluations": 1040,
+                "terminals": 192
+              },
+              {
+                "name": "zs",
+                "claim_or_challenge": 16,
+                "round_evaluations": 624,
+                "terminals": 16
+              },
+              {
+                "name": "table",
+                "claim_or_challenge": 16,
+                "round_evaluations": 1088,
+                "terminals": 192
+              }
+            ],
+            "mask_opening": {
+              "functional_vector": 16384,
+              "proximity_vector": 16384,
+              "columns": {
+                "indices": 2048,
+                "values": 32768,
+                "salts": 8192,
+                "authentication_paths": 98304
+              }
+            },
+            "w_plain": {
+              "group_vectors": 0,
+              "proximity_vector": 0,
+              "columns": {
+                "indices": 0,
+                "values": 0,
+                "salts": 0,
+                "authentication_paths": 0
+              }
+            },
+            "w_hiding": {
+              "group_vectors": 532480,
+              "proximity_vector": 266240,
+              "columns": {
+                "indices": 2048,
+                "values": 610304,
+                "salts": 8192,
+                "authentication_paths": 131072
+              }
+            },
+            "a": {
+              "group_vectors": 348160,
+              "proximity_vector": 69632,
+              "columns": {
+                "indices": 2048,
+                "values": 274432,
+                "salts": 8192,
+                "authentication_paths": 114688
+              }
+            },
+            "h": {
+              "group_vectors": 348160,
+              "proximity_vector": 69632,
+              "columns": {
+                "indices": 2048,
+                "values": 342016,
+                "salts": 8192,
+                "authentication_paths": 114688
+              }
+            },
+            "predicate": null
+          }
+        }
+      ]
+    },
+    {
+      "case": "p1_unverified",
+      "bytes": 3391412,
+      "sha256": "53815b21a059a409185677f2514cbcaeebe144d4a6af2d920ac5c2f83ae0aed2",
+      "size_rows": [
+        {
+          "schema": 1,
+          "unit": "bytes",
+          "coverage": "ffn-only",
+          "profile": "v3",
+          "privacy": "P1",
+          "layer": 0,
+          "serialized": true,
+          "pass_verified": false,
+          "sizes": {
+            "total_bytes": 3391412,
+            "commitment_headers": 132,
+            "mask_root": 32,
+            "arguments": [
+              {
+                "name": "gu",
+                "claim_or_challenge": 16,
+                "round_evaluations": 432,
+                "terminals": 144
+              },
+              {
+                "name": "d",
+                "claim_or_challenge": 16,
+                "round_evaluations": 576,
+                "terminals": 64
+              },
+              {
+                "name": "zc20",
+                "claim_or_challenge": 16,
+                "round_evaluations": 1280,
+                "terminals": 160
+              },
+              {
+                "name": "zc17",
+                "claim_or_challenge": 16,
+                "round_evaluations": 1040,
+                "terminals": 192
+              },
+              {
+                "name": "zs",
+                "claim_or_challenge": 16,
+                "round_evaluations": 624,
+                "terminals": 16
+              },
+              {
+                "name": "table",
+                "claim_or_challenge": 16,
+                "round_evaluations": 1088,
+                "terminals": 192
+              }
+            ],
+            "mask_opening": {
+              "functional_vector": 16384,
+              "proximity_vector": 16384,
+              "columns": {
+                "indices": 2048,
+                "values": 32768,
+                "salts": 8192,
+                "authentication_paths": 98304
+              }
+            },
+            "w_plain": {
+              "group_vectors": 524288,
+              "proximity_vector": 262144,
+              "columns": {
+                "indices": 2048,
+                "values": 589824,
+                "salts": 0,
+                "authentication_paths": 131072
+              }
+            },
+            "w_hiding": {
+              "group_vectors": 0,
+              "proximity_vector": 0,
+              "columns": {
+                "indices": 0,
+                "values": 0,
+                "salts": 0,
+                "authentication_paths": 0
+              }
+            },
+            "a": {
+              "group_vectors": 348160,
+              "proximity_vector": 69632,
+              "columns": {
+                "indices": 2048,
+                "values": 274432,
+                "salts": 8192,
+                "authentication_paths": 114688
+              }
+            },
+            "h": {
+              "group_vectors": 348160,
+              "proximity_vector": 69632,
+              "columns": {
+                "indices": 2048,
+                "values": 342016,
+                "salts": 8192,
+                "authentication_paths": 114688
+              }
+            },
+            "predicate": null
+          }
+        }
+      ]
+    }
+  ],
+  "source_sha256": {
+    "hashline/src/zk.rs": "1f04986c99073077f52cdcf0cae08c4e514988a48250aea0f293af87cff20de3",
+    "hashline/src/zk_proof_size.rs": "a7598d0ac02fe3de45075c7f82e0a447e6376a381690dd3fd695e890d8c04fcf",
+    "hashline/src/bin/hashline.rs": "2809dff2ffc057053e7fb90a1a1128ba0bafbceb95f00a48585694bdd59484e4",
+    "hashline/tests/zk60_proof_size.rs": "c5b6409b2dc649e8e6c96a13d9c52237cafd73525d7e698dd4b30818d682be7d"
+  },
+  "validation_status": "complete",
+  "exit_code": 0,
+  "reviewed_lane_tip": "3ad4d97ce4cb47b9eeeb76647a5a9159d15d2357",
+  "date": "2026-09-07",
+  "unchanged_serialization_source": {
+    "LayerProofZk layout": "ec5f08aa8e149f2e93aebc42322072f2b5c4553d591ab6affb528f7d1d077f8c",
+    "LayerProofZk serializer": "0a4790b18c1f9fb611a71537827c743e780b0eb6461f0a6cf3045d5f9f4f8e97"
+  },
+  "scope_note": "Full Rust suite and Python profile/benchmark consumer tests rerun; unchanged broader Python/native suite retains round-8 evidence. No GPU, protocol repair, independent privacy closure or performance claim.",
+  "runner_sha256": "33fe4e3abb64a1b19e01b4f5e6d6e7a34e4db46dfe8f154c62d14a9a04548aec",
+  "launch_note": "Initial sandbox detached child stopped before runner execution; bounded detached validation was relaunched with execution approval and completed with marker 0.",
+  "per_layer_checks": [
+    {
+      "stage": "frozen_zkv3",
+      "rows": 12,
+      "matches_existing_layer_size": true
+    },
+    {
+      "stage": "p3_profile",
+      "rows": 1,
+      "matches_existing_layer_size": true
+    },
+    {
+      "stage": "p1_unverified",
+      "rows": 1,
+      "matches_existing_layer_size": true
+    }
+  ],
+  "resources": [
+    {
+      "stage": "rust_all",
+      "max_rss_kib": 1136792,
+      "swaps": 0
+    },
+    {
+      "stage": "test_hashline_profile.py",
+      "max_rss_kib": 21892,
+      "swaps": 0
+    },
+    {
+      "stage": "test_hashline_benchmark.py",
+      "max_rss_kib": 22468,
+      "swaps": 0
+    },
+    {
+      "stage": "build",
+      "max_rss_kib": 29680,
+      "swaps": 0
+    },
+    {
+      "stage": "frozen_v2",
+      "max_rss_kib": 1563764,
+      "swaps": 0
+    },
+    {
+      "stage": "frozen_v3",
+      "max_rss_kib": 1187944,
+      "swaps": 0
+    },
+    {
+      "stage": "frozen_zk",
+      "max_rss_kib": 1667800,
+      "swaps": 0
+    },
+    {
+      "stage": "frozen_zkv3",
+      "max_rss_kib": 1264052,
+      "swaps": 0
+    },
+    {
+      "stage": "p3_default",
+      "max_rss_kib": 284872,
+      "swaps": 0
+    },
+    {
+      "stage": "p3_profile",
+      "max_rss_kib": 284860,
+      "swaps": 0
+    },
+    {
+      "stage": "p1_unverified",
+      "max_rss_kib": 260436,
+      "swaps": 0
+    }
+  ],
+  "max_reported_rss_kib": 1667800
+}

@@ -869,6 +869,10 @@ pub struct LayerProofZk {
     pub pred: Option<PredProofV3>,
 }
 
+#[path = "zk_proof_size.rs"]
+mod proof_size;
+pub use proof_size::{ArgumentBytes, ColumnBytes, MaskOpeningBytes, OpeningBytes, ProofSizeBreakdown};
+
 /// [UPERF3-AN] FUNCTION 2's predicate gadget: ONE masked sumcheck over the
 /// d-block cube that binds the committed output to its 16 bit-planes, and its
 /// two masked terminals (the output block, then the bit row).
@@ -3803,9 +3807,20 @@ mod tests_v3 {
             for _ in 0..2 {
                 let out = prove_layer_zk_v3(&w, 2, &params, &ntt, &cfg.clone(), &mut Transcript::new(b"fresh-os-test"));
                 verify_layer_zk_v3(&st, &out.proof, &params, &ntt, &mut Transcript::new(b"fresh-os-test"), &cfg.mode).unwrap();
+                let sizes = out.proof.size_breakdown().unwrap();
+                assert_eq!(sizes.total_bytes(), out.proof.to_bytes().len());
+                if privacy == ZkPrivacy::P1 {
+                    assert!(sizes.w_plain.total_bytes() > 0);
+                    assert_eq!(sizes.w_plain.columns.salts, 0);
+                    assert_eq!(sizes.w_hiding.total_bytes(), 0);
+                } else {
+                    assert_eq!(sizes.w_plain.total_bytes(), 0);
+                    assert!(sizes.w_hiding.columns.salts > 0);
+                }
                 proofs.push(out.proof);
             }
             assert_ne!(proofs[0].to_bytes(), proofs[1].to_bytes());
+            assert_eq!(proofs[0].size_breakdown(), proofs[1].size_breakdown(), "fresh values changed size-only telemetry");
             assert_ne!(proofs[0].a_com.as_ref().unwrap().root, proofs[1].a_com.as_ref().unwrap().root);
             if privacy == ZkPrivacy::P3 {
                 assert_ne!(proofs[0].w_com.as_ref().unwrap().root, proofs[1].w_com.as_ref().unwrap().root);
@@ -4037,6 +4052,11 @@ mod tests_v3 {
         assert!(out1.proof.pred.is_none(), "a function-1 proof carries a predicate gadget");
         assert_eq!(out1.proof.to_bytes().len(), out1.proof.size_bytes(), "function-1 size accounting moved");
         assert!(out2.proof.size_bytes() > out1.proof.size_bytes(), "the predicate costs no bytes at all?");
+        let sizes = out2.proof.size_breakdown().unwrap();
+        let mut predicate_bytes = Vec::new();
+        out2.proof.pred.as_ref().unwrap().write_bytes(&mut predicate_bytes);
+        assert_eq!(sizes.predicate.unwrap().total_bytes(), predicate_bytes.len());
+        assert_eq!(sizes.total_bytes(), out2.proof.to_bytes().len());
         println!(
             "[UPERF3-AN] function 1 {} B; function 2 {} B (+{} B, +{:.4}%); predicate sumcheck {} rounds",
             out1.proof.size_bytes(),

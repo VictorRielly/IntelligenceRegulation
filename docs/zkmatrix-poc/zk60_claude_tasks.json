@@ -260,7 +260,7 @@
       "priority": 2,
       "title": "Measure proof-size and serialization costs before redesign",
       "depends_on": [],
-      "status": "corrected byte accounting retained; exact serializer telemetry handoff assigned CL19",
+      "status": "corrected derived byte accounting retained; Codex completes CL19 actual-object size counter and CLI telemetry with round-10 validation; use for reconciliation",
       "files": [
         "scripts/hashline_cl_artifact_profile.py",
         "tests/test_hashline_cl_artifact_profile.py",
@@ -313,5 +313,6 @@
     }
   ],
   "successor_queue": "zk60_fable_tasks.json",
-  "latest_review": "ZK60_ROUND9_REVIEW.md"
+  "latest_review": "ZK60_ROUND9_REVIEW.md",
+  "codex_implementation_handoff": "ZK60_ROUND10.md"
 }
