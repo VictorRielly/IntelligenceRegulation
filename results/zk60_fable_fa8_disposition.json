@@ -1,0 +1,746 @@
+{
+ "schema_version": 1,
+ "task": "FA8 -- disposition of every observation channel by profile (review section G)",
+ "reviewer": "Claude Fable 5.1, independent privacy reviewer, 2026-09-08 session (FA8)",
+ "source_pin": {
+  "worktree_head": "ed478da",
+  "codex_merge": "972da4e",
+  "fa6_fa7_pin": "cfa46f6"
+ },
+ "profiles": [
+  "legacy_v3",
+  "repaired_P1",
+  "repaired_P3_fresh_W",
+  "repaired_P3_stable_W_k_slots",
+  "block_profile"
+ ],
+ "blockers": {
+  "B5": "the repaired profile ffn-v3-mr1 does not exist in source and has no capture (FA3 \u00a711 B5); acceptance test FA3 P3 / FA7 schema 2, case 1 -- owner Codex (implement), Fable (run the tools)",
+  "S1": "the explicit-seed path ZkConfig.seed = Some(u64) -> ZkRng::new is reachable outside cfg(test) (zk.rs ZkConfig::rng); a 64-bit seed is brute-forceable from one proof's M root; must be refused in production (FA6 I4 clause 2, FA3 \u00a73) -- owner Codex",
+  "S2": "FA6's two hardenings: assert mask degree = round degree in zk.rs::extension (I1); prover aborts the attempt on c_s = 0 (I3) -- owner Codex",
+  "S3": "FA3 \u00a76's verifier obligations as specified (claims from the layout, exact counts, degeneracy refusals not resamples, seams on the two absorbed A roots, publish-nothing-on-failure) and FA3 \u00a712.2's transcript order -- owner Codex; acceptance FA3 \u00a77 AM1-AM24",
+  "E1": "a consuming slot API: no open_zk on C*_l without a ReservedSlot from the journal, the slot index bound into the header and the W claims from that slot's rows, a failed attempt burning its slot (FA4 H3; Codex journal doc: 'no existing prover consumes slots yet') -- owner Codex",
+  "E2": "protected secret-material storage and deterministic reconstruction of C*_l (data, pads, salts, k slot sets) bound to the same SlotPolicy digest (H2 second increment) -- owner Codex",
+  "E3": "anti-rollback and single-canonical-journal: a restored earlier journal file or a second journal for the same root reuses slots undetected; needs an external monotonic authority or the registry's (D_M, l, i) double-use record (FA4 \u00a74.3 (8)) -- owner application / Victor (product ruling), Codex (hook)",
+  "E4": "the changed-rate proximity/soundness bound for RS[nn, n + kQ] at the chosen (k, inv_rate) (FA4 \u00a75.1, FA5 obligation) -- owner FA5/Fable; not a privacy term",
+  "A1": "the attention side's mask schedule and observation inventory (A04-A06 not designed, FA3 \u00a714): every attention claim as an FA3 \u00a72.2 row (site, group key, kind, coefficient pair, proof field) with a whole-commitment rank verdict of 0 -- owner the attention designer (Codex) + Fable review",
+  "A2": "the attention side's CFS slot table under FA6's criterion ((n_vars, degree) per slot, extension degree = mask degree, batched forms, M slot order, mask_functionals) -- same owners",
+  "A3": "the attention-side seam terminals SeamXm8[c], SeamZ16c[c] as reserved pair rows of the attention A, inventoried jointly with the attention's own openings of xm8 / z16c (aliasing under several masks) -- same owners; FA6 \u00a74 and FA7 flag them as uncounted",
+  "A4": "the residual seam between blocks (attention A_k xres2 vs attention A_{k+1} x_in), its CFS slot and pair rows, and the chain-level transcript (FA4 H7, FA3 \u00a74.5) -- same owners",
+  "X1": "outside the model, listed not closed: prover timing and memory (the device/host path choice, drains), the driver's `sites` / randomness label report (never to be published), the registry double-use log; proof size is a function of (statement, params, mode) only (zk_proof_size.rs counts fields, never values) and is not a channel"
+ },
+ "bounds": {
+  "single_proof": "Delta_1 <= delta_deg + q_H (n_sq + n_leaves) / 2^256 + N_fp 2^-95, with delta_deg = 2 n_pair 2^-128 + n_slots 2^-128 + (n_prox_pairs + n_block_slots) 2^-64 (+ n_pair_P3 2^-128 for e2 = 1); n_sq = sum over slots of n_vars (programmed round challenges); n_leaves = nn_A + nn_H (+ nn_W) + 4096; N_fp = base-field mask and pad draws of the proof",
+  "k_proofs_fresh": "Delta_k <= k Delta_1 (hybrid over proofs; fresh ZkRng stream per attempt, no wcache, no shared pads; the only shared object is the public statement and the transcript prefix up to the first fresh root)",
+  "k_proofs_stable_W": "Delta_k <= q_H nn_W / 2^256 + sum_i Delta_1(i) + 0 [kQ <= q_pad] + N_fp(C*_l) 2^-95, valid only under E1-E3 (each slot declared at most once incl. failed attempts, no opening outside the journal, no rollback/copy); the pad channel leaks |J| - q_pad functionals per row when |J| > q_pad; the soundness distance 1 - (n + q_pad)/nn is E4 (FA5)",
+  "degeneracy_probabilities": {
+   "lambda_or_k1_zero_per_pair_claim": "2^-128 each",
+   "c_s_zero_per_slot": "2^-128",
+   "prox_pair_Fp_dependent": "2^-64 (exact: (p^3 + p^2 - p) / p^4)",
+   "block_slot_row_bit_in_Fp": "2^-64",
+   "fp_reduction_bias_per_draw": "2^-96 (1 - 2^-32), pad shift bound 2^-95"
+  }
+ },
+ "channels": [
+  {
+   "id": "cfs.rounds",
+   "channel": "CFS-masked round messages per slot (incl. extension rounds)",
+   "profiles": {
+    "legacy_v3": {
+     "status": "accepted",
+     "cite": "FA6 \u00a72 (surjective onto S for every challenge sequence); \u00a7B step 5"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "FA6 \u00a72; \u00a7B step 5 (fibre sampling, programmed round challenges)"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "FA6 \u00a72 incl. the P3 second extension; \u00a7B step 5"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "accepted",
+     "cite": "per proof as P3 fresh; CFS masks fresh per proof (FA6 I4); \u00a7F2"
+    },
+    "block_profile": {
+     "status": "blocker",
+     "blockers": [
+      "A2"
+     ],
+     "cite": "the attention side's CFS slot table under FA6's criterion ((n_vars, degree) per slot, extension degree = mask degree, batched forms, M slot order, mask_functionals)"
+    }
+   }
+  },
+  {
+   "id": "cfs.claims",
+   "channel": "masked claimed sums gu_claim, d_claim and the Gammas",
+   "profiles": {
+    "legacy_v3": {
+     "status": "accepted",
+     "cite": "FA6 \u00a72.3 (batched pairs); \u00a7B step 5"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "FA6 \u00a72.3; \u00a7B step 5"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "accepted",
+     "cite": "same, per proof"
+    },
+    "block_profile": {
+     "status": "blocker",
+     "blockers": [
+      "A2"
+     ],
+     "cite": "the attention side's CFS slot table under FA6's criterion ((n_vars, degree) per slot, extension degree = mask degree, batched forms, M slot order, mask_functionals)"
+    }
+   }
+  },
+  {
+   "id": "cfs.g_rho",
+   "channel": "derived g_s(rho_s) through the terminal relation",
+   "profiles": {
+    "legacy_v3": {
+     "status": "accepted",
+     "cite": "FA6 \u00a72.1 (a function of the view); \u00a7B step 5: fixed by the committed M, matched by the fibre"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "block_profile": {
+     "status": "blocker",
+     "blockers": [
+      "A2"
+     ],
+     "cite": "the attention side's CFS slot table under FA6's criterion ((n_vars, degree) per slot, extension degree = mask degree, batched forms, M slot order, mask_functionals)"
+    }
+   }
+  },
+  {
+   "id": "m.opening",
+   "channel": "M root, q', prox, 256 sampled columns of M",
+   "profiles": {
+    "legacy_v3": {
+     "status": "accepted",
+     "cite": "FA6 \u00a73 (one Fp2 value V, already public) under I5; \u00a7B step 7 (Sim's M is an honest M)"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "accepted",
+     "cite": "same, one M per proof"
+    },
+    "block_profile": {
+     "status": "accepted",
+     "cite": "same per component; the seam slots are FFN-M slots 7 and 8 (FA6 \u00a76)"
+    }
+   }
+  },
+  {
+   "id": "a.vectors",
+   "channel": "A group vectors (message parts) at rho_f, rho_d, p2, p5, rho_tab, [rho_p]",
+   "profiles": {
+    "legacy_v3": {
+     "status": "leaks",
+     "cite": "FA7 \u00a76: 2n + 4 base functionals per proof; T2 X/h16 rows recovered whole"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "FA3 \u00a79 whole_A_n4_* (0) + \u00a7B step 8 structural cover (pair per column)"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "FA3 \u00a79 *_p3 (0); \u00a7B step 8"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "accepted",
+     "cite": "A is fresh per proof; as P3 fresh"
+    },
+    "block_profile": {
+     "status": "accepted",
+     "cite": "FA3 \u00a79 whole_A_n4_*_seams (0): X under three pairs; the FFN A only"
+    }
+   }
+  },
+  {
+   "id": "h.vectors",
+   "channel": "H group vectors incl. the LogUp sum claim",
+   "profiles": {
+    "legacy_v3": {
+     "status": "accepted",
+     "cite": "FA7 \u00a78: residual = the public LogUp identity (value 0); FA2 \u00a714.5"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "FA3 \u00a79 whole_H_n4_* (0), h_logup_sum_zero_sum_u_prox_pair (2 = public identity); \u00a7B step 8"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "block_profile": {
+     "status": "accepted",
+     "cite": "same (FFN H); attention helpers: A1"
+    }
+   }
+  },
+  {
+   "id": "w.vectors",
+   "channel": "W group vectors at p3, p6 (P3 only)",
+   "profiles": {
+    "legacy_v3": {
+     "status": "leaks",
+     "cite": "FA7 \u00a76-\u00a77: 2n + 2 per proof; the whole Wd plane at T32; identical across proofs"
+    },
+    "repaired_P1": {
+     "status": "n/a",
+     "cite": "P1 W is public (plain opening, approved root)"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "FA3 \u00a79 whole_W_p3_n4_* (0); \u00a7B step 8"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "blocker",
+     "blockers": [
+      "E1",
+      "E2",
+      "E3"
+     ],
+     "cite": "a consuming slot API: no open_zk on C*_l without a ReservedSlot from the journal, the slot index bound into the header and the W claims from that slot's rows, a failed attempt burning its slot (FA4 H3; Codex journal doc: 'no existing prover consumes slots yet'); protected secret-material storage and deterministic reconstruction of C*_l (data, pads, salts, k slot sets) bound to the same SlotPolicy digest (H2 second increment); anti-rollback and single-canonical-journal: a restored earlier journal file or a second journal for the same root reuses slots undetected; needs an external monotonic authority or the registry's (D_M, l, i) double-use record (FA4 \u00a74.3 (8))"
+    },
+    "block_profile": {
+     "status": "blocker",
+     "blockers": [
+      "E1",
+      "E2",
+      "E3"
+     ],
+     "cite": "a consuming slot API: no open_zk on C*_l without a ReservedSlot from the journal, the slot index bound into the header and the W claims from that slot's rows, a failed attempt burning its slot (FA4 H3; Codex journal doc: 'no existing prover consumes slots yet'); protected secret-material storage and deterministic reconstruction of C*_l (data, pads, salts, k slot sets) bound to the same SlotPolicy digest (H2 second increment); anti-rollback and single-canonical-journal: a restored earlier journal file or a second journal for the same root reuses slots undetected; needs an external monotonic authority or the registry's (D_M, l, i) double-use record (FA4 \u00a74.3 (8))"
+    }
+   }
+  },
+  {
+   "id": "prox.vectors",
+   "channel": "proximity vectors of A, H, W",
+   "profiles": {
+    "legacy_v3": {
+     "status": "leaks",
+     "cite": "FA2 \u00a714.4 / FA7: covered only by borrowed freedom; +1 functional per column at tiny W"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "prox pair: FA3 one_pairmask_claim_prox_pair (0); \u00a7B step 8 (bijection per column, private to the prox)"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "same, W prox pair per slot"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "accepted",
+     "cite": "each proof's prox covered by its slot's prox pair even though it touches every row: \u00a7F2, k_slot_report"
+    },
+    "block_profile": {
+     "status": "accepted",
+     "cite": "FFN side same; attention side A1"
+    }
+   }
+  },
+  {
+   "id": "terminals",
+   "channel": "terminal values per role (A.value, H.value, W3.value, pred.term)",
+   "profiles": {
+    "legacy_v3": {
+     "status": "leaks",
+     "cite": "FA7 \u00a76: +4 (A), +2 (W) functionals per proof from the all-base groups' values"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "FA3 \u00a79 group_values_all_pairmask (rank 2m + 2n - 2); \u00a7B steps 5 and 8 (uniform Fp2 via the pair, composed through want(m_t))"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "accepted",
+     "cite": "same; W terminals via the slot's pairs"
+    },
+    "block_profile": {
+     "status": "accepted",
+     "cite": "FFN side same; attention side A1"
+    }
+   }
+  },
+  {
+   "id": "columns",
+   "channel": "sampled columns, salts and Merkle paths of A, H, W",
+   "profiles": {
+    "legacy_v3": {
+     "status": "accepted",
+     "cite": "FA2 \u00a714.6 (single proof, q_pad = Q); FA6 \u00a73 for M"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "\u00a7B step 10: Vandermonde x Z_n, |J| <= Q = q_pad; pad_budget_report"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "same, W fresh"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "accepted",
+     "cite": "\u00a7F2: |J| <= kQ <= q_pad across all k proofs (pad_budget_report); conditional on E1-E3 for the count"
+    },
+    "block_profile": {
+     "status": "accepted",
+     "cite": "same per commitment"
+    }
+   }
+  },
+  {
+   "id": "folded_pads",
+   "channel": "folded pad coordinates v_g[n..n+q_pad) of every clear vector",
+   "profiles": {
+    "legacy_v3": {
+     "status": "accepted",
+     "cite": "FA2 \u00a714.6"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "\u00a7B step 10: determined by (v_msg, columns) up to a data-independent kernel"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "accepted",
+     "cite": "\u00a7F2, same with q_pad = kQ and the shared pad kernel"
+    },
+    "block_profile": {
+     "status": "accepted",
+     "cite": "same"
+    }
+   }
+  },
+  {
+   "id": "unopened_columns",
+   "channel": "the Merkle roots over unopened salted leaves (A, H, W, M, C*_l)",
+   "profiles": {
+    "legacy_v3": {
+     "status": "accepted",
+     "cite": "ROM: q_H n_leaves / 2^256 (\u00a7D hash assumptions H2)"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "accepted",
+     "cite": "same; C*_l's root once, at registration (\u00a7F2)"
+    },
+    "block_profile": {
+     "status": "accepted",
+     "cite": "same"
+    }
+   }
+  },
+  {
+   "id": "seam.ffn",
+   "channel": "internal seam terminals, FFN side (seam_x.term_ffn[c], seam_z.term_ffn[c])",
+   "profiles": {
+    "legacy_v3": {
+     "status": "n/a",
+     "cite": "no private seams in the legacy profile"
+    },
+    "repaired_P1": {
+     "status": "n/a",
+     "cite": "standalone: no seams"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "n/a",
+     "cite": "standalone"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "n/a",
+     "cite": "standalone"
+    },
+    "block_profile": {
+     "status": "accepted",
+     "cite": "FA3 \u00a79 whole_A_n4_*_seams (0) + FA6 \u00a76 (slot approved); \u00a7C"
+    }
+   }
+  },
+  {
+   "id": "seam.attn",
+   "channel": "internal seam terminals, attention side (SeamXm8[c], SeamZ16c[c])",
+   "profiles": {
+    "legacy_v3": {
+     "status": "n/a",
+     "cite": ""
+    },
+    "repaired_P1": {
+     "status": "n/a",
+     "cite": ""
+    },
+    "repaired_P3_fresh_W": {
+     "status": "n/a",
+     "cite": ""
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "n/a",
+     "cite": ""
+    },
+    "block_profile": {
+     "status": "blocker",
+     "blockers": [
+      "A3"
+     ],
+     "cite": "the attention-side seam terminals SeamXm8[c], SeamZ16c[c] as reserved pair rows of the attention A, inventoried jointly with the attention's own openings of xm8 / z16c (aliasing under several masks)"
+    }
+   }
+  },
+  {
+   "id": "seam.residual",
+   "channel": "the residual seam between blocks and the chain transcript",
+   "profiles": {
+    "legacy_v3": {
+     "status": "n/a",
+     "cite": ""
+    },
+    "repaired_P1": {
+     "status": "n/a",
+     "cite": ""
+    },
+    "repaired_P3_fresh_W": {
+     "status": "n/a",
+     "cite": ""
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "n/a",
+     "cite": ""
+    },
+    "block_profile": {
+     "status": "blocker",
+     "blockers": [
+      "A4"
+     ],
+     "cite": "the residual seam between blocks (attention A_k xres2 vs attention A_{k+1} x_in), its CFS slot and pair rows, and the chain-level transcript (FA4 H7, FA3 \u00a74.5)"
+    }
+   }
+  },
+  {
+   "id": "public",
+   "channel": "the public statement: header, roots, LogUp identity = 0, seam constant 0, external I/O binding, W under P1, C*_l, slot index",
+   "profiles": {
+    "legacy_v3": {
+     "status": "accepted",
+     "cite": "by definition of the statement (FA2 \u00a714.5, FA5 R27/R30)"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "accepted",
+     "cite": "same; the slot index is public and reveals only consumption order"
+    },
+    "block_profile": {
+     "status": "accepted",
+     "cite": "same; request context absorbed first (A03)"
+    }
+   }
+  },
+  {
+   "id": "conditioning",
+   "channel": "transcript conditioning: lambda, rho, e, points, indices as functions of earlier masked messages (B2)",
+   "profiles": {
+    "legacy_v3": {
+     "status": "n/a",
+     "cite": "moot: the profile leaks without it (FA7)"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "\u00a7B: Sim programs only the round challenges; every other challenge squeezed honestly; distance q_H n_sq / 2^256"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "same"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "accepted",
+     "cite": "\u00a7F2: the same per proof, k independent transcripts after the shared prefix"
+    },
+    "block_profile": {
+     "status": "blocker",
+     "blockers": [
+      "A1",
+      "A2",
+      "A3"
+     ],
+     "cite": "the attention side's mask schedule and observation inventory (A04-A06 not designed, FA3 \u00a714): every attention claim as an FA3 \u00a72.2 row (site, group key, kind, coefficient pair, proof field) with a whole-commitment rank verdict of 0; the attention side's CFS slot table under FA6's criterion ((n_vars, degree) per slot, extension degree = mask degree, batched forms, M slot order, mask_functionals); the attention-side seam terminals SeamXm8[c], SeamZ16c[c] as reserved pair rows of the attention A, inventoried jointly with the attention's own openings of xm8 / z16c (aliasing under several masks)"
+    }
+   }
+  },
+  {
+   "id": "repeats",
+   "channel": "repeated proofs of the same witness / same weights (B4)",
+   "profiles": {
+    "legacy_v3": {
+     "status": "leaks",
+     "cite": "FA2 \u00a717.1, FA7 \u00a77: identical recovered digests across ten proofs of one X and three of one W"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "\u00a7F1: k independent runs of Sim; bound k x single-proof"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "\u00a7F1"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "blocker",
+     "blockers": [
+      "E1",
+      "E2",
+      "E3"
+     ],
+     "cite": "a consuming slot API: no open_zk on C*_l without a ReservedSlot from the journal, the slot index bound into the header and the W claims from that slot's rows, a failed attempt burning its slot (FA4 H3; Codex journal doc: 'no existing prover consumes slots yet'); protected secret-material storage and deterministic reconstruction of C*_l (data, pads, salts, k slot sets) bound to the same SlotPolicy digest (H2 second increment); anti-rollback and single-canonical-journal: a restored earlier journal file or a second journal for the same root reuses slots undetected; needs an external monotonic authority or the registry's (D_M, l, i) double-use record (FA4 \u00a74.3 (8))"
+    },
+    "block_profile": {
+     "status": "blocker",
+     "blockers": [
+      "A1",
+      "E1",
+      "E2",
+      "E3"
+     ],
+     "cite": "the attention side's mask schedule and observation inventory (A04-A06 not designed, FA3 \u00a714): every attention claim as an FA3 \u00a72.2 row (site, group key, kind, coefficient pair, proof field) with a whole-commitment rank verdict of 0; a consuming slot API: no open_zk on C*_l without a ReservedSlot from the journal, the slot index bound into the header and the W claims from that slot's rows, a failed attempt burning its slot (FA4 H3; Codex journal doc: 'no existing prover consumes slots yet'); protected secret-material storage and deterministic reconstruction of C*_l (data, pads, salts, k slot sets) bound to the same SlotPolicy digest (H2 second increment); anti-rollback and single-canonical-journal: a restored earlier journal file or a second journal for the same root reuses slots undetected; needs an external monotonic authority or the registry's (D_M, l, i) double-use record (FA4 \u00a74.3 (8))"
+    }
+   }
+  },
+  {
+   "id": "ranges",
+   "channel": "integer ranges and nonlinear side information (B3)",
+   "profiles": {
+    "legacy_v3": {
+     "status": "leaks",
+     "cite": "\u00a7E: at T32 both X rows (int8) and both h16 rows (int16) per column from ONE proof by bounded enumeration of the disclosed 2-row functional"
+    },
+    "repaired_P1": {
+     "status": "accepted",
+     "cite": "\u00a7E: the view is simulatable without the witness, so no function of it (a range solver included) beats the public statement, up to the stated distance"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "accepted",
+     "cite": "\u00a7E"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "accepted",
+     "cite": "\u00a7E given \u00a7F2's enforcement"
+    },
+    "block_profile": {
+     "status": "blocker",
+     "blockers": [
+      "A1"
+     ],
+     "cite": "the attention side's mask schedule and observation inventory (A04-A06 not designed, FA3 \u00a714): every attention claim as an FA3 \u00a72.2 row (site, group key, kind, coefficient pair, proof field) with a whole-commitment rank verdict of 0"
+    }
+   }
+  },
+  {
+   "id": "retry",
+   "channel": "failure, retry and entropy (degenerate draws, discarded attempts, seeds)",
+   "profiles": {
+    "legacy_v3": {
+     "status": "blocker",
+     "blockers": [
+      "S1"
+     ],
+     "cite": "the explicit-seed path ZkConfig.seed = Some(u64) -> ZkRng::new is reachable outside cfg(test) (zk.rs ZkConfig::rng); a 64-bit seed is brute-forceable from one proof's M root; must be refused in production (FA6 I4 clause 2, FA3 \u00a73)"
+    },
+    "repaired_P1": {
+     "status": "blocker",
+     "blockers": [
+      "S1",
+      "S2"
+     ],
+     "cite": "the explicit-seed path ZkConfig.seed = Some(u64) -> ZkRng::new is reachable outside cfg(test) (zk.rs ZkConfig::rng); a 64-bit seed is brute-forceable from one proof's M root; must be refused in production (FA6 I4 clause 2, FA3 \u00a73); FA6's two hardenings: assert mask degree = round degree in zk.rs::extension (I1); prover aborts the attempt on c_s = 0 (I3)"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "blocker",
+     "blockers": [
+      "S1",
+      "S2"
+     ],
+     "cite": "the explicit-seed path ZkConfig.seed = Some(u64) -> ZkRng::new is reachable outside cfg(test) (zk.rs ZkConfig::rng); a 64-bit seed is brute-forceable from one proof's M root; must be refused in production (FA6 I4 clause 2, FA3 \u00a73); FA6's two hardenings: assert mask degree = round degree in zk.rs::extension (I1); prover aborts the attempt on c_s = 0 (I3)"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "blocker",
+     "blockers": [
+      "S1",
+      "S2",
+      "E1"
+     ],
+     "cite": "the explicit-seed path ZkConfig.seed = Some(u64) -> ZkRng::new is reachable outside cfg(test) (zk.rs ZkConfig::rng); a 64-bit seed is brute-forceable from one proof's M root; must be refused in production (FA6 I4 clause 2, FA3 \u00a73); FA6's two hardenings: assert mask degree = round degree in zk.rs::extension (I1); prover aborts the attempt on c_s = 0 (I3); a consuming slot API: no open_zk on C*_l without a ReservedSlot from the journal, the slot index bound into the header and the W claims from that slot's rows, a failed attempt burning its slot (FA4 H3; Codex journal doc: 'no existing prover consumes slots yet')"
+    },
+    "block_profile": {
+     "status": "blocker",
+     "blockers": [
+      "S1",
+      "S2"
+     ],
+     "cite": "the explicit-seed path ZkConfig.seed = Some(u64) -> ZkRng::new is reachable outside cfg(test) (zk.rs ZkConfig::rng); a 64-bit seed is brute-forceable from one proof's M root; must be refused in production (FA6 I4 clause 2, FA3 \u00a73); FA6's two hardenings: assert mask degree = round degree in zk.rs::extension (I1); prover aborts the attempt on c_s = 0 (I3)"
+    }
+   }
+  },
+  {
+   "id": "implementation",
+   "channel": "the repaired profile as implemented (captures, verifier obligations, exact counts)",
+   "profiles": {
+    "legacy_v3": {
+     "status": "n/a",
+     "cite": "the legacy profile is what exists"
+    },
+    "repaired_P1": {
+     "status": "blocker",
+     "blockers": [
+      "B5",
+      "S3"
+     ],
+     "cite": "the repaired profile ffn-v3-mr1 does not exist in source and has no capture (FA3 \u00a711 B5); acceptance test FA3 P3 / FA7 schema 2, case 1; FA3 \u00a76's verifier obligations as specified (claims from the layout, exact counts, degeneracy refusals not resamples, seams on the two absorbed A roots, publish-nothing-on-failure) and FA3 \u00a712.2's transcript order"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "blocker",
+     "blockers": [
+      "B5",
+      "S3"
+     ],
+     "cite": "the repaired profile ffn-v3-mr1 does not exist in source and has no capture (FA3 \u00a711 B5); acceptance test FA3 P3 / FA7 schema 2, case 1; FA3 \u00a76's verifier obligations as specified (claims from the layout, exact counts, degeneracy refusals not resamples, seams on the two absorbed A roots, publish-nothing-on-failure) and FA3 \u00a712.2's transcript order"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "blocker",
+     "blockers": [
+      "B5",
+      "S3"
+     ],
+     "cite": "the repaired profile ffn-v3-mr1 does not exist in source and has no capture (FA3 \u00a711 B5); acceptance test FA3 P3 / FA7 schema 2, case 1; FA3 \u00a76's verifier obligations as specified (claims from the layout, exact counts, degeneracy refusals not resamples, seams on the two absorbed A roots, publish-nothing-on-failure) and FA3 \u00a712.2's transcript order"
+    },
+    "block_profile": {
+     "status": "blocker",
+     "blockers": [
+      "B5",
+      "S3"
+     ],
+     "cite": "the repaired profile ffn-v3-mr1 does not exist in source and has no capture (FA3 \u00a711 B5); acceptance test FA3 P3 / FA7 schema 2, case 1; FA3 \u00a76's verifier obligations as specified (claims from the layout, exact counts, degeneracy refusals not resamples, seams on the two absorbed A roots, publish-nothing-on-failure) and FA3 \u00a712.2's transcript order"
+    }
+   }
+  },
+  {
+   "id": "side_channels",
+   "channel": "outside the model: timing, memory, driver reports, proof size",
+   "profiles": {
+    "legacy_v3": {
+     "status": "blocker",
+     "blockers": [
+      "X1"
+     ],
+     "cite": "outside the model, listed not closed: prover timing and memory (the device/host path choice, drains), the driver's `sites` / randomness label report (never to be published), the registry double-use log; proof size is a function of (statement, params, mode) only (zk_proof_size.rs counts fields, never values) and is not a channel"
+    },
+    "repaired_P1": {
+     "status": "blocker",
+     "blockers": [
+      "X1"
+     ],
+     "cite": "outside the model, listed not closed: prover timing and memory (the device/host path choice, drains), the driver's `sites` / randomness label report (never to be published), the registry double-use log; proof size is a function of (statement, params, mode) only (zk_proof_size.rs counts fields, never values) and is not a channel"
+    },
+    "repaired_P3_fresh_W": {
+     "status": "blocker",
+     "blockers": [
+      "X1"
+     ],
+     "cite": "outside the model, listed not closed: prover timing and memory (the device/host path choice, drains), the driver's `sites` / randomness label report (never to be published), the registry double-use log; proof size is a function of (statement, params, mode) only (zk_proof_size.rs counts fields, never values) and is not a channel"
+    },
+    "repaired_P3_stable_W_k_slots": {
+     "status": "blocker",
+     "blockers": [
+      "X1"
+     ],
+     "cite": "outside the model, listed not closed: prover timing and memory (the device/host path choice, drains), the driver's `sites` / randomness label report (never to be published), the registry double-use log; proof size is a function of (statement, params, mode) only (zk_proof_size.rs counts fields, never values) and is not a channel"
+    },
+    "block_profile": {
+     "status": "blocker",
+     "blockers": [
+      "X1"
+     ],
+     "cite": "outside the model, listed not closed: prover timing and memory (the device/host path choice, drains), the driver's `sites` / randomness label report (never to be published), the registry double-use log; proof size is a function of (statement, params, mode) only (zk_proof_size.rs counts fields, never values) and is not a channel"
+    }
+   }
+  }
+ ],
+ "counts": {
+  "legacy_v3": {
+   "accepted": 9,
+   "leaks": 6,
+   "blocker": 2,
+   "n/a": 5
+  },
+  "repaired_P1": {
+   "accepted": 15,
+   "leaks": 0,
+   "blocker": 3,
+   "n/a": 4
+  },
+  "repaired_P3_fresh_W": {
+   "accepted": 16,
+   "leaks": 0,
+   "blocker": 3,
+   "n/a": 3
+  },
+  "repaired_P3_stable_W_k_slots": {
+   "accepted": 14,
+   "leaks": 0,
+   "blocker": 5,
+   "n/a": 3
+  },
+  "block_profile": {
+   "accepted": 10,
+   "leaks": 0,
+   "blocker": 12,
+   "n/a": 0
+  }
+ },
+ "rule": "finite rank tests and a declaration of model identity do not substitute for the simulator argument or for the enforcement of slot consumption; no private-block, deployment or throughput acceptance follows from this table"
+}
