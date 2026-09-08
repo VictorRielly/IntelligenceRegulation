@@ -9,7 +9,18 @@ use crate::pcs::{Commitment, OpeningZk, PcsParams};
 use crate::tables_v3::{int16out_member, Act16Fn};
 use std::cell::RefCell;
 
+#[path = "zk_ffn_observation_json.rs"]
+mod observation_json;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum Role {
+    W,
+    A,
+    H,
+}
+
 pub(super) struct Observation {
+    role: Role,
     params: PcsParams,
     commitment: Commitment,
     claims: Vec<ZClaim>,
@@ -18,9 +29,16 @@ pub(super) struct Observation {
     after: Option<Transcript>,
 }
 
+struct VerifiedObservations {
+    // P1's public W uses plain PCS and is deliberately absent here.
+    w: Option<Observation>,
+    a: Observation,
+    h: Observation,
+}
+
 thread_local! {
     // None: inactive. Some(None): armed. Some(Some(..)): fully verified.
-    static OBSERVER: RefCell<Option<Option<Observation>>> = const { RefCell::new(None) };
+    static OBSERVER: RefCell<Option<Option<VerifiedObservations>>> = const { RefCell::new(None) };
 }
 
 struct CaptureGuard;
@@ -33,7 +51,7 @@ impl CaptureGuard {
         });
         Self
     }
-    fn take(&self) -> Option<Observation> {
+    fn take(&self) -> Option<VerifiedObservations> {
         OBSERVER.with(|s| s.borrow_mut().as_mut().unwrap().take())
     }
 }
@@ -44,6 +62,7 @@ impl Drop for CaptureGuard {
 }
 
 pub(super) fn capture(
+    role: Role,
     params: &PcsParams,
     commitment: &Commitment,
     claims: &[ZClaim],
@@ -53,6 +72,7 @@ pub(super) fn capture(
     OBSERVER
         .with(|s| s.borrow().is_some())
         .then(|| Observation {
+            role,
             params: *params,
             commitment: commitment.clone(),
             claims: claims.to_vec(),
@@ -62,14 +82,29 @@ pub(super) fn capture(
         })
 }
 
-pub(super) fn publish(observation: Option<Observation>, after: Option<Transcript>) {
-    if let Some(mut o) = observation {
-        o.after = after;
+pub(super) fn finish(observation: &mut Option<Observation>, tr: &Transcript) {
+    if let Some(o) = observation {
+        o.after = Some(Transcript::clone_state(tr));
+    }
+}
+
+// Called once, only after every opening has accepted. No partial publication
+// if W, A or H fails, even when earlier openings have already accepted.
+pub(super) fn publish(w: Option<Observation>, a: Option<Observation>, h: Option<Observation>) {
+    if let Some(a) = a {
+        let h = h.expect("H captured alongside A");
+        assert_eq!((a.role, h.role), (Role::A, Role::H));
+        assert!(same_transcript(a.after.as_ref().unwrap(), &h.before));
+        if let Some(w) = &w {
+            assert_eq!(w.role, Role::W);
+            assert!(same_transcript(w.after.as_ref().unwrap(), &a.before));
+        }
+        assert!(h.after.is_some());
         OBSERVER.with(|s| {
             let mut s = s.borrow_mut();
             let slot = s.as_mut().expect("capture still armed");
             assert!(slot.is_none(), "multiple verifications in one capture");
-            *slot = Some(o);
+            *slot = Some(VerifiedObservations { w, a, h });
         });
     }
 }
@@ -85,6 +120,12 @@ struct Group {
     key: ColumnKey,
     members: Vec<usize>,
     lambdas: Vec<Fp2>,
+}
+
+#[derive(Debug)]
+struct Replayed {
+    groups: Vec<Group>,
+    proximity_rhos: Vec<Fp2>,
 }
 
 // Deliberately independent of private PCS grouping helpers. Refuse malformed
@@ -136,7 +177,7 @@ fn same_transcript(a: &Transcript, b: &Transcript) -> bool {
         && Transcript::clone_state(a).challenge_fp2() == Transcript::clone_state(b).challenge_fp2()
 }
 
-fn replay(o: &Observation, ntt: &NttTables) -> Result<Vec<Group>, String> {
+fn replay(o: &Observation, ntt: &NttTables) -> Result<Replayed, String> {
     let n = o.params.cols();
     let q = o.params.num_col_checks;
     let mut groups: Vec<Group> = Vec::new();
@@ -166,7 +207,7 @@ fn replay(o: &Observation, ntt: &NttTables) -> Result<Vec<Group>, String> {
         g.lambdas = tr.challenge_fp2_vec(g.members.len());
     }
     // Actual source order: proximity coefficients BEFORE vector absorption.
-    tr.challenge_fp2_vec(o.commitment.rows);
+    let proximity_rhos = tr.challenge_fp2_vec(o.commitment.rows);
     for (g, v) in groups.iter().zip(&o.opening.group_vecs) {
         if v.len() != n + q {
             return Err("vector length".into());
@@ -214,7 +255,10 @@ fn replay(o: &Observation, ntt: &NttTables) -> Result<Vec<Group>, String> {
     if !same_transcript(&tr, &ordinary) {
         return Err("ordinary verifier endpoint".into());
     }
-    Ok(groups)
+    Ok(Replayed {
+        groups,
+        proximity_rhos,
+    })
 }
 
 #[derive(Debug, PartialEq)]
@@ -413,13 +457,69 @@ fn check_case(
     let mut verifier = Transcript::new(domain);
     verify_layer_zk_v3(&st, &proof, &params, &ntt, &mut verifier, &cfg.mode).unwrap();
     assert!(same_transcript(&prover, &verifier));
-    let o = guard
+    let mut observed = guard
         .take()
-        .expect("full verifier published public observation");
-    let groups = replay(&o, &ntt).unwrap();
+        .expect("full verifier published all public observations");
+    assert_eq!(observed.w.is_some(), privacy == ZkPrivacy::P3);
+    assert!(same_transcript(
+        observed.h.after.as_ref().unwrap(),
+        &verifier
+    ));
+    let proof_sha256 = crate::export_v3::sha256_hex(&proof.to_bytes());
+    observation_json::export_if_requested(&observed, &ntt, t, privacy, &proof_sha256);
+    for o in observed.w.iter().chain([&observed.a, &observed.h]) {
+        let replayed = replay(o, &ntt).unwrap();
+        let counts: Vec<_> = replayed.groups.iter().map(|g| g.members.len()).collect();
+        assert_eq!(
+            counts,
+            match o.role {
+                Role::W => vec![2, 1],
+                Role::A => vec![7, 3, 1, 1, 6],
+                Role::H => vec![3, 1, 1, 6, 1],
+            }
+        );
+        assert_eq!(replayed.proximity_rhos.len(), o.commitment.rows);
+        eprintln!("FFN_OBSERVATION privacy={privacy:?} T={t} role={:?} rows={} cols={} groups={counts:?} sampled_columns={} proof_sha256={proof_sha256}",
+            o.role, o.commitment.rows, o.params.cols(), o.opening.columns.len());
+    }
+    let zl = ZkLayoutV3::new(t, 16, 16, &params, w.shifts, false);
+    if let Some(o) = &observed.w {
+        let groups = replay(o, &ntt).unwrap().groups;
+        let disclosed = extract(
+            o,
+            &groups,
+            Slice {
+                offset: zl.lay.wd[0],
+                log_size: zl.lay.log_wb,
+            },
+            zl.w_mdd[0],
+        )
+        .unwrap();
+        let truth: Vec<_> = w.wd_t.iter().map(|v| Fp::from_i64(*v as i64)).collect();
+        assert_eq!(disclosed.row_weights.len(), truth.len() / o.params.cols());
+        let expected: Vec<_> = (0..o.params.cols())
+            .map(|c| {
+                truth
+                    .chunks_exact(o.params.cols())
+                    .zip(&disclosed.row_weights)
+                    .fold(Fp::ZERO, |a, (r, weight)| a.add(r[c].mul(*weight)))
+            })
+            .collect();
+        assert_eq!(disclosed.values, expected);
+        assert!(truth.iter().any(|v| *v != truth[0]));
+        if t == 32 {
+            assert_eq!(disclosed.values, truth);
+        }
+        eprintln!("FFN_DIAGNOSTIC privacy={privacy:?} T={t} role=Wd-at-p6 data_rows={} disclosed_base_functionals={} full_plane_recovered={} proof_sha256={proof_sha256}",
+            disclosed.row_weights.len(), o.params.cols(), t == 32);
+    }
+    for o in observed.w.iter_mut().chain([&mut observed.h]) {
+        check_replay_controls(o, &ntt);
+    }
+    let o = observed.a;
+    let groups = replay(&o, &ntt).unwrap().groups;
     let counts: Vec<_> = groups.iter().map(|g| g.members.len()).collect();
     assert_eq!(counts, vec![7, 3, 1, 1, 6]);
-    let zl = ZkLayoutV3::new(t, 16, 16, &params, w.shifts, false);
     // Truth is passed only to this comparison harness, never to the observer,
     // grouping replay or extractor. No private pads, full salt tables or RNG
     // state are read; the opening contains only already-public coordinates.
@@ -449,6 +549,18 @@ fn check_case(
         ),
     ] {
         let disclosed = extract(&o, &groups, data, mask).unwrap();
+        assert!(
+            truth.iter().any(|v| *v != truth[0]),
+            "constant fixture plane"
+        );
+        if t == 2 && name == "X-at-p2" {
+            let other: Vec<_> = fixture(t, witness_seed + 7)
+                .x
+                .iter()
+                .map(|v| Fp::from_i64(*v as i64))
+                .collect();
+            assert_ne!(disclosed.values, other);
+        }
         let n = o.params.cols();
         assert_eq!(disclosed.row_weights.len(), truth.len() / n);
         let expected: Vec<_> = (0..n)
@@ -485,6 +597,7 @@ fn check_case(
 
     // Reject modified public observations; retain ordinary PCS authentication.
     let mut bad = o;
+    check_replay_controls(&mut bad, &ntt);
     bad.opening.columns[0].0 ^= 1;
     assert!(replay(&bad, &ntt).unwrap_err().contains("indices"));
     bad.opening.columns[0].0 ^= 1;
@@ -509,8 +622,37 @@ fn check_case(
     bad.before = original_before;
     bad.opening.columns[0].1[0] = bad.opening.columns[0].1[0].add(Fp::ONE);
     assert!(replay(&bad, &ntt).is_err());
-    // An A-valid proof with a broken final H must publish nothing.
+    // Failed verification publishes none of W/A/H, including a late H failure
+    // after W and A accepted. The guard can be reused after each failure.
     let mut bad_proof = proof;
+    if privacy == ZkPrivacy::P3 {
+        bad_proof.w_open_zk.columns[0].1[0] = bad_proof.w_open_zk.columns[0].1[0].add(Fp::ONE);
+        let err = verify_layer_zk_v3(
+            &st,
+            &bad_proof,
+            &params,
+            &ntt,
+            &mut Transcript::new(domain),
+            &cfg.mode,
+        )
+        .unwrap_err();
+        assert!(err.starts_with("W:"), "{err}");
+        assert!(guard.take().is_none());
+        bad_proof.w_open_zk.columns[0].1[0] = bad_proof.w_open_zk.columns[0].1[0].sub(Fp::ONE);
+    }
+    bad_proof.a_open.columns[0].1[0] = bad_proof.a_open.columns[0].1[0].add(Fp::ONE);
+    let err = verify_layer_zk_v3(
+        &st,
+        &bad_proof,
+        &params,
+        &ntt,
+        &mut Transcript::new(domain),
+        &cfg.mode,
+    )
+    .unwrap_err();
+    assert!(err.starts_with("A:"), "{err}");
+    assert!(guard.take().is_none());
+    bad_proof.a_open.columns[0].1[0] = bad_proof.a_open.columns[0].1[0].sub(Fp::ONE);
     bad_proof.h_open.columns[0].1[0] = bad_proof.h_open.columns[0].1[0].add(Fp::ONE);
     let err = verify_layer_zk_v3(
         &st,
@@ -523,7 +665,82 @@ fn check_case(
     .unwrap_err();
     assert!(err.starts_with("H:"), "{err}");
     assert!(guard.take().is_none());
+    bad_proof.h_open.columns[0].1[0] = bad_proof.h_open.columns[0].1[0].sub(Fp::ONE);
+    // Unarmed verification remains inert (no observer copies).
+    drop(guard);
+    verify_layer_zk_v3(
+        &st,
+        &bad_proof,
+        &params,
+        &ntt,
+        &mut Transcript::new(domain),
+        &cfg.mode,
+    )
+    .unwrap();
+    assert!(OBSERVER.with(|s| s.borrow().is_none()));
+    assert!(capture(
+        Role::A,
+        &bad.params,
+        &bad.commitment,
+        &bad.claims,
+        &bad.opening,
+        &bad.before
+    )
+    .is_none());
     bad.commitment.root
+}
+
+fn check_replay_controls(o: &mut Observation, ntt: &NttTables) {
+    let group = o.opening.group_vecs.pop().unwrap();
+    assert!(replay(o, ntt).unwrap_err().contains("group count"));
+    o.opening.group_vecs.push(group);
+    let element = o.opening.group_vecs[0].pop().unwrap();
+    assert!(replay(o, ntt).unwrap_err().contains("vector length"));
+    o.opening.group_vecs[0].push(element);
+    let element = o.opening.prox_vec.pop().unwrap();
+    assert!(replay(o, ntt).unwrap_err().contains("proximity length"));
+    o.opening.prox_vec.push(element);
+    let after = o.after.take().unwrap();
+    assert!(replay(o, ntt).unwrap_err().contains("not fully verified"));
+    o.after = Some(Transcript::clone_state(&after));
+    o.after.as_mut().unwrap().challenge_fp2();
+    assert!(replay(o, ntt).unwrap_err().contains("transcript endpoint"));
+    o.after = Some(after);
+    o.commitment.root[0] ^= 1;
+    assert!(replay(o, ntt).is_err());
+    o.commitment.root[0] ^= 1;
+    o.opening.columns[0].1[0] = o.opening.columns[0].1[0].add(Fp::ONE);
+    assert!(replay(o, ntt).is_err());
+    o.opening.columns[0].1[0] = o.opening.columns[0].1[0].sub(Fp::ONE);
+    let actual = replay(o, ntt).unwrap();
+    // Pin the actual order: drawing proximity after group absorption changes
+    // both the public challenges and endpoint. Older PCS comments said this.
+    let mut wrong = Transcript::clone_state(&o.before);
+    for g in &actual.groups {
+        wrong.challenge_fp2_vec(g.members.len());
+    }
+    for v in &o.opening.group_vecs {
+        wrong.absorb_fp2(b"pcs-vec", v);
+    }
+    assert_ne!(
+        wrong.challenge_fp2_vec(o.commitment.rows),
+        actual.proximity_rhos
+    );
+    wrong.absorb_fp2(b"pcs-prox", &o.opening.prox_vec);
+    wrong.challenge_indices(o.params.num_col_checks, o.params.enc_cols());
+    assert!(!same_transcript(&wrong, o.after.as_ref().unwrap()));
+}
+
+#[test]
+fn capture_guard_resets_on_unwind_and_rejects_nested_capture() {
+    let result = std::panic::catch_unwind(|| {
+        let _guard = CaptureGuard::new();
+        let _nested = CaptureGuard::new();
+    });
+    assert!(result.is_err());
+    assert!(OBSERVER.with(|s| s.borrow().is_none()));
+    let guard = CaptureGuard::new();
+    assert!(guard.take().is_none());
 }
 
 #[test]
@@ -590,6 +807,16 @@ fn diagnostic_refuses_degenerate_and_paired_mask_controls() {
         .unwrap_err()
         .contains("zero"));
     c.parts[1].coef = Fp2::U;
+    let mut bad_tail = c.clone();
+    bad_tail.parts[1].point[0] = Fp2::ONE;
+    assert!(eliminate_one_mask(&bad_tail, Fp2::ONE, &v, 2)
+        .unwrap_err()
+        .contains("tail mismatch"));
+    let mut overlap = c.clone();
+    overlap.parts[1].slice.offset = 0;
+    assert!(eliminate_one_mask(&overlap, Fp2::ONE, &v, 2)
+        .unwrap_err()
+        .contains("overlaps"));
     let mut second_mask = c.parts[1].clone();
     second_mask.slice.offset = 8;
     second_mask.coef = Fp2::ONE;

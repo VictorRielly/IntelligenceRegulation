@@ -1,5 +1,54 @@
 # Actual FFN mask disclosure diagnostic
 
+## Round 11: verified A/H/P3-W captures
+
+The test-only observer now captures **W (P3 only), A and H**, in verifier
+order, and publishes them atomically after complete FFN acceptance. Each
+observation contains its public PCS parameters, commitment, reconstructed
+claims, opening and transcript endpoints. P1's public W is not labelled a
+hiding opening. Replay retains the actual group lambdas and proximity
+coefficients, checks each public claim and sampled index, and reruns ordinary
+PCS authentication. Endpoints must connect W → A → H and agree with the
+complete verifier.
+
+The five focused tests pass for the same twelve T2/T32 P1/P3 proofs, including
+fresh OS randomness. A groups remain `[7,3,1,1,6]`; H groups are
+`[3,1,1,6,1]`; P3 W groups are `[2,1]`. All six seeded full-proof hashes remain
+unchanged. The actual Wd-at-p6 singleton now reproduces the review's prediction:
+T2 discloses 32 base-field functionals of eight-row combinations; **T32
+recovers the entire 256-word Wd block**, with both seeded and fresh proofs.
+Truth comparisons occur outside the public observer/extractor. This result
+does not establish total joint disclosure or privacy of H.
+
+Controls cover W/A/H failures without partial publication, malformed group
+and vector lengths, missing/modified endpoints, roots and authenticated
+columns, the wrong proximity-challenge order, inert unarmed captures, guard
+cleanup on unwind, nested-capture refusal, and the independent review's
+nonconstant-truth, mask-tail and overlap cases.
+
+For Fable's FA2 follow-up, the unit-test harness can export the public captures:
+
+```sh
+env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=0 \
+  HL_TEST_FFN_OBSERVATIONS=/tmp/zk60-observations-new \
+  flock /tmp/zk-heavy.lock cargo test --release --offline \
+  --manifest-path hashline/Cargo.toml --lib mask_diagnostic \
+  -- --nocapture --test-threads=2
+```
+
+Use a fresh destination: existing digest-named files are refused. Schema 1
+contains exact integer field coordinates (use Python integers/u64/bigint,
+not floating-point JSON numbers), per-role claim slices/points/coefficients,
+group membership/lambdas and full public vectors, proximity coefficients,
+sampled columns/salts/paths, and before/after state plus next challenge.
+The exporter receives no witness, private mask arrays or RNG state. It is
+compiled only inside the diagnostic test module. The twelve initial JSON
+captures in `/tmp/zk60-round11/observations` parse and reconcile all dimensions;
+they are inputs for independent analysis, not a stand-alone FFN byte decoder
+or a completed rank/simulation proof. Fable's FA3 repair remains a separate gate.
+
+The following sections retain the original round-7 scope and evidence.
+
 Codex continuation from `9cf1372`, 2026-09-06. The round-6 source hypothesis
 is now reproduced on the actual v3 FFN prover and verifier. This is a
 **test-only diagnostic of an existing privacy defect**, not a masking repair,
