@@ -1,0 +1,5078 @@
+{
+ "schema_version": 1,
+ "task": "FA6 -- the CFS masking channel: exact linear model of the mask channel per slot, the M opening, negative controls, the Rust cross-check fixture",
+ "reviewer": "Claude Fable 5.1, independent privacy reviewer, 2026-09-08 session",
+ "source_commit": "cfa46f6",
+ "source_sha256": {
+  "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+  "hashline/src/zk.rs": "c44425347e3d5648e3c8664e540ec724bb9c8740c538b0559f2c28bc99b7715e"
+ },
+ "seed": 6,
+ "model": {
+  "mask": "g(x) = a_0 + a' prod_j x_j + sum_j sum_{e=1..d} a_{j,e} x_j^e over N = n_vars variables (N d + 2 coefficients); round j: 2^(N-1-j) (a_0 + sum_{i<j} u_i(r_i) + sum_{i>j} u_i(1)/2 + u_j(X)) + a' (prod_{i<j} r_i) X",
+  "view": "per masked sumcheck: the claimed sum's g-part (c G, or Gamma as batched), the N round messages' g-parts c g_j(0..d) (the last round(s) = the extension round(s)), the derived g(rho) = h_{N-1}(r_{N-1})/c - f-part, all as Fp2-linear functionals of the coefficients",
+  "consistency_subspace": "S = {view : h_0(0)+h_0(1) = claim, h_j(0)+h_j(1) = interp(h_{j-1})(r_{j-1})}; dim S = N d + 1 per slot; f-part in S, so surjectivity of the map onto S makes f + L(a) uniform on S for every f",
+  "verdict_rule": "rank(map) == dim S and image inside S  =>  the masked view is uniform on S, independent of the data (perfect hiding of the message channel); otherwise a leaked functional and a two-data counterexample are exhibited"
+ },
+ "slot_table": [
+  {
+   "shape": "v2 legacy T32 (D 768, F 2048) log_cols 14",
+   "mode": "P1",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 9,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 20,
+     "main_rounds": 8
+    },
+    "SC_D": {
+     "n_vars": 12,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 11
+    },
+    "SC_ZC20": {
+     "n_vars": 17,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + Gamma20, Gamma20 = c20 G20 - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 70,
+     "main_rounds": 16
+    },
+    "SC_ZC17": {
+     "n_vars": 14,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + Gamma17, Gamma17 = c17 G17 - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 58,
+     "main_rounds": 13
+    },
+    "SC_ZSUM": {
+     "n_vars": 14,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 30,
+     "main_rounds": 13
+    },
+    "SC_TAB": {
+     "n_vars": 14,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 44,
+     "main_rounds": 13
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 90,
+     "n_active_unknowns_fp2": 90,
+     "n_view_fp2": 114,
+     "n_constraints": 26,
+     "rank_map": 88,
+     "rank_constraints": 26,
+     "dim_consistency_subspace": 88,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 84,
+     "n_active_unknowns_fp2": 84,
+     "n_view_fp2": 108,
+     "n_constraints": 26,
+     "rank_map": 82,
+     "rank_constraints": 26,
+     "dim_consistency_subspace": 82,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 30,
+     "n_active_unknowns_fp2": 30,
+     "n_view_fp2": 43,
+     "n_constraints": 14,
+     "rank_map": 29,
+     "rank_constraints": 14,
+     "dim_consistency_subspace": 29,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 44,
+     "n_active_unknowns_fp2": 44,
+     "n_view_fp2": 57,
+     "n_constraints": 14,
+     "rank_map": 43,
+     "rank_constraints": 14,
+     "dim_consistency_subspace": 43,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 20,
+      "n_view_fp2": 28,
+      "rank_map": 19,
+      "dim_consistency_subspace": 19,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 37,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 70,
+      "n_view_fp2": 86,
+      "rank_map": 69,
+      "dim_consistency_subspace": 69,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 58,
+      "n_view_fp2": 71,
+      "rank_map": 57,
+      "dim_consistency_subspace": 57,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 30,
+      "n_view_fp2": 43,
+      "rank_map": 29,
+      "dim_consistency_subspace": 29,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 44,
+      "n_view_fp2": 57,
+      "rank_map": 43,
+      "dim_consistency_subspace": 43,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 tiny T2/d16/f16 log_cols 5",
+   "mode": "P1",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 5,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 12,
+     "main_rounds": 4
+    },
+    "SC_D": {
+     "n_vars": 5,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 12,
+     "main_rounds": 4
+    },
+    "SC_ZC20": {
+     "n_vars": 6,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 5
+    },
+    "SC_ZC17": {
+     "n_vars": 6,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 5
+    },
+    "SC_ZSUM": {
+     "n_vars": 6,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 14,
+     "main_rounds": 5
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 38,
+     "n_active_unknowns_fp2": 38,
+     "n_view_fp2": 47,
+     "n_constraints": 11,
+     "rank_map": 36,
+     "rank_constraints": 11,
+     "dim_consistency_subspace": 36,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 38,
+     "n_active_unknowns_fp2": 38,
+     "n_view_fp2": 47,
+     "n_constraints": 11,
+     "rank_map": 36,
+     "rank_constraints": 11,
+     "dim_consistency_subspace": 36,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 14,
+     "n_active_unknowns_fp2": 14,
+     "n_view_fp2": 19,
+     "n_constraints": 6,
+     "rank_map": 13,
+     "rank_constraints": 6,
+     "dim_consistency_subspace": 13,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 12,
+      "n_view_fp2": 16,
+      "rank_map": 11,
+      "dim_consistency_subspace": 11,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 12,
+      "n_view_fp2": 16,
+      "rank_map": 11,
+      "dim_consistency_subspace": 11,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 31,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 31,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 14,
+      "n_view_fp2": 19,
+      "rank_map": 13,
+      "dim_consistency_subspace": 13,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 1,
+    "log_db": 4,
+    "log_fb": 4,
+    "log_n": 5
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 tiny T2/d16/f16 log_cols 5",
+   "mode": "P3",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 6,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 2,
+     "len": 14,
+     "main_rounds": 4
+    },
+    "SC_D": {
+     "n_vars": 6,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 2,
+     "len": 14,
+     "main_rounds": 4
+    },
+    "SC_ZC20": {
+     "n_vars": 6,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 5
+    },
+    "SC_ZC17": {
+     "n_vars": 6,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 5
+    },
+    "SC_ZSUM": {
+     "n_vars": 6,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 14,
+     "main_rounds": 5
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 40,
+     "n_active_unknowns_fp2": 40,
+     "n_view_fp2": 50,
+     "n_constraints": 12,
+     "rank_map": 38,
+     "rank_constraints": 12,
+     "dim_consistency_subspace": 38,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 40,
+     "n_active_unknowns_fp2": 40,
+     "n_view_fp2": 50,
+     "n_constraints": 12,
+     "rank_map": 38,
+     "rank_constraints": 12,
+     "dim_consistency_subspace": 38,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 14,
+     "n_active_unknowns_fp2": 14,
+     "n_view_fp2": 19,
+     "n_constraints": 6,
+     "rank_map": 13,
+     "rank_constraints": 6,
+     "dim_consistency_subspace": 13,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 14,
+      "n_view_fp2": 19,
+      "rank_map": 13,
+      "dim_consistency_subspace": 13,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 14,
+      "n_view_fp2": 19,
+      "rank_map": 13,
+      "dim_consistency_subspace": 13,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 31,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 31,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 14,
+      "n_view_fp2": 19,
+      "rank_map": 13,
+      "dim_consistency_subspace": 13,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 1,
+    "log_db": 4,
+    "log_fb": 4,
+    "log_n": 5
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 tiny T2/d16/f16 log_cols 5",
+   "mode": "P1 + function-2 predicate",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 5,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 12,
+     "main_rounds": 4
+    },
+    "SC_D": {
+     "n_vars": 5,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 12,
+     "main_rounds": 4
+    },
+    "SC_ZC20": {
+     "n_vars": 6,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 5
+    },
+    "SC_ZC17": {
+     "n_vars": 6,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 5
+    },
+    "SC_ZSUM": {
+     "n_vars": 6,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 14,
+     "main_rounds": 5
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    },
+    "SC_PRED": {
+     "n_vars": 6,
+     "degree": 3,
+     "claim": "public tau + Gamma_pred = c_pred G_pred (sent)",
+     "ext_rounds": 1,
+     "len": 20,
+     "main_rounds": 5
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 38,
+     "n_active_unknowns_fp2": 38,
+     "n_view_fp2": 47,
+     "n_constraints": 11,
+     "rank_map": 36,
+     "rank_constraints": 11,
+     "dim_consistency_subspace": 36,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 38,
+     "n_active_unknowns_fp2": 38,
+     "n_view_fp2": 47,
+     "n_constraints": 11,
+     "rank_map": 36,
+     "rank_constraints": 11,
+     "dim_consistency_subspace": 36,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 14,
+     "n_active_unknowns_fp2": 14,
+     "n_view_fp2": 19,
+     "n_constraints": 6,
+     "rank_map": 13,
+     "rank_constraints": 6,
+     "dim_consistency_subspace": 13,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_PRED": {
+     "n_unknowns_fp2": 20,
+     "n_active_unknowns_fp2": 20,
+     "n_view_fp2": 25,
+     "n_constraints": 6,
+     "rank_map": 19,
+     "rank_constraints": 6,
+     "dim_consistency_subspace": 19,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_PRED(rho)": true,
+      "Gamma_SC_PRED": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 12,
+      "n_view_fp2": 16,
+      "rank_map": 11,
+      "dim_consistency_subspace": 11,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 12,
+      "n_view_fp2": 16,
+      "rank_map": 11,
+      "dim_consistency_subspace": 11,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 31,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 31,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 14,
+      "n_view_fp2": 19,
+      "rank_map": 13,
+      "dim_consistency_subspace": 13,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_PRED": {
+      "n_unknowns_fp2": 20,
+      "n_view_fp2": 25,
+      "rank_map": 19,
+      "dim_consistency_subspace": 19,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 1,
+    "log_db": 4,
+    "log_fb": 4,
+    "log_n": 5
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 tiny T2/d16/f16 log_cols 5",
+   "mode": "P1 block profile (+ seams)",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 5,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 12,
+     "main_rounds": 4
+    },
+    "SC_D": {
+     "n_vars": 5,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 12,
+     "main_rounds": 4
+    },
+    "SC_ZC20": {
+     "n_vars": 6,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 5
+    },
+    "SC_ZC17": {
+     "n_vars": 6,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 5
+    },
+    "SC_ZSUM": {
+     "n_vars": 6,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 14,
+     "main_rounds": 5
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    },
+    "SC_SEAM_X": {
+     "n_vars": 6,
+     "degree": 2,
+     "claim": "public 0 + Gamma_seam = c_seam G_seam (sent; FA3 section 12.2 step 5)",
+     "ext_rounds": 1,
+     "len": 14,
+     "main_rounds": 5
+    },
+    "SC_SEAM_Z": {
+     "n_vars": 6,
+     "degree": 2,
+     "claim": "public 0 + Gamma_seam = c_seam G_seam (sent; FA3 section 12.2 step 5)",
+     "ext_rounds": 1,
+     "len": 14,
+     "main_rounds": 5
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 38,
+     "n_active_unknowns_fp2": 38,
+     "n_view_fp2": 47,
+     "n_constraints": 11,
+     "rank_map": 36,
+     "rank_constraints": 11,
+     "dim_consistency_subspace": 36,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 38,
+     "n_active_unknowns_fp2": 38,
+     "n_view_fp2": 47,
+     "n_constraints": 11,
+     "rank_map": 36,
+     "rank_constraints": 11,
+     "dim_consistency_subspace": 36,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 14,
+     "n_active_unknowns_fp2": 14,
+     "n_view_fp2": 19,
+     "n_constraints": 6,
+     "rank_map": 13,
+     "rank_constraints": 6,
+     "dim_consistency_subspace": 13,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_SEAM_X": {
+     "n_unknowns_fp2": 14,
+     "n_active_unknowns_fp2": 14,
+     "n_view_fp2": 19,
+     "n_constraints": 6,
+     "rank_map": 13,
+     "rank_constraints": 6,
+     "dim_consistency_subspace": 13,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_SEAM_X(rho)": true,
+      "Gamma_SC_SEAM_X": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_SEAM_Z": {
+     "n_unknowns_fp2": 14,
+     "n_active_unknowns_fp2": 14,
+     "n_view_fp2": 19,
+     "n_constraints": 6,
+     "rank_map": 13,
+     "rank_constraints": 6,
+     "dim_consistency_subspace": 13,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_SEAM_Z(rho)": true,
+      "Gamma_SC_SEAM_Z": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 12,
+      "n_view_fp2": 16,
+      "rank_map": 11,
+      "dim_consistency_subspace": 11,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 12,
+      "n_view_fp2": 16,
+      "rank_map": 11,
+      "dim_consistency_subspace": 11,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 31,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 31,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 14,
+      "n_view_fp2": 19,
+      "rank_map": 13,
+      "dim_consistency_subspace": 13,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_SEAM_X": {
+      "n_unknowns_fp2": 14,
+      "n_view_fp2": 19,
+      "rank_map": 13,
+      "dim_consistency_subspace": 13,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_SEAM_Z": {
+      "n_unknowns_fp2": 14,
+      "n_view_fp2": 19,
+      "rank_map": 13,
+      "dim_consistency_subspace": 13,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 1,
+    "log_db": 4,
+    "log_fb": 4,
+    "log_n": 5
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 tiny T32/d16/f16 log_cols 8",
+   "mode": "P1",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 5,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 12,
+     "main_rounds": 4
+    },
+    "SC_D": {
+     "n_vars": 5,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 12,
+     "main_rounds": 4
+    },
+    "SC_ZC20": {
+     "n_vars": 10,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 42,
+     "main_rounds": 9
+    },
+    "SC_ZC17": {
+     "n_vars": 10,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 42,
+     "main_rounds": 9
+    },
+    "SC_ZSUM": {
+     "n_vars": 9,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 20,
+     "main_rounds": 8
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 54,
+     "n_active_unknowns_fp2": 54,
+     "n_view_fp2": 67,
+     "n_constraints": 15,
+     "rank_map": 52,
+     "rank_constraints": 15,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 54,
+     "n_active_unknowns_fp2": 54,
+     "n_view_fp2": 67,
+     "n_constraints": 15,
+     "rank_map": 52,
+     "rank_constraints": 15,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 20,
+     "n_active_unknowns_fp2": 20,
+     "n_view_fp2": 28,
+     "n_constraints": 9,
+     "rank_map": 19,
+     "rank_constraints": 9,
+     "dim_consistency_subspace": 19,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 12,
+      "n_view_fp2": 16,
+      "rank_map": 11,
+      "dim_consistency_subspace": 11,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 12,
+      "n_view_fp2": 16,
+      "rank_map": 11,
+      "dim_consistency_subspace": 11,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 42,
+      "n_view_fp2": 51,
+      "rank_map": 41,
+      "dim_consistency_subspace": 41,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 42,
+      "n_view_fp2": 51,
+      "rank_map": 41,
+      "dim_consistency_subspace": 41,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 20,
+      "n_view_fp2": 28,
+      "rank_map": 19,
+      "dim_consistency_subspace": 19,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 4,
+    "log_fb": 4,
+    "log_n": 8
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 tiny T32/d16/f16 log_cols 8",
+   "mode": "P3",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 6,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 2,
+     "len": 14,
+     "main_rounds": 4
+    },
+    "SC_D": {
+     "n_vars": 6,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 2,
+     "len": 14,
+     "main_rounds": 4
+    },
+    "SC_ZC20": {
+     "n_vars": 10,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 42,
+     "main_rounds": 9
+    },
+    "SC_ZC17": {
+     "n_vars": 10,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 42,
+     "main_rounds": 9
+    },
+    "SC_ZSUM": {
+     "n_vars": 9,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 20,
+     "main_rounds": 8
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 56,
+     "n_active_unknowns_fp2": 56,
+     "n_view_fp2": 70,
+     "n_constraints": 16,
+     "rank_map": 54,
+     "rank_constraints": 16,
+     "dim_consistency_subspace": 54,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 56,
+     "n_active_unknowns_fp2": 56,
+     "n_view_fp2": 70,
+     "n_constraints": 16,
+     "rank_map": 54,
+     "rank_constraints": 16,
+     "dim_consistency_subspace": 54,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 20,
+     "n_active_unknowns_fp2": 20,
+     "n_view_fp2": 28,
+     "n_constraints": 9,
+     "rank_map": 19,
+     "rank_constraints": 9,
+     "dim_consistency_subspace": 19,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 14,
+      "n_view_fp2": 19,
+      "rank_map": 13,
+      "dim_consistency_subspace": 13,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 14,
+      "n_view_fp2": 19,
+      "rank_map": 13,
+      "dim_consistency_subspace": 13,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 42,
+      "n_view_fp2": 51,
+      "rank_map": 41,
+      "dim_consistency_subspace": 41,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 42,
+      "n_view_fp2": 51,
+      "rank_map": 41,
+      "dim_consistency_subspace": 41,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 20,
+      "n_view_fp2": 28,
+      "rank_map": 19,
+      "dim_consistency_subspace": 19,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 4,
+    "log_fb": 4,
+    "log_n": 8
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 tiny T32/d16/f16 log_cols 8",
+   "mode": "P1 + function-2 predicate",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 5,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 12,
+     "main_rounds": 4
+    },
+    "SC_D": {
+     "n_vars": 5,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 12,
+     "main_rounds": 4
+    },
+    "SC_ZC20": {
+     "n_vars": 10,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 42,
+     "main_rounds": 9
+    },
+    "SC_ZC17": {
+     "n_vars": 10,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 42,
+     "main_rounds": 9
+    },
+    "SC_ZSUM": {
+     "n_vars": 9,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 20,
+     "main_rounds": 8
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    },
+    "SC_PRED": {
+     "n_vars": 10,
+     "degree": 3,
+     "claim": "public tau + Gamma_pred = c_pred G_pred (sent)",
+     "ext_rounds": 1,
+     "len": 32,
+     "main_rounds": 9
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 54,
+     "n_active_unknowns_fp2": 54,
+     "n_view_fp2": 67,
+     "n_constraints": 15,
+     "rank_map": 52,
+     "rank_constraints": 15,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 54,
+     "n_active_unknowns_fp2": 54,
+     "n_view_fp2": 67,
+     "n_constraints": 15,
+     "rank_map": 52,
+     "rank_constraints": 15,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 20,
+     "n_active_unknowns_fp2": 20,
+     "n_view_fp2": 28,
+     "n_constraints": 9,
+     "rank_map": 19,
+     "rank_constraints": 9,
+     "dim_consistency_subspace": 19,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_PRED": {
+     "n_unknowns_fp2": 32,
+     "n_active_unknowns_fp2": 32,
+     "n_view_fp2": 41,
+     "n_constraints": 10,
+     "rank_map": 31,
+     "rank_constraints": 10,
+     "dim_consistency_subspace": 31,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_PRED(rho)": true,
+      "Gamma_SC_PRED": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 12,
+      "n_view_fp2": 16,
+      "rank_map": 11,
+      "dim_consistency_subspace": 11,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 12,
+      "n_view_fp2": 16,
+      "rank_map": 11,
+      "dim_consistency_subspace": 11,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 42,
+      "n_view_fp2": 51,
+      "rank_map": 41,
+      "dim_consistency_subspace": 41,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 42,
+      "n_view_fp2": 51,
+      "rank_map": 41,
+      "dim_consistency_subspace": 41,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 20,
+      "n_view_fp2": 28,
+      "rank_map": 19,
+      "dim_consistency_subspace": 19,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_PRED": {
+      "n_unknowns_fp2": 32,
+      "n_view_fp2": 41,
+      "rank_map": 31,
+      "dim_consistency_subspace": 31,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 4,
+    "log_fb": 4,
+    "log_n": 8
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 tiny T32/d16/f16 log_cols 8",
+   "mode": "P1 block profile (+ seams)",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 5,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 12,
+     "main_rounds": 4
+    },
+    "SC_D": {
+     "n_vars": 5,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 12,
+     "main_rounds": 4
+    },
+    "SC_ZC20": {
+     "n_vars": 10,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 42,
+     "main_rounds": 9
+    },
+    "SC_ZC17": {
+     "n_vars": 10,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 42,
+     "main_rounds": 9
+    },
+    "SC_ZSUM": {
+     "n_vars": 9,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 20,
+     "main_rounds": 8
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    },
+    "SC_SEAM_X": {
+     "n_vars": 10,
+     "degree": 2,
+     "claim": "public 0 + Gamma_seam = c_seam G_seam (sent; FA3 section 12.2 step 5)",
+     "ext_rounds": 1,
+     "len": 22,
+     "main_rounds": 9
+    },
+    "SC_SEAM_Z": {
+     "n_vars": 10,
+     "degree": 2,
+     "claim": "public 0 + Gamma_seam = c_seam G_seam (sent; FA3 section 12.2 step 5)",
+     "ext_rounds": 1,
+     "len": 22,
+     "main_rounds": 9
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 54,
+     "n_active_unknowns_fp2": 54,
+     "n_view_fp2": 67,
+     "n_constraints": 15,
+     "rank_map": 52,
+     "rank_constraints": 15,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 54,
+     "n_active_unknowns_fp2": 54,
+     "n_view_fp2": 67,
+     "n_constraints": 15,
+     "rank_map": 52,
+     "rank_constraints": 15,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 20,
+     "n_active_unknowns_fp2": 20,
+     "n_view_fp2": 28,
+     "n_constraints": 9,
+     "rank_map": 19,
+     "rank_constraints": 9,
+     "dim_consistency_subspace": 19,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_SEAM_X": {
+     "n_unknowns_fp2": 22,
+     "n_active_unknowns_fp2": 22,
+     "n_view_fp2": 31,
+     "n_constraints": 10,
+     "rank_map": 21,
+     "rank_constraints": 10,
+     "dim_consistency_subspace": 21,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_SEAM_X(rho)": true,
+      "Gamma_SC_SEAM_X": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_SEAM_Z": {
+     "n_unknowns_fp2": 22,
+     "n_active_unknowns_fp2": 22,
+     "n_view_fp2": 31,
+     "n_constraints": 10,
+     "rank_map": 21,
+     "rank_constraints": 10,
+     "dim_consistency_subspace": 21,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_SEAM_Z(rho)": true,
+      "Gamma_SC_SEAM_Z": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 12,
+      "n_view_fp2": 16,
+      "rank_map": 11,
+      "dim_consistency_subspace": 11,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 12,
+      "n_view_fp2": 16,
+      "rank_map": 11,
+      "dim_consistency_subspace": 11,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 42,
+      "n_view_fp2": 51,
+      "rank_map": 41,
+      "dim_consistency_subspace": 41,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 42,
+      "n_view_fp2": 51,
+      "rank_map": 41,
+      "dim_consistency_subspace": 41,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 20,
+      "n_view_fp2": 28,
+      "rank_map": 19,
+      "dim_consistency_subspace": 19,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_SEAM_X": {
+      "n_unknowns_fp2": 22,
+      "n_view_fp2": 31,
+      "rank_map": 21,
+      "dim_consistency_subspace": 21,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_SEAM_Z": {
+      "n_unknowns_fp2": 22,
+      "n_view_fp2": 31,
+      "rank_map": 21,
+      "dim_consistency_subspace": 21,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 4,
+    "log_fb": 4,
+    "log_n": 8
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 125M T32/d768/f2048 log_cols 14",
+   "mode": "P1",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 9,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 20,
+     "main_rounds": 8
+    },
+    "SC_D": {
+     "n_vars": 12,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 11
+    },
+    "SC_ZC20": {
+     "n_vars": 17,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 70,
+     "main_rounds": 16
+    },
+    "SC_ZC17": {
+     "n_vars": 14,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 58,
+     "main_rounds": 13
+    },
+    "SC_ZSUM": {
+     "n_vars": 14,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 30,
+     "main_rounds": 13
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 90,
+     "n_active_unknowns_fp2": 90,
+     "n_view_fp2": 114,
+     "n_constraints": 26,
+     "rank_map": 88,
+     "rank_constraints": 26,
+     "dim_consistency_subspace": 88,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 84,
+     "n_active_unknowns_fp2": 84,
+     "n_view_fp2": 108,
+     "n_constraints": 26,
+     "rank_map": 82,
+     "rank_constraints": 26,
+     "dim_consistency_subspace": 82,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 30,
+     "n_active_unknowns_fp2": 30,
+     "n_view_fp2": 43,
+     "n_constraints": 14,
+     "rank_map": 29,
+     "rank_constraints": 14,
+     "dim_consistency_subspace": 29,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 20,
+      "n_view_fp2": 28,
+      "rank_map": 19,
+      "dim_consistency_subspace": 19,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 37,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 70,
+      "n_view_fp2": 86,
+      "rank_map": 69,
+      "dim_consistency_subspace": 69,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 58,
+      "n_view_fp2": 71,
+      "rank_map": 57,
+      "dim_consistency_subspace": 57,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 30,
+      "n_view_fp2": 43,
+      "rank_map": 29,
+      "dim_consistency_subspace": 29,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 8,
+    "log_fb": 11,
+    "log_n": 13
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 125M T32/d768/f2048 log_cols 14",
+   "mode": "P3",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 10,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 2,
+     "len": 22,
+     "main_rounds": 8
+    },
+    "SC_D": {
+     "n_vars": 13,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 2,
+     "len": 28,
+     "main_rounds": 11
+    },
+    "SC_ZC20": {
+     "n_vars": 17,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 70,
+     "main_rounds": 16
+    },
+    "SC_ZC17": {
+     "n_vars": 14,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 58,
+     "main_rounds": 13
+    },
+    "SC_ZSUM": {
+     "n_vars": 14,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 30,
+     "main_rounds": 13
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 92,
+     "n_active_unknowns_fp2": 92,
+     "n_view_fp2": 117,
+     "n_constraints": 27,
+     "rank_map": 90,
+     "rank_constraints": 27,
+     "dim_consistency_subspace": 90,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 86,
+     "n_active_unknowns_fp2": 86,
+     "n_view_fp2": 111,
+     "n_constraints": 27,
+     "rank_map": 84,
+     "rank_constraints": 27,
+     "dim_consistency_subspace": 84,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 30,
+     "n_active_unknowns_fp2": 30,
+     "n_view_fp2": 43,
+     "n_constraints": 14,
+     "rank_map": 29,
+     "rank_constraints": 14,
+     "dim_consistency_subspace": 29,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 22,
+      "n_view_fp2": 31,
+      "rank_map": 21,
+      "dim_consistency_subspace": 21,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 28,
+      "n_view_fp2": 40,
+      "rank_map": 27,
+      "dim_consistency_subspace": 27,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 70,
+      "n_view_fp2": 86,
+      "rank_map": 69,
+      "dim_consistency_subspace": 69,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 58,
+      "n_view_fp2": 71,
+      "rank_map": 57,
+      "dim_consistency_subspace": 57,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 30,
+      "n_view_fp2": 43,
+      "rank_map": 29,
+      "dim_consistency_subspace": 29,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 8,
+    "log_fb": 11,
+    "log_n": 13
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 125M T32/d768/f2048 log_cols 14",
+   "mode": "P1 + function-2 predicate",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 9,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 20,
+     "main_rounds": 8
+    },
+    "SC_D": {
+     "n_vars": 12,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 11
+    },
+    "SC_ZC20": {
+     "n_vars": 17,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 70,
+     "main_rounds": 16
+    },
+    "SC_ZC17": {
+     "n_vars": 14,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 58,
+     "main_rounds": 13
+    },
+    "SC_ZSUM": {
+     "n_vars": 14,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 30,
+     "main_rounds": 13
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    },
+    "SC_PRED": {
+     "n_vars": 14,
+     "degree": 3,
+     "claim": "public tau + Gamma_pred = c_pred G_pred (sent)",
+     "ext_rounds": 1,
+     "len": 44,
+     "main_rounds": 13
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 90,
+     "n_active_unknowns_fp2": 90,
+     "n_view_fp2": 114,
+     "n_constraints": 26,
+     "rank_map": 88,
+     "rank_constraints": 26,
+     "dim_consistency_subspace": 88,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 84,
+     "n_active_unknowns_fp2": 84,
+     "n_view_fp2": 108,
+     "n_constraints": 26,
+     "rank_map": 82,
+     "rank_constraints": 26,
+     "dim_consistency_subspace": 82,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 30,
+     "n_active_unknowns_fp2": 30,
+     "n_view_fp2": 43,
+     "n_constraints": 14,
+     "rank_map": 29,
+     "rank_constraints": 14,
+     "dim_consistency_subspace": 29,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_PRED": {
+     "n_unknowns_fp2": 44,
+     "n_active_unknowns_fp2": 44,
+     "n_view_fp2": 57,
+     "n_constraints": 14,
+     "rank_map": 43,
+     "rank_constraints": 14,
+     "dim_consistency_subspace": 43,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_PRED(rho)": true,
+      "Gamma_SC_PRED": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 20,
+      "n_view_fp2": 28,
+      "rank_map": 19,
+      "dim_consistency_subspace": 19,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 37,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 70,
+      "n_view_fp2": 86,
+      "rank_map": 69,
+      "dim_consistency_subspace": 69,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 58,
+      "n_view_fp2": 71,
+      "rank_map": 57,
+      "dim_consistency_subspace": 57,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 30,
+      "n_view_fp2": 43,
+      "rank_map": 29,
+      "dim_consistency_subspace": 29,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_PRED": {
+      "n_unknowns_fp2": 44,
+      "n_view_fp2": 57,
+      "rank_map": 43,
+      "dim_consistency_subspace": 43,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 8,
+    "log_fb": 11,
+    "log_n": 13
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 125M T32/d768/f2048 log_cols 14",
+   "mode": "P1 block profile (+ seams)",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 9,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 20,
+     "main_rounds": 8
+    },
+    "SC_D": {
+     "n_vars": 12,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 11
+    },
+    "SC_ZC20": {
+     "n_vars": 17,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 70,
+     "main_rounds": 16
+    },
+    "SC_ZC17": {
+     "n_vars": 14,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 58,
+     "main_rounds": 13
+    },
+    "SC_ZSUM": {
+     "n_vars": 14,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 30,
+     "main_rounds": 13
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    },
+    "SC_SEAM_X": {
+     "n_vars": 14,
+     "degree": 2,
+     "claim": "public 0 + Gamma_seam = c_seam G_seam (sent; FA3 section 12.2 step 5)",
+     "ext_rounds": 1,
+     "len": 30,
+     "main_rounds": 13
+    },
+    "SC_SEAM_Z": {
+     "n_vars": 14,
+     "degree": 2,
+     "claim": "public 0 + Gamma_seam = c_seam G_seam (sent; FA3 section 12.2 step 5)",
+     "ext_rounds": 1,
+     "len": 30,
+     "main_rounds": 13
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 90,
+     "n_active_unknowns_fp2": 90,
+     "n_view_fp2": 114,
+     "n_constraints": 26,
+     "rank_map": 88,
+     "rank_constraints": 26,
+     "dim_consistency_subspace": 88,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 84,
+     "n_active_unknowns_fp2": 84,
+     "n_view_fp2": 108,
+     "n_constraints": 26,
+     "rank_map": 82,
+     "rank_constraints": 26,
+     "dim_consistency_subspace": 82,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 30,
+     "n_active_unknowns_fp2": 30,
+     "n_view_fp2": 43,
+     "n_constraints": 14,
+     "rank_map": 29,
+     "rank_constraints": 14,
+     "dim_consistency_subspace": 29,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_SEAM_X": {
+     "n_unknowns_fp2": 30,
+     "n_active_unknowns_fp2": 30,
+     "n_view_fp2": 43,
+     "n_constraints": 14,
+     "rank_map": 29,
+     "rank_constraints": 14,
+     "dim_consistency_subspace": 29,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_SEAM_X(rho)": true,
+      "Gamma_SC_SEAM_X": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_SEAM_Z": {
+     "n_unknowns_fp2": 30,
+     "n_active_unknowns_fp2": 30,
+     "n_view_fp2": 43,
+     "n_constraints": 14,
+     "rank_map": 29,
+     "rank_constraints": 14,
+     "dim_consistency_subspace": 29,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_SEAM_Z(rho)": true,
+      "Gamma_SC_SEAM_Z": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 20,
+      "n_view_fp2": 28,
+      "rank_map": 19,
+      "dim_consistency_subspace": 19,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 37,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 70,
+      "n_view_fp2": 86,
+      "rank_map": 69,
+      "dim_consistency_subspace": 69,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 58,
+      "n_view_fp2": 71,
+      "rank_map": 57,
+      "dim_consistency_subspace": 57,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 30,
+      "n_view_fp2": 43,
+      "rank_map": 29,
+      "dim_consistency_subspace": 29,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_SEAM_X": {
+      "n_unknowns_fp2": 30,
+      "n_view_fp2": 43,
+      "rank_map": 29,
+      "dim_consistency_subspace": 29,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_SEAM_Z": {
+      "n_unknowns_fp2": 30,
+      "n_view_fp2": 43,
+      "rank_map": 29,
+      "dim_consistency_subspace": 29,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 8,
+    "log_fb": 11,
+    "log_n": 13
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 8B block profile T32/d4096/f14336 log_cols 14 (FA3 ffn-v3-mr1)",
+   "mode": "P1",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 13,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 28,
+     "main_rounds": 12
+    },
+    "SC_D": {
+     "n_vars": 12,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 11
+    },
+    "SC_ZC20": {
+     "n_vars": 17,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 70,
+     "main_rounds": 16
+    },
+    "SC_ZC17": {
+     "n_vars": 18,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 74,
+     "main_rounds": 17
+    },
+    "SC_ZSUM": {
+     "n_vars": 15,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 32,
+     "main_rounds": 14
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 98,
+     "n_active_unknowns_fp2": 98,
+     "n_view_fp2": 126,
+     "n_constraints": 30,
+     "rank_map": 96,
+     "rank_constraints": 30,
+     "dim_consistency_subspace": 96,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 100,
+     "n_active_unknowns_fp2": 100,
+     "n_view_fp2": 128,
+     "n_constraints": 30,
+     "rank_map": 98,
+     "rank_constraints": 30,
+     "dim_consistency_subspace": 98,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 32,
+     "n_active_unknowns_fp2": 32,
+     "n_view_fp2": 46,
+     "n_constraints": 15,
+     "rank_map": 31,
+     "rank_constraints": 15,
+     "dim_consistency_subspace": 31,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 28,
+      "n_view_fp2": 40,
+      "rank_map": 27,
+      "dim_consistency_subspace": 27,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 37,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 70,
+      "n_view_fp2": 86,
+      "rank_map": 69,
+      "dim_consistency_subspace": 69,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 74,
+      "n_view_fp2": 91,
+      "rank_map": 73,
+      "dim_consistency_subspace": 73,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 32,
+      "n_view_fp2": 46,
+      "rank_map": 31,
+      "dim_consistency_subspace": 31,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 12,
+    "log_fb": 11,
+    "log_n": 14
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 8B block profile T32/d4096/f14336 log_cols 14 (FA3 ffn-v3-mr1)",
+   "mode": "P3",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 14,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 2,
+     "len": 30,
+     "main_rounds": 12
+    },
+    "SC_D": {
+     "n_vars": 13,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 2,
+     "len": 28,
+     "main_rounds": 11
+    },
+    "SC_ZC20": {
+     "n_vars": 17,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 70,
+     "main_rounds": 16
+    },
+    "SC_ZC17": {
+     "n_vars": 18,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 74,
+     "main_rounds": 17
+    },
+    "SC_ZSUM": {
+     "n_vars": 15,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 32,
+     "main_rounds": 14
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 100,
+     "n_active_unknowns_fp2": 100,
+     "n_view_fp2": 129,
+     "n_constraints": 31,
+     "rank_map": 98,
+     "rank_constraints": 31,
+     "dim_consistency_subspace": 98,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 102,
+     "n_active_unknowns_fp2": 102,
+     "n_view_fp2": 131,
+     "n_constraints": 31,
+     "rank_map": 100,
+     "rank_constraints": 31,
+     "dim_consistency_subspace": 100,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 32,
+     "n_active_unknowns_fp2": 32,
+     "n_view_fp2": 46,
+     "n_constraints": 15,
+     "rank_map": 31,
+     "rank_constraints": 15,
+     "dim_consistency_subspace": 31,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 30,
+      "n_view_fp2": 43,
+      "rank_map": 29,
+      "dim_consistency_subspace": 29,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 28,
+      "n_view_fp2": 40,
+      "rank_map": 27,
+      "dim_consistency_subspace": 27,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 70,
+      "n_view_fp2": 86,
+      "rank_map": 69,
+      "dim_consistency_subspace": 69,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 74,
+      "n_view_fp2": 91,
+      "rank_map": 73,
+      "dim_consistency_subspace": 73,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 32,
+      "n_view_fp2": 46,
+      "rank_map": 31,
+      "dim_consistency_subspace": 31,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 12,
+    "log_fb": 11,
+    "log_n": 14
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 8B block profile T32/d4096/f14336 log_cols 14 (FA3 ffn-v3-mr1)",
+   "mode": "P1 + function-2 predicate",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 13,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 28,
+     "main_rounds": 12
+    },
+    "SC_D": {
+     "n_vars": 12,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 11
+    },
+    "SC_ZC20": {
+     "n_vars": 17,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 70,
+     "main_rounds": 16
+    },
+    "SC_ZC17": {
+     "n_vars": 18,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 74,
+     "main_rounds": 17
+    },
+    "SC_ZSUM": {
+     "n_vars": 15,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 32,
+     "main_rounds": 14
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    },
+    "SC_PRED": {
+     "n_vars": 18,
+     "degree": 3,
+     "claim": "public tau + Gamma_pred = c_pred G_pred (sent)",
+     "ext_rounds": 1,
+     "len": 56,
+     "main_rounds": 17
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 98,
+     "n_active_unknowns_fp2": 98,
+     "n_view_fp2": 126,
+     "n_constraints": 30,
+     "rank_map": 96,
+     "rank_constraints": 30,
+     "dim_consistency_subspace": 96,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 100,
+     "n_active_unknowns_fp2": 100,
+     "n_view_fp2": 128,
+     "n_constraints": 30,
+     "rank_map": 98,
+     "rank_constraints": 30,
+     "dim_consistency_subspace": 98,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 32,
+     "n_active_unknowns_fp2": 32,
+     "n_view_fp2": 46,
+     "n_constraints": 15,
+     "rank_map": 31,
+     "rank_constraints": 15,
+     "dim_consistency_subspace": 31,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_PRED": {
+     "n_unknowns_fp2": 56,
+     "n_active_unknowns_fp2": 56,
+     "n_view_fp2": 73,
+     "n_constraints": 18,
+     "rank_map": 55,
+     "rank_constraints": 18,
+     "dim_consistency_subspace": 55,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_PRED(rho)": true,
+      "Gamma_SC_PRED": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 28,
+      "n_view_fp2": 40,
+      "rank_map": 27,
+      "dim_consistency_subspace": 27,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 37,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 70,
+      "n_view_fp2": 86,
+      "rank_map": 69,
+      "dim_consistency_subspace": 69,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 74,
+      "n_view_fp2": 91,
+      "rank_map": 73,
+      "dim_consistency_subspace": 73,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 32,
+      "n_view_fp2": 46,
+      "rank_map": 31,
+      "dim_consistency_subspace": 31,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_PRED": {
+      "n_unknowns_fp2": 56,
+      "n_view_fp2": 73,
+      "rank_map": 55,
+      "dim_consistency_subspace": 55,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 12,
+    "log_fb": 11,
+    "log_n": 14
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 8B block profile T32/d4096/f14336 log_cols 14 (FA3 ffn-v3-mr1)",
+   "mode": "P1 block profile (+ seams)",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 13,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 28,
+     "main_rounds": 12
+    },
+    "SC_D": {
+     "n_vars": 12,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 11
+    },
+    "SC_ZC20": {
+     "n_vars": 17,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 70,
+     "main_rounds": 16
+    },
+    "SC_ZC17": {
+     "n_vars": 18,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 74,
+     "main_rounds": 17
+    },
+    "SC_ZSUM": {
+     "n_vars": 15,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 32,
+     "main_rounds": 14
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    },
+    "SC_SEAM_X": {
+     "n_vars": 18,
+     "degree": 2,
+     "claim": "public 0 + Gamma_seam = c_seam G_seam (sent; FA3 section 12.2 step 5)",
+     "ext_rounds": 1,
+     "len": 38,
+     "main_rounds": 17
+    },
+    "SC_SEAM_Z": {
+     "n_vars": 18,
+     "degree": 2,
+     "claim": "public 0 + Gamma_seam = c_seam G_seam (sent; FA3 section 12.2 step 5)",
+     "ext_rounds": 1,
+     "len": 38,
+     "main_rounds": 17
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 98,
+     "n_active_unknowns_fp2": 98,
+     "n_view_fp2": 126,
+     "n_constraints": 30,
+     "rank_map": 96,
+     "rank_constraints": 30,
+     "dim_consistency_subspace": 96,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 100,
+     "n_active_unknowns_fp2": 100,
+     "n_view_fp2": 128,
+     "n_constraints": 30,
+     "rank_map": 98,
+     "rank_constraints": 30,
+     "dim_consistency_subspace": 98,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 32,
+     "n_active_unknowns_fp2": 32,
+     "n_view_fp2": 46,
+     "n_constraints": 15,
+     "rank_map": 31,
+     "rank_constraints": 15,
+     "dim_consistency_subspace": 31,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_SEAM_X": {
+     "n_unknowns_fp2": 38,
+     "n_active_unknowns_fp2": 38,
+     "n_view_fp2": 55,
+     "n_constraints": 18,
+     "rank_map": 37,
+     "rank_constraints": 18,
+     "dim_consistency_subspace": 37,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_SEAM_X(rho)": true,
+      "Gamma_SC_SEAM_X": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_SEAM_Z": {
+     "n_unknowns_fp2": 38,
+     "n_active_unknowns_fp2": 38,
+     "n_view_fp2": 55,
+     "n_constraints": 18,
+     "rank_map": 37,
+     "rank_constraints": 18,
+     "dim_consistency_subspace": 37,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_SEAM_Z(rho)": true,
+      "Gamma_SC_SEAM_Z": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 28,
+      "n_view_fp2": 40,
+      "rank_map": 27,
+      "dim_consistency_subspace": 27,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 37,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 70,
+      "n_view_fp2": 86,
+      "rank_map": 69,
+      "dim_consistency_subspace": 69,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 74,
+      "n_view_fp2": 91,
+      "rank_map": 73,
+      "dim_consistency_subspace": 73,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 32,
+      "n_view_fp2": 46,
+      "rank_map": 31,
+      "dim_consistency_subspace": 31,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_SEAM_X": {
+      "n_unknowns_fp2": 38,
+      "n_view_fp2": 55,
+      "rank_map": 37,
+      "dim_consistency_subspace": 37,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_SEAM_Z": {
+      "n_unknowns_fp2": 38,
+      "n_view_fp2": 55,
+      "rank_map": 37,
+      "dim_consistency_subspace": 37,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 12,
+    "log_fb": 11,
+    "log_n": 14
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 8B T32/d4096/f14336 log_cols 16",
+   "mode": "P1",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 13,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 28,
+     "main_rounds": 12
+    },
+    "SC_D": {
+     "n_vars": 12,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 11
+    },
+    "SC_ZC20": {
+     "n_vars": 17,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 70,
+     "main_rounds": 16
+    },
+    "SC_ZC17": {
+     "n_vars": 18,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 74,
+     "main_rounds": 17
+    },
+    "SC_ZSUM": {
+     "n_vars": 17,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 36,
+     "main_rounds": 16
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 98,
+     "n_active_unknowns_fp2": 98,
+     "n_view_fp2": 126,
+     "n_constraints": 30,
+     "rank_map": 96,
+     "rank_constraints": 30,
+     "dim_consistency_subspace": 96,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 100,
+     "n_active_unknowns_fp2": 100,
+     "n_view_fp2": 128,
+     "n_constraints": 30,
+     "rank_map": 98,
+     "rank_constraints": 30,
+     "dim_consistency_subspace": 98,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 36,
+     "n_active_unknowns_fp2": 36,
+     "n_view_fp2": 52,
+     "n_constraints": 17,
+     "rank_map": 35,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 35,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 28,
+      "n_view_fp2": 40,
+      "rank_map": 27,
+      "dim_consistency_subspace": 27,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 37,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 70,
+      "n_view_fp2": 86,
+      "rank_map": 69,
+      "dim_consistency_subspace": 69,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 74,
+      "n_view_fp2": 91,
+      "rank_map": 73,
+      "dim_consistency_subspace": 73,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 36,
+      "n_view_fp2": 52,
+      "rank_map": 35,
+      "dim_consistency_subspace": 35,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 12,
+    "log_fb": 11,
+    "log_n": 16
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 8B T32/d4096/f14336 log_cols 16",
+   "mode": "P3",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 14,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 2,
+     "len": 30,
+     "main_rounds": 12
+    },
+    "SC_D": {
+     "n_vars": 13,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 2,
+     "len": 28,
+     "main_rounds": 11
+    },
+    "SC_ZC20": {
+     "n_vars": 17,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 70,
+     "main_rounds": 16
+    },
+    "SC_ZC17": {
+     "n_vars": 18,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 74,
+     "main_rounds": 17
+    },
+    "SC_ZSUM": {
+     "n_vars": 17,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 36,
+     "main_rounds": 16
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 100,
+     "n_active_unknowns_fp2": 100,
+     "n_view_fp2": 129,
+     "n_constraints": 31,
+     "rank_map": 98,
+     "rank_constraints": 31,
+     "dim_consistency_subspace": 98,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 102,
+     "n_active_unknowns_fp2": 102,
+     "n_view_fp2": 131,
+     "n_constraints": 31,
+     "rank_map": 100,
+     "rank_constraints": 31,
+     "dim_consistency_subspace": 100,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 36,
+     "n_active_unknowns_fp2": 36,
+     "n_view_fp2": 52,
+     "n_constraints": 17,
+     "rank_map": 35,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 35,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 30,
+      "n_view_fp2": 43,
+      "rank_map": 29,
+      "dim_consistency_subspace": 29,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 28,
+      "n_view_fp2": 40,
+      "rank_map": 27,
+      "dim_consistency_subspace": 27,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 70,
+      "n_view_fp2": 86,
+      "rank_map": 69,
+      "dim_consistency_subspace": 69,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 74,
+      "n_view_fp2": 91,
+      "rank_map": 73,
+      "dim_consistency_subspace": 73,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 36,
+      "n_view_fp2": 52,
+      "rank_map": 35,
+      "dim_consistency_subspace": 35,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 12,
+    "log_fb": 11,
+    "log_n": 16
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 8B T32/d4096/f14336 log_cols 16",
+   "mode": "P1 + function-2 predicate",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 13,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 28,
+     "main_rounds": 12
+    },
+    "SC_D": {
+     "n_vars": 12,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 11
+    },
+    "SC_ZC20": {
+     "n_vars": 17,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 70,
+     "main_rounds": 16
+    },
+    "SC_ZC17": {
+     "n_vars": 18,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 74,
+     "main_rounds": 17
+    },
+    "SC_ZSUM": {
+     "n_vars": 17,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 36,
+     "main_rounds": 16
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    },
+    "SC_PRED": {
+     "n_vars": 18,
+     "degree": 3,
+     "claim": "public tau + Gamma_pred = c_pred G_pred (sent)",
+     "ext_rounds": 1,
+     "len": 56,
+     "main_rounds": 17
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 98,
+     "n_active_unknowns_fp2": 98,
+     "n_view_fp2": 126,
+     "n_constraints": 30,
+     "rank_map": 96,
+     "rank_constraints": 30,
+     "dim_consistency_subspace": 96,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 100,
+     "n_active_unknowns_fp2": 100,
+     "n_view_fp2": 128,
+     "n_constraints": 30,
+     "rank_map": 98,
+     "rank_constraints": 30,
+     "dim_consistency_subspace": 98,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 36,
+     "n_active_unknowns_fp2": 36,
+     "n_view_fp2": 52,
+     "n_constraints": 17,
+     "rank_map": 35,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 35,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_PRED": {
+     "n_unknowns_fp2": 56,
+     "n_active_unknowns_fp2": 56,
+     "n_view_fp2": 73,
+     "n_constraints": 18,
+     "rank_map": 55,
+     "rank_constraints": 18,
+     "dim_consistency_subspace": 55,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_PRED(rho)": true,
+      "Gamma_SC_PRED": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 28,
+      "n_view_fp2": 40,
+      "rank_map": 27,
+      "dim_consistency_subspace": 27,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 37,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 70,
+      "n_view_fp2": 86,
+      "rank_map": 69,
+      "dim_consistency_subspace": 69,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 74,
+      "n_view_fp2": 91,
+      "rank_map": 73,
+      "dim_consistency_subspace": 73,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 36,
+      "n_view_fp2": 52,
+      "rank_map": 35,
+      "dim_consistency_subspace": 35,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_PRED": {
+      "n_unknowns_fp2": 56,
+      "n_view_fp2": 73,
+      "rank_map": 55,
+      "dim_consistency_subspace": 55,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 12,
+    "log_fb": 11,
+    "log_n": 16
+   },
+   "all_surjective": true
+  },
+  {
+   "shape": "v3 8B T32/d4096/f14336 log_cols 16",
+   "mode": "P1 block profile (+ seams)",
+   "slots": {
+    "SC_GU": {
+     "n_vars": 13,
+     "degree": 2,
+     "claim": "private s_gu + c_gu G_gu (sent: gu_claim)",
+     "ext_rounds": 1,
+     "len": 28,
+     "main_rounds": 12
+    },
+    "SC_D": {
+     "n_vars": 12,
+     "degree": 2,
+     "claim": "private s_d + c_d G_d (sent: d_claim)",
+     "ext_rounds": 1,
+     "len": 26,
+     "main_rounds": 11
+    },
+    "SC_ZC20": {
+     "n_vars": 17,
+     "degree": 4,
+     "claim": "batched: nu0 gu_claim + GammaF, GammaF = c_f G_F - nu0 c_gu G_gu (sent)",
+     "ext_rounds": 1,
+     "len": 70,
+     "main_rounds": 16
+    },
+    "SC_ZC17": {
+     "n_vars": 18,
+     "degree": 4,
+     "claim": "batched: nu_z d_claim + GammaD, GammaD = c_dz G_D - nu_z c_d G_d (sent)",
+     "ext_rounds": 1,
+     "len": 74,
+     "main_rounds": 17
+    },
+    "SC_ZSUM": {
+     "n_vars": 17,
+     "degree": 2,
+     "claim": "public 0 + Gamma_zs = c_zs G_zs (sent)",
+     "ext_rounds": 1,
+     "len": 36,
+     "main_rounds": 16
+    },
+    "SC_TAB": {
+     "n_vars": 17,
+     "degree": 3,
+     "claim": "public 0 + Gamma_tab = c_tab G_tab (sent)",
+     "ext_rounds": 1,
+     "len": 53,
+     "main_rounds": 16
+    },
+    "SC_SEAM_X": {
+     "n_vars": 18,
+     "degree": 2,
+     "claim": "public 0 + Gamma_seam = c_seam G_seam (sent; FA3 section 12.2 step 5)",
+     "ext_rounds": 1,
+     "len": 38,
+     "main_rounds": 17
+    },
+    "SC_SEAM_Z": {
+     "n_vars": 18,
+     "degree": 2,
+     "claim": "public 0 + Gamma_seam = c_seam G_seam (sent; FA3 section 12.2 step 5)",
+     "ext_rounds": 1,
+     "len": 38,
+     "main_rounds": 17
+    }
+   },
+   "systems": {
+    "SC_GU+SC_ZC20 (batched as coded)": {
+     "n_unknowns_fp2": 98,
+     "n_active_unknowns_fp2": 98,
+     "n_view_fp2": 126,
+     "n_constraints": 30,
+     "rank_map": 96,
+     "rank_constraints": 30,
+     "dim_consistency_subspace": 96,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_GU(rho)": true,
+      "g_SC_ZC20(rho)": true,
+      "Gamma_SC_ZC20": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_D+SC_ZC17 (batched as coded)": {
+     "n_unknowns_fp2": 100,
+     "n_active_unknowns_fp2": 100,
+     "n_view_fp2": 128,
+     "n_constraints": 30,
+     "rank_map": 98,
+     "rank_constraints": 30,
+     "dim_consistency_subspace": 98,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 2,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_D(rho)": true,
+      "g_SC_ZC17(rho)": true,
+      "Gamma_SC_ZC17": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_ZSUM": {
+     "n_unknowns_fp2": 36,
+     "n_active_unknowns_fp2": 36,
+     "n_view_fp2": 52,
+     "n_constraints": 17,
+     "rank_map": 35,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 35,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_ZSUM(rho)": true,
+      "Gamma_SC_ZSUM": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_TAB": {
+     "n_unknowns_fp2": 53,
+     "n_active_unknowns_fp2": 53,
+     "n_view_fp2": 69,
+     "n_constraints": 17,
+     "rank_map": 52,
+     "rank_constraints": 17,
+     "dim_consistency_subspace": 52,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_TAB(rho)": true,
+      "Gamma_SC_TAB": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_SEAM_X": {
+     "n_unknowns_fp2": 38,
+     "n_active_unknowns_fp2": 38,
+     "n_view_fp2": 55,
+     "n_constraints": 18,
+     "rank_map": 37,
+     "rank_constraints": 18,
+     "dim_consistency_subspace": 37,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_SEAM_X(rho)": true,
+      "Gamma_SC_SEAM_X": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "SC_SEAM_Z": {
+     "n_unknowns_fp2": 38,
+     "n_active_unknowns_fp2": 38,
+     "n_view_fp2": 55,
+     "n_constraints": 18,
+     "rank_map": 37,
+     "rank_constraints": 18,
+     "dim_consistency_subspace": 37,
+     "image_inside_subspace": true,
+     "leaked_dim_fp2": 0,
+     "kernel_dim_fp2": 1,
+     "verdict": "surjective (view uniform on S, independent of the data)",
+     "m_functionals_in_view_span": {
+      "g_SC_SEAM_Z(rho)": true,
+      "Gamma_SC_SEAM_Z": true
+     },
+     "theta_combination_in_view_span": true
+    },
+    "standalone": {
+     "SC_GU": {
+      "n_unknowns_fp2": 28,
+      "n_view_fp2": 40,
+      "rank_map": 27,
+      "dim_consistency_subspace": 27,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_D": {
+      "n_unknowns_fp2": 26,
+      "n_view_fp2": 37,
+      "rank_map": 25,
+      "dim_consistency_subspace": 25,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC20": {
+      "n_unknowns_fp2": 70,
+      "n_view_fp2": 86,
+      "rank_map": 69,
+      "dim_consistency_subspace": 69,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZC17": {
+      "n_unknowns_fp2": 74,
+      "n_view_fp2": 91,
+      "rank_map": 73,
+      "dim_consistency_subspace": 73,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_ZSUM": {
+      "n_unknowns_fp2": 36,
+      "n_view_fp2": 52,
+      "rank_map": 35,
+      "dim_consistency_subspace": 35,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_TAB": {
+      "n_unknowns_fp2": 53,
+      "n_view_fp2": 69,
+      "rank_map": 52,
+      "dim_consistency_subspace": 52,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_SEAM_X": {
+      "n_unknowns_fp2": 38,
+      "n_view_fp2": 55,
+      "rank_map": 37,
+      "dim_consistency_subspace": 37,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     },
+     "SC_SEAM_Z": {
+      "n_unknowns_fp2": 38,
+      "n_view_fp2": 55,
+      "rank_map": 37,
+      "dim_consistency_subspace": 37,
+      "kernel_dim_fp2": 1,
+      "verdict": "surjective (view uniform on S, independent of the data)"
+     }
+    }
+   },
+   "layout": {
+    "log_t": 5,
+    "log_db": 12,
+    "log_fb": 11,
+    "log_n": 16
+   },
+   "all_surjective": true
+  }
+ ],
+ "all_slot_systems_surjective": true,
+ "controls_message_channel": {
+  "nc_mask_challenge_zero": {
+   "n_unknowns_fp2": 14,
+   "n_active_unknowns_fp2": 14,
+   "n_view_fp2": 17,
+   "n_constraints": 4,
+   "rank_map": 0,
+   "rank_constraints": 4,
+   "dim_consistency_subspace": 13,
+   "image_inside_subspace": true,
+   "leaked_dim_fp2": 13,
+   "kernel_dim_fp2": 14,
+   "verdict": "DEFICIENT",
+   "leaked_functionals": [
+    {
+     "Gamma": [
+      1,
+      0
+     ]
+    },
+    {
+     "s.h0(0)": [
+      1,
+      0
+     ]
+    },
+    {
+     "s.h0(2)": [
+      1,
+      0
+     ]
+    }
+   ],
+   "counterexample": {
+    "f1": "the all-zero consistent message set (phi(f1) = 0)",
+    "f2_support": [
+     "Gamma",
+     "s.h0(0)",
+     "s.h0(1)"
+    ],
+    "phi_f2_nonzero": true,
+    "phi_f2_sha256_16": "61978e669d7bf94a"
+   },
+   "expect": "c = 0: the whole view is the data's messages; leaked = dim S"
+  },
+  "pc_no_aprime_libra_form": {
+   "n_unknowns_fp2": 14,
+   "n_active_unknowns_fp2": 13,
+   "n_view_fp2": 17,
+   "n_constraints": 4,
+   "rank_map": 13,
+   "rank_constraints": 4,
+   "dim_consistency_subspace": 13,
+   "image_inside_subspace": true,
+   "leaked_dim_fp2": 0,
+   "kernel_dim_fp2": 0,
+   "verdict": "surjective (view uniform on S, independent of the data)",
+   "expect": "without a' (the Libra form a_0 + sum_j u_j) the map is still surjective, kernel 0: a' is redundant"
+  },
+  "pc_no_constant_a0_generic_challenges": {
+   "n_unknowns_fp2": 14,
+   "n_active_unknowns_fp2": 13,
+   "n_view_fp2": 17,
+   "n_constraints": 4,
+   "rank_map": 13,
+   "rank_constraints": 4,
+   "dim_consistency_subspace": 13,
+   "image_inside_subspace": true,
+   "leaked_dim_fp2": 0,
+   "kernel_dim_fp2": 0,
+   "verdict": "surjective (view uniform on S, independent of the data)",
+   "expect": "without a_0, a' covers the total's direction for generic challenges: still surjective, kernel 0 (a_0 and a' are interchangeable off a challenge hyperplane)"
+  },
+  "nc_no_constant_a0_degenerate_challenge": {
+   "n_unknowns_fp2": 14,
+   "n_active_unknowns_fp2": 13,
+   "n_view_fp2": 17,
+   "n_constraints": 4,
+   "rank_map": 12,
+   "rank_constraints": 4,
+   "dim_consistency_subspace": 13,
+   "image_inside_subspace": true,
+   "leaked_dim_fp2": 1,
+   "kernel_dim_fp2": 1,
+   "verdict": "DEFICIENT",
+   "leaked_functionals": [
+    {
+     "s.h0(0)": [
+      10271777566823802423,
+      2457885668334168502
+     ],
+     "s.h1(0)": [
+      9630650467590394597,
+      2113755743747306750
+     ],
+     "s.h1(2)": [
+      13113401673002027552,
+      13188053767274356752
+     ],
+     "s.h1(3)": [
+      18021445086250337165,
+      12461641794673921240
+     ],
+     "s.h2(0)": [
+      1483155335488604976,
+      5598138618158280693
+     ],
+     "s.h2(2)": [
+      10778829261285208134,
+      7176723263521984363
+     ],
+     "s.h2(3)": [
+      12693863237562133138,
+      14100413180664813057
+     ],
+     "s.h3(0)": [
+      1,
+      0
+     ]
+    }
+   ],
+   "counterexample": {
+    "f1": "the all-zero consistent message set (phi(f1) = 0)",
+    "f2_support": [
+     "Gamma",
+     "s.h0(0)",
+     "s.h1(0)",
+     "s.h1(1)"
+    ],
+    "phi_f2_nonzero": true,
+    "phi_f2_sha256_16": "6e0a24e3d1e94540"
+   },
+   "expect": "without a_0 and with r_0 = 0 (prod_{i<j} r_i = 0 for j >= 1): a' reaches only G and g_0; the view obeys G - sum_j 2^j (h_j(1) - h_j(0)) = 0 and leaks that functional of the data: leaked 1. a_0 is what makes the hiding unconditional"
+  },
+  "nc_no_a0_no_aprime": {
+   "n_unknowns_fp2": 14,
+   "n_active_unknowns_fp2": 12,
+   "n_view_fp2": 17,
+   "n_constraints": 4,
+   "rank_map": 12,
+   "rank_constraints": 4,
+   "dim_consistency_subspace": 13,
+   "image_inside_subspace": true,
+   "leaked_dim_fp2": 1,
+   "kernel_dim_fp2": 0,
+   "verdict": "DEFICIENT",
+   "leaked_functionals": [
+    {
+     "Gamma": [
+      5065253958990222767,
+      14071560151658410676
+     ],
+     "s.h0(0)": [
+      655754708810179229,
+      9365199674802663648
+     ],
+     "s.h0(2)": [
+      13368621426859747573,
+      5851834971267860488
+     ],
+     "s.h0(3)": [
+      4203445336190819573,
+      14255485824837976960
+     ],
+     "s.h1(0)": [
+      7363801361492154866,
+      11749493636922760217
+     ],
+     "s.h1(2)": [
+      7736662328159177114,
+      785865887122883496
+     ],
+     "s.h1(3)": [
+      6554213723282623139,
+      3254873333728515755
+     ],
+     "s.h2(0)": [
+      2326694692816660663,
+      15827266014402685295
+     ],
+     "s.h2(2)": [
+      13642383687854623333,
+      3161435538554945330
+     ],
+     "s.h2(3)": [
+      11755689928241881340,
+      14116174745226109783
+     ],
+     "s.h3(0)": [
+      1,
+      0
+     ]
+    }
+   ],
+   "counterexample": {
+    "f1": "the all-zero consistent message set (phi(f1) = 0)",
+    "f2_support": [
+     "Gamma",
+     "s.h0(0)",
+     "s.h0(1)"
+    ],
+    "phi_f2_nonzero": true,
+    "phi_f2_sha256_16": "e2eb5a6407894655"
+   },
+   "expect": "without both a_0 and a': the total G's direction is missing; leaked 1"
+  },
+  "pc_full_mask_all_zero_challenges": {
+   "n_unknowns_fp2": 14,
+   "n_active_unknowns_fp2": 14,
+   "n_view_fp2": 17,
+   "n_constraints": 4,
+   "rank_map": 13,
+   "rank_constraints": 4,
+   "dim_consistency_subspace": 13,
+   "image_inside_subspace": true,
+   "leaked_dim_fp2": 0,
+   "kernel_dim_fp2": 1,
+   "verdict": "surjective (view uniform on S, independent of the data)",
+   "expect": "the full mask at all_zero challenges: still surjective (the a_0 / a_{j,e} cover does not depend on the challenges)"
+  },
+  "pc_full_mask_all_one_challenges": {
+   "n_unknowns_fp2": 14,
+   "n_active_unknowns_fp2": 14,
+   "n_view_fp2": 17,
+   "n_constraints": 4,
+   "rank_map": 13,
+   "rank_constraints": 4,
+   "dim_consistency_subspace": 13,
+   "image_inside_subspace": true,
+   "leaked_dim_fp2": 0,
+   "kernel_dim_fp2": 1,
+   "verdict": "surjective (view uniform on S, independent of the data)",
+   "expect": "the full mask at all_one challenges: still surjective (the a_0 / a_{j,e} cover does not depend on the challenges)"
+  },
+  "nc_extension_degree_exceeds_mask": {
+   "n_unknowns_fp2": 14,
+   "n_active_unknowns_fp2": 14,
+   "n_view_fp2": 18,
+   "n_constraints": 4,
+   "rank_map": 13,
+   "rank_constraints": 4,
+   "dim_consistency_subspace": 14,
+   "image_inside_subspace": true,
+   "leaked_dim_fp2": 1,
+   "kernel_dim_fp2": 1,
+   "verdict": "DEFICIENT",
+   "leaked_functionals": [
+    {
+     "s.h3(4)": [
+      1,
+      0
+     ]
+    }
+   ],
+   "counterexample": {
+    "f1": "the all-zero consistent message set (phi(f1) = 0)",
+    "f2_support": [
+     "s.h3(4)"
+    ],
+    "phi_f2_nonzero": true,
+    "phi_f2_sha256_16": "fad748aa45cceb71"
+   },
+   "expect": "extension round of degree d+1 under a degree-d mask (zk.rs::extension zips sk with gk): the top value is clear; leaked 1"
+  },
+  "nc_mask_reuse_same_challenges": {
+   "n_unknowns_fp2": 14,
+   "n_active_unknowns_fp2": 14,
+   "n_view_fp2": 34,
+   "n_constraints": 8,
+   "rank_map": 13,
+   "rank_constraints": 8,
+   "dim_consistency_subspace": 26,
+   "image_inside_subspace": true,
+   "leaked_dim_fp2": 13,
+   "kernel_dim_fp2": 1,
+   "verdict": "DEFICIENT",
+   "leaked_functionals": [
+    {
+     "p1.Gamma": [
+      18446744069414584320,
+      0
+     ],
+     "p2.Gamma": [
+      1,
+      0
+     ]
+    },
+    {
+     "p1.h0(0)": [
+      18446744069414584320,
+      0
+     ],
+     "p2.h0(0)": [
+      1,
+      0
+     ]
+    },
+    {
+     "p1.h0(2)": [
+      18446744069414584320,
+      0
+     ],
+     "p2.h0(2)": [
+      1,
+      0
+     ]
+    }
+   ],
+   "counterexample": {
+    "f1": "the all-zero consistent message set (phi(f1) = 0)",
+    "f2_support": [
+     "p1.Gamma",
+     "p1.h0(0)",
+     "p1.h0(1)"
+    ],
+    "phi_f2_nonzero": true,
+    "phi_f2_sha256_16": "7409e53a0588a4c6"
+   },
+   "expect": "same mask, same c, same challenges (a re-proof of different data under the same seed whose transcript happens to repeat, or a retried attempt): view1 - view2 = f1 - f2; leaked = dim S of one sumcheck"
+  },
+  "nc_mask_reuse_fresh_challenges": {
+   "n_unknowns_fp2": 14,
+   "n_active_unknowns_fp2": 14,
+   "n_view_fp2": 34,
+   "n_constraints": 8,
+   "rank_map": 14,
+   "rank_constraints": 8,
+   "dim_consistency_subspace": 26,
+   "image_inside_subspace": true,
+   "leaked_dim_fp2": 12,
+   "kernel_dim_fp2": 0,
+   "verdict": "DEFICIENT",
+   "leaked_functionals": [
+    {
+     "p1.Gamma": [
+      6900068411415651133,
+      4326857897201316968
+     ],
+     "p2.Gamma": [
+      1,
+      0
+     ]
+    },
+    {
+     "p1.h0(0)": [
+      6900068411415651133,
+      4326857897201316968
+     ],
+     "p2.h0(0)": [
+      1,
+      0
+     ]
+    },
+    {
+     "p1.h0(2)": [
+      6900068411415651133,
+      4326857897201316968
+     ],
+     "p2.h0(2)": [
+      1,
+      0
+     ]
+    }
+   ],
+   "counterexample": {
+    "f1": "the all-zero consistent message set (phi(f1) = 0)",
+    "f2_support": [
+     "p1.Gamma",
+     "p1.h0(0)",
+     "p1.h0(1)"
+    ],
+    "phi_f2_nonzero": true,
+    "phi_f2_sha256_16": "435b2867015642c7"
+   },
+   "expect": "same mask under fresh challenges (two proofs with cfg.seed = Some(s) at the same layer index, or one coefficient vector shared by two slots): leaked = N d = 12"
+  },
+  "nc_batched_pair_without_zero_check_mask": {
+   "n_unknowns_fp2": 26,
+   "n_active_unknowns_fp2": 8,
+   "n_view_fp2": 31,
+   "n_constraints": 7,
+   "rank_map": 7,
+   "rank_constraints": 7,
+   "dim_consistency_subspace": 24,
+   "image_inside_subspace": true,
+   "leaked_dim_fp2": 17,
+   "kernel_dim_fp2": 1,
+   "verdict": "DEFICIENT",
+   "leaked_functionals": [
+    {
+     "a.claim": [
+      8428717797229981504,
+      14765764004476301596
+     ],
+     "b.Gamma": [
+      1,
+      0
+     ]
+    },
+    {
+     "b.h0(0)": [
+      1,
+      0
+     ]
+    },
+    {
+     "b.h0(2)": [
+      1,
+      0
+     ]
+    }
+   ],
+   "counterexample": {
+    "f1": "the all-zero consistent message set (phi(f1) = 0)",
+    "f2_support": [
+     "a.claim",
+     "a.h0(0)",
+     "a.h0(1)",
+     "b.h0(0)",
+     "b.h0(1)"
+    ],
+    "phi_f2_nonzero": true,
+    "phi_f2_sha256_16": "d51b7d6207ec9025"
+   },
+   "expect": "the zero-check mask absent (Gamma carries only -nu c_a G_a): the zero-check's messages are clear; leaked = dim S_b"
+  }
+ },
+ "controls_m_opening": {
+  "seven_generates_fp_star": {
+   "ok": true,
+   "coset_disjoint_from_G_m": true
+  },
+  "pc_columns_q_distinct_under_q_pads": {
+   "log_m": 3,
+   "coefficients": 3,
+   "pads": 3,
+   "opened": 3,
+   "distinct": 3,
+   "disclosed_coefficient_functionals": 0
+  },
+  "pc_columns_duplicate_indices": {
+   "log_m": 3,
+   "coefficients": 3,
+   "pads": 3,
+   "opened": 3,
+   "distinct": 2,
+   "disclosed_coefficient_functionals": 0
+  },
+  "nc_columns_exceed_pads": {
+   "log_m": 3,
+   "coefficients": 3,
+   "pads": 3,
+   "opened": 4,
+   "distinct": 4,
+   "disclosed_coefficient_functionals": 1
+  },
+  "nc_columns_without_pads": {
+   "log_m": 3,
+   "coefficients": 3,
+   "pads": 0,
+   "opened": 3,
+   "distinct": 3,
+   "disclosed_coefficient_functionals": 3
+  },
+  "pc_qprime_one_opening": {
+   "log_m": 3,
+   "coefficients_fp2": 3,
+   "pads": 3,
+   "openings": 1,
+   "blinding": true,
+   "data_scalars_fp": 6,
+   "disclosed_fp_dim": 2,
+   "disclosed_fp2_dim": 1
+  },
+  "nc_qprime_two_openings_same_M": {
+   "log_m": 3,
+   "coefficients_fp2": 3,
+   "pads": 3,
+   "openings": 2,
+   "blinding": true,
+   "data_scalars_fp": 6,
+   "disclosed_fp_dim": 6,
+   "disclosed_fp2_dim": 3
+  },
+  "nc_qprime_without_blinding": {
+   "log_m": 3,
+   "coefficients_fp2": 3,
+   "pads": 3,
+   "openings": 1,
+   "blinding": false,
+   "data_scalars_fp": 6,
+   "disclosed_fp_dim": 6,
+   "disclosed_fp2_dim": 3
+  },
+  "sum_identity": {
+   "sum_over_G_m_equals_m(q0+qm)": true,
+   "equals_<a,W>": true
+  },
+  "pc_joint_qprime_prox_columns_one_opening": {
+   "log_m": 3,
+   "coefficients_fp2": 3,
+   "pads": 3,
+   "opened_columns": 3,
+   "openings": 1,
+   "unknowns_fp": 74,
+   "observations_fp": 100,
+   "data_scalars_fp": 6,
+   "disclosed_fp_dim": 2,
+   "disclosed_fp2_dim": 1.0
+  },
+  "nc_joint_two_openings_same_M": {
+   "log_m": 3,
+   "coefficients_fp2": 3,
+   "pads": 3,
+   "opened_columns": 3,
+   "openings": 2,
+   "unknowns_fp": 74,
+   "observations_fp": 200,
+   "data_scalars_fp": 6,
+   "disclosed_fp_dim": 6,
+   "disclosed_fp2_dim": 3.0
+  }
+ },
+ "rust_fixture": {
+  "n_vars": 3,
+  "degree": 2,
+  "coeffs": [
+   [
+    18446744069414584318,
+    1
+   ],
+   [
+    18446744069414584316,
+    2
+   ],
+   [
+    18446744069414584314,
+    3
+   ],
+   [
+    18446744069414584310,
+    4
+   ],
+   [
+    18446744069414584308,
+    5
+   ],
+   [
+    18446744069414584304,
+    6
+   ],
+   [
+    18446744069414584301,
+    7
+   ],
+   [
+    18446744069414584298,
+    9
+   ]
+  ],
+  "rho": [
+   [
+    2,
+    1
+   ],
+   [
+    5,
+    18446744069414584318
+   ],
+   [
+    7,
+    4
+   ]
+  ],
+  "rounds": [
+   [
+    [
+     18446744069414584163,
+     58
+    ],
+    [
+     18446744069414584086,
+     88
+    ],
+    [
+     18446744069414583921,
+     150
+    ]
+   ],
+   [
+    [
+     18446744069414584268,
+     16
+    ],
+    [
+     18446744069414584212,
+     37
+    ],
+    [
+     18446744069414584088,
+     82
+    ]
+   ],
+   [
+    [
+     18446744069414581390,
+     1102
+    ],
+    [
+     18446744069414581388,
+     1101
+    ],
+    [
+     18446744069414581340,
+     1118
+    ]
+   ]
+  ],
+  "total": [
+   18446744069414583928,
+   146
+  ],
+  "eval": [
+   18446744069414581082,
+   1277
+  ]
+ }
+}
