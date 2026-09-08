@@ -97,10 +97,11 @@ tails, poisoned handles, real process termination, and eight unique slots
 reserved by competing processes. They use public synthetic policy identifiers;
 no fixture here represents an approved private model.
 
-[Round 12](ZK60_ROUND12.md) records the final source pin, full-suite counts,
-receipt and frozen-proof checks. The next H2 increment must bind protected
-secret-material storage and deterministic commitment reconstruction to this
-same policy. H3/H4 must integrate a consuming token API with the reviewed
+[Round 12](ZK60_ROUND12.md) records this journal's source pin, full-suite counts,
+receipt and frozen-proof checks. [Round 13](ZK60_ROUND13.md) implements the
+opt-in [protected material store](ZK60_STABLE_WEIGHT_MATERIAL.md) and exact CPU
+commitment reconstruction, bound to this same policy. Registration orchestration
+and the reviewed layout generator remain open. H3/H4 must integrate a consuming token API with the reviewed
 versioned mask layout and registered verifier policy. Fable retains FA6–FA9,
 CL21 and the remaining CL20 extraction; Codex owns this journal and attention
 verifier changes. The journal closes neither the CFS privacy argument nor

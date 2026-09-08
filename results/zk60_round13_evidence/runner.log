@@ -1,0 +1,24 @@
+WAIT shared heavy lock
+ACQUIRED shared heavy lock
+START hashline_tests
+END hashline_tests exit=0
+START core_tests
+END core_tests exit=0
+START hashline_default_dependencies
+END hashline_default_dependencies exit=0
+START core_dependencies
+END core_dependencies exit=0
+START binaries
+END binaries exit=0
+START b4_reprove
+END b4_reprove exit=0
+START chain_verify
+END chain_verify exit=0
+START cpu-v2
+END cpu-v2 exit=0
+START cpu-v3
+END cpu-v3 exit=0
+START cpu-zk
+END cpu-zk exit=0
+START cpu-zkv3
+END cpu-zkv3 exit=0

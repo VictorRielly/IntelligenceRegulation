@@ -14748,3 +14748,28 @@ The queue preserves Fable ownership. FA9 reviews R32 and supplies remaining
 arithmetic/registrar proposals; Codex completes H2's protected material store
 and reconstruction, then integrates the reviewed versioned proof path and
 consuming slot API. Privacy arguments still gate private-block composition.
+
+
+## 2026-09-08 — ZK60 round 13: protected registration material
+
+Codex `ccc6f26` implements opt-in encrypted stable-weight material bound to the
+trusted slot policy and ordered mask/proximity roles. Creation/reload rebuild
+the exact CPU PCS commitment using the canonical helpers; malformed, changed,
+oversized or unauthenticated files refuse. The external key is never persisted
+by the library. The separate public journal retains its durable slot semantics.
+Host encryption/storage stays outside the maintained `zkp-core` subproject.
+
+**Validation:** 202 Rust tests, all four frozen CPU proof hashes/lengths, exact
+B4 reproduction and B5 separate-process verification pass. Default/core trees
+exclude the added encryption dependencies; existing registry versions remain
+unchanged. Two threads, shared heavy lock, 8-GiB address-space cap, maximum
+reported stage RSS 1,668,084 KiB, zero swaps. No new GPU or Python/native run.
+See [round 13](docs/zkmatrix-poc/ZK60_ROUND13.md) and
+[exact retained evidence](results/zk60_round13_validation.json).
+
+Fable retains FA6–FA9, CL21 and remaining CL20. Codex next reviews those pushes
+and continues H2 registration/layout/key-custody orchestration. Full masking,
+transcript and bounded-reuse review gates the consuming repaired prover and
+registered verifier, then one private block and two connected private blocks.
+The material component does not complete H2, establish approval or repair the
+known legacy privacy defect.

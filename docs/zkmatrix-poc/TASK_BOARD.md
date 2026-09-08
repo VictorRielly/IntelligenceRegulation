@@ -1,5 +1,18 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-08, round 13:** Codex implements protected stable-weight
+registration material and exact CPU commitment reconstruction in `ccc6f26`.
+**202 Rust tests, four frozen CPU proof artifacts and public B4/B5 receipt
+checks pass.** [Implementation and evidence](ZK60_ROUND13.md).
+
+The opt-in [material store](ZK60_STABLE_WEIGHT_MATERIAL.md) binds encryption to
+the trusted slot policy and expected row roles. Default builds and `zkp-core`
+exclude its encryption dependencies. Fable retains FA6–FA9, CL21 and remaining
+CL20 work. Next: reviewed arithmetic/core integrations, H2 registration/layout
+and key-custody orchestration, then the repaired slot-consuming prover/verifier
+once the privacy review closes. H2, approved P3 and private blocks remain open.
+[Current handoff](ZK60_FABLE_QUEUE.md). Earlier dated entries retain their scope.
+
 **2026-09-08, round 12:** Codex fixes typed attention extra-message
 acceptance (`42471f0`) and implements the durable public slot journal for
 FA4 H2 (`72a884e`). Final source `972da4e` passes **191 Rust tests, all four

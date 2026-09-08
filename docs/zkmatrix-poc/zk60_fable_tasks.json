@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "created_local_date": "2026-09-07",
-  "round": 12,
-  "integrator_base": "972da4e",
+  "round": 13,
+  "integrator_base": "ccc6f26",
   "reviewed_lane_tip": "5949b38",
-  "review": "ZK60_ROUND12.md",
+  "review": "ZK60_ROUND13.md",
   "owner": "Fable owns follow-up analysis and remaining core/GPU work; Codex owns integration, observation instrumentation and protocol implementation",
   "coordination": "Fable owns FA6-FA9 analysis, CL21 tooling and remaining CL20 extraction; Codex owns integration and protocol implementation. One writer per shared source boundary.",
   "engineering_order": [
@@ -625,7 +625,8 @@
         "tests": 19,
         "report": "../../zkp-core/MIGRATION.md",
         "complete_task": false
-      }
+      },
+      "round13_handoff": "Preserve the public PCS helpers used by hashline::stable_weight_material and its optional feature tests; encryption/filesystem/key custody remain outside zkp-core."
     },
     {
       "id": "FA6",
@@ -752,14 +753,15 @@
         "Dirty or missing core, mismatched dependency identity and missing core cases refuse qualification.",
         "Gate both the standalone core and existing CPU/GPU frozen fixtures with exact case/source/binary identities."
       ],
-      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner."
+      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner.",
+      "round13_handoff": "Hashline adds optional stable-weight-storage dependencies in its lockfile. Preserve both-crate source identity, and distinguish default proof gates from feature-enabled storage test coverage."
     }
   ],
   "round10_codex_work": "CL19 implementation complete and validated: 156 Rust, 39 Python consumers, four unchanged frozen proofs, P3 on/off byte parity; see ZK60_ROUND10.md. GPU/PCS/planner ownership unchanged.",
   "codex_next_work": [
-    "Apply independently reviewed FA9 arithmetic/registrar fixes.",
-    "Finish H2 protected secret-material storage and commitment reconstruction against the reviewed policy.",
-    "Integrate consuming slot tokens and the separately versioned masking repair after required privacy review; then one private block and two connected private blocks."
+    "Review and integrate published FA9 arithmetic/registrar proposals and CL21/CL20 source while preserving ownership.",
+    "Finish H2 registration orchestration, reviewed stable-weight mask-layout generation and externally protected key provisioning using the implemented material store and journal.",
+    "After required masking/transcript/bounded-reuse review, implement the versioned repair with consuming slot tokens and registered verifier policy; then one private block and two connected private blocks."
   ],
   "completed_successor_tasks": [
     "CL12",
@@ -818,5 +820,31 @@
       "b5_separate_process": true,
       "gpu_executed": false
     }
+  },
+  "round13_codex_work": {
+    "status": "protected material component implemented and validated; complete H2 and privacy integration remain open",
+    "source": "ccc6f26",
+    "implemented": [
+      "opt-in authenticated encryption bound to trusted slot policy and ordered row roles",
+      "bounded canonical material parsing and exact CPU PCS commitment reconstruction",
+      "separate-process material reload preserving spent and exhausted slots"
+    ],
+    "protected_material_store_implemented": true,
+    "h2_complete": false,
+    "production_model_registered": false,
+    "stable_p3_enabled": false,
+    "privacy_repair_implemented": false,
+    "validation": "../../results/zk60_round13_validation.json",
+    "report": "ZK60_ROUND13.md",
+    "tests": {
+      "rust_passed": 202,
+      "rust_ignored": 0,
+      "frozen_cpu_cases": 4,
+      "b4_exact": true,
+      "b5_separate_process": true,
+      "gpu_executed": false
+    },
+    "feature": "stable-weight-storage",
+    "core_encryption_dependencies_added": false
   }
 }

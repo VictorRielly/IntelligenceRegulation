@@ -1,0 +1,44 @@
+{
+  "database_tree": "bf25f6575a93a35f30796c65c0ed91bee7fa19fd",
+  "new_packages_checked": [
+    "aead",
+    "chacha20",
+    "chacha20poly1305",
+    "cipher",
+    "inout",
+    "opaque-debug",
+    "poly1305",
+    "subtle",
+    "universal-hash",
+    "zeroize"
+  ],
+  "matching_paths": [
+    "crates/chacha20",
+    "crates/chacha20/RUSTSEC-2019-0029.md"
+  ],
+  "scope": "Path inventory for newly added packages only; not a full dependency audit",
+  "added_locked_packages": {
+    "aead": "0.5.2",
+    "chacha20": "0.9.1",
+    "chacha20poly1305": "0.10.1",
+    "cipher": "0.4.4",
+    "inout": "0.1.4",
+    "opaque-debug": "0.3.1",
+    "poly1305": "0.8.0",
+    "subtle": "2.6.1",
+    "universal-hash": "0.5.1",
+    "zeroize": "1.9.0"
+  },
+  "existing_registry_versions_changed": [],
+  "matching_advisories": [
+    {
+      "id": "RUSTSEC-2019-0029",
+      "package": "chacha20",
+      "locked_version": "0.9.1",
+      "patched_range": ">= 0.2.3",
+      "affected": false,
+      "source_url": "https://github.com/RustSec/advisory-db/blob/bf25f6575a93a35f30796c65c0ed91bee7fa19fd/crates/chacha20/RUSTSEC-2019-0029.md",
+      "source_sha256": "f02361318232aa3202c954fd9cde3e2a688b0842f137d16ee22d042fac691c4c"
+    }
+  ]
+}

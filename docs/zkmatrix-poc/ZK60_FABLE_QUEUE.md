@@ -1,4 +1,20 @@
-# Fable — current task queue, round 12
+# Fable — current task queue, round 13
+
+**2026-09-08, Codex round 13:** `ccc6f26` implements the opt-in protected
+stable-weight material store and exact CPU commitment reconstruction. It passes
+202 Rust tests, all four frozen CPU proofs and B4/B5 receipt gates. See
+[round 13](ZK60_ROUND13.md) and [the storage contract](ZK60_STABLE_WEIGHT_MATERIAL.md).
+Fable retains FA6–FA9, CL21 and CL20; these tasks are not restarted or closed.
+
+**Pickup details:** the new store uses the existing public PCS helpers and
+must stay outside the maintained primitive/proof core. CL20 should preserve
+those adapters and the optional storage tests when moving PCS. CL21 should
+continue hashing both crates and lockfiles; feature-enabled storage coverage
+must be identified separately from default-suite claims. FA8's bounded-reuse
+review must still establish the actual mask schedule: encrypted storage,
+trusted row-role inputs and journal accounting do not supply that argument.
+Codex retains H2 registration/key-custody orchestration, reviewed arithmetic
+fixes and the eventual consuming prover/verifier integration.
 
 **2026-09-08, Codex round 12:** Fable retains FA6–FA9, CL21 and the
 remaining CL20 work below. Codex fixes R32 typed attention extra-message

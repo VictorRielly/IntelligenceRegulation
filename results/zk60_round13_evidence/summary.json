@@ -1,0 +1,385 @@
+{
+  "schema_version": 1,
+  "source_commit": "ccc6f26ea8018324fb9cec526e6e75556dc0728a",
+  "scope": "FA4 H2 opt-in protected registration material and deterministic PCS reconstruction",
+  "threads": 2,
+  "address_space_limit_bytes": 8589934592,
+  "gpu_executed": false,
+  "stages": [
+    {
+      "stage": "hashline_tests",
+      "command": [
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--features",
+        "stable-weight-storage",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 274.91158664700924,
+      "log": "/tmp/zk60-round13/hashline_tests.log",
+      "log_sha256": "325262282e09d8b89cee9d3416ab2e5a1a6913db1bdabce92a00e9ac0a1d5b39",
+      "resource_log": "/tmp/zk60-round13/hashline_tests.time"
+    },
+    {
+      "stage": "core_tests",
+      "command": [
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "zkp-core/Cargo.toml",
+        "--all-targets",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.11554555999464355,
+      "log": "/tmp/zk60-round13/core_tests.log",
+      "log_sha256": "186d78cc9f18b4b7958596ab2c8627c1f4697acd036ef88b6fd7abd5ff381905",
+      "resource_log": "/tmp/zk60-round13/core_tests.time"
+    },
+    {
+      "stage": "hashline_default_dependencies",
+      "command": [
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "tree",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--prefix",
+        "none",
+        "--format",
+        "{p}"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.06551554900943302,
+      "log": "/tmp/zk60-round13/hashline_default_dependencies.log",
+      "log_sha256": "944e6c295f3fe94a85dafc48ec4f53f9733ac276e1815a4aad2d816f550ce2a0",
+      "resource_log": "/tmp/zk60-round13/hashline_default_dependencies.time"
+    },
+    {
+      "stage": "core_dependencies",
+      "command": [
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "tree",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "zkp-core/Cargo.toml",
+        "--prefix",
+        "none",
+        "--format",
+        "{p}"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.03296685399254784,
+      "log": "/tmp/zk60-round13/core_dependencies.log",
+      "log_sha256": "749e43f772f45891da38ce293137ae82887921482faa306af822d7ea8723d178",
+      "resource_log": "/tmp/zk60-round13/core_dependencies.time"
+    },
+    {
+      "stage": "binaries",
+      "command": [
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--bin",
+        "hashline",
+        "--example",
+        "zk60_block_receipt",
+        "--example",
+        "zk60_chain_receipt"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 58.0095542120107,
+      "log": "/tmp/zk60-round13/binaries.log",
+      "log_sha256": "ae7caf0921c1cc95afee564faa5ac18a3f39ef16d70a6ea81efa8543cbae5273",
+      "resource_log": "/tmp/zk60-round13/binaries.time"
+    },
+    {
+      "stage": "b4_reprove",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_block_receipt",
+        "prove",
+        "/home/victor/IntelligenceRegulation/results/zk60_round4_expected.bin",
+        "/tmp/zk60-round13/b4.proof"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.11513555000419728,
+      "log": "/tmp/zk60-round13/b4_reprove.log",
+      "log_sha256": "705490de2a43b3fa12341d3443d873aa4bf20a42661173634c3d5f537556aa35",
+      "resource_log": "/tmp/zk60-round13/b4_reprove.time"
+    },
+    {
+      "stage": "chain_verify",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_chain_receipt",
+        "verify",
+        "/home/victor/IntelligenceRegulation/results/zk60_round6_expected.bin",
+        "/home/victor/IntelligenceRegulation/results/zk60_round6_receipt.proof",
+        "f20dc692c421abae9bfcb15ac4c15d8cdce64ef6f49e256c635dcc4bf2354d36",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "f20dc692c421abae9bfcb15ac4c15d8cdce64ef6f49e256c635dcc4bf2354d36",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.03330172100686468,
+      "log": "/tmp/zk60-round13/chain_verify.log",
+      "log_sha256": "e990d70e26f7317b37881cafb06e9ee9c87baf89ea84889a6f4442417189f29d",
+      "resource_log": "/tmp/zk60-round13/chain_verify.time"
+    },
+    {
+      "stage": "cpu-v2",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round13/cpu-v2.proof"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 35.40832476798096,
+      "log": "/tmp/zk60-round13/cpu-v2.log",
+      "log_sha256": "bcf3cec721a364fa5c8feadd0e43fbec675068196568f1e99c3837c9dd556042",
+      "resource_log": "/tmp/zk60-round13/cpu-v2.time"
+    },
+    {
+      "stage": "cpu-v3",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round13/cpu-v3.proof",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 35.65072097501252,
+      "log": "/tmp/zk60-round13/cpu-v3.log",
+      "log_sha256": "b13c64674381e0c8250b6b115479ce6792625aed693e0ddeda36ed108a70330c",
+      "resource_log": "/tmp/zk60-round13/cpu-v3.time"
+    },
+    {
+      "stage": "cpu-zk",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round13/cpu-zk.proof",
+        "--zk",
+        "--seed",
+        "1"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 36.057332247000886,
+      "log": "/tmp/zk60-round13/cpu-zk.log",
+      "log_sha256": "46757dedc861abc80b72adf78b730bad99922b85dbdf487f72385bf11132f9fe",
+      "resource_log": "/tmp/zk60-round13/cpu-zk.time"
+    },
+    {
+      "stage": "cpu-zkv3",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round13/cpu-zkv3.proof",
+        "--zk",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 38.77018773998134,
+      "log": "/tmp/zk60-round13/cpu-zkv3.log",
+      "log_sha256": "a54c97cc60130c0f236751ccef38a3c53631262e9f1ecd070c3fc79a822709de",
+      "resource_log": "/tmp/zk60-round13/cpu-zkv3.time"
+    }
+  ],
+  "limits": [
+    "Protected material component only; no stable P3 prover/verifier, approved registration or privacy acceptance.",
+    "Full Python/native suite unchanged; 546 tests passed at round11.",
+    "GPU algorithms unchanged; round11 GPU validation remains historical."
+  ],
+  "hashline_tests_including_doctests": {
+    "passed": 183,
+    "failed": 0,
+    "ignored": 0
+  },
+  "core_tests": {
+    "passed": 19,
+    "failed": 0,
+    "ignored": 0
+  },
+  "rust_tests_total": {
+    "passed": 202,
+    "failed": 0,
+    "ignored": 0
+  },
+  "optional_dependency_checks": {
+    "hashline_default": {
+      "forbidden_dependencies": []
+    },
+    "core": {
+      "forbidden_dependencies": []
+    }
+  },
+  "cpu_binary": {
+    "path": "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+    "bytes": 4662560,
+    "sha256": "163ee6ec89082f62ea25dec47b110c754823989322b23cad671452347628800f"
+  },
+  "b4": {
+    "bytes": 2144946,
+    "sha256": "ba5d82150b92e1ef4f58a29fe90fc65c756ac2f49c18f6df6b5de3f6f2fc6b94"
+  },
+  "frozen_artifacts": [
+    {
+      "case": "cpu-v2",
+      "bytes": 66844928,
+      "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d"
+    },
+    {
+      "case": "cpu-v3",
+      "bytes": 70758084,
+      "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d"
+    },
+    {
+      "case": "cpu-zk",
+      "bytes": 87228528,
+      "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d"
+    },
+    {
+      "case": "cpu-zkv3",
+      "bytes": 87697008,
+      "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17"
+    }
+  ],
+  "source_sha256": {
+    "hashline/Cargo.lock": "ee907194e256bf9385ec3245b7dec32c1b18f78741b676cf98926b3782af788a",
+    "hashline/Cargo.toml": "50714eec178880d1cedf73ff63a2a1dd4fee4ae6397dfc96dbe818f1e4fd5499",
+    "hashline/examples/zk60_block_receipt.rs": "4c0e83001e13f7ac23ef763957d4675d18c292d47f593f06d035623888d9eb66",
+    "hashline/examples/zk60_chain_receipt.rs": "f71bbcda9d50b5c83d356541d9cd6a29795333dacde3e97018a5e5aaff7168cf",
+    "hashline/examples/zk60_seam_receipt.rs": "ac1929dc9d35af2fd48c87baf151452873c6a8e5a546c16c914bab148b7d624a",
+    "hashline/examples/zk60_witness_bench.rs": "55cdc891bbc0de4a62f3ef449c0a836d5008406f9cc72422da947d8849461f28",
+    "hashline/src/attention.rs": "c5ae80ddc909aae40b9ec6b9766e5634cf3dc13172e8902f8f2dc33c77cdf979",
+    "hashline/src/attention_schedule.rs": "e6f818d784587fa02ea9c3d189b0294e6cf2a69e0127de460b4a4002ab877bb9",
+    "hashline/src/bin/hashline.rs": "2809dff2ffc057053e7fb90a1a1128ba0bafbceb95f00a48585694bdd59484e4",
+    "hashline/src/causal_oracle.rs": "d9b54d7090fc610731b1f5e593651e5626f4b15d036e549bc2b7113f7e36bfc7",
+    "hashline/src/chain.rs": "dd6a902a91edf5ba878c9ad987e6c6750c46e2b919238487f17f65621e807180",
+    "hashline/src/export.rs": "869f1d9151f11179f0d81cde2dabb1b41e5768b8485df3cfcc6f75b47c4c1294",
+    "hashline/src/export_v3.rs": "e0394ab4113d150336ee91353d7ba26589d5e4dffcb3cb7d2ad0fea833842acb",
+    "hashline/src/field.rs": "1dc6c53b9d3b014b8cabfb784c15dcbddde31bc58e6d7216101c6a4fbbf45669",
+    "hashline/src/field/verifier_hardening_tests.rs": "76bb4cbb9fb60c6d3b01729abd5a96e93a5fdc335f49b0f36b8821e4fbdd0332",
+    "hashline/src/gpu/cuda.rs": "714800aac94c5ffb51ee98d327639301f3a42a38a0bbf4ba956507cfde30ac93",
+    "hashline/src/gpu/kernels.cu": "1bd65ed1ed1505c2d3c6b48af16f10799b6e335dc8ccfbe3f6eb744da2cd332f",
+    "hashline/src/gpu/mod.rs": "9688b09fd97bf614b3e2dd18764b2a87018e2f3dcae21a703d14860ef39a6f8d",
+    "hashline/src/layer.rs": "f0931f6364daabe38011dc3aa0101fd9cfe2525c225e9e531556e6da536d02d7",
+    "hashline/src/lib.rs": "45e6d0ec780d484aae1e8dd63df8957e1312b08cf81b641f8cdaf68e56c7dea1",
+    "hashline/src/merkle.rs": "06fd5f0bd725599d601dacb1b8aac1e797914c7ca8c344c0a52a412260b47eee",
+    "hashline/src/mle.rs": "bffe83fb5636f445f3a5a3b85141c374bdfeb4e4716c386eec30d10f5ed33741",
+    "hashline/src/model_identity.rs": "e6ef35710dfbdcbd3d4342f84b590e1aab39f61f0b843ff7ef2864cef8d6831c",
+    "hashline/src/norm.rs": "60e3f9b33564c8027e80e250326ea2ac8d2f14c443a348eafc3e365bc5d8eb58",
+    "hashline/src/ntt.rs": "a7f7ac0b838747c4de59e8226213500a41c047356ddd8bcdb3ab906818843c7c",
+    "hashline/src/pcs.rs": "60ac5f2f37e30b8aa3d648f5069fa0c2cefc5b73b8e42e3fb34933f77960ab1b",
+    "hashline/src/pcs_compact.rs": "fe638969957f2640ce445c354bac3430e04163684310b8c3552e51c205f0f7b2",
+    "hashline/src/phase_profile.rs": "9b6948473f4750c72ecc5940badda96ad4b86dcfd0b1c6889008c0996e4c44d8",
+    "hashline/src/private_block_contract.rs": "cba18955d162d6e5acf1302681e0a214d5bbeab27a8231a18401244532fdcb72",
+    "hashline/src/private_seam.rs": "ae539c9cb7799d67e60d05e98377e64b701eae20e569df4f42f7f4fa0edcb435",
+    "hashline/src/public_block_oracle.rs": "0cc821e8c8c30bf842ea11442845d3156a522fc3d8f3e82d6f9fdfa55a58a83f",
+    "hashline/src/public_block_receipt.rs": "2f99ae965d0efb5a12579b4668573798c3d1b109f3b38d13cceeea624b0ba9e0",
+    "hashline/src/public_block_wire.rs": "2ad6d8276a7f8c7fbd580835e8d3b101bda12be2ea0123162a838a4c0ca6d3cc",
+    "hashline/src/public_chain_receipt.rs": "2d7c224756acf7439c52d12a80d5d70010f4c087bf7022b2617db3b4929544a1",
+    "hashline/src/silu.rs": "66338f5bcaebdd893f65623c4702ed7faf869de8dbae3c8d56cee8f52e95e0a1",
+    "hashline/src/stable_weight_material.rs": "02b66873b941c18c54bb5d73a6b96e0717027ce86a6a7fa9ef2878fcf63b6d89",
+    "hashline/src/stable_weight_material_tests.rs": "efe4aa6cd3e3a81b4baa770f9b5c54979c3b43a4157ce9eb227be80ce6d62008",
+    "hashline/src/stable_weight_slots.rs": "efcf500354f311e555393e1b7206e508bd1ae78c4ca081717a01358b7666b214",
+    "hashline/src/stable_weight_slots_tests.rs": "0040b1529944ef28ca2eb3b648c3b3b5ac383ebc60d3439154d0272f049bf474",
+    "hashline/src/sumcheck.rs": "f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566",
+    "hashline/src/tables_attn.rs": "6654e31badcfe577eeece52c7b7bbd903bf687e2bb9e7fb145051cafc665ffa7",
+    "hashline/src/tables_v3.rs": "1dfe92dda380823532f6b1ff1f541b52cebf191d0ab976ac0b3d640a9d5bb4e6",
+    "hashline/src/transcript.rs": "4850b2b4dc80317659fd643908e307ca58923c98e98baf32c4c1623ba239fd78",
+    "hashline/src/wcache.rs": "28f35569cb59ecdbe877487d40ac80c33c90f95101dc0cad69ddf7500ac85088",
+    "hashline/src/wcache_atomic_tests.rs": "329c5e4257e5f4504b41a2b7306681f1ffd1006b59ba94622961c4335b893407",
+    "hashline/src/zk.rs": "c44425347e3d5648e3c8664e540ec724bb9c8740c538b0559f2c28bc99b7715e",
+    "hashline/src/zk_ffn_mask_diagnostic.rs": "e724585337a09564af8b9767be994555addc160369ae41036298f337c0155924",
+    "hashline/src/zk_ffn_observation_json.rs": "d4ef5378e2352997efe5c3286faeeb3eef83da74b0610ad43704a2b9b005bc18",
+    "hashline/src/zk_proof_size.rs": "a7598d0ac02fe3de45075c7f82e0a447e6376a381690dd3fd695e890d8c04fcf",
+    "hashline/tests/cli_claims.rs": "20e5a14b8dd523bf0e98ef13ac9ccb38bf7071585c335e745d1da2918cb2ae4b",
+    "hashline/tests/zk60_attention_schedule.rs": "01fe566aea7d304005b16697c56246bc01c91d03ccb7b7788894bb27907fceba",
+    "hashline/tests/zk60_block_contract.rs": "41ee46d3a835e8a87029a660fae02ee5cd629e0c1d7ffd4812ee30f03627195e",
+    "hashline/tests/zk60_gpu_cache.rs": "a528f62450e0f1d645a326890cb87dc01ab56f1091927c70f86e33901d101ce3",
+    "hashline/tests/zk60_gpu_commit.rs": "4254d1bfa06aaff9791beed33d9a8a83b8493b3e2a097a539376805c36757945",
+    "hashline/tests/zk60_identity_gap.rs": "c7bec1fcec170634889440f83cf13ba246c3d66af9b0486415f4bbc363be2a71",
+    "hashline/tests/zk60_mask_rank.rs": "2913afeeb9047c6a449f462170e7e6112fd55c41ea89d0b16ee6c2305b78fa81",
+    "hashline/tests/zk60_memory_layout.rs": "928b37f789d0cd2bef130e7270bb05459b12ec0407173a715c196cd73b804b00",
+    "hashline/tests/zk60_model_identity.rs": "685606c5754fe22fc823bbfb12e78bce79b46a1740237b44b3da1edd0440eefe",
+    "hashline/tests/zk60_pending_layout.rs": "ab41d87f356d715af913870d89ebf77795fa8dbb63e867928e4f477f78d62f91",
+    "hashline/tests/zk60_phase_profile.rs": "bf5ff5a26cab24eadd75e6aedbe5e973fd6a1a9d942d2f139f6297a086fe71f9",
+    "hashline/tests/zk60_private_seam.rs": "6080ffe9ac9e451b5b26a0d6936f9f3b013b921ac93e6123bffaca6ad7ed20f1",
+    "hashline/tests/zk60_proof_size.rs": "c5b6409b2dc649e8e6c96a13d9c52237cafd73525d7e698dd4b30818d682be7d",
+    "hashline/tests/zk60_public_block.rs": "3776dfdfea5aa25d8df0e44c03ffcce394b4c2db287632e601bc1767e32445e6",
+    "hashline/tests/zk60_public_chain.rs": "a0bff3d3120b958e6b3cff908c2ffc74077d948235e7c6d5d9c4c13686422060",
+    "hashline/tests/zk60_public_receipt.rs": "b9c617c02fe02d753707a3a54e34ac3b27f4b0fea638b580739298a273981e79",
+    "hashline/tests/zk60_public_wire.rs": "b22a8ecdbc66554af1db2fb5f31c5d4a87cfec770e9551c927e3c8cd09c208c0",
+    "hashline/tests/zk60_sequence_equivalence.rs": "bba717851affd8475935a4bb60f24d305ede3b919ec32088ed2f0f7bb1ab18d6",
+    "hashline/tests/zk60_stable_weight_slots.rs": "e81427c6079c11faadc3f6299ab8e02363f2af9db7c35eb13fe242925a8ea581",
+    "zkp-core/Cargo.lock": "4ff606b9c497d9040dde49c4d226ebcb5b91c82e98e815a4a6e1d1d88cf1d006",
+    "zkp-core/Cargo.toml": "d87e36dec770a55e37c0b271c0e444afef11c1a640684ebe0c46d69d1aee93d7",
+    "zkp-core/examples/public_sumcheck.rs": "d08bf793ca01b56df97c8056d1940b025ebfd3681bae667825a9c344a0f9af51",
+    "zkp-core/src/field.rs": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "zkp-core/src/lib.rs": "9cd2613f20b8129dc645ae338d3919184ee34c69e95014de09c0136998ea5b2f",
+    "zkp-core/src/merkle.rs": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62",
+    "zkp-core/src/mle.rs": "131cf1b49a2f280147ccb1d8f374c139cd7033a8a4ddb02c473b751937409614",
+    "zkp-core/src/ntt.rs": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890",
+    "zkp-core/src/rng.rs": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+    "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+    "zkp-core/src/transcript.rs": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+    "zkp-core/tools/dep_closure.py": "9b8f130de6de6681a3330e7a5b082405e735f2cdf50f170778889af52a6d5e8e"
+  },
+  "validation_status": "complete",
+  "exit_code": 0
+}
