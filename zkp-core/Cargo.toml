@@ -1,0 +1,17 @@
+[package]
+name = "zkp-core"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Maintained CPU proof primitives extracted from hashline; experimental protocol security"
+
+[dependencies]
+blake3 = "1.8"
+rayon = "1.11"
+
+[profile.release]
+opt-level = 3
+codegen-units = 1
+lto = "fat"
+panic = "abort"
+debug = false

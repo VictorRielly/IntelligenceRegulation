@@ -1,5 +1,9 @@
 # zkp-core — design of the minimal maintained ZKP library (CL20, design phase)
 
+**Round-11 update:** the primitive boundary is now implemented; see
+[MIGRATION.md](MIGRATION.md). The remainder of this document is the original
+source-pinned design. Its projected cuts and API are not all implemented.
+
 Status: **DESIGN PHASE, 2026-09-07. No code has been moved. No manifest exists.**
 Written against integrator baseline `52a13d1` (branch `zk60-cl20-core`) by the
 Fable refactoring lane; Codex reviews the shared-core boundaries. This document

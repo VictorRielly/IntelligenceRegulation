@@ -23,6 +23,7 @@ path = "src/bin/hashline.rs"
 gpu-cuda = ["dep:cudarc"]
 
 [dependencies]
+zkp-core = { path = "../zkp-core" }
 blake3 = "1.8"
 rayon = "1.11"
 sha2 = "0.10"

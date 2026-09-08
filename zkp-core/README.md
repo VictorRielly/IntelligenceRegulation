@@ -1,7 +1,28 @@
-# Minimal ZKP core — planned subproject
+# Minimal ZKP core
 
-Status: **design scaffold, no extracted implementation yet**. Victor requested
-this lower-priority work on 2026-09-07. The implementation contract is
+Status: **first primitive extraction implemented; complete FFN path pending**.
+The crate owns field arithmetic, NTT, Merkle trees, transcripts, randomness,
+multilinear helpers and sumcheck. `hashline` imports these canonical types
+through compatibility exports. Default builds use only `blake3` and `rayon`;
+they need no GPU or model files. All 19 moved primitive tests pass.
+
+```sh
+env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 cargo test --release --offline \
+  --manifest-path zkp-core/Cargo.toml --all-targets -- --test-threads=2
+env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 cargo run --release --offline \
+  --manifest-path zkp-core/Cargo.toml --example public_sumcheck
+```
+
+The example verifies a public dot-product sumcheck, including the terminal
+relation and an altered-round refusal. It is a primitive example. PCS,
+the complete FFN relation and bounded proof decoding are still in the migration
+queue; this crate does not yet implement a complete ZKP. Inherited CFS helpers
+retain the unresolved privacy obligations of the legacy protocol.
+
+[MIGRATION.md](MIGRATION.md) records the exact source boundary, compatibility
+rules and next extraction. [DESIGN.md](DESIGN.md) preserves Fable's initial
+design and the remaining work. Existing experiments stay in their current
+projects. Victor requested this lower-priority work on 2026-09-07. The contract is
 [CL20 in Fable's queue](../docs/zkmatrix-poc/ZK60_FABLE_QUEUE.md#cl20--create-and-maintain-a-minimal-refactored-zkp-subproject),
 with status tracked in [the task manifest](../docs/zkmatrix-poc/zk60_fable_tasks.json).
 
@@ -11,7 +32,7 @@ benchmarks, reports and alternative designs remain available. The small core
 should be a dependable starting point for future implementations without
 requiring readers to understand every historical experiment.
 
-## First implementation boundary
+## Full extraction contract
 
 Before extraction, record the exact supported statement/profile, parameters,
 proof format and security status. Select a complete currently implemented
@@ -68,13 +89,13 @@ wrapper whose default dependency is the entire experimental application.
 6. Document promotion of future reviewed repairs and how experiments stay
    outside the maintained core. Keep one source of truth per primitive.
 
-There is deliberately no placeholder Cargo manifest or claim of runnable
-proof code in this scaffold. CL20 closes only when the library, example,
-tests, compatibility adapters and maintenance policy actually work.
+CL20 remains open until the selected full proof path, bounded codec, examples,
+tests and compatibility adapters work. The primitive crate completes an
+incremental boundary, not that entire task.
 
 ## Design phase (2026-09-07)
 
-Design phase; no extraction yet. [DESIGN.md](DESIGN.md) records, against
+Historical pre-extraction design: [DESIGN.md](DESIGN.md) records, against
 integrator baseline `52a13d1`, the chosen first extraction profile (the
 non-hiding v3 FFN layer proof, parity gate `5f368db6…` / 70,758,084 B, privacy
 class P0), the measured dependency closure of that profile before and after
