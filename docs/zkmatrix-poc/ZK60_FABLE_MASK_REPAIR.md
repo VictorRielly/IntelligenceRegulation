@@ -520,6 +520,14 @@ The five identified blockers, named once and referenced below:
   rounds are uniform given the two opened functionals of `g`) that no document in
   this repository states or proves. The schedule adds two seam slots and forbids
   sharing/reuse; that is all it can do.
+  **Reviewed 2026-09-08 (FA6, [ZK60_FABLE_CFS_CHANNEL.md](ZK60_FABLE_CFS_CHANNEL.md)):**
+  the argument is now written and checked against the actual `CfsMask`, `mask_open`
+  and `mask_functionals` code — every slot system (v2's six, v3's six + pred, the P3
+  matmul extension rounds and both seam slots as specified here) is surjective onto
+  its consistency subspace (240 exact-rank systems at 21 shape/mode entries, no
+  counterexample), the M opening reveals exactly the θ-combined value V, and 22
+  negative controls exhibit the leak when a rule is broken. B1 is closed for this
+  construction under the freshness rule FA6 states; B2–B4 pass to FA8.
 - **B2 — transcript conditioning / simulator.** λ, ρ, e, the points and the column
   indices are functions of the masked messages absorbed before them; the rank model
   conditions on them. A simulator that programs the random oracle and produces the
@@ -536,6 +544,14 @@ The five identified blockers, named once and referenced below:
 - **B5 — the missing H / P3-W capture and captured coefficients.** Every rank result
   uses stand-in challenges; Codex's round-10 capture hook does not exist at this pin;
   U1 closes only when the tool is run on exported coefficients of a repaired proof.
+  **Reviewed 2026-09-08 (FA7, [ZK60_FABLE_CAPTURE_REVIEW.md](ZK60_FABLE_CAPTURE_REVIEW.md)):**
+  Codex's round-11 capture (`8b697b0`) exists and twelve LEGACY-profile A/H/P3-W
+  captures were consumed jointly with actual coefficients (the X-at-p2 / h16-at-p5
+  slice offsets and the Wd singleton confirmed on real claims; joint disclosed
+  dimension A = 2n + 4, P3 W = 2n + 2, H = the public LogUp identity only). The
+  captured-coefficient half of B5 is closed; the repaired-profile and function-2
+  captures (schema and cases in FA7 §10) are the open half, and acceptance test P3
+  still runs on them.
 
 | # | FA2 assumption | Disposition |
 |---|---|---|
@@ -544,7 +560,7 @@ The five identified blockers, named once and referenced below:
 | U3 | terminal values individually public ⇒ every single-base-mask claim leaks | **addressed**: every single-row mask is a pair (A planes, P3 W blocks, the function-2 pair, the single-row table slots incl. log_n = 16); rank 2m + 2n − 2 on every shape (section 9). |
 | U4 | mask reuse across vector / value / prox must be full rank jointly; the prox borrows | **addressed**: the prox is a pair in A, H, W; joint models (vector + values + prox, whole commitments) are full rank; coverage no longer depends on which other groups exist (`negative_control_one_pairmask_claim_single_prox_row` shows why the pair, not the borrowing, is the rule). |
 | U5 | the zero-sum u pair; u′ fresh | **addressed**: re-verified with the repaired prox (`h_logup_sum_zero_sum_u_prox_pair_n{4,8}`); u′ stays a fresh unconstrained pair; the residual is the public identity. |
-| U6 | the CFS channel | **BLOCKER B1.** |
+| U6 | the CFS channel | **BLOCKER B1** — closed by FA6 on 2026-09-08 for this construction (see B1 above). |
 | U7 | ranges and repeats amplify residual linear leak; masks must be fresh per proof | **addressed in the linear model** (zero residual, fresh masks per attempt incl. failed attempts, section 3); **BLOCKER B3** beyond it. |
 | U8 | pads and columns: q_pad ≥ Q, Z_n ≠ 0, salted leaves; duplicates shrink S | **unchanged and kept**: the repair adds rows, not columns; both assertions and the verifier check remain; the hash assumption is computational and outside the model (stated). For FA4's W: **BLOCKER B4** (k·Q budget). |
 | U9 | function 2's predicate group | **addressed in the model** (pairs; `whole_A_n4_function2_predicate_pairs`); no function-2 proof observed — capture under B5. The first block profile refuses predicates (A03), so this is a later profile's row. |
