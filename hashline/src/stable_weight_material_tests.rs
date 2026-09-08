@@ -88,7 +88,6 @@ fn roundtrip_reconstructs_exact_commitment_and_ordinary_pcs_opening() {
     assert_eq!(cm.prox_mask_row, original.prox_mask_row);
     match (&cm.cm.store, &original.cm.store) {
         (Store::Host { encoded: a }, Store::Host { encoded: b }) => assert_eq!(a, b),
-        #[cfg(feature = "gpu-cuda")]
         _ => panic!("CPU fixture required"),
     }
     let point = vec![Fp2::from_base(Fp::new(9)); 4];
