@@ -1,0 +1,298 @@
+
+=== CPU build ===
+2026-09-06 09:12:50
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-cl1/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2854:9
+     |
+2854 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+    Finished `release` profile [optimized] target(s) in 46.12s
+
+=== GPU build (feature gpu-cuda) ===
+2026-09-06 09:13:36
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-cl1/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `envu`
+   --> src/gpu/cuda.rs:895:9
+    |
+895 |     let envu = |k: &str, d: usize| std::env::var(k).ok().and_then(|v| v.parse().ok()).unwrap_or(d);
+    |         ^^^^ help: if this is intentional, prefix it with an underscore: `_envu`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2854:9
+     |
+2854 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: calls to `std::mem::drop` with a value that implements `Copy` does nothing
+   --> src/gpu/cuda.rs:774:9
+    |
+774 |         drop(d_pack.0.take().map(pool_put));
+    |         ^^^^^-----------------------------^
+    |              |
+    |              argument has type `Option<()>`
+    |
+    = note: `#[warn(dropping_copy_types)]` on by default
+help: use `let _ = ...` to ignore the expression or result
+    |
+774 -         drop(d_pack.0.take().map(pool_put));
+774 +         let _ = d_pack.0.take().map(pool_put);
+    |
+
+warning: `hashline` (lib) generated 10 warnings (run `cargo fix --lib -p hashline` to apply 7 suggestions)
+    Finished `release` profile [optimized] target(s) in 53.06s
+
+=== cargo test --release (CPU) ===
+2026-09-06 09:14:30
+thread 'field::verifier_hardening_tests::cpu::hardening_v3_production_verifier_refuses_collision_and_propagates' (7372) panicked at src/field/verifier_hardening_tests.rs:102:13:
+thread 'field::verifier_hardening_tests::cpu::hardening_attention_production_verifier_refuses_collision_and_preserves_bytes' (7367) panicked at src/field/verifier_hardening_tests.rs:102:13:
+thread 'field::verifier_hardening_tests::cpu::hardening_v2_production_verifier_refuses_collision_after_honest_prefix' (7369) panicked at src/pcs_compact.rs:793:9:
+test result: FAILED. 56 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.47s
+error: test failed, to rerun pass `--lib`
+FAILURE: cargo test
+
+=== CL1 GPU oracle suite (chunked hiding commit vs the CPU, + negative control) ===
+2026-09-06 09:15:52
+test strict_off_still_produces_correct_results_when_it_fits ... ok
+test the_last_resident_allocation_retries_chunking_rather_than_giving_up ... ok
+test the_chunked_retry_reuses_pooled_capacity_rather_than_allocating_more ... ok
+test zk_chunked_matches_cpu_at_every_rate ... ok
+test zk_chunked_matches_cpu_at_ragged_row_counts ... ok
+test zk_chunked_matches_cpu_at_varied_pad_counts ... ok
+test zk_chunked_matches_cpu_at_wider_shapes ... ok
+test zk_chunked_matches_cpu_in_one_chunk ... ok
+test zzz_gpu_required_gate_proves_nonzero_executed_cases ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.11s
+
+
+=== GATE v2 [cpu] ===
+2026-09-06 09:16:37
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 1.469 s, 5573568 B
+  layer  1: prove 1.261 s, 5568692 B
+  layer  2: prove 1.234 s, 5570752 B
+GATE OK   v2 [cpu]  50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d  66844928 B
+
+=== GATE v3 [cpu] ===
+2026-09-06 09:16:53
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 1.326 s, 5899988 B
+  layer  1: prove 1.212 s, 5960912 B
+  layer  2: prove 1.260 s, 5960392 B
+GATE OK   v3 [cpu]  5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d  70758084 B
+
+=== GATE zk [cpu] ===
+2026-09-06 09:17:11
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 1.433 s, 7269044 B
+  layer  1: prove 1.390 s, 7269044 B
+  layer  2: prove 1.418 s, 7269044 B
+GATE OK   zk [cpu]  021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d  87228528 B
+
+=== GATE zkv3 [cpu] ===
+2026-09-06 09:17:30
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 1.523 s, 7306036 B
+  layer  1: prove 1.551 s, 7318324 B
+  layer  2: prove 1.577 s, 7318324 B
+GATE OK   zkv3 [cpu]  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B
+
+=== GATE v2 [gpu] ===
+2026-09-06 09:17:51
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.332 s, 5573568 B
+  layer  1: prove 0.204 s, 5568692 B
+  layer  2: prove 0.195 s, 5570752 B
+GATE OK   v2 [gpu]  50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d  66844928 B
+
+=== GATE v3 [gpu] ===
+2026-09-06 09:17:58
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.352 s, 5899988 B
+  layer  1: prove 0.177 s, 5960912 B
+  layer  2: prove 0.183 s, 5960392 B
+GATE OK   v3 [gpu]  5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d  70758084 B
+
+=== GATE zk [gpu] ===
+2026-09-06 09:18:05
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.495 s, 7269044 B
+  layer  1: prove 0.380 s, 7269044 B
+  layer  2: prove 0.381 s, 7269044 B
+GATE OK   zk [gpu]  021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d  87228528 B
+
+=== GATE zkv3 [gpu] ===
+2026-09-06 09:18:15
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.512 s, 7306036 B
+  layer  1: prove 0.471 s, 7318324 B
+  layer  2: prove 0.493 s, 7318324 B
+GATE OK   zkv3 [gpu]  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B
+
+=== GATE v2 [gpu-zkchunk] ===
+2026-09-06 09:18:26
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.326 s, 5573568 B
+  layer  1: prove 0.182 s, 5568692 B
+  layer  2: prove 0.175 s, 5570752 B
+GATE OK   v2 [gpu-zkchunk]  50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d  66844928 B
+
+=== GATE v3 [gpu-zkchunk] ===
+2026-09-06 09:18:33
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.309 s, 5899988 B
+  layer  1: prove 0.153 s, 5960912 B
+  layer  2: prove 0.182 s, 5960392 B
+GATE OK   v3 [gpu-zkchunk]  5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d  70758084 B
+
+=== GATE zk [gpu-zkchunk] ===
+2026-09-06 09:18:40
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.468 s, 7269044 B
+  layer  1: prove 0.346 s, 7269044 B
+  layer  2: prove 0.350 s, 7269044 B
+GATE OK   zk [gpu-zkchunk]  021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d  87228528 B
+
+=== GATE zkv3 [gpu-zkchunk] ===
+2026-09-06 09:18:49
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.494 s, 7306036 B
+  layer  1: prove 0.424 s, 7318324 B
+  layer  2: prove 0.420 s, 7318324 B
+GATE OK   zkv3 [gpu-zkchunk]  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B
+
+=== VERDICT ===
+2026-09-06 09:19:00
+executed byte-gate cases: 12 (expect 12)
+FAILURE: one or more CL1 floors RED — see above

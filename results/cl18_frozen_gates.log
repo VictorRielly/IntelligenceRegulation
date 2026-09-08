@@ -1,0 +1,85 @@
+
+=== identity ===
+2026-09-07 21:19:38
+HEAD    c02d86c0dfa765397288bffcc5eb98e02510baf5
+dirty   5 tracked file(s) modified
+binary before build 9887a375f0a7dff4ecbae8c3852da147cdad09a451867ddd4702c60290a26856
+
+=== build (cargo build --release --offline --features gpu-cuda, 2 jobs) ===
+2026-09-07 21:19:38
+build exit=0
+binary  9887a375f0a7dff4ecbae8c3852da147cdad09a451867ddd4702c60290a26856  5333616 B
+
+=== the four frozen fixtures, GPU, HL_ZK_CHUNK=1, compact switch OFF ===
+2026-09-07 21:19:38
+--- v2 (21:19:38): env HL_GPU=1 HL_ZK_CHUNK=1 ; /home/victor/wt-zk60-cl1/hashline/target-gpu/release/hashline pass 12 512 --threads 2 
+CL18_GATE label=v2 exit=0 sha256=50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d bytes=66844928 expect=50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d/66844928
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+PASS ACCEPT: 12 x 512: witness load+chain 2.83 s | PROVE 2.32 s | VERIFY 0.29 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.249e10 proven MAC/s (prove wall) | wall 5.53 s
+MATCH: v2
+--- v3 (21:19:47): env HL_GPU=1 HL_ZK_CHUNK=1 ; /home/victor/wt-zk60-cl1/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export
+CL18_GATE label=v3 exit=0 sha256=5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d bytes=70758084 expect=5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d/70758084
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 3.73 s | PROVE 2.09 s | VERIFY 0.32 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.385e10 proven MAC/s (prove wall) | wall 6.26 s
+MATCH: v3
+--- zk (21:19:57): env HL_GPU=1 HL_ZK_CHUNK=1 ; /home/victor/wt-zk60-cl1/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --zk --seed 1
+CL18_GATE label=zk exit=0 sha256=021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d bytes=87228528 expect=021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d/87228528
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 2.86 s | PROVE 3.81 s | VERIFY 0.45 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 7.611e9 proven MAC/s (prove wall) | wall 7.23 s
+MATCH: zk
+--- zkv3 (21:20:07): env HL_GPU=1 HL_ZK_CHUNK=1 ; /home/victor/wt-zk60-cl1/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export
+CL18_GATE label=zkv3 exit=0 sha256=40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 bytes=87697008 expect=40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17/87697008
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 3.73 s | PROVE 4.59 s | VERIFY 0.48 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 6.320e9 proven MAC/s (prove wall) | wall 8.93 s
+MATCH: zkv3
+
+=== the two hiding fixtures again, compact switch ON (HL_ZK_COMPACT_PAD=1) ===
+2026-09-07 21:20:19
+--- zk_compact (21:20:19): env HL_GPU=1 HL_ZK_CHUNK=1 HL_ZK_COMPACT_PAD=1 ; /home/victor/wt-zk60-cl1/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --zk --seed 1
+CL18_GATE label=zk_compact exit=0 sha256=021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d bytes=87228528 expect=021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d/87228528
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 2.86 s | PROVE 3.79 s | VERIFY 0.44 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 7.647e9 proven MAC/s (prove wall) | wall 7.20 s
+MATCH: zk_compact
+--- zkv3_compact (21:20:29): env HL_GPU=1 HL_ZK_CHUNK=1 HL_ZK_COMPACT_PAD=1 ; /home/victor/wt-zk60-cl1/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export
+CL18_GATE label=zkv3_compact exit=0 sha256=40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 bytes=87697008 expect=40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17/87697008
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 3.64 s | PROVE 4.37 s | VERIFY 0.48 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 6.639e9 proven MAC/s (prove wall) | wall 8.61 s
+MATCH: zkv3_compact
+
+=== DIAGNOSTIC (not a gate): the zk fixture with HL_GPU_VERBOSE=1, OFF then ON, for the hiding shapes and per-commit clocks ===
+2026-09-07 21:20:41
+--- zk_diag_off (21:20:41): env HL_GPU=1 HL_ZK_CHUNK=1 HL_GPU_VERBOSE=1 ; /home/victor/wt-zk60-cl1/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --zk --seed 1
+CL18_GATE label=zk_diag_off exit=0 sha256=021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d bytes=87228528 expect=021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d/87228528
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0317 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.1048 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 252/4096): 0.0153 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 473 (4 chunks, fused, pruned 249/4096): 0.0133 s
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0223 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0204 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 246/4096): 0.0161 s
+MATCH: zk_diag_off
+--- zk_diag_on (21:20:52): env HL_GPU=1 HL_ZK_CHUNK=1 HL_GPU_VERBOSE=1 HL_ZK_COMPACT_PAD=1 ; /home/victor/wt-zk60-cl1/hashline/target-gpu/release/hashline pass 12 512 --threads 2 --zk --seed 1
+CL18_GATE label=zk_diag_on exit=0 sha256=021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d bytes=87228528 expect=021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d/87228528
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128, compact pad 16640 of 65536: 0.0262 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128, compact pad 16640 of 65536: 0.0186 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 252/4096, compact pad 16640 of 65536): 0.0128 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 473 (4 chunks, fused, pruned 249/4096, compact pad 16640 of 65536): 0.0109 s
+[ZK60-CL1]   zk commit rows 553 2^14 -> 2^16 (q 256, 290 MB resident): CHUNKED (forced)
+[ZK60-CL1]   chunked ZK commit rows 553 2^14 -> 2^16 (q 256) in 5 chunks of <= 128, compact pad 16640 of 65536: 0.0186 s
+[ZK60-CL1]   zk commit rows 473 2^14 -> 2^16 (q 256, 248 MB resident): CHUNKED (forced)
+[ZK60-CL1]   chunked ZK commit rows 473 2^14 -> 2^16 (q 256) in 4 chunks of <= 128, compact pad 16640 of 65536: 0.0174 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 553 (5 chunks, fused, pruned 246/4096, compact pad 16640 of 65536): 0.0128 s
+MATCH: zk_diag_on
+
+=== VERDICT ===
+2026-09-07 21:21:02
+executed cases: 8 (6 gates + 2 diagnostics)
+CL18 GATES GREEN (four fixtures OFF and both hiding fixtures ON byte-identical to the frozen digests)

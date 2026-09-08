@@ -1,0 +1,460 @@
+
+=== CPU build ===
+2026-09-04 22:51:55
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-cl1/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2845:9
+     |
+2845 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+    Finished `release` profile [optimized] target(s) in 45.90s
+
+=== GPU build (feature gpu-cuda) ===
+2026-09-04 22:52:41
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-cl1/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `envu`
+   --> src/gpu/cuda.rs:857:9
+    |
+857 |     let envu = |k: &str, d: usize| std::env::var(k).ok().and_then(|v| v.parse().ok()).unwrap_or(d);
+    |         ^^^^ help: if this is intentional, prefix it with an underscore: `_envu`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2845:9
+     |
+2845 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `set_alloc_fail_after_for_test` is never used
+   --> src/gpu/cuda.rs:142:8
+    |
+142 | pub fn set_alloc_fail_after_for_test(n: usize) -> usize {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `fresh_alloc_count_for_test` is never used
+   --> src/gpu/cuda.rs:149:8
+    |
+149 | pub fn fresh_alloc_count_for_test() -> usize {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: calls to `std::mem::drop` with a value that implements `Copy` does nothing
+   --> src/gpu/cuda.rs:736:9
+    |
+736 |         drop(d_pack.0.take().map(pool_put));
+    |         ^^^^^-----------------------------^
+    |              |
+    |              argument has type `Option<()>`
+    |
+    = note: `#[warn(dropping_copy_types)]` on by default
+help: use `let _ = ...` to ignore the expression or result
+    |
+736 -         drop(d_pack.0.take().map(pool_put));
+736 +         let _ = d_pack.0.take().map(pool_put);
+    |
+
+warning: `hashline` (lib) generated 12 warnings (run `cargo fix --lib -p hashline` to apply 7 suggestions)
+    Finished `release` profile [optimized] target(s) in 52.18s
+
+=== cargo test --release (CPU) ===
+2026-09-04 22:53:33
+test result: ok. 54 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.01s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.32s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.26s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.39s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.30s
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.05s
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.32s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.49s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+=== CL1 GPU oracle suite (chunked hiding commit vs the CPU, + negative control) ===
+2026-09-04 22:55:02
+test the_chunked_retry_reuses_pooled_capacity_rather_than_allocating_more ... ok
+test strict_off_still_produces_correct_results_when_it_fits ... ok
+test the_last_resident_allocation_is_also_strict_under_off ... ok
+test the_last_resident_allocation_retries_chunking_rather_than_giving_up ... ok
+test zk_chunked_matches_cpu_at_every_rate ... ok
+test zk_chunked_matches_cpu_at_ragged_row_counts ... ok
+test zk_chunked_matches_cpu_at_varied_pad_counts ... ok
+test zk_chunked_matches_cpu_at_wider_shapes ... ok
+test zk_chunked_matches_cpu_in_one_chunk ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.53s
+
+
+=== GATE v2 [cpu] ===
+2026-09-04 22:55:46
+  layer  0: prove 1.293 s, 5573568 B
+  layer  1: prove 1.256 s, 5568692 B
+  layer  2: prove 1.242 s, 5570752 B
+  layer  3: prove 1.263 s, 5571020 B
+  layer  4: prove 1.236 s, 5572032 B
+  layer  5: prove 1.274 s, 5568832 B
+  layer  6: prove 1.272 s, 5568436 B
+  layer  7: prove 1.250 s, 5568832 B
+  layer  8: prove 1.262 s, 5568960 B
+  layer  9: prove 1.277 s, 5568960 B
+  layer 10: prove 1.276 s, 5570368 B
+  layer 11: prove 1.273 s, 5574476 B
+prover phases (summed over layers):
+PASS ACCEPT: 12 x 512: witness load+chain 1.11 s | PROVE 15.18 s | VERIFY 0.29 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.910e9 proven MAC/s (prove wall) | wall 16.65 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.113657518,"prove_s":15.175718235,"serialize_s":0.067129883,"proof_ready_s":16.356591637,"verify_s":0.293904774,"verified":true,"proof_bytes":66844928,"serialized":true,"gpu_requested":false,"gpu_enabled":false,"randomness":"none"}
+GATE OK   v2 [cpu]  50cf7bdfd6b5b182  66844928 B
+
+=== GATE v3 [cpu] ===
+2026-09-04 22:56:03
+  layer  0: prove 1.329 s, 5899988 B
+  layer  1: prove 1.249 s, 5960912 B
+  layer  2: prove 1.274 s, 5960392 B
+  layer  3: prove 1.284 s, 5896912 B
+  layer  4: prove 1.245 s, 5898448 B
+  layer  5: prove 1.288 s, 5862608 B
+  layer  6: prove 1.278 s, 5895120 B
+  layer  7: prove 1.294 s, 5862608 B
+  layer  8: prove 1.288 s, 5895376 B
+  layer  9: prove 1.271 s, 5895376 B
+  layer 10: prove 1.258 s, 5864148 B
+  layer 11: prove 1.246 s, 5866196 B
+prover phases (summed over layers):
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.62 s | PROVE 15.30 s | VERIFY 0.31 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.894e9 proven MAC/s (prove wall) | wall 17.34 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.621763008,"prove_s":15.303741951,"serialize_s":0.096977488,"proof_ready_s":17.034374269,"verify_s":0.307166967,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":false,"gpu_enabled":false,"randomness":"none"}
+GATE OK   v3 [cpu]  5f368db6240e0614  70758084 B
+
+=== GATE zk [cpu] ===
+2026-09-04 22:56:21
+  layer  0: prove 1.428 s, 7269044 B
+  layer  1: prove 1.464 s, 7269044 B
+  layer  2: prove 1.476 s, 7269044 B
+  layer  3: prove 1.436 s, 7269044 B
+  layer  4: prove 1.378 s, 7269044 B
+  layer  5: prove 1.450 s, 7269044 B
+  layer  6: prove 1.385 s, 7269044 B
+  layer  7: prove 1.344 s, 7269044 B
+  layer  8: prove 1.395 s, 7269044 B
+  layer  9: prove 1.401 s, 7269044 B
+  layer 10: prove 1.397 s, 7269044 B
+  layer 11: prove 1.390 s, 7269044 B
+prover phases (summed over layers):
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 1.09 s | PROVE 16.94 s | VERIFY 0.50 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 1.711e9 proven MAC/s (prove wall) | wall 18.62 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.093281114,"prove_s":16.944777011,"serialize_s":0.085282713,"proof_ready_s":18.123428792,"verify_s":0.501530563,"verified":true,"proof_bytes":87228528,"serialized":true,"gpu_requested":false,"gpu_enabled":false,"randomness":"deterministic-test"}
+GATE OK   zk [cpu]  021485e4f80ec695  87228528 B
+
+=== GATE zkv3 [cpu] ===
+2026-09-04 22:56:40
+  layer  0: prove 1.635 s, 7306036 B
+  layer  1: prove 1.571 s, 7318324 B
+  layer  2: prove 1.596 s, 7318324 B
+  layer  3: prove 1.549 s, 7306036 B
+  layer  4: prove 1.481 s, 7306036 B
+  layer  5: prove 1.592 s, 7306036 B
+  layer  6: prove 1.543 s, 7306036 B
+  layer  7: prove 1.500 s, 7306036 B
+  layer  8: prove 1.515 s, 7306036 B
+  layer  9: prove 1.530 s, 7306036 B
+  layer 10: prove 1.559 s, 7306036 B
+  layer 11: prove 1.522 s, 7306036 B
+prover phases (summed over layers):
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.55 s | PROVE 18.59 s | VERIFY 0.57 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 1.559e9 proven MAC/s (prove wall) | wall 20.80 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.546883907,"prove_s":18.592778594,"serialize_s":0.084317330,"proof_ready_s":20.224645177,"verify_s":0.574407538,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":false,"gpu_enabled":false,"randomness":"deterministic-test"}
+GATE OK   zkv3 [cpu]  40eb54795e023c77  87697008 B
+
+=== GATE v2 [gpu] ===
+2026-09-04 22:57:01
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.390 s, 5573568 B
+  layer  1: prove 0.183 s, 5568692 B
+  layer  2: prove 0.187 s, 5570752 B
+  layer  3: prove 0.185 s, 5571020 B
+  layer  4: prove 0.191 s, 5572032 B
+  layer  5: prove 0.187 s, 5568832 B
+  layer  6: prove 0.178 s, 5568436 B
+  layer  7: prove 0.188 s, 5568832 B
+  layer  8: prove 0.183 s, 5568960 B
+  layer  9: prove 0.182 s, 5568960 B
+  layer 10: prove 0.182 s, 5570368 B
+  layer 11: prove 0.195 s, 5574476 B
+prover phases (summed over layers):
+PASS ACCEPT: 12 x 512: witness load+chain 1.08 s | PROVE 2.43 s | VERIFY 0.29 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.192e10 proven MAC/s (prove wall) | wall 3.89 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.084242443,"prove_s":2.431827256,"serialize_s":0.090149167,"proof_ready_s":3.606300611,"verify_s":0.286213021,"verified":true,"proof_bytes":66844928,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}
+GATE OK   v2 [gpu]  50cf7bdfd6b5b182  66844928 B
+
+=== GATE v3 [gpu] ===
+2026-09-04 22:57:08
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.313 s, 5899988 B
+  layer  1: prove 0.177 s, 5960912 B
+  layer  2: prove 0.155 s, 5960392 B
+  layer  3: prove 0.173 s, 5896912 B
+  layer  4: prove 0.180 s, 5898448 B
+  layer  5: prove 0.178 s, 5862608 B
+  layer  6: prove 0.177 s, 5895120 B
+  layer  7: prove 0.175 s, 5862608 B
+  layer  8: prove 0.173 s, 5895376 B
+  layer  9: prove 0.177 s, 5895376 B
+  layer 10: prove 0.179 s, 5864148 B
+  layer 11: prove 0.184 s, 5866196 B
+prover phases (summed over layers):
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.67 s | PROVE 2.24 s | VERIFY 0.27 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.294e10 proven MAC/s (prove wall) | wall 4.31 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.668681853,"prove_s":2.240336060,"serialize_s":0.097983736,"proof_ready_s":4.032652220,"verify_s":0.274848063,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}
+GATE OK   v3 [gpu]  5f368db6240e0614  70758084 B
+
+=== GATE zk [gpu] ===
+2026-09-04 22:57:15
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.466 s, 7269044 B
+  layer  1: prove 0.321 s, 7269044 B
+  layer  2: prove 0.313 s, 7269044 B
+  layer  3: prove 0.300 s, 7269044 B
+  layer  4: prove 0.324 s, 7269044 B
+  layer  5: prove 0.313 s, 7269044 B
+  layer  6: prove 0.318 s, 7269044 B
+  layer  7: prove 0.314 s, 7269044 B
+  layer  8: prove 0.319 s, 7269044 B
+  layer  9: prove 0.318 s, 7269044 B
+  layer 10: prove 0.334 s, 7269044 B
+  layer 11: prove 0.312 s, 7269044 B
+prover phases (summed over layers):
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 1.11 s | PROVE 3.95 s | VERIFY 0.44 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 7.337e9 proven MAC/s (prove wall) | wall 5.62 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.110045361,"prove_s":3.951132324,"serialize_s":0.119901439,"proof_ready_s":5.181226736,"verify_s":0.439171672,"verified":true,"proof_bytes":87228528,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+GATE OK   zk [gpu]  021485e4f80ec695  87228528 B
+
+=== GATE zkv3 [gpu] ===
+2026-09-04 22:57:24
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.527 s, 7306036 B
+  layer  1: prove 0.482 s, 7318324 B
+  layer  2: prove 0.466 s, 7318324 B
+  layer  3: prove 0.459 s, 7306036 B
+  layer  4: prove 0.445 s, 7306036 B
+  layer  5: prove 0.432 s, 7306036 B
+  layer  6: prove 0.479 s, 7306036 B
+  layer  7: prove 0.470 s, 7306036 B
+  layer  8: prove 0.429 s, 7306036 B
+  layer  9: prove 0.508 s, 7306036 B
+  layer 10: prove 0.470 s, 7306036 B
+  layer 11: prove 0.436 s, 7306036 B
+prover phases (summed over layers):
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.78 s | PROVE 5.60 s | VERIFY 0.46 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 5.174e9 proven MAC/s (prove wall) | wall 7.97 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.782680260,"prove_s":5.602685160,"serialize_s":0.121156167,"proof_ready_s":7.513560495,"verify_s":0.457460170,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+GATE OK   zkv3 [gpu]  40eb54795e023c77  87697008 B
+
+=== GATE v2 [gpu-zkchunk] ===
+2026-09-04 22:57:35
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.316 s, 5573568 B
+  layer  1: prove 0.178 s, 5568692 B
+  layer  2: prove 0.184 s, 5570752 B
+  layer  3: prove 0.180 s, 5571020 B
+  layer  4: prove 0.189 s, 5572032 B
+  layer  5: prove 0.181 s, 5568832 B
+  layer  6: prove 0.182 s, 5568436 B
+  layer  7: prove 0.188 s, 5568832 B
+  layer  8: prove 0.176 s, 5568960 B
+  layer  9: prove 0.192 s, 5568960 B
+  layer 10: prove 0.190 s, 5570368 B
+  layer 11: prove 0.183 s, 5574476 B
+prover phases (summed over layers):
+PASS ACCEPT: 12 x 512: witness load+chain 1.13 s | PROVE 2.34 s | VERIFY 0.30 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.239e10 proven MAC/s (prove wall) | wall 3.86 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.131945694,"prove_s":2.339235312,"serialize_s":0.091463397,"proof_ready_s":3.562726975,"verify_s":0.297522512,"verified":true,"proof_bytes":66844928,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}
+GATE OK   v2 [gpu-zkchunk]  50cf7bdfd6b5b182  66844928 B
+
+=== GATE v3 [gpu-zkchunk] ===
+2026-09-04 22:57:42
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.317 s, 5899988 B
+  layer  1: prove 0.180 s, 5960912 B
+  layer  2: prove 0.174 s, 5960392 B
+  layer  3: prove 0.177 s, 5896912 B
+  layer  4: prove 0.176 s, 5898448 B
+  layer  5: prove 0.184 s, 5862608 B
+  layer  6: prove 0.182 s, 5895120 B
+  layer  7: prove 0.181 s, 5862608 B
+  layer  8: prove 0.176 s, 5895376 B
+  layer  9: prove 0.179 s, 5895376 B
+  layer 10: prove 0.178 s, 5864148 B
+  layer 11: prove 0.179 s, 5866196 B
+prover phases (summed over layers):
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.61 s | PROVE 2.28 s | VERIFY 0.30 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.269e10 proven MAC/s (prove wall) | wall 4.32 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.614638944,"prove_s":2.284142948,"serialize_s":0.099351417,"proof_ready_s":4.016967888,"verify_s":0.300653682,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}
+GATE OK   v3 [gpu-zkchunk]  5f368db6240e0614  70758084 B
+
+=== GATE zk [gpu-zkchunk] ===
+2026-09-04 22:57:49
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.476 s, 7269044 B
+  layer  1: prove 0.352 s, 7269044 B
+  layer  2: prove 0.357 s, 7269044 B
+  layer  3: prove 0.357 s, 7269044 B
+  layer  4: prove 0.353 s, 7269044 B
+  layer  5: prove 0.355 s, 7269044 B
+  layer  6: prove 0.348 s, 7269044 B
+  layer  7: prove 0.357 s, 7269044 B
+  layer  8: prove 0.350 s, 7269044 B
+  layer  9: prove 0.362 s, 7269044 B
+  layer 10: prove 0.369 s, 7269044 B
+  layer 11: prove 0.358 s, 7269044 B
+prover phases (summed over layers):
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 1.10 s | PROVE 4.40 s | VERIFY 0.48 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 6.596e9 proven MAC/s (prove wall) | wall 6.10 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.102035058,"prove_s":4.395142689,"serialize_s":0.121289726,"proof_ready_s":5.618626233,"verify_s":0.478314187,"verified":true,"proof_bytes":87228528,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+GATE OK   zk [gpu-zkchunk]  021485e4f80ec695  87228528 B
+
+=== GATE zkv3 [gpu-zkchunk] ===
+2026-09-04 22:57:59
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.491 s, 7306036 B
+  layer  1: prove 0.449 s, 7318324 B
+  layer  2: prove 0.463 s, 7318324 B
+  layer  3: prove 0.448 s, 7306036 B
+  layer  4: prove 0.417 s, 7306036 B
+  layer  5: prove 0.417 s, 7306036 B
+  layer  6: prove 0.431 s, 7306036 B
+  layer  7: prove 0.445 s, 7306036 B
+  layer  8: prove 0.430 s, 7306036 B
+  layer  9: prove 0.413 s, 7306036 B
+  layer 10: prove 0.427 s, 7306036 B
+  layer 11: prove 0.433 s, 7306036 B
+prover phases (summed over layers):
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.77 s | PROVE 5.26 s | VERIFY 0.47 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 5.508e9 proven MAC/s (prove wall) | wall 7.64 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.770825667,"prove_s":5.263541479,"serialize_s":0.121274897,"proof_ready_s":7.167222542,"verify_s":0.470807404,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+GATE OK   zkv3 [gpu-zkchunk]  40eb54795e023c77  87697008 B
+
+=== VERDICT ===
+2026-09-04 22:58:09
+ALL CL1 FLOORS GREEN (12 byte gates + oracle suite + tests + both builds)

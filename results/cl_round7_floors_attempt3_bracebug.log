@@ -1,0 +1,341 @@
+
+=== source identity ===
+2026-09-06 16:28:58
+HEAD      a1aa2b7eb56a59c543c9ba9ca4f8f3430c122b96
+branch    zk60-cl1
+dirty     1 tracked file(s) modified
+dirty-delta sha256 (hashline/)  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+scratch   /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final (per-gate prover logs are retained here)
+
+=== CPU build ===
+2026-09-06 16:28:58
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2854:9
+     |
+2854 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.01s
+
+=== GPU build (feature gpu-cuda) ===
+2026-09-06 16:28:58
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `envu`
+    --> src/gpu/cuda.rs:1002:9
+     |
+1002 |     let envu = |k: &str, d: usize| std::env::var(k).ok().and_then(|v| v.parse().ok()).unwrap_or(d);
+     |         ^^^^ help: if this is intentional, prefix it with an underscore: `_envu`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2854:9
+     |
+2854 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: calls to `std::mem::drop` with a value that implements `Copy` does nothing
+   --> src/gpu/cuda.rs:881:9
+    |
+881 |         drop(d_pack.0.take().map(pool_put));
+    |         ^^^^^-----------------------------^
+    |              |
+    |              argument has type `Option<()>`
+    |
+    = note: `#[warn(dropping_copy_types)]` on by default
+help: use `let _ = ...` to ignore the expression or result
+    |
+881 -         drop(d_pack.0.take().map(pool_put));
+881 +         let _ = d_pack.0.take().map(pool_put);
+    |
+
+warning: `hashline` (lib) generated 10 warnings (run `cargo fix --lib -p hashline` to apply 7 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.04s
+
+=== binary identity ===
+2026-09-06 16:28:58
+CPU binary  93055aa612a4fd3a958953c1b445dfff7cc5bd0d98df5819180eaeee9cd8ad52  4629656 B  /home/victor/wt-zk60-cl1/hashline/target/release/hashline
+GPU binary  e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c  5326472 B  /home/victor/wt-zk60-cl1/hashline/target-gpu/release/hashline
+
+=== cargo test --release (CPU, --test-threads=2) ===
+2026-09-06 16:28:58
+test result: ok. 59 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.90s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.48s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 53.59s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.95s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.81s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.02s
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.14s
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.62s
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.25s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+=== CL1 GPU oracle suite (chunked hiding commit vs the CPU, + negative control) — uncaptured, one thread ===
+2026-09-06 16:31:52
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.07s
+oracle summary: {"executed_cases":49,"gpu_enabled":true,"gpu_required":true,"device":"gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)"}
+Traceback (most recent call last):
+  File "<string>", line 3, in <module>
+  File "/usr/lib/python3.10/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+  File "/usr/lib/python3.10/json/decoder.py", line 340, in decode
+    raise JSONDecodeError("Extra data", s, end)
+json.decoder.JSONDecodeError: Extra data: line 1 column 141 (char 140)
+FAILURE: the oracle suite did not prove >= 20 executed cases on an enabled device
+
+=== missing-feature refusal (CPU target, no gpu-cuda): HL_GPU_REQUIRED=1 must FAIL ===
+2026-09-06 16:32:01
+refused as required (exit 101): HL_GPU_REQUIRED=1 but this test binary was built WITHOUT --features gpu-cuda
+
+=== missing-feature status (CPU target, no gpu-cuda): without the requirement it must report ZERO cases, not success as evidence ===
+2026-09-06 16:32:01
+no-feature summary (exit 0): {"executed_cases":0,"gpu_enabled":false,"gpu_required":false,"device":"built without --features gpu-cuda"}
+
+=== GATE v2 [cpu] ===
+2026-09-06 16:32:01
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 1.354 s, 5573568 B
+  layer  1: prove 1.277 s, 5568692 B
+  layer  2: prove 1.262 s, 5570752 B
+  layer  3: prove 1.290 s, 5571020 B
+GATE OK   v2 [cpu]  50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d  66844928 B  (log retained: /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/cpu-v2.out)
+
+=== GATE v3 [cpu] ===
+2026-09-06 16:32:18
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 1.307 s, 5899988 B
+  layer  1: prove 1.269 s, 5960912 B
+  layer  2: prove 1.242 s, 5960392 B
+  layer  3: prove 1.247 s, 5896912 B
+GATE OK   v3 [cpu]  5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d  70758084 B  (log retained: /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/cpu-v3.out)
+
+=== GATE zk [cpu] ===
+2026-09-06 16:32:35
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 1.450 s, 7269044 B
+  layer  1: prove 1.444 s, 7269044 B
+  layer  2: prove 1.460 s, 7269044 B
+  layer  3: prove 1.489 s, 7269044 B
+GATE OK   zk [cpu]  021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d  87228528 B  (log retained: /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/cpu-zk.out)
+
+=== GATE zkv3 [cpu] ===
+2026-09-06 16:32:54
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 1.605 s, 7306036 B
+  layer  1: prove 1.623 s, 7318324 B
+  layer  2: prove 1.599 s, 7318324 B
+  layer  3: prove 1.526 s, 7306036 B
+GATE OK   zkv3 [cpu]  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B  (log retained: /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/cpu-zkv3.out)
+
+=== GATE v2 [gpu] ===
+2026-09-06 16:33:14
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.337 s, 5573568 B
+  layer  1: prove 0.185 s, 5568692 B
+  layer  2: prove 0.192 s, 5570752 B
+  layer  3: prove 0.180 s, 5571020 B
+GATE OK   v2 [gpu]  50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d  66844928 B  (log retained: /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-v2.out)
+
+=== GATE v3 [gpu] ===
+2026-09-06 16:33:22
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.348 s, 5899988 B
+  layer  1: prove 0.176 s, 5960912 B
+  layer  2: prove 0.174 s, 5960392 B
+  layer  3: prove 0.173 s, 5896912 B
+GATE OK   v3 [gpu]  5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d  70758084 B  (log retained: /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-v3.out)
+
+=== GATE zk [gpu] ===
+2026-09-06 16:33:29
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.477 s, 7269044 B
+  layer  1: prove 0.326 s, 7269044 B
+  layer  2: prove 0.325 s, 7269044 B
+  layer  3: prove 0.324 s, 7269044 B
+GATE OK   zk [gpu]  021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d  87228528 B  (log retained: /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-zk.out)
+
+=== GATE zkv3 [gpu] ===
+2026-09-06 16:33:38
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.509 s, 7306036 B
+  layer  1: prove 0.465 s, 7318324 B
+  layer  2: prove 0.453 s, 7318324 B
+  layer  3: prove 0.472 s, 7306036 B
+GATE OK   zkv3 [gpu]  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B  (log retained: /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-zkv3.out)
+
+=== GATE v2 [gpu-zkchunk] ===
+2026-09-06 16:33:49
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.343 s, 5573568 B
+  layer  1: prove 0.203 s, 5568692 B
+  layer  2: prove 0.200 s, 5570752 B
+  layer  3: prove 0.192 s, 5571020 B
+GATE OK   v2 [gpu-zkchunk]  50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d  66844928 B  (log retained: /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-zkchunk-v2.out)
+
+=== GATE v3 [gpu-zkchunk] ===
+2026-09-06 16:33:56
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.311 s, 5899988 B
+  layer  1: prove 0.153 s, 5960912 B
+  layer  2: prove 0.160 s, 5960392 B
+  layer  3: prove 0.171 s, 5896912 B
+GATE OK   v3 [gpu-zkchunk]  5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d  70758084 B  (log retained: /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-zkchunk-v3.out)
+
+=== GATE zk [gpu-zkchunk] ===
+2026-09-06 16:34:03
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.458 s, 7269044 B
+  layer  1: prove 0.349 s, 7269044 B
+  layer  2: prove 0.355 s, 7269044 B
+  layer  3: prove 0.349 s, 7269044 B
+GATE OK   zk [gpu-zkchunk]  021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d  87228528 B  (log retained: /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-zkchunk-zk.out)
+
+=== GATE zkv3 [gpu-zkchunk] ===
+2026-09-06 16:34:12
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.504 s, 7306036 B
+  layer  1: prove 0.431 s, 7318324 B
+  layer  2: prove 0.430 s, 7318324 B
+  layer  3: prove 0.443 s, 7306036 B
+GATE OK   zkv3 [gpu-zkchunk]  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B  (log retained: /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final/gpu-zkchunk-zkv3.out)
+
+=== VERDICT ===
+2026-09-06 16:34:23
+executed byte-gate cases: 12 (expect 12)
+retained logs: 14 in /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final
+FAILURE: one or more CL1 floors RED — see above

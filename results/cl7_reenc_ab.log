@@ -1,0 +1,43 @@
+
+=== identity ===
+2026-09-06 09:51:15
+HEAD    9b249755e4bc14447578111e28df080ed5f0785b
+dirty   6 tracked file(s) modified
+binary  e7e1535bc5878eb5ddf9baafd7cb3a1e7c628c70041aa959f6f9b3216395fb5c  5326472 B
+--- fused rep 1 (09:51:15)
+CL7_RUN arm=fused rep=1 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (85 chunks, fused, pruned 248/4096): 0.2878 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (29 chunks, fused, pruned 251/4096): 0.0959 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (24 chunks, fused, pruned 245/4096): 0.0817 s
+  gpu device-side (summed): h2d 0.568 s (1933 MB) | ntt 0.623 s | hash 0.000 s | sumcheck 0.247 s | fold 0.139 s | helpers 0.060 s | d2h 0.000 s (46 MB) | vram peak 5182 MB
+PASS-V3 ACCEPT [ZK]: 1 x 512 (d 4096 f 14336): witness load+chain 3.29 s | PROVE 3.87 s | VERIFY 0.06 s | proof 40251860 B (40.3 MB) | 9.019e10 MACs | 2.332e10 proven MAC/s (prove wall) | wall 7.25 s
+--- reference rep 1 (09:51:25)
+CL7_RUN arm=reference rep=1 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (85 chunks): 0.3643 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (29 chunks): 0.1175 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (24 chunks): 0.0987 s
+  gpu device-side (summed): h2d 0.635 s (1933 MB) | ntt 0.627 s | hash 0.000 s | sumcheck 0.262 s | fold 0.122 s | helpers 0.061 s | d2h 0.000 s (46 MB) | vram peak 5182 MB
+PASS-V3 ACCEPT [ZK]: 1 x 512 (d 4096 f 14336): witness load+chain 3.37 s | PROVE 4.10 s | VERIFY 0.07 s | proof 40251860 B (40.3 MB) | 9.019e10 MACs | 2.198e10 proven MAC/s (prove wall) | wall 7.58 s
+--- fused rep 2 (09:51:36)
+CL7_RUN arm=fused rep=2 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (85 chunks, fused, pruned 248/4096): 0.2971 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (29 chunks, fused, pruned 251/4096): 0.0959 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (24 chunks, fused, pruned 245/4096): 0.0808 s
+  gpu device-side (summed): h2d 0.556 s (1933 MB) | ntt 0.621 s | hash 0.000 s | sumcheck 0.250 s | fold 0.122 s | helpers 0.063 s | d2h 0.000 s (46 MB) | vram peak 5182 MB
+PASS-V3 ACCEPT [ZK]: 1 x 512 (d 4096 f 14336): witness load+chain 3.43 s | PROVE 3.92 s | VERIFY 0.07 s | proof 40251860 B (40.3 MB) | 9.019e10 MACs | 2.301e10 proven MAC/s (prove wall) | wall 7.45 s
+--- reference rep 2 (09:51:46)
+CL7_RUN arm=reference rep=2 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (85 chunks): 0.3552 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (29 chunks): 0.1160 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (24 chunks): 0.0986 s
+  gpu device-side (summed): h2d 0.470 s (1933 MB) | ntt 0.629 s | hash 0.000 s | sumcheck 0.253 s | fold 0.122 s | helpers 0.060 s | d2h 0.000 s (46 MB) | vram peak 5182 MB
+PASS-V3 ACCEPT [ZK]: 1 x 512 (d 4096 f 14336): witness load+chain 3.31 s | PROVE 3.94 s | VERIFY 0.07 s | proof 40251860 B (40.3 MB) | 9.019e10 MACs | 2.290e10 proven MAC/s (prove wall) | wall 7.35 s
+
+=== VERDICT ===
+2026-09-06 09:51:57
+executed cases: 4
+CL7 A/B GREEN (both arms byte-identical to the frozen Mistral P3 proof)

@@ -1,0 +1,13 @@
+
+=== source identity ===
+2026-09-06 10:06:12
+HEAD      a1aa2b7eb56a59c543c9ba9ca4f8f3430c122b96
+branch    zk60-cl1
+dirty     1 tracked file(s) modified
+dirty-delta sha256 (hashline/)  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+scratch   /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/floors_final (per-gate prover logs are retained here)
+
+=== CPU build ===
+2026-09-06 10:06:12
+Terminated
+FAILURE: CPU build

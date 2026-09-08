@@ -1,0 +1,354 @@
+INSECURE TEST RANDOMNESS: --seed reproduces public masks and provides no privacy; use only for fixtures.
+pass (v3) [ZK, randomness deterministic-test]: 1 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export (d 4096 f 14336; log_cols 14, inv_rate 4, col checks 256, threads 8)
+  MODE P3 (full tier) [v3] header "HL-ZK/1|profile=v3|priv=in+act+out+weights|pub=shapes+shifts+table-digest|out=commit|model=w-root": private = {the input X, EVERY activation plane including the output z16, the remainders, the multiplicities, AND the weights W}; public = {the shapes, the signed shifts, the activation-table digest}; output claim: function 1 (attested inference) — the output is committed, nothing more is claimed; model identity: NONE — the W root is re-randomised every proof; this proof does not name a model
+[UPERF3-XX] gpu init: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB), NVRTC compile 2.74s
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AI] drain layer top: freed 0 pooled buffers
+[ZK60-CL1]   zk commit rows 10774 2^14 -> 2^16 (q 256, 5649 MB resident): CHUNKED (by size)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0104 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0010 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0035 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 22 2^16 (n_src 65536, inverse false): p1 0.0011 | p2 0.0002 s
+[ZK60-CL1]   chunked ZK commit rows 10774 2^14 -> 2^16 (q 256) in 85 chunks of <= 128: 0.3861 s
+[UPERF3-AI] vram after commit W: free 5486 MiB / 8187 MiB, pool 4
+[ZK60-CL1]   zk commit rows 3601 2^14 -> 2^16 (q 256, 1888 MB resident): CHUNKED (by size)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0010 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0010 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0039 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0043 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 17 2^16 (n_src 65536, inverse false): p1 0.0010 | p2 0.0002 s
+[ZK60-CL1]   chunked ZK commit rows 3601 2^14 -> 2^16 (q 256) in 29 chunks of <= 128: 0.1315 s
+[UPERF3-AI] vram after commit A: free 5006 MiB / 8187 MiB, pool 4
+[UPERF3-AI] vram after dev_helpers: free 3246 MiB / 8187 MiB, pool 6
+[ZK60-CL1]   zk commit rows 3033 2^14 -> 2^16 (q 256, 1590 MB resident): CHUNKED (by size)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0036 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0010 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0039 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0038 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0037 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 89 2^16 (n_src 65536, inverse false): p1 0.0028 | p2 0.0006 s
+[ZK60-CL1]   chunked ZK commit rows 3033 2^14 -> 2^16 (q 256) in 24 chunks of <= 128: 0.1115 s
+[UPERF3-AI] drain after H: freed 6 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 4750 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 73): tables 0.0733 s | rounds 0.1060 s | folds 0.0215 s | sync/absorb 0.0017 s | total 0.2068 s
+[UPERF3-AI] vram after zcF: free 3598 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^21 x 7): tables 0.0129 s | rounds 0.0163 s | folds 0.0042 s | sync/absorb 0.0009 s | total 0.0347 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0116 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0051 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0033 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0033 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0033 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0031 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0033 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0034 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0033 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 22 2^16 (n_src 65536, inverse false): p1 0.0007 | p2 0.0002 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (85 chunks): 0.3552 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0033 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 17 2^16 (n_src 65536, inverse false): p1 0.0005 | p2 0.0001 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (29 chunks): 0.1160 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0010 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0032 | p2 0.0010 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0034 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0034 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 89 2^16 (n_src 65536, inverse false): p1 0.0023 | p2 0.0006 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (24 chunks): 0.0986 s
+  layer  0: prove 3.938 s, 40251860 B
+prover phases (summed over layers):
+      commit W                      1.532 s
+      commit A (zk)                 0.575 s
+      mask commit                   0.006 s
+      helpers + commit H (zk)       0.431 s
+      matmul g/u (zk)               0.175 s
+      matmul d (zk)                 0.093 s
+      zero-check F (zk)             0.212 s
+      zero-check D (zk)             0.037 s
+      table zero-check (zk)         0.057 s
+      zsum + mask open              0.003 s
+      pcs openings (zk)             0.815 s
+mask sites (v3; layer 0 — every layer identical in structure up to its window sizes):
+      W masks (P3): commitment 10774 rows of 2^14 = 10752 data + 21 block masks + 1 prox row; Wg/Wu blocks at p3 -> rows [10752, 10753, 10754, 10755, 10756, 10757, 10758, 10759, 10760, 10761, 10762, 10763, 10764, 10765]; Wd blocks at p6 -> rows [10766, 10767, 10768, 10769, 10770, 10771, 10772]; prox row 10773
+      layout: n = 2^14 columns; table zero-check over 2^16 (the INT16 class spans 4 rows); A 3601 rows = 3520 data + 61 masks + 20 table/mask rows; H 3033 rows = 2944 data + 49 masks + 40 helper/mask rows
+      A masks: 49 f-planes (g8,rg,a16,u16,ru,h16,rh x 7 f-blocks) at rho_F -> rows [3520, 3521, 3522, 3523, 3524, 3525, 3526, 3527, 3528, 3529, 3530, 3531, 3532, 3533, 3534, 3535, 3536, 3537, 3538, 3539, 3540, 3541, 3542, 3543, 3544, 3545, 3546, 3547, 3548, 3549, 3550, 3551, 3552, 3553, 3554, 3555, 3556, 3557, 3558, 3559, 3560, 3561, 3562, 3563, 3564, 3565, 3566, 3567, 3568]; 3 d-planes (X,z16,rd x 1 d-blocks) at rho_D -> rows [3569, 3570, 3571]; X-blocks at p2 -> [3572]; h16-blocks at p5 -> [3573, 3574, 3575, 3576, 3577, 3578, 3579]; prox row 3580
+      table slot tag 3 (256 entries, 2^14 slice, 1 row(s)): m at A rows 3581.., mask at A rows 3582..; helper h_t at H rows re 2993.. im 2994.., its mask re 2995.. im 2996..
+      table slot tag 4 (65536 entries, 2^16 slice, 4 row(s)): m at A rows 3583.., mask at A rows 3587..; helper h_t at H rows re 2997.. im 3001.., its mask re 3005.. im 3009..
+      table slot tag 83 (2048 entries, 2^14 slice, 1 row(s)): m at A rows 3591.., mask at A rows 3592..; helper h_t at H rows re 3013.. im 3014.., its mask re 3015.. im 3016..
+      table slot tag 74 (4 entries, 2^14 slice, 1 row(s)): m at A rows 3593.., mask at A rows 3594..; helper h_t at H rows re 3017.. im 3018.., its mask re 3019.. im 3020..
+      table slot tag 87 (32768 entries, 2^15 slice, 2 row(s)): m at A rows 3595.., mask at A rows 3597..; helper h_t at H rows re 3021.. im 3023.., its mask re 3025.. im 3027..
+      table slot tag 78 (64 entries, 2^14 slice, 1 row(s)): m at A rows 3599.., mask at A rows 3600..; helper h_t at H rows re 3029.. im 3030.., its mask re 3031.. im 3032..
+      H masks: 21 helper planes (hg,hu,hh x 7 f-blocks) at rho_F -> rows [(2944, 2945), (2946, 2947), (2948, 2949), (2950, 2951), (2952, 2953), (2954, 2955), (2956, 2957), (2958, 2959), (2960, 2961), (2962, 2963), (2964, 2965), (2966, 2967), (2968, 2969), (2970, 2971), (2972, 2973), (2974, 2975), (2976, 2977), (2978, 2979), (2980, 2981), (2982, 2983), (2984, 2985)]; 1 hz planes at rho_D -> rows [(2986, 2987)]; zero-sum u rows (2988, 2989) (its extension mask u' (2990, 2991)) for the value-0 LogUp sum group; prox row 2992
+      W: 21 claims in 2 groups
+      W group vector 0: mask rows [10752, 10753, 10754, 10755, 10756, 10757, 10758, 10759, 10760, 10761, 10762, 10763, 10764, 10765]
+      W group vector 1: mask rows [10766, 10767, 10768, 10769, 10770, 10771, 10772]
+      W proximity vector: prox mask row 10773 (+ every mask row with its random rho)
+      W 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      W 65536 Merkle leaves salted
+      A: 66 claims in 5 groups
+      A group vector 0: mask rows [3520, 3521, 3522, 3523, 3524, 3525, 3526, 3527, 3528, 3529, 3530, 3531, 3532, 3533, 3534, 3535, 3536, 3537, 3538, 3539, 3540, 3541, 3542, 3543, 3544, 3545, 3546, 3547, 3548, 3549, 3550, 3551, 3552, 3553, 3554, 3555, 3556, 3557, 3558, 3559, 3560, 3561, 3562, 3563, 3564, 3565, 3566, 3567, 3568]
+      A group vector 1: mask rows [3569, 3570, 3571]
+      A group vector 2: mask rows [3572]
+      A group vector 3: mask rows [3573, 3574, 3575, 3576, 3577, 3578, 3579]
+      A group vector 4: mask rows [3582, 3587, 3588, 3589, 3590, 3592, 3594, 3597, 3598, 3600]
+      A proximity vector: prox mask row 3580 (+ every mask row with its random rho)
+      A 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      A 65536 Merkle leaves salted
+      H: 30 claims in 5 groups
+      H group vector 0: mask rows [2944, 2945, 2946, 2947, 2948, 2949, 2950, 2951, 2952, 2953, 2954, 2955, 2956, 2957, 2958, 2959, 2960, 2961, 2962, 2963, 2964, 2965, 2966, 2967, 2968, 2969, 2970, 2971, 2972, 2973, 2974, 2975, 2976, 2977, 2978, 2979, 2980, 2981, 2982, 2983, 2984, 2985]
+      H group vector 1: mask rows [2986, 2987]
+      H group vector 2: mask rows [2988, 2989, 2990, 2991]
+      H group vector 3: mask rows [2995, 2996, 3005, 3006, 3007, 3008, 3009, 3010, 3011, 3012, 3015, 3016, 3019, 3020, 3025, 3026, 3027, 3028, 3031, 3032]
+      H group vector 4: mask rows [2988, 2989]
+      H proximity vector: prox mask row 2992 (+ every mask row with its random rho)
+      H 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      H 65536 Merkle leaves salted
+  gpu device-side (summed): h2d 0.470 s (1933 MB) | ntt 0.629 s | hash 0.000 s | sumcheck 0.253 s | fold 0.122 s | helpers 0.060 s | d2h 0.000 s (46 MB) | vram peak 5182 MB
+PROOF sha256 190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e (40251860 B) [ZK v3 randomness deterministic-test]
+  proof written to /tmp/claude-1000/-home-victor-IntelligenceRegulation/3cd10a40-5de3-4c2c-af31-5504c0ee476e/scratchpad/cl7ab/cl7_reference_r2.proof
+PASS-V3 ACCEPT [ZK]: 1 x 512 (d 4096 f 14336): witness load+chain 3.31 s | PROVE 3.94 s | VERIFY 0.07 s | proof 40251860 B (40.3 MB) | 9.019e10 MACs | 2.290e10 proven MAC/s (prove wall) | wall 7.35 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P3","layers":1,"tokens":512,"d":4096,"f":14336,"witness_s":3.308544698,"prove_s":3.937913580,"serialize_s":0.033993041,"proof_ready_s":7.283927730,"verify_s":0.065206667,"verified":true,"proof_bytes":40251860,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+CL7_RUN arm=reference rep=2 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860

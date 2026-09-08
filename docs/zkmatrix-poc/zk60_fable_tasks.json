@@ -34,7 +34,7 @@
       "priority": 0,
       "title": "Synchronize the lane and preserve exact validation provenance",
       "owner": "Fable / existing Claude GPU lane",
-      "status": "ready",
+      "status": "done",
       "depends_on": [],
       "files": [
         "existing zk60-cl1 checkout and branch",
@@ -49,14 +49,24 @@
         "Record both parent pins, the resulting source tree, and exactly which source each archived gate tested.",
         "No combined-tree acceptance is claimed from the 82314a1 log. Integration into the performance branch remains Codex-owned; CL17 supplies the new combined evidence."
       ],
-      "limits": "This is baseline synchronization, not a GPU launch. Keep the validated H1 process isolation; a replacement global-config scheme is not needed for this queue."
+      "limits": "This is baseline synchronization, not a GPU launch. Keep the validated H1 process isolation; a replacement global-config scheme is not needed for this queue.",
+      "result": {
+        "date": "2026-09-07",
+        "merge_commit": "d092c09",
+        "parents": [
+          "3ad4d97",
+          "52a13d1"
+        ],
+        "report": "docs/zkmatrix-poc/ZK60_CLAUDE_GPU.md#lane-status-2026-09-07-round-9-cl12",
+        "note": "archived green floors ran on 82314a1 (pre-H1, pre-44d72ff); no combined-tree acceptance claimed; CL17 supplies it"
+      }
     },
     {
       "id": "CL13",
       "priority": 0,
       "title": "Bind qualification evidence and make the runner portable",
       "owner": "Fable / Claude tools lane",
-      "status": "ready",
+      "status": "done",
       "depends_on": [],
       "files": [
         "scripts/hashline_cl_5090_preflight.py",
@@ -78,14 +88,24 @@
         "CPU-only tests inspect emitted commands and simulate parser/build failure before any GPU invocation; parser regression covers valid JSON, empty/missing data and the former extra-brace expansion.",
         "A dry-run emits no hardware jobs. Case expectations are tied to the suite version, not merely a threshold of 20 that could miss removed cases."
       ],
-      "limits": "Do not change scripts/hashline_benchmark.py eligibility semantics. The manifest establishes recorded provenance; it is not independent privacy or security certification."
+      "limits": "Do not change scripts/hashline_benchmark.py eligibility semantics. The manifest establishes recorded provenance; it is not independent privacy or security certification.",
+      "result": {
+        "date": "2026-09-07",
+        "base": "df6fdb6",
+        "tests": "preflight 61->78, gates 60 (new), all OK; bash -n clean; dry run emits 96 quoted commands in the order self-test -> builds -> tests -> oracle -> controls -> gates -> cache -> finalize with no hardware job",
+        "probes": "all four round-9 probes refuse: absent binary digest, unrelated binary digest, zero expected/executed cases, flag-only full/target coverage",
+        "manifest": "scripts/hashline_cl_gpu_gates.py: versioned suite (v1 = 21 cases incl. 12 frozen byte gates, oracle, two missing-feature controls, cargo tests, three cache cases), run-manifest schema, validator computes the verdict; preflight --run-manifest binds verified_artifact to validator+HEAD+GPU binary sha256",
+        "runner": "results/cl1_floors.sh portable (repo from its own location, export/CUDA/scratch/device/threads as flags+env), prover --threads / CARGO_BUILD_JOBS / RAYON_NUM_THREADS default 2, self-test first, --dry-run; build lock internal, heavy lock is the launcher's",
+        "follow_up": "suite v1 pins 49 oracle cases (82314a1); CL15 raised the oracle to 141 executed cases, so a suite v2 is added in the next commit before CL17",
+        "limits": "no real manifest exists until CL17 runs; the binary has no memory-budget flag, so the budget is propagated as HL_GPU_CHUNK_ROWS plus a recorded memory_budget_mib"
+      }
     },
     {
       "id": "CL14",
       "priority": 0,
       "title": "Reject invalid chunk-sweep measurement rows",
       "owner": "Fable / Claude tools lane",
-      "status": "ready",
+      "status": "done",
       "depends_on": [],
       "files": [
         "scripts/hashline_cl_chunk_sweep.py",
@@ -102,14 +122,22 @@
         "Tests reject conflicting verdicts/digests/metadata and missing or nonzero exits while preserving a valid comparison with complete evidence.",
         "Report whether the prior chunk-size conclusion survives. No automatic selector is promoted solely from equal digests or noisy timings."
       ],
-      "limits": "CPU-only work is ready now. The archived sweep is not declared invalid merely because the parser accepted a malformed synthetic input."
+      "limits": "CPU-only work is ready now. The archived sweep is not declared invalid merely because the parser accepted a malformed synthetic input.",
+      "result": {
+        "date": "2026-09-07",
+        "base": "6dce8a9",
+        "tests": "chunk sweep 24->44, all OK; Codex's prove_s=-1 + exit 1 fixture refused (negative clock, contradictory clocks, exit 1, missing PASS verdict named); no exit channel => missing-evidence",
+        "contract": "CL5 hashline_cl_profile parse_log+attribute reused as the validated-row gate; exit channels: --exit LABEL=N, `exit N` line, CL6_RUN exit= (per-run log and/or --sweep-log bound by chunk_rows/rep, digests cross-checked)",
+        "revalidation": "results/cl6_round9_revalidation.{json,md}: 6 eligible / 0 refused / 0 missing-evidence; the CL6 conclusion (chunk rows are a memory knob, not a speed knob) survives; selector_promoted false",
+        "limits": "a row now also requires the prover-phases block; cache state uniformly unknown on the archived logs (no CMD line); the sweep evidence is at 9b24975, not the combined tree"
+      }
     },
     {
       "id": "CL15",
       "priority": 0,
       "title": "Define and test empty GPU opening queries",
       "owner": "Fable / Claude GPU lane",
-      "status": "ready",
+      "status": "done",
       "depends_on": [],
       "files": [
         "hashline/src/gpu/cuda.rs",
@@ -125,14 +153,22 @@
         "The device oracle explicitly executes the empty boundary plus duplicate, out-of-range, ragged and below-fusion-threshold cases on applicable routes.",
         "Valid nonempty leaves/opened columns retain CPU parity and frozen proof bytes under CL17."
       ],
-      "limits": "The round-9 finding is source-derived, not a Codex GPU reproduction. One GPU core writer; do not change PCS transcripts or caller semantics outside the agreed interface."
+      "limits": "The round-9 finding is source-derived, not a Codex GPU reproduction. One GPU core writer; do not change PCS transcripts or caller semantics outside the agreed interface.",
+      "result": {
+        "date": "2026-09-07",
+        "base": "4c3e869",
+        "device_oracle": "31 passed / 0 failed; ZK60_CL4_SUMMARY executed_cases 141 (was 49), gpu_enabled+gpu_required true, RTX 4070 Laptop GPU; results/cl15_oracle_gpu.log",
+        "no_feature": "CPU target: exit 0 with executed_cases 0; HL_GPU_REQUIRED=1 exit 101 with the built-WITHOUT reason",
+        "frozen_gates_threads2_forced_chunk": "v2 50cf7bdf..46a17d 66844928 B and zk 021485e4..02282d 87228528 B both MATCH (archived runs used --threads 8); results/cl15_frozen_gates.log",
+        "limits": "columns_chunked unfused route covered by shape only; dev_columns' guard by inspection; v3/zkv3 fixtures left to CL17"
+      }
     },
     {
       "id": "CL16",
       "priority": 1,
       "title": "Reconcile the successful resident return snapshot",
       "owner": "Fable / Claude planner lane",
-      "status": "ready",
+      "status": "done",
       "depends_on": [],
       "files": [
         "scripts/hashline_memory_plan.py",
@@ -149,14 +185,22 @@
         "The final stage agrees with commitment_live_after_return_bytes, while the peak includes pads/powers during their actual lifetime.",
         "Warm exact reuse remains a successful resident outcome; capacity is counted once, the 64-buffer cap is preserved, and existing planner/pending tests pass."
       ],
-      "limits": "This corrects an overcount, not evidence of unsafe peak underestimation. Component accounting alone does not authorize a whole private-block run."
+      "limits": "This corrects an overcount, not evidence of unsafe peak underestimation. Component accounting alone does not authorize a whole private-block run.",
+      "result": {
+        "date": "2026-09-07",
+        "base": "ac5ff0f",
+        "tests": "planner 27->34, pending 42->44, all OK",
+        "reproduction": "rows=300 log_cols=10 inv_rate=4 checks=q_pad=16 fallback/warm-resident: return live 12,288,000 (was 12,359,168; excess 71,168 = pads 38,400 + coset powers 32,768); peak unchanged 24,843,760",
+        "source": "cuda.rs dev_commit_zk_from resident return (line 3300) drops d_pads/d_pows; only chunked returns move them into ZkReenc",
+        "note": "overcount corrected, not evidence of unsafe peak underestimation; component accounting does not authorize a whole-block run"
+      }
     },
     {
       "id": "CL17",
       "priority": 0,
       "title": "Deliver final combined-source correctness evidence",
       "owner": "Fable / Claude lane; Codex reviews integration",
-      "status": "queued",
+      "status": "done",
       "depends_on": [
         "CL12",
         "CL13",
@@ -181,14 +225,31 @@
         "Actual cold/warm proof bytes are identical with correct hit/miss counts; P3 cache refusal occurs before cache creation. Source/binary identity matches the artifact manifest.",
         "A final CPU combined-suite result covers H1 and the atomic cache tests alongside lane tests. Any source edits after a run are identified with their required retests."
       ],
-      "limits": "Safe existing small fixtures only, shared heavy lock, two threads, detached logs/marker for long runs. No 32-layer laptop run, new hardware installation or target-throughput claim follows from this gate."
+      "limits": "Safe existing small fixtures only, shared heavy lock, two threads, detached logs/marker for long runs. No 32-layer laptop run, new hardware installation or target-throughput claim follows from this gate.",
+      "result": {
+        "date": "2026-09-07",
+        "source": "4a0ce56, 0 dirty, hashline delta empty",
+        "manifest": "results/cl_round9_floors/manifest.json verdict GREEN, suite v2, 21/21 cases; validate ok; launcher log results/cl_round9_floors.log, marker 0; run 12:52:09-13:01:10",
+        "binaries": {
+          "cpu": "bdd045d4cf2ce6151819165af440838073dc4af8ba2e75849b2d5db155e8a730",
+          "gpu": "9f20229a680d6adafca21c50fcc742629eef4e1c949f0dff2e44842f2f4dba02"
+        },
+        "crate_suites": "167 tests / 0 failed over 19 result lines incl. atomic wcache and H1 hardening tests",
+        "oracle": "141 executed device cases / 31 tests, gpu_enabled+gpu_required, RTX 4070 Laptop GPU",
+        "byte_gates": "12/12 full SHA-256 + length (v2/v3/zk/zkv3 x cpu/gpu/gpu-zkchunk), all ACCEPT, all GPU cases gpu: ON",
+        "cache": "cold 12 MISS / warm 12 HIT, frozen zkv3 digest both; --p3 --wcache refused exit 2 before any work",
+        "controls": "HL_GPU_REQUIRED=1 without the feature exit 101; plain no-feature exit 0 with executed_cases 0",
+        "preflight": "go=True for a diagnostic FFN-only claim bound to the manifest (results/cl_round9_preflight.json)",
+        "limits": "safe frozen fixtures only, two threads, laptop seconds are diagnostics; no privacy/identity/coverage/target claim; integration remains Codex's",
+        "final_tip_manifest": "results/cl_round9b_floors/manifest.json: GREEN, suite v3, 21/21, HEAD 5bb1546 (after CL18 f9a8eb7 and suite v3 d63c55a), 0 dirty, GPU binary 9887a375.., oracle 189, 167 crate tests / 0 failed, all byte gates and cache cases match; the 4a0ce56 manifest remains the v2 record"
+      }
     },
     {
       "id": "CL18",
       "priority": 2,
       "title": "Evaluate compact pad/scale output as one bounded GPU optimization",
       "owner": "Fable / Claude GPU lane",
-      "status": "queued",
+      "status": "done (measured; switch default OFF; promotion is the integrator's decision)",
       "depends_on": [
         "CL17"
       ],
@@ -209,14 +270,24 @@
         "Failure/cleanup ownership and memory counters agree with the planner; no stale stride or unsupported n+q path is silently used.",
         "Full frozen gates pass at the new source before promotion. The measured phase gain and whole-proof change are reported separately; the traffic reduction remains a hypothesis until measured."
       ],
-      "limits": "This task authorizes a bounded optimization investigation, not a claimed speedup, altered security parameters, a private repair, or a full-model run."
+      "limits": "This task authorizes a bounded optimization investigation, not a claimed speedup, altered security parameters, a private repair, or a full-model run.",
+      "result": {
+        "date": "2026-09-07",
+        "base": "c02d86c + the CL18 diff (the agent was rate-limited after implementing and running the oracle; the orchestrator ran the prepared gate and A/B scripts and wrote the results sections)",
+        "derivation": "ZK60_CLAUDE_RESIDENCY.md 7.1-7.7: k_zk_pad_scale's nn is only the output stride/thread bound and k_ntt_p1's n_src is both source stride and zero-extension bound (1 <= n_src <= 2^log_nn, no power-of-two need); the zero tail is never load-bearing (gl_mul(0, x) == 0); only d_coef2 changes (rmax*(n+q)*8 vs rmax*nn*8: 17,039,360 vs 67,108,864 B at Mistral/12x512 shapes, -74.6%); a traffic lever, not a capacity lever (chunked peak is 86% d_data); verdict: supports",
+        "implementation": "HL_ZK_COMPACT_PAD=1 (default OFF), set_zk_compact_pad_for_test, zk_pad_width(n, q, nn, compact) decides or REFUSES (n + q > nn) before any scratch is taken; the three chunked routes launch k_zk_pad_scale with the compact stride and k_ntt_p1 with n_src = n + q; kernels unchanged (comments only); mod.rs: one re-export line",
+        "oracle": "34 passed / 0 failed, executed_cases 189 (was 141): width/refusal pin, ON/OFF parity of leaves and opened columns across rates, pad boundaries incl. n + q = nn, ragged, duplicates, interleaved, fused/reference/pruned/dense; allocation probes show the compact coef2 take and the reference full take; negative control detects",
+        "frozen_gates": "results/cl18_frozen_gates.log marker 0, GPU binary 9887a375../5,333,616 B: v2/v3/zk/zkv3 OFF MATCH; zk/zkv3 ON MATCH (byte-preserving); two diagnostics MATCH",
+        "measurement": "results/cl18_reenc_ab.log marker 0, Mistral one layer P3 T=512 ABAB x 2, two threads: three commits 0.6247 -> 0.5378 s (1.162x), three re-encodes 0.4656 -> 0.3848 s (1.21x), changed phase 1.090 -> 0.923 s, PROVE 4.346 -> 4.089 s (-0.258 s, 5.9%), proof_ready 13.25 -> 13.04 s, VRAM peak 5182 -> 5148 MB; proof byte-identical across arms and equal to CL7's 190e85a1../40,251,860 B",
+        "limits": "one shape, one card, n = 2 per arm, two threads, single shared box: a diagnostic, not a p95; the MiB traffic reduction is a hypothesis (not profiled); switch stays OFF; the planner does not yet model the compact chunk_expanded (device counters pinned in the oracle instead)"
+      }
     },
     {
       "id": "CL19",
       "priority": 2,
       "title": "Specify an exact proof-size telemetry handoff",
       "owner": "Fable analysis; Codex owns serializer/CLI integration",
-      "status": "complete_by_codex",
+      "status": "complete_by_codex; consumer_delivered_by_fable",
       "depends_on": [],
       "files": [
         "docs/zkmatrix-poc/ZK60_CLAUDE_ARTIFACTS.md",
@@ -237,7 +308,17 @@
       "implementation_owner": "Codex: hashline/src/zk.rs, hashline/src/zk_proof_size.rs, hashline/src/bin/hashline.rs, dedicated byte-accounting tests",
       "implementation_report": "ZK60_ROUND10.md",
       "implementation_validation": "../../results/zk60_round10_validation.json",
-      "implementation_result": "Typed actual-object byte counts and opt-in per-layer HASHLINE_PROOF_SIZE rows are implemented; consume these for CL10 reconciliation. Original design-only handoff is superseded."
+      "implementation_result": "Typed actual-object byte counts and opt-in per-layer HASHLINE_PROOF_SIZE rows are implemented; consume these for CL10 reconciliation. Original design-only handoff is superseded.",
+      "result": {
+        "date": "2026-09-07",
+        "base": "cbea2e9",
+        "scope_change": "Codex took the serializer/CLI side in round 10 (uncommitted at 52a13d1's tree as of 12:22: hashline/src/zk_proof_size.rs, LayerProofZk::size_breakdown(), HASHLINE_PROOF_SIZE rows under --phase-profile); the lane delivers the CONSUMER and a review of that implementation, not a parallel schema",
+        "tests": "artifact profile 27->82, all OK, 0 skipped (six skip-guarded tests ran against Codex's mounted uncommitted evidence)",
+        "consumer": "scripts/hashline_cl_artifact_profile.py: --schema, --validate-breakdown, --from-log [--reconcile], --derive; the CL10 mirror now derives the sumcheck arguments so all four archived per-layer sizes reproduce with zero residual",
+        "reconciliation": "all 12 frozen 12x512 P1 rows validate and sum to the frozen 87,697,008 B; layers 1-2 differ from the layer-0 mirror on exactly a.columns.values +4,096 and h.columns.values +8,192 (the 12,288 B the layer-0 dump could never attribute, now measured); T16 P3 and T16 unverified P1 agree leaf for leaf",
+        "review": "docs/zkmatrix-poc/ZK60_CLAUDE_ARTIFACTS.md section 8: Codex's implementation meets every CL19 contract item (sum, no double count, P1/P3 salts, predicate separate, no second buffer, pass_verified explicit, bytes unchanged); non-blocking findings in 8.4 (rows are CPU-only via --phase-profile; evidence uncommitted)",
+        "limits": "reconciliation evidence is Codex's uncommitted JSON and /tmp logs; no measured rows yet for P3 at 12x512, Mistral or function 2; nothing is promoted as compatible from counts"
+      }
     },
     {
       "id": "FA1",

@@ -1,0 +1,63 @@
+
+=== identity ===
+2026-09-07 21:21:02
+HEAD    c02d86c0dfa765397288bffcc5eb98e02510baf5
+dirty   8 tracked file(s) modified
+binary  9887a375f0a7dff4ecbae8c3852da147cdad09a451867ddd4702c60290a26856  5333616 B
+--- compact rep 1 (21:21:02)
+CL18_RUN arm=compact rep=1 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   chunked ZK commit rows 10774 2^14 -> 2^16 (q 256) in 85 chunks of <= 128, compact pad 16640 of 65536: 0.3278 s
+[ZK60-CL1]   chunked ZK commit rows 3601 2^14 -> 2^16 (q 256) in 29 chunks of <= 128, compact pad 16640 of 65536: 0.1153 s
+[ZK60-CL1]   chunked ZK commit rows 3033 2^14 -> 2^16 (q 256) in 24 chunks of <= 128, compact pad 16640 of 65536: 0.0962 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (85 chunks, fused, pruned 248/4096, compact pad 16640 of 65536): 0.2361 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (29 chunks, fused, pruned 251/4096, compact pad 16640 of 65536): 0.0781 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (24 chunks, fused, pruned 245/4096, compact pad 16640 of 65536): 0.0661 s
+  gpu device-side (summed): h2d 0.601 s (1933 MB) | ntt 0.539 s | hash 0.000 s | sumcheck 0.254 s | fold 0.123 s | helpers 0.062 s | d2h 0.000 s (46 MB) | vram peak 5148 MB
+PASS-V3 ACCEPT [ZK]: 1 x 512 (d 4096 f 14336): witness load+chain 9.13 s | PROVE 4.13 s | VERIFY 0.07 s | proof 40251860 B (40.3 MB) | 9.019e10 MACs | 2.186e10 proven MAC/s (prove wall) | wall 13.37 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P3","layers":1,"tokens":512,"d":4096,"f":14336,"witness_s":9.134820355,"prove_s":4.125700205,"serialize_s":0.037400254,"proof_ready_s":13.301426408,"verify_s":0.072703056,"verified":true,"proof_bytes":40251860,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+note: equals CL7's frozen Mistral P3 digest
+--- reference rep 1 (21:21:19)
+CL18_RUN arm=reference rep=1 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   chunked ZK commit rows 10774 2^14 -> 2^16 (q 256) in 85 chunks of <= 128: 0.3871 s
+[ZK60-CL1]   chunked ZK commit rows 3601 2^14 -> 2^16 (q 256) in 29 chunks of <= 128: 0.1324 s
+[ZK60-CL1]   chunked ZK commit rows 3033 2^14 -> 2^16 (q 256) in 24 chunks of <= 128: 0.1097 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (85 chunks, fused, pruned 248/4096): 0.2891 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (29 chunks, fused, pruned 251/4096): 0.0960 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (24 chunks, fused, pruned 245/4096): 0.0809 s
+  gpu device-side (summed): h2d 0.566 s (1933 MB) | ntt 0.629 s | hash 0.000 s | sumcheck 0.256 s | fold 0.122 s | helpers 0.062 s | d2h 0.000 s (46 MB) | vram peak 5182 MB
+PASS-V3 ACCEPT [ZK]: 1 x 512 (d 4096 f 14336): witness load+chain 9.04 s | PROVE 4.36 s | VERIFY 0.07 s | proof 40251860 B (40.3 MB) | 9.019e10 MACs | 2.067e10 proven MAC/s (prove wall) | wall 13.62 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P3","layers":1,"tokens":512,"d":4096,"f":14336,"witness_s":9.036328701,"prove_s":4.363049913,"serialize_s":0.146934670,"proof_ready_s":13.549520564,"verify_s":0.070920783,"verified":true,"proof_bytes":40251860,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+note: equals CL7's frozen Mistral P3 digest
+--- compact rep 2 (21:21:35)
+CL18_RUN arm=compact rep=2 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   chunked ZK commit rows 10774 2^14 -> 2^16 (q 256) in 85 chunks of <= 128, compact pad 16640 of 65536: 0.3259 s
+[ZK60-CL1]   chunked ZK commit rows 3601 2^14 -> 2^16 (q 256) in 29 chunks of <= 128, compact pad 16640 of 65536: 0.1138 s
+[ZK60-CL1]   chunked ZK commit rows 3033 2^14 -> 2^16 (q 256) in 24 chunks of <= 128, compact pad 16640 of 65536: 0.0967 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (85 chunks, fused, pruned 248/4096, compact pad 16640 of 65536): 0.2447 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (29 chunks, fused, pruned 251/4096, compact pad 16640 of 65536): 0.0783 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (24 chunks, fused, pruned 245/4096, compact pad 16640 of 65536): 0.0663 s
+  gpu device-side (summed): h2d 0.607 s (1933 MB) | ntt 0.536 s | hash 0.000 s | sumcheck 0.247 s | fold 0.122 s | helpers 0.065 s | d2h 0.000 s (46 MB) | vram peak 5148 MB
+PASS-V3 ACCEPT [ZK]: 1 x 512 (d 4096 f 14336): witness load+chain 8.66 s | PROVE 4.05 s | VERIFY 0.07 s | proof 40251860 B (40.3 MB) | 9.019e10 MACs | 2.226e10 proven MAC/s (prove wall) | wall 12.85 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P3","layers":1,"tokens":512,"d":4096,"f":14336,"witness_s":8.662918454,"prove_s":4.051693314,"serialize_s":0.055829389,"proof_ready_s":12.777837531,"verify_s":0.073995522,"verified":true,"proof_bytes":40251860,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+note: equals CL7's frozen Mistral P3 digest
+--- reference rep 2 (21:21:51)
+CL18_RUN arm=reference rep=2 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   chunked ZK commit rows 10774 2^14 -> 2^16 (q 256) in 85 chunks of <= 128: 0.3786 s
+[ZK60-CL1]   chunked ZK commit rows 3601 2^14 -> 2^16 (q 256) in 29 chunks of <= 128: 0.1303 s
+[ZK60-CL1]   chunked ZK commit rows 3033 2^14 -> 2^16 (q 256) in 24 chunks of <= 128: 0.1113 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (85 chunks, fused, pruned 248/4096): 0.2925 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (29 chunks, fused, pruned 251/4096): 0.0916 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (24 chunks, fused, pruned 245/4096): 0.0811 s
+  gpu device-side (summed): h2d 0.594 s (1933 MB) | ntt 0.620 s | hash 0.000 s | sumcheck 0.257 s | fold 0.120 s | helpers 0.061 s | d2h 0.000 s (46 MB) | vram peak 5182 MB
+PASS-V3 ACCEPT [ZK]: 1 x 512 (d 4096 f 14336): witness load+chain 8.59 s | PROVE 4.33 s | VERIFY 0.07 s | proof 40251860 B (40.3 MB) | 9.019e10 MACs | 2.083e10 proven MAC/s (prove wall) | wall 13.03 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P3","layers":1,"tokens":512,"d":4096,"f":14336,"witness_s":8.591884866,"prove_s":4.329532171,"serialize_s":0.034890730,"proof_ready_s":12.959481690,"verify_s":0.070251881,"verified":true,"proof_bytes":40251860,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+note: equals CL7's frozen Mistral P3 digest
+
+=== VERDICT ===
+2026-09-07 21:22:07
+executed cases: 4
+CL18 A/B GREEN (both arms byte-identical: 190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e / 40251860 B)

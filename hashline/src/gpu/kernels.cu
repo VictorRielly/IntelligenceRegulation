@@ -104,6 +104,12 @@ extern "C" __global__ void k_probe(const u64* a, const u64* b, u64* om, u64* oa,
 // 2^(s-1)) owns the contiguous entries tw[half - 1 + k], k < half, which
 // are the CPU table's tw_cpu[k * (max_n / len)] copied on the host (same
 // values; the reads are now coalesced and max_log drops out).
+// [ZK60-CL18] `n_src` in k_ntt_p1 is BOTH the source row stride
+// (s = src + row * n_src) and the zero-extension bound of the bit-reversed
+// load (sh[q] = r < n_src ? s[r] : 0ULL). It need not be a power of two and
+// nothing divides by or aligns to it: 1 <= n_src <= 2^log_n is the whole
+// requirement. The hiding encode's compact form relies on this with
+// n_src = n + q over an (rows x (n + q)) pad/scale buffer. No code changes.
 
 #define NTT_BLK 4096
 #define NTT_LOG_BLK 12
@@ -1180,6 +1186,13 @@ extern "C" __global__ void k_dit_p1_pad_s(const u64* __restrict__ src, u64* __re
 // for q <= i < n, pad[i - n] h^i for n <= i < n + q, 0 beyond — the
 // coefficients of f_data + Z_n g_pad scaled onto the coset, ready for the
 // size-nn forward NTT (== pcs::encode_row_zk on every row).
+// [ZK60-CL18] `nn` here is ONLY the output row stride and the thread bound
+// (rows * nn threads, row = g / nn, i = g - row * nn, out[g]); it is not
+// compared with the transform size. Launched with nn := n + q it writes the
+// same n + q coefficients at stride n + q and never reaches the zero branch;
+// the consumer `k_ntt_p1` then reads that buffer with n_src = n + q and
+// synthesizes the tail as 0ULL — which is exactly what gl_mul(0, h^i)
+// stores in the full-width form (gl_reduce(0, 0) == 0). No code changes.
 extern "C" __global__ void k_zk_pad_scale(const u64* __restrict__ coef, const u64* __restrict__ pads, const u64* __restrict__ pows,
                                           u64* __restrict__ out, int rows, int n, int q, int nn) {
     size_t g = (size_t)blockIdx.x * blockDim.x + threadIdx.x;

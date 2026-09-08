@@ -1,0 +1,9 @@
+REFUSED: --wcache with --p3.
+  Under P3 the WEIGHTS are private, and a cached hash-based weight commitment is
+  not merely suboptimal — it is unsound as a privacy claim: each proof opens 256
+  of the cached codeword's columns, so the union over proofs is a linear system in
+  the weight rows and after ~(n + Q)/Q proofs (65 at the measured 125M n = 2^14,
+  257 at 8B, 513 at 30B) the weights are recoverable by linear algebra.
+  See docs/zkmatrix-poc/U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md section 1.
+  P3 re-commits W with FRESH randomness on every proof; there is nothing to cache.
+  (--wcache remains correct and per-model cacheable under the fast tier, --zk.)

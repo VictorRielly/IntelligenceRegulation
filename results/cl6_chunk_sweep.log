@@ -1,0 +1,88 @@
+
+=== identity ===
+2026-09-06 09:45:31
+HEAD    9b249755e4bc14447578111e28df080ed5f0785b
+dirty   1 tracked file(s) modified
+binary  0040cd848b29622278653972eaa890a6c9d1a3a9aea103bb010dd32b302555b2  5318584 B
+choices 128 256 512  reps 2
+
+=== planner: chunked W component per choice at Mistral width (no device touched) ===
+2026-09-06 09:45:31
+choice 128: W component 1563 MiB + reserve 3620 = predicted 5183 MB whole-layer (limit 7000)
+choice 256: W component 1707 MiB + reserve 3620 = predicted 5327 MB whole-layer (limit 7000)
+choice 512: W component 1995 MiB + reserve 3620 = predicted 5615 MB whole-layer (limit 7000)
+
+=== half 1: frozen zkv3 fixture, chunking FORCED, every choice ===
+2026-09-06 09:45:31
+GATE OK   zkv3 forced-chunk rows=128  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B
+GATE OK   zkv3 forced-chunk rows=256  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B
+GATE OK   zkv3 forced-chunk rows=512  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B
+GATE OK   zkv3 forced-chunk rows=1024  40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17  87697008 B
+
+=== half 2: one Mistral layer, P3, GPU, ABAB x 2 ===
+2026-09-06 09:46:15
+--- choice 128 rep 1 (09:46:15)
+CL6_RUN chunk_rows=128 rep=1 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   chunked ZK commit rows 10774 2^14 -> 2^16 (q 256) in 85 chunks of <= 128: 0.3788 s
+[ZK60-CL1]   chunked ZK commit rows 3601 2^14 -> 2^16 (q 256) in 29 chunks of <= 128: 0.1320 s
+[ZK60-CL1]   chunked ZK commit rows 3033 2^14 -> 2^16 (q 256) in 24 chunks of <= 128: 0.1111 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (85 chunks): 0.3591 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (29 chunks): 0.1183 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (24 chunks): 0.0991 s
+  gpu device-side (summed): h2d 0.558 s (1933 MB) | ntt 0.622 s | hash 0.000 s | sumcheck 0.248 s | fold 0.122 s | helpers 0.069 s | d2h 0.000 s (46 MB) | vram peak 5182 MB
+--- choice 256 rep 1 (09:46:26)
+CL6_RUN chunk_rows=256 rep=1 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   chunked ZK commit rows 10774 2^14 -> 2^16 (q 256) in 43 chunks of <= 256: 0.3784 s
+[ZK60-CL1]   chunked ZK commit rows 3601 2^14 -> 2^16 (q 256) in 15 chunks of <= 256: 0.1278 s
+[ZK60-CL1]   chunked ZK commit rows 3033 2^14 -> 2^16 (q 256) in 12 chunks of <= 256: 0.1087 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (43 chunks): 0.3611 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (15 chunks): 0.1150 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (12 chunks): 0.0968 s
+  gpu device-side (summed): h2d 0.603 s (1933 MB) | ntt 0.615 s | hash 0.000 s | sumcheck 0.246 s | fold 0.121 s | helpers 0.063 s | d2h 0.000 s (46 MB) | vram peak 5349 MB
+--- choice 512 rep 1 (09:46:37)
+CL6_RUN chunk_rows=512 rep=1 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   chunked ZK commit rows 10774 2^14 -> 2^16 (q 256) in 22 chunks of <= 512: 0.3846 s
+[ZK60-CL1]   chunked ZK commit rows 3601 2^14 -> 2^16 (q 256) in 8 chunks of <= 512: 0.1257 s
+[ZK60-CL1]   chunked ZK commit rows 3033 2^14 -> 2^16 (q 256) in 6 chunks of <= 512: 0.1065 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (22 chunks): 0.3605 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (8 chunks): 0.1114 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (6 chunks): 0.0962 s
+  gpu device-side (summed): h2d 0.566 s (1933 MB) | ntt 0.617 s | hash 0.000 s | sumcheck 0.247 s | fold 0.121 s | helpers 0.062 s | d2h 0.000 s (46 MB) | vram peak 5651 MB
+--- choice 128 rep 2 (09:46:48)
+CL6_RUN chunk_rows=128 rep=2 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   chunked ZK commit rows 10774 2^14 -> 2^16 (q 256) in 85 chunks of <= 128: 0.3860 s
+[ZK60-CL1]   chunked ZK commit rows 3601 2^14 -> 2^16 (q 256) in 29 chunks of <= 128: 0.1318 s
+[ZK60-CL1]   chunked ZK commit rows 3033 2^14 -> 2^16 (q 256) in 24 chunks of <= 128: 0.1115 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (85 chunks): 0.3629 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (29 chunks): 0.1173 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (24 chunks): 0.0992 s
+  gpu device-side (summed): h2d 0.505 s (1933 MB) | ntt 0.629 s | hash 0.000 s | sumcheck 0.247 s | fold 0.122 s | helpers 0.062 s | d2h 0.000 s (46 MB) | vram peak 5182 MB
+--- choice 256 rep 2 (09:46:58)
+CL6_RUN chunk_rows=256 rep=2 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   chunked ZK commit rows 10774 2^14 -> 2^16 (q 256) in 43 chunks of <= 256: 0.3891 s
+[ZK60-CL1]   chunked ZK commit rows 3601 2^14 -> 2^16 (q 256) in 15 chunks of <= 256: 0.1287 s
+[ZK60-CL1]   chunked ZK commit rows 3033 2^14 -> 2^16 (q 256) in 12 chunks of <= 256: 0.1080 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (43 chunks): 0.3590 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (15 chunks): 0.1142 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (12 chunks): 0.0972 s
+  gpu device-side (summed): h2d 0.478 s (1933 MB) | ntt 0.626 s | hash 0.000 s | sumcheck 0.254 s | fold 0.121 s | helpers 0.061 s | d2h 0.000 s (46 MB) | vram peak 5349 MB
+--- choice 512 rep 2 (09:47:09)
+CL6_RUN chunk_rows=512 rep=2 exit=0 sha256=190e85a1d3bebdc3dc9ba74ad3d1cf4adf4edf4b7ec9c95e36af72f3700e1f2e bytes=40251860
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[ZK60-CL1]   chunked ZK commit rows 10774 2^14 -> 2^16 (q 256) in 22 chunks of <= 512: 0.3933 s
+[ZK60-CL1]   chunked ZK commit rows 3601 2^14 -> 2^16 (q 256) in 8 chunks of <= 512: 0.1266 s
+[ZK60-CL1]   chunked ZK commit rows 3033 2^14 -> 2^16 (q 256) in 6 chunks of <= 512: 0.1062 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 10774 (22 chunks): 0.3519 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3601 (8 chunks): 0.1127 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 3033 (6 chunks): 0.0955 s
+  gpu device-side (summed): h2d 0.460 s (1933 MB) | ntt 0.626 s | hash 0.000 s | sumcheck 0.262 s | fold 0.122 s | helpers 0.061 s | d2h 0.000 s (46 MB) | vram peak 5651 MB
+
+=== VERDICT ===
+2026-09-06 09:47:20
+executed Mistral cases: 6
+CL6 SWEEP GREEN (frozen fixture byte-identical at every choice; Mistral runs recorded)
