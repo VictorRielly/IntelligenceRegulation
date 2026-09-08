@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "created_local_date": "2026-09-07",
-  "round": 11,
-  "integrator_base": "c8a342f",
+  "round": 12,
+  "integrator_base": "972da4e",
   "reviewed_lane_tip": "5949b38",
-  "review": "ZK60_ROUND11.md",
+  "review": "ZK60_ROUND12.md",
   "owner": "Fable owns follow-up analysis and remaining core/GPU work; Codex owns integration, observation instrumentation and protocol implementation",
   "coordination": "Fable owns FA6-FA9 analysis, CL21 tooling and remaining CL20 extraction; Codex owns integration and protocol implementation. One writer per shared source boundary.",
   "engineering_order": [
@@ -520,6 +520,15 @@
         "citation_honesty": "ePrint 2024/1164 not opened; cited only as recorded by prior repo reviews; construction (b) rests on a bounded-reuse argument whose simulator must be written and checked by FA2/FA3 (handoff H1)",
         "handoff": "H1 FA2/FA3/FA5 simulator + rate bound -> H2-H5 Codex (stable-commitment module, zk.rs prover/verifier under a new profile, ApprovedP3Layer + manifest in model_identity.rs) -> H6 Claude CL1 (chunked commit at budgeted width) -> H7 pass-level identity and request binding -> H8 rotation; P1 private-block work proceeds without waiting for P3 identity",
         "report": "docs/zkmatrix-poc/ZK60_FABLE_MODEL_IDENTITY.md, results/zk60_fable_fa4_review.json, results/zk60_fable_fa4_memory_plan_*.json"
+      },
+      "codex_h2_progress": {
+        "commit": "72a884e",
+        "public_slot_journal": "implemented",
+        "complete_h2": false,
+        "protected_secret_material_store": false,
+        "stable_commitment_reconstruction": false,
+        "prover_verifier_integration": false,
+        "contract": "ZK60_STABLE_WEIGHT_SLOTS.md"
       }
     },
     {
@@ -708,7 +717,18 @@
         "Distinguish current fixed-profile exclusion from wider-profile false acceptance; test the proposed refusal.",
         "No changed protocol bytes hidden in a refactor; update FA5 classifications and remaining gaps."
       ],
-      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner."
+      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner.",
+      "codex_handoff": {
+        "r32_status": "production_fix_implemented; independent review remains",
+        "commit": "42471f0",
+        "test": "cargo test --release --offline --manifest-path hashline/Cargo.toml --test zk60_public_block typed_attention_and_block_reject_unused_proof_messages",
+        "remaining": [
+          "R09",
+          "R10",
+          "R31"
+        ],
+        "note": "Review this R32 fix instead of duplicating its production implementation."
+      }
     },
     {
       "id": "CL21",
@@ -737,9 +757,9 @@
   ],
   "round10_codex_work": "CL19 implementation complete and validated: 156 Rust, 39 Python consumers, four unchanged frozen proofs, P3 on/off byte parity; see ZK60_ROUND10.md. GPU/PCS/planner ownership unchanged.",
   "codex_next_work": [
-    "Integrate construction-specific FA6-FA9 conclusions and exact-coefficient analysis.",
-    "Implement the separately versioned masking repair and pending FFN lifecycle after required review closure.",
-    "Validate one private block, then two connected private blocks; review remaining CL20 boundaries."
+    "Apply independently reviewed FA9 arithmetic/registrar fixes.",
+    "Finish H2 protected secret-material storage and commitment reconstruction against the reviewed policy.",
+    "Integrate consuming slot tokens and the separately versioned masking repair after required privacy review; then one private block and two connected private blocks."
   ],
   "completed_successor_tasks": [
     "CL12",
@@ -773,6 +793,30 @@
       "gpu_oracle_cases": 189,
       "frozen_proof_cases": 12,
       "floor_cases": 21
+    }
+  },
+  "round12_codex_work": {
+    "status": "implemented_scope_validated; H2 and privacy integration remain open",
+    "source": "972da4e",
+    "r32_commit": "42471f0",
+    "implemented": [
+      "exact typed attention sumcheck consumption and unused-helper refusal",
+      "FA4 H2 public slot journal with durable reservation and process locking"
+    ],
+    "h2_complete": false,
+    "stable_p3_enabled": false,
+    "secret_material_persisted": false,
+    "privacy_repair_implemented": false,
+    "validation": "../../results/zk60_round12_validation.json",
+    "report": "ZK60_ROUND12.md",
+    "slot_journal_commit": "72a884e",
+    "tests": {
+      "rust_passed": 191,
+      "rust_ignored": 0,
+      "frozen_cpu_cases": 4,
+      "b4_exact": true,
+      "b5_separate_process": true,
+      "gpu_executed": false
     }
   }
 }

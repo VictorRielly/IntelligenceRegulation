@@ -14714,3 +14714,37 @@ CL21 core-aware validation provenance, and priority-3 CL20 continuation.
 Codex implements the separately versioned repair and pending FFN lifecycle
 after the required review, followed by one private block and then two.
 See docs/zkmatrix-poc/ZK60_ROUND11.md and ZK60_FABLE_QUEUE.md.
+
+## ZK60 round 12 — Codex attention hardening and durable slot reservations
+
+2026-09-08: while Fable works on FA6–FA9/CL21/CL20, Codex closes R32's
+typed attention extra-message acceptance (`42471f0`). A baseline regression
+reproduces ignored trailing sumchecks; the verifier now consumes every
+sumcheck and refuses the unused helper_sums field. Honest proof bytes and
+the fixed A01 prove/replay/shared trace fingerprints remain unchanged.
+
+`72a884e` adds the public-state component of FA4 H2: a bounded policy-bound
+slot journal with exclusive file locking, append/sync before exposure,
+non-Clone reservation tokens, refusal on corruption/torn tails, poisoned
+handles after uncertain I/O and no refunds after drop, panic or process death.
+Real process tests cover death/recovery and competing writers. Storage is a
+trusted local Unix filesystem; rollback/copy protection needs an external
+monotonic authority. No secret material is persisted and no stable P3 proof
+API is enabled. The full H2 and private-model consistency remain open.
+
+The first combined run failed the schedule gate because its launcher set
+HL_GPU=0 instead of leaving it unset and the source guard detected the R32
+edit. After reviewing all 45 unchanged recorder call lines, 19 roles and
+12 sumcheck sites, `972da4e` updates the conservative source pin while keeping
+the old execution fingerprints. The corrected final run passes 191 Rust tests
+(including two ownership compile-fail checks and 19 core tests), four unchanged
+CPU frozen artifacts, exact B4 bytes and separate-process B5 verification.
+Marker 0, two threads, 8-GiB process cap, maximum reported RSS 1,667,956 KiB,
+zero swaps; exact source/stage evidence is results/zk60_round12_validation.json.
+The unchanged Python/native and GPU paths retain round-11 evidence; no new
+run or throughput/privacy acceptance is claimed for them.
+
+The queue preserves Fable ownership. FA9 reviews R32 and supplies remaining
+arithmetic/registrar proposals; Codex completes H2's protected material store
+and reconstruction, then integrates the reviewed versioned proof path and
+consuming slot API. Privacy arguments still gate private-block composition.

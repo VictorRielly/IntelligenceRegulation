@@ -1,5 +1,18 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-08, round 12:** Codex fixes typed attention extra-message
+acceptance (`42471f0`) and implements the durable public slot journal for
+FA4 H2 (`72a884e`). Final source `972da4e` passes **191 Rust tests, all four
+frozen CPU proof artifacts, exact B4 reproduction and separate-process B5
+verification**. [Implementation and evidence](ZK60_ROUND12.md).
+
+Fable retains FA6–FA9, CL21 and remaining CL20 extraction. R32 has an
+implementation for independent review; R09/R10/R31 remain open. The
+[slot journal](ZK60_STABLE_WEIGHT_SLOTS.md) persists spent reservations before
+exposure but stores no secrets and enables no stable P3 proof. H2 completion,
+the privacy repair and private blocks remain open. [Current handoff](ZK60_FABLE_QUEUE.md).
+Earlier dated entries below retain their original validation scope.
+
 **2026-09-08, round 11:** Codex implements verified A/H/P3-W capture and
 replay, integrates Fable through GPU `5949b38` and privacy review `46608bb`,
 and moves seven canonical CPU primitive modules into a working `zkp-core`
