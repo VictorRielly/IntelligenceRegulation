@@ -40,6 +40,9 @@ pub mod stable_weight_slots;
 // Opt-in encrypted registration material; does not enable a stable P3 prover.
 #[cfg(feature = "stable-weight-storage")]
 pub mod stable_weight_material;
+// Durable local registration and reserved material access; no approved P3 API.
+#[cfg(feature = "stable-weight-storage")]
+pub mod stable_weight_registration;
 // Experimental one-shot private equality gadget; not integrated into full blocks.
 pub mod private_seam;
 pub mod phase_profile;
