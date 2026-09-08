@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""dep_closure.py -- the intra-crate module dependency map of `hashline/`.
+"""dep_closure.py -- the module dependency map of `hashline/` and `zkp-core/`.
 
-CL20 design-phase tool (2026-09-07). Standard library only; no cargo, no
-network, no build. It reads every Rust source under `hashline/src`,
-`hashline/src/bin`, `hashline/tests` and `hashline/examples`, and records:
+CL20 design-phase tool (2026-09-07; two-crate form 2026-09-08). Standard
+library only; no cargo, no network, no build. It reads every Rust source
+under each crate's `src`, `src/bin`, `tests` and `examples`, and records:
 
   * one node per module (file), with its declaration site, its line counts
     (total / code / inside `#[cfg(test)]` / inside `#[cfg(feature =
@@ -11,8 +11,16 @@ network, no build. It reads every Rust source under `hashline/src`,
     cudarc; everything else is std-only) and the `std::env::var("...")`
     names it reads;
   * one edge per (module -> module) reference, found in `use crate::...`,
-    inline `crate::x::...` paths, `super::...` at a file's top level, and
-    `hashline::x::...` in the binary / tests / examples. Each edge carries
+    inline `crate::x::...` paths, `super::...` at a file's top level,
+    `hashline::x::...` in the binary / tests / examples, and -- across
+    crates -- `zkp_core::x::...` anywhere in hashline (the compatibility
+    re-exports and direct uses) or `hashline::x::...` anywhere in the core
+    (there must be none: the core never depends on the application). The
+    first `--src` is the primary crate and keeps bare module names (`pcs`);
+    every further crate's modules are named `<crate>::<module>`
+    (`zkp_core::pcs`), so roots and cuts keep their historical spelling
+    and a re-export adapter shows as the edge `pcs -> zkp_core::pcs`.
+    Each edge carries
     the kinds under which it occurs -- `normal`, `gpu` (inside a
     `#[cfg(feature = "gpu-cuda")]` item or block), `not_gpu` (inside a
     `#[cfg(not(feature = "gpu-cuda"))]` item), `test` (inside a
@@ -36,10 +44,11 @@ hand against the source at integrator baseline 52a13d1 (see
 
 Usage (from anywhere; paths are resolved relative to this file):
 
-    python3 zkp-core/tools/dep_closure.py                 # JSON + Markdown to the defaults
+    python3 zkp-core/tools/dep_closure.py                 # both crates; JSON + Markdown to the defaults
     python3 zkp-core/tools/dep_closure.py --root layer --root tables_v3
     python3 zkp-core/tools/dep_closure.py --cut pcs:zk --cut layer:pcs_compact --no-default-cuts
-    python3 zkp-core/tools/dep_closure.py --src other/crate/src --out /tmp/g.json --md -
+    python3 zkp-core/tools/dep_closure.py --src hashline  # one crate only (the 52a13d1 form)
+    python3 zkp-core/tools/dep_closure.py --src /snap/hashline --src /snap/zkp-core --out /tmp/g.json --md ''
 
 Output ordering is deterministic (sorted keys, sorted node and edge lists),
 so re-running after an extraction step produces a reviewable diff.
@@ -100,6 +109,16 @@ CLASS = {
     "zk::mask_diagnostic": "test-only (the FFN disclosure diagnostic; a LIMITATION test)",
     "wcache::atomic_tests": "test-only",
     "field::verifier_hardening_tests": "test-only",
+    # the maintained core crate (canonical implementations; hashline re-exports them)
+    "zkp_core::field": "core (canonical)",
+    "zkp_core::ntt": "core (canonical)",
+    "zkp_core::merkle": "core (canonical)",
+    "zkp_core::transcript": "core (canonical)",
+    "zkp_core::rng": "core (canonical randomness)",
+    "zkp_core::mle": "core (canonical)",
+    "zkp_core::sumcheck": "core (canonical)",
+    "zkp_core::pcs": "core (canonical Ligero commitment)",
+    "zkp_core::pcs::backend": "core (the accelerator seam: Backend / EncodedStore / Cpu)",
 }
 
 # Planned cuts of the first extraction profile (DESIGN.md section 4). Each is an
@@ -128,6 +147,16 @@ MOD_DECL = re.compile(r"^\s*(?:pub(?:\([^)]*\))?\s+)?mod\s+([A-Za-z_][A-Za-z0-9_
 MOD_INLINE = re.compile(r"^\s*(?:pub(?:\([^)]*\))?\s+)?mod\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{")
 USE_LINE = re.compile(r"^\s*(?:pub(?:\([^)]*\))?\s+)?use\s+(crate|super|hashline)\b(.*)$")
 INLINE_PATH = re.compile(r"\b(crate|super|hashline)::([A-Za-z_][A-Za-z0-9_]*)")
+
+
+def set_path_roots(crate_idents: list[str]) -> None:
+    """Recognise `crate::`, `super::` and every scanned crate's identifier as a path root."""
+    global USE_LINE, INLINE_PATH
+    roots = "|".join(["crate", "super"] + sorted(set(crate_idents)))
+    USE_LINE = re.compile(r"^\s*(?:pub(?:\([^)]*\))?\s+)?use\s+(" + roots + r")\b(.*)$")
+    INLINE_PATH = re.compile(r"\b(" + roots + r")::([A-Za-z_][A-Za-z0-9_]*)")
+
+
 EXT_USE = re.compile(r"\b(" + "|".join(EXTERNAL_CRATES) + r")\s*::")
 EXT_USE_DECL = re.compile(r"^\s*use\s+(" + "|".join(EXTERNAL_CRATES) + r")\b")
 ENV_VAR = re.compile(r"std::env::var\s*\(\s*\"([A-Za-z0-9_]+)\"")
@@ -225,12 +254,15 @@ def split_use_targets(rest: str) -> list[str]:
 
 
 class Module:
-    def __init__(self, name: str, path: Path, kind: str, parent: str | None, gate: str | None):
+    def __init__(self, name: str, path: Path, kind: str, parent: str | None, gate: str | None,
+                 crate: str = "hashline", prefix: str = ""):
         self.name = name
         self.path = path
         self.kind = kind            # lib | bin | test | example
         self.parent = parent        # module that declares this file (for `super::`)
         self.gate = gate            # None | test | gpu (gate of the declaring `mod` item)
+        self.crate = crate          # the crate identifier (`hashline`, `zkp_core`)
+        self.prefix = prefix        # node-name prefix of this crate ("" for the primary crate)
         self.declared_by: str | None = None
         self.lines_total = 0
         self.lines_code = 0
@@ -381,13 +413,17 @@ def scan_file(mod: Module, rel: str) -> None:
             inline_mod_depths.pop()
 
 
+CRATE_PREFIX: dict[str, str] = {}      # crate identifier -> node-name prefix
+
+
 def resolve(mod: Module, root: str, seg: str, in_inline_mod: bool) -> str | None:
-    if root in ("crate", "hashline"):
-        if root == "hashline" and mod.kind == "lib":
-            return None
-        if root == "crate" and mod.kind != "lib":
-            return None
-        return seg
+    if root == "crate":
+        return None if mod.kind != "lib" else mod.prefix + seg
+    if root in CRATE_PREFIX:
+        if root == mod.crate:
+            # the crate's own name: only its binary / tests / examples say `hashline::x`
+            return None if mod.kind == "lib" else mod.prefix + seg
+        return CRATE_PREFIX[root] + seg     # a cross-crate reference
     # super
     if in_inline_mod:
         return None                     # `super` inside an inline `mod tests {}` is this file
@@ -399,27 +435,38 @@ def resolve(mod: Module, root: str, seg: str, in_inline_mod: bool) -> str | None
     return mod.parent
 
 
-def discover(src_root: Path) -> dict[str, Module]:
+def crate_ident(src_root: Path) -> str:
+    """The crate's identifier as Rust paths spell it (`zkp-core` -> `zkp_core`)."""
+    toml = src_root / "Cargo.toml"
+    if toml.exists():
+        m = re.search(r"^\s*name\s*=\s*\"([^\"]+)\"", toml.read_text(encoding="utf-8"), re.MULTILINE)
+        if m:
+            return m.group(1).replace("-", "_")
+    return src_root.name.replace("-", "_")
+
+
+def discover(src_root: Path, crate: str = "hashline", prefix: str = "") -> dict[str, Module]:
     """Find every module file and its identity.
 
     Identity comes from the declaring `mod` item: lib.rs declares `pub mod x;`
     -> src/x.rs or src/x/mod.rs; a `#[path = "..."] mod y;` inside src/x.rs ->
     module `x::y` at the named file (relative to src/ for a non-mod.rs
     declarer, as Rust resolves it); a plain `mod y;` inside src/x/mod.rs ->
-    src/x/y.rs.
+    src/x/y.rs. Node names carry `prefix` (empty for the primary crate).
     """
     mods: dict[str, Module] = {}
     lib = src_root / "src" / "lib.rs"
     if not lib.exists():
         sys.exit(f"no lib.rs under {src_root}/src")
-    root = Module("lib", lib, "lib", None, None)
-    mods["lib"] = root
+    lib_name = prefix + "lib"
+    root = Module(lib_name, lib, "lib", None, None, crate, prefix)
+    mods[lib_name] = root
     pending = [root]
     while pending:
         m = pending.pop()
-        scan_file(m, str(m.path.relative_to(src_root)))
+        scan_file(m, f"{src_root.name}/{m.path.relative_to(src_root)}")
         for d in m.declares:
-            child_name = d["name"] if m.name == "lib" else f"{m.name}::{d['name']}"
+            child_name = prefix + d["name"] if m.name == lib_name else f"{m.name}::{d['name']}"
             if d["path_attr"]:
                 base = m.path.parent if m.path.name == "mod.rs" else m.path.parent
                 child_path = (base / d["path_attr"]).resolve()
@@ -432,28 +479,44 @@ def discover(src_root: Path) -> dict[str, Module]:
             if not child_path.exists():
                 print(f"warning: {m.name} declares mod {d['name']} but {child_path} is missing", file=sys.stderr)
                 continue
-            parent = None if m.name == "lib" else m.name
+            parent = None if m.name == lib_name else m.name
             gate = d["gate"] if d["gate"] in ("test", "gpu") else None
             if parent and mods[parent].gate and not gate:
                 gate = mods[parent].gate
-            child = Module(child_name, child_path, "lib", parent, gate)
-            child.declared_by = f"{m.path.relative_to(src_root)}:{d['line']}"
+            child = Module(child_name, child_path, "lib", parent, gate, crate, prefix)
+            child.declared_by = f"{src_root.name}/{m.path.relative_to(src_root)}:{d['line']}"
             mods[child_name] = child
             pending.append(child)
-    # the binary, the integration tests and the examples: consumers of `hashline::`
-    for sub, kind, prefix in (("src/bin", "bin", "bin:"), ("tests", "test", "test:"), ("examples", "example", "example:")):
+    # the binary, the integration tests and the examples: consumers of `<crate>::`
+    for sub, kind, kprefix in (("src/bin", "bin", "bin:"), ("tests", "test", "test:"), ("examples", "example", "example:")):
         d = src_root / sub
         if not d.is_dir():
             continue
         for f in sorted(d.glob("*.rs")):
-            m = Module(prefix + f.stem, f, kind, None, None)
-            scan_file(m, str(f.relative_to(src_root)))
+            m = Module(prefix + kprefix + f.stem, f, kind, None, None, crate, prefix)
+            scan_file(m, f"{src_root.name}/{f.relative_to(src_root)}")
             mods[m.name] = m
     # files under src/ that no declaration reached (dead or misdeclared)
     known = {m.path.resolve() for m in mods.values()}
     for f in sorted((src_root / "src").rglob("*.rs")):
         if f.resolve() not in known and "bin" not in f.parts:
-            print(f"warning: {f.relative_to(src_root)} is not declared by any module", file=sys.stderr)
+            print(f"warning: {src_root.name}/{f.relative_to(src_root)} is not declared by any module", file=sys.stderr)
+    return mods
+
+
+def discover_all(src_roots: list[Path]) -> dict[str, Module]:
+    """Scan every crate; the first keeps bare node names, the rest are `<crate>::` prefixed."""
+    idents = [crate_ident(r) for r in src_roots]
+    CRATE_PREFIX.clear()
+    for i, ident in enumerate(idents):
+        CRATE_PREFIX[ident] = "" if i == 0 else ident + "::"
+    set_path_roots(idents)
+    mods: dict[str, Module] = {}
+    for r, ident in zip(src_roots, idents):
+        for name, m in discover(r, ident, CRATE_PREFIX[ident]).items():
+            if name in mods:
+                sys.exit(f"module name collision {name!r} between crates")
+            mods[name] = m
     return mods
 
 
@@ -492,13 +555,33 @@ def closure(mods: dict[str, Module], roots: list[str], kinds: set[str], cuts: se
     }
 
 
-def to_json(mods: dict[str, Module], src_root: Path, roots: list[str], cuts: set[tuple[str, str]], baseline: str) -> dict:
+def crate_summary(mods: dict[str, Module], crate: str | None) -> dict:
+    sel = {n: m for n, m in mods.items() if crate is None or m.crate == crate}
+    lib_mods = [n for n, m in sel.items() if m.kind == "lib"]
+    return {
+        "library_modules": len(lib_mods),
+        "library_code_lines": sum(sel[n].lines_code for n in lib_mods),
+        "library_test_lines": sum(sel[n].lines_test for n in lib_mods),
+        "library_gpu_gated_lines": sum(sel[n].lines_gpu for n in lib_mods),
+        "binary_code_lines": sum(m.lines_code for m in sel.values() if m.kind == "bin"),
+        "integration_test_files": sum(1 for m in sel.values() if m.kind == "test"),
+        "example_files": sum(1 for m in sel.values() if m.kind == "example"),
+        "nodes": len(sel),
+        "edge_records": sum(len(k) for m in sel.values() for k in m.edges.values()),
+        "cross_crate_edges": sorted({f"{n}->{t}" for n, m in sel.items() for t in m.edges if t in mods and mods[t].crate != m.crate}),
+    }
+
+
+def to_json(mods: dict[str, Module], src_roots: list[Path], roots: list[str], cuts: set[tuple[str, str]], baseline: str) -> dict:
     nodes = {}
     edges = []
+    by_root = {crate_ident(r): r for r in src_roots}
     for name in sorted(mods):
         m = mods[name]
+        src_root = by_root[m.crate]
         nodes[name] = {
-            "file": str(m.path.relative_to(src_root)),
+            "file": f"{src_root.name}/{m.path.relative_to(src_root)}",
+            "crate": m.crate,
             "kind": m.kind,
             "class": CLASS.get(name, "unclassified"),
             "declared_by": m.declared_by,
@@ -519,22 +602,18 @@ def to_json(mods: dict[str, Module], src_root: Path, roots: list[str], cuts: set
             for kind in sorted(m.edges[to]):
                 ev = m.edges[to][kind]
                 edges.append({"from": name, "to": to, "kind": kind, "count": len(ev), "evidence": ev[:8]})
-    lib_mods = [n for n, m in mods.items() if m.kind == "lib"]
     default_kinds = {"normal", "not_gpu"}
     literal_kinds = {"normal", "gpu", "not_gpu"}
+    idents = [crate_ident(r) for r in src_roots]
     return {
         "generator": "zkp-core/tools/dep_closure.py",
         "baseline": baseline,
-        "crate": str(src_root.name),
-        "summary": {
-            "library_modules": len(lib_mods),
-            "library_code_lines": sum(mods[n].lines_code for n in lib_mods),
-            "library_test_lines": sum(mods[n].lines_test for n in lib_mods),
-            "library_gpu_gated_lines": sum(mods[n].lines_gpu for n in lib_mods),
-            "binary_code_lines": sum(m.lines_code for m in mods.values() if m.kind == "bin"),
-            "integration_test_files": sum(1 for m in mods.values() if m.kind == "test"),
-            "example_files": sum(1 for m in mods.values() if m.kind == "example"),
-        },
+        "crates": [str(r.name) for r in src_roots],
+        "primary_crate": idents[0],
+        # the primary crate's figures under the historical keys, every crate under `per_crate`
+        "summary": crate_summary(mods, idents[0]),
+        "per_crate": {ident: crate_summary(mods, ident) for ident in idents},
+        "total": crate_summary(mods, None),
         "nodes": nodes,
         "edges": edges,
         "closures": {
@@ -549,7 +628,7 @@ def to_markdown(data: dict) -> str:
     rows = ["| module | class | code lines (test / gpu-gated) | externals | env vars | depends on (normal) | gpu-only | test-only |",
             "|---|---|---:|---|---|---|---|---|"]
     for name, n in data["nodes"].items():
-        if n["kind"] != "lib" or name == "lib":
+        if n["kind"] != "lib" or name == "lib" or name.endswith("::lib"):
             continue
         rows.append("| `{}` | {} | {} ({} / {}) | {} | {} | {} | {} | {} |".format(
             name, n["class"], n["lines_code"], n["lines_test"], n["lines_gpu_gated"],
@@ -615,7 +694,8 @@ def main() -> int:
     here = Path(__file__).resolve()
     repo = here.parents[2]
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--src", default=str(repo / "hashline"), help="crate directory (contains src/lib.rs)")
+    ap.add_argument("--src", action="append", default=[],
+                    help="crate directory (contains src/lib.rs); repeatable, the first is primary (default: hashline, zkp-core)")
     ap.add_argument("--out", default=str(repo / "zkp-core" / "dependency_graph.json"), help="JSON output path ('-' for stdout)")
     ap.add_argument("--md", default="-", help="Markdown table output path ('-' for stdout, '' to skip)")
     ap.add_argument("--root", action="append", default=[], help="root module for the closure (repeatable; default: layer, tables_v3)")
@@ -625,8 +705,8 @@ def main() -> int:
     args = ap.parse_args()
     TRACE.update(args.trace)
 
-    src_root = Path(args.src).resolve()
-    mods = discover(src_root)
+    src_roots = [Path(s).resolve() for s in (args.src or [str(repo / "hashline"), str(repo / "zkp-core")])]
+    mods = discover_all(src_roots)
     roots = args.root or ["layer", "tables_v3"]
     for r in roots:
         if r not in mods:
@@ -638,7 +718,7 @@ def main() -> int:
         if not a or not b:
             sys.exit(f"bad --cut {c!r}; want from:to")
         cuts.add((a, b))
-    data = to_json(mods, src_root, roots, cuts, git_head(repo))
+    data = to_json(mods, src_roots, roots, cuts, git_head(repo))
     text = json.dumps(data, indent=2, sort_keys=True) + "\n"
     if args.out == "-":
         sys.stdout.write(text)

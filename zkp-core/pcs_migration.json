@@ -1,0 +1,55 @@
+{
+  "source_pin": "cfa46f6",
+  "moved": [
+    {
+      "module": "pcs",
+      "original": "hashline/src/pcs.rs",
+      "original_sha256": "60ac5f2f37e30b8aa3d648f5069fa0c2cefc5b73b8e42e3fb34933f77960ab1b",
+      "core": "zkp-core/src/pcs.rs",
+      "core_sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+      "adjustments": [
+        "RNG import crate::rng::ZkRng",
+        "Store<E>/Committed<E>/CommittedZk<E> generic in the backend store type",
+        "device arms -> Backend::try_commit / try_commit_zk and EncodedStore::fold_rows / columns",
+        "open -> open_timed returning OpenTimings (no HL_TIMING read)",
+        "commit_zk_device left in the adapter",
+        "three unit tests moved; test RNG import -> crate::rng"
+      ]
+    }
+  ],
+  "new": [
+    {
+      "module": "pcs::backend",
+      "path": "zkp-core/src/pcs/backend.rs",
+      "sha256": "1734c03ce6897e784e8ac443581190a00f30f6a91c16479aa7a7a65e00617499"
+    }
+  ],
+  "adapters": [
+    {
+      "path": "hashline/src/pcs.rs",
+      "original_sha256": "60ac5f2f37e30b8aa3d648f5069fa0c2cefc5b73b8e42e3fb34933f77960ab1b",
+      "adapter_sha256": "6d27f3a5bc28fb7bb57ab14ddb395f4c6911db2b8541876af73344125520d8a8"
+    },
+    {
+      "path": "hashline/src/gpu/mod.rs",
+      "original_sha256": "9688b09fd97bf614b3e2dd18764b2a87018e2f3dcae21a703d14860ef39a6f8d",
+      "adapter_sha256": "a5ceeba218429637cb73f9dc5c28fcf3508c7d071ea288be110f7e43078b4229"
+    },
+    {
+      "path": "zkp-core/src/lib.rs",
+      "original_sha256": "9cd2613f20b8129dc645ae338d3919184ee34c69e95014de09c0136998ea5b2f",
+      "adapter_sha256": "8cda0bf78e46499e72ba363c1b719689bff2ea51e1e95f18ee223d44e0ea44c2"
+    }
+  ],
+  "untouched_consumers": [
+    "hashline/src/gpu/cuda.rs",
+    "hashline/src/zk.rs",
+    "hashline/src/layer.rs",
+    "hashline/src/wcache.rs",
+    "hashline/src/pcs_compact.rs",
+    "hashline/src/attention.rs",
+    "hashline/tests/*",
+    "hashline/examples/*"
+  ],
+  "validation": "results/zk60_cl20_pcs_validation.json"
+}

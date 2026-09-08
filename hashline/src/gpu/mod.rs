@@ -182,6 +182,89 @@ pub mod open_plan {
     }
 }
 
+/// [ZK60-CL20] The adapter side of `zkp_core::pcs`'s backend seam. The
+/// core's commitment offers its encode-and-hash to a `Backend`; this is the
+/// one hashline plugs in. With the feature, `CudaBackend` keeps the runtime
+/// toggle (`enabled()`, i.e. `HL_GPU=1` plus a device that initialised) and
+/// the exact decline messages the logs and `tests/test_hashline_cl_profile.py`
+/// expect, and `DevCommit` is the core's `EncodedStore` through
+/// `dev_fold_rows` / `dev_columns`. Without the feature the backend is the
+/// core's `Cpu` and the store type is uninhabited, so no device arm exists.
+#[cfg(feature = "gpu-cuda")]
+mod seam {
+    use super::cuda::{dev_columns, dev_commit, dev_commit_zk, dev_fold_rows, enabled, DevCommit};
+    use crate::field::{Fp, Fp2};
+    use crate::merkle::Digest;
+    use crate::ntt::NttTables;
+    use zkp_core::pcs::{Backend, EncodedStore, PcsParams};
+
+    /// The store type hashline's commitments carry: the device-resident encoding.
+    pub type DevStore = DevCommit;
+
+    pub struct CudaBackend;
+
+    /// The backend `pcs::commit` / `pcs::commit_zk` offer their work to.
+    pub fn backend() -> CudaBackend {
+        CudaBackend
+    }
+
+    impl EncodedStore for DevCommit {
+        fn fold_rows(&self, rhos: &[Vec<Fp2>]) -> Result<Vec<Vec<Fp2>>, String> {
+            dev_fold_rows(self, rhos)
+        }
+        fn columns(&self, idx: &[usize]) -> Result<Vec<Vec<Fp>>, String> {
+            dev_columns(self, idx)
+        }
+    }
+
+    impl Backend for CudaBackend {
+        type Store = DevCommit;
+        // [UPERF3-XX] the device path (HL_GPU=1): the same encoding and the same leaves; Err -> the CPU body.
+        fn try_commit(&self, params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Option<(DevCommit, Vec<Digest>)> {
+            if !enabled() {
+                return None;
+            }
+            match dev_commit(params, data, ntt) {
+                Ok(x) => Some(x),
+                Err(e) => {
+                    eprintln!("[UPERF3-XX] gpu commit declined ({e}); CPU path");
+                    None
+                }
+            }
+        }
+        // [UPERF3-ZA] the device path (rung 4): the same coset encoding on the device, leaves back, salted by the core.
+        fn try_commit_zk(&self, params: &PcsParams, data: &[Fp], pads: &[Fp], pows: &[Fp], ntt: &NttTables) -> Option<(DevCommit, Vec<Digest>)> {
+            if !enabled() {
+                return None;
+            }
+            match dev_commit_zk(params, data, pads, pows, ntt) {
+                Ok(x) => Some(x),
+                Err(e) => {
+                    eprintln!("[UPERF3-ZA] gpu zk commit declined ({e}); CPU path");
+                    None
+                }
+            }
+        }
+    }
+}
+
+#[cfg(feature = "gpu-cuda")]
+pub use seam::{backend, CudaBackend, DevStore};
+
+#[cfg(not(feature = "gpu-cuda"))]
+mod seam {
+    /// Without the feature no external store exists (the type has no values).
+    pub type DevStore = zkp_core::pcs::NoExternal;
+
+    /// The core's CPU backend: never takes over.
+    pub fn backend() -> zkp_core::pcs::Cpu {
+        zkp_core::pcs::Cpu
+    }
+}
+
+#[cfg(not(feature = "gpu-cuda"))]
+pub use seam::{backend, DevStore};
+
 #[cfg(not(feature = "gpu-cuda"))]
 mod stub {
     /// The GPU path is never live without the `gpu-cuda` feature.
