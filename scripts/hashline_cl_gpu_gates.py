@@ -177,8 +177,25 @@ def _suite_v2():
     return suite
 
 
-SUITES = {2: _suite_v2(), 1: _suite_v1(), 0: _suite_v0()}
-DEFAULT_SUITE = 2
+def _suite_v3():
+    """[ZK60-CL18 -> CL13 follow-up] CL18 added the compact pad/scale oracle
+    cases (switch ON and OFF across the routes, the width refusal, the
+    allocation probes): 189 executed device cases / 34 tests on the RTX 4070
+    Laptop GPU under HL_GPU_REQUIRED=1 (results/cl18_oracle.log). Everything
+    else is v2's."""
+    suite = copy.deepcopy(_suite_v2())
+    suite["version"] = 3
+    for case in suite["cases"]:
+        if case["id"] == "oracle_gpu":
+            case["expect"]["executed_cases"] = 189
+            case["established"] = ("189 executed cases / 34 tests at the CL18 source (results/cl18_oracle.log, RTX 4070 "
+                                   "Laptop GPU, HL_GPU_REQUIRED=1). v2's 141 was CL15's count at 6dce8a9; v1's 49 was 82314a1's. "
+                                   "A changed hashline/tests/zk60_gpu_commit.rs cuts a new version.")
+    return suite
+
+
+SUITES = {3: _suite_v3(), 2: _suite_v2(), 1: _suite_v1(), 0: _suite_v0()}
+DEFAULT_SUITE = 3
 
 
 def suite(version):

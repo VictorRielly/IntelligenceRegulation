@@ -168,20 +168,26 @@ class SuiteDefinition(unittest.TestCase):
         # from 49 to 141 executed cases; the count is the SUITE'S, so that cut v2.
         # v1 keeps 82314a1's 49 — the archived round-7 manifest-less run is still
         # describable — and everything but the oracle expectation is identical.
-        v1, v2 = gg.suite(1), gg.suite(2)
-        self.assertEqual(gg.DEFAULT_SUITE, 2)
+        v1, v2, v3 = gg.suite(1), gg.suite(2), gg.suite(3)
+        # [ZK60-CL18] v3 = CL18's 189; the default follows the newest oracle
+        self.assertEqual(gg.DEFAULT_SUITE, 3)
         self.assertEqual(gg.case_definition(1, "oracle_gpu")["expect"]["executed_cases"], 49)
         self.assertEqual(gg.case_definition(2, "oracle_gpu")["expect"]["executed_cases"], 141)
+        self.assertEqual(gg.case_definition(3, "oracle_gpu")["expect"]["executed_cases"], 189)
         self.assertIn("6dce8a9", gg.case_definition(2, "oracle_gpu")["established"])
+        self.assertIn("cl18_oracle.log", gg.case_definition(3, "oracle_gpu")["established"])
         self.assertEqual(gg.expected_cases(1), gg.expected_cases(2))
-        self.assertTrue(v2["production"])
-        for c1, c2 in zip(v1["cases"], v2["cases"]):
+        self.assertEqual(gg.expected_cases(2), gg.expected_cases(3))
+        self.assertTrue(v2["production"] and v3["production"])
+        for c1, c2, c3 in zip(v1["cases"], v2["cases"], v3["cases"]):
             if c1["id"] != "oracle_gpu":
                 self.assertEqual(c1, c2, c1["id"])
-        # 49 is now a REFUSAL against the default suite, 141 passes
-        with self.assertRaisesRegex(gg.GatesError, "49 != the suite's expected 141"):
-            gg.parse_oracle_summary(GOOD, gg.case_definition(gg.DEFAULT_SUITE, "oracle_gpu")["expect"]["executed_cases"])
-        self.assertEqual(gg.parse_oracle_summary(GOOD.replace('"executed_cases":49', '"executed_cases":141'), 141)["executed_cases"], 141)
+                self.assertEqual(c2, c3, c2["id"])
+        # 49 is a REFUSAL against the default suite; the default's own count passes
+        want = gg.case_definition(gg.DEFAULT_SUITE, "oracle_gpu")["expect"]["executed_cases"]
+        with self.assertRaisesRegex(gg.GatesError, f"49 != the suite's expected {want}"):
+            gg.parse_oracle_summary(GOOD, want)
+        self.assertEqual(gg.parse_oracle_summary(GOOD.replace('"executed_cases":49', f'"executed_cases":{want}'), want)["executed_cases"], want)
 
     def test_synthetic_suite_is_not_production(self):
         self.assertFalse(gg.suite(0)["production"])
