@@ -1,0 +1,128 @@
+   Compiling version_check v0.9.5
+   Compiling crossbeam-utils v0.8.22
+   Compiling generic-array v0.14.7
+   Compiling crossbeam-epoch v0.9.20
+   Compiling typenum v1.20.1
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.11
+   Compiling crossbeam-deque v0.8.7
+   Compiling cc v1.4.4
+   Compiling rayon-core v1.13.0
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling cfg-if v1.0.4
+   Compiling digest v0.10.7
+   Compiling blake3 v1.8.7
+   Compiling constant_time_eq v0.4.2
+   Compiling cpufeatures v0.3.1
+   Compiling either v1.18.0
+   Compiling arrayvec v0.7.8
+   Compiling cpufeatures v0.2.17
+   Compiling sha2 v0.10.9
+   Compiling rayon v1.12.0
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-fa/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2854:9
+     |
+2854 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 8 warnings (run `cargo fix --lib -p hashline --tests` to apply 6 suggestions)
+    Finished `release` profile [optimized] target(s) in 55.61s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-fa/hashline/target/release/deps/hashline-72d1cf268ba37d0a)
+
+running 4 tests
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=5c1ee091c2097b533d679b9510875a9eb364fbd73cb4b529ee54cc9de1f5ffda
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=5c1ee091c2097b533d679b9510875a9eb364fbd73cb4b529ee54cc9de1f5ffda
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=30b390755fda91b784b9dd6d13cc957f57cb67f8441657a0266c26ac139815d2
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=30b390755fda91b784b9dd6d13cc957f57cb67f8441657a0266c26ac139815d2
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=65abb25449d9019d42014ca19fe20ec3cb493cbaf2f8f3b779de912a589183b8
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=9ce61efc214b868840a3f904ee3b1b974b62431eaf5cbe5b6a8364b83594c1a7
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=9ce61efc214b868840a3f904ee3b1b974b62431eaf5cbe5b6a8364b83594c1a7
+FFN_DIAGNOSTIC privacy=P1 T=2 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=65abb25449d9019d42014ca19fe20ec3cb493cbaf2f8f3b779de912a589183b8
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=be1d9bfe1a20145f7c6dbd23e60b52ba36005ec23d674216c0f03a144b0c06eb
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=be1d9bfe1a20145f7c6dbd23e60b52ba36005ec23d674216c0f03a144b0c06eb
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=d05342dbc667ff0bd272025b99695e57776c66f0f1c01d8ff9d8f08b81d59cb3
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=d05342dbc667ff0bd272025b99695e57776c66f0f1c01d8ff9d8f08b81d59cb3
+FFN_DIAGNOSTIC privacy=P3 T=2 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=1 disclosed_base_functionals=32 full_plane_recovered=true proof_sha256=6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297
+test zk::mask_diagnostic::actual_ffn_fresh_os_singleton_rows_are_recovered_without_resampling ... ok
+test zk::mask_diagnostic::actual_ffn_seeded_singleton_rows_are_recovered_in_p1_and_p3 ... ok
+test zk::mask_diagnostic::diagnostic_refuses_degenerate_and_paired_mask_controls ... ok
+FFN_DIAGNOSTIC privacy=P1 T=32 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df
+FFN_DIAGNOSTIC privacy=P1 T=32 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df
+FFN_DIAGNOSTIC privacy=P1 T=32 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=91b8a6e8e6229f59f7b6839719812c57bcd3f30e5d2d02d553908a6e1bd358c0
+FFN_DIAGNOSTIC privacy=P1 T=32 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=91b8a6e8e6229f59f7b6839719812c57bcd3f30e5d2d02d553908a6e1bd358c0
+FFN_DIAGNOSTIC privacy=P3 T=32 rng=fixture role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe
+FFN_DIAGNOSTIC privacy=P3 T=32 rng=fixture role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe
+FFN_DIAGNOSTIC privacy=P3 T=32 rng=fresh-os role=X-at-p2 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=9c321f70b51dd3f69503c3eb333ad6fb09f6303fd387772402ea2296c71edc39
+FFN_DIAGNOSTIC privacy=P3 T=32 rng=fresh-os role=h16-at-p5 groups=[7, 3, 1, 1, 6] data_rows=2 disclosed_base_functionals=256 full_plane_recovered=false proof_sha256=9c321f70b51dd3f69503c3eb333ad6fb09f6303fd387772402ea2296c71edc39
+test zk::mask_diagnostic::actual_ffn_t32_recovers_one_functional_per_column_of_two_row_planes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 63 filtered out; finished in 1.25s
+

@@ -1,0 +1,167 @@
+{
+  "task": "FA4 — Specify approved private-model consistency (P3 model identity)",
+  "reviewer": "Claude Fable 5.1, independent reviewer, 2026-09-07 session",
+  "role": "independent identity review; not the implementer; hashline/src/model_identity.rs stays Codex-owned",
+  "source_pin": {
+    "worktree": "/home/victor/wt-zk60-fa",
+    "branch": "zk60-fable-review",
+    "head": "52a13d1",
+    "head_subject": "docs: publish Fable follow-ups and minimal ZKP core refactor task"
+  },
+  "files_owned_new": [
+    "docs/zkmatrix-poc/ZK60_FABLE_MODEL_IDENTITY.md",
+    "hashline/tests/zk60_model_identity.rs",
+    "results/zk60_fable_fa4_review.json",
+    "results/zk60_fable_fa4_identity_gap.log",
+    "results/zk60_fable_fa4_identity_gap.done",
+    "results/zk60_fable_fa4_model_identity_run1.log",
+    "results/zk60_fable_fa4_model_identity_run1.done",
+    "results/zk60_fable_fa4_model_identity_run2.log",
+    "results/zk60_fable_fa4_model_identity_run2.done",
+    "results/zk60_fable_fa4_memory_plan_today_k1.json",
+    "results/zk60_fable_fa4_memory_plan_budget_k16_rate4.json",
+    "results/zk60_fable_fa4_memory_plan_budget_k64_rate4.json",
+    "results/zk60_fable_fa4_memory_plan_budget_k64_rate8.json"
+  ],
+  "files_read_only_baseline": [
+    "hashline/src/model_identity.rs",
+    "hashline/tests/zk60_identity_gap.rs",
+    "hashline/src/zk.rs",
+    "hashline/src/layer.rs",
+    "hashline/src/pcs.rs",
+    "hashline/src/private_seam.rs",
+    "hashline/src/export_v3.rs",
+    "hashline/src/tables_v3.rs",
+    "hashline/src/transcript.rs",
+    "docs/zkmatrix-poc/ZK60_EXECUTION.md",
+    "docs/zkmatrix-poc/ZK60_FABLE_QUEUE.md",
+    "docs/zkmatrix-poc/U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md",
+    "docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK.md",
+    "docs/zkmatrix-poc/ZK60_PENDING_FFN.md",
+    "docs/zkmatrix-poc/ZK60_IDENTITY_WORKER.md",
+    "docs/zkmatrix-poc/ZK60_RESEARCH_DECISIONS.md",
+    "docs/zkmatrix-poc/ZK60_PRIVATE_SEAM.md",
+    "PROGRESS_UPERF3.md (AM honesty note; I1 ownership block)",
+    "results/am_r2_mistral.log",
+    "scripts/hashline_memory_plan.py"
+  ],
+  "git_write_commands_run": 0,
+  "runs": [
+    {
+      "id": "R1",
+      "purpose": "reproduce the baseline diagnostic known_p3_gap_same_declared_model_and_input_different_weights_both_verify and the approved_p1_* positive comparison",
+      "command": "setsid nohup bash -c 'flock /tmp/zk-heavy.lock env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=0 cargo test --release --offline --manifest-path /home/victor/wt-zk60-fa/hashline/Cargo.toml --test zk60_identity_gap -- --nocapture --test-threads=2 >> /home/victor/wt-zk60-fa/results/zk60_fable_fa4_identity_gap.log 2>&1; echo $? > /home/victor/wt-zk60-fa/results/zk60_fable_fa4_identity_gap.done' >/dev/null 2>&1 &",
+      "marker_exit": 0,
+      "result": "5 passed; 0 failed; test time 0.43 s; first library build 54.41 s (cold cache, shared box)",
+      "log": "results/zk60_fable_fa4_identity_gap.log",
+      "log_sha256": "bb3bd8e01c364c7a4239efc5579f61e2f319e5846cdf3007eb3ac35eb6f2c93f",
+      "observed": {
+        "gap_verdicts": "BOTH proofs VERIFIED under the same statement and declared model example-approved-model",
+        "proof_sha256_approved_Wg0_minus1_seed201": "cbccb86231fef7714eb07232ea6b00d429e3f86df0d5a1d4f8f25655ead28606",
+        "proof_sha256_substitute_Wg0_zero_seed202": "acddc82808299451d07c7997e3921bae0ffb9f0af3fdd561460697d6a48fdba5",
+        "matches_codex_I1_record": true
+      }
+    },
+    {
+      "id": "R2",
+      "purpose": "first run of the new review tests hashline/tests/zk60_model_identity.rs",
+      "command": "same wrapper with --test zk60_model_identity, log results/zk60_fable_fa4_model_identity_run1.log",
+      "marker_exit": 101,
+      "result": "4 passed, 1 failed: the matrix test's own invariant enforced_today == (today == required) was applied to the two reused-randomness rows (prover-side obligations); no verifier verdict differed from expectation",
+      "log": "results/zk60_fable_fa4_model_identity_run1.log",
+      "log_sha256": "4d0265e16bd26270c32c4998b698e1dc6d77d2d6b081e2c2fb5cdf04d4e9c348",
+      "fix": "added Obligation::{Verifier, Prover} per row; invariant applied per kind"
+    },
+    {
+      "id": "R3",
+      "purpose": "second run of the review tests after the invariant fix (the recorded pass)",
+      "command": "same wrapper with --test zk60_model_identity, log results/zk60_fable_fa4_model_identity_run2.log",
+      "marker_exit": 0,
+      "result": "5 passed; 0 failed; test time 1.63 s; rebuild 12.80 s",
+      "log": "results/zk60_fable_fa4_model_identity_run2.log",
+      "log_sha256": "d44a9ecd1db6517e6456bcc6602a6094b444966a3740c83752351f78875ecb86",
+      "observed": {
+        "gap_verdicts": "four P3 proofs (approved/601, substitute/602, approved/OS-entropy, substitute/OS-entropy) ALL VERIFIED under one statement and declared model approved-model-A; every W root distinct, including the two approved ones",
+        "proof_sha256_approved_seed601": "a54cd628949bf83c0f6fb06e60e11fe457ad8aa2674fbed670008492623237ce",
+        "proof_sha256_substitute_seed602": "8ca1cfc1fb8edfbfb6537ee0f6119b5648fa5af4f9d952e9e8ed461301c64590",
+        "w_root_approved_seed601": "afd0c74f1f837640a13959f0f1f0db36f926142e3039a61b41f37f7733b3c266",
+        "w_root_substitute_seed602": "de10ad2137bed2e0d9464ec611f581cf9c0b512088866fbbcb569ee6b76308da",
+        "matrix_not_enforced_today": ["M1", "M2", "M6", "M9", "M11", "M13", "M15", "M16"],
+        "matrix_enforced_today": ["M3", "M4", "M5", "M7", "M8", "M10", "M12", "M14", "M17", "M18"]
+      }
+    },
+    {
+      "id": "M1",
+      "purpose": "counted memory for one hiding W commitment at the 8B FFN width (d 4096, f 14336, log_cols 14, Q 256) via the project's own planner; NOT a measurement (planner reports measured:false)",
+      "commands": [
+        "python3 scripts/hashline_memory_plan.py --p3-weights 4096 14336 --log-cols 14 --inv-rate 4 --checks 256 > results/zk60_fable_fa4_memory_plan_today_k1.json",
+        "python3 scripts/hashline_memory_plan.py --rows 11104 --log-cols 14 --inv-rate 4 --checks 256 --q-pad 4096 > results/zk60_fable_fa4_memory_plan_budget_k16_rate4.json",
+        "python3 scripts/hashline_memory_plan.py --rows 12160 --log-cols 14 --inv-rate 4 --checks 256 --q-pad 16384 > results/zk60_fable_fa4_memory_plan_budget_k64_rate4.json",
+        "python3 scripts/hashline_memory_plan.py --rows 12160 --log-cols 14 --inv-rate 8 --checks 256 --q-pad 16384 > results/zk60_fable_fa4_memory_plan_budget_k64_rate8.json",
+        "python3 scripts/hashline_memory_plan.py --rows 12160 --log-cols 14 --inv-rate 4 --checks 256 --q-pad 32768  -> exit 2: 'require checks <= q_pad <= columns and n + q_pad <= encoded columns' (planner limit q_pad <= n, i.e. k <= n/Q = 64)"
+      ],
+      "exits": [0, 0, 0, 0, 2],
+      "rows_derivation": "data rows 3*d*f/n = 10752; per-proof W mask rows 3*nb_d*nb_f + 1 = 22 (nb_d 1, nb_f 7); today k=1 -> 10774 rows; budget k -> 10752 + 22*k",
+      "results_mib": {
+        "today_k1_q256_rate4": {"rows": 10774, "peak_accounted": 13492.0, "encoded_matrix": 5387.0, "pads": 21.0, "host_retained_payload": 1373.8, "merkle_tree_bytes": 4194272},
+        "budget_k16_q4096_rate4": {"rows": 11104, "peak_accounted": 14230.5, "encoded_matrix": 5552.0, "pads": 347.0, "host_retained_payload": 1741.0, "merkle_tree_bytes": 4194272},
+        "budget_k64_q16384_rate4": {"rows": 12160, "peak_accounted": 16723.5, "encoded_matrix": 6080.0, "pads": 1520.0, "host_retained_payload": 3046.0, "merkle_tree_bytes": 4194272},
+        "budget_k64_q16384_rate8": {"rows": 12160, "peak_accounted": 28887.0, "encoded_matrix": 12160.0, "pads": 1520.0, "host_retained_payload": 3052.0, "merkle_tree_bytes": 8388576}
+      },
+      "json_sha256": {
+        "today_k1": "7cde737ed2eaaa086ac79cbed4c42b11a43c389e1b5413e2c02145c6d2f8d36a",
+        "budget_k16_rate4": "0e9ed0539d024b3640a3297333e8430357b0f4ab4e6b646a2f93b4a463161788",
+        "budget_k64_rate4": "6e6b1692fd16bb75c50ea43feb9e990ef5493e525c6566541029319c689b6fe8",
+        "budget_k64_rate8": "ec9c7acdfa51ab6da6e37b49ca20ce6c30696e5094c7de969f6f24d7f29e105a"
+      }
+    }
+  ],
+  "measured_anchors_read_not_reproduced": {
+    "source": "results/am_r2_mistral.log (2026-09-04, WSL laptop, 8 GB card, noisy shared box)",
+    "p3_one_mistral_layer_T512": {"prove_s": 15.824, "commit_W_s": 8.417, "note": "GPU zk commit declined: cuMemAlloc(5387 MB) OUT_OF_MEMORY -> CPU path", "proof_bytes": 40251860},
+    "p1_one_mistral_layer_T512_gpu": {"prove_s": 4.259, "commit_W_s": 1.164, "proof_bytes": 40186228},
+    "p3_layer0_T16_gpu": {"prove_s": 9.860, "verify_s": 0.107, "proof_bytes": 27426484, "tamper_legs_reject": 8}
+  },
+  "findings": {
+    "F1_missing_constraint": "Under P3 the W commitment is re-randomised per proof (zk.rs:2436-2468, pcs::commit_zk_owned); verify_layer_zk_v3 absorbs whatever root the proof carries (zk.rs:3505-3515); the header model= string (zk.rs:228-290, absorbed at zk.rs:3504) binds the DECLARATION only. Two distinct hidden weight tensors verify under one declared model, statement and input. Recorded as a MISSING CONSTRAINT, not as P3 identity enforcement.",
+    "F2_no_stable_identity_in_proof": "Two proofs of the SAME approved weights carry different W roots; a copied root is rejected only because the root is in the transcript (binding, not identity).",
+    "F3_p1_boundary": "ApprovedP1Layer (model_identity.rs) pins the REGISTERED public W root/rows/log_cols (:241-250), every StatementV3 field (:219-234), LayerParams (:235-240), mode (:215-218), canonical NTT, fixed domain; refuses P3 (:265-275). The registered root is computed by the caller from approved public weights before any proof exists.",
+    "F4_calibration_exponents": "V3Exps reach the statement only via the four signed shifts; a rescaled export (7 exponents moved, shifts and table member fixed) gives a byte-identical statement and byte-identical proof at one seed. The proof relation is exponent-free; the manifest must pin exponents and the verifier must decode with the manifest's. Both the ordinary verifier and the P1 boundary accept the rescaled calibration today.",
+    "F5_layer_position": "The layer index l is absorbed (layer.rs:1396) but nothing binds WHICH hidden tensors sit at position l: identity must be one approved commitment per layer.",
+    "F6_request_replay": "The verifier receives no request identity; one P3 proof verifies for any number of requests under the same domain. Caller obligation (nonce / I-O commitments in the domain or statement), unchanged by the proposed construction.",
+    "F7_randomness_reuse": "The randomness stream is witness-independent: same seed + different weights -> identical mask_root. Undetectable by a single-proof verifier; prover-side obligation."
+  },
+  "proposal": {
+    "recommended_first_implementation": "(b) budgeted stable hiding commitment per layer, opened directly by the FFN proof: q_pad = k*Q pad symbols per row, k precommitted mask-row sets (3*nb_d*nb_f + 1 rows each), a public slot index i < k in the header, write-ahead slot counter, refusal at budget; verifier compares proof.w_com to the manifest's C*_l exactly as ApprovedP1Layer compares roots; ZkOpts (q_pad) and W inverse rate come from the manifest, not ZkOpts::standard.",
+    "hiding_argument": "DERIVED from pcs.rs encode_row_zk: rows encode f + Z_n*g on the coset; any |J| <= q_pad opened positions are uniform (Vandermonde surjectivity of the pad); group/prox vectors and W block terminals need one unused uniform mask row per slot. Bounded-reuse simulator stated, NOT written or checked here (FA2/FA3 item H1).",
+    "soundness_dependence": "row degree < n + q_pad -> RS distance 1 - (n+q_pad)/nn: 0.746 (k=1), 0.688 (k=16), 0.5 (k=64) at inverse rate 4; hold distance at k=64 with W inverse rate 8. Numeric bound is FA5's; none inherited.",
+    "alternative_a": "fresh per-proof C_i + registered C* + masked equality sumcheck (private_seam.rs shape generalised to 3*d*f): needs the SAME budgeted C*, keeps the per-proof W commit (largest P3 phase), adds ~26 MB per layer proof and a 2^28-point sumcheck; kept as the ROTATION primitive (C*_old -> C*_new without approver recomputation).",
+    "approval_source": "signed manifest (digest D_M = blake3 of canonical bytes) loaded by the verifier from its own configuration; per layer: StatementV3 fields, V3Exps (9), LayerParams, C*_l, ZkOpts, W inv_rate, budget k, mask layout version; export sidecar sha256 and per-tensor digests; header model=hex(D_M)|layer=l|slot=i under a NEW profile tag. Approver recomputes C*_l from the evaluated tensors and the owner's registration randomness. A model-name string or a root copied from a proof cannot satisfy it.",
+    "scorpius_citation": "ePrint 2024/1164 NOT opened this session; cited only as recorded by U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md section 3.1 and ZK60_RESEARCH_DECISIONS.md (section 4.7 rules out repeated Eval for its ZK goal). Construction (b) invokes Eval k times on one commitment and therefore does NOT rest on that theorem; it rests on the explicit bounded-reuse argument that must be proven separately.",
+    "handoff": "H1 FA2/FA3/FA5 simulator + rate bound; H2 Codex new stable-commitment module; H3-H4 Codex zk.rs prover/verifier paths under a new profile (frozen fixtures byte-identical); H5 Codex ApprovedP3Layer + manifest in model_identity.rs; H6 Claude CL1 chunked commit at budgeted width, planner q_pad<=n limit, stored-codeword (174-380 GiB for 32 layers) vs re-derive decision; H7 pass-level identity and request binding; H8 rotation via (a).",
+    "p1_may_proceed": true,
+    "review_before_acceptance": "final construction must be reviewed with FA2/FA3 (and parameters closed with FA5) before any P3 product acceptance"
+  },
+  "acceptance_self_check": {
+    "substitute_weight_diagnostic_recorded_as_missing_constraint": true,
+    "approval_source_independent_of_candidate_proof": true,
+    "model_name_string_or_copied_root_insufficient": true,
+    "relation_obligations_handoff_stated": true,
+    "new_test_file_compiles_and_passes_at_baseline": true,
+    "p1_private_block_may_proceed_without_p3_identity": true
+  },
+  "deliverable_hashes_sha256": {
+    "hashline/tests/zk60_model_identity.rs": "685606c5754fe22fc823bbfb12e78bce79b46a1740237b44b3da1edd0440eefe",
+    "docs/zkmatrix-poc/ZK60_FABLE_MODEL_IDENTITY.md_before_final_edits": "e2e62c6d4a5ca75a46f7ba79cc7b26717d2f28b8468fff2c71d92f6d109fb5ed",
+    "note": "the .md was edited twice after that hash (citation wording in 5.2; R3 exit in 1.1); its final hash is in the FA4 report"
+  },
+  "limits": [
+    "tiny shapes only (T=2, d=f=16, log_cols 5, Q=12); CPU; no real-width run",
+    "memory rows are planner accounting (measured:false), unchunked GPU lifetime model; time anchors from one noisy shared-box log",
+    "ePrint 2024/1164 and the Ligero paper not opened; hiding argument derived from code; simulator not written",
+    "no soundness number for the changed W rate (FA5); joint mask rank of budgeted group vectors not audited (FA2)",
+    "gamma / attention weights covered by design only; attention path is P0 at 52a13d1",
+    "request binding and pass-level composition named, not designed beyond H7",
+    "manifest signature scheme / key distribution are application choices outside the crate"
+  ]
+}

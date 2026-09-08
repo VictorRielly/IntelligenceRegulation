@@ -325,7 +325,7 @@
       "priority": 0,
       "title": "Independently reproduce the actual FFN disclosure",
       "owner": "Fable as reviewer of Codex diagnostic",
-      "status": "ready",
+      "status": "done",
       "depends_on": [],
       "files": [
         "docs/zkmatrix-poc/ZK60_FABLE_PRIVACY_REVIEW.md (new)",
@@ -343,14 +343,25 @@
         "Confirm or refute complete 32-value tiny-plane recovery and the T32 per-column functionals with independent reasoning. T32 extraction is not an upper bound on leakage.",
         "Independently inspect or add controls for malformed grouping/indices/roots/columns/final-H, zero/degenerate coefficients and paired masks. State the in-process observation boundary; do not claim a standalone FFN byte decoder."
       ],
-      "limits": "CPU-only synthetic inputs. Existing tests are reproducible now; any additional hook in zk.rs/pcs.rs needs an exact cross-owner patch handoff before shared-source edits."
+      "limits": "CPU-only synthetic inputs. Existing tests are reproducible now; any additional hook in zk.rs/pcs.rs needs an exact cross-owner patch handoff before shared-source edits.",
+      "result": {
+        "date": "2026-09-07",
+        "reviewer": "Claude Fable 5.1, independent reviewer",
+        "source_pin": "52a13d1 (worktree /home/victor/wt-zk60-fa, branch zk60-fable-review)",
+        "run": "mask_diagnostic 4 passed / 0 failed, exit marker 0, cold two-thread build under the heavy lock; results/zk60_fable_fa1_mask_diagnostic.log",
+        "confirmed": "groups [7,3,1,1,6] derived from build_claims_zk_v3 + group_zclaims key; X-at-p2 / h16-at-p5 singletons; lambdas -> proximity coefficients -> absorb -> sample order and endpoints; observer boundary verifier-visible, publish after H; T2 32-value recovery and T32 per-column functional confirmed by independent algebra; the six seeded proof hashes match Codex's round-7 record",
+        "refuted": "nothing",
+        "handed_to_fa2_fa3": "affected-profile predicate (X-at-p2 singleton iff nb_d = 1: d=4096 yes, d=768 no; h16-at-p5 iff nb_f = 1), integer-range solvability of T32 two-row functionals, repeated-proof linear recovery, proximity-vector chaining, P3 Wd-at-p6 singleton at nb_d*nb_f = 1 (needs the proposed cfg(test) W observer hook)",
+        "report": "docs/zkmatrix-poc/ZK60_FABLE_PRIVACY_REVIEW.md (Part 1), results/zk60_fable_fa1_review.json",
+        "limits": "one CPU run; d=f=16 synthetic fixtures; not an approval of P3 identity, joint privacy or a repair"
+      }
     },
     {
       "id": "FA2",
       "priority": 0,
       "title": "Determine joint exposure and affected profiles",
       "owner": "Fable independent privacy reviewer",
-      "status": "queued",
+      "status": "done (linear-model analysis; H/P3-W rows source-derived, awaiting Codex capture hook)",
       "depends_on": [
         "FA1"
       ],
@@ -370,14 +381,26 @@
         "An implemented rank tool checks known deficient and independent-mask fixtures and agrees with an independent calculation; numerical rank alone is not called a simulation proof.",
         "Deliver an impact matrix and a precise list of unresolved assumptions that FA3 must address. Keep single-proof and repeated-proof observations distinct."
       ],
-      "limits": "A/H/W local mask counts and passing paired-mask controls do not by themselves settle joint privacy. Additional public-only capture hooks remain an agreed Codex/PCS handoff."
+      "limits": "A/H/W local mask counts and passing paired-mask controls do not by themselves settle joint privacy. Additional public-only capture hooks remain an agreed Codex/PCS handoff.",
+      "result": {
+        "date": "2026-09-07",
+        "reviewer": "Claude Fable 5.1, independent reviewer",
+        "source_pin": "52a13d1 + FA1 8cd939b (worktree /home/victor/wt-zk60-fa)",
+        "deliverable": "docs/zkmatrix-poc/ZK60_FABLE_PRIVACY_REVIEW.md Part 2 (sections 11-21); scripts/zk60_fable_joint_rank.py (exact mod-p rank tool: Fp2 observation -> two base rows, rank(B), rank([A|B]), left-null(B).A, per-unknown recovered/disclosed/protected; fixtures, whole-commitment and per-column layout models, layout_v3 predicate, impact matrix; CLI analyze|fixtures|impact); tests/test_zk60_fable_joint_rank.py 22 OK; results/zk60_fable_fa2_{impact,rank_cases,observations}.json",
+        "new_finding": "the m terminal values of a group are individually public; only their lambda-combination is implied by the group vector. For an all-base-mask group the mask map has rank 2m+2n-4 (kernel K1 (x) K2, dim (m-2)(n-2)), so exactly 2 base-field functionals of the members' data leak per proof for every m >= 2 (n for m = 1, FA1's case); confirmed at six (m, n) pairs. Any Fp2-effective member covers the group. Hence A rho_f, rho_d, X@p2 (nb_d >= 2), h16@p5 (nb_f >= 2), the function-2 pair and BOTH P3 W groups leak 2 exact functionals per proof.",
+        "proximity": "the reserved prox row is one base row in A/H/W and covers one of two dims per column, the other borrowed from other groups; fine for A and H but tiny P3 W (nb_d*nb_f = 1) is starved (4 masks vs 6 dims/column): +1 functional of (Wg[j], Wu[j]) per column atop the Wd singleton; two proofs recover W entirely (linear)",
+        "covered": "H in the linear model (pairs); the zero-sum u leaves exactly the public LogUp identity; pads/columns by the Vandermonde/pad-bijection argument plus the hash assumption",
+        "unresolved": "CFS channel (outside the model); twelve assumptions for FA3 in section 18; capture fields needed from Codex in section 19",
+        "predicate": "125M (nb_d 3, nb_f 1) -> h16@p5 singleton, 8-row functionals per column; 8B (nb_d 1, nb_f 7) -> X@p2 singleton, T/4 rows (T <= 8: 16 bits, enumerable) — derived, not executed",
+        "limits": "all H / P3-W statements source-derived awaiting the round-10 capture hook; rank results use stand-in coefficients with the source's structure; numerical rank is not a simulation proof; single-proof and repeated-proof observations kept distinct"
+      }
     },
     {
       "id": "FA3",
       "priority": 0,
       "title": "Review a complete repair and pending-block mask contract",
       "owner": "Fable reviewer; Codex implements the accepted protocol",
-      "status": "queued",
+      "status": "done (design + review delivered; production composition remains gated on acceptance)",
       "depends_on": [
         "FA2"
       ],
@@ -396,14 +419,25 @@
         "The proposed P1 block API consumes both internal seams exactly once and prohibits copied-plane substitutes or unreserved late claims.",
         "A reviewer independent of the eventual implementation records the construction, assumptions and disposition. Codex can implement from the concrete schema without guessing mask counts or transcript order."
       ],
-      "limits": "Design and review are the deliverable. Production private attention/FFN composition remains gated on acceptance of this complete plan; this queue does not certify a construction in advance."
+      "limits": "Design and review are the deliverable. Production private attention/FFN composition remains gated on acceptance of this complete plan; this queue does not certify a construction in advance.",
+      "result": {
+        "date": "2026-09-07",
+        "reviewer": "Claude Fable 5.1, independent reviewer (relaunched after a session rate-limit cutoff; deliverable written incrementally)",
+        "source_pin": "daed46f (52a13d1 + FA1/FA5/FA4/FA2), worktree /home/victor/wt-zk60-fa",
+        "deliverable": "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md (723 lines, 14 sections): mask schedule per commitment (role, group key, m, rows, masks today/proposed, proof field, rank argument), permitted point transforms, RNG domain + consumption order, reserve-before-commit / one-shot-finalize state machine incl. two simultaneously pending blocks and error paths, profile/domain/version boundary, verifier obligations, 24-row CPU adversarial matrix + 3 positive gates, memory delta per shape, executed rank verdicts, disposition of every FA2 observation, the twelve-assumption table, the P1 block API, the P3/FA4 variant, the implementable schema; results/zk60_fable_fa3_mask_schedule.json (36 rank checks over 24 per-family models, 0 failures, generated by the new `repair` subcommand); results/zk60_fable_fa3_adversarial_matrix.json",
+        "construction": "one rule everywhere: every single-row mask site becomes an Fp2 pair carried as (k1, k1*u); multi-row table blocks keep their block form; every proximity row becomes a pair in A, H and W; the two internal seams are pair-masked claims on the actual A commitment's X/z rows at their own S2-form sumcheck points; every mask row is drawn once before commit and consumed by exactly one opening. disclosed_dim = 0 on every FA2 group shape (all-pair groups have rank 2m+2n-2); the LogUp residual is still exactly the public identity. Negative controls: a seam-only pair appended to the legacy A leaves FA2's 2n+4 leak intact (a seam-only pair is NOT a core repair); one pair-masked claim beside a single prox row leaks one functional per column (the prox pair is required).",
+        "dispositions": "U3, U4, U5, U10, U11 (per proof), U7, U12, U9 (in the linear model) addressed with named verdicts; blockers B1 CFS channel (nonlinear), B2 simulator, B3 integer ranges beyond the linear model, B4 cross-proof incl. FA4's k-slot reuse, B5 missing H/P3-W capture",
+        "cost": "A rows: A00 tiny T32 681 -> 702 (+21, ~1.1% of CL8's 36,974,592 B); 125M T512 559 -> 597 (3.7%); 8B T512 3599 -> 3669 (1.1%); H +1 row; W(P3) +4/+10/+22 rows per slot; M +4 base rows; the P3 variant composes with FA4's budgeted stable W by making each slot set 6*nb_d*nb_f + 2 rows",
+        "tool": "scripts/zk60_fable_joint_rank.py: pairmask/prox_pair extended to both commitment models and the LogUp fixture, repaired group builders with the X/Z seam groups, commitment_rows, the schedule data, the `repair` subcommand; FA2's fixtures/impact outputs re-run byte-identical; tests 22 -> 34 OK",
+        "limits": "design and review only; no Rust built; the repaired profile does not exist in source; rank evidence uses stand-in coefficients (not a simulation proof); nothing at real width; the attention side is specified by mask kinds, lifecycle and seam roles only; nothing certifies a construction in advance"
+      }
     },
     {
       "id": "FA4",
       "priority": 1,
       "title": "Specify approved private-model consistency",
       "owner": "Fable independent identity reviewer",
-      "status": "ready",
+      "status": "done",
       "depends_on": [],
       "files": [
         "docs/zkmatrix-poc/ZK60_FABLE_MODEL_IDENTITY.md (new)",
@@ -421,14 +455,26 @@
         "The proposed approval source is independent of the candidate proof; a model-name string or copied root cannot satisfy it.",
         "State the new proof relation, privacy/security obligations and implementation handoff. Review the final construction with FA2/FA3 before any P3 product acceptance."
       ],
-      "limits": "P1 private-block work may proceed after its shared privacy prerequisites without waiting for P3 identity. Existing model_identity.rs ownership remains Codex."
+      "limits": "P1 private-block work may proceed after its shared privacy prerequisites without waiting for P3 identity. Existing model_identity.rs ownership remains Codex.",
+      "result": {
+        "date": "2026-09-07",
+        "reviewer": "Claude Fable 5.1, independent reviewer",
+        "source_pin": "52a13d1 (worktree /home/victor/wt-zk60-fa)",
+        "reproduction": "zk60_identity_gap: 5 passed, exit 0 (results/zk60_fable_fa4_identity_gap.log); both known_p3_gap proofs verify under one declared model, statement and input with digests identical to Codex's I1 record",
+        "new_tests": "hashline/tests/zk60_model_identity.rs (public API only, tiny shape): 5 passed, exit 0 on run 2 (run 1 exit 101 on the reviewer's own invariant, fixed with an Obligation::{Verifier, Prover} field; both logs retained); 3 gap_* pins asserting today's ACCEPT and saying they must flip; a P1 positive comparison; an 18-row adversarial matrix asserting the exact not-enforced set {M1, M2, M6, M9, M11, M13, M15, M16}",
+        "findings": "the substitute-weight case is a MISSING constraint (P3 re-randomises the W commitment, the verifier absorbs whatever root the proof carries, model= binds only the declaration; two proofs of the same approved weights have different roots); calibration exponents (7 of 9 V3Exps) are outside the proof; layer index bound but not which tensors sit at a layer; request replay undetectable at this API; randomness is witness-independent",
+        "recommendation": "construction (b): a per-layer independently approved BUDGETED stable hiding commitment (q_pad = k*Q, k precommitted mask-row sets selected by a public slot, write-ahead counter) opened directly by the FFN proof with the verifier comparing proof.w_com == C*_l as P1 does, ZkOpts from the manifest; removes the largest measured P3 phase (commit W 8.417 of 15.824 s at Mistral T=512); construction (a) fresh commit + equality sumcheck kept as the rotation primitive; counted costs from the planner (registration peak 14.2-28.9 GiB, stored codewords 174-380 GiB for 32 layers; RS distance 0.746 -> 0.5 at k = 64 unless the W rate is raised)",
+        "citation_honesty": "ePrint 2024/1164 not opened; cited only as recorded by prior repo reviews; construction (b) rests on a bounded-reuse argument whose simulator must be written and checked by FA2/FA3 (handoff H1)",
+        "handoff": "H1 FA2/FA3/FA5 simulator + rate bound -> H2-H5 Codex (stable-commitment module, zk.rs prover/verifier under a new profile, ApprovedP3Layer + manifest in model_identity.rs) -> H6 Claude CL1 (chunked commit at budgeted width) -> H7 pass-level identity and request binding -> H8 rotation; P1 private-block work proceeds without waiting for P3 identity",
+        "report": "docs/zkmatrix-poc/ZK60_FABLE_MODEL_IDENTITY.md, results/zk60_fable_fa4_review.json, results/zk60_fable_fa4_memory_plan_*.json"
+      }
     },
     {
       "id": "FA5",
       "priority": 1,
       "title": "Close arithmetic and security obligations for the precise MVP",
       "owner": "Fable independent arithmetic/security reviewer",
-      "status": "ready_analysis",
+      "status": "analysis_delivered; closure open",
       "depends_on": [],
       "files": [
         "docs/zkmatrix-poc/ZK60_FABLE_SECURITY_OBLIGATIONS.md (new)",
@@ -446,7 +492,18 @@
         "Any soundness/privacy estimate states its derivation and dependencies; do not inherit an old security number for a changed composition.",
         "Mark analysis-delivered separately from final closure. Final security acceptance incorporates the implemented repair and independent verification of its obligations."
       ],
-      "limits": "Analysis can start now. Final closure depends on the concrete repair and, for P3, approved-model consistency; no target-throughput eligibility is granted by this document alone."
+      "limits": "Analysis can start now. Final closure depends on the concrete repair and, for P3, approved-model consistency; no target-throughput eligibility is granted by this document alone.",
+      "result": {
+        "date": "2026-09-07",
+        "reviewer": "Claude Fable 5.1, independent reviewer",
+        "source_pin": "52a13d1 (worktree /home/victor/wt-zk60-fa)",
+        "deliverable": "docs/zkmatrix-poc/ZK60_FABLE_SECURITY_OBLIGATIONS.md (38-row obligation table, parameter/composition review, tiny-vs-deployment separation, prioritized gaps); results/zk60_fable_fa5_obligations.json; results/zk60_fable_fa5_isqrt_alias.txt and _bounds.txt (the python checks)",
+        "highest_severity": "R09 norm isqrt: the committed D row has no direct range fact; the half-p alias D = k + (p-1)/2 satisfies the SS sumcheck, both isqrt pins, the Square zero-check and the a1/a2 limb ranges for every int16 row and the round NormDiv with an all-zero output whenever the remainder limbs admit ~2^(31+tn). The A00 fixed profile escapes only because n_limbs = 2 caps rho/sigma at 2^32 while the alias needs ~2^42 — a parameter coincidence recorded nowhere in code or tests; any profile with n_limbs >= 3 and tn >= 1 accepts a wrong norm output. Fix: a direct range fact on D plus a tamper leg.",
+        "other": "R31 W/gamma word ranges never proven at the registrar boundary (all no-wrap bounds assume int8 behind the approved roots); R10 proven remainder width is 2^(16*n_limbs) not wrho; R29 exponents/norm_round bound only via the A00 digest; R32 typed B3 API ignores extra proof.sc/helper_sums; R02/R20 proof classes admit -128/-32768 the oracle refuses; R14 no LogUp error term stated in code",
+        "estimates": "two-block fixed-profile receipt ~2^-110 statistical soundness (Ligero column test (17/24)^256 = 2^-127.4 per opening x 6 openings/block; attention LogUp 4N/|F_p2| = 2^-111.3 dominates; sumchecks ~2^-119), capped by blake3-256 Fiat-Shamir; projected 125M/8B profile (log_cols 14, rate 1/4, Q 256, 32 layers x 6 openings) near 2^-94; nothing quantitative carries over from the lattice-era SOUNDNESS_REFERENCE.md; the P1 hiding code's column term is 2^-106",
+        "fixed_profile": "no false-acceptance path found; every reviewed relation is an ACTUAL verifier constraint or a CHECKED A00 precondition",
+        "limits": "read-only source review plus python arithmetic; no cargo run; Ligero bounds in the documented e < d/3 regime; deployment row is a projection; closure depends on the FA3 repair, FA4's P3 consistency and independent verification incl. a Rust tamper leg for the R09 alias; no throughput eligibility"
+      }
     },
     {
       "id": "CL20",

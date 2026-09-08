@@ -1,0 +1,569 @@
+{
+ "schema_version": 1,
+ "task": "FA1 \u2014 Independently reproduce the actual FFN disclosure",
+ "reviewer": {
+  "identity": "Claude Fable 5.1, independent reviewer, 2026-09-07 session",
+  "role": "reviewer of Codex's diagnostic; authored no diagnostic/production code; changed no source file"
+ },
+ "source_pin": {
+  "worktree": "/home/victor/wt-zk60-fa",
+  "branch": "zk60-fable-review",
+  "head": "52a13d1",
+  "codex_record": {
+   "file": "results/zk60_round7_validation.json",
+   "base": "9cf1372",
+   "source_sha256_match": {
+    "hashline/src/zk.rs": true,
+    "hashline/src/zk_ffn_mask_diagnostic.rs": true,
+    "hashline/src/pcs.rs": true
+   }
+  },
+  "source_sha256": {
+   "hashline/src/zk.rs": "50d37b51085ac40db965559e42e0d6bc9a8a1b8c5ad857a16dabab90259f8a19",
+   "hashline/src/zk_ffn_mask_diagnostic.rs": "ab6df4ec1fcf12658b4c90ccd2b19e24bc7b06a56fcb914f56d9af858e05a1d2",
+   "hashline/src/pcs.rs": "60ac5f2f37e30b8aa3d648f5069fa0c2cefc5b73b8e42e3fb34933f77960ab1b",
+   "hashline/tests/zk60_mask_rank.rs": "2913afeeb9047c6a449f462170e7e6112fd55c41ea89d0b16ee6c2305b78fa81",
+   "hashline/src/transcript.rs": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+   "hashline/src/mle.rs": "131cf1b49a2f280147ccb1d8f374c139cd7033a8a4ddb02c473b751937409614",
+   "hashline/src/layer.rs": "f0931f6364daabe38011dc3aa0101fd9cfe2525c225e9e531556e6da536d02d7"
+  },
+  "toolchain": {
+   "rustc": "1.97.1 (8bab26f4f 2026-07-14)",
+   "cargo": "1.97.1 (c980f4866 2026-06-30)"
+  },
+  "host": {
+   "kernel": "6.18.33.2-microsoft-standard-WSL2",
+   "logical_cpus": 22,
+   "threads_used": 2,
+   "gpu": "none (HL_GPU=0, no gpu-cuda feature)"
+  }
+ },
+ "commands": [
+  {
+   "purpose": "run the four mask_diagnostic tests at the baseline (cold build, detached, heavy lock)",
+   "command": "setsid nohup bash -c 'flock /tmp/zk-heavy.lock env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=0 cargo test --release --offline --manifest-path /home/victor/wt-zk60-fa/hashline/Cargo.toml --lib mask_diagnostic -- --nocapture --test-threads=2 >> /home/victor/wt-zk60-fa/results/zk60_fable_fa1_mask_diagnostic.log 2>&1; echo $? > /home/victor/wt-zk60-fa/results/zk60_fable_fa1_mask_diagnostic.done' >/dev/null 2>&1 &",
+   "exit_marker": "results/zk60_fable_fa1_mask_diagnostic.done",
+   "exit_code": 0,
+   "log": "results/zk60_fable_fa1_mask_diagnostic.log",
+   "log_sha256": "b1e63a0012dd56952a22942354786514c9f3f4635a8fa0a27d3d0717a10cb817",
+   "build": "Finished release profile in 55.61s (cold)",
+   "test_result": "4 passed; 0 failed; 0 ignored; 63 filtered out; finished in 1.25s",
+   "tests": [
+    "zk::mask_diagnostic::actual_ffn_seeded_singleton_rows_are_recovered_in_p1_and_p3",
+    "zk::mask_diagnostic::actual_ffn_fresh_os_singleton_rows_are_recovered_without_resampling",
+    "zk::mask_diagnostic::actual_ffn_t32_recovers_one_functional_per_column_of_two_row_planes",
+    "zk::mask_diagnostic::diagnostic_refuses_degenerate_and_paired_mask_controls"
+   ]
+  }
+ ],
+ "profiles": {
+  "T2": {
+   "t": 2,
+   "d": 16,
+   "f": 16,
+   "log_cols": 5,
+   "inv_rate": 4,
+   "num_col_checks": 12,
+   "a_cols": 32,
+   "encoded_cols": 128,
+   "plane_entries": 32,
+   "rows_per_plane": 1,
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "act": "Silu",
+   "predicate": null
+  },
+  "T32": {
+   "t": 32,
+   "d": 16,
+   "f": 16,
+   "log_cols": 8,
+   "inv_rate": 8,
+   "num_col_checks": 256,
+   "a_cols": 256,
+   "encoded_cols": 2048,
+   "plane_entries": 512,
+   "rows_per_plane": 2,
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "act": "Silu",
+   "predicate": null
+  }
+ },
+ "cases": [
+  {
+   "privacy": "P1",
+   "t": 2,
+   "rng": "fresh-os",
+   "proof_sha256": "5c1ee091c2097b533d679b9510875a9eb364fbd73cb4b529ee54cc9de1f5ffda",
+   "roles": [
+    [
+     "X-at-p2",
+     1,
+     32,
+     true
+    ],
+    [
+     "h16-at-p5",
+     1,
+     32,
+     true
+    ]
+   ]
+  },
+  {
+   "privacy": "P1",
+   "t": 2,
+   "rng": "fixture",
+   "proof_sha256": "30b390755fda91b784b9dd6d13cc957f57cb67f8441657a0266c26ac139815d2",
+   "roles": [
+    [
+     "X-at-p2",
+     1,
+     32,
+     true
+    ],
+    [
+     "h16-at-p5",
+     1,
+     32,
+     true
+    ]
+   ]
+  },
+  {
+   "privacy": "P1",
+   "t": 2,
+   "rng": "fresh-os",
+   "proof_sha256": "65abb25449d9019d42014ca19fe20ec3cb493cbaf2f8f3b779de912a589183b8",
+   "roles": [
+    [
+     "X-at-p2",
+     1,
+     32,
+     true
+    ],
+    [
+     "h16-at-p5",
+     1,
+     32,
+     true
+    ]
+   ]
+  },
+  {
+   "privacy": "P1",
+   "t": 2,
+   "rng": "fixture",
+   "proof_sha256": "9ce61efc214b868840a3f904ee3b1b974b62431eaf5cbe5b6a8364b83594c1a7",
+   "roles": [
+    [
+     "X-at-p2",
+     1,
+     32,
+     true
+    ],
+    [
+     "h16-at-p5",
+     1,
+     32,
+     true
+    ]
+   ]
+  },
+  {
+   "privacy": "P3",
+   "t": 2,
+   "rng": "fixture",
+   "proof_sha256": "dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615",
+   "roles": [
+    [
+     "X-at-p2",
+     1,
+     32,
+     true
+    ],
+    [
+     "h16-at-p5",
+     1,
+     32,
+     true
+    ]
+   ]
+  },
+  {
+   "privacy": "P3",
+   "t": 2,
+   "rng": "fresh-os",
+   "proof_sha256": "be1d9bfe1a20145f7c6dbd23e60b52ba36005ec23d674216c0f03a144b0c06eb",
+   "roles": [
+    [
+     "X-at-p2",
+     1,
+     32,
+     true
+    ],
+    [
+     "h16-at-p5",
+     1,
+     32,
+     true
+    ]
+   ]
+  },
+  {
+   "privacy": "P3",
+   "t": 2,
+   "rng": "fresh-os",
+   "proof_sha256": "d05342dbc667ff0bd272025b99695e57776c66f0f1c01d8ff9d8f08b81d59cb3",
+   "roles": [
+    [
+     "X-at-p2",
+     1,
+     32,
+     true
+    ],
+    [
+     "h16-at-p5",
+     1,
+     32,
+     true
+    ]
+   ]
+  },
+  {
+   "privacy": "P3",
+   "t": 2,
+   "rng": "fixture",
+   "proof_sha256": "6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297",
+   "roles": [
+    [
+     "X-at-p2",
+     1,
+     32,
+     true
+    ],
+    [
+     "h16-at-p5",
+     1,
+     32,
+     true
+    ]
+   ]
+  },
+  {
+   "privacy": "P1",
+   "t": 32,
+   "rng": "fixture",
+   "proof_sha256": "7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df",
+   "roles": [
+    [
+     "X-at-p2",
+     2,
+     256,
+     false
+    ],
+    [
+     "h16-at-p5",
+     2,
+     256,
+     false
+    ]
+   ]
+  },
+  {
+   "privacy": "P1",
+   "t": 32,
+   "rng": "fresh-os",
+   "proof_sha256": "91b8a6e8e6229f59f7b6839719812c57bcd3f30e5d2d02d553908a6e1bd358c0",
+   "roles": [
+    [
+     "X-at-p2",
+     2,
+     256,
+     false
+    ],
+    [
+     "h16-at-p5",
+     2,
+     256,
+     false
+    ]
+   ]
+  },
+  {
+   "privacy": "P3",
+   "t": 32,
+   "rng": "fixture",
+   "proof_sha256": "ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe",
+   "roles": [
+    [
+     "X-at-p2",
+     2,
+     256,
+     false
+    ],
+    [
+     "h16-at-p5",
+     2,
+     256,
+     false
+    ]
+   ]
+  },
+  {
+   "privacy": "P3",
+   "t": 32,
+   "rng": "fresh-os",
+   "proof_sha256": "9c321f70b51dd3f69503c3eb333ad6fb09f6303fd387772402ea2296c71edc39",
+   "roles": [
+    [
+     "X-at-p2",
+     2,
+     256,
+     false
+    ],
+    [
+     "h16-at-p5",
+     2,
+     256,
+     false
+    ]
+   ]
+  }
+ ],
+ "observation_counts": {
+  "ffn_diagnostic_lines": 24,
+  "distinct_proofs": 12,
+  "seeded_hashes_match_codex_record": true,
+  "fresh_os_hashes_overlap_codex_record": 0
+ },
+ "grouping_derived": {
+  "key_rule": "pcs::group_zclaims groups by ZKey{tail, c0, len}: row-covering part -> (point[log_size-log_cols..], 0, n); sub-row part -> (point, offset % n, 2^log_size); first-occurrence order",
+  "claims_in_order": [
+   "0-6: g8,rg,a16,u16,ru,h16,rh at rho_f (masks a_mf)",
+   "7-9: X,z,rd at rho_d (masks a_md)",
+   "10: X at p2=r_i||r_kp (mask a_mgu[0])",
+   "11: h16 at p5=r_ip||r_k (mask a_mdd[0])",
+   "12-17: six table slots at rho_tab[k..] (shared tail rho_tab[log_s-log_n..])"
+  ],
+  "groups": [
+   7,
+   3,
+   1,
+   1,
+   6
+  ],
+  "singletons": {
+   "X-at-p2": {
+    "claim_index": 10,
+    "mask_row_role": "a_mgu[0]"
+   },
+   "h16-at-p5": {
+    "claim_index": 11,
+    "mask_row_role": "a_mdd[0]"
+   }
+  },
+  "why_singletons": "the key is the column tail of the opening POINT; only nb_d X blocks are opened at p2 and only nb_f h16 blocks at p5; nb_d = nb_f = 1 here. X at rho_d and h16 at rho_f share tails with other planes.",
+  "coefficients": {
+   "P1": "(1-e, e)",
+   "P3": "((1-e2)(1-e), (1-e2) e)",
+   "e": "e_gu for X-at-p2, e_d for h16-at-p5"
+  },
+  "layout_rows": {
+   "T2": {
+    "a_data_rows": 10,
+    "x_rows": [
+     7
+    ],
+    "h16_rows": [
+     5
+    ],
+    "a_mf": [
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16
+    ],
+    "a_md": [
+     17,
+     18,
+     19
+    ],
+    "a_mgu": [
+     20
+    ],
+    "a_mdd": [
+     21
+    ],
+    "a_prox": 22,
+    "a_commitment_rows": 5173,
+    "row_bits_x": 0,
+    "row_bits_h16": 0
+   },
+   "T32": {
+    "a_data_rows": 20,
+    "x_rows": [
+     14,
+     15
+    ],
+    "h16_rows": [
+     10,
+     11
+    ],
+    "a_mf": [
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26
+    ],
+    "a_md": [
+     27,
+     28,
+     29
+    ],
+    "a_mgu": [
+     30
+    ],
+    "a_mdd": [
+     31
+    ],
+    "a_prox": 32,
+    "a_commitment_rows": 681,
+    "row_bits_x": 1,
+    "row_bits_h16": 1
+   }
+  },
+  "transcript_order_actual": [
+   "lambdas per group (group order)",
+   "proximity coefficients (rows draws)",
+   "combined-claim check <v[..n],c> == sum lambda*value",
+   "absorb group vectors 'pcs-vec'",
+   "absorb proximity vector 'pcs-prox'",
+   "challenge_indices(Q, n*inv_rate)",
+   "Merkle + coset-encoding column checks"
+  ],
+  "pcs_doc_comment_stale": "pcs.rs open/open_zk comments say prox rho is drawn after the group vectors are absorbed; zk_rhos draws it before. Cross-owner comment fix proposed.",
+  "endpoints_checked": [
+   "replay end vs verifier state right after A's verify_zk (state + next challenge = counter)",
+   "ordinary pcs::verify_zk re-run from `before` vs replay end",
+   "whole-proof prover vs verifier transcript after H"
+  ],
+  "resampling": "none: one prove, one verify per check_case; fresh-OS test runs exactly twice per mode; degenerate coefficients would panic the test, not retry"
+ },
+ "boundary": {
+  "observation_fields": {
+   "params": "PcsParams from statement/params",
+   "commitment": "proof.a_com (root, rows, log_cols)",
+   "claims": "verifier-reconstructed ZClaims (public layout + challenges + proof terminals)",
+   "opening": "proof.a_open incl. Q folded pads, prox vector, Q sampled columns with salts and paths",
+   "before": "verifier transcript clone before A (no masker)",
+   "after": "verifier transcript clone after A"
+  },
+  "witness_truth": "enters only the comparison loop in check_case after replay/extract; layout roles come from statement data",
+  "publish_gate": "publish is the last statement before Ok(()) in verify_layer_zk_v3, after H verify_zk; corrupted-H control publishes nothing",
+  "statement": "in-process verifier replay on the same thread as the prover; consumes in-memory claims/transcript plus proof opening/commitment; NOT a standalone FFN byte decoder"
+ },
+ "findings": {
+  "tiny_plane_recovery_T2": {
+   "verdict": "confirmed",
+   "reasoning": "v[j] = (lambda a) D[j] + (lambda c) R[j]; L_b with b = lambda c kills the mask; D[j] = L_b(v[j]) / (N(lambda) det(a,c)); det(1-e,e) = e.c1 so degenerate iff e in Fp (P1) or also 1-e2 = 0 (P3)",
+   "observed": "8 proofs x 2 roles, 32 functionals = 32 values each"
+  },
+  "two_row_functionals_T32": {
+   "verdict": "confirmed",
+   "reasoning": "eq = [1-p0, p0]; values[j] = D0[j] + (w1/w0) D1[j], w_i = N(lambda) det(a eq_i, c); coefficients public",
+   "observed": "4 proofs x 2 roles, 256 functionals each, both row weights nonzero",
+   "not_upper_bound": true
+  },
+  "groups_and_mappings": {
+   "verdict": "confirmed",
+   "groups": [
+    7,
+    3,
+    1,
+    1,
+    6
+   ],
+   "X_at_p2_claim": 10,
+   "h16_at_p5_claim": 11
+  },
+  "observer_boundary": {
+   "verdict": "confirmed"
+  },
+  "publish_after_H": {
+   "verdict": "confirmed"
+  },
+  "no_resampling": {
+   "verdict": "confirmed"
+  },
+  "seeded_hash_reproduction": {
+   "verdict": "confirmed",
+   "matched": 6,
+   "of": 6
+  },
+  "refuted": []
+ },
+ "controls": {
+  "existing_inspected": [
+   "sampled index",
+   "group vector swap",
+   "folded pad",
+   "root",
+   "claim order swap",
+   "transcript state",
+   "column entry",
+   "corrupted final H (no publish)",
+   "non-singleton refusal",
+   "zero lambda/coef",
+   "rank-degenerate",
+   "three parts",
+   "wrong arity",
+   "paired Fp2 masks (module + zk60_mask_rank.rs)"
+  ],
+  "proposed_not_applied": [
+   "P-1 replay structural branches (group count, vector length, proximity length, transcript endpoint)",
+   "P-2 eliminate_one_mask tail-mismatch and overlap branches",
+   "P-3 non-vacuous truth comparison",
+   "P-4 observer inert when unarmed",
+   "P-5 replay with documented order fails"
+  ],
+  "cross_owner_proposals": [
+   "C-1 pcs.rs doc-comment order fix (PCS owner)",
+   "C-2 cfg(test) W-opening observer under P3 in zk.rs (Codex) for FA2's Wd-at-p6 test"
+  ]
+ },
+ "handoff_fa2": [
+  "affected-profile predicate: X-at-p2 singleton iff nb_d = d/2^min(tz(d),12) = 1; h16-at-p5 singleton iff nb_f = 1",
+  "integer-range enumeration turns T32 two-row functionals into exact recovery (<2^16 candidates/column for int8)",
+  "R repeated proofs recover an R-row plane linearly",
+  "known-mask chaining into the proximity vector and the rho_f group",
+  "P3 Wd-at-p6 is a one-base-mask singleton at nb_d*nb_f = 1 (whole block one row at T32/log_cols 8) \u2014 needs C-2 hook",
+  "joint rank of group vectors + proximity vector + sampled columns with mask reuse; H re/im pairs and the zero-sum u row"
+ ],
+ "limits": [
+  "one run, CPU only, two threads, cold build; no timing claim",
+  "only the four mask_diagnostic tests were rerun here",
+  "profiles d=f=16, T in {2,32}, synthetic LCG witness; no deployed shape",
+  "in-process observation; no serialized-bytes decoder",
+  "plane-to-witness order confirmed only via the passing equality assertions",
+  "prove_layer_zk_v3 not audited for resampling beyond seeded-hash determinism",
+  "probabilities derived, not measured",
+  "no approval of P3 identity, joint privacy or a repair"
+ ],
+ "no_recovered_values_or_secret_randomness": true
+}

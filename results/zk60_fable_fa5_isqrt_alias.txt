@@ -1,0 +1,54 @@
+inv4 = (3p+1)/4 : 13835058052060938241 ; (p-1)/4 = 4611686017353646080 = 2^62-2^30: True
+
+=== small-norm row, SS = 24909937
+honest (tn=11, 2 limbs): D = 4990 True
+ALIAS fixed profile tn=11, 2 limbs: k = 2147483648 = 2^31? True  a1 = 1098651762 a2 = 3196315533
+   SS sumcheck: a1 + Dsq - ceps == sum x^2       True
+   isqrt pin: a2 == 2D - a1                      True
+   a1,a2 two U16 limbs (<2^32)                   True
+   NormDiv zero-check (all elems)                True
+   rho,sigma limb ranges (<2^32)                 False
+   sigma pin: sig+rho+1 == 2D*2^tn               True
+   y in Int8 table                               True
+   -> rho[0] = 2^42.00, sigma[0] = 2^42.00 (limbs allow < 2^32): excluded only by the limb range
+
+=== SAME alias at a hypothetical profile with n_limbs=3 (48-bit rho/sigma), tn=11 ===
+   SS sumcheck: a1 + Dsq - ceps == sum x^2       True
+   isqrt pin: a2 == 2D - a1                      True
+   a1,a2 two U16 limbs (<2^32)                   True
+   NormDiv zero-check (all elems)                True
+   rho,sigma limb ranges (<2^48)                 True
+   sigma pin: sig+rho+1 == 2D*2^tn               True
+   y in Int8 table                               True
+   honest y row: [-4, 12, -9, -2, 4, -12, -11, 9, 1, -10, -3, 2, -11, 11, 1, -7]
+   alias  y row: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  <- ALL verifier relations pass with the wrong output
+
+=== fixed profile: which (tn, n_limbs) exclude the y=0 alias for this row? ===
+   tn= 0 limbs=32 bits: all pass = False  (failing: ['rho,sigma limb ranges (<2^32)'])
+   tn= 0 limbs=48 bits: all pass = False  (failing: ['rho,sigma limb ranges (<2^48)'])
+   tn= 1 limbs=32 bits: all pass = False  (failing: ['rho,sigma limb ranges (<2^32)'])
+   tn= 1 limbs=48 bits: all pass = True  (failing: [])
+   tn= 2 limbs=32 bits: all pass = False  (failing: ['rho,sigma limb ranges (<2^32)'])
+   tn= 2 limbs=48 bits: all pass = True  (failing: [])
+   tn= 3 limbs=32 bits: all pass = False  (failing: ['rho,sigma limb ranges (<2^32)'])
+   tn= 3 limbs=48 bits: all pass = True  (failing: [])
+   tn= 4 limbs=32 bits: all pass = False  (failing: ['rho,sigma limb ranges (<2^32)'])
+   tn= 4 limbs=48 bits: all pass = True  (failing: [])
+   tn= 5 limbs=32 bits: all pass = False  (failing: ['rho,sigma limb ranges (<2^32)'])
+   tn= 5 limbs=48 bits: all pass = True  (failing: [])
+   tn= 6 limbs=32 bits: all pass = False  (failing: ['rho,sigma limb ranges (<2^32)'])
+   tn= 6 limbs=48 bits: all pass = True  (failing: [])
+   tn= 7 limbs=32 bits: all pass = False  (failing: ['rho,sigma limb ranges (<2^32)'])
+   tn= 7 limbs=48 bits: all pass = True  (failing: [])
+   tn= 8 limbs=32 bits: all pass = False  (failing: ['rho,sigma limb ranges (<2^32)'])
+   tn= 8 limbs=48 bits: all pass = True  (failing: [])
+   tn= 9 limbs=32 bits: all pass = False  (failing: ['rho,sigma limb ranges (<2^32)'])
+   tn= 9 limbs=48 bits: all pass = True  (failing: [])
+   tn=10 limbs=32 bits: all pass = False  (failing: ['rho,sigma limb ranges (<2^32)'])
+   tn=10 limbs=48 bits: all pass = True  (failing: [])
+   tn=11 limbs=32 bits: all pass = False  (failing: ['rho,sigma limb ranges (<2^32)'])
+   tn=11 limbs=48 bits: all pass = True  (failing: [])
+   tn=12 limbs=32 bits: all pass = False  (failing: ['rho,sigma limb ranges (<2^32)'])
+   tn=12 limbs=48 bits: all pass = True  (failing: [])
+
+fraction of random full-range int16 rows admitting the odd-sum (a1,a2) pair in limb range: 1.0

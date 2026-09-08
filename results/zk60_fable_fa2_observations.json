@@ -1,0 +1,307 @@
+{
+ "schema_version": 1,
+ "task": "FA2 -- joint exposure and affected profiles: observation enumeration",
+ "reviewer": "Claude Fable 5.1, independent reviewer, 2026-09-07 session",
+ "source_pin": {
+  "worktree": "/home/victor/wt-zk60-fa",
+  "branch": "zk60-fable-review",
+  "head": "8cd939b (= 52a13d1 + FA1 review)",
+  "hashline/src/zk.rs": "50d37b51085ac40db965559e42e0d6bc9a8a1b8c5ad857a16dabab90259f8a19",
+  "hashline/src/pcs.rs": "60ac5f2f37e30b8aa3d648f5069fa0c2cefc5b73b8e42e3fb34933f77960ab1b"
+ },
+ "conventions": {
+  "domain": "Fp2 observation = two base-field rows (re, im); Fp observation = one row",
+  "coefficient_provenance": "every coefficient is a public function of (statement, proof bytes): drawn from the verifier transcript AFTER the commitment roots and the masked terminals are absorbed; the rank model conditions on the drawn values",
+  "status": "executed = observed in FA1's retained log; source-derived = read from the pinned source, not captured; awaiting-capture = the Codex round-10 H / P3-W hook does not exist yet; outside-linear-model = not a linear functional of committed rows",
+  "no_zero_cost": "an observation whose status is awaiting-capture or outside-linear-model is listed with its expected structure and is NOT counted as harmless"
+ },
+ "observations": [
+  {
+   "id": "A.vec.rho_f",
+   "commitment": "A",
+   "role": "group vector at tail(rho_f): the 7*nb_f f-planes g8,rg,a16,u16,ru,h16,rh (claims 0..7nb_f-1 of build_claims_zk_v3)",
+   "domain": "Fp2, n message entries (+ Q folded pad entries)",
+   "base_rows_combined": "rows_per_f_plane data rows per plane x 7 nb_f planes; mask a_mf[k] (one base row each)",
+   "coefficients": "lambda_k (pcs-group challenge, drawn in zk_rhos after the terminals) x (1-e_f) x eq_r(rho_f row bits) on data; lambda_k x e_f on mask a_mf[k]",
+   "mask_support": "a_mf[0..7nb_f), coefficient lambda_k e_f each",
+   "reuse": "a_mf[k] also enters A.vec.prox (fresh rho) and A.value.zc20_term[k] (column weights); h16's data rows also enter A.vec.p5 under mask a_mdd",
+   "status": "executed (FA1 log: group of 7 at nb_f = 1)",
+   "single_proof_verdict": "vector alone: per-column hidden (7 base masks span Fp2); vector + 7 values: 2 base functionals of the seven planes leak (all-base multi-member rule)"
+  },
+  {
+   "id": "A.vec.rho_d",
+   "commitment": "A",
+   "role": "group vector at tail(rho_d): the 3*nb_d d-planes X,z,rd",
+   "domain": "Fp2, n (+Q)",
+   "base_rows_combined": "rows_per_d_plane rows per plane x 3 nb_d planes; masks a_md[k]",
+   "coefficients": "lambda_k (1-e_dz) eq_r(rho_d row bits); lambda_k e_dz on a_md[k]",
+   "mask_support": "a_md[0..3nb_d)",
+   "reuse": "a_md[k] in A.vec.prox and A.value.zc17_term[k]; X's data rows also in A.vec.p2 under mask a_mgu",
+   "status": "executed (group of 3 at nb_d = 1)",
+   "single_proof_verdict": "vector: hidden per column; vector + values: 2 base functionals of (X, z, rd) leak"
+  },
+  {
+   "id": "A.vec.p2",
+   "commitment": "A",
+   "role": "group vector at tail(p2 = r_i || r_kp): the nb_d X blocks (claim 10 at nb_d = 1)",
+   "domain": "Fp2, n (+Q)",
+   "base_rows_combined": "rows_per_d_plane X rows per block; mask a_mgu[c]",
+   "coefficients": "P1: lambda_c (1-e_gu) eq_r(p2 row bits), lambda_c e_gu; P3: both multiplied by (1-e_gu2)",
+   "mask_support": "a_mgu[0..nb_d), one base row per block",
+   "reuse": "a_mgu[c] in A.vec.prox and A.value.gu_term[c]; the X data rows are the same rows opened at rho_d",
+   "status": "executed at nb_d = 1 (T2: full plane; T32: one functional per column) -- FA1",
+   "single_proof_verdict": "nb_d = 1: n functionals (rows_per_d_plane rows each); nb_d >= 2: 2 base functionals of all X blocks"
+  },
+  {
+   "id": "A.vec.p5",
+   "commitment": "A",
+   "role": "group vector at tail(p5 = r_ip || r_k): the nb_f h16 blocks (claim 11 at nb_f = 1)",
+   "domain": "Fp2, n (+Q)",
+   "base_rows_combined": "rows_per_f_plane h16 rows per block; mask a_mdd[b]",
+   "coefficients": "P1: lambda_b (1-e_d) eq_r, lambda_b e_d; P3: x (1-e_d2)",
+   "mask_support": "a_mdd[0..nb_f)",
+   "reuse": "a_mdd[b] in A.vec.prox and A.value.d_term[b]; h16 rows also at rho_f under a_mf[7b+5]",
+   "status": "executed at nb_f = 1 -- FA1",
+   "single_proof_verdict": "nb_f = 1: n functionals; nb_f >= 2: 2 base functionals"
+  },
+  {
+   "id": "A.vec.tab",
+   "commitment": "A",
+   "role": "group vector at tail(rho_tab): the six multiplicity slots (claims 12..17)",
+   "domain": "Fp2, n (+Q)",
+   "base_rows_combined": "slot i: rows_i = max(size_i, n)/n rows of m and rows_i rows of mask, same eq row weights",
+   "coefficients": "lambda_i (1-e_tab) prod_{j<k_i}(1-rho_tab_j) eq_r; lambda_i e_tab prod(...) eq_r on the mask rows",
+   "mask_support": "each slot's same-shaped mask block; a slot spanning >= 2 rows is Fp2-effective per column",
+   "reuse": "mask blocks in A.vec.prox and A.value.tab_term[2i]",
+   "status": "executed (group of 6) -- FA1",
+   "single_proof_verdict": "covered at log_n <= 15 (the INT16 slot spans >= 2 rows); at log_n = 16 all slots are one row and 2 functionals of the multiplicities leak"
+  },
+  {
+   "id": "A.vec.pred",
+   "commitment": "A",
+   "role": "FUNCTION 2 ONLY: group vector at tail(rho_p): z block of the predicate column (mask a_pmz) and the bit row a_pb (mask a_pmb)",
+   "domain": "Fp2, n (+Q)",
+   "base_rows_combined": "z block rows + the bit row; masks a_pmz, a_pmb (one base row each)",
+   "coefficients": "(1-e_p) with ext coefficient for the bit row; e_p on the masks",
+   "mask_support": "a_pmz, a_pmb",
+   "reuse": "both in A.vec.prox and in pred.term[0..2]; the z block is also opened at rho_d",
+   "status": "source-derived (no function-2 proof in FA1's run)",
+   "single_proof_verdict": "2-member all-base group: 2 base functionals of (z block, the 16 slack bits) leak per function-2 proof"
+  },
+  {
+   "id": "A.vec.prox",
+   "commitment": "A",
+   "role": "proximity vector",
+   "domain": "Fp2, n (+Q)",
+   "base_rows_combined": "EVERY row of A (all data planes, all table rows, all mask rows, a_prox)",
+   "coefficients": "prox_rho[i], fresh Fp2 per row, drawn in zk_rhos after the lambdas and before any vector is absorbed",
+   "mask_support": "a_prox (only site of that row) + every mask row of A",
+   "reuse": "second appearance of every mask row",
+   "status": "executed (vector present in every FA1 opening; contents not analysed by the diagnostic)",
+   "single_proof_verdict": "covered per column in the joint model: a_prox supplies one of the two base dimensions, the other comes from the residual freedom of the multi-member groups' masks (numerically confirmed on all four layouts)"
+  },
+  {
+   "id": "A.value.*",
+   "commitment": "A",
+   "role": "terminal values: zc20_term[10b+i] (i<7), zc17_term[0..3nb_d), gu_term[0..nb_d), d_term[0..nb_f), tab_term[2i], pred.term",
+   "domain": "Fp2, one per claim",
+   "base_rows_combined": "the claim's data rows with (1-e) eq_r eq_col weights and its mask row(s) with e eq_col weights",
+   "coefficients": "column weights eq(point tail) x the claim coefficient pair; public",
+   "mask_support": "the claim's own mask",
+   "reuse": "third appearance of the mask row (vector, prox, value); for a group of m members only the lambda-combination of the values is implied by the vector -- the other m-1 values are independent observations",
+   "status": "executed (all terminals are in FA1's proofs; not used by the diagnostic)",
+   "single_proof_verdict": "this is the observation that makes every all-base multi-member group leak 2 base functionals"
+  },
+  {
+   "id": "A.pads",
+   "commitment": "A",
+   "role": "folded pad coordinates v_g[n..n+Q) of every group vector and of the prox vector",
+   "domain": "Fp2, Q per vector",
+   "base_rows_combined": "rho^T pads (rows x Q base unknowns)",
+   "coefficients": "the same rho as the message part",
+   "mask_support": "pads are fresh uniform per row",
+   "reuse": "the same pads enter the encoded sampled columns",
+   "status": "executed (present in the openings)",
+   "single_proof_verdict": "covered by argument: determined by the message parts + sampled columns (the coset-encoding check is an identity), so they add no information beyond A.vec.*"
+  },
+  {
+   "id": "A.columns",
+   "commitment": "A",
+   "role": "Q sampled encoded columns with salts and Merkle paths",
+   "domain": "Fp, rows entries per column",
+   "base_rows_combined": "encoded[i][j*] = (f_row_i + Z_n g_pad_i)(coset point j*) for every row i",
+   "coefficients": "public encoding matrix at the sampled coset points; indices from challenge_indices (may repeat)",
+   "mask_support": "the Q pads of every row (Vandermonde on <= Q distinct coset points, Z_n != 0 there)",
+   "reuse": "pads also folded in A.pads",
+   "status": "executed (present in the openings)",
+   "single_proof_verdict": "covered by argument for the linear part (pads are a bijection onto the sampled entries); unopened columns rest on the salted-leaf hash (computational assumption, outside the linear model)"
+  },
+  {
+   "id": "H.vec.rho_f",
+   "commitment": "H",
+   "role": "group vector at tail(rho_f): the 3 nb_f helper planes hg,hu,hh (Fp2-valued: re/im data rows)",
+   "domain": "Fp2, n (+Q)",
+   "base_rows_combined": "re and im rows of each helper plane; masks h_mf[k] = (re, im) pair",
+   "coefficients": "lambda_k (1-e_f) eq_r on re, x u on im; lambda_k e_f on mask re, x u on mask im",
+   "mask_support": "Fp2 pairs -> Fp2-effective per column",
+   "reuse": "masks in H.vec.prox and H.value.zc20_term[10b+7+i]; the helper data rows also enter H.vec.sum with coefficient (1, u)",
+   "status": "awaiting-capture (source-derived)",
+   "single_proof_verdict": "covered in the linear model (vector + values Fp2-linear)"
+  },
+  {
+   "id": "H.vec.rho_d",
+   "commitment": "H",
+   "role": "group vector at tail(rho_d): the nb_d hz helper planes",
+   "domain": "Fp2",
+   "base_rows_combined": "re/im rows of hz[c]; masks h_md[c] pairs",
+   "coefficients": "as H.vec.rho_f with e_dz",
+   "mask_support": "Fp2 pairs",
+   "reuse": "masks in prox and zc17_term[3nb_d+c]; hz rows also in H.vec.sum",
+   "status": "awaiting-capture (source-derived)",
+   "single_proof_verdict": "covered in the linear model"
+  },
+  {
+   "id": "H.vec.zsum",
+   "commitment": "H",
+   "role": "group vector at rho_zs (a single-row point, whole point is the tail): the zero-sum row u masked by u'",
+   "domain": "Fp2",
+   "base_rows_combined": "h_u (re, im), h_up (re, im)",
+   "coefficients": "lambda (1-e_zs) on u_re, x u on u_im; lambda e_zs on u'_re, x u on u'_im",
+   "mask_support": "u' pair (fresh, unconstrained)",
+   "reuse": "u also carries H.vec.sum; u' also in prox",
+   "status": "awaiting-capture (source-derived)",
+   "single_proof_verdict": "covered (singleton with an Fp2 pair; value implied)"
+  },
+  {
+   "id": "H.vec.tab",
+   "commitment": "H",
+   "role": "group vector at tail(rho_tab): the six table helper slots h_t = m/(alpha - tval), Fp2-valued",
+   "domain": "Fp2",
+   "base_rows_combined": "h_re, h_im rows of each slot; masks h_mre, h_mim blocks of the same shape",
+   "coefficients": "lambda_i (1-e_tab) ext_i eq_r on re, x u on im; e_tab ext_i eq_r on the mask blocks",
+   "mask_support": "Fp2 pairs (block-shaped)",
+   "reuse": "masks in prox and tab_term[2i+1]; table helper rows also in H.vec.sum with coefficient (-1, -u)",
+   "status": "awaiting-capture (source-derived)",
+   "single_proof_verdict": "covered in the linear model"
+  },
+  {
+   "id": "H.vec.sum",
+   "commitment": "H",
+   "role": "the LogUp identity as one value-0 sum claim: all helper planes (+1, +u), all table helpers (-1, -u), the u row (+1, +u); empty point -> all-ones column weights",
+   "domain": "Fp2, n entries",
+   "base_rows_combined": "every helper row, every table helper row, u_re, u_im",
+   "coefficients": "lambda (the group's single pcs-group challenge) x fixed +-1/+-u",
+   "mask_support": "ONLY the u pair, which is constrained: sum_j u_re[j] = sum_j u_im[j] = 0 (prove_layer_zk_v3 sets the last column to minus the sum)",
+   "reuse": "u also in H.vec.zsum (masked by u') and prox",
+   "status": "awaiting-capture (source-derived)",
+   "single_proof_verdict": "covered BY ARGUMENT: u's 2(n-1) free base dims pad all but the cross-column functional sum_j v_sum[j], whose data part is the LogUp identity itself and whose value is the public claim value 0 (numerically confirmed on a 4- and an 8-column joint model)"
+  },
+  {
+   "id": "H.vec.prox",
+   "commitment": "H",
+   "role": "proximity vector",
+   "domain": "Fp2",
+   "base_rows_combined": "every row of H",
+   "coefficients": "fresh prox_rho per row",
+   "mask_support": "h_prox (a single base row, not a pair) + all H mask rows",
+   "reuse": "second/third appearance of every H mask row",
+   "status": "awaiting-capture (source-derived)",
+   "single_proof_verdict": "covered per column in the joint model (h_prox supplies one base dimension; the pair masks' residual freedom the other)"
+  },
+  {
+   "id": "H.value.*",
+   "commitment": "H",
+   "role": "terminal values zc20_term[10b+7..10b+10), zc17_term[3nb_d..4nb_d), zs_term, tab_term[2i+1]; the sum claim's value is the constant 0",
+   "domain": "Fp2",
+   "base_rows_combined": "as the corresponding vectors with column weights",
+   "coefficients": "public",
+   "mask_support": "Fp2 pairs",
+   "reuse": "third appearance of the pair masks",
+   "status": "awaiting-capture (source-derived)",
+   "single_proof_verdict": "covered (Fp2-linear system: rank = obs - one identity per group)"
+  },
+  {
+   "id": "H.pads_columns",
+   "commitment": "H",
+   "role": "folded pads + Q sampled columns",
+   "status": "awaiting-capture (source-derived); same argument as A.pads / A.columns"
+  },
+  {
+   "id": "W3.vec.p3",
+   "commitment": "W (P3 hiding commitment only)",
+   "role": "group vector at tail(p3 = r_kp || r_j): the 2 nb_d nb_f Wg and Wu blocks (build_w_zclaims_v3)",
+   "domain": "Fp2, w_n (+Q)",
+   "base_rows_combined": "rows_per_w_block rows per block; masks w_mgu[k] (one base row each)",
+   "coefficients": "lambda_k (1-e_gu2)(1-e_gu) eq_r(p3 row bits) on data; lambda_k e_gu2 on the mask",
+   "mask_support": "w_mgu[0..2nb_d nb_f)",
+   "reuse": "masks in W3.vec.prox and W3.value.gu_term[nb_d+k]",
+   "status": "awaiting-capture (source-derived; C-2 hook proposed by FA1)",
+   "single_proof_verdict": "all-base group of 2 nb_d nb_f members: 2 base functionals of the Wg/Wu blocks leak (m = 2 at the tiny shape, 6 at 125M, 14 at 8B)"
+  },
+  {
+   "id": "W3.vec.p6",
+   "commitment": "W (P3)",
+   "role": "group vector at tail(p6 = r_k || r_jp): the nb_d nb_f Wd blocks",
+   "domain": "Fp2, w_n (+Q)",
+   "base_rows_combined": "rows_per_w_block rows per block; masks w_mdd[k]",
+   "coefficients": "lambda_k (1-e_d2)(1-e_d) eq_r; lambda_k e_d2 on the mask",
+   "mask_support": "w_mdd[0..nb_d nb_f)",
+   "reuse": "masks in prox and d_term[nb_f+k]",
+   "status": "awaiting-capture (source-derived)",
+   "single_proof_verdict": "nb_d nb_f = 1: SINGLETON with one base mask -> w_n functionals of the Wd block per proof (the whole block at T32/log_cols 8 where the block is one row; 8-row functionals at T2/log_cols 5); otherwise 2 base functionals"
+  },
+  {
+   "id": "W3.vec.prox",
+   "commitment": "W (P3)",
+   "role": "proximity vector",
+   "domain": "Fp2",
+   "base_rows_combined": "every W row (3 nb_d nb_f blocks x rows_per_w_block, the 3 nb_d nb_f masks, w_prox)",
+   "coefficients": "fresh prox_rho per row",
+   "mask_support": "w_prox + 3 nb_d nb_f block masks",
+   "reuse": "second appearance of every W mask",
+   "status": "awaiting-capture (source-derived)",
+   "single_proof_verdict": "nb_d nb_f = 1: NOT covered -- 4 mask rows vs 6 base observation dims per column: after the p6 singleton pins w_mdd and the p3 vector pins (w_mgu[0], w_mgu[1]) up to the data, the prox has only w_prox's one dimension -> one extra base functional of (Wg[j], Wu[j]) per column (numerically confirmed); nb_d nb_f >= 3: covered"
+  },
+  {
+   "id": "W3.value.*",
+   "commitment": "W (P3)",
+   "role": "gu_term[nb_d..], d_term[nb_f..]: the masked W block terminals",
+   "domain": "Fp2",
+   "status": "awaiting-capture (source-derived)",
+   "single_proof_verdict": "the observation behind the 2-functional leak of the p3 and p6 groups"
+  },
+  {
+   "id": "W1.plain",
+   "commitment": "W (P1)",
+   "role": "plain (non-hiding) opening of public weights",
+   "status": "n/a: no privacy claim on W under P1"
+  },
+  {
+   "id": "M.cfs",
+   "commitment": "M (the CFS mask commitment for the six/seven sumchecks)",
+   "role": "masked sumcheck round polynomials, masked claimed sums (gu_claim, d_claim, gamma*), the mask functionals opened by mask_open (eval at rho, hypercube sums), the M proximity combination and MASK_Q sampled columns",
+   "domain": "Fp2",
+   "base_rows_combined": "the CFS mask polynomials' coefficient rows -- NOT A/H/W rows",
+   "coefficients": "theta, r_row, sampled indices",
+   "mask_support": "the CFS masks themselves (one polynomial per sumcheck, plus b and u rows)",
+   "reuse": "each sumcheck's mask is evaluated at its rho AND summed over its cube; the round messages depend nonlinearly (products) on A/H/W data",
+   "status": "outside-linear-model (source-derived structure only)",
+   "single_proof_verdict": "UNRESOLVED here: the round messages are nonlinear in the data and their hiding rests on the CFS/Libra-style argument, which this review did not audit; handed to FA3/FA5"
+  },
+  {
+   "id": "cross.sumcheck_checks",
+   "commitment": "A x W (P3) x H",
+   "role": "the verifier's terminal checks (e.g. want = sum gu_term[c] * sel * sum lam_f wg...) tie the masked terminals of different commitments together",
+   "status": "source-derived",
+   "single_proof_verdict": "public checks on already-public values; add no new observation (each equation is implied by the terminals it uses)"
+  }
+ ],
+ "repeated_proof_observations": {
+  "distinct_from_single_proof": true,
+  "mechanism": "each proof redraws every challenge; a data row present in R proofs is observed under R independent coefficient sets, and the disclosed functionals accumulate",
+  "singleton_roles": "R proofs recover an R-row plane linearly",
+  "all_base_multi_member": "2 fresh base functionals per proof",
+  "P3_weights": "identical across proofs by construction: at nb_d nb_f = 1 two proofs recover Wg, Wu, Wd in the linear model; at 125M/8B 4 functionals per proof",
+  "activations": "accumulate only when the same X is re-proven"
+ }
+}

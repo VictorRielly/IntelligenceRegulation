@@ -1,0 +1,117 @@
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2854:9
+     |
+2854 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+warning: `hashline` (lib) generated 8 warnings (8 duplicates)
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-fa/hashline)
+    Finished `release` profile [optimized] target(s) in 12.85s
+     Running tests/zk60_model_identity.rs (/home/victor/wt-zk60-fa/hashline/target/release/deps/zk60_model_identity-a07d99d318e8fc30)
+
+running 5 tests
+test gap_p3_layer_swap_other_layer_weights_prove_this_layer ... ok
+test gap_calibration_exponents_are_absent_from_the_statement_and_the_proof ... ok
+FA4 GAP P3: model=approved-model-A approved/601 w_root=afd0c74f1f837640a13959f0f1f0db36f926142e3039a61b41f37f7733b3c266 proof_sha256=a54cd628949bf83c0f6fb06e60e11fe457ad8aa2674fbed670008492623237ce
+FA4 GAP P3: model=approved-model-A substitute/602 w_root=de10ad2137bed2e0d9464ec611f581cf9c0b512088866fbbcb569ee6b76308da proof_sha256=8ca1cfc1fb8edfbfb6537ee0f6119b5648fa5af4f9d952e9e8ed461301c64590
+FA4 GAP P3: model=approved-model-A approved/os w_root=fd5d6d2052f55810b96191ef5ff04ca8abaf493d3f1892bf44885d5a9c7ec546 proof_sha256=072b51280e0760aa5cf611119e4312508150aa45b9581ff3288a863c9a6d8fa2
+FA4 GAP P3: model=approved-model-A substitute/os w_root=97a54d75c3c6541513f2f244cc42da04b121ee168fab82cb543700dcbc6bd23e proof_sha256=e90f15988a112f3e079c32a1abe90fc7f318e771f57c7acdf6ba3444403a5713
+test gap_p3_substitute_weights_verify_under_the_same_declared_model ... ok
+test p1_registered_boundary_rejects_substitute_copied_root_and_changed_statement ... ok
+FA4 adversarial matrix (tiny shape; `today` asserted, `required` = the reviewed construction):
+| id | enforced_today | today | required | case |
+| M1 | false | Accept | Reject | substitute W (Wg entry changed), same statement, same declared model, P3 -- the declared model is a string; the fresh W root is compared to nothing |
+| M2 | false | Accept | Reject | substitute W (Wd entry changed), same statement, same declared model, P3 -- every tensor of the layer is unbound, not only Wg |
+| M3 | true | Reject | Reject | copied candidate root: substitute proof relabelled with the honest proof's W root -- BINDING, not identity: the root is absorbed into the transcript, so a proof is bound to its own root; the honest root is itself fresh and approves nothing |
+| M4 | true | Reject | Reject | changed calibration table: verify under a statement with another table digest -- table digest is absorbed (layer.rs absorb_statement_v3) |
+| M5 | true | Reject | Reject | changed quantization shifts: verify under a statement with sh_g 7 -> 8 -- signed shifts are absorbed |
+| M6 | false | Accept | Reject | changed calibration EXPONENTS with identical shifts and table (rescaled export) -- exponents are not in StatementV3 and not in the proof; the approved manifest must pin them and the verifier must be handed them |
+| M7 | true | Reject | Reject | wrong approved identity: proof declared model A, verified as model B -- the header binds the DECLARATION (mode header in the transcript), not its truth |
+| M8 | true | Reject | Reject | wrong approved identity: proof declared model A, verified with no declared model -- same binding; `model=w-root` is a different header |
+| M9 | false | Accept | Reject | false declaration by the prover: substitute weights DECLARED as model A -- identical to M1 seen from the prover's side: the declaration is free |
+| M10 | true | Reject | Reject | tier swap: a P3 proof verified as P1 (public weights claimed) -- privacy tier is in the header; W row counts also differ |
+| M11 | false | Accept | Reject | layer swap (tensors): another layer's weights presented under this layer's statement -- nothing binds WHICH hidden tensors belong at position l |
+| M12 | true | Reject | Reject | layer swap (index): a proof made at l=1 verified under the l=0 statement -- the layer index is absorbed |
+| M13 | false | Accept | Reject | replay: one P3 proof presented twice for two different requests (same domain) -- the verifier receives no request identity; a request nonce / I-O commitment must enter the transcript (caller obligation today) |
+| M14 | true | Reject | Reject | replay under another transcript domain (caller-bound request context) -- enforced ONLY when the caller binds the request into the domain |
+| M15 | false | Accept | Accept | reused randomness: the same seed twice on the same witness -- no verifier can detect reuse from one proof; a privacy failure, not a soundness one; prover-side obligation (OS entropy, `Some(seed)` only in tests) |
+
+thread 'matrix_adversarial_cases_state_enforced_today_and_assert_the_observed_verdict' (238903) panicked at tests/zk60_model_identity.rs:574:9:
+assertion `left == right` failed: M15: enforced_today must equal (today == required)
+  left: false
+ right: true
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test matrix_adversarial_cases_state_enforced_today_and_assert_the_observed_verdict ... FAILED
+
+failures:
+
+failures:
+    matrix_adversarial_cases_state_enforced_today_and_assert_the_observed_verdict
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.56s
+
+error: test failed, to rerun pass `--test zk60_model_identity`
