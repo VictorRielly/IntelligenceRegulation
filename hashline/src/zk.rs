@@ -956,11 +956,24 @@ fn eval_many_dev(cmz: &pcs::CommittedZk, slices: &[(usize, usize)], point: &[Fp2
     eval_many(&cmz.data, slices, point)
 }
 
+// A zero multiplier would expose the unmasked claim and rounds. Refuse this
+// attempt before absorbing the claim; never redraw on the same transcript.
+fn mask_challenge(mut draw: impl FnMut() -> Fp2) -> Fp2 {
+    let c = draw();
+    assert!(!c.is_zero(), "zero mask challenge: abandon proof attempt");
+    c
+}
+
+#[cfg(test)]
+#[path = "zk_cfs_safety_tests.rs"]
+mod cfs_safety_tests;
+
 /// Run one masked sumcheck body (CPU) under the masker: returns (masked rounds, challenges, finals).
 pub(crate) fn masked_prove<F>(tables: &mut Vec<Vec<Fp2>>, degree: usize, poly: F, mask: &CfsMask, c: Fp2, tr: &mut Transcript) -> (Vec<Vec<Fp2>>, Vec<Fp2>, Vec<Fp2>)
 where
     F: Fn(&[Fp2]) -> Fp2 + Sync,
 {
+    assert!(!c.is_zero(), "zero mask challenge: abandon proof attempt");
     tr.set_masker(Box::new(CfsMasker { mask: mask.clone(), c, challenges: Vec::new() }));
     let out = sumcheck::prove(tables, degree, poly, tr);
     let (_, masked) = tr.take_masker();
@@ -972,8 +985,11 @@ pub(crate) fn extension<F>(finals: &[Fp2], exts: &[Fp2], degree: usize, poly: F,
 where
     F: Fn(&[Fp2]) -> Fp2,
 {
+    assert!(!c.is_zero(), "zero mask challenge: abandon proof attempt");
+    assert_eq!(degree, mask.degree, "masked extension: round degree mismatch");
     let mut sk = extension_round(finals, exts, degree, poly);
     let gk = mask.round(prev.len(), prev);
+    assert_eq!(sk.len(), gk.len(), "masked extension: round length mismatch");
     for (x, g) in sk.iter_mut().zip(gk.iter()) { *x = x.add(c.mul(*g)); }
     tr.absorb_fp2(b"sc-round", &sk);
     rounds.push(sk);
@@ -1326,7 +1342,7 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
     p1.extend_from_slice(&r_j);
     let ev = eval_many_dev(&a_cmz, &[(lay.g8, tf), (lay.rg, tf), (lay.u8v, tf), (lay.ru, tf)], &p1);
     let s_gu = ev[0].mul_base(pow2(sh_g)).add(ev[1]).add(lam_gu.mul(ev[2].mul_base(pow2(sh_u)).add(ev[3])));
-    let c_gu = tr.challenge_fp2();
+    let c_gu = mask_challenge(|| tr.challenge_fp2());
     let g_gu_total = mc.masks[SC_GU].total();
     proof.gu_claim = s_gu.add(c_gu.mul(g_gu_total));
     tr.absorb_fp2(b"gu-claim", &[proof.gu_claim]);
@@ -1368,7 +1384,7 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
     p4.extend_from_slice(&r_jp);
     let ev = eval_many_dev(&a_cmz, &[(lay.z[0], tb), (lay.rd[0], tb), (lay.z[1], tb), (lay.rd[1], tb), (lay.z[2], tb), (lay.rd[2], tb)], &p4);
     let s_d = (0..3).fold(Fp2::ZERO, |a, b| a.add(lam_d[b].mul(ev[2 * b].mul_base(pow2(sh_z)).add(ev[2 * b + 1]))));
-    let c_d = tr.challenge_fp2();
+    let c_d = mask_challenge(|| tr.challenge_fp2());
     let g_d_total = mc.masks[SC_D].total();
     proof.d_claim = s_d.add(c_d.mul(g_d_total));
     tr.absorb_fp2(b"d-claim", &[proof.d_claim]);
@@ -1405,7 +1421,7 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
     let mu = tr.challenge_fp2_vec(4);
     let nu0 = tr.challenge_fp2();
     let nu = [nu0, nu0.mul(lam_gu), Fp2::ZERO];
-    let c20 = tr.challenge_fp2();
+    let c20 = mask_challenge(|| tr.challenge_fp2());
     proof.gamma20 = c20.mul(mc.masks[SC_ZC20].total()).sub(nu0.mul(c_gu).mul(g_gu_total));
     tr.absorb_fp2(b"gamma20", &[proof.gamma20]);
     let (p_g, p_u, p_h) = (pow2(sh_g), pow2(sh_u), pow2(sh_h));
@@ -1474,7 +1490,7 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
     let mu2 = tr.challenge_fp2_vec(3);
     let nu_z = tr.challenge_fp2();
     let nu_zb = [nu_z.mul(lam_d[0]), nu_z.mul(lam_d[1]), nu_z.mul(lam_d[2])];
-    let c17 = tr.challenge_fp2();
+    let c17 = mask_challenge(|| tr.challenge_fp2());
     proof.gamma17 = c17.mul(mc.masks[SC_ZC17].total()).sub(nu_z.mul(c_d).mul(g_d_total));
     tr.absorb_fp2(b"gamma17", &[proof.gamma17]);
     let p_z = pow2(sh_z);
@@ -1540,7 +1556,7 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
     // ---- the table-side zero-check (masked): eq(tau3) sum_i mu3_i (h_t,i (alpha - tval_i) - m_i) = 0 ----
     let tau3 = tr.challenge_fp2_vec(log_n);
     let mu3 = tr.challenge_fp2_vec(zl.tabs.len());
-    let c_tab = tr.challenge_fp2();
+    let c_tab = mask_challenge(|| tr.challenge_fp2());
     proof.gamma_tab = c_tab.mul(mc.masks[SC_TAB].total());
     tr.absorb_fp2(b"gamma-tab", &[proof.gamma_tab]);
     let n_tabs = zl.tabs.len();
@@ -1576,7 +1592,7 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
     lap("table zero-check (zk)", &mut timings, &mut tick);
 
     // ---- the zero-sum sumcheck over u (masked; claim Gamma_zs = c_zs G_zs) ----
-    let c_zs = tr.challenge_fp2();
+    let c_zs = mask_challenge(|| tr.challenge_fp2());
     proof.gamma_zs = c_zs.mul(mc.masks[SC_ZSUM].total());
     tr.absorb_fp2(b"gamma-zs", &[proof.gamma_zs]);
     let zs_poly = |v: &[Fp2]| v[0].mul(v[1]);
@@ -2608,7 +2624,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
         let ub = ev[4 * b + 2].mul_base(p_u).add(ev[4 * b + 3]);
         s_gu = s_gu.add(lam_f[b].mul(gb.add(lam_gu.mul(ub))));
     }
-    let c_gu = tr.challenge_fp2();
+    let c_gu = mask_challenge(|| tr.challenge_fp2());
     let g_gu_total = mc.masks[SC_GU].total();
     proof.gu_claim = s_gu.add(c_gu.mul(g_gu_total));
     tr.absorb_fp2(b"gu-claim", &[proof.gu_claim]);
@@ -2697,7 +2713,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     for c in 0..nb_d { sl.extend([(lay.z[c], tdb), (lay.rd[c], tdb)]); }
     let ev = eval_many_dev(&a_cmz, &sl, &p4);
     let s_d = (0..nb_d).fold(Fp2::ZERO, |a, c| a.add(lam_d[c].mul(ev[2 * c].mul_base(p_z).add(ev[2 * c + 1]))));
-    let c_d = tr.challenge_fp2();
+    let c_d = mask_challenge(|| tr.challenge_fp2());
     let g_d_total = mc.masks[SC_D].total();
     proof.d_claim = s_d.add(c_d.mul(g_d_total));
     tr.absorb_fp2(b"d-claim", &[proof.d_claim]);
@@ -2769,7 +2785,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let nu0 = tr.challenge_fp2();
     let mut nu: Vec<Fp2> = Vec::with_capacity(3 * nb_f);
     for b in 0..nb_f { nu.push(nu0.mul(lam_f[b])); nu.push(nu0.mul(lam_f[b]).mul(lam_gu)); nu.push(Fp2::ZERO); }
-    let c_f = tr.challenge_fp2();
+    let c_f = mask_challenge(|| tr.challenge_fp2());
     proof.gamma20 = c_f.mul(mc.masks[SC_ZC20].total()).sub(nu0.mul(c_gu).mul(g_gu_total));
     tr.absorb_fp2(b"gammaF", &[proof.gamma20]);
     let (mu_c, nu_c) = (mu.clone(), nu.clone());
@@ -2866,7 +2882,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let mu2 = tr.challenge_fp2_vec(nb_d);
     let nu_z = tr.challenge_fp2();
     let nu_zb: Vec<Fp2> = (0..nb_d).map(|c| nu_z.mul(lam_d[c])).collect();
-    let c_dz = tr.challenge_fp2();
+    let c_dz = mask_challenge(|| tr.challenge_fp2());
     proof.gamma17 = c_dz.mul(mc.masks[SC_ZC17].total()).sub(nu_z.mul(c_d).mul(g_d_total));
     tr.absorb_fp2(b"gammaD", &[proof.gamma17]);
     let (mu2_c, nu_zc) = (mu2.clone(), nu_zb.clone());
@@ -2951,7 +2967,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     // ---- the table-side zero-check over log_S variables (masked): eq(tau3) sum_t mu3_t (h_t (alpha - tval_t) - m_t) = 0 ----
     let tau3 = tr.challenge_fp2_vec(log_s);
     let mu3 = tr.challenge_fp2_vec(zl.tabs.len());
-    let c_tab = tr.challenge_fp2();
+    let c_tab = mask_challenge(|| tr.challenge_fp2());
     proof.gamma_tab = c_tab.mul(mc.masks[SC_TAB].total());
     tr.absorb_fp2(b"gamma-tab", &[proof.gamma_tab]);
     let n_tabs = zl.tabs.len();
@@ -3042,7 +3058,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     lap("table zero-check (zk)", &mut timings, &mut tick);
 
     // ---- the zero-sum sumcheck over u (masked; claim Gamma_zs = c_zs G_zs) ----
-    let c_zs = tr.challenge_fp2();
+    let c_zs = mask_challenge(|| tr.challenge_fp2());
     proof.gamma_zs = c_zs.mul(mc.masks[SC_ZSUM].total());
     tr.absorb_fp2(b"gamma-zs", &[proof.gamma_zs]);
     let zs_poly = |v: &[Fp2]| v[0].mul(v[1]);
@@ -3084,7 +3100,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
         let pt_pred = bool_point(p.row * db + (p.col % db), nv);
         let tau_p = tr.challenge_fp2_vec(nv);
         let nu_p = tr.challenge_fp2();
-        let c_pred = tr.challenge_fp2();
+        let c_pred = mask_challenge(|| tr.challenge_fp2());
         let gamma_pred = c_pred.mul(mc.masks[SC_PRED].total());
         tr.absorb_fp2(b"gamma-pred", &[gamma_pred]);
         let pred_poly = move |v: &[Fp2]| -> Fp2 {
