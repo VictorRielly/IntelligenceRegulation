@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "task": "O3 - audit of the implemented mask schedule (ffn-v3-mr1-fresh-poc/1)",
+  "reviewer": "Opus 5",
+  "date": "2026-09-08",
+  "kind": "read-only implementation audit; NOT a privacy verdict and NOT a certification of the cryptographic argument",
+  "source_pin": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+  "worktree": {
+    "path": "/home/victor/wt-zk60-fa",
+    "branch": "zk60-fable-review",
+    "head": "a8a1bc7f239f98383f4b8991ee2941e5e96ed3f5"
+  },
+  "measured_against": [
+    "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md (FA3 s1, s2.2, s2.4, s3, s6, s9)",
+    "docs/zkmatrix-poc/ZK60_FABLE_CFS_CHANNEL.md (FA6 s7.2 I1/I3, s7.3)",
+    "docs/zkmatrix-poc/ZK60_FABLE_TRANSCRIPT_REVIEW.md (FA8 S1, S2, D.1-D.3)",
+    "results/zk60_fable_fa3_mask_schedule.json (schedule.commitments)"
+  ],
+  "audited_files": {
+    "hashline/src/zk_ffn_fresh_poc.rs": "6f201890d480be29d58bebf240798aca240814f0131e758ba0376a72d927d01e",
+    "hashline/src/zk_ffn_fresh_poc_tests.rs": "fb7af41ca4a8a3a8bb8add4bf77d0583fae1b1410b9d377b137eeaf8c2082866",
+    "hashline/src/zk.rs": "d80755acf7e47cc04f570942820332535420d90af3e597176081acea3041ecba",
+    "hashline/examples/zk60_fresh_ffn.rs": "84c34212d05fed9f130213b2610cac5eb10bafa071743e91b8367e77eface767",
+    "hashline/src/zk_cfs_safety_tests.rs": "ee45a49cda7816c5c64290c69386cec46ff70eec64c7f4457465488aa045fefd",
+    "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "zkp-core/src/rng.rs": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb"
+  },
+  "profile": {
+    "name": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+    "declared_at": "hashline/src/zk_ffn_fresh_poc.rs:10",
+    "shape": "T32/d16/f16, log_cols 8, inv_rate 8, num_col_checks 256, function 1",
+    "derived": {
+      "nb_d": 1,
+      "nb_f": 1,
+      "a_n": 256,
+      "w_n": 256,
+      "log_n": 8,
+      "log_wn": 8,
+      "log_s": 16,
+      "shifts": [7, 0, 14, 6],
+      "table_sizes": [256, 65536, 128, 1, 16384, 64]
+    },
+    "rows_mr1": {"A": 698, "H": 1326, "W_P1": 3, "W_P3": 11},
+    "rows_legacy": {"A": 681, "H": 1325, "W_P1": 3, "W_P3": 7},
+    "rows_cross_check": "independently recomputed from ZkLayoutV3::with_masks with exact integers; matches ZK60_ROUND16.md and the live test output"
+  },
+  "table": [
+    {
+      "row": "A terminal pairs",
+      "kind": "pair",
+      "count_formula": "2 * (7*nb_f + 3*nb_d + nb_d + nb_f) rows, plus 2*2 with the function-2 predicate",
+      "count_at_profile": "12 pairs = 24 rows (A rows 20-43)",
+      "allocation": ["hashline/src/zk.rs:2000-2001", "hashline/src/zk.rs:2012-2015", "hashline/src/zk.rs:2027", "hashline/src/zk.rs:2055", "hashline/src/zk.rs:2075-2081"],
+      "randomness_fill": {
+        "sites": ["hashline/src/zk.rs:2455-2461"],
+        "stream": "the single ZkRng from ZkRng::from_os(PROFILE) at hashline/src/zk_ffn_fresh_poc.rs:108",
+        "order": "a_mask_rows() union mask_range(a_prox), sort_unstable() under mr1 = allocation order; one rng.fp_vec(n) per row; after the P3 W rows, before commit_zk_owned (zk.rs:2467)",
+        "test_build_check": "hashline/src/zk.rs:2463-2464 (fresh_poc::check_generated_rows)"
+      },
+      "prover_use": ["hashline/src/zk.rs:2690", "hashline/src/zk.rs:2776", "hashline/src/zk.rs:2907", "hashline/src/zk.rs:3001-3003", "hashline/src/zk.rs:3170-3171", "via zl.eval_mask hashline/src/zk.rs:2056-2058 -> MaskPoint::eval2 hashline/src/zk.rs:928-930"],
+      "verifier_use": ["hashline/src/zk.rs:3296-3299", "hashline/src/zk.rs:3303", "hashline/src/zk.rs:3306-3308", "hashline/src/zk.rs:3316-3317", "hashline/src/zk.rs:3336-3346", "pair form appended by zl.pair_claim hashline/src/zk.rs:2059-2067", "rank/lambda/prox check hashline/src/zk_ffn_fresh_poc.rs:228-299 called at hashline/src/zk.rs:3705 (verifier) and 3218 (prover)"],
+      "regression_test": "zk::mask_diagnostic::fresh_poc_tests::repaired_fresh_poc_verifies_twice_and_blocks_single_mask_recovery (hashline/src/zk_ffn_fresh_poc_tests.rs:47); check_pair_ambiguity on a_mgu[0] (:73) and a_mdd[0] (:74) only",
+      "status": "partial",
+      "gap": "no assertion on any a_mf[k] or a_md[k] pair; the function-2 pairs are never proven by this profile"
+    },
+    {
+      "row": "singleton table pairs",
+      "kind": "pair (slots with rows_i == 1)",
+      "count_formula": "2 rows per table slot whose rows_i == 1",
+      "count_at_profile": "4 of 6 slots = 4 pairs = 8 rows (47-48, 562-563, 565-566, 696-697)",
+      "allocation": ["hashline/src/zk.rs:2023", "hashline/src/zk.rs:2078"],
+      "randomness_fill": {"sites": ["hashline/src/zk.rs:2455-2461"], "stream": "same A loop, allocation order"},
+      "prover_use": ["hashline/src/zk.rs:3088-3089 (the mr1 && rows==1 branch adds coef*U*R_im~ read from row a_mask+1)"],
+      "verifier_use": ["hashline/src/zk.rs:3319-3328 (zl.pair_claim applied iff t.rows == 1)", "hashline/src/zk.rs:3705"],
+      "regression_test": "zk::mask_diagnostic::fresh_poc_tests::repaired_layout_and_degenerate_mask_controls (hashline/src/zk_ffn_fresh_poc_tests.rs:175), assertion at :205-208 for log_cols in {5,8,16}",
+      "status": "partial",
+      "gap": "layout membership only; no test asserts rank 2 for a singleton table claim in an actual proof (check_pair_ambiguity is never run on a table claim)"
+    },
+    {
+      "row": "larger table blocks",
+      "kind": "block (unchanged legacy form)",
+      "count_formula": "rows_i = max(size_i, n)/n rows per slot with rows_i >= 2",
+      "count_at_profile": "2 slots: INT16 mask 305-560 (256 rows), rem(sh=14) mask 631-694 (64 rows)",
+      "allocation": ["hashline/src/zk.rs:2023 (else branch)", "hashline/src/zk.rs:2078"],
+      "randomness_fill": {"sites": ["hashline/src/zk.rs:2455-2461"], "stream": "same A loop, allocation order"},
+      "prover_use": ["hashline/src/zk.rs:3088 (no U term)"],
+      "verifier_use": ["hashline/src/zk.rs:3323-3328", "degeneracy guard fresh_poc::check_table_point hashline/src/zk_ffn_fresh_poc.rs:210-223 called at hashline/src/zk.rs:3195 (prover) and 3684 (verifier)", "hashline/src/zk.rs:3705 (check_masks rank test; det(s*a,s*b)=N(s)*det(a,b) reduces it to FA2 s14.3's eq-row-weight condition)"],
+      "regression_test": "repaired_layout_and_degenerate_mask_controls, assertion at hashline/src/zk_ffn_fresh_poc_tests.rs:209-214 (check_table_point accept/reject, unit level)",
+      "status": "partial",
+      "gap": "no test asserts a block claim's realised mask coefficients have rank 2 in an actual proof; check_table_point's rejection is never driven through a real prove/verify"
+    },
+    {
+      "row": "H helper / zero-sum pairs",
+      "kind": "pair, zero_sum_pair, pair block (all unchanged from the legacy layout, as FA3 specifies)",
+      "count_formula": "2*(3*nb_f + nb_d) helper rows + 2 (h_u) + 2 (h_up) + 2*rows_i per table slot",
+      "count_at_profile": "h_mf (16,17)(18,19)(20,21); h_md (22,23); h_u (24,25); h_up (26,27); slot helpers 30-1325",
+      "allocation": ["hashline/src/zk.rs:2033-2035", "hashline/src/zk.rs:2037-2040", "hashline/src/zk.rs:2082-2088"],
+      "randomness_fill": {
+        "sites": ["hashline/src/zk.rs:2592-2599", "hashline/src/zk.rs:2600-2604"],
+        "order": "h_mf pairs, h_md pairs, h_up pair, mask_range(h_prox), per-slot h_mre/h_mim blocks (one fp_vec(n) each); then h_u's two rows as n-1 draws with the last entry = -sum. This is FA3 s3 item 4 exactly.",
+        "test_build_check": "hashline/src/zk.rs:2606-2607"
+      },
+      "prover_use": ["hashline/src/zk.rs:2908", "hashline/src/zk.rs:3004", "hashline/src/zk.rs:3090"],
+      "verifier_use": ["hashline/src/zk.rs:3350-3358", "hashline/src/zk.rs:3360-3366", "hashline/src/zk.rs:3368-3370", "hashline/src/zk.rs:3372-3380", "hashline/src/zk.rs:3382-3391", "hashline/src/zk.rs:3392-3413", "hashline/src/zk.rs:3711"],
+      "regression_test": "none specific (end-to-end only); repaired_layout_and_degenerate_mask_controls :196-204 checks h_mask_rows are distinct and in range",
+      "status": "gap",
+      "gap": "no pair-ambiguity or rank assertion on any H claim. Observation: for the value-0 LogUp claim, check_masks' pivot pair is h_u itself (coefficients 1 and u, det = 1) - the CONSTRAINED zero-sum rows, not a free mask; the privacy argument there remains FA2 s14.5 / FA3 s9 h_logup_sum_zero_sum_u_prox_pair_n{4,8}"
+    },
+    {
+      "row": "A/H/W proximity pairs",
+      "kind": "prox_pair",
+      "count_formula": "2 rows per commitment",
+      "count_at_profile": "a_prox 44-45, h_prox 28-29, w_prox 9-10",
+      "allocation": ["hashline/src/zk.rs:2016", "hashline/src/zk.rs:2035", "hashline/src/zk.rs:2050"],
+      "randomness_fill": {"sites": ["hashline/src/zk.rs:2455 (A)", "hashline/src/zk.rs:2595 (H)", "hashline/src/zk.rs:2367 (W, P3 only)"]},
+      "prover_use": ["no claim; zk_rhos draws one fresh rho per commitment ROW (zkp-core/src/pcs.rs:835-855) so both prox rows get independent rho; folded into prox_vec by open_zk (zkp-core/src/pcs.rs:914-925)", "note: CommittedZk.prox_mask_row is still set to the FIRST row only at hashline/src/zk.rs:2393, 2469, 2635"],
+      "verifier_use": ["fresh_poc::check_masks hashline/src/zk_ffn_fresh_poc.rs:289-298: replays lambdas per group then challenge_fp2_vec(rows) on a Transcript::clone_state clone; requires prox+1 < rows and determinant(rho[prox], rho[prox+1]) != 0 (Fp independence, implying both nonzero)", "called at hashline/src/zk.rs:3695/3705/3711 (verifier) and 3209/3218/3223 (prover)"],
+      "regression_test": "repaired_layout_and_degenerate_mask_controls exercises only check_masks' accepting path (hashline/src/zk_ffn_fresh_poc_tests.rs:233, rows 5 prox 3)",
+      "status": "gap",
+      "gap": "no negative control for an Fp-dependent prox pair (FA3 AM15); no test that a real proof's prox rho touches both rows; assert_mask_sites was not extended per FA3 s2.4"
+    },
+    {
+      "row": "P3 W terminal pairs",
+      "kind": "pair",
+      "count_formula": "2 * (3 * nb_d * nb_f) rows (w_mgu 2*nb_d*nb_f pairs, w_mdd nb_d*nb_f pairs)",
+      "count_at_profile": "3 pairs = 6 rows (w_mgu 3-4 and 5-6, w_mdd 7-8) on 3 data rows; total W_P3 11 rows with the prox pair",
+      "allocation": ["hashline/src/zk.rs:2048-2049", "hashline/src/zk.rs:2070-2074"],
+      "randomness_fill": {
+        "sites": ["hashline/src/zk.rs:2366-2371"],
+        "order": "P3 only; w_mask_rows() then mask_range(w_prox); one fp_vec(w_n) per row; drawn FIRST from the stream, before A",
+        "test_build_check": "hashline/src/zk.rs:2372-2373"
+      },
+      "prover_use": ["hashline/src/zk.rs:2699 (w_mgu at p3)", "hashline/src/zk.rs:2779 (w_mdd at p6)"],
+      "verifier_use": ["hashline/src/zk.rs:3247-3250 (build_w_zclaims_v3, masked closure wrapped in zl.pair_claim; coefficient pairs (cd_w_gu, e_gu2) and (cd_w_d, e_d2))", "hashline/src/zk.rs:3695", "P1/P3 opening-slot cross-refusal hashline/src/zk_ffn_fresh_poc.rs:138-162", "P3 wcache refusal hashline/src/zk_ffn_fresh_poc.rs:84-86 and hashline/src/zk.rs:2386-2389"],
+      "regression_test": "repaired_fresh_poc_verifies_twice_and_blocks_single_mask_recovery: check_pair_ambiguity on w_mdd[0] (hashline/src/zk_ffn_fresh_poc_tests.rs:75-77) and fresh-root assertions (:82-86)",
+      "status": "partial",
+      "gap": "the w_mgu pairs are never directly asserted"
+    },
+    {
+      "row": "CFS challenges",
+      "kind": "transcript multiplier c_s per masked sumcheck slot",
+      "count_formula": "one Fp2 challenge per M slot: SC_GU, SC_D, SC_ZC20, SC_ZC17, SC_ZSUM, SC_TAB (+SC_PRED under function 2)",
+      "count_at_profile": "6 (function 1)",
+      "allocation": ["hashline/src/zk.rs:712-719", "mask polynomials committed by mask_commit hashline/src/zk.rs:430, called at hashline/src/zk.rs:2478"],
+      "randomness_fill": {
+        "mask_polynomials": "CfsMask::random per slot inside mask_commit, from the same ZkRng, after A's commitment and before H's rows",
+        "multipliers": "transcript challenges, each drawn exactly once by fresh_poc::draw_mask_challenge (hashline/src/zk_ffn_fresh_poc.rs:196-208) at hashline/src/zk.rs:2666, 2755, 2827, 2924, 3009, 3101, 3143"
+      },
+      "prover_use": ["immediately after each draw: proof.gu_claim / d_claim / gamma20 / gamma17 / gamma_tab / gamma_zs = private sum + c_s*G_s, then tr.absorb_fp2", "masked_prove hashline/src/zk.rs:971-980", "extension hashline/src/zk.rs:984-996"],
+      "verifier_use": ["c_s redrawn at hashline/src/zk.rs:3490, 3529, 3556, 3589, 3615, 3637, 3659", "div returns Err(\"zero mask challenge\") at hashline/src/zk.rs:3481", "mask_verify opens M once at the theta combination"],
+      "regression_test": "zk::cfs_safety_tests::zero_mask_challenge_aborts_without_resampling (hashline/src/zk_cfs_safety_tests.rs:5), zk::cfs_safety_tests::malformed_extension_refuses_before_changing_transcript_or_output (:31), zk::cfs_safety_tests::complete_extension_matches_the_masked_round_and_terminal_identity (:74), plus assert_eq!(draws, 1) at hashline/src/zk_ffn_fresh_poc_tests.rs:177-186",
+      "status": "covered",
+      "gap": "no test forces c_s = 0 inside a real mr1 proof (FA3 AM14), so the '?' propagation out of prove_layer_zk_v3_inner is untested"
+    }
+  ],
+  "checks": {
+    "s1_no_caller_seed_rng_or_reusable_commitment": {
+      "verdict": "PASS",
+      "public_entry_points": [
+        "hashline/src/zk_ffn_fresh_poc.rs:81 prove(w: &V3Witness, privacy: ZkPrivacy, context: &[u8]) -> Result<Proof, String>",
+        "hashline/src/zk_ffn_fresh_poc.rs:131 verify(st: &StatementV3, weights: WeightStatement, proof: &Proof, context: &[u8]) -> Result<(), String>",
+        "hashline/src/zk_ffn_fresh_poc.rs:10 PROFILE",
+        "hashline/src/zk_ffn_fresh_poc.rs:40 parameters()",
+        "hashline/src/zk_ffn_fresh_poc.rs:24-38 Proof::{weight_root, activation_root, helper_root, payload_size}"
+      ],
+      "evidence": [
+        "no signature accepts a seed, an RNG, a prepared commitment or a transcript",
+        "the ZkConfig is built inside prove with seed: None (hashline/src/zk_ffn_fresh_poc.rs:109-116)",
+        "randomness comes from ZkRng::from_os(PROFILE) at hashline/src/zk_ffn_fresh_poc.rs:108, obtained before any proof work; failure returns Err first",
+        "prove_layer_zk_v3_inner (hashline/src/zk.rs:2265) takes the ZkRng by value; the old 'let mut rng = cfg.rng(..)' line was deleted at this pin, and ZkConfig::rng (hashline/src/zk.rs:334-340) is private",
+        "the mr1 schedule is reachable only through the private ZkLayoutV3::with_masks (hashline/src/zk.rs:2000); ZkLayoutV3::new (:1996) hard-codes mr1=false and the public legacy prove/verify pass false (hashline/src/zk.rs:2262, 3417)",
+        "the transcript is owned by the profile and binds the request context (hashline/src/zk_ffn_fresh_poc.rs:69-77); tested at hashline/src/zk_ffn_fresh_poc_tests.rs:108-110",
+        "a seeded legacy proof wrapped as fresh_poc::Proof is rejected (hashline/src/zk_ffn_fresh_poc_tests.rs:136-170)"
+      ],
+      "residual": "ZkRng::new (zkp-core/src/rng.rs:20) and ZkConfig.seed (hashline/src/zk.rs:320) remain crate-public. FA8 S1 accepts either 'the block API takes no seed' or 'ZkRng::new unreachable outside cfg(test)'. The first is met; the second is not, so other provers in the crate can still be seeded."
+    },
+    "private_state_does_not_escape": {
+      "verdict": "PASS",
+      "evidence": [
+        "Proof (hashline/src/zk_ffn_fresh_poc.rs:20-22) derives nothing - no Clone, no Debug, no serialization - and its single field is pub(super), unreachable outside crate::zk",
+        "LayerProofZk derives Clone+Debug with public fields (hashline/src/zk.rs:740-777) but is only reachable through Proof.inner",
+        "explicit drops of the witness-bearing commitments: w_cm/w_cmz hashline/src/zk.rs:3214-3215, a_cmz :3221, h_cmz :3226; a_data/h_data/w_data are moved into them and die with them",
+        "mc (MaskCommit: a_coefs, b, u, salts) and the ZkRng are function locals dropped on return, including on every '?' error path",
+        "ProveOutputZk.timings and .sites (zl.describe() plus pcs::last_mask_sites(), which contain every mask row index) are DISCARDED by fresh_poc::prove (hashline/src/zk_ffn_fresh_poc.rs:127)",
+        "capture hooks are cfg(test): mod mask_diagnostic hashline/src/zk.rs:3720-3722; the Observation holds only verifier-visible data; nothing is published after a failed verify (hashline/src/zk_ffn_fresh_poc_tests.rs:128-134)"
+      ],
+      "notes": [
+        "no zeroization: mask rows, pads, salts, CFS coefficients and the ZkRng key are freed but not wiped",
+        "pcs::last_mask_sites()'s thread-local (zkp-core/src/pcs.rs:898-905) retains the last commitment's site strings after prove returns - row indices and counts only, no values",
+        "there is no public serializer for Proof (to_bytes is on LayerProofZk), so a repaired proof cannot leave the process at all yet"
+      ]
+    },
+    "degeneracies_discard_without_redraw": {
+      "verdict": "PASS with one placement caveat",
+      "no_resample_evidence": [
+        "mask_challenge (hashline/src/zk.rs:961-965) and draw_mask_challenge (hashline/src/zk_ffn_fresh_poc.rs:196-208) call draw() exactly once",
+        "Transcript::challenge_fp2 (zkp-core/src/transcript.rs:103-113) has no rejection sampling; challenge_fp2_vec is a plain map",
+        "the only while loops in zk.rs are unrelated table padding (hashline/src/zk.rs:663, 1187)",
+        "check_masks, check_table_point and div return Err; no caller retries"
+      ],
+      "abort_before_dependent_output": {
+        "cfs_c_s": "YES - the abort sits between the single draw and the computation+absorption of the masked claim/Gamma at all six (seven) sites",
+        "check_masks": "YES - called immediately before pcs::open_zk / pcs::verify_zk, and it replays lambdas and rho on a Transcript::clone_state clone (hashline/src/zk_ffn_fresh_poc.rs:289), so an abort leaves the live transcript unadvanced and no group or prox vector absorbed",
+        "check_table_point": "NO - called at hashline/src/zk.rs:3195 (prover) and 3684 (verifier), after the table sumcheck rounds, tab_term and mask_open are already absorbed and written into proof, although rho_tab was drawn at hashline/src/zk.rs:3007. Still a genuine discard (prove returns Err, nothing leaves the process, a retry gets a fresh OS-keyed stream), but it does not satisfy 'abort before any proof field that depends on the draw'."
+      },
+      "rank_test_equivalence": "with Fp2 = Fp[u]/(u^2 - 7) (zkp-core/src/field.rs:15,141,158) and determinant(a,b) = a0*b1 - a1*b0 (hashline/src/zk_ffn_fresh_poc.rs:178-180), det(k1, k1*u) = k1_0^2 - 7*k1_1^2 = Norm(k1), nonzero iff k1 != 0 - the same expression Fp2::inv uses. So check_masks' rank test is exactly FA3 s6.5's 'k1 != 0', which for the A-side P3 matmul roles is 'e != 0 and e2 != 1'. lambda != 0 per group member and the prox determinant are checked explicitly.",
+      "verifier_refusals": ["hashline/src/zk.rs:3481 div", "hashline/src/zk.rs:3462-3465 row counts from the verifier's own layout (FA3 obligation 2)", "claims built by the verifier's own build_claims_zk_v3 / build_w_zclaims_v3 (FA3 obligation 3)", "zkp-core/src/pcs.rs:967-968, 984, 989 structural refusals"]
+    },
+    "fa6_i1_i3_and_fa8_s2_cfs_guards": {
+      "verdict": "CONFIRMED",
+      "source_commit": "a5aea1d4fa86453e469469df8a462f5155b168b2",
+      "thirteen_coefficients": {
+        "v2_prove_layer_zk": ["hashline/src/zk.rs:1345", "hashline/src/zk.rs:1387", "hashline/src/zk.rs:1424", "hashline/src/zk.rs:1493", "hashline/src/zk.rs:1559", "hashline/src/zk.rs:1595"],
+        "v3_prove_layer_zk_v3": ["hashline/src/zk.rs:2666", "hashline/src/zk.rs:2755", "hashline/src/zk.rs:2827", "hashline/src/zk.rs:2924", "hashline/src/zk.rs:3009", "hashline/src/zk.rs:3101", "hashline/src/zk.rs:3143"],
+        "placement": "at every one of the thirteen the guard sits between the single tr.challenge_fp2() and the line that forms and absorbs the masked claim / Gamma"
+      },
+      "extension_guards": "hashline/src/zk.rs:984-996: assert!(!c.is_zero()), then assert_eq!(degree, mask.degree) (FA6 I1's degree condition), then assert_eq!(sk.len(), gk.len()) (FA6's proposed length hardening) - all three ahead of the zip, rounds.push(sk) and tr.absorb_fp2; masked_prove (hashline/src/zk.rs:971-980) asserts c != 0 before tr.set_masker",
+      "evidence_log": {
+        "path": "results/zk60_fable_fa6_a5aea1d_cargo.log",
+        "sha256": "9ac289f8c2ec1a2561d592625497cd4c18f6f4f302756441ff8e3365be3fd4ee",
+        "done_marker": "results/zk60_fable_fa6_a5aea1d_cargo.done = 0",
+        "result": "test result: ok. 3 passed; 0 failed",
+        "rerun": false
+      },
+      "difference": "the legacy path aborts by assert!/panic, not a typed error (only the mr1 path returns Err); the verifier has no explicit c_s != 0 refusal at the draw site - it refuses later inside div, which is what FA6 I3 describes"
+    }
+  },
+  "differences_from_fa3_fa6": [
+    {"id": "D1", "severity": "declared scope", "what": "omitted roles: a_sx[c], a_sz[c], SC_SEAM_X, SC_SEAM_Z, the attention side, the Prepared->Pending->Bound->Finalized type-state (FA3 s4, s12) and the wire decoder"},
+    {"id": "D2", "severity": "declared scope", "what": "W(P3) is fresh per proof, not FA4's budgeted stable C*_l; FA3 s6.2's W obligations (root = manifest C*_l, slot < k, q_pad = k*Q) are unimplemented and WeightStatement::FreshPrivate authenticates no model"},
+    {"id": "D3", "severity": "note", "what": "profile identity lives in the transcript domain (hashline/src/zk_ffn_fresh_poc.rs:69-77), not in FA3 s5's HL-ZK/2 header; the absorbed header is still the legacy mode.header_v3() ('P1-v3' under P1, HL-ZK/1|profile=v3|...|model=w-root under P3, hashline/src/zk.rs:269-286). Separation is sound and tested, but a header reader cannot tell the profile"},
+    {"id": "D4", "severity": "note", "what": "RNG domain is PROFILE alone - no layer index and no attempt nonce (FA3 s3 asks for ffn-mr1/layer-{l}/attempt-{nonce}). Freshness rests entirely on from_os taking 32 new bytes of /dev/urandom per call"},
+    {"id": "D5", "severity": "note", "what": "consumption order is (P3) W rows -> W pads/salts -> A rows -> A pads/salts -> M -> H rows -> H pads/salts; FA3 s3 lists A -> M -> H with W at registration. Within A the order IS allocation order, and only because of the sort_unstable() at hashline/src/zk.rs:2456. H matches FA3 item 4 exactly"},
+    {"id": "D6", "severity": "open question", "what": "assert_mask_sites (zkp-core/src/pcs.rs:881-896) was NOT extended per FA3 s2.4: prover-side only, one prox_mask_row, 'at least one mask row' per group vector. fresh_poc::check_masks supersedes it on both sides with a strictly stronger test. Codex should confirm this is the intended resolution"},
+    {"id": "D7", "severity": "gap", "what": "FA3 s6.4's verifier-side data/mask-disjointness tripwire is not implemented; it holds by construction of the layout but is not asserted"},
+    {"id": "D8", "severity": "note", "what": "check_generated_rows (hashline/src/zk_ffn_fresh_poc.rs:182-194), the non-constant / non-duplicate mask-row gate, is cfg(test); release builds do not run it"},
+    {"id": "D9", "severity": "note", "what": "FA6 I3: the legacy prover aborts by panic rather than a typed error"},
+    {"id": "D10", "severity": "exceeds spec", "what": "FA6 I1: the extension round asserts degree == mask.degree IN ADDITION TO sk.len() == gk.len()"}
+  ],
+  "gaps_for_codex": [
+    "check_table_point aborts late (hashline/src/zk.rs:3195, 3684) - after tab_term and mask_open are in the transcript and in proof, though rho_tab was drawn at hashline/src/zk.rs:3007; move it to the draw site",
+    "no AM14 hook: c_s = 0 is never forced inside a real mr1 proof, so the '?' propagation out of prove_layer_zk_v3_inner is untested",
+    "no AM15 negative control (dependent prox pair) and no AM22 control (lambda = 0): those check_masks branches are never taken by any test",
+    "H is untested at the pair level - no rank or pair-ambiguity assertion on any h_mf, h_md, h_u/h_up or table-helper claim; and the value-0 LogUp claim satisfies check_masks via the constrained zero-sum pair rather than a free mask",
+    "table claims are untested at the rank level: neither the singleton pairs nor the >=2-row blocks have an assertion on coefficients realised in an actual proof; check_table_point is only unit-tested",
+    "a_mf, a_md and w_mgu pairs have no direct assertion (check_pair_ambiguity covers only a_mgu[0], a_mdd[0], w_mdd[0])",
+    "assert_mask_sites (FA3 s2.4) and the data/mask-disjointness tripwire (FA3 s6.4) are not implemented; prox_mask_row remains a single index",
+    "check_generated_rows is cfg(test) - the non-constant / non-duplicate gate does not run in release builds",
+    "no zeroization of mask rows, pads, salts, CFS coefficients or the ZkRng key on drop or on a discarded attempt",
+    "FA8 S1's second form is still open: ZkRng::new and ZkConfig::seed remain crate-public, so other provers in the crate can still be seeded",
+    "untested minor paths: the P3 wcache refusal (hashline/src/zk_ffn_fresh_poc.rs:84-86), the ZkRng::from_os failure path (:108), and the witness length/shape preflights (:87-107)",
+    "no proof bytes: Proof has no public serializer, so round 16's 'independent verification from bytes' milestone has nothing to verify yet"
+  ],
+  "commands": [
+    {
+      "command": "flock /tmp/zk-heavy.lock env -u HL_GPU -u HL_GPU_REQUIRED -u HL_ZK_CHUNK -u HL_TIMING CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 cargo test --release --locked --offline --manifest-path /home/victor/wt-zk60-fa/hashline/Cargo.toml --lib fresh_poc -- --nocapture --test-threads=2",
+      "launched": "detached (setsid nohup) with a .done marker, all HL_* variables cleared (env | grep '^HL_' was empty)",
+      "exit_code": 0,
+      "result": "test result: ok. 3 passed; 0 failed; 0 ignored; 56 filtered out; finished in 0.90s (build 50.20s)",
+      "tests": [
+        "zk::mask_diagnostic::fresh_poc_tests::repaired_fresh_poc_verifies_twice_and_blocks_single_mask_recovery",
+        "zk::mask_diagnostic::fresh_poc_tests::repaired_fresh_poc_rejects_tampering_and_legacy_profiles",
+        "zk::mask_diagnostic::fresh_poc_tests::repaired_layout_and_degenerate_mask_controls"
+      ],
+      "emitted": [
+        "FRESH_FFN_POC privacy=P1 attempt=0 verified=true A_rows=698 H_rows=1326 W_rows=3 payload_bytes=4733204 singleton_mask_rank=2 recovery=underdetermined",
+        "FRESH_FFN_POC privacy=P1 attempt=1 verified=true A_rows=698 H_rows=1326 W_rows=3 payload_bytes=4733204 singleton_mask_rank=2 recovery=underdetermined",
+        "FRESH_FFN_POC privacy=P3 attempt=0 verified=true A_rows=698 H_rows=1326 W_rows=11 payload_bytes=4770164 singleton_mask_rank=2 recovery=underdetermined",
+        "FRESH_FFN_POC privacy=P3 attempt=1 verified=true A_rows=698 H_rows=1326 W_rows=11 payload_bytes=4770164 singleton_mask_rank=2 recovery=underdetermined"
+      ]
+    }
+  ],
+  "limits": [
+    "bounded implementation audit only: allocation, fill, consumption, reconstruction, refusal paths and API surface",
+    "a passing regression and a correct mask-site count are NOT a privacy verdict; no whole-protocol zero-knowledge conclusion follows from this document",
+    "the joint-observation analysis (O2), the CFS/nonlinear channel (FA6 B1), transcript conditioning (FA8 B2), ranges (B3) and cross-proof correlation (B4) are all outside this audit",
+    "function 2, stable-weight P3, attention, seams and any shape other than T32/d16/f16 at log_cols 8 are not covered",
+    "line numbers and digests are pinned to a8a1bc7 and will move",
+    "no Rust was changed; Codex retains the overall cryptographic judgment"
+  ]
+}
