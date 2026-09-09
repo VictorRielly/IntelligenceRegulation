@@ -6,6 +6,16 @@ activations; weights may be public. Full version P3 also hides weights.
 Prioritize the P1 private-IO path. Public IO cannot substitute for its privacy
 obligations; weight-specific P3 work remains required for the full version.
 
+**2026-09-09, round 24:** [conditional endpoint sampler and new Opus jobs](ZK60_ROUND24.md).
+Three Opus reviews O9–O11 are published and ready; O8 is integrated. Codex's
+new component samples endpoint masks/pads for chosen shared dummy data while
+preserving supplied vectors, terminals and opened columns. **47 Python tests,
+16 samples over eight owners, 2,048 ideal-oracle paths and freeze-check pass.**
+This is conditional on an existing public field view. Codex next constructs
+that view jointly with A/H/W/CFS and the adaptive transcript; arbitrary-root
+simulation and full privacy remain open. Round 23's completion and 28 recorded
+hashes were independently rechecked before continuing.
+
 **2026-09-09, round 23:** [endpoint simulation boundary and repeated views](ZK60_ROUND23.md).
 The two fresh receipts per mode are analyzed jointly with shared A/W/endpoint
 data and separate randomness; only both public H identities survive. A

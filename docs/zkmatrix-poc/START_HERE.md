@@ -29,6 +29,11 @@ remain open. The old temporary capture bytes are unavailable in this session.
 adds a research-only endpoint preparation simulator for the ideal hash oracle.
 It corrects the earlier assumption that salted leaves and Merkle nodes have
 separate hash domains. This is bounded analysis, not full privacy acceptance.
+[Round 24](ZK60_ROUND24.md) adds conditional endpoint mask/pad sampling on all
+eight captured endpoint owners: 47 Python tests, 16 samples, 2,048 ideal-oracle
+paths and native freeze-check pass. The public field view is still supplied
+to that component; full joint/adaptive simulation remains open. Three new
+Opus reviews (O9–O11) are published and ready for pickup.
 It still lacks the complete private block,
 registered private model binding and final privacy review. The historical
 hash-line privacy claims below must be read with that correction. Pending

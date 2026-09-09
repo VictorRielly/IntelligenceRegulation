@@ -1,0 +1,243 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "source_commit": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4",
+  "cases": [
+    {
+      "proof_sha256": "038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd",
+      "privacy": "P3",
+      "role": "Input",
+      "distinct_columns": 236,
+      "samples": [
+        {
+          "variant": "zero",
+          "message_free_dim": 256,
+          "pad_free_dim": 60,
+          "sample_sha256": "1e13788a43bb7d0a96c0139acd0f3b4d2efbb3dd740efb33625322a4e62cb4f3",
+          "all_field_equations_checked": true
+        },
+        {
+          "variant": "nonzero",
+          "message_free_dim": 256,
+          "pad_free_dim": 60,
+          "sample_sha256": "47feb2f1afdadec37aef13f98953cda90560bcda6533cc292883a15d1678f446",
+          "all_field_equations_checked": true
+        }
+      ],
+      "simulator_root": "53cbbc76402dabb88f1e87a61ef8287827143afe838e63a40c4ed0f287106d4a",
+      "openings": 256,
+      "all_paths_accept": true
+    },
+    {
+      "proof_sha256": "038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd",
+      "privacy": "P3",
+      "role": "Output",
+      "distinct_columns": 246,
+      "samples": [
+        {
+          "variant": "zero",
+          "message_free_dim": 256,
+          "pad_free_dim": 30,
+          "sample_sha256": "63ce93f1fde201c02e8386310921e486becca61fc6c9b575af5fa72409fdded1",
+          "all_field_equations_checked": true
+        },
+        {
+          "variant": "nonzero",
+          "message_free_dim": 256,
+          "pad_free_dim": 30,
+          "sample_sha256": "f69714d1d47eb986f68417c0e9df7115389d026e503300e45c5d804540c1ef54",
+          "all_field_equations_checked": true
+        }
+      ],
+      "simulator_root": "a676305201161e96c006c09b29f93dc967f2baecf929d4ba81b188b72a7bcb2f",
+      "openings": 256,
+      "all_paths_accept": true
+    },
+    {
+      "proof_sha256": "c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e",
+      "privacy": "P1",
+      "role": "Input",
+      "distinct_columns": 242,
+      "samples": [
+        {
+          "variant": "zero",
+          "message_free_dim": 256,
+          "pad_free_dim": 42,
+          "sample_sha256": "4d9ec40ffcfa77b87326df179baa558960e9c45b14e6ab200bef190bcf9034c6",
+          "all_field_equations_checked": true
+        },
+        {
+          "variant": "nonzero",
+          "message_free_dim": 256,
+          "pad_free_dim": 42,
+          "sample_sha256": "c5560483db2472cf8b13fa5eb84d26f2b9c3c017215e24cb174c57f9ce38e9a5",
+          "all_field_equations_checked": true
+        }
+      ],
+      "simulator_root": "45191d847f2f33f7ac15e921b9d40d333aec4ca8429694103c2529de7a3f82a8",
+      "openings": 256,
+      "all_paths_accept": true
+    },
+    {
+      "proof_sha256": "c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e",
+      "privacy": "P1",
+      "role": "Output",
+      "distinct_columns": 240,
+      "samples": [
+        {
+          "variant": "zero",
+          "message_free_dim": 256,
+          "pad_free_dim": 48,
+          "sample_sha256": "99641b6bcc88b614a2162384fa62d00fc843cc811cc5af8bfaa5d0e74cf91938",
+          "all_field_equations_checked": true
+        },
+        {
+          "variant": "nonzero",
+          "message_free_dim": 256,
+          "pad_free_dim": 48,
+          "sample_sha256": "4b254e4eb8d598726bbc8be260a06617432a2900c404dc4e8fcf6c32ea3ada60",
+          "all_field_equations_checked": true
+        }
+      ],
+      "simulator_root": "77cca3dda7b856f89ce021b6be48c09ccfe7c91dc178fd17c77550d5e07ebbef",
+      "openings": 256,
+      "all_paths_accept": true
+    },
+    {
+      "proof_sha256": "e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314",
+      "privacy": "P3",
+      "role": "Input",
+      "distinct_columns": 248,
+      "samples": [
+        {
+          "variant": "zero",
+          "message_free_dim": 256,
+          "pad_free_dim": 24,
+          "sample_sha256": "bcf908380c493bbac83adee6ae0f3bce7f211d061fa6a6e350e9485f389ecf3b",
+          "all_field_equations_checked": true
+        },
+        {
+          "variant": "nonzero",
+          "message_free_dim": 256,
+          "pad_free_dim": 24,
+          "sample_sha256": "854a34f20f53021a6541a0b9d89e0f69143f252581bcee4f72e024c3944a5580",
+          "all_field_equations_checked": true
+        }
+      ],
+      "simulator_root": "910ee883f2a49a3be10bf6dafcb5cd8e00fffb980f6892880d22ad3fddd29afb",
+      "openings": 256,
+      "all_paths_accept": true
+    },
+    {
+      "proof_sha256": "e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314",
+      "privacy": "P3",
+      "role": "Output",
+      "distinct_columns": 243,
+      "samples": [
+        {
+          "variant": "zero",
+          "message_free_dim": 256,
+          "pad_free_dim": 39,
+          "sample_sha256": "786d34cbb8c8462d654e29d86d5e8d51562c40bd545e979efde95d5616f15ed4",
+          "all_field_equations_checked": true
+        },
+        {
+          "variant": "nonzero",
+          "message_free_dim": 256,
+          "pad_free_dim": 39,
+          "sample_sha256": "6c00de168f4c23fc0ec3e39faa3dcc4af3767e0851ee7ea7f6b35485a18512f8",
+          "all_field_equations_checked": true
+        }
+      ],
+      "simulator_root": "fc3380662523a01f5c3325f0de99e9e7ad0ab93381662c8e19379070902d4c7d",
+      "openings": 256,
+      "all_paths_accept": true
+    },
+    {
+      "proof_sha256": "efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb",
+      "privacy": "P1",
+      "role": "Input",
+      "distinct_columns": 238,
+      "samples": [
+        {
+          "variant": "zero",
+          "message_free_dim": 256,
+          "pad_free_dim": 54,
+          "sample_sha256": "3af40cc1ae4857fd5bc0200e281ef50fb445584dbf52a7900ff742339458e681",
+          "all_field_equations_checked": true
+        },
+        {
+          "variant": "nonzero",
+          "message_free_dim": 256,
+          "pad_free_dim": 54,
+          "sample_sha256": "2669787a74f1f6dfca4803cdcf2ba63f403d314887f9f4be6648313bf9e2446b",
+          "all_field_equations_checked": true
+        }
+      ],
+      "simulator_root": "b2736a753b4ae8f3f867d13066b60bdb41c73cf84c90211c3c4462f8bffe85e5",
+      "openings": 256,
+      "all_paths_accept": true
+    },
+    {
+      "proof_sha256": "efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb",
+      "privacy": "P1",
+      "role": "Output",
+      "distinct_columns": 240,
+      "samples": [
+        {
+          "variant": "zero",
+          "message_free_dim": 256,
+          "pad_free_dim": 48,
+          "sample_sha256": "eac9e58d4e3b55c12d375fac8190d428cd1dcb08c80730dbc3b9c82332adf60b",
+          "all_field_equations_checked": true
+        },
+        {
+          "variant": "nonzero",
+          "message_free_dim": 256,
+          "pad_free_dim": 48,
+          "sample_sha256": "2c217afccbc8da625b29972dac345fce0abced598dd84ea678bebefd0fc0fd68",
+          "all_field_equations_checked": true
+        }
+      ],
+      "simulator_root": "b809791223a8e5055bf6e57bd1a7f6dee869780989b78072d1f95ed268d73828",
+      "openings": 256,
+      "all_paths_accept": true
+    }
+  ],
+  "manifest_sha256": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d",
+  "capture_preflight_checks": 51,
+  "tools": {
+    "zk60_opus_io_capture.py": "ccb9043ceb1d372b0800e0cae8e904d3978185b7e466d8003000306fbdade2cb",
+    "zk60_opus_repaired_capture.py": "9bc226dce00fd8d1ede28cf49220eab52cf60a019c92fd2b556f1d0e10c516a1",
+    "zk60_fable_joint_capture.py": "9dd9b6bafaedeb19c8e2ca008cc255bcede84502dd1f58d3091223e7f6bdf8b2",
+    "zk60_fable_joint_rank.py": "ad5e4e483c6dd8c5f73a87ddb0af1d06c3084576e82428e9c2ada6a764ffbb5b",
+    "zk60_opus_io_layout.py": "d9a537ede46f3ebbd58a7bd153c7cfcebe79ddf553c6f7eadc153b295e77ace4",
+    "zk60_opus_wire_length.py": "6c5de133fa4a85939ff5d46bb0b1a4494366c02ec8282c6bd7c89fa1c8608e5a",
+    "zk60_io_capture_preflight.py": "a4e230f5f6aed62fc0f12b662a3b3becbbb6bee1d41cd12c06baa6918a5ce217",
+    "zk60_io_capture_controls.py": "8128d3e2a5afcd3f34c78271f58c6ab8a5ae0a7e53091e4f49a38fbf2fc2369a",
+    "zk60_io_opening_translation.py": "3579e0ff10f5f501a5596e3ef56dc812060a8f34a883910b2bb89c8c675ae0bf",
+    "zk60_endpoint_fibre.py": "6b1db64f55b80b55eca5431d296db7a0c40b447459e6b9968aa718449f6668eb",
+    "zk60_endpoint_simulation.py": "c5549eefeafd4a4e3ed8bbfe70f3c2924ed6f1ed179ebf73edb9206bfbd0e9aa",
+    "zk60_io_repeated_view.py": "4de64c0d5f1948715556ab01e36c922a0821b7c689c639d47529646d22a90c8c",
+    "zk60_io_review_gate.py": "3f8ee26804b9d04549d30cca76f4615a0f53a76f8d73045c3e2e0b6dba34baf9"
+  },
+  "prior_analysis_sha256": "deaf38f545d6e1e4b25be137e47c3ece19997ff5646871edbc5f3e0f9d5048d3",
+  "programmed_salted_leaf_inputs": 1933,
+  "preexisting_points_reprogrammed": 0,
+  "conditional_preimages_sampled": true,
+  "public_field_view_sampled": false,
+  "full_A_endpoint_alias_sampler": false,
+  "root_only_simulation": false,
+  "actual_blake3_programmed": false,
+  "full_privacy_review_complete": false,
+  "scope": "eight endpoint owners; fixed public field observations; two chosen dummy-data variants; ideal Fp fibre samples",
+  "excluded": [
+    "public field-view generation",
+    "A/W/H joint sampling",
+    "CFS sampling",
+    "adaptive Fiat-Shamir",
+    "production PRG distribution",
+    "external fixed roots",
+    "arbitrary repeated-proof composition"
+  ]
+}

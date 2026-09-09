@@ -4,7 +4,7 @@
   "round": 24,
   "integrator_base": "c5eb2019353fdf56f1a115edb0c424bf86a9c195",
   "reviewed_lane_tip": "0f51e3f",
-  "review": "ZK60_ROUND23.md",
+  "review": "ZK60_ROUND24.md",
   "owner": "Opus 5 owns bounded review/tooling follow-ups; Codex owns protocol implementation, integration and final cryptographic review",
   "coordination": "O1-O8 are delivered and integrated. O9-O11 are queued for independent Opus review of the endpoint experiment, one-oracle bookkeeping and repeated fixed-coefficient view. Codex continues the conditional field-view sampler; full privacy remains open.",
   "engineering_order": [
@@ -1398,5 +1398,37 @@
       ],
       "limits": "Only named new report/result and optional named test. Preserve archived tools/results and shared queues. No Rust changes or full privacy acceptance."
     }
-  ]
+  ],
+  "round24_codex_work": {
+    "report": "ZK60_ROUND24.md",
+    "validation": "../../results/zk60_round24_validation.json",
+    "validation_status": "complete",
+    "reviewed_head": "5f30c9deab9fd358ed7024dda583ef6af8dd6b2d",
+    "runtime_source_commit": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4",
+    "implemented": [
+      "Conditional endpoint message-mask/pad preimages for chosen shared dummy data",
+      "Sixteen samples preserving supplied complete endpoint field observations",
+      "Connection to eight simulator-prepared roots in the ideal oracle",
+      "Round23 completion audit: seven stages and 28 recorded hashes"
+    ],
+    "runtime_protocol_changed": false,
+    "public_field_view_sampled": false,
+    "full_A_endpoint_alias_sampler": false,
+    "full_privacy_review_complete": false,
+    "private_block_implemented": false,
+    "next_opus_tasks": [
+      "O9",
+      "O10",
+      "O11"
+    ],
+    "validation_counts": {
+      "python_tests": 47,
+      "python_skips": 0,
+      "capture_preflight_checks": 51,
+      "endpoint_owners": 8,
+      "conditional_samples": 16,
+      "ideal_oracle_paths": 2048,
+      "native_freeze_check": true
+    }
+  }
 }

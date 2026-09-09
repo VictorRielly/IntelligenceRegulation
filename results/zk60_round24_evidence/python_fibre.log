@@ -1,0 +1,13 @@
+test_free_coordinates_are_bijective_and_equations_hold (test_zk60_endpoint_fibre.AffineCoordinates) ... ok
+test_full_budget_unique_polynomial_and_invalid_inputs (test_zk60_endpoint_fibre.AffineCoordinates) ... ok
+test_polynomial_fibre_preserves_values_and_has_full_free_dimension (test_zk60_endpoint_fibre.AffineCoordinates) ... ok
+test_corrupted_terminal_vector_column_and_claim_refuse (test_zk60_endpoint_fibre.ConditionalEndpoint) ... ok
+test_deficient_masks_duplicate_and_noncanonical_data_refuse (test_zk60_endpoint_fibre.ConditionalEndpoint) ... ok
+test_fresh_draws_and_owners_keep_same_chosen_data (test_zk60_endpoint_fibre.ConditionalEndpoint) ... ok
+test_independent_verification_detects_changed_masks_pads_and_data (test_zk60_endpoint_fibre.ConditionalEndpoint) ... ok
+test_two_different_data_choices_preserve_complete_public_view (test_zk60_endpoint_fibre.ConditionalEndpoint) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.045s
+
+OK

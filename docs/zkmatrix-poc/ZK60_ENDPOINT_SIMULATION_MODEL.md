@@ -5,6 +5,12 @@ construction, **not** a completed privacy proof. P1 still hides inputs, outputs
 and intermediate activations; P3 additionally hides weights. Neither public IO
 nor disclosure of real endpoint secrets to a simulator is an accepted shortcut.
 
+**Round-24 progress:** the [conditional endpoint sampler](ZK60_ROUND24.md) now
+constructs masks/pads for chosen dummy data while preserving a supplied field
+view, and connects its encoded columns to the ideal-oracle candidate below.
+It does not generate the public field view or sample A/H/W/CFS jointly. The
+remaining full-sampler and external-root obligations in this memo stay open.
+
 ## The interface that must be preserved
 
 `ExpectedIo` contains public context, two scales and two endpoint roots. Its

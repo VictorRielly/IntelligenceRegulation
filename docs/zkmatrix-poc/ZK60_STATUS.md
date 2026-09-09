@@ -5,6 +5,16 @@ activations; weights may be public. The full version (P3) also hides weights.
 Victor reaffirmed this on 2026-09-09. These are requirements, not claims of
 current acceptance. [Canonical privacy requirements](ZK60_PRIVACY_REQUIREMENTS.md).
 
+**2026-09-09, round 24:** [conditional endpoint sampling and Opus jobs](ZK60_ROUND24.md).
+O9–O11 are ready: endpoint experiment, oracle bookkeeping and repeated-view
+reviews. O8's machine-readable status is corrected to delivered/integrated.
+The new component samples endpoint masks/pads for chosen shared dummy data,
+preserving the supplied complete field view across eight owners. **47 Python
+tests, 16 conditional samples, 2,048 ideal-oracle paths and freeze-check pass.**
+It does not generate the public field view or sample A/H/W/CFS jointly.
+Adaptive simulation, arbitrary external roots and full privacy remain open.
+Round 23's seven stages and all 28 recorded hashes were rechecked successfully.
+
 **2026-09-09, round 23:** [endpoint models and two-proof analysis](ZK60_ROUND23.md).
 The two fresh proofs per mode are now modeled together with shared witness
 data; only the two public H identities remain in the linear view. The candidate

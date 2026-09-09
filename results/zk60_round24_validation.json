@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "reviewed_head": "5f30c9deab9fd358ed7024dda583ef6af8dd6b2d",
+  "status": "passed",
+  "stages": [
+    {
+      "name": "python_io",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_io_*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 1.5418326299995897,
+      "log_sha256": "233547e30e2d0eeb795ec4d54f86e1869b832a8414e6960ca701d3ec9162ce0d"
+    },
+    {
+      "name": "python_endpoint",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_endpoint_simulation.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 0.05756545100030053,
+      "log_sha256": "2f5b09248ed379783947a9d3c2c7985df37c19928e3562599486011e36518480"
+    },
+    {
+      "name": "python_fibre",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_endpoint_fibre.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 0.08508144400002493,
+      "log_sha256": "7e189398ddb69479582629a71451c0dd146aa899ead0adbe8615faaab039eec7"
+    },
+    {
+      "name": "endpoint_fibre",
+      "command": [
+        "flock",
+        "/tmp/zk-heavy.lock",
+        "python3",
+        "scripts/zk60_endpoint_fibre.py",
+        "--captures",
+        "results/zk60_round22_captures",
+        "--manifest",
+        "results/zk60_round22_captures.json",
+        "--out",
+        "results/zk60_round24_endpoint_fibre.json"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 9.855612120999467,
+      "log_sha256": "c0cfb8d929b6cfb320631a45e8e28bded09b243354b1915db08491a1f8a78a78"
+    },
+    {
+      "name": "native_freeze",
+      "command": [
+        "/home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/ring_matmul",
+        "freeze-check"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {
+        "M125_EXPORT_DIR": "/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl"
+      },
+      "elapsed_s": 2.4932877739993273,
+      "log_sha256": "ca64e2c697c0a0f1c402ebe9312e4a3f2033f42e08c12112e50505520fa40cac"
+    }
+  ],
+  "runtime_protocol_changed": false,
+  "full_privacy_review_complete": false,
+  "rlimit_as": 8589934592,
+  "previous_round_verified_hashes": 28,
+  "previous_round_validation_sha256": "627b18a1f5f1e6728a1e43b9a1fe065563d60a5e086873b2b91fe59cb1d82dc5",
+  "queued_opus_jobs": [
+    "O9",
+    "O10",
+    "O11"
+  ],
+  "source_sha256": {
+    "hashline/src/zk.rs": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310",
+    "hashline/src/zk_ffn_fresh_io.rs": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+    "hashline/src/zk_ffn_fresh_io_tests.rs": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9",
+    "hashline/src/zk_ffn_mask_diagnostic.rs": "462346828c427b5f6d07ed502edc4d88ba57e1197e6e27836b73316704e8dd64",
+    "hashline/src/zk_ffn_observation_json.rs": "e7a62281896efc4f1f12c403c6959ab7e2476beee07960f3752816fdc711a1e6",
+    "hashline/src/zk_ffn_io_diagnostic.rs": "c866dcce37789106eb18f4aac5093bb3bc14cadb78ca67a1d0fb6ebe092122a5",
+    "hashline/src/private_seam.rs": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+    "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "zkp-core/src/transcript.rs": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+    "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+    "zkp-core/src/merkle.rs": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62",
+    "zkp-core/src/rng.rs": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb"
+  },
+  "tools": {
+    "scripts/zk60_endpoint_fibre.py": "6b1db64f55b80b55eca5431d296db7a0c40b447459e6b9968aa718449f6668eb",
+    "tests/test_zk60_endpoint_fibre.py": "ec450e06fb21322b72b46832145b16188016fa38e8ca4d06621585a6fdc232f3",
+    "results/zk60_round24_evidence/validate.py": "4b0555188d32e3d0433db7a333fd3518c68aa09ddd9cf5bf12e07d1cb34e4ec8"
+  },
+  "results": {
+    "results/zk60_round24_endpoint_fibre.json": "3796b63018fb9d818ac1db2a00beb20764300b243ebbcda0547e91a3adc71991",
+    "results/zk60_round22_captures.json": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d"
+  },
+  "python_tests": 47,
+  "python_skips": 0,
+  "native_freeze_check": true,
+  "endpoint_owners": 8,
+  "conditional_samples": 16,
+  "ideal_oracle_paths": 2048,
+  "full_rust_suite_rerun": false,
+  "full_python_suite_rerun": false
+}

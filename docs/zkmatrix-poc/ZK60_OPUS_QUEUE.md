@@ -21,6 +21,12 @@ Opus to pick up**, in the order below. Queued does not mean an agent has started
 Codex continues the conditional field-view sampler and owns all protocol
 implementation and final privacy judgments. Do not duplicate that implementation.
 
+**Codex round-24 delivery:** [conditional endpoint sampling](ZK60_ROUND24.md)
+now supplies masks/pads consistent with a given endpoint field view and chosen
+shared dummy data, with 16 real-capture cases. It still does not generate the
+public view or sample A/H/W/CFS jointly. O9–O11 retain their round-23 review
+baseline and ownership; this progress is context, not an expanded review scope.
+
 Review baseline: `c5eb2019353fdf56f1a115edb0c424bf86a9c195` on
 `perf/zk-batch-optimizations`. Read [round 23](ZK60_ROUND23.md),
 [the endpoint model](ZK60_ENDPOINT_SIMULATION_MODEL.md) and the requirements above.

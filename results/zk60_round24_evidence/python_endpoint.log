@@ -1,0 +1,13 @@
+test_conflicting_duplicate_does_not_return_an_opening (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_early_root_and_answers_stay_fixed_through_adaptive_column_choice (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_external_root_is_refused_and_failure_consumes_owner (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_node_query_and_salted_leaf_programming_are_not_independent (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_programming_rejects_prequeried_leaf_point (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_query_budget_and_noncanonical_words_refuse (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_reusing_owner_is_refused_after_success (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_tampered_column_path_and_root_reject (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.023s
+
+OK
