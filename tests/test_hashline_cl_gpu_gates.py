@@ -185,8 +185,11 @@ class SuiteDefinition(unittest.TestCase):
     def test_oracle_count_is_tied_to_the_suite_version(self):
         self.assertEqual(gg.case_definition(1, "oracle_gpu")["expect"]["executed_cases"], 49)
         self.assertEqual(gg.case_definition(0, "oracle_gpu")["expect"]["executed_cases"], 3)
+        # the sentinel is the first UNUSED version: bump it whenever a suite is added
+        # (it was 7 until round 16 cut suite v7, which is what made this assertion fail)
+        self.assertNotIn(8, gg.SUITES)
         with self.assertRaisesRegex(gg.GatesError, "unknown suite version"):
-            gg.suite(7)
+            gg.suite(8)
         out = subprocess.run([sys.executable, _SRC, "expected-cases", "--suite-version", "1", "--oracle-count"],
                              check=True, capture_output=True, text=True).stdout
         self.assertEqual(out.strip(), "49")
