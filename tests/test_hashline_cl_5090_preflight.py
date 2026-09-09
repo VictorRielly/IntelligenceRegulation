@@ -18,6 +18,15 @@ now REFUSE; `--coverage full --claim target` with nothing recorded behind it
 REFUSES (it used to be go); a missing git fact also fails verified_artifact
 (nothing to bind the manifest to). The floors-log fixtures became
 deprecated-hint fixtures: a green log alone can never pass.
+
+[ZK60-CL21] The ready box also carries a SOURCE IDENTITY fact (both crates'
+tree ids, deltas, lockfile hashes, the core's presence — the gates module's
+synthetic identity, which the fixture manifest records too). `source_identity`
+now also needs the core present with an empty delta and both lockfiles
+readable; `verified_artifact` binds the manifest's crate trees and lockfile
+hashes to that fact, so a mismatched dependency identity, a missing core, an
+unreadable identity and a pre-CL21 manifest (records none) all refuse. A
+complete v4 manifest (the core cases included) is go.
 """
 
 import contextlib
@@ -68,6 +77,13 @@ def manifest_fact(manifest):
     return {"path": MANIFEST_PATH, "exists": True, "mtime": BINARY_MTIME + 1000.0, "manifest": manifest}
 
 
+def identity_fact():
+    """[CL21] the tree in hand: the same synthetic identity the fixture manifest records."""
+    ident = json.loads(json.dumps(gg.SYNTHETIC_SOURCE))
+    ident.update({"repo": "/r", "head": HEAD, "branch": "zk60-cl1", "dirty_tracked_count": 0, "dirty_delta_sha256": gg.EMPTY_SHA256})
+    return ident
+
+
 def ready_facts():
     """A ready RTX 5090 box: every fact the fourteen checks need, all green."""
     return {
@@ -80,10 +96,13 @@ def ready_facts():
         "arch_arms": {"8.9": "compute_89", "9.0": "compute_90", "10.0": "compute_100", "12.0": "compute_120"},
         "host": {"mem_total_kib": 128 * GIB_KIB, "mem_available_kib": 64 * GIB_KIB, "loadavg1": 0.5, "logical_cpus": 32},
         "heavy_lock_free": True,
-        "git": {"head": HEAD, "branch": "zk60-cl1", "dirty_paths": []},
+        "git": {"head": HEAD, "branch": "zk60-cl1", "dirty_paths": [], "core_dirty_paths": []},
+        "source_identity": identity_fact(),
         "binary": {"path": "/r/hashline/target-gpu/release/hashline", "exists": True, "size": 5318584, "mtime": BINARY_MTIME,
                    "sha256": GPU_SHA, "mentions_nvrtc": True, "mentions_cu_module_load": True},
-        "sources": {"newest_mtime": BINARY_MTIME - 1000.0, "newest_path": "hashline/src/gpu/cuda.rs"},
+        "sources": {"newest_mtime": BINARY_MTIME - 1000.0, "newest_path": "hashline/src/gpu/cuda.rs", "zkp_core_present": True,
+                    "crates": {"hashline": {"newest_mtime": BINARY_MTIME - 1000.0, "newest_path": "hashline/src/gpu/cuda.rs", "files": 40},
+                               "zkp_core": {"newest_mtime": BINARY_MTIME - 2000.0, "newest_path": "zkp-core/src/sumcheck.rs", "files": 11}}},
         "export": {"path": "/e", "exists": True, "sidecar_sha256": "cd" * 32, "dims": [512, 4096, 14336, 32],
                    "profile": "v3-widened", "model": "hf-model"},
         # the deprecated hint, green, present — and never sufficient
@@ -162,7 +181,14 @@ class Refusals(unittest.TestCase):
         va = check(report, "verified_artifact")["evidence"]
         self.assertTrue(va["validator"]["ok"])
         self.assertEqual(va["validator"]["summary"]["oracle_executed_cases"], 49)
-        self.assertEqual(va["bound_to"], {"head": HEAD, "gpu_binary_sha256": GPU_SHA})
+        # [CL21] bound to HEAD, the binary, AND both crates' trees and lockfiles
+        self.assertEqual(va["bound_to"], {"head": HEAD, "gpu_binary_sha256": GPU_SHA,
+                                          "crate_trees": {"hashline": "1" * 40, "zkp_core": "2" * 40},
+                                          "lockfiles": {"hashline": "3" * 64, "zkp_core": "4" * 64}})
+        si = check(report, "source_identity")["evidence"]
+        self.assertTrue(si["identity_readable"])
+        self.assertEqual(si["crates"]["zkp_core"]["tree"], "2" * 40)
+        self.assertEqual(si["core_layout"], {"manifest": True, "src": True, "example": True})
         self.assertTrue(check(report, "binary_identity")["evidence"]["digest_matches_manifest"])
         # the report is a JSON document (allow_nan=False is what main uses)
         json.dumps(report, allow_nan=False)
@@ -274,6 +300,93 @@ class Refusals(unittest.TestCase):
     def test_git_unreadable(self):
         # [CL13] no HEAD fact also means nothing to bind the manifest to
         self.refused(flipped(git=None), "source_identity", cascade=["verified_artifact"])
+
+    # ------------------------------------------------- [CL21] the extracted core
+    def test_dirty_core_path_refuses(self):
+        # a dirty zkp-core file is a dirty tracked tree (the core is a build input)
+        report = self.refused(patched("git", dirty_paths=["zkp-core/src/field.rs"], core_dirty_paths=["zkp-core/src/field.rs"]), "source_identity")
+        self.assertEqual(check(report, "source_identity")["evidence"]["git"]["core_dirty_paths"], ["zkp-core/src/field.rs"])
+
+    def test_dirty_core_delta_refuses(self):
+        # the probe's own reading: a nonempty delta under zkp-core/ with a clean status
+        # cannot happen, but the identity check does not rely on the status alone
+        facts = ready_facts()
+        facts["source_identity"]["crates"]["zkp_core"]["dirty_delta_sha256"] = "ab" * 32
+        self.refused(facts, "source_identity")
+
+    def test_missing_core_refuses(self):
+        # no zkp-core/ in the tree in hand: the identity fails, and the manifest's
+        # recorded core tree cannot be the (absent) one in hand
+        facts = ready_facts()
+        facts["source_identity"]["crates"]["zkp_core"].update({"present": False, "tree": None, "manifest": False, "src": False, "example": False})
+        facts["source_identity"]["lockfiles"]["zkp_core"]["sha256"] = None
+        facts["sources"]["zkp_core_present"] = False
+        report = self.refused(facts, "source_identity", cascade=["verified_artifact"])
+        self.assertTrue(any("zkp-core/ tree" in r for r in check(report, "verified_artifact")["evidence"]["validator"]["reasons"]))
+
+    def test_incomplete_core_refuses(self):
+        facts = ready_facts()
+        facts["source_identity"]["crates"]["zkp_core"].update({"present": False, "example": False})
+        report = self.refused(facts, "source_identity")
+        self.assertEqual(check(report, "source_identity")["evidence"]["core_layout"]["example"], False)
+
+    def test_mismatched_lockfile_identity_refuses(self):
+        # the tree is clean at the manifest's HEAD, but zkp-core/Cargo.lock is not the one the run built against
+        facts = ready_facts()
+        facts["source_identity"]["lockfiles"]["zkp_core"]["sha256"] = "ff" * 32
+        report = self.refused(facts, "verified_artifact")
+        self.assertTrue(any("zkp-core/Cargo.lock sha256" in r and "lockfile in hand" in r
+                            for r in check(report, "verified_artifact")["evidence"]["validator"]["reasons"]))
+        facts = ready_facts()
+        facts["source_identity"]["lockfiles"]["hashline"]["sha256"] = "ff" * 32
+        self.refused(facts, "verified_artifact")
+
+    def test_mismatched_crate_tree_refuses(self):
+        for name in ("hashline", "zkp_core"):
+            facts = ready_facts()
+            facts["source_identity"]["crates"][name]["tree"] = "f" * 40
+            report = self.refused(facts, "verified_artifact")
+            self.assertTrue(any("tree in hand" in r for r in check(report, "verified_artifact")["evidence"]["validator"]["reasons"]), name)
+
+    def test_source_identity_unreadable_refuses(self):
+        report = self.refused(flipped(source_identity=None), "source_identity", cascade=["verified_artifact"])
+        self.assertFalse(check(report, "source_identity")["evidence"]["identity_readable"])
+        self.assertIn("no source identity", check(report, "verified_artifact")["evidence"]["validator"]["reasons"][0])
+
+    def test_unreadable_lockfile_refuses(self):
+        facts = ready_facts()
+        facts["source_identity"]["lockfiles"]["hashline"]["sha256"] = None
+        self.refused(facts, "source_identity", cascade=["verified_artifact"])
+
+    def test_pre_cl21_manifest_cannot_be_bound(self):
+        # an archived v1–v3 manifest records no crate identity: valid on its own, not bindable here
+        report = self.refused(with_manifest(source_identity=None), "verified_artifact")
+        self.assertTrue(any("records no crate tree ids" in r for r in check(report, "verified_artifact")["evidence"]["validator"]["reasons"]))
+        self.assertTrue(gg.validate_manifest(green_manifest(source_identity=None), require_production=True)["ok"])
+
+    def test_v4_manifest_with_the_core_cases_is_go(self):
+        report = evaluate(with_manifest(suite_version=4))
+        self.assertTrue(report["go"], report["failed"])
+        summary = check(report, "verified_artifact")["evidence"]["validator"]["summary"]
+        self.assertEqual((summary["suite_version"], summary["cases_recorded"], summary["core_tests_passed"]), (4, 23, 19))
+
+    def test_v4_manifest_missing_core_cases_refuses(self):
+        def drop(m):
+            m["cases"] = [c for c in m["cases"] if c["id"] != "core_tests"]
+        report = self.refused(with_manifest(suite_version=4, mutate=drop), "verified_artifact")
+        self.assertTrue(any("missing case core_tests" in r for r in check(report, "verified_artifact")["evidence"]["validator"]["reasons"]))
+
+    def test_v4_manifest_recording_a_dirty_core_refuses(self):
+        def dirty(m):
+            m["source"]["crates"]["zkp_core"]["dirty_delta_sha256"] = "ab" * 32
+        self.refused(with_manifest(suite_version=4, mutate=dirty), "verified_artifact")
+
+    def test_stale_binary_against_the_core_sources(self):
+        # [CL21] a core source newer than the binary is a stale binary too
+        facts = ready_facts()
+        facts["sources"]["newest_mtime"] = BINARY_MTIME + 1.0
+        facts["sources"]["newest_path"] = "zkp-core/src/field.rs"
+        self.refused(facts, "binary_identity")
 
     # -------------------------------------------------------------- binary
     def test_missing_binary(self):
@@ -502,6 +615,31 @@ class Parsing(unittest.TestCase):
             self.assertFalse(pf.probe_export(os.path.join(root, "nowhere"))["exists"])
             self.assertFalse(pf.probe_floors_log(os.path.join(root, "nowhere.log"))["exists"])
             self.assertFalse(pf.probe_run_manifest(os.path.join(root, "nowhere.json"))["exists"])
+
+    def test_sources_probe_covers_both_crates(self):
+        # [CL21] the newest source is taken over hashline AND zkp-core (src, Cargo.toml,
+        # Cargo.lock, the examples); the core's presence is a fact of its own
+        with tempfile.TemporaryDirectory() as repo:
+            files = ["hashline/src/main.rs", "hashline/Cargo.toml", "hashline/Cargo.lock",
+                     "zkp-core/src/lib.rs", "zkp-core/Cargo.toml", "zkp-core/Cargo.lock", "zkp-core/examples/public_sumcheck.rs"]
+            for i, rel in enumerate(files):
+                path = os.path.join(repo, rel)
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                with open(path, "w", encoding="utf-8") as fh:
+                    fh.write("x\n")
+                os.utime(path, (1000.0 + i, 1000.0 + i))
+            s = pf.probe_sources(repo)
+            self.assertEqual(s["newest_path"], "zkp-core/examples/public_sumcheck.rs")
+            self.assertEqual(s["newest_mtime"], 1006.0)
+            self.assertTrue(s["zkp_core_present"])
+            self.assertEqual(s["crates"]["hashline"]["files"], 3)
+            self.assertEqual(s["crates"]["zkp_core"]["files"], 4)
+            self.assertEqual(s["crates"]["hashline"]["newest_path"], "hashline/Cargo.lock")
+            os.remove(os.path.join(repo, "zkp-core", "examples", "public_sumcheck.rs"))
+            s = pf.probe_sources(repo)
+            self.assertFalse(s["zkp_core_present"])
+            self.assertEqual(s["newest_path"], "zkp-core/Cargo.lock")
+        self.assertIsNone(pf.probe_source_identity(os.path.join(tempfile.gettempdir(), "no-such-dir-cl21"))["head"])
 
 
 class Cli(unittest.TestCase):

@@ -17,6 +17,18 @@ Stdlib only; CPU only. Nothing here builds, proves or touches a device: the
 runner does, and reports each case through `start` / `record`.
 
 Suite versions
+  4  [ZK60-CL21] v3 plus the EXTRACTED CORE: `zkp-core` is a path dependency
+     of hashline (hashline/Cargo.toml), so its tree, its delta and both
+     Cargo.lock files are build inputs of every binary gated here. v4 adds
+     two cases with tied expectations — `core_tests` (zkp-core's own
+     `cargo test --release --locked --offline`, exactly 19 passed / 0 failed /
+     0 ignored at round 11's c8a342f) and `core_example` (`cargo run
+     --example public_sumcheck`, exit 0 and its identifying line) — and
+     REQUIRES the recorded source identity of both crates (`source.crates`:
+     tree id at HEAD + delta sha256 + presence; `source.lockfiles`: sha256 of
+     each Cargo.lock as built). A changed zkp-core test set cuts v5.
+  3  v2 with the oracle at CL18's 189 executed cases.
+  2  v1 with the oracle at CL15's 141 executed cases.
   1  the CL1 floors on the frozen 12x512 fixtures: 12 byte gates
      ({v2,v3,zk,zkv3} x {cpu,gpu,gpu-zkchunk}) with their frozen full SHA-256
      and exact byte length, the device oracle (`zk60_gpu_commit.rs`, 49
@@ -32,18 +44,28 @@ Suite versions
 The oracle's expected executed-case count is part of the suite version, not a
 floor: a test file that gains or loses cases must cut a new version here (with
 its count) or the gate goes red — which is the point (round-9: a floor of 20
-would not have noticed removed cases in a 49-case suite).
+would not have noticed removed cases in a 49-case suite). The same rule holds
+for zkp-core's test count from v4 on.
+
+Archived meanings are preserved: a v1–v3 manifest written before CL21 carries
+no `source.crates` / `source.lockfiles` and still validates under its own
+suite version; a v4 manifest without them refuses. Whenever the identity IS
+recorded (any manifest the CL21 runner writes), a dirty or missing core, a
+missing lockfile identity, and — when the validator is given the tree in hand
+(`expect_trees` / `expect_lockfiles`, the preflight's binding) — a mismatched
+crate tree or lockfile all refuse.
 
 CLI (what the runner calls; every write is atomic, every path quoted by the caller)
   self-test                          parser + round-trip self-check; exit 0 iff sound
   expected-cases [--suite-version V] [--json | --oracle-count]
   oracle-summary --expected-cases N JSON   the ZK60_CL4_SUMMARY parse; exit 0 iff ok
-  init --out M ...                   the manifest skeleton (identity, build config)
+  source-identity --repo DIR         [CL21] both crates' tree ids, deltas, lockfile hashes, core presence (JSON)
+  init --out M [--repo DIR] ...      the manifest skeleton (identity, build config); --repo records both crates
   binaries --manifest M --cpu P --gpu P    sha256 + size of both binaries
   start --manifest M --case ID       marks a case started (an unrecorded start = incomplete)
-  record --manifest M --case ID --exit N --log L [--proof P] [--binary-role R --binary-path P] -- ARGV...
-  finalize --manifest M              validates, writes the verdict; exit 0 iff green
-  validate M [--expect-head H] [--expect-gpu-sha256 S] [--expect-device D] [--require-production]
+  record --manifest M --case ID --exit N --log L [--proof P] [--artifact A] [--binary-role R --binary-path P] -- ARGV...
+  finalize --manifest M [--repo DIR] validates (bound to DIR's trees/lockfiles when given), writes the verdict; exit 0 iff green
+  validate M [--expect-head H] [--expect-gpu-sha256 S] [--expect-device D] [--require-production] [--repo DIR]
 """
 
 import argparse
@@ -53,14 +75,25 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 import tempfile
 import time
 
-SCHEMA = 1
+# [ZK60-CL21] schema 2 adds `source.crates` / `source.lockfiles` and the core
+# cases' record fields; schema-1 manifests (round 9 – round 11) stay readable
+# under their own suite versions.
+SCHEMA = 2
+ACCEPTED_SCHEMAS = (1, 2)
 MANIFEST_KIND = "zk60-floors-run-manifest"
 EMPTY_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
+HEX_TREE = re.compile(r"^[0-9a-f]{40}([0-9a-f]{24})?$")     # a git tree id (sha1, or sha256 repos)
+# The two crates whose source identifies the build inputs: hashline and the
+# core it depends on (hashline/Cargo.toml: `zkp-core = { path = "../zkp-core" }`).
+CRATES = {"hashline": "hashline", "zkp_core": "zkp-core"}
+CORE_EXAMPLE = "public_sumcheck"
+CORE_EXAMPLE_LINE = "public dot-product sumcheck verified; altered round refused (primitive example, no privacy claim)"
 
 # The frozen 12x512 fixtures (TASK_BOARD / CL5 matrix / cl1_floors.sh as archived
 # in results/cl_round7_floors.log): full SHA-256 and exact length, per profile.
@@ -142,9 +175,47 @@ def _suite_v1():
             "cases": cases}
 
 
+def _suite_v4():
+    """[ZK60-CL21] v3 plus the extracted core. hashline depends on zkp-core by
+    path, so the core's source is a build input of every gated binary; round
+    11's outer validator (results/zk60_round11_evidence/validate.py) hashed
+    both crates and ran the core's tests and example, but the standalone
+    floors manifest still identified hashline alone. v4 records both crates'
+    identities (validated below) and gates the core with two cases whose
+    expectations are the suite's: `core_tests` = 19 passed / 0 failed / 0
+    ignored over every `test result:` line (results/zk60_round11_evidence/
+    core_tests.log at c8a342f: field 5, merkle 1, mle 4, ntt 2, rng 2,
+    sumcheck 4, transcript 1; the example's zero-test binary and the doc-test
+    section add 0), `core_example` = exit 0 and the example's identifying
+    line (core_example.log). Both run `--locked`: cargo refuses rather than
+    rewrites zkp-core/Cargo.lock, so the lockfile the manifest hashed is the
+    one that was built. A changed zkp-core test set or example cuts v5."""
+    suite = copy.deepcopy(_suite_v3())
+    suite["version"] = 4
+    suite["requires_source_identity"] = True
+    core = [
+        {"id": "core_tests", "kind": "core_tests", "exit": 0, "crate": "zkp_core", "manifest_path": "zkp-core/Cargo.toml",
+         "expect": {"passed": 19, "failed": 0, "ignored": 0},
+         "established": ("19 passed / 0 failed / 0 ignored at c8a342f (results/zk60_round11_evidence/core_tests.log, round 11's "
+                         "outer validator: field 5, merkle 1, mle 4, ntt 2, rng 2, sumcheck 4, transcript 1). The totals are summed "
+                         "over every `test result:` line. A changed zkp-core test set cuts a new suite version (v5); this count does not move.")},
+        {"id": "core_example", "kind": "core_example", "exit": 0, "crate": "zkp_core", "manifest_path": "zkp-core/Cargo.toml",
+         "example": CORE_EXAMPLE, "expect": {"line": CORE_EXAMPLE_LINE},
+         "established": ("exit 0 and this exact output line at c8a342f (results/zk60_round11_evidence/core_example.log). "
+                         "A changed example cuts a new suite version.")},
+    ]
+    after = next(i for i, c in enumerate(suite["cases"]) if c["id"] == "cargo_test_cpu") + 1
+    suite["cases"][after:after] = core
+    return suite
+
+
 def _suite_v0():
-    suite = copy.deepcopy(_suite_v1())
-    suite.update({"version": 0, "production": False,
+    # [ZK60-CL21] derived from the newest production suite (v4) so the synthetic
+    # round trip exercises every case kind, the core's included. The synthetic
+    # suite records identity when the runner gives it one but does not REQUIRE
+    # it: it is never evidence and the CLI round trip runs without a checkout.
+    suite = copy.deepcopy(_suite_v4())
+    suite.update({"version": 0, "production": False, "requires_source_identity": False,
                   "note": "synthetic self-check suite: tiny fixed byte strings stand in for proofs; never evidence"})
     for case in suite["cases"]:
         if case["kind"] in ("byte_gate", "cache"):
@@ -152,6 +223,9 @@ def _suite_v0():
             case["expect"] = {"sha256": hashlib.sha256(blob).hexdigest(), "bytes": len(blob)}
         if case["id"] == "oracle_gpu":
             case["expect"]["executed_cases"] = 3
+        if case["id"] == "core_tests":
+            case["expect"] = {"passed": 2, "failed": 0, "ignored": 0}
+            case["established"] = "synthetic: two passing tests stand in for the core's suite"
     return suite
 
 
@@ -194,8 +268,8 @@ def _suite_v3():
     return suite
 
 
-SUITES = {3: _suite_v3(), 2: _suite_v2(), 1: _suite_v1(), 0: _suite_v0()}
-DEFAULT_SUITE = 3
+SUITES = {4: _suite_v4(), 3: _suite_v3(), 2: _suite_v2(), 1: _suite_v1(), 0: _suite_v0()}
+DEFAULT_SUITE = 4
 
 
 def suite(version):
@@ -221,7 +295,7 @@ def case_definition(version, case_id):
 SUMMARY_TAG = "ZK60_CL4_SUMMARY"
 _PROOF_LINE = re.compile(r"^PROOF sha256 ([0-9a-f]{64}) \((\d+) B\)", re.MULTILINE)
 _GPU_ON = re.compile(r"(gpu: ON — .*)$", re.MULTILINE)
-_TEST_RESULT = re.compile(r"^test result: (ok|FAILED)\. (\d+) passed; (\d+) failed", re.MULTILINE)
+_TEST_RESULT = re.compile(r"^test result: (ok|FAILED)\. (\d+) passed; (\d+) failed(?:; (\d+) ignored)?", re.MULTILINE)
 _WCACHE_REPORT = re.compile(r"wcache .*?: hits (\d+) \| misses (\d+) \| rejected (\d+)")
 _WORD_ACCEPT = re.compile(r"\bACCEPT\b")
 _WORD_REJECT = re.compile(r"\bREJECT\b")
@@ -268,6 +342,29 @@ def last_summary_line(text):
     return hits[-1] if hits else None
 
 
+def _test_result_lines(text):
+    return [{"ok": ok == "ok", "passed": int(p), "failed": int(f), "ignored": int(i or 0)}
+            for ok, p, f, i in _TEST_RESULT.findall(text or "")]
+
+
+def parse_core_test_log(text):
+    """[ZK60-CL21] zkp-core's `cargo test` log: every `test result:` line
+    (the lib unit tests, the example's zero-test binary, the doc-test section)
+    with the totals summed. `all_ok` needs at least one line and every line
+    `ok`; an empty log is not a passing suite. The case check compares the
+    totals with the suite's tied expectation (v4: 19 / 0 / 0)."""
+    lines = _test_result_lines(text)
+    return {"result_lines": lines, "passed": sum(l["passed"] for l in lines), "failed": sum(l["failed"] for l in lines),
+            "ignored": sum(l["ignored"] for l in lines), "all_ok": bool(lines) and all(l["ok"] for l in lines),
+            "panicked": "panicked" in (text or "")}
+
+
+def parse_core_example_log(text, line=CORE_EXAMPLE_LINE):
+    """[ZK60-CL21] the example's identifying line, present as a whole line."""
+    present = any(l.strip() == line for l in (text or "").splitlines())
+    return {"line_present": present, "line": line if present else None}
+
+
 def parse_prover_log(text):
     """Everything a case record needs from one retained log (stdout+stderr)."""
     text = text or ""
@@ -278,7 +375,7 @@ def parse_prover_log(text):
         verdict = "ACCEPT"
     gpu = _GPU_ON.search(text)
     proof = _PROOF_LINE.search(text)
-    tests = [{"ok": ok == "ok", "passed": int(p), "failed": int(f)} for ok, p, f in _TEST_RESULT.findall(text)]
+    tests = _test_result_lines(text)
     wc = _WCACHE_REPORT.search(text)
     first = text.strip().splitlines()[0].strip() if text.strip() else ""
     return {"verdict": verdict, "gpu_on": gpu is not None, "device_label": gpu.group(1).strip() if gpu else None,
@@ -307,18 +404,80 @@ def sha256_file(path):
     return h.hexdigest()
 
 
+def _git(repo, *args):
+    """stdout BYTES of a read-only git command, None when it fails (not a
+    checkout, no such tree). Bytes, so a delta hashes exactly as the runner's
+    `git diff HEAD -- <crate> | sha256sum` does."""
+    try:
+        r = subprocess.run(["git", "--no-pager", "-C", repo, *args], capture_output=True, timeout=120)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return r.stdout if r.returncode == 0 else None
+
+
+def probe_source_identity(repo):
+    """[ZK60-CL21] What identifies the build inputs of BOTH crates, read from
+    the checkout: HEAD, branch, the dirty tracked-file count; per crate the
+    tree id at HEAD (`git rev-parse HEAD:<crate>`), the sha256 of its
+    uncommitted delta (`git diff HEAD -- <crate>`; empty = e3b0c442..) and its
+    presence; per crate the sha256 + size of its Cargo.lock as it is in the
+    working tree (what `--locked` builds against). For the core, presence
+    means Cargo.toml + src/ + the example. Missing facts are None, never
+    guessed; the validator refuses them."""
+    repo = os.path.abspath(repo)
+
+    def text(out):
+        return out.decode("utf-8", errors="replace").strip() if out is not None else None
+
+    head = text(_git(repo, "rev-parse", "HEAD"))
+    branch = text(_git(repo, "rev-parse", "--abbrev-ref", "HEAD"))
+    status = _git(repo, "status", "--porcelain", "--untracked-files=no")
+    dirty = len([l for l in status.decode("utf-8", errors="replace").splitlines() if l.strip()]) if status is not None else None
+    crates, lockfiles = {}, {}
+    for name, path in CRATES.items():
+        diff = _git(repo, "diff", "HEAD", "--", path)
+        entry = {"path": path, "tree": text(_git(repo, "rev-parse", f"HEAD:{path}")),
+                 "dirty_delta_sha256": hashlib.sha256(diff).hexdigest() if diff is not None else None,
+                 "present": os.path.isfile(os.path.join(repo, path, "Cargo.toml"))}
+        if name == "zkp_core":
+            layout = {"manifest": os.path.isfile(os.path.join(repo, path, "Cargo.toml")),
+                      "src": os.path.isdir(os.path.join(repo, path, "src")),
+                      "example": os.path.isfile(os.path.join(repo, path, "examples", CORE_EXAMPLE + ".rs"))}
+            entry.update(layout)
+            entry["present"] = all(layout.values())
+        crates[name] = entry
+        lock = os.path.join(repo, path, "Cargo.lock")
+        if os.path.isfile(lock):
+            lockfiles[name] = {"path": f"{path}/Cargo.lock", "sha256": sha256_file(lock), "size": os.stat(lock).st_size}
+        else:
+            lockfiles[name] = {"path": f"{path}/Cargo.lock", "sha256": None, "size": None}
+    return {"repo": repo, "head": head, "branch": branch, "dirty_tracked_count": dirty,
+            "dirty_delta_sha256": crates["hashline"]["dirty_delta_sha256"], "crates": crates, "lockfiles": lockfiles}
+
+
+def identity_expectations(identity):
+    """The `expect_trees` / `expect_lockfiles` a probed identity binds a
+    manifest to (None entries stay None and therefore mismatch a recorded id)."""
+    return ({name: (identity.get("crates") or {}).get(name, {}).get("tree") for name in CRATES},
+            {name: (identity.get("lockfiles") or {}).get(name, {}).get("sha256") for name in CRATES})
+
+
 def new_manifest(*, suite_version, head, branch, dirty_tracked_count, dirty_delta_sha256, layers, tokens,
                  prover_threads, cargo_build_jobs, rayon_num_threads, cpu_target_dir, gpu_target_dir, v3_export,
                  m125_export, cuda_root, scratch, device_selection=None, nvidia_smi=None, features=("gpu-cuda",),
-                 created_at=None):
+                 created_at=None, crates=None, lockfiles=None, repo=None):
     s = suite(suite_version)
     frozen = [int(layers), int(tokens)] == s["shape"]
     return {"schema": SCHEMA, "kind": MANIFEST_KIND, "suite_version": s["version"], "suite_production": s["production"],
             "created_at": _iso(created_at if created_at is not None else _now()),
             "source": {"head": head, "branch": branch, "dirty_tracked_count": int(dirty_tracked_count),
                        "dirty_delta_sha256": dirty_delta_sha256,
-                       "note": "HEAD identifies the build inputs only when the delta under hashline/ is empty (e3b0c442..)"},
-            "build": {"features_gpu": list(features), "cpu_target_dir": cpu_target_dir, "gpu_target_dir": gpu_target_dir,
+                       "crates": copy.deepcopy(crates) if crates is not None else None,
+                       "lockfiles": copy.deepcopy(lockfiles) if lockfiles is not None else None,
+                       "note": ("HEAD identifies the build inputs only when the deltas under hashline/ AND zkp-core/ are empty "
+                                "(e3b0c442..); `crates` records each crate's tree id at HEAD, its delta and its presence, "
+                                "`lockfiles` the sha256 of each Cargo.lock as built (CL21)")},
+            "build": {"features_gpu": list(features), "repo": repo, "cpu_target_dir": cpu_target_dir, "gpu_target_dir": gpu_target_dir,
                       "cargo_build_jobs": int(cargo_build_jobs), "rayon_num_threads": int(rayon_num_threads),
                       "prover_threads": int(prover_threads), "layers": int(layers), "tokens": int(tokens),
                       "shape_frozen": frozen, "v3_export": v3_export, "m125_export": m125_export, "cuda_root": cuda_root,
@@ -351,17 +510,37 @@ def _expected_shape_args(manifest):
     return ["pass", str(manifest["build"]["layers"]), str(manifest["build"]["tokens"])]
 
 
+def _argv_option(argv, flag):
+    argv = list(argv)
+    if flag in argv:
+        i = argv.index(flag)
+        return argv[i + 1] if i + 1 < len(argv) else None
+    return None
+
+
 def build_case_record(case, manifest, *, exit_code, log_text, log_path, log_sha256, argv=(), proof=None,
-                      binary_sha256=None, started_at=None, ended_at=None, proof_mtime=None):
+                      binary_sha256=None, started_at=None, ended_at=None, proof_mtime=None, artifact=None):
     """The pure core of `record`: one case record with its per-case checks.
     `proof` is {"sha256", "bytes"} of the produced file (None when none was
-    produced); `argv` is the full prover/cargo command line as executed."""
+    produced); `argv` is the full prover/cargo command line as executed;
+    `artifact` is an informational {"path", "sha256", "size"} of a produced
+    binary (the core example) with no expectation attached."""
     parsed = parse_prover_log(log_text)
     kind = case["kind"]
     checks = []
+    core_tests = example_line = None
 
     def chk(name, ok, detail):
         checks.append({"check": name, "ok": bool(ok), "detail": detail})
+
+    def core_argv_checks():
+        # the case is bound to the CORE crate's manifest and to `--locked`
+        # (cargo refuses rather than rewrites the lockfile the manifest hashed)
+        want = case["manifest_path"]
+        got = _argv_option(argv, "--manifest-path")
+        ok = got is not None and (got.replace(os.sep, "/") == want or got.replace(os.sep, "/").endswith("/" + want))
+        chk("argv_core_manifest", ok, f"--manifest-path must name {want} (argv carries {got!r})")
+        chk("argv_locked", "--locked" in list(argv), "--locked required: the lockfile the manifest hashed is the one built against")
 
     want_exit = case["exit"]
     if want_exit == "nonzero":
@@ -432,6 +611,23 @@ def build_case_record(case, manifest, *, exit_code, log_text, log_path, log_sha2
     elif kind == "cargo_test":
         chk("test_results", bool(parsed["test_results"]) and all(t["ok"] for t in parsed["test_results"]),
             f"{len(parsed['test_results'])} result lines; failed suites: {sum(1 for t in parsed['test_results'] if not t['ok'])}")
+    elif kind == "core_tests":
+        # [ZK60-CL21] the totals are the SUITE'S, summed over every result line
+        core_tests = parse_core_test_log(log_text)
+        want = case["expect"]
+        expected = dict(want)
+        got = (core_tests["passed"], core_tests["failed"], core_tests["ignored"])
+        chk("core_test_totals", core_tests["all_ok"] and got == (want["passed"], want["failed"], want["ignored"]),
+            f"{len(core_tests['result_lines'])} result line(s), every line ok: {core_tests['all_ok']}; "
+            f"{got[0]} passed / {got[1]} failed / {got[2]} ignored, want {want['passed']} / {want['failed']} / {want['ignored']}")
+        core_argv_checks()
+    elif kind == "core_example":
+        ex = parse_core_example_log(log_text, case["expect"]["line"])
+        example_line = ex["line"]
+        expected = dict(case["expect"])
+        chk("example_output", ex["line_present"], f"the example must print the line {case['expect']['line']!r}")
+        chk("argv_example", _argv_option(argv, "--example") == case["example"], f"--example must be {case['example']}")
+        core_argv_checks()
     elif kind == "build":
         pass
     else:
@@ -444,7 +640,8 @@ def build_case_record(case, manifest, *, exit_code, log_text, log_path, log_sha2
               "started_at": _iso(started_at) if started_at is not None else None,
               "ended_at": _iso(ended_at if ended_at is not None else _now()),
               "oracle_summary": parsed["summary_line"], "wcache": parsed["wcache"], "wcache_verbose": parsed["wcache_verbose"],
-              "test_results": parsed["test_results"], "checks": checks, "ok": all(c["ok"] for c in checks)}
+              "test_results": parsed["test_results"], "core_tests": core_tests, "example_line": example_line,
+              "artifact": dict(artifact) if artifact else None, "checks": checks, "ok": all(c["ok"] for c in checks)}
     return record
 
 
@@ -459,16 +656,59 @@ def add_record(manifest, record):
 
 # ---------------------------------------------------------------- validator
 
-def validate_manifest(manifest, *, expect_head=None, expect_gpu_sha256=None, expect_device=None, require_production=False):
+def _validate_source_identity(src, s, expect_trees, expect_lockfiles, say):
+    """[ZK60-CL21] The crates/lockfiles block. Absent: allowed only for a
+    suite that does not require it (archived v1–v3) and only when nothing is
+    to be bound. Present: both crates present, tree ids recorded, deltas
+    empty, lockfile identities recorded; bound to the tree in hand when
+    expectations are given."""
+    crates, locks = src.get("crates"), src.get("lockfiles")
+    if crates is None and locks is None:
+        if s.get("requires_source_identity"):
+            say(f"suite version {s['version']} requires the recorded source identity of both crates "
+                "(source.crates / source.lockfiles): this manifest records none (pre-CL21 runner)")
+        if expect_trees is not None or expect_lockfiles is not None:
+            say("cannot bind the manifest to the tree in hand: it records no crate tree ids or lockfile identities (pre-CL21 manifest)")
+        return
+    crates, locks = crates or {}, locks or {}
+    for name, path in CRATES.items():
+        c = crates.get(name) or {}
+        if not c.get("present"):
+            layout = (f" (Cargo.toml {c.get('manifest')}, src {c.get('src')}, example {c.get('example')})" if name == "zkp_core" else "")
+            say(f"crate {path}/ is missing from the source tree{layout}: the build inputs are incomplete")
+        if not HEX_TREE.match(str(c.get("tree") or "")):
+            say(f"crate {path}/ has no tree id at HEAD")
+        delta = c.get("dirty_delta_sha256")
+        if delta != EMPTY_SHA256 and not (name == "hashline" and delta == src.get("dirty_delta_sha256")):
+            say(f"uncommitted changes under {path}/ (delta sha256 {delta}): HEAD does not identify the build inputs")
+        l = locks.get(name) or {}
+        if not HEX64.match(str(l.get("sha256") or "")) or not l.get("path"):
+            say(f"lockfile identity missing for {path}/Cargo.lock (sha256/path)")
+    if (crates.get("hashline") or {}).get("dirty_delta_sha256") != src.get("dirty_delta_sha256"):
+        say("source.dirty_delta_sha256 and source.crates.hashline.dirty_delta_sha256 disagree")
+    for name, want in (expect_trees or {}).items():
+        got = (crates.get(name) or {}).get("tree")
+        if got != want:
+            say(f"{CRATES.get(name, name)}/ tree {got} != the tree in hand {want}")
+    for name, want in (expect_lockfiles or {}).items():
+        got = (locks.get(name) or {}).get("sha256")
+        if got != want:
+            say(f"{CRATES.get(name, name)}/Cargo.lock sha256 {got} != the lockfile in hand {want}")
+
+
+def validate_manifest(manifest, *, expect_head=None, expect_gpu_sha256=None, expect_device=None, require_production=False,
+                      expect_trees=None, expect_lockfiles=None):
     """Recomputes the verdict from the records. Returns {"ok", "reasons",
     "summary"}; `ok` only when there is nothing to say. Never trusts a verdict
-    the manifest carries: a stored verdict that disagrees is itself a reason."""
+    the manifest carries: a stored verdict that disagrees is itself a reason.
+    [CL21] `expect_trees` / `expect_lockfiles` ({"hashline": .., "zkp_core": ..})
+    bind the recorded crate tree ids and lockfile hashes to the tree in hand."""
     reasons = []
     say = reasons.append
     if not isinstance(manifest, dict):
         return {"ok": False, "reasons": ["manifest is not a JSON object"], "summary": {}}
-    if manifest.get("schema") != SCHEMA or manifest.get("kind") != MANIFEST_KIND:
-        say(f"not a schema-{SCHEMA} {MANIFEST_KIND}")
+    if manifest.get("schema") not in ACCEPTED_SCHEMAS or manifest.get("kind") != MANIFEST_KIND:
+        say(f"not a schema-{'/'.join(map(str, ACCEPTED_SCHEMAS))} {MANIFEST_KIND}")
         return {"ok": False, "reasons": reasons, "summary": {}}
     try:
         s = suite(manifest.get("suite_version"))
@@ -485,6 +725,7 @@ def validate_manifest(manifest, *, expect_head=None, expect_gpu_sha256=None, exp
         say(f"source HEAD {head} != the current HEAD {expect_head}")
     if src.get("dirty_delta_sha256") != EMPTY_SHA256:
         say(f"uncommitted changes under hashline/ (delta sha256 {src.get('dirty_delta_sha256')}): HEAD does not identify the build inputs")
+    _validate_source_identity(src, s, expect_trees, expect_lockfiles, say)
 
     bins = manifest.get("binaries") or {}
     for role in ("cpu", "gpu"):
@@ -572,6 +813,17 @@ def validate_manifest(manifest, *, expect_head=None, expect_gpu_sha256=None, exp
                 parse_oracle_summary(r.get("oracle_summary"), case["expect"]["executed_cases"])
             except GatesError as error:
                 say(f"oracle: {error}")
+        if case["kind"] == "core_tests":
+            # [CL21] recomputed from the recorded result lines, not from the record's own checks
+            lines = r.get("test_results") or []
+            got = tuple(sum(int(t.get(k) or 0) for t in lines) for k in ("passed", "failed", "ignored"))
+            all_ok = bool(lines) and all(t.get("ok") for t in lines)
+            want = case["expect"]
+            if not all_ok or got != (want["passed"], want["failed"], want["ignored"]):
+                say(f"core tests: {got[0]} passed / {got[1]} failed / {got[2]} ignored over {len(lines)} result line(s) "
+                    f"(every line ok: {all_ok}) != the suite's {want['passed']} / {want['failed']} / {want['ignored']}")
+        if case["kind"] == "core_example" and r.get("example_line") != case["expect"]["line"]:
+            say(f"core example: its identifying line was not recorded ({r.get('example_line')!r})")
         role = case.get("binary")
         if role:
             want = (bins.get(role) or {}).get("sha256")
@@ -589,19 +841,25 @@ def validate_manifest(manifest, *, expect_head=None, expect_gpu_sha256=None, exp
         say("no verdict recorded (finalize was not run)")
     elif stored.get("green") is not computed_green:
         say(f"stored verdict green={stored.get('green')} disagrees with the recomputed verdict ({computed_green}); verdicts are computed, not written")
+    core = by_id.get("core_tests") or {}
     summary = {"suite_version": s["version"], "production": s["production"], "cases_recorded": len(records),
                "cases_expected": len(expected), "head": head, "gpu_binary_sha256": gpu_sha, "device": device_label,
                "oracle_executed_cases": (json.loads(oracle["oracle_summary"]).get("executed_cases")
-                                         if oracle and oracle.get("oracle_summary") else None)}
+                                         if oracle and oracle.get("oracle_summary") else None),
+               "crate_trees": {name: ((src.get("crates") or {}).get(name) or {}).get("tree") for name in CRATES},
+               "lockfiles": {name: ((src.get("lockfiles") or {}).get(name) or {}).get("sha256") for name in CRATES},
+               "core_tests_passed": (core.get("core_tests") or {}).get("passed") if core else None}
     return {"ok": not reasons, "reasons": reasons, "summary": summary}
 
 
-def finalize_manifest(manifest, at=None):
+def finalize_manifest(manifest, at=None, expect_trees=None, expect_lockfiles=None):
     """Computes the verdict on the records as they stand and stores it. The
-    stored verdict is what `validate` recomputes and compares against."""
+    stored verdict is what `validate` recomputes and compares against.
+    [CL21] with expectations (the runner passes the tree as re-probed at the
+    end), a crate or lockfile that changed during the run makes the verdict red."""
     manifest["finalized_at"] = _iso(at if at is not None else _now())
     manifest["verdict"] = None
-    probe = validate_manifest(manifest)
+    probe = validate_manifest(manifest, expect_trees=expect_trees, expect_lockfiles=expect_lockfiles)
     reasons = [r for r in probe["reasons"] if r != "no verdict recorded (finalize was not run)"]
     manifest["verdict"] = {"green": not reasons, "reasons": reasons, "computed_by": "hashline_cl_gpu_gates.validate_manifest",
                            "summary": probe["summary"]}
@@ -657,6 +915,16 @@ def synthetic_log(case, manifest, device="gpu: ON — synthetic device (sm_00, 1
                 "test result: ok. 1 passed; 0 failed; 0 ignored\n")
     if kind == "cache_refusal":
         return P3_REFUSAL + " P3 hides the weights; a cached public commitment is recoverable by linear algebra.\n"
+    if kind == "core_tests":
+        n = case["expect"]["passed"]
+        return (f"     Running unittests src/lib.rs (zkp-core/target/release/deps/zkp_core-0000)\n\nrunning {n} tests\n"
+                + "".join(f"test synthetic::t{i} ... ok\n" for i in range(n))
+                + f"\ntest result: ok. {n} passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n"
+                "   Doc-tests zkp_core\n\nrunning 0 tests\n\n"
+                "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n")
+    if kind == "core_example":
+        return ("    Finished `release` profile [optimized] target(s) in 0.05s\n"
+                f"     Running `zkp-core/target/release/examples/{case['example']}`\n" + case["expect"]["line"] + "\n")
     exp = case["expect"]
     gpu_line = f"  {device}\n" if case.get("gpu_on") else "  gpu: off (built without --features gpu-cuda)\n"
     lines = [gpu_line, "  layer  0: prove 0.3 s, 100 B\n", f"PROOF sha256 {exp['sha256']} ({exp['bytes']} B)\n"]
@@ -670,7 +938,23 @@ def synthetic_log(case, manifest, device="gpu: ON — synthetic device (sm_00, 1
     return "".join(lines)
 
 
+SYNTHETIC_SOURCE = {
+    "crates": {"hashline": {"path": "hashline", "tree": "1" * 40, "dirty_delta_sha256": EMPTY_SHA256, "present": True},
+               "zkp_core": {"path": "zkp-core", "tree": "2" * 40, "dirty_delta_sha256": EMPTY_SHA256, "present": True,
+                            "manifest": True, "src": True, "example": True}},
+    "lockfiles": {"hashline": {"path": "hashline/Cargo.lock", "sha256": "3" * 64, "size": 40000},
+                  "zkp_core": {"path": "zkp-core/Cargo.lock", "sha256": "4" * 64, "size": 3465}},
+}
+
+
 def synthetic_argv(case, manifest, binary_path="/bin/hashline"):
+    repo = manifest["build"].get("repo") or "/r"
+    if case["kind"] == "core_tests":
+        return ["env", "CARGO_BUILD_JOBS=2", "RAYON_NUM_THREADS=2", "cargo", "test", "--release", "--locked", "--offline",
+                "--manifest-path", f"{repo}/{case['manifest_path']}", "--", "--test-threads=2"]
+    if case["kind"] == "core_example":
+        return ["env", "CARGO_BUILD_JOBS=2", "RAYON_NUM_THREADS=2", "cargo", "run", "--release", "--locked", "--offline",
+                "--manifest-path", f"{repo}/{case['manifest_path']}", "--example", case["example"]]
     if case["kind"] in ("build", "cargo_test", "oracle", "control"):
         return ["cargo", "test" if case["kind"] != "build" else "build", "--release"]
     args = [a.replace("{v3_export}", manifest["build"]["v3_export"] or "/export").replace("{wcache_dir}", "/scratch/wcache")
@@ -681,19 +965,23 @@ def synthetic_argv(case, manifest, binary_path="/bin/hashline"):
 
 def synthetic_manifest(*, suite_version=0, head="0123abcd", gpu_sha256="ab" * 32, cpu_sha256="cd" * 32,
                        device="gpu: ON — synthetic device (sm_00, 1 SMs, 0.0 GB)", finalize=True, layers=None, tokens=None,
-                       mutate=None):
+                       mutate=None, source_identity="synthetic"):
     """A complete manifest for the suite, every record built through the real
     `build_case_record` path from synthetic logs. `mutate(manifest)` runs before
     finalize so tests can break exactly one thing. Production suites get their
     frozen digests as the "produced" proof — this is a FIXTURE for validator
-    tests, never evidence (nothing was proved)."""
+    tests, never evidence (nothing was proved). [CL21] `source_identity`:
+    "synthetic" records SYNTHETIC_SOURCE's crates/lockfiles, None records
+    nothing (an archived, pre-CL21 manifest), or a dict of your own."""
     s = suite(suite_version)
+    ident = SYNTHETIC_SOURCE if source_identity == "synthetic" else source_identity
     m = new_manifest(suite_version=suite_version, head=head, branch="zk60-cl1", dirty_tracked_count=0,
                      dirty_delta_sha256=EMPTY_SHA256, layers=layers if layers is not None else s["shape"][0],
                      tokens=tokens if tokens is not None else s["shape"][1], prover_threads=2, cargo_build_jobs=2,
                      rayon_num_threads=2, cpu_target_dir="/r/hashline/target", gpu_target_dir="/r/hashline/target-gpu",
                      v3_export="/e", m125_export="/m125", cuda_root="/cuda", scratch="/scratch", device_selection=None,
-                     nvidia_smi="synthetic device, 000.00", created_at=1.0)
+                     nvidia_smi="synthetic device, 000.00", created_at=1.0, repo="/r",
+                     crates=ident["crates"] if ident else None, lockfiles=ident["lockfiles"] if ident else None)
     set_binaries(m, cpu={"path": "/r/hashline/target/release/hashline", "sha256": cpu_sha256, "size": 4629656},
                  gpu={"path": "/r/hashline/target-gpu/release/hashline", "sha256": gpu_sha256, "size": 5326472})
     t = 10.0
@@ -744,7 +1032,37 @@ def self_test():
         raise GatesError("self-test: the synthetic suite passed as production")
     if validate_manifest(m, expect_head="ffff")["ok"] or validate_manifest(m, expect_gpu_sha256="00" * 32)["ok"]:
         raise GatesError("self-test: a HEAD/binary mismatch passed")
-    return {"suite_versions": sorted(SUITES), "synthetic_round_trip": "green", "cases": len(expected_cases(0))}
+    # [CL21] the core parsers on valid / empty / failed / ignored input
+    if parse_core_test_log(synthetic_log(case_definition(4, "core_tests"), m))["passed"] != 19:
+        raise GatesError("self-test: the core-test parser does not sum the v4 log to 19")
+    for bad, why in (("", "empty"), ("test result: FAILED. 18 passed; 1 failed; 0 ignored\n", "failed"),
+                     ("test result: ok. 18 passed; 0 failed; 1 ignored\n", "ignored")):
+        t = parse_core_test_log(bad)
+        if t["all_ok"] and (t["passed"], t["failed"], t["ignored"]) == (19, 0, 0):
+            raise GatesError(f"self-test: the core-test parser accepted {why}")
+    if parse_core_example_log("")["line_present"] or not parse_core_example_log(CORE_EXAMPLE_LINE + "\n")["line_present"]:
+        raise GatesError("self-test: the core-example parser is wrong")
+    # [CL21] the v4 fixture round-trips green; the four refusals refuse; a
+    # pre-CL21 v3 manifest still validates; v4 without the identity does not
+    m4 = synthetic_manifest(suite_version=4)
+    v = validate_manifest(m4)
+    if not v["ok"]:
+        raise GatesError("self-test: the v4 fixture is not green: " + "; ".join(v["reasons"]))
+    trees, locks = identity_expectations(SYNTHETIC_SOURCE)
+    if not validate_manifest(m4, expect_trees=trees, expect_lockfiles=locks)["ok"]:
+        raise GatesError("self-test: the v4 fixture does not bind to its own identity")
+    for why, kw in (("dirty core", dict(mutate=lambda m: m["source"]["crates"]["zkp_core"].update(dirty_delta_sha256="ab" * 32))),
+                    ("missing core", dict(mutate=lambda m: m["source"]["crates"]["zkp_core"].update(present=False, src=False))),
+                    ("missing core cases", dict(mutate=lambda m: m["cases"].__delitem__(next(i for i, c in enumerate(m["cases"]) if c["id"] == "core_tests")))),
+                    ("no identity at v4", dict(source_identity=None))):
+        if validate_manifest(synthetic_manifest(suite_version=4, **kw))["ok"]:
+            raise GatesError(f"self-test: a v4 manifest with {why} passed")
+    if validate_manifest(m4, expect_lockfiles={"zkp_core": "f" * 64})["ok"] or validate_manifest(m4, expect_trees={"hashline": "f" * 40})["ok"]:
+        raise GatesError("self-test: a dependency identity mismatch passed")
+    if not validate_manifest(synthetic_manifest(suite_version=3, source_identity=None))["ok"]:
+        raise GatesError("self-test: an archived (pre-CL21) v3 manifest no longer validates")
+    return {"suite_versions": sorted(SUITES), "synthetic_round_trip": "green", "cases": len(expected_cases(0)),
+            "v4_round_trip": "green", "v4_cases": len(expected_cases(4))}
 
 
 # -------------------------------------------------------------------- cli
@@ -766,9 +1084,12 @@ def build_parser():
     p = sub.add_parser("oracle-summary", help="parse one ZK60_CL4_SUMMARY payload")
     p.add_argument("--expected-cases", type=int, required=True)
     p.add_argument("summary", nargs="?", default="")
+    p = sub.add_parser("source-identity", help="[CL21] both crates' tree ids, deltas, lockfile hashes and the core's presence")
+    p.add_argument("--repo", required=True)
     p = sub.add_parser("init", help="write the manifest skeleton (a new file)")
     p.add_argument("--out", required=True)
     p.add_argument("--suite-version", type=int, default=DEFAULT_SUITE)
+    p.add_argument("--repo", help="[CL21] record both crates' identity from this checkout (cross-checked against --head/--dirty-delta-sha256)")
     for name in ("--head", "--branch", "--dirty-delta-sha256", "--cpu-target-dir", "--gpu-target-dir", "--v3-export",
                  "--m125-export", "--cuda-root", "--scratch"):
         p.add_argument(name, required=True)
@@ -787,16 +1108,19 @@ def build_parser():
     p.add_argument("--exit", type=int, required=True)
     p.add_argument("--log", required=True)
     p.add_argument("--proof", help="the produced proof file (hashed here; the runner deletes it afterwards)")
+    p.add_argument("--artifact", help="[CL21] a produced binary to record informationally (sha256/size; no expectation)")
     p.add_argument("--binary-role", choices=("cpu", "gpu"))
     p.add_argument("--binary-path")
     p.add_argument("argv", nargs=argparse.REMAINDER, help="-- the command line as executed")
-    _p_manifest(sub, "finalize", "compute and store the verdict; exit 0 iff green")
+    p = _p_manifest(sub, "finalize", "compute and store the verdict; exit 0 iff green")
+    p.add_argument("--repo", help="[CL21] re-probe this checkout and bind the verdict to its trees/lockfiles (a change during the run is red)")
     p = sub.add_parser("validate", help="exit 0 iff complete and green")
     p.add_argument("manifest")
     p.add_argument("--expect-head")
     p.add_argument("--expect-gpu-sha256")
     p.add_argument("--expect-device")
     p.add_argument("--require-production", action="store_true")
+    p.add_argument("--repo", help="[CL21] bind the recorded crate trees and lockfile hashes to this checkout's")
     return parser
 
 
@@ -820,19 +1144,40 @@ def main(argv=None):
             s = parse_oracle_summary(args.summary, args.expected_cases)
             print(f"oracle cases executed: {s['executed_cases']} (expected {args.expected_cases}); device: {s['device']}")
             return 0
+        if args.cmd == "source-identity":
+            print(json.dumps(probe_source_identity(args.repo), indent=2))
+            return 0
         if args.cmd == "init":
             if os.path.exists(args.out):
                 raise GatesError(f"refusing to overwrite {args.out}")
+            crates = lockfiles = None
+            if args.repo:
+                ident = probe_source_identity(args.repo)
+                # the runner's own git reading and the helper's must agree, or the
+                # tree moved between the two (a commit landing mid-run)
+                if ident["head"] != args.head:
+                    raise GatesError(f"--head {args.head} but {args.repo} is at {ident['head']}: the checkout moved")
+                if ident["dirty_delta_sha256"] != args.dirty_delta_sha256:
+                    raise GatesError(f"--dirty-delta-sha256 {args.dirty_delta_sha256} but the delta under hashline/ hashes to "
+                                     f"{ident['dirty_delta_sha256']}: the tree changed")
+                crates, lockfiles = ident["crates"], ident["lockfiles"]
             m = new_manifest(suite_version=args.suite_version, head=args.head, branch=args.branch,
                              dirty_tracked_count=args.dirty_count, dirty_delta_sha256=args.dirty_delta_sha256,
                              layers=args.layers, tokens=args.tokens, prover_threads=args.prover_threads,
                              cargo_build_jobs=args.build_jobs, rayon_num_threads=args.rayon_threads,
                              cpu_target_dir=args.cpu_target_dir, gpu_target_dir=args.gpu_target_dir,
                              v3_export=args.v3_export, m125_export=args.m125_export, cuda_root=args.cuda_root,
-                             scratch=args.scratch, device_selection=args.device_selection, nvidia_smi=args.nvidia_smi)
+                             scratch=args.scratch, device_selection=args.device_selection, nvidia_smi=args.nvidia_smi,
+                             crates=crates, lockfiles=lockfiles, repo=os.path.abspath(args.repo) if args.repo else None)
             save_manifest(m, args.out, new=True)
+            ident_note = ""
+            if crates:
+                ident_note = (f"; hashline tree {crates['hashline']['tree']} lock {(lockfiles['hashline']['sha256'] or '<missing>')[:16]}.., "
+                              f"zkp-core tree {crates['zkp_core']['tree']} lock {(lockfiles['zkp_core']['sha256'] or '<missing>')[:16]}.. "
+                              f"present {crates['zkp_core']['present']} delta {crates['zkp_core']['dirty_delta_sha256'] == EMPTY_SHA256 and 'empty' or 'NONEMPTY'}")
             print(f"manifest {args.out}: suite version {m['suite_version']}, {len(expected_cases(m['suite_version']))} expected cases, "
-                  f"shape {args.layers}x{args.tokens} ({'frozen' if m['build']['shape_frozen'] else 'NOT the frozen shape: no byte expectations apply'})")
+                  f"shape {args.layers}x{args.tokens} ({'frozen' if m['build']['shape_frozen'] else 'NOT the frozen shape: no byte expectations apply'})"
+                  + ident_note)
             return 0
         m = load_manifest(args.manifest)
         if args.cmd == "binaries":
@@ -853,10 +1198,12 @@ def main(argv=None):
                 raise GatesError(f"case {args.case} was not started (call `start` first)")
             with open(args.log, encoding="utf-8", errors="replace") as fh:
                 log_text = fh.read()
-            proof = proof_mtime = None
+            proof = proof_mtime = artifact = None
             if args.proof and os.path.isfile(args.proof):
                 proof = {"sha256": sha256_file(args.proof), "bytes": os.stat(args.proof).st_size}
                 proof_mtime = os.stat(args.proof).st_mtime
+            if args.artifact and os.path.isfile(args.artifact):
+                artifact = binary_facts(args.artifact)
             bsha = None
             if args.binary_role:
                 if not args.binary_path:
@@ -867,7 +1214,7 @@ def main(argv=None):
                 argv_rest = argv_rest[1:]
             rec = build_case_record(case, m, exit_code=args.exit, log_text=log_text, log_path=os.path.abspath(args.log),
                                     log_sha256=sha256_file(args.log), argv=argv_rest, proof=proof, binary_sha256=bsha,
-                                    started_at=started, ended_at=_now(), proof_mtime=proof_mtime)
+                                    started_at=started, ended_at=_now(), proof_mtime=proof_mtime, artifact=artifact)
             add_record(m, rec)
             save_manifest(m, args.manifest)
             failed = [f"{c['check']}: {c['detail']}" for c in rec["checks"] if not c["ok"]]
@@ -879,19 +1226,29 @@ def main(argv=None):
             print(f"FAILURE: {rec['id']}: " + " | ".join(failed))
             return 1
         if args.cmd == "finalize":
-            verdict = finalize_manifest(m)
+            trees = locks = None
+            if args.repo:
+                trees, locks = identity_expectations(probe_source_identity(args.repo))
+            verdict = finalize_manifest(m, expect_trees=trees, expect_lockfiles=locks)
             save_manifest(m, args.manifest)
             if verdict["green"]:
+                crates = (m["source"].get("crates") or {})
+                ident = (f"  trees hashline {crates.get('hashline', {}).get('tree')} zkp-core {crates.get('zkp_core', {}).get('tree')}"
+                         if crates else "  (no crate identity recorded: pre-CL21 form)")
                 print(f"MANIFEST GREEN  suite v{m['suite_version']}  {len(m['cases'])} cases  head {m['source']['head']}  "
-                      f"gpu binary {m['binaries']['gpu']['sha256']}  device {m['device']['oracle_label']}")
+                      f"gpu binary {m['binaries']['gpu']['sha256']}  device {m['device']['oracle_label']}{ident}")
                 return 0
             print("MANIFEST RED:")
             for r in verdict["reasons"]:
                 print("  - " + r)
             return 1
         if args.cmd == "validate":
+            trees = locks = None
+            if args.repo:
+                trees, locks = identity_expectations(probe_source_identity(args.repo))
             v = validate_manifest(m, expect_head=args.expect_head, expect_gpu_sha256=args.expect_gpu_sha256,
-                                  expect_device=args.expect_device, require_production=args.require_production)
+                                  expect_device=args.expect_device, require_production=args.require_production,
+                                  expect_trees=trees, expect_lockfiles=locks)
             print(json.dumps(v, indent=2))
             return 0 if v["ok"] else 1
     except (GatesError, OSError, ValueError) as error:

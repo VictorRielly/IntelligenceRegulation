@@ -1,0 +1,27 @@
+pass (v3): 12 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export (d 768 f 2048; log_cols 14, inv_rate 4, col checks 256, threads 2)
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 3.087 s, 5899988 B
+  layer  1: prove 2.983 s, 5960912 B
+  layer  2: prove 3.104 s, 5960392 B
+  layer  3: prove 2.927 s, 5896912 B
+  layer  4: prove 2.908 s, 5898448 B
+  layer  5: prove 2.948 s, 5862608 B
+  layer  6: prove 3.040 s, 5895120 B
+  layer  7: prove 3.058 s, 5862608 B
+  layer  8: prove 2.987 s, 5895376 B
+  layer  9: prove 2.867 s, 5895376 B
+  layer 10: prove 2.924 s, 5864148 B
+  layer 11: prove 2.890 s, 5866196 B
+prover phases (summed over layers):
+      commit W                  5.177 s
+      commit A                  8.938 s
+      helpers + commit H       10.366 s
+      matmul g/u                0.297 s
+      matmul d                  0.112 s
+      zero-check F              7.731 s
+      zero-check D              1.050 s
+      pcs openings              2.030 s
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+  proof written to /tmp/zk60-fable-r12/floors-v4/cpu-v3.proof
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 4.25 s | PROVE 35.72 s | VERIFY 0.36 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 8.116e8 proven MAC/s (prove wall) | wall 40.43 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":4.246967805,"prove_s":35.722660540,"serialize_s":0.103106426,"proof_ready_s":40.075368581,"verify_s":0.357357095,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":false,"gpu_enabled":false,"randomness":"none"}
