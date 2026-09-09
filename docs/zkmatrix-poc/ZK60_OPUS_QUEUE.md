@@ -7,9 +7,26 @@ scope; full privacy acceptance remains open. Read [round 17](ZK60_ROUND17.md)
 first. The original dispatch below remains the definition of the completed
 items. Do not rerun or rewrite those reports as new work.
 
-## Current dispatch: O5, then O6
+## Current dispatch: O7 — review the consolidated IO implementation
 
-**O5 — independent wire-boundary review (priority 0).** Review source `29d3436`,
+**Round 18:** O5 (`e793fef`) and O6 (`d130de6`) are integrated in `ea3d886`.
+Codex's replacement implementation is `137b109`, profile
+`ffn-v3-mr1-fresh-io-poc/2`. It reserves eight slots in one FFN M and opens
+M/W/A/H only after both equalities. Begin O7 below after picking up this source.
+O1–O6 are completed review deliveries; do not repeat them as new work.
+
+Codex verified all 32 O6 source hashes and reviewed its fifteen open items.
+Read the [O6 disposition](ZK60_ROUND18_O6_REVIEW.md) and
+[round 18](ZK60_ROUND18.md). `e8d4261` is the superseded `/1` draft;
+never use its validation to describe `/2`. The checklist below is O7's scope,
+not a claim that O6 reviewed either implementation.
+
+Do not rerun O1–O4 as new evidence or relabel their captures as IO captures.
+O4's generator reads live source while labelling its historical pin: reproduce
+it only at that pin. The archive-integrity test now checks the recorded commit
+instead of today's changed shared files. Its archived result is unchanged.
+
+**O5 — independent wire-boundary review (delivered; original scope).** Review source `29d3436`,
 specifically `zk_ffn_fresh_wire.rs`, `zk60_fresh_ffn.rs` and the process-check
 script. Check the length calculation against the payload writer, including
 all four maximum shift-16 tables; mode selection and expected roots must come
@@ -21,9 +38,9 @@ or fix stays a proposal for Codex. Preserve the existing proving transcript.
 The already executed wire cases are in `results/zk60_round17_validation.json`;
 identify any missing adversarial case rather than adding duplicate runners.
 
-**O6 — pending FFN input/output seam review (priority 0, read-only).** Codex's
-next implementation binds the repaired FFN's X and z16 to independently supplied
-endpoints. Inventory the exact source requirements from the fresh FFN owner,
+**O6 — pending FFN input/output seam inventory (delivered in `d130de6`).** Its
+original scope was the requirements for binding X/z16 to independent endpoints,
+before Codex's IO implementation existed. Inventory the exact source requirements from the fresh FFN owner,
 `private_seam.rs`, and the existing private-block seam contract: committed row
 offsets, input/output dimensions, required mask slots, transcript ownership,
 when randomness becomes unavailable, and when each endpoint is consumed.
@@ -32,8 +49,49 @@ Do not add an arbitrary-opening API, publish partial proofs, reuse a commitment
 across proof attempts, or invent a new masking construction. Any missing
 construction argument goes to Codex as an unresolved item.
 
-O3's H/table/proximity test gaps and O4's attention obligations remain visible
-to Codex. The small CL20 helper move `2dec4a9` is delivered but queued at
+Concrete O7 checks at `137b109` (priority 0, read-only):
+
+- `zk_ffn_fresh_io.rs`: both expected roots/context/scales enter the transcript
+  before FFN challenges; endpoint policy is supplied by the caller. Verify the
+  CLI saves it before `prepare` and never generates a witness in `verify`.
+- `ZkLayoutV3::with_io`: four extra A rows are independently filled, do not
+  alias existing masks, and bind the original `lay.x[0]` / `lay.z[0]` slices.
+  Fixture A rows 702; IO pairs 698/699 and 700/701; seven A opening groups.
+- `PendingProof::finish`: both seam slots are reserved in the eight-slot FFN M before the FFN challenges;
+  each is `(10,2)` with a public zero claimed sum plus its mask. Check the
+  verifier's terminal equation and the exact order of mask, W/A/H and endpoint
+  openings. Each owner is consumed on success/failure and exposes no partial
+  proof or arbitrary-opening API.
+- The wrong-input/output tests fully recommit the wrong plane and use its real
+  root as expected policy; refusal must come from the equality sumcheck.
+  Include stale roots, role swaps, relabelled context/scales, missing endpoint,
+  and attempted second finalization in the test inventory.
+- List every NEW public observation across A, both endpoints and the expanded
+  eight-slot FFN CFS commitment, including shared data-row aliases, full group/proximity
+  vectors and sampled columns. The old FFN capture publication is disabled
+  for this profile. There is no new joint IO capture/analysis result yet.
+
+The real tests are in `zk_ffn_fresh_io_tests.rs`. The honest test now inspects
+actual IO mask rows and CFS coefficient rows across two attempts per mode, and
+asserts all eight M slots exist while every M/W/A/H opening is still empty.
+Check allocation/consumption against that evidence. Fixed slots plus consuming
+types may enforce the contract without a dynamic RoleSet; report actual missing
+enforcement rather than requiring a particular type name.
+
+Codex also addressed O5 F1 (public-W root mismatch during parse), F2 (slot-count
+guard and derived M width), and F4 (matching in-memory/wire context bounds).
+Verify these changes preserve honest old frames. Keep F3 (demo failure leaves
+an incomplete artifact) and F5 (real proving at another shift tuple) listed as
+bounded follow-ups. They do not imply verifier acceptance of an invalid proof.
+
+For O7, deliver a concise `ZK60_OPUS_IO_REVIEW.md` with pass/fail/unresolved per item,
+source references and proposed missing tests. This is implementation review;
+do not derive a new privacy theorem or silently expand the inherited rank model.
+
+Codex added O3 H/table/proximity negative controls and moved the table-coordinate
+guard before repaired terminals are formed/used. Review those changes as part
+of O7; O4's attention obligations remain open. The small CL20 helper move
+`2dec4a9` is delivered but queued at
 priority 3; do not restart the parked full extraction or merge it into the
 performance branch. Its counts must be recomputed on the round-17 baseline
 when integration is scheduled.

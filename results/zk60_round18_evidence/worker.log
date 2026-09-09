@@ -1,0 +1,32 @@
+START storage_tests
+END storage_tests exit=0
+START cpu_build
+END cpu_build exit=0
+START process_check
+END process_check exit=0
+START retained_round17_p1
+END retained_round17_p1 exit=0
+START retained_round17_p3
+END retained_round17_p3 exit=0
+START bound_process_check
+END bound_process_check exit=0
+START refuse_io_draft_p1
+END refuse_io_draft_p1 exit=1
+START refuse_io_draft_p3
+END refuse_io_draft_p3 exit=1
+START opus_tests
+END opus_tests exit=0
+START legacy_joint_tests
+END legacy_joint_tests exit=0
+START affected_python
+END affected_python exit=0
+START frozen_v2
+END frozen_v2 exit=0
+START frozen_v3
+END frozen_v3 exit=0
+START frozen_zk
+END frozen_zk exit=0
+START frozen_zkv3
+END frozen_zkv3 exit=0
+START native_freeze
+END native_freeze exit=0

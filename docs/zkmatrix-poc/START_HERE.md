@@ -6,6 +6,8 @@ Their verification and frozen performance results do not establish zero
 knowledge. [Round 16](ZK60_ROUND16.md) adds an executable paired-mask FFN
 prototype in both privacy modes. [Round 17](ZK60_ROUND17.md) adds bounded saved
 proofs and separate-process verification, plus Opus's joint linear analysis.
+[Round 18](ZK60_ROUND18.md) adds input/output binding with a consuming owner and
+one eight-slot mask commitment following O6; all CPU checks pass.
 It still lacks the complete private block,
 registered private model binding and final privacy review. The historical
 hash-line privacy claims below must be read with that correction. Pending

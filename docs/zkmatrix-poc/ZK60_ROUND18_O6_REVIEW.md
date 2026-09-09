@@ -1,8 +1,8 @@
 # O6 review of the round-18 draft and implementation follow-up
 
 **Follow-up:** the `/2` implementation now consolidates all eight slots into
-one M and delays every opening until after both equalities. Targeted tests pass;
-full validation is pending. The superseded draft's validation finished with exit
+one M and delays every opening until after both equalities. Combined validation at `137b109` passes: 227 Rust tests,
+227 affected Python tests, all process checks and all four frozen CPU proofs. The superseded draft's validation finished with exit
 0, including 227 Rust tests, 31 IO/21 old process cases, two retained round-17
 proofs and all four CPU frozen proofs. That evidence is retained under
 `/tmp/zk60-round18`; new-code validation runs separately in

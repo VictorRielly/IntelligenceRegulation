@@ -2,8 +2,7 @@
 
 **O6 follow-up implemented:** the `/2` profile reserves all eight CFS slots in
 one FFN mask commitment, before the FFN challenges. Its single M opening and
-all W/A/H openings follow both equality arguments. The unpublished `/1` draft
-is superseded and rejected. The [O6 disposition](ZK60_ROUND18_O6_REVIEW.md)
+all W/A/H openings follow both equality arguments. The superseded `/1` draft is rejected. The [O6 disposition](ZK60_ROUND18_O6_REVIEW.md)
 preserves the reason for this change. Full joint privacy acceptance is still open.
 
 The experimental `ffn-v3-mr1-fresh-io-poc/2` profile binds the FFN's X and
@@ -11,7 +10,7 @@ z16 planes to two independently prepared hiding commitments. It supports the
 fixed T32/d16/f16 shape with public weights (P1) or fresh private weights (P3).
 The verifier receives expected endpoints through caller policy, independently
 of the candidate receipt. This completes the input/output binding implementation
-for one repaired FFN. Final combined validation is pending at this commit.
+for one repaired FFN. Combined CPU validation passes at `137b109`; details below.
 
 This remains a synthetic FFN demonstration. It does not prove private attention,
 a complete transformer block, or use of a registered private model. Whole
@@ -54,7 +53,7 @@ A claim set and each endpoint pass the existing full-Fp2 mask-rank and
 proximity guards. Zero mask/group coefficients and dependent proximity pairs
 discard the attempt without redraw. The existing table-coordinate guard now
 runs before the repaired table terminals are formed/used. Honest legacy
-transcript order is preserved; compatibility must be checked with frozen proofs.
+transcript order is preserved; all four frozen CPU proofs match their archived bytes.
 
 The scales describe integer words (`word * 2^scale`); the equality proof
 establishes field-word equality. Model/calibration authorization and the
@@ -117,10 +116,23 @@ bounded follow-ups; no verifier acceptance vulnerability was reported in O5.
 The O4 archive test now hashes its recorded source revision rather than the live
 checkout; its historical evidence is unchanged.
 
-The combined run will record the full storage-enabled Rust suite, new and old
-separate-process demos, four CPU frozen proofs, affected gate tests and native
-freeze-check. Suite v9 pins 227 storage-enabled tests; v1–v8 retain their
-archived definitions. No new GPU or full Python validation is claimed.
+The combined run at `137b109` passes:
+
+- 227 storage-enabled Rust tests, including ten doctests; zero failures/ignored.
+- 227 affected Python tests: 83 Opus, 57 legacy joint-analysis and 87 gate tests.
+- 31 bound-IO and 21 standalone FFN process cases; two retained round-17 saved
+  proofs accept, and both superseded IO `/1` receipts refuse under `/2`.
+- All four frozen CPU proofs (`v2`, `v3`, `zk`, `zkv3`) match full SHA-256 and
+  byte length. Native `freeze-check` passes.
+
+[Validation record](../../results/zk60_round18_validation.json) and
+[retained logs/index](../../results/zk60_round18_evidence/index.json) bind these
+results to the implementation and tools. Workers ran detached under the shared
+heavy lock, with two build/Rayon/test threads and all `HL_*` variables cleared.
+Full receipts/proofs remain in `/tmp/zk60-round18-final`; their digests are in
+that record. The earlier `/1` run remains separately under `/tmp/zk60-round18`.
+Suite v9 pins 227 storage-enabled tests; v1–v8 retain their archived definitions.
+No new GPU or full Python validation is claimed.
 
 Next: review the complete joint IO observation schedule, then repair the
 attention inventory's remaining private channels and connect a tiny complete

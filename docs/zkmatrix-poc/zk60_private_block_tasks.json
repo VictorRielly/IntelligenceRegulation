@@ -2,7 +2,7 @@
   "schema_version": 1,
   "created_local_date": "2026-09-04",
   "lane": "A1",
-  "status": "round-4 supporting public receipt validated; private block remains partial, no complete private block or generation proof",
+  "status": "round 18: repaired FFN IO binding and consolidated schedule validated on CPU; complete private attention/block still open",
   "baseline": "round4 pushed as5657a8d; Claude queue/review pushed as4a58f12; round5 verifier hardening and regression infrastructure validated separately, no new private-block acceptance",
   "owner": "Codex private-block worker; not Fable or Claude",
   "hardware_policy": "CPU-first; no large GPU runs while 5090 is unavailable; Claude gpu/pcs lane reserved",
@@ -227,15 +227,19 @@
         "Old P0 zcd_term and masked ZK zc17_term cannot be substituted through the typed boundary API."
       ],
       "acceptance": "Integrator-owned shared-file refactor lands only after API review; no edits to Claude's gpu/pcs lane.",
-      "implementation_status": "proposal reviewed for ownership, order and counted layout facts; four metadata-only tests added, no pending private FFN source implementation",
+      "implementation_status": "implemented for fixed fresh FFN with two standalone hiding endpoints; the enclosing private attention/block lifecycle and full joint privacy acceptance remain open",
       "implementation_files": [
         "docs/zkmatrix-poc/ZK60_PENDING_FFN.md",
-        "hashline/tests/zk60_pending_layout.rs"
+        "hashline/tests/zk60_pending_layout.rs",
+        "hashline/src/zk_ffn_fresh_io.rs",
+        "hashline/src/zk_ffn_fresh_io_tests.rs",
+        "hashline/examples/zk60_bound_ffn.rs",
+        "docs/zkmatrix-poc/ZK60_ROUND18.md"
       ],
       "remaining_acceptance": [
-        "Resolve whole-profile privacy/mask allocation and new transcript schedule before implementing the proposed API.",
-        "Enclosing block owner must retain both attention and FFN states and route claims to both before either opens.",
-        "Wrong independently supplied request context must reject; exact replay consumption belongs to application state."
+        "Complete joint IO privacy analysis, including pads/columns and CFS observations.",
+        "The enclosing block must own actual private attention and FFN states; standalone expected endpoint commitments do not prove attention execution.",
+        "Authenticate physical scales/classes through the approved block/calibration contract; fresh P3 does not authenticate registered model weights."
       ]
     },
     {
@@ -494,5 +498,14 @@
     "private_pending_implementation": "still gated on the reviewed complete mask plan",
     "report": "ZK60_ROUND7.md",
     "validation": "../../results/zk60_round7_validation.json"
+  },
+  "round18_support": {
+    "source": "137b109296d9a4cc9a05792bfdbd91aa45850abe",
+    "report": "ZK60_ROUND18.md",
+    "profile": "ffn-v3-mr1-fresh-io-poc/2",
+    "full_block": false,
+    "full_privacy_acceptance": false,
+    "validation_status": "complete",
+    "validation": "../../results/zk60_round18_validation.json"
   }
 }

@@ -1,0 +1,580 @@
+{
+  "schema": 1,
+  "profile": "ffn-v3-mr1-fresh-io-poc/2",
+  "binary_sha256": "0155c934f340a69146d2a29b90b707044619cf6c79b35d254cd33a186e229b3a",
+  "script_sha256": "220aebccb744dd8d68e3a6a8b5618f524a2720d6865e2239305117ef68b6c592",
+  "fixture": "public-synthetic-T32-d16-f16",
+  "cases": [
+    {
+      "name": "prepare",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "prepare"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/prepare",
+      "exit_code": 0,
+      "expected_accept": true,
+      "passed": true,
+      "stdout": "{\"public_weight_root\":\"7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad\",\"proving_executed\":false}\n",
+      "stderr": ""
+    },
+    {
+      "name": "p1_prove",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "prove",
+        "p1",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1.expected",
+        "/tmp/zk60-round18-final/bound-process/p1.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_prove",
+      "exit_code": 0,
+      "expected_accept": true,
+      "passed": true,
+      "stdout": "{\"mode\":\"P1\",\"wire_bytes\":5029244,\"policy_saved_before_proving\":true,\"verified_from_bytes\":true,\"input_root\":\"eed9ca0aad7f2fa801fec320101c652124abb3a3c1a73e07411a360647637793\",\"output_root\":\"3e3ab1e8661295306ead8ecf4ade9a98928e562bd5c9093c7c6b420fa1aa13dc\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "p1_verify",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1.expected",
+        "/tmp/zk60-round18-final/bound-process/p1.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_verify",
+      "exit_code": 0,
+      "expected_accept": true,
+      "passed": true,
+      "stdout": "{\"mode\":\"P1\",\"wire_bytes\":5029244,\"verified_from_bytes\":true,\"proving_executed\":false}\n",
+      "stderr": ""
+    },
+    {
+      "name": "p1_context",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "1919191919191919191919191919191919191919191919191919191919191919",
+        "/tmp/zk60-round18-final/bound-process/p1.expected",
+        "/tmp/zk60-round18-final/bound-process/p1.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_context",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "expected request context/scales mismatch\n"
+    },
+    {
+      "name": "p1_weights",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "0000000000000000000000000000000000000000000000000000000000000000",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1.expected",
+        "/tmp/zk60-round18-final/bound-process/p1.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_weights",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "FFN IO: expected statement mismatch\n"
+    },
+    {
+      "name": "p1_mode",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1.expected",
+        "/tmp/zk60-round18-final/bound-process/p1.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_mode",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "FFN IO: frame length\n"
+    },
+    {
+      "name": "p1_input",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1_input.expected",
+        "/tmp/zk60-round18-final/bound-process/p1.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_input",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "FFN IO: expected statement mismatch\n"
+    },
+    {
+      "name": "p1_output",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1_output.expected",
+        "/tmp/zk60-round18-final/bound-process/p1.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_output",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "FFN IO: expected statement mismatch\n"
+    },
+    {
+      "name": "p1_scale",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1_scale.expected",
+        "/tmp/zk60-round18-final/bound-process/p1.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_scale",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "expected request context/scales mismatch\n"
+    },
+    {
+      "name": "p1_policy_context",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1_policy_context.expected",
+        "/tmp/zk60-round18-final/bound-process/p1.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_policy_context",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "expected request context/scales mismatch\n"
+    },
+    {
+      "name": "p1_swapped",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1_swapped.expected",
+        "/tmp/zk60-round18-final/bound-process/p1.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_swapped",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "FFN IO: expected statement mismatch\n"
+    },
+    {
+      "name": "p1_tampered",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1.expected",
+        "/tmp/zk60-round18-final/bound-process/p1_tampered.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_tampered",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "IO endpoint 1: pcs zk: Merkle path for column 1900 fails\n"
+    },
+    {
+      "name": "p1_huge_rows",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1.expected",
+        "/tmp/zk60-round18-final/bound-process/p1_huge_rows.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_huge_rows",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "fresh FFN wire: commitment shape\n"
+    },
+    {
+      "name": "p1_truncated",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1.expected",
+        "/tmp/zk60-round18-final/bound-process/p1_truncated.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_truncated",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "FFN IO: frame length\n"
+    },
+    {
+      "name": "p1_trailing",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1.expected",
+        "/tmp/zk60-round18-final/bound-process/p1_trailing.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_trailing",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "FFN IO: frame length\n"
+    },
+    {
+      "name": "p1_overwrite",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "prove",
+        "p1",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1.expected",
+        "/tmp/zk60-round18-final/bound-process/p1.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p1_overwrite",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "create new artifact: File exists (os error 17)\n"
+    },
+    {
+      "name": "p3_prove",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "prove",
+        "p3",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3.expected",
+        "/tmp/zk60-round18-final/bound-process/p3.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_prove",
+      "exit_code": 0,
+      "expected_accept": true,
+      "passed": true,
+      "stdout": "{\"mode\":\"P3\",\"wire_bytes\":5066204,\"policy_saved_before_proving\":true,\"verified_from_bytes\":true,\"input_root\":\"07d53a939267d36c40e02eeee7a21d08bdeb575b56c0f7d6fefdab74de4cef20\",\"output_root\":\"e52ceff96828e540d23cabeb8b91b6f597ef9ed09de57c18641f759492677cce\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "p3_verify",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3.expected",
+        "/tmp/zk60-round18-final/bound-process/p3.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_verify",
+      "exit_code": 0,
+      "expected_accept": true,
+      "passed": true,
+      "stdout": "{\"mode\":\"P3\",\"wire_bytes\":5066204,\"verified_from_bytes\":true,\"proving_executed\":false}\n",
+      "stderr": ""
+    },
+    {
+      "name": "p3_context",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "1919191919191919191919191919191919191919191919191919191919191919",
+        "/tmp/zk60-round18-final/bound-process/p3.expected",
+        "/tmp/zk60-round18-final/bound-process/p3.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_context",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "expected request context/scales mismatch\n"
+    },
+    {
+      "name": "p3_weights",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "0000000000000000000000000000000000000000000000000000000000000000",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3.expected",
+        "/tmp/zk60-round18-final/bound-process/p3.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_weights",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "p3 requires explicit 'fresh' policy; registered model identity is not proved\n"
+    },
+    {
+      "name": "p3_mode",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3.expected",
+        "/tmp/zk60-round18-final/bound-process/p3.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_mode",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "FFN IO: frame length\n"
+    },
+    {
+      "name": "p3_input",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3_input.expected",
+        "/tmp/zk60-round18-final/bound-process/p3.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_input",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "FFN IO: expected statement mismatch\n"
+    },
+    {
+      "name": "p3_output",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3_output.expected",
+        "/tmp/zk60-round18-final/bound-process/p3.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_output",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "FFN IO: expected statement mismatch\n"
+    },
+    {
+      "name": "p3_scale",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3_scale.expected",
+        "/tmp/zk60-round18-final/bound-process/p3.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_scale",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "expected request context/scales mismatch\n"
+    },
+    {
+      "name": "p3_policy_context",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3_policy_context.expected",
+        "/tmp/zk60-round18-final/bound-process/p3.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_policy_context",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "expected request context/scales mismatch\n"
+    },
+    {
+      "name": "p3_swapped",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3_swapped.expected",
+        "/tmp/zk60-round18-final/bound-process/p3.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_swapped",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "FFN IO: expected statement mismatch\n"
+    },
+    {
+      "name": "p3_tampered",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3.expected",
+        "/tmp/zk60-round18-final/bound-process/p3_tampered.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_tampered",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "IO endpoint 1: pcs zk: Merkle path for column 999 fails\n"
+    },
+    {
+      "name": "p3_huge_rows",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3.expected",
+        "/tmp/zk60-round18-final/bound-process/p3_huge_rows.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_huge_rows",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "fresh FFN wire: commitment shape\n"
+    },
+    {
+      "name": "p3_truncated",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3.expected",
+        "/tmp/zk60-round18-final/bound-process/p3_truncated.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_truncated",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "FFN IO: frame length\n"
+    },
+    {
+      "name": "p3_trailing",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3.expected",
+        "/tmp/zk60-round18-final/bound-process/p3_trailing.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_trailing",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "FFN IO: frame length\n"
+    },
+    {
+      "name": "p3_overwrite",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "prove",
+        "p3",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3.expected",
+        "/tmp/zk60-round18-final/bound-process/p3.receipt"
+      ],
+      "cwd": "/tmp/zk60-round18-final/bound-process/p3_overwrite",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "create new artifact: File exists (os error 17)\n"
+    }
+  ],
+  "receipts": [
+    {
+      "mode": "p1",
+      "path": "/tmp/zk60-round18-final/bound-process/p1.receipt",
+      "bytes": 5029244,
+      "sha256": "1a3ba43c4c4fcfbf0b39f2a762eda95c2ad2e720c31941cf90ec699146c4a79d",
+      "expected_path": "/tmp/zk60-round18-final/bound-process/p1.expected",
+      "expected_sha256": "78b7d302979c6e0b22f428bf3299f22fe18f296e789c3eb0b8eae03819c46379"
+    },
+    {
+      "mode": "p3",
+      "path": "/tmp/zk60-round18-final/bound-process/p3.receipt",
+      "bytes": 5066204,
+      "sha256": "218f073480b89fcd25469a57e09ad639372a5b65388ed1ee26b220251889208d",
+      "expected_path": "/tmp/zk60-round18-final/bound-process/p3.expected",
+      "expected_sha256": "7ed3151452810d96b08ec4f4276fbba7acf6a8e47e329e8fc144c6e7d687f8c7"
+    }
+  ],
+  "trusted_policy": "separate endpoint file saved by trusted fixture caller before FFN proving",
+  "full_private_block": false,
+  "privacy_review_complete": false,
+  "status": "passed"
+}

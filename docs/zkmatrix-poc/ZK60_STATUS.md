@@ -1,5 +1,19 @@
 # ZK60 milestone map
 
+**2026-09-08, round 18:** the repaired FFN now proves equality to independently
+committed private input/output endpoints. After O6, `137b109` consolidates all
+eight mask slots into one commitment and delays every opening until both
+equalities are complete. **227 Rust tests, 227 affected Python tests, 56 process
+checks, all four frozen CPU proofs and native freeze-check pass.**
+[Round 18](ZK60_ROUND18.md) records the implementation and evidence.
+
+Opus O5/O6 are integrated in `ea3d886`; [O7](ZK60_OPUS_QUEUE.md) reviews the
+actual `/2` IO profile. Codex next handles the joint IO observation analysis,
+then the remaining private attention construction and a tiny complete block.
+A complete private block, registered private model binding and full privacy
+acceptance remain open. The minimal core refactor remains priority 3.
+Earlier dated entries below retain their historical scope.
+
 **2026-09-08, round 17:** the repaired FFN can now be saved and verified in a
 separate process in both modes. Source `29d3436` passes 220 Rust tests and all
 21 process checks. Opus O1–O4 are integrated through `2fb7e0a`; all 69 new review

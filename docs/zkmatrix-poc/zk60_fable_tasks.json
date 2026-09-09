@@ -1,20 +1,19 @@
 {
   "schema_version": 1,
   "created_local_date": "2026-09-07",
-  "round": 17,
-  "integrator_base": "53e831c171adcd8c37557a48aa3cdde4d196d33c",
-  "reviewed_lane_tip": "2fb7e0a",
-  "review": "ZK60_ROUND17.md",
+  "round": 18,
+  "integrator_base": "137b109296d9a4cc9a05792bfdbd91aa45850abe",
+  "reviewed_lane_tip": "5083797",
+  "review": "ZK60_ROUND18.md",
   "owner": "Opus 5 owns bounded review/tooling follow-ups; Codex owns protocol implementation, integration and final cryptographic review",
-  "coordination": "O1-O4 are integrated and their 69 tests plus 57 legacy joint tests pass. Opus 5 continues with bounded O5/O6 reviews in ZK60_OPUS_QUEUE.md. Codex owns Rust protocol changes and final privacy acceptance.",
+  "coordination": "Opus O1-O6 are integrated; Codex consolidated IO slots after O6. O7 reviews the actual /2 implementation. Full privacy acceptance remains open.",
   "engineering_order": [
-    "O5 independent FFN wire-boundary review",
-    "O6 pending FFN input/output seam inventory",
+    "O7 consolidated IO implementation review",
+    "Codex joint IO analysis and private attention construction",
     "CL20 delivered helper integration (priority 3)"
   ],
   "independent_ready": [
-    "O5 wire-boundary review",
-    "O6 pending FFN seam requirements"
+    "O7 source review at 137b109"
   ],
   "lower_priority_design": [
     "CL20"
@@ -444,7 +443,7 @@
         "proximity": "the reserved prox row is one base row in A/H/W and covers one of two dims per column, the other borrowed from other groups; fine for A and H but tiny P3 W (nb_d*nb_f = 1) is starved (4 masks vs 6 dims/column): +1 functional of (Wg[j], Wu[j]) per column atop the Wd singleton; two proofs recover W entirely (linear)",
         "covered": "H in the linear model (pairs); the zero-sum u leaves exactly the public LogUp identity; pads/columns by the Vandermonde/pad-bijection argument plus the hash assumption",
         "unresolved": "CFS channel (outside the model); twelve assumptions for FA3 in section 18; capture fields needed from Codex in section 19",
-        "predicate": "125M (nb_d 3, nb_f 1) -> h16@p5 singleton, 8-row functionals per column; 8B (nb_d 1, nb_f 7) -> X@p2 singleton, T/4 rows (T <= 8: 16 bits, enumerable) — derived, not executed",
+        "predicate": "125M (nb_d 3, nb_f 1) -> h16@p5 singleton, 8-row functionals per column; 8B (nb_d 1, nb_f 7) -> X@p2 singleton, T/4 rows (T <= 8: 16 bits, enumerable) \u2014 derived, not executed",
         "limits": "all H / P3-W statements source-derived awaiting the round-10 capture hook; rank results use stand-in coefficients with the source's structure; numerical rank is not a simulation proof; single-proof and repeated-proof observations kept distinct"
       },
       "previous_owner": "Fable independent privacy reviewer",
@@ -571,7 +570,7 @@
         "reviewer": "Claude Fable 5.1, independent reviewer",
         "source_pin": "52a13d1 (worktree /home/victor/wt-zk60-fa)",
         "deliverable": "docs/zkmatrix-poc/ZK60_FABLE_SECURITY_OBLIGATIONS.md (38-row obligation table, parameter/composition review, tiny-vs-deployment separation, prioritized gaps); results/zk60_fable_fa5_obligations.json; results/zk60_fable_fa5_isqrt_alias.txt and _bounds.txt (the python checks)",
-        "highest_severity": "R09 norm isqrt: the committed D row has no direct range fact; the half-p alias D = k + (p-1)/2 satisfies the SS sumcheck, both isqrt pins, the Square zero-check and the a1/a2 limb ranges for every int16 row and the round NormDiv with an all-zero output whenever the remainder limbs admit ~2^(31+tn). The A00 fixed profile escapes only because n_limbs = 2 caps rho/sigma at 2^32 while the alias needs ~2^42 — a parameter coincidence recorded nowhere in code or tests; any profile with n_limbs >= 3 and tn >= 1 accepts a wrong norm output. Fix: a direct range fact on D plus a tamper leg.",
+        "highest_severity": "R09 norm isqrt: the committed D row has no direct range fact; the half-p alias D = k + (p-1)/2 satisfies the SS sumcheck, both isqrt pins, the Square zero-check and the a1/a2 limb ranges for every int16 row and the round NormDiv with an all-zero output whenever the remainder limbs admit ~2^(31+tn). The A00 fixed profile escapes only because n_limbs = 2 caps rho/sigma at 2^32 while the alias needs ~2^42 \u2014 a parameter coincidence recorded nowhere in code or tests; any profile with n_limbs >= 3 and tn >= 1 accepts a wrong norm output. Fix: a direct range fact on D plus a tamper leg.",
         "other": "R31 W/gamma word ranges never proven at the registrar boundary (all no-wrap bounds assume int8 behind the approved roots); R10 proven remainder width is 2^(16*n_limbs) not wrho; R29 exponents/norm_round bound only via the A00 digest; R32 typed B3 API ignores extra proof.sc/helper_sums; R02/R20 proof classes admit -128/-32768 the oracle refuses; R14 no LogUp error term stated in code",
         "estimates": "two-block fixed-profile receipt ~2^-110 statistical soundness (Ligero column test (17/24)^256 = 2^-127.4 per opening x 6 openings/block; attention LogUp 4N/|F_p2| = 2^-111.3 dominates; sumchecks ~2^-119), capped by blake3-256 Fiat-Shamir; projected 125M/8B profile (log_cols 14, rate 1/4, Q 256, 32 layers x 6 openings) near 2^-94; nothing quantitative carries over from the lattice-era SOUNDNESS_REFERENCE.md; the P1 hiding code's column term is 2^-106",
         "fixed_profile": "no false-acceptance path found; every reviewed relation is an ACTUAL verifier constraint or a CHECKED A00 precondition",
@@ -1229,6 +1228,44 @@
       "opus_tests": 69,
       "legacy_joint_tests": 57,
       "python_total_affected": 213,
+      "frozen_cpu_proofs": 4,
+      "native_freeze_check": true
+    }
+  },
+  "round18_codex_work": {
+    "source_commit": "137b109296d9a4cc9a05792bfdbd91aa45850abe",
+    "review_integration": "ea3d886",
+    "report": "ZK60_ROUND18.md",
+    "validation": "../../results/zk60_round18_validation.json",
+    "validation_status": "complete",
+    "profile": "ffn-v3-mr1-fresh-io-poc/2",
+    "implemented": [
+      "Independently expected private X/z16 endpoint commitments and fixed consuming ownership",
+      "One eight-slot CFS mask commitment before FFN challenges; all M/W/A/H openings deferred until both equalities",
+      "Bounded IO receipt codec and separate-process verification; superseded /1 draft refused",
+      "Actual cross-attempt IO mask values and no-early-opening regression assertions",
+      "O5 F1 public root parse check, F2 slot count/width guards, F4 context-domain alignment"
+    ],
+    "private_block_implemented": false,
+    "stable_private_model_identity": false,
+    "full_privacy_review_complete": false,
+    "next_opus_tasks": [
+      "O7"
+    ],
+    "remaining_o5_followups": [
+      "F3 failed demo artifact cleanup",
+      "F5 another shift tuple through the actual prover"
+    ],
+    "superseded_draft": {
+      "source": "e8d4261",
+      "profile": "ffn-v3-mr1-fresh-io-poc/1",
+      "reason": "separate seam CFS commitment replaced after O6",
+      "validation_directory": "/tmp/zk60-round18"
+    },
+    "validation_counts": {
+      "rust": 227,
+      "python_affected": 227,
+      "process_cases": 56,
       "frozen_cpu_proofs": 4,
       "native_freeze_check": true
     }

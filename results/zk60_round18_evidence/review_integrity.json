@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "review": "O5",
+      "record": "results/zk60_opus_o5_wire_review.json",
+      "record_sha256": "d100bde983157b5683fc563db073c38265e637914abd84305c70993ae368081e",
+      "checked_revision": "53982e7",
+      "checked_files": 13,
+      "mismatches": []
+    },
+    {
+      "review": "O6",
+      "record": "results/zk60_opus_o6_seam_inventory.json",
+      "record_sha256": "fa9116639193c017cbcc6abe38aafdf25f84921bd905d9ee6184aaba9c368b17",
+      "checked_revision": "53982e7",
+      "checked_files": 32,
+      "mismatches": []
+    }
+  ],
+  "privacy_acceptance": false
+}

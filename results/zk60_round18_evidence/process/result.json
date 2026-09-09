@@ -1,0 +1,380 @@
+{
+  "schema": 1,
+  "profile": "ffn-v3-mr1-fresh-poc/1",
+  "binary_sha256": "7a08a6930adf3de17a3a50052397e47a2d520fed3d1f3f06bc0ba2e5cfc1189d",
+  "script_sha256": "5f448f1f17531f82dc27db09e3b9015467bb8dbc58238797f7fd5382b1173620",
+  "fixture": "public-synthetic-T32-d16-f16",
+  "cases": [
+    {
+      "name": "prepare",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "prepare"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/prepare",
+      "exit_code": 0,
+      "expected_accept": true,
+      "passed": true,
+      "stdout": "{\"fixture\":\"T32-d16-f16-silu\",\"public_weight_root\":\"7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad\",\"proving_executed\":false}\n",
+      "stderr": ""
+    },
+    {
+      "name": "p1_prove",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "prove",
+        "p1",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p1.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p1_prove",
+      "exit_code": 0,
+      "expected_accept": true,
+      "passed": true,
+      "stdout": "{\"mode\":\"P1\",\"wire_bytes\":4733245,\"verified_from_bytes\":true}\n",
+      "stderr": ""
+    },
+    {
+      "name": "p1_verify",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p1.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p1_verify",
+      "exit_code": 0,
+      "expected_accept": true,
+      "passed": true,
+      "stdout": "{\"mode\":\"P1\",\"wire_bytes\":4733245,\"verified_from_bytes\":true,\"proving_executed\":false}\n",
+      "stderr": ""
+    },
+    {
+      "name": "p1_wrong_context",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "other-request",
+        "/tmp/zk60-round18-final/process/p1.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p1_wrong_context",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "fresh FFN wire: expected statement/context mismatch\n"
+    },
+    {
+      "name": "p1_wrong_policy",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p1",
+        "0000000000000000000000000000000000000000000000000000000000000000",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p1.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p1_wrong_policy",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "fresh FFN wire: expected statement/context mismatch\n"
+    },
+    {
+      "name": "p1_wrong_mode",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p1.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p1_wrong_mode",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "fresh FFN wire: wrong frame length\n"
+    },
+    {
+      "name": "p1_tampered",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p1_tampered.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p1_tampered",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "H: pcs zk: Merkle path for column 2004 fails\n"
+    },
+    {
+      "name": "p1_huge_rows",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p1_huge_rows.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p1_huge_rows",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "fresh FFN wire: commitment shape\n"
+    },
+    {
+      "name": "p1_truncated",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p1_truncated.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p1_truncated",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "fresh FFN wire: wrong frame length\n"
+    },
+    {
+      "name": "p1_trailing",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p1_trailing.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p1_trailing",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "fresh FFN wire: wrong frame length\n"
+    },
+    {
+      "name": "p1_overwrite",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "prove",
+        "p1",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p1.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p1_overwrite",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "create new proof artifact: File exists (os error 17)\n"
+    },
+    {
+      "name": "p3_prove",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "prove",
+        "p3",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p3.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p3_prove",
+      "exit_code": 0,
+      "expected_accept": true,
+      "passed": true,
+      "stdout": "{\"mode\":\"P3\",\"wire_bytes\":4770205,\"verified_from_bytes\":true}\n",
+      "stderr": ""
+    },
+    {
+      "name": "p3_verify",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p3.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p3_verify",
+      "exit_code": 0,
+      "expected_accept": true,
+      "passed": true,
+      "stdout": "{\"mode\":\"P3\",\"wire_bytes\":4770205,\"verified_from_bytes\":true,\"proving_executed\":false}\n",
+      "stderr": ""
+    },
+    {
+      "name": "p3_wrong_context",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "other-request",
+        "/tmp/zk60-round18-final/process/p3.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p3_wrong_context",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "fresh FFN wire: expected statement/context mismatch\n"
+    },
+    {
+      "name": "p3_wrong_policy",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p3",
+        "0000000000000000000000000000000000000000000000000000000000000000",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p3.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p3_wrong_policy",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "p3 requires explicit 'fresh' weight policy (no registered model)\n"
+    },
+    {
+      "name": "p3_wrong_mode",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p3.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p3_wrong_mode",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "fresh FFN wire: wrong frame length\n"
+    },
+    {
+      "name": "p3_tampered",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p3_tampered.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p3_tampered",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "H: pcs zk: Merkle path for column 1276 fails\n"
+    },
+    {
+      "name": "p3_huge_rows",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p3_huge_rows.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p3_huge_rows",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "fresh FFN wire: commitment shape\n"
+    },
+    {
+      "name": "p3_truncated",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p3_truncated.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p3_truncated",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "fresh FFN wire: wrong frame length\n"
+    },
+    {
+      "name": "p3_trailing",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p3_trailing.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p3_trailing",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "fresh FFN wire: wrong frame length\n"
+    },
+    {
+      "name": "p3_overwrite",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_fresh_ffn",
+        "prove",
+        "p3",
+        "round17-independent-verifier",
+        "/tmp/zk60-round18-final/process/p3.proof"
+      ],
+      "cwd": "/tmp/zk60-round18-final/process/p3_overwrite",
+      "exit_code": 1,
+      "expected_accept": false,
+      "passed": true,
+      "stdout": "",
+      "stderr": "create new proof artifact: File exists (os error 17)\n"
+    }
+  ],
+  "proofs": [
+    {
+      "mode": "p1",
+      "path": "/tmp/zk60-round18-final/process/p1.proof",
+      "bytes": 4733245,
+      "sha256": "fbfeea70eefe8eb38a2d5d75fb9e5f074a39c7ad34d832c2fbd79a1c124022dc"
+    },
+    {
+      "mode": "p3",
+      "path": "/tmp/zk60-round18-final/process/p3.proof",
+      "bytes": 4770205,
+      "sha256": "903580928ebd140373798f3422864a615e1bafef0aa80ff48ada3396037e6471"
+    }
+  ],
+  "full_private_block": false,
+  "privacy_review_complete": false,
+  "prepared_policy": {
+    "fixture": "T32-d16-f16-silu",
+    "public_weight_root": "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+    "proving_executed": false
+  },
+  "status": "passed"
+}
