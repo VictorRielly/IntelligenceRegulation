@@ -1,5 +1,24 @@
 # ZK60 milestone map
 
+**Required scope:** the first PoC (P1) hides inputs, outputs and intermediate
+activations; weights may be public. The full version (P3) also hides weights.
+Victor reaffirmed this on 2026-09-09. These are requirements, not claims of
+current acceptance. [Canonical privacy requirements](ZK60_PRIVACY_REQUIREMENTS.md).
+
+**2026-09-09, round 21:** the [history audit](ZK60_ROUND21.md) confirms this
+scope was already explicit in September 4 documentation and code. The
+P1/P3 declarations and private endpoint preparation/policy serializer remain
+unchanged at their original source sections; recent pushes introduced no
+public-IO switch. Six current Rust IO tests and sixteen saved-receipt process
+cases pass. Eight actual IO CFS channel checks, seven Python tests and 72
+corruption controls also pass, within the fixed-challenge scope.
+
+The immediate gate remains P1's private IO/activation transcript composition,
+including the caller-fixed endpoint simulator model, followed by private
+attention and a tiny block. O8's joint message review remains pending.
+Whole-proof privacy acceptance is still open; P3 weight privacy follows for
+the full version. The earlier entries below retain their historical scope.
+
 **2026-09-09, round 20:** exact opening checks pass on all four round-19
 captures: 18 private PCS owners and four shared eight-slot M openings.
 The [conditional construction](ZK60_ROUND20.md) preserves pad vectors and

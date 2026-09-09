@@ -1,5 +1,18 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**Binding privacy scope:** first PoC P1 hides inputs, outputs and intermediate
+activations; weights may be public. Full version P3 also hides weights.
+[Existing requirements reaffirmed by Victor, 2026-09-09](ZK60_PRIVACY_REQUIREMENTS.md).
+Prioritize the P1 private-IO path. Public IO cannot substitute for its privacy
+obligations; weight-specific P3 work remains required for the full version.
+
+**2026-09-09, round 21:** [requirement/history audit and IO CFS checks](ZK60_ROUND21.md).
+The requirement already existed; no public-IO switch was found in the reviewed
+pushes. Six Rust IO tests, sixteen saved-receipt process cases, seven Python
+tests, eight IO CFS checks and 72 corruption controls pass. Codex next resolves
+the P1 private-endpoint simulator/composition obligation and integrates O8.
+Keep input, output and intermediate values hidden throughout this milestone.
+
 **2026-09-09, round 20:** Codex adds a constructive check for PCS pads/columns
 and the shared M opening, validated on all four real round-19 captures.
 **35 Python tests, 18 PCS opening checks, four M opening checks and 22 numerical

@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "reviewed_head": "9d06dd3dc2f2f25666dd3cfea489ecbd46afd710",
+  "checks": [
+    {
+      "name": "P1/P3 private/public declarations",
+      "path": "hashline/src/zk.rs",
+      "baseline": "b026b04",
+      "unchanged": true,
+      "sha256": "6f6cd3794f1051d4e97122fba700aabba2937f841e096551c975c39960f4e642"
+    },
+    {
+      "name": "ExpectedIo public policy serializer",
+      "path": "hashline/src/zk_ffn_fresh_io.rs",
+      "baseline": "e8d4261",
+      "unchanged": true,
+      "sha256": "bdf1c0dfd02673415e4c23c5d98be81de8bb8a94d6b5d34680bf5848d09d6e25"
+    },
+    {
+      "name": "Independent hiding endpoint preparation",
+      "path": "hashline/src/zk_ffn_fresh_io.rs",
+      "baseline": "e8d4261",
+      "unchanged": true,
+      "sha256": "bdfc6f35378de220cb4c61c86d352ff38e4b7f55e61d2762609d9d8ed5c53967"
+    },
+    {
+      "name": "Explicit private IO/activation P1 and full P3 requirement",
+      "path": "docs/zkmatrix-poc/ZK60_EXECUTION.md",
+      "baseline": "24ae746",
+      "unchanged": true
+    }
+  ],
+  "release_diff_review": {
+    "baseline": "137b109",
+    "range": "137b109..9d06dd3",
+    "runtime_behavior_change_found": false,
+    "description": "All source changes in this range are test diagnostics or cfg(test)/cfg(not(test)) equivalents; reviewed the full diff, not just file names."
+  },
+  "scope": "Requirement and relevant IO source/history audit; not a whole-proof zero-knowledge certificate"
+}

@@ -1,0 +1,1 @@
+Initial audit runner stopped with KeyError: commitment while selecting the P1 public weight root. The schema-3 public_w record stores root directly. Rust tests and eight P3 process cases had passed. No verifier failure caused this runner error.

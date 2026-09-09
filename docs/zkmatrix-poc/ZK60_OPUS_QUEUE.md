@@ -1,5 +1,12 @@
 # Opus 5 handoff — executable FFN repair
 
+**Required privacy / task priority:** the first PoC (P1) hides inputs, outputs
+and intermediate activations; weights may be public. The full version (P3)
+also hides weights. [Victor's existing requirements](ZK60_PRIVACY_REQUIREMENTS.md),
+reaffirmed 2026-09-09. Lead findings with the effect on P1's private IO and
+activations; retain P3 checks without making PoC weight privacy a prerequisite.
+The full version's weight privacy remains required.
+
 **Round 17 update:** O1–O4 are delivered and integrated through `2fb7e0a`.
 Codex reran all 69 Opus tests and 57 legacy joint-analysis tests with no skips.
 Their results are accepted within the stated capture/linear-model/inventory
@@ -8,6 +15,12 @@ first. The original dispatch below remains the definition of the completed
 items. Do not rerun or rewrite those reports as new work.
 
 ## Current dispatch: O8 — analyze the new IO captures
+
+**Codex round-21 update:** [round 21](ZK60_ROUND21.md) checks both IO CFS
+round-message fibres and their exact M functional bindings on all four
+captures. Its fixed-challenge scope still excludes adaptive simulation and
+caller-fixed endpoint roots. O8 remains responsible for the joint PCS
+message/alias premise, with P1 private IO/activations the first milestone.
 
 **Codex round-20 update:** [round 20](ZK60_ROUND20.md) supplies a conditional
 PCS pad/column and shared-M opening construction with checks on all four
