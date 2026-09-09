@@ -1,0 +1,1071 @@
+{
+ "schema_version": 1,
+ "task": "FA8 -- exact checks behind the transcript simulator",
+ "reviewer": "Claude Fable 5.1, independent privacy reviewer, 2026-09-08 session (FA8)",
+ "source_pin": {
+  "worktree_head": "ed478da",
+  "codex_merge": "972da4e",
+  "fa6_fa7_pin": "cfa46f6"
+ },
+ "seed": 6,
+ "tool_sha256": {
+  "zk60_fable_transcript_sim.py": "08720bccc36ede30dc624c0195d8d1a8ae602439fa11f90c20b3ec046c69452e",
+  "zk60_fable_joint_rank.py": "ad5e4e483c6dd8c5f73a87ddb0af1d06c3084576e82428e9c2ada6a764ffbb5b",
+  "zk60_fable_cfs_channel.py": "ba05f0d140d72f67d69bbf48f4336d08a83cd99fbd01d2c49c417ec120066437"
+ },
+ "fibre": {
+  "statement": "for every challenge sequence (G, g(rho)) has rank 2 and Delta_{N-1} -> h_{N-1}(r_{N-1}) is onto Fp2, so the honest (claim, fin) is uniform on Fp2^2 and the simulator's fibre sampling reproduces it (review section B, step 5)",
+  "single_slot": [
+   {
+    "n_vars": 2,
+    "degree": 2,
+    "challenges": "all_zero",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 2,
+    "degree": 2,
+    "challenges": "all_one",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 2,
+    "degree": 2,
+    "challenges": "last_zero",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 2,
+    "degree": 2,
+    "challenges": "last_one",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 2,
+    "degree": 2,
+    "challenges": "last_two",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 2,
+    "degree": 2,
+    "challenges": "all_half",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 2,
+    "degree": 2,
+    "challenges": "random",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 3,
+    "degree": 2,
+    "challenges": "all_zero",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 3,
+    "degree": 2,
+    "challenges": "all_one",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 3,
+    "degree": 2,
+    "challenges": "last_zero",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 3,
+    "degree": 2,
+    "challenges": "last_one",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 3,
+    "degree": 2,
+    "challenges": "last_two",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 3,
+    "degree": 2,
+    "challenges": "all_half",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 3,
+    "degree": 2,
+    "challenges": "random",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 4,
+    "degree": 3,
+    "challenges": "all_zero",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 4,
+    "degree": 3,
+    "challenges": "all_one",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 4,
+    "degree": 3,
+    "challenges": "last_zero",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 4,
+    "degree": 3,
+    "challenges": "last_one",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 4,
+    "degree": 3,
+    "challenges": "last_two",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 4,
+    "degree": 3,
+    "challenges": "all_half",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 4,
+    "degree": 3,
+    "challenges": "random",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 5,
+    "degree": 4,
+    "challenges": "all_zero",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 5,
+    "degree": 4,
+    "challenges": "all_one",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 5,
+    "degree": 4,
+    "challenges": "last_zero",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 5,
+    "degree": 4,
+    "challenges": "last_one",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 5,
+    "degree": 4,
+    "challenges": "last_two",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 5,
+    "degree": 4,
+    "challenges": "all_half",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 5,
+    "degree": 4,
+    "challenges": "random",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 6,
+    "degree": 4,
+    "challenges": "all_zero",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 6,
+    "degree": 4,
+    "challenges": "all_one",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 6,
+    "degree": 4,
+    "challenges": "last_zero",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 6,
+    "degree": 4,
+    "challenges": "last_one",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 6,
+    "degree": 4,
+    "challenges": "last_two",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 6,
+    "degree": 4,
+    "challenges": "all_half",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 6,
+    "degree": 4,
+    "challenges": "random",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 10,
+    "degree": 4,
+    "challenges": "all_zero",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 10,
+    "degree": 4,
+    "challenges": "all_one",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 10,
+    "degree": 4,
+    "challenges": "last_zero",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 10,
+    "degree": 4,
+    "challenges": "last_one",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 10,
+    "degree": 4,
+    "challenges": "last_two",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 10,
+    "degree": 4,
+    "challenges": "all_half",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   },
+   {
+    "n_vars": 10,
+    "degree": 4,
+    "challenges": "random",
+    "rank_G_and_g_rho": 2,
+    "last_round_onto": true
+   }
+  ],
+  "batched_pairs": [
+   {
+    "pair": [
+     5,
+     2,
+     10,
+     4
+    ],
+    "challenges": "all_zero",
+    "rank": 4
+   },
+   {
+    "pair": [
+     5,
+     2,
+     10,
+     4
+    ],
+    "challenges": "all_one",
+    "rank": 4
+   },
+   {
+    "pair": [
+     5,
+     2,
+     10,
+     4
+    ],
+    "challenges": "random",
+    "rank": 4
+   },
+   {
+    "pair": [
+     6,
+     2,
+     6,
+     4
+    ],
+    "challenges": "all_zero",
+    "rank": 4
+   },
+   {
+    "pair": [
+     6,
+     2,
+     6,
+     4
+    ],
+    "challenges": "all_one",
+    "rank": 4
+   },
+   {
+    "pair": [
+     6,
+     2,
+     6,
+     4
+    ],
+    "challenges": "random",
+    "rank": 4
+   },
+   {
+    "pair": [
+     9,
+     2,
+     17,
+     4
+    ],
+    "challenges": "all_zero",
+    "rank": 4
+   },
+   {
+    "pair": [
+     9,
+     2,
+     17,
+     4
+    ],
+    "challenges": "all_one",
+    "rank": 4
+   },
+   {
+    "pair": [
+     9,
+     2,
+     17,
+     4
+    ],
+    "challenges": "random",
+    "rank": 4
+   }
+  ],
+  "last_round_small_challenges": [
+   {
+    "degree": 2,
+    "r_last": 0,
+    "onto": true
+   },
+   {
+    "degree": 2,
+    "r_last": 1,
+    "onto": true
+   },
+   {
+    "degree": 2,
+    "r_last": 2,
+    "onto": true
+   },
+   {
+    "degree": 2,
+    "r_last": 3,
+    "onto": true
+   },
+   {
+    "degree": 3,
+    "r_last": 0,
+    "onto": true
+   },
+   {
+    "degree": 3,
+    "r_last": 1,
+    "onto": true
+   },
+   {
+    "degree": 3,
+    "r_last": 2,
+    "onto": true
+   },
+   {
+    "degree": 3,
+    "r_last": 3,
+    "onto": true
+   },
+   {
+    "degree": 3,
+    "r_last": 4,
+    "onto": true
+   },
+   {
+    "degree": 4,
+    "r_last": 0,
+    "onto": true
+   },
+   {
+    "degree": 4,
+    "r_last": 1,
+    "onto": true
+   },
+   {
+    "degree": 4,
+    "r_last": 2,
+    "onto": true
+   },
+   {
+    "degree": 4,
+    "r_last": 3,
+    "onto": true
+   },
+   {
+    "degree": 4,
+    "r_last": 4,
+    "onto": true
+   },
+   {
+    "degree": 4,
+    "r_last": 5,
+    "onto": true
+   }
+  ],
+  "all_ok": true
+ },
+ "k_slots": {
+  "statement": "k proofs against one budgeted W commitment, each on its own slot's pairs with the proximity vector over all rows, disclose no W functional jointly; a declared-twice or copied slot leaks W (review section F2, enforcement E1/E3)",
+  "cases": [
+   {
+    "case": "one proof, one slot (FA3 whole_W_p3 shape)",
+    "k_slots": 1,
+    "proofs_declare_slots": [
+     0
+    ],
+    "n_cols": 4,
+    "rows_per_block": 2,
+    "disclosed_dim": 0,
+    "rank_mask": 26,
+    "rank_joint": 26,
+    "trivial_identities": 4,
+    "disclosed_W_entries": [],
+    "expected": "0",
+    "verdict": "PASS"
+   },
+   {
+    "case": "two proofs, distinct slots",
+    "k_slots": 2,
+    "proofs_declare_slots": [
+     0,
+     1
+    ],
+    "n_cols": 4,
+    "rows_per_block": 2,
+    "disclosed_dim": 0,
+    "rank_mask": 52,
+    "rank_joint": 52,
+    "trivial_identities": 8,
+    "disclosed_W_entries": [],
+    "expected": "0",
+    "verdict": "PASS"
+   },
+   {
+    "case": "three proofs, distinct slots, prox over all 3 slot sets",
+    "k_slots": 3,
+    "proofs_declare_slots": [
+     0,
+     1,
+     2
+    ],
+    "n_cols": 4,
+    "rows_per_block": 2,
+    "disclosed_dim": 0,
+    "rank_mask": 78,
+    "rank_joint": 78,
+    "trivial_identities": 12,
+    "disclosed_W_entries": [],
+    "expected": "0",
+    "verdict": "PASS"
+   },
+   {
+    "case": "three slots, slot 1 burned (proofs on 0 and 2)",
+    "k_slots": 3,
+    "proofs_declare_slots": [
+     0,
+     2
+    ],
+    "n_cols": 4,
+    "rows_per_block": 2,
+    "disclosed_dim": 0,
+    "rank_mask": 52,
+    "rank_joint": 52,
+    "trivial_identities": 8,
+    "disclosed_W_entries": [],
+    "expected": "0",
+    "verdict": "PASS"
+   },
+   {
+    "case": "NEGATIVE: two proofs declare the same slot",
+    "k_slots": 2,
+    "proofs_declare_slots": [
+     0,
+     0
+    ],
+    "n_cols": 4,
+    "rows_per_block": 2,
+    "disclosed_dim": 12,
+    "rank_mask": 40,
+    "rank_joint": 52,
+    "trivial_identities": 8,
+    "disclosed_W_entries": [
+     "Wd/D0[0]",
+     "Wd/D0[1]",
+     "Wd/D0[2]",
+     "Wd/D0[3]",
+     "Wd/D1[0]",
+     "Wd/D1[1]",
+     "Wd/D1[2]",
+     "Wd/D1[3]",
+     "Wg/D0[0]",
+     "Wg/D0[1]",
+     "Wg/D0[2]",
+     "Wg/D0[3]"
+    ],
+    "expected": "> 0",
+    "verdict": "PASS"
+   },
+   {
+    "case": "NEGATIVE: three proofs, slot 1 reused twice",
+    "k_slots": 3,
+    "proofs_declare_slots": [
+     0,
+     1,
+     1
+    ],
+    "n_cols": 4,
+    "rows_per_block": 2,
+    "disclosed_dim": 12,
+    "rank_mask": 66,
+    "rank_joint": 78,
+    "trivial_identities": 12,
+    "disclosed_W_entries": [
+     "Wd/D0[0]",
+     "Wd/D0[1]",
+     "Wd/D0[2]",
+     "Wd/D0[3]",
+     "Wd/D1[0]",
+     "Wd/D1[1]",
+     "Wd/D1[2]",
+     "Wd/D1[3]",
+     "Wg/D0[0]",
+     "Wg/D0[1]",
+     "Wg/D0[2]",
+     "Wg/D0[3]"
+    ],
+    "expected": "> 0",
+    "verdict": "PASS"
+   },
+   {
+    "case": "NEGATIVE: slot 1's pair rows are copies of slot 0's (AM4 across slots)",
+    "k_slots": 2,
+    "proofs_declare_slots": [
+     0,
+     1
+    ],
+    "n_cols": 4,
+    "rows_per_block": 2,
+    "disclosed_dim": 20,
+    "rank_mask": 32,
+    "rank_joint": 52,
+    "trivial_identities": 8,
+    "disclosed_W_entries": [
+     "Wd/D0[0]",
+     "Wd/D0[1]",
+     "Wd/D0[2]",
+     "Wd/D0[3]",
+     "Wd/D1[0]",
+     "Wd/D1[1]",
+     "Wd/D1[2]",
+     "Wd/D1[3]",
+     "Wg/D0[0]",
+     "Wg/D0[1]",
+     "Wg/D0[2]",
+     "Wg/D0[3]"
+    ],
+    "expected": "> 0",
+    "verdict": "PASS"
+   },
+   {
+    "case": "one proof, one slot, n = 8",
+    "k_slots": 1,
+    "proofs_declare_slots": [
+     0
+    ],
+    "n_cols": 8,
+    "rows_per_block": 2,
+    "disclosed_dim": 0,
+    "rank_mask": 50,
+    "rank_joint": 50,
+    "trivial_identities": 4,
+    "disclosed_W_entries": [],
+    "expected": "0",
+    "verdict": "PASS"
+   },
+   {
+    "case": "two proofs, distinct slots, n = 8, single-row blocks",
+    "k_slots": 2,
+    "proofs_declare_slots": [
+     0,
+     1
+    ],
+    "n_cols": 8,
+    "rows_per_block": 1,
+    "disclosed_dim": 0,
+    "rank_mask": 100,
+    "rank_joint": 100,
+    "trivial_identities": 8,
+    "disclosed_W_entries": [],
+    "expected": "0",
+    "verdict": "PASS"
+   }
+  ],
+  "all_ok": true,
+  "caveat": "exact rank under stand-in coefficients over the source's observation structure; the pad/column channel is section 3, the CFS channel FA6, the simulator the review"
+ },
+ "pad_budget": {
+  "statement": "the opened positions of a row are hidden by its pads exactly when the number of DISTINCT opened coset positions across all openings is <= q_pad; k openings of Q draws each give <= kQ",
+  "cases": [
+   {
+    "n": 4,
+    "nn": 16,
+    "q_pad": 6,
+    "openings": 3,
+    "per_opening": [
+     2,
+     2,
+     2
+    ],
+    "distinct_positions": 5,
+    "rank": 5,
+    "leaked_functionals_of_the_row": 0,
+    "hidden": true,
+    "expected_leak": 0,
+    "case": "k = 3 budgeted, 3 openings of Q = 2",
+    "verdict": "PASS"
+   },
+   {
+    "n": 4,
+    "nn": 16,
+    "q_pad": 6,
+    "openings": 4,
+    "per_opening": [
+     2,
+     2,
+     2,
+     2
+    ],
+    "distinct_positions": 7,
+    "rank": 6,
+    "leaked_functionals_of_the_row": 1,
+    "hidden": false,
+    "expected_leak": 1,
+    "case": "k = 3 budgeted, 4 openings of Q = 2",
+    "verdict": "PASS"
+   },
+   {
+    "n": 8,
+    "nn": 32,
+    "q_pad": 16,
+    "openings": 4,
+    "per_opening": [
+     4,
+     4,
+     4,
+     4
+    ],
+    "distinct_positions": 13,
+    "rank": 13,
+    "leaked_functionals_of_the_row": 0,
+    "hidden": true,
+    "expected_leak": 0,
+    "case": "k = 4 budgeted, 4 openings of Q = 4",
+    "verdict": "PASS"
+   },
+   {
+    "n": 8,
+    "nn": 32,
+    "q_pad": 16,
+    "openings": 6,
+    "per_opening": [
+     4,
+     4,
+     4,
+     4,
+     4,
+     4
+    ],
+    "distinct_positions": 17,
+    "rank": 16,
+    "leaked_functionals_of_the_row": 1,
+    "hidden": false,
+    "expected_leak": 1,
+    "case": "k = 4 budgeted, 6 openings of Q = 4",
+    "verdict": "PASS"
+   },
+   {
+    "n": 16,
+    "nn": 128,
+    "q_pad": 64,
+    "openings": 8,
+    "per_opening": [
+     8,
+     8,
+     8,
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "distinct_positions": 54,
+    "rank": 54,
+    "leaked_functionals_of_the_row": 0,
+    "hidden": true,
+    "expected_leak": 0,
+    "case": "k = 8 budgeted, 8 openings of Q = 8",
+    "verdict": "PASS"
+   },
+   {
+    "n": 16,
+    "nn": 128,
+    "q_pad": 64,
+    "openings": 9,
+    "per_opening": [
+     8,
+     8,
+     8,
+     8,
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "distinct_positions": 54,
+    "rank": 54,
+    "leaked_functionals_of_the_row": 0,
+    "hidden": true,
+    "expected_leak": 0,
+    "case": "k = 8 budgeted, 9 openings of Q = 8",
+    "verdict": "PASS"
+   },
+   {
+    "n": 8,
+    "nn": 16,
+    "q_pad": 8,
+    "openings": 2,
+    "per_opening": [
+     4,
+     4
+    ],
+    "distinct_positions": 7,
+    "rank": 7,
+    "leaked_functionals_of_the_row": 0,
+    "hidden": true,
+    "expected_leak": 0,
+    "case": "k = 2 budgeted, 2 openings of Q = 4",
+    "verdict": "PASS"
+   },
+   {
+    "n": 8,
+    "nn": 32,
+    "q_pad": 4,
+    "openings": 2,
+    "per_opening": [
+     4,
+     4
+    ],
+    "distinct_positions": 3,
+    "rank": 3,
+    "leaked_functionals_of_the_row": 0,
+    "hidden": true,
+    "expected_leak": 0,
+    "case": "duplicates: 8 draws, 3 distinct positions, q_pad 4",
+    "verdict": "PASS"
+   }
+  ],
+  "all_ok": true
+ },
+ "reduction_bias": {
+  "p": 18446744069414584321,
+  "two_pow_128_mod_p": 18446744065119617025,
+  "p_minus_m": 4294967296,
+  "p_minus_m_is_2_pow_32": true,
+  "sd_fp_from_uniform": {
+   "numerator": 18446744065119617025,
+   "denominator": 1461501636990620551361974531767172749817708281856,
+   "log2": -96.0000000003359
+  },
+  "sd_one_time_pad_shift_bound_log2": -95.0000000003359,
+  "source_comment_bound_log2": -64.0,
+  "prob_two_fp2_fp_dependent_log2": -63.9999999996641,
+  "prob_uniform_fp2_in_fp_log2": -63.9999999996641,
+  "statement": "x mod p for x uniform on [0, 2^128) is within m(p - m) / (p 2^128) = 2^-96 (1 - 2^-32) of uniform, because 2^128 = p - 2^32 (mod p); a one-time pad drawn this way hides its addend up to 2^-95 per Fp coordinate (the source's 2^-64 is a loose bound)"
+ },
+ "counts": {
+  "programmed_round_challenges": [
+   {
+    "shape": "v2 legacy T32 (D 768, F 2048) log_cols 14",
+    "mode": "P1",
+    "slots": 6,
+    "sum_n_vars": 80,
+    "sum_len": 248
+   },
+   {
+    "shape": "v3 tiny T2/d16/f16 log_cols 5",
+    "mode": "P1",
+    "slots": 6,
+    "sum_n_vars": 45,
+    "sum_len": 143
+   },
+   {
+    "shape": "v3 tiny T2/d16/f16 log_cols 5",
+    "mode": "P3",
+    "slots": 6,
+    "sum_n_vars": 47,
+    "sum_len": 147
+   },
+   {
+    "shape": "v3 tiny T2/d16/f16 log_cols 5",
+    "mode": "P1 + function-2 predicate",
+    "slots": 7,
+    "sum_n_vars": 51,
+    "sum_len": 163
+   },
+   {
+    "shape": "v3 tiny T2/d16/f16 log_cols 5",
+    "mode": "P1 block profile (+ seams)",
+    "slots": 8,
+    "sum_n_vars": 57,
+    "sum_len": 171
+   },
+   {
+    "shape": "v3 tiny T32/d16/f16 log_cols 8",
+    "mode": "P1",
+    "slots": 6,
+    "sum_n_vars": 56,
+    "sum_len": 181
+   },
+   {
+    "shape": "v3 tiny T32/d16/f16 log_cols 8",
+    "mode": "P3",
+    "slots": 6,
+    "sum_n_vars": 58,
+    "sum_len": 185
+   },
+   {
+    "shape": "v3 tiny T32/d16/f16 log_cols 8",
+    "mode": "P1 + function-2 predicate",
+    "slots": 7,
+    "sum_n_vars": 66,
+    "sum_len": 213
+   },
+   {
+    "shape": "v3 tiny T32/d16/f16 log_cols 8",
+    "mode": "P1 block profile (+ seams)",
+    "slots": 8,
+    "sum_n_vars": 76,
+    "sum_len": 225
+   },
+   {
+    "shape": "v3 125M T32/d768/f2048 log_cols 14",
+    "mode": "P1",
+    "slots": 6,
+    "sum_n_vars": 83,
+    "sum_len": 257
+   },
+   {
+    "shape": "v3 125M T32/d768/f2048 log_cols 14",
+    "mode": "P3",
+    "slots": 6,
+    "sum_n_vars": 85,
+    "sum_len": 261
+   },
+   {
+    "shape": "v3 125M T32/d768/f2048 log_cols 14",
+    "mode": "P1 + function-2 predicate",
+    "slots": 7,
+    "sum_n_vars": 97,
+    "sum_len": 301
+   },
+   {
+    "shape": "v3 125M T32/d768/f2048 log_cols 14",
+    "mode": "P1 block profile (+ seams)",
+    "slots": 8,
+    "sum_n_vars": 111,
+    "sum_len": 317
+   },
+   {
+    "shape": "v3 8B block profile T32/d4096/f14336 log_cols 14 (FA3 ffn-v3-mr1)",
+    "mode": "P1",
+    "slots": 6,
+    "sum_n_vars": 92,
+    "sum_len": 283
+   },
+   {
+    "shape": "v3 8B block profile T32/d4096/f14336 log_cols 14 (FA3 ffn-v3-mr1)",
+    "mode": "P3",
+    "slots": 6,
+    "sum_n_vars": 94,
+    "sum_len": 287
+   },
+   {
+    "shape": "v3 8B block profile T32/d4096/f14336 log_cols 14 (FA3 ffn-v3-mr1)",
+    "mode": "P1 + function-2 predicate",
+    "slots": 7,
+    "sum_n_vars": 110,
+    "sum_len": 339
+   },
+   {
+    "shape": "v3 8B block profile T32/d4096/f14336 log_cols 14 (FA3 ffn-v3-mr1)",
+    "mode": "P1 block profile (+ seams)",
+    "slots": 8,
+    "sum_n_vars": 128,
+    "sum_len": 359
+   },
+   {
+    "shape": "v3 8B T32/d4096/f14336 log_cols 16",
+    "mode": "P1",
+    "slots": 6,
+    "sum_n_vars": 94,
+    "sum_len": 287
+   },
+   {
+    "shape": "v3 8B T32/d4096/f14336 log_cols 16",
+    "mode": "P3",
+    "slots": 6,
+    "sum_n_vars": 96,
+    "sum_len": 291
+   },
+   {
+    "shape": "v3 8B T32/d4096/f14336 log_cols 16",
+    "mode": "P1 + function-2 predicate",
+    "slots": 7,
+    "sum_n_vars": 112,
+    "sum_len": 343
+   },
+   {
+    "shape": "v3 8B T32/d4096/f14336 log_cols 16",
+    "mode": "P1 block profile (+ seams)",
+    "slots": 8,
+    "sum_n_vars": 130,
+    "sum_len": 363
+   }
+  ],
+  "fp_draws": [
+   {
+    "family": "tiny T2/d16/f16",
+    "n": 32,
+    "Q": 12,
+    "A_rows_block": 5191,
+    "H_rows": 10322,
+    "W_P3_rows_one_slot": 32,
+    "fp_draws_A": 228404,
+    "fp_draws_H": 454168,
+    "fp_draws_M_upper": 9376,
+    "fp_draws_per_proof_P1_block": 691948,
+    "bias_term_log2_P1_block": -75.59969590238464
+   },
+   {
+    "family": "tiny T32/d16/f16",
+    "n": 256,
+    "Q": 256,
+    "A_rows_block": 702,
+    "H_rows": 1326,
+    "W_P3_rows_one_slot": 11,
+    "fp_draws_A": 359424,
+    "fp_draws_H": 678912,
+    "fp_draws_M_upper": 9376,
+    "fp_draws_per_proof_P1_block": 1047712,
+    "bias_term_log2_P1_block": -75.00118923409943
+   },
+   {
+    "family": "125M d768/f2048",
+    "n": 16384,
+    "Q": 256,
+    "A_rows_block": 151,
+    "H_rows": 128,
+    "W_P3_rows_one_slot": 308,
+    "fp_draws_A": 2512640,
+    "fp_draws_H": 2129920,
+    "fp_draws_M_upper": 9376,
+    "fp_draws_per_proof_P1_block": 4651936,
+    "bias_term_log2_P1_block": -72.85060018191237
+   },
+   {
+    "family": "8B d4096/f14336",
+    "n": 16384,
+    "Q": 256,
+    "A_rows_block": 369,
+    "H_rows": 270,
+    "W_P3_rows_one_slot": 10796,
+    "fp_draws_A": 6140160,
+    "fp_draws_H": 4492800,
+    "fp_draws_M_upper": 9376,
+    "fp_draws_per_proof_P1_block": 10642336,
+    "bias_term_log2_P1_block": -71.65668847764533
+   }
+  ]
+ },
+ "all_ok": true,
+ "caveat": "exact integer arithmetic on the source's observation structure with stand-in coefficients; the checks pin three facts the review's simulator uses; they are not the simulator and not an acceptance"
+}

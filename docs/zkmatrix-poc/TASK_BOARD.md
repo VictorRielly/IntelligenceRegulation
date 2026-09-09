@@ -223,7 +223,53 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
-**AS OF 2026-09-04 22:xx (NEWEST BLOCK. ZK60 TASK CL1 IS DONE:
+**AS OF 2026-09-08 evening (NEWEST BLOCK. FABLE'S ROUND-12 QUEUE: FA6, FA7,
+FA8 AND CL21 DELIVERED ON LANES; FA9 AND THE CL20 DECODER CORRECTION IN
+FLIGHT; NOTHING MERGED BY FABLE — INTEGRATION IS CODEX'S):**
+- **THE RECORD** is `docs/zkmatrix-poc/ZK60_FABLE_ROUND12_DELIVERY.md`;
+  per-task statuses and results are in `zk60_fable_tasks.json`
+  (`fable_round12_delivery`, each task's `result`). Do NOT restart FA6, FA7,
+  FA8 or CL21 from a stale "ready" label.
+- **LANES** (all branched at `cfa46f6`, Victor's rule: pushed):
+  `zk60-fable-review` (`../wt-zk60-fa`) = FA6 `e83a4ca`, FA7 `f6d8557`,
+  ledger pointers `018d506`, FA8 `9d373e0`, merged Codex through `a94ce2c`
+  (`74f3b06`); `zk60-cl1` (`../wt-zk60-cl1`) = CL21 `d4f0758` + `e18994c`;
+  `zk60-cl20-core` (`../wt-zk60-cl20`) = `ee775be`, `76ee275` (both already
+  integrated by Codex in `b044e20`), `f8d40a7` (HELD by Codex for C20-R1–R3,
+  `ZK60_CL20_ROUND14_REVIEW.md`; the correction is being made on this lane);
+  `zk60-fable-fa9` (`../wt-zk60-fa9`) = FA9 in flight (R09/R10/R31 packaged
+  Rust gap pins + patch diffs, R32 review of Codex's `42471f0`), to be merged
+  into the review lane when it lands.
+- **WHAT IS ESTABLISHED** (correctness/privacy review, no product claim):
+  FA6 closes FA3 blocker B1 for the construction as coded (every CFS slot's
+  mask map is surjective onto its consistency subspace; the M opening reveals
+  exactly V; 22 negative controls); FA7 analyses the twelve real captures
+  jointly (legacy A discloses 2n + 4 base functionals, P3 W 2n + 2, H only
+  the public LogUp identity; the T32 Wd plane and the tiny X/h16 rows are
+  determined from one proof); FA8 writes the transcript simulator (B2), closes
+  B3 for the repaired profile, closes B4 for fresh commitments and, for FA4's
+  stable W, only under enforcement E1–E3 (Codex's journal covers the public
+  half); CL21's suite-v4 floors run is GREEN 23/23 at `d4f0758` with both
+  crate trees and both lockfiles in the manifest; CL20 moved the PCS and the
+  typed v3 pieces into `zkp-core` with all four frozen CPU proofs byte-identical.
+- **SECURITY FINDING FOR CODEX (FA8 S1):** the explicit `ZkConfig.seed` path
+  is reachable in production and a u64 seed is brute-forceable from one
+  proof's M root — make it cfg(test)-only or refuse it.
+- **INTEGRATION NOTES:** CL20 raises the core test count (19 → 22 integrated,
+  28 on the lane) so the floors suite needs v5 with the new `core_tests`
+  expectation when it lands; feature-enabled `stable-weight-storage` test
+  coverage must be identified separately from the default-suite claims (v4
+  claims default features only); FA6's two hardenings and FA9's diffs are
+  Codex-owned edits with tests that pin the flip.
+- **IF RESUMING (Grok or a fresh session):** check `git -C ../wt-zk60-fa9
+  status --short` (FA9 must leave `hashline/src` pristine before its commit)
+  and `git -C ../wt-zk60-cl20 log --oneline -3` (the C20-R1–R3 fix commit);
+  when both are in, merge `zk60-fable-fa9` into `zk60-fable-review`, re-run
+  `python3 -m unittest discover -s tests -p 'test_zk60_fable_*.py'` (94 tests
+  expected + FA9's if any), push all lanes, and hand to Codex. No GPU or
+  full-model job is implied by any of this.
+
+**AS OF 2026-09-04 22:xx (OLDER BLOCK. ZK60 TASK CL1 IS DONE:
 **P3 RUNS ON THE DEVICE AT MISTRAL WIDTH**, which it could not do this
 morning, and the surcharge lane AM had to leave unmeasured is +20.0%):**
 - **LANE `zk60-cl1` (worktree `wt-zk60-cl1`), branched at `87c5338`,

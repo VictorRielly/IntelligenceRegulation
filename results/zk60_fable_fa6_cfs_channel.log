@@ -1,0 +1,48 @@
+[FA6] source cfa46f6; all slot systems surjective: True
+  v2 legacy T32 (D 768, F 2048) log_cols 14 [P1]: SC_GU=(9,2), SC_D=(12,2), SC_ZC20=(17,4), SC_ZC17=(14,4), SC_ZSUM=(14,2), SC_TAB=(14,3) -> OK
+  v3 tiny T2/d16/f16 log_cols 5 [P1]: SC_GU=(5,2), SC_D=(5,2), SC_ZC20=(6,4), SC_ZC17=(6,4), SC_ZSUM=(6,2), SC_TAB=(17,3) -> OK
+  v3 tiny T2/d16/f16 log_cols 5 [P3]: SC_GU=(6,2), SC_D=(6,2), SC_ZC20=(6,4), SC_ZC17=(6,4), SC_ZSUM=(6,2), SC_TAB=(17,3) -> OK
+  v3 tiny T2/d16/f16 log_cols 5 [P1 + function-2 predicate]: SC_GU=(5,2), SC_D=(5,2), SC_ZC20=(6,4), SC_ZC17=(6,4), SC_ZSUM=(6,2), SC_TAB=(17,3), SC_PRED=(6,3) -> OK
+  v3 tiny T2/d16/f16 log_cols 5 [P1 block profile (+ seams)]: SC_GU=(5,2), SC_D=(5,2), SC_ZC20=(6,4), SC_ZC17=(6,4), SC_ZSUM=(6,2), SC_TAB=(17,3), SC_SEAM_X=(6,2), SC_SEAM_Z=(6,2) -> OK
+  v3 tiny T32/d16/f16 log_cols 8 [P1]: SC_GU=(5,2), SC_D=(5,2), SC_ZC20=(10,4), SC_ZC17=(10,4), SC_ZSUM=(9,2), SC_TAB=(17,3) -> OK
+  v3 tiny T32/d16/f16 log_cols 8 [P3]: SC_GU=(6,2), SC_D=(6,2), SC_ZC20=(10,4), SC_ZC17=(10,4), SC_ZSUM=(9,2), SC_TAB=(17,3) -> OK
+  v3 tiny T32/d16/f16 log_cols 8 [P1 + function-2 predicate]: SC_GU=(5,2), SC_D=(5,2), SC_ZC20=(10,4), SC_ZC17=(10,4), SC_ZSUM=(9,2), SC_TAB=(17,3), SC_PRED=(10,3) -> OK
+  v3 tiny T32/d16/f16 log_cols 8 [P1 block profile (+ seams)]: SC_GU=(5,2), SC_D=(5,2), SC_ZC20=(10,4), SC_ZC17=(10,4), SC_ZSUM=(9,2), SC_TAB=(17,3), SC_SEAM_X=(10,2), SC_SEAM_Z=(10,2) -> OK
+  v3 125M T32/d768/f2048 log_cols 14 [P1]: SC_GU=(9,2), SC_D=(12,2), SC_ZC20=(17,4), SC_ZC17=(14,4), SC_ZSUM=(14,2), SC_TAB=(17,3) -> OK
+  v3 125M T32/d768/f2048 log_cols 14 [P3]: SC_GU=(10,2), SC_D=(13,2), SC_ZC20=(17,4), SC_ZC17=(14,4), SC_ZSUM=(14,2), SC_TAB=(17,3) -> OK
+  v3 125M T32/d768/f2048 log_cols 14 [P1 + function-2 predicate]: SC_GU=(9,2), SC_D=(12,2), SC_ZC20=(17,4), SC_ZC17=(14,4), SC_ZSUM=(14,2), SC_TAB=(17,3), SC_PRED=(14,3) -> OK
+  v3 125M T32/d768/f2048 log_cols 14 [P1 block profile (+ seams)]: SC_GU=(9,2), SC_D=(12,2), SC_ZC20=(17,4), SC_ZC17=(14,4), SC_ZSUM=(14,2), SC_TAB=(17,3), SC_SEAM_X=(14,2), SC_SEAM_Z=(14,2) -> OK
+  v3 8B block profile T32/d4096/f14336 log_cols 14 (FA3 ffn-v3-mr1) [P1]: SC_GU=(13,2), SC_D=(12,2), SC_ZC20=(17,4), SC_ZC17=(18,4), SC_ZSUM=(15,2), SC_TAB=(17,3) -> OK
+  v3 8B block profile T32/d4096/f14336 log_cols 14 (FA3 ffn-v3-mr1) [P3]: SC_GU=(14,2), SC_D=(13,2), SC_ZC20=(17,4), SC_ZC17=(18,4), SC_ZSUM=(15,2), SC_TAB=(17,3) -> OK
+  v3 8B block profile T32/d4096/f14336 log_cols 14 (FA3 ffn-v3-mr1) [P1 + function-2 predicate]: SC_GU=(13,2), SC_D=(12,2), SC_ZC20=(17,4), SC_ZC17=(18,4), SC_ZSUM=(15,2), SC_TAB=(17,3), SC_PRED=(18,3) -> OK
+  v3 8B block profile T32/d4096/f14336 log_cols 14 (FA3 ffn-v3-mr1) [P1 block profile (+ seams)]: SC_GU=(13,2), SC_D=(12,2), SC_ZC20=(17,4), SC_ZC17=(18,4), SC_ZSUM=(15,2), SC_TAB=(17,3), SC_SEAM_X=(18,2), SC_SEAM_Z=(18,2) -> OK
+  v3 8B T32/d4096/f14336 log_cols 16 [P1]: SC_GU=(13,2), SC_D=(12,2), SC_ZC20=(17,4), SC_ZC17=(18,4), SC_ZSUM=(17,2), SC_TAB=(17,3) -> OK
+  v3 8B T32/d4096/f14336 log_cols 16 [P3]: SC_GU=(14,2), SC_D=(13,2), SC_ZC20=(17,4), SC_ZC17=(18,4), SC_ZSUM=(17,2), SC_TAB=(17,3) -> OK
+  v3 8B T32/d4096/f14336 log_cols 16 [P1 + function-2 predicate]: SC_GU=(13,2), SC_D=(12,2), SC_ZC20=(17,4), SC_ZC17=(18,4), SC_ZSUM=(17,2), SC_TAB=(17,3), SC_PRED=(18,3) -> OK
+  v3 8B T32/d4096/f14336 log_cols 16 [P1 block profile (+ seams)]: SC_GU=(13,2), SC_D=(12,2), SC_ZC20=(17,4), SC_ZC17=(18,4), SC_ZSUM=(17,2), SC_TAB=(17,3), SC_SEAM_X=(18,2), SC_SEAM_Z=(18,2) -> OK
+  control nc_mask_challenge_zero: leaked_fp2 = 13, kernel = 14 (DEFICIENT)
+  control pc_no_aprime_libra_form: leaked_fp2 = 0, kernel = 0 (surjective (view uniform on S, independent of the data))
+  control pc_no_constant_a0_generic_challenges: leaked_fp2 = 0, kernel = 0 (surjective (view uniform on S, independent of the data))
+  control nc_no_constant_a0_degenerate_challenge: leaked_fp2 = 1, kernel = 1 (DEFICIENT)
+  control nc_no_a0_no_aprime: leaked_fp2 = 1, kernel = 0 (DEFICIENT)
+  control pc_full_mask_all_zero_challenges: leaked_fp2 = 0, kernel = 1 (surjective (view uniform on S, independent of the data))
+  control pc_full_mask_all_one_challenges: leaked_fp2 = 0, kernel = 1 (surjective (view uniform on S, independent of the data))
+  control nc_extension_degree_exceeds_mask: leaked_fp2 = 1, kernel = 1 (DEFICIENT)
+  control nc_mask_reuse_same_challenges: leaked_fp2 = 13, kernel = 1 (DEFICIENT)
+  control nc_mask_reuse_fresh_challenges: leaked_fp2 = 12, kernel = 0 (DEFICIENT)
+  control nc_batched_pair_without_zero_check_mask: leaked_fp2 = 17, kernel = 1 (DEFICIENT)
+  M control seven_generates_fp_star: {'ok': True, 'coset_disjoint_from_G_m': True}
+  M control pc_columns_q_distinct_under_q_pads: {'log_m': 3, 'coefficients': 3, 'pads': 3, 'opened': 3, 'distinct': 3, 'disclosed_coefficient_functionals': 0}
+  M control pc_columns_duplicate_indices: {'log_m': 3, 'coefficients': 3, 'pads': 3, 'opened': 3, 'distinct': 2, 'disclosed_coefficient_functionals': 0}
+  M control nc_columns_exceed_pads: {'log_m': 3, 'coefficients': 3, 'pads': 3, 'opened': 4, 'distinct': 4, 'disclosed_coefficient_functionals': 1}
+  M control nc_columns_without_pads: {'log_m': 3, 'coefficients': 3, 'pads': 0, 'opened': 3, 'distinct': 3, 'disclosed_coefficient_functionals': 3}
+  M control pc_qprime_one_opening: {'log_m': 3, 'coefficients_fp2': 3, 'pads': 3, 'openings': 1, 'blinding': True, 'data_scalars_fp': 6, 'disclosed_fp_dim': 2, 'disclosed_fp2_dim': 1}
+  M control nc_qprime_two_openings_same_M: {'log_m': 3, 'coefficients_fp2': 3, 'pads': 3, 'openings': 2, 'blinding': True, 'data_scalars_fp': 6, 'disclosed_fp_dim': 6, 'disclosed_fp2_dim': 3}
+  M control nc_qprime_without_blinding: {'log_m': 3, 'coefficients_fp2': 3, 'pads': 3, 'openings': 1, 'blinding': False, 'data_scalars_fp': 6, 'disclosed_fp_dim': 6, 'disclosed_fp2_dim': 3}
+  M control sum_identity: {'sum_over_G_m_equals_m(q0+qm)': True, 'equals_<a,W>': True}
+  M control pc_joint_qprime_prox_columns_one_opening: {'log_m': 3, 'coefficients_fp2': 3, 'pads': 3, 'opened_columns': 3, 'openings': 1, 'unknowns_fp': 74, 'observations_fp': 100, 'data_scalars_fp': 6, 'disclosed_fp_dim': 2, 'disclosed_fp2_dim': 1.0}
+  M control nc_joint_two_openings_same_M: {'log_m': 3, 'coefficients_fp2': 3, 'pads': 3, 'opened_columns': 3, 'openings': 2, 'unknowns_fp': 74, 'observations_fp': 200, 'data_scalars_fp': 6, 'disclosed_fp_dim': 6, 'disclosed_fp2_dim': 3.0}
+  rust fixture rounds: [[(18446744069414584163, 58), (18446744069414584086, 88), (18446744069414583921, 150)], [(18446744069414584268, 16), (18446744069414584212, 37), (18446744069414584088, 82)], [(18446744069414581390, 1102), (18446744069414581388, 1101), (18446744069414581340, 1118)]]
+  rust fixture total: (18446744069414583928, 146) eval: (18446744069414581082, 1277)
+[FA6] wrote /home/victor/wt-zk60-fa/results/zk60_fable_fa6_cfs_channel.json
+exit=0

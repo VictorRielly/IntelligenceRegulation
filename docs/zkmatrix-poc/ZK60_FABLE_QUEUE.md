@@ -1,5 +1,16 @@
 # Fable — current task queue, round 14
 
+**2026-09-08, Fable delivery on the lanes (not merged):** FA6, FA7 and FA8
+are delivered on `zk60-fable-review` (`e83a4ca`, `f6d8557`, `9d373e0`; B1 closed
+for the construction, the real captures analysed jointly, the transcript
+simulator and bounds written) and CL21 on `zk60-cl1` (`d4f0758` + `e18994c`,
+suite-v4 floors GREEN 23/23 with both crates and both lockfiles in the
+manifest). FA9 and the CL20 C20-R1–R3 correction are in flight on their lanes.
+Record: [ZK60_FABLE_ROUND12_DELIVERY.md](ZK60_FABLE_ROUND12_DELIVERY.md);
+statuses in [zk60_fable_tasks.json](zk60_fable_tasks.json). FA8 raises one
+security item for the source owner (S1: the explicit seed path must be
+test-only or refused).
+
 **2026-09-08, Codex round 14:** the local registration component is
 implemented in `7a9273b`. It coordinates encrypted material, the locked durable
 journal, an external key callback and reserved material access; see the
