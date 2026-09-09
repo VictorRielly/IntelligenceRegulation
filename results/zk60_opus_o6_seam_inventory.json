@@ -1,0 +1,1536 @@
+{
+  "blockers_closed": [],
+  "cargo_run": false,
+  "commands": [
+    {
+      "cmd": "git --no-pager -C /home/victor/wt-zk60-fa rev-parse HEAD",
+      "exit": 0
+    },
+    {
+      "cmd": "git --no-pager -C /home/victor/wt-zk60-fa log --oneline -1 b41d036",
+      "exit": 0
+    },
+    {
+      "cmd": "git --no-pager -C /home/victor/wt-zk60-fa log --oneline -1 29d3436",
+      "exit": 0
+    },
+    {
+      "cmd": "git --no-pager -C /home/victor/wt-zk60-fa merge-base --is-ancestor b41d036 HEAD",
+      "exit": 0
+    },
+    {
+      "cmd": "git --no-pager -C /home/victor/wt-zk60-fa status --porcelain",
+      "exit": 0
+    },
+    {
+      "cmd": "sha256sum over the inspected sources",
+      "exit": 0
+    },
+    {
+      "cmd": "python3 <scratchpad>/o6_layout.py (independent layout recomputation, asserts 698/1326/11)",
+      "exit": 0
+    },
+    {
+      "cmd": "python3 <scratchpad>/o6_json.py (this file; re-asserts the row counts)",
+      "exit": 0
+    },
+    {
+      "cmd": "sed -n / grep -n paging of the sources (read-only)",
+      "exit": 0
+    }
+  ],
+  "counts": {
+    "A_rows_today": 698,
+    "A_rows_with_seams": 702,
+    "aliasing_design_note": 2,
+    "aliasing_entries": 8,
+    "aliasing_implemented": 6,
+    "cfs_slots_today": 6,
+    "cfs_slots_with_seams": 8,
+    "consumption_markers_implemented": 0,
+    "consumption_markers_required": 3,
+    "fa3_12_2_absent": 1,
+    "fa3_12_2_half": 5,
+    "fa3_12_2_satisfied": 1,
+    "fa3_12_2_steps": 7,
+    "mask_slot_entries": 4,
+    "randomness_cutoffs": 3,
+    "test_gaps": 10,
+    "tests_mask_rows": 12,
+    "tests_second_opening": 12,
+    "tests_total_listed": 40,
+    "tests_wrong_endpoint": 16,
+    "unresolved_items": 15,
+    "wire_format_collisions": 5
+  },
+  "gpu_used": false,
+  "privacy_verdict": null,
+  "profile": {
+    "citation": "hashline/src/zk_ffn_fresh_poc.rs:14, :46-52, :67-73",
+    "d": 16,
+    "f": 16,
+    "function": 1,
+    "id": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+    "inv_rate": 8,
+    "log_cols": 8,
+    "mr1": true,
+    "num_col_checks": 256,
+    "shifts": [
+      7,
+      0,
+      14,
+      6
+    ],
+    "t_rows": 32
+  },
+  "reviewer": "Opus 5, independent reviewer, 2026-09-08 session",
+  "rust_changed": false,
+  "scope_and_limits": [
+    "This is a source inventory and requirements list for a component that DOES NOT EXIST.",
+    "NO seam is implemented between the repaired FFN and any peer, on either side.",
+    "No privacy claim is made and no blocker is closed (B1, B2, B5, A3, A4 all unchanged).",
+    "No cryptographic construction is proposed; every missing argument is handed to Codex in unresolved_for_codex.",
+    "No Rust was changed, no cargo was run, no GPU was used, no proof was produced.",
+    "Row offsets and slot lengths are recomputed from the layout rules, never copied from a capture.",
+    "Line numbers are pinned to the worktree HEAD and will move; O3/O4 numbers were taken at a8a1bc7."
+  ],
+  "section_1_aliasing": [
+    {
+      "citation": "hashline/src/zk.rs:3306; terminal :3000; ext :2993",
+      "claim": "zero-check D terminal",
+      "group_key": "tail(rho_d)",
+      "marker": "implemented",
+      "mask_rows": [
+        34,
+        35
+      ],
+      "plane": "X",
+      "point": "rho_d",
+      "point_vars": 9,
+      "rows": [
+        14,
+        15
+      ]
+    },
+    {
+      "citation": "hashline/src/zk.rs:3316; terminal :2729; ext :2690",
+      "claim": "g/u matmul block terminal",
+      "group_key": "tail(p2)",
+      "marker": "implemented",
+      "mask_rows": [
+        40,
+        41
+      ],
+      "plane": "X",
+      "point": "p2 = r_i||r_kp",
+      "point_vars": 9,
+      "rows": [
+        14,
+        15
+      ]
+    },
+    {
+      "citation": "hashline/src/zk.rs:3307",
+      "claim": "zero-check D terminal",
+      "group_key": "tail(rho_d)",
+      "marker": "implemented",
+      "mask_rows": [
+        36,
+        37
+      ],
+      "plane": "z16",
+      "point": "rho_d",
+      "point_vars": 9,
+      "rows": [
+        16,
+        17
+      ]
+    },
+    {
+      "citation": "hashline/src/zk.rs:3338; allocation :2027",
+      "claim": "predicate output claim (function 2 only)",
+      "group_key": "tail(rho_p)",
+      "marker": "implemented, unreachable at this profile (pred=false)",
+      "mask_rows": "a_pmz pair",
+      "plane": "z16",
+      "point": "rho_p",
+      "point_vars": 9,
+      "rows": [
+        16,
+        17
+      ]
+    },
+    {
+      "citation": "zkp-core/src/pcs.rs:835-856, :889-891",
+      "claim": "proximity row-combination (touches every row)",
+      "group_key": "prox vector",
+      "marker": "implemented",
+      "mask_rows": [
+        44,
+        45
+      ],
+      "plane": "X and z16",
+      "point": "-",
+      "point_vars": null,
+      "rows": [
+        14,
+        15,
+        16,
+        17
+      ]
+    },
+    {
+      "citation": "zkp-core/src/pcs.rs:892-894; hashline/src/zk.rs:2465-2467",
+      "claim": "256 sampled encoded columns (one word per row)",
+      "group_key": "-",
+      "marker": "implemented",
+      "mask_rows": "pads, q_pad >= Q = 256 per row",
+      "plane": "X and z16",
+      "point": "-",
+      "point_vars": null,
+      "rows": [
+        14,
+        15,
+        16,
+        17
+      ]
+    },
+    {
+      "citation": "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md:105",
+      "claim": "proposed a_sx[c] seam pair",
+      "group_key": "tail(rho_sx)",
+      "marker": "design-note",
+      "mask_rows": "a NEW pair",
+      "plane": "X",
+      "point": "rho_sx",
+      "point_vars": 9,
+      "rows": [
+        14,
+        15
+      ]
+    },
+    {
+      "citation": "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md:106",
+      "claim": "proposed a_sz[c] seam pair",
+      "group_key": "tail(rho_sz)",
+      "marker": "design-note",
+      "mask_rows": "a NEW pair",
+      "plane": "z16",
+      "point": "rho_sz",
+      "point_vars": 9,
+      "rows": [
+        16,
+        17
+      ]
+    }
+  ],
+  "section_1_committed_row_offsets": {
+    "X": {
+      "block": 0,
+      "citation": "zkp-core/src/ffn_v3/statement.rs:163; hashline/src/zk.rs:2416-2418",
+      "plane": "x",
+      "rows": [
+        14,
+        15
+      ],
+      "slice_log_size": 9,
+      "slice_offset": 3584,
+      "words": 512
+    },
+    "block_decomposition": {
+      "caveat": "a complete T*d plane is one contiguous slice only when nb_d == 1 (ZK60_PENDING_FFN.md:65-67)",
+      "citation": "zkp-core/src/ffn_v3/statement.rs:150-156, :163",
+      "db": 16,
+      "nb_d": 1,
+      "rule": "nb_d = d / db, db = 2^min(log2 d, 12); each x[c]/z[c] is one tdb-word block at log_t+log_db variables",
+      "tdb": 512
+    },
+    "columns_per_row": 256,
+    "commitment_rows": {
+      "A": 698,
+      "H": 1326,
+      "W_P1": 3,
+      "W_P3": 11
+    },
+    "commitment_rows_legacy_mr1_false": {
+      "A": 681,
+      "H": 1325,
+      "W_P3": 7
+    },
+    "data_rows_A": 20,
+    "marker": "implemented",
+    "mask_rows": {
+      "a_md": [
+        34,
+        36,
+        38
+      ],
+      "a_mdd": [
+        42
+      ],
+      "a_mf": [
+        20,
+        22,
+        24,
+        26,
+        28,
+        30,
+        32
+      ],
+      "a_mgu": [
+        40
+      ],
+      "a_prox": 44,
+      "h_md": [
+        [
+          22,
+          23
+        ]
+      ],
+      "h_mf": [
+        [
+          16,
+          17
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          20,
+          21
+        ]
+      ],
+      "h_prox": 28,
+      "h_u": [
+        24,
+        25
+      ],
+      "h_up": [
+        26,
+        27
+      ],
+      "pair_width": 2,
+      "w_mdd": [
+        7
+      ],
+      "w_mgu": [
+        3,
+        5
+      ],
+      "w_prox": 9
+    },
+    "planes": {
+      "a16": [
+        {
+          "block": 0,
+          "element_end": 1536,
+          "element_offset": 1024,
+          "log_size": 9,
+          "row_end": 6,
+          "row_start": 4
+        }
+      ],
+      "g8": [
+        {
+          "block": 0,
+          "element_end": 512,
+          "element_offset": 0,
+          "log_size": 9,
+          "row_end": 2,
+          "row_start": 0
+        }
+      ],
+      "h16": [
+        {
+          "block": 0,
+          "element_end": 3072,
+          "element_offset": 2560,
+          "log_size": 9,
+          "row_end": 12,
+          "row_start": 10
+        }
+      ],
+      "rd": [
+        {
+          "block": 0,
+          "element_end": 5120,
+          "element_offset": 4608,
+          "log_size": 9,
+          "row_end": 20,
+          "row_start": 18
+        }
+      ],
+      "rg": [
+        {
+          "block": 0,
+          "element_end": 1024,
+          "element_offset": 512,
+          "log_size": 9,
+          "row_end": 4,
+          "row_start": 2
+        }
+      ],
+      "rh": [
+        {
+          "block": 0,
+          "element_end": 3584,
+          "element_offset": 3072,
+          "log_size": 9,
+          "row_end": 14,
+          "row_start": 12
+        }
+      ],
+      "ru": [
+        {
+          "block": 0,
+          "element_end": 2560,
+          "element_offset": 2048,
+          "log_size": 9,
+          "row_end": 10,
+          "row_start": 8
+        }
+      ],
+      "u16": [
+        {
+          "block": 0,
+          "element_end": 2048,
+          "element_offset": 1536,
+          "log_size": 9,
+          "row_end": 8,
+          "row_start": 6
+        }
+      ],
+      "x": [
+        {
+          "block": 0,
+          "element_end": 4096,
+          "element_offset": 3584,
+          "log_size": 9,
+          "row_end": 16,
+          "row_start": 14
+        }
+      ],
+      "z": [
+        {
+          "block": 0,
+          "element_end": 4608,
+          "element_offset": 4096,
+          "log_size": 9,
+          "row_end": 18,
+          "row_start": 16
+        }
+      ]
+    },
+    "profile": "ffn-v3-mr1-fresh-poc/1 (T32/d16/f16, log_cols 8, inv_rate 8, Q 256, function 1)",
+    "recomputed_from": [
+      "zkp-core/src/ffn_v3/statement.rs:148-180 (Layout::new)",
+      "hashline/src/zk.rs:2000-2053 (ZkLayoutV3::with_masks, mr1=true)"
+    ],
+    "table_slots": [
+      {
+        "a_mask": 47,
+        "a_row": 46,
+        "h_im": 31,
+        "h_mim": 33,
+        "h_mre": 32,
+        "h_re": 30,
+        "kind": "pair",
+        "log_size": 8,
+        "name": "TAG_ACT16",
+        "rows": 1,
+        "size": 256
+      },
+      {
+        "a_mask": 305,
+        "a_row": 49,
+        "h_im": 290,
+        "h_mim": 802,
+        "h_mre": 546,
+        "h_re": 34,
+        "kind": "block",
+        "log_size": 16,
+        "name": "TAG_INT16",
+        "rows": 256,
+        "size": 65536
+      },
+      {
+        "a_mask": 562,
+        "a_row": 561,
+        "h_im": 1059,
+        "h_mim": 1061,
+        "h_mre": 1060,
+        "h_re": 1058,
+        "kind": "pair",
+        "log_size": 8,
+        "name": "rem(7)",
+        "rows": 1,
+        "size": 128
+      },
+      {
+        "a_mask": 565,
+        "a_row": 564,
+        "h_im": 1063,
+        "h_mim": 1065,
+        "h_mre": 1064,
+        "h_re": 1062,
+        "kind": "pair",
+        "log_size": 8,
+        "name": "rem(0)",
+        "rows": 1,
+        "size": 1
+      },
+      {
+        "a_mask": 631,
+        "a_row": 567,
+        "h_im": 1130,
+        "h_mim": 1258,
+        "h_mre": 1194,
+        "h_re": 1066,
+        "kind": "block",
+        "log_size": 14,
+        "name": "rem(14)",
+        "rows": 64,
+        "size": 16384
+      },
+      {
+        "a_mask": 696,
+        "a_row": 695,
+        "h_im": 1323,
+        "h_mim": 1325,
+        "h_mre": 1324,
+        "h_re": 1322,
+        "kind": "pair",
+        "log_size": 8,
+        "name": "rem(6)",
+        "rows": 1,
+        "size": 64
+      }
+    ],
+    "z16": {
+      "block": 0,
+      "citation": "zkp-core/src/ffn_v3/statement.rs:163; hashline/src/zk.rs:2419-2424",
+      "plane": "z",
+      "rows": [
+        16,
+        17
+      ],
+      "slice_log_size": 9,
+      "slice_offset": 4096,
+      "words": 512
+    }
+  },
+  "section_2_dimensions": {
+    "X": {
+      "a_rows": 2,
+      "declared_scale_field": "V3Exps.e_x (hashline/src/export_v3.rs:69); -3 in the synthetic fixture (causal_oracle.rs:174)",
+      "integer_class": "signed INT8",
+      "lift": "Fp::from_i64 per word (hashline/src/zk.rs:2417)",
+      "logical_shape": [
+        32,
+        16
+      ],
+      "mle_vars": 9,
+      "packing": "row-major token then block column, MSB-first (eq_table_msb)",
+      "prover_length_gate": "hashline/src/zk_ffn_fresh_poc.rs:93-108",
+      "witness_field": "V3Witness.x: Vec<i8>",
+      "words": 512
+    },
+    "equality_required": {
+      "citation": "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md:135-142, :145-147",
+      "domain": "F_{p^2} evaluation of base-field (Goldilocks) plane values; FIELD-WORD equality only",
+      "marker": "design-note",
+      "point": "rho_sx / rho_sz: log_t + log_db = 9 coordinates plus one extension coordinate, drawn AFTER both A roots and both M roots are absorbed",
+      "range_and_scale_owed_separately": [
+        "AttnConsts.e_xm == V3Exps.e_x (ZK60_PENDING_FFN.md:61)",
+        "FFN e_z16 == FullConsts.e_z16 (ZK60_PENDING_FFN.md:62)",
+        "ZK60_PRIVATE_BLOCK.md:143-146; hashline/src/private_seam.rs:41-42"
+      ],
+      "relation": "X_c(rho_sx) == xm8_c(rho_sx) and z_c(rho_sz) == z16c_c(rho_sz) as MLEs, batched over nb_d with lambda_c"
+    },
+    "generalisation": "tdb = t_rows * 2^min(log2 d, 12); X and z16 are each nb_d blocks of tdb words at log_t+log_db variables (zkp-core/src/ffn_v3/statement.rs:150-156)",
+    "marker": "implemented for the shapes; absent for any external binding",
+    "peer_endpoints": {
+      "X_source": {
+        "citation": "docs/zkmatrix-poc/ZK60_PENDING_FFN.md:61; ZK60_OPUS_ATTENTION_INVENTORY.md:396",
+        "marker": "design-note",
+        "peer_log_size": 9,
+        "peer_offset": 22528,
+        "peer_plane": "attention xm8",
+        "peer_rows": 2
+      },
+      "z16_sink": {
+        "citation": "docs/zkmatrix-poc/ZK60_PENDING_FFN.md:62; ZK60_OPUS_ATTENTION_INVENTORY.md:397",
+        "marker": "design-note",
+        "peer_log_size": 9,
+        "peer_offset": 26112,
+        "peer_plane": "attention z16c",
+        "peer_rows": 2
+      }
+    },
+    "today": {
+      "citation": "hashline/src/zk_ffn_fresh_poc.rs:87, :137-142; hashline/src/zk_ffn_fresh_wire.rs:144-159, :244-252",
+      "marker": "absent",
+      "note": "fresh_poc::prove(w, privacy, context) and verify(st, weights, proof, context) have no parameter for a peer commitment, slice, role or scale; the wire binding digest has no endpoint field"
+    },
+    "z16": {
+      "a_rows": 2,
+      "declared_scale_field": "V3Exps.e_z16 (hashline/src/export_v3.rs:74); 0 in the synthetic fixture (causal_oracle.rs:179)",
+      "integer_class": "signed INT16 class",
+      "lift": "Fp::from_i64 per word (hashline/src/zk.rs:2422)",
+      "logical_shape": [
+        32,
+        16
+      ],
+      "mle_vars": 9,
+      "packing": "row-major token then block column, MSB-first",
+      "prover_length_gate": "hashline/src/zk_ffn_fresh_poc.rs:93-108",
+      "witness_field": "V3Witness.z16: Vec<i32>",
+      "words": 512
+    }
+  },
+  "section_3_mask_slots": {
+    "cfs_slots": {
+      "eight_b_reference": {
+        "SC_SEAM_X": [
+          18,
+          2
+        ],
+        "SC_SEAM_Z": [
+          18,
+          2
+        ],
+        "SC_ZC17_len": 74,
+        "citation": "tests/test_zk60_fable_cfs_channel.py:146-147"
+      },
+      "fits": true,
+      "formula": "CfsMask::len(n_vars, degree) = n_vars*degree + 2 (zkp-core/src/sumcheck.rs:197-199)",
+      "headroom_coefficients": 203,
+      "implemented_P1": [
+        {
+          "degree": 2,
+          "len": 12,
+          "marker": "implemented",
+          "n_vars": 5,
+          "slot": "SC_GU"
+        },
+        {
+          "degree": 2,
+          "len": 12,
+          "marker": "implemented",
+          "n_vars": 5,
+          "slot": "SC_D"
+        },
+        {
+          "degree": 4,
+          "len": 42,
+          "marker": "implemented",
+          "n_vars": 10,
+          "slot": "SC_ZC20"
+        },
+        {
+          "degree": 4,
+          "len": 42,
+          "marker": "implemented",
+          "n_vars": 10,
+          "slot": "SC_ZC17"
+        },
+        {
+          "degree": 2,
+          "len": 20,
+          "marker": "implemented",
+          "n_vars": 9,
+          "slot": "SC_ZSUM"
+        },
+        {
+          "degree": 3,
+          "len": 53,
+          "marker": "implemented",
+          "n_vars": 17,
+          "slot": "SC_TAB"
+        }
+      ],
+      "implemented_P3": [
+        {
+          "degree": 2,
+          "len": 14,
+          "marker": "implemented",
+          "n_vars": 6,
+          "slot": "SC_GU"
+        },
+        {
+          "degree": 2,
+          "len": 14,
+          "marker": "implemented",
+          "n_vars": 6,
+          "slot": "SC_D"
+        },
+        {
+          "degree": 4,
+          "len": 42,
+          "marker": "implemented",
+          "n_vars": 10,
+          "slot": "SC_ZC20"
+        },
+        {
+          "degree": 4,
+          "len": 42,
+          "marker": "implemented",
+          "n_vars": 10,
+          "slot": "SC_ZC17"
+        },
+        {
+          "degree": 2,
+          "len": 20,
+          "marker": "implemented",
+          "n_vars": 9,
+          "slot": "SC_ZSUM"
+        },
+        {
+          "degree": 3,
+          "len": 53,
+          "marker": "implemented",
+          "n_vars": 17,
+          "slot": "SC_TAB"
+        }
+      ],
+      "largest_len_today": 53,
+      "largest_len_with_seams": 53,
+      "layout_limit": {
+        "citation": "hashline/src/zk.rs:373, :375, :442",
+        "constraint": "L_s + MASK_Q <= m, MASK_Q = 256, m = 2^MASK_LOG_MSG = 512, i.e. L_s <= 256",
+        "measured_by": "O4 ZK60_OPUS_ATTENTION_INVENTORY.md:355-358"
+      },
+      "m_base_rows_today": 16,
+      "m_base_rows_with_seams": 20,
+      "proposed_seam": [
+        {
+          "degree": 2,
+          "derivation": "FA8 C.2 (log_t + log_db + 1, 2) ZK60_FABLE_TRANSCRIPT_REVIEW.md:497-498; S2 implemented analogue (log_len+1, 2) hashline/src/private_seam.rs:112-114",
+          "len": 22,
+          "marker": "design-note",
+          "n_vars": 10,
+          "pinned_by_a_test": false,
+          "slot": "SC_SEAM_X"
+        },
+        {
+          "degree": 2,
+          "len": 22,
+          "marker": "design-note",
+          "n_vars": 10,
+          "pinned_by_a_test": false,
+          "slot": "SC_SEAM_Z"
+        }
+      ]
+    },
+    "commitment_row_totals": {
+      "attention_A_delta": 4,
+      "attention_A_today": 108,
+      "citation": "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md:418; ZK60_PENDING_FFN.md:214-215; hashline/tests/zk60_pending_layout.rs:108-109",
+      "ffn_A_today": 698,
+      "ffn_A_with_both_seam_pairs": 702,
+      "ffn_H_unchanged": 1326,
+      "ffn_W_P3_unchanged": 11
+    },
+    "opening_groups": {
+      "A_today": 5,
+      "A_with_seams": 7,
+      "H": 5,
+      "W_P3": 2,
+      "citation": "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md:148-150; wire check hashline/src/zk_ffn_fresh_wire.rs:121"
+    },
+    "per_endpoint": [
+      {
+        "citation": "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md:105, rule :47-52",
+        "commitment": "FFN A",
+        "endpoint": "FFN a_sx[c] (X)",
+        "fresh_pair_required": true,
+        "marker": "design-note",
+        "mask_kind": "pair (2 base rows, Fp2)",
+        "reason_no_reuse": "a mask row shared across two opening groups leaves the DIFFERENCE of the two evaluations in the clear (hashline/src/zk.rs:1971-1974; tests/test_zk60_fable_cfs_channel.py:250)",
+        "rows_added": 2
+      },
+      {
+        "citation": "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md:106",
+        "commitment": "FFN A",
+        "endpoint": "FFN a_sz[c] (z16)",
+        "fresh_pair_required": true,
+        "marker": "design-note",
+        "mask_kind": "pair",
+        "rows_added": 2
+      },
+      {
+        "citation": "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md:622-624; ZK60_OPUS_ATTENTION_INVENTORY.md:402-407",
+        "commitment": "attention A",
+        "endpoint": "attention SeamXm8[c]",
+        "fresh_pair_required": true,
+        "marker": "design-note",
+        "mask_kind": "pair",
+        "rows_added": 2
+      },
+      {
+        "citation": "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md:622-624",
+        "commitment": "attention A",
+        "endpoint": "attention SeamZ16c[c]",
+        "fresh_pair_required": true,
+        "marker": "design-note",
+        "mask_kind": "pair",
+        "rows_added": 2
+      }
+    ],
+    "wire_format_collisions": [
+      {
+        "citation": "hashline/src/zk_ffn_fresh_wire.rs:10, zipped :74-83",
+        "constant": "TERMINALS: [usize; 6] = [3, 2, 10, 4, 1, 12]",
+        "marker": "implemented",
+        "seam_effect": "eight",
+        "value": "six sumchecks"
+      },
+      {
+        "citation": "hashline/src/zk_ffn_fresh_wire.rs:129",
+        "constant": "mask_open.columns c.len() != 16",
+        "marker": "implemented",
+        "seam_effect": 20,
+        "value": 16
+      },
+      {
+        "citation": "hashline/src/zk_ffn_fresh_wire.rs:121",
+        "constant": "hiding(&p.a_open, 5, rows[1])",
+        "marker": "implemented",
+        "seam_effect": 7,
+        "value": 5
+      },
+      {
+        "citation": "hashline/src/zk_ffn_fresh_wire.rs:32",
+        "constant": "rows[1] = zl.a_len / zl.a_n",
+        "marker": "implemented",
+        "seam_effect": 702,
+        "value": 698
+      },
+      {
+        "citation": "hashline/src/zk_ffn_fresh_wire.rs:144-159; ZK60_FABLE_MASK_REPAIR.md:312-314",
+        "constant": "binding() absorbs profile, statement, table values, request context, weight policy",
+        "marker": "implemented",
+        "seam_effect": "a new profile id is required",
+        "value": "no peer root / slice / role / scale field"
+      }
+    ]
+  },
+  "section_4_transcript_ownership": {
+    "current_order": [
+      {
+        "citation": "hashline/src/zk_ffn_fresh_poc.rs:76-82",
+        "op": "Transcript::new(PROFILE); absorb request-context; absorb fixed-parameters",
+        "step": 1
+      },
+      {
+        "citation": "hashline/src/zk.rs:2294; zkp-core/src/ffn_v3/statement.rs:186-197",
+        "op": "absorb_statement_v3 (profile, layer, t_rows, d, f, signed shifts, act, table digest)",
+        "step": 2
+      },
+      {
+        "citation": "hashline/src/zk.rs:2298",
+        "op": "absorb(b\"zk\", mode.header_v3())",
+        "step": 3
+      },
+      {
+        "citation": "hashline/src/zk.rs:2401",
+        "op": "absorb_com(b\"W\")",
+        "step": 4
+      },
+      {
+        "citation": "hashline/src/zk.rs:2472",
+        "op": "absorb_com(b\"A\") -- X and z16 are frozen here",
+        "step": 5
+      },
+      {
+        "citation": "hashline/src/zk.rs:2480",
+        "op": "absorb(b\"M\", mask_root)",
+        "step": 6
+      },
+      {
+        "citation": "hashline/src/zk.rs:2484-2486",
+        "op": "challenges beta, gamma, alpha",
+        "step": 7
+      },
+      {
+        "citation": "hashline/src/zk.rs:2638",
+        "op": "absorb_com(b\"H\")",
+        "step": 8
+      },
+      {
+        "citation": "hashline/src/zk.rs:2650-2742",
+        "op": "gu argument",
+        "step": 9
+      },
+      {
+        "citation": "hashline/src/zk.rs:2746-2814",
+        "op": "d argument",
+        "step": 10
+      },
+      {
+        "citation": "hashline/src/zk.rs:2822-2913",
+        "op": "zero-check F",
+        "step": 11
+      },
+      {
+        "citation": "hashline/src/zk.rs:2920-3001",
+        "op": "zero-check D (zcD-term carries the masked X and z16 evaluations)",
+        "step": 12
+      },
+      {
+        "citation": "hashline/src/zk.rs:3007-3095",
+        "op": "table zero-check",
+        "step": 13
+      },
+      {
+        "citation": "hashline/src/zk.rs:3101-3112",
+        "op": "zero-sum",
+        "step": 14
+      },
+      {
+        "citation": "hashline/src/zk.rs:3192",
+        "op": "mask_open (one theta over all six slots)",
+        "step": 15
+      },
+      {
+        "citation": "hashline/src/zk.rs:3201-3226",
+        "op": "open_zk W (P3) -> A -> H, each dropped immediately",
+        "step": 16
+      }
+    ],
+    "fa3_12_2_conformance": [
+      {
+        "citation": "ZK60_FABLE_MASK_REPAIR.md:628-629; hashline/src/zk_ffn_fresh_poc.rs:76-82, hashline/src/zk.rs:2294-2298",
+        "have": "profile, domain, request context, layer/shape, zk header",
+        "missing": "approved-contract digest, manifest digest, HL-ZK/2 framing, P3 slot",
+        "requirement": "block header (HL-ZK/2 fields, profile, transcript domain, approved-contract digest, request context, manifest digest, layer, P3 slot)",
+        "status": "partly",
+        "step": 1
+      },
+      {
+        "citation": "ZK60_FABLE_MASK_REPAIR.md:630-631; hashline/src/zk.rs:2401, :2472, :2480",
+        "have": "the FFN three in that order",
+        "missing": "the attention half",
+        "requirement": "attention W/A/M roots then FFN W/A/M roots",
+        "status": "half implemented",
+        "step": 2
+      },
+      {
+        "citation": "ZK60_FABLE_MASK_REPAIR.md:632; hashline/src/zk.rs:2484-2486, :2638",
+        "missing": "the attention half",
+        "requirement": "FFN beta,gamma,alpha -> FFN H root; attention helpers likewise",
+        "status": "implemented for the FFN",
+        "step": 3
+      },
+      {
+        "citation": "ZK60_FABLE_MASK_REPAIR.md:633-635; hashline/src/zk.rs:2669/2742, :2758/2814, :2829/2913, :2926/3001, :3011/3095, :3103/3112",
+        "missing": null,
+        "note": "this is FA8 condition C3 for the FFN half (ZK60_FABLE_TRANSCRIPT_REVIEW.md:474)",
+        "requirement": "FFN arguments in the legacy order with every masked claim and terminal absorbed before the next challenge",
+        "status": "implemented",
+        "step": 4
+      },
+      {
+        "citation": "ZK60_FABLE_MASK_REPAIR.md:636-637",
+        "requirement": "Seam X (tau_sx, c_sx -> gamma_sx -> masked rounds -> masked terminals both sides -> e_sx); seam Z likewise",
+        "status": "absent",
+        "step": 5
+      },
+      {
+        "citation": "ZK60_FABLE_MASK_REPAIR.md:638; hashline/src/zk.rs:3192",
+        "have": "one mask_open, one theta (FA8 condition C6)",
+        "missing": "the seam slots and the attention mask_open",
+        "requirement": "FFN mask_open (all slots incl. the seams); attention mask_open",
+        "status": "half implemented",
+        "step": 6
+      },
+      {
+        "citation": "ZK60_FABLE_MASK_REPAIR.md:639-643; hashline/src/zk.rs:3201-3226",
+        "have": "exactly that order for the FFN three, each dropped immediately",
+        "missing": "the attention half",
+        "requirement": "openings one per owned commitment in the fixed order FFN W/A/H then attention W/A/H",
+        "status": "half implemented",
+        "step": 7
+      }
+    ],
+    "forbidden_workarounds": [
+      {
+        "citation": "ZK60_PENDING_FFN.md:11-12",
+        "what": "append equality claims to the result of prove_layer_zk_v3"
+      },
+      {
+        "citation": "ZK60_PENDING_FFN.md:151",
+        "what": "fork or clone a completed transcript to add extra private openings"
+      }
+    ],
+    "required": {
+      "citation": "ZK60_PENDING_FFN.md:101-104; ZK60_FABLE_MASK_REPAIR.md:599, :281-288",
+      "marker": "design-note",
+      "owner": "an enclosing PendingBlock owning both components; only it can bind the seams"
+    },
+    "today": {
+      "citation": "hashline/src/zk_ffn_fresh_poc.rs:75-83, :129, :178",
+      "marker": "implemented",
+      "owner": "the FFN itself: fresh_poc::transcript builds a new Transcript inside prove and verify and it dies with the call"
+    }
+  },
+  "section_5_randomness_availability": {
+    "after_prove_returns": {
+      "marker": "implemented",
+      "note": "drop(a_cmz) at hashline/src/zk.rs:3221 and drop(h_cmz) at :3226 destroy the only copies of data, pads and salts; fresh_poc::prove returns only the proof (zk_ffn_fresh_poc.rs:133)",
+      "relied_on_by": "ZK60_FABLE_MASK_REPAIR.md:255-261"
+    },
+    "creation": {
+      "call": "ZkRng::from_os(PROFILE)",
+      "citation": "hashline/src/zk_ffn_fresh_poc.rs:114; zkp-core/src/rng.rs:29-50",
+      "marker": "implemented",
+      "no_caller_seed": true,
+      "no_reusable_commitment": true
+    },
+    "cutoffs": [
+      {
+        "meaning": "after this line no row of A can be written, so no seam mask on X or z16 can be created; the root enters the transcript at :2472",
+        "point": "hashline/src/zk.rs:2467 (pcs::commit_zk_owned for A)",
+        "rank": 1
+      },
+      {
+        "meaning": "the CFS slot list is fixed-length and Merkle-committed in one shot; no eighth slot can be added; the root is absorbed at :2480",
+        "point": "hashline/src/zk.rs:2477-2478 (mask_specs_v3 then mask_commit)",
+        "rank": 2
+      },
+      {
+        "meaning": "the last RNG draw anywhere in the prover; the ZkRng then dies with the stack frame, including on every ? path",
+        "point": "hashline/src/zk.rs:2632 (H commit)",
+        "rank": 3
+      }
+    ],
+    "draws_in_order": [
+      {
+        "citation": "hashline/src/zk.rs:2366-2371",
+        "what": "W mask rows + prox pair (P3 only)"
+      },
+      {
+        "citation": "hashline/src/zk.rs:2391",
+        "what": "W hiding commit (pads, salts)"
+      },
+      {
+        "citation": "hashline/src/zk.rs:2457-2462",
+        "what": "A mask rows + prox pair"
+      },
+      {
+        "citation": "hashline/src/zk.rs:2467",
+        "what": "A hiding commit (pads, salts)"
+      },
+      {
+        "citation": "hashline/src/zk.rs:2478 -> :430-472",
+        "what": "CFS masks, 256 pads per row, b, u, 4096 salts"
+      },
+      {
+        "citation": "hashline/src/zk.rs:2597-2604",
+        "what": "H mask rows then the two constrained zero-sum rows"
+      },
+      {
+        "citation": "hashline/src/zk.rs:2626 (device) / :2632 (host)",
+        "what": "H hiding commit -- the LAST rng use in the prover"
+      }
+    ],
+    "why_reserve_before_commit": {
+      "design_citations": [
+        "ZK60_PENDING_FFN.md:13-14",
+        "ZK60_PENDING_FFN.md:117-118",
+        "ZK60_PRIVATE_BLOCK.md:174-176",
+        "ZK60_BLOCK_CONTRACT.md:138-139",
+        "ZK60_FABLE_MASK_REPAIR.md:242-247"
+      ],
+      "fa8_condition": "C1, status 'repaired: not implemented' (ZK60_FABLE_TRANSCRIPT_REVIEW.md:472)",
+      "late_claim_would_need": [
+        "two fresh uniform rows inside an already-committed and already-absorbed A",
+        "a CFS slot inside an already-committed and already-absorbed M",
+        "a transcript position before challenges that already depend on both roots"
+      ],
+      "why_impossible": "no A row is unallocated (hashline/tests/zk60_pending_layout.rs:104-105) and re-committing changes a root the transcript has absorbed"
+    }
+  },
+  "section_6_endpoint_consumption": {
+    "consumption_point": {
+      "api": "bind_internal_seams(self, tr) takes the FFN Pending AND the attention Pending together",
+      "citation": "ZK60_FABLE_MASK_REPAIR.md:605-609",
+      "refuses": [
+        "a role already consumed",
+        "a peer handle != the handle the block absorbed",
+        "any slice != lay.x[c] / lay.z[c] (the copied-plane substitute)"
+      ],
+      "status": "design-note"
+    },
+    "required_markers": [
+      {
+        "citation": "ZK60_FABLE_MASK_REPAIR.md:229, :580-581, :586, :614-621",
+        "endpoint": "X",
+        "enforced_by": "finalize refuses when consumed-role set != manifest role set",
+        "marker_location": "Role::SeamX{c, rows} in a closed FfnManifest; FfnPending.consumed: RoleSet",
+        "status": "design-note"
+      },
+      {
+        "citation": "ZK60_FABLE_MASK_REPAIR.md:229, :580-581",
+        "endpoint": "z16",
+        "enforced_by": "same",
+        "marker_location": "Role::SeamZ{c, rows}",
+        "status": "design-note"
+      },
+      {
+        "citation": "ZK60_FABLE_MASK_REPAIR.md:622-624; ZK60_OPUS_ATTENTION_INVENTORY.md:420-423",
+        "endpoint": "peer SeamXm8[c] / SeamZ16c[c]",
+        "enforced_by": "same lifecycle",
+        "marker_location": "the attention manifest's mirror roles",
+        "status": "design-note"
+      }
+    ],
+    "verdict": "absent -- no manifest, no role set, no Discarded state, no refusal for a missing or duplicated seam claim on either side",
+    "what_exists_today": [
+      {
+        "citation": "zkp-core/src/pcs.rs:915; ZK60_PENDING_FFN.md:52-55",
+        "does": "opens a set of claims",
+        "does_not": "immutable borrow; the API does not consume or enforce one-shot use",
+        "marker": "implemented",
+        "mechanism": "pcs::open_zk takes &CommittedZk"
+      },
+      {
+        "citation": "hashline/src/zk.rs:3219-3221",
+        "does": "makes a second opening impossible in practice",
+        "does_not": "is a hand-written line, not a type invariant; nothing refuses a MISSING claim",
+        "marker": "implemented",
+        "mechanism": "drop(a_cmz) immediately after the single open_zk"
+      },
+      {
+        "citation": "zkp-core/src/pcs.rs:881-896",
+        "does": "every group's clear vector touches at least one mask row; the prox rho touches the reserved prox row; pads cover the opened columns",
+        "does_not": "does not track per-row usage (a mask row may serve two groups and the assertion still passes); no data/mask disjointness check; prox_mask_row is one index, not a pair",
+        "marker": "implemented",
+        "mechanism": "assert_mask_sites"
+      },
+      {
+        "citation": "hashline/src/zk_ffn_fresh_poc.rs:234-306, called hashline/src/zk.rs:3209/3218/3223 and :3695/3705/3711",
+        "does": "per claim the masked coefficients must span Fp2; per group lambda != 0; prox pair independent",
+        "does_not": "does not mark any row consumed; does not know about roles",
+        "marker": "implemented",
+        "mechanism": "fresh_poc::check_masks"
+      },
+      {
+        "citation": "hashline/src/zk_ffn_fresh_poc.rs:188-200, called hashline/src/zk.rs:2373, :2464, :2607",
+        "does": "panics on a constant mask row or two byte-identical mask rows",
+        "does_not": "is #[cfg(test)], so it does not run in release",
+        "marker": "implemented, test-only",
+        "mechanism": "check_generated_rows"
+      },
+      {
+        "citation": "hashline/src/private_seam.rs:142-147, :326-331, :11-13",
+        "does": "one-shot by move semantics; PreparedPlane has no Clone, no data getter, no repeated-opening method",
+        "does_not": "is a standalone gadget on separately committed planes, never wired to lay.x[c]",
+        "marker": "implemented",
+        "mechanism": "private_seam::prove consumes both PreparedPlanes by value"
+      },
+      {
+        "citation": "hashline/src/attention.rs:3220-3223; ZK60_OPUS_ATTENTION_INVENTORY.md:417-423",
+        "does": "the attention A is opened once, after every seam claim (doc comment names the FFN X/z16 seam)",
+        "does_not": "nothing marks a seam role as consumed exactly once",
+        "marker": "implemented",
+        "mechanism": "attn_open_a takes AttnPending by value"
+      }
+    ]
+  },
+  "section_7_existing_tests": {
+    "gaps_no_test_exists": [
+      "no test binds private_seam to a real FFN or attention plane; all nine integration tests use synthetic values under a synthetic SeamSpec (hashline/tests/zk60_private_seam.rs:7-23)",
+      "no seam exists on the repaired path, so no test covers one; the two seam-refusal tests exercise the PUBLIC P0 attn_seam where terminals are clear values compared with == (hashline/src/attention.rs:2905-2914)",
+      "no test swaps wx and wz into attn_seam (public_block_oracle.rs:93-95, public_block_receipt.rs:232-235)",
+      "zc17_term (the repaired X/z16 terminals) has no binding test at all",
+      "no test asserts that mask-row VALUES differ between two attempts -- only roots and proof bytes",
+      "no test removes a mask row and asserts refusal on the real prover",
+      "no test asserts a mask row is consumed by at most one group; assert_mask_sites cannot detect it",
+      "prox_mask_row disjointness from mask_rows is never asserted (hashline/src/private_seam.rs:207-208)",
+      "no verifier-side second-opening detection test -- and by design there can be none (ZK60_FABLE_TRANSCRIPT_REVIEW.md:823)",
+      "the four zk60_pending_layout.rs tests pin the LEGACY (mr1=false) layout, not the repaired one"
+    ],
+    "mask_row_reuse_or_missing": [
+      {
+        "catches": "mask rows have no duplicates and are in range at log_cols 5/8/16; every table slot's mask rows are in a_mask_rows(); check_masks rejects equal and all-zero mask coefficients; draw_mask_challenge errors after exactly one draw",
+        "category": "repaired FFN",
+        "location": "hashline/src/zk_ffn_fresh_poc_tests.rs:297",
+        "test": "repaired_layout_and_degenerate_mask_controls"
+      },
+      {
+        "catches": "constant mask row; two byte-identical mask rows -- but only in test builds",
+        "category": "repaired FFN",
+        "location": "hashline/src/zk_ffn_fresh_poc.rs:189",
+        "test": "check_generated_rows (a #[cfg(test)] helper, not a #[test])"
+      },
+      {
+        "catches": "X/Z slices row-aligned, in range, pairwise non-overlapping; a_md[3c] and a_md[3c+1] beyond the data region and distinct; pins (log_t+log_db, log_n) == (9, 8)",
+        "category": "legacy layout",
+        "location": "hashline/tests/zk60_pending_layout.rs:44",
+        "test": "actual_boundary_slices_are_not_terminal_mask_rows"
+      },
+      {
+        "catches": "every A row accounted for and contiguous; names the seam's 4 extra rows",
+        "category": "legacy layout",
+        "location": "hashline/tests/zk60_pending_layout.rs:87",
+        "test": "legacy_reservations_have_no_free_terminal_or_histogram_rows"
+      },
+      {
+        "catches": "pins mask_specs_v3 exactly for P1/P3/pred -- an added seam slot fails here",
+        "category": "legacy layout",
+        "location": "hashline/tests/zk60_pending_layout.rs:114",
+        "test": "legacy_cfs_manifest_distinguishes_modes_and_has_no_seam_polynomials"
+      },
+      {
+        "catches": "one base mask row lets a fully verified opening recover the whole private row",
+        "category": "mask rank",
+        "location": "hashline/tests/zk60_mask_rank.rs:97",
+        "test": "known_interface_hazard_verified_single_base_mask_reveals_entire_private_row"
+      },
+      {
+        "catches": "the positive control for the pair",
+        "category": "mask rank",
+        "location": "hashline/tests/zk60_mask_rank.rs:103",
+        "test": "independent_fp2_mask_pair_blocks_this_specific_coordinate_extractor"
+      },
+      {
+        "catches": "the extractor errs on a paired claim and on degenerate coefficients",
+        "category": "repaired FFN diagnostic",
+        "location": "hashline/src/zk_ffn_mask_diagnostic.rs:778",
+        "test": "diagnostic_refuses_degenerate_and_paired_mask_controls"
+      },
+      {
+        "catches": "a zero CFS challenge aborts after one draw; mask_challenge leaves the transcript byte-identical",
+        "category": "CFS safety",
+        "location": "hashline/src/zk_cfs_safety_tests.rs:5",
+        "test": "zero_mask_challenge_aborts_without_resampling"
+      },
+      {
+        "catches": "PYTHON MODEL: without the prox pair disclosed_dim == 1",
+        "category": "python model",
+        "location": "tests/test_zk60_fable_joint_rank.py:337",
+        "test": "test_prox_pair_is_required_not_optional"
+      },
+      {
+        "catches": "PYTHON MODEL: seam-only pairs on a legacy A repair nothing",
+        "category": "python model",
+        "location": "tests/test_zk60_fable_joint_rank.py:342",
+        "test": "test_seam_only_pairs_do_not_repair_the_legacy_A"
+      },
+      {
+        "catches": "PYTHON MODEL: mask reuse leaks the data difference exactly",
+        "category": "python model",
+        "location": "tests/test_zk60_fable_cfs_channel.py:250",
+        "test": "test_mask_reuse_same_challenges_reveals_the_data_difference"
+      }
+    ],
+    "second_opening_or_reuse": [
+      {
+        "catches": "two attempts on the same witness must give different activation_root, helper_root and mask_root; different weight_root under P3, equal under P1",
+        "category": "repaired FFN",
+        "location": "hashline/src/zk_ffn_fresh_poc_tests.rs:169",
+        "test": "repaired_fresh_poc_verifies_twice_and_blocks_single_mask_recovery"
+      },
+      {
+        "catches": "l.root != l2.root, r.root != r2.root, mask roots differ, bytes differ, both verify",
+        "category": "seam gadget",
+        "location": "hashline/tests/zk60_private_seam.rs:224",
+        "test": "normal_calls_use_fresh_masks_and_changed_ntt_metadata_is_rejected"
+      },
+      {
+        "catches": "identical left/right VALUES must still give l.root != r.root",
+        "category": "seam gadget",
+        "location": "hashline/tests/zk60_private_seam.rs:26",
+        "test": "honest_independent_commitments_roundtrip_at_subrow_row_and_multirow_shapes"
+      },
+      {
+        "catches": "two OS-fresh runs of the same witness give different commitment roots",
+        "category": "repaired FFN diagnostic",
+        "location": "hashline/src/zk_ffn_mask_diagnostic.rs:760",
+        "test": "actual_ffn_fresh_os_singleton_rows_are_recovered_without_resampling"
+      },
+      {
+        "catches": "a REUSED ZkConfig still gives different bytes and roots; size_breakdown unchanged",
+        "category": "v3 zk",
+        "location": "hashline/src/zk.rs:3761",
+        "test": "fresh_os_proofs_verify_for_both_privacy_modes_with_reused_config"
+      },
+      {
+        "catches": "a cloned config cannot replay a mask stream",
+        "category": "v3 zk",
+        "location": "hashline/src/zk.rs:1840",
+        "test": "cloned_default_configs_never_reuse_a_mask_stream"
+      },
+      {
+        "catches": "no two openings repeat; a P1 proof checked as P3 (and vice versa) is rejected",
+        "category": "v3 zk",
+        "location": "hashline/src/zk.rs:3814",
+        "test": "zk_v3_p3_hides_the_weights_and_the_header_binds_the_claim"
+      },
+      {
+        "catches": "PYTHON MODEL: two proofs reusing one stable-W slot disclose W",
+        "category": "python model",
+        "location": "tests/test_zk60_fable_transcript_sim.py:80",
+        "test": "test_reused_slot_discloses_w"
+      },
+      {
+        "catches": "PYTHON MODEL: copied slot rows disclose W",
+        "category": "python model",
+        "location": "tests/test_zk60_fable_transcript_sim.py:87",
+        "test": "test_copied_slot_rows_disclose_w"
+      },
+      {
+        "catches": "PYTHON MODEL: the positive control",
+        "category": "python model",
+        "location": "tests/test_zk60_fable_transcript_sim.py:73",
+        "test": "test_distinct_slots_disclose_nothing_jointly"
+      },
+      {
+        "catches": "a P3 hiding weight commitment is never cached or reused across proofs",
+        "category": "wcache",
+        "location": "hashline/tests/zk60_gpu_cache.rs:685",
+        "test": "a_fresh_uncached_p3_process_accepts_and_never_touches_a_cache"
+      },
+      {
+        "catches": "a process that served cached commitments cannot later serve P3",
+        "category": "wcache",
+        "location": "hashline/tests/zk60_gpu_cache.rs:411",
+        "test": "configure_is_once_per_process_so_a_cached_process_cannot_later_serve_p3"
+      }
+    ],
+    "wrong_endpoint": [
+      {
+        "catches": "substituted left commitment; swapped left/right; four mutated SeamSpecs (context digest, scale, swapped slot labels, shape); rewriting the header to the newly expected root",
+        "category": "seam gadget",
+        "location": "hashline/tests/zk60_private_seam.rs:79",
+        "test": "proof_cannot_choose_its_endpoint_roots_or_replay_connection"
+      },
+      {
+        "catches": "prove(spec, Right-prepared, Left-prepared); a PreparedPlane prepared under a different SeamSpec",
+        "category": "seam gadget",
+        "location": "hashline/tests/zk60_private_seam.rs:192",
+        "test": "invalid_shapes_inputs_and_prepared_contexts_fail_closed"
+      },
+      {
+        "catches": "two genuinely unequal planes rejected by the VERIFIER, not a prover assertion",
+        "category": "seam gadget",
+        "location": "hashline/tests/zk60_private_seam.rs:47",
+        "test": "unequal_recommitted_witnesses_fail_at_verifier_not_prover"
+      },
+      {
+        "catches": "a seam that checked sums instead of the MLE at a random point",
+        "category": "seam gadget",
+        "location": "hashline/tests/zk60_private_seam.rs:61",
+        "test": "equal_unweighted_sums_do_not_substitute_for_pointwise_equality"
+      },
+      {
+        "catches": "14 single-field mutations of the seam proof",
+        "category": "seam gadget",
+        "location": "hashline/tests/zk60_private_seam.rs:105",
+        "test": "every_message_family_is_authenticated"
+      },
+      {
+        "catches": "THE X ENDPOINT on the real block path: a recommitted FFN half on a different X gives Verification(\"internal seam\")",
+        "category": "public P0 block",
+        "location": "hashline/tests/zk60_public_block.rs:240",
+        "test": "recommitted_correct_ffn_on_different_x_reaches_seam_refusal"
+      },
+      {
+        "catches": "THE z16 ENDPOINT: own[0]==ffn[0] but own[1]!=ffn[1], same refusal",
+        "category": "public P0 block",
+        "location": "hashline/tests/zk60_public_block.rs:256",
+        "test": "recommitted_residual_with_wrong_z_copy_reaches_second_seam_refusal"
+      },
+      {
+        "catches": "the external public boundary (bind_endpoints) after a byte round-trip",
+        "category": "public P0 receipt",
+        "location": "hashline/tests/zk60_public_receipt.rs:185",
+        "test": "freshly_committed_wrong_input_or_output_reaches_boundary_refusal_from_bytes"
+      },
+      {
+        "catches": "context/input/output/approval each independently bound",
+        "category": "public P0 receipt",
+        "location": "hashline/tests/zk60_public_receipt.rs:97",
+        "test": "independent_context_input_output_and_approval_cannot_be_relabelled"
+      },
+      {
+        "catches": "the cross-block residual endpoint on both sides",
+        "category": "public P0 chain",
+        "location": "hashline/tests/zk60_public_chain.rs:438",
+        "test": "freshly_recommitted_wrong_middle_reaches_both_actual_arithmetic_endpoint_refusals"
+      },
+      {
+        "catches": "two individually valid receipts whose intermediate planes disagree",
+        "category": "public P0 chain",
+        "location": "hashline/tests/zk60_public_chain.rs:302",
+        "test": "individually_valid_b4_receipts_with_inconsistent_actual_seam_cannot_compose"
+      },
+      {
+        "catches": "wrong request context; wrong public W root; AN EXTRA a_open.group_vecs ENTRY (the shape a seam claim would have today); a legacy proof wrapped as a fresh one; no observation published on failure",
+        "category": "repaired FFN",
+        "location": "hashline/src/zk_ffn_fresh_poc_tests.rs:218",
+        "test": "repaired_fresh_poc_rejects_tampering_and_legacy_profiles"
+      },
+      {
+        "catches": "statement/context/weight-policy binding through the bytes; moved sumcheck rounds and moved a_open.group_vecs coordinates",
+        "category": "repaired FFN wire",
+        "location": "hashline/src/zk_ffn_fresh_poc_tests.rs:12",
+        "test": "repaired_wire_roundtrip_and_adversarial_frames"
+      },
+      {
+        "catches": "a receipt verified by the wrong verifier",
+        "category": "public P0 receipt",
+        "location": "hashline/tests/zk60_public_receipt.rs:332",
+        "test": "b3_and_b4_domains_are_not_interchangeable"
+      },
+      {
+        "catches": "PYTHON MODEL ONLY: exactly two seam claims, offsets exactly {xm8, z16c}, both at the same point",
+        "category": "python model",
+        "location": "tests/test_zk60_opus_attention_inventory.py:126",
+        "test": "test_seam_claims_open_xm8_and_z16c_at_the_same_point"
+      },
+      {
+        "catches": "PYTHON MODEL ONLY: the aliasing of section 1.3",
+        "category": "python model",
+        "location": "tests/test_zk60_opus_attention_inventory.py:132",
+        "test": "test_seam_rows_are_also_opened_by_the_D_zero_check"
+      }
+    ]
+  },
+  "section_8_unresolved_for_codex": [
+    {
+      "citation": "hashline/src/attention.rs:2871, :2874, :2884, :3214, :3218, :3230; ZK60_OPUS_ATTENTION_INVENTORY.md:277-278; FA8 blocker A3 ZK60_FABLE_TRANSCRIPT_REVIEW.md:522, :546-550",
+      "detail": "attention commits with the plain pcs::commit and opens with pcs::open -- no mask rows, no prox row, q_pad = 0, no salts; a seam would bind the FFN's X to a PUBLIC value",
+      "id": "U-1",
+      "title": "the peer commitment is not hiding"
+    },
+    {
+      "citation": "ZK60_FABLE_MASK_REPAIR.md:456",
+      "detail": "FA3's whole_A_n4_*_seams = 0 lives in the linear model, which excludes pad/column leakage, CFS messages and repeated proofs; the seam adds two more opening groups on the same physical rows and two more CFS slots",
+      "id": "U-2",
+      "title": "the joint-rank verdict for the seam configuration is a model result, not a construction argument"
+    },
+    {
+      "citation": "ZK60_FABLE_MASK_REPAIR.md:605-621; zkp-core/src/pcs.rs:881-896; ZK60_OPUS_ATTENTION_INVENTORY.md:420-423",
+      "detail": "FA3 section 12.1's RoleSet / bind_internal_seams / finalize contract has no counterpart in zk.rs or attention.rs; assert_mask_sites requires only that each group touch SOME mask row",
+      "id": "U-3",
+      "title": "nothing marks a seam endpoint consumed exactly once, on either side"
+    },
+    {
+      "citation": "hashline/src/zk_ffn_fresh_poc.rs:75-83, :129, :178; hashline/src/zk.rs:3192-3226; ZK60_PENDING_FFN.md:11-12, :151",
+      "detail": "fresh_poc::transcript builds a fresh transcript inside prove and verify; the openings and drops end it; both obvious workarounds are forbidden by A03",
+      "id": "U-4",
+      "title": "the repaired FFN owns its transcript end to end and cannot be composed"
+    },
+    {
+      "citation": "ZK60_FABLE_TRANSCRIPT_REVIEW.md:474, :905",
+      "detail": "no approved-contract digest, manifest digest, HL-ZK/2 framing or P3 slot in the fresh profile's transcript; FA8 condition C3 is 'repaired: to implement'; FA8 H item 1 asks for a label-by-label absorb-sequence test that does not exist",
+      "id": "U-5",
+      "title": "the seam's transcript position is fixed on paper only and FA3 12.2 step 1 is unimplemented"
+    },
+    {
+      "citation": "hashline/src/zk_ffn_fresh_wire.rs:10, :32, :121, :129, :144-159; ZK60_PENDING_FFN.md:241-243",
+      "detail": "six fixed terminal counts, 16 M base rows, 5 A groups, 698 A rows, and a binding digest with no endpoint field; a new profile id and a new bounded decoder are required",
+      "id": "U-6",
+      "title": "the round-17 wire format cannot carry a seam and there is no replacement"
+    },
+    {
+      "citation": "ZK60_FABLE_TRANSCRIPT_REVIEW.md:497-498; hashline/src/private_seam.rs:112-114; tests/test_zk60_fable_cfs_channel.py:146",
+      "detail": "(10, 2), L = 22 from FA8's formula and S2's implemented spec; the only pinned seam slot values anywhere are the 8B block profile's (18, 2)",
+      "id": "U-7",
+      "title": "the seam CFS slot values at the fixed profile are derived, not pinned"
+    },
+    {
+      "citation": "hashline/src/export_v3.rs:69, :74; zkp-core/src/ffn_v3/statement.rs:186-197; ZK60_PRIVATE_BLOCK.md:143-146; ZK60_BLOCK_CONTRACT.md:69-73",
+      "detail": "e_x and e_z16 are carried in the witness and absorbed nowhere; the statement absorbs l, t_rows, d, f, shifts, act, table and nothing else",
+      "id": "U-8",
+      "title": "field-word equality is not value equality; the scale/class binding is unowned"
+    },
+    {
+      "citation": "ZK60_FABLE_MASK_REPAIR.md:616-618, :387; hashline/src/private_seam.rs:177-189; ZK60_PRIVATE_SEAM.md:34-36",
+      "detail": "FA3's answer is a type with no parameter through which a third commitment could be supplied; today private_seam::prepare will commit any 512 words a caller hands it",
+      "id": "U-9",
+      "title": "the copied-plane substitute has no structural defence in the repaired code"
+    },
+    {
+      "citation": "hashline/src/zk_ffn_fresh_poc.rs:188; ZK60_OPUS_MASK_AUDIT.md gap 8",
+      "detail": "the 'no constant, no duplicated mask row' gate does not run in release, and the seam adds four more rows whose whole purpose is to blind the two endpoints",
+      "id": "U-10",
+      "title": "O3 gap 8 becomes load-bearing: check_generated_rows is #[cfg(test)]"
+    },
+    {
+      "citation": "zkp-core/src/pcs.rs:563; hashline/src/zk_ffn_fresh_poc.rs:301-304; ZK60_OPUS_MASK_AUDIT.md gap 7",
+      "detail": "FA3 section 2.4 requires a prox pair; the seam adds two more groups riding the same single proximity vector; confirm whether check_masks is the intended replacement for the missing assert_mask_sites pair check",
+      "id": "U-11",
+      "title": "O3 gap 7 becomes load-bearing: prox_mask_row is a single index"
+    },
+    {
+      "citation": "hashline/src/zk.rs:3195, :3684; hashline/src/private_seam.rs:358-360, :394-396; ZK60_FABLE_MASK_REPAIR.md:342-349",
+      "detail": "it aborts after tab_term and mask_open are already in the transcript; two seam sumchecks bring two more degeneracy refusals (c_s = 0, e_s = 0) and the placement question recurs for each",
+      "id": "U-12",
+      "title": "O3 gap 1 becomes load-bearing: check_table_point aborts late"
+    },
+    {
+      "citation": "zkp-core/src/rng.rs:20; hashline/src/zk.rs:334-341; ZK60_FABLE_MASK_REPAIR.md:174-177; ZK60_FABLE_TRANSCRIPT_REVIEW.md:604-619",
+      "detail": "a seeded stream is reachable from inside the crate; FA3 section 3 requires the block API to take no seed",
+      "id": "U-13",
+      "title": "O3 gap 10 / FA8 S1: ZkRng::new and ZkConfig::seed remain crate-public"
+    },
+    {
+      "citation": "ZK60_FABLE_MASK_REPAIR.md:638; ZK60_FABLE_TRANSCRIPT_REVIEW.md:495-513",
+      "detail": "FA3 12.2 step 6 has each component run its own mask_open on its own M; FA8's I5 argument is per component and the joint statement, with the seam's Gamma_s drawn from the FFN's M, is not written",
+      "id": "U-14",
+      "title": "two MaskCommits in one block are unanalysed"
+    },
+    {
+      "citation": "hashline/src/zk.rs:2919, :2928-2937, :3596-3609; ZK60_FABLE_MASK_REPAIR.md:135-137, :145-147, :630-631",
+      "detail": "the X terminal at rho_d already exists and costs the argument nothing, but rho_d is drawn after the FFN A root and NOT after the peer's; if the block absorbs both A roots first the question becomes live. NOT PROPOSED here -- it changes which mask blinds the seam terminal and needs a construction argument",
+      "id": "U-15",
+      "title": "whether the seam sumcheck can reuse rho_d instead of drawing its own point is unanswered"
+    }
+  ],
+  "source_pins": {
+    "implementation": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+    "wire": "29d3436"
+  },
+  "source_sha256": {
+    "docs/zkmatrix-poc/ZK60_BLOCK_CONTRACT.md": "4d66dfaf59b31eb0f6ac1643ff0e1e23259fc3d1ce875bc53b0765c23ed0560c",
+    "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md": "0df12a985c807702e1e431e0e7766045b9fb9e928f742de4e15fb78095c85e74",
+    "docs/zkmatrix-poc/ZK60_FABLE_TRANSCRIPT_REVIEW.md": "c843571c87e46aeba186b5974549df94be97c4ad387a9a0f7d32fda4a08b7066",
+    "docs/zkmatrix-poc/ZK60_OPUS_ATTENTION_INVENTORY.md": "bd29f82d3fd566898383a576b34794a61f6950740e7f3540ba91a62abd48cef8",
+    "docs/zkmatrix-poc/ZK60_OPUS_MASK_AUDIT.md": "99a598e717ec4ff28d70376d4f38d0d4c8b61e377fd3c7e40f5f46c74d6ab6a6",
+    "docs/zkmatrix-poc/ZK60_PENDING_FFN.md": "52b76c17b9c74a4e34dc083f73d2910954807c077959c508a5900818994983c9",
+    "docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK.md": "13ebfc7bb188974591cc966d07a72a6d8c3bf84b883ab3e6b08d0018515cd34b",
+    "docs/zkmatrix-poc/ZK60_PRIVATE_SEAM.md": "b53a6834d4f98003cce7e9eb32db2b0814fc73417f5335f8b63c5a3831b7dfe8",
+    "hashline/examples/zk60_fresh_ffn.rs": "9fe8869d49a70c560f6ee0e3bdbaf253244ab73a7889a845193402410082929f",
+    "hashline/src/attention.rs": "c5ae80ddc909aae40b9ec6b9766e5634cf3dc13172e8902f8f2dc33c77cdf979",
+    "hashline/src/chain.rs": "dd6a902a91edf5ba878c9ad987e6c6750c46e2b919238487f17f65621e807180",
+    "hashline/src/export_v3.rs": "e0394ab4113d150336ee91353d7ba26589d5e4dffcb3cb7d2ad0fea833842acb",
+    "hashline/src/layer.rs": "d66c385d87b86e95e3140422f6fa4f3156f2c25395a70a65794377d30807326f",
+    "hashline/src/private_seam.rs": "ae539c9cb7799d67e60d05e98377e64b701eae20e569df4f42f7f4fa0edcb435",
+    "hashline/src/public_block_oracle.rs": "0cc821e8c8c30bf842ea11442845d3156a522fc3d8f3e82d6f9fdfa55a58a83f",
+    "hashline/src/public_block_receipt.rs": "2f99ae965d0efb5a12579b4668573798c3d1b109f3b38d13cceeea624b0ba9e0",
+    "hashline/src/zk.rs": "d80755acf7e47cc04f570942820332535420d90af3e597176081acea3041ecba",
+    "hashline/src/zk_cfs_safety_tests.rs": "ee45a49cda7816c5c64290c69386cec46ff70eec64c7f4457465488aa045fefd",
+    "hashline/src/zk_ffn_fresh_poc.rs": "122519c1e90785b904651bfeeebec1326b50fd06e892330964e1b7244df464f3",
+    "hashline/src/zk_ffn_fresh_poc_tests.rs": "9743aa968ae62c47464cab82e7f4302a7325398e1e43b7ff343f9267a7966c41",
+    "hashline/src/zk_ffn_fresh_wire.rs": "360bb91e0f74f88f4d966d11c1e1624e101a7f647f45853f4f789aaab71d63bc",
+    "hashline/src/zk_ffn_mask_diagnostic.rs": "fc37d04f3810b2a3482a1bce101d0acbfc8f25e2a11afb152510ff28b60cbf1d",
+    "hashline/tests/zk60_mask_rank.rs": "2913afeeb9047c6a449f462170e7e6112fd55c41ea89d0b16ee6c2305b78fa81",
+    "hashline/tests/zk60_pending_layout.rs": "ab41d87f356d715af913870d89ebf77795fa8dbb63e867928e4f477f78d62f91",
+    "hashline/tests/zk60_private_seam.rs": "6080ffe9ac9e451b5b26a0d6936f9f3b013b921ac93e6123bffaca6ad7ed20f1",
+    "hashline/tests/zk60_public_block.rs": "3776dfdfea5aa25d8df0e44c03ffcce394b4c2db287632e601bc1767e32445e6",
+    "hashline/tests/zk60_public_chain.rs": "a0bff3d3120b958e6b3cff908c2ffc74077d948235e7c6d5d9c4c13686422060",
+    "hashline/tests/zk60_public_receipt.rs": "b9c617c02fe02d753707a3a54e34ac3b27f4b0fea638b580739298a273981e79",
+    "zkp-core/src/ffn_v3/statement.rs": "27e3e14e22485587600e59932ad62e20e982814bbac587682a2004b11728164d",
+    "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "zkp-core/src/rng.rs": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+    "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+  },
+  "task": "O6 -- pending FFN input/output seam review (source inventory and requirements list)",
+  "tool_sha256": "34299d3dbe1f8229813b95c2b88668a6643259ef18b0465f00e18aa512d32b26",
+  "worktree": "/home/victor/wt-zk60-fa",
+  "worktree_head": "53982e702d317611ea553dfe9927f9cb6813e805"
+}
