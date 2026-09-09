@@ -7,9 +7,10 @@
 //!
 //! Convention (from zk60_identity_gap.rs): a PASSING `known_*_gap_*` test
 //! REPRODUCES a missing constraint; its assertion documents the false
-//! acceptance and must be flipped when the fix lands. Setting the named
-//! environment flag (FA9_R09_FIX / FA9_R32_FIX) makes the same test assert the
-//! refusal instead, so a locally applied patch is verified by identical code.
+//! acceptance and must be flipped when the fix lands. Setting the environment
+//! flag FA9_R09_FIX makes the R09 test assert the refusal instead, so a locally
+//! applied patch is verified by identical code. R32 was fixed by Codex in
+//! 42471f0 (merged here); its test is a refusal test with structural probes.
 //!
 //! Tamper mode is a process-global flag: every test takes one lock so the
 //! `known_*` legs never run beside an honest control.
@@ -25,6 +26,7 @@ use hashline::layer::{prove_layer_v3, v3_zcd_point, LayerParams};
 use hashline::norm::NormChain;
 use hashline::ntt::NttTables;
 use hashline::pcs::{self, PcsParams};
+use hashline::pcs_compact::BatchOpening;
 use hashline::private_block_contract::ApprovedP1BlockContract;
 use hashline::public_block_oracle::{
     lift_public_weight_claims, public_block_transcript, verify_public_block, PublicBlockError,
@@ -507,12 +509,12 @@ fn known_r31_gap_registrar_approves_a_root_over_out_of_class_words_and_the_proof
     println!("FA9 R31: root over Wq[{J0}][{I0}] = 2^40 approved and proven (typed B3): Ok");
 }
 
-/// R32: the typed B3 API ignores extra trailing `proof.sc` entries and a
-/// non-empty (unused) `helper_sums`; the B4/B5 structural gate refuses both.
-/// KNOWN GAP (FA5 R32, no soundness impact found). FA9_R32_FIX=1 asserts the
-/// typed refusal for a locally applied verifier patch.
+/// R32 after Codex's 42471f0: the typed API refuses every extra attention
+/// message, through `verify_attn` (exact message text) and the full B3 entry
+/// point; the honest proof still verifies after every refusal. The second
+/// half probes the neighbours Codex's regression does not exercise.
 #[test]
-fn known_r32_gap_typed_b3_api_ignores_extra_data_that_the_wire_gate_refuses() {
+fn r32_typed_api_refuses_extra_messages_after_42471f0() {
     let _s = serial();
     assert!(!at::tamper_mode());
     let (approved, weights, input) = public_synthetic_fixture();
@@ -522,72 +524,124 @@ fn known_r32_gap_typed_b3_api_ignores_extra_data_that_the_wire_gate_refuses() {
         .unwrap();
     assert_eq!(verify_public_block(&approved, &proof), Ok(()));
     validate_structure(&proof).unwrap();
-    let mut extra_sc = proof.clone();
-    extra_sc.attention.sc.push(SumcheckProof::default());
-    let mut extra_hs = proof.clone();
-    extra_hs.attention.helper_sums.push(Fp2::ONE);
-    assert!(validate_structure(&extra_sc).is_err());
-    assert!(validate_structure(&extra_hs).is_err());
-    let fix = flag("FA9_R32_FIX");
-    for (name, bad) in [("extra trailing attention sumcheck", &extra_sc), ("non-empty attention helper_sums", &extra_hs)] {
-        let result = verify_public_block(&approved, bad);
-        println!("FA9 R32 typed B3 with {name}: {result:?}");
-        if fix {
-            assert_eq!(result, Err(PublicBlockError::Verification("attention argument")), "{name}");
-        } else {
-            assert_eq!(result, Ok(()), "KNOWN GAP (FA5 R32): typed B3 accepts {name}; flip when the refusal lands");
-        }
+    let r = approved.registration();
+    let attn_only = |p: &PublicBlockProof| -> Result<(), String> {
+        let mut tr = public_block_transcript(&approved);
+        at::verify_attn(&p.attention, &r.attention, &r.residual, &r.params, &mut tr).map(|_| ())
+    };
+    // Codex's four cases, re-run independently, then the structural neighbours
+    let mut cases: Vec<(&str, PublicBlockProof, &str)> = Vec::new();
+    let mut p = proof.clone();
+    p.attention.sc.push(proof.attention.sc[0].clone());
+    cases.push(("appended full sumcheck", p, "unused attention sumchecks"));
+    let mut p = proof.clone();
+    p.attention.sc.push(SumcheckProof::default());
+    cases.push(("appended empty sumcheck", p, "unused attention sumchecks"));
+    let mut p = proof.clone();
+    p.attention.helper_sums.push(Fp2::ZERO);
+    cases.push(("helper_sums zero", p, "unused attention helper_sums"));
+    let mut p = proof.clone();
+    p.attention.helper_sums.push(Fp2::ONE);
+    cases.push(("helper_sums nonzero", p, "unused attention helper_sums"));
+    let mut p = proof.clone();
+    p.attention.sc.pop();
+    cases.push(("sumcheck vector one short", p, "missing sumcheck"));
+    let mut p = proof.clone();
+    p.attention.sc[5].rounds.clear();
+    cases.push(("middle sumcheck emptied", p, "expected"));
+    let mut p = proof.clone();
+    p.attention.sc[0].rounds[0].push(Fp2::ZERO);
+    cases.push(("round with one value too many", p, "expected degree"));
+    let mut p = proof.clone();
+    p.attention.sc.swap(0, 1);
+    cases.push(("sumchecks reordered", p, ""));
+    let mut p = proof.clone();
+    let m0 = p.attention.mults[0].clone();
+    p.attention.mults.push(m0);
+    cases.push(("extra multiplicity table", p, "multiplicity table count"));
+    for (name, bad, needle) in &cases {
+        let err = attn_only(bad).expect_err(name);
+        assert!(err.contains(needle), "{name}: {err}");
+        assert_eq!(
+            verify_public_block(&approved, bad),
+            Err(PublicBlockError::Verification("attention argument")),
+            "{name}"
+        );
+        assert!(validate_structure(bad).is_err(), "{name}: wire gate");
+        println!("FA9 R32 refusal: {name} -> verify_attn `{err}`");
     }
-    // the neighbours that ARE exact-count in the typed API (recorded, not gaps)
+    // deferred to the opening stage: claimed-value and collapse counts, opening shapes
     let mut extra_vals = proof.clone();
     extra_vals.attention.vals.push(Fp2::ZERO);
-    assert!(verify_public_block(&approved, &extra_vals).is_err());
+    assert_eq!(attn_only(&extra_vals), Ok(()), "an extra claimed value passes verify_attn (deferred)");
+    assert_eq!(
+        verify_public_block(&approved, &extra_vals),
+        Err(PublicBlockError::Verification("attention openings"))
+    );
+    let mut short_vals = proof.clone();
+    short_vals.attention.vals.pop();
+    let short = verify_public_block(&approved, &short_vals);
+    assert!(short.is_err(), "a missing trailing value is read as zero by Cc::take and must still be refused");
+    println!("FA9 R32 refusal: missing trailing claimed value -> {short:?}");
     let mut extra_collapse = proof.clone();
     extra_collapse.attention.collapse.push((SumcheckProof::default(), Fp2::ZERO));
-    assert!(verify_public_block(&approved, &extra_collapse).is_err());
-    // probes on the FFN half's vectors (outcomes printed for the review record)
-    let probes: Vec<(&str, PublicBlockProof)> = vec![
-        ("ffn.gu_claims", {
-            let mut p = proof.clone();
-            p.ffn.gu_claims.push(Fp2::ZERO);
-            p
-        }),
-        ("ffn.gu_term", {
-            let mut p = proof.clone();
-            p.ffn.gu_term.push(Fp2::ZERO);
-            p
-        }),
-        ("ffn.d_claims", {
-            let mut p = proof.clone();
-            p.ffn.d_claims.push(Fp2::ZERO);
-            p
-        }),
-        ("ffn.d_term", {
-            let mut p = proof.clone();
-            p.ffn.d_term.push(Fp2::ZERO);
-            p
-        }),
-        ("ffn.zcf_term", {
-            let mut p = proof.clone();
-            p.ffn.zcf_term.push(Fp2::ZERO);
-            p
-        }),
-        ("ffn.zcd_term", {
-            let mut p = proof.clone();
-            p.ffn.zcd_term.push(Fp2::ZERO);
-            p
-        }),
-        ("ffn.helper_sums", {
-            let mut p = proof.clone();
-            p.ffn.helper_sums.push(Fp2::ZERO);
-            p
-        }),
-    ];
-    for (name, p) in &probes {
-        println!(
-            "FA9 R32 probe: typed B3 with one extra trailing {name} entry -> {:?}; wire gate -> {}",
-            verify_public_block(&approved, p),
-            if validate_structure(p).is_ok() { "accepts" } else { "refuses" }
-        );
+    assert_eq!(
+        verify_public_block(&approved, &extra_collapse),
+        Err(PublicBlockError::Verification("attention openings"))
+    );
+    let mut extra_col = proof.clone();
+    let c0 = extra_col.attention.a_open.columns[0].clone();
+    extra_col.attention.a_open.columns.push(c0);
+    assert_eq!(
+        verify_public_block(&approved, &extra_col),
+        Err(PublicBlockError::Verification("attention openings"))
+    );
+    let mut extra_group = proof.clone();
+    let g0 = extra_group.attention.a_open.group_vecs[0].clone();
+    extra_group.attention.a_open.group_vecs.push(g0);
+    assert_eq!(
+        verify_public_block(&approved, &extra_group),
+        Err(PublicBlockError::Verification("attention openings"))
+    );
+    for (name, bad) in [("extra vals", &extra_vals), ("missing val", &short_vals), ("extra collapse", &extra_collapse), ("extra column", &extra_col)] {
+        assert!(validate_structure(bad).is_err(), "{name}: wire gate");
     }
+    // FA9 finding (documented, not a false acceptance): the B4/B5 structural gate
+    // only BOUNDS the opening group-vector count (<= MAX_GROUPS = 32); the exact
+    // count is derived by pcs::verify from the claim grouping, which refuses above.
+    assert_eq!(validate_structure(&extra_group), Ok(()), "wire gate is bounded, not exact, on group_vecs");
+    println!("FA9 R32 note: an extra opening group vector passes validate_structure (bounded <= 32) and is refused by pcs::verify");
+    // the FFN half: a compact opening beside the Ligero ones, and its seven vectors
+    let mut compact = proof.clone();
+    compact.ffn.cpcs_open = Some(BatchOpening::default());
+    let compact_typed = verify_public_block(&approved, &compact);
+    println!(
+        "FA9 R32 probe: ffn.cpcs_open = Some(default) beside Ligero openings -> typed B3 {compact_typed:?}; wire gate {}",
+        if validate_structure(&compact).is_ok() { "accepts" } else { "refuses" }
+    );
+    assert!(validate_structure(&compact).is_err());
+    let mut ffn_probes: Vec<(&str, PublicBlockProof)> = Vec::new();
+    for name in ["gu_claims", "gu_term", "d_claims", "d_term", "zcf_term", "zcd_term", "helper_sums"] {
+        let mut p = proof.clone();
+        match name {
+            "gu_claims" => p.ffn.gu_claims.push(Fp2::ZERO),
+            "gu_term" => p.ffn.gu_term.push(Fp2::ZERO),
+            "d_claims" => p.ffn.d_claims.push(Fp2::ZERO),
+            "d_term" => p.ffn.d_term.push(Fp2::ZERO),
+            "zcf_term" => p.ffn.zcf_term.push(Fp2::ZERO),
+            "zcd_term" => p.ffn.zcd_term.push(Fp2::ZERO),
+            _ => p.ffn.helper_sums.push(Fp2::ZERO),
+        }
+        ffn_probes.push((name, p));
+    }
+    for (name, p) in &ffn_probes {
+        assert_eq!(
+            verify_public_block(&approved, p),
+            Err(PublicBlockError::Verification("FFN argument/openings")),
+            "ffn.{name}"
+        );
+        assert!(validate_structure(p).is_err(), "ffn.{name}: wire gate");
+    }
+    // refusals mutate neither the proof nor the approval
+    assert_eq!(verify_public_block(&approved, &proof), Ok(()));
 }
