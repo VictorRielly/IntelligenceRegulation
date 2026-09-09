@@ -1,0 +1,23 @@
+	Command being timed: "bash results/cl1_floors.sh --repo /home/victor/IntelligenceRegulation --threads 2 --build-jobs 2 --rayon-threads 2 --suite-version 7 /tmp/zk60-round16/final/floors"
+	User time (seconds): 1995.31
+	System time (seconds): 110.16
+	Percent of CPU this job got: 199%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 17:37.65
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1666324
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 391
+	Minor (reclaiming a frame) page faults: 59302567
+	Voluntary context switches: 1078767
+	Involuntary context switches: 4221
+	Swaps: 0
+	File system inputs: 893020
+	File system outputs: 6784504
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

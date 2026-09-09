@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+  "profile": "ffn-v3-mr1-fresh-poc/1",
+  "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+  "status": "all_four_capture_proofs_fully_verified",
+  "test_stage": {
+    "name": "repaired_tests",
+    "command": [
+      "/home/victor/.cargo/bin/cargo",
+      "test",
+      "--manifest-path",
+      "hashline/Cargo.toml",
+      "--release",
+      "--locked",
+      "--offline",
+      "--lib",
+      "fresh_poc",
+      "--",
+      "--nocapture",
+      "--test-threads=2"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 50.92363581000245,
+    "log_sha256": "0ecd19347de2bb82986c8d5c6116c85c60e30c6571a59f884d8bf1b3e4df1bdc"
+  },
+  "captures": [
+    {
+      "path": "/tmp/zk60-round16/captures/48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884.json",
+      "sha256": "c1d0a36768b2857d231238cd2d97a2047af108133d87bd7517e1a6829dce97da",
+      "bytes": 13162013,
+      "proof_sha256": "48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884",
+      "privacy": "P3",
+      "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4"
+    },
+    {
+      "path": "/tmp/zk60-round16/captures/6c98bcb2cd64f848b59c1f9703ff562418b6b94a24cc7c7ff871f1085be8b84d.json",
+      "sha256": "c58235d9f49e0d82b5032c2497edac26ea1a9ee7e10a03d7a3f9038a855182d1",
+      "bytes": 12559433,
+      "proof_sha256": "6c98bcb2cd64f848b59c1f9703ff562418b6b94a24cc7c7ff871f1085be8b84d",
+      "privacy": "P1",
+      "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4"
+    },
+    {
+      "path": "/tmp/zk60-round16/captures/73728df07d903ae39c95ffb20df029fb47da1f564c119e69f04f4919fce4b08d.json",
+      "sha256": "7630d2003e764934e7a1f03116a7d238cbcec458ed88e0f4a65ab50ca355040a",
+      "bytes": 12561665,
+      "proof_sha256": "73728df07d903ae39c95ffb20df029fb47da1f564c119e69f04f4919fce4b08d",
+      "privacy": "P1",
+      "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4"
+    },
+    {
+      "path": "/tmp/zk60-round16/captures/bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa.json",
+      "sha256": "e34f07aa43ebed214c9e2e6c93e1251c1ab7caf6aa2e80b934afb29706879ac7",
+      "bytes": 13163009,
+      "proof_sha256": "bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa",
+      "privacy": "P3",
+      "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4"
+    }
+  ],
+  "source_sha256": {
+    "hashline/src/zk.rs": "d80755acf7e47cc04f570942820332535420d90af3e597176081acea3041ecba",
+    "hashline/src/zk_ffn_fresh_poc.rs": "6f201890d480be29d58bebf240798aca240814f0131e758ba0376a72d927d01e",
+    "hashline/src/zk_ffn_fresh_poc_tests.rs": "fb7af41ca4a8a3a8bb8add4bf77d0583fae1b1410b9d377b137eeaf8c2082866",
+    "hashline/src/zk_ffn_observation_json.rs": "abfc9307383afebad6211897660d13501d30083a58c9f4e399a0285d82ab9941"
+  },
+  "limits": [
+    "This is the completed capture-stage record. The broader regression run is reported separately in zk60_round16_validation.json.",
+    "The public test fixtures use fresh OS randomness. The test observer publishes only after full verification.",
+    "No joint privacy verdict, registered model identity, wire decoder, predicate or private block coverage."
+  ],
+  "test_environment": {
+    "clear_prefix": "HL_",
+    "CARGO_BUILD_JOBS": "2",
+    "RAYON_NUM_THREADS": "2",
+    "ZK_THREADS": "2",
+    "HL_TEST_FFN_REPAIRED_OBSERVATIONS": "/tmp/zk60-round16/captures",
+    "HL_TEST_SOURCE_COMMIT": "b41d036c4c1eb1ed9272494815d742d0ccf29934"
+  },
+  "regeneration_note": "Check out the pinned source with no crate edits, clear existing HL_* switches, then run test_stage.command with test_environment applied under /tmp/zk-heavy.lock. Choose a new output directory. Fresh proof digests will differ; do not claim reproduction of the original random bytes."
+}
