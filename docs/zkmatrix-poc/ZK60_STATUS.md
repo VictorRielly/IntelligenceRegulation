@@ -5,6 +5,15 @@ activations; weights may be public. The full version (P3) also hides weights.
 Victor reaffirmed this on 2026-09-09. These are requirements, not claims of
 current acceptance. [Canonical privacy requirements](ZK60_PRIVACY_REQUIREMENTS.md).
 
+**2026-09-09, round 23:** [endpoint models and two-proof analysis](ZK60_ROUND23.md).
+The two fresh proofs per mode are now modeled together with shared witness
+data; only the two public H identities remain in the linear view. The candidate
+ideal-oracle endpoint preparation keeps its issued roots fixed and accounts
+for the actual leaf/node hash overlap. **39 Python tests, eight Rust tests and
+freeze-check pass.** This is not a full PCS/transcript simulator. Root-only
+external-statement simulation, adaptive privacy and the complete P1 block
+remain open; [the precise boundary](ZK60_ENDPOINT_SIMULATION_MODEL.md).
+
 **2026-09-09, round 22:** [recovery and O8 integration](ZK60_ROUND22.md).
 The interrupted round-21 commit is completed as `de76a87`; all 75 retained
 evidence hashes and nineteen stage exits check out. O8 is delivered and

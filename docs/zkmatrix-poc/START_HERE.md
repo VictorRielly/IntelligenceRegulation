@@ -25,6 +25,10 @@ git history and checks both IO sumcheck mask channels on real captures.
 integrates O8 with a strict analysis gate and freshly captured IO evidence.
 O8 is delivered; caller-fixed endpoint and adaptive/repeated-proof simulation
 remain open. The old temporary capture bytes are unavailable in this session.
+[Round 23](ZK60_ROUND23.md) checks the two fresh proofs per mode jointly and
+adds a research-only endpoint preparation simulator for the ideal hash oracle.
+It corrects the earlier assumption that salted leaves and Merkle nodes have
+separate hash domains. This is bounded analysis, not full privacy acceptance.
 It still lacks the complete private block,
 registered private model binding and final privacy review. The historical
 hash-line privacy claims below must be read with that correction. Pending

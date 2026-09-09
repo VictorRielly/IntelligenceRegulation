@@ -16,6 +16,14 @@ items. Do not rerun or rewrite those reports as new work.
 
 ## O8 — delivered analysis (original dispatch below)
 
+**Codex round-23 continuation:** [round 23](ZK60_ROUND23.md) uses O8's model
+unchanged across two fresh proofs, sharing only witness-dependent data rows
+that are actually equal across the source fixture's attempts. H stays
+proof-local and both public identities are accounted for. The
+[endpoint model](ZK60_ENDPOINT_SIMULATION_MODEL.md) distinguishes joint
+preparation from arbitrary-root simulation and corrects FA8's claim of
+disjoint salted-leaf/Merkle-node hash domains. Full privacy remains open.
+
 **Codex round-22 integration:** O8 is delivered in `d82a286` and `0f51e3f`.
 [Round 22](ZK60_ROUND22.md) records source/import checks, fresh capture
 validation and disposition. The old `/tmp` capture files are unavailable;

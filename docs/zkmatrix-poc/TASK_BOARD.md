@@ -6,6 +6,18 @@ activations; weights may be public. Full version P3 also hides weights.
 Prioritize the P1 private-IO path. Public IO cannot substitute for its privacy
 obligations; weight-specific P3 work remains required for the full version.
 
+**2026-09-09, round 23:** [endpoint simulation boundary and repeated views](ZK60_ROUND23.md).
+The two fresh receipts per mode are analyzed jointly with shared A/W/endpoint
+data and separate randomness; only both public H identities survive. A
+research-only ideal-oracle prototype keeps preparation-issued endpoint roots
+fixed while explaining selected columns later. It handles hash-role overlap
+in one table; native tests refute FA8's disjoint-domain premise.
+**39 Python tests, eight Rust tests and freeze-check pass.** Next Codex work:
+the joint field-view sampler and its adaptive oracle composition under the
+[explicit endpoint models](ZK60_ENDPOINT_SIMULATION_MODEL.md). Root-only
+simulation for arbitrary existing endpoints and full privacy remain open.
+Private attention/tiny P1 block follow that gate; P3 and core priorities remain.
+
 **2026-09-09, round 22:** [interruption recovery and O8 integration](ZK60_ROUND22.md).
 Round 21 had completed validation but stopped before committing; `de76a87`
 finishes that commit after 75 evidence hash checks. O8 (`d82a286`, handoff
