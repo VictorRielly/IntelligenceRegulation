@@ -1,0 +1,634 @@
+{
+  "branch": "zk60-fable-review",
+  "cargo_executed": false,
+  "commands": [
+    {
+      "command": "python3 /home/victor/wt-zk60-fa/scripts/zk60_opus_wire_length.py --sweep",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 -m unittest discover -s /home/victor/wt-zk60-fa/tests -p 'test_zk60_opus_wire_length.py'",
+      "exit_code": 0,
+      "tests": 14
+    },
+    {
+      "command": "python3 -m unittest discover -s /home/victor/wt-zk60-fa/tests -p 'test_zk60_opus_*.py'",
+      "exit_code": 0,
+      "tests": 83
+    }
+  ],
+  "date": "2026-09-08",
+  "findings": [
+    {
+      "fail_closed": true,
+      "id": "F1",
+      "input": "overwrite bytes 41..73 (the W commitment root) of a valid p1 frame; Proof::from_bytes under Public(prepared_root) still succeeds and weight_root() returns the attacker bytes",
+      "proposal": "compare w_com.root to the caller root inside from_bytes under mode 1, or return a distinct parsed type with no accessors that only verify consumes",
+      "reference": "hashline/src/zk_ffn_fresh_wire.rs:191,289; hashline/src/zk_ffn_fresh_poc.rs:31-43,146",
+      "severity": "medium",
+      "title": "parse hands back usable accessors with nothing verified"
+    },
+    {
+      "fail_closed": false,
+      "id": "F2",
+      "input": "a fresh profile that admits function 2: the 7th sumcheck is silently dropped from both the length and the shape check and the mask columns mis-parse",
+      "proposal": "reject specs.len() != TERMINALS.len() in Shape::new and derive the mask column width as 2 * specs.len() + 4",
+      "reference": "hashline/src/zk_ffn_fresh_wire.rs:27,50,83,227; hashline/src/zk.rs:2159,435",
+      "severity": "low",
+      "title": "zip against a 6-element TERMINALS and a literal 16-row mask column with no arity assertion"
+    },
+    {
+      "fail_closed": true,
+      "id": "F3",
+      "input": "any run where fresh_poc::prove returns Err leaves a zero-byte file and every retry at that path fails with \"File exists\"",
+      "proposal": "write to a temp path and rename, or unlink on error",
+      "reference": "hashline/examples/zk60_fresh_ffn.rs:103-111; hashline/src/zk_ffn_fresh_poc.rs:114,211,224,284,286,303",
+      "severity": "low",
+      "title": "prove creates the artifact before proving; any failure blocks retry"
+    },
+    {
+      "fail_closed": true,
+      "id": "F4",
+      "input": "prove(&w, P1, &vec![b'a'; 4097]) succeeds and verify accepts it, but to_bytes then refuses \"request context too long\"",
+      "proposal": "enforce MAX_CONTEXT_BYTES in prove and verify as well",
+      "reference": "hashline/src/zk_ffn_fresh_wire.rs:145; hashline/src/zk_ffn_fresh_poc.rs:75-83,87,137",
+      "severity": "low",
+      "title": "context length domain differs between the in-memory API and the wire"
+    },
+    {
+      "fail_closed": true,
+      "id": "F5",
+      "input": "no prove+to_bytes+verify_bytes at any second shift tuple; the maximum-shape test decodes a synthetic all-zero frame",
+      "proposal": "assert group_zclaims(...).len() is 2/5/5 over a sample of shift tuples and add one full round trip at (0,0,0,0)",
+      "reference": "hashline/src/zk_ffn_mask_diagnostic.rs:402; hashline/src/zk_ffn_fresh_wire.rs:109,112,121-122,389-399",
+      "severity": "low",
+      "title": "fixed group counts and row counts only ever produced by a real prover at shifts (7,0,14,6)"
+    },
+    {
+      "fail_closed": true,
+      "id": "F6",
+      "input": "largest admissible frame is 16523677 bytes, under half the cap",
+      "proposal": "do not cite the cap as the live bound; the bound is preflight plus the fixed profile",
+      "reference": "hashline/src/zk_ffn_fresh_wire.rs:11,61; hashline/src/zk_ffn_fresh_poc.rs:67",
+      "severity": "info",
+      "title": "the 32 MiB cap is unreachable at this profile"
+    },
+    {
+      "fail_closed": true,
+      "id": "F7",
+      "input": "any foreign file reports \"wrong frame length\" rather than \"wrong profile\"",
+      "proposal": "diagnostics only",
+      "reference": "hashline/src/zk_ffn_fresh_wire.rs:7,198,202",
+      "severity": "info",
+      "title": "length check precedes the magic check; the version byte is folded into MAGIC"
+    },
+    {
+      "fail_closed": true,
+      "id": "F8",
+      "input": "p3_wrong_policy is refused by argument parsing; p1_wrong_policy and p1_wrong_context are refused by the envelope digest and never reach the verifier",
+      "proposal": "state in the round-17 record that the relabelling claim rests on the Rust test only",
+      "reference": "scripts/zk60_fresh_ffn_process_check.py:70-71; hashline/examples/zk60_fresh_ffn.rs:120; hashline/src/zk_ffn_fresh_poc_tests.rs:103-110",
+      "severity": "info",
+      "title": "three process cases do not test what their names suggest"
+    }
+  ],
+  "length_model": {
+    "agreement": "exact on all cases below",
+    "cap_check": {
+      "compared_against": "the computed expected frame length, inside Shape::len, before any allocation or parsing",
+      "constant": 33554432,
+      "largest_admissible_frame": 16523677,
+      "reachable_at_this_profile": false
+    },
+    "cases": {
+      "maximum_16_16_16_16": {
+        "P1": {
+          "models": {
+            "reader_len": 16486717,
+            "shape_len": 16486717,
+            "writer_len": 16486717
+          },
+          "terms": {
+            "a_com": 44,
+            "a_open": 5492736,
+            "d_claim": 16,
+            "d_sc": 240,
+            "d_term": 32,
+            "envelope": 41,
+            "gu_claim": 16,
+            "gu_sc": 240,
+            "gu_term": 48,
+            "h_com": 44,
+            "h_open": 10704896,
+            "mask_open": 174080,
+            "mask_root": 32,
+            "pred": 0,
+            "tab_claim": 16,
+            "tab_sc": 1088,
+            "tab_term": 192,
+            "w_com": 44,
+            "w_open": 110592,
+            "w_open_zk": 0,
+            "zc17_claim": 16,
+            "zc17_sc": 800,
+            "zc17_term": 64,
+            "zc20_claim": 16,
+            "zc20_sc": 800,
+            "zc20_term": 160,
+            "zs_claim": 16,
+            "zs_sc": 432,
+            "zs_term": 16
+          }
+        },
+        "P3": {
+          "models": {
+            "reader_len": 16523677,
+            "shape_len": 16523677,
+            "writer_len": 16523677
+          },
+          "terms": {
+            "a_com": 44,
+            "a_open": 5492736,
+            "d_claim": 16,
+            "d_sc": 288,
+            "d_term": 32,
+            "envelope": 41,
+            "gu_claim": 16,
+            "gu_sc": 288,
+            "gu_term": 48,
+            "h_com": 44,
+            "h_open": 10704896,
+            "mask_open": 174080,
+            "mask_root": 32,
+            "pred": 0,
+            "tab_claim": 16,
+            "tab_sc": 1088,
+            "tab_term": 192,
+            "w_com": 44,
+            "w_open": 0,
+            "w_open_zk": 147456,
+            "zc17_claim": 16,
+            "zc17_sc": 800,
+            "zc17_term": 64,
+            "zc20_claim": 16,
+            "zc20_sc": 800,
+            "zc20_term": 160,
+            "zs_claim": 16,
+            "zs_sc": 432,
+            "zs_term": 16
+          }
+        },
+        "a_rows": 2609,
+        "h_rows": 5154,
+        "shifts": [
+          16,
+          16,
+          16,
+          16
+        ],
+        "table_slot_rows": [
+          1,
+          256,
+          256,
+          256,
+          256,
+          256
+        ],
+        "w_rows_p1": 3,
+        "w_rows_p3": 11
+      },
+      "minimum_m8_m8_m8_m8": {
+        "P1": {
+          "models": {
+            "reader_len": 3961149,
+            "shape_len": 3961149,
+            "writer_len": 3961149
+          },
+          "terms": {
+            "a_com": 44,
+            "a_open": 1323008,
+            "d_claim": 16,
+            "d_sc": 240,
+            "d_term": 32,
+            "envelope": 41,
+            "gu_claim": 16,
+            "gu_sc": 240,
+            "gu_term": 48,
+            "h_com": 44,
+            "h_open": 2349056,
+            "mask_open": 174080,
+            "mask_root": 32,
+            "pred": 0,
+            "tab_claim": 16,
+            "tab_sc": 1088,
+            "tab_term": 192,
+            "w_com": 44,
+            "w_open": 110592,
+            "w_open_zk": 0,
+            "zc17_claim": 16,
+            "zc17_sc": 800,
+            "zc17_term": 64,
+            "zc20_claim": 16,
+            "zc20_sc": 800,
+            "zc20_term": 160,
+            "zs_claim": 16,
+            "zs_sc": 432,
+            "zs_term": 16
+          }
+        },
+        "P3": {
+          "models": {
+            "reader_len": 3998109,
+            "shape_len": 3998109,
+            "writer_len": 3998109
+          },
+          "terms": {
+            "a_com": 44,
+            "a_open": 1323008,
+            "d_claim": 16,
+            "d_sc": 288,
+            "d_term": 32,
+            "envelope": 41,
+            "gu_claim": 16,
+            "gu_sc": 288,
+            "gu_term": 48,
+            "h_com": 44,
+            "h_open": 2349056,
+            "mask_open": 174080,
+            "mask_root": 32,
+            "pred": 0,
+            "tab_claim": 16,
+            "tab_sc": 1088,
+            "tab_term": 192,
+            "w_com": 44,
+            "w_open": 0,
+            "w_open_zk": 147456,
+            "zc17_claim": 16,
+            "zc17_sc": 800,
+            "zc17_term": 64,
+            "zc20_claim": 16,
+            "zc20_sc": 800,
+            "zc20_term": 160,
+            "zs_claim": 16,
+            "zs_sc": 432,
+            "zs_term": 16
+          }
+        },
+        "a_rows": 573,
+        "h_rows": 1074,
+        "shifts": [
+          -8,
+          -8,
+          -8,
+          -8
+        ],
+        "table_slot_rows": [
+          1,
+          256,
+          1,
+          1,
+          1,
+          1
+        ],
+        "w_rows_p1": 3,
+        "w_rows_p3": 11
+      },
+      "profile_7_0_14_6": {
+        "P1": {
+          "models": {
+            "reader_len": 4733245,
+            "shape_len": 4733245,
+            "writer_len": 4733245
+          },
+          "terms": {
+            "a_com": 44,
+            "a_open": 1579008,
+            "d_claim": 16,
+            "d_sc": 240,
+            "d_term": 32,
+            "envelope": 41,
+            "gu_claim": 16,
+            "gu_sc": 240,
+            "gu_term": 48,
+            "h_com": 44,
+            "h_open": 2865152,
+            "mask_open": 174080,
+            "mask_root": 32,
+            "pred": 0,
+            "tab_claim": 16,
+            "tab_sc": 1088,
+            "tab_term": 192,
+            "w_com": 44,
+            "w_open": 110592,
+            "w_open_zk": 0,
+            "zc17_claim": 16,
+            "zc17_sc": 800,
+            "zc17_term": 64,
+            "zc20_claim": 16,
+            "zc20_sc": 800,
+            "zc20_term": 160,
+            "zs_claim": 16,
+            "zs_sc": 432,
+            "zs_term": 16
+          }
+        },
+        "P3": {
+          "models": {
+            "reader_len": 4770205,
+            "shape_len": 4770205,
+            "writer_len": 4770205
+          },
+          "terms": {
+            "a_com": 44,
+            "a_open": 1579008,
+            "d_claim": 16,
+            "d_sc": 288,
+            "d_term": 32,
+            "envelope": 41,
+            "gu_claim": 16,
+            "gu_sc": 288,
+            "gu_term": 48,
+            "h_com": 44,
+            "h_open": 2865152,
+            "mask_open": 174080,
+            "mask_root": 32,
+            "pred": 0,
+            "tab_claim": 16,
+            "tab_sc": 1088,
+            "tab_term": 192,
+            "w_com": 44,
+            "w_open": 0,
+            "w_open_zk": 147456,
+            "zc17_claim": 16,
+            "zc17_sc": 800,
+            "zc17_term": 64,
+            "zc20_claim": 16,
+            "zc20_sc": 800,
+            "zc20_term": 160,
+            "zs_claim": 16,
+            "zs_sc": 432,
+            "zs_term": 16
+          }
+        },
+        "a_rows": 698,
+        "h_rows": 1326,
+        "shifts": [
+          7,
+          0,
+          14,
+          6
+        ],
+        "table_slot_rows": [
+          1,
+          256,
+          1,
+          1,
+          64,
+          1
+        ],
+        "w_rows_p1": 3,
+        "w_rows_p3": 11
+      }
+    },
+    "derived_constants": {
+      "mask_matrix_base_rows": {
+        "hardcoded": 16,
+        "match": true,
+        "rederived": 16
+      },
+      "opening_group_counts": {
+        "derivation": "analytic from build_w_zclaims_v3 / the A and H claim builders (zk.rs:3238-3418); all six table claims share the key tail rho_tab[8..] regardless of table size, so the counts are shift-invariant for T32/d16/f16",
+        "executed": false,
+        "hardcoded": {
+          "A": 5,
+          "H": 5,
+          "W": 2
+        }
+      },
+      "pcs_path_depths": {
+        "cfs": 12,
+        "derivation": "enc_cols = 2^log_cols * inv_rate = 2048 -> 11; mask domain 2^12 -> 12",
+        "ordinary_hiding": 11
+      },
+      "terminal_counts": {
+        "hardcoded": [
+          3,
+          2,
+          10,
+          4,
+          1,
+          12
+        ],
+        "match": true,
+        "rederived": [
+          3,
+          2,
+          10,
+          4,
+          1,
+          12
+        ]
+      }
+    },
+    "independent_transcriptions": [
+      "shape_len (Shape::len closed form)",
+      "writer_len (LayerProofZk::to_bytes and the opening/sumcheck writers)",
+      "reader_len (Proof::from_bytes cursor)"
+    ],
+    "overflow": "impossible: preflight pins T32/d16/f16 and shifts to -8..=16, so every term is bounded and the largest sum is 16523677",
+    "script": "scripts/zk60_opus_wire_length.py",
+    "stated_vs_model": {
+      "recorded_frame_p1": {
+        "match": true,
+        "model": 4733245,
+        "stated": 4733245
+      },
+      "recorded_frame_p3": {
+        "match": true,
+        "model": 4770205,
+        "stated": 4770205
+      },
+      "round17_max_a_rows": {
+        "match": true,
+        "model": 2609,
+        "stated": 2609
+      },
+      "round17_max_h_rows": {
+        "match": true,
+        "model": 5154,
+        "stated": 5154
+      },
+      "round17_max_p1": {
+        "match": true,
+        "model": 16486717,
+        "stated": 16486717
+      },
+      "round17_max_p3": {
+        "match": true,
+        "model": 16523677,
+        "stated": 16523677
+      }
+    },
+    "sweep": {
+      "distinct_row_shapes": 682,
+      "max_frame": {
+        "P1": 16486717,
+        "P3": 16523677
+      },
+      "tuples_checked": 781250
+    },
+    "tests": "tests/test_zk60_opus_wire_length.py"
+  },
+  "missing_adversarial_cases": {
+    "decoder": [
+      {
+        "expected": "column index out of bounds",
+        "gap": "the depth-11 index bound is untested; only the depth-12 mask index is",
+        "id": "M1",
+        "input": "set an a_open / h_open / w_open column index to 2048 or u64::MAX"
+      },
+      {
+        "expected": "commitment shape",
+        "gap": "only the rows field is corrupted today",
+        "id": "M2",
+        "input": "write 9u32 over a commitment log_cols at byte offsets 81..85 (W), 125..129 (A), 201..205 (H)"
+      },
+      {
+        "expected": "noncanonical field word",
+        "gap": "the fp() path inside opened columns is untested",
+        "id": "M3",
+        "input": "set the first Fp of a_open.columns[0].1 to P"
+      },
+      {
+        "expected": "noncanonical field word",
+        "gap": "terminals are tested only through the encoder; round messages nowhere",
+        "id": "M4",
+        "input": "set a limb inside a sumcheck round message and inside a terminal vector to P via the decoder"
+      },
+      {
+        "expected": "wrong profile or weight mode",
+        "gap": "the mode byte has never been exercised on a length-valid frame because P1 and P3 frames always differ by 36960 bytes",
+        "id": "M5",
+        "input": "splice a P1 envelope (bytes 0..41) onto a P3 payload and verify as p3 fresh"
+      },
+      {
+        "expected": "accept",
+        "gap": "only 257 and 4097 are tested",
+        "id": "M6",
+        "input": "a table_digest of exactly 256 bytes and a context of exactly 4096 bytes"
+      },
+      {
+        "expected": "accept; 2/5/5",
+        "gap": "only (7,0,14,6) has ever been proven",
+        "id": "M7",
+        "input": "prove+to_bytes+verify_bytes at shifts (0,0,0,0), plus group_zclaims(...).len() over a sample of tuples"
+      },
+      {
+        "expected": "frames differ, both verify",
+        "gap": "nothing compares two encoded frames; a regression to reused randomness would leave the wire tests green",
+        "id": "M8",
+        "input": "two proofs of the same statement, mode and context"
+      }
+    ],
+    "process": [
+      {
+        "expected": "exit 1, request context too long",
+        "id": "M9",
+        "input": "prove/verify with a 4097-character context"
+      },
+      {
+        "expected": "accept",
+        "id": "M10",
+        "input": "the empty context \"\" through prove and verify"
+      },
+      {
+        "expected": "exit 1, wrong frame length (confirms the bounded take(max+1) read)",
+        "id": "M11",
+        "input": "the valid proof followed by 1 MiB of zeros"
+      },
+      {
+        "expected": "exit 1, wrong frame length",
+        "id": "M12",
+        "input": "a zero-byte proof file and a 41-byte envelope-only file"
+      },
+      {
+        "expected": "exit 1, expected public root must be 64 hexadecimal characters",
+        "id": "M13",
+        "input": "verify p1 with a 63-hex, 65-hex, non-hex or literal \"fresh\" root"
+      },
+      {
+        "expected": "exit 1 with the three distinct envelope errors",
+        "id": "M14",
+        "input": "corrupt the version byte (offset 7), the mode byte (offset 8) and a digest byte (offset 9)"
+      },
+      {
+        "expected": "both accept, frames differ",
+        "id": "M15",
+        "input": "a second prove of the same mode/context into a new path, then verify both and compare bytes"
+      },
+      {
+        "expected": "exit 1, open proof",
+        "id": "M16",
+        "input": "verify on a directory or a nonexistent path"
+      }
+    ]
+  },
+  "not_claimed": [
+    "cryptographic soundness",
+    "zero knowledge or privacy",
+    "repeated-proof analysis",
+    "function 2",
+    "dimensions other than T32/d16/f16",
+    "input/output seam",
+    "attention",
+    "registered private model identity"
+  ],
+  "privacy_review_complete": false,
+  "profile": "ffn-v3-mr1-fresh-poc/1",
+  "proving_transcript_changed": false,
+  "review": "O5 independent wire-boundary review",
+  "reviewed_sha256": {
+    "docs/zkmatrix-poc/ZK60_ROUND17.md": "89240736e71af8a111bdca98a77ceb7d4170ab6d912bbf7521695b04361df549",
+    "hashline/examples/zk60_fresh_ffn.rs": "9fe8869d49a70c560f6ee0e3bdbaf253244ab73a7889a845193402410082929f",
+    "hashline/src/zk.rs": "d80755acf7e47cc04f570942820332535420d90af3e597176081acea3041ecba",
+    "hashline/src/zk_ffn_fresh_poc.rs": "122519c1e90785b904651bfeeebec1326b50fd06e892330964e1b7244df464f3",
+    "hashline/src/zk_ffn_fresh_poc_tests.rs": "9743aa968ae62c47464cab82e7f4302a7325398e1e43b7ff343f9267a7966c41",
+    "hashline/src/zk_ffn_fresh_wire.rs": "360bb91e0f74f88f4d966d11c1e1624e101a7f647f45853f4f789aaab71d63bc",
+    "results/zk60_round17_validation.json": "709eeb1996b35ec0d47f885887f4c0f1f8e39e5cae2177327c6df7134be31c76",
+    "scripts/zk60_fresh_ffn_process_check.py": "5f448f1f17531f82dc27db09e3b9015467bb8dbc58238797f7fd5382b1173620",
+    "zkp-core/src/ffn_v3/statement.rs": "27e3e14e22485587600e59932ad62e20e982814bbac587682a2004b11728164d",
+    "zkp-core/src/merkle.rs": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62",
+    "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+    "zkp-core/src/transcript.rs": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8"
+  },
+  "reviewer": "Opus 5",
+  "round17_pin_match": {
+    "hashline/examples/zk60_fresh_ffn.rs": true,
+    "hashline/src/zk.rs": true,
+    "hashline/src/zk_ffn_fresh_poc.rs": true,
+    "hashline/src/zk_ffn_fresh_poc_tests.rs": true,
+    "hashline/src/zk_ffn_fresh_wire.rs": true,
+    "scripts/zk60_fresh_ffn_process_check.py": true,
+    "zkp-core/src/pcs.rs": true,
+    "zkp-core/src/sumcheck.rs": true,
+    "zkp-core/src/transcript.rs": true
+  },
+  "rust_changed": false,
+  "schema": 1,
+  "scope": "bounded transport-format review: encoded length, parse/verify split, canonicality and bounds, complete consumption, caller-supplied mode/root policy, CLI verify branch",
+  "soundness_claimed": false,
+  "source_commit": "29d34362f54a8539799a6f7a74211dd43aed15cc",
+  "verdicts": {
+    "caller_supplied_mode": "confirmed: mode comes from the caller and the file byte must equal it; the file never selects a branch",
+    "caller_supplied_root": "confirmed: the expected public W root is the caller's and is checked by fresh_poc::verify, not by the parse",
+    "canonicality_bounds_consumption": "enforced; complete consumption is gated twice (exact length precondition plus the trailing-cursor check)",
+    "cli_verify_branch": "clean: no path into fixture construction, witness derivation, oracle execution or proving; the file read is bounded before parsing",
+    "envelope_digest": "routing check only, recomputable by anyone; context is bound by the FS transcript, privacy mode by the statement header, the root by an explicit equality",
+    "length_calculation": "no discrepancy between the model, encoded_len and the payload writer",
+    "parse_vs_verify": "from_bytes parses only; verify_bytes parses and verifies; one API hazard (F1)",
+    "relabelling_claim": "round-17 claim confirmed by zk_ffn_fresh_poc_tests.rs:103-110; NOT demonstrated by any process case"
+  },
+  "worktree": "/home/victor/wt-zk60-fa",
+  "worktree_commit": "53982e702d317611ea553dfe9927f9cb6813e805"
+}
