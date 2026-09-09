@@ -1,0 +1,5638 @@
+{
+ "schema_version": 1,
+ "task": "O2 -- repaired-profile captures analysed jointly with the FA7 linear observation model",
+ "reviewer": "Opus 5, independent reviewer, 2026-09-08 session (O1/O2)",
+ "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+ "review_worktree_commit": "a8a1bc7",
+ "profile": "ffn-v3-mr1-fresh-poc/1",
+ "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+ "schema": 2,
+ "model_provenance": "the joint model, its exact Fp2/rank algebra and its included/excluded observation classes are Claude Fable 5.1's FA7 work (scripts/zk60_fable_joint_capture.py, scripts/zk60_fable_joint_rank.py), imported unchanged; only the parser and the recomputed repaired layout are Opus 5's.",
+ "tool_sha256": {
+  "zk60_opus_repaired_capture.py": "9bc226dce00fd8d1ede28cf49220eab52cf60a019c92fd2b556f1d0e10c516a1",
+  "zk60_fable_joint_capture.py": "9dd9b6bafaedeb19c8e2ca008cc255bcede84502dd1f58d3091223e7f6bdf8b2",
+  "zk60_fable_joint_rank.py": "ad5e4e483c6dd8c5f73a87ddb0af1d06c3084576e82428e9c2ada6a764ffbb5b"
+ },
+ "manifest": {
+  "path": "/home/victor/IntelligenceRegulation/results/zk60_round16_validation.json",
+  "sha256": "19e2ecb8b66c08d43eba624775d3258c239b82f23bcc16516f3882c673127a94",
+  "capture_source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+  "record_head_commit": "046e9654ab8b769be196bef5b63dbf6485982f7d",
+  "status": "complete",
+  "schema": 1,
+  "is_interim": false,
+  "note": "published validation record, status 'complete'; its own source_commit is the head the validation ran at, capture_source_commit is the captures' implementation pin"
+ },
+ "manifest_cross_check": {
+  "primary": {
+   "path": "/home/victor/IntelligenceRegulation/results/zk60_round16_validation.json",
+   "sha256": "19e2ecb8b66c08d43eba624775d3258c239b82f23bcc16516f3882c673127a94",
+   "status": "complete",
+   "capture_source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "record_head_commit": "046e9654ab8b769be196bef5b63dbf6485982f7d",
+   "is_interim": false
+  },
+  "other": {
+   "path": "/tmp/zk60-round16/summary.json",
+   "sha256": "0d50f86528dd46de2696324271e1abbc2fa984ef6008200da78e3754bb104200",
+   "status": "failed",
+   "capture_source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "record_head_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "is_interim": true
+  },
+  "same_capture_set": true,
+  "same_capture_source_commit": true,
+  "entries": [
+   {
+    "proof_sha256": "48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884",
+    "in_primary": true,
+    "in_other": true,
+    "agree": true
+   },
+   {
+    "proof_sha256": "6c98bcb2cd64f848b59c1f9703ff562418b6b94a24cc7c7ff871f1085be8b84d",
+    "in_primary": true,
+    "in_other": true,
+    "agree": true
+   },
+   {
+    "proof_sha256": "73728df07d903ae39c95ffb20df029fb47da1f564c119e69f04f4919fce4b08d",
+    "in_primary": true,
+    "in_other": true,
+    "agree": true
+   },
+   {
+    "proof_sha256": "bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa",
+    "in_primary": true,
+    "in_other": true,
+    "agree": true
+   }
+  ],
+  "all_entries_agree": true
+ },
+ "captures_directory": "/tmp/zk60-round16/captures",
+ "included_observation_classes": {
+  "group_vectors": "every message coordinate v_g[j], j < n, of every group vector (2 base rows each)",
+  "proximity_vector": "every coordinate prox[j], j < n (2 base rows each)",
+  "terminals": "every claim value (2 base rows each), including the H sum claim's public value 0",
+  "zero_sum": "H only: the public constraint sum_j u[j] = 0 on the zero-sum mask row pair (2 base rows), proven by the zsum sumcheck",
+  "aliasing": "one unknown per (row, column): rows opened by several claims are the same unknowns"
+ },
+ "excluded_observation_classes": {
+  "pads": "the Q pad coordinates v_g[n..n+Q) of every clear vector: linear in the Q fresh pad unknowns of each row, not in the message unknowns (FA2 section 14.6 argument; not modelled)",
+  "sampled_columns": "the Q opened encoded columns (values, salts, paths): (f_row + Z_n g_pad) at coset points, hidden by the pads (Vandermonde) and the salted leaves (hash assumption); not modelled",
+  "cfs": "the CFS mask commitment and the masked sumcheck round messages / claimed sums: nonlinear in the data; FA6",
+  "repeats": "repeated proofs of the same witness (fresh challenges each): FA8; every capture is analysed alone",
+  "unopened_columns": "the Merkle root over unopened columns: computational hiding assumption, outside a linear model"
+ },
+ "structure_validated_only": {
+  "pads": "width and count only (every clear vector has exactly n + Q entries); the pad VALUES stay outside the linear model",
+  "sampled_columns": "count, index range, per-column value width, salt width and Merkle path length only; the column VALUES stay outside the linear model"
+ },
+ "captures": [
+  {
+   "file": "48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884.json",
+   "file_sha256": "c1d0a36768b2857d231238cd2d97a2047af108133d87bd7517e1a6829dce97da",
+   "bytes": 13162013,
+   "proof_sha256": "48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884",
+   "privacy": "P3",
+   "shape": {
+    "t": 32,
+    "d": 16,
+    "f": 16
+   },
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+   "profile": "ffn-v3-mr1-fresh-poc/1",
+   "transcript_domain": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+   "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "schema": 2,
+   "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "layout_digest_recomputed": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "roles": [
+    "W",
+    "A",
+    "H"
+   ],
+   "manifest_entry": {
+    "path": "/tmp/zk60-round16/captures/48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884.json",
+    "sha256": "c1d0a36768b2857d231238cd2d97a2047af108133d87bd7517e1a6829dce97da",
+    "bytes": 13162013,
+    "proof_sha256": "48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884",
+    "privacy": "P3",
+    "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4"
+   }
+  },
+  {
+   "file": "6c98bcb2cd64f848b59c1f9703ff562418b6b94a24cc7c7ff871f1085be8b84d.json",
+   "file_sha256": "c58235d9f49e0d82b5032c2497edac26ea1a9ee7e10a03d7a3f9038a855182d1",
+   "bytes": 12559433,
+   "proof_sha256": "6c98bcb2cd64f848b59c1f9703ff562418b6b94a24cc7c7ff871f1085be8b84d",
+   "privacy": "P1",
+   "shape": {
+    "t": 32,
+    "d": 16,
+    "f": 16
+   },
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+   "profile": "ffn-v3-mr1-fresh-poc/1",
+   "transcript_domain": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+   "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "schema": 2,
+   "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "layout_digest_recomputed": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "roles": [
+    "A",
+    "H"
+   ],
+   "manifest_entry": {
+    "path": "/tmp/zk60-round16/captures/6c98bcb2cd64f848b59c1f9703ff562418b6b94a24cc7c7ff871f1085be8b84d.json",
+    "sha256": "c58235d9f49e0d82b5032c2497edac26ea1a9ee7e10a03d7a3f9038a855182d1",
+    "bytes": 12559433,
+    "proof_sha256": "6c98bcb2cd64f848b59c1f9703ff562418b6b94a24cc7c7ff871f1085be8b84d",
+    "privacy": "P1",
+    "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4"
+   }
+  },
+  {
+   "file": "73728df07d903ae39c95ffb20df029fb47da1f564c119e69f04f4919fce4b08d.json",
+   "file_sha256": "7630d2003e764934e7a1f03116a7d238cbcec458ed88e0f4a65ab50ca355040a",
+   "bytes": 12561665,
+   "proof_sha256": "73728df07d903ae39c95ffb20df029fb47da1f564c119e69f04f4919fce4b08d",
+   "privacy": "P1",
+   "shape": {
+    "t": 32,
+    "d": 16,
+    "f": 16
+   },
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+   "profile": "ffn-v3-mr1-fresh-poc/1",
+   "transcript_domain": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+   "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "schema": 2,
+   "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "layout_digest_recomputed": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "roles": [
+    "A",
+    "H"
+   ],
+   "manifest_entry": {
+    "path": "/tmp/zk60-round16/captures/73728df07d903ae39c95ffb20df029fb47da1f564c119e69f04f4919fce4b08d.json",
+    "sha256": "7630d2003e764934e7a1f03116a7d238cbcec458ed88e0f4a65ab50ca355040a",
+    "bytes": 12561665,
+    "proof_sha256": "73728df07d903ae39c95ffb20df029fb47da1f564c119e69f04f4919fce4b08d",
+    "privacy": "P1",
+    "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4"
+   }
+  },
+  {
+   "file": "bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa.json",
+   "file_sha256": "e34f07aa43ebed214c9e2e6c93e1251c1ab7caf6aa2e80b934afb29706879ac7",
+   "bytes": 13163009,
+   "proof_sha256": "bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa",
+   "privacy": "P3",
+   "shape": {
+    "t": 32,
+    "d": 16,
+    "f": 16
+   },
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+   "profile": "ffn-v3-mr1-fresh-poc/1",
+   "transcript_domain": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+   "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "schema": 2,
+   "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "layout_digest_recomputed": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "roles": [
+    "W",
+    "A",
+    "H"
+   ],
+   "manifest_entry": {
+    "path": "/tmp/zk60-round16/captures/bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa.json",
+    "sha256": "e34f07aa43ebed214c9e2e6c93e1251c1ab7caf6aa2e80b934afb29706879ac7",
+    "bytes": 13163009,
+    "proof_sha256": "bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa",
+    "privacy": "P3",
+    "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4"
+   }
+  }
+ ],
+ "cases": [
+  {
+   "file": "48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884.json",
+   "file_sha256": "c1d0a36768b2857d231238cd2d97a2047af108133d87bd7517e1a6829dce97da",
+   "bytes": 13162013,
+   "proof_sha256": "48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884",
+   "privacy": "P3",
+   "shape": {
+    "t": 32,
+    "d": 16,
+    "f": 16
+   },
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+   "profile": "ffn-v3-mr1-fresh-poc/1",
+   "transcript_domain": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+   "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "schema": 2,
+   "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "layout_digest_recomputed": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "roles": [
+    "W",
+    "A",
+    "H"
+   ],
+   "role": "W",
+   "role_summary": {
+    "role": "W",
+    "log_cols": 8,
+    "n": 256,
+    "inv_rate": 8,
+    "num_col_checks": 256,
+    "q_pad": 256,
+    "rows": 11,
+    "data_rows": 3,
+    "mask_rows": 8,
+    "prox_rows": [
+     9,
+     10
+    ],
+    "claims": 3,
+    "parts_per_claim": [
+     3,
+     3,
+     3
+    ],
+    "groups": [
+     2,
+     1
+    ],
+    "pad_entries_per_vector": 256,
+    "sampled_columns": 256,
+    "distinct_sampled_columns": 243,
+    "column_domain": 2048,
+    "root": "5d113805c3ccf38a3563c554deac4db28cf3024b16cf654adbc5e291f3e8b8ec",
+    "before_state": "31f981bb16bb08ac3975cf71033a07626829cbd5f9a1cfb0907eb906cc61cd6d",
+    "after_state": "62a0e982df2ab36baf9b46df49ce8a773459b8fc1c6db2b287d2fefc97522aee",
+    "before_next_challenge": [
+     825805357230746575,
+     2820007883797954010
+    ],
+    "after_next_challenge": [
+     9096371535327105226,
+     5715654599421808386
+    ],
+    "zero_sum_pair_rows": null,
+    "public_linear_constraints": [],
+    "aliased_rows": {}
+   },
+   "included_observation_classes": [
+    "aliasing",
+    "group_vectors",
+    "proximity_vector",
+    "terminals"
+   ],
+   "excluded_observation_classes": [
+    "cfs",
+    "pads",
+    "repeats",
+    "sampled_columns",
+    "unopened_columns"
+   ],
+   "analysis": {
+    "unknowns": {
+     "total": 2816,
+     "data": 768,
+     "mask": 2048
+    },
+    "base_observation_rows": {
+     "group_vectors": 1024,
+     "proximity": 512,
+     "terminals": 6,
+     "extras": 0,
+     "total": 1542
+    },
+    "extras": [],
+    "sites": 11,
+    "generators": 11,
+    "per_column": {
+     "rank_mask": 6,
+     "rank_joint": 6,
+     "disclosed_per_column": 0,
+     "base_rows_per_column": 6
+    },
+    "joint": {
+     "rank_mask": 1538,
+     "rank_joint": 1538,
+     "disclosed_total": 0,
+     "cross_column_kernel_mask": 2,
+     "cross_column_kernel_joint": 2,
+     "cross_column_increment": 0,
+     "per_column_total": 0,
+     "null_functionals_killing_masks_and_data": 4
+    },
+    "planes": {
+     "Wg[0][0]": {
+      "rows": [
+       0
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "Wu[0][0]": {
+      "rows": [
+       1
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "Wd[0][0]": {
+      "rows": [
+       2
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     }
+    }
+   },
+   "legacy_singleton_attack": [
+    {
+     "group": 1,
+     "claim": 2,
+     "applicable": false,
+     "reason": "claim 2: not (one data slice + one single-row mask)",
+     "mask_parts": 2,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    }
+   ],
+   "legacy_per_column_subset": {
+    "applicable": false,
+    "reason": "codex: not exactly one unreferenced row",
+    "meaning": "Codex's round-11 per-column classifier assumes a single unreferenced (proximity) row; the repaired layout has a proximity PAIR. The same quantity is reported here as analysis.per_column.disclosed_per_column, which FA7 section 6 showed equals that subset."
+   },
+   "seconds": 0.03
+  },
+  {
+   "file": "48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884.json",
+   "file_sha256": "c1d0a36768b2857d231238cd2d97a2047af108133d87bd7517e1a6829dce97da",
+   "bytes": 13162013,
+   "proof_sha256": "48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884",
+   "privacy": "P3",
+   "shape": {
+    "t": 32,
+    "d": 16,
+    "f": 16
+   },
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+   "profile": "ffn-v3-mr1-fresh-poc/1",
+   "transcript_domain": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+   "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "schema": 2,
+   "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "layout_digest_recomputed": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "roles": [
+    "W",
+    "A",
+    "H"
+   ],
+   "role": "A",
+   "role_summary": {
+    "role": "A",
+    "log_cols": 8,
+    "n": 256,
+    "inv_rate": 8,
+    "num_col_checks": 256,
+    "q_pad": 256,
+    "rows": 698,
+    "data_rows": 344,
+    "mask_rows": 354,
+    "prox_rows": [
+     44,
+     45
+    ],
+    "claims": 18,
+    "parts_per_claim": [
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     2,
+     3,
+     3,
+     2,
+     3
+    ],
+    "groups": [
+     7,
+     3,
+     1,
+     1,
+     6
+    ],
+    "pad_entries_per_vector": 256,
+    "sampled_columns": 256,
+    "distinct_sampled_columns": 248,
+    "column_domain": 2048,
+    "root": "241e372e42811ee7222d45073b561c06c9e32ba0bb6a759f59f873ff448da67b",
+    "before_state": "62a0e982df2ab36baf9b46df49ce8a773459b8fc1c6db2b287d2fefc97522aee",
+    "after_state": "10c12163c32dd6fc6badf1faea42df35fe4886e0dc4b8c865a8db1107d53b40d",
+    "before_next_challenge": [
+     9096371535327105226,
+     5715654599421808386
+    ],
+    "after_next_challenge": [
+     12500044340605467463,
+     226972314090675926
+    ],
+    "zero_sum_pair_rows": null,
+    "public_linear_constraints": [],
+    "aliased_rows": {
+     "h16[0]": {
+      "rows": [
+       10,
+       11
+      ],
+      "claims": [
+       5,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "X[0]": {
+      "rows": [
+       14,
+       15
+      ],
+      "claims": [
+       7,
+       10
+      ],
+      "kind": "data",
+      "row_count": 2
+     }
+    }
+   },
+   "included_observation_classes": [
+    "aliasing",
+    "group_vectors",
+    "proximity_vector",
+    "terminals"
+   ],
+   "excluded_observation_classes": [
+    "cfs",
+    "pads",
+    "repeats",
+    "sampled_columns",
+    "unopened_columns"
+   ],
+   "analysis": {
+    "unknowns": {
+     "total": 178688,
+     "data": 88064,
+     "mask": 90624
+    },
+    "base_observation_rows": {
+     "group_vectors": 2560,
+     "proximity": 512,
+     "terminals": 36,
+     "extras": 0,
+     "total": 3108
+    },
+    "extras": [],
+    "sites": 52,
+    "generators": 78,
+    "per_column": {
+     "rank_mask": 12,
+     "rank_joint": 12,
+     "disclosed_per_column": 0,
+     "base_rows_per_column": 12
+    },
+    "joint": {
+     "rank_mask": 3098,
+     "rank_joint": 3098,
+     "disclosed_total": 0,
+     "cross_column_kernel_mask": 26,
+     "cross_column_kernel_joint": 26,
+     "cross_column_increment": 0,
+     "per_column_total": 0,
+     "null_functionals_killing_masks_and_data": 10
+    },
+    "planes": {
+     "g8[0]": {
+      "rows": [
+       0,
+       1
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "rg[0]": {
+      "rows": [
+       2,
+       3
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "a16[0]": {
+      "rows": [
+       4,
+       5
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "u16[0]": {
+      "rows": [
+       6,
+       7
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "ru[0]": {
+      "rows": [
+       8,
+       9
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h16[0]": {
+      "rows": [
+       10,
+       11
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "rh[0]": {
+      "rows": [
+       12,
+       13
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "X[0]": {
+      "rows": [
+       14,
+       15
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "z16[0]": {
+      "rows": [
+       16,
+       17
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "rd[0]": {
+      "rows": [
+       18,
+       19
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[0]": {
+      "rows": [
+       46
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[1]": {
+      "rows": [
+       49,
+       "...",
+       304
+      ],
+      "row_count": 256,
+      "unknowns": 65536,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[2]": {
+      "rows": [
+       561
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[3]": {
+      "rows": [
+       564
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[4]": {
+      "rows": [
+       567,
+       "...",
+       630
+      ],
+      "row_count": 64,
+      "unknowns": 16384,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[5]": {
+      "rows": [
+       695
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     }
+    }
+   },
+   "legacy_singleton_attack": [
+    {
+     "group": 2,
+     "claim": 10,
+     "applicable": false,
+     "reason": "claim 10: not (one data slice + one single-row mask)",
+     "mask_parts": 2,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    },
+    {
+     "group": 3,
+     "claim": 11,
+     "applicable": false,
+     "reason": "claim 11: not (one data slice + one single-row mask)",
+     "mask_parts": 2,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    }
+   ],
+   "legacy_per_column_subset": {
+    "applicable": false,
+    "reason": "codex: not exactly one unreferenced row",
+    "meaning": "Codex's round-11 per-column classifier assumes a single unreferenced (proximity) row; the repaired layout has a proximity PAIR. The same quantity is reported here as analysis.per_column.disclosed_per_column, which FA7 section 6 showed equals that subset."
+   },
+   "seconds": 4.64
+  },
+  {
+   "file": "48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884.json",
+   "file_sha256": "c1d0a36768b2857d231238cd2d97a2047af108133d87bd7517e1a6829dce97da",
+   "bytes": 13162013,
+   "proof_sha256": "48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884",
+   "privacy": "P3",
+   "shape": {
+    "t": 32,
+    "d": 16,
+    "f": 16
+   },
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+   "profile": "ffn-v3-mr1-fresh-poc/1",
+   "transcript_domain": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+   "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "schema": 2,
+   "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "layout_digest_recomputed": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "roles": [
+    "W",
+    "A",
+    "H"
+   ],
+   "role": "H",
+   "role_summary": {
+    "role": "H",
+    "log_cols": 8,
+    "n": 256,
+    "inv_rate": 8,
+    "num_col_checks": 256,
+    "q_pad": 256,
+    "rows": 1326,
+    "data_rows": 664,
+    "mask_rows": 662,
+    "prox_rows": [
+     28,
+     29
+    ],
+    "claims": 12,
+    "parts_per_claim": [
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     22
+    ],
+    "groups": [
+     3,
+     1,
+     1,
+     6,
+     1
+    ],
+    "pad_entries_per_vector": 256,
+    "sampled_columns": 256,
+    "distinct_sampled_columns": 238,
+    "column_domain": 2048,
+    "root": "13aa2f600c1f2e9d072b052f7390bfe9a882f32d1c6706cc1d2e1688b4f6b406",
+    "before_state": "10c12163c32dd6fc6badf1faea42df35fe4886e0dc4b8c865a8db1107d53b40d",
+    "after_state": "3757359a7e0e7f3ec3950f653ea03d22d5f8d4d0d7fd50ad52c1808d2b1db13c",
+    "before_next_challenge": [
+     12500044340605467463,
+     226972314090675926
+    ],
+    "after_next_challenge": [
+     8416294971784775326,
+     9240107575488328008
+    ],
+    "zero_sum_pair_rows": [
+     24,
+     25
+    ],
+    "public_linear_constraints": [
+     {
+      "rows": [
+       24,
+       25
+      ],
+      "relation": "sum over the n message columns = 0",
+      "source": "zsum sumcheck"
+     }
+    ],
+    "aliased_rows": {
+     "hg[0].re": {
+      "rows": [
+       0,
+       1
+      ],
+      "claims": [
+       0,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hg[0].im": {
+      "rows": [
+       2,
+       3
+      ],
+      "claims": [
+       0,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hu[0].re": {
+      "rows": [
+       4,
+       5
+      ],
+      "claims": [
+       1,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hu[0].im": {
+      "rows": [
+       6,
+       7
+      ],
+      "claims": [
+       1,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hh[0].re": {
+      "rows": [
+       8,
+       9
+      ],
+      "claims": [
+       2,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hh[0].im": {
+      "rows": [
+       10,
+       11
+      ],
+      "claims": [
+       2,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hz[0].re": {
+      "rows": [
+       12,
+       13
+      ],
+      "claims": [
+       3,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hz[0].im": {
+      "rows": [
+       14,
+       15
+      ],
+      "claims": [
+       3,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "u.re": {
+      "rows": [
+       24
+      ],
+      "claims": [
+       4,
+       11
+      ],
+      "kind": "mask",
+      "row_count": 1
+     },
+     "u.im": {
+      "rows": [
+       25
+      ],
+      "claims": [
+       4,
+       11
+      ],
+      "kind": "mask",
+      "row_count": 1
+     },
+     "h_t[0].re": {
+      "rows": [
+       30
+      ],
+      "claims": [
+       5,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[0].im": {
+      "rows": [
+       31
+      ],
+      "claims": [
+       5,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[1].re": {
+      "rows": [
+       34,
+       "...",
+       289
+      ],
+      "claims": [
+       6,
+       11
+      ],
+      "kind": "data",
+      "row_count": 256
+     },
+     "h_t[1].im": {
+      "rows": [
+       290,
+       "...",
+       545
+      ],
+      "claims": [
+       6,
+       11
+      ],
+      "kind": "data",
+      "row_count": 256
+     },
+     "h_t[2].re": {
+      "rows": [
+       1058
+      ],
+      "claims": [
+       7,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[2].im": {
+      "rows": [
+       1059
+      ],
+      "claims": [
+       7,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[3].re": {
+      "rows": [
+       1062
+      ],
+      "claims": [
+       8,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[3].im": {
+      "rows": [
+       1063
+      ],
+      "claims": [
+       8,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[4].re": {
+      "rows": [
+       1066,
+       "...",
+       1129
+      ],
+      "claims": [
+       9,
+       11
+      ],
+      "kind": "data",
+      "row_count": 64
+     },
+     "h_t[4].im": {
+      "rows": [
+       1130,
+       "...",
+       1193
+      ],
+      "claims": [
+       9,
+       11
+      ],
+      "kind": "data",
+      "row_count": 64
+     },
+     "h_t[5].re": {
+      "rows": [
+       1322
+      ],
+      "claims": [
+       10,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[5].im": {
+      "rows": [
+       1323
+      ],
+      "claims": [
+       10,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     }
+    }
+   },
+   "included_observation_classes": [
+    "aliasing",
+    "group_vectors",
+    "proximity_vector",
+    "terminals",
+    "zero_sum"
+   ],
+   "excluded_observation_classes": [
+    "cfs",
+    "pads",
+    "repeats",
+    "sampled_columns",
+    "unopened_columns"
+   ],
+   "analysis": {
+    "unknowns": {
+     "total": 339456,
+     "data": 169984,
+     "mask": 169472
+    },
+    "base_observation_rows": {
+     "group_vectors": 2560,
+     "proximity": 512,
+     "terminals": 24,
+     "extras": 2,
+     "total": 3098
+    },
+    "extras": [
+     {
+      "name": "zero_sum(u)",
+      "rows": [
+       24,
+       25
+      ],
+      "public_value": [
+       0,
+       0
+      ],
+      "source": "zsum sumcheck: sum over the n-cube of u = 0 (zk.rs prove/verify 'zero-sum sumcheck'; claimed sum Gamma_zs = c_zs * sum g)"
+     }
+    ],
+    "sites": 46,
+    "generators": 86,
+    "per_column": {
+     "rank_mask": 12,
+     "rank_joint": 12,
+     "disclosed_per_column": 0,
+     "base_rows_per_column": 12
+    },
+    "joint": {
+     "rank_mask": 3086,
+     "rank_joint": 3088,
+     "disclosed_total": 2,
+     "cross_column_kernel_mask": 14,
+     "cross_column_kernel_joint": 16,
+     "cross_column_increment": 2,
+     "per_column_total": 0,
+     "null_functionals_killing_masks_and_data": 10
+    },
+    "planes": {
+     "hg[0]": {
+      "rows": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "hu[0]": {
+      "rows": [
+       4,
+       5,
+       6,
+       7
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "hh[0]": {
+      "rows": [
+       8,
+       9,
+       10,
+       11
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "hz[0]": {
+      "rows": [
+       12,
+       13,
+       14,
+       15
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[0]": {
+      "rows": [
+       30,
+       31
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[1]": {
+      "rows": [
+       34,
+       "...",
+       545
+      ],
+      "row_count": 512,
+      "unknowns": 131072,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[2]": {
+      "rows": [
+       1058,
+       1059
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[3]": {
+      "rows": [
+       1062,
+       1063
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[4]": {
+      "rows": [
+       1066,
+       "...",
+       1193
+      ],
+      "row_count": 128,
+      "unknowns": 32768,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[5]": {
+      "rows": [
+       1322,
+       1323
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     }
+    }
+   },
+   "legacy_singleton_attack": [
+    {
+     "group": 1,
+     "claim": 3,
+     "applicable": false,
+     "reason": "claim 3: not (one data slice + one single-row mask)",
+     "mask_parts": 2,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    },
+    {
+     "group": 2,
+     "claim": 4,
+     "applicable": false,
+     "reason": "claim 4: not (one data slice + one single-row mask)",
+     "mask_parts": 4,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    }
+   ],
+   "h_zero_sum": {
+    "disclosed_without_zero_sum_constraint": 0,
+    "disclosed_with_zero_sum_constraint": 2,
+    "identity_rows_in_observation_row_space": true,
+    "residual_equals_public_logup_identity": true,
+    "meaning": "the surviving functionals are exactly the public LogUp identity sum_j (helpers - table helpers) whose value the proof itself fixes to 0; a known constant, not a witness functional -- and this is a rank statement under fixed coefficients, not H privacy"
+   },
+   "legacy_per_column_subset": {
+    "applicable": false,
+    "reason": "codex: not exactly one unreferenced row",
+    "meaning": "Codex's round-11 per-column classifier assumes a single unreferenced (proximity) row; the repaired layout has a proximity PAIR. The same quantity is reported here as analysis.per_column.disclosed_per_column, which FA7 section 6 showed equals that subset."
+   },
+   "seconds": 1.47
+  },
+  {
+   "file": "6c98bcb2cd64f848b59c1f9703ff562418b6b94a24cc7c7ff871f1085be8b84d.json",
+   "file_sha256": "c58235d9f49e0d82b5032c2497edac26ea1a9ee7e10a03d7a3f9038a855182d1",
+   "bytes": 12559433,
+   "proof_sha256": "6c98bcb2cd64f848b59c1f9703ff562418b6b94a24cc7c7ff871f1085be8b84d",
+   "privacy": "P1",
+   "shape": {
+    "t": 32,
+    "d": 16,
+    "f": 16
+   },
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+   "profile": "ffn-v3-mr1-fresh-poc/1",
+   "transcript_domain": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+   "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "schema": 2,
+   "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "layout_digest_recomputed": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "roles": [
+    "A",
+    "H"
+   ],
+   "role": "A",
+   "role_summary": {
+    "role": "A",
+    "log_cols": 8,
+    "n": 256,
+    "inv_rate": 8,
+    "num_col_checks": 256,
+    "q_pad": 256,
+    "rows": 698,
+    "data_rows": 344,
+    "mask_rows": 354,
+    "prox_rows": [
+     44,
+     45
+    ],
+    "claims": 18,
+    "parts_per_claim": [
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     2,
+     3,
+     3,
+     2,
+     3
+    ],
+    "groups": [
+     7,
+     3,
+     1,
+     1,
+     6
+    ],
+    "pad_entries_per_vector": 256,
+    "sampled_columns": 256,
+    "distinct_sampled_columns": 240,
+    "column_domain": 2048,
+    "root": "24363559ce18ff1e01583cfb3e335a1fe06aadf667c50e3c7290d28cb5b5a8df",
+    "before_state": "472fad301452917800d4f75885b4e0b5ba969d27e252354ac203a8548c6c0d83",
+    "after_state": "89c5138c2b99df832b54ee3c27bf9bfe60b6a5bdd1f1b45d0007e221b86ee62a",
+    "before_next_challenge": [
+     4813302733029377569,
+     10204843408385166334
+    ],
+    "after_next_challenge": [
+     2376096383915714458,
+     7770303471657820827
+    ],
+    "zero_sum_pair_rows": null,
+    "public_linear_constraints": [],
+    "aliased_rows": {
+     "h16[0]": {
+      "rows": [
+       10,
+       11
+      ],
+      "claims": [
+       5,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "X[0]": {
+      "rows": [
+       14,
+       15
+      ],
+      "claims": [
+       7,
+       10
+      ],
+      "kind": "data",
+      "row_count": 2
+     }
+    }
+   },
+   "included_observation_classes": [
+    "aliasing",
+    "group_vectors",
+    "proximity_vector",
+    "terminals"
+   ],
+   "excluded_observation_classes": [
+    "cfs",
+    "pads",
+    "repeats",
+    "sampled_columns",
+    "unopened_columns"
+   ],
+   "analysis": {
+    "unknowns": {
+     "total": 178688,
+     "data": 88064,
+     "mask": 90624
+    },
+    "base_observation_rows": {
+     "group_vectors": 2560,
+     "proximity": 512,
+     "terminals": 36,
+     "extras": 0,
+     "total": 3108
+    },
+    "extras": [],
+    "sites": 52,
+    "generators": 78,
+    "per_column": {
+     "rank_mask": 12,
+     "rank_joint": 12,
+     "disclosed_per_column": 0,
+     "base_rows_per_column": 12
+    },
+    "joint": {
+     "rank_mask": 3098,
+     "rank_joint": 3098,
+     "disclosed_total": 0,
+     "cross_column_kernel_mask": 26,
+     "cross_column_kernel_joint": 26,
+     "cross_column_increment": 0,
+     "per_column_total": 0,
+     "null_functionals_killing_masks_and_data": 10
+    },
+    "planes": {
+     "g8[0]": {
+      "rows": [
+       0,
+       1
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "rg[0]": {
+      "rows": [
+       2,
+       3
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "a16[0]": {
+      "rows": [
+       4,
+       5
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "u16[0]": {
+      "rows": [
+       6,
+       7
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "ru[0]": {
+      "rows": [
+       8,
+       9
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h16[0]": {
+      "rows": [
+       10,
+       11
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "rh[0]": {
+      "rows": [
+       12,
+       13
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "X[0]": {
+      "rows": [
+       14,
+       15
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "z16[0]": {
+      "rows": [
+       16,
+       17
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "rd[0]": {
+      "rows": [
+       18,
+       19
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[0]": {
+      "rows": [
+       46
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[1]": {
+      "rows": [
+       49,
+       "...",
+       304
+      ],
+      "row_count": 256,
+      "unknowns": 65536,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[2]": {
+      "rows": [
+       561
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[3]": {
+      "rows": [
+       564
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[4]": {
+      "rows": [
+       567,
+       "...",
+       630
+      ],
+      "row_count": 64,
+      "unknowns": 16384,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[5]": {
+      "rows": [
+       695
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     }
+    }
+   },
+   "legacy_singleton_attack": [
+    {
+     "group": 2,
+     "claim": 10,
+     "applicable": false,
+     "reason": "claim 10: not (one data slice + one single-row mask)",
+     "mask_parts": 2,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    },
+    {
+     "group": 3,
+     "claim": 11,
+     "applicable": false,
+     "reason": "claim 11: not (one data slice + one single-row mask)",
+     "mask_parts": 2,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    }
+   ],
+   "legacy_per_column_subset": {
+    "applicable": false,
+    "reason": "codex: not exactly one unreferenced row",
+    "meaning": "Codex's round-11 per-column classifier assumes a single unreferenced (proximity) row; the repaired layout has a proximity PAIR. The same quantity is reported here as analysis.per_column.disclosed_per_column, which FA7 section 6 showed equals that subset."
+   },
+   "seconds": 4.75
+  },
+  {
+   "file": "6c98bcb2cd64f848b59c1f9703ff562418b6b94a24cc7c7ff871f1085be8b84d.json",
+   "file_sha256": "c58235d9f49e0d82b5032c2497edac26ea1a9ee7e10a03d7a3f9038a855182d1",
+   "bytes": 12559433,
+   "proof_sha256": "6c98bcb2cd64f848b59c1f9703ff562418b6b94a24cc7c7ff871f1085be8b84d",
+   "privacy": "P1",
+   "shape": {
+    "t": 32,
+    "d": 16,
+    "f": 16
+   },
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+   "profile": "ffn-v3-mr1-fresh-poc/1",
+   "transcript_domain": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+   "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "schema": 2,
+   "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "layout_digest_recomputed": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "roles": [
+    "A",
+    "H"
+   ],
+   "role": "H",
+   "role_summary": {
+    "role": "H",
+    "log_cols": 8,
+    "n": 256,
+    "inv_rate": 8,
+    "num_col_checks": 256,
+    "q_pad": 256,
+    "rows": 1326,
+    "data_rows": 664,
+    "mask_rows": 662,
+    "prox_rows": [
+     28,
+     29
+    ],
+    "claims": 12,
+    "parts_per_claim": [
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     22
+    ],
+    "groups": [
+     3,
+     1,
+     1,
+     6,
+     1
+    ],
+    "pad_entries_per_vector": 256,
+    "sampled_columns": 256,
+    "distinct_sampled_columns": 250,
+    "column_domain": 2048,
+    "root": "58a331db85e23a2d5f72d849039480b0266c7c3ced98cca5d7632597d140ca0f",
+    "before_state": "89c5138c2b99df832b54ee3c27bf9bfe60b6a5bdd1f1b45d0007e221b86ee62a",
+    "after_state": "5d8e1a2d40f62c7d98c5b95c58ba8aeb4a6ea755e71f788dd46c860ac482d799",
+    "before_next_challenge": [
+     2376096383915714458,
+     7770303471657820827
+    ],
+    "after_next_challenge": [
+     13944406701152255423,
+     13782866547019456138
+    ],
+    "zero_sum_pair_rows": [
+     24,
+     25
+    ],
+    "public_linear_constraints": [
+     {
+      "rows": [
+       24,
+       25
+      ],
+      "relation": "sum over the n message columns = 0",
+      "source": "zsum sumcheck"
+     }
+    ],
+    "aliased_rows": {
+     "hg[0].re": {
+      "rows": [
+       0,
+       1
+      ],
+      "claims": [
+       0,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hg[0].im": {
+      "rows": [
+       2,
+       3
+      ],
+      "claims": [
+       0,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hu[0].re": {
+      "rows": [
+       4,
+       5
+      ],
+      "claims": [
+       1,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hu[0].im": {
+      "rows": [
+       6,
+       7
+      ],
+      "claims": [
+       1,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hh[0].re": {
+      "rows": [
+       8,
+       9
+      ],
+      "claims": [
+       2,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hh[0].im": {
+      "rows": [
+       10,
+       11
+      ],
+      "claims": [
+       2,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hz[0].re": {
+      "rows": [
+       12,
+       13
+      ],
+      "claims": [
+       3,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hz[0].im": {
+      "rows": [
+       14,
+       15
+      ],
+      "claims": [
+       3,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "u.re": {
+      "rows": [
+       24
+      ],
+      "claims": [
+       4,
+       11
+      ],
+      "kind": "mask",
+      "row_count": 1
+     },
+     "u.im": {
+      "rows": [
+       25
+      ],
+      "claims": [
+       4,
+       11
+      ],
+      "kind": "mask",
+      "row_count": 1
+     },
+     "h_t[0].re": {
+      "rows": [
+       30
+      ],
+      "claims": [
+       5,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[0].im": {
+      "rows": [
+       31
+      ],
+      "claims": [
+       5,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[1].re": {
+      "rows": [
+       34,
+       "...",
+       289
+      ],
+      "claims": [
+       6,
+       11
+      ],
+      "kind": "data",
+      "row_count": 256
+     },
+     "h_t[1].im": {
+      "rows": [
+       290,
+       "...",
+       545
+      ],
+      "claims": [
+       6,
+       11
+      ],
+      "kind": "data",
+      "row_count": 256
+     },
+     "h_t[2].re": {
+      "rows": [
+       1058
+      ],
+      "claims": [
+       7,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[2].im": {
+      "rows": [
+       1059
+      ],
+      "claims": [
+       7,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[3].re": {
+      "rows": [
+       1062
+      ],
+      "claims": [
+       8,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[3].im": {
+      "rows": [
+       1063
+      ],
+      "claims": [
+       8,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[4].re": {
+      "rows": [
+       1066,
+       "...",
+       1129
+      ],
+      "claims": [
+       9,
+       11
+      ],
+      "kind": "data",
+      "row_count": 64
+     },
+     "h_t[4].im": {
+      "rows": [
+       1130,
+       "...",
+       1193
+      ],
+      "claims": [
+       9,
+       11
+      ],
+      "kind": "data",
+      "row_count": 64
+     },
+     "h_t[5].re": {
+      "rows": [
+       1322
+      ],
+      "claims": [
+       10,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[5].im": {
+      "rows": [
+       1323
+      ],
+      "claims": [
+       10,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     }
+    }
+   },
+   "included_observation_classes": [
+    "aliasing",
+    "group_vectors",
+    "proximity_vector",
+    "terminals",
+    "zero_sum"
+   ],
+   "excluded_observation_classes": [
+    "cfs",
+    "pads",
+    "repeats",
+    "sampled_columns",
+    "unopened_columns"
+   ],
+   "analysis": {
+    "unknowns": {
+     "total": 339456,
+     "data": 169984,
+     "mask": 169472
+    },
+    "base_observation_rows": {
+     "group_vectors": 2560,
+     "proximity": 512,
+     "terminals": 24,
+     "extras": 2,
+     "total": 3098
+    },
+    "extras": [
+     {
+      "name": "zero_sum(u)",
+      "rows": [
+       24,
+       25
+      ],
+      "public_value": [
+       0,
+       0
+      ],
+      "source": "zsum sumcheck: sum over the n-cube of u = 0 (zk.rs prove/verify 'zero-sum sumcheck'; claimed sum Gamma_zs = c_zs * sum g)"
+     }
+    ],
+    "sites": 46,
+    "generators": 86,
+    "per_column": {
+     "rank_mask": 12,
+     "rank_joint": 12,
+     "disclosed_per_column": 0,
+     "base_rows_per_column": 12
+    },
+    "joint": {
+     "rank_mask": 3086,
+     "rank_joint": 3088,
+     "disclosed_total": 2,
+     "cross_column_kernel_mask": 14,
+     "cross_column_kernel_joint": 16,
+     "cross_column_increment": 2,
+     "per_column_total": 0,
+     "null_functionals_killing_masks_and_data": 10
+    },
+    "planes": {
+     "hg[0]": {
+      "rows": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "hu[0]": {
+      "rows": [
+       4,
+       5,
+       6,
+       7
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "hh[0]": {
+      "rows": [
+       8,
+       9,
+       10,
+       11
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "hz[0]": {
+      "rows": [
+       12,
+       13,
+       14,
+       15
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[0]": {
+      "rows": [
+       30,
+       31
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[1]": {
+      "rows": [
+       34,
+       "...",
+       545
+      ],
+      "row_count": 512,
+      "unknowns": 131072,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[2]": {
+      "rows": [
+       1058,
+       1059
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[3]": {
+      "rows": [
+       1062,
+       1063
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[4]": {
+      "rows": [
+       1066,
+       "...",
+       1193
+      ],
+      "row_count": 128,
+      "unknowns": 32768,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[5]": {
+      "rows": [
+       1322,
+       1323
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     }
+    }
+   },
+   "legacy_singleton_attack": [
+    {
+     "group": 1,
+     "claim": 3,
+     "applicable": false,
+     "reason": "claim 3: not (one data slice + one single-row mask)",
+     "mask_parts": 2,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    },
+    {
+     "group": 2,
+     "claim": 4,
+     "applicable": false,
+     "reason": "claim 4: not (one data slice + one single-row mask)",
+     "mask_parts": 4,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    }
+   ],
+   "h_zero_sum": {
+    "disclosed_without_zero_sum_constraint": 0,
+    "disclosed_with_zero_sum_constraint": 2,
+    "identity_rows_in_observation_row_space": true,
+    "residual_equals_public_logup_identity": true,
+    "meaning": "the surviving functionals are exactly the public LogUp identity sum_j (helpers - table helpers) whose value the proof itself fixes to 0; a known constant, not a witness functional -- and this is a rank statement under fixed coefficients, not H privacy"
+   },
+   "legacy_per_column_subset": {
+    "applicable": false,
+    "reason": "codex: not exactly one unreferenced row",
+    "meaning": "Codex's round-11 per-column classifier assumes a single unreferenced (proximity) row; the repaired layout has a proximity PAIR. The same quantity is reported here as analysis.per_column.disclosed_per_column, which FA7 section 6 showed equals that subset."
+   },
+   "seconds": 1.47
+  },
+  {
+   "file": "73728df07d903ae39c95ffb20df029fb47da1f564c119e69f04f4919fce4b08d.json",
+   "file_sha256": "7630d2003e764934e7a1f03116a7d238cbcec458ed88e0f4a65ab50ca355040a",
+   "bytes": 12561665,
+   "proof_sha256": "73728df07d903ae39c95ffb20df029fb47da1f564c119e69f04f4919fce4b08d",
+   "privacy": "P1",
+   "shape": {
+    "t": 32,
+    "d": 16,
+    "f": 16
+   },
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+   "profile": "ffn-v3-mr1-fresh-poc/1",
+   "transcript_domain": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+   "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "schema": 2,
+   "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "layout_digest_recomputed": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "roles": [
+    "A",
+    "H"
+   ],
+   "role": "A",
+   "role_summary": {
+    "role": "A",
+    "log_cols": 8,
+    "n": 256,
+    "inv_rate": 8,
+    "num_col_checks": 256,
+    "q_pad": 256,
+    "rows": 698,
+    "data_rows": 344,
+    "mask_rows": 354,
+    "prox_rows": [
+     44,
+     45
+    ],
+    "claims": 18,
+    "parts_per_claim": [
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     2,
+     3,
+     3,
+     2,
+     3
+    ],
+    "groups": [
+     7,
+     3,
+     1,
+     1,
+     6
+    ],
+    "pad_entries_per_vector": 256,
+    "sampled_columns": 256,
+    "distinct_sampled_columns": 243,
+    "column_domain": 2048,
+    "root": "bda51037525df22032d8f65f149d8906c2622c8bdd67e45fd66e4040fbdf8193",
+    "before_state": "3e66d266ffad6a59092e3131784b58f842ff269c3753704a7f6a971d1abf82cf",
+    "after_state": "f87c32592308cea33e431fcee2dd9c96d2fc25e126fcbf02ce2e771f14853a76",
+    "before_next_challenge": [
+     7983746971470249717,
+     14194761754850372192
+    ],
+    "after_next_challenge": [
+     723184540811431669,
+     10839176419010935689
+    ],
+    "zero_sum_pair_rows": null,
+    "public_linear_constraints": [],
+    "aliased_rows": {
+     "h16[0]": {
+      "rows": [
+       10,
+       11
+      ],
+      "claims": [
+       5,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "X[0]": {
+      "rows": [
+       14,
+       15
+      ],
+      "claims": [
+       7,
+       10
+      ],
+      "kind": "data",
+      "row_count": 2
+     }
+    }
+   },
+   "included_observation_classes": [
+    "aliasing",
+    "group_vectors",
+    "proximity_vector",
+    "terminals"
+   ],
+   "excluded_observation_classes": [
+    "cfs",
+    "pads",
+    "repeats",
+    "sampled_columns",
+    "unopened_columns"
+   ],
+   "analysis": {
+    "unknowns": {
+     "total": 178688,
+     "data": 88064,
+     "mask": 90624
+    },
+    "base_observation_rows": {
+     "group_vectors": 2560,
+     "proximity": 512,
+     "terminals": 36,
+     "extras": 0,
+     "total": 3108
+    },
+    "extras": [],
+    "sites": 52,
+    "generators": 78,
+    "per_column": {
+     "rank_mask": 12,
+     "rank_joint": 12,
+     "disclosed_per_column": 0,
+     "base_rows_per_column": 12
+    },
+    "joint": {
+     "rank_mask": 3098,
+     "rank_joint": 3098,
+     "disclosed_total": 0,
+     "cross_column_kernel_mask": 26,
+     "cross_column_kernel_joint": 26,
+     "cross_column_increment": 0,
+     "per_column_total": 0,
+     "null_functionals_killing_masks_and_data": 10
+    },
+    "planes": {
+     "g8[0]": {
+      "rows": [
+       0,
+       1
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "rg[0]": {
+      "rows": [
+       2,
+       3
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "a16[0]": {
+      "rows": [
+       4,
+       5
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "u16[0]": {
+      "rows": [
+       6,
+       7
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "ru[0]": {
+      "rows": [
+       8,
+       9
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h16[0]": {
+      "rows": [
+       10,
+       11
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "rh[0]": {
+      "rows": [
+       12,
+       13
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "X[0]": {
+      "rows": [
+       14,
+       15
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "z16[0]": {
+      "rows": [
+       16,
+       17
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "rd[0]": {
+      "rows": [
+       18,
+       19
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[0]": {
+      "rows": [
+       46
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[1]": {
+      "rows": [
+       49,
+       "...",
+       304
+      ],
+      "row_count": 256,
+      "unknowns": 65536,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[2]": {
+      "rows": [
+       561
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[3]": {
+      "rows": [
+       564
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[4]": {
+      "rows": [
+       567,
+       "...",
+       630
+      ],
+      "row_count": 64,
+      "unknowns": 16384,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[5]": {
+      "rows": [
+       695
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     }
+    }
+   },
+   "legacy_singleton_attack": [
+    {
+     "group": 2,
+     "claim": 10,
+     "applicable": false,
+     "reason": "claim 10: not (one data slice + one single-row mask)",
+     "mask_parts": 2,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    },
+    {
+     "group": 3,
+     "claim": 11,
+     "applicable": false,
+     "reason": "claim 11: not (one data slice + one single-row mask)",
+     "mask_parts": 2,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    }
+   ],
+   "legacy_per_column_subset": {
+    "applicable": false,
+    "reason": "codex: not exactly one unreferenced row",
+    "meaning": "Codex's round-11 per-column classifier assumes a single unreferenced (proximity) row; the repaired layout has a proximity PAIR. The same quantity is reported here as analysis.per_column.disclosed_per_column, which FA7 section 6 showed equals that subset."
+   },
+   "seconds": 4.48
+  },
+  {
+   "file": "73728df07d903ae39c95ffb20df029fb47da1f564c119e69f04f4919fce4b08d.json",
+   "file_sha256": "7630d2003e764934e7a1f03116a7d238cbcec458ed88e0f4a65ab50ca355040a",
+   "bytes": 12561665,
+   "proof_sha256": "73728df07d903ae39c95ffb20df029fb47da1f564c119e69f04f4919fce4b08d",
+   "privacy": "P1",
+   "shape": {
+    "t": 32,
+    "d": 16,
+    "f": 16
+   },
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+   "profile": "ffn-v3-mr1-fresh-poc/1",
+   "transcript_domain": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+   "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "schema": 2,
+   "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "layout_digest_recomputed": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "roles": [
+    "A",
+    "H"
+   ],
+   "role": "H",
+   "role_summary": {
+    "role": "H",
+    "log_cols": 8,
+    "n": 256,
+    "inv_rate": 8,
+    "num_col_checks": 256,
+    "q_pad": 256,
+    "rows": 1326,
+    "data_rows": 664,
+    "mask_rows": 662,
+    "prox_rows": [
+     28,
+     29
+    ],
+    "claims": 12,
+    "parts_per_claim": [
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     22
+    ],
+    "groups": [
+     3,
+     1,
+     1,
+     6,
+     1
+    ],
+    "pad_entries_per_vector": 256,
+    "sampled_columns": 256,
+    "distinct_sampled_columns": 243,
+    "column_domain": 2048,
+    "root": "a1a29cbfc07eeb22fbbbd58277f1ad1c0643d0b0bdd87229c92fb441d34ea1e9",
+    "before_state": "f87c32592308cea33e431fcee2dd9c96d2fc25e126fcbf02ce2e771f14853a76",
+    "after_state": "2b97c90ae5dcf456b217bda3d4c1dc13f5a4f7a51befd4bd0a91840586978d7a",
+    "before_next_challenge": [
+     723184540811431669,
+     10839176419010935689
+    ],
+    "after_next_challenge": [
+     9348435362093492016,
+     15927227472301844320
+    ],
+    "zero_sum_pair_rows": [
+     24,
+     25
+    ],
+    "public_linear_constraints": [
+     {
+      "rows": [
+       24,
+       25
+      ],
+      "relation": "sum over the n message columns = 0",
+      "source": "zsum sumcheck"
+     }
+    ],
+    "aliased_rows": {
+     "hg[0].re": {
+      "rows": [
+       0,
+       1
+      ],
+      "claims": [
+       0,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hg[0].im": {
+      "rows": [
+       2,
+       3
+      ],
+      "claims": [
+       0,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hu[0].re": {
+      "rows": [
+       4,
+       5
+      ],
+      "claims": [
+       1,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hu[0].im": {
+      "rows": [
+       6,
+       7
+      ],
+      "claims": [
+       1,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hh[0].re": {
+      "rows": [
+       8,
+       9
+      ],
+      "claims": [
+       2,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hh[0].im": {
+      "rows": [
+       10,
+       11
+      ],
+      "claims": [
+       2,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hz[0].re": {
+      "rows": [
+       12,
+       13
+      ],
+      "claims": [
+       3,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hz[0].im": {
+      "rows": [
+       14,
+       15
+      ],
+      "claims": [
+       3,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "u.re": {
+      "rows": [
+       24
+      ],
+      "claims": [
+       4,
+       11
+      ],
+      "kind": "mask",
+      "row_count": 1
+     },
+     "u.im": {
+      "rows": [
+       25
+      ],
+      "claims": [
+       4,
+       11
+      ],
+      "kind": "mask",
+      "row_count": 1
+     },
+     "h_t[0].re": {
+      "rows": [
+       30
+      ],
+      "claims": [
+       5,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[0].im": {
+      "rows": [
+       31
+      ],
+      "claims": [
+       5,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[1].re": {
+      "rows": [
+       34,
+       "...",
+       289
+      ],
+      "claims": [
+       6,
+       11
+      ],
+      "kind": "data",
+      "row_count": 256
+     },
+     "h_t[1].im": {
+      "rows": [
+       290,
+       "...",
+       545
+      ],
+      "claims": [
+       6,
+       11
+      ],
+      "kind": "data",
+      "row_count": 256
+     },
+     "h_t[2].re": {
+      "rows": [
+       1058
+      ],
+      "claims": [
+       7,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[2].im": {
+      "rows": [
+       1059
+      ],
+      "claims": [
+       7,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[3].re": {
+      "rows": [
+       1062
+      ],
+      "claims": [
+       8,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[3].im": {
+      "rows": [
+       1063
+      ],
+      "claims": [
+       8,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[4].re": {
+      "rows": [
+       1066,
+       "...",
+       1129
+      ],
+      "claims": [
+       9,
+       11
+      ],
+      "kind": "data",
+      "row_count": 64
+     },
+     "h_t[4].im": {
+      "rows": [
+       1130,
+       "...",
+       1193
+      ],
+      "claims": [
+       9,
+       11
+      ],
+      "kind": "data",
+      "row_count": 64
+     },
+     "h_t[5].re": {
+      "rows": [
+       1322
+      ],
+      "claims": [
+       10,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[5].im": {
+      "rows": [
+       1323
+      ],
+      "claims": [
+       10,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     }
+    }
+   },
+   "included_observation_classes": [
+    "aliasing",
+    "group_vectors",
+    "proximity_vector",
+    "terminals",
+    "zero_sum"
+   ],
+   "excluded_observation_classes": [
+    "cfs",
+    "pads",
+    "repeats",
+    "sampled_columns",
+    "unopened_columns"
+   ],
+   "analysis": {
+    "unknowns": {
+     "total": 339456,
+     "data": 169984,
+     "mask": 169472
+    },
+    "base_observation_rows": {
+     "group_vectors": 2560,
+     "proximity": 512,
+     "terminals": 24,
+     "extras": 2,
+     "total": 3098
+    },
+    "extras": [
+     {
+      "name": "zero_sum(u)",
+      "rows": [
+       24,
+       25
+      ],
+      "public_value": [
+       0,
+       0
+      ],
+      "source": "zsum sumcheck: sum over the n-cube of u = 0 (zk.rs prove/verify 'zero-sum sumcheck'; claimed sum Gamma_zs = c_zs * sum g)"
+     }
+    ],
+    "sites": 46,
+    "generators": 86,
+    "per_column": {
+     "rank_mask": 12,
+     "rank_joint": 12,
+     "disclosed_per_column": 0,
+     "base_rows_per_column": 12
+    },
+    "joint": {
+     "rank_mask": 3086,
+     "rank_joint": 3088,
+     "disclosed_total": 2,
+     "cross_column_kernel_mask": 14,
+     "cross_column_kernel_joint": 16,
+     "cross_column_increment": 2,
+     "per_column_total": 0,
+     "null_functionals_killing_masks_and_data": 10
+    },
+    "planes": {
+     "hg[0]": {
+      "rows": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "hu[0]": {
+      "rows": [
+       4,
+       5,
+       6,
+       7
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "hh[0]": {
+      "rows": [
+       8,
+       9,
+       10,
+       11
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "hz[0]": {
+      "rows": [
+       12,
+       13,
+       14,
+       15
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[0]": {
+      "rows": [
+       30,
+       31
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[1]": {
+      "rows": [
+       34,
+       "...",
+       545
+      ],
+      "row_count": 512,
+      "unknowns": 131072,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[2]": {
+      "rows": [
+       1058,
+       1059
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[3]": {
+      "rows": [
+       1062,
+       1063
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[4]": {
+      "rows": [
+       1066,
+       "...",
+       1193
+      ],
+      "row_count": 128,
+      "unknowns": 32768,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[5]": {
+      "rows": [
+       1322,
+       1323
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     }
+    }
+   },
+   "legacy_singleton_attack": [
+    {
+     "group": 1,
+     "claim": 3,
+     "applicable": false,
+     "reason": "claim 3: not (one data slice + one single-row mask)",
+     "mask_parts": 2,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    },
+    {
+     "group": 2,
+     "claim": 4,
+     "applicable": false,
+     "reason": "claim 4: not (one data slice + one single-row mask)",
+     "mask_parts": 4,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    }
+   ],
+   "h_zero_sum": {
+    "disclosed_without_zero_sum_constraint": 0,
+    "disclosed_with_zero_sum_constraint": 2,
+    "identity_rows_in_observation_row_space": true,
+    "residual_equals_public_logup_identity": true,
+    "meaning": "the surviving functionals are exactly the public LogUp identity sum_j (helpers - table helpers) whose value the proof itself fixes to 0; a known constant, not a witness functional -- and this is a rank statement under fixed coefficients, not H privacy"
+   },
+   "legacy_per_column_subset": {
+    "applicable": false,
+    "reason": "codex: not exactly one unreferenced row",
+    "meaning": "Codex's round-11 per-column classifier assumes a single unreferenced (proximity) row; the repaired layout has a proximity PAIR. The same quantity is reported here as analysis.per_column.disclosed_per_column, which FA7 section 6 showed equals that subset."
+   },
+   "seconds": 1.54
+  },
+  {
+   "file": "bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa.json",
+   "file_sha256": "e34f07aa43ebed214c9e2e6c93e1251c1ab7caf6aa2e80b934afb29706879ac7",
+   "bytes": 13163009,
+   "proof_sha256": "bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa",
+   "privacy": "P3",
+   "shape": {
+    "t": 32,
+    "d": 16,
+    "f": 16
+   },
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+   "profile": "ffn-v3-mr1-fresh-poc/1",
+   "transcript_domain": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+   "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "schema": 2,
+   "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "layout_digest_recomputed": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "roles": [
+    "W",
+    "A",
+    "H"
+   ],
+   "role": "W",
+   "role_summary": {
+    "role": "W",
+    "log_cols": 8,
+    "n": 256,
+    "inv_rate": 8,
+    "num_col_checks": 256,
+    "q_pad": 256,
+    "rows": 11,
+    "data_rows": 3,
+    "mask_rows": 8,
+    "prox_rows": [
+     9,
+     10
+    ],
+    "claims": 3,
+    "parts_per_claim": [
+     3,
+     3,
+     3
+    ],
+    "groups": [
+     2,
+     1
+    ],
+    "pad_entries_per_vector": 256,
+    "sampled_columns": 256,
+    "distinct_sampled_columns": 238,
+    "column_domain": 2048,
+    "root": "865750717f19492d2af47138d29d4ec1801b27f4801a6e87a66c00ee528c3dc3",
+    "before_state": "87e1a7163e2d88d008989095002097a29f248ba2b07de0cb34124b59fe6e15f2",
+    "after_state": "63ab596508f9845cdafaa5840d66f08641c5b70246be2ff462e057c6af905fcd",
+    "before_next_challenge": [
+     5943764688340132856,
+     8393068340402069716
+    ],
+    "after_next_challenge": [
+     15073330098629257382,
+     16313570345072694640
+    ],
+    "zero_sum_pair_rows": null,
+    "public_linear_constraints": [],
+    "aliased_rows": {}
+   },
+   "included_observation_classes": [
+    "aliasing",
+    "group_vectors",
+    "proximity_vector",
+    "terminals"
+   ],
+   "excluded_observation_classes": [
+    "cfs",
+    "pads",
+    "repeats",
+    "sampled_columns",
+    "unopened_columns"
+   ],
+   "analysis": {
+    "unknowns": {
+     "total": 2816,
+     "data": 768,
+     "mask": 2048
+    },
+    "base_observation_rows": {
+     "group_vectors": 1024,
+     "proximity": 512,
+     "terminals": 6,
+     "extras": 0,
+     "total": 1542
+    },
+    "extras": [],
+    "sites": 11,
+    "generators": 11,
+    "per_column": {
+     "rank_mask": 6,
+     "rank_joint": 6,
+     "disclosed_per_column": 0,
+     "base_rows_per_column": 6
+    },
+    "joint": {
+     "rank_mask": 1538,
+     "rank_joint": 1538,
+     "disclosed_total": 0,
+     "cross_column_kernel_mask": 2,
+     "cross_column_kernel_joint": 2,
+     "cross_column_increment": 0,
+     "per_column_total": 0,
+     "null_functionals_killing_masks_and_data": 4
+    },
+    "planes": {
+     "Wg[0][0]": {
+      "rows": [
+       0
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "Wu[0][0]": {
+      "rows": [
+       1
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "Wd[0][0]": {
+      "rows": [
+       2
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     }
+    }
+   },
+   "legacy_singleton_attack": [
+    {
+     "group": 1,
+     "claim": 2,
+     "applicable": false,
+     "reason": "claim 2: not (one data slice + one single-row mask)",
+     "mask_parts": 2,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    }
+   ],
+   "legacy_per_column_subset": {
+    "applicable": false,
+    "reason": "codex: not exactly one unreferenced row",
+    "meaning": "Codex's round-11 per-column classifier assumes a single unreferenced (proximity) row; the repaired layout has a proximity PAIR. The same quantity is reported here as analysis.per_column.disclosed_per_column, which FA7 section 6 showed equals that subset."
+   },
+   "seconds": 0.03
+  },
+  {
+   "file": "bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa.json",
+   "file_sha256": "e34f07aa43ebed214c9e2e6c93e1251c1ab7caf6aa2e80b934afb29706879ac7",
+   "bytes": 13163009,
+   "proof_sha256": "bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa",
+   "privacy": "P3",
+   "shape": {
+    "t": 32,
+    "d": 16,
+    "f": 16
+   },
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+   "profile": "ffn-v3-mr1-fresh-poc/1",
+   "transcript_domain": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+   "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "schema": 2,
+   "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "layout_digest_recomputed": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "roles": [
+    "W",
+    "A",
+    "H"
+   ],
+   "role": "A",
+   "role_summary": {
+    "role": "A",
+    "log_cols": 8,
+    "n": 256,
+    "inv_rate": 8,
+    "num_col_checks": 256,
+    "q_pad": 256,
+    "rows": 698,
+    "data_rows": 344,
+    "mask_rows": 354,
+    "prox_rows": [
+     44,
+     45
+    ],
+    "claims": 18,
+    "parts_per_claim": [
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     2,
+     3,
+     3,
+     2,
+     3
+    ],
+    "groups": [
+     7,
+     3,
+     1,
+     1,
+     6
+    ],
+    "pad_entries_per_vector": 256,
+    "sampled_columns": 256,
+    "distinct_sampled_columns": 234,
+    "column_domain": 2048,
+    "root": "7b6755de61838727bd18161cbbaf18dba1a5cd1ba8e23ed367febab196db79a4",
+    "before_state": "63ab596508f9845cdafaa5840d66f08641c5b70246be2ff462e057c6af905fcd",
+    "after_state": "9bb761479583f8b41bf33dbaab1d8b9028be295ae729733f8cc02a7ba6e80013",
+    "before_next_challenge": [
+     15073330098629257382,
+     16313570345072694640
+    ],
+    "after_next_challenge": [
+     15321343988901925879,
+     5299875957332946242
+    ],
+    "zero_sum_pair_rows": null,
+    "public_linear_constraints": [],
+    "aliased_rows": {
+     "h16[0]": {
+      "rows": [
+       10,
+       11
+      ],
+      "claims": [
+       5,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "X[0]": {
+      "rows": [
+       14,
+       15
+      ],
+      "claims": [
+       7,
+       10
+      ],
+      "kind": "data",
+      "row_count": 2
+     }
+    }
+   },
+   "included_observation_classes": [
+    "aliasing",
+    "group_vectors",
+    "proximity_vector",
+    "terminals"
+   ],
+   "excluded_observation_classes": [
+    "cfs",
+    "pads",
+    "repeats",
+    "sampled_columns",
+    "unopened_columns"
+   ],
+   "analysis": {
+    "unknowns": {
+     "total": 178688,
+     "data": 88064,
+     "mask": 90624
+    },
+    "base_observation_rows": {
+     "group_vectors": 2560,
+     "proximity": 512,
+     "terminals": 36,
+     "extras": 0,
+     "total": 3108
+    },
+    "extras": [],
+    "sites": 52,
+    "generators": 78,
+    "per_column": {
+     "rank_mask": 12,
+     "rank_joint": 12,
+     "disclosed_per_column": 0,
+     "base_rows_per_column": 12
+    },
+    "joint": {
+     "rank_mask": 3098,
+     "rank_joint": 3098,
+     "disclosed_total": 0,
+     "cross_column_kernel_mask": 26,
+     "cross_column_kernel_joint": 26,
+     "cross_column_increment": 0,
+     "per_column_total": 0,
+     "null_functionals_killing_masks_and_data": 10
+    },
+    "planes": {
+     "g8[0]": {
+      "rows": [
+       0,
+       1
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "rg[0]": {
+      "rows": [
+       2,
+       3
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "a16[0]": {
+      "rows": [
+       4,
+       5
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "u16[0]": {
+      "rows": [
+       6,
+       7
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "ru[0]": {
+      "rows": [
+       8,
+       9
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h16[0]": {
+      "rows": [
+       10,
+       11
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "rh[0]": {
+      "rows": [
+       12,
+       13
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "X[0]": {
+      "rows": [
+       14,
+       15
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "z16[0]": {
+      "rows": [
+       16,
+       17
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "rd[0]": {
+      "rows": [
+       18,
+       19
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[0]": {
+      "rows": [
+       46
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[1]": {
+      "rows": [
+       49,
+       "...",
+       304
+      ],
+      "row_count": 256,
+      "unknowns": 65536,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[2]": {
+      "rows": [
+       561
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[3]": {
+      "rows": [
+       564
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[4]": {
+      "rows": [
+       567,
+       "...",
+       630
+      ],
+      "row_count": 64,
+      "unknowns": 16384,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "tab[5]": {
+      "rows": [
+       695
+      ],
+      "row_count": 1,
+      "unknowns": 256,
+      "projected_disclosed_dim": 0,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     }
+    }
+   },
+   "legacy_singleton_attack": [
+    {
+     "group": 2,
+     "claim": 10,
+     "applicable": false,
+     "reason": "claim 10: not (one data slice + one single-row mask)",
+     "mask_parts": 2,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    },
+    {
+     "group": 3,
+     "claim": 11,
+     "applicable": false,
+     "reason": "claim 11: not (one data slice + one single-row mask)",
+     "mask_parts": 2,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    }
+   ],
+   "legacy_per_column_subset": {
+    "applicable": false,
+    "reason": "codex: not exactly one unreferenced row",
+    "meaning": "Codex's round-11 per-column classifier assumes a single unreferenced (proximity) row; the repaired layout has a proximity PAIR. The same quantity is reported here as analysis.per_column.disclosed_per_column, which FA7 section 6 showed equals that subset."
+   },
+   "seconds": 4.82
+  },
+  {
+   "file": "bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa.json",
+   "file_sha256": "e34f07aa43ebed214c9e2e6c93e1251c1ab7caf6aa2e80b934afb29706879ac7",
+   "bytes": 13163009,
+   "proof_sha256": "bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa",
+   "privacy": "P3",
+   "shape": {
+    "t": 32,
+    "d": 16,
+    "f": 16
+   },
+   "shifts": [
+    7,
+    0,
+    14,
+    6
+   ],
+   "coverage": "ffn-v3-mr1-fresh-poc-function-1",
+   "profile": "ffn-v3-mr1-fresh-poc/1",
+   "transcript_domain": "hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1",
+   "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+   "schema": 2,
+   "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "layout_digest_recomputed": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4",
+   "roles": [
+    "W",
+    "A",
+    "H"
+   ],
+   "role": "H",
+   "role_summary": {
+    "role": "H",
+    "log_cols": 8,
+    "n": 256,
+    "inv_rate": 8,
+    "num_col_checks": 256,
+    "q_pad": 256,
+    "rows": 1326,
+    "data_rows": 664,
+    "mask_rows": 662,
+    "prox_rows": [
+     28,
+     29
+    ],
+    "claims": 12,
+    "parts_per_claim": [
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     22
+    ],
+    "groups": [
+     3,
+     1,
+     1,
+     6,
+     1
+    ],
+    "pad_entries_per_vector": 256,
+    "sampled_columns": 256,
+    "distinct_sampled_columns": 246,
+    "column_domain": 2048,
+    "root": "a5c0be2db5b96f3fb29f67ad04efaaf118403c6059b26ec18afc00a53293eb78",
+    "before_state": "9bb761479583f8b41bf33dbaab1d8b9028be295ae729733f8cc02a7ba6e80013",
+    "after_state": "d94d46ab48b2fd49d4f396c403967df40cf500f64dfa489b5f52782b19670f55",
+    "before_next_challenge": [
+     15321343988901925879,
+     5299875957332946242
+    ],
+    "after_next_challenge": [
+     9893965605011689824,
+     8794039960769746865
+    ],
+    "zero_sum_pair_rows": [
+     24,
+     25
+    ],
+    "public_linear_constraints": [
+     {
+      "rows": [
+       24,
+       25
+      ],
+      "relation": "sum over the n message columns = 0",
+      "source": "zsum sumcheck"
+     }
+    ],
+    "aliased_rows": {
+     "hg[0].re": {
+      "rows": [
+       0,
+       1
+      ],
+      "claims": [
+       0,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hg[0].im": {
+      "rows": [
+       2,
+       3
+      ],
+      "claims": [
+       0,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hu[0].re": {
+      "rows": [
+       4,
+       5
+      ],
+      "claims": [
+       1,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hu[0].im": {
+      "rows": [
+       6,
+       7
+      ],
+      "claims": [
+       1,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hh[0].re": {
+      "rows": [
+       8,
+       9
+      ],
+      "claims": [
+       2,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hh[0].im": {
+      "rows": [
+       10,
+       11
+      ],
+      "claims": [
+       2,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hz[0].re": {
+      "rows": [
+       12,
+       13
+      ],
+      "claims": [
+       3,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "hz[0].im": {
+      "rows": [
+       14,
+       15
+      ],
+      "claims": [
+       3,
+       11
+      ],
+      "kind": "data",
+      "row_count": 2
+     },
+     "u.re": {
+      "rows": [
+       24
+      ],
+      "claims": [
+       4,
+       11
+      ],
+      "kind": "mask",
+      "row_count": 1
+     },
+     "u.im": {
+      "rows": [
+       25
+      ],
+      "claims": [
+       4,
+       11
+      ],
+      "kind": "mask",
+      "row_count": 1
+     },
+     "h_t[0].re": {
+      "rows": [
+       30
+      ],
+      "claims": [
+       5,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[0].im": {
+      "rows": [
+       31
+      ],
+      "claims": [
+       5,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[1].re": {
+      "rows": [
+       34,
+       "...",
+       289
+      ],
+      "claims": [
+       6,
+       11
+      ],
+      "kind": "data",
+      "row_count": 256
+     },
+     "h_t[1].im": {
+      "rows": [
+       290,
+       "...",
+       545
+      ],
+      "claims": [
+       6,
+       11
+      ],
+      "kind": "data",
+      "row_count": 256
+     },
+     "h_t[2].re": {
+      "rows": [
+       1058
+      ],
+      "claims": [
+       7,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[2].im": {
+      "rows": [
+       1059
+      ],
+      "claims": [
+       7,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[3].re": {
+      "rows": [
+       1062
+      ],
+      "claims": [
+       8,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[3].im": {
+      "rows": [
+       1063
+      ],
+      "claims": [
+       8,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[4].re": {
+      "rows": [
+       1066,
+       "...",
+       1129
+      ],
+      "claims": [
+       9,
+       11
+      ],
+      "kind": "data",
+      "row_count": 64
+     },
+     "h_t[4].im": {
+      "rows": [
+       1130,
+       "...",
+       1193
+      ],
+      "claims": [
+       9,
+       11
+      ],
+      "kind": "data",
+      "row_count": 64
+     },
+     "h_t[5].re": {
+      "rows": [
+       1322
+      ],
+      "claims": [
+       10,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     },
+     "h_t[5].im": {
+      "rows": [
+       1323
+      ],
+      "claims": [
+       10,
+       11
+      ],
+      "kind": "data",
+      "row_count": 1
+     }
+    }
+   },
+   "included_observation_classes": [
+    "aliasing",
+    "group_vectors",
+    "proximity_vector",
+    "terminals",
+    "zero_sum"
+   ],
+   "excluded_observation_classes": [
+    "cfs",
+    "pads",
+    "repeats",
+    "sampled_columns",
+    "unopened_columns"
+   ],
+   "analysis": {
+    "unknowns": {
+     "total": 339456,
+     "data": 169984,
+     "mask": 169472
+    },
+    "base_observation_rows": {
+     "group_vectors": 2560,
+     "proximity": 512,
+     "terminals": 24,
+     "extras": 2,
+     "total": 3098
+    },
+    "extras": [
+     {
+      "name": "zero_sum(u)",
+      "rows": [
+       24,
+       25
+      ],
+      "public_value": [
+       0,
+       0
+      ],
+      "source": "zsum sumcheck: sum over the n-cube of u = 0 (zk.rs prove/verify 'zero-sum sumcheck'; claimed sum Gamma_zs = c_zs * sum g)"
+     }
+    ],
+    "sites": 46,
+    "generators": 86,
+    "per_column": {
+     "rank_mask": 12,
+     "rank_joint": 12,
+     "disclosed_per_column": 0,
+     "base_rows_per_column": 12
+    },
+    "joint": {
+     "rank_mask": 3086,
+     "rank_joint": 3088,
+     "disclosed_total": 2,
+     "cross_column_kernel_mask": 14,
+     "cross_column_kernel_joint": 16,
+     "cross_column_increment": 2,
+     "per_column_total": 0,
+     "null_functionals_killing_masks_and_data": 10
+    },
+    "planes": {
+     "hg[0]": {
+      "rows": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "hu[0]": {
+      "rows": [
+       4,
+       5,
+       6,
+       7
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "hh[0]": {
+      "rows": [
+       8,
+       9,
+       10,
+       11
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "hz[0]": {
+      "rows": [
+       12,
+       13,
+       14,
+       15
+      ],
+      "row_count": 4,
+      "unknowns": 1024,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[0]": {
+      "rows": [
+       30,
+       31
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[1]": {
+      "rows": [
+       34,
+       "...",
+       545
+      ],
+      "row_count": 512,
+      "unknowns": 131072,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[2]": {
+      "rows": [
+       1058,
+       1059
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[3]": {
+      "rows": [
+       1062,
+       1063
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[4]": {
+      "rows": [
+       1066,
+       "...",
+       1193
+      ],
+      "row_count": 128,
+      "unknowns": 32768,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     },
+     "h_t[5]": {
+      "rows": [
+       1322,
+       1323
+      ],
+      "row_count": 2,
+      "unknowns": 512,
+      "projected_disclosed_dim": 2,
+      "isolated_disclosed_dim": 0,
+      "fully_recovered": false,
+      "isolated_disclosed_dim_at_column": {
+       "0": 0,
+       "255": 0
+      }
+     }
+    }
+   },
+   "legacy_singleton_attack": [
+    {
+     "group": 1,
+     "claim": 3,
+     "applicable": false,
+     "reason": "claim 3: not (one data slice + one single-row mask)",
+     "mask_parts": 2,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    },
+    {
+     "group": 2,
+     "claim": 4,
+     "applicable": false,
+     "reason": "claim 4: not (one data slice + one single-row mask)",
+     "mask_parts": 4,
+     "meaning": "FA7 section 7's L_b elimination needs exactly one single-row base mask in the claim; the repaired site has an independent pair, so the projection that recovered X / h16 / Wd from the legacy captures has no mask-free form here."
+    }
+   ],
+   "h_zero_sum": {
+    "disclosed_without_zero_sum_constraint": 0,
+    "disclosed_with_zero_sum_constraint": 2,
+    "identity_rows_in_observation_row_space": true,
+    "residual_equals_public_logup_identity": true,
+    "meaning": "the surviving functionals are exactly the public LogUp identity sum_j (helpers - table helpers) whose value the proof itself fixes to 0; a known constant, not a witness functional -- and this is a rank statement under fixed coefficients, not H privacy"
+   },
+   "legacy_per_column_subset": {
+    "applicable": false,
+    "reason": "codex: not exactly one unreferenced row",
+    "meaning": "Codex's round-11 per-column classifier assumes a single unreferenced (proximity) row; the repaired layout has a proximity PAIR. The same quantity is reported here as analysis.per_column.disclosed_per_column, which FA7 section 6 showed equals that subset."
+   },
+   "seconds": 1.45
+  }
+ ],
+ "refused": [],
+ "commands": [
+  {
+   "command": "python3 scripts/zk60_opus_repaired_capture.py preflight --captures-dir /tmp/zk60-round16/captures --manifest results/zk60_round16_validation.json --cross-manifest /tmp/zk60-round16/summary.json -o results/zk60_opus_capture_preflight.json",
+   "exit_code": 0,
+   "result": "O1: 4 captures parsed, 0 refused, 167 checks, 0 failed (45 per P3 file, 35 per P1 file, 7 set-level including the published-vs-interim cross-check). The published record was read at /home/victor/IntelligenceRegulation/results/zk60_round16_validation.json (Codex's integration checkout); it reaches this review worktree at the next merge."
+  },
+  {
+   "command": "python3 -m unittest discover -s tests -p 'test_zk60_opus_repaired_capture.py' -v",
+   "exit_code": 0,
+   "result": "35 tests OK, 0 skipped, ~57 s"
+  },
+  {
+   "command": "python3 -m unittest discover -s tests -p 'test_zk60_fable_joint*.py' -v",
+   "exit_code": 0,
+   "result": "57 tests OK, 0 skipped, ~29 s -- Claude Fable 5.1's archived FA2/FA7 suites unchanged and green"
+  },
+  {
+   "command": "python3 /home/victor/wt-zk60-fa/scripts/zk60_opus_repaired_capture.py analyze --captures-dir /tmp/zk60-round16/captures --manifest /home/victor/IntelligenceRegulation/results/zk60_round16_validation.json --cross-manifest /tmp/zk60-round16/summary.json --legacy-dir /tmp/zk60-round11/final-observations --runs-file /tmp/claude-1000/-home-victor-IntelligenceRegulation/158dcca8-d070-4475-9ee6-abb1605e785b/scratchpad/runs.json -o /home/victor/wt-zk60-fa/results/zk60_opus_repaired_capture_analysis.json",
+   "exit_code": 0,
+   "result": "this analysis record"
+  }
+ ],
+ "summary": {
+  "P3/T32/W": {
+   "cases": 2,
+   "n": 256,
+   "per_column_disclosed": [
+    0
+   ],
+   "joint_disclosed": [
+    0
+   ],
+   "cross_column_increment": [
+    0
+   ],
+   "planes": {
+    "Wg[0][0]": {
+     "rows": 1,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "Wu[0][0]": {
+     "rows": 1,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "Wd[0][0]": {
+     "rows": 1,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    }
+   }
+  },
+  "P3/T32/A": {
+   "cases": 2,
+   "n": 256,
+   "per_column_disclosed": [
+    0
+   ],
+   "joint_disclosed": [
+    0
+   ],
+   "cross_column_increment": [
+    0
+   ],
+   "planes": {
+    "g8[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "rg[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "a16[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "u16[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "ru[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "h16[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "rh[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "X[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "z16[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "rd[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "tab[0]": {
+     "rows": 1,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "tab[1]": {
+     "rows": 256,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "tab[2]": {
+     "rows": 1,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "tab[3]": {
+     "rows": 1,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "tab[4]": {
+     "rows": 64,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "tab[5]": {
+     "rows": 1,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    }
+   }
+  },
+  "P3/T32/H": {
+   "cases": 2,
+   "n": 256,
+   "per_column_disclosed": [
+    0
+   ],
+   "joint_disclosed": [
+    2
+   ],
+   "cross_column_increment": [
+    2
+   ],
+   "planes": {
+    "hg[0]": {
+     "rows": 4,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "hu[0]": {
+     "rows": 4,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "hh[0]": {
+     "rows": 4,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "hz[0]": {
+     "rows": 4,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "h_t[0]": {
+     "rows": 2,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "h_t[1]": {
+     "rows": 512,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "h_t[2]": {
+     "rows": 2,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "h_t[3]": {
+     "rows": 2,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "h_t[4]": {
+     "rows": 128,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "h_t[5]": {
+     "rows": 2,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    }
+   }
+  },
+  "P1/T32/A": {
+   "cases": 2,
+   "n": 256,
+   "per_column_disclosed": [
+    0
+   ],
+   "joint_disclosed": [
+    0
+   ],
+   "cross_column_increment": [
+    0
+   ],
+   "planes": {
+    "g8[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "rg[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "a16[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "u16[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "ru[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "h16[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "rh[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "X[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "z16[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "rd[0]": {
+     "rows": 2,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "tab[0]": {
+     "rows": 1,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "tab[1]": {
+     "rows": 256,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "tab[2]": {
+     "rows": 1,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "tab[3]": {
+     "rows": 1,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "tab[4]": {
+     "rows": 64,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "tab[5]": {
+     "rows": 1,
+     "projected": [
+      0
+     ],
+     "isolated": [
+      0
+     ]
+    }
+   }
+  },
+  "P1/T32/H": {
+   "cases": 2,
+   "n": 256,
+   "per_column_disclosed": [
+    0
+   ],
+   "joint_disclosed": [
+    2
+   ],
+   "cross_column_increment": [
+    2
+   ],
+   "planes": {
+    "hg[0]": {
+     "rows": 4,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "hu[0]": {
+     "rows": 4,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "hh[0]": {
+     "rows": 4,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "hz[0]": {
+     "rows": 4,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "h_t[0]": {
+     "rows": 2,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "h_t[1]": {
+     "rows": 512,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "h_t[2]": {
+     "rows": 2,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "h_t[3]": {
+     "rows": 2,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "h_t[4]": {
+     "rows": 128,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    },
+    "h_t[5]": {
+     "rows": 2,
+     "projected": [
+      2
+     ],
+     "isolated": [
+      0
+     ]
+    }
+   }
+  }
+ },
+ "expected_target": {
+  "source": "docs/zkmatrix-poc/ZK60_OPUS_QUEUE.md O2 and ZK60_ROUND16.md",
+  "A": {
+   "disclosed_total": 0
+  },
+  "W": {
+   "disclosed_total": 0
+  },
+  "H": {
+   "disclosed_total": 2,
+   "residual_equals_public_logup_identity": true,
+   "disclosed_without_zero_sum_constraint": 0
+  }
+ },
+ "target_met": {
+  "W": {
+   "cases": 2,
+   "disclosed_total": [
+    0
+   ],
+   "per_column": [
+    0
+   ],
+   "ok": true
+  },
+  "A": {
+   "cases": 4,
+   "disclosed_total": [
+    0
+   ],
+   "per_column": [
+    0
+   ],
+   "ok": true
+  },
+  "H": {
+   "cases": 4,
+   "disclosed_total": [
+    2
+   ],
+   "per_column": [
+    0
+   ],
+   "ok": true
+  },
+  "all_roles_meet_the_expected_target": true
+ },
+ "legacy_positive_control": {
+  "directory": "/tmp/zk60-round11/final-observations",
+  "adapter_refusals": [
+   {
+    "file": "224abfdd76d8082c815ccd20fdee878d42708178786d60def7c8b4e97f1482f6.json",
+    "refused": true,
+    "reason": "schema 1 is not 2 (this tool accepts only ffn-v3-mr1-fresh-poc/1 at b41d036)"
+   },
+   {
+    "file": "30b390755fda91b784b9dd6d13cc957f57cb67f8441657a0266c26ac139815d2.json",
+    "refused": true,
+    "reason": "schema 1 is not 2 (this tool accepts only ffn-v3-mr1-fresh-poc/1 at b41d036)"
+   },
+   {
+    "file": "6fefcd11df3ec6c55db8dbb99304c855b4ae7a7621a21b812d7f810fb5d60297.json",
+    "refused": true,
+    "reason": "schema 1 is not 2 (this tool accepts only ffn-v3-mr1-fresh-poc/1 at b41d036)"
+   },
+   {
+    "file": "722ad4fa3792da4de444525850ee27fdef4a0cd04ad4550a3938d4ce2cdedcf9.json",
+    "refused": true,
+    "reason": "schema 1 is not 2 (this tool accepts only ffn-v3-mr1-fresh-poc/1 at b41d036)"
+   },
+   {
+    "file": "7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df.json",
+    "refused": true,
+    "reason": "schema 1 is not 2 (this tool accepts only ffn-v3-mr1-fresh-poc/1 at b41d036)"
+   },
+   {
+    "file": "882ffeb5d73dbb4db565c2632c32709f0ce053a71f858b0cc503571bc6b809c7.json",
+    "refused": true,
+    "reason": "schema 1 is not 2 (this tool accepts only ffn-v3-mr1-fresh-poc/1 at b41d036)"
+   },
+   {
+    "file": "9506f86e7f3e5fdf3c4c3d6a16ccbb6faa042f5fa47ce0dc3d81e8bc73d1d913.json",
+    "refused": true,
+    "reason": "schema 1 is not 2 (this tool accepts only ffn-v3-mr1-fresh-poc/1 at b41d036)"
+   },
+   {
+    "file": "9ce61efc214b868840a3f904ee3b1b974b62431eaf5cbe5b6a8364b83594c1a7.json",
+    "refused": true,
+    "reason": "schema 1 is not 2 (this tool accepts only ffn-v3-mr1-fresh-poc/1 at b41d036)"
+   },
+   {
+    "file": "ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe.json",
+    "refused": true,
+    "reason": "schema 1 is not 2 (this tool accepts only ffn-v3-mr1-fresh-poc/1 at b41d036)"
+   },
+   {
+    "file": "de66bd63823e51c15ecff4c78508559d1bf57d3a39ca7860e51774d9dab4bd5a.json",
+    "refused": true,
+    "reason": "schema 1 is not 2 (this tool accepts only ffn-v3-mr1-fresh-poc/1 at b41d036)"
+   },
+   {
+    "file": "dea4cfc7a4990dee283e3f76e4ae3c5f6d367813b32999f4d0b856ce5f2f6615.json",
+    "refused": true,
+    "reason": "schema 1 is not 2 (this tool accepts only ffn-v3-mr1-fresh-poc/1 at b41d036)"
+   },
+   {
+    "file": "fa4a493ad42f52e71e04b70f4f83f2841898405af7aa2e200de5641b19d7ae67.json",
+    "refused": true,
+    "reason": "schema 1 is not 2 (this tool accepts only ffn-v3-mr1-fresh-poc/1 at b41d036)"
+   }
+  ],
+  "legacy_tool_cases": [
+   {
+    "file": "224abfdd76d8082c815ccd20fdee878d42708178786d60def7c8b4e97f1482f6.json",
+    "file_sha256": "5f3a0b2b8093ad68a3086cee48f42631d37aee1b0d41848ecd7553e3100018f4",
+    "privacy": "P3",
+    "shape": {
+     "t": 32,
+     "d": 16,
+     "f": 16
+    },
+    "role": "W",
+    "n": 256,
+    "per_column_disclosed": 2,
+    "joint_disclosed_total": 514,
+    "fully_recovered_planes": [
+     {
+      "plane": "Wd[0][0]",
+      "rows": 1,
+      "isolated": 256
+     }
+    ]
+   },
+   {
+    "file": "224abfdd76d8082c815ccd20fdee878d42708178786d60def7c8b4e97f1482f6.json",
+    "file_sha256": "5f3a0b2b8093ad68a3086cee48f42631d37aee1b0d41848ecd7553e3100018f4",
+    "privacy": "P3",
+    "shape": {
+     "t": 32,
+     "d": 16,
+     "f": 16
+    },
+    "role": "A",
+    "n": 256,
+    "per_column_disclosed": 2,
+    "joint_disclosed_total": 516
+   },
+   {
+    "file": "224abfdd76d8082c815ccd20fdee878d42708178786d60def7c8b4e97f1482f6.json",
+    "file_sha256": "5f3a0b2b8093ad68a3086cee48f42631d37aee1b0d41848ecd7553e3100018f4",
+    "privacy": "P3",
+    "shape": {
+     "t": 32,
+     "d": 16,
+     "f": 16
+    },
+    "role": "H",
+    "n": 256,
+    "per_column_disclosed": 0,
+    "joint_disclosed_total": 2
+   },
+   {
+    "file": "7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df.json",
+    "file_sha256": "25f65afff3815aac7a1f881c746a6a0b31e60fd55d166d37acd41a0a785ea4f3",
+    "privacy": "P1",
+    "shape": {
+     "t": 32,
+     "d": 16,
+     "f": 16
+    },
+    "role": "A",
+    "n": 256,
+    "per_column_disclosed": 2,
+    "joint_disclosed_total": 516
+   },
+   {
+    "file": "7cf29500323baaa0e16db1c13bb25ea7ca357f044c216796dfbd50b540e390df.json",
+    "file_sha256": "25f65afff3815aac7a1f881c746a6a0b31e60fd55d166d37acd41a0a785ea4f3",
+    "privacy": "P1",
+    "shape": {
+     "t": 32,
+     "d": 16,
+     "f": 16
+    },
+    "role": "H",
+    "n": 256,
+    "per_column_disclosed": 0,
+    "joint_disclosed_total": 2
+   },
+   {
+    "file": "882ffeb5d73dbb4db565c2632c32709f0ce053a71f858b0cc503571bc6b809c7.json",
+    "file_sha256": "473f73508cb5e48de8194e0b8d8b4852e6148ecca30d361062bba3a956ba058c",
+    "privacy": "P1",
+    "shape": {
+     "t": 32,
+     "d": 16,
+     "f": 16
+    },
+    "role": "A",
+    "n": 256,
+    "per_column_disclosed": 2,
+    "joint_disclosed_total": 516
+   },
+   {
+    "file": "882ffeb5d73dbb4db565c2632c32709f0ce053a71f858b0cc503571bc6b809c7.json",
+    "file_sha256": "473f73508cb5e48de8194e0b8d8b4852e6148ecca30d361062bba3a956ba058c",
+    "privacy": "P1",
+    "shape": {
+     "t": 32,
+     "d": 16,
+     "f": 16
+    },
+    "role": "H",
+    "n": 256,
+    "per_column_disclosed": 0,
+    "joint_disclosed_total": 2
+   },
+   {
+    "file": "ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe.json",
+    "file_sha256": "e883bc01944df266c48046826ab9732c0f66ab6216f543704e9c3500a3b06240",
+    "privacy": "P3",
+    "shape": {
+     "t": 32,
+     "d": 16,
+     "f": 16
+    },
+    "role": "W",
+    "n": 256,
+    "per_column_disclosed": 2,
+    "joint_disclosed_total": 514,
+    "fully_recovered_planes": [
+     {
+      "plane": "Wd[0][0]",
+      "rows": 1,
+      "isolated": 256
+     }
+    ]
+   },
+   {
+    "file": "ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe.json",
+    "file_sha256": "e883bc01944df266c48046826ab9732c0f66ab6216f543704e9c3500a3b06240",
+    "privacy": "P3",
+    "shape": {
+     "t": 32,
+     "d": 16,
+     "f": 16
+    },
+    "role": "A",
+    "n": 256,
+    "per_column_disclosed": 2,
+    "joint_disclosed_total": 516
+   },
+   {
+    "file": "ac560dde2ee5352d0ef23a228411c19759ce003bb59a6d44678ec7f6ec6f6dfe.json",
+    "file_sha256": "e883bc01944df266c48046826ab9732c0f66ab6216f543704e9c3500a3b06240",
+    "privacy": "P3",
+    "shape": {
+     "t": 32,
+     "d": 16,
+     "f": 16
+    },
+    "role": "H",
+    "n": 256,
+    "per_column_disclosed": 0,
+    "joint_disclosed_total": 2
+   }
+  ],
+  "expected_legacy": {
+   "A": "2n + 4 = 516",
+   "W(P3)": "2n + 2 = 514",
+   "H": "2 (the public LogUp identity)",
+   "T32 Wd": "fully recovered"
+  },
+  "all_legacy_captures_refused_by_the_adapter": true,
+  "legacy_tool_reproduces_fa7": {
+   "W": [
+    514
+   ],
+   "A": [
+    516
+   ],
+   "H": [
+    2
+   ]
+  }
+ },
+ "limits": [
+  "A linear-model rank result on four fresh-PoC captures under the captured (fixed) public coefficients. It is not a simulator, not a conditioning argument and not an upper bound on disclosure.",
+  "Excluded by construction and unchanged from FA7: pad coordinates, sampled encoded columns, the CFS mask commitment and masked sumcheck round messages, repeated proofs of one witness, and the Merkle root over unopened columns. Each needs its own argument.",
+  "This is NOT whole-protocol zero knowledge. It covers only the experimental ffn-v3-mr1-fresh-poc/1 profile at T32/d16/f16, function 1, with fresh per-proof weights: no registered/seamed profile, no function 2, no stable private model identity, no attention, no wire decoder, no transport envelope.",
+  "The captures hold no witness values; nothing here is compared to a ground truth.",
+  "No private-block, deployment or throughput acceptance follows."
+ ]
+}
