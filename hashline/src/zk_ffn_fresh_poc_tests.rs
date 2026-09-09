@@ -8,6 +8,127 @@ fn weight_statement(privacy: ZkPrivacy, root: Digest) -> WeightStatement {
     }
 }
 
+#[test]
+fn repaired_wire_roundtrip_and_adversarial_frames() {
+    let w = fixture(32, 29);
+    let st = statement(&w);
+    for privacy in [ZkPrivacy::P1, ZkPrivacy::P3] {
+        let mut proof = fresh_poc::prove(&w, privacy, b"wire-request").unwrap();
+        let weights = weight_statement(privacy, proof.weight_root());
+        let bytes = proof.to_bytes(&st, weights, b"wire-request").unwrap();
+        assert_eq!(bytes.len(), proof.payload_size() + 41);
+        assert_eq!(bytes.len(), fresh_poc::encoded_len(&st, weights).unwrap());
+        let decoded = fresh_poc::Proof::from_bytes(&st, weights, &bytes, b"wire-request").unwrap();
+        assert_eq!(decoded.inner.to_bytes(), proof.inner.to_bytes());
+        assert_eq!(
+            decoded.to_bytes(&st, weights, b"wire-request").unwrap(),
+            bytes
+        );
+        fresh_poc::verify_bytes(&st, weights, &bytes, b"wire-request").unwrap();
+
+        let decode = |b: &[u8]| fresh_poc::Proof::from_bytes(&st, weights, b, b"wire-request");
+        let reject =
+            |b: &[u8]| assert!(fresh_poc::verify_bytes(&st, weights, b, b"wire-request").is_err());
+        // Fixed frame lengths reject incomplete, extended and legacy payloads.
+        for end in [0, 1, 8, 9, 40, 41, 205, bytes.len() / 2, bytes.len() - 1] {
+            assert!(decode(&bytes[..end]).is_err());
+        }
+        let mut bad = bytes.clone();
+        bad.push(0);
+        assert!(decode(&bad).is_err());
+        assert!(decode(&proof.inner.to_bytes()).is_err());
+        for offset in [0, 7, 8, 9, 40] {
+            let mut bad = bytes.clone();
+            bad[offset] ^= 1;
+            assert!(decode(&bad).is_err());
+        }
+        // Hostile commitment counts never become allocation sizes.
+        for offset in [41 + 32, 41 + 44 + 32, 41 + 120 + 32] {
+            let mut bad = bytes.clone();
+            bad[offset..offset + 8].fill(255);
+            assert!(decode(&bad).unwrap_err().contains("shape"));
+        }
+        // Both limbs are canonical; reducing modulo p would admit aliases.
+        for offset in [41 + 164, 41 + 164 + 8] {
+            let mut bad = bytes.clone();
+            bad[offset..offset + 8].copy_from_slice(&crate::field::P.to_le_bytes());
+            assert!(decode(&bad).unwrap_err().contains("noncanonical"));
+        }
+        let mask_at = bytes.len()
+            - proof.inner.mask_open.size_bytes()
+            - proof.inner.w_open.size_bytes()
+            - proof.inner.w_open_zk.size_bytes()
+            - proof.inner.a_open.size_bytes()
+            - proof.inner.h_open.size_bytes();
+        let mask_col = mask_at + 2 * 1024 * 16;
+        let mut bad = bytes.clone();
+        bad[mask_col..mask_col + 8].copy_from_slice(&4096u64.to_le_bytes());
+        assert!(decode(&bad).unwrap_err().contains("index"));
+        let mut bad = bytes.clone();
+        bad[mask_col + 8..mask_col + 16].fill(255);
+        assert!(decode(&bad).unwrap_err().contains("noncanonical"));
+        // Same-sized corruption across commitments, arguments, vectors, leaves
+        // and paths must be rejected cryptographically, not just by framing.
+        for offset in [
+            41,
+            41 + 44,
+            41 + 88,
+            41 + 120,
+            205,
+            mask_at,
+            mask_col + 8,
+            mask_col + 8 + 16 * 8,
+            bytes.len() - 1,
+            bytes.len() - 352,
+            bytes.len() / 2,
+        ] {
+            let mut bad = bytes.clone();
+            bad[offset] ^= 1;
+            reject(&bad);
+        }
+        let mut altered = st.clone();
+        altered.l += 1;
+        assert!(fresh_poc::Proof::from_bytes(&altered, weights, &bytes, b"wire-request").is_err());
+        altered = st.clone();
+        altered.table[255] ^= 1;
+        assert!(fresh_poc::Proof::from_bytes(&altered, weights, &bytes, b"wire-request").is_err());
+        assert!(fresh_poc::Proof::from_bytes(&st, weights, &bytes, b"other-request").is_err());
+        let other_mode = match privacy {
+            ZkPrivacy::P1 => WeightStatement::FreshPrivate,
+            ZkPrivacy::P3 => WeightStatement::Public(proof.weight_root()),
+        };
+        assert!(fresh_poc::verify_bytes(&st, other_mode, &bytes, b"wire-request").is_err());
+        // The header hash is not an authentication mechanism. Recomputing it
+        // for a different expected context/root still fails the actual proof.
+        let relabelled = proof.to_bytes(&st, weights, b"other-request").unwrap();
+        assert!(fresh_poc::verify_bytes(&st, weights, &relabelled, b"other-request").is_err());
+        if privacy == ZkPrivacy::P1 {
+            let wrong_root = WeightStatement::Public([0; 32]);
+            let relabelled = proof.to_bytes(&st, wrong_root, b"wire-request").unwrap();
+            assert!(
+                fresh_poc::verify_bytes(&st, wrong_root, &relabelled, b"wire-request").is_err()
+            );
+        }
+        // The encoder must reject invalid typed shapes even when flattening
+        // would preserve the byte count (moved rounds/group coordinates).
+        let last = proof.inner.gu_sc.rounds[0].pop().unwrap();
+        proof.inner.gu_sc.rounds[1].push(last);
+        assert!(proof.to_bytes(&st, weights, b"wire-request").is_err());
+        proof.inner.gu_sc.rounds[1].pop();
+        proof.inner.gu_sc.rounds[0].push(last);
+        let last = proof.inner.a_open.group_vecs[0].pop().unwrap();
+        proof.inner.a_open.group_vecs[1].push(last);
+        assert!(proof.to_bytes(&st, weights, b"wire-request").is_err());
+        proof.inner.a_open.group_vecs[1].pop();
+        proof.inner.a_open.group_vecs[0].push(last);
+        proof.inner.gu_term[0].c0 = Fp(crate::field::P);
+        assert!(proof
+            .to_bytes(&st, weights, b"wire-request")
+            .unwrap_err()
+            .contains("noncanonical"));
+    }
+}
+
 // The two mask coefficients in an ACTUAL fully verified singleton group span
 // Fp2. For every possible change of its private data, solve compensating mask
 // changes that leave the public group vector (and hence its terminal) unchanged.

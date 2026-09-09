@@ -1,15 +1,20 @@
 //! Experimental paired-mask FFN proof with fresh commitments on every attempt.
 //!
 //! This is the first executable repair rung, not the registered/block `ffn-v3-mr1`
-//! format: no stable private model identity, attention/seams, or wire decoder.
+//! format: no stable private model identity or attention/seams.
 //! The public API fixes T32/d16/f16, log_cols=8, inverse rate=8, Q=256 and function 1.
 //! Its private proof representation prevents callers from using it as a legacy
 //! receipt. All witness-bearing commitments are dropped before `prove` returns.
 use super::*;
 
+#[path = "zk_ffn_fresh_wire.rs"]
+mod wire;
+pub use wire::{encoded_len, verify_bytes, MAX_CONTEXT_BYTES, MAX_WIRE_BYTES};
+
 pub const PROFILE: &[u8] = b"hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1";
 
 /// The verifier chooses the weight claim independently of the producer.
+#[derive(Clone, Copy, Debug)]
 pub enum WeightStatement {
     /// A root computed from the verifier's trusted public weights.
     Public(Digest),
@@ -17,6 +22,7 @@ pub enum WeightStatement {
     FreshPrivate,
 }
 
+#[derive(Debug)]
 pub struct Proof {
     pub(super) inner: LayerProofZk,
 }
@@ -31,7 +37,7 @@ impl Proof {
     pub fn helper_root(&self) -> Digest {
         self.inner.h_com.as_ref().unwrap().root
     }
-    /// Logical payload bytes, excluding a future transport envelope.
+    /// Logical payload bytes, excluding the transport envelope.
     pub fn payload_size(&self) -> usize {
         self.inner.size_bytes()
     }
