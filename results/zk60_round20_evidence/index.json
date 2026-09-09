@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "files": {
+    "captures.log": {
+      "bytes": 74,
+      "sha256": "2f5e0e2db4faa13f8e57a51ef75c710cda1ba82ab2fc5a62af23cf6f17daad85"
+    },
+    "fa6_regression.log": {
+      "bytes": 2260,
+      "sha256": "1394de305dd2f72439b8e23e19f171d6d3d35627f7c4a7fddd34c6fafa0db22f"
+    },
+    "run.py": {
+      "bytes": 1730,
+      "sha256": "79ce1928e271271de75d03a08305a0c45860174a00dc7be468b06e0ad344d05d"
+    },
+    "unit.log": {
+      "bytes": 1551,
+      "sha256": "d9dfd8dd7e5d34b4a0d4821c278b728dbe438a7a3cefca57283e3155a944f437"
+    },
+    "validation.done": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "validation.json": {
+      "bytes": 1285,
+      "sha256": "05f3bc908a807fa755c16d27a91ea55846842a1a07a7c3e09a30600ddb7caad9"
+    }
+  }
+}

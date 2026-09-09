@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "stages": [
+    {
+      "name": "unit",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_io_opening_translation.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.07203890799428336,
+      "log_sha256": "d9dfd8dd7e5d34b4a0d4821c278b728dbe438a7a3cefca57283e3155a944f437"
+    },
+    {
+      "name": "fa6_regression",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_fable_cfs_channel.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 83.54326395399403,
+      "log_sha256": "1394de305dd2f72439b8e23e19f171d6d3d35627f7c4a7fddd34c6fafa0db22f"
+    },
+    {
+      "name": "captures",
+      "command": [
+        "python3",
+        "scripts/zk60_io_opening_translation.py",
+        "--captures",
+        "/tmp/zk60-round19/captures",
+        "--out",
+        "results/zk60_round20_opening_translation.json"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 18.031371527002193,
+      "log_sha256": "2f5e0e2db4faa13f8e57a51ef75c710cda1ba82ab2fc5a62af23cf6f17daad85"
+    }
+  ],
+  "rlimit_as": 8589934592,
+  "status": "passed"
+}

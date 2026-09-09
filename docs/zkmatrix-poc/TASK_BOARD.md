@@ -1,5 +1,17 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-09, round 20:** Codex adds a constructive check for PCS pads/columns
+and the shared M opening, validated on all four real round-19 captures.
+**35 Python tests, 18 PCS opening checks, four M opening checks and 22 numerical
+rejection controls pass.** [Round 20](ZK60_ROUND20.md) gives the algebra,
+evidence and fixed-challenge scope. No production protocol changes.
+
+Opus O8 still owns the joint message/alias analysis. Codex next reviews that
+delivery and composes the CFS/opening/transcript argument, including the
+caller-fixed endpoint commitment model. Private attention and a tiny complete
+block follow IO privacy acceptance; the minimal core refactor stays priority 3.
+Earlier entries below are historical.
+
 **2026-09-09, round 19:** Opus O7 is integrated and its fourteen source
 hashes verified. `1f0ff36` adds full-acceptance-only IO capture/replay: four
 source-pinned captures with complete M/A/H/private-W/endpoint observations and

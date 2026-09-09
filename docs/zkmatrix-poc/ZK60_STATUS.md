@@ -1,5 +1,18 @@
 # ZK60 milestone map
 
+**2026-09-09, round 20:** exact opening checks pass on all four round-19
+captures: 18 private PCS owners and four shared eight-slot M openings.
+The [conditional construction](ZK60_ROUND20.md) preserves pad vectors and
+sampled columns together, including M's shared q/proximity blinders.
+**35 Python tests and 22 real-capture numerical rejection controls pass.**
+There is no production protocol change or new disclosure finding.
+
+O8's joint message/alias analysis remains pending. Codex next combines it with
+the CFS and opening channels under the actual transcript, including the
+caller-fixed endpoint roots; then private attention and the tiny block.
+Full IO zero-knowledge acceptance remains open. Earlier entries retain their
+historical scope; the minimal maintained core remains priority 3.
+
 **2026-09-09, round 19:** Opus O7 is integrated and its fourteen source
 hashes verified. `1f0ff36` adds full-acceptance-only IO capture/replay: four
 source-pinned captures with complete M/A/H/private-W/endpoint observations and

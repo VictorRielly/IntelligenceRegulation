@@ -10,6 +10,9 @@ proofs and separate-process verification, plus Opus's joint linear analysis.
 one eight-slot mask commitment following O6; all CPU checks pass.
 [Round 19](ZK60_ROUND19.md) integrates O7 and captures/replays the complete
 IO observation set with saved receipts; joint IO privacy analysis is next.
+[Round 20](ZK60_ROUND20.md) checks the PCS pads/columns and shared mask opening
+with a conditional algebraic construction on those captures. O8's joint
+message/alias result and the adaptive transcript argument remain pending.
 It still lacks the complete private block,
 registered private model binding and final privacy review. The historical
 hash-line privacy claims below must be read with that correction. Pending

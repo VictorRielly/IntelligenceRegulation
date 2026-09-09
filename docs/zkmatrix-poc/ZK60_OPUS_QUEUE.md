@@ -9,6 +9,14 @@ items. Do not rerun or rewrite those reports as new work.
 
 ## Current dispatch: O8 — analyze the new IO captures
 
+**Codex round-20 update:** [round 20](ZK60_ROUND20.md) supplies a conditional
+PCS pad/column and shared-M opening construction with checks on all four
+captures. O8's task below is unchanged. In the remaining-obligations inventory,
+reference this result with its fixed-challenge/Merkle exclusions; do not mark
+the adaptive composition or caller-fixed endpoint simulation accepted.
+The generic PCS lemma preserves aliases already respected by a message
+difference, but does not establish O8's joint message premise for you.
+
 **Round 19:** O7 (`4695503`, handoff `321ca22`) is integrated in `5193ee4`.
 Codex verified all fourteen of its source hashes and added the source-pinned
 schema-3 IO capture/replay in `1f0ff36`. Read [round 19](ZK60_ROUND19.md) and

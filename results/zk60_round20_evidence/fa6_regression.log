@@ -1,0 +1,28 @@
+test_counterexample_distinguishes_two_data_for_every_mask (test_zk60_fable_cfs_channel.Controls)
+Direct: for a deficient channel, phi(f + L a) = phi(f) for every a. ... ok
+test_extension_degree_gap_leaks_exactly_the_clear_top_value (test_zk60_fable_cfs_channel.Controls) ... ok
+test_mask_reuse_same_challenges_reveals_the_data_difference (test_zk60_fable_cfs_channel.Controls)
+view1 - view2 = f1 - f2 exactly when one mask serves two sumchecks with the same challenges. ... ok
+test_negative_controls_are_deficient_with_the_predicted_leak (test_zk60_fable_cfs_channel.Controls) ... ok
+test_positive_controls_stay_surjective (test_zk60_fable_cfs_channel.Controls) ... ok
+test_f2_rank_matches_doubled_fp_rank (test_zk60_fable_cfs_channel.ExactAlgebra) ... ok
+test_null_spaces_annihilate (test_zk60_fable_cfs_channel.ExactAlgebra) ... ok
+test_columns_hidden_by_pads_up_to_the_pad_count (test_zk60_fable_cfs_channel.MOpening) ... ok
+test_joint_view_qprime_prox_columns_reveals_exactly_v (test_zk60_fable_cfs_channel.MOpening) ... ok
+test_lagrange_on_subgroup_interpolates (test_zk60_fable_cfs_channel.MOpening) ... ok
+test_qprime_reveals_exactly_v_once_and_everything_twice (test_zk60_fable_cfs_channel.MOpening) ... ok
+test_seven_generates_and_the_coset_is_disjoint (test_zk60_fable_cfs_channel.MOpening) ... ok
+test_sum_identity_of_the_product_polynomial (test_zk60_fable_cfs_channel.MOpening) ... ok
+test_main_writes_the_report_with_hashes_and_verdicts (test_zk60_fable_cfs_channel.Report) ... ok
+test_closed_form_matches_brute_force_and_the_verifier_chain (test_zk60_fable_cfs_channel.RoundFormula) ... ok
+test_lagrange_weights_interpolate_a_known_polynomial (test_zk60_fable_cfs_channel.RoundFormula) ... ok
+test_fixture_constants (test_zk60_fable_cfs_channel.RustCrossCheck) ... ok
+test_fixture_values_are_full_width (test_zk60_fable_cfs_channel.RustCrossCheck) ... ok
+test_batched_pair_view_dimension_is_the_sum_minus_two (test_zk60_fable_cfs_channel.SlotTable) ... ok
+test_every_system_is_surjective_with_the_predicted_dimensions (test_zk60_fable_cfs_channel.SlotTable) ... ok
+test_specs_at_the_fixture_shapes (test_zk60_fable_cfs_channel.SlotTable) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 83.505s
+
+OK
