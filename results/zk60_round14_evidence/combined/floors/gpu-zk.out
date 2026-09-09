@@ -1,0 +1,50 @@
+INSECURE TEST RANDOMNESS: --seed reproduces public masks and provides no privacy; use only for fixtures.
+pass [ZK, mode P1, randomness deterministic-test]: 12 layers x 512 tokens (log_cols 14, inv_rate 4, col checks 256, threads 2)
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.425 s, 7269044 B
+  layer  1: prove 0.279 s, 7269044 B
+  layer  2: prove 0.280 s, 7269044 B
+  layer  3: prove 0.291 s, 7269044 B
+  layer  4: prove 0.287 s, 7269044 B
+  layer  5: prove 0.281 s, 7269044 B
+  layer  6: prove 0.283 s, 7269044 B
+  layer  7: prove 0.280 s, 7269044 B
+  layer  8: prove 0.280 s, 7269044 B
+  layer  9: prove 0.279 s, 7269044 B
+  layer 10: prove 0.280 s, 7269044 B
+  layer 11: prove 0.279 s, 7269044 B
+prover phases (summed over layers):
+      commit W                      0.491 s
+      commit A (zk)                 1.023 s
+      mask commit                   0.029 s
+      helpers + commit H (zk)       0.767 s
+      matmul g/u (zk)               0.125 s
+      matmul d (zk)                 0.117 s
+      zero-check 20 (zk)            0.346 s
+      zero-check 17 (zk)            0.118 s
+      table zero-check (zk)         0.119 s
+      zsum + mask open              0.027 s
+      pcs openings (zk)             0.348 s
+mask sites (layer 0; every layer identical in structure):
+      A: 26 claims in 5 groups
+      A group vector 0: mask rows [520, 521, 522, 523, 524, 525, 526]
+      A group vector 1: mask rows [527, 528, 529, 530, 531, 532, 533, 534, 535]
+      A group vector 2: mask rows [536, 537, 538]
+      A group vector 3: mask rows [539]
+      A group vector 4: mask rows [542, 544, 546, 548, 550, 552]
+      A proximity vector: prox mask row 540 (+ every mask row with its random rho)
+      A 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      A 65536 Merkle leaves salted
+      H group vector 0: mask rows [432, 433, 434, 435, 436, 437]
+      H group vector 1: mask rows [438, 439, 440, 441, 442, 443]
+      H group vector 2: mask rows [444, 445, 446, 447]
+      H group vector 3: mask rows [451, 452, 455, 456, 459, 460, 463, 464, 467, 468, 471, 472]
+      H group vector 4: mask rows [444, 445]
+      H proximity vector: prox mask row 448 (+ every mask row with its random rho)
+      H 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      H 65536 Merkle leaves salted
+  gpu device-side (summed): h2d 0.367 s (1029 MB) | ntt 0.526 s | hash 0.123 s | sumcheck 0.441 s | fold 0.230 s | helpers 0.092 s | d2h 0.000 s (155 MB) | vram peak 3034 MB
+PROOF sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d (87228528 B) [ZK randomness deterministic-test]
+  proof written to /tmp/zk60-round14/complete/floors/gpu-zk.proof
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 2.67 s | PROVE 3.52 s | VERIFY 0.47 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 8.226e9 proven MAC/s (prove wall) | wall 6.78 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":2.671260334,"prove_s":3.524157190,"serialize_s":0.120509903,"proof_ready_s":6.316045444,"verify_s":0.466273415,"verified":true,"proof_bytes":87228528,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}

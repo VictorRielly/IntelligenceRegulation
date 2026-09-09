@@ -13,6 +13,8 @@ name = "hashline"
 path = "src/bin/hashline.rs"
 
 [features]
+# Host-only, opt-in protected registration storage. No dependency enters zkp-core.
+stable-weight-storage = ["dep:chacha20poly1305", "dep:zeroize"]
 # [UPERF3-XX] The GPU port: CUDA via cudarc (driver API + NVRTC runtime
 # compilation of src/gpu/kernels.cu), the same toolchain zkmatrix-rs's
 # gpu-cuda feature uses on this box. Default OFF: the CPU build never sees
@@ -27,6 +29,8 @@ zkp-core = { path = "../zkp-core" }
 blake3 = "1.8"
 rayon = "1.11"
 sha2 = "0.10"
+chacha20poly1305 = { version = "0.10.1", default-features = false, features = ["alloc"], optional = true }
+zeroize = { version = "1.8.2", optional = true }
 # [UPERF3-XX] optional, only with `--features gpu-cuda` (see above).
 cudarc = { version = "0.13", default-features = false, features = ["driver", "nvrtc", "cuda-12040", "dynamic-linking", "std"], optional = true }
 

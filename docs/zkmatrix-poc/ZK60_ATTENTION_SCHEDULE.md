@@ -97,7 +97,7 @@ sumchecks. They do not regenerate expected snapshots from candidate output.
 
 An independent conservative SHA-256 guard freezes the entire instrumented
 `attention.rs` source as
-`e5ab96f35018dfcfe44c9a24879a3ab2fc5cae5394809bd489ddc16eb5d9b6d8`, alongside
+`c5ae80ddc909aae40b9ec6b9766e5634cf3dc13172e8902f8f2dc33c77cdf979`, alongside
 hook-family counts, the twelve actual `ctx.sc` call sites and nineteen role
 sites. This catches deleted or newly uninstrumented source changes even if
 someone regenerates a runtime trace. **It is a drift alarm, not a security
@@ -105,12 +105,19 @@ hash**: unrelated formatting also trips it and requires explicit review.
 Any baseline update must review source/hook coverage and record the reason;
 never automatically bless regenerated fingerprints.
 
-Round-5 H1 explicitly reviewed the change from `fec19c0f...` to this source:
+Round-5 H1 explicitly reviewed the change from `fec19c0f...` to `e5ab96f3...`:
 one checked-inversion import, a private `cfg(test)` collision hook and a
 verifier-only zero-denominator refusal. The prover arithmetic, recorder
 families, role sites and all three frozen runtime trace fingerprints are
 unchanged. This is a manually reviewed source guard update, not acceptance
 of a regenerated execution schedule. See [H1](ZK60_VERIFIER_HARDENING.md).
+
+Round 12 reviews the added R32 unused-message refusal branches and advances
+the source snapshot from `e5ab96f3...` to `c5ae80dd...`. All 45 recorder call
+lines, 19 role sites and 12 sumcheck sites are identical; the three fixed
+execution-trace fingerprints above remain the acceptance gate.
+[Round-12 evidence](ZK60_ROUND12.md) retains the source comparison and final
+execution/parity check. No recorder or proof format was changed.
 
 ## Running and inspecting
 

@@ -1,0 +1,49 @@
+INSECURE TEST RANDOMNESS: --seed reproduces public masks and provides no privacy; use only for fixtures.
+pass [ZK, mode P1, randomness deterministic-test]: 12 layers x 512 tokens (log_cols 14, inv_rate 4, col checks 256, threads 2)
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 2.889 s, 7269044 B
+  layer  1: prove 2.872 s, 7269044 B
+  layer  2: prove 2.793 s, 7269044 B
+  layer  3: prove 2.712 s, 7269044 B
+  layer  4: prove 2.731 s, 7269044 B
+  layer  5: prove 2.705 s, 7269044 B
+  layer  6: prove 2.638 s, 7269044 B
+  layer  7: prove 2.811 s, 7269044 B
+  layer  8: prove 2.614 s, 7269044 B
+  layer  9: prove 2.608 s, 7269044 B
+  layer 10: prove 2.652 s, 7269044 B
+  layer 11: prove 2.633 s, 7269044 B
+prover phases (summed over layers):
+      commit W                      4.302 s
+      commit A (zk)                 8.613 s
+      mask commit                   0.033 s
+      helpers + commit H (zk)       9.888 s
+      matmul g/u (zk)               0.289 s
+      matmul d (zk)                 0.135 s
+      zero-check 20 (zk)            6.777 s
+      zero-check 17 (zk)            0.802 s
+      table zero-check (zk)         0.124 s
+      zsum + mask open              0.028 s
+      pcs openings (zk)             1.660 s
+mask sites (layer 0; every layer identical in structure):
+      A: 26 claims in 5 groups
+      A group vector 0: mask rows [520, 521, 522, 523, 524, 525, 526]
+      A group vector 1: mask rows [527, 528, 529, 530, 531, 532, 533, 534, 535]
+      A group vector 2: mask rows [536, 537, 538]
+      A group vector 3: mask rows [539]
+      A group vector 4: mask rows [542, 544, 546, 548, 550, 552]
+      A proximity vector: prox mask row 540 (+ every mask row with its random rho)
+      A 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      A 65536 Merkle leaves salted
+      H group vector 0: mask rows [432, 433, 434, 435, 436, 437]
+      H group vector 1: mask rows [438, 439, 440, 441, 442, 443]
+      H group vector 2: mask rows [444, 445, 446, 447]
+      H group vector 3: mask rows [451, 452, 455, 456, 459, 460, 463, 464, 467, 468, 471, 472]
+      H group vector 4: mask rows [444, 445]
+      H proximity vector: prox mask row 448 (+ every mask row with its random rho)
+      H 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      H 65536 Merkle leaves salted
+PROOF sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d (87228528 B) [ZK randomness deterministic-test]
+  proof written to /tmp/zk60-round13/cpu-zk.proof
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 2.81 s | PROVE 32.66 s | VERIFY 0.45 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 8.877e8 proven MAC/s (prove wall) | wall 36.00 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":2.809626380,"prove_s":32.657505348,"serialize_s":0.081733993,"proof_ready_s":35.548978172,"verify_s":0.446762060,"verified":true,"proof_bytes":87228528,"serialized":true,"gpu_requested":false,"gpu_enabled":false,"randomness":"deterministic-test"}

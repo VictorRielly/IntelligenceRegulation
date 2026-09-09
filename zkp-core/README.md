@@ -1,10 +1,13 @@
 # Minimal ZKP core
 
-Status: **first primitive extraction implemented; complete FFN path pending**.
-The crate owns field arithmetic, NTT, Merkle trees, transcripts, randomness,
-multilinear helpers and sumcheck. `hashline` imports these canonical types
+Status: **primitives and the Ligero commitment extracted; complete FFN path
+pending**. The crate owns field arithmetic, NTT, Merkle trees, transcripts,
+randomness, multilinear helpers, sumcheck and the Ligero-form polynomial
+commitment (`pcs`: plain and hiding commit / open / verify) behind a narrow
+backend seam (`pcs::Backend` / `pcs::EncodedStore`) that hashline's CUDA
+code implements outside the core. `hashline` imports these canonical types
 through compatibility exports. Default builds use only `blake3` and `rayon`;
-they need no GPU or model files. All 19 moved primitive tests pass.
+they need no GPU or model files. All 22 moved tests pass (19 primitive, 3 PCS).
 
 ```sh
 env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 cargo test --release --offline \
@@ -14,10 +17,11 @@ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 cargo run --release --offline \
 ```
 
 The example verifies a public dot-product sumcheck, including the terminal
-relation and an altered-round refusal. It is a primitive example. PCS,
-the complete FFN relation and bounded proof decoding are still in the migration
+relation and an altered-round refusal. It is a primitive example. The
+complete FFN relation and bounded proof decoding are still in the migration
 queue; this crate does not yet implement a complete ZKP. Inherited CFS helpers
-retain the unresolved privacy obligations of the legacy protocol.
+and the hiding commitment retain the unresolved privacy obligations of the
+legacy protocol (the FFN masking disclosure is not repaired by moving code).
 
 [MIGRATION.md](MIGRATION.md) records the exact source boundary, compatibility
 rules and next extraction. [DESIGN.md](DESIGN.md) preserves Fable's initial

@@ -1,0 +1,12 @@
+{
+  "source": "cfa46f6 + new regression only",
+  "command": [
+    "hashline/target/release/deps/zk60_public_block-f0502b391891b35f",
+    "--exact",
+    "typed_attention_and_block_reject_unused_proof_messages",
+    "--test-threads=2"
+  ],
+  "exit_code": 101,
+  "expected_failure": "unused proof messages must not be silently accepted",
+  "log_sha256": "dd995685444dff310885cb27e98cec88998b7aa71a48b14be0cf25feafa95941"
+}

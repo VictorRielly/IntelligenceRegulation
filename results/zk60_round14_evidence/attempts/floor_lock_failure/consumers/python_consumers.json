@@ -1,0 +1,18 @@
+{
+  "source_commit": "83115b5762156dc390618b63d2d7b1c68712bc33",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_hashline_cl_*.py",
+    "-v"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 2.172959050978534,
+  "log_sha256": "fa4abf42b7b5be50310499048f51daf852217f1e3a3b87b8bc98a4cc7f925c1a",
+  "scope": "Six CPU-only GPU/tooling consumer test modules; no hardware job or native full-suite run"
+}

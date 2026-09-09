@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "source_commit": "ccc6f26ea8018324fb9cec526e6e75556dc0728a",
+  "files": {
+    "README.md": {
+      "bytes": 1132,
+      "sha256": "b4e8d6b5cae135abeeee5b664a3856fe6bb8c633c32fcfea9890aba09b680e33"
+    },
+    "b4_reprove.log": {
+      "bytes": 115,
+      "sha256": "705490de2a43b3fa12341d3443d873aa4bf20a42661173634c3d5f537556aa35"
+    },
+    "b4_reprove.time": {
+      "bytes": 911,
+      "sha256": "e561e0bcfb1ec49e9767064956cb901ae2d177e2ae4f5fed12f402a4145ec633"
+    },
+    "binaries.log": {
+      "bytes": 2477,
+      "sha256": "ae7caf0921c1cc95afee564faa5ac18a3f39ef16d70a6ea81efa8543cbae5273"
+    },
+    "binaries.time": {
+      "bytes": 904,
+      "sha256": "22753d4e2de1ec7119dad6181c4bed3e255e1b1c62e797e0f1e4267209487dd4"
+    },
+    "chain_verify.log": {
+      "bytes": 136,
+      "sha256": "e990d70e26f7317b37881cafb06e9ee9c87baf89ea84889a6f4442417189f29d"
+    },
+    "chain_verify.time": {
+      "bytes": 1211,
+      "sha256": "7e9e007c0031dbe9e7edb7510eaa2aeeb2c570f9b887e9a9e98f751a49771c02"
+    },
+    "core_dependencies.log": {
+      "bytes": 364,
+      "sha256": "749e43f772f45891da38ce293137ae82887921482faa306af822d7ea8723d178"
+    },
+    "core_dependencies.time": {
+      "bytes": 834,
+      "sha256": "ae5482fd431334dbfbd602749d752765c266ec162c1ba5831862150b05ea9f00"
+    },
+    "core_tests.log": {
+      "bytes": 1555,
+      "sha256": "186d78cc9f18b4b7958596ab2c8627c1f4697acd036ef88b6fd7abd5ff381905"
+    },
+    "core_tests.time": {
+      "bytes": 853,
+      "sha256": "480a78561714c022e4d1ee89d938456f75a4542de05ca77c3f2fdf25882ad9d5"
+    },
+    "cpu-v2.log": {
+      "bytes": 1599,
+      "sha256": "bcf3cec721a364fa5c8feadd0e43fbec675068196568f1e99c3837c9dd556042"
+    },
+    "cpu-v2.time": {
+      "bytes": 868,
+      "sha256": "1832fb8119eeb01a4a6af765d5a96104ecffab1ff82a384684d9df116b45e994"
+    },
+    "cpu-v3.log": {
+      "bytes": 1705,
+      "sha256": "b13c64674381e0c8250b6b115479ce6792625aed693e0ddeda36ed108a70330c"
+    },
+    "cpu-v3.time": {
+      "bytes": 948,
+      "sha256": "5a8d45808f977daf22998844084a2f701be0f924a44cf19d885b59939c37315a"
+    },
+    "cpu-zk.log": {
+      "bytes": 3102,
+      "sha256": "46757dedc861abc80b72adf78b730bad99922b85dbdf487f72385bf11132f9fe"
+    },
+    "cpu-zk.time": {
+      "bytes": 882,
+      "sha256": "5264f8947f8cd59754633d7ed2c130781969aa3b2a40b9ae55bdce0f3b4dbff2"
+    },
+    "cpu-zkv3.log": {
+      "bytes": 5516,
+      "sha256": "a54c97cc60130c0f236751ccef38a3c53631262e9f1ecd070c3fc79a822709de"
+    },
+    "cpu-zkv3.time": {
+      "bytes": 964,
+      "sha256": "53a9369e38ba562a3b47fd28de2ede048b255703eb19950a7584ecc94e1578ba"
+    },
+    "dependency_advisory_check.json": {
+      "bytes": 1213,
+      "sha256": "f60dfa1ed3fe48b74d8a53e6851f27df862a8d03afa3146b47b5d2195a2fcd8b"
+    },
+    "hashline_default_dependencies.log": {
+      "bytes": 668,
+      "sha256": "944e6c295f3fe94a85dafc48ec4f53f9733ac276e1815a4aad2d816f550ce2a0"
+    },
+    "hashline_default_dependencies.time": {
+      "bytes": 835,
+      "sha256": "66e7a405a21fdf6cb1300eb74a6cc8c8173e1cf51985fb93a1d43dd00ac74c62"
+    },
+    "hashline_tests.log": {
+      "bytes": 21956,
+      "sha256": "325262282e09d8b89cee9d3416ab2e5a1a6913db1bdabce92a00e9ac0a1d5b39"
+    },
+    "hashline_tests.time": {
+      "bytes": 895,
+      "sha256": "130b0010630341c58a56ebad2c584f368c56f232c05025abf805c6b98384831b"
+    },
+    "launch.py": {
+      "bytes": 411,
+      "sha256": "b25f80d74e95c4f764e82acb8ef3b294ceb27b012d9dd7ad2ab85670eb5372f2"
+    },
+    "runner.log": {
+      "bytes": 511,
+      "sha256": "31f6059f647cc9fb8ea460ad42ecc3b363a82736d37a758e14e498f3c6bb9c8a"
+    },
+    "summary.json": {
+      "bytes": 17528,
+      "sha256": "0187427f8042b31c56fb86fb741d7c0f4367080ef8d3eaa8ef579de44f7cbbd4"
+    },
+    "validate.py": {
+      "bytes": 7202,
+      "sha256": "5b533d70c6c7354cf704a816e38e8221faf75ad54eb873edd0fb9c8b60ccc458"
+    },
+    "validation.done": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    }
+  }
+}

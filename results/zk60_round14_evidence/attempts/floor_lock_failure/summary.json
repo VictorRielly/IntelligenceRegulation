@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "source_commit": "83115b5762156dc390618b63d2d7b1c68712bc33",
+  "scope": "FA4 H2 registration plus reviewed Fable PCS extraction; CPU/GPU/core compatibility",
+  "threads": 2,
+  "address_space_limit_bytes": 8589934592,
+  "gpu_executed": false,
+  "gpu_scope": "Bounded 189-case oracle and frozen FFN fixtures; no throughput qualification",
+  "stages": [
+    {
+      "stage": "hashline_tests",
+      "command": [
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--features",
+        "stable-weight-storage",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 279.9210806880146,
+      "log": "/tmp/zk60-round14/validated/hashline_tests.log",
+      "log_sha256": "1c771f030ae0de684554eef3fa052bdf956dc86365ddbc4ea2bd2ec59abaaa83",
+      "resource_log": "/tmp/zk60-round14/validated/hashline_tests.time",
+      "address_space_cap_applied": true
+    },
+    {
+      "stage": "core_tests",
+      "command": [
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "zkp-core/Cargo.toml",
+        "--all-targets",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 11.163676033000229,
+      "log": "/tmp/zk60-round14/validated/core_tests.log",
+      "log_sha256": "af8da3942153443dc2648627e9a3892bbe5f8bab3594d1f63ff58886ec7ac98d",
+      "resource_log": "/tmp/zk60-round14/validated/core_tests.time",
+      "address_space_cap_applied": true
+    },
+    {
+      "stage": "hashline_default_dependencies",
+      "command": [
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "tree",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--prefix",
+        "none",
+        "--format",
+        "{p}"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.03306587101542391,
+      "log": "/tmp/zk60-round14/validated/hashline_default_dependencies.log",
+      "log_sha256": "944e6c295f3fe94a85dafc48ec4f53f9733ac276e1815a4aad2d816f550ce2a0",
+      "resource_log": "/tmp/zk60-round14/validated/hashline_default_dependencies.time",
+      "address_space_cap_applied": true
+    },
+    {
+      "stage": "core_dependencies",
+      "command": [
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "tree",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "zkp-core/Cargo.toml",
+        "--prefix",
+        "none",
+        "--format",
+        "{p}"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.03306486998917535,
+      "log": "/tmp/zk60-round14/validated/core_dependencies.log",
+      "log_sha256": "749e43f772f45891da38ce293137ae82887921482faa306af822d7ea8723d178",
+      "resource_log": "/tmp/zk60-round14/validated/core_dependencies.time",
+      "address_space_cap_applied": true
+    },
+    {
+      "stage": "gpu_storage_feature_check",
+      "command": [
+        "env",
+        "CUDA_ROOT=/home/victor/cuda-root",
+        "LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib",
+        "CARGO_TARGET_DIR=hashline/target-gpu",
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "check",
+        "--release",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--features",
+        "gpu-cuda,stable-weight-storage",
+        "--lib"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 5.038266251998721,
+      "log": "/tmp/zk60-round14/validated/gpu_storage_feature_check.log",
+      "log_sha256": "8c71651cfa9f65a34ff0097b4e97159f10c6abe437478df525f6a7ec7775216c",
+      "resource_log": "/tmp/zk60-round14/validated/gpu_storage_feature_check.time",
+      "address_space_cap_applied": true
+    },
+    {
+      "stage": "combined_floors",
+      "command": [
+        "bash",
+        "results/cl1_floors.sh",
+        "--repo",
+        "/home/victor/IntelligenceRegulation",
+        "--threads",
+        "2",
+        "--build-jobs",
+        "2",
+        "--rayon-threads",
+        "2",
+        "--suite-version",
+        "3",
+        "/tmp/zk60-round14/validated/floors"
+      ],
+      "exit_code": 1,
+      "elapsed_s": 632.0782724480086,
+      "log": "/tmp/zk60-round14/validated/combined_floors.log",
+      "log_sha256": "d2b661f212847f778e59e4e3e5804babb416e29580e5cf729eb2900ba81c8727",
+      "resource_log": "/tmp/zk60-round14/validated/combined_floors.time",
+      "address_space_cap_applied": false
+    }
+  ],
+  "limits": [
+    "Local registration storage and access boundary only; no reviewed mask generator, authenticated approval or stable P3 prover/verifier.",
+    "Full Python/native suite unchanged; 546 tests passed at round11.",
+    "No FFN typed decoder integration: f8d40a7 is held for demonstrated shape/parameter corrections."
+  ],
+  "hashline_tests_including_doctests": {
+    "passed": 196,
+    "failed": 0,
+    "ignored": 0
+  },
+  "core_tests": {
+    "passed": 22,
+    "failed": 0,
+    "ignored": 0
+  },
+  "rust_tests_total": {
+    "passed": 218,
+    "failed": 0,
+    "ignored": 0
+  },
+  "optional_dependency_checks": {
+    "hashline_default": {
+      "forbidden_dependencies": []
+    },
+    "core": {
+      "forbidden_dependencies": []
+    }
+  },
+  "error": "Traceback (most recent call last):\n  File \"/tmp/zk60-round14/validated/validate.py\", line 93, in <module>\n    stage('combined_floors', ['bash', 'results/cl1_floors.sh', '--repo', str(ROOT),\n  File \"/tmp/zk60-round14/validated/validate.py\", line 51, in stage\n    if result.returncode: raise RuntimeError('stage failed: ' + name)\nRuntimeError: stage failed: combined_floors\n",
+  "exit_code": 1
+}
