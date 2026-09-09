@@ -683,3 +683,25 @@ gates at full SHA-256; cache cold 12 MISS / warm 12 HIT at the frozen zkv3
 digest; `--p3 --wcache` refused; validator ok.** This is the manifest for
 the lane tip Codex would merge; the `4a0ce56` manifest stays as the v2
 record of the pre-CL18 tree.
+
+## Lane status, 2026-09-08 (round 12) — CL21: the extracted core is in the provenance
+
+`hashline` depends on `zkp-core` by path, so the core Codex extracted in
+round 11 is a build input of every binary the floors gate. Round 11's
+outer validator hashed both crates around the floors; the standalone
+manifest identified `hashline/` alone. CL21 (`d4f0758`) puts both crates'
+tree ids, both deltas, both `Cargo.lock` hashes and the core's presence
+into the manifest, makes the validator refuse a dirty or missing core and
+the preflight bind the recorded identity to the tree in hand, and cuts
+suite version 4 (the default): v3 plus `core_tests` (zkp-core's own
+`cargo test --release --locked --offline`, exactly 19 / 0 / 0) and
+`core_example` (`--example public_sumcheck`, exit 0 + its line). Archived
+v1–v3 manifests validate unbound under their own versions; a v4 manifest
+without the identity refuses; a changed core test set cuts v5. Definition,
+refusals and tests: `ZK60_CLAUDE_5090.md` §8. Gates tests 61 -> 86,
+preflight 78 -> 92, `self-test` green, `bash -n` clean, 102-command dry run.
+
+| commit | task | what it settles | evidence |
+|---|---|---|---|
+| `d4f0758` | CL21 | source identity of BOTH crates + both lockfiles in the manifest (schema 2); dirty/missing core, mismatched dependency identity and missing core cases refuse; suite v4 gates the core's tests and example with tied expectations; the runner refuses to START on a dirty or missing crate; the preflight binds trees + lockfiles | gates 86, preflight 92; `ZK60_CLAUDE_5090.md` §8 |
+| (run) | CL21 v4 floors | **MANIFEST GREEN** at `d4f0758`, 23/23 cases, 12 min 30 s inside the heavy lock on the RTX 4070: hashline tree `e5d1a6af..`, zkp-core tree `c18bc0c9..` (unchanged since round 11's `c8a342f`), lockfiles `31a00627..` / `4ff606b9..`; GPU binary `be358ec1..` / 5,363,944 B, CPU `b13dcf27..` / 4,661,720 B; core tests 19 / 0 / 0, the example's line, oracle 189 / 34 tests, 12/12 frozen digests, cache cold/warm, all three controls; validator bound to the tree ok; preflight bound to HEAD + binary + trees + lockfiles: 13/14 checks pass, the one refusal `host_idle` (shared box), so no `go` — box state, not provenance | `results/cl21_floors_v4/` (manifest, 23 logs, launcher log, marker, timing, plan, bound validator + preflight reports); `ZK60_CLAUDE_5090.md` §8.6 |

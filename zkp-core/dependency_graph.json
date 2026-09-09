@@ -1,9 +1,9 @@
 {
-  "baseline": "cfa46f6 (zk60-cl20-core)",
+  "baseline": "1c1ef6b (zk60-cl20-core)",
   "closures": {
     "after_cuts": {
-      "code_lines": 4710,
-      "code_lines_excluding_test": 4056,
+      "code_lines": 4487,
+      "code_lines_excluding_test": 3846,
       "cuts": [
         "layer:chain",
         "layer:export",
@@ -25,10 +25,10 @@
         "mle": "layer",
         "ntt": "layer",
         "pcs": "layer",
-        "silu": "tables_v3",
         "sumcheck": "layer",
         "tables_v3": null,
         "transcript": "layer",
+        "zkp_core::ffn_v3": "layer",
         "zkp_core::field": "field",
         "zkp_core::merkle": "zkp_core::pcs",
         "zkp_core::mle": "mle",
@@ -36,6 +36,7 @@
         "zkp_core::pcs": "pcs",
         "zkp_core::rng": "pcs",
         "zkp_core::sumcheck": "sumcheck",
+        "zkp_core::tables": "tables_v3",
         "zkp_core::transcript": "transcript"
       },
       "members": [
@@ -44,10 +45,10 @@
         "mle",
         "ntt",
         "pcs",
-        "silu",
         "sumcheck",
         "tables_v3",
         "transcript",
+        "zkp_core::ffn_v3",
         "zkp_core::field",
         "zkp_core::merkle",
         "zkp_core::mle",
@@ -55,17 +56,18 @@
         "zkp_core::pcs",
         "zkp_core::rng",
         "zkp_core::sumcheck",
+        "zkp_core::tables",
         "zkp_core::transcript"
       ],
-      "module_count": 17,
+      "module_count": 18,
       "roots": [
         "layer",
         "tables_v3"
       ]
     },
     "default_build": {
-      "code_lines": 7103,
-      "code_lines_excluding_test": 6114,
+      "code_lines": 6938,
+      "code_lines_excluding_test": 5949,
       "cuts": [],
       "edge_kinds": [
         "normal",
@@ -84,11 +86,12 @@
         "pcs": "layer",
         "pcs_compact": "layer",
         "phase_profile": "chain",
-        "silu": "tables_v3",
+        "silu": "chain",
         "sumcheck": "layer",
         "tables_v3": null,
         "transcript": "layer",
         "wcache": "layer",
+        "zkp_core::ffn_v3": "layer",
         "zkp_core::field": "field",
         "zkp_core::merkle": "zkp_core::pcs",
         "zkp_core::mle": "mle",
@@ -96,6 +99,7 @@
         "zkp_core::pcs": "gpu",
         "zkp_core::rng": "pcs",
         "zkp_core::sumcheck": "sumcheck",
+        "zkp_core::tables": "tables_v3",
         "zkp_core::transcript": "transcript"
       },
       "members": [
@@ -116,6 +120,7 @@
         "tables_v3",
         "transcript",
         "wcache",
+        "zkp_core::ffn_v3",
         "zkp_core::field",
         "zkp_core::merkle",
         "zkp_core::mle",
@@ -123,17 +128,18 @@
         "zkp_core::pcs",
         "zkp_core::rng",
         "zkp_core::sumcheck",
+        "zkp_core::tables",
         "zkp_core::transcript"
       ],
-      "module_count": 25,
+      "module_count": 27,
       "roots": [
         "layer",
         "tables_v3"
       ]
     },
     "literal": {
-      "code_lines": 7103,
-      "code_lines_excluding_test": 6114,
+      "code_lines": 6938,
+      "code_lines_excluding_test": 5949,
       "cuts": [],
       "edge_kinds": [
         "gpu",
@@ -153,11 +159,12 @@
         "pcs": "layer",
         "pcs_compact": "layer",
         "phase_profile": "chain",
-        "silu": "tables_v3",
+        "silu": "chain",
         "sumcheck": "layer",
         "tables_v3": null,
         "transcript": "layer",
         "wcache": "layer",
+        "zkp_core::ffn_v3": "layer",
         "zkp_core::field": "field",
         "zkp_core::merkle": "merkle",
         "zkp_core::mle": "mle",
@@ -165,6 +172,7 @@
         "zkp_core::pcs": "gpu",
         "zkp_core::rng": "pcs",
         "zkp_core::sumcheck": "sumcheck",
+        "zkp_core::tables": "tables_v3",
         "zkp_core::transcript": "transcript"
       },
       "members": [
@@ -185,6 +193,7 @@
         "tables_v3",
         "transcript",
         "wcache",
+        "zkp_core::ffn_v3",
         "zkp_core::field",
         "zkp_core::merkle",
         "zkp_core::mle",
@@ -192,9 +201,10 @@
         "zkp_core::pcs",
         "zkp_core::rng",
         "zkp_core::sumcheck",
+        "zkp_core::tables",
         "zkp_core::transcript"
       ],
-      "module_count": 25,
+      "module_count": 27,
       "roots": [
         "layer",
         "tables_v3"
@@ -290,8 +300,8 @@
     {
       "count": 2,
       "evidence": [
-        "hashline/src/attention.rs:3417",
-        "hashline/src/attention.rs:3418"
+        "hashline/src/attention.rs:3427",
+        "hashline/src/attention.rs:3428"
       ],
       "from": "attention",
       "kind": "test",
@@ -1150,7 +1160,7 @@
       "count": 2,
       "evidence": [
         "hashline/src/layer.rs:20",
-        "hashline/src/layer.rs:1090"
+        "hashline/src/layer.rs:1082"
       ],
       "from": "layer",
       "kind": "normal",
@@ -1160,7 +1170,7 @@
       "count": 2,
       "evidence": [
         "hashline/src/layer.rs:21",
-        "hashline/src/layer.rs:1090"
+        "hashline/src/layer.rs:1082"
       ],
       "from": "layer",
       "kind": "normal",
@@ -1169,10 +1179,10 @@
     {
       "count": 4,
       "evidence": [
-        "hashline/src/layer.rs:1225",
-        "hashline/src/layer.rs:2347",
-        "hashline/src/layer.rs:2351",
-        "hashline/src/layer.rs:2352"
+        "hashline/src/layer.rs:1217",
+        "hashline/src/layer.rs:2161",
+        "hashline/src/layer.rs:2165",
+        "hashline/src/layer.rs:2166"
       ],
       "from": "layer",
       "kind": "normal",
@@ -1182,7 +1192,7 @@
       "count": 2,
       "evidence": [
         "hashline/src/layer.rs:22",
-        "hashline/src/layer.rs:346"
+        "hashline/src/layer.rs:338"
       ],
       "from": "layer",
       "kind": "normal",
@@ -1191,8 +1201,8 @@
     {
       "count": 2,
       "evidence": [
-        "hashline/src/layer.rs:1033",
-        "hashline/src/layer.rs:2232"
+        "hashline/src/layer.rs:1025",
+        "hashline/src/layer.rs:2046"
       ],
       "from": "layer",
       "kind": "test",
@@ -1201,14 +1211,14 @@
     {
       "count": 24,
       "evidence": [
-        "hashline/src/layer.rs:233",
-        "hashline/src/layer.rs:235",
-        "hashline/src/layer.rs:454",
-        "hashline/src/layer.rs:546",
-        "hashline/src/layer.rs:547",
-        "hashline/src/layer.rs:557",
-        "hashline/src/layer.rs:558",
-        "hashline/src/layer.rs:695"
+        "hashline/src/layer.rs:225",
+        "hashline/src/layer.rs:227",
+        "hashline/src/layer.rs:446",
+        "hashline/src/layer.rs:538",
+        "hashline/src/layer.rs:539",
+        "hashline/src/layer.rs:549",
+        "hashline/src/layer.rs:550",
+        "hashline/src/layer.rs:687"
       ],
       "from": "layer",
       "kind": "gpu",
@@ -1217,7 +1227,7 @@
     {
       "count": 1,
       "evidence": [
-        "hashline/src/layer.rs:448"
+        "hashline/src/layer.rs:440"
       ],
       "from": "layer",
       "kind": "normal",
@@ -1226,8 +1236,8 @@
     {
       "count": 2,
       "evidence": [
-        "hashline/src/layer.rs:562",
-        "hashline/src/layer.rs:1600"
+        "hashline/src/layer.rs:554",
+        "hashline/src/layer.rs:1414"
       ],
       "from": "layer",
       "kind": "gpu",
@@ -1281,15 +1291,6 @@
     {
       "count": 1,
       "evidence": [
-        "hashline/src/layer.rs:1226"
-      ],
-      "from": "layer",
-      "kind": "normal",
-      "to": "tables_v3"
-    },
-    {
-      "count": 1,
-      "evidence": [
         "hashline/src/layer.rs:30"
       ],
       "from": "layer",
@@ -1299,12 +1300,24 @@
     {
       "count": 2,
       "evidence": [
-        "hashline/src/layer.rs:497",
-        "hashline/src/layer.rs:1502"
+        "hashline/src/layer.rs:489",
+        "hashline/src/layer.rs:1316"
       ],
       "from": "layer",
       "kind": "normal",
       "to": "wcache"
+    },
+    {
+      "count": 4,
+      "evidence": [
+        "hashline/src/layer.rs:51",
+        "hashline/src/layer.rs:55",
+        "hashline/src/layer.rs:58",
+        "hashline/src/layer.rs:60"
+      ],
+      "from": "layer",
+      "kind": "normal",
+      "to": "zkp_core::ffn_v3"
     },
     {
       "count": 1,
@@ -2021,6 +2034,249 @@
     {
       "count": 1,
       "evidence": [
+        "hashline/src/silu.rs:46"
+      ],
+      "from": "silu",
+      "kind": "normal",
+      "to": "zkp_core::tables"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material.rs:13"
+      ],
+      "from": "stable_weight_material",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material.rs:14"
+      ],
+      "from": "stable_weight_material",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material.rs:15"
+      ],
+      "from": "stable_weight_material",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material.rs:16"
+      ],
+      "from": "stable_weight_material",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material.rs:17"
+      ],
+      "from": "stable_weight_material",
+      "kind": "normal",
+      "to": "stable_weight_slots"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material_tests.rs:2"
+      ],
+      "from": "stable_weight_material::tests",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material_tests.rs:3"
+      ],
+      "from": "stable_weight_material::tests",
+      "kind": "normal",
+      "to": "mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material_tests.rs:4"
+      ],
+      "from": "stable_weight_material::tests",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material_tests.rs:5"
+      ],
+      "from": "stable_weight_material::tests",
+      "kind": "normal",
+      "to": "stable_weight_slots"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material_tests.rs:6"
+      ],
+      "from": "stable_weight_material::tests",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material_tests.rs:7"
+      ],
+      "from": "stable_weight_material::tests",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration.rs:18"
+      ],
+      "from": "stable_weight_registration",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration.rs:19"
+      ],
+      "from": "stable_weight_registration",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration.rs:20"
+      ],
+      "from": "stable_weight_registration",
+      "kind": "normal",
+      "to": "stable_weight_material"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration.rs:24"
+      ],
+      "from": "stable_weight_registration",
+      "kind": "normal",
+      "to": "stable_weight_slots"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration_tests.rs:2"
+      ],
+      "from": "stable_weight_registration::tests",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration_tests.rs:3"
+      ],
+      "from": "stable_weight_registration::tests",
+      "kind": "normal",
+      "to": "mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration_tests.rs:4"
+      ],
+      "from": "stable_weight_registration::tests",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration_tests.rs:5"
+      ],
+      "from": "stable_weight_registration::tests",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration_tests.rs:6"
+      ],
+      "from": "stable_weight_registration::tests",
+      "kind": "normal",
+      "to": "stable_weight_slots"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration_tests.rs:7"
+      ],
+      "from": "stable_weight_registration::tests",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration_tests.rs:8"
+      ],
+      "from": "stable_weight_registration::tests",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_slots.rs:15"
+      ],
+      "from": "stable_weight_slots",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_slots.rs:16"
+      ],
+      "from": "stable_weight_slots",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_slots.rs:17"
+      ],
+      "from": "stable_weight_slots",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_slots_tests.rs:2"
+      ],
+      "from": "stable_weight_slots::tests",
+      "kind": "test",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
         "hashline/src/sumcheck.rs:2"
       ],
       "from": "sumcheck",
@@ -2040,11 +2296,11 @@
     {
       "count": 1,
       "evidence": [
-        "hashline/src/tables_v3.rs:127"
+        "hashline/src/tables_v3.rs:3"
       ],
       "from": "tables_v3",
       "kind": "normal",
-      "to": "silu"
+      "to": "zkp_core::tables"
     },
     {
       "count": 2,
@@ -2227,6 +2483,61 @@
       "from": "test:zk60_block_contract",
       "kind": "normal",
       "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_cl20_codec.rs:11"
+      ],
+      "from": "test:zk60_cl20_codec",
+      "kind": "normal",
+      "to": "export_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_cl20_codec.rs:12"
+      ],
+      "from": "test:zk60_cl20_codec",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_cl20_codec.rs:13"
+      ],
+      "from": "test:zk60_cl20_codec",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_cl20_codec.rs:14"
+      ],
+      "from": "test:zk60_cl20_codec",
+      "kind": "normal",
+      "to": "tables_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_cl20_codec.rs:15"
+      ],
+      "from": "test:zk60_cl20_codec",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_cl20_codec.rs:16",
+        "hashline/tests/zk60_cl20_codec.rs:122"
+      ],
+      "from": "test:zk60_cl20_codec",
+      "kind": "normal",
+      "to": "zkp_core::ffn_v3"
     },
     {
       "count": 2,
@@ -3141,6 +3452,33 @@
     {
       "count": 1,
       "evidence": [
+        "hashline/tests/zk60_stable_weight_slots.rs:2"
+      ],
+      "from": "test:zk60_stable_weight_slots",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_stable_weight_slots.rs:3"
+      ],
+      "from": "test:zk60_stable_weight_slots",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_stable_weight_slots.rs:4"
+      ],
+      "from": "test:zk60_stable_weight_slots",
+      "kind": "normal",
+      "to": "stable_weight_slots"
+    },
+    {
+      "count": 1,
+      "evidence": [
         "hashline/src/transcript.rs:2"
       ],
       "from": "transcript",
@@ -3499,6 +3837,105 @@
     {
       "count": 1,
       "evidence": [
+        "zkp-core/src/ffn_v3/proof.rs:30"
+      ],
+      "from": "zkp_core::ffn_v3::proof",
+      "kind": "normal",
+      "to": "zkp_core::ffn_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/proof.rs:31"
+      ],
+      "from": "zkp_core::ffn_v3::proof",
+      "kind": "normal",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/proof.rs:32"
+      ],
+      "from": "zkp_core::ffn_v3::proof",
+      "kind": "normal",
+      "to": "zkp_core::merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/proof.rs:33"
+      ],
+      "from": "zkp_core::ffn_v3::proof",
+      "kind": "normal",
+      "to": "zkp_core::pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/proof.rs:34"
+      ],
+      "from": "zkp_core::ffn_v3::proof",
+      "kind": "normal",
+      "to": "zkp_core::sumcheck"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/proof.rs:562"
+      ],
+      "from": "zkp_core::ffn_v3::proof",
+      "kind": "test",
+      "to": "zkp_core::tables"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/statement.rs:14"
+      ],
+      "from": "zkp_core::ffn_v3::statement",
+      "kind": "normal",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/statement.rs:15"
+      ],
+      "from": "zkp_core::ffn_v3::statement",
+      "kind": "normal",
+      "to": "zkp_core::pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/statement.rs:16"
+      ],
+      "from": "zkp_core::ffn_v3::statement",
+      "kind": "normal",
+      "to": "zkp_core::tables"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/statement.rs:239"
+      ],
+      "from": "zkp_core::ffn_v3::statement",
+      "kind": "test",
+      "to": "zkp_core::tables"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/statement.rs:17"
+      ],
+      "from": "zkp_core::ffn_v3::statement",
+      "kind": "normal",
+      "to": "zkp_core::transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
         "zkp-core/src/mle.rs:5"
       ],
       "from": "zkp_core::mle",
@@ -3725,7 +4162,7 @@
     "attention": {
       "class": "application (attention half of the layer)",
       "crate": "hashline",
-      "declared_by": "hashline/src/lib.rs:60",
+      "declared_by": "hashline/src/lib.rs:68",
       "deps_gpu_only": [],
       "deps_normal": [
         "attention_schedule",
@@ -3756,16 +4193,16 @@
         "chain_tests"
       ],
       "kind": "lib",
-      "lines_code": 2872,
+      "lines_code": 2878,
       "lines_gpu_gated": 0,
       "lines_test": 29,
-      "lines_total": 3438,
+      "lines_total": 3448,
       "tests": 2
     },
     "attention_schedule": {
       "class": "application (public execution metadata)",
       "crate": "hashline",
-      "declared_by": "hashline/src/lib.rs:49",
+      "declared_by": "hashline/src/lib.rs:57",
       "deps_gpu_only": [],
       "deps_normal": [
         "attention"
@@ -3830,7 +4267,7 @@
     "causal_oracle": {
       "class": "application (fixed causal block oracle)",
       "crate": "hashline",
-      "declared_by": "hashline/src/lib.rs:41",
+      "declared_by": "hashline/src/lib.rs:49",
       "deps_gpu_only": [],
       "deps_normal": [
         "attention",
@@ -4206,9 +4643,9 @@
         "pcs",
         "pcs_compact",
         "sumcheck",
-        "tables_v3",
         "transcript",
-        "wcache"
+        "wcache",
+        "zkp_core::ffn_v3"
       ],
       "deps_test_only": [],
       "env_vars": [
@@ -4225,10 +4662,10 @@
         "hostbuf"
       ],
       "kind": "lib",
-      "lines_code": 2034,
+      "lines_code": 1858,
       "lines_gpu_gated": 147,
       "lines_test": 2,
-      "lines_total": 2384,
+      "lines_total": 2198,
       "tests": 0
     },
     "lib": {
@@ -4246,10 +4683,10 @@
       "gate": null,
       "inline_mods": [],
       "kind": "lib",
-      "lines_code": 30,
+      "lines_code": 35,
       "lines_gpu_gated": 0,
       "lines_test": 0,
-      "lines_total": 60,
+      "lines_total": 68,
       "tests": 0
     },
     "merkle": {
@@ -4330,7 +4767,7 @@
     "norm": {
       "class": "application (RMSNorm gadget)",
       "crate": "hashline",
-      "declared_by": "hashline/src/lib.rs:59",
+      "declared_by": "hashline/src/lib.rs:67",
       "deps_gpu_only": [],
       "deps_normal": [],
       "deps_test_only": [],
@@ -4441,7 +4878,7 @@
     "phase_profile": {
       "class": "adapter (timing instrumentation)",
       "crate": "hashline",
-      "declared_by": "hashline/src/lib.rs:40",
+      "declared_by": "hashline/src/lib.rs:48",
       "deps_gpu_only": [],
       "deps_normal": [],
       "deps_test_only": [],
@@ -4464,7 +4901,7 @@
     "private_block_contract": {
       "class": "application (P1 block metadata preflight)",
       "crate": "hashline",
-      "declared_by": "hashline/src/lib.rs:51",
+      "declared_by": "hashline/src/lib.rs:59",
       "deps_gpu_only": [],
       "deps_normal": [
         "attention",
@@ -4497,7 +4934,7 @@
     "private_seam": {
       "class": "experiment (one-shot private equality gadget)",
       "crate": "hashline",
-      "declared_by": "hashline/src/lib.rs:39",
+      "declared_by": "hashline/src/lib.rs:47",
       "deps_gpu_only": [],
       "deps_normal": [
         "field",
@@ -4527,7 +4964,7 @@
     "public_block_oracle": {
       "class": "application (public P0 block)",
       "crate": "hashline",
-      "declared_by": "hashline/src/lib.rs:43",
+      "declared_by": "hashline/src/lib.rs:51",
       "deps_gpu_only": [],
       "deps_normal": [
         "attention",
@@ -4558,7 +4995,7 @@
     "public_block_receipt": {
       "class": "application (B3/B4 receipt)",
       "crate": "hashline",
-      "declared_by": "hashline/src/lib.rs:46",
+      "declared_by": "hashline/src/lib.rs:54",
       "deps_gpu_only": [],
       "deps_normal": [
         "attention",
@@ -4592,7 +5029,7 @@
     "public_block_wire": {
       "class": "application (bounded public-block codec)",
       "crate": "hashline",
-      "declared_by": "hashline/src/lib.rs:45",
+      "declared_by": "hashline/src/lib.rs:53",
       "deps_gpu_only": [],
       "deps_normal": [
         "attention",
@@ -4621,7 +5058,7 @@
     "public_chain_receipt": {
       "class": "application (B5 two-block chain receipt)",
       "crate": "hashline",
-      "declared_by": "hashline/src/lib.rs:47",
+      "declared_by": "hashline/src/lib.rs:55",
       "deps_gpu_only": [],
       "deps_normal": [
         "causal_oracle",
@@ -4649,7 +5086,9 @@
       "crate": "hashline",
       "declared_by": "hashline/src/lib.rs:18",
       "deps_gpu_only": [],
-      "deps_normal": [],
+      "deps_normal": [
+        "zkp_core::tables"
+      ],
       "deps_test_only": [],
       "env_vars": [],
       "externals": [
@@ -4661,11 +5100,171 @@
         "tests"
       ],
       "kind": "lib",
-      "lines_code": 60,
+      "lines_code": 58,
       "lines_gpu_gated": 0,
       "lines_test": 13,
-      "lines_total": 79,
+      "lines_total": 78,
       "tests": 1
+    },
+    "stable_weight_material": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:42",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "merkle",
+        "ntt",
+        "pcs",
+        "stable_weight_slots"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/src/stable_weight_material.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 381,
+      "lines_gpu_gated": 1,
+      "lines_test": 0,
+      "lines_total": 442,
+      "tests": 0
+    },
+    "stable_weight_material::tests": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/stable_weight_material.rs:442",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "mle",
+        "pcs",
+        "stable_weight_slots",
+        "transcript",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/stable_weight_material_tests.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 452,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 471,
+      "tests": 9
+    },
+    "stable_weight_registration": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:45",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "merkle",
+        "pcs",
+        "stable_weight_material",
+        "stable_weight_slots"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/stable_weight_registration.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 254,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 363,
+      "tests": 0
+    },
+    "stable_weight_registration::tests": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/stable_weight_registration.rs:363",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "mle",
+        "ntt",
+        "pcs",
+        "stable_weight_slots",
+        "transcript",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_TEST_REGISTRATION_MODE"
+      ],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/stable_weight_registration_tests.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 690,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 709,
+      "tests": 11
+    },
+    "stable_weight_slots": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:39",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "merkle",
+        "pcs"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/src/stable_weight_slots.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 309,
+      "lines_gpu_gated": 0,
+      "lines_test": 1,
+      "lines_total": 382,
+      "tests": 0
+    },
+    "stable_weight_slots::tests": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/stable_weight_slots.rs:382",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [
+        "field"
+      ],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/stable_weight_slots_tests.rs",
+      "gate": "test",
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 297,
+      "lines_gpu_gated": 0,
+      "lines_test": 288,
+      "lines_total": 313,
+      "tests": 8
     },
     "sumcheck": {
       "class": "core",
@@ -4693,7 +5292,7 @@
     "tables_attn": {
       "class": "application (attention tables)",
       "crate": "hashline",
-      "declared_by": "hashline/src/lib.rs:58",
+      "declared_by": "hashline/src/lib.rs:66",
       "deps_gpu_only": [],
       "deps_normal": [
         "silu"
@@ -4721,24 +5320,22 @@
       "declared_by": "hashline/src/lib.rs:33",
       "deps_gpu_only": [],
       "deps_normal": [
-        "silu"
+        "zkp_core::tables"
       ],
       "deps_test_only": [],
       "env_vars": [],
       "externals": [
-        "sha2"
+        "(std only)"
       ],
       "file": "hashline/src/tables_v3.rs",
       "gate": null,
-      "inline_mods": [
-        "tests"
-      ],
+      "inline_mods": [],
       "kind": "lib",
-      "lines_code": 132,
+      "lines_code": 1,
       "lines_gpu_gated": 0,
-      "lines_test": 15,
-      "lines_total": 176,
-      "tests": 1
+      "lines_test": 0,
+      "lines_total": 3,
+      "tests": 0
     },
     "test:cli_claims": {
       "class": "unclassified",
@@ -4828,6 +5425,34 @@
       "lines_test": 0,
       "lines_total": 427,
       "tests": 7
+    },
+    "test:zk60_cl20_codec": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "export_v3",
+        "layer",
+        "ntt",
+        "tables_v3",
+        "transcript",
+        "zkp_core::ffn_v3"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_cl20_codec.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 213,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 272,
+      "tests": 6
     },
     "test:zk60_gpu_cache": {
       "class": "unclassified",
@@ -5131,11 +5756,11 @@
       "gate": null,
       "inline_mods": [],
       "kind": "test",
-      "lines_code": 255,
+      "lines_code": 297,
       "lines_gpu_gated": 0,
       "lines_test": 0,
-      "lines_total": 276,
-      "tests": 6
+      "lines_total": 322,
+      "tests": 7
     },
     "test:zk60_public_chain": {
       "class": "unclassified",
@@ -5273,6 +5898,33 @@
       "lines_total": 551,
       "tests": 7
     },
+    "test:zk60_stable_weight_slots": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "pcs",
+        "stable_weight_slots"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_TEST_SLOT_MODE"
+      ],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_stable_weight_slots.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 191,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 201,
+      "tests": 3
+    },
     "transcript": {
       "class": "core",
       "crate": "hashline",
@@ -5299,7 +5951,7 @@
     "wcache": {
       "class": "adapter (per-model weight-commitment cache)",
       "crate": "hashline",
-      "declared_by": "hashline/src/lib.rs:54",
+      "declared_by": "hashline/src/lib.rs:62",
       "deps_gpu_only": [
         "gpu"
       ],
@@ -5498,10 +6150,90 @@
       "lines_total": 28,
       "tests": 0
     },
+    "zkp_core::ffn_v3": {
+      "class": "unclassified",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/lib.rs:15",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "zkp-core/src/ffn_v3/mod.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 9,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 26,
+      "tests": 0
+    },
+    "zkp_core::ffn_v3::proof": {
+      "class": "unclassified",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/ffn_v3/mod.rs:14",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::ffn_v3",
+        "zkp_core::field",
+        "zkp_core::merkle",
+        "zkp_core::pcs",
+        "zkp_core::sumcheck"
+      ],
+      "deps_test_only": [
+        "zkp_core::tables"
+      ],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "zkp-core/src/ffn_v3/proof.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 643,
+      "lines_gpu_gated": 0,
+      "lines_test": 192,
+      "lines_total": 791,
+      "tests": 6
+    },
+    "zkp_core::ffn_v3::statement": {
+      "class": "unclassified",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/ffn_v3/mod.rs:15",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::field",
+        "zkp_core::pcs",
+        "zkp_core::tables",
+        "zkp_core::transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "zkp-core/src/ffn_v3/statement.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 205,
+      "lines_gpu_gated": 0,
+      "lines_test": 40,
+      "lines_total": 265,
+      "tests": 3
+    },
     "zkp_core::field": {
       "class": "core (canonical)",
       "crate": "zkp_core",
-      "declared_by": "zkp-core/src/lib.rs:12",
+      "declared_by": "zkp-core/src/lib.rs:16",
       "deps_gpu_only": [],
       "deps_normal": [],
       "deps_test_only": [],
@@ -5536,16 +6268,16 @@
       "gate": null,
       "inline_mods": [],
       "kind": "lib",
-      "lines_code": 8,
+      "lines_code": 10,
       "lines_gpu_gated": 0,
       "lines_test": 0,
-      "lines_total": 19,
+      "lines_total": 24,
       "tests": 0
     },
     "zkp_core::merkle": {
       "class": "core (canonical)",
       "crate": "zkp_core",
-      "declared_by": "zkp-core/src/lib.rs:13",
+      "declared_by": "zkp-core/src/lib.rs:17",
       "deps_gpu_only": [],
       "deps_normal": [],
       "deps_test_only": [],
@@ -5569,7 +6301,7 @@
     "zkp_core::mle": {
       "class": "core (canonical)",
       "crate": "zkp_core",
-      "declared_by": "zkp-core/src/lib.rs:14",
+      "declared_by": "zkp-core/src/lib.rs:18",
       "deps_gpu_only": [],
       "deps_normal": [
         "zkp_core::field"
@@ -5594,7 +6326,7 @@
     "zkp_core::ntt": {
       "class": "core (canonical)",
       "crate": "zkp_core",
-      "declared_by": "zkp-core/src/lib.rs:15",
+      "declared_by": "zkp-core/src/lib.rs:19",
       "deps_gpu_only": [],
       "deps_normal": [
         "zkp_core::field"
@@ -5619,7 +6351,7 @@
     "zkp_core::pcs": {
       "class": "core (canonical Ligero commitment)",
       "crate": "zkp_core",
-      "declared_by": "zkp-core/src/lib.rs:16",
+      "declared_by": "zkp-core/src/lib.rs:20",
       "deps_gpu_only": [],
       "deps_normal": [
         "zkp_core::field",
@@ -5677,7 +6409,7 @@
     "zkp_core::rng": {
       "class": "core (canonical randomness)",
       "crate": "zkp_core",
-      "declared_by": "zkp-core/src/lib.rs:17",
+      "declared_by": "zkp-core/src/lib.rs:21",
       "deps_gpu_only": [],
       "deps_normal": [
         "zkp_core::field"
@@ -5702,7 +6434,7 @@
     "zkp_core::sumcheck": {
       "class": "core (canonical)",
       "crate": "zkp_core",
-      "declared_by": "zkp-core/src/lib.rs:18",
+      "declared_by": "zkp-core/src/lib.rs:22",
       "deps_gpu_only": [],
       "deps_normal": [
         "zkp_core::field",
@@ -5728,10 +6460,33 @@
       "lines_total": 520,
       "tests": 4
     },
+    "zkp_core::tables": {
+      "class": "unclassified",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/lib.rs:23",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "sha2"
+      ],
+      "file": "zkp-core/src/tables.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 135,
+      "lines_gpu_gated": 0,
+      "lines_test": 15,
+      "lines_total": 185,
+      "tests": 1
+    },
     "zkp_core::transcript": {
       "class": "core (canonical)",
       "crate": "zkp_core",
-      "declared_by": "zkp-core/src/lib.rs:19",
+      "declared_by": "zkp-core/src/lib.rs:24",
       "deps_gpu_only": [],
       "deps_normal": [
         "zkp_core::field"
@@ -5760,35 +6515,39 @@
       "cross_crate_edges": [
         "field->zkp_core::field",
         "gpu->zkp_core::pcs",
+        "layer->zkp_core::ffn_v3",
         "merkle->zkp_core::merkle",
         "mle->zkp_core::mle",
         "ntt->zkp_core::ntt",
         "pcs->zkp_core::pcs",
         "pcs->zkp_core::rng",
+        "silu->zkp_core::tables",
         "sumcheck->zkp_core::sumcheck",
+        "tables_v3->zkp_core::tables",
+        "test:zk60_cl20_codec->zkp_core::ffn_v3",
         "transcript->zkp_core::transcript",
         "zk->zkp_core::rng"
       ],
-      "edge_records": 342,
+      "edge_records": 378,
       "example_files": 4,
-      "integration_test_files": 18,
-      "library_code_lines": 19011,
-      "library_gpu_gated_lines": 3040,
-      "library_modules": 37,
-      "library_test_lines": 2127,
-      "nodes": 60
+      "integration_test_files": 20,
+      "library_code_lines": 21096,
+      "library_gpu_gated_lines": 3041,
+      "library_modules": 43,
+      "library_test_lines": 2401,
+      "nodes": 68
     },
     "zkp_core": {
       "binary_code_lines": 0,
       "cross_crate_edges": [],
-      "edge_records": 28,
+      "edge_records": 39,
       "example_files": 1,
       "integration_test_files": 0,
-      "library_code_lines": 2472,
+      "library_code_lines": 3466,
       "library_gpu_gated_lines": 0,
-      "library_modules": 10,
-      "library_test_lines": 623,
-      "nodes": 11
+      "library_modules": 14,
+      "library_test_lines": 870,
+      "nodes": 15
     }
   },
   "primary_crate": "hashline",
@@ -5797,45 +6556,53 @@
     "cross_crate_edges": [
       "field->zkp_core::field",
       "gpu->zkp_core::pcs",
+      "layer->zkp_core::ffn_v3",
       "merkle->zkp_core::merkle",
       "mle->zkp_core::mle",
       "ntt->zkp_core::ntt",
       "pcs->zkp_core::pcs",
       "pcs->zkp_core::rng",
+      "silu->zkp_core::tables",
       "sumcheck->zkp_core::sumcheck",
+      "tables_v3->zkp_core::tables",
+      "test:zk60_cl20_codec->zkp_core::ffn_v3",
       "transcript->zkp_core::transcript",
       "zk->zkp_core::rng"
     ],
-    "edge_records": 342,
+    "edge_records": 378,
     "example_files": 4,
-    "integration_test_files": 18,
-    "library_code_lines": 19011,
-    "library_gpu_gated_lines": 3040,
-    "library_modules": 37,
-    "library_test_lines": 2127,
-    "nodes": 60
+    "integration_test_files": 20,
+    "library_code_lines": 21096,
+    "library_gpu_gated_lines": 3041,
+    "library_modules": 43,
+    "library_test_lines": 2401,
+    "nodes": 68
   },
   "total": {
     "binary_code_lines": 1623,
     "cross_crate_edges": [
       "field->zkp_core::field",
       "gpu->zkp_core::pcs",
+      "layer->zkp_core::ffn_v3",
       "merkle->zkp_core::merkle",
       "mle->zkp_core::mle",
       "ntt->zkp_core::ntt",
       "pcs->zkp_core::pcs",
       "pcs->zkp_core::rng",
+      "silu->zkp_core::tables",
       "sumcheck->zkp_core::sumcheck",
+      "tables_v3->zkp_core::tables",
+      "test:zk60_cl20_codec->zkp_core::ffn_v3",
       "transcript->zkp_core::transcript",
       "zk->zkp_core::rng"
     ],
-    "edge_records": 370,
+    "edge_records": 417,
     "example_files": 5,
-    "integration_test_files": 18,
-    "library_code_lines": 21483,
-    "library_gpu_gated_lines": 3040,
-    "library_modules": 47,
-    "library_test_lines": 2750,
-    "nodes": 71
+    "integration_test_files": 20,
+    "library_code_lines": 24562,
+    "library_gpu_gated_lines": 3041,
+    "library_modules": 57,
+    "library_test_lines": 3271,
+    "nodes": 83
   }
 }

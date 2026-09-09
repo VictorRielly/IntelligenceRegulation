@@ -1,0 +1,30 @@
+{
+  "reviewed_commit": "d4f0758",
+  "case": "live core delta changed after manifest initialization; tree and lockfile unchanged",
+  "live_core_delta": "1111111111111111111111111111111111111111111111111111111111111111",
+  "validator_accepted": true,
+  "source": "exact identity_expectations + validate_manifest path used by finalize --repo",
+  "verdict": {
+    "ok": true,
+    "reasons": [],
+    "summary": {
+      "suite_version": 4,
+      "production": true,
+      "cases_recorded": 23,
+      "cases_expected": 23,
+      "head": "d4f0758ed293cadd3adeacfcc6ef0ea31e879696",
+      "gpu_binary_sha256": "be358ec107b03658525620a28f8b7b964085a121eafdbea36a3579665763c347",
+      "device": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)",
+      "oracle_executed_cases": 189,
+      "crate_trees": {
+        "hashline": "e5d1a6af575d3943aa5c15315b91e34a54674868",
+        "zkp_core": "c18bc0c93eaa5568edf44e6f9c28957010d1e3b6"
+      },
+      "lockfiles": {
+        "hashline": "31a00627c01e35a38562e0559f2d4e9c3983860c420d91970ecfd827bcf6b0f4",
+        "zkp_core": "4ff606b9c497d9040dde49c4d226ebcb5b91c82e98e815a4a6e1d1d88cf1d006"
+      },
+      "core_tests_passed": 19
+    }
+  }
+}

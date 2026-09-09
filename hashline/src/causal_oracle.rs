@@ -64,8 +64,8 @@ pub fn public_synthetic_fixture() -> (ApprovedP1BlockContract, PublicBlockWeight
     w.wd_t[2 * 16 + 11] = 19;
     w.wd_t[11 * 16 + 2] = -13;
     let (aw, fw) = cpu_weight_commitments(&w).expect("public fixture weights");
-    let approved = ApprovedP1BlockContract::from_trusted_registration(
-        public_synthetic_registration(aw, fw),
+    let approved = ApprovedP1BlockContract::from_trusted_public_weights(
+        public_synthetic_registration(aw, fw), &w,
     ).expect("public fixture contract");
     let input = (0..T * D)
         .map(|i| ((i / D) % 5) as i16 - 2 + (i % 3) as i16 - 1)

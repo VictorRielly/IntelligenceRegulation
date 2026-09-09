@@ -42,9 +42,8 @@ pub fn table_spec_digest_v2(e_gate: i32, e_act: i32, table: &[i8; 256]) -> Strin
     hex(&h.finalize())
 }
 
-pub fn hex(bytes: &[u8]) -> String {
-    bytes.iter().map(|b| format!("{b:02x}")).collect()
-}
+// [ZK60-CL20] canonical in zkp-core (moved with the v3 table registry).
+pub use zkp_core::tables::hex;
 
 /// The frozen member for (e_gate, e_act): regenerated and digest-checked.
 /// Returns (bytes, digest hex). Panics on a pair outside the frozen

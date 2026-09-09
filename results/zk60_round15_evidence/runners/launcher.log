@@ -1,0 +1,13 @@
+WAIT shared heavy lock
+ACQUIRED shared heavy lock
+START native_build
+END native_build exit=0
+START python_full
+END python_full exit=1
+Traceback (most recent call last):
+  File "/tmp/zk60-round15/validate.py", line 72, in <module>
+    log = stage('python_full', ['python3', '-m', 'unittest', 'discover', '-s', 'tests', '-v'], timeout=2400)
+  File "/tmp/zk60-round15/validate.py", line 52, in stage
+    if result.returncode: raise RuntimeError('stage failed: ' + name)
+RuntimeError: stage failed: python_full
+

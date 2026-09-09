@@ -1,5 +1,20 @@
 # ZK60 milestone map
 
+**2026-09-08, round 15 integration:** Fable's FA6–FA9 analyses, CL21 tooling
+and corrected typed FFN/core extraction are integrated. Source `612ff9c`
+adds CFS refusal guards, a public int8 registration constructor and fixed norm
+limb guard, live-checkout validation, and suite v6 for the 32-test core plus
+215 storage-enabled hashline tests. **247 Rust tests, 564 tooling tests,
+189 device checks, all 12 frozen proofs, B4 reproduction and B5 verification
+pass; all 24 suite-v6 cases are green.**
+[Round 15](ZK60_ROUND15.md) and [current Fable queue](ZK60_FABLE_QUEUE.md).
+
+Next: checked repaired-mask generation and versioned FFN/capture integration;
+Fable reviews the actual schedule and attention channels while continuing the
+lower-priority complete FFN extraction. Conditional construction analyses are
+available, but the repaired private proof, authenticated stable P3, private
+blocks and complete maintained ZKP path remain open.
+
 **2026-09-08, round 14:** local stable-weight registration now joins
 protected material, the durable counter, an external key callback and reserved
 material access. Fable's PCS extraction is integrated into the maintained core;

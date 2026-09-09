@@ -15,14 +15,20 @@ Checks (each carries its evidence and, when it fails, the reason):
   device_idle               <= 1024 MiB used, no compute processes (the collector's rule)
   host_memory               MemAvailable >= the shape's requirement (64 GiB for full coverage)
   host_idle                 heavy lock free, load average below half the CPUs
-  source_identity           git HEAD recorded, tracked tree clean
-  binary_identity           binary present, GPU-featured, newer than every source,
-                            digest PRESENT and equal to the run manifest's GPU binary
+  source_identity           git HEAD recorded, tracked tree clean; [CL21] the extracted
+                            core (zkp-core/: Cargo.toml, src/, the example) present with
+                            an empty delta, both crates' tree ids and lockfiles readable
+  binary_identity           binary present, GPU-featured, newer than every source (of
+                            BOTH crates), digest PRESENT and equal to the run manifest's
+                            GPU binary
   shape_supported           export sidecar dims/profile cover the request
   planner_margin            chunked W component + measured reserve <= margin x VRAM
                             (and <= --memory-budget-mib when given)
   verified_artifact         a CL13 run manifest the gates validator accepts, whose
-                            HEAD is the current HEAD and whose GPU binary is this one
+                            HEAD is the current HEAD and whose GPU binary is this one;
+                            [CL21] whose recorded crate tree ids (hashline, zkp-core)
+                            and Cargo.lock hashes are the tree in hand's — a manifest
+                            that records none cannot be bound and refuses
   coverage_eligibility      a target-eligible claim needs RECORDED full coverage and
                             decoded full-relation verification, and no seed; the
                             --coverage flag cannot supply coverage
@@ -236,7 +242,20 @@ def probe_git(repo):
         status = _run(["git", "--no-pager", "-C", repo, "status", "--porcelain", "--untracked-files=no"])
     except (OSError, subprocess.SubprocessError):
         return None
-    return {"head": head, "branch": branch, "dirty_paths": [l[3:] for l in status.splitlines() if l.strip()]}
+    dirty = [l[3:] for l in status.splitlines() if l.strip()]
+    # [CL21] the core's dirty paths named apart: they are build inputs of the binary
+    return {"head": head, "branch": branch, "dirty_paths": dirty,
+            "core_dirty_paths": [p for p in dirty if p.startswith("zkp-core/")]}
+
+
+def probe_source_identity(repo):
+    """[CL21] both crates' tree ids, deltas, lockfile hashes and the core's
+    presence, read by the gates module (the same code that wrote them into
+    the manifest). None when the repo cannot be read at all."""
+    try:
+        return _gates().probe_source_identity(repo)
+    except (OSError, ValueError):
+        return None
 
 
 def sha256_file(path):
@@ -257,25 +276,42 @@ def probe_binary(path):
             "mentions_nvrtc": b"nvrtc" in blob, "mentions_cu_module_load": b"cuModuleLoadData" in blob}
 
 
+SOURCE_ROOTS = {
+    # [CL21] both crates: zkp-core is a path dependency of hashline, so its
+    # sources and both lockfiles are inputs of the binary being qualified
+    "hashline": [("hashline", "src"), ("hashline", "Cargo.toml"), ("hashline", "Cargo.lock"), ("hashline", "build.rs")],
+    "zkp_core": [("zkp-core", "src"), ("zkp-core", "Cargo.toml"), ("zkp-core", "Cargo.lock"), ("zkp-core", "examples")],
+}
+
+
 def probe_sources(repo):
     newest, newest_path = 0.0, None
-    roots = [os.path.join(repo, "hashline", "src"), os.path.join(repo, "hashline", "Cargo.toml"),
-             os.path.join(repo, "hashline", "build.rs")]
-    for root in roots:
-        if os.path.isfile(root):
-            candidates = [root]
-        elif os.path.isdir(root):
-            candidates = [os.path.join(d, f) for d, _, files in os.walk(root) for f in files]
-        else:
-            continue
-        for p in candidates:
-            try:
-                m = os.stat(p).st_mtime
-            except OSError:
+    crates = {}
+    for crate, roots in SOURCE_ROOTS.items():
+        c_newest, c_path, seen = 0.0, None, 0
+        for parts in roots:
+            root = os.path.join(repo, *parts)
+            if os.path.isfile(root):
+                candidates = [root]
+            elif os.path.isdir(root):
+                candidates = [os.path.join(d, f) for d, _, files in os.walk(root) for f in files]
+            else:
                 continue
-            if m > newest:
-                newest, newest_path = m, os.path.relpath(p, repo)
-    return {"newest_mtime": newest, "newest_path": newest_path}
+            for p in candidates:
+                try:
+                    m = os.stat(p).st_mtime
+                except OSError:
+                    continue
+                seen += 1
+                if m > c_newest:
+                    c_newest, c_path = m, os.path.relpath(p, repo)
+        crates[crate] = {"newest_mtime": c_newest, "newest_path": c_path, "files": seen}
+        if c_newest > newest:
+            newest, newest_path = c_newest, c_path
+    core = os.path.join(repo, "zkp-core")
+    return {"newest_mtime": newest, "newest_path": newest_path, "crates": crates,
+            "zkp_core_present": (os.path.isfile(os.path.join(core, "Cargo.toml")) and os.path.isdir(os.path.join(core, "src"))
+                                 and os.path.isfile(os.path.join(core, "examples", "public_sumcheck.rs")))}
 
 
 def probe_export(path):
@@ -325,6 +361,7 @@ def gather_facts(args):
             "compute_apps": probe_compute_apps(), "nvrtc_version": probe_nvrtc(args.cuda_root),
             "cudarc_feature": probe_cudarc_feature(args.repo), "arch_arms": probe_arch_arms(args.repo),
             "host": probe_host(), "heavy_lock_free": probe_heavy_lock(), "git": probe_git(args.repo),
+            "source_identity": probe_source_identity(args.repo),
             "binary": probe_binary(args.binary), "sources": probe_sources(args.repo),
             "export": probe_export(args.export), "floors_log": probe_floors_log(args.floors_log),
             "run_manifest": probe_run_manifest(args.run_manifest)}
@@ -425,8 +462,26 @@ def evaluate(facts, args):
                          "the heavy lock must be free and the 1-minute load average at most half the CPUs"))
 
     git = facts.get("git")
-    src_ok = bool(git) and bool(git.get("head")) and not git.get("dirty_paths")
-    checks.append(_check("source_identity", src_ok, git, "a recorded HEAD on a clean tracked tree is required; commit or stash first"))
+    # [CL21] the tree in hand is BOTH crates: the core must be present with an
+    # empty delta and a tree id, and both lockfiles must be readable, or there
+    # is no identity to bind the manifest to.
+    si = facts.get("source_identity") if isinstance(facts.get("source_identity"), dict) else None
+    si_crates = (si or {}).get("crates") or {}
+    si_locks = (si or {}).get("lockfiles") or {}
+    core = si_crates.get("zkp_core") or {}
+    identity_errors = _gates().source_identity_errors(si) if si is not None else ["source identity unavailable"]
+    ident_ok = not identity_errors
+    src_ok = bool(git) and bool(git.get("head")) and not git.get("dirty_paths") and ident_ok
+    checks.append(_check("source_identity", src_ok,
+                         {"git": git, "crates": {n: {"tree": (si_crates.get(n) or {}).get("tree"),
+                                                     "dirty_delta_sha256": (si_crates.get(n) or {}).get("dirty_delta_sha256"),
+                                                     "present": (si_crates.get(n) or {}).get("present")} for n in ("hashline", "zkp_core")},
+                          "lockfiles": {n: (si_locks.get(n) or {}).get("sha256") for n in ("hashline", "zkp_core")},
+                          "core_layout": {k: core.get(k) for k in ("manifest", "src", "example")},
+                          "identity_readable": si is not None, "errors": identity_errors},
+                         "a recorded HEAD on a clean tracked tree is required (commit or stash first), with the extracted core "
+                         "(zkp-core/: Cargo.toml, src/, the example) present, both crates' tree ids and Cargo.lock hashes readable "
+                         "and both deltas empty: the core is a build input of the binary"))
 
     b = facts.get("binary") or {}
     s = facts.get("sources") or {}
@@ -473,25 +528,31 @@ def evaluate(facts, args):
     # AND its HEAD is the current HEAD AND its GPU binary is the one in hand.
     # The floors log is a deprecated hint: recorded, never sufficient.
     head = (git or {}).get("head") if git else None
+    # [CL21] the binding also covers both crates' tree ids and lockfile hashes
+    trees = locks = None
+    if si is not None:
+        trees, locks = _gates().identity_expectations(si)
     if manifest is None:
         verdict = {"ok": False, "reasons": [rm.get("error") or "no run manifest (--run-manifest); results/cl1_floors.sh writes one per run"],
                    "summary": {}}
-    elif not head or not digest_ok:
-        verdict = {"ok": False, "reasons": [("no current HEAD" if not head else "") + (" and " if not head and not digest_ok else "")
-                                            + ("no binary digest" if not digest_ok else "") + ": the manifest cannot be bound to this box"],
-                   "summary": {}}
+    elif not head or not digest_ok or si is None:
+        missing = [m for m, absent in (("no current HEAD", not head), ("no binary digest", not digest_ok),
+                                       ("no source identity (crate trees / lockfiles unreadable)", si is None)) if absent]
+        verdict = {"ok": False, "reasons": [" and ".join(missing) + ": the manifest cannot be bound to this box"], "summary": {}}
     else:
-        verdict = _gates().validate_manifest(manifest, expect_head=head, expect_gpu_sha256=digest, require_production=True)
+        verdict = _gates().validate_manifest(manifest, expect_head=head, expect_gpu_sha256=digest, require_production=True,
+                                             expect_source=si)
     fl = facts.get("floors_log") or {}
     checks.append(_check("verified_artifact", verdict["ok"],
                          {"manifest_path": rm.get("path"), "manifest_present": manifest is not None, "validator": verdict,
-                          "bound_to": {"head": head, "gpu_binary_sha256": digest},
+                          "bound_to": {"head": head, "gpu_binary_sha256": digest, "crate_trees": trees, "lockfiles": locks},
                           "deprecated_floors_log_hint": {"path": fl.get("path"), "exists": fl.get("exists"), "green": fl.get("green"),
                                                          "note": "a floors log is a hint only; it cannot make this check pass"}},
                          "a run manifest the gates validator accepts (complete, every case green, negative controls present) "
-                         "whose source HEAD is the current HEAD and whose GPU binary sha256 is this binary's is required; "
-                         "run results/cl1_floors.sh on this checkout and binary first. --floors-log is a deprecated hint "
-                         "and never sufficient on its own"))
+                         "whose source HEAD is the current HEAD, whose GPU binary sha256 is this binary's, and whose recorded "
+                         "crate tree ids and Cargo.lock hashes (hashline, zkp-core) are this tree's is required; a manifest "
+                         "that records no crate identity (pre-CL21) cannot be bound. Run results/cl1_floors.sh on this checkout "
+                         "and binary first. --floors-log is a deprecated hint and never sufficient on its own"))
 
     # [ZK60-CL13] the --coverage flag is a request, not evidence. A target-
     # eligible claim needs the run manifest (or an injected coverage fact) to

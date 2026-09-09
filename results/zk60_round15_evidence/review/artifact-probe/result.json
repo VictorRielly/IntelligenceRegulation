@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "default_binary_sha256": "880cfbecbaeb0ebe09dea59ebec8af3eb7706341eaa10af1fd012087212ba3b8",
+  "after_shared_feature_test_sha256": "7ba8e4012f4f238700f945605e2d69a0efae19079991ea7bbebb980657e42479",
+  "after_isolated_feature_test_sha256": "880cfbecbaeb0ebe09dea59ebec8af3eb7706341eaa10af1fd012087212ba3b8",
+  "shared_overwrites": true,
+  "isolated_preserves": true,
+  "logs": [
+    "default",
+    "shared_feature_tests",
+    "restore_default",
+    "isolated_feature_tests"
+  ]
+}

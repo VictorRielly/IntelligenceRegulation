@@ -1,13 +1,21 @@
 # Minimal ZKP core
 
-Status: **primitives and the Ligero commitment extracted; complete FFN path
-pending**. The crate owns field arithmetic, NTT, Merkle trees, transcripts,
-randomness, multilinear helpers, sumcheck and the Ligero-form polynomial
-commitment (`pcs`: plain and hiding commit / open / verify) behind a narrow
-backend seam (`pcs::Backend` / `pcs::EncodedStore`) that hashline's CUDA
-code implements outside the core. `hashline` imports these canonical types
-through compatibility exports. Default builds use only `blake3` and `rayon`;
-they need no GPU or model files. All 22 moved tests pass (19 primitive, 3 PCS).
+Status: **primitives, the Ligero commitment and the typed v3 pieces
+extracted; the FFN prover/verifier still in hashline**. The crate owns field
+arithmetic, NTT, Merkle trees, transcripts, randomness, multilinear helpers,
+sumcheck, the Ligero-form polynomial commitment (`pcs`: plain and hiding
+commit / open / verify) behind a narrow backend seam (`pcs::Backend` /
+`pcs::EncodedStore`) that hashline's CUDA code implements outside the core,
+the frozen int16-out activation-table registry (`tables`), and the selected
+profile's statement, parameters, layout and proof object with its frozen
+encoding and a shape-directed bounded decoder (`ffn_v3`). `hashline` imports
+these canonical types through compatibility exports under its legacy names.
+Default builds use only `blake3`, `rayon` and `sha2` (the table-spec digest);
+they need no GPU or model files. All 32 tests pass (19 primitive, 3 PCS, 1
+table registry, 9 statement/proof, four of them the round-14 regressions
+C20-R1..R3: bounded query counts and checked sizes, the statement's shift
+and dimension domain checked before any arithmetic, and `log_cols = 0`
+group counts that follow the PCS grouping).
 
 ```sh
 env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 cargo test --release --offline \

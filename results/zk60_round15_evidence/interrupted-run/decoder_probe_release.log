@@ -1,0 +1,121 @@
+   Compiling version_check v0.9.5
+   Compiling crossbeam-utils v0.8.22
+   Compiling generic-array v0.14.7
+   Compiling typenum v1.20.1
+   Compiling crossbeam-epoch v0.9.20
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.11
+   Compiling crossbeam-deque v0.8.7
+   Compiling cc v1.4.4
+   Compiling rayon-core v1.13.0
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling cfg-if v1.0.4
+   Compiling blake3 v1.8.7
+   Compiling digest v0.10.7
+   Compiling either v1.18.0
+   Compiling cpufeatures v0.3.1
+   Compiling cpufeatures v0.2.17
+   Compiling constant_time_eq v0.4.2
+   Compiling arrayvec v0.7.8
+   Compiling sha2 v0.10.9
+   Compiling rayon v1.12.0
+   Compiling zkp-core v0.1.0 (/home/victor/IntelligenceRegulation/zkp-core)
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/hashline)
+warning: unused import: `eval_mle_ext`
+   --> /home/victor/IntelligenceRegulation/hashline/src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> /home/victor/IntelligenceRegulation/hashline/src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> /home/victor/IntelligenceRegulation/hashline/src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> /home/victor/IntelligenceRegulation/hashline/src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> /home/victor/IntelligenceRegulation/hashline/src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> /home/victor/IntelligenceRegulation/hashline/src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> /home/victor/IntelligenceRegulation/hashline/src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> /home/victor/IntelligenceRegulation/hashline/src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+   Compiling cl20-review-probes v0.1.0 (/tmp/zk60-round15/core_review/probe)
+warning: unused imports: `TamperV3` and `apply_tamper_v3`
+  --> src/main.rs:12:23
+   |
+12 | use hashline::layer::{apply_tamper_v3, prove_layer_v3, verify_layer_v3, LayerParams, LayerProofV3, StatementV3, TamperV3};
+   |                       ^^^^^^^^^^^^^^^                                                                           ^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `DecodeError` and `Proof`
+  --> src/main.rs:16:24
+   |
+16 | use zkp_core::ffn_v3::{DecodeError, Proof, Shape, DOMAIN_LAYER};
+   |                        ^^^^^^^^^^^  ^^^^^
+
+warning: `cl20-review-probes` (bin "cl20-review-probes") generated 2 warnings (run `cargo fix --bin "cl20-review-probes" -p cl20-review-probes` to apply 2 suggestions)
+    Finished `release` profile [optimized] target(s) in 43.22s
+     Running `hashline/target/release/cl20-review-probes`
+CONTROL_NORMAL_ROUNDTRIP=true
+Q_MAX_PARAM_CHECK_ACCEPT=false
+Q_MAX_DECODE_PANIC=false
+SHIFT64_EMPTY_DECODE_PANIC=false
+LOG0_PARAM_CHECK_ACCEPT=true
+LOG0_LEGACY_VERIFY=true
+LOG0_ACTUAL_GROUPS=1,1,2
+LOG0_DECODER_GROUPS=1,1,2
+LOG0_CORE_DECODE=true

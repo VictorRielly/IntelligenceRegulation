@@ -1,0 +1,667 @@
+test_analyze_archives_logs_and_does_not_spawn_processes (test_hashline_benchmark.AccountingTests) ... ok
+test_archived_gnu_time_clock_remains_process_wall (test_hashline_benchmark.AccountingTests) ... ok
+test_cpu_and_p3_identity (test_hashline_benchmark.AccountingTests) ... ok
+test_duplicate_copied_log_cannot_inflate_sample_count (test_hashline_benchmark.AccountingTests) ... hashline benchmark: duplicate log contents cannot count as independent samples
+ok
+test_failures_missing_proof_and_multiple_passes (test_hashline_benchmark.AccountingTests) ... ok
+test_gpu_fallback_invalidates_accept (test_hashline_benchmark.AccountingTests) ... ok
+test_gpu_rechecked_each_sample_under_lock_and_busy_sample_recorded (test_hashline_benchmark.AccountingTests) ... {"summary": "/tmp/tmpu9vb5_zf/report/summary.json", "measurement_eligible": false, "goal_met": false}
+cold sample 0/2: /tmp/tmpk_l8_uoy/report/cold-000.log
+warm sample 1/2: /tmp/tmpk_l8_uoy/report/warm-001.log
+Stopping after ineligible sample: nonzero process exit; failure diagnostic present; expected exactly one pass header and one pass summary; positive layers required; positive tokens required; positive d required; positive f required; missing or mixed proof parameters; privacy declaration mismatch; GPU execution declaration mismatch; missing or ambiguous serialized proof digest; one HASHLINE_TIMING record required for measured proof readiness; observed layers differs from requested manifest; observed tokens differs from requested manifest; observed d differs from requested manifest; observed f differs from requested manifest; written proof missing or length mismatch
+ok
+test_high_resolution_verification_can_be_sub_centisecond (test_hashline_benchmark.AccountingTests) ... ok
+test_invalid_inputs_rejected_before_binary_or_gpu_query (test_hashline_benchmark.AccountingTests) ... hashline benchmark: requested shape exceeds export or has zero rows/layers
+hashline benchmark: requested shape exceeds export or has zero rows/layers
+hashline benchmark: tokens must be a power of two
+hashline benchmark: requested shape exceeds export or has zero rows/layers
+hashline benchmark: requested shape exceeds export or has zero rows/layers
+hashline benchmark: seed must be in 0..2^64-1
+hashline benchmark: seed must be in 0..2^64-1
+hashline benchmark: all export dimensions must be positive
+ok
+test_legacy_prove_is_not_end_to_end (test_hashline_benchmark.AccountingTests) ... ok
+test_malformed_json_and_non_object (test_hashline_benchmark.AccountingTests) ... ok
+test_malformed_numeric_timings_always_produce_serializable_ineligible_reports (test_hashline_benchmark.AccountingTests) ... ok
+test_mixed_cohort_and_single_invalid_sample (test_hashline_benchmark.AccountingTests) ... ok
+test_multiple_cold_samples_cannot_qualify_with_twenty_warm_runs (test_hashline_benchmark.AccountingTests) ... ok
+test_no_cold_sample_cannot_qualify_with_twenty_warm_runs (test_hashline_benchmark.AccountingTests) ... ok
+test_nonfinite_or_incomplete_timing_rejected (test_hashline_benchmark.AccountingTests) ... ok
+test_preflight_large_gpu_and_ambiguous_devices (test_hashline_benchmark.AccountingTests) ... ok
+test_preflight_refuses_laptop_private_8b_before_running_binary (test_hashline_benchmark.AccountingTests) ... ok
+test_private_large_gpu_refuses_busy_device (test_hashline_benchmark.AccountingTests) ... ok
+test_process_wall_distinct_and_exit_metadata (test_hashline_benchmark.AccountingTests) ... ok
+test_record_preserves_separate_clocks (test_hashline_benchmark.AccountingTests) ... ok
+test_runner_records_fresh_cpu_run_and_retains_proof_without_executing_binary (test_hashline_benchmark.AccountingTests) ... {"summary": "/tmp/tmpk_l8_uoy/report/summary.json", "measurement_eligible": false, "goal_met": false}
+cold sample 0/0: /tmp/tmpa79x3735/report/cold-000.log
+ok
+test_runner_stops_after_failed_sample_and_returns_nonzero (test_hashline_benchmark.AccountingTests) ... {"summary": "/tmp/tmpa79x3735/report/summary.json", "measurement_eligible": false, "goal_met": false}
+cold sample 0/20: /tmp/tmpsi1tm2ib/report/cold-000.log
+Stopping after ineligible sample: nonzero process exit; failure diagnostic present; expected exactly one pass header and one pass summary; positive layers required; positive tokens required; positive d required; positive f required; missing or mixed proof parameters; privacy declaration mismatch; GPU execution declaration mismatch; missing or ambiguous serialized proof digest; one HASHLINE_TIMING record required for measured proof readiness; observed layers differs from requested manifest; observed tokens differs from requested manifest; observed d differs from requested manifest; observed f differs from requested manifest; written proof missing or length mismatch
+ok
+test_shared_lock_unlocks_on_exception_without_unlink (test_hashline_benchmark.AccountingTests) ... {"summary": "/tmp/tmpsi1tm2ib/report/summary.json", "measurement_eligible": false, "goal_met": false}
+Waiting for /tmp/zk-heavy.lock
+ok
+test_truncated_binary_shape_is_not_accepted (test_hashline_benchmark.AccountingTests) ... cold sample 0/0: /tmp/tmpceiw0_o8/report/cold-000.log
+Stopping after ineligible sample: observed layers differs from requested manifest
+ok
+test_twenty_warm_runs_nearest_rank_and_cold_separation (test_hashline_benchmark.AccountingTests) ... ok
+test_verified_boolean_required_even_if_accept (test_hashline_benchmark.AccountingTests) ... ok
+test_zero_or_negative_logged_shape_cannot_be_eligible (test_hashline_benchmark.AccountingTests) ... ok
+test_bad_margin_fraction_exits_two (test_hashline_cl_5090_preflight.Cli) ... ok
+test_bad_threads_or_budget_exit_two (test_hashline_cl_5090_preflight.Cli) ... ok
+test_dry_run_emits_no_hardware_job (test_hashline_cl_5090_preflight.Cli) ... ok
+test_emit_plan_orders_the_ladder_and_detaches_every_heavy_stage (test_hashline_cl_5090_preflight.Cli) ... ok
+test_go_returns_zero_and_no_probe_runs (test_hashline_cl_5090_preflight.Cli) ... ok
+test_missing_facts_file_exits_two (test_hashline_cl_5090_preflight.Cli) ... ok
+test_no_plan_without_the_flag (test_hashline_cl_5090_preflight.Cli) ... ok
+test_not_go_returns_three (test_hashline_cl_5090_preflight.Cli) ... ok
+test_out_refuses_to_overwrite (test_hashline_cl_5090_preflight.Cli) ... ok
+test_out_writes_a_new_file (test_hashline_cl_5090_preflight.Cli) ... ok
+test_plan_is_emitted_even_when_not_go_and_says_so (test_hashline_cl_5090_preflight.Cli) ... ok
+test_plan_propagates_shape_threads_and_budget_into_every_command (test_hashline_cl_5090_preflight.Cli) ... ok
+test_plan_quotes_paths_with_spaces (test_hashline_cl_5090_preflight.Cli) ... ok
+test_round9_probes_end_to_end (test_hashline_cl_5090_preflight.Cli) ... ok
+test_export_floors_and_manifest_probes_read_the_real_formats (test_hashline_cl_5090_preflight.Parsing) ... ok
+test_sources_probe_covers_both_crates (test_hashline_cl_5090_preflight.Parsing) ... ok
+test_version_and_capability_tuples (test_hashline_cl_5090_preflight.Parsing) ... ok
+test_absent_binary_digest_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_bare_driver_string_meets_the_floor (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_binary_not_gpu_featured (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_busy_device_memory (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_capability_without_an_arch_arm (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_compute_apps_present (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_compute_apps_unknown (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_cudarc_12040_on_blackwell (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_datacenter_blackwell_binds_the_same_gates (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_diagnostic_claim_tolerates_a_seed (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_dirty_core_delta_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_dirty_core_path_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_dirty_tree (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_driver_566_on_blackwell (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_export_missing (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_export_null_fact_does_not_crash (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_failed_case_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_flag_only_full_target_is_refused (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_full_coverage_wants_64_gib (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_git_unreadable (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_green_floors_log_alone_cannot_pass (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_heavy_lock_held (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_high_load (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_host_min_override (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_incomplete_core_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_incomplete_manifest_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_layers_beyond_export (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_low_host_memory (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_manifest_binary_mismatch (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_manifest_claiming_full_coverage_is_refused_by_the_validator (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_manifest_head_mismatch (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_memory_budget_binds_the_planner (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_mismatched_crate_tree_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_mismatched_lockfile_identity_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_missing_binary (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_missing_core_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_missing_negative_control_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_no_device (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_non_frozen_shape_manifest_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_nvrtc_12_1_on_blackwell (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_nvrtc_missing_fails_even_off_blackwell (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_oracle_count_not_the_suites_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_planner_margin_exceeded (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_planner_margin_reserve_argument (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_planner_refusal_on_argument (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_planner_refusal_on_shape (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_pre_cl21_manifest_cannot_be_bound (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_ready_box_is_a_diagnostic_claim_only (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_ready_box_is_go_with_every_check_ok (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_recorded_full_and_decoded_evidence_passes_coverage_but_needs_a_suite_that_covers_it (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_require_cc_match_is_go (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_require_cc_mismatch (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_resident_mode_is_the_larger_component (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_run_manifest_missing (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_run_manifest_not_json (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_source_identity_unreadable_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_stale_binary (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_stale_binary_against_the_core_sources (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_synthetic_suite_manifest_is_not_evidence (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_target_claim_needs_full_coverage (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_target_claim_refuses_a_seed (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_tokens_beyond_export (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_tokens_not_a_power_of_two (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_two_devices_selected (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_unnamed_device (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_unreadable_lockfile_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_unrelated_binary_digest_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_unsupported_compute_capability (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_v4_manifest_missing_core_cases_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_v4_manifest_recording_a_dirty_core_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_v4_manifest_with_the_core_cases_is_go (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_version_gates_do_not_bind_off_blackwell (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_wrong_profile (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_zero_executed_oracle_cases_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_zero_expected_cases_refuses (test_hashline_cl_5090_preflight.Refusals) ... ok
+test_a_log_without_rows_is_refused_not_inferred (test_hashline_cl_artifact_profile.CL19LogRows) ... ok
+test_actual_round10_frozen_run_when_mounted (test_hashline_cl_artifact_profile.CL19LogRows)
+Codex's actual frozen 12x512 P1 run (uncommitted evidence): all 12 ... ok
+test_actual_round10_t16_rows_when_mounted (test_hashline_cl_artifact_profile.CL19LogRows) ... ok
+test_actual_validation_record_rows_when_mounted (test_hashline_cl_artifact_profile.CL19LogRows) ... ok
+test_cli_from_log_and_validate_breakdown_round_trip (test_hashline_cl_artifact_profile.CL19LogRows) ... ok
+test_duplicate_and_missing_layer_rows_are_refused (test_hashline_cl_artifact_profile.CL19LogRows) ... ok
+test_fixture_from_log_refuses_without_the_dump (test_hashline_cl_artifact_profile.CL19LogRows) ... ok
+test_fixtures_declared_from_the_archived_lane_logs_reproduce_layer_0 (test_hashline_cl_artifact_profile.CL19LogRows)
+The lane's own archived 12x512 logs (no rows in them — they predate ... ok
+test_mixed_privacy_and_timing_disagreement_are_refused (test_hashline_cl_artifact_profile.CL19LogRows) ... ok
+test_reconcile_auto_declares_the_fixture_from_the_logs_own_dump (test_hashline_cl_artifact_profile.CL19LogRows) ... ok
+test_row_disagreeing_with_its_layer_line_is_refused (test_hashline_cl_artifact_profile.CL19LogRows) ... ok
+test_rows_not_summing_to_the_proof_line_are_refused (test_hashline_cl_artifact_profile.CL19LogRows) ... ok
+test_synthetic_two_layer_log_validates_pins_and_sums (test_hashline_cl_artifact_profile.CL19LogRows) ... ok
+test_argument_shapes_from_mask_specs_and_the_verifier (test_hashline_cl_artifact_profile.CL19Mirror) ... ok
+test_cl10s_unknown_residual_is_exactly_the_derived_arguments (test_hashline_cl_artifact_profile.CL19Mirror)
+CL10 could only subtract: 8,400 / 8,496 B (Mistral), 6,800 / 6,896 B ... ok
+test_cli_derive_reports_derived_equals_archived (test_hashline_cl_artifact_profile.CL19Mirror) ... ok
+test_derived_totals_equal_the_archived_per_layer_sizes (test_hashline_cl_artifact_profile.CL19Mirror) ... ok
+test_p3_minus_p1_by_leaf_for_both_fixtures (test_hashline_cl_artifact_profile.CL19Mirror) ... ok
+test_the_frozen_files_have_two_layer_classes_the_dump_cannot_separate (test_hashline_cl_artifact_profile.CL19Mirror) ... ok
+test_unknown_fixture_is_refused (test_hashline_cl_artifact_profile.CL19Mirror) ... ok
+test_v3_dims_follow_layout_v3_and_zk_layout_v3 (test_hashline_cl_artifact_profile.CL19Mirror) ... ok
+test_argument_order_is_the_serializers (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_claim_bytes_are_fixed_at_16 (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_column_index_bytes_must_be_whole_u64s (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_duplicate_argument_is_refused (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_duplicate_json_key_is_refused_not_last_wins (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_header_and_mask_root_bytes_are_fixed (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_leaves_must_sum_exactly_to_total (test_hashline_cl_artifact_profile.CL19Refusals)
+The tamper test at the consumer: one leaf moved by 8 B without the ... ok
+test_negative_or_non_integer_leaf_is_refused (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_omitted_argument_is_refused (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_omitted_category_is_refused (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_outer_fixed_fields_and_unknown_outer_key (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_p1_row_with_empty_plain_w_is_refused (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_p1_row_with_hiding_w_bytes_is_refused (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_p1_row_with_plain_w_salts_is_refused (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_p3_hiding_w_without_salts_is_refused (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_p3_row_with_plain_w_bytes_is_refused (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_pass_verified_must_be_an_explicit_boolean (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_predicate_with_another_name_is_refused (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_salt_bytes_must_be_32_per_opened_column_for_every_salted_opening (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_unknown_argument_name_is_refused (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_unknown_category_is_refused (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_unserialized_row_is_refused (test_hashline_cl_artifact_profile.CL19Refusals) ... ok
+test_complete_p1_and_p3_rows_validate_and_reconcile_for_both_fixtures (test_hashline_cl_artifact_profile.CL19RowValidation) ... ok
+test_nested_total_bytes_is_optional_and_checked_when_present (test_hashline_cl_artifact_profile.CL19RowValidation) ... ok
+test_pass_verified_false_is_retained_as_a_diagnostic_and_never_rankable (test_hashline_cl_artifact_profile.CL19RowValidation) ... ok
+test_predicate_is_counted_separately_and_only_where_present (test_hashline_cl_artifact_profile.CL19RowValidation) ... ok
+test_the_actual_layer0_row_validates_and_matches_the_mirror_on_every_leaf (test_hashline_cl_artifact_profile.CL19RowValidation) ... ok
+test_validation_output_keeps_bytes_and_time_apart (test_hashline_cl_artifact_profile.CL19RowValidation) ... ok
+test_cli_schema_prints_json_and_exits_zero (test_hashline_cl_artifact_profile.CL19Schema) ... ok
+test_derived_row_has_codex_key_order_and_argument_order (test_hashline_cl_artifact_profile.CL19Schema) ... ok
+test_every_key_name_appears_in_codex_module_when_mounted (test_hashline_cl_artifact_profile.CL19Schema) ... ok
+test_schema_paths_partition_a_row_with_no_duplicates (test_hashline_cl_artifact_profile.CL19Schema) ... ok
+test_schema_states_owner_status_and_bytes_not_time (test_hashline_cl_artifact_profile.CL19Schema) ... ok
+test_the_actual_row_has_exactly_that_key_order (test_hashline_cl_artifact_profile.CL19Schema)
+The order the prover printed (Codex's evidence) equals the mirror's. ... ok
+test_data_and_framing_sum_to_the_column_total (test_hashline_cl_artifact_profile.Components) ... ok
+test_framing_is_independent_of_rows (test_hashline_cl_artifact_profile.Components)
+Per-column index + salt + path do not scale with committed rows, so ... ok
+test_mask_opening_shape_follows_the_zk_constants (test_hashline_cl_artifact_profile.Components) ... ok
+test_profile_output_keeps_bytes_and_time_apart (test_hashline_cl_artifact_profile.Components) ... ok
+test_salt_only_under_the_hiding_opening (test_hashline_cl_artifact_profile.Components) ... ok
+test_the_corrected_accounting_cannot_even_fit_the_misallocation (test_hashline_cl_artifact_profile.ModeCrossCheck)
+Stronger still: once the vectors and the mask opening are counted the ... ok
+test_the_cross_check_rejects_the_round_6_misallocation (test_hashline_cl_artifact_profile.ModeCrossCheck)
+The old model fitted both artifacts (about 4.1 MB of slack, because ... ok
+test_the_observed_delta_is_explained_component_by_component (test_hashline_cl_artifact_profile.ModeCrossCheck) ... ok
+test_why_the_old_cross_check_was_an_identity (test_hashline_cl_artifact_profile.ModeCrossCheck)
+residual = observed - derived. When two layouts have the same derived ... ok
+test_each_mode_reconciles_independently_with_a_bounded_residual (test_hashline_cl_artifact_profile.Reconciliation)
+Each mode against ITS OWN artifact: derived <= observed, exact ... ok
+test_opened_column_data_dominates_in_both_modes (test_hashline_cl_artifact_profile.Reconciliation) ... ok
+test_a_model_that_exceeds_the_artifact_is_refused (test_hashline_cl_artifact_profile.Refusals)
+If the derived components do not fit inside the observed artifact the ... ok
+test_non_positive_observed_size_is_refused (test_hashline_cl_artifact_profile.Refusals) ... ok
+test_the_p3_model_does_not_fit_the_p1_artifact (test_hashline_cl_artifact_profile.Refusals)
+The corrected models are tight enough that the modes are not ... ok
+test_underspecified_layout_is_refused (test_hashline_cl_artifact_profile.Refusals) ... ok
+test_unknown_layout_is_refused (test_hashline_cl_artifact_profile.Refusals) ... ok
+test_unknown_mode_is_refused (test_hashline_cl_artifact_profile.Refusals) ... ok
+test_column_components_match_the_corrected_table (test_hashline_cl_artifact_profile.ReviewTable) ... ok
+test_the_residual_delta_after_columns_is_12384_not_65632 (test_hashline_cl_artifact_profile.ReviewTable)
+The review's arithmetic: observed delta 65,632 minus the column delta ... ok
+test_the_declared_layouts_use_those_rows_per_mode (test_hashline_cl_artifact_profile.RustMirror) ... ok
+test_the_mirror_is_the_planners_rule_not_a_pasted_constant (test_hashline_cl_artifact_profile.RustMirror)
+If W's rows were a constant, a second shape would not move them. ... ok
+test_w_rows_match_the_archived_prover_dump (test_hashline_cl_artifact_profile.RustMirror)
+The prover prints its own W layout under P3; the mirror must agree ... ok
+test_w_rows_match_the_recorded_rust_layout_counts (test_hashline_cl_artifact_profile.RustMirror) ... ok
+test_mistral_vectors_are_counted_and_are_a_tenth_of_the_artifact (test_hashline_cl_artifact_profile.Vectors) ... ok
+test_the_residual_is_never_called_a_measurement_of_arguments (test_hashline_cl_artifact_profile.Vectors) ... ok
+test_undeclared_vectors_are_named_in_the_residual_not_silently_zero (test_hashline_cl_artifact_profile.Vectors) ... ok
+test_vector_lengths_follow_the_opening_type (test_hashline_cl_artifact_profile.Vectors) ... ok
+test_plan_with_a_budget_selects_and_a_bad_budget_exits_2 (test_hashline_cl_chunk_sweep.Cli) ... ok
+test_plan_without_a_budget_only_sweeps (test_hashline_cl_chunk_sweep.Cli) ... ok
+test_a_missing_clock_is_missing_evidence (test_hashline_cl_chunk_sweep.Clocks) ... ok
+test_contradictory_clocks_are_refused (test_hashline_cl_chunk_sweep.Clocks) ... ok
+test_each_clock_has_a_named_outcome_for_zero_negative_nan_and_infinite (test_hashline_cl_chunk_sweep.Clocks) ... ok
+test_prove_vs_fastest_never_divides_by_zero_or_a_negative (test_hashline_cl_chunk_sweep.Clocks) ... ok
+test_choice_is_clamped_to_128_not_rounded (test_hashline_cl_chunk_sweep.DeviceMirror) ... ok
+test_commit_scratch_matches_the_take_min_sizes (test_hashline_cl_chunk_sweep.DeviceMirror) ... ok
+test_plan_steps_by_the_rounded_count_with_a_ragged_tail (test_hashline_cl_chunk_sweep.DeviceMirror) ... ok
+test_rows_at_or_under_the_choice_are_one_chunk_of_all_rows (test_hashline_cl_chunk_sweep.DeviceMirror) ... ok
+test_the_cl3_planner_now_agrees_with_the_device_in_that_corner (test_hashline_cl_chunk_sweep.DeviceMirror) ... ok
+test_absent_exit_is_missing_evidence_not_success (test_hashline_cl_chunk_sweep.ExitChannels) ... ok
+test_conflicting_exits_between_channels_are_refused (test_hashline_cl_chunk_sweep.ExitChannels) ... ok
+test_each_channel_reaches_the_parser (test_hashline_cl_chunk_sweep.ExitChannels) ... ok
+test_nonzero_exits_are_refused_on_every_channel (test_hashline_cl_chunk_sweep.ExitChannels) ... ok
+test_a_log_without_the_device_is_refused (test_hashline_cl_chunk_sweep.Measure) ... ok
+test_a_moved_proof_is_refused (test_hashline_cl_chunk_sweep.Measure) ... ok
+test_an_unverified_or_inconsistent_log_is_refused (test_hashline_cl_chunk_sweep.Measure) ... ok
+test_identical_proofs_are_tabulated (test_hashline_cl_chunk_sweep.Measure) ... ok
+test_mixed_shapes_are_refused (test_hashline_cl_chunk_sweep.Measure) ... ok
+test_the_fused_reencode_line_is_also_parsed (test_hashline_cl_chunk_sweep.Measure) ... ok
+test_a_refused_sweep_leaves_a_record_and_exits_2 (test_hashline_cl_chunk_sweep.MeasureEndToEnd) ... ok
+test_a_row_without_any_exit_channel_is_recorded_as_missing_evidence (test_hashline_cl_chunk_sweep.MeasureEndToEnd) ... ok
+test_a_valid_comparison_with_complete_evidence_tabulates (test_hashline_cl_chunk_sweep.MeasureEndToEnd) ... ok
+test_conflicting_metadata_across_the_set_is_refused_naming_labels (test_hashline_cl_chunk_sweep.Metadata) ... ok
+test_conflicting_verdicts_and_missing_items_are_classified (test_hashline_cl_chunk_sweep.Metadata) ... ok
+test_duplicate_labels_or_runs_are_refused (test_hashline_cl_chunk_sweep.Metadata) ... ok
+test_negative_prove_followed_by_exit_1_is_refused (test_hashline_cl_chunk_sweep.ReviewFixture) ... ok
+test_the_literal_review_expression_is_refused_too (test_hashline_cl_chunk_sweep.ReviewFixture) ... ok
+test_a_budget_not_below_nominal_vram_is_refused (test_hashline_cl_chunk_sweep.Selector) ... ok
+test_an_overflowing_shape_is_refused_rather_than_rounded_down (test_hashline_cl_chunk_sweep.Selector) ... ok
+test_larger_budget_never_selects_fewer_rows (test_hashline_cl_chunk_sweep.Selector) ... ok
+test_selected_rows_fit_and_unfit_rows_are_marked (test_hashline_cl_chunk_sweep.Selector) ... ok
+test_selection_is_deterministic_and_monotone_in_the_budget (test_hashline_cl_chunk_sweep.Selector) ... ok
+test_the_arithmetic_plan_summary_agrees_with_the_enumerated_plan (test_hashline_cl_chunk_sweep.Selector) ... ok
+test_the_module_never_reads_the_device (test_hashline_cl_chunk_sweep.Selector) ... ok
+test_unsupported_budgets_are_refused (test_hashline_cl_chunk_sweep.Selector) ... ok
+test_a_shape_the_device_cannot_index_is_refused_by_the_planner (test_hashline_cl_chunk_sweep.Sweep) ... ok
+test_duplicate_effective_choices_are_flagged_not_hidden (test_hashline_cl_chunk_sweep.Sweep) ... ok
+test_rows_carry_plan_and_component_peak_per_choice (test_hashline_cl_chunk_sweep.Sweep) ... ok
+test_a_sweep_log_with_duplicate_or_no_runs_is_refused (test_hashline_cl_chunk_sweep.SweepLog) ... ok
+test_binding_is_by_chunk_rows_and_rep (test_hashline_cl_chunk_sweep.SweepLog) ... ok
+test_sweep_digests_are_cross_checked_against_the_proof_line (test_hashline_cl_chunk_sweep.SweepLog) ... ok
+test_the_label_must_match_the_logs_own_chunk_plan_and_cl6_line (test_hashline_cl_chunk_sweep.SweepLog) ... ok
+test_bash_syntax (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_broken_parser_fails_before_any_build (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_core_commands_are_emitted_with_quoted_paths_locked_and_offline (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_dry_run_exits_zero_and_writes_nothing_under_scratch (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_dry_run_reports_both_crates_identity (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_env_defaults_are_honoured (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_every_emitted_command_survives_shell_splitting_with_spaced_paths (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_gpu_gates_carry_the_device_env_and_the_cpu_gates_do_not (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_header_documents_the_lock_ownership (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_manifest_lifecycle_is_emitted_for_every_case (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_missing_helper_fails_before_any_build (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_missing_or_dirty_core_refuses_to_start_before_any_build (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_required_order_self_test_before_build_before_hardware (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_storage_tests_cannot_overwrite_the_recorded_cpu_or_gpu_binary (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_suite_v3_dry_run_has_no_core_cases_but_records_the_identity (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_threads_and_shape_overrides_reach_every_prover_command (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_usage_and_success_line_name_the_core (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_usage_states_the_shape_rule (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_cli_exit_codes (test_hashline_cl_gpu_gates.OracleSummary) ... ok
+test_count_is_the_suites_not_a_floor (test_hashline_cl_gpu_gates.OracleSummary) ... ok
+test_disabled_or_unrequired_device_refused (test_hashline_cl_gpu_gates.OracleSummary) ... ok
+test_empty_and_missing_data_refused (test_hashline_cl_gpu_gates.OracleSummary) ... ok
+test_former_extra_brace_expansion_is_detected_and_the_quoted_form_passes (test_hashline_cl_gpu_gates.OracleSummary) ... ok
+test_valid_summary_parses (test_hashline_cl_gpu_gates.OracleSummary) ... ok
+test_zero_executed_cases_refused (test_hashline_cl_gpu_gates.OracleSummary) ... ok
+test_core_example_log (test_hashline_cl_gpu_gates.Parsers) ... ok
+test_core_test_log_empty_failed_ignored (test_hashline_cl_gpu_gates.Parsers) ... ok
+test_core_test_log_synthetic_and_totals_are_summed (test_hashline_cl_gpu_gates.Parsers) ... ok
+test_core_test_log_valid_is_the_round11_log (test_hashline_cl_gpu_gates.Parsers) ... ok
+test_core_record_failure_modes (test_hashline_cl_gpu_gates.RoundTrip) ... ok
+test_failure_modes_of_single_records (test_hashline_cl_gpu_gates.RoundTrip) ... ok
+test_full_round_trip_is_green_and_validates (test_hashline_cl_gpu_gates.RoundTrip) ... ok
+test_incomplete_run_is_red (test_hashline_cl_gpu_gates.RoundTrip) ... ok
+test_non_frozen_shape_records_no_expectation (test_hashline_cl_gpu_gates.RoundTrip) ... ok
+test_record_needs_start_and_refuses_duplicates (test_hashline_cl_gpu_gates.RoundTrip) ... ok
+test_wrong_proof_bytes_fail_the_record_and_the_verdict (test_hashline_cl_gpu_gates.RoundTrip) ... ok
+test_init_with_repo_records_the_identity_and_cross_checks_the_runner (test_hashline_cl_gpu_gates.SourceIdentityProbe) ... ok
+test_probe_reads_both_crates (test_hashline_cl_gpu_gates.SourceIdentityProbe) ... ok
+test_probe_sees_a_dirty_core_and_a_missing_core (test_hashline_cl_gpu_gates.SourceIdentityProbe) ... ok
+test_cache_cases_follow_the_cache_tests_flags (test_hashline_cl_gpu_gates.SuiteDefinition) ... ok
+test_frozen_digests_are_the_archived_runs (test_hashline_cl_gpu_gates.SuiteDefinition) ... ok
+test_oracle_count_is_tied_to_the_suite_version (test_hashline_cl_gpu_gates.SuiteDefinition) ... ok
+test_self_test_is_green (test_hashline_cl_gpu_gates.SuiteDefinition) ... ok
+test_synthetic_suite_is_not_production (test_hashline_cl_gpu_gates.SuiteDefinition) ... ok
+test_v1_case_identities (test_hashline_cl_gpu_gates.SuiteDefinition) ... ok
+test_v2_expects_cl15s_141_oracle_cases_and_is_the_default (test_hashline_cl_gpu_gates.SuiteDefinition) ... ok
+test_v4_gates_the_extracted_core_with_tied_expectations (test_hashline_cl_gpu_gates.SuiteDefinition) ... ok
+test_archived_v1_to_v3_manifests_without_the_identity_still_validate (test_hashline_cl_gpu_gates.Validator) ... ok
+test_binary_mismatch_against_the_binary_in_hand (test_hashline_cl_gpu_gates.Validator) ... ok
+test_binary_mismatch_between_records (test_hashline_cl_gpu_gates.Validator) ... ok
+test_complete_supported_diagnostic_manifest_passes (test_hashline_cl_gpu_gates.Validator) ... ok
+test_complete_v4_manifest_passes_and_binds_to_its_identity (test_hashline_cl_gpu_gates.Validator) ... ok
+test_control_that_did_not_refuse (test_hashline_cl_gpu_gates.Validator) ... ok
+test_core_example_line_missing_refuses (test_hashline_cl_gpu_gates.Validator) ... ok
+test_core_test_totals_not_the_suites_refuses (test_hashline_cl_gpu_gates.Validator) ... ok
+test_coverage_claim_beyond_the_suite (test_hashline_cl_gpu_gates.Validator) ... ok
+test_device_mismatch_against_expectation (test_hashline_cl_gpu_gates.Validator) ... ok
+test_device_mismatch_between_records (test_hashline_cl_gpu_gates.Validator) ... ok
+test_digest_mismatch (test_hashline_cl_gpu_gates.Validator) ... ok
+test_dirty_core_refuses (test_hashline_cl_gpu_gates.Validator) ... ok
+test_duplicate_case (test_hashline_cl_gpu_gates.Validator) ... ok
+test_expectation_not_the_suites (test_hashline_cl_gpu_gates.Validator) ... ok
+test_gpu_case_without_gpu_on (test_hashline_cl_gpu_gates.Validator) ... ok
+test_hand_written_verdict_disagrees (test_hashline_cl_gpu_gates.Validator) ... ok
+test_head_mismatch (test_hashline_cl_gpu_gates.Validator) ... ok
+test_length_mismatch (test_hashline_cl_gpu_gates.Validator) ... ok
+test_mismatched_dependency_identity_refuses (test_hashline_cl_gpu_gates.Validator) ... ok
+test_missing_binary_identity (test_hashline_cl_gpu_gates.Validator) ... ok
+test_missing_case (test_hashline_cl_gpu_gates.Validator) ... ok
+test_missing_core_cases_refuses (test_hashline_cl_gpu_gates.Validator) ... ok
+test_missing_core_refuses (test_hashline_cl_gpu_gates.Validator) ... ok
+test_missing_lockfile_identity_refuses (test_hashline_cl_gpu_gates.Validator) ... ok
+test_missing_negative_control (test_hashline_cl_gpu_gates.Validator) ... ok
+test_non_accept_verdict (test_hashline_cl_gpu_gates.Validator) ... ok
+test_non_frozen_shape_has_no_expectation (test_hashline_cl_gpu_gates.Validator) ... ok
+test_nonzero_exit (test_hashline_cl_gpu_gates.Validator) ... ok
+test_not_a_manifest (test_hashline_cl_gpu_gates.Validator) ... ok
+test_not_finalized (test_hashline_cl_gpu_gates.Validator) ... ok
+test_oracle_count_off_by_one_is_not_the_suites (test_hashline_cl_gpu_gates.Validator) ... ok
+test_source_delta_not_empty (test_hashline_cl_gpu_gates.Validator) ... ok
+test_started_but_unrecorded_case (test_hashline_cl_gpu_gates.Validator) ... ok
+test_synthetic_suite_is_refused_as_production (test_hashline_cl_gpu_gates.Validator) ... ok
+test_the_round11_archived_manifest_validates_and_cannot_be_bound (test_hashline_cl_gpu_gates.Validator) ... ok
+test_unexpected_case (test_hashline_cl_gpu_gates.Validator) ... ok
+test_v4_without_the_identity_refuses (test_hashline_cl_gpu_gates.Validator) ... ok
+test_zero_executed_oracle_cases (test_hashline_cl_gpu_gates.Validator) ... ok
+test_zero_expected_cases_is_impossible_but_an_empty_record_list_is_refused (test_hashline_cl_gpu_gates.Validator) ... ok
+test_clean_checkout_binds (test_hashline_cl_live_identity.LiveCheckout) ... ok
+test_core_edit_after_initialization_refuses (test_hashline_cl_live_identity.LiveCheckout) ... ok
+test_deleted_core_example_refuses (test_hashline_cl_live_identity.LiveCheckout) ... ok
+test_hashline_edit_after_initialization_refuses (test_hashline_cl_live_identity.LiveCheckout) ... ok
+test_missing_live_untracked_probe_refuses (test_hashline_cl_live_identity.LiveCheckout) ... ok
+test_moved_head_with_identical_crates_refuses (test_hashline_cl_live_identity.LiveCheckout) ... ok
+test_new_automatic_core_build_script_refuses (test_hashline_cl_live_identity.LiveCheckout) ... ok
+test_new_automatic_hashline_build_script_refuses (test_hashline_cl_live_identity.LiveCheckout) ... ok
+test_legacy_record_without_untracked_probe_remains_readable (test_hashline_cl_live_identity.SuiteFive) ... ok
+test_missing_storage_case_refuses (test_hashline_cl_live_identity.SuiteFive) ... ok
+test_preflight_dirty_or_untracked_core_refuses_artifact (test_hashline_cl_live_identity.SuiteFive) ... ok
+test_storage_count_is_recomputed (test_hashline_cl_live_identity.SuiteFive) ... ok
+test_storage_feature_and_lock_flags_are_recomputed (test_hashline_cl_live_identity.SuiteFive) ... ok
+test_v5_adds_current_counts_and_preserves_v4 (test_hashline_cl_live_identity.SuiteFive) ... ok
+test_no_plan_ever_authorises_a_run (test_hashline_cl_pending_memory.Authorization) ... ok
+test_a_drain_actually_frees (test_hashline_cl_pending_memory.Calibration) ... ok
+test_chunked_is_far_smaller_and_allocates_no_full_expanded_buffer (test_hashline_cl_pending_memory.Calibration) ... ok
+test_every_builder_reconciles_with_the_shared_planner (test_hashline_cl_pending_memory.Calibration)
+[round-7 review] The two counting tools drifted once (finding 1). ... ok
+test_release_is_not_free (test_hashline_cl_pending_memory.Calibration)
+The whole point: a released Pooled buffer is still counted until a drain. ... ok
+test_resident_reproduces_the_m1_planner_figure (test_hashline_cl_pending_memory.Calibration) ... ok
+test_chunk_plan_matches_both_shared_mirrors (test_hashline_cl_pending_memory.ChunkRounding) ... ok
+test_rows_at_or_below_the_choice_are_one_chunk_of_all_rows (test_hashline_cl_pending_memory.ChunkRounding) ... ok
+test_steps_round_down_to_a_multiple_of_128 (test_hashline_cl_pending_memory.ChunkRounding) ... ok
+test_the_reviews_case_clamps_to_128_rows (test_hashline_cl_pending_memory.ChunkRounding) ... ok
+test_a_resident_layout_in_a_pending_block_frees_pads_and_powers_at_the_next_event (test_hashline_cl_pending_memory.Cl16ResidentOutcomeReconciliation)
+The composed-block path uses the same lifetimes: a resident FFN ... ok
+test_resident_outcome_on_a_resident_warmed_pool_matches_the_planner (test_hashline_cl_pending_memory.Cl16ResidentOutcomeReconciliation) ... ok
+test_chunked_reports_the_reviews_case (test_hashline_cl_pending_memory.Cli) ... ok
+test_fallback_and_inventory_forms (test_hashline_cl_pending_memory.Cli) ... ok
+test_pending_accepts_layouts_and_refuses_bad_ones (test_hashline_cl_pending_memory.Cli) ... ok
+test_a_fallback_the_device_cannot_take_is_refused (test_hashline_cl_pending_memory.Lifetimes)
+[round-7 review, Codex on CL3] pool_take serves an exact match ... ok
+test_chunked_return_state (test_hashline_cl_pending_memory.Lifetimes)
+commit_zk_chunked returns its four take_min scratch buffers to the ... ok
+test_raw_buffers_never_enter_the_pool (test_hashline_cl_pending_memory.Lifetimes) ... ok
+test_resident_return_state (test_hashline_cl_pending_memory.Lifetimes)
+dev_commit_zk_from's resident result retains data + enc; coef and ... ok
+test_the_blake3_state_is_counted_in_u64_words (test_hashline_cl_pending_memory.Lifetimes) ... ok
+test_the_pool_cap_frees_the_65th_dropped_buffer (test_hashline_cl_pending_memory.Lifetimes)
+pool_put keeps at most 64 buffers (`if pool.len() < 64`); a drop ... ok
+test_a_bare_row_count_is_refused_never_800_bytes (test_hashline_cl_pending_memory.PendingBlocks)
+[round-7 review, finding 4] ffn_rows={"W": 100} once became a ... ok
+test_a_layout_is_counted_with_the_commit_rules_and_the_rest_stays_symbolic (test_hashline_cl_pending_memory.PendingBlocks) ... ok
+test_all_three_layouts_and_tables_are_still_not_a_complete_plan (test_hashline_cl_pending_memory.PendingBlocks) ... ok
+test_attention_terms_stay_symbolic (test_hashline_cl_pending_memory.PendingBlocks) ... ok
+test_composition_overlaps_rather_than_reusing (test_hashline_cl_pending_memory.PendingBlocks)
+A03 warns composition can INCREASE overlap. Every commitment must be ... ok
+test_drain_between_blocks_frees_the_pooled_scratch (test_hashline_cl_pending_memory.PendingBlocks) ... ok
+test_one_block_is_incomplete_and_refuses_a_peak (test_hashline_cl_pending_memory.PendingBlocks) ... ok
+test_two_blocks_double_the_symbolic_surface (test_hashline_cl_pending_memory.PendingBlocks) ... ok
+test_unsupported_block_counts_are_rejected (test_hashline_cl_pending_memory.PendingBlocks) ... ok
+test_an_inventory_capacity_is_transferred_and_counted_once (test_hashline_cl_pending_memory.ReuseIdentity)
+A released rows*nn buffer (e.g. from an earlier resident commit) ... ok
+test_fallback_serves_the_retry_from_the_released_pair_by_capacity (test_hashline_cl_pending_memory.ReuseIdentity) ... ok
+test_pending_reuse_across_roles_counts_capacity_once (test_hashline_cl_pending_memory.ReuseIdentity)
+W resident, then A chunked: A's take_min is served by W's pooled ... ok
+test_a_negative_count_is_rejected_not_a_negative_peak (test_hashline_cl_pending_memory.Validation) ... ok
+test_bad_element_sizes_are_rejected (test_hashline_cl_pending_memory.Validation) ... ok
+test_bad_inventories_are_rejected (test_hashline_cl_pending_memory.Validation) ... ok
+test_bad_kinds_and_names_are_rejected (test_hashline_cl_pending_memory.Validation) ... ok
+test_double_ownership_is_rejected (test_hashline_cl_pending_memory.Validation) ... ok
+test_drop_before_or_at_birth_is_rejected (test_hashline_cl_pending_memory.Validation) ... ok
+test_empty_and_duplicate_schedules_are_rejected (test_hashline_cl_pending_memory.Validation) ... ok
+test_nonintegral_counts_are_rejected (test_hashline_cl_pending_memory.Validation) ... ok
+test_symbolic_buffers_have_no_byte_count (test_hashline_cl_pending_memory.Validation) ... ok
+test_unknown_events_and_owners_are_rejected (test_hashline_cl_pending_memory.Validation) ... ok
+test_unsupported_shapes_are_rejected_through_the_shared_planner (test_hashline_cl_pending_memory.Validation) ... ok
+test_cache_lines_without_the_flag_contradict_the_command (test_hashline_cl_profile.Cache) ... ok
+test_hit_lines_make_a_warm_row (test_hashline_cl_profile.Cache) ... ok
+test_miss_lines_make_a_cold_row (test_hashline_cl_profile.Cache) ... ok
+test_mixed_hits_and_misses_are_reported_as_mixed (test_hashline_cl_profile.Cache) ... ok
+test_no_command_at_all_is_unknown (test_hashline_cl_profile.Cache) ... ok
+test_no_wcache_flag_and_no_lines_is_none (test_hashline_cl_profile.Cache) ... ok
+test_p3_refusal_of_the_cache_is_labelled (test_hashline_cl_profile.Cache) ... ok
+test_the_driver_summary_line_is_read_and_cross_checked (test_hashline_cl_profile.Cache)
+pass_v3 (P0) prints `wcache DIR: hits N | misses N | ...`; the ZK pass ... ok
+test_wcache_flag_without_verbose_lines_is_unknown (test_hashline_cl_profile.Cache) ... ok
+test_a_non_finite_log_is_refused_on_the_command_line (test_hashline_cl_profile.Cli) ... ok
+test_diagnostic_rows_are_retained_marked_and_excluded_from_ranking (test_hashline_cl_profile.Cli) ... ok
+test_a_phase_larger_than_proof_ready_is_refused_not_negative (test_hashline_cl_profile.Gate)
+The review's second control: a phase of proof_ready_s + 1 produced ... ok
+test_a_phase_larger_than_prove_but_inside_proof_ready_is_ineligible (test_hashline_cl_profile.Gate)
+Smaller than the proof-ready clock, but bigger than the prove clock ... ok
+test_contradictory_exit_code_is_ineligible (test_hashline_cl_profile.Gate)
+The log says exit 0, the caller says 1: neither source silently wins. ... ok
+test_contradictory_proof_bytes_is_ineligible (test_hashline_cl_profile.Gate)
+The PROOF line and HASHLINE_TIMING must agree on the proof length. ... ok
+test_exit_code_1_row_is_retained_but_never_ranked (test_hashline_cl_profile.Gate)
+The review's first control: an `exit_code=1` row received a ranked ... ok
+test_gpu_contradictions_are_ineligible (test_hashline_cl_profile.Gate)
+A GPU row must be a GPU row all the way through: requested, enabled, ... ok
+test_missing_exit_code_is_ineligible (test_hashline_cl_profile.Gate) ... ok
+test_negative_clock_is_ineligible (test_hashline_cl_profile.Gate) ... ok
+test_non_finite_values_are_refused_at_parse (test_hashline_cl_profile.Gate) ... ok
+test_the_archived_sample_parses_as_eligible (test_hashline_cl_profile.Gate)
+results/cl5_sample_p1cold.log: a real p1cold rep 1 from the 2026-09-04 ... ok
+test_the_clean_fixture_is_eligible (test_hashline_cl_profile.Gate) ... ok
+test_the_command_is_read_from_the_log_and_checked (test_hashline_cl_profile.Gate) ... ok
+test_verified_false_or_reject_is_ineligible (test_hashline_cl_profile.Gate) ... ok
+test_a_log_without_the_timing_line_is_refused (test_hashline_cl_profile.Parsing)
+The parser reuses the prover's collector; it must not invent a clock ... ok
+test_a_missing_phase_shows_up_as_unknown (test_hashline_cl_profile.Parsing)
+If the phase block stops covering the prove clock, the parser must ... ok
+test_cpu_fallbacks_are_counted (test_hashline_cl_profile.Parsing) ... ok
+test_device_counters_and_vram_are_parsed (test_hashline_cl_profile.Parsing) ... ok
+test_every_row_carries_its_context (test_hashline_cl_profile.Parsing) ... ok
+test_reuses_the_prover_timing_json_as_the_clock (test_hashline_cl_profile.Parsing) ... ok
+test_unknown_exclusive_time_is_reported_not_absorbed (test_hashline_cl_profile.Parsing) ... ok
+test_bounds_are_independent_and_not_multiplied (test_hashline_cl_profile.Ranking)
+Each bound removes ONE phase from the same clock. Multiplying them ... ok
+test_shares_are_of_proof_ready_not_of_prove (test_hashline_cl_profile.Ranking)
+Shares must be against the user-visible clock, so a phase cannot be ... ok
+test_top_costs_are_ranked_by_exclusive_time (test_hashline_cl_profile.Ranking) ... ok
+test_a_warm_fallback_at_rows_within_one_chunk_also_completes_resident (test_hashline_memory_plan.Cl16ReturnSnapshot)
+Found by the invariant sweep: when rows <= chunk the previous call's ... ok
+test_every_last_stage_agrees_with_the_declared_return_and_peak (test_hashline_memory_plan.Cl16ReturnSnapshot)
+The general invariant, every mode x every pool state x several ... ok
+test_resident_outcome_bookkeeping_is_consistent (test_hashline_memory_plan.Cl16ReturnSnapshot)
+Requested size vs allocated capacity vs pool ownership vs raw frees ... ok
+test_the_chunked_return_still_retains_pads_and_powers (test_hashline_memory_plan.Cl16ReturnSnapshot)
+The other half of the source: a CHUNKED commitment (`zk: Some(ZkReenc)`) ... ok
+test_the_peak_still_counts_pads_and_powers_for_their_actual_lifetime (test_hashline_memory_plan.Cl16ReturnSnapshot)
+Ending the lifetimes at the return must not move the peak: pads and ... ok
+test_the_pool_cap_holds_through_a_resident_outcome (test_hashline_memory_plan.Cl16ReturnSnapshot)
+A FULL 64-entry inventory that still holds two exact rows*nn ... ok
+test_the_reproduction_shape_returns_data_plus_encoded_only (test_hashline_memory_plan.Cl16ReturnSnapshot)
+The exact CL16 acceptance: 12,288,000 B at the return, in the last ... ok
+test_bad_mode_and_pool_state_are_rejected (test_hashline_memory_plan.Cl3Modes) ... ok
+test_chunk_rows_mirror_the_device_plan (test_hashline_memory_plan.Cl3Modes)
+chunk_rows() clamps to >= 128 and chunk_plan rounds the step down to ... ok
+test_chunked_allocates_no_full_expanded_buffer (test_hashline_memory_plan.Cl3Modes) ... ok
+test_fallback_holds_the_released_resident_pair_as_well (test_hashline_memory_plan.Cl3Modes)
+THE POINT OF CL3: a chunk-only count is not a fallback bound. The ... ok
+test_fallback_is_only_reachable_below_the_chunk_size_threshold (test_hashline_memory_plan.Cl3Modes)
+Honest scoping: at Mistral width the commitment chunks BY SIZE, so ... ok
+test_post_return_fields_are_mode_aware (test_hashline_memory_plan.Cl3Modes)
+A chunked commitment returns NO encoded matrix and retains pads and ... ok
+test_resident_rows_are_unchanged_by_the_extension (test_hashline_memory_plan.Cl3Modes)
+The extension must not move the number three routes already agree on. ... ok
+test_the_stale_chunking_note_is_gone (test_hashline_memory_plan.Cl3Modes) ... ok
+test_warm_pool_still_pays_the_raw_non_poolable_allocations (test_hashline_memory_plan.Cl3Modes)
+capacity vs request: cold and warm HOLD the same bytes, and warm ... ok
+test_budgets_cannot_authorize_a_prover_run (test_hashline_memory_plan.MemoryPlanTests) ... ok
+test_cli_produces_serializable_non_authorizing_report (test_hashline_memory_plan.MemoryPlanTests) ... ok
+test_drop_does_not_reduce_accounted_memory (test_hashline_memory_plan.MemoryPlanTests) ... ok
+test_invalid_inputs (test_hashline_memory_plan.MemoryPlanTests) ... ok
+test_mistral_p3_weight_layout_includes_every_block_mask (test_hashline_memory_plan.MemoryPlanTests) ... ok
+test_prior_storage_and_twiddle_tables_counted_explicitly (test_hashline_memory_plan.MemoryPlanTests) ... ok
+test_rates_and_padding (test_hashline_memory_plan.MemoryPlanTests) ... ok
+test_small_weight_layout_matches_effective_width (test_hashline_memory_plan.MemoryPlanTests) ... ok
+test_uncovered_padding_and_hash_length_overflow_rejected (test_hashline_memory_plan.MemoryPlanTests) ... ok
+test_a_fallback_whose_exact_buffer_is_pooled_is_unreachable_and_completes_resident (test_hashline_memory_plan.PoolLifetimes)
+[round-7 review, Codex] at (300, 10, 4, 16) with a resident-warmed ... ok
+test_a_resident_warmed_pool_serves_chunked_scratch_oversize (test_hashline_memory_plan.PoolLifetimes) ... ok
+test_cli_accepts_the_inventory_forms (test_hashline_memory_plan.PoolLifetimes) ... ok
+test_explicit_inventory_and_its_refusals (test_hashline_memory_plan.PoolLifetimes) ... ok
+test_fallback_serves_the_retry_from_the_released_pair_by_capacity (test_hashline_memory_plan.PoolLifetimes) ... ok
+test_reconciles_with_the_device_counters_at_the_oracle_probe_shape (test_hashline_memory_plan.PoolLifetimes)
+The Rust test `the_chunked_retry_reuses_pooled_capacity...` measured, ... ok
+test_the_pool_cap_frees_rather_than_retains (test_hashline_memory_plan.PoolLifetimes)
+pool_put keeps at most 64 buffers and FREES the rest. An inventory ... ok
+test_the_refused_take_allocates_nothing (test_hashline_memory_plan.PoolLifetimes) ... ok
+test_warm_is_an_inventory_of_the_previous_calls_shapes (test_hashline_memory_plan.PoolLifetimes) ... ok
+test_analyzer_keeps_privacy_groups_separate (test_hashline_profile.ProfileTests) ... ok
+test_bounded_runner_checks_profile_on_off_proof_identity (test_hashline_profile.ProfileTests) ... {"summary": "/tmp/tmpceiw0_o8/report/summary.json", "measurement_eligible": false, "goal_met": false}
+{"summary": "/tmp/tmpry6ofuj9/out/summary.json", "samples": 3, "goal_met": false}
+Private diagnostic: P0, one 125M layer, 16 rows
+ok
+test_cpu_and_exclusive_declarations_are_required (test_hashline_profile.ProfileTests) ... ok
+test_exclusive_rank_conserves_clock_and_exposes_unknown_cost (test_hashline_profile.ProfileTests) ... ok
+test_failed_or_unverified_or_incomplete_run_rejects (test_hashline_profile.ProfileTests) ... ok
+test_malformed_numeric_fields_reject_without_type_errors (test_hashline_profile.ProfileTests) ... ok
+test_missing_duplicate_or_unknown_profile_fails_cleanly (test_hashline_profile.ProfileTests) ... ok
+test_multiple_layers_are_added_once (test_hashline_profile.ProfileTests) ... ok
+test_negative_overlap_and_mismatched_enclosing_clocks_reject (test_hashline_profile.ProfileTests) ... ok
+test_runner_timeout_leaves_ineligible_raw_completion (test_hashline_profile.ProfileTests) ... {"summary": "/tmp/tmp3g6j7r21/out/summary.json", "samples": 1, "goal_met": false}
+Private diagnostic: P0, one 125M layer, 16 rows
+hashline profile: one-layer diagnostic exceeded 120 seconds; process terminated
+ok
+test_unknown_labels_are_not_echoed_as_private_values (test_hashline_profile.ProfileTests) ... ok
+test_counterexample_distinguishes_two_data_for_every_mask (test_zk60_fable_cfs_channel.Controls)
+Direct: for a deficient channel, phi(f + L a) = phi(f) for every a. ... ok
+test_extension_degree_gap_leaks_exactly_the_clear_top_value (test_zk60_fable_cfs_channel.Controls) ... ok
+test_mask_reuse_same_challenges_reveals_the_data_difference (test_zk60_fable_cfs_channel.Controls)
+view1 - view2 = f1 - f2 exactly when one mask serves two sumchecks with the same challenges. ... ok
+test_negative_controls_are_deficient_with_the_predicted_leak (test_zk60_fable_cfs_channel.Controls) ... ok
+test_positive_controls_stay_surjective (test_zk60_fable_cfs_channel.Controls) ... ok
+test_f2_rank_matches_doubled_fp_rank (test_zk60_fable_cfs_channel.ExactAlgebra) ... ok
+test_null_spaces_annihilate (test_zk60_fable_cfs_channel.ExactAlgebra) ... ok
+test_columns_hidden_by_pads_up_to_the_pad_count (test_zk60_fable_cfs_channel.MOpening) ... ok
+test_joint_view_qprime_prox_columns_reveals_exactly_v (test_zk60_fable_cfs_channel.MOpening) ... ok
+test_lagrange_on_subgroup_interpolates (test_zk60_fable_cfs_channel.MOpening) ... ok
+test_qprime_reveals_exactly_v_once_and_everything_twice (test_zk60_fable_cfs_channel.MOpening) ... ok
+test_seven_generates_and_the_coset_is_disjoint (test_zk60_fable_cfs_channel.MOpening) ... ok
+test_sum_identity_of_the_product_polynomial (test_zk60_fable_cfs_channel.MOpening) ... ok
+test_main_writes_the_report_with_hashes_and_verdicts (test_zk60_fable_cfs_channel.Report) ... ok
+test_closed_form_matches_brute_force_and_the_verifier_chain (test_zk60_fable_cfs_channel.RoundFormula) ... ok
+test_lagrange_weights_interpolate_a_known_polynomial (test_zk60_fable_cfs_channel.RoundFormula) ... ok
+test_fixture_constants (test_zk60_fable_cfs_channel.RustCrossCheck) ... ok
+test_fixture_values_are_full_width (test_zk60_fable_cfs_channel.RustCrossCheck) ... ok
+test_batched_pair_view_dimension_is_the_sum_minus_two (test_zk60_fable_cfs_channel.SlotTable) ... ok
+test_every_system_is_surjective_with_the_predicted_dimensions (test_zk60_fable_cfs_channel.SlotTable) ... ok
+test_specs_at_the_fixture_shapes (test_zk60_fable_cfs_channel.SlotTable) ... ok
+test_random_tiny_systems (test_zk60_fable_joint_capture.CompressedEqualsDense) ... ok
+test_echelon_rank (test_zk60_fable_joint_capture.EchelonAndHelpers) ... ok
+test_expected_layout_pins_the_tiny_row_counts (test_zk60_fable_joint_capture.EchelonAndHelpers) ... ok
+test_sha256_values_is_order_sensitive_and_leaves_no_values (test_zk60_fable_joint_capture.EchelonAndHelpers) ... ok
+test_accepts_and_recomputes_the_layout (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_claim_outside_the_commitment (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_duplicate_group_membership_and_lambda_mismatch (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_layout_and_transcript_deviations (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_non_integer_or_out_of_range_coefficient (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_proof_hash_mismatches (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_tail_and_vector_inconsistencies (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_truncated_json (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_wrong_schema_kind_coverage_field (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_codex_thirty_cases_reproduced_exactly (test_zk60_fable_joint_capture.RealCaptures) ... ok
+test_parity_record_binds_the_six_seeded_captures_and_names_are_digests (test_zk60_fable_joint_capture.RealCaptures) ... ok
+test_results_file_is_bound_to_this_tool_and_these_captures (test_zk60_fable_joint_capture.RealCaptures) ... ok
+test_t2_p3_seeded_capture_joint_numbers (test_zk60_fable_joint_capture.RealCaptures) ... ok
+test_t32_p3_seeded_capture_recovers_the_whole_Wd_plane (test_zk60_fable_joint_capture.RealCaptures) ... ok
+test_A_singletons_recover_the_actual_rows_and_the_joint_number_is_2n_plus_4 (test_zk60_fable_joint_capture.SyntheticModelAgainstTruth) ... ok
+test_H_residual_is_the_public_identity_and_needs_the_zero_sum (test_zk60_fable_joint_capture.SyntheticModelAgainstTruth) ... ok
+test_W_p3_Wd_recovered_whole_and_the_Wg_Wu_prox_functional (test_zk60_fable_joint_capture.SyntheticModelAgainstTruth) ... ok
+test_codex_literal_subset_matches_the_layout_recomputation (test_zk60_fable_joint_capture.SyntheticModelAgainstTruth) ... ok
+test_two_row_planes_at_T32 (test_zk60_fable_joint_capture.SyntheticModelAgainstTruth) ... ok
+test_all_base_groups_leak_two (test_zk60_fable_joint_rank.GroupWithValuesRule) ... ok
+test_fp2_effective_member_covers (test_zk60_fable_joint_rank.GroupWithValuesRule) ... ok
+test_kernel_count_matches_the_hand_derivation (test_zk60_fable_joint_rank.GroupWithValuesRule) ... ok
+test_singleton_with_value_leaks_n (test_zk60_fable_joint_rank.GroupWithValuesRule) ... ok
+test_A_joint_equals_two_singletons_plus_two_value_leaks (test_zk60_fable_joint_rank.JointTinyLayouts) ... ok
+test_A_per_column_only_the_singletons (test_zk60_fable_joint_rank.JointTinyLayouts) ... ok
+test_H_joint_and_per_column_are_covered (test_zk60_fable_joint_rank.JointTinyLayouts) ... ok
+test_H_logup_sum_residual_is_exactly_the_public_identity (test_zk60_fable_joint_rank.JointTinyLayouts) ... ok
+test_W_p3_tiny_and_125M_like (test_zk60_fable_joint_rank.JointTinyLayouts) ... ok
+test_hand_written_model_with_fp_rows (test_zk60_fable_joint_rank.JsonInterface) ... ok
+test_reports_carry_the_caveat (test_zk60_fable_joint_rank.JsonInterface) ... ok
+test_roundtrip_and_cli (test_zk60_fable_joint_rank.JsonInterface) ... ok
+test_classification_rule (test_zk60_fable_joint_rank.LayoutPredicate) ... ok
+test_nb_and_rows (test_zk60_fable_joint_rank.LayoutPredicate) ... ok
+test_degenerate_pair_discloses (test_zk60_fable_joint_rank.PairFixtureB) ... ok
+test_pair_is_a_one_time_pad_numerically (test_zk60_fable_joint_rank.PairFixtureB) ... ok
+test_pair_protects (test_zk60_fable_joint_rank.PairFixtureB) ... ok
+test_all_pairmask_groups_disclose_nothing_with_rank_2m_plus_2n_minus_2 (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_commitment_rows_match_the_pinned_legacy_counts_and_give_the_delta (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_log_cols_16_pairs_every_table_slot (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_logup_sum_residual_is_still_exactly_the_identity_with_the_prox_pair (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_pairmask_pair_is_a_one_time_pad_for_the_p3_coefficient_pair (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_per_column_families_repaired_are_covered_and_legacy_numbers_unchanged (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_prox_pair_is_required_not_optional (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_repair_cli (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_repair_report_passes_and_carries_the_schedule (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_repaired_kinds_rule_pairs_exactly_the_single_row_sites (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_seam_only_pairs_do_not_repair_the_legacy_A (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_whole_tiny_commitments_repaired_are_covered (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_reuse_recovers_both_rows_control_recovers_one (test_zk60_fable_joint_rank.ReuseFixtureD) ... ok
+test_degenerate_base_field_e_is_not_disclosed_by_L_b (test_zk60_fable_joint_rank.SingletonFixtureA) ... ok
+test_singleton_p1_recovers_the_row_and_matches_L_b (test_zk60_fable_joint_rank.SingletonFixtureA) ... ok
+test_singleton_p3_has_the_same_structure (test_zk60_fable_joint_rank.SingletonFixtureA) ... ok
+test_one_functional_with_fa1_kappa (test_zk60_fable_joint_rank.TwoRowFixtureC) ... ok
+test_batched_pair_four_functionals_independent (test_zk60_fable_transcript_sim.Fibre) ... ok
+test_degree_one_would_fail_only_at_r_equal_half_which_no_slot_has (test_zk60_fable_transcript_sim.Fibre) ... ok
+test_fibre_sampling_reproduces_a_real_mask_distribution_projection (test_zk60_fable_transcript_sim.Fibre)
+A round-trip on one tiny slot: draw a random mask, compute its ... ok
+test_functional_pair_rank_two_for_degenerate_and_random_sequences (test_zk60_fable_transcript_sim.Fibre) ... ok
+test_last_round_map_onto_for_every_small_and_random_last_challenge (test_zk60_fable_transcript_sim.Fibre) ... ok
+test_copied_slot_rows_disclose_w (test_zk60_fable_transcript_sim.KSlots) ... ok
+test_distinct_slots_disclose_nothing_jointly (test_zk60_fable_transcript_sim.KSlots) ... ok
+test_report_verdicts (test_zk60_fable_transcript_sim.KSlots) ... ok
+test_reused_slot_discloses_w (test_zk60_fable_transcript_sim.KSlots) ... ok
+test_duplicates_only_shrink_the_distinct_set (test_zk60_fable_transcript_sim.PadBudget) ... ok
+test_report (test_zk60_fable_transcript_sim.PadBudget) ... ok
+test_within_budget_hidden_and_beyond_budget_leaks_exactly (test_zk60_fable_transcript_sim.PadBudget) ... ok
+test_disposition_every_blocker_cited_is_defined_and_every_channel_covers_every_profile (test_zk60_fable_transcript_sim.Records) ... ok
+test_disposition_record_matches_generator (test_zk60_fable_transcript_sim.Records) ... ok
+test_report_roundtrip_and_committed_record (test_zk60_fable_transcript_sim.Records) ... ok
+test_two_pow_128_mod_p_and_exact_distance (test_zk60_fable_transcript_sim.ReductionBias) ... ok
+
+----------------------------------------------------------------------
+Ran 564 tests in 118.923s
+
+OK
+wrote /tmp/tmpnzj2ytrh/r.json
+wrote /tmp/tmpgv65ag5n/repair.json
+fibre all_ok=True k_slots all_ok=True pad_budget all_ok=True
+fp bias log2 = -96.000
+  PASS: one proof, one slot (FA3 whole_W_p3 shape): disclosed 0 (expected 0)
+  PASS: two proofs, distinct slots: disclosed 0 (expected 0)
+  PASS: three proofs, distinct slots, prox over all 3 slot sets: disclosed 0 (expected 0)
+  PASS: three slots, slot 1 burned (proofs on 0 and 2): disclosed 0 (expected 0)
+  PASS: NEGATIVE: two proofs declare the same slot: disclosed 12 (expected > 0)
+  PASS: NEGATIVE: three proofs, slot 1 reused twice: disclosed 12 (expected > 0)
+  PASS: NEGATIVE: slot 1's pair rows are copies of slot 0's (AM4 across slots): disclosed 20 (expected > 0)
+  PASS: one proof, one slot, n = 8: disclosed 0 (expected 0)
+  PASS: two proofs, distinct slots, n = 8, single-row blocks: disclosed 0 (expected 0)

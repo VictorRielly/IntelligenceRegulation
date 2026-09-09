@@ -1,4 +1,50 @@
-# Fable — current task queue, round 14
+# Fable — current task queue, round 15
+
+**2026-09-08:** Codex has integrated FA6–FA9, CL21 and the corrected typed
+FFN/core delivery `50f1ea5`. Current implementation source is `612ff9c`.
+**Combined validation passes:** 247 Rust tests, 564 tooling tests, 189 device
+checks, all 12 frozen proofs and B4/B5 receipt gates; 24/24 suite-v6 cases.
+[Round 15](ZK60_ROUND15.md) records findings, scope and retained evidence.
+There are still 19 task records; completed work is credited, not reassigned.
+
+The three C20-R1–R3 corrections are accepted with the typed/table extraction.
+The maintained core now owns primitives, PCS, tables, FFN types and bounded
+proof decoding. **CL20 remains incomplete:** the complete selected FFN
+prover/verifier and reviewed ZKP path have not been extracted.
+
+| Existing task | Next work | Priority |
+|---|---|---:|
+| FA6 | Review `a5aea1d` CFS guards; inventory attention CFS slots, individual terminal values and seam masks for A1–A4. Do not repeat the delivered FFN analysis. | 0 |
+| FA7 | Keep the legacy joint-observation result. Review digest-bound repaired-profile and function-2/predicate captures when Codex supplies them, against the schema-2 contract. | 0 |
+| FA8 | Review the generator and consuming prover against the conditional argument when Codex supplies them. S2 is implemented; S1 requires no caller seed on the repaired API. Attention A1–A4, actual captures, exact slot enforcement, external anti-rollback authority and changed-rate bounds remain. | 0 |
+| FA9 | Review `1eb5852` public int8 registration and explicit norm limb guard. R32 is independently closed. Review a separately versioned direct D-range path and corresponding receipt/schedule changes; retain the wider-profile false-acceptance regression until that path exists. | 0 |
+| CL21 | Integrated with Codex's live-checkout correction. Pick up `612ff9c` (including `22c9b35`/`8c60dfb`): suite v6 has 32 core and 215 storage-enabled hashline tests over 24 floor cases. Preserve archived v1–v5; no duplicate implementation needed. | 1 |
+| CL20 | Complete selected P0 FFN prover/verifier extraction with old/new bytes and cross-verification. Preserve corrected codec, host storage and compact/cache/GPU adapters. Promote the repaired ZKP path only after its invariants are reviewed. | 3 |
+
+**Codex next:** checked repaired-mask layout generation and an OS-randomness-only
+versioned FFN API, followed by actual ordinary/predicate captures. Then versioned
+attention range enforcement and registered consuming prover/verifier integration;
+private block and two-block composition follow the arithmetic/privacy gates.
+Authenticated approval/key custody and an external rollback-resistant authority
+remain necessary for approved stable P3. Local encrypted storage and a durable
+counter do not supply those properties.
+
+R31's public tensor constructor computes roots from actual int8 weights. The
+root-only compatibility constructor retains its trusted range premise. B4's
+`check_profile` has no tensors and must not fabricate fixture weights to approve
+a supplied root. The legacy deterministic fixture path stays available; it is
+not the future repaired API and its known privacy limitations remain.
+
+One writer per source boundary; use the existing sibling worktrees. CPU tests
+must clear all `HL_*` environment variables, especially `HL_GPU` (setting it to
+`0` is insufficient). Use two threads and the detached heavy-lock protocol;
+never put the build lock outside `cl1_floors.sh`. No full-model or 5090 run is
+part of this queue.
+
+## Historical round-14 pickup and delivery state
+
+The dated text below records what was delivered or pending at that time.
+Round 15 above and the task records supersede its pending/current labels.
 
 **2026-09-08, Fable delivery on the lanes (not merged):** FA6, FA7 and FA8
 are delivered on `zk60-fable-review` (`e83a4ca`, `f6d8557`, `9d373e0`; B1 closed

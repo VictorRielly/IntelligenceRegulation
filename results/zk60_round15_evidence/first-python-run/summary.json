@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "source_commit": "22c9b359908f12786cfeee910ab02feed46f3052",
+  "scope": "Fable FA6-FA9/CL21 integration, CFS safeguards, int8 registration and live-source suite-v5 validation",
+  "threads": 2,
+  "address_space_limit_bytes": 8589934592,
+  "gpu_executed": false,
+  "gpu_scope": "Bounded 189-case oracle and frozen FFN fixtures; no throughput qualification",
+  "stages": [
+    {
+      "stage": "native_build",
+      "command": [
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "zkmatrix-rs/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.26644526500604115,
+      "log": "/tmp/zk60-round15/complete/native_build.log",
+      "log_sha256": "4ea58204c1a3dc35b6e602de8af356aefb224c42077dc02b868ceb652437faa1",
+      "resource_log": "/tmp/zk60-round15/complete/native_build.time",
+      "address_space_cap_applied": true
+    },
+    {
+      "stage": "python_full",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 1,
+      "elapsed_s": 991.6860892830009,
+      "log": "/tmp/zk60-round15/complete/python_full.log",
+      "log_sha256": "f471152407504e22bec6bc5a694a0d9084f6af7d04274a9d5bb79241e6c63f4e",
+      "resource_log": "/tmp/zk60-round15/complete/python_full.time",
+      "address_space_cap_applied": true
+    }
+  ],
+  "limits": [
+    "Local registration storage and access boundary only; no reviewed mask generator, authenticated approval or stable P3 prover/verifier.",
+    "Conditional privacy analyses are not an implemented repaired proof.",
+    "No FFN typed decoder integration: f8d40a7 is held for demonstrated shape/parameter corrections."
+  ],
+  "error": "Traceback (most recent call last):\n  File \"/tmp/zk60-round15/validate.py\", line 72, in <module>\n    log = stage('python_full', ['python3', '-m', 'unittest', 'discover', '-s', 'tests', '-v'], timeout=2400)\n  File \"/tmp/zk60-round15/validate.py\", line 52, in stage\n    if result.returncode: raise RuntimeError('stage failed: ' + name)\nRuntimeError: stage failed: python_full\n",
+  "exit_code": 1
+}

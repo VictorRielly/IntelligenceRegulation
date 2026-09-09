@@ -41,6 +41,28 @@
 #     runs no build and no hardware job, and writes nothing under the scratch
 #     dir (an optional --plan file elsewhere is the only output).
 #
+# [ZK60-CL21] The extracted core is in the provenance. hashline depends on
+# zkp-core by path (hashline/Cargo.toml), so the core's source and BOTH
+# Cargo.lock files are build inputs of every binary gated here; round 11's
+# outer validator hashed both crates while this manifest identified hashline
+# alone. Now:
+#   * SOURCE IDENTITY covers both crates: each crate's tree id at HEAD, the
+#     sha256 of its uncommitted delta, the sha256 of each Cargo.lock as it is
+#     in the working tree, the core's presence (Cargo.toml, src/, the
+#     example). `init --repo` records them; `finalize --repo` re-probes and
+#     refuses a tree that changed during the run.
+#   * A DIRTY OR MISSING CRATE STOPS THE RUN HERE, before any build (the
+#     validator refuses it anyway; twelve minutes on a tree that cannot
+#     qualify are pure cost). --dry-run only reports.
+#   * SUITE VERSION 4 (archived) adds two cases: the core's own
+#     `cargo test --release --locked --offline` (exactly 19 passed / 0 failed /
+#     0 ignored, round 11's count) and its `public_sumcheck` example (exit 0 +
+#     its identifying line). `--locked`: cargo refuses rather than rewrites
+#     the lockfile the manifest hashed. v1–v3 runs skip the two cases but
+#     still record the identity. v5 pins 22 core tests and adds protected-storage coverage. Default v6
+#     pins 32 core and 215 storage-enabled hashline tests after typed extraction;
+#     live untracked files refuse.
+#
 # LOCKS. The OUTER heavy lock (/tmp/zk-heavy.lock) is the LAUNCHER's job —
 # wrap this script in `flock /tmp/zk-heavy.lock` in the detached launcher, as
 # CLAUDE.md's no-hangup protocol says. This script takes /tmp/zk-build.lock
@@ -63,7 +85,8 @@
 #   --device LIST       CUDA_VISIBLE_DEVICES passthrough (env CUDA_VISIBLE_DEVICES)
 #   --python BIN        the Python for the helper (default python3; env HL_FLOORS_PYTHON)
 #   --gates FILE        the helper (default <repo>/scripts/hashline_cl_gpu_gates.py; env HL_FLOORS_GATES)
-#   --suite-version V   the helper's suite version (default 3 = CL18's 189-case oracle; v2 = CL15's 141; env HL_FLOORS_SUITE_VERSION)
+#   --suite-version V   the helper's suite version (default 6 = round 15: zkp-core tests/example (32) + protected storage (215);
+#                       v3 = CL18's 189-case oracle; v2 = CL15's 141; env HL_FLOORS_SUITE_VERSION)
 #   --dry-run           print every command, run nothing heavy, write nothing under scratch
 #   --plan FILE         with --dry-run: also write the command list to FILE
 # The manifest lands at <scratch-dir>/manifest.json; per-case logs beside it.
@@ -83,7 +106,7 @@ TOKENS=${HL_FLOORS_TOKENS:-512}
 DEVICES=${CUDA_VISIBLE_DEVICES-}
 PY=${HL_FLOORS_PYTHON:-python3}
 GATES=${HL_FLOORS_GATES:-}
-SUITE=${HL_FLOORS_SUITE_VERSION:-3}
+SUITE=${HL_FLOORS_SUITE_VERSION:-6}
 DRY=0
 PLAN=""
 SP=""
@@ -189,10 +212,18 @@ if "$PY" "$GATES" oracle-summary --expected-cases 99 "${EMPTY:-"{}"}" >/dev/null
   echo "FAILURE: the oracle-summary parser accepted an EMPTY summary"; exit 1
 fi
 ORACLE_EXPECTED_CASES=$("$PY" "$GATES" expected-cases --suite-version "$SUITE" --oracle-count) || { echo "FAILURE: no suite version $SUITE in the helper"; exit 1; }
-echo "self-tests OK; suite version $SUITE expects $ORACLE_EXPECTED_CASES executed oracle cases"
+# [ZK60-CL21] whether this suite version gates the extracted core (v4+)
+CORE_CASES=0
+if "$PY" "$GATES" expected-cases --suite-version "$SUITE" | grep -qx core_tests; then CORE_CASES=1; fi
+echo "self-tests OK; suite version $SUITE expects $ORACLE_EXPECTED_CASES executed oracle cases; zkp-core cases: $( [ "$CORE_CASES" = 1 ] && echo 'core_tests + core_example' || echo 'none (v1-v3)')"
 
 # --------------------------------------------------------------------------
 # 2. SOURCE IDENTITY -> manifest skeleton.
+# [ZK60-CL21] BOTH crates. hashline depends on zkp-core by path, so the
+# core's tree, its delta and both lockfiles are build inputs of every
+# binary gated here. The helper records the same facts through
+# `init --repo` (and cross-checks HEAD and the hashline delta against the
+# values read here); a dirty or missing crate stops the run BEFORE any build.
 say "source identity"
 HEAD=$(git --no-pager -C "$R" rev-parse HEAD 2>/dev/null || true)
 BRANCH=$(git --no-pager -C "$R" rev-parse --abbrev-ref HEAD 2>/dev/null || true)
@@ -201,13 +232,28 @@ DIRTY=$(git --no-pager -C "$R" status --porcelain --untracked-files=no 2>/dev/nu
 # the content hash of the uncommitted delta under hashline/ can. On a clean
 # checkout this is the hash of the empty diff (e3b0c442..).
 DELTA=$(git --no-pager -C "$R" diff HEAD -- hashline 2>/dev/null | sha256sum | cut -d' ' -f1)
+CORE_DELTA=$(git --no-pager -C "$R" diff HEAD -- zkp-core 2>/dev/null | sha256sum | cut -d' ' -f1)
+HL_TREE=$(git --no-pager -C "$R" rev-parse HEAD:hashline 2>/dev/null || true)
+CORE_TREE=$(git --no-pager -C "$R" rev-parse HEAD:zkp-core 2>/dev/null || true)
+EMPTY_SHA=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+lock_sha () { if [ -f "$1" ]; then sha256sum "$1" | cut -d' ' -f1; else echo "<missing>"; fi; }
+HL_LOCK=$(lock_sha "$R/hashline/Cargo.lock")
+CORE_LOCK=$(lock_sha "$R/zkp-core/Cargo.lock")
+CORE_PRESENT=0
+if [ -f "$R/zkp-core/Cargo.toml" ] && [ -d "$R/zkp-core/src" ] && [ -f "$R/zkp-core/examples/public_sumcheck.rs" ]; then CORE_PRESENT=1; fi
 echo "HEAD      ${HEAD:-<not a git checkout>}"
 echo "branch    ${BRANCH:-?}"
 echo "dirty     $DIRTY tracked file(s) modified"
-echo "dirty-delta sha256 (hashline/)  $DELTA"
-if [ "$DRY" != 1 ] && [ -z "$HEAD" ]; then echo "FAILURE: $R is not a git checkout; no source identity"; exit 1; fi
+echo "hashline/  tree ${HL_TREE:-<none>}  dirty-delta sha256 $DELTA  Cargo.lock sha256 $HL_LOCK"
+echo "zkp-core/  tree ${CORE_TREE:-<none>}  dirty-delta sha256 $CORE_DELTA  Cargo.lock sha256 $CORE_LOCK  present $CORE_PRESENT (Cargo.toml + src/ + examples/public_sumcheck.rs)"
+if [ "$DRY" != 1 ]; then
+  [ -n "$HEAD" ] || { echo "FAILURE: $R is not a git checkout; no source identity"; exit 1; }
+  [ "$CORE_PRESENT" = 1 ] || { echo "FAILURE: the extracted core is missing or incomplete under $R/zkp-core (Cargo.toml, src/, examples/public_sumcheck.rs): the build inputs are incomplete; nothing was built"; exit 1; }
+  [ "$DELTA" = "$EMPTY_SHA" ] || { echo "FAILURE: uncommitted changes under hashline/ (delta sha256 $DELTA): HEAD would not identify the build inputs and the manifest can never be green; commit first — nothing was built"; exit 1; }
+  [ "$CORE_DELTA" = "$EMPTY_SHA" ] || { echo "FAILURE: uncommitted changes under zkp-core/ (delta sha256 $CORE_DELTA): HEAD would not identify the build inputs and the manifest can never be green; commit first — nothing was built"; exit 1; }
+fi
 NVSMI=$(nvidia-smi --query-gpu=name,driver_version --format=csv,noheader 2>/dev/null | head -1 || true)
-run "$PY" "$GATES" init --out "$MANIFEST" --suite-version "$SUITE" --head "${HEAD:-unknown}" --branch "${BRANCH:-unknown}" \
+run "$PY" "$GATES" init --out "$MANIFEST" --suite-version "$SUITE" --repo "$R" --head "${HEAD:-unknown}" --branch "${BRANCH:-unknown}" \
   --dirty-count "$DIRTY" --dirty-delta-sha256 "$DELTA" --layers "$LAYERS" --tokens "$TOKENS" \
   --prover-threads "$THREADS" --build-jobs "$JOBS" --rayon-threads "$RAYON" \
   --cpu-target-dir "$R/hashline/target" --gpu-target-dir "$R/hashline/target-gpu" \
@@ -252,6 +298,58 @@ run_to "$TEST_LOG" "${CMD[@]}"; trc=$?
 [ "$DRY" = 1 ] || grep -E '^test result:|^error|panicked' "$TEST_LOG"
 run "$PY" "$GATES" record --manifest "$MANIFEST" --case cargo_test_cpu --exit "$trc" --log "$TEST_LOG" -- "${CMD[@]}" \
   || { echo "FAILURE: cargo test"; fail=1; }
+
+# --------------------------------------------------------------------------
+# 4b. THE EXTRACTED CORE (suite v4+). zkp-core's own tests and its terminal
+# example, each a case with the SUITE'S tied expectation (v4: 19 passed / 0
+# failed / 0 ignored summed over every result line; the example's
+# identifying line). `--locked` makes cargo refuse rather than rewrite
+# zkp-core/Cargo.lock, so the lockfile the manifest hashed is the one built
+# against; `--offline` keeps the registry out of the identity. Both take the
+# build lock like every other cargo step. The example binary's digest is
+# recorded informationally (--artifact). A v1-v3 suite skips this section.
+if [ "$CORE_CASES" = 1 ]; then
+  say "zkp-core: cargo test --release --locked --offline (the extracted core, --test-threads=2)"
+  CORE_TEST_LOG=$SP/core_tests.out
+  run "$PY" "$GATES" start --manifest "$MANIFEST" --case core_tests
+  CMD=(env "CARGO_BUILD_JOBS=$JOBS" "RAYON_NUM_THREADS=$RAYON" flock /tmp/zk-build.lock
+       cargo test --release --locked --offline --manifest-path "$R/zkp-core/Cargo.toml" -- --test-threads=2)
+  run_to "$CORE_TEST_LOG" "${CMD[@]}"; crc=$?
+  [ "$DRY" = 1 ] || grep -E '^test result:|^error|panicked' "$CORE_TEST_LOG"
+  run "$PY" "$GATES" record --manifest "$MANIFEST" --case core_tests --exit "$crc" --log "$CORE_TEST_LOG" -- "${CMD[@]}" \
+    || { echo "FAILURE: zkp-core tests"; fail=1; }
+
+  say "zkp-core: the public_sumcheck example (cargo run --release --locked --offline --example public_sumcheck)"
+  CORE_EX_LOG=$SP/core_example.out
+  run "$PY" "$GATES" start --manifest "$MANIFEST" --case core_example
+  CMD=(env "CARGO_BUILD_JOBS=$JOBS" "RAYON_NUM_THREADS=$RAYON" flock /tmp/zk-build.lock
+       cargo run --release --locked --offline --manifest-path "$R/zkp-core/Cargo.toml" --example public_sumcheck)
+  run_to "$CORE_EX_LOG" "${CMD[@]}"; xrc=$?
+  [ "$DRY" = 1 ] || tail -1 "$CORE_EX_LOG"
+  run "$PY" "$GATES" record --manifest "$MANIFEST" --case core_example --exit "$xrc" --log "$CORE_EX_LOG" \
+    --artifact "$R/zkp-core/target/release/examples/public_sumcheck" -- "${CMD[@]}" \
+    || { echo "FAILURE: zkp-core example"; fail=1; }
+else
+  say "zkp-core cases: none in suite version $SUITE (v4+ gates the extracted core); its identity is recorded above regardless"
+fi
+
+# --------------------------------------------------------------------------
+# 4c. Protected material / registration are opt-in and absent from default tests.
+if "$PY" "$GATES" expected-cases --suite-version "$SUITE" | grep -qx storage_tests; then
+  say "hashline: protected-storage feature tests (suite v5+)"
+  STORAGE_LOG=$SP/storage_tests.out
+  run "$PY" "$GATES" start --manifest "$MANIFEST" --case storage_tests
+  # Cargo integration tests also build the normal binary. Keep the optional
+  # feature's binary separate from the CPU artifact already hashed above.
+  CMD=(env "CARGO_BUILD_JOBS=$JOBS" "RAYON_NUM_THREADS=$RAYON"
+       "CARGO_TARGET_DIR=$R/hashline/target/storage-tests" flock /tmp/zk-build.lock
+       cargo test --release --locked --offline --manifest-path "$R/hashline/Cargo.toml"
+       --features stable-weight-storage -- --test-threads=2)
+  run_to "$STORAGE_LOG" "${CMD[@]}"; src=$?
+  [ "$DRY" = 1 ] || grep -E '^test result:|^error|panicked' "$STORAGE_LOG"
+  run "$PY" "$GATES" record --manifest "$MANIFEST" --case storage_tests --exit "$src" --log "$STORAGE_LOG" -- "${CMD[@]}" \
+    || { echo "FAILURE: protected-storage tests"; fail=1; }
+fi
 
 # --------------------------------------------------------------------------
 # 5. THE DEVICE ORACLE (uncaptured, one thread), then its two controls.
@@ -404,13 +502,17 @@ say "VERDICT"
 echo "executed byte-gate cases: $CASES (expect 12)"
 [ "$CASES" = 12 ] || { echo "FAILURE: expected 12 gate cases, ran $CASES"; fail=1; }
 [ "$DRY" = 1 ] || echo "retained logs: $(ls "$SP"/*.out 2>/dev/null | wc -l) in $SP"
-run "$PY" "$GATES" finalize --manifest "$MANIFEST" || fail=1
+# [ZK60-CL21] finalize re-probes the checkout: a crate tree or lockfile that
+# changed during the run makes the verdict red.
+run "$PY" "$GATES" finalize --manifest "$MANIFEST" --repo "$R" || fail=1
 if [ "$DRY" = 1 ]; then
-  echo "DRY RUN COMPLETE: $EMITTED commands emitted (self-test -> builds -> tests -> oracle -> controls -> gates -> cache -> finalize); nothing built, nothing launched, nothing written under $SP"
+  echo "DRY RUN COMPLETE: $EMITTED commands emitted (self-test -> identity -> builds -> tests -> zkp-core -> oracle -> controls -> gates -> cache -> finalize); nothing built, nothing launched, nothing written under $SP"
   exit 0
 fi
 if [ $fail = 0 ]; then
-  echo "ALL CL1 FLOORS GREEN (12 byte gates + oracle suite + missing-feature refusal + cache cases + tests + both builds) — manifest $MANIFEST"
+  CORE_NOTE=""
+  [ "$CORE_CASES" = 1 ] && CORE_NOTE=" + zkp-core tests + zkp-core example"
+  echo "ALL CL1 FLOORS GREEN (12 byte gates + oracle suite + missing-feature refusal + cache cases + tests + both builds$CORE_NOTE; identity: hashline + zkp-core trees, both lockfiles) — manifest $MANIFEST"
 else
   echo "FAILURE: one or more CL1 floors RED — see above and $MANIFEST"
 fi

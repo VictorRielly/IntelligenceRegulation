@@ -163,6 +163,49 @@ fn fixture() -> BlockRegistration {
 }
 
 #[test]
+fn public_tensor_registration_recomputes_both_roots_and_preserves_identity() {
+    use hashline::causal_oracle::{cpu_weight_commitments, public_synthetic_fixture};
+    let (original, mut weights, _) = public_synthetic_fixture();
+    let registration = original.registration();
+    let same = ApprovedP1BlockContract::from_trusted_public_weights(registration.clone(), &weights).unwrap();
+    assert_eq!(same.public_digest(), original.public_digest());
+    weights.wq[0] = i8::MIN;
+    weights.gamma_m[0] = i8::MAX;
+    weights.wg_t[0] = i8::MIN;
+    let changed = ApprovedP1BlockContract::from_trusted_public_weights(registration.clone(), &weights).unwrap();
+    let (aw, fw) = cpu_weight_commitments(&weights).unwrap();
+    assert_eq!(changed.registration().attention_weights.root, aw.root);
+    assert_eq!(changed.registration().ffn_weights.root, fw.root);
+    assert_ne!(changed.public_digest(), original.public_digest());
+    assert_ne!(aw.root, registration.attention_weights.root);
+    assert_ne!(fw.root, registration.ffn_weights.root);
+    weights.gamma_m.pop();
+    assert!(matches!(
+        ApprovedP1BlockContract::from_trusted_public_weights(registration, &weights),
+        Err(ContractError::Invalid("public int8 weight tensors"))
+    ));
+}
+
+#[test]
+fn fixed_contract_rejects_wider_norm_remainder_ranges() {
+    for site in [0, 1] {
+        let mut registration = fixture();
+        let norm = if site == 0 {
+            &mut registration.attention.anorm
+        } else {
+            &mut registration.attention.mnorm
+        };
+        norm.n_limbs = 3;
+        norm.wrho = 48;
+        assert!(ApprovedP1BlockContract::from_trusted_registration(registration).is_err());
+    }
+    let r = fixture();
+    assert_eq!(r.attention.anorm.n_limbs, 2);
+    assert_eq!(r.attention.mnorm.n_limbs, 2);
+    assert!(ApprovedP1BlockContract::from_trusted_registration(r).is_ok());
+}
+
+#[test]
 fn honest_fixed_registration_matches_actual_layout_and_tables() {
     let r = fixture();
     let a = ApprovedP1BlockContract::from_trusted_registration(r.clone()).unwrap();
