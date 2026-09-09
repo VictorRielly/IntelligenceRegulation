@@ -18,6 +18,7 @@ runner does, and reports each case through `start` / `record`.
 
 Suite versions
   7  Fresh paired-mask FFN regressions: storage-enabled hashline count 218.
+  8  Fresh FFN wire regressions: storage-enabled hashline count 220.
   6  Corrected typed FFN extraction: 32 core tests and 215 storage-enabled
      hashline tests. Same 24 cases and live-source requirements as v5.
   5  Round 15: 22 core tests and a separate 210-test stable-weight-storage
@@ -256,12 +257,22 @@ def _suite_v7():
     return s
 
 
+def _suite_v8():
+    s = copy.deepcopy(_suite_v7())
+    s["version"] = 8
+    for c in s["cases"]:
+        if c["id"] == "storage_tests":
+            c["expect"]["passed"] = 220
+            c["established"] = "v7's 218 plus two bounded fresh FFN wire regressions."
+    return s
+
+
 def _suite_v0():
-    # [ZK60-CL21] derived from the newest production suite (v7) so the synthetic
+    # [ZK60-CL21] derived from the newest production suite (v8) so the synthetic
     # round trip exercises every case kind, the core's included. The synthetic
     # suite records identity when the runner gives it one but does not REQUIRE
     # it: it is never evidence and the CLI round trip runs without a checkout.
-    suite = copy.deepcopy(_suite_v7())
+    suite = copy.deepcopy(_suite_v8())
     suite.update({"version": 0, "production": False, "requires_source_identity": False, "requires_untracked_identity": False,
                   "note": "synthetic self-check suite: tiny fixed byte strings stand in for proofs; never evidence"})
     for case in suite["cases"]:
@@ -315,8 +326,8 @@ def _suite_v3():
     return suite
 
 
-SUITES = {7: _suite_v7(), 6: _suite_v6(), 5: _suite_v5(), 4: _suite_v4(), 3: _suite_v3(), 2: _suite_v2(), 1: _suite_v1(), 0: _suite_v0()}
-DEFAULT_SUITE = 7
+SUITES = {8: _suite_v8(), 7: _suite_v7(), 6: _suite_v6(), 5: _suite_v5(), 4: _suite_v4(), 3: _suite_v3(), 2: _suite_v2(), 1: _suite_v1(), 0: _suite_v0()}
+DEFAULT_SUITE = 8
 
 
 def suite(version):

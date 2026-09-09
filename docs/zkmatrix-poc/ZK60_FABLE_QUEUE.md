@@ -1,4 +1,55 @@
-# Fable — current task queue, round 15
+# Pending tasks reassigned to Opus 5
+
+Victor has exhausted Fable usage. **Opus 5 should follow
+[ZK60_OPUS_QUEUE.md](ZK60_OPUS_QUEUE.md)**, starting with O1 (four capture
+integrity checks), then O2 (the existing joint-analysis adapter), O3 (the
+implemented mask audit) and O4 (attention inventory). Codex owns protocol
+changes and final integration/security review. Refactoring stays priority 3.
+
+The task JSON keeps its existing filename for compatibility and now records
+Opus 5 as the assigned model for pending work. Completed Fable reviews retain
+Fable attribution. The text below records the prior dispatch and evidence.
+
+## Previous round-16 dispatch
+
+
+**Executable repair available:** `b41d036` implements a paired-mask FFN proof at
+T32/d16/f16 in P1 and fresh-weight P3, plus an OS-randomness-only API, runnable
+demo and three regression tests. Both modes have now actually proved and
+verified. [Round 16](ZK60_ROUND16.md) gives the scope and next milestones.
+This is the experimental `ffn-v3-mr1-fresh-poc/1` profile, not the registered
+private-block envelope. The full private-model PoC remains unfinished.
+
+| Task | Work ready now | Priority |
+|---|---|---:|
+| FA7 | Review four fresh T32 captures in `/tmp/zk60-round16/captures` against `results/zk60_round16_captures.json`. Extend the parser for the explicit experimental schema-2 coverage; independently check the allocation and joint disclosures. A/W should disclose zero in the linear model; H only its public LogUp identity. | 0 |
+| FA8 | Review the implemented generator, consuming prover and OS-only API at `b41d036`, including all singleton/proximity pairs and rejection conditions. This is fresh W; stable registration is outside this rung. | 0 |
+| FA6 | Finish attention mask/CFS/seam inventory A1–A4 so Codex can connect repaired components into a private block. | 0 |
+| FA9 | Continue the explicit attention range/registration review described below. | 0 |
+| CL20 | Continue the minimal maintained FFN extraction as lower priority work; preserve legacy bytes. | 3 |
+
+Captures include row roles, symbolic coefficient tags, actual verifier points,
+public vectors/columns, H's zero-sum constraint, and source/layout digests.
+Their coverage is `ffn-v3-mr1-fresh-poc-function-1`; P3 has fresh W, Q=256,
+and null slot/k. Do not pass them off as the registered/seamed profile or relax
+legacy parser checks to accept an arbitrary claimed layout. T2, function 2 and
+block captures are later rungs. The existing recovery test now establishes
+rank-two mask ambiguity at the affected singleton sites; full joint review is
+still needed.
+
+**Codex next:** bounded proof envelope and verification from bytes, then repaired
+FFN commitment ownership and private block seam integration, with the attention
+repair identified by FA6. Demonstrate the complete tiny block and two-block
+chain, including external IO and the claimed model identity, before scaling.
+Stable storage and refactoring do not substitute for these milestones.
+
+Suite v7 adds only the three new tests (218 storage-enabled hashline, 32 core;
+24 cases). The source-pinned combined run passed all 24 cases at `046e965`;
+status and retained evidence are in `results/zk60_round16_validation.json`. No duplicate
+floor-runner implementation or full-model/GPU benchmark is assigned.
+
+## Historical round-15 queue
+
 
 **2026-09-08:** Codex has integrated FA6–FA9, CL21 and the corrected typed
 FFN/core delivery `50f1ea5`. Current implementation source is `612ff9c`.

@@ -60,7 +60,7 @@
 #     its identifying line). `--locked`: cargo refuses rather than rewrites
 #     the lockfile the manifest hashed. v1–v3 runs skip the two cases but
 #     still record the identity. v5 pins 22 core tests and adds protected-storage coverage. Default v7
-#     pins 32 core and 218 storage-enabled hashline tests after the FFN repair;
+#     pins 32 core and 220 storage-enabled hashline tests after the FFN wire format;
 #     live untracked files refuse.
 #
 # LOCKS. The OUTER heavy lock (/tmp/zk-heavy.lock) is the LAUNCHER's job —
@@ -85,7 +85,7 @@
 #   --device LIST       CUDA_VISIBLE_DEVICES passthrough (env CUDA_VISIBLE_DEVICES)
 #   --python BIN        the Python for the helper (default python3; env HL_FLOORS_PYTHON)
 #   --gates FILE        the helper (default <repo>/scripts/hashline_cl_gpu_gates.py; env HL_FLOORS_GATES)
-#   --suite-version V   the helper's suite version (default 7 = round 16: zkp-core tests/example (32) + protected storage (218);
+#   --suite-version V   the helper's suite version (default 8 = round 17: zkp-core tests/example (32) + protected storage (220);
 #                       v3 = CL18's 189-case oracle; v2 = CL15's 141; env HL_FLOORS_SUITE_VERSION)
 #   --dry-run           print every command, run nothing heavy, write nothing under scratch
 #   --plan FILE         with --dry-run: also write the command list to FILE
@@ -106,7 +106,7 @@ TOKENS=${HL_FLOORS_TOKENS:-512}
 DEVICES=${CUDA_VISIBLE_DEVICES-}
 PY=${HL_FLOORS_PYTHON:-python3}
 GATES=${HL_FLOORS_GATES:-}
-SUITE=${HL_FLOORS_SUITE_VERSION:-7}
+SUITE=${HL_FLOORS_SUITE_VERSION:-8}
 DRY=0
 PLAN=""
 SP=""

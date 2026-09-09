@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+  "stages": [
+    {
+      "name": "repaired_tests",
+      "command": [
+        "/home/victor/.cargo/bin/cargo",
+        "test",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--release",
+        "--locked",
+        "--offline",
+        "--lib",
+        "fresh_poc",
+        "--",
+        "--nocapture",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 50.92363581000245,
+      "log_sha256": "0ecd19347de2bb82986c8d5c6116c85c60e30c6571a59f884d8bf1b3e4df1bdc"
+    },
+    {
+      "name": "fresh_demo",
+      "command": [
+        "/home/victor/.cargo/bin/cargo",
+        "run",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--release",
+        "--locked",
+        "--offline",
+        "--example",
+        "zk60_fresh_ffn"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 31.69962742802454,
+      "log_sha256": "610a96d42897468038ce927e7fc814b1e77b31f8a153ba2cd5c5b96d96d27497"
+    },
+    {
+      "name": "python_full",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests"
+      ],
+      "exit_code": 1,
+      "elapsed_s": 1021.471865198022,
+      "log_sha256": "e5135c2656cc451d144287c5ed32fab63ee34293cf57c58f12b2ac66eda9a157"
+    }
+  ],
+  "status": "failed",
+  "captures": [
+    {
+      "path": "/tmp/zk60-round16/captures/48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884.json",
+      "sha256": "c1d0a36768b2857d231238cd2d97a2047af108133d87bd7517e1a6829dce97da",
+      "bytes": 13162013,
+      "proof_sha256": "48b82a830ec9d388938dc326e9be553105d4188053f4fde9289fc5d456cfd884",
+      "privacy": "P3",
+      "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4"
+    },
+    {
+      "path": "/tmp/zk60-round16/captures/6c98bcb2cd64f848b59c1f9703ff562418b6b94a24cc7c7ff871f1085be8b84d.json",
+      "sha256": "c58235d9f49e0d82b5032c2497edac26ea1a9ee7e10a03d7a3f9038a855182d1",
+      "bytes": 12559433,
+      "proof_sha256": "6c98bcb2cd64f848b59c1f9703ff562418b6b94a24cc7c7ff871f1085be8b84d",
+      "privacy": "P1",
+      "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4"
+    },
+    {
+      "path": "/tmp/zk60-round16/captures/73728df07d903ae39c95ffb20df029fb47da1f564c119e69f04f4919fce4b08d.json",
+      "sha256": "7630d2003e764934e7a1f03116a7d238cbcec458ed88e0f4a65ab50ca355040a",
+      "bytes": 12561665,
+      "proof_sha256": "73728df07d903ae39c95ffb20df029fb47da1f564c119e69f04f4919fce4b08d",
+      "privacy": "P1",
+      "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4"
+    },
+    {
+      "path": "/tmp/zk60-round16/captures/bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa.json",
+      "sha256": "e34f07aa43ebed214c9e2e6c93e1251c1ab7caf6aa2e80b934afb29706879ac7",
+      "bytes": 13163009,
+      "proof_sha256": "bfae2421d14736fa6dddb8f2915d23dabe1001bfb3a416d890eb1703a74cb1aa",
+      "privacy": "P3",
+      "layout_digest": "e98e3189fe3d2b7eac1639cbf82d1e2aa71c3330ae7ba0e9e9607c8f52e76fa4"
+    }
+  ],
+  "exit_code": 1,
+  "error": "Traceback (most recent call last):\n  File \"/tmp/zk60-round16/validate.py\", line 44, in <module>\n    stage('python_full',['python3','-m','unittest','discover','-s','tests'])\n  File \"/tmp/zk60-round16/validate.py\", line 24, in stage\n    if p.returncode: raise RuntimeError(name+' failed')\nRuntimeError: python_full failed\n"
+}

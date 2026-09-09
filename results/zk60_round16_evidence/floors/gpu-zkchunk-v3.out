@@ -1,0 +1,29 @@
+pass (v3): 12 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export (d 768 f 2048; log_cols 14, inv_rate 4, col checks 256, threads 2)
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+  layer  0: prove 0.314 s, 5899988 B
+  layer  1: prove 0.162 s, 5960912 B
+  layer  2: prove 0.165 s, 5960392 B
+  layer  3: prove 0.159 s, 5896912 B
+  layer  4: prove 0.168 s, 5898448 B
+  layer  5: prove 0.160 s, 5862608 B
+  layer  6: prove 0.162 s, 5895120 B
+  layer  7: prove 0.164 s, 5862608 B
+  layer  8: prove 0.168 s, 5895376 B
+  layer  9: prove 0.174 s, 5895376 B
+  layer 10: prove 0.192 s, 5864148 B
+  layer 11: prove 0.166 s, 5866196 B
+prover phases (summed over layers):
+      commit W                  0.401 s
+      commit A                  0.558 s
+      helpers + commit H        0.364 s
+      matmul g/u                0.144 s
+      matmul d                  0.089 s
+      zero-check F              0.336 s
+      zero-check D              0.083 s
+      pcs openings              0.178 s
+  gpu device-side (summed): h2d 0.411 s (261 MB) | ntt 0.377 s | hash 0.106 s | sumcheck 0.419 s | fold 0.170 s | helpers 0.100 s | d2h 0.000 s (137 MB) | vram peak 2430 MB
+  gpu chunked [UPERF3-AC]: chunked commits 0 | opening re-encode 0.000 s
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+  proof written to /tmp/zk60-round16/final/floors/gpu-zkchunk-v3.proof
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 4.23 s | PROVE 2.15 s | VERIFY 0.36 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.346e10 proven MAC/s (prove wall) | wall 6.86 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":4.225329009,"prove_s":2.154292347,"serialize_s":0.103686928,"proof_ready_s":6.499929471,"verify_s":0.358571023,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}

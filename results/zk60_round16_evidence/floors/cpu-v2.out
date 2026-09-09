@@ -1,0 +1,27 @@
+pass: 12 layers x 512 tokens (log_cols 14, inv_rate 4, col checks 256, threads 2)
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 3.008 s, 5573568 B
+  layer  1: prove 2.874 s, 5568692 B
+  layer  2: prove 2.888 s, 5570752 B
+  layer  3: prove 2.750 s, 5571020 B
+  layer  4: prove 2.774 s, 5572032 B
+  layer  5: prove 3.077 s, 5568832 B
+  layer  6: prove 2.994 s, 5568436 B
+  layer  7: prove 3.092 s, 5568832 B
+  layer  8: prove 3.129 s, 5568960 B
+  layer  9: prove 3.072 s, 5568960 B
+  layer 10: prove 2.935 s, 5570368 B
+  layer 11: prove 2.889 s, 5574476 B
+prover phases (summed over layers):
+      commit W                  5.038 s
+      commit A                  9.045 s
+      helpers + commit H       10.101 s
+      matmul g/u                0.312 s
+      matmul d                  0.142 s
+      zero-check 20             7.845 s
+      zero-check 17             1.022 s
+      pcs openings              1.937 s
+PROOF sha256 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d (66844928 B)
+  proof written to /tmp/zk60-round16/final/floors/cpu-v2.proof
+PASS ACCEPT: 12 x 512: witness load+chain 3.15 s | PROVE 35.48 s | VERIFY 0.37 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 8.171e8 proven MAC/s (prove wall) | wall 39.08 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":3.153824541,"prove_s":35.480298215,"serialize_s":0.083203832,"proof_ready_s":38.717413070,"verify_s":0.367357671,"verified":true,"proof_bytes":66844928,"serialized":true,"gpu_requested":false,"gpu_enabled":false,"randomness":"none"}

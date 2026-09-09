@@ -1,18 +1,23 @@
 {
   "schema_version": 1,
   "created_local_date": "2026-09-07",
-  "round": 15,
-  "integrator_base": "612ff9cef4ab857510223716eb040b2df8434828",
+  "round": 16,
+  "integrator_base": "046e9654ab8b769be196bef5b63dbf6485982f7d",
   "reviewed_lane_tip": "5949b38",
-  "review": "ZK60_ROUND14.md",
-  "owner": "Fable owns follow-up analysis and remaining core/GPU work; Codex owns integration, observation instrumentation and protocol implementation",
-  "coordination": "Fable owns FA6-FA9 analysis, CL21 tooling and remaining CL20 extraction; Codex owns integration and protocol implementation. One writer per shared source boundary.",
+  "review": "ZK60_ROUND16.md",
+  "owner": "Opus 5 owns bounded review/tooling follow-ups; Codex owns protocol implementation, integration and final cryptographic review",
+  "coordination": "Opus 5 follows O1-O4 in ZK60_OPUS_QUEUE.md, one bounded task at a time in the review worktree. Codex retains Rust protocol changes and final acceptance. Historical Fable authorship is unchanged.",
   "engineering_order": [
-    "CL20"
+    "O1 capture integrity",
+    "O2 existing joint-analysis adapter",
+    "O3 implemented mask audit",
+    "O4 attention inventory",
+    "CL20 (priority 3)"
   ],
   "independent_ready": [
-    "FA6 attention follow-up",
-    "FA9 hardening review"
+    "O1 four fresh repaired T32 captures",
+    "O3 executable generator audit",
+    "O4 attention inventory"
   ],
   "lower_priority_design": [
     "CL20"
@@ -411,7 +416,7 @@
       "id": "FA2",
       "priority": 0,
       "title": "Determine joint exposure and affected profiles",
-      "owner": "Fable independent privacy reviewer",
+      "owner": "Opus 5 bounded follow-up; completed Fable analysis retained; Codex owns protocol implementation",
       "status": "analysis_delivered; legacy A/H/W capture now implemented; full captured joint analysis continues in FA7",
       "depends_on": [
         "FA1"
@@ -444,14 +449,18 @@
         "unresolved": "CFS channel (outside the model); twelve assumptions for FA3 in section 18; capture fields needed from Codex in section 19",
         "predicate": "125M (nb_d 3, nb_f 1) -> h16@p5 singleton, 8-row functionals per column; 8B (nb_d 1, nb_f 7) -> X@p2 singleton, T/4 rows (T <= 8: 16 bits, enumerable) — derived, not executed",
         "limits": "all H / P3-W statements source-derived awaiting the round-10 capture hook; rank results use stand-in coefficients with the source's structure; numerical rank is not a simulation proof; single-proof and repeated-proof observations kept distinct"
-      }
+      },
+      "previous_owner": "Fable independent privacy reviewer",
+      "assigned_model": "Opus 5",
+      "dispatch_document": "ZK60_OPUS_QUEUE.md",
+      "opus_dispatch": "Use existing delivered analysis as input to O2/O3; no new cryptographic design"
     },
     {
       "id": "FA3",
       "priority": 0,
       "title": "Review a complete repair and pending-block mask contract",
-      "owner": "Fable reviewer; Codex implements the accepted protocol",
-      "status": "design_delivered; FA6-FA8 construction-specific conditional arguments integrated; implemented repaired profile and captures open",
+      "owner": "Opus 5 bounded follow-up; completed Fable analysis retained; Codex owns protocol implementation",
+      "status": "design_delivered; fresh_function1_FFN_implemented_b41d036; registered_block_and_full_capture_review_open",
       "depends_on": [
         "FA2"
       ],
@@ -481,13 +490,17 @@
         "cost": "A rows: A00 tiny T32 681 -> 702 (+21, ~1.1% of CL8's 36,974,592 B); 125M T512 559 -> 597 (3.7%); 8B T512 3599 -> 3669 (1.1%); H +1 row; W(P3) +4/+10/+22 rows per slot; M +4 base rows; the P3 variant composes with FA4's budgeted stable W by making each slot set 6*nb_d*nb_f + 2 rows",
         "tool": "scripts/zk60_fable_joint_rank.py: pairmask/prox_pair extended to both commitment models and the LogUp fixture, repaired group builders with the X/Z seam groups, commitment_rows, the schedule data, the `repair` subcommand; FA2's fixtures/impact outputs re-run byte-identical; tests 22 -> 34 OK",
         "limits": "design and review only; no Rust built; the repaired profile does not exist in source; rank evidence uses stand-in coefficients (not a simulation proof); nothing at real width; the attention side is specified by mask kinds, lifecycle and seam roles only; nothing certifies a construction in advance"
-      }
+      },
+      "previous_owner": "Fable reviewer; Codex implements the accepted protocol",
+      "assigned_model": "Opus 5",
+      "dispatch_document": "ZK60_OPUS_QUEUE.md",
+      "opus_dispatch": "Use existing delivered analysis as input to O2/O3; no new cryptographic design"
     },
     {
       "id": "FA4",
       "priority": 1,
       "title": "Specify approved private-model consistency",
-      "owner": "Fable independent identity reviewer",
+      "owner": "Opus 5 bounded identity-review follow-up; Codex owns registered model implementation",
       "status": "design_delivered; approved private-model consistency not implemented",
       "depends_on": [],
       "files": [
@@ -527,13 +540,16 @@
         "stable_commitment_reconstruction": false,
         "prover_verifier_integration": false,
         "contract": "ZK60_STABLE_WEIGHT_SLOTS.md"
-      }
+      },
+      "previous_owner": "Fable independent identity reviewer",
+      "assigned_model": "Opus 5",
+      "dispatch_document": "ZK60_OPUS_QUEUE.md"
     },
     {
       "id": "FA5",
       "priority": 1,
       "title": "Close arithmetic and security obligations for the precise MVP",
-      "owner": "Fable independent arithmetic/security reviewer",
+      "owner": "Opus 5 bounded follow-up; Codex reviews final integration and security conclusions",
       "status": "analysis_delivered; closure open",
       "depends_on": [],
       "files": [
@@ -563,13 +579,17 @@
         "estimates": "two-block fixed-profile receipt ~2^-110 statistical soundness (Ligero column test (17/24)^256 = 2^-127.4 per opening x 6 openings/block; attention LogUp 4N/|F_p2| = 2^-111.3 dominates; sumchecks ~2^-119), capped by blake3-256 Fiat-Shamir; projected 125M/8B profile (log_cols 14, rate 1/4, Q 256, 32 layers x 6 openings) near 2^-94; nothing quantitative carries over from the lattice-era SOUNDNESS_REFERENCE.md; the P1 hiding code's column term is 2^-106",
         "fixed_profile": "no false-acceptance path found; every reviewed relation is an ACTUAL verifier constraint or a CHECKED A00 precondition",
         "limits": "read-only source review plus python arithmetic; no cargo run; Ligero bounds in the documented e < d/3 regime; deployment row is a projection; closure depends on the FA3 repair, FA4's P3 consistency and independent verification incl. a Rust tamper leg for the R09 alias; no throughput eligibility"
-      }
+      },
+      "previous_owner": "Fable independent arithmetic/security reviewer",
+      "assigned_model": "Opus 5",
+      "dispatch_document": "ZK60_OPUS_QUEUE.md",
+      "opus_dispatch": "Existing follow-up after O1-O4; CL20 remains priority 3"
     },
     {
       "id": "CL20",
       "priority": 3,
       "title": "Create and maintain a minimal refactored ZKP subproject",
-      "owner": "Fable refactoring lane; Codex reviews shared-core extraction",
+      "owner": "Opus 5 bounded follow-up; Codex reviews final integration and security conclusions",
       "status": "primitives_PCS_tables_and_typed_FFN_decoder_integrated; full_FFN_prover_verifier_and_ZKP_path_open",
       "depends_on": [
         "CL17"
@@ -688,13 +708,17 @@
         "review": "ZK60_ROUND15.md",
         "full_task_complete": false,
         "validation": "../../results/zk60_round15_validation.json"
-      }
+      },
+      "previous_owner": "Fable refactoring lane; Codex reviews shared-core extraction",
+      "assigned_model": "Opus 5",
+      "dispatch_document": "ZK60_OPUS_QUEUE.md",
+      "opus_dispatch": "Existing follow-up after O1-O4; CL20 remains priority 3"
     },
     {
       "id": "FA6",
       "priority": 0,
       "title": "Review the complete CFS masking channel",
-      "owner": "Fable independent review",
+      "owner": "Opus 5 bounded follow-up; Codex reviews final integration and security conclusions",
       "status": "analysis_integrated; CFS hardenings implemented; attention channel follow-up ready",
       "depends_on": [],
       "files": [
@@ -734,14 +758,20 @@
         ],
         "limits": "linear-in-mask model of the message channel with exact arithmetic; the terminal values themselves are the linear channel's (FA2/FA3/FA7); no private-block, deployment or throughput acceptance; production edits remain with the source owner"
       },
-      "round15_handoff": "Do not repeat the FFN channel analysis. Review a5aea1d safeguards, then inventory attention A1-A4 CFS slots, terminals and seam masks; identify requirements before Codex implements private attention."
+      "round15_handoff": "Do not repeat the FFN channel analysis. Review a5aea1d safeguards, then inventory attention A1-A4 CFS slots, terminals and seam masks; identify requirements before Codex implements private attention.",
+      "previous_owner": "Fable independent review",
+      "assigned_model": "Opus 5",
+      "dispatch_document": "ZK60_OPUS_QUEUE.md",
+      "opus_dispatch": [
+        "O4"
+      ]
     },
     {
       "id": "FA7",
       "priority": 0,
       "title": "Analyze captured A/H/W observations jointly",
-      "owner": "Fable independent review",
-      "status": "legacy_joint_analysis_integrated; next repaired/profile-function2 captures await Codex implementation",
+      "owner": "Opus 5 bounded follow-up; Codex reviews final integration and security conclusions",
+      "status": "legacy_analysis_complete; repaired_fresh_function1_captures_ready_for_review",
       "depends_on": [],
       "files": [
         "schema-1 test capture JSON",
@@ -775,14 +805,22 @@
         ],
         "limits": "linear model with fixed captured coefficients, one proof at a time; not a simulator, not an upper bound, not H privacy; the captures hold no witness and truth comparison lives only in the in-process Rust harness; no private-block, deployment or throughput acceptance"
       },
-      "round15_handoff": "Retain legacy findings and schema-2 contract. Review actual repaired FFN/predicate captures when supplied, including individual terminals and seam aliases."
+      "round15_handoff": "Retain legacy findings and schema-2 contract. Review actual repaired FFN/predicate captures when supplied, including individual terminals and seam aliases.",
+      "round16_handoff": "Four actual fully verified fresh T32/d16/f16 captures (two P1, two P3) at /tmp/zk60-round16/captures, source b41d036; digest manifest in results/zk60_round16_captures.json. Schema 2, explicit coverage ffn-v3-mr1-fresh-poc-function-1. Extend the parser for this experimental profile and independently recompute its layout, row roles and coefficients. It is NOT the registered/seamed profile: W is freshly committed, slot/k null, Q=256. Compare joint A/W disclosure to zero and H to only the public LogUp identity. Retain legacy positive controls; do not relabel captures or claim function-2/seam coverage. T2, predicates and block captures follow separately.",
+      "previous_owner": "Fable independent review",
+      "assigned_model": "Opus 5",
+      "dispatch_document": "ZK60_OPUS_QUEUE.md",
+      "opus_dispatch": [
+        "O1",
+        "O2"
+      ]
     },
     {
       "id": "FA8",
       "priority": 0,
       "title": "Review full transcript and repeated-proof privacy",
-      "owner": "Fable independent review",
-      "status": "conditional_construction_analysis_integrated; implementation, stable-reuse enforcement and attention gates remain",
+      "owner": "Opus 5 bounded follow-up; Codex reviews final integration and security conclusions",
+      "status": "conditional_argument_complete; executable_fresh_generator_ready_for_review",
       "depends_on": [
         "FA6",
         "FA7"
@@ -838,13 +876,20 @@
         ],
         "limits": "argument in the random-oracle model with salted-leaf hiding computational and OS entropy assumed; no cargo, no GPU, no proof run; finite rank tests and a model-identity declaration do not substitute for the argument or the enforcement; no private-block, deployment or throughput acceptance"
       },
-      "round15_handoff": "Review actual mask generator/consuming prover against E1/E2 and schema-2 captures. S2 implemented. Repaired API must not accept a seed (S1); legacy frozen fixtures stay deterministic. Local encrypted material and canonical registry exist, but malicious rollback/copy resistance and authenticated custody do not. E4 and attention A1-A4 remain."
+      "round15_handoff": "Review actual mask generator/consuming prover against E1/E2 and schema-2 captures. S2 implemented. Repaired API must not accept a seed (S1); legacy frozen fixtures stay deterministic. Local encrypted material and canonical registry exist, but malicious rollback/copy resistance and authenticated custody do not. E4 and attention A1-A4 remain.",
+      "round16_handoff": "Review b41d036 hashline/src/zk_ffn_fresh_poc.rs and shared zk.rs repaired schedule against FA3/FA8 for fresh P1/P3 function 1. No caller seed, RNG or reusable commitment; private commitment ownership ends inside prove. Check every random row, pair coefficient, table-block condition, group/proximity rejection and the four actual captures. Explicit experimental profile has no transport decoder, registered model identity, stable slots, predicates or block seams. Do not gate this fresh proof on stable storage infrastructure.",
+      "previous_owner": "Fable independent review",
+      "assigned_model": "Opus 5",
+      "dispatch_document": "ZK60_OPUS_QUEUE.md",
+      "opus_dispatch": [
+        "O3"
+      ]
     },
     {
       "id": "FA9",
       "priority": 0,
       "title": "Close arithmetic and authenticated registrar obligations",
-      "owner": "Fable independent review",
+      "owner": "Opus 5 bounded follow-up; Codex reviews final integration and security conclusions",
       "status": "adversarial_review_integrated; R32 independently closed; R09 wider-profile fix and authenticated R31 premise remain",
       "depends_on": [],
       "files": [
@@ -873,6 +918,10 @@
         "tests": "hashline/tests/zk60_fable_arith.rs (six tests)",
         "evidence": "../../results/zk60_fable_fa9_review.json"
       },
+      "previous_owner": "Fable independent review",
+      "assigned_model": "Opus 5",
+      "dispatch_document": "ZK60_OPUS_QUEUE.md",
+      "opus_dispatch": "Existing follow-up after O1-O4; CL20 remains priority 3",
       "fable_result_2026-09-08": {
         "date": "2026-09-08",
         "branch": "zk60-fable-fa9 (worktree /home/victor/wt-zk60-fa9, branched at cfa46f6, merged a94ce2c); merged into zk60-fable-review",
@@ -945,14 +994,15 @@
         ],
         "limits": "no preflight go (shared box busy); no deployment or throughput acceptance"
       },
-      "round15_handoff": "Pick up 612ff9c, including 22c9b35 and 8c60dfb; optional storage uses a separate Cargo target to preserve the recorded CPU artifact. Cached trees/locks alone missed source edits after init; validate/finalize/preflight now bind live deltas, presence, untracked inputs and HEAD. Default v6 has 32 core and 215 storage-enabled hashline tests, 24 floor cases. Preserve v1-v5 definitions; do not reimplement this fix."
+      "round15_handoff": "Pick up 612ff9c, including 22c9b35 and 8c60dfb; optional storage uses a separate Cargo target to preserve the recorded CPU artifact. Cached trees/locks alone missed source edits after init; validate/finalize/preflight now bind live deltas, presence, untracked inputs and HEAD. Default v6 has 32 core and 215 storage-enabled hashline tests, 24 floor cases. Preserve v1-v5 definitions; do not reimplement this fix.",
+      "round16_handoff": "b41d036 cuts suite v7 only for three new FFN repair regressions: storage-enabled hashline count 218, core count 32, same 24 cases and 12 frozen comparisons. Preserve all archived versions. Codex completed all 24 cases at 046e965; no duplicate tooling work needed."
     }
   ],
   "round10_codex_work": "CL19 implementation complete and validated: 156 Rust, 39 Python consumers, four unchanged frozen proofs, P3 on/off byte parity; see ZK60_ROUND10.md. GPU/PCS/planner ownership unchanged.",
   "codex_next_work": [
-    "Implement the versioned FFN mask-layout generator and OS-randomness-only repaired API, then digest-bound ordinary and predicate captures for Fable review.",
-    "Implement versioned attention D-range enforcement and registered prover/verifier with the exact reserved-slot opening schedule; authenticated approval/key custody and external rollback-resistant authority remain stable-P3 requirements.",
-    "Review remaining CL20 complete P0 FFN prover/verifier extraction and cross-verification parity; build one private block and then two linked blocks only after privacy/arithmetic closure."
+    "Bounded FFN proof envelope and verification from bytes for the executable paired-mask profile.",
+    "Connect repaired FFN commitment owners to private block seams and implement attention repairs identified by the independent review.",
+    "Demonstrate a complete tiny private block with external IO and model binding, then two linked blocks. Stable private model binding remains explicit unfinished work; core extraction stays priority 3."
   ],
   "completed_successor_tasks": [
     "CL12",
@@ -1115,5 +1165,39 @@
       "frozen_proofs": 12,
       "floor_cases": 24
     }
-  }
+  },
+  "round16_codex_work": {
+    "source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
+    "report": "ZK60_ROUND16.md",
+    "validation": "../../results/zk60_round16_validation.json",
+    "validation_status": "complete",
+    "implemented": [
+      "Executable paired-mask FFN T32/d16/f16 in both privacy modes, with fresh commitments",
+      "OS-randomness-only owned transcript API and verifier degeneracy guards",
+      "Runnable public synthetic demo and three adversarial/recovery regressions",
+      "Four schema-2 experimental fresh function-1 captures with layout/source digests, row roles and coefficient tags"
+    ],
+    "profile": "ffn-v3-mr1-fresh-poc/1",
+    "private_block_implemented": false,
+    "stable_private_model_identity": false,
+    "wire_decoder_implemented": false,
+    "full_privacy_review_complete": false,
+    "capture_directory": "/tmp/zk60-round16/captures",
+    "captures_manifest": "../../results/zk60_round16_captures.json",
+    "fresh_ffn_repair_implemented": true,
+    "full_private_poc_complete": false,
+    "validation_source_commit": "046e9654ab8b769be196bef5b63dbf6485982f7d",
+    "validation_counts": {
+      "rust_unique": 250,
+      "gpu_oracle_cases": 189,
+      "frozen_proof_cases": 12,
+      "floor_cases": 24,
+      "python_full_initial_passed": 659,
+      "python_full_initial_failed_stale_assertion": 1,
+      "python_corrected_module_passed": 87
+    }
+  },
+  "assigned_model": "Opus 5",
+  "dispatch_document": "ZK60_OPUS_QUEUE.md",
+  "assignment_reason": "Victor exhausted Fable usage and reassigned pending todos to Opus 5. Historical Fable deliveries remain attributed to Fable."
 }
