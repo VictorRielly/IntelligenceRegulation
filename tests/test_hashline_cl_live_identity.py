@@ -25,7 +25,7 @@ class LiveCheckout(unittest.TestCase):
         return rc, output.getvalue()
 
     def check_binding(self, expected, reason=""):
-        for version in (4, 5):
+        for version in (4, 5, 6):
             for command in ("validate", "finalize"):
                 with self.subTest(version=version, command=command):
                     manifest = gg.synthetic_manifest(suite_version=version, head=self.initial["head"],
@@ -88,6 +88,10 @@ class SuiteFive(unittest.TestCase):
         self.assertEqual(gg.case_definition(5, "storage_tests")["expect"]["passed"], 210)
         self.assertEqual(len(gg.expected_cases(4)), 23)
         self.assertEqual(len(gg.expected_cases(5)), 24)
+        self.assertEqual(len(gg.expected_cases(6)), 24)
+        self.assertEqual(gg.case_definition(6, "core_tests")["expect"]["passed"], 32)
+        self.assertEqual(gg.case_definition(6, "storage_tests")["expect"]["passed"], 215)
+        self.assertTrue(gg.validate_manifest(gg.synthetic_manifest(suite_version=6))["ok"])
         self.assertTrue(gg.validate_manifest(gg.synthetic_manifest(suite_version=5))["ok"])
 
     def test_missing_storage_case_refuses(self):

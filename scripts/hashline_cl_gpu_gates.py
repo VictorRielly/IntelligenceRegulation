@@ -17,6 +17,8 @@ Stdlib only; CPU only. Nothing here builds, proves or touches a device: the
 runner does, and reports each case through `start` / `record`.
 
 Suite versions
+  6  Corrected typed FFN extraction: 32 core tests and 215 storage-enabled
+     hashline tests. Same 24 cases and live-source requirements as v5.
   5  Round 15: 22 core tests and a separate 210-test stable-weight-storage
      case. Both crates must also have no untracked, non-ignored files.
      Live checkout binding checks HEAD, presence, deltas and untracked files,
@@ -230,12 +232,25 @@ def _suite_v5():
     return s
 
 
+def _suite_v6():
+    s = copy.deepcopy(_suite_v5())
+    s["version"] = 6
+    for c in s["cases"]:
+        if c["id"] == "core_tests":
+            c["expect"]["passed"] = 32
+            c["established"] = "Typed FFN core and decoder corrections at 50f1ea5: 32 standalone tests."
+        if c["id"] == "storage_tests":
+            c["expect"]["passed"] = 215
+            c["established"] = "v5's 210 plus six codec tests, minus one table registry test moved into the core."
+    return s
+
+
 def _suite_v0():
-    # [ZK60-CL21] derived from the newest production suite (v5) so the synthetic
+    # [ZK60-CL21] derived from the newest production suite (v6) so the synthetic
     # round trip exercises every case kind, the core's included. The synthetic
     # suite records identity when the runner gives it one but does not REQUIRE
     # it: it is never evidence and the CLI round trip runs without a checkout.
-    suite = copy.deepcopy(_suite_v5())
+    suite = copy.deepcopy(_suite_v6())
     suite.update({"version": 0, "production": False, "requires_source_identity": False, "requires_untracked_identity": False,
                   "note": "synthetic self-check suite: tiny fixed byte strings stand in for proofs; never evidence"})
     for case in suite["cases"]:
@@ -289,8 +304,8 @@ def _suite_v3():
     return suite
 
 
-SUITES = {5: _suite_v5(), 4: _suite_v4(), 3: _suite_v3(), 2: _suite_v2(), 1: _suite_v1(), 0: _suite_v0()}
-DEFAULT_SUITE = 5
+SUITES = {6: _suite_v6(), 5: _suite_v5(), 4: _suite_v4(), 3: _suite_v3(), 2: _suite_v2(), 1: _suite_v1(), 0: _suite_v0()}
+DEFAULT_SUITE = 6
 
 
 def suite(version):
@@ -877,7 +892,7 @@ def validate_manifest(manifest, *, expect_head=None, expect_gpu_sha256=None, exp
                     f"(every line ok: {all_ok}) != the suite's {want['passed']} / {want['failed']} / {want['ignored']}")
         if case["kind"] == "core_example" and r.get("example_line") != case["expect"]["line"]:
             say(f"core example: its identifying line was not recorded ({r.get('example_line')!r})")
-        if s["version"] == 5 and case["kind"] in ("core_tests", "core_example", "storage_tests"):
+        if s["version"] >= 5 and case["kind"] in ("core_tests", "core_example", "storage_tests"):
             argv = r.get("argv") or []
             manifest_path = (_argv_option(argv, "--manifest-path") or "").replace(os.sep, "/")
             want_path = case["manifest_path"]
