@@ -1,0 +1,1975 @@
+# CL20 step 2c — PARKED work in progress (the full P0 FFN prover/verifier move)
+#
+# What this is
+#   The uncommitted state of `/home/victor/wt-zk60-cl20` (branch
+#   `zk60-cl20-core`) as it stood when the round-15 agent (Fable) was cut off
+#   mid-edit by a usage limit on 2026-09-08 at ~21:19 local. It is the FULL
+#   step-2c extraction described in `zkp-core/MIGRATION.md`, "The next step in
+#   detail": the layer prover, verifier, LogUp helpers, witness planes, tamper
+#   legs and a scheme seam moved into `zkp-core/src/ffn_v3/`, plus three new
+#   `Backend` hooks and their hashline CUDA implementations.
+#
+# Base pin
+#   Apply to a clean checkout of 0b2b830 ("docs: publish round15 validation and
+#   continued Fable handoff") with:
+#       git apply results/zk60_cl20_step2c_wip.diff
+#   Four tracked files are modified; seven files are new.
+#
+# State when parked (round 16 review, verified — see the "Round 16 re-scope"
+# section of `zkp-core/MIGRATION.md`)
+#   INCOMPLETE AND NOT COMPILABLE. `zkp-core/src/ffn_v3/mod.rs` was never
+#   updated, so the six new core modules (`logup`, `prove`, `scheme`, `tamper`,
+#   `verify`, `witness`) are not declared and the symbols
+#   `hashline/src/export_v3.rs` now imports from `zkp_core::ffn_v3`
+#   (`requant_round`, `in_i16_class`, `in_rem_window`,
+#   `matmul_i32_i8_i64_into`) do not exist in the built crate. Nothing in
+#   `hashline/src/layer.rs` was switched over to the new core prover, so the
+#   move is also not wired on the hashline side.
+#
+# Why it is parked
+#   The Codex re-scope of 2026-09-08 (`docs/zkmatrix-poc/ZK60_OPUS_QUEUE.md`,
+#   "Lower priority") withdraws the full extraction from the current dispatch:
+#   "Review the existing incomplete extraction and propose one small pure
+#   helper to move with a byte/cross-verification check before moving the full
+#   FFN prover." Round 16 does that single helper move (`eval_many`) and parks
+#   everything else here rather than deleting it.
+#
+# Live copies of the new files also sit under
+#   /tmp/zk60-fable-r12/cl20/s5-parked-wip/   (volatile; this patch is the
+#   durable copy)
+# and the round-15 stage logs that produced them are under
+#   /tmp/zk60-fable-r12/cl20/{s2,s2a,s2b,s2final,s3,s4}/ .
+#
+# Two frozen legacy digests recorded by the parked
+# `hashline/tests/zk60_cl20_parity.rs` capture runs (/tmp/zk60-fable-r12/cl20/
+# s4/capture.log and capture2.log, both taken while the tree still equalled
+# 0b2b830 for layer.rs / export_v3.rs / pcs*) are reused by round 16's
+# byte-identity test:
+#   T2  sha256 6132d0c493a50c070a924e5f10653a27e0738527a29f76c9ddf84ccb8c143f0e  348,784 B
+#   T32 sha256 48d142757a3062e9a0b46f0599e17978f3f63fddf0847ad3295af7398f65b4da  375,344 B
+#
+# ---------------------------------------------------------------------------
+diff --git a/hashline/src/export_v3.rs b/hashline/src/export_v3.rs
+index 02507e2..0952648 100644
+--- a/hashline/src/export_v3.rs
++++ b/hashline/src/export_v3.rs
+@@ -273,50 +273,17 @@ pub fn load_layer_v3(dir: &Path, side: &V3Sidecar, l: usize, with_planes: bool,
+ // ---------------------------------------------------------------------------
+ 
+ /// c[i][j] = sum_k a[i][k] * b_t[k][j] in i64 (a i32 rows x inner, b_t int8 inner x cols).
++/// The arithmetic is the core's (`zkp_core::ffn_v3::matmul_i32_i8_i64_into`);
++/// this wrapper keeps hashline's allocation span.
+ pub fn matmul_i32_i8_i64(a: &[i32], b_t: &[i8], rows: usize, inner: usize, cols: usize) -> Vec<i64> {
+     let mut c = measure("allocation.matmul_output", || vec![0i64; rows * cols]);
+-    c.par_chunks_mut(cols).enumerate().for_each(|(i, crow)| {
+-        for k in 0..inner {
+-            let av = a[i * inner + k] as i64;
+-            if av == 0 {
+-                continue;
+-            }
+-            let brow = &b_t[k * cols..(k + 1) * cols];
+-            for (cv, &bv) in crow.iter_mut().zip(brow.iter()) {
+-                *cv += av * bv as i64;
+-            }
+-        }
+-    });
++    zkp_core::ffn_v3::matmul_i32_i8_i64_into(a, b_t, rows, inner, cols, &mut c);
+     c
+ }
+ 
+-/// The v3 requantization at a SIGNED shift: (y, r) with v = 2^s y + r and
+-/// r in the BALANCED window [-2^(s-1), 2^(s-1)) for s > 0 (= round-to-
+-/// nearest, half up); y = v * 2^-s, r = 0 for s <= 0 (exact up-scaling).
+-pub fn requant_round(acc: &[i64], sh: i32) -> (Vec<i64>, Vec<i64>) {
+-    if sh <= 0 {
+-        let scale = 1i64 << (-sh);
+-        return (acc.par_iter().map(|&a| a * scale).collect(), vec![0i64; acc.len()]);
+-    }
+-    let half = 1i64 << (sh - 1);
+-    let y: Vec<i64> = acc.par_iter().map(|&a| (a + half) >> sh).collect();
+-    let r: Vec<i64> = acc.par_iter().zip(y.par_iter()).map(|(&a, &yy)| a - (yy << sh)).collect();
+-    (y, r)
+-}
+-
+-#[inline]
+-pub fn in_i16_class(v: i64) -> bool {
+-    (-32768..=32767).contains(&v)
+-}
+-#[inline]
+-pub fn in_rem_window(r: i64, sh: i32) -> bool {
+-    if sh <= 0 {
+-        r == 0
+-    } else {
+-        let half = 1i64 << (sh - 1);
+-        (-half..half).contains(&r)
+-    }
+-}
++// [ZK60-CL20] The signed requantization and the class/window predicates are
++// canonical in zkp-core (`ffn_v3::witness`); re-exported under their names.
++pub use zkp_core::ffn_v3::{in_i16_class, in_rem_window, requant_round};
+ 
+ /// The derived v3 witness of one layer over its first `t_rows` rows
+ /// (row-major planes, i32; the balanced remainders).
+diff --git a/hashline/src/gpu/mod.rs b/hashline/src/gpu/mod.rs
+index 7758452..6c5d4c2 100644
+--- a/hashline/src/gpu/mod.rs
++++ b/hashline/src/gpu/mod.rs
+@@ -192,22 +192,34 @@ pub mod open_plan {
+ /// core's `Cpu` and the store type is uninhabited, so no device arm exists.
+ #[cfg(feature = "gpu-cuda")]
+ mod seam {
+-    use super::cuda::{dev_columns, dev_commit, dev_commit_zk, dev_fold_rows, enabled, DevCommit};
++    use super::cuda::{self, dev_columns, dev_commit, dev_commit_from, dev_commit_zk, dev_eval_many, dev_fold_rows, dev_helpers, dev_reserve, dev_zerocheck_blocks, enabled, DevCommit, SCG_MAX_PRM};
+     use crate::field::{Fp, Fp2};
+     use crate::merkle::Digest;
+     use crate::ntt::NttTables;
+-    use zkp_core::pcs::{Backend, EncodedStore, PcsParams};
++    use zkp_core::pcs::{Backend, EncodedStore, HelpersRequest, LayerShape, PcsParams, TabSpec, ZeroCheckRequest};
++    use zkp_core::sumcheck::ProverOutput;
++    use zkp_core::transcript::Transcript;
+ 
+     /// The store type hashline's commitments carry: the device-resident encoding.
+     pub type DevStore = DevCommit;
+ 
+     pub struct CudaBackend;
++    /// The backend type behind `backend()` (the core's layer scheme names it).
++    pub type BackendType = CudaBackend;
+ 
+     /// The backend `pcs::commit` / `pcs::commit_zk` offer their work to.
+     pub fn backend() -> CudaBackend {
+         CudaBackend
+     }
+ 
++    /// [UPERF3-AH] The block shapes the zero-check kernels accept: any block
++    /// count whose block-indexed parameters fit the kernels' shared array
++    /// (`SCG_MAX_PRM`); F needs `17 + 14 nb_f`, D `7 + 6 nb_d`. Outside it the
++    /// layer's helpers and both zero-checks stay on the host, silently, as before.
++    fn dev_shape(s: LayerShape) -> bool {
++        s.nb_f >= 1 && s.nb_d >= 1 && 17 + 14 * s.nb_f <= SCG_MAX_PRM && 7 + 6 * s.nb_d <= SCG_MAX_PRM
++    }
++
+     impl EncodedStore for DevCommit {
+         fn fold_rows(&self, rhos: &[Vec<Fp2>]) -> Result<Vec<Vec<Fp2>>, String> {
+             dev_fold_rows(self, rhos)
+@@ -245,16 +257,76 @@ mod seam {
+                 }
+             }
+         }
++        // [UPERF3-ZB]/[UPERF3-AH] the helper columns computed on the device from the resident
++        // A data, straight into a device H buffer, committed from there; the zero-check table
++        // buffers are reserved first so a decline never strands the layer without host tables.
++        fn try_helpers_commit(&self, a: &DevCommit, req: &HelpersRequest<'_>, ntt: &NttTables) -> Option<(DevCommit, Vec<Digest>, Vec<Fp2>)> {
++            if !enabled() || !dev_shape(req.shape) {
++                return None;
++            }
++            let specs: Vec<cuda::HelperSpec> = req
++                .specs
++                .iter()
++                .map(|s| cuda::HelperSpec { off_v1: s.off_v1, off_w: s.off_w, off_v2: s.off_v2, len: s.len, c1: s.c1, c2: s.c2, off_re: s.off_re, off_im: s.off_im })
++                .collect();
++            let r = dev_reserve(&req.zc_reserve)
++                .and_then(|()| dev_helpers(a, req.h_len, &specs, req.alpha, req.beta))
++                .and_then(|(d_h, sums)| dev_commit_from(&req.h_pcs, d_h, req.rows, ntt).map(|(dc, leaves)| (dc, leaves, sums)));
++            match r {
++                Ok(x) => Some(x),
++                Err(e) => {
++                    eprintln!("[UPERF3-ZB] gpu helpers declined ({e}); CPU path");
++                    None
++                }
++            }
++        }
++        // [UPERF3-AH] the block-looping zero-check kernels (any block count within the parameter bound).
++        fn try_zerocheck(&self, req: &ZeroCheckRequest<'_, DevCommit>, tr: &mut Transcript) -> Option<ProverOutput> {
++            if !enabled() || !dev_shape(req.shape) {
++                return None;
++            }
++            let specs: Vec<cuda::TabSpec<'_>> = req
++                .specs
++                .iter()
++                .map(|s| match *s {
++                    TabSpec::FromFp(dc, off, len) => cuda::TabSpec::FromFp(dc, off, len),
++                    TabSpec::FromFp2(dc, re, im, len) => cuda::TabSpec::FromFp2(dc, re, im, len),
++                    TabSpec::Eq(point) => cuda::TabSpec::Eq(point),
++                })
++                .collect();
++            match dev_zerocheck_blocks(req.kind as i32, req.blocks, &specs, req.prm, tr) {
++                Ok(out) => Some(out),
++                Err(e) => {
++                    eprintln!("[UPERF3-ZB] gpu zero-check {} declined ({e}); CPU path", if req.kind == 0 { "F" } else { "D" });
++                    None
++                }
++            }
++        }
++        // [UPERF3-XX] `eval_many` on the device when the commitment is device-resident (same values).
++        fn try_eval_many(&self, a: &DevCommit, offs: &[usize], point: &[Fp2]) -> Option<Vec<Fp2>> {
++            if !enabled() {
++                return None;
++            }
++            match dev_eval_many(a, offs, point) {
++                Ok(v) => Some(v),
++                Err(e) => {
++                    eprintln!("[UPERF3-XX] gpu eval_many declined ({e}); CPU path");
++                    None
++                }
++            }
++        }
+     }
+ }
+ 
+ #[cfg(feature = "gpu-cuda")]
+-pub use seam::{backend, CudaBackend, DevStore};
++pub use seam::{backend, BackendType, CudaBackend, DevStore};
+ 
+ #[cfg(not(feature = "gpu-cuda"))]
+ mod seam {
+     /// Without the feature no external store exists (the type has no values).
+     pub type DevStore = zkp_core::pcs::NoExternal;
++    /// The backend type behind `backend()`: the core's CPU backend.
++    pub type BackendType = zkp_core::pcs::Cpu;
+ 
+     /// The core's CPU backend: never takes over.
+     pub fn backend() -> zkp_core::pcs::Cpu {
+@@ -263,7 +335,7 @@ mod seam {
+ }
+ 
+ #[cfg(not(feature = "gpu-cuda"))]
+-pub use seam::{backend, DevStore};
++pub use seam::{backend, BackendType, DevStore};
+ 
+ #[cfg(not(feature = "gpu-cuda"))]
+ mod stub {
+diff --git a/zkp-core/src/pcs.rs b/zkp-core/src/pcs.rs
+index 8806bbe..830578a 100644
+--- a/zkp-core/src/pcs.rs
++++ b/zkp-core/src/pcs.rs
+@@ -35,7 +35,7 @@ use crate::transcript::Transcript;
+ use rayon::prelude::*;
+ 
+ mod backend;
+-pub use backend::{Backend, Cpu, EncodedStore, NoExternal};
++pub use backend::{Backend, Cpu, EncodedStore, HelperSpec, HelpersRequest, LayerShape, NoExternal, TabSpec, ZeroCheckRequest};
+ 
+ #[derive(Clone, Copy, Debug)]
+ pub struct PcsParams {
+diff --git a/zkp-core/src/pcs/backend.rs b/zkp-core/src/pcs/backend.rs
+index 8f44cd4..2485a76 100644
+--- a/zkp-core/src/pcs/backend.rs
++++ b/zkp-core/src/pcs/backend.rs
+@@ -23,6 +23,8 @@ use super::PcsParams;
+ use crate::field::{Fp, Fp2};
+ use crate::merkle::Digest;
+ use crate::ntt::NttTables;
++use crate::sumcheck::ProverOutput;
++use crate::transcript::Transcript;
+ 
+ /// An encoding held outside the host `Vec<Fp>` (a device buffer, a file).
+ /// `Sync` because the opening reads the store from rayon workers, as the
+@@ -70,6 +72,98 @@ pub trait Backend {
+         let _ = (params, data, pads, pows, ntt);
+         None
+     }
++
++    // ---- layer hooks (CL20 step 2c): the FFN prover's three accelerations,
++    // all default None = the host path. The same differential discipline
++    // applies: identical field values, identical transcript bytes.
++
++    /// Compute the LogUp helper columns (`req.specs`) from the resident A
++    /// store `a` into an H data buffer of `req.h_len` elements, commit it
++    /// with `req.h_pcs` over `req.rows` rows and return the store, the
++    /// UNSALTED column leaves and the helper sums (one per spec, in order).
++    /// An implementation reserves `req.zc_reserve` (the two zero-check
++    /// table buffers) BEFORE touching the helpers, so a later decline never
++    /// strands the layer without host tables.
++    fn try_helpers_commit(&self, a: &Self::Store, req: &HelpersRequest<'_>, ntt: &NttTables) -> Option<(Self::Store, Vec<Digest>, Vec<Fp2>)> {
++        let _ = (a, req, ntt);
++        None
++    }
++
++    /// Run one zero-check sumcheck over tables held by the backend
++    /// (`req.specs`) with the block-indexed parameters `req.prm`, absorbing
++    /// its rounds into `tr` exactly as `sumcheck::prove` would. The caller
++    /// hands a CLONE of its transcript and adopts it only on `Some`.
++    fn try_zerocheck(&self, req: &ZeroCheckRequest<'_, Self::Store>, tr: &mut Transcript) -> Option<ProverOutput> {
++        let _ = (req, tr);
++        None
++    }
++
++    /// Evaluate the slices at `offs` (each `2^point.len()` long) of the
++    /// resident store `a` at `point` (== `ffn_v3::logup::eval_many`).
++    fn try_eval_many(&self, a: &Self::Store, offs: &[usize], point: &[Fp2]) -> Option<Vec<Fp2>> {
++        let _ = (a, offs, point);
++        None
++    }
++}
++
++/// One LogUp helper column a backend computes from its resident A data:
++/// `h = 1/(alpha - l1) + 1/(alpha - l2)` with `l1 = v1 + beta * w + c1`
++/// (`w` present when `off_w` is) and `l2 = v2 + c2`, written as base-field
++/// re/im planes at `off_re` / `off_im` of the H buffer.
++#[derive(Clone, Copy, Debug)]
++pub struct HelperSpec {
++    pub off_v1: usize,
++    pub off_w: Option<usize>,
++    pub off_v2: usize,
++    pub len: usize,
++    pub c1: Fp2,
++    pub c2: Fp2,
++    pub off_re: usize,
++    pub off_im: usize,
++}
++
++/// The block shape of a layer (a backend's kernel bounds depend on it).
++#[derive(Clone, Copy, Debug)]
++pub struct LayerShape {
++    pub nb_f: usize,
++    pub nb_d: usize,
++    pub tfb: usize,
++    pub tdb: usize,
++}
++
++/// `try_helpers_commit`'s request.
++#[derive(Clone, Copy, Debug)]
++pub struct HelpersRequest<'a> {
++    pub h_len: usize,
++    pub specs: &'a [HelperSpec],
++    pub alpha: Fp2,
++    pub beta: Fp2,
++    /// the two zero-check table buffers (F, D) to reserve first, in elements
++    pub zc_reserve: [usize; 2],
++    pub h_pcs: PcsParams,
++    pub rows: usize,
++    pub shape: LayerShape,
++}
++
++/// One table of a zero-check as the backend sees it.
++pub enum TabSpec<'a, S> {
++    /// (store, element offset, length): dst[i] = (data[off + i], 0)
++    FromFp(&'a S, usize, usize),
++    /// (store, re offset, im offset, length)
++    FromFp2(&'a S, usize, usize, usize),
++    /// eq(point, .) over 2^len(point) entries, MSB convention
++    Eq(&'a [Fp2]),
++}
++
++/// `try_zerocheck`'s request: `kind` 0 = the F check (f-side planes, degree
++/// 4), 1 = the D check (d-side planes, degree 4); `blocks` the block count
++/// the parameters are indexed by.
++pub struct ZeroCheckRequest<'a, S> {
++    pub kind: u8,
++    pub blocks: usize,
++    pub specs: &'a [TabSpec<'a, S>],
++    pub prm: &'a [u64],
++    pub shape: LayerShape,
+ }
+ 
+ /// The CPU: never takes over, holds nothing externally.
+diff --git a/hashline/tests/zk60_cl20_parity.rs b/hashline/tests/zk60_cl20_parity.rs
+new file mode 100644
+index 0000000..0074d8c
+--- /dev/null
++++ b/hashline/tests/zk60_cl20_parity.rs
+@@ -0,0 +1,95 @@
++//! CL20 step 2c (round 15): old/new parity of the non-hiding v3 FFN layer
++//! proof. The "old" side is the legacy hashline prover BEFORE the move
++//! (its tiny-fixture digests are frozen below, recorded from the tree at
++//! the round-15 pin before `layer.rs` was reduced to adapters); the "new"
++//! side is the maintained core's `zkp_core::ffn_v3::prove_layer_v3` over
++//! the CPU `Dense` scheme, and hashline's adapter, which is the same core
++//! prover over the hashline scheme (cache / compact / pooled buffers).
++//! Explicit seeds are PUBLIC test fixtures; T=2 and T=32 at d=f=16 with
++//! deliberately tiny parameters; no security claim.
++use hashline::export_v3::{derive_v3, sha256_hex, V3Dims, V3Exps, V3LayerExport, V3Witness};
++use hashline::layer::{prove_layer_v3, verify_layer_v3, LayerParams, LayerProofV3, StatementV3};
++use hashline::ntt::NttTables;
++use hashline::tables_v3::{int16out_member, Act16Fn};
++use hashline::transcript::Transcript;
++
++const DOMAIN: &[u8] = b"hashline-layer-v3";
++
++/// sha256 of `LayerProofV3::to_bytes()` of the legacy prover at the
++/// round-15 pin (`0b2b830`), T2 and T32, `params()`; recorded by this
++/// test's first run before the move and frozen here.
++const LEGACY_T2_SHA256: &str = "6132d0c493a50c070a924e5f10653a27e0738527a29f76c9ddf84ccb8c143f0e"; // 348,784 B
++const LEGACY_T32_SHA256: &str = "";
++
++fn params() -> LayerParams {
++    LayerParams { log_cols: 5, inv_rate: 4, num_col_checks: 12 }
++}
++
++fn ntt(p: &LayerParams) -> NttTables {
++    NttTables::new(p.log_cols + p.inv_rate.trailing_zeros())
++}
++
++/// The seeded d=f=16 synthetic layer of the identity-gap / mask diagnostics
++/// (LCG seed 1), derived through hashline's exact chain at `t` rows.
++pub fn synth(t: usize) -> V3Witness {
++    let (d, f) = (16usize, 16usize);
++    let mut seed = 1u64;
++    let mut next = |m: i64| -> i8 {
++        seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
++        (((seed >> 33) as i64) % (2 * m + 1) - m) as i8
++    };
++    let x = (0..t * d).map(|_| next(127)).collect();
++    let wg_t = (0..d * f).map(|_| next(4)).collect();
++    let wu_t = (0..d * f).map(|_| next(4)).collect();
++    let wd_t = (0..f * d).map(|_| next(4)).collect();
++    let (table, table_digest) = int16out_member(Act16Fn::Silu, -3, -11).unwrap();
++    let export = V3LayerExport {
++        l: 0,
++        dims: V3Dims { t, d, f, layers: 1 },
++        x,
++        wg_t,
++        wu_t,
++        wd_t,
++        a16: vec![],
++        u16: vec![],
++        h16: vec![],
++        z16: vec![],
++        exps: V3Exps { e_x: 0, e_g: -3, e_a16: -11, e_u16: 0, e_h16: 3, e_z16: 0, e_wg: -10, e_wu: 0, e_wd: -9 },
++        shifts: (7, 0, 14, 6),
++        act: Act16Fn::Silu,
++        table,
++        table_digest,
++        digest_checks: vec![],
++    };
++    let w = derive_v3(&export, t);
++    assert!(w.range_ok, "the T{t} fixture must be in range");
++    w
++}
++
++fn statement(w: &V3Witness) -> StatementV3 {
++    StatementV3 { l: w.l, t_rows: w.t_rows, d: w.dims.d, f: w.dims.f, shifts: w.shifts, act: w.act, table: w.table, table_digest: w.table_digest.clone() }
++}
++
++fn legacy_prove(w: &V3Witness, p: &LayerParams, ntt: &NttTables) -> LayerProofV3 {
++    prove_layer_v3(w, w.t_rows, p, ntt, &mut Transcript::new(DOMAIN)).proof
++}
++
++fn legacy_verify(st: &StatementV3, proof: &LayerProofV3, p: &LayerParams, ntt: &NttTables) -> Result<(), String> {
++    verify_layer_v3(st, proof, p, ntt, &mut Transcript::new(DOMAIN))
++}
++
++/// The frozen tiny digests: the hashline path must reproduce the bytes the
++/// legacy prover produced before the move, at both fixture sizes.
++#[test]
++fn hashline_path_reproduces_the_frozen_legacy_tiny_digests() {
++    let p = params();
++    let table = ntt(&p);
++    for (t, want) in [(2usize, LEGACY_T2_SHA256), (32usize, LEGACY_T32_SHA256)] {
++        let w = synth(t);
++        let st = statement(&w);
++        let proof = legacy_prove(&w, &p, &table);
++        legacy_verify(&st, &proof, &p, &table).unwrap();
++        let got = sha256_hex(&proof.to_bytes());
++        assert_eq!(got, want, "T{t}: legacy tiny digest (bytes {})", proof.size_bytes());
++    }
++}
+diff --git a/zkp-core/src/ffn_v3/logup.rs b/zkp-core/src/ffn_v3/logup.rs
+new file mode 100644
+index 0000000..c28ddd1
+--- /dev/null
++++ b/zkp-core/src/ffn_v3/logup.rs
+@@ -0,0 +1,116 @@
++//! The LogUp helper columns and constraint, the multiplicity tables and the
++//! small conversion / fold helpers the layer prover and verifier share.
++//! Moved from `hashline/src/layer.rs` (CL20 step 2c); hashline's legacy v2
++//! prover imports them from here.
++
++use super::statement::{rem_index, rem_rows, tag_rem_v3, Layout, TAG_ACT16, TAG_INT16};
++use super::witness::Witness;
++use crate::field::{batch_inverse2, Fp, Fp2};
++use crate::mle::eq_table_msb;
++use rayon::prelude::*;
++
++pub fn to_fp_i32(v: &[i32]) -> Vec<Fp> {
++    v.par_iter().map(|&x| Fp::from_i64(x as i64)).collect()
++}
++pub fn to_fp2_i32(v: &[i32]) -> Vec<Fp2> {
++    v.par_iter().map(|&x| Fp2::from_i64(x as i64)).collect()
++}
++
++/// Evaluate several base-field slices at one point (one eq table).
++pub fn eval_many(data: &[Fp], slices: &[(usize, usize)], point: &[Fp2]) -> Vec<Fp2> {
++    let eq = eq_table_msb(point);
++    slices
++        .iter()
++        .map(|&(off, len)| {
++            assert_eq!(len, eq.len());
++            data[off..off + len].par_iter().zip(eq.par_iter()).map(|(a, e)| e.mul_base(*a)).reduce(|| Fp2::ZERO, |a, b| a.add(b))
++        })
++        .collect()
++}
++
++pub fn sum_fp2(v: &[Fp2]) -> Fp2 {
++    v.par_iter().copied().reduce(|| Fp2::ZERO, |a, b| a.add(b))
++}
++
++/// The LogUp helper column h = 1/(alpha - l1) + 1/(alpha - l2).
++pub fn helper_column(l1: &[Fp2], l2: &[Fp2], alpha: Fp2) -> Vec<Fp2> {
++    let n = l1.len();
++    let mut den: Vec<Fp2> = Vec::with_capacity(2 * n);
++    den.extend(l1.iter().map(|v| alpha.sub(*v)));
++    den.extend(l2.iter().map(|v| alpha.sub(*v)));
++    den.par_chunks_mut(4096).for_each(|c| batch_inverse2(c));
++    (0..n).into_par_iter().map(|i| den[i].add(den[n + i])).collect()
++}
++
++/// The zero-check constraint for a helper: h (a - l1)(a - l2) - (2a - l1 - l2).
++#[inline(always)]
++pub fn helper_constraint(h: Fp2, l1: Fp2, l2: Fp2, alpha: Fp2) -> Fp2 {
++    let d1 = alpha.sub(l1);
++    let d2 = alpha.sub(l2);
++    h.mul(d1).mul(d2).sub(d1.add(d2))
++}
++
++/// [UPERF3-AL] `fold_cols_base` over ONE `w_data` block, read straight from
++/// the int8 source plane instead of from the converted 64-bit copy.
++///
++/// The prover lays the block at `wg[c * nb_f + b]` out as
++/// `blk[kp * fb + jp] = Fp::from_i64(wg_t[(c * db + kp) * f + b * fb + jp])`,
++/// so folding the block's columns is a STRIDED fold over the plane: rows
++/// `row0 .. row0 + rows` of a `stride`-wide matrix, columns
++/// `col0 .. col0 + cols`. Byte-identical by construction — the field is
++/// Z_p, every operation is exact, and skipping a zero adds zero (which is
++/// what `fold_cols_i8` already does elsewhere).
++pub fn fold_block_i8(src: &[i8], row0: usize, rows: usize, stride: usize, col0: usize, cols: usize, c: &[Fp2]) -> Vec<Fp2> {
++    debug_assert_eq!(c.len(), cols);
++    (0..rows)
++        .into_par_iter()
++        .map(|i| {
++            let base = (row0 + i) * stride + col0;
++            let row = &src[base..base + cols];
++            let mut acc = Fp2::ZERO;
++            for (&v, &cw) in row.iter().zip(c.iter()) {
++                let v = v as i64;
++                if v == 0 {
++                    continue;
++                }
++                acc = acc.add(cw.mul_base(Fp::from_i64(v)));
++            }
++            acc
++        })
++        .collect()
++}
++
++/// Multiplicity tables from the (possibly tampered) witness columns: values
++/// outside a table are counted into entry 0 so the totals still match and
++/// only the LogUp identity can catch them (what the tamper legs test).
++pub fn multiplicities(w: &Witness<'_>, shifts: (i32, i32, i32, i32), lay: &Layout) -> Vec<(u64, Vec<u32>)> {
++    let tf = lay.t_rows * lay.f;
++    let td = lay.t_rows * lay.d;
++    let mut act = vec![0u32; 256];
++    for &g in &w.g8[..tf] {
++        if (-128..=127).contains(&g) { act[(g + 128) as usize] += 1; } else { act[0] += 1; }
++    }
++    let mut i16t = vec![0u32; 1 << 16];
++    for col in [&w.u16[..tf], &w.h16[..tf], &w.z16[..td]] {
++        for &v in col {
++            if (-32768..=32767).contains(&v) { i16t[(v + 32768) as usize] += 1; } else { i16t[0] += 1; }
++        }
++    }
++    let (sg, su, sh, sz) = shifts;
++    let mut out = vec![(TAG_ACT16, act), (TAG_INT16, i16t)];
++    let mut shifts: Vec<i32> = vec![sg, su, sh, sz];
++    shifts.sort();
++    shifts.dedup();
++    for s in shifts {
++        let mut m = vec![0u32; rem_rows(s)];
++        let cols: Vec<&[i32]> = [(sg, &w.rg[..tf]), (su, &w.ru[..tf]), (sh, &w.rh[..tf]), (sz, &w.rd[..td])]
++            .into_iter().filter(|(c, _)| *c == s).map(|(_, v)| v).collect();
++        for col in cols {
++            for &r in col {
++                match rem_index(s, r) { Some(i) => m[i] += 1, None => m[0] += 1 }
++            }
++        }
++        out.push((tag_rem_v3(s), m));
++    }
++    out
++}
+diff --git a/zkp-core/src/ffn_v3/prove.rs b/zkp-core/src/ffn_v3/prove.rs
+new file mode 100644
+index 0000000..a491e94
+--- /dev/null
++++ b/zkp-core/src/ffn_v3/prove.rs
+@@ -0,0 +1,599 @@
++//! The prover of the non-hiding v3 FFN layer proof.
++//!
++//! Moved from `hashline/src/layer.rs::prove_layer_v3` (CL20 step 2c). The
++//! relation, the transcript order, the commitment layout and every byte of
++//! the proof are unchanged; what changed is where policy lives: the W cache,
++//! the compact PCS, the pooled host buffers and the `HL_*` switches are
++//! behind [`CommitScheme`] (hashline's adapter), the device arms are the
++//! three layer hooks of [`crate::pcs::Backend`] (hashline's `CudaBackend`),
++//! the host-conversion clocks that `HL_CONV_VERBOSE` printed are returned in
++//! [`ProveOutput::conversion`]. The single-pass int8 folds
++//! (`fold_block_i8`, hashline's `HL_AL_I8FOLD=1` default) are the one fold
++//! implementation kept; the pre-lane two-pass form was byte-identical and is
++//! retired with the move.
++
++use super::logup::{eval_many, fold_block_i8, helper_column, helper_constraint, multiplicities};
++use super::proof::{ExtraOpening, Proof};
++use super::scheme::{BufSlot, CommitScheme, OpenMode, WeightKey};
++use super::statement::{absorb_com, absorb_mults, absorb_statement, pow2_signed, tag_rem_v3, Layout, Params, Statement, TAG_ACT16, TAG_INT16};
++use super::witness::Witness;
++use crate::field::{Fp, Fp2};
++use crate::merkle::MerkleTree;
++use crate::mle::{eq_table_msb, eval_mle_ext, fold_rows_i32, fold_rows_i8};
++use crate::ntt::NttTables;
++use crate::pcs::{Backend, Claim, Committed, HelperSpec, HelpersRequest, LayerShape, Store, TabSpec, ZeroCheckRequest};
++use crate::sumcheck;
++use crate::transcript::Transcript;
++use rayon::prelude::*;
++use std::time::Instant;
++
++/// The prover's product: the proof, the per-phase clocks (the legacy
++/// `timings`: commit W, commit A, helpers + commit H, matmul g/u, matmul d,
++/// zero-check F, zero-check D, pcs openings) and the host-conversion clocks
++/// (`conv W alloc/fill`, `commit W`, `conv A alloc/fill`, `commit A`,
++/// `fold gu pre/blocks`, `fold d pre/blocks`) hashline prints under
++/// `HL_CONV_VERBOSE=1`.
++pub struct ProveOutput<X> {
++    pub proof: Proof<X>,
++    pub timings: Vec<(String, f64)>,
++    pub conversion: Vec<(String, f64)>,
++}
++
++/// The host-side Fp2 tables of the zero-checks (the CPU path builds them
++/// with the helper columns; the device path never materializes them).
++struct HostTabs {
++    // per f-block: g8, rg, a16, u16, ru, h16, rh, hg, hu, hh
++    fb: Vec<Vec<Vec<Fp2>>>,
++    // per d-block: z, rd, hz
++    db: Vec<Vec<Vec<Fp2>>>,
++}
++
++/// `eval_many` on the backend when the commitment's encoding lives there
++/// (same values), else on the host.
++fn eval_many_on<S, X>(scheme: &S, cm: &S::Cm<'_>, data: &[Fp], slices: &[(usize, usize)], point: &[Fp2]) -> Vec<Fp2>
++where
++    X: ExtraOpening,
++    S: CommitScheme<X>,
++{
++    if let Some(Store::Device(dc)) = scheme.ligero(cm).map(|c| &c.store) {
++        let offs: Vec<usize> = slices.iter().map(|&(o, len)| { assert_eq!(len, 1usize << point.len()); o }).collect();
++        if let Some(v) = scheme.backend().try_eval_many(dc, &offs, point) {
++            return v;
++        }
++    }
++    eval_many(data, slices, point)
++}
++
++/// Prove one v3 layer: `st.t_rows` rows of the witness planes, which may
++/// hold more rows. The transcript is the caller's (a pass chains twelve
++/// layers on one).
++pub fn prove_layer_v3<S, X>(scheme: &S, st: &Statement, w: &Witness<'_>, params: &Params, ntt: &NttTables, tr: &mut Transcript) -> ProveOutput<X>
++where
++    X: ExtraOpening,
++    S: CommitScheme<X>,
++{
++    let mut timings = Vec::new();
++    let mut conversion: Vec<(String, f64)> = Vec::new();
++    let mut tick = Instant::now();
++    let lap = |name: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
++        timings.push((name.to_string(), tick.elapsed().as_secs_f64()));
++        *tick = Instant::now();
++    };
++    let t_rows = st.t_rows;
++    let lay = Layout::new(t_rows, st.d, st.f);
++    let (d, f) = (lay.d, lay.f);
++    let (nb_d, nb_f, db, fb, tfb, tdb, wb) = (lay.nb_d, lay.nb_f, 1usize << lay.log_db, 1usize << lay.log_fb, lay.tfb, lay.tdb, lay.wb);
++    let (sh_g, sh_u, sh_h, sh_z) = st.shifts;
++    absorb_statement(tr, st);
++    let mut proof: Proof<X> = Proof::default();
++
++    // ---- W data + commit ------------------------------------------------
++    let t_conv = Instant::now();
++    let mut w_data = scheme.take_buffer(BufSlot::W, lay.w_len); // arbitrary contents; every element is written below
++    let s_w_alloc = t_conv.elapsed().as_secs_f64();
++    for c in 0..nb_d {
++        for b in 0..nb_f {
++            for (offs, src) in [(&lay.wg, w.wg_t), (&lay.wu, w.wu_t)] {
++                let off = offs[c * nb_f + b];
++                w_data[off..off + wb].par_chunks_mut(fb).enumerate().for_each(|(kp, row)| {
++                    let k = c * db + kp;
++                    for jp in 0..fb { row[jp] = Fp::from_i64(src[k * f + b * fb + jp] as i64); }
++                });
++            }
++            let off = lay.wd[b * nb_d + c];
++            w_data[off..off + wb].par_chunks_mut(db).enumerate().for_each(|(jp, row)| {
++                let j = b * fb + jp;
++                for np in 0..db { row[np] = Fp::from_i64(w.wd_t[j * d + c * db + np] as i64); }
++            });
++        }
++    }
++    let s_w_fill = t_conv.elapsed().as_secs_f64() - s_w_alloc;
++    let w_pcs = params.pcs_for(lay.log_wb);
++    let t_wcom = Instant::now();
++    let w_cm = scheme.commit_w(&w_pcs, &w_data, ntt, &WeightKey { l: st.l, d, f, wg_t: w.wg_t, wu_t: w.wu_t, wd_t: w.wd_t });
++    conversion.push(("conv W alloc".into(), s_w_alloc));
++    conversion.push(("conv W fill".into(), s_w_fill));
++    conversion.push(("commit W".into(), t_wcom.elapsed().as_secs_f64()));
++    proof.w_com = Some(scheme.commitment(&w_cm));
++    absorb_com(tr, b"W", proof.w_com.as_ref().unwrap());
++    lap("commit W", &mut timings, &mut tick);
++
++    // ---- A data + commit ------------------------------------------------
++    let t_conv = Instant::now();
++    let mut a_data = scheme.take_buffer(BufSlot::A, lay.a_len); // arbitrary contents; every element is written below
++    let s_a_alloc = t_conv.elapsed().as_secs_f64();
++    for b in 0..nb_f {
++        for (offs, col) in [(&lay.g8, w.g8), (&lay.rg, w.rg), (&lay.a16, w.a16), (&lay.u16, w.u16), (&lay.ru, w.ru), (&lay.h16, w.h16), (&lay.rh, w.rh)] {
++            let off = offs[b];
++            a_data[off..off + tfb].par_chunks_mut(fb).enumerate().for_each(|(t, row)| {
++                for jp in 0..fb { row[jp] = Fp::from_i64(col[t * f + b * fb + jp] as i64); }
++            });
++        }
++    }
++    for c in 0..nb_d {
++        a_data[lay.x[c]..lay.x[c] + tdb].par_chunks_mut(db).enumerate().for_each(|(t, row)| {
++            for kp in 0..db { row[kp] = Fp::from_i64(w.x[t * d + c * db + kp] as i64); }
++        });
++        for (offs, col) in [(&lay.z, w.z16), (&lay.rd, w.rd)] {
++            let off = offs[c];
++            a_data[off..off + tdb].par_chunks_mut(db).enumerate().for_each(|(t, row)| {
++                for kp in 0..db { row[kp] = Fp::from_i64(col[t * d + c * db + kp] as i64); }
++            });
++        }
++    }
++    let s_a_fill = t_conv.elapsed().as_secs_f64() - s_a_alloc;
++    let a_pcs = params.pcs_for(lay.log_a_min);
++    let t_acom = Instant::now();
++    let a_cm = scheme.commit(&a_pcs, &a_data, ntt);
++    conversion.push(("conv A alloc".into(), s_a_alloc));
++    conversion.push(("conv A fill".into(), s_a_fill));
++    conversion.push(("commit A".into(), t_acom.elapsed().as_secs_f64()));
++    proof.a_com = Some(scheme.commitment(&a_cm));
++    absorb_com(tr, b"A", proof.a_com.as_ref().unwrap());
++    lap("commit A", &mut timings, &mut tick);
++
++    // ---- multiplicities, challenges, helpers, commit H --------------------
++    proof.mults = multiplicities(w, st.shifts, &lay);
++    absorb_mults(tr, &proof.mults);
++    let beta = tr.challenge_fp2();
++    let gamma = tr.challenge_fp2();
++    let alpha = tr.challenge_fp2();
++    let g_act = gamma.mul_base(Fp::new(TAG_ACT16));
++    let g_i16 = gamma.mul_base(Fp::new(TAG_INT16));
++    let g_rg = gamma.mul_base(Fp::new(tag_rem_v3(sh_g)));
++    let g_ru = gamma.mul_base(Fp::new(tag_rem_v3(sh_u)));
++    let g_rh = gamma.mul_base(Fp::new(tag_rem_v3(sh_h)));
++    let g_rd = gamma.mul_base(Fp::new(tag_rem_v3(sh_z)));
++    let h_pcs = params.pcs_for(lay.log_a_min);
++    let shape = LayerShape { nb_f, nb_d, tfb, tdb };
++    let mut host_tabs: Option<HostTabs> = None;
++    let mut h_data: Vec<Fp> = Vec::new();
++    let mut dev_helper_sums: Option<Vec<Fp2>> = None;
++    // the backend may compute the helper columns from its resident A and commit H from them
++    let h_from_backend = match scheme.ligero(&a_cm).map(|c| &c.store) {
++        Some(Store::Device(a_dc)) => {
++            let mut specs = Vec::with_capacity(3 * nb_f + nb_d);
++            for b in 0..nb_f {
++                specs.push(HelperSpec { off_v1: lay.g8[b], off_w: Some(lay.a16[b]), off_v2: lay.rg[b], len: tfb, c1: g_act, c2: g_rg, off_re: lay.hg[b].0, off_im: lay.hg[b].1 });
++                specs.push(HelperSpec { off_v1: lay.u16[b], off_w: None, off_v2: lay.ru[b], len: tfb, c1: g_i16, c2: g_ru, off_re: lay.hu[b].0, off_im: lay.hu[b].1 });
++                specs.push(HelperSpec { off_v1: lay.h16[b], off_w: None, off_v2: lay.rh[b], len: tfb, c1: g_i16, c2: g_rh, off_re: lay.hh[b].0, off_im: lay.hh[b].1 });
++            }
++            for c in 0..nb_d {
++                specs.push(HelperSpec { off_v1: lay.z[c], off_w: None, off_v2: lay.rd[c], len: tdb, c1: g_i16, c2: g_rd, off_re: lay.hz[c].0, off_im: lay.hz[c].1 });
++            }
++            let rows = lay.h_len / h_pcs.cols();
++            // the two zero-check table buffers are reserved BEFORE the helpers go to the
++            // backend: once they have, no host tables exist and a later decline is a panic
++            // by design, so the whole layer must fall back here or not at all.
++            let zc_reserve = [(3 + 10 * nb_f) * tfb * 2, (3 + 4 * nb_d) * tdb * 2];
++            let req = HelpersRequest { h_len: lay.h_len, specs: &specs, alpha, beta, zc_reserve, h_pcs, rows, shape };
++            scheme.backend().try_helpers_commit(a_dc, &req, ntt).map(|(dc, leaves, sums)| (Committed { params: h_pcs, rows, store: Store::Device(dc), tree: MerkleTree::build(leaves) }, sums))
++        }
++        _ => None,
++    };
++    let h_cm = match h_from_backend {
++        Some((cm, sums)) => {
++            dev_helper_sums = Some(sums);
++            scheme.wrap(cm)
++        }
++        None => {
++            let to2 = |off: usize, len: usize| -> Vec<Fp2> { a_data[off..off + len].par_iter().map(|v| Fp2::from_base(*v)).collect() };
++            h_data = vec![Fp::ZERO; lay.h_len];
++            let mut fbt: Vec<Vec<Vec<Fp2>>> = Vec::with_capacity(nb_f);
++            for b in 0..nb_f {
++                let g8f = to2(lay.g8[b], tfb); let rgf = to2(lay.rg[b], tfb); let a16f = to2(lay.a16[b], tfb);
++                let u16f = to2(lay.u16[b], tfb); let ruf = to2(lay.ru[b], tfb); let h16f = to2(lay.h16[b], tfb); let rhf = to2(lay.rh[b], tfb);
++                let lg: Vec<Fp2> = g8f.par_iter().zip(a16f.par_iter()).map(|(g, a)| g.add(beta.mul(*a)).add(g_act)).collect();
++                let lrg: Vec<Fp2> = rgf.par_iter().map(|r| r.add(g_rg)).collect();
++                let lu: Vec<Fp2> = u16f.par_iter().map(|v| v.add(g_i16)).collect();
++                let lru: Vec<Fp2> = ruf.par_iter().map(|r| r.add(g_ru)).collect();
++                let lh: Vec<Fp2> = h16f.par_iter().map(|v| v.add(g_i16)).collect();
++                let lrh: Vec<Fp2> = rhf.par_iter().map(|r| r.add(g_rh)).collect();
++                let hg = helper_column(&lg, &lrg, alpha);
++                let hu = helper_column(&lu, &lru, alpha);
++                let hh = helper_column(&lh, &lrh, alpha);
++                for (col, (ore, oim)) in [(&hg, lay.hg[b]), (&hu, lay.hu[b]), (&hh, lay.hh[b])] {
++                    h_data[ore..ore + tfb].par_iter_mut().zip(col.par_iter()).for_each(|(o, v)| *o = v.c0);
++                    h_data[oim..oim + tfb].par_iter_mut().zip(col.par_iter()).for_each(|(o, v)| *o = v.c1);
++                }
++                fbt.push(vec![g8f, rgf, a16f, u16f, ruf, h16f, rhf, hg, hu, hh]);
++            }
++            let mut dbt: Vec<Vec<Vec<Fp2>>> = Vec::with_capacity(nb_d);
++            for c in 0..nb_d {
++                let zf = to2(lay.z[c], tdb);
++                let rdf = to2(lay.rd[c], tdb);
++                let lz: Vec<Fp2> = zf.par_iter().map(|v| v.add(g_i16)).collect();
++                let lrd: Vec<Fp2> = rdf.par_iter().map(|r| r.add(g_rd)).collect();
++                let hz = helper_column(&lz, &lrd, alpha);
++                let (ore, oim) = lay.hz[c];
++                h_data[ore..ore + tdb].par_iter_mut().zip(hz.par_iter()).for_each(|(o, v)| *o = v.c0);
++                h_data[oim..oim + tdb].par_iter_mut().zip(hz.par_iter()).for_each(|(o, v)| *o = v.c1);
++                dbt.push(vec![zf, rdf, hz]);
++            }
++            host_tabs = Some(HostTabs { fb: fbt, db: dbt });
++            scheme.commit(&h_pcs, &h_data, ntt)
++        }
++    };
++    proof.h_com = Some(scheme.commitment(&h_cm));
++    absorb_com(tr, b"H", proof.h_com.as_ref().unwrap());
++    lap("helpers + commit H", &mut timings, &mut tick);
++
++    // ---- g/u matmul sumcheck -------------------------------------------------
++    let r_i = tr.challenge_fp2_vec(lay.log_t as usize);
++    let r_j = tr.challenge_fp2_vec(lay.log_fb as usize);
++    let lam_gu = tr.challenge_fp2();
++    let lam_f = tr.challenge_fp2_vec(nb_f);
++    let mut p1 = r_i.clone();
++    p1.extend_from_slice(&r_j);
++    let mut sl: Vec<(usize, usize)> = Vec::with_capacity(4 * nb_f);
++    for b in 0..nb_f { sl.extend([(lay.g8[b], tfb), (lay.rg[b], tfb), (lay.u16[b], tfb), (lay.ru[b], tfb)]); }
++    let ev = eval_many_on(scheme, &a_cm, &a_data, &sl, &p1);
++    let (p_g, p_u, p_h, p_z) = (pow2_signed(sh_g), pow2_signed(sh_u), pow2_signed(sh_h), pow2_signed(sh_z));
++    for b in 0..nb_f {
++        proof.gu_claims.push(ev[4 * b].mul_base(p_g).add(ev[4 * b + 1]));
++        proof.gu_claims.push(ev[4 * b + 2].mul_base(p_u).add(ev[4 * b + 3]));
++    }
++    tr.absorb_fp2(b"gu-claims", &proof.gu_claims);
++    let t_pre = Instant::now();
++    let eq_ri = eq_table_msb(&r_i);
++    let eq_rj = eq_table_msb(&r_j);
++    let xk = fold_rows_i8(&w.x[..t_rows * d], t_rows, d, &eq_ri); // d
++    // ONE pass over each int8 plane. The per-block column folds are what
++    // `gu_term` needs after the sumcheck, and they are ALSO what `wgk`/`wuk`
++    // are: `cw_gu[j] = lam_f[b] * eq_rj[jp]` with j = b * fb + jp, so
++    //     wgk[c*db+kp] = sum_j cw_gu[j] . src = sum_b lam_f[b] * blk_b[kp].
++    // Regrouping is exact — Fp2 multiplication is bilinear over the base
++    // field, so (lam * eq) . v and lam * (eq . v) are the same element.
++    let mut gu_blocks: Vec<Vec<Fp2>> = Vec::with_capacity(2 * nb_d * nb_f);
++    for src in [w.wg_t, w.wu_t] {
++        for c in 0..nb_d {
++            for b in 0..nb_f {
++                gu_blocks.push(fold_block_i8(src, c * db, db, f, b * fb, fb, &eq_rj));
++            }
++        }
++    }
++    let comb = |half: usize| -> Vec<Fp2> {
++        (0..d)
++            .into_par_iter()
++            .map(|k| {
++                let (c, kp) = (k / db, k % db);
++                let mut acc = Fp2::ZERO;
++                for b in 0..nb_f {
++                    acc = acc.add(lam_f[b].mul(gu_blocks[half * nb_d * nb_f + c * nb_f + b][kp]));
++                }
++                acc
++            })
++            .collect()
++    };
++    let wgk = comb(0);
++    let wuk = comb(1);
++    let s_gu_pre = t_pre.elapsed().as_secs_f64();
++    let mut tables: Vec<Vec<Fp2>> = Vec::with_capacity(2 * nb_d);
++    for c in 0..nb_d { tables.push(xk[c * db..(c + 1) * db].to_vec()); }
++    for c in 0..nb_d {
++        tables.push(wgk[c * db..(c + 1) * db].iter().zip(wuk[c * db..(c + 1) * db].iter()).map(|(g, u)| g.add(lam_gu.mul(*u))).collect());
++    }
++    let nbd = nb_d;
++    let out = sumcheck::prove(&mut tables, 2, move |v| { let mut s = Fp2::ZERO; for c in 0..nbd { s = s.add(v[c].mul(v[nbd + c])); } s }, tr);
++    proof.gu_sc = out.proof;
++    let r_kp = out.challenges; // log_db
++    let mut term = Vec::with_capacity(nb_d + 2 * nb_d * nb_f);
++    for c in 0..nb_d { term.push(out.finals[c]); }
++    let t_blk = Instant::now();
++    // the same blocks, folded above in the single plane pass (wg's nb_d x nb_f then wu's)
++    for folded in &gu_blocks {
++        term.push(eval_mle_ext(folded, &r_kp));
++    }
++    conversion.push(("fold gu pre".into(), s_gu_pre));
++    conversion.push(("fold gu blocks".into(), t_blk.elapsed().as_secs_f64()));
++    proof.gu_term = term;
++    tr.absorb_fp2(b"gu-term", &proof.gu_term);
++    let mut p2 = r_i.clone();
++    p2.extend_from_slice(&r_kp); // X_c point (log_t + log_db)
++    let mut p3 = r_kp.clone();
++    p3.extend_from_slice(&r_j); // Wg/Wu blocks point (log_wb)
++    lap("matmul g/u", &mut timings, &mut tick);
++
++    // ---- d matmul sumcheck ------------------------------------------------------
++    let r_ip = tr.challenge_fp2_vec(lay.log_t as usize);
++    let r_jp = tr.challenge_fp2_vec(lay.log_db as usize);
++    let lam_d = tr.challenge_fp2_vec(nb_d);
++    let mut p4 = r_ip.clone();
++    p4.extend_from_slice(&r_jp);
++    let mut sl: Vec<(usize, usize)> = Vec::with_capacity(2 * nb_d);
++    for c in 0..nb_d { sl.extend([(lay.z[c], tdb), (lay.rd[c], tdb)]); }
++    let ev = eval_many_on(scheme, &a_cm, &a_data, &sl, &p4);
++    proof.d_claims = (0..nb_d).map(|c| ev[2 * c].mul_base(p_z).add(ev[2 * c + 1])).collect();
++    tr.absorb_fp2(b"d-claims", &proof.d_claims);
++    let t_pre = Instant::now();
++    let eq_rip = eq_table_msb(&r_ip);
++    let eq_rjp = eq_table_msb(&r_jp);
++    let hk = fold_rows_i32(&w.h16[..t_rows * f], t_rows, f, &eq_rip); // f
++    // the same fusion on the d side: `wd`'s block at `wd[b*nb_d+c]` is
++    // `blk[jp*db+np] = wd_t[(b*fb+jp)*d + c*db+np]`, and `wdk[b*fb+jp] = sum_c lam_d[c] * blk_c[jp]`.
++    let mut d_blocks: Vec<Vec<Fp2>> = Vec::with_capacity(nb_f * nb_d);
++    for b in 0..nb_f {
++        for c in 0..nb_d {
++            d_blocks.push(fold_block_i8(w.wd_t, b * fb, fb, d, c * db, db, &eq_rjp));
++        }
++    }
++    let wdk: Vec<Fp2> = (0..f)
++        .into_par_iter()
++        .map(|j| {
++            let (b, jp) = (j / fb, j % fb);
++            let mut acc = Fp2::ZERO;
++            for c in 0..nb_d {
++                acc = acc.add(lam_d[c].mul(d_blocks[b * nb_d + c][jp]));
++            }
++            acc
++        })
++        .collect();
++    let s_d_pre = t_pre.elapsed().as_secs_f64();
++    let mut tables: Vec<Vec<Fp2>> = Vec::with_capacity(2 * nb_f);
++    for b in 0..nb_f { tables.push(hk[b * fb..(b + 1) * fb].to_vec()); }
++    for b in 0..nb_f { tables.push(wdk[b * fb..(b + 1) * fb].to_vec()); }
++    let nbf = nb_f;
++    let out = sumcheck::prove(&mut tables, 2, move |v| { let mut s = Fp2::ZERO; for b in 0..nbf { s = s.add(v[b].mul(v[nbf + b])); } s }, tr);
++    proof.d_sc = out.proof;
++    let r_k = out.challenges; // log_fb
++    let mut term = Vec::with_capacity(nb_f + nb_f * nb_d);
++    for b in 0..nb_f { term.push(out.finals[b]); }
++    let t_blk = Instant::now();
++    for folded in &d_blocks {
++        term.push(eval_mle_ext(folded, &r_k));
++    }
++    conversion.push(("fold d pre".into(), s_d_pre));
++    conversion.push(("fold d blocks".into(), t_blk.elapsed().as_secs_f64()));
++    proof.d_term = term;
++    tr.absorb_fp2(b"d-term", &proof.d_term);
++    let mut p5 = r_ip.clone();
++    p5.extend_from_slice(&r_k); // h16_b point (log_t + log_fb)
++    let mut p6 = r_k.clone();
++    p6.extend_from_slice(&r_jp); // Wd blocks point (log_wb)
++    lap("matmul d", &mut timings, &mut tick);
++
++    // ---- zero-check F (the f-side planes) ------------------------------------------
++    let tau = tr.challenge_fp2_vec((lay.log_t + lay.log_fb) as usize);
++    let mu = tr.challenge_fp2_vec(4 * nb_f);
++    let nu = tr.challenge_fp2_vec(3 * nb_f);
++    let dev_out = match (scheme.ligero(&a_cm).map(|c| &c.store), scheme.ligero(&h_cm).map(|c| &c.store)) {
++        (Some(Store::Device(a_dc)), Some(Store::Device(h_dc))) => {
++            // every f-block, in the CPU's table order (3 eq, then block-major g8 rg a16 u16 ru
++            // h16 rh hg hu hh); the parameters block-indexed as the backend's kernels state.
++            let mut specs = Vec::with_capacity(3 + 10 * nb_f);
++            specs.extend([TabSpec::Eq(&tau), TabSpec::Eq(&p1), TabSpec::Eq(&p5)]);
++            for b in 0..nb_f {
++                specs.extend([
++                    TabSpec::FromFp(a_dc, lay.g8[b], tfb), TabSpec::FromFp(a_dc, lay.rg[b], tfb), TabSpec::FromFp(a_dc, lay.a16[b], tfb),
++                    TabSpec::FromFp(a_dc, lay.u16[b], tfb), TabSpec::FromFp(a_dc, lay.ru[b], tfb), TabSpec::FromFp(a_dc, lay.h16[b], tfb), TabSpec::FromFp(a_dc, lay.rh[b], tfb),
++                    TabSpec::FromFp2(h_dc, lay.hg[b].0, lay.hg[b].1, tfb), TabSpec::FromFp2(h_dc, lay.hu[b].0, lay.hu[b].1, tfb), TabSpec::FromFp2(h_dc, lay.hh[b].0, lay.hh[b].1, tfb),
++                ]);
++            }
++            let mut prm: Vec<u64> = Vec::with_capacity(17 + 14 * nb_f);
++            for v in [alpha, beta, g_act, g_rg, g_ru, g_rh, g_i16] {
++                prm.push(v.c0.0);
++                prm.push(v.c1.0);
++            }
++            prm.extend([p_g.0, p_u.0, p_h.0]);
++            for v in mu.iter().chain(nu.iter()) {
++                prm.push(v.c0.0);
++                prm.push(v.c1.0);
++            }
++            let req = ZeroCheckRequest { kind: 0, blocks: nb_f, specs: &specs, prm: &prm, shape };
++            let mut tr_try = Transcript::clone_state(tr);
++            match scheme.backend().try_zerocheck(&req, &mut tr_try) {
++                Some(out) => { *tr = tr_try; Some(out) }
++                None => None,
++            }
++        }
++        _ => None,
++    };
++    let out = match dev_out {
++        Some(out) => out,
++        None => {
++            let ht = host_tabs.as_mut().expect("zero-check F: the backend declined after building the helpers; no host tables");
++            let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau), eq_table_msb(&p1), eq_table_msb(&p5)];
++            for b in 0..nb_f { for t in std::mem::take(&mut ht.fb[b]) { tables.push(t); } }
++            let (mu, nu) = (mu.clone(), nu.clone());
++            let zcf_poly = move |v: &[Fp2]| -> Fp2 {
++                let (eqt, eq1, eq5) = (v[0], v[1], v[2]);
++                let mut zc = Fp2::ZERO;
++                let mut f1 = Fp2::ZERO;
++                let mut f5 = Fp2::ZERO;
++                for b in 0..nbf {
++                    let o = 3 + 10 * b;
++                    let (g8, rg, a16, u16, ru, h16, rh, hg, hu, hh) = (v[o], v[o + 1], v[o + 2], v[o + 3], v[o + 4], v[o + 5], v[o + 6], v[o + 7], v[o + 8], v[o + 9]);
++                    let c_had = a16.mul(u16).sub(h16.mul_base(p_h)).sub(rh);
++                    let c_hg = helper_constraint(hg, g8.add(beta.mul(a16)).add(g_act), rg.add(g_rg), alpha);
++                    let c_hu = helper_constraint(hu, u16.add(g_i16), ru.add(g_ru), alpha);
++                    let c_hh = helper_constraint(hh, h16.add(g_i16), rh.add(g_rh), alpha);
++                    zc = zc.add(mu[4 * b].mul(c_had)).add(mu[4 * b + 1].mul(c_hg)).add(mu[4 * b + 2].mul(c_hu)).add(mu[4 * b + 3].mul(c_hh));
++                    f1 = f1.add(nu[3 * b].mul(g8.mul_base(p_g).add(rg))).add(nu[3 * b + 1].mul(u16.mul_base(p_u).add(ru)));
++                    f5 = f5.add(nu[3 * b + 2].mul(h16));
++                }
++                eqt.mul(zc).add(eq1.mul(f1)).add(eq5.mul(f5))
++            };
++            let out = sumcheck::prove(&mut tables, 4, zcf_poly, tr);
++            drop(tables);
++            out
++        }
++    };
++    proof.zcf_sc = out.proof;
++    let rho_f = out.challenges;
++    proof.zcf_term = out.finals[3..].to_vec();
++    tr.absorb_fp2(b"zcf-term", &proof.zcf_term);
++    lap("zero-check F", &mut timings, &mut tick);
++
++    // ---- zero-check D (the d-side planes) ------------------------------------------
++    let tau2 = tr.challenge_fp2_vec((lay.log_t + lay.log_db) as usize);
++    let mu2 = tr.challenge_fp2_vec(nb_d);
++    let nu_x = tr.challenge_fp2_vec(nb_d);
++    let nu_z = tr.challenge_fp2_vec(nb_d);
++    let dev_out = match (scheme.ligero(&a_cm).map(|c| &c.store), scheme.ligero(&h_cm).map(|c| &c.store)) {
++        (Some(Store::Device(a_dc)), Some(Store::Device(h_dc))) => {
++            let mut specs = vec![TabSpec::Eq(&tau2), TabSpec::Eq(&p2), TabSpec::Eq(&p4)];
++            for c in 0..nb_d { specs.push(TabSpec::FromFp(a_dc, lay.x[c], tdb)); }
++            for c in 0..nb_d { specs.push(TabSpec::FromFp(a_dc, lay.z[c], tdb)); }
++            for c in 0..nb_d { specs.push(TabSpec::FromFp(a_dc, lay.rd[c], tdb)); }
++            for c in 0..nb_d { specs.push(TabSpec::FromFp2(h_dc, lay.hz[c].0, lay.hz[c].1, tdb)); }
++            // the block-indexed parameter layout (alpha, g_i16, g_rd, p_z, then mu2, nu_x, nu_z)
++            let mut prm: Vec<u64> = Vec::with_capacity(7 + 6 * nb_d);
++            for v in [alpha, g_i16, g_rd] {
++                prm.push(v.c0.0);
++                prm.push(v.c1.0);
++            }
++            prm.push(p_z.0);
++            for v in mu2.iter().chain(nu_x.iter()).chain(nu_z.iter()) {
++                prm.push(v.c0.0);
++                prm.push(v.c1.0);
++            }
++            let req = ZeroCheckRequest { kind: 1, blocks: nb_d, specs: &specs, prm: &prm, shape };
++            let mut tr_try = Transcript::clone_state(tr);
++            match scheme.backend().try_zerocheck(&req, &mut tr_try) {
++                Some(out) => { *tr = tr_try; Some(out) }
++                None => None,
++            }
++        }
++        _ => None,
++    };
++    let out = match dev_out {
++        Some(out) => out,
++        None => {
++            let ht = host_tabs.as_mut().expect("zero-check D: the backend declined after building the helpers; no host tables");
++            let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau2), eq_table_msb(&p2), eq_table_msb(&p4)];
++            for c in 0..nb_d { tables.push(a_data[lay.x[c]..lay.x[c] + tdb].par_iter().map(|v| Fp2::from_base(*v)).collect()); }
++            let mut dbt: Vec<Vec<Vec<Fp2>>> = (0..nb_d).map(|c| std::mem::take(&mut ht.db[c])).collect();
++            for role in 0..3 { for c in 0..nb_d { tables.push(std::mem::take(&mut dbt[c][role])); } }
++            let (mu2, nu_x, nu_z) = (mu2.clone(), nu_x.clone(), nu_z.clone());
++            let zcd_poly = move |v: &[Fp2]| -> Fp2 {
++                let (eqt, eq2, eq4) = (v[0], v[1], v[2]);
++                let mut zc = Fp2::ZERO;
++                let mut fx = Fp2::ZERO;
++                let mut fz = Fp2::ZERO;
++                for c in 0..nbd {
++                    let (x, z, rd, h) = (v[3 + c], v[3 + nbd + c], v[3 + 2 * nbd + c], v[3 + 3 * nbd + c]);
++                    zc = zc.add(mu2[c].mul(helper_constraint(h, z.add(g_i16), rd.add(g_rd), alpha)));
++                    fx = fx.add(nu_x[c].mul(x));
++                    fz = fz.add(nu_z[c].mul(z.mul_base(p_z).add(rd)));
++                }
++                eqt.mul(zc).add(eq2.mul(fx)).add(eq4.mul(fz))
++            };
++            let out = sumcheck::prove(&mut tables, 4, zcd_poly, tr);
++            drop(tables);
++            out
++        }
++    };
++    proof.zcd_sc = out.proof;
++    let rho_d = out.challenges;
++    proof.zcd_term = out.finals[3..].to_vec();
++    tr.absorb_fp2(b"zcd-term", &proof.zcd_term);
++    lap("zero-check D", &mut timings, &mut tick);
++
++    // ---- helper sums ---------------------------------------------------------------
++    proof.helper_sums = match dev_helper_sums.take() {
++        Some(s) => s,
++        None => {
++            let sums = |re: usize, im: usize, len: usize| -> Fp2 {
++                let sre = h_data[re..re + len].par_iter().copied().reduce(|| Fp::ZERO, |a, b| a.add(b));
++                let sim = h_data[im..im + len].par_iter().copied().reduce(|| Fp::ZERO, |a, b| a.add(b));
++                Fp2::new(sre, sim)
++            };
++            let mut v = Vec::with_capacity(3 * nb_f + nb_d);
++            for b in 0..nb_f { for (re, im) in [lay.hg[b], lay.hu[b], lay.hh[b]] { v.push(sums(re, im, tfb)); } }
++            for c in 0..nb_d { v.push(sums(lay.hz[c].0, lay.hz[c].1, tdb)); }
++            v
++        }
++    };
++    drop(host_tabs);
++    tr.absorb_fp2(b"helper-sums", &proof.helper_sums);
++
++    // ---- PCS openings -------------------------------------------------------------
++    let (w_claims, a_claims, h_claims) = build_claims(&lay, &proof, &p3, &p6, &rho_f, &rho_d);
++    match scheme.open_mode() {
++        OpenMode::Batched => {
++            // ONE batched opening of the three commitments, in the proof's extra slot
++            proof.cpcs_open = Some(scheme.open_batched(w_cm, &w_claims, a_cm, &a_claims, h_cm, &h_claims, tr));
++            scheme.give_buffer(BufSlot::W, w_data);
++        }
++        OpenMode::Dense => {
++            proof.w_open = scheme.open_dense(w_cm, &w_claims, tr);
++            scheme.give_buffer(BufSlot::W, w_data);
++            proof.a_open = scheme.open_dense(a_cm, &a_claims, tr);
++            proof.h_open = scheme.open_dense(h_cm, &h_claims, tr);
++        }
++    }
++    drop(h_data);
++    scheme.give_buffer(BufSlot::A, a_data);
++    lap("pcs openings", &mut timings, &mut tick);
++    ProveOutput { proof, timings, conversion }
++}
++
++/// The PCS claims of a v3 layer proof (shared by prover and verifier).
++pub fn build_claims<X>(lay: &Layout, proof: &Proof<X>, p3: &[Fp2], p6: &[Fp2], rho_f: &[Fp2], rho_d: &[Fp2]) -> (Vec<Claim>, Vec<Claim>, Vec<Claim>) {
++    let one = Fp2::ONE;
++    let (nb_d, nb_f) = (lay.nb_d, lay.nb_f);
++    let mut wc = Vec::new();
++    for (ri, offs) in [(0usize, &lay.wg), (1, &lay.wu)] {
++        for c in 0..nb_d {
++            for b in 0..nb_f {
++                wc.push(Claim { parts: vec![(lay.s_w(offs[c * nb_f + b]), one)], point: p3.to_vec(), sum: false, value: proof.gu_term[nb_d + ri * nb_d * nb_f + c * nb_f + b] });
++            }
++        }
++    }
++    for b in 0..nb_f {
++        for c in 0..nb_d {
++            wc.push(Claim { parts: vec![(lay.s_w(lay.wd[b * nb_d + c]), one)], point: p6.to_vec(), sum: false, value: proof.d_term[nb_f + b * nb_d + c] });
++        }
++    }
++    let mut ac = Vec::new();
++    for b in 0..nb_f {
++        let cols = [lay.g8[b], lay.rg[b], lay.a16[b], lay.u16[b], lay.ru[b], lay.h16[b], lay.rh[b]];
++        for (i, off) in cols.iter().enumerate() {
++            ac.push(Claim { parts: vec![(lay.s_f(*off), one)], point: rho_f.to_vec(), sum: false, value: proof.zcf_term[10 * b + i] });
++        }
++    }
++    for c in 0..nb_d { ac.push(Claim { parts: vec![(lay.s_d(lay.x[c]), one)], point: rho_d.to_vec(), sum: false, value: proof.zcd_term[c] }); }
++    for c in 0..nb_d { ac.push(Claim { parts: vec![(lay.s_d(lay.z[c]), one)], point: rho_d.to_vec(), sum: false, value: proof.zcd_term[nb_d + c] }); }
++    for c in 0..nb_d { ac.push(Claim { parts: vec![(lay.s_d(lay.rd[c]), one)], point: rho_d.to_vec(), sum: false, value: proof.zcd_term[2 * nb_d + c] }); }
++    let mut hc = Vec::new();
++    let u = Fp2::U;
++    for b in 0..nb_f {
++        for (i, (re, im)) in [lay.hg[b], lay.hu[b], lay.hh[b]].iter().enumerate() {
++            hc.push(Claim { parts: vec![(lay.s_f(*re), one), (lay.s_f(*im), u)], point: rho_f.to_vec(), sum: false, value: proof.zcf_term[10 * b + 7 + i] });
++        }
++    }
++    for c in 0..nb_d {
++        let (re, im) = lay.hz[c];
++        hc.push(Claim { parts: vec![(lay.s_d(re), one), (lay.s_d(im), u)], point: rho_d.to_vec(), sum: false, value: proof.zcd_term[3 * nb_d + c] });
++    }
++    for b in 0..nb_f {
++        for (i, (re, im)) in [lay.hg[b], lay.hu[b], lay.hh[b]].iter().enumerate() {
++            hc.push(Claim { parts: vec![(lay.s_f(*re), one), (lay.s_f(*im), u)], point: vec![], sum: true, value: proof.helper_sums[3 * b + i] });
++        }
++    }
++    for c in 0..nb_d {
++        let (re, im) = lay.hz[c];
++        hc.push(Claim { parts: vec![(lay.s_d(re), one), (lay.s_d(im), u)], point: vec![], sum: true, value: proof.helper_sums[3 * nb_f + c] });
++    }
++    (wc, ac, hc)
++}
+diff --git a/zkp-core/src/ffn_v3/scheme.rs b/zkp-core/src/ffn_v3/scheme.rs
+new file mode 100644
+index 0000000..9d4b109
+--- /dev/null
++++ b/zkp-core/src/ffn_v3/scheme.rs
+@@ -0,0 +1,136 @@
++//! The seam between the layer RELATION (the core's prover and verifier) and
++//! everything that is policy around it: how the three commitments W, A, H
++//! are made, where their host staging buffers come from, how the openings
++//! are produced and checked. The core's [`Dense`] is the plain path — the
++//! Ligero commitment over a [`Backend`], three dense openings, fresh
++//! buffers. hashline's adapter implements the same two traits with its
++//! per-model weight cache, the `--pcs compact` batched opening, its pooled
++//! buffers and its test-only lookup fault injection; the relation, the
++//! transcript order and the bytes are the core's in both cases.
++
++use super::proof::{ExtraOpening, NoExtra, Proof};
++use crate::field::{Fp, Fp2};
++use crate::ntt::NttTables;
++use crate::pcs::{self, Backend, Claim, Commitment, Committed, Opening, PcsParams};
++use crate::transcript::Transcript;
++
++/// The two host staging buffers a layer fills (the W and the A matrices).
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub enum BufSlot {
++    W,
++    A,
++}
++
++/// How the three openings are produced: three dense Ligero openings in the
++/// order W, A, H, or one batched opening carried in the proof's extra slot.
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub enum OpenMode {
++    Dense,
++    Batched,
++}
++
++/// What identifies a layer's weight matrix to a cache: the layer index,
++/// the widths and the three int8 planes it is built from.
++#[derive(Clone, Copy, Debug)]
++pub struct WeightKey<'a> {
++    pub l: usize,
++    pub d: usize,
++    pub f: usize,
++    pub wg_t: &'a [i8],
++    pub wu_t: &'a [i8],
++    pub wd_t: &'a [i8],
++}
++
++/// The prover's side of the seam.
++pub trait CommitScheme<X: ExtraOpening> {
++    type Backend: Backend;
++    /// A committed matrix; may borrow the data it was built from.
++    type Cm<'d>
++    where
++        Self: 'd;
++
++    fn backend(&self) -> &Self::Backend;
++    /// Commit the W matrix (a cache may serve it by `key`).
++    fn commit_w<'d>(&'d self, pcs: &PcsParams, data: &'d [Fp], ntt: &NttTables, key: &WeightKey<'_>) -> Self::Cm<'d>;
++    /// Commit A, or the host-built H.
++    fn commit<'d>(&'d self, pcs: &PcsParams, data: &'d [Fp], ntt: &NttTables) -> Self::Cm<'d>;
++    /// Adopt a commitment the backend built (the device-resident H).
++    fn wrap<'d>(&'d self, cm: Committed<<Self::Backend as Backend>::Store>) -> Self::Cm<'d>;
++    fn commitment(&self, cm: &Self::Cm<'_>) -> Commitment;
++    /// The Ligero form behind `cm`, if it has one (the backend hooks need its store).
++    fn ligero<'c>(&self, cm: &'c Self::Cm<'_>) -> Option<&'c Committed<<Self::Backend as Backend>::Store>>;
++    fn open_mode(&self) -> OpenMode {
++        OpenMode::Dense
++    }
++    /// One dense opening; consumes the commitment so its encoding is released before the next.
++    fn open_dense(&self, cm: Self::Cm<'_>, claims: &[Claim], tr: &mut Transcript) -> Opening;
++    /// The batched opening of all three (only when `open_mode` is `Batched`).
++    fn open_batched(&self, w: Self::Cm<'_>, wc: &[Claim], a: Self::Cm<'_>, ac: &[Claim], h: Self::Cm<'_>, hc: &[Claim], tr: &mut Transcript) -> X;
++    /// A host buffer of exactly `len` elements whose contents are ARBITRARY:
++    /// the prover writes every element before reading any.
++    fn take_buffer(&self, _slot: BufSlot, len: usize) -> Vec<Fp> {
++        vec![Fp::ZERO; len]
++    }
++    fn give_buffer(&self, _slot: BufSlot, _v: Vec<Fp>) {}
++}
++
++/// The verifier's side of the seam.
++pub trait VerifyScheme<X: ExtraOpening> {
++    /// Check the three openings (W, A, H in this order) against their
++    /// commitments and claims — three dense checks, or the proof's batched
++    /// extra opening.
++    fn verify_openings(&self, batch: [(&PcsParams, &Commitment, &[Claim]); 3], proof: &Proof<X>, ntt: &NttTables, tr: &mut Transcript) -> Result<(), String>;
++    /// The LogUp lookup challenge as the verifier uses it for one table
++    /// row. Identity in production; a consumer's hardening test may return
++    /// `table_value` once to make the denominator zero and check the refusal.
++    fn lookup_alpha(&self, alpha: Fp2, _table_value: Fp2) -> Fp2 {
++        alpha
++    }
++}
++
++/// The core's scheme: Ligero commitments through `backend`, three dense
++/// openings, fresh buffers, no extra opening.
++pub struct Dense<B: Backend>(pub B);
++
++impl<B: Backend> CommitScheme<NoExtra> for Dense<B> {
++    type Backend = B;
++    type Cm<'d>
++        = Committed<B::Store>
++    where
++        Self: 'd;
++
++    fn backend(&self) -> &B {
++        &self.0
++    }
++    fn commit_w<'d>(&'d self, pcs: &PcsParams, data: &'d [Fp], ntt: &NttTables, _key: &WeightKey<'_>) -> Committed<B::Store> {
++        pcs::commit_with(&self.0, pcs, data, ntt)
++    }
++    fn commit<'d>(&'d self, pcs: &PcsParams, data: &'d [Fp], ntt: &NttTables) -> Committed<B::Store> {
++        pcs::commit_with(&self.0, pcs, data, ntt)
++    }
++    fn wrap<'d>(&'d self, cm: Committed<B::Store>) -> Committed<B::Store> {
++        cm
++    }
++    fn commitment(&self, cm: &Committed<B::Store>) -> Commitment {
++        cm.commitment()
++    }
++    fn ligero<'c>(&self, cm: &'c Committed<B::Store>) -> Option<&'c Committed<B::Store>> {
++        Some(cm)
++    }
++    fn open_dense(&self, cm: Committed<B::Store>, claims: &[Claim], tr: &mut Transcript) -> Opening {
++        pcs::open(&cm, claims, tr)
++    }
++    fn open_batched(&self, _w: Committed<B::Store>, _wc: &[Claim], _a: Committed<B::Store>, _ac: &[Claim], _h: Committed<B::Store>, _hc: &[Claim], _tr: &mut Transcript) -> NoExtra {
++        unreachable!("the dense scheme never batches its openings")
++    }
++}
++
++impl<B: Backend> VerifyScheme<NoExtra> for Dense<B> {
++    fn verify_openings(&self, batch: [(&PcsParams, &Commitment, &[Claim]); 3], proof: &Proof<NoExtra>, ntt: &NttTables, tr: &mut Transcript) -> Result<(), String> {
++        let [(w_pcs, w_com, w_claims), (a_pcs, a_com, a_claims), (h_pcs, h_com, h_claims)] = batch;
++        pcs::verify(w_pcs, w_com, w_claims, &proof.w_open, ntt, tr).map_err(|e| format!("W: {e}"))?;
++        pcs::verify(a_pcs, a_com, a_claims, &proof.a_open, ntt, tr).map_err(|e| format!("A: {e}"))?;
++        pcs::verify(h_pcs, h_com, h_claims, &proof.h_open, ntt, tr).map_err(|e| format!("H: {e}"))?;
++        Ok(())
++    }
++}
+diff --git a/zkp-core/src/ffn_v3/tamper.rs b/zkp-core/src/ffn_v3/tamper.rs
+new file mode 100644
+index 0000000..2767ab4
+--- /dev/null
++++ b/zkp-core/src/ffn_v3/tamper.rs
+@@ -0,0 +1,90 @@
++//! The tamper legs of the v3 layer: eight ways to break the witness that
++//! the verifier must refuse (soundness checks, D3). Moved from
++//! `hashline/src/layer.rs` (`TamperV3`, `apply_tamper_v3`,
++//! `recompute_v3_from_a16`); they edit the planes in place through
++//! [`PlanesMut`].
++
++use super::witness::{matmul_i32_i8_i64, requant_round, PlanesMut};
++
++/// Tamper legs applied to a witness before proving (plane indices are
++/// row-major over the first t_rows rows).
++#[derive(Clone, Copy, Debug)]
++pub enum Tamper {
++    None,
++    /// X[idx] += 1
++    FlipX(usize),
++    /// WgT[idx] += 1
++    FlipW(usize),
++    /// rg[idx] += 2^sh_g, g8[idx] -= 1 (identity kept; the remainder leaves its window)
++    RemainderOutOfRange(usize),
++    /// a16[idx] += 1 (a wrong int16 table entry) with the downstream chain recomputed consistently
++    WrongTableEntry(usize),
++    /// h16[idx] += 1 with rh unchanged (the Hadamard requant identity breaks)
++    WrongRequant(usize),
++    /// z16[idx] += 1 (the d matmul identity breaks)
++    WrongZ(usize),
++    /// FLOOR instead of round at the first gate element at/after idx where they differ, carried
++    /// through the chain consistently: only the rounding rule (the remainder window) breaks
++    WrongRounding(usize),
++    /// z16[idx] += 65536 with rd compensated (identity kept; z16 leaves the int16 class)
++    OutOfRangeInt16(usize),
++}
++
++/// Recompute h16/rh at one element and the down row that consumes it.
++fn recompute_from_a16(w: &mut PlanesMut<'_>, shifts: (i32, i32, i32, i32), d: usize, f: usize, i: usize) {
++    let sh_h = shifts.2;
++    let sh_z = shifts.3;
++    let hh = w.a16[i] as i64 * w.u16[i] as i64;
++    let (h, rh) = requant_round(&[hh], sh_h);
++    w.h16[i] = h[0] as i32;
++    w.rh[i] = rh[0] as i32;
++    let row = i / f;
++    let dacc = matmul_i32_i8_i64(&w.h16[row * f..(row + 1) * f], w.wd_t, 1, f, d);
++    let (z, rd) = requant_round(&dacc, sh_z);
++    for n in 0..d {
++        w.z16[row * d + n] = z[n] as i32;
++        w.rd[row * d + n] = rd[n] as i32;
++    }
++}
++
++/// Apply one leg to the planes of a `t_rows x d / f` layer with the given
++/// shifts and activation table.
++pub fn apply_tamper(w: &mut PlanesMut<'_>, table: &[i16; 256], shifts: (i32, i32, i32, i32), t_rows: usize, d: usize, f: usize, t: Tamper) {
++    match t {
++        Tamper::None => {}
++        Tamper::FlipX(i) => { w.x[i] = w.x[i].wrapping_add(1); }
++        Tamper::FlipW(i) => { w.wg_t[i] = w.wg_t[i].wrapping_add(1); }
++        Tamper::RemainderOutOfRange(i) => { w.rg[i] += 1 << shifts.0; w.g8[i] -= 1; }
++        Tamper::WrongTableEntry(i) => { w.a16[i] += 1; recompute_from_a16(w, shifts, d, f, i); }
++        Tamper::WrongRequant(i) => { w.h16[i] += 1; }
++        Tamper::WrongZ(i) => { w.z16[i] += 1; }
++        Tamper::WrongRounding(i) => {
++            let n = t_rows * f;
++            let mut j = i % n;
++            let mut found = false;
++            for _ in 0..n {
++                if w.rg[j] < 0 { found = true; break; }
++                j = (j + 1) % n;
++            }
++            assert!(found, "no gate element rounds up — cannot build the wrong-rounding leg");
++            w.g8[j] -= 1;
++            w.rg[j] += 1 << shifts.0;
++            w.a16[j] = table[((w.g8[j] + 128).clamp(0, 255)) as usize] as i32;
++            recompute_from_a16(w, shifts, d, f, j);
++        }
++        Tamper::OutOfRangeInt16(i) => { w.z16[i] += 65536; w.rd[i] -= 65536i32 << shifts.3; }
++    }
++}
++
++/// The eight legs at the indices hashline's `layer --all-tampers` uses,
++/// reduced modulo the plane sizes of a tiny layer by the caller.
++pub const ALL_LEGS: [fn(usize) -> Tamper; 8] = [
++    Tamper::FlipX,
++    Tamper::FlipW,
++    Tamper::RemainderOutOfRange,
++    Tamper::WrongTableEntry,
++    Tamper::WrongRequant,
++    Tamper::WrongZ,
++    Tamper::WrongRounding,
++    Tamper::OutOfRangeInt16,
++];
+diff --git a/zkp-core/src/ffn_v3/verify.rs b/zkp-core/src/ffn_v3/verify.rs
+new file mode 100644
+index 0000000..6c4c8d3
+--- /dev/null
++++ b/zkp-core/src/ffn_v3/verify.rs
+@@ -0,0 +1,268 @@
++//! The verifier of the non-hiding v3 FFN layer proof and the seam-point
++//! replay. Moved from `hashline/src/layer.rs::{verify_layer_v3, replay_sc,
++//! v3_zcd_point}` (CL20 step 2c); the checks, the transcript order and the
++//! error strings are unchanged. The opening check and the LogUp lookup
++//! challenge go through [`VerifyScheme`] (dense Ligero in the core;
++//! hashline's adapter adds the `--pcs compact` arm and its test-only
++//! fault injection).
++
++use super::logup::helper_constraint;
++use super::proof::{ExtraOpening, Proof};
++use super::prove::build_claims;
++use super::scheme::VerifyScheme;
++use super::statement::{absorb_com, absorb_mults, absorb_statement, pow2_signed, rem_rows, rem_value, tag_rem_v3, Layout, Params, Statement, TAG_ACT16, TAG_INT16};
++use crate::field::{batch_inverse2_checked, Fp, Fp2};
++use crate::mle::eq_point;
++use crate::ntt::NttTables;
++use crate::sumcheck::{self, SumcheckProof};
++use crate::transcript::Transcript;
++
++/// Verify one v3 layer proof against the public statement.
++pub fn verify_layer_v3<V, X>(scheme: &V, st: &Statement, proof: &Proof<X>, params: &Params, ntt: &NttTables, tr: &mut Transcript) -> Result<(), String>
++where
++    X: ExtraOpening,
++    V: VerifyScheme<X>,
++{
++    let lay = Layout::new(st.t_rows, st.d, st.f);
++    let (nb_d, nb_f) = (lay.nb_d, lay.nb_f);
++    let tf = st.t_rows * st.f;
++    let td = st.t_rows * st.d;
++    let (sh_g, sh_u, sh_h, sh_z) = st.shifts;
++    absorb_statement(tr, st);
++    let w_com = proof.w_com.as_ref().ok_or("missing W commitment")?;
++    let a_com = proof.a_com.as_ref().ok_or("missing A commitment")?;
++    let h_com = proof.h_com.as_ref().ok_or("missing H commitment")?;
++    let w_pcs = params.pcs_for(lay.log_wb);
++    let a_pcs = params.pcs_for(lay.log_a_min);
++    let h_pcs = params.pcs_for(lay.log_a_min);
++    if w_com.rows != lay.w_len / w_pcs.cols() { return Err("W commitment rows".into()); }
++    if a_com.rows != lay.a_len / a_pcs.cols() { return Err("A commitment rows".into()); }
++    if h_com.rows != lay.h_len / h_pcs.cols() { return Err("H commitment rows".into()); }
++    absorb_com(tr, b"W", w_com);
++    absorb_com(tr, b"A", a_com);
++    // multiplicities: shape + totals
++    let mut shifts: Vec<i32> = vec![sh_g, sh_u, sh_h, sh_z];
++    shifts.sort();
++    shifts.dedup();
++    if proof.mults.len() != 2 + shifts.len() { return Err("multiplicity table count".into()); }
++    if proof.mults[0].0 != TAG_ACT16 || proof.mults[0].1.len() != 256 { return Err("act16 multiplicities".into()); }
++    if proof.mults[1].0 != TAG_INT16 || proof.mults[1].1.len() != 1 << 16 { return Err("int16 multiplicities".into()); }
++    for (i, s) in shifts.iter().enumerate() {
++        let (tag, m) = &proof.mults[2 + i];
++        if *tag != tag_rem_v3(*s) || m.len() != rem_rows(*s) { return Err(format!("rem({s}) multiplicities")); }
++        let want: usize = [(sh_g, tf), (sh_u, tf), (sh_h, tf), (sh_z, td)].iter().filter(|(c, _)| c == s).map(|(_, n)| n).sum();
++        let got: u64 = m.iter().map(|&x| x as u64).sum();
++        if got != want as u64 { return Err(format!("rem({s}) multiplicity total {got} != {want}")); }
++    }
++    let act_total: u64 = proof.mults[0].1.iter().map(|&x| x as u64).sum();
++    if act_total != tf as u64 { return Err("act16 multiplicity total".into()); }
++    let i16_total: u64 = proof.mults[1].1.iter().map(|&x| x as u64).sum();
++    if i16_total != (2 * tf + td) as u64 { return Err("int16 multiplicity total".into()); }
++    absorb_mults(tr, &proof.mults);
++    let beta = tr.challenge_fp2();
++    let gamma = tr.challenge_fp2();
++    let alpha = tr.challenge_fp2();
++    absorb_com(tr, b"H", h_com);
++    let g_act = gamma.mul_base(Fp::new(TAG_ACT16));
++    let g_i16 = gamma.mul_base(Fp::new(TAG_INT16));
++    let g_rg = gamma.mul_base(Fp::new(tag_rem_v3(sh_g)));
++    let g_ru = gamma.mul_base(Fp::new(tag_rem_v3(sh_u)));
++    let g_rh = gamma.mul_base(Fp::new(tag_rem_v3(sh_h)));
++    let g_rd = gamma.mul_base(Fp::new(tag_rem_v3(sh_z)));
++    let (p_g, p_u, p_h, p_z) = (pow2_signed(sh_g), pow2_signed(sh_u), pow2_signed(sh_h), pow2_signed(sh_z));
++
++    // ---- g/u matmul ----
++    let r_i = tr.challenge_fp2_vec(lay.log_t as usize);
++    let r_j = tr.challenge_fp2_vec(lay.log_fb as usize);
++    let lam_gu = tr.challenge_fp2();
++    let lam_f = tr.challenge_fp2_vec(nb_f);
++    let mut p1 = r_i.clone();
++    p1.extend_from_slice(&r_j);
++    if proof.gu_claims.len() != 2 * nb_f { return Err("gu claims".into()); }
++    tr.absorb_fp2(b"gu-claims", &proof.gu_claims);
++    let claim = (0..nb_f).fold(Fp2::ZERO, |a, b| a.add(lam_f[b].mul(proof.gu_claims[2 * b].add(lam_gu.mul(proof.gu_claims[2 * b + 1])))));
++    let (fin, r_kp) = sumcheck::verify(claim, 2, lay.log_db as usize, &proof.gu_sc, tr)?;
++    if proof.gu_term.len() != nb_d + 2 * nb_d * nb_f { return Err("gu terminal".into()); }
++    let mut want = Fp2::ZERO;
++    for c in 0..nb_d {
++        let mut wsum = Fp2::ZERO;
++        for b in 0..nb_f {
++            let wg = proof.gu_term[nb_d + c * nb_f + b];
++            let wu = proof.gu_term[nb_d + nb_d * nb_f + c * nb_f + b];
++            wsum = wsum.add(lam_f[b].mul(wg.add(lam_gu.mul(wu))));
++        }
++        want = want.add(proof.gu_term[c].mul(wsum));
++    }
++    if want != fin { return Err("g/u matmul sumcheck terminal check fails".into()); }
++    tr.absorb_fp2(b"gu-term", &proof.gu_term);
++    let mut p2 = r_i.clone();
++    p2.extend_from_slice(&r_kp);
++    let mut p3 = r_kp.clone();
++    p3.extend_from_slice(&r_j);
++
++    // ---- d matmul ----
++    let r_ip = tr.challenge_fp2_vec(lay.log_t as usize);
++    let r_jp = tr.challenge_fp2_vec(lay.log_db as usize);
++    let lam_d = tr.challenge_fp2_vec(nb_d);
++    let mut p4 = r_ip.clone();
++    p4.extend_from_slice(&r_jp);
++    if proof.d_claims.len() != nb_d { return Err("d claims".into()); }
++    tr.absorb_fp2(b"d-claims", &proof.d_claims);
++    let d_sum = (0..nb_d).fold(Fp2::ZERO, |a, c| a.add(lam_d[c].mul(proof.d_claims[c])));
++    let (fin, r_k) = sumcheck::verify(d_sum, 2, lay.log_fb as usize, &proof.d_sc, tr)?;
++    if proof.d_term.len() != nb_f + nb_f * nb_d { return Err("d terminal".into()); }
++    let mut want = Fp2::ZERO;
++    for b in 0..nb_f {
++        let wd_comb = (0..nb_d).fold(Fp2::ZERO, |a, c| a.add(lam_d[c].mul(proof.d_term[nb_f + b * nb_d + c])));
++        want = want.add(proof.d_term[b].mul(wd_comb));
++    }
++    if want != fin { return Err("d matmul sumcheck terminal check fails".into()); }
++    tr.absorb_fp2(b"d-term", &proof.d_term);
++    let mut p5 = r_ip.clone();
++    p5.extend_from_slice(&r_k);
++    let mut p6 = r_k.clone();
++    p6.extend_from_slice(&r_jp);
++
++    // ---- zero-check F ----
++    let tau = tr.challenge_fp2_vec((lay.log_t + lay.log_fb) as usize);
++    let mu = tr.challenge_fp2_vec(4 * nb_f);
++    let nu = tr.challenge_fp2_vec(3 * nb_f);
++    let mut claimed = Fp2::ZERO;
++    for b in 0..nb_f {
++        claimed = claimed.add(nu[3 * b].mul(proof.gu_claims[2 * b])).add(nu[3 * b + 1].mul(proof.gu_claims[2 * b + 1])).add(nu[3 * b + 2].mul(proof.d_term[b]));
++    }
++    let (fin, rho_f) = sumcheck::verify(claimed, 4, (lay.log_t + lay.log_fb) as usize, &proof.zcf_sc, tr)?;
++    if proof.zcf_term.len() != 10 * nb_f { return Err("zcF terminal".into()); }
++    {
++        let v = &proof.zcf_term;
++        let mut zc = Fp2::ZERO;
++        let mut f1 = Fp2::ZERO;
++        let mut f5 = Fp2::ZERO;
++        for b in 0..nb_f {
++            let o = 10 * b;
++            let (g8, rg, a16, u16, ru, h16, rh, hg, hu, hh) = (v[o], v[o + 1], v[o + 2], v[o + 3], v[o + 4], v[o + 5], v[o + 6], v[o + 7], v[o + 8], v[o + 9]);
++            let c_had = a16.mul(u16).sub(h16.mul_base(p_h)).sub(rh);
++            let c_hg = helper_constraint(hg, g8.add(beta.mul(a16)).add(g_act), rg.add(g_rg), alpha);
++            let c_hu = helper_constraint(hu, u16.add(g_i16), ru.add(g_ru), alpha);
++            let c_hh = helper_constraint(hh, h16.add(g_i16), rh.add(g_rh), alpha);
++            zc = zc.add(mu[4 * b].mul(c_had)).add(mu[4 * b + 1].mul(c_hg)).add(mu[4 * b + 2].mul(c_hu)).add(mu[4 * b + 3].mul(c_hh));
++            f1 = f1.add(nu[3 * b].mul(g8.mul_base(p_g).add(rg))).add(nu[3 * b + 1].mul(u16.mul_base(p_u).add(ru)));
++            f5 = f5.add(nu[3 * b + 2].mul(h16));
++        }
++        let want = eq_point(&tau, &rho_f).mul(zc).add(eq_point(&p1, &rho_f).mul(f1)).add(eq_point(&p5, &rho_f).mul(f5));
++        if want != fin { return Err("zero-check F terminal check fails".into()); }
++    }
++    tr.absorb_fp2(b"zcf-term", &proof.zcf_term);
++
++    // ---- zero-check D ----
++    let tau2 = tr.challenge_fp2_vec((lay.log_t + lay.log_db) as usize);
++    let mu2 = tr.challenge_fp2_vec(nb_d);
++    let nu_x = tr.challenge_fp2_vec(nb_d);
++    let nu_z = tr.challenge_fp2_vec(nb_d);
++    let claimed = (0..nb_d).fold(Fp2::ZERO, |a, c| a.add(nu_x[c].mul(proof.gu_term[c])).add(nu_z[c].mul(proof.d_claims[c])));
++    let (fin, rho_d) = sumcheck::verify(claimed, 4, (lay.log_t + lay.log_db) as usize, &proof.zcd_sc, tr)?;
++    if proof.zcd_term.len() != 4 * nb_d { return Err("zcD terminal".into()); }
++    {
++        let v = &proof.zcd_term;
++        let mut zc = Fp2::ZERO;
++        let mut fx = Fp2::ZERO;
++        let mut fz = Fp2::ZERO;
++        for c in 0..nb_d {
++            let (x, z, rd, h) = (v[c], v[nb_d + c], v[2 * nb_d + c], v[3 * nb_d + c]);
++            zc = zc.add(mu2[c].mul(helper_constraint(h, z.add(g_i16), rd.add(g_rd), alpha)));
++            fx = fx.add(nu_x[c].mul(x));
++            fz = fz.add(nu_z[c].mul(z.mul_base(p_z).add(rd)));
++        }
++        let want = eq_point(&tau2, &rho_d).mul(zc).add(eq_point(&p2, &rho_d).mul(fx)).add(eq_point(&p4, &rho_d).mul(fz));
++        if want != fin { return Err("zero-check D terminal check fails".into()); }
++    }
++    tr.absorb_fp2(b"zcd-term", &proof.zcd_term);
++
++    // ---- helper sums vs the multiplicity side (the LogUp identity) ----
++    if proof.helper_sums.len() != 3 * nb_f + nb_d { return Err("helper sums".into()); }
++    tr.absorb_fp2(b"helper-sums", &proof.helper_sums);
++    let witness_side = proof.helper_sums.iter().fold(Fp2::ZERO, |a, b| a.add(*b));
++    let mut dens: Vec<Fp2> = Vec::new();
++    let mut nums: Vec<Fp> = Vec::new();
++    for (tag, m) in &proof.mults {
++        for (i, &cnt) in m.iter().enumerate() {
++            if cnt == 0 { continue; }
++            let tval = if *tag == TAG_ACT16 {
++                Fp2::from_i64(i as i64 - 128).add(beta.mul_base(Fp::from_i64(st.table[i] as i64))).add(g_act)
++            } else if *tag == TAG_INT16 {
++                Fp2::from_i64(i as i64 - 32768).add(g_i16)
++            } else {
++                let sh = *tag as i32 - 64 - 8;
++                Fp2::from_i64(rem_value(sh, i)).add(gamma.mul_base(Fp::new(*tag)))
++            };
++            let alpha = scheme.lookup_alpha(alpha, tval);
++            dens.push(alpha.sub(tval));
++            nums.push(Fp::new(cnt as u64));
++        }
++    }
++    batch_inverse2_checked(&mut dens)
++        .map_err(|_| "FFN v3 LogUp: zero lookup denominator".to_string())?;
++    let table_side = dens.iter().zip(nums.iter()).fold(Fp2::ZERO, |a, (d, n)| a.add(d.mul_base(*n)));
++    if witness_side != table_side { return Err("LogUp identity fails (a lookup is not in its table)".into()); }
++
++    // ---- PCS openings ----
++    let (w_claims, a_claims, h_claims) = build_claims(&lay, proof, &p3, &p6, &rho_f, &rho_d);
++    scheme.verify_openings([(&w_pcs, w_com, &w_claims), (&a_pcs, a_com, &a_claims), (&h_pcs, h_com, &h_claims)], proof, ntt, tr)
++}
++
++// ===========================================================================
++// THE SEAM POINT of a v3 layer proof. The full-layer statement binds the
++// attention half's xm8 to the FFN half's X (and its z16 copy to the FFN's
++// z16) at the point the v3 zero-check D drew — a point drawn AFTER both A
++// commitments, which is exactly what the seam needs. Neither the prover
++// nor the verifier returns it, so this replays their (identical)
++// transcript walk on a CLONE and returns rho_d. It absorbs nothing into
++// the caller's transcript.
++// ===========================================================================
++
++fn replay_sc(tr: &mut Transcript, sc: &SumcheckProof) -> Vec<Fp2> {
++    let mut ch = Vec::with_capacity(sc.rounds.len());
++    for s in &sc.rounds {
++        tr.absorb_fp2(b"sc-round", s);
++        ch.push(tr.challenge_fp2());
++    }
++    ch
++}
++
++/// rho_d: the zero-check-D challenge point of a v3 layer proof, given the
++/// transcript state BEFORE the prover / verifier ran.
++pub fn zcd_point<X>(st: &Statement, proof: &Proof<X>, before: &Transcript) -> Vec<Fp2> {
++    let lay = Layout::new(st.t_rows, st.d, st.f);
++    let mut tr = Transcript::clone_state(before);
++    absorb_statement(&mut tr, st);
++    absorb_com(&mut tr, b"W", proof.w_com.as_ref().expect("W"));
++    absorb_com(&mut tr, b"A", proof.a_com.as_ref().expect("A"));
++    absorb_mults(&mut tr, &proof.mults);
++    let _beta = tr.challenge_fp2();
++    let _gamma = tr.challenge_fp2();
++    let _alpha = tr.challenge_fp2();
++    absorb_com(&mut tr, b"H", proof.h_com.as_ref().expect("H"));
++    let _r_i = tr.challenge_fp2_vec(lay.log_t as usize);
++    let _r_j = tr.challenge_fp2_vec(lay.log_fb as usize);
++    let _lam_gu = tr.challenge_fp2();
++    let _lam_f = tr.challenge_fp2_vec(lay.nb_f);
++    tr.absorb_fp2(b"gu-claims", &proof.gu_claims);
++    replay_sc(&mut tr, &proof.gu_sc);
++    tr.absorb_fp2(b"gu-term", &proof.gu_term);
++    let _r_ip = tr.challenge_fp2_vec(lay.log_t as usize);
++    let _r_jp = tr.challenge_fp2_vec(lay.log_db as usize);
++    let _lam_d = tr.challenge_fp2_vec(lay.nb_d);
++    tr.absorb_fp2(b"d-claims", &proof.d_claims);
++    replay_sc(&mut tr, &proof.d_sc);
++    tr.absorb_fp2(b"d-term", &proof.d_term);
++    let _tau = tr.challenge_fp2_vec((lay.log_t + lay.log_fb) as usize);
++    let _mu = tr.challenge_fp2_vec(4 * lay.nb_f);
++    let _nu = tr.challenge_fp2_vec(3 * lay.nb_f);
++    replay_sc(&mut tr, &proof.zcf_sc);
++    tr.absorb_fp2(b"zcf-term", &proof.zcf_term);
++    let _tau2 = tr.challenge_fp2_vec((lay.log_t + lay.log_db) as usize);
++    let _mu2 = tr.challenge_fp2_vec(lay.nb_d);
++    let _nu_x = tr.challenge_fp2_vec(lay.nb_d);
++    let _nu_z = tr.challenge_fp2_vec(lay.nb_d);
++    replay_sc(&mut tr, &proof.zcd_sc)
++}
+diff --git a/zkp-core/src/ffn_v3/witness.rs b/zkp-core/src/ffn_v3/witness.rs
+new file mode 100644
+index 0000000..0c2820a
+--- /dev/null
++++ b/zkp-core/src/ffn_v3/witness.rs
+@@ -0,0 +1,264 @@
++//! The witness planes of the v3 FFN layer and the exact integer chain that
++//! derives them.
++//!
++//! Moved from `hashline/src/export_v3.rs` (CL20 step 2c): `requant_round`,
++//! `in_i16_class`, `in_rem_window` and the arithmetic of
++//! `matmul_i32_i8_i64` are the canonical implementations (hashline
++//! re-exports the first three and wraps the matmul with its allocation
++//! span). [`Witness`] is the borrowed-planes form the prover reads;
++//! hashline's `export_v3::V3Witness` (the loader's owned product with its
++//! export dims, exponents and sidecar digests) lends its planes to it.
++//! [`derive`] is the exact chain of `export_v3::derive_v3_with_table`
++//! without hashline's phase-profile spans; both compositions are kept
++//! deliberately (the spans are consumed by hashline's CLI reports) and the
++//! parity test `hashline/tests/zk60_cl20_parity.rs` asserts their planes
++//! are identical.
++
++use rayon::prelude::*;
++
++/// The planes the prover reads, row-major over the first `t_rows` rows of
++/// the layer. `x` is `T x d` (int8), the weights transposed as the export
++/// lays them out (`wg_t`, `wu_t`: `d x f`; `wd_t`: `f x d`), the derived
++/// planes `t_rows x f` (`g8`, `rg`, `a16`, `u16`, `ru`, `h16`, `rh`) and
++/// `t_rows x d` (`z16`, `rd`). Planes may be longer than `t_rows` rows;
++/// the prover slices what it needs.
++#[derive(Clone, Copy, Debug)]
++pub struct Witness<'a> {
++    pub x: &'a [i8],
++    pub wg_t: &'a [i8],
++    pub wu_t: &'a [i8],
++    pub wd_t: &'a [i8],
++    pub g8: &'a [i32],
++    pub rg: &'a [i32],
++    pub a16: &'a [i32],
++    pub u16: &'a [i32],
++    pub ru: &'a [i32],
++    pub h16: &'a [i32],
++    pub rh: &'a [i32],
++    pub z16: &'a [i32],
++    pub rd: &'a [i32],
++}
++
++/// The same planes mutably (the tamper legs edit them in place).
++pub struct PlanesMut<'a> {
++    pub x: &'a mut [i8],
++    pub wg_t: &'a mut [i8],
++    pub wu_t: &'a mut [i8],
++    pub wd_t: &'a mut [i8],
++    pub g8: &'a mut [i32],
++    pub rg: &'a mut [i32],
++    pub a16: &'a mut [i32],
++    pub u16: &'a mut [i32],
++    pub ru: &'a mut [i32],
++    pub h16: &'a mut [i32],
++    pub rh: &'a mut [i32],
++    pub z16: &'a mut [i32],
++    pub rd: &'a mut [i32],
++}
++
++/// The owned planes `derive` produces (the example's and the tests' form).
++#[derive(Clone, Debug)]
++pub struct OwnedWitness {
++    pub t_rows: usize,
++    pub d: usize,
++    pub f: usize,
++    pub x: Vec<i8>,
++    pub wg_t: Vec<i8>,
++    pub wu_t: Vec<i8>,
++    pub wd_t: Vec<i8>,
++    pub g8: Vec<i32>,
++    pub rg: Vec<i32>,
++    pub a16: Vec<i32>,
++    pub u16: Vec<i32>,
++    pub ru: Vec<i32>,
++    pub h16: Vec<i32>,
++    pub rh: Vec<i32>,
++    pub z16: Vec<i32>,
++    pub rd: Vec<i32>,
++    /// Every derived value inside its class/window (`in_i16_class`, the
++    /// int8 gate class, `in_rem_window`); a false witness proves but is refused.
++    pub range_ok: bool,
++}
++
++impl OwnedWitness {
++    pub fn as_ref(&self) -> Witness<'_> {
++        Witness {
++            x: &self.x, wg_t: &self.wg_t, wu_t: &self.wu_t, wd_t: &self.wd_t,
++            g8: &self.g8, rg: &self.rg, a16: &self.a16, u16: &self.u16, ru: &self.ru, h16: &self.h16, rh: &self.rh, z16: &self.z16, rd: &self.rd,
++        }
++    }
++    pub fn as_mut(&mut self) -> PlanesMut<'_> {
++        PlanesMut {
++            x: &mut self.x, wg_t: &mut self.wg_t, wu_t: &mut self.wu_t, wd_t: &mut self.wd_t,
++            g8: &mut self.g8, rg: &mut self.rg, a16: &mut self.a16, u16: &mut self.u16, ru: &mut self.ru, h16: &mut self.h16, rh: &mut self.rh,
++            z16: &mut self.z16, rd: &mut self.rd,
++        }
++    }
++}
++
++// ---------------------------------------------------------------------------
++// the exact chain
++// ---------------------------------------------------------------------------
++
++/// c[i][j] = sum_k a[i][k] * b_t[k][j] in i64 (a i32 rows x inner, b_t int8 inner x cols), into `c`.
++pub fn matmul_i32_i8_i64_into(a: &[i32], b_t: &[i8], rows: usize, inner: usize, cols: usize, c: &mut [i64]) {
++    assert_eq!(c.len(), rows * cols);
++    c.par_chunks_mut(cols).enumerate().for_each(|(i, crow)| {
++        for k in 0..inner {
++            let av = a[i * inner + k] as i64;
++            if av == 0 {
++                continue;
++            }
++            let brow = &b_t[k * cols..(k + 1) * cols];
++            for (cv, &bv) in crow.iter_mut().zip(brow.iter()) {
++                *cv += av * bv as i64;
++            }
++        }
++    });
++}
++
++/// `matmul_i32_i8_i64_into` over a fresh zeroed output.
++pub fn matmul_i32_i8_i64(a: &[i32], b_t: &[i8], rows: usize, inner: usize, cols: usize) -> Vec<i64> {
++    let mut c = vec![0i64; rows * cols];
++    matmul_i32_i8_i64_into(a, b_t, rows, inner, cols, &mut c);
++    c
++}
++
++/// c[i][j] = sum_k a[i][k] * b_t[k][j] in i32 (a int8 rows x inner, b_t int8 inner x cols): the gate/up
++/// matmuls of the chain (hashline's `chain::matmul_i8_i32`, widened to i64 by the caller).
++pub fn matmul_i8_i8_i64(a: &[i8], b_t: &[i8], rows: usize, inner: usize, cols: usize) -> Vec<i64> {
++    let mut c = vec![0i64; rows * cols];
++    c.par_chunks_mut(cols).enumerate().for_each(|(i, crow)| {
++        for k in 0..inner {
++            let av = a[i * inner + k] as i64;
++            if av == 0 {
++                continue;
++            }
++            let brow = &b_t[k * cols..(k + 1) * cols];
++            for (cv, &bv) in crow.iter_mut().zip(brow.iter()) {
++                *cv += av * bv as i64;
++            }
++        }
++    });
++    c
++}
++
++/// The v3 requantization at a SIGNED shift: (y, r) with v = 2^s y + r and
++/// r in the BALANCED window [-2^(s-1), 2^(s-1)) for s > 0 (= round-to-
++/// nearest, half up); y = v * 2^-s, r = 0 for s <= 0 (exact up-scaling).
++pub fn requant_round(acc: &[i64], sh: i32) -> (Vec<i64>, Vec<i64>) {
++    if sh <= 0 {
++        let scale = 1i64 << (-sh);
++        return (acc.par_iter().map(|&a| a * scale).collect(), vec![0i64; acc.len()]);
++    }
++    let half = 1i64 << (sh - 1);
++    let y: Vec<i64> = acc.par_iter().map(|&a| (a + half) >> sh).collect();
++    let r: Vec<i64> = acc.par_iter().zip(y.par_iter()).map(|(&a, &yy)| a - (yy << sh)).collect();
++    (y, r)
++}
++
++#[inline]
++pub fn in_i16_class(v: i64) -> bool {
++    (-32768..=32767).contains(&v)
++}
++#[inline]
++pub fn in_rem_window(r: i64, sh: i32) -> bool {
++    if sh <= 0 {
++        r == 0
++    } else {
++        let half = 1i64 << (sh - 1);
++        (-half..half).contains(&r)
++    }
++}
++
++fn to_i32(v: Vec<i64>) -> Vec<i32> {
++    v.into_par_iter().map(|x| x.clamp(i32::MIN as i64, i32::MAX as i64) as i32).collect()
++}
++
++/// Derive the chain from X and the weights over the first `t_rows` rows
++/// (`x` is `T x d` with `T >= t_rows`): gate/up matmuls, the signed
++/// requantizations with balanced remainders, the int16-out table lookup,
++/// the Hadamard product, the down matmul. The planes are `t_rows x f` /
++/// `t_rows x d`; `range_ok` records every class and window check.
++pub fn derive(x: &[i8], wg_t: &[i8], wu_t: &[i8], wd_t: &[i8], t_rows: usize, d: usize, f: usize, shifts: (i32, i32, i32, i32), table: &[i16; 256]) -> OwnedWitness {
++    assert!(t_rows >= 1 && x.len() >= t_rows * d, "x holds {} entries, {t_rows} x {d} needed", x.len());
++    assert_eq!(wg_t.len(), d * f);
++    assert_eq!(wu_t.len(), d * f);
++    assert_eq!(wd_t.len(), f * d);
++    let (sh_g, sh_u, sh_h, sh_z) = shifts;
++    let gacc = matmul_i8_i8_i64(&x[..t_rows * d], wg_t, t_rows, d, f);
++    let uacc = matmul_i8_i8_i64(&x[..t_rows * d], wu_t, t_rows, d, f);
++    let (g8, rg) = requant_round(&gacc, sh_g);
++    let (u16v, ru) = requant_round(&uacc, sh_u);
++    drop(gacc);
++    drop(uacc);
++    let g_ok = g8.iter().all(|&g| (-128..=127).contains(&g));
++    let u_ok = u16v.iter().all(|&u| in_i16_class(u));
++    let a16: Vec<i64> = g8.par_iter().map(|&g| table[((g + 128).clamp(0, 255)) as usize] as i64).collect();
++    let hh: Vec<i64> = a16.par_iter().zip(u16v.par_iter()).map(|(&a, &u)| a * u).collect();
++    let (h16, rh) = requant_round(&hh, sh_h);
++    drop(hh);
++    let h_ok = h16.iter().all(|&h| in_i16_class(h));
++    let h16_32 = to_i32(h16);
++    let dacc = matmul_i32_i8_i64(&h16_32, wd_t, t_rows, f, d);
++    let (z16, rd) = requant_round(&dacc, sh_z);
++    drop(dacc);
++    let z_ok = z16.iter().all(|&z| in_i16_class(z));
++    let rem_ok = rg.iter().all(|&r| in_rem_window(r, sh_g))
++        && ru.iter().all(|&r| in_rem_window(r, sh_u))
++        && rh.iter().all(|&r| in_rem_window(r, sh_h))
++        && rd.iter().all(|&r| in_rem_window(r, sh_z));
++    OwnedWitness {
++        t_rows,
++        d,
++        f,
++        x: x[..t_rows * d].to_vec(),
++        wg_t: wg_t.to_vec(),
++        wu_t: wu_t.to_vec(),
++        wd_t: wd_t.to_vec(),
++        g8: to_i32(g8),
++        rg: to_i32(rg),
++        a16: to_i32(a16),
++        u16: to_i32(u16v),
++        ru: to_i32(ru),
++        h16: h16_32,
++        rh: to_i32(rh),
++        z16: to_i32(z16),
++        rd: to_i32(rd),
++        range_ok: g_ok && u_ok && h_ok && z_ok && rem_ok,
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn requant_and_windows_match_the_definition() {
++        let (y, r) = requant_round(&[0, 1, 2, 3, 4, -1, -2, -3, -4, 100], 2);
++        assert_eq!(y, vec![0, 0, 1, 1, 1, 0, 0, -1, -1, 25]);
++        assert_eq!(r, vec![0, 1, -2, -1, 0, -1, -2, 1, 0, 0]);
++        for (a, yy, rr) in [(3i64, 1i64, -1i64), (2, 1, -2)] {
++            assert_eq!(a, (yy << 2) + rr);
++        }
++        assert!(r.iter().all(|&v| in_rem_window(v, 2)));
++        assert!(!in_rem_window(2, 2));
++        assert!(in_rem_window(-2, 2));
++        let (y0, r0) = requant_round(&[5, -7], 0);
++        assert_eq!((y0, r0), (vec![5, -7], vec![0, 0]));
++        let (ym, rm) = requant_round(&[5, -7], -2);
++        assert_eq!((ym, rm), (vec![20, -28], vec![0, 0]));
++        assert!(in_i16_class(32767) && !in_i16_class(32768) && in_i16_class(-32768) && !in_i16_class(-32769));
++    }
++
++    #[test]
++    fn matmul_forms_agree() {
++        let a32 = vec![1i32, -2, 3, 4, 0, -6];
++        let a8: Vec<i8> = a32.iter().map(|&v| v as i8).collect();
++        let b_t = vec![2i8, -1, 0, 5, 7, 1];
++        let c1 = matmul_i32_i8_i64(&a32, &b_t, 2, 3, 2);
++        let c2 = matmul_i8_i8_i64(&a8, &b_t, 2, 3, 2);
++        assert_eq!(c1, c2);
++        assert_eq!(c1, vec![1 * 2 + (-2) * 0 + 3 * 7, 1 * (-1) + (-2) * 5 + 3 * 1, 4 * 2 + 0 + (-6) * 7, 4 * (-1) + 0 + (-6) * 1]);
++    }
++}
