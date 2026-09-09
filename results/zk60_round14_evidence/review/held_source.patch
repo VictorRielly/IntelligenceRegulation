@@ -1,0 +1,4448 @@
+diff --git a/hashline/Cargo.lock b/hashline/Cargo.lock
+index a73d1fd..ba08ed7 100644
+--- a/hashline/Cargo.lock
++++ b/hashline/Cargo.lock
+@@ -234,4 +234,5 @@ version = "0.1.0"
+ dependencies = [
+  "blake3",
+  "rayon",
++ "sha2",
+ ]
+diff --git a/hashline/src/attention.rs b/hashline/src/attention.rs
+index 9d920b1..691a3ab 100644
+--- a/hashline/src/attention.rs
++++ b/hashline/src/attention.rs
+@@ -2781,6 +2781,11 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
+     } else if cc.idx > cc.vals.len() {
+         return Err(format!("claim count {} > {} sent", cc.idx, cc.vals.len()));
+     }
++    // Seam claims are appended later, but this argument owns every attention
++    // sumcheck. Derive the count from consumption instead of fixing one shape.
++    if !proving && ctx.sc_i != proof.sc.len() {
++        return Err(format!("unused attention sumchecks: {} sent, {} used", proof.sc.len(), ctx.sc_i));
++    }
+     crate::attention_schedule::record("end", "attention argument", &[("A_claims", cc.aw.len()), ("W_claims", cc.ww.len()), ("H_claims", cc.hh.len()), ("values", if proving { cc.vals.len() } else { cc.idx })]);
+     Ok(cc)
+ }
+@@ -3233,6 +3238,11 @@ pub fn attn_open_a(pend: AttnPending, proof: &mut AttnProof, tr: &mut Transcript
+ /// caller adds the seam claims and calls `attn_verify_open`.
+ pub fn verify_attn(proof: &AttnProof, c: &AttnConsts, fc: &FullConsts, params: &LayerParams,
+                    tr: &mut Transcript) -> Result<(AttnLayout, Cc), String> {
++    // Attention helper sums are carried by vals. This legacy field has no
++    // meaning here; match the bounded B4/B5 decoder's empty-field requirement.
++    if !proof.helper_sums.is_empty() {
++        return Err("unused attention helper_sums".into());
++    }
+     let lay = attn_layout_of(c, fc, params.log_cols);
+     absorb_attn_statement(tr, c, fc, &lay);
+     let pp = PcsParams { log_cols: lay.cols_log, inv_rate: params.inv_rate, num_col_checks: params.num_col_checks };
+diff --git a/hashline/src/layer.rs b/hashline/src/layer.rs
+index 2b34643..a7f73f3 100644
+--- a/hashline/src/layer.rs
++++ b/hashline/src/layer.rs
+@@ -22,7 +22,7 @@ use crate::export::{D, F};
+ use crate::field::{batch_inverse2, batch_inverse2_checked, Fp, Fp2};
+ use crate::mle::{eq_point, eq_table_msb, eval_mle_ext, fold_cols_base, fold_cols_i8, fold_rows_i32, fold_rows_i8};
+ use crate::ntt::NttTables;
+-use crate::pcs::{self, Claim, Commitment, Opening, PcsParams, Slice};
++use crate::pcs::{self, Claim, Commitment, Opening, Slice};
+ // [UPERF3-AF] the PCS-selection seam: `pcs_compact::commit` returns the Ligero form (the default,
+ // byte-identical) or the compact form; one batched compact opening per layer replaces the three.
+ use crate::pcs_compact::{self, AnyCm};
+@@ -45,16 +45,24 @@ pub struct Statement {
+     pub table_digest: String,
+ }
+ 
+-#[derive(Clone, Copy, Debug)]
+-pub struct LayerParams {
+-    pub log_cols: u32,
+-    pub inv_rate: usize,
+-    pub num_col_checks: usize,
+-}
+-
+-impl LayerParams {
+-    fn pcs_for(&self, min_log_slice: u32) -> PcsParams {
+-        PcsParams { log_cols: self.log_cols.min(min_log_slice), inv_rate: self.inv_rate, num_col_checks: self.num_col_checks }
++// [ZK60-CL20] The typed pieces of the v3 profile are canonical in zkp-core
++// (`zkp_core::ffn_v3`); they are re-exported here under their legacy names so
++// every caller compiles unchanged. `LayerParams` serves the v2 prover too.
++pub use zkp_core::ffn_v3::{
++    absorb_statement as absorb_statement_v3, pow2_signed, rem_index, rem_rows, rem_value, tag_rem_v3, Layout as LayoutV3,
++    Params as LayerParams, Statement as StatementV3, TAG_ACT16, TAG_INT16,
++};
++use zkp_core::ffn_v3::{absorb_com, absorb_mults};
++/// The v3 layer proof: the core's proof object with hashline's compact-PCS
++/// batched opening in its extra slot (`cpcs_open`, `--pcs compact`).
++pub type LayerProofV3 = zkp_core::ffn_v3::Proof<pcs_compact::BatchOpening>;
++
++impl zkp_core::ffn_v3::ExtraOpening for pcs_compact::BatchOpening {
++    fn size_bytes(&self) -> usize {
++        pcs_compact::BatchOpening::size_bytes(self)
++    }
++    fn write_bytes(&self, out: &mut Vec<u8>) {
++        pcs_compact::BatchOpening::write_bytes(self, out)
+     }
+ }
+ 
+@@ -191,22 +199,6 @@ fn absorb_statement(tr: &mut Transcript, st: &Statement) {
+     tr.absorb(b"table", st.table_digest.as_bytes());
+ }
+ 
+-fn absorb_com(tr: &mut Transcript, label: &[u8], c: &Commitment) {
+-    tr.absorb(label, &c.root);
+-    tr.absorb_u64(label, c.rows as u64);
+-}
+-
+-fn absorb_mults(tr: &mut Transcript, mults: &[(u64, Vec<u32>)]) {
+-    let mut bytes = Vec::new();
+-    for (tag, m) in mults {
+-        bytes.extend_from_slice(&tag.to_le_bytes());
+-        bytes.extend_from_slice(&(m.len() as u64).to_le_bytes());
+-        for v in m {
+-            bytes.extend_from_slice(&v.to_le_bytes());
+-        }
+-    }
+-    tr.absorb(b"mults", &bytes);
+-}
+ 
+ fn to_fp_i32(v: &[i32]) -> Vec<Fp> {
+     v.par_iter().map(|&x| Fp::from_i64(x as i64)).collect()
+@@ -1223,186 +1215,8 @@ pub fn matmul_differential(honest_w: &LayerWitness, prover_w: &LayerWitness, t_r
+ // ===========================================================================
+ 
+ use crate::export_v3::V3Witness;
+-use crate::tables_v3::Act16Fn;
+-
+-pub const TAG_ACT16: u64 = 3;
+-pub const TAG_INT16: u64 = 4;
+-/// The balanced-remainder window table of a signed shift (sh in -8..=16).
+-pub fn tag_rem_v3(sh: i32) -> u64 {
+-    64 + (sh + 8) as u64
+-}
+-pub fn rem_rows(sh: i32) -> usize {
+-    if sh <= 0 { 1 } else { 1usize << sh }
+-}
+-/// Row i of the window table: the remainder value it stands for.
+-pub fn rem_value(sh: i32, i: usize) -> i64 {
+-    if sh <= 0 { 0 } else { i as i64 - (1i64 << (sh - 1)) }
+-}
+-/// [UPERF3-AD] pub: the v3 ZK form (zk.rs) builds the same multiplicity tables.
+-pub fn rem_index(sh: i32, r: i32) -> Option<usize> {
+-    if sh <= 0 {
+-        if r == 0 { Some(0) } else { None }
+-    } else {
+-        let v = r as i64 + (1i64 << (sh - 1));
+-        if v >= 0 && v < (1i64 << sh) { Some(v as usize) } else { None }
+-    }
+-}
+-/// The public coefficient of y in acc = coef * y + r: 2^sh, or the inverse
+-/// of 2^-sh at a negative shift (the exact up-scaling branch).
+-pub fn pow2_signed(sh: i32) -> Fp {
+-    if sh >= 0 { Fp::new(1u64 << sh) } else { Fp::new(1u64 << (-sh)).inv() }
+-}
+-
+-#[derive(Clone, Debug)]
+-pub struct StatementV3 {
+-    pub l: usize,
+-    pub t_rows: usize,
+-    pub d: usize,
+-    pub f: usize,
+-    pub shifts: (i32, i32, i32, i32),
+-    pub act: Act16Fn,
+-    pub table: [i16; 256],
+-    pub table_digest: String,
+-}
+-
+-/// Element offsets of every slice in the three committed vectors (block-structured).
+-#[derive(Clone, Debug)]
+-pub struct LayoutV3 {
+-    pub t_rows: usize, pub d: usize, pub f: usize,
+-    pub log_t: u32, pub log_db: u32, pub nb_d: usize, pub log_fb: u32, pub nb_f: usize,
+-    pub tfb: usize, pub tdb: usize, pub wb: usize, pub log_wb: u32, pub log_a_min: u32,
+-    pub g8: Vec<usize>, pub rg: Vec<usize>, pub a16: Vec<usize>, pub u16: Vec<usize>, pub ru: Vec<usize>, pub h16: Vec<usize>, pub rh: Vec<usize>,
+-    pub x: Vec<usize>, pub z: Vec<usize>, pub rd: Vec<usize>,
+-    pub a_len: usize,
+-    pub wg: Vec<usize>, pub wu: Vec<usize>, pub wd: Vec<usize>,
+-    pub w_len: usize,
+-    pub hg: Vec<(usize, usize)>, pub hu: Vec<(usize, usize)>, pub hh: Vec<(usize, usize)>, pub hz: Vec<(usize, usize)>,
+-    pub h_len: usize,
+-}
+ 
+-impl LayoutV3 {
+-    pub fn new(t_rows: usize, d: usize, f: usize) -> LayoutV3 {
+-        assert!(t_rows.is_power_of_two(), "t_rows must be a power of two");
+-        let log_t = t_rows.trailing_zeros();
+-        let log_db = d.trailing_zeros().min(12);
+-        let log_fb = f.trailing_zeros().min(12);
+-        let (db, fb) = (1usize << log_db, 1usize << log_fb);
+-        assert!(d % db == 0 && f % fb == 0 && log_db >= 4 && log_fb >= 4, "d {d} / f {f}: need >= 16 | d, f");
+-        let (nb_d, nb_f) = (d / db, f / fb);
+-        let tfb = t_rows * fb;
+-        let tdb = t_rows * db;
+-        let mut off = 0usize;
+-        let mut vecn = |n: usize, sz: usize| -> Vec<usize> { (0..n).map(|_| { let o = off; off += sz; o }).collect() };
+-        let g8 = vecn(nb_f, tfb); let rg = vecn(nb_f, tfb); let a16 = vecn(nb_f, tfb); let u16 = vecn(nb_f, tfb);
+-        let ru = vecn(nb_f, tfb); let h16 = vecn(nb_f, tfb); let rh = vecn(nb_f, tfb);
+-        let x = vecn(nb_d, tdb); let z = vecn(nb_d, tdb); let rd = vecn(nb_d, tdb);
+-        let a_len = off;
+-        let wb = db * fb;
+-        let log_wb = log_db + log_fb;
+-        let mut woff = 0usize;
+-        let mut wvec = |n: usize| -> Vec<usize> { (0..n).map(|_| { let o = woff; woff += wb; o }).collect() };
+-        let wg = wvec(nb_d * nb_f); let wu = wvec(nb_d * nb_f); let wd = wvec(nb_f * nb_d);
+-        let w_len = woff;
+-        let mut hoff = 0usize;
+-        let mut hvec = |n: usize, sz: usize| -> Vec<(usize, usize)> { (0..n).map(|_| { let o = hoff; hoff += 2 * sz; (o, o + sz) }).collect() };
+-        let hg = hvec(nb_f, tfb); let hu = hvec(nb_f, tfb); let hh = hvec(nb_f, tfb); let hz = hvec(nb_d, tdb);
+-        let h_len = hoff;
+-        LayoutV3 {
+-            t_rows, d, f, log_t, log_db, nb_d, log_fb, nb_f, tfb, tdb, wb, log_wb, log_a_min: log_t + log_db.min(log_fb),
+-            g8, rg, a16, u16, ru, h16, rh, x, z, rd, a_len, wg, wu, wd, w_len, hg, hu, hh, hz, h_len,
+-        }
+-    }
+-    fn s_f(&self, off: usize) -> Slice { Slice { offset: off, log_size: self.log_t + self.log_fb } }
+-    fn s_d(&self, off: usize) -> Slice { Slice { offset: off, log_size: self.log_t + self.log_db } }
+-    fn s_w(&self, off: usize) -> Slice { Slice { offset: off, log_size: self.log_wb } }
+-}
+ 
+-#[derive(Clone, Debug, Default)]
+-pub struct LayerProofV3 {
+-    pub w_com: Option<Commitment>,
+-    pub a_com: Option<Commitment>,
+-    pub h_com: Option<Commitment>,
+-    pub mults: Vec<(u64, Vec<u32>)>,
+-    pub gu_claims: Vec<Fp2>,
+-    pub gu_sc: SumcheckProof,
+-    pub gu_term: Vec<Fp2>,
+-    pub d_claims: Vec<Fp2>,
+-    pub d_sc: SumcheckProof,
+-    pub d_term: Vec<Fp2>,
+-    pub zcf_sc: SumcheckProof,
+-    pub zcf_term: Vec<Fp2>,
+-    pub zcd_sc: SumcheckProof,
+-    pub zcd_term: Vec<Fp2>,
+-    pub helper_sums: Vec<Fp2>,
+-    pub w_open: Opening,
+-    pub a_open: Opening,
+-    pub h_open: Opening,
+-    /// [UPERF3-AF] under `--pcs compact`: the ONE batched opening of W, A and H (the three above stay empty)
+-    pub cpcs_open: Option<pcs_compact::BatchOpening>,
+-}
+-
+-impl LayerProofV3 {
+-    pub fn size_bytes(&self) -> usize {
+-        let coms = 3 * (32 + 8 + 4);
+-        let mults: usize = self.mults.iter().map(|(_, m)| 8 + 4 + m.len() * 4).sum();
+-        let f2 = |v: &Vec<Fp2>| v.len() * 16;
+-        coms + mults + f2(&self.gu_claims) + self.gu_sc.size_bytes() + f2(&self.gu_term)
+-            + f2(&self.d_claims) + self.d_sc.size_bytes() + f2(&self.d_term)
+-            + self.zcf_sc.size_bytes() + f2(&self.zcf_term) + self.zcd_sc.size_bytes() + f2(&self.zcd_term)
+-            + f2(&self.helper_sums) + self.w_open.size_bytes() + self.a_open.size_bytes() + self.h_open.size_bytes()
+-            + self.cpcs_open.as_ref().map(|b| b.size_bytes()).unwrap_or(0)
+-    }
+-    /// The flat little-endian encoding `size_bytes` counts (the CPU/GPU byte-identity gate).
+-    pub fn to_bytes(&self) -> Vec<u8> {
+-        let mut out = Vec::with_capacity(self.size_bytes());
+-        let com = |out: &mut Vec<u8>, c: &Option<Commitment>| {
+-            let c = c.as_ref().expect("commitment");
+-            out.extend_from_slice(&c.root);
+-            out.extend_from_slice(&(c.rows as u64).to_le_bytes());
+-            out.extend_from_slice(&c.log_cols.to_le_bytes());
+-        };
+-        com(&mut out, &self.w_com);
+-        com(&mut out, &self.a_com);
+-        com(&mut out, &self.h_com);
+-        for (tag, m) in &self.mults {
+-            out.extend_from_slice(&tag.to_le_bytes());
+-            out.extend_from_slice(&(m.len() as u32).to_le_bytes());
+-            for v in m { out.extend_from_slice(&v.to_le_bytes()); }
+-        }
+-        let f2 = |out: &mut Vec<u8>, v: &Vec<Fp2>| { for x in v { out.extend_from_slice(&x.to_bytes()); } };
+-        f2(&mut out, &self.gu_claims);
+-        self.gu_sc.write_bytes(&mut out);
+-        f2(&mut out, &self.gu_term);
+-        f2(&mut out, &self.d_claims);
+-        self.d_sc.write_bytes(&mut out);
+-        f2(&mut out, &self.d_term);
+-        self.zcf_sc.write_bytes(&mut out);
+-        f2(&mut out, &self.zcf_term);
+-        self.zcd_sc.write_bytes(&mut out);
+-        f2(&mut out, &self.zcd_term);
+-        f2(&mut out, &self.helper_sums);
+-        self.w_open.write_bytes(&mut out);
+-        self.a_open.write_bytes(&mut out);
+-        self.h_open.write_bytes(&mut out);
+-        if let Some(b) = &self.cpcs_open { b.write_bytes(&mut out); } // [UPERF3-AF]
+-        debug_assert_eq!(out.len(), self.size_bytes());
+-        out
+-    }
+-}
+-
+-/// [UPERF3-AD] pub: the v3 ZK form (zk.rs) absorbs the same statement.
+-pub fn absorb_statement_v3(tr: &mut Transcript, st: &StatementV3) {
+-    tr.absorb(b"profile", b"v3-widened/round");
+-    tr.absorb_u64(b"layer", st.l as u64);
+-    tr.absorb_u64(b"t_rows", st.t_rows as u64);
+-    tr.absorb_u64(b"d", st.d as u64);
+-    tr.absorb_u64(b"f", st.f as u64);
+-    let mut sb = Vec::with_capacity(32);
+-    for s in [st.shifts.0, st.shifts.1, st.shifts.2, st.shifts.3] { sb.extend_from_slice(&(s as i64).to_le_bytes()); }
+-    tr.absorb(b"shifts-signed", &sb);
+-    tr.absorb(b"act", st.act.spec_name().as_bytes());
+-    tr.absorb(b"table", st.table_digest.as_bytes());
+-}
+ 
+ /// Multiplicity tables from the (possibly tampered) witness columns: values
+ /// outside a table are counted into entry 0 so the totals still match and
+diff --git a/hashline/src/lib.rs b/hashline/src/lib.rs
+index aee8992..c161169 100644
+--- a/hashline/src/lib.rs
++++ b/hashline/src/lib.rs
+@@ -35,6 +35,8 @@ pub mod export_v3;
+ pub mod zk;
+ // Opt-in single-layer P1 approval boundary; does not change existing verifier calls.
+ pub mod model_identity;
++// Durable public slot journal only; does not enable stable P3 proofs.
++pub mod stable_weight_slots;
+ // Experimental one-shot private equality gadget; not integrated into full blocks.
+ pub mod private_seam;
+ pub mod phase_profile;
+diff --git a/hashline/src/silu.rs b/hashline/src/silu.rs
+index 1bdd443..f02daf7 100644
+--- a/hashline/src/silu.rs
++++ b/hashline/src/silu.rs
+@@ -42,9 +42,8 @@ pub fn table_spec_digest_v2(e_gate: i32, e_act: i32, table: &[i8; 256]) -> Strin
+     hex(&h.finalize())
+ }
+ 
+-pub fn hex(bytes: &[u8]) -> String {
+-    bytes.iter().map(|b| format!("{b:02x}")).collect()
+-}
++// [ZK60-CL20] canonical in zkp-core (moved with the v3 table registry).
++pub use zkp_core::tables::hex;
+ 
+ /// The frozen member for (e_gate, e_act): regenerated and digest-checked.
+ /// Returns (bytes, digest hex). Panics on a pair outside the frozen
+diff --git a/hashline/src/stable_weight_slots.rs b/hashline/src/stable_weight_slots.rs
+new file mode 100644
+index 0000000..e74f911
+--- /dev/null
++++ b/hashline/src/stable_weight_slots.rs
+@@ -0,0 +1,360 @@
++//! Durable opening-slot accounting for the proposed stable private-weight path.
++//!
++//! This is the public-state part of FA4 H2. It neither constructs a commitment,
++//! stores secret weights/pads/salts, authenticates approval, nor enables a P3
++//! verifier. Callers must obtain the binding from authenticated configuration
++//! and use one canonical journal for a commitment for its entire lifetime.
++//!
++//! Supported storage: a trusted local Unix filesystem implementing exclusive
++//! file locks and file/directory sync. A reservation is synced BEFORE exposure;
++//! cancellation and process death never refund a returned slot. Corrupt/torn
++//! tails refuse to open. File replacement, deletion, copied journals, restored
++//! backups and malicious storage rollback require an external monotonic store;
++//! the checksum chain is corruption detection, not authentication or anti-rollback.
++
++use crate::field::P;
++use crate::merkle::Digest;
++use crate::pcs::{Commitment, PcsParams, ZkOpts};
++use std::fs::{File, OpenOptions, TryLockError};
++use std::io::{self, Read, Write};
++use std::marker::PhantomData;
++use std::path::Path;
++
++const MAGIC: &[u8; 8] = b"HLSLOT01";
++const RECORD_BYTES: u64 = 36;
++/// Bounded journal parsing; this is an implementation limit, not a ZK budget.
++pub const MAX_SLOTS: u32 = 65_536;
++
++/// Public registration inputs. A schedule digest identifies a reviewed layout;
++/// this module does not decide whether that review or approval actually exists.
++#[derive(Clone, Debug)]
++pub struct StableWeightBinding {
++    pub manifest: Digest,
++    pub layer: u32,
++    pub layout: Digest,
++    pub commitment: Commitment,
++    pub params: PcsParams,
++    pub opts: ZkOpts,
++    pub budget: u32,
++}
++
++/// Immutable, checked storage policy. Geometry checks are necessary conditions
++/// only; they are not a soundness bound or a repeated-opening privacy argument.
++#[derive(Clone, Debug)]
++pub struct SlotPolicy {
++    binding: StableWeightBinding,
++    header: Vec<u8>,
++    digest: Digest,
++}
++
++#[derive(Debug)]
++pub enum SlotError {
++    InvalidPolicy(&'static str),
++    PolicyMismatch,
++    CorruptJournal,
++    Busy,
++    Exhausted,
++    Poisoned,
++    UnsupportedStorage,
++    Io(io::Error),
++}
++impl std::fmt::Display for SlotError {
++    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++        match self {
++            Self::InvalidPolicy(s) => write!(f, "invalid stable-weight slot policy: {s}"),
++            Self::PolicyMismatch => {
++                write!(f, "stable-weight journal belongs to a different policy")
++            }
++            Self::CorruptJournal => write!(f, "invalid or incomplete stable-weight slot journal"),
++            Self::Busy => write!(f, "stable-weight slot journal is already in use"),
++            Self::Exhausted => write!(f, "stable-weight opening budget exhausted"),
++            Self::Poisoned => write!(f, "stable-weight slot journal requires validated reopening"),
++            Self::UnsupportedStorage => write!(
++                f,
++                "stable-weight slot storage requires a local Unix filesystem"
++            ),
++            Self::Io(_) => write!(f, "stable-weight slot storage I/O failure"),
++        }
++    }
++}
++impl std::error::Error for SlotError {
++    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
++        match self {
++            Self::Io(e) => Some(e),
++            _ => None,
++        }
++    }
++}
++impl From<io::Error> for SlotError {
++    fn from(e: io::Error) -> Self {
++        Self::Io(e)
++    }
++}
++
++impl SlotPolicy {
++    pub fn new(binding: StableWeightBinding) -> Result<Self, SlotError> {
++        let b = &binding;
++        let invalid = SlotError::InvalidPolicy;
++        if b.manifest == [0; 32] || b.layout == [0; 32] || b.commitment.root == [0; 32] {
++            return Err(invalid("missing public identity"));
++        }
++        if b.budget == 0 || b.budget > MAX_SLOTS || b.params.num_col_checks == 0 {
++            return Err(invalid("opening budget or query count"));
++        }
++        if !(1..=31).contains(&b.params.log_cols)
++            || b.commitment.log_cols != b.params.log_cols
++            || b.commitment.rows == 0
++            || b.params.inv_rate < 2
++            || !b.params.inv_rate.is_power_of_two()
++        {
++            return Err(invalid("commitment geometry"));
++        }
++        let n = 1u64 << b.params.log_cols;
++        let nn = n
++            .checked_mul(b.params.inv_rate as u64)
++            .filter(|&nn| nn <= 1u64 << 32)
++            .ok_or(invalid("NTT domain"))?;
++        let q_pad = (b.budget as u64)
++            .checked_mul(b.params.num_col_checks as u64)
++            .ok_or(invalid("padding overflow"))?;
++        if b.opts.q_pad as u64 != q_pad || n.checked_add(q_pad).is_none_or(|message| message > nn) {
++            return Err(invalid(
++                "q_pad must equal budget times queries and fit the code",
++            ));
++        }
++        if b.opts.coset.0 == 0 || b.opts.coset.0 >= P || b.opts.coset.pow(nn).0 == 1 {
++            return Err(invalid("canonical disjoint coset required"));
++        }
++        let mut header = MAGIC.to_vec();
++        header.extend_from_slice(&b.manifest);
++        header.extend_from_slice(&b.layout);
++        header.extend_from_slice(&b.commitment.root);
++        for value in [
++            b.layer as u64,
++            b.commitment.rows as u64,
++            b.params.log_cols as u64,
++            b.params.inv_rate as u64,
++            b.params.num_col_checks as u64,
++            b.budget as u64,
++            b.opts.q_pad as u64,
++            b.opts.coset.0,
++        ] {
++            header.extend_from_slice(&value.to_le_bytes());
++        }
++        let digest = *blake3::hash(&header).as_bytes();
++        header.extend_from_slice(&digest);
++        Ok(Self {
++            binding,
++            header,
++            digest,
++        })
++    }
++    pub fn binding(&self) -> &StableWeightBinding {
++        &self.binding
++    }
++    pub fn digest(&self) -> Digest {
++        self.digest
++    }
++}
++
++/// Holds an exclusive OS lock for its lifetime. Deliberately not Clone.
++pub struct SlotJournal {
++    file: File,
++    policy: SlotPolicy,
++    used: u32,
++    tail: Digest,
++    poisoned: bool,
++}
++
++/// A spent slot, never a refundable reservation. Deliberately not Clone/Copy;
++/// its borrow prevents another reservation through this handle until dropped.
++/// The future prover must consume this token, not take a caller-supplied index.
++///
++/// ```compile_fail
++/// use hashline::stable_weight_slots::SlotJournal;
++/// fn overlapping(journal: &mut SlotJournal) {
++///     let first = journal.reserve().unwrap();
++///     let second = journal.reserve().unwrap();
++///     println!("{} {}", first.index(), second.index());
++/// }
++/// ```
++///
++/// ```compile_fail
++/// use hashline::stable_weight_slots::SlotJournal;
++/// fn duplicate(journal: &mut SlotJournal) {
++///     let slot = journal.reserve().unwrap();
++///     let copy = slot.clone();
++/// }
++/// ```
++#[must_use = "the slot has already been spent; dropping it does not refund it"]
++pub struct ReservedSlot<'a> {
++    index: u32,
++    policy: Digest,
++    _exclusive: PhantomData<&'a mut SlotJournal>,
++}
++impl ReservedSlot<'_> {
++    pub fn index(&self) -> u32 {
++        self.index
++    }
++    pub fn policy_digest(&self) -> Digest {
++        self.policy
++    }
++}
++
++fn lock(file: &File) -> Result<(), SlotError> {
++    match file.try_lock() {
++        Ok(()) => Ok(()),
++        Err(TryLockError::WouldBlock) => Err(SlotError::Busy),
++        Err(TryLockError::Error(e)) => Err(SlotError::Io(e)),
++    }
++}
++
++fn storage_parent(path: &Path) -> Result<File, SlotError> {
++    if !cfg!(unix) {
++        return Err(SlotError::UnsupportedStorage);
++    }
++    let parent = path
++        .parent()
++        .filter(|p| !p.as_os_str().is_empty())
++        .unwrap_or(Path::new("."));
++    let file = File::open(parent)?;
++    if !file.metadata()?.is_dir() {
++        return Err(SlotError::UnsupportedStorage);
++    }
++    Ok(file)
++}
++
++fn record(policy: Digest, previous: Digest, slot: u32) -> [u8; 36] {
++    let mut hash = blake3::Hasher::new();
++    hash.update(b"hashline-stable-slot-record-v1/");
++    hash.update(&policy);
++    hash.update(&previous);
++    hash.update(&slot.to_le_bytes());
++    let mut out = [0; 36];
++    out[..4].copy_from_slice(&slot.to_le_bytes());
++    out[4..].copy_from_slice(hash.finalize().as_bytes());
++    out
++}
++
++impl SlotJournal {
++    /// Explicit first registration only. Existing files are NEVER overwritten,
++    /// including empty or corrupt files left by a failed creation.
++    pub fn create(path: impl AsRef<Path>, policy: SlotPolicy) -> Result<Self, SlotError> {
++        let path = path.as_ref();
++        let parent = storage_parent(path)?;
++        let mut options = OpenOptions::new();
++        options.read(true).append(true).create_new(true);
++        #[cfg(unix)]
++        {
++            use std::os::unix::fs::OpenOptionsExt;
++            options.mode(0o600);
++        }
++        let mut file = options.open(path)?;
++        lock(&file)?;
++        file.write_all(&policy.header)?;
++        file.sync_all()?;
++        parent.sync_all()?;
++        Ok(Self {
++            file,
++            tail: policy.digest,
++            policy,
++            used: 0,
++            poisoned: false,
++        })
++    }
++
++    /// Open existing state against independently supplied policy. Missing state
++    /// is an error; reopening never creates, truncates or repairs a journal.
++    pub fn open(path: impl AsRef<Path>, policy: SlotPolicy) -> Result<Self, SlotError> {
++        let path = path.as_ref();
++        let parent = storage_parent(path)?;
++        let mut file = OpenOptions::new().read(true).append(true).open(path)?;
++        lock(&file)?;
++        let meta = file.metadata()?;
++        let remaining = meta
++            .len()
++            .checked_sub(policy.header.len() as u64)
++            .ok_or(SlotError::CorruptJournal)?;
++        if !meta.is_file()
++            || remaining % RECORD_BYTES != 0
++            || remaining / RECORD_BYTES > policy.binding.budget as u64
++        {
++            return Err(SlotError::CorruptJournal);
++        }
++        let mut header = vec![0; policy.header.len()];
++        file.read_exact(&mut header)?;
++        if header != policy.header {
++            return Err(SlotError::PolicyMismatch);
++        }
++        let used = (remaining / RECORD_BYTES) as u32;
++        let mut tail = policy.digest;
++        let mut received = [0; 36];
++        for slot in 0..used {
++            file.read_exact(&mut received)?;
++            let expected = record(policy.digest, tail, slot);
++            if received != expected {
++                return Err(SlotError::CorruptJournal);
++            }
++            tail.copy_from_slice(&received[4..]);
++        }
++        // Persist a complete record left by death before its sync/return. It is
++        // conservatively burned; only incomplete records refuse the whole store.
++        file.sync_all()?;
++        parent.sync_all()?;
++        Ok(Self {
++            file,
++            policy,
++            used,
++            tail,
++            poisoned: false,
++        })
++    }
++
++    pub fn used(&self) -> u32 {
++        self.used
++    }
++    pub fn policy(&self) -> &SlotPolicy {
++        &self.policy
++    }
++
++    /// Append and sync before returning. After any uncertain storage failure,
++    /// this handle refuses further reservations; reopen and validate on disk.
++    pub fn reserve(&mut self) -> Result<ReservedSlot<'_>, SlotError> {
++        self.reserve_with_sync(File::sync_all)
++    }
++
++    // The injected sync operation lets tests model failed sync and torn-tail
++    // crash boundaries without process-global fault switches.
++    fn reserve_with_sync(
++        &mut self,
++        sync: impl FnOnce(&File) -> io::Result<()>,
++    ) -> Result<ReservedSlot<'_>, SlotError> {
++        if self.poisoned {
++            return Err(SlotError::Poisoned);
++        }
++        if self.used == self.policy.binding.budget {
++            return Err(SlotError::Exhausted);
++        }
++        self.poisoned = true;
++        let expected_len = self.policy.header.len() as u64 + self.used as u64 * RECORD_BYTES;
++        if self.file.metadata()?.len() != expected_len {
++            return Err(SlotError::CorruptJournal);
++        }
++        let entry = record(self.policy.digest, self.tail, self.used);
++        self.file.write_all(&entry)?;
++        sync(&self.file)?;
++        let index = self.used;
++        self.used += 1;
++        self.tail.copy_from_slice(&entry[4..]);
++        self.poisoned = false;
++        Ok(ReservedSlot {
++            index,
++            policy: self.policy.digest,
++            _exclusive: PhantomData,
++        })
++    }
++}
++
++#[cfg(test)]
++#[path = "stable_weight_slots_tests.rs"]
++mod tests;
+diff --git a/hashline/src/stable_weight_slots_tests.rs b/hashline/src/stable_weight_slots_tests.rs
+new file mode 100644
+index 0000000..f8f304a
+--- /dev/null
++++ b/hashline/src/stable_weight_slots_tests.rs
+@@ -0,0 +1,284 @@
++use super::*;
++use crate::field::Fp;
++use std::path::PathBuf;
++use std::sync::atomic::{AtomicU64, Ordering};
++
++static NEXT: AtomicU64 = AtomicU64::new(0);
++struct Scratch(PathBuf);
++impl Scratch {
++    fn new() -> Self {
++        let stamp = std::time::SystemTime::now()
++            .duration_since(std::time::UNIX_EPOCH)
++            .unwrap()
++            .as_nanos();
++        let path = std::env::temp_dir().join(format!(
++            "zk60-slots-{}-{stamp}-{}",
++            std::process::id(),
++            NEXT.fetch_add(1, Ordering::Relaxed)
++        ));
++        std::fs::create_dir(&path).unwrap();
++        Self(path)
++    }
++    fn file(&self, name: &str) -> PathBuf {
++        self.0.join(name)
++    }
++}
++impl Drop for Scratch {
++    fn drop(&mut self) {
++        std::fs::remove_dir_all(&self.0).unwrap();
++    }
++}
++fn binding() -> StableWeightBinding {
++    // Public metadata fixture, not a real approved private commitment.
++    StableWeightBinding {
++        manifest: [1; 32],
++        layer: 2,
++        layout: [3; 32],
++        commitment: Commitment {
++            root: [4; 32],
++            rows: 12,
++            log_cols: 4,
++        },
++        params: PcsParams {
++            log_cols: 4,
++            inv_rate: 4,
++            num_col_checks: 4,
++        },
++        opts: ZkOpts {
++            q_pad: 12,
++            coset: Fp::new(7),
++        },
++        budget: 3,
++    }
++}
++fn policy() -> SlotPolicy {
++    SlotPolicy::new(binding()).unwrap()
++}
++
++#[test]
++fn binding_geometry_refuses_invalid_budgets_domains_and_aliases() {
++    for case in 0..16 {
++        let mut b = binding();
++        match case {
++            0 => b.budget = 0,
++            1 => b.budget = MAX_SLOTS + 1,
++            2 => b.params.num_col_checks = 0,
++            3 => b.opts.q_pad -= 1,
++            4 => {
++                b.budget = 13;
++                b.opts.q_pad = 52;
++            } // 16 + 52 > 64
++            5 => b.params.inv_rate = 3,
++            6 => b.params.inv_rate = usize::MAX,
++            7 => b.params.log_cols = 64,
++            8 => b.commitment.log_cols = 5,
++            9 => b.commitment.rows = 0,
++            10 => b.opts.coset = Fp::ZERO,
++            11 => b.opts.coset = Fp::ONE,
++            12 => b.opts.coset = Fp(P), // don't silently canonicalize hostile words
++            13 => b.opts.coset = Fp::two_adic_root(6),
++            14 => b.manifest = [0; 32],
++            _ => b.layout = [0; 32],
++        }
++        assert!(
++            matches!(SlotPolicy::new(b), Err(SlotError::InvalidPolicy(_))),
++            "case {case}"
++        );
++    }
++    let mut boundary = binding();
++    boundary.budget = 12;
++    boundary.opts.q_pad = 48;
++    // Equality fits the FA4 storage geometry; it is not positive code distance.
++    SlotPolicy::new(boundary).unwrap();
++    let mut bounded = binding();
++    bounded.budget = MAX_SLOTS;
++    bounded.opts.q_pad = MAX_SLOTS as usize * 4;
++    bounded.params.inv_rate = 1 << 16;
++    SlotPolicy::new(bounded).unwrap();
++}
++
++#[test]
++fn spent_slots_survive_reopening_drop_unwind_and_exhaustion() {
++    let scratch = Scratch::new();
++    let path = scratch.file("journal");
++    let mut journal = SlotJournal::create(&path, policy()).unwrap();
++    let slot = journal.reserve().unwrap();
++    assert_eq!(slot.index(), 0);
++    assert_eq!(slot.policy_digest(), policy().digest());
++    drop(slot); // abandoning the attempt consumes the slot
++    drop(journal);
++    let mut journal = SlotJournal::open(&path, policy()).unwrap();
++    assert_eq!(journal.used(), 1);
++    assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
++        let slot = journal.reserve().unwrap();
++        assert_eq!(slot.index(), 1);
++        panic!("abandoned prover after durable reservation");
++    }))
++    .is_err());
++    drop(journal);
++    let mut journal = SlotJournal::open(&path, policy()).unwrap();
++    assert_eq!(journal.reserve().unwrap().index(), 2);
++    assert!(matches!(journal.reserve(), Err(SlotError::Exhausted)));
++    drop(journal);
++    let mut journal = SlotJournal::open(&path, policy()).unwrap();
++    assert_eq!(journal.used(), 3);
++    assert!(matches!(journal.reserve(), Err(SlotError::Exhausted)));
++    #[cfg(unix)]
++    {
++        use std::os::unix::fs::PermissionsExt;
++        assert_eq!(
++            std::fs::metadata(&path).unwrap().permissions().mode() & 0o777,
++            0o600
++        );
++    }
++}
++
++#[test]
++fn every_public_binding_field_is_checked_on_reopening() {
++    let scratch = Scratch::new();
++    let path = scratch.file("journal");
++    drop(SlotJournal::create(&path, policy()).unwrap());
++    for case in 0..10 {
++        let mut b = binding();
++        match case {
++            0 => b.manifest[0] ^= 1,
++            1 => b.layout[0] ^= 1,
++            2 => b.commitment.root[0] ^= 1,
++            3 => b.layer += 1,
++            4 => b.commitment.rows += 1,
++            5 => {
++                b.params.log_cols += 1;
++                b.commitment.log_cols += 1;
++            }
++            6 => b.params.inv_rate *= 2,
++            7 => {
++                b.params.num_col_checks += 1;
++                b.opts.q_pad += b.budget as usize;
++            }
++            8 => {
++                b.budget += 1;
++                b.opts.q_pad += b.params.num_col_checks;
++            }
++            _ => b.opts.coset = Fp::new(11),
++        }
++        let changed = SlotPolicy::new(b).unwrap();
++        assert_ne!(changed.digest(), policy().digest());
++        assert!(
++            matches!(
++                SlotJournal::open(&path, changed),
++                Err(SlotError::PolicyMismatch)
++            ),
++            "case {case}"
++        );
++    }
++    SlotJournal::open(&path, policy()).unwrap();
++}
++
++#[test]
++fn existing_missing_and_busy_stores_never_reset_the_counter() {
++    let scratch = Scratch::new();
++    let path = scratch.file("journal");
++    assert!(matches!(
++        SlotJournal::open(&path, policy()),
++        Err(SlotError::Io(_))
++    ));
++    assert!(!path.exists());
++    let mut journal = SlotJournal::create(&path, policy()).unwrap();
++    assert_eq!(journal.reserve().unwrap().index(), 0);
++    let original = std::fs::read(&path).unwrap();
++    assert!(matches!(
++        SlotJournal::open(&path, policy()),
++        Err(SlotError::Busy)
++    ));
++    assert!(matches!(
++        SlotJournal::create(&path, policy()),
++        Err(SlotError::Io(_))
++    ));
++    assert_eq!(std::fs::read(&path).unwrap(), original);
++    drop(journal);
++    assert_eq!(SlotJournal::open(&path, policy()).unwrap().used(), 1);
++    let empty = scratch.file("failed-create");
++    File::create(&empty).unwrap();
++    assert!(SlotJournal::create(&empty, policy()).is_err());
++    assert!(matches!(
++        SlotJournal::open(&empty, policy()),
++        Err(SlotError::CorruptJournal)
++    ));
++    assert_eq!(std::fs::metadata(empty).unwrap().len(), 0);
++}
++
++#[test]
++fn corrupt_torn_reordered_and_over_budget_records_fail_closed() {
++    let scratch = Scratch::new();
++    let path = scratch.file("journal");
++    let mut journal = SlotJournal::create(&path, policy()).unwrap();
++    drop(journal.reserve().unwrap());
++    drop(journal.reserve().unwrap());
++    drop(journal);
++    let original = std::fs::read(&path).unwrap();
++    let head = policy().header.len();
++    for case in 0..7 {
++        let mut bytes = original.clone();
++        match case {
++            0 => bytes[0] ^= 1,
++            1 => bytes[head + 8] ^= 1,
++            2 => bytes[head + 36..head + 72].copy_from_slice(&original[head..head + 36]),
++            3 => {
++                bytes.pop();
++            }
++            4 => bytes.truncate(head - 1),
++            5 => bytes.extend_from_slice(&[0; 72]),
++            _ => bytes.extend_from_slice(&[0]),
++        }
++        let bad = scratch.file(&format!("bad-{case}"));
++        std::fs::write(&bad, &bytes).unwrap();
++        assert!(SlotJournal::open(&bad, policy()).is_err(), "case {case}");
++        assert_eq!(std::fs::read(&bad).unwrap(), bytes); // no automatic repair
++    }
++    assert_eq!(SlotJournal::open(&path, policy()).unwrap().used(), 2);
++}
++
++#[test]
++fn failed_sync_poisoning_never_reissues_a_written_slot() {
++    for torn in [false, true] {
++        let scratch = Scratch::new();
++        let path = scratch.file("journal");
++        let mut journal = SlotJournal::create(&path, policy()).unwrap();
++        let result = journal.reserve_with_sync(|file| {
++            if torn {
++                file.set_len(file.metadata()?.len() - 7)?;
++            }
++            Err(io::Error::other("injected write/sync failure"))
++        });
++        assert!(matches!(result, Err(SlotError::Io(_))));
++        assert!(matches!(journal.reserve(), Err(SlotError::Poisoned)));
++        drop(journal);
++        if torn {
++            assert!(matches!(
++                SlotJournal::open(&path, policy()),
++                Err(SlotError::CorruptJournal)
++            ));
++        } else {
++            let mut journal = SlotJournal::open(&path, policy()).unwrap();
++            assert_eq!(journal.used(), 1);
++            assert_eq!(journal.reserve().unwrap().index(), 1);
++        }
++    }
++}
++
++#[test]
++fn unexpected_file_length_poisoning_precedes_slot_exposure() {
++    let scratch = Scratch::new();
++    let path = scratch.file("journal");
++    let mut journal = SlotJournal::create(&path, policy()).unwrap();
++    OpenOptions::new()
++        .append(true)
++        .open(&path)
++        .unwrap()
++        .write_all(&[0])
++        .unwrap();
++    assert!(matches!(journal.reserve(), Err(SlotError::CorruptJournal)));
++    assert!(matches!(journal.reserve(), Err(SlotError::Poisoned)));
++    drop(journal);
++    assert!(SlotJournal::open(&path, policy()).is_err());
++}
+diff --git a/hashline/src/tables_v3.rs b/hashline/src/tables_v3.rs
+index 884d10a..4b2369b 100644
+--- a/hashline/src/tables_v3.rs
++++ b/hashline/src/tables_v3.rs
+@@ -1,176 +1,3 @@
+-//! [UPERF3-ZB] The frozen int16-out activation-table families of the
+-//! WIDENED STACK (TARGET_CONTRACT section 2 v3, adopted 2026-08-26):
+-//! `silu-int16out-table-v3` (9 members) and `gelu-tanh-int16out-table-v3`
+-//! (6 members). Each member is a 256-row table over the int8 gate domain
+-//! g = -128..=127 with an int16 output:
+-//!
+-//!   S[g] = clamp(round_half_up(f(g * 2^e_in) / 2^e_out), -32767, 32767),
+-//!   round_half_up(x) = floor(x + 1/2), f = silu | gelu_tanh in f64.
+-//!
+-//! The bytes are regenerated here from that frozen formula (the engine's
+-//! zkmatrix-rs/src/ring/lookup.rs `int16out_generate`; the Python of
+-//! record scripts/m8b_margins.py `i16out_generate`) and CHECKED against
+-//! the frozen v3 spec digests below before use (`table_spec_digest_int16out`
+-//! — the v2 spec-header JSON with the v3 function names and the 16-bit
+-//! output width; the same digests the v3 exports' `NN table` rows carry
+-//! and `ring_matmul uperf-v3 tables` prints). zkmatrix-rs has no library
+-//! target, so the engine's frozen consts cannot be linked; the digest pin
+-//! is the freeze: a platform libm drift is a hard stop, never a silent
+-//! different table. Cross-checked 2026-09-02 three ways (the Python
+-//! generator, the frozen consts parsed from lookup.rs, the engine
+-//! binary's `uperf-v3 tables`): 15/15 members byte- and digest-identical.
+-
+-use sha2::{Digest, Sha256};
+-
+-/// The two frozen int16-out families.
+-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+-pub enum Act16Fn {
+-    Silu,
+-    GeluTanh,
+-}
+-
+-impl Act16Fn {
+-    pub fn spec_name(self) -> &'static str {
+-        match self {
+-            Act16Fn::Silu => "silu-int16out-table-v3",
+-            Act16Fn::GeluTanh => "gelu-tanh-int16out-table-v3",
+-        }
+-    }
+-    fn rounding_fn(self) -> &'static str {
+-        match self {
+-            Act16Fn::Silu => "silu",
+-            Act16Fn::GeluTanh => "gelu_tanh",
+-        }
+-    }
+-    pub fn from_spec_name(s: &str) -> Option<Act16Fn> {
+-        match s {
+-            "silu-int16out-table-v3" => Some(Act16Fn::Silu),
+-            "gelu-tanh-int16out-table-v3" => Some(Act16Fn::GeluTanh),
+-            _ => None,
+-        }
+-    }
+-    /// The f64 activation exactly as the frozen generators evaluate it.
+-    pub fn eval(self, x: f64) -> f64 {
+-        match self {
+-            Act16Fn::Silu => x / (1.0 + (-x).exp()),
+-            Act16Fn::GeluTanh => {
+-                0.5 * x * (1.0 + ((2.0f64 / std::f64::consts::PI).sqrt() * (x + 0.044715 * x * x * x)).tanh())
+-            }
+-        }
+-    }
+-    pub fn members(self) -> (&'static [(i32, i32)], &'static [&'static str]) {
+-        match self {
+-            Act16Fn::Silu => (&SILU16_V3_MEMBERS, &SILU16_V3_DIGESTS_HEX),
+-            Act16Fn::GeluTanh => (&GELU16_V3_MEMBERS, &GELU16_V3_DIGESTS_HEX),
+-        }
+-    }
+-}
+-
+-/// (e_in = the margin-adjusted eGate, e_out = eA - 8) of every frozen member.
+-pub const SILU16_V3_MEMBERS: [(i32, i32); 9] =
+-    [(-5, -13), (-4, -13), (-4, -12), (-3, -12), (-3, -11), (-2, -11), (-1, -11), (-1, -10), (-1, -9)];
+-pub const SILU16_V3_DIGESTS_HEX: [&str; 9] = [
+-    "bf3eb04eeeeec844a313be913480606b4b792cdf6f26902bbb7fea4e571b92bc",
+-    "0c74b0e6fb57dd67a49c61bef5dae093f6ce154d6f331bd65d0d548faf0eca60",
+-    "afed7dc5c289cbdb18fbf5d794285ba5901ebe43e9e561aad6ec32987fa66d54",
+-    "859344ba5ed57bd3f831c9082e5991fe7012a0c5696cfa705320ffdb6cb17a25",
+-    "1001c138ce0d00f09390b36178044d72712fbdca1071467ea274dc980bd9a3f7",
+-    "eda5f34a1c0dd94ce7398d6762202ed85e3f6f2c4984a5b07aca57b00b30ba56",
+-    "493202f2d89b0ffe7981decfb818aafaacea4cccb117d758b9e6b416463d9a4b",
+-    "5323ca1bd1091ec18bf5036ca7ea4e007224ebc3a26ad56759a4b9da0c419a79",
+-    "d835998909adcd25dcc7eba10239e82ea0323437b5ba419d9fa5c28e6fa6c689",
+-];
+-pub const GELU16_V3_MEMBERS: [(i32, i32); 6] = [(-4, -12), (-3, -12), (-3, -11), (-2, -11), (-2, -10), (-1, -9)];
+-pub const GELU16_V3_DIGESTS_HEX: [&str; 6] = [
+-    "13ecf11e5608d6032ae9e3e119974e0f22a68fee70624d2295871b7e6f5ec1df",
+-    "37558a0d99cb5a226f4f8ef48f504e097249dffda54a9c563de2de4e6638ea6b",
+-    "4c811e7d93de21a9bd2cd925ed7b4abb87afda229ee49add8c22abec4b32fb1a",
+-    "f9eefef1e2e9e66d11a821d3fec7f4567e2e936b5817f2d157725301d33b0a15",
+-    "775e023b20b441268b9037c0f826d4378044991790e32274e1d613c3b4de5e09",
+-    "046effd433a6ca204131a25ed3e06343236b5eb77e2a0e6d562d8af73cc29eab",
+-];
+-
+-/// Deterministic generation of an int16-out member (the frozen formula).
+-pub fn int16out_generate(f: Act16Fn, e_in: i32, e_out: i32) -> [i16; 256] {
+-    let mut out = [0i16; 256];
+-    for (i, slot) in out.iter_mut().enumerate() {
+-        let g = i as i32 - 128;
+-        let x = g as f64 * (e_in as f64).exp2();
+-        let y = f.eval(x);
+-        let v = (y / (e_out as f64).exp2() + 0.5).floor();
+-        *slot = v.clamp(-32767.0, 32767.0) as i16;
+-    }
+-    out
+-}
+-
+-/// The canonical int16-out spec-header digest (hex): the v2 JSON layout
+-/// with the v3 function names and the 16-bit output width.
+-pub fn table_spec_digest_int16out(f: Act16Fn, e_in: i32, e_out: i32, table: &[i16; 256]) -> String {
+-    let mut json = format!(
+-        "{{\"function\":\"{}\",\
+-         \"input\":{{\"width\":8,\"scale_exp\":{e_in},\"signed\":true}},\
+-         \"output\":{{\"width\":16,\"scale_exp\":{e_out},\"signed\":true}},\
+-         \"rounding\":\"y = clamp(round_half_up({}(x*2^in_exp)/2^out_exp), -32767, 32767)\",\
+-         \"table\":[",
+-        f.spec_name(),
+-        f.rounding_fn()
+-    );
+-    for (i, s) in table.iter().enumerate() {
+-        if i > 0 {
+-            json.push(',');
+-        }
+-        json.push_str(&format!("[{},{}]", i as i32 - 128, *s as i32));
+-    }
+-    json.push_str("]}");
+-    let mut h = Sha256::new();
+-    h.update(json.as_bytes());
+-    crate::silu::hex(&h.finalize())
+-}
+-
+-/// The frozen member for (function, e_in, e_out): regenerated and
+-/// digest-checked against the pin. None outside the frozen registry (a
+-/// statement must not reference a table that was never frozen); a
+-/// regenerated digest that differs from its pin is a hard stop.
+-pub fn int16out_member(f: Act16Fn, e_in: i32, e_out: i32) -> Option<([i16; 256], String)> {
+-    let (members, digests) = f.members();
+-    let i = members.iter().position(|&m| m == (e_in, e_out))?;
+-    let t = int16out_generate(f, e_in, e_out);
+-    let d = table_spec_digest_int16out(f, e_in, e_out, &t);
+-    assert_eq!(d, digests[i], "{} ({e_in},{e_out}): regenerated digest != frozen pin (platform drift)", f.spec_name());
+-    Some((t, d))
+-}
+-
+-/// Every frozen member regenerated and checked; returns
+-/// (spec name, e_in, e_out, digest, min, max, rows clamped at +-32767).
+-pub fn registry_report() -> Vec<(&'static str, i32, i32, String, i16, i16, usize)> {
+-    let mut out = Vec::new();
+-    for f in [Act16Fn::Silu, Act16Fn::GeluTanh] {
+-        let (members, _) = f.members();
+-        for &(ei, eo) in members {
+-            let (t, d) = int16out_member(f, ei, eo).unwrap();
+-            let sat = t.iter().filter(|&&v| v == 32767 || v == -32767).count();
+-            out.push((f.spec_name(), ei, eo, d, *t.iter().min().unwrap(), *t.iter().max().unwrap(), sat));
+-        }
+-    }
+-    out
+-}
+-
+-#[cfg(test)]
+-mod tests {
+-    use super::*;
+-
+-    #[test]
+-    fn all_frozen_members_regenerate_to_their_pins() {
+-        let rep = registry_report();
+-        assert_eq!(rep.len(), 15);
+-        // the 125M v3 export's two members and Mistral's saturating one
+-        let (t, d) = int16out_member(Act16Fn::Silu, -3, -11).unwrap();
+-        assert_eq!(d, "1001c138ce0d00f09390b36178044d72712fbdca1071467ea274dc980bd9a3f7");
+-        assert_eq!(*t.iter().min().unwrap(), -570);
+-        assert_eq!(*t.iter().max().unwrap(), 32512);
+-        let (t, _) = int16out_member(Act16Fn::Silu, -4, -13).unwrap();
+-        assert_eq!(t.iter().filter(|&&v| v == 32767).count(), 62);
+-        assert!(int16out_member(Act16Fn::Silu, -7, -20).is_none());
+-        assert_eq!(Act16Fn::from_spec_name("gelu-tanh-int16out-table-v3"), Some(Act16Fn::GeluTanh));
+-    }
+-}
++//! Compatibility adapter; canonical implementation lives in zkp-core
++//! (`zkp_core::tables`, moved in CL20 round 12 with its frozen digests).
++pub use zkp_core::tables::*;
+diff --git a/hashline/tests/zk60_attention_schedule.rs b/hashline/tests/zk60_attention_schedule.rs
+index 05cdc96..5e661a6 100644
+--- a/hashline/tests/zk60_attention_schedule.rs
++++ b/hashline/tests/zk60_attention_schedule.rs
+@@ -238,9 +238,9 @@ fn source_hook_inventory_cannot_silently_lose_a_recorder_family() {
+     let source = include_str!("../src/attention.rs");
+     use sha2::Digest;
+     assert_eq!(hashline::silu::hex(&sha2::Sha256::digest(source.as_bytes())),
+-        // H1: reviewed import, unit-only collision hook and verifier-only
+-        // denominator refusal; recorder families/roles and trace pins unchanged.
+-        "e5ab96f35018dfcfe44c9a24879a3ab2fc5cae5394809bd489ddc16eb5d9b6d8",
++        // Round12 R32: only unused-message refusal branches were added;
++        // recorder calls, roles, sumchecks and fixed trace pins are unchanged.
++        "c5ae80ddc909aae40b9ec6b9766e5634cf3dc13172e8902f8f2dc33c77cdf979",
+         "attention source changed: review instrumentation/argument coverage before accepting a new snapshot");
+     for family in [
+         "take",
+diff --git a/hashline/tests/zk60_cl20_codec.rs b/hashline/tests/zk60_cl20_codec.rs
+new file mode 100644
+index 0000000..c0f98f7
+--- /dev/null
++++ b/hashline/tests/zk60_cl20_codec.rs
+@@ -0,0 +1,185 @@
++//! CL20 round 12 (Fable): the maintained core's typed v3 pieces against a
++//! REAL tiny proof produced by hashline's legacy prover. Explicit seeds are
++//! PUBLIC test fixtures; T=2, d=f=16, deliberately tiny parameters, no
++//! security claim. This is D2/D4/D5 of zkp-core/DESIGN.md section 5.1 and
++//! the tamper legs of D3 as far as the moved pieces allow: the prover and
++//! verifier still live in hashline, so old/new PROVER parity (D1) is not
++//! tested here; what is tested is that the legacy proof bytes are exactly
++//! the core's frozen encoding, that the core's bounded decoder reproduces
++//! them and the legacy verifier accepts the decoded object, and that
++//! malformed bytes and tampered witnesses are refused without a panic.
++use hashline::export_v3::{derive_v3, V3Dims, V3Exps, V3LayerExport, V3Witness};
++use hashline::layer::{apply_tamper_v3, prove_layer_v3, verify_layer_v3, LayerParams, LayerProofV3, StatementV3, TamperV3};
++use hashline::ntt::NttTables;
++use hashline::tables_v3::{int16out_member, Act16Fn};
++use hashline::transcript::Transcript;
++use zkp_core::ffn_v3::{DecodeError, Proof, Shape, DOMAIN_LAYER};
++
++fn params() -> LayerParams {
++    LayerParams { log_cols: 5, inv_rate: 4, num_col_checks: 12 }
++}
++
++fn ntt(p: &LayerParams) -> NttTables {
++    NttTables::new(p.log_cols + p.inv_rate.trailing_zeros())
++}
++
++/// The T2/d16/f16 synthetic witness of the identity-gap and mask
++/// diagnostics (seed 1; the same generator), derived through the exact
++/// chain; `changed_weights` is that test's one-entry weight change.
++fn synth(changed_weights: bool) -> V3Witness {
++    let (t, d, f) = (2usize, 16usize, 16usize);
++    let mut seed = 1u64;
++    let mut next = |m: i64| -> i8 {
++        seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
++        (((seed >> 33) as i64) % (2 * m + 1) - m) as i8
++    };
++    let x = (0..t * d).map(|_| next(127)).collect();
++    let mut wg_t: Vec<i8> = (0..d * f).map(|_| next(4)).collect();
++    let wu_t = (0..d * f).map(|_| next(4)).collect();
++    let wd_t = (0..f * d).map(|_| next(4)).collect();
++    if changed_weights {
++        wg_t[0] += 1;
++    }
++    let (table, table_digest) = int16out_member(Act16Fn::Silu, -3, -11).unwrap();
++    let export = V3LayerExport {
++        l: 0,
++        dims: V3Dims { t, d, f, layers: 1 },
++        x,
++        wg_t,
++        wu_t,
++        wd_t,
++        a16: vec![],
++        u16: vec![],
++        h16: vec![],
++        z16: vec![],
++        exps: V3Exps { e_x: 0, e_g: -3, e_a16: -11, e_u16: 0, e_h16: 3, e_z16: 0, e_wg: -10, e_wu: 0, e_wd: -9 },
++        shifts: (7, 0, 14, 6),
++        act: Act16Fn::Silu,
++        table,
++        table_digest,
++        digest_checks: vec![],
++    };
++    let w = derive_v3(&export, t);
++    assert!(w.range_ok);
++    w
++}
++
++fn statement(w: &V3Witness) -> StatementV3 {
++    StatementV3 { l: w.l, t_rows: w.t_rows, d: w.dims.d, f: w.dims.f, shifts: w.shifts, act: w.act, table: w.table, table_digest: w.table_digest.clone() }
++}
++
++fn prove(w: &V3Witness, p: &LayerParams, ntt: &NttTables) -> LayerProofV3 {
++    prove_layer_v3(w, w.t_rows, p, ntt, &mut Transcript::new(DOMAIN_LAYER)).proof
++}
++
++fn verify(st: &StatementV3, proof: &LayerProofV3, p: &LayerParams, ntt: &NttTables) -> Result<(), String> {
++    verify_layer_v3(st, proof, p, ntt, &mut Transcript::new(DOMAIN_LAYER))
++}
++
++#[test]
++fn legacy_tiny_proof_is_the_core_encoding_and_round_trips_through_the_bounded_decoder() {
++    let p = params();
++    let ntt = ntt(&p);
++    let w = synth(false);
++    let st = statement(&w);
++    let proof = prove(&w, &p, &ntt);
++    verify(&st, &proof, &p, &ntt).unwrap();
++    let bytes = proof.to_bytes();
++    // the shape the core derives from (statement, params) is exactly the legacy size
++    let shape = Shape::of(&st, &p).unwrap();
++    assert_eq!(bytes.len(), shape.total_bytes());
++    assert_eq!(bytes.len(), proof.size_bytes());
++    // decode -> re-encode is the identity, and the decoded object verifies
++    let back = LayerProofV3::from_bytes(&bytes, &st, &p).unwrap();
++    assert_eq!(back.to_bytes(), bytes);
++    assert!(back.cpcs_open.is_none());
++    verify(&st, &back, &p, &ntt).unwrap();
++    // determinism: the same witness proves to the same bytes (no randomness in this profile)
++    assert_eq!(prove(&w, &p, &ntt).to_bytes(), bytes);
++    // a witness with one changed weight has the same shape and different bytes
++    let w2 = synth(true);
++    let bytes2 = prove(&w2, &p, &ntt).to_bytes();
++    assert_eq!(bytes2.len(), bytes.len());
++    assert_ne!(bytes2, bytes);
++    // a statement with permuted shifts has the same shape (same distinct-shift set), so the
++    // decoder accepts the bytes and only the verifier refuses them
++    let other = StatementV3 { shifts: (6, 0, 14, 7), ..st.clone() };
++    let as_other = LayerProofV3::from_bytes(&bytes, &other, &p).unwrap();
++    assert!(verify(&other, &as_other, &p, &ntt).is_err());
++    // a statement with another distinct-shift set changes the shape: the decoder refuses
++    let other2 = StatementV3 { shifts: (7, 0, 14, 5), ..st.clone() };
++    assert!(LayerProofV3::from_bytes(&bytes, &other2, &p).is_err());
++}
++
++#[test]
++fn malformed_tiny_proof_bytes_are_refused_by_the_decoder_or_the_verifier_never_panic() {
++    let p = params();
++    let ntt = ntt(&p);
++    let w = synth(false);
++    let st = statement(&w);
++    let bytes = prove(&w, &p, &ntt).to_bytes();
++    let shape = Shape::of(&st, &p).unwrap();
++    let dec = |b: &[u8]| Proof::<zkp_core::ffn_v3::NoExtra>::from_bytes(b, &st, &p);
++    // truncation at every field boundary
++    for (name, at) in shape.field_offsets() {
++        if at == bytes.len() { continue; }
++        assert!(matches!(dec(&bytes[..at]), Err(DecodeError::Truncated { .. })), "{name}");
++    }
++    assert!(matches!(dec(&bytes[..bytes.len() - 1]), Err(DecodeError::Truncated { .. })));
++    // one trailing byte
++    let mut t = bytes.clone();
++    t.push(0);
++    assert!(matches!(dec(&t), Err(DecodeError::Trailing { .. })));
++    // a non-canonical field element in the first claim
++    let gu: usize = shape.field_offsets().into_iter().find(|(n, _)| n == "gu_claims").unwrap().1;
++    let mut nc = bytes.clone();
++    nc[gu..gu + 8].copy_from_slice(&u64::MAX.to_le_bytes());
++    assert!(matches!(dec(&nc), Err(DecodeError::NonCanonical { .. })));
++    // single-bit flips at sampled offsets: the decoder refuses, or the decoded object fails to verify
++    let mut refused_by_decoder = 0usize;
++    let mut refused_by_verifier = 0usize;
++    for k in (0..bytes.len()).step_by(4099) {
++        let mut fl = bytes.clone();
++        fl[k] ^= 0x01;
++        match LayerProofV3::from_bytes(&fl, &st, &p) {
++            Err(_) => refused_by_decoder += 1,
++            Ok(pr) => {
++                assert!(verify(&st, &pr, &p, &ntt).is_err(), "flipped byte {k} verified");
++                refused_by_verifier += 1;
++            }
++        }
++    }
++    assert!(refused_by_decoder + refused_by_verifier > 0);
++    assert!(refused_by_verifier > 0, "every flip landed in a decoder-checked field");
++}
++
++#[test]
++fn the_eight_tamper_legs_are_refused_by_the_verifier_after_decoding() {
++    let p = params();
++    let ntt = ntt(&p);
++    let legs = [
++        TamperV3::FlipX(7),
++        TamperV3::FlipW(42),
++        TamperV3::RemainderOutOfRange(9),
++        TamperV3::WrongTableEntry(10),
++        TamperV3::WrongRequant(5),
++        TamperV3::WrongZ(3),
++        TamperV3::WrongRounding(20),
++        TamperV3::OutOfRangeInt16(12),
++    ];
++    for (i, leg) in legs.into_iter().enumerate() {
++        let mut w = synth(false);
++        let st = statement(&w);
++        let name = format!("tamper leg {i}");
++        apply_tamper_v3(&mut w, leg);
++        let proof = prove(&w, &p, &ntt);
++        let bytes = proof.to_bytes();
++        // the tampered proof still has the shape (the decoder is not a verifier) ...
++        let back = LayerProofV3::from_bytes(&bytes, &st, &p).unwrap_or_else(|e| panic!("{name}: {e}"));
++        assert_eq!(back.to_bytes(), bytes);
++        // ... and both the legacy object and the decoded object are refused with the same message
++        let e1 = verify(&st, &proof, &p, &ntt).expect_err(&name);
++        let e2 = verify(&st, &back, &p, &ntt).expect_err(&name);
++        assert_eq!(e1, e2, "{name}");
++    }
++}
+diff --git a/hashline/tests/zk60_public_block.rs b/hashline/tests/zk60_public_block.rs
+index 11f748b..0bf99fd 100644
+--- a/hashline/tests/zk60_public_block.rs
++++ b/hashline/tests/zk60_public_block.rs
+@@ -86,6 +86,52 @@ fn honest_fixed_block_proves_and_verifies_with_approved_roots() {
+     assert_eq!(approved.public_digest(), original);
+ }
+ 
++#[test]
++fn typed_attention_and_block_reject_unused_proof_messages() {
++    let (approved, weights, input) = public_synthetic_fixture();
++    let proof = PublicBlockOracle::new(&approved, weights)
++        .unwrap()
++        .prove(&input)
++        .unwrap();
++    verify_public_block(&approved, &proof).unwrap();
++    let r = approved.registration();
++    for which in 0..4 {
++        let mut bad = proof.clone();
++        let expected = if which < 2 {
++            let mut extra = bad.attention.sc[0].clone();
++            if which == 1 {
++                extra.rounds.clear();
++            }
++            bad.attention.sc.push(extra);
++            "unused attention sumchecks"
++        } else {
++            bad.attention
++                .helper_sums
++                .push(if which == 2 { Fp2::ZERO } else { Fp2::ONE });
++            "unused attention helper_sums"
++        };
++        // Exercise the ordinary typed attention entry point, including the
++        // empty/zero payloads a value-only check could accidentally permit.
++        let mut tr = public_block_transcript(&approved);
++        let error = at::verify_attn(
++            &bad.attention,
++            &r.attention,
++            &r.residual,
++            &r.params,
++            &mut tr,
++        )
++        .err()
++        .expect("unused proof messages must not be silently accepted");
++        assert!(error.starts_with(expected), "{error}");
++        assert_eq!(
++            verify_public_block(&approved, &bad),
++            Err(PublicBlockError::Verification("attention argument"))
++        );
++    }
++    // Refusals do not mutate the original proof or approved context.
++    verify_public_block(&approved, &proof).unwrap();
++}
++
+ #[test]
+ fn short_weight_lifting_preserves_both_halves_and_rejects_unsupported_claims() {
+     let (approved, weights, input) = public_synthetic_fixture();
+diff --git a/hashline/tests/zk60_stable_weight_slots.rs b/hashline/tests/zk60_stable_weight_slots.rs
+new file mode 100644
+index 0000000..325581a
+--- /dev/null
++++ b/hashline/tests/zk60_stable_weight_slots.rs
+@@ -0,0 +1,201 @@
++//! Real process lifetime/locking checks for the public slot journal, not P3 proofs.
++use hashline::field::Fp;
++use hashline::pcs::{Commitment, PcsParams, ZkOpts};
++use hashline::stable_weight_slots::{SlotError, SlotJournal, SlotPolicy, StableWeightBinding};
++use std::io::Read;
++use std::path::{Path, PathBuf};
++use std::process::{Child, Command, Stdio};
++use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
++
++fn policy() -> SlotPolicy {
++    SlotPolicy::new(StableWeightBinding {
++        manifest: [11; 32],
++        layer: 0,
++        layout: [12; 32],
++        commitment: Commitment {
++            root: [13; 32],
++            rows: 12,
++            log_cols: 4,
++        },
++        params: PcsParams {
++            log_cols: 4,
++            inv_rate: 4,
++            num_col_checks: 4,
++        },
++        opts: ZkOpts {
++            q_pad: 32,
++            coset: Fp::new(7),
++        },
++        budget: 8,
++    })
++    .unwrap()
++}
++struct Scratch(PathBuf);
++impl Scratch {
++    fn new() -> Self {
++        let stamp = SystemTime::now()
++            .duration_since(UNIX_EPOCH)
++            .unwrap()
++            .as_nanos();
++        let path =
++            std::env::temp_dir().join(format!("zk60-slot-process-{}-{stamp}", std::process::id()));
++        std::fs::create_dir(&path).unwrap();
++        Self(path)
++    }
++    fn journal(&self) -> PathBuf {
++        self.0.join("journal")
++    }
++}
++impl Drop for Scratch {
++    fn drop(&mut self) {
++        std::fs::remove_dir_all(&self.0).unwrap();
++    }
++}
++// Kill/wait our own child even if a parent assertion fails, so no lock holder
++// or blocked stdin reader survives a failed test.
++struct Client(Child);
++impl Drop for Client {
++    fn drop(&mut self) {
++        let _ = self.0.kill();
++        let _ = self.0.wait();
++    }
++}
++fn client(path: &Path, mode: &str) -> Client {
++    Client(
++        Command::new(std::env::current_exe().unwrap())
++            .args([
++                "--exact",
++                "slot_client_process",
++                "--nocapture",
++                "--test-threads=1",
++            ])
++            .env("HL_TEST_SLOT_PATH", path)
++            .env("HL_TEST_SLOT_MODE", mode)
++            .stdin(Stdio::piped())
++            .stdout(Stdio::piped())
++            .stderr(Stdio::piped())
++            .spawn()
++            .unwrap(),
++    )
++}
++fn wait(client: &mut Client) -> (std::process::ExitStatus, String) {
++    let start = Instant::now();
++    loop {
++        if let Some(status) = client.0.try_wait().unwrap() {
++            let mut output = String::new();
++            client
++                .0
++                .stdout
++                .take()
++                .unwrap()
++                .read_to_string(&mut output)
++                .unwrap();
++            client
++                .0
++                .stderr
++                .take()
++                .unwrap()
++                .read_to_string(&mut output)
++                .unwrap();
++            return (status, output);
++        }
++        assert!(
++            start.elapsed() < Duration::from_secs(20),
++            "slot client timed out"
++        );
++        std::thread::sleep(Duration::from_millis(10));
++    }
++}
++
++#[test]
++fn slot_client_process() {
++    let Some(path) = std::env::var_os("HL_TEST_SLOT_PATH") else {
++        return;
++    };
++    let mode = std::env::var("HL_TEST_SLOT_MODE").unwrap();
++    let path = PathBuf::from(path);
++    if mode == "busy" {
++        assert!(matches!(
++            SlotJournal::open(&path, policy()),
++            Err(SlotError::Busy)
++        ));
++        return;
++    }
++    let start = Instant::now();
++    let mut journal = loop {
++        match SlotJournal::open(&path, policy()) {
++            Ok(j) => break j,
++            Err(SlotError::Busy) if start.elapsed() < Duration::from_secs(10) => {
++                std::thread::sleep(Duration::from_millis(10))
++            }
++            Err(e) => panic!("slot client failed: {e}"),
++        }
++    };
++    let slot = journal.reserve().unwrap();
++    println!("RESERVED_SLOT={}", slot.index());
++    if mode == "hold" {
++        // This marker comes after sync and token return. Killing this process
++        // exercises lock release and restart with a spent, uncompleted attempt.
++        std::fs::write(path.with_extension("ready"), slot.index().to_string()).unwrap();
++        let mut input = String::new();
++        std::io::stdin().read_to_string(&mut input).unwrap();
++    }
++}
++
++#[test]
++fn process_death_releases_lock_without_refunding_the_slot() {
++    let scratch = Scratch::new();
++    let path = scratch.journal();
++    drop(SlotJournal::create(&path, policy()).unwrap());
++    let mut holder = client(&path, "hold");
++    let start = Instant::now();
++    while !path.with_extension("ready").exists() {
++        assert!(
++            holder.0.try_wait().unwrap().is_none(),
++            "holder died before reservation"
++        );
++        assert!(
++            start.elapsed() < Duration::from_secs(20),
++            "holder did not reserve"
++        );
++        std::thread::sleep(Duration::from_millis(10));
++    }
++    assert_eq!(
++        std::fs::read_to_string(path.with_extension("ready")).unwrap(),
++        "0"
++    );
++    let (status, output) = wait(&mut client(&path, "busy"));
++    assert!(status.success(), "{output}");
++    holder.0.kill().unwrap();
++    assert!(!holder.0.wait().unwrap().success());
++    let mut recovered = SlotJournal::open(&path, policy()).unwrap();
++    assert_eq!(recovered.used(), 1);
++    assert_eq!(recovered.reserve().unwrap().index(), 1);
++}
++
++#[test]
++fn competing_processes_reserve_each_slot_once() {
++    let scratch = Scratch::new();
++    let path = scratch.journal();
++    drop(SlotJournal::create(&path, policy()).unwrap());
++    let mut slots = Vec::new();
++    // Two clients at a time respect the shared box's concurrency budget.
++    for _ in 0..4 {
++        let mut clients = [client(&path, "reserve"), client(&path, "reserve")];
++        for process in &mut clients {
++            let (status, output) = wait(process);
++            assert!(status.success(), "{output}");
++            let marker = output.find("RESERVED_SLOT=").expect(&output);
++            let value = output[marker + "RESERVED_SLOT=".len()..]
++                .split_whitespace()
++                .next()
++                .unwrap();
++            slots.push(value.parse::<u32>().unwrap());
++        }
++    }
++    slots.sort_unstable();
++    assert_eq!(slots, (0..8).collect::<Vec<_>>());
++    let mut journal = SlotJournal::open(&path, policy()).unwrap();
++    assert_eq!(journal.used(), 8);
++    assert!(matches!(journal.reserve(), Err(SlotError::Exhausted)));
++}
+diff --git a/zkp-core/Cargo.lock b/zkp-core/Cargo.lock
+index a285091..ee8d5a9 100644
+--- a/zkp-core/Cargo.lock
++++ b/zkp-core/Cargo.lock
+@@ -18,7 +18,16 @@ dependencies = [
+  "cc",
+  "cfg-if",
+  "constant_time_eq",
+- "cpufeatures",
++ "cpufeatures 0.3.1",
++]
++
++[[package]]
++name = "block-buffer"
++version = "0.10.4"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "3078c7629b62d3f0439517fa394996acacc5cbc91c5a20d8c658e77abd503a71"
++dependencies = [
++ "generic-array",
+ ]
+ 
+ [[package]]
+@@ -43,6 +52,15 @@ version = "0.4.2"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b"
+ 
++[[package]]
++name = "cpufeatures"
++version = "0.2.17"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "59ed5838eebb26a2bb2e58f6d5b5316989ae9d08bab10e0e6d103e656d1b0280"
++dependencies = [
++ "libc",
++]
++
+ [[package]]
+ name = "cpufeatures"
+ version = "0.3.1"
+@@ -77,6 +95,26 @@ version = "0.8.22"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "61803da095bee82a81bb1a452ecc25d3b2f1416d1897eb86430c6159ef717c17"
+ 
++[[package]]
++name = "crypto-common"
++version = "0.1.7"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "78c8292055d1c1df0cce5d180393dc8cce0abec0a7102adb6c7b1eef6016d60a"
++dependencies = [
++ "generic-array",
++ "typenum",
++]
++
++[[package]]
++name = "digest"
++version = "0.10.7"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292"
++dependencies = [
++ "block-buffer",
++ "crypto-common",
++]
++
+ [[package]]
+ name = "either"
+ version = "1.18.0"
+@@ -89,6 +127,16 @@ version = "0.1.11"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "d45db016d36b838f563236e9193d0ee6ce38f3f68b6c94e914b4929c96bbb890"
+ 
++[[package]]
++name = "generic-array"
++version = "0.14.7"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a"
++dependencies = [
++ "typenum",
++ "version_check",
++]
++
+ [[package]]
+ name = "libc"
+ version = "0.2.189"
+@@ -115,16 +163,40 @@ dependencies = [
+  "crossbeam-utils",
+ ]
+ 
++[[package]]
++name = "sha2"
++version = "0.10.9"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "a7507d819769d01a365ab707794a4084392c824f54a7a6a7862f8c3d0892b283"
++dependencies = [
++ "cfg-if",
++ "cpufeatures 0.2.17",
++ "digest",
++]
++
+ [[package]]
+ name = "shlex"
+ version = "2.0.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
+ 
++[[package]]
++name = "typenum"
++version = "1.20.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "b6f5e870be6c3b371b77fe0ee0bafb859fa4964b4404c27de1d380043c4dda20"
++
++[[package]]
++name = "version_check"
++version = "0.9.5"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
++
+ [[package]]
+ name = "zkp-core"
+ version = "0.1.0"
+ dependencies = [
+  "blake3",
+  "rayon",
++ "sha2",
+ ]
+diff --git a/zkp-core/Cargo.toml b/zkp-core/Cargo.toml
+index b1dfb2f..e3d46e4 100644
+--- a/zkp-core/Cargo.toml
++++ b/zkp-core/Cargo.toml
+@@ -8,6 +8,7 @@ description = "Maintained CPU proof primitives extracted from hashline; experime
+ [dependencies]
+ blake3 = "1.8"
+ rayon = "1.11"
++sha2 = "0.10"
+ 
+ [profile.release]
+ opt-level = 3
+diff --git a/zkp-core/MIGRATION.md b/zkp-core/MIGRATION.md
+index dd86105..fd3ce65 100644
+--- a/zkp-core/MIGRATION.md
++++ b/zkp-core/MIGRATION.md
+@@ -1,9 +1,11 @@
+ # Migration ledger
+ 
+-Two boundaries are implemented: the primitives (round 11, Codex) and the
+-Ligero commitment behind a backend seam (round 12, Fable). Each section
+-records its source pin, what moved, what the adapters keep, the validation
+-and the before/after surface; the next boundaries follow at the end.
++Three boundaries are implemented: the primitives (round 11, Codex), the
++Ligero commitment behind a backend seam (round 12, Fable, step 1) and the
++table registry plus the typed v3 pieces with a bounded decoder (round 12,
++Fable, step 2). Each section records its source pin, what moved, what the
++adapters keep, the validation and the before/after surface; the next
++boundaries follow at the end.
+ 
+ # Primitive extraction, round 11
+ 
+@@ -129,23 +131,132 @@ This step claims nothing about the FFN masking disclosure
+ tests stay in hashline and pass unchanged; the extracted commitment is the
+ same construction with the same obligations.
+ 
++**Merge.** After this commit (`76ee275`) the performance branch `972da4e`
++(Codex: `42471f0` attention message-count rejection, `72a884e`
++`stable_weight_slots`, `972da4e` test-guard pin) was merged as `f61ee77`
++with no conflicts; `hashline/src/lib.rs` gains the `stable_weight_slots`
++module lines and nothing of this lane's changes. Re-validation on the merged
++tree, two threads under the heavy lock: core tests exit 0, 22/22; hashline
++suite 167 passed / 0 failed / 0 ignored across all 21 test binaries (170 at
++`972da4e` minus the 3 moved PCS tests). That run's trailing doc-test stage
++then failed to compile because this lane applied the step-2 sources to the
++tree while it was still running (a sequencing error of this lane, not of the
++merge), so the two `compile_fail` doc-checks of `stable_weight_slots.rs`
++were not observed in it; the step-2 suite run below compiles the merged tree
++plus step 2 from a quiet source and includes them.
++
++# Boundary 2, round 12 (Fable, CL20 step 2): table registry and the typed v3 pieces
++
++Source pin: `f61ee77` (the PCS boundary above merged with the performance
++branch at `972da4e`). Hashes: `ffn_v3_migration.json`.
++
++| Canonical module | Existing caller path | Mechanical adjustment |
++|---|---|---|
++| `tables` (`src/tables.rs`: `Act16Fn`, the 15 frozen int16-out members and digests, `int16out_generate`, `table_spec_digest_int16out`, `int16out_member`, `registry_report`, `hex`) | `hashline::tables_v3` (`pub use zkp_core::tables::*`), `hashline::silu::hex` (`pub use zkp_core::tables::hex`) | the five-line `silu::hex` helper moved with its only core caller; the registry test moved (core +1); `sha2 0.10.9` added to the core with hashline's exact subtree, seeded into the lock from hashline's lock (the seeder reproduces the round-11 lock byte for byte on `blake3,rayon`) |
++| `ffn_v3::statement` (`src/ffn_v3/statement.rs`: `Params` = `LayerParams`, `Statement` = `StatementV3`, `Layout` = `LayoutV3`, `absorb_statement` = `absorb_statement_v3`, `absorb_com`, `absorb_mults`, `TAG_ACT16`, `TAG_INT16`, `tag_rem_v3`, `rem_rows`, `rem_value`, `rem_index`, `pow2_signed`) | `hashline::layer` re-exports under the legacy names (`pub use ... as ...`) | `Layout::check` added (the shape rule as a `Result`; `new` keeps its panic text), `Params::check` added (the decoder's parameter rule), the slice helpers `s_f`/`s_d`/`s_w` and `pcs_for` made `pub`; two unit tests added |
++| `ffn_v3::proof` (`src/ffn_v3/proof.rs`: `Proof<X = NoExtra>` = `LayerProofV3`, `ExtraOpening`, `NoExtra`, `size_bytes`/`to_bytes` verbatim, NEW `Shape`, `OpeningShape`, `DecodeError`, `Proof::from_bytes`) | `hashline::layer::LayerProofV3 = zkp_core::ffn_v3::Proof<pcs_compact::BatchOpening>`; `impl ExtraOpening for BatchOpening` in `layer.rs` | the compact-PCS slot `cpcs_open` became the generic extra opening (field name kept for `public_block_wire.rs` and its test); three unit tests added |
++
++The prover and verifier (`prove_layer_v3`, `verify_layer_v3`, `v3_zcd_point`,
++the tamper legs, `multiplicities_v3`) are still hashline's and consume the
++core's types through the re-exports; `zk.rs`, `public_block_*`,
++`model_identity.rs`, `causal_oracle.rs`, `private_block_contract.rs` and every
++existing test change nothing.
++
++**The bounded decoder.** `Proof::from_bytes(bytes, &Statement, &Params)` is
++shape-directed: `Shape::of` derives every field length from the layout (the
++three commitments' rows and `log_cols`; `2 + distinct shifts` multiplicity
++tables of 256 / 65,536 / `rem_rows(s)` entries; `2 nb_f` gu claims, `log_db`
++matmul rounds of degree 2, `nb_d + 2 nb_d nb_f` gu terminals; `nb_d` d
++claims, `log_fb` rounds, `nb_f + nb_f nb_d` d terminals; `log_t + log_fb`
++and `log_t + log_db` zero-check rounds of degree 4 with `10 nb_f` and
++`4 nb_d` terminals; `3 nb_f + nb_d` helper sums; the W/A/H openings with
++2/2/3 column-weight groups of `2^log_cols` entries each plus the proximity
++vector, and `num_col_checks` columns of `rows` elements and `log2(enc_cols)`
++path digests). It reads exactly that and refuses short input, trailing bytes,
++a commitment disagreeing with the layout, a wrong multiplicity tag/length, a
++column index `>= enc_cols` and any 8-byte word `>= P` where a field element
++is read (`Fp::new` would reduce it silently). The group counts are the
++structural ones (`p3`/`p6`; `rho_f`/`rho_d`; `rho_f`/`rho_d`/sums); a
++challenge-tail coincidence (probability ~2^-128) would make the verifier,
++which regroups from the actual values, reject a well-formed proof, never
++accept a malformed one.
++
++**Tests.** Core: `ffn_v3::proof::tests` (the tiny T2/d16/f16 and the 125M
++shapes; dummy round trip with `size_bytes == Shape::total_bytes`; truncation
++at every field boundary, one trailing byte, a commitment/rows mismatch, a
++wrong multiplicity tag and length, non-canonical elements in a claim, a
++sumcheck round and an opened column, an index at and beyond `enc_cols`,
++sampled bit flips, an unsupported statement) and `ffn_v3::statement::tests`.
++hashline: `tests/zk60_cl20_codec.rs` (new) proves the seeded T2/d16/f16
++witness with the LEGACY prover and checks that its bytes are exactly the
++core's shape, that the core decoder reproduces them and the legacy verifier
++accepts the decoded object, that a witness with one changed weight gives
++different bytes of the same shape, that permuted shifts decode but fail to
++verify while a different distinct-shift set fails to decode, that truncation,
++trailing bytes, non-canonical elements and sampled bit flips are refused by
++the decoder or the verifier without a panic, and that the eight tamper legs
++(FlipX, FlipW, RemainderOutOfRange, WrongTableEntry, WrongRequant, WrongZ,
++WrongRounding, OutOfRangeInt16) decode and are refused by the verifier with
++the same message on the legacy and the decoded object. This is D2/D4/D5 and
++the D3 legs on the moved pieces; D1 (old prover vs core prover bytes) needs
++the prover, which has not moved.
++
++Validation (two threads, `/tmp/zk-heavy.lock`; details in
++`../results/zk60_cl20_ffn_v3_validation.json`):
++
++| gate | result |
++|---|---|
++| core tests (`cargo test --release --offline --manifest-path zkp-core/Cargo.toml --all-targets`) | exit 0; 28 passed, 0 failed, 0 ignored (22 + `tables::tests::all_frozen_members_regenerate_to_their_pins` + `ffn_v3::statement::tests::{layout_shape_rule_and_offsets, tags_and_windows}` + `ffn_v3::proof::tests::{shape_of_the_tiny_and_the_125m_statements, dummy_round_trips_and_sizes_agree, malformed_bytes_are_refused_never_panic}`); no warnings. A first run of this stage failed to compile four `assert_eq!` on `Result<Proof, _>` (no `PartialEq` on `Proof`); the fix (`.err()`) touched test code only and is what is committed |
++| hashline build (CPU, `cargo build --release --offline`) | exit 0 in 45.2 s; the 8 warnings are the round-11 eight (a first build of this step carried a ninth, `unused import: PcsParams` in `layer.rs`, removed before the commit; the frozen cases were re-run on the rebuilt binary) |
++| hashline suite (`cargo test --release --offline`, `HL_GPU` unset, merged tree + step 2 from a quiet source) | exit 0; 23 test binaries: 169 unit/integration tests passed, 0 failed, 0 ignored, plus the 2 `compile_fail` doc-checks of `stable_weight_slots.rs` (171 in the log). Accounting from the merge tree's 167: −1 (`tables_v3`'s registry test moved to the core, where it passes; lib 53 -> 52) + 3 (`tests/zk60_cl20_codec.rs`); every other binary's count is unchanged; the LIMITATION tests pass unchanged |
++| GPU feature check (`cargo check --release --offline --features gpu-cuda`, `target-gpu`, CUDA env of `results/cl1_floors.sh`) | exit 0, 0 errors; the warning list equals the round-11 GPU build's except one `attention.rs` line number moved by Codex's `42471f0`; no device job |
++| four CPU frozen cases (`pass 12 512 --threads 2`) | all four match sha256 and length exactly, exit 0, verifier ACCEPT, on the binary of the committed tree (`7b37f5ce…`, 4,671,688 B; the same binary bytes before and after the unused-import removal, so both runs agree): v2 `50cf7bdf…`/66,844,928, v3 `5f368db6…`/70,758,084, zk `021485e4…`/87,228,528, zkv3 `40eb5479…`/87,697,008 |
++| D8 (`zkp-core/src`: no `std::env`, `cudarc`, `cfg(feature)`, `hashline::`) | holds |
++
++**Dependency surface** (`tools/dep_closure.py`, two-crate form; before =
++the merge tree `f61ee77`, after = this step):
++
++| | nodes / edge records | hashline library modules / code lines | zkp-core library modules / code lines | cross-crate edges | literal closure of `{layer, tables_v3}` |
++|---|---|---|---|---|---|
++| before (`f61ee77`) | 74 / 377 | 39 / 19,586 | 10 / 2,472 | 10 | 25 modules, 7,103 code lines (6,114 excl. tests) |
++| after | 79 / 394 | 39 / 19,277 | 14 / 3,325 | 14 (+ `layer -> zkp_core::ffn_v3`, `tables_v3 -> zkp_core::tables`, `silu -> zkp_core::tables`, the new test) | 27 modules, 6,938 code lines (5,949 excl. tests) |
++
++hashline lost 309 lines (`layer` 2,034 -> 1,858, `tables_v3` 132 -> 1,
++`silu` 60 -> 58); the core gained 853 (`tables` 135, `ffn_v3` 9,
++`statement` 178, `proof` 529 of which the decoder, its shape and its
++tests are new, `lib` 2). The closure still enters `chain`, `export`,
++`export_v3`, `gpu`, `pcs_compact`, `wcache` and `phase_profile` through
++`layer`; those are the cuts of step 2c.
++
++The core's `Layout::new` panics on an unsupported shape exactly as before
++(same message text); the decoder reports the same rule as
++`DecodeError::Shape` instead. No behaviour of any existing entry point
++changes; the compact-PCS experiment keeps its batched opening in the same
++slot, the same bytes and the same `--pcs compact` gate. This step claims
++nothing about the FFN masking disclosure or the P3 identity gap.
++
+ ## Next boundaries for Fable, in order
+ 
+ 1. ~~Extract PCS types and the CPU commit/open/verify path behind a narrow
+-   backend interface.~~ Done above (round 12).
+-2. Move table registration and typed v3 statement/witness/layout/proof pieces,
+-   then the selected P0 FFN path and bounded encoding/decoding. Keep the current
+-   table registry and digest validation; an arbitrary opaque digest must not
+-   replace the verifier's table semantics.
+-3. Add tiny old/new FFN proof-byte comparisons and decoder refusals, then keep
+-   the four complete frozen artifacts and public receipt gates. Preserve both
+-   compact and GPU consumers; no backend is retired as a side effect.
++   backend interface.~~ Done (round 12, step 1).
++2. ~~Move table registration and typed v3 statement/layout/proof pieces and
++   bounded decoding~~ (done, round 12, step 2: the registry and its digest
++   validation are the core's, unchanged); then the selected P0 FFN path
++   (prover, verifier, tamper legs, witness planes): step 2c below.
++3. ~~Decoder refusals on the tiny fixture~~ (done, step 2); the old/new
++   proof-byte comparison of the PROVER (D1) lands with step 2c; keep the four
++   complete frozen artifacts and public receipt gates at every step. Preserve
++   both compact and GPU consumers; no backend is retired as a side effect.
+ 4. Extract the versioned masking repair only with its reviewed invariants and
+    privacy classification. A P0 FFN example alone does not close CL20.
+ 
+-### The next step in detail (boundary 2, in three pieces)
++### The next step in detail
++
++Pieces 2a (table registry) and 2b (typed v3 pieces and the bounded decoder)
++are implemented above; their original plan is kept here for the record, and
++2c is the exact next step.
+ 
+-**2a, table registry.** `hashline/src/tables_v3.rs` (`Act16Fn`, the 15
++**2a, table registry (done).** `hashline/src/tables_v3.rs` (`Act16Fn`, the 15
+ frozen members and digests, `int16out_generate`, `table_spec_digest_int16out`,
+ `int16out_member`, `registry_report`, one test) moves verbatim to
+ `zkp-core/src/tables.rs` together with the five-line `silu::hex` helper it
+@@ -158,7 +269,7 @@ hashline's lock (the seeder reproduces the round-11 lock byte for byte on
+ `blake3,rayon`). Gate: core tests (+1), the hashline suite, all four frozen
+ cases (the digest string is absorbed into the v3 transcript).
+ 
+-**2b, typed v3 pieces.** From `layer.rs` (lines 1225-1404 at `cfa46f6`):
++**2b, typed v3 pieces (done; `Proof<X>` and `from_bytes` as planned).** From `layer.rs` (lines 1225-1404 at `cfa46f6`):
+ `TAG_ACT16`, `TAG_INT16`, `tag_rem_v3`, `rem_rows`, `rem_value`,
+ `rem_index`, `pow2_signed`, `StatementV3`, `LayoutV3` and its slice helpers,
+ `absorb_statement_v3`, `absorb_com`, `absorb_mults`, and `LayerProofV3` with
+@@ -180,7 +291,18 @@ T2/d16/f16 proof produced by hashline's `prove_layer_v3` (round trip
+ trailing byte, a non-canonical element, an oversized count: reject, never
+ panic).
+ 
+-**2c, the P0 prover/verifier.** `prove_layer_v3` (layer.rs 1455-2005),
++**2c, the P0 prover/verifier (the next step).** Files:
++`hashline/src/layer.rs` (`prove_layer_v3` at 1455-2005 of `cfa46f6`,
++`verify_layer_v3` 2058-2279, `v3_zcd_point` 2280-2318, `build_claims_v3`,
++`multiplicities_v3`, `HostTabsV3` and the shared v2/v3 helper builders,
++`TamperV3`/`apply_tamper_v3`), `hashline/src/export_v3.rs` (`V3Witness`,
++`derive_v3_with_table`, `requant_round`, `in_i16_class`, `in_rem_window`,
++`matmul_i32_i8_i64`) -> `zkp-core/src/ffn_v3/{witness,prove,verify,tamper}.rs`
++with `hashline::layer::{prove_layer_v3, verify_layer_v3}` as adapters
++(build `Statement` and the borrowed `Witness` from `V3Witness`, choose the
++pre-built W commitment through `wcache`, the backend through `gpu`, and
++refuse `pcs_compact::selected()` unless the compact experiment keeps its
++own prover). What blocks a mechanical move: `prove_layer_v3` (layer.rs 1455-2005),
+ `verify_layer_v3` (2058-2279), `v3_zcd_point` (2280-2318), `TamperV3`/
+ `apply_tamper_v3` (2319-2384). What blocks a mechanical move: (i) the
+ helper-column builders, `HostTabsV3`, the zero-check table construction
+diff --git a/zkp-core/README.md b/zkp-core/README.md
+index 3af3837..c287076 100644
+--- a/zkp-core/README.md
++++ b/zkp-core/README.md
+@@ -1,13 +1,18 @@
+ # Minimal ZKP core
+ 
+-Status: **primitives and the Ligero commitment extracted; complete FFN path
+-pending**. The crate owns field arithmetic, NTT, Merkle trees, transcripts,
+-randomness, multilinear helpers, sumcheck and the Ligero-form polynomial
+-commitment (`pcs`: plain and hiding commit / open / verify) behind a narrow
+-backend seam (`pcs::Backend` / `pcs::EncodedStore`) that hashline's CUDA
+-code implements outside the core. `hashline` imports these canonical types
+-through compatibility exports. Default builds use only `blake3` and `rayon`;
+-they need no GPU or model files. All 22 moved tests pass (19 primitive, 3 PCS).
++Status: **primitives, the Ligero commitment and the typed v3 pieces
++extracted; the FFN prover/verifier still in hashline**. The crate owns field
++arithmetic, NTT, Merkle trees, transcripts, randomness, multilinear helpers,
++sumcheck, the Ligero-form polynomial commitment (`pcs`: plain and hiding
++commit / open / verify) behind a narrow backend seam (`pcs::Backend` /
++`pcs::EncodedStore`) that hashline's CUDA code implements outside the core,
++the frozen int16-out activation-table registry (`tables`), and the selected
++profile's statement, parameters, layout and proof object with its frozen
++encoding and a shape-directed bounded decoder (`ffn_v3`). `hashline` imports
++these canonical types through compatibility exports under its legacy names.
++Default builds use only `blake3`, `rayon` and `sha2` (the table-spec digest);
++they need no GPU or model files. All 28 tests pass (19 primitive, 3 PCS, 1
++table registry, 5 statement/proof).
+ 
+ ```sh
+ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 cargo test --release --offline \
+diff --git a/zkp-core/dependency_graph.json b/zkp-core/dependency_graph.json
+index 1975b6d..64752f6 100644
+--- a/zkp-core/dependency_graph.json
++++ b/zkp-core/dependency_graph.json
+@@ -1,9 +1,9 @@
+ {
+-  "baseline": "cfa46f6 (zk60-cl20-core)",
++  "baseline": "f61ee77 (zk60-cl20-core)",
+   "closures": {
+     "after_cuts": {
+-      "code_lines": 4710,
+-      "code_lines_excluding_test": 4056,
++      "code_lines": 4487,
++      "code_lines_excluding_test": 3846,
+       "cuts": [
+         "layer:chain",
+         "layer:export",
+@@ -25,10 +25,10 @@
+         "mle": "layer",
+         "ntt": "layer",
+         "pcs": "layer",
+-        "silu": "tables_v3",
+         "sumcheck": "layer",
+         "tables_v3": null,
+         "transcript": "layer",
++        "zkp_core::ffn_v3": "layer",
+         "zkp_core::field": "field",
+         "zkp_core::merkle": "zkp_core::pcs",
+         "zkp_core::mle": "mle",
+@@ -36,6 +36,7 @@
+         "zkp_core::pcs": "pcs",
+         "zkp_core::rng": "pcs",
+         "zkp_core::sumcheck": "sumcheck",
++        "zkp_core::tables": "tables_v3",
+         "zkp_core::transcript": "transcript"
+       },
+       "members": [
+@@ -44,10 +45,10 @@
+         "mle",
+         "ntt",
+         "pcs",
+-        "silu",
+         "sumcheck",
+         "tables_v3",
+         "transcript",
++        "zkp_core::ffn_v3",
+         "zkp_core::field",
+         "zkp_core::merkle",
+         "zkp_core::mle",
+@@ -55,17 +56,18 @@
+         "zkp_core::pcs",
+         "zkp_core::rng",
+         "zkp_core::sumcheck",
++        "zkp_core::tables",
+         "zkp_core::transcript"
+       ],
+-      "module_count": 17,
++      "module_count": 18,
+       "roots": [
+         "layer",
+         "tables_v3"
+       ]
+     },
+     "default_build": {
+-      "code_lines": 7103,
+-      "code_lines_excluding_test": 6114,
++      "code_lines": 6938,
++      "code_lines_excluding_test": 5949,
+       "cuts": [],
+       "edge_kinds": [
+         "normal",
+@@ -84,11 +86,12 @@
+         "pcs": "layer",
+         "pcs_compact": "layer",
+         "phase_profile": "chain",
+-        "silu": "tables_v3",
++        "silu": "chain",
+         "sumcheck": "layer",
+         "tables_v3": null,
+         "transcript": "layer",
+         "wcache": "layer",
++        "zkp_core::ffn_v3": "layer",
+         "zkp_core::field": "field",
+         "zkp_core::merkle": "zkp_core::pcs",
+         "zkp_core::mle": "mle",
+@@ -96,6 +99,7 @@
+         "zkp_core::pcs": "gpu",
+         "zkp_core::rng": "pcs",
+         "zkp_core::sumcheck": "sumcheck",
++        "zkp_core::tables": "tables_v3",
+         "zkp_core::transcript": "transcript"
+       },
+       "members": [
+@@ -116,6 +120,7 @@
+         "tables_v3",
+         "transcript",
+         "wcache",
++        "zkp_core::ffn_v3",
+         "zkp_core::field",
+         "zkp_core::merkle",
+         "zkp_core::mle",
+@@ -123,17 +128,18 @@
+         "zkp_core::pcs",
+         "zkp_core::rng",
+         "zkp_core::sumcheck",
++        "zkp_core::tables",
+         "zkp_core::transcript"
+       ],
+-      "module_count": 25,
++      "module_count": 27,
+       "roots": [
+         "layer",
+         "tables_v3"
+       ]
+     },
+     "literal": {
+-      "code_lines": 7103,
+-      "code_lines_excluding_test": 6114,
++      "code_lines": 6938,
++      "code_lines_excluding_test": 5949,
+       "cuts": [],
+       "edge_kinds": [
+         "gpu",
+@@ -153,11 +159,12 @@
+         "pcs": "layer",
+         "pcs_compact": "layer",
+         "phase_profile": "chain",
+-        "silu": "tables_v3",
++        "silu": "chain",
+         "sumcheck": "layer",
+         "tables_v3": null,
+         "transcript": "layer",
+         "wcache": "layer",
++        "zkp_core::ffn_v3": "layer",
+         "zkp_core::field": "field",
+         "zkp_core::merkle": "merkle",
+         "zkp_core::mle": "mle",
+@@ -165,6 +172,7 @@
+         "zkp_core::pcs": "gpu",
+         "zkp_core::rng": "pcs",
+         "zkp_core::sumcheck": "sumcheck",
++        "zkp_core::tables": "tables_v3",
+         "zkp_core::transcript": "transcript"
+       },
+       "members": [
+@@ -185,6 +193,7 @@
+         "tables_v3",
+         "transcript",
+         "wcache",
++        "zkp_core::ffn_v3",
+         "zkp_core::field",
+         "zkp_core::merkle",
+         "zkp_core::mle",
+@@ -192,9 +201,10 @@
+         "zkp_core::pcs",
+         "zkp_core::rng",
+         "zkp_core::sumcheck",
++        "zkp_core::tables",
+         "zkp_core::transcript"
+       ],
+-      "module_count": 25,
++      "module_count": 27,
+       "roots": [
+         "layer",
+         "tables_v3"
+@@ -290,8 +300,8 @@
+     {
+       "count": 2,
+       "evidence": [
+-        "hashline/src/attention.rs:3417",
+-        "hashline/src/attention.rs:3418"
++        "hashline/src/attention.rs:3427",
++        "hashline/src/attention.rs:3428"
+       ],
+       "from": "attention",
+       "kind": "test",
+@@ -1150,7 +1160,7 @@
+       "count": 2,
+       "evidence": [
+         "hashline/src/layer.rs:20",
+-        "hashline/src/layer.rs:1090"
++        "hashline/src/layer.rs:1082"
+       ],
+       "from": "layer",
+       "kind": "normal",
+@@ -1160,7 +1170,7 @@
+       "count": 2,
+       "evidence": [
+         "hashline/src/layer.rs:21",
+-        "hashline/src/layer.rs:1090"
++        "hashline/src/layer.rs:1082"
+       ],
+       "from": "layer",
+       "kind": "normal",
+@@ -1169,10 +1179,10 @@
+     {
+       "count": 4,
+       "evidence": [
+-        "hashline/src/layer.rs:1225",
+-        "hashline/src/layer.rs:2347",
+-        "hashline/src/layer.rs:2351",
+-        "hashline/src/layer.rs:2352"
++        "hashline/src/layer.rs:1217",
++        "hashline/src/layer.rs:2161",
++        "hashline/src/layer.rs:2165",
++        "hashline/src/layer.rs:2166"
+       ],
+       "from": "layer",
+       "kind": "normal",
+@@ -1182,7 +1192,7 @@
+       "count": 2,
+       "evidence": [
+         "hashline/src/layer.rs:22",
+-        "hashline/src/layer.rs:346"
++        "hashline/src/layer.rs:338"
+       ],
+       "from": "layer",
+       "kind": "normal",
+@@ -1191,8 +1201,8 @@
+     {
+       "count": 2,
+       "evidence": [
+-        "hashline/src/layer.rs:1033",
+-        "hashline/src/layer.rs:2232"
++        "hashline/src/layer.rs:1025",
++        "hashline/src/layer.rs:2046"
+       ],
+       "from": "layer",
+       "kind": "test",
+@@ -1201,14 +1211,14 @@
+     {
+       "count": 24,
+       "evidence": [
+-        "hashline/src/layer.rs:233",
+-        "hashline/src/layer.rs:235",
+-        "hashline/src/layer.rs:454",
+-        "hashline/src/layer.rs:546",
+-        "hashline/src/layer.rs:547",
+-        "hashline/src/layer.rs:557",
+-        "hashline/src/layer.rs:558",
+-        "hashline/src/layer.rs:695"
++        "hashline/src/layer.rs:225",
++        "hashline/src/layer.rs:227",
++        "hashline/src/layer.rs:446",
++        "hashline/src/layer.rs:538",
++        "hashline/src/layer.rs:539",
++        "hashline/src/layer.rs:549",
++        "hashline/src/layer.rs:550",
++        "hashline/src/layer.rs:687"
+       ],
+       "from": "layer",
+       "kind": "gpu",
+@@ -1217,7 +1227,7 @@
+     {
+       "count": 1,
+       "evidence": [
+-        "hashline/src/layer.rs:448"
++        "hashline/src/layer.rs:440"
+       ],
+       "from": "layer",
+       "kind": "normal",
+@@ -1226,8 +1236,8 @@
+     {
+       "count": 2,
+       "evidence": [
+-        "hashline/src/layer.rs:562",
+-        "hashline/src/layer.rs:1600"
++        "hashline/src/layer.rs:554",
++        "hashline/src/layer.rs:1414"
+       ],
+       "from": "layer",
+       "kind": "gpu",
+@@ -1281,30 +1291,33 @@
+     {
+       "count": 1,
+       "evidence": [
+-        "hashline/src/layer.rs:1226"
++        "hashline/src/layer.rs:30"
+       ],
+       "from": "layer",
+       "kind": "normal",
+-      "to": "tables_v3"
++      "to": "transcript"
+     },
+     {
+-      "count": 1,
++      "count": 2,
+       "evidence": [
+-        "hashline/src/layer.rs:30"
++        "hashline/src/layer.rs:489",
++        "hashline/src/layer.rs:1316"
+       ],
+       "from": "layer",
+       "kind": "normal",
+-      "to": "transcript"
++      "to": "wcache"
+     },
+     {
+-      "count": 2,
++      "count": 4,
+       "evidence": [
+-        "hashline/src/layer.rs:497",
+-        "hashline/src/layer.rs:1502"
++        "hashline/src/layer.rs:51",
++        "hashline/src/layer.rs:55",
++        "hashline/src/layer.rs:58",
++        "hashline/src/layer.rs:60"
+       ],
+       "from": "layer",
+       "kind": "normal",
+-      "to": "wcache"
++      "to": "zkp_core::ffn_v3"
+     },
+     {
+       "count": 1,
+@@ -2018,6 +2031,51 @@
+       "kind": "normal",
+       "to": "public_block_receipt"
+     },
++    {
++      "count": 1,
++      "evidence": [
++        "hashline/src/silu.rs:46"
++      ],
++      "from": "silu",
++      "kind": "normal",
++      "to": "zkp_core::tables"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "hashline/src/stable_weight_slots.rs:15"
++      ],
++      "from": "stable_weight_slots",
++      "kind": "normal",
++      "to": "field"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "hashline/src/stable_weight_slots.rs:16"
++      ],
++      "from": "stable_weight_slots",
++      "kind": "normal",
++      "to": "merkle"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "hashline/src/stable_weight_slots.rs:17"
++      ],
++      "from": "stable_weight_slots",
++      "kind": "normal",
++      "to": "pcs"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "hashline/src/stable_weight_slots_tests.rs:2"
++      ],
++      "from": "stable_weight_slots::tests",
++      "kind": "test",
++      "to": "field"
++    },
+     {
+       "count": 1,
+       "evidence": [
+@@ -2040,11 +2098,11 @@
+     {
+       "count": 1,
+       "evidence": [
+-        "hashline/src/tables_v3.rs:127"
++        "hashline/src/tables_v3.rs:3"
+       ],
+       "from": "tables_v3",
+       "kind": "normal",
+-      "to": "silu"
++      "to": "zkp_core::tables"
+     },
+     {
+       "count": 2,
+@@ -2228,6 +2286,61 @@
+       "kind": "normal",
+       "to": "zk"
+     },
++    {
++      "count": 1,
++      "evidence": [
++        "hashline/tests/zk60_cl20_codec.rs:11"
++      ],
++      "from": "test:zk60_cl20_codec",
++      "kind": "normal",
++      "to": "export_v3"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "hashline/tests/zk60_cl20_codec.rs:12"
++      ],
++      "from": "test:zk60_cl20_codec",
++      "kind": "normal",
++      "to": "layer"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "hashline/tests/zk60_cl20_codec.rs:13"
++      ],
++      "from": "test:zk60_cl20_codec",
++      "kind": "normal",
++      "to": "ntt"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "hashline/tests/zk60_cl20_codec.rs:14"
++      ],
++      "from": "test:zk60_cl20_codec",
++      "kind": "normal",
++      "to": "tables_v3"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "hashline/tests/zk60_cl20_codec.rs:15"
++      ],
++      "from": "test:zk60_cl20_codec",
++      "kind": "normal",
++      "to": "transcript"
++    },
++    {
++      "count": 2,
++      "evidence": [
++        "hashline/tests/zk60_cl20_codec.rs:16",
++        "hashline/tests/zk60_cl20_codec.rs:122"
++      ],
++      "from": "test:zk60_cl20_codec",
++      "kind": "normal",
++      "to": "zkp_core::ffn_v3"
++    },
+     {
+       "count": 2,
+       "evidence": [
+@@ -3138,6 +3251,33 @@
+       "kind": "normal",
+       "to": "zk"
+     },
++    {
++      "count": 1,
++      "evidence": [
++        "hashline/tests/zk60_stable_weight_slots.rs:2"
++      ],
++      "from": "test:zk60_stable_weight_slots",
++      "kind": "normal",
++      "to": "field"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "hashline/tests/zk60_stable_weight_slots.rs:3"
++      ],
++      "from": "test:zk60_stable_weight_slots",
++      "kind": "normal",
++      "to": "pcs"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "hashline/tests/zk60_stable_weight_slots.rs:4"
++      ],
++      "from": "test:zk60_stable_weight_slots",
++      "kind": "normal",
++      "to": "stable_weight_slots"
++    },
+     {
+       "count": 1,
+       "evidence": [
+@@ -3496,6 +3636,96 @@
+       "kind": "normal",
+       "to": "zkp_core::transcript"
+     },
++    {
++      "count": 1,
++      "evidence": [
++        "zkp-core/src/ffn_v3/proof.rs:25"
++      ],
++      "from": "zkp_core::ffn_v3::proof",
++      "kind": "normal",
++      "to": "zkp_core::ffn_v3"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "zkp-core/src/ffn_v3/proof.rs:26"
++      ],
++      "from": "zkp_core::ffn_v3::proof",
++      "kind": "normal",
++      "to": "zkp_core::field"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "zkp-core/src/ffn_v3/proof.rs:27"
++      ],
++      "from": "zkp_core::ffn_v3::proof",
++      "kind": "normal",
++      "to": "zkp_core::merkle"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "zkp-core/src/ffn_v3/proof.rs:28"
++      ],
++      "from": "zkp_core::ffn_v3::proof",
++      "kind": "normal",
++      "to": "zkp_core::pcs"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "zkp-core/src/ffn_v3/proof.rs:29"
++      ],
++      "from": "zkp_core::ffn_v3::proof",
++      "kind": "normal",
++      "to": "zkp_core::sumcheck"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "zkp-core/src/ffn_v3/proof.rs:480"
++      ],
++      "from": "zkp_core::ffn_v3::proof",
++      "kind": "test",
++      "to": "zkp_core::tables"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "zkp-core/src/ffn_v3/statement.rs:14"
++      ],
++      "from": "zkp_core::ffn_v3::statement",
++      "kind": "normal",
++      "to": "zkp_core::field"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "zkp-core/src/ffn_v3/statement.rs:15"
++      ],
++      "from": "zkp_core::ffn_v3::statement",
++      "kind": "normal",
++      "to": "zkp_core::pcs"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "zkp-core/src/ffn_v3/statement.rs:16"
++      ],
++      "from": "zkp_core::ffn_v3::statement",
++      "kind": "normal",
++      "to": "zkp_core::tables"
++    },
++    {
++      "count": 1,
++      "evidence": [
++        "zkp-core/src/ffn_v3/statement.rs:17"
++      ],
++      "from": "zkp_core::ffn_v3::statement",
++      "kind": "normal",
++      "to": "zkp_core::transcript"
++    },
+     {
+       "count": 1,
+       "evidence": [
+@@ -3725,7 +3955,7 @@
+     "attention": {
+       "class": "application (attention half of the layer)",
+       "crate": "hashline",
+-      "declared_by": "hashline/src/lib.rs:60",
++      "declared_by": "hashline/src/lib.rs:62",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "attention_schedule",
+@@ -3756,16 +3986,16 @@
+         "chain_tests"
+       ],
+       "kind": "lib",
+-      "lines_code": 2872,
++      "lines_code": 2878,
+       "lines_gpu_gated": 0,
+       "lines_test": 29,
+-      "lines_total": 3438,
++      "lines_total": 3448,
+       "tests": 2
+     },
+     "attention_schedule": {
+       "class": "application (public execution metadata)",
+       "crate": "hashline",
+-      "declared_by": "hashline/src/lib.rs:49",
++      "declared_by": "hashline/src/lib.rs:51",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "attention"
+@@ -3830,7 +4060,7 @@
+     "causal_oracle": {
+       "class": "application (fixed causal block oracle)",
+       "crate": "hashline",
+-      "declared_by": "hashline/src/lib.rs:41",
++      "declared_by": "hashline/src/lib.rs:43",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "attention",
+@@ -4206,9 +4436,9 @@
+         "pcs",
+         "pcs_compact",
+         "sumcheck",
+-        "tables_v3",
+         "transcript",
+-        "wcache"
++        "wcache",
++        "zkp_core::ffn_v3"
+       ],
+       "deps_test_only": [],
+       "env_vars": [
+@@ -4225,10 +4455,10 @@
+         "hostbuf"
+       ],
+       "kind": "lib",
+-      "lines_code": 2034,
++      "lines_code": 1858,
+       "lines_gpu_gated": 147,
+       "lines_test": 2,
+-      "lines_total": 2384,
++      "lines_total": 2198,
+       "tests": 0
+     },
+     "lib": {
+@@ -4246,10 +4476,10 @@
+       "gate": null,
+       "inline_mods": [],
+       "kind": "lib",
+-      "lines_code": 30,
++      "lines_code": 31,
+       "lines_gpu_gated": 0,
+       "lines_test": 0,
+-      "lines_total": 60,
++      "lines_total": 62,
+       "tests": 0
+     },
+     "merkle": {
+@@ -4330,7 +4560,7 @@
+     "norm": {
+       "class": "application (RMSNorm gadget)",
+       "crate": "hashline",
+-      "declared_by": "hashline/src/lib.rs:59",
++      "declared_by": "hashline/src/lib.rs:61",
+       "deps_gpu_only": [],
+       "deps_normal": [],
+       "deps_test_only": [],
+@@ -4441,7 +4671,7 @@
+     "phase_profile": {
+       "class": "adapter (timing instrumentation)",
+       "crate": "hashline",
+-      "declared_by": "hashline/src/lib.rs:40",
++      "declared_by": "hashline/src/lib.rs:42",
+       "deps_gpu_only": [],
+       "deps_normal": [],
+       "deps_test_only": [],
+@@ -4464,7 +4694,7 @@
+     "private_block_contract": {
+       "class": "application (P1 block metadata preflight)",
+       "crate": "hashline",
+-      "declared_by": "hashline/src/lib.rs:51",
++      "declared_by": "hashline/src/lib.rs:53",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "attention",
+@@ -4497,7 +4727,7 @@
+     "private_seam": {
+       "class": "experiment (one-shot private equality gadget)",
+       "crate": "hashline",
+-      "declared_by": "hashline/src/lib.rs:39",
++      "declared_by": "hashline/src/lib.rs:41",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "field",
+@@ -4527,7 +4757,7 @@
+     "public_block_oracle": {
+       "class": "application (public P0 block)",
+       "crate": "hashline",
+-      "declared_by": "hashline/src/lib.rs:43",
++      "declared_by": "hashline/src/lib.rs:45",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "attention",
+@@ -4558,7 +4788,7 @@
+     "public_block_receipt": {
+       "class": "application (B3/B4 receipt)",
+       "crate": "hashline",
+-      "declared_by": "hashline/src/lib.rs:46",
++      "declared_by": "hashline/src/lib.rs:48",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "attention",
+@@ -4592,7 +4822,7 @@
+     "public_block_wire": {
+       "class": "application (bounded public-block codec)",
+       "crate": "hashline",
+-      "declared_by": "hashline/src/lib.rs:45",
++      "declared_by": "hashline/src/lib.rs:47",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "attention",
+@@ -4621,7 +4851,7 @@
+     "public_chain_receipt": {
+       "class": "application (B5 two-block chain receipt)",
+       "crate": "hashline",
+-      "declared_by": "hashline/src/lib.rs:47",
++      "declared_by": "hashline/src/lib.rs:49",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "causal_oracle",
+@@ -4649,7 +4879,9 @@
+       "crate": "hashline",
+       "declared_by": "hashline/src/lib.rs:18",
+       "deps_gpu_only": [],
+-      "deps_normal": [],
++      "deps_normal": [
++        "zkp_core::tables"
++      ],
+       "deps_test_only": [],
+       "env_vars": [],
+       "externals": [
+@@ -4661,12 +4893,60 @@
+         "tests"
+       ],
+       "kind": "lib",
+-      "lines_code": 60,
++      "lines_code": 58,
+       "lines_gpu_gated": 0,
+       "lines_test": 13,
+-      "lines_total": 79,
++      "lines_total": 78,
+       "tests": 1
+     },
++    "stable_weight_slots": {
++      "class": "unclassified",
++      "crate": "hashline",
++      "declared_by": "hashline/src/lib.rs:39",
++      "deps_gpu_only": [],
++      "deps_normal": [
++        "field",
++        "merkle",
++        "pcs"
++      ],
++      "deps_test_only": [],
++      "env_vars": [],
++      "externals": [
++        "blake3"
++      ],
++      "file": "hashline/src/stable_weight_slots.rs",
++      "gate": null,
++      "inline_mods": [],
++      "kind": "lib",
++      "lines_code": 294,
++      "lines_gpu_gated": 0,
++      "lines_test": 1,
++      "lines_total": 360,
++      "tests": 0
++    },
++    "stable_weight_slots::tests": {
++      "class": "unclassified",
++      "crate": "hashline",
++      "declared_by": "hashline/src/stable_weight_slots.rs:360",
++      "deps_gpu_only": [],
++      "deps_normal": [],
++      "deps_test_only": [
++        "field"
++      ],
++      "env_vars": [],
++      "externals": [
++        "(std only)"
++      ],
++      "file": "hashline/src/stable_weight_slots_tests.rs",
++      "gate": "test",
++      "inline_mods": [],
++      "kind": "lib",
++      "lines_code": 274,
++      "lines_gpu_gated": 0,
++      "lines_test": 266,
++      "lines_total": 284,
++      "tests": 7
++    },
+     "sumcheck": {
+       "class": "core",
+       "crate": "hashline",
+@@ -4693,7 +4973,7 @@
+     "tables_attn": {
+       "class": "application (attention tables)",
+       "crate": "hashline",
+-      "declared_by": "hashline/src/lib.rs:58",
++      "declared_by": "hashline/src/lib.rs:60",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "silu"
+@@ -4721,24 +5001,22 @@
+       "declared_by": "hashline/src/lib.rs:33",
+       "deps_gpu_only": [],
+       "deps_normal": [
+-        "silu"
++        "zkp_core::tables"
+       ],
+       "deps_test_only": [],
+       "env_vars": [],
+       "externals": [
+-        "sha2"
++        "(std only)"
+       ],
+       "file": "hashline/src/tables_v3.rs",
+       "gate": null,
+-      "inline_mods": [
+-        "tests"
+-      ],
++      "inline_mods": [],
+       "kind": "lib",
+-      "lines_code": 132,
++      "lines_code": 1,
+       "lines_gpu_gated": 0,
+-      "lines_test": 15,
+-      "lines_total": 176,
+-      "tests": 1
++      "lines_test": 0,
++      "lines_total": 3,
++      "tests": 0
+     },
+     "test:cli_claims": {
+       "class": "unclassified",
+@@ -4829,6 +5107,34 @@
+       "lines_total": 427,
+       "tests": 7
+     },
++    "test:zk60_cl20_codec": {
++      "class": "unclassified",
++      "crate": "hashline",
++      "declared_by": null,
++      "deps_gpu_only": [],
++      "deps_normal": [
++        "export_v3",
++        "layer",
++        "ntt",
++        "tables_v3",
++        "transcript",
++        "zkp_core::ffn_v3"
++      ],
++      "deps_test_only": [],
++      "env_vars": [],
++      "externals": [
++        "(std only)"
++      ],
++      "file": "hashline/tests/zk60_cl20_codec.rs",
++      "gate": null,
++      "inline_mods": [],
++      "kind": "test",
++      "lines_code": 150,
++      "lines_gpu_gated": 0,
++      "lines_test": 0,
++      "lines_total": 185,
++      "tests": 3
++    },
+     "test:zk60_gpu_cache": {
+       "class": "unclassified",
+       "crate": "hashline",
+@@ -5131,11 +5437,11 @@
+       "gate": null,
+       "inline_mods": [],
+       "kind": "test",
+-      "lines_code": 255,
++      "lines_code": 297,
+       "lines_gpu_gated": 0,
+       "lines_test": 0,
+-      "lines_total": 276,
+-      "tests": 6
++      "lines_total": 322,
++      "tests": 7
+     },
+     "test:zk60_public_chain": {
+       "class": "unclassified",
+@@ -5273,6 +5579,33 @@
+       "lines_total": 551,
+       "tests": 7
+     },
++    "test:zk60_stable_weight_slots": {
++      "class": "unclassified",
++      "crate": "hashline",
++      "declared_by": null,
++      "deps_gpu_only": [],
++      "deps_normal": [
++        "field",
++        "pcs",
++        "stable_weight_slots"
++      ],
++      "deps_test_only": [],
++      "env_vars": [
++        "HL_TEST_SLOT_MODE"
++      ],
++      "externals": [
++        "(std only)"
++      ],
++      "file": "hashline/tests/zk60_stable_weight_slots.rs",
++      "gate": null,
++      "inline_mods": [],
++      "kind": "test",
++      "lines_code": 191,
++      "lines_gpu_gated": 0,
++      "lines_test": 0,
++      "lines_total": 201,
++      "tests": 3
++    },
+     "transcript": {
+       "class": "core",
+       "crate": "hashline",
+@@ -5299,7 +5632,7 @@
+     "wcache": {
+       "class": "adapter (per-model weight-commitment cache)",
+       "crate": "hashline",
+-      "declared_by": "hashline/src/lib.rs:54",
++      "declared_by": "hashline/src/lib.rs:56",
+       "deps_gpu_only": [
+         "gpu"
+       ],
+@@ -5498,10 +5831,90 @@
+       "lines_total": 28,
+       "tests": 0
+     },
++    "zkp_core::ffn_v3": {
++      "class": "unclassified",
++      "crate": "zkp_core",
++      "declared_by": "zkp-core/src/lib.rs:15",
++      "deps_gpu_only": [],
++      "deps_normal": [],
++      "deps_test_only": [],
++      "env_vars": [],
++      "externals": [
++        "(std only)"
++      ],
++      "file": "zkp-core/src/ffn_v3/mod.rs",
++      "gate": null,
++      "inline_mods": [],
++      "kind": "lib",
++      "lines_code": 9,
++      "lines_gpu_gated": 0,
++      "lines_test": 0,
++      "lines_total": 26,
++      "tests": 0
++    },
++    "zkp_core::ffn_v3::proof": {
++      "class": "unclassified",
++      "crate": "zkp_core",
++      "declared_by": "zkp-core/src/ffn_v3/mod.rs:14",
++      "deps_gpu_only": [],
++      "deps_normal": [
++        "zkp_core::ffn_v3",
++        "zkp_core::field",
++        "zkp_core::merkle",
++        "zkp_core::pcs",
++        "zkp_core::sumcheck"
++      ],
++      "deps_test_only": [
++        "zkp_core::tables"
++      ],
++      "env_vars": [],
++      "externals": [
++        "(std only)"
++      ],
++      "file": "zkp-core/src/ffn_v3/proof.rs",
++      "gate": null,
++      "inline_mods": [
++        "tests"
++      ],
++      "kind": "lib",
++      "lines_code": 529,
++      "lines_gpu_gated": 0,
++      "lines_test": 133,
++      "lines_total": 629,
++      "tests": 3
++    },
++    "zkp_core::ffn_v3::statement": {
++      "class": "unclassified",
++      "crate": "zkp_core",
++      "declared_by": "zkp-core/src/ffn_v3/mod.rs:15",
++      "deps_gpu_only": [],
++      "deps_normal": [
++        "zkp_core::field",
++        "zkp_core::pcs",
++        "zkp_core::tables",
++        "zkp_core::transcript"
++      ],
++      "deps_test_only": [],
++      "env_vars": [],
++      "externals": [
++        "(std only)"
++      ],
++      "file": "zkp-core/src/ffn_v3/statement.rs",
++      "gate": null,
++      "inline_mods": [
++        "tests"
++      ],
++      "kind": "lib",
++      "lines_code": 178,
++      "lines_gpu_gated": 0,
++      "lines_test": 29,
++      "lines_total": 223,
++      "tests": 2
++    },
+     "zkp_core::field": {
+       "class": "core (canonical)",
+       "crate": "zkp_core",
+-      "declared_by": "zkp-core/src/lib.rs:12",
++      "declared_by": "zkp-core/src/lib.rs:16",
+       "deps_gpu_only": [],
+       "deps_normal": [],
+       "deps_test_only": [],
+@@ -5536,16 +5949,16 @@
+       "gate": null,
+       "inline_mods": [],
+       "kind": "lib",
+-      "lines_code": 8,
++      "lines_code": 10,
+       "lines_gpu_gated": 0,
+       "lines_test": 0,
+-      "lines_total": 19,
++      "lines_total": 24,
+       "tests": 0
+     },
+     "zkp_core::merkle": {
+       "class": "core (canonical)",
+       "crate": "zkp_core",
+-      "declared_by": "zkp-core/src/lib.rs:13",
++      "declared_by": "zkp-core/src/lib.rs:17",
+       "deps_gpu_only": [],
+       "deps_normal": [],
+       "deps_test_only": [],
+@@ -5569,7 +5982,7 @@
+     "zkp_core::mle": {
+       "class": "core (canonical)",
+       "crate": "zkp_core",
+-      "declared_by": "zkp-core/src/lib.rs:14",
++      "declared_by": "zkp-core/src/lib.rs:18",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "zkp_core::field"
+@@ -5594,7 +6007,7 @@
+     "zkp_core::ntt": {
+       "class": "core (canonical)",
+       "crate": "zkp_core",
+-      "declared_by": "zkp-core/src/lib.rs:15",
++      "declared_by": "zkp-core/src/lib.rs:19",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "zkp_core::field"
+@@ -5619,7 +6032,7 @@
+     "zkp_core::pcs": {
+       "class": "core (canonical Ligero commitment)",
+       "crate": "zkp_core",
+-      "declared_by": "zkp-core/src/lib.rs:16",
++      "declared_by": "zkp-core/src/lib.rs:20",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "zkp_core::field",
+@@ -5677,7 +6090,7 @@
+     "zkp_core::rng": {
+       "class": "core (canonical randomness)",
+       "crate": "zkp_core",
+-      "declared_by": "zkp-core/src/lib.rs:17",
++      "declared_by": "zkp-core/src/lib.rs:21",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "zkp_core::field"
+@@ -5702,7 +6115,7 @@
+     "zkp_core::sumcheck": {
+       "class": "core (canonical)",
+       "crate": "zkp_core",
+-      "declared_by": "zkp-core/src/lib.rs:18",
++      "declared_by": "zkp-core/src/lib.rs:22",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "zkp_core::field",
+@@ -5728,10 +6141,33 @@
+       "lines_total": 520,
+       "tests": 4
+     },
++    "zkp_core::tables": {
++      "class": "unclassified",
++      "crate": "zkp_core",
++      "declared_by": "zkp-core/src/lib.rs:23",
++      "deps_gpu_only": [],
++      "deps_normal": [],
++      "deps_test_only": [],
++      "env_vars": [],
++      "externals": [
++        "sha2"
++      ],
++      "file": "zkp-core/src/tables.rs",
++      "gate": null,
++      "inline_mods": [
++        "tests"
++      ],
++      "kind": "lib",
++      "lines_code": 135,
++      "lines_gpu_gated": 0,
++      "lines_test": 15,
++      "lines_total": 185,
++      "tests": 1
++    },
+     "zkp_core::transcript": {
+       "class": "core (canonical)",
+       "crate": "zkp_core",
+-      "declared_by": "zkp-core/src/lib.rs:19",
++      "declared_by": "zkp-core/src/lib.rs:24",
+       "deps_gpu_only": [],
+       "deps_normal": [
+         "zkp_core::field"
+@@ -5760,35 +6196,39 @@
+       "cross_crate_edges": [
+         "field->zkp_core::field",
+         "gpu->zkp_core::pcs",
++        "layer->zkp_core::ffn_v3",
+         "merkle->zkp_core::merkle",
+         "mle->zkp_core::mle",
+         "ntt->zkp_core::ntt",
+         "pcs->zkp_core::pcs",
+         "pcs->zkp_core::rng",
++        "silu->zkp_core::tables",
+         "sumcheck->zkp_core::sumcheck",
++        "tables_v3->zkp_core::tables",
++        "test:zk60_cl20_codec->zkp_core::ffn_v3",
+         "transcript->zkp_core::transcript",
+         "zk->zkp_core::rng"
+       ],
+-      "edge_records": 342,
++      "edge_records": 356,
+       "example_files": 4,
+-      "integration_test_files": 18,
+-      "library_code_lines": 19011,
++      "integration_test_files": 20,
++      "library_code_lines": 19277,
+       "library_gpu_gated_lines": 3040,
+-      "library_modules": 37,
+-      "library_test_lines": 2127,
+-      "nodes": 60
++      "library_modules": 39,
++      "library_test_lines": 2379,
++      "nodes": 64
+     },
+     "zkp_core": {
+       "binary_code_lines": 0,
+       "cross_crate_edges": [],
+-      "edge_records": 28,
++      "edge_records": 38,
+       "example_files": 1,
+       "integration_test_files": 0,
+-      "library_code_lines": 2472,
++      "library_code_lines": 3325,
+       "library_gpu_gated_lines": 0,
+-      "library_modules": 10,
+-      "library_test_lines": 623,
+-      "nodes": 11
++      "library_modules": 14,
++      "library_test_lines": 800,
++      "nodes": 15
+     }
+   },
+   "primary_crate": "hashline",
+@@ -5797,45 +6237,53 @@
+     "cross_crate_edges": [
+       "field->zkp_core::field",
+       "gpu->zkp_core::pcs",
++      "layer->zkp_core::ffn_v3",
+       "merkle->zkp_core::merkle",
+       "mle->zkp_core::mle",
+       "ntt->zkp_core::ntt",
+       "pcs->zkp_core::pcs",
+       "pcs->zkp_core::rng",
++      "silu->zkp_core::tables",
+       "sumcheck->zkp_core::sumcheck",
++      "tables_v3->zkp_core::tables",
++      "test:zk60_cl20_codec->zkp_core::ffn_v3",
+       "transcript->zkp_core::transcript",
+       "zk->zkp_core::rng"
+     ],
+-    "edge_records": 342,
++    "edge_records": 356,
+     "example_files": 4,
+-    "integration_test_files": 18,
+-    "library_code_lines": 19011,
++    "integration_test_files": 20,
++    "library_code_lines": 19277,
+     "library_gpu_gated_lines": 3040,
+-    "library_modules": 37,
+-    "library_test_lines": 2127,
+-    "nodes": 60
++    "library_modules": 39,
++    "library_test_lines": 2379,
++    "nodes": 64
+   },
+   "total": {
+     "binary_code_lines": 1623,
+     "cross_crate_edges": [
+       "field->zkp_core::field",
+       "gpu->zkp_core::pcs",
++      "layer->zkp_core::ffn_v3",
+       "merkle->zkp_core::merkle",
+       "mle->zkp_core::mle",
+       "ntt->zkp_core::ntt",
+       "pcs->zkp_core::pcs",
+       "pcs->zkp_core::rng",
++      "silu->zkp_core::tables",
+       "sumcheck->zkp_core::sumcheck",
++      "tables_v3->zkp_core::tables",
++      "test:zk60_cl20_codec->zkp_core::ffn_v3",
+       "transcript->zkp_core::transcript",
+       "zk->zkp_core::rng"
+     ],
+-    "edge_records": 370,
++    "edge_records": 394,
+     "example_files": 5,
+-    "integration_test_files": 18,
+-    "library_code_lines": 21483,
++    "integration_test_files": 20,
++    "library_code_lines": 22602,
+     "library_gpu_gated_lines": 3040,
+-    "library_modules": 47,
+-    "library_test_lines": 2750,
+-    "nodes": 71
++    "library_modules": 53,
++    "library_test_lines": 3179,
++    "nodes": 79
+   }
+ }
+diff --git a/zkp-core/ffn_v3_migration.json b/zkp-core/ffn_v3_migration.json
+new file mode 100644
+index 0000000..04e99eb
+--- /dev/null
++++ b/zkp-core/ffn_v3_migration.json
+@@ -0,0 +1,95 @@
++{
++  "source_pin": "f61ee77",
++  "moved": [
++    {
++      "module": "tables",
++      "original": "hashline/src/tables_v3.rs",
++      "original_sha256": "1dfe92dda380823532f6b1ff1f541b52cebf191d0ab976ac0b3d640a9d5bb4e6",
++      "core": "zkp-core/src/tables.rs",
++      "core_sha256": "8cc95bc8b576907a99f24755cd9d16ea8904cd9ccc514f32f471a95ca8f13e50",
++      "adjustments": [
++        "silu::hex moved in (five lines)",
++        "one test moved"
++      ]
++    },
++    {
++      "module": "ffn_v3::statement",
++      "original": "hashline/src/layer.rs (LayerParams; TAG_ACT16..pow2_signed; StatementV3; LayoutV3; absorb_statement_v3; absorb_com; absorb_mults)",
++      "original_sha256": "f0931f6364daabe38011dc3aa0101fd9cfe2525c225e9e531556e6da536d02d7",
++      "core": "zkp-core/src/ffn_v3/statement.rs",
++      "core_sha256": "dd65d3276afe3960babc2c2d451a804369170fcf41458f2ada62dece5c106421",
++      "adjustments": [
++        "names without the V3 suffix (Params, Statement, Layout, absorb_statement); hashline re-exports the legacy names",
++        "Layout::check and Params::check added; Layout::new keeps its panic text",
++        "s_f/s_d/s_w and pcs_for made pub",
++        "two tests added"
++      ]
++    },
++    {
++      "module": "ffn_v3::proof",
++      "original": "hashline/src/layer.rs (LayerProofV3, size_bytes, to_bytes)",
++      "original_sha256": "f0931f6364daabe38011dc3aa0101fd9cfe2525c225e9e531556e6da536d02d7",
++      "core": "zkp-core/src/ffn_v3/proof.rs",
++      "core_sha256": "3d235050d28d7a8c24edd6d694312f5550280d83dad9bd344b6ffce8366f5b80",
++      "adjustments": [
++        "Proof<X = NoExtra>: the compact-PCS slot cpcs_open is generic (ExtraOpening); hashline's LayerProofV3 = Proof<pcs_compact::BatchOpening>",
++        "NEW: Shape, OpeningShape, DecodeError, Proof::from_bytes (shape-directed bounded decoder); three tests"
++      ]
++    }
++  ],
++  "new": [
++    {
++      "module": "ffn_v3",
++      "path": "zkp-core/src/ffn_v3/mod.rs",
++      "sha256": "f87236a4ab3466e31ae883cf9b2f3166887ca7aa5f831b54a936dca40068fd19"
++    },
++    {
++      "test": "hashline/tests/zk60_cl20_codec.rs",
++      "sha256": "0352721645160f678e14bea27829bc72a08c747a1af703a06a1532c6baad3127"
++    }
++  ],
++  "adapters": [
++    {
++      "path": "hashline/src/layer.rs",
++      "original_sha256": "f0931f6364daabe38011dc3aa0101fd9cfe2525c225e9e531556e6da536d02d7",
++      "adapter_sha256": "d66c385d87b86e95e3140422f6fa4f3156f2c25395a70a65794377d30807326f"
++    },
++    {
++      "path": "hashline/src/tables_v3.rs",
++      "original_sha256": "1dfe92dda380823532f6b1ff1f541b52cebf191d0ab976ac0b3d640a9d5bb4e6",
++      "adapter_sha256": "726c9355f9e663ef1a43dc9efe17cb2c85aa3583977d0c794dad4cf21a24715d"
++    },
++    {
++      "path": "hashline/src/silu.rs",
++      "original_sha256": "66338f5bcaebdd893f65623c4702ed7faf869de8dbae3c8d56cee8f52e95e0a1",
++      "adapter_sha256": "b4e396f46f3d57431171e7767ab8a60a19f4096eab5dc1deca23dbadb01c2cc0"
++    },
++    {
++      "path": "zkp-core/src/lib.rs",
++      "original_sha256": "8cda0bf78e46499e72ba363c1b719689bff2ea51e1e95f18ee223d44e0ea44c2",
++      "adapter_sha256": "1c2a6ce1755df396d0e9f8c87eece27ac23657a24005b6d286ab5f551b7453fa"
++    },
++    {
++      "path": "zkp-core/Cargo.toml",
++      "original_sha256": "d87e36dec770a55e37c0b271c0e444afef11c1a640684ebe0c46d69d1aee93d7",
++      "adapter_sha256": "b9038a52f34e0ee8313aa93eec656ff62ea29571a04b3df7f3db349d623ba842"
++    },
++    {
++      "path": "zkp-core/Cargo.lock",
++      "original_sha256": "4ff606b9c497d9040dde49c4d226ebcb5b91c82e98e815a4a6e1d1d88cf1d006",
++      "adapter_sha256": "24fb1de3953c017d54113014882b05c4c52b941f900ef50f3c2554f06523fc7b"
++    }
++  ],
++  "untouched_consumers": [
++    "hashline/src/zk.rs",
++    "hashline/src/public_block_wire.rs",
++    "hashline/src/public_block_oracle.rs",
++    "hashline/src/model_identity.rs",
++    "hashline/src/causal_oracle.rs",
++    "hashline/src/private_block_contract.rs",
++    "hashline/src/export_v3.rs",
++    "hashline/src/bin/hashline.rs",
++    "every existing test under hashline/tests"
++  ],
++  "validation": "results/zk60_cl20_ffn_v3_validation.json"
++}
+diff --git a/zkp-core/src/ffn_v3/mod.rs b/zkp-core/src/ffn_v3/mod.rs
+new file mode 100644
+index 0000000..c4a7e7e
+--- /dev/null
++++ b/zkp-core/src/ffn_v3/mod.rs
+@@ -0,0 +1,26 @@
++//! The selected profile of the maintained core: the non-hiding v3 FFN
++//! layer proof (`hashline pass --profile v3`; frozen 12 x 512 digest
++//! `5f368db6…`, 70,758,084 B). Privacy class P0: W, A and H are committed
++//! but nothing is hidden; it is attested computation over a committed
++//! witness, not zero-knowledge.
++//!
++//! Round 12 moves the typed pieces: the statement, parameters and layout
++//! ([`statement`]) and the proof object with its frozen encoding and a
++//! shape-directed bounded decoder ([`proof`]). The prover and verifier
++//! (`hashline::layer::{prove_layer_v3, verify_layer_v3}`) still live in
++//! hashline and consume these types through re-exports; see
++//! `MIGRATION.md`, "The next step in detail", for what blocks their move.
++
++pub mod proof;
++pub mod statement;
++
++pub use proof::{DecodeError, ExtraOpening, NoExtra, OpeningShape, Proof, Shape, MATMUL_DEGREE, ZEROCHECK_DEGREE};
++pub use statement::{
++    absorb_com, absorb_mults, absorb_statement, pow2_signed, rem_index, rem_rows, rem_value, tag_rem_v3, Layout, Params, Statement,
++    TAG_ACT16, TAG_INT16,
++};
++
++/// The transcript domain of one layer proof (`hashline layer`).
++pub const DOMAIN_LAYER: &[u8] = b"hashline-layer-v3";
++/// The transcript domain of the twelve-layer pass (`hashline pass`).
++pub const DOMAIN_PASS: &[u8] = b"hashline-pass-v3";
+diff --git a/zkp-core/src/ffn_v3/proof.rs b/zkp-core/src/ffn_v3/proof.rs
+new file mode 100644
+index 0000000..050416d
+--- /dev/null
++++ b/zkp-core/src/ffn_v3/proof.rs
+@@ -0,0 +1,629 @@
++//! The proof object of the non-hiding v3 FFN layer proof, its frozen byte
++//! encoding and a shape-directed bounded decoder.
++//!
++//! `Proof` and `size_bytes` / `to_bytes` are `LayerProofV3` of
++//! `hashline/src/layer.rs` (CL20, round 12), unchanged except for the type
++//! of the last field: the legacy struct carried
++//! `cpcs_open: Option<pcs_compact::BatchOpening>`, the ONE batched opening
++//! of hashline's compact-PCS experiment (`--pcs compact`). The core does not
++//! name that experiment; the slot is generic, `Proof<X = NoExtra>`, and
++//! hashline's `LayerProofV3` is `Proof<pcs_compact::BatchOpening>`, so its
++//! consumers and bytes are unchanged while a core proof cannot carry one
++//! (`NoExtra` has no values).
++//!
++//! The encoding has no length prefixes and no envelope: every field's size
++//! is a function of `(Statement, Params)` ([`Shape`]), which is what makes
++//! [`Proof::from_bytes`] bounded. It reads exactly the shape, and refuses
++//! short input, trailing bytes, a commitment whose `rows`/`log_cols` disagree
++//! with the layout, a multiplicity table with the wrong tag or length, a
++//! column index `>= enc_cols`, and any 8-byte word read as a field element
++//! that is not the canonical representative (`>= P`; `Fp::new` would reduce
++//! it silently and `to_bytes(from_bytes(b)) != b`). It never panics on
++//! input bytes; the statement and parameters are trusted public inputs whose
++//! own rule is `Layout::check` / `Params::check`.
++
++use super::statement::{rem_rows, tag_rem_v3, Layout, Params, Statement, TAG_ACT16, TAG_INT16};
++use crate::field::{Fp, Fp2, P};
++use crate::merkle::Digest;
++use crate::pcs::{Commitment, Opening, PcsParams};
++use crate::sumcheck::SumcheckProof;
++use std::fmt;
++
++/// What the proof's optional extra opening must be able to do: count and
++/// write its frozen bytes after the three Ligero openings.
++pub trait ExtraOpening {
++    fn size_bytes(&self) -> usize;
++    fn write_bytes(&self, out: &mut Vec<u8>);
++}
++
++/// The core's extra opening: none exists.
++#[derive(Clone, Debug)]
++pub enum NoExtra {}
++
++impl ExtraOpening for NoExtra {
++    fn size_bytes(&self) -> usize {
++        match *self {}
++    }
++    fn write_bytes(&self, _out: &mut Vec<u8>) {
++        match *self {}
++    }
++}
++
++#[derive(Clone, Debug)]
++pub struct Proof<X = NoExtra> {
++    pub w_com: Option<Commitment>,
++    pub a_com: Option<Commitment>,
++    pub h_com: Option<Commitment>,
++    pub mults: Vec<(u64, Vec<u32>)>,
++    pub gu_claims: Vec<Fp2>,
++    pub gu_sc: SumcheckProof,
++    pub gu_term: Vec<Fp2>,
++    pub d_claims: Vec<Fp2>,
++    pub d_sc: SumcheckProof,
++    pub d_term: Vec<Fp2>,
++    pub zcf_sc: SumcheckProof,
++    pub zcf_term: Vec<Fp2>,
++    pub zcd_sc: SumcheckProof,
++    pub zcd_term: Vec<Fp2>,
++    pub helper_sums: Vec<Fp2>,
++    pub w_open: Opening,
++    pub a_open: Opening,
++    pub h_open: Opening,
++    /// [UPERF3-AF] under hashline's `--pcs compact`: the ONE batched opening of W, A and H
++    /// (the three above stay empty). The field keeps its legacy name for those consumers.
++    pub cpcs_open: Option<X>,
++}
++
++impl<X> Default for Proof<X> {
++    fn default() -> Proof<X> {
++        Proof {
++            w_com: None,
++            a_com: None,
++            h_com: None,
++            mults: Vec::new(),
++            gu_claims: Vec::new(),
++            gu_sc: SumcheckProof::default(),
++            gu_term: Vec::new(),
++            d_claims: Vec::new(),
++            d_sc: SumcheckProof::default(),
++            d_term: Vec::new(),
++            zcf_sc: SumcheckProof::default(),
++            zcf_term: Vec::new(),
++            zcd_sc: SumcheckProof::default(),
++            zcd_term: Vec::new(),
++            helper_sums: Vec::new(),
++            w_open: Opening::default(),
++            a_open: Opening::default(),
++            h_open: Opening::default(),
++            cpcs_open: None,
++        }
++    }
++}
++
++impl<X: ExtraOpening> Proof<X> {
++    pub fn size_bytes(&self) -> usize {
++        let coms = 3 * (32 + 8 + 4);
++        let mults: usize = self.mults.iter().map(|(_, m)| 8 + 4 + m.len() * 4).sum();
++        let f2 = |v: &Vec<Fp2>| v.len() * 16;
++        coms + mults + f2(&self.gu_claims) + self.gu_sc.size_bytes() + f2(&self.gu_term)
++            + f2(&self.d_claims) + self.d_sc.size_bytes() + f2(&self.d_term)
++            + self.zcf_sc.size_bytes() + f2(&self.zcf_term) + self.zcd_sc.size_bytes() + f2(&self.zcd_term)
++            + f2(&self.helper_sums) + self.w_open.size_bytes() + self.a_open.size_bytes() + self.h_open.size_bytes()
++            + self.cpcs_open.as_ref().map(|b| b.size_bytes()).unwrap_or(0)
++    }
++    /// The flat little-endian encoding `size_bytes` counts (the CPU/GPU byte-identity gate).
++    pub fn to_bytes(&self) -> Vec<u8> {
++        let mut out = Vec::with_capacity(self.size_bytes());
++        let com = |out: &mut Vec<u8>, c: &Option<Commitment>| {
++            let c = c.as_ref().expect("commitment");
++            out.extend_from_slice(&c.root);
++            out.extend_from_slice(&(c.rows as u64).to_le_bytes());
++            out.extend_from_slice(&c.log_cols.to_le_bytes());
++        };
++        com(&mut out, &self.w_com);
++        com(&mut out, &self.a_com);
++        com(&mut out, &self.h_com);
++        for (tag, m) in &self.mults {
++            out.extend_from_slice(&tag.to_le_bytes());
++            out.extend_from_slice(&(m.len() as u32).to_le_bytes());
++            for v in m { out.extend_from_slice(&v.to_le_bytes()); }
++        }
++        let f2 = |out: &mut Vec<u8>, v: &Vec<Fp2>| { for x in v { out.extend_from_slice(&x.to_bytes()); } };
++        f2(&mut out, &self.gu_claims);
++        self.gu_sc.write_bytes(&mut out);
++        f2(&mut out, &self.gu_term);
++        f2(&mut out, &self.d_claims);
++        self.d_sc.write_bytes(&mut out);
++        f2(&mut out, &self.d_term);
++        self.zcf_sc.write_bytes(&mut out);
++        f2(&mut out, &self.zcf_term);
++        self.zcd_sc.write_bytes(&mut out);
++        f2(&mut out, &self.zcd_term);
++        f2(&mut out, &self.helper_sums);
++        self.w_open.write_bytes(&mut out);
++        self.a_open.write_bytes(&mut out);
++        self.h_open.write_bytes(&mut out);
++        if let Some(b) = &self.cpcs_open { b.write_bytes(&mut out); } // [UPERF3-AF]
++        debug_assert_eq!(out.len(), self.size_bytes());
++        out
++    }
++}
++
++// ---------------------------------------------------------------------------
++// the shape: every field length as a function of (Statement, Params)
++// ---------------------------------------------------------------------------
++
++/// The matmul sumchecks (`gu`, `d`) are degree 2; the zero-checks degree 4.
++pub const MATMUL_DEGREE: usize = 2;
++pub const ZEROCHECK_DEGREE: usize = 4;
++
++/// One Ligero opening's shape: its parameters, the committed rows and the
++/// number of column-weight groups the claim builder forms (W: the `p3` and
++/// `p6` points; A: `rho_f` and `rho_d`; H: `rho_f`, `rho_d` and the sums).
++#[derive(Clone, Copy, Debug)]
++pub struct OpeningShape {
++    pub pcs: PcsParams,
++    pub rows: usize,
++    pub groups: usize,
++}
++
++impl OpeningShape {
++    pub fn cols(&self) -> usize { self.pcs.cols() }
++    pub fn enc_cols(&self) -> usize { self.pcs.enc_cols() }
++    /// Merkle path length over `enc_cols` leaves (a power of two).
++    pub fn path_len(&self) -> usize { self.enc_cols().trailing_zeros() as usize }
++    pub fn column_bytes(&self) -> usize { 8 + self.rows * 8 + self.path_len() * 32 }
++    pub fn bytes(&self) -> usize { (self.groups + 1) * self.cols() * 16 + self.pcs.num_col_checks * self.column_bytes() }
++}
++
++/// The proof shape of `(Statement, Params)`.
++#[derive(Clone, Debug)]
++pub struct Shape {
++    /// (tag, entries) of every multiplicity table, in proof order.
++    pub mults: Vec<(u64, usize)>,
++    pub gu_claims: usize,
++    pub gu_rounds: usize,
++    pub gu_term: usize,
++    pub d_claims: usize,
++    pub d_rounds: usize,
++    pub d_term: usize,
++    pub zcf_rounds: usize,
++    pub zcf_term: usize,
++    pub zcd_rounds: usize,
++    pub zcd_term: usize,
++    pub helper_sums: usize,
++    pub w: OpeningShape,
++    pub a: OpeningShape,
++    pub h: OpeningShape,
++}
++
++impl Params {
++    /// The parameter rule the decoder relies on: `inv_rate` a power of two
++    /// (the Merkle tree is over `cols * inv_rate` leaves), `log_cols` and
++    /// the product inside `usize`.
++    pub fn check(&self) -> Result<(), String> {
++        if !self.inv_rate.is_power_of_two() {
++            return Err(format!("params: inv_rate {} is not a power of two", self.inv_rate));
++        }
++        if self.log_cols > 40 || (self.log_cols as usize + self.inv_rate.trailing_zeros() as usize) > 48 {
++            return Err(format!("params: log_cols {} / inv_rate {} out of range", self.log_cols, self.inv_rate));
++        }
++        Ok(())
++    }
++}
++
++impl Shape {
++    pub fn of(st: &Statement, params: &Params) -> Result<Shape, String> {
++        Layout::check(st.t_rows, st.d, st.f)?;
++        params.check()?;
++        let lay = Layout::new(st.t_rows, st.d, st.f);
++        let (nb_d, nb_f) = (lay.nb_d, lay.nb_f);
++        let w_pcs = params.pcs_for(lay.log_wb);
++        let a_pcs = params.pcs_for(lay.log_a_min);
++        let h_pcs = params.pcs_for(lay.log_a_min);
++        let mut mults = vec![(TAG_ACT16, 256usize), (TAG_INT16, 1usize << 16)];
++        for s in st.distinct_shifts() {
++            mults.push((tag_rem_v3(s), rem_rows(s)));
++        }
++        Ok(Shape {
++            mults,
++            gu_claims: 2 * nb_f,
++            gu_rounds: lay.log_db as usize,
++            gu_term: nb_d + 2 * nb_d * nb_f,
++            d_claims: nb_d,
++            d_rounds: lay.log_fb as usize,
++            d_term: nb_f + nb_f * nb_d,
++            zcf_rounds: (lay.log_t + lay.log_fb) as usize,
++            zcf_term: 10 * nb_f,
++            zcd_rounds: (lay.log_t + lay.log_db) as usize,
++            zcd_term: 4 * nb_d,
++            helper_sums: 3 * nb_f + nb_d,
++            w: OpeningShape { pcs: w_pcs, rows: lay.w_len / w_pcs.cols(), groups: 2 },
++            a: OpeningShape { pcs: a_pcs, rows: lay.a_len / a_pcs.cols(), groups: 2 },
++            h: OpeningShape { pcs: h_pcs, rows: lay.h_len / h_pcs.cols(), groups: 3 },
++        })
++    }
++
++    /// `(field name, start offset)` of every top-level field in proof
++    /// order, ending with `("end", total)`: the boundaries a truncation test
++    /// walks.
++    pub fn field_offsets(&self) -> Vec<(String, usize)> {
++        let mut out = Vec::new();
++        let mut at = 0usize;
++        let mut push = |name: String, len: usize, at: &mut usize| {
++            out.push((name, *at));
++            *at += len;
++        };
++        for name in ["w_com", "a_com", "h_com"] {
++            push(name.to_string(), 32 + 8 + 4, &mut at);
++        }
++        for (i, (_, len)) in self.mults.iter().enumerate() {
++            push(format!("mults[{i}]"), 8 + 4 + len * 4, &mut at);
++        }
++        push("gu_claims".into(), self.gu_claims * 16, &mut at);
++        push("gu_sc".into(), self.gu_rounds * (MATMUL_DEGREE + 1) * 16, &mut at);
++        push("gu_term".into(), self.gu_term * 16, &mut at);
++        push("d_claims".into(), self.d_claims * 16, &mut at);
++        push("d_sc".into(), self.d_rounds * (MATMUL_DEGREE + 1) * 16, &mut at);
++        push("d_term".into(), self.d_term * 16, &mut at);
++        push("zcf_sc".into(), self.zcf_rounds * (ZEROCHECK_DEGREE + 1) * 16, &mut at);
++        push("zcf_term".into(), self.zcf_term * 16, &mut at);
++        push("zcd_sc".into(), self.zcd_rounds * (ZEROCHECK_DEGREE + 1) * 16, &mut at);
++        push("zcd_term".into(), self.zcd_term * 16, &mut at);
++        push("helper_sums".into(), self.helper_sums * 16, &mut at);
++        push("w_open".into(), self.w.bytes(), &mut at);
++        push("a_open".into(), self.a.bytes(), &mut at);
++        push("h_open".into(), self.h.bytes(), &mut at);
++        out.push(("end".into(), at));
++        out
++    }
++
++    pub fn total_bytes(&self) -> usize {
++        self.field_offsets().last().map(|(_, at)| *at).unwrap_or(0)
++    }
++}
++
++// ---------------------------------------------------------------------------
++// the bounded decoder
++// ---------------------------------------------------------------------------
++
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub enum DecodeError {
++    /// The statement or parameters are outside the supported shape.
++    Shape(String),
++    /// Fewer bytes than the shape requires at `at`.
++    Truncated { at: usize, need: usize, have: usize },
++    /// Bytes remain after the last field.
++    Trailing { consumed: usize, total: usize },
++    /// An 8-byte word read as a field element is not the canonical representative (`>= P`).
++    NonCanonical { at: usize },
++    /// A commitment's `rows` / `log_cols` disagree with the layout.
++    Commitment { which: &'static str, rows: u64, log_cols: u32 },
++    /// Multiplicity table `index` has the wrong tag or length.
++    Multiplicity { index: usize, tag: u64, len: u32 },
++    /// An opened column index is not below the encoded width.
++    ColumnIndex { opening: &'static str, column: usize, index: u64, enc_cols: usize },
++}
++
++impl fmt::Display for DecodeError {
++    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
++        match self {
++            DecodeError::Shape(s) => write!(f, "proof decode: {s}"),
++            DecodeError::Truncated { at, need, have } => write!(f, "proof decode: truncated at byte {at} (need {need}, have {have})"),
++            DecodeError::Trailing { consumed, total } => write!(f, "proof decode: {} trailing bytes after {consumed}", total - consumed),
++            DecodeError::NonCanonical { at } => write!(f, "proof decode: non-canonical field element at byte {at}"),
++            DecodeError::Commitment { which, rows, log_cols } => write!(f, "proof decode: {which} commitment rows {rows} / log_cols {log_cols} disagree with the layout"),
++            DecodeError::Multiplicity { index, tag, len } => write!(f, "proof decode: multiplicity table {index} has tag {tag} / length {len}"),
++            DecodeError::ColumnIndex { opening, column, index, enc_cols } => write!(f, "proof decode: {opening} opening column {column} index {index} >= {enc_cols}"),
++        }
++    }
++}
++
++impl std::error::Error for DecodeError {}
++
++struct Reader<'a> {
++    b: &'a [u8],
++    pos: usize,
++}
++
++impl<'a> Reader<'a> {
++    fn take(&mut self, n: usize) -> Result<&'a [u8], DecodeError> {
++        let have = self.b.len().saturating_sub(self.pos);
++        if have < n {
++            return Err(DecodeError::Truncated { at: self.pos, need: n, have });
++        }
++        let s = &self.b[self.pos..self.pos + n];
++        self.pos += n;
++        Ok(s)
++    }
++    fn u64(&mut self) -> Result<u64, DecodeError> {
++        Ok(u64::from_le_bytes(self.take(8)?.try_into().unwrap()))
++    }
++    fn u32(&mut self) -> Result<u32, DecodeError> {
++        Ok(u32::from_le_bytes(self.take(4)?.try_into().unwrap()))
++    }
++    fn fp(&mut self) -> Result<Fp, DecodeError> {
++        let at = self.pos;
++        let v = self.u64()?;
++        if v >= P {
++            return Err(DecodeError::NonCanonical { at });
++        }
++        Ok(Fp(v))
++    }
++    fn fp2(&mut self) -> Result<Fp2, DecodeError> {
++        let c0 = self.fp()?;
++        let c1 = self.fp()?;
++        Ok(Fp2::new(c0, c1))
++    }
++    fn fp2_vec(&mut self, n: usize) -> Result<Vec<Fp2>, DecodeError> {
++        (0..n).map(|_| self.fp2()).collect()
++    }
++    fn digest(&mut self) -> Result<Digest, DecodeError> {
++        Ok(self.take(32)?.try_into().unwrap())
++    }
++    fn sumcheck(&mut self, rounds: usize, degree: usize) -> Result<SumcheckProof, DecodeError> {
++        let mut out = Vec::with_capacity(rounds);
++        for _ in 0..rounds {
++            out.push(self.fp2_vec(degree + 1)?);
++        }
++        Ok(SumcheckProof { rounds: out })
++    }
++    fn commitment(&mut self, which: &'static str, os: &OpeningShape) -> Result<Commitment, DecodeError> {
++        let root = self.digest()?;
++        let rows = self.u64()?;
++        let log_cols = self.u32()?;
++        if rows != os.rows as u64 || log_cols != os.pcs.log_cols {
++            return Err(DecodeError::Commitment { which, rows, log_cols });
++        }
++        Ok(Commitment { root, rows: rows as usize, log_cols })
++    }
++    fn opening(&mut self, which: &'static str, os: &OpeningShape) -> Result<Opening, DecodeError> {
++        let n = os.cols();
++        let nn = os.enc_cols();
++        let mut group_vecs = Vec::with_capacity(os.groups);
++        for _ in 0..os.groups {
++            group_vecs.push(self.fp2_vec(n)?);
++        }
++        let prox_vec = self.fp2_vec(n)?;
++        let mut columns = Vec::with_capacity(os.pcs.num_col_checks);
++        for column in 0..os.pcs.num_col_checks {
++            let index = self.u64()?;
++            if index >= nn as u64 {
++                return Err(DecodeError::ColumnIndex { opening: which, column, index, enc_cols: nn });
++            }
++            let mut col = Vec::with_capacity(os.rows);
++            for _ in 0..os.rows {
++                col.push(self.fp()?);
++            }
++            let mut path = Vec::with_capacity(os.path_len());
++            for _ in 0..os.path_len() {
++                path.push(self.digest()?);
++            }
++            columns.push((index as usize, col, path));
++        }
++        Ok(Opening { group_vecs, prox_vec, columns })
++    }
++}
++
++impl<X> Proof<X> {
++    /// The proof shape `from_bytes` reads for this statement and parameters.
++    pub fn shape(st: &Statement, params: &Params) -> Result<Shape, String> {
++        Shape::of(st, params)
++    }
++
++    /// Decode the frozen encoding of a proof for `(st, params)`; see the
++    /// module doc for what is refused. The extra opening is always `None`:
++    /// the encoding of hashline's compact form has no bounded decoder.
++    pub fn from_bytes(bytes: &[u8], st: &Statement, params: &Params) -> Result<Proof<X>, DecodeError> {
++        let shape = Shape::of(st, params).map_err(DecodeError::Shape)?;
++        let mut r = Reader { b: bytes, pos: 0 };
++        let w_com = r.commitment("W", &shape.w)?;
++        let a_com = r.commitment("A", &shape.a)?;
++        let h_com = r.commitment("H", &shape.h)?;
++        let mut mults = Vec::with_capacity(shape.mults.len());
++        for (index, &(want_tag, want_len)) in shape.mults.iter().enumerate() {
++            let tag = r.u64()?;
++            let len = r.u32()?;
++            if tag != want_tag || len as usize != want_len {
++                return Err(DecodeError::Multiplicity { index, tag, len });
++            }
++            let mut m = Vec::with_capacity(want_len);
++            for _ in 0..want_len {
++                m.push(r.u32()?);
++            }
++            mults.push((tag, m));
++        }
++        let gu_claims = r.fp2_vec(shape.gu_claims)?;
++        let gu_sc = r.sumcheck(shape.gu_rounds, MATMUL_DEGREE)?;
++        let gu_term = r.fp2_vec(shape.gu_term)?;
++        let d_claims = r.fp2_vec(shape.d_claims)?;
++        let d_sc = r.sumcheck(shape.d_rounds, MATMUL_DEGREE)?;
++        let d_term = r.fp2_vec(shape.d_term)?;
++        let zcf_sc = r.sumcheck(shape.zcf_rounds, ZEROCHECK_DEGREE)?;
++        let zcf_term = r.fp2_vec(shape.zcf_term)?;
++        let zcd_sc = r.sumcheck(shape.zcd_rounds, ZEROCHECK_DEGREE)?;
++        let zcd_term = r.fp2_vec(shape.zcd_term)?;
++        let helper_sums = r.fp2_vec(shape.helper_sums)?;
++        let w_open = r.opening("W", &shape.w)?;
++        let a_open = r.opening("A", &shape.a)?;
++        let h_open = r.opening("H", &shape.h)?;
++        if r.pos != bytes.len() {
++            return Err(DecodeError::Trailing { consumed: r.pos, total: bytes.len() });
++        }
++        Ok(Proof {
++            w_com: Some(w_com),
++            a_com: Some(a_com),
++            h_com: Some(h_com),
++            mults,
++            gu_claims,
++            gu_sc,
++            gu_term,
++            d_claims,
++            d_sc,
++            d_term,
++            zcf_sc,
++            zcf_term,
++            zcd_sc,
++            zcd_term,
++            helper_sums,
++            w_open,
++            a_open,
++            h_open,
++            cpcs_open: None,
++        })
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use crate::tables::{int16out_member, Act16Fn};
++
++    fn tiny() -> (Statement, Params) {
++        let (table, table_digest) = int16out_member(Act16Fn::Silu, -3, -11).unwrap();
++        let st = Statement { l: 0, t_rows: 2, d: 16, f: 16, shifts: (7, 0, 14, 6), act: Act16Fn::Silu, table, table_digest };
++        (st, Params { log_cols: 5, inv_rate: 4, num_col_checks: 12 })
++    }
++
++    fn next(s: &mut u64) -> u64 {
++        *s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
++        *s >> 33
++    }
++    fn f2v(s: &mut u64, n: usize) -> Vec<Fp2> {
++        (0..n).map(|_| { let a = next(s); let b = next(s); Fp2::new(Fp::new(a), Fp::new(b)) }).collect()
++    }
++    fn sc(s: &mut u64, rounds: usize, degree: usize) -> SumcheckProof {
++        SumcheckProof { rounds: (0..rounds).map(|_| f2v(s, degree + 1)).collect() }
++    }
++    fn com(os: &OpeningShape, fill: u8) -> Commitment {
++        Commitment { root: [fill; 32], rows: os.rows, log_cols: os.pcs.log_cols }
++    }
++    fn open(s: &mut u64, os: &OpeningShape, fill: u8) -> Opening {
++        Opening {
++            group_vecs: (0..os.groups).map(|_| f2v(s, os.cols())).collect(),
++            prox_vec: f2v(s, os.cols()),
++            columns: (0..os.pcs.num_col_checks)
++                .map(|c| ((c * 7) % os.enc_cols(), (0..os.rows).map(|i| Fp::new((i + c) as u64)).collect(), vec![[fill; 32]; os.path_len()]))
++                .collect(),
++        }
++    }
++
++    /// A shape-consistent proof with deterministic small filler: not a valid
++    /// proof, only its encoding.
++    fn dummy(shape: &Shape, seed: u64) -> Proof<NoExtra> {
++        let s = &mut seed.clone();
++        Proof {
++            w_com: Some(com(&shape.w, 1)),
++            a_com: Some(com(&shape.a, 2)),
++            h_com: Some(com(&shape.h, 3)),
++            mults: shape.mults.iter().map(|&(tag, len)| (tag, (0..len as u32).collect())).collect(),
++            gu_claims: f2v(s, shape.gu_claims),
++            gu_sc: sc(s, shape.gu_rounds, MATMUL_DEGREE),
++            gu_term: f2v(s, shape.gu_term),
++            d_claims: f2v(s, shape.d_claims),
++            d_sc: sc(s, shape.d_rounds, MATMUL_DEGREE),
++            d_term: f2v(s, shape.d_term),
++            zcf_sc: sc(s, shape.zcf_rounds, ZEROCHECK_DEGREE),
++            zcf_term: f2v(s, shape.zcf_term),
++            zcd_sc: sc(s, shape.zcd_rounds, ZEROCHECK_DEGREE),
++            zcd_term: f2v(s, shape.zcd_term),
++            helper_sums: f2v(s, shape.helper_sums),
++            w_open: open(s, &shape.w, 4),
++            a_open: open(s, &shape.a, 5),
++            h_open: open(s, &shape.h, 6),
++            cpcs_open: None,
++        }
++    }
++
++    #[test]
++    fn shape_of_the_tiny_and_the_125m_statements() {
++        let (st, p) = tiny();
++        let sh = Shape::of(&st, &p).unwrap();
++        assert_eq!(sh.mults, vec![(TAG_ACT16, 256), (TAG_INT16, 65536), (tag_rem_v3(0), 1), (tag_rem_v3(6), 64), (tag_rem_v3(7), 128), (tag_rem_v3(14), 16384)]);
++        assert_eq!((sh.gu_claims, sh.gu_rounds, sh.gu_term, sh.d_claims, sh.d_rounds, sh.d_term), (2, 4, 3, 1, 4, 2));
++        assert_eq!((sh.zcf_rounds, sh.zcf_term, sh.zcd_rounds, sh.zcd_term, sh.helper_sums), (5, 10, 5, 4, 4));
++        assert_eq!((sh.w.rows, sh.a.rows, sh.h.rows), (24, 10, 8));
++        assert_eq!((sh.w.pcs.log_cols, sh.a.pcs.log_cols, sh.w.path_len()), (5, 5, 7));
++        let big = Statement { t_rows: 512, d: 768, f: 2048, ..st.clone() };
++        let bp = Params { log_cols: 14, inv_rate: 4, num_col_checks: 256 };
++        let bs = Shape::of(&big, &bp).unwrap();
++        assert_eq!((bs.gu_rounds, bs.d_rounds, bs.zcf_rounds, bs.zcd_rounds), (8, 11, 20, 17));
++        assert_eq!((bs.w.pcs.log_cols, bs.a.pcs.log_cols), (14, 14));
++        assert!(Shape::of(&Statement { t_rows: 3, ..st.clone() }, &p).is_err());
++        assert!(Shape::of(&st, &Params { inv_rate: 3, ..p }).is_err());
++    }
++
++    #[test]
++    fn dummy_round_trips_and_sizes_agree() {
++        let (st, p) = tiny();
++        let sh = Shape::of(&st, &p).unwrap();
++        let pr = dummy(&sh, 9);
++        let bytes = pr.to_bytes();
++        assert_eq!(bytes.len(), pr.size_bytes());
++        assert_eq!(bytes.len(), sh.total_bytes());
++        let back: Proof<NoExtra> = Proof::from_bytes(&bytes, &st, &p).unwrap();
++        assert_eq!(back.to_bytes(), bytes);
++        assert!(back.cpcs_open.is_none());
++    }
++
++    #[test]
++    fn malformed_bytes_are_refused_never_panic() {
++        let (st, p) = tiny();
++        let sh = Shape::of(&st, &p).unwrap();
++        let bytes = dummy(&sh, 3).to_bytes();
++        let dec = |b: &[u8]| Proof::<NoExtra>::from_bytes(b, &st, &p);
++        // truncation at every field boundary and one byte short of each
++        for (name, at) in sh.field_offsets() {
++            if at == bytes.len() { continue; }
++            assert!(matches!(dec(&bytes[..at]), Err(DecodeError::Truncated { .. })), "field {name}");
++            if at > 0 { assert!(matches!(dec(&bytes[..at - 1]), Err(DecodeError::Truncated { .. })), "field {name} - 1"); }
++        }
++        assert!(matches!(dec(&bytes[..bytes.len() - 1]), Err(DecodeError::Truncated { .. })));
++        assert!(matches!(dec(&[]), Err(DecodeError::Truncated { at: 0, .. })));
++        // one trailing byte
++        let mut t = bytes.clone();
++        t.push(0);
++        assert_eq!(dec(&t).err(), Some(DecodeError::Trailing { consumed: bytes.len(), total: bytes.len() + 1 }));
++        // a commitment disagreeing with the layout
++        let mut c = bytes.clone();
++        c[32..40].copy_from_slice(&(sh.w.rows as u64 + 1).to_le_bytes());
++        assert!(matches!(dec(&c), Err(DecodeError::Commitment { which: "W", .. })));
++        // the wrong multiplicity tag and the wrong length
++        let offs: std::collections::HashMap<String, usize> = sh.field_offsets().into_iter().collect();
++        let m1 = offs["mults[1]"];
++        let mut m = bytes.clone();
++        m[m1..m1 + 8].copy_from_slice(&TAG_ACT16.to_le_bytes());
++        assert!(matches!(dec(&m), Err(DecodeError::Multiplicity { index: 1, .. })));
++        let mut m = bytes.clone();
++        m[m1 + 8..m1 + 12].copy_from_slice(&65535u32.to_le_bytes());
++        assert!(matches!(dec(&m), Err(DecodeError::Multiplicity { index: 1, .. })));
++        // a non-canonical field element (>= P) in a claim, a sumcheck round and an opened column
++        let gu = offs["gu_claims"];
++        let mut nc = bytes.clone();
++        nc[gu..gu + 8].copy_from_slice(&P.to_le_bytes());
++        assert_eq!(dec(&nc).err(), Some(DecodeError::NonCanonical { at: gu }));
++        let zc = offs["zcf_sc"] + 16;
++        let mut nc = bytes.clone();
++        nc[zc..zc + 8].copy_from_slice(&u64::MAX.to_le_bytes());
++        assert_eq!(dec(&nc).err(), Some(DecodeError::NonCanonical { at: zc }));
++        let col0 = offs["a_open"] + (sh.a.groups + 1) * sh.a.cols() * 16 + 8;
++        let mut nc = bytes.clone();
++        nc[col0..col0 + 8].copy_from_slice(&(P + 5).to_le_bytes());
++        assert_eq!(dec(&nc).err(), Some(DecodeError::NonCanonical { at: col0 }));
++        // a column index at and beyond the encoded width
++        let idx0 = offs["h_open"] + (sh.h.groups + 1) * sh.h.cols() * 16;
++        for bad in [sh.h.enc_cols() as u64, u64::MAX] {
++            let mut ci = bytes.clone();
++            ci[idx0..idx0 + 8].copy_from_slice(&bad.to_le_bytes());
++            assert!(matches!(dec(&ci), Err(DecodeError::ColumnIndex { opening: "H", column: 0, .. })));
++        }
++        // single-bit flips at sampled offsets decode or refuse, never panic
++        for k in (0..bytes.len()).step_by(997) {
++            let mut fl = bytes.clone();
++            fl[k] ^= 0x80;
++            let _ = dec(&fl);
++        }
++        // the statement's own rule is reported, not panicked
++        assert!(matches!(Proof::<NoExtra>::from_bytes(&bytes, &Statement { d: 24, ..st.clone() }, &p), Err(DecodeError::Shape(_))));
++    }
++}
+diff --git a/zkp-core/src/ffn_v3/statement.rs b/zkp-core/src/ffn_v3/statement.rs
+new file mode 100644
+index 0000000..2203b4d
+--- /dev/null
++++ b/zkp-core/src/ffn_v3/statement.rs
+@@ -0,0 +1,223 @@
++//! The public statement, the parameters and the committed-vector layout of
++//! the non-hiding v3 FFN layer proof.
++//!
++//! Moved from `hashline/src/layer.rs` (CL20, round 12): `LayerParams` ->
++//! [`Params`], `StatementV3` -> [`Statement`], `LayoutV3` -> [`Layout`],
++//! `absorb_statement_v3` -> [`absorb_statement`], plus the LogUp tags, the
++//! balanced-remainder window helpers, `pow2_signed`, `absorb_com` and
++//! `absorb_mults`. Layout arithmetic, tags, absorb labels and order are
++//! unchanged; `hashline::layer` re-exports these under the legacy names.
++//! The only additions are `Layout::check` (the shape rule as a `Result`,
++//! which `Layout::new` still enforces with the same panic text) and `pub`
++//! visibility on the slice helpers the prover and claim builder use.
++
++use crate::field::Fp;
++use crate::pcs::{Commitment, PcsParams, Slice};
++use crate::tables::Act16Fn;
++use crate::transcript::Transcript;
++
++/// The Ligero parameters of a layer: `log_cols` is capped per commitment by
++/// the smallest slice it holds (`pcs_for`).
++#[derive(Clone, Copy, Debug)]
++pub struct Params {
++    pub log_cols: u32,
++    pub inv_rate: usize,
++    pub num_col_checks: usize,
++}
++
++impl Params {
++    pub fn pcs_for(&self, min_log_slice: u32) -> PcsParams {
++        PcsParams { log_cols: self.log_cols.min(min_log_slice), inv_rate: self.inv_rate, num_col_checks: self.num_col_checks }
++    }
++}
++
++pub const TAG_ACT16: u64 = 3;
++pub const TAG_INT16: u64 = 4;
++/// The balanced-remainder window table of a signed shift (sh in -8..=16).
++pub fn tag_rem_v3(sh: i32) -> u64 {
++    64 + (sh + 8) as u64
++}
++pub fn rem_rows(sh: i32) -> usize {
++    if sh <= 0 { 1 } else { 1usize << sh }
++}
++/// Row i of the window table: the remainder value it stands for.
++pub fn rem_value(sh: i32, i: usize) -> i64 {
++    if sh <= 0 { 0 } else { i as i64 - (1i64 << (sh - 1)) }
++}
++/// [UPERF3-AD] pub: the v3 ZK form (zk.rs) builds the same multiplicity tables.
++pub fn rem_index(sh: i32, r: i32) -> Option<usize> {
++    if sh <= 0 {
++        if r == 0 { Some(0) } else { None }
++    } else {
++        let v = r as i64 + (1i64 << (sh - 1));
++        if v >= 0 && v < (1i64 << sh) { Some(v as usize) } else { None }
++    }
++}
++/// The public coefficient of y in acc = coef * y + r: 2^sh, or the inverse
++/// of 2^-sh at a negative shift (the exact up-scaling branch).
++pub fn pow2_signed(sh: i32) -> Fp {
++    if sh >= 0 { Fp::new(1u64 << sh) } else { Fp::new(1u64 << (-sh)).inv() }
++}
++
++/// The public statement of one layer: index, rows, widths, the four signed
++/// requant shifts (gate, up, hadamard, down), the frozen activation table
++/// and its spec digest (absorbed as a string).
++#[derive(Clone, Debug)]
++pub struct Statement {
++    pub l: usize,
++    pub t_rows: usize,
++    pub d: usize,
++    pub f: usize,
++    pub shifts: (i32, i32, i32, i32),
++    pub act: Act16Fn,
++    pub table: [i16; 256],
++    pub table_digest: String,
++}
++
++impl Statement {
++    /// The distinct shifts in ascending order: the remainder tables the
++    /// proof carries after the ACT16 and INT16 tables, in this order.
++    pub fn distinct_shifts(&self) -> Vec<i32> {
++        let (sg, su, sh, sz) = self.shifts;
++        let mut shifts = vec![sg, su, sh, sz];
++        shifts.sort();
++        shifts.dedup();
++        shifts
++    }
++}
++
++/// Element offsets of every slice in the three committed vectors (block-structured).
++#[derive(Clone, Debug)]
++pub struct Layout {
++    pub t_rows: usize, pub d: usize, pub f: usize,
++    pub log_t: u32, pub log_db: u32, pub nb_d: usize, pub log_fb: u32, pub nb_f: usize,
++    pub tfb: usize, pub tdb: usize, pub wb: usize, pub log_wb: u32, pub log_a_min: u32,
++    pub g8: Vec<usize>, pub rg: Vec<usize>, pub a16: Vec<usize>, pub u16: Vec<usize>, pub ru: Vec<usize>, pub h16: Vec<usize>, pub rh: Vec<usize>,
++    pub x: Vec<usize>, pub z: Vec<usize>, pub rd: Vec<usize>,
++    pub a_len: usize,
++    pub wg: Vec<usize>, pub wu: Vec<usize>, pub wd: Vec<usize>,
++    pub w_len: usize,
++    pub hg: Vec<(usize, usize)>, pub hu: Vec<(usize, usize)>, pub hh: Vec<(usize, usize)>, pub hz: Vec<(usize, usize)>,
++    pub h_len: usize,
++}
++
++impl Layout {
++    /// The supported-shape rule of `new`, as a result: `t_rows` a power of
++    /// two; `d`, `f` multiples of their blocks `2^min(log2, 12)` with at
++    /// least 16 | d, f.
++    pub fn check(t_rows: usize, d: usize, f: usize) -> Result<(), String> {
++        if !t_rows.is_power_of_two() {
++            return Err("t_rows must be a power of two".to_string());
++        }
++        let log_db = d.trailing_zeros().min(12);
++        let log_fb = f.trailing_zeros().min(12);
++        let (db, fb) = (1usize << log_db, 1usize << log_fb);
++        if !(d % db == 0 && f % fb == 0 && log_db >= 4 && log_fb >= 4) {
++            return Err(format!("d {d} / f {f}: need >= 16 | d, f"));
++        }
++        Ok(())
++    }
++
++    pub fn new(t_rows: usize, d: usize, f: usize) -> Layout {
++        if let Err(e) = Layout::check(t_rows, d, f) {
++            panic!("{e}");
++        }
++        let log_t = t_rows.trailing_zeros();
++        let log_db = d.trailing_zeros().min(12);
++        let log_fb = f.trailing_zeros().min(12);
++        let (db, fb) = (1usize << log_db, 1usize << log_fb);
++        let (nb_d, nb_f) = (d / db, f / fb);
++        let tfb = t_rows * fb;
++        let tdb = t_rows * db;
++        let mut off = 0usize;
++        let mut vecn = |n: usize, sz: usize| -> Vec<usize> { (0..n).map(|_| { let o = off; off += sz; o }).collect() };
++        let g8 = vecn(nb_f, tfb); let rg = vecn(nb_f, tfb); let a16 = vecn(nb_f, tfb); let u16 = vecn(nb_f, tfb);
++        let ru = vecn(nb_f, tfb); let h16 = vecn(nb_f, tfb); let rh = vecn(nb_f, tfb);
++        let x = vecn(nb_d, tdb); let z = vecn(nb_d, tdb); let rd = vecn(nb_d, tdb);
++        let a_len = off;
++        let wb = db * fb;
++        let log_wb = log_db + log_fb;
++        let mut woff = 0usize;
++        let mut wvec = |n: usize| -> Vec<usize> { (0..n).map(|_| { let o = woff; woff += wb; o }).collect() };
++        let wg = wvec(nb_d * nb_f); let wu = wvec(nb_d * nb_f); let wd = wvec(nb_f * nb_d);
++        let w_len = woff;
++        let mut hoff = 0usize;
++        let mut hvec = |n: usize, sz: usize| -> Vec<(usize, usize)> { (0..n).map(|_| { let o = hoff; hoff += 2 * sz; (o, o + sz) }).collect() };
++        let hg = hvec(nb_f, tfb); let hu = hvec(nb_f, tfb); let hh = hvec(nb_f, tfb); let hz = hvec(nb_d, tdb);
++        let h_len = hoff;
++        Layout {
++            t_rows, d, f, log_t, log_db, nb_d, log_fb, nb_f, tfb, tdb, wb, log_wb, log_a_min: log_t + log_db.min(log_fb),
++            g8, rg, a16, u16, ru, h16, rh, x, z, rd, a_len, wg, wu, wd, w_len, hg, hu, hh, hz, h_len,
++        }
++    }
++    pub fn s_f(&self, off: usize) -> Slice { Slice { offset: off, log_size: self.log_t + self.log_fb } }
++    pub fn s_d(&self, off: usize) -> Slice { Slice { offset: off, log_size: self.log_t + self.log_db } }
++    pub fn s_w(&self, off: usize) -> Slice { Slice { offset: off, log_size: self.log_wb } }
++}
++
++/// [UPERF3-AD] pub: the v3 ZK form (zk.rs) absorbs the same statement.
++pub fn absorb_statement(tr: &mut Transcript, st: &Statement) {
++    tr.absorb(b"profile", b"v3-widened/round");
++    tr.absorb_u64(b"layer", st.l as u64);
++    tr.absorb_u64(b"t_rows", st.t_rows as u64);
++    tr.absorb_u64(b"d", st.d as u64);
++    tr.absorb_u64(b"f", st.f as u64);
++    let mut sb = Vec::with_capacity(32);
++    for s in [st.shifts.0, st.shifts.1, st.shifts.2, st.shifts.3] { sb.extend_from_slice(&(s as i64).to_le_bytes()); }
++    tr.absorb(b"shifts-signed", &sb);
++    tr.absorb(b"act", st.act.spec_name().as_bytes());
++    tr.absorb(b"table", st.table_digest.as_bytes());
++}
++
++pub fn absorb_com(tr: &mut Transcript, label: &[u8], c: &Commitment) {
++    tr.absorb(label, &c.root);
++    tr.absorb_u64(label, c.rows as u64);
++}
++
++pub fn absorb_mults(tr: &mut Transcript, mults: &[(u64, Vec<u32>)]) {
++    let mut bytes = Vec::new();
++    for (tag, m) in mults {
++        bytes.extend_from_slice(&tag.to_le_bytes());
++        bytes.extend_from_slice(&(m.len() as u64).to_le_bytes());
++        for v in m {
++            bytes.extend_from_slice(&v.to_le_bytes());
++        }
++    }
++    tr.absorb(b"mults", &bytes);
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn layout_shape_rule_and_offsets() {
++        assert!(Layout::check(2, 16, 16).is_ok());
++        assert!(Layout::check(3, 16, 16).is_err());
++        assert!(Layout::check(2, 8, 16).is_err());
++        assert!(Layout::check(2, 16, 24).is_err());
++        let lay = Layout::new(2, 16, 16);
++        assert_eq!((lay.nb_d, lay.nb_f, lay.tfb, lay.tdb, lay.wb, lay.log_wb, lay.log_a_min), (1, 1, 32, 32, 256, 8, 5));
++        assert_eq!((lay.a_len, lay.w_len, lay.h_len), (10 * 32, 3 * 256, 2 * 4 * 32));
++        assert_eq!(lay.s_w(lay.wd[0]).offset, 2 * 256);
++        // the 125M shape: 512 x 768 x 2048 -> blocks of 256 and 2048
++        let big = Layout::new(512, 768, 2048);
++        assert_eq!((big.nb_d, big.nb_f, big.log_db, big.log_fb), (3, 1, 8, 11));
++    }
++
++    #[test]
++    fn tags_and_windows() {
++        assert_eq!(tag_rem_v3(-8), 64);
++        assert_eq!(tag_rem_v3(16), 88);
++        assert_eq!(rem_rows(0), 1);
++        assert_eq!(rem_rows(7), 128);
++        assert_eq!(rem_index(7, -64), Some(0));
++        assert_eq!(rem_index(7, 63), Some(127));
++        assert_eq!(rem_index(7, 64), None);
++        assert_eq!(rem_index(0, 0), Some(0));
++        assert_eq!(rem_index(0, 1), None);
++        assert_eq!(rem_value(7, 0), -64);
++        assert_eq!(pow2_signed(3), Fp::new(8));
++        assert_eq!(pow2_signed(-3).mul(Fp::new(8)), Fp::ONE);
++    }
++}
+diff --git a/zkp-core/src/lib.rs b/zkp-core/src/lib.rs
+index 846c737..dff709c 100644
+--- a/zkp-core/src/lib.rs
++++ b/zkp-core/src/lib.rs
+@@ -5,10 +5,14 @@
+ //! adds the Ligero-form polynomial commitment (`pcs`: CPU commit / open /
+ //! verify in the plain and the hiding form) behind a narrow backend seam
+ //! (`pcs::Backend`) that an accelerator outside this crate may implement.
+-//! It does not yet contain a complete FFN prover or a bounded codec.
++//! The third adds the frozen activation-table registry (`tables`) and the
++//! typed pieces of the selected profile (`ffn_v3`: statement, parameters,
++//! layout, the proof object with its frozen encoding and a shape-directed
++//! bounded decoder). It does not yet contain the FFN prover or verifier.
+ //! Inherited masking helpers retain the legacy protocol's unresolved privacy
+ //! obligations; moving them here is not a security review or repair.
+ 
++pub mod ffn_v3;
+ pub mod field;
+ pub mod merkle;
+ pub mod mle;
+@@ -16,4 +20,5 @@ pub mod ntt;
+ pub mod pcs;
+ pub mod rng;
+ pub mod sumcheck;
++pub mod tables;
+ pub mod transcript;
+diff --git a/zkp-core/src/tables.rs b/zkp-core/src/tables.rs
+new file mode 100644
+index 0000000..9f2a24d
+--- /dev/null
++++ b/zkp-core/src/tables.rs
+@@ -0,0 +1,185 @@
++//! [UPERF3-ZB] The frozen int16-out activation-table families of the
++//! WIDENED STACK (TARGET_CONTRACT section 2 v3, adopted 2026-08-26):
++//! `silu-int16out-table-v3` (9 members) and `gelu-tanh-int16out-table-v3`
++//! (6 members). Each member is a 256-row table over the int8 gate domain
++//! g = -128..=127 with an int16 output:
++//!
++//!   S[g] = clamp(round_half_up(f(g * 2^e_in) / 2^e_out), -32767, 32767),
++//!   round_half_up(x) = floor(x + 1/2), f = silu | gelu_tanh in f64.
++//!
++//! The bytes are regenerated here from that frozen formula (the engine's
++//! zkmatrix-rs/src/ring/lookup.rs `int16out_generate`; the Python of
++//! record scripts/m8b_margins.py `i16out_generate`) and CHECKED against
++//! the frozen v3 spec digests below before use (`table_spec_digest_int16out`
++//! — the v2 spec-header JSON with the v3 function names and the 16-bit
++//! output width; the same digests the v3 exports' `NN table` rows carry
++//! and `ring_matmul uperf-v3 tables` prints). zkmatrix-rs has no library
++//! target, so the engine's frozen consts cannot be linked; the digest pin
++//! is the freeze: a platform libm drift is a hard stop, never a silent
++//! different table. Cross-checked 2026-09-02 three ways (the Python
++//! generator, the frozen consts parsed from lookup.rs, the engine
++//! binary's `uperf-v3 tables`): 15/15 members byte- and digest-identical.
++//!
++//! Moved from `hashline/src/tables_v3.rs` (CL20, round 12) together with
++//! the five-line `hex` helper it used from `hashline::silu`; the digests,
++//! the JSON spec header and the generator are unchanged.
++
++use sha2::{Digest, Sha256};
++
++/// Lowercase hex of `bytes` (the digest strings the statements absorb).
++pub fn hex(bytes: &[u8]) -> String {
++    bytes.iter().map(|b| format!("{b:02x}")).collect()
++}
++
++/// The two frozen int16-out families.
++#[derive(Clone, Copy, PartialEq, Eq, Debug)]
++pub enum Act16Fn {
++    Silu,
++    GeluTanh,
++}
++
++impl Act16Fn {
++    pub fn spec_name(self) -> &'static str {
++        match self {
++            Act16Fn::Silu => "silu-int16out-table-v3",
++            Act16Fn::GeluTanh => "gelu-tanh-int16out-table-v3",
++        }
++    }
++    fn rounding_fn(self) -> &'static str {
++        match self {
++            Act16Fn::Silu => "silu",
++            Act16Fn::GeluTanh => "gelu_tanh",
++        }
++    }
++    pub fn from_spec_name(s: &str) -> Option<Act16Fn> {
++        match s {
++            "silu-int16out-table-v3" => Some(Act16Fn::Silu),
++            "gelu-tanh-int16out-table-v3" => Some(Act16Fn::GeluTanh),
++            _ => None,
++        }
++    }
++    /// The f64 activation exactly as the frozen generators evaluate it.
++    pub fn eval(self, x: f64) -> f64 {
++        match self {
++            Act16Fn::Silu => x / (1.0 + (-x).exp()),
++            Act16Fn::GeluTanh => {
++                0.5 * x * (1.0 + ((2.0f64 / std::f64::consts::PI).sqrt() * (x + 0.044715 * x * x * x)).tanh())
++            }
++        }
++    }
++    pub fn members(self) -> (&'static [(i32, i32)], &'static [&'static str]) {
++        match self {
++            Act16Fn::Silu => (&SILU16_V3_MEMBERS, &SILU16_V3_DIGESTS_HEX),
++            Act16Fn::GeluTanh => (&GELU16_V3_MEMBERS, &GELU16_V3_DIGESTS_HEX),
++        }
++    }
++}
++
++/// (e_in = the margin-adjusted eGate, e_out = eA - 8) of every frozen member.
++pub const SILU16_V3_MEMBERS: [(i32, i32); 9] =
++    [(-5, -13), (-4, -13), (-4, -12), (-3, -12), (-3, -11), (-2, -11), (-1, -11), (-1, -10), (-1, -9)];
++pub const SILU16_V3_DIGESTS_HEX: [&str; 9] = [
++    "bf3eb04eeeeec844a313be913480606b4b792cdf6f26902bbb7fea4e571b92bc",
++    "0c74b0e6fb57dd67a49c61bef5dae093f6ce154d6f331bd65d0d548faf0eca60",
++    "afed7dc5c289cbdb18fbf5d794285ba5901ebe43e9e561aad6ec32987fa66d54",
++    "859344ba5ed57bd3f831c9082e5991fe7012a0c5696cfa705320ffdb6cb17a25",
++    "1001c138ce0d00f09390b36178044d72712fbdca1071467ea274dc980bd9a3f7",
++    "eda5f34a1c0dd94ce7398d6762202ed85e3f6f2c4984a5b07aca57b00b30ba56",
++    "493202f2d89b0ffe7981decfb818aafaacea4cccb117d758b9e6b416463d9a4b",
++    "5323ca1bd1091ec18bf5036ca7ea4e007224ebc3a26ad56759a4b9da0c419a79",
++    "d835998909adcd25dcc7eba10239e82ea0323437b5ba419d9fa5c28e6fa6c689",
++];
++pub const GELU16_V3_MEMBERS: [(i32, i32); 6] = [(-4, -12), (-3, -12), (-3, -11), (-2, -11), (-2, -10), (-1, -9)];
++pub const GELU16_V3_DIGESTS_HEX: [&str; 6] = [
++    "13ecf11e5608d6032ae9e3e119974e0f22a68fee70624d2295871b7e6f5ec1df",
++    "37558a0d99cb5a226f4f8ef48f504e097249dffda54a9c563de2de4e6638ea6b",
++    "4c811e7d93de21a9bd2cd925ed7b4abb87afda229ee49add8c22abec4b32fb1a",
++    "f9eefef1e2e9e66d11a821d3fec7f4567e2e936b5817f2d157725301d33b0a15",
++    "775e023b20b441268b9037c0f826d4378044991790e32274e1d613c3b4de5e09",
++    "046effd433a6ca204131a25ed3e06343236b5eb77e2a0e6d562d8af73cc29eab",
++];
++
++/// Deterministic generation of an int16-out member (the frozen formula).
++pub fn int16out_generate(f: Act16Fn, e_in: i32, e_out: i32) -> [i16; 256] {
++    let mut out = [0i16; 256];
++    for (i, slot) in out.iter_mut().enumerate() {
++        let g = i as i32 - 128;
++        let x = g as f64 * (e_in as f64).exp2();
++        let y = f.eval(x);
++        let v = (y / (e_out as f64).exp2() + 0.5).floor();
++        *slot = v.clamp(-32767.0, 32767.0) as i16;
++    }
++    out
++}
++
++/// The canonical int16-out spec-header digest (hex): the v2 JSON layout
++/// with the v3 function names and the 16-bit output width.
++pub fn table_spec_digest_int16out(f: Act16Fn, e_in: i32, e_out: i32, table: &[i16; 256]) -> String {
++    let mut json = format!(
++        "{{\"function\":\"{}\",\
++         \"input\":{{\"width\":8,\"scale_exp\":{e_in},\"signed\":true}},\
++         \"output\":{{\"width\":16,\"scale_exp\":{e_out},\"signed\":true}},\
++         \"rounding\":\"y = clamp(round_half_up({}(x*2^in_exp)/2^out_exp), -32767, 32767)\",\
++         \"table\":[",
++        f.spec_name(),
++        f.rounding_fn()
++    );
++    for (i, s) in table.iter().enumerate() {
++        if i > 0 {
++            json.push(',');
++        }
++        json.push_str(&format!("[{},{}]", i as i32 - 128, *s as i32));
++    }
++    json.push_str("]}");
++    let mut h = Sha256::new();
++    h.update(json.as_bytes());
++    hex(&h.finalize())
++}
++
++/// The frozen member for (function, e_in, e_out): regenerated and
++/// digest-checked against the pin. None outside the frozen registry (a
++/// statement must not reference a table that was never frozen); a
++/// regenerated digest that differs from its pin is a hard stop.
++pub fn int16out_member(f: Act16Fn, e_in: i32, e_out: i32) -> Option<([i16; 256], String)> {
++    let (members, digests) = f.members();
++    let i = members.iter().position(|&m| m == (e_in, e_out))?;
++    let t = int16out_generate(f, e_in, e_out);
++    let d = table_spec_digest_int16out(f, e_in, e_out, &t);
++    assert_eq!(d, digests[i], "{} ({e_in},{e_out}): regenerated digest != frozen pin (platform drift)", f.spec_name());
++    Some((t, d))
++}
++
++/// Every frozen member regenerated and checked; returns
++/// (spec name, e_in, e_out, digest, min, max, rows clamped at +-32767).
++pub fn registry_report() -> Vec<(&'static str, i32, i32, String, i16, i16, usize)> {
++    let mut out = Vec::new();
++    for f in [Act16Fn::Silu, Act16Fn::GeluTanh] {
++        let (members, _) = f.members();
++        for &(ei, eo) in members {
++            let (t, d) = int16out_member(f, ei, eo).unwrap();
++            let sat = t.iter().filter(|&&v| v == 32767 || v == -32767).count();
++            out.push((f.spec_name(), ei, eo, d, *t.iter().min().unwrap(), *t.iter().max().unwrap(), sat));
++        }
++    }
++    out
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn all_frozen_members_regenerate_to_their_pins() {
++        let rep = registry_report();
++        assert_eq!(rep.len(), 15);
++        // the 125M v3 export's two members and Mistral's saturating one
++        let (t, d) = int16out_member(Act16Fn::Silu, -3, -11).unwrap();
++        assert_eq!(d, "1001c138ce0d00f09390b36178044d72712fbdca1071467ea274dc980bd9a3f7");
++        assert_eq!(*t.iter().min().unwrap(), -570);
++        assert_eq!(*t.iter().max().unwrap(), 32512);
++        let (t, _) = int16out_member(Act16Fn::Silu, -4, -13).unwrap();
++        assert_eq!(t.iter().filter(|&&v| v == 32767).count(), 62);
++        assert!(int16out_member(Act16Fn::Silu, -7, -20).is_none());
++        assert_eq!(Act16Fn::from_spec_name("gelu-tanh-int16out-table-v3"), Some(Act16Fn::GeluTanh));
++    }
++}

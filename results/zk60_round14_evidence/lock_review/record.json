@@ -1,0 +1,23 @@
+{
+  "issue": "parent close alone retains flock while a child inherits the open file description before exec",
+  "before_source": "83115b5762156dc390618b63d2d7b1c68712bc33 plus the failing regression only",
+  "fix_commit": "df7fb0d6860b41e3af421b9f99d3b672e9736d32",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "native_compile": [
+    "rustc",
+    "--edition",
+    "2021",
+    "/tmp/zk60-round14/lock-review/reproduce.rs",
+    "-o",
+    "/tmp/zk60-round14/lock-review/reproduce"
+  ],
+  "native_run": [
+    "/tmp/zk60-round14/lock-review/reproduce"
+  ],
+  "native_exit": 0,
+  "initial_sandbox_exit": 101,
+  "initial_sandbox_reason": "UnixStream::pair denied EPERM",
+  "regression_before_exit": 101,
+  "regression_after_exit": 0,
+  "journal_unit_tests_passed": 8
+}

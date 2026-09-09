@@ -1,5 +1,21 @@
 # ZK60 milestone map
 
+**2026-09-08, round 14:** local stable-weight registration now joins
+protected material, the durable counter, an external key callback and reserved
+material access. Fable's PCS extraction is integrated into the maintained core;
+`df7fb0d` also fixes journal lock cleanup during concurrent process startup.
+**219 Rust tests, 343 tooling tests, 189 device oracle cases, all 12 frozen
+CPU/GPU/chunk proof comparisons, B4 exact reproduction and B5 verification pass.**
+See [round 14](ZK60_ROUND14.md) and the
+[registration contract](ZK60_STABLE_WEIGHT_REGISTRATION.md).
+
+Fable's next typed-decoder commit is held for three reproduced robustness and
+compatibility findings; see the [review](ZK60_CL20_ROUND14_REVIEW.md). Fable
+retains FA6–FA9, CL21 and lower-priority CL20. Codex next reviews those deliveries
+and continues the reviewed layout generator plus authenticated approval/key
+provisioning, followed by the versioned prover/verifier and private blocks after
+privacy/arithmetic closure. H2, approved stable P3 and full CL20 remain open.
+
 **2026-09-08, round 13:** Codex implements protected stable-weight
 registration material and exact CPU commitment reconstruction in `ccc6f26`.
 **202 Rust tests, four frozen CPU proof artifacts and public B4/B5 receipt

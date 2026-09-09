@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "source_commit": "b044e204d2c490196e82fba9d821ee3be2a96aea",
+  "scope": "FA4 H2 registration plus reviewed Fable PCS extraction; CPU/GPU/core compatibility",
+  "threads": 2,
+  "address_space_limit_bytes": 8589934592,
+  "gpu_executed": false,
+  "gpu_scope": "Bounded 189-case oracle and frozen FFN fixtures; no throughput qualification",
+  "stages": [
+    {
+      "stage": "hashline_tests",
+      "command": [
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--features",
+        "stable-weight-storage",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 101,
+      "elapsed_s": 1.821874627028592,
+      "log": "/tmp/zk60-round14/combined/hashline_tests.log",
+      "log_sha256": "494d2b49ada4cb8e7253e84469aa6d476062a8e8d505ee9a898f5f7aafd2a7f3",
+      "resource_log": "/tmp/zk60-round14/combined/hashline_tests.time",
+      "address_space_cap_applied": true
+    }
+  ],
+  "limits": [
+    "Local registration storage and access boundary only; no reviewed mask generator, authenticated approval or stable P3 prover/verifier.",
+    "Full Python/native suite unchanged; 546 tests passed at round11.",
+    "No FFN typed decoder integration: f8d40a7 is held for demonstrated shape/parameter corrections."
+  ],
+  "error": "Traceback (most recent call last):\n  File \"/tmp/zk60-round14/combined/validate.py\", line 70, in <module>\n    log = stage('hashline_tests', cargo + ['test', '--release', '--locked', '--offline',\n  File \"/tmp/zk60-round14/combined/validate.py\", line 51, in stage\n    if result.returncode: raise RuntimeError('stage failed: ' + name)\nRuntimeError: stage failed: hashline_tests\n",
+  "exit_code": 1
+}

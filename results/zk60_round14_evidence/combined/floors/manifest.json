@@ -1,0 +1,2065 @@
+{
+  "schema": 1,
+  "kind": "zk60-floors-run-manifest",
+  "suite_version": 3,
+  "suite_production": true,
+  "created_at": "2026-09-08T20:12:21.362993+00:00",
+  "source": {
+    "head": "df7fb0d6860b41e3af421b9f99d3b672e9736d32",
+    "branch": "perf/zk-batch-optimizations",
+    "dirty_tracked_count": 4,
+    "dirty_delta_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "note": "HEAD identifies the build inputs only when the delta under hashline/ is empty (e3b0c442..)"
+  },
+  "build": {
+    "features_gpu": [
+      "gpu-cuda"
+    ],
+    "cpu_target_dir": "/home/victor/IntelligenceRegulation/hashline/target",
+    "gpu_target_dir": "/home/victor/IntelligenceRegulation/hashline/target-gpu",
+    "cargo_build_jobs": 2,
+    "rayon_num_threads": 2,
+    "prover_threads": 2,
+    "layers": 12,
+    "tokens": 512,
+    "shape_frozen": true,
+    "v3_export": "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+    "m125_export": "/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl",
+    "cuda_root": "/home/victor/cuda-root",
+    "scratch": "/tmp/zk60-round14/complete/floors"
+  },
+  "binaries": {
+    "cpu": {
+      "path": "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+      "sha256": "b6aee83f80133a1c7768251409dcd67dde066979eb65acf934210345815722bb",
+      "size": 4664104
+    },
+    "gpu": {
+      "path": "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+      "sha256": "6bdbbdc8e45b9944ba7e5d293570aee9520ab304001ad71eeade216f30087561",
+      "size": 5366752
+    }
+  },
+  "device": {
+    "selection": "",
+    "nvidia_smi": "NVIDIA GeForce RTX 4070 Laptop GPU, 566.14",
+    "oracle_label": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)"
+  },
+  "coverage": {
+    "coverage": "ffn-only",
+    "verification": "in-memory verifier ACCEPT per pass; no decoded full-relation verification"
+  },
+  "started": {},
+  "cases": [
+    {
+      "id": "build_cpu",
+      "kind": "build",
+      "label": null,
+      "profile": null,
+      "binary_role": null,
+      "binary_sha256": null,
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "/home/victor/IntelligenceRegulation/hashline/Cargo.toml"
+      ],
+      "exit": 0,
+      "verdict": null,
+      "gpu_on": false,
+      "device_label": null,
+      "proof": null,
+      "expected": null,
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/build_cpu.out",
+        "sha256": "2d079b3d0b712f16b11bf951d4da8c78d3bb2d777e5f8fe1c1d3a98abd012a12"
+      },
+      "started_at": "2026-09-08T20:12:21.391500+00:00",
+      "ended_at": "2026-09-08T20:13:06.728400+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "build_gpu",
+      "kind": "build",
+      "label": null,
+      "profile": null,
+      "binary_role": null,
+      "binary_sha256": null,
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "CUDA_ROOT=/home/victor/cuda-root",
+        "LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib",
+        "CARGO_TARGET_DIR=/home/victor/IntelligenceRegulation/hashline/target-gpu",
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "build",
+        "--release",
+        "--features",
+        "gpu-cuda",
+        "--manifest-path",
+        "/home/victor/IntelligenceRegulation/hashline/Cargo.toml"
+      ],
+      "exit": 0,
+      "verdict": null,
+      "gpu_on": false,
+      "device_label": null,
+      "proof": null,
+      "expected": null,
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/build_gpu.out",
+        "sha256": "ee7f59ee31e2e249bd07f43ad07a2797aff5b03c17f9f967a250f90e3a3e0e03"
+      },
+      "started_at": "2026-09-08T20:13:06.757386+00:00",
+      "ended_at": "2026-09-08T20:13:57.790225+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "cargo_test_cpu",
+      "kind": "cargo_test",
+      "label": null,
+      "profile": null,
+      "binary_role": null,
+      "binary_sha256": null,
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "test",
+        "--release",
+        "--manifest-path",
+        "/home/victor/IntelligenceRegulation/hashline/Cargo.toml",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit": 0,
+      "verdict": null,
+      "gpu_on": false,
+      "device_label": null,
+      "proof": null,
+      "expected": null,
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/cargo_test_cpu.out",
+        "sha256": "cd78f35b46e4beb0b489755b445c55fee7a64b557e33a867e70a553138c09e61"
+      },
+      "started_at": "2026-09-08T20:13:57.855880+00:00",
+      "ended_at": "2026-09-08T20:17:46.518962+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [
+        {
+          "ok": true,
+          "passed": 54,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 0,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 12,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 12,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "ok": true,
+          "passed": 2,
+          "failed": 0
+        }
+      ],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "test_results",
+          "ok": true,
+          "detail": "22 result lines; failed suites: 0"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "oracle_gpu",
+      "kind": "oracle",
+      "label": null,
+      "profile": null,
+      "binary_role": null,
+      "binary_sha256": null,
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "CUDA_ROOT=/home/victor/cuda-root",
+        "LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib",
+        "CARGO_TARGET_DIR=/home/victor/IntelligenceRegulation/hashline/target-gpu",
+        "HL_GPU=1",
+        "HL_GPU_REQUIRED=1",
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "test",
+        "--release",
+        "--features",
+        "gpu-cuda",
+        "--manifest-path",
+        "/home/victor/IntelligenceRegulation/hashline/Cargo.toml",
+        "--test",
+        "zk60_gpu_commit",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "verdict": null,
+      "gpu_on": true,
+      "device_label": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)\"}",
+      "proof": null,
+      "expected": null,
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/oracle_gpu.out",
+        "sha256": "d75549c80ae38439f1893538b6ca98fef64458a9b66e673d524276f1ce23d1c9"
+      },
+      "started_at": "2026-09-08T20:17:46.549080+00:00",
+      "ended_at": "2026-09-08T20:18:45.838217+00:00",
+      "oracle_summary": "{\"executed_cases\":189,\"gpu_enabled\":true,\"gpu_required\":true,\"device\":\"gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)\"}",
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [
+        {
+          "ok": true,
+          "passed": 34,
+          "failed": 0
+        }
+      ],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "oracle_summary",
+          "ok": true,
+          "detail": {
+            "executed_cases": 189,
+            "gpu_enabled": true,
+            "gpu_required": true,
+            "device": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)"
+          }
+        },
+        {
+          "check": "suite_results",
+          "ok": true,
+          "detail": [
+            {
+              "ok": true,
+              "passed": 34,
+              "failed": 0
+            }
+          ]
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "nofeature_required_refuses",
+      "kind": "control",
+      "label": null,
+      "profile": null,
+      "binary_role": null,
+      "binary_sha256": null,
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "HL_GPU_REQUIRED=1",
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "test",
+        "--release",
+        "--manifest-path",
+        "/home/victor/IntelligenceRegulation/hashline/Cargo.toml",
+        "--test",
+        "zk60_gpu_commit",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "verdict": null,
+      "gpu_on": false,
+      "device_label": null,
+      "proof": null,
+      "expected": null,
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/nofeature_required_refuses.out",
+        "sha256": "e378fff5fee27c68d8709b21dc0a6a73a47d2c0277fe776da504435ef0cc62de"
+      },
+      "started_at": "2026-09-08T20:18:45.866956+00:00",
+      "ended_at": "2026-09-08T20:18:45.952776+00:00",
+      "oracle_summary": "{\"executed_cases\":0,\"gpu_enabled\":false,\"gpu_required\":true,\"device\":\"built without --features gpu-cuda\"}",
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [
+        {
+          "ok": false,
+          "passed": 8,
+          "failed": 1
+        }
+      ],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 101 (nonzero required)"
+        },
+        {
+          "check": "refusal_reason",
+          "ok": true,
+          "detail": "log must contain 'built WITHOUT --features gpu-cuda'"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "nofeature_plain_reports_zero",
+      "kind": "control",
+      "label": null,
+      "profile": null,
+      "binary_role": null,
+      "binary_sha256": null,
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "test",
+        "--release",
+        "--manifest-path",
+        "/home/victor/IntelligenceRegulation/hashline/Cargo.toml",
+        "--test",
+        "zk60_gpu_commit",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "verdict": null,
+      "gpu_on": false,
+      "device_label": null,
+      "proof": null,
+      "expected": null,
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/nofeature_plain_reports_zero.out",
+        "sha256": "36e7ee7259397ecbc79fdec181410231b766991bc73778bfb5211d26fab74723"
+      },
+      "started_at": "2026-09-08T20:18:45.982202+00:00",
+      "ended_at": "2026-09-08T20:18:46.042311+00:00",
+      "oracle_summary": "{\"executed_cases\":0,\"gpu_enabled\":false,\"gpu_required\":false,\"device\":\"built without --features gpu-cuda\"}",
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [
+        {
+          "ok": true,
+          "passed": 9,
+          "failed": 0
+        }
+      ],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "plain_reports_zero",
+          "ok": true,
+          "detail": "summary {'executed_cases': 0, 'gpu_enabled': False, 'gpu_required': False, 'device': 'built without --features gpu-cuda'}"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "cpu-v2",
+      "kind": "byte_gate",
+      "label": "cpu",
+      "profile": "v2",
+      "binary_role": "cpu",
+      "binary_sha256": "b6aee83f80133a1c7768251409dcd67dde066979eb65acf934210345815722bb",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round14/complete/floors/cpu-v2.proof"
+      ],
+      "exit": 0,
+      "verdict": "ACCEPT",
+      "gpu_on": false,
+      "device_label": null,
+      "proof": {
+        "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "bytes": 66844928
+      },
+      "expected": {
+        "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "bytes": 66844928
+      },
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/cpu-v2.out",
+        "sha256": "63c16abe65c05e17b4a0f8d6d2cdbe9706e151cc62d75f905e900c71a3e1a507"
+      },
+      "started_at": "2026-09-08T20:18:46.073829+00:00",
+      "ended_at": "2026-09-08T20:19:22.363063+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "verdict",
+          "ok": true,
+          "detail": "verifier verdict ACCEPT"
+        },
+        {
+          "check": "proof_produced",
+          "ok": true,
+          "detail": "proof file hashed"
+        },
+        {
+          "check": "proof_fresh",
+          "ok": true,
+          "detail": "proof mtime 1788898762 vs start 1788898726"
+        },
+        {
+          "check": "proof_line_matches_file",
+          "ok": true,
+          "detail": "log says {'sha256': '50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d', 'bytes': 66844928}, file is {'sha256': '50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d', 'bytes': 66844928}"
+        },
+        {
+          "check": "frozen_digest",
+          "ok": true,
+          "detail": "got 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d / 66844928 B, want 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d / 66844928 B"
+        },
+        {
+          "check": "argv_shape",
+          "ok": true,
+          "detail": "argv must contain pass 12 512: ['env', 'CARGO_BUILD_JOBS=2', 'RAYON_NUM_THREADS=2', '/home/victor/IntelligenceRegulation/hashline/target/release/hashline', 'pass', '12', '512', '--threads', '2', '--proof-out', '/tmp/zk60-round14/complete/floors/cpu-v2.proof']"
+        },
+        {
+          "check": "argv_profile_flags",
+          "ok": true,
+          "detail": "argv must carry []"
+        },
+        {
+          "check": "argv_threads",
+          "ok": true,
+          "detail": "--threads must be 2 (the shared-laptop rule); argv carries ['2']"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "cpu-v3",
+      "kind": "byte_gate",
+      "label": "cpu",
+      "profile": "v3",
+      "binary_role": "cpu",
+      "binary_sha256": "b6aee83f80133a1c7768251409dcd67dde066979eb65acf934210345815722bb",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round14/complete/floors/cpu-v3.proof",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "exit": 0,
+      "verdict": "ACCEPT",
+      "gpu_on": false,
+      "device_label": null,
+      "proof": {
+        "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "bytes": 70758084
+      },
+      "expected": {
+        "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "bytes": 70758084
+      },
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/cpu-v3.out",
+        "sha256": "0eb5fd445c78afde7ae46f13be53e2a6db3077a09db653f78cf930625e03854d"
+      },
+      "started_at": "2026-09-08T20:19:22.397079+00:00",
+      "ended_at": "2026-09-08T20:19:58.454633+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "verdict",
+          "ok": true,
+          "detail": "verifier verdict ACCEPT"
+        },
+        {
+          "check": "proof_produced",
+          "ok": true,
+          "detail": "proof file hashed"
+        },
+        {
+          "check": "proof_fresh",
+          "ok": true,
+          "detail": "proof mtime 1788898798 vs start 1788898762"
+        },
+        {
+          "check": "proof_line_matches_file",
+          "ok": true,
+          "detail": "log says {'sha256': '5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d', 'bytes': 70758084}, file is {'sha256': '5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d', 'bytes': 70758084}"
+        },
+        {
+          "check": "frozen_digest",
+          "ok": true,
+          "detail": "got 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d / 70758084 B, want 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d / 70758084 B"
+        },
+        {
+          "check": "argv_shape",
+          "ok": true,
+          "detail": "argv must contain pass 12 512: ['env', 'CARGO_BUILD_JOBS=2', 'RAYON_NUM_THREADS=2', '/home/victor/IntelligenceRegulation/hashline/target/release/hashline', 'pass', '12', '512', '--threads', '2', '--proof-out', '/tmp/zk60-round14/complete/floors/cpu-v3.proof', '--profile', 'v3', '--export', '/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export']"
+        },
+        {
+          "check": "argv_profile_flags",
+          "ok": true,
+          "detail": "argv must carry ['--profile', 'v3', '--export']"
+        },
+        {
+          "check": "argv_threads",
+          "ok": true,
+          "detail": "--threads must be 2 (the shared-laptop rule); argv carries ['2']"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "cpu-zk",
+      "kind": "byte_gate",
+      "label": "cpu",
+      "profile": "zk",
+      "binary_role": "cpu",
+      "binary_sha256": "b6aee83f80133a1c7768251409dcd67dde066979eb65acf934210345815722bb",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round14/complete/floors/cpu-zk.proof",
+        "--zk",
+        "--seed",
+        "1"
+      ],
+      "exit": 0,
+      "verdict": "ACCEPT",
+      "gpu_on": false,
+      "device_label": null,
+      "proof": {
+        "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "bytes": 87228528
+      },
+      "expected": {
+        "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "bytes": 87228528
+      },
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/cpu-zk.out",
+        "sha256": "8e0891095cea8f3c517650141a182702cf4afb27e4f4ba3eec381d8d335e8f14"
+      },
+      "started_at": "2026-09-08T20:19:58.489140+00:00",
+      "ended_at": "2026-09-08T20:20:36.040211+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "verdict",
+          "ok": true,
+          "detail": "verifier verdict ACCEPT"
+        },
+        {
+          "check": "proof_produced",
+          "ok": true,
+          "detail": "proof file hashed"
+        },
+        {
+          "check": "proof_fresh",
+          "ok": true,
+          "detail": "proof mtime 1788898835 vs start 1788898798"
+        },
+        {
+          "check": "proof_line_matches_file",
+          "ok": true,
+          "detail": "log says {'sha256': '021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d', 'bytes': 87228528}, file is {'sha256': '021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d', 'bytes': 87228528}"
+        },
+        {
+          "check": "frozen_digest",
+          "ok": true,
+          "detail": "got 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d / 87228528 B, want 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d / 87228528 B"
+        },
+        {
+          "check": "argv_shape",
+          "ok": true,
+          "detail": "argv must contain pass 12 512: ['env', 'CARGO_BUILD_JOBS=2', 'RAYON_NUM_THREADS=2', '/home/victor/IntelligenceRegulation/hashline/target/release/hashline', 'pass', '12', '512', '--threads', '2', '--proof-out', '/tmp/zk60-round14/complete/floors/cpu-zk.proof', '--zk', '--seed', '1']"
+        },
+        {
+          "check": "argv_profile_flags",
+          "ok": true,
+          "detail": "argv must carry ['--zk', '--seed', '1']"
+        },
+        {
+          "check": "argv_threads",
+          "ok": true,
+          "detail": "--threads must be 2 (the shared-laptop rule); argv carries ['2']"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "cpu-zkv3",
+      "kind": "byte_gate",
+      "label": "cpu",
+      "profile": "zkv3",
+      "binary_role": "cpu",
+      "binary_sha256": "b6aee83f80133a1c7768251409dcd67dde066979eb65acf934210345815722bb",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round14/complete/floors/cpu-zkv3.proof",
+        "--zk",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "exit": 0,
+      "verdict": "ACCEPT",
+      "gpu_on": false,
+      "device_label": null,
+      "proof": {
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008
+      },
+      "expected": {
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008
+      },
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/cpu-zkv3.out",
+        "sha256": "c02020f9936a1b3a3ef33622f97ea04a147d78aeee048a8e4e68588eae98fed1"
+      },
+      "started_at": "2026-09-08T20:20:36.078837+00:00",
+      "ended_at": "2026-09-08T20:21:15.536249+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "verdict",
+          "ok": true,
+          "detail": "verifier verdict ACCEPT"
+        },
+        {
+          "check": "proof_produced",
+          "ok": true,
+          "detail": "proof file hashed"
+        },
+        {
+          "check": "proof_fresh",
+          "ok": true,
+          "detail": "proof mtime 1788898875 vs start 1788898836"
+        },
+        {
+          "check": "proof_line_matches_file",
+          "ok": true,
+          "detail": "log says {'sha256': '40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17', 'bytes': 87697008}, file is {'sha256': '40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17', 'bytes': 87697008}"
+        },
+        {
+          "check": "frozen_digest",
+          "ok": true,
+          "detail": "got 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 / 87697008 B, want 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 / 87697008 B"
+        },
+        {
+          "check": "argv_shape",
+          "ok": true,
+          "detail": "argv must contain pass 12 512: ['env', 'CARGO_BUILD_JOBS=2', 'RAYON_NUM_THREADS=2', '/home/victor/IntelligenceRegulation/hashline/target/release/hashline', 'pass', '12', '512', '--threads', '2', '--proof-out', '/tmp/zk60-round14/complete/floors/cpu-zkv3.proof', '--zk', '--seed', '1', '--profile', 'v3', '--export', '/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export']"
+        },
+        {
+          "check": "argv_profile_flags",
+          "ok": true,
+          "detail": "argv must carry ['--zk', '--seed', '1', '--profile', 'v3', '--export']"
+        },
+        {
+          "check": "argv_threads",
+          "ok": true,
+          "detail": "--threads must be 2 (the shared-laptop rule); argv carries ['2']"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "gpu-v2",
+      "kind": "byte_gate",
+      "label": "gpu",
+      "profile": "v2",
+      "binary_role": "gpu",
+      "binary_sha256": "6bdbbdc8e45b9944ba7e5d293570aee9520ab304001ad71eeade216f30087561",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "HL_GPU=1",
+        "LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib",
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round14/complete/floors/gpu-v2.proof"
+      ],
+      "exit": 0,
+      "verdict": "ACCEPT",
+      "gpu_on": true,
+      "device_label": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)",
+      "proof": {
+        "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "bytes": 66844928
+      },
+      "expected": {
+        "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "bytes": 66844928
+      },
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/gpu-v2.out",
+        "sha256": "bdcac013f5573a3421318096caf0f009008a944dcfff9f22d0e0b2838bd8cb46"
+      },
+      "started_at": "2026-09-08T20:21:15.575912+00:00",
+      "ended_at": "2026-09-08T20:21:24.028479+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "verdict",
+          "ok": true,
+          "detail": "verifier verdict ACCEPT"
+        },
+        {
+          "check": "gpu_on",
+          "ok": true,
+          "detail": "gpu: ON observed"
+        },
+        {
+          "check": "proof_produced",
+          "ok": true,
+          "detail": "proof file hashed"
+        },
+        {
+          "check": "proof_fresh",
+          "ok": true,
+          "detail": "proof mtime 1788898884 vs start 1788898876"
+        },
+        {
+          "check": "proof_line_matches_file",
+          "ok": true,
+          "detail": "log says {'sha256': '50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d', 'bytes': 66844928}, file is {'sha256': '50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d', 'bytes': 66844928}"
+        },
+        {
+          "check": "frozen_digest",
+          "ok": true,
+          "detail": "got 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d / 66844928 B, want 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d / 66844928 B"
+        },
+        {
+          "check": "argv_shape",
+          "ok": true,
+          "detail": "argv must contain pass 12 512: ['env', 'CARGO_BUILD_JOBS=2', 'RAYON_NUM_THREADS=2', 'HL_GPU=1', 'LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib', '/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline', 'pass', '12', '512', '--threads', '2', '--proof-out', '/tmp/zk60-round14/complete/floors/gpu-v2.proof']"
+        },
+        {
+          "check": "argv_profile_flags",
+          "ok": true,
+          "detail": "argv must carry []"
+        },
+        {
+          "check": "argv_threads",
+          "ok": true,
+          "detail": "--threads must be 2 (the shared-laptop rule); argv carries ['2']"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "gpu-v3",
+      "kind": "byte_gate",
+      "label": "gpu",
+      "profile": "v3",
+      "binary_role": "gpu",
+      "binary_sha256": "6bdbbdc8e45b9944ba7e5d293570aee9520ab304001ad71eeade216f30087561",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "HL_GPU=1",
+        "LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib",
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round14/complete/floors/gpu-v3.proof",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "exit": 0,
+      "verdict": "ACCEPT",
+      "gpu_on": true,
+      "device_label": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)",
+      "proof": {
+        "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "bytes": 70758084
+      },
+      "expected": {
+        "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "bytes": 70758084
+      },
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/gpu-v3.out",
+        "sha256": "40345b1e430962dd5c05bdb08961e32e1a5131d25a13e6b4bbc159f81be99aa0"
+      },
+      "started_at": "2026-09-08T20:21:24.065612+00:00",
+      "ended_at": "2026-09-08T20:21:33.141021+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "verdict",
+          "ok": true,
+          "detail": "verifier verdict ACCEPT"
+        },
+        {
+          "check": "gpu_on",
+          "ok": true,
+          "detail": "gpu: ON observed"
+        },
+        {
+          "check": "proof_produced",
+          "ok": true,
+          "detail": "proof file hashed"
+        },
+        {
+          "check": "proof_fresh",
+          "ok": true,
+          "detail": "proof mtime 1788898893 vs start 1788898884"
+        },
+        {
+          "check": "proof_line_matches_file",
+          "ok": true,
+          "detail": "log says {'sha256': '5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d', 'bytes': 70758084}, file is {'sha256': '5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d', 'bytes': 70758084}"
+        },
+        {
+          "check": "frozen_digest",
+          "ok": true,
+          "detail": "got 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d / 70758084 B, want 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d / 70758084 B"
+        },
+        {
+          "check": "argv_shape",
+          "ok": true,
+          "detail": "argv must contain pass 12 512: ['env', 'CARGO_BUILD_JOBS=2', 'RAYON_NUM_THREADS=2', 'HL_GPU=1', 'LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib', '/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline', 'pass', '12', '512', '--threads', '2', '--proof-out', '/tmp/zk60-round14/complete/floors/gpu-v3.proof', '--profile', 'v3', '--export', '/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export']"
+        },
+        {
+          "check": "argv_profile_flags",
+          "ok": true,
+          "detail": "argv must carry ['--profile', 'v3', '--export']"
+        },
+        {
+          "check": "argv_threads",
+          "ok": true,
+          "detail": "--threads must be 2 (the shared-laptop rule); argv carries ['2']"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "gpu-zk",
+      "kind": "byte_gate",
+      "label": "gpu",
+      "profile": "zk",
+      "binary_role": "gpu",
+      "binary_sha256": "6bdbbdc8e45b9944ba7e5d293570aee9520ab304001ad71eeade216f30087561",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "HL_GPU=1",
+        "LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib",
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round14/complete/floors/gpu-zk.proof",
+        "--zk",
+        "--seed",
+        "1"
+      ],
+      "exit": 0,
+      "verdict": "ACCEPT",
+      "gpu_on": true,
+      "device_label": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)",
+      "proof": {
+        "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "bytes": 87228528
+      },
+      "expected": {
+        "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "bytes": 87228528
+      },
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/gpu-zk.out",
+        "sha256": "d6d92a6d2d615920a830ce539adeb1d5397392daf1f9d0598c3bcfee50c910e2"
+      },
+      "started_at": "2026-09-08T20:21:33.176681+00:00",
+      "ended_at": "2026-09-08T20:21:42.898450+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "verdict",
+          "ok": true,
+          "detail": "verifier verdict ACCEPT"
+        },
+        {
+          "check": "gpu_on",
+          "ok": true,
+          "detail": "gpu: ON observed"
+        },
+        {
+          "check": "proof_produced",
+          "ok": true,
+          "detail": "proof file hashed"
+        },
+        {
+          "check": "proof_fresh",
+          "ok": true,
+          "detail": "proof mtime 1788898902 vs start 1788898893"
+        },
+        {
+          "check": "proof_line_matches_file",
+          "ok": true,
+          "detail": "log says {'sha256': '021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d', 'bytes': 87228528}, file is {'sha256': '021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d', 'bytes': 87228528}"
+        },
+        {
+          "check": "frozen_digest",
+          "ok": true,
+          "detail": "got 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d / 87228528 B, want 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d / 87228528 B"
+        },
+        {
+          "check": "argv_shape",
+          "ok": true,
+          "detail": "argv must contain pass 12 512: ['env', 'CARGO_BUILD_JOBS=2', 'RAYON_NUM_THREADS=2', 'HL_GPU=1', 'LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib', '/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline', 'pass', '12', '512', '--threads', '2', '--proof-out', '/tmp/zk60-round14/complete/floors/gpu-zk.proof', '--zk', '--seed', '1']"
+        },
+        {
+          "check": "argv_profile_flags",
+          "ok": true,
+          "detail": "argv must carry ['--zk', '--seed', '1']"
+        },
+        {
+          "check": "argv_threads",
+          "ok": true,
+          "detail": "--threads must be 2 (the shared-laptop rule); argv carries ['2']"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "gpu-zkv3",
+      "kind": "byte_gate",
+      "label": "gpu",
+      "profile": "zkv3",
+      "binary_role": "gpu",
+      "binary_sha256": "6bdbbdc8e45b9944ba7e5d293570aee9520ab304001ad71eeade216f30087561",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "HL_GPU=1",
+        "LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib",
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round14/complete/floors/gpu-zkv3.proof",
+        "--zk",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "exit": 0,
+      "verdict": "ACCEPT",
+      "gpu_on": true,
+      "device_label": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)",
+      "proof": {
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008
+      },
+      "expected": {
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008
+      },
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/gpu-zkv3.out",
+        "sha256": "a2ee2b3775866f0f43278ad79930145e3a60fdef8af15d585674f5afb0e2acc3"
+      },
+      "started_at": "2026-09-08T20:21:42.934682+00:00",
+      "ended_at": "2026-09-08T20:21:55.086876+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "verdict",
+          "ok": true,
+          "detail": "verifier verdict ACCEPT"
+        },
+        {
+          "check": "gpu_on",
+          "ok": true,
+          "detail": "gpu: ON observed"
+        },
+        {
+          "check": "proof_produced",
+          "ok": true,
+          "detail": "proof file hashed"
+        },
+        {
+          "check": "proof_fresh",
+          "ok": true,
+          "detail": "proof mtime 1788898914 vs start 1788898903"
+        },
+        {
+          "check": "proof_line_matches_file",
+          "ok": true,
+          "detail": "log says {'sha256': '40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17', 'bytes': 87697008}, file is {'sha256': '40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17', 'bytes': 87697008}"
+        },
+        {
+          "check": "frozen_digest",
+          "ok": true,
+          "detail": "got 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 / 87697008 B, want 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 / 87697008 B"
+        },
+        {
+          "check": "argv_shape",
+          "ok": true,
+          "detail": "argv must contain pass 12 512: ['env', 'CARGO_BUILD_JOBS=2', 'RAYON_NUM_THREADS=2', 'HL_GPU=1', 'LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib', '/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline', 'pass', '12', '512', '--threads', '2', '--proof-out', '/tmp/zk60-round14/complete/floors/gpu-zkv3.proof', '--zk', '--seed', '1', '--profile', 'v3', '--export', '/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export']"
+        },
+        {
+          "check": "argv_profile_flags",
+          "ok": true,
+          "detail": "argv must carry ['--zk', '--seed', '1', '--profile', 'v3', '--export']"
+        },
+        {
+          "check": "argv_threads",
+          "ok": true,
+          "detail": "--threads must be 2 (the shared-laptop rule); argv carries ['2']"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "gpu-zkchunk-v2",
+      "kind": "byte_gate",
+      "label": "gpu-zkchunk",
+      "profile": "v2",
+      "binary_role": "gpu",
+      "binary_sha256": "6bdbbdc8e45b9944ba7e5d293570aee9520ab304001ad71eeade216f30087561",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "HL_GPU=1",
+        "HL_ZK_CHUNK=1",
+        "LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib",
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round14/complete/floors/gpu-zkchunk-v2.proof"
+      ],
+      "exit": 0,
+      "verdict": "ACCEPT",
+      "gpu_on": true,
+      "device_label": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)",
+      "proof": {
+        "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "bytes": 66844928
+      },
+      "expected": {
+        "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "bytes": 66844928
+      },
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/gpu-zkchunk-v2.out",
+        "sha256": "2947a29b72c88e73178707cd4496c2acf90e72fbcdc6eb29731fdc12c8f9492b"
+      },
+      "started_at": "2026-09-08T20:21:55.123318+00:00",
+      "ended_at": "2026-09-08T20:22:03.599660+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "verdict",
+          "ok": true,
+          "detail": "verifier verdict ACCEPT"
+        },
+        {
+          "check": "gpu_on",
+          "ok": true,
+          "detail": "gpu: ON observed"
+        },
+        {
+          "check": "proof_produced",
+          "ok": true,
+          "detail": "proof file hashed"
+        },
+        {
+          "check": "proof_fresh",
+          "ok": true,
+          "detail": "proof mtime 1788898923 vs start 1788898915"
+        },
+        {
+          "check": "proof_line_matches_file",
+          "ok": true,
+          "detail": "log says {'sha256': '50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d', 'bytes': 66844928}, file is {'sha256': '50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d', 'bytes': 66844928}"
+        },
+        {
+          "check": "frozen_digest",
+          "ok": true,
+          "detail": "got 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d / 66844928 B, want 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d / 66844928 B"
+        },
+        {
+          "check": "argv_shape",
+          "ok": true,
+          "detail": "argv must contain pass 12 512: ['env', 'CARGO_BUILD_JOBS=2', 'RAYON_NUM_THREADS=2', 'HL_GPU=1', 'HL_ZK_CHUNK=1', 'LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib', '/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline', 'pass', '12', '512', '--threads', '2', '--proof-out', '/tmp/zk60-round14/complete/floors/gpu-zkchunk-v2.proof']"
+        },
+        {
+          "check": "argv_profile_flags",
+          "ok": true,
+          "detail": "argv must carry []"
+        },
+        {
+          "check": "argv_threads",
+          "ok": true,
+          "detail": "--threads must be 2 (the shared-laptop rule); argv carries ['2']"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "gpu-zkchunk-v3",
+      "kind": "byte_gate",
+      "label": "gpu-zkchunk",
+      "profile": "v3",
+      "binary_role": "gpu",
+      "binary_sha256": "6bdbbdc8e45b9944ba7e5d293570aee9520ab304001ad71eeade216f30087561",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "HL_GPU=1",
+        "HL_ZK_CHUNK=1",
+        "LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib",
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round14/complete/floors/gpu-zkchunk-v3.proof",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "exit": 0,
+      "verdict": "ACCEPT",
+      "gpu_on": true,
+      "device_label": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)",
+      "proof": {
+        "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "bytes": 70758084
+      },
+      "expected": {
+        "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "bytes": 70758084
+      },
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/gpu-zkchunk-v3.out",
+        "sha256": "4d6bee475d98185503dafe9f6d0f259e12e4f39b6340c56792498ccb8c8d55e1"
+      },
+      "started_at": "2026-09-08T20:22:03.636845+00:00",
+      "ended_at": "2026-09-08T20:22:12.619468+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "verdict",
+          "ok": true,
+          "detail": "verifier verdict ACCEPT"
+        },
+        {
+          "check": "gpu_on",
+          "ok": true,
+          "detail": "gpu: ON observed"
+        },
+        {
+          "check": "proof_produced",
+          "ok": true,
+          "detail": "proof file hashed"
+        },
+        {
+          "check": "proof_fresh",
+          "ok": true,
+          "detail": "proof mtime 1788898932 vs start 1788898924"
+        },
+        {
+          "check": "proof_line_matches_file",
+          "ok": true,
+          "detail": "log says {'sha256': '5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d', 'bytes': 70758084}, file is {'sha256': '5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d', 'bytes': 70758084}"
+        },
+        {
+          "check": "frozen_digest",
+          "ok": true,
+          "detail": "got 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d / 70758084 B, want 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d / 70758084 B"
+        },
+        {
+          "check": "argv_shape",
+          "ok": true,
+          "detail": "argv must contain pass 12 512: ['env', 'CARGO_BUILD_JOBS=2', 'RAYON_NUM_THREADS=2', 'HL_GPU=1', 'HL_ZK_CHUNK=1', 'LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib', '/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline', 'pass', '12', '512', '--threads', '2', '--proof-out', '/tmp/zk60-round14/complete/floors/gpu-zkchunk-v3.proof', '--profile', 'v3', '--export', '/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export']"
+        },
+        {
+          "check": "argv_profile_flags",
+          "ok": true,
+          "detail": "argv must carry ['--profile', 'v3', '--export']"
+        },
+        {
+          "check": "argv_threads",
+          "ok": true,
+          "detail": "--threads must be 2 (the shared-laptop rule); argv carries ['2']"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "gpu-zkchunk-zk",
+      "kind": "byte_gate",
+      "label": "gpu-zkchunk",
+      "profile": "zk",
+      "binary_role": "gpu",
+      "binary_sha256": "6bdbbdc8e45b9944ba7e5d293570aee9520ab304001ad71eeade216f30087561",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "HL_GPU=1",
+        "HL_ZK_CHUNK=1",
+        "LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib",
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round14/complete/floors/gpu-zkchunk-zk.proof",
+        "--zk",
+        "--seed",
+        "1"
+      ],
+      "exit": 0,
+      "verdict": "ACCEPT",
+      "gpu_on": true,
+      "device_label": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)",
+      "proof": {
+        "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "bytes": 87228528
+      },
+      "expected": {
+        "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "bytes": 87228528
+      },
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/gpu-zkchunk-zk.out",
+        "sha256": "8e87e7988cbc3ad078c4776c9aaf51720c42e024e54b2e8f533a87cabc8ea4b5"
+      },
+      "started_at": "2026-09-08T20:22:12.655366+00:00",
+      "ended_at": "2026-09-08T20:22:22.773244+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "verdict",
+          "ok": true,
+          "detail": "verifier verdict ACCEPT"
+        },
+        {
+          "check": "gpu_on",
+          "ok": true,
+          "detail": "gpu: ON observed"
+        },
+        {
+          "check": "proof_produced",
+          "ok": true,
+          "detail": "proof file hashed"
+        },
+        {
+          "check": "proof_fresh",
+          "ok": true,
+          "detail": "proof mtime 1788898942 vs start 1788898933"
+        },
+        {
+          "check": "proof_line_matches_file",
+          "ok": true,
+          "detail": "log says {'sha256': '021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d', 'bytes': 87228528}, file is {'sha256': '021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d', 'bytes': 87228528}"
+        },
+        {
+          "check": "frozen_digest",
+          "ok": true,
+          "detail": "got 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d / 87228528 B, want 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d / 87228528 B"
+        },
+        {
+          "check": "argv_shape",
+          "ok": true,
+          "detail": "argv must contain pass 12 512: ['env', 'CARGO_BUILD_JOBS=2', 'RAYON_NUM_THREADS=2', 'HL_GPU=1', 'HL_ZK_CHUNK=1', 'LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib', '/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline', 'pass', '12', '512', '--threads', '2', '--proof-out', '/tmp/zk60-round14/complete/floors/gpu-zkchunk-zk.proof', '--zk', '--seed', '1']"
+        },
+        {
+          "check": "argv_profile_flags",
+          "ok": true,
+          "detail": "argv must carry ['--zk', '--seed', '1']"
+        },
+        {
+          "check": "argv_threads",
+          "ok": true,
+          "detail": "--threads must be 2 (the shared-laptop rule); argv carries ['2']"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "gpu-zkchunk-zkv3",
+      "kind": "byte_gate",
+      "label": "gpu-zkchunk",
+      "profile": "zkv3",
+      "binary_role": "gpu",
+      "binary_sha256": "6bdbbdc8e45b9944ba7e5d293570aee9520ab304001ad71eeade216f30087561",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "HL_GPU=1",
+        "HL_ZK_CHUNK=1",
+        "LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib",
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round14/complete/floors/gpu-zkchunk-zkv3.proof",
+        "--zk",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "exit": 0,
+      "verdict": "ACCEPT",
+      "gpu_on": true,
+      "device_label": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)",
+      "proof": {
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008
+      },
+      "expected": {
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008
+      },
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/gpu-zkchunk-zkv3.out",
+        "sha256": "b0868a6bfa8fcd69a2c210cba9c58bd49630d31837f092693be179dfbe1b1fe7"
+      },
+      "started_at": "2026-09-08T20:22:22.811476+00:00",
+      "ended_at": "2026-09-08T20:22:34.748691+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "verdict",
+          "ok": true,
+          "detail": "verifier verdict ACCEPT"
+        },
+        {
+          "check": "gpu_on",
+          "ok": true,
+          "detail": "gpu: ON observed"
+        },
+        {
+          "check": "proof_produced",
+          "ok": true,
+          "detail": "proof file hashed"
+        },
+        {
+          "check": "proof_fresh",
+          "ok": true,
+          "detail": "proof mtime 1788898954 vs start 1788898943"
+        },
+        {
+          "check": "proof_line_matches_file",
+          "ok": true,
+          "detail": "log says {'sha256': '40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17', 'bytes': 87697008}, file is {'sha256': '40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17', 'bytes': 87697008}"
+        },
+        {
+          "check": "frozen_digest",
+          "ok": true,
+          "detail": "got 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 / 87697008 B, want 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 / 87697008 B"
+        },
+        {
+          "check": "argv_shape",
+          "ok": true,
+          "detail": "argv must contain pass 12 512: ['env', 'CARGO_BUILD_JOBS=2', 'RAYON_NUM_THREADS=2', 'HL_GPU=1', 'HL_ZK_CHUNK=1', 'LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib', '/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline', 'pass', '12', '512', '--threads', '2', '--proof-out', '/tmp/zk60-round14/complete/floors/gpu-zkchunk-zkv3.proof', '--zk', '--seed', '1', '--profile', 'v3', '--export', '/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export']"
+        },
+        {
+          "check": "argv_profile_flags",
+          "ok": true,
+          "detail": "argv must carry ['--zk', '--seed', '1', '--profile', 'v3', '--export']"
+        },
+        {
+          "check": "argv_threads",
+          "ok": true,
+          "detail": "--threads must be 2 (the shared-laptop rule); argv carries ['2']"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "cache_cold_zkv3",
+      "kind": "cache",
+      "label": "cpu",
+      "profile": "zkv3",
+      "binary_role": "cpu",
+      "binary_sha256": "b6aee83f80133a1c7768251409dcd67dde066979eb65acf934210345815722bb",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "HL_WCACHE_VERBOSE=1",
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round14/complete/floors/cache_cold_zkv3.proof",
+        "--zk",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+        "--wcache",
+        "/tmp/zk60-round14/complete/floors/wcache"
+      ],
+      "exit": 0,
+      "verdict": "ACCEPT",
+      "gpu_on": false,
+      "device_label": null,
+      "proof": {
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008
+      },
+      "expected": {
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008
+      },
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/cache_cold_zkv3.out",
+        "sha256": "6a1030f68955d911460bb3964ea6de9009e4718801deb3810acab6b09d488d6b"
+      },
+      "started_at": "2026-09-08T20:22:34.786944+00:00",
+      "ended_at": "2026-09-08T20:23:13.950647+00:00",
+      "oracle_summary": null,
+      "wcache": {
+        "hits": 0,
+        "misses": 12,
+        "rejected": 0
+      },
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 12
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "verdict",
+          "ok": true,
+          "detail": "verifier verdict ACCEPT"
+        },
+        {
+          "check": "proof_produced",
+          "ok": true,
+          "detail": "proof file hashed"
+        },
+        {
+          "check": "proof_fresh",
+          "ok": true,
+          "detail": "proof mtime 1788898993 vs start 1788898955"
+        },
+        {
+          "check": "proof_line_matches_file",
+          "ok": true,
+          "detail": "log says {'sha256': '40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17', 'bytes': 87697008}, file is {'sha256': '40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17', 'bytes': 87697008}"
+        },
+        {
+          "check": "frozen_digest",
+          "ok": true,
+          "detail": "got 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 / 87697008 B, want 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 / 87697008 B"
+        },
+        {
+          "check": "argv_shape",
+          "ok": true,
+          "detail": "argv must contain pass 12 512: ['env', 'CARGO_BUILD_JOBS=2', 'RAYON_NUM_THREADS=2', 'HL_WCACHE_VERBOSE=1', '/home/victor/IntelligenceRegulation/hashline/target/release/hashline', 'pass', '12', '512', '--threads', '2', '--proof-out', '/tmp/zk60-round14/complete/floors/cache_cold_zkv3.proof', '--zk', '--seed', '1', '--profile', 'v3', '--export', '/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export', '--wcache', '/tmp/zk60-round14/complete/floors/wcache']"
+        },
+        {
+          "check": "argv_profile_flags",
+          "ok": true,
+          "detail": "argv must carry ['--zk', '--seed', '1', '--profile', 'v3', '--export', '--wcache']"
+        },
+        {
+          "check": "argv_threads",
+          "ok": true,
+          "detail": "--threads must be 2 (the shared-laptop rule); argv carries ['2']"
+        },
+        {
+          "check": "wcache_cold",
+          "ok": true,
+          "detail": "report line {'hits': 0, 'misses': 12, 'rejected': 0}; verbose {'hit_lines': 0, 'miss_lines': 12}"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "cache_warm_zkv3",
+      "kind": "cache",
+      "label": "cpu",
+      "profile": "zkv3",
+      "binary_role": "cpu",
+      "binary_sha256": "b6aee83f80133a1c7768251409dcd67dde066979eb65acf934210345815722bb",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "HL_WCACHE_VERBOSE=1",
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--proof-out",
+        "/tmp/zk60-round14/complete/floors/cache_warm_zkv3.proof",
+        "--zk",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+        "--wcache",
+        "/tmp/zk60-round14/complete/floors/wcache"
+      ],
+      "exit": 0,
+      "verdict": "ACCEPT",
+      "gpu_on": false,
+      "device_label": null,
+      "proof": {
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008
+      },
+      "expected": {
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008
+      },
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/cache_warm_zkv3.out",
+        "sha256": "f82b593392cd39bfeb448299a9bcebbf90469cfd67d3823839d9975ed59ae06c"
+      },
+      "started_at": "2026-09-08T20:23:13.986791+00:00",
+      "ended_at": "2026-09-08T20:23:52.186818+00:00",
+      "oracle_summary": null,
+      "wcache": {
+        "hits": 12,
+        "misses": 0,
+        "rejected": 0
+      },
+      "wcache_verbose": {
+        "hit_lines": 12,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        },
+        {
+          "check": "verdict",
+          "ok": true,
+          "detail": "verifier verdict ACCEPT"
+        },
+        {
+          "check": "proof_produced",
+          "ok": true,
+          "detail": "proof file hashed"
+        },
+        {
+          "check": "proof_fresh",
+          "ok": true,
+          "detail": "proof mtime 1788899032 vs start 1788898994"
+        },
+        {
+          "check": "proof_line_matches_file",
+          "ok": true,
+          "detail": "log says {'sha256': '40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17', 'bytes': 87697008}, file is {'sha256': '40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17', 'bytes': 87697008}"
+        },
+        {
+          "check": "frozen_digest",
+          "ok": true,
+          "detail": "got 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 / 87697008 B, want 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 / 87697008 B"
+        },
+        {
+          "check": "argv_shape",
+          "ok": true,
+          "detail": "argv must contain pass 12 512: ['env', 'CARGO_BUILD_JOBS=2', 'RAYON_NUM_THREADS=2', 'HL_WCACHE_VERBOSE=1', '/home/victor/IntelligenceRegulation/hashline/target/release/hashline', 'pass', '12', '512', '--threads', '2', '--proof-out', '/tmp/zk60-round14/complete/floors/cache_warm_zkv3.proof', '--zk', '--seed', '1', '--profile', 'v3', '--export', '/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export', '--wcache', '/tmp/zk60-round14/complete/floors/wcache']"
+        },
+        {
+          "check": "argv_profile_flags",
+          "ok": true,
+          "detail": "argv must carry ['--zk', '--seed', '1', '--profile', 'v3', '--export', '--wcache']"
+        },
+        {
+          "check": "argv_threads",
+          "ok": true,
+          "detail": "--threads must be 2 (the shared-laptop rule); argv carries ['2']"
+        },
+        {
+          "check": "wcache_warm",
+          "ok": true,
+          "detail": "report line {'hits': 12, 'misses': 0, 'rejected': 0} (hits > 0 required); verbose {'hit_lines': 12, 'miss_lines': 0}"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "cache_p3_refusal",
+      "kind": "cache_refusal",
+      "label": "cpu",
+      "profile": "p3",
+      "binary_role": "cpu",
+      "binary_sha256": "b6aee83f80133a1c7768251409dcd67dde066979eb65acf934210345815722bb",
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "RAYON_NUM_THREADS=2",
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "2",
+        "--profile",
+        "v3",
+        "--seed",
+        "1",
+        "--export",
+        "/nonexistent/zk60-cl13-export",
+        "--p3",
+        "--wcache",
+        "/tmp/zk60-round14/complete/floors/wcache-p3-must-not-exist"
+      ],
+      "exit": 2,
+      "verdict": null,
+      "gpu_on": false,
+      "device_label": null,
+      "proof": null,
+      "expected": null,
+      "log": {
+        "path": "/tmp/zk60-round14/complete/floors/cache_p3_refusal.out",
+        "sha256": "403373be8f8df9a1d26138d00438128c7f53fc0b165c87079eb89aac28d178e7"
+      },
+      "started_at": "2026-09-08T20:23:52.220896+00:00",
+      "ended_at": "2026-09-08T20:23:52.257752+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 2 (want 2)"
+        },
+        {
+          "check": "refusal_first",
+          "ok": true,
+          "detail": "first line: 'REFUSED: --wcache with --p3.'"
+        },
+        {
+          "check": "no_proof",
+          "ok": true,
+          "detail": "nothing proved or printed before the refusal"
+        }
+      ],
+      "ok": true
+    }
+  ],
+  "verdict": {
+    "green": true,
+    "reasons": [],
+    "computed_by": "hashline_cl_gpu_gates.validate_manifest",
+    "summary": {
+      "suite_version": 3,
+      "production": true,
+      "cases_recorded": 21,
+      "cases_expected": 21,
+      "head": "df7fb0d6860b41e3af421b9f99d3b672e9736d32",
+      "gpu_binary_sha256": "6bdbbdc8e45b9944ba7e5d293570aee9520ab304001ad71eeade216f30087561",
+      "device": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)",
+      "oracle_executed_cases": 189
+    }
+  },
+  "finalized_at": "2026-09-08T20:23:52.289217+00:00"
+}

@@ -128,3 +128,10 @@ H2's reviewed stable-weight generator and authenticated registration/application
 integration remain open. FA6–FA8's masking, full-transcript and bounded-reuse
 argument still gates H3/H4 and subsequent private-block composition. This host
 module stays outside the maintained minimal `zkp-core` subproject.
+
+[Round 14](ZK60_ROUND14.md) records the final source and combined validation:
+219 Rust tests including the ownership/process checks, 343 tooling tests, 189
+device oracle cases, 12 exact frozen proofs and both public receipt gates. The
+host registration feature is tested separately from default proof binaries.
+The inherited-descriptor regression also verifies explicit journal unlock at
+owner drop; all earlier failed integration attempts remain in the evidence.

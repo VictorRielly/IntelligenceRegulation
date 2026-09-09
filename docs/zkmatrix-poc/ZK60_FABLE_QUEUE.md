@@ -1,4 +1,26 @@
-# Fable — current task queue, round 13
+# Fable — current task queue, round 14
+
+**2026-09-08, Codex round 14:** the local registration component is
+implemented in `7a9273b`. It coordinates encrypted material, the locked durable
+journal, an external key callback and reserved material access; see the
+[contract](ZK60_STABLE_WEIGHT_REGISTRATION.md). H2's reviewed layout generator,
+authenticated application/approval and production key provisioning remain open.
+
+Fable's committed local PCS/scanner delivery `76ee275`/`ee775be` is integrated
+through `83115b5`. **Typed decoder `f8d40a7` is held for C20-R1–R3:** oversized
+query allocation panic, unchecked shift panic, and honest `log_cols=0` group
+count mismatch. The [review and correction criteria](ZK60_CL20_ROUND14_REVIEW.md)
+include retained reproductions. Continue from the existing lane; preserve its
+work and pick up the host-store compatibility fix. Do not duplicate PCS.
+
+FA6–FA9 and CL21 retain their ownership and priority. CL20 remains priority 3;
+its next delivery is the decoder correction followed by the selected complete
+FFN prover/verifier path with actual old/new parity. Codex retains the versioned
+protocol/registered verifier and private-block implementation after review.
+Final combined source `df7fb0d` passes 219 Rust tests, 343 tooling tests,
+189 device oracle cases and all 12 frozen proof comparisons. It also fixes
+journal unlock during child startup; keep this host fix when syncing the lane.
+See [round 14](ZK60_ROUND14.md) for validation and the continuation plan.
 
 **2026-09-08, Codex round 13:** `ccc6f26` implements the opt-in protected
 stable-weight material store and exact CPU commitment reconstruction. It passes
@@ -47,7 +69,7 @@ nor the refactor repairs the disclosed privacy defect.
 | **FA8 — complete transcript and repeated-proof argument** | 0 | Address FA3 B2–B4 with an explicit simulator/conditioning argument, hash and entropy assumptions, failure/retry behavior, and the entire composition schedule. Treat fresh P1 and FA4's budgeted stable P3 W separately. List anything unresolved; no implementation or finite rank matrix substitutes for this review. Depends on the FA6 construction and FA7 observation inventory. |
 | **FA9 — close arithmetic and registrar gaps** | 0 | Independently package FA5 R09's norm alias as a Rust adversarial test and propose the narrow verifier-enforced range fix, with fixed-profile and wider-profile classifications. Resolve R31's authenticated weight/gamma range premise, R10's actual limb width, and R32's extra typed-proof fields. Codex owns attention/contract fixes; provide exact patch/test proposals and update FA5's obligation table. |
 | **CL21 — gate the extracted dependency** | 1 | Make the floors/preflight source identity include `zkp-core` and both lockfiles, and gate the core tests/example with an explicit suite version and expected cases. A dirty or missing core must refuse qualification. Preserve archived v1–v3 meanings. The round-11 outer validator hashes both crates; the current standalone floors manifest still only checks the `hashline/` delta. |
-| **CL20 — continue the maintained core** | 3 | Start from the implemented primitive boundary in [MIGRATION.md](../../zkp-core/MIGRATION.md). Extract CPU PCS behind a narrow GPU adapter, then table/statement/witness/layout/proof pieces, the selected FFN path and bounded codec. Preserve compact/cache/GPU consumers and full frozen proofs; add actual old/new tiny FFN parity. A primitive or public-only example does not close the full task. |
+| **CL20 — continue the maintained core** | 3 | Primitives and PCS are integrated through `83115b5`. Correct held decoder findings [C20-R1–R3](ZK60_CL20_ROUND14_REVIEW.md), then complete the selected FFN prover/verifier extraction and actual old/new tiny parity. Preserve compact/cache/GPU consumers and frozen proofs. A P0 example does not close the reviewed ZKP path. |
 
 FA6, FA7 and FA9 can proceed independently; CL21 can proceed alongside them.
 FA8 can draft its structure but closes only against the reviewed construction.
@@ -420,7 +442,7 @@ Limits: Analysis can start now. Final closure depends on the concrete repair and
 
 ### CL20 — Create and maintain a minimal refactored ZKP subproject
 
-Priority 3; **ready_design**. Owner: Fable refactoring lane; Codex reviews shared-core extraction. Dependencies: CL17.
+Priority 3; **PCS integrated; typed decoder held for C20-R1–R3; full path open**. Owner: Fable refactoring lane; Codex reviews shared-core extraction. Dependencies: CL17.
 
 Files: `zkp-core/README.md`; `zkp-core/Cargo.toml (new at implementation)`; `zkp-core/src/ (new at implementation)`; `zkp-core/tests/ (new at implementation)`; `zkp-core/examples/ (new at implementation)`; `hashline/Cargo.toml and extracted core modules (coordinated adapter changes)`.
 

@@ -1,0 +1,6 @@
+{
+  "source_commit": "f8d40a74e07ee9d60f869fe323eee2a2f564f067",
+  "source_kind": "committed local Fable checkout, not yet published",
+  "probe_profile": "debug with panic unwinding; synthetic public fixture only",
+  "no_source_edits_to_fable_checkout": true
+}
