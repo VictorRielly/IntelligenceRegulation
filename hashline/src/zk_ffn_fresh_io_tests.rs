@@ -84,7 +84,11 @@ fn bound_ffn_honest_p1_p3_and_fresh_owners() {
             let bytes = receipt.to_bytes(&st, weights, &expected).unwrap();
             assert_eq!(bytes.len(), encoded_len(&st, weights).unwrap());
             let restored = ExpectedIo::from_bytes(&policy_bytes).unwrap();
+            let capture = mask_diagnostic::io::CaptureGuard::new();
             verify_bytes(&st, weights, &restored, &bytes).unwrap();
+            assert!(capture.is_published());
+            if attempt == 0 { capture.check_tamper_controls(); }
+            capture.check_and_export();
             let decoded = Receipt::from_bytes(&st, weights, &restored, &bytes).unwrap();
             assert_eq!(decoded.to_bytes(&st, weights, &restored).unwrap(), bytes);
             let roots = (
@@ -119,8 +123,10 @@ fn wrong_plane(side: usize) {
     let st = statement(&w);
     let bytes = receipt.to_bytes(&st, weights, &expected).unwrap();
     Receipt::from_bytes(&st, weights, &expected, &bytes).unwrap();
+    let capture = mask_diagnostic::io::CaptureGuard::new();
     let err = verify_bytes(&st, weights, &expected, &bytes).unwrap_err();
     assert!(err.starts_with(&format!("IO {side} sumcheck:")), "{err}");
+    assert!(!capture.is_published());
 }
 #[test]
 fn bound_ffn_refuses_recommitted_wrong_input() {
@@ -189,8 +195,37 @@ fn bound_ffn_adversarial_receipt_and_relabelled_policy() {
         .unwrap();
     let weights = WeightStatement::FreshPrivate;
     let bytes = receipt.to_bytes(&st, weights, &expected).unwrap();
+    let capture = mask_diagnostic::io::CaptureGuard::new();
     let decode = |b: &[u8]| Receipt::from_bytes(&st, weights, &expected, b);
-    let reject = |b: &[u8]| assert!(verify_bytes(&st, weights, &expected, b).is_err());
+    let reject = |b: &[u8]| {
+        assert!(verify_bytes(&st, weights, &expected, b).is_err());
+        assert!(!capture.is_published(), "failed receipt published IO observations");
+    };
+    // Successful publication must be cleared even when the next attempt fails
+    // before typed verification, or only at the last endpoint's Merkle path.
+    verify_bytes(&st, weights, &expected, &bytes).unwrap();
+    assert!(capture.is_published());
+    reject(&bytes[..7]);
+    verify_bytes(&st, weights, &expected, &bytes).unwrap();
+    let mut late = bytes.clone();
+    *late.last_mut().unwrap() ^= 1;
+    let err = verify_bytes(&st, weights, &expected, &late).unwrap_err();
+    assert!(err.starts_with("IO endpoint 1:"), "{err}");
+    assert!(!capture.is_published());
+    // O7 P3: role-swapped and duplicated real endpoint openings parse but fail.
+    for duplicate in [false, true] {
+        let mut typed = decode(&bytes).unwrap();
+        if duplicate {
+            typed.endpoint_open[1] = typed.endpoint_open[0].clone();
+        } else {
+            typed.endpoint_open.swap(0, 1);
+        }
+        let b = typed.to_bytes(&st, weights, &expected).unwrap();
+        Receipt::from_bytes(&st, weights, &expected, &b).unwrap();
+        let err = verify_bytes(&st, weights, &expected, &b).unwrap_err();
+        assert!(err.starts_with("IO endpoint "), "{err}");
+        assert!(!capture.is_published());
+    }
     for end in [0, 8, 39, 40, bytes.len() / 2, bytes.len() - 1] {
         assert!(decode(&bytes[..end]).is_err());
     }
@@ -247,11 +282,12 @@ fn bound_ffn_adversarial_receipt_and_relabelled_policy() {
         reject(&b);
     }
     // Recompute the envelope binding: a digest is framing, not authorization.
-    let mut policies = vec![expected.clone(); 4];
+    let mut policies = vec![expected.clone(); 5];
     policies[0].input.root[0] ^= 1;
     policies[1].output.root[0] ^= 1;
     policies[2].spec.context[0] ^= 1;
     policies[3].spec.output_scale += 1;
+    policies[4].spec.input_scale += 1;
     policies.push(ExpectedIo::from_roots(
         expected.spec.clone(),
         expected.output.root,

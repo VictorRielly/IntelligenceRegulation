@@ -3737,36 +3737,52 @@ fn verify_layer_zk_v3_with_seams(st: &StatementV3, proof: &LayerProofZk, params:
     let pred_claims = pred.zip(pred_ctx.as_ref()).map(|(p, (rho_p, e_p, _, _))| (p, rho_p.as_slice(), *e_p));
     let (wc, mut ac, hc) = build_claims_zk_v3(&zl, proof, &p2, &p5, &rho_f, &rho_d, &rho_zs, &rho_tab, (cd_gu, cm_gu), (cd_d, cm_d), e_f, e_dz, e_zs, e_tab, &p3, &p6, pred_claims);
     before_openings(&zl, &mut ac, &mut fs, tr)?;
+    #[cfg(test)]
+    if io { mask_diagnostic::io::mask_before(&proof.mask_root, &specs, &fs, &proof.mask_open, tr); }
     mask_verify(&proof.mask_root, &specs, &fs, &proof.mask_open, ntt, tr).map_err(|e| format!("M: {e}"))?;
+    #[cfg(test)]
+    if io { mask_diagnostic::io::mask_after(tr); }
     #[cfg(test)]
     let mut diagnostic_w = None;
     if is_p3 {
         let wcz = build_w_zclaims_v3(&zl, proof, &p3, &p6, (cd_w_gu, e_gu2), (cd_w_d, e_d2));
         #[cfg(test)]
-        { if !io { diagnostic_w = mask_diagnostic::capture(mask_diagnostic::Role::W, &w_pcs, w_com, &wcz, &proof.w_open_zk, tr); } }
+        { diagnostic_w = if io { mask_diagnostic::io::capture(mask_diagnostic::Role::W, &w_pcs, w_com, &wcz, &proof.w_open_zk, tr) }
+            else { mask_diagnostic::capture(mask_diagnostic::Role::W, &w_pcs, w_com, &wcz, &proof.w_open_zk, tr) }; }
         if mr1 { fresh_poc::check_masks(&wcz, w_com.rows, zl.log_wn, &zl.w_mask_rows(), zl.w_prox, tr)?; }
         pcs::verify_zk(&w_pcs, &ZkOpts::standard(&w_pcs), w_com, &wcz, &proof.w_open_zk, ntt, tr).map_err(|e| format!("W: {e}"))?;
         #[cfg(test)]
         mask_diagnostic::finish(&mut diagnostic_w, tr);
     } else {
+        #[cfg(test)]
+        let before = Transcript::clone_state(tr);
         pcs::verify(&w_pcs, w_com, &wc, &proof.w_open, ntt, tr).map_err(|e| format!("W: {e}"))?;
+        #[cfg(test)]
+        if io { mask_diagnostic::io::public_w(&w_pcs, w_com, &wc, &proof.w_open, &before, tr); }
     }
     // IO has a separate capture contract; do not publish it as legacy/fresh function 1.
     // Test-only public observation: publish only after the complete FFN accepts.
     #[cfg(test)]
-    let mut diagnostic_a = if io { None } else { mask_diagnostic::capture(mask_diagnostic::Role::A, &a_pcs, a_com, &ac, &proof.a_open, tr) };
+    let mut diagnostic_a = if io { mask_diagnostic::io::capture(mask_diagnostic::Role::A, &a_pcs, a_com, &ac, &proof.a_open, tr) }
+        else { mask_diagnostic::capture(mask_diagnostic::Role::A, &a_pcs, a_com, &ac, &proof.a_open, tr) };
     if mr1 { fresh_poc::check_masks(&ac, a_com.rows, log_n, &zl.a_mask_rows(), zl.a_prox, tr)?; }
     pcs::verify_zk(&a_pcs, &ZkOpts::standard(&a_pcs), a_com, &ac, &proof.a_open, ntt, tr).map_err(|e| format!("A: {e}"))?;
     #[cfg(test)]
     mask_diagnostic::finish(&mut diagnostic_a, tr);
     #[cfg(test)]
-    let mut diagnostic_h = if io { None } else { mask_diagnostic::capture(mask_diagnostic::Role::H, &h_pcs, h_com, &hc, &proof.h_open, tr) };
+    let mut diagnostic_h = if io { mask_diagnostic::io::capture(mask_diagnostic::Role::H, &h_pcs, h_com, &hc, &proof.h_open, tr) }
+        else { mask_diagnostic::capture(mask_diagnostic::Role::H, &h_pcs, h_com, &hc, &proof.h_open, tr) };
     if mr1 { fresh_poc::check_masks(&hc, h_com.rows, log_n, &zl.h_mask_rows(), zl.h_prox, tr)?; }
     pcs::verify_zk(&h_pcs, &ZkOpts::standard(&h_pcs), h_com, &hc, &proof.h_open, ntt, tr).map_err(|e| format!("H: {e}"))?;
     #[cfg(test)]
     mask_diagnostic::finish(&mut diagnostic_h, tr);
     #[cfg(test)]
-    if !io { mask_diagnostic::publish(diagnostic_w, diagnostic_a, diagnostic_h); }
+    if io {
+        // Held privately by the test observer until both endpoint openings accept.
+        mask_diagnostic::io::record("W", diagnostic_w);
+        mask_diagnostic::io::record("A", diagnostic_a);
+        mask_diagnostic::io::record("H", diagnostic_h);
+    } else { mask_diagnostic::publish(diagnostic_w, diagnostic_a, diagnostic_h); }
     Ok(())
 }
 

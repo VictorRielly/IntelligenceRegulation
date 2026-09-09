@@ -380,6 +380,8 @@ fn verify_arguments(
     let mut right = Vec::new();
     for i in 0..2 {
         let a = &receipt.arguments[i];
+        #[cfg(test)]
+        let before = Transcript::clone_state(tr);
         tr.absorb_u64(b"io-side", i as u64);
         let tau = tr.challenge_fp2_vec(9);
         let c = draw_mask_challenge(|| tr.challenge_fp2(), true)?;
@@ -401,6 +403,8 @@ fn verify_arguments(
         right.push(claim(0, 2, &rho[..9], e, a.terminals[1]));
         absorb_argument(a, tr);
         fs.extend(functionals(FIRST_IO_SLOT + i, &rho, c, a));
+        #[cfg(test)]
+        mask_diagnostic::io::argument(i, &tau, c, &rho, a.gamma, &a.sc, a.terminals, a.mask_eval, &before, tr);
     }
     Ok(right)
 }
@@ -411,6 +415,8 @@ pub fn verify(
     expected: &ExpectedIo,
     receipt: &Receipt,
 ) -> Result<(), String> {
+    #[cfg(test)]
+    mask_diagnostic::io::begin();
     preflight(st)?;
     let privacy = match weights {
         WeightStatement::Public(root) => {
@@ -422,6 +428,9 @@ pub fn verify(
         WeightStatement::FreshPrivate => ZkPrivacy::P3,
     };
     // The receipt type is opaque, but validate typed shape/canonicality too.
+    #[cfg(test)]
+    let canonical_bytes = receipt.to_bytes(st, weights, expected)?;
+    #[cfg(not(test))]
     receipt.to_bytes(st, weights, expected)?;
     let mut tr = transcript(expected);
     let ntt = NttTables::new(16);
@@ -448,6 +457,8 @@ pub fn verify(
     for (i, endpoint) in [&expected.input, &expected.output].into_iter().enumerate() {
         let claims = std::slice::from_ref(&right[i]);
         check_masks(claims, 7, 8, &[2, 3], 4, &tr)?;
+        #[cfg(test)]
+        let mut observed = mask_diagnostic::io::capture(mask_diagnostic::Role::A, &pcs, endpoint, claims, &receipt.endpoint_open[i], &tr);
         pcs::verify_zk(
             &pcs,
             &ZkOpts::standard(&pcs),
@@ -458,7 +469,14 @@ pub fn verify(
             &mut tr,
         )
         .map_err(|e| format!("IO endpoint {i}: {e}"))?;
+        #[cfg(test)]
+        {
+            mask_diagnostic::finish(&mut observed, &tr);
+            mask_diagnostic::io::record(["Input", "Output"][i], observed);
+        }
     }
+    #[cfg(test)]
+    mask_diagnostic::io::publish(st, privacy, expected.to_bytes(), canonical_bytes, &receipt.ffn);
     Ok(())
 }
 
@@ -578,6 +596,8 @@ pub fn verify_bytes(
     expected: &ExpectedIo,
     bytes: &[u8],
 ) -> Result<(), String> {
+    #[cfg(test)]
+    mask_diagnostic::io::begin();
     verify(
         st,
         weights,

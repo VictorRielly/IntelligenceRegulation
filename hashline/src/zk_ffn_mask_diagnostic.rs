@@ -15,6 +15,9 @@ mod observation_json;
 #[path = "zk_ffn_fresh_poc_tests.rs"]
 mod fresh_poc_tests;
 
+#[path = "zk_ffn_io_diagnostic.rs"]
+pub(crate) mod io;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum Role {
     W,

@@ -117,7 +117,7 @@ pub(super) fn export_if_requested(
 
 // Fixed function-1 T32/d16/f16 claim ordering. These labels describe the
 // verifier's coefficients; numerical coordinates remain the source of truth.
-fn coefficient_tag(role: Role, claim: usize, part: usize, privacy: ZkPrivacy) -> String {
+pub(super) fn coefficient_tag(role: Role, claim: usize, part: usize, privacy: ZkPrivacy) -> String {
     let p3 = privacy == ZkPrivacy::P3;
     let pair = |data: &str, mask: &str, i| match i {
         0 => data.to_string(), 1 => mask.to_string(), _ => format!("({mask})*u"),
@@ -142,7 +142,7 @@ fn coefficient_tag(role: Role, claim: usize, part: usize, privacy: ZkPrivacy) ->
     }
 }
 
-fn write_row_roles(out: &mut impl Write, o: &Observation, zl: &ZkLayoutV3) -> std::io::Result<()> {
+pub(super) fn write_row_roles(out: &mut impl Write, o: &Observation, zl: &ZkLayoutV3) -> std::io::Result<()> {
     let mut names: Vec<(&str, String)> = (0..o.commitment.rows).map(|r| ("data", format!("{:?}.data[{r}]", o.role))).collect();
     let mut set = |row, kind, name: String| { names[row] = (kind, name); };
     match o.role {
@@ -155,6 +155,12 @@ fn write_row_roles(out: &mut impl Write, o: &Observation, zl: &ZkLayoutV3) -> st
                 for j in 0..if t.rows == 1 { 2 } else { t.rows } { set(t.a_mask + j, "mask", format!("tab[{i}].a_mask[{j}]")); }
             }
             set(zl.a_prox, "prox", "a_prox.re".into()); set(zl.a_prox + 1, "prox", "a_prox.im".into());
+            if let Some(rows) = zl.a_io {
+                for (i, row) in rows.into_iter().enumerate() {
+                    set(row, "mask", format!("a_io[{i}].re"));
+                    set(row + 1, "mask", format!("a_io[{i}].im"));
+                }
+            }
         }
         Role::H => {
             for (site, rows) in [("h_mf", &zl.h_mf), ("h_md", &zl.h_md)] {
