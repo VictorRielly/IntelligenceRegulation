@@ -1,0 +1,26 @@
+{
+  "ok": false,
+  "reasons": [
+    "live checkout: uncommitted changes under zkp-core/ (delta sha256 71092399e46125633aaa7151bcb58cf4ef52ae810b69a558194786b9519d75eb): HEAD does not identify the build inputs",
+    "stored verdict green=True disagrees with the recomputed verdict (False); verdicts are computed, not written"
+  ],
+  "summary": {
+    "suite_version": 4,
+    "production": true,
+    "cases_recorded": 23,
+    "cases_expected": 23,
+    "head": "444820b78103ee6d612c71436bb052359c0ceed4",
+    "gpu_binary_sha256": "abababababababababababababababababababababababababababababababab",
+    "device": "gpu: ON \u2014 synthetic device (sm_00, 1 SMs, 0.0 GB)",
+    "oracle_executed_cases": 189,
+    "crate_trees": {
+      "hashline": "55d33080e9133aef49035bc9467d04356929c33c",
+      "zkp_core": "2a8cb2ad778a38d35b01e67f6b9ddfe633bf8565"
+    },
+    "lockfiles": {
+      "hashline": "718475cd179c5fce5f3cbaf68fb45b15017015ebeec359c040cf704e3f1c86b6",
+      "zkp_core": "44d8929a73e061cfca14c924e8311ef8fcfd0a4bcc044ed716130e5173bf0da8"
+    },
+    "core_tests_passed": 19
+  }
+}

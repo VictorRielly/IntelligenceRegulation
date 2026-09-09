@@ -1,0 +1,6886 @@
+{
+  "baseline": "612ff9c (zk-batch-optimizations)",
+  "closures": {
+    "after_cuts": {
+      "code_lines": 4487,
+      "code_lines_excluding_test": 3846,
+      "cuts": [
+        "layer:chain",
+        "layer:export",
+        "layer:export_v3",
+        "layer:gpu",
+        "layer:pcs_compact",
+        "layer:wcache",
+        "pcs:gpu",
+        "pcs:zk",
+        "sumcheck:zk"
+      ],
+      "edge_kinds": [
+        "normal",
+        "not_gpu"
+      ],
+      "entry_via": {
+        "field": "layer",
+        "layer": null,
+        "mle": "layer",
+        "ntt": "layer",
+        "pcs": "layer",
+        "sumcheck": "layer",
+        "tables_v3": null,
+        "transcript": "layer",
+        "zkp_core::ffn_v3": "layer",
+        "zkp_core::field": "field",
+        "zkp_core::merkle": "zkp_core::pcs",
+        "zkp_core::mle": "mle",
+        "zkp_core::ntt": "ntt",
+        "zkp_core::pcs": "pcs",
+        "zkp_core::rng": "pcs",
+        "zkp_core::sumcheck": "sumcheck",
+        "zkp_core::tables": "tables_v3",
+        "zkp_core::transcript": "transcript"
+      },
+      "members": [
+        "field",
+        "layer",
+        "mle",
+        "ntt",
+        "pcs",
+        "sumcheck",
+        "tables_v3",
+        "transcript",
+        "zkp_core::ffn_v3",
+        "zkp_core::field",
+        "zkp_core::merkle",
+        "zkp_core::mle",
+        "zkp_core::ntt",
+        "zkp_core::pcs",
+        "zkp_core::rng",
+        "zkp_core::sumcheck",
+        "zkp_core::tables",
+        "zkp_core::transcript"
+      ],
+      "module_count": 18,
+      "roots": [
+        "layer",
+        "tables_v3"
+      ]
+    },
+    "default_build": {
+      "code_lines": 6938,
+      "code_lines_excluding_test": 5949,
+      "cuts": [],
+      "edge_kinds": [
+        "normal",
+        "not_gpu"
+      ],
+      "entry_via": {
+        "chain": "layer",
+        "export": "layer",
+        "export_v3": "layer",
+        "field": "layer",
+        "gpu": "layer",
+        "layer": null,
+        "merkle": "pcs_compact",
+        "mle": "layer",
+        "ntt": "layer",
+        "pcs": "layer",
+        "pcs_compact": "layer",
+        "phase_profile": "chain",
+        "silu": "chain",
+        "sumcheck": "layer",
+        "tables_v3": null,
+        "transcript": "layer",
+        "wcache": "layer",
+        "zkp_core::ffn_v3": "layer",
+        "zkp_core::field": "field",
+        "zkp_core::merkle": "zkp_core::pcs",
+        "zkp_core::mle": "mle",
+        "zkp_core::ntt": "ntt",
+        "zkp_core::pcs": "gpu",
+        "zkp_core::rng": "pcs",
+        "zkp_core::sumcheck": "sumcheck",
+        "zkp_core::tables": "tables_v3",
+        "zkp_core::transcript": "transcript"
+      },
+      "members": [
+        "chain",
+        "export",
+        "export_v3",
+        "field",
+        "gpu",
+        "layer",
+        "merkle",
+        "mle",
+        "ntt",
+        "pcs",
+        "pcs_compact",
+        "phase_profile",
+        "silu",
+        "sumcheck",
+        "tables_v3",
+        "transcript",
+        "wcache",
+        "zkp_core::ffn_v3",
+        "zkp_core::field",
+        "zkp_core::merkle",
+        "zkp_core::mle",
+        "zkp_core::ntt",
+        "zkp_core::pcs",
+        "zkp_core::rng",
+        "zkp_core::sumcheck",
+        "zkp_core::tables",
+        "zkp_core::transcript"
+      ],
+      "module_count": 27,
+      "roots": [
+        "layer",
+        "tables_v3"
+      ]
+    },
+    "literal": {
+      "code_lines": 6938,
+      "code_lines_excluding_test": 5949,
+      "cuts": [],
+      "edge_kinds": [
+        "gpu",
+        "normal",
+        "not_gpu"
+      ],
+      "entry_via": {
+        "chain": "layer",
+        "export": "layer",
+        "export_v3": "layer",
+        "field": "layer",
+        "gpu": "layer",
+        "layer": null,
+        "merkle": "layer",
+        "mle": "layer",
+        "ntt": "layer",
+        "pcs": "layer",
+        "pcs_compact": "layer",
+        "phase_profile": "chain",
+        "silu": "chain",
+        "sumcheck": "layer",
+        "tables_v3": null,
+        "transcript": "layer",
+        "wcache": "layer",
+        "zkp_core::ffn_v3": "layer",
+        "zkp_core::field": "field",
+        "zkp_core::merkle": "merkle",
+        "zkp_core::mle": "mle",
+        "zkp_core::ntt": "ntt",
+        "zkp_core::pcs": "gpu",
+        "zkp_core::rng": "pcs",
+        "zkp_core::sumcheck": "sumcheck",
+        "zkp_core::tables": "tables_v3",
+        "zkp_core::transcript": "transcript"
+      },
+      "members": [
+        "chain",
+        "export",
+        "export_v3",
+        "field",
+        "gpu",
+        "layer",
+        "merkle",
+        "mle",
+        "ntt",
+        "pcs",
+        "pcs_compact",
+        "phase_profile",
+        "silu",
+        "sumcheck",
+        "tables_v3",
+        "transcript",
+        "wcache",
+        "zkp_core::ffn_v3",
+        "zkp_core::field",
+        "zkp_core::merkle",
+        "zkp_core::mle",
+        "zkp_core::ntt",
+        "zkp_core::pcs",
+        "zkp_core::rng",
+        "zkp_core::sumcheck",
+        "zkp_core::tables",
+        "zkp_core::transcript"
+      ],
+      "module_count": 27,
+      "roots": [
+        "layer",
+        "tables_v3"
+      ]
+    }
+  },
+  "crates": [
+    "hashline",
+    "zkp-core"
+  ],
+  "edges": [
+    {
+      "count": 45,
+      "evidence": [
+        "hashline/src/attention.rs:1794",
+        "hashline/src/attention.rs:1807",
+        "hashline/src/attention.rs:1813",
+        "hashline/src/attention.rs:1819",
+        "hashline/src/attention.rs:1825",
+        "hashline/src/attention.rs:1848",
+        "hashline/src/attention.rs:1858",
+        "hashline/src/attention.rs:1954"
+      ],
+      "from": "attention",
+      "kind": "normal",
+      "to": "attention_schedule"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/attention.rs:785"
+      ],
+      "from": "attention",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/attention.rs:2764"
+      ],
+      "from": "attention",
+      "kind": "test",
+      "to": "field"
+    },
+    {
+      "count": 13,
+      "evidence": [
+        "hashline/src/attention.rs:786",
+        "hashline/src/attention.rs:870",
+        "hashline/src/attention.rs:886",
+        "hashline/src/attention.rs:896",
+        "hashline/src/attention.rs:1620",
+        "hashline/src/attention.rs:2378",
+        "hashline/src/attention.rs:2380",
+        "hashline/src/attention.rs:2574"
+      ],
+      "from": "attention",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 7,
+      "evidence": [
+        "hashline/src/attention.rs:787",
+        "hashline/src/attention.rs:2582",
+        "hashline/src/attention.rs:2583",
+        "hashline/src/attention.rs:2584",
+        "hashline/src/attention.rs:2585",
+        "hashline/src/attention.rs:2717",
+        "hashline/src/attention.rs:2718"
+      ],
+      "from": "attention",
+      "kind": "normal",
+      "to": "mle"
+    },
+    {
+      "count": 10,
+      "evidence": [
+        "hashline/src/attention.rs:287",
+        "hashline/src/attention.rs:288",
+        "hashline/src/attention.rs:381",
+        "hashline/src/attention.rs:382",
+        "hashline/src/attention.rs:385",
+        "hashline/src/attention.rs:389",
+        "hashline/src/attention.rs:392",
+        "hashline/src/attention.rs:440"
+      ],
+      "from": "attention",
+      "kind": "normal",
+      "to": "norm"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/attention.rs:3427",
+        "hashline/src/attention.rs:3428"
+      ],
+      "from": "attention",
+      "kind": "test",
+      "to": "norm"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/attention.rs:788"
+      ],
+      "from": "attention",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/attention.rs:789"
+      ],
+      "from": "attention",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/attention.rs:146",
+        "hashline/src/attention.rs:728"
+      ],
+      "from": "attention",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/attention.rs:790"
+      ],
+      "from": "attention",
+      "kind": "normal",
+      "to": "sumcheck"
+    },
+    {
+      "count": 14,
+      "evidence": [
+        "hashline/src/attention.rs:458",
+        "hashline/src/attention.rs:459",
+        "hashline/src/attention.rs:515",
+        "hashline/src/attention.rs:854",
+        "hashline/src/attention.rs:855",
+        "hashline/src/attention.rs:856",
+        "hashline/src/attention.rs:857",
+        "hashline/src/attention.rs:858"
+      ],
+      "from": "attention",
+      "kind": "normal",
+      "to": "tables_attn"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/attention.rs:791"
+      ],
+      "from": "attention",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 4,
+      "evidence": [
+        "hashline/src/attention_schedule.rs:192",
+        "hashline/src/attention_schedule.rs:193",
+        "hashline/src/attention_schedule.rs:194",
+        "hashline/src/attention_schedule.rs:199"
+      ],
+      "from": "attention_schedule",
+      "kind": "normal",
+      "to": "attention"
+    },
+    {
+      "count": 6,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:379",
+        "hashline/src/bin/hashline.rs:1395",
+        "hashline/src/bin/hashline.rs:1476",
+        "hashline/src/bin/hashline.rs:1683",
+        "hashline/src/bin/hashline.rs:1686",
+        "hashline/src/bin/hashline.rs:1694"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "attention"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:23"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "chain"
+    },
+    {
+      "count": 6,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:24",
+        "hashline/src/bin/hashline.rs:740",
+        "hashline/src/bin/hashline.rs:1015",
+        "hashline/src/bin/hashline.rs:1162",
+        "hashline/src/bin/hashline.rs:1347",
+        "hashline/src/bin/hashline.rs:1780"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "export"
+    },
+    {
+      "count": 5,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:29",
+        "hashline/src/bin/hashline.rs:1606",
+        "hashline/src/bin/hashline.rs:1607",
+        "hashline/src/bin/hashline.rs:1646",
+        "hashline/src/bin/hashline.rs:1647"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "export_v3"
+    },
+    {
+      "count": 7,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:243",
+        "hashline/src/bin/hashline.rs:276",
+        "hashline/src/bin/hashline.rs:1477",
+        "hashline/src/bin/hashline.rs:1657",
+        "hashline/src/bin/hashline.rs:1658",
+        "hashline/src/bin/hashline.rs:1659",
+        "hashline/src/bin/hashline.rs:1695"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 3,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:506",
+        "hashline/src/bin/hashline.rs:519",
+        "hashline/src/bin/hashline.rs:536"
+      ],
+      "from": "bin:hashline",
+      "kind": "gpu",
+      "to": "gpu"
+    },
+    {
+      "count": 17,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:472",
+        "hashline/src/bin/hashline.rs:484",
+        "hashline/src/bin/hashline.rs:485",
+        "hashline/src/bin/hashline.rs:695",
+        "hashline/src/bin/hashline.rs:726",
+        "hashline/src/bin/hashline.rs:727",
+        "hashline/src/bin/hashline.rs:924",
+        "hashline/src/bin/hashline.rs:961"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "gpu"
+    },
+    {
+      "count": 5,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:25",
+        "hashline/src/bin/hashline.rs:30",
+        "hashline/src/bin/hashline.rs:1478",
+        "hashline/src/bin/hashline.rs:1696",
+        "hashline/src/bin/hashline.rs:1708"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:244"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:26"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:245"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 4,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:53",
+        "hashline/src/bin/hashline.rs:61",
+        "hashline/src/bin/hashline.rs:203",
+        "hashline/src/bin/hashline.rs:246"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "pcs_compact"
+    },
+    {
+      "count": 6,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:870",
+        "hashline/src/bin/hashline.rs:873",
+        "hashline/src/bin/hashline.rs:978",
+        "hashline/src/bin/hashline.rs:991",
+        "hashline/src/bin/hashline.rs:1307",
+        "hashline/src/bin/hashline.rs:1321"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "phase_profile"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:779",
+        "hashline/src/bin/hashline.rs:1625"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "tables_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:27"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 4,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:188",
+        "hashline/src/bin/hashline.rs:764",
+        "hashline/src/bin/hashline.rs:1039",
+        "hashline/src/bin/hashline.rs:1374"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "wcache"
+    },
+    {
+      "count": 15,
+      "evidence": [
+        "hashline/src/bin/hashline.rs:48",
+        "hashline/src/bin/hashline.rs:60",
+        "hashline/src/bin/hashline.rs:84",
+        "hashline/src/bin/hashline.rs:89",
+        "hashline/src/bin/hashline.rs:90",
+        "hashline/src/bin/hashline.rs:112",
+        "hashline/src/bin/hashline.rs:113",
+        "hashline/src/bin/hashline.rs:135"
+      ],
+      "from": "bin:hashline",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/causal_oracle.rs:9",
+        "hashline/src/causal_oracle.rs:80"
+      ],
+      "from": "causal_oracle",
+      "kind": "normal",
+      "to": "attention"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/causal_oracle.rs:10",
+        "hashline/src/causal_oracle.rs:81"
+      ],
+      "from": "causal_oracle",
+      "kind": "normal",
+      "to": "export_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/causal_oracle.rs:11"
+      ],
+      "from": "causal_oracle",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/causal_oracle.rs:12",
+        "hashline/src/causal_oracle.rs:82"
+      ],
+      "from": "causal_oracle",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/causal_oracle.rs:13"
+      ],
+      "from": "causal_oracle",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/causal_oracle.rs:14"
+      ],
+      "from": "causal_oracle",
+      "kind": "normal",
+      "to": "norm"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/causal_oracle.rs:15"
+      ],
+      "from": "causal_oracle",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/causal_oracle.rs:16"
+      ],
+      "from": "causal_oracle",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/causal_oracle.rs:17",
+        "hashline/src/causal_oracle.rs:83"
+      ],
+      "from": "causal_oracle",
+      "kind": "normal",
+      "to": "private_block_contract"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/causal_oracle.rs:190"
+      ],
+      "from": "causal_oracle",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/causal_oracle.rs:18",
+        "hashline/src/causal_oracle.rs:84"
+      ],
+      "from": "causal_oracle",
+      "kind": "normal",
+      "to": "tables_attn"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/causal_oracle.rs:85"
+      ],
+      "from": "causal_oracle",
+      "kind": "normal",
+      "to": "tables_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/causal_oracle.rs:86"
+      ],
+      "from": "causal_oracle",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/chain.rs:16"
+      ],
+      "from": "chain",
+      "kind": "normal",
+      "to": "export"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/chain.rs:47"
+      ],
+      "from": "chain",
+      "kind": "normal",
+      "to": "phase_profile"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/chain.rs:90"
+      ],
+      "from": "chain",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/examples/zk60_block_receipt.rs:5"
+      ],
+      "from": "example:zk60_block_receipt",
+      "kind": "normal",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/examples/zk60_block_receipt.rs:8"
+      ],
+      "from": "example:zk60_block_receipt",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/examples/zk60_block_receipt.rs:9"
+      ],
+      "from": "example:zk60_block_receipt",
+      "kind": "normal",
+      "to": "private_block_contract"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/examples/zk60_block_receipt.rs:10"
+      ],
+      "from": "example:zk60_block_receipt",
+      "kind": "normal",
+      "to": "public_block_receipt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/examples/zk60_block_receipt.rs:65"
+      ],
+      "from": "example:zk60_block_receipt",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/examples/zk60_chain_receipt.rs:4"
+      ],
+      "from": "example:zk60_chain_receipt",
+      "kind": "normal",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/examples/zk60_chain_receipt.rs:7"
+      ],
+      "from": "example:zk60_chain_receipt",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/examples/zk60_chain_receipt.rs:8"
+      ],
+      "from": "example:zk60_chain_receipt",
+      "kind": "normal",
+      "to": "private_block_contract"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/examples/zk60_chain_receipt.rs:9"
+      ],
+      "from": "example:zk60_chain_receipt",
+      "kind": "normal",
+      "to": "public_chain_receipt"
+    },
+    {
+      "count": 3,
+      "evidence": [
+        "hashline/examples/zk60_chain_receipt.rs:98",
+        "hashline/examples/zk60_chain_receipt.rs:99",
+        "hashline/examples/zk60_chain_receipt.rs:100"
+      ],
+      "from": "example:zk60_chain_receipt",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/examples/zk60_seam_receipt.rs:5"
+      ],
+      "from": "example:zk60_seam_receipt",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/examples/zk60_seam_receipt.rs:6"
+      ],
+      "from": "example:zk60_seam_receipt",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/examples/zk60_seam_receipt.rs:7"
+      ],
+      "from": "example:zk60_seam_receipt",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/examples/zk60_seam_receipt.rs:8"
+      ],
+      "from": "example:zk60_seam_receipt",
+      "kind": "normal",
+      "to": "private_seam"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/examples/zk60_witness_bench.rs:122",
+        "hashline/examples/zk60_witness_bench.rs:133"
+      ],
+      "from": "example:zk60_witness_bench",
+      "kind": "normal",
+      "to": "chain"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/examples/zk60_witness_bench.rs:123",
+        "hashline/examples/zk60_witness_bench.rs:134"
+      ],
+      "from": "example:zk60_witness_bench",
+      "kind": "normal",
+      "to": "export_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/export.rs:79"
+      ],
+      "from": "export",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/export_v3.rs:367",
+        "hashline/src/export_v3.rs:369"
+      ],
+      "from": "export_v3",
+      "kind": "normal",
+      "to": "chain"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/export_v3.rs:52"
+      ],
+      "from": "export_v3",
+      "kind": "normal",
+      "to": "phase_profile"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/export_v3.rs:172"
+      ],
+      "from": "export_v3",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/export_v3.rs:51"
+      ],
+      "from": "export_v3",
+      "kind": "normal",
+      "to": "tables_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/field.rs:2"
+      ],
+      "from": "field",
+      "kind": "normal",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/field/verifier_hardening_tests.rs:88"
+      ],
+      "from": "field::verifier_hardening_tests",
+      "kind": "test",
+      "to": "attention"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/field/verifier_hardening_tests.rs:89"
+      ],
+      "from": "field::verifier_hardening_tests",
+      "kind": "test",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/field/verifier_hardening_tests.rs:221"
+      ],
+      "from": "field::verifier_hardening_tests",
+      "kind": "test",
+      "to": "chain"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/field/verifier_hardening_tests.rs:222"
+      ],
+      "from": "field::verifier_hardening_tests",
+      "kind": "test",
+      "to": "export"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/field/verifier_hardening_tests.rs:4"
+      ],
+      "from": "field::verifier_hardening_tests",
+      "kind": "test",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/field/verifier_hardening_tests.rs:90"
+      ],
+      "from": "field::verifier_hardening_tests",
+      "kind": "test",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/field/verifier_hardening_tests.rs:91"
+      ],
+      "from": "field::verifier_hardening_tests",
+      "kind": "test",
+      "to": "ntt"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/field/verifier_hardening_tests.rs:133",
+        "hashline/src/field/verifier_hardening_tests.rs:248"
+      ],
+      "from": "field::verifier_hardening_tests",
+      "kind": "test",
+      "to": "pcs_compact"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/field/verifier_hardening_tests.rs:92"
+      ],
+      "from": "field::verifier_hardening_tests",
+      "kind": "test",
+      "to": "public_block_oracle"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/field/verifier_hardening_tests.rs:153",
+        "hashline/src/field/verifier_hardening_tests.rs:179"
+      ],
+      "from": "field::verifier_hardening_tests",
+      "kind": "test",
+      "to": "public_block_wire"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/field/verifier_hardening_tests.rs:96"
+      ],
+      "from": "field::verifier_hardening_tests",
+      "kind": "test",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/gpu/mod.rs:196"
+      ],
+      "from": "gpu",
+      "kind": "gpu",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/gpu/mod.rs:197"
+      ],
+      "from": "gpu",
+      "kind": "gpu",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/gpu/mod.rs:198"
+      ],
+      "from": "gpu",
+      "kind": "gpu",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/gpu/mod.rs:199"
+      ],
+      "from": "gpu",
+      "kind": "gpu",
+      "to": "zkp_core::pcs"
+    },
+    {
+      "count": 3,
+      "evidence": [
+        "hashline/src/gpu/mod.rs:257",
+        "hashline/src/gpu/mod.rs:260",
+        "hashline/src/gpu/mod.rs:261"
+      ],
+      "from": "gpu",
+      "kind": "not_gpu",
+      "to": "zkp_core::pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/gpu/cuda.rs:7"
+      ],
+      "from": "gpu::cuda",
+      "kind": "gpu",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/gpu/cuda.rs:21"
+      ],
+      "from": "gpu::cuda",
+      "kind": "gpu",
+      "to": "gpu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/gpu/cuda.rs:10"
+      ],
+      "from": "gpu::cuda",
+      "kind": "gpu",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/gpu/cuda.rs:11"
+      ],
+      "from": "gpu::cuda",
+      "kind": "gpu",
+      "to": "ntt"
+    },
+    {
+      "count": 13,
+      "evidence": [
+        "hashline/src/gpu/cuda.rs:12",
+        "hashline/src/gpu/cuda.rs:2293",
+        "hashline/src/gpu/cuda.rs:2361",
+        "hashline/src/gpu/cuda.rs:2367",
+        "hashline/src/gpu/cuda.rs:2369",
+        "hashline/src/gpu/cuda.rs:2431",
+        "hashline/src/gpu/cuda.rs:2434",
+        "hashline/src/gpu/cuda.rs:2436"
+      ],
+      "from": "gpu::cuda",
+      "kind": "gpu",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/gpu/cuda.rs:8"
+      ],
+      "from": "gpu::cuda",
+      "kind": "gpu",
+      "to": "sumcheck"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/gpu/cuda.rs:9"
+      ],
+      "from": "gpu::cuda",
+      "kind": "gpu",
+      "to": "transcript"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/layer.rs:20",
+        "hashline/src/layer.rs:1082"
+      ],
+      "from": "layer",
+      "kind": "normal",
+      "to": "chain"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/layer.rs:21",
+        "hashline/src/layer.rs:1082"
+      ],
+      "from": "layer",
+      "kind": "normal",
+      "to": "export"
+    },
+    {
+      "count": 4,
+      "evidence": [
+        "hashline/src/layer.rs:1217",
+        "hashline/src/layer.rs:2161",
+        "hashline/src/layer.rs:2165",
+        "hashline/src/layer.rs:2166"
+      ],
+      "from": "layer",
+      "kind": "normal",
+      "to": "export_v3"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/layer.rs:22",
+        "hashline/src/layer.rs:338"
+      ],
+      "from": "layer",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/layer.rs:1025",
+        "hashline/src/layer.rs:2046"
+      ],
+      "from": "layer",
+      "kind": "test",
+      "to": "field"
+    },
+    {
+      "count": 24,
+      "evidence": [
+        "hashline/src/layer.rs:225",
+        "hashline/src/layer.rs:227",
+        "hashline/src/layer.rs:446",
+        "hashline/src/layer.rs:538",
+        "hashline/src/layer.rs:539",
+        "hashline/src/layer.rs:549",
+        "hashline/src/layer.rs:550",
+        "hashline/src/layer.rs:687"
+      ],
+      "from": "layer",
+      "kind": "gpu",
+      "to": "gpu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/layer.rs:440"
+      ],
+      "from": "layer",
+      "kind": "normal",
+      "to": "gpu"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/layer.rs:554",
+        "hashline/src/layer.rs:1414"
+      ],
+      "from": "layer",
+      "kind": "gpu",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/layer.rs:23"
+      ],
+      "from": "layer",
+      "kind": "normal",
+      "to": "mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/layer.rs:24"
+      ],
+      "from": "layer",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/layer.rs:25"
+      ],
+      "from": "layer",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/layer.rs:28"
+      ],
+      "from": "layer",
+      "kind": "normal",
+      "to": "pcs_compact"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/layer.rs:29"
+      ],
+      "from": "layer",
+      "kind": "normal",
+      "to": "sumcheck"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/layer.rs:30"
+      ],
+      "from": "layer",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/layer.rs:489",
+        "hashline/src/layer.rs:1316"
+      ],
+      "from": "layer",
+      "kind": "normal",
+      "to": "wcache"
+    },
+    {
+      "count": 4,
+      "evidence": [
+        "hashline/src/layer.rs:51",
+        "hashline/src/layer.rs:55",
+        "hashline/src/layer.rs:58",
+        "hashline/src/layer.rs:60"
+      ],
+      "from": "layer",
+      "kind": "normal",
+      "to": "zkp_core::ffn_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/merkle.rs:2"
+      ],
+      "from": "merkle",
+      "kind": "normal",
+      "to": "zkp_core::merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/mle.rs:2"
+      ],
+      "from": "mle",
+      "kind": "normal",
+      "to": "zkp_core::mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/model_identity.rs:25"
+      ],
+      "from": "model_identity",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/model_identity.rs:26"
+      ],
+      "from": "model_identity",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/model_identity.rs:27"
+      ],
+      "from": "model_identity",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/model_identity.rs:28"
+      ],
+      "from": "model_identity",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/model_identity.rs:29"
+      ],
+      "from": "model_identity",
+      "kind": "normal",
+      "to": "tables_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/model_identity.rs:30"
+      ],
+      "from": "model_identity",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/model_identity.rs:31"
+      ],
+      "from": "model_identity",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/ntt.rs:2"
+      ],
+      "from": "ntt",
+      "kind": "normal",
+      "to": "zkp_core::ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/pcs.rs:21"
+      ],
+      "from": "pcs",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/pcs.rs:70",
+        "hashline/src/pcs.rs:80"
+      ],
+      "from": "pcs",
+      "kind": "gpu",
+      "to": "gpu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/pcs.rs:22"
+      ],
+      "from": "pcs",
+      "kind": "normal",
+      "to": "gpu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/pcs.rs:71"
+      ],
+      "from": "pcs",
+      "kind": "gpu",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/pcs.rs:23"
+      ],
+      "from": "pcs",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/pcs.rs:24"
+      ],
+      "from": "pcs",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 7,
+      "evidence": [
+        "hashline/src/pcs.rs:19",
+        "hashline/src/pcs.rs:28",
+        "hashline/src/pcs.rs:30",
+        "hashline/src/pcs.rs:32",
+        "hashline/src/pcs.rs:37",
+        "hashline/src/pcs.rs:44",
+        "hashline/src/pcs.rs:61"
+      ],
+      "from": "pcs",
+      "kind": "normal",
+      "to": "zkp_core::pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/pcs.rs:25"
+      ],
+      "from": "pcs",
+      "kind": "normal",
+      "to": "zkp_core::rng"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/pcs_compact.rs:69"
+      ],
+      "from": "pcs_compact",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/pcs_compact.rs:1195",
+        "hashline/src/pcs_compact.rs:1203"
+      ],
+      "from": "pcs_compact",
+      "kind": "test",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/pcs_compact.rs:70"
+      ],
+      "from": "pcs_compact",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/pcs_compact.rs:71"
+      ],
+      "from": "pcs_compact",
+      "kind": "normal",
+      "to": "mle"
+    },
+    {
+      "count": 3,
+      "evidence": [
+        "hashline/src/pcs_compact.rs:1224",
+        "hashline/src/pcs_compact.rs:1249",
+        "hashline/src/pcs_compact.rs:1343"
+      ],
+      "from": "pcs_compact",
+      "kind": "test",
+      "to": "mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/pcs_compact.rs:72"
+      ],
+      "from": "pcs_compact",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/pcs_compact.rs:73"
+      ],
+      "from": "pcs_compact",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/pcs_compact.rs:1183"
+      ],
+      "from": "pcs_compact",
+      "kind": "test",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/pcs_compact.rs:74"
+      ],
+      "from": "pcs_compact",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_block_contract.rs:18"
+      ],
+      "from": "private_block_contract",
+      "kind": "normal",
+      "to": "attention"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/private_block_contract.rs:112",
+        "hashline/src/private_block_contract.rs:114"
+      ],
+      "from": "private_block_contract",
+      "kind": "normal",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_block_contract.rs:19"
+      ],
+      "from": "private_block_contract",
+      "kind": "normal",
+      "to": "export_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_block_contract.rs:20"
+      ],
+      "from": "private_block_contract",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_block_contract.rs:21"
+      ],
+      "from": "private_block_contract",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_block_contract.rs:414"
+      ],
+      "from": "private_block_contract",
+      "kind": "normal",
+      "to": "norm"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_block_contract.rs:22"
+      ],
+      "from": "private_block_contract",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_block_contract.rs:215"
+      ],
+      "from": "private_block_contract",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_block_contract.rs:23"
+      ],
+      "from": "private_block_contract",
+      "kind": "normal",
+      "to": "tables_attn"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_block_contract.rs:24"
+      ],
+      "from": "private_block_contract",
+      "kind": "normal",
+      "to": "tables_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_block_contract.rs:25"
+      ],
+      "from": "private_block_contract",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_block_contract.rs:26"
+      ],
+      "from": "private_block_contract",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_seam.rs:15"
+      ],
+      "from": "private_seam",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_seam.rs:16"
+      ],
+      "from": "private_seam",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_seam.rs:17"
+      ],
+      "from": "private_seam",
+      "kind": "normal",
+      "to": "mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_seam.rs:18"
+      ],
+      "from": "private_seam",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_seam.rs:19"
+      ],
+      "from": "private_seam",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_seam.rs:22"
+      ],
+      "from": "private_seam",
+      "kind": "normal",
+      "to": "sumcheck"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_seam.rs:23"
+      ],
+      "from": "private_seam",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/private_seam.rs:24"
+      ],
+      "from": "private_seam",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_oracle.rs:8"
+      ],
+      "from": "public_block_oracle",
+      "kind": "normal",
+      "to": "attention"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_oracle.rs:9"
+      ],
+      "from": "public_block_oracle",
+      "kind": "normal",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_oracle.rs:10"
+      ],
+      "from": "public_block_oracle",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_oracle.rs:11"
+      ],
+      "from": "public_block_oracle",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_oracle.rs:12"
+      ],
+      "from": "public_block_oracle",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_oracle.rs:13"
+      ],
+      "from": "public_block_oracle",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_oracle.rs:14"
+      ],
+      "from": "public_block_oracle",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_oracle.rs:15"
+      ],
+      "from": "public_block_oracle",
+      "kind": "normal",
+      "to": "private_block_contract"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_oracle.rs:16"
+      ],
+      "from": "public_block_oracle",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_receipt.rs:5"
+      ],
+      "from": "public_block_receipt",
+      "kind": "normal",
+      "to": "attention"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_receipt.rs:6"
+      ],
+      "from": "public_block_receipt",
+      "kind": "normal",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_receipt.rs:7"
+      ],
+      "from": "public_block_receipt",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_receipt.rs:8"
+      ],
+      "from": "public_block_receipt",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_receipt.rs:9"
+      ],
+      "from": "public_block_receipt",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_receipt.rs:10"
+      ],
+      "from": "public_block_receipt",
+      "kind": "normal",
+      "to": "mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_receipt.rs:11"
+      ],
+      "from": "public_block_receipt",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_receipt.rs:165"
+      ],
+      "from": "public_block_receipt",
+      "kind": "normal",
+      "to": "pcs_compact"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_receipt.rs:12"
+      ],
+      "from": "public_block_receipt",
+      "kind": "normal",
+      "to": "private_block_contract"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_receipt.rs:13"
+      ],
+      "from": "public_block_receipt",
+      "kind": "normal",
+      "to": "public_block_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_receipt.rs:14"
+      ],
+      "from": "public_block_receipt",
+      "kind": "normal",
+      "to": "public_block_wire"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_receipt.rs:15"
+      ],
+      "from": "public_block_receipt",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_wire.rs:4"
+      ],
+      "from": "public_block_wire",
+      "kind": "normal",
+      "to": "attention"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_wire.rs:5"
+      ],
+      "from": "public_block_wire",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_wire.rs:6"
+      ],
+      "from": "public_block_wire",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_wire.rs:7"
+      ],
+      "from": "public_block_wire",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_wire.rs:8"
+      ],
+      "from": "public_block_wire",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_wire.rs:9"
+      ],
+      "from": "public_block_wire",
+      "kind": "normal",
+      "to": "public_block_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_block_wire.rs:10"
+      ],
+      "from": "public_block_wire",
+      "kind": "normal",
+      "to": "sumcheck"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_chain_receipt.rs:5"
+      ],
+      "from": "public_chain_receipt",
+      "kind": "normal",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_chain_receipt.rs:6"
+      ],
+      "from": "public_chain_receipt",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_chain_receipt.rs:7"
+      ],
+      "from": "public_chain_receipt",
+      "kind": "normal",
+      "to": "private_block_contract"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/public_chain_receipt.rs:8"
+      ],
+      "from": "public_chain_receipt",
+      "kind": "normal",
+      "to": "public_block_receipt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/silu.rs:46"
+      ],
+      "from": "silu",
+      "kind": "normal",
+      "to": "zkp_core::tables"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material.rs:13"
+      ],
+      "from": "stable_weight_material",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material.rs:14"
+      ],
+      "from": "stable_weight_material",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material.rs:15"
+      ],
+      "from": "stable_weight_material",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material.rs:16"
+      ],
+      "from": "stable_weight_material",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material.rs:17"
+      ],
+      "from": "stable_weight_material",
+      "kind": "normal",
+      "to": "stable_weight_slots"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material_tests.rs:2"
+      ],
+      "from": "stable_weight_material::tests",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material_tests.rs:3"
+      ],
+      "from": "stable_weight_material::tests",
+      "kind": "normal",
+      "to": "mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material_tests.rs:4"
+      ],
+      "from": "stable_weight_material::tests",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material_tests.rs:5"
+      ],
+      "from": "stable_weight_material::tests",
+      "kind": "normal",
+      "to": "stable_weight_slots"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material_tests.rs:6"
+      ],
+      "from": "stable_weight_material::tests",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_material_tests.rs:7"
+      ],
+      "from": "stable_weight_material::tests",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration.rs:18"
+      ],
+      "from": "stable_weight_registration",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration.rs:19"
+      ],
+      "from": "stable_weight_registration",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration.rs:20"
+      ],
+      "from": "stable_weight_registration",
+      "kind": "normal",
+      "to": "stable_weight_material"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration.rs:24"
+      ],
+      "from": "stable_weight_registration",
+      "kind": "normal",
+      "to": "stable_weight_slots"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration_tests.rs:2"
+      ],
+      "from": "stable_weight_registration::tests",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration_tests.rs:3"
+      ],
+      "from": "stable_weight_registration::tests",
+      "kind": "normal",
+      "to": "mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration_tests.rs:4"
+      ],
+      "from": "stable_weight_registration::tests",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration_tests.rs:5"
+      ],
+      "from": "stable_weight_registration::tests",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration_tests.rs:6"
+      ],
+      "from": "stable_weight_registration::tests",
+      "kind": "normal",
+      "to": "stable_weight_slots"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration_tests.rs:7"
+      ],
+      "from": "stable_weight_registration::tests",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_registration_tests.rs:8"
+      ],
+      "from": "stable_weight_registration::tests",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_slots.rs:15"
+      ],
+      "from": "stable_weight_slots",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_slots.rs:16"
+      ],
+      "from": "stable_weight_slots",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_slots.rs:17"
+      ],
+      "from": "stable_weight_slots",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/stable_weight_slots_tests.rs:2"
+      ],
+      "from": "stable_weight_slots::tests",
+      "kind": "test",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/sumcheck.rs:2"
+      ],
+      "from": "sumcheck",
+      "kind": "normal",
+      "to": "zkp_core::sumcheck"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/tables_attn.rs:120",
+        "hashline/src/tables_attn.rs:167"
+      ],
+      "from": "tables_attn",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/tables_v3.rs:3"
+      ],
+      "from": "tables_v3",
+      "kind": "normal",
+      "to": "zkp_core::tables"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_attention_schedule.rs:20",
+        "hashline/tests/zk60_attention_schedule.rs:165"
+      ],
+      "from": "test:zk60_attention_schedule",
+      "kind": "normal",
+      "to": "attention"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_attention_schedule.rs:2"
+      ],
+      "from": "test:zk60_attention_schedule",
+      "kind": "normal",
+      "to": "attention_schedule"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_attention_schedule.rs:3"
+      ],
+      "from": "test:zk60_attention_schedule",
+      "kind": "normal",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_attention_schedule.rs:166"
+      ],
+      "from": "test:zk60_attention_schedule",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_attention_schedule.rs:4"
+      ],
+      "from": "test:zk60_attention_schedule",
+      "kind": "normal",
+      "to": "public_block_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_attention_schedule.rs:240"
+      ],
+      "from": "test:zk60_attention_schedule",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_attention_schedule.rs:167"
+      ],
+      "from": "test:zk60_attention_schedule",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_block_contract.rs:2"
+      ],
+      "from": "test:zk60_block_contract",
+      "kind": "normal",
+      "to": "attention"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_block_contract.rs:167"
+      ],
+      "from": "test:zk60_block_contract",
+      "kind": "normal",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_block_contract.rs:3"
+      ],
+      "from": "test:zk60_block_contract",
+      "kind": "normal",
+      "to": "export_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_block_contract.rs:4"
+      ],
+      "from": "test:zk60_block_contract",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_block_contract.rs:5"
+      ],
+      "from": "test:zk60_block_contract",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_block_contract.rs:6"
+      ],
+      "from": "test:zk60_block_contract",
+      "kind": "normal",
+      "to": "norm"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_block_contract.rs:7"
+      ],
+      "from": "test:zk60_block_contract",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_block_contract.rs:8"
+      ],
+      "from": "test:zk60_block_contract",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_block_contract.rs:9"
+      ],
+      "from": "test:zk60_block_contract",
+      "kind": "normal",
+      "to": "private_block_contract"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_block_contract.rs:132",
+        "hashline/tests/zk60_block_contract.rs:389"
+      ],
+      "from": "test:zk60_block_contract",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_block_contract.rs:12"
+      ],
+      "from": "test:zk60_block_contract",
+      "kind": "normal",
+      "to": "tables_attn"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_block_contract.rs:13"
+      ],
+      "from": "test:zk60_block_contract",
+      "kind": "normal",
+      "to": "tables_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_block_contract.rs:14"
+      ],
+      "from": "test:zk60_block_contract",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_block_contract.rs:15"
+      ],
+      "from": "test:zk60_block_contract",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_cl20_codec.rs:11"
+      ],
+      "from": "test:zk60_cl20_codec",
+      "kind": "normal",
+      "to": "export_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_cl20_codec.rs:12"
+      ],
+      "from": "test:zk60_cl20_codec",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_cl20_codec.rs:13"
+      ],
+      "from": "test:zk60_cl20_codec",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_cl20_codec.rs:14"
+      ],
+      "from": "test:zk60_cl20_codec",
+      "kind": "normal",
+      "to": "tables_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_cl20_codec.rs:15"
+      ],
+      "from": "test:zk60_cl20_codec",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_cl20_codec.rs:16",
+        "hashline/tests/zk60_cl20_codec.rs:122"
+      ],
+      "from": "test:zk60_cl20_codec",
+      "kind": "normal",
+      "to": "zkp_core::ffn_v3"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:18",
+        "hashline/tests/zk60_fable_arith.rs:19"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "attention"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:20"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:23"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "export_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:24"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:25"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:26"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "norm"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:27"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:28"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:29"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "pcs_compact"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:30"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "private_block_contract"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:31"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "public_block_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:35"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "public_block_wire"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:297"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:36"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "sumcheck"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_arith.rs:37"
+      ],
+      "from": "test:zk60_fable_arith",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_cfs_channel.rs:11"
+      ],
+      "from": "test:zk60_fable_cfs_channel",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_cfs_channel.rs:12"
+      ],
+      "from": "test:zk60_fable_cfs_channel",
+      "kind": "normal",
+      "to": "mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_fable_cfs_channel.rs:13"
+      ],
+      "from": "test:zk60_fable_cfs_channel",
+      "kind": "normal",
+      "to": "sumcheck"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_gpu_cache.rs:615",
+        "hashline/tests/zk60_gpu_cache.rs:698"
+      ],
+      "from": "test:zk60_gpu_cache",
+      "kind": "normal",
+      "to": "export"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_gpu_cache.rs:35"
+      ],
+      "from": "test:zk60_gpu_cache",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_gpu_cache.rs:36"
+      ],
+      "from": "test:zk60_gpu_cache",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_gpu_cache.rs:37"
+      ],
+      "from": "test:zk60_gpu_cache",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_gpu_cache.rs:38"
+      ],
+      "from": "test:zk60_gpu_cache",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_gpu_cache.rs:39"
+      ],
+      "from": "test:zk60_gpu_cache",
+      "kind": "normal",
+      "to": "wcache"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_gpu_commit.rs:229",
+        "hashline/tests/zk60_gpu_commit.rs:840"
+      ],
+      "from": "test:zk60_gpu_commit",
+      "kind": "gpu",
+      "to": "gpu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_gpu_commit.rs:54"
+      ],
+      "from": "test:zk60_gpu_commit",
+      "kind": "normal",
+      "to": "gpu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_identity_gap.rs:185"
+      ],
+      "from": "test:zk60_identity_gap",
+      "kind": "normal",
+      "to": "export"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_identity_gap.rs:5"
+      ],
+      "from": "test:zk60_identity_gap",
+      "kind": "normal",
+      "to": "export_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_identity_gap.rs:6"
+      ],
+      "from": "test:zk60_identity_gap",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_identity_gap.rs:7"
+      ],
+      "from": "test:zk60_identity_gap",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_identity_gap.rs:8"
+      ],
+      "from": "test:zk60_identity_gap",
+      "kind": "normal",
+      "to": "model_identity"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_identity_gap.rs:9"
+      ],
+      "from": "test:zk60_identity_gap",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_identity_gap.rs:10"
+      ],
+      "from": "test:zk60_identity_gap",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_identity_gap.rs:11"
+      ],
+      "from": "test:zk60_identity_gap",
+      "kind": "normal",
+      "to": "tables_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_identity_gap.rs:12"
+      ],
+      "from": "test:zk60_identity_gap",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_identity_gap.rs:13"
+      ],
+      "from": "test:zk60_identity_gap",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_mask_rank.rs:5"
+      ],
+      "from": "test:zk60_mask_rank",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_mask_rank.rs:6"
+      ],
+      "from": "test:zk60_mask_rank",
+      "kind": "normal",
+      "to": "mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_mask_rank.rs:7"
+      ],
+      "from": "test:zk60_mask_rank",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_mask_rank.rs:8"
+      ],
+      "from": "test:zk60_mask_rank",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_mask_rank.rs:9"
+      ],
+      "from": "test:zk60_mask_rank",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_mask_rank.rs:10"
+      ],
+      "from": "test:zk60_mask_rank",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_memory_layout.rs:2"
+      ],
+      "from": "test:zk60_memory_layout",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_memory_layout.rs:3"
+      ],
+      "from": "test:zk60_memory_layout",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_model_identity.rs:29"
+      ],
+      "from": "test:zk60_model_identity",
+      "kind": "normal",
+      "to": "export"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_model_identity.rs:30"
+      ],
+      "from": "test:zk60_model_identity",
+      "kind": "normal",
+      "to": "export_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_model_identity.rs:31"
+      ],
+      "from": "test:zk60_model_identity",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_model_identity.rs:32"
+      ],
+      "from": "test:zk60_model_identity",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_model_identity.rs:33"
+      ],
+      "from": "test:zk60_model_identity",
+      "kind": "normal",
+      "to": "model_identity"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_model_identity.rs:34"
+      ],
+      "from": "test:zk60_model_identity",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_model_identity.rs:35"
+      ],
+      "from": "test:zk60_model_identity",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_model_identity.rs:160"
+      ],
+      "from": "test:zk60_model_identity",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_model_identity.rs:36"
+      ],
+      "from": "test:zk60_model_identity",
+      "kind": "normal",
+      "to": "tables_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_model_identity.rs:37"
+      ],
+      "from": "test:zk60_model_identity",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_model_identity.rs:38"
+      ],
+      "from": "test:zk60_model_identity",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_pending_layout.rs:3"
+      ],
+      "from": "test:zk60_pending_layout",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_pending_layout.rs:4"
+      ],
+      "from": "test:zk60_pending_layout",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_phase_profile.rs:36",
+        "hashline/tests/zk60_phase_profile.rs:39"
+      ],
+      "from": "test:zk60_phase_profile",
+      "kind": "normal",
+      "to": "chain"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_phase_profile.rs:37",
+        "hashline/tests/zk60_phase_profile.rs:38"
+      ],
+      "from": "test:zk60_phase_profile",
+      "kind": "normal",
+      "to": "phase_profile"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_private_seam.rs:2"
+      ],
+      "from": "test:zk60_private_seam",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_private_seam.rs:3"
+      ],
+      "from": "test:zk60_private_seam",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_private_seam.rs:4"
+      ],
+      "from": "test:zk60_private_seam",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_private_seam.rs:5"
+      ],
+      "from": "test:zk60_private_seam",
+      "kind": "normal",
+      "to": "private_seam"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_proof_size.rs:3"
+      ],
+      "from": "test:zk60_proof_size",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_proof_size.rs:4"
+      ],
+      "from": "test:zk60_proof_size",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_proof_size.rs:5"
+      ],
+      "from": "test:zk60_proof_size",
+      "kind": "normal",
+      "to": "sumcheck"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_proof_size.rs:6"
+      ],
+      "from": "test:zk60_proof_size",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_block.rs:2"
+      ],
+      "from": "test:zk60_public_block",
+      "kind": "normal",
+      "to": "attention"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_block.rs:3"
+      ],
+      "from": "test:zk60_public_block",
+      "kind": "normal",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_block.rs:6"
+      ],
+      "from": "test:zk60_public_block",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_block.rs:7"
+      ],
+      "from": "test:zk60_public_block",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_block.rs:8"
+      ],
+      "from": "test:zk60_public_block",
+      "kind": "normal",
+      "to": "mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_block.rs:9"
+      ],
+      "from": "test:zk60_public_block",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_block.rs:10"
+      ],
+      "from": "test:zk60_public_block",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_block.rs:11"
+      ],
+      "from": "test:zk60_public_block",
+      "kind": "normal",
+      "to": "private_block_contract"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_block.rs:12"
+      ],
+      "from": "test:zk60_public_block",
+      "kind": "normal",
+      "to": "public_block_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_block.rs:16"
+      ],
+      "from": "test:zk60_public_block",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_chain.rs:3"
+      ],
+      "from": "test:zk60_public_chain",
+      "kind": "normal",
+      "to": "attention"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_chain.rs:4"
+      ],
+      "from": "test:zk60_public_chain",
+      "kind": "normal",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_chain.rs:8"
+      ],
+      "from": "test:zk60_public_chain",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_chain.rs:9"
+      ],
+      "from": "test:zk60_public_chain",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_public_chain.rs:615",
+        "hashline/tests/zk60_public_chain.rs:617"
+      ],
+      "from": "test:zk60_public_chain",
+      "kind": "normal",
+      "to": "pcs_compact"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_chain.rs:10"
+      ],
+      "from": "test:zk60_public_chain",
+      "kind": "normal",
+      "to": "private_block_contract"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_chain.rs:11"
+      ],
+      "from": "test:zk60_public_chain",
+      "kind": "normal",
+      "to": "public_block_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_chain.rs:12"
+      ],
+      "from": "test:zk60_public_chain",
+      "kind": "normal",
+      "to": "public_block_receipt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_chain.rs:16"
+      ],
+      "from": "test:zk60_public_chain",
+      "kind": "normal",
+      "to": "public_chain_receipt"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_public_chain.rs:116",
+        "hashline/tests/zk60_public_chain.rs:379"
+      ],
+      "from": "test:zk60_public_chain",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_chain.rs:20"
+      ],
+      "from": "test:zk60_public_chain",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_receipt.rs:3"
+      ],
+      "from": "test:zk60_public_receipt",
+      "kind": "normal",
+      "to": "attention"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_public_receipt.rs:4",
+        "hashline/tests/zk60_public_receipt.rs:21"
+      ],
+      "from": "test:zk60_public_receipt",
+      "kind": "normal",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_receipt.rs:7"
+      ],
+      "from": "test:zk60_public_receipt",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_receipt.rs:8"
+      ],
+      "from": "test:zk60_public_receipt",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_receipt.rs:9"
+      ],
+      "from": "test:zk60_public_receipt",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_public_receipt.rs:318",
+        "hashline/tests/zk60_public_receipt.rs:320"
+      ],
+      "from": "test:zk60_public_receipt",
+      "kind": "normal",
+      "to": "pcs_compact"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_receipt.rs:10"
+      ],
+      "from": "test:zk60_public_receipt",
+      "kind": "normal",
+      "to": "private_block_contract"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_public_receipt.rs:11",
+        "hashline/tests/zk60_public_receipt.rs:333"
+      ],
+      "from": "test:zk60_public_receipt",
+      "kind": "normal",
+      "to": "public_block_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_receipt.rs:12"
+      ],
+      "from": "test:zk60_public_receipt",
+      "kind": "normal",
+      "to": "public_block_receipt"
+    },
+    {
+      "count": 8,
+      "evidence": [
+        "hashline/tests/zk60_public_receipt.rs:46",
+        "hashline/tests/zk60_public_receipt.rs:50",
+        "hashline/tests/zk60_public_receipt.rs:54",
+        "hashline/tests/zk60_public_receipt.rs:64",
+        "hashline/tests/zk60_public_receipt.rs:65",
+        "hashline/tests/zk60_public_receipt.rs:66",
+        "hashline/tests/zk60_public_receipt.rs:90",
+        "hashline/tests/zk60_public_receipt.rs:124"
+      ],
+      "from": "test:zk60_public_receipt",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_receipt.rs:17"
+      ],
+      "from": "test:zk60_public_receipt",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_wire.rs:3"
+      ],
+      "from": "test:zk60_public_wire",
+      "kind": "normal",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_wire.rs:4"
+      ],
+      "from": "test:zk60_public_wire",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_wire.rs:5"
+      ],
+      "from": "test:zk60_public_wire",
+      "kind": "normal",
+      "to": "pcs_compact"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_wire.rs:6"
+      ],
+      "from": "test:zk60_public_wire",
+      "kind": "normal",
+      "to": "public_block_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_public_wire.rs:7"
+      ],
+      "from": "test:zk60_public_wire",
+      "kind": "normal",
+      "to": "public_block_wire"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_sequence_equivalence.rs:2"
+      ],
+      "from": "test:zk60_sequence_equivalence",
+      "kind": "normal",
+      "to": "attention"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_sequence_equivalence.rs:5"
+      ],
+      "from": "test:zk60_sequence_equivalence",
+      "kind": "normal",
+      "to": "causal_oracle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_sequence_equivalence.rs:8"
+      ],
+      "from": "test:zk60_sequence_equivalence",
+      "kind": "normal",
+      "to": "export_v3"
+    },
+    {
+      "count": 3,
+      "evidence": [
+        "hashline/tests/zk60_sequence_equivalence.rs:234",
+        "hashline/tests/zk60_sequence_equivalence.rs:238",
+        "hashline/tests/zk60_sequence_equivalence.rs:402"
+      ],
+      "from": "test:zk60_sequence_equivalence",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/tests/zk60_sequence_equivalence.rs:9",
+        "hashline/tests/zk60_sequence_equivalence.rs:403"
+      ],
+      "from": "test:zk60_sequence_equivalence",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_sequence_equivalence.rs:404"
+      ],
+      "from": "test:zk60_sequence_equivalence",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_sequence_equivalence.rs:405"
+      ],
+      "from": "test:zk60_sequence_equivalence",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_sequence_equivalence.rs:428"
+      ],
+      "from": "test:zk60_sequence_equivalence",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_sequence_equivalence.rs:10"
+      ],
+      "from": "test:zk60_sequence_equivalence",
+      "kind": "normal",
+      "to": "private_block_contract"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_sequence_equivalence.rs:144"
+      ],
+      "from": "test:zk60_sequence_equivalence",
+      "kind": "normal",
+      "to": "silu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_sequence_equivalence.rs:13"
+      ],
+      "from": "test:zk60_sequence_equivalence",
+      "kind": "normal",
+      "to": "tables_attn"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_sequence_equivalence.rs:14"
+      ],
+      "from": "test:zk60_sequence_equivalence",
+      "kind": "normal",
+      "to": "tables_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_sequence_equivalence.rs:15"
+      ],
+      "from": "test:zk60_sequence_equivalence",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_stable_weight_slots.rs:2"
+      ],
+      "from": "test:zk60_stable_weight_slots",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_stable_weight_slots.rs:3"
+      ],
+      "from": "test:zk60_stable_weight_slots",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/tests/zk60_stable_weight_slots.rs:4"
+      ],
+      "from": "test:zk60_stable_weight_slots",
+      "kind": "normal",
+      "to": "stable_weight_slots"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/transcript.rs:2"
+      ],
+      "from": "transcript",
+      "kind": "normal",
+      "to": "zkp_core::transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/wcache.rs:45"
+      ],
+      "from": "wcache",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/wcache.rs:353"
+      ],
+      "from": "wcache",
+      "kind": "test",
+      "to": "field"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/wcache.rs:274",
+        "hashline/src/wcache.rs:275"
+      ],
+      "from": "wcache",
+      "kind": "gpu",
+      "to": "gpu"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/wcache.rs:46"
+      ],
+      "from": "wcache",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/wcache.rs:47"
+      ],
+      "from": "wcache",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/wcache.rs:48"
+      ],
+      "from": "wcache",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk.rs:605"
+      ],
+      "from": "zk",
+      "kind": "normal",
+      "to": "chain"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk.rs:606"
+      ],
+      "from": "zk",
+      "kind": "normal",
+      "to": "export"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk.rs:1913"
+      ],
+      "from": "zk",
+      "kind": "normal",
+      "to": "export_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk.rs:3672"
+      ],
+      "from": "zk",
+      "kind": "test",
+      "to": "export_v3"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/zk.rs:101",
+        "hashline/src/zk.rs:607"
+      ],
+      "from": "zk",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 3,
+      "evidence": [
+        "hashline/src/zk.rs:3794",
+        "hashline/src/zk.rs:3945",
+        "hashline/src/zk.rs:4036"
+      ],
+      "from": "zk",
+      "kind": "test",
+      "to": "field"
+    },
+    {
+      "count": 30,
+      "evidence": [
+        "hashline/src/zk.rs:943",
+        "hashline/src/zk.rs:949",
+        "hashline/src/zk.rs:951",
+        "hashline/src/zk.rs:1231",
+        "hashline/src/zk.rs:1309",
+        "hashline/src/zk.rs:1320",
+        "hashline/src/zk.rs:1321",
+        "hashline/src/zk.rs:1441"
+      ],
+      "from": "zk",
+      "kind": "gpu",
+      "to": "gpu"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/zk.rs:608",
+        "hashline/src/zk.rs:1914"
+      ],
+      "from": "zk",
+      "kind": "normal",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk.rs:3673"
+      ],
+      "from": "zk",
+      "kind": "test",
+      "to": "layer"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk.rs:365"
+      ],
+      "from": "zk",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/zk.rs:366",
+        "hashline/src/zk.rs:609"
+      ],
+      "from": "zk",
+      "kind": "normal",
+      "to": "mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk.rs:367"
+      ],
+      "from": "zk",
+      "kind": "normal",
+      "to": "ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk.rs:368"
+      ],
+      "from": "zk",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk.rs:369"
+      ],
+      "from": "zk",
+      "kind": "normal",
+      "to": "sumcheck"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk.rs:3674"
+      ],
+      "from": "zk",
+      "kind": "test",
+      "to": "tables_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk.rs:370"
+      ],
+      "from": "zk",
+      "kind": "normal",
+      "to": "transcript"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "hashline/src/zk.rs:2355",
+        "hashline/src/zk.rs:2364"
+      ],
+      "from": "zk",
+      "kind": "normal",
+      "to": "wcache"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk.rs:344"
+      ],
+      "from": "zk",
+      "kind": "normal",
+      "to": "zkp_core::rng"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk_cfs_safety_tests.rs:110"
+      ],
+      "from": "zk::cfs_safety_tests",
+      "kind": "test",
+      "to": "mle"
+    },
+    {
+      "count": 3,
+      "evidence": [
+        "hashline/src/zk_ffn_mask_diagnostic.rs:7",
+        "hashline/src/zk_ffn_mask_diagnostic.rs:468",
+        "hashline/src/zk_ffn_mask_diagnostic.rs:583"
+      ],
+      "from": "zk::mask_diagnostic",
+      "kind": "test",
+      "to": "export_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk_ffn_mask_diagnostic.rs:8"
+      ],
+      "from": "zk::mask_diagnostic",
+      "kind": "test",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk_ffn_mask_diagnostic.rs:9"
+      ],
+      "from": "zk::mask_diagnostic",
+      "kind": "test",
+      "to": "tables_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk_ffn_observation_json.rs:98"
+      ],
+      "from": "zk::mask_diagnostic::observation_json",
+      "kind": "test",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk_proof_size.rs:77"
+      ],
+      "from": "zk::proof_size",
+      "kind": "normal",
+      "to": "field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk_proof_size.rs:79"
+      ],
+      "from": "zk::proof_size",
+      "kind": "normal",
+      "to": "merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk_proof_size.rs:6"
+      ],
+      "from": "zk::proof_size",
+      "kind": "normal",
+      "to": "pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk_proof_size.rs:7"
+      ],
+      "from": "zk::proof_size",
+      "kind": "normal",
+      "to": "sumcheck"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "hashline/src/zk_proof_size.rs:5"
+      ],
+      "from": "zk::proof_size",
+      "kind": "normal",
+      "to": "zk"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/examples/public_sumcheck.rs:4"
+      ],
+      "from": "zkp_core::example:public_sumcheck",
+      "kind": "normal",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/examples/public_sumcheck.rs:5"
+      ],
+      "from": "zkp_core::example:public_sumcheck",
+      "kind": "normal",
+      "to": "zkp_core::mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/examples/public_sumcheck.rs:6"
+      ],
+      "from": "zkp_core::example:public_sumcheck",
+      "kind": "normal",
+      "to": "zkp_core::sumcheck"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/examples/public_sumcheck.rs:7"
+      ],
+      "from": "zkp_core::example:public_sumcheck",
+      "kind": "normal",
+      "to": "zkp_core::transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/proof.rs:30"
+      ],
+      "from": "zkp_core::ffn_v3::proof",
+      "kind": "normal",
+      "to": "zkp_core::ffn_v3"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/proof.rs:31"
+      ],
+      "from": "zkp_core::ffn_v3::proof",
+      "kind": "normal",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/proof.rs:32"
+      ],
+      "from": "zkp_core::ffn_v3::proof",
+      "kind": "normal",
+      "to": "zkp_core::merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/proof.rs:33"
+      ],
+      "from": "zkp_core::ffn_v3::proof",
+      "kind": "normal",
+      "to": "zkp_core::pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/proof.rs:34"
+      ],
+      "from": "zkp_core::ffn_v3::proof",
+      "kind": "normal",
+      "to": "zkp_core::sumcheck"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/proof.rs:562"
+      ],
+      "from": "zkp_core::ffn_v3::proof",
+      "kind": "test",
+      "to": "zkp_core::tables"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/statement.rs:14"
+      ],
+      "from": "zkp_core::ffn_v3::statement",
+      "kind": "normal",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/statement.rs:15"
+      ],
+      "from": "zkp_core::ffn_v3::statement",
+      "kind": "normal",
+      "to": "zkp_core::pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/statement.rs:16"
+      ],
+      "from": "zkp_core::ffn_v3::statement",
+      "kind": "normal",
+      "to": "zkp_core::tables"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/statement.rs:239"
+      ],
+      "from": "zkp_core::ffn_v3::statement",
+      "kind": "test",
+      "to": "zkp_core::tables"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ffn_v3/statement.rs:17"
+      ],
+      "from": "zkp_core::ffn_v3::statement",
+      "kind": "normal",
+      "to": "zkp_core::transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/mle.rs:5"
+      ],
+      "from": "zkp_core::mle",
+      "kind": "normal",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/ntt.rs:6"
+      ],
+      "from": "zkp_core::ntt",
+      "kind": "normal",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/pcs.rs:29"
+      ],
+      "from": "zkp_core::pcs",
+      "kind": "normal",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "zkp-core/src/pcs.rs:1207",
+        "zkp-core/src/pcs.rs:1237"
+      ],
+      "from": "zkp_core::pcs",
+      "kind": "test",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/pcs.rs:30"
+      ],
+      "from": "zkp_core::pcs",
+      "kind": "normal",
+      "to": "zkp_core::merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/pcs.rs:31"
+      ],
+      "from": "zkp_core::pcs",
+      "kind": "normal",
+      "to": "zkp_core::mle"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "zkp-core/src/pcs.rs:1045",
+        "zkp-core/src/pcs.rs:1246"
+      ],
+      "from": "zkp_core::pcs",
+      "kind": "test",
+      "to": "zkp_core::mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/pcs.rs:32"
+      ],
+      "from": "zkp_core::pcs",
+      "kind": "normal",
+      "to": "zkp_core::ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/pcs.rs:33"
+      ],
+      "from": "zkp_core::pcs",
+      "kind": "normal",
+      "to": "zkp_core::rng"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/pcs.rs:34"
+      ],
+      "from": "zkp_core::pcs",
+      "kind": "normal",
+      "to": "zkp_core::transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/pcs/backend.rs:23"
+      ],
+      "from": "zkp_core::pcs::backend",
+      "kind": "normal",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/pcs/backend.rs:24"
+      ],
+      "from": "zkp_core::pcs::backend",
+      "kind": "normal",
+      "to": "zkp_core::merkle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/pcs/backend.rs:25"
+      ],
+      "from": "zkp_core::pcs::backend",
+      "kind": "normal",
+      "to": "zkp_core::ntt"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/pcs/backend.rs:22"
+      ],
+      "from": "zkp_core::pcs::backend",
+      "kind": "normal",
+      "to": "zkp_core::pcs"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/rng.rs:4"
+      ],
+      "from": "zkp_core::rng",
+      "kind": "normal",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/rng.rs:133"
+      ],
+      "from": "zkp_core::rng",
+      "kind": "test",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/sumcheck.rs:11"
+      ],
+      "from": "zkp_core::sumcheck",
+      "kind": "normal",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/sumcheck.rs:447"
+      ],
+      "from": "zkp_core::sumcheck",
+      "kind": "test",
+      "to": "zkp_core::field"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/sumcheck.rs:12"
+      ],
+      "from": "zkp_core::sumcheck",
+      "kind": "normal",
+      "to": "zkp_core::mle"
+    },
+    {
+      "count": 5,
+      "evidence": [
+        "zkp-core/src/sumcheck.rs:319",
+        "zkp-core/src/sumcheck.rs:365",
+        "zkp-core/src/sumcheck.rs:448",
+        "zkp-core/src/sumcheck.rs:500",
+        "zkp-core/src/sumcheck.rs:514"
+      ],
+      "from": "zkp_core::sumcheck",
+      "kind": "test",
+      "to": "zkp_core::mle"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/sumcheck.rs:201"
+      ],
+      "from": "zkp_core::sumcheck",
+      "kind": "normal",
+      "to": "zkp_core::rng"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/sumcheck.rs:320"
+      ],
+      "from": "zkp_core::sumcheck",
+      "kind": "test",
+      "to": "zkp_core::rng"
+    },
+    {
+      "count": 2,
+      "evidence": [
+        "zkp-core/src/sumcheck.rs:13",
+        "zkp-core/src/sumcheck.rs:185"
+      ],
+      "from": "zkp_core::sumcheck",
+      "kind": "normal",
+      "to": "zkp_core::transcript"
+    },
+    {
+      "count": 1,
+      "evidence": [
+        "zkp-core/src/transcript.rs:5"
+      ],
+      "from": "zkp_core::transcript",
+      "kind": "normal",
+      "to": "zkp_core::field"
+    }
+  ],
+  "generator": "zkp-core/tools/dep_closure.py",
+  "nodes": {
+    "attention": {
+      "class": "application (attention half of the layer)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:68",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention_schedule",
+        "field",
+        "layer",
+        "mle",
+        "norm",
+        "ntt",
+        "pcs",
+        "silu",
+        "sumcheck",
+        "tables_attn",
+        "transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_ATTN_CLAIMS",
+        "HL_FOLD",
+        "HL_NO_FOLD"
+      ],
+      "externals": [
+        "rayon",
+        "sha2"
+      ],
+      "file": "hashline/src/attention.rs",
+      "gate": null,
+      "inline_mods": [
+        "chain_tests"
+      ],
+      "kind": "lib",
+      "lines_code": 2878,
+      "lines_gpu_gated": 0,
+      "lines_test": 29,
+      "lines_total": 3448,
+      "tests": 2
+    },
+    "attention_schedule": {
+      "class": "application (public execution metadata)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:57",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/src/attention_schedule.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 241,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 268,
+      "tests": 0
+    },
+    "bin:hashline": {
+      "class": "cli",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention",
+        "chain",
+        "export",
+        "export_v3",
+        "field",
+        "gpu",
+        "layer",
+        "mle",
+        "ntt",
+        "pcs",
+        "pcs_compact",
+        "phase_profile",
+        "tables_v3",
+        "transcript",
+        "wcache",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_BENCH_CLAIMS",
+        "HL_GPU",
+        "ZK_THREADS"
+      ],
+      "externals": [
+        "rayon"
+      ],
+      "file": "hashline/src/bin/hashline.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "bin",
+      "lines_code": 1623,
+      "lines_gpu_gated": 42,
+      "lines_test": 0,
+      "lines_total": 1830,
+      "tests": 0
+    },
+    "causal_oracle": {
+      "class": "application (fixed causal block oracle)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:49",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention",
+        "export_v3",
+        "field",
+        "layer",
+        "merkle",
+        "norm",
+        "ntt",
+        "pcs",
+        "private_block_contract",
+        "silu",
+        "tables_attn",
+        "tables_v3",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/src/causal_oracle.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 653,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 700,
+      "tests": 0
+    },
+    "chain": {
+      "class": "adapter (v2 exact integer chain / witness)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:20",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "export",
+        "phase_profile",
+        "silu"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "rayon"
+      ],
+      "file": "hashline/src/chain.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 169,
+      "lines_gpu_gated": 0,
+      "lines_test": 60,
+      "lines_total": 206,
+      "tests": 5
+    },
+    "example:zk60_block_receipt": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "causal_oracle",
+        "pcs",
+        "private_block_contract",
+        "public_block_receipt",
+        "silu"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/examples/zk60_block_receipt.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "example",
+      "lines_code": 91,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 99,
+      "tests": 0
+    },
+    "example:zk60_chain_receipt": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "causal_oracle",
+        "pcs",
+        "private_block_contract",
+        "public_chain_receipt",
+        "silu"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/examples/zk60_chain_receipt.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "example",
+      "lines_code": 151,
+      "lines_gpu_gated": 0,
+      "lines_test": 23,
+      "lines_total": 167,
+      "tests": 2
+    },
+    "example:zk60_seam_receipt": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "ntt",
+        "pcs",
+        "private_seam"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/examples/zk60_seam_receipt.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "example",
+      "lines_code": 59,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 66,
+      "tests": 0
+    },
+    "example:zk60_witness_bench": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "chain",
+        "export_v3"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "RUSTFLAGS"
+      ],
+      "externals": [
+        "rayon"
+      ],
+      "file": "hashline/examples/zk60_witness_bench.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "example",
+      "lines_code": 176,
+      "lines_gpu_gated": 0,
+      "lines_test": 40,
+      "lines_total": 196,
+      "tests": 3
+    },
+    "export": {
+      "class": "adapter (v2 125M export loader, fixed shapes)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:19",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "silu"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "M125_EXPORT_DIR"
+      ],
+      "externals": [
+        "sha2"
+      ],
+      "file": "hashline/src/export.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 98,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 128,
+      "tests": 0
+    },
+    "export_v3": {
+      "class": "adapter (v3 export loader + witness derivation)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:34",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "chain",
+        "phase_profile",
+        "silu",
+        "tables_v3"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_EXPORT_DIR"
+      ],
+      "externals": [
+        "rayon",
+        "sha2"
+      ],
+      "file": "hashline/src/export_v3.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 382,
+      "lines_gpu_gated": 0,
+      "lines_test": 50,
+      "lines_total": 493,
+      "tests": 4
+    },
+    "field": {
+      "class": "core",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:14",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::field"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/field.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 3,
+      "lines_gpu_gated": 0,
+      "lines_test": 1,
+      "lines_total": 6,
+      "tests": 0
+    },
+    "field::verifier_hardening_tests": {
+      "class": "test-only",
+      "crate": "hashline",
+      "declared_by": "hashline/src/field.rs:6",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [
+        "attention",
+        "causal_oracle",
+        "chain",
+        "export",
+        "field",
+        "layer",
+        "ntt",
+        "pcs_compact",
+        "public_block_oracle",
+        "public_block_wire",
+        "transcript"
+      ],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/src/field/verifier_hardening_tests.rs",
+      "gate": "test",
+      "inline_mods": [
+        "cpu"
+      ],
+      "kind": "lib",
+      "lines_code": 252,
+      "lines_gpu_gated": 0,
+      "lines_test": 245,
+      "lines_total": 273,
+      "tests": 5
+    },
+    "gpu": {
+      "class": "adapter (device dispatch; stub without the feature)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:29",
+      "deps_gpu_only": [
+        "field",
+        "merkle",
+        "ntt",
+        "zkp_core::pcs"
+      ],
+      "deps_normal": [],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/gpu/mod.rs",
+      "gate": null,
+      "inline_mods": [
+        "open_plan",
+        "seam",
+        "stub"
+      ],
+      "kind": "lib",
+      "lines_code": 192,
+      "lines_gpu_gated": 62,
+      "lines_test": 0,
+      "lines_total": 311,
+      "tests": 0
+    },
+    "gpu::cuda": {
+      "class": "adapter (cudarc backend; feature gpu-cuda)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/gpu/mod.rs:20",
+      "deps_gpu_only": [
+        "field",
+        "gpu",
+        "merkle",
+        "ntt",
+        "pcs",
+        "sumcheck",
+        "transcript"
+      ],
+      "deps_normal": [],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_BENCH_ROWS",
+        "HL_GPU_CHUNK_BYTES",
+        "HL_GPU_CHUNK_ROWS",
+        "HL_GPU_FUSE_GATHER",
+        "HL_GPU_NARROW",
+        "HL_GPU_NTT_FAST",
+        "HL_GPU_NTT_THREADS",
+        "HL_GPU_PAD_SKIP",
+        "HL_GPU_PIN_MB",
+        "HL_GPU_PRUNE_P2",
+        "HL_GPU_STREAM_COMMIT",
+        "HL_ZK_CHUNK",
+        "HL_ZK_COMPACT_PAD",
+        "HL_ZK_FUSE_GATHER"
+      ],
+      "externals": [
+        "cudarc",
+        "rayon"
+      ],
+      "file": "hashline/src/gpu/cuda.rs",
+      "gate": "gpu",
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 2622,
+      "lines_gpu_gated": 2605,
+      "lines_test": 0,
+      "lines_total": 3478,
+      "tests": 0
+    },
+    "layer": {
+      "class": "core (statement/layout/prove/verify; adapters mixed in)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:28",
+      "deps_gpu_only": [
+        "merkle"
+      ],
+      "deps_normal": [
+        "chain",
+        "export",
+        "export_v3",
+        "field",
+        "gpu",
+        "mle",
+        "ntt",
+        "pcs",
+        "pcs_compact",
+        "sumcheck",
+        "transcript",
+        "wcache",
+        "zkp_core::ffn_v3"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_AL_I8FOLD",
+        "HL_AL_POOL",
+        "HL_CONV_VERBOSE"
+      ],
+      "externals": [
+        "rayon"
+      ],
+      "file": "hashline/src/layer.rs",
+      "gate": null,
+      "inline_mods": [
+        "hostbuf"
+      ],
+      "kind": "lib",
+      "lines_code": 1858,
+      "lines_gpu_gated": 147,
+      "lines_test": 2,
+      "lines_total": 2198,
+      "tests": 0
+    },
+    "lib": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/lib.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 35,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 68,
+      "tests": 0
+    },
+    "merkle": {
+      "class": "core",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:16",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::merkle"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/merkle.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 1,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 2,
+      "tests": 0
+    },
+    "mle": {
+      "class": "core",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:21",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::mle"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/mle.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 1,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 2,
+      "tests": 0
+    },
+    "model_identity": {
+      "class": "application (opt-in P1 approval boundary)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:37",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "layer",
+        "ntt",
+        "pcs",
+        "tables_v3",
+        "transcript",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/model_identity.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 243,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 302,
+      "tests": 0
+    },
+    "norm": {
+      "class": "application (RMSNorm gadget)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:67",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/norm.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 196,
+      "lines_gpu_gated": 0,
+      "lines_test": 35,
+      "lines_total": 263,
+      "tests": 2
+    },
+    "ntt": {
+      "class": "core",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:15",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::ntt"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/ntt.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 1,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 2,
+      "tests": 0
+    },
+    "pcs": {
+      "class": "core",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:23",
+      "deps_gpu_only": [
+        "merkle"
+      ],
+      "deps_normal": [
+        "field",
+        "gpu",
+        "ntt",
+        "transcript",
+        "zkp_core::pcs",
+        "zkp_core::rng"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_TIMING"
+      ],
+      "externals": [
+        "rayon"
+      ],
+      "file": "hashline/src/pcs.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 45,
+      "lines_gpu_gated": 15,
+      "lines_test": 0,
+      "lines_total": 84,
+      "tests": 0
+    },
+    "pcs_compact": {
+      "class": "experiment (BaseFold-class compact PCS, `--pcs compact`)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:27",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "merkle",
+        "mle",
+        "ntt",
+        "pcs",
+        "transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_TIMING"
+      ],
+      "externals": [
+        "blake3",
+        "rayon"
+      ],
+      "file": "hashline/src/pcs_compact.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 1108,
+      "lines_gpu_gated": 0,
+      "lines_test": 151,
+      "lines_total": 1358,
+      "tests": 5
+    },
+    "phase_profile": {
+      "class": "adapter (timing instrumentation)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:48",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/phase_profile.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 144,
+      "lines_gpu_gated": 0,
+      "lines_test": 31,
+      "lines_total": 167,
+      "tests": 3
+    },
+    "private_block_contract": {
+      "class": "application (P1 block metadata preflight)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:59",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention",
+        "causal_oracle",
+        "export_v3",
+        "layer",
+        "merkle",
+        "norm",
+        "pcs",
+        "silu",
+        "tables_attn",
+        "tables_v3",
+        "transcript",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/src/private_block_contract.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 478,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 546,
+      "tests": 0
+    },
+    "private_seam": {
+      "class": "experiment (one-shot private equality gadget)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:47",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "merkle",
+        "mle",
+        "ntt",
+        "pcs",
+        "sumcheck",
+        "transcript",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/src/private_seam.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 665,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 725,
+      "tests": 0
+    },
+    "public_block_oracle": {
+      "class": "application (public P0 block)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:51",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention",
+        "causal_oracle",
+        "field",
+        "layer",
+        "merkle",
+        "ntt",
+        "pcs",
+        "private_block_contract",
+        "transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/public_block_oracle.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 215,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 251,
+      "tests": 0
+    },
+    "public_block_receipt": {
+      "class": "application (B3/B4 receipt)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:54",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention",
+        "causal_oracle",
+        "field",
+        "layer",
+        "merkle",
+        "mle",
+        "ntt",
+        "pcs_compact",
+        "private_block_contract",
+        "public_block_oracle",
+        "public_block_wire",
+        "transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/src/public_block_receipt.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 324,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 357,
+      "tests": 0
+    },
+    "public_block_wire": {
+      "class": "application (bounded public-block codec)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:53",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention",
+        "field",
+        "layer",
+        "merkle",
+        "pcs",
+        "public_block_oracle",
+        "sumcheck"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/public_block_wire.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 568,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 581,
+      "tests": 0
+    },
+    "public_chain_receipt": {
+      "class": "application (B5 two-block chain receipt)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:55",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "causal_oracle",
+        "merkle",
+        "private_block_contract",
+        "public_block_receipt"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/src/public_chain_receipt.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 344,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 376,
+      "tests": 0
+    },
+    "silu": {
+      "class": "adapter (v2 SiLU table registry)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:18",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::tables"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "sha2"
+      ],
+      "file": "hashline/src/silu.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 58,
+      "lines_gpu_gated": 0,
+      "lines_test": 13,
+      "lines_total": 78,
+      "tests": 1
+    },
+    "stable_weight_material": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:42",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "merkle",
+        "ntt",
+        "pcs",
+        "stable_weight_slots"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/src/stable_weight_material.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 381,
+      "lines_gpu_gated": 1,
+      "lines_test": 0,
+      "lines_total": 442,
+      "tests": 0
+    },
+    "stable_weight_material::tests": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/stable_weight_material.rs:442",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "mle",
+        "pcs",
+        "stable_weight_slots",
+        "transcript",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/stable_weight_material_tests.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 452,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 471,
+      "tests": 9
+    },
+    "stable_weight_registration": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:45",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "merkle",
+        "pcs",
+        "stable_weight_material",
+        "stable_weight_slots"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/stable_weight_registration.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 254,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 363,
+      "tests": 0
+    },
+    "stable_weight_registration::tests": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/stable_weight_registration.rs:363",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "mle",
+        "ntt",
+        "pcs",
+        "stable_weight_slots",
+        "transcript",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_TEST_REGISTRATION_MODE"
+      ],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/stable_weight_registration_tests.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 690,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 709,
+      "tests": 11
+    },
+    "stable_weight_slots": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:39",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "merkle",
+        "pcs"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/src/stable_weight_slots.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 309,
+      "lines_gpu_gated": 0,
+      "lines_test": 1,
+      "lines_total": 382,
+      "tests": 0
+    },
+    "stable_weight_slots::tests": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/stable_weight_slots.rs:382",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [
+        "field"
+      ],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/stable_weight_slots_tests.rs",
+      "gate": "test",
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 297,
+      "lines_gpu_gated": 0,
+      "lines_test": 288,
+      "lines_total": 313,
+      "tests": 8
+    },
+    "sumcheck": {
+      "class": "core",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:22",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::sumcheck"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/sumcheck.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 1,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 2,
+      "tests": 0
+    },
+    "tables_attn": {
+      "class": "application (attention tables)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:66",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "silu"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "sha2"
+      ],
+      "file": "hashline/src/tables_attn.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 133,
+      "lines_gpu_gated": 0,
+      "lines_test": 25,
+      "lines_total": 212,
+      "tests": 2
+    },
+    "tables_v3": {
+      "class": "core (table registry: the frozen statement digests)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:33",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::tables"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/tables_v3.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 1,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 3,
+      "tests": 0
+    },
+    "test:cli_claims": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/cli_claims.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 32,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 37,
+      "tests": 3
+    },
+    "test:zk60_attention_schedule": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention",
+        "attention_schedule",
+        "causal_oracle",
+        "field",
+        "public_block_oracle",
+        "silu",
+        "transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_FOLD",
+        "HL_GPU",
+        "HL_NO_FOLD"
+      ],
+      "externals": [
+        "sha2"
+      ],
+      "file": "hashline/tests/zk60_attention_schedule.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 257,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 270,
+      "tests": 4
+    },
+    "test:zk60_block_contract": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention",
+        "causal_oracle",
+        "export_v3",
+        "field",
+        "layer",
+        "norm",
+        "ntt",
+        "pcs",
+        "private_block_contract",
+        "silu",
+        "tables_attn",
+        "tables_v3",
+        "transcript",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/tests/zk60_block_contract.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 450,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 470,
+      "tests": 9
+    },
+    "test:zk60_cl20_codec": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "export_v3",
+        "layer",
+        "ntt",
+        "tables_v3",
+        "transcript",
+        "zkp_core::ffn_v3"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_cl20_codec.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 213,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 272,
+      "tests": 6
+    },
+    "test:zk60_fable_arith": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention",
+        "causal_oracle",
+        "export_v3",
+        "field",
+        "layer",
+        "norm",
+        "ntt",
+        "pcs",
+        "pcs_compact",
+        "private_block_contract",
+        "public_block_oracle",
+        "public_block_wire",
+        "silu",
+        "sumcheck",
+        "transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "sha2"
+      ],
+      "file": "hashline/tests/zk60_fable_arith.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 543,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 647,
+      "tests": 6
+    },
+    "test:zk60_fable_cfs_channel": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "mle",
+        "sumcheck"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_fable_cfs_channel.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 64,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 90,
+      "tests": 2
+    },
+    "test:zk60_gpu_cache": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "export",
+        "field",
+        "layer",
+        "ntt",
+        "pcs",
+        "wcache"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_EXPORT_DIR",
+        "M125_EXPORT_DIR"
+      ],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_gpu_cache.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 457,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 700,
+      "tests": 12
+    },
+    "test:zk60_gpu_commit": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "gpu"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_GPU_REQUIRED"
+      ],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_gpu_commit.rs",
+      "gate": null,
+      "inline_mods": [
+        "device",
+        "open_plan_boundary"
+      ],
+      "kind": "test",
+      "lines_code": 875,
+      "lines_gpu_gated": 688,
+      "lines_test": 0,
+      "lines_total": 1289,
+      "tests": 34
+    },
+    "test:zk60_identity_gap": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "export",
+        "export_v3",
+        "field",
+        "layer",
+        "model_identity",
+        "ntt",
+        "pcs",
+        "tables_v3",
+        "transcript",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_identity_gap.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 452,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 476,
+      "tests": 5
+    },
+    "test:zk60_mask_rank": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "mle",
+        "ntt",
+        "pcs",
+        "transcript",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_mask_rank.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 97,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 107,
+      "tests": 2
+    },
+    "test:zk60_memory_layout": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "layer",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_memory_layout.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 17,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 19,
+      "tests": 1
+    },
+    "test:zk60_model_identity": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "export",
+        "export_v3",
+        "field",
+        "layer",
+        "model_identity",
+        "ntt",
+        "pcs",
+        "silu",
+        "tables_v3",
+        "transcript",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_model_identity.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 475,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 621,
+      "tests": 5
+    },
+    "test:zk60_pending_layout": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "layer",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_pending_layout.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 115,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 131,
+      "tests": 4
+    },
+    "test:zk60_phase_profile": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "chain",
+        "phase_profile"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_phase_profile.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 41,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 45,
+      "tests": 3
+    },
+    "test:zk60_private_seam": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "ntt",
+        "pcs",
+        "private_seam"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_private_seam.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 227,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 241,
+      "tests": 9
+    },
+    "test:zk60_proof_size": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "pcs",
+        "sumcheck",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_proof_size.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 172,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 182,
+      "tests": 5
+    },
+    "test:zk60_public_block": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention",
+        "causal_oracle",
+        "field",
+        "layer",
+        "mle",
+        "ntt",
+        "pcs",
+        "private_block_contract",
+        "public_block_oracle",
+        "transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_public_block.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 297,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 322,
+      "tests": 7
+    },
+    "test:zk60_public_chain": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention",
+        "causal_oracle",
+        "layer",
+        "ntt",
+        "pcs_compact",
+        "private_block_contract",
+        "public_block_oracle",
+        "public_block_receipt",
+        "public_chain_receipt",
+        "silu",
+        "transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "ZK60_B5_POLICY_CHILD"
+      ],
+      "externals": [
+        "sha2"
+      ],
+      "file": "hashline/tests/zk60_public_chain.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 604,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 627,
+      "tests": 12
+    },
+    "test:zk60_public_receipt": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention",
+        "causal_oracle",
+        "field",
+        "layer",
+        "ntt",
+        "pcs_compact",
+        "private_block_contract",
+        "public_block_oracle",
+        "public_block_receipt",
+        "silu",
+        "transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "ZK60_B4_POLICY_CHILD"
+      ],
+      "externals": [
+        "sha2"
+      ],
+      "file": "hashline/tests/zk60_public_receipt.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 332,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 350,
+      "tests": 8
+    },
+    "test:zk60_public_wire": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "causal_oracle",
+        "field",
+        "pcs_compact",
+        "public_block_oracle",
+        "public_block_wire"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_FOLD",
+        "HL_GPU",
+        "HL_NO_FOLD"
+      ],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/tests/zk60_public_wire.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 239,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 252,
+      "tests": 8
+    },
+    "test:zk60_sequence_equivalence": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "attention",
+        "causal_oracle",
+        "export_v3",
+        "field",
+        "layer",
+        "merkle",
+        "ntt",
+        "pcs",
+        "private_block_contract",
+        "silu",
+        "tables_attn",
+        "tables_v3",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/tests/zk60_sequence_equivalence.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 529,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 551,
+      "tests": 7
+    },
+    "test:zk60_stable_weight_slots": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "pcs",
+        "stable_weight_slots"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_TEST_SLOT_MODE"
+      ],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/tests/zk60_stable_weight_slots.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "test",
+      "lines_code": 191,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 201,
+      "tests": 3
+    },
+    "transcript": {
+      "class": "core",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:17",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/transcript.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 1,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 2,
+      "tests": 0
+    },
+    "wcache": {
+      "class": "adapter (per-model weight-commitment cache)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:62",
+      "deps_gpu_only": [
+        "gpu"
+      ],
+      "deps_normal": [
+        "field",
+        "merkle",
+        "ntt",
+        "pcs"
+      ],
+      "deps_test_only": [],
+      "env_vars": [
+        "HL_WCACHE_VERBOSE"
+      ],
+      "externals": [
+        "blake3",
+        "rayon"
+      ],
+      "file": "hashline/src/wcache.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 299,
+      "lines_gpu_gated": 6,
+      "lines_test": 43,
+      "lines_total": 399,
+      "tests": 1
+    },
+    "wcache::atomic_tests": {
+      "class": "test-only",
+      "crate": "hashline",
+      "declared_by": "hashline/src/wcache.rs:348",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "hashline/src/wcache_atomic_tests.rs",
+      "gate": "test",
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 225,
+      "lines_gpu_gated": 0,
+      "lines_test": 221,
+      "lines_total": 238,
+      "tests": 4
+    },
+    "zk": {
+      "class": "application (ZK FFN paths) + primitive (ZkRng, to be moved to core `rng`)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/lib.rs:35",
+      "deps_gpu_only": [
+        "gpu"
+      ],
+      "deps_normal": [
+        "chain",
+        "export",
+        "export_v3",
+        "field",
+        "layer",
+        "merkle",
+        "mle",
+        "ntt",
+        "pcs",
+        "sumcheck",
+        "transcript",
+        "wcache",
+        "zkp_core::rng"
+      ],
+      "deps_test_only": [
+        "tables_v3"
+      ],
+      "env_vars": [
+        "HL_GPU_VERBOSE",
+        "HL_TIMING",
+        "HL_ZK_DRAIN"
+      ],
+      "externals": [
+        "blake3",
+        "rayon"
+      ],
+      "file": "hashline/src/zk.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests",
+        "tests_v3"
+      ],
+      "kind": "lib",
+      "lines_code": 3205,
+      "lines_gpu_gated": 205,
+      "lines_test": 338,
+      "lines_total": 4056,
+      "tests": 6
+    },
+    "zk::cfs_safety_tests": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/zk.rs:969",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [
+        "mle"
+      ],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/zk_cfs_safety_tests.rs",
+      "gate": "test",
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 109,
+      "lines_gpu_gated": 0,
+      "lines_test": 106,
+      "lines_total": 113,
+      "tests": 3
+    },
+    "zk::mask_diagnostic": {
+      "class": "test-only (the FFN disclosure diagnostic; a LIMITATION test)",
+      "crate": "hashline",
+      "declared_by": "hashline/src/zk.rs:3667",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [
+        "export_v3",
+        "pcs",
+        "tables_v3"
+      ],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/zk_ffn_mask_diagnostic.rs",
+      "gate": "test",
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 780,
+      "lines_gpu_gated": 0,
+      "lines_test": 768,
+      "lines_total": 835,
+      "tests": 5
+    },
+    "zk::mask_diagnostic::observation_json": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/zk_ffn_mask_diagnostic.rs:13",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [
+        "field"
+      ],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/zk_ffn_observation_json.rs",
+      "gate": "test",
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 101,
+      "lines_gpu_gated": 0,
+      "lines_test": 101,
+      "lines_total": 112,
+      "tests": 0
+    },
+    "zk::proof_size": {
+      "class": "unclassified",
+      "crate": "hashline",
+      "declared_by": "hashline/src/zk.rs:780",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "field",
+        "merkle",
+        "pcs",
+        "sumcheck",
+        "zk"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "hashline/src/zk_proof_size.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 216,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 253,
+      "tests": 0
+    },
+    "zkp_core::example:public_sumcheck": {
+      "class": "unclassified",
+      "crate": "zkp_core",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::field",
+        "zkp_core::mle",
+        "zkp_core::sumcheck",
+        "zkp_core::transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "zkp-core/examples/public_sumcheck.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "example",
+      "lines_code": 24,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 28,
+      "tests": 0
+    },
+    "zkp_core::ffn_v3": {
+      "class": "unclassified",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/lib.rs:15",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "zkp-core/src/ffn_v3/mod.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 9,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 26,
+      "tests": 0
+    },
+    "zkp_core::ffn_v3::proof": {
+      "class": "unclassified",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/ffn_v3/mod.rs:14",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::ffn_v3",
+        "zkp_core::field",
+        "zkp_core::merkle",
+        "zkp_core::pcs",
+        "zkp_core::sumcheck"
+      ],
+      "deps_test_only": [
+        "zkp_core::tables"
+      ],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "zkp-core/src/ffn_v3/proof.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 643,
+      "lines_gpu_gated": 0,
+      "lines_test": 192,
+      "lines_total": 791,
+      "tests": 6
+    },
+    "zkp_core::ffn_v3::statement": {
+      "class": "unclassified",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/ffn_v3/mod.rs:15",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::field",
+        "zkp_core::pcs",
+        "zkp_core::tables",
+        "zkp_core::transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "zkp-core/src/ffn_v3/statement.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 205,
+      "lines_gpu_gated": 0,
+      "lines_test": 40,
+      "lines_total": 265,
+      "tests": 3
+    },
+    "zkp_core::field": {
+      "class": "core (canonical)",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/lib.rs:16",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "zkp-core/src/field.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 288,
+      "lines_gpu_gated": 0,
+      "lines_test": 80,
+      "lines_total": 333,
+      "tests": 5
+    },
+    "zkp_core::lib": {
+      "class": "unclassified",
+      "crate": "zkp_core",
+      "declared_by": null,
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "zkp-core/src/lib.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 10,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 24,
+      "tests": 0
+    },
+    "zkp_core::merkle": {
+      "class": "core (canonical)",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/lib.rs:17",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3",
+        "rayon"
+      ],
+      "file": "zkp-core/src/merkle.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 70,
+      "lines_gpu_gated": 0,
+      "lines_test": 17,
+      "lines_total": 85,
+      "tests": 1
+    },
+    "zkp_core::mle": {
+      "class": "core (canonical)",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/lib.rs:18",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::field"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "rayon"
+      ],
+      "file": "zkp-core/src/mle.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 208,
+      "lines_gpu_gated": 0,
+      "lines_test": 44,
+      "lines_total": 257,
+      "tests": 4
+    },
+    "zkp_core::ntt": {
+      "class": "core (canonical)",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/lib.rs:19",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::field"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "zkp-core/src/ntt.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 141,
+      "lines_gpu_gated": 0,
+      "lines_test": 41,
+      "lines_total": 171,
+      "tests": 2
+    },
+    "zkp_core::pcs": {
+      "class": "core (canonical Ligero commitment)",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/lib.rs:20",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::field",
+        "zkp_core::merkle",
+        "zkp_core::mle",
+        "zkp_core::ntt",
+        "zkp_core::rng",
+        "zkp_core::transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3",
+        "rayon"
+      ],
+      "file": "zkp-core/src/pcs.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests",
+        "zk_tests"
+      ],
+      "kind": "lib",
+      "lines_code": 1062,
+      "lines_gpu_gated": 0,
+      "lines_test": 217,
+      "lines_total": 1310,
+      "tests": 3
+    },
+    "zkp_core::pcs::backend": {
+      "class": "core (the accelerator seam: Backend / EncodedStore / Cpu)",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/pcs.rs:37",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::field",
+        "zkp_core::merkle",
+        "zkp_core::ntt",
+        "zkp_core::pcs"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "(std only)"
+      ],
+      "file": "zkp-core/src/pcs/backend.rs",
+      "gate": null,
+      "inline_mods": [],
+      "kind": "lib",
+      "lines_code": 32,
+      "lines_gpu_gated": 0,
+      "lines_test": 0,
+      "lines_total": 80,
+      "tests": 0
+    },
+    "zkp_core::rng": {
+      "class": "core (canonical randomness)",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/lib.rs:21",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::field"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "zkp-core/src/rng.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 110,
+      "lines_gpu_gated": 0,
+      "lines_test": 29,
+      "lines_total": 135,
+      "tests": 2
+    },
+    "zkp_core::sumcheck": {
+      "class": "core (canonical)",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/lib.rs:22",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::field",
+        "zkp_core::mle",
+        "zkp_core::rng",
+        "zkp_core::transcript"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "rayon"
+      ],
+      "file": "zkp-core/src/sumcheck.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests",
+        "zk_tests"
+      ],
+      "kind": "lib",
+      "lines_code": 418,
+      "lines_gpu_gated": 0,
+      "lines_test": 174,
+      "lines_total": 520,
+      "tests": 4
+    },
+    "zkp_core::tables": {
+      "class": "unclassified",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/lib.rs:23",
+      "deps_gpu_only": [],
+      "deps_normal": [],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "sha2"
+      ],
+      "file": "zkp-core/src/tables.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 135,
+      "lines_gpu_gated": 0,
+      "lines_test": 15,
+      "lines_total": 185,
+      "tests": 1
+    },
+    "zkp_core::transcript": {
+      "class": "core (canonical)",
+      "crate": "zkp_core",
+      "declared_by": "zkp-core/src/lib.rs:24",
+      "deps_gpu_only": [],
+      "deps_normal": [
+        "zkp_core::field"
+      ],
+      "deps_test_only": [],
+      "env_vars": [],
+      "externals": [
+        "blake3"
+      ],
+      "file": "zkp-core/src/transcript.rs",
+      "gate": null,
+      "inline_mods": [
+        "tests"
+      ],
+      "kind": "lib",
+      "lines_code": 135,
+      "lines_gpu_gated": 0,
+      "lines_test": 21,
+      "lines_total": 171,
+      "tests": 1
+    }
+  },
+  "per_crate": {
+    "hashline": {
+      "binary_code_lines": 1623,
+      "cross_crate_edges": [
+        "field->zkp_core::field",
+        "gpu->zkp_core::pcs",
+        "layer->zkp_core::ffn_v3",
+        "merkle->zkp_core::merkle",
+        "mle->zkp_core::mle",
+        "ntt->zkp_core::ntt",
+        "pcs->zkp_core::pcs",
+        "pcs->zkp_core::rng",
+        "silu->zkp_core::tables",
+        "sumcheck->zkp_core::sumcheck",
+        "tables_v3->zkp_core::tables",
+        "test:zk60_cl20_codec->zkp_core::ffn_v3",
+        "transcript->zkp_core::transcript",
+        "zk->zkp_core::rng"
+      ],
+      "edge_records": 399,
+      "example_files": 4,
+      "integration_test_files": 22,
+      "library_code_lines": 21228,
+      "library_gpu_gated_lines": 3041,
+      "library_modules": 44,
+      "library_test_lines": 2508,
+      "nodes": 71
+    },
+    "zkp_core": {
+      "binary_code_lines": 0,
+      "cross_crate_edges": [],
+      "edge_records": 39,
+      "example_files": 1,
+      "integration_test_files": 0,
+      "library_code_lines": 3466,
+      "library_gpu_gated_lines": 0,
+      "library_modules": 14,
+      "library_test_lines": 870,
+      "nodes": 15
+    }
+  },
+  "primary_crate": "hashline",
+  "summary": {
+    "binary_code_lines": 1623,
+    "cross_crate_edges": [
+      "field->zkp_core::field",
+      "gpu->zkp_core::pcs",
+      "layer->zkp_core::ffn_v3",
+      "merkle->zkp_core::merkle",
+      "mle->zkp_core::mle",
+      "ntt->zkp_core::ntt",
+      "pcs->zkp_core::pcs",
+      "pcs->zkp_core::rng",
+      "silu->zkp_core::tables",
+      "sumcheck->zkp_core::sumcheck",
+      "tables_v3->zkp_core::tables",
+      "test:zk60_cl20_codec->zkp_core::ffn_v3",
+      "transcript->zkp_core::transcript",
+      "zk->zkp_core::rng"
+    ],
+    "edge_records": 399,
+    "example_files": 4,
+    "integration_test_files": 22,
+    "library_code_lines": 21228,
+    "library_gpu_gated_lines": 3041,
+    "library_modules": 44,
+    "library_test_lines": 2508,
+    "nodes": 71
+  },
+  "total": {
+    "binary_code_lines": 1623,
+    "cross_crate_edges": [
+      "field->zkp_core::field",
+      "gpu->zkp_core::pcs",
+      "layer->zkp_core::ffn_v3",
+      "merkle->zkp_core::merkle",
+      "mle->zkp_core::mle",
+      "ntt->zkp_core::ntt",
+      "pcs->zkp_core::pcs",
+      "pcs->zkp_core::rng",
+      "silu->zkp_core::tables",
+      "sumcheck->zkp_core::sumcheck",
+      "tables_v3->zkp_core::tables",
+      "test:zk60_cl20_codec->zkp_core::ffn_v3",
+      "transcript->zkp_core::transcript",
+      "zk->zkp_core::rng"
+    ],
+    "edge_records": 438,
+    "example_files": 5,
+    "integration_test_files": 22,
+    "library_code_lines": 24694,
+    "library_gpu_gated_lines": 3041,
+    "library_modules": 58,
+    "library_test_lines": 3378,
+    "nodes": 86
+  }
+}

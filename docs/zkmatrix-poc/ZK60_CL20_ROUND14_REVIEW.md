@@ -1,5 +1,12 @@
 # CL20 integration review — PCS accepted, typed decoder held
 
+**Resolved in round 15:** Fable's `50f1ea5` corrects C20-R1–R3 and is
+integrated with the previously held typed/table extraction in `2d5f389`.
+The original probes now pass in debug and release on the combined source;
+[round 15](ZK60_ROUND15.md) records validation and scope. The findings and
+hold instruction below describe the original `f8d40a7` snapshot, not the
+corrected delivery. Full FFN prover/verifier extraction remains open.
+
 Reviewed on 2026-09-08 from committed source in Fable's clean local
 `zk60-cl20-core` checkout. This was local delivery review, not evidence that
 Fable had pushed the branch. The recorded published core tip was `882f037`.

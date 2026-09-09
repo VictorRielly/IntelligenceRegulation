@@ -1,0 +1,58 @@
+
+=== configuration ===
+2026-09-08 20:19:25
+repo        /home/victor/IntelligenceRegulation
+v3 export   /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export
+M125 export /home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl
+CUDA root   /home/victor/cuda-root
+CUDA LD     /home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib
+threads     prover --threads 2 | CARGO_BUILD_JOBS 2 | RAYON_NUM_THREADS 2
+shape       pass 12 512 (the frozen fixtures)
+devices     CUDA_VISIBLE_DEVICES=<unset: all>
+helper      python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py (suite version 6)
+scratch     /tmp/zk60-round15/final/floors (manifest + per-case logs are retained here)
+
+=== parser self-tests (before any build or hardware step) ===
+2026-09-08 20:19:25
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py self-test
+gates self-test OK {"suite_versions": [0, 1, 2, 3, 4, 5, 6], "synthetic_round_trip": "green", "cases": 24, "v4_round_trip": "green", "v4_cases": 23}
+self-tests OK; suite version 6 expects 189 executed oracle cases; zkp-core cases: core_tests + core_example
+
+=== source identity ===
+2026-09-08 20:19:26
+HEAD      8c60dfb72d8b61880f0e02a6117a59889f5042e3
+branch    perf/zk-batch-optimizations
+dirty     4 tracked file(s) modified
+hashline/  tree 7da21ffbe3187c01b4595e4d3784d022dfff25ec  dirty-delta sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  Cargo.lock sha256 6b422062726e8512e42cc75eae6b17f668624181ba0fa65f82597085278591f2
+zkp-core/  tree 5083928cab24b1ed24f326a444803f57b9a77fec  dirty-delta sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  Cargo.lock sha256 24fb1de3953c017d54113014882b05c4c52b941f900ef50f3c2554f06523fc7b  present 1 (Cargo.toml + src/ + examples/public_sumcheck.rs)
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py init --out /tmp/zk60-round15/final/floors/manifest.json --suite-version 6 --repo /home/victor/IntelligenceRegulation --head 8c60dfb72d8b61880f0e02a6117a59889f5042e3 --branch perf/zk-batch-optimizations --dirty-count 4 --dirty-delta-sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 --layers 12 --tokens 512 --prover-threads 2 --build-jobs 2 --rayon-threads 2 --cpu-target-dir /home/victor/IntelligenceRegulation/hashline/target --gpu-target-dir /home/victor/IntelligenceRegulation/hashline/target-gpu --v3-export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export --m125-export /home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl --cuda-root /home/victor/cuda-root --scratch /tmp/zk60-round15/final/floors --device-selection '' --nvidia-smi NVIDIA\ GeForce\ RTX\ 4070\ Laptop\ GPU\,\ 566.14
+manifest /tmp/zk60-round15/final/floors/manifest.json: suite version 6, 24 expected cases, shape 12x512 (frozen); hashline tree 7da21ffbe3187c01b4595e4d3784d022dfff25ec lock 6b422062726e8512.., zkp-core tree 5083928cab24b1ed24f326a444803f57b9a77fec lock 24fb1de3953c017d.. present True delta empty
+
+=== build_cpu ===
+2026-09-08 20:19:26
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round15/final/floors/manifest.json --case build_cpu
++ env CARGO_BUILD_JOBS=2 flock /tmp/zk-build.lock cargo build --release --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml > /tmp/zk60-round15/final/floors/build_cpu.out 2>&1
+warning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+    Finished `release` profile [optimized] target(s) in 45.36s
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round15/final/floors/manifest.json --case build_cpu --exit 0 --log /tmp/zk60-round15/final/floors/build_cpu.out -- env CARGO_BUILD_JOBS=2 flock /tmp/zk-build.lock cargo build --release --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml
+CASE OK   build_cpu  (log retained: /tmp/zk60-round15/final/floors/build_cpu.out)
+
+=== build_gpu ===
+2026-09-08 20:20:11
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round15/final/floors/manifest.json --case build_gpu
++ env CARGO_BUILD_JOBS=2 CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib CARGO_TARGET_DIR=/home/victor/IntelligenceRegulation/hashline/target-gpu flock /tmp/zk-build.lock cargo build --release --features gpu-cuda --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml > /tmp/zk60-round15/final/floors/build_gpu.out 2>&1
+warning: `hashline` (lib) generated 10 warnings (run `cargo fix --lib -p hashline` to apply 7 suggestions)
+    Finished `release` profile [optimized] target(s) in 50.89s
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py record --manifest /tmp/zk60-round15/final/floors/manifest.json --case build_gpu --exit 0 --log /tmp/zk60-round15/final/floors/build_gpu.out -- env CARGO_BUILD_JOBS=2 CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib CARGO_TARGET_DIR=/home/victor/IntelligenceRegulation/hashline/target-gpu flock /tmp/zk-build.lock cargo build --release --features gpu-cuda --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml
+CASE OK   build_gpu  (log retained: /tmp/zk60-round15/final/floors/build_gpu.out)
+
+=== binary identity ===
+2026-09-08 20:21:02
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py binaries --manifest /tmp/zk60-round15/final/floors/manifest.json --cpu /home/victor/IntelligenceRegulation/hashline/target/release/hashline --gpu /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline
+CPU binary  d1f8bac9b31f78ea4b6d89f7bf64176699dc1270229dc592214f08f9a8f631b4  4674720 B  /home/victor/IntelligenceRegulation/hashline/target/release/hashline
+GPU binary  fab443b22a197047ee3d2d5ae2f8214731e57044f075bdef738b21eff6f9e40f  5378048 B  /home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline
+
+=== cargo test --release (CPU, --test-threads=2) ===
+2026-09-08 20:21:02
++ python3 /home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py start --manifest /tmp/zk60-round15/final/floors/manifest.json --case cargo_test_cpu
++ env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-build.lock cargo test --release --manifest-path /home/victor/IntelligenceRegulation/hashline/Cargo.toml -- --test-threads=2 > /tmp/zk60-round15/final/floors/cargo_test_cpu.out 2>&1

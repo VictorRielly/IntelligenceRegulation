@@ -1,0 +1,194 @@
+{
+  "schema": 2,
+  "kind": "zk60-floors-run-manifest",
+  "suite_version": 6,
+  "suite_production": true,
+  "created_at": "2026-09-09T03:19:26.255288+00:00",
+  "source": {
+    "head": "8c60dfb72d8b61880f0e02a6117a59889f5042e3",
+    "branch": "perf/zk-batch-optimizations",
+    "dirty_tracked_count": 4,
+    "dirty_delta_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "crates": {
+      "hashline": {
+        "path": "hashline",
+        "tree": "7da21ffbe3187c01b4595e4d3784d022dfff25ec",
+        "dirty_delta_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "untracked_paths": [],
+        "present": true
+      },
+      "zkp_core": {
+        "path": "zkp-core",
+        "tree": "5083928cab24b1ed24f326a444803f57b9a77fec",
+        "dirty_delta_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "untracked_paths": [],
+        "present": true,
+        "manifest": true,
+        "src": true,
+        "example": true
+      }
+    },
+    "lockfiles": {
+      "hashline": {
+        "path": "hashline/Cargo.lock",
+        "sha256": "6b422062726e8512e42cc75eae6b17f668624181ba0fa65f82597085278591f2",
+        "size": 8480
+      },
+      "zkp_core": {
+        "path": "zkp-core/Cargo.lock",
+        "sha256": "24fb1de3953c017d54113014882b05c4c52b941f900ef50f3c2554f06523fc7b",
+        "size": 5318
+      }
+    },
+    "note": "HEAD identifies the build inputs only when the deltas under hashline/ AND zkp-core/ are empty (e3b0c442..); `crates` records each crate's tree id at HEAD, its delta and its presence, `lockfiles` the sha256 of each Cargo.lock as built (CL21)"
+  },
+  "build": {
+    "features_gpu": [
+      "gpu-cuda"
+    ],
+    "repo": "/home/victor/IntelligenceRegulation",
+    "cpu_target_dir": "/home/victor/IntelligenceRegulation/hashline/target",
+    "gpu_target_dir": "/home/victor/IntelligenceRegulation/hashline/target-gpu",
+    "cargo_build_jobs": 2,
+    "rayon_num_threads": 2,
+    "prover_threads": 2,
+    "layers": 12,
+    "tokens": 512,
+    "shape_frozen": true,
+    "v3_export": "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export",
+    "m125_export": "/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl",
+    "cuda_root": "/home/victor/cuda-root",
+    "scratch": "/tmp/zk60-round15/final/floors"
+  },
+  "binaries": {
+    "cpu": {
+      "path": "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+      "sha256": "d1f8bac9b31f78ea4b6d89f7bf64176699dc1270229dc592214f08f9a8f631b4",
+      "size": 4674720
+    },
+    "gpu": {
+      "path": "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+      "sha256": "fab443b22a197047ee3d2d5ae2f8214731e57044f075bdef738b21eff6f9e40f",
+      "size": 5378048
+    }
+  },
+  "device": {
+    "selection": "",
+    "nvidia_smi": "NVIDIA GeForce RTX 4070 Laptop GPU, 566.14",
+    "oracle_label": null
+  },
+  "coverage": {
+    "coverage": "ffn-only",
+    "verification": "in-memory verifier ACCEPT per pass; no decoded full-relation verification"
+  },
+  "started": {
+    "cargo_test_cpu": 1788924062.7657201
+  },
+  "cases": [
+    {
+      "id": "build_cpu",
+      "kind": "build",
+      "label": null,
+      "profile": null,
+      "binary_role": null,
+      "binary_sha256": null,
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "/home/victor/IntelligenceRegulation/hashline/Cargo.toml"
+      ],
+      "exit": 0,
+      "verdict": null,
+      "gpu_on": false,
+      "device_label": null,
+      "proof": null,
+      "expected": null,
+      "log": {
+        "path": "/tmp/zk60-round15/final/floors/build_cpu.out",
+        "sha256": "c63bb3ebb85aabeafb2798826194fe2d30341e6113a73d610e71c85a4e853df3"
+      },
+      "started_at": "2026-09-09T03:19:26.292546+00:00",
+      "ended_at": "2026-09-09T03:20:11.708264+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "core_tests": null,
+      "example_line": null,
+      "artifact": null,
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "id": "build_gpu",
+      "kind": "build",
+      "label": null,
+      "profile": null,
+      "binary_role": null,
+      "binary_sha256": null,
+      "argv": [
+        "env",
+        "CARGO_BUILD_JOBS=2",
+        "CUDA_ROOT=/home/victor/cuda-root",
+        "LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib",
+        "CARGO_TARGET_DIR=/home/victor/IntelligenceRegulation/hashline/target-gpu",
+        "flock",
+        "/tmp/zk-build.lock",
+        "cargo",
+        "build",
+        "--release",
+        "--features",
+        "gpu-cuda",
+        "--manifest-path",
+        "/home/victor/IntelligenceRegulation/hashline/Cargo.toml"
+      ],
+      "exit": 0,
+      "verdict": null,
+      "gpu_on": false,
+      "device_label": null,
+      "proof": null,
+      "expected": null,
+      "log": {
+        "path": "/tmp/zk60-round15/final/floors/build_gpu.out",
+        "sha256": "c4a50947c530ed513c997452535244867cef9be47851ceb52d10da09ce1e199c"
+      },
+      "started_at": "2026-09-09T03:20:11.744942+00:00",
+      "ended_at": "2026-09-09T03:21:02.686074+00:00",
+      "oracle_summary": null,
+      "wcache": null,
+      "wcache_verbose": {
+        "hit_lines": 0,
+        "miss_lines": 0
+      },
+      "test_results": [],
+      "core_tests": null,
+      "example_line": null,
+      "artifact": null,
+      "checks": [
+        {
+          "check": "exit",
+          "ok": true,
+          "detail": "exit 0 (want 0)"
+        }
+      ],
+      "ok": true
+    }
+  ],
+  "verdict": null,
+  "finalized_at": null
+}

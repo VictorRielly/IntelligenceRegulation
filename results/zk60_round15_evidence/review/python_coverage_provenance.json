@@ -1,0 +1,12 @@
+{
+  "broad_run_commit": "22c9b35",
+  "final_source_commit": "612ff9c",
+  "changed_python_and_native_paths": [
+    "scripts/hashline_cl_gpu_gates.py",
+    "tests/test_hashline_cl_gpu_gates.py",
+    "tests/test_hashline_cl_live_identity.py"
+  ],
+  "all_changed_python_modules_retested": true,
+  "unchanged_native_crate_tree": "ab9aef723fc82169adb6817a4fa8b2686a05700f",
+  "full_suite_at_final_source_claimed": false
+}

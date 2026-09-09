@@ -1,0 +1,24 @@
+{
+  "before_commit": "22c9b35",
+  "after_lane_commit": "50f1ea5",
+  "functions": [
+    {
+      "function": "prove_layer_v3",
+      "before": "106b0b84e0d093fc6b369cf27d2033ae65a87dd5766fd304d59024dc79f8b741",
+      "after": "106b0b84e0d093fc6b369cf27d2033ae65a87dd5766fd304d59024dc79f8b741",
+      "body_identical": true
+    },
+    {
+      "function": "verify_layer_v3",
+      "before": "77b733a7e532b99ed432e23a8e20dd9520b1a7bd9c7f3823cdeac9069c34d5b0",
+      "after": "77b733a7e532b99ed432e23a8e20dd9520b1a7bd9c7f3823cdeac9069c34d5b0",
+      "body_identical": true
+    },
+    {
+      "function": "LayerProofV3::to_bytes",
+      "before": "3beee9e2708e99b6a893b7b5c4aa26f298d6cf77c566453bc875833a0d80286f",
+      "after": "3beee9e2708e99b6a893b7b5c4aa26f298d6cf77c566453bc875833a0d80286f",
+      "body_identical": true
+    }
+  ]
+}

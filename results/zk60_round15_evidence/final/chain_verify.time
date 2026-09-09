@@ -1,0 +1,23 @@
+	Command being timed: "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_chain_receipt verify /home/victor/IntelligenceRegulation/results/zk60_round6_expected.bin /home/victor/IntelligenceRegulation/results/zk60_round6_receipt.proof f20dc692c421abae9bfcb15ac4c15d8cdce64ef6f49e256c635dcc4bf2354d36 7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad f20dc692c421abae9bfcb15ac4c15d8cdce64ef6f49e256c635dcc4bf2354d36 7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad"
+	User time (seconds): 0.01
+	System time (seconds): 0.01
+	Percent of CPU this job got: 104%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.02
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 11852
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2615
+	Voluntary context switches: 111
+	Involuntary context switches: 0
+	Swaps: 0
+	File system inputs: 8392
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

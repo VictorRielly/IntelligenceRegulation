@@ -1,0 +1,36 @@
+{
+  "kind": "synthetic_manifest_with_real_git_checkout",
+  "original_commit": "98e5785",
+  "fixed_commit": "22c9b35",
+  "mutation": "tracked core source edited after manifest creation; HEAD trees and lock hashes unchanged",
+  "results": [
+    {
+      "implementation": "original_cl21",
+      "command": "validate",
+      "exit_code": 0,
+      "accepted": true,
+      "synthetic": true
+    },
+    {
+      "implementation": "original_cl21",
+      "command": "finalize",
+      "exit_code": 0,
+      "accepted": true,
+      "synthetic": true
+    },
+    {
+      "implementation": "round15_fix",
+      "command": "validate",
+      "exit_code": 1,
+      "accepted": false,
+      "synthetic": true
+    },
+    {
+      "implementation": "round15_fix",
+      "command": "finalize",
+      "exit_code": 1,
+      "accepted": false,
+      "synthetic": true
+    }
+  ]
+}

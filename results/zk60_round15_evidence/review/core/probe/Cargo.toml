@@ -1,0 +1,7 @@
+[package]
+name = "cl20-review-probes"
+version = "0.1.0"
+edition = "2021"
+[dependencies]
+hashline = { path = "/home/victor/IntelligenceRegulation/hashline" }
+zkp-core = { path = "/home/victor/IntelligenceRegulation/zkp-core" }
