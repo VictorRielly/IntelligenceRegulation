@@ -207,17 +207,14 @@ fn to_fp2_i32(v: &[i32]) -> Vec<Fp2> {
     v.par_iter().map(|&x| Fp2::from_i64(x as i64)).collect()
 }
 
-/// Evaluate several base-field slices at one point (one eq table).
-fn eval_many(data: &[Fp], slices: &[(usize, usize)], point: &[Fp2]) -> Vec<Fp2> {
-    let eq = eq_table_msb(point);
-    slices
-        .iter()
-        .map(|&(off, len)| {
-            assert_eq!(len, eq.len());
-            data[off..off + len].par_iter().zip(eq.par_iter()).map(|(a, e)| e.mul_base(*a)).reduce(|| Fp2::ZERO, |a, b| a.add(b))
-        })
-        .collect()
-}
+// [ZK60-CL20] `eval_many` (evaluate several base-field slices at one point,
+// one eq table) is canonical in zkp-core (`ffn_v3::logup`), imported here
+// under its own name so every call site below is unchanged. It is the one
+// helper CL20 round 16 moved ahead of the prover: pure, shared by the v2 and
+// v3 paths, and byte-neutral (the body moved verbatim; the cpu-v2 and cpu-v3
+// frozen cases and `tests/zk60_cl20_eval_many_parity.rs` gate that, and the
+// two ZK frozen cases are the control -- `zk.rs` keeps its own copy).
+use zkp_core::ffn_v3::eval_many;
 
 /// [UPERF3-XX] `eval_many` on the device when the commitment is device-resident (same values), else on the host.
 fn eval_many_dev(cm: &AnyCm, data: &[Fp], slices: &[(usize, usize)], point: &[Fp2]) -> Vec<Fp2> {

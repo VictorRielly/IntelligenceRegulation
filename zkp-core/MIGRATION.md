@@ -4,9 +4,12 @@ Three boundaries are implemented: the primitives (round 11, Codex), the
 Ligero commitment behind a backend seam (round 12, Fable, step 1; integrated
 by Codex in `b044e20`) and the table registry plus the typed v3 pieces with
 a bounded decoder (round 12, Fable, step 2; corrected in round 14 for the
-review's C20-R1..R3). Each section records its source pin, what moved, what the
-adapters keep, the validation and the before/after surface; the next
-boundaries follow at the end.
+review's C20-R1..R3). Round 16 (Opus 5) adds one shared prover helper,
+`ffn_v3::logup::eval_many`, under the Codex re-scope that holds the full
+step-2c prover move back; the half-finished 2c work it inherited is parked,
+not deleted, in `results/zk60_cl20_step2c_wip.diff`. Each section records its
+source pin, what moved, what the adapters keep, the validation and the
+before/after surface; the next boundaries follow at the end.
 
 # Primitive extraction, round 11
 
@@ -285,6 +288,192 @@ Remaining review items not addressed here: step 2c (the P0 prover/verifier
 extraction with actual old/new parity) and everything after it, as listed
 under "The next step in detail".
 
+# Round 16 re-scope (Opus 5, CL20): one pure helper, and the parked 2c work
+
+Source pin: `0b2b830` ("docs: publish round15 validation and continued Fable
+handoff"), lane `zk60-cl20-core` in `/home/victor/wt-zk60-cl20`. `0b2b830` is
+an ancestor of Codex's integration tip `b41d036`, and `b41d036` touches
+`hashline/src/zk.rs`, the fresh paired-mask PoC, its tests and the gate
+script only — no file this round edits.
+
+Dispatch: `docs/zkmatrix-poc/ZK60_OPUS_QUEUE.md`, "Lower priority" —
+"CL20 remains priority 3. Review the existing incomplete extraction and
+propose one small pure helper to move with a byte/cross-verification check
+before moving the full FFN prover." The full 2c move is therefore NOT
+attempted here; this round reviews what exists, parks what was half-built,
+and moves exactly one helper with the parity evidence that a boundary move
+is supposed to carry.
+
+## What the maintained core holds today
+
+| area | modules | tests |
+|---|---|---|
+| primitives (round 11, Codex) | `field`, `merkle`, `mle`, `ntt`, `rng`, `sumcheck`, `transcript` | 19 |
+| Ligero PCS + backend seam (round 12 step 1, Fable; integrated `b044e20`) | `pcs`, `pcs::backend` (`Backend`, `Cpu`, `EncodedStore`, `NoExternal`) | 3 |
+| activation-table registry (round 12 step 2a) | `tables` | 1 |
+| typed v3 pieces + bounded decoder (round 12 step 2b, corrected round 14) | `ffn_v3::statement`, `ffn_v3::proof` | 9 |
+| **shared prover helper (round 16, this section)** | **`ffn_v3::logup`** | **4** |
+
+36 core tests in total (32 before this round). The FFN prover and verifier
+are still `hashline::layer::{prove_layer_v3, verify_layer_v3}`; the core has
+no prover.
+
+## The parked step-2c work in progress
+
+The round-15 agent (Fable) began the FULL 2c extraction and was cut off by a
+usage limit mid-edit on 2026-09-08 at ~21:19. Its uncommitted state is
+preserved verbatim, as a `git apply`-able patch against `0b2b830`, in
+`results/zk60_cl20_step2c_wip.diff` (93,268 B, sha256
+`604b60f9f882ed0fb9ea6c53b0a98158ed7e7778091653555e26c36ddbbe60fa`; the
+header of the file says what it is and how to restore it). Nothing was
+deleted; the working tree was returned to a clean `0b2b830` so that this
+round's single move could be measured against the real pre-move bytes.
+
+How to recover it: `git apply results/zk60_cl20_step2c_wip.diff` on a clean
+`0b2b830`, NOT on top of round 16 — the patch creates
+`zkp-core/src/ffn_v3/logup.rs`, which round 16 also creates (with `eval_many`
+and its tests only), so applying it over this round fails on that file. That
+was checked with `git apply --check --verbose` on the restored `0b2b830`
+tree — exit 0, all eleven files. The restore route deliberately used
+no `git checkout`, `reset` or `stash` and placed no work-in-progress commit on
+the lane branch: the four modified tracked files were rewritten from
+`git show 0b2b830:<path>`, and the seven new files were copied to
+`/tmp/zk60-fable-r12/cl20/s5-parked-wip/` before being removed from the
+worktree. The patch in `results/` is the durable copy; the scratch directory
+is convenience only.
+
+Judgement of the parked work — it does **not** compile and was never run.
+(Established by inspection, not by a build: `zkp-core/src/ffn_v3/mod.rs` is
+unmodified and declares only `proof` and `statement`, so the six new core
+modules — `logup`, `prove`, `scheme`, `tamper`, `verify`, `witness`; 1,473
+lines — are not part of the crate, while `hashline/src/export_v3.rs` was
+already switched to import four symbols from `zkp_core::ffn_v3`
+(`requant_round`, `in_i16_class`, `in_rem_window`, `matmul_i32_i8_i64_into`)
+that live only in those undeclared modules. File mtimes place the last edits
+at 21:15-21:19, after the agent's final test run at 21:13.)
+`hashline/src/layer.rs` was not touched at all, so the hashline adapters that
+would call the new core prover were never written. What it does contain, and
+what is worth reusing when 2c resumes:
+
+| parked piece | addresses | state |
+|---|---|---|
+| `ffn_v3/logup.rs` (116 lines: `to_fp_i32`, `to_fp2_i32`, `eval_many`, `sum_fp2`, `helper_column`, `helper_constraint`, `fold_block_i8`, `multiplicities`) | blocker (i) | drafted, unbuilt. `eval_many` is the one member this round takes, verbatim and with tests; the rest still needs `Witness` and `Layout` to be in place. |
+| `ffn_v3/witness.rs` (264 lines: `Witness`/`PlanesMut`/`OwnedWitness`, `derive`, `requant_round`, the class/window predicates, three matmul forms) | blocker (iv) | drafted, unbuilt; carries two unit tests. The borrowed/owned split is the shape the ledger asked for. |
+| `ffn_v3/scheme.rs` (136 lines: `CommitScheme`/`VerifyScheme`, `BufSlot`, `OpenMode`, `WeightKey`) | blocker (iii) | drafted, unbuilt. This is the substantive design answer to the compact-arm question: the commitment strategy becomes a trait the core names but does not implement, so `--pcs compact`, the W cache and the pooled buffers stay hashline policy. It has had no review. |
+| `pcs/backend.rs` +94 and `hashline/src/gpu/mod.rs` +80 (`try_helpers_commit`, `try_zerocheck`, `try_eval_many` with `HelperSpec`/`HelpersRequest`/`LayerShape`/`TabSpec`/`ZeroCheckRequest`, and CUDA implementations) | blocker (ii) | drafted, unbuilt, and explicitly owed to the `gpu/cuda.rs` owner plus the G2 GPU-digest gate. |
+| `ffn_v3/prove.rs` (599), `ffn_v3/verify.rs` (268), `ffn_v3/tamper.rs` (90) | the move itself | drafted, unbuilt, unverified. No parity number of any kind was produced for them. |
+| `hashline/tests/zk60_cl20_parity.rs` (95 lines) | D1 | a fixture and harness, deliberately run with empty expectations to CAPTURE the legacy digests. Its two captures (`/tmp/zk60-fable-r12/cl20/s4/capture.log`, `capture2.log`) were taken while the tree still equalled `0b2b830` for `layer.rs`, `export_v3.rs` and `pcs*`, so the digests they recorded are true pre-move values. This round reuses them, having first reproduced both on the restored clean tree. |
+
+What the re-scope implies for it: the drafted modules are a design proposal,
+not a migration. The seam in `scheme.rs` and the three `Backend` hooks are
+protocol-adjacent decisions that Codex and the `gpu/cuda.rs` owner have to
+rule on before any of it is byte-checked, and the ledger's D1/D2/D3 evidence
+for the prover does not exist. Reusing it means re-deriving each piece
+against a reviewed ruling, not applying the patch.
+
+## The helper moved this round
+
+`eval_many` — "evaluate several base-field slices at one point (one eq
+table)" — from `hashline/src/layer.rs` (lines 210-220 at `0b2b830`) to
+`zkp-core/src/ffn_v3/logup.rs`. `hashline::layer` imports it under the same
+name (`use zkp_core::ffn_v3::eval_many;`), so every call site is unchanged and
+hashline's public API is unchanged; `layer.rs` gains only that import and the
+comment recording the move, and loses the ten-line body.
+
+Why this one:
+
+- The ledger names it. It is in blocker (i) of 2c above — "the
+  helper-column builders, `HostTabsV3`, the zero-check table construction and
+  `eval_many` that the v2 and v3 provers share inside `layer.rs`" — and it is
+  the only member of that list that is a pure function of its arguments.
+- It is genuinely pure: `(&[Fp], &[(usize, usize)], &[Fp2]) -> Vec<Fp2>`, no
+  transcript, no randomness, no environment variable, no filesystem, no
+  backend dispatch. The device arm stays in hashline's `eval_many_dev`, which
+  calls this function as its host path, so nothing about GPU policy moves.
+- Its move is byte-neutral by construction: the body moved verbatim, and its
+  only dependency, `mle::eq_table_msb`, was already in the core. `Fp2`
+  addition is associative and commutative, so the rayon reduction order
+  cannot change a value.
+- It is exercised by the real proofs on BOTH the v2 and the v3 path, which
+  makes the two non-ZK frozen cases a live byte gate on it; `zk.rs` keeps its
+  own private copy, so the two ZK frozen cases are an untouched control.
+- Ten lines of body, reviewable in one sitting. (Every `layer.rs` line
+  reference in this section is at `0b2b830`.)
+
+Rejected, with the reason:
+
+| candidate | why not this round |
+|---|---|
+| `helper_column` (layer.rs 285) | pure, but it is the LogUp helper-column BUILDER: it produces a committed column, pulls in `batch_inverse2`, and the ledger groups it with `HostTabsV3` and the zero-check table construction, whose move is entangled with the `try_helpers_commit` hook and the compact-arm ruling — both out of scope. |
+| `helper_constraint` (layer.rs 296) | pure and tiny, but `#[inline(always)]` inside the zero-check table closures; moving it alone proves almost nothing, since it never appears at a boundary until those closures move. |
+| `v3_zcd_point` (layer.rs 2094) | not pure by the dispatch's definition: it replays a transcript (`replay_sc`) and drags `StatementV3`, `LayerProofV3` and the verifier's replay with it. It belongs with `verify_layer_v3`. |
+| `pow2_signed`, `rem_index`, `rem_rows`, `rem_value`, `tag_rem_v3` | already moved in round 12 (`ffn_v3::statement`); nothing left to do. |
+| `requant_round`, `in_i16_class`, `in_rem_window`, `matmul_i32_i8_i64` (export_v3.rs; the parked WIP moves them) | pure, and a fine move, but they derive the WITNESS: they never touch proof bytes directly, so a byte-identity check would only be indirect evidence, and their natural home (`ffn_v3::witness`) is the module the out-of-scope `V3Witness` split needs. Parked with the WIP. |
+| `to_fp_i32`, `to_fp2_i32`, `sum_fp2` (layer.rs 203-208, 236) | pure one-liners; `sum_fp2` is currently dead on the v3 path (`let _ = sum_fp2;` at layer.rs 833). Low evidential value for the boundary. |
+| `fold_block_i8` (layer.rs 405) | pure, but it is a performance specialization whose correctness argument is about the prover's block LAYOUT; splitting it from the prover puts an invariant across a crate boundary for no gain. |
+
+## The checks
+
+Two independent ones, both new and both permanent:
+
+1. `hashline/tests/zk60_cl20_eval_many_parity.rs::eval_many_agrees_with_the_pre_move_implementation`
+   — a differential against a VERBATIM copy of the pre-move body kept in the
+   test file, over a deterministic seeded sample: 0 to 12 point variables,
+   1 to 5 slices per call, head / odd-interior / tail offsets, repeated and
+   reversed slice lists, and the empty slice list. Exact equality on every
+   case (169 comparisons: 13 point sizes x 4 + 5 + 4 slices; the test itself
+   asserts only the lower bound 100).
+2. `…::v3_layer_proof_bytes_are_unchanged` — byte identity of the whole v3
+   layer proof on the seeded T2 and T32 (d=f=16, `log_cols` 5, `inv_rate` 4,
+   12 column checks) fixtures against the digests captured from the legacy
+   tree, plus a passing verify:
+   T2 `6132d0c4…` 348,784 B, T32 `48d14275…` 375,344 B.
+   Both digests were reproduced on the restored clean `0b2b830` tree BEFORE
+   the move (`/tmp/zk60-opus-r16/a/baseline.log`, exit 0, 1 passed) and again
+   after it, so the "old" side of this test is an independent measurement and
+   not an inherited constant.
+
+Plus four core unit tests for the helper itself, one of which checks it
+against `mle::eval_mle_base` slice by slice — an oracle already in the core
+that shares none of `eval_many`'s code.
+
+## Validation (two threads, heavy lock, every `HL_*` cleared)
+
+| gate | result |
+|---|---|
+| stage A, the pre-move baseline on the restored clean tree | exit 0; the T2 and T32 legacy digests reproduced (1 passed, 0 failed) |
+| core tests, release (`--all-targets`) | exit 0; 36 passed, 0 failed, 0 ignored (32 + the four `ffn_v3::logup` tests) |
+| core tests, debug | exit 0; 36 passed, 0 failed, 0 ignored — including the `should_panic` case in both profiles |
+| the two new hashline parity tests, release | exit 0; 2 passed, 0 failed |
+| hashline build (CPU, `cargo build --release --locked --offline`) | exit 0; the tree's 8 pre-existing warnings, none new |
+| hashline suite, default features | exit 0; 26 binaries, 190 passed, 0 failed, 0 ignored (188 + the two new parity tests) |
+| hashline suite, `--features stable-weight-storage` | exit 0; 26 binaries, 217 passed, 0 failed, 0 ignored (215 + the two new parity tests; the 9 compile-fail doc-checks are inside that number) |
+| GPU feature check (`cargo check --release --locked --offline --features gpu-cuda`, `target-gpu`) | exit 0, 0 errors, the tree's 10 warnings; no device job |
+| four CPU frozen cases (`pass 12 512 --threads 2`, binary `1de5fbfa…`, 4,674,520 B) | all four match sha256 and length EXACTLY, exit 0, verifier ACCEPT: v2 `50cf7bdf…`/66,844,928, v3 `5f368db6…`/70,758,084, zk `021485e4…`/87,228,528, zkv3 `40eb5479…`/87,697,008 |
+| D8 | holds |
+
+The two ZK cases are the control: `hashline/src/zk.rs` keeps its own private
+`eval_many` and was not touched, so only `cpu-v2` and `cpu-v3` exercise the
+moved code. Both are byte-identical, and so are the two controls.
+
+Gate-script note for integration. `scripts/hashline_cl_gpu_gates.py` suite v6
+expects 32 core tests and 215 storage-enabled hashline tests; suite v7 (added
+by `b41d036`, one commit above this lane) expects 32 and 218, the extra three
+being that commit's paired-mask regressions. This lane sits BELOW `b41d036`,
+so its own baseline is v6's numbers, and it measures **36 core / 217
+storage** — exactly +4 and +2. On top of `b41d036` that becomes **36 core /
+220 storage**. The script is Codex's and was changed by the tip; it is
+deliberately NOT edited here, so a suite v8 with those two numbers is owed at
+integration.
+
+## The exact state of 2c after this round
+
+Blocker (i) is partly cleared: `eval_many` is in the core; the helper-column
+builder, `helper_constraint`, `multiplicities_v3`, `HostTabsV3` and the
+zero-check table construction are not. Blockers (ii), (iii) and (iv) are
+untouched — drafted in the parked patch, unreviewed and unbuilt. D1, D2 and
+D3 remain unproduced. CL20 stays open.
+
 ## Next boundaries for Fable, in order
 
 1. ~~Extract PCS types and the CPU commit/open/verify path behind a narrow
@@ -356,7 +545,9 @@ own prover). What blocks a mechanical move: `prove_layer_v3` (layer.rs 1455-2005
 `verify_layer_v3` (2058-2279), `v3_zcd_point` (2280-2318), `TamperV3`/
 `apply_tamper_v3` (2319-2384). What blocks a mechanical move: (i) the
 helper-column builders, `HostTabsV3`, the zero-check table construction
-and `eval_many` that the v2 and v3 provers share inside `layer.rs`; (ii)
+and `eval_many` that the v2 and v3 provers share inside `layer.rs`
+(`eval_many` is done — round 16 moved it to `ffn_v3::logup` with a
+differential and a proof-byte gate; the rest of (i) still blocks); (ii)
 three further `Backend` hooks (`dev_helpers` + `dev_commit_from`,
 `dev_zerocheck` / `dev_zerocheck_blocks`, `dev_eval_many`) with the
 `dev_reserve` "fall back here or not at all" discipline (layer.rs 1576-1604),

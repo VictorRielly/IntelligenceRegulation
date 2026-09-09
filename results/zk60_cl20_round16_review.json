@@ -1,0 +1,472 @@
+{
+  "record": "zk60_cl20_round16_review",
+  "round": 16,
+  "title": "CL20 re-scoped: review the incomplete step-2c extraction, move one pure helper with a byte/cross-verification check",
+  "agent": "Claude Opus 5 (1M context)",
+  "dispatch": "docs/zkmatrix-poc/ZK60_OPUS_QUEUE.md, section 'Lower priority' (Codex re-scope, 2026-09-08)",
+  "source": {
+    "pin": "0b2b830",
+    "pin_subject": "docs: publish round15 validation and continued Fable handoff",
+    "branch": "zk60-cl20-core",
+    "worktree": "/home/victor/wt-zk60-cl20",
+    "codex_integration_tip": "b41d036",
+    "pin_is_ancestor_of_tip": true,
+    "tip_touches_this_round_s_files": false,
+    "tip_files": [
+      "hashline/examples/zk60_fresh_ffn.rs",
+      "hashline/src/zk.rs",
+      "hashline/src/zk_ffn_fresh_poc.rs",
+      "hashline/src/zk_ffn_fresh_poc_tests.rs",
+      "hashline/src/zk_ffn_mask_diagnostic.rs",
+      "hashline/src/zk_ffn_observation_json.rs",
+      "results/cl1_floors.sh",
+      "scripts/hashline_cl_gpu_gates.py",
+      "tests/test_hashline_cl_gpu_gates.py"
+    ]
+  },
+  "scope": {
+    "in": [
+      "review the incomplete step-2c extraction and record its disposition",
+      "move ONE small pure helper into zkp-core with a byte/cross-verification check",
+      "core unit tests for the helper, a differential old/new test, a proof-byte identity test",
+      "record in zkp-core/MIGRATION.md and this file"
+    ],
+    "out": [
+      "prove_layer_v3 / verify_layer_v3 move",
+      "the three new Backend hooks",
+      "the compact-arm ruling",
+      "the V3Witness split",
+      "any dependency change",
+      "any benchmark",
+      "any GPU job",
+      "any new cryptographic construction"
+    ]
+  },
+  "parked_work_in_progress": {
+    "what": "the FULL CL20 step-2c extraction, begun by the round-15 agent (Fable) and cut off mid-edit by a usage limit on 2026-09-08 ~21:19 local",
+    "disposition": "PRESERVED, not deleted, and not committed to the lane branch",
+    "durable_artifact": {
+      "path": "results/zk60_cl20_step2c_wip.diff",
+      "sha256": "604b60f9f882ed0fb9ea6c53b0a98158ed7e7778091653555e26c36ddbbe60fa",
+      "bytes": 93268,
+      "form": "a git-apply-able patch against 0b2b830 with an explanatory header; four tracked files modified, seven new",
+      "restore": "git apply results/zk60_cl20_step2c_wip.diff  (verified with `git apply --check`, exit 0, on the restored clean tree)"
+    },
+    "volatile_copies": {
+      "files": "/tmp/zk60-fable-r12/cl20/s5-parked-wip/",
+      "round15_stage_logs": "/tmp/zk60-fable-r12/cl20/{s2,s2a,s2b,s2final,s3,s4}/"
+    },
+    "restore_route_taken": "the four modified tracked files were rewritten from `git show 0b2b830:<path>`; the seven new files were copied to the parked scratch dir and removed from the worktree. No git checkout/reset/stash was used and no WIP commit was placed on the lane branch.",
+    "judgement": {
+      "compiles": false,
+      "was_ever_run": false,
+      "reason": "zkp-core/src/ffn_v3/mod.rs was never updated, so the six new core modules are undeclared and the four symbols hashline/src/export_v3.rs was switched to import from zkp_core::ffn_v3 (requant_round, in_i16_class, in_rem_window, matmul_i32_i8_i64_into) do not exist in the built crate; hashline/src/layer.rs was not touched at all, so no hashline adapter calls the new core prover",
+      "new_core_lines": 1473,
+      "pieces": [
+        {
+          "file": "zkp-core/src/ffn_v3/logup.rs",
+          "lines": 116,
+          "addresses": "2c blocker (i)",
+          "state": "drafted, unbuilt",
+          "reuse": "eval_many is taken verbatim by this round; to_fp_i32/to_fp2_i32/sum_fp2/helper_column/helper_constraint/fold_block_i8/multiplicities still need Witness and Layout first"
+        },
+        {
+          "file": "zkp-core/src/ffn_v3/witness.rs",
+          "lines": 264,
+          "addresses": "2c blocker (iv)",
+          "state": "drafted, unbuilt, carries two unit tests",
+          "reuse": "the borrowed/owned plane split is the shape the ledger asked for; re-derive rather than apply"
+        },
+        {
+          "file": "zkp-core/src/ffn_v3/scheme.rs",
+          "lines": 136,
+          "addresses": "2c blocker (iii)",
+          "state": "drafted, unbuilt, unreviewed",
+          "reuse": "substantive design answer to the compact-arm question: CommitScheme/VerifyScheme make the commitment strategy a trait the core names but does not implement. Needs a Codex ruling before any byte check"
+        },
+        {
+          "file": "zkp-core/src/pcs/backend.rs (+94) and hashline/src/gpu/mod.rs (+80)",
+          "lines": 174,
+          "addresses": "2c blocker (ii)",
+          "state": "drafted, unbuilt",
+          "reuse": "try_helpers_commit / try_zerocheck / try_eval_many plus HelperSpec, HelpersRequest, LayerShape, TabSpec, ZeroCheckRequest and CUDA implementations; owed to the gpu/cuda.rs owner and the G2 GPU-digest gate"
+        },
+        {
+          "file": "zkp-core/src/ffn_v3/{prove,verify,tamper}.rs",
+          "lines": 957,
+          "addresses": "the move itself",
+          "state": "drafted, unbuilt, unverified",
+          "reuse": "no parity number of any kind was produced for them"
+        },
+        {
+          "file": "hashline/tests/zk60_cl20_parity.rs",
+          "lines": 95,
+          "addresses": "D1",
+          "state": "a capture harness run with empty expectations",
+          "reuse": "its two captured legacy digests are reused by this round, after being reproduced independently on the restored clean tree"
+        }
+      ],
+      "implication_of_the_rescope": "the drafted modules are a design proposal, not a migration; the scheme seam and the three Backend hooks are protocol-adjacent decisions Codex and the gpu/cuda.rs owner must rule on before anything is byte-checked, and the ledger's D1/D2/D3 evidence for the prover does not exist"
+    },
+    "legacy_digests_captured_pre_move": {
+      "source_logs": [
+        "/tmp/zk60-fable-r12/cl20/s4/capture.log",
+        "/tmp/zk60-fable-r12/cl20/s4/capture2.log"
+      ],
+      "valid_because": "file mtimes show hashline/src/export_v3.rs (21:19), zkp-core/src/pcs.rs and pcs/backend.rs (21:18) and the six new core modules (21:10-21:16) were all written AFTER the second capture at 21:13, so both captures ran on a tree that equalled 0b2b830 for layer.rs, export_v3.rs and pcs*",
+      "T2": {
+        "sha256": "6132d0c493a50c070a924e5f10653a27e0738527a29f76c9ddf84ccb8c143f0e",
+        "bytes": 348784
+      },
+      "T32": {
+        "sha256": "48d142757a3062e9a0b46f0599e17978f3f63fddf0847ad3295af7398f65b4da",
+        "bytes": 375344
+      },
+      "independently_reproduced": "yes, on the restored clean 0b2b830 tree before the move (stage A below)"
+    }
+  },
+  "helper_moved": {
+    "name": "eval_many",
+    "signature": "fn eval_many(data: &[Fp], slices: &[(usize, usize)], point: &[Fp2]) -> Vec<Fp2>",
+    "from": "hashline/src/layer.rs lines 210-220 at 0b2b830 (private to the module)",
+    "to": "zkp-core/src/ffn_v3/logup.rs, re-exported as zkp_core::ffn_v3::eval_many",
+    "hashline_adapter": "hashline/src/layer.rs imports it under the same name (`use zkp_core::ffn_v3::eval_many;`), so every call site is unchanged and hashline's public API is unchanged",
+    "body_moved_verbatim": true,
+    "purity": {
+      "rng": false,
+      "transcript": false,
+      "backend_or_gpu_dispatch": false,
+      "env_var": false,
+      "filesystem": false,
+      "interior_mutability": false,
+      "note": "the GPU arm stays in hashline's eval_many_dev, which calls this function as its host path"
+    },
+    "why_this_one": [
+      "MIGRATION.md names it in 2c blocker (i), and it is the only member of that list that is a pure function of its arguments",
+      "byte-neutral by construction: verbatim body, its only dependency (mle::eq_table_msb) was already in the core, and Fp2 addition is associative and commutative so the rayon reduction order cannot change a value",
+      "used by BOTH the v2 and the v3 prover, so cpu-v2 and cpu-v3 are live byte gates on it; hashline/src/zk.rs keeps its own private copy (zk.rs:934), so cpu-zk and cpu-zkv3 are an untouched control",
+      "ten lines of body: reviewable in one sitting"
+    ],
+    "rejected": [
+      {
+        "candidate": "helper_column (layer.rs 285)",
+        "why_not": "pure, but it is the LogUp helper-column BUILDER: it produces a committed column, pulls in batch_inverse2, and the ledger groups it with HostTabsV3 and the zero-check table construction, whose move is entangled with the try_helpers_commit hook and the compact-arm ruling"
+      },
+      {
+        "candidate": "helper_constraint (layer.rs 296)",
+        "why_not": "pure and tiny, but #[inline(always)] inside the zero-check table closures; moving it alone proves almost nothing until those closures move"
+      },
+      {
+        "candidate": "v3_zcd_point (layer.rs 2094)",
+        "why_not": "not pure: it replays a transcript (replay_sc) and drags StatementV3, LayerProofV3 and the verifier replay with it"
+      },
+      {
+        "candidate": "pow2_signed, rem_index, rem_rows, rem_value, tag_rem_v3",
+        "why_not": "already moved in round 12 (ffn_v3::statement); nothing left to do"
+      },
+      {
+        "candidate": "requant_round, in_i16_class, in_rem_window, matmul_i32_i8_i64 (export_v3.rs)",
+        "why_not": "pure, and the parked WIP moves them, but they derive the WITNESS and never touch proof bytes directly, so a byte-identity check would be indirect; their natural home (ffn_v3::witness) is the module the out-of-scope V3Witness split needs"
+      },
+      {
+        "candidate": "to_fp_i32, to_fp2_i32, sum_fp2 (layer.rs 203-208, 236)",
+        "why_not": "pure one-liners; sum_fp2 is currently dead on the v3 path (`let _ = sum_fp2;` at layer.rs 833). Low evidential value for the boundary"
+      },
+      {
+        "candidate": "fold_block_i8 (layer.rs 405)",
+        "why_not": "pure, but a performance specialization whose correctness argument is about the prover's block layout; splitting it from the prover puts an invariant across a crate boundary for no gain"
+      }
+    ]
+  },
+  "tests_added": [
+    {
+      "where": "zkp-core/src/ffn_v3/logup.rs",
+      "name": "eval_many_is_eval_mle_base_on_every_slice",
+      "kind": "unit",
+      "what": "the moved helper equals mle::eval_mle_base slice by slice over a seeded sample of 0..=12 variables and head/interior/tail offsets; eval_mle_base is an independent oracle already in the core"
+    },
+    {
+      "where": "zkp-core/src/ffn_v3/logup.rs",
+      "name": "eval_many_follows_the_slice_order_and_allows_repeats",
+      "kind": "unit",
+      "what": "one eq table, several slices: results follow the caller's order, repeats and reversals included, empty list is empty"
+    },
+    {
+      "where": "zkp-core/src/ffn_v3/logup.rs",
+      "name": "the_empty_point_reads_one_element",
+      "kind": "unit",
+      "what": "the zero-variable case reads a one-element slice as itself"
+    },
+    {
+      "where": "zkp-core/src/ffn_v3/logup.rs",
+      "name": "a_slice_length_that_does_not_match_the_point_panics",
+      "kind": "unit (should_panic)",
+      "what": "a mismatched slice length is a caller bug, not a silently wrong claim"
+    },
+    {
+      "where": "hashline/tests/zk60_cl20_eval_many_parity.rs",
+      "name": "eval_many_agrees_with_the_pre_move_implementation",
+      "kind": "differential (old/new)",
+      "what": "exact equality against a VERBATIM copy of the pre-move body over a deterministic seeded sample: 0..=12 point variables, 1..=5 slices, head/odd-interior/tail offsets, repeated and reversed slice lists, empty slice list",
+      "comparisons": 169,
+      "comparisons_derivation": "13 point sizes x (4 + 5 + 4) slices per size; the test itself asserts only the lower bound 100, so 169 is read off the sample definition, not off the run"
+    },
+    {
+      "where": "hashline/tests/zk60_cl20_eval_many_parity.rs",
+      "name": "v3_layer_proof_bytes_are_unchanged",
+      "kind": "byte identity",
+      "what": "sha256 of the whole v3 layer proof on the seeded T2 and T32 (d=f=16, log_cols 5, inv_rate 4, 12 column checks) fixtures equals the pre-move capture, and the proof still verifies"
+    }
+  ],
+  "validation": [
+    {
+      "gate": "stage A: the pre-move baseline on the restored clean 0b2b830 tree (the two frozen legacy digests reproduced)",
+      "command": "env -u HL_GPU -u HL_GPU_REQUIRED -u HL_ZK_CHUNK -u HL_TIMING -u HL_CONV_VERBOSE -u HL_AL_I8FOLD CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-heavy.lock cargo test --release --locked --offline --manifest-path hashline/Cargo.toml --test zk60_cl20_eval_many_parity -- --test-threads=2",
+      "log": "/tmp/zk60-opus-r16/a/baseline.log",
+      "exit": 0,
+      "log_sha256": "95180ef85ec867eb921d9da8472818b38c2536a36d566589af767d5b6966acb4",
+      "log_bytes": 2904,
+      "tests": {
+        "binaries": 1,
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0,
+        "all_ok": true
+      }
+    },
+    {
+      "gate": "core tests, release, --all-targets",
+      "command": "env -u HL_GPU -u HL_GPU_REQUIRED -u HL_ZK_CHUNK -u HL_TIMING -u HL_CONV_VERBOSE -u HL_AL_I8FOLD CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-heavy.lock cargo test --release --locked --offline --all-targets --manifest-path zkp-core/Cargo.toml -- --test-threads=2",
+      "log": "/tmp/zk60-opus-r16/b/core_release.log",
+      "exit": 0,
+      "log_sha256": "4204c145a469bb53d4b2439beb9e3c36fb4d0d89cb1a31a976bd8f2f51c75d29",
+      "log_bytes": 2971,
+      "tests": {
+        "binaries": 2,
+        "passed": 36,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0,
+        "all_ok": true
+      }
+    },
+    {
+      "gate": "core tests, debug, --all-targets",
+      "command": "env -u HL_GPU -u HL_GPU_REQUIRED -u HL_ZK_CHUNK -u HL_TIMING -u HL_CONV_VERBOSE -u HL_AL_I8FOLD CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-heavy.lock cargo test --locked --offline --all-targets --manifest-path zkp-core/Cargo.toml -- --test-threads=2",
+      "log": "/tmp/zk60-opus-r16/b/core_debug.log",
+      "exit": 0,
+      "log_sha256": "03fc49d6b8273abcd80abc4138f2ee45ccf8132769a6678646ad87c11d4684e7",
+      "log_bytes": 2984,
+      "tests": {
+        "binaries": 2,
+        "passed": 36,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0,
+        "all_ok": true
+      }
+    },
+    {
+      "gate": "the two new hashline parity tests, release",
+      "command": "env -u HL_GPU -u HL_GPU_REQUIRED -u HL_ZK_CHUNK -u HL_TIMING -u HL_CONV_VERBOSE -u HL_AL_I8FOLD CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-heavy.lock cargo test --release --locked --offline --manifest-path hashline/Cargo.toml --test zk60_cl20_eval_many_parity -- --test-threads=2",
+      "log": "/tmp/zk60-opus-r16/b/hl_parity.log",
+      "exit": 0,
+      "log_sha256": "8d8b9c6cb1621098c022131381fed770a3fdb249cb1e0a193f8bd416208f65fa",
+      "log_bytes": 2974,
+      "tests": {
+        "binaries": 1,
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0,
+        "all_ok": true
+      }
+    },
+    {
+      "gate": "hashline build (CPU, release)",
+      "command": "env -u HL_GPU -u HL_GPU_REQUIRED -u HL_ZK_CHUNK -u HL_TIMING -u HL_CONV_VERBOSE -u HL_AL_I8FOLD CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-heavy.lock cargo build --release --locked --offline --manifest-path hashline/Cargo.toml",
+      "log": "/tmp/zk60-opus-r16/b/hl_build.log",
+      "exit": 0,
+      "log_sha256": "556e764346ef5a9cb82e8178d233f10dd187653d1f2fedfbfbed1d522b90a81a",
+      "log_bytes": 2407,
+      "warnings": 8
+    },
+    {
+      "gate": "hashline suite, default features",
+      "command": "env -u HL_GPU -u HL_GPU_REQUIRED -u HL_ZK_CHUNK -u HL_TIMING -u HL_CONV_VERBOSE -u HL_AL_I8FOLD CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-heavy.lock cargo test --release --locked --offline --manifest-path hashline/Cargo.toml -- --test-threads=2",
+      "log": "/tmp/zk60-opus-r16/b/hl_test.log",
+      "exit": 0,
+      "log_sha256": "74eee64e463f0e8db41dc2307e079656c338e61e904d6c54d6cea9ec3954aa63",
+      "log_bytes": 23577,
+      "tests": {
+        "binaries": 26,
+        "passed": 190,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0,
+        "all_ok": true
+      }
+    },
+    {
+      "gate": "GPU feature check (no device job)",
+      "command": "env -u HL_GPU -u HL_GPU_REQUIRED -u HL_ZK_CHUNK -u HL_TIMING -u HL_CONV_VERBOSE -u HL_AL_I8FOLD CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-heavy.lock CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=<cuda> CARGO_TARGET_DIR=hashline/target-gpu cargo check --release --locked --offline --features gpu-cuda --manifest-path hashline/Cargo.toml",
+      "log": "/tmp/zk60-opus-r16/b/gpu_check.log",
+      "exit": 0,
+      "log_sha256": "8a4fc960281fcc36843b2dc77346733ed3b38ddff0b75cede59b4061de7bbe95",
+      "log_bytes": 3427,
+      "warnings": 10
+    },
+    {
+      "gate": "hashline suite, --features stable-weight-storage",
+      "command": "env -u HL_GPU -u HL_GPU_REQUIRED -u HL_ZK_CHUNK -u HL_TIMING -u HL_CONV_VERBOSE -u HL_AL_I8FOLD CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-heavy.lock cargo test --release --locked --offline --features stable-weight-storage --manifest-path hashline/Cargo.toml -- --test-threads=2",
+      "log": "/tmp/zk60-opus-r16/b/hl_test_storage.log",
+      "exit": 0,
+      "log_sha256": "2fe5b5b327865940c545f41820ba5a685d4123ade69c15f6b43677640c06a1af",
+      "log_bytes": 26631,
+      "tests": {
+        "binaries": 26,
+        "passed": 217,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0,
+        "all_ok": true
+      }
+    }
+  ],
+  "frozen_cases": {
+    "runner": "/tmp/zk60-opus-r16/frozen_cases.sh",
+    "record": "/tmp/zk60-opus-r16/frozen/frozen_cases.txt",
+    "cases": [
+      {
+        "id": "cpu-v2",
+        "exit": 0,
+        "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "bytes": 66844928,
+        "expected_sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d",
+        "expected_bytes": 66844928,
+        "match": true,
+        "verifier_accept": true,
+        "stdout": "/tmp/zk60-opus-r16/frozen/cpu-v2.out",
+        "started": "2026-09-09T05:16:55Z",
+        "ended": "2026-09-09T05:17:32Z",
+        "argv": "pass 12 512 --threads 2 --proof-out /tmp/zk60-opus-r16/frozen/cpu-v2.proof "
+      },
+      {
+        "id": "cpu-v3",
+        "exit": 0,
+        "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "bytes": 70758084,
+        "expected_sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d",
+        "expected_bytes": 70758084,
+        "match": true,
+        "verifier_accept": true,
+        "stdout": "/tmp/zk60-opus-r16/frozen/cpu-v3.out",
+        "started": "2026-09-09T05:17:32Z",
+        "ended": "2026-09-09T05:18:13Z",
+        "argv": "pass 12 512 --threads 2 --proof-out /tmp/zk60-opus-r16/frozen/cpu-v3.proof --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      },
+      {
+        "id": "cpu-zk",
+        "exit": 0,
+        "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "bytes": 87228528,
+        "expected_sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d",
+        "expected_bytes": 87228528,
+        "match": true,
+        "verifier_accept": true,
+        "stdout": "/tmp/zk60-opus-r16/frozen/cpu-zk.out",
+        "started": "2026-09-09T05:18:13Z",
+        "ended": "2026-09-09T05:18:53Z",
+        "argv": "pass 12 512 --threads 2 --proof-out /tmp/zk60-opus-r16/frozen/cpu-zk.proof --zk --seed 1"
+      },
+      {
+        "id": "cpu-zkv3",
+        "exit": 0,
+        "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "bytes": 87697008,
+        "expected_sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17",
+        "expected_bytes": 87697008,
+        "match": true,
+        "verifier_accept": true,
+        "stdout": "/tmp/zk60-opus-r16/frozen/cpu-zkv3.out",
+        "started": "2026-09-09T05:18:53Z",
+        "ended": "2026-09-09T05:19:37Z",
+        "argv": "pass 12 512 --threads 2 --proof-out /tmp/zk60-opus-r16/frozen/cpu-zkv3.proof --zk --seed 1 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      }
+    ],
+    "all_match": true,
+    "record_sha256": "3fcbf02774de4775733038f3e1f8a68c94dc39822337f52c7ce62e7e1b498a75",
+    "binary": "binary sha256=1de5fbfa2ca32b4e16982bd236f706398104f10babf97c89879754e6ea64cbc6 size=4674520"
+  },
+  "gate_script_note": {
+    "file": "scripts/hashline_cl_gpu_gates.py",
+    "owner": "Codex (changed by b41d036, which introduced suite v7)",
+    "edited_this_round": false,
+    "why_not": "the script is Codex's and was changed by the integration tip one commit above this lane; editing it here would conflict",
+    "suite_v6_expects": {
+      "core_tests": 32,
+      "storage_tests": 215
+    },
+    "suite_v7_expects": {
+      "core_tests": 32,
+      "storage_tests": 218,
+      "note": "v7 = v6 + 3 paired-mask FFN regressions that b41d036 adds; this lane sits BELOW b41d036, so its own baseline is v6's 215"
+    },
+    "measured_on_this_lane": {
+      "core_tests": 36,
+      "storage_tests": 217
+    },
+    "delta_from_this_round": {
+      "core_tests": 4,
+      "storage_tests": 2
+    },
+    "expected_after_integration_with_b41d036": {
+      "core_tests": 36,
+      "storage_tests": 220
+    },
+    "action_owed": "a suite v8 with core_tests 36 and storage_tests 220, at integration"
+  },
+  "state_of_2c_after_this_round": {
+    "blocker_i": "PARTLY CLEARED: eval_many is in the core; helper_column, helper_constraint, multiplicities_v3, HostTabsV3 and the zero-check table construction are not",
+    "blocker_ii": "UNTOUCHED (three Backend hooks; drafted in the parked patch, unreviewed and unbuilt; owed to the gpu/cuda.rs owner, G2 is its gate)",
+    "blocker_iii": "UNTOUCHED (compact-arm ruling; the parked scheme.rs is a proposal, not a ruling)",
+    "blocker_iv": "UNTOUCHED (V3Witness split; drafted in the parked patch)",
+    "D1_D2_D3": "unproduced",
+    "cl20": "open"
+  },
+  "commits": [
+    {
+      "sha": "95d6b62",
+      "subject": "chore(cl20): park the incomplete step-2c extraction as a recoverable patch",
+      "files": [
+        "results/zk60_cl20_step2c_wip.diff"
+      ]
+    },
+    {
+      "sha": "(this record's own commit)",
+      "subject": "refactor(cl20): move eval_many into zkp-core with old/new parity gates",
+      "files": [
+        "zkp-core/src/ffn_v3/logup.rs",
+        "zkp-core/src/ffn_v3/mod.rs",
+        "hashline/src/layer.rs",
+        "hashline/tests/zk60_cl20_eval_many_parity.rs",
+        "zkp-core/MIGRATION.md",
+        "results/zk60_cl20_round16_review.json"
+      ]
+    }
+  ],
+  "limitations": [
+    "this is a single-helper boundary move; it is not a security review, a privacy verdict, or evidence about the FFN prover as a whole",
+    "hashline/src/zk.rs keeps a semantically identical private copy of eval_many (zk.rs:934); it is on the do-not-touch list and is deduplicated with the masking extraction, not here",
+    "the differential covers 0..=12 point variables; the real prover's larger point lengths are covered only indirectly, by the frozen cases and the T2/T32 byte identity",
+    "no GPU job was run; the gpu-cuda gate is a compile check only"
+  ],
+  "branch_base": "0b2b830 docs: publish round15 validation and continued Fable handoff"
+}
