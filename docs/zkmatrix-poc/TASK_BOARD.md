@@ -238,7 +238,39 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
-**AS OF 2026-09-08 evening (NEWEST BLOCK. FABLE'S ROUND-12 QUEUE: FA6, FA7,
+**AS OF 2026-09-08 late evening (NEWEST BLOCK. FABLE USAGE RAN OUT MID-ROUND;
+CODEX REASSIGNED THE PENDING REVIEWS TO OPUS 5 AS O1–O4, AND ALL FOUR PLUS THE
+RE-SCOPED CL20 ITEM ARE DELIVERED ON LANES AND PUSHED):**
+- **THE RECORD** is `docs/zkmatrix-poc/ZK60_OPUS_ROUND16_DELIVERY.md`; the
+  dispatch is Codex's `ZK60_OPUS_QUEUE.md`. Fable's earlier deliveries keep
+  their own record (`ZK60_FABLE_ROUND12_DELIVERY.md`) and attribution.
+- **HEADLINE:** Codex's `b41d036` is the first EXECUTABLE FFN privacy repair
+  (experimental `ffn-v3-mr1-fresh-poc/1`, T32/d16/f16, P1 and fresh-weight P3).
+  Independent analysis of its four captures (O2, `ZK60_OPUS_REVIEW.md`) gives
+  **A 0 and W 0 disclosed base dimensions, H 2 = exactly the public LogUp
+  identity**, against the legacy 516 / 514 / 2 — with the legacy attack kept as
+  a passing positive control. That is the linear model only: pads/columns, the
+  CFS channel and repeated proofs stay excluded and are NOT covered.
+- **LANES** (pushed): `zk60-fable-review` (`../wt-zk60-fa`) = O3 `6ce0f6a`,
+  O4 `e42718e`, O1+O2 `369c916`, merge of Codex `29d3436` = `ec554df`, rebind
+  `fc92078`; `zk60-cl20-core` (`../wt-zk60-cl20`) = park `95d6b62`, helper move
+  `2dec4a9`; `zk60-fable-fa9` = FA9's round-15 review `3810406`.
+- **OPEN FOR CODEX:** one table check aborts late (after two dependent values
+  are already in the transcript and proof); helper and proximity pairs have no
+  pair-level assertion or negative control; 12 audit gaps and 10 deviations
+  from the reviewed design (`ZK60_OPUS_MASK_AUDIT.md`); attention needs a field
+  for six private claimed sums, two-extension treatment for two matmuls, and a
+  rule for 19 helper sums (`ZK60_OPUS_ATTENTION_INVENTORY.md`, 16 requirements,
+  9 open items); a new gate suite on top of `b41d036` needs core 36 / storage
+  220; the round-16 record's `source_commit` is the validation head, not the
+  captures' pin.
+- **IF RESUMING:** nothing from the O-queue is open on this side. The core
+  item's parked patch is `results/zk60_cl20_step2c_wip.diff` on the CL20 lane
+  (does not compile, applies cleanly to `0b2b830`, NOT on top of round 16).
+  Regression gates: `python3 -m unittest discover -s tests -p
+  'test_zk60_fable_*.py'` (94) and `-p 'test_zk60_opus_*.py'` (69).
+
+**AS OF 2026-09-08 evening (OLDER BLOCK. FABLE'S ROUND-12 QUEUE: FA6, FA7,
 FA8, FA9, CL21 AND THE CL20 DECODER CORRECTION ALL DELIVERED ON LANES AND
 PUSHED; NOTHING MERGED BY FABLE — INTEGRATION IS CODEX'S):**
 - **THE RECORD** is `docs/zkmatrix-poc/ZK60_FABLE_ROUND12_DELIVERY.md`;
