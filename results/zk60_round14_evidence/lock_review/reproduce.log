@@ -1,0 +1,4 @@
+
+thread 'main' (3) panicked at /tmp/zk60-round14/lock-review/reproduce.rs:29:60:
+called `Result::unwrap()` on an `Err` value: Os { code: 1, kind: PermissionDenied, message: "Operation not permitted" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

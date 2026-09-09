@@ -1,0 +1,24 @@
+WAIT shared heavy lock
+ACQUIRED shared heavy lock
+START hashline_tests
+END hashline_tests exit=0
+START core_tests
+END core_tests exit=0
+START hashline_default_dependencies
+END hashline_default_dependencies exit=0
+START core_dependencies
+END core_dependencies exit=0
+START gpu_storage_feature_check
+END gpu_storage_feature_check exit=0
+START combined_floors
+END combined_floors exit=0
+START binaries
+END binaries exit=0
+START b4_reprove
+END b4_reprove exit=0
+START chain_verify
+END chain_verify exit=0
+START graph_a
+END graph_a exit=0
+START graph_b
+END graph_b exit=0

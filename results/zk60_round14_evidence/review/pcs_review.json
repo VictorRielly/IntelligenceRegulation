@@ -1,0 +1,30 @@
+{
+  "source_commit": "76ee27513763b7992bd57638b203b7ce76e6a8ed",
+  "functions": {
+    "hash_columns": {
+      "unchanged": true,
+      "sha256": "0ff8245a2f644fac7ca5fb1afe3505a5b6a30172685e71e249dfeb8f7dd97dc0"
+    },
+    "coset_powers": {
+      "unchanged": true,
+      "sha256": "02f42ec2a845ab575b352b63efb8e847cfaa5c0e377a2429060fdf288b8add34"
+    },
+    "encode_row_zk": {
+      "unchanged": true,
+      "sha256": "987e7b32789516d85f12af5192eff8673c874f53842a1486d15b9314ca56648a"
+    },
+    "salt_leaf": {
+      "unchanged": true,
+      "sha256": "c76a5f09341fc73704ca58343e03674fa3a9f4f9265e654b8fc9b4b2ea1a367a"
+    },
+    "verify": {
+      "unchanged": true,
+      "sha256": "580b18418082fb1bb92f1d7d770f2b21d3749ac24c33ab825054ca5ea9b2040c"
+    },
+    "verify_zk": {
+      "unchanged": true,
+      "sha256": "b2dcac875ba3fd6ba9e88d30f671e4c8a3e0c071c531c731aee831fcc307f398"
+    }
+  },
+  "other_review": "Reviewed backend dispatch, timed-open adapter and pad-then-salt RNG order in full diff; no arithmetic/transcript/serialization change identified."
+}

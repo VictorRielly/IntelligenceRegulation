@@ -1,0 +1,98 @@
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+warning: `hashline` (lib) generated 8 warnings (8 duplicates)
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running tests/zk60_gpu_commit.rs (hashline/target/release/deps/zk60_gpu_commit-d5c947199da33d7a)
+
+running 9 tests
+ZK60_CL4_SUMMARY {"executed_cases":0,"gpu_enabled":false,"gpu_required":true,"device":"built without --features gpu-cuda"}
+
+thread 'gpu_required_gate_refuses_a_build_without_the_feature' (308914) panicked at tests/zk60_gpu_commit.rs:34:9:
+HL_GPU_REQUIRED=1 but this test binary was built WITHOUT --features gpu-cuda: every device test was compiled away, so a green result would be vacuous. Build with CARGO_TARGET_DIR=hashline/target-gpu and --features gpu-cuda.
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test gpu_required_gate_refuses_a_build_without_the_feature ... FAILED
+test open_plan_boundary::a_malformed_shape_is_an_error ... ok
+test open_plan_boundary::an_empty_query_list_is_empty_on_every_route ... ok
+test open_plan_boundary::duplicates_collapse_to_one_slot_each_in_first_occurrence_order ... ok
+test open_plan_boundary::an_out_of_range_index_is_an_error_not_a_panic ... ok
+test open_plan_boundary::fusion_is_declined_at_or_below_the_block ... ok
+test open_plan_boundary::pruning_declines_above_a_quarter_of_the_block ... ok
+test open_plan_boundary::the_residue_list_is_sorted_deduped_and_padded_with_its_last_entry ... ok
+test open_plan_boundary::pruning_needs_the_switch_the_fusion_and_a_small_tile_count ... ok
+
+failures:
+
+failures:
+    gpu_required_gate_refuses_a_build_without_the_feature
+
+test result: FAILED. 8 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test zk60_gpu_commit`

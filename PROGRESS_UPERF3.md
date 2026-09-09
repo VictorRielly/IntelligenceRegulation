@@ -14714,3 +14714,89 @@ CL21 core-aware validation provenance, and priority-3 CL20 continuation.
 Codex implements the separately versioned repair and pending FFN lifecycle
 after the required review, followed by one private block and then two.
 See docs/zkmatrix-poc/ZK60_ROUND11.md and ZK60_FABLE_QUEUE.md.
+
+## ZK60 round 12 — Codex attention hardening and durable slot reservations
+
+2026-09-08: while Fable works on FA6–FA9/CL21/CL20, Codex closes R32's
+typed attention extra-message acceptance (`42471f0`). A baseline regression
+reproduces ignored trailing sumchecks; the verifier now consumes every
+sumcheck and refuses the unused helper_sums field. Honest proof bytes and
+the fixed A01 prove/replay/shared trace fingerprints remain unchanged.
+
+`72a884e` adds the public-state component of FA4 H2: a bounded policy-bound
+slot journal with exclusive file locking, append/sync before exposure,
+non-Clone reservation tokens, refusal on corruption/torn tails, poisoned
+handles after uncertain I/O and no refunds after drop, panic or process death.
+Real process tests cover death/recovery and competing writers. Storage is a
+trusted local Unix filesystem; rollback/copy protection needs an external
+monotonic authority. No secret material is persisted and no stable P3 proof
+API is enabled. The full H2 and private-model consistency remain open.
+
+The first combined run failed the schedule gate because its launcher set
+HL_GPU=0 instead of leaving it unset and the source guard detected the R32
+edit. After reviewing all 45 unchanged recorder call lines, 19 roles and
+12 sumcheck sites, `972da4e` updates the conservative source pin while keeping
+the old execution fingerprints. The corrected final run passes 191 Rust tests
+(including two ownership compile-fail checks and 19 core tests), four unchanged
+CPU frozen artifacts, exact B4 bytes and separate-process B5 verification.
+Marker 0, two threads, 8-GiB process cap, maximum reported RSS 1,667,956 KiB,
+zero swaps; exact source/stage evidence is results/zk60_round12_validation.json.
+The unchanged Python/native and GPU paths retain round-11 evidence; no new
+run or throughput/privacy acceptance is claimed for them.
+
+The queue preserves Fable ownership. FA9 reviews R32 and supplies remaining
+arithmetic/registrar proposals; Codex completes H2's protected material store
+and reconstruction, then integrates the reviewed versioned proof path and
+consuming slot API. Privacy arguments still gate private-block composition.
+
+
+## 2026-09-08 — ZK60 round 13: protected registration material
+
+Codex `ccc6f26` implements opt-in encrypted stable-weight material bound to the
+trusted slot policy and ordered mask/proximity roles. Creation/reload rebuild
+the exact CPU PCS commitment using the canonical helpers; malformed, changed,
+oversized or unauthenticated files refuse. The external key is never persisted
+by the library. The separate public journal retains its durable slot semantics.
+Host encryption/storage stays outside the maintained `zkp-core` subproject.
+
+**Validation:** 202 Rust tests, all four frozen CPU proof hashes/lengths, exact
+B4 reproduction and B5 separate-process verification pass. Default/core trees
+exclude the added encryption dependencies; existing registry versions remain
+unchanged. Two threads, shared heavy lock, 8-GiB address-space cap, maximum
+reported stage RSS 1,668,084 KiB, zero swaps. No new GPU or Python/native run.
+See [round 13](docs/zkmatrix-poc/ZK60_ROUND13.md) and
+[exact retained evidence](results/zk60_round13_validation.json).
+
+Fable retains FA6–FA9, CL21 and remaining CL20. Codex next reviews those pushes
+and continues H2 registration/layout/key-custody orchestration. Full masking,
+transcript and bounded-reuse review gates the consuming repaired prover and
+registered verifier, then one private block and two connected private blocks.
+The material component does not complete H2, establish approval or repair the
+known legacy privacy defect.
+
+
+## 2026-09-08 — ZK60 round 14: local registration and reviewed PCS extraction
+
+Codex `7a9273b` implements canonical local registration, durable publication,
+an external key-provider callback and reserved material access. Fable's local
+PCS/scanner commits `76ee275`/`ee775be` are merged in `b044e20`, with host-store
+compatibility in `83115b5`. A default-feature test exposed inherited-descriptor
+lock retention during child startup; `df7fb0d` adds explicit unlock and a
+regression demonstrated failing before and passing after the fix.
+
+Final source `df7fb0d`: 219 Rust tests (including 22 standalone core), 343 Python
+consumer tests, 189 device oracle cases, all 21 v3 floor cases and all 12 exact
+CPU/GPU/chunk frozen proofs pass. B4 reproduces exactly and B5 separately
+verifies. Two-thread bounded laptop correctness evidence only; no throughput
+or privacy qualification. Raw failures and final successful results are retained.
+
+Fable's local `f8d40a7` typed decoder is held for C20-R1–R3 (query allocation,
+shift bounds and honest one-column grouping). FA6–FA9, CL21 and remaining CL20
+retain their owners. Next Codex work: reviewed delivery integration, H2 layout
+and authenticated application/key provisioning, then the separately versioned
+prover/verifier and private blocks after privacy/arithmetic closure. No approved
+P3 profile or complete ZKP-core path is claimed.
+
+See [round 14](docs/zkmatrix-poc/ZK60_ROUND14.md),
+[the core review](docs/zkmatrix-poc/ZK60_CL20_ROUND14_REVIEW.md), and
+[validation](results/zk60_round14_validation.json).

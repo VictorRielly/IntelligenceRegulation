@@ -1,0 +1,79 @@
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0004]: non-exhaustive patterns: `&mut zkp_core::pcs::Store::Device(_)` not covered
+   --> src/stable_weight_material.rs:224:15
+    |
+224 |         match &mut self.0.cm.store {
+    |               ^^^^^^^^^^^^^^^^^^^^ pattern `&mut zkp_core::pcs::Store::Device(_)` not covered
+    |
+note: `zkp_core::pcs::Store` defined here
+   --> /home/victor/IntelligenceRegulation/zkp-core/src/pcs.rs:80:1
+    |
+ 80 | pub enum Store<E = NoExternal> {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 81 |     Host { encoded: Vec<Fp> }, // rows x enc_cols, row-major
+ 82 |     Device(E),
+    |     ------ not covered
+    = note: the matched value is of type `&mut zkp_core::pcs::Store`
+    = note: `NoExternal` is uninhabited but is not being matched by value, so a wildcard `_` is required
+help: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown
+    |
+225 ~             Store::Host { encoded } => wipe_fields(encoded),
+226 ~             &mut zkp_core::pcs::Store::Device(_) => todo!(),
+    |
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+For more information about this error, try `rustc --explain E0004`.
+warning: `hashline` (lib) generated 6 warnings
+error: could not compile `hashline` (lib) due to 1 previous error; 6 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+warning: `hashline` (lib) generated 6 warnings (6 duplicates)
+error: could not compile `hashline` (lib) due to 1 previous error; 6 warnings emitted

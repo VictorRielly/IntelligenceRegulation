@@ -1,0 +1,18 @@
+
+running 1 test
+test typed_attention_and_block_reject_unused_proof_messages ... FAILED
+
+failures:
+
+---- typed_attention_and_block_reject_unused_proof_messages stdout ----
+
+thread 'typed_attention_and_block_reject_unused_proof_messages' (5) panicked at tests/zk60_public_block.rs:116:14:
+unused proof messages must not be silently accepted
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    typed_attention_and_block_reject_unused_proof_messages
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.05s
+
