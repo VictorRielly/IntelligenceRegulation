@@ -1,0 +1,30 @@
+--- a/hashline/src/private_block_contract.rs
++++ b/hashline/src/private_block_contract.rs
+@@ -103,7 +103,27 @@
+ }
+ 
+ impl ApprovedP1BlockContract {
++    /// Application authorization from the PUBLIC int8 tensors themselves. Both
++    /// roots are computed here by `cpu_weight_commitments`, so the int8 range of
++    /// every W and gamma word — assumed by every no-wrap bound of the argument
++    /// (FA5 R05/R11/R31) — holds by construction. `from_trusted_registration`
++    /// stays the root-only path (P3-style registrations); its CALLER then
++    /// carries that range obligation in the authenticated manifest. [FA9 R31]
++    pub fn from_trusted_public_weights(
++        mut registration: BlockRegistration,
++        weights: &crate::causal_oracle::PublicBlockWeights,
++    ) -> Result<Self, ContractError> {
++        let (aw, fw) = crate::causal_oracle::cpu_weight_commitments(weights)
++            .map_err(|_| ContractError::Invalid("public int8 weight tensors"))?;
++        registration.attention_weights = aw;
++        registration.ffn_weights = fw;
++        Self::from_trusted_registration(registration)
++    }
++
+     /// Application authorization operation, NOT proof-derived registration.
++    /// Roots only: the int8 range of the words behind them is NOT established
++    /// here (FA5 R31, tested by `known_r31_gap_*`); P1 registrations from
++    /// public tensors use `from_trusted_public_weights`.
+     pub fn from_trusted_registration(
+         registration: BlockRegistration,
+     ) -> Result<Self, ContractError> {
