@@ -12,6 +12,9 @@ use std::cell::RefCell;
 #[path = "zk_ffn_observation_json.rs"]
 mod observation_json;
 
+#[path = "zk_ffn_fresh_poc_tests.rs"]
+mod fresh_poc_tests;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum Role {
     W,

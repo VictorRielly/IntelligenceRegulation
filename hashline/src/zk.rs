@@ -1945,6 +1945,8 @@ pub fn table_specs_v3(shifts: (i32, i32, i32, i32)) -> Vec<(u64, usize)> {
 
 /// Which mask row (index into the A or H commitment's rows) masks which (plane, point) of the v3 layer.
 pub struct ZkLayoutV3 {
+    // Separate experimental schedule; the public legacy constructor always sets false.
+    mr1: bool,
     pub lay: LayoutV3,
     pub a_n: usize,
     pub log_n: usize,
@@ -1992,6 +1994,11 @@ pub struct ZkLayoutV3 {
 
 impl ZkLayoutV3 {
     pub fn new(t_rows: usize, d: usize, f: usize, params: &LayerParams, shifts: (i32, i32, i32, i32), pred: bool) -> ZkLayoutV3 {
+        Self::with_masks(t_rows, d, f, params, shifts, pred, false)
+    }
+
+    fn with_masks(t_rows: usize, d: usize, f: usize, params: &LayerParams, shifts: (i32, i32, i32, i32), pred: bool, mr1: bool) -> Self {
+        let width = if mr1 { 2 } else { 1 };
         let lay = LayoutV3::new(t_rows, d, f);
         let log_n = params.log_cols.min(lay.log_a_min) as usize;
         assert!(log_n <= 16, "zk v3: log_cols > 16 is not supported (a table slot would be narrower than a row)");
@@ -2002,22 +2009,22 @@ impl ZkLayoutV3 {
         assert_eq!(tspecs.len(), N_TABLE_SLOTS_V3);
         let mut r = lay.a_len / a_n;
         let mut next = |k: usize| { let v = r; r += k; v };
-        let a_mf: Vec<usize> = (0..7 * nb_f).map(|_| next(1)).collect();
-        let a_md: Vec<usize> = (0..3 * nb_d).map(|_| next(1)).collect();
-        let a_mgu: Vec<usize> = (0..nb_d).map(|_| next(1)).collect();
-        let a_mdd: Vec<usize> = (0..nb_f).map(|_| next(1)).collect();
-        let a_prox = next(1);
+        let a_mf: Vec<usize> = (0..7 * nb_f).map(|_| next(width)).collect();
+        let a_md: Vec<usize> = (0..3 * nb_d).map(|_| next(width)).collect();
+        let a_mgu: Vec<usize> = (0..nb_d).map(|_| next(width)).collect();
+        let a_mdd: Vec<usize> = (0..nb_f).map(|_| next(width)).collect();
+        let a_prox = next(width);
         let mut tabs: Vec<TabRowsV3> = Vec::with_capacity(tspecs.len());
         for &(tag, size) in &tspecs {
             assert!(size.is_power_of_two());
             let log_size = (size.trailing_zeros() as usize).max(log_n) as u32;
             let rows = (1usize << log_size) / a_n;
             let a_row = next(rows);
-            let a_mask = next(rows);
+            let a_mask = next(if mr1 && rows == 1 { 2 } else { rows });
             tabs.push(TabRowsV3 { tag, size, log_size, rows, a_row, a_mask, h_re: 0, h_im: 0, h_mre: 0, h_mim: 0 });
         }
         // [UPERF3-AN] appended LAST, and only for function 2
-        let (a_pb, a_pmb, a_pmz) = if pred { (next(1), next(1), next(1)) } else { (0, 0, 0) };
+        let (a_pb, a_pmb, a_pmz) = if pred { (next(1), next(width), next(width)) } else { (0, 0, 0) };
         let a_len = r * a_n;
         let mut r = lay.h_len / a_n;
         let mut next = |k: usize| { let v = r; r += k; v };
@@ -2025,7 +2032,7 @@ impl ZkLayoutV3 {
         let h_md: Vec<(usize, usize)> = (0..nb_d).map(|_| (next(1), next(1))).collect();
         let h_u = (next(1), next(1));
         let h_up = (next(1), next(1));
-        let h_prox = next(1);
+        let h_prox = next(width);
         for t in tabs.iter_mut() {
             t.h_re = next(t.rows);
             t.h_im = next(t.rows);
@@ -2038,28 +2045,38 @@ impl ZkLayoutV3 {
         let w_n = 1usize << log_wn;
         let mut r = lay.w_len / w_n;
         let mut next = |k: usize| { let v = r; r += k; v };
-        let w_mgu: Vec<usize> = (0..2 * nb_d * nb_f).map(|_| next(1)).collect();
-        let w_mdd: Vec<usize> = (0..nb_f * nb_d).map(|_| next(1)).collect();
-        let w_prox = next(1);
+        let w_mgu: Vec<usize> = (0..2 * nb_d * nb_f).map(|_| next(width)).collect();
+        let w_mdd: Vec<usize> = (0..nb_f * nb_d).map(|_| next(width)).collect();
+        let w_prox = next(width);
         let w_len_p3 = r * w_n;
-        ZkLayoutV3 { lay, a_n, log_n, log_s, a_mf, a_md, a_mgu, a_mdd, a_prox, a_len, h_mf, h_md, h_u, h_up, h_prox, h_len, tabs, w_n, log_wn, w_mgu, w_mdd, w_prox, w_len_p3, pred, a_pb, a_pmb, a_pmz }
+        ZkLayoutV3 { mr1, lay, a_n, log_n, log_s, a_mf, a_md, a_mgu, a_mdd, a_prox, a_len, h_mf, h_md, h_u, h_up, h_prox, h_len, tabs, w_n, log_wn, w_mgu, w_mdd, w_prox, w_len_p3, pred, a_pb, a_pmb, a_pmz }
+    }
+
+    fn mask_range(&self, row: usize) -> std::ops::Range<usize> { row..row + if self.mr1 { 2 } else { 1 } }
+    fn eval_mask(&self, mp: &MaskPoint, data: &[Fp], row: usize) -> Fp2 {
+        if self.mr1 { mp.eval2(data, (row, row + 1)) } else { mp.eval(data, row) }
+    }
+    fn pair_claim(&self, mut claim: ZClaim) -> ZClaim {
+        if self.mr1 {
+            let mut im = claim.parts.last().unwrap().clone();
+            im.slice.offset += 1usize << im.slice.log_size;
+            im.coef = im.coef.mul(Fp2::U);
+            claim.parts.push(im);
+        }
+        claim
     }
 
     /// The W mask rows (mode P3 only), in the order `assert_mask_sites` reports.
     pub fn w_mask_rows(&self) -> Vec<usize> {
         let mut v: Vec<usize> = Vec::new();
-        v.extend(&self.w_mgu);
-        v.extend(&self.w_mdd);
+        for &r in self.w_mgu.iter().chain(&self.w_mdd) { v.extend(self.mask_range(r)); }
         v
     }
     fn a_mask_rows(&self) -> Vec<usize> {
         let mut v: Vec<usize> = Vec::new();
-        v.extend(&self.a_mf);
-        v.extend(&self.a_md);
-        v.extend(&self.a_mgu);
-        v.extend(&self.a_mdd);
-        for t in &self.tabs { v.extend(t.a_mask..t.a_mask + t.rows); }
-        if self.pred { v.extend([self.a_pmb, self.a_pmz]); } // [UPERF3-AN]
+        for &r in self.a_mf.iter().chain(&self.a_md).chain(&self.a_mgu).chain(&self.a_mdd) { v.extend(self.mask_range(r)); }
+        for t in &self.tabs { v.extend(t.a_mask..t.a_mask + if self.mr1 && t.rows == 1 { 2 } else { t.rows }); }
+        if self.pred { v.extend(self.mask_range(self.a_pmb)); v.extend(self.mask_range(self.a_pmz)); } // [UPERF3-AN]
         v
     }
     fn h_mask_rows(&self) -> Vec<usize> {
@@ -2079,6 +2096,16 @@ impl ZkLayoutV3 {
 
     /// The enumerated mask sites of the layout (which mask row masks which plane at which point).
     pub fn describe(&self) -> Vec<String> {
+        if self.mr1 {
+            let mut out = vec![
+                format!("ffn-v3-mr1-fresh-poc/1: n={} wn={} pred={}", self.a_n, self.w_n, self.pred),
+                format!("A rows={} masks={:?} prox pair={:?}", self.a_len / self.a_n, self.a_mask_rows(), self.mask_range(self.a_prox)),
+                format!("H rows={} masks={:?} prox pair={:?} zero-sum pair={:?}", self.h_len / self.a_n, self.h_mask_rows(), self.mask_range(self.h_prox), self.h_u),
+                format!("fresh P3 W rows={} masks={:?} prox pair={:?}", self.w_len_p3 / self.w_n, self.w_mask_rows(), self.mask_range(self.w_prox)),
+            ];
+            for t in &self.tabs { out.push(format!("table tag={} size={} rows={} data={} mask={} kind={}", t.tag, t.size, t.rows, t.a_row, t.a_mask, if t.rows == 1 { "pair" } else { "block" })); }
+            return out;
+        }
         let lay = &self.lay;
         let mut v = Vec::new();
         v.push(format!(
@@ -2237,6 +2264,10 @@ struct HostTabsZkV3 {
 
 /// Prove one v3 layer in ZK mode (P1) over the first `t_rows` rows of the witness.
 pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &NttTables, cfg: &ZkConfig, tr: &mut Transcript) -> ProveOutputZk {
+    prove_layer_zk_v3_inner(w, t_rows, params, ntt, cfg, tr, false, cfg.rng(format!("layer-v3-{}", w.l).as_bytes())).expect("legacy FFN proof")
+}
+
+fn prove_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &NttTables, cfg: &ZkConfig, tr: &mut Transcript, mr1: bool, mut rng: ZkRng) -> Result<ProveOutputZk, String> {
     use std::time::Instant;
     let mut timings = Vec::new();
     let mut tick = Instant::now();
@@ -2251,7 +2282,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
         assert!(p.row < t_rows, "function 2: predicate row {} outside the {t_rows} proven rows", p.row);
         assert!(p.col < w.dims.d, "function 2: predicate col {} outside the output plane (d = {})", p.col, w.dims.d);
     }
-    let zl = ZkLayoutV3::new(t_rows, w.dims.d, w.dims.f, params, w.shifts, pred.is_some());
+    let zl = ZkLayoutV3::with_masks(t_rows, w.dims.d, w.dims.f, params, w.shifts, pred.is_some(), mr1);
     let lay = zl.lay.clone();
     let (d, f) = (lay.d, lay.f);
     let (nb_d, nb_f, db, fb, tfb, tdb, wb) = (lay.nb_d, lay.nb_f, 1usize << lay.log_db, 1usize << lay.log_fb, lay.tfb, lay.tdb, lay.wb);
@@ -2265,7 +2296,6 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     // identity, in the Fiat-Shamir domain before any challenge (see ZkStatementMode).
     let is_p3 = cfg.p3();
     tr.absorb(b"zk", &cfg.mode.header_v3());
-    let mut rng = cfg.rng(format!("layer-v3-{}", w.l).as_bytes());
     let mut proof = LayerProofZk::default();
     let mut sites: Vec<String> = zl.describe();
     if is_p3 { sites.insert(0, zl.describe_w_p3()); }
@@ -2334,11 +2364,13 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     // [UPERF3-AM] MODE P3: the mask rows, drawn BEFORE the commitment (a mask chosen after
     // the challenges would not hide). One per block terminal, plus the proximity row.
     if is_p3 {
-        for r in zl.w_mask_rows().into_iter().chain(std::iter::once(zl.w_prox)) {
+        for r in zl.w_mask_rows().into_iter().chain(zl.mask_range(zl.w_prox)) {
             let v = rng.fp_vec(zl.w_n);
             w_data[r * zl.w_n..(r + 1) * zl.w_n].copy_from_slice(&v);
         }
     }
+    #[cfg(test)]
+    if mr1 && is_p3 { fresh_poc::check_generated_rows(&w_data, zl.w_n, &zl.w_mask_rows().into_iter().chain(zl.mask_range(zl.w_prox)).collect::<Vec<_>>()); }
     // [UPERF3-AI] the per-model weight cache (lane AC's `--wcache DIR`) also serves the ZK
     // prover: under mode P1 the weights are PUBLIC, so W's commitment is per-model work here
     // exactly as it is in layer.rs's v3 FFN prover. Same `w_data`, same `PcsParams`, same
@@ -2422,10 +2454,14 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
             }
         });
     }
-    for r in zl.a_mask_rows().into_iter().chain(std::iter::once(zl.a_prox)) {
+    let mut a_random_rows: Vec<_> = zl.a_mask_rows().into_iter().chain(zl.mask_range(zl.a_prox)).collect();
+    if mr1 { a_random_rows.sort_unstable(); }
+    for r in a_random_rows {
         let v = rng.fp_vec(n);
         a_data[r * n..(r + 1) * n].copy_from_slice(&v);
     }
+    #[cfg(test)]
+    if mr1 { fresh_poc::check_generated_rows(&a_data, n, &zl.a_mask_rows().into_iter().chain(zl.mask_range(zl.a_prox)).collect::<Vec<_>>()); }
     let a_pcs = pcs_params(params, lay.log_a_min);
     let a_zk = ZkOpts::standard(&a_pcs);
     let mut a_cmz = pcs::commit_zk_owned(&a_pcs, a_data, ntt, &a_zk, &mut rng);
@@ -2555,7 +2591,8 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     // mask rows: the Fp2 masks of the helper planes, u', the prox row, the table helpers' masks; then the zero-sum u
     let mut plain_rows: Vec<usize> = Vec::new();
     for (a, b) in zl.h_mf.iter().chain(zl.h_md.iter()) { plain_rows.push(*a); plain_rows.push(*b); }
-    plain_rows.extend([zl.h_up.0, zl.h_up.1, zl.h_prox]);
+    plain_rows.extend([zl.h_up.0, zl.h_up.1]);
+    plain_rows.extend(zl.mask_range(zl.h_prox));
     for t in &zl.tabs { plain_rows.extend(t.h_mre..t.h_mre + t.rows); plain_rows.extend(t.h_mim..t.h_mim + t.rows); }
     for r in plain_rows {
         let v = rng.fp_vec(n);
@@ -2566,6 +2603,8 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
         for j in 0..n - 1 { let v = rng.fp(); h_data[r * n + j] = v; sum = sum.add(v); }
         h_data[r * n + n - 1] = sum.neg();
     }
+    #[cfg(test)]
+    if mr1 { fresh_poc::check_generated_rows(&h_data, n, &zl.h_mask_rows().into_iter().chain(zl.mask_range(zl.h_prox)).collect::<Vec<_>>()); }
     #[cfg(feature = "gpu-cuda")]
     let h_cmz_dev: Option<pcs::CommittedZk> = if use_dev_h {
         use crate::gpu::HelperSpec;
@@ -2624,7 +2663,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
         let ub = ev[4 * b + 2].mul_base(p_u).add(ev[4 * b + 3]);
         s_gu = s_gu.add(lam_f[b].mul(gb.add(lam_gu.mul(ub))));
     }
-    let c_gu = mask_challenge(|| tr.challenge_fp2());
+    let c_gu = fresh_poc::draw_mask_challenge(|| tr.challenge_fp2(), mr1)?;
     let g_gu_total = mc.masks[SC_GU].total();
     proof.gu_claim = s_gu.add(c_gu.mul(g_gu_total));
     tr.absorb_fp2(b"gu-claim", &[proof.gu_claim]);
@@ -2648,7 +2687,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     p3.extend_from_slice(&r_j);
     let mp = MaskPoint::new(&tail_of(&p2, log_n), n);
     let mut exts = vec![Fp2::ZERO; 2 * nb_d];
-    for c in 0..nb_d { exts[c] = mp.eval(a_data, zl.a_mgu[c]); }
+    for c in 0..nb_d { exts[c] = zl.eval_mask(&mp, a_data, zl.a_mgu[c]); }
     // [UPERF3-AM] MODE P3: the W block terminals are masked exactly as A's are, with ONE
     // mask row per block (a shared row would leave block DIFFERENCES in the clear). The
     // sumcheck's extension round carries the selector: setting the W tables' extension to
@@ -2657,7 +2696,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     // the verifier's check closes with no extra term.
     let w_mev: Vec<Fp2> = if is_p3 {
         let mpw = MaskPoint::new(&tail_of(&p3, zl.log_wn), zl.w_n);
-        zl.w_mgu.iter().map(|&r| mpw.eval(w_data_ref, r)).collect()
+        zl.w_mgu.iter().map(|&r| zl.eval_mask(&mpw, w_data_ref, r)).collect()
     } else { Vec::new() };
     // round k: the ACTIVATION side's extension (the weight side's is zero, so poly(exts) = 0)
     let e_gu = extension(&gu_fin, &exts, 2, gu_poly, &mc.masks[SC_GU], c_gu, &r_kp, &mut gu_rounds, tr);
@@ -2713,7 +2752,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     for c in 0..nb_d { sl.extend([(lay.z[c], tdb), (lay.rd[c], tdb)]); }
     let ev = eval_many_dev(&a_cmz, &sl, &p4);
     let s_d = (0..nb_d).fold(Fp2::ZERO, |a, c| a.add(lam_d[c].mul(ev[2 * c].mul_base(p_z).add(ev[2 * c + 1]))));
-    let c_d = mask_challenge(|| tr.challenge_fp2());
+    let c_d = fresh_poc::draw_mask_challenge(|| tr.challenge_fp2(), mr1)?;
     let g_d_total = mc.masks[SC_D].total();
     proof.d_claim = s_d.add(c_d.mul(g_d_total));
     tr.absorb_fp2(b"d-claim", &[proof.d_claim]);
@@ -2734,11 +2773,11 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     p6.extend_from_slice(&r_jp);
     let mp = MaskPoint::new(&tail_of(&p5, log_n), n);
     let mut exts = vec![Fp2::ZERO; 2 * nb_f];
-    for b in 0..nb_f { exts[b] = mp.eval(a_data, zl.a_mdd[b]); }
+    for b in 0..nb_f { exts[b] = zl.eval_mask(&mp, a_data, zl.a_mdd[b]); }
     // [UPERF3-AM] MODE P3: the Wd block terminals, masked as the g/u ones are.
     let wd_mev: Vec<Fp2> = if is_p3 {
         let mpw = MaskPoint::new(&tail_of(&p6, zl.log_wn), zl.w_n);
-        zl.w_mdd.iter().map(|&r| mpw.eval(w_data_ref, r)).collect()
+        zl.w_mdd.iter().map(|&r| zl.eval_mask(&mpw, w_data_ref, r)).collect()
     } else { Vec::new() };
     let e_d = extension(&d_fin, &exts, 2, d_poly, &mc.masks[SC_D], c_d, &r_k, &mut d_rounds, tr);
     let mut rho_dm = r_k.clone();
@@ -2785,7 +2824,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let nu0 = tr.challenge_fp2();
     let mut nu: Vec<Fp2> = Vec::with_capacity(3 * nb_f);
     for b in 0..nb_f { nu.push(nu0.mul(lam_f[b])); nu.push(nu0.mul(lam_f[b]).mul(lam_gu)); nu.push(Fp2::ZERO); }
-    let c_f = mask_challenge(|| tr.challenge_fp2());
+    let c_f = fresh_poc::draw_mask_challenge(|| tr.challenge_fp2(), mr1)?;
     proof.gamma20 = c_f.mul(mc.masks[SC_ZC20].total()).sub(nu0.mul(c_gu).mul(g_gu_total));
     tr.absorb_fp2(b"gammaF", &[proof.gamma20]);
     let (mu_c, nu_c) = (mu.clone(), nu.clone());
@@ -2865,7 +2904,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let mp = MaskPoint::new(&tail_of(&rho_f, log_n), n);
     let mut exts = vec![Fp2::ZERO; 3 + 10 * nb_f];
     for b in 0..nb_f {
-        for i in 0..7 { exts[3 + 10 * b + i] = mp.eval(a_data, zl.a_mf[7 * b + i]); }
+        for i in 0..7 { exts[3 + 10 * b + i] = zl.eval_mask(&mp, a_data, zl.a_mf[7 * b + i]); }
         for i in 0..3 { exts[3 + 10 * b + 7 + i] = mp.eval2(h_data, zl.h_mf[3 * b + i]); }
     }
     let e_f = extension(&fin_f, &exts, 4, &zcf_poly, &mc.masks[SC_ZC20], c_f, &rho_f, &mut rounds_f, tr);
@@ -2882,7 +2921,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let mu2 = tr.challenge_fp2_vec(nb_d);
     let nu_z = tr.challenge_fp2();
     let nu_zb: Vec<Fp2> = (0..nb_d).map(|c| nu_z.mul(lam_d[c])).collect();
-    let c_dz = mask_challenge(|| tr.challenge_fp2());
+    let c_dz = fresh_poc::draw_mask_challenge(|| tr.challenge_fp2(), mr1)?;
     proof.gamma17 = c_dz.mul(mc.masks[SC_ZC17].total()).sub(nu_z.mul(c_d).mul(g_d_total));
     tr.absorb_fp2(b"gammaD", &[proof.gamma17]);
     let (mu2_c, nu_zc) = (mu2.clone(), nu_zb.clone());
@@ -2951,9 +2990,9 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     let mp = MaskPoint::new(&tail_of(&rho_d, log_n), n);
     let mut exts = vec![Fp2::ZERO; 3 + 4 * nb_d];
     for c in 0..nb_d {
-        exts[3 + c] = mp.eval(a_data, zl.a_md[3 * c]);
-        exts[3 + nb_d + c] = mp.eval(a_data, zl.a_md[3 * c + 1]);
-        exts[3 + 2 * nb_d + c] = mp.eval(a_data, zl.a_md[3 * c + 2]);
+        exts[3 + c] = zl.eval_mask(&mp, a_data, zl.a_md[3 * c]);
+        exts[3 + nb_d + c] = zl.eval_mask(&mp, a_data, zl.a_md[3 * c + 1]);
+        exts[3 + 2 * nb_d + c] = zl.eval_mask(&mp, a_data, zl.a_md[3 * c + 2]);
         exts[3 + 3 * nb_d + c] = mp.eval2(h_data, zl.h_md[c]);
     }
     let e_dz = extension(&fin_d, &exts, 4, &zcd_poly, &mc.masks[SC_ZC17], c_dz, &rho_d, &mut rounds_d, tr);
@@ -2967,7 +3006,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     // ---- the table-side zero-check over log_S variables (masked): eq(tau3) sum_t mu3_t (h_t (alpha - tval_t) - m_t) = 0 ----
     let tau3 = tr.challenge_fp2_vec(log_s);
     let mu3 = tr.challenge_fp2_vec(zl.tabs.len());
-    let c_tab = mask_challenge(|| tr.challenge_fp2());
+    let c_tab = fresh_poc::draw_mask_challenge(|| tr.challenge_fp2(), mr1)?;
     proof.gamma_tab = c_tab.mul(mc.masks[SC_TAB].total());
     tr.absorb_fp2(b"gamma-tab", &[proof.gamma_tab]);
     let n_tabs = zl.tabs.len();
@@ -3047,6 +3086,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
         let coef = ext_coef(&rho_tab, k);
         let pt = &rho_tab[k..];
         exts[1 + 3 * i] = coef.mul(eval_slice(a_data, t.a_mask * n, pt));
+        if mr1 && t.rows == 1 { exts[1 + 3 * i] = exts[1 + 3 * i].add(coef.mul(Fp2::U).mul(eval_slice(a_data, (t.a_mask + 1) * n, pt))); }
         exts[2 + 3 * i] = coef.mul(eval_slice(h_data, t.h_mre * n, pt).add(Fp2::U.mul(eval_slice(h_data, t.h_mim * n, pt))));
     }
     let e_tab = extension(&fin_tab, &exts, 3, &tab_poly, &mc.masks[SC_TAB], c_tab, &rho_tab, &mut rounds_tab, tr);
@@ -3058,7 +3098,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     lap("table zero-check (zk)", &mut timings, &mut tick);
 
     // ---- the zero-sum sumcheck over u (masked; claim Gamma_zs = c_zs G_zs) ----
-    let c_zs = mask_challenge(|| tr.challenge_fp2());
+    let c_zs = fresh_poc::draw_mask_challenge(|| tr.challenge_fp2(), mr1)?;
     proof.gamma_zs = c_zs.mul(mc.masks[SC_ZSUM].total());
     tr.absorb_fp2(b"gamma-zs", &[proof.gamma_zs]);
     let zs_poly = |v: &[Fp2]| v[0].mul(v[1]);
@@ -3100,7 +3140,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
         let pt_pred = bool_point(p.row * db + (p.col % db), nv);
         let tau_p = tr.challenge_fp2_vec(nv);
         let nu_p = tr.challenge_fp2();
-        let c_pred = mask_challenge(|| tr.challenge_fp2());
+        let c_pred = fresh_poc::draw_mask_challenge(|| tr.challenge_fp2(), mr1)?;
         let gamma_pred = c_pred.mul(mc.masks[SC_PRED].total());
         tr.absorb_fp2(b"gamma-pred", &[gamma_pred]);
         let pred_poly = move |v: &[Fp2]| -> Fp2 {
@@ -3127,8 +3167,8 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
         let mp = MaskPoint::new(&tail_of(&rho_p, log_n), n);
         let coef_b = ext_coef(&rho_p, nv - log_n);
         let mut exts = vec![Fp2::ZERO; 5];
-        exts[1] = mp.eval(a_data, zl.a_pmz);
-        exts[2] = coef_b.mul(mp.eval(a_data, zl.a_pmb));
+        exts[1] = zl.eval_mask(&mp, a_data, zl.a_pmz);
+        exts[2] = coef_b.mul(zl.eval_mask(&mp, a_data, zl.a_pmb));
         let e_p = extension(&fin_p, &exts, 3, &pred_poly, &mc.masks[SC_PRED], c_pred, &rho_p, &mut rounds_p, tr);
         let term = vec![masked_terminal(fin_p[1], exts[1], e_p), masked_terminal(fin_p[2], exts[2], e_p)];
         tr.absorb_fp2(b"pred-term", &term);
@@ -3152,6 +3192,8 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     proof.mask_open = mask_open(&mc, &fs, ntt, tr);
     lap("zsum + mask open", &mut timings, &mut tick);
 
+    if mr1 { fresh_poc::check_table_point(&zl, &rho_tab)?; }
+
     // ---- PCS openings ----
     let pred_claims = pred.as_ref().zip(pred_ctx.as_ref()).map(|(p, (rho_p, e_p, _))| (p, rho_p.as_slice(), *e_p));
     let (wc, ac, hc) = build_claims_zk_v3(&zl, &proof, &p2, &p5, &rho_f, &rho_d, &rho_zs, &rho_tab, (cd_gu, cm_gu), (cd_d, cm_d), e_f, e_dz, e_zs, e_tab, &p3, &p6, pred_claims);
@@ -3164,6 +3206,7 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
             // with 256 pad symbols per row — no systematic entry of W is ever opened.
             let wcz = build_w_zclaims_v3(&zl, &proof, &p3, &p6, (cd_w_gu, e_gu2), (cd_w_d, e_d2));
             sites.push(format!("W: {} claims in {} groups", wcz.len(), pcs::zk_groups_for_record(cmz, &wcz)));
+            if mr1 { fresh_poc::check_masks(&wcz, cmz.cm.rows, zl.log_wn, &zl.w_mask_rows(), zl.w_prox, tr)?; }
             proof.w_open_zk = pcs::open_zk(cmz, &wcz, tr);
             sites.extend(pcs::last_mask_sites().into_iter().map(|s| format!("W {s}")));
         }
@@ -3172,15 +3215,17 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
     drop(w_cm);
     drop(w_cmz);
     sites.push(format!("A: {} claims in {} groups", ac.len(), pcs::zk_groups_for_record(&a_cmz, &ac)));
+    if mr1 { fresh_poc::check_masks(&ac, a_cmz.cm.rows, log_n, &zl.a_mask_rows(), zl.a_prox, tr)?; }
     proof.a_open = pcs::open_zk(&a_cmz, &ac, tr);
     sites.extend(pcs::last_mask_sites().into_iter().map(|s| format!("A {s}")));
     drop(a_cmz);
     sites.push(format!("H: {} claims in {} groups", hc.len(), pcs::zk_groups_for_record(&h_cmz, &hc)));
+    if mr1 { fresh_poc::check_masks(&hc, h_cmz.cm.rows, log_n, &zl.h_mask_rows(), zl.h_prox, tr)?; }
     proof.h_open = pcs::open_zk(&h_cmz, &hc, tr);
     sites.extend(pcs::last_mask_sites().into_iter().map(|s| format!("H {s}")));
     drop(h_cmz);
     lap("pcs openings (zk)", &mut timings, &mut tick);
-    ProveOutputZk { proof, timings, sites }
+    Ok(ProveOutputZk { proof, timings, sites })
 }
 
 /// [UPERF3-AM] MODE P3: the HIDING claims on W, shared by the prover and the
@@ -3198,10 +3243,10 @@ fn build_w_zclaims_v3(zl: &ZkLayoutV3, proof: &LayerProofZk, w_p3: &[Fp2], w_p6:
     let s_w = |off: usize| Slice { offset: off, log_size: lay.log_wb };
     let s_row = |row: usize| Slice { offset: row * wn, log_size: log_wn as u32 };
     let tail = |p: &[Fp2]| p[p.len() - log_wn..].to_vec();
-    let masked = |sl: Slice, mask_row: usize, p: &[Fp2], k: (Fp2, Fp2), value: Fp2| ZClaim {
+    let masked = |sl: Slice, mask_row: usize, p: &[Fp2], k: (Fp2, Fp2), value: Fp2| zl.pair_claim(ZClaim {
         parts: vec![ZPart { slice: sl, coef: k.0, point: p.to_vec() }, ZPart { slice: s_row(mask_row), coef: k.1, point: tail(p) }],
         value,
-    };
+    });
     let mut wc = Vec::with_capacity(3 * nb_d * nb_f);
     for (ri, offs) in [(0usize, &lay.wg), (1, &lay.wu)] {
         for c in 0..nb_d {
@@ -3248,10 +3293,10 @@ fn build_claims_zk_v3(zl: &ZkLayoutV3, proof: &LayerProofZk, p2: &[Fp2], p5: &[F
         }
     }
     // A: masked claims (1 - e) T~(p) + e R~(tail p)
-    let masked = |sl: Slice, mask_row: usize, p: &[Fp2], e: Fp2, value: Fp2| ZClaim {
+    let masked = |sl: Slice, mask_row: usize, p: &[Fp2], e: Fp2, value: Fp2| zl.pair_claim(ZClaim {
         parts: vec![ZPart { slice: sl, coef: one.sub(e), point: p.to_vec() }, ZPart { slice: s_row(mask_row), coef: e, point: tail(p) }],
         value,
-    };
+    });
     let mut ac = Vec::new();
     for b in 0..nb_f {
         let cols = [lay.g8[b], lay.rg[b], lay.a16[b], lay.u16[b], lay.ru[b], lay.h16[b], lay.rh[b]];
@@ -3264,10 +3309,10 @@ fn build_claims_zk_v3(zl: &ZkLayoutV3, proof: &LayerProofZk, p2: &[Fp2], p5: &[F
     }
     // [UPERF3-AM] the two matmul-opened planes carry the coefficient PAIR, because under P3
     // their sumcheck has a second extension round (see mask_specs_v3).
-    let masked2 = |sl: Slice, mask_row: usize, p: &[Fp2], k: (Fp2, Fp2), value: Fp2| ZClaim {
+    let masked2 = |sl: Slice, mask_row: usize, p: &[Fp2], k: (Fp2, Fp2), value: Fp2| zl.pair_claim(ZClaim {
         parts: vec![ZPart { slice: sl, coef: k.0, point: p.to_vec() }, ZPart { slice: s_row(mask_row), coef: k.1, point: tail(p) }],
         value,
-    };
+    });
     for c in 0..nb_d { ac.push(masked2(s_d(lay.x[c]), zl.a_mgu[c], p2, k_gu, proof.gu_term[c])); }
     for b in 0..nb_f { ac.push(masked2(s_f(lay.h16[b]), zl.a_mdd[b], p5, k_d, proof.d_term[b])); }
     // the multiplicity slots at rho_tab[k..] with the zero-extension coefficient prod_{j<k}(1 - rho_j)
@@ -3276,10 +3321,11 @@ fn build_claims_zk_v3(zl: &ZkLayoutV3, proof: &LayerProofZk, p2: &[Fp2], p5: &[F
         let coef = ext_coef(rho_tab, k);
         let pt = rho_tab[k..].to_vec();
         let s = |row: usize| Slice { offset: row * n, log_size: t.log_size };
-        ac.push(ZClaim {
+        let claim = ZClaim {
             parts: vec![ZPart { slice: s(t.a_row), coef: one.sub(e_tab).mul(coef), point: pt.clone() }, ZPart { slice: s(t.a_mask), coef: e_tab.mul(coef), point: pt }],
             value: proof.tab_term[2 * i],
-        });
+        };
+        ac.push(if t.rows == 1 { zl.pair_claim(claim) } else { claim });
     }
     // [UPERF3-AN] FUNCTION 2: the predicate sumcheck's two private terminals. Both
     // sit in ONE column-weight group (the tail of rho_p on the whole row), so the
@@ -3292,13 +3338,13 @@ fn build_claims_zk_v3(zl: &ZkLayoutV3, proof: &LayerProofZk, p2: &[Fp2], p5: &[F
         ac.push(masked(s_d(lay.z[p.col / dbk]), zl.a_pmz, rho_p, e_p, pp.term[0]));
         let coef_b = ext_coef(rho_p, nv - log_n);
         let pt_b = rho_p[nv - log_n..].to_vec();
-        ac.push(ZClaim {
+        ac.push(zl.pair_claim(ZClaim {
             parts: vec![
                 ZPart { slice: s_row(zl.a_pb), coef: one.sub(e_p).mul(coef_b), point: pt_b.clone() },
                 ZPart { slice: s_row(zl.a_pmb), coef: e_p.mul(coef_b), point: pt_b },
             ],
             value: pp.term[1],
-        });
+        }));
     }
     // H: Fp2 tables as (re, im) pairs with Fp2 masks
     let masked2 = |re: Slice, im: Slice, mask: (usize, usize), p: &[Fp2], e: Fp2, value: Fp2| ZClaim {
@@ -3371,6 +3417,10 @@ fn build_claims_zk_v3(zl: &ZkLayoutV3, proof: &LayerProofZk, p2: &[Fp2], p5: &[F
 
 /// Verify one v3 ZK layer proof against the public statement.
 pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &LayerParams, ntt: &NttTables, tr: &mut Transcript, mode: &ZkStatementMode) -> Result<(), String> {
+    verify_layer_zk_v3_inner(st, proof, params, ntt, tr, mode, false)
+}
+
+fn verify_layer_zk_v3_inner(st: &StatementV3, proof: &LayerProofZk, params: &LayerParams, ntt: &NttTables, tr: &mut Transcript, mode: &ZkStatementMode, mr1: bool) -> Result<(), String> {
     // [UPERF3-AN] FUNCTION 2: the declared predicate (None = function 1). A statement
     // whose output-claim slot and predicate parameters disagree names no predicate
     // and is refused before any challenge is drawn.
@@ -3389,7 +3439,7 @@ pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &Layer
             if proof.pred.is_some() { "a predicate gadget" } else { "none" }
         ));
     }
-    let zl = ZkLayoutV3::new(st.t_rows, st.d, st.f, params, st.shifts, pred.is_some());
+    let zl = ZkLayoutV3::with_masks(st.t_rows, st.d, st.f, params, st.shifts, pred.is_some(), mr1);
     let lay = zl.lay.clone();
     let (nb_d, nb_f) = (lay.nb_d, lay.nb_f);
     let n = zl.a_n;
@@ -3631,6 +3681,8 @@ pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &Layer
     }
     mask_verify(&proof.mask_root, &specs, &fs, &proof.mask_open, ntt, tr).map_err(|e| format!("M: {e}"))?;
 
+    if mr1 { fresh_poc::check_table_point(&zl, &rho_tab)?; }
+
     // ---- PCS openings ----
     let pred_claims = pred.zip(pred_ctx.as_ref()).map(|(p, (rho_p, e_p, _, _))| (p, rho_p.as_slice(), *e_p));
     let (wc, ac, hc) = build_claims_zk_v3(&zl, proof, &p2, &p5, &rho_f, &rho_d, &rho_zs, &rho_tab, (cd_gu, cm_gu), (cd_d, cm_d), e_f, e_dz, e_zs, e_tab, &p3, &p6, pred_claims);
@@ -3640,6 +3692,7 @@ pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &Layer
         let wcz = build_w_zclaims_v3(&zl, proof, &p3, &p6, (cd_w_gu, e_gu2), (cd_w_d, e_d2));
         #[cfg(test)]
         { diagnostic_w = mask_diagnostic::capture(mask_diagnostic::Role::W, &w_pcs, w_com, &wcz, &proof.w_open_zk, tr); }
+        if mr1 { fresh_poc::check_masks(&wcz, w_com.rows, zl.log_wn, &zl.w_mask_rows(), zl.w_prox, tr)?; }
         pcs::verify_zk(&w_pcs, &ZkOpts::standard(&w_pcs), w_com, &wcz, &proof.w_open_zk, ntt, tr).map_err(|e| format!("W: {e}"))?;
         #[cfg(test)]
         mask_diagnostic::finish(&mut diagnostic_w, tr);
@@ -3649,11 +3702,13 @@ pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &Layer
     // Test-only public observation: publish only after the complete FFN accepts.
     #[cfg(test)]
     let mut diagnostic_a = mask_diagnostic::capture(mask_diagnostic::Role::A, &a_pcs, a_com, &ac, &proof.a_open, tr);
+    if mr1 { fresh_poc::check_masks(&ac, a_com.rows, log_n, &zl.a_mask_rows(), zl.a_prox, tr)?; }
     pcs::verify_zk(&a_pcs, &ZkOpts::standard(&a_pcs), a_com, &ac, &proof.a_open, ntt, tr).map_err(|e| format!("A: {e}"))?;
     #[cfg(test)]
     mask_diagnostic::finish(&mut diagnostic_a, tr);
     #[cfg(test)]
     let mut diagnostic_h = mask_diagnostic::capture(mask_diagnostic::Role::H, &h_pcs, h_com, &hc, &proof.h_open, tr);
+    if mr1 { fresh_poc::check_masks(&hc, h_com.rows, log_n, &zl.h_mask_rows(), zl.h_prox, tr)?; }
     pcs::verify_zk(&h_pcs, &ZkOpts::standard(&h_pcs), h_com, &hc, &proof.h_open, ntt, tr).map_err(|e| format!("H: {e}"))?;
     #[cfg(test)]
     mask_diagnostic::finish(&mut diagnostic_h, tr);
@@ -4054,3 +4109,7 @@ mod tests_v3 {
         assert!(c2 < 310.5);
     }
 }
+
+/// Experimental fresh-commitment FFN mask repair, CPU proof of concept.
+#[path = "zk_ffn_fresh_poc.rs"]
+pub mod fresh_poc;
