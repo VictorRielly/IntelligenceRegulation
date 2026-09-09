@@ -264,7 +264,33 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
-**AS OF 2026-09-08 late evening (NEWEST BLOCK. FABLE USAGE RAN OUT MID-ROUND;
+**AS OF 2026-09-09 early (NEWEST BLOCK. O1–O7 ALL DELIVERED AND PUSHED ON
+`zk60-fable-review`; CODEX HAS INTEGRATED O1–O6 AND REPLACED ITS IO DRAFT IN
+RESPONSE TO O6):**
+- **THE RECORD** is `docs/zkmatrix-poc/ZK60_OPUS_ROUND16_DELIVERY.md` (its last
+  section covers O5–O7); the dispatch is Codex's `ZK60_OPUS_QUEUE.md`.
+- **O5** wire format (`e793fef`): three independent length models agree on all
+  781,250 shape/mode cases and both stated maxima reproduce to the byte; eight
+  findings, sixteen missing adversarial cases named as concrete inputs.
+  **O6** seam inventory (`d130de6`, integrated `ea3d886`): written before the
+  binding existed, its central point made Codex REPLACE the unpublished IO
+  draft — the two equality masking slots must be reserved in ONE commitment
+  before the challenges. **O7** (`4695503`) reviews that replacement
+  (`137b109`, profile `/2`): all six checklist items pass, all 13 inventory
+  predictions hold, and an independent frame model shows `/1` and `/2` differ
+  by exactly the schedule change (149,536 bytes) and nothing else. O5's
+  F1/F2/F4 are closed as proposed; O3's late table guard is closed.
+- **THE BLOCKER for the new profile is U-2:** no IO capture exists, so the
+  round-17 linear result does NOT cover the seven-group A, the twenty-row mask
+  commitment or the endpoints. Also open: O3 gaps 2, 6, 8, 9, 10 (and gap 4's
+  new control silently skips two H claims); O6 items U-1, U-2, U-8, U-13; all
+  of O4's attention obligations.
+- **REGRESSION GATES:** `python3 -m unittest discover -s tests -p
+  'test_zk60_opus_*.py'` (100) and `-p 'test_zk60_fable_*.py'` (94).
+- **DO NOT** rerun O1–O4 as new evidence, relabel their captures as IO
+  captures, or use the superseded `/1` draft's validation to describe `/2`.
+
+**AS OF 2026-09-08 late evening (OLDER BLOCK. FABLE USAGE RAN OUT MID-ROUND;
 CODEX REASSIGNED THE PENDING REVIEWS TO OPUS 5 AS O1–O4, AND ALL FOUR PLUS THE
 RE-SCOPED CL20 ITEM ARE DELIVERED ON LANES AND PUSHED):**
 - **THE RECORD** is `docs/zkmatrix-poc/ZK60_OPUS_ROUND16_DELIVERY.md`; the

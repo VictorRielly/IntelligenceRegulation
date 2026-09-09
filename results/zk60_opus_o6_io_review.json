@@ -1,0 +1,404 @@
+{
+  "blocker_closed": false,
+  "branch": "zk60-fable-review",
+  "codex_validation_observed": {
+    "is_acceptance": false,
+    "marker": "validation.done = 0",
+    "path": "/tmp/zk60-round18-final",
+    "source_commit": "137b109296d9a4cc9a05792bfdbd91aa45850abe",
+    "status": "complete; every stage at its expected exit (two refuse_io_draft stages expect 1)"
+  },
+  "commands": [
+    {
+      "command": "git --no-pager -C /home/victor/wt-zk60-fa rev-parse HEAD",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 /home/victor/wt-zk60-fa/scripts/zk60_opus_io_layout.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 -m unittest discover -s /home/victor/wt-zk60-fa/tests -p 'test_zk60_opus_io_layout.py'",
+      "exit_code": 0,
+      "tests": 17
+    },
+    {
+      "command": "python3 -m unittest discover -s /home/victor/wt-zk60-fa/tests -p 'test_zk60_opus_*.py'",
+      "exit_code": 0,
+      "tests": 100
+    },
+    {
+      "command": "flock /tmp/zk-heavy.lock env -u HL_GPU -u HL_GPU_REQUIRED -u HL_ZK_CHUNK -u HL_TIMING CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 cargo test --release --locked --offline --manifest-path /home/victor/wt-zk60-fa/hashline/Cargo.toml --lib bound_ffn -- --test-threads=2 --nocapture",
+      "detached": true,
+      "exit_code": 0,
+      "hl_env_cleared": true,
+      "tests": 6
+    }
+  ],
+  "cross_checks": [
+    {
+      "claim": "receipt frame length, profile /2, P1",
+      "match": true,
+      "model": 5029244,
+      "recorded": 5029244,
+      "source": "/tmp/zk60-round18-final/bound-process/result.json and this session's cargo run"
+    },
+    {
+      "claim": "receipt frame length, profile /2, P3",
+      "match": true,
+      "model": 5066204,
+      "recorded": 5066204,
+      "source": "/tmp/zk60-round18-final/bound-process/result.json and this session's cargo run"
+    },
+    {
+      "claim": "receipt frame length, superseded draft /1, P1/P3",
+      "match": true,
+      "model": [
+        5178780,
+        5215740
+      ],
+      "recorded": [
+        5178780,
+        5215740
+      ],
+      "source": "/tmp/zk60-round18/bound-process/result.json (the superseded draft; never cite as /2 validation)"
+    }
+  ],
+  "date": "2026-09-08",
+  "deliverables": {
+    "docs/zkmatrix-poc/ZK60_OPUS_IO_REVIEW.md": "db0223a9b72b8db299dd299b0f1c84af78aaa70e403f936e848e5506d78d9f7d",
+    "scripts/zk60_opus_io_layout.py": "d9a537ede46f3ebbd58a7bd153c7cfcebe79ddf553c6f7eadc153b295e77ace4",
+    "tests/test_zk60_opus_io_layout.py": "0125099515eff3da9d01a2f8bf304e62d8bb7b46c0a84cc032c925510fbcd258"
+  },
+  "implementation_pin": "137b109296d9a4cc9a05792bfdbd91aa45850abe",
+  "io_capture_exists": false,
+  "joint_io_analysis_exists": false,
+  "not_claimed": [
+    "whole-transcript zero knowledge for this profile",
+    "any disclosure bound for the new observation set",
+    "coverage of the round-17 linear analysis over this profile",
+    "private attention, a complete block, or a registered private model",
+    "acceptance of the round-18 implementation"
+  ],
+  "o3_gaps": {
+    "1": "closed",
+    "10": "open",
+    "11": "partly closed",
+    "12": "closed",
+    "2": "open",
+    "3": "closed",
+    "4": "partly closed",
+    "5": "partly closed",
+    "6": "open",
+    "7": "partly closed",
+    "8": "open, narrowed",
+    "9": "open"
+  },
+  "o5_findings": {
+    "F1": "closed for the identity hazard; parse-time roots documented as unverified",
+    "F2": "closed",
+    "F3": "open, bounded follow-up",
+    "F4": "closed",
+    "F5": "open, coverage"
+  },
+  "predictions_vs_implementation": [
+    {
+      "held": true,
+      "prediction": "a fresh mask pair per endpoint, never a shared row"
+    },
+    {
+      "held": true,
+      "prediction": "A rows 698 -> 702"
+    },
+    {
+      "held": true,
+      "prediction": "H 1326 and W 3 (P1) / 11 (P3) unchanged"
+    },
+    {
+      "held": true,
+      "prediction": "A opening groups 5 -> 7"
+    },
+    {
+      "held": true,
+      "prediction": "two CFS slots of (10,2), L=22, inside the 256-coefficient budget"
+    },
+    {
+      "held": true,
+      "note": "missed by the /1 draft, met by /2",
+      "prediction": "both slots reserved in the FFN M before its root; one 20-row commitment; equalities before its single opening and before W/A/H"
+    },
+    {
+      "held": true,
+      "prediction": "three randomness cut-offs force reserve-before-commit"
+    },
+    {
+      "held": true,
+      "prediction": "the seam needs its own sumcheck; zc17_term cannot be reused"
+    },
+    {
+      "held": true,
+      "prediction": "a new profile id and bounded envelope are required"
+    },
+    {
+      "held": true,
+      "prediction": "endpoint claims open the FFN's own lay.x[0]/lay.z[0]"
+    },
+    {
+      "held": true,
+      "note": "by ownership, not a RoleSet",
+      "prediction": "a one-shot marker per endpoint"
+    },
+    {
+      "held": true,
+      "prediction": "peer plane 512 words, 9 variables, INT8 in / INT16-class out"
+    },
+    {
+      "held": true,
+      "note": "still open as an obligation",
+      "prediction": "field-word equality is not value equality; scale binding unowned"
+    }
+  ],
+  "privacy_theorem_derived": false,
+  "profile": "hashline-zk-mr1/ffn-v3-mr1-fresh-io-poc/2",
+  "proposed_tests": [
+    "P1 extend repaired_layout_and_degenerate_mask_controls to ZkLayoutV3::with_io",
+    "P2 pin the double-finish doctest to compile_fail,E0382",
+    "P3 swap or duplicate endpoint_open entries and require refusal",
+    "P4 reject right.len() != 2 instead of indexing",
+    "P5 assert the PreparedPlane geometry (7 rows, mask_rows [2,3], prox 4) once",
+    "P6 derive the codec's IO adjustments from with_io and mask_specs_v3",
+    "P7 pin the role-swap refusal reason",
+    "P8 relabel input_scale",
+    "P9 a label-by-label transcript schedule test",
+    "P10 one full prove/encode/verify at a second shift tuple"
+  ],
+  "rank_model_extended": false,
+  "read_only": true,
+  "recomputed_layout": {
+    "a_claims": 20,
+    "a_groups": 7,
+    "a_io_pairs": [
+      [
+        698,
+        699
+      ],
+      [
+        700,
+        701
+      ]
+    ],
+    "a_rows_base": 698,
+    "a_rows_io": 702,
+    "cfs_base_rows": 20,
+    "cfs_slots": 8,
+    "endpoint": {
+      "cfs_coefficients": 22,
+      "cfs_spec": [
+        10,
+        2
+      ],
+      "claim_slice": {
+        "log_size": 9,
+        "offset": 0
+      },
+      "commitment_rows": 7,
+      "data_rows": 2,
+      "log_len": 9,
+      "prox_mask_row": 4,
+      "prox_pair_checked": [
+        4,
+        5
+      ],
+      "terminal_mask_rows": [
+        2,
+        3
+      ],
+      "unused_random_rows": [
+        6
+      ],
+      "values": 512
+    },
+    "expected_policy_bytes": 112,
+    "extra_bytes": 263272,
+    "frame_bytes": {
+      "p1": 5029244,
+      "p3": 5066204
+    },
+    "profile": "hashline-zk-mr1/ffn-v3-mr1-fresh-io-poc/2",
+    "shifts": [
+      7,
+      0,
+      14,
+      6
+    ],
+    "superseded_draft_frame_bytes": {
+      "p1": 5178780,
+      "p3": 5215740
+    },
+    "x_slice": {
+      "log_size": 9,
+      "offset": 3584
+    },
+    "z_slice": {
+      "log_size": 9,
+      "offset": 4096
+    }
+  },
+  "review": "O7 - implemented FFN input/output binding (ffn-v3-mr1-fresh-io-poc/2)",
+  "reviewer": "Opus 5",
+  "rust_changed": false,
+  "schema": 1,
+  "sources": {
+    "docs/zkmatrix-poc/ZK60_ROUND18.md": "ab7ae484986db4aa91be6465c1e3b8b696a165d76cac136d148ecf071bc8acc4",
+    "docs/zkmatrix-poc/ZK60_ROUND18_O6_REVIEW.md": "ae4155b80ada8f8a42debb88be65795c71ff5340d2252abe538b6dcd53edbcb7",
+    "hashline/examples/zk60_bound_ffn.rs": "26d8d4029c7f42b99c21271c8762ffb934fe94854677141c88f3d1ec9107777e",
+    "hashline/src/private_seam.rs": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+    "hashline/src/zk.rs": "7ed74f35734c6c19e233defdf4960c5179070fa7b95752e2c0cbb34a666a420d",
+    "hashline/src/zk_ffn_fresh_io.rs": "007affdb4ddfe68aaa1b9e880d663921d995ea03a9a08dab936ab65039631183",
+    "hashline/src/zk_ffn_fresh_io_tests.rs": "2bfd11c709d5f349099ed76e9b99993282d07eb5653655bd484b3cefcccdeda4",
+    "hashline/src/zk_ffn_fresh_poc.rs": "de86a47b067f950ff780c93e85b3dba28292603f8db581ec9c9c77bbd24f70ba",
+    "hashline/src/zk_ffn_fresh_poc_tests.rs": "1e2f53c2eb1490486a604fd9dfb3bdac939642afdc43cb7fc748012596f6441e",
+    "hashline/src/zk_ffn_fresh_wire.rs": "359fdcf6a02087d346848dc4459d180fc38c55d906a69182faf8e42746925375",
+    "scripts/zk60_bound_ffn_process_check.py": "220aebccb744dd8d68e3a6a8b5618f524a2720d6865e2239305117ef68b6c592",
+    "zkp-core/src/ffn_v3/statement.rs": "27e3e14e22485587600e59932ad62e20e982814bbac587682a2004b11728164d",
+    "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+  },
+  "superseded_pin": "e8d4261396372a12aa111a0d735ef9520c914898",
+  "unresolved_items": {
+    "U-1": "open",
+    "U-10": "open, narrowed by cross-attempt mask-value controls",
+    "U-11": "partly closed",
+    "U-12": "closed",
+    "U-13": "open for the crate",
+    "U-14": "closed",
+    "U-15": "not selected, correctly",
+    "U-2": "open",
+    "U-3": "closed for this API",
+    "U-4": "partly closed",
+    "U-5": "partly closed",
+    "U-6": "closed",
+    "U-7": "closed",
+    "U-8": "open",
+    "U-9": "closed FFN-side only"
+  },
+  "verdicts": [
+    {
+      "check": 1,
+      "observations": [
+        "endpoint rows=7/log_cols=8 are code constants, not transcript-bound fields",
+        "the CLI hard-codes scales -3/0 in both branches"
+      ],
+      "references": [
+        "hashline/src/zk_ffn_fresh_io.rs:138-146,76-85,148-181,191-196,408-413,448,465-486,547",
+        "hashline/src/zk.rs:2364,2554",
+        "hashline/examples/zk60_bound_ffn.rs:81-82,92-96,105-124"
+      ],
+      "title": "expected roots/context/scales before any FFN challenge; caller-supplied policy; CLI saves before prepare and builds no witness in verify",
+      "verdict": "pass"
+    },
+    {
+      "check": 2,
+      "method": "independent recomputation of Layout::new + with_masks + with_io as a disjoint, complete allocation trace",
+      "references": [
+        "hashline/src/zk.rs:2057-2063,2090,2527-2532,2537",
+        "hashline/src/zk_ffn_fresh_io.rs:284,301-305,345,378",
+        "zkp-core/src/ffn_v3/statement.rs:148-180"
+      ],
+      "title": "with_io: four extra A rows independently filled, no aliasing, binding the original lay.x[0]/lay.z[0]; A=702, pairs 698/699 and 700/701, seven A groups",
+      "verdict": "pass"
+    },
+    {
+      "check": 3,
+      "note": "the /1 draft's separate two-slot commitment (O6 U-14) is removed",
+      "references": [
+        "hashline/src/zk.rs:2149-2174,2547-2550,2306-2332",
+        "hashline/src/zk_ffn_fresh_io.rs:14,276-368,387-399",
+        "hashline/src/zk_ffn_fresh_io_tests.rs:48-58"
+      ],
+      "title": "both equality slots reserved in the eight-slot FFN M before the FFN challenges; (10,2) with a public zero claimed sum plus its mask; verifier terminal equation; all openings after both equalities; owners consumed on success and failure; no partial proof or arbitrary-opening API",
+      "verdict": "pass"
+    },
+    {
+      "check": 4,
+      "missing": [
+        "a missing or swapped endpoint opening",
+        "a runtime second-finalization control (only a compile_fail doctest, unpinned error code)",
+        "a relabelled input_scale",
+        "a pinned reason for the role-swap refusal"
+      ],
+      "references": [
+        "hashline/src/zk_ffn_fresh_io_tests.rs:104-132,168-177,194-277",
+        "hashline/src/zk_ffn_fresh_io.rs:387-388,398"
+      ],
+      "title": "wrong-input/wrong-output tests fully recommit and use the real root as policy; refusal comes from the equality sumcheck; inventory of stale roots, role swaps, relabelled context/scales, missing endpoint, second finalization",
+      "verdict": "pass on the two tests; unresolved on the inventory"
+    },
+    {
+      "check": 5,
+      "counts": {
+        "argument_fp2_each": 34,
+        "endpoint_column_base_words_each": 7,
+        "endpoint_group_and_prox_fp2_each": 512,
+        "endpoint_openings": 2,
+        "new_a_column_base_words_total": 1024,
+        "new_a_group_vector_fp2_each": 512,
+        "new_a_group_vectors": 2,
+        "new_m_base_rows": 4,
+        "new_m_column_base_words_total": 1024,
+        "policy_bytes": 112
+      },
+      "references": [
+        "hashline/src/zk.rs:3746,3757,3763,3769 (capture publication disabled for io)"
+      ],
+      "title": "enumeration of every new public observation across A, both endpoints and the expanded eight-slot CFS commitment",
+      "verdict": "enumerated; no disclosure verdict computed and none implied"
+    },
+    {
+      "check": 6,
+      "closed": [
+        1,
+        3,
+        12
+      ],
+      "open": [
+        2,
+        6,
+        8,
+        9,
+        10
+      ],
+      "partly_closed": [
+        4,
+        5,
+        7,
+        11
+      ],
+      "references": [
+        "hashline/src/zk.rs:3153,3671",
+        "hashline/src/zk_ffn_fresh_poc_tests.rs:196-224,385-391,416-437"
+      ],
+      "title": "O3 response: H/table/proximity negative controls and the table-coordinate guard moved before repaired terminals are formed or used",
+      "verdict": "guard closed; of twelve O3 gaps, three closed, four partly closed, five open"
+    },
+    {
+      "check": 7,
+      "references": [
+        "hashline/src/zk_ffn_fresh_wire.rs:30-33,41,60,137,217-222,228-234,279",
+        "hashline/src/zk_ffn_fresh_poc.rs:28-29,93,147-152,161",
+        "hashline/src/zk_ffn_fresh_poc_tests.rs:104-113,132-141"
+      ],
+      "title": "Codex's fixes to O5 findings F1, F2, F4, and preservation of honest old frames",
+      "verdict": "F1, F2, F4 closed; F3 and F5 remain bounded follow-ups"
+    },
+    {
+      "check": 8,
+      "references": [
+        "hashline/src/zk_ffn_fresh_io_tests.rs:36-101"
+      ],
+      "title": "allocation and consumption evidence: two attempts per mode comparing actual IO mask-row and CFS coefficient values, eight M slots, every M/W/A/H opening still empty when prepare returns",
+      "verdict": "pass; the fixed slots plus consuming owners enforce single use without a dynamic RoleSet"
+    }
+  ],
+  "worktree_head": "137b109296d9a4cc9a05792bfdbd91aa45850abe"
+}

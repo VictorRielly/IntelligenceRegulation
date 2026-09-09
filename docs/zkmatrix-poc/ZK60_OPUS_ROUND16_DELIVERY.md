@@ -148,6 +148,53 @@ by bumping the sentinel; Codex fixed it independently and better, deriving the
 next version from the table, so Codex's version was taken whole on merge and
 this lane's was dropped.
 
+## Rounds 17 and 18 — O5, O6 and O7
+
+Codex integrated O1–O4 through `2fb7e0a`, rerunning all 69 Opus tests and the
+57 legacy ones with no skips, and accepted them within their stated scope. It
+then gave the repaired proof a byte format (round 17) and bound its input and
+output to external endpoints (round 18), which produced three more items.
+
+**O5, the wire format** (`e793fef`). Three independent models of the encoded
+length — the closed form, the payload writer field by field, and the decoder's
+cursor, each with the row counts re-derived rather than copied — agree on all
+781,250 shape and mode combinations, and both stated maximum frame sizes
+reproduce to the byte. Mode and expected root are caller-supplied, parse and
+verify are properly separated, and the verify command has no path into proving.
+Eight findings, the most notable being that a parsed proof exposes accessors
+before anything is verified and never compares the file's weight root to the
+caller's; it fails closed, so it is an interface hazard rather than a hole.
+Sixteen missing adversarial cases named as concrete inputs.
+
+**O6, the seam inventory** (`d130de6`). Written before the binding existed, it
+predicted from source what the binding would require. Codex verified all 32
+recorded source hashes and worked through its fifteen unresolved items. Its
+central point changed the implementation: the masking slots for the two
+equality proofs had to be reserved in **one** commitment before the challenges,
+and the draft's separate second commitment created a composition nobody had
+analysed. Codex agreed in as many words — the per-commitment analysis "does not
+by itself establish the privacy of the combined adaptive transcript" — and
+replaced the draft unpublished.
+
+**O7, the replacement reviewed** (`4695503`). All six checklist items pass on
+profile `/2`: the expected policy is absorbed before every commitment and
+challenge; the four new rows alias nothing and bind the real committed slices,
+confirmed by recomputing the allocation as a disjoint complete trace; both
+equality slots sit in the eight-slot commitment before the challenges, with
+every opening deferred until after both equalities; the wrong-plane tests fail
+for the right reason; and the table guard now precedes every value that depends
+on it. An independent frame model reproduces both profiles' sizes and shows the
+149,536-byte difference between them is exactly the removed second commitment
+minus the four extra rows — the two differ by the schedule change and nothing
+else. All thirteen of the inventory's predictions now hold. Three of the five
+wire findings are closed as proposed, using the concrete input from the first
+as its regression test.
+
+What remains after these three: no capture or joint analysis exists for the new
+profile, so the linear result does not cover its seven groups, its wider mask
+commitment or the endpoints. That is the blocker Codex carries forward, along
+with five of the audit's twelve gaps and four of the inventory's fifteen items.
+
 ## What none of this establishes
 
 No repaired registered profile, no seams, no attention privacy, no function
