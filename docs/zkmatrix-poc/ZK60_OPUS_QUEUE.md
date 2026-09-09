@@ -14,6 +14,102 @@ scope; full privacy acceptance remains open. Read [round 17](ZK60_ROUND17.md)
 first. The original dispatch below remains the definition of the completed
 items. Do not rerun or rewrite those reports as new work.
 
+## Current dispatch — O9, O10, O11 (2026-09-09)
+
+O1–O8 are delivered and integrated. **Three new reviews are ready for Claude
+Opus to pick up**, in the order below. Queued does not mean an agent has started.
+Codex continues the conditional field-view sampler and owns all protocol
+implementation and final privacy judgments. Do not duplicate that implementation.
+
+Review baseline: `c5eb2019353fdf56f1a115edb0c424bf86a9c195` on
+`perf/zk-batch-optimizations`. Read [round 23](ZK60_ROUND23.md),
+[the endpoint model](ZK60_ENDPOINT_SIMULATION_MODEL.md) and the requirements above.
+Inspect/preserve your existing review worktree before updating it from the
+published integration branch; do not edit Codex's checkout. The older “Start
+here” and dispatches below describe completed work, not the current baseline.
+
+**Common evidence and delivery contract:**
+
+- Rust capture producer remains `1f0ff3680c4cda88f1744343e24eb93cdddfcba4`.
+  Use `results/zk60_round22_captures.json` and the actual triplets in
+  `/home/victor/IntelligenceRegulation/results/zk60_round22_captures/` on this
+  shared host. These gitignored capture bytes are not distributed by Git.
+  Old `/tmp/zk60-round19` captures are unavailable. Missing input is a reported
+  evidence gap; source-only review can continue, but no fabricated/relabelled run.
+- Read the round-22 strict-gate result and round-23 validation/tool/result
+  digests before relying on their verdicts. Preserve archived tools, reports
+  and results, including O8 and FA8. A new report may supersede a conclusion
+  explicitly; it must not silently rewrite historical evidence.
+- Each job owns only its named new report, optional new test/tool, and new
+  result files. Keep shared boards/queues untouched; Codex integrates status.
+  No production Rust, transcript, proof format, public-IO switch or attention
+  construction changes. No heavy benchmarks; follow CLAUDE.md's resource rules.
+- Deliver a separate commit per job with pass/fail/unresolved per obligation,
+  source line references, assumptions, exact commands/exits and SHA-256 for
+  source/tool/input/result bytes used. Tests are falsification controls, not
+  evidence of whole-protocol zero knowledge. Unexpected disclosure is a finding;
+  stop that item and report it without weakening the target.
+
+### O9 — endpoint security experiment review (priority 0, ready)
+
+Review `ZK60_ENDPOINT_SIMULATION_MODEL.md`, the actual `ExpectedIo` and endpoint
+owner interfaces, and FA8's historical simulator against each other. Specify
+what the distinguisher and simulator receive before preparation, at root
+publication, during proof requests and after refusal. Include prior oracle
+queries, correlated auxiliary public views, fresh owners and repeated requests.
+Separate owner-generated joint preparation from proof simulation for arbitrary
+caller-fixed roots. Identify exactly which existing interface each experiment
+covers, which side information is allowed, and which claims remain unsupported.
+The simulator must not obtain real endpoint values/randomness or private owner
+state. Do not resolve the general external-root requirement by narrowing it.
+
+Deliver `docs/zkmatrix-poc/ZK60_OPUS_ENDPOINT_EXPERIMENT_REVIEW.md` and
+`results/zk60_opus_endpoint_experiment_review.json`. Acceptance: every proposed
+game has explicit inputs/timing/outputs/abort behavior; each FA8 premise has a
+source-grounded disposition; unresolved requirements stay open. Cite primary
+references actually inspected for any imported definitions/theorems, and
+distinguish definitions from claims proved about this implementation.
+
+### O10 — one-oracle bookkeeping audit (priority 0, ready)
+
+Review `scripts/zk60_endpoint_simulation.py`, its tests, and the real hash call
+formats in `zkp-core/src/{pcs,merkle,transcript,rng}.rs`. Inventory overlap and
+length/framing for column hashes, salted leaves, Merkle nodes, transcript
+operations and RNG derivation. Confirm that FA8's disjoint-domain premise is
+false for salted leaves/nodes without describing equality as a collision.
+Audit fresh-query programming, prepared leaf reuse, duplicate indices,
+conflicting duplicates, prequeries, owner consumption and abort visibility.
+Check the assumptions behind the local `q / 2^256` bound; list missing events
+needed for an adaptive whole-view bound, including preparation history and
+actual randomness/field reduction. Real BLAKE3 remains unprogrammable.
+
+Deliver `docs/zkmatrix-poc/ZK60_OPUS_ORACLE_BOOKKEEPING_REVIEW.md`,
+`results/zk60_opus_oracle_bookkeeping_review.json` and, if useful, independent
+`tests/test_zk60_opus_oracle_bookkeeping.py`. Add adversarial counterexamples
+against existing code in your new tests; propose fixes without changing Codex's
+implementation. Acceptance: exact call-format inventory and observable refusal
+semantics; no reprogramming of answered queries; concrete gaps in any claimed
+distributional argument. Passing paths alone do not settle privacy.
+
+### O11 — two-proof joint-model audit (priority 0, ready)
+
+Independently review `scripts/zk60_io_repeated_view.py` and
+`results/zk60_round23_repeated_view.json`. Check aliases against the source
+fixture: data in A/Input/Output (and private W in P3) is shared across attempts;
+H depends on proof challenges and remains proof-local. Check restoration of
+both H zero-sum constraints and public identities after role renaming. Verify
+fresh masks/pads/owners are never aliased and that fixed public P1 W is handled
+as public policy rather than silently included as private rows.
+
+Deliver `docs/zkmatrix-poc/ZK60_OPUS_REPEATED_VIEW_REVIEW.md`,
+`results/zk60_opus_repeated_view_review.json` and optional independent
+`tests/test_zk60_opus_repeated_view.py`. Acceptance: independently recomputed
+rank/control expectations for both modes, including one endpoint mask-pair
+ablation; exact interpretation of four base-field H identity coordinates per
+pair; explicit exclusions for CFS, pads/columns, nonlinear H relations,
+adaptively chosen statements and arbitrary repetition counts. Reusing O8's
+rank engine is allowed but must not be called an independent implementation.
+
 ## O8 — delivered analysis (original dispatch below)
 
 **Codex round-23 continuation:** [round 23](ZK60_ROUND23.md) uses O8's model

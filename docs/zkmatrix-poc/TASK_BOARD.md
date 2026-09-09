@@ -328,7 +328,14 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
-**AS OF 2026-09-09 (NEWEST BLOCK. O1–O8 ALL DELIVERED AND PUSHED ON
+**Current Opus dispatch, 2026-09-09:** O1–O8 are integrated. Three new
+[reviews O9–O11](ZK60_OPUS_QUEUE.md) are ready at `c5eb201`: endpoint
+security experiment, one-oracle bookkeeping, and repeated joint-model audit.
+Codex continues the conditional field-view sampler. This is a queue, not a
+claim that Claude is running. Use the round-22 retained captures and round-23
+evidence; the O8 delivery block below is historical.
+
+**O8 delivery record, 2026-09-09 (O1–O8 ALL DELIVERED AND PUSHED ON
 `zk60-fable-review`. O8 IS THE JOINT IO DISCLOSURE RESULT CODEX WAS WAITING
 FOR):**
 - **O8** (`d82a286`, `ZK60_OPUS_IO_ANALYSIS.md`) analyses Codex's four

@@ -1,20 +1,24 @@
 {
   "schema_version": 1,
   "created_local_date": "2026-09-07",
-  "round": 19,
-  "integrator_base": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4",
-  "reviewed_lane_tip": "321ca22",
-  "review": "ZK60_ROUND19.md",
+  "round": 24,
+  "integrator_base": "c5eb2019353fdf56f1a115edb0c424bf86a9c195",
+  "reviewed_lane_tip": "0f51e3f",
+  "review": "ZK60_ROUND23.md",
   "owner": "Opus 5 owns bounded review/tooling follow-ups; Codex owns protocol implementation, integration and final cryptographic review",
-  "coordination": "Opus O1-O7 are integrated. Codex supplied four verified schema-3 IO captures and replay/ingestion controls; O8 analyzes them with explicit model exclusions. Full privacy acceptance remains open.",
+  "coordination": "O1-O8 are delivered and integrated. O9-O11 are queued for independent Opus review of the endpoint experiment, one-oracle bookkeeping and repeated fixed-coefficient view. Codex continues the conditional field-view sampler; full privacy remains open.",
   "engineering_order": [
-    "O8 IO capture integrity and joint linear model adaptation",
-    "Codex CFS/encoded-column/adaptive transcript review",
+    "O9 endpoint security experiment review",
+    "O10 one-oracle bookkeeping audit",
+    "O11 two-proof joint-model audit",
+    "Codex joint field-view and adaptive transcript simulator",
     "Codex private attention construction and tiny complete block",
     "CL20 delivered helper integration (priority 3)"
   ],
   "independent_ready": [
-    "O8 source/capture analysis; use the round-19 manifest"
+    "O9",
+    "O10",
+    "O11"
   ],
   "lower_priority_design": [
     "CL20"
@@ -1311,7 +1315,7 @@
       "id": "O8",
       "priority": 0,
       "owner": "Opus 5",
-      "status": "ready",
+      "status": "delivered_integrated",
       "title": "Analyze schema-3 IO captures in the inherited joint linear model",
       "depends_on": [
         "O7",
@@ -1331,7 +1335,68 @@
         "State what combining role results with shared planes needs; preserve pad/column/CFS/repeated/adaptive exclusions",
         "Keep legacy disclosure as a positive control; report surprises without changing expected results"
       ],
-      "limits": "No Rust changes or new cryptographic construction; Codex retains integration and privacy acceptance."
+      "limits": "No Rust changes or new cryptographic construction; Codex retains integration and privacy acceptance.",
+      "delivered_commits": [
+        "d82a286",
+        "0f51e3f"
+      ],
+      "integration_commit": "4afa3fb",
+      "current_evidence": "results/zk60_round22_validation.json",
+      "historical_dispatch": true
+    },
+    {
+      "id": "O9",
+      "priority": 0,
+      "owner": "Claude Opus",
+      "status": "ready",
+      "started": false,
+      "title": "Review endpoint security experiments and arbitrary-root boundary",
+      "depends_on": [
+        "round23 completed evidence"
+      ],
+      "review_base": "c5eb2019353fdf56f1a115edb0c424bf86a9c195",
+      "dispatch": "ZK60_OPUS_QUEUE.md",
+      "deliverables": [
+        "docs/zkmatrix-poc/ZK60_OPUS_ENDPOINT_EXPERIMENT_REVIEW.md",
+        "results/zk60_opus_endpoint_experiment_review.json"
+      ],
+      "limits": "Only named new report/result and optional named test. Preserve archived tools/results and shared queues. No Rust changes or full privacy acceptance."
+    },
+    {
+      "id": "O10",
+      "priority": 0,
+      "owner": "Claude Opus",
+      "status": "ready",
+      "started": false,
+      "title": "Audit one-oracle bookkeeping and hash-domain assumptions",
+      "depends_on": [
+        "round23 completed evidence"
+      ],
+      "review_base": "c5eb2019353fdf56f1a115edb0c424bf86a9c195",
+      "dispatch": "ZK60_OPUS_QUEUE.md",
+      "deliverables": [
+        "docs/zkmatrix-poc/ZK60_OPUS_ORACLE_BOOKKEEPING_REVIEW.md",
+        "results/zk60_opus_oracle_bookkeeping_review.json"
+      ],
+      "limits": "Only named new report/result and optional named test. Preserve archived tools/results and shared queues. No Rust changes or full privacy acceptance."
+    },
+    {
+      "id": "O11",
+      "priority": 0,
+      "owner": "Claude Opus",
+      "status": "ready",
+      "started": false,
+      "title": "Audit repeated fixed-coefficient joint model and aliases",
+      "depends_on": [
+        "round23 completed evidence"
+      ],
+      "review_base": "c5eb2019353fdf56f1a115edb0c424bf86a9c195",
+      "dispatch": "ZK60_OPUS_QUEUE.md",
+      "deliverables": [
+        "docs/zkmatrix-poc/ZK60_OPUS_REPEATED_VIEW_REVIEW.md",
+        "results/zk60_opus_repeated_view_review.json"
+      ],
+      "limits": "Only named new report/result and optional named test. Preserve archived tools/results and shared queues. No Rust changes or full privacy acceptance."
     }
   ]
 }
