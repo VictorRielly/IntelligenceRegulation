@@ -191,7 +191,7 @@ class SuiteDefinition(unittest.TestCase):
                              check=True, capture_output=True, text=True).stdout
         self.assertEqual(out.strip(), "49")
         out = subprocess.run([sys.executable, _SRC, "expected-cases"], check=True, capture_output=True, text=True).stdout
-        self.assertEqual(out.split(), EXPECTED_V5)      # the default is v6
+        self.assertEqual(out.split(), EXPECTED_V5)      # the default is v7
         out = subprocess.run([sys.executable, _SRC, "expected-cases", "--suite-version", "3"], check=True, capture_output=True, text=True).stdout
         self.assertEqual(out.split(), EXPECTED_V1)
 
@@ -216,7 +216,7 @@ class SuiteDefinition(unittest.TestCase):
         # describable — and everything but the oracle expectation is identical.
         v1, v2, v3 = gg.suite(1), gg.suite(2), gg.suite(3)
         # [ZK60-CL18] v3 = CL18's 189; [ZK60-CL21] v4 = v3 + the core cases; v5 adds storage
-        self.assertEqual(gg.DEFAULT_SUITE, 6)
+        self.assertEqual(gg.DEFAULT_SUITE, 7)
         self.assertEqual(gg.case_definition(1, "oracle_gpu")["expect"]["executed_cases"], 49)
         self.assertEqual(gg.case_definition(2, "oracle_gpu")["expect"]["executed_cases"], 141)
         self.assertEqual(gg.case_definition(3, "oracle_gpu")["expect"]["executed_cases"], 189)
@@ -1023,7 +1023,7 @@ class FloorsRunner(unittest.TestCase):
     def test_manifest_lifecycle_is_emitted_for_every_case(self):
         starts = [shlex.split(l)[-1] for l in self.lines if " start --manifest " in l]
         records = [shlex.split(l.split(" -- ")[0])[shlex.split(l.split(" -- ")[0]).index("--case") + 1] for l in self.lines if " record --manifest " in l]
-        self.assertEqual(starts, EXPECTED_V5)        # [CL21] the default suite is v6
+        self.assertEqual(starts, EXPECTED_V5)        # [CL21] the default suite is v7
         self.assertEqual(records, EXPECTED_V5)
         init = self.first(lambda l: " init --out " in l)
         self.assertLess(init, self.first(lambda l: "cargo build" in l))
@@ -1157,7 +1157,7 @@ class FloorsRunner(unittest.TestCase):
 
     def test_usage_and_success_line_name_the_core(self):
         r = subprocess.run(["bash", _FLOORS, "--help"], capture_output=True, text=True)
-        self.assertIn("default 6 = round 15", r.stdout)
+        self.assertIn("default 7 = round 16", r.stdout)
         self.assertIn("zkp-core tests/example", r.stdout)
         with open(_FLOORS, encoding="utf-8") as fh:
             text = fh.read()
@@ -1220,7 +1220,7 @@ class FloorsRunner(unittest.TestCase):
         m = gg.load_manifest(os.path.join(scratch, "manifest.json"))
         self.assertEqual(m["source"]["crates"]["zkp_core"]["tree"], git(clean, "rev-parse", "HEAD:zkp-core"))
         self.assertEqual(m["source"]["head"], git(clean, "rev-parse", "HEAD"))
-        self.assertEqual(m["suite_version"], 6)
+        self.assertEqual(m["suite_version"], 7)
 
 
 if __name__ == "__main__":
