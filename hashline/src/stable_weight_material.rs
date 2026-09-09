@@ -223,6 +223,10 @@ impl Drop for RestoredMaterial {
         self.0.salts.zeroize();
         match &mut self.0.cm.store {
             Store::Host { encoded } => wipe_fields(encoded),
+            // The core now represents CPU-only external storage with an empty
+            // type. Matching the borrowed Store still requires this arm.
+            #[cfg(not(feature = "gpu-cuda"))]
+            Store::Device(never) => match *never {},
             #[cfg(feature = "gpu-cuda")]
             Store::Device(_) => unreachable!("material reconstruction is CPU-only"),
         }

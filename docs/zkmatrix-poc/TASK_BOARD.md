@@ -1,5 +1,34 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-08, round 14:** local stable-weight registration now joins
+protected material, the durable counter, an external key callback and reserved
+material access. Fable's PCS extraction is integrated into the maintained core;
+`df7fb0d` also fixes journal lock cleanup during concurrent process startup.
+**219 Rust tests, 343 tooling tests, 189 device oracle cases, all 12 frozen
+CPU/GPU/chunk proof comparisons, B4 exact reproduction and B5 verification pass.**
+See [round 14](ZK60_ROUND14.md) and the
+[registration contract](ZK60_STABLE_WEIGHT_REGISTRATION.md).
+
+Fable's next typed-decoder commit is held for three reproduced robustness and
+compatibility findings; see the [review](ZK60_CL20_ROUND14_REVIEW.md). Fable
+retains FA6–FA9, CL21 and lower-priority CL20. Codex next reviews those deliveries
+and continues the reviewed layout generator plus authenticated approval/key
+provisioning, followed by the versioned prover/verifier and private blocks after
+privacy/arithmetic closure. H2, approved stable P3 and full CL20 remain open.
+
+**2026-09-08, round 13:** Codex implements protected stable-weight
+registration material and exact CPU commitment reconstruction in `ccc6f26`.
+**202 Rust tests, four frozen CPU proof artifacts and public B4/B5 receipt
+checks pass.** [Implementation and evidence](ZK60_ROUND13.md).
+
+The opt-in [material store](ZK60_STABLE_WEIGHT_MATERIAL.md) binds encryption to
+the trusted slot policy and expected row roles. Default builds and `zkp-core`
+exclude its encryption dependencies. Fable retains FA6–FA9, CL21 and remaining
+CL20 work. Next: reviewed arithmetic/core integrations, H2 registration/layout
+and key-custody orchestration, then the repaired slot-consuming prover/verifier
+once the privacy review closes. H2, approved P3 and private blocks remain open.
+[Current handoff](ZK60_FABLE_QUEUE.md). Earlier dated entries retain their scope.
+
 **2026-09-08, round 12:** Codex fixes typed attention extra-message
 acceptance (`42471f0`) and implements the durable public slot journal for
 FA4 H2 (`72a884e`). Final source `972da4e` passes **191 Rust tests, all four

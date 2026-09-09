@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "created_local_date": "2026-09-07",
-  "round": 12,
-  "integrator_base": "972da4e",
+  "round": 14,
+  "integrator_base": "df7fb0d",
   "reviewed_lane_tip": "5949b38",
-  "review": "ZK60_ROUND12.md",
+  "review": "ZK60_ROUND14.md",
   "owner": "Fable owns follow-up analysis and remaining core/GPU work; Codex owns integration, observation instrumentation and protocol implementation",
   "coordination": "Fable owns FA6-FA9 analysis, CL21 tooling and remaining CL20 extraction; Codex owns integration and protocol implementation. One writer per shared source boundary.",
   "engineering_order": [
@@ -572,7 +572,7 @@
       "priority": 3,
       "title": "Create and maintain a minimal refactored ZKP subproject",
       "owner": "Fable refactoring lane; Codex reviews shared-core extraction",
-      "status": "primitive_boundary_implemented; PCS/FFN/codec and ZKP path remain open",
+      "status": "primitive_and_PCS_boundaries_integrated; typed_decoder_held_for_C20-R1-R3; full_FFN_and_ZKP_path_open",
       "depends_on": [
         "CL17"
       ],
@@ -586,8 +586,8 @@
         "hashline/Cargo.toml and coordinated adapters"
       ],
       "work": [
-        "Continue the independently buildable primitive crate delivered in c8a342f. Its 19 tests and public sumcheck example pass. Extract CPU PCS, then a complete selected FFN path and bounded codec without delaying privacy work.",
-        "Use the historical dependency inventory and current migration ledger. RNG and sumcheck are already canonical in zkp-core; PCS still embeds GPU dispatch and layer.rs still mixes compact PCS/cache/export paths. Extend the boundary without duplicating primitives.",
+        "Continue the canonical primitives and PCS now integrated through 83115b5 (22 core tests). Correct the reviewed f8d40a7 typed-decoder issues C20-R1-R3, then extract the selected complete FFN path. Keep this refactoring below correctness/privacy work.",
+        "Use the historical dependency inventory and current migration ledger. CPU PCS and primitives are canonical in zkp-core; GPU dispatch stays in hashline adapters. Preserve the optional host registration/material feature and its generic-store cleanup while completing the typed and prover boundaries.",
         "Keep the default library CPU-first with typed inputs, explicit parameters/backend selection, bounded proof decoding and clear errors. Exclude CLI, model download/export plumbing, benchmark campaign scripts, CUDA tooling and unused proof backends from its default dependency closure. Add adapters only for concrete consumers.",
         "Move one vertical proof/verification path at a time. Select and document the exact currently implemented profile, including any unresolved privacy limitation; preserve its relation, transcript and RNG semantics. A public-only example or a thin dependency on the entire hashline crate is not completion of the ZKP subproject.",
         "Keep hashline, zkmatrix-rs, experiments, reports, benchmarks and alternative paths available. Prefer one canonical extracted implementation consumed by existing adapters. A temporary duplicate must have explicit source pins, differential tests, maintenance ownership and a removal/convergence milestone.",
@@ -601,7 +601,7 @@
         "Document one source of truth per primitive, the dependency graph, module responsibilities, public API and migration ledger. Compare dependency/module surface before and after; do not reduce line count by discarding validation or hiding the whole legacy crate behind a wrapper.",
         "Completion means a working maintained subproject and adapters, not just this README or a copied snapshot. Implementation is split into bounded reviewable commits."
       ],
-      "limits": "Lower priority than correctness and privacy repair. The primitive boundary is implemented; PCS, full FFN, bounded codec and reviewed ZKP path remain open. Keep protocol redesign separate from mechanical refactoring and preserve experiments.",
+      "limits": "Lower priority than correctness and privacy repair. Primitives and PCS are integrated; typed decoder f8d40a7 is held for corrections, full FFN and reviewed ZKP path remain open. Keep protocol redesign separate from mechanical refactoring and preserve experiments.",
       "result": {
         "date": "2026-09-07",
         "branch": "zk60-cl20-core (worktree /home/victor/wt-zk60-cl20, off 52a13d1)",
@@ -625,6 +625,45 @@
         "tests": 19,
         "report": "../../zkp-core/MIGRATION.md",
         "complete_task": false
+      },
+      "round13_handoff": "Preserve the public PCS helpers used by hashline::stable_weight_material and its optional feature tests; encryption/filesystem/key custody remain outside zkp-core.",
+      "pcs_delivery": {
+        "source_commit": "76ee27513763b7992bd57638b203b7ce76e6a8ed",
+        "scanner_commit": "ee775be",
+        "integration_commit": "b044e20",
+        "host_storage_compatibility_commit": "83115b5",
+        "source_kind": "committed clean local Fable checkout; published lane tip at review was 882f037",
+        "review": "ZK60_CL20_ROUND14_REVIEW.md",
+        "combined_validation": "../../results/zk60_round14_validation.json",
+        "complete_task": false,
+        "core_tests_passed": 22,
+        "final_combined_source": "df7fb0d",
+        "floor_cases_passed": 21
+      },
+      "held_delivery": {
+        "source_commit": "f8d40a74e07ee9d60f869fe323eee2a2f564f067",
+        "integrated": false,
+        "scope": "table and typed FFN move with new shape-directed decoder; prover/verifier extraction still separate",
+        "review_findings": [
+          {
+            "id": "C20-R1",
+            "finding": "Params::check accepts usize::MAX queries; decoding honest tiny bytes panics on capacity overflow.",
+            "acceptance": "Reject unsupported query counts and overflow/oversized allocation before allocation, with a no-panic regression."
+          },
+          {
+            "id": "C20-R2",
+            "finding": "Expected statement shift 64 panics while shaping even empty proof input in debug.",
+            "acceptance": "Check supported shifts and shape arithmetic before evaluating them; return DecodeError::Shape and test debug/release refusal."
+          },
+          {
+            "id": "C20-R3",
+            "finding": "Valid log_cols=0 legacy proof verifies with W/A/H groups 1/1/2, but decoder assumes 2/2/3 and rejects it.",
+            "acceptance": "Match actual PCS grouping, or explicitly enforce/document a narrower codec profile while preserving legacy behavior; add honest boundary parity."
+          }
+        ],
+        "classification": "R1/R2 are expected-configuration robustness, R3 is honest-proof compatibility; no soundness exploit under the fixed production profile claimed.",
+        "evidence": "../../results/zk60_round14_evidence/review/probes.log",
+        "next_delivery": "Preserve local work, merge the published performance integration, correct the three findings, retain existing decoder regressions, then deliver selected P0 prover/verifier and old/new parity in bounded commits."
       }
     },
     {
@@ -752,14 +791,16 @@
         "Dirty or missing core, mismatched dependency identity and missing core cases refuse qualification.",
         "Gate both the standalone core and existing CPU/GPU frozen fixtures with exact case/source/binary identities."
       ],
-      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner."
+      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner.",
+      "round13_handoff": "Hashline adds optional stable-weight-storage dependencies in its lockfile. Preserve both-crate source identity, and distinguish default proof gates from feature-enabled storage test coverage.",
+      "round14_handoff": "PCS is canonical in zkp-core at 83115b5. Round14 uses an outer both-crate source/lockfile hash check plus standalone core tests around archived suite v3; this does not complete CL21 or change the meaning of old v3 manifests. Keep core identity and explicit cases in the permanent runner upgrade."
     }
   ],
   "round10_codex_work": "CL19 implementation complete and validated: 156 Rust, 39 Python consumers, four unchanged frozen proofs, P3 on/off byte parity; see ZK60_ROUND10.md. GPU/PCS/planner ownership unchanged.",
   "codex_next_work": [
-    "Apply independently reviewed FA9 arithmetic/registrar fixes.",
-    "Finish H2 protected secret-material storage and commitment reconstruction against the reviewed policy.",
-    "Integrate consuming slot tokens and the separately versioned masking repair after required privacy review; then one private block and two connected private blocks."
+    "Review and integrate Fable corrections C20-R1-R3 and subsequent FFN extraction, plus FA9 arithmetic/registrar proposals and CL21 provenance work, preserving source ownership.",
+    "Finish H2 with the reviewed stable-weight mask-layout generator, authenticated approval/application binding and production key provisioning. The local registration/key callback/reserved material access component is implemented.",
+    "After FA6-FA8 masking/transcript/bounded-reuse review and arithmetic closure, implement the versioned prover consuming the reserved token and registered verifier policy; then one private block and two connected private blocks."
   ],
   "completed_successor_tasks": [
     "CL12",
@@ -817,6 +858,67 @@
       "b4_exact": true,
       "b5_separate_process": true,
       "gpu_executed": false
+    }
+  },
+  "round13_codex_work": {
+    "status": "protected material component implemented and validated; complete H2 and privacy integration remain open",
+    "source": "ccc6f26",
+    "implemented": [
+      "opt-in authenticated encryption bound to trusted slot policy and ordered row roles",
+      "bounded canonical material parsing and exact CPU PCS commitment reconstruction",
+      "separate-process material reload preserving spent and exhausted slots"
+    ],
+    "protected_material_store_implemented": true,
+    "h2_complete": false,
+    "production_model_registered": false,
+    "stable_p3_enabled": false,
+    "privacy_repair_implemented": false,
+    "validation": "../../results/zk60_round13_validation.json",
+    "report": "ZK60_ROUND13.md",
+    "tests": {
+      "rust_passed": 202,
+      "rust_ignored": 0,
+      "frozen_cpu_cases": 4,
+      "b4_exact": true,
+      "b5_separate_process": true,
+      "gpu_executed": false
+    },
+    "feature": "stable-weight-storage",
+    "core_encryption_dependencies_added": false
+  },
+  "round14_codex_work": {
+    "status": "local registration and reviewed PCS integration validated; H2, privacy and full CL20 remain open",
+    "source": "df7fb0d",
+    "registration_commit": "7a9273b",
+    "implemented": [
+      "one local registration directory per root and configured registry",
+      "durable journal/material publication and fail-closed reopening",
+      "external key-provider callback and reserved nonescaping material access",
+      "reviewed Fable PCS/scanner extraction and host-store compatibility",
+      "explicit journal unlock before inherited process descriptors close, including initialization errors"
+    ],
+    "registration_contract": "ZK60_STABLE_WEIGHT_REGISTRATION.md",
+    "review": "ZK60_CL20_ROUND14_REVIEW.md",
+    "report": "ZK60_ROUND14.md",
+    "validation": "../../results/zk60_round14_validation.json",
+    "h2_complete": false,
+    "production_model_registered": false,
+    "stable_p3_enabled": false,
+    "privacy_repair_implemented": false,
+    "full_cl20_complete": false,
+    "typed_decoder_integrated": false,
+    "journal_lock_fix_commit": "df7fb0d",
+    "tests": {
+      "rust_passed": 219,
+      "rust_ignored": 0,
+      "python_consumers_passed": 343,
+      "core_tests_passed": 22,
+      "gpu_oracle_cases": 189,
+      "floor_cases": 21,
+      "frozen_proof_cases": 12,
+      "b4_exact": true,
+      "b5_separate_process": true,
+      "gpu_executed": true
     }
   }
 }

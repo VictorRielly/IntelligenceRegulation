@@ -1,0 +1,21 @@
+WAIT shared heavy lock
+ACQUIRED shared heavy lock
+START hashline_tests
+END hashline_tests exit=0
+START core_tests
+END core_tests exit=0
+START hashline_default_dependencies
+END hashline_default_dependencies exit=0
+START core_dependencies
+END core_dependencies exit=0
+START gpu_storage_feature_check
+END gpu_storage_feature_check exit=0
+START combined_floors
+END combined_floors exit=1
+Traceback (most recent call last):
+  File "/tmp/zk60-round14/validated/validate.py", line 93, in <module>
+    stage('combined_floors', ['bash', 'results/cl1_floors.sh', '--repo', str(ROOT),
+  File "/tmp/zk60-round14/validated/validate.py", line 51, in stage
+    if result.returncode: raise RuntimeError('stage failed: ' + name)
+RuntimeError: stage failed: combined_floors
+

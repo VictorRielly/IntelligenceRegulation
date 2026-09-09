@@ -134,6 +134,35 @@ fn spent_slots_survive_reopening_drop_unwind_and_exhaustion() {
 }
 
 #[test]
+fn dropping_owner_unlocks_descriptors_inherited_during_process_startup() {
+    let scratch = Scratch::new();
+    let path = scratch.file("journal");
+    let mut journal = SlotJournal::create(&path, policy()).unwrap();
+    assert_eq!(journal.reserve().unwrap().index(), 0);
+    // A forked child briefly shares the open file description before exec
+    // closes CLOEXEC descriptors. A duplicate models that inherited reference
+    // deterministically; the process-level reproduction is retained in round14.
+    let inherited = journal.file.try_clone().unwrap();
+    drop(journal);
+    let mut reopened = SlotJournal::open(&path, policy()).unwrap();
+    assert_eq!(reopened.used(), 1);
+    assert_eq!(reopened.reserve().unwrap().index(), 1);
+    assert!(matches!(
+        SlotJournal::open(&path, policy()),
+        Err(SlotError::Busy)
+    ));
+    drop(inherited);
+    // Closing the stale inherited descriptor must not release the new owner's
+    // separately acquired lock or reset its durable reservations.
+    assert!(matches!(
+        SlotJournal::open(&path, policy()),
+        Err(SlotError::Busy)
+    ));
+    drop(reopened);
+    assert_eq!(SlotJournal::open(&path, policy()).unwrap().used(), 2);
+}
+
+#[test]
 fn every_public_binding_field_is_checked_on_reopening() {
     let scratch = Scratch::new();
     let path = scratch.file("journal");

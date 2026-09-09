@@ -119,9 +119,13 @@ material cloning. All material and keys in these tests are public synthetic
 fixtures, not registered model secrets. The ordinary PCS parity test makes no
 new privacy claim about the legacy opening protocol.
 
+[Round 14's local registration handle](ZK60_STABLE_WEIGHT_REGISTRATION.md)
+now coordinates this store with the journal, an external key-provider callback,
+durable publication and reserved material access. It refuses incomplete state
+and derives one registration directory per root within the configured registry.
 Remaining H2 work includes the reviewed stable-weight mask-layout generator,
-approver/registration orchestration and externally protected key provisioning.
+authenticated approver/application integration and protected key provisioning.
 H3/H4 then need the prover that consumes a slot and the corresponding verifier
 policy. FA6–FA8's complete masking/transcript and bounded-reuse review remains
-the protocol integration gate. Fable's CL20 can move the canonical PCS helpers
-behind its core boundary while leaving this host storage module outside it.
+the protocol integration gate. Fable's PCS extraction now supplies the canonical
+helpers from the core; this host storage module remains outside it.

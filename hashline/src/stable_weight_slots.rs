@@ -159,7 +159,7 @@ impl SlotPolicy {
 
 /// Holds an exclusive OS lock for its lifetime. Deliberately not Clone.
 pub struct SlotJournal {
-    file: File,
+    file: LockedJournalFile,
     policy: SlotPolicy,
     used: u32,
     tail: Digest,
@@ -201,9 +201,33 @@ impl ReservedSlot<'_> {
     }
 }
 
-fn lock(file: &File) -> Result<(), SlotError> {
+// Closing our descriptor alone can leave the lock held by a child that
+// inherited the open file description between fork and exec. Release it
+// explicitly on owner drop, including errors during create/open validation.
+// The descriptor stays private and is never cloned by the production API.
+struct LockedJournalFile(File);
+impl std::ops::Deref for LockedJournalFile {
+    type Target = File;
+    fn deref(&self) -> &File {
+        &self.0
+    }
+}
+impl std::ops::DerefMut for LockedJournalFile {
+    fn deref_mut(&mut self) -> &mut File {
+        &mut self.0
+    }
+}
+impl Drop for LockedJournalFile {
+    fn drop(&mut self) {
+        // Drop cannot report I/O errors. Closing still follows; reopening must
+        // acquire the lock and validate the journal, never bypass a refusal.
+        let _ = self.0.unlock();
+    }
+}
+
+fn lock(file: File) -> Result<LockedJournalFile, SlotError> {
     match file.try_lock() {
-        Ok(()) => Ok(()),
+        Ok(()) => Ok(LockedJournalFile(file)),
         Err(TryLockError::WouldBlock) => Err(SlotError::Busy),
         Err(TryLockError::Error(e)) => Err(SlotError::Io(e)),
     }
@@ -249,8 +273,7 @@ impl SlotJournal {
             use std::os::unix::fs::OpenOptionsExt;
             options.mode(0o600);
         }
-        let mut file = options.open(path)?;
-        lock(&file)?;
+        let mut file = lock(options.open(path)?)?;
         file.write_all(&policy.header)?;
         file.sync_all()?;
         parent.sync_all()?;
@@ -268,8 +291,7 @@ impl SlotJournal {
     pub fn open(path: impl AsRef<Path>, policy: SlotPolicy) -> Result<Self, SlotError> {
         let path = path.as_ref();
         let parent = storage_parent(path)?;
-        let mut file = OpenOptions::new().read(true).append(true).open(path)?;
-        lock(&file)?;
+        let mut file = lock(OpenOptions::new().read(true).append(true).open(path)?)?;
         let meta = file.metadata()?;
         let remaining = meta
             .len()

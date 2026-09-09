@@ -1,0 +1,17 @@
+zkp-core v0.1.0 (/home/victor/IntelligenceRegulation/zkp-core)
+blake3 v1.8.7
+arrayvec v0.7.8
+cfg-if v1.0.4
+constant_time_eq v0.4.2
+cpufeatures v0.3.1
+cc v1.4.4
+find-msvc-tools v0.1.11
+shlex v2.0.1
+rayon v1.12.0
+either v1.18.0
+rayon-core v1.13.0
+crossbeam-deque v0.8.7
+crossbeam-epoch v0.9.20
+crossbeam-utils v0.8.22
+crossbeam-utils v0.8.22
+crossbeam-utils v0.8.22

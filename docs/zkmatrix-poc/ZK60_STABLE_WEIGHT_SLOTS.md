@@ -97,10 +97,23 @@ tails, poisoned handles, real process termination, and eight unique slots
 reserved by competing processes. They use public synthetic policy identifiers;
 no fixture here represents an approved private model.
 
-[Round 12](ZK60_ROUND12.md) records the final source pin, full-suite counts,
-receipt and frozen-proof checks. The next H2 increment must bind protected
-secret-material storage and deterministic commitment reconstruction to this
-same policy. H3/H4 must integrate a consuming token API with the reviewed
+Round 14 additionally reproduces a child startup inheriting a journal's open
+file description between fork and exec. Closing the owner's descriptor alone
+can retain that lock briefly. The private lock guard explicitly unlocks before
+close, including create/open error paths; its deterministic regression also
+checks that dropping the inherited descriptor cannot release a later owner's
+separately acquired lock. Production code never exposes or clones the descriptor.
+Drop cannot report an unlock I/O failure, so reopening must still acquire and
+validate the journal; it may never bypass a `Busy` refusal.
+
+[Round 12](ZK60_ROUND12.md) records this journal's source pin, full-suite counts,
+receipt and frozen-proof checks. [Round 13](ZK60_ROUND13.md) implements the
+opt-in [protected material store](ZK60_STABLE_WEIGHT_MATERIAL.md) and exact CPU
+commitment reconstruction, bound to this same policy. [Round 14's registration
+handle](ZK60_STABLE_WEIGHT_REGISTRATION.md) coordinates both components and
+reserves a durable slot before giving trusted protocol code material access.
+The reviewed layout generator and authenticated application/key provisioning
+remain open. H3/H4 must integrate a consuming token API with the reviewed
 versioned mask layout and registered verifier policy. Fable retains FA6–FA9,
 CL21 and the remaining CL20 extraction; Codex owns this journal and attention
 verifier changes. The journal closes neither the CFS privacy argument nor
