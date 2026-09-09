@@ -835,7 +835,7 @@
       "priority": 0,
       "title": "Close arithmetic and authenticated registrar obligations",
       "owner": "Fable independent review",
-      "status": "ready",
+      "status": "delivered; R09 packaged (fixed profile excluded, wider profile false acceptance) with a verified fix proposal, R10 and R31 pinned with byte-neutral proposals, Codex's R32 fix reviewed with no residual gap",
       "depends_on": [],
       "files": [
         "docs/zkmatrix-poc/ZK60_FABLE_SECURITY_OBLIGATIONS.md",
@@ -861,6 +861,37 @@
           "R31"
         ],
         "note": "Review this R32 fix instead of duplicating its production implementation."
+      },
+      "result": {
+        "date": "2026-09-08",
+        "branch": "zk60-fable-fa9 (worktree /home/victor/wt-zk60-fa9, branched at cfa46f6, merged a94ce2c); merged into zk60-fable-review",
+        "commits": {
+          "tests_and_diffs": "9620f97",
+          "merge_a94ce2c": "e7f9176",
+          "doc_review_json": "6673209"
+        },
+        "deliverable": "hashline/tests/zk60_fable_arith.rs (6 tests, exit 0 on the merged source); results/zk60_fable_fa9_r09_norm_range.diff (sha256 721b669a..), results/zk60_fable_fa9_r10_contract_width.diff (5ae3042a..), results/zk60_fable_fa9_r31_registrar_manifest.diff (5d9c1815..), results/zk60_fable_fa9_r32_typed_exact_counts.superseded-by-42471f0.diff (kept for the record, not proposed); runs 1-4 logs and .done markers; results/zk60_fable_fa9_review.json; docs/zkmatrix-poc/ZK60_FABLE_SECURITY_OBLIGATIONS.md FA9 closure rows R09/R10/R11/R31/R32, sections 6-8 updated, new section 9",
+        "R09": {
+          "fixed_profile": "EXCLUDED, TESTED: the alias built exactly per FA5 (D = 2^63, Dsq = -2^30, a1 = SSe + 2^30, a2 = 2^32 - 1 - a1, y = 0) satisfies every replayed field relation and is refused only by the two-limb range: standalone 'zero-check D: sumcheck round 0', typed B3 Verification('attention argument'); recomputed margin: alias remainders in [2^42 - 2^10 - 2^33, 2^42 - 2^10 + 2^33] against a 2^32 limb range",
+          "wider_profile": "FALSE ACCEPTANCE, TESTED (known_r09_gap_... pins it): n_limbs 3, wrho 48, tn 11 accepts an all-zero norm row where the honest row is nonzero; admission condition recomputed: tn <= 16.n_limbs - 31",
+          "fix": "PROPOSED and verified locally: D as two U16 limbs in the packed limb slice plus an 'isqrt: D limbs' pin; the wider-profile test flips to 'isqrt: D limbs fails', the honest fixed-profile fixture still verifies; CHANGES FROZEN PROOF BYTES at the fixed profile (A content, hence every challenge; +64 B: four claimed values; log_lm already 9, no new row/table/sumcheck) so it needs the new statement label attn-full-layer-v2-dlimbs, the B4 wire vals count 133|135 -> 137|139, the receipt's exact schedule 135 -> 139, re-frozen fixtures and a re-pinned zk60_attention_schedule source hash; FA5 correction: a single U16 lookup on D is incomplete because D reaches 2^17"
+        },
+        "R10": "TESTED as known gap: the advertised wrho is a transcript label while the proof enforces 2^(16.n_limbs) (wrho = 20 accepts 2^26.4 remainders; a 2^29 remainder keeping NormDiv is refused only through sigma); fix PROPOSED: a named A00 contract guard plus documentation, no byte change",
+        "R31": "TESTED as known gap: from_trusted_registration approves a root over Wq[5][9] = 2^40 and a typed B3 proof against it verifies; fix PROPOSED: a by-construction from_trusted_public_weights(registration, &PublicBlockWeights) constructor (compiled, not yet exercised by a test), no byte change; the range-lookup alternative is costed (~16 KB per block, needed under P3)",
+        "R32": "FIXED BY CODEX in 42471f0 and REVIEWED: the refusal test passes on the merged source with Codex's exact messages and also covers the neighbours Codex's regression does not (one-short vector, emptied middle sumcheck, overlong round, reordering, extra mults, extra/missing vals, extra collapse, extra opening column/group vector, FFN cpcs_open, seven FFN vectors); residual: none in the typed verifier; precision note: the B4/B5 validate_structure only bounds opening group_vecs (<= 32), an extra one passes that gate and is refused by pcs::verify",
+        "codex_must_apply": [
+          "R09 diff (hunk 8 at offset +5 on Codex's tree) with the wire/receipt count bumps, re-frozen fixture bytes and the re-pinned schedule hash; then flip known_r09_gap_...",
+          "R10 contract guard diff (no bytes)",
+          "R31 constructor diff (no bytes); route public_synthetic_fixture / B4 check_profile through it; known_r31_gap_... stays as documented root-only behaviour",
+          "optional: make the wire gate exact on group_vecs"
+        ],
+        "commands": [
+          "run 1 (cfa46f6 pristine): exit 101 = 5 passed, 1 failed (the R10 test's own step size, fixed); all gaps reproduced",
+          "run 2 (cfa46f6 + all diffs applied locally, FA9_R09_FIX=1 FA9_R32_FIX=1): exit 101 = 5 passed; the one failure is the B4 wire gate refusing the HONEST proof (137 != 133|135) = the count bump the R09 fix needs; sources restored byte-identical before any commit",
+          "run 3 (merge pristine): exit 101 = 5 passed, one wrong expectation of the R32 test corrected",
+          "run 4 (merge pristine): exit 0, 6 passed"
+        ],
+        "limits": "tiny public fixture only; hashline/src unchanged by the lane (patched only during run 2 and restored); no private-block, deployment or throughput acceptance"
       }
     },
     {

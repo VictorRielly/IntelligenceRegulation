@@ -18,7 +18,7 @@ of the decoder correction (see "Integration notes").
 
 | Lane (branch, worktree) | Commits | Validation at the tip |
 |---|---|---|
-| `zk60-fable-review` (`wt-zk60-fa`) | FA6 `e83a4ca`, FA7 `f6d8557`, FA3 ledger pointers `018d506`, merge `972da4e` = `ed478da`, FA8 `9d373e0`, merge `ccc6f26` = `641aa2d`, merge `a94ce2c` = `74f3b06`, this record; FA9 merged from `zk60-fable-fa9` when delivered | the four Fable Python suites together: 94 tests OK (FA2/FA3 34, FA6 21, FA7 23, FA8 16); FA6's Rust cross-check 2/2; FA9's Rust adversarial tests (its section) |
+| `zk60-fable-review` (`wt-zk60-fa`, pushed) | FA6 `e83a4ca`, FA7 `f6d8557`, FA3 ledger pointers `018d506`, merge `972da4e` = `ed478da`, FA8 `9d373e0`, merge `ccc6f26` = `641aa2d`, merge `a94ce2c` = `74f3b06`, handoff `7624bcb`, FA9 merged from `zk60-fable-fa9` (`9620f97`, `e7f9176`, `6673209`) | the four Fable Python suites together: 94 tests OK (FA2/FA3 34, FA6 21, FA7 23, FA8 16); FA6's Rust cross-check 2/2; FA9's six Rust adversarial tests, exit 0 on the merged source |
 | `zk60-cl1` (`wt-zk60-cl1`, pushed) | CL21 `d4f0758` (code), `e18994c` (evidence) | gates tests 86, preflight tests 92; suite-v4 floors run GREEN 23/23 on the RTX 4070 |
 | `zk60-cl20-core` (`wt-zk60-cl20`) | `ee775be`, `76ee275` (both integrated by Codex in `b044e20`), merge `972da4e` = `f61ee77`, `f8d40a7` (held by Codex for C20-R1–R3; correction in flight) | core 28/28; hashline 169/169 + 2 compile-fail checks; GPU feature `cargo check` clean; the four frozen CPU proofs byte-identical |
 
@@ -85,9 +85,9 @@ test-only or refused (S1).
 
 ### FA9 — arithmetic and registrar obligations
 
-See the FA9 section of
+Delivered; see "FA9 outcome" below, section 9 of
 [ZK60_FABLE_SECURITY_OBLIGATIONS.md](ZK60_FABLE_SECURITY_OBLIGATIONS.md) and
-`results/zk60_fable_fa9_review.json`; summary below in "FA9 outcome".
+`results/zk60_fable_fa9_review.json`.
 
 ### CL21 — the extracted core in the validation provenance
 
@@ -151,4 +151,33 @@ deployment or throughput claim follows from this delivery.
 
 ## FA9 outcome
 
-(filled in below from the FA9 lane's final report)
+Lane `zk60-fable-fa9` (commits `9620f97` tests and diffs, `e7f9176` merge of
+`a94ce2c`, `6673209` doc and review record), merged into the review lane. Six
+adversarial tests in `hashline/tests/zk60_fable_arith.rs` pass on the merged
+source; Codex-owned files were patched only inside one local verification run
+and restored byte-identical before any commit.
+
+- **R09, the norm alias.** Built exactly per FA5's derivation and replayed
+  through every verifier relation. In the fixed profile it is excluded, and the
+  test shows by which check (the two-limb remainder range; the margin is
+  recomputed). In a wider profile (three limbs) the verifier accepts an
+  all-zero norm row where the honest row is nonzero, pinned as a known gap.
+  The proposed fix (D as two 16-bit limbs plus a pin) flips that test to a
+  refusal while the honest fixture still verifies. It changes frozen proof
+  bytes at the fixed profile, so it must ship as a new statement label with
+  the wire and receipt counts bumped and the fixtures re-frozen. FA5's own
+  suggestion of a single 16-bit lookup on D is corrected: D reaches 2^17.
+- **R10, the remainder width.** The advertised width is a transcript label;
+  the proof enforces the limb multiple. Pinned by test; the fix is a named
+  contract guard and documentation, no byte change.
+- **R31, the registrar premise.** An approved root over an out-of-range weight
+  word is accepted and a proof against it verifies, pinned by test; the fix is
+  a by-construction registration from the actual public weights, no byte
+  change, with the range-lookup alternative costed.
+- **R32.** Codex's fix (`42471f0`) is confirmed on the merged source, with
+  extra neighbouring cases the Codex regression does not cover; no residual
+  gap in the typed verifier. One precision note on the wire gate's bound on
+  opening group vectors.
+
+The exact patches Codex must apply, with their byte-change status, are in
+section 9 of the obligations document and the task record.

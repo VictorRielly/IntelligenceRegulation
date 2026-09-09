@@ -224,8 +224,8 @@ do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
 **AS OF 2026-09-08 evening (NEWEST BLOCK. FABLE'S ROUND-12 QUEUE: FA6, FA7,
-FA8 AND CL21 DELIVERED ON LANES; FA9 AND THE CL20 DECODER CORRECTION IN
-FLIGHT; NOTHING MERGED BY FABLE — INTEGRATION IS CODEX'S):**
+FA8, FA9 AND CL21 DELIVERED ON LANES AND PUSHED; THE CL20 DECODER CORRECTION
+IN FLIGHT; NOTHING MERGED BY FABLE — INTEGRATION IS CODEX'S):**
 - **THE RECORD** is `docs/zkmatrix-poc/ZK60_FABLE_ROUND12_DELIVERY.md`;
   per-task statuses and results are in `zk60_fable_tasks.json`
   (`fable_round12_delivery`, each task's `result`). Do NOT restart FA6, FA7,
@@ -237,9 +237,9 @@ FLIGHT; NOTHING MERGED BY FABLE — INTEGRATION IS CODEX'S):**
   `zk60-cl20-core` (`../wt-zk60-cl20`) = `ee775be`, `76ee275` (both already
   integrated by Codex in `b044e20`), `f8d40a7` (HELD by Codex for C20-R1–R3,
   `ZK60_CL20_ROUND14_REVIEW.md`; the correction is being made on this lane);
-  `zk60-fable-fa9` (`../wt-zk60-fa9`) = FA9 in flight (R09/R10/R31 packaged
-  Rust gap pins + patch diffs, R32 review of Codex's `42471f0`), to be merged
-  into the review lane when it lands.
+  `zk60-fable-fa9` (`../wt-zk60-fa9`) = FA9 `9620f97`, `e7f9176`, `6673209`
+  (R09/R10/R31 packaged Rust gap pins + patch diffs, R32 review of Codex's
+  `42471f0`; 6 tests exit 0), merged into the review lane as `f0bea04`.
 - **WHAT IS ESTABLISHED** (correctness/privacy review, no product claim):
   FA6 closes FA3 blocker B1 for the construction as coded (every CFS slot's
   mask map is surjective onto its consistency subspace; the M opening reveals
@@ -251,7 +251,11 @@ FLIGHT; NOTHING MERGED BY FABLE — INTEGRATION IS CODEX'S):**
   stable W, only under enforcement E1–E3 (Codex's journal covers the public
   half); CL21's suite-v4 floors run is GREEN 23/23 at `d4f0758` with both
   crate trees and both lockfiles in the manifest; CL20 moved the PCS and the
-  typed v3 pieces into `zkp-core` with all four frozen CPU proofs byte-identical.
+  typed v3 pieces into `zkp-core` with all four frozen CPU proofs byte-identical;
+  FA9 shows the R09 norm alias is excluded in the fixed profile but falsely
+  accepted with three limbs (fix verified locally; it changes frozen bytes, so
+  it ships as a new statement label), pins R10 and R31 with byte-neutral
+  proposals, and confirms Codex's R32 fix with no residual gap.
 - **SECURITY FINDING FOR CODEX (FA8 S1):** the explicit `ZkConfig.seed` path
   is reachable in production and a u64 seed is brute-forceable from one
   proof's M root — make it cfg(test)-only or refuse it.
@@ -261,13 +265,14 @@ FLIGHT; NOTHING MERGED BY FABLE — INTEGRATION IS CODEX'S):**
   coverage must be identified separately from the default-suite claims (v4
   claims default features only); FA6's two hardenings and FA9's diffs are
   Codex-owned edits with tests that pin the flip.
-- **IF RESUMING (Grok or a fresh session):** check `git -C ../wt-zk60-fa9
-  status --short` (FA9 must leave `hashline/src` pristine before its commit)
-  and `git -C ../wt-zk60-cl20 log --oneline -3` (the C20-R1–R3 fix commit);
-  when both are in, merge `zk60-fable-fa9` into `zk60-fable-review`, re-run
-  `python3 -m unittest discover -s tests -p 'test_zk60_fable_*.py'` (94 tests
-  expected + FA9's if any), push all lanes, and hand to Codex. No GPU or
-  full-model job is implied by any of this.
+- **IF RESUMING (Grok or a fresh session):** only the CL20 correction is
+  open: check `git -C ../wt-zk60-cl20 log --oneline -3` for the C20-R1–R3 fix
+  commit on top of the `a94ce2c` merge; when it is in, push `zk60-cl20-core`
+  and record its commit in `zk60_fable_tasks.json` (CL20 →
+  `fable_round12_result`) and in the delivery record. The review lane's
+  Python suites (`python3 -m unittest discover -s tests -p
+  'test_zk60_fable_*.py'`, 94 tests) are the regression gate for FA2–FA8.
+  No GPU or full-model job is implied by any of this.
 
 **AS OF 2026-09-04 22:xx (OLDER BLOCK. ZK60 TASK CL1 IS DONE:
 **P3 RUNS ON THE DEVICE AT MISTRAL WIDTH**, which it could not do this

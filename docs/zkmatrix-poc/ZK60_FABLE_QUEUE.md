@@ -5,7 +5,10 @@ are delivered on `zk60-fable-review` (`e83a4ca`, `f6d8557`, `9d373e0`; B1 closed
 for the construction, the real captures analysed jointly, the transcript
 simulator and bounds written) and CL21 on `zk60-cl1` (`d4f0758` + `e18994c`,
 suite-v4 floors GREEN 23/23 with both crates and both lockfiles in the
-manifest). FA9 and the CL20 C20-R1–R3 correction are in flight on their lanes.
+manifest). FA9 is delivered on `zk60-fable-fa9` (`9620f97`, `e7f9176`, `6673209`,
+merged into the review lane): R09 packaged with a locally verified fix that
+changes frozen bytes, R10/R31 pinned with byte-neutral proposals, Codex's R32
+fix reviewed with no residual gap. The CL20 C20-R1–R3 correction is in flight.
 Record: [ZK60_FABLE_ROUND12_DELIVERY.md](ZK60_FABLE_ROUND12_DELIVERY.md);
 statuses in [zk60_fable_tasks.json](zk60_fable_tasks.json). FA8 raises one
 security item for the source owner (S1: the explicit seed path must be
