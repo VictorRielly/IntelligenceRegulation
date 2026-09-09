@@ -24,7 +24,7 @@ def main():
     env = {k: v for k, v in os.environ.items() if not k.startswith("HL_")}
     env["RAYON_NUM_THREADS"] = "2"
     record = {
-        "schema": 1, "profile": "ffn-v3-mr1-fresh-io-poc/1",
+        "schema": 1, "profile": "ffn-v3-mr1-fresh-io-poc/2",
         "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
         "script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "fixture": "public-synthetic-T32-d16-f16", "cases": [], "receipts": [],

@@ -16,6 +16,7 @@ struct Shape {
     rows: [usize; 3], // W, A, H
     specs: Vec<(usize, usize)>,
     a_groups: usize,
+    mask_rows: usize,
 }
 
 impl Shape {
@@ -26,6 +27,10 @@ impl Shape {
         }
         let private = matches!(weights, WeightStatement::FreshPrivate);
         let zl = ZkLayoutV3::with_masks(32, 16, 16, &parameters(), st.shifts, false, true);
+        let specs = mask_specs_v3(&zl, private);
+        if specs.len() != TERMINALS.len() {
+            return Err("fresh FFN wire: unsupported slot count".into());
+        }
         Ok(Self {
             private,
             rows: [
@@ -33,7 +38,8 @@ impl Shape {
                 zl.a_len / zl.a_n,
                 zl.h_len / zl.a_n,
             ],
-            specs: mask_specs_v3(&zl, private),
+            mask_rows: 2 * specs.len() + 4,
+            specs,
             a_groups: 5,
         })
     }
@@ -51,7 +57,7 @@ impl Shape {
             .zip(TERMINALS)
             .map(|(&(rounds, degree), terms)| (1 + rounds * (degree + 1) + terms) * 16)
             .sum();
-        let masks = 2 * 1024 * 16 + CHECKS * (8 + 16 * 8 + 32 + 12 * 32);
+        let masks = 2 * 1024 * 16 + CHECKS * (8 + self.mask_rows * 8 + 32 + 12 * 32);
         let len = HEADER
             + 3 * 44
             + 32
@@ -128,7 +134,7 @@ impl Shape {
             || p.mask_open
                 .columns
                 .iter()
-                .any(|(j, c, _, p)| *j >= 4096 || c.len() != 16 || p.len() != 12)
+                .any(|(j, c, _, p)| *j >= 4096 || c.len() != self.mask_rows || p.len() != 12)
         {
             return Err("fresh FFN wire: opening shape".into());
         }
@@ -208,6 +214,11 @@ impl Proof {
             return Err("fresh FFN wire: expected statement/context mismatch".into());
         }
         let p = decode_layer(&shape, &mut r)?;
+        if let WeightStatement::Public(root) = weights {
+            if p.w_com.as_ref().ok_or("fresh FFN wire: missing W")?.root != root {
+                return Err("fresh FFN wire: public W root mismatch".into());
+            }
+        }
         Ok(Self { inner: p })
     }
 }
@@ -218,6 +229,7 @@ fn io_shape(st: &StatementV3, weights: WeightStatement) -> Result<Shape, String>
     let mut shape = Shape::new(st, weights)?;
     shape.rows[1] += 4;
     shape.a_groups = 7;
+    shape.mask_rows += 4;
     Ok(shape)
 }
 pub(super) fn io_payload_len(st: &StatementV3, weights: WeightStatement) -> Result<usize, String> {
@@ -264,7 +276,7 @@ fn decode_layer(shape: &Shape, r: &mut Reader<'_>) -> Result<LayerProofZk, Strin
     p.mask_open = MaskOpening {
         q: r.fp2_vec(1024)?,
         prox: r.fp2_vec(1024)?,
-        columns: r.columns(16, 12)?,
+        columns: r.columns(shape.mask_rows, 12)?,
     };
     if shape.private {
         p.w_open_zk = r.hiding(2, shape.rows[0])?;

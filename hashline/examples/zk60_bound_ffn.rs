@@ -6,7 +6,7 @@ use hashline::causal_oracle::{public_synthetic_fixture, FixedCausalOracle};
 use hashline::field::Fp;
 use hashline::layer::StatementV3;
 use hashline::zk::{
-    fresh_poc::{self, io, WeightStatement},
+    fresh_poc::{io, WeightStatement},
     ZkPrivacy,
 };
 use std::io::{Read, Write};

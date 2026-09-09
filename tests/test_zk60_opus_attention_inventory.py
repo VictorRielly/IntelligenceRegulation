@@ -14,6 +14,7 @@ public/P0 argument at this pin.
 import hashlib
 import importlib.util
 import json
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -292,15 +293,20 @@ class Fa6Criterion(unittest.TestCase):
 
 
 class Record(unittest.TestCase):
-    def test_committed_record_is_bound_to_this_tool_and_this_source(self):
+    def test_archived_record_is_bound_to_its_tool_and_source(self):
         if not RECORD.exists():
             self.skipTest("record not generated yet")
         rec = json.loads(RECORD.read_text())
         self.assertEqual(rec["tool_sha256"],
                          hashlib.sha256(TOOL.read_bytes()).hexdigest())
+        # O4 is an archived inventory, not a claim about every later checkout.
+        # The fresh IO profile changes shared zk/private_seam source; rewriting
+        # O4's hashes would incorrectly relabel its historical review evidence.
+        self.assertEqual(rec["source_commit"], "b41d036")
         for rel, digest in rec["source_sha256"].items():
-            self.assertEqual(hashlib.sha256((ROOT / rel).read_bytes()).hexdigest(),
-                             digest, rel)
+            source = subprocess.check_output(
+                ["git", "show", rec["source_commit"] + ":" + rel], cwd=ROOT)
+            self.assertEqual(hashlib.sha256(source).hexdigest(), digest, rel)
         self.assertTrue(rec["all_checks_pass"])
         self.assertTrue(all(c["pass"] for c in rec["checks"]))
 

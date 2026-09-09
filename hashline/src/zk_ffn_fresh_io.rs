@@ -9,13 +9,12 @@ use crate::private_seam::{self, PreparedPlane, SeamSpec, Side};
 #[path = "zk_ffn_fresh_io_tests.rs"]
 mod tests;
 
-pub const PROFILE: &[u8] = b"hashline-zk-mr1/ffn-v3-mr1-fresh-io-poc/1";
-const MAGIC: &[u8; 8] = b"HFFNIO\0\x01";
-const SPECS: [(usize, usize); 2] = [(10, 2); 2];
-const MASK_BYTES: usize = 2 * 1024 * 16 + 256 * (8 + 8 * 8 + 32 + 12 * 32);
+pub const PROFILE: &[u8] = b"hashline-zk-mr1/ffn-v3-mr1-fresh-io-poc/2";
+const MAGIC: &[u8; 8] = b"HFFNIO\0\x02";
+const FIRST_IO_SLOT: usize = 6;
 const ENDPOINT_OPEN_BYTES: usize = 2 * 512 * 16 + 256 * (8 + 7 * 8 + 32 + 11 * 32);
 const ARGUMENT_BYTES: usize = 16 + 10 * 3 * 16 + 2 * 16 + 16;
-const EXTRA_BYTES: usize = 8 + 32 + 32 + 2 * ARGUMENT_BYTES + MASK_BYTES + 2 * ENDPOINT_OPEN_BYTES;
+const EXTRA_BYTES: usize = 8 + 32 + 2 * ARGUMENT_BYTES + 2 * ENDPOINT_OPEN_BYTES;
 pub const EXPECTED_BYTES: usize = 8 + 32 + 4 + 4 + 2 * 32;
 
 /// Trusted request/connection metadata. Scales describe the integer words;
@@ -192,9 +191,7 @@ struct Argument {
 #[derive(Debug)]
 pub struct Receipt {
     ffn: LayerProofZk,
-    mask_root: Digest,
     arguments: [Argument; 2],
-    mask_open: MaskOpening,
     endpoint_open: [OpeningZk; 2],
 }
 
@@ -279,11 +276,10 @@ impl PendingProof {
     pub fn finish(mut self, endpoints: Endpoints) -> Result<Receipt, String> {
         let endpoints = check_endpoints(&self.expected, endpoints)?;
         let ntt = NttTables::new(16);
-        let mut rng = ZkRng::from_os(PROFILE).map_err(|e| format!("FFN IO randomness: {e}"))?;
-        let mc = mask_commit(&SPECS, &ntt, &mut rng);
-        self.tr.absorb(b"io-mask-root", &mc.tree.root());
+        // Slots 6 and 7 already belong to the FFN M absorbed before its challenges.
+        // No new randomness or commitment can be introduced during finalization.
+        let mc = &self.pending.mc;
         let mut arguments: [Argument; 2] = Default::default();
-        let mut fs = Vec::new();
         let mut right_claims = Vec::new();
         let offsets = [self.pending.zl.lay.x[0], self.pending.zl.lay.z[0]];
         let rows = self
@@ -296,7 +292,7 @@ impl PendingProof {
             let tau = self.tr.challenge_fp2_vec(9);
             let c = draw_mask_challenge(|| self.tr.challenge_fp2(), true)?;
             let mut a = Argument {
-                gamma: c.mul(mc.masks[i].total()),
+                gamma: c.mul(mc.masks[FIRST_IO_SLOT + i].total()),
                 ..Default::default()
             };
             self.tr.absorb_fp2(b"io-gamma", &[a.gamma]);
@@ -313,8 +309,14 @@ impl PendingProof {
                     .map(Fp2::from_base)
                     .collect(),
             ];
-            let (mut rounds, mut rho, finals) =
-                masked_prove(&mut tables, 2, poly, &mc.masks[i], c, &mut self.tr);
+            let (mut rounds, mut rho, finals) = masked_prove(
+                &mut tables,
+                2,
+                poly,
+                &mc.masks[FIRST_IO_SLOT + i],
+                c,
+                &mut self.tr,
+            );
             let exts = [
                 Fp2::ZERO,
                 mask_value(&self.pending.a, rows[i], &rho),
@@ -325,7 +327,7 @@ impl PendingProof {
                 &exts,
                 2,
                 poly,
-                &mc.masks[i],
+                &mc.masks[FIRST_IO_SLOT + i],
                 c,
                 &rho,
                 &mut rounds,
@@ -343,14 +345,15 @@ impl PendingProof {
                 .push(claim(offsets[i], rows[i], &rho, e, a.terminals[0]));
             right_claims.push(claim(0, 2, &rho, e, a.terminals[1]));
             rho.push(e);
-            a.mask_eval = mc.masks[i].eval(&rho);
+            a.mask_eval = mc.masks[FIRST_IO_SLOT + i].eval(&rho);
             a.sc = SumcheckProof { rounds };
             absorb_argument(&a, &mut self.tr);
-            fs.extend(functionals(i, &rho, c, &a));
+            self.pending
+                .fs
+                .extend(functionals(FIRST_IO_SLOT + i, &rho, c, &a));
             arguments[i] = a;
         }
-        let mask_open = mask_open(&mc, &fs, &ntt, &mut self.tr);
-        let ffn = self.pending.finish(&mut self.tr)?.proof;
+        let ffn = self.pending.finish(&ntt, &mut self.tr)?.proof;
         let mut endpoint_open: [OpeningZk; 2] = Default::default();
         for (i, endpoint) in endpoints.into_iter().enumerate() {
             let claims = std::slice::from_ref(&right_claims[i]);
@@ -359,9 +362,7 @@ impl PendingProof {
         }
         Ok(Receipt {
             ffn,
-            mask_root: mc.tree.root(),
             arguments,
-            mask_open,
             endpoint_open,
         })
     }
@@ -372,12 +373,10 @@ fn verify_arguments(
     receipt: &Receipt,
     tr: &mut Transcript,
     ac: &mut Vec<ZClaim>,
-    ntt: &NttTables,
+    fs: &mut Vec<MaskFunctional>,
 ) -> Result<Vec<ZClaim>, String> {
-    tr.absorb(b"io-mask-root", &receipt.mask_root);
     let offsets = [zl.lay.x[0], zl.lay.z[0]];
     let rows = zl.a_io.ok_or("FFN IO: missing mask allocation")?;
-    let mut fs = Vec::new();
     let mut right = Vec::new();
     for i in 0..2 {
         let a = &receipt.arguments[i];
@@ -401,10 +400,8 @@ fn verify_arguments(
         ac.push(claim(offsets[i], rows[i], &rho[..9], e, a.terminals[0]));
         right.push(claim(0, 2, &rho[..9], e, a.terminals[1]));
         absorb_argument(a, tr);
-        fs.extend(functionals(i, &rho, c, a));
+        fs.extend(functionals(FIRST_IO_SLOT + i, &rho, c, a));
     }
-    mask_verify(&receipt.mask_root, &SPECS, &fs, &receipt.mask_open, ntt, tr)
-        .map_err(|e| format!("IO masks: {e}"))?;
     Ok(right)
 }
 
@@ -442,8 +439,8 @@ pub fn verify(
         &mode,
         true,
         true,
-        |zl, ac, tr| {
-            right = verify_arguments(zl, receipt, tr, ac, &ntt)?;
+        |zl, ac, fs, tr| {
+            right = verify_arguments(zl, receipt, tr, ac, fs)?;
             Ok(())
         },
     )?;
@@ -507,7 +504,6 @@ impl Receipt {
         out.extend_from_slice(MAGIC);
         out.extend_from_slice(&binding(st, weights, expected)?);
         out.extend_from_slice(&payload);
-        out.extend_from_slice(&self.mask_root);
         for a in &self.arguments {
             if a.sc.rounds.len() != 10 || a.sc.rounds.iter().any(|r| r.len() != 3) {
                 return Err("FFN IO: sumcheck shape".into());
@@ -519,18 +515,6 @@ impl Receipt {
             }
             out.extend_from_slice(&a.mask_eval.to_bytes());
         }
-        if self.mask_open.q.len() != 1024
-            || self.mask_open.prox.len() != 1024
-            || self.mask_open.columns.len() != 256
-            || self
-                .mask_open
-                .columns
-                .iter()
-                .any(|(j, c, _, p)| *j >= 4096 || c.len() != 8 || p.len() != 12)
-        {
-            return Err("FFN IO: mask opening shape".into());
-        }
-        self.mask_open.write_bytes(&mut out);
         for o in &self.endpoint_open {
             if o.group_vecs.len() != 1
                 || o.group_vecs[0].len() != 512
@@ -566,7 +550,6 @@ impl Receipt {
         let end = r.pos + wire::io_payload_len(st, weights)?;
         let ffn = wire::decode_io_payload(st, weights, &bytes[r.pos..end])?;
         r.pos = end;
-        let mask_root = r.take()?;
         let mut arguments: [Argument; 2] = Default::default();
         for a in &mut arguments {
             let (gamma, sc, terms) = r.argument((10, 2), 2)?;
@@ -577,20 +560,13 @@ impl Receipt {
                 mask_eval: r.fp2()?,
             };
         }
-        let mask_open = MaskOpening {
-            q: r.fp2_vec(1024)?,
-            prox: r.fp2_vec(1024)?,
-            columns: r.columns(8, 12)?,
-        };
         let endpoint_open = [r.hiding(1, 7)?, r.hiding(1, 7)?];
         if r.pos != bytes.len() {
             return Err("FFN IO: trailing bytes".into());
         }
         Ok(Self {
             ffn,
-            mask_root,
             arguments,
-            mask_open,
             endpoint_open,
         })
     }

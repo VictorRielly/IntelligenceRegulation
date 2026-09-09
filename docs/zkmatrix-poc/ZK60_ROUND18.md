@@ -1,6 +1,12 @@
 # Round 18 — repaired FFN bound to private endpoints
 
-The experimental `ffn-v3-mr1-fresh-io-poc/1` profile binds the FFN's X and
+**O6 follow-up implemented:** the `/2` profile reserves all eight CFS slots in
+one FFN mask commitment, before the FFN challenges. Its single M opening and
+all W/A/H openings follow both equality arguments. The unpublished `/1` draft
+is superseded and rejected. The [O6 disposition](ZK60_ROUND18_O6_REVIEW.md)
+preserves the reason for this change. Full joint privacy acceptance is still open.
+
+The experimental `ffn-v3-mr1-fresh-io-poc/2` profile binds the FFN's X and
 z16 planes to two independently prepared hiding commitments. It supports the
 fixed T32/d16/f16 shape with public weights (P1) or fresh private weights (P3).
 The verifier receives expected endpoints through caller policy, independently
@@ -25,17 +31,18 @@ owner in `zk.rs`, and the bounded codec primitives in `zk_ffn_fresh_wire.rs`.
 2. `prepare` binds that expected policy into a new transcript domain before
    the FFN's commitments/challenges. Its A layout reserves four additional
    independently sampled rows, two per seam. The base FFN computes its six
-   masked sumchecks and CFS/W openings, retaining A/H inside a private owner.
+   masked sumchecks, retaining M/W/A/H inside a private owner. The two equality
+   slots are already committed in M (eight slots, 20 base rows).
    There is no partial receipt, commitment getter, seed or arbitrary-opening API.
 3. `PendingProof::finish` consumes that owner and both endpoint owners, including
-   on error. It commits a fresh two-slot degree-2 CFS mask before either equality
-   challenge. Each slot proves `sum eq(tau,x)*(A_slice(x)-Endpoint(x)) = 0`.
+   on error. It uses slots 6 and 7 of the precommitted M, without drawing more
+   randomness or creating another commitment. Each degree-2 slot proves `sum eq(tau,x)*(A_slice(x)-Endpoint(x)) = 0`.
    Its added variable extends the equality table to zero and each private
    plane to its own pair of precommitted base-field mask rows. Only the masked
    terminals are sent. The two CFS slots use ten variables each.
 4. Both left equality claims join the existing FFN A claims. One A opening
-   handles all seven groups; H and each endpoint are each opened once. W was
-   already opened once. For the synthetic fixture: A=702, H=1326, W=3 (P1)
+   handles all seven groups. Opening order is M, W, A, H, input endpoint,
+   output endpoint, exactly once per commitment. For the synthetic fixture: A=702, H=1326, W=3 (P1)
    or 11 (P3). A's dedicated IO mask pairs occupy rows 698/699 and 700/701.
    Row coordinates and column tails are derived from the fixed layout.
 5. Verification reconstructs that schedule from the public statement and
@@ -56,9 +63,10 @@ from an arbitrary prover does not authorize its endpoints.
 
 ## Saved receipts and demo
 
-`Receipt` is opaque. Its frame uses magic `HFFNIO\0\x01`, a 32-byte expected
+`Receipt` is opaque. Its frame uses magic `HFFNIO\0\x02`, a 32-byte expected
 statement binding, the canonical FFN payload with four extra A rows/two groups,
-then the equality arguments, their CFS opening and two endpoint openings.
+then the two equality arguments and two endpoint openings. The FFN payload's
+single CFS opening has 20 column words instead of 16.
 Lengths/counts are derived from the supported statement before allocation;
 canonical field words, column bounds, exact groups/rounds and full consumption
 are required. The frame is capped at 32 MiB. The envelope digest is a framing
@@ -92,6 +100,22 @@ doctest checks consuming ownership. Existing repaired tests now exercise actual
 H helper/table mask removal, every table row coordinate, zero group challenges
 and dependent proximity pairs. IO receipts cannot publish archived FFN-only
 observations, even when only the final endpoint fails.
+
+Tests also inspect the actual reserved mask-row values across two attempts
+in each mode, verify eight slots/20 M rows are present while every opening is
+still empty, and require the final M columns to carry all 20 rows. The receipts
+are 5,029,244 bytes (P1) and 5,066,204 bytes (P3), 149,536 bytes smaller than the
+superseded draft.
+
+Opus O5 (`e793fef`) and O6 (`d130de6`) are integrated in `ea3d886`, with original
+source pins and attribution retained. O5's length model covers the old standalone
+profile, not IO. Codex fixes O5 F1's public-W parse mismatch, F2's missing slot
+count guard/derived mask width, and F4's context-domain mismatch, while preserving
+honest wire bytes. A parsed `Proof` remains an unverified candidate. F3's leftover
+artifact on failed demo proving and F5's second-shift proving coverage remain
+bounded follow-ups; no verifier acceptance vulnerability was reported in O5.
+The O4 archive test now hashes its recorded source revision rather than the live
+checkout; its historical evidence is unchanged.
 
 The combined run will record the full storage-enabled Rust suite, new and old
 separate-process demos, four CPU frozen proofs, affected gate tests and native

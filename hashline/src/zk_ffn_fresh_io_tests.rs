@@ -27,46 +27,77 @@ fn bound_ffn_honest_p1_p3_and_fresh_owners() {
     let (w, public) = fixture();
     let st = statement(&w);
     let (x, z) = planes(&w);
-    let mut previous = None;
     for (privacy, weights) in [
         (ZkPrivacy::P1, public),
         (ZkPrivacy::P3, WeightStatement::FreshPrivate),
     ] {
-        let (expected, endpoints) = prepare_endpoints(spec(), &x, &z).unwrap();
-        let policy_bytes = expected.to_bytes();
-        let pending = prepare(&w, privacy, &expected).unwrap();
-        let rows = pending.pending.zl.a_io.unwrap();
-        assert_eq!(rows, [698, 700]);
-        assert!(rows.into_iter().flat_map(|r| r..r + 2).all(|r| pending
-            .pending
-            .zl
-            .a_mask_rows()
-            .contains(&r)));
-        assert_eq!(pending.pending.ac.len(), 18);
-        let receipt = pending.finish(endpoints).unwrap();
-        assert_eq!(receipt.ffn.a_com.as_ref().unwrap().rows, 702);
-        assert_eq!(receipt.ffn.h_com.as_ref().unwrap().rows, 1326);
-        assert_eq!(
-            receipt.ffn.w_com.as_ref().unwrap().rows,
-            if privacy == ZkPrivacy::P1 { 3 } else { 11 }
-        );
-        assert_eq!(receipt.ffn.a_open.group_vecs.len(), 7);
-        let bytes = receipt.to_bytes(&st, weights, &expected).unwrap();
-        assert_eq!(bytes.len(), encoded_len(&st, weights).unwrap());
-        let restored = ExpectedIo::from_bytes(&policy_bytes).unwrap();
-        verify_bytes(&st, weights, &restored, &bytes).unwrap();
-        let decoded = Receipt::from_bytes(&st, weights, &restored, &bytes).unwrap();
-        assert_eq!(decoded.to_bytes(&st, weights, &restored).unwrap(), bytes);
-        let roots = (
-            expected.input_root(),
-            expected.output_root(),
-            receipt.ffn.a_com.as_ref().unwrap().root,
-        );
-        if let Some(prev) = previous {
-            assert_ne!(roots, prev);
+        let mut previous = None;
+        let mut previous_masks: Option<Vec<Vec<Fp>>> = None;
+        for attempt in 0..2 {
+            let (expected, endpoints) = prepare_endpoints(spec(), &x, &z).unwrap();
+            let policy_bytes = expected.to_bytes();
+            let pending = prepare(&w, privacy, &expected).unwrap();
+            let rows = pending.pending.zl.a_io.unwrap();
+            assert_eq!(rows, [698, 700]);
+            assert!(rows.into_iter().flat_map(|r| r..r + 2).all(|r| pending
+                .pending
+                .zl
+                .a_mask_rows()
+                .contains(&r)));
+            assert_eq!(pending.pending.ac.len(), 18);
+            // Reservation precedes all openings: exactly one M holds all eight slots.
+            let held = &pending.pending;
+            assert_eq!(held.mc.specs.len(), 8);
+            assert_eq!(&held.mc.specs[6..], &[(10, 2); 2]);
+            assert_eq!(held.mc.encoded.len(), 20 * 4096);
+            assert_eq!(held.mc.tree.root(), held.proof.mask_root);
+            assert!(held.proof.mask_open.q.is_empty());
+            assert!(held.proof.w_open.columns.is_empty());
+            assert!(held.proof.w_open_zk.columns.is_empty());
+            assert!(held.proof.a_open.columns.is_empty());
+            assert!(held.proof.h_open.columns.is_empty());
+            // O6: compare actual reserved row values across attempts, not just roots.
+            let masks: Vec<Vec<Fp>> = (698..702)
+                .map(|row| held.a.data[row * 256..(row + 1) * 256].to_vec())
+                .chain(held.mc.a_coefs[12..16].iter().cloned())
+                .collect();
+            if let Some(prior) = previous_masks {
+                for (old, new) in prior.iter().zip(&masks) {
+                    assert_ne!(old, new);
+                }
+            }
+            previous_masks = Some(masks);
+            let receipt = pending.finish(endpoints).unwrap();
+            assert!(receipt
+                .ffn
+                .mask_open
+                .columns
+                .iter()
+                .all(|(_, c, _, _)| c.len() == 20));
+            assert_eq!(receipt.ffn.a_com.as_ref().unwrap().rows, 702);
+            assert_eq!(receipt.ffn.h_com.as_ref().unwrap().rows, 1326);
+            assert_eq!(
+                receipt.ffn.w_com.as_ref().unwrap().rows,
+                if privacy == ZkPrivacy::P1 { 3 } else { 11 }
+            );
+            assert_eq!(receipt.ffn.a_open.group_vecs.len(), 7);
+            let bytes = receipt.to_bytes(&st, weights, &expected).unwrap();
+            assert_eq!(bytes.len(), encoded_len(&st, weights).unwrap());
+            let restored = ExpectedIo::from_bytes(&policy_bytes).unwrap();
+            verify_bytes(&st, weights, &restored, &bytes).unwrap();
+            let decoded = Receipt::from_bytes(&st, weights, &restored, &bytes).unwrap();
+            assert_eq!(decoded.to_bytes(&st, weights, &restored).unwrap(), bytes);
+            let roots = (
+                expected.input_root(),
+                expected.output_root(),
+                receipt.ffn.a_com.as_ref().unwrap().root,
+            );
+            if let Some(prev) = previous {
+                assert_ne!(roots, prev);
+            }
+            previous = Some(roots);
+            eprintln!("BOUND_FFN privacy={privacy:?} attempt={attempt} bytes={} A_rows=702 A_groups=7 M_rows=20 independently_expected_endpoints=true", bytes.len());
         }
-        previous = Some(roots);
-        eprintln!("BOUND_FFN privacy={privacy:?} bytes={} A_rows=702 A_groups=7 independently_expected_endpoints=true", bytes.len());
     }
 }
 
@@ -176,14 +207,20 @@ fn bound_ffn_adversarial_receipt_and_relabelled_policy() {
         b[off..off + 8].fill(255);
         assert!(decode(&b).unwrap_err().contains("shape"));
     }
-    let args_at = 40 + wire::io_payload_len(&st, weights).unwrap() + 32;
+    let args_at = 40 + wire::io_payload_len(&st, weights).unwrap();
     for off in [40 + 164, args_at, args_at + 8] {
         let mut b = bytes.clone();
         b[off..off + 8].copy_from_slice(&crate::field::P.to_le_bytes());
         assert!(decode(&b).unwrap_err().contains("noncanonical"));
     }
-    let mask_at = args_at + 2 * ARGUMENT_BYTES;
-    let endpoint_at = mask_at + MASK_BYTES;
+    let ffn = &receipt.ffn;
+    let mask_at = 40 + ffn.size_bytes()
+        - ffn.mask_open.size_bytes()
+        - ffn.w_open.size_bytes()
+        - ffn.w_open_zk.size_bytes()
+        - ffn.a_open.size_bytes()
+        - ffn.h_open.size_bytes();
+    let endpoint_at = args_at + 2 * ARGUMENT_BYTES;
     for (off, bound) in [(mask_at + 32768, 4096u64), (endpoint_at + 16384, 2048)] {
         let mut b = bytes.clone();
         b[off..off + 8].copy_from_slice(&bound.to_le_bytes());

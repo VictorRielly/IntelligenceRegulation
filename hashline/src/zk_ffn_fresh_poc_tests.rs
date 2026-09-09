@@ -104,10 +104,12 @@ fn repaired_wire_roundtrip_and_adversarial_frames() {
         assert!(fresh_poc::verify_bytes(&st, weights, &relabelled, b"other-request").is_err());
         if privacy == ZkPrivacy::P1 {
             let wrong_root = WeightStatement::Public([0; 32]);
-            let relabelled = proof.to_bytes(&st, wrong_root, b"wire-request").unwrap();
-            assert!(
-                fresh_poc::verify_bytes(&st, wrong_root, &relabelled, b"wire-request").is_err()
-            );
+            assert!(proof.to_bytes(&st, wrong_root, b"wire-request").is_err());
+            let mut wrong_claimed_root = bytes.clone();
+            wrong_claimed_root[41..73].fill(0);
+            assert!(decode(&wrong_claimed_root)
+                .unwrap_err()
+                .contains("public W root"));
         }
         // The encoder must reject invalid typed shapes even when flattening
         // would preserve the byte count (moved rounds/group coordinates).
@@ -127,6 +129,16 @@ fn repaired_wire_roundtrip_and_adversarial_frames() {
             .unwrap_err()
             .contains("noncanonical"));
     }
+    // O5 F4: in-memory and saved proofs share the same context domain.
+    let max_context = vec![b'x'; fresh_poc::MAX_CONTEXT_BYTES];
+    let proof = fresh_poc::prove(&w, ZkPrivacy::P3, &max_context).unwrap();
+    let bytes = proof
+        .to_bytes(&st, WeightStatement::FreshPrivate, &max_context)
+        .unwrap();
+    fresh_poc::verify_bytes(&st, WeightStatement::FreshPrivate, &bytes, &max_context).unwrap();
+    let oversized = vec![b'x'; fresh_poc::MAX_CONTEXT_BYTES + 1];
+    assert!(fresh_poc::prove(&w, ZkPrivacy::P3, &oversized).is_err());
+    assert!(fresh_poc::verify(&st, WeightStatement::FreshPrivate, &proof, &oversized).is_err());
 }
 
 // The two mask coefficients in an ACTUAL fully verified singleton group span

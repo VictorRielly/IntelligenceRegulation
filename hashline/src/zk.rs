@@ -2168,6 +2168,8 @@ pub fn mask_specs_v3(zl: &ZkLayoutV3, is_p3: bool) -> Vec<(usize, usize)> {
     // (eq * B * B), + 1 for its extension round. Absent under function 1, so the
     // function-1 mask commitment is the same commitment it has always been.
     if zl.pred { v.push(((lay.log_t + lay.log_db) as usize + 1, 3)); }
+    // IO reserves both seam slots before M is committed; no late mask commitment.
+    if zl.a_io.is_some() { v.extend([((lay.log_t + lay.log_db) as usize + 1, 2); 2]); }
     v
 }
 
@@ -2279,13 +2281,20 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
 }
 
 fn prove_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &NttTables, cfg: &ZkConfig, tr: &mut Transcript, mr1: bool, rng: ZkRng) -> Result<ProveOutputZk, String> {
-    prepare_layer_zk_v3_inner(w, t_rows, params, ntt, cfg, tr, mr1, false, rng)?.finish(tr)
+    prepare_layer_zk_v3_inner(w, t_rows, params, ntt, cfg, tr, mr1, false, rng)?.finish(ntt, tr)
 }
 
-// Private owners and claims are retained only until their ONE final PCS opening.
+// Private owners and claims are retained only until their ONE final opening.
+enum PendingWeightV3 {
+    Public(pcs::Committed, Vec<Claim>),
+    Private(pcs::CommittedZk, Vec<ZClaim>),
+}
 struct PendingV3 {
     proof: LayerProofZk,
     zl: ZkLayoutV3,
+    mc: MaskCommit,
+    fs: Vec<MaskFunctional>,
+    w: PendingWeightV3,
     a: pcs::CommittedZk,
     h: pcs::CommittedZk,
     ac: Vec<ZClaim>,
@@ -2295,8 +2304,21 @@ struct PendingV3 {
     tick: std::time::Instant,
 }
 impl PendingV3 {
-    fn finish(mut self, tr: &mut Transcript) -> Result<ProveOutputZk, String> {
+    fn finish(mut self, ntt: &NttTables, tr: &mut Transcript) -> Result<ProveOutputZk, String> {
         let zl = &self.zl;
+        self.proof.mask_open = mask_open(&self.mc, &self.fs, ntt, tr);
+        drop(self.mc);
+        self.timings.push(("zsum + mask open".into(), self.tick.elapsed().as_secs_f64()));
+        self.tick = std::time::Instant::now();
+        match self.w {
+            PendingWeightV3::Public(cm, claims) => { self.proof.w_open = pcs::open(&cm, &claims, tr); }
+            PendingWeightV3::Private(cm, claims) => {
+                self.sites.push(format!("W: {} claims in {} groups", claims.len(), pcs::zk_groups_for_record(&cm, &claims)));
+                if zl.mr1 { fresh_poc::check_masks(&claims, cm.cm.rows, zl.log_wn, &zl.w_mask_rows(), zl.w_prox, tr)?; }
+                self.proof.w_open_zk = pcs::open_zk(&cm, &claims, tr);
+                self.sites.extend(pcs::last_mask_sites().into_iter().map(|s| format!("W {s}")));
+            }
+        }
         self.sites.push(format!("A: {} claims in {} groups", self.ac.len(), pcs::zk_groups_for_record(&self.a, &self.ac)));
         if zl.mr1 { fresh_poc::check_masks(&self.ac, self.a.cm.rows, zl.log_n, &zl.a_mask_rows(), zl.a_prox, tr)?; }
         self.proof.a_open = pcs::open_zk(&self.a, &self.ac, tr);
@@ -3238,30 +3260,16 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
         rho_pe.push(*e_p);
         push_pred_functionals(&mut fs, &specs, &rho_pe, mc.masks[SC_PRED].eval(&rho_pe), *c_pred, proof.pred.as_ref().unwrap().gamma);
     }
-    proof.mask_open = mask_open(&mc, &fs, ntt, tr);
-    lap("zsum + mask open", &mut timings, &mut tick);
-
-    // ---- PCS openings ----
+    // Retain M/W/A/H until every fixed-profile claim has been assembled.
     let pred_claims = pred.as_ref().zip(pred_ctx.as_ref()).map(|(p, (rho_p, e_p, _))| (p, rho_p.as_slice(), *e_p));
     let (wc, ac, hc) = build_claims_zk_v3(&zl, &proof, &p2, &p5, &rho_f, &rho_d, &rho_zs, &rho_tab, (cd_gu, cm_gu), (cd_d, cm_d), e_f, e_dz, e_zs, e_tab, &p3, &p6, pred_claims);
-    match (&w_cm, &w_cmz) {
-        (Some(cm), _) => { proof.w_open = pcs::open(cm, &wc, tr); }
-        (_, Some(cmz)) => {
-            // [UPERF3-AM] MODE P3: the hiding opening. Every group's clear vector carries the
-            // block mask rows (assert_mask_sites refuses an unmasked site), the prox vector
-            // carries the reserved prox row, and the 256 sampled columns are coset positions
-            // with 256 pad symbols per row — no systematic entry of W is ever opened.
-            let wcz = build_w_zclaims_v3(&zl, &proof, &p3, &p6, (cd_w_gu, e_gu2), (cd_w_d, e_d2));
-            sites.push(format!("W: {} claims in {} groups", wcz.len(), pcs::zk_groups_for_record(cmz, &wcz)));
-            if mr1 { fresh_poc::check_masks(&wcz, cmz.cm.rows, zl.log_wn, &zl.w_mask_rows(), zl.w_prox, tr)?; }
-            proof.w_open_zk = pcs::open_zk(cmz, &wcz, tr);
-            sites.extend(pcs::last_mask_sites().into_iter().map(|s| format!("W {s}")));
-        }
+    let w = match (w_cm, w_cmz) {
+        (Some(cm), None) => PendingWeightV3::Public(cm, wc),
+        (None, Some(cm)) => PendingWeightV3::Private(cm,
+            build_w_zclaims_v3(&zl, &proof, &p3, &p6, (cd_w_gu, e_gu2), (cd_w_d, e_d2))),
         _ => unreachable!(),
-    }
-    drop(w_cm);
-    drop(w_cmz);
-    Ok(PendingV3 { proof, zl, a: a_cmz, h: h_cmz, ac, hc, timings, sites, tick })
+    };
+    Ok(PendingV3 { proof, zl, mc, fs, w, a: a_cmz, h: h_cmz, ac, hc, timings, sites, tick })
 }
 
 /// [UPERF3-AM] MODE P3: the HIDING claims on W, shared by the prover and the
@@ -3457,11 +3465,11 @@ pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &Layer
 }
 
 fn verify_layer_zk_v3_inner(st: &StatementV3, proof: &LayerProofZk, params: &LayerParams, ntt: &NttTables, tr: &mut Transcript, mode: &ZkStatementMode, mr1: bool) -> Result<(), String> {
-    verify_layer_zk_v3_with_seams(st, proof, params, ntt, tr, mode, mr1, false, |_, _, _| Ok(()))
+    verify_layer_zk_v3_with_seams(st, proof, params, ntt, tr, mode, mr1, false, |_, _, _, _| Ok(()))
 }
 
 fn verify_layer_zk_v3_with_seams(st: &StatementV3, proof: &LayerProofZk, params: &LayerParams, ntt: &NttTables, tr: &mut Transcript, mode: &ZkStatementMode, mr1: bool, io: bool,
-    before_a: impl FnOnce(&ZkLayoutV3, &mut Vec<ZClaim>, &mut Transcript) -> Result<(), String>) -> Result<(), String> {
+    before_openings: impl FnOnce(&ZkLayoutV3, &mut Vec<ZClaim>, &mut Vec<MaskFunctional>, &mut Transcript) -> Result<(), String>) -> Result<(), String> {
     // [UPERF3-AN] FUNCTION 2: the declared predicate (None = function 1). A statement
     // whose output-claim slot and predicate parameters disagree names no predicate
     // and is refused before any challenge is drawn.
@@ -3724,11 +3732,12 @@ fn verify_layer_zk_v3_with_seams(st: &StatementV3, proof: &LayerProofZk, params:
         rho_pe.push(*e_p);
         push_pred_functionals(&mut fs, &specs, &rho_pe, *g_pred_val, *c_pred, proof.pred.as_ref().unwrap().gamma);
     }
-    mask_verify(&proof.mask_root, &specs, &fs, &proof.mask_open, ntt, tr).map_err(|e| format!("M: {e}"))?;
 
     // ---- PCS openings ----
     let pred_claims = pred.zip(pred_ctx.as_ref()).map(|(p, (rho_p, e_p, _, _))| (p, rho_p.as_slice(), *e_p));
     let (wc, mut ac, hc) = build_claims_zk_v3(&zl, proof, &p2, &p5, &rho_f, &rho_d, &rho_zs, &rho_tab, (cd_gu, cm_gu), (cd_d, cm_d), e_f, e_dz, e_zs, e_tab, &p3, &p6, pred_claims);
+    before_openings(&zl, &mut ac, &mut fs, tr)?;
+    mask_verify(&proof.mask_root, &specs, &fs, &proof.mask_open, ntt, tr).map_err(|e| format!("M: {e}"))?;
     #[cfg(test)]
     let mut diagnostic_w = None;
     if is_p3 {
@@ -3742,7 +3751,6 @@ fn verify_layer_zk_v3_with_seams(st: &StatementV3, proof: &LayerProofZk, params:
     } else {
         pcs::verify(&w_pcs, w_com, &wc, &proof.w_open, ntt, tr).map_err(|e| format!("W: {e}"))?;
     }
-    before_a(&zl, &mut ac, tr)?;
     // IO has a separate capture contract; do not publish it as legacy/fresh function 1.
     // Test-only public observation: publish only after the complete FFN accepts.
     #[cfg(test)]

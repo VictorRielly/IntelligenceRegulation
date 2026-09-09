@@ -25,6 +25,8 @@ pub enum WeightStatement {
     FreshPrivate,
 }
 
+/// A candidate proof. Parsing and reading roots do not establish validity;
+/// acceptance requires `verify` or `verify_bytes` against caller policy.
 #[derive(Debug)]
 pub struct Proof {
     pub(super) inner: LayerProofZk,
@@ -88,6 +90,7 @@ fn transcript(context: &[u8]) -> Transcript {
 /// No seed, reusable RNG, prepared commitment, or late opening is accepted.
 /// Randomness failures return before any public proof is produced.
 pub fn prove(w: &V3Witness, privacy: ZkPrivacy, context: &[u8]) -> Result<Proof, String> {
+    check_context(context)?;
     check_witness(w, privacy)?;
     let rng = ZkRng::from_os(PROFILE).map_err(|e| format!("fresh proof randomness: {e}"))?;
     let cfg = ZkConfig {
@@ -141,6 +144,13 @@ fn check_witness(w: &V3Witness, privacy: ZkPrivacy) -> Result<(), String> {
     Ok(())
 }
 
+fn check_context(context: &[u8]) -> Result<(), String> {
+    if context.len() > MAX_CONTEXT_BYTES {
+        return Err("fresh FFN: request context too long".into());
+    }
+    Ok(())
+}
+
 /// Verify using only the public statement, weight claim, request context and proof.
 pub fn verify(
     st: &StatementV3,
@@ -148,6 +158,7 @@ pub fn verify(
     proof: &Proof,
     context: &[u8],
 ) -> Result<(), String> {
+    check_context(context)?;
     preflight(st)?;
     let privacy = match weights {
         WeightStatement::Public(root) => {
