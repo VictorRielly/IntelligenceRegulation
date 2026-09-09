@@ -11,6 +11,10 @@
 //! flag FA9_R09_FIX makes the R09 test assert the refusal instead, so a locally
 //! applied patch is verified by identical code. R32 was fixed by Codex in
 //! 42471f0 (merged here); its test is a refusal test with structural probes.
+//! Round 15 (Codex 1eb5852: public-tensor R31 constructor, explicit two-limb
+//! norm guard) is reviewed by the two `*_round15_*` tests at the end; the
+//! `known_r09_gap_wider_profile_*` false acceptance is retained on purpose
+//! until the separately versioned direct D-range path exists.
 //!
 //! Tamper mode is a process-global flag: every test takes one lock so the
 //! `known_*` legs never run beside an honest control.
@@ -18,7 +22,8 @@
 use hashline::attention as at;
 use hashline::attention::{AttnConsts, AttnProof, AttnWitness, FullConsts, NormConsts, Resid2};
 use hashline::causal_oracle::{
-    public_synthetic_fixture, FixedCausalOracle, OracleBlock, PublicBlockWeights,
+    cpu_weight_commitments, public_synthetic_fixture, FixedCausalOracle, OracleBlock, OracleError,
+    PublicBlockWeights,
 };
 use hashline::export_v3::{derive_v3, requant_round, V3Dims, V3LayerExport};
 use hashline::field::{Fp, Fp2};
@@ -27,7 +32,7 @@ use hashline::norm::NormChain;
 use hashline::ntt::NttTables;
 use hashline::pcs::{self, PcsParams};
 use hashline::pcs_compact::BatchOpening;
-use hashline::private_block_contract::ApprovedP1BlockContract;
+use hashline::private_block_contract::{ApprovedP1BlockContract, ContractError};
 use hashline::public_block_oracle::{
     lift_public_weight_claims, public_block_transcript, verify_public_block, PublicBlockError,
     PublicBlockOracle, PublicBlockProof,
@@ -644,4 +649,171 @@ fn r32_typed_api_refuses_extra_messages_after_42471f0() {
     }
     // refusals mutate neither the proof nor the approval
     assert_eq!(verify_public_block(&approved, &proof), Ok(()));
+}
+
+// ---- Round 15: review of Codex's 1eb5852 --------------------------------------
+
+/// R31/R11 after 1eb5852. `from_trusted_public_weights` recomputes BOTH roots
+/// from the int8 tensors with `cpu_weight_commitments` — the same function the
+/// fixed oracle uses to check actual weights against an approval, and whose
+/// packing the prover reproduces (its `w_com` equals the approved root). Gamma
+/// is packed into the attention root's `gpack` rows, so a single changed gamma
+/// word moves the attention root only and the oracle refuses those tensors
+/// against the original approval. The roots handed in are ignored (recomputed),
+/// every wrong tensor shape is refused with one static category, and the
+/// fixture's roots/digest are the constants pinned before 1eb5852. The root-only
+/// path keeps `known_r31_gap_*`'s behaviour by design (trusted premise).
+#[test]
+fn r31_round15_public_weight_constructor_binds_gamma_and_matches_the_oracle_packing() {
+    let _s = serial();
+    assert!(!at::tamper_mode());
+    let (approved, weights, _) = public_synthetic_fixture();
+    let r = approved.registration();
+    // (1) identity across 1eb5852: the constants zk60_public_receipt.rs pinned before it
+    assert_eq!(
+        hashline::silu::hex(&r.attention_weights.root),
+        "f20dc692c421abae9bfcb15ac4c15d8cdce64ef6f49e256c635dcc4bf2354d36"
+    );
+    assert_eq!(
+        hashline::silu::hex(&r.ffn_weights.root),
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad"
+    );
+    assert_eq!(
+        hashline::silu::hex(&approved.public_digest()),
+        "22f5a8b67400e42accd55834c5fde334ca15f6be9661a5c4e7af614ebca9f7e2"
+    );
+    // (2) the roots handed to the constructor are ignored: garbage in, recomputed out
+    let mut garbage = r.clone();
+    garbage.attention_weights.root = [0xa5; 32];
+    garbage.ffn_weights.root = [0x5a; 32];
+    let rebuilt = ApprovedP1BlockContract::from_trusted_public_weights(garbage, &weights).unwrap();
+    assert_eq!(rebuilt.public_digest(), approved.public_digest());
+    // (3) gamma alone (R11): each site moves the attention root only; the oracle refuses
+    for site in 0..2 {
+        let mut w = weights.clone();
+        if site == 0 {
+            w.gamma_a[3] = -64;
+        } else {
+            w.gamma_m[7] = 65;
+        }
+        let (aw, fw) = cpu_weight_commitments(&w).unwrap();
+        assert_ne!(aw.root, r.attention_weights.root, "gamma site {site} is in the attention root");
+        assert_eq!(fw.root, r.ffn_weights.root, "gamma site {site} is not in the FFN root");
+        let other = ApprovedP1BlockContract::from_trusted_public_weights(r.clone(), &w).unwrap();
+        assert_eq!(other.registration().attention_weights.root, aw.root);
+        assert_eq!(other.registration().ffn_weights.root, fw.root);
+        assert_ne!(other.public_digest(), approved.public_digest());
+        assert!(matches!(
+            FixedCausalOracle::new(&approved, w.clone()),
+            Err(OracleError::UnapprovedWeights)
+        ));
+        let _ = FixedCausalOracle::new(&other, w).unwrap();
+    }
+    // (4) every tensor shape refusal is the one static category (no lengths disclosed)
+    let breaks: [fn(&mut PublicBlockWeights); 9] = [
+        |w| {
+            w.wq.pop();
+        },
+        |w| w.wk.push(0),
+        |w| {
+            w.wv.pop();
+        },
+        |w| w.wo.push(0),
+        |w| {
+            w.gamma_a.pop();
+        },
+        |w| w.gamma_m.push(0),
+        |w| {
+            w.wg_t.pop();
+        },
+        |w| w.wu_t.push(0),
+        |w| {
+            w.wd_t.pop();
+        },
+    ];
+    for (i, b) in breaks.iter().enumerate() {
+        let mut w = weights.clone();
+        b(&mut w);
+        assert!(
+            matches!(
+                ApprovedP1BlockContract::from_trusted_public_weights(r.clone(), &w),
+                Err(ContractError::Invalid("public int8 weight tensors"))
+            ),
+            "shape break {i}"
+        );
+    }
+    // (5) packing parity with the prover: the committed W plane of an honest typed
+    // proof carries exactly the approved roots, and the proof verifies
+    let (approved2, _, _, b) = honest_block();
+    let proof = prove_typed(&approved2, &b);
+    assert_eq!(proof.attention.w_com.as_ref().unwrap().root, r.attention_weights.root);
+    assert_eq!(proof.ffn.w_com.as_ref().unwrap().root, r.ffn_weights.root);
+    assert_eq!(verify_public_block(&approved2, &proof), Ok(()));
+    println!(
+        "FA9 round 15 R31: constructor roots attention {} ffn {} digest {}; gamma_a/gamma_m each move the attention root only; 9 shape breaks refused; prover w_com == approved roots",
+        hashline::silu::hex(&r.attention_weights.root),
+        hashline::silu::hex(&r.ffn_weights.root),
+        hashline::silu::hex(&approved.public_digest())
+    );
+}
+
+/// R10/R09 after 1eb5852. The explicit `fixed norm requires two remainder limbs`
+/// guard sits BEHIND the worst-case width rule, which already forces
+/// n_limbs = ceil((18 + tn) / 16) = 2 for every tn the contract admits
+/// (tn in 0..=12; D = isqrt(2^34 + ceps) = 2^17 for ceps in 1..=16). It is an
+/// explicit, named restatement, not a new refusal: no registration reaches it
+/// with n_limbs != 2, and Codex's own regression input (3 limbs, wrho 48) is
+/// refused by the width rule. Both rules run at registration and at preflight,
+/// so no approved contract — hence no typed B3/B4/B5 verification — can carry
+/// a wider profile. The standalone attention verifier still takes n_limbs from
+/// its own statement (`known_r09_gap_wider_profile_*` is retained), and
+/// `absorb_attn_statement` absorbs tn/Cn/ceps/wrho but not n_limbs: only the
+/// A00 digest binds it.
+#[test]
+fn r10_round15_two_limb_guard_is_implied_by_the_width_rule_and_refused_at_the_contract_only() {
+    let _s = serial();
+    let (approved, _, _) = public_synthetic_fixture();
+    let r = approved.registration();
+    assert_eq!((r.attention.anorm.n_limbs, r.attention.mnorm.n_limbs), (2, 2));
+    // (1) the contract's admitted band, replayed with validate_norm's own arithmetic
+    for tn in 0..=12u32 {
+        for ceps in 1..=16i64 {
+            let sum = 16 * 32768i64.pow(2) + ceps;
+            let d = hashline::norm::isqrt(sum) as u64;
+            assert_eq!(d, 1 << 17, "tn {tn} ceps {ceps}");
+            let denominator = d << (tn + 1);
+            let width = 64 - (denominator - 1).leading_zeros();
+            assert_eq!(width, 18 + tn);
+            assert_eq!(width.div_ceil(16), 2, "tn {tn} ceps {ceps}: the width rule forces two limbs");
+        }
+    }
+    // (2) the real constructor and preflight: every n_limbs != 2, whatever wrho is
+    // claimed, is refused by the WIDTH rule — the new guard is never reached
+    let width_rule = ContractError::Invalid("fixed worst-case norm remainder width");
+    for (n_limbs, wrho) in [(3usize, 48u32), (3, 29), (1, 29), (1, 16), (4, 64)] {
+        for site in 0..2 {
+            let mut reg = approved.registration();
+            let n = if site == 0 {
+                &mut reg.attention.anorm
+            } else {
+                &mut reg.attention.mnorm
+            };
+            n.n_limbs = n_limbs;
+            n.wrho = wrho;
+            let err = ApprovedP1BlockContract::from_trusted_registration(reg.clone())
+                .err()
+                .expect("wider or narrower limb count must be refused");
+            assert_eq!(err, width_rule, "site {site} n_limbs {n_limbs} wrho {wrho}");
+            assert_eq!(
+                approved.preflight_candidate(&reg),
+                Err(width_rule.clone()),
+                "preflight site {site} n_limbs {n_limbs} wrho {wrho}"
+            );
+        }
+    }
+    // (3) the honest fixed registration is still approved and matches itself at preflight
+    let again = ApprovedP1BlockContract::from_trusted_registration(approved.registration()).unwrap();
+    assert_eq!(again.public_digest(), approved.public_digest());
+    assert_eq!(approved.preflight_candidate(&again.registration()), Ok(()));
+    println!("FA9 round 15 R10: width 18+tn in 18..=30 over tn 0..=12, ceps 1..=16 -> two limbs always; n_limbs in {{1,3,4}} refused by `fixed worst-case norm remainder width` at registration and preflight; the explicit two-limb guard is unreachable as a refusal");
 }

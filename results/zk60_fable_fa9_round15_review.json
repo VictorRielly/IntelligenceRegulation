@@ -1,0 +1,172 @@
+{
+ "task": "FA9 round-15 follow-up: review of Codex 1eb5852 (public int8 registration constructor, explicit norm limb guard); R32 independently closed earlier; the separately versioned direct D-range path does not exist yet, so its receipt/schedule review is deferred and the wider-profile false-acceptance regression is retained",
+ "reviewer": "Claude Fable 5.1 (independent reviewer)",
+ "date": "2026-09-08",
+ "worktree": "/home/victor/wt-zk60-fa9",
+ "branch": "zk60-fable-fa9",
+ "source_pin": {
+  "head": "0b2b830f3572648b9e463547f57247b188df7cc1",
+  "head_short": "0b2b830",
+  "reviewed_commit": "1eb5852bdd89d5ab44220dfbb2269f859e5aa958",
+  "reviewed_commit_stat": {
+   "hashline/src/causal_oracle.rs": "+2 -2 (public_synthetic_fixture registers through from_trusted_public_weights)",
+   "hashline/src/private_block_contract.rs": "+22 (from_trusted_public_weights; root-only doc line; validate_norm two-limb guard)",
+   "hashline/tests/zk60_block_contract.rs": "+43 (public_tensor_registration_recomputes_both_roots_and_preserves_identity; fixed_contract_rejects_wider_norm_remainder_ranges)"
+  },
+  "codex_owned_sources_modified_by_this_lane": false
+ },
+ "inspected_sha256_at_0b2b830": {
+  "hashline/src/private_block_contract.rs": "4c6163521a6cb48329196e7fa5669f11ef78d587a954b97207e8048a861771f7",
+  "hashline/src/causal_oracle.rs": "758bd3401cc726dd621ff0b04b9d7b09a50decc773f03f4a21ddbc031921d85a",
+  "hashline/src/public_block_oracle.rs": "0cc821e8c8c30bf842ea11442845d3156a522fc3d8f3e82d6f9fdfa55a58a83f",
+  "hashline/src/public_block_receipt.rs": "2f99ae965d0efb5a12579b4668573798c3d1b109f3b38d13cceeea624b0ba9e0",
+  "hashline/src/public_chain_receipt.rs": "2d7c224756acf7439c52d12a80d5d70010f4c087bf7022b2617db3b4929544a1",
+  "hashline/src/attention.rs": "c5ae80ddc909aae40b9ec6b9766e5634cf3dc13172e8902f8f2dc33c77cdf979",
+  "hashline/src/norm.rs": "60e3f9b33564c8027e80e250326ea2ac8d2f14c443a348eafc3e365bc5d8eb58",
+  "hashline/tests/zk60_block_contract.rs": "fb36a6a7b1f6167e04b4564080b02f89ce5ceaedccfd08140c0a786351c18fa2",
+  "hashline/tests/zk60_fable_arith.rs (before this review)": "333ed4ff92628702992f8b34b622d2f4d7aaf54a32e732f355b75ffa622f5484",
+  "hashline/examples/zk60_block_receipt.rs": "4c0e83001e13f7ac23ef763957d4675d18c292d47f593f06d035623888d9eb66",
+  "hashline/examples/zk60_chain_receipt.rs": "f71bbcda9d50b5c83d356541d9cd6a29795333dacde3e97018a5e5aaff7168cf",
+  "results/zk60_fable_fa9_r31_registrar_manifest.diff (this lane's proposal)": "5d9c1815ce6a8464fee995cd932639a855c439ea3a2ed4835863f340bbd8b337",
+  "results/zk60_fable_fa9_r10_contract_width.diff (this lane's proposal)": "5ae3042a96c586655519c621b8c39e4fb54d2c000317ef2ed530150ba9998078"
+ },
+ "delivered_sha256": {
+  "hashline/tests/zk60_fable_arith.rs (after this review)": "2c045142c00d047e8223a0f87cc621bc6ec43721a3adae865f88d5453d6bd246",
+  "results/zk60_fable_fa9_round15_run1_block_contract.log": "165d544aa1c1902215584cf999ebbef89a5a65ca64ef1765b3d92bf54dd5c813",
+  "results/zk60_fable_fa9_round15_run2_fable_arith.log": "7c023d93568dc85dc9f2aecfb81bbb53689fe580cf39b4071382564b57c1fffb"
+ },
+ "comparison_with_this_lanes_proposals": {
+  "r31_constructor": "identical structure: cpu_weight_commitments(weights) mapped to ContractError::Invalid(\"public int8 weight tensors\"), both registration roots overwritten, then from_trusted_registration; only doc-comment wording differs",
+  "r10_guard": "identical require(n.n_limbs == 2, ...) at the same position after the width rule; message shortened to \"fixed norm requires two remainder limbs\"; the NormConsts.wrho doc hunk was not taken",
+  "r09_d_range_fact": "not applied; Codex rules it a separately versioned attention statement with its own receipt/schedule rules (agrees with section 9.3's costing: new label, +4 claimed values, B4 shapes 137|139, schedule 139, re-freeze)"
+ },
+ "point_by_point": {
+  "a_constructor": {
+   "verdict": "correct and complete for the public-tensor case",
+   "both_roots": "attention root over Wq/Wo (transposed j*D+i -> i*D+j), Wk/Wv (128-word halves), gamma_a at gpack, gamma_m at gpack+16; FFN root over wg/wu/wd in LayoutV3; per-row 256->2048 RS encode, Merkle over column hashes, log_cols 8 (causal_oracle.rs cpu_weight_commitments / cpu_commit)",
+   "same_packing_as_oracle": "FixedCausalOracle::new calls the same cpu_weight_commitments and compares root/rows/log_cols (same_root); public_block_oracle.rs check_roots compares the proof's w_com to the registration on root/rows/log_cols",
+   "same_packing_as_prover": "tested: honest typed proof's attention.w_com.root and ffn.w_com.root equal the approved roots and verify_public_block is Ok",
+   "shape_rejection": "weight_shapes: 256x5, 128x2, 16x2 else OracleError::Shape -> Invalid(\"public int8 weight tensors\"); tested for all nine tensors one short/one long",
+   "bound_in_digest": "digest_registration absorbs root, rows, log_cols of both commitments after validate checks rows/log_cols against attn_layout_of; bind_public_statement absorbs the digest in every B3/B4/B5 transcript",
+   "incoming_roots": "ignored and overwritten (tested: garbage roots in, fixture digest out); recommendation: refuse a non-default incoming root that differs from the recomputed one before an authenticated manifest path relies on this constructor",
+   "codex_identity_test_note": "public_tensor_registration_recomputes_both_roots_and_preserves_identity compares the constructor with a fixture already built by it (determinism); the cross-commit identity rests on the pinned constants in zk60_public_receipt.rs:45-56 (re-asserted here) and B4's byte-exact receipt at 612ff9c",
+   "codex_mutation_test_note": "changes wq[0], gamma_m[0], wg_t[0] together, so it does not isolate gamma in the attention root; this lane's test isolates gamma_a and gamma_m individually"
+  },
+  "b_call_sites": {
+   "verdict": "no library entry point takes an untrusted root into the root-only path; the two example verify subcommands (argv hex roots) are the operator trust boundary and are exactly R31's residual",
+   "table": [
+    {"site": "hashline/src/causal_oracle.rs:67 public_synthetic_fixture", "constructor": "from_trusted_public_weights", "input": "synthetic int8 tensors", "trust": "by construction"},
+    {"site": "hashline/src/public_block_receipt.rs:150 check_profile", "constructor": "from_trusted_registration", "input": "roots copied from an already approved contract", "trust": "inherited; reference used for a digest comparison only and dropped"},
+    {"site": "hashline/examples/zk60_block_receipt.rs:84 verify", "constructor": "from_trusted_registration", "input": "argv hex roots", "trust": "operator policy, unauthenticated by code"},
+    {"site": "hashline/examples/zk60_chain_receipt.rs:45 registration (prepare/prove layer 1 with fixture roots; verify with argv roots)", "constructor": "from_trusted_registration", "input": "fixture roots or argv hex roots", "trust": "fixture / operator policy"},
+    {"site": "hashline/tests/zk60_block_contract.rs (14 sites)", "constructor": "from_trusted_registration (+3 sites of from_trusted_public_weights in the new test)", "input": "fixture roots or hostile metadata", "trust": "test"},
+    {"site": "hashline/tests/zk60_public_block.rs:75,308", "constructor": "from_trusted_registration", "input": "changed registrations", "trust": "test"},
+    {"site": "hashline/tests/zk60_public_receipt.rs:57,125,273", "constructor": "from_trusted_registration", "input": "approved roots (metadata identity) / other", "trust": "test"},
+    {"site": "hashline/tests/zk60_public_chain.rs:30", "constructor": "from_trusted_registration", "input": "fixture-derived", "trust": "test"},
+    {"site": "hashline/tests/zk60_sequence_equivalence.rs:160,319,355,368,381,452", "constructor": "from_trusted_registration", "input": "roots computed in-test from int8 tensors", "trust": "test"},
+    {"site": "hashline/tests/zk60_fable_arith.rs known_r31_gap_* (line 481 before this edit)", "constructor": "from_trusted_registration", "input": "deliberately hostile root (Wq word 2^40)", "trust": "adversarial test, retained"},
+    {"site": "hashline/src/bin/*", "constructor": "none", "input": "n/a", "trust": "no contract construction in any binary"}
+   ],
+   "note": "ApprovedP1Layer::from_trusted_registration (model_identity.rs) is a different type and API; not part of this review"
+  },
+  "c_check_profile": {
+   "verdict": "Codex is correct; this lane's 9.3 owner action naming check_profile is withdrawn",
+   "code_path": "public_block_receipt.rs:138-156: r = approved.registration(); reference = public_synthetic_registration(r.attention_weights, r.ffn_weights) with layer/l/model_identity/calibration_identity/mode copied from r; from_trusted_registration(reference); compare public_digest with approved; reference dropped",
+   "why": "no tensors are available there; the only tensors in reach are the synthetic fixture's, which would pin B4/B5 to that model's roots and could not retroactively establish the int8 provenance of roots fixed when `approved` was built; the approval fixture (public_synthetic_fixture) is the right place and now uses the constructor"
+  },
+  "d_two_limb_guard": {
+   "verdict": "implemented as proposed; verified to be a named restatement of the existing width rule, unreachable as a refusal; digest-bound; host/registrar check on the typed path only",
+   "where": "private_block_contract.rs:423-426 in validate_norm, for both norm sites, via validate() at from_trusted_registration (hence from_trusted_public_weights) and preflight_candidate",
+   "refuses": "n_limbs != 2 with Invalid(\"fixed norm requires two remainder limbs\") -- never observed: the preceding rule n.wrho == width && n.n_limbs == width.div_ceil(16) with width = 18 + tn in [18, 30] (D = isqrt(2^34 + ceps) = 2^17 for ceps 1..=16, tn <= 12) already forces n_limbs = 2",
+   "tested": "band replay tn 0..=12 x ceps 1..=16 -> div_ceil 2 always; n_limbs {1,3,4} x wrho {16,29,48,64} x both sites refused at registration and preflight with Invalid(\"fixed worst-case norm remainder width\") (Codex's regression input 3/48 included)",
+   "binding": "wrho and n_limbs of both sites in digest_registration (private_block_contract.rs:488-493) -> bind_public_statement -> every B3/B4/B5 transcript; absorb_attn_statement absorbs tn/cn/ceps/wrho but not n_limbs (attention.rs:2820-2822); attn_layout_of takes n_limbs from the verifier's own statement (attention.rs:2847-2850)",
+   "known_gap_premises": "known_r10_gap_* and known_r09_gap_wider_profile_* bypass the contract (standalone verify_attn with mutated statements); both unchanged and still pass as known gaps at 0b2b830; no test of this lane had to change",
+   "r29_addendum": "n_limbs joins exponents and norm_round as statement fields bound only by the A00 digest"
+  },
+  "e_frozen_proofs": {
+   "verdict": "unaffected by construction; Codex's 12/12 match at 612ff9c is consistent and was not re-run by this lane",
+   "reasoning": "the 12 frozen artifacts are legacy FFN proofs (v2/v3/ZK/ZK-v3 x CPU/GPU/GPU forced-chunk; 66844928/70758084/87228528/87697008 bytes) proven and verified through layer.rs/PCS code that imports neither private_block_contract nor causal_oracle; importers at 0b2b830: public_block_receipt, public_chain_receipt, public_block_oracle, causal_oracle, private_block_contract, lib.rs, field/verifier_hardening_tests.rs; the three hunks are a fixture root source yielding identical roots (same tensors, same function; pinned constants f20dc692.../7578e15c.../22f5a8b6...), an unreachable refusal, and an additive constructor",
+   "codex_evidence": "results/zk60_round15_validation.json frozen_artifacts (12 cases) and b4 {bytes 2144946, sha256 ba5d82150b92e1ef4f58a29fe90fc65c756ac2f49c18f6df6b5de3f6f2fc6b94} at source 612ff9c"
+  }
+ },
+ "tests": {
+  "added_to_hashline/tests/zk60_fable_arith.rs": [
+   "r31_round15_public_weight_constructor_binds_gamma_and_matches_the_oracle_packing",
+   "r10_round15_two_limb_guard_is_implied_by_the_width_rule_and_refused_at_the_contract_only"
+  ],
+  "changed_existing_tests": "none (the fixed contract refuses nothing these tests relied on)",
+  "retained_known_gaps": [
+   "known_r09_gap_wider_profile_three_limbs_accepts_an_all_zero_norm_row (retained until the versioned D-range path exists)",
+   "known_r10_gap_advertised_remainder_width_is_a_label_not_a_proven_range (proof-level width still 16 n_limbs)",
+   "known_r31_gap_registrar_approves_a_root_over_out_of_class_words_and_the_proof_verifies (documented behaviour of the root-only path)"
+  ]
+ },
+ "runs": [
+  {
+   "id": "round15_run1_block_contract",
+   "command": "env -u HL_GPU -u HL_GPU_REQUIRED -u HL_ZK_CHUNK -u HL_TIMING CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-heavy.lock cargo test --release --offline --manifest-path /home/victor/wt-zk60-fa9/hashline/Cargo.toml --test zk60_block_contract -- --nocapture --test-threads=2",
+   "hl_env_before": "env | grep '^HL_' printed nothing",
+   "source": "0b2b830 (pristine)",
+   "exit": 0,
+   "result": "9 passed, 0 failed, 0 ignored",
+   "tests": [
+    "equivalent_integer_words_with_changed_boundary_scale_are_not_equal_values",
+    "adjacent_boundary_preflight_checks_order_identity_and_scale_but_not_values",
+    "fixed_contract_rejects_wider_norm_remainder_ranges",
+    "honest_fixed_registration_matches_actual_layout_and_tables",
+    "fixed_norm_and_ffn_have_an_honest_exact_integer_fixture_without_fitting",
+    "hostile_public_fields_fail_closed_without_panics_or_value_disclosure",
+    "registration_snapshot_cannot_mutate_approved_state_and_digest_binds_transcript",
+    "valid_metadata_changes_still_require_new_independent_approval",
+    "public_tensor_registration_recomputes_both_roots_and_preserves_identity"
+   ],
+   "log": "results/zk60_fable_fa9_round15_run1_block_contract.log",
+   "done_marker": "results/zk60_fable_fa9_round15_run1_block_contract.done"
+  },
+  {
+   "id": "round15_run2_fable_arith",
+   "command": "env -u HL_GPU -u HL_GPU_REQUIRED -u HL_ZK_CHUNK -u HL_TIMING CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 flock /tmp/zk-heavy.lock cargo test --release --offline --manifest-path /home/victor/wt-zk60-fa9/hashline/Cargo.toml --test zk60_fable_arith -- --nocapture --test-threads=2",
+   "source": "0b2b830 plus this lane's two new tests in hashline/tests/zk60_fable_arith.rs (hashline/src pristine)",
+   "exit": 0,
+   "result": "8 passed, 0 failed, 0 ignored",
+   "tests": [
+    "fixed_profile_honest_witness_verifies_standalone_and_typed",
+    "r09_alias_is_refused_at_the_fixed_profile_only_by_the_two_limb_remainder_width",
+    "known_r09_gap_wider_profile_three_limbs_accepts_an_all_zero_norm_row",
+    "known_r10_gap_advertised_remainder_width_is_a_label_not_a_proven_range",
+    "known_r31_gap_registrar_approves_a_root_over_out_of_class_words_and_the_proof_verifies",
+    "r32_typed_api_refuses_extra_messages_after_42471f0",
+    "r10_round15_two_limb_guard_is_implied_by_the_width_rule_and_refused_at_the_contract_only",
+    "r31_round15_public_weight_constructor_binds_gamma_and_matches_the_oracle_packing"
+   ],
+   "evidence_lines": {
+    "honest_control": "A rows 108 H rows 106 log_lm 9 vals(standalone) 131 vals(typed) 133 sc 12 attention_bytes 1408532 sha256 8fc9729c60d69f93f47d283cc3d5136b3589bba8108b8aef1b3454790b29abb5 (byte-identical to FA9 runs 1/3/4: 1eb5852 changes no proof bytes at the fixed profile)",
+    "r09_fixed": "zero-check D: sumcheck round 0: s(0) + s(1) != claim",
+    "r09_wider": "honest y row [-11, -8, -4, -11, -8, -4, -11, -8, -8, -9, -6, -8, -9, -6, -8, -9] -> alias y row all zero; verifier says Ok(()) (KNOWN GAP retained)",
+    "r10": "max honest rho 88221696 (2^26.4) accepted under wrho=20; rho' = rho + 6 (2 D 2^tn) = 2^29.0 with y' = y - 6 refused by: norm: sigma = 2 div - 1 - rho fails",
+    "r31_root_only": "root over Wq[5][9] = 2^40 approved and proven (typed B3): Ok (KNOWN GAP of the root-only path retained)",
+    "r31_round15": "constructor roots attention f20dc692c421abae9bfcb15ac4c15d8cdce64ef6f49e256c635dcc4bf2354d36 ffn 7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad digest 22f5a8b67400e42accd55834c5fde334ca15f6be9661a5c4e7af614ebca9f7e2; gamma_a/gamma_m each move the attention root only; 9 shape breaks refused; prover w_com == approved roots",
+    "r10_round15": "width 18+tn in 18..=30 over tn 0..=12, ceps 1..=16 -> two limbs always; n_limbs in {1,3,4} refused by `fixed worst-case norm remainder width` at registration and preflight; the explicit two-limb guard is unreachable as a refusal"
+   },
+   "log": "results/zk60_fable_fa9_round15_run2_fable_arith.log",
+   "done_marker": "results/zk60_fable_fa9_round15_run2_fable_arith.done"
+  }
+ ],
+ "verdicts": {
+  "R31": "constructor shipped as proposed and correct (both roots, gamma included, shapes refused, digest-bound, prover-packing parity, used at the only production site with tensors); root-only path's premise remains trusted by design",
+  "R11": "gamma covered by construction through the same constructor; classification unchanged (no in-argument range proof)",
+  "R10": "guard shipped as proposed; a named restatement of the width rule (unreachable as a refusal), digest-bound, typed path closed to wider profiles; proof-level width still 16 n_limbs",
+  "R09": "fixed profile excluded (tested, now also refused by name at the contract); wider-profile false acceptance retained as a proof-level defect of the standalone argument until the separately versioned D-range path; regression kept",
+  "R32": "closed (42471f0), unchanged by this round",
+  "B4_check_profile": "Codex's refusal to route it through the constructor is correct; this lane's earlier owner action naming it is withdrawn",
+  "frozen_proofs": "unaffected by construction; Codex's 12/12 and B4 byte-exact receipt at 612ff9c consistent"
+ },
+ "residuals": [
+  "R09 wider profiles: versioned D-range path (new statement label, +4 claimed values, B4 shapes 137|139 and exact schedule 139, re-frozen fixtures, schedule source hash re-pin) -- Codex; FA9 reviews its receipt/schedule changes and flips known_r09_gap_wider_profile_* only then",
+  "R31 root-only premise: example verifiers take roots from argv; authenticated registration / manifest form open; recommended: from_trusted_public_weights refuses a non-default incoming root that differs from the recomputed one (or takes a roots-free registration type)",
+  "P3 registrar authentication and key provisioning (Codex continuation item 3)",
+  "R29 hygiene: n_limbs is bound only by the A00 digest (attention.rs:2820-2822 absorbs tn/cn/ceps/wrho)",
+  "Codex test precision (low): the identity regression is self-referential; the mutation regression does not isolate gamma; fixed_contract_rejects_wider_norm_remainder_ranges is refused by the width rule, not by the new guard"
+ ],
+ "limits": "tiny public P0 fixture only (T=32, d=f=16, log_cols 8, inverse rate 8, 256 column checks); CPU, two threads; no GPU, export, private block, frozen-proof rerun or throughput claim; Codex-owned hashline/src read only"
+}
