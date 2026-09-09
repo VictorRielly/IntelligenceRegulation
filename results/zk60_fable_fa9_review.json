@@ -1,0 +1,289 @@
+{
+ "task": "FA9 \u2014 close arithmetic and authenticated registrar obligations (R09, R10, R31, R32)",
+ "reviewer": "Claude Fable 5.1 (independent reviewer)",
+ "date": "2026-09-08",
+ "source_pin": "cfa46f6",
+ "merged": "e7f9176 = merge of a94ce2c (rounds 12-14: Codex R32 fix 42471f0, stable-weight modules, PCS adapter over zkp-core) into zk60-fable-fa9 after 9620f97",
+ "worktree": "/home/victor/wt-zk60-fa9",
+ "branch": "zk60-fable-fa9",
+ "head": "e7f917628e5cdd98b6233170b94c0109fef2ed09",
+ "inspected_sha256_at_cfa46f6": {
+  "hashline/src/attention.rs": "e5ab96f35018dfcfe44c9a24879a3ab2fc5cae5394809bd489ddc16eb5d9b6d8",
+  "hashline/src/norm.rs": "60e3f9b33564c8027e80e250326ea2ac8d2f14c443a348eafc3e365bc5d8eb58",
+  "hashline/src/public_block_wire.rs": "2ad6d8276a7f8c7fbd580835e8d3b101bda12be2ea0123162a838a4c0ca6d3cc",
+  "hashline/src/public_block_receipt.rs": "2f99ae965d0efb5a12579b4668573798c3d1b109f3b38d13cceeea624b0ba9e0",
+  "hashline/src/public_block_oracle.rs": "0cc821e8c8c30bf842ea11442845d3156a522fc3d8f3e82d6f9fdfa55a58a83f",
+  "hashline/src/causal_oracle.rs": "d9b54d7090fc610731b1f5e593651e5626f4b15d036e549bc2b7113f7e36bfc7",
+  "hashline/src/private_block_contract.rs": "cba18955d162d6e5acf1302681e0a214d5bbeab27a8231a18401244532fdcb72",
+  "hashline/src/layer.rs": "f0931f6364daabe38011dc3aa0101fd9cfe2525c225e9e531556e6da536d02d7",
+  "zkp-core/src/field.rs": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+  "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+  "hashline/tests/zk60_block_contract.rs": "41ee46d3a835e8a87029a660fae02ee5cd629e0c1d7ffd4812ee30f03627195e",
+  "hashline/tests/zk60_public_block.rs": "ea885943025e01cc037334056a24ffbeb70ad46199fefd83b7e8a607df4d7454",
+  "hashline/tests/zk60_identity_gap.rs": "c7bec1fcec170634889440f83cf13ba246c3d66af9b0486415f4bbc363be2a71",
+  "hashline/tests/zk60_attention_schedule.rs": "7be3d0f39f87d4b7790410db3a506e4e866f8d10b2d2d3dcbbdd7bdffd9104e1",
+  "hashline/tests/zk60_public_wire.rs": "b22a8ecdbc66554af1db2fb5f31c5d4a87cfec770e9551c927e3c8cd09c208c0",
+  "hashline/tests/zk60_public_receipt.rs": "b9c617c02fe02d753707a3a54e34ac3b27f4b0fea638b580739298a273981e79",
+  "docs/zkmatrix-poc/ZK60_FABLE_SECURITY_OBLIGATIONS.md (FA5 input)": "cf00ed117dde6f341703c6af993bf4c1abc9b6cc3a63a958d9365989ef8f3850",
+  "results/zk60_fable_fa5_isqrt_alias.txt": "a58b06a577fd60398b1eef0d682efb11b6058128063bec48eed84c643bf9b032",
+  "results/zk60_fable_fa5_bounds.txt": "e5ce551c6b3949a7f1abe2fe86b6c08712e261e8d1759eb43a161199b0573adc"
+ },
+ "inspected_sha256_now": {
+  "hashline/src/attention.rs": "c5ae80ddc909aae40b9ec6b9766e5634cf3dc13172e8902f8f2dc33c77cdf979",
+  "hashline/src/norm.rs": "60e3f9b33564c8027e80e250326ea2ac8d2f14c443a348eafc3e365bc5d8eb58",
+  "hashline/src/public_block_wire.rs": "2ad6d8276a7f8c7fbd580835e8d3b101bda12be2ea0123162a838a4c0ca6d3cc",
+  "hashline/src/public_block_receipt.rs": "2f99ae965d0efb5a12579b4668573798c3d1b109f3b38d13cceeea624b0ba9e0",
+  "hashline/src/public_block_oracle.rs": "0cc821e8c8c30bf842ea11442845d3156a522fc3d8f3e82d6f9fdfa55a58a83f",
+  "hashline/src/causal_oracle.rs": "d9b54d7090fc610731b1f5e593651e5626f4b15d036e549bc2b7113f7e36bfc7",
+  "hashline/src/private_block_contract.rs": "cba18955d162d6e5acf1302681e0a214d5bbeab27a8231a18401244532fdcb72",
+  "hashline/src/layer.rs": "f0931f6364daabe38011dc3aa0101fd9cfe2525c225e9e531556e6da536d02d7",
+  "hashline/src/pcs.rs": "6d27f3a5bc28fb7bb57ab14ddb395f4c6911db2b8541876af73344125520d8a8",
+  "hashline/src/lib.rs": "968045d23e30e4822d08378586af0fd4070d6ae6c54634d8d5465daeb87b35d0",
+  "zkp-core/src/field.rs": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+  "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+  "hashline/tests/zk60_block_contract.rs": "41ee46d3a835e8a87029a660fae02ee5cd629e0c1d7ffd4812ee30f03627195e",
+  "hashline/tests/zk60_public_block.rs": "3776dfdfea5aa25d8df0e44c03ffcce394b4c2db287632e601bc1767e32445e6",
+  "hashline/tests/zk60_identity_gap.rs": "c7bec1fcec170634889440f83cf13ba246c3d66af9b0486415f4bbc363be2a71",
+  "hashline/tests/zk60_attention_schedule.rs": "01fe566aea7d304005b16697c56246bc01c91d03ccb7b7788894bb27907fceba",
+  "hashline/tests/zk60_public_wire.rs": "b22a8ecdbc66554af1db2fb5f31c5d4a87cfec770e9551c927e3c8cd09c208c0",
+  "hashline/tests/zk60_public_receipt.rs": "b9c617c02fe02d753707a3a54e34ac3b27f4b0fea638b580739298a273981e79",
+  "results/zk60_fable_fa5_isqrt_alias.txt": "a58b06a577fd60398b1eef0d682efb11b6058128063bec48eed84c643bf9b032",
+  "results/zk60_fable_fa5_bounds.txt": "e5ce551c6b3949a7f1abe2fe86b6c08712e261e8d1759eb43a161199b0573adc"
+ },
+ "deliverables": {
+  "test_file": {
+   "path": "hashline/tests/zk60_fable_arith.rs",
+   "sha256": "333ed4ff92628702992f8b34b622d2f4d7aaf54a32e732f355b75ffa622f5484"
+  },
+  "obligations_doc": {
+   "path": "docs/zkmatrix-poc/ZK60_FABLE_SECURITY_OBLIGATIONS.md",
+   "sha256": "ac6cffa96a5f2bc31d00688b9d360b5c97cb07f3916098b94627c85e4ef14485"
+  },
+  "diffs": [
+   {
+    "path": "results/zk60_fable_fa9_r09_norm_range.diff",
+    "sha256": "721b669af2de4284c2f9ce5356f561332c209cee8f9c0eef5410d6928a8b4833",
+    "status": "PROPOSED (verified locally in run 2; Codex applies)",
+    "proof_bytes_at_fixed_profile": "CHANGE: A content and every challenge; +64 B (4 claimed values); new statement label attn-full-layer-v2-dlimbs; B4 vals 133|135 -> 137|139, exact schedule 135 -> 139; re-freeze"
+   },
+   {
+    "path": "results/zk60_fable_fa9_r10_contract_width.diff",
+    "sha256": "5ae3042a96c586655519c621b8c39e4fb54d2c000317ef2ed530150ba9998078",
+    "status": "PROPOSED (compiled in run 2; validate-only)",
+    "proof_bytes_at_fixed_profile": "none"
+   },
+   {
+    "path": "results/zk60_fable_fa9_r31_registrar_manifest.diff",
+    "sha256": "5d9c1815ce6a8464fee995cd932639a855c439ea3a2ed4835863f340bbd8b337",
+    "status": "PROPOSED (compiled in run 2; constructive)",
+    "proof_bytes_at_fixed_profile": "none"
+   },
+   {
+    "path": "results/zk60_fable_fa9_r32_typed_exact_counts.superseded-by-42471f0.diff",
+    "sha256": "0fef26f4312bd2dee2d0c6e5fa781d17a869d634068e209d750d2bf22663902c",
+    "status": "SUPERSEDED by Codex 42471f0 (record only; verified in run 2)",
+    "proof_bytes_at_fixed_profile": "none"
+   }
+  ]
+ },
+ "runs": [
+  {
+   "stem": "zk60_fable_fa9_run1_baseline",
+   "source": "cfa46f6 pristine",
+   "command": "env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=0 flock /tmp/zk-heavy.lock cargo test --release --offline --manifest-path /home/victor/wt-zk60-fa9/hashline/Cargo.toml --test zk60_fable_arith -- --nocapture --test-threads=2",
+   "exit": 101,
+   "summary": "test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s",
+   "tests": {
+    "known_r09_gap_wider_profile_three_limbs_accepts_an_all_zero_norm_row": "ok",
+    "fixed_profile_honest_witness_verifies_standalone_and_typed": "ok",
+    "known_r10_gap_advertised_remainder_width_is_a_label_not_a_proven_range": "FAILED",
+    "known_r31_gap_registrar_approves_a_root_over_out_of_class_words_and_the_proof_verifies": "ok",
+    "known_r32_gap_typed_b3_api_ignores_extra_data_that_the_wire_gate_refuses": "ok",
+    "r09_alias_is_refused_at_the_fixed_profile_only_by_the_two_limb_remainder_width": "ok"
+   },
+   "fa9_lines": [
+    "FA9 R09 wider profile (3 limbs): honest y row [-11, -8, -4, -11, -8, -4, -11, -8, -8, -9, -6, -8, -9, -6, -8, -9] -> alias y row all zero; verifier says Ok(())",
+    "FA9 HONEST fixed profile: A rows 108 H rows 106 log_lm 9 vals(standalone) 131 vals(typed) 133 sc 12 attention_bytes 1408532 sha256 8fc9729c60d69f93f47d283cc3d5136b3589bba8108b8aef1b3454790b29abb5",
+    "FA9 R31: root over Wq[5][9] = 2^40 approved and proven (typed B3): Ok",
+    "FA9 R32 typed B3 with extra trailing attention sumcheck: Ok(())",
+    "FA9 R32 typed B3 with non-empty attention helper_sums: Ok(())",
+    "FA9 R32 probe: typed B3 with one extra trailing ffn.gu_claims entry -> Err(Verification(\"FFN argument/openings\")); wire gate -> refuses",
+    "FA9 R32 probe: typed B3 with one extra trailing ffn.gu_term entry -> Err(Verification(\"FFN argument/openings\")); wire gate -> refuses",
+    "FA9 R32 probe: typed B3 with one extra trailing ffn.d_claims entry -> Err(Verification(\"FFN argument/openings\")); wire gate -> refuses",
+    "FA9 R32 probe: typed B3 with one extra trailing ffn.d_term entry -> Err(Verification(\"FFN argument/openings\")); wire gate -> refuses",
+    "FA9 R32 probe: typed B3 with one extra trailing ffn.zcf_term entry -> Err(Verification(\"FFN argument/openings\")); wire gate -> refuses",
+    "FA9 R32 probe: typed B3 with one extra trailing ffn.zcd_term entry -> Err(Verification(\"FFN argument/openings\")); wire gate -> refuses",
+    "FA9 R32 probe: typed B3 with one extra trailing ffn.helper_sums entry -> Err(Verification(\"FFN argument/openings\")); wire gate -> refuses",
+    "FA9 R09 fixed profile standalone refusal: zero-check D: sumcheck round 0: s(0) + s(1) != claim"
+   ],
+   "log": "results/zk60_fable_fa9_run1_baseline.log",
+   "log_sha256": "9cef1b1a6345ebabce0d06cd6d7b1d41abfd636a8db7bdda9a97d633d2cf9e93"
+  },
+  {
+   "stem": "zk60_fable_fa9_run2_patched",
+   "source": "cfa46f6 + r09 + r10 + r31 + (superseded) r32 diffs applied locally",
+   "command": "env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=0 FA9_R09_FIX=1 FA9_R32_FIX=1 flock /tmp/zk-heavy.lock cargo test --release --offline --manifest-path /home/victor/wt-zk60-fa9/hashline/Cargo.toml --test zk60_fable_arith -- --nocapture --test-threads=2",
+   "exit": 101,
+   "summary": "test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s",
+   "tests": {
+    "fixed_profile_honest_witness_verifies_standalone_and_typed": "ok",
+    "known_r09_gap_wider_profile_three_limbs_accepts_an_all_zero_norm_row": "ok",
+    "known_r10_gap_advertised_remainder_width_is_a_label_not_a_proven_range": "ok",
+    "known_r31_gap_registrar_approves_a_root_over_out_of_class_words_and_the_proof_verifies": "ok",
+    "known_r32_gap_typed_b3_api_ignores_extra_data_that_the_wire_gate_refuses": "FAILED",
+    "r09_alias_is_refused_at_the_fixed_profile_only_by_the_two_limb_remainder_width": "ok"
+   },
+   "fa9_lines": [
+    "FA9 HONEST fixed profile: A rows 108 H rows 106 log_lm 9 vals(standalone) 135 vals(typed) 137 sc 12 attention_bytes 1408596 sha256 65743c94c3d87d7408242ee62c34a9b98b0e76c8c0f8758f744bb4c07e87032b",
+    "FA9 R09 wider profile (3 limbs): honest y row [-11, -8, -4, -11, -8, -4, -11, -8, -8, -9, -6, -8, -9, -6, -8, -9] -> alias y row all zero; verifier says Err(\"isqrt: D limbs fails\")",
+    "FA9 R10: max honest rho 88221696 (2^26.4) accepted under wrho=20; rho' = rho + 6 (2 D 2^tn) = 2^29.0 with y' = y - 6 refused by: norm: sigma = 2 div - 1 - rho fails",
+    "FA9 R31: root over Wq[5][9] = 2^40 approved and proven (typed B3): Ok",
+    "FA9 R09 fixed profile standalone refusal: isqrt: D limbs fails"
+   ],
+   "log": "results/zk60_fable_fa9_run2_patched.log",
+   "log_sha256": "e88b3413cb02bad2c4d5c184032481fb4dc6f0525bb8b2d3892d29d73a474841"
+  },
+  {
+   "stem": "zk60_fable_fa9_run3_merged",
+   "source": "merge e7f9176 of a94ce2c (Codex R32 fix 42471f0) pristine",
+   "command": "env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=0 flock /tmp/zk-heavy.lock cargo test --release --offline --manifest-path /home/victor/wt-zk60-fa9/hashline/Cargo.toml --test zk60_fable_arith -- --nocapture --test-threads=2",
+   "exit": 101,
+   "summary": "test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s",
+   "tests": {
+    "fixed_profile_honest_witness_verifies_standalone_and_typed": "ok",
+    "known_r09_gap_wider_profile_three_limbs_accepts_an_all_zero_norm_row": "ok",
+    "known_r10_gap_advertised_remainder_width_is_a_label_not_a_proven_range": "ok",
+    "known_r31_gap_registrar_approves_a_root_over_out_of_class_words_and_the_proof_verifies": "ok",
+    "r09_alias_is_refused_at_the_fixed_profile_only_by_the_two_limb_remainder_width": "ok",
+    "r32_typed_api_refuses_extra_messages_after_42471f0": "FAILED"
+   },
+   "fa9_lines": [
+    "FA9 HONEST fixed profile: A rows 108 H rows 106 log_lm 9 vals(standalone) 131 vals(typed) 133 sc 12 attention_bytes 1408532 sha256 8fc9729c60d69f93f47d283cc3d5136b3589bba8108b8aef1b3454790b29abb5",
+    "FA9 R09 wider profile (3 limbs): honest y row [-11, -8, -4, -11, -8, -4, -11, -8, -8, -9, -6, -8, -9, -6, -8, -9] -> alias y row all zero; verifier says Ok(())",
+    "FA9 R10: max honest rho 88221696 (2^26.4) accepted under wrho=20; rho' = rho + 6 (2 D 2^tn) = 2^29.0 with y' = y - 6 refused by: norm: sigma = 2 div - 1 - rho fails",
+    "FA9 R31: root over Wq[5][9] = 2^40 approved and proven (typed B3): Ok",
+    "FA9 R09 fixed profile standalone refusal: zero-check D: sumcheck round 0: s(0) + s(1) != claim",
+    "FA9 R32 refusal: appended full sumcheck -> verify_attn `unused attention sumchecks: 13 sent, 12 used`",
+    "FA9 R32 refusal: appended empty sumcheck -> verify_attn `unused attention sumchecks: 13 sent, 12 used`",
+    "FA9 R32 refusal: helper_sums zero -> verify_attn `unused attention helper_sums`",
+    "FA9 R32 refusal: helper_sums nonzero -> verify_attn `unused attention helper_sums`",
+    "FA9 R32 refusal: sumcheck vector one short -> verify_attn `Wo matmul: missing sumcheck`",
+    "FA9 R32 refusal: middle sumcheck emptied -> verify_attn `zero-check S: sumcheck: expected 11 rounds, got 0`",
+    "FA9 R32 refusal: round with one value too many -> verify_attn `SS row sums: sumcheck round 0: expected degree 3, got 5 values`",
+    "FA9 R32 refusal: sumchecks reordered -> verify_attn `SS row sums: sumcheck: expected 9 rounds, got 5`",
+    "FA9 R32 refusal: extra multiplicity table -> verify_attn `multiplicity table count`",
+    "FA9 R32 refusal: missing trailing claimed value -> Err(Verification(\"internal seam\"))"
+   ],
+   "log": "results/zk60_fable_fa9_run3_merged.log",
+   "log_sha256": "0f106a7414640273696add3cca1d17e70e25070eb0d57abd449b5a1e0bdd8885"
+  },
+  {
+   "stem": "zk60_fable_fa9_run4_merged",
+   "source": "merge e7f9176 of a94ce2c pristine, corrected test",
+   "command": "env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=0 flock /tmp/zk-heavy.lock cargo test --release --offline --manifest-path /home/victor/wt-zk60-fa9/hashline/Cargo.toml --test zk60_fable_arith -- --nocapture --test-threads=2",
+   "exit": 0,
+   "summary": "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s",
+   "tests": {
+    "fixed_profile_honest_witness_verifies_standalone_and_typed": "ok",
+    "known_r09_gap_wider_profile_three_limbs_accepts_an_all_zero_norm_row": "ok",
+    "known_r10_gap_advertised_remainder_width_is_a_label_not_a_proven_range": "ok",
+    "known_r31_gap_registrar_approves_a_root_over_out_of_class_words_and_the_proof_verifies": "ok",
+    "r09_alias_is_refused_at_the_fixed_profile_only_by_the_two_limb_remainder_width": "ok",
+    "r32_typed_api_refuses_extra_messages_after_42471f0": "ok"
+   },
+   "fa9_lines": [
+    "FA9 HONEST fixed profile: A rows 108 H rows 106 log_lm 9 vals(standalone) 131 vals(typed) 133 sc 12 attention_bytes 1408532 sha256 8fc9729c60d69f93f47d283cc3d5136b3589bba8108b8aef1b3454790b29abb5",
+    "FA9 R09 wider profile (3 limbs): honest y row [-11, -8, -4, -11, -8, -4, -11, -8, -8, -9, -6, -8, -9, -6, -8, -9] -> alias y row all zero; verifier says Ok(())",
+    "FA9 R10: max honest rho 88221696 (2^26.4) accepted under wrho=20; rho' = rho + 6 (2 D 2^tn) = 2^29.0 with y' = y - 6 refused by: norm: sigma = 2 div - 1 - rho fails",
+    "FA9 R31: root over Wq[5][9] = 2^40 approved and proven (typed B3): Ok",
+    "FA9 R09 fixed profile standalone refusal: zero-check D: sumcheck round 0: s(0) + s(1) != claim",
+    "FA9 R32 refusal: appended full sumcheck -> verify_attn `unused attention sumchecks: 13 sent, 12 used`",
+    "FA9 R32 refusal: appended empty sumcheck -> verify_attn `unused attention sumchecks: 13 sent, 12 used`",
+    "FA9 R32 refusal: helper_sums zero -> verify_attn `unused attention helper_sums`",
+    "FA9 R32 refusal: helper_sums nonzero -> verify_attn `unused attention helper_sums`",
+    "FA9 R32 refusal: sumcheck vector one short -> verify_attn `Wo matmul: missing sumcheck`",
+    "FA9 R32 refusal: middle sumcheck emptied -> verify_attn `zero-check S: sumcheck: expected 11 rounds, got 0`",
+    "FA9 R32 refusal: round with one value too many -> verify_attn `SS row sums: sumcheck round 0: expected degree 3, got 5 values`",
+    "FA9 R32 refusal: sumchecks reordered -> verify_attn `SS row sums: sumcheck: expected 9 rounds, got 5`",
+    "FA9 R32 refusal: extra multiplicity table -> verify_attn `multiplicity table count`",
+    "FA9 R32 refusal: missing trailing claimed value -> Err(Verification(\"internal seam\"))",
+    "FA9 R32 note: an extra opening group vector passes validate_structure (bounded <= 32) and is refused by pcs::verify",
+    "FA9 R32 probe: ffn.cpcs_open = Some(default) beside Ligero openings -> typed B3 Err(Verification(\"FFN argument/openings\")); wire gate refuses"
+   ],
+   "log": "results/zk60_fable_fa9_run4_merged.log",
+   "log_sha256": "ee4956f2d5c315868865d85af04910a84cc388b41dfa181657a603f0bdc63665"
+  }
+ ],
+ "classification": {
+  "R09": {
+   "fixed_profile": "EXCLUDED \u2014 TESTED (n_limbs 2, tn 11): alias remainders in [2^42-2^10-2^33, 2^42-2^10+2^33] have no two-U16-limb encoding; standalone refusal `zero-check D: sumcheck round 0`, typed B3 `Verification(\"attention argument\")`; every other relation of the row verified in F_p in-test",
+   "wider_profile": "FALSE ACCEPTANCE \u2014 TESTED (n_limbs 3, wrho 48, tn 11): verifier accepts an all-zero norm output row; admission condition tn <= 16 n_limbs - 31 (recomputed)",
+   "fix": "PROPOSED and verified locally: D as two U16 limbs in the packed limb slice + `isqrt: D limbs` pin (results/zk60_fable_fa9_r09_norm_range.diff); wider-profile test flips to `isqrt: D limbs fails`; honest fixed-profile fixture still verifies; proof bytes CHANGE (new statement version), size +64 B",
+   "fa5_correction": "a single U16 lookup on D is incomplete at the fixed profile (D reaches 131072 = 2^17); two U16 limbs needed",
+   "owner": "Codex (attention.rs, public_block_wire.rs counts 137|139, public_block_receipt.rs 139, re-freeze, schedule pin)"
+  },
+  "R10": {
+   "status": "TESTED as a known gap: proven width is 2^(16 n_limbs) = 2^32; an advertised wrho = 20 accepts honest remainders up to ~2^26; wrho is transcript-bound (label) not a range; a remainder in [2^29, 2^32) keeping NormDiv is refused only through sigma",
+   "fix": "PROPOSED: named A00 guard `norm remainder limbs admit the half-p isqrt alias` for n_limbs != 2 and the proven-width doc (results/zk60_fable_fa9_r10_contract_width.diff, no bytes; compiled in run 2); alternative exact-width top limb documented, not adopted",
+   "owner": "Codex (private_block_contract.rs)"
+  },
+  "R31": {
+   "status": "TESTED as a known gap: from_trusted_registration accepts a root over Wq[5][9] = 2^40; a typed B3 proof against that approval verifies; original approval refuses only by root inequality",
+   "fix": "PROPOSED: by-construction constructor from_trusted_public_weights(registration, &PublicBlockWeights) (results/zk60_fable_fa9_r31_registrar_manifest.diff, no bytes; compiled in run 2); range-lookup alternative costed (~16 KB/block, P3 need)",
+   "owner": "Codex (private_block_contract.rs; route public_synthetic_fixture / B4 check_profile through it)"
+  },
+  "R32": {
+   "status": "FIXED BY CODEX 42471f0 (merged via a94ce2c as e7f9176); gap first reproduced here at cfa46f6 (run 1); own identical diff superseded; refusal test r32_typed_api_refuses_extra_messages_after_42471f0 passes on the merged source (run 4, exit 0)",
+   "residual": "none in the typed verifier; gate-precision note: validate_structure (B4/B5) only bounds opening group_vecs (<= 32) while pcs::verify refuses an extra one \u2014 not a false acceptance"
+  }
+ },
+ "codex_r32_review": {
+  "commit": "42471f0 fix: reject unused typed attention proof messages (+ 972da4e source-guard pin)",
+  "checks": [
+   "attn_argument verify side: proof.sc.len() == consumed (`unused attention sumchecks: N sent, M used`)",
+   "verify_attn: helper_sums must be empty (`unused attention helper_sums`)"
+  ],
+  "codex_regression": "typed_attention_and_block_reject_unused_proof_messages: appended full sumcheck, appended empty sumcheck, helper_sums zero/nonzero, via verify_attn and verify_public_block; honest proof re-verified",
+  "fa9_additional_cases": [
+   "sumcheck vector one short",
+   "middle sumcheck emptied",
+   "round with one value too many",
+   "sumchecks reordered",
+   "extra multiplicity table",
+   "extra claimed value (deferred to verify_attn_open_a)",
+   "missing claimed value (Cc::take reads zero; exact count refuses)",
+   "extra collapse entry",
+   "extra opening column",
+   "extra opening group vector",
+   "ffn.cpcs_open = Some(default) beside Ligero openings",
+   "seven FFN vectors one entry long"
+  ],
+  "assessment": "placement correct (schedule end, before seam/endpoint claims; helper_sums before any absorption); no proof-byte change; count derived from execution not a constant",
+  "run3_run4_outcomes": {
+   "appended full sumcheck": "unused attention sumchecks: 13 sent, 12 used",
+   "appended empty sumcheck": "unused attention sumchecks: 13 sent, 12 used",
+   "helper_sums zero": "unused attention helper_sums",
+   "helper_sums nonzero": "unused attention helper_sums",
+   "sumcheck vector one short": "Wo matmul: missing sumcheck",
+   "middle sumcheck emptied": "zero-check S: sumcheck: expected 11 rounds, got 0",
+   "round with one value too many": "SS row sums: sumcheck round 0: expected degree 3, got 5 values",
+   "sumchecks reordered": "SS row sums: sumcheck: expected 9 rounds, got 5",
+   "extra multiplicity table": "multiplicity table count",
+   "extra claimed value": "verify_attn Ok (deferred); verify_public_block Verification(attention openings)",
+   "missing trailing claimed value": "Verification(internal seam) (Cc::take substitutes zero; seam equality fails before the exact count)",
+   "extra collapse entry": "Verification(attention openings)",
+   "extra opening column": "Verification(attention openings) (pcs: wrong number of columns)",
+   "extra opening group vector": "Verification(attention openings) (pcs: N group vectors for M groups); validate_structure ACCEPTS (bounded <= 32) \u2014 recorded",
+   "ffn.cpcs_open = Some(default)": "Verification(FFN argument/openings); wire gate refuses",
+   "seven FFN vectors one entry long": "Verification(FFN argument/openings); wire gate refuses",
+   "honest proof after every refusal": "Ok"
+  },
+  "verdict": "closes R32 for the typed API; no residual false acceptance found; one documentation-level precision note on the wire gate's group_vecs bound"
+ },
+ "limits": [
+  "Tiny public P0 fixture only (T=32, d=f=16, log_cols 8, inverse rate 8, 256 column checks): correctness evidence, not a security level.",
+  "No private-block, deployment or throughput acceptance follows; the wider-profile false acceptance (R09) is a proof-level defect until a range fact on D ships.",
+  "Codex-owned sources (hashline/src) were patched locally for run 2 only and restored before every commit; the diffs are proposals.",
+  "R31's by-construction constructor was compiled, not exercised by a test (the test file must compile against the pristine source)."
+ ]
+}

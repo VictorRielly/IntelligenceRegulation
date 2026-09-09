@@ -1,0 +1,94 @@
+diff --git a/hashline/src/attention.rs b/hashline/src/attention.rs
+index 9d920b1..fc6004a 100644
+--- a/hashline/src/attention.rs
++++ b/hashline/src/attention.rs
+@@ -229,6 +229,9 @@ pub struct NormConsts {
+     pub tn: u32,
+     pub cn: i64,
+     pub ceps: i64,
++    /// The host's (advertised, transcript-bound) remainder width. The argument
++    /// proves rho, sigma in [0, 2^(16 n_limbs)) and rho + sigma + 1 = 2 D 2^tn;
++    /// rho < 2^wrho follows only from an exact D. [FA9 R10]
+     pub wrho: u32,
+     pub n_limbs: usize,
+ }
+@@ -1041,7 +1044,9 @@ impl AttnLayout {
+         let cols_log = target_cols.min(min_dom);
+         let sm_need = ceil_log2(2 * p.hp * p.t + 8 * p.t);
+         let log_sm = sm_need.max(cols_log);
+-        let log_lm = ceil_log2(8 * p.t).max(cols_log + 1);
++        // [FA9 R09] a1, a2 AND D as two U16 limbs each: 12 rows of t (D's own
++        // range fact is what excludes the half-p isqrt alias D = k + (p-1)/2).
++        let log_lm = ceil_log2(12 * p.t).max(cols_log + 1);
+         let mut al = Alloc { off: 0 };
+         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+             let n = match cls { Cls::Int24 => 2, _ => 1 };
+@@ -1115,9 +1120,9 @@ impl AttnLayout {
+     pub fn sm_row(&self, site: usize, k: usize) -> usize {
+         self.sm + 2 * self.p.hp * self.p.t + (4 * site + k) * self.p.t
+     }
+-    /// site, which: 0 a1_l0, 1 a1_l1, 2 a2_l0, 3 a2_l1
++    /// site, which: 0 a1_l0, 1 a1_l1, 2 a2_l0, 3 a2_l1, 4 D_l0, 5 D_l1
+     pub fn lm_row(&self, site: usize, k: usize) -> usize {
+-        self.lm + (4 * site + k) * self.p.t
++        self.lm + (6 * site + k) * self.p.t
+     }
+ }
+ 
+@@ -1465,7 +1470,7 @@ pub fn pack(wit: &AttnWitness, r2: &Resid2, lay: &AttnLayout) -> Packed {
+         for (k, v) in [&nch.dd, &nch.dsq, &nch.a1, &nch.a2].iter().enumerate() {
+             fill(&mut a, lay.sm_row(site, k), 1, t, |_, i| v[i], &mut ms, None);
+         }
+-        for (k, v) in [&nch.a1, &nch.a2].iter().enumerate() {
++        for (k, v) in [&nch.a1, &nch.a2, &nch.dd].iter().enumerate() {
+             for l in 0..2 {
+                 fill(&mut a, lay.lm_row(site, 2 * k + l), 1, t, |_, i| (v[i] >> (16 * l)) & 0xffff,
+                      &mut ms, Some(Tbl::U16));
+@@ -1474,7 +1479,7 @@ pub fn pack(wit: &AttnWitness, r2: &Resid2, lay: &AttnLayout) -> Packed {
+     }
+     // the LM slice's unused tail is zero and IS looked up (0 is in U16)
+     {
+-        let used = 8 * t;
++        let used = 12 * t;
+         let tail = (1usize << lay.log_lm) - used;
+         ms.ensure(Tbl::U16);
+         let f_p = ms.f_p;
+@@ -2065,7 +2070,7 @@ pub fn lookup_totals(lay: &AttnLayout, c: &AttnConsts, fc: &FullConsts) -> std::
+     add(Tbl::Exp, ls);
+     add(Tbl::Prob, ls);
+     add(Tbl::Srem(c.wrho_s), 2 * ls);   // rho and sigma
+-    add(Tbl::U16, 1usize << lay.log_lm); // the packed a1/a2 limb slice (its zero tail included)
++    add(Tbl::U16, 1usize << lay.log_lm); // the packed a1/a2/D limb slice (its zero tail included)
+     m
+ }
+ 
+@@ -2243,12 +2248,18 @@ pub fn attn_argument(side: Side, lay: &AttnLayout, c: &AttnConsts, fc: &FullCons
+         let dsq = claim_sub(&mut cc, tr, adat, lay.sm, lay.log_sm, lay.sm_row(site, 1), lay.log_t, &r_t);
+         let a1 = claim_sub(&mut cc, tr, adat, lay.sm, lay.log_sm, lay.sm_row(site, 2), lay.log_t, &r_t);
+         let a2 = claim_sub(&mut cc, tr, adat, lay.sm, lay.log_sm, lay.sm_row(site, 3), lay.log_t, &r_t);
+-        let l: Vec<Fp2> = (0..4)
++        let l: Vec<Fp2> = (0..6)
+             .map(|k| claim_sub(&mut cc, tr, adat, lay.lm, lay.log_lm, lay.lm_row(site, k), lay.log_t, &r_t))
+             .collect();
+         ctx.check(a2, dd.mul_base(pow2(1)).sub(a1), "isqrt: a2 = 2D - a1")?;
+         ctx.check(a1, l[0].add(l[1].mul_base(pow2(16))), "isqrt: a1 limbs")?;
+         ctx.check(a2, l[2].add(l[3].mul_base(pow2(16))), "isqrt: a2 limbs")?;
++        // [FA9 R09] D itself in [0, 2^32): then 2D < 2^33 < p makes a2 = 2D - a1
++        // an integer identity (a1 <= 2D) and D^2 <= p - 2^32 makes a1 + D^2 = SSe
++        // one too, so D = isqrt(SSe) for every profile. Without it D = k + (p-1)/2
++        // satisfies every relation above and NormDiv with y = 0 whenever the
++        // remainder limbs admit ~2^(31+tn) (n_limbs >= 3).
++        ctx.check(dd, l[4].add(l[5].mul_base(pow2(16))), "isqrt: D limbs")?;
+         let ceps = if site == 0 { c.anorm.ceps } else { c.mnorm.ceps };
+         ss.push(a1.add(dsq).sub(Fp2::from_i64(ceps)));
+     }
+@@ -2799,7 +2810,8 @@ pub struct AttnPending {
+ }
+ 
+ pub fn absorb_attn_statement(tr: &mut Transcript, c: &AttnConsts, fc: &FullConsts, lay: &AttnLayout) {
+-    tr.absorb(b"profile", b"attn-full-layer-v1");
++    // [FA9 R09] new relation set (D limb range fact): a new statement version
++    tr.absorb(b"profile", b"attn-full-layer-v2-dlimbs");
+     let s = &c.shape;
+     for (k, v) in [(&b"layer"[..], c.layer), (b"T", s.t), (b"d", s.d), (b"H", s.heads),
+                    (b"Hkv", s.kv_heads), (b"dh", s.head_dim), (b"dp", lay.p.dp), (b"hp", lay.p.hp)] {

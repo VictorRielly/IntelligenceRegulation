@@ -1,0 +1,22 @@
+--- a/hashline/src/attention.rs
++++ b/hashline/src/attention.rs
+@@ -2792,6 +2792,10 @@
+     } else if cc.idx > cc.vals.len() {
+         return Err(format!("claim count {} > {} sent", cc.idx, cc.vals.len()));
+     }
++    // [FA9 R32] exact message count: an extra trailing sumcheck is refused, not ignored
++    if !proving && ctx.sc_i != proof.sc.len() {
++        return Err(format!("sumcheck count {} != {} sent", ctx.sc_i, proof.sc.len()));
++    }
+     crate::attention_schedule::record("end", "attention argument", &[("A_claims", cc.aw.len()), ("W_claims", cc.ww.len()), ("H_claims", cc.hh.len()), ("values", if proving { cc.vals.len() } else { cc.idx })]);
+     Ok(cc)
+ }
+@@ -3252,6 +3256,8 @@
+     let w_com = proof.w_com.as_ref().ok_or("missing Wa commitment")?;
+     let a_com = proof.a_com.as_ref().ok_or("missing Aa commitment")?;
+     let h_com = proof.h_com.as_ref().ok_or("missing Ha commitment")?;
++    // [FA9 R32] the unused field must be empty (the B4/B5 wire gate already requires it)
++    if !proof.helper_sums.is_empty() { return Err("attention helper_sums must be empty".into()); }
+     if w_com.rows != lay.w_len / cols { return Err("Wa rows".into()); }
+     if a_com.rows != lay.a_len / cols { return Err("Aa rows".into()); }
+     if h_com.rows != lay.h_len / cols { return Err("Ha rows".into()); }
