@@ -1,9 +1,10 @@
 # Migration ledger
 
 Three boundaries are implemented: the primitives (round 11, Codex), the
-Ligero commitment behind a backend seam (round 12, Fable, step 1) and the
-table registry plus the typed v3 pieces with a bounded decoder (round 12,
-Fable, step 2). Each section records its source pin, what moved, what the
+Ligero commitment behind a backend seam (round 12, Fable, step 1; integrated
+by Codex in `b044e20`) and the table registry plus the typed v3 pieces with
+a bounded decoder (round 12, Fable, step 2; corrected in round 14 for the
+review's C20-R1..R3). Each section records its source pin, what moved, what the
 adapters keep, the validation and the before/after surface; the next
 boundaries follow at the end.
 
@@ -234,6 +235,55 @@ The core's `Layout::new` panics on an unsupported shape exactly as before
 changes; the compact-PCS experiment keeps its batched opening in the same
 slot, the same bytes and the same `--pcs compact` gate. This step claims
 nothing about the FFN masking disclosure or the P3 identity gap.
+
+# Round 14 corrections to boundary 2 (Fable, CL20; Codex review C20-R1..R3)
+
+Source pin: `1c1ef6b` — the lane after merging the published performance
+integration `a94ce2c` (Codex: `b044e20` integrates the PCS boundary
+`76ee275`/`ee775be`, `83115b5` adapts the protected-material cleanup to the
+generic store, `df7fb0d` releases journal locks before inherited descriptors
+close, `a94ce2c` publishes round 14). The merge was clean (no conflicts, no
+markers); PCS was not touched again and the host-store/journal fixes are kept.
+The held typed-decoder commit `f8d40a7` sits on top of the integrated PCS, and
+[the review](../docs/zkmatrix-poc/ZK60_CL20_ROUND14_REVIEW.md) reproduced
+three findings against it. Corrections, each with a regression that reproduces
+Codex's probe (`results/zk60_round14_evidence/review/probe/src/main.rs`)
+and was run against the unfixed code first:
+
+| ID | finding (reviewed pin) | correction | regression tests |
+|---|---|---|---|
+| C20-R1 | `Params::check` accepted `num_col_checks = usize::MAX`; decoding an ordinary tiny proof with those expected parameters panicked with capacity overflow in `Vec::with_capacity`. | `Params::check` bounds the query count to the supported `1..=MAX_COL_CHECKS` (65,536; the profile uses 256); every field length of `Shape` is formed with checked arithmetic (`Shape.fields`, `OpeningShape::{column_bytes, bytes} -> Option`), an overflow is `DecodeError::Shape`; the reader's allocation rule `Reader::ensure(count, item)` allocates a vector only when `count * item` bytes remain in the input, at every `Vec::with_capacity` (claims, sumcheck rounds, multiplicity tables, group vectors, columns, paths), so no expected parameter can make the decoder reserve more than its input. | core `ffn_v3::proof::tests::oversized_query_count_is_a_shape_error_not_a_panic`; hashline `round14_r1_oversized_query_count_is_a_shape_error_not_a_panic` |
+| C20-R2 | `Proof::from_bytes(&[], statement_with_shift_64, normal_params)` panicked in `rem_rows` (debug: shift overflow) before reading input; in a release build the shift wraps to a wrong table size instead of panicking. | `Statement::check` (the layout rule plus every shift in `SHIFT_MIN..=SHIFT_MAX` = `-8..=16`) and `Params::check` run first in `Shape::of`, before any table or size arithmetic; `Layout::check` bounds `t_rows`, `d`, `f` by `MAX_DIM = 2^30`; all reported as `DecodeError::Shape`. Checked in debug and release. | core `ffn_v3::statement::tests::statement_check_refuses_unsupported_shifts_and_dimensions`, `ffn_v3::proof::tests::unsupported_shifts_and_dimensions_are_shape_errors_before_any_read`; hashline `round14_r2_unsupported_shift_is_a_shape_error_before_any_read` |
+| C20-R3 | With `log_cols = 0` the legacy prover's proof verifies, `Params::check` accepts the configuration, the actual W/A/H groups are 1/1/2 but the decoder assumed 2/2/3 and refused the honest bytes. | Group counts are derived from the PCS grouping rule: claims are grouped by their column tail (the last `log_cols` point entries); with `log_cols = 0` every tail is empty and the point claims of an opening merge into one group (W 1, A 1, H 1 + the sum group), with `log_cols >= 1` the distinct points give 2/2/3 (`OpeningShape::point_groups`). `log_cols = 0` stays supported; legacy behaviour is unchanged. | core `ffn_v3::proof::tests::log_cols_zero_groups_follow_the_pcs_grouping`; hashline `round14_r3_log_cols_zero_honest_proof_decodes_with_the_pcs_groups` (legacy prove/verify at `log_cols` 0 and 1, groups equal the shape's, decode/re-encode identity, decoded object verifies) |
+
+Before/after, on the same tests (details and log hashes in
+`../results/zk60_cl20_ffn_v3_validation.json`, section `round14`):
+
+| test | before the fix (unfixed `f8d40a7` code on the merged tree, release) | after the fix |
+|---|---|---|
+| hashline `round14_r1_oversized_query_count_is_a_shape_error_not_a_panic` | FAILED: `Params::check` accepted `usize::MAX` queries (Codex's probe then observed the capacity-overflow panic in `from_bytes`) | ok (release) |
+| hashline `round14_r2_unsupported_shift_is_a_shape_error_before_any_read` | FAILED: shift 64 on empty input was not a shape error — in release the shift wrapped to a wrong table size and the decoder reported truncation; Codex's debug probe panicked in `rem_rows` | ok (release) |
+| hashline `round14_r3_log_cols_zero_honest_proof_decodes_with_the_pcs_groups` | FAILED: decoder groups (2, 2, 3) vs the legacy PCS's (1, 1, 2); the honest proof was refused | ok (release) |
+| the three pre-existing codec tests (round trip, malformed bytes, eight tamper legs) | ok | ok |
+| core `oversized_query_count_is_a_shape_error_not_a_panic`, `unsupported_shifts_and_dimensions_are_shape_errors_before_any_read`, `log_cols_zero_groups_follow_the_pcs_grouping`, `statement_check_refuses_unsupported_shifts_and_dimensions` | did not exist (they use the new `check`/`MAX_COL_CHECKS` API) | ok in release AND in debug (32/32 both) |
+
+No frozen proof byte changes (the corrections touch the decoder, the shape
+and the checks only; `to_bytes` is untouched). PCS is untouched. Validation
+of the corrected tree (two threads, heavy lock):
+
+| gate | result |
+|---|---|
+| core tests, release | exit 0; 32 passed, 0 failed, 0 ignored (28 + the four regressions) |
+| core tests, debug (`cargo test` without `--release`, the review's debug/release distinction) | exit 0; 32 passed, 0 failed, 0 ignored — the shift and size arithmetic no longer reaches an overflow in either profile |
+| hashline build (CPU, `cargo build --release --offline`) | exit 0 (the merged tree carries Codex's round-13/14 modules; the warning list is the merge tree's) |
+| hashline suite (default features, `HL_GPU` unset) | exit 0; 23 binaries: 173 unit/integration tests passed, 0 failed, 0 ignored, plus the 2 `compile_fail` doc-checks (175 in the log); `tests/zk60_cl20_codec.rs` 6/6 (the three round-12 tests and the three `round14_*` regressions); the LIMITATION tests unchanged. Accounting from the step-2 tree's 169: +1 lib test from Codex's `df7fb0d` journal regression, +3 `round14_*`. The suite Codex counts (`--features stable-weight-storage`, the round-14 219 = 188 hashline + 9 compile-fail + 22 core at `df7fb0d`): exit 0; 193 unit/integration passed, 0 failed (lib 73), plus the 9 compile-fail doc-checks (202 in the log); with the core's 32 that is 234 = 219 − 1 (the registry test now runs in the core) + 3 (round-12 codec tests) + 3 (`round14_*`) + 10 (core: 1 tables + 5 step-2 + 4 round-14). |
+| GPU feature check (`cargo check --release --offline --features gpu-cuda`, `target-gpu`) | exit 0, 0 errors, the merged tree's 10 warnings; no device job |
+| four CPU frozen cases (`pass 12 512 --threads 2`) | all four match sha256 and length exactly, exit 0, verifier ACCEPT, on the merged tree's binary (`c2168046…`, 4,672,008 B): v2 `50cf7bdf…`/66,844,928, v3 `5f368db6…`/70,758,084, zk `021485e4…`/87,228,528, zkv3 `40eb5479…`/87,697,008 |
+| D8 | holds |
+
+Remaining review items not addressed here: step 2c (the P0 prover/verifier
+extraction with actual old/new parity) and everything after it, as listed
+under "The next step in detail".
 
 ## Next boundaries for Fable, in order
 

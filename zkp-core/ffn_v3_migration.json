@@ -17,7 +17,7 @@
       "original": "hashline/src/layer.rs (LayerParams; TAG_ACT16..pow2_signed; StatementV3; LayoutV3; absorb_statement_v3; absorb_com; absorb_mults)",
       "original_sha256": "f0931f6364daabe38011dc3aa0101fd9cfe2525c225e9e531556e6da536d02d7",
       "core": "zkp-core/src/ffn_v3/statement.rs",
-      "core_sha256": "dd65d3276afe3960babc2c2d451a804369170fcf41458f2ada62dece5c106421",
+      "core_sha256": "27e3e14e22485587600e59932ad62e20e982814bbac587682a2004b11728164d",
       "adjustments": [
         "names without the V3 suffix (Params, Statement, Layout, absorb_statement); hashline re-exports the legacy names",
         "Layout::check and Params::check added; Layout::new keeps its panic text",
@@ -30,7 +30,7 @@
       "original": "hashline/src/layer.rs (LayerProofV3, size_bytes, to_bytes)",
       "original_sha256": "f0931f6364daabe38011dc3aa0101fd9cfe2525c225e9e531556e6da536d02d7",
       "core": "zkp-core/src/ffn_v3/proof.rs",
-      "core_sha256": "3d235050d28d7a8c24edd6d694312f5550280d83dad9bd344b6ffce8366f5b80",
+      "core_sha256": "74f82e1c9a9d003b2e817cb46b69225c7e7f525278159aba05d3faa7fdfdc719",
       "adjustments": [
         "Proof<X = NoExtra>: the compact-PCS slot cpcs_open is generic (ExtraOpening); hashline's LayerProofV3 = Proof<pcs_compact::BatchOpening>",
         "NEW: Shape, OpeningShape, DecodeError, Proof::from_bytes (shape-directed bounded decoder); three tests"
@@ -45,7 +45,7 @@
     },
     {
       "test": "hashline/tests/zk60_cl20_codec.rs",
-      "sha256": "0352721645160f678e14bea27829bc72a08c747a1af703a06a1532c6baad3127"
+      "sha256": "d0436e3bc72381ed1e1282d0a610c9c58e3c0f4062bc5734ee84062041baeab9"
     }
   ],
   "adapters": [

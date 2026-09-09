@@ -11,8 +11,11 @@ profile's statement, parameters, layout and proof object with its frozen
 encoding and a shape-directed bounded decoder (`ffn_v3`). `hashline` imports
 these canonical types through compatibility exports under its legacy names.
 Default builds use only `blake3`, `rayon` and `sha2` (the table-spec digest);
-they need no GPU or model files. All 28 tests pass (19 primitive, 3 PCS, 1
-table registry, 5 statement/proof).
+they need no GPU or model files. All 32 tests pass (19 primitive, 3 PCS, 1
+table registry, 9 statement/proof, four of them the round-14 regressions
+C20-R1..R3: bounded query counts and checked sizes, the statement's shift
+and dimension domain checked before any arithmetic, and `log_cols = 0`
+group counts that follow the PCS grouping).
 
 ```sh
 env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 cargo test --release --offline \

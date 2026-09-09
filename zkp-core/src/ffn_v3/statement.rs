@@ -33,6 +33,16 @@ impl Params {
 
 pub const TAG_ACT16: u64 = 3;
 pub const TAG_INT16: u64 = 4;
+/// The supported signed shift window of the remainder tables (`tag_rem_v3`,
+/// `rem_rows`, `pow2_signed` are only defined on it; `Statement::check`
+/// enforces it before any of them runs).
+pub const SHIFT_MIN: i32 = -8;
+pub const SHIFT_MAX: i32 = 16;
+/// The supported bound of `t_rows`, `d` and `f` (`Layout::check`): with all
+/// three at most 2^24 every offset sum `Layout::new` forms stays below
+/// 10 * 2^48 and the proof-shape arithmetic is checked on top of that.
+/// Real shapes are far smaller (d 4,096, f 14,336, t_rows 512 at 8B).
+pub const MAX_DIM: usize = 1 << 24;
 /// The balanced-remainder window table of a signed shift (sh in -8..=16).
 pub fn tag_rem_v3(sh: i32) -> u64 {
     64 + (sh + 8) as u64
@@ -75,6 +85,20 @@ pub struct Statement {
 }
 
 impl Statement {
+    /// The statement's supported domain, checked BEFORE any layout or shape
+    /// arithmetic (C20-R2): the layout rule of `Layout::check` and every
+    /// shift inside `SHIFT_MIN..=SHIFT_MAX`. Outside it `rem_rows` would
+    /// shift by the width or more and `tag_rem_v3` would wrap.
+    pub fn check(&self) -> Result<(), String> {
+        Layout::check(self.t_rows, self.d, self.f)?;
+        for s in [self.shifts.0, self.shifts.1, self.shifts.2, self.shifts.3] {
+            if !(SHIFT_MIN..=SHIFT_MAX).contains(&s) {
+                return Err(format!("shift {s} outside the supported window {SHIFT_MIN}..={SHIFT_MAX}"));
+            }
+        }
+        Ok(())
+    }
+
     /// The distinct shifts in ascending order: the remainder tables the
     /// proof carries after the ACT16 and INT16 tables, in this order.
     pub fn distinct_shifts(&self) -> Vec<i32> {
@@ -102,10 +126,13 @@ pub struct Layout {
 }
 
 impl Layout {
-    /// The supported-shape rule of `new`, as a result: `t_rows` a power of
-    /// two; `d`, `f` multiples of their blocks `2^min(log2, 12)` with at
-    /// least 16 | d, f.
+    /// The supported-shape rule of `new`, as a result: `t_rows`, `d`, `f`
+    /// at most `MAX_DIM`; `t_rows` a power of two; `d`, `f` multiples of
+    /// their blocks `2^min(log2, 12)` with at least 16 | d, f.
     pub fn check(t_rows: usize, d: usize, f: usize) -> Result<(), String> {
+        if t_rows > MAX_DIM || d > MAX_DIM || f > MAX_DIM {
+            return Err(format!("t_rows {t_rows} / d {d} / f {f}: above the supported bound 2^24"));
+        }
         if !t_rows.is_power_of_two() {
             return Err("t_rows must be a power of two".to_string());
         }
@@ -203,6 +230,21 @@ mod tests {
         // the 125M shape: 512 x 768 x 2048 -> blocks of 256 and 2048
         let big = Layout::new(512, 768, 2048);
         assert_eq!((big.nb_d, big.nb_f, big.log_db, big.log_fb), (3, 1, 8, 11));
+    }
+
+    /// C20-R2: the statement's own rule refuses shifts outside the
+    /// remainder-window domain and absurd dimensions before any arithmetic.
+    #[test]
+    fn statement_check_refuses_unsupported_shifts_and_dimensions() {
+        let (table, table_digest) = crate::tables::int16out_member(Act16Fn::Silu, -3, -11).unwrap();
+        let st = Statement { l: 0, t_rows: 2, d: 16, f: 16, shifts: (7, 0, 14, 6), act: Act16Fn::Silu, table, table_digest };
+        assert!(st.check().is_ok());
+        assert!(Statement { shifts: (64, 0, 14, 6), ..st.clone() }.check().is_err());
+        assert!(Statement { shifts: (7, -9, 14, 6), ..st.clone() }.check().is_err());
+        assert!(Statement { shifts: (-8, 16, 0, 1), ..st.clone() }.check().is_ok());
+        assert!(Statement { t_rows: 1 << 40, ..st.clone() }.check().is_err());
+        assert!(Statement { f: usize::MAX, ..st.clone() }.check().is_err());
+        assert!(Layout::check(1 << 40, 16, 16).is_err());
     }
 
     #[test]

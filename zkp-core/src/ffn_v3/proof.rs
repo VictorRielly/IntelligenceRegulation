@@ -19,8 +19,13 @@
 //! column index `>= enc_cols`, and any 8-byte word read as a field element
 //! that is not the canonical representative (`>= P`; `Fp::new` would reduce
 //! it silently and `to_bytes(from_bytes(b)) != b`). It never panics on
-//! input bytes; the statement and parameters are trusted public inputs whose
-//! own rule is `Layout::check` / `Params::check`.
+//! input bytes, and (round 14, C20-R1/R2) not on an unsupported EXPECTED
+//! statement or parameter set either: `Statement::check` (the layout rule,
+//! shifts in `-8..=16`, dimensions at most 2^24) and `Params::check`
+//! (`inv_rate` a power of two, `log_cols <= 40`, `1 <= num_col_checks <=
+//! 65536`) run before any shape arithmetic, every field length is formed
+//! with checked arithmetic, and the reader allocates a vector only when its
+//! bytes are actually present in the input.
 
 use super::statement::{rem_rows, tag_rem_v3, Layout, Params, Statement, TAG_ACT16, TAG_INT16};
 use crate::field::{Fp, Fp2, P};
@@ -156,10 +161,21 @@ impl<X: ExtraOpening> Proof<X> {
 /// The matmul sumchecks (`gu`, `d`) are degree 2; the zero-checks degree 4.
 pub const MATMUL_DEGREE: usize = 2;
 pub const ZEROCHECK_DEGREE: usize = 4;
+/// The supported query count of the codec (`Params::check`): `1..=65536`.
+/// The legacy profile uses 256; the count is an expected parameter, never
+/// read from proof bytes, and the decoder allocates nothing beyond its
+/// input, but a bounded domain keeps the size arithmetic and the API honest
+/// (C20-R1).
+pub const MAX_COL_CHECKS: usize = 1 << 16;
 
 /// One Ligero opening's shape: its parameters, the committed rows and the
-/// number of column-weight groups the claim builder forms (W: the `p3` and
-/// `p6` points; A: `rho_f` and `rho_d`; H: `rho_f`, `rho_d` and the sums).
+/// number of column-weight groups the PCS forms from the claims. Claims are
+/// grouped by their column tail, the last `log_cols` entries of the point;
+/// W's claims sit at `p3` and `p6`, A's at `rho_f` and `rho_d`, H's at
+/// `rho_f`, `rho_d` and the all-ones sum key. With `log_cols >= 1` distinct
+/// points give distinct tails (2/2/3 groups); with `log_cols = 0` every tail
+/// is empty and the point claims of an opening merge into ONE group (1/1/2),
+/// exactly as `pcs::group_claims` does on the honest proof (C20-R3).
 #[derive(Clone, Copy, Debug)]
 pub struct OpeningShape {
     pub pcs: PcsParams,
@@ -172,8 +188,19 @@ impl OpeningShape {
     pub fn enc_cols(&self) -> usize { self.pcs.enc_cols() }
     /// Merkle path length over `enc_cols` leaves (a power of two).
     pub fn path_len(&self) -> usize { self.enc_cols().trailing_zeros() as usize }
-    pub fn column_bytes(&self) -> usize { 8 + self.rows * 8 + self.path_len() * 32 }
-    pub fn bytes(&self) -> usize { (self.groups + 1) * self.cols() * 16 + self.pcs.num_col_checks * self.column_bytes() }
+    /// `index u64 | rows x Fp | path x 32`, or `None` when it does not fit `usize`.
+    pub fn column_bytes(&self) -> Option<usize> {
+        8usize.checked_add(self.rows.checked_mul(8)?)?.checked_add(self.path_len().checked_mul(32)?)
+    }
+    /// The opening's byte length, or `None` when it does not fit `usize`.
+    pub fn bytes(&self) -> Option<usize> {
+        let vecs = (self.groups + 1).checked_mul(self.cols())?.checked_mul(16)?;
+        vecs.checked_add(self.pcs.num_col_checks.checked_mul(self.column_bytes()?)?)
+    }
+    /// The point groups of an opening under this `log_cols` (see the type doc).
+    fn point_groups(pcs: &PcsParams, distinct_points: usize) -> usize {
+        if pcs.log_cols == 0 { 1 } else { distinct_points }
+    }
 }
 
 /// The proof shape of `(Statement, Params)`.
@@ -195,12 +222,16 @@ pub struct Shape {
     pub w: OpeningShape,
     pub a: OpeningShape,
     pub h: OpeningShape,
+    /// `(field name, byte length)` of every top-level field in proof order,
+    /// computed with checked arithmetic at construction.
+    pub fields: Vec<(String, usize)>,
 }
 
 impl Params {
     /// The parameter rule the decoder relies on: `inv_rate` a power of two
     /// (the Merkle tree is over `cols * inv_rate` leaves), `log_cols` and
-    /// the product inside `usize`.
+    /// the product inside `usize`, and the query count inside the supported
+    /// domain `1..=MAX_COL_CHECKS` (C20-R1). `log_cols = 0` is supported.
     pub fn check(&self) -> Result<(), String> {
         if !self.inv_rate.is_power_of_two() {
             return Err(format!("params: inv_rate {} is not a power of two", self.inv_rate));
@@ -208,13 +239,18 @@ impl Params {
         if self.log_cols > 40 || (self.log_cols as usize + self.inv_rate.trailing_zeros() as usize) > 48 {
             return Err(format!("params: log_cols {} / inv_rate {} out of range", self.log_cols, self.inv_rate));
         }
+        if self.num_col_checks == 0 || self.num_col_checks > MAX_COL_CHECKS {
+            return Err(format!("params: num_col_checks {} outside the supported 1..={MAX_COL_CHECKS}", self.num_col_checks));
+        }
         Ok(())
     }
 }
 
 impl Shape {
     pub fn of(st: &Statement, params: &Params) -> Result<Shape, String> {
-        Layout::check(st.t_rows, st.d, st.f)?;
+        // the statement's and the parameters' own domains come first: no
+        // shift, table or size arithmetic runs on an unsupported input (C20-R2)
+        st.check()?;
         params.check()?;
         let lay = Layout::new(st.t_rows, st.d, st.f);
         let (nb_d, nb_f) = (lay.nb_d, lay.nb_f);
@@ -225,7 +261,7 @@ impl Shape {
         for s in st.distinct_shifts() {
             mults.push((tag_rem_v3(s), rem_rows(s)));
         }
-        Ok(Shape {
+        let mut shape = Shape {
             mults,
             gu_claims: 2 * nb_f,
             gu_rounds: lay.log_db as usize,
@@ -238,48 +274,67 @@ impl Shape {
             zcd_rounds: (lay.log_t + lay.log_db) as usize,
             zcd_term: 4 * nb_d,
             helper_sums: 3 * nb_f + nb_d,
-            w: OpeningShape { pcs: w_pcs, rows: lay.w_len / w_pcs.cols(), groups: 2 },
-            a: OpeningShape { pcs: a_pcs, rows: lay.a_len / a_pcs.cols(), groups: 2 },
-            h: OpeningShape { pcs: h_pcs, rows: lay.h_len / h_pcs.cols(), groups: 3 },
-        })
+            w: OpeningShape { pcs: w_pcs, rows: lay.w_len / w_pcs.cols(), groups: OpeningShape::point_groups(&w_pcs, 2) },
+            a: OpeningShape { pcs: a_pcs, rows: lay.a_len / a_pcs.cols(), groups: OpeningShape::point_groups(&a_pcs, 2) },
+            h: OpeningShape { pcs: h_pcs, rows: lay.h_len / h_pcs.cols(), groups: OpeningShape::point_groups(&h_pcs, 2) + 1 },
+            fields: Vec::new(),
+        };
+        shape.fields = shape.checked_fields().ok_or_else(|| "proof shape exceeds the addressable size".to_string())?;
+        Ok(shape)
+    }
+
+    /// Every top-level field's byte length with checked arithmetic; `None`
+    /// when any length or the total does not fit `usize` (C20-R1).
+    fn checked_fields(&self) -> Option<Vec<(String, usize)>> {
+        let mut out = Vec::new();
+        let mut total = 0usize;
+        let mut push = |out: &mut Vec<(String, usize)>, name: String, len: Option<usize>| -> Option<()> {
+            let len = len?;
+            total = total.checked_add(len)?;
+            out.push((name, len));
+            Some(())
+        };
+        let f2 = |n: usize| n.checked_mul(16);
+        let sc = |rounds: usize, degree: usize| rounds.checked_mul(degree + 1)?.checked_mul(16);
+        for name in ["w_com", "a_com", "h_com"] {
+            push(&mut out, name.to_string(), Some(32 + 8 + 4))?;
+        }
+        for (i, (_, len)) in self.mults.iter().enumerate() {
+            push(&mut out, format!("mults[{i}]"), len.checked_mul(4)?.checked_add(8 + 4))?;
+        }
+        push(&mut out, "gu_claims".into(), f2(self.gu_claims))?;
+        push(&mut out, "gu_sc".into(), sc(self.gu_rounds, MATMUL_DEGREE))?;
+        push(&mut out, "gu_term".into(), f2(self.gu_term))?;
+        push(&mut out, "d_claims".into(), f2(self.d_claims))?;
+        push(&mut out, "d_sc".into(), sc(self.d_rounds, MATMUL_DEGREE))?;
+        push(&mut out, "d_term".into(), f2(self.d_term))?;
+        push(&mut out, "zcf_sc".into(), sc(self.zcf_rounds, ZEROCHECK_DEGREE))?;
+        push(&mut out, "zcf_term".into(), f2(self.zcf_term))?;
+        push(&mut out, "zcd_sc".into(), sc(self.zcd_rounds, ZEROCHECK_DEGREE))?;
+        push(&mut out, "zcd_term".into(), f2(self.zcd_term))?;
+        push(&mut out, "helper_sums".into(), f2(self.helper_sums))?;
+        push(&mut out, "w_open".into(), self.w.bytes())?;
+        push(&mut out, "a_open".into(), self.a.bytes())?;
+        push(&mut out, "h_open".into(), self.h.bytes())?;
+        Some(out)
     }
 
     /// `(field name, start offset)` of every top-level field in proof
     /// order, ending with `("end", total)`: the boundaries a truncation test
-    /// walks.
+    /// walks. Offsets are prefix sums of `fields` (checked at construction).
     pub fn field_offsets(&self) -> Vec<(String, usize)> {
-        let mut out = Vec::new();
+        let mut out = Vec::with_capacity(self.fields.len() + 1);
         let mut at = 0usize;
-        let mut push = |name: String, len: usize, at: &mut usize| {
-            out.push((name, *at));
-            *at += len;
-        };
-        for name in ["w_com", "a_com", "h_com"] {
-            push(name.to_string(), 32 + 8 + 4, &mut at);
+        for (name, len) in &self.fields {
+            out.push((name.clone(), at));
+            at += len;
         }
-        for (i, (_, len)) in self.mults.iter().enumerate() {
-            push(format!("mults[{i}]"), 8 + 4 + len * 4, &mut at);
-        }
-        push("gu_claims".into(), self.gu_claims * 16, &mut at);
-        push("gu_sc".into(), self.gu_rounds * (MATMUL_DEGREE + 1) * 16, &mut at);
-        push("gu_term".into(), self.gu_term * 16, &mut at);
-        push("d_claims".into(), self.d_claims * 16, &mut at);
-        push("d_sc".into(), self.d_rounds * (MATMUL_DEGREE + 1) * 16, &mut at);
-        push("d_term".into(), self.d_term * 16, &mut at);
-        push("zcf_sc".into(), self.zcf_rounds * (ZEROCHECK_DEGREE + 1) * 16, &mut at);
-        push("zcf_term".into(), self.zcf_term * 16, &mut at);
-        push("zcd_sc".into(), self.zcd_rounds * (ZEROCHECK_DEGREE + 1) * 16, &mut at);
-        push("zcd_term".into(), self.zcd_term * 16, &mut at);
-        push("helper_sums".into(), self.helper_sums * 16, &mut at);
-        push("w_open".into(), self.w.bytes(), &mut at);
-        push("a_open".into(), self.a.bytes(), &mut at);
-        push("h_open".into(), self.h.bytes(), &mut at);
         out.push(("end".into(), at));
         out
     }
 
     pub fn total_bytes(&self) -> usize {
-        self.field_offsets().last().map(|(_, at)| *at).unwrap_or(0)
+        self.fields.iter().map(|(_, len)| *len).sum()
     }
 }
 
@@ -327,6 +382,21 @@ struct Reader<'a> {
 }
 
 impl<'a> Reader<'a> {
+    fn remaining(&self) -> usize {
+        self.b.len().saturating_sub(self.pos)
+    }
+    /// The allocation rule (C20-R1): a vector of `count` items of at least
+    /// `item` bytes each is only allocated when that many bytes remain, so
+    /// no expected parameter can make the decoder reserve more memory than
+    /// its input holds.
+    fn ensure(&self, count: usize, item: usize) -> Result<(), DecodeError> {
+        let have = self.remaining();
+        match count.checked_mul(item) {
+            Some(need) if need <= have => Ok(()),
+            Some(need) => Err(DecodeError::Truncated { at: self.pos, need, have }),
+            None => Err(DecodeError::Truncated { at: self.pos, need: usize::MAX, have }),
+        }
+    }
     fn take(&mut self, n: usize) -> Result<&'a [u8], DecodeError> {
         let have = self.b.len().saturating_sub(self.pos);
         if have < n {
@@ -356,12 +426,18 @@ impl<'a> Reader<'a> {
         Ok(Fp2::new(c0, c1))
     }
     fn fp2_vec(&mut self, n: usize) -> Result<Vec<Fp2>, DecodeError> {
-        (0..n).map(|_| self.fp2()).collect()
+        self.ensure(n, 16)?;
+        let mut out = Vec::with_capacity(n);
+        for _ in 0..n {
+            out.push(self.fp2()?);
+        }
+        Ok(out)
     }
     fn digest(&mut self) -> Result<Digest, DecodeError> {
         Ok(self.take(32)?.try_into().unwrap())
     }
     fn sumcheck(&mut self, rounds: usize, degree: usize) -> Result<SumcheckProof, DecodeError> {
+        self.ensure(rounds, (degree + 1) * 16)?;
         let mut out = Vec::with_capacity(rounds);
         for _ in 0..rounds {
             out.push(self.fp2_vec(degree + 1)?);
@@ -380,21 +456,26 @@ impl<'a> Reader<'a> {
     fn opening(&mut self, which: &'static str, os: &OpeningShape) -> Result<Opening, DecodeError> {
         let n = os.cols();
         let nn = os.enc_cols();
+        self.ensure(os.groups + 1, n.saturating_mul(16))?;
         let mut group_vecs = Vec::with_capacity(os.groups);
         for _ in 0..os.groups {
             group_vecs.push(self.fp2_vec(n)?);
         }
         let prox_vec = self.fp2_vec(n)?;
+        let column_bytes = os.column_bytes().ok_or(DecodeError::Truncated { at: self.pos, need: usize::MAX, have: self.remaining() })?;
+        self.ensure(os.pcs.num_col_checks, column_bytes)?;
         let mut columns = Vec::with_capacity(os.pcs.num_col_checks);
         for column in 0..os.pcs.num_col_checks {
             let index = self.u64()?;
             if index >= nn as u64 {
                 return Err(DecodeError::ColumnIndex { opening: which, column, index, enc_cols: nn });
             }
+            self.ensure(os.rows, 8)?;
             let mut col = Vec::with_capacity(os.rows);
             for _ in 0..os.rows {
                 col.push(self.fp()?);
             }
+            self.ensure(os.path_len(), 32)?;
             let mut path = Vec::with_capacity(os.path_len());
             for _ in 0..os.path_len() {
                 path.push(self.digest()?);
@@ -427,6 +508,7 @@ impl<X> Proof<X> {
             if tag != want_tag || len as usize != want_len {
                 return Err(DecodeError::Multiplicity { index, tag, len });
             }
+            r.ensure(want_len, 4)?;
             let mut m = Vec::with_capacity(want_len);
             for _ in 0..want_len {
                 m.push(r.u32()?);
@@ -625,5 +707,85 @@ mod tests {
         }
         // the statement's own rule is reported, not panicked
         assert!(matches!(Proof::<NoExtra>::from_bytes(&bytes, &Statement { d: 24, ..st.clone() }, &p), Err(DecodeError::Shape(_))));
+    }
+
+    /// C20-R1 (ZK60_CL20_ROUND14_REVIEW.md): an oversized query count in the
+    /// EXPECTED parameters must be a shape error, never a capacity-overflow
+    /// panic in `Vec::with_capacity`; a supported count larger than the input
+    /// is a truncation error and allocates no more than the input.
+    #[test]
+    fn oversized_query_count_is_a_shape_error_not_a_panic() {
+        let (st, p) = tiny();
+        let bytes = dummy(&Shape::of(&st, &p).unwrap(), 5).to_bytes();
+        let enormous = Params { num_col_checks: usize::MAX, ..p };
+        assert!(enormous.check().is_err(), "Params::check must refuse usize::MAX queries");
+        assert!(matches!(Proof::<NoExtra>::from_bytes(&bytes, &st, &enormous), Err(DecodeError::Shape(_))));
+        let over = Params { num_col_checks: MAX_COL_CHECKS + 1, ..p };
+        assert!(matches!(Proof::<NoExtra>::from_bytes(&bytes, &st, &over), Err(DecodeError::Shape(_))));
+        let zero = Params { num_col_checks: 0, ..p };
+        assert!(matches!(Proof::<NoExtra>::from_bytes(&bytes, &st, &zero), Err(DecodeError::Shape(_))));
+        // the largest supported count against a short input: truncated, not allocated
+        let max = Params { num_col_checks: MAX_COL_CHECKS, ..p };
+        assert!(matches!(Proof::<NoExtra>::from_bytes(&bytes, &st, &max), Err(DecodeError::Truncated { .. })));
+        assert!(matches!(Proof::<NoExtra>::from_bytes(&[], &st, &max), Err(DecodeError::Truncated { .. })));
+        // absurd geometry must not overflow the size arithmetic
+        for q in [1usize << 40, usize::MAX >> 1] {
+            let big = Params { log_cols: 40, inv_rate: 1 << 8, num_col_checks: q.min(MAX_COL_CHECKS) };
+            let _ = Proof::<NoExtra>::from_bytes(&bytes, &st, &big);
+        }
+    }
+
+    /// C20-R2: an unsupported expected statement (a shift outside the
+    /// remainder-window domain, an absurd dimension) is a shape error
+    /// reported before any input byte is read; no shift overflow, no panic.
+    #[test]
+    fn unsupported_shifts_and_dimensions_are_shape_errors_before_any_read() {
+        let (st, p) = tiny();
+        assert!(st.check().is_ok());
+        for bad in [64i32, 17, -9, 63, 32, i32::MAX, i32::MIN] {
+            for slot in 0..4 {
+                let mut shifts = [st.shifts.0, st.shifts.1, st.shifts.2, st.shifts.3];
+                shifts[slot] = bad;
+                let s = Statement { shifts: (shifts[0], shifts[1], shifts[2], shifts[3]), ..st.clone() };
+                assert!(s.check().is_err(), "shift {bad} in slot {slot}");
+                assert!(matches!(Proof::<NoExtra>::from_bytes(&[], &s, &p), Err(DecodeError::Shape(_))), "shift {bad} in slot {slot}");
+                assert!(Shape::of(&s, &p).is_err());
+            }
+        }
+        // the whole supported window is accepted
+        for sh in -8i32..=16 {
+            let s = Statement { shifts: (sh, sh, sh, sh), ..st.clone() };
+            assert!(s.check().is_ok(), "shift {sh}");
+            assert!(Shape::of(&s, &p).is_ok(), "shift {sh}");
+        }
+        for (t, d, f) in [(1usize << 40, 16usize, 16usize), (2, 1 << 40, 16), (2, 16, 1 << 40), (usize::MAX, 16, 16), (2, usize::MAX, 16), (1 << 62, 1 << 62, 1 << 62)] {
+            let s = Statement { t_rows: t, d, f, ..st.clone() };
+            assert!(matches!(Proof::<NoExtra>::from_bytes(&[], &s, &p), Err(DecodeError::Shape(_))), "dims {t}/{d}/{f}");
+        }
+    }
+
+    /// C20-R3: with `log_cols = 0` every column tail is empty, so the PCS
+    /// merges all point claims of an opening into one group (W 1, A 1, H 1 +
+    /// the sum group); the shape must follow the same rule so an honest
+    /// legacy proof decodes. The real-proof form is in hashline's
+    /// `tests/zk60_cl20_codec.rs`.
+    #[test]
+    fn log_cols_zero_groups_follow_the_pcs_grouping() {
+        let (st, p) = tiny();
+        let zero = Params { log_cols: 0, ..p };
+        assert!(zero.check().is_ok());
+        let sh0 = Shape::of(&st, &zero).unwrap();
+        assert_eq!((sh0.w.groups, sh0.a.groups, sh0.h.groups), (1, 1, 2));
+        let sh1 = Shape::of(&st, &Params { log_cols: 1, ..p }).unwrap();
+        assert_eq!((sh1.w.groups, sh1.a.groups, sh1.h.groups), (2, 2, 3));
+        let sh5 = Shape::of(&st, &p).unwrap();
+        assert_eq!((sh5.w.groups, sh5.a.groups, sh5.h.groups), (2, 2, 3));
+        let pr = dummy(&sh0, 11);
+        let bytes = pr.to_bytes();
+        assert_eq!(bytes.len(), sh0.total_bytes());
+        let back: Proof<NoExtra> = Proof::from_bytes(&bytes, &st, &zero).unwrap();
+        assert_eq!(back.to_bytes(), bytes);
+        assert_eq!(back.w_open.group_vecs.len(), 1);
+        assert_eq!(back.h_open.group_vecs.len(), 2);
     }
 }

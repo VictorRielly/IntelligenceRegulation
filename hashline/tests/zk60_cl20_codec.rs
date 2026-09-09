@@ -153,6 +153,93 @@ fn malformed_tiny_proof_bytes_are_refused_by_the_decoder_or_the_verifier_never_p
     assert!(refused_by_verifier > 0, "every flip landed in a decoder-checked field");
 }
 
+/// The three round-14 review reproductions (ZK60_CL20_ROUND14_REVIEW.md,
+/// C20-R1..R3), in the order and with the inputs of Codex's retained probe
+/// (`results/zk60_round14_evidence/review/probe/src/main.rs`), as
+/// assertions instead of printed lines: an oversized expected query count
+/// and an unsupported expected shift are shape errors (no panic), and the
+/// honest `log_cols = 0` legacy proof, which the legacy verifier accepts,
+/// decodes with the PCS's actual 1/1/2 groups and re-encodes identically.
+fn honest_tiny() -> (V3Witness, StatementV3, LayerParams, NttTables, Vec<u8>) {
+    let w = synth(false);
+    let st = statement(&w);
+    let p = params();
+    let table = ntt(&p);
+    let honest = prove(&w, &p, &table);
+    verify(&st, &honest, &p, &table).unwrap();
+    let bytes = honest.to_bytes();
+    assert!(LayerProofV3::from_bytes(&bytes, &st, &p).is_ok(), "CONTROL_NORMAL_ROUNDTRIP");
+    (w, st, p, table, bytes)
+}
+
+/// C20-R1 (the probe's Q_MAX_PARAM_CHECK_ACCEPT=true, Q_MAX_DECODE_PANIC=true):
+/// an oversized EXPECTED query count is refused by `Params::check` and is a
+/// shape error at decode time, never a capacity-overflow panic.
+#[test]
+fn round14_r1_oversized_query_count_is_a_shape_error_not_a_panic() {
+    let (_, st, p, _, bytes) = honest_tiny();
+    let enormous = LayerParams { num_col_checks: usize::MAX, ..p };
+    assert!(enormous.check().is_err(), "R1: Params::check must refuse usize::MAX queries");
+    assert!(matches!(LayerProofV3::from_bytes(&bytes, &st, &enormous), Err(DecodeError::Shape(_))), "R1: decode must be a shape error");
+    for q in [1usize << 32, 65_537, 0] {
+        let bad = LayerParams { num_col_checks: q, ..p };
+        assert!(matches!(LayerProofV3::from_bytes(&bytes, &st, &bad), Err(DecodeError::Shape(_))), "R1: {q} queries");
+    }
+    // the largest supported count against these bytes: a truncation, no allocation beyond the input
+    let max = LayerParams { num_col_checks: 65_536, ..p };
+    assert!(matches!(LayerProofV3::from_bytes(&bytes, &st, &max), Err(DecodeError::Truncated { .. })));
+}
+
+/// C20-R2 (the probe's SHIFT64_EMPTY_DECODE_PANIC=true in a debug build; in a
+/// release build the shift wrapped to a wrong table size instead): a shift
+/// outside the remainder-window domain in the EXPECTED statement is a shape
+/// error before any input byte is read, in both build profiles.
+#[test]
+fn round14_r2_unsupported_shift_is_a_shape_error_before_any_read() {
+    let (_, st, p, _, bytes) = honest_tiny();
+    let shift = StatementV3 { shifts: (64, 0, 14, 6), ..st.clone() };
+    assert!(matches!(LayerProofV3::from_bytes(&[], &shift, &p), Err(DecodeError::Shape(_))), "R2: shift 64, empty input");
+    assert!(matches!(LayerProofV3::from_bytes(&bytes, &shift, &p), Err(DecodeError::Shape(_))), "R2: shift 64, real bytes");
+    for bad in [17i32, -9, 32, 63, i32::MAX, i32::MIN] {
+        let s = StatementV3 { shifts: (7, bad, 14, 6), ..st.clone() };
+        assert!(matches!(LayerProofV3::from_bytes(&[], &s, &p), Err(DecodeError::Shape(_))), "R2: shift {bad}");
+    }
+    let huge = StatementV3 { t_rows: 1 << 40, ..st.clone() };
+    assert!(matches!(LayerProofV3::from_bytes(&[], &huge, &p), Err(DecodeError::Shape(_))), "R2: t_rows 2^40");
+}
+
+/// C20-R3 (the probe's LOG0_LEGACY_VERIFY=true, LOG0_ACTUAL_GROUPS=1,1,2,
+/// LOG0_DECODER_GROUPS=2,2,3, LOG0_CORE_DECODE=false): the honest
+/// `log_cols = 0` legacy proof, accepted by the legacy verifier, must decode
+/// with the PCS's actual group counts, re-encode identically and verify.
+#[test]
+fn round14_r3_log_cols_zero_honest_proof_decodes_with_the_pcs_groups() {
+    let (w, st, p, _, _) = honest_tiny();
+    let zero = LayerParams { log_cols: 0, ..p };
+    assert!(zero.check().is_ok(), "R3: log_cols = 0 stays a supported configuration");
+    let zero_table = ntt(&zero);
+    let zero_proof = prove(&w, &zero, &zero_table);
+    verify(&st, &zero_proof, &zero, &zero_table).unwrap();
+    let actual = (zero_proof.w_open.group_vecs.len(), zero_proof.a_open.group_vecs.len(), zero_proof.h_open.group_vecs.len());
+    assert_eq!(actual, (1, 1, 2), "R3: the legacy PCS grouping at log_cols = 0");
+    let shape = Shape::of(&st, &zero).unwrap();
+    assert_eq!((shape.w.groups, shape.a.groups, shape.h.groups), actual, "R3: the decoder's groups must follow the PCS grouping");
+    let zbytes = zero_proof.to_bytes();
+    assert_eq!(zbytes.len(), shape.total_bytes());
+    let back = LayerProofV3::from_bytes(&zbytes, &st, &zero).expect("R3: the honest log_cols = 0 proof must decode");
+    assert_eq!(back.to_bytes(), zbytes);
+    verify(&st, &back, &zero, &zero_table).unwrap();
+    // log_cols = 1 already separates the tails: the ordinary 2/2/3 groups, also round-tripped
+    let one = LayerParams { log_cols: 1, ..p };
+    let one_table = ntt(&one);
+    let one_proof = prove(&w, &one, &one_table);
+    verify(&st, &one_proof, &one, &one_table).unwrap();
+    assert_eq!((one_proof.w_open.group_vecs.len(), one_proof.a_open.group_vecs.len(), one_proof.h_open.group_vecs.len()), (2, 2, 3));
+    let obytes = one_proof.to_bytes();
+    let oback = LayerProofV3::from_bytes(&obytes, &st, &one).unwrap();
+    assert_eq!(oback.to_bytes(), obytes);
+}
+
 #[test]
 fn the_eight_tamper_legs_are_refused_by_the_verifier_after_decoding() {
     let p = params();
