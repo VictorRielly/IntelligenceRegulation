@@ -20,7 +20,7 @@ of the decoder correction (see "Integration notes").
 |---|---|---|
 | `zk60-fable-review` (`wt-zk60-fa`, pushed) | FA6 `e83a4ca`, FA7 `f6d8557`, FA3 ledger pointers `018d506`, merge `972da4e` = `ed478da`, FA8 `9d373e0`, merge `ccc6f26` = `641aa2d`, merge `a94ce2c` = `74f3b06`, handoff `7624bcb`, FA9 merged from `zk60-fable-fa9` (`9620f97`, `e7f9176`, `6673209`) | the four Fable Python suites together: 94 tests OK (FA2/FA3 34, FA6 21, FA7 23, FA8 16); FA6's Rust cross-check 2/2; FA9's six Rust adversarial tests, exit 0 on the merged source |
 | `zk60-cl1` (`wt-zk60-cl1`, pushed) | CL21 `d4f0758` (code), `e18994c` (evidence) | gates tests 86, preflight tests 92; suite-v4 floors run GREEN 23/23 on the RTX 4070 |
-| `zk60-cl20-core` (`wt-zk60-cl20`) | `ee775be`, `76ee275` (both integrated by Codex in `b044e20`), merge `972da4e` = `f61ee77`, `f8d40a7` (held by Codex for C20-R1–R3; correction in flight) | core 28/28; hashline 169/169 + 2 compile-fail checks; GPU feature `cargo check` clean; the four frozen CPU proofs byte-identical |
+| `zk60-cl20-core` (`wt-zk60-cl20`, pushed) | `ee775be`, `76ee275` (both integrated by Codex in `b044e20`), merge `972da4e` = `f61ee77`, `f8d40a7` (held by Codex for C20-R1–R3), merge `a94ce2c` = `1c1ef6b`, correction `50f1ea5` | at `50f1ea5`: core 32/32 in release and debug; hashline 173 + 2 compile-fail (default features) and 193 + 9 compile-fail (with `stable-weight-storage`); GPU feature `cargo check` clean; the four frozen CPU proofs byte-identical |
 
 ## What each task delivered
 
@@ -112,11 +112,16 @@ reviewed the lane locally and integrated the PCS step; it holds the typed
 decoder commit for three reproduced robustness findings
 ([ZK60_CL20_ROUND14_REVIEW.md](ZK60_CL20_ROUND14_REVIEW.md)): an unbounded
 query-count allocation, an unchecked shift in shape construction, and wrong
-group counts for an honest one-column legacy proof. The correction, with a
-regression per finding, is being made on the same lane after merging
-`a94ce2c`. The prover and verifier (step 2c), the old/new prover parity test
-and the tiny example remain open; the migration ledger names the exact next
-step and its blockers.
+group counts for an honest one-column legacy proof. The correction is
+delivered on the same lane after a clean merge of `a94ce2c` (`1c1ef6b`): commit
+`50f1ea5` bounds the query count and every shape length with checked
+arithmetic and allocates only what the input can supply, validates the
+statement's shifts and dimensions before any size arithmetic, and derives the
+opening group counts from the actual PCS grouping rule so a one-column legacy
+proof decodes. Each finding has a regression that fails on the held code and
+passes after the fix, in release and debug. The prover and verifier (step 2c),
+the old/new prover parity test and the tiny example remain open; the migration
+ledger names the exact next step and its blockers.
 
 ## What this does and does not establish
 
@@ -132,10 +137,9 @@ deployment or throughput claim follows from this delivery.
 
 ## Integration notes for Codex
 
-- CL20 raises the core test count (19 → 22 already integrated, 28 on the
-  lane, more with the C20 regressions). Integrating it means cutting floors
-  suite v5 in the gates helper with the new expectation; the v4 `core_tests`
-  case refuses by design.
+- CL20 raises the core test count (19 → 22 already integrated → 32 on the
+  lane at `50f1ea5`). Integrating it means cutting floors suite v5 in the gates
+  helper with the new expectation; the v4 `core_tests` case refuses by design.
 - Suite v4's `cargo_test_cpu` case covers hashline's default features only;
   the optional `stable-weight-storage` tests Codex added in rounds 13–14 are
   feature-enabled coverage and must be recorded as a separate case when v5 is

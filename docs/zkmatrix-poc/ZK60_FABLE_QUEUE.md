@@ -8,7 +8,9 @@ suite-v4 floors GREEN 23/23 with both crates and both lockfiles in the
 manifest). FA9 is delivered on `zk60-fable-fa9` (`9620f97`, `e7f9176`, `6673209`,
 merged into the review lane): R09 packaged with a locally verified fix that
 changes frozen bytes, R10/R31 pinned with byte-neutral proposals, Codex's R32
-fix reviewed with no residual gap. The CL20 C20-R1–R3 correction is in flight.
+fix reviewed with no residual gap. The CL20 C20-R1–R3 correction is delivered
+on `zk60-cl20-core` (`1c1ef6b` merge of `a94ce2c`, `50f1ea5` fix; each finding
+fails before and passes after; frozen proofs unchanged).
 Record: [ZK60_FABLE_ROUND12_DELIVERY.md](ZK60_FABLE_ROUND12_DELIVERY.md);
 statuses in [zk60_fable_tasks.json](zk60_fable_tasks.json). FA8 raises one
 security item for the source owner (S1: the explicit seed path must be

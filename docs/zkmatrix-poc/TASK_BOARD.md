@@ -224,8 +224,8 @@ do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
 **AS OF 2026-09-08 evening (NEWEST BLOCK. FABLE'S ROUND-12 QUEUE: FA6, FA7,
-FA8, FA9 AND CL21 DELIVERED ON LANES AND PUSHED; THE CL20 DECODER CORRECTION
-IN FLIGHT; NOTHING MERGED BY FABLE — INTEGRATION IS CODEX'S):**
+FA8, FA9, CL21 AND THE CL20 DECODER CORRECTION ALL DELIVERED ON LANES AND
+PUSHED; NOTHING MERGED BY FABLE — INTEGRATION IS CODEX'S):**
 - **THE RECORD** is `docs/zkmatrix-poc/ZK60_FABLE_ROUND12_DELIVERY.md`;
   per-task statuses and results are in `zk60_fable_tasks.json`
   (`fable_round12_delivery`, each task's `result`). Do NOT restart FA6, FA7,
@@ -236,7 +236,9 @@ IN FLIGHT; NOTHING MERGED BY FABLE — INTEGRATION IS CODEX'S):**
   (`74f3b06`); `zk60-cl1` (`../wt-zk60-cl1`) = CL21 `d4f0758` + `e18994c`;
   `zk60-cl20-core` (`../wt-zk60-cl20`) = `ee775be`, `76ee275` (both already
   integrated by Codex in `b044e20`), `f8d40a7` (HELD by Codex for C20-R1–R3,
-  `ZK60_CL20_ROUND14_REVIEW.md`; the correction is being made on this lane);
+  `ZK60_CL20_ROUND14_REVIEW.md`), `1c1ef6b` (merge `a94ce2c`), `50f1ea5` (the
+  C20-R1–R3 correction: each finding fails before and passes after, core 32/32
+  in release and debug, frozen proofs byte-identical);
   `zk60-fable-fa9` (`../wt-zk60-fa9`) = FA9 `9620f97`, `e7f9176`, `6673209`
   (R09/R10/R31 packaged Rust gap pins + patch diffs, R32 review of Codex's
   `42471f0`; 6 tests exit 0), merged into the review lane as `f0bea04`.
@@ -265,14 +267,14 @@ IN FLIGHT; NOTHING MERGED BY FABLE — INTEGRATION IS CODEX'S):**
   coverage must be identified separately from the default-suite claims (v4
   claims default features only); FA6's two hardenings and FA9's diffs are
   Codex-owned edits with tests that pin the flip.
-- **IF RESUMING (Grok or a fresh session):** only the CL20 correction is
-  open: check `git -C ../wt-zk60-cl20 log --oneline -3` for the C20-R1–R3 fix
-  commit on top of the `a94ce2c` merge; when it is in, push `zk60-cl20-core`
-  and record its commit in `zk60_fable_tasks.json` (CL20 →
-  `fable_round12_result`) and in the delivery record. The review lane's
-  Python suites (`python3 -m unittest discover -s tests -p
-  'test_zk60_fable_*.py'`, 94 tests) are the regression gate for FA2–FA8.
-  No GPU or full-model job is implied by any of this.
+- **IF RESUMING (Grok or a fresh session):** nothing from this queue is open
+  on Fable's side; the next work is Codex's (integrate the lanes, apply FA9's
+  diffs and FA6's hardenings, fix S1, cut floors suite v5) and, for Fable,
+  CL20 step 2c (the P0 prover/verifier extraction with old/new parity, exact
+  next step in `zkp-core/MIGRATION.md`) plus whatever the next Codex queue
+  assigns. The review lane's Python suites (`python3 -m unittest discover -s
+  tests -p 'test_zk60_fable_*.py'`, 94 tests) are the regression gate for
+  FA2–FA8. No GPU or full-model job is implied by any of this.
 
 **AS OF 2026-09-04 22:xx (OLDER BLOCK. ZK60 TASK CL1 IS DONE:
 **P3 RUNS ON THE DEVICE AT MISTRAL WIDTH**, which it could not do this

@@ -666,7 +666,7 @@
         "next_delivery": "Preserve local work, merge the published performance integration, correct the three findings, retain existing decoder regressions, then deliver selected P0 prover/verifier and old/new parity in bounded commits."
       },
       "fable_round12_result": {
-        "hold_and_correction": "Codex integrated 76ee275/ee775be (b044e20, host-store fix 83115b5) and holds f8d40a7 for C20-R1 (unbounded query allocation), C20-R2 (unchecked shift in shape construction), C20-R3 (group counts for an honest log_cols = 0 legacy proof); the correction is in flight on the same lane after merging a94ce2c (see ZK60_CL20_ROUND14_REVIEW.md)",
+        "hold_and_correction": "Codex integrated 76ee275/ee775be (b044e20, host-store fix 83115b5) and held f8d40a7 for C20-R1 (unbounded query allocation), C20-R2 (unchecked shift in shape construction), C20-R3 (group counts for an honest log_cols = 0 legacy proof); CORRECTED on the lane: merge of a94ce2c = 1c1ef6b (clean; keeps 83115b5 and df7fb0d, PCS untouched), fix = 50f1ea5",
         "date": "2026-09-08",
         "branch": "zk60-cl20-core (worktree /home/victor/wt-zk60-cl20, branched at cfa46f6, merged 972da4e)",
         "commits": {
@@ -680,7 +680,18 @@
         "validation": "core cargo test --all-targets 22/22 (step 1), 28/28 (step 2); hashline full suite 156/156 at step 1 (159 - 3 moved), 167/167 post-merge, 169/169 across 23 binaries + 2 compile_fail doc-checks at step 2; cargo check --features gpu-cuda exit 0 with round-11's warning list; the four CPU frozen cases match at both steps: v2 50cf7bdf../66,844,928, v3 5f368db6../70,758,084, zk 021485e4../87,228,528, zkv3 40eb5479../87,697,008 (committed-tree binary 7b37f5ce..); D8 holds (the core has no std::env, cudarc, cfg(feature) or hashline:: reference); no frozen byte differs; no GPU job run",
         "surface": "two-crate graph cfa46f6 69 nodes/356 edges -> 79/394 after step 2; {layer, tables_v3} closure 10,202 -> 6,938 code lines; hashline lib 19,979 -> 19,277; core 1,377 -> 3,325; nothing deleted",
         "next_step": "2c in MIGRATION.md 'The next step in detail': prove_layer_v3 / verify_layer_v3 / v3_zcd_point / tamper legs / V3Witness planes -> zkp-core/src/ffn_v3/{witness,prove,verify,tamper}.rs; blockers with file:line: shared v2/v3 helper builders in layer.rs; three more Backend hooks (dev_helpers + dev_commit_from, dev_zerocheck*, dev_eval_many) with the dev_reserve discipline, to be wired with the cuda.rs owner; a ruling on the compact arm (pcs_compact::selected() at the W/A/H commits and batched opening); V3Witness split into borrowed planes + loader. D1 old/new prover parity and examples/tiny_prove_verify.rs land with 2c",
-        "limits": "no claim about the FFN masking disclosure or the P3 identity gap (the limitation tests pass unchanged and stay in hashline); no throughput claim; CL20 remains open"
+        "limits": "no claim about the FFN masking disclosure or the P3 identity gap (the limitation tests pass unchanged and stay in hashline); no throughput claim; CL20 remains open",
+        "round14_correction": {
+          "commits": {
+            "merge_a94ce2c": "1c1ef6b",
+            "fix": "50f1ea5"
+          },
+          "R1": "Params::check bounds num_col_checks to 1..=65536; Shape field lengths via checked arithmetic (overflow => DecodeError::Shape); Reader::ensure allocates only when the bytes remain in the input; tests round14_r1_oversized_query_count_is_a_shape_error_not_a_panic (hashline) and oversized_query_count_is_a_shape_error_not_a_panic (core): FAILED before -> ok after",
+          "R2": "Statement::check (layout rule, shifts in -8..=16) and Params::check run first in Shape::of before any size arithmetic; Layout::check bounds t_rows/d/f by 2^24; all DecodeError::Shape; tests round14_r2_unsupported_shift_is_a_shape_error_before_any_read (hashline), unsupported_shifts_and_dimensions_are_shape_errors_before_any_read and statement_check_refuses_unsupported_shifts_and_dimensions (core): FAILED before (release: wrapped shift reported truncation; debug: rem_rows panic) -> ok in release and debug",
+          "R3": "group counts derived from the PCS grouping rule (claims grouped by the column tail of length log_cols): log_cols = 0 gives W 1 / A 1 / H 1 + sums, log_cols >= 1 gives 2/2/3 (OpeningShape::point_groups); log_cols = 0 stays supported, legacy behaviour unchanged; tests round14_r3_log_cols_zero_honest_proof_decodes_with_the_pcs_groups (hashline: legacy prove/verify at log_cols 0 and 1, groups == shape, decode/re-encode identity, decoded object verifies) and log_cols_zero_groups_follow_the_pcs_grouping (core): FAILED before -> ok after",
+          "validation": "core cargo test --all-targets 32/32 release and 32/32 debug; hashline build exit 0; hashline suite default features 173 + 2 compile-fail (23 binaries, zk60_cl20_codec 6/6); with --features stable-weight-storage 193 + 9 compile-fail (with the core's 32 => 234 vs Codex's 219 at df7fb0d: -1 registry test now in the core, +3 round-12 codec, +3 round14_*, +10 core); cargo check --features gpu-cuda exit 0; the four CPU frozen cases match sha256/length on binary c2168046..; before-fix codec run recorded (exit 101, 3 passed / 3 failed); to_bytes untouched; records in results/zk60_cl20_ffn_v3_validation.json (round14) and zkp-core/MIGRATION.md 'Round 14 corrections'",
+          "remaining": "step 2c (P0 prover/verifier extraction with actual old/new proof parity and cross-verification, D1) and everything after it; not started; no privacy or P3 identity claim"
+        }
       }
     },
     {
@@ -1068,11 +1079,11 @@
     "lanes": {
       "zk60-fable-review": "FA6 e83a4ca, FA7 f6d8557, FA3 ledger pointers 018d506, FA8 9d373e0; merged 972da4e (ed478da), ccc6f26 (641aa2d) and a94ce2c (74f3b06); FA9 merges in from zk60-fable-fa9 when delivered",
       "zk60-cl1": "CL21 d4f0758 (code) + e18994c (suite-v4 floors evidence); validated tip at cfa46f6 + CL21, pushed",
-      "zk60-cl20-core": "CL20 ee775be, 76ee275 (both integrated by Codex in b044e20), f61ee77 (merge 972da4e), f8d40a7 (held for C20-R1-R3); the correction and the a94ce2c merge are in flight on the lane",
+      "zk60-cl20-core": "CL20 ee775be, 76ee275 (both integrated by Codex in b044e20), f61ee77 (merge 972da4e), f8d40a7 (held for C20-R1-R3), 1c1ef6b (merge a94ce2c), 50f1ea5 (the C20-R1-R3 correction, validated); pushed",
       "zk60-fable-fa9": "FA9 (R09/R10/R31 packaged tests + patch proposals, R32 review of Codex's 42471f0) in flight"
     },
     "integration_notes": [
-      "CL20 raises the zkp-core test count from 19 to 28: cut floors suite v5 (CL21's gates helper) when integrating it; the v4 core_tests expectation refuses by design",
+      "CL20 raises the zkp-core test count (19 -> 22 integrated -> 32 on the lane at 50f1ea5): cut floors suite v5 (CL21's gates helper) with the new core_tests expectation when integrating; the v4 expectation refuses by design",
       "CL20 keeps pcs::Store::Device as the legacy variant name; the GPU adapter lives in hashline/src/gpu/mod.rs (CudaBackend)",
       "FA8 S1 is a security finding for the source owner: the explicit ZkConfig.seed path must be cfg(test)-only or refused in production",
       "FA6's two hardenings and FA9's R09/R10/R31 patch proposals are Codex-owned edits with tests that pin the flip"
