@@ -1,5 +1,44 @@
 # ZK60 milestone map
 
+**Required scope:** the first PoC (P1) hides inputs, outputs and intermediate
+activations; weights may be public. The full version (P3) also hides weights.
+Victor reaffirmed this on 2026-09-09. These are requirements, not claims of
+current acceptance. [Canonical privacy requirements](ZK60_PRIVACY_REQUIREMENTS.md).
+
+**2026-09-09, round 23:** [endpoint models and two-proof analysis](ZK60_ROUND23.md).
+The two fresh proofs per mode are now modeled together with shared witness
+data; only the two public H identities remain in the linear view. The candidate
+ideal-oracle endpoint preparation keeps its issued roots fixed and accounts
+for the actual leaf/node hash overlap. **39 Python tests, eight Rust tests and
+freeze-check pass.** This is not a full PCS/transcript simulator. Root-only
+external-statement simulation, adaptive privacy and the complete P1 block
+remain open; [the precise boundary](ZK60_ENDPOINT_SIMULATION_MODEL.md).
+
+**2026-09-09, round 22:** [recovery and O8 integration](ZK60_ROUND22.md).
+The interrupted round-21 commit is completed as `de76a87`; all 75 retained
+evidence hashes and nineteen stage exits check out. O8 is delivered and
+integrated with a strict analysis acceptance wrapper. New source-bound captures
+are retained in the workspace; the old temporary capture files are unavailable.
+Six Rust tests, 59 Python tests, sixteen receipt process cases and native
+freeze-check pass; three legacy-capture Python cases are explicitly skipped.
+The fresh joint, opening and CFS analyses pass within their conditional scope.
+The endpoint simulator, adaptive/repeated-proof privacy and complete P1 block
+remain open. Older references to pending O8 delivery below are historical.
+
+**2026-09-09, round 21:** the [history audit](ZK60_ROUND21.md) confirms this
+scope was already explicit in September 4 documentation and code. The
+P1/P3 declarations and private endpoint preparation/policy serializer remain
+unchanged at their original source sections; recent pushes introduced no
+public-IO switch. Six current Rust IO tests and sixteen saved-receipt process
+cases pass. Eight actual IO CFS channel checks, seven Python tests and 72
+corruption controls also pass, within the fixed-challenge scope.
+
+The immediate gate remains P1's private IO/activation transcript composition,
+including the caller-fixed endpoint simulator model, followed by private
+attention and a tiny block. O8's joint message review remains pending.
+Whole-proof privacy acceptance is still open; P3 weight privacy follows for
+the full version. The earlier entries below retain their historical scope.
+
 **2026-09-09, round 20:** exact opening checks pass on all four round-19
 captures: 18 private PCS owners and four shared eight-slot M openings.
 The [conditional construction](ZK60_ROUND20.md) preserves pad vectors and

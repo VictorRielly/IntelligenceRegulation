@@ -1,5 +1,11 @@
 # START HERE — the proof project in plain words
 
+**Required privacy (Victor, reaffirmed 2026-09-09):** the first PoC hides
+**inputs, outputs and intermediate activations**, with public weights allowed
+(P1). The full version also hides **model weights** (P3).
+This scope is decided. [Privacy requirements](ZK60_PRIVACY_REQUIREMENTS.md)
+records the existing decision separately from current implementation status.
+
 **Privacy correction, 2026-09-08:** the legacy hash-line FFN `--zk` / `--p3`
 proofs have demonstrated private-value disclosure in synthetic fixtures.
 Their verification and frozen performance results do not establish zero
@@ -13,6 +19,16 @@ IO observation set with saved receipts; joint IO privacy analysis is next.
 [Round 20](ZK60_ROUND20.md) checks the PCS pads/columns and shared mask opening
 with a conditional algebraic construction on those captures. O8's joint
 message/alias result and the adaptive transcript argument remain pending.
+[Round 21](ZK60_ROUND21.md) confirms the existing private-IO requirements in
+git history and checks both IO sumcheck mask channels on real captures.
+[Round 22](ZK60_ROUND22.md) completes the interrupted round-21 commit and
+integrates O8 with a strict analysis gate and freshly captured IO evidence.
+O8 is delivered; caller-fixed endpoint and adaptive/repeated-proof simulation
+remain open. The old temporary capture bytes are unavailable in this session.
+[Round 23](ZK60_ROUND23.md) checks the two fresh proofs per mode jointly and
+adds a research-only endpoint preparation simulator for the ideal hash oracle.
+It corrects the earlier assumption that salted leaves and Merkle nodes have
+separate hash domains. This is bounded analysis, not full privacy acceptance.
 It still lacks the complete private block,
 registered private model binding and final privacy review. The historical
 hash-line privacy claims below must be read with that correction. Pending
@@ -36,18 +52,20 @@ Read this page first. Then, if you are going to do work, read §8
 
 We are building a program that produces a **cryptographic proof that
 a specific language model was really run on a given input**. The
-proof lets anyone check, with a small program and without the
-model's weights, that the output came from exactly those weights on
-exactly that input. Two properties are non-negotiable:
+proof lets anyone check, with a small program, that the hidden output came
+from the specified model on the hidden input. The first PoC may use public
+model weights; the full version also hides the weights.
+Two properties are non-negotiable:
 
 - **Exactness.** The model is first converted to 8-bit integer
   arithmetic (a step called *calibration*, done once per model). The
   proof is then about that integer computation bit for bit, so the
   same proof means the same thing on any hardware. A model that has
   not been calibrated cannot be proven at all; that is a feature.
-- **Zero knowledge.** The weights (and, in some modes, the
-  activations) stay hidden. The math is lattice-based, which is also
-  believed to resist quantum computers.
+- **Zero knowledge.** Inputs, outputs and intermediate activations stay
+  hidden in both milestones. The full version additionally hides weights.
+  The repository explores both lattice and hash-based proof engines;
+  acceptance of either requires the declared privacy argument.
 
 The engine is Rust, in `zkmatrix-rs/`; one binary, `ring_matmul`,
 with many sub-commands. Python in `scripts/` does calibration and
@@ -155,9 +173,10 @@ written security argument (the published construction it descends
 from was found unsound, ePrint 2024/1164). Re-committing the weights
 each proof works only with 16 or more prefills batched per proof;
 the lattice-hybrid is an audit channel, not a throughput route.
-Which privacy mode the product needs is therefore the next ruling:
-private inputs only costs 2-8% and none of this; private weights
-costs that two-week build.
+The privacy scope is decided: private inputs, outputs and intermediate
+activations with public weights are the first PoC (P1); weight privacy is
+required in the full version (P3). The costs above are historical models,
+not permission to reduce either milestone's private set.
 
 ## 3. Where we stand (the honest numbers)
 
@@ -297,10 +316,12 @@ finish the lattice-line 8B MVP first.
 
 ## 7. The choices, and what was decided (2026-09-03: ROUND 11 CLOSED, ROUND 12 OPENED)
 
-**The privacy ruling (Victor, 2026-09-03): private inputs, public
-weights (mode P1) is the product path; private weights is a recorded
-TODO (board item T18, about two lane-weeks, priced in
-`U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md`).** Round 12 opens four lanes on
+**The privacy ruling (Victor, 2026-09-03; reaffirmed 2026-09-09): P1 is the
+first PoC, with hidden inputs, outputs and intermediate activations and public
+weights allowed. The full version is P3 and also hides weights.** Weight
+privacy remains implementation work (historical board item T18, priced in
+`U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md`), not an optional full-version feature.
+The following records the historical round-12 lanes. Round 12 opened four lanes on
 the hash line, all toward "50 tokens/s at 30B on one H100, mode P1,
 batched proving": AC (the weights committed once per model + the 8B
 pass on the GPU, the measured 8B GPU number), AD (zero knowledge

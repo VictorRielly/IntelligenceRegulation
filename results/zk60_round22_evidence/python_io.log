@@ -1,0 +1,31 @@
+test_full_io_geometry_at_degenerate_and_random_points (test_zk60_io_cfs_composition.ConditionalFibre) ... ok
+test_independent_round_formula_matches_weight_map (test_zk60_io_cfs_composition.ConditionalFibre) ... ok
+test_shortened_mask_cannot_cover_the_fibre (test_zk60_io_cfs_composition.ConditionalFibre) ... ok
+test_zero_multiplier_leaves_all_conditional_round_freedom_unmasked (test_zk60_io_cfs_composition.ConditionalFibre) ... ok
+test_actual_cfs_rounds_and_mask_functionals_accept (test_zk60_io_cfs_composition.PublicBinding) ... ok
+test_changed_functional_and_mask_challenge_refuse (test_zk60_io_cfs_composition.PublicBinding) ... ok
+test_changed_masked_terminal_and_round_refuse (test_zk60_io_cfs_composition.PublicBinding) ... ok
+test_every_prefix_basis_extends_and_matches_dense_lagrange (test_zk60_io_opening_translation.MaskTranslation) ... ok
+test_joint_two_slot_blinders_and_all_column_rows (test_zk60_io_opening_translation.MaskTranslation) ... ok
+test_nonzero_functional_forces_invalid_b (test_zk60_io_opening_translation.MaskTranslation) ... ok
+test_omitting_b_or_u_breaks_full_vectors (test_zk60_io_opening_translation.MaskTranslation) ... ok
+test_same_commitment_second_opening_needs_different_b (test_zk60_io_opening_translation.MaskTranslation) ... ok
+test_too_many_columns_have_dense_disclosure (test_zk60_io_opening_translation.MaskTranslation) ... ok
+test_budget_counts_distinct_samples (test_zk60_io_opening_translation.PcsTranslation) ... ok
+test_general_multicolumn_kernel_preserves_both_full_vectors (test_zk60_io_opening_translation.PcsTranslation) ... ok
+test_missing_pad_and_second_sample_set_reveal_difference (test_zk60_io_opening_translation.PcsTranslation) ... ok
+test_duplicate_interpolation_nodes_refuse (test_zk60_io_opening_translation.PolynomialArithmetic) ... ok
+test_fft_matches_direct_dft (test_zk60_io_opening_translation.PolynomialArithmetic) ... ok
+test_interpolation_and_coset_order (test_zk60_io_opening_translation.PolynomialArithmetic) ... ok
+test_inverse_matches_archived_dense_idft (test_zk60_io_opening_translation.PolynomialArithmetic) ... ok
+test_products_match_schoolbook (test_zk60_io_opening_translation.PolynomialArithmetic) ... ok
+test_delivered_complete_record_accepts (test_zk60_io_review_gate.ReviewAcceptance) ... ok
+test_empty_directory_cannot_report_success (test_zk60_io_review_gate.ReviewAcceptance) ... ok
+test_failed_ingestion_control_is_not_a_successful_analysis (test_zk60_io_review_gate.ReviewAcceptance) ... ok
+test_failed_preflight_cannot_be_overridden_by_green_model (test_zk60_io_review_gate.ReviewAcceptance) ... ok
+test_missing_and_duplicate_results_are_refused (test_zk60_io_review_gate.ReviewAcceptance) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 0.177s
+
+OK

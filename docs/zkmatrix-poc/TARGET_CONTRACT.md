@@ -5,6 +5,13 @@ page pins every word of the headline claim so that a future latency
 number is checkable instead of elastic. Nothing here is a measurement;
 where a budget is not yet met (or not yet measurable) it says so.
 
+**Current product privacy requirement (Victor, reaffirmed 2026-09-09):**
+the first PoC uses P1: inputs, outputs and intermediate activations are hidden;
+weights may be public. The full version uses P3 and also hides weights. See
+[Privacy requirements](ZK60_PRIVACY_REQUIREMENTS.md). The generic mode taxonomy
+in Amendment A1 is not an open product choice. This restatement does not
+change the frozen benchmark shapes, timing or size boundaries below.
+
 ## 1. The model
 
 - **Measured surrogate (today):** 32 identical feedforward (FFN) blocks

@@ -1,0 +1,12 @@
+test_full_io_geometry_at_degenerate_and_random_points (test_zk60_io_cfs_composition.ConditionalFibre) ... ok
+test_independent_round_formula_matches_weight_map (test_zk60_io_cfs_composition.ConditionalFibre) ... ok
+test_shortened_mask_cannot_cover_the_fibre (test_zk60_io_cfs_composition.ConditionalFibre) ... ok
+test_zero_multiplier_leaves_all_conditional_round_freedom_unmasked (test_zk60_io_cfs_composition.ConditionalFibre) ... ok
+test_actual_cfs_rounds_and_mask_functionals_accept (test_zk60_io_cfs_composition.PublicBinding) ... ok
+test_changed_functional_and_mask_challenge_refuse (test_zk60_io_cfs_composition.PublicBinding) ... ok
+test_changed_masked_terminal_and_round_refuse (test_zk60_io_cfs_composition.PublicBinding) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.095s
+
+OK

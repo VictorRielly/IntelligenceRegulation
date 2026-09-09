@@ -1,0 +1,651 @@
+{
+  "schema": 1,
+  "source_commit": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4",
+  "manifest_sha256": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d",
+  "source_sha256": {
+    "hashline/src/zk.rs": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310",
+    "hashline/src/zk_ffn_fresh_io.rs": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+    "hashline/src/zk_ffn_fresh_io_tests.rs": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9",
+    "hashline/src/zk_ffn_mask_diagnostic.rs": "462346828c427b5f6d07ed502edc4d88ba57e1197e6e27836b73316704e8dd64",
+    "hashline/src/zk_ffn_observation_json.rs": "e7a62281896efc4f1f12c403c6959ab7e2476beee07960f3752816fdc711a1e6",
+    "hashline/src/zk_ffn_io_diagnostic.rs": "c866dcce37789106eb18f4aac5093bb3bc14cadb78ca67a1d0fb6ebe092122a5",
+    "hashline/src/private_seam.rs": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+    "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "zkp-core/src/transcript.rs": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+    "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+  },
+  "status": "passed",
+  "scope": "fixed-challenge field-valued opening translations",
+  "full_privacy_review_complete": false,
+  "merkle_or_transcript_simulation_performed": false,
+  "cases": [
+    {
+      "privacy": "P3",
+      "roles": {
+        "W": {
+          "rows": 11,
+          "claims": 3,
+          "groups": [
+            2,
+            1
+          ]
+        },
+        "A": {
+          "rows": 702,
+          "claims": 20,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6,
+            1,
+            1
+          ]
+        },
+        "H": {
+          "rows": 1326,
+          "claims": 12,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        },
+        "Input": {
+          "rows": 7,
+          "claims": 1,
+          "groups": [
+            1
+          ]
+        },
+        "Output": {
+          "rows": 7,
+          "claims": 1,
+          "groups": [
+            1
+          ]
+        }
+      },
+      "mask_slots": 8,
+      "mask_rows": 20,
+      "transcript_joins_checked": true,
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd.json",
+      "capture_sha256": "6be46cb9e8b6b5b2fbbd744944d51f647210e59aaf3c074733667b177cea74fe",
+      "capture_bytes": 15085770,
+      "proof_sha256": "038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd",
+      "proof_bytes": 5066204,
+      "expected_policy_sha256": "c02dc9a14b4e46ef57f8b84bf9963a95a76fbb2d74e38cf8577990257139713d",
+      "mask": {
+        "public_equations_checked": true,
+        "slots": 8,
+        "rows": 20,
+        "functionals": 14,
+        "functional_rank_fp2": 14,
+        "coefficient_kernel_dim_fp2": 215,
+        "distinct_columns": 247,
+        "joint_translation_checked": true,
+        "all_slots_nonzero": true,
+        "full_q_prox_and_sampled_columns_unchanged": true
+      },
+      "pcs": [
+        {
+          "role": "W",
+          "rows": 11,
+          "groups": 2,
+          "distinct_columns": 244,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 0,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 5,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        },
+        {
+          "role": "A",
+          "rows": 702,
+          "groups": 7,
+          "distinct_columns": 246,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 0,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 5,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        },
+        {
+          "role": "H",
+          "rows": 1326,
+          "groups": 5,
+          "distinct_columns": 246,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 1,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 6,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        },
+        {
+          "role": "Input",
+          "rows": 7,
+          "groups": 1,
+          "distinct_columns": 236,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 0,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 5,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        },
+        {
+          "role": "Output",
+          "rows": 7,
+          "groups": 1,
+          "distinct_columns": 246,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 0,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 5,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        }
+      ]
+    },
+    {
+      "privacy": "P1",
+      "roles": {
+        "A": {
+          "rows": 702,
+          "claims": 20,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6,
+            1,
+            1
+          ]
+        },
+        "H": {
+          "rows": 1326,
+          "claims": 12,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        },
+        "Input": {
+          "rows": 7,
+          "claims": 1,
+          "groups": [
+            1
+          ]
+        },
+        "Output": {
+          "rows": 7,
+          "claims": 1,
+          "groups": [
+            1
+          ]
+        }
+      },
+      "mask_slots": 8,
+      "mask_rows": 20,
+      "transcript_joins_checked": true,
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e.json",
+      "capture_sha256": "b7d85970f18a001402ab76dcc4854c9b422235e9740b6ccbed96e4888862306e",
+      "capture_bytes": 14487113,
+      "proof_sha256": "c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e",
+      "proof_bytes": 5029244,
+      "expected_policy_sha256": "11bc6092bc4130c6fda5da5fd90ebc68b296de68c2f240a14b822db71d54a9ad",
+      "mask": {
+        "public_equations_checked": true,
+        "slots": 8,
+        "rows": 20,
+        "functionals": 14,
+        "functional_rank_fp2": 14,
+        "coefficient_kernel_dim_fp2": 211,
+        "distinct_columns": 244,
+        "joint_translation_checked": true,
+        "all_slots_nonzero": true,
+        "full_q_prox_and_sampled_columns_unchanged": true
+      },
+      "pcs": [
+        {
+          "role": "A",
+          "rows": 702,
+          "groups": 7,
+          "distinct_columns": 240,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 0,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 5,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        },
+        {
+          "role": "H",
+          "rows": 1326,
+          "groups": 5,
+          "distinct_columns": 242,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 1,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 6,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        },
+        {
+          "role": "Input",
+          "rows": 7,
+          "groups": 1,
+          "distinct_columns": 242,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 0,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 5,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        },
+        {
+          "role": "Output",
+          "rows": 7,
+          "groups": 1,
+          "distinct_columns": 240,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 0,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 5,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        }
+      ]
+    },
+    {
+      "privacy": "P3",
+      "roles": {
+        "W": {
+          "rows": 11,
+          "claims": 3,
+          "groups": [
+            2,
+            1
+          ]
+        },
+        "A": {
+          "rows": 702,
+          "claims": 20,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6,
+            1,
+            1
+          ]
+        },
+        "H": {
+          "rows": 1326,
+          "claims": 12,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        },
+        "Input": {
+          "rows": 7,
+          "claims": 1,
+          "groups": [
+            1
+          ]
+        },
+        "Output": {
+          "rows": 7,
+          "claims": 1,
+          "groups": [
+            1
+          ]
+        }
+      },
+      "mask_slots": 8,
+      "mask_rows": 20,
+      "transcript_joins_checked": true,
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314.json",
+      "capture_sha256": "28130c25d27ae5246106198411e9d28c8b25e06952b4b400701514d56efe152b",
+      "capture_bytes": 15088181,
+      "proof_sha256": "e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314",
+      "proof_bytes": 5066204,
+      "expected_policy_sha256": "325df88c364b169e43f2ea061c011b4300ae06ee26006c260359a6617ab1d018",
+      "mask": {
+        "public_equations_checked": true,
+        "slots": 8,
+        "rows": 20,
+        "functionals": 14,
+        "functional_rank_fp2": 14,
+        "coefficient_kernel_dim_fp2": 215,
+        "distinct_columns": 245,
+        "joint_translation_checked": true,
+        "all_slots_nonzero": true,
+        "full_q_prox_and_sampled_columns_unchanged": true
+      },
+      "pcs": [
+        {
+          "role": "W",
+          "rows": 11,
+          "groups": 2,
+          "distinct_columns": 241,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 0,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 5,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        },
+        {
+          "role": "A",
+          "rows": 702,
+          "groups": 7,
+          "distinct_columns": 235,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 0,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 5,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        },
+        {
+          "role": "H",
+          "rows": 1326,
+          "groups": 5,
+          "distinct_columns": 242,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 1,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 6,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        },
+        {
+          "role": "Input",
+          "rows": 7,
+          "groups": 1,
+          "distinct_columns": 248,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 0,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 5,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        },
+        {
+          "role": "Output",
+          "rows": 7,
+          "groups": 1,
+          "distinct_columns": 243,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 0,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 5,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        }
+      ]
+    },
+    {
+      "privacy": "P1",
+      "roles": {
+        "A": {
+          "rows": 702,
+          "claims": 20,
+          "groups": [
+            7,
+            3,
+            1,
+            1,
+            6,
+            1,
+            1
+          ]
+        },
+        "H": {
+          "rows": 1326,
+          "claims": 12,
+          "groups": [
+            3,
+            1,
+            1,
+            6,
+            1
+          ]
+        },
+        "Input": {
+          "rows": 7,
+          "claims": 1,
+          "groups": [
+            1
+          ]
+        },
+        "Output": {
+          "rows": 7,
+          "claims": 1,
+          "groups": [
+            1
+          ]
+        }
+      },
+      "mask_slots": 8,
+      "mask_rows": 20,
+      "transcript_joins_checked": true,
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb.json",
+      "capture_sha256": "5bcc22c0514c59cf9dfcc7cbd851c4bb87d3d0215daa04f8c150026810743bc7",
+      "capture_bytes": 14486309,
+      "proof_sha256": "efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb",
+      "proof_bytes": 5029244,
+      "expected_policy_sha256": "2e1826504bd891feef04bd8bf8017ffac9635849a24d8978f82b90c78b7babbb",
+      "mask": {
+        "public_equations_checked": true,
+        "slots": 8,
+        "rows": 20,
+        "functionals": 14,
+        "functional_rank_fp2": 14,
+        "coefficient_kernel_dim_fp2": 211,
+        "distinct_columns": 246,
+        "joint_translation_checked": true,
+        "all_slots_nonzero": true,
+        "full_q_prox_and_sampled_columns_unchanged": true
+      },
+      "pcs": [
+        {
+          "role": "A",
+          "rows": 702,
+          "groups": 7,
+          "distinct_columns": 244,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 0,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 5,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        },
+        {
+          "role": "H",
+          "rows": 1326,
+          "groups": 5,
+          "distinct_columns": 236,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 1,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 6,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        },
+        {
+          "role": "Input",
+          "rows": 7,
+          "groups": 1,
+          "distinct_columns": 238,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 0,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 5,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        },
+        {
+          "role": "Output",
+          "rows": 7,
+          "groups": 1,
+          "distinct_columns": 240,
+          "pad_budget": 256,
+          "public_equations_checked": true,
+          "translation_free_row": 0,
+          "translation_free_row_kind": "data",
+          "nonzero_translation_rows": 5,
+          "full_vectors_terminals_constraints_and_sampled_columns_unchanged": true
+        }
+      ]
+    }
+  ],
+  "numerical_controls": {
+    "P3": {
+      "proof_sha256": "038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd",
+      "cases": [
+        {
+          "name": "M q coefficient",
+          "rejected": true,
+          "reason": "M public product/column equation"
+        },
+        {
+          "name": "M prox coefficient",
+          "rejected": true,
+          "reason": "M public proximity/column equation"
+        },
+        {
+          "name": "M sampled a word",
+          "rejected": true,
+          "reason": "M public product/column equation"
+        },
+        {
+          "name": "M sampled b word",
+          "rejected": true,
+          "reason": "M public product/column equation"
+        },
+        {
+          "name": "M sampled u word",
+          "rejected": true,
+          "reason": "M public proximity/column equation"
+        },
+        {
+          "name": "M theta",
+          "rejected": true,
+          "reason": "M public sum equation"
+        },
+        {
+          "name": "M functional weight",
+          "rejected": true,
+          "reason": "M public product/column equation"
+        },
+        {
+          "name": "PCS group pad",
+          "rejected": true,
+          "reason": "PCS public vector/column equation"
+        },
+        {
+          "name": "PCS proximity pad",
+          "rejected": true,
+          "reason": "PCS public vector/column equation"
+        },
+        {
+          "name": "PCS sampled word",
+          "rejected": true,
+          "reason": "PCS public vector/column equation"
+        },
+        {
+          "name": "PCS group lambda",
+          "rejected": true,
+          "reason": "PCS public vector/column equation"
+        }
+      ]
+    },
+    "P1": {
+      "proof_sha256": "c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e",
+      "cases": [
+        {
+          "name": "M q coefficient",
+          "rejected": true,
+          "reason": "M public product/column equation"
+        },
+        {
+          "name": "M prox coefficient",
+          "rejected": true,
+          "reason": "M public proximity/column equation"
+        },
+        {
+          "name": "M sampled a word",
+          "rejected": true,
+          "reason": "M public product/column equation"
+        },
+        {
+          "name": "M sampled b word",
+          "rejected": true,
+          "reason": "M public product/column equation"
+        },
+        {
+          "name": "M sampled u word",
+          "rejected": true,
+          "reason": "M public proximity/column equation"
+        },
+        {
+          "name": "M theta",
+          "rejected": true,
+          "reason": "M public sum equation"
+        },
+        {
+          "name": "M functional weight",
+          "rejected": true,
+          "reason": "M public product/column equation"
+        },
+        {
+          "name": "PCS group pad",
+          "rejected": true,
+          "reason": "PCS public vector/column equation"
+        },
+        {
+          "name": "PCS proximity pad",
+          "rejected": true,
+          "reason": "PCS public vector/column equation"
+        },
+        {
+          "name": "PCS sampled word",
+          "rejected": true,
+          "reason": "PCS public vector/column equation"
+        },
+        {
+          "name": "PCS group lambda",
+          "rejected": true,
+          "reason": "PCS public vector/column equation"
+        }
+      ]
+    }
+  },
+  "tools": {
+    "scripts/zk60_io_opening_translation.py": "3579e0ff10f5f501a5596e3ef56dc812060a8f34a883910b2bb89c8c675ae0bf",
+    "scripts/zk60_fable_cfs_channel.py": "ba05f0d140d72f67d69bbf48f4336d08a83cd99fbd01d2c49c417ec120066437",
+    "scripts/zk60_fable_joint_rank.py": "ad5e4e483c6dd8c5f73a87ddb0af1d06c3084576e82428e9c2ada6a764ffbb5b",
+    "scripts/zk60_io_capture_preflight.py": "a4e230f5f6aed62fc0f12b662a3b3becbbb6bee1d41cd12c06baa6918a5ce217",
+    "scripts/zk60_opus_repaired_capture.py": "9bc226dce00fd8d1ede28cf49220eab52cf60a019c92fd2b556f1d0e10c516a1",
+    "scripts/zk60_fable_joint_capture.py": "9dd9b6bafaedeb19c8e2ca008cc255bcede84502dd1f58d3091223e7f6bdf8b2",
+    "scripts/zk60_opus_io_layout.py": "d9a537ede46f3ebbd58a7bd153c7cfcebe79ddf553c6f7eadc153b295e77ace4",
+    "scripts/zk60_opus_wire_length.py": "6c5de133fa4a85939ff5d46bb0b1a4494366c02ec8282c6bd7c89fa1c8608e5a"
+  }
+}

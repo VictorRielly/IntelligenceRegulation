@@ -1,5 +1,12 @@
 # Opus 5 handoff — executable FFN repair
 
+**Required privacy / task priority:** the first PoC (P1) hides inputs, outputs
+and intermediate activations; weights may be public. The full version (P3)
+also hides weights. [Victor's existing requirements](ZK60_PRIVACY_REQUIREMENTS.md),
+reaffirmed 2026-09-09. Lead findings with the effect on P1's private IO and
+activations; retain P3 checks without making PoC weight privacy a prerequisite.
+The full version's weight privacy remains required.
+
 **Round 17 update:** O1–O4 are delivered and integrated through `2fb7e0a`.
 Codex reran all 69 Opus tests and 57 legacy joint-analysis tests with no skips.
 Their results are accepted within the stated capture/linear-model/inventory
@@ -7,7 +14,30 @@ scope; full privacy acceptance remains open. Read [round 17](ZK60_ROUND17.md)
 first. The original dispatch below remains the definition of the completed
 items. Do not rerun or rewrite those reports as new work.
 
-## Current dispatch: O8 — analyze the new IO captures
+## O8 — delivered analysis (original dispatch below)
+
+**Codex round-23 continuation:** [round 23](ZK60_ROUND23.md) uses O8's model
+unchanged across two fresh proofs, sharing only witness-dependent data rows
+that are actually equal across the source fixture's attempts. H stays
+proof-local and both public identities are accounted for. The
+[endpoint model](ZK60_ENDPOINT_SIMULATION_MODEL.md) distinguishes joint
+preparation from arbitrary-root simulation and corrects FA8's claim of
+disjoint salted-leaf/Merkle-node hash domains. Full privacy remains open.
+
+**Codex round-22 integration:** O8 is delivered in `d82a286` and `0f51e3f`.
+[Round 22](ZK60_ROUND22.md) records source/import checks, fresh capture
+validation and disposition. The old `/tmp` capture files are unavailable;
+new captures have their own manifest. Use `scripts/zk60_io_review_gate.py`
+for new analyses: the archived CLI can exit 0 after failed preflight or
+ingestion controls. Its model/tool/result are preserved unchanged.
+Codex owns the remaining endpoint/adaptive/repeated-proof composition;
+O8 is not awaiting delivery, and the instructions below are historical.
+
+**Codex round-21 update:** [round 21](ZK60_ROUND21.md) checks both IO CFS
+round-message fibres and their exact M functional bindings on all four
+captures. Its fixed-challenge scope still excludes adaptive simulation and
+caller-fixed endpoint roots. O8 remains responsible for the joint PCS
+message/alias premise, with P1 private IO/activations the first milestone.
 
 **Codex round-20 update:** [round 20](ZK60_ROUND20.md) supplies a conditional
 PCS pad/column and shared-M opening construction with checks on all four

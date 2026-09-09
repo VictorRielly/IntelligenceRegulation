@@ -43,3 +43,6 @@ results/hashline_8b_gpu_wcache/
 results/ak_attn_exports/
 results/ak_mistral_toks.npy
 results/ak_hashline_fold.bin
+
+## Fresh IO validation captures; manifests and logs are committed separately.
+results/zk60_round22_captures/

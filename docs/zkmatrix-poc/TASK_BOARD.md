@@ -1,5 +1,43 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**Binding privacy scope:** first PoC P1 hides inputs, outputs and intermediate
+activations; weights may be public. Full version P3 also hides weights.
+[Existing requirements reaffirmed by Victor, 2026-09-09](ZK60_PRIVACY_REQUIREMENTS.md).
+Prioritize the P1 private-IO path. Public IO cannot substitute for its privacy
+obligations; weight-specific P3 work remains required for the full version.
+
+**2026-09-09, round 23:** [endpoint simulation boundary and repeated views](ZK60_ROUND23.md).
+The two fresh receipts per mode are analyzed jointly with shared A/W/endpoint
+data and separate randomness; only both public H identities survive. A
+research-only ideal-oracle prototype keeps preparation-issued endpoint roots
+fixed while explaining selected columns later. It handles hash-role overlap
+in one table; native tests refute FA8's disjoint-domain premise.
+**39 Python tests, eight Rust tests and freeze-check pass.** Next Codex work:
+the joint field-view sampler and its adaptive oracle composition under the
+[explicit endpoint models](ZK60_ENDPOINT_SIMULATION_MODEL.md). Root-only
+simulation for arbitrary existing endpoints and full privacy remain open.
+Private attention/tiny P1 block follow that gate; P3 and core priorities remain.
+
+**2026-09-09, round 22:** [interruption recovery and O8 integration](ZK60_ROUND22.md).
+Round 21 had completed validation but stopped before committing; `de76a87`
+finishes that commit after 75 evidence hash checks. O8 (`d82a286`, handoff
+`0f51e3f`) is delivered. Fresh, separately manifested IO captures replace the
+missing temporary files for new checks; historical artifacts are not relabelled.
+Six Rust tests, 59 Python tests, sixteen receipt cases and freeze-check pass;
+three legacy-fixture Python cases remain explicitly skipped. Fresh joint,
+opening and CFS checks pass. Use `scripts/zk60_io_review_gate.py` for strict O8
+acceptance. Codex next
+resolves the caller-fixed endpoint simulator and adaptive/repeated-proof
+composition, then private attention and a tiny P1 block. Earlier entries below
+are historical; O8 is no longer a pending external delivery.
+
+**2026-09-09, round 21:** [requirement/history audit and IO CFS checks](ZK60_ROUND21.md).
+The requirement already existed; no public-IO switch was found in the reviewed
+pushes. Six Rust IO tests, sixteen saved-receipt process cases, seven Python
+tests, eight IO CFS checks and 72 corruption controls pass. Codex next resolves
+the P1 private-endpoint simulator/composition obligation and integrates O8.
+Keep input, output and intermediate values hidden throughout this milestone.
+
 **2026-09-09, round 20:** Codex adds a constructive check for PCS pads/columns
 and the shared M opening, validated on all four real round-19 captures.
 **35 Python tests, 18 PCS opening checks, four M opening checks and 22 numerical

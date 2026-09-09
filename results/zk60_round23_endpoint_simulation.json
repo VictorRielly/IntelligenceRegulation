@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "endpoints": [
+    {
+      "root": "18873de799312885dd5a3a771e0c344133f627ff6e946145c3d8f681d7048f2d",
+      "positions": 256,
+      "unique_columns": 241,
+      "every_path_accepts_under_original_root": true
+    },
+    {
+      "root": "8bcc068759343cb9fe605cfc963733d16b98664d33ced058bc318763cb4a5496",
+      "positions": 256,
+      "unique_columns": 241,
+      "every_path_accepts_under_original_root": true
+    }
+  ],
+  "programmed_salted_leaf_inputs": 482,
+  "one_shared_oracle_table": true,
+  "preexisting_points_reprogrammed": 0,
+  "simulator_generated_roots": true,
+  "root_only_simulation": false,
+  "actual_blake3_programmed": false,
+  "columns_sampled_from_PCS_distribution": false,
+  "full_privacy_review_complete": false,
+  "scope": "executable consistency of deferred Merkle preparation/opening in an ideal programmable oracle",
+  "tool_sha256": "c5549eefeafd4a4e3ed8bbfe70f3c2924ed6f1ed179ebf73edb9206bfbd0e9aa"
+}

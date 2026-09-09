@@ -1,0 +1,23 @@
+{
+  "tests_run": 36,
+  "failures": 0,
+  "errors": 0,
+  "skipped": [
+    {
+      "test": "test_legacy_tool_still_reports_2n_plus_4_and_2n_plus_2_and_h_identity (o8_fresh_tests.LegacyPositiveControl)",
+      "reason": "legacy captures absent (/tmp/zk60-round11/final-observations)"
+    },
+    {
+      "test": "test_a_fully_relabelled_legacy_capture_is_refused_by_the_recomputation (o8_fresh_tests.LegacyRefused)",
+      "reason": "legacy captures absent (/tmp/zk60-round11/final-observations)"
+    },
+    {
+      "test": "test_every_legacy_capture_is_refused_by_this_adapter (o8_fresh_tests.LegacyRefused)",
+      "reason": "legacy captures absent (/tmp/zk60-round11/final-observations)"
+    }
+  ],
+  "captures": "/home/victor/IntelligenceRegulation/results/zk60_round22_captures",
+  "manifest": "/home/victor/IntelligenceRegulation/results/zk60_round22_captures.json",
+  "original_tests_modified": false,
+  "historical_result_binding_checked": true
+}

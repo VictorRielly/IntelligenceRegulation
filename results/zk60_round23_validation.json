@@ -1,0 +1,167 @@
+{
+  "schema": 1,
+  "reviewed_head": "4afa3fbb32301ba7b09759dba1d2fb42affacb8c",
+  "status": "passed",
+  "stages": [
+    {
+      "name": "rust_hash_boundary",
+      "command": [
+        "flock",
+        "/tmp/zk-heavy.lock",
+        "/home/victor/.cargo/bin/cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--features",
+        "stable-weight-storage",
+        "--test",
+        "zk60_endpoint_hash_boundary",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 6.744027289999849,
+      "log_sha256": "a8e50b71df38651db53847fee2596769df238d856d7508764e69f7e32dbeba31"
+    },
+    {
+      "name": "rust_io",
+      "command": [
+        "flock",
+        "/tmp/zk-heavy.lock",
+        "/home/victor/.cargo/bin/cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--features",
+        "stable-weight-storage",
+        "bound_ffn_",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 1.4691198900000018,
+      "log_sha256": "66074042766aaae37ece69d81a38ff76e549b3a62b0a82472529dee0c0c5442c"
+    },
+    {
+      "name": "python_io",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_io_*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 1.554840009000145,
+      "log_sha256": "579a048f2ae4f1d93292b4842516b105b810a8259791f0eebff8f31b2e276437"
+    },
+    {
+      "name": "python_endpoint",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_endpoint_simulation.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 0.05579949499997383,
+      "log_sha256": "2f5b09248ed379783947a9d3c2c7985df37c19928e3562599486011e36518480"
+    },
+    {
+      "name": "repeated_view",
+      "command": [
+        "python3",
+        "scripts/zk60_io_repeated_view.py",
+        "--captures",
+        "results/zk60_round22_captures",
+        "--manifest",
+        "results/zk60_round22_captures.json",
+        "--out",
+        "results/zk60_round23_repeated_view.json"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 16.659499120999953,
+      "log_sha256": "87931770c3b804a220ad3a3a92a5a36b387aa6582acab4cbf195f652266701fa"
+    },
+    {
+      "name": "endpoint_simulation",
+      "command": [
+        "python3",
+        "scripts/zk60_endpoint_simulation.py",
+        "--out",
+        "results/zk60_round23_endpoint_simulation.json"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 0.03935256600016146,
+      "log_sha256": "645120cafd26f67da3d0da43bce5ff82fba102f9bf56b0f7f5a520b229488813"
+    },
+    {
+      "name": "native_freeze",
+      "command": [
+        "/home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/ring_matmul",
+        "freeze-check"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {
+        "M125_EXPORT_DIR": "/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl"
+      },
+      "elapsed_s": 2.641616394000266,
+      "log_sha256": "ca64e2c697c0a0f1c402ebe9312e4a3f2033f42e08c12112e50505520fa40cac"
+    }
+  ],
+  "runtime_protocol_changed": false,
+  "full_privacy_review_complete": false,
+  "rlimit_as": 8589934592,
+  "source_sha256": {
+    "hashline/src/zk.rs": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310",
+    "hashline/src/zk_ffn_fresh_io.rs": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+    "hashline/src/zk_ffn_fresh_io_tests.rs": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9",
+    "hashline/src/zk_ffn_mask_diagnostic.rs": "462346828c427b5f6d07ed502edc4d88ba57e1197e6e27836b73316704e8dd64",
+    "hashline/src/zk_ffn_observation_json.rs": "e7a62281896efc4f1f12c403c6959ab7e2476beee07960f3752816fdc711a1e6",
+    "hashline/src/zk_ffn_io_diagnostic.rs": "c866dcce37789106eb18f4aac5093bb3bc14cadb78ca67a1d0fb6ebe092122a5",
+    "hashline/src/private_seam.rs": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+    "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "zkp-core/src/transcript.rs": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+    "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+    "zkp-core/src/merkle.rs": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62",
+    "zkp-core/src/rng.rs": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb"
+  },
+  "tools": {
+    "scripts/zk60_io_repeated_view.py": "4de64c0d5f1948715556ab01e36c922a0821b7c689c639d47529646d22a90c8c",
+    "scripts/zk60_endpoint_simulation.py": "c5549eefeafd4a4e3ed8bbfe70f3c2924ed6f1ed179ebf73edb9206bfbd0e9aa",
+    "tests/test_zk60_io_repeated_view.py": "7c247e78384590e22aed0f950e37b062e09066b36bc40d5f127dfdd7ab58d4d0",
+    "tests/test_zk60_endpoint_simulation.py": "d8b52e1dbb035c1488a4ab9ef3d2728d595d5e687332489ecf9e000d32e6d7b0",
+    "hashline/tests/zk60_endpoint_hash_boundary.rs": "3a8e12ced0d47114032adc8e502aec8d7f2c3e1d961677b77ede788e9111b233",
+    "results/zk60_round23_evidence/validate.py": "e70b92560e3b061313a3c2a97a58e5b3d5dae2d092037b4cfe5233ab2c7d4517"
+  },
+  "results": {
+    "results/zk60_round23_repeated_view.json": "f6e01e4d3c73b01a22e5294d5305c7eeb7f7ab972e13cd04df8015e55628e33f",
+    "results/zk60_round23_endpoint_simulation.json": "151d80a45b8f8a502455f888589264a1f2f055d7501df9da1a4900d0b0ae5ea6",
+    "results/zk60_round22_captures.json": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d"
+  },
+  "rust_tests": 8,
+  "python_tests": 39,
+  "python_skips": 0,
+  "evidence_index_sha256": "aeee6c3e7a68c002867dd1aad83c489312f510321eff1daab9449c4f2d7faacd"
+}

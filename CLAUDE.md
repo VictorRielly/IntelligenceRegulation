@@ -4,6 +4,11 @@
 (plain words: what is built, the measured numbers, why the speed goal
 is hard, the open choices, the rules, a glossary).
 
+**Privacy requirements are decided:** the first PoC (P1) hides inputs,
+outputs and intermediate activations; weights may be public. The full version
+(P3) also hides weights. Read `docs/zkmatrix-poc/ZK60_PRIVACY_REQUIREMENTS.md`.
+Do not reopen this choice or substitute public IO to bypass a proof obligation.
+
 **Any agent working on the proof clocks (Claude, Grok/Cursor, human):
 start at `docs/zkmatrix-poc/TASK_BOARD.md`** — the ordered queue of
 small, self-checking tasks with exact commands and byte-identity
