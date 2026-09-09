@@ -193,6 +193,35 @@ fn repaired_fresh_poc_verifies_twice_and_blocks_single_mask_recovery() {
             );
             check_pair_ambiguity(&observed.a, zl.a_mgu[0], &ntt);
             check_pair_ambiguity(&observed.a, zl.a_mdd[0], &ntt);
+            // Actual H helper/table claims, including their full row mapping.
+            // Removing both reserved mask components must fail the rank guard.
+            let masks = zl.h_mask_rows();
+            for ci in (0..4).chain(5..11) {
+                let mut claim = observed.h.claims[ci].clone();
+                fresh_poc::check_masks(
+                    std::slice::from_ref(&claim),
+                    observed.h.commitment.rows,
+                    zl.log_n,
+                    &masks,
+                    zl.h_prox,
+                    &observed.h.before,
+                )
+                .unwrap();
+                for part in &mut claim.parts {
+                    if masks.contains(&(part.slice.offset / zl.a_n)) {
+                        part.coef = Fp2::ZERO;
+                    }
+                }
+                assert!(fresh_poc::check_masks(
+                    &[claim],
+                    observed.h.commitment.rows,
+                    zl.log_n,
+                    &masks,
+                    zl.h_prox,
+                    &observed.h.before
+                )
+                .is_err());
+            }
             if let Some(o) = &observed.w {
                 check_pair_ambiguity(o, zl.w_mdd[0], &ntt);
             }
@@ -291,6 +320,30 @@ fn repaired_fresh_poc_rejects_tampering_and_legacy_profiles() {
         .is_err());
         verify(&proof).unwrap();
     }
+    // IO extends the observation contract. Even a fully accepted IO receipt
+    // must not appear in the archived FFN-only capture/linear-analysis lane.
+    let spec = fresh_poc::io::IoSpec::new([9; 32], -3, 0).unwrap();
+    let x: Vec<_> = w.x.iter().map(|&x| Fp::from_i64(x as i64)).collect();
+    let z: Vec<_> = w.z16.iter().map(|&x| Fp::from_i64(x as i64)).collect();
+    let (expected, endpoints) = fresh_poc::io::prepare_endpoints(spec, &x, &z).unwrap();
+    let receipt = fresh_poc::io::prepare(&w, ZkPrivacy::P3, &expected)
+        .unwrap()
+        .finish(endpoints)
+        .unwrap();
+    let mut bytes = receipt
+        .to_bytes(&st, WeightStatement::FreshPrivate, &expected)
+        .unwrap();
+    let guard = CaptureGuard::new();
+    fresh_poc::io::verify_bytes(&st, WeightStatement::FreshPrivate, &expected, &bytes).unwrap();
+    assert!(guard.take().is_none());
+    *bytes.last_mut().unwrap() ^= 1;
+    assert!(
+        fresh_poc::io::verify_bytes(&st, WeightStatement::FreshPrivate, &expected, &bytes).is_err()
+    );
+    assert!(
+        guard.take().is_none(),
+        "partial IO acceptance published an old capture"
+    );
 }
 
 #[test]
@@ -327,11 +380,14 @@ fn repaired_layout_and_degenerate_mask_controls() {
             let count = if slot.rows == 1 { 2 } else { slot.rows };
             assert!((slot.a_mask..slot.a_mask + count).all(|r| zl.a_mask_rows().contains(&r)));
         }
-        let mut point = vec![Fp2::U; zl.log_s];
+        let point = vec![Fp2::U; zl.log_s];
         fresh_poc::check_table_point(&zl, &point).unwrap();
-        if zl.log_s > zl.log_n {
-            point[0] = Fp2::ONE;
-            assert!(fresh_poc::check_table_point(&zl, &point).is_err());
+        for slot in zl.tabs.iter().filter(|s| s.rows > 1) {
+            for coordinate in zl.log_s - slot.log_size as usize..zl.log_s - zl.log_n {
+                let mut bad = point.clone();
+                bad[coordinate] = Fp2::ONE;
+                assert!(fresh_poc::check_table_point(&zl, &bad).is_err());
+            }
         }
     }
     let part = |row: usize, coef| ZPart {
@@ -357,4 +413,27 @@ fn repaired_layout_and_degenerate_mask_controls() {
     claim.parts[1].coef = Fp2::ZERO;
     claim.parts[2].coef = Fp2::ZERO;
     assert!(fresh_poc::check_masks(&[claim], 5, 2, &[1, 2], 3, &tr).is_err());
+    let mut draws = 0;
+    assert!(fresh_poc::check_opening_challenges([1], 2, 0, || {
+        draws += 1;
+        Fp2::ZERO
+    })
+    .unwrap_err()
+    .contains("group member"));
+    assert_eq!(draws, 1);
+    for pair in [
+        [Fp2::ZERO, Fp2::ZERO],
+        [Fp2::ONE, Fp2::ONE],
+        [Fp2::U, Fp2::U],
+    ] {
+        let mut samples = [Fp2::ONE, pair[0], pair[1]].into_iter();
+        assert!(
+            fresh_poc::check_opening_challenges([1], 2, 0, || samples.next().unwrap())
+                .unwrap_err()
+                .contains("proximity")
+        );
+        assert!(samples.next().is_none());
+    }
+    let mut samples = [Fp2::ONE, Fp2::ONE, Fp2::U].into_iter();
+    fresh_poc::check_opening_challenges([1], 2, 0, || samples.next().unwrap()).unwrap();
 }

@@ -1,0 +1,105 @@
+# Round 18 — repaired FFN bound to private endpoints
+
+The experimental `ffn-v3-mr1-fresh-io-poc/1` profile binds the FFN's X and
+z16 planes to two independently prepared hiding commitments. It supports the
+fixed T32/d16/f16 shape with public weights (P1) or fresh private weights (P3).
+The verifier receives expected endpoints through caller policy, independently
+of the candidate receipt. This completes the input/output binding implementation
+for one repaired FFN. Final combined validation is pending at this commit.
+
+This remains a synthetic FFN demonstration. It does not prove private attention,
+a complete transformer block, or use of a registered private model. Whole
+transcript zero knowledge, including the new joint seam observations, remains
+under review. The round-17 linear analysis does not cover this new profile.
+
+## Construction and lifecycle
+
+Implementation: `hashline/src/zk_ffn_fresh_io.rs`, the private `PendingV3`
+owner in `zk.rs`, and the bounded codec primitives in `zk_ffn_fresh_wire.rs`.
+
+1. A trusted caller prepares two 512-word endpoint planes with
+   `prepare_endpoints`. Each uses the existing private-seam hiding commitment:
+   n=256, seven rows (two data, two terminal masks, three proximity masks),
+   inverse rate 8, Q=256. Fresh OS randomness is required. Public expected
+   roots, request context and declared scales are saved before FFN proving.
+2. `prepare` binds that expected policy into a new transcript domain before
+   the FFN's commitments/challenges. Its A layout reserves four additional
+   independently sampled rows, two per seam. The base FFN computes its six
+   masked sumchecks and CFS/W openings, retaining A/H inside a private owner.
+   There is no partial receipt, commitment getter, seed or arbitrary-opening API.
+3. `PendingProof::finish` consumes that owner and both endpoint owners, including
+   on error. It commits a fresh two-slot degree-2 CFS mask before either equality
+   challenge. Each slot proves `sum eq(tau,x)*(A_slice(x)-Endpoint(x)) = 0`.
+   Its added variable extends the equality table to zero and each private
+   plane to its own pair of precommitted base-field mask rows. Only the masked
+   terminals are sent. The two CFS slots use ten variables each.
+4. Both left equality claims join the existing FFN A claims. One A opening
+   handles all seven groups; H and each endpoint are each opened once. W was
+   already opened once. For the synthetic fixture: A=702, H=1326, W=3 (P1)
+   or 11 (P3). A's dedicated IO mask pairs occupy rows 698/699 and 700/701.
+   Row coordinates and column tails are derived from the fixed layout.
+5. Verification reconstructs that schedule from the public statement and
+   trusted expected policy. All FFN arguments, both equalities, CFS openings,
+   A/H/W openings and both endpoint openings must accept.
+
+All new terminal pairs are independent of the base FFN pairs. The combined
+A claim set and each endpoint pass the existing full-Fp2 mask-rank and
+proximity guards. Zero mask/group coefficients and dependent proximity pairs
+discard the attempt without redraw. The existing table-coordinate guard now
+runs before the repaired table terminals are formed/used. Honest legacy
+transcript order is preserved; compatibility must be checked with frozen proofs.
+
+The scales describe integer words (`word * 2^scale`); the equality proof
+establishes field-word equality. Model/calibration authorization and the
+meaning of those scales remain caller obligations. Accepting a policy file
+from an arbitrary prover does not authorize its endpoints.
+
+## Saved receipts and demo
+
+`Receipt` is opaque. Its frame uses magic `HFFNIO\0\x01`, a 32-byte expected
+statement binding, the canonical FFN payload with four extra A rows/two groups,
+then the equality arguments, their CFS opening and two endpoint openings.
+Lengths/counts are derived from the supported statement before allocation;
+canonical field words, column bounds, exact groups/rounds and full consumption
+are required. The frame is capped at 32 MiB. The envelope digest is a framing
+check; changing it cannot make a relabelled proof verify.
+
+The separate expected-policy file is exactly 112 bytes: `HFFNEXP1`, context,
+two i32 scales and two roots. No endpoint secrets are serialized. The demo
+uses public synthetic tensors, commits/saves policy before FFN proving, and
+keeps its endpoint owners only in memory. Its verifier branch constructs no
+witness, weights, oracle or private commitments.
+
+```sh
+cargo build --release --locked --offline --manifest-path hashline/Cargo.toml --example zk60_bound_ffn
+hashline/target/release/examples/zk60_bound_ffn prepare
+hashline/target/release/examples/zk60_bound_ffn prove p3 1818181818181818181818181818181818181818181818181818181818181818 /tmp/demo.expected /tmp/demo.receipt
+hashline/target/release/examples/zk60_bound_ffn verify p3 fresh 1818181818181818181818181818181818181818181818181818181818181818 /tmp/demo.expected /tmp/demo.receipt
+```
+
+Use new artifact names and the default CPU build, with all `HL_*` variables
+cleared. P1 verification takes the independently prepared public weight root
+in place of `fresh`. The trusted caller retains the expected-policy file.
+
+## Validation and continuation
+
+Targeted tests pass for both privacy modes and for fully recommitted wrong
+inputs/outputs: the latter decode correctly and fail the corresponding equality
+sumcheck. Other tests cover owner/slot mismatch, altered roots/context/scales,
+recomputed envelope bindings, malformed lengths/counts, noncanonical fields,
+altered CFS/PCS messages, and separation from old profiles. A compile-fail
+doctest checks consuming ownership. Existing repaired tests now exercise actual
+H helper/table mask removal, every table row coordinate, zero group challenges
+and dependent proximity pairs. IO receipts cannot publish archived FFN-only
+observations, even when only the final endpoint fails.
+
+The combined run will record the full storage-enabled Rust suite, new and old
+separate-process demos, four CPU frozen proofs, affected gate tests and native
+freeze-check. Suite v9 pins 227 storage-enabled tests; v1–v8 retain their
+archived definitions. No new GPU or full Python validation is claimed.
+
+Next: review the complete joint IO observation schedule, then repair the
+attention inventory's remaining private channels and connect a tiny complete
+block. Registered private model identity and the priority-3 minimal core
+extraction remain separate open tasks. Opus owns bounded review work; Codex
+owns protocol changes and final security acceptance.

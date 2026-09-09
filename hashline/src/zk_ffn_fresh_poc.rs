@@ -5,11 +5,14 @@
 //! The public API fixes T32/d16/f16, log_cols=8, inverse rate=8, Q=256 and function 1.
 //! Its private proof representation prevents callers from using it as a legacy
 //! receipt. All witness-bearing commitments are dropped before `prove` returns.
+//! The separate experimental [`io`] profile adds consuming private endpoints.
 use super::*;
 
 #[path = "zk_ffn_fresh_wire.rs"]
 mod wire;
 pub use wire::{encoded_len, verify_bytes, MAX_CONTEXT_BYTES, MAX_WIRE_BYTES};
+#[path = "zk_ffn_fresh_io.rs"]
+pub mod io;
 
 pub const PROFILE: &[u8] = b"hashline-zk-mr1/ffn-v3-mr1-fresh-poc/1";
 
@@ -51,7 +54,7 @@ pub fn parameters() -> LayerParams {
     }
 }
 
-fn statement(w: &V3Witness) -> StatementV3 {
+pub(super) fn statement(w: &V3Witness) -> StatementV3 {
     StatementV3 {
         l: w.l,
         t_rows: w.t_rows,
@@ -85,6 +88,30 @@ fn transcript(context: &[u8]) -> Transcript {
 /// No seed, reusable RNG, prepared commitment, or late opening is accepted.
 /// Randomness failures return before any public proof is produced.
 pub fn prove(w: &V3Witness, privacy: ZkPrivacy, context: &[u8]) -> Result<Proof, String> {
+    check_witness(w, privacy)?;
+    let rng = ZkRng::from_os(PROFILE).map_err(|e| format!("fresh proof randomness: {e}"))?;
+    let cfg = ZkConfig {
+        enabled: true,
+        seed: None,
+        mode: ZkStatementMode {
+            privacy,
+            ..Default::default()
+        },
+    };
+    let out = prove_layer_zk_v3_inner(
+        w,
+        32,
+        &parameters(),
+        &NttTables::new(16),
+        &cfg,
+        &mut transcript(context),
+        true,
+        rng,
+    )?;
+    Ok(Proof { inner: out.proof })
+}
+
+fn check_witness(w: &V3Witness, privacy: ZkPrivacy) -> Result<(), String> {
     let st = statement(w);
     preflight(&st)?;
     if privacy == ZkPrivacy::P3 && crate::wcache::dir().is_some() {
@@ -111,26 +138,7 @@ pub fn prove(w: &V3Witness, privacy: ZkPrivacy, context: &[u8]) -> Result<Proof,
             return Err("fresh FFN PoC weight length".into());
         }
     }
-    let rng = ZkRng::from_os(PROFILE).map_err(|e| format!("fresh proof randomness: {e}"))?;
-    let cfg = ZkConfig {
-        enabled: true,
-        seed: None,
-        mode: ZkStatementMode {
-            privacy,
-            ..Default::default()
-        },
-    };
-    let out = prove_layer_zk_v3_inner(
-        w,
-        32,
-        &parameters(),
-        &NttTables::new(16),
-        &cfg,
-        &mut transcript(context),
-        true,
-        rng,
-    )?;
-    Ok(Proof { inner: out.proof })
+    Ok(())
 }
 
 /// Verify using only the public statement, weight claim, request context and proof.
@@ -293,12 +301,28 @@ pub(super) fn check_masks(
         }
     }
     let mut replay = Transcript::clone_state(tr);
-    for (_, count) in groups {
-        if replay.challenge_fp2_vec(count).iter().any(|c| c.is_zero()) {
+    check_opening_challenges(
+        groups.into_iter().map(|(_, count)| count),
+        rows,
+        prox,
+        || replay.challenge_fp2(),
+    )
+}
+
+// Keep refusal logic injectable for deterministic negative controls. The live
+// caller draws once from a cloned PCS prefix and never resamples a failure.
+pub(super) fn check_opening_challenges(
+    groups: impl IntoIterator<Item = usize>,
+    rows: usize,
+    prox: usize,
+    mut draw: impl FnMut() -> Fp2,
+) -> Result<(), String> {
+    for count in groups {
+        if (0..count).map(|_| draw()).any(|c| c.is_zero()) {
             return Err("zero group member coefficient; discard attempt".into());
         }
     }
-    let rho = replay.challenge_fp2_vec(rows);
+    let rho: Vec<_> = (0..rows).map(|_| draw()).collect();
     if prox + 1 >= rows || determinant(rho[prox], rho[prox + 1]).is_zero() {
         return Err("dependent proximity mask coefficients; discard attempt".into());
     }

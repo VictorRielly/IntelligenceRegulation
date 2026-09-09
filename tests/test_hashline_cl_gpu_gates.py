@@ -191,7 +191,7 @@ class SuiteDefinition(unittest.TestCase):
                              check=True, capture_output=True, text=True).stdout
         self.assertEqual(out.strip(), "49")
         out = subprocess.run([sys.executable, _SRC, "expected-cases"], check=True, capture_output=True, text=True).stdout
-        self.assertEqual(out.split(), EXPECTED_V5)      # the default is v7
+        self.assertEqual(out.split(), EXPECTED_V5)      # same case names through v9
         out = subprocess.run([sys.executable, _SRC, "expected-cases", "--suite-version", "3"], check=True, capture_output=True, text=True).stdout
         self.assertEqual(out.split(), EXPECTED_V1)
 
@@ -216,9 +216,10 @@ class SuiteDefinition(unittest.TestCase):
         # describable — and everything but the oracle expectation is identical.
         v1, v2, v3 = gg.suite(1), gg.suite(2), gg.suite(3)
         # [ZK60-CL18] v3 = CL18's 189; [ZK60-CL21] v4 = v3 + the core cases; v5 adds storage
-        self.assertEqual(gg.DEFAULT_SUITE, 8)
+        self.assertEqual(gg.DEFAULT_SUITE, 9)
         self.assertEqual(gg.case_definition(7, "storage_tests")["expect"]["passed"], 218)
         self.assertEqual(gg.case_definition(8, "storage_tests")["expect"]["passed"], 220)
+        self.assertEqual(gg.case_definition(9, "storage_tests")["expect"]["passed"], 227)
         self.assertEqual(gg.case_definition(1, "oracle_gpu")["expect"]["executed_cases"], 49)
         self.assertEqual(gg.case_definition(2, "oracle_gpu")["expect"]["executed_cases"], 141)
         self.assertEqual(gg.case_definition(3, "oracle_gpu")["expect"]["executed_cases"], 189)
