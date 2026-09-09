@@ -54,12 +54,13 @@
 #   * A DIRTY OR MISSING CRATE STOPS THE RUN HERE, before any build (the
 #     validator refuses it anyway; twelve minutes on a tree that cannot
 #     qualify are pure cost). --dry-run only reports.
-#   * SUITE VERSION 4 (the default) adds two cases: the core's own
+#   * SUITE VERSION 4 (archived) adds two cases: the core's own
 #     `cargo test --release --locked --offline` (exactly 19 passed / 0 failed /
 #     0 ignored, round 11's count) and its `public_sumcheck` example (exit 0 +
 #     its identifying line). `--locked`: cargo refuses rather than rewrites
 #     the lockfile the manifest hashed. v1–v3 runs skip the two cases but
-#     still record the identity. A changed zkp-core test set cuts v5.
+#     still record the identity. Default v5 pins 22 core tests and adds the
+#     separate 210-test stable-weight-storage case; live untracked files refuse.
 #
 # LOCKS. The OUTER heavy lock (/tmp/zk-heavy.lock) is the LAUNCHER's job —
 # wrap this script in `flock /tmp/zk-heavy.lock` in the detached launcher, as
@@ -83,7 +84,7 @@
 #   --device LIST       CUDA_VISIBLE_DEVICES passthrough (env CUDA_VISIBLE_DEVICES)
 #   --python BIN        the Python for the helper (default python3; env HL_FLOORS_PYTHON)
 #   --gates FILE        the helper (default <repo>/scripts/hashline_cl_gpu_gates.py; env HL_FLOORS_GATES)
-#   --suite-version V   the helper's suite version (default 4 = CL21: v3 + the zkp-core tests/example gates;
+#   --suite-version V   the helper's suite version (default 5 = round 15: core 22 + protected storage 210;
 #                       v3 = CL18's 189-case oracle; v2 = CL15's 141; env HL_FLOORS_SUITE_VERSION)
 #   --dry-run           print every command, run nothing heavy, write nothing under scratch
 #   --plan FILE         with --dry-run: also write the command list to FILE
@@ -104,7 +105,7 @@ TOKENS=${HL_FLOORS_TOKENS:-512}
 DEVICES=${CUDA_VISIBLE_DEVICES-}
 PY=${HL_FLOORS_PYTHON:-python3}
 GATES=${HL_FLOORS_GATES:-}
-SUITE=${HL_FLOORS_SUITE_VERSION:-4}
+SUITE=${HL_FLOORS_SUITE_VERSION:-5}
 DRY=0
 PLAN=""
 SP=""
@@ -329,6 +330,21 @@ if [ "$CORE_CASES" = 1 ]; then
     || { echo "FAILURE: zkp-core example"; fail=1; }
 else
   say "zkp-core cases: none in suite version $SUITE (v4+ gates the extracted core); its identity is recorded above regardless"
+fi
+
+# --------------------------------------------------------------------------
+# 4c. Protected material / registration are opt-in and absent from default tests.
+if "$PY" "$GATES" expected-cases --suite-version "$SUITE" | grep -qx storage_tests; then
+  say "hashline: protected-storage feature tests (suite v5+)"
+  STORAGE_LOG=$SP/storage_tests.out
+  run "$PY" "$GATES" start --manifest "$MANIFEST" --case storage_tests
+  CMD=(env "CARGO_BUILD_JOBS=$JOBS" "RAYON_NUM_THREADS=$RAYON" flock /tmp/zk-build.lock
+       cargo test --release --locked --offline --manifest-path "$R/hashline/Cargo.toml"
+       --features stable-weight-storage -- --test-threads=2)
+  run_to "$STORAGE_LOG" "${CMD[@]}"; src=$?
+  [ "$DRY" = 1 ] || grep -E '^test result:|^error|panicked' "$STORAGE_LOG"
+  run "$PY" "$GATES" record --manifest "$MANIFEST" --case storage_tests --exit "$src" --log "$STORAGE_LOG" -- "${CMD[@]}" \
+    || { echo "FAILURE: protected-storage tests"; fail=1; }
 fi
 
 # --------------------------------------------------------------------------

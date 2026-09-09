@@ -51,12 +51,13 @@ EXPECTED_V1 = ["build_cpu", "build_gpu", "cargo_test_cpu", "oracle_gpu", "nofeat
                "cache_cold_zkv3", "cache_warm_zkv3", "cache_p3_refusal"]
 # [ZK60-CL21] v4 = v3 + the two core cases, placed after the hashline crate tests
 EXPECTED_V4 = EXPECTED_V1[:3] + ["core_tests", "core_example"] + EXPECTED_V1[3:]
+EXPECTED_V5 = EXPECTED_V4[:5] + ["storage_tests"] + EXPECTED_V4[5:]
 HEAD, GPU_SHA, CPU_SHA = "0123abcd", "ab" * 32, "ee" * 32
 DEVICE = "gpu: ON — synthetic device (sm_00, 1 SMs, 0.0 GB)"
 _R11 = os.path.join(_ROOT, "results", "zk60_round11_evidence")
 CORE_LINE = "public dot-product sumcheck verified; altered round refused (primitive example, no privacy claim)"
 GIT_ENV = {"GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t", "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t",
-           "GIT_CONFIG_NOSYSTEM": "1", "HOME": tempfile.gettempdir()}
+           "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": "/dev/null"}
 
 
 def git(repo, *args):
@@ -190,7 +191,7 @@ class SuiteDefinition(unittest.TestCase):
                              check=True, capture_output=True, text=True).stdout
         self.assertEqual(out.strip(), "49")
         out = subprocess.run([sys.executable, _SRC, "expected-cases"], check=True, capture_output=True, text=True).stdout
-        self.assertEqual(out.split(), EXPECTED_V4)      # [CL21] the default is v4
+        self.assertEqual(out.split(), EXPECTED_V5)      # the default is v5
         out = subprocess.run([sys.executable, _SRC, "expected-cases", "--suite-version", "3"], check=True, capture_output=True, text=True).stdout
         self.assertEqual(out.split(), EXPECTED_V1)
 
@@ -214,8 +215,8 @@ class SuiteDefinition(unittest.TestCase):
         # v1 keeps 82314a1's 49 — the archived round-7 manifest-less run is still
         # describable — and everything but the oracle expectation is identical.
         v1, v2, v3 = gg.suite(1), gg.suite(2), gg.suite(3)
-        # [ZK60-CL18] v3 = CL18's 189; [ZK60-CL21] v4 = v3 + the core cases is the default
-        self.assertEqual(gg.DEFAULT_SUITE, 4)
+        # [ZK60-CL18] v3 = CL18's 189; [ZK60-CL21] v4 = v3 + the core cases; v5 adds storage
+        self.assertEqual(gg.DEFAULT_SUITE, 5)
         self.assertEqual(gg.case_definition(1, "oracle_gpu")["expect"]["executed_cases"], 49)
         self.assertEqual(gg.case_definition(2, "oracle_gpu")["expect"]["executed_cases"], 141)
         self.assertEqual(gg.case_definition(3, "oracle_gpu")["expect"]["executed_cases"], 189)
@@ -250,8 +251,8 @@ class SuiteDefinition(unittest.TestCase):
         self.assertEqual((ce["kind"], ce["exit"], ce["example"]), ("core_example", 0, "public_sumcheck"))
         self.assertEqual(ce["expect"], {"line": CORE_LINE})
         self.assertEqual(gg.CORE_EXAMPLE_LINE, CORE_LINE)
-        # the synthetic suite mirrors v4's structure with a count that cannot pass as the core's
-        self.assertEqual(gg.expected_cases(0), EXPECTED_V4)
+        # the synthetic suite mirrors v5's structure with a count that cannot pass as the core's
+        self.assertEqual(gg.expected_cases(0), EXPECTED_V5)
         self.assertEqual(gg.case_definition(0, "core_tests")["expect"]["passed"], 2)
         self.assertFalse(gg.suite(0)["requires_source_identity"])
         out = subprocess.run([sys.executable, _SRC, "expected-cases", "--suite-version", "4"], check=True, capture_output=True, text=True).stdout
@@ -713,7 +714,7 @@ class RoundTrip(unittest.TestCase):
         self.assertEqual(code, 0, out)
         m = gg.load_manifest(self.manifest)
         self.assertTrue(m["verdict"]["green"])
-        self.assertEqual(len(m["cases"]), 23)       # [CL21] the synthetic suite mirrors v4: the two core cases included
+        self.assertEqual(len(m["cases"]), 24)       # [CL21] the synthetic suite mirrors v5: core and storage included
         self.assertEqual(m["started"], {})
         self.assertEqual(record_of(m, "core_tests")["core_tests"]["passed"], 2)
         self.assertEqual(record_of(m, "core_example")["example_line"], CORE_LINE)
@@ -964,7 +965,7 @@ class FloorsRunner(unittest.TestCase):
                 self.assertIn("CARGO_BUILD_JOBS=2", toks)
                 self.assertIn("/tmp/zk-build.lock", toks)
                 # [CL21] the two core steps name the core's manifest; everything else hashline's
-                want = self.repo + ("/zkp-core/Cargo.toml" if "--locked" in toks else "/hashline/Cargo.toml")
+                want = self.repo + ("/zkp-core/Cargo.toml" if "--locked" in toks and "stable-weight-storage" not in toks else "/hashline/Cargo.toml")
                 self.assertEqual(toks[toks.index("--manifest-path") + 1], want)
         # 12 byte gates + cold + warm + the P3 refusal, each emitted once as a run and once inside its `record`
         self.assertEqual(provers, 15 * 2)
@@ -1022,8 +1023,8 @@ class FloorsRunner(unittest.TestCase):
     def test_manifest_lifecycle_is_emitted_for_every_case(self):
         starts = [shlex.split(l)[-1] for l in self.lines if " start --manifest " in l]
         records = [shlex.split(l.split(" -- ")[0])[shlex.split(l.split(" -- ")[0]).index("--case") + 1] for l in self.lines if " record --manifest " in l]
-        self.assertEqual(starts, EXPECTED_V4)        # [CL21] the default suite is v4
-        self.assertEqual(records, EXPECTED_V4)
+        self.assertEqual(starts, EXPECTED_V5)        # [CL21] the default suite is v5
+        self.assertEqual(records, EXPECTED_V5)
         init = self.first(lambda l: " init --out " in l)
         self.assertLess(init, self.first(lambda l: "cargo build" in l))
         self.assertIn("--layers 12 --tokens 512", self.lines[init])
@@ -1097,8 +1098,8 @@ class FloorsRunner(unittest.TestCase):
         self.assertIn("OUTER heavy lock (/tmp/zk-heavy.lock) is the LAUNCHER's job", text)
         self.assertIn("NEVER wrap this script in the build lock", text)
         # both builds, the crate tests, [CL21] the two core steps, the oracle and the two controls take the build lock INSIDE
-        self.assertEqual(text.count("flock /tmp/zk-build.lock"), 8)
-        self.assertEqual(sum("/tmp/zk-build.lock" in l for l in self.lines if "cargo" in l and " record " not in l), 8)
+        self.assertEqual(text.count("flock /tmp/zk-build.lock"), 9)
+        self.assertEqual(sum("/tmp/zk-build.lock" in l for l in self.lines if "cargo" in l and " record " not in l), 9)
         self.assertNotIn("zk-heavy.lock", " ".join(self.lines))   # the heavy lock is never taken here
         # `--threads 8` survives only in the history comment that says it was removed
         self.assertEqual([l for l in text.splitlines() if "--threads 8" in l and not l.lstrip().startswith("#")], [])
@@ -1210,7 +1211,7 @@ class FloorsRunner(unittest.TestCase):
         m = gg.load_manifest(os.path.join(scratch, "manifest.json"))
         self.assertEqual(m["source"]["crates"]["zkp_core"]["tree"], git(clean, "rev-parse", "HEAD:zkp-core"))
         self.assertEqual(m["source"]["head"], git(clean, "rev-parse", "HEAD"))
-        self.assertEqual(m["suite_version"], 4)
+        self.assertEqual(m["suite_version"], 5)
 
 
 if __name__ == "__main__":

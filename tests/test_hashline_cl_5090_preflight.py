@@ -312,7 +312,7 @@ class Refusals(unittest.TestCase):
         # cannot happen, but the identity check does not rely on the status alone
         facts = ready_facts()
         facts["source_identity"]["crates"]["zkp_core"]["dirty_delta_sha256"] = "ab" * 32
-        self.refused(facts, "source_identity")
+        self.refused(facts, "source_identity", cascade=["verified_artifact"])
 
     def test_missing_core_refuses(self):
         # no zkp-core/ in the tree in hand: the identity fails, and the manifest's
@@ -327,7 +327,7 @@ class Refusals(unittest.TestCase):
     def test_incomplete_core_refuses(self):
         facts = ready_facts()
         facts["source_identity"]["crates"]["zkp_core"].update({"present": False, "example": False})
-        report = self.refused(facts, "source_identity")
+        report = self.refused(facts, "source_identity", cascade=["verified_artifact"])
         self.assertEqual(check(report, "source_identity")["evidence"]["core_layout"]["example"], False)
 
     def test_mismatched_lockfile_identity_refuses(self):

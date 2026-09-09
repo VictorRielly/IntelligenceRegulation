@@ -468,12 +468,9 @@ def evaluate(facts, args):
     si = facts.get("source_identity") if isinstance(facts.get("source_identity"), dict) else None
     si_crates = (si or {}).get("crates") or {}
     si_locks = (si or {}).get("lockfiles") or {}
-    empty = _gates().EMPTY_SHA256
     core = si_crates.get("zkp_core") or {}
-    hl = si_crates.get("hashline") or {}
-    ident_ok = (si is not None and bool(core.get("present")) and bool(core.get("tree")) and bool(hl.get("tree"))
-                and core.get("dirty_delta_sha256") == empty and hl.get("dirty_delta_sha256") == empty
-                and all(bool((si_locks.get(n) or {}).get("sha256")) for n in ("hashline", "zkp_core")))
+    identity_errors = _gates().source_identity_errors(si) if si is not None else ["source identity unavailable"]
+    ident_ok = not identity_errors
     src_ok = bool(git) and bool(git.get("head")) and not git.get("dirty_paths") and ident_ok
     checks.append(_check("source_identity", src_ok,
                          {"git": git, "crates": {n: {"tree": (si_crates.get(n) or {}).get("tree"),
@@ -481,7 +478,7 @@ def evaluate(facts, args):
                                                      "present": (si_crates.get(n) or {}).get("present")} for n in ("hashline", "zkp_core")},
                           "lockfiles": {n: (si_locks.get(n) or {}).get("sha256") for n in ("hashline", "zkp_core")},
                           "core_layout": {k: core.get(k) for k in ("manifest", "src", "example")},
-                          "identity_readable": si is not None},
+                          "identity_readable": si is not None, "errors": identity_errors},
                          "a recorded HEAD on a clean tracked tree is required (commit or stash first), with the extracted core "
                          "(zkp-core/: Cargo.toml, src/, the example) present, both crates' tree ids and Cargo.lock hashes readable "
                          "and both deltas empty: the core is a build input of the binary"))
@@ -544,7 +541,7 @@ def evaluate(facts, args):
         verdict = {"ok": False, "reasons": [" and ".join(missing) + ": the manifest cannot be bound to this box"], "summary": {}}
     else:
         verdict = _gates().validate_manifest(manifest, expect_head=head, expect_gpu_sha256=digest, require_production=True,
-                                             expect_trees=trees, expect_lockfiles=locks)
+                                             expect_source=si)
     fl = facts.get("floors_log") or {}
     checks.append(_check("verified_artifact", verdict["ok"],
                          {"manifest_path": rm.get("path"), "manifest_present": manifest is not None, "validator": verdict,
