@@ -1159,7 +1159,7 @@ class FloorsRunner(unittest.TestCase):
 
     def test_usage_and_success_line_name_the_core(self):
         r = subprocess.run(["bash", _FLOORS, "--help"], capture_output=True, text=True)
-        self.assertIn("default 7 = round 16", r.stdout)
+        self.assertIn(f"default {gg.DEFAULT_SUITE} =", r.stdout)
         self.assertIn("zkp-core tests/example", r.stdout)
         with open(_FLOORS, encoding="utf-8") as fh:
             text = fh.read()
@@ -1222,7 +1222,7 @@ class FloorsRunner(unittest.TestCase):
         m = gg.load_manifest(os.path.join(scratch, "manifest.json"))
         self.assertEqual(m["source"]["crates"]["zkp_core"]["tree"], git(clean, "rev-parse", "HEAD:zkp-core"))
         self.assertEqual(m["source"]["head"], git(clean, "rev-parse", "HEAD"))
-        self.assertEqual(m["suite_version"], 7)
+        self.assertEqual(m["suite_version"], gg.DEFAULT_SUITE)
 
 
 if __name__ == "__main__":
