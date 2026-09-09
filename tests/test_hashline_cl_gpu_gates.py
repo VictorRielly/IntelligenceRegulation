@@ -1164,6 +1164,15 @@ class FloorsRunner(unittest.TestCase):
         self.assertIn("+ zkp-core tests + zkp-core example", text)
         self.assertIn("identity: hashline + zkp-core trees, both lockfiles", text)
 
+    def test_storage_tests_cannot_overwrite_the_recorded_cpu_or_gpu_binary(self):
+        line = next(l for l in self.lines if "cargo test" in l and "stable-weight-storage" in l and " record " not in l)
+        argv = shlex.split(line.split(" > ")[0])
+        target = next((v.split("=", 1)[1] for v in argv if v.startswith("CARGO_TARGET_DIR=")), None)
+        self.assertIsNotNone(target, "feature tests must not overwrite the default CPU artifact")
+        target = os.path.realpath(target)
+        for base in ("hashline/target", "hashline/target-gpu"):
+            self.assertNotEqual(target, os.path.realpath(os.path.join(self.repo, base)))
+
     def test_missing_or_dirty_core_refuses_to_start_before_any_build(self):
         # NOT a dry run: a real temp checkout, the self-test runs, the identity is
         # read, and the run stops with FAILURE before any cargo command; the

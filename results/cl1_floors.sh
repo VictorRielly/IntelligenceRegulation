@@ -339,7 +339,10 @@ if "$PY" "$GATES" expected-cases --suite-version "$SUITE" | grep -qx storage_tes
   say "hashline: protected-storage feature tests (suite v5+)"
   STORAGE_LOG=$SP/storage_tests.out
   run "$PY" "$GATES" start --manifest "$MANIFEST" --case storage_tests
-  CMD=(env "CARGO_BUILD_JOBS=$JOBS" "RAYON_NUM_THREADS=$RAYON" flock /tmp/zk-build.lock
+  # Cargo integration tests also build the normal binary. Keep the optional
+  # feature's binary separate from the CPU artifact already hashed above.
+  CMD=(env "CARGO_BUILD_JOBS=$JOBS" "RAYON_NUM_THREADS=$RAYON"
+       "CARGO_TARGET_DIR=$R/hashline/target/storage-tests" flock /tmp/zk-build.lock
        cargo test --release --locked --offline --manifest-path "$R/hashline/Cargo.toml"
        --features stable-weight-storage -- --test-threads=2)
   run_to "$STORAGE_LOG" "${CMD[@]}"; src=$?
