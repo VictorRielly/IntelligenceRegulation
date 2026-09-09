@@ -186,7 +186,7 @@ class SuiteDefinition(unittest.TestCase):
         self.assertEqual(gg.case_definition(1, "oracle_gpu")["expect"]["executed_cases"], 49)
         self.assertEqual(gg.case_definition(0, "oracle_gpu")["expect"]["executed_cases"], 3)
         with self.assertRaisesRegex(gg.GatesError, "unknown suite version"):
-            gg.suite(7)
+            gg.suite(max(gg.SUITES) + 1)
         out = subprocess.run([sys.executable, _SRC, "expected-cases", "--suite-version", "1", "--oracle-count"],
                              check=True, capture_output=True, text=True).stdout
         self.assertEqual(out.strip(), "49")
