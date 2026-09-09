@@ -103,7 +103,25 @@ pub struct ApprovedP1BlockContract {
 }
 
 impl ApprovedP1BlockContract {
+    /// Application authorization from already trusted public int8 tensors.
+    /// Replaces both registration roots with CPU commitments to these tensors,
+    /// establishing the weight/gamma range assumed by the no-wrap argument.
+    /// Computing roots does not authenticate a model or authorize its owner.
+    pub fn from_trusted_public_weights(
+        mut registration: BlockRegistration,
+        weights: &crate::causal_oracle::PublicBlockWeights,
+    ) -> Result<Self, ContractError> {
+        let (attention, ffn) = crate::causal_oracle::cpu_weight_commitments(weights)
+            .map_err(|_| ContractError::Invalid("public int8 weight tensors"))?;
+        registration.attention_weights = attention;
+        registration.ffn_weights = ffn;
+        Self::from_trusted_registration(registration)
+    }
+
     /// Application authorization operation, NOT proof-derived registration.
+    /// Root-only compatibility path: the caller must independently establish
+    /// that all committed weight and gamma words are int8 (FA9 R31).
+    /// Public tensor registrations should use `from_trusted_public_weights`.
     pub fn from_trusted_registration(
         registration: BlockRegistration,
     ) -> Result<Self, ContractError> {
@@ -402,6 +420,10 @@ fn validate_norm(
         n.wrho == width && n.n_limbs == width.div_ceil(16) as usize,
         "fixed worst-case norm remainder width",
     )?;
+    // FA9 R09/R10: the argument proves rho/sigma < 2^(16*n_limbs),
+    // not < 2^wrho. The fixed profile's two limbs exclude its half-p
+    // isqrt alias; a wider profile needs a versioned direct range fact on D.
+    require(n.n_limbs == 2, "fixed norm requires two remainder limbs")?;
     let numerator = 2u64 * 32768 * 128 * n.cn as u64;
     Ok((d, denominator, numerator))
 }
