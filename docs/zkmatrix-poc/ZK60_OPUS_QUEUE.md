@@ -14,7 +14,16 @@ scope; full privacy acceptance remains open. Read [round 17](ZK60_ROUND17.md)
 first. The original dispatch below remains the definition of the completed
 items. Do not rerun or rewrite those reports as new work.
 
-## Current dispatch: O8 — analyze the new IO captures
+## O8 — delivered analysis (original dispatch below)
+
+**Codex round-22 integration:** O8 is delivered in `d82a286` and `0f51e3f`.
+[Round 22](ZK60_ROUND22.md) records source/import checks, fresh capture
+validation and disposition. The old `/tmp` capture files are unavailable;
+new captures have their own manifest. Use `scripts/zk60_io_review_gate.py`
+for new analyses: the archived CLI can exit 0 after failed preflight or
+ingestion controls. Its model/tool/result are preserved unchanged.
+Codex owns the remaining endpoint/adaptive/repeated-proof composition;
+O8 is not awaiting delivery, and the instructions below are historical.
 
 **Codex round-21 update:** [round 21](ZK60_ROUND21.md) checks both IO CFS
 round-message fibres and their exact M functional bindings on all four

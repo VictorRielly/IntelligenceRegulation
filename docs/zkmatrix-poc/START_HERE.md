@@ -21,6 +21,10 @@ with a conditional algebraic construction on those captures. O8's joint
 message/alias result and the adaptive transcript argument remain pending.
 [Round 21](ZK60_ROUND21.md) confirms the existing private-IO requirements in
 git history and checks both IO sumcheck mask channels on real captures.
+[Round 22](ZK60_ROUND22.md) completes the interrupted round-21 commit and
+integrates O8 with a strict analysis gate and freshly captured IO evidence.
+O8 is delivered; caller-fixed endpoint and adaptive/repeated-proof simulation
+remain open. The old temporary capture bytes are unavailable in this session.
 It still lacks the complete private block,
 registered private model binding and final privacy review. The historical
 hash-line privacy claims below must be read with that correction. Pending

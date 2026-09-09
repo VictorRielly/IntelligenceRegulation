@@ -1,0 +1,703 @@
+{
+  "status": "passed",
+  "cases": [
+    {
+      "proof_sha256": "038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd",
+      "slots": [
+        {
+          "functionals_rank_fp2": 2,
+          "coefficient_fibre_dim_fp2": 20,
+          "round_fibre_dim_fp2": 19,
+          "mask_image_rank_fp2": 19,
+          "image_inside_round_fibre": true,
+          "surjective": true,
+          "side": 0,
+          "slot": 6,
+          "public_chain_verified": true,
+          "exact_m_functionals_verified": true,
+          "nonzero_round_translation_verified": true
+        },
+        {
+          "functionals_rank_fp2": 2,
+          "coefficient_fibre_dim_fp2": 20,
+          "round_fibre_dim_fp2": 19,
+          "mask_image_rank_fp2": 19,
+          "image_inside_round_fibre": true,
+          "surjective": true,
+          "side": 1,
+          "slot": 7,
+          "public_chain_verified": true,
+          "exact_m_functionals_verified": true,
+          "nonzero_round_translation_verified": true
+        }
+      ],
+      "controls": [
+        [
+          {
+            "path": [
+              "gamma",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "rounds",
+              3,
+              2,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "mask_eval",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "terminals",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "tau",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "rho",
+              2,
+              1
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "M corruption": "weight",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "value",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "slot",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          }
+        ],
+        [
+          {
+            "path": [
+              "gamma",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "rounds",
+              3,
+              2,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "mask_eval",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "terminals",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "tau",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "rho",
+              2,
+              1
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "M corruption": "weight",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "value",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "slot",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          }
+        ]
+      ]
+    },
+    {
+      "proof_sha256": "c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e",
+      "slots": [
+        {
+          "functionals_rank_fp2": 2,
+          "coefficient_fibre_dim_fp2": 20,
+          "round_fibre_dim_fp2": 19,
+          "mask_image_rank_fp2": 19,
+          "image_inside_round_fibre": true,
+          "surjective": true,
+          "side": 0,
+          "slot": 6,
+          "public_chain_verified": true,
+          "exact_m_functionals_verified": true,
+          "nonzero_round_translation_verified": true
+        },
+        {
+          "functionals_rank_fp2": 2,
+          "coefficient_fibre_dim_fp2": 20,
+          "round_fibre_dim_fp2": 19,
+          "mask_image_rank_fp2": 19,
+          "image_inside_round_fibre": true,
+          "surjective": true,
+          "side": 1,
+          "slot": 7,
+          "public_chain_verified": true,
+          "exact_m_functionals_verified": true,
+          "nonzero_round_translation_verified": true
+        }
+      ],
+      "controls": [
+        [
+          {
+            "path": [
+              "gamma",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "rounds",
+              3,
+              2,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "mask_eval",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "terminals",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "tau",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "rho",
+              2,
+              1
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "M corruption": "weight",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "value",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "slot",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          }
+        ],
+        [
+          {
+            "path": [
+              "gamma",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "rounds",
+              3,
+              2,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "mask_eval",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "terminals",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "tau",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "rho",
+              2,
+              1
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "M corruption": "weight",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "value",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "slot",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          }
+        ]
+      ]
+    },
+    {
+      "proof_sha256": "e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314",
+      "slots": [
+        {
+          "functionals_rank_fp2": 2,
+          "coefficient_fibre_dim_fp2": 20,
+          "round_fibre_dim_fp2": 19,
+          "mask_image_rank_fp2": 19,
+          "image_inside_round_fibre": true,
+          "surjective": true,
+          "side": 0,
+          "slot": 6,
+          "public_chain_verified": true,
+          "exact_m_functionals_verified": true,
+          "nonzero_round_translation_verified": true
+        },
+        {
+          "functionals_rank_fp2": 2,
+          "coefficient_fibre_dim_fp2": 20,
+          "round_fibre_dim_fp2": 19,
+          "mask_image_rank_fp2": 19,
+          "image_inside_round_fibre": true,
+          "surjective": true,
+          "side": 1,
+          "slot": 7,
+          "public_chain_verified": true,
+          "exact_m_functionals_verified": true,
+          "nonzero_round_translation_verified": true
+        }
+      ],
+      "controls": [
+        [
+          {
+            "path": [
+              "gamma",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "rounds",
+              3,
+              2,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "mask_eval",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "terminals",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "tau",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "rho",
+              2,
+              1
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "M corruption": "weight",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "value",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "slot",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          }
+        ],
+        [
+          {
+            "path": [
+              "gamma",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "rounds",
+              3,
+              2,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "mask_eval",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "terminals",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "tau",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "rho",
+              2,
+              1
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "M corruption": "weight",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "value",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "slot",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          }
+        ]
+      ]
+    },
+    {
+      "proof_sha256": "efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb",
+      "slots": [
+        {
+          "functionals_rank_fp2": 2,
+          "coefficient_fibre_dim_fp2": 20,
+          "round_fibre_dim_fp2": 19,
+          "mask_image_rank_fp2": 19,
+          "image_inside_round_fibre": true,
+          "surjective": true,
+          "side": 0,
+          "slot": 6,
+          "public_chain_verified": true,
+          "exact_m_functionals_verified": true,
+          "nonzero_round_translation_verified": true
+        },
+        {
+          "functionals_rank_fp2": 2,
+          "coefficient_fibre_dim_fp2": 20,
+          "round_fibre_dim_fp2": 19,
+          "mask_image_rank_fp2": 19,
+          "image_inside_round_fibre": true,
+          "surjective": true,
+          "side": 1,
+          "slot": 7,
+          "public_chain_verified": true,
+          "exact_m_functionals_verified": true,
+          "nonzero_round_translation_verified": true
+        }
+      ],
+      "controls": [
+        [
+          {
+            "path": [
+              "gamma",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "rounds",
+              3,
+              2,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "mask_eval",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "terminals",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "tau",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "rho",
+              2,
+              1
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "M corruption": "weight",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "value",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "slot",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          }
+        ],
+        [
+          {
+            "path": [
+              "gamma",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "rounds",
+              3,
+              2,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "path": [
+              "mask_eval",
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "terminals",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "tau",
+              0,
+              0
+            ],
+            "rejected": true,
+            "reason": "IO masked terminal equation"
+          },
+          {
+            "path": [
+              "rho",
+              2,
+              1
+            ],
+            "rejected": true,
+            "reason": "IO round chain equation"
+          },
+          {
+            "M corruption": "weight",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "value",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          },
+          {
+            "M corruption": "slot",
+            "rejected": true,
+            "reason": "IO/M functional binding"
+          }
+        ]
+      ]
+    }
+  ],
+  "manifest_sha256": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d",
+  "tool_sha256": "928cef871b71f86bc56b7e7ed4e461c9c9da2d64e1aa912b449023eaaa7d7580",
+  "fresh_captures": true,
+  "original_capture_reproduction_claimed": false,
+  "full_privacy_review_complete": false,
+  "adaptive_transcript_simulation_performed": false
+}

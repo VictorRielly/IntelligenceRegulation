@@ -1,0 +1,450 @@
+{
+  "schema": 1,
+  "source_commit": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4",
+  "stages": [
+    {
+      "name": "rust_bound_io",
+      "command": [
+        "flock",
+        "/tmp/zk-heavy.lock",
+        "/home/victor/.cargo/bin/cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--features",
+        "stable-weight-storage",
+        "bound_ffn_",
+        "--",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "environment_overrides": {
+        "HL_TEST_FFN_IO_OBSERVATIONS": "/home/victor/IntelligenceRegulation/results/zk60_round22_captures",
+        "HL_TEST_SOURCE_COMMIT": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4"
+      },
+      "elapsed_s": 1.6187314809999407,
+      "log_sha256": "1f7b64dde64ba91525eb14afa291d0176c5aad964b7421d39ae9c78f264035cd"
+    },
+    {
+      "name": "receipt_0",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd.receipt"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 0.032041568000067855,
+      "log_sha256": "8e03aecdf5fba5bc89fde92fe0cb47480ff61e043c9ee4c516cf443ae826eb43"
+    },
+    {
+      "name": "receipt_0_wrong_input",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_evidence/0_wrong_input.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd.receipt"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "environment_overrides": {},
+      "elapsed_s": 0.0037545630000295205,
+      "log_sha256": "f723fc43f71e429f1b19a9063af44a37285fde0a461921cbf2669c28e37d9e3c"
+    },
+    {
+      "name": "receipt_0_wrong_output",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_evidence/0_wrong_output.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd.receipt"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "environment_overrides": {},
+      "elapsed_s": 0.002917246999913914,
+      "log_sha256": "f723fc43f71e429f1b19a9063af44a37285fde0a461921cbf2669c28e37d9e3c"
+    },
+    {
+      "name": "receipt_0_wrong_mode",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "0000000000000000000000000000000000000000000000000000000000000000",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd.receipt"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "environment_overrides": {},
+      "elapsed_s": 0.0027676930000097855,
+      "log_sha256": "ebd3aaa2b4ef12e8004490a50f013c2b6b1537222c7289e21a2a758a563844a0"
+    },
+    {
+      "name": "receipt_1",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e.receipt"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 0.032990725999979986,
+      "log_sha256": "f0c9142978644f9276914f89f7ae2441b8ff4204cf816fc098ca1b26b07d2c4f"
+    },
+    {
+      "name": "receipt_1_wrong_input",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_evidence/1_wrong_input.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e.receipt"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "environment_overrides": {},
+      "elapsed_s": 0.003120966999972552,
+      "log_sha256": "f723fc43f71e429f1b19a9063af44a37285fde0a461921cbf2669c28e37d9e3c"
+    },
+    {
+      "name": "receipt_1_wrong_output",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_evidence/1_wrong_output.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e.receipt"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "environment_overrides": {},
+      "elapsed_s": 0.0058224100000643375,
+      "log_sha256": "f723fc43f71e429f1b19a9063af44a37285fde0a461921cbf2669c28e37d9e3c"
+    },
+    {
+      "name": "receipt_1_wrong_mode",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e.receipt"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "environment_overrides": {},
+      "elapsed_s": 0.0030248980000351366,
+      "log_sha256": "ebd3aaa2b4ef12e8004490a50f013c2b6b1537222c7289e21a2a758a563844a0"
+    },
+    {
+      "name": "receipt_2",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314.receipt"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 0.0325977680000733,
+      "log_sha256": "8e03aecdf5fba5bc89fde92fe0cb47480ff61e043c9ee4c516cf443ae826eb43"
+    },
+    {
+      "name": "receipt_2_wrong_input",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_evidence/2_wrong_input.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314.receipt"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "environment_overrides": {},
+      "elapsed_s": 0.003145012000004499,
+      "log_sha256": "f723fc43f71e429f1b19a9063af44a37285fde0a461921cbf2669c28e37d9e3c"
+    },
+    {
+      "name": "receipt_2_wrong_output",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_evidence/2_wrong_output.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314.receipt"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "environment_overrides": {},
+      "elapsed_s": 0.0028883300000188683,
+      "log_sha256": "f723fc43f71e429f1b19a9063af44a37285fde0a461921cbf2669c28e37d9e3c"
+    },
+    {
+      "name": "receipt_2_wrong_mode",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "0000000000000000000000000000000000000000000000000000000000000000",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314.receipt"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "environment_overrides": {},
+      "elapsed_s": 0.002944038000009641,
+      "log_sha256": "ebd3aaa2b4ef12e8004490a50f013c2b6b1537222c7289e21a2a758a563844a0"
+    },
+    {
+      "name": "receipt_3",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb.receipt"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 0.03407409400006145,
+      "log_sha256": "f0c9142978644f9276914f89f7ae2441b8ff4204cf816fc098ca1b26b07d2c4f"
+    },
+    {
+      "name": "receipt_3_wrong_input",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_evidence/3_wrong_input.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb.receipt"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "environment_overrides": {},
+      "elapsed_s": 0.0029043199999705394,
+      "log_sha256": "f723fc43f71e429f1b19a9063af44a37285fde0a461921cbf2669c28e37d9e3c"
+    },
+    {
+      "name": "receipt_3_wrong_output",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_evidence/3_wrong_output.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb.receipt"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "environment_overrides": {},
+      "elapsed_s": 0.0027691439998989154,
+      "log_sha256": "f723fc43f71e429f1b19a9063af44a37285fde0a461921cbf2669c28e37d9e3c"
+    },
+    {
+      "name": "receipt_3_wrong_mode",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb.expected",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb.receipt"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "environment_overrides": {},
+      "elapsed_s": 0.002709131000074194,
+      "log_sha256": "ebd3aaa2b4ef12e8004490a50f013c2b6b1537222c7289e21a2a758a563844a0"
+    },
+    {
+      "name": "native_freeze",
+      "command": [
+        "/home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/ring_matmul",
+        "freeze-check"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "environment_overrides": {
+        "M125_EXPORT_DIR": "/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl"
+      },
+      "elapsed_s": 2.8252642009999818,
+      "log_sha256": "ca64e2c697c0a0f1c402ebe9312e4a3f2033f42e08c12112e50505520fa40cac"
+    },
+    {
+      "name": "python_io",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_io_*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 0.23932638300004783,
+      "log_sha256": "c554c1306e00890fcef30143703c23c0228b7954ad66380aae1af6bd19a9d11d"
+    },
+    {
+      "name": "o8_fresh_tests",
+      "command": [
+        "python3",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_evidence/review_tests.py"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 54.55533334500001,
+      "log_sha256": "8f051a20d187b3a24c5e4159551d328ace42ae21c75b2e244406596f3e7be8da"
+    },
+    {
+      "name": "o8_analysis",
+      "command": [
+        "python3",
+        "scripts/zk60_io_review_gate.py",
+        "--captures",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures",
+        "--manifest",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures.json",
+        "--out",
+        "results/zk60_round22_o8_analysis.json"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 60.51622523100002,
+      "log_sha256": "e8d90e53139d91b7082b7e9d270e7f450afd5805b5da31a041923093b78cfbb0"
+    },
+    {
+      "name": "fresh_openings",
+      "command": [
+        "python3",
+        "scripts/zk60_io_opening_translation.py",
+        "--captures",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures",
+        "--manifest",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures.json",
+        "--out",
+        "results/zk60_round22_opening_translation.json"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 20.257034738000016,
+      "log_sha256": "2f5e0e2db4faa13f8e57a51ef75c710cda1ba82ab2fc5a62af23cf6f17daad85"
+    },
+    {
+      "name": "fresh_cfs",
+      "command": [
+        "python3",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_evidence/cfs_checks.py"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 2.331746652999982,
+      "log_sha256": "84563e4d580406fc48b8c6c7de055dece6c3e56e5006ffecfc25016fa940e0c3"
+    }
+  ],
+  "original_tmp_captures_available": false,
+  "original_capture_bytes_reproduced": false,
+  "fresh_randomness": true,
+  "runtime_protocol_changed": false,
+  "full_privacy_review_complete": false,
+  "round21_audit": {
+    "hash_checks": 75,
+    "stages": 19,
+    "status": "passed"
+  },
+  "source_sha256": {
+    "hashline/src/zk.rs": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310",
+    "hashline/src/zk_ffn_fresh_io.rs": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+    "hashline/src/zk_ffn_fresh_io_tests.rs": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9",
+    "hashline/src/zk_ffn_mask_diagnostic.rs": "462346828c427b5f6d07ed502edc4d88ba57e1197e6e27836b73316704e8dd64",
+    "hashline/src/zk_ffn_observation_json.rs": "e7a62281896efc4f1f12c403c6959ab7e2476beee07960f3752816fdc711a1e6",
+    "hashline/src/zk_ffn_io_diagnostic.rs": "c866dcce37789106eb18f4aac5093bb3bc14cadb78ca67a1d0fb6ebe092122a5",
+    "hashline/src/private_seam.rs": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+    "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "zkp-core/src/transcript.rs": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+    "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+  },
+  "binary_sha256": "e084ea5fe242f46fc8d9c4603da679f781aa6d60db5009c4c9886767d116358e",
+  "fresh_capture_manifest_sha256": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d",
+  "capture_status": "passed",
+  "status": "passed",
+  "tools": {
+    "scripts/zk60_io_review_gate.py": "3f8ee26804b9d04549d30cca76f4615a0f53a76f8d73045c3e2e0b6dba34baf9",
+    "tests/test_zk60_io_review_gate.py": "e2abe2f8598eba44dba000c85978e5099a1f718afe168a8c48afcd5883819818",
+    "results/zk60_round22_evidence/validate.py": "c8295c759073d3b8dea9a24f20e9db5914fbef8c7fc0afe6e3b5ca6986d9033f",
+    "results/zk60_round22_evidence/review_tests.py": "146a4ccd89d2bede3bedfa70b3d6d1485d2b12f81de1870a2b3083ee0c7c1144",
+    "results/zk60_round22_evidence/cfs_checks.py": "96e5a4813d0408558fe7784061cd7df6184ffbf291204b8e5d5e2bfae3b5f885"
+  },
+  "analysis_results": {
+    "results/zk60_round22_o8_analysis.json": "deaf38f545d6e1e4b25be137e47c3ece19997ff5646871edbc5f3e0f9d5048d3",
+    "results/zk60_round22_opening_translation.json": "72c1d1be8bca08a84554c0e370f01dd4f26846460f794dda80276c56c1f5d799",
+    "results/zk60_round22_io_cfs.json": "783d0bbc25f21a1e36efc7aa7e9127d377579364e13ac712b17fc89a6cb01f0c"
+  },
+  "evidence_index_sha256": "3523e8f5a9a6d3b5614a9fcc467df9002894c30856f4b02e40c6089ef3c81581",
+  "rust_test_count": 6,
+  "python_test_pass_count": 59,
+  "python_test_skip_count": 3,
+  "process_cases": 16,
+  "native_freeze_check": true,
+  "o8_preflight_checks": 51,
+  "o8_ingestion_controls": 60,
+  "pcs_openings": 18,
+  "mask_openings": 4,
+  "opening_corruption_controls": 22,
+  "io_cfs_slots": 8,
+  "cfs_corruption_controls": 72
+}

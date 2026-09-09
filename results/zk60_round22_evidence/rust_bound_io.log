@@ -1,0 +1,231 @@
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+warning: `hashline` (lib) generated 8 warnings (8 duplicates)
+warning: `hashline` (lib test) generated 8 warnings (8 duplicates)
+    Finished `release` profile [optimized] target(s) in 0.07s
+     Running unittests src/lib.rs (hashline/target/storage-tests/release/deps/hashline-e22c41e7a41d63fd)
+
+running 6 tests
+test zk::fresh_poc::io::tests::bound_ffn_consumes_mismatched_owner_and_checks_slot ... ok
+IO_CAPTURE privacy=P1 receipt_sha256=efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb bytes=5029244 roles=4 all_openings_replayed=true
+BOUND_FFN privacy=P1 attempt=0 bytes=5029244 A_rows=702 A_groups=7 M_rows=20 independently_expected_endpoints=true
+IO_CAPTURE privacy=P1 receipt_sha256=c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e bytes=5029244 roles=4 all_openings_replayed=true
+BOUND_FFN privacy=P1 attempt=1 bytes=5029244 A_rows=702 A_groups=7 M_rows=20 independently_expected_endpoints=true
+test zk::fresh_poc::io::tests::bound_ffn_adversarial_receipt_and_relabelled_policy ... ok
+test zk::fresh_poc::io::tests::bound_ffn_policy_and_endpoint_preflight ... ok
+IO_CAPTURE privacy=P3 receipt_sha256=038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd bytes=5066204 roles=5 all_openings_replayed=true
+BOUND_FFN privacy=P3 attempt=0 bytes=5066204 A_rows=702 A_groups=7 M_rows=20 independently_expected_endpoints=true
+test zk::fresh_poc::io::tests::bound_ffn_refuses_recommitted_wrong_input ... ok
+test zk::fresh_poc::io::tests::bound_ffn_refuses_recommitted_wrong_output ... ok
+IO_CAPTURE privacy=P3 receipt_sha256=e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314 bytes=5066204 roles=5 all_openings_replayed=true
+BOUND_FFN privacy=P3 attempt=1 bytes=5066204 A_rows=702 A_groups=7 M_rows=20 independently_expected_endpoints=true
+test zk::fresh_poc::io::tests::bound_ffn_honest_p1_p3_and_fresh_owners ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 81 filtered out; finished in 1.43s
+
+     Running unittests src/bin/hashline.rs (hashline/target/storage-tests/release/deps/hashline-069c836c58a4bdb4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cli_claims.rs (hashline/target/storage-tests/release/deps/cli_claims-a985d2bf2cc64809)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+     Running tests/zk60_attention_schedule.rs (hashline/target/storage-tests/release/deps/zk60_attention_schedule-951f24377b6f4392)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+     Running tests/zk60_block_contract.rs (hashline/target/storage-tests/release/deps/zk60_block_contract-0a1381a535d8a078)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
+
+     Running tests/zk60_cl20_codec.rs (hashline/target/storage-tests/release/deps/zk60_cl20_codec-ae0e5138edf72588)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
+
+     Running tests/zk60_fable_arith.rs (hashline/target/storage-tests/release/deps/zk60_fable_arith-d6cead795f2e8232)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
+
+     Running tests/zk60_fable_cfs_channel.rs (hashline/target/storage-tests/release/deps/zk60_fable_cfs_channel-90c1895c5efca49e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+     Running tests/zk60_gpu_cache.rs (hashline/target/storage-tests/release/deps/zk60_gpu_cache-0d3f622d151ca818)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
+     Running tests/zk60_gpu_commit.rs (hashline/target/storage-tests/release/deps/zk60_gpu_commit-3492ab420c199830)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
+
+     Running tests/zk60_identity_gap.rs (hashline/target/storage-tests/release/deps/zk60_identity_gap-cd789757689e5078)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+     Running tests/zk60_mask_rank.rs (hashline/target/storage-tests/release/deps/zk60_mask_rank-8c678f793975ee0e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+     Running tests/zk60_memory_layout.rs (hashline/target/storage-tests/release/deps/zk60_memory_layout-ce8b2b9abcba4b29)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/zk60_model_identity.rs (hashline/target/storage-tests/release/deps/zk60_model_identity-8139f6a33ec01967)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+     Running tests/zk60_pending_layout.rs (hashline/target/storage-tests/release/deps/zk60_pending_layout-dff82cf4b2a45d35)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+     Running tests/zk60_phase_profile.rs (hashline/target/storage-tests/release/deps/zk60_phase_profile-003a3df0e01a365d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+     Running tests/zk60_private_seam.rs (hashline/target/storage-tests/release/deps/zk60_private_seam-f70af7d163e9978e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
+
+     Running tests/zk60_proof_size.rs (hashline/target/storage-tests/release/deps/zk60_proof_size-251206142209ee5f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+     Running tests/zk60_public_block.rs (hashline/target/storage-tests/release/deps/zk60_public_block-fd4daf738d10f542)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+     Running tests/zk60_public_chain.rs (hashline/target/storage-tests/release/deps/zk60_public_chain-cc6940a779b08e14)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
+     Running tests/zk60_public_receipt.rs (hashline/target/storage-tests/release/deps/zk60_public_receipt-7a8e5f9c0407f680)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s
+
+     Running tests/zk60_public_wire.rs (hashline/target/storage-tests/release/deps/zk60_public_wire-502dfc8241685256)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s
+
+     Running tests/zk60_sequence_equivalence.rs (hashline/target/storage-tests/release/deps/zk60_sequence_equivalence-4ade49d0fec54f61)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+     Running tests/zk60_stable_weight_slots.rs (hashline/target/storage-tests/release/deps/zk60_stable_weight_slots-01c9a183de1c2e3f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+

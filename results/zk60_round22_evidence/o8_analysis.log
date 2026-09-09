@@ -1,0 +1,27 @@
+038318c46443 P3 roles ['W', 'A', 'H', 'Input', 'Output']
+  038318c46443 P3 W: per-column 0, joint 0 (21 ms)
+  038318c46443 P3 A: per-column 0, joint 0 (2587 ms)
+  038318c46443 P3 H: per-column 0, joint 2 (879 ms)
+  038318c46443 P3 Input: per-column 0, joint 0 (0 ms)
+  038318c46443 P3 Output: per-column 0, joint 0 (0 ms)
+  038318c46443 P3 JOINT A+In+Out 0, all 2 (8965 ms)
+c97457756c36 P1 roles ['A', 'H', 'Input', 'Output']
+  c97457756c36 P1 A: per-column 0, joint 0 (2538 ms)
+  c97457756c36 P1 H: per-column 0, joint 2 (949 ms)
+  c97457756c36 P1 Input: per-column 0, joint 0 (0 ms)
+  c97457756c36 P1 Output: per-column 0, joint 0 (0 ms)
+  c97457756c36 P1 JOINT A+In+Out 0, all 2 (8441 ms)
+e9326d222ed7 P3 roles ['W', 'A', 'H', 'Input', 'Output']
+  e9326d222ed7 P3 W: per-column 0, joint 0 (17 ms)
+  e9326d222ed7 P3 A: per-column 0, joint 0 (2478 ms)
+  e9326d222ed7 P3 H: per-column 0, joint 2 (865 ms)
+  e9326d222ed7 P3 Input: per-column 0, joint 0 (0 ms)
+  e9326d222ed7 P3 Output: per-column 0, joint 0 (0 ms)
+  e9326d222ed7 P3 JOINT A+In+Out 0, all 2 (8675 ms)
+efb9e585454f P1 roles ['A', 'H', 'Input', 'Output']
+  efb9e585454f P1 A: per-column 0, joint 0 (2499 ms)
+  efb9e585454f P1 H: per-column 0, joint 2 (789 ms)
+  efb9e585454f P1 Input: per-column 0, joint 0 (0 ms)
+  efb9e585454f P1 Output: per-column 0, joint 0 (0 ms)
+  efb9e585454f P1 JOINT A+In+Out 0, all 2 (8331 ms)
+PASS: four digest-bound captures, joint model and 60 ingestion controls

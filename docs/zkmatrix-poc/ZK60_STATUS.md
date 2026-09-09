@@ -5,6 +5,17 @@ activations; weights may be public. The full version (P3) also hides weights.
 Victor reaffirmed this on 2026-09-09. These are requirements, not claims of
 current acceptance. [Canonical privacy requirements](ZK60_PRIVACY_REQUIREMENTS.md).
 
+**2026-09-09, round 22:** [recovery and O8 integration](ZK60_ROUND22.md).
+The interrupted round-21 commit is completed as `de76a87`; all 75 retained
+evidence hashes and nineteen stage exits check out. O8 is delivered and
+integrated with a strict analysis acceptance wrapper. New source-bound captures
+are retained in the workspace; the old temporary capture files are unavailable.
+Six Rust tests, 59 Python tests, sixteen receipt process cases and native
+freeze-check pass; three legacy-capture Python cases are explicitly skipped.
+The fresh joint, opening and CFS analyses pass within their conditional scope.
+The endpoint simulator, adaptive/repeated-proof privacy and complete P1 block
+remain open. Older references to pending O8 delivery below are historical.
+
 **2026-09-09, round 21:** the [history audit](ZK60_ROUND21.md) confirms this
 scope was already explicit in September 4 documentation and code. The
 P1/P3 declarations and private endpoint preparation/policy serializer remain

@@ -6,6 +6,19 @@ activations; weights may be public. Full version P3 also hides weights.
 Prioritize the P1 private-IO path. Public IO cannot substitute for its privacy
 obligations; weight-specific P3 work remains required for the full version.
 
+**2026-09-09, round 22:** [interruption recovery and O8 integration](ZK60_ROUND22.md).
+Round 21 had completed validation but stopped before committing; `de76a87`
+finishes that commit after 75 evidence hash checks. O8 (`d82a286`, handoff
+`0f51e3f`) is delivered. Fresh, separately manifested IO captures replace the
+missing temporary files for new checks; historical artifacts are not relabelled.
+Six Rust tests, 59 Python tests, sixteen receipt cases and freeze-check pass;
+three legacy-fixture Python cases remain explicitly skipped. Fresh joint,
+opening and CFS checks pass. Use `scripts/zk60_io_review_gate.py` for strict O8
+acceptance. Codex next
+resolves the caller-fixed endpoint simulator and adaptive/repeated-proof
+composition, then private attention and a tiny P1 block. Earlier entries below
+are historical; O8 is no longer a pending external delivery.
+
 **2026-09-09, round 21:** [requirement/history audit and IO CFS checks](ZK60_ROUND21.md).
 The requirement already existed; no public-IO switch was found in the reviewed
 pushes. Six Rust IO tests, sixteen saved-receipt process cases, seven Python
@@ -303,7 +316,37 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
-**AS OF 2026-09-09 early (NEWEST BLOCK. O1–O7 ALL DELIVERED AND PUSHED ON
+**AS OF 2026-09-09 (NEWEST BLOCK. O1–O8 ALL DELIVERED AND PUSHED ON
+`zk60-fable-review`. O8 IS THE JOINT IO DISCLOSURE RESULT CODEX WAS WAITING
+FOR):**
+- **O8** (`d82a286`, `ZK60_OPUS_IO_ANALYSIS.md`) analyses Codex's four
+  round-19 IO captures. Per commitment: A 0, W 0, input endpoint 0, output
+  endpoint 0, H 2. **Combined across the commitments that share a data plane**
+  (X and z16 live in both A and their endpoint, with separate masks):
+  A ∪ input ∪ output = **0**, and all private commitments together = **2**,
+  entirely cross-column, exactly H's public LogUp identity. No functional of
+  X, z16, any other A plane or W survives.
+- **The one imported premise, stated not assumed:** the row identification
+  comes from the SOUNDNESS of the IO equality sumcheck — the linear
+  observations cannot themselves prove A's X slice equals the endpoint's 512
+  values. The unaliased union is computed as a control (also 0).
+- **Round 20's conditional pad/column lemma now has its premise supplied** by
+  O8's joint message result, with two conditions attached: public rows are not
+  modelled (Codex should say which data rows, if any, are publicly determined),
+  and the alias import above. The lemma's own exclusions stay unaccepted.
+- **F3 is the finding to act on:** each aliased plane is committed, encoded and
+  column-opened TWICE, in A and in its endpoint, with independent masks, pads
+  and sampled column sets. New with the IO seam and outside every model in
+  play. F4 makes the `repeats` exclusion concrete (the four proofs are very
+  likely one witness per mode). F1: the layout digest cannot distinguish the
+  IO profile from the base one.
+- **Sanity of the machinery:** the archived legacy leak still reproduces
+  (A 516, W 514, the T32 Wd plane recovered), and ablating the endpoint mask
+  pair makes the same code report 256 — it can see a leak when one exists.
+- **REGRESSION GATES:** `-p 'test_zk60_opus_*.py'` (136) and
+  `-p 'test_zk60_fable_*.py'` (94).
+
+**AS OF 2026-09-09 early (OLDER BLOCK. O1–O7 ALL DELIVERED AND PUSHED ON
 `zk60-fable-review`; CODEX HAS INTEGRATED O1–O6 AND REPLACED ITS IO DRAFT IN
 RESPONSE TO O6):**
 - **THE RECORD** is `docs/zkmatrix-poc/ZK60_OPUS_ROUND16_DELIVERY.md` (its last
