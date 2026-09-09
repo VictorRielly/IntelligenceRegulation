@@ -8,6 +8,7 @@ description = "Maintained CPU proof primitives extracted from hashline; experime
 [dependencies]
 blake3 = "1.8"
 rayon = "1.11"
+sha2 = "0.10"
 
 [profile.release]
 opt-level = 3

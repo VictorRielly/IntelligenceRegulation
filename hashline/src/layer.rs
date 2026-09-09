@@ -22,7 +22,7 @@ use crate::export::{D, F};
 use crate::field::{batch_inverse2, batch_inverse2_checked, Fp, Fp2};
 use crate::mle::{eq_point, eq_table_msb, eval_mle_ext, fold_cols_base, fold_cols_i8, fold_rows_i32, fold_rows_i8};
 use crate::ntt::NttTables;
-use crate::pcs::{self, Claim, Commitment, Opening, PcsParams, Slice};
+use crate::pcs::{self, Claim, Commitment, Opening, Slice};
 // [UPERF3-AF] the PCS-selection seam: `pcs_compact::commit` returns the Ligero form (the default,
 // byte-identical) or the compact form; one batched compact opening per layer replaces the three.
 use crate::pcs_compact::{self, AnyCm};
@@ -45,16 +45,24 @@ pub struct Statement {
     pub table_digest: String,
 }
 
-#[derive(Clone, Copy, Debug)]
-pub struct LayerParams {
-    pub log_cols: u32,
-    pub inv_rate: usize,
-    pub num_col_checks: usize,
-}
+// [ZK60-CL20] The typed pieces of the v3 profile are canonical in zkp-core
+// (`zkp_core::ffn_v3`); they are re-exported here under their legacy names so
+// every caller compiles unchanged. `LayerParams` serves the v2 prover too.
+pub use zkp_core::ffn_v3::{
+    absorb_statement as absorb_statement_v3, pow2_signed, rem_index, rem_rows, rem_value, tag_rem_v3, Layout as LayoutV3,
+    Params as LayerParams, Statement as StatementV3, TAG_ACT16, TAG_INT16,
+};
+use zkp_core::ffn_v3::{absorb_com, absorb_mults};
+/// The v3 layer proof: the core's proof object with hashline's compact-PCS
+/// batched opening in its extra slot (`cpcs_open`, `--pcs compact`).
+pub type LayerProofV3 = zkp_core::ffn_v3::Proof<pcs_compact::BatchOpening>;
 
-impl LayerParams {
-    fn pcs_for(&self, min_log_slice: u32) -> PcsParams {
-        PcsParams { log_cols: self.log_cols.min(min_log_slice), inv_rate: self.inv_rate, num_col_checks: self.num_col_checks }
+impl zkp_core::ffn_v3::ExtraOpening for pcs_compact::BatchOpening {
+    fn size_bytes(&self) -> usize {
+        pcs_compact::BatchOpening::size_bytes(self)
+    }
+    fn write_bytes(&self, out: &mut Vec<u8>) {
+        pcs_compact::BatchOpening::write_bytes(self, out)
     }
 }
 
@@ -191,22 +199,6 @@ fn absorb_statement(tr: &mut Transcript, st: &Statement) {
     tr.absorb(b"table", st.table_digest.as_bytes());
 }
 
-fn absorb_com(tr: &mut Transcript, label: &[u8], c: &Commitment) {
-    tr.absorb(label, &c.root);
-    tr.absorb_u64(label, c.rows as u64);
-}
-
-fn absorb_mults(tr: &mut Transcript, mults: &[(u64, Vec<u32>)]) {
-    let mut bytes = Vec::new();
-    for (tag, m) in mults {
-        bytes.extend_from_slice(&tag.to_le_bytes());
-        bytes.extend_from_slice(&(m.len() as u64).to_le_bytes());
-        for v in m {
-            bytes.extend_from_slice(&v.to_le_bytes());
-        }
-    }
-    tr.absorb(b"mults", &bytes);
-}
 
 fn to_fp_i32(v: &[i32]) -> Vec<Fp> {
     v.par_iter().map(|&x| Fp::from_i64(x as i64)).collect()
@@ -1223,186 +1215,8 @@ pub fn matmul_differential(honest_w: &LayerWitness, prover_w: &LayerWitness, t_r
 // ===========================================================================
 
 use crate::export_v3::V3Witness;
-use crate::tables_v3::Act16Fn;
 
-pub const TAG_ACT16: u64 = 3;
-pub const TAG_INT16: u64 = 4;
-/// The balanced-remainder window table of a signed shift (sh in -8..=16).
-pub fn tag_rem_v3(sh: i32) -> u64 {
-    64 + (sh + 8) as u64
-}
-pub fn rem_rows(sh: i32) -> usize {
-    if sh <= 0 { 1 } else { 1usize << sh }
-}
-/// Row i of the window table: the remainder value it stands for.
-pub fn rem_value(sh: i32, i: usize) -> i64 {
-    if sh <= 0 { 0 } else { i as i64 - (1i64 << (sh - 1)) }
-}
-/// [UPERF3-AD] pub: the v3 ZK form (zk.rs) builds the same multiplicity tables.
-pub fn rem_index(sh: i32, r: i32) -> Option<usize> {
-    if sh <= 0 {
-        if r == 0 { Some(0) } else { None }
-    } else {
-        let v = r as i64 + (1i64 << (sh - 1));
-        if v >= 0 && v < (1i64 << sh) { Some(v as usize) } else { None }
-    }
-}
-/// The public coefficient of y in acc = coef * y + r: 2^sh, or the inverse
-/// of 2^-sh at a negative shift (the exact up-scaling branch).
-pub fn pow2_signed(sh: i32) -> Fp {
-    if sh >= 0 { Fp::new(1u64 << sh) } else { Fp::new(1u64 << (-sh)).inv() }
-}
 
-#[derive(Clone, Debug)]
-pub struct StatementV3 {
-    pub l: usize,
-    pub t_rows: usize,
-    pub d: usize,
-    pub f: usize,
-    pub shifts: (i32, i32, i32, i32),
-    pub act: Act16Fn,
-    pub table: [i16; 256],
-    pub table_digest: String,
-}
-
-/// Element offsets of every slice in the three committed vectors (block-structured).
-#[derive(Clone, Debug)]
-pub struct LayoutV3 {
-    pub t_rows: usize, pub d: usize, pub f: usize,
-    pub log_t: u32, pub log_db: u32, pub nb_d: usize, pub log_fb: u32, pub nb_f: usize,
-    pub tfb: usize, pub tdb: usize, pub wb: usize, pub log_wb: u32, pub log_a_min: u32,
-    pub g8: Vec<usize>, pub rg: Vec<usize>, pub a16: Vec<usize>, pub u16: Vec<usize>, pub ru: Vec<usize>, pub h16: Vec<usize>, pub rh: Vec<usize>,
-    pub x: Vec<usize>, pub z: Vec<usize>, pub rd: Vec<usize>,
-    pub a_len: usize,
-    pub wg: Vec<usize>, pub wu: Vec<usize>, pub wd: Vec<usize>,
-    pub w_len: usize,
-    pub hg: Vec<(usize, usize)>, pub hu: Vec<(usize, usize)>, pub hh: Vec<(usize, usize)>, pub hz: Vec<(usize, usize)>,
-    pub h_len: usize,
-}
-
-impl LayoutV3 {
-    pub fn new(t_rows: usize, d: usize, f: usize) -> LayoutV3 {
-        assert!(t_rows.is_power_of_two(), "t_rows must be a power of two");
-        let log_t = t_rows.trailing_zeros();
-        let log_db = d.trailing_zeros().min(12);
-        let log_fb = f.trailing_zeros().min(12);
-        let (db, fb) = (1usize << log_db, 1usize << log_fb);
-        assert!(d % db == 0 && f % fb == 0 && log_db >= 4 && log_fb >= 4, "d {d} / f {f}: need >= 16 | d, f");
-        let (nb_d, nb_f) = (d / db, f / fb);
-        let tfb = t_rows * fb;
-        let tdb = t_rows * db;
-        let mut off = 0usize;
-        let mut vecn = |n: usize, sz: usize| -> Vec<usize> { (0..n).map(|_| { let o = off; off += sz; o }).collect() };
-        let g8 = vecn(nb_f, tfb); let rg = vecn(nb_f, tfb); let a16 = vecn(nb_f, tfb); let u16 = vecn(nb_f, tfb);
-        let ru = vecn(nb_f, tfb); let h16 = vecn(nb_f, tfb); let rh = vecn(nb_f, tfb);
-        let x = vecn(nb_d, tdb); let z = vecn(nb_d, tdb); let rd = vecn(nb_d, tdb);
-        let a_len = off;
-        let wb = db * fb;
-        let log_wb = log_db + log_fb;
-        let mut woff = 0usize;
-        let mut wvec = |n: usize| -> Vec<usize> { (0..n).map(|_| { let o = woff; woff += wb; o }).collect() };
-        let wg = wvec(nb_d * nb_f); let wu = wvec(nb_d * nb_f); let wd = wvec(nb_f * nb_d);
-        let w_len = woff;
-        let mut hoff = 0usize;
-        let mut hvec = |n: usize, sz: usize| -> Vec<(usize, usize)> { (0..n).map(|_| { let o = hoff; hoff += 2 * sz; (o, o + sz) }).collect() };
-        let hg = hvec(nb_f, tfb); let hu = hvec(nb_f, tfb); let hh = hvec(nb_f, tfb); let hz = hvec(nb_d, tdb);
-        let h_len = hoff;
-        LayoutV3 {
-            t_rows, d, f, log_t, log_db, nb_d, log_fb, nb_f, tfb, tdb, wb, log_wb, log_a_min: log_t + log_db.min(log_fb),
-            g8, rg, a16, u16, ru, h16, rh, x, z, rd, a_len, wg, wu, wd, w_len, hg, hu, hh, hz, h_len,
-        }
-    }
-    fn s_f(&self, off: usize) -> Slice { Slice { offset: off, log_size: self.log_t + self.log_fb } }
-    fn s_d(&self, off: usize) -> Slice { Slice { offset: off, log_size: self.log_t + self.log_db } }
-    fn s_w(&self, off: usize) -> Slice { Slice { offset: off, log_size: self.log_wb } }
-}
-
-#[derive(Clone, Debug, Default)]
-pub struct LayerProofV3 {
-    pub w_com: Option<Commitment>,
-    pub a_com: Option<Commitment>,
-    pub h_com: Option<Commitment>,
-    pub mults: Vec<(u64, Vec<u32>)>,
-    pub gu_claims: Vec<Fp2>,
-    pub gu_sc: SumcheckProof,
-    pub gu_term: Vec<Fp2>,
-    pub d_claims: Vec<Fp2>,
-    pub d_sc: SumcheckProof,
-    pub d_term: Vec<Fp2>,
-    pub zcf_sc: SumcheckProof,
-    pub zcf_term: Vec<Fp2>,
-    pub zcd_sc: SumcheckProof,
-    pub zcd_term: Vec<Fp2>,
-    pub helper_sums: Vec<Fp2>,
-    pub w_open: Opening,
-    pub a_open: Opening,
-    pub h_open: Opening,
-    /// [UPERF3-AF] under `--pcs compact`: the ONE batched opening of W, A and H (the three above stay empty)
-    pub cpcs_open: Option<pcs_compact::BatchOpening>,
-}
-
-impl LayerProofV3 {
-    pub fn size_bytes(&self) -> usize {
-        let coms = 3 * (32 + 8 + 4);
-        let mults: usize = self.mults.iter().map(|(_, m)| 8 + 4 + m.len() * 4).sum();
-        let f2 = |v: &Vec<Fp2>| v.len() * 16;
-        coms + mults + f2(&self.gu_claims) + self.gu_sc.size_bytes() + f2(&self.gu_term)
-            + f2(&self.d_claims) + self.d_sc.size_bytes() + f2(&self.d_term)
-            + self.zcf_sc.size_bytes() + f2(&self.zcf_term) + self.zcd_sc.size_bytes() + f2(&self.zcd_term)
-            + f2(&self.helper_sums) + self.w_open.size_bytes() + self.a_open.size_bytes() + self.h_open.size_bytes()
-            + self.cpcs_open.as_ref().map(|b| b.size_bytes()).unwrap_or(0)
-    }
-    /// The flat little-endian encoding `size_bytes` counts (the CPU/GPU byte-identity gate).
-    pub fn to_bytes(&self) -> Vec<u8> {
-        let mut out = Vec::with_capacity(self.size_bytes());
-        let com = |out: &mut Vec<u8>, c: &Option<Commitment>| {
-            let c = c.as_ref().expect("commitment");
-            out.extend_from_slice(&c.root);
-            out.extend_from_slice(&(c.rows as u64).to_le_bytes());
-            out.extend_from_slice(&c.log_cols.to_le_bytes());
-        };
-        com(&mut out, &self.w_com);
-        com(&mut out, &self.a_com);
-        com(&mut out, &self.h_com);
-        for (tag, m) in &self.mults {
-            out.extend_from_slice(&tag.to_le_bytes());
-            out.extend_from_slice(&(m.len() as u32).to_le_bytes());
-            for v in m { out.extend_from_slice(&v.to_le_bytes()); }
-        }
-        let f2 = |out: &mut Vec<u8>, v: &Vec<Fp2>| { for x in v { out.extend_from_slice(&x.to_bytes()); } };
-        f2(&mut out, &self.gu_claims);
-        self.gu_sc.write_bytes(&mut out);
-        f2(&mut out, &self.gu_term);
-        f2(&mut out, &self.d_claims);
-        self.d_sc.write_bytes(&mut out);
-        f2(&mut out, &self.d_term);
-        self.zcf_sc.write_bytes(&mut out);
-        f2(&mut out, &self.zcf_term);
-        self.zcd_sc.write_bytes(&mut out);
-        f2(&mut out, &self.zcd_term);
-        f2(&mut out, &self.helper_sums);
-        self.w_open.write_bytes(&mut out);
-        self.a_open.write_bytes(&mut out);
-        self.h_open.write_bytes(&mut out);
-        if let Some(b) = &self.cpcs_open { b.write_bytes(&mut out); } // [UPERF3-AF]
-        debug_assert_eq!(out.len(), self.size_bytes());
-        out
-    }
-}
-
-/// [UPERF3-AD] pub: the v3 ZK form (zk.rs) absorbs the same statement.
-pub fn absorb_statement_v3(tr: &mut Transcript, st: &StatementV3) {
-    tr.absorb(b"profile", b"v3-widened/round");
-    tr.absorb_u64(b"layer", st.l as u64);
-    tr.absorb_u64(b"t_rows", st.t_rows as u64);
-    tr.absorb_u64(b"d", st.d as u64);
-    tr.absorb_u64(b"f", st.f as u64);
-    let mut sb = Vec::with_capacity(32);
-    for s in [st.shifts.0, st.shifts.1, st.shifts.2, st.shifts.3] { sb.extend_from_slice(&(s as i64).to_le_bytes()); }
-    tr.absorb(b"shifts-signed", &sb);
-    tr.absorb(b"act", st.act.spec_name().as_bytes());
-    tr.absorb(b"table", st.table_digest.as_bytes());
-}
 
 /// Multiplicity tables from the (possibly tampered) witness columns: values
 /// outside a table are counted into entry 0 so the totals still match and
