@@ -1,0 +1,21 @@
+diff --git a/hashline/src/private_block_contract.rs b/hashline/src/private_block_contract.rs
+index 7f0d313..0d9f7b2 100644
+--- a/hashline/src/private_block_contract.rs
++++ b/hashline/src/private_block_contract.rs
+@@ -402,6 +402,16 @@ fn validate_norm(
+         n.wrho == width && n.n_limbs == width.div_ceil(16) as usize,
+         "fixed worst-case norm remainder width",
+     )?;
++    // [FA9 R09/R10] The argument proves rho, sigma in [0, 2^(16 n_limbs)), not
++    // [0, 2^wrho): `wrho` is the host's advertised width and rho < 2^wrho follows
++    // only from an exact D. The half-p isqrt alias D = k + (p-1)/2 has
++    // remainders of about 2^(31+tn) and fits three or more limbs at every
++    // tn >= 1; two limbs exclude it (2^42 against 2^32 here). Refuse anything
++    // wider BY NAME until D carries its own limb range fact in the argument.
++    require(
++        n.n_limbs == 2,
++        "norm remainder limbs admit the half-p isqrt alias",
++    )?;
+     let numerator = 2u64 * 32768 * 128 * n.cn as u64;
+     Ok((d, denominator, numerator))
+ }
