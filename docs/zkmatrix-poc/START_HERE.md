@@ -4,7 +4,9 @@
 proofs have demonstrated private-value disclosure in synthetic fixtures.
 Their verification and frozen performance results do not establish zero
 knowledge. [Round 16](ZK60_ROUND16.md) adds an executable paired-mask FFN
-prototype in both privacy modes; it still lacks the complete private block,
+prototype in both privacy modes. [Round 17](ZK60_ROUND17.md) adds bounded saved
+proofs and separate-process verification, plus Opus's joint linear analysis.
+It still lacks the complete private block,
 registered private model binding and final privacy review. The historical
 hash-line privacy claims below must be read with that correction. Pending
 review tasks now go to [Opus 5](ZK60_OPUS_QUEUE.md).

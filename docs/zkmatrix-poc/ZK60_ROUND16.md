@@ -1,5 +1,9 @@
 # Round 16: executable FFN privacy repair
 
+**Successor:** [round 17](ZK60_ROUND17.md) implements the bounded wire format and
+separate-process verification and integrates Opus's O1–O4 delivery. Statements
+below about missing transport and pending capture review describe round 16.
+
 Implementation: `b41d036c4c1eb1ed9272494815d742d0ccf29934`.
 
 **Task reassignment:** Victor exhausted Fable usage during this round. Pending

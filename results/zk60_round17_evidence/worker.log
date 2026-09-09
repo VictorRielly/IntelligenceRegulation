@@ -1,0 +1,15 @@
+START storage_tests
+END storage_tests exit=0
+START cpu_build
+END cpu_build exit=0
+START process_check
+END process_check exit=0
+START affected_python
+END affected_python exit=1
+Traceback (most recent call last):
+  File "/tmp/zk60-round17/validate.py", line 41, in <module>
+    stage('affected_python',['python3','-m','unittest','discover','-s','tests','-p','test_hashline_cl_gpu_gates.py','-v'])
+  File "/tmp/zk60-round17/validate.py", line 27, in stage
+    if p.returncode: raise RuntimeError(name+' failed')
+RuntimeError: affected_python failed
+

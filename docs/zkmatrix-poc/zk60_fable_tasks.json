@@ -1,23 +1,20 @@
 {
   "schema_version": 1,
   "created_local_date": "2026-09-07",
-  "round": 16,
-  "integrator_base": "046e9654ab8b769be196bef5b63dbf6485982f7d",
-  "reviewed_lane_tip": "5949b38",
-  "review": "ZK60_ROUND16.md",
+  "round": 17,
+  "integrator_base": "53e831c171adcd8c37557a48aa3cdde4d196d33c",
+  "reviewed_lane_tip": "2fb7e0a",
+  "review": "ZK60_ROUND17.md",
   "owner": "Opus 5 owns bounded review/tooling follow-ups; Codex owns protocol implementation, integration and final cryptographic review",
-  "coordination": "Opus 5 follows O1-O4 in ZK60_OPUS_QUEUE.md, one bounded task at a time in the review worktree. Codex retains Rust protocol changes and final acceptance. Historical Fable authorship is unchanged.",
+  "coordination": "O1-O4 are integrated and their 69 tests plus 57 legacy joint tests pass. Opus 5 continues with bounded O5/O6 reviews in ZK60_OPUS_QUEUE.md. Codex owns Rust protocol changes and final privacy acceptance.",
   "engineering_order": [
-    "O1 capture integrity",
-    "O2 existing joint-analysis adapter",
-    "O3 implemented mask audit",
-    "O4 attention inventory",
-    "CL20 (priority 3)"
+    "O5 independent FFN wire-boundary review",
+    "O6 pending FFN input/output seam inventory",
+    "CL20 delivered helper integration (priority 3)"
   ],
   "independent_ready": [
-    "O1 four fresh repaired T32 captures",
-    "O3 executable generator audit",
-    "O4 attention inventory"
+    "O5 wire-boundary review",
+    "O6 pending FFN seam requirements"
   ],
   "lower_priority_design": [
     "CL20"
@@ -764,7 +761,8 @@
       "dispatch_document": "ZK60_OPUS_QUEUE.md",
       "opus_dispatch": [
         "O4"
-      ]
+      ],
+      "round17_handoff": "O4 attention source inventory delivered and integrated. Six private claimed sums, bilinear score/PV extensions and nineteen helper-sum observations are explicit construction obligations for Codex."
     },
     {
       "id": "FA7",
@@ -813,7 +811,8 @@
       "opus_dispatch": [
         "O1",
         "O2"
-      ]
+      ],
+      "round17_handoff": "O1/O2 delivered and integrated through 2fb7e0a. Four actual captures meet the target in the inherited fixed-coefficient linear model; pads/columns, CFS and repeats remain excluded. Do not redo or expand this result into full privacy acceptance."
     },
     {
       "id": "FA8",
@@ -883,7 +882,8 @@
       "dispatch_document": "ZK60_OPUS_QUEUE.md",
       "opus_dispatch": [
         "O3"
-      ]
+      ],
+      "round17_handoff": "O3 implemented-schedule audit delivered and integrated. Codex retains pending-proof/early-guard changes and H/table/proximity negative controls. Opus next performs O5/O6; final nonlinear/repeated-proof privacy remains open."
     },
     {
       "id": "FA9",
@@ -1000,9 +1000,9 @@
   ],
   "round10_codex_work": "CL19 implementation complete and validated: 156 Rust, 39 Python consumers, four unchanged frozen proofs, P3 on/off byte parity; see ZK60_ROUND10.md. GPU/PCS/planner ownership unchanged.",
   "codex_next_work": [
-    "Bounded FFN proof envelope and verification from bytes for the executable paired-mask profile.",
-    "Connect repaired FFN commitment owners to private block seams and implement attention repairs identified by the independent review.",
-    "Demonstrate a complete tiny private block with external IO and model binding, then two linked blocks. Stable private model binding remains explicit unfinished work; core extraction stays priority 3."
+    "Bind repaired FFN X/z16 to independently supplied input/output endpoints with a consuming pending-proof lifecycle and separate-process verification.",
+    "Close O3 H/table/proximity test gaps and move the table-point guard earlier while implementing that lifecycle.",
+    "Implement private attention obligations from O4, compose a tiny complete private block, then two blocks. Registered private model identity and full privacy review remain explicit requirements; core extraction stays priority 3."
   ],
   "completed_successor_tasks": [
     "CL12",
@@ -1199,5 +1199,38 @@
   },
   "assigned_model": "Opus 5",
   "dispatch_document": "ZK60_OPUS_QUEUE.md",
-  "assignment_reason": "Victor exhausted Fable usage and reassigned pending todos to Opus 5. Historical Fable deliveries remain attributed to Fable."
+  "assignment_reason": "Victor exhausted Fable usage and reassigned pending todos to Opus 5. Historical Fable deliveries remain attributed to Fable.",
+  "round17_codex_work": {
+    "source_commit": "29d34362f54a8539799a6f7a74211dd43aed15cc",
+    "review_integration": "2fb7e0a0ac06b0c5432d43898fd3db10b5ad2ab9",
+    "report": "ZK60_ROUND17.md",
+    "validation": "../../results/zk60_round17_validation.json",
+    "validation_status": "complete",
+    "wire_decoder_implemented": true,
+    "separate_process_verification": true,
+    "private_block_implemented": false,
+    "stable_private_model_identity": false,
+    "full_privacy_review_complete": false,
+    "full_private_poc_complete": false,
+    "implemented": [
+      "Bounded canonical fresh FFN envelope and caller-selected policy/context",
+      "Saved-proof prepare/prove/verify commands and 21 process acceptance/rejection cases",
+      "Opus O1-O4 review integration; A/W zero and H only public identity in the inherited linear model"
+    ],
+    "next_opus_tasks": [
+      "O5",
+      "O6"
+    ],
+    "core_helper_delivered_not_integrated": "2dec4a9",
+    "validation_counts": {
+      "rust": 220,
+      "process_cases": 21,
+      "python_gate_tests": 87,
+      "opus_tests": 69,
+      "legacy_joint_tests": 57,
+      "python_total_affected": 213,
+      "frozen_cpu_proofs": 4,
+      "native_freeze_check": true
+    }
+  }
 }

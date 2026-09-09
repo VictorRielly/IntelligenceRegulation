@@ -1,0 +1,4 @@
+START opus_tests
+END opus_tests exit=0
+START legacy_joint_tests
+END legacy_joint_tests exit=0

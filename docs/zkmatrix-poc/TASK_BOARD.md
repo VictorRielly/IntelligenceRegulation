@@ -1,5 +1,17 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-08, round 17 current work:** the repaired FFN now has a bounded saved
+proof and separate-process verifier (`29d3436`); 220 Rust tests and 21 process
+checks pass. Opus's O1–O4 reports/tools are integrated through `2fb7e0a`, with
+69 Opus and 57 legacy joint-analysis tests passing. See [round 17](ZK60_ROUND17.md)
+for complete evidence and the limits of the linear privacy result.
+
+Next Codex milestone: bind the repaired FFN's X/z16 to specified input/output
+endpoints using a consuming proof lifecycle; then private attention and a tiny
+complete block. Opus owns the bounded [O5/O6 follow-ups](ZK60_OPUS_QUEUE.md).
+The delivered CL20 helper move is queued at priority 3. Earlier dated entries
+and lane delivery records below retain their historical meanings.
+
 **2026-09-08, round 15 integration:** Fable's FA6–FA9 analyses, CL21 tooling
 and corrected typed FFN/core extraction are integrated. Source `612ff9c`
 adds CFS refusal guards, a public int8 registration constructor and fixed norm

@@ -14800,3 +14800,35 @@ P3 profile or complete ZKP-core path is claimed.
 See [round 14](docs/zkmatrix-poc/ZK60_ROUND14.md),
 [the core review](docs/zkmatrix-poc/ZK60_CL20_ROUND14_REVIEW.md), and
 [validation](results/zk60_round14_validation.json).
+
+
+## 2026-09-08 — ZK60 round 17: repaired FFN verification from saved bytes
+
+Codex `29d3436` adds the fixed-shape canonical envelope and prepare/prove/verify
+commands for the round-16 fresh paired-mask FFN. Verification in a distinct
+process consumes only public fixture metadata, independently selected weight
+policy/context and the saved proof. No weights or witness are regenerated in
+that command. P1/P3 frames are 4,733,245 / 4,770,205 bytes. The profile remains
+experimental function 1, with no externally bound input/output or private
+model registration. Legacy proving code and transcripts are unchanged.
+
+Opus O1-O4 are integrated through `2fb7e0a`: capture integrity, joint linear
+analysis, implemented-mask audit and attention source inventory. A/W disclose
+zero dimensions in the inherited fixed-coefficient model; H retains exactly
+the public LogUp identity. Pads/columns, CFS, repeats and the nonlinear
+transcript remain outside that result. The existing legacy attack still fires.
+
+Validation: 220 Rust tests, 21 process cases, 213 affected Python tests (87
+runner, 69 Opus, 57 legacy joint), four unchanged CPU proof digests and native
+freeze-check pass. `53e831c` fixes two stale default-version test expectations;
+no Rust change followed the successful proving tests. Retained evidence:
+`results/zk60_round17_validation.json` and `results/zk60_round17_evidence/`.
+No new full Python/GPU suite or performance claim. Two threads, shared lock,
+detached workers and 8-GiB address-space caps throughout the heavy runs.
+
+Next Codex work: consuming pending FFN ownership plus X/z16 input/output seam
+binding, with independent byte verification and wrong-endpoint/reuse refusals;
+then the O4 private attention obligations and a tiny complete private block.
+Opus follows bounded O5/O6 in `docs/zkmatrix-poc/ZK60_OPUS_QUEUE.md`. The delivered
+CL20 helper `2dec4a9` stays queued at priority 3. Full privacy review and stable
+private model identity remain explicit unfinished requirements.

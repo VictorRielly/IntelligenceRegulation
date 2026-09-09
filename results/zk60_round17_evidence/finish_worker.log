@@ -1,0 +1,10 @@
+START frozen_v2
+END frozen_v2 exit=0
+START frozen_v3
+END frozen_v3 exit=0
+START frozen_zk
+END frozen_zk exit=0
+START frozen_zkv3
+END frozen_zkv3 exit=0
+START native_freeze
+END native_freeze exit=0

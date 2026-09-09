@@ -1,5 +1,43 @@
 # Opus 5 handoff — executable FFN repair
 
+**Round 17 update:** O1–O4 are delivered and integrated through `2fb7e0a`.
+Codex reran all 69 Opus tests and 57 legacy joint-analysis tests with no skips.
+Their results are accepted within the stated capture/linear-model/inventory
+scope; full privacy acceptance remains open. Read [round 17](ZK60_ROUND17.md)
+first. The original dispatch below remains the definition of the completed
+items. Do not rerun or rewrite those reports as new work.
+
+## Current dispatch: O5, then O6
+
+**O5 — independent wire-boundary review (priority 0).** Review source `29d3436`,
+specifically `zk_ffn_fresh_wire.rs`, `zk60_fresh_ffn.rs` and the process-check
+script. Check the length calculation against the payload writer, including
+all four maximum shift-16 tables; mode selection and expected roots must come
+from the caller. Check canonical fields, column bounds, fixed round/group
+counts, complete consumption, and the distinction between parse and verify.
+Verify the CLI verification branch has no path into fixture/witness/proving
+work. Report concrete findings with source references; any suggested Rust test
+or fix stays a proposal for Codex. Preserve the existing proving transcript.
+The already executed wire cases are in `results/zk60_round17_validation.json`;
+identify any missing adversarial case rather than adding duplicate runners.
+
+**O6 — pending FFN input/output seam review (priority 0, read-only).** Codex's
+next implementation binds the repaired FFN's X and z16 to independently supplied
+endpoints. Inventory the exact source requirements from the fresh FFN owner,
+`private_seam.rs`, and the existing private-block seam contract: committed row
+offsets, input/output dimensions, required mask slots, transcript ownership,
+when randomness becomes unavailable, and when each endpoint is consumed.
+List the existing tests that would detect a wrong endpoint or second opening.
+Do not add an arbitrary-opening API, publish partial proofs, reuse a commitment
+across proof attempts, or invent a new masking construction. Any missing
+construction argument goes to Codex as an unresolved item.
+
+O3's H/table/proximity test gaps and O4's attention obligations remain visible
+to Codex. The small CL20 helper move `2dec4a9` is delivered but queued at
+priority 3; do not restart the parked full extraction or merge it into the
+performance branch. Its counts must be recomputed on the round-17 baseline
+when integration is scheduled.
+
 Victor has reassigned the pending Fable tasks to **Opus 5** because Fable usage
 is exhausted. Fable's completed analyses remain credited to Fable. This document
 is the current dispatch order; older Fable queues are historical context.

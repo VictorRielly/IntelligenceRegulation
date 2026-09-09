@@ -1,0 +1,50 @@
+{
+  "source_commit": "2fb7e0a0ac06b0c5432d43898fd3db10b5ad2ab9",
+  "stages": [
+    {
+      "name": "opus_tests",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_opus*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log_sha256": "fca669eef1212992d4f137ec1fb26648408f9e339fda662dd1edb78a21e5f217",
+      "test_count": 69,
+      "skipped": 0
+    },
+    {
+      "name": "legacy_joint_tests",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_fable_joint*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log_sha256": "c30600a22108f8c953692370adbbb415f3337833d5fb6bc49fad92771c5864b3",
+      "test_count": 57,
+      "skipped": 0
+    }
+  ],
+  "status": "complete",
+  "full_privacy_review_complete": false,
+  "results_sha256": {
+    "results/zk60_opus_attention_inventory.json": "81e634bee7ed04c49e8f5b0890ff211aff9fcbc049112a6fd370cf26994b1439",
+    "results/zk60_opus_capture_preflight.json": "7f4728f456024f7c201a5101b4afac9515694659f34a2966490c6270bffd378f",
+    "results/zk60_opus_mask_audit.json": "8c7a1eb09a35be80b43b06797c1d8d1278dbfd6312f99ddf06f16f5ba47ccd3b",
+    "results/zk60_opus_repaired_capture_analysis.json": "2290978d4d674db6319e523e306e03c895fd94c72bf9a037642ce9f0ec2a5b0f"
+  },
+  "exit_code": 0
+}

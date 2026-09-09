@@ -1,5 +1,19 @@
 # ZK60 milestone map
 
+**2026-09-08, round 17:** the repaired FFN can now be saved and verified in a
+separate process in both modes. Source `29d3436` passes 220 Rust tests and all
+21 process checks. Opus O1–O4 are integrated through `2fb7e0a`; all 69 new review
+tests and 57 legacy joint tests pass. The linear model reports A/W disclosure 0
+and only H's public LogUp identity; excluded transcript channels still require
+review. All 213 affected Python tests, four CPU frozen proofs and native
+freeze-check pass. [Round 17](ZK60_ROUND17.md) records the evidence and limits.
+
+Codex next binds the repaired FFN to specified input/output endpoints, then
+implements the private attention requirements and composes a tiny block.
+Registered private model binding and full privacy review remain unfinished.
+Opus continues with [O5/O6](ZK60_OPUS_QUEUE.md); core extraction stays priority 3.
+The older status entries below are historical snapshots.
+
 **2026-09-08, round 15 integration:** Fable's FA6–FA9 analyses, CL21 tooling
 and corrected typed FFN/core extraction are integrated. Source `612ff9c`
 adds CFS refusal guards, a public int8 registration constructor and fixed norm
