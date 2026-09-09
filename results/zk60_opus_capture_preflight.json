@@ -14,7 +14,7 @@
   "zk60_fable_joint_rank.py": "ad5e4e483c6dd8c5f73a87ddb0af1d06c3084576e82428e9c2ada6a764ffbb5b"
  },
  "manifest": {
-  "path": "/home/victor/IntelligenceRegulation/results/zk60_round16_validation.json",
+  "path": "/home/victor/wt-zk60-fa/results/zk60_round16_validation.json",
   "sha256": "19e2ecb8b66c08d43eba624775d3258c239b82f23bcc16516f3882c673127a94",
   "capture_source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
   "record_head_commit": "046e9654ab8b769be196bef5b63dbf6485982f7d",
@@ -25,7 +25,7 @@
  },
  "manifest_cross_check": {
   "primary": {
-   "path": "/home/victor/IntelligenceRegulation/results/zk60_round16_validation.json",
+   "path": "/home/victor/wt-zk60-fa/results/zk60_round16_validation.json",
    "sha256": "19e2ecb8b66c08d43eba624775d3258c239b82f23bcc16516f3882c673127a94",
    "status": "complete",
    "capture_source_commit": "b41d036c4c1eb1ed9272494815d742d0ccf29934",
