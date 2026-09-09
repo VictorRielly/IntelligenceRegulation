@@ -15,6 +15,7 @@ struct Shape {
     private: bool,
     rows: [usize; 3], // W, A, H
     specs: Vec<(usize, usize)>,
+    a_groups: usize,
 }
 
 impl Shape {
@@ -33,6 +34,7 @@ impl Shape {
                 zl.h_len / zl.a_n,
             ],
             specs: mask_specs_v3(&zl, private),
+            a_groups: 5,
         })
     }
 
@@ -56,7 +58,7 @@ impl Shape {
             + arguments
             + masks
             + opening(2, self.rows[0], self.private)
-            + opening(5, self.rows[1], true)
+            + opening(self.a_groups, self.rows[1], true)
             + opening(5, self.rows[2], true);
         if len > MAX_WIRE_BYTES {
             return Err("fresh FFN wire: frame exceeds bound".into());
@@ -118,7 +120,7 @@ impl Shape {
         };
         if p.pred.is_some()
             || !w_ok
-            || !hiding(&p.a_open, 5, self.rows[1])
+            || !hiding(&p.a_open, self.a_groups, self.rows[1])
             || !hiding(&p.h_open, 5, self.rows[2])
             || p.mask_open.q.len() != 1024
             || p.mask_open.prox.len() != 1024
@@ -205,39 +207,76 @@ impl Proof {
         if r.take::<32>()? != binding(st, weights, context)? {
             return Err("fresh FFN wire: expected statement/context mismatch".into());
         }
-        let mut p = LayerProofZk {
-            w_com: Some(r.commitment(shape.rows[0])?),
-            a_com: Some(r.commitment(shape.rows[1])?),
-            mask_root: r.take()?,
-            h_com: Some(r.commitment(shape.rows[2])?),
-            ..Default::default()
-        };
-        (p.gu_claim, p.gu_sc, p.gu_term) = r.argument(shape.specs[0], 3)?;
-        (p.d_claim, p.d_sc, p.d_term) = r.argument(shape.specs[1], 2)?;
-        (p.gamma20, p.zc20_sc, p.zc20_term) = r.argument(shape.specs[2], 10)?;
-        (p.gamma17, p.zc17_sc, p.zc17_term) = r.argument(shape.specs[3], 4)?;
-        let (gamma, sc, terms) = r.argument(shape.specs[4], 1)?;
-        p.gamma_zs = gamma;
-        p.zs_sc = sc;
-        p.zs_term = terms[0];
-        (p.gamma_tab, p.tab_sc, p.tab_term) = r.argument(shape.specs[5], 12)?;
-        p.mask_open = MaskOpening {
-            q: r.fp2_vec(1024)?,
-            prox: r.fp2_vec(1024)?,
-            columns: r.columns(16, 12)?,
-        };
-        if shape.private {
-            p.w_open_zk = r.hiding(2, shape.rows[0])?;
-        } else {
-            p.w_open = r.plain(shape.rows[0])?;
-        }
-        p.a_open = r.hiding(5, shape.rows[1])?;
-        p.h_open = r.hiding(5, shape.rows[2])?;
-        if r.pos != bytes.len() {
-            return Err("fresh FFN wire: trailing bytes".into());
-        }
+        let p = decode_layer(&shape, &mut r)?;
         Ok(Self { inner: p })
     }
+}
+
+// The IO profile reuses canonical primitive decoding and the flat FFN payload,
+// but requires four extra A rows and two extra A groups. Old frames stay exact.
+fn io_shape(st: &StatementV3, weights: WeightStatement) -> Result<Shape, String> {
+    let mut shape = Shape::new(st, weights)?;
+    shape.rows[1] += 4;
+    shape.a_groups = 7;
+    Ok(shape)
+}
+pub(super) fn io_payload_len(st: &StatementV3, weights: WeightStatement) -> Result<usize, String> {
+    Ok(io_shape(st, weights)?.len()? - HEADER)
+}
+pub(super) fn encode_io_payload(
+    st: &StatementV3,
+    weights: WeightStatement,
+    p: &LayerProofZk,
+) -> Result<Vec<u8>, String> {
+    io_shape(st, weights)?.validate(p)?;
+    let bytes = p.to_bytes();
+    decode_io_payload(st, weights, &bytes)?;
+    Ok(bytes)
+}
+pub(super) fn decode_io_payload(
+    st: &StatementV3,
+    weights: WeightStatement,
+    bytes: &[u8],
+) -> Result<LayerProofZk, String> {
+    let shape = io_shape(st, weights)?;
+    if bytes.len() != shape.len()? - HEADER {
+        return Err("FFN IO: payload length".into());
+    }
+    decode_layer(&shape, &mut Reader { bytes, pos: 0 })
+}
+fn decode_layer(shape: &Shape, r: &mut Reader<'_>) -> Result<LayerProofZk, String> {
+    let mut p = LayerProofZk {
+        w_com: Some(r.commitment(shape.rows[0])?),
+        a_com: Some(r.commitment(shape.rows[1])?),
+        mask_root: r.take()?,
+        h_com: Some(r.commitment(shape.rows[2])?),
+        ..Default::default()
+    };
+    (p.gu_claim, p.gu_sc, p.gu_term) = r.argument(shape.specs[0], 3)?;
+    (p.d_claim, p.d_sc, p.d_term) = r.argument(shape.specs[1], 2)?;
+    (p.gamma20, p.zc20_sc, p.zc20_term) = r.argument(shape.specs[2], 10)?;
+    (p.gamma17, p.zc17_sc, p.zc17_term) = r.argument(shape.specs[3], 4)?;
+    let (gamma, sc, terms) = r.argument(shape.specs[4], 1)?;
+    p.gamma_zs = gamma;
+    p.zs_sc = sc;
+    p.zs_term = terms[0];
+    (p.gamma_tab, p.tab_sc, p.tab_term) = r.argument(shape.specs[5], 12)?;
+    p.mask_open = MaskOpening {
+        q: r.fp2_vec(1024)?,
+        prox: r.fp2_vec(1024)?,
+        columns: r.columns(16, 12)?,
+    };
+    if shape.private {
+        p.w_open_zk = r.hiding(2, shape.rows[0])?;
+    } else {
+        p.w_open = r.plain(shape.rows[0])?;
+    }
+    p.a_open = r.hiding(shape.a_groups, shape.rows[1])?;
+    p.h_open = r.hiding(5, shape.rows[2])?;
+    if r.pos != r.bytes.len() {
+        return Err("fresh FFN wire: trailing bytes".into());
+    }
+    Ok(p)
 }
 
 /// Cryptographic acceptance from bounded bytes; no witness or producer state.
@@ -251,12 +290,12 @@ pub fn verify_bytes(
     verify(st, weights, &proof, context)
 }
 
-struct Reader<'a> {
-    bytes: &'a [u8],
-    pos: usize,
+pub(super) struct Reader<'a> {
+    pub(super) bytes: &'a [u8],
+    pub(super) pos: usize,
 }
 impl Reader<'_> {
-    fn take<const N: usize>(&mut self) -> Result<[u8; N], String> {
+    pub(super) fn take<const N: usize>(&mut self) -> Result<[u8; N], String> {
         let end = self
             .pos
             .checked_add(N)
@@ -280,10 +319,10 @@ impl Reader<'_> {
         }
         Ok(Fp(x))
     }
-    fn fp2(&mut self) -> Result<Fp2, String> {
+    pub(super) fn fp2(&mut self) -> Result<Fp2, String> {
         Ok(Fp2::new(self.fp()?, self.fp()?))
     }
-    fn fp2_vec(&mut self, n: usize) -> Result<Vec<Fp2>, String> {
+    pub(super) fn fp2_vec(&mut self, n: usize) -> Result<Vec<Fp2>, String> {
         (0..n).map(|_| self.fp2()).collect()
     }
     fn commitment(&mut self, expected_rows: usize) -> Result<Commitment, String> {
@@ -299,7 +338,7 @@ impl Reader<'_> {
             log_cols,
         })
     }
-    fn argument(
+    pub(super) fn argument(
         &mut self,
         (rounds, degree): (usize, usize),
         terms: usize,
@@ -323,7 +362,7 @@ impl Reader<'_> {
     fn path(&mut self, depth: usize) -> Result<Vec<Digest>, String> {
         (0..depth).map(|_| self.take()).collect()
     }
-    fn columns(
+    pub(super) fn columns(
         &mut self,
         rows: usize,
         depth: usize,
@@ -335,7 +374,7 @@ impl Reader<'_> {
             })
             .collect()
     }
-    fn hiding(&mut self, groups: usize, rows: usize) -> Result<OpeningZk, String> {
+    pub(super) fn hiding(&mut self, groups: usize, rows: usize) -> Result<OpeningZk, String> {
         Ok(OpeningZk {
             group_vecs: (0..groups)
                 .map(|_| self.fp2_vec(512))

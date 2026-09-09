@@ -150,6 +150,15 @@ impl PreparedPlane {
     pub fn commitment(&self) -> Commitment {
         self.committed.cm.commitment()
     }
+
+    // The fixed FFN IO adapter consumes the owner; it cannot borrow it for a
+    // second proof. No secret getter or arbitrary opening enters the public API.
+    pub(crate) fn into_ffn_endpoint(self, spec: &SeamSpec) -> Result<CommittedZk, String> {
+        if self.spec_digest != spec.digest() || self.side != Side::Right {
+            return Err("FFN IO: endpoint context or side mismatch".into());
+        }
+        Ok(self.committed)
+    }
 }
 
 fn check_ntt(ntt: &NttTables) -> Result<(), String> {
