@@ -1,0 +1,175 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "source_commit": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4",
+  "capture_path": "/tmp/zk60-round19/captures/834237f486abe19686608d45b8b4d373dcf30000160535ba2ea916f8e5460116.json",
+  "capture_sha256": "d900463b20d1e6219d2dc9f1b10cf2d802d2b989c7cb810acda4df91e6fdc29e",
+  "positive_control": "unmodified real capture accepted before and after mutations",
+  "negative_controls": [
+    {
+      "name": "legacy_schema",
+      "rejected": true,
+      "reason": "IO capture profile/schema"
+    },
+    {
+      "name": "superseded_io_profile",
+      "rejected": true,
+      "reason": "IO capture profile/schema"
+    },
+    {
+      "name": "relabelled_source",
+      "rejected": true,
+      "reason": "source pin"
+    },
+    {
+      "name": "partial_verification",
+      "rejected": true,
+      "reason": "capture scope"
+    },
+    {
+      "name": "privacy_acceptance_claim",
+      "rejected": true,
+      "reason": "capture scope"
+    },
+    {
+      "name": "legacy_A_rows",
+      "rejected": true,
+      "reason": "commitment rows"
+    },
+    {
+      "name": "missing_mask_pair",
+      "rejected": true,
+      "reason": "claim parts"
+    },
+    {
+      "name": "copied_plane_alias",
+      "rejected": true,
+      "reason": "claim slice/alias"
+    },
+    {
+      "name": "wrong_pair_coefficient",
+      "rejected": true,
+      "reason": "mask pair coefficient"
+    },
+    {
+      "name": "wrong_symbolic_role",
+      "rejected": true,
+      "reason": "coefficient tag"
+    },
+    {
+      "name": "missing_IO_group",
+      "rejected": true,
+      "reason": "group shape"
+    },
+    {
+      "name": "group_vector_terminal_mismatch",
+      "rejected": true,
+      "reason": "group vector/terminal equation"
+    },
+    {
+      "name": "short_proximity",
+      "rejected": true,
+      "reason": "expected 512 Fp2 entries"
+    },
+    {
+      "name": "missing_output_endpoint",
+      "rejected": true,
+      "reason": "role order"
+    },
+    {
+      "name": "swapped_endpoint_roles",
+      "rejected": true,
+      "reason": "role order"
+    },
+    {
+      "name": "endpoint_mask_as_data",
+      "rejected": true,
+      "reason": "row-role map"
+    },
+    {
+      "name": "missing_IO_mask_slots",
+      "rejected": true,
+      "reason": "M slot schedule"
+    },
+    {
+      "name": "old_mask_column_width",
+      "rejected": true,
+      "reason": "column width"
+    },
+    {
+      "name": "missing_mask_functional",
+      "rejected": true,
+      "reason": "M functional count"
+    },
+    {
+      "name": "mask_functional_wrong_width",
+      "rejected": true,
+      "reason": "expected 12 Fp2 entries"
+    },
+    {
+      "name": "out_of_domain_M_column",
+      "rejected": true,
+      "reason": "column index: not an integer in [0, 4095]: 4096"
+    },
+    {
+      "name": "noncanonical_sampled_word",
+      "rejected": true,
+      "reason": "column word: not an integer in [0, p): 18446744069414584321"
+    },
+    {
+      "name": "boolean_field_coordinate",
+      "rejected": true,
+      "reason": "coordinate.c0: not an integer in [0, p): True"
+    },
+    {
+      "name": "broken_opening_join",
+      "rejected": true,
+      "reason": "opening transcript join"
+    },
+    {
+      "name": "broken_equality_join",
+      "rejected": true,
+      "reason": "IO/M transcript join"
+    },
+    {
+      "name": "wrong_equality_slot",
+      "rejected": true,
+      "reason": "IO slot/side"
+    },
+    {
+      "name": "wrong_endpoint_terminal",
+      "rejected": true,
+      "reason": "IO terminal/point binding"
+    },
+    {
+      "name": "changed_endpoint_policy",
+      "rejected": true,
+      "reason": "expected policy digest"
+    },
+    {
+      "name": "missing_FFN_round",
+      "rejected": true,
+      "reason": "FFN round count"
+    },
+    {
+      "name": "duplicate_key",
+      "rejected": true,
+      "reason": "duplicate JSON key x"
+    },
+    {
+      "name": "float",
+      "rejected": true,
+      "reason": "floating-point JSON value is forbidden"
+    },
+    {
+      "name": "NaN",
+      "rejected": true,
+      "reason": "floating-point JSON value is forbidden"
+    }
+  ],
+  "tools": {
+    "zk60_io_capture_controls.py": "8128d3e2a5afcd3f34c78271f58c6ab8a5ae0a7e53091e4f49a38fbf2fc2369a",
+    "zk60_io_capture_preflight.py": "a4e230f5f6aed62fc0f12b662a3b3becbbb6bee1d41cd12c06baa6918a5ce217"
+  },
+  "privacy_analysis_performed": false
+}

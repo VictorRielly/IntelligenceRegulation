@@ -1,0 +1,119 @@
+test_bilinear_private_rounds_need_two_extensions (test_zk60_opus_attention_inventory.CfsSlots) ... ok
+test_every_slot_fits_the_mask_commitment_row (test_zk60_opus_attention_inventory.CfsSlots)
+zk.rs:442 -- coefficients + 256 pads must fit 512 message positions. ... ok
+test_n_vars_is_main_rounds_plus_extensions (test_zk60_opus_attention_inventory.CfsSlots) ... ok
+test_p3_gives_the_public_weight_matmuls_a_second_extension (test_zk60_opus_attention_inventory.CfsSlots) ... ok
+test_the_largest_attention_slot_is_the_softmax_zero_check (test_zk60_opus_attention_inventory.CfsSlots) ... ok
+test_a_deficient_control_is_still_detected (test_zk60_opus_attention_inventory.Fa6Criterion)
+Negative control: c = 0 puts the whole f-part in the clear ... ok
+test_dim_S_is_N_times_d_plus_one (test_zk60_opus_attention_inventory.Fa6Criterion) ... ok
+test_every_derived_attention_slot_is_surjective_onto_S (test_zk60_opus_attention_inventory.Fa6Criterion) ... ok
+test_the_imported_module_is_fables_pinned_tool (test_zk60_opus_attention_inventory.Fa6Criterion) ... ok
+test_all_helper_sum_claims_form_one_group (test_zk60_opus_attention_inventory.Groups)
+col_key is None for every sum claim (zkp-core/src/pcs.rs:232-234). ... ok
+test_every_W_claim_is_its_own_group (test_zk60_opus_attention_inventory.Groups) ... ok
+test_group_counts (test_zk60_opus_attention_inventory.Groups) ... ok
+test_seventeen_A_groups_are_singletons (test_zk60_opus_attention_inventory.Groups)
+FA2 section 14.1's worst shape: a one-member group under a single ... ok
+test_the_receipt_binding_adds_two_singleton_A_groups (test_zk60_opus_attention_inventory.Groups) ... ok
+test_commitment_rows_match_the_wire_codec (test_zk60_opus_attention_inventory.Layout) ... ok
+test_domain_logs_of_the_fixed_profile (test_zk60_opus_attention_inventory.Layout) ... ok
+test_helper_pair_counts (test_zk60_opus_attention_inventory.Layout) ... ok
+test_packed_small_sub_rows_are_disjoint_and_aligned (test_zk60_opus_attention_inventory.Layout) ... ok
+test_short_w_adapter_preconditions (test_zk60_opus_attention_inventory.Layout)
+public_block_oracle.rs:196-205 asserts exactly these five values. ... ok
+test_archived_record_is_bound_to_its_tool_and_source (test_zk60_opus_attention_inventory.Record) ... ok
+test_record_is_deterministic (test_zk60_opus_attention_inventory.Record) ... ok
+test_record_states_its_limits (test_zk60_opus_attention_inventory.Record) ... ok
+test_claim_counts_133_and_135 (test_zk60_opus_attention_inventory.Schedule) ... ok
+test_every_claim_point_has_the_arity_of_its_slice (test_zk60_opus_attention_inventory.Schedule)
+zkp-core/src/pcs.rs:217 asserts point arity == slice log_size. ... ok
+test_four_collapse_blocks_match_the_wire_codec (test_zk60_opus_attention_inventory.Schedule) ... ok
+test_lookup_totals_match_FA5 (test_zk60_opus_attention_inventory.Schedule) ... ok
+test_matmul_and_row_sum_slots_have_private_claimed_sums (test_zk60_opus_attention_inventory.Schedule) ... ok
+test_per_commitment_counts_match_A01 (test_zk60_opus_attention_inventory.Schedule) ... ok
+test_score_and_pv_have_no_vanishing_public_factor_at_kv1 (test_zk60_opus_attention_inventory.Schedule)
+log_kp = 0 makes eq(r_hi, rg) the constant 1 (FA5 R22). ... ok
+test_seam_claims_open_xm8_and_z16c_at_the_same_point (test_zk60_opus_attention_inventory.Schedule) ... ok
+test_seam_rows_are_also_opened_by_the_D_zero_check (test_zk60_opus_attention_inventory.Schedule)
+The aliasing FA3 section 2.3 item 4 / U12 is about. ... ok
+test_terminal_descriptor_count_matches_A01 (test_zk60_opus_attention_inventory.Schedule) ... ok
+test_the_two_short_w_claims_are_lifted_into_one_row (test_zk60_opus_attention_inventory.Schedule) ... ok
+test_twelve_sumchecks_match_ATTN_SC (test_zk60_opus_attention_inventory.Schedule) ... ok
+test_base_layout_has_698_rows_and_io_appends_four (test_zk60_opus_io_layout.TestARowMap) ... ok
+test_every_a_row_is_accounted_for_exactly_once (test_zk60_opus_io_layout.TestARowMap) ... ok
+test_io_pairs_sit_at_698_699_and_700_701 (test_zk60_opus_io_layout.TestARowMap) ... ok
+test_the_equality_claims_bind_the_original_x_and_z_slices (test_zk60_opus_io_layout.TestARowMap) ... ok
+test_the_four_io_rows_alias_no_existing_row (test_zk60_opus_io_layout.TestARowMap) ... ok
+test_the_row_map_holds_across_the_whole_shift_window (test_zk60_opus_io_layout.TestARowMap) ... ok
+test_seven_rows_two_data_two_terminal_masks_three_proximity (test_zk60_opus_io_layout.TestEndpointPlane) ... ok
+test_the_equality_slot_is_ten_variables_degree_two (test_zk60_opus_io_layout.TestEndpointPlane) ... ok
+test_the_two_slots_join_the_ffn_mask_commitment (test_zk60_opus_io_layout.TestEndpointPlane) ... ok
+test_consolidating_the_slots_is_the_only_frame_difference (test_zk60_opus_io_layout.TestFrameLength) ... ok
+test_extra_bytes_decomposes_as_the_source_states (test_zk60_opus_io_layout.TestFrameLength) ... ok
+test_the_delta_from_round_17_is_exactly_the_stated_additions (test_zk60_opus_io_layout.TestFrameLength) ... ok
+test_the_frame_reproduces_both_recorded_receipts (test_zk60_opus_io_layout.TestFrameLength) ... ok
+test_the_frame_stays_inside_the_bound_at_the_largest_shape (test_zk60_opus_io_layout.TestFrameLength) ... ok
+test_the_superseded_draft_frame_also_reproduces (test_zk60_opus_io_layout.TestFrameLength) ... ok
+test_five_base_groups_become_seven (test_zk60_opus_io_layout.TestOpeningGroups) ... ok
+test_x_is_opened_at_three_tails_and_z_at_two (test_zk60_opus_io_layout.TestOpeningGroups) ... ok
+test_refuses_a_broken_pair_coefficient_or_slice (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_refuses_a_changed_header_label (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_refuses_a_changed_role_set_or_order (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_refuses_a_changed_shape_or_shift_set (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_refuses_a_changed_source_commit (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_refuses_a_digest_or_name_mismatch (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_refuses_a_group_whose_vector_does_not_reproduce_its_terminals (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_refuses_a_layout_description_that_is_not_the_recomputed_one (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_refuses_a_missing_or_altered_public_constraint (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_refuses_a_missing_pair_row (test_zk60_opus_repaired_capture.AdapterRefusals)
+The repair's whole point: a scalar mask site must carry two independent ... ok
+test_refuses_altered_or_missing_coefficient_tags (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_refuses_altered_row_roles (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_refuses_broken_pad_and_column_structure (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_refuses_changed_pcs_parameters (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_refuses_malformed_json_and_non_integer_field_values (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_the_unmutated_captures_are_accepted (test_zk60_opus_repaired_capture.AdapterRefusals) ... ok
+test_claim_and_group_shapes (test_zk60_opus_repaired_capture.LayoutRecomputation) ... ok
+test_coefficient_tags_follow_the_source_and_the_privacy_mode (test_zk60_opus_repaired_capture.LayoutRecomputation) ... ok
+test_describe_reproduces_the_round16_layout_digest (test_zk60_opus_repaired_capture.LayoutRecomputation) ... ok
+test_row_counts_mask_sites_and_prox_pairs (test_zk60_opus_repaired_capture.LayoutRecomputation) ... ok
+test_row_roles_are_recomputed_with_the_source_site_names (test_zk60_opus_repaired_capture.LayoutRecomputation) ... ok
+test_table_slots_singletons_get_pairs_blocks_keep_block_masks (test_zk60_opus_repaired_capture.LayoutRecomputation) ... ok
+test_the_same_rules_reproduce_the_legacy_allocation (test_zk60_opus_repaired_capture.LayoutRecomputation)
+A control on the recomputation itself: with the legacy (unpaired) schedule ... ok
+test_legacy_t32_p3_still_gives_2n_plus_4_and_2n_plus_2_and_the_Wd_plane (test_zk60_opus_repaired_capture.LegacyPositiveControl) ... ok
+test_the_legacy_singleton_elimination_still_recovers_a_whole_row (test_zk60_opus_repaired_capture.LegacyPositiveControl) ... ok
+test_every_legacy_capture_in_the_round11_set_is_refused (test_zk60_opus_repaired_capture.LegacySchema1Refused) ... ok
+test_full_relabel_is_refused_by_the_layout_recomputation (test_zk60_opus_repaired_capture.LegacySchema1Refused)
+Every header field forged, including the genuine layout_description and its ... ok
+test_partial_relabel_is_refused_on_the_profile (test_zk60_opus_repaired_capture.LegacySchema1Refused) ... ok
+test_all_four_parse_with_the_recomputed_layout_and_expected_roles (test_zk60_opus_repaired_capture.RepairedCaptures) ... ok
+test_joint_model_A_and_W_disclose_zero_and_H_only_its_public_identity (test_zk60_opus_repaired_capture.RepairedCaptures) ... ok
+test_manifest_binds_four_captures_two_per_mode_at_the_pinned_commit (test_zk60_opus_repaired_capture.RepairedCaptures) ... ok
+test_published_validation_record_agrees_with_the_interim_one (test_zk60_opus_repaired_capture.RepairedCaptures)
+The published record's own source_commit is the head the validation ran at, ... ok
+test_the_legacy_singleton_elimination_no_longer_applies (test_zk60_opus_repaired_capture.RepairedCaptures)
+FA7 section 7 recovered X, h16 and the whole T32 Wd plane from the legacy ... ok
+test_analysis_results_are_bound_to_this_tool_and_these_captures (test_zk60_opus_repaired_capture.ResultsBinding) ... ok
+test_preflight_results_are_bound_and_all_checks_pass (test_zk60_opus_repaired_capture.ResultsBinding) ... ok
+test_captured_row_counts (test_zk60_opus_wire_length.WireLengthModel) ... ok
+test_envelope_is_exactly_41_bytes_over_the_payload (test_zk60_opus_wire_length.WireLengthModel) ... ok
+test_every_allowed_frame_is_below_the_global_cap (test_zk60_opus_wire_length.WireLengthModel) ... ok
+test_frame_is_monotone_in_each_shift (test_zk60_opus_wire_length.WireLengthModel) ... ok
+test_full_shift_window_sweep (test_zk60_opus_wire_length.WireLengthModel) ... ok
+test_mask_matrix_has_sixteen_base_rows_under_function_one (test_zk60_opus_wire_length.WireLengthModel) ... ok
+test_maximum_uses_four_shift_16_remainder_tables (test_zk60_opus_wire_length.WireLengthModel)
+All four remainder tables are at their largest in the max frame. ... ok
+test_models_agree_on_the_profile_shape (test_zk60_opus_wire_length.WireLengthModel) ... ok
+test_p3_costs_exactly_two_extra_sumcheck_rounds (test_zk60_opus_wire_length.WireLengthModel) ... ok
+test_recorded_frames_reproduce_exactly (test_zk60_opus_wire_length.WireLengthModel) ... ok
+test_row_counts_depend_only_on_the_shift_multiset (test_zk60_opus_wire_length.WireLengthModel) ... ok
+test_shift_window_is_enforced (test_zk60_opus_wire_length.WireLengthModel) ... ok
+test_stated_maxima_reproduce_exactly (test_zk60_opus_wire_length.WireLengthModel) ... ok
+test_terminal_counts_follow_from_the_fixed_profile (test_zk60_opus_wire_length.WireLengthModel) ... ok
+
+----------------------------------------------------------------------
+Ran 100 tests in 60.032s
+
+OK

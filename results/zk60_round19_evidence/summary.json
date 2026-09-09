@@ -1,0 +1,214 @@
+{
+  "schema": 1,
+  "source_commit": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4",
+  "source_sha256": {
+    "hashline/src/zk.rs": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310",
+    "hashline/src/zk_ffn_fresh_io.rs": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+    "hashline/src/zk_ffn_fresh_io_tests.rs": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9",
+    "hashline/src/zk_ffn_mask_diagnostic.rs": "462346828c427b5f6d07ed502edc4d88ba57e1197e6e27836b73316704e8dd64",
+    "hashline/src/zk_ffn_observation_json.rs": "e7a62281896efc4f1f12c403c6959ab7e2476beee07960f3752816fdc711a1e6",
+    "hashline/src/zk_ffn_io_diagnostic.rs": "c866dcce37789106eb18f4aac5093bb3bc14cadb78ca67a1d0fb6ebe092122a5",
+    "hashline/src/private_seam.rs": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+    "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "zkp-core/src/transcript.rs": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+    "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+  },
+  "stages": [
+    {
+      "name": "storage_tests",
+      "command": [
+        "/home/victor/.cargo/bin/cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--features",
+        "stable-weight-storage",
+        "--",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "environment_overrides": {
+        "CARGO_TARGET_DIR": "/home/victor/IntelligenceRegulation/hashline/target/storage-tests",
+        "HL_TEST_FFN_IO_OBSERVATIONS": "/tmp/zk60-round19/captures",
+        "HL_TEST_SOURCE_COMMIT": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4"
+      },
+      "exit_code": 0,
+      "elapsed_s": 324.84352545501315,
+      "log_sha256": "79ea7b739d37fb6fd31187429d3efcb312980d17bac8b87613a8e2f5a80d98e4"
+    },
+    {
+      "name": "cpu_build",
+      "command": [
+        "/home/victor/.cargo/bin/cargo",
+        "build",
+        "--release",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--example",
+        "zk60_bound_ffn"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "elapsed_s": 35.45789923198754,
+      "log_sha256": "b81c8287498d231a0873e3e379bbf5fe23368773b73826f44d8a0104d2294e06"
+    },
+    {
+      "name": "saved_capture_0",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/tmp/zk60-round19/captures/040b90d1c0513ec2b32e7774ef206bd681cda7aedc061cb7718f48afb570a316.expected",
+        "/tmp/zk60-round19/captures/040b90d1c0513ec2b32e7774ef206bd681cda7aedc061cb7718f48afb570a316.receipt"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "elapsed_s": 0.035057564004091546,
+      "log_sha256": "8e03aecdf5fba5bc89fde92fe0cb47480ff61e043c9ee4c516cf443ae826eb43"
+    },
+    {
+      "name": "saved_capture_1",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/tmp/zk60-round19/captures/43a11148995a8e889a2932ca443bee20899fbbd473e5803d64023515daedf5dd.expected",
+        "/tmp/zk60-round19/captures/43a11148995a8e889a2932ca443bee20899fbbd473e5803d64023515daedf5dd.receipt"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "elapsed_s": 0.0366277489811182,
+      "log_sha256": "8e03aecdf5fba5bc89fde92fe0cb47480ff61e043c9ee4c516cf443ae826eb43"
+    },
+    {
+      "name": "saved_capture_2",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/tmp/zk60-round19/captures/834237f486abe19686608d45b8b4d373dcf30000160535ba2ea916f8e5460116.expected",
+        "/tmp/zk60-round19/captures/834237f486abe19686608d45b8b4d373dcf30000160535ba2ea916f8e5460116.receipt"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "elapsed_s": 0.036955324991140515,
+      "log_sha256": "f0c9142978644f9276914f89f7ae2441b8ff4204cf816fc098ca1b26b07d2c4f"
+    },
+    {
+      "name": "saved_capture_3",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "0707070707070707070707070707070707070707070707070707070707070707",
+        "/tmp/zk60-round19/captures/edccd0b7e7b9385db1bd6ec21c4e37c9a4022b888fd01d63851e27640912834e.expected",
+        "/tmp/zk60-round19/captures/edccd0b7e7b9385db1bd6ec21c4e37c9a4022b888fd01d63851e27640912834e.receipt"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "elapsed_s": 0.03551127898390405,
+      "log_sha256": "f0c9142978644f9276914f89f7ae2441b8ff4204cf816fc098ca1b26b07d2c4f"
+    },
+    {
+      "name": "retained_round18_p1",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p1.expected",
+        "/tmp/zk60-round18-final/bound-process/p1.receipt"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "elapsed_s": 0.06697961001191288,
+      "log_sha256": "f0c9142978644f9276914f89f7ae2441b8ff4204cf816fc098ca1b26b07d2c4f"
+    },
+    {
+      "name": "retained_round18_p3",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p3",
+        "fresh",
+        "1818181818181818181818181818181818181818181818181818181818181818",
+        "/tmp/zk60-round18-final/bound-process/p3.expected",
+        "/tmp/zk60-round18-final/bound-process/p3.receipt"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "elapsed_s": 0.03507266499218531,
+      "log_sha256": "8e03aecdf5fba5bc89fde92fe0cb47480ff61e043c9ee4c516cf443ae826eb43"
+    },
+    {
+      "name": "opus_tests",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_opus_*.py",
+        "-v"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "elapsed_s": 61.455322024005,
+      "log_sha256": "b883afc6bddf1c038eb7b63e16235f06eec7200fdaef456416c239a052f17093"
+    },
+    {
+      "name": "legacy_joint_tests",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_fable_joint*.py",
+        "-v"
+      ],
+      "environment_overrides": {},
+      "exit_code": 0,
+      "elapsed_s": 24.760469600005308,
+      "log_sha256": "366a49509e76ae9f94d408715127cc2a0b800cad7acd52d0f4898d661435177a"
+    },
+    {
+      "name": "native_freeze",
+      "command": [
+        "/home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/ring_matmul",
+        "freeze-check"
+      ],
+      "environment_overrides": {},
+      "exit_code": 134,
+      "elapsed_s": 0.03487090501585044,
+      "log_sha256": "463b407973e70a73e9052942450bd73fff4fdc21398b8ae4ec361caeb4512c47"
+    }
+  ],
+  "status": "failed",
+  "scope": "CPU storage-enabled Rust suite; IO capture/replay; saved-receipt compatibility; affected Python reviews; native freeze-check",
+  "runtime_protocol_changed": false,
+  "gpu_rerun": false,
+  "full_python_rerun": false,
+  "privacy_analysis_performed": false,
+  "rust_test_count": 227,
+  "binary_sha256": "e084ea5fe242f46fc8d9c4603da679f781aa6d60db5009c4c9886767d116358e",
+  "exit_code": 1,
+  "error": "Traceback (most recent call last):\n  File \"/tmp/zk60-round19/validate.py\", line 45, in <module>\n    stage('native_freeze',[str(ROOT/'zkmatrix-rs/target/release/ring_matmul'),'freeze-check'])\n  File \"/tmp/zk60-round19/validate.py\", line 23, in stage\n    if p.returncode: raise RuntimeError(name+' failed')\nRuntimeError: native_freeze failed\n"
+}

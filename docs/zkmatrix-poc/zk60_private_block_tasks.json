@@ -2,7 +2,7 @@
   "schema_version": 1,
   "created_local_date": "2026-09-04",
   "lane": "A1",
-  "status": "round 18: repaired FFN IO binding and consolidated schedule validated on CPU; complete private attention/block still open",
+  "status": "round 19: O7 integrated; verified IO captures implemented; joint IO analysis and complete private attention/block still open",
   "baseline": "round4 pushed as5657a8d; Claude queue/review pushed as4a58f12; round5 verifier hardening and regression infrastructure validated separately, no new private-block acceptance",
   "owner": "Codex private-block worker; not Fable or Claude",
   "hardware_policy": "CPU-first; no large GPU runs while 5090 is unavailable; Claude gpu/pcs lane reserved",
@@ -507,5 +507,24 @@
     "full_privacy_acceptance": false,
     "validation_status": "complete",
     "validation": "../../results/zk60_round18_validation.json"
+  },
+  "round19_support": {
+    "source_commit": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4",
+    "report": "ZK60_ROUND19.md",
+    "validation": "../../results/zk60_round19_validation.json",
+    "validation_status": "complete",
+    "capture_schema": 3,
+    "io_capture_implemented": true,
+    "joint_io_analysis_complete": false,
+    "full_privacy_review_complete": false,
+    "private_block_implemented": false,
+    "next": "O8 bounded IO analysis and Codex joint CFS/column/transcript review, then private attention and a tiny complete block",
+    "validation_counts": {
+      "rust_test_count": 227,
+      "python_test_count": 157,
+      "separate_process_verifications": 6,
+      "ingestion_negative_controls": 64,
+      "native_freeze_check": true
+    }
   }
 }

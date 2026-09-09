@@ -7,12 +7,61 @@ scope; full privacy acceptance remains open. Read [round 17](ZK60_ROUND17.md)
 first. The original dispatch below remains the definition of the completed
 items. Do not rerun or rewrite those reports as new work.
 
-## Current dispatch: O7 — review the consolidated IO implementation
+## Current dispatch: O8 — analyze the new IO captures
+
+**Round 19:** O7 (`4695503`, handoff `321ca22`) is integrated in `5193ee4`.
+Codex verified all fourteen of its source hashes and added the source-pinned
+schema-3 IO capture/replay in `1f0ff36`. Read [round 19](ZK60_ROUND19.md) and
+`results/zk60_round19_validation.json` before starting. The source pin in that
+record identifies the Rust capture producer; the recorded tool hashes identify
+the final preflight. O1–O7 are delivered. Their original dispatches below are
+historical, not requests to repeat them.
+
+**O8, priority 0:** in your review worktree, add a separate
+`scripts/zk60_opus_io_capture.py` adapter, corresponding parser/model tests,
+`ZK60_OPUS_IO_ANALYSIS.md`, and a digest-bound result. Reuse the finite-field
+and joint-rank routines of FA7/O2 without editing the archived tools or results.
+
+1. Validate all four schema-3 captures and their sibling saved receipts/policy
+   files against the round-19 manifest. Two are P1, two P3; coverage is
+   `ffn-v3-mr1-fresh-io-poc-function-1`. The proof digest covers the complete
+   HFFNIO `/2` frame. Missing files mean missing evidence, never permission to
+   relabel old captures. Exact regeneration instructions/commands are in the
+   evidence record. Review Codex's preflight and its real-capture controls.
+2. Recompute every row/claim/group mapping. A has 702 rows and group counts
+   `[7,3,1,1,6,1,1]`; input and output each have seven rows and one group.
+   Preserve the X and z16 aliases in A. The endpoints' first two rows represent
+   those same respective data planes, but their masks are separate. Endpoint
+   rows 2/3 are terminal masks; 4/5/6 are random proximity rows, all recorded.
+3. Apply the existing joint **message/terminal/proximity** model to every
+   private commitment. Include every message coordinate and H's explicit
+   zero-sum constraint. Check what is needed to combine the role results with
+   shared data planes; do not simply report independent groups as a joint
+   result. If the inherited model cannot express a needed alias or constraint,
+   document that boundary for Codex rather than inventing an assumption.
+4. Keep pad coordinates, encoded columns, CFS messages, repeated proofs and
+   adaptive nonlinear composition explicitly outside that inherited model.
+   The capture NOW contains these observations, including all eight CFS slots;
+   their presence is not permission to claim they were analyzed. Produce a
+   concrete inventory of the remaining cross-component obligations for Codex.
+5. Retain the archived legacy disclosure as a positive control. Add negatives
+   for a missing IO group/mask row, incorrect endpoint aliases, changed role
+   order, altered source/profile, narrowed M columns and malformed fields.
+   Bind results to capture, receipt, tool and source digests with exact commands
+   and exits. Any unexpected disclosure is a finding, not a changed target.
+
+Do not change Rust, design the private attention repair, or mark U-2/full
+privacy closed. Codex owns integration and cryptographic judgment. The next
+implementation after IO analysis remains private attention and a tiny block;
+CL20 remains priority 3. O7 P3/P8 now have regression controls; its remaining
+proposals and O5 F3/F5 remain bounded follow-ups.
+
+## O7 — delivered implementation review (original dispatch)
 
 **Round 18:** O5 (`e793fef`) and O6 (`d130de6`) are integrated in `ea3d886`.
 Codex's replacement implementation is `137b109`, profile
 `ffn-v3-mr1-fresh-io-poc/2`. It reserves eight slots in one FFN M and opens
-M/W/A/H only after both equalities. Begin O7 below after picking up this source.
+M/W/A/H only after both equalities. O7's delivered review covers this source.
 O1–O6 are completed review deliveries; do not repeat them as new work.
 
 Codex verified all 32 O6 source hashes and reviewed its fifteen open items.

@@ -1,0 +1,23 @@
+	Command being timed: "python3 -m unittest discover -s tests -p test_zk60_opus_*.py -v"
+	User time (seconds): 59.61
+	System time (seconds): 1.62
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:01.40
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1396900
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 15
+	Minor (reclaiming a frame) page faults: 538740
+	Voluntary context switches: 202
+	Involuntary context switches: 161
+	Swaps: 0
+	File system inputs: 293760
+	File system outputs: 1877328
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

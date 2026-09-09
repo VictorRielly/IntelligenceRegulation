@@ -1,0 +1,29 @@
+START storage_tests
+END storage_tests exit=0
+START cpu_build
+END cpu_build exit=0
+START saved_capture_0
+END saved_capture_0 exit=0
+START saved_capture_1
+END saved_capture_1 exit=0
+START saved_capture_2
+END saved_capture_2 exit=0
+START saved_capture_3
+END saved_capture_3 exit=0
+START retained_round18_p1
+END retained_round18_p1 exit=0
+START retained_round18_p3
+END retained_round18_p3 exit=0
+START opus_tests
+END opus_tests exit=0
+START legacy_joint_tests
+END legacy_joint_tests exit=0
+START native_freeze
+END native_freeze exit=134
+Traceback (most recent call last):
+  File "/tmp/zk60-round19/validate.py", line 45, in <module>
+    stage('native_freeze',[str(ROOT/'zkmatrix-rs/target/release/ring_matmul'),'freeze-check'])
+  File "/tmp/zk60-round19/validate.py", line 23, in stage
+    if p.returncode: raise RuntimeError(name+' failed')
+RuntimeError: native_freeze failed
+

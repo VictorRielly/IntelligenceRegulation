@@ -37,6 +37,10 @@ def no_duplicates(pairs):
     return out
 
 
+def no_float(value):
+    raise ValueError("floating-point JSON value is forbidden")
+
+
 def vec(value, size):
     require(isinstance(value, list) and len(value) == size, f"expected {size} Fp2 entries")
     return [old._fp2(x, "coordinate") for x in value]
@@ -213,10 +217,11 @@ def run(directory, source):
     require(len(paths) == 4, "expected two P1 and two P3 captures")
     for path in paths:
         raw = path.read_bytes()
-        c = json.loads(raw, object_pairs_hook=no_duplicates)
+        c = json.loads(raw, object_pairs_hook=no_duplicates, parse_float=no_float, parse_constant=no_float)
         result = check_raw(c, source)
         receipt, policy = path.with_suffix(".receipt").read_bytes(), path.with_suffix(".expected").read_bytes()
         require(digest(receipt) == c["proof_sha256"] == path.stem and len(receipt) == c["proof_bytes"] and receipt[:8] == b"HFFNIO\0\x02", "receipt digest/frame")
+        require(len(receipt) == io.io_frame_len(private=c["privacy"] == "P3"), "independent receipt length")
         require(policy == bytes(c["expected_policy"]), "policy artifact")
         counts[c["privacy"]] += 1
         cases.append(dict(result, path=str(path), capture_sha256=digest(raw), capture_bytes=len(raw), proof_sha256=digest(receipt), proof_bytes=len(receipt), expected_policy_sha256=digest(policy)))

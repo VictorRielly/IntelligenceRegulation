@@ -1,0 +1,64 @@
+test_random_tiny_systems (test_zk60_fable_joint_capture.CompressedEqualsDense) ... ok
+test_echelon_rank (test_zk60_fable_joint_capture.EchelonAndHelpers) ... ok
+test_expected_layout_pins_the_tiny_row_counts (test_zk60_fable_joint_capture.EchelonAndHelpers) ... ok
+test_sha256_values_is_order_sensitive_and_leaves_no_values (test_zk60_fable_joint_capture.EchelonAndHelpers) ... ok
+test_accepts_and_recomputes_the_layout (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_claim_outside_the_commitment (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_duplicate_group_membership_and_lambda_mismatch (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_layout_and_transcript_deviations (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_non_integer_or_out_of_range_coefficient (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_proof_hash_mismatches (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_tail_and_vector_inconsistencies (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_truncated_json (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_refuses_wrong_schema_kind_coverage_field (test_zk60_fable_joint_capture.ParserAcceptsAndRefuses) ... ok
+test_codex_thirty_cases_reproduced_exactly (test_zk60_fable_joint_capture.RealCaptures) ... ok
+test_parity_record_binds_the_six_seeded_captures_and_names_are_digests (test_zk60_fable_joint_capture.RealCaptures) ... ok
+test_results_file_is_bound_to_this_tool_and_these_captures (test_zk60_fable_joint_capture.RealCaptures) ... ok
+test_t2_p3_seeded_capture_joint_numbers (test_zk60_fable_joint_capture.RealCaptures) ... ok
+test_t32_p3_seeded_capture_recovers_the_whole_Wd_plane (test_zk60_fable_joint_capture.RealCaptures) ... ok
+test_A_singletons_recover_the_actual_rows_and_the_joint_number_is_2n_plus_4 (test_zk60_fable_joint_capture.SyntheticModelAgainstTruth) ... ok
+test_H_residual_is_the_public_identity_and_needs_the_zero_sum (test_zk60_fable_joint_capture.SyntheticModelAgainstTruth) ... ok
+test_W_p3_Wd_recovered_whole_and_the_Wg_Wu_prox_functional (test_zk60_fable_joint_capture.SyntheticModelAgainstTruth) ... ok
+test_codex_literal_subset_matches_the_layout_recomputation (test_zk60_fable_joint_capture.SyntheticModelAgainstTruth) ... ok
+test_two_row_planes_at_T32 (test_zk60_fable_joint_capture.SyntheticModelAgainstTruth) ... ok
+test_all_base_groups_leak_two (test_zk60_fable_joint_rank.GroupWithValuesRule) ... ok
+test_fp2_effective_member_covers (test_zk60_fable_joint_rank.GroupWithValuesRule) ... ok
+test_kernel_count_matches_the_hand_derivation (test_zk60_fable_joint_rank.GroupWithValuesRule) ... ok
+test_singleton_with_value_leaks_n (test_zk60_fable_joint_rank.GroupWithValuesRule) ... ok
+test_A_joint_equals_two_singletons_plus_two_value_leaks (test_zk60_fable_joint_rank.JointTinyLayouts) ... ok
+test_A_per_column_only_the_singletons (test_zk60_fable_joint_rank.JointTinyLayouts) ... ok
+test_H_joint_and_per_column_are_covered (test_zk60_fable_joint_rank.JointTinyLayouts) ... ok
+test_H_logup_sum_residual_is_exactly_the_public_identity (test_zk60_fable_joint_rank.JointTinyLayouts) ... ok
+test_W_p3_tiny_and_125M_like (test_zk60_fable_joint_rank.JointTinyLayouts) ... ok
+test_hand_written_model_with_fp_rows (test_zk60_fable_joint_rank.JsonInterface) ... ok
+test_reports_carry_the_caveat (test_zk60_fable_joint_rank.JsonInterface) ... ok
+test_roundtrip_and_cli (test_zk60_fable_joint_rank.JsonInterface) ... ok
+test_classification_rule (test_zk60_fable_joint_rank.LayoutPredicate) ... ok
+test_nb_and_rows (test_zk60_fable_joint_rank.LayoutPredicate) ... ok
+test_degenerate_pair_discloses (test_zk60_fable_joint_rank.PairFixtureB) ... ok
+test_pair_is_a_one_time_pad_numerically (test_zk60_fable_joint_rank.PairFixtureB) ... ok
+test_pair_protects (test_zk60_fable_joint_rank.PairFixtureB) ... ok
+test_all_pairmask_groups_disclose_nothing_with_rank_2m_plus_2n_minus_2 (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_commitment_rows_match_the_pinned_legacy_counts_and_give_the_delta (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_log_cols_16_pairs_every_table_slot (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_logup_sum_residual_is_still_exactly_the_identity_with_the_prox_pair (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_pairmask_pair_is_a_one_time_pad_for_the_p3_coefficient_pair (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_per_column_families_repaired_are_covered_and_legacy_numbers_unchanged (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_prox_pair_is_required_not_optional (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_repair_cli (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_repair_report_passes_and_carries_the_schedule (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_repaired_kinds_rule_pairs_exactly_the_single_row_sites (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_seam_only_pairs_do_not_repair_the_legacy_A (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_whole_tiny_commitments_repaired_are_covered (test_zk60_fable_joint_rank.RepairedAllocationFA3) ... ok
+test_reuse_recovers_both_rows_control_recovers_one (test_zk60_fable_joint_rank.ReuseFixtureD) ... ok
+test_degenerate_base_field_e_is_not_disclosed_by_L_b (test_zk60_fable_joint_rank.SingletonFixtureA) ... ok
+test_singleton_p1_recovers_the_row_and_matches_L_b (test_zk60_fable_joint_rank.SingletonFixtureA) ... ok
+test_singleton_p3_has_the_same_structure (test_zk60_fable_joint_rank.SingletonFixtureA) ... ok
+test_one_functional_with_fa1_kappa (test_zk60_fable_joint_rank.TwoRowFixtureC) ... ok
+
+----------------------------------------------------------------------
+Ran 57 tests in 24.665s
+
+OK
+wrote /tmp/tmpt8ccunq8/r.json
+wrote /tmp/tmpikjfa6yo/repair.json

@@ -1,5 +1,19 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-09, round 19:** Opus O7 is integrated and its fourteen source
+hashes verified. `1f0ff36` adds full-acceptance-only IO capture/replay: four
+source-pinned captures with complete M/A/H/private-W/endpoint observations and
+saved receipts. **227 Rust tests, 157 Python tests, six separate-process receipt
+verifications, 64 ingestion controls and native freeze-check pass.**
+[Round 19](ZK60_ROUND19.md) records the evidence and the corrected fixture-path
+retry. The release transcript and receipt format are unchanged.
+
+[Opus O8](ZK60_OPUS_QUEUE.md) now analyzes these captures with the inherited
+linear model and explicit exclusions. Joint IO privacy acceptance, private
+attention and the complete block remain open. Codex retains the CFS/column/
+adaptive-transcript argument and protocol changes; the minimal core refactor
+remains priority 3. Earlier dated entries below are historical.
+
 **2026-09-08, round 18:** the repaired FFN now proves equality to independently
 committed private input/output endpoints. After O6, `137b109` consolidates all
 eight mask slots into one commitment and delays every opening until both

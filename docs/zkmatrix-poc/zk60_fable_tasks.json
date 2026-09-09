@@ -1,19 +1,20 @@
 {
   "schema_version": 1,
   "created_local_date": "2026-09-07",
-  "round": 18,
-  "integrator_base": "137b109296d9a4cc9a05792bfdbd91aa45850abe",
-  "reviewed_lane_tip": "5083797",
-  "review": "ZK60_ROUND18.md",
+  "round": 19,
+  "integrator_base": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4",
+  "reviewed_lane_tip": "321ca22",
+  "review": "ZK60_ROUND19.md",
   "owner": "Opus 5 owns bounded review/tooling follow-ups; Codex owns protocol implementation, integration and final cryptographic review",
-  "coordination": "Opus O1-O6 are integrated; Codex consolidated IO slots after O6. O7 reviews the actual /2 implementation. Full privacy acceptance remains open.",
+  "coordination": "Opus O1-O7 are integrated. Codex supplied four verified schema-3 IO captures and replay/ingestion controls; O8 analyzes them with explicit model exclusions. Full privacy acceptance remains open.",
   "engineering_order": [
-    "O7 consolidated IO implementation review",
-    "Codex joint IO analysis and private attention construction",
+    "O8 IO capture integrity and joint linear model adaptation",
+    "Codex CFS/encoded-column/adaptive transcript review",
+    "Codex private attention construction and tiny complete block",
     "CL20 delivered helper integration (priority 3)"
   ],
   "independent_ready": [
-    "O7 source review at 137b109"
+    "O8 source/capture analysis; use the round-19 manifest"
   ],
   "lower_priority_design": [
     "CL20"
@@ -1269,5 +1270,68 @@
       "frozen_cpu_proofs": 4,
       "native_freeze_check": true
     }
-  }
+  },
+  "round19_codex_work": {
+    "source_commit": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4",
+    "review_integration": "5193ee4",
+    "reviewed_commits": [
+      "4695503",
+      "321ca22"
+    ],
+    "report": "ZK60_ROUND19.md",
+    "validation": "../../results/zk60_round19_validation.json",
+    "validation_status": "complete",
+    "capture_schema": 3,
+    "profile": "ffn-v3-mr1-fresh-io-poc/2",
+    "capture_directory": "/tmp/zk60-round19/captures",
+    "implemented": [
+      "Full-acceptance-only IO observation capture, reset before parsing or typed verification",
+      "Replay of both equality arguments, M, W, A, H and both endpoints with transcript joins",
+      "Complete serialized receipts/policy and source/layout/artifact digests",
+      "Wrong/swapped/duplicated endpoints, late-failure publication and real-capture ingestion controls"
+    ],
+    "runtime_protocol_changed": false,
+    "private_block_implemented": false,
+    "stable_private_model_identity": false,
+    "joint_io_privacy_analysis_complete": false,
+    "full_privacy_review_complete": false,
+    "next_opus_tasks": [
+      "O8"
+    ],
+    "validation_counts": {
+      "rust_test_count": 227,
+      "python_test_count": 157,
+      "separate_process_verifications": 6,
+      "ingestion_negative_controls": 64,
+      "native_freeze_check": true
+    }
+  },
+  "opus_current_tasks": [
+    {
+      "id": "O8",
+      "priority": 0,
+      "owner": "Opus 5",
+      "status": "ready",
+      "title": "Analyze schema-3 IO captures in the inherited joint linear model",
+      "depends_on": [
+        "O7",
+        "round19 verified captures"
+      ],
+      "dispatch": "ZK60_OPUS_QUEUE.md",
+      "deliverables": [
+        "scripts/zk60_opus_io_capture.py",
+        "tests/test_zk60_opus_io_capture.py",
+        "ZK60_OPUS_IO_ANALYSIS.md",
+        "digest-bound analysis result"
+      ],
+      "acceptance": [
+        "Verify all four capture/receipt/policy digests against round19; do not relabel old captures",
+        "Recompute A/W/H/endpoint rows, parts and groups; retain X/z16 aliases and independent mask variables",
+        "Use all message/terminal/proximity coordinates plus the H zero-sum constraint",
+        "State what combining role results with shared planes needs; preserve pad/column/CFS/repeated/adaptive exclusions",
+        "Keep legacy disclosure as a positive control; report surprises without changing expected results"
+      ],
+      "limits": "No Rust changes or new cryptographic construction; Codex retains integration and privacy acceptance."
+    }
+  ]
 }
