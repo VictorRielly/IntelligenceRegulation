@@ -444,7 +444,7 @@
         "proximity": "the reserved prox row is one base row in A/H/W and covers one of two dims per column, the other borrowed from other groups; fine for A and H but tiny P3 W (nb_d*nb_f = 1) is starved (4 masks vs 6 dims/column): +1 functional of (Wg[j], Wu[j]) per column atop the Wd singleton; two proofs recover W entirely (linear)",
         "covered": "H in the linear model (pairs); the zero-sum u leaves exactly the public LogUp identity; pads/columns by the Vandermonde/pad-bijection argument plus the hash assumption",
         "unresolved": "CFS channel (outside the model); twelve assumptions for FA3 in section 18; capture fields needed from Codex in section 19",
-        "predicate": "125M (nb_d 3, nb_f 1) -> h16@p5 singleton, 8-row functionals per column; 8B (nb_d 1, nb_f 7) -> X@p2 singleton, T/4 rows (T <= 8: 16 bits, enumerable) \u2014 derived, not executed",
+        "predicate": "125M (nb_d 3, nb_f 1) -> h16@p5 singleton, 8-row functionals per column; 8B (nb_d 1, nb_f 7) -> X@p2 singleton, T/4 rows (T <= 8: 16 bits, enumerable) — derived, not executed",
         "limits": "all H / P3-W statements source-derived awaiting the round-10 capture hook; rank results use stand-in coefficients with the source's structure; numerical rank is not a simulation proof; single-proof and repeated-proof observations kept distinct"
       }
     },
@@ -560,7 +560,7 @@
         "reviewer": "Claude Fable 5.1, independent reviewer",
         "source_pin": "52a13d1 (worktree /home/victor/wt-zk60-fa)",
         "deliverable": "docs/zkmatrix-poc/ZK60_FABLE_SECURITY_OBLIGATIONS.md (38-row obligation table, parameter/composition review, tiny-vs-deployment separation, prioritized gaps); results/zk60_fable_fa5_obligations.json; results/zk60_fable_fa5_isqrt_alias.txt and _bounds.txt (the python checks)",
-        "highest_severity": "R09 norm isqrt: the committed D row has no direct range fact; the half-p alias D = k + (p-1)/2 satisfies the SS sumcheck, both isqrt pins, the Square zero-check and the a1/a2 limb ranges for every int16 row and the round NormDiv with an all-zero output whenever the remainder limbs admit ~2^(31+tn). The A00 fixed profile escapes only because n_limbs = 2 caps rho/sigma at 2^32 while the alias needs ~2^42 \u2014 a parameter coincidence recorded nowhere in code or tests; any profile with n_limbs >= 3 and tn >= 1 accepts a wrong norm output. Fix: a direct range fact on D plus a tamper leg.",
+        "highest_severity": "R09 norm isqrt: the committed D row has no direct range fact; the half-p alias D = k + (p-1)/2 satisfies the SS sumcheck, both isqrt pins, the Square zero-check and the a1/a2 limb ranges for every int16 row and the round NormDiv with an all-zero output whenever the remainder limbs admit ~2^(31+tn). The A00 fixed profile escapes only because n_limbs = 2 caps rho/sigma at 2^32 while the alias needs ~2^42 — a parameter coincidence recorded nowhere in code or tests; any profile with n_limbs >= 3 and tn >= 1 accepts a wrong norm output. Fix: a direct range fact on D plus a tamper leg.",
         "other": "R31 W/gamma word ranges never proven at the registrar boundary (all no-wrap bounds assume int8 behind the approved roots); R10 proven remainder width is 2^(16*n_limbs) not wrho; R29 exponents/norm_round bound only via the A00 digest; R32 typed B3 API ignores extra proof.sc/helper_sums; R02/R20 proof classes admit -128/-32768 the oracle refuses; R14 no LogUp error term stated in code",
         "estimates": "two-block fixed-profile receipt ~2^-110 statistical soundness (Ligero column test (17/24)^256 = 2^-127.4 per opening x 6 openings/block; attention LogUp 4N/|F_p2| = 2^-111.3 dominates; sumchecks ~2^-119), capped by blake3-256 Fiat-Shamir; projected 125M/8B profile (log_cols 14, rate 1/4, Q 256, 32 layers x 6 openings) near 2^-94; nothing quantitative carries over from the lattice-era SOUNDNESS_REFERENCE.md; the P1 hiding code's column term is 2^-106",
         "fixed_profile": "no false-acceptance path found; every reviewed relation is an ACTUAL verifier constraint or a CHECKED A00 precondition",
@@ -664,6 +664,23 @@
         "classification": "R1/R2 are expected-configuration robustness, R3 is honest-proof compatibility; no soundness exploit under the fixed production profile claimed.",
         "evidence": "../../results/zk60_round14_evidence/review/probes.log",
         "next_delivery": "Preserve local work, merge the published performance integration, correct the three findings, retain existing decoder regressions, then deliver selected P0 prover/verifier and old/new parity in bounded commits."
+      },
+      "fable_round12_result": {
+        "hold_and_correction": "Codex integrated 76ee275/ee775be (b044e20, host-store fix 83115b5) and holds f8d40a7 for C20-R1 (unbounded query allocation), C20-R2 (unchecked shift in shape construction), C20-R3 (group counts for an honest log_cols = 0 legacy proof); the correction is in flight on the same lane after merging a94ce2c (see ZK60_CL20_ROUND14_REVIEW.md)",
+        "date": "2026-09-08",
+        "branch": "zk60-cl20-core (worktree /home/victor/wt-zk60-cl20, branched at cfa46f6, merged 972da4e)",
+        "commits": {
+          "tools": "ee775be dep_closure.py scans hashline and zkp-core together",
+          "step1_pcs": "76ee275 extract the Ligero PCS into zkp-core behind a backend seam",
+          "merge": "f61ee77 performance branch 972da4e (clean)",
+          "step2_tables_typed_codec": "f8d40a7 move the v3 table registry and typed FFN pieces into zkp-core with a bounded decoder"
+        },
+        "step1": "hashline/src/pcs.rs (1,295 lines) -> zkp-core/src/pcs.rs + zkp-core/src/pcs/backend.rs; RNG from zkp_core::rng; the 3 PCS unit tests moved. Seam: EncodedStore {fold_rows, columns}, Backend {type Store; try_commit, try_commit_zk -> None = CPU body}, Cpu with uninhabited NoExternal; Store<E>, Committed<E>, CommittedZk<E> generic in the store type so layer.rs/zk.rs/wcache.rs compile unchanged (Store::Device keeps its legacy name for that reason). hashline/src/pcs.rs is an 84-line adapter (pub use, 3 aliases over gpu::DevStore, commit/commit_zk* via gpu::backend(), HL_TIMING print, commit_zk_device verbatim); hashline/src/gpu/mod.rs gained CudaBackend (the HL_GPU switch + the exact decline messages pinned by tests/test_hashline_cl_profile.py). gpu/cuda.rs, zk.rs, layer.rs, wcache.rs, pcs_compact.rs, attention.rs and all existing tests untouched. Records: zkp-core/pcs_migration.json, results/zk60_cl20_pcs_validation.json, MIGRATION.md",
+        "step2": "tables_v3.rs -> zkp-core/src/tables.rs (+silu::hex; sha2 0.10.9 seeded into the core lock with hashline's exact subtree); from layer.rs: LayerParams, tags/remainder helpers, pow2_signed, StatementV3, LayoutV3, absorb_*, LayerProofV3 (+to_bytes) -> zkp-core/src/ffn_v3/{statement,proof}.rs with hashline re-exports; LayerProofV3 = Proof<pcs_compact::BatchOpening> keeps the compact experiment byte-identical. New: Shape + Proof::from_bytes (shape-directed; rejects truncation, trailing bytes, layout-disagreeing commitments, wrong multiplicity tag/len, index >= enc_cols, non-canonical u64 >= P; never panics), Layout::check, Params::check; 6 core tests; hashline/tests/zk60_cl20_codec.rs (3 tests). Records: zkp-core/ffn_v3_migration.json, results/zk60_cl20_ffn_v3_validation.json",
+        "validation": "core cargo test --all-targets 22/22 (step 1), 28/28 (step 2); hashline full suite 156/156 at step 1 (159 - 3 moved), 167/167 post-merge, 169/169 across 23 binaries + 2 compile_fail doc-checks at step 2; cargo check --features gpu-cuda exit 0 with round-11's warning list; the four CPU frozen cases match at both steps: v2 50cf7bdf../66,844,928, v3 5f368db6../70,758,084, zk 021485e4../87,228,528, zkv3 40eb5479../87,697,008 (committed-tree binary 7b37f5ce..); D8 holds (the core has no std::env, cudarc, cfg(feature) or hashline:: reference); no frozen byte differs; no GPU job run",
+        "surface": "two-crate graph cfa46f6 69 nodes/356 edges -> 79/394 after step 2; {layer, tables_v3} closure 10,202 -> 6,938 code lines; hashline lib 19,979 -> 19,277; core 1,377 -> 3,325; nothing deleted",
+        "next_step": "2c in MIGRATION.md 'The next step in detail': prove_layer_v3 / verify_layer_v3 / v3_zcd_point / tamper legs / V3Witness planes -> zkp-core/src/ffn_v3/{witness,prove,verify,tamper}.rs; blockers with file:line: shared v2/v3 helper builders in layer.rs; three more Backend hooks (dev_helpers + dev_commit_from, dev_zerocheck*, dev_eval_many) with the dev_reserve discipline, to be wired with the cuda.rs owner; a ruling on the compact arm (pcs_compact::selected() at the W/A/H commits and batched opening); V3Witness split into borrowed planes + loader. D1 old/new prover parity and examples/tiny_prove_verify.rs land with 2c",
+        "limits": "no claim about the FFN masking disclosure or the P3 identity gap (the limitation tests pass unchanged and stay in hashline); no throughput claim; CL20 remains open"
       }
     },
     {
@@ -671,7 +688,7 @@
       "priority": 0,
       "title": "Review the complete CFS masking channel",
       "owner": "Fable independent review",
-      "status": "ready",
+      "status": "delivered; B1 closed for this construction under the stated freshness rule",
       "depends_on": [],
       "files": [
         "docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md",
@@ -685,14 +702,38 @@
         "Give a construction-specific verdict with every mask coefficient and shared functional accounted for.",
         "Use adversarial controls; PCS-vector rank alone cannot close FA3 B1."
       ],
-      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner."
+      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner.",
+      "result": {
+        "date": "2026-09-08",
+        "branch": "zk60-fable-review (worktree /home/victor/wt-zk60-fa, branched at cfa46f6, merged 972da4e and ccc6f26)",
+        "commit": "e83a4ca",
+        "deliverable": "docs/zkmatrix-poc/ZK60_FABLE_CFS_CHANNEL.md (532 lines: inventory of every CFS-masked slot in v2/v3/+pred/P3 and FA3's two seam slots with (n_vars, degree), claimed-sum form, extension rounds, derived g(rho) and Gamma functionals and transcript order; the exact linear model of the mask channel; the M-opening channel; shared coefficients; failure/retry; per-slot verdicts; the approved mask specification); scripts/zk60_fable_cfs_channel.py (exact Fp2 arithmetic imported from zk60_fable_joint_rank.py); tests/test_zk60_fable_cfs_channel.py (21 tests); hashline/tests/zk60_fable_cfs_channel.rs (2 tests: zkp-core's CfsMask round/total/eval equal the Python model on fixed coefficients); results/zk60_fable_fa6_cfs_channel.json + .log, results/zk60_fable_fa6_rust_crosscheck.log",
+        "verdict": "every slot system at 21 shape/mode entries (240 systems) is surjective onto its consistency subspace (rank = dim S, kernel 1 per mask, 2 per batched pair) and the mask_open functionals lie in the view's span, so the masked messages are uniform and independent of the data given the public constants and the masked terminal values; the M opening reveals exactly the theta-combined value V (b zero-sum blinding, 256 pads per coefficient row, u proximity mask; unopened columns rest on the salted-hash assumption); no counterexample in the construction; 22 negative controls each exhibit the leaked functional (c = 0, missing a_0, no a_0 and no a', over-degree extension round, mask reuse with same/fresh challenges, batched pair without its zero-check mask, M columns beyond pads / no pads / no blinding / a second M opening)",
+        "approved_specification": "fresh uniform g = a_0 + a'.prod(x_j) + sum_j sum_{e<=d} a_{j,e} x_j^e over Fp2 (N.d + 2 coefficients; a' may be dropped, a_0 may not) per slot per proof attempt from an OS-entropy stream, committed in M before any challenge; c drawn after the M root and before the slot's masked claimed sum/Gamma; claimed sums as private + c.G (matmul), nu.claim_a + Gamma (batched zero-checks) or public + c.G (table, zero-sum, predicate, both seams); g(rho) derived from the terminal relation; M opened exactly once at the theta-combination of all derived g(rho) and sent Gammas with >= 256 pads per coefficient row, zero-sum b and proximity mask u; FA3's two seam slots (log_t + log_db + 1, 2) approved as specified with three clarifications to write into the schedule",
+        "follow_ups": {
+          "codex_hardenings": [
+            "zk.rs::extension masks via zip without asserting sk.len() == gk.len() (an over-degree extension would leak its top values in the clear; all nine slot kinds are equal by construction today)",
+            "abort the attempt when a mask challenge c is zero (2^-128; the verifier already rejects, but after the prover has emitted)",
+            "optionally drop the redundant a' coefficient",
+            "when the seams land: FFN M slots 7 and 8 with their derived values and Gammas appended in mask_functionals order"
+          ],
+          "uninventoried": "the attention-side seam terminals SeamXm8[c], SeamZ16c[c] are observations no inventory counts (FA3 section 14 defers the attention side)",
+          "handed_to_FA8": "B2 (RO programming, M-root handling, composition with the masked terminals), B3, B4"
+        },
+        "commands": [
+          "python3 scripts/zk60_fable_cfs_channel.py --out results/zk60_fable_fa6_cfs_channel.json (exit 0)",
+          "python3 -m unittest discover -s tests -p 'test_zk60_fable_cfs_channel.py' -v (21 OK)",
+          "env CARGO_BUILD_JOBS=2 RAYON_NUM_THREADS=2 HL_GPU=0 flock /tmp/zk-heavy.lock cargo test --release --offline --manifest-path hashline/Cargo.toml --test zk60_fable_cfs_channel -- --nocapture --test-threads=2 (2 passed, exit 0)"
+        ],
+        "limits": "linear-in-mask model of the message channel with exact arithmetic; the terminal values themselves are the linear channel's (FA2/FA3/FA7); no private-block, deployment or throughput acceptance; production edits remain with the source owner"
+      }
     },
     {
       "id": "FA7",
       "priority": 0,
       "title": "Analyze captured A/H/W observations jointly",
       "owner": "Fable independent review",
-      "status": "ready",
+      "status": "delivered; legacy captures analysed jointly, repaired-profile and function-2 captures specified",
       "depends_on": [],
       "files": [
         "schema-1 test capture JSON",
@@ -709,14 +750,30 @@
         "Retain proof/file hashes and exact included/excluded observations; malformed inputs refuse.",
         "Do not label Codex per-column lower bounds as a complete joint result or H privacy."
       ],
-      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner."
+      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner.",
+      "result": {
+        "date": "2026-09-08",
+        "branch": "zk60-fable-review (worktree /home/victor/wt-zk60-fa, branched at cfa46f6, merged 972da4e and ccc6f26)",
+        "commit": "f6d8557",
+        "deliverable": "scripts/zk60_fable_joint_capture.py (digest-bound schema-1 parser + full-width exact joint model over one unknown per (row, column); imports the field code from zk60_fable_joint_rank.py, which is unchanged); tests/test_zk60_fable_joint_capture.py (23 tests; 57 with FA2/FA3's suite, zero skips); results/zk60_fable_fa7_joint_captures.json (45 role-cases with file/proof hashes); docs/zkmatrix-poc/ZK60_FABLE_CAPTURE_REVIEW.md (410 lines)",
+        "inputs": "the twelve final captures at c8a342f (/tmp/zk60-round11/final-observations) and the twelve initial ones: 18 distinct files hashed, the 6 seeded pairs byte-identical across both runs and matching results/zk60_round11_capture_parity.json; the six fresh final-only captures are bound for the first time by the FA7 record",
+        "verdict": "Codex's 30 per-column lower bounds reproduced exactly (A 2, H 0, P3 W 2 per column) and exceeded jointly: disclosed base-field dimension A = 2n + 4 (the rho_f/rho_d groups' terminal values add 4), P3 W = 2n + 2 (the Wg/Wu terminals), H = 2 = exactly the public LogUp identity span (0 without the zero-sum row, in all 18 H cases); per plane the T2 X and h16 rows and the T32 Wd plane are fully determined (recovered-vector digests identical across the three independent T32 P3 proofs and the ten T2 proofs of one witness; values never leave the tool), T32 X/h16 disclose one 2-row functional per column; Codex's data/mask row classification verified against a recomputation of LayoutV3/ZkLayoutV3",
+        "excluded_channels": "pads/sampled columns, CFS messages and repeats are excluded by construction and stated; the per-proof inventory and the repeats present in the captured set (ten proofs of one X row, three of one W) are handed to FA8",
+        "handoff": "section 10 of the review: the exact fields/cases the repaired-profile (ffn-v3-mr1) and function-2/predicate captures must contain (claims with coefficients/points, lambdas, prox rho, message parts of every vector, terminal values, seam slots, slice offsets), digest binding, and how FA3 acceptance test P3 runs the tool; the parser refuses any other coverage until that layout rule is added",
+        "commands": [
+          "python3 scripts/zk60_fable_joint_capture.py check ... --expected-sha256 ... (exit 0)",
+          "python3 scripts/zk60_fable_joint_capture.py analyze --final-dir ... --initial-dir ... --parity ... --codex ... -o results/zk60_fable_fa7_joint_captures.json (exit 0; 45 cases, 0 refused, 30/30 Codex cases reproduced, 6/6 parity pairs; 52 s, 89 MB RSS)",
+          "python3 -m unittest discover -s tests -p 'test_zk60_fable_joint*.py' -v (57 OK)"
+        ],
+        "limits": "linear model with fixed captured coefficients, one proof at a time; not a simulator, not an upper bound, not H privacy; the captures hold no witness and truth comparison lives only in the in-process Rust harness; no private-block, deployment or throughput acceptance"
+      }
     },
     {
       "id": "FA8",
       "priority": 0,
       "title": "Review full transcript and repeated-proof privacy",
       "owner": "Fable independent review",
-      "status": "ready_design; closure depends on reviewed inputs",
+      "status": "delivered; B2 and B3 closed for the repaired FFN profile, B4 closed for fresh commitments and for the stable W only under enforcement E1-E3; block profile blocked on the attention side",
       "depends_on": [
         "FA6",
         "FA7"
@@ -734,7 +791,44 @@
         "State a construction-specific acceptance or remaining blocker for each observation channel.",
         "Finite rank tests and a declaration of model identity cannot substitute for the argument or enforcement."
       ],
-      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner."
+      "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner.",
+      "result": {
+        "date": "2026-09-08",
+        "branch": "zk60-fable-review (worktree /home/victor/wt-zk60-fa, branched at cfa46f6, merged 972da4e and ccc6f26)",
+        "commit": "9d373e0",
+        "deliverable": "docs/zkmatrix-poc/ZK60_FABLE_TRANSCRIPT_REVIEW.md (989 lines, sections A-H); scripts/zk60_fable_transcript_sim.py (exact checks + disposition generator, importing FA2's and FA6's tools); tests/test_zk60_fable_transcript_sim.py (16 tests); results/zk60_fable_fa8_transcript_sim.json, results/zk60_fable_fa8_disposition.json (22 channels x 5 profiles)",
+        "simulator": "commits the CFS mask matrix M first and never equivocates it; programs the random oracle only at the sumcheck round challenges (56/58/76 per FFN proof at A00 for P1/P3/block; 92/94/128 at 8B) and squeezes everything else honestly; commits A'/H'/W' with zero data plus fresh pairs/pads/salts and runs the honest PCS openings; samples each slot's round messages uniformly on the fibre of FA6's subspace over (claim, fin) with fin = want(m_t) + c.g_M(rho); three exact facts beyond FA6/FA3 are pinned by the tool ((sum g, g(rho)) independent and the last-round map onto Fp2 for every challenge sequence incl. degenerate ones; the whole-commitment pair cover for all non-degenerate coefficients; opened positions hidden iff |J| <= q_pad, the negative control leaking exactly |J| - q_pad)",
+        "bounds": {
+          "single_proof": "Delta_1 <= delta_deg + q_H.(n_sq + n_leaves + n_rng)/2^256 + N_fp.2^-95, delta_deg ~ 2^-62 (a completeness loss the simulator mirrors); the bias term from 2^128 = p - 2^32 (mod p), so fp() is 2^-96-close to uniform (the source's 2^-64 is loose); N_fp.2^-95 ~ 2^-75 at A00, 2^-72 at 8B, removable by rejection sampling",
+          "k_fresh_proofs": "Delta_k <= k.Delta_1",
+          "stable_W_k_slots": "Delta_k <= q_H.nn_W/2^256 + sum_i Delta_1(i) + eps_pad + N_fp(C*_l).2^-95 with eps_pad = 0 iff k.Q <= q_pad and every slot used once; the soundness distance 1 - (n + q_pad)/nn is FA5's"
+        },
+        "b3": "closed for the repaired profile as a corollary of simulation; legacy contrast quantified: at T32 the int8 range turns FA7's one 2-row functional per column into both X rows from one proof (2^16 enumeration, uniqueness failure ~ 2^-48) and both h16 rows (2^32)",
+        "b4": "F1 fresh P1 / P3 with a fresh W: closed (independent samples of the single-proof distribution). F2 FA4's budgeted stable W: the k-transcript simulator FA4 H1 asked for is written (registration + k proofs against one Merkle root; the k-slot joint rank is 0 for distinct and burned slots; a declared-twice slot leaks 12 base functionals at n = 4, a copied slot 20) and closes only under the enforcement of consumption E1-E3; Codex's H2 journal (72a884e) enforces the public half (write-ahead, burn on drop/death, exclusive lock, torn tail, q_pad = budget.Q) and, by its own contract, not the consuming API, secret material or anti-rollback",
+        "disposition": {
+          "legacy": "9 accepted / 6 leaks / 2 blockers",
+          "repaired_P1": "15 accepted / 0 leaks / 3 blockers",
+          "repaired_P3_fresh_W": "16 / 0 / 3",
+          "repaired_P3_stable_W": "14 / 0 / 5",
+          "block_profile": "10 / 0 / 12"
+        },
+        "remaining_blockers": [
+          "B5/S3: implement and capture ffn-v3-mr1 (Codex; FA3 AM1-24, FA7 schema-2)",
+          "S1 (Codex, SECURITY): the explicit ZkConfig.seed path is reachable in production and a u64 seed is brute-forceable from one proof's M root; it must be cfg(test)-only or refused",
+          "S2: FA6's two hardenings (Codex)",
+          "E1 consuming slot API, E2 secret material/reconstruction (Codex; ccc6f26 is its start), E3 anti-rollback / single canonical journal (Codex; needs a product ruling from Victor)",
+          "E4 changed-rate proximity bound (FA5)",
+          "A1-A4: the attention side's schedule, CFS slot table, seam-terminal pairs, residual seam/chain (Codex design + Fable review)",
+          "a k-proof capture test on real coefficients (Codex hook + Fable tool)"
+        ],
+        "commands": [
+          "python3 scripts/zk60_fable_transcript_sim.py report (exit 0)",
+          "python3 scripts/zk60_fable_transcript_sim.py disposition (exit 0)",
+          "python3 -m unittest discover -s tests -p 'test_zk60_fable_transcript_sim.py' -v (16 OK)",
+          "the four Fable suites together, detached with a done marker: Ran 94 tests, OK, marker 0"
+        ],
+        "limits": "argument in the random-oracle model with salted-leaf hiding computational and OS entropy assumed; no cargo, no GPU, no proof run; finite rank tests and a model-identity declaration do not substitute for the argument or the enforcement; no private-block, deployment or throughput acceptance"
+      }
     },
     {
       "id": "FA9",
@@ -774,7 +868,7 @@
       "priority": 1,
       "title": "Include extracted core in validation provenance",
       "owner": "Fable GPU/tools lane",
-      "status": "ready",
+      "status": "complete; suite v4 floors GREEN at d4f0758 with both crate trees and both lockfiles in the manifest",
       "depends_on": [],
       "files": [
         "results/cl1_floors.sh",
@@ -793,7 +887,22 @@
       ],
       "limits": "No private-block, deployment or throughput acceptance follows from a partial analysis or diagnostic. Shared production edits remain with the source owner.",
       "round13_handoff": "Hashline adds optional stable-weight-storage dependencies in its lockfile. Preserve both-crate source identity, and distinguish default proof gates from feature-enabled storage test coverage.",
-      "round14_handoff": "PCS is canonical in zkp-core at 83115b5. Round14 uses an outer both-crate source/lockfile hash check plus standalone core tests around archived suite v3; this does not complete CL21 or change the meaning of old v3 manifests. Keep core identity and explicit cases in the permanent runner upgrade."
+      "round14_handoff": "PCS is canonical in zkp-core at 83115b5. Round14 uses an outer both-crate source/lockfile hash check plus standalone core tests around archived suite v3; this does not complete CL21 or change the meaning of old v3 manifests. Keep core identity and explicit cases in the permanent runner upgrade.",
+      "result": {
+        "date": "2026-09-08",
+        "branch": "zk60-cl1 (worktree /home/victor/wt-zk60-cl1, branched at cfa46f6)",
+        "commits": {
+          "code": "d4f0758",
+          "evidence": "e18994c"
+        },
+        "deliverable": "scripts/hashline_cl_gpu_gates.py schema 2 (schema-1 manifests still read): probe_source_identity(repo) records per-crate tree id at HEAD, delta sha256, presence (core: Cargo.toml + src/ + example) and each Cargo.lock sha256/size under source.crates / source.lockfiles; the validator refuses a dirty core, a missing core, missing tree/lockfile identity and, with expect_trees/expect_lockfiles, mismatched dependency identity; a manifest recording none cannot be bound; v1-v3 without the block still validate, v4 without it refuses. Suite v4 (default) = v3 + core_tests (19/0/0 summed over result lines; argv must name zkp-core/Cargo.toml and carry --locked) + core_example (exit 0 + its line); a changed core test set cuts v5. New CLI: source-identity --repo, init --repo, finalize --repo, validate --repo, record --artifact; parsers parse_core_test_log / parse_core_example_log. results/cl1_floors.sh prints both crates' identities, refuses to start on a missing/incomplete core or a nonempty delta under zkp-core/ or hashline/, runs the two core cases under the build lock with retained logs, default suite 4. scripts/hashline_cl_5090_preflight.py: source_identity covers zkp-core, verified_artifact binds crate trees + lockfile hashes. Tests: test_hashline_cl_gpu_gates.py 61 -> 86, test_hashline_cl_5090_preflight.py 78 -> 92. Docs: ZK60_CLAUDE_5090.md section 8, ZK60_CLAUDE_GPU.md lane-status rows.",
+        "run": "results/cl21_floors_v4/ (30 files; manifest sha256 4f6f87ba679430722111dcbe767b84035f84f61b53dfbf67e6493fdb3cac36cc): MANIFEST GREEN 23/23 (21 + 2 core), 2026-09-08 10:33:14-10:45:44 (12 min 30 s inside the heavy lock); HEAD d4f0758; hashline tree e5d1a6af..., zkp-core tree c18bc0c9... (identical to round 11's c8a342f); lockfiles 31a00627... / 4ff606b9...; CPU binary b13dcf27.../4,661,720 B, GPU be358ec1.../5,363,944 B; RTX 4070 Laptop GPU driver 566.14; core tests 19/0/0, example line present; oracle 189 cases / 34 tests; 12/12 frozen digests; cache cold/warm parity; all three controls; validate --repo --expect-head --expect-gpu-sha256 --require-production exit 0; preflight bound to this checkout/binary/manifest: 13/14 checks OK, the sole failure host_idle (another lane held the heavy lock) - box state, not provenance",
+        "notes": [
+          "the manifest records dirty_tracked_count 2: the two doc files being written during the run (neither under a crate, both crate deltas empty)",
+          "CL20's PCS/typed-piece extraction raises the core test count from 19 to 28, so integrating it requires cutting suite v5 with the new expectation (the v4 core_tests case will refuse by design)"
+        ],
+        "limits": "no preflight go (shared box busy); no deployment or throughput acceptance"
+      }
     }
   ],
   "round10_codex_work": "CL19 implementation complete and validated: 156 Rust, 39 Python consumers, four unchanged frozen proofs, P3 on/off byte parity; see ZK60_ROUND10.md. GPU/PCS/planner ownership unchanged.",
@@ -810,7 +919,8 @@
     "CL16",
     "CL17",
     "CL18",
-    "CL19"
+    "CL19",
+    "CL21"
   ],
   "updated_local_date": "2026-09-08",
   "round11_codex_work": {
@@ -920,5 +1030,21 @@
       "b5_separate_process": true,
       "gpu_executed": true
     }
+  },
+  "fable_round12_delivery": {
+    "date": "2026-09-08",
+    "report": "ZK60_FABLE_ROUND12_DELIVERY.md",
+    "lanes": {
+      "zk60-fable-review": "FA6 e83a4ca, FA7 f6d8557, FA3 ledger pointers 018d506, FA8 9d373e0; merged 972da4e (ed478da), ccc6f26 (641aa2d) and a94ce2c (74f3b06); FA9 merges in from zk60-fable-fa9 when delivered",
+      "zk60-cl1": "CL21 d4f0758 (code) + e18994c (suite-v4 floors evidence); validated tip at cfa46f6 + CL21, pushed",
+      "zk60-cl20-core": "CL20 ee775be, 76ee275 (both integrated by Codex in b044e20), f61ee77 (merge 972da4e), f8d40a7 (held for C20-R1-R3); the correction and the a94ce2c merge are in flight on the lane",
+      "zk60-fable-fa9": "FA9 (R09/R10/R31 packaged tests + patch proposals, R32 review of Codex's 42471f0) in flight"
+    },
+    "integration_notes": [
+      "CL20 raises the zkp-core test count from 19 to 28: cut floors suite v5 (CL21's gates helper) when integrating it; the v4 core_tests expectation refuses by design",
+      "CL20 keeps pcs::Store::Device as the legacy variant name; the GPU adapter lives in hashline/src/gpu/mod.rs (CudaBackend)",
+      "FA8 S1 is a security finding for the source owner: the explicit ZkConfig.seed path must be cfg(test)-only or refused in production",
+      "FA6's two hardenings and FA9's R09/R10/R31 patch proposals are Codex-owned edits with tests that pin the flip"
+    ]
   }
 }
