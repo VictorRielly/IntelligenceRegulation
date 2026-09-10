@@ -1,0 +1,396 @@
+{
+ "schema_version": 1,
+ "task": "O14 -- valid statements and observable refusal experiment",
+ "reviewer": "Claude Opus 5, independent reviewer, 2026-09-09 session (O14)",
+ "review_baseline": "b3a253592b9269d7b65359d33efcd1e40d5217ed",
+ "review_worktree_commit": "0b183b1f367569972b519b6f96141b4f17cd795c",
+ "report": "docs/zkmatrix-poc/ZK60_OPUS_REFUSAL_EXPERIMENT.md",
+ "resolves": "the unspecified refusal row of O9's Game J",
+ "source_sha256": {
+  "hashline/src/zk_ffn_fresh_io.rs": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+  "hashline/src/private_seam.rs": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+  "hashline/src/zk_ffn_fresh_poc.rs": "de86a47b067f950ff780c93e85b3dba28292603f8db581ec9c9c77bbd24f70ba",
+  "hashline/examples/zk60_bound_ffn.rs": "26d8d4029c7f42b99c21271c8762ffb934fe94854677141c88f3d1ec9107777e"
+ },
+ "classes": {
+  "P": "determined by public policy or the public statement",
+  "M": "malformed wire or CLI input",
+  "C": "owner state or API use (identity, prior consumption)",
+  "R": "internal randomness or a challenge value only",
+  "W": "the private witness",
+  "I": "internal invariant, unreachable on a well-formed run",
+  "E": "deployment state (environment variables, caches)"
+ },
+ "observable_error_table": [
+  {
+   "site": "zk_ffn_fresh_io.rs:88",
+   "message": "FFN IO: expected-policy length",
+   "klass": "M",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "policy byte length != 112"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:92",
+   "message": "FFN IO: expected-policy version",
+   "klass": "M",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "magic != HFFNEXP1"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:268",
+   "message": "FFN IO: expected endpoint root mismatch",
+   "klass": "C",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "the supplied owner's roots differ from the policy roots"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:289",
+   "message": "FFN IO: missing mask allocation",
+   "klass": "I",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "internal layout invariant; unreachable on a well-formed run"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:337",
+   "message": "FFN IO: zero terminal mask challenge; discard attempt",
+   "klass": "R",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "prover-side: rho[9] == 0"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:393",
+   "message": "FFN IO: zero terminal mask challenge",
+   "klass": "R",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "verifier-side: rho[9] == 0"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:400",
+   "message": "IO {i}: equality terminal",
+   "klass": "W",
+   "simulator_can_reproduce_from_statement_alone": false,
+   "predicate": "the committed endpoint values do not equal the FFN's X/z16 planes",
+   "covered_by_relation_wrapper": true
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:423",
+   "message": "FFN IO: missing W",
+   "klass": "P",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "P1 receipt carries no W commitment"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:424",
+   "message": "FFN IO: public W root mismatch",
+   "klass": "P",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "receipt W root != caller's public policy root"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:508",
+   "message": "FFN IO: frame exceeds bound",
+   "klass": "M",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "encoded length above the profile bound"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:527",
+   "message": "FFN IO: sumcheck shape",
+   "klass": "M",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "round/degree geometry of the wire frame"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:545",
+   "message": "FFN IO: endpoint opening shape",
+   "klass": "M",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "endpoint opening geometry"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:559",
+   "message": "FFN IO: frame length",
+   "klass": "M",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "declared vs actual frame length"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:563",
+   "message": "FFN IO: frame profile",
+   "klass": "M",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "profile string mismatch"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:566",
+   "message": "FFN IO: expected statement mismatch",
+   "klass": "P",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "frame's bound statement != caller's"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:583",
+   "message": "FFN IO: trailing bytes",
+   "klass": "M",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "unconsumed wire bytes"
+  },
+  {
+   "site": "private_seam.rs:64",
+   "message": "seam: nonempty context and distinct endpoint slots required",
+   "klass": "P",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "IoSpec validation"
+  },
+  {
+   "site": "private_seam.rs:71",
+   "message": "seam: supported plane has 2..4096 values and power-of-two axes",
+   "klass": "P",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "declared geometry"
+  },
+  {
+   "site": "private_seam.rs:74",
+   "message": "seam: unsupported scale",
+   "klass": "P",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "scale outside the supported set"
+  },
+  {
+   "site": "private_seam.rs:158",
+   "message": "FFN IO: endpoint context or side mismatch",
+   "klass": "P",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "commitment metadata vs spec"
+  },
+  {
+   "site": "private_seam.rs:173",
+   "message": "seam: canonical NttTables::new(12) required",
+   "klass": "I",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "internal table invariant"
+  },
+  {
+   "site": "private_seam.rs:178",
+   "message": "seam: changed NTT roots",
+   "klass": "I",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "internal table invariant"
+  },
+  {
+   "site": "private_seam.rs:194",
+   "message": "seam: wrong length or noncanonical input words",
+   "klass": "W",
+   "simulator_can_reproduce_from_statement_alone": false,
+   "predicate": "caller's plane length/canonicality; length and canonical range are fixed by the public profile, so the wrapper's relation check covers it",
+   "covered_by_relation_wrapper": true
+  },
+  {
+   "site": "private_seam.rs:347",
+   "message": "seam: prepared context or endpoint mismatch",
+   "klass": "C",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "owner used against a different spec"
+  },
+  {
+   "site": "private_seam.rs:368",
+   "message": "seam: zero masking challenge; use fresh commitments",
+   "klass": "R",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "challenge-only"
+  },
+  {
+   "site": "private_seam.rs:404",
+   "message": "seam: zero terminal mask challenge; use fresh commitments",
+   "klass": "R",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "challenge-only"
+  },
+  {
+   "site": "private_seam.rs:444",
+   "message": "seam: unexpected endpoint commitment",
+   "klass": "C",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "commitment identity"
+  },
+  {
+   "site": "private_seam.rs:450",
+   "message": "seam: zero masking challenge",
+   "klass": "R",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "challenge-only"
+  },
+  {
+   "site": "private_seam.rs:462",
+   "message": "seam: zero terminal mask challenge",
+   "klass": "R",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "challenge-only"
+  },
+  {
+   "site": "private_seam.rs:471",
+   "message": "seam: terminal equality relation",
+   "klass": "W",
+   "simulator_can_reproduce_from_statement_alone": false,
+   "predicate": "the seam's committed endpoint values do not satisfy the equality relation",
+   "covered_by_relation_wrapper": true
+  },
+  {
+   "site": "zk_ffn_fresh_poc.rs:121",
+   "message": "fresh private weights cannot use the public weight cache",
+   "klass": "E",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "deployment state: wcache dir present under P3"
+  },
+  {
+   "site": "zk_ffn_fresh_poc.rs:230",
+   "message": "zero CFS mask challenge; discard attempt",
+   "klass": "R",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "challenge-only; one squeeze, no resampling"
+  },
+  {
+   "site": "examples/zk60_bound_ffn.rs:30",
+   "message": "expected 64 hexadecimal characters",
+   "klass": "M",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "CLI argument form"
+  },
+  {
+   "site": "examples/zk60_bound_ffn.rs:42",
+   "message": "mode must be p1 or p3",
+   "klass": "M",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "CLI argument form"
+  },
+  {
+   "site": "examples/zk60_bound_ffn.rs:68",
+   "message": "bound FFN demo requires the default CPU build and HL_GPU unset",
+   "klass": "E",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "deployment state"
+  },
+  {
+   "site": "examples/zk60_bound_ffn.rs:110",
+   "message": "p3 requires explicit 'fresh' policy; registered model identity is not proved",
+   "klass": "P",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "CLI policy admission"
+  },
+  {
+   "site": "examples/zk60_bound_ffn.rs:118",
+   "message": "expected request context/scales mismatch",
+   "klass": "P",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "CLI cross-check of policy vs request"
+  },
+  {
+   "site": "examples/zk60_bound_ffn.rs:125",
+   "message": "usage: zk60_bound_ffn prepare | prove p1|p3 ... | verify p1 ... | verify p3 fresh ...",
+   "klass": "M",
+   "simulator_can_reproduce_from_statement_alone": true,
+   "predicate": "CLI dispatch",
+   "message_prefix_in_source": "usage: zk60_bound_ffn prepare"
+  }
+ ],
+ "counts": {
+  "P": 9,
+  "M": 11,
+  "C": 3,
+  "R": 7,
+  "W": 3,
+  "I": 3,
+  "E": 2
+ },
+ "every_error_is_observed_verbatim": {
+  "evidence": "examples/zk60_bound_ffn.rs:129-131 -- main prints the error string with eprintln! and exits 1",
+  "consequence": "an external observer learns WHICH predicate failed, not merely that one did; the refusal alphabet is the set of distinct strings above"
+ },
+ "witness_dependent_refusals": [
+  {
+   "site": "zk_ffn_fresh_io.rs:400",
+   "message": "IO {i}: equality terminal",
+   "klass": "W",
+   "simulator_can_reproduce_from_statement_alone": false,
+   "predicate": "the committed endpoint values do not equal the FFN's X/z16 planes",
+   "covered_by_relation_wrapper": true
+  },
+  {
+   "site": "private_seam.rs:194",
+   "message": "seam: wrong length or noncanonical input words",
+   "klass": "W",
+   "simulator_can_reproduce_from_statement_alone": false,
+   "predicate": "caller's plane length/canonicality; length and canonical range are fixed by the public profile, so the wrapper's relation check covers it",
+   "covered_by_relation_wrapper": true
+  },
+  {
+   "site": "private_seam.rs:471",
+   "message": "seam: terminal equality relation",
+   "klass": "W",
+   "simulator_can_reproduce_from_statement_alone": false,
+   "predicate": "the seam's committed endpoint values do not satisfy the equality relation",
+   "covered_by_relation_wrapper": true
+  }
+ ],
+ "why_the_simulator_cannot_reproduce_them": "Both are verifier-side rejections caused by committed endpoint values failing the equality relation against the FFN's X/z16 planes. finish() deliberately performs NO equality precheck (zk_ffn_fresh_io.rs:274-275: 'No equality precheck: unequal committed values must fail the verifier's polynomial identity'), so a prover holding mismatched endpoints still emits a receipt and the verifier rejects. A simulator given only the statement (the two roots) cannot tell a matching witness from a mismatching one, so it cannot decide whether to output an accepting receipt or this rejection.",
+ "games": {
+  "V_valid_relation_oracle_with_wrapper": {
+   "matches": "Faonio et al., Definition 8's S'_1 and Definition 9",
+   "interface": "S'_1(x, w) first checks (pp, x, w) in R, then runs and returns the output of S_1(x)",
+   "witness_reaches_simulator": false,
+   "witness_used_for": "the admission check only",
+   "covers": "proof requests for valid statements; the witness-dependent rejections above never arise because invalid requests are refused by the wrapper before the simulator is invoked",
+   "quote": "Zero-knowledge is a security property that is only guaranteed for valid statements in the language, hence the above definition uses S'_1 as a proof simulation oracle.",
+   "status": "the right game for a ZK claim about this prover; still unproved here"
+  },
+  "A_application_exposing_invalid_input_failures": {
+   "description": "the deployed CLI accepts arbitrary caller inputs and publishes either a receipt or a specific error string",
+   "leaks": "at least one witness-dependent bit (validity), and in fact the identity of the failing predicate",
+   "covered_by_definition_9": false,
+   "would_need": "Definition 10's F-leaky zero knowledge with F naming exactly the leaked predicate, or an application-level guarantee that only valid inputs reach the prover",
+   "must_not_be_confused_with": "Game V; a wrapper that refuses invalid statements is not the same as an application that reports why they were invalid"
+  }
+ },
+ "primary_reference": {
+  "title": "From Polynomial IOP and Commitments to Non-malleable zkSNARKs",
+  "authors": "Faonio, Fiore, Kohlweiss, Russo, Zajac",
+  "version_used": "EURECOM author-hosted PDF, the version linked by ZK60_ENDPOINT_SIMULATION_MODEL.md",
+  "url": "https://www.eurecom.edu/publication/7419/download/sec-publi-7419.pdf",
+  "pdf_sha256": "1846f0cd343891abdcd48befe03c64ec814f1d1c97b82ca6d97cb21b1e6ebb98",
+  "pages": 30,
+  "definition_titles": {
+   "7": "Succinctness",
+   "8": "Wrappers for NIZK Simulator",
+   "9": "Zero-Knowledge",
+   "10": "Leaky Zero-Knowledge"
+  },
+  "note": "the 68-page ePrint 2023/569 numbers these differently (8 Succinctness, 9 Wrappers, 10 Zero-Knowledge). Cite the version and the definition TITLE, never a numbering assumed shared across versions. O9's earlier correction applied ePrint numbering to this EURECOM link and is withdrawn."
+ },
+ "cross_reference_O13": {
+  "claim": "no timing or variable-length channel from the challenge guards",
+  "evidence": "both challenge guards abort without resampling, so the squeeze counter is deterministic (O13 F13.5)"
+ },
+ "requirements_not_narrowed": {
+  "external_root_obligation": "unchanged and still open",
+  "private_IO": "P1 continues to hide inputs, outputs and intermediate activations",
+  "simulator_may_not_receive": "real endpoint values, real randomness or private owner state, under the name of a wrapper or auxiliary input"
+ },
+ "production_changes": "none; this task is read-only over the sources it cites",
+ "privacy_analysis_performed": true,
+ "full_privacy_review_complete": false,
+ "u2_closed": false,
+ "unexpected_disclosure_found": false,
+ "all_witness_dependent_refusals_are_covered_by_the_wrapper": true,
+ "wrapper_note": "All three W-class predicates are part of the relation R: two are the endpoint equality relation and one is well-formedness of the caller's plane. In Game V the wrapper evaluates (pp, x, w) in R and refuses before the simulator is invoked, so the simulator never has to reproduce them. In Game A they are published as distinct error strings and leak.",
+ "validation": {
+  "stages": [
+   {
+    "command": "python3 -m unittest tests.test_zk60_opus_refusal_experiment",
+    "exit": 0,
+    "result": "Ran 12 tests, OK"
+   }
+  ],
+  "line_citations_verified": true,
+  "note": "Every message in the table is checked against the line it cites by the test suite itself, so the inventory cannot drift from the sources without failing."
+ }
+}
