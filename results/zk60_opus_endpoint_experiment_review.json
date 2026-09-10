@@ -1,0 +1,181 @@
+{
+ "schema_version": 1,
+ "task": "O9 -- endpoint security experiment review",
+ "reviewer": "Claude Opus 5, independent reviewer, 2026-09-09 session (O9)",
+ "review_baseline": "c5eb2019353fdf56f1a115edb0c424bf86a9c195",
+ "review_worktree_commit": "378ae6d5bd80fd1fc20a313c9f0f55ad856182e7",
+ "report": "docs/zkmatrix-poc/ZK60_OPUS_ENDPOINT_EXPERIMENT_REVIEW.md",
+ "privacy_target": "P1 hides inputs, outputs and intermediate activations (public weights allowed); P3 also hides weights. Unchanged by this review.",
+ "source_sha256": {
+  "hashline/src/zk_ffn_fresh_io.rs": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+  "hashline/src/zk_ffn_fresh_io_tests.rs": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9",
+  "hashline/src/private_seam.rs": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+  "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+  "zkp-core/src/merkle.rs": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62",
+  "scripts/zk60_endpoint_simulation.py": "c5549eefeafd4a4e3ed8bbfe70f3c2924ed6f1ed179ebf73edb9206bfbd0e9aa",
+  "docs/zkmatrix-poc/ZK60_ENDPOINT_SIMULATION_MODEL.md": "023ab4e303971d27f5204545ce4a9840bf52e69a30809444e659827b5e23c832",
+  "docs/zkmatrix-poc/ZK60_FABLE_TRANSCRIPT_REVIEW.md": "c843571c87e46aeba186b5974549df94be97c4ad387a9a0f7d32fda4a08b7066"
+ },
+ "input_sha256": {
+  "results/zk60_round22_captures.json": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d"
+ },
+ "games": {
+  "J_joint_preparation": {
+   "covers": "prepare_endpoints -> prepare -> finish (the honest owner-generated workflow)",
+   "simulator_generates_roots": true,
+   "distinguisher_sees": [
+    "public parameters",
+    "112-byte expected policy",
+    "receipt or refusal",
+    "its own oracle answers",
+    "prior oracle history",
+    "correlated earlier public views",
+    "public W root under P1"
+   ],
+   "simulator_denied": [
+    "endpoint values",
+    "real masks/pads/salts",
+    "real PreparedPlane owner",
+    "the real ZkRng stream"
+   ],
+   "abort_behaviour": "refusal is an output and consumes the owner; the simulator must reproduce both",
+   "timing_constraint": "roots published before the columns to be opened are known, because the policy is absorbed before all challenges",
+   "status": "specified, not proved"
+  },
+  "E_external_root": {
+   "covers": "ExpectedIo::from_bytes off the wire, then verify -- the deployed verifier's statement space",
+   "simulator_generates_roots": false,
+   "why_hard": "an accepted proof carries 256 authentication paths per endpoint under a root the simulator did not create; BLAKE3 is unprogrammable so no preimage is supplied",
+   "status": "open; no construction proposed",
+   "must_not_be_narrowed": true
+  }
+ },
+ "findings": {
+  "F1_single_use_structural": {
+   "claim": "the public API admits exactly one proof per endpoint commitment",
+   "evidence": [
+    "Endpoints has no Clone/serialisation (zk_ffn_fresh_io.rs:103-107)",
+    "finish consumes on success and failure (:274-:277)",
+    "compile_fail doctest forbids a second finish (:126)",
+    "prepare_endpoints always draws ZkRng::from_os (private_seam.rs:196)"
+   ],
+   "consequence": "'repeated requests' can only mean distinct roots over shared data, never repeated openings of one fixed root"
+  },
+  "F2_statement_space_mismatch": {
+   "claim": "prover and verifier do not accept the same statement space",
+   "evidence": [
+    "check_endpoints refuses unless owner roots equal policy roots (:265)",
+    "ExpectedIo::from_roots is pub and takes arbitrary digests (:55)",
+    "ExpectedIo::from_bytes accepts any well-formed 112 bytes (:86)",
+    "doc comment: reading from an untrusted producer does not authorize those endpoints (:46)"
+   ],
+   "consequence": "Game J covers the prover's reachable set completely and the verifier's accepted set not at all; Game E cannot be retired"
+  },
+  "F3_simprepare_is_new_code": {
+   "claim": "no public interface admits simulator-chosen preparation randomness",
+   "evidence": [
+    "private_seam::prepare_with_rng is crate-private (private_seam.rs:200)",
+    "public prepare hard-codes ZkRng::from_os (private_seam.rs:186,:196)",
+    "zk_ffn_fresh_io::prepare hard-codes seed: None (:157)"
+   ]
+  },
+  "F4_hash_domain_length_only": {
+   "claim": "FA8 H4 is false; the three commitment-layer hash uses are separated only by input length, and that fails at exactly 8 rows",
+   "evidence": [
+    "merkle.rs:14 hash_pair = BLAKE3(32||32), untagged",
+    "pcs.rs:640 salt_leaf = BLAKE3(32||32), untagged",
+    "pcs.rs:137 hash_column = BLAKE3(rows*8 bytes), untagged"
+   ],
+   "current_row_counts_bytes": {
+    "endpoints_7": 56,
+    "P1_public_W_3": 24,
+    "P3_W_11": 88,
+    "A_702": 5616,
+    "H_1326": 10608,
+    "mask_M_20": 160
+   },
+   "collision_of_input_sets_at": "rows == 8 (64 bytes)",
+   "present_in_current_profile": false,
+   "is_a_collision_claim": false,
+   "requires_format_change": false
+  },
+  "F6_refusal_observable": {
+   "claim": "refusal is an observable, state-consuming event and belongs in the view",
+   "evidence": [
+    "finish documents consumption on success or failure (:274)",
+    "check_endpoints returns a distinguishable error (:268)"
+   ]
+  }
+ },
+ "fa8_premise_dispositions": {
+  "H1_transcript_programmable_at_squeeze_points": "retained, not re-derived, unchanged by the endpoint work",
+  "H2_commitment_hashes_never_programmed": "superseded for the candidate: zk60_endpoint_simulation.py:100 programs salted-leaf points; an extension of the model, not FA8 unchanged",
+  "H3_keyed_XOF_pseudorandom": "retained, not re-derived",
+  "H4_four_uses_disjoint": "FALSE as stated; see F4",
+  "G1_mask_functional_surjectivity": "out of O9 scope",
+  "G2_M_opening_deterministic": "out of O9 scope",
+  "G3_disclosed_dim_zero": "independently reproduced for the IO profile by O8 and re-reproduced on fresh captures (1ca12e4): A=0, H=2 public LogUp identity, Input=0, Output=0, W=0",
+  "G4_pad_budget": "out of O9 scope",
+  "G5_emitted_observation_set": "extended by the two endpoint openings and two extra M slots, not invalidated",
+  "G6_challenge_ordering": "retained; both roots absorbed before every challenge (:138-:145)",
+  "G7_block_transcript_order": "superseded for this profile by the /2 order M,W,A,H,Input,Output",
+  "G8_one_OS_stream_per_component": "retained and reinforced by F1"
+ },
+ "primary_references_inspected": [
+  {
+   "title": "Shorter Lattice-Based Zero-Knowledge Proofs via One-Time Commitments",
+   "authors": "Lyubashevsky, Nguyen, Seiler",
+   "url": "https://eprint.iacr.org/2020/1448.pdf",
+   "pdf_sha256": "e7b5d1ca691b629465bb63b72dd3937f5932e537e7822c32d0bc7f824349c5c1",
+   "definition_checked": "2.8 (Simulatability)",
+   "exists": true,
+   "disposition": "cited correctly; Def 2.8 is joint commitment/proof simulatability and the paper explicitly contrasts it with ZK for adversarially chosen randomness",
+   "precisions": [
+    "the adversary still chooses the messages, so the analogue lets the distinguisher choose endpoint values while commitment randomness stays honest",
+    "Def 2.8 keeps commitments separate from x, whereas the 112-byte policy concatenates them; map x to the 48-byte statement part and c1,c2 to the two roots"
+   ]
+  },
+  {
+   "title": "From Polynomial IOP and Commitments to Non-malleable zkSNARKs",
+   "authors": "Faonio, Fiore, Kohlweiss, Russo, Zajac",
+   "url": "https://eprint.iacr.org/2023/569.pdf",
+   "pdf_sha256": "67bba5d46a2a09309f22b7902b26b47e45f0b23a8607e06200973c34c5e696bb",
+   "definitions_checked": [
+    8,
+    9,
+    10
+   ],
+   "disposition": "substance correct, cited range off by one",
+   "correction": "Definition 8 is Succinctness. The stateful simulator wrappers sharing st=(stS,coms,Qsim,QRO,Qaux) are Definition 9; zero-knowledge and the weaker F-leaky notion are Definition 10. The model document should cite Definitions 9-10.",
+   "effect_on_argument": "none; the model document's reading of the leaky notion as a declared weakening is correct"
+  }
+ ],
+ "unsupported": [
+  "Game E in full: no construction for simulating under a root the simulator did not create",
+  "the joint field-view sampler feeding the columns",
+  "adaptive Fiat-Shamir; late column assignment is not adaptive security",
+  "a whole-view bound; q/2^256 is the local fresh-query bound only",
+  "P3 weight privacy, model identity and a complete private block"
+ ],
+ "production_changes": "none",
+ "privacy_analysis_performed": true,
+ "full_privacy_review_complete": false,
+ "u2_closed": false,
+ "unexpected_disclosure_found": false,
+ "validation": {
+  "stages": [
+   {
+    "command": "python3 scripts/zk60_endpoint_simulation.py --out /tmp/o9_endpoint_sim_check.json",
+    "exit": 0,
+    "result": "PASS: two preparation-issued roots, 512 consistent openings, one oracle table"
+   },
+   {
+    "command": "python3 -m unittest tests.test_zk60_endpoint_simulation",
+    "exit": 0,
+    "result": "Ran 8 tests, OK"
+   }
+  ],
+  "line_citations_verified": true,
+  "note": "Every source line number quoted in the report was read back at the review baseline and corrected where it was off by one. No production Rust, transcript, proof format, privacy mode or benchmark parameter was changed; this task adds one document and one result record."
+ }
+}

@@ -1,0 +1,215 @@
+{
+ "schema_version": 1,
+ "task": "O11 -- two-proof joint-model audit",
+ "reviewer": "Claude Opus 5, independent reviewer, 2026-09-09 session (O11)",
+ "review_baseline": "c5eb2019353fdf56f1a115edb0c424bf86a9c195",
+ "review_worktree_commit": "4e7ae9d8d045504c5fa012c9baad12d174ae9ef8",
+ "report": "docs/zkmatrix-poc/ZK60_OPUS_REPEATED_VIEW_REVIEW.md",
+ "engine_provenance": "O8's JointModel rank engine is REUSED unchanged, by import. This is an independent recomputation of the EXPECTATIONS, not an independent implementation of the rank algebra.",
+ "source_sha256": {
+  "scripts/zk60_io_repeated_view.py": "4de64c0d5f1948715556ab01e36c922a0821b7c689c639d47529646d22a90c8c",
+  "scripts/zk60_opus_io_capture.py": "ccb9043ceb1d372b0800e0cae8e904d3978185b7e466d8003000306fbdade2cb",
+  "scripts/zk60_io_review_gate.py": "3f8ee26804b9d04549d30cca76f4615a0f53a76f8d73045c3e2e0b6dba34baf9",
+  "results/zk60_round23_repeated_view.json": "f6e01e4d3c73b01a22e5294d5305c7eeb7f7ab972e13cd04df8015e55628e33f",
+  "results/zk60_round22_captures.json": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d",
+  "results/zk60_round22_o8_analysis.json": "deaf38f545d6e1e4b25be137e47c3ece19997ff5646871edbc5f3e0f9d5048d3",
+  "results/zk60_round22_validation.json": "50a58bfb3d48909d771418bdecad9e215c03019b892b4a48398b72a44cddda7b",
+  "hashline/src/zk_ffn_fresh_io_tests.rs": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9",
+  "tests/test_zk60_opus_repeated_view.py": "15fee1eda5453d4dd13d01a0d811d1dd8c1829094fb1c85691dfa7731bbd4229"
+ },
+ "captures": {
+  "directory": "/home/victor/IntelligenceRegulation/results/zk60_round22_captures",
+  "manifest": "results/zk60_round22_captures.json",
+  "note": "gitignored workspace bytes on this shared host; not distributed by Git"
+ },
+ "delivered_result_reproduced": {
+  "P1": {
+   "io_shared": 0,
+   "all_shared": 4,
+   "all_unshared_control": 4
+  },
+  "P3": {
+   "io_shared": 0,
+   "all_shared": 4,
+   "all_unshared_control": 4
+  },
+  "ablation_P1": 256,
+  "ablation_P3": 256
+ },
+ "independent_recomputation": {
+  "schema": 1,
+  "cases": [
+   {
+    "privacy": "P1",
+    "proofs": [
+     "c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e",
+     "efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb"
+    ],
+    "commitment_roles": [
+     "A",
+     "H",
+     "Input",
+     "Output"
+    ],
+    "W_is_a_private_role": false,
+    "public_w_equal_across_attempts": true,
+    "zero_sum_step_function": [
+     {
+      "zero_sum_extras": 0,
+      "disclosed_total": 0
+     },
+     {
+      "zero_sum_extras": 1,
+      "disclosed_total": 2
+     },
+     {
+      "zero_sum_extras": 2,
+      "disclosed_total": 4
+     }
+    ],
+    "base_coords_per_zero_sum_constraint": 2,
+    "public_H_identities_rank_increment": 0,
+    "cross_attempt_aliases": 348,
+    "cross_attempt_alias_row_kinds": [
+     [
+      "data",
+      "data"
+     ]
+    ],
+    "cross_attempt_H_aliases": 0
+   },
+   {
+    "privacy": "P3",
+    "proofs": [
+     "038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd",
+     "e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314"
+    ],
+    "commitment_roles": [
+     "A",
+     "H",
+     "Input",
+     "Output",
+     "W"
+    ],
+    "W_is_a_private_role": true,
+    "public_w_equal_across_attempts": true,
+    "zero_sum_step_function": [
+     {
+      "zero_sum_extras": 0,
+      "disclosed_total": 0
+     },
+     {
+      "zero_sum_extras": 1,
+      "disclosed_total": 2
+     },
+     {
+      "zero_sum_extras": 2,
+      "disclosed_total": 4
+     }
+    ],
+    "base_coords_per_zero_sum_constraint": 2,
+    "public_H_identities_rank_increment": 0,
+    "cross_attempt_aliases": 351,
+    "cross_attempt_alias_row_kinds": [
+     [
+      "data",
+      "data"
+     ]
+    ],
+    "cross_attempt_H_aliases": 0
+   }
+  ],
+  "tool_sha256": {
+   "zk60_io_repeated_view.py": "4de64c0d5f1948715556ab01e36c922a0821b7c689c639d47529646d22a90c8c",
+   "zk60_opus_io_capture.py": "ccb9043ceb1d372b0800e0cae8e904d3978185b7e466d8003000306fbdade2cb"
+  }
+ },
+ "four_base_coordinates_explained": {
+  "measurement": "adding the H zero-sum constraints one at a time gives disclosed_total 0, 2, 4 in both modes",
+  "interpretation": "each proof's H carries one Fp2 zero-sum identity, sum_j u[j] = 0, worth exactly 2 base-field coordinates; two proofs give 4",
+  "single_proof_agreement": "O8 reports H = 2 for one proof, which is the same identity",
+  "witness_dependent_content": "none; with no zero-sum constraint added the joint disclosure is 0 in both modes",
+  "public_logup_identities_rank_increment": 0,
+  "meaning_of_zero_increment": "the public LogUp identities are already implied by the zero sums, so they add no further determined coordinate"
+ },
+ "alias_hygiene": {
+  "cross_attempt_aliases_P1": 348,
+  "cross_attempt_aliases_P3": 351,
+  "row_kinds_joined": [
+   [
+    "data",
+    "data"
+   ]
+  ],
+  "H_cross_attempt_aliases": 0,
+  "P3_minus_P1": 3,
+  "P3_extra_aliases_are": "the three private W data rows, shared because both attempts prove the same weights",
+  "P1_W_is_a_private_role": false,
+  "P1_public_w_equal_across_attempts": true,
+  "verdict": "only witness data rows alias across attempts; no mask, pad or proximity row aliases; P1's fixed public W is handled as public policy and never enters as private rows"
+ },
+ "H_proof_locality": {
+  "claim": "H data depends on each proof's beta/gamma/alpha and stays proof-local",
+  "recorded_support": "every role's transcript before_state and every private root differ between the two attempts, in both modes; the 112-byte policy with the two fresh endpoint roots is absorbed before any challenge (zk_ffn_fresh_io.rs:138-145)",
+  "counterfactual": {
+   "h_data_rows": 664,
+   "delivered_unaliased_disclosed_total": 4,
+   "aliased_disclosed_total": 2,
+   "direction": "aliasing H would DECREASE the reported total, because the two zero-sum constraints would collapse onto one set of unknowns"
+  },
+  "conclusion": "the delivered choice is the conservative one: it reports more disclosure than the aliased alternative, and in both cases every disclosed coordinate is a public identity, so the character of the result does not depend on this assumption"
+ },
+ "ablation": {
+  "role": "Input",
+  "attempt": 0,
+  "construction": "drop the second (times-u) mask part, rebuilding the legacy single-base-mask form on the same commitment",
+  "paired_disclosed_total": 0,
+  "single_mask_disclosed_total": 256,
+  "single_mask_disclosed_per_column": 1,
+  "columns": 256,
+  "interpretation": "with only one base mask, exactly one of the two base-field coordinates of each column's Fp2 combination stops being hidden; 256 columns give 256 coordinates",
+  "agrees_with": "O8's archived endpoint_mask_ablation control in results/zk60_round22_o8_analysis.json",
+  "control_detects_the_legacy_leak": true
+ },
+ "exclusions_confirmed_still_excluded": [
+  "CFS rounds",
+  "pads",
+  "encoded columns",
+  "Merkle roots/paths",
+  "nonlinear cross-proof H relations",
+  "adaptive transcript",
+  "arbitrary repetition count",
+  "reused commitment owners"
+ ],
+ "scope_limits": [
+  "fixed-coefficient message/terminal/proximity model at the recorded challenges; not an adaptive argument",
+  "exactly two proofs; nothing here extends to an arbitrary repetition count",
+  "one synthetic source-pinned witness; not a statement about all witnesses",
+  "reuse of an endpoint owner is out of model and is separately impossible through the public API (O9 F1)"
+ ],
+ "production_changes": "none; scripts/zk60_io_repeated_view.py was not edited",
+ "privacy_analysis_performed": true,
+ "full_privacy_review_complete": false,
+ "u2_closed": false,
+ "unexpected_disclosure_found": false,
+ "validation": {
+  "stages": [
+   {
+    "command": "python3 -m unittest tests.test_zk60_opus_repeated_view",
+    "exit": 0,
+    "result": "Ran 11 tests, OK (3.8 s)"
+   },
+   {
+    "command": "offline recomputation: zero-sum step function, LogUp identity rank increment, alias hygiene (both modes)",
+    "exit": 0,
+    "result": "0/2/4 in both modes; rank increment 0; 348/351 data-only cross aliases; 0 H aliases"
+   },
+   {
+    "command": "offline counterfactual: alias all 664 H data rows across attempts",
+    "exit": 0,
+    "result": "disclosed_total 4 -> 2 in both modes"
+   }
+  ],
+  "line_citations_verified": true
+ }
+}

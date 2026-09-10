@@ -1,0 +1,211 @@
+{
+ "schema_version": 1,
+ "task": "O10 -- one-oracle bookkeeping audit",
+ "reviewer": "Claude Opus 5, independent reviewer, 2026-09-09 session (O10)",
+ "review_baseline": "c5eb2019353fdf56f1a115edb0c424bf86a9c195",
+ "review_worktree_commit": "9a83d85faca9eec959a147248694d84d5d90dec8",
+ "report": "docs/zkmatrix-poc/ZK60_OPUS_ORACLE_BOOKKEEPING_REVIEW.md",
+ "headline": "No defect found in the delivered bookkeeping. All nine independent adversarial controls pass. Findings concern what the bound omits and a separation that holds by dimension rather than by design.",
+ "source_sha256": {
+  "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+  "zkp-core/src/merkle.rs": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62",
+  "zkp-core/src/transcript.rs": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+  "zkp-core/src/rng.rs": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+  "hashline/src/private_seam.rs": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+  "scripts/zk60_endpoint_simulation.py": "c5549eefeafd4a4e3ed8bbfe70f3c2924ed6f1ed179ebf73edb9206bfbd0e9aa",
+  "tests/test_zk60_endpoint_simulation.py": "d8b52e1dbb035c1488a4ab9ef3d2728d595d5e687332489ecf9e000d32e6d7b0",
+  "tests/test_zk60_opus_oracle_bookkeeping.py": "f234c8b5ec1cb6016cb26845494e63f3b0a901244e35f15c841a379e1d806e22",
+  "docs/zkmatrix-poc/ZK60_ENDPOINT_SIMULATION_MODEL.md": "023ab4e303971d27f5204545ce4a9840bf52e69a30809444e659827b5e23c832",
+  "docs/zkmatrix-poc/ZK60_FABLE_TRANSCRIPT_REVIEW.md": "c843571c87e46aeba186b5974549df94be97c4ad387a9a0f7d32fda4a08b7066"
+ },
+ "call_format_inventory": [
+  {
+   "n": 1,
+   "call": "Transcript::new(domain)",
+   "source": "zkp-core/src/transcript.rs:27",
+   "input": "\"hashline-v1/\"(12) || domain",
+   "length_bytes": "12+len(domain); 53 for the IO profile",
+   "tagged": true
+  },
+  {
+   "n": 2,
+   "call": "Transcript::absorb(label,data)",
+   "source": "zkp-core/src/transcript.rs:44",
+   "input": "state(32) || len(label) u64le(8) || label || len(data) u64le(8) || data",
+   "length_bytes": "48+len(label)+len(data)",
+   "tagged": false
+  },
+  {
+   "n": 3,
+   "call": "Transcript::squeeze_bytes()",
+   "source": "zkp-core/src/transcript.rs:85",
+   "input": "state(32) || \"squeeze\"(7) || counter u64le(8)",
+   "length_bytes": 47,
+   "tagged": true
+  },
+  {
+   "n": 4,
+   "call": "ZkRng::new(seed,domain) [fixtures only]",
+   "source": "zkp-core/src/rng.rs:20",
+   "input": "\"hashline-zk-rng/\"(16) || domain || seed(8)",
+   "length_bytes": "24+len(domain)",
+   "tagged": true
+  },
+  {
+   "n": 5,
+   "call": "ZkRng::from_entropy_reader",
+   "source": "zkp-core/src/rng.rs:44",
+   "input": "KEYED blake3, key=32B /dev/urandom; input \"hashline-zk-os-rng/v1/\"(22) || domain",
+   "length_bytes": "22+len(domain); 63 for PROFILE, 50 for the seam DOMAIN",
+   "tagged": true,
+   "separate_function_family": true
+  },
+  {
+   "n": 6,
+   "call": "ZkRng::refill()",
+   "source": "zkp-core/src/rng.rs:53",
+   "input": "key(32) || counter u64le(8)",
+   "length_bytes": 40,
+   "tagged": false,
+   "unkeyed": true
+  },
+  {
+   "n": 7,
+   "call": "pcs::hash_column / hash_columns",
+   "source": "zkp-core/src/pcs.rs:137, :147",
+   "input": "rows x 8 little-endian Fp bytes",
+   "length_bytes": "8*rows",
+   "tagged": false
+  },
+  {
+   "n": 8,
+   "call": "pcs::salt_leaf(leaf,salt)",
+   "source": "zkp-core/src/pcs.rs:640",
+   "input": "leaf digest(32) || salt(32)",
+   "length_bytes": 64,
+   "tagged": false
+  },
+  {
+   "n": 9,
+   "call": "merkle::hash_pair(a,b)",
+   "source": "zkp-core/src/merkle.rs:14",
+   "input": "left digest(32) || right digest(32)",
+   "length_bytes": 64,
+   "tagged": false
+  }
+ ],
+ "overlaps": {
+  "8_equals_9": "identical untagged 64-byte domain; a statement about input sets, not a collision claim",
+  "7_vs_8_9": "length only; coincides iff rows == 8",
+  "7_vs_6": "length only; coincides iff rows == 5",
+  "2_vs_8_9": "a 64-byte absorb needs len(label)+len(data)==16; its bytes 32..40 are a small LE length while a node's are digest head, so about 2^-64, a bound not an impossibility",
+  "2_vs_6": "impossible; absorb >= 48 bytes, refill is 40",
+  "3": "uniquely separated; 47 is below the absorb floor and not a multiple of 8",
+  "5": "genuinely separate; keyed blake3 is a different function family"
+ },
+ "fa8_dispositions": {
+  "H4_four_uses_disjoint": "FALSE as stated. The cited prefixes occur only in the three initialisation calls (rows 1,4,5); absorb, squeeze_bytes, refill, hash_column, salt_leaf and hash_pair carry none. Rows 8 and 9 share a domain outright.",
+  "H3_keyed_XOF": "refined, not broken. The key derivation is keyed (row 5); the refill that produces the stream is UNKEYED blake3 over key||counter (row 6), so RNG queries live in the same unkeyed table at length 40. A reduction may not treat the RNG as an independent oracle."
+ },
+ "bookkeeping_audit": {
+  "fresh_query_programming": "correct; program_fresh refuses an answered point (:34-:36) and fixes output width (:37-:38)",
+  "one_shared_table": "correct; nodes, inner column hashes and salted leaves share RandomOracle.table",
+  "prepared_leaf_reuse": "correct; fresh handles per owner (:72), tree built before any column is seen (:72-:77)",
+  "duplicate_indices": "correct; identical column, salt and path returned (:92-:97)",
+  "conflicting_duplicates": "correct; refuses (:93-:95) and burns the owner",
+  "prequeries": "correct; a pre-answered salted-leaf point forces a refusal",
+  "owner_consumption": "correct; spent set before validation, burn on failure (:80-:82)",
+  "abort_visibility": "correct and observable; distinct refusal messages",
+  "no_answered_query_is_ever_reprogrammed": true
+ },
+ "bound_gaps": {
+  "stated_bound": "q / 2^256 for one programmed salted leaf, given the inner digest is fixed before the fresh salt",
+  "correct_for_one_leaf": true,
+  "missing": [
+   "union over the 512 programmed leaves per proof (256 per endpoint x 2)",
+   "union over the 1792 unopened leaves per endpoint, which in the real world are images of salt_leaf(hash_column(col),salt) and in the simulation are free handles explained by nothing",
+   "the distinguisher's own verification queries, which enter the same table (13 entries per forged opening)",
+   "preparation history: points answered before SimPrepare can already block a later programming",
+   "the field-reduction bias, which dominates",
+   "repetition across proofs",
+   "couplings to committed polynomials, sumcheck distributions, CFS rounds, pads and encoded columns"
+  ],
+  "reduction_bias_floor": {
+   "per_endpoint_fp_draws": {
+    "mask_rows": 1280,
+    "pads": 1792,
+    "total": 3072
+   },
+   "two_endpoints": 6144,
+   "per_draw_bias": "2^-64 (documented at rng.rs:73 and transcript.rs:96; exact figure derived in FA8 section D.4, not re-derived here)",
+   "floor_endpoints_only": "6144 * 2^-64 ~= 2^-51.4",
+   "note": "before A, H, W, M and every challenge are counted; this term exceeds q/2^256 by tens of orders of magnitude for any realistic q"
+  }
+ },
+ "findings": {
+  "F10_1_domain_separation_is_dimensional": {
+   "row_counts_present": [
+    3,
+    7,
+    11,
+    20,
+    702,
+    1326
+   ],
+   "aliases_at_rows": {
+    "8": "leaf/node domain",
+    "5": "RNG refill domain"
+   },
+   "present_in_current_profile": false,
+   "requires_format_change": false
+  },
+  "F10_2_rng_shares_unkeyed_table": true,
+  "F10_3_unopened_leaves_dominate_the_union": {
+   "per_endpoint_total": 2048,
+   "programmed": 256,
+   "unexplained": 1792
+  },
+  "F10_4_reduction_bias_dominates": true,
+  "F10_5_verification_is_oracle_consuming": {
+   "entries_per_forged_opening": 13
+  },
+  "F10_6_index_coverage": {
+   "delivered_max_index": 240,
+   "domain": 2048,
+   "closed_by": "HighIndexPaths (2047, 2046, 1024, 1023 and a level-10 sibling tamper)",
+   "was_a_bug": false
+  }
+ },
+ "proposed_fixes_not_applied": [
+  "record the union sizes a bound must range over, so programmed=512 is not mistaken for the union",
+  "state the bound as delta_hash + delta_reduction with counted draw totals and lead with the dominant term",
+  "add high-index openings to the delivered suite",
+  "if the commitment format is ever revised, give rows 7, 8 and 9 distinct one-byte tags; do not retrofit into frozen proofs"
+ ],
+ "real_blake3_programmable": false,
+ "production_changes": "none; scripts/zk60_endpoint_simulation.py was not edited",
+ "privacy_analysis_performed": true,
+ "full_privacy_review_complete": false,
+ "u2_closed": false,
+ "unexpected_disclosure_found": false,
+ "validation": {
+  "stages": [
+   {
+    "command": "python3 -m unittest tests.test_zk60_opus_oracle_bookkeeping",
+    "exit": 0,
+    "result": "Ran 9 tests, OK"
+   },
+   {
+    "command": "python3 -m unittest tests.test_zk60_endpoint_simulation",
+    "exit": 0,
+    "result": "Ran 8 tests, OK"
+   },
+   {
+    "command": "python3 scripts/zk60_endpoint_simulation.py --out /tmp/o9_endpoint_sim_check.json",
+    "exit": 0,
+    "result": "PASS"
+   }
+  ],
+  "line_citations_verified": true
+ }
+}

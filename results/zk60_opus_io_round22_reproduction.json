@@ -1,0 +1,106 @@
+{
+ "schema_version": 1,
+ "record": "O8 reproduction on independently generated captures",
+ "reviewer": "Opus 5, independent reviewer, 2026-09-09 session (O8 follow-up)",
+ "why": "The /tmp round-19 captures that the original O8 record was bound to were destroyed by the 2026-09-09 09:03 reboot. The FFN IO prover seeds from ZkRng::from_os (hashline/src/zk_ffn_fresh_io.rs:164) and capture files are named by receipt SHA-256, so those exact artifacts cannot be regenerated. This record re-runs the unmodified O8 analyzer against Codex's fresh round-22 captures to test whether O8's conclusions depended on those specific proofs.",
+ "analyzer": {
+  "path": "scripts/zk60_opus_io_capture.py",
+  "sha256": "ccb9043ceb1d372b0800e0cae8e904d3978185b7e466d8003000306fbdade2cb",
+  "unmodified_since_original_o8": true
+ },
+ "original_record": {
+  "path": "results/zk60_opus_io_capture_analysis.json",
+  "sha256": "8e339276e0f45cdee96d5045b577180ccfa17fb987ff30d05636a43fde71fbba",
+  "captures": "/tmp/zk60-round19/captures (destroyed, unreproducible)"
+ },
+ "reproduction_input": {
+  "captures_dir": "results/zk60_round22_captures",
+  "manifest": "results/zk60_round22_captures.json",
+  "manifest_sha256": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d",
+  "origin": "fresh round-22 run, not the missing round-19 artifacts",
+  "capture_sha256": {
+   "038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd.json": "6be46cb9e8b6b5b2fbbd744944d51f647210e59aaf3c074733667b177cea74fe",
+   "c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e.json": "b7d85970f18a001402ab76dcc4854c9b422235e9740b6ccbed96e4888862306e",
+   "e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314.json": "28130c25d27ae5246106198411e9d28c8b25e06952b4b400701514d56efe152b",
+   "efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb.json": "5bcc22c0514c59cf9dfcc7cbd851c4bb87d3d0215daa04f8c150026810743bc7"
+  }
+ },
+ "result": {
+  "exit_code": 0,
+  "identical_fields": [
+   "summary",
+   "verdict",
+   "privacy_analysis_performed",
+   "full_privacy_review_complete",
+   "u2_closed",
+   "included_observation_classes",
+   "excluded_observation_classes",
+   "model_provenance",
+   "profile",
+   "coverage",
+   "schema",
+   "source_commit"
+  ],
+  "differing_fields": [
+   "manifest",
+   "captures_directory",
+   "preflight",
+   "captures",
+   "cases",
+   "cross_capture",
+   "controls"
+  ],
+  "verdict_identical": true,
+  "summary_identical": true,
+  "verdict": {
+   "per_commitment_disclosed_total": {
+    "A": [
+     0
+    ],
+    "H": [
+     2
+    ],
+    "Input": [
+     0
+    ],
+    "Output": [
+     0
+    ],
+    "W": [
+     0
+    ]
+   },
+   "joint_disclosed_total": {
+    "all_private_commitments_aliased": [
+     2
+    ],
+    "io_cluster_aliased": [
+     0
+    ],
+    "io_cluster_unaliased_control": [
+     0
+    ]
+   },
+   "controls_all_pass": true,
+   "note": "disclosed dimensions of base-field data unknowns that survive mask elimination, in the linear model with the stated exclusions; H's residual is its public LogUp identity. No privacy theorem, no U-2 closure."
+  },
+  "disclosure_bearing_leaves_compared": 798,
+  "disclosure_bearing_mismatches": 0,
+  "differing_leaf_paths_in_cases": 133,
+  "differing_leaf_categories": [
+   "proof/receipt/policy digests and file names",
+   "commitment roots (W/A/H/Input/Output)",
+   "transcript before_state / after_state",
+   "distinct_sampled_columns (PCS column indices, randomness-dependent)",
+   "ms (wall-clock timings)",
+   "byte counts of the differing receipts"
+  ]
+ },
+ "interpretation": "The joint disclosure verdict and the per-role summary are identical on two disjoint sets of proofs generated with independent OS randomness. Comparing the four cases leaf by leaf, all 798 disclosure-, rank- and control-bearing values agree exactly; the 133 leaves that differ are proof/receipt/policy digests, commitment roots, transcript states, sampled PCS column indices, timings and receipt byte counts, all of which are expected to differ between independent runs. The P1/P3 case ordering also differs. O8's conclusion is therefore not an artifact of the lost round-19 captures.",
+ "limits": "This is a reproduction of the same linear model with the same stated exclusions (pads, sampled columns, CFS messages, adaptive composition). It does not widen O8's scope, does not establish full zero knowledge and does not close U-2. full_privacy_review_complete and u2_closed remain false.",
+ "reproduction_output": {
+  "path": "results/zk60_opus_io_capture_analysis_round22.json",
+  "sha256": "f7a6f0d8cce8d078ab67c6976c6a4e38bb00befd513365e99bf058abdca3a11f"
+ },
+ "command": "python3 scripts/zk60_opus_io_capture.py analyze --captures-dir results/zk60_round22_captures --manifest results/zk60_round22_captures.json --out results/zk60_opus_io_capture_analysis_round22.json"
+}
