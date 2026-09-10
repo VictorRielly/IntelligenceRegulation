@@ -6,6 +6,13 @@ activations; weights may be public. Full version P3 also hides weights.
 Prioritize the P1 private-IO path. Public IO cannot substitute for its privacy
 obligations; weight-specific P3 work remains required for the full version.
 
+**2026-09-09, round 25 dispatch:** Opus O9–O11 are integrated at `b3a2535`.
+Their 28 baseline/delivery hashes check out; all 20 new controls pass. Read
+the [Codex disposition](ZK60_ROUND25_OPUS_REVIEW.md) before adopting the
+reviews' numeric/game conclusions. [O12–O14](ZK60_OPUS_QUEUE.md) are ready:
+conditional-fibre audit, adaptive schedule inventory and refusal experiment.
+Codex continues public endpoint field-view generation. Full privacy remains open.
+
 **2026-09-09, round 24:** [conditional endpoint sampler and new Opus jobs](ZK60_ROUND24.md).
 Three Opus reviews O9–O11 are published and ready; O8 is integrated. Codex's
 new component samples endpoint masks/pads for chosen shared dummy data while
@@ -338,7 +345,12 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
-**Current Opus dispatch, 2026-09-09:** O1–O8 are integrated. Three new
+**Current Opus dispatch, 2026-09-09:** O1–O11 are integrated.
+[O12–O14](ZK60_OPUS_QUEUE.md) are ready at `b3a2535`; see the
+[review disposition](ZK60_ROUND25_OPUS_REVIEW.md). Codex owns the next public
+field-view generator. The older dispatch and delivery records below are historical.
+
+**Round-24 dispatch record:** O1–O8 were integrated. Three new
 [reviews O9–O11](ZK60_OPUS_QUEUE.md) are ready at `c5eb201`: endpoint
 security experiment, one-oracle bookkeeping, and repeated joint-model audit.
 Codex continues the conditional field-view sampler. This is a queue, not a

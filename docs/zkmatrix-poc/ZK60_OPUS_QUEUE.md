@@ -14,10 +14,88 @@ scope; full privacy acceptance remains open. Read [round 17](ZK60_ROUND17.md)
 first. The original dispatch below remains the definition of the completed
 items. Do not rerun or rewrite those reports as new work.
 
-## Current dispatch — O9, O10, O11 (2026-09-09)
+## Current dispatch — O12, O13, O14 (2026-09-09)
 
-O1–O8 are delivered and integrated. **Three new reviews are ready for Claude
-Opus to pick up**, in the order below. Queued does not mean an agent has started.
+O9–O11 are delivered in `9a83d85`, `4e7ae9d`, `b8fbf4b` and integrated at
+`b3a253592b9269d7b65359d33efcd1e40d5217ed`. Read the
+[Codex disposition](ZK60_ROUND25_OPUS_REVIEW.md) before starting: O10's bias
+“floor,” O11's general H-counterfactual conclusion and O9's cross-version
+citation correction are not accepted as written. Preserve the original reports.
+
+**Three new jobs are ready for Claude Opus 5.** Work in your review worktree,
+update from the published integration branch without losing local work, and
+deliver one commit per job. Review baseline is `b3a2535`, which includes the
+round-24 sampler and all three reviews. Producer Rust remains `1f0ff36`.
+Read CLAUDE.md, the requirements above, rounds 23–24 and the disposition.
+The common evidence/delivery contract below still applies: source/input/tool
+digests, exact commands/exits, fresh round-22 triplets, no invented captures,
+no edits to archived reports/tools, shared queues or production Rust.
+
+### O12 — conditional endpoint fibre audit (priority 0, ready)
+
+Review `scripts/zk60_endpoint_fibre.py`, its tests, result and round-24 argument.
+Independently check the 4-by-5 mask and 4-by-7 pad systems, the terminal's
+single-claim implication, polynomial-fibre bijection, equal completion counts,
+duplicate positions and the precise conditioning assumptions. Use independent
+small-geometry equations and the actual eight endpoint owners. Test deficient
+rank and adversarial correlated columns, not only fresh random examples.
+Check that private witness data is never loaded, that samples preserve chosen
+shared endpoint data, and that A/CFS and adaptive public-view generation remain
+outside the claim. Do not mistake existence of conditional preimages for
+simulation of a transcript distribution.
+
+Own only `docs/zkmatrix-poc/ZK60_OPUS_ENDPOINT_FIBRE_REVIEW.md`,
+`results/zk60_opus_endpoint_fibre_review.json`, and optional
+`tests/test_zk60_opus_endpoint_fibre.py`. Acceptance: derivation or concrete
+counterexample for each bijection/rank premise, all eight capture cases and
+explicit RNG idealization. No changes to Codex's sampler. Codex is building
+the subsequent public endpoint field-view generator separately.
+
+### O13 — adaptive transcript dependency inventory (priority 0, ready)
+
+Inventory the actual `/2` proof and verifier schedule from endpoint policy
+absorption through M/W/A/H/Input/Output openings, including all eight CFS slots.
+For every emitted root, claimed sum, round message, terminal, group vector,
+proximity vector and sampled column index, list: when it becomes public, what
+earlier public values/challenges determine it, what hidden variables it still
+depends on, and what a simulator must already have fixed. Include squeeze
+counter/state transitions, rejection guards and role-local opening challenges.
+Cross-check the schedule against all four captures and existing replay code.
+Explicitly identify circular dependencies in attempts to compose the existing
+fixed-challenge pieces; do not solve them by assuming later challenges early.
+
+Own only `docs/zkmatrix-poc/ZK60_OPUS_ADAPTIVE_SCHEDULE.md`,
+`results/zk60_opus_adaptive_schedule.json`, and optional
+`scripts/zk60_opus_adaptive_schedule.py` plus its corresponding new test.
+Acceptance: source-line and digest-bound ordered table/graph covering every
+public observation class, with machine-checkable capture cross-checks and
+identified unresolved sampling steps. This is a schedule inventory, not a new
+cryptographic construction or an adaptive privacy theorem.
+
+### O14 — valid statements and observable refusal experiment (priority 0, ready)
+
+Resolve the missing specification in O9's Game J refusal row. Inventory each
+public entry point's admission/refusal paths in the fresh IO owner and wire/CLI
+interfaces. Classify what is determined by public policy, private witness,
+internal randomness, malformed wire input, or prior owner consumption. State
+exactly what an external observer receives and when; distinguish returned
+errors, published artifacts and internal assertions. Separate a valid-relation
+proof oracle with a relation-checking wrapper from an application that exposes
+failures on invalid private inputs. The simulator must not receive real witness
+values/randomness under the name of a wrapper or auxiliary state.
+
+Own only `docs/zkmatrix-poc/ZK60_OPUS_REFUSAL_EXPERIMENT.md`,
+`results/zk60_opus_refusal_experiment.json`, and optional independent
+`tests/test_zk60_opus_refusal_experiment.py`. Acceptance: explicit game interfaces
+and an observable-error table, source evidence for every predicate, and a
+concrete explanation of any witness-dependent event the proposed simulator
+cannot reproduce. Do not narrow the external-root/private-IO requirements.
+Use the exact primary PDF version/definition title when citing the wrapper;
+the EURECOM version linked by Codex has wrapper/ZK/leaky-ZK Definitions 8/9/10.
+
+## O9–O11 — delivered (original dispatch below)
+
+The original O9–O11 dispatch below is historical; all three have been delivered.
 Codex continues the conditional field-view sampler and owns all protocol
 implementation and final privacy judgments. Do not duplicate that implementation.
 

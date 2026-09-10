@@ -1,24 +1,25 @@
 {
   "schema_version": 1,
   "created_local_date": "2026-09-07",
-  "round": 24,
-  "integrator_base": "c5eb2019353fdf56f1a115edb0c424bf86a9c195",
-  "reviewed_lane_tip": "0f51e3f",
-  "review": "ZK60_ROUND24.md",
+  "round": 25,
+  "integrator_base": "b3a253592b9269d7b65359d33efcd1e40d5217ed",
+  "reviewed_lane_tip": "b8fbf4b",
+  "review": "ZK60_ROUND25_OPUS_REVIEW.md",
   "owner": "Opus 5 owns bounded review/tooling follow-ups; Codex owns protocol implementation, integration and final cryptographic review",
-  "coordination": "O1-O8 are delivered and integrated. O9-O11 are queued for independent Opus review of the endpoint experiment, one-oracle bookkeeping and repeated fixed-coefficient view. Codex continues the conditional field-view sampler; full privacy remains open.",
+  "coordination": "O1-O11 are delivered and integrated. O12 conditional-fibre audit, O13 adaptive schedule and O14 refusal experiment are ready. Read Codex dispositions before carrying forward review conclusions. Codex owns the public endpoint field-view generator and final protocol construction.",
   "engineering_order": [
-    "O9 endpoint security experiment review",
-    "O10 one-oracle bookkeeping audit",
-    "O11 two-proof joint-model audit",
-    "Codex joint field-view and adaptive transcript simulator",
-    "Codex private attention construction and tiny complete block",
-    "CL20 delivered helper integration (priority 3)"
+    "O12 conditional endpoint fibre audit",
+    "O13 adaptive transcript dependency inventory",
+    "O14 valid-statement/refusal experiment",
+    "Codex public field-view generation and joint adaptive composition",
+    "Codex private attention and tiny P1 block",
+    "P3 private model identity and weight privacy",
+    "CL20 helper integration (priority 3)"
   ],
   "independent_ready": [
-    "O9",
-    "O10",
-    "O11"
+    "O12",
+    "O13",
+    "O14"
   ],
   "lower_priority_design": [
     "CL20"
@@ -1348,8 +1349,8 @@
       "id": "O9",
       "priority": 0,
       "owner": "Claude Opus",
-      "status": "ready",
-      "started": false,
+      "status": "delivered_integrated",
+      "started": true,
       "title": "Review endpoint security experiments and arbitrary-root boundary",
       "depends_on": [
         "round23 completed evidence"
@@ -1360,14 +1361,18 @@
         "docs/zkmatrix-poc/ZK60_OPUS_ENDPOINT_EXPERIMENT_REVIEW.md",
         "results/zk60_opus_endpoint_experiment_review.json"
       ],
-      "limits": "Only named new report/result and optional named test. Preserve archived tools/results and shared queues. No Rust changes or full privacy acceptance."
+      "limits": "Only named new report/result and optional named test. Preserve archived tools/results and shared queues. No Rust changes or full privacy acceptance.",
+      "delivery_commit": "9a83d85",
+      "integration_commit": "b3a2535",
+      "disposition": "ZK60_ROUND25_OPUS_REVIEW.md",
+      "historical_dispatch": true
     },
     {
       "id": "O10",
       "priority": 0,
       "owner": "Claude Opus",
-      "status": "ready",
-      "started": false,
+      "status": "delivered_integrated",
+      "started": true,
       "title": "Audit one-oracle bookkeeping and hash-domain assumptions",
       "depends_on": [
         "round23 completed evidence"
@@ -1378,14 +1383,18 @@
         "docs/zkmatrix-poc/ZK60_OPUS_ORACLE_BOOKKEEPING_REVIEW.md",
         "results/zk60_opus_oracle_bookkeeping_review.json"
       ],
-      "limits": "Only named new report/result and optional named test. Preserve archived tools/results and shared queues. No Rust changes or full privacy acceptance."
+      "limits": "Only named new report/result and optional named test. Preserve archived tools/results and shared queues. No Rust changes or full privacy acceptance.",
+      "delivery_commit": "4e7ae9d",
+      "integration_commit": "b3a2535",
+      "disposition": "ZK60_ROUND25_OPUS_REVIEW.md",
+      "historical_dispatch": true
     },
     {
       "id": "O11",
       "priority": 0,
       "owner": "Claude Opus",
-      "status": "ready",
-      "started": false,
+      "status": "delivered_integrated",
+      "started": true,
       "title": "Audit repeated fixed-coefficient joint model and aliases",
       "depends_on": [
         "round23 completed evidence"
@@ -1396,7 +1405,56 @@
         "docs/zkmatrix-poc/ZK60_OPUS_REPEATED_VIEW_REVIEW.md",
         "results/zk60_opus_repeated_view_review.json"
       ],
-      "limits": "Only named new report/result and optional named test. Preserve archived tools/results and shared queues. No Rust changes or full privacy acceptance."
+      "limits": "Only named new report/result and optional named test. Preserve archived tools/results and shared queues. No Rust changes or full privacy acceptance.",
+      "delivery_commit": "b8fbf4b",
+      "integration_commit": "b3a2535",
+      "disposition": "ZK60_ROUND25_OPUS_REVIEW.md",
+      "historical_dispatch": true
+    },
+    {
+      "id": "O12",
+      "priority": 0,
+      "owner": "Claude Opus 5",
+      "status": "ready",
+      "started": false,
+      "title": "Audit conditional endpoint fibre sampling",
+      "review_base": "b3a253592b9269d7b65359d33efcd1e40d5217ed",
+      "dispatch": "ZK60_OPUS_QUEUE.md",
+      "deliverables": [
+        "docs/zkmatrix-poc/ZK60_OPUS_ENDPOINT_FIBRE_REVIEW.md",
+        "results/zk60_opus_endpoint_fibre_review.json"
+      ],
+      "limits": "Only new named report/result and optional named tool/tests. No edits to archives, shared queues or Rust. No full privacy acceptance."
+    },
+    {
+      "id": "O13",
+      "priority": 0,
+      "owner": "Claude Opus 5",
+      "status": "ready",
+      "started": false,
+      "title": "Inventory adaptive transcript dependencies",
+      "review_base": "b3a253592b9269d7b65359d33efcd1e40d5217ed",
+      "dispatch": "ZK60_OPUS_QUEUE.md",
+      "deliverables": [
+        "docs/zkmatrix-poc/ZK60_OPUS_ADAPTIVE_SCHEDULE.md",
+        "results/zk60_opus_adaptive_schedule.json"
+      ],
+      "limits": "Only new named report/result and optional named tool/tests. No edits to archives, shared queues or Rust. No full privacy acceptance."
+    },
+    {
+      "id": "O14",
+      "priority": 0,
+      "owner": "Claude Opus 5",
+      "status": "ready",
+      "started": false,
+      "title": "Specify valid-statement and observable refusal experiment",
+      "review_base": "b3a253592b9269d7b65359d33efcd1e40d5217ed",
+      "dispatch": "ZK60_OPUS_QUEUE.md",
+      "deliverables": [
+        "docs/zkmatrix-poc/ZK60_OPUS_REFUSAL_EXPERIMENT.md",
+        "results/zk60_opus_refusal_experiment.json"
+      ],
+      "limits": "Only new named report/result and optional named tool/tests. No edits to archives, shared queues or Rust. No full privacy acceptance."
     }
   ],
   "round24_codex_work": {
