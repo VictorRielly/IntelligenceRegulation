@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "cases": [
+    {
+      "privacy": "P1",
+      "zero_sum_steps": [
+        0,
+        2,
+        4
+      ],
+      "public_identity_increment": 0,
+      "counterfactual_H_alias_disclosure": 2,
+      "endpoint_mask_ablation": 256
+    },
+    {
+      "privacy": "P3",
+      "zero_sum_steps": [
+        0,
+        2,
+        4
+      ],
+      "public_identity_increment": 0,
+      "counterfactual_H_alias_disclosure": 2,
+      "endpoint_mask_ablation": 256
+    }
+  ],
+  "rank_engine_independent": false,
+  "general_H_omission_harmlessness_proved": false,
+  "full_privacy_review_complete": false,
+  "strict_extra_O8_reproduction_gate": true,
+  "tool_sha256": "339b22130a5e1a1780b13affb2fe6e1bde231cb7d4a87c20ebdd3321025a95bc"
+}

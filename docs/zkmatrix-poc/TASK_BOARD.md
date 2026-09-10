@@ -6,6 +6,13 @@ activations; weights may be public. Full version P3 also hides weights.
 Prioritize the P1 private-IO path. Public IO cannot substitute for its privacy
 obligations; weight-specific P3 work remains required for the full version.
 
+**2026-09-09, round 25 complete:** [generated endpoint field views](ZK60_ROUND25.md)
+now take fixed coefficients/queries without captured field-output values.
+**75 tests, eight views with alternate-data completions, 2,048 ideal-oracle
+paths, review rank recomputation and freeze-check pass.** O12–O14 are ready.
+Codex next constructs the A/H/W/CFS joint view and adaptive transcript; the
+external-root and full-private-block requirements remain open.
+
 **2026-09-09, round 25 dispatch:** Opus O9–O11 are integrated at `b3a2535`.
 Their 28 baseline/delivery hashes check out; all 20 new controls pass. Read
 the [Codex disposition](ZK60_ROUND25_OPUS_REVIEW.md) before adopting the

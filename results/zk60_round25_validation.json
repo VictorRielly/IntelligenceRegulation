@@ -1,0 +1,247 @@
+{
+  "schema": 1,
+  "reviewed_head": "2680fdf2a833d09c1b854d6f6f9c575118d5879f",
+  "status": "passed",
+  "stages": [
+    {
+      "name": "affected_python",
+      "command": [
+        "python3",
+        "/home/victor/IntelligenceRegulation/results/zk60_round25_evidence/check_tests.py"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 6.03659422200144,
+      "log_sha256": "e42282ec5593406707ce3828969844e49d1e0a81b17dc14667e5cbc22cf6abd7"
+    },
+    {
+      "name": "endpoint_views",
+      "command": [
+        "flock",
+        "/tmp/zk-heavy.lock",
+        "python3",
+        "scripts/zk60_endpoint_view.py",
+        "--captures",
+        "results/zk60_round22_captures",
+        "--manifest",
+        "results/zk60_round22_captures.json",
+        "--out",
+        "results/zk60_round25_endpoint_views.json"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 7.351855995999358,
+      "log_sha256": "67e7ec5315f7290d2f4e604559a62e658a549133e2b0708245dddc538aa81b32"
+    },
+    {
+      "name": "review_recomputation",
+      "command": [
+        "flock",
+        "/tmp/zk-heavy.lock",
+        "python3",
+        "/home/victor/IntelligenceRegulation/results/zk60_round25_evidence/recompute_reviews.py"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {},
+      "elapsed_s": 14.864215715002501,
+      "log_sha256": "e7cba880a1d8f66c73c7072c170f5ec6f73c5ebcb936ed5d8d725721d6254f72"
+    },
+    {
+      "name": "native_freeze",
+      "command": [
+        "/home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/ring_matmul",
+        "freeze-check"
+      ],
+      "exit_code": 0,
+      "environment_overrides": {
+        "M125_EXPORT_DIR": "/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl"
+      },
+      "elapsed_s": 2.4887239380041137,
+      "log_sha256": "ca64e2c697c0a0f1c402ebe9312e4a3f2033f42e08c12112e50505520fa40cac"
+    }
+  ],
+  "rlimit_as": 8589934592,
+  "runtime_protocol_changed": false,
+  "full_privacy_review_complete": false,
+  "previous_round_verified_hashes": 22,
+  "review_hash_checks": [
+    {
+      "path": "hashline/src/zk_ffn_fresh_io.rs",
+      "reference": "c5eb201",
+      "sha256": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c"
+    },
+    {
+      "path": "hashline/src/zk_ffn_fresh_io_tests.rs",
+      "reference": "c5eb201",
+      "sha256": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9"
+    },
+    {
+      "path": "hashline/src/private_seam.rs",
+      "reference": "c5eb201",
+      "sha256": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5"
+    },
+    {
+      "path": "zkp-core/src/pcs.rs",
+      "reference": "c5eb201",
+      "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
+    },
+    {
+      "path": "zkp-core/src/merkle.rs",
+      "reference": "c5eb201",
+      "sha256": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62"
+    },
+    {
+      "path": "scripts/zk60_endpoint_simulation.py",
+      "reference": "c5eb201",
+      "sha256": "c5549eefeafd4a4e3ed8bbfe70f3c2924ed6f1ed179ebf73edb9206bfbd0e9aa"
+    },
+    {
+      "path": "docs/zkmatrix-poc/ZK60_ENDPOINT_SIMULATION_MODEL.md",
+      "reference": "c5eb201",
+      "sha256": "023ab4e303971d27f5204545ce4a9840bf52e69a30809444e659827b5e23c832"
+    },
+    {
+      "path": "docs/zkmatrix-poc/ZK60_FABLE_TRANSCRIPT_REVIEW.md",
+      "reference": "c5eb201",
+      "sha256": "c843571c87e46aeba186b5974549df94be97c4ad387a9a0f7d32fda4a08b7066"
+    },
+    {
+      "path": "results/zk60_round22_captures.json",
+      "reference": "c5eb201",
+      "sha256": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d"
+    },
+    {
+      "path": "zkp-core/src/pcs.rs",
+      "reference": "c5eb201",
+      "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
+    },
+    {
+      "path": "zkp-core/src/merkle.rs",
+      "reference": "c5eb201",
+      "sha256": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62"
+    },
+    {
+      "path": "zkp-core/src/transcript.rs",
+      "reference": "c5eb201",
+      "sha256": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8"
+    },
+    {
+      "path": "zkp-core/src/rng.rs",
+      "reference": "c5eb201",
+      "sha256": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb"
+    },
+    {
+      "path": "hashline/src/private_seam.rs",
+      "reference": "c5eb201",
+      "sha256": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5"
+    },
+    {
+      "path": "scripts/zk60_endpoint_simulation.py",
+      "reference": "c5eb201",
+      "sha256": "c5549eefeafd4a4e3ed8bbfe70f3c2924ed6f1ed179ebf73edb9206bfbd0e9aa"
+    },
+    {
+      "path": "tests/test_zk60_endpoint_simulation.py",
+      "reference": "c5eb201",
+      "sha256": "d8b52e1dbb035c1488a4ab9ef3d2728d595d5e687332489ecf9e000d32e6d7b0"
+    },
+    {
+      "path": "tests/test_zk60_opus_oracle_bookkeeping.py",
+      "reference": "b8fbf4b",
+      "sha256": "f234c8b5ec1cb6016cb26845494e63f3b0a901244e35f15c841a379e1d806e22"
+    },
+    {
+      "path": "docs/zkmatrix-poc/ZK60_ENDPOINT_SIMULATION_MODEL.md",
+      "reference": "c5eb201",
+      "sha256": "023ab4e303971d27f5204545ce4a9840bf52e69a30809444e659827b5e23c832"
+    },
+    {
+      "path": "docs/zkmatrix-poc/ZK60_FABLE_TRANSCRIPT_REVIEW.md",
+      "reference": "c5eb201",
+      "sha256": "c843571c87e46aeba186b5974549df94be97c4ad387a9a0f7d32fda4a08b7066"
+    },
+    {
+      "path": "scripts/zk60_io_repeated_view.py",
+      "reference": "c5eb201",
+      "sha256": "4de64c0d5f1948715556ab01e36c922a0821b7c689c639d47529646d22a90c8c"
+    },
+    {
+      "path": "scripts/zk60_opus_io_capture.py",
+      "reference": "c5eb201",
+      "sha256": "ccb9043ceb1d372b0800e0cae8e904d3978185b7e466d8003000306fbdade2cb"
+    },
+    {
+      "path": "scripts/zk60_io_review_gate.py",
+      "reference": "c5eb201",
+      "sha256": "3f8ee26804b9d04549d30cca76f4615a0f53a76f8d73045c3e2e0b6dba34baf9"
+    },
+    {
+      "path": "results/zk60_round23_repeated_view.json",
+      "reference": "c5eb201",
+      "sha256": "f6e01e4d3c73b01a22e5294d5305c7eeb7f7ab972e13cd04df8015e55628e33f"
+    },
+    {
+      "path": "results/zk60_round22_captures.json",
+      "reference": "c5eb201",
+      "sha256": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d"
+    },
+    {
+      "path": "results/zk60_round22_o8_analysis.json",
+      "reference": "c5eb201",
+      "sha256": "deaf38f545d6e1e4b25be137e47c3ece19997ff5646871edbc5f3e0f9d5048d3"
+    },
+    {
+      "path": "results/zk60_round22_validation.json",
+      "reference": "c5eb201",
+      "sha256": "50a58bfb3d48909d771418bdecad9e215c03019b892b4a48398b72a44cddda7b"
+    },
+    {
+      "path": "hashline/src/zk_ffn_fresh_io_tests.rs",
+      "reference": "c5eb201",
+      "sha256": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9"
+    },
+    {
+      "path": "tests/test_zk60_opus_repeated_view.py",
+      "reference": "b8fbf4b",
+      "sha256": "15fee1eda5453d4dd13d01a0d811d1dd8c1829094fb1c85691dfa7731bbd4229"
+    }
+  ],
+  "source_sha256": {
+    "hashline/src/zk.rs": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310",
+    "hashline/src/zk_ffn_fresh_io.rs": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+    "hashline/src/zk_ffn_fresh_io_tests.rs": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9",
+    "hashline/src/zk_ffn_mask_diagnostic.rs": "462346828c427b5f6d07ed502edc4d88ba57e1197e6e27836b73316704e8dd64",
+    "hashline/src/zk_ffn_observation_json.rs": "e7a62281896efc4f1f12c403c6959ab7e2476beee07960f3752816fdc711a1e6",
+    "hashline/src/zk_ffn_io_diagnostic.rs": "c866dcce37789106eb18f4aac5093bb3bc14cadb78ca67a1d0fb6ebe092122a5",
+    "hashline/src/private_seam.rs": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+    "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "zkp-core/src/transcript.rs": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+    "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+    "zkp-core/src/merkle.rs": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62",
+    "zkp-core/src/rng.rs": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+    "zkp-core/src/field.rs": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  },
+  "tools": {
+    "scripts/zk60_endpoint_view.py": "405fbc49235749d92c5950e20dce2312c11b7a7a39e905bc63f8b0c40d3b2369",
+    "tests/test_zk60_endpoint_view.py": "fa386592fc1ffba0d6349c8d64cbb7727f9d25d0e0b1eea1c32d5c64d558f3a3",
+    "results/zk60_round25_evidence/validate.py": "a8a2b8e544f504e06f3943beeaf9bfacaf62656f7dabba9655297b340380faa6",
+    "results/zk60_round25_evidence/check_tests.py": "08e84fdd4e2cffc7c0d74df3f195b331f75ad8b7892c3004c56bcc0637e409c7",
+    "results/zk60_round25_evidence/recompute_reviews.py": "339b22130a5e1a1780b13affb2fe6e1bde231cb7d4a87c20ebdd3321025a95bc"
+  },
+  "results": {
+    "results/zk60_round25_endpoint_views.json": "b17edc72d0845c43e77717c9ba4d9c860a32a952884389cf885e15215ef6ab9c",
+    "results/zk60_round25_review_recomputation.json": "49e66a46a3a3aa285b546146cd37875105c2c5c29592a7637d3cb5cf8531f1e6",
+    "results/zk60_opus_endpoint_experiment_review.json": "0d253d97b186af54f98acd9710312f7e2a78e1d592effd44da0a1357a443e83c",
+    "results/zk60_opus_oracle_bookkeeping_review.json": "e8eb2646572842d1c0331adca3c5ae90da2f1a361d1817edc841b1beef1497c2",
+    "results/zk60_opus_repeated_view_review.json": "c6a1e6631a0ee0e875ff7064e1aa779fc21587b6e6fe0b4c89dc2d0444332475",
+    "results/zk60_opus_io_capture_analysis_round22.json": "f7a6f0d8cce8d078ab67c6976c6a4e38bb00befd513365e99bf058abdca3a11f"
+  },
+  "python_tests": 75,
+  "python_skips": 0,
+  "endpoint_owners": 8,
+  "generated_field_views": 8,
+  "alternate_data_completions": 8,
+  "ideal_oracle_paths": 2048,
+  "full_rust_suite_rerun": false,
+  "full_python_suite_rerun": false
+}

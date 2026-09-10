@@ -31,6 +31,12 @@ The common evidence/delivery contract below still applies: source/input/tool
 digests, exact commands/exits, fresh round-22 triplets, no invented captures,
 no edits to archived reports/tools, shared queues or production Rust.
 
+**Codex round-25 delivery:** [standalone public endpoint generation](ZK60_ROUND25.md)
+now complements the conditional sampler, with eight new field views, exact
+reduction-distance arithmetic and retained review-rank recomputation. Its
+coefficients/positions are fixed, and A/H/W/CFS/adaptive composition remains
+open. O12–O14 keep the baseline and scope below; this is progress context.
+
 ### O12 — conditional endpoint fibre audit (priority 0, ready)
 
 Review `scripts/zk60_endpoint_fibre.py`, its tests, result and round-24 argument.

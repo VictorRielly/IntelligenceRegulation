@@ -34,6 +34,11 @@ eight captured endpoint owners: 47 Python tests, 16 samples, 2,048 ideal-oracle
 paths and native freeze-check pass. The public field view is still supplied
 to that component; full joint/adaptive simulation remains open. Three new
 Opus reviews (O9–O11) are published and ready for pickup.
+[Round 25](ZK60_ROUND25.md) integrates those reviews with explicit corrections
+and publishes O12–O14. It generates standalone endpoint field observations at
+fixed coefficients/queries: 75 tests, eight new views, alternate-data preimages
+and freeze-check pass. Full joint/adaptive simulation and external roots remain
+open; the public generator does not yet cover A/H/W/CFS together.
 It still lacks the complete private block,
 registered private model binding and final privacy review. The historical
 hash-line privacy claims below must be read with that correction. Pending

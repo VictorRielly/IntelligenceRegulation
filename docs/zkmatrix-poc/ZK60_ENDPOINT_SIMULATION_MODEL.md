@@ -11,6 +11,12 @@ view, and connects its encoded columns to the ideal-oracle candidate below.
 It does not generate the public field view or sample A/H/W/CFS jointly. The
 remaining full-sampler and external-root obligations in this memo stay open.
 
+**Round-25 progress:** [standalone endpoint field-view generation](ZK60_ROUND25.md)
+now samples those public observations from fixed coefficients and positions.
+It does not generate their adaptive challenge schedule or compose A/H/W/CFS.
+The [review disposition](ZK60_ROUND25_OPUS_REVIEW.md) records corrected bias
+arithmetic, reference-version numbering and the still-open refusal experiment.
+
 ## The interface that must be preserved
 
 `ExpectedIo` contains public context, two scales and two endpoint roots. Its

@@ -4,7 +4,7 @@
   "round": 25,
   "integrator_base": "b3a253592b9269d7b65359d33efcd1e40d5217ed",
   "reviewed_lane_tip": "b8fbf4b",
-  "review": "ZK60_ROUND25_OPUS_REVIEW.md",
+  "review": "ZK60_ROUND25.md",
   "owner": "Opus 5 owns bounded review/tooling follow-ups; Codex owns protocol implementation, integration and final cryptographic review",
   "coordination": "O1-O11 are delivered and integrated. O12 conditional-fibre audit, O13 adaptive schedule and O14 refusal experiment are ready. Read Codex dispositions before carrying forward review conclusions. Codex owns the public endpoint field-view generator and final protocol construction.",
   "engineering_order": [
@@ -1486,6 +1486,41 @@
       "endpoint_owners": 8,
       "conditional_samples": 16,
       "ideal_oracle_paths": 2048,
+      "native_freeze_check": true
+    }
+  },
+  "round25_codex_work": {
+    "report": "ZK60_ROUND25.md",
+    "review_disposition": "ZK60_ROUND25_OPUS_REVIEW.md",
+    "validation": "../../results/zk60_round25_validation.json",
+    "validation_status": "complete",
+    "review_integration": "b3a2535",
+    "opus_dispatch": "2680fdf",
+    "implemented": [
+      "Standalone public endpoint field-view generation at fixed coefficients and indices",
+      "Eight alternate-data preimages for the newly generated observations",
+      "Exact rational reduction-distance ledger with upper-bound interpretation",
+      "O11 rank recomputation and strict acceptance of the extra O8 reproduction"
+    ],
+    "runtime_protocol_changed": false,
+    "public_endpoint_field_view_sampled": true,
+    "full_A_H_W_CFS_joint_sampler": false,
+    "adaptive_transcript_simulated": false,
+    "external_root_simulated": false,
+    "full_privacy_review_complete": false,
+    "private_block_implemented": false,
+    "next_opus_tasks": [
+      "O12",
+      "O13",
+      "O14"
+    ],
+    "validation_counts": {
+      "python_tests": 75,
+      "python_skips": 0,
+      "generated_field_views": 8,
+      "alternate_data_completions": 8,
+      "ideal_oracle_paths": 2048,
+      "capture_preflight_checks": 51,
       "native_freeze_check": true
     }
   }

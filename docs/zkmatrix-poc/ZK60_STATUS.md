@@ -5,6 +5,15 @@ activations; weights may be public. The full version (P3) also hides weights.
 Victor reaffirmed this on 2026-09-09. These are requirements, not claims of
 current acceptance. [Canonical privacy requirements](ZK60_PRIVACY_REQUIREMENTS.md).
 
+**2026-09-09, round 25:** [generated endpoint views and review integration](ZK60_ROUND25.md).
+O9–O11 are integrated with [qualified conclusions](ZK60_ROUND25_OPUS_REVIEW.md);
+O12–O14 are published and ready. The new generator takes fixed coefficients
+and positions and generates complete standalone endpoint field observations.
+**75 tests, eight generated views and alternate-data completions, 2,048 ideal
+paths, recomputed review ranks and freeze-check pass.** Exact reduction-bias
+arithmetic corrects O10's claimed floor. Joint A/H/W/CFS sampling, adaptive
+simulation, arbitrary external roots and full privacy remain open.
+
 **2026-09-09, round 24:** [conditional endpoint sampling and Opus jobs](ZK60_ROUND24.md).
 O9–O11 are ready: endpoint experiment, oracle bookkeeping and repeated-view
 reviews. O8's machine-readable status is corrected to delivered/integrated.
