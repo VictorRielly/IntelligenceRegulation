@@ -1,0 +1,779 @@
+{
+ "schema": 1,
+ "task": "O13 -- adaptive transcript dependency inventory",
+ "reviewer": "Claude Opus 5, independent reviewer, 2026-09-09 session (O13)",
+ "review_baseline": "b3a253592b9269d7b65359d33efcd1e40d5217ed",
+ "profile": "ffn-v3-mr1-fresh-io-poc/2",
+ "source_commit": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4",
+ "is_a_schedule_inventory_not_a_construction": true,
+ "adaptive_privacy_theorem_proved": false,
+ "challenge_values_recomputed": false,
+ "challenge_values_note": "recomputing challenges needs BLAKE3, unavailable here and unprogrammable in production; only structural facts are checked",
+ "schedule": [
+  {
+   "site": "zk_ffn_fresh_io.rs:139",
+   "event": "Transcript::new(PROFILE)",
+   "kind": "init"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:140",
+   "event": "absorb \"expected-IO\" (112-byte policy: magic, context, two scales, input root, output root)",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:141",
+   "event": "absorb \"parameters\" (fixed geometry string)",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3501",
+   "event": "absorb_statement_v3(st)",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3507",
+   "event": "absorb \"zk\" mode header",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3518",
+   "event": "absorb_com \"W\"",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3519",
+   "event": "absorb_com \"A\"",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3521",
+   "event": "absorb \"M\" (the single CFS mask root, all eight slots)",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3522",
+   "event": "challenge beta",
+   "kind": "squeeze"
+  },
+  {
+   "site": "zk.rs:3523",
+   "event": "challenge gamma",
+   "kind": "squeeze"
+  },
+  {
+   "site": "zk.rs:3524",
+   "event": "challenge alpha",
+   "kind": "squeeze"
+  },
+  {
+   "site": "zk.rs:3525",
+   "event": "absorb_com \"H\" (AFTER beta/gamma/alpha)",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3536-3542",
+   "event": "gu challenges r_i, r_j, lam_gu, lam_f, c_gu",
+   "kind": "squeeze"
+  },
+  {
+   "site": "zk.rs:3543",
+   "event": "absorb \"gu-claim\"",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3544-3568",
+   "event": "gu masked sumcheck rounds (6)",
+   "kind": "rounds"
+  },
+  {
+   "site": "zk.rs:3569",
+   "event": "absorb \"gu-term\"",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3576-3581",
+   "event": "d challenges r_ip, r_jp, lam_d, c_d",
+   "kind": "squeeze"
+  },
+  {
+   "site": "zk.rs:3582",
+   "event": "absorb \"d-claim\"",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3583-3597",
+   "event": "d masked sumcheck rounds (6)",
+   "kind": "rounds"
+  },
+  {
+   "site": "zk.rs:3598",
+   "event": "absorb \"d-term\"",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3605-3608",
+   "event": "zc20 challenges tau, mu, nu0, c_f",
+   "kind": "squeeze"
+  },
+  {
+   "site": "zk.rs:3609",
+   "event": "absorb \"gammaF\"",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3610-3634",
+   "event": "zc20 masked sumcheck rounds (10)",
+   "kind": "rounds"
+  },
+  {
+   "site": "zk.rs:3635",
+   "event": "absorb \"zcF-term\"",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3638-3641",
+   "event": "zc17 challenges tau2, mu2, nu_z, c_dz",
+   "kind": "squeeze"
+  },
+  {
+   "site": "zk.rs:3642",
+   "event": "absorb \"gammaD\"",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3643-3661",
+   "event": "zc17 masked sumcheck rounds (10)",
+   "kind": "rounds"
+  },
+  {
+   "site": "zk.rs:3662",
+   "event": "absorb \"zcD-term\"",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3665-3667",
+   "event": "tab challenges tau3, mu3, c_tab",
+   "kind": "squeeze"
+  },
+  {
+   "site": "zk.rs:3668",
+   "event": "absorb \"gamma-tab\"",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3669-3686",
+   "event": "tab masked sumcheck rounds (17)",
+   "kind": "rounds"
+  },
+  {
+   "site": "zk.rs:3687",
+   "event": "absorb \"tab-term\"",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3690",
+   "event": "zs challenge c_zs",
+   "kind": "squeeze"
+  },
+  {
+   "site": "zk.rs:3691",
+   "event": "absorb \"gamma-zs\"",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3692-3695",
+   "event": "zs masked sumcheck rounds (9)",
+   "kind": "rounds"
+  },
+  {
+   "site": "zk.rs:3696",
+   "event": "absorb \"zs-term\"",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk.rs:3739",
+   "event": "before_openings callback -> verify_arguments",
+   "kind": "callback"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:385",
+   "event": "absorb \"io-side\" 0",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:386",
+   "event": "IO side 0: challenge tau (9)",
+   "kind": "squeeze"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:387",
+   "event": "IO side 0: challenge c via draw_mask_challenge; c == 0 ABORTS (zk_ffn_fresh_poc.rs:228-231), one squeeze, no resampling",
+   "kind": "squeeze"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:388",
+   "event": "absorb \"io-gamma\" = c * mask[slot 6].total()",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:389",
+   "event": "IO side 0: sumcheck::verify(gamma, 2, 10) -- 10 rounds, 10 rho",
+   "kind": "rounds"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:392-394",
+   "event": "IO side 0: rho[9] == 0 ABORTS (zero terminal mask challenge)",
+   "kind": "guard"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:385",
+   "event": "absorb \"io-side\" 1",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:386",
+   "event": "IO side 1: challenge tau (9)",
+   "kind": "squeeze"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:387",
+   "event": "IO side 1: challenge c via draw_mask_challenge; c == 0 ABORTS",
+   "kind": "squeeze"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:388",
+   "event": "absorb \"io-gamma\" = c * mask[slot 7].total()",
+   "kind": "absorb"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:389",
+   "event": "IO side 1: sumcheck::verify(gamma, 2, 10) -- 10 rounds, 10 rho",
+   "kind": "rounds"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:392-394",
+   "event": "IO side 1: rho[9] == 0 ABORTS (zero terminal mask challenge)",
+   "kind": "guard"
+  },
+  {
+   "site": "zk.rs:3742",
+   "event": "M opening: mask_verify (theta, q, proximity rhos, 256 columns)",
+   "kind": "open"
+  },
+  {
+   "site": "zk.rs:3752-3753",
+   "event": "W opening: check_masks + pcs::verify_zk (P3 private; P1 public root)",
+   "kind": "open"
+  },
+  {
+   "site": "zk.rs:3768-3769",
+   "event": "A opening: check_masks + pcs::verify_zk",
+   "kind": "open"
+  },
+  {
+   "site": "zk.rs:3775-3776",
+   "event": "H opening: check_masks + pcs::verify_zk",
+   "kind": "open"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:459,462",
+   "event": "Input endpoint opening: check_masks(7 rows, log_cols 8, mask rows [2,3], prox 4) then pcs::verify_zk",
+   "kind": "open"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:459,462",
+   "event": "Output endpoint opening: same, second iteration",
+   "kind": "open"
+  }
+ ],
+ "observation_classes": [
+  {
+   "name": "endpoint roots (in the 112-byte policy)",
+   "public_at": "before every challenge",
+   "determined_by": [
+    "caller-supplied policy"
+   ],
+   "still_depends_on": [
+    "both endpoints' 7 rows, pads and 2048 salts"
+   ],
+   "simulator_must_have_fixed": [
+    "both endpoint commitments, before any challenge exists"
+   ]
+  },
+  {
+   "name": "W root",
+   "public_at": "absorb_com W, before beta/gamma/alpha",
+   "determined_by": [
+    "public weight policy in P1"
+   ],
+   "still_depends_on": [
+    "private W rows in P3 only"
+   ],
+   "simulator_must_have_fixed": [
+    "P3: the private W commitment; P1: nothing (public root)"
+   ]
+  },
+  {
+   "name": "A root",
+   "public_at": "absorb_com A, before beta/gamma/alpha",
+   "determined_by": [],
+   "still_depends_on": [
+    "all 702 A rows, including the X/z16 planes aliased to the endpoints"
+   ],
+   "simulator_must_have_fixed": [
+    "A, consistently with both endpoints' data rows"
+   ]
+  },
+  {
+   "name": "M root (all eight CFS slots)",
+   "public_at": "absorb M, before beta/gamma/alpha",
+   "determined_by": [],
+   "still_depends_on": [
+    "every slot's mask coefficients, including slots 6 and 7"
+   ],
+   "simulator_must_have_fixed": [
+    "all eight slots' coefficients before any challenge they will mask"
+   ]
+  },
+  {
+   "name": "beta, gamma, alpha",
+   "public_at": "squeezed after M",
+   "determined_by": [
+    "the transcript state after statement, W, A, M"
+   ],
+   "still_depends_on": [],
+   "simulator_must_have_fixed": []
+  },
+  {
+   "name": "H root",
+   "public_at": "absorb_com H, AFTER beta/gamma/alpha",
+   "determined_by": [],
+   "still_depends_on": [
+    "1326 LogUp helper rows, which are functions of beta/gamma/alpha and the witness"
+   ],
+   "simulator_must_have_fixed": [
+    "H after learning beta/gamma/alpha -- the one commitment that may depend on them"
+   ]
+  },
+  {
+   "name": "per-argument claims and gammas (gu_claim, d_claim, gamma20, gamma17, gamma_tab, gamma_zs)",
+   "public_at": "absorbed before each argument's rounds",
+   "determined_by": [
+    "the argument's batching challenges",
+    "the committed slot total for masked gammas"
+   ],
+   "still_depends_on": [
+    "the witness sums being proved"
+   ],
+   "simulator_must_have_fixed": [
+    "the slot totals, at M commitment time"
+   ]
+  },
+  {
+   "name": "masked sumcheck round messages",
+   "public_at": "one per round, each followed by its challenge",
+   "determined_by": [
+    "the fibre through (claim, fin) for the committed slot"
+   ],
+   "still_depends_on": [
+    "the slot's mask coefficients and the witness tables"
+   ],
+   "simulator_must_have_fixed": [
+    "the slot coefficients; the round values are then constrained, not free"
+   ]
+  },
+  {
+   "name": "argument terminals",
+   "public_at": "absorbed after each argument's rounds",
+   "determined_by": [
+    "the final sumcheck evaluation and the mask evaluation at rho"
+   ],
+   "still_depends_on": [
+    "witness values at the final challenge point"
+   ],
+   "simulator_must_have_fixed": []
+  },
+  {
+   "name": "group vectors (message and pad coordinates)",
+   "public_at": "each role's opening",
+   "determined_by": [
+    "the role's opening challenges"
+   ],
+   "still_depends_on": [
+    "every row in the group, masks and pads included"
+   ],
+   "simulator_must_have_fixed": [
+    "the committed rows"
+   ]
+  },
+  {
+   "name": "proximity vectors",
+   "public_at": "each role's opening",
+   "determined_by": [
+    "one proximity challenge per row"
+   ],
+   "still_depends_on": [
+    "every row of the commitment"
+   ],
+   "simulator_must_have_fixed": [
+    "the committed rows"
+   ]
+  },
+  {
+   "name": "sampled column indices",
+   "public_at": "derived inside each role's opening",
+   "determined_by": [
+    "the transcript state at that opening site"
+   ],
+   "still_depends_on": [],
+   "simulator_must_have_fixed": [
+    "the commitment, whose root was absorbed long before these indices exist"
+   ]
+  },
+  {
+   "name": "sampled column values, salts and authentication paths",
+   "public_at": "each role's opening",
+   "determined_by": [
+    "the indices and the committed encoding"
+   ],
+   "still_depends_on": [
+    "the encoded rows and the per-column salts"
+   ],
+   "simulator_must_have_fixed": [
+    "either the real encoding, or a programmable hash (round 23's device)"
+   ]
+  }
+ ],
+ "rejection_guards": [
+  {
+   "site": "zk_ffn_fresh_poc.rs:228-231",
+   "guard": "draw_mask_challenge: c == 0 aborts the attempt",
+   "resamples": false,
+   "squeezes_consumed": 1,
+   "depends_on_witness": false,
+   "simulator_can_reproduce": true,
+   "note": "an abort on a challenge-only event; no variable-length rejection loop, so the squeeze counter advances deterministically"
+  },
+  {
+   "site": "zk_ffn_fresh_io.rs:392-394",
+   "guard": "rho[9] == 0 aborts (zero terminal mask challenge)",
+   "resamples": false,
+   "squeezes_consumed": 0,
+   "depends_on_witness": false,
+   "simulator_can_reproduce": true,
+   "note": "also challenge-only; both guards are public predicates and leak nothing"
+  }
+ ],
+ "circular_dependencies": [
+  {
+   "id": "C1",
+   "name": "commit-then-mask",
+   "cycle": "M root absorbed (zk.rs:3521) -> beta/gamma/alpha and every later challenge -> the masked round messages those challenges constrain -> the slot coefficients that had to be inside M",
+   "why_it_matters": "the mask coefficients are fixed before the challenges they must satisfy are known",
+   "known_break": "FA8 programs the round challenges at squeeze points; that is a random-oracle programming argument, not a plain reduction",
+   "resolved": false
+  },
+  {
+   "id": "C2",
+   "name": "commit-then-open",
+   "cycle": "endpoint masks and pads -> encoded rows -> Merkle root -> absorbed in the 112-byte policy before everything -> transcript -> opening challenges -> which columns must be explained -> the masks and pads",
+   "why_it_matters": "round 24 samples masks and pads AFTER fixing which columns are opened; in the real schedule the root that binds them is absorbed first",
+   "known_break": "round 23's deferred Merkle preparation issues a root first and programs salted leaves later; real BLAKE3 cannot be programmed",
+   "resolved": false
+  },
+  {
+   "id": "C3",
+   "name": "shared-plane consistency",
+   "cycle": "A rows 14..17 alias Input rows 0..1 and Output rows 0..1 -> both roots are absorbed before any challenge -> a simulator must fix one shared X/z16 plane that simultaneously satisfies A's 20 claims over 7 groups and both endpoints' single claims",
+   "why_it_matters": "round 24 samples one endpoint in isolation and neither resamples nor consults A",
+   "known_break": "none; the joint field-view sampler is the open Codex task",
+   "resolved": false
+  },
+  {
+   "id": "C4",
+   "name": "slot-total to gamma",
+   "cycle": "io gamma = c * mask[slot].total() (zk_ffn_fresh_io.rs:296) -> c is squeezed immediately before -> the total was fixed at M commitment time",
+   "why_it_matters": "the simulator picks totals blind, and gamma is then forced by a challenge it does not control",
+   "known_break": "round 21 checks the conditional fibre at fixed challenges only",
+   "resolved": false
+  }
+ ],
+ "unresolved_sampling_steps": [
+  "C1: commit-then-mask",
+  "C2: commit-then-open",
+  "C3: shared-plane consistency",
+  "C4: slot-total to gamma"
+ ],
+ "capture_cross_checks": [
+  {
+   "capture": "038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd.json",
+   "privacy": "P3",
+   "proof_sha256": "038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd",
+   "segment_order": [
+    "M",
+    "W",
+    "A",
+    "H",
+    "Input",
+    "Output"
+   ],
+   "declared_opening_order": [
+    "M",
+    "W",
+    "A",
+    "H",
+    "Input",
+    "Output"
+   ],
+   "transcript_contiguous": true,
+   "theta_is_the_peeked_next_challenge": true,
+   "eight_reserved_slots": true,
+   "every_argument_matches_one_slot": true,
+   "argument_to_slot": {
+    "gu": 0,
+    "d": 1,
+    "zc20": 2,
+    "zc17": 3,
+    "tab": 5,
+    "zs": 4,
+    "io0": 6,
+    "io1": 7
+   },
+   "emission_order": [
+    "gu",
+    "d",
+    "zc20",
+    "zc17",
+    "tab",
+    "zs",
+    "io0",
+    "io1"
+   ],
+   "emission_order_slot_indices": [
+    0,
+    1,
+    2,
+    3,
+    5,
+    4,
+    6,
+    7
+   ],
+   "io_slots_are_6_and_7": true,
+   "io_geometry_9_tau_10_rho_10_rounds": true,
+   "mask_proximity_rhos_is_2s_plus_2": true,
+   "role_vectors_are_n_plus_qpad": true,
+   "role_proximity_rhos_is_one_per_row": true
+  },
+  {
+   "capture": "c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e.json",
+   "privacy": "P1",
+   "proof_sha256": "c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e",
+   "segment_order": [
+    "M",
+    "public_W",
+    "A",
+    "H",
+    "Input",
+    "Output"
+   ],
+   "declared_opening_order": [
+    "M",
+    "W",
+    "A",
+    "H",
+    "Input",
+    "Output"
+   ],
+   "transcript_contiguous": true,
+   "theta_is_the_peeked_next_challenge": true,
+   "eight_reserved_slots": true,
+   "every_argument_matches_one_slot": true,
+   "argument_to_slot": {
+    "gu": 0,
+    "d": 1,
+    "zc20": 2,
+    "zc17": 3,
+    "tab": 5,
+    "zs": 4,
+    "io0": 6,
+    "io1": 7
+   },
+   "emission_order": [
+    "gu",
+    "d",
+    "zc20",
+    "zc17",
+    "tab",
+    "zs",
+    "io0",
+    "io1"
+   ],
+   "emission_order_slot_indices": [
+    0,
+    1,
+    2,
+    3,
+    5,
+    4,
+    6,
+    7
+   ],
+   "io_slots_are_6_and_7": true,
+   "io_geometry_9_tau_10_rho_10_rounds": true,
+   "mask_proximity_rhos_is_2s_plus_2": true,
+   "role_vectors_are_n_plus_qpad": true,
+   "role_proximity_rhos_is_one_per_row": true
+  },
+  {
+   "capture": "e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314.json",
+   "privacy": "P3",
+   "proof_sha256": "e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314",
+   "segment_order": [
+    "M",
+    "W",
+    "A",
+    "H",
+    "Input",
+    "Output"
+   ],
+   "declared_opening_order": [
+    "M",
+    "W",
+    "A",
+    "H",
+    "Input",
+    "Output"
+   ],
+   "transcript_contiguous": true,
+   "theta_is_the_peeked_next_challenge": true,
+   "eight_reserved_slots": true,
+   "every_argument_matches_one_slot": true,
+   "argument_to_slot": {
+    "gu": 0,
+    "d": 1,
+    "zc20": 2,
+    "zc17": 3,
+    "tab": 5,
+    "zs": 4,
+    "io0": 6,
+    "io1": 7
+   },
+   "emission_order": [
+    "gu",
+    "d",
+    "zc20",
+    "zc17",
+    "tab",
+    "zs",
+    "io0",
+    "io1"
+   ],
+   "emission_order_slot_indices": [
+    0,
+    1,
+    2,
+    3,
+    5,
+    4,
+    6,
+    7
+   ],
+   "io_slots_are_6_and_7": true,
+   "io_geometry_9_tau_10_rho_10_rounds": true,
+   "mask_proximity_rhos_is_2s_plus_2": true,
+   "role_vectors_are_n_plus_qpad": true,
+   "role_proximity_rhos_is_one_per_row": true
+  },
+  {
+   "capture": "efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb.json",
+   "privacy": "P1",
+   "proof_sha256": "efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb",
+   "segment_order": [
+    "M",
+    "public_W",
+    "A",
+    "H",
+    "Input",
+    "Output"
+   ],
+   "declared_opening_order": [
+    "M",
+    "W",
+    "A",
+    "H",
+    "Input",
+    "Output"
+   ],
+   "transcript_contiguous": true,
+   "theta_is_the_peeked_next_challenge": true,
+   "eight_reserved_slots": true,
+   "every_argument_matches_one_slot": true,
+   "argument_to_slot": {
+    "gu": 0,
+    "d": 1,
+    "zc20": 2,
+    "zc17": 3,
+    "tab": 5,
+    "zs": 4,
+    "io0": 6,
+    "io1": 7
+   },
+   "emission_order": [
+    "gu",
+    "d",
+    "zc20",
+    "zc17",
+    "tab",
+    "zs",
+    "io0",
+    "io1"
+   ],
+   "emission_order_slot_indices": [
+    0,
+    1,
+    2,
+    3,
+    5,
+    4,
+    6,
+    7
+   ],
+   "io_slots_are_6_and_7": true,
+   "io_geometry_9_tau_10_rho_10_rounds": true,
+   "mask_proximity_rhos_is_2s_plus_2": true,
+   "role_vectors_are_n_plus_qpad": true,
+   "role_proximity_rhos_is_one_per_row": true
+  }
+ ],
+ "all_captures_agree": {
+  "transcript_contiguous": true,
+  "theta_is_the_peeked_next_challenge": true,
+  "eight_reserved_slots": true,
+  "every_argument_matches_one_slot": true,
+  "io_slots_are_6_and_7": true,
+  "io_geometry_9_tau_10_rho_10_rounds": true,
+  "mask_proximity_rhos_is_2s_plus_2": true,
+  "role_vectors_are_n_plus_qpad": true,
+  "role_proximity_rhos_is_one_per_row": true
+ },
+ "every_structural_check_passes": true,
+ "tool_sha256": "2500ecbf3c853ddb14824239d103be91ca7dd8f9eeb1ba3edeae0b89b3361125",
+ "source_sha256": {
+  "hashline/src/zk.rs": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310",
+  "hashline/src/zk_ffn_fresh_io.rs": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+  "hashline/src/zk_ffn_fresh_poc.rs": "de86a47b067f950ff780c93e85b3dba28292603f8db581ec9c9c77bbd24f70ba",
+  "zkp-core/src/transcript.rs": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+  "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
+ },
+ "capture_sha256": {
+  "038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd.json": "6be46cb9e8b6b5b2fbbd744944d51f647210e59aaf3c074733667b177cea74fe",
+  "c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e.json": "b7d85970f18a001402ab76dcc4854c9b422235e9740b6ccbed96e4888862306e",
+  "e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314.json": "28130c25d27ae5246106198411e9d28c8b25e06952b4b400701514d56efe152b",
+  "efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb.json": "5bcc22c0514c59cf9dfcc7cbd851c4bb87d3d0215daa04f8c150026810743bc7"
+ },
+ "production_changes": "none; this task is read-only over the sources it cites",
+ "full_privacy_review_complete": false,
+ "u2_closed": false,
+ "unexpected_disclosure_found": false
+}
