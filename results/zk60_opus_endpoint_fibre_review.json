@@ -1,0 +1,251 @@
+{
+ "schema_version": 1,
+ "task": "O12 -- conditional endpoint fibre audit",
+ "reviewer": "Claude Opus 5, independent reviewer, 2026-09-09 session (O12)",
+ "review_baseline": "b3a253592b9269d7b65359d33efcd1e40d5217ed",
+ "review_worktree_commit": "b3a253592b9269d7b65359d33efcd1e40d5217ed",
+ "report": "docs/zkmatrix-poc/ZK60_OPUS_ENDPOINT_FIBRE_REVIEW.md",
+ "independence": "Rank computations use a second Gaussian elimination written for this audit (_rank in tests/test_zk60_opus_endpoint_fibre.py). Field/polynomial helpers are imported from zk60_io_opening_translation, not rewritten. Codex's sampler is unmodified.",
+ "headline": "No defect found. Every algebraic premise verified on all eight real owners and in independent small geometry. The boundary is conceptual, not algebraic: a conditional preimage is not a simulated transcript.",
+ "source_sha256": {
+  "scripts/zk60_endpoint_fibre.py": "6b1db64f55b80b55eca5431d296db7a0c40b447459e6b9968aa718449f6668eb",
+  "tests/test_zk60_endpoint_fibre.py": "ec450e06fb21322b72b46832145b16188016fa38e8ca4d06621585a6fdc232f3",
+  "results/zk60_round24_endpoint_fibre.json": "3796b63018fb9d818ac1db2a00beb20764300b243ebbcda0547e91a3adc71991",
+  "docs/zkmatrix-poc/ZK60_ROUND24.md": "00ceb743874934a669ec038f7afbc7f0da7aad319da2bf551a2acbbc84119f41",
+  "scripts/zk60_io_opening_translation.py": "3579e0ff10f5f501a5596e3ef56dc812060a8f34a883910b2bb89c8c675ae0bf",
+  "scripts/zk60_endpoint_simulation.py": "c5549eefeafd4a4e3ed8bbfe70f3c2924ed6f1ed179ebf73edb9206bfbd0e9aa",
+  "tests/test_zk60_opus_endpoint_fibre.py": "2d8682b0abcf02c14f11927545d2540b8b2e3b68e826c4ab29ab7f25ab8b1ec0"
+ },
+ "disposition_read_from_main_tree": {
+  "path": "docs/zkmatrix-poc/ZK60_ROUND25_OPUS_REVIEW.md",
+  "commit": "2680fdf2a833d09c1b854d6f6f9c575118d5879f",
+  "sha256": "7bc6c7882c3b9201c2c3eb5f22548149514fc2caa1989427277e903ed25f0cd8",
+  "note": "published after this review's b3a2535 baseline; read from the integration checkout"
+ },
+ "systems": {
+  "fold_matrix_B": {
+   "shape": [
+    4,
+    7
+   ],
+   "rank": 4,
+   "source": "zk60_endpoint_fibre.py:72-73, :164"
+  },
+  "mask_system": {
+   "shape": [
+    4,
+    5
+   ],
+   "rank": 4,
+   "nullity": 1,
+   "source": ":165"
+  },
+  "pad_system": {
+   "shape": [
+    4,
+    7
+   ],
+   "rank": 4,
+   "nullity": 3,
+   "source": ":166"
+  },
+  "full_row_rank_is_a_per_run_check": "LinearFibre refuses otherwise (:55)"
+ },
+ "owners": [
+  {
+   "privacy": "P3",
+   "role": "Input",
+   "proof_sha256": "038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd",
+   "distinct_positions": 236,
+   "message_free_dim": 256,
+   "pad_free_dim": 60,
+   "formula_3x(256-q)": 60,
+   "matches": true
+  },
+  {
+   "privacy": "P3",
+   "role": "Output",
+   "proof_sha256": "038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd",
+   "distinct_positions": 246,
+   "message_free_dim": 256,
+   "pad_free_dim": 30,
+   "formula_3x(256-q)": 30,
+   "matches": true
+  },
+  {
+   "privacy": "P1",
+   "role": "Input",
+   "proof_sha256": "c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e",
+   "distinct_positions": 242,
+   "message_free_dim": 256,
+   "pad_free_dim": 42,
+   "formula_3x(256-q)": 42,
+   "matches": true
+  },
+  {
+   "privacy": "P1",
+   "role": "Output",
+   "proof_sha256": "c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e",
+   "distinct_positions": 240,
+   "message_free_dim": 256,
+   "pad_free_dim": 48,
+   "formula_3x(256-q)": 48,
+   "matches": true
+  },
+  {
+   "privacy": "P3",
+   "role": "Input",
+   "proof_sha256": "e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314",
+   "distinct_positions": 248,
+   "message_free_dim": 256,
+   "pad_free_dim": 24,
+   "formula_3x(256-q)": 24,
+   "matches": true
+  },
+  {
+   "privacy": "P3",
+   "role": "Output",
+   "proof_sha256": "e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314",
+   "distinct_positions": 243,
+   "message_free_dim": 256,
+   "pad_free_dim": 39,
+   "formula_3x(256-q)": 39,
+   "matches": true
+  },
+  {
+   "privacy": "P1",
+   "role": "Input",
+   "proof_sha256": "efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb",
+   "distinct_positions": 238,
+   "message_free_dim": 256,
+   "pad_free_dim": 54,
+   "formula_3x(256-q)": 54,
+   "matches": true
+  },
+  {
+   "privacy": "P1",
+   "role": "Output",
+   "proof_sha256": "efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb",
+   "distinct_positions": 240,
+   "message_free_dim": 256,
+   "pad_free_dim": 48,
+   "formula_3x(256-q)": 48,
+   "matches": true
+  }
+ ],
+ "all_owners_match_formula": true,
+ "programmed_leaf_consistency": {
+  "sum_of_distinct_positions": 1933,
+  "programmed_salted_leaf_inputs": 1933,
+  "equal": true,
+  "meaning": "exactly one programmed leaf per distinct opened position"
+ },
+ "findings": {
+  "F12_1_free_dimensions_follow_from_rank": {
+   "message": "n * nullity(mask) = 256",
+   "pad": "nullity(pad) * (budget - q) = 3(256-q)",
+   "verified_owners": 8
+  },
+  "F12_2_terminal_is_implied": {
+   "derivation": "folds[0] = lam * claim_weights with lam != 0, so sum_j cw[j]<claim_weights,msg[:,j]> = (1/lam)<cw,vectors[0][:n]> = claim_value",
+   "costs_fibre_dimension": 0,
+   "verified_owners": 8
+  },
+  "F12_3_division_guard_unreachable": {
+   "guard": "zk60_endpoint_fibre.py:183",
+   "coset_points_meeting_message_subgroup": 0,
+   "domain": 2048,
+   "reason": "7^256 is not an eighth root of unity",
+   "conclusion": "the division is total at the shipped geometry; keep the guard as a per-run check"
+  },
+  "F12_4_one_programmed_leaf_per_distinct_position": true,
+  "F12_5_not_joint_with_A": {
+   "alias_pairs": "A rows 14/15 = Input rows 0/1; A rows 16/17 = Output rows 0/1",
+   "A_resampled": false,
+   "consequence": "the sample is consistent with one endpoint's public view in isolation; joint consistency with the rest of the proof is not established"
+  }
+ },
+ "polynomial_fibre_bijection": {
+  "map": "L + V*h",
+  "injective": "V != 0 and degrees stay in range",
+  "surjective": "two solutions differ by a multiple of V with quotient degree < budget-q",
+  "boundary_cases_handled": [
+   "q == budget gives a unique solution",
+   "empty constraints give an unconstrained uniform draw",
+   "q > budget refused"
+  ],
+  "verdict": "correct"
+ },
+ "equal_completion_counts": {
+  "reason": "both fibres are full-row-rank inhomogeneous linear systems, hence nonempty affine subspaces of cardinality p^dim",
+  "data_independence": "neither dimension depends on the chosen data",
+  "caveat": "uniformity holds in the ideal independent-Fp model only"
+ },
+ "duplicate_and_adversarial_handling": {
+  "duplicates_collapse": "unique dict at :178; conflicting duplicate refused at :135",
+  "extreme_duplication_tested": {
+   "distinct": 1,
+   "pad_free_dim": 765,
+   "validates_samples_and_verifies": true
+  },
+  "same_column_at_a_different_index": "refused by the fold/column consistency check (:138-:141)",
+  "deficient_rank": "refused"
+ },
+ "private_data_handling": {
+  "from_capture_reads_only": [
+   "claims",
+   "group vector",
+   "proximity vector",
+   "group cw weights",
+   "opened column indices and values",
+   "row-role kinds",
+   "q_pad"
+  ],
+  "all_verifier_visible": true,
+  "real_message_mask_pad_or_salt_read": false,
+  "data_planes": "supplied by the caller; two declared diagnostic choices",
+  "fails_closed_on_changed_dependencies": true
+ },
+ "why_this_is_not_a_transcript_simulation": [
+  "the public field view is an input from a real capture, not generated (public_field_view_sampled: false)",
+  "challenges and opened indices are held fixed while the message is resampled, which Fiat-Shamir forbids; the root is a PreparedSimulation root with programmed leaves and does not bind the sampled rows",
+  "uniformity is in an ideal independent-Fp model; production per-word reduction has exact total variation r(p-r)/(p*2^128) < 2^-96",
+  "A rows 14-17 alias the endpoint data rows and A is neither resampled nor consulted"
+ ],
+ "round25_disposition_accepted": {
+  "O10_bias_figure": "accepted; exact per-draw total variation is 2^-96, not 2^-64, and 6144 draws give an upper bound near 2^-83.4, not a floor near 2^-51.4. Verified independently.",
+  "O9_citation_correction": "withdrawn; the EURECOM version linked by the memo numbers Succinctness 7, Wrappers 8, Zero-Knowledge 9, Leaky Zero-Knowledge 10, so 'Definitions 8-10' is correct for that link. Verified by fetching that PDF.",
+  "O11_counterfactual": "accepted as limited; identifying every H row is one artificial counterfactual and does not establish that omitting arbitrary true nonlinear cross-proof H relations is harmless.",
+  "O11_test_skip_wording": "accepted; the tests use skipUnless and can skip when the gitignored captures are absent."
+ },
+ "excluded_confirmed": [
+  "public field-view generation",
+  "A/W/H joint sampling",
+  "CFS sampling",
+  "adaptive Fiat-Shamir",
+  "production PRG distribution",
+  "external fixed roots",
+  "arbitrary repeated-proof composition"
+ ],
+ "production_changes": "none; scripts/zk60_endpoint_fibre.py was not edited",
+ "privacy_analysis_performed": true,
+ "full_privacy_review_complete": false,
+ "u2_closed": false,
+ "unexpected_disclosure_found": false,
+ "validation": {
+  "stages": [
+   {
+    "command": "python3 -m unittest tests.test_zk60_opus_endpoint_fibre",
+    "exit": 0,
+    "result": "Ran 15 tests, OK (8.1 s)"
+   },
+   {
+    "command": "python3 -m unittest tests.test_zk60_endpoint_fibre",
+    "exit": 0,
+    "result": "Ran 8 tests, OK"
+   }
+  ],
+  "line_citations_verified": true,
+  "tests_can_skip_without_captures": true
+ }
+}
