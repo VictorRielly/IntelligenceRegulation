@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "oracle_model": "one lazily sampled table; hash_pair and salt_leaf are the same untagged 64-byte call; inner column digests are the 56-byte call; answered points are never changed",
+  "geometry": {
+    "leaves": 2048,
+    "path_siblings": 11,
+    "positions": 256,
+    "distinct_positions": 240
+  },
+  "experiments": {
+    "joint_preparation_and_proof": {
+      "roots_issued_by_simulator_before_positions": true,
+      "endpoints": [
+        {
+          "root": "f4eacbd5b36cf22dcbe661d8b279298dcb09261b9ad2425454a455a99ed46a91",
+          "positions": 256,
+          "distinct_positions": 240,
+          "every_path_verifies_under_issued_root": true,
+          "programmed_points": 0
+        },
+        {
+          "root": "cf14f7233231e2407848ac7393218c500fcc1ad71561dd135c72fd9923646678",
+          "positions": 256,
+          "distinct_positions": 240,
+          "every_path_verifies_under_issued_root": true,
+          "programmed_points": 0
+        }
+      ],
+      "programmed_points": 0
+    },
+    "external_statement_root_only": {
+      "simulator_receives": "fixed root only; no columns, salts, owner or oracle history from the committer",
+      "endpoints": [
+        {
+          "fixed_root": "2b23cf2e442d6f1062dae199b4f47ce46c17ad808e1162de83f5b8187855cc7c",
+          "positions": 256,
+          "distinct_positions": 240,
+          "every_path_verifies_under_fixed_root": true,
+          "programmed_points": 1,
+          "programmed_point_is_top_pair": true
+        },
+        {
+          "fixed_root": "b88272b65db82aa7fb2119e8de572b3a483740000a5d099cf71af05289ee5909",
+          "positions": 256,
+          "distinct_positions": 240,
+          "every_path_verifies_under_fixed_root": true,
+          "programmed_points": 1,
+          "programmed_point_is_top_pair": true
+        }
+      ],
+      "programmed_points": 2,
+      "honest_secrets_visible_to_distinguisher": false,
+      "collision_detected_without_side_information": false,
+      "collision_detected_holding_honest_top_pair": true
+    }
+  },
+  "refusals_exercised": {
+    "root_only_different_root": 1,
+    "root_only_second_use_after_failure": 1,
+    "joint_second_use_after_success": 1,
+    "joint_different_root": 1,
+    "wrong_position_count": 1,
+    "root_only_top_pair_already_answered": 1
+  },
+  "oracle_points_answered": 55297,
+  "local_bound": {
+    "refusal_probability_per_programmed_point": "<= q / 2^256 with q prior answered points",
+    "collision_detection_requires": "the honest top pair: the committer's secret salts or a 2^-256-per-guess event",
+    "whole_proof_distance_bound": false
+  },
+  "claims_not_made": {
+    "actual_blake3_programmed": false,
+    "real_verifier_receipt": false,
+    "columns_sampled_from_PCS_distribution": false,
+    "full_privacy_review_complete": false
+  },
+  "tool_sha256": "248bc58ed0df390487d03581c78e33d539ff7a2acae3833b059dbf59bb334717",
+  "seed": 20260915
+}

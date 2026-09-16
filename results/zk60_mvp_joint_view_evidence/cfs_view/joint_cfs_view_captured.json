@@ -1,0 +1,3593 @@
+{
+ "schema": 1,
+ "tool": "zk60_joint_cfs_view.py",
+ "reviewer": "Claude Fable 5.1, 2026-09-15 session (joint CFS view)",
+ "source_commit": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4",
+ "profile": "ffn-v3-mr1-fresh-io-poc/2",
+ "manifest_sha256": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d",
+ "source_sha256": {
+  "hashline/src/zk.rs": {
+   "manifest": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310",
+   "worktree": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310",
+   "match": true
+  },
+  "hashline/src/zk_ffn_fresh_io.rs": {
+   "manifest": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+   "worktree": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+   "match": true
+  },
+  "hashline/src/zk_ffn_fresh_io_tests.rs": {
+   "manifest": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9",
+   "worktree": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9",
+   "match": true
+  },
+  "hashline/src/zk_ffn_mask_diagnostic.rs": {
+   "manifest": "462346828c427b5f6d07ed502edc4d88ba57e1197e6e27836b73316704e8dd64",
+   "worktree": "462346828c427b5f6d07ed502edc4d88ba57e1197e6e27836b73316704e8dd64",
+   "match": true
+  },
+  "hashline/src/zk_ffn_observation_json.rs": {
+   "manifest": "e7a62281896efc4f1f12c403c6959ab7e2476beee07960f3752816fdc711a1e6",
+   "worktree": "e7a62281896efc4f1f12c403c6959ab7e2476beee07960f3752816fdc711a1e6",
+   "match": true
+  },
+  "hashline/src/zk_ffn_io_diagnostic.rs": {
+   "manifest": "c866dcce37789106eb18f4aac5093bb3bc14cadb78ca67a1d0fb6ebe092122a5",
+   "worktree": "c866dcce37789106eb18f4aac5093bb3bc14cadb78ca67a1d0fb6ebe092122a5",
+   "match": true
+  },
+  "hashline/src/private_seam.rs": {
+   "manifest": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+   "worktree": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+   "match": true
+  },
+  "zkp-core/src/pcs.rs": {
+   "manifest": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+   "worktree": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+   "match": true
+  },
+  "zkp-core/src/transcript.rs": {
+   "manifest": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+   "worktree": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+   "match": true
+  },
+  "zkp-core/src/sumcheck.rs": {
+   "manifest": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+   "worktree": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+   "match": true
+  }
+ },
+ "challenges_file": "/home/victor/wt-zk60-mvp-fable/results/zk60_mvp_joint_view_evidence/transcript_replay/round22_replay.json",
+ "challenges_file_sha256": "80c74042efedbc327558096241dbe821d5362e35fa7beb7e06d7806521381f25",
+ "ffn_challenges": "captured",
+ "seed": 2026,
+ "scope": "the eight CFS slots and the M opening jointly at the captured coefficients: per-slot fibres, the M opening's disclosure, the composed rank; fixed challenges (no adaptive transcript simulation), the masked terminals conditioned on (PCS side)",
+ "full_privacy_review_complete": false,
+ "adaptive_transcript_simulation_performed": false,
+ "functional_assignment": [
+  {
+   "index": 0,
+   "kind": "eval",
+   "slots": [
+    0
+   ],
+   "weights": "eval_weights(rho_gu, 2)",
+   "value": "g_gu(rho_gu), derived by the verifier as div(fin - want(gu_term), c_gu)"
+  },
+  {
+   "index": 1,
+   "kind": "eval",
+   "slots": [
+    1
+   ],
+   "weights": "eval_weights(rho_d, 2)",
+   "value": "g_d(rho_d), derived: div(fin - want(d_term), c_d)"
+  },
+  {
+   "index": 2,
+   "kind": "eval",
+   "slots": [
+    2
+   ],
+   "weights": "eval_weights(rho_zc20, 4)",
+   "value": "g_zc20(rho), derived: div(fin - want(zc20_term), c20)"
+  },
+  {
+   "index": 3,
+   "kind": "eval",
+   "slots": [
+    3
+   ],
+   "weights": "eval_weights(rho_zc17, 4)",
+   "value": "g_zc17(rho), derived: div(fin - want(zc17_term), c17)"
+  },
+  {
+   "index": 4,
+   "kind": "eval",
+   "slots": [
+    4
+   ],
+   "weights": "eval_weights(rho_zs, 2)",
+   "value": "g_zs(rho), derived: div(fin - (1-e) zs_term, c_zs)"
+  },
+  {
+   "index": 5,
+   "kind": "eval",
+   "slots": [
+    5
+   ],
+   "weights": "eval_weights(rho_tab, 3)",
+   "value": "g_tab(rho), derived: div(fin - want(tab_term), c_tab)"
+  },
+  {
+   "index": 6,
+   "kind": "gamma_pair",
+   "slots": [
+    2,
+    0
+   ],
+   "weights": "c20 sum_weights(zc20) on slot 2; -nu0 c_gu sum_weights(gu) on slot 0",
+   "value": "gamma20 (sent; ffn_gammas[0]); the zc20 claimed sum is nu0 gu_claim + gamma20"
+  },
+  {
+   "index": 7,
+   "kind": "gamma_pair",
+   "slots": [
+    3,
+    1
+   ],
+   "weights": "c17 sum_weights(zc17) on slot 3; -nu_z c_d sum_weights(d) on slot 1",
+   "value": "gamma17 (sent; ffn_gammas[1]); the zc17 claimed sum is nu_z d_claim + gamma17"
+  },
+  {
+   "index": 8,
+   "kind": "gamma",
+   "slots": [
+    4
+   ],
+   "weights": "c_zs sum_weights(zs)",
+   "value": "gamma_zs (sent; ffn_gammas[3])"
+  },
+  {
+   "index": 9,
+   "kind": "gamma",
+   "slots": [
+    5
+   ],
+   "weights": "c_tab sum_weights(tab)",
+   "value": "gamma_tab (sent; ffn_gammas[2])"
+  },
+  {
+   "index": 10,
+   "kind": "gamma",
+   "slots": [
+    6
+   ],
+   "weights": "c_io0 sum_weights(10, 2)",
+   "value": "io_arguments[0].gamma (sent)"
+  },
+  {
+   "index": 11,
+   "kind": "eval",
+   "slots": [
+    6
+   ],
+   "weights": "eval_weights(rho_io0, 2)",
+   "value": "io_arguments[0].mask_eval (sent; checked in the IO terminal identity)"
+  },
+  {
+   "index": 12,
+   "kind": "gamma",
+   "slots": [
+    7
+   ],
+   "weights": "c_io1 sum_weights(10, 2)",
+   "value": "io_arguments[1].gamma (sent)"
+  },
+  {
+   "index": 13,
+   "kind": "eval",
+   "slots": [
+    7
+   ],
+   "weights": "eval_weights(rho_io1, 2)",
+   "value": "io_arguments[1].mask_eval (sent)"
+  }
+ ],
+ "captures": [
+  {
+   "proof_sha256": "038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd",
+   "privacy": "P3",
+   "profile": "ffn-v3-mr1-fresh-io-poc/2",
+   "specs": [
+    [
+     6,
+     2
+    ],
+    [
+     6,
+     2
+    ],
+    [
+     10,
+     4
+    ],
+    [
+     10,
+     4
+    ],
+    [
+     9,
+     2
+    ],
+    [
+     17,
+     3
+    ],
+    [
+     10,
+     2
+    ],
+    [
+     10,
+     2
+    ]
+   ],
+   "slot_names": [
+    "gu",
+    "d",
+    "zc20",
+    "zc17",
+    "zs",
+    "tab",
+    "io0",
+    "io1"
+   ],
+   "functional_assignment": [
+    {
+     "index": 0,
+     "kind": "eval",
+     "slots": [
+      0
+     ],
+     "weights": "eval_weights(rho_gu, 2)",
+     "value": "g_gu(rho_gu), derived by the verifier as div(fin - want(gu_term), c_gu)",
+     "verified": true
+    },
+    {
+     "index": 1,
+     "kind": "eval",
+     "slots": [
+      1
+     ],
+     "weights": "eval_weights(rho_d, 2)",
+     "value": "g_d(rho_d), derived: div(fin - want(d_term), c_d)",
+     "verified": true
+    },
+    {
+     "index": 2,
+     "kind": "eval",
+     "slots": [
+      2
+     ],
+     "weights": "eval_weights(rho_zc20, 4)",
+     "value": "g_zc20(rho), derived: div(fin - want(zc20_term), c20)",
+     "verified": true
+    },
+    {
+     "index": 3,
+     "kind": "eval",
+     "slots": [
+      3
+     ],
+     "weights": "eval_weights(rho_zc17, 4)",
+     "value": "g_zc17(rho), derived: div(fin - want(zc17_term), c17)",
+     "verified": true
+    },
+    {
+     "index": 4,
+     "kind": "eval",
+     "slots": [
+      4
+     ],
+     "weights": "eval_weights(rho_zs, 2)",
+     "value": "g_zs(rho), derived: div(fin - (1-e) zs_term, c_zs)",
+     "verified": true
+    },
+    {
+     "index": 5,
+     "kind": "eval",
+     "slots": [
+      5
+     ],
+     "weights": "eval_weights(rho_tab, 3)",
+     "value": "g_tab(rho), derived: div(fin - want(tab_term), c_tab)",
+     "verified": true
+    },
+    {
+     "index": 6,
+     "kind": "gamma_pair",
+     "slots": [
+      2,
+      0
+     ],
+     "weights": "c20 sum_weights(zc20) on slot 2; -nu0 c_gu sum_weights(gu) on slot 0",
+     "value": "gamma20 (sent; ffn_gammas[0]); the zc20 claimed sum is nu0 gu_claim + gamma20",
+     "verified": true
+    },
+    {
+     "index": 7,
+     "kind": "gamma_pair",
+     "slots": [
+      3,
+      1
+     ],
+     "weights": "c17 sum_weights(zc17) on slot 3; -nu_z c_d sum_weights(d) on slot 1",
+     "value": "gamma17 (sent; ffn_gammas[1]); the zc17 claimed sum is nu_z d_claim + gamma17",
+     "verified": true
+    },
+    {
+     "index": 8,
+     "kind": "gamma",
+     "slots": [
+      4
+     ],
+     "weights": "c_zs sum_weights(zs)",
+     "value": "gamma_zs (sent; ffn_gammas[3])",
+     "verified": true
+    },
+    {
+     "index": 9,
+     "kind": "gamma",
+     "slots": [
+      5
+     ],
+     "weights": "c_tab sum_weights(tab)",
+     "value": "gamma_tab (sent; ffn_gammas[2])",
+     "verified": true
+    },
+    {
+     "index": 10,
+     "kind": "gamma",
+     "slots": [
+      6
+     ],
+     "weights": "c_io0 sum_weights(10, 2)",
+     "value": "io_arguments[0].gamma (sent)",
+     "verified": true
+    },
+    {
+     "index": 11,
+     "kind": "eval",
+     "slots": [
+      6
+     ],
+     "weights": "eval_weights(rho_io0, 2)",
+     "value": "io_arguments[0].mask_eval (sent; checked in the IO terminal identity)",
+     "verified": true
+    },
+    {
+     "index": 12,
+     "kind": "gamma",
+     "slots": [
+      7
+     ],
+     "weights": "c_io1 sum_weights(10, 2)",
+     "value": "io_arguments[1].gamma (sent)",
+     "verified": true
+    },
+    {
+     "index": 13,
+     "kind": "eval",
+     "slots": [
+      7
+     ],
+     "weights": "eval_weights(rho_io1, 2)",
+     "value": "io_arguments[1].mask_eval (sent)",
+     "verified": true
+    }
+   ],
+   "ffn_challenges_derived_from_capture": {
+    "source": "verifier mask functionals (eval weights -> rho_s; Gamma weights -> c_zc20, c_zc17, c_zs, c_tab; -nu c_gu / -nu_z c_d sum weights) and the zero-check round-0 chain (-> nu0, nu_z)",
+    "captured_ffn_rounds_verify_chain": true,
+    "chain_equations": 58,
+    "terminal_identities": 6,
+    "sha256_16": {
+     "gu": "9b0f33cf224dbd0f",
+     "d": "c42cfbe3c0cde9a4",
+     "zc20": "1dc8ea59bf3e7e08",
+     "zc17": "7a673e3a19fd829f",
+     "zs": "d6f95c1eb908a73e",
+     "tab": "335a04dddbf85a7c"
+    }
+   },
+   "ffn_challenges": "captured",
+   "challenge_file_agrees_with_derived": true,
+   "ffn_observations": "captured rounds, claims, gammas and derived g(rho) values",
+   "systems": {
+    "gu+zc20": {
+     "slots": [
+      "gu",
+      "zc20"
+     ],
+     "n_mask_unknowns_fp2": 56,
+     "n_honest_unknowns_fp2": 69,
+     "n_observation_rows": 72,
+     "n_constraint_rows": 18,
+     "mask_rank_fp2": 54,
+     "mask_fibre_dim_fp2": 2,
+     "constraints_rank_fp2": 18,
+     "honest_subspace_dim_fp2": 51,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       2,
+       2
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 2,
+      "honest_subspace_dim_fp2": 51,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "d+zc17": {
+     "slots": [
+      "d",
+      "zc17"
+     ],
+     "n_mask_unknowns_fp2": 56,
+     "n_honest_unknowns_fp2": 69,
+     "n_observation_rows": 72,
+     "n_constraint_rows": 18,
+     "mask_rank_fp2": 54,
+     "mask_fibre_dim_fp2": 2,
+     "constraints_rank_fp2": 18,
+     "honest_subspace_dim_fp2": 51,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       2,
+       2
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 2,
+      "honest_subspace_dim_fp2": 51,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "zs": {
+     "slots": [
+      "zs"
+     ],
+     "n_mask_unknowns_fp2": 20,
+     "n_honest_unknowns_fp2": 27,
+     "n_observation_rows": 29,
+     "n_constraint_rows": 10,
+     "mask_rank_fp2": 19,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 10,
+     "honest_subspace_dim_fp2": 17,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 17,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "tab": {
+     "slots": [
+      "tab"
+     ],
+     "n_mask_unknowns_fp2": 53,
+     "n_honest_unknowns_fp2": 68,
+     "n_observation_rows": 70,
+     "n_constraint_rows": 18,
+     "mask_rank_fp2": 52,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 18,
+     "honest_subspace_dim_fp2": 50,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 50,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "io0": {
+     "slots": [
+      "io0"
+     ],
+     "n_mask_unknowns_fp2": 22,
+     "n_honest_unknowns_fp2": 30,
+     "n_observation_rows": 32,
+     "n_constraint_rows": 11,
+     "mask_rank_fp2": 21,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 11,
+     "honest_subspace_dim_fp2": 19,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 19,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "io1": {
+     "slots": [
+      "io1"
+     ],
+     "n_mask_unknowns_fp2": 22,
+     "n_honest_unknowns_fp2": 30,
+     "n_observation_rows": 32,
+     "n_constraint_rows": 11,
+     "mask_rank_fp2": 21,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 11,
+     "honest_subspace_dim_fp2": 19,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 19,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    }
+   },
+   "composed": {
+    "slots": [
+     "gu",
+     "d",
+     "zc20",
+     "zc17",
+     "zs",
+     "tab",
+     "io0",
+     "io1"
+    ],
+    "n_mask_unknowns_fp2": 229,
+    "n_honest_unknowns_fp2": 293,
+    "n_observation_rows": 308,
+    "n_constraint_rows": 86,
+    "mask_rank_fp2": 221,
+    "mask_fibre_dim_fp2": 8,
+    "constraints_rank_fp2": 86,
+    "honest_subspace_dim_fp2": 207,
+    "honest_disclosed_dim_fp2": 0,
+    "observations_consistent": true,
+    "honest_unconstrained": true,
+    "preimage": {
+     "samples": 1,
+     "preimages_verified": true,
+     "fibre_dims": [
+      8
+     ],
+     "same_fibre_dim": true
+    },
+    "expected": {
+     "mask_fibre_dim_fp2": 8,
+     "honest_subspace_dim_fp2": 207,
+     "honest_disclosed_dim_fp2": 0
+    },
+    "v_row_included": true,
+    "v_value_model": [
+     4901087453449574436,
+     2615618555362982412
+    ],
+    "model_functional_weights_equal_recorded": true,
+    "meets_expectation": true,
+    "v_value_equals_captured_512_q0_plus_q512": true
+   },
+   "m_opening": {
+    "method": "exact block elimination of the Fp linear model of mask_open / mask_verify at the captured coefficients: u is eliminated against prox (identity block), b against q' (identity on its 2046 free scalars; the residual 2 Fp rows are 512 (q'_0 + q'_512) = V whose pad weights vanish), the opened b and u words are then implied by q', prox and the opened a words (verified numerically at every opened column), and each a-row's opened words are eliminated against its 256 pads (Lagrange/Cauchy block, rank computed at the captured indices).",
+    "public_identities_verified": true,
+    "v_equals_512_q0_plus_q512": true,
+    "distinct_opened_columns": 247,
+    "opened_columns": 256,
+    "pads_per_a_row": 256,
+    "a_rows": 16,
+    "unknowns_fp": {
+     "a_coefficients": 458,
+     "pads": 4096,
+     "b": 2046,
+     "u": 2048,
+     "total": 8648
+    },
+    "observations_fp": {
+     "q_prime": 2048,
+     "prox": 2048,
+     "columns": 5120,
+     "total": 9216
+    },
+    "blocks": {
+     "u_via_prox": {
+      "unknowns_fp": 2048,
+      "rank": 2048,
+      "opened_u_words_implied": true
+     },
+     "b_via_qprime": {
+      "free_scalars_fp": 2046,
+      "rank": 2046,
+      "residual_rows_fp": 2,
+      "residual_is_V": true,
+      "opened_b_words_implied": true
+     },
+     "pads_via_columns": {
+      "per_coefficient_length": {
+       "14": {
+        "rows": 247,
+        "mask_rank": 247,
+        "joint_rank": 247,
+        "disclosed_fp": 0,
+        "coefficients": 14,
+        "pads": 256,
+        "distinct_points": 247,
+        "a_rows_with_this_length": 4
+       },
+       "20": {
+        "rows": 247,
+        "mask_rank": 247,
+        "joint_rank": 247,
+        "disclosed_fp": 0,
+        "coefficients": 20,
+        "pads": 256,
+        "distinct_points": 247,
+        "a_rows_with_this_length": 2
+       },
+       "22": {
+        "rows": 247,
+        "mask_rank": 247,
+        "joint_rank": 247,
+        "disclosed_fp": 0,
+        "coefficients": 22,
+        "pads": 256,
+        "distinct_points": 247,
+        "a_rows_with_this_length": 4
+       },
+       "42": {
+        "rows": 247,
+        "mask_rank": 247,
+        "joint_rank": 247,
+        "disclosed_fp": 0,
+        "coefficients": 42,
+        "pads": 256,
+        "distinct_points": 247,
+        "a_rows_with_this_length": 4
+       },
+       "53": {
+        "rows": 247,
+        "mask_rank": 247,
+        "joint_rank": 247,
+        "disclosed_fp": 0,
+        "coefficients": 53,
+        "pads": 256,
+        "distinct_points": 247,
+        "a_rows_with_this_length": 2
+       }
+      },
+      "rank_total": 3952,
+      "all_full_row_rank": true
+     }
+    },
+    "mask_rank_total_fp": 8046,
+    "joint_rank_total_fp": 8048,
+    "disclosed_a_row_dim_fp": 2,
+    "disclosed_a_row_dim_fp2": 1,
+    "disclosed_functional": "V = sum_i theta^i F_i over the 229 a-coefficients",
+    "functionals": 14,
+    "functionals_rank_fp2": 14,
+    "rank_with_V_fp2": 14,
+    "disclosed_beyond_functionals_fp2": 0,
+    "a_rows_constrained_only_through_functionals": true,
+    "controls": {
+     "nc_no_pads": {
+      "rows": 247,
+      "mask_rank": 0,
+      "joint_rank": 14,
+      "disclosed_fp": 14,
+      "coefficients": 14,
+      "expect": "all 14 coefficients of the row disclosed",
+      "ok": true
+     },
+     "nc_columns_exceed_pads": {
+      "rows": 247,
+      "mask_rank": 246,
+      "joint_rank": 247,
+      "disclosed_fp": 1,
+      "coefficients": 14,
+      "pads": 246,
+      "expect": "disclosed = distinct points - pads = 1",
+      "ok": true
+     },
+     "nc_no_blinder_b_lower_bound": {
+      "unmasked_position_functionals_fp2": 53,
+      "expect": "at least 53 Fp2 functionals of the a-rows (one per coefficient position) in the clear, versus 1 (V) with b",
+      "ok": true
+     },
+     "fa6_toy_exact": {
+      "pc_qprime_one_opening": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "openings": 1,
+       "blinding": true,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 2,
+       "disclosed_fp2_dim": 1
+      },
+      "nc_qprime_without_blinding": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "openings": 1,
+       "blinding": false,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 6,
+       "disclosed_fp2_dim": 3
+      },
+      "pc_columns_q_distinct_under_q_pads": {
+       "log_m": 3,
+       "coefficients": 3,
+       "pads": 3,
+       "opened": 3,
+       "distinct": 3,
+       "disclosed_coefficient_functionals": 0
+      },
+      "nc_columns_without_pads": {
+       "log_m": 3,
+       "coefficients": 3,
+       "pads": 0,
+       "opened": 3,
+       "distinct": 3,
+       "disclosed_coefficient_functionals": 3
+      },
+      "nc_columns_exceed_pads": {
+       "log_m": 3,
+       "coefficients": 3,
+       "pads": 3,
+       "opened": 4,
+       "distinct": 4,
+       "disclosed_coefficient_functionals": 1
+      },
+      "pc_joint_qprime_prox_columns_one_opening": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "opened_columns": 3,
+       "openings": 1,
+       "unknowns_fp": 74,
+       "observations_fp": 100,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 2,
+       "disclosed_fp2_dim": 1.0
+      },
+      "nc_joint_two_openings_same_M": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "opened_columns": 3,
+       "openings": 2,
+       "unknowns_fp": 74,
+       "observations_fp": 200,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 6,
+       "disclosed_fp2_dim": 3.0
+      },
+      "ok": true
+     },
+     "all_ok": true
+    }
+   },
+   "io_crosscheck_round21": [
+    {
+     "functionals_rank_fp2": 2,
+     "coefficient_fibre_dim_fp2": 20,
+     "round_fibre_dim_fp2": 19,
+     "mask_image_rank_fp2": 19,
+     "image_inside_round_fibre": true,
+     "surjective": true,
+     "side": 0,
+     "slot": 6,
+     "public_chain_verified": true,
+     "exact_m_functionals_verified": true,
+     "nonzero_round_translation_verified": true,
+     "round21_controls_rejected": 9
+    },
+    {
+     "functionals_rank_fp2": 2,
+     "coefficient_fibre_dim_fp2": 20,
+     "round_fibre_dim_fp2": 19,
+     "mask_image_rank_fp2": 19,
+     "image_inside_round_fibre": true,
+     "surjective": true,
+     "side": 1,
+     "slot": 7,
+     "public_chain_verified": true,
+     "exact_m_functionals_verified": true,
+     "nonzero_round_translation_verified": true,
+     "round21_controls_rejected": 9
+    }
+   ],
+   "controls": {
+    "nc_zero_mask_challenge": {
+     "refused": true,
+     "reason": "refused: zero mask challenge on slot ctl",
+     "forced": {
+      "slots": [
+       "ctl"
+      ],
+      "n_mask_unknowns_fp2": 14,
+      "n_honest_unknowns_fp2": 16,
+      "n_observation_rows": 18,
+      "n_constraint_rows": 5,
+      "mask_rank_fp2": 1,
+      "mask_fibre_dim_fp2": 13,
+      "constraints_rank_fp2": 5,
+      "honest_subspace_dim_fp2": 11,
+      "honest_disclosed_dim_fp2": 11,
+      "observations_consistent": true,
+      "honest_unconstrained": false
+     },
+     "expect": "refused (zk.rs div / draw_mask_challenge); forced: honest disclosed = honest dim",
+     "ok": true
+    },
+    "nc_zero_terminal_challenge": {
+     "refused": true,
+     "reason": "refused: zero terminal mask challenge on slot ctl",
+     "forced": {
+      "slots": [
+       "ctl"
+      ],
+      "n_mask_unknowns_fp2": 14,
+      "n_honest_unknowns_fp2": 16,
+      "n_observation_rows": 18,
+      "n_constraint_rows": 5,
+      "mask_rank_fp2": 13,
+      "mask_fibre_dim_fp2": 1,
+      "constraints_rank_fp2": 5,
+      "honest_subspace_dim_fp2": 11,
+      "honest_disclosed_dim_fp2": 0,
+      "observations_consistent": true,
+      "honest_unconstrained": true
+     },
+     "expect": "refused (zk_ffn_fresh_io.rs: zero terminal mask challenge); forced: fibre 1, honest disclosed 0 (FA6: surjective at every challenge sequence)",
+     "ok": true
+    },
+    "pc_degenerate_rho_all_zero": {
+     "slots": [
+      "ctl"
+     ],
+     "n_mask_unknowns_fp2": 14,
+     "n_honest_unknowns_fp2": 16,
+     "n_observation_rows": 18,
+     "n_constraint_rows": 5,
+     "mask_rank_fp2": 13,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 5,
+     "honest_subspace_dim_fp2": 11,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 1,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "ok": true
+    },
+    "pc_degenerate_rho_all_one": {
+     "slots": [
+      "ctl"
+     ],
+     "n_mask_unknowns_fp2": 14,
+     "n_honest_unknowns_fp2": 16,
+     "n_observation_rows": 18,
+     "n_constraint_rows": 5,
+     "mask_rank_fp2": 13,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 5,
+     "honest_subspace_dim_fp2": 11,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 1,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "ok": true
+    },
+    "pc_degenerate_rho_all_half": {
+     "slots": [
+      "ctl"
+     ],
+     "n_mask_unknowns_fp2": 14,
+     "n_honest_unknowns_fp2": 16,
+     "n_observation_rows": 18,
+     "n_constraint_rows": 5,
+     "mask_rank_fp2": 13,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 5,
+     "honest_subspace_dim_fp2": 11,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 1,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "ok": true
+    },
+    "nc_corrupted_round_messages": {
+     "io0.h0(0)": {
+      "rejected": true,
+      "reason": "io0: sumcheck round 0: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "io0.h3(2)": {
+      "rejected": true,
+      "reason": "io0: sumcheck round 4: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "gu.h0(0)": {
+      "rejected": true,
+      "reason": "gu: sumcheck round 0: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "gu.h3(2)": {
+      "rejected": true,
+      "reason": "gu: sumcheck round 4: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "tab.h0(0)": {
+      "rejected": true,
+      "reason": "tab: sumcheck round 0: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "tab.h3(3)": {
+      "rejected": true,
+      "reason": "tab: sumcheck round 4: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "ok": true
+    },
+    "all_ok": true
+   },
+   "failures": [],
+   "status": "passed",
+   "seconds": 8.8,
+   "path": "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd.json",
+   "capture_sha256": "6be46cb9e8b6b5b2fbbd744944d51f647210e59aaf3c074733667b177cea74fe"
+  },
+  {
+   "proof_sha256": "c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e",
+   "privacy": "P1",
+   "profile": "ffn-v3-mr1-fresh-io-poc/2",
+   "specs": [
+    [
+     5,
+     2
+    ],
+    [
+     5,
+     2
+    ],
+    [
+     10,
+     4
+    ],
+    [
+     10,
+     4
+    ],
+    [
+     9,
+     2
+    ],
+    [
+     17,
+     3
+    ],
+    [
+     10,
+     2
+    ],
+    [
+     10,
+     2
+    ]
+   ],
+   "slot_names": [
+    "gu",
+    "d",
+    "zc20",
+    "zc17",
+    "zs",
+    "tab",
+    "io0",
+    "io1"
+   ],
+   "functional_assignment": [
+    {
+     "index": 0,
+     "kind": "eval",
+     "slots": [
+      0
+     ],
+     "weights": "eval_weights(rho_gu, 2)",
+     "value": "g_gu(rho_gu), derived by the verifier as div(fin - want(gu_term), c_gu)",
+     "verified": true
+    },
+    {
+     "index": 1,
+     "kind": "eval",
+     "slots": [
+      1
+     ],
+     "weights": "eval_weights(rho_d, 2)",
+     "value": "g_d(rho_d), derived: div(fin - want(d_term), c_d)",
+     "verified": true
+    },
+    {
+     "index": 2,
+     "kind": "eval",
+     "slots": [
+      2
+     ],
+     "weights": "eval_weights(rho_zc20, 4)",
+     "value": "g_zc20(rho), derived: div(fin - want(zc20_term), c20)",
+     "verified": true
+    },
+    {
+     "index": 3,
+     "kind": "eval",
+     "slots": [
+      3
+     ],
+     "weights": "eval_weights(rho_zc17, 4)",
+     "value": "g_zc17(rho), derived: div(fin - want(zc17_term), c17)",
+     "verified": true
+    },
+    {
+     "index": 4,
+     "kind": "eval",
+     "slots": [
+      4
+     ],
+     "weights": "eval_weights(rho_zs, 2)",
+     "value": "g_zs(rho), derived: div(fin - (1-e) zs_term, c_zs)",
+     "verified": true
+    },
+    {
+     "index": 5,
+     "kind": "eval",
+     "slots": [
+      5
+     ],
+     "weights": "eval_weights(rho_tab, 3)",
+     "value": "g_tab(rho), derived: div(fin - want(tab_term), c_tab)",
+     "verified": true
+    },
+    {
+     "index": 6,
+     "kind": "gamma_pair",
+     "slots": [
+      2,
+      0
+     ],
+     "weights": "c20 sum_weights(zc20) on slot 2; -nu0 c_gu sum_weights(gu) on slot 0",
+     "value": "gamma20 (sent; ffn_gammas[0]); the zc20 claimed sum is nu0 gu_claim + gamma20",
+     "verified": true
+    },
+    {
+     "index": 7,
+     "kind": "gamma_pair",
+     "slots": [
+      3,
+      1
+     ],
+     "weights": "c17 sum_weights(zc17) on slot 3; -nu_z c_d sum_weights(d) on slot 1",
+     "value": "gamma17 (sent; ffn_gammas[1]); the zc17 claimed sum is nu_z d_claim + gamma17",
+     "verified": true
+    },
+    {
+     "index": 8,
+     "kind": "gamma",
+     "slots": [
+      4
+     ],
+     "weights": "c_zs sum_weights(zs)",
+     "value": "gamma_zs (sent; ffn_gammas[3])",
+     "verified": true
+    },
+    {
+     "index": 9,
+     "kind": "gamma",
+     "slots": [
+      5
+     ],
+     "weights": "c_tab sum_weights(tab)",
+     "value": "gamma_tab (sent; ffn_gammas[2])",
+     "verified": true
+    },
+    {
+     "index": 10,
+     "kind": "gamma",
+     "slots": [
+      6
+     ],
+     "weights": "c_io0 sum_weights(10, 2)",
+     "value": "io_arguments[0].gamma (sent)",
+     "verified": true
+    },
+    {
+     "index": 11,
+     "kind": "eval",
+     "slots": [
+      6
+     ],
+     "weights": "eval_weights(rho_io0, 2)",
+     "value": "io_arguments[0].mask_eval (sent; checked in the IO terminal identity)",
+     "verified": true
+    },
+    {
+     "index": 12,
+     "kind": "gamma",
+     "slots": [
+      7
+     ],
+     "weights": "c_io1 sum_weights(10, 2)",
+     "value": "io_arguments[1].gamma (sent)",
+     "verified": true
+    },
+    {
+     "index": 13,
+     "kind": "eval",
+     "slots": [
+      7
+     ],
+     "weights": "eval_weights(rho_io1, 2)",
+     "value": "io_arguments[1].mask_eval (sent)",
+     "verified": true
+    }
+   ],
+   "ffn_challenges_derived_from_capture": {
+    "source": "verifier mask functionals (eval weights -> rho_s; Gamma weights -> c_zc20, c_zc17, c_zs, c_tab; -nu c_gu / -nu_z c_d sum weights) and the zero-check round-0 chain (-> nu0, nu_z)",
+    "captured_ffn_rounds_verify_chain": true,
+    "chain_equations": 56,
+    "terminal_identities": 6,
+    "sha256_16": {
+     "gu": "bcbb5b7a7d50c352",
+     "d": "365b7df43f18ab6a",
+     "zc20": "45c34bc3562f8542",
+     "zc17": "b01bb0a55d7a9f20",
+     "zs": "4fcc495c77ba67c2",
+     "tab": "442bc80987cc8560"
+    }
+   },
+   "ffn_challenges": "captured",
+   "challenge_file_agrees_with_derived": true,
+   "ffn_observations": "captured rounds, claims, gammas and derived g(rho) values",
+   "systems": {
+    "gu+zc20": {
+     "slots": [
+      "gu",
+      "zc20"
+     ],
+     "n_mask_unknowns_fp2": 54,
+     "n_honest_unknowns_fp2": 66,
+     "n_observation_rows": 69,
+     "n_constraint_rows": 17,
+     "mask_rank_fp2": 52,
+     "mask_fibre_dim_fp2": 2,
+     "constraints_rank_fp2": 17,
+     "honest_subspace_dim_fp2": 49,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       2,
+       2
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 2,
+      "honest_subspace_dim_fp2": 49,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "d+zc17": {
+     "slots": [
+      "d",
+      "zc17"
+     ],
+     "n_mask_unknowns_fp2": 54,
+     "n_honest_unknowns_fp2": 66,
+     "n_observation_rows": 69,
+     "n_constraint_rows": 17,
+     "mask_rank_fp2": 52,
+     "mask_fibre_dim_fp2": 2,
+     "constraints_rank_fp2": 17,
+     "honest_subspace_dim_fp2": 49,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       2,
+       2
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 2,
+      "honest_subspace_dim_fp2": 49,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "zs": {
+     "slots": [
+      "zs"
+     ],
+     "n_mask_unknowns_fp2": 20,
+     "n_honest_unknowns_fp2": 27,
+     "n_observation_rows": 29,
+     "n_constraint_rows": 10,
+     "mask_rank_fp2": 19,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 10,
+     "honest_subspace_dim_fp2": 17,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 17,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "tab": {
+     "slots": [
+      "tab"
+     ],
+     "n_mask_unknowns_fp2": 53,
+     "n_honest_unknowns_fp2": 68,
+     "n_observation_rows": 70,
+     "n_constraint_rows": 18,
+     "mask_rank_fp2": 52,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 18,
+     "honest_subspace_dim_fp2": 50,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 50,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "io0": {
+     "slots": [
+      "io0"
+     ],
+     "n_mask_unknowns_fp2": 22,
+     "n_honest_unknowns_fp2": 30,
+     "n_observation_rows": 32,
+     "n_constraint_rows": 11,
+     "mask_rank_fp2": 21,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 11,
+     "honest_subspace_dim_fp2": 19,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 19,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "io1": {
+     "slots": [
+      "io1"
+     ],
+     "n_mask_unknowns_fp2": 22,
+     "n_honest_unknowns_fp2": 30,
+     "n_observation_rows": 32,
+     "n_constraint_rows": 11,
+     "mask_rank_fp2": 21,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 11,
+     "honest_subspace_dim_fp2": 19,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 19,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    }
+   },
+   "composed": {
+    "slots": [
+     "gu",
+     "d",
+     "zc20",
+     "zc17",
+     "zs",
+     "tab",
+     "io0",
+     "io1"
+    ],
+    "n_mask_unknowns_fp2": 225,
+    "n_honest_unknowns_fp2": 287,
+    "n_observation_rows": 302,
+    "n_constraint_rows": 84,
+    "mask_rank_fp2": 217,
+    "mask_fibre_dim_fp2": 8,
+    "constraints_rank_fp2": 84,
+    "honest_subspace_dim_fp2": 203,
+    "honest_disclosed_dim_fp2": 0,
+    "observations_consistent": true,
+    "honest_unconstrained": true,
+    "preimage": {
+     "samples": 1,
+     "preimages_verified": true,
+     "fibre_dims": [
+      8
+     ],
+     "same_fibre_dim": true
+    },
+    "expected": {
+     "mask_fibre_dim_fp2": 8,
+     "honest_subspace_dim_fp2": 203,
+     "honest_disclosed_dim_fp2": 0
+    },
+    "v_row_included": true,
+    "v_value_model": [
+     16777556975696821659,
+     1065120746619016759
+    ],
+    "model_functional_weights_equal_recorded": true,
+    "meets_expectation": true,
+    "v_value_equals_captured_512_q0_plus_q512": true
+   },
+   "m_opening": {
+    "method": "exact block elimination of the Fp linear model of mask_open / mask_verify at the captured coefficients: u is eliminated against prox (identity block), b against q' (identity on its 2046 free scalars; the residual 2 Fp rows are 512 (q'_0 + q'_512) = V whose pad weights vanish), the opened b and u words are then implied by q', prox and the opened a words (verified numerically at every opened column), and each a-row's opened words are eliminated against its 256 pads (Lagrange/Cauchy block, rank computed at the captured indices).",
+    "public_identities_verified": true,
+    "v_equals_512_q0_plus_q512": true,
+    "distinct_opened_columns": 244,
+    "opened_columns": 256,
+    "pads_per_a_row": 256,
+    "a_rows": 16,
+    "unknowns_fp": {
+     "a_coefficients": 450,
+     "pads": 4096,
+     "b": 2046,
+     "u": 2048,
+     "total": 8640
+    },
+    "observations_fp": {
+     "q_prime": 2048,
+     "prox": 2048,
+     "columns": 5120,
+     "total": 9216
+    },
+    "blocks": {
+     "u_via_prox": {
+      "unknowns_fp": 2048,
+      "rank": 2048,
+      "opened_u_words_implied": true
+     },
+     "b_via_qprime": {
+      "free_scalars_fp": 2046,
+      "rank": 2046,
+      "residual_rows_fp": 2,
+      "residual_is_V": true,
+      "opened_b_words_implied": true
+     },
+     "pads_via_columns": {
+      "per_coefficient_length": {
+       "12": {
+        "rows": 244,
+        "mask_rank": 244,
+        "joint_rank": 244,
+        "disclosed_fp": 0,
+        "coefficients": 12,
+        "pads": 256,
+        "distinct_points": 244,
+        "a_rows_with_this_length": 4
+       },
+       "20": {
+        "rows": 244,
+        "mask_rank": 244,
+        "joint_rank": 244,
+        "disclosed_fp": 0,
+        "coefficients": 20,
+        "pads": 256,
+        "distinct_points": 244,
+        "a_rows_with_this_length": 2
+       },
+       "22": {
+        "rows": 244,
+        "mask_rank": 244,
+        "joint_rank": 244,
+        "disclosed_fp": 0,
+        "coefficients": 22,
+        "pads": 256,
+        "distinct_points": 244,
+        "a_rows_with_this_length": 4
+       },
+       "42": {
+        "rows": 244,
+        "mask_rank": 244,
+        "joint_rank": 244,
+        "disclosed_fp": 0,
+        "coefficients": 42,
+        "pads": 256,
+        "distinct_points": 244,
+        "a_rows_with_this_length": 4
+       },
+       "53": {
+        "rows": 244,
+        "mask_rank": 244,
+        "joint_rank": 244,
+        "disclosed_fp": 0,
+        "coefficients": 53,
+        "pads": 256,
+        "distinct_points": 244,
+        "a_rows_with_this_length": 2
+       }
+      },
+      "rank_total": 3904,
+      "all_full_row_rank": true
+     }
+    },
+    "mask_rank_total_fp": 7998,
+    "joint_rank_total_fp": 8000,
+    "disclosed_a_row_dim_fp": 2,
+    "disclosed_a_row_dim_fp2": 1,
+    "disclosed_functional": "V = sum_i theta^i F_i over the 229 a-coefficients",
+    "functionals": 14,
+    "functionals_rank_fp2": 14,
+    "rank_with_V_fp2": 14,
+    "disclosed_beyond_functionals_fp2": 0,
+    "a_rows_constrained_only_through_functionals": true,
+    "controls": {
+     "nc_no_pads": {
+      "rows": 244,
+      "mask_rank": 0,
+      "joint_rank": 12,
+      "disclosed_fp": 12,
+      "coefficients": 12,
+      "expect": "all 12 coefficients of the row disclosed",
+      "ok": true
+     },
+     "nc_columns_exceed_pads": {
+      "rows": 244,
+      "mask_rank": 243,
+      "joint_rank": 244,
+      "disclosed_fp": 1,
+      "coefficients": 12,
+      "pads": 243,
+      "expect": "disclosed = distinct points - pads = 1",
+      "ok": true
+     },
+     "nc_no_blinder_b_lower_bound": {
+      "unmasked_position_functionals_fp2": 53,
+      "expect": "at least 53 Fp2 functionals of the a-rows (one per coefficient position) in the clear, versus 1 (V) with b",
+      "ok": true
+     },
+     "fa6_toy_exact": {
+      "pc_qprime_one_opening": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "openings": 1,
+       "blinding": true,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 2,
+       "disclosed_fp2_dim": 1
+      },
+      "nc_qprime_without_blinding": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "openings": 1,
+       "blinding": false,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 6,
+       "disclosed_fp2_dim": 3
+      },
+      "pc_columns_q_distinct_under_q_pads": {
+       "log_m": 3,
+       "coefficients": 3,
+       "pads": 3,
+       "opened": 3,
+       "distinct": 3,
+       "disclosed_coefficient_functionals": 0
+      },
+      "nc_columns_without_pads": {
+       "log_m": 3,
+       "coefficients": 3,
+       "pads": 0,
+       "opened": 3,
+       "distinct": 3,
+       "disclosed_coefficient_functionals": 3
+      },
+      "nc_columns_exceed_pads": {
+       "log_m": 3,
+       "coefficients": 3,
+       "pads": 3,
+       "opened": 4,
+       "distinct": 4,
+       "disclosed_coefficient_functionals": 1
+      },
+      "pc_joint_qprime_prox_columns_one_opening": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "opened_columns": 3,
+       "openings": 1,
+       "unknowns_fp": 74,
+       "observations_fp": 100,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 2,
+       "disclosed_fp2_dim": 1.0
+      },
+      "nc_joint_two_openings_same_M": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "opened_columns": 3,
+       "openings": 2,
+       "unknowns_fp": 74,
+       "observations_fp": 200,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 6,
+       "disclosed_fp2_dim": 3.0
+      },
+      "ok": true
+     },
+     "all_ok": true
+    }
+   },
+   "io_crosscheck_round21": [
+    {
+     "functionals_rank_fp2": 2,
+     "coefficient_fibre_dim_fp2": 20,
+     "round_fibre_dim_fp2": 19,
+     "mask_image_rank_fp2": 19,
+     "image_inside_round_fibre": true,
+     "surjective": true,
+     "side": 0,
+     "slot": 6,
+     "public_chain_verified": true,
+     "exact_m_functionals_verified": true,
+     "nonzero_round_translation_verified": true,
+     "round21_controls_rejected": 9
+    },
+    {
+     "functionals_rank_fp2": 2,
+     "coefficient_fibre_dim_fp2": 20,
+     "round_fibre_dim_fp2": 19,
+     "mask_image_rank_fp2": 19,
+     "image_inside_round_fibre": true,
+     "surjective": true,
+     "side": 1,
+     "slot": 7,
+     "public_chain_verified": true,
+     "exact_m_functionals_verified": true,
+     "nonzero_round_translation_verified": true,
+     "round21_controls_rejected": 9
+    }
+   ],
+   "controls": {
+    "nc_zero_mask_challenge": {
+     "refused": true,
+     "reason": "refused: zero mask challenge on slot ctl",
+     "forced": {
+      "slots": [
+       "ctl"
+      ],
+      "n_mask_unknowns_fp2": 14,
+      "n_honest_unknowns_fp2": 16,
+      "n_observation_rows": 18,
+      "n_constraint_rows": 5,
+      "mask_rank_fp2": 1,
+      "mask_fibre_dim_fp2": 13,
+      "constraints_rank_fp2": 5,
+      "honest_subspace_dim_fp2": 11,
+      "honest_disclosed_dim_fp2": 11,
+      "observations_consistent": true,
+      "honest_unconstrained": false
+     },
+     "expect": "refused (zk.rs div / draw_mask_challenge); forced: honest disclosed = honest dim",
+     "ok": true
+    },
+    "nc_zero_terminal_challenge": {
+     "refused": true,
+     "reason": "refused: zero terminal mask challenge on slot ctl",
+     "forced": {
+      "slots": [
+       "ctl"
+      ],
+      "n_mask_unknowns_fp2": 14,
+      "n_honest_unknowns_fp2": 16,
+      "n_observation_rows": 18,
+      "n_constraint_rows": 5,
+      "mask_rank_fp2": 13,
+      "mask_fibre_dim_fp2": 1,
+      "constraints_rank_fp2": 5,
+      "honest_subspace_dim_fp2": 11,
+      "honest_disclosed_dim_fp2": 0,
+      "observations_consistent": true,
+      "honest_unconstrained": true
+     },
+     "expect": "refused (zk_ffn_fresh_io.rs: zero terminal mask challenge); forced: fibre 1, honest disclosed 0 (FA6: surjective at every challenge sequence)",
+     "ok": true
+    },
+    "pc_degenerate_rho_all_zero": {
+     "slots": [
+      "ctl"
+     ],
+     "n_mask_unknowns_fp2": 14,
+     "n_honest_unknowns_fp2": 16,
+     "n_observation_rows": 18,
+     "n_constraint_rows": 5,
+     "mask_rank_fp2": 13,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 5,
+     "honest_subspace_dim_fp2": 11,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 1,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "ok": true
+    },
+    "pc_degenerate_rho_all_one": {
+     "slots": [
+      "ctl"
+     ],
+     "n_mask_unknowns_fp2": 14,
+     "n_honest_unknowns_fp2": 16,
+     "n_observation_rows": 18,
+     "n_constraint_rows": 5,
+     "mask_rank_fp2": 13,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 5,
+     "honest_subspace_dim_fp2": 11,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 1,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "ok": true
+    },
+    "pc_degenerate_rho_all_half": {
+     "slots": [
+      "ctl"
+     ],
+     "n_mask_unknowns_fp2": 14,
+     "n_honest_unknowns_fp2": 16,
+     "n_observation_rows": 18,
+     "n_constraint_rows": 5,
+     "mask_rank_fp2": 13,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 5,
+     "honest_subspace_dim_fp2": 11,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 1,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "ok": true
+    },
+    "nc_corrupted_round_messages": {
+     "io0.h0(0)": {
+      "rejected": true,
+      "reason": "io0: sumcheck round 0: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "io0.h3(2)": {
+      "rejected": true,
+      "reason": "io0: sumcheck round 4: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "gu.h0(0)": {
+      "rejected": true,
+      "reason": "gu: sumcheck round 0: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "gu.h3(2)": {
+      "rejected": true,
+      "reason": "gu: sumcheck round 4: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "tab.h0(0)": {
+      "rejected": true,
+      "reason": "tab: sumcheck round 0: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "tab.h3(3)": {
+      "rejected": true,
+      "reason": "tab: sumcheck round 4: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "ok": true
+    },
+    "all_ok": true
+   },
+   "failures": [],
+   "status": "passed",
+   "seconds": 8.6,
+   "path": "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e.json",
+   "capture_sha256": "b7d85970f18a001402ab76dcc4854c9b422235e9740b6ccbed96e4888862306e"
+  },
+  {
+   "proof_sha256": "e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314",
+   "privacy": "P3",
+   "profile": "ffn-v3-mr1-fresh-io-poc/2",
+   "specs": [
+    [
+     6,
+     2
+    ],
+    [
+     6,
+     2
+    ],
+    [
+     10,
+     4
+    ],
+    [
+     10,
+     4
+    ],
+    [
+     9,
+     2
+    ],
+    [
+     17,
+     3
+    ],
+    [
+     10,
+     2
+    ],
+    [
+     10,
+     2
+    ]
+   ],
+   "slot_names": [
+    "gu",
+    "d",
+    "zc20",
+    "zc17",
+    "zs",
+    "tab",
+    "io0",
+    "io1"
+   ],
+   "functional_assignment": [
+    {
+     "index": 0,
+     "kind": "eval",
+     "slots": [
+      0
+     ],
+     "weights": "eval_weights(rho_gu, 2)",
+     "value": "g_gu(rho_gu), derived by the verifier as div(fin - want(gu_term), c_gu)",
+     "verified": true
+    },
+    {
+     "index": 1,
+     "kind": "eval",
+     "slots": [
+      1
+     ],
+     "weights": "eval_weights(rho_d, 2)",
+     "value": "g_d(rho_d), derived: div(fin - want(d_term), c_d)",
+     "verified": true
+    },
+    {
+     "index": 2,
+     "kind": "eval",
+     "slots": [
+      2
+     ],
+     "weights": "eval_weights(rho_zc20, 4)",
+     "value": "g_zc20(rho), derived: div(fin - want(zc20_term), c20)",
+     "verified": true
+    },
+    {
+     "index": 3,
+     "kind": "eval",
+     "slots": [
+      3
+     ],
+     "weights": "eval_weights(rho_zc17, 4)",
+     "value": "g_zc17(rho), derived: div(fin - want(zc17_term), c17)",
+     "verified": true
+    },
+    {
+     "index": 4,
+     "kind": "eval",
+     "slots": [
+      4
+     ],
+     "weights": "eval_weights(rho_zs, 2)",
+     "value": "g_zs(rho), derived: div(fin - (1-e) zs_term, c_zs)",
+     "verified": true
+    },
+    {
+     "index": 5,
+     "kind": "eval",
+     "slots": [
+      5
+     ],
+     "weights": "eval_weights(rho_tab, 3)",
+     "value": "g_tab(rho), derived: div(fin - want(tab_term), c_tab)",
+     "verified": true
+    },
+    {
+     "index": 6,
+     "kind": "gamma_pair",
+     "slots": [
+      2,
+      0
+     ],
+     "weights": "c20 sum_weights(zc20) on slot 2; -nu0 c_gu sum_weights(gu) on slot 0",
+     "value": "gamma20 (sent; ffn_gammas[0]); the zc20 claimed sum is nu0 gu_claim + gamma20",
+     "verified": true
+    },
+    {
+     "index": 7,
+     "kind": "gamma_pair",
+     "slots": [
+      3,
+      1
+     ],
+     "weights": "c17 sum_weights(zc17) on slot 3; -nu_z c_d sum_weights(d) on slot 1",
+     "value": "gamma17 (sent; ffn_gammas[1]); the zc17 claimed sum is nu_z d_claim + gamma17",
+     "verified": true
+    },
+    {
+     "index": 8,
+     "kind": "gamma",
+     "slots": [
+      4
+     ],
+     "weights": "c_zs sum_weights(zs)",
+     "value": "gamma_zs (sent; ffn_gammas[3])",
+     "verified": true
+    },
+    {
+     "index": 9,
+     "kind": "gamma",
+     "slots": [
+      5
+     ],
+     "weights": "c_tab sum_weights(tab)",
+     "value": "gamma_tab (sent; ffn_gammas[2])",
+     "verified": true
+    },
+    {
+     "index": 10,
+     "kind": "gamma",
+     "slots": [
+      6
+     ],
+     "weights": "c_io0 sum_weights(10, 2)",
+     "value": "io_arguments[0].gamma (sent)",
+     "verified": true
+    },
+    {
+     "index": 11,
+     "kind": "eval",
+     "slots": [
+      6
+     ],
+     "weights": "eval_weights(rho_io0, 2)",
+     "value": "io_arguments[0].mask_eval (sent; checked in the IO terminal identity)",
+     "verified": true
+    },
+    {
+     "index": 12,
+     "kind": "gamma",
+     "slots": [
+      7
+     ],
+     "weights": "c_io1 sum_weights(10, 2)",
+     "value": "io_arguments[1].gamma (sent)",
+     "verified": true
+    },
+    {
+     "index": 13,
+     "kind": "eval",
+     "slots": [
+      7
+     ],
+     "weights": "eval_weights(rho_io1, 2)",
+     "value": "io_arguments[1].mask_eval (sent)",
+     "verified": true
+    }
+   ],
+   "ffn_challenges_derived_from_capture": {
+    "source": "verifier mask functionals (eval weights -> rho_s; Gamma weights -> c_zc20, c_zc17, c_zs, c_tab; -nu c_gu / -nu_z c_d sum weights) and the zero-check round-0 chain (-> nu0, nu_z)",
+    "captured_ffn_rounds_verify_chain": true,
+    "chain_equations": 58,
+    "terminal_identities": 6,
+    "sha256_16": {
+     "gu": "bc1ad3afeb6ba748",
+     "d": "c71983130b8c22fb",
+     "zc20": "c1509e3a0e3f3b71",
+     "zc17": "f14ff22bd849ee70",
+     "zs": "716f93860ba6c31b",
+     "tab": "e0fd294605c4f374"
+    }
+   },
+   "ffn_challenges": "captured",
+   "challenge_file_agrees_with_derived": true,
+   "ffn_observations": "captured rounds, claims, gammas and derived g(rho) values",
+   "systems": {
+    "gu+zc20": {
+     "slots": [
+      "gu",
+      "zc20"
+     ],
+     "n_mask_unknowns_fp2": 56,
+     "n_honest_unknowns_fp2": 69,
+     "n_observation_rows": 72,
+     "n_constraint_rows": 18,
+     "mask_rank_fp2": 54,
+     "mask_fibre_dim_fp2": 2,
+     "constraints_rank_fp2": 18,
+     "honest_subspace_dim_fp2": 51,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       2,
+       2
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 2,
+      "honest_subspace_dim_fp2": 51,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "d+zc17": {
+     "slots": [
+      "d",
+      "zc17"
+     ],
+     "n_mask_unknowns_fp2": 56,
+     "n_honest_unknowns_fp2": 69,
+     "n_observation_rows": 72,
+     "n_constraint_rows": 18,
+     "mask_rank_fp2": 54,
+     "mask_fibre_dim_fp2": 2,
+     "constraints_rank_fp2": 18,
+     "honest_subspace_dim_fp2": 51,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       2,
+       2
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 2,
+      "honest_subspace_dim_fp2": 51,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "zs": {
+     "slots": [
+      "zs"
+     ],
+     "n_mask_unknowns_fp2": 20,
+     "n_honest_unknowns_fp2": 27,
+     "n_observation_rows": 29,
+     "n_constraint_rows": 10,
+     "mask_rank_fp2": 19,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 10,
+     "honest_subspace_dim_fp2": 17,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 17,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "tab": {
+     "slots": [
+      "tab"
+     ],
+     "n_mask_unknowns_fp2": 53,
+     "n_honest_unknowns_fp2": 68,
+     "n_observation_rows": 70,
+     "n_constraint_rows": 18,
+     "mask_rank_fp2": 52,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 18,
+     "honest_subspace_dim_fp2": 50,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 50,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "io0": {
+     "slots": [
+      "io0"
+     ],
+     "n_mask_unknowns_fp2": 22,
+     "n_honest_unknowns_fp2": 30,
+     "n_observation_rows": 32,
+     "n_constraint_rows": 11,
+     "mask_rank_fp2": 21,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 11,
+     "honest_subspace_dim_fp2": 19,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 19,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "io1": {
+     "slots": [
+      "io1"
+     ],
+     "n_mask_unknowns_fp2": 22,
+     "n_honest_unknowns_fp2": 30,
+     "n_observation_rows": 32,
+     "n_constraint_rows": 11,
+     "mask_rank_fp2": 21,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 11,
+     "honest_subspace_dim_fp2": 19,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 19,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    }
+   },
+   "composed": {
+    "slots": [
+     "gu",
+     "d",
+     "zc20",
+     "zc17",
+     "zs",
+     "tab",
+     "io0",
+     "io1"
+    ],
+    "n_mask_unknowns_fp2": 229,
+    "n_honest_unknowns_fp2": 293,
+    "n_observation_rows": 308,
+    "n_constraint_rows": 86,
+    "mask_rank_fp2": 221,
+    "mask_fibre_dim_fp2": 8,
+    "constraints_rank_fp2": 86,
+    "honest_subspace_dim_fp2": 207,
+    "honest_disclosed_dim_fp2": 0,
+    "observations_consistent": true,
+    "honest_unconstrained": true,
+    "preimage": {
+     "samples": 1,
+     "preimages_verified": true,
+     "fibre_dims": [
+      8
+     ],
+     "same_fibre_dim": true
+    },
+    "expected": {
+     "mask_fibre_dim_fp2": 8,
+     "honest_subspace_dim_fp2": 207,
+     "honest_disclosed_dim_fp2": 0
+    },
+    "v_row_included": true,
+    "v_value_model": [
+     18423656751520844751,
+     7772817382257296883
+    ],
+    "model_functional_weights_equal_recorded": true,
+    "meets_expectation": true,
+    "v_value_equals_captured_512_q0_plus_q512": true
+   },
+   "m_opening": {
+    "method": "exact block elimination of the Fp linear model of mask_open / mask_verify at the captured coefficients: u is eliminated against prox (identity block), b against q' (identity on its 2046 free scalars; the residual 2 Fp rows are 512 (q'_0 + q'_512) = V whose pad weights vanish), the opened b and u words are then implied by q', prox and the opened a words (verified numerically at every opened column), and each a-row's opened words are eliminated against its 256 pads (Lagrange/Cauchy block, rank computed at the captured indices).",
+    "public_identities_verified": true,
+    "v_equals_512_q0_plus_q512": true,
+    "distinct_opened_columns": 245,
+    "opened_columns": 256,
+    "pads_per_a_row": 256,
+    "a_rows": 16,
+    "unknowns_fp": {
+     "a_coefficients": 458,
+     "pads": 4096,
+     "b": 2046,
+     "u": 2048,
+     "total": 8648
+    },
+    "observations_fp": {
+     "q_prime": 2048,
+     "prox": 2048,
+     "columns": 5120,
+     "total": 9216
+    },
+    "blocks": {
+     "u_via_prox": {
+      "unknowns_fp": 2048,
+      "rank": 2048,
+      "opened_u_words_implied": true
+     },
+     "b_via_qprime": {
+      "free_scalars_fp": 2046,
+      "rank": 2046,
+      "residual_rows_fp": 2,
+      "residual_is_V": true,
+      "opened_b_words_implied": true
+     },
+     "pads_via_columns": {
+      "per_coefficient_length": {
+       "14": {
+        "rows": 245,
+        "mask_rank": 245,
+        "joint_rank": 245,
+        "disclosed_fp": 0,
+        "coefficients": 14,
+        "pads": 256,
+        "distinct_points": 245,
+        "a_rows_with_this_length": 4
+       },
+       "20": {
+        "rows": 245,
+        "mask_rank": 245,
+        "joint_rank": 245,
+        "disclosed_fp": 0,
+        "coefficients": 20,
+        "pads": 256,
+        "distinct_points": 245,
+        "a_rows_with_this_length": 2
+       },
+       "22": {
+        "rows": 245,
+        "mask_rank": 245,
+        "joint_rank": 245,
+        "disclosed_fp": 0,
+        "coefficients": 22,
+        "pads": 256,
+        "distinct_points": 245,
+        "a_rows_with_this_length": 4
+       },
+       "42": {
+        "rows": 245,
+        "mask_rank": 245,
+        "joint_rank": 245,
+        "disclosed_fp": 0,
+        "coefficients": 42,
+        "pads": 256,
+        "distinct_points": 245,
+        "a_rows_with_this_length": 4
+       },
+       "53": {
+        "rows": 245,
+        "mask_rank": 245,
+        "joint_rank": 245,
+        "disclosed_fp": 0,
+        "coefficients": 53,
+        "pads": 256,
+        "distinct_points": 245,
+        "a_rows_with_this_length": 2
+       }
+      },
+      "rank_total": 3920,
+      "all_full_row_rank": true
+     }
+    },
+    "mask_rank_total_fp": 8014,
+    "joint_rank_total_fp": 8016,
+    "disclosed_a_row_dim_fp": 2,
+    "disclosed_a_row_dim_fp2": 1,
+    "disclosed_functional": "V = sum_i theta^i F_i over the 229 a-coefficients",
+    "functionals": 14,
+    "functionals_rank_fp2": 14,
+    "rank_with_V_fp2": 14,
+    "disclosed_beyond_functionals_fp2": 0,
+    "a_rows_constrained_only_through_functionals": true,
+    "controls": {
+     "nc_no_pads": {
+      "rows": 245,
+      "mask_rank": 0,
+      "joint_rank": 14,
+      "disclosed_fp": 14,
+      "coefficients": 14,
+      "expect": "all 14 coefficients of the row disclosed",
+      "ok": true
+     },
+     "nc_columns_exceed_pads": {
+      "rows": 245,
+      "mask_rank": 244,
+      "joint_rank": 245,
+      "disclosed_fp": 1,
+      "coefficients": 14,
+      "pads": 244,
+      "expect": "disclosed = distinct points - pads = 1",
+      "ok": true
+     },
+     "nc_no_blinder_b_lower_bound": {
+      "unmasked_position_functionals_fp2": 53,
+      "expect": "at least 53 Fp2 functionals of the a-rows (one per coefficient position) in the clear, versus 1 (V) with b",
+      "ok": true
+     },
+     "fa6_toy_exact": {
+      "pc_qprime_one_opening": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "openings": 1,
+       "blinding": true,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 2,
+       "disclosed_fp2_dim": 1
+      },
+      "nc_qprime_without_blinding": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "openings": 1,
+       "blinding": false,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 6,
+       "disclosed_fp2_dim": 3
+      },
+      "pc_columns_q_distinct_under_q_pads": {
+       "log_m": 3,
+       "coefficients": 3,
+       "pads": 3,
+       "opened": 3,
+       "distinct": 3,
+       "disclosed_coefficient_functionals": 0
+      },
+      "nc_columns_without_pads": {
+       "log_m": 3,
+       "coefficients": 3,
+       "pads": 0,
+       "opened": 3,
+       "distinct": 3,
+       "disclosed_coefficient_functionals": 3
+      },
+      "nc_columns_exceed_pads": {
+       "log_m": 3,
+       "coefficients": 3,
+       "pads": 3,
+       "opened": 4,
+       "distinct": 4,
+       "disclosed_coefficient_functionals": 1
+      },
+      "pc_joint_qprime_prox_columns_one_opening": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "opened_columns": 3,
+       "openings": 1,
+       "unknowns_fp": 74,
+       "observations_fp": 100,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 2,
+       "disclosed_fp2_dim": 1.0
+      },
+      "nc_joint_two_openings_same_M": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "opened_columns": 3,
+       "openings": 2,
+       "unknowns_fp": 74,
+       "observations_fp": 200,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 6,
+       "disclosed_fp2_dim": 3.0
+      },
+      "ok": true
+     },
+     "all_ok": true
+    }
+   },
+   "io_crosscheck_round21": [
+    {
+     "functionals_rank_fp2": 2,
+     "coefficient_fibre_dim_fp2": 20,
+     "round_fibre_dim_fp2": 19,
+     "mask_image_rank_fp2": 19,
+     "image_inside_round_fibre": true,
+     "surjective": true,
+     "side": 0,
+     "slot": 6,
+     "public_chain_verified": true,
+     "exact_m_functionals_verified": true,
+     "nonzero_round_translation_verified": true,
+     "round21_controls_rejected": 9
+    },
+    {
+     "functionals_rank_fp2": 2,
+     "coefficient_fibre_dim_fp2": 20,
+     "round_fibre_dim_fp2": 19,
+     "mask_image_rank_fp2": 19,
+     "image_inside_round_fibre": true,
+     "surjective": true,
+     "side": 1,
+     "slot": 7,
+     "public_chain_verified": true,
+     "exact_m_functionals_verified": true,
+     "nonzero_round_translation_verified": true,
+     "round21_controls_rejected": 9
+    }
+   ],
+   "controls": {
+    "nc_zero_mask_challenge": {
+     "refused": true,
+     "reason": "refused: zero mask challenge on slot ctl",
+     "forced": {
+      "slots": [
+       "ctl"
+      ],
+      "n_mask_unknowns_fp2": 14,
+      "n_honest_unknowns_fp2": 16,
+      "n_observation_rows": 18,
+      "n_constraint_rows": 5,
+      "mask_rank_fp2": 1,
+      "mask_fibre_dim_fp2": 13,
+      "constraints_rank_fp2": 5,
+      "honest_subspace_dim_fp2": 11,
+      "honest_disclosed_dim_fp2": 11,
+      "observations_consistent": true,
+      "honest_unconstrained": false
+     },
+     "expect": "refused (zk.rs div / draw_mask_challenge); forced: honest disclosed = honest dim",
+     "ok": true
+    },
+    "nc_zero_terminal_challenge": {
+     "refused": true,
+     "reason": "refused: zero terminal mask challenge on slot ctl",
+     "forced": {
+      "slots": [
+       "ctl"
+      ],
+      "n_mask_unknowns_fp2": 14,
+      "n_honest_unknowns_fp2": 16,
+      "n_observation_rows": 18,
+      "n_constraint_rows": 5,
+      "mask_rank_fp2": 13,
+      "mask_fibre_dim_fp2": 1,
+      "constraints_rank_fp2": 5,
+      "honest_subspace_dim_fp2": 11,
+      "honest_disclosed_dim_fp2": 0,
+      "observations_consistent": true,
+      "honest_unconstrained": true
+     },
+     "expect": "refused (zk_ffn_fresh_io.rs: zero terminal mask challenge); forced: fibre 1, honest disclosed 0 (FA6: surjective at every challenge sequence)",
+     "ok": true
+    },
+    "pc_degenerate_rho_all_zero": {
+     "slots": [
+      "ctl"
+     ],
+     "n_mask_unknowns_fp2": 14,
+     "n_honest_unknowns_fp2": 16,
+     "n_observation_rows": 18,
+     "n_constraint_rows": 5,
+     "mask_rank_fp2": 13,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 5,
+     "honest_subspace_dim_fp2": 11,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 1,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "ok": true
+    },
+    "pc_degenerate_rho_all_one": {
+     "slots": [
+      "ctl"
+     ],
+     "n_mask_unknowns_fp2": 14,
+     "n_honest_unknowns_fp2": 16,
+     "n_observation_rows": 18,
+     "n_constraint_rows": 5,
+     "mask_rank_fp2": 13,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 5,
+     "honest_subspace_dim_fp2": 11,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 1,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "ok": true
+    },
+    "pc_degenerate_rho_all_half": {
+     "slots": [
+      "ctl"
+     ],
+     "n_mask_unknowns_fp2": 14,
+     "n_honest_unknowns_fp2": 16,
+     "n_observation_rows": 18,
+     "n_constraint_rows": 5,
+     "mask_rank_fp2": 13,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 5,
+     "honest_subspace_dim_fp2": 11,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 1,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "ok": true
+    },
+    "nc_corrupted_round_messages": {
+     "io0.h0(0)": {
+      "rejected": true,
+      "reason": "io0: sumcheck round 0: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "io0.h3(2)": {
+      "rejected": true,
+      "reason": "io0: sumcheck round 4: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "gu.h0(0)": {
+      "rejected": true,
+      "reason": "gu: sumcheck round 0: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "gu.h3(2)": {
+      "rejected": true,
+      "reason": "gu: sumcheck round 4: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "tab.h0(0)": {
+      "rejected": true,
+      "reason": "tab: sumcheck round 0: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "tab.h3(3)": {
+      "rejected": true,
+      "reason": "tab: sumcheck round 4: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "ok": true
+    },
+    "all_ok": true
+   },
+   "failures": [],
+   "status": "passed",
+   "seconds": 8.9,
+   "path": "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314.json",
+   "capture_sha256": "28130c25d27ae5246106198411e9d28c8b25e06952b4b400701514d56efe152b"
+  },
+  {
+   "proof_sha256": "efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb",
+   "privacy": "P1",
+   "profile": "ffn-v3-mr1-fresh-io-poc/2",
+   "specs": [
+    [
+     5,
+     2
+    ],
+    [
+     5,
+     2
+    ],
+    [
+     10,
+     4
+    ],
+    [
+     10,
+     4
+    ],
+    [
+     9,
+     2
+    ],
+    [
+     17,
+     3
+    ],
+    [
+     10,
+     2
+    ],
+    [
+     10,
+     2
+    ]
+   ],
+   "slot_names": [
+    "gu",
+    "d",
+    "zc20",
+    "zc17",
+    "zs",
+    "tab",
+    "io0",
+    "io1"
+   ],
+   "functional_assignment": [
+    {
+     "index": 0,
+     "kind": "eval",
+     "slots": [
+      0
+     ],
+     "weights": "eval_weights(rho_gu, 2)",
+     "value": "g_gu(rho_gu), derived by the verifier as div(fin - want(gu_term), c_gu)",
+     "verified": true
+    },
+    {
+     "index": 1,
+     "kind": "eval",
+     "slots": [
+      1
+     ],
+     "weights": "eval_weights(rho_d, 2)",
+     "value": "g_d(rho_d), derived: div(fin - want(d_term), c_d)",
+     "verified": true
+    },
+    {
+     "index": 2,
+     "kind": "eval",
+     "slots": [
+      2
+     ],
+     "weights": "eval_weights(rho_zc20, 4)",
+     "value": "g_zc20(rho), derived: div(fin - want(zc20_term), c20)",
+     "verified": true
+    },
+    {
+     "index": 3,
+     "kind": "eval",
+     "slots": [
+      3
+     ],
+     "weights": "eval_weights(rho_zc17, 4)",
+     "value": "g_zc17(rho), derived: div(fin - want(zc17_term), c17)",
+     "verified": true
+    },
+    {
+     "index": 4,
+     "kind": "eval",
+     "slots": [
+      4
+     ],
+     "weights": "eval_weights(rho_zs, 2)",
+     "value": "g_zs(rho), derived: div(fin - (1-e) zs_term, c_zs)",
+     "verified": true
+    },
+    {
+     "index": 5,
+     "kind": "eval",
+     "slots": [
+      5
+     ],
+     "weights": "eval_weights(rho_tab, 3)",
+     "value": "g_tab(rho), derived: div(fin - want(tab_term), c_tab)",
+     "verified": true
+    },
+    {
+     "index": 6,
+     "kind": "gamma_pair",
+     "slots": [
+      2,
+      0
+     ],
+     "weights": "c20 sum_weights(zc20) on slot 2; -nu0 c_gu sum_weights(gu) on slot 0",
+     "value": "gamma20 (sent; ffn_gammas[0]); the zc20 claimed sum is nu0 gu_claim + gamma20",
+     "verified": true
+    },
+    {
+     "index": 7,
+     "kind": "gamma_pair",
+     "slots": [
+      3,
+      1
+     ],
+     "weights": "c17 sum_weights(zc17) on slot 3; -nu_z c_d sum_weights(d) on slot 1",
+     "value": "gamma17 (sent; ffn_gammas[1]); the zc17 claimed sum is nu_z d_claim + gamma17",
+     "verified": true
+    },
+    {
+     "index": 8,
+     "kind": "gamma",
+     "slots": [
+      4
+     ],
+     "weights": "c_zs sum_weights(zs)",
+     "value": "gamma_zs (sent; ffn_gammas[3])",
+     "verified": true
+    },
+    {
+     "index": 9,
+     "kind": "gamma",
+     "slots": [
+      5
+     ],
+     "weights": "c_tab sum_weights(tab)",
+     "value": "gamma_tab (sent; ffn_gammas[2])",
+     "verified": true
+    },
+    {
+     "index": 10,
+     "kind": "gamma",
+     "slots": [
+      6
+     ],
+     "weights": "c_io0 sum_weights(10, 2)",
+     "value": "io_arguments[0].gamma (sent)",
+     "verified": true
+    },
+    {
+     "index": 11,
+     "kind": "eval",
+     "slots": [
+      6
+     ],
+     "weights": "eval_weights(rho_io0, 2)",
+     "value": "io_arguments[0].mask_eval (sent; checked in the IO terminal identity)",
+     "verified": true
+    },
+    {
+     "index": 12,
+     "kind": "gamma",
+     "slots": [
+      7
+     ],
+     "weights": "c_io1 sum_weights(10, 2)",
+     "value": "io_arguments[1].gamma (sent)",
+     "verified": true
+    },
+    {
+     "index": 13,
+     "kind": "eval",
+     "slots": [
+      7
+     ],
+     "weights": "eval_weights(rho_io1, 2)",
+     "value": "io_arguments[1].mask_eval (sent)",
+     "verified": true
+    }
+   ],
+   "ffn_challenges_derived_from_capture": {
+    "source": "verifier mask functionals (eval weights -> rho_s; Gamma weights -> c_zc20, c_zc17, c_zs, c_tab; -nu c_gu / -nu_z c_d sum weights) and the zero-check round-0 chain (-> nu0, nu_z)",
+    "captured_ffn_rounds_verify_chain": true,
+    "chain_equations": 56,
+    "terminal_identities": 6,
+    "sha256_16": {
+     "gu": "6df38984bd692800",
+     "d": "2d765a6741346396",
+     "zc20": "d58514ef62eddabd",
+     "zc17": "6ea93cee51701db6",
+     "zs": "feda61a5cc883f0c",
+     "tab": "f360d03db8a085d4"
+    }
+   },
+   "ffn_challenges": "captured",
+   "challenge_file_agrees_with_derived": true,
+   "ffn_observations": "captured rounds, claims, gammas and derived g(rho) values",
+   "systems": {
+    "gu+zc20": {
+     "slots": [
+      "gu",
+      "zc20"
+     ],
+     "n_mask_unknowns_fp2": 54,
+     "n_honest_unknowns_fp2": 66,
+     "n_observation_rows": 69,
+     "n_constraint_rows": 17,
+     "mask_rank_fp2": 52,
+     "mask_fibre_dim_fp2": 2,
+     "constraints_rank_fp2": 17,
+     "honest_subspace_dim_fp2": 49,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       2,
+       2
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 2,
+      "honest_subspace_dim_fp2": 49,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "d+zc17": {
+     "slots": [
+      "d",
+      "zc17"
+     ],
+     "n_mask_unknowns_fp2": 54,
+     "n_honest_unknowns_fp2": 66,
+     "n_observation_rows": 69,
+     "n_constraint_rows": 17,
+     "mask_rank_fp2": 52,
+     "mask_fibre_dim_fp2": 2,
+     "constraints_rank_fp2": 17,
+     "honest_subspace_dim_fp2": 49,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       2,
+       2
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 2,
+      "honest_subspace_dim_fp2": 49,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "zs": {
+     "slots": [
+      "zs"
+     ],
+     "n_mask_unknowns_fp2": 20,
+     "n_honest_unknowns_fp2": 27,
+     "n_observation_rows": 29,
+     "n_constraint_rows": 10,
+     "mask_rank_fp2": 19,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 10,
+     "honest_subspace_dim_fp2": 17,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 17,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "tab": {
+     "slots": [
+      "tab"
+     ],
+     "n_mask_unknowns_fp2": 53,
+     "n_honest_unknowns_fp2": 68,
+     "n_observation_rows": 70,
+     "n_constraint_rows": 18,
+     "mask_rank_fp2": 52,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 18,
+     "honest_subspace_dim_fp2": 50,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 50,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "io0": {
+     "slots": [
+      "io0"
+     ],
+     "n_mask_unknowns_fp2": 22,
+     "n_honest_unknowns_fp2": 30,
+     "n_observation_rows": 32,
+     "n_constraint_rows": 11,
+     "mask_rank_fp2": 21,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 11,
+     "honest_subspace_dim_fp2": 19,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 19,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    },
+    "io1": {
+     "slots": [
+      "io1"
+     ],
+     "n_mask_unknowns_fp2": 22,
+     "n_honest_unknowns_fp2": 30,
+     "n_observation_rows": 32,
+     "n_constraint_rows": 11,
+     "mask_rank_fp2": 21,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 11,
+     "honest_subspace_dim_fp2": 19,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 2,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1,
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "expected": {
+      "mask_fibre_dim_fp2": 1,
+      "honest_subspace_dim_fp2": 19,
+      "honest_disclosed_dim_fp2": 0
+     },
+     "verifier_chain_replayed": true,
+     "meets_expectation": true
+    }
+   },
+   "composed": {
+    "slots": [
+     "gu",
+     "d",
+     "zc20",
+     "zc17",
+     "zs",
+     "tab",
+     "io0",
+     "io1"
+    ],
+    "n_mask_unknowns_fp2": 225,
+    "n_honest_unknowns_fp2": 287,
+    "n_observation_rows": 302,
+    "n_constraint_rows": 84,
+    "mask_rank_fp2": 217,
+    "mask_fibre_dim_fp2": 8,
+    "constraints_rank_fp2": 84,
+    "honest_subspace_dim_fp2": 203,
+    "honest_disclosed_dim_fp2": 0,
+    "observations_consistent": true,
+    "honest_unconstrained": true,
+    "preimage": {
+     "samples": 1,
+     "preimages_verified": true,
+     "fibre_dims": [
+      8
+     ],
+     "same_fibre_dim": true
+    },
+    "expected": {
+     "mask_fibre_dim_fp2": 8,
+     "honest_subspace_dim_fp2": 203,
+     "honest_disclosed_dim_fp2": 0
+    },
+    "v_row_included": true,
+    "v_value_model": [
+     16286707781506547440,
+     7580897612513991795
+    ],
+    "model_functional_weights_equal_recorded": true,
+    "meets_expectation": true,
+    "v_value_equals_captured_512_q0_plus_q512": true
+   },
+   "m_opening": {
+    "method": "exact block elimination of the Fp linear model of mask_open / mask_verify at the captured coefficients: u is eliminated against prox (identity block), b against q' (identity on its 2046 free scalars; the residual 2 Fp rows are 512 (q'_0 + q'_512) = V whose pad weights vanish), the opened b and u words are then implied by q', prox and the opened a words (verified numerically at every opened column), and each a-row's opened words are eliminated against its 256 pads (Lagrange/Cauchy block, rank computed at the captured indices).",
+    "public_identities_verified": true,
+    "v_equals_512_q0_plus_q512": true,
+    "distinct_opened_columns": 246,
+    "opened_columns": 256,
+    "pads_per_a_row": 256,
+    "a_rows": 16,
+    "unknowns_fp": {
+     "a_coefficients": 450,
+     "pads": 4096,
+     "b": 2046,
+     "u": 2048,
+     "total": 8640
+    },
+    "observations_fp": {
+     "q_prime": 2048,
+     "prox": 2048,
+     "columns": 5120,
+     "total": 9216
+    },
+    "blocks": {
+     "u_via_prox": {
+      "unknowns_fp": 2048,
+      "rank": 2048,
+      "opened_u_words_implied": true
+     },
+     "b_via_qprime": {
+      "free_scalars_fp": 2046,
+      "rank": 2046,
+      "residual_rows_fp": 2,
+      "residual_is_V": true,
+      "opened_b_words_implied": true
+     },
+     "pads_via_columns": {
+      "per_coefficient_length": {
+       "12": {
+        "rows": 246,
+        "mask_rank": 246,
+        "joint_rank": 246,
+        "disclosed_fp": 0,
+        "coefficients": 12,
+        "pads": 256,
+        "distinct_points": 246,
+        "a_rows_with_this_length": 4
+       },
+       "20": {
+        "rows": 246,
+        "mask_rank": 246,
+        "joint_rank": 246,
+        "disclosed_fp": 0,
+        "coefficients": 20,
+        "pads": 256,
+        "distinct_points": 246,
+        "a_rows_with_this_length": 2
+       },
+       "22": {
+        "rows": 246,
+        "mask_rank": 246,
+        "joint_rank": 246,
+        "disclosed_fp": 0,
+        "coefficients": 22,
+        "pads": 256,
+        "distinct_points": 246,
+        "a_rows_with_this_length": 4
+       },
+       "42": {
+        "rows": 246,
+        "mask_rank": 246,
+        "joint_rank": 246,
+        "disclosed_fp": 0,
+        "coefficients": 42,
+        "pads": 256,
+        "distinct_points": 246,
+        "a_rows_with_this_length": 4
+       },
+       "53": {
+        "rows": 246,
+        "mask_rank": 246,
+        "joint_rank": 246,
+        "disclosed_fp": 0,
+        "coefficients": 53,
+        "pads": 256,
+        "distinct_points": 246,
+        "a_rows_with_this_length": 2
+       }
+      },
+      "rank_total": 3936,
+      "all_full_row_rank": true
+     }
+    },
+    "mask_rank_total_fp": 8030,
+    "joint_rank_total_fp": 8032,
+    "disclosed_a_row_dim_fp": 2,
+    "disclosed_a_row_dim_fp2": 1,
+    "disclosed_functional": "V = sum_i theta^i F_i over the 229 a-coefficients",
+    "functionals": 14,
+    "functionals_rank_fp2": 14,
+    "rank_with_V_fp2": 14,
+    "disclosed_beyond_functionals_fp2": 0,
+    "a_rows_constrained_only_through_functionals": true,
+    "controls": {
+     "nc_no_pads": {
+      "rows": 246,
+      "mask_rank": 0,
+      "joint_rank": 12,
+      "disclosed_fp": 12,
+      "coefficients": 12,
+      "expect": "all 12 coefficients of the row disclosed",
+      "ok": true
+     },
+     "nc_columns_exceed_pads": {
+      "rows": 246,
+      "mask_rank": 245,
+      "joint_rank": 246,
+      "disclosed_fp": 1,
+      "coefficients": 12,
+      "pads": 245,
+      "expect": "disclosed = distinct points - pads = 1",
+      "ok": true
+     },
+     "nc_no_blinder_b_lower_bound": {
+      "unmasked_position_functionals_fp2": 53,
+      "expect": "at least 53 Fp2 functionals of the a-rows (one per coefficient position) in the clear, versus 1 (V) with b",
+      "ok": true
+     },
+     "fa6_toy_exact": {
+      "pc_qprime_one_opening": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "openings": 1,
+       "blinding": true,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 2,
+       "disclosed_fp2_dim": 1
+      },
+      "nc_qprime_without_blinding": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "openings": 1,
+       "blinding": false,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 6,
+       "disclosed_fp2_dim": 3
+      },
+      "pc_columns_q_distinct_under_q_pads": {
+       "log_m": 3,
+       "coefficients": 3,
+       "pads": 3,
+       "opened": 3,
+       "distinct": 3,
+       "disclosed_coefficient_functionals": 0
+      },
+      "nc_columns_without_pads": {
+       "log_m": 3,
+       "coefficients": 3,
+       "pads": 0,
+       "opened": 3,
+       "distinct": 3,
+       "disclosed_coefficient_functionals": 3
+      },
+      "nc_columns_exceed_pads": {
+       "log_m": 3,
+       "coefficients": 3,
+       "pads": 3,
+       "opened": 4,
+       "distinct": 4,
+       "disclosed_coefficient_functionals": 1
+      },
+      "pc_joint_qprime_prox_columns_one_opening": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "opened_columns": 3,
+       "openings": 1,
+       "unknowns_fp": 74,
+       "observations_fp": 100,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 2,
+       "disclosed_fp2_dim": 1.0
+      },
+      "nc_joint_two_openings_same_M": {
+       "log_m": 3,
+       "coefficients_fp2": 3,
+       "pads": 3,
+       "opened_columns": 3,
+       "openings": 2,
+       "unknowns_fp": 74,
+       "observations_fp": 200,
+       "data_scalars_fp": 6,
+       "disclosed_fp_dim": 6,
+       "disclosed_fp2_dim": 3.0
+      },
+      "ok": true
+     },
+     "all_ok": true
+    }
+   },
+   "io_crosscheck_round21": [
+    {
+     "functionals_rank_fp2": 2,
+     "coefficient_fibre_dim_fp2": 20,
+     "round_fibre_dim_fp2": 19,
+     "mask_image_rank_fp2": 19,
+     "image_inside_round_fibre": true,
+     "surjective": true,
+     "side": 0,
+     "slot": 6,
+     "public_chain_verified": true,
+     "exact_m_functionals_verified": true,
+     "nonzero_round_translation_verified": true,
+     "round21_controls_rejected": 9
+    },
+    {
+     "functionals_rank_fp2": 2,
+     "coefficient_fibre_dim_fp2": 20,
+     "round_fibre_dim_fp2": 19,
+     "mask_image_rank_fp2": 19,
+     "image_inside_round_fibre": true,
+     "surjective": true,
+     "side": 1,
+     "slot": 7,
+     "public_chain_verified": true,
+     "exact_m_functionals_verified": true,
+     "nonzero_round_translation_verified": true,
+     "round21_controls_rejected": 9
+    }
+   ],
+   "controls": {
+    "nc_zero_mask_challenge": {
+     "refused": true,
+     "reason": "refused: zero mask challenge on slot ctl",
+     "forced": {
+      "slots": [
+       "ctl"
+      ],
+      "n_mask_unknowns_fp2": 14,
+      "n_honest_unknowns_fp2": 16,
+      "n_observation_rows": 18,
+      "n_constraint_rows": 5,
+      "mask_rank_fp2": 1,
+      "mask_fibre_dim_fp2": 13,
+      "constraints_rank_fp2": 5,
+      "honest_subspace_dim_fp2": 11,
+      "honest_disclosed_dim_fp2": 11,
+      "observations_consistent": true,
+      "honest_unconstrained": false
+     },
+     "expect": "refused (zk.rs div / draw_mask_challenge); forced: honest disclosed = honest dim",
+     "ok": true
+    },
+    "nc_zero_terminal_challenge": {
+     "refused": true,
+     "reason": "refused: zero terminal mask challenge on slot ctl",
+     "forced": {
+      "slots": [
+       "ctl"
+      ],
+      "n_mask_unknowns_fp2": 14,
+      "n_honest_unknowns_fp2": 16,
+      "n_observation_rows": 18,
+      "n_constraint_rows": 5,
+      "mask_rank_fp2": 13,
+      "mask_fibre_dim_fp2": 1,
+      "constraints_rank_fp2": 5,
+      "honest_subspace_dim_fp2": 11,
+      "honest_disclosed_dim_fp2": 0,
+      "observations_consistent": true,
+      "honest_unconstrained": true
+     },
+     "expect": "refused (zk_ffn_fresh_io.rs: zero terminal mask challenge); forced: fibre 1, honest disclosed 0 (FA6: surjective at every challenge sequence)",
+     "ok": true
+    },
+    "pc_degenerate_rho_all_zero": {
+     "slots": [
+      "ctl"
+     ],
+     "n_mask_unknowns_fp2": 14,
+     "n_honest_unknowns_fp2": 16,
+     "n_observation_rows": 18,
+     "n_constraint_rows": 5,
+     "mask_rank_fp2": 13,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 5,
+     "honest_subspace_dim_fp2": 11,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 1,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "ok": true
+    },
+    "pc_degenerate_rho_all_one": {
+     "slots": [
+      "ctl"
+     ],
+     "n_mask_unknowns_fp2": 14,
+     "n_honest_unknowns_fp2": 16,
+     "n_observation_rows": 18,
+     "n_constraint_rows": 5,
+     "mask_rank_fp2": 13,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 5,
+     "honest_subspace_dim_fp2": 11,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 1,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "ok": true
+    },
+    "pc_degenerate_rho_all_half": {
+     "slots": [
+      "ctl"
+     ],
+     "n_mask_unknowns_fp2": 14,
+     "n_honest_unknowns_fp2": 16,
+     "n_observation_rows": 18,
+     "n_constraint_rows": 5,
+     "mask_rank_fp2": 13,
+     "mask_fibre_dim_fp2": 1,
+     "constraints_rank_fp2": 5,
+     "honest_subspace_dim_fp2": 11,
+     "honest_disclosed_dim_fp2": 0,
+     "observations_consistent": true,
+     "honest_unconstrained": true,
+     "preimage": {
+      "samples": 1,
+      "preimages_verified": true,
+      "fibre_dims": [
+       1
+      ],
+      "same_fibre_dim": true
+     },
+     "ok": true
+    },
+    "nc_corrupted_round_messages": {
+     "io0.h0(0)": {
+      "rejected": true,
+      "reason": "io0: sumcheck round 0: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "io0.h3(2)": {
+      "rejected": true,
+      "reason": "io0: sumcheck round 4: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "gu.h0(0)": {
+      "rejected": true,
+      "reason": "gu: sumcheck round 0: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "gu.h3(2)": {
+      "rejected": true,
+      "reason": "gu: sumcheck round 4: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "tab.h0(0)": {
+      "rejected": true,
+      "reason": "tab: sumcheck round 0: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "tab.h3(3)": {
+      "rejected": true,
+      "reason": "tab: sumcheck round 4: s(0) + s(1) != claim",
+      "model_consistent": false,
+      "ok": true
+     },
+     "ok": true
+    },
+    "all_ok": true
+   },
+   "failures": [],
+   "status": "passed",
+   "seconds": 9.0,
+   "path": "/home/victor/IntelligenceRegulation/results/zk60_round22_captures/efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb.json",
+   "capture_sha256": "5bcc22c0514c59cf9dfcc7cbd851c4bb87d3d0215daa04f8c150026810743bc7"
+  }
+ ],
+ "status": "passed",
+ "failures": [],
+ "tools": {
+  "scripts/zk60_joint_cfs_view.py": "a0de9fd6d84db141a9b0200526abf1e5dce811dd6cdc79a8c1762f2d87617ca9",
+  "scripts/zk60_fable_cfs_channel.py": "ba05f0d140d72f67d69bbf48f4336d08a83cd99fbd01d2c49c417ec120066437",
+  "scripts/zk60_fable_joint_rank.py": "ad5e4e483c6dd8c5f73a87ddb0af1d06c3084576e82428e9c2ada6a764ffbb5b",
+  "scripts/zk60_io_opening_translation.py": "3579e0ff10f5f501a5596e3ef56dc812060a8f34a883910b2bb89c8c675ae0bf",
+  "scripts/zk60_io_cfs_composition.py": "928cef871b71f86bc56b7e7ed4e461c9c9da2d64e1aa912b449023eaaa7d7580",
+  "scripts/zk60_io_capture_preflight.py": "a4e230f5f6aed62fc0f12b662a3b3becbbb6bee1d41cd12c06baa6918a5ce217"
+ }
+}
