@@ -1,0 +1,17 @@
+[038318c4 P3] ffn_challenges=captured passed (9.1s)
+    slots: gu+zc20: fibre 2 honest 51 disclosed 0, d+zc17: fibre 2 honest 51 disclosed 0, zs: fibre 1 honest 17 disclosed 0, tab: fibre 1 honest 50 disclosed 0, io0: fibre 1 honest 19 disclosed 0, io1: fibre 1 honest 19 disclosed 0
+    composed: mask unknowns 229, mask rank 221, fibre 8, honest dim 207, disclosed 0, consistent True
+    M opening: distinct columns 247, mask rank 8046 Fp, disclosed a-row 1 Fp2 (V), beyond functionals 0; controls ok True; message controls ok True
+[c9745775 P1] ffn_challenges=captured passed (8.9s)
+    slots: gu+zc20: fibre 2 honest 49 disclosed 0, d+zc17: fibre 2 honest 49 disclosed 0, zs: fibre 1 honest 17 disclosed 0, tab: fibre 1 honest 50 disclosed 0, io0: fibre 1 honest 19 disclosed 0, io1: fibre 1 honest 19 disclosed 0
+    composed: mask unknowns 225, mask rank 217, fibre 8, honest dim 203, disclosed 0, consistent True
+    M opening: distinct columns 244, mask rank 7998 Fp, disclosed a-row 1 Fp2 (V), beyond functionals 0; controls ok True; message controls ok True
+[e9326d22 P3] ffn_challenges=captured passed (8.8s)
+    slots: gu+zc20: fibre 2 honest 51 disclosed 0, d+zc17: fibre 2 honest 51 disclosed 0, zs: fibre 1 honest 17 disclosed 0, tab: fibre 1 honest 50 disclosed 0, io0: fibre 1 honest 19 disclosed 0, io1: fibre 1 honest 19 disclosed 0
+    composed: mask unknowns 229, mask rank 221, fibre 8, honest dim 207, disclosed 0, consistent True
+    M opening: distinct columns 245, mask rank 8014 Fp, disclosed a-row 1 Fp2 (V), beyond functionals 0; controls ok True; message controls ok True
+[efb9e585 P1] ffn_challenges=captured passed (8.4s)
+    slots: gu+zc20: fibre 2 honest 49 disclosed 0, d+zc17: fibre 2 honest 49 disclosed 0, zs: fibre 1 honest 17 disclosed 0, tab: fibre 1 honest 50 disclosed 0, io0: fibre 1 honest 19 disclosed 0, io1: fibre 1 honest 19 disclosed 0
+    composed: mask unknowns 225, mask rank 217, fibre 8, honest dim 203, disclosed 0, consistent True
+    M opening: distinct columns 246, mask rank 8030 Fp, disclosed a-row 1 Fp2 (V), beyond functionals 0; controls ok True; message controls ok True
+passed: 4 captures, ffn_challenges=captured; wrote /home/victor/wt-zk60-mvp-fable/results/zk60_mvp_joint_view_evidence/cfs_view/gate_joint_cfs_view_captured.json

@@ -1,0 +1,19 @@
+test_enumeration_agrees_with_linear_algebra (test_zk60_joint_cfs_view.BruteForceFibre) ... ok
+test_challenge_file_loader_matches_and_flags_differences (test_zk60_joint_cfs_view.CaptureDerivation) ... ok
+test_functional_assignment_and_challenge_derivation_on_a_synthetic_capture (test_zk60_joint_cfs_view.CaptureDerivation) ... ok
+test_corrupted_round_message_fails_the_verifier_chain_and_leaves_the_subspace (test_zk60_joint_cfs_view.Controls) ... ok
+test_message_channel_controls_run_on_synthetic_models (test_zk60_joint_cfs_view.Controls) ... ok
+test_zero_mask_challenge_is_refused_and_discloses_the_honest_rounds_when_forced (test_zk60_joint_cfs_view.Controls) ... ok
+test_zero_terminal_challenge_is_refused_and_degenerate_sequences_keep_the_fibre (test_zk60_joint_cfs_view.Controls) ... ok
+test_fp_rank_matches_fa2_rank (test_zk60_joint_cfs_view.MOpeningBlocks) ... ok
+test_pad_block_disclosure_matches_fa6_toy_models (test_zk60_joint_cfs_view.MOpeningBlocks) ... ok
+test_batched_matmul_pair_as_coded (test_zk60_joint_cfs_view.SlotSystems) ... ok
+test_composed_eight_slots_with_v_row (test_zk60_joint_cfs_view.SlotSystems) ... ok
+test_zero_claimed_slot_and_preimages (test_zk60_joint_cfs_view.SlotSystems) ... ok
+test_back_substitution_solves_a_consistent_system_and_detects_inconsistency (test_zk60_joint_cfs_view.SparseElimination) ... ok
+test_sparse_echelon_matches_dense_fp2_rank_and_block_split (test_zk60_joint_cfs_view.SparseElimination) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.925s
+
+OK

@@ -1,0 +1,11 @@
+test_transcript_replay exit=0 1.7s
+test_joint_view exit=0 40.475s
+test_joint_cfs_view exit=0 0.966s
+test_root_simulator exit=0 0.63s
+test_sequential_kernel exit=0 5.659s
+transcript_replay_wheel exit=0 0.714s
+transcript_replay_pure exit=0 1.974s
+joint_pcs_view exit=0 165.216s
+joint_cfs_view_captured exit=0 36.582s
+root_simulator exit=0 0.129s
+passed

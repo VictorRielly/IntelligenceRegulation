@@ -1,0 +1,5 @@
+038318c46443 P3 ok=True checks=139 failed=0 rho_lengths=[6, 6, 10, 10, 17, 9] (0.5s)
+c97457756c36 P1 ok=True checks=132 failed=0 rho_lengths=[5, 5, 10, 10, 17, 9] (0.4s)
+e9326d222ed7 P3 ok=True checks=139 failed=0 rho_lengths=[6, 6, 10, 10, 17, 9] (0.5s)
+efb9e585454f P1 ok=True checks=132 failed=0 rho_lengths=[5, 5, 10, 10, 17, 9] (0.5s)
+manifest ok=True; captures ok=4/4; refusals=0; backend=pure; wrote /home/victor/wt-zk60-mvp-fable/results/zk60_mvp_joint_view_evidence/transcript_replay/gate_replay_pure.json

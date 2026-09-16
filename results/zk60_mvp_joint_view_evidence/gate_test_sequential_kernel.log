@@ -1,0 +1,15 @@
+test_all_256_public_functions (test_zk60_sequential_kernel.CodexCounterexample) ... ok
+test_distinguisher_with_oracle_access_recovers_the_witness_for_injective_H (test_zk60_sequential_kernel.CodexCounterexample) ... ok
+test_without_oracle_access_the_mixture_over_H_hides_the_witness (test_zk60_sequential_kernel.CodexCounterexample) ... ok
+test_three_messages_gf3_all_4096_challenge_functions (test_zk60_sequential_kernel.LemmaHoldsOnMaskedProtocols) ... ok
+test_two_messages_gf5_all_3125_challenge_functions (test_zk60_sequential_kernel.LemmaHoldsOnMaskedProtocols) ... ok
+test_public_prefix_refusal_preserves_the_lemma (test_zk60_sequential_kernel.RefusalEvents) ... ok
+test_witness_dependent_refusal_breaks_the_hypothesis_and_every_function_distinguishes (test_zk60_sequential_kernel.RefusalEvents) ... ok
+test_witness_independent_private_coin_refusal_preserves_the_lemma (test_zk60_sequential_kernel.RefusalEvents) ... ok
+test_concrete_adaptive_distinguisher_recovers_the_witness (test_zk60_sequential_kernel.SharedMaskNeedsTheJointHypothesis) ... ok
+test_marginals_agree_joint_differs_and_seven_of_eight_functions_distinguish (test_zk60_sequential_kernel.SharedMaskNeedsTheJointHypothesis) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 5.630s
+
+OK

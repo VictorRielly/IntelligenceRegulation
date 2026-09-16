@@ -1,0 +1,22 @@
+test_binding_matches_receipt_bytes_8_40_on_all_captures (test_zk60_transcript_replay.TestBinding) ... ok
+test_every_checkpoint_passes_on_all_captures (test_zk60_transcript_replay.TestFullReplay) ... ok
+test_pure_backend_replays_one_capture (test_zk60_transcript_replay.TestFullReplay) ... ok
+test_manifest_hashes (test_zk60_transcript_replay.TestManifest) ... ok
+test_counter_off_by_one_breaks_next (test_zk60_transcript_replay.TestNegativeControls) ... ok
+test_flipping_one_ffn_round_bit_fails_the_next_checkpoint (test_zk60_transcript_replay.TestNegativeControls) ... ok
+test_flipping_one_io_round_bit_fails_the_argument_checkpoint (test_zk60_transcript_replay.TestNegativeControls) ... ok
+test_refusal_on_unreconstructable_statement (test_zk60_transcript_replay.TestNegativeControls) ... ok
+test_truncated_receipt_is_refused (test_zk60_transcript_replay.TestNegativeControls) ... ok
+test_wrong_statement_field_breaks_the_binding_only (test_zk60_transcript_replay.TestNegativeControls) ... ok
+test_matches_known_empty_digest (test_zk60_transcript_replay.TestPureBlake3) ... ok
+test_matches_wheel_on_random_inputs (test_zk60_transcript_replay.TestPureBlake3) ... ok
+test_absorb_and_squeeze_layout (test_zk60_transcript_replay.TestTranscriptPrimitives) ... ok
+test_init_state_is_blake3_of_prefixed_domain (test_zk60_transcript_replay.TestTranscriptPrimitives) ... ok
+test_interpolate_eval_matches_lagrange_on_nodes (test_zk60_transcript_replay.TestTranscriptPrimitives) ... ok
+test_pure_and_wheel_transcripts_agree (test_zk60_transcript_replay.TestTranscriptPrimitives) ... ok
+test_table_regenerates_to_the_frozen_pin (test_zk60_transcript_replay.TestTranscriptPrimitives) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 1.574s
+
+OK

@@ -1,0 +1,212 @@
+{
+  "schema": 1,
+  "kind": "zk60-mvp-joint-view-gate",
+  "python": "3.10.12",
+  "root": "/home/victor/wt-zk60-mvp-fable",
+  "captures": "/home/victor/IntelligenceRegulation/results/zk60_round22_captures",
+  "manifest": "/home/victor/IntelligenceRegulation/results/zk60_round22_captures.json",
+  "manifest_sha256": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d",
+  "tool_sha256": {
+    "scripts/zk60_blake3_pure.py": "c4ef1e719d7a7dd7852998059a9c1748c288aaf69d351d70f6a36adc018ab790",
+    "scripts/zk60_transcript_replay.py": "2add954fe0cecb6aac4b56d3ff1d4a2add988cbe73d17f9cbcd97878a7faae51",
+    "scripts/zk60_joint_view.py": "542564fd7089b8942682962c1aebc2562b360955577e87ec5d7e4f1f284baafa",
+    "scripts/zk60_joint_cfs_view.py": "a0de9fd6d84db141a9b0200526abf1e5dce811dd6cdc79a8c1762f2d87617ca9",
+    "scripts/zk60_root_simulator.py": "248bc58ed0df390487d03581c78e33d539ff7a2acae3833b059dbf59bb334717",
+    "scripts/zk60_mvp_joint_view_gate.py": "7670527fa039c4743e5ec182f63c676ec81bc8ae023168ecb76ef2df7c0a347e",
+    "tests/test_zk60_transcript_replay.py": "a69baaef9e0dfe2ea3a343cfa536265b2a93ecdf04e5ca580a4f72a3e5958d12",
+    "tests/test_zk60_joint_view.py": "4c037811a516bfbf7f5ce4f03915f2b0c6c460c9a2b34c18c22ab4736c2a9df0",
+    "tests/test_zk60_joint_cfs_view.py": "3a25ac9efff91f194391688f9bbfe2b59bd631a9e67493cfec55b661a37e8aad",
+    "tests/test_zk60_root_simulator.py": "5ab5ada435b5f19fe375e368c39e1954a7ed281364962f96812c66834dda3b14",
+    "tests/test_zk60_sequential_kernel.py": "5865d7f619b3ea7be0ceacfe360de5153f7a4bb7f6359db0e22052f9652a232c"
+  },
+  "missing_tools": [],
+  "stages": [
+    {
+      "name": "test_transcript_replay",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/home/victor/wt-zk60-mvp-fable/tests",
+        "-p",
+        "test_zk60_transcript_replay.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 1.7,
+      "log": "results/zk60_mvp_joint_view_evidence/gate_test_transcript_replay.log",
+      "log_sha256": "b6311acb935290c00859e1680a0fef7a0c5018f27db9743e1173fa914600d5bc"
+    },
+    {
+      "name": "test_joint_view",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/home/victor/wt-zk60-mvp-fable/tests",
+        "-p",
+        "test_zk60_joint_view.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 40.475,
+      "log": "results/zk60_mvp_joint_view_evidence/gate_test_joint_view.log",
+      "log_sha256": "ddb14638b56a600da99ac53556a095362595ef56d17c474dee3584cce7713ed8"
+    },
+    {
+      "name": "test_joint_cfs_view",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/home/victor/wt-zk60-mvp-fable/tests",
+        "-p",
+        "test_zk60_joint_cfs_view.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 0.966,
+      "log": "results/zk60_mvp_joint_view_evidence/gate_test_joint_cfs_view.log",
+      "log_sha256": "be2828b281ae1bf9c16a25af84ab748af5ccccab3f404bb8140d6f79a998c17e"
+    },
+    {
+      "name": "test_root_simulator",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/home/victor/wt-zk60-mvp-fable/tests",
+        "-p",
+        "test_zk60_root_simulator.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 0.63,
+      "log": "results/zk60_mvp_joint_view_evidence/gate_test_root_simulator.log",
+      "log_sha256": "369480246a76f23d38694ce16d0ea4d449ca22123706037343321454fc24c355"
+    },
+    {
+      "name": "test_sequential_kernel",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/home/victor/wt-zk60-mvp-fable/tests",
+        "-p",
+        "test_zk60_sequential_kernel.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 5.659,
+      "log": "results/zk60_mvp_joint_view_evidence/gate_test_sequential_kernel.log",
+      "log_sha256": "febf5688005fb7350af070b31668ef18ce2f8df202e8ddcf7b139c62b4d86768"
+    },
+    {
+      "name": "transcript_replay_wheel",
+      "command": [
+        "/usr/bin/python3",
+        "/home/victor/wt-zk60-mvp-fable/scripts/zk60_transcript_replay.py",
+        "--captures",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures",
+        "--manifest",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures.json",
+        "--out",
+        "/home/victor/wt-zk60-mvp-fable/results/zk60_mvp_joint_view_evidence/transcript_replay/gate_replay.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.714,
+      "log": "results/zk60_mvp_joint_view_evidence/gate_transcript_replay_wheel.log",
+      "log_sha256": "242588f3e596165c1db1fa9752f13fde2d87e255b54ee4d3541b7d143a58166c",
+      "result": "results/zk60_mvp_joint_view_evidence/transcript_replay/gate_replay.json",
+      "result_sha256": "a627f1fda4d627e8ab0a8702726c7caf1dc6a101a9a194eabc68fca0d7dbc2ba"
+    },
+    {
+      "name": "transcript_replay_pure",
+      "command": [
+        "/usr/bin/python3",
+        "/home/victor/wt-zk60-mvp-fable/scripts/zk60_transcript_replay.py",
+        "--captures",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures",
+        "--manifest",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures.json",
+        "--backend",
+        "pure",
+        "--no-history",
+        "--out",
+        "/home/victor/wt-zk60-mvp-fable/results/zk60_mvp_joint_view_evidence/transcript_replay/gate_replay_pure.json"
+      ],
+      "exit_code": 0,
+      "seconds": 1.974,
+      "log": "results/zk60_mvp_joint_view_evidence/gate_transcript_replay_pure.log",
+      "log_sha256": "61ff9c7fb8d2f67cdb49666e49b8ac762a38d6df246269cb9675787dfa42cc86",
+      "result": "results/zk60_mvp_joint_view_evidence/transcript_replay/gate_replay_pure.json",
+      "result_sha256": "18dd9031f712518866dc60dd72324022edc6e466ac79dbe612ff7c37ec05c86f"
+    },
+    {
+      "name": "joint_pcs_view",
+      "command": [
+        "/usr/bin/python3",
+        "/home/victor/wt-zk60-mvp-fable/scripts/zk60_joint_view.py",
+        "--captures",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures",
+        "--manifest",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures.json",
+        "--out",
+        "/home/victor/wt-zk60-mvp-fable/results/zk60_mvp_joint_view_evidence/pcs_view/gate_joint_view.json"
+      ],
+      "exit_code": 0,
+      "seconds": 165.216,
+      "log": "results/zk60_mvp_joint_view_evidence/gate_joint_pcs_view.log",
+      "log_sha256": "2138ba3ac5778196e98a25b658ea273a631b9772e5cbd835145be4c0a089eba3",
+      "result": "results/zk60_mvp_joint_view_evidence/pcs_view/gate_joint_view.json",
+      "result_sha256": "820a94a31927ca8e9fd50f2d9a666b61e45904da39d44262e4db372e2d584826"
+    },
+    {
+      "name": "joint_cfs_view_captured",
+      "command": [
+        "/usr/bin/python3",
+        "/home/victor/wt-zk60-mvp-fable/scripts/zk60_joint_cfs_view.py",
+        "--captures",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures",
+        "--manifest",
+        "/home/victor/IntelligenceRegulation/results/zk60_round22_captures.json",
+        "--challenges",
+        "/home/victor/wt-zk60-mvp-fable/results/zk60_mvp_joint_view_evidence/transcript_replay/gate_replay.json",
+        "--out",
+        "/home/victor/wt-zk60-mvp-fable/results/zk60_mvp_joint_view_evidence/cfs_view/gate_joint_cfs_view_captured.json"
+      ],
+      "exit_code": 0,
+      "seconds": 36.582,
+      "log": "results/zk60_mvp_joint_view_evidence/gate_joint_cfs_view_captured.log",
+      "log_sha256": "c8faced0a423b6641b9cc59fc5d36443b5705c6ff5d3a4f65e488823e678088f",
+      "result": "results/zk60_mvp_joint_view_evidence/cfs_view/gate_joint_cfs_view_captured.json",
+      "result_sha256": "77168e8490208be5937823601dd39e3a3fa32e0038b0fb2d8128b81c1ae804c0"
+    },
+    {
+      "name": "root_simulator",
+      "command": [
+        "/usr/bin/python3",
+        "/home/victor/wt-zk60-mvp-fable/scripts/zk60_root_simulator.py",
+        "--out",
+        "/home/victor/wt-zk60-mvp-fable/results/zk60_mvp_joint_view_evidence/simulator/gate_root_simulator.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.129,
+      "log": "results/zk60_mvp_joint_view_evidence/gate_root_simulator.log",
+      "log_sha256": "74423ca89df2d1d4124218d8e83a1c5ee5c39f988644857d28037011048b0cec",
+      "result": "results/zk60_mvp_joint_view_evidence/simulator/gate_root_simulator.json",
+      "result_sha256": "1bf619e53fc4326ccdbcde9df24c54cef59c57f4d8059abcfd567112e58a6dd9"
+    }
+  ],
+  "status": "passed"
+}

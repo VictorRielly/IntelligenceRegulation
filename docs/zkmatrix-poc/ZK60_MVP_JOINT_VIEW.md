@@ -52,7 +52,9 @@ Two tools compute the joint statement on the four retained round-22 captures (tw
 
 - `scripts/zk60_joint_view.py` (PCS side): the exact affine model of every group vector, terminal, proximity vector and opened column of every role jointly, with data aliasing across roles as in O8's `JointModel`, and with each row's freedom restricted by its 256 opened column values (the column-restriction map is one 256×512 matrix per role, shared by all rows; its kernel is substituted once). It reports the disclosed dimension of the data directions with and without the column equations; without columns it must reproduce O8's numbers; with columns the expected result is the same (only the public H LogUp identity), and the controls (ablated endpoint pair row, pad budget below the opened count) must disclose.
 - `scripts/zk60_joint_cfs_view.py` (CFS side): all eight slots and the M opening together at the captured coefficients: per slot, the mask map onto the consistency subspace given the two functionals; the M opening's disclosed dimension of the a-rows beyond the 14 functionals; and the composed rank with shared a-rows. The six FFN slots' `(c_s, ρ_s)` are not in the captures; they come from the replay below (or are labelled stand-in when the replay output is absent).
-- `scripts/zk60_transcript_replay.py` (oracle history): re-derives every transcript state and challenge of each receipt from public data (pure-Python BLAKE3 cross-checked against the `blake3` wheel), checks the receipt's binding state and every captured `before`/`after` checkpoint, and emits the ordered absorb/squeeze history and the six FFN slots' challenges.
+- `scripts/zk60_transcript_replay.py` (oracle history): re-derives every transcript state and challenge of each receipt from public data (pure-Python BLAKE3 cross-checked against the `blake3` wheel), checks the receipt's binding state and every captured `before`/`after` checkpoint, and emits the ordered absorb/squeeze history and the six FFN slots' challenges. The statement fields it absorbs are the public fixture's (`public_synthetic_fixture`, SiLU int16 table member with shifts −3/−11); the receipt's binding state confirms the port byte for byte.
+- `scripts/zk60_root_simulator.py` and `tests/test_zk60_sequential_kernel.py`: the oracle layer and the lemma of §1.
+- `scripts/zk60_mvp_joint_view_gate.py`: the one-command execution record of §7.
 
 Together with the round-24/25 endpoint samplers (zero-data preimages for the endpoint openings) and the round-1 probe's IO zero-witness solver (both already executed by Codex on the same captures), this is the joint conditional construction the gate asks for, at fixed challenges. The lemma of §1.2 is what lifts it. §7 records exactly which of these ran in this session and their numbers.
 
@@ -83,6 +85,34 @@ The six prerequisites of round 1 §6 stand unchanged and are endorsed. One addit
 3. Update `ZK60_ENDPOINT_SIMULATION_MODEL.md`'s "what remains" list: the joint field-view sampler now exists at fixed challenges; the root-only obligation is met by two programmed points in the ROM with the stated bound; keep the obligation listed.
 4. Keep round 1's memo archived; this memo supersedes its §2 only.
 
-## 7. What ran in this session (filled in from the evidence records)
+## 7. What ran in this session
 
-_To be completed from `results/zk60_mvp_joint_view_evidence/` before handoff: exact commands, exit codes, per-capture numbers, and any tool that did not complete._
+One command reproduces everything and writes the execution record
+(`results/zk60_mvp_joint_view_evidence/validation.json`, marker
+`validation.done`, per-stage logs `gate_*.log`, tool and result hashes):
+
+```
+python3 scripts/zk60_mvp_joint_view_gate.py \
+  --captures /home/victor/IntelligenceRegulation/results/zk60_round22_captures \
+  --manifest /home/victor/IntelligenceRegulation/results/zk60_round22_captures.json \
+  --evidence results/zk60_mvp_joint_view_evidence
+```
+
+Inputs are the four retained round-22 capture triplets (two P1, two P3, all
+source pins equal to HEAD; the manifest's 35 hash/size checks pass). Every
+tool below was also run by its author and re-run by me before the gate; the
+numbers are identical across runs (the tools are deterministic or seeded).
+
+| Stage | Result |
+|---|---|
+| `tests/test_zk60_transcript_replay.py` | 17 tests pass |
+| `tests/test_zk60_joint_view.py` | 12 tests pass (four on the real P1 capture) |
+| `tests/test_zk60_joint_cfs_view.py` | 14 tests pass |
+| `tests/test_zk60_root_simulator.py` | 18 tests pass |
+| `tests/test_zk60_sequential_kernel.py` | 10 tests pass (exhaustive over all challenge functions of each toy model) |
+| `zk60_transcript_replay.py` (wheel and pure backends) | 4/4 captures replay; 17 transcript checkpoints per capture match in state and counter (binding state at receipt bytes 8..40, both IO arguments, M, every role before/after); every captured τ, c, ρ, θ, proximity ρ, group λ and column index equals the replayed value; the six FFN slots' `(c_s, ρ_s)` recovered (ρ lengths gu/d 6 in P3, 5 in P1; zc20 10, zc17 10, tab 17, zs 9); final counter 2668 (P3) / 2658 (P1); a one-bit change of any round message breaks the next checkpoint |
+| `zk60_joint_view.py` (PCS side) | 4 captures, 215 checks, 0 failed, 166 s, peak RSS 139 MB. Disclosed data dimension **with** the opened-column equations equals the number **without** them and equals O8 live and archived: A 0, W 0 (P3), Input 0, Output 0, H 2 (the public LogUp identity; 0 without the zero-sum constraint), A+Input+Output aliased 0, all private commitments aliased 2. M: exactly its 14 public functionals, 0 beyond. The reduction lemma is verified on each captured opening set (pad right inverse, kernel basis NTT-checked). Controls: endpoint pair-row ablation discloses 256; one pad fewer than the distinct opened positions discloses (H mask class 10, data class 666; endpoints 2); 255 pads disclose nothing because the distinct opened count is 235–248 |
+| `zk60_joint_cfs_view.py --challenges <replay>` (CFS side) | all four captures pass at the **captured** FFN challenges (`ffn_challenges: captured`). Per system, mask fibre / honest-side dimension / honest disclosed: gu+zc20 2/51/0 (P1 49), d+zc17 2/51/0 (P1 49), zs 1/17/0, tab 1/50/0, io0 1/19/0, io1 1/19/0. Composed over all eight slots with shared a-rows: P3 229 mask unknowns, rank 221, fibre 8, honest subspace 207, **disclosed 0**; P1 225/217/8/203/**0**. M opening at captured θ, q′, proximity ρ and indices: a-rows constrained only through the 14 functionals (rank 14, rank with the θ-combination 14, beyond 0). The FFN challenges are also derivable from the recorded functionals' evaluation weights and agree exactly with the BLAKE3 replay on every capture. Controls: c = 0 and ρ_last = 0 refused; corrupted rounds fail the verifier chain; removing M's pads or blinders discloses |
+| `zk60_root_simulator.py` | joint simulator: 0 programmed points; root-only simulator: exactly 2 programmed points; 512 paths verify under the fixed roots in both worlds (240 distinct positions per endpoint plus duplicates); collision detection fires only when the distinguisher already holds the honest top pair; a pre-answered top pair is refused; 6 refusals exercised; seeded, tool hash pinned in the record |
+
+Stated limits of the tools, carried into §3: the PCS-side number is computed on the reduced system after the per-role reduction lemma (the dense matrix has about a million unknowns and is brute-forced only on a synthetic geometry); the M joint computation is an exact block elimination, not one dense elimination; the A zero-data preimage is an existence certificate, not a sampled preimage; the replay checks the round chains of every slot but not the FFN terminal identities (those need the full verifier polynomial); hash, salt and Merkle hiding, adaptive challenges and repeated openings are outside the linear models by construction and are handled by §1.1 and §1.2. Nothing here changes the MVP or full-privacy acceptance flags; that is Codex's call after review.

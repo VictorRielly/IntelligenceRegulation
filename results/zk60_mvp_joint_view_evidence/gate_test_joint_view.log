@@ -1,0 +1,17 @@
+test_controls_detect_the_known_leaks (test_zk60_joint_view.RealCapture) ... ok
+test_every_recorded_expectation_holds (test_zk60_joint_view.RealCapture) ... ok
+test_mask_commitment_discloses_exactly_its_public_functionals (test_zk60_joint_view.RealCapture) ... ok
+test_with_columns_equals_without_equals_o8 (test_zk60_joint_view.RealCapture) ... ok
+test_ablated_endpoint_mask_pair_discloses (test_zk60_joint_view.SmallGeometry) ... ok
+test_baseline_discloses_only_the_public_zero_sum (test_zk60_joint_view.SmallGeometry) ... ok
+test_deficient_pads_disclose_only_through_the_columns (test_zk60_joint_view.SmallGeometry) ... ok
+test_explicit_column_matrix_matches_the_certificate_and_kernel (test_zk60_joint_view.SmallGeometry) ... ok
+test_four_distinct_positions_and_no_alias (test_zk60_joint_view.SmallGeometry) ... ok
+test_polynomial_helpers (test_zk60_joint_view.SmallGeometry) ... ok
+test_refusals (test_zk60_joint_view.SmallGeometry) ... ok
+test_the_brute_force_matrix_has_the_expected_shape (test_zk60_joint_view.SmallGeometry) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 40.434s
+
+OK

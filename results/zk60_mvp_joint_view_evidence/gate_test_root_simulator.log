@@ -1,0 +1,23 @@
+test_joint_paths_verify_under_issued_roots_including_duplicates (test_zk60_root_simulator.BothWorldsVerify) ... ok
+test_root_only_paths_verify_under_the_fixed_honest_roots (test_zk60_root_simulator.BothWorldsVerify) ... ok
+test_verify_rejects_tampering_in_both_worlds (test_zk60_root_simulator.BothWorldsVerify) ... ok
+test_informed_distinguisher_detects_two_preimages_in_the_simulated_world (test_zk60_root_simulator.CollisionDetectionNegativeControl) ... ok
+test_informed_distinguisher_sees_one_preimage_in_the_real_world (test_zk60_root_simulator.CollisionDetectionNegativeControl) ... ok
+test_no_collision_in_the_joint_world_even_when_informed_about_other_roots (test_zk60_root_simulator.CollisionDetectionNegativeControl) ... ok
+test_uninformed_distinguisher_sees_one_preimage_in_the_simulated_world (test_zk60_root_simulator.CollisionDetectionNegativeControl) ... ok
+test_real_world_openings_reveal_no_unopened_column_or_salt (test_zk60_root_simulator.HonestSecretsStayHidden) ... ok
+test_simulated_world_reveals_nothing_of_the_committer_but_the_root (test_zk60_root_simulator.HonestSecretsStayHidden) ... ok
+test_fresh_salts_program_successfully_against_the_same_root (test_zk60_root_simulator.PreAnsweredTopPairRefuses) ... ok
+test_program_fresh_refuses_when_the_fresh_top_pair_is_already_answered (test_zk60_root_simulator.PreAnsweredTopPairRefuses) ... ok
+test_joint_programs_nothing (test_zk60_root_simulator.ProgrammedPointCounts) ... ok
+test_root_only_programs_exactly_one_point_per_root (test_zk60_root_simulator.ProgrammedPointCounts) ... ok
+test_salted_leaf_and_node_share_the_table (test_zk60_root_simulator.ProgrammedPointCounts) ... ok
+test_cli_experiment_counts_and_reproducibility (test_zk60_root_simulator.RefusalDiscipline) ... ok
+test_position_count_and_index_domain (test_zk60_root_simulator.RefusalDiscipline) ... ok
+test_root_only_refuses_a_different_root_and_failure_consumes (test_zk60_root_simulator.RefusalDiscipline) ... ok
+test_second_use_after_success_refuses_in_both_worlds (test_zk60_root_simulator.RefusalDiscipline) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.595s
+
+OK
