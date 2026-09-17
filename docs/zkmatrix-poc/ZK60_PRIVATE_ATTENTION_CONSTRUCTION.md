@@ -59,28 +59,40 @@ Today the verifier forms the claimed sum of six sumchecks from earlier public cl
 
 A masked scalar can carry one mask total, so a claimed sum that is a public λ-combination of evaluations on **different domains** cannot be hosted by one zero-check. The QKV slot's claimed sum `acc_q + λ_k·acc_k + λ_v·acc_v` combines a Q-domain value with two KV-domain values. It therefore **splits into three inner-product slots** (Q, K, V), each `(5, 2)` in P1 (`(6, 2)` in P3), each with its own masked scalar and its own host term: Q in the Q-domain zero-check, K and V in the KV-domain zero-check with two ν's. The three slots open `xn8` at three tails, which is three pair sites on the same rows (permitted, FA3 §2.3). A claimed sum that combines evaluations on **one** domain (the SS sums, the row sums, the score and PV and Wo sums) keeps its single slot and single masked scalar; the host term carries the whole combination as `Σ_i ν·coeff_i·eq(p_i, x)·plane_i(x)`.
 
-### 3.3 Host assignment
+### 3.3 Host assignment (from the source, `attention.rs` at `b41d036`)
 
-_Filled from the source extraction (sections, domains, the exact linear forms and the planes each host already opens at its ρ). Placeholder until that report lands:_
+Every private claimed sum is a public-coefficient combination of evaluations of committed planes, and every such plane is already a terminal of one zero-check on the plane's own domain at that zero-check's ρ. The host is that zero-check; the host term evaluates the same planes at the private slot's point through an `eq` factor. Line references are to `attention.rs`.
 
-| Private-sum slot | Masked scalar | Value it stands for | Host zero-check (domain) | Host term |
+| Private-sum slot | Masked scalar | Value it stands for (source) | Host zero-check (domain, vars) | Host term added, with a fresh ν |
 |---|---|---|---|---|
-| SS row sums (§1) | `ss_claim` | `ss[0] + λ_ss·ss[1]`, linear forms of 16 `sm` limb evaluations | _tbd_ | `Σ_i ν·coeff_i·eq(p_i,x)·sm(x)` |
-| row sums (§7) | `rs_claim` | `sum_cl + λ_z` (`sm[Sum]` at `p_ht`) | _tbd_ | `ν·eq(p_ht,x)·sm(x)` |
-| Q / K / V matmuls (§9, split) | `q_claim`, `k_claim`, `v_claim` | `2^{sh}·q8 + rq` at `p_q`; likewise k, v | Q zero-check; KV zero-check | `ν·eq(p,x)·(2^{sh}·plane + rem)(x)` |
-| score matmul (§10) | `s_claim` | `cs8·2^{sh_s} + crs` at `p_s` | S zero-check | as above |
-| PV matmul (§11) | `o_claim` | `co8·2^{sh_o} + cro` at `p_o` | the zero-check that opens `o8`/`ro` (inventory g16: the Q-domain zero-check) | as above |
-| Wo matmul (§12) | `ao_claim` | `ao·2^{sh_ao} + rao` at `p_ao` | D zero-check (g13 opens `ao`, `rao` at ρ_D) | as above |
+| §1 SS row sums (2257) | `ss_claim` | `ss[0] + λ_ss·ss[1]`, `ss[site] = a1(site) + Dsq(site) − Ceps_site`, each a length-T sub-row of the packed `sm` slice evaluated at `r_t` (2241–2253) | §2 norm squares (T-row domain, 5 vars; its terminals are the same `sm` sub-rows at ρ₂, 2291–2292) | `ν·eq(r_t, x)·[a1₀ + Dsq₀ + λ_ss·(a1₁ + Dsq₁)](x)`; the public `−Ceps` constants enter the claimed sum as a public term |
+| §7 row sums (2513) | `rs_claim` | `Sum(p_ht) + λ_z`, the `Sum` block of `sm` on the (h′,t) domain at `p_ht` (2509); `+λ_z` is public | §6 softmax (S domain, 11 vars; opens `sm[Sum]` at `ρ_S[..6]` via `bcast_row`, 2497–2498) | `ν·eq(p_ht, x_{ht})·Sum(x_{ht})` summed over the S domain, i.e. `T·Sum(p_ht)`; the public factor `T` and `+λ_z` are public terms |
+| §9 Q matmul (split) | `q_claim` | `2^{sh_q}·q8(pq) + rq(pq)`, `pq = r_t‖r_jq` on the Q domain (2565, 2568–2569, 2574) | §4 Q zero-check (Q domain, 9 vars; opens `q8, rq` at ρ_Q, 2416) | `ν·eq(pq, x)·(2^{sh_q}·q8 + rq)(x)` |
+| §9 K matmul (split) | `k_claim` | `2^{sh_k}·k8(pk) + rk(pk)`, `pk = r_t‖r_jk` on the KV domain (2566, 2570–2571, 2575) | §5 KV zero-check (KV domain, 8 vars; opens `k8, rk` at ρ_KV) | as above with `pk` |
+| §9 V matmul (split) | `v_claim` | `2^{sh_v}·v8(pv) + rv(pv)`, `pv = r_t‖r_jv` (2567, 2572–2573, 2576) | §5 KV zero-check (second ν) | as above with `pv` |
+| §10 score matmul (2608) | `s_claim` | `2^{sh_s}·s8(p_s) + rs(p_s)` on the S domain (2600–2602) | §6 softmax (S domain; opens `s8, rs` at ρ_S, 2489–2490) | `ν·eq(p_s, x)·(2^{sh_s}·s8 + rs)(x)` |
+| §11 PV matmul (2660) | `o_claim` | `2^{sh_o}·o8(p_o) + ro(p_o)` on the Q domain (2653–2655) | §4 Q zero-check (opens `o8, ro` at ρ_Q; inventory g16) | `ν·eq(p_o, x)·(2^{sh_o}·o8 + ro)(x)` |
+| §12 Wo matmul (2714) | `ao_claim` | `2^{sh_ao}·(cst + Σ_k coef_k·ao_k(p_a)) + rao(p_a)` on the D domain (2705–2711) | §3 D zero-check (D domain, 9 vars; opens `ao, rao` at ρ_D; inventory g13) | `ν·eq(p_a, x)·(2^{sh_ao}·Σ_k coef_k·ao_k + rao)(x)`; `cst` public |
+
+Each host term is `eq × (degree-1 combination of planes)`, degree 2, below every host's degree, so no host's `(n_vars, degree)` changes. The QKV split is forced by the two domains (Q for `q8/rq`, KV for `k8/rk/v8/rv`): one masked scalar cannot be hosted on two domains.
+
+**Pointwise checks on clear claims become zero-check terms.** Today three families of relations are checked by arithmetic on clear claim values, which a hiding profile cannot do. Each is a linear relation among planes on one domain and becomes a μ-batched degree-1 term of the zero-check on that domain: (i) §1's `a2 = 2·D − a1`, `a1 = l0 + 2^16·l1`, `a2 = l2 + 2^16·l3` per site (2249–2251) on the T-row domain, hosted by §2, whose terminal gains the `a2` and `l0…l3` sub-rows at ρ₂ (twelve more single-row sites, hence twelve pairs); (ii) §3's `σ + ρ + 1 = D·2^{tn+1}` per site and the two residual pins `xres1·2^{sh} + rr1 = x_in·2^{sh} + ao·2^{sh}` and `xres2·2^{sh} + rr2 = xres1·2^{sh} + z16c·2^{sh}` (2360–2382), all on the D domain at ρ_D with the `D` sub-rows already broadcast there, folded into §3 with four more μ's; (iii) §13's LogUp identity, handled in §4.1. Nothing is compared in the clear anywhere after this.
 
 ### 3.4 The slot list and the M layout
 
-Slots in transcript order: the twelve of Opus §3.1 with the QKV slot replaced by three, i.e. **fourteen slots** in P1 (`SC_ATTN_00 … SC_ATTN_13`); the two seam slots stay on the FFN M (FA6 §6). The attention M holds `2 × 14 = 28` coefficient rows plus `b_re, b_im, u_re, u_im` = **32 rows**, each `[L_s ‖ 256 pads ‖ zeros]` on `G_512`, opened once at one θ. `mask_functionals` order: for each slot in order, `Σ` then `eval(ρ_s)`; then, for each host in order, the batched `Γ` functional `c_host·Σ_host − Σ_{s hosted} ν_s·c_s·Σ_s` (the form the CFS-view tool of round 2 already parses for the FFN's Γ20/Γ17). The exact list is emitted by the CFS check of §6.
+Slots on the attention M, in the transcript order of §5: the twelve of Opus §3.1 with the QKV slot replaced by three (Q, K, V, each `(5, 2)` in P1 and `(6, 2)` in P3), plus the two table-side slots the FFN has and attention lacks today, `SC_ATTN_TAB` (the per-table helper relations over the largest table, `(17, 3)` as the FFN's) and `SC_ATTN_ZS` (the zero-sum claim on `u`, `(9, 2)`), plus the two endpoint slots of the `/2` IO mechanism attached to the attention A (`x_in`, `xres2`; `(10, 2)` each): **eighteen slots**. The two internal seam slots stay on the FFN M (FA6 §6). The attention M holds `2 × 18 = 36` coefficient rows plus `b_re, b_im, u_re, u_im` = **40 rows**, each `[L_s ‖ 256 pads ‖ zeros]` on `G_512`, opened once at one θ; the largest slot is the S zero-check at `L = 62`, so every row has headroom. `mask_functionals` order: for each slot in transcript order, `Σ` then `eval(ρ_s)`; then, for each host in order, the batched `Γ` functional `c_host·Σ_host − Σ_{s hosted} ν_s·c_s·Σ_s` (the form the CFS-view tool of round 2 derives for the FFN's Γ20/Γ17). The CFS check of §6 emits the exact list.
 
 ## 4. A3 and the LogUp side — the helper sums, histograms and seams
 
 ### 4.1 One zero-sum row for the nineteen helper sums (O-1, R4)
 
-Section 13 today checks `Σ_k hsum_k = Σ_tables Σ_rows m_i/(α − t_i)` in the clear from nineteen published sums and ten published histograms. In the private profile: the ten histograms are committed A rows (§2) and the table side is the same LogUp fraction relation the FFN proves for its tables (committed multiplicities, helper rows, zero-checks); the prover commits **one** additional H row `u` defined position-wise as the sum of the nineteen aligned helper columns minus the table-side helper columns, so that `Σ_j u[j] = 0` is exactly the LogUp identity; `u` is masked by a zero-sum pair (`Σ = 0` on both rows) and the sum claim's terminal by a fresh unconstrained pair (`h_u`/`h_up`, FA2 §14.5). The individual `hsum_k` are never published: each helper column is still opened as a pair-masked **evaluation** inside its domain's zero-check (the fraction relation), and the only sum claim on H is the value-0 claim on `u`. The rank check (§6) shows the surviving data functional on H is the public identity and nothing else; the negative control with nineteen published sums discloses nineteen dimensions.
+Section 13 today checks, in the clear (2731–2777),
+
+```
+Σ_{c=0}^{18} Σ_x [ 1/(α − l1_c(x)) + 1/(α − l2_c(x)) ]  =  Σ_T Σ_i m_T[i] / (α − (value_T(i) + β·aux_T(i) + γ·tag(T)))
+```
+
+from nineteen published helper sums (`Cc::hsum`, one opening group) and ten published histograms `m_T` (26,624 lookups at A00). In the private profile the FFN's construction is applied unchanged in structure: the ten histograms are committed A rows (§2); per table `T` a committed helper column `g_T[i] = m_T[i]/(α − t_T(i))` with the degree-1 relation `g_T·(α − t_T) − m_T = 0` proved in the `SC_ATTN_TAB` zero-check over the table domain (the table values `t_T(i)` are public); and one H row `u`, formed column-wise as the sum of the nineteen helper columns minus the sum of the table helper rows (the FFN's `h_u` packing over the 256-wide matrix), whose well-formedness is a degree-1 relation in the same zero-check and whose sum `Σ_j u[j] = 0` is exactly the identity above, proved by the `SC_ATTN_ZS` slot with `u` masked by a zero-sum pair (`Σ = 0` on both rows) and its terminal by a fresh unconstrained pair (`h_u`/`h_up`, FA2 §14.5). The individual `hsum_k` are never published: each helper column is still opened as a pair-masked **evaluation** inside its domain's zero-check (the `hcon` fraction relation), and the only sum claim on H is the value-0 claim on `u`. The rank check (§6) shows the surviving data functional on H is the public identity and nothing else; the negative control with nineteen published sums discloses nineteen dimensions. `AttnProof.mults`, `absorb_mults_a` and `helper_sums` are absent from the private profile; the table set, row counts and totals remain public shape facts checked from the statement.
 
 ### 4.2 Seams (A3) and the residual seam (A4)
 
@@ -89,7 +101,17 @@ Section 13 today checks `Σ_k hsum_k = Σ_tables Σ_rows m_i/(α − t_i)` in th
 
 ## 5. Transcript order and refusals (R12, R16)
 
-Per component: header and public roots and endpoint policy; the attention A root (all mask rows drawn before commit); the attention M root; then the first challenge; H root after the lookup challenges; the fourteen slots in A01's section order, each masked scalar or Γ absorbed before the slot's first round challenge, terminals and mask evaluations absorbed after the extension round; the seams; then one M opening and one opening per commitment in a fixed order. Refusals: `c_s = 0`, `e = 0`, degenerate pair coefficients, Fp-dependent proximity challenges, row-bit coordinates in Fp for block slots, a zero group-member coefficient, any count mismatch (R13), a non-empty collapse vector (R14). The recorded prover and verifier absorb sequences must equal a committed `transcript_order` list label by label; the round-2 transcript replay is the tool that checks it on real receipts once the labels exist.
+Per component: header, public roots (W under P1, the approved table digests) and the endpoint policy; the attention A root (histogram rows and every mask row drawn from the component's OS stream before commit); the attention M root; then the first challenges β, γ, α; the H root (helper columns, table helpers `g_T`, `u`); then the slots. **Every host runs after the private slots it hosts**, since a host's claimed sum consumes their masked scalars, so the section order changes from A01's 1…13 to:
+
+```
+1 SS (private)  →  2 norm squares (hosts 1; carries the §1 linear checks)  →  8 LM zero-check
+→ 7 row sums (private)  →  9Q, 9K, 9V (private)  →  10 score (private)  →  11 PV (private)  →  12 Wo (private)
+→ 3 D zero-check (hosts 12; carries the σ/ρ and residual relations)  →  4 Q zero-check (hosts 9Q, 11)
+→ 5 KV zero-check (hosts 9K, 9V)  →  6 softmax (hosts 7, 10)  →  TAB  →  ZS  →  IO-in, IO-out
+→ internal seams (on the FFN M)  →  one M opening  →  one opening per commitment (fixed order)
+```
+
+Each masked scalar, Γ or public constant is absorbed before the slot's first round challenge; terminals and mask evaluations are absorbed after the extension round; every private slot's point challenges (`r_t`, `p_ht`, `pq/pk/pv`, `p_s`, `p_o`, `p_a`) are drawn fresh after the M root, as today. Refusals: `c_s = 0`, `e = 0`, degenerate pair coefficients, Fp-dependent proximity challenges, row-bit coordinates in Fp for block slots, a zero group-member coefficient, any count mismatch (R13), a non-empty collapse vector (R14). The recorded prover and verifier absorb sequences must equal a committed `transcript_order` list label by label; the round-2 transcript replay is the tool that checks it on real receipts once the labels exist.
 
 ## 6. Executable checks delivered with this construction
 
