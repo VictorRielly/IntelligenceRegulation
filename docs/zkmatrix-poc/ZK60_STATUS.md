@@ -1,5 +1,16 @@
 # ZK60 milestone map
 
+**2026-09-15, MVP refresh:** [plan and results](ZK60_MVP_20260915.md).
+Opus 5's [one-command P1 FFN demo](ZK60_P1_DEMO.md) now produces a
+5,029,244-byte receipt, verifies it independently and rejects six altered
+requests/artifacts. Fable 5.1's bounded zero-data IO checks are integrated with
+[explicit review qualifications](ZK60_MVP_REVIEW.md); the proposal to remove
+the external-root requirement is rejected. **53 new focused tests, 75 current
+endpoint tests, 871 full-suite tests (60 historical-fixture skips), retained IO
+checks (36 tests, three legacy skips), and freeze-check pass.** A complete tiny
+private block, joint/adaptive privacy and caller-fixed endpoint simulation
+remain open. The dated entries below are historical evidence.
+
 **Required scope:** the first PoC (P1) hides inputs, outputs and intermediate
 activations; weights may be public. The full version (P3) also hides weights.
 Victor reaffirmed this on 2026-09-09. These are requirements, not claims of

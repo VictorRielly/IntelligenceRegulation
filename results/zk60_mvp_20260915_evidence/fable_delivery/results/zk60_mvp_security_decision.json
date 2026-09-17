@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "kind": "zk60-mvp-security-decision-record",
+  "date": "2026-09-15",
+  "author": "Claude Fable 5.1 (security critical-path assessment)",
+  "baseline_commit": "763e308",
+  "memo": "docs/zkmatrix-poc/ZK60_MVP_SECURITY_DECISION.md",
+  "execution": {
+    "probe_executed_in_authoring_session": false,
+    "tests_executed_in_authoring_session": false,
+    "reason": "every python3 invocation (script form and `python3 -m unittest` form) was denied by the session's permission layer; only read-only shell commands ran. Nothing below claims a test outcome. The first successful run of the test module writes the probe's own record to a NEW file path chosen by the runner (see commands); this decision record is not that evidence file.",
+    "commands": [
+      "python3 -m unittest discover -s tests -p 'test_zk60_mvp_security_probe.py' -v",
+      "ZK60_MVP_PROBE_OUT=results/zk60_mvp_security_probe_run1.json python3 -m unittest tests.test_zk60_mvp_security_probe.FullRun -v",
+      "python3 scripts/zk60_mvp_security_probe.py --captures /home/victor/IntelligenceRegulation/results/zk60_round22_captures --out results/zk60_mvp_security_probe_run1.json"
+    ],
+    "note_on_record_path": "the probe never writes to this decision record's path; its own record goes to the path given by --out or ZK60_MVP_PROBE_OUT, which must not exist yet. Codex chooses the archived name."
+  },
+  "source_pins_verified_by_sha256sum_in_session": {
+    "manifest": "results/zk60_round22_captures.json",
+    "manifest_sha256": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d",
+    "producer_commit": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4",
+    "head_matches_manifest": {
+      "hashline/src/zk.rs": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310",
+      "hashline/src/zk_ffn_fresh_io.rs": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+      "hashline/src/private_seam.rs": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+      "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+      "zkp-core/src/transcript.rs": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+      "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+    },
+    "head_unpinned": {
+      "hashline/src/zk_ffn_fresh_poc.rs": "de86a47b067f950ff780c93e85b3dba28292603f8db581ec9c9c77bbd24f70ba",
+      "zkp-core/src/merkle.rs": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62",
+      "zkp-core/src/rng.rs": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb"
+    },
+    "conclusion": "the round-22 captures were produced by the source at HEAD for every file the argument reads"
+  },
+  "source_facts_verified_by_reading": [
+    {"fact": "expected-IO policy (context, scales, both roots) is absorbed before any challenge", "where": "hashline/src/zk_ffn_fresh_io.rs:138-146"},
+    {"fact": "the /2 prover draws one OS-keyed stream and passes seed None; no cfg seed path is reachable from prepare_layer_zk_v3_inner", "where": "hashline/src/zk_ffn_fresh_io.rs:155-175, hashline/src/zk.rs:2337"},
+    {"fact": "transcript order: statement, mode header, W root, A root (fresh salts), M root, then the first challenge (beta)", "where": "hashline/src/zk.rs:2364,2368,2471,2542,2550,2554"},
+    {"fact": "every mask row of A is drawn from the fresh stream before A is committed", "where": "hashline/src/zk.rs:2527-2537"},
+    {"fact": "LogUp multiplicity histograms are committed rows of A, never sent", "where": "hashline/src/zk.rs:76-82, 2496-2501"},
+    {"fact": "IO equality: masked sumcheck (10 rounds, degree 2), zero claimed sum plus mask total, extension round, refusal on e = 0, terminals and mask_eval absorbed, two M functionals per slot", "where": "hashline/src/zk_ffn_fresh_io.rs:291-354"},
+    {"fact": "opening order after both equalities: M, W, A, H, Input, Output; each private commitment opened once", "where": "hashline/src/zk.rs:2307-2334, hashline/src/zk_ffn_fresh_io.rs:356-362"},
+    {"fact": "Endpoints and PreparedPlane have no Clone/serialization/getter; into_ffn_endpoint consumes; finish requires root equality with the caller policy", "where": "hashline/src/zk_ffn_fresh_io.rs:104-107,258-271,276; hashline/src/private_seam.rs:143-161"},
+    {"fact": "salt_leaf and hash_pair are the same 64-byte BLAKE3 call; hiding of unopened columns rests on 32-byte salts", "where": "zkp-core/src/pcs.rs:640-645, 673-674, 689-690"},
+    {"fact": "the only witness-dependent prover failure is a LogUp denominator alpha - l = 0 (batch inversion panics on a zero product)", "where": "hashline/src/zk.rs:2654, zkp-core/src/field.rs:207-222, 76-79"},
+    {"fact": "challenge words are 128-bit draws reduced mod p; per-word distance to uniform is below 2^-96 (round 25 exact ledger)", "where": "zkp-core/src/transcript.rs:96-112"}
+  ],
+  "decision": {
+    "security_game_for_P1": "joint prepare+prove simulatability with owner-generated roots (LNS20 Def 2.8 style): SimPrepare issues the endpoint roots, SimProve produces every later proof view; distinguisher keeps all public outputs, refusals and its own hash queries.",
+    "external_root_game": "closed as not a P1 requirement: (a) unreachable through the owner API (no PreparedPlane import/export), (b) vacuous when the root chooser knows the committed values, (c) for hash-Merkle openings any simulator would need the tree or hash programming, which the requirement text does not demand.",
+    "simulator": "the honest /2 prover on the all-zero valid witness (zero input/output/activation planes with the same public W, shapes, shifts and table digest; under P3 also zero weights), with fresh OS randomness. It programs no hash point, produces real accepting receipts, and needs no leaf/node programming.",
+    "leaf_programming_candidate_round23": "unnecessary for this simulator; retain only as an alternative model, do not build on it",
+    "privacy_statement": "witness-independence of the accepting view: for every valid witness pair the law of (prepared roots, refusals, receipt bytes) is identical up to the PRG assumption, the reduction bias and the LogUp collision event",
+    "adaptive_lift": "sequential-kernel induction: each published message's conditional law given the entire public past is witness-independent; challenges are functions of the public past; therefore the whole transcript law is identical for any challenge function. Hypothesis to check per channel: fixed-challenge witness-independence with equal free dimension.",
+    "bound_terms": ["PRG: keyed BLAKE3 XOF under 256-bit /dev/urandom key (computational)", "reduction bias: at most 2*N_fp*delta with delta < 2^-96 per drawn word (about 2^-75 at A00 P1; removable by rejection sampling, changes bytes)", "witness-dependent refusal: LogUp alpha collision, at most (lookups + table rows)/2^128 per proof", "application-visible failures on invalid private inputs are outside the relation (O14)"],
+    "whole_proof_privacy_accepted": false,
+    "protocol_change_required_for_P1_FFN_side": false
+  },
+  "obligations": {
+    "evidence_backed_fixed_challenge": [
+      {"channel": "endpoint openings (Input/Output)", "evidence": "zero-data preimages for all eight captured owners, equal fibre dimension", "record": "results/zk60_round24_endpoint_fibre.json", "sha256": "3796b63018fb9d818ac1db2a00beb20764300b243ebbcda0547e91a3adc71991"},
+      {"channel": "A/H (P1) and W/A/H (P3) group vectors, terminals, proximity vectors, two proofs jointly", "evidence": "disclosed_dim = 0, only the public H identity remains", "record": "results/zk60_round23_repeated_view.json", "sha256": "f6e01e4d3c73b01a22e5294d5305c7eeb7f7ab972e13cd04df8015e55628e33f"},
+      {"channel": "M opening (q', prox, columns)", "evidence": "no data rows; FA6 G2; round-20 translations", "record": "results/zk60_round22_o8_analysis.json", "sha256": "deaf38f545d6e1e4b25be137e47c3ece19997ff5646871edbc5f3e0f9d5048d3"},
+      {"channel": "IO CFS slots 6/7 rounds", "evidence": "round-21/22 fibre surjectivity at captured challenges; zero-witness preimage solver added by this probe (not run here)", "record": "scripts/zk60_mvp_security_probe.py"},
+      {"channel": "FFN CFS slots 0-5", "evidence": "FA6 G1 surjectivity at stand-in challenges only", "record": "docs/zkmatrix-poc/ZK60_FABLE_TRANSCRIPT_REVIEW.md", "sha256": "c843571c87e46aeba186b5974549df94be97c4ad387a9a0f7d32fda4a08b7066"}
+    ],
+    "unresolved_bounded": [
+      "run scripts/zk60_mvp_security_probe.py and its tests (denied in the authoring session)",
+      "captured-challenge surjectivity for the six FFN CFS slots (needs per-slot rho in the capture or a BLAKE3 transcript replay in Python)",
+      "one Rust test: the /2 prover on the all-zero witness verifies against the same public statement in P1 and P3 (the simulator's existence condition)",
+      "a two-page whole-view witness-independence write-up by the sequential-kernel template, independently reviewed (Opus)"
+    ],
+    "blocking_for_tiny_P1_block": [
+      "private attention schedule A1-A4 (FA8 section C.4): pair masks per single-row site, prox pairs, block slots, CFS slot table, absorb-before-challenge order",
+      "attention LogUp histograms and helper sums committed, not published",
+      "block external endpoints bound to the attention component's x_in and xres2 planes by the /2 IO mechanism; internal X/Z seams with pair rows on both sides",
+      "an attention/block capture hook like zk_ffn_io_diagnostic.rs so the same fixed-challenge zero-witness checks run on real receipts",
+      "zero-witness acceptance test for the block (P1 and P3)"
+    ],
+    "not_blocking": [
+      "arbitrary external-root simulation",
+      "leaf/node hash programming and the one-table overlap bound",
+      "a separate joint A/H/W/CFS field-view sampler (the honest zero-witness prover is that sampler)",
+      "O12 fibre audit and O13 schedule inventory (useful, not gating)"
+    ]
+  },
+  "attention_in_parallel": {
+    "safe_to_proceed": true,
+    "prerequisites": [
+      "adopt the /2 FFN schedule discipline as the template (memo section 6)",
+      "every private plane opened only through pair-masked claims; proximity pair rows; block-table slots for multi-row tables",
+      "every CFS slot with exactly the (sum, eval) functional pair in one M opened once per proof",
+      "every message absorbed before the challenge it constrains; no challenge before the fresh A root",
+      "refusals as functions of public inputs/challenges only; one OS stream per component per attempt; owners consumed",
+      "acceptance gate per channel: zero-witness preimage with equal free dimension on captured receipts"
+    ]
+  },
+  "new_files": {
+    "scripts/zk60_mvp_security_probe.py": "8966e59085eb98e1adedc851e4c9f6fb3480e125d2d1defeb3b58d5767b7b277",
+    "tests/test_zk60_mvp_security_probe.py": "baddc461ed8a7cdce16d12eff3cd71b15ff99fef18d9ee8c2aa922fe0f61b37b"
+  },
+  "cited_documents_sha256": {
+    "docs/zkmatrix-poc/ZK60_ENDPOINT_SIMULATION_MODEL.md": "a948a825a87e634ac0cf822f31acc30be4b1f5ac681fb8464046d5be1dcef95a",
+    "docs/zkmatrix-poc/ZK60_FABLE_TRANSCRIPT_REVIEW.md": "c843571c87e46aeba186b5974549df94be97c4ad387a9a0f7d32fda4a08b7066",
+    "results/zk60_round25_endpoint_views.json": "b17edc72d0845c43e77717c9ba4d9c860a32a952884389cf885e15215ef6ab9c"
+  }
+}

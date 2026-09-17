@@ -1,0 +1,184 @@
+{
+  "schema": 1,
+  "baseline": "763e308b229a3478727c38388b08e1c8bc7a071c",
+  "status": "passed",
+  "stages": [
+    {
+      "name": "build_bound_ffn",
+      "command": [
+        "/home/victor/.cargo/bin/cargo",
+        "build",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--release",
+        "--locked",
+        "--offline",
+        "--example",
+        "zk60_bound_ffn"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.24228848500001732,
+      "log_sha256": "0e02ded973962f0d7fb264c8ea3a731858269288772f0e3cefca14233f57b06d"
+    },
+    {
+      "name": "round25_python",
+      "command": [
+        "/usr/bin/python3",
+        "results/zk60_round25_evidence/check_tests.py"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 6.385479687000043,
+      "log_sha256": "e8f2081bd99b5af6312a436d450b0fa849ec6e9ed50b96111be6246f7c30d5fc"
+    },
+    {
+      "name": "native_freeze",
+      "command": [
+        "/home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/ring_matmul",
+        "freeze-check"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 3.0648215600000412,
+      "log_sha256": "ca64e2c697c0a0f1c402ebe9312e4a3f2033f42e08c12112e50505520fa40cac"
+    },
+    {
+      "name": "full_python",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 1002.406673288,
+      "log_sha256": "3c2c947fc1572c4f63aad5a50b6fb0416a755c64e64bc4b6004b2545865ab77d"
+    }
+  ],
+  "full_private_mvp": false,
+  "full_privacy_review_complete": false,
+  "round25_hash_checks": [
+    {
+      "path": "hashline/src/zk.rs",
+      "sha256": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310",
+      "matched": true
+    },
+    {
+      "path": "hashline/src/zk_ffn_fresh_io.rs",
+      "sha256": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+      "matched": true
+    },
+    {
+      "path": "hashline/src/zk_ffn_fresh_io_tests.rs",
+      "sha256": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9",
+      "matched": true
+    },
+    {
+      "path": "hashline/src/zk_ffn_mask_diagnostic.rs",
+      "sha256": "462346828c427b5f6d07ed502edc4d88ba57e1197e6e27836b73316704e8dd64",
+      "matched": true
+    },
+    {
+      "path": "hashline/src/zk_ffn_observation_json.rs",
+      "sha256": "e7a62281896efc4f1f12c403c6959ab7e2476beee07960f3752816fdc711a1e6",
+      "matched": true
+    },
+    {
+      "path": "hashline/src/zk_ffn_io_diagnostic.rs",
+      "sha256": "c866dcce37789106eb18f4aac5093bb3bc14cadb78ca67a1d0fb6ebe092122a5",
+      "matched": true
+    },
+    {
+      "path": "hashline/src/private_seam.rs",
+      "sha256": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+      "matched": true
+    },
+    {
+      "path": "zkp-core/src/pcs.rs",
+      "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+      "matched": true
+    },
+    {
+      "path": "zkp-core/src/transcript.rs",
+      "sha256": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+      "matched": true
+    },
+    {
+      "path": "zkp-core/src/sumcheck.rs",
+      "sha256": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+      "matched": true
+    },
+    {
+      "path": "zkp-core/src/merkle.rs",
+      "sha256": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62",
+      "matched": true
+    },
+    {
+      "path": "zkp-core/src/rng.rs",
+      "sha256": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+      "matched": true
+    },
+    {
+      "path": "zkp-core/src/field.rs",
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+      "matched": true
+    },
+    {
+      "path": "scripts/zk60_endpoint_view.py",
+      "sha256": "405fbc49235749d92c5950e20dce2312c11b7a7a39e905bc63f8b0c40d3b2369",
+      "matched": true
+    },
+    {
+      "path": "tests/test_zk60_endpoint_view.py",
+      "sha256": "fa386592fc1ffba0d6349c8d64cbb7727f9d25d0e0b1eea1c32d5c64d558f3a3",
+      "matched": true
+    },
+    {
+      "path": "results/zk60_round25_evidence/validate.py",
+      "sha256": "a8a2b8e544f504e06f3943beeaf9bfacaf62656f7dabba9655297b340380faa6",
+      "matched": true
+    },
+    {
+      "path": "results/zk60_round25_evidence/check_tests.py",
+      "sha256": "08e84fdd4e2cffc7c0d74df3f195b331f75ad8b7892c3004c56bcc0637e409c7",
+      "matched": true
+    },
+    {
+      "path": "results/zk60_round25_evidence/recompute_reviews.py",
+      "sha256": "339b22130a5e1a1780b13affb2fe6e1bde231cb7d4a87c20ebdd3321025a95bc",
+      "matched": true
+    },
+    {
+      "path": "results/zk60_round25_endpoint_views.json",
+      "sha256": "b17edc72d0845c43e77717c9ba4d9c860a32a952884389cf885e15215ef6ab9c",
+      "matched": true
+    },
+    {
+      "path": "results/zk60_round25_review_recomputation.json",
+      "sha256": "49e66a46a3a3aa285b546146cd37875105c2c5c29592a7637d3cb5cf8531f1e6",
+      "matched": true
+    },
+    {
+      "path": "results/zk60_opus_endpoint_experiment_review.json",
+      "sha256": "0d253d97b186af54f98acd9710312f7e2a78e1d592effd44da0a1357a443e83c",
+      "matched": true
+    },
+    {
+      "path": "results/zk60_opus_oracle_bookkeeping_review.json",
+      "sha256": "e8eb2646572842d1c0331adca3c5ae90da2f1a361d1817edc841b1beef1497c2",
+      "matched": true
+    },
+    {
+      "path": "results/zk60_opus_repeated_view_review.json",
+      "sha256": "c6a1e6631a0ee0e875ff7064e1aa779fc21587b6e6fe0b4c89dc2d0444332475",
+      "matched": true
+    },
+    {
+      "path": "results/zk60_opus_io_capture_analysis_round22.json",
+      "sha256": "f7a6f0d8cce8d078ab67c6976c6a4e38bb00befd513365e99bf058abdca3a11f",
+      "matched": true
+    }
+  ],
+  "binary_sha256": "e084ea5fe242f46fc8d9c4603da679f781aa6d60db5009c4c9886767d116358e"
+}

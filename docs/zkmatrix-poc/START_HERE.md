@@ -1,5 +1,13 @@
 # START HERE — the proof project in plain words
 
+**Current work, 2026-09-15:** [MVP refresh and results](ZK60_MVP_20260915.md).
+The [one-command component demo](ZK60_P1_DEMO.md) passes real proof generation,
+independent verification and six rejection controls. Fable 5.1's bounded
+privacy diagnostic and Opus 5's demo are integrated with
+[Codex's qualifications](ZK60_MVP_REVIEW.md). A complete private block and
+whole-proof privacy remain open. The dated measurements below describe their
+original scope and profiles.
+
 **Required privacy (Victor, reaffirmed 2026-09-09):** the first PoC hides
 **inputs, outputs and intermediate activations**, with public weights allowed
 (P1). The full version also hides **model weights** (P3).

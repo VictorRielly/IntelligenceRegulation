@@ -1,0 +1,83 @@
+test_full_io_geometry_at_degenerate_and_random_points (test_zk60_io_cfs_composition.ConditionalFibre) ... ok
+test_independent_round_formula_matches_weight_map (test_zk60_io_cfs_composition.ConditionalFibre) ... ok
+test_shortened_mask_cannot_cover_the_fibre (test_zk60_io_cfs_composition.ConditionalFibre) ... ok
+test_zero_multiplier_leaves_all_conditional_round_freedom_unmasked (test_zk60_io_cfs_composition.ConditionalFibre) ... ok
+test_actual_cfs_rounds_and_mask_functionals_accept (test_zk60_io_cfs_composition.PublicBinding) ... ok
+test_changed_functional_and_mask_challenge_refuse (test_zk60_io_cfs_composition.PublicBinding) ... ok
+test_changed_masked_terminal_and_round_refuse (test_zk60_io_cfs_composition.PublicBinding) ... ok
+test_every_prefix_basis_extends_and_matches_dense_lagrange (test_zk60_io_opening_translation.MaskTranslation) ... ok
+test_joint_two_slot_blinders_and_all_column_rows (test_zk60_io_opening_translation.MaskTranslation) ... ok
+test_nonzero_functional_forces_invalid_b (test_zk60_io_opening_translation.MaskTranslation) ... ok
+test_omitting_b_or_u_breaks_full_vectors (test_zk60_io_opening_translation.MaskTranslation) ... ok
+test_same_commitment_second_opening_needs_different_b (test_zk60_io_opening_translation.MaskTranslation) ... ok
+test_too_many_columns_have_dense_disclosure (test_zk60_io_opening_translation.MaskTranslation) ... ok
+test_budget_counts_distinct_samples (test_zk60_io_opening_translation.PcsTranslation) ... ok
+test_general_multicolumn_kernel_preserves_both_full_vectors (test_zk60_io_opening_translation.PcsTranslation) ... ok
+test_missing_pad_and_second_sample_set_reveal_difference (test_zk60_io_opening_translation.PcsTranslation) ... ok
+test_duplicate_interpolation_nodes_refuse (test_zk60_io_opening_translation.PolynomialArithmetic) ... ok
+test_fft_matches_direct_dft (test_zk60_io_opening_translation.PolynomialArithmetic) ... ok
+test_interpolation_and_coset_order (test_zk60_io_opening_translation.PolynomialArithmetic) ... ok
+test_inverse_matches_archived_dense_idft (test_zk60_io_opening_translation.PolynomialArithmetic) ... ok
+test_products_match_schoolbook (test_zk60_io_opening_translation.PolynomialArithmetic) ... ok
+test_different_policy_and_reused_root_are_refused (test_zk60_io_repeated_view.RepeatedView) ... ok
+test_duplicate_and_mixed_mode_proofs_are_refused (test_zk60_io_repeated_view.RepeatedView) ... ok
+test_each_h_retains_its_constraint_without_aliasing_challenge_dependent_data (test_zk60_io_repeated_view.RepeatedView) ... ok
+test_one_leaking_proof_is_not_hidden_by_a_second_honest_proof (test_zk60_io_repeated_view.RepeatedView) ... ok
+test_two_encodings_share_only_data_and_keep_all_proximity_coordinates (test_zk60_io_repeated_view.RepeatedView) ... ok
+test_delivered_complete_record_accepts (test_zk60_io_review_gate.ReviewAcceptance) ... ok
+test_empty_directory_cannot_report_success (test_zk60_io_review_gate.ReviewAcceptance) ... ok
+test_failed_ingestion_control_is_not_a_successful_analysis (test_zk60_io_review_gate.ReviewAcceptance) ... ok
+test_failed_preflight_cannot_be_overridden_by_green_model (test_zk60_io_review_gate.ReviewAcceptance) ... ok
+test_missing_and_duplicate_results_are_refused (test_zk60_io_review_gate.ReviewAcceptance) ... ok
+test_free_coordinates_are_bijective_and_equations_hold (test_zk60_endpoint_fibre.AffineCoordinates) ... ok
+test_full_budget_unique_polynomial_and_invalid_inputs (test_zk60_endpoint_fibre.AffineCoordinates) ... ok
+test_polynomial_fibre_preserves_values_and_has_full_free_dimension (test_zk60_endpoint_fibre.AffineCoordinates) ... ok
+test_corrupted_terminal_vector_column_and_claim_refuse (test_zk60_endpoint_fibre.ConditionalEndpoint) ... ok
+test_deficient_masks_duplicate_and_noncanonical_data_refuse (test_zk60_endpoint_fibre.ConditionalEndpoint) ... ok
+test_fresh_draws_and_owners_keep_same_chosen_data (test_zk60_endpoint_fibre.ConditionalEndpoint) ... ok
+test_independent_verification_detects_changed_masks_pads_and_data (test_zk60_endpoint_fibre.ConditionalEndpoint) ... ok
+test_two_different_data_choices_preserve_complete_public_view (test_zk60_endpoint_fibre.ConditionalEndpoint) ... ok
+test_conflicting_duplicate_does_not_return_an_opening (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_early_root_and_answers_stay_fixed_through_adaptive_column_choice (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_external_root_is_refused_and_failure_consumes_owner (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_node_query_and_salted_leaf_programming_are_not_independent (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_programming_rejects_prequeried_leaf_point (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_query_budget_and_noncanonical_words_refuse (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_reusing_owner_is_refused_after_success (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_tampered_column_path_and_root_reject (test_zk60_endpoint_simulation.DeferredPreparation) ... ok
+test_deficient_masks_and_invalid_randomness_refuse (test_zk60_endpoint_view.EndpointGeneration) ... ok
+test_fresh_draws_change_public_observations_preserving_plan (test_zk60_endpoint_view.EndpointGeneration) ... ok
+test_generated_observations_have_nonzero_data_preimages (test_zk60_endpoint_view.EndpointGeneration) ... ok
+test_plan_does_not_read_captured_output_values (test_zk60_endpoint_view.EndpointGeneration) ... ok
+test_exact_formula_matches_exhaustive_small_domains (test_zk60_endpoint_view.ReductionArithmetic) ... ok
+test_goldilocks_ledger_uses_exact_fractions (test_zk60_endpoint_view.ReductionArithmetic) ... ok
+test_shift_bound_is_not_a_distance_floor (test_zk60_endpoint_view.ReductionArithmetic) ... ok
+test_two_independent_words_obey_product_upper_bound (test_zk60_endpoint_view.ReductionArithmetic) ... ok
+test_a_conflicting_duplicate_leaves_earlier_programming_in_place (test_zk60_opus_oracle_bookkeeping.AbortSemantics)
+The refusal happens mid-loop, so points programmed before the ... ok
+test_a_wrong_root_burns_the_owner_without_touching_the_oracle (test_zk60_opus_oracle_bookkeeping.AbortSemantics) ... ok
+test_an_eight_word_column_would_alias_a_node_input (test_zk60_opus_oracle_bookkeeping.DomainSeparationIsDimensional) ... ok
+test_seven_words_stay_clear_of_the_sixty_four_byte_domain (test_zk60_opus_oracle_bookkeeping.DomainSeparationIsDimensional) ... ok
+test_a_sibling_swap_at_the_highest_level_is_rejected (test_zk60_opus_oracle_bookkeeping.HighIndexPaths) ... ok
+test_paths_verify_at_the_top_of_the_index_domain (test_zk60_opus_oracle_bookkeeping.HighIndexPaths) ... ok
+test_only_the_opened_leaves_are_images_of_any_queried_point (test_zk60_opus_oracle_bookkeeping.UnopenedLeavesAreUnexplained) ... ok
+test_a_guessed_salt_blocks_the_programming_of_that_leaf (test_zk60_opus_oracle_bookkeeping.VerificationIsNotReadOnly)
+The only thing separating a distinguisher's pre-query from a refusal ... ok
+test_verifying_a_forged_opening_populates_the_shared_table (test_zk60_opus_oracle_bookkeeping.VerificationIsNotReadOnly) ... ok
+test_H_never_aliases_across_attempts (test_zk60_opus_repeated_view.AliasHygiene) ... ok
+test_P3_shares_private_W_data_and_P1_has_no_private_W (test_zk60_opus_repeated_view.AliasHygiene) ... ok
+test_every_cross_attempt_alias_joins_two_data_rows (test_zk60_opus_repeated_view.AliasHygiene) ... ok
+test_a_pair_must_be_exactly_two (test_zk60_opus_repeated_view.PairAdmission) ... ok
+test_every_private_root_is_distinct_in_the_delivered_pairs (test_zk60_opus_repeated_view.PairAdmission) ... ok
+test_mixed_privacy_modes_are_refused (test_zk60_opus_repeated_view.PairAdmission) ... ok
+test_the_same_proof_twice_is_refused (test_zk60_opus_repeated_view.PairAdmission) ... ok
+test_transcript_states_and_roots_differ_at_every_role (test_zk60_opus_repeated_view.ProofLocalityEvidence) ... ok
+test_each_H_zero_sum_constraint_contributes_two_base_coordinates (test_zk60_opus_repeated_view.RecordedExpectations) ... ok
+test_public_logup_identities_add_no_rank (test_zk60_opus_repeated_view.RecordedExpectations) ... ok
+test_the_endpoint_mask_pair_ablation_discloses_one_coordinate_per_column (test_zk60_opus_repeated_view.RecordedExpectations) ... ok
+
+----------------------------------------------------------------------
+Ran 75 tests in 6.223s
+
+OK
+{"tests": 75, "skips": 0, "failures": 0, "errors": 0}

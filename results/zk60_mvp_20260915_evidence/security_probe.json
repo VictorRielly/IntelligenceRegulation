@@ -1,0 +1,1115 @@
+{
+  "schema": 1,
+  "kind": "zk60-mvp-security-probe",
+  "tool_sha256": "8c20f6a2aa057708391bb4ebdfd272aef1b21191e9047ce8c07eb85efc40013c",
+  "dependency_sha256": {
+    "zk60_fable_cfs_channel.py": "ba05f0d140d72f67d69bbf48f4336d08a83cd99fbd01d2c49c417ec120066437",
+    "zk60_fable_joint_rank.py": "ad5e4e483c6dd8c5f73a87ddb0af1d06c3084576e82428e9c2ada6a764ffbb5b",
+    "zk60_endpoint_fibre.py": "6b1db64f55b80b55eca5431d296db7a0c40b447459e6b9968aa718449f6668eb",
+    "zk60_io_cfs_composition.py": "928cef871b71f86bc56b7e7ed4e461c9c9da2d64e1aa912b449023eaaa7d7580",
+    "zk60_io_opening_translation.py": "3579e0ff10f5f501a5596e3ef56dc812060a8f34a883910b2bb89c8c675ae0bf",
+    "zk60_io_capture_preflight.py": "a4e230f5f6aed62fc0f12b662a3b3becbbb6bee1d41cd12c06baa6918a5ce217"
+  },
+  "prior_results_sha256": {
+    "zk60_round22_o8_analysis.json": "deaf38f545d6e1e4b25be137e47c3ece19997ff5646871edbc5f3e0f9d5048d3",
+    "zk60_round23_repeated_view.json": "f6e01e4d3c73b01a22e5294d5305c7eeb7f7ab972e13cd04df8015e55628e33f",
+    "zk60_round24_endpoint_fibre.json": "3796b63018fb9d818ac1db2a00beb20764300b243ebbcda0547e91a3adc71991",
+    "zk60_round25_endpoint_views.json": "b17edc72d0845c43e77717c9ba4d9c860a32a952884389cf885e15215ef6ab9c"
+  },
+  "source_pins": {
+    "manifest_source_commit": "1f0ff3680c4cda88f1744343e24eb93cdddfcba4",
+    "manifest_sha256": "e92773bb66f9d0f07b856cfb0e13e0c18bc69b5759edc5d71b8cebb51e4ca51d",
+    "pinned": [
+      {
+        "path": "hashline/src/zk.rs",
+        "manifest": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310",
+        "head": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310",
+        "match": true
+      },
+      {
+        "path": "hashline/src/zk_ffn_fresh_io.rs",
+        "manifest": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+        "head": "1d9bab12929ba82d79735c88cc3fb8fc047424a598b9990038e7f7780dda362c",
+        "match": true
+      },
+      {
+        "path": "hashline/src/zk_ffn_fresh_io_tests.rs",
+        "manifest": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9",
+        "head": "2b1effc12ecf18d3a9f178074d769374b60bbe1ae571c6b74aab7869f48031f9",
+        "match": true
+      },
+      {
+        "path": "hashline/src/zk_ffn_mask_diagnostic.rs",
+        "manifest": "462346828c427b5f6d07ed502edc4d88ba57e1197e6e27836b73316704e8dd64",
+        "head": "462346828c427b5f6d07ed502edc4d88ba57e1197e6e27836b73316704e8dd64",
+        "match": true
+      },
+      {
+        "path": "hashline/src/zk_ffn_observation_json.rs",
+        "manifest": "e7a62281896efc4f1f12c403c6959ab7e2476beee07960f3752816fdc711a1e6",
+        "head": "e7a62281896efc4f1f12c403c6959ab7e2476beee07960f3752816fdc711a1e6",
+        "match": true
+      },
+      {
+        "path": "hashline/src/zk_ffn_io_diagnostic.rs",
+        "manifest": "c866dcce37789106eb18f4aac5093bb3bc14cadb78ca67a1d0fb6ebe092122a5",
+        "head": "c866dcce37789106eb18f4aac5093bb3bc14cadb78ca67a1d0fb6ebe092122a5",
+        "match": true
+      },
+      {
+        "path": "hashline/src/private_seam.rs",
+        "manifest": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+        "head": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+        "match": true
+      },
+      {
+        "path": "zkp-core/src/pcs.rs",
+        "manifest": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+        "head": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+        "match": true
+      },
+      {
+        "path": "zkp-core/src/transcript.rs",
+        "manifest": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+        "head": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+        "match": true
+      },
+      {
+        "path": "zkp-core/src/sumcheck.rs",
+        "manifest": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+        "head": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+        "match": true
+      }
+    ],
+    "all_pinned_match": true,
+    "unpinned_head_sha256": {
+      "hashline/src/zk_ffn_fresh_poc.rs": "de86a47b067f950ff780c93e85b3dba28292603f8db581ec9c9c77bbd24f70ba",
+      "hashline/src/zk_ffn_io_diagnostic.rs": "c866dcce37789106eb18f4aac5093bb3bc14cadb78ca67a1d0fb6ebe092122a5",
+      "zkp-core/src/merkle.rs": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62",
+      "zkp-core/src/rng.rs": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+      "zkp-core/src/field.rs": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+    }
+  },
+  "schedule": {
+    "zk_rs": {
+      "prepare_layer_zk_v3_inner_line": 2337,
+      "a_root_absorb_line": 2542,
+      "m_root_absorb_line": 2550,
+      "first_challenge_line": 2554,
+      "challenge_lines": [
+        2554,
+        2555,
+        2556,
+        2720,
+        2721,
+        2722,
+        2723,
+        2736,
+        2816,
+        2817,
+        2818,
+        2825,
+        2892,
+        2893,
+        2894,
+        2897,
+        2990,
+        2991,
+        2992,
+        2994,
+        3077,
+        3078,
+        3079,
+        3172,
+        3212,
+        3213,
+        3214
+      ],
+      "seeded_rng_reachable": false
+    },
+    "zk_ffn_fresh_io_rs": {
+      "transcript_line": 138,
+      "prepare_line": 148,
+      "finish_line": 276,
+      "finish_challenge_lines": [
+        292,
+        293
+      ]
+    },
+    "private_seam_rs": {
+      "prepare_line": 186,
+      "os_entropy": true
+    },
+    "every_challenge_follows_fresh_a_root": true
+  },
+  "refusals": {
+    "rows": [
+      {
+        "path": "hashline/src/zk_ffn_fresh_io.rs",
+        "lines": [
+          268
+        ],
+        "snippet": "return Err(\"FFN IO: expected endpoint root mismatch\"",
+        "classification": "public-policy"
+      },
+      {
+        "path": "hashline/src/zk_ffn_fresh_io.rs",
+        "lines": [
+          337
+        ],
+        "snippet": "return Err(\"FFN IO: zero terminal mask challenge; discard attempt\"",
+        "classification": "challenge-only"
+      },
+      {
+        "path": "hashline/src/zk_ffn_fresh_io.rs",
+        "lines": [
+          289,
+          379
+        ],
+        "snippet": ".ok_or(\"FFN IO: missing mask allocation\")",
+        "classification": "static-layout"
+      },
+      {
+        "path": "hashline/src/zk_ffn_fresh_io.rs",
+        "lines": [
+          164
+        ],
+        "snippet": "map_err(|e| format!(\"FFN IO randomness: {e}\"))",
+        "classification": "entropy-failure"
+      },
+      {
+        "path": "hashline/src/zk_ffn_fresh_poc.rs",
+        "lines": [
+          230
+        ],
+        "snippet": "return Err(\"zero CFS mask challenge; discard attempt\"",
+        "classification": "challenge-only"
+      },
+      {
+        "path": "hashline/src/zk_ffn_fresh_poc.rs",
+        "lines": [
+          243
+        ],
+        "snippet": "return Err(\"degenerate table mask row coordinate; discard attempt\"",
+        "classification": "challenge-only"
+      },
+      {
+        "path": "hashline/src/zk_ffn_fresh_poc.rs",
+        "lines": [
+          303
+        ],
+        "snippet": ".ok_or(\"zero terminal mask challenge; discard attempt\")",
+        "classification": "challenge-only"
+      },
+      {
+        "path": "hashline/src/zk_ffn_fresh_poc.rs",
+        "lines": [
+          305
+        ],
+        "snippet": "return Err(\"mask coefficients do not span Fp2; discard attempt\"",
+        "classification": "challenge-only"
+      },
+      {
+        "path": "hashline/src/zk_ffn_fresh_poc.rs",
+        "lines": [
+          333
+        ],
+        "snippet": "return Err(\"zero group member coefficient; discard attempt\"",
+        "classification": "challenge-only"
+      },
+      {
+        "path": "hashline/src/zk_ffn_fresh_poc.rs",
+        "lines": [
+          338
+        ],
+        "snippet": "return Err(\"dependent proximity mask coefficients; discard attempt\"",
+        "classification": "challenge-only"
+      },
+      {
+        "path": "hashline/src/zk_ffn_fresh_poc.rs",
+        "lines": [
+          136
+        ],
+        "snippet": "return Err(\"fresh FFN PoC witness plane length\"",
+        "classification": "statement-shape"
+      },
+      {
+        "path": "hashline/src/private_seam.rs",
+        "lines": [
+          194
+        ],
+        "snippet": "return Err(\"seam: wrong length or noncanonical input words\"",
+        "classification": "input-validity"
+      },
+      {
+        "path": "hashline/src/zk.rs",
+        "lines": [
+          963,
+          976,
+          988
+        ],
+        "snippet": "assert!(!c.is_zero(), \"zero mask challenge: abandon proof attempt\")",
+        "classification": "challenge-only"
+      },
+      {
+        "path": "hashline/src/zk.rs",
+        "lines": [
+          992
+        ],
+        "snippet": "assert_eq!(sk.len(), gk.len(), \"masked extension: round length mismatch\")",
+        "classification": "static-layout"
+      },
+      {
+        "path": "hashline/src/zk.rs",
+        "lines": [
+          902,
+          2654
+        ],
+        "snippet": "den.par_chunks_mut(4096).for_each(|c| batch_inverse2(c));",
+        "classification": "witness-and-challenge (negligible)"
+      },
+      {
+        "path": "zkp-core/src/field.rs",
+        "lines": [
+          77
+        ],
+        "snippet": "assert!(self.0 != 0, \"inverse of zero\");",
+        "classification": "witness-and-challenge (negligible)"
+      }
+    ],
+    "classes": [
+      "challenge-only",
+      "entropy-failure",
+      "input-validity",
+      "public-policy",
+      "statement-shape",
+      "static-layout",
+      "witness-and-challenge (negligible)"
+    ],
+    "witness_dependent_rows": [
+      {
+        "path": "hashline/src/zk.rs",
+        "lines": [
+          902,
+          2654
+        ],
+        "snippet": "den.par_chunks_mut(4096).for_each(|c| batch_inverse2(c));",
+        "classification": "witness-and-challenge (negligible)"
+      },
+      {
+        "path": "zkp-core/src/field.rs",
+        "lines": [
+          77
+        ],
+        "snippet": "assert!(self.0 != 0, \"inverse of zero\");",
+        "classification": "witness-and-challenge (negligible)"
+      }
+    ],
+    "note": "source-snippet inventory only; completeness of witness-dependent refusals and their observable probabilities is not established"
+  },
+  "owner_api": {
+    "endpoints_no_pub_fields": true,
+    "endpoints_no_derive": true,
+    "prepared_plane_no_derive": true,
+    "prepared_plane_constructed_only_by_prepare": true,
+    "finish_consumes_owner": true,
+    "from_roots_is_public": true,
+    "finish_requires_root_equality": true,
+    "conclusion": "the supported Rust owner is consumed; the public verifier still takes caller-fixed roots, and the external-root privacy obligation remains open"
+  },
+  "blake3_python_module_available": false,
+  "synthetic": {
+    "honest_equal_planes": {
+      "replay_accepted": true,
+      "preimage_exists": true,
+      "kernel_dim_fp2": 1,
+      "equations": 32,
+      "unknowns": 22,
+      "rebuilt_argument_identical": true,
+      "controls": [
+        {
+          "corrupted": "round",
+          "preimage_exists": false
+        },
+        {
+          "corrupted": "final round",
+          "preimage_exists": false
+        },
+        {
+          "corrupted": "mask_eval",
+          "preimage_exists": false
+        },
+        {
+          "corrupted": "gamma",
+          "preimage_exists": false
+        },
+        {
+          "corrupted": "terminal",
+          "preimage_exists": false
+        }
+      ]
+    },
+    "unequal_planes": {
+      "replay": "IO round chain equation",
+      "zero_witness_preimage_exists": false
+    }
+  },
+  "captures": {
+    "available": true,
+    "preflight_checks": 4,
+    "cases": [
+      {
+        "proof_sha256": "038318c464434f9ad6c64a333974b65d939e02f3816f5c8af615904263fb86fd",
+        "privacy": "P3",
+        "mask": {
+          "functionals": 14,
+          "joint_rank_fp2": 14,
+          "joint_full_rank": true,
+          "coefficient_total": 229,
+          "per_slot": [
+            {
+              "slot": 0,
+              "n_vars": 6,
+              "degree": 2,
+              "coefficients": 14,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 1,
+              "n_vars": 6,
+              "degree": 2,
+              "coefficients": 14,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 2,
+              "n_vars": 10,
+              "degree": 4,
+              "coefficients": 42,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 3,
+              "n_vars": 10,
+              "degree": 4,
+              "coefficients": 42,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 4,
+              "n_vars": 9,
+              "degree": 2,
+              "coefficients": 20,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 5,
+              "n_vars": 17,
+              "degree": 3,
+              "coefficients": 53,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 6,
+              "n_vars": 10,
+              "degree": 2,
+              "coefficients": 22,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 7,
+              "n_vars": 10,
+              "degree": 2,
+              "coefficients": 22,
+              "functionals": 2,
+              "rank_fp2": 2
+            }
+          ],
+          "programmed_points_a_programmable_rom_simulator_would_need": 78,
+          "programmed_points_zero_witness_simulator": 0
+        },
+        "io_arguments": [
+          {
+            "side": 0,
+            "slot": 6,
+            "preimage_exists": true,
+            "kernel_dim_fp2": 1,
+            "equations": 32,
+            "unknowns": 22,
+            "rebuilt_argument_identical": true,
+            "controls": [
+              {
+                "corrupted": "round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "final round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "mask_eval",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "gamma",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "terminal",
+                "preimage_exists": false
+              }
+            ]
+          },
+          {
+            "side": 1,
+            "slot": 7,
+            "preimage_exists": true,
+            "kernel_dim_fp2": 1,
+            "equations": 32,
+            "unknowns": 22,
+            "rebuilt_argument_identical": true,
+            "controls": [
+              {
+                "corrupted": "round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "final round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "mask_eval",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "gamma",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "terminal",
+                "preimage_exists": false
+              }
+            ]
+          }
+        ],
+        "endpoints": [
+          {
+            "role": "Input",
+            "distinct_columns": 236,
+            "zero_witness_preimage": true,
+            "message_free_dim": 256,
+            "pad_free_dim": 60
+          },
+          {
+            "role": "Output",
+            "distinct_columns": 246,
+            "zero_witness_preimage": true,
+            "message_free_dim": 256,
+            "pad_free_dim": 30
+          }
+        ],
+        "ffn_slot_specs": [
+          [
+            6,
+            2
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            10,
+            4
+          ],
+          [
+            10,
+            4
+          ],
+          [
+            9,
+            2
+          ],
+          [
+            17,
+            3
+          ]
+        ]
+      },
+      {
+        "proof_sha256": "c97457756c36cc9aace742ba36377230539ef54d66a5fb4ef59d0102db61ef7e",
+        "privacy": "P1",
+        "mask": {
+          "functionals": 14,
+          "joint_rank_fp2": 14,
+          "joint_full_rank": true,
+          "coefficient_total": 225,
+          "per_slot": [
+            {
+              "slot": 0,
+              "n_vars": 5,
+              "degree": 2,
+              "coefficients": 12,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 1,
+              "n_vars": 5,
+              "degree": 2,
+              "coefficients": 12,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 2,
+              "n_vars": 10,
+              "degree": 4,
+              "coefficients": 42,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 3,
+              "n_vars": 10,
+              "degree": 4,
+              "coefficients": 42,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 4,
+              "n_vars": 9,
+              "degree": 2,
+              "coefficients": 20,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 5,
+              "n_vars": 17,
+              "degree": 3,
+              "coefficients": 53,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 6,
+              "n_vars": 10,
+              "degree": 2,
+              "coefficients": 22,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 7,
+              "n_vars": 10,
+              "degree": 2,
+              "coefficients": 22,
+              "functionals": 2,
+              "rank_fp2": 2
+            }
+          ],
+          "programmed_points_a_programmable_rom_simulator_would_need": 76,
+          "programmed_points_zero_witness_simulator": 0
+        },
+        "io_arguments": [
+          {
+            "side": 0,
+            "slot": 6,
+            "preimage_exists": true,
+            "kernel_dim_fp2": 1,
+            "equations": 32,
+            "unknowns": 22,
+            "rebuilt_argument_identical": true,
+            "controls": [
+              {
+                "corrupted": "round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "final round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "mask_eval",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "gamma",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "terminal",
+                "preimage_exists": false
+              }
+            ]
+          },
+          {
+            "side": 1,
+            "slot": 7,
+            "preimage_exists": true,
+            "kernel_dim_fp2": 1,
+            "equations": 32,
+            "unknowns": 22,
+            "rebuilt_argument_identical": true,
+            "controls": [
+              {
+                "corrupted": "round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "final round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "mask_eval",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "gamma",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "terminal",
+                "preimage_exists": false
+              }
+            ]
+          }
+        ],
+        "endpoints": [
+          {
+            "role": "Input",
+            "distinct_columns": 242,
+            "zero_witness_preimage": true,
+            "message_free_dim": 256,
+            "pad_free_dim": 42
+          },
+          {
+            "role": "Output",
+            "distinct_columns": 240,
+            "zero_witness_preimage": true,
+            "message_free_dim": 256,
+            "pad_free_dim": 48
+          }
+        ],
+        "ffn_slot_specs": [
+          [
+            5,
+            2
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            10,
+            4
+          ],
+          [
+            10,
+            4
+          ],
+          [
+            9,
+            2
+          ],
+          [
+            17,
+            3
+          ]
+        ]
+      },
+      {
+        "proof_sha256": "e9326d222ed7758917bebe273ce2c80d24ca0d375655b5257619ba4abc24d314",
+        "privacy": "P3",
+        "mask": {
+          "functionals": 14,
+          "joint_rank_fp2": 14,
+          "joint_full_rank": true,
+          "coefficient_total": 229,
+          "per_slot": [
+            {
+              "slot": 0,
+              "n_vars": 6,
+              "degree": 2,
+              "coefficients": 14,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 1,
+              "n_vars": 6,
+              "degree": 2,
+              "coefficients": 14,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 2,
+              "n_vars": 10,
+              "degree": 4,
+              "coefficients": 42,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 3,
+              "n_vars": 10,
+              "degree": 4,
+              "coefficients": 42,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 4,
+              "n_vars": 9,
+              "degree": 2,
+              "coefficients": 20,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 5,
+              "n_vars": 17,
+              "degree": 3,
+              "coefficients": 53,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 6,
+              "n_vars": 10,
+              "degree": 2,
+              "coefficients": 22,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 7,
+              "n_vars": 10,
+              "degree": 2,
+              "coefficients": 22,
+              "functionals": 2,
+              "rank_fp2": 2
+            }
+          ],
+          "programmed_points_a_programmable_rom_simulator_would_need": 78,
+          "programmed_points_zero_witness_simulator": 0
+        },
+        "io_arguments": [
+          {
+            "side": 0,
+            "slot": 6,
+            "preimage_exists": true,
+            "kernel_dim_fp2": 1,
+            "equations": 32,
+            "unknowns": 22,
+            "rebuilt_argument_identical": true,
+            "controls": [
+              {
+                "corrupted": "round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "final round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "mask_eval",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "gamma",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "terminal",
+                "preimage_exists": false
+              }
+            ]
+          },
+          {
+            "side": 1,
+            "slot": 7,
+            "preimage_exists": true,
+            "kernel_dim_fp2": 1,
+            "equations": 32,
+            "unknowns": 22,
+            "rebuilt_argument_identical": true,
+            "controls": [
+              {
+                "corrupted": "round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "final round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "mask_eval",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "gamma",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "terminal",
+                "preimage_exists": false
+              }
+            ]
+          }
+        ],
+        "endpoints": [
+          {
+            "role": "Input",
+            "distinct_columns": 248,
+            "zero_witness_preimage": true,
+            "message_free_dim": 256,
+            "pad_free_dim": 24
+          },
+          {
+            "role": "Output",
+            "distinct_columns": 243,
+            "zero_witness_preimage": true,
+            "message_free_dim": 256,
+            "pad_free_dim": 39
+          }
+        ],
+        "ffn_slot_specs": [
+          [
+            6,
+            2
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            10,
+            4
+          ],
+          [
+            10,
+            4
+          ],
+          [
+            9,
+            2
+          ],
+          [
+            17,
+            3
+          ]
+        ]
+      },
+      {
+        "proof_sha256": "efb9e585454f356c4307420fedd20b75b01be4419acab9d2a2bdd45657cee6fb",
+        "privacy": "P1",
+        "mask": {
+          "functionals": 14,
+          "joint_rank_fp2": 14,
+          "joint_full_rank": true,
+          "coefficient_total": 225,
+          "per_slot": [
+            {
+              "slot": 0,
+              "n_vars": 5,
+              "degree": 2,
+              "coefficients": 12,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 1,
+              "n_vars": 5,
+              "degree": 2,
+              "coefficients": 12,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 2,
+              "n_vars": 10,
+              "degree": 4,
+              "coefficients": 42,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 3,
+              "n_vars": 10,
+              "degree": 4,
+              "coefficients": 42,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 4,
+              "n_vars": 9,
+              "degree": 2,
+              "coefficients": 20,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 5,
+              "n_vars": 17,
+              "degree": 3,
+              "coefficients": 53,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 6,
+              "n_vars": 10,
+              "degree": 2,
+              "coefficients": 22,
+              "functionals": 2,
+              "rank_fp2": 2
+            },
+            {
+              "slot": 7,
+              "n_vars": 10,
+              "degree": 2,
+              "coefficients": 22,
+              "functionals": 2,
+              "rank_fp2": 2
+            }
+          ],
+          "programmed_points_a_programmable_rom_simulator_would_need": 76,
+          "programmed_points_zero_witness_simulator": 0
+        },
+        "io_arguments": [
+          {
+            "side": 0,
+            "slot": 6,
+            "preimage_exists": true,
+            "kernel_dim_fp2": 1,
+            "equations": 32,
+            "unknowns": 22,
+            "rebuilt_argument_identical": true,
+            "controls": [
+              {
+                "corrupted": "round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "final round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "mask_eval",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "gamma",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "terminal",
+                "preimage_exists": false
+              }
+            ]
+          },
+          {
+            "side": 1,
+            "slot": 7,
+            "preimage_exists": true,
+            "kernel_dim_fp2": 1,
+            "equations": 32,
+            "unknowns": 22,
+            "rebuilt_argument_identical": true,
+            "controls": [
+              {
+                "corrupted": "round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "final round",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "mask_eval",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "gamma",
+                "preimage_exists": false
+              },
+              {
+                "corrupted": "terminal",
+                "preimage_exists": false
+              }
+            ]
+          }
+        ],
+        "endpoints": [
+          {
+            "role": "Input",
+            "distinct_columns": 238,
+            "zero_witness_preimage": true,
+            "message_free_dim": 256,
+            "pad_free_dim": 54
+          },
+          {
+            "role": "Output",
+            "distinct_columns": 240,
+            "zero_witness_preimage": true,
+            "message_free_dim": 256,
+            "pad_free_dim": 48
+          }
+        ],
+        "ffn_slot_specs": [
+          [
+            5,
+            2
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            10,
+            4
+          ],
+          [
+            10,
+            4
+          ],
+          [
+            9,
+            2
+          ],
+          [
+            17,
+            3
+          ]
+        ]
+      }
+    ],
+    "a_h_w_zero_witness_preimage": "not recomputed here; O8 / round-23 disclosed_dim = 0 on the same captures (results/zk60_round22_o8_analysis.json, results/zk60_round23_repeated_view.json) is the rank-equality statement for those roles"
+  },
+  "decision": {
+    "proposed_simulator": "honest prover on the all-zero valid witness in the joint preparation game; unproved candidate",
+    "oracle_points_programmed": 0,
+    "leaf_or_node_hash_programming_needed": "unresolved; this diagnostic programs nothing",
+    "external_root_game": "required and unresolved; owner-API restrictions do not discharge it",
+    "adaptive_lift": "unresolved: conditional independence given the complete public past, including roots/oracle history, is not proved by these fixed-challenge checks",
+    "fixed_challenge_evidence": {
+      "endpoints": "round 24 zero-data preimages, re-executed here when captures are readable",
+      "io_cfs": "zero-witness preimage solver, this tool",
+      "a_h_w": "O8 / round-23 disclosed_dim = 0",
+      "m_opening": "no data rows; FA6 G2 + joint functional rank, this tool",
+      "ffn_cfs_slots": "FA6 G1 surjectivity at stand-in challenges; captured-challenge check is a bounded follow-up"
+    },
+    "whole_proof_privacy_accepted": false
+  }
+}

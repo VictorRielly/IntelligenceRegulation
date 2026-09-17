@@ -1,0 +1,21 @@
+test_conditioning_on_the_earlier_commitment_changes_the_message_kernel (test_zk60_mvp_review_boundary.JointPrivacyInference) ... ok
+test_identical_marginals_and_equal_fibres_can_have_disjoint_joint_views (test_zk60_mvp_review_boundary.JointPrivacyInference) ... ok
+test_capture_checks (test_zk60_mvp_security_probe.Captures) ... ok
+test_diagnostic_does_not_close_security_requirements (test_zk60_mvp_security_probe.Scope) ... ok
+test_source_drift_refuses_before_reporting_diagnostics (test_zk60_mvp_security_probe.Scope) ... ok
+test_every_challenge_follows_fresh_a_root (test_zk60_mvp_security_probe.SourceBound) ... ok
+test_fn_body_parser_on_synthetic_text (test_zk60_mvp_security_probe.SourceBound) ... ok
+test_owner_api_is_consuming_but_external_root_requirement_remains (test_zk60_mvp_security_probe.SourceBound) ... ok
+test_pins_match_round22_manifest (test_zk60_mvp_security_probe.SourceBound) ... ok
+test_refusal_inventory_resolves_and_isolates_witness_dependence (test_zk60_mvp_security_probe.SourceBound) ... ok
+test_honest_equal_planes_replay_and_zero_witness_preimage (test_zk60_mvp_security_probe.ZeroWitnessAlgebra) ... ok
+test_imported_mask_round_arithmetic_is_self_consistent (test_zk60_mvp_security_probe.ZeroWitnessAlgebra) ... ok
+test_solver_consistent_and_inconsistent (test_zk60_mvp_security_probe.ZeroWitnessAlgebra) ... ok
+test_unequal_planes_are_refused_and_have_no_zero_witness_preimage (test_zk60_mvp_security_probe.ZeroWitnessAlgebra) ... ok
+test_zero_planes_match_the_zero_witness_formula_exactly (test_zk60_mvp_security_probe.ZeroWitnessAlgebra) ... ok
+test_zero_witness_rebuild_accepts_with_fresh_pair_values (test_zk60_mvp_security_probe.ZeroWitnessAlgebra) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 6.365s
+
+OK

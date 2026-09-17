@@ -1,0 +1,60 @@
+{
+  "status": "passed",
+  "stages": [
+    {
+      "name": "demo_unit_tests",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_p1_demo*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_s": 0.18685384800005522,
+      "log_sha256": "e2a22bb1366c448ede46ed785d3cd782d482c0d475f3e2c1049530013c2fbb2b"
+    },
+    {
+      "name": "demo_real",
+      "command": [
+        "flock",
+        "/tmp/zk-heavy.lock",
+        "/usr/bin/python3",
+        "scripts/zk60_p1_demo.py",
+        "--output",
+        "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260915_demo"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_s": 539.0373389020001,
+      "log_sha256": "0d6cf822107e5382fc178be75e52fe0b153520a477045742a905dad8347ba798"
+    },
+    {
+      "name": "demo_existing_output",
+      "command": [
+        "/usr/bin/python3",
+        "scripts/zk60_p1_demo.py",
+        "--output",
+        "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260915_demo"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "elapsed_s": 0.027134569000054398,
+      "log_sha256": "f1db38e37ffc8c93dfb4e3b8585913213a2b1fe79085c647e890ef1ff9421c3a"
+    }
+  ],
+  "full_private_mvp": false,
+  "full_privacy_review_complete": false,
+  "demo_manifest_sha256": "708b56b5368356d6d0ad298677a7a8abe643f8979d30e2810524de4eadb28374",
+  "source_sha256": {
+    "scripts/zk60_p1_demo.py": "5b9a23af585264c9b79d30e1cfde077aa5bdca6a072efb1fee6d3568d846a490",
+    "tests/test_zk60_p1_demo.py": "14b96007a9ae389280caef0f5c40fda4313c0702bc3a294062c88196d5472f75",
+    "tests/test_zk60_p1_demo_contract.py": "ffb67a3f24655e61cba6dede7f6790b7d4be8247433e092cd9cc9dbbd3554309",
+    "hashline/examples/zk60_bound_ffn.rs": "26d8d4029c7f42b99c21271c8762ffb934fe94854677141c88f3d1ec9107777e"
+  }
+}

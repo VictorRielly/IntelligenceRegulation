@@ -1,5 +1,16 @@
 # U-PERF3 tranche ledger — the 8B MVP on the lattice line (route 1)
 
+**2026-09-15 refresh:** the current integration branch is
+`perf/zk-batch-optimizations` at baseline `763e308`. See the
+[MVP work record](docs/zkmatrix-poc/ZK60_MVP_20260915.md) and
+[review disposition](docs/zkmatrix-poc/ZK60_MVP_REVIEW.md). Opus 5's P1 FFN
+component demo passes real separate-process verification and six rejection
+controls; Fable 5.1's bounded IO preimage diagnostic is integrated with explicit
+limits. Fifty-three new focused tests and the full 871-test Python run pass
+(60 historical-fixture skips); frozen proofs remain unchanged. Whole-proof
+privacy, caller-fixed endpoint simulation and private attention/block
+composition remain open. The original dated tranche record follows.
+
 Branch: main (orchestrator) with lane worktrees `/home/victor/wt-uperf3-<lane>`
 (branches `uperf3-<lane>`), opened at c3fb448 (2026-08-18). Previous
 ledgers: PROGRESS_UPERF.md (Phase 0), PROGRESS_UPERF2.md (rounds 1-9,

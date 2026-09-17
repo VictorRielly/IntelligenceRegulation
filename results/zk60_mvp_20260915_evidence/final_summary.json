@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "baseline": "763e308b229a3478727c38388b08e1c8bc7a071c",
+  "status": "component_and_bounded_checks_passed",
+  "delegation_models": [
+    "claude-fable-5-1",
+    "claude-opus-5"
+  ],
+  "delegation_completed": true,
+  "original_fable_delivery_index_sha256": "7da10294b009f2ca39eb8e315fecdec020a6174052f2e41960894f6f23431f46",
+  "component_receipt_bytes": 5029244,
+  "real_demo_steps": 9,
+  "real_rejection_controls": 6,
+  "prior_hash_checks": 24,
+  "full_python": {
+    "tests": 871,
+    "skipped": 60,
+    "log_sha256": "3c2c947fc1572c4f63aad5a50b6fb0416a755c64e64bc4b6004b2545865ab77d"
+  },
+  "endpoint_tests": {
+    "tests": 75,
+    "skipped": 0,
+    "log_sha256": "e8f2081bd99b5af6312a436d450b0fa849ec6e9ed50b96111be6246f7c30d5fc"
+  },
+  "fresh_io_tests": {
+    "tests": 36,
+    "skipped": 3,
+    "log_sha256": "930a24dc33db3271d20380a234b78533785b01095a879627df0f527910b931d2"
+  },
+  "demo_tests": {
+    "tests": 37,
+    "skipped": 0,
+    "log_sha256": "1c18a8c27ade46efa9092f1b0bf702c17ebfab8369b68085edd05ff4e18a0414"
+  },
+  "security_tests": {
+    "tests": 16,
+    "skipped": 0,
+    "log_sha256": "8bb38dd064492d6530a9abf7a7f33f37cc5a6e468b635f2987b34035c6b5b98b"
+  },
+  "source_sha256": {
+    "scripts/zk60_p1_demo.py": "5b9a23af585264c9b79d30e1cfde077aa5bdca6a072efb1fee6d3568d846a490",
+    "scripts/zk60_mvp_security_probe.py": "8c20f6a2aa057708391bb4ebdfd272aef1b21191e9047ce8c07eb85efc40013c",
+    "tests/test_zk60_p1_demo.py": "14b96007a9ae389280caef0f5c40fda4313c0702bc3a294062c88196d5472f75",
+    "tests/test_zk60_p1_demo_contract.py": "ffb67a3f24655e61cba6dede7f6790b7d4be8247433e092cd9cc9dbbd3554309",
+    "tests/test_zk60_mvp_security_probe.py": "38c001363fd2543a48eb25fd28ffd63bd80e0a298eeb70921c04b624c6f0ce0e",
+    "tests/test_zk60_mvp_review_boundary.py": "ed281d1c39863b107cb08a15b8de90e314caa1c859818ff625645ef4f23bc7ea",
+    "docs/zkmatrix-poc/ZK60_MVP_20260915.md": "50082e347ab7f5d3d9844ae61fec22e5c56ddad815fa9082f42e6ef5e84b0ecd",
+    "docs/zkmatrix-poc/ZK60_MVP_REVIEW.md": "5b1c8d67298d06736815a5d0df9357d8d60d664baa53eff81f825592bbab9751",
+    "docs/zkmatrix-poc/ZK60_P1_DEMO.md": "aedfc31e6bde1213409b66a97b8491f3bf6c261cad53149216c25274a9e548b8",
+    "docs/zkmatrix-poc/ZK60_MVP_SECURITY_DECISION.md": "85280955c2a50677fb4e60492debb6c729a003bb792e688c579ead26da9535b8"
+  },
+  "evidence_sha256": {
+    "build_bound_ffn.log": "0e02ded973962f0d7fb264c8ea3a731858269288772f0e3cefca14233f57b06d",
+    "demo_existing_output.log": "f1db38e37ffc8c93dfb4e3b8585913213a2b1fe79085c647e890ef1ff9421c3a",
+    "demo_manifest.json": "708b56b5368356d6d0ad298677a7a8abe643f8979d30e2810524de4eadb28374",
+    "demo_real.log": "0d6cf822107e5382fc178be75e52fe0b153520a477045742a905dad8347ba798",
+    "demo_runner.log": "26710d1f0c213079a488930a76339cfb676bfe04a6b6c3b7197714eb0b7f9fef",
+    "demo_unit_tests.log": "e2a22bb1366c448ede46ed785d3cd782d482c0d475f3e2c1049530013c2fbb2b",
+    "demo_validation.json": "cac8c7ea2af2cf07ab5e087548cbe2970a6e456249532b35c1a7d56bb8fb0e64",
+    "final_demo_tests.log": "1c18a8c27ade46efa9092f1b0bf702c17ebfab8369b68085edd05ff4e18a0414",
+    "final_security_tests.log": "8bb38dd064492d6530a9abf7a7f33f37cc5a6e468b635f2987b34035c6b5b98b",
+    "fresh_io_tests.json": "1cfafd5e9d1a8c8c9a911d0265b65fbe6b4d0f8e1eaa96681bea5a2f9a7de843",
+    "fresh_io_tests.log": "930a24dc33db3271d20380a234b78533785b01095a879627df0f527910b931d2",
+    "full_python.log": "3c2c947fc1572c4f63aad5a50b6fb0416a755c64e64bc4b6004b2545865ab77d",
+    "integration_stages.json": "309c393d400b38516a5391592912070864b6be13c7dc562beaa4c61b5a2059a6",
+    "native_freeze.log": "ca64e2c697c0a0f1c402ebe9312e4a3f2033f42e08c12112e50505520fa40cac",
+    "round25_python.log": "e8f2081bd99b5af6312a436d450b0fa849ec6e9ed50b96111be6246f7c30d5fc",
+    "runner.log": "4edb90b3c90772500bf0bd71cbf92583938fabd99bd48039617d8609a0ea18a3",
+    "security_probe.json": "042a0b35a8f20bf6faeea9bbe6b520cfb8d04f8e578e07cb3a90ee8719758c49",
+    "security_probe.log": "3d93715a0f6ce2e5ca066a5b6b811d8432883fbf112c2c992738557cf7dbb1b5",
+    "validation.json": "76c5902cc7df42ab61d8b087ae6781f2d3714a27514b91de099bd081097bb3d4"
+  },
+  "production_rust_changed": false,
+  "full_private_block": false,
+  "model_scale_mvp": false,
+  "whole_proof_privacy_accepted": false,
+  "external_root_requirement_preserved": true
+}

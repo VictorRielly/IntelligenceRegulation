@@ -1,0 +1,24 @@
+{
+  "model": "claude-fable-5-1",
+  "execution_exit": 0,
+  "raw_delivery": true,
+  "whole_security_recommendation_accepted": false,
+  "files": [
+    {
+      "path": "docs/zkmatrix-poc/ZK60_MVP_SECURITY_DECISION.md",
+      "sha256": "04cc6079855f09e102a47b8c4ad54b9357e406146a1d98d45225000c134b2138"
+    },
+    {
+      "path": "scripts/zk60_mvp_security_probe.py",
+      "sha256": "8966e59085eb98e1adedc851e4c9f6fb3480e125d2d1defeb3b58d5767b7b277"
+    },
+    {
+      "path": "tests/test_zk60_mvp_security_probe.py",
+      "sha256": "baddc461ed8a7cdce16d12eff3cd71b15ff99fef18d9ee8c2aa922fe0f61b37b"
+    },
+    {
+      "path": "results/zk60_mvp_security_decision.json",
+      "sha256": "76b7cae878c396af910ec3ff3781c1fd4d266ad12cadb262913b453b59fe9d78"
+    }
+  ]
+}

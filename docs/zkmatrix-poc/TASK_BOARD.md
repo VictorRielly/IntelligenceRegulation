@@ -1,5 +1,14 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-15, MVP integration:** use the
+[MVP plan and results](ZK60_MVP_20260915.md) and
+[review disposition](ZK60_MVP_REVIEW.md). The P1 FFN component demo passes
+real-process verification and six tampering controls. Bounded zero-data IO
+preimages are checked; full joint/adaptive and external-root privacy remain
+open. Next: resolve that construction, then private attention and a complete
+tiny P1 block. O12–O14 remain available supporting reviews; no execution is
+inferred from their queue entries.
+
 **Binding privacy scope:** first PoC P1 hides inputs, outputs and intermediate
 activations; weights may be public. Full version P3 also hides weights.
 [Existing requirements reaffirmed by Victor, 2026-09-09](ZK60_PRIVACY_REQUIREMENTS.md).

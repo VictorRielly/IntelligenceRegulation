@@ -1,0 +1,41 @@
+test_refuses_a_capture_that_claims_a_privacy_result (o8_fresh_tests.AdapterRefusals) ... ok
+test_refuses_a_changed_role_order_or_a_missing_endpoint (o8_fresh_tests.AdapterRefusals) ... ok
+test_refuses_a_missing_io_group (o8_fresh_tests.AdapterRefusals) ... ok
+test_refuses_a_missing_io_mask_row (o8_fresh_tests.AdapterRefusals) ... ok
+test_refuses_a_missing_or_wrong_sibling_artifact (o8_fresh_tests.AdapterRefusals) ... ok
+test_refuses_an_altered_source_or_profile (o8_fresh_tests.AdapterRefusals) ... ok
+test_refuses_an_endpoint_mask_row_relabelled_as_data (o8_fresh_tests.AdapterRefusals) ... ok
+test_refuses_broken_transcript_joins_and_group_equations (o8_fresh_tests.AdapterRefusals) ... ok
+test_refuses_incorrect_endpoint_aliases (o8_fresh_tests.AdapterRefusals) ... ok
+test_refuses_malformed_fields (o8_fresh_tests.AdapterRefusals) ... ok
+test_refuses_narrowed_m_columns_and_a_narrowed_slot_schedule (o8_fresh_tests.AdapterRefusals) ... ok
+test_the_full_mutation_battery_rejects_everything (o8_fresh_tests.AdapterRefusals) ... ok
+test_the_unmutated_captures_are_accepted (o8_fresh_tests.AdapterRefusals) ... ok
+test_all_four_parse_with_the_recomputed_layout_and_expected_roles (o8_fresh_tests.IoCaptures) ... ok
+test_joint_model_numbers_on_every_capture (o8_fresh_tests.IoCaptures) ... ok
+test_manifest_binds_four_triples_two_per_mode_at_the_pinned_commit (o8_fresh_tests.IoCaptures) ... ok
+test_preflight_passes_every_check (o8_fresh_tests.IoCaptures) ... ok
+test_agrees_with_an_explicit_uncompressed_per_column_matrix (o8_fresh_tests.JointModelTests) ... ok
+test_h_zero_sum_is_carried_into_the_joint_model (o8_fresh_tests.JointModelTests) ... ok
+test_one_block_coordinate_pair_per_group_and_per_proximity_vector (o8_fresh_tests.JointModelTests) ... ok
+test_reproduces_the_inherited_role_model_on_one_commitment (o8_fresh_tests.JointModelTests) ... ok
+test_the_ablation_control_detects_the_legacy_single_mask_leak (o8_fresh_tests.JointModelTests) ... ok
+test_the_alias_merges_exactly_four_rows_and_only_data_rows (o8_fresh_tests.JointModelTests) ... ok
+test_the_proximity_mask_rows_span_both_base_dimensions (o8_fresh_tests.JointModelTests) ... ok
+test_a_grows_by_exactly_four_mask_rows_at_the_end (o8_fresh_tests.LayoutRecomputation) ... ok
+test_claim_and_group_shapes (o8_fresh_tests.LayoutRecomputation) ... ok
+test_endpoint_geometry (o8_fresh_tests.LayoutRecomputation) ... ok
+test_endpoint_row_roles_and_claim (o8_fresh_tests.LayoutRecomputation) ... ok
+test_layout_description_and_digest (o8_fresh_tests.LayoutRecomputation) ... ok
+test_the_base_profile_layout_is_unchanged_by_the_io_rows (o8_fresh_tests.LayoutRecomputation) ... ok
+test_two_independent_derivations_agree (o8_fresh_tests.LayoutRecomputation) ... ok
+test_x_and_z16_slices_are_the_real_planes (o8_fresh_tests.LayoutRecomputation) ... ok
+test_legacy_tool_still_reports_2n_plus_4_and_2n_plus_2_and_h_identity (o8_fresh_tests.LegacyPositiveControl) ... skipped 'legacy captures absent (/tmp/zk60-round11/final-observations)'
+test_a_fully_relabelled_legacy_capture_is_refused_by_the_recomputation (o8_fresh_tests.LegacyRefused) ... skipped 'legacy captures absent (/tmp/zk60-round11/final-observations)'
+test_every_legacy_capture_is_refused_by_this_adapter (o8_fresh_tests.LegacyRefused) ... skipped 'legacy captures absent (/tmp/zk60-round11/final-observations)'
+test_the_analysis_record_is_bound_to_these_tools_and_captures (o8_fresh_tests.ResultsBinding) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 50.589s
+
+OK (skipped=3)

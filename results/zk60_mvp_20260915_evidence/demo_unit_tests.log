@@ -1,0 +1,40 @@
+test_build_without_an_executable_message_fails (test_zk60_p1_demo.Building) ... ok
+test_cargo_build_command_shape (test_zk60_p1_demo.Building) ... ok
+test_failed_build_keeps_stderr_and_stops (test_zk60_p1_demo.Building) ... ok
+test_missing_manifest_is_reported_before_any_process (test_zk60_p1_demo.Building) ... ok
+test_supplied_binary_skips_the_build (test_zk60_p1_demo.Building) ... ok
+test_json_that_is_not_an_object_fails (test_zk60_p1_demo.MalformedOutput) ... ok
+test_missing_field_fails (test_zk60_p1_demo.MalformedOutput) ... ok
+test_non_json_success_line_fails_and_is_retained (test_zk60_p1_demo.MalformedOutput) ... ok
+test_policy_must_carry_the_caller_context (test_zk60_p1_demo.MalformedOutput) ... ok
+test_registration_that_already_proved_fails (test_zk60_p1_demo.MalformedOutput) ... ok
+test_root_that_is_not_a_digest_fails (test_zk60_p1_demo.MalformedOutput) ... ok
+test_wire_bytes_must_match_the_saved_receipt (test_zk60_p1_demo.MalformedOutput) ... ok
+test_existing_output_file_is_refused (test_zk60_p1_demo.OutputPreservation) ... ok
+test_existing_output_is_never_written_to (test_zk60_p1_demo.OutputPreservation) ... ok
+test_signal_death_is_reported_as_a_crash (test_zk60_p1_demo.ProcessFailures) ... ok
+test_timeout_is_a_failure_with_retained_detail (test_zk60_p1_demo.ProcessFailures) ... ok
+test_unexpected_exit_code_keeps_stderr (test_zk60_p1_demo.ProcessFailures) ... ok
+test_unrunnable_binary_is_reported (test_zk60_p1_demo.ProcessFailures) ... ok
+test_accepting_a_control_fails_the_demo (test_zk60_p1_demo.RejectionHandling) ... ok
+test_controls_use_distinct_inputs_and_keep_the_original_pair (test_zk60_p1_demo.RejectionHandling) ... ok
+test_late_acceptance_of_a_tampered_receipt_fails (test_zk60_p1_demo.RejectionHandling) ... ok
+test_rejection_that_prints_a_result_line_fails (test_zk60_p1_demo.RejectionHandling) ... ok
+test_silent_rejection_fails (test_zk60_p1_demo.RejectionHandling) ... ok
+test_artifacts_are_hashed_and_left_untouched (test_zk60_p1_demo.SuccessfulRun) ... ok
+test_context_is_fresh_os_randomness_per_run (test_zk60_p1_demo.SuccessfulRun) ... ok
+test_no_p3_mode_and_no_hl_environment_reaches_the_child (test_zk60_p1_demo.SuccessfulRun) ... ok
+test_paths_in_the_manifest_are_portable (test_zk60_p1_demo.SuccessfulRun) ... ok
+test_registration_precedes_proving_and_supplies_the_verified_root (test_zk60_p1_demo.SuccessfulRun) ... ok
+test_run_proves_verifies_and_rejects (test_zk60_p1_demo.SuccessfulRun) ... ok
+test_status_claims_stay_negative_and_coverage_is_explicit (test_zk60_p1_demo.SuccessfulRun) ... ok
+test_empty_receipt_records_failure_before_controls (test_zk60_p1_demo_contract.ReviewedFailureCases) ... ok
+test_float_byte_count_cannot_validate_a_receipt (test_zk60_p1_demo_contract.ReviewedFailureCases) ... ok
+test_invalid_limits_refuse_before_creating_artifacts (test_zk60_p1_demo_contract.ReviewedFailureCases) ... ok
+test_malformed_cargo_target_records_failure (test_zk60_p1_demo_contract.ReviewedFailureCases) ... ok
+test_numeric_boolean_is_not_a_no_proving_attestation (test_zk60_p1_demo_contract.ReviewedFailureCases) ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 0.122s
+
+OK

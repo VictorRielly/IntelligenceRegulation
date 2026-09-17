@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260915_evidence/validate.py", line 74, in <module>
+    code = run()
+  File "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260915_evidence/validate.py", line 31, in run
+    actual = sha(ROOT / relative)
+  File "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260915_evidence/validate.py", line 17, in sha
+    return hashlib.file_digest(stream, "sha256").hexdigest()
+AttributeError: module 'hashlib' has no attribute 'file_digest'
+build_bound_ffn 0
+round25_python 0
+native_freeze 0
+full_python 0

@@ -1,5 +1,11 @@
 # Intelligence Regulation
 
+The ZKP prototype currently has public transformer-block receipts and an
+experimental private feed-forward component. A complete private transformer
+block and whole-proof privacy acceptance remain open. See the
+[current MVP plan](docs/zkmatrix-poc/ZK60_MVP_20260915.md) and
+[project status](docs/zkmatrix-poc/ZK60_STATUS.md).
+
 ## Description: The world is racing to build Intelligence as quickly as it can. But this intelligence isn't being built to serve people, its being built because if we don't build it they will and they will win. This is a recipe for dissaster. Very quickly tragedy will strike and the world will cry out for AI to pause and only then will it become clear that short of destroying all fabs worldwide, we have no pause button for AI. Some might think its ok, we just need to build it out to be beneficial to all, but unfortunately even if AI never misbehaves, companies and governments, if left to allow runnaway competition to continue will have to make the choice between serving their people and falling behind in the AI race or neglecting the people. Eventually, AI developement must be monitored on a global scale by a single governing organization. This is the only way to remove the competition pressures that are driving humanity towards catastrophe. The only question we have left to answer is how can we establish a worldwide AI and intelligence governance system that is equitable for all countries.
 
 ## Features
@@ -14,15 +20,24 @@ Please reach out if you have further ideas on how we can make this work. victorr
 
 ## Installation
 
-```bash
-# Add installation instructions here
-```
+Install Rust/Cargo and Python 3.10 or newer, then clone this repository. The
+component demo builds its CPU example automatically; it needs no CUDA setup or
+downloaded model. Cargo needs its dependencies available locally or access to
+the package registry on the first build.
 
 ## Usage
 
 ```bash
-# Add usage examples here
+flock /tmp/zk-heavy.lock python3 scripts/zk60_p1_demo.py --output /tmp/zk60-p1-demo
 ```
+
+Use a new output directory for each run. The command prepares the public weight
+registration, proves a synthetic P1 feed-forward computation, verifies the
+saved receipt in a separate process, and checks that altered requests, weights,
+endpoints and receipt bytes are rejected. It saves artifacts and a JSON result
+manifest. This is an experimental component demonstration; its synthetic inputs
+are public and full privacy has not been established. It does not complete the
+private-block MVP. [Demo details](docs/zkmatrix-poc/ZK60_P1_DEMO.md).
 
 ## Project Plans
 
@@ -39,7 +54,9 @@ Please reach out if you have further ideas on how we can make this work. victorr
 
 ## Requirements
 
-- [List any dependencies or requirements]
+- CPU component demo: Rust/Cargo, Python 3.10+, and `flock` on Linux.
+- Optional GPU and model-scale experiments have separate requirements in their
+  runbooks; they are not needed for the component demo.
 
 ## Contributing
 

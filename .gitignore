@@ -46,3 +46,6 @@ results/ak_hashline_fold.bin
 
 ## Fresh IO validation captures; manifests and logs are committed separately.
 results/zk60_round22_captures/
+
+# Fresh randomized MVP component artifacts; retain the validation manifests.
+results/zk60_mvp_20260915_demo/

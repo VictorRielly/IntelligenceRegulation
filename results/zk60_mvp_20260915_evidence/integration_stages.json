@@ -1,0 +1,42 @@
+[
+  {
+    "name": "final_demo_tests",
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_zk60_p1_demo*.py",
+      "-v"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "final_security_tests",
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_zk60_mvp*.py",
+      "-v"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "security_probe",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/zk60_mvp_security_probe.py",
+      "--out",
+      "results/zk60_mvp_20260915_evidence/security_probe.json"
+    ],
+    "exit_code": 0
+  }
+]
