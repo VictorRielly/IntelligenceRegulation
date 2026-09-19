@@ -99,6 +99,32 @@ my own run of `cargo test --release --lib private_` gave 27 passed, 0 failed.
    `BlockPublic` is ever parsed from bytes, the parser refuses any word that
    does not fit `i16` rather than truncating it.
 
+### Security owner's check of S3a–S4 and ruling on the calibration literal (2026-09-19 05:14)
+
+Verified by my own runs, recorded in
+`results/zk60_private_block_evidence/README.md`: accepted files byte-identical;
+the lane's only edits to existing files are the module export, the
+dev-dependency and the one constant `TAG_ACT = 134`; 38 unit, parity and
+tamper tests and 4 integration tests pass; the example proves the whole block
+under the final profile and a fresh process verifies the 2,816,472-byte
+receipt, exactly the design's figure, and refuses three corruptions. I read the
+tripwire's source: it is the strong form condition 1 asks for.
+
+**Ruling on deviation (d), the calibration digest as a literal: accepted for
+this proof of concept.** The literal is absorbed under the `"calibration"`
+label before any challenge, so the statement is bound to that calibration, and
+the test pinning it to `causal_oracle::public_synthetic_registration` must
+stay. It becomes wrong the day a second calibration or registration exists:
+from then the digest is a field of the public statement taken from the
+caller's approved contract, not a module constant. Record that as a follow-up,
+not as work for S5.
+
+The other findings are accepted as reported: the two layouts collapsing to
+one; the attention-half parity test subsumed by the whole-block test, which
+compares every plane; and T-z1 re-homed as the endpoint test with the class
+tested by the `(+256, −1)` limb shift on all four feed-forward limb pairs,
+which isolates where the memo's row did not.
+
 ## Log
 
 ### 2026-09-19 — S0 SCAFFOLD (done)
