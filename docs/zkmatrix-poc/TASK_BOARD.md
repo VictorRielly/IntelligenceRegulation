@@ -381,6 +381,36 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-09-19 06:25 — the live state is no longer on this board.** The
+current work is the ZK60 private MVP, run by two loops (Codex and the
+interactive Claude Fable session) through two handoff files: Codex's
+[`ZK60_CODEX_FABLE_COORDINATION.md`](ZK60_CODEX_FABLE_COORDINATION.md) and
+Fable's [`ZK60_FABLE_LANE_HANDOFF.md`](ZK60_FABLE_LANE_HANDOFF.md) (read its
+§3f from the top: it is a dated log of the night of 2026-09-19). Plain status:
+[`MVP_STATUS.md`](MVP_STATUS.md). Rulings: [`ZK60_DECISIONS.md`](ZK60_DECISIONS.md)
+(newest: D12). What a newcomer needs to know in four lines:
+
+- **zkVM line:** a complete tiny block and a two-block token model each have
+  a verified 785-byte Groth16 receipt (2026-09-18); both re-verified after the
+  2026-09-19 01:04 laptop restart. Codex owns that code and its heavy queue
+  (the ceremony check died with `/tmp` in the restart and needs relaunching).
+- **Custom line:** the first **complete private transformer block** proves
+  and verifies natively (2026-09-19; branch `zk60-private-block`, pushed;
+  0.095 s prove, 2,816,472-byte receipt at the tiny shape), accepted by the
+  security owner as an **experimental** component:
+  `ZK60_PRIVATE_BLOCK_IMPLEMENTATION_DISPOSITION.md` on that branch. No
+  privacy property is established and no 8B speed claim follows.
+- **Branches, all pushed:** `zk60-private-block` (the block; its ledger
+  `ZK60_PRIVATE_BLOCK_IMPL_PROGRESS.md` says exactly what was built and how
+  to build and test it), `zk60-attention-compile` (the design: gap inventory,
+  construction memos, two independent checks, disposition),
+  `zk60-zkvm-hardening`, `zk60-mvp-fable`.
+- **Next, in order:** Codex integrates the attention component and then the
+  block; a schema-3 capture writer for the block profile; the round-2
+  joint-view tools on real block receipts (where a privacy statement starts);
+  D8/D11 for the two external endpoints. RUN-only agents: do not start any of
+  these; they are CODE/DESIGN work with owners.
+
 **Current Opus dispatch, 2026-09-09:** O1–O11 are integrated.
 [O12–O14](ZK60_OPUS_QUEUE.md) are ready at `b3a2535`; see the
 [review disposition](ZK60_ROUND25_OPUS_REVIEW.md). Codex owns the next public

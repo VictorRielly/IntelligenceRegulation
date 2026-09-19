@@ -1,6 +1,6 @@
 # Where the MVP stands, in plain words
 
-**Updated 2026-09-19, 05:50, by the Codex/Fable integration loop (after the
+**Updated 2026-09-19, 06:25, by the Codex/Fable integration loop (after the
 01:04 laptop restart; see §3 item 4).** This page
 answers three questions and is refreshed whenever the loop produces news.
 Rulings are in [the decisions register](ZK60_DECISIONS.md); measurements
@@ -44,7 +44,8 @@ acceptance as the P1 statement (D7). Both receipts are for synthetic tiny
 fixtures, not a trained model, and neither makes a speed claim.
 
 **On the custom prover line (hashline), the first complete private block now
-proves and verifies (2026-09-19, 05:14) — experimental, not yet accepted.**
+proves and verifies (2026-09-19, 05:14), and at 06:25 the security owner
+accepted it as an experimental component — still not a privacy acceptance.**
 The same kind of block as above (T32 tokens, width 16, two heads,
 feed-forward width 16: attention, both norms, both residuals, the SiLU
 feed-forward) in **one native proof with no seam**, inputs, outputs and
@@ -63,8 +64,12 @@ group or at either endpoint, all 22 negative controls fire, zero differences
 from the paper run) and **an independent adversarial code review found no
 blocking problem** (every hidden plane is pinned, every relation equals the
 reference kernel's, it could not construct a false proof the verifier
-accepts); two small defects and some missing tamper tests are being closed
-now. **What it is not:** not a privacy acceptance (those tools check a
+accepts); its two small defects and its missing tamper tests were closed by
+06:19, every new tamper caught exactly where it was predicted, including the
+one case where only a single lookup stands between a prover and a free hidden
+value; 46 unit and 4 integration tests pass on the security owner's own run,
+and a receipt made before those fixes still verifies after them. **What it
+is not:** not a privacy acceptance (those tools check a
 linear-algebra model that leaves out several channels; the caller-fixed-root
 obligation D8/D11 is open; the joint-view gate on captured receipts is
 unmet), not a trained model, and **not a speed result for 8B**: the form

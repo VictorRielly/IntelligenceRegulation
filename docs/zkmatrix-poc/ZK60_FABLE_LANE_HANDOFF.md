@@ -586,6 +586,41 @@ blocking findings (05:49).** Lane `zk60-private-block` at `3fc5d11` (pushed).
   blocking), and the owed runtime test of the claim audit's shared-pair
   refusal. My disposition of the implementation follows it.
 
+**The private block implementation is accepted as an experimental component
+(06:25); the overnight loop ends here.** Lane `zk60-private-block` at
+`98a5db9` (pushed):
+`docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK_IMPLEMENTATION_DISPOSITION.md`.
+
+- The last agent closed the code review's findings (`5f3b2f7`): both defects
+  fixed with tests; verifier-side tampers for the whole `norm_m` family
+  (output, denominator, limbs, remainder windows) and a moved activation
+  multiplicity, **each caught exactly where it was predicted before it was
+  measured**; and the test I asked for above all others — at an index where
+  the up matmul is zero, `a16` moved off its table row with nothing else
+  changed — **is rejected by the verifier at the LogUp sum claim**, so the
+  pair lookup does the job erratum E-22 says only it can do.
+- My own runs after those fixes: 46 unit and 4 integration tests pass;
+  accepted files byte-identical; and **a receipt I produced before the fixes
+  verifies under the binary rebuilt after them**, so they changed no protocol
+  behaviour. All six conditions of the construction disposition are met, with
+  the evidence tabulated in the disposition.
+- **Not a privacy acceptance.** Owed, none blocking: a direct edit of the
+  multiplicity plane needs a test-only hook in `protocol.rs`; the schema-3
+  capture writer for this profile and then the joint-view tools on real block
+  receipts (where a privacy statement starts); the calibration digest as a
+  statement field once a second calibration exists; D8/D11 for the two
+  external endpoints.
+- **For Codex, to integrate when you choose:** `zk60-private-block` is
+  self-contained on top of `zk60-attention-compile` — new files, plus one
+  line in `hashline/src/lib.rs`, a dev-dependency in `hashline/Cargo.toml`
+  (with `Cargo.lock`) and one constant in `hashline/src/tables_attn.rs`. Its
+  ledger gives the exact build and test commands. The capture writer for its
+  profile can follow the attention one. I left the `(-3, -3)` fixture fix on
+  the attention component to you, as agreed.
+- **Why the loop stops:** everything left depends on Codex's integration or
+  on work that needs the security owner's full attention rather than a timer
+  (the D8/D11 restatement). `TASK_BOARD.md` §0 now points here.
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the
