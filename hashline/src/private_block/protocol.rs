@@ -10,7 +10,7 @@
 use super::argument::{argument, table_values_act, table_values_exp, table_values_u8, Ctx, ProverData, Side};
 use super::layout::*;
 use super::witness::Witness;
-use super::{AttentionPublic, Endpoints, ExpectedIo, FeedForwardPublic, ProveStats, Receipt, PROFILE};
+use super::{BlockPublic, Endpoints, ExpectedIo, ProveStats, Receipt, PROFILE};
 use crate::field::{batch_inverse2_checked, Fp, Fp2};
 use crate::ntt::NttTables;
 use crate::pcs::{self, Commitment, PcsParams, Slice, ZClaim, ZPart, ZkOpts};
@@ -22,22 +22,17 @@ pub(crate) fn pcs_params() -> PcsParams {
     PcsParams { log_cols: LOG_N as u32, inv_rate: 8, num_col_checks: 256 }
 }
 
-/// Header, public statement and endpoint policy first; no challenge precedes them.
-///
-/// WORK IN PROGRESS. The feed-forward words (`gamma_m`, `Wg`, `Wu`, `Wd` and
-/// the activation table) are absorbed under their OWN label here, because the
-/// relations that read them exist while the single block statement digest does
-/// not yet (disposition condition 1 keeps `BlockPublic` and the block profile
-/// string out until the commit that also moves the output endpoint). The stage
-/// that lands `BlockPublic` folds these words into ONE `"public-statement"`
-/// digest under the block's own domain and drops this second absorb: a second
-/// absorb of the same words is a second thing to keep in sync (T2 section F).
-pub(crate) fn transcript(public: &AttentionPublic, ff: &FeedForwardPublic, expected: &ExpectedIo, lay: &Layout) -> Transcript {
+/// Header, public statement, endpoint policy and calibration first; no
+/// challenge precedes them. The order is T1 section D steps 1-6: PROFILE,
+/// `"expected-IO"`, `"public-statement"` (ONE digest over the attention AND
+/// feed-forward words), `"parameters"`, `"calibration"`, `"schedule"`.
+pub(crate) fn transcript(public: &BlockPublic, expected: &ExpectedIo, lay: &Layout) -> Transcript {
     let mut tr = Transcript::new(PROFILE);
     tr.absorb(b"expected-IO", &expected.to_bytes());
     tr.absorb(b"public-statement", &public.digest());
-    tr.absorb(b"feed-forward-statement", &ff.digest());
-    tr.absorb(b"parameters", b"T32/d16/f16/H2/KV1/dh8/log_cols8/inv_rate8/Q256/P1/sh-g7-u0-h14-z6/two-private-endpoints/block-wip");
+    tr.absorb(b"parameters", b"T32/d16/f16/H2/KV1/dh8/log_cols8/inv_rate8/Q256/P1/sh-g7-u0-h14-z6/two-private-endpoints/one-proof-one-transcript");
+    // D12 item 5: a receipt cannot be replayed under another approved calibration
+    tr.absorb(b"calibration", &super::calibration_identity());
     tr.absorb(b"schedule", &lay.schedule_digest());
     tr
 }
@@ -260,8 +255,9 @@ fn check_endpoints(expected: &ExpectedIo, endpoints: Endpoints) -> Result<[pcs::
 
 /// Consumes the endpoint owners on success AND on failure. No equality precheck: an
 /// endpoint committed to other values must fail the verifier's polynomial identity.
-pub(crate) fn prove_inner(public: &AttentionPublic, ff: &FeedForwardPublic, wit: &Witness, expected: &ExpectedIo, endpoints: Endpoints) -> Result<(Receipt, ProveStats), String> {
+pub(crate) fn prove_inner(blk: &BlockPublic, wit: &Witness, expected: &ExpectedIo, endpoints: Endpoints) -> Result<(Receipt, ProveStats), String> {
     use std::time::Instant;
+    let (public, ff) = (blk.attention(), blk.feed_forward());
     let mut tick = Instant::now();
     let mut phases: Vec<(&'static str, f64)> = Vec::new();
     let mut lap = |name: &'static str, tick: &mut Instant| {
@@ -280,7 +276,7 @@ pub(crate) fn prove_inner(public: &AttentionPublic, ff: &FeedForwardPublic, wit:
     let ntt = NttTables::new(12);
     let params = pcs_params();
     let zko = ZkOpts::standard(&params);
-    let mut tr = transcript(public, ff, expected, &lay);
+    let mut tr = transcript(blk, expected, &lay);
 
     // ---- A: planes, the three committed histograms, every mask row drawn BEFORE the commitment ----
     let mut a_data = vec![Fp::ZERO; lay.a_rows * N];
@@ -429,14 +425,15 @@ pub(crate) fn prove_inner(public: &AttentionPublic, ff: &FeedForwardPublic, wit:
 
 /// Accepts only against the caller's own public statement and endpoint policy.
 /// Returns the absorb sequence (for the transcript-order gate).
-pub(crate) fn verify_inner(public: &AttentionPublic, ff: &FeedForwardPublic, expected: &ExpectedIo, receipt: &Receipt) -> Result<Vec<String>, String> {
+pub(crate) fn verify_inner(blk: &BlockPublic, expected: &ExpectedIo, receipt: &Receipt) -> Result<Vec<String>, String> {
+    let (public, ff) = (blk.attention(), blk.feed_forward());
     let lay = Layout::new();
     super::wire::validate(receipt, &lay)?;
     expected.spec.seams()?;
     let ntt = NttTables::new(12);
     let params = pcs_params();
     let zko = ZkOpts::standard(&params);
-    let mut tr = transcript(public, ff, expected, &lay);
+    let mut tr = transcript(blk, expected, &lay);
     absorb_root(&mut tr, b"A", &receipt.a_root, lay.a_rows);
     tr.absorb(b"M", &receipt.mask_root);
     let beta = tr.challenge_fp2();

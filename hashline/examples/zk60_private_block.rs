@@ -1,11 +1,8 @@
-//! WORK-IN-PROGRESS private block profile `private-block-t32-wip/0`
+//! EXPERIMENTAL private block profile `private-block-t32-poc/1`
 //! (T32 / d16 / 2 heads / 1 KV head / F16): it proves the WHOLE block -
 //! attention, norm_m, the SiLU feed-forward and residual 2 - in one proof with
-//! no seam. Its output ENDPOINT still carries `xres1`, and the profile string,
-//! `BlockPublic` and the move to `xres2` land together in a later commit
-//! (disposition condition 1), so no statement about a block's output follows
-//! from a run yet. Prove in one process and verify in a FRESH process from
-//! bytes only:
+//! no seam, between the two external endpoints `x_in` and `xres2`.
+//! Prove in one process and verify in a FRESH process from bytes only:
 //!
 //!   zk60_private_block prove  <dir>   writes <dir>/block_receipt.bin and
 //!                                         <dir>/block_expected.bin
@@ -21,7 +18,7 @@
 //! of the producer. Not an MVP, privacy-acceptance or speed claim: D8 / D11
 //! stay open and shared-box timings are diagnostic only.
 use hashline::private_block::{
-    compute_output, encoded_len, prepare_endpoints, prove_with_stats, schedule, verify_bytes, AttentionPublic, ExpectedIo, FeedForwardPublic, IoSpec, EXPECTED_BYTES, MAX_WIRE_BYTES,
+    compute_output, encoded_len, prepare_endpoints, prove_with_stats, schedule, verify_bytes, BlockPublic, ExpectedIo, IoSpec, EXPECTED_BYTES, MAX_WIRE_BYTES,
 };
 use std::path::Path;
 
@@ -37,18 +34,18 @@ fn read_bounded(path: &Path, max: usize) -> Result<Vec<u8>, String> {
 }
 
 fn prove_cmd(dir: &Path) -> Result<(), String> {
-    let (public, input) = AttentionPublic::synthetic_fixture();
-    let ff = FeedForwardPublic::synthetic_fixture();
+    let (blk, input) = BlockPublic::synthetic_fixture();
     let context = *blake3::hash(b"zk60 private block example: public synthetic request").as_bytes();
-    let spec = IoSpec::new(context, -3, -3)?;
+    // the endpoint exponents are pinned to the approved calibration
+    let spec = IoSpec::new(context, 0, 0)?;
     // the endpoint owner's step: fix both private endpoints BEFORE proving
-    let output = compute_output(&public, &ff, &input)?;
+    let output = compute_output(&blk, &input)?;
     let (expected, owners) = prepare_endpoints(spec, &input, &output)?;
     drop(output);
     let started = std::time::Instant::now();
-    let (receipt, stats) = prove_with_stats(&public, &ff, &input, &expected, owners)?;
+    let (receipt, stats) = prove_with_stats(&blk, &input, &expected, owners)?;
     let seconds = started.elapsed().as_secs_f64();
-    let frame = receipt.to_bytes(&public, &ff, &expected)?;
+    let frame = receipt.to_bytes(&blk, &expected)?;
     std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
     std::fs::write(dir.join(RECEIPT), &frame).map_err(|e| e.to_string())?;
     std::fs::write(dir.join(EXPECTED), expected.to_bytes()).map_err(|e| e.to_string())?;
@@ -70,17 +67,16 @@ fn verify_cmd(dir: &Path) -> Result<(), String> {
     let frame = read_bounded(&dir.join(RECEIPT), MAX_WIRE_BYTES)?;
     let policy = read_bounded(&dir.join(EXPECTED), EXPECTED_BYTES)?;
     // independent expected state: the public statement is rebuilt here, not read from the producer
-    let (public, _) = AttentionPublic::synthetic_fixture();
-    let ff = FeedForwardPublic::synthetic_fixture();
+    let (blk, _) = BlockPublic::synthetic_fixture();
     let expected = ExpectedIo::from_bytes(&policy)?;
     let started = std::time::Instant::now();
-    verify_bytes(&public, &ff, &expected, &frame)?;
+    verify_bytes(&blk, &expected, &frame)?;
     println!("ACCEPT: {} bytes verified in {:.3} s", frame.len(), started.elapsed().as_secs_f64());
     // negative controls in the same fresh process
     for (name, at) in [("first root", 40usize), ("an argument word", 40 + 96 + 24), ("the last path byte", frame.len() - 1)] {
         let mut bad = frame.clone();
         bad[at] ^= 1;
-        if verify_bytes(&public, &ff, &expected, &bad).is_ok() {
+        if verify_bytes(&blk, &expected, &bad).is_ok() {
             return Err(format!("CONTROL FAILED: a frame with {name} corrupted verified"));
         }
         println!("refused: {name} corrupted");

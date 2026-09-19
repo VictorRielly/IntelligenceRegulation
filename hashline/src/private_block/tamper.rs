@@ -33,7 +33,7 @@ use super::witness::{self, Witness};
 use super::*;
 
 fn spec() -> IoSpec {
-    IoSpec::new(*blake3::hash(b"private block: public synthetic tamper context").as_bytes(), -3, -3).unwrap()
+    IoSpec::new(*blake3::hash(b"private block: public synthetic tamper context").as_bytes(), 0, 0).unwrap()
 }
 
 /// where the verifier must catch a tamper
@@ -118,20 +118,24 @@ fn recompute_from_h16(w: &mut Witness, ff: &FeedForwardPublic) -> bool {
 
 // ---------------------------------------------------------------- harness
 
-/// One attempt: honest witness, honest endpoints (the output endpoint commits
-/// the HONEST value, fixed before the edit, exactly as an endpoint owner
-/// would), then the edit, then a full proof and a full verification.
+/// One attempt. The endpoint owner commits the TAMPERED `xres2` — the
+/// strongest form, and the one T1-check section 11.3 item 4 asks for: with the
+/// output endpoint agreeing with the tampered witness, `SC_IO_OUT` cannot be
+/// what rejects, so each case is left with the one relation it names. (When
+/// the tamper pushes `xres2` out of int16 there is no such endpoint, and the
+/// honest one is committed instead; the only case that needs this is the
+/// int16-class test, which is about a class and has two catches anyway.)
 fn prove_tampered(edit: impl FnOnce(&FeedForwardPublic, &mut Witness)) -> Result<(), String> {
-    let (public, input) = AttentionPublic::synthetic_fixture();
-    let ff = FeedForwardPublic::synthetic_fixture();
-    let mut w = witness::build(&public, &ff, &input).expect("the public synthetic fixture is accepted");
-    let output = w.output().expect("the honest output plane is in class");
+    let (blk, input) = BlockPublic::synthetic_fixture();
+    let mut w = witness::build(blk.attention(), blk.feed_forward(), &input).expect("the public synthetic fixture is accepted");
+    let honest = w.output().expect("the honest output plane is in class");
+    edit(blk.feed_forward(), &mut w);
+    let output = w.output().unwrap_or(honest);
     let (expected, owners) = prepare_endpoints(spec(), &input, &output).unwrap();
-    edit(&ff, &mut w);
     // the prover does not pre-check any relation: a false witness still yields
     // a receipt, and that receipt must not verify
-    let (receipt, _) = prove_inner(&public, &ff, &w, &expected, owners)?;
-    verify_inner(&public, &ff, &expected, &receipt).map(|_| ())
+    let (receipt, _) = prove_inner(&blk, &w, &expected, owners)?;
+    verify_inner(&blk, &expected, &receipt).map(|_| ())
 }
 
 fn expect_rejection(name: &str, catch: Catch, edit: impl FnOnce(&FeedForwardPublic, &mut Witness)) {
@@ -146,14 +150,18 @@ fn pick(name: &str, n: usize, ok: impl Fn(usize) -> bool) -> usize {
 
 // ---------------------------------------------------------------- the suite
 
-/// T2 section G.1, the test the whole of Tier 2 exists for: with `z16`
-/// tampered CONSISTENTLY — `xres2 = xres1 + z16` still holds and every class
-/// proof still passes — the verifier must still reject, because `z16` is now
-/// derived from `nm` through the three matmuls, the activation lookup and the
-/// product. Under Tier 1 alone this receipt verified and the block's output
-/// was whatever the prover chose.
+/// THE TRIPWIRE of T1-check section 11.3 and disposition condition 1, under
+/// its required name. `z16` is tampered CONSISTENTLY — `xres2 = xres1 + z16`
+/// still holds, both limb pairs are recomputed so every class proof still
+/// passes, the whole attention half and `norm_m` are untouched and honest —
+/// and the endpoint owner commits the CHOSEN `xres2'`. Under Tier 1 alone
+/// every check passed and the block's output was whatever the prover wanted.
+/// It must now be the VERIFIER that rejects, at the down requantization that
+/// derives `z16` from `nm`. (T1-check's step 3 says to recompute only the
+/// `xres2` limbs; T2 section G.1 step 2 corrects that — `A_ZL0`/`A_ZL1` are
+/// Tier 2's own planes and must be recomputed too, or `c10` breaks instead.)
 #[test]
-fn a_consistently_tampered_z16_is_rejected_at_the_down_requantization() {
+fn block_output_cannot_be_chosen() {
     expect_rejection("z16 (+1, xres2 and both limb pairs recomputed)", Catch::Slot(SC_DZC), |_, w| {
         let k = pick("z16", T * D, |k| w.planes[A_Z16][k] < 32767 && w.planes[A_X2][k] < 32767);
         w.planes[A_Z16][k] += 1;
@@ -274,22 +282,68 @@ fn every_biased_remainder_is_pinned_by_its_requantization_identity() {
     prove_tampered(|_, _| {}).expect("the honest proof must verify beside every tamper");
 }
 
-/// T2 row T-z1, the int16 CLASS test, kept with its two catches and labelled
-/// as such (erratum E-19): `z16 + 2^16` with `rd` "compensated" pushes `rd`
-/// out of its window AND `A_ZL1` out of `[0, 256)`, so both lookups have no
-/// row and the one value-0 sum claim on `H` fails. It cannot isolate a single
-/// relation and is not used to show one is present; it shows the class is
-/// enforced at all.
+/// The CLASS tests, in the only form that isolates the lookups.
+///
+/// T2's row T-z1 is `z16 + 2^16` with `rd` "compensated". With the whole chain
+/// present that no longer reaches a lookup first: `xres2` leaves int16 too, so
+/// there is no endpoint an owner could commit to it, and the FIRST catch is
+/// the output endpoint equality at slot 22 — measured, not argued. Useful as
+/// far as it goes (an out-of-class `z16` cannot be smuggled to the block's
+/// output) but it cannot show that the class lookups do anything.
+///
+/// So the class is tested the way the module already tests it for `x_in`
+/// (`tests.rs`, "range only (LogUp)"): shift a two-limb decomposition by
+/// `(+256, -1)`. The decomposition relation still holds EXACTLY — `c10`,
+/// `f1`, `f2` and `f0` are all satisfied — and the only thing broken is that
+/// the low limb has left `[0, 256)` and has no row in the U8 table. Nothing
+/// else can catch it, so the one value-0 LogUp sum claim on `H` must, and
+/// that is what pins `u16`, `h16`, `z16` to int16 and `rh` to `[0, 2^14)`.
 #[test]
-fn a_z16_outside_int16_is_rejected_by_the_lookups() {
-    expect_rejection("z16 (+2^16 with rd compensated: two independent catches)", Catch::LogUp, |_, w| {
+fn a_limb_outside_its_byte_range_is_rejected_by_the_lookups() {
+    for (name, l0, l1) in [
+        ("z16's int16 limbs", A_ZL0, A_ZL1),
+        ("u16's int16 limbs", A_UL0, A_UL1),
+        ("h16's int16 limbs", A_HL0, A_HL1),
+        ("rh's 14-bit limbs", A_RH0, A_RH1),
+    ] {
+        expect_rejection(name, Catch::LogUp, move |_, w| {
+            // l0 + 256 * l1 is unchanged, so every relation still holds
+            w.planes[l0][0] += 256;
+            w.planes[l1][0] -= 1;
+        });
+    }
+    prove_tampered(|_, _| {}).expect("the honest proof must verify beside every tamper");
+}
+
+/// The other half of T2's row T-z1, recorded as what it actually is: with the
+/// whole chain present, a `z16` outside int16 makes `xres2` outside int16 too,
+/// and the first thing that rejects is the block's own output endpoint.
+#[test]
+fn a_z16_outside_int16_cannot_reach_the_output_endpoint() {
+    expect_rejection("z16 (+2^16, rd compensated, limbs shifted: three catches)", Catch::Slot(SC_IO_OUT), |_, w| {
         w.planes[A_Z16][0] += 65536;
         w.planes[A_RDL][0] -= 65536 * (1 << SH_Z);
         w.planes[A_X2][0] += 65536;
-        // the limbs are recomputed from the out-of-class values, which is
-        // exactly what makes A_ZL1 leave [0, 256) in the field
         w.planes[A_ZL1][0] += 256;
         w.planes[A_X2L1][0] += 256;
     });
+    prove_tampered(|_, _| {}).expect("the honest proof must verify beside every tamper");
+}
+
+/// The D12 item-3 boundary test T2 section G carries beside the tripwire:
+/// an honest receipt presented against an output endpoint committing `xres1`
+/// instead of `xres2` must be refused — the block's external output is
+/// `xres2` and nothing else.
+#[test]
+fn an_output_endpoint_committing_xres1_is_refused() {
+    let (blk, input) = BlockPublic::synthetic_fixture();
+    let w = witness::build(blk.attention(), blk.feed_forward(), &input).unwrap();
+    let xres2 = w.output().unwrap();
+    let xres1: Vec<i16> = w.planes[A_X1].iter().map(|v| *v as i16).collect();
+    assert_ne!(xres1, xres2, "the fixture's two residuals coincide; the test would be vacuous");
+    let (expected, owners) = prepare_endpoints(spec(), &input, &xres1).unwrap();
+    let (receipt, _) = prove_inner(&blk, &w, &expected, owners).unwrap();
+    let err = verify_inner(&blk, &expected, &receipt).expect_err("an xres1 output endpoint verified");
+    assert!(Catch::Slot(SC_IO_OUT).matches(&err), "expected the output endpoint to reject, got `{err}`");
     prove_tampered(|_, _| {}).expect("the honest proof must verify beside every tamper");
 }

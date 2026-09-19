@@ -11,21 +11,41 @@ use crate::field::Fp2;
 use crate::pcs::{Slice, ZClaim, ZPart};
 
 fn spec() -> IoSpec {
-    IoSpec::new(*blake3::hash(b"private block: public synthetic test context").as_bytes(), -3, -3).unwrap()
+    IoSpec::new(*blake3::hash(b"private block: public synthetic test context").as_bytes(), 0, 0).unwrap()
 }
 
-fn fixture() -> (AttentionPublic, FeedForwardPublic, Vec<i16>, Vec<i16>) {
-    let (public, input) = AttentionPublic::synthetic_fixture();
-    let ff = FeedForwardPublic::synthetic_fixture();
-    let output = compute_output(&public, &ff, &input).unwrap();
-    (public, ff, input, output)
+fn fixture() -> (BlockPublic, Vec<i16>, Vec<i16>) {
+    let (blk, input) = BlockPublic::synthetic_fixture();
+    let output = compute_output(&blk, &input).unwrap();
+    (blk, input, output)
 }
 
-fn honest() -> (AttentionPublic, FeedForwardPublic, ExpectedIo, Receipt, ProveStats) {
-    let (public, ff, input, output) = fixture();
+fn honest() -> (BlockPublic, ExpectedIo, Receipt, ProveStats) {
+    let (blk, input, output) = fixture();
     let (expected, owners) = prepare_endpoints(spec(), &input, &output).unwrap();
-    let (receipt, stats) = prove_with_stats(&public, &ff, &input, &expected, owners).unwrap();
-    (public, ff, expected, receipt, stats)
+    let (receipt, stats) = prove_with_stats(&blk, &input, &expected, owners).unwrap();
+    (blk, expected, receipt, stats)
+}
+
+/// Disposition condition 5 and D12 item 5: the two endpoint exponents are
+/// pinned to the approved calibration by a CONSTRUCTOR REFUSAL, and the
+/// calibration identity this profile absorbs is that calibration's.
+#[test]
+fn the_endpoint_scales_and_calibration_are_the_approved_ones() {
+    let ctx = *blake3::hash(b"private block: scale pinning").as_bytes();
+    // the value the accepted attention component's fixtures declare, refused here
+    assert!(IoSpec::new(ctx, -3, -3).is_err());
+    for (a, b) in [(-3, 0), (0, -3), (1, 0), (0, 1)] {
+        assert!(IoSpec::new(ctx, a, b).is_err(), "IoSpec accepted ({a}, {b})");
+    }
+    let spec = IoSpec::new(ctx, 0, 0).unwrap();
+    // ... and they are the approved calibration's own e_r and e_r2
+    let dummy = crate::pcs::Commitment { root: [0; 32], rows: 1, log_cols: LOG_N as u32 };
+    let reg = crate::causal_oracle::public_synthetic_registration(dummy.clone(), dummy);
+    assert_eq!((spec.input_scale(), spec.output_scale()), (reg.attention.e_r, reg.residual.e_r2));
+    assert_eq!((spec.input_scale(), spec.output_scale()), ENDPOINT_SCALES);
+    // the literal this module absorbs IS the registration's identity digest
+    assert_eq!(calibration_identity(), reg.calibration_identity);
 }
 
 #[test]
@@ -34,10 +54,9 @@ fn witness_equals_the_independent_fixed_causal_oracle() {
     let oracle = crate::causal_oracle::FixedCausalOracle::new(&contract, weights).expect("oracle weights");
     let block = oracle.build(&input).expect("oracle accepts the public fixture");
     let a = &block.attention;
-    let (public, x) = AttentionPublic::synthetic_fixture();
-    let ff = FeedForwardPublic::synthetic_fixture();
+    let (blk, x) = BlockPublic::synthetic_fixture();
     assert_eq!(x, input);
-    let w = witness::build(&public, &ff, &x).unwrap();
+    let w = witness::build(blk.attention(), blk.feed_forward(), &x).unwrap();
     for (plane, want, name) in [
         (A_Y, &a.na.y, "norm y"),
         (A_D, &a.na.dd, "norm D"),
@@ -62,22 +81,24 @@ fn witness_equals_the_independent_fixed_causal_oracle() {
     assert!(w.planes[A_RQL].iter().zip(&a.rq).all(|(l, r)| *l == r + 64));
     assert!(w.planes[A_RSL].iter().zip(&a.rs).all(|(l, r)| *l == r + 32));
     assert!(w.planes[A_RO0].iter().zip(&w.planes[A_RO1]).zip(&a.r_o).all(|((l0, l1), r)| l0 + 256 * l1 == r + 256));
-    assert_eq!(w.output().unwrap(), a.xres1.iter().map(|v| *v as i16).collect::<Vec<i16>>());
+    // the OUTPUT plane is the block's, xres2: the oracle's own residual 2
+    assert!(w.planes[A_X2] == block.residual.xres2, "xres2 differs from the oracle");
+    assert_eq!(w.output().unwrap(), block.residual.xres2.iter().map(|v| *v as i16).collect::<Vec<i16>>());
 }
 
 #[test]
 fn honest_receipt_verifies_in_typed_and_wire_form_with_the_declared_transcript_order() {
-    let (public, ff, expected, receipt, stats) = honest();
-    let order = verify_inner(&public, &ff, &expected, &receipt).unwrap();
+    let (blk, expected, receipt, stats) = honest();
+    let order = verify_inner(&blk, &expected, &receipt).unwrap();
     assert_eq!(order, stats.transcript_order, "prover and verifier absorb sequences differ");
     assert_eq!(order.len(), 3 * N_SLOTS);
     for s in 0..N_SLOTS {
         assert_eq!(order[3 * s], format!("slot {s:02} begin"));
     }
-    let bytes = receipt.to_bytes(&public, &ff, &expected).unwrap();
+    let bytes = receipt.to_bytes(&blk, &expected).unwrap();
     assert_eq!(bytes.len(), encoded_len());
     assert!(bytes.len() <= MAX_WIRE_BYTES);
-    verify_bytes(&public, &ff, &expected, &bytes).unwrap();
+    verify_bytes(&blk, &expected, &bytes).unwrap();
     // shape facts are constants of the geometry, not of the witness; the
     // frame length is the design's derived whole-block figure (T2 section D.3)
     assert_eq!((stats.a_rows, stats.h_rows, stats.m_rows), (455, 384, 50));
@@ -89,7 +110,7 @@ fn honest_receipt_verifies_in_typed_and_wire_form_with_the_declared_transcript_o
 /// (a plaintext int8/int16 plane value, a histogram count or a clear row sum would be).
 #[test]
 fn no_published_word_is_a_small_integer() {
-    let (_, _, _, r, _) = honest();
+    let (_, _, r, _) = honest();
     let mut words: Vec<u64> = Vec::new();
     let push2 = |words: &mut Vec<u64>, v: &Fp2| words.extend([v.c0.0, v.c1.0]);
     for sp in &r.slots {
@@ -110,13 +131,13 @@ fn no_published_word_is_a_small_integer() {
 }
 
 fn prove_tampered(edit: impl FnOnce(&mut Witness)) -> Result<(), String> {
-    let (public, ff, input, output) = fixture();
+    let (blk, input, output) = fixture();
     let (expected, owners) = prepare_endpoints(spec(), &input, &output).unwrap();
-    let mut w = witness::build(&public, &ff, &input).unwrap();
+    let mut w = witness::build(blk.attention(), blk.feed_forward(), &input).unwrap();
     edit(&mut w);
     // the prover does not pre-check the relation: a false witness yields a receipt that must not verify
-    let (receipt, _) = prove_inner(&public, &ff, &w, &expected, owners)?;
-    verify(&public, &ff, &expected, &receipt)
+    let (receipt, _) = prove_inner(&blk, &w, &expected, owners)?;
+    verify(&blk, &expected, &receipt)
 }
 
 #[test]
@@ -137,7 +158,8 @@ fn every_relation_family_rejects_an_inconsistent_witness() {
         ("acausal weight", Box::new(|w: &mut Witness|w.planes[A_P][2 * T + 9] = 1)),
         ("PV output", Box::new(|w: &mut Witness|w.planes[A_O8][9] += 1)),
         ("output projection", Box::new(|w: &mut Witness|w.planes[A_AO][9] += 1)),
-        ("residual / output endpoint", Box::new(|w: &mut Witness|w.planes[A_X1][0] += 1)),
+        ("residual 1", Box::new(|w: &mut Witness|w.planes[A_X1][0] += 1)),
+        ("residual 2 / output endpoint", Box::new(|w: &mut Witness|w.planes[A_X2][0] += 1)),
         ("input endpoint", Box::new(|w: &mut Witness|w.planes[A_X][0] += 1)),
         // algebra preserved, only the range broken: x + 32768 = (l0 + 256) + 256 (l1 - 1)
         ("range only (LogUp)", Box::new(|w: &mut Witness|{
@@ -155,25 +177,25 @@ fn every_relation_family_rejects_an_inconsistent_witness() {
 
 #[test]
 fn an_endpoint_committed_to_other_values_is_refused() {
-    let (public, ff, input, output) = fixture();
+    let (blk, input, output) = fixture();
     for which in 0..2 {
         let (mut i2, mut o2) = (input.clone(), output.clone());
         if which == 0 { i2[17] += 1 } else { o2[17] += 1 }
         let (expected, owners) = prepare_endpoints(spec(), &i2, &o2).unwrap();
-        let receipt = prove(&public, &ff, &input, &expected, owners).unwrap();
-        assert!(verify(&public, &ff, &expected, &receipt).is_err(), "endpoint {which}");
+        let receipt = prove(&blk, &input, &expected, owners).unwrap();
+        assert!(verify(&blk, &expected, &receipt).is_err(), "endpoint {which}");
     }
     // owners prepared under another context or for another policy never reach proving
     let (expected, _) = prepare_endpoints(spec(), &input, &output).unwrap();
     let (_, other) = prepare_endpoints(spec(), &input, &output).unwrap();
-    assert!(prove(&public, &ff, &input, &expected, other).is_err(), "fresh owners have other roots");
+    assert!(prove(&blk, &input, &expected, other).is_err(), "fresh owners have other roots");
 }
 
 #[test]
 fn receipt_field_tampers_and_statement_mismatches_are_refused() {
-    let (public, ff, expected, receipt, _) = honest();
-    let bytes = receipt.to_bytes(&public, &ff, &expected).unwrap();
-    let copy = || Receipt::from_bytes(&public, &ff, &expected, &bytes).unwrap();
+    let (blk, expected, receipt, _) = honest();
+    let bytes = receipt.to_bytes(&blk, &expected).unwrap();
+    let copy = || Receipt::from_bytes(&blk, &expected, &bytes).unwrap();
     let one = Fp2::ONE;
     let edits: Vec<(&str, Box<dyn Fn(&mut Receipt)>)> = vec![
         ("private masked scalar", Box::new(move |r: &mut Receipt|r.slots[SC_RS].scalar = r.slots[SC_RS].scalar.add(one))),
@@ -199,45 +221,44 @@ fn receipt_field_tampers_and_statement_mismatches_are_refused() {
     for (name, edit) in &edits {
         let mut r = copy();
         edit(&mut r);
-        assert!(verify(&public, &ff, &expected, &r).is_err(), "edit `{name}` verified");
+        assert!(verify(&blk, &expected, &r).is_err(), "edit `{name}` verified");
     }
-    verify(&public, &ff, &expected, &copy()).unwrap();
+    verify(&blk, &expected, &copy()).unwrap();
 
-    // the verifier's OWN statement decides: other weights, other context, other roots
+    // the verifier's OWN statement decides: every public word is in the ONE
+    // statement digest, the attention words and the feed-forward words alike
     let (w, _) = AttentionPublic::synthetic_fixture();
-    let mut wq = w.wq.clone();
-    wq[0] += 1;
-    let other_public = AttentionPublic::new(&wq, &w.wk, &w.wv, &w.wo, &w.gamma_a, &w.rope_cos, &w.rope_sin, &w.exp).unwrap();
-    assert!(verify(&other_public, &ff, &expected, &receipt).is_err());
-    assert!(Receipt::from_bytes(&other_public, &ff, &expected, &bytes).is_err());
-    // ... and the feed-forward words decide too, on all five of them
     let f = FeedForwardPublic::synthetic_fixture();
-    for which in 0..5 {
-        let (mut gm, mut wg, mut wu, mut wd, mut act) = (f.gamma_m.clone(), f.wg_t.clone(), f.wu_t.clone(), f.wd_t.clone(), f.act.clone());
+    for which in 0..6 {
+        let (mut wq, mut gm, mut wg, mut wu, mut wd, mut act) = (w.wq.clone(), f.gamma_m.clone(), f.wg_t.clone(), f.wu_t.clone(), f.wd_t.clone(), f.act);
         match which {
-            0 => gm[2] += 1,
-            1 => wg[5] += 1,
-            2 => wu[6] += 1,
-            3 => wd[7] += 1,
+            0 => wq[0] += 1,
+            1 => gm[2] += 1,
+            2 => wg[5] += 1,
+            3 => wu[6] += 1,
+            4 => wd[7] += 1,
             _ => act[131] += 1,
         }
-        let other_ff = FeedForwardPublic::new(&gm, &wg, &wu, &wd, &act).unwrap();
-        assert!(verify(&public, &other_ff, &expected, &receipt).is_err(), "feed-forward word {which} accepted");
-        assert!(Receipt::from_bytes(&public, &other_ff, &expected, &bytes).is_err(), "feed-forward word {which} parsed");
+        let other = BlockPublic::new(
+            AttentionPublic::new(&wq, &w.wk, &w.wv, &w.wo, &w.gamma_a, &w.rope_cos, &w.rope_sin, &w.exp).unwrap(),
+            FeedForwardPublic::new(&gm, &wg, &wu, &wd, &act).unwrap(),
+        );
+        assert!(verify(&other, &expected, &receipt).is_err(), "public word {which} accepted");
+        assert!(Receipt::from_bytes(&other, &expected, &bytes).is_err(), "public word {which} parsed");
     }
-    let other_ctx = IoSpec::new(*blake3::hash(b"another context").as_bytes(), -3, -3).unwrap();
+    let other_ctx = IoSpec::new(*blake3::hash(b"another context").as_bytes(), 0, 0).unwrap();
     let moved = ExpectedIo::from_roots(other_ctx, expected.input_root(), expected.output_root());
-    assert!(verify(&public, &ff, &moved, &receipt).is_err());
-    assert!(verify_bytes(&public, &ff, &moved, &bytes).is_err());
+    assert!(verify(&blk, &moved, &receipt).is_err());
+    assert!(verify_bytes(&blk, &moved, &bytes).is_err());
     let swapped = ExpectedIo::from_roots(spec(), expected.output_root(), expected.input_root());
-    assert!(verify(&public, &ff, &swapped, &receipt).is_err());
+    assert!(verify(&blk, &swapped, &receipt).is_err());
 }
 
 #[test]
 fn wire_frames_are_exact_canonical_and_bounded() {
-    let (public, ff, expected, receipt, _) = honest();
-    let bytes = receipt.to_bytes(&public, &ff, &expected).unwrap();
-    let parse = |b: &[u8]| Receipt::from_bytes(&public, &ff, &expected, b).map(|_| ());
+    let (blk, expected, receipt, _) = honest();
+    let bytes = receipt.to_bytes(&blk, &expected).unwrap();
+    let parse = |b: &[u8]| Receipt::from_bytes(&blk, &expected, b).map(|_| ());
     parse(&bytes).unwrap();
     assert!(parse(&bytes[..bytes.len() - 1]).is_err(), "truncated");
     let mut long = bytes.clone();
@@ -314,7 +335,7 @@ fn the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows() {
 fn the_declared_schedule_is_stable_and_bound() {
     let lines = schedule();
     assert_eq!(lines.len(), 6 + N_SLOTS + HOSTS.len());
-    assert!(lines[0].starts_with("private-block-t32-wip/0"));
+    assert!(lines[0].starts_with("private-block-t32/1"));
     let lay = Layout::new();
     assert_eq!(lay.schedule_digest(), Layout::new().schedule_digest());
     // every reserved pair row lies between the data and the proximity pair, on both commitments

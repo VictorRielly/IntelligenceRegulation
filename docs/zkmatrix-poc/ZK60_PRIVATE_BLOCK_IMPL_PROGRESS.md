@@ -29,13 +29,15 @@ establishes a privacy property; D8/D11 stay open (disposition section 5).
 | S3a | REFUSAL-SITE PARITY: a hand-built forcing case for every reachable kernel refusal site; the arithmetic and a premise test for every unreachable one | DONE |
 | S3b | ARGUMENT: the new define arms, slots, sites; the module moves to the whole-block layout | DONE |
 | S3c | TAMPER TESTS at the verifier (T2 section G as corrected by E-18 … E-20), by slot INDEX | DONE |
-| S4 | The block profile `hashline-zk-mr1/private-block-t32-poc/1`, `BlockPublic` with the E-2 activation-table range check, the output endpoint moved to `xres2`, the tripwire `block_output_cannot_be_chosen` (T1-check section 11.3) | not started (next agent) |
+| S4 | The block profile `hashline-zk-mr1/private-block-t32-poc/1`, `BlockPublic` with the E-2 activation-table range check, the output endpoint moved to `xres2`, the tripwire `block_output_cannot_be_chosen` (T1-check section 11.3) | DONE |
 | S5 | The checking tools re-run on the real Rust source (disposition condition 4) | not started (next agent) |
 
-Condition 1 of the disposition (errata E-1) BINDS every stage before S4:
-nothing in this module may carry the block profile string, a type named
+Condition 1 of the disposition (errata E-1) BOUND every stage before S4:
+nothing in this module could carry the block profile string, a type named
 `BlockPublic`, or an output endpoint on `xres2`, until the feed-forward
-relations of T2 are proved in the same commit.
+relations of T2 were proved in the same commit. It is MET: S3b landed the
+relations, and S4 landed all five guarded things plus the tripwire in one
+commit on a green tree.
 
 ## QUESTIONS FOR THE SECURITY OWNER
 
@@ -673,7 +675,7 @@ reserved mask pair) is a rank-tool control: `audit_claims` already refuses a
 shared pair positionally, and the disclosed-dimension half of it is S5's
 re-run on the real source. Both are recorded here so they are not lost.
 
-**Next step (S4), in ONE commit and only from this green tree:**
+*(superseded; S4 is done — see below)* **Next step (S4), in ONE commit and only from this green tree:**
 (a) `BlockPublic` wrapping the attention and feed-forward words with ONE
 digest under `hashline/private-block-public/1`, the activation table held as
 `[i16; 256]`, and the `"feed-forward-statement"` absorb of S3b DROPPED;
@@ -688,3 +690,134 @@ and `"schedule"`);
 (e) the tripwire `block_output_cannot_be_chosen` exactly as T1-check section
 11.3 specifies, with the honest-proof assertion beside it;
 (f) whole-block kernel parity still green through the public API's output.
+
+### 2026-09-19 — S4 THE BLOCK PROFILE (done, one commit)
+
+All six things condition 1 holds together landed in this single commit, on the
+green tree S3c left.
+
+**(a) `BlockPublic`.** A new type holding the `AttentionPublic` and
+`FeedForwardPublic` halves, with ONE `digest()` over
+`b"hashline/private-block-public/1"` followed by both halves' words: the four
+attention matrices, `gamma_a`, the rope pair, the exp table, then `gamma_m`,
+`Wg`, `Wu`, `Wd` and the 256 activation words as little-endian `i16`. The two
+halves' own `digest()` methods are GONE, replaced by private `absorb_into`,
+so there is exactly one statement digest and the `"feed-forward-statement"`
+absorb S3b used is dropped (T2 section F: a second absorb of the same words is
+a second thing to keep in sync). A test drives one word of each of the six
+public tensors and requires the receipt to be refused and the frame to fail to
+parse, so every one of them is demonstrably IN the digest.
+
+**E-2 by the TYPE, as the security owner's answer 2 requires.** `act` is now
+`[i16; 256]`, not `Vec<i16>`: `FeedForwardPublic::new` is the only way in, it
+refuses any other length through `try_into`, and there is no byte parser for
+these words at all — so there is nothing that could truncate one, and no
+second constructor that could forget a range check.
+
+**(b) Every work-in-progress string replaced**, and a grep for `wip` over the
+module, the example and the integration test now returns nothing:
+
+| what | was | is |
+|---|---|---|
+| `PROFILE` (Fiat-Shamir domain, `ZkRng::from_os`) | `hashline-zk-mr1/private-block-t32-wip/0` | `hashline-zk-mr1/private-block-t32-poc/1` |
+| public-statement digest domain | `hashline/private-block-wip-public/0` | `hashline/private-block-public/1` |
+| feed-forward digest domain | `hashline/private-block-wip-feedforward/0` | **removed** (folded into the one digest) |
+| schedule digest domain | `hashline/private-block-wip-schedule/0` | `hashline/private-block-schedule/1` |
+| `describe()` line 0 (hashed into the schedule digest) | `private-block-t32-wip/0: ...` | `private-block-t32/1: ...` |
+| expected-policy frame magic | `HPBWEXP0` | `HBLKEXP1` (T1 section D step 2) |
+| receipt wire magic | `HLPBWIP0` | `HLPBLOK1` |
+| absorbed `"parameters"` payload | `.../block-wip` | T1 section D step 4 / T2 section F: `T32/d16/f16/H2/KV1/dh8/log_cols8/inv_rate8/Q256/P1/sh-g7-u0-h14-z6/two-private-endpoints/one-proof-one-transcript` |
+| endpoint slot tags | 21/22 and 23/24 — the ATTENTION profile's | **41/42 and 43/44**, the block's own (T1 section F.2). Reusing 21–24 would have left the scale field as the only separation, which T1 calls separation by accident |
+
+**(c) The output endpoint is `xres2`.** `SC_IO_OUT` binds `A_X2`;
+`Witness::output()` returns `A_X2` and `block_output()` is gone;
+`compute_output` returns the block output. The two external endpoints are now
+exactly D12 item 2's `x_in` and `xres2`.
+
+**(d) Scale pinning and the calibration.** `IoSpec::new` REFUSES any pair but
+`(0, 0)` — including the `(-3, -3)` the accepted attention component's
+fixtures declare, which T1 section F.1 names as the test that would fail
+today. `input_scale()` / `output_scale()` accessors were added because T1's
+own test sketch needs them. The calibration identity digest is absorbed under
+the new label `"calibration"` at step 5 of T1 section D, between
+`"parameters"` and `"schedule"`. The identity is a module function
+`calibration_identity()`; a test asserts it equals
+`causal_oracle::public_synthetic_registration(..).calibration_identity` and
+that `(0, 0)` equals that registration's `attention.e_r` and
+`residual.e_r2`, so the literal is pinned to its source rather than trusted.
+*(DEVIATION, small: the digest is a literal here with a test pinning it,
+rather than read from the registration at proving time — building a
+`BlockRegistration` needs two weight commitments the prover does not have.
+If the security owner prefers, the next stage can take the digest from the
+approved contract the caller already holds.)*
+
+**(e) The tripwire `block_output_cannot_be_chosen`**, under exactly that name,
+in `tamper.rs`: `z16` tampered consistently, both limb pairs recomputed, the
+attention half and `norm_m` untouched, and the endpoint owner committing the
+CHOSEN `xres2'` (T1-check section 11.3 item 4's stronger form). The verifier
+rejects at slot **14**, and the honest proof is asserted to verify beside it.
+The whole tamper harness now commits the TAMPERED output, which makes every
+case in the suite strictly harder: `SC_IO_OUT` cannot be what rejects, so each
+case is left with the one relation it names.
+
+**A FINDING from making that change.** T2's row T-z1 (`z16 + 2^16` with `rd`
+compensated) no longer reaches a lookup at all: `xres2` leaves int16 too, so
+no endpoint can carry it, and the measured first catch is the OUTPUT ENDPOINT
+at slot 22. It is kept under an honest name
+(`a_z16_outside_int16_cannot_reach_the_output_endpoint`) and the class is now
+tested the way the module already tests it for `x_in`: shift a two-limb
+decomposition by `(+256, -1)`, which leaves the decomposition relation exactly
+satisfied and breaks only the byte lookup. That form isolates, and it is run
+on all four feed-forward limb pairs (`z16`, `u16`, `h16`, `rh`), each caught by
+the one value-0 LogUp sum claim. The D12 item-3 boundary test T2 section G
+also lands here: an honest receipt against an output endpoint committing
+`xres1` is refused at slot 22.
+
+**(f) Kernel parity through the public API's output.** The whole-block parity
+test compares `Witness::output()` — now `xres2` — against
+`kern::run_block_slice`'s return value on all 1,200 generated cases, and the
+oracle test compares the plane against `FixedCausalOracle::build`'s own
+`residual.xres2`.
+
+**Commands** (all `flock -w 540 /tmp/zk-build.lock`, offline, `-j 2`, warm
+target dir, release overrides):
+
+1. `cargo check --lib --tests --examples` -> exit 0, only the 8 pre-existing
+   `src/attention.rs` warnings.
+2. `cargo test --release --lib -- --test-threads=1` (the WHOLE library) ->
+   **105 passed, 0 failed**, 65.12 s.
+3. `cargo test --release --test zk60_private_block --test
+   zk60_private_attention -- --test-threads=1` -> **4 + 4 passed, 0 failed**.
+4. `cargo test --release --doc private_` -> **2 passed**.
+5. The example: `prove` 0.093 s, frame **2,816,472 bytes**; `verify` in a
+   fresh process ACCEPT in 0.042 s, all three negative controls refused. The
+   printed profile is `hashline-zk-mr1/private-block-t32-poc/1`.
+6. `python3 -m unittest discover -s tests` (run after S3b, the only commit
+   that touches a shared file) -> **exit 0**.
+7. Byte-identity gate against `zk60-attention-compile` on the accepted
+   attention files: EMPTY. Over `zk.rs`, `layer.rs`, `zk_ffn_fresh_io.rs`,
+   `private_seam.rs`, `causal_oracle.rs`, `scripts/` and `tests/`: EMPTY. The
+   ONLY changed pre-existing file in the whole lane is
+   `hashline/src/tables_attn.rs`, +7 lines, the `TAG_ACT = 134` constant T2
+   decision 4 allocates there.
+
+**Next step (S5, the next agent):** the checking tools on the real Rust source
+(disposition condition 4). `scripts/zk60_attention_native_inventory.py` must
+take the MODULE PATH as a parameter (ruling R-A) and re-derive every count of
+disposition section 1.2 from `hashline/src/private_block/*`; `NOTE_EXPECT`
+becomes `A 455/213/240`, `H 384/280/102`, `A_sites 120`, `H_sites 51`,
+`A_GROUPS 35`, `H_GROUPS 9`, `M_ROWS 50`, `N_FUNCTIONALS 34`, `largest_L 50`,
+`U8 61,440`, `exp 2,048`, `act 512`, `main 159`, `ext 25`, the twenty-three
+`SLOTS` triples and
+`hosts_by_index {2:[0,1], 14:[10,13], 15:[5,9], 16:[6,7], 17:[4,8], 18:[11,12]}`.
+Two things to know before starting. (i) The parser understands a Rust subset;
+the new arms were written inside it (`b.a`, `b.a_at`, `b.a_slice`,
+`b.a_range`, `b.h`, `rho`, `fixed`, `cat`, one `for` loop, `match slot`) with
+ONE new form to check: `let i_fact = b.h(H_FACT)?;` binds a `b.h` result, which
+E-17 requires and the parser may need taught. (ii) Two negative controls are
+owed and are not in the Rust suite: `A_YM` sharing `A_Y`'s reserved pair (T1
+section G.2) and `A_H16` sharing `A_U16`'s (T2 section G); `audit_claims`
+already refuses a shared pair positionally, and the disclosed-dimension half
+is the tool's. Also owed by the design and NOT done here: the R-2 re-run of
+`limb_windows.py` / `wraparound_bounds.py` over the grown expression list with
+the multiplicity bound re-checked at 61,440.

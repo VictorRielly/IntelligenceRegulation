@@ -13,7 +13,7 @@ use crate::pcs::OpeningZk;
 use crate::sumcheck::SumcheckProof;
 use crate::zk::MaskOpening;
 
-const MAGIC: &[u8; 8] = b"HLPBWIP0";
+const MAGIC: &[u8; 8] = b"HLPBLOK1";
 pub(crate) const HEADER: usize = 8 + 32;
 const CHECKS: usize = 256;
 /// n message + Q pad entries of a hiding clear vector

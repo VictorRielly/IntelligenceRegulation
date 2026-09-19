@@ -651,7 +651,7 @@ impl Layout {
     /// The declared schedule, line by line; its digest is transcript-bound.
     pub(crate) fn describe(&self) -> Vec<String> {
         let mut out = vec![
-            format!("private-block-t32-wip/0: T{T} d{D} H{H} KV1 dh{DH} F{F}; n={N} inv_rate=8 Q=256; P1 (weights public, no W commitment); whole block (attention, norm_m, feed-forward, residual 2)"),
+            format!("private-block-t32/1: T{T} d{D} H{H} KV1 dh{DH} F{F}; n={N} inv_rate=8 Q=256; P1 (weights public, no W commitment); whole block (attention, norm_m, feed-forward, residual 2)"),
             format!("A rows={} data={} site-pairs={} prox-pair=({},{})", self.a_rows, self.a_data_rows, self.a_prefix[N_SLOTS], self.a_prox, self.a_prox + 1),
             format!("H rows={} data={} site-pairs={} zero-sum-pair={:?} prox-pair=({},{})", self.h_rows, self.h_data_rows, self.h_prefix[N_SLOTS], self.h_u_rows(), self.h_prox, self.h_prox + 1),
             format!("M rows={M_ROWS} functionals={N_FUNCTIONALS} A-groups={A_GROUPS} H-groups={H_GROUPS} collapse=0"),
@@ -677,7 +677,7 @@ impl Layout {
 
     pub(crate) fn schedule_digest(&self) -> [u8; 32] {
         let mut h = blake3::Hasher::new();
-        h.update(b"hashline/private-block-wip-schedule/0");
+        h.update(b"hashline/private-block-schedule/1");
         for line in self.describe() {
             h.update(&(line.len() as u64).to_le_bytes());
             h.update(line.as_bytes());

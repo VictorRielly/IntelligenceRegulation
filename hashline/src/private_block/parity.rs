@@ -19,7 +19,7 @@
 
 use super::layout::*;
 use super::witness::{self, Witness};
-use super::{AttentionPublic, FeedForwardPublic};
+use super::{AttentionPublic, BlockPublic, FeedForwardPublic};
 use private_block_kernel as kern;
 use std::collections::BTreeMap;
 use std::sync::OnceLock;
@@ -249,7 +249,7 @@ fn the_whole_block_witness_equals_the_reference_kernel() {
             (Ok(out), Ok(w)) => {
                 compare_attention_half(w, &tr, idx);
                 compare_block_half(&c, w, &tr, idx);
-                let mine = w.block_output().expect("xres2 is in class once the witness accepted");
+                let mine = w.output().expect("xres2 is in class once the witness accepted");
                 assert_eq!(&mine[..], &out[..], "case {idx}: the block output differs from the kernel's");
                 // every plane the grown layout declares is filled at its declared length
                 for p in lay.a_planes() {
@@ -287,7 +287,8 @@ fn the_case_generator_is_deterministic_and_covers_its_grid() {
         let a = case(idx);
         let b = case(idx);
         assert_eq!(a.input, b.input, "case {idx}: input differs between two generations");
-        assert_eq!(a.public.digest(), b.public.digest(), "case {idx}: public statement differs between two generations");
+        let dg = |c: &Case| BlockPublic::new(c.public.clone(), c.ff.clone()).digest();
+        assert_eq!(dg(&a), dg(&b), "case {idx}: public statement differs between two generations");
     }
     let mut seen = std::collections::BTreeSet::new();
     let mut with_ffn = std::collections::BTreeSet::new();

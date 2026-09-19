@@ -891,7 +891,8 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
         SC_IO_IN | SC_IO_OUT => {
             let tau = tr.challenge_fp2_vec(9);
             b.eq(&tau, 0);
-            b.a(if slot == SC_IO_IN { A_X } else { A_X1 })?;
+            // the block's two external endpoints: x_in and xres2 (D12 item 2)
+            b.a(if slot == SC_IO_IN { A_X } else { A_X2 })?;
             b.endpoint(if slot == SC_IO_IN { Cm::In } else { Cm::Out });
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1].sub(v[2]))), vec![])
         }

@@ -23,14 +23,9 @@ pub(crate) struct Witness {
 }
 
 impl Witness {
-    /// The committed output plane (secret). The work-in-progress profile's
-    /// output endpoint carries `xres1`; it moves to `xres2` in the commit that
-    /// carries the block profile (disposition condition 1).
+    /// The block's output plane `xres2` (secret): what `SC_IO_OUT` binds and
+    /// what an honest endpoint owner commits.
     pub(crate) fn output(&self) -> Result<Vec<i16>, String> {
-        self.planes[A_X1].iter().map(|v| i16::try_from(*v).map_err(|_| "fixed oracle range refusal: residual 1".to_string())).collect()
-    }
-    /// The block output xres2 (secret).
-    pub(crate) fn block_output(&self) -> Result<Vec<i16>, String> {
         self.planes[A_X2].iter().map(|v| i16::try_from(*v).map_err(|_| "fixed oracle range refusal: residual 2".to_string())).collect()
     }
 }
