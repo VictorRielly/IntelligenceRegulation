@@ -26,7 +26,9 @@ establishes a privacy property; D8/D11 stay open (disposition section 5).
 | S0 | SCAFFOLD: `private_block` module as a faithful copy under new names, WIP profile `hashline-zk-mr1/private-block-t32-wip/0`, all digest/magic/parameter strings forked | DONE |
 | S1 | TESTS FIRST: `private-block-kernel` as a dev-dependency; deterministic generator of public synthetic inputs/weights; witness-vs-kernel parity for the attention half (up to `xres1`) over >= 1,000 inputs including refusals | DONE |
 | S2 | WITNESS AND LAYOUT GROWTH: whole-block layout (A 455 / H 384 rows) and witness (`norm_m`, `g8`, `a16`, `u16`, `h16`, `z16`, remainders, residual 2) with kernel semantics; parity extended to `xres2` and every intermediate | DONE |
-| S3 | ARGUMENT: the new define arms, slots, sites; the tamper tests of T2-check section 8 | not started (next agent) |
+| S3a | REFUSAL-SITE PARITY: a hand-built forcing case for every reachable kernel refusal site; the arithmetic and a premise test for every unreachable one | DONE |
+| S3b | ARGUMENT: the new define arms, slots, sites; the module moves to the whole-block layout | not started |
+| S3c | TAMPER TESTS at the verifier (T2 section G as corrected by E-18 … E-20), by slot INDEX | not started |
 | S4 | The block profile `hashline-zk-mr1/private-block-t32-poc/1`, `BlockPublic` with the E-2 activation-table range check, the output endpoint moved to `xres2`, the tripwire `block_output_cannot_be_chosen` (T1-check section 11.3) | not started (next agent) |
 | S5 | The checking tools re-run on the real Rust source (disposition condition 4) | not started (next agent) |
 
@@ -418,7 +420,75 @@ target dir, release overrides):
    under the session scratchpad, nothing written into the repository.
 7. Byte-identity gate against `zk60-attention-compile`: empty.
 
-**Next step (S3, the next agent):** the argument's new arms. In order:
+### 2026-09-19 — S3a REFUSAL-SITE PARITY (done)
+
+The security owner's answer 1, discharged. New file
+`hashline/src/private_block/refusals.rs` (`#[cfg(test)]`, reached by one added
+line in `private_block.rs`); nothing else changed.
+
+**What it is.** A `Forced` case is a PUBLIC SYNTHETIC statement in which every
+weight matrix is a CONSTANT fill, the RoPE pair is a constant at every position
+`t >= 1` (position 0 stays `(2^fRo, 0)`, which both constructors require), the
+activation table is a constant, and the input is a constant. That makes the
+value arriving at the target site a one-line product, so each case carries the
+arithmetic that forces it in a `why` field rather than being found by search.
+Shared background: a constant row gives `ss = 1 + 16 x^2`, `D = 4|x|`,
+`y_i = floor((x gamma + D) / (2 D))`; so `(x, gamma) = (1, 127)` gives `y = 16`,
+`(-1, 127)` gives `y = -16`, and `gamma_a = 0` gives `y = 0`, which switches the
+attention half off and drives the feed-forward straight from `xres1 = x`.
+
+**Twelve reachable sites forced, each matching the kernel's message exactly**
+(`fixed oracle range refusal: <site>`), and a case that ACCEPTS fails the test
+too, so a case cannot silently stop testing anything:
+
+| site | the forcing arithmetic |
+|---|---|
+| `Q` | `y = 16`, `qacc = 16·16·127 = 32,512`, `requant(·,7) = 254` |
+| `K` | `wq = 0`, `kacc = 32,512` |
+| `V` | `wq = wk = 0`, `vacc = 32,512` |
+| `QR` | `wq = 63` gives `q8 = 126` (in class); rope `(128, -128)` at `t >= 1` gives `c·a − s·b = 32,256 -> 252` |
+| `KR` | `wq = 0` so `qr8 = 0`; `k8 = 126` with the same rope pair |
+| `score` | identity rope keeps `qr8 = kr8 = 126`; `sacc = 8·126² = 127,008 -> 1,984` |
+| `residual 1` | `x = 32,767`, `v8 = 126`, `sum_j p[j] <= 512` so `o8 = 126`; `aoacc = 256,032 -> ao = 2,000`; `32,767 + 2,000` leaves int16 |
+| `FFN gate` | `gamma_a = 0` so `xres1 = 1`, `nm = 16`; `gacc = 32,512 -> 254` leaves `[-128, 127]` |
+| `FFN up` | `xres1 = -1`, `nm = -16`, `wu = -128`: `uacc = +32,768`, ONE above int16 — the tightest case in the set, and the reason `SH_U = 0` still owes a class proof |
+| `FFN product` | `u16 = -32,512`, `a16 = 32,767`: `hacc = -1,065,320,704`, `requant(·,14) = -65,023` |
+| `FFN down` | `u16 = 16,384`, `a16 = 32,767` gives `h16 = 32,767` exactly; `zacc = 66,582,544 -> 1,040,352` |
+| `residual 2` | `xres1 = 32,767`, `h16 = 1`, `z16 = 1`: `32,768` leaves int16 |
+
+**Eight sites are UNREACHABLE at this calibration**, and the test asserts each
+bound's premise instead of bypassing the builder to force it:
+
+| site | the bound |
+|---|---|
+| `norm denominator` (both norms) | over the int16 class the VERIFIER enforces on `x_in` (`c2`) and on `xres1` (`c4`) — not over the prover's `&[i16]`, which R-2's method does not admit — `ss <= 1 + 16·2^30 < 2^35`, so `ss > 0`, `D = isqrt(ss) <= 2^17` and `den = 2·D·2^11 >= 2^12 > 0`. The witness's own limb window also holds: `a1 = ss − D² <= 2D` and `a2 = 2D − a1 <= 2D`, both `<= 2^18 < 2^24` |
+| `norm quotient/remainder` (both norms) | `|x_i| <= D` (since `D = isqrt(ceps + sum x²) >= isqrt(x_i²)`) and `|gamma| <= 128`, so `q = floor((x_i·gamma + D)/(2D))` is in `[-64, 64]`, inside `[-127, 127]`; and `rho, sigma < den = D·2^12 <= 2^29` |
+| `causal maximum attainment` | the score class is `[-127, 127]`, `MASK = -127` is its minimum, and the masked max takes the FIRST strict maximum, so index 0 (always `<= t`) wins any tie against a masked position |
+| `exp difference` | `delta <= 127 − (−127) = 254 < 256`, and `delta >= 0` because `max` is the maximum |
+| `softmax denominator` | `exp[0] = 2^9` at `j = arg` and every entry is in `[0, 2^9]`, so `2^9 <= total <= 32·2^9` |
+| `softmax quotient/remainder` | `q = floor(e_j·2^9/total) <= 2^9` since `e_j <= 2^9 <= total`; `sigma = total − 1 − rho` with `rho < total <= 2^14` |
+| `O` | `sum_j p[j] = sum_j floor(e_j·2^9/total) <= 2^9` (asserted in its own test) and `|v8| <= 127`, so `|oacc| <= 65,024` and `requant(·,9)` lands in `[-127, 127]` |
+| `AO` | `|aoacc| <= 16·127·128 = 260,096`, so `requant(·,7)` lands in `[-2032, 2032]`, well inside int16 |
+
+The premises are asserted, not asserted-about: `d_max` is computed with the
+module's own `isqrt`, the quotient bound is checked over the extremes of
+`|x| <= D` and the i8 gain for nine values of `D` up to `d_max`, and
+`sum_j p[j] <= 2^fP` has a test of its own over four row shapes and four
+lengths.
+
+**Commands** (all `flock -w 540 /tmp/zk-build.lock`, offline, `-j 2`, the warm
+target dir, release overrides):
+
+1. `cargo test --release --lib private_block::refusals -- --test-threads=1
+   --nocapture` -> **3 passed, 0 failed**, build 41.09 s, tests 0.00 s. Every
+   case reached its site on the first run; no arithmetic needed correcting.
+2. `cargo test --release --lib private_ -- --test-threads=1` -> **30 passed,
+   0 failed**, 10.12 s (27 before + the 3 new).
+
+No deviation from the brief in S3a. `witness::isqrt` was already
+`pub(crate)`; nothing in the module changed but the one `mod refusals;` line.
+
+**Next step (S3b):** the argument's new arms. In order:
 `SC_SSM` and the extended `SC_TZC` (T1 C.1), the extended `SC_DZC` terms
 `c6..c10` and its second host (T1 C.1-C.2, T2 C.2), `SC_GMM` / `SC_UMM` /
 `SC_DMM` and the new `SC_FZC` (T2 C.1), the third `SC_TAB` triple with
