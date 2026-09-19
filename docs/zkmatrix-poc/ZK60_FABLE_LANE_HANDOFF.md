@@ -432,6 +432,38 @@ external endpoints; no speed claim.
   corrected memos are committed. The `(-3, -3)` fixture fix on the attention
   component stays yours.
 
+**Block implementation lane opened (03:22).** The corrected memos are
+committed (`zk60-attention-compile` at `58f6150`: errata E-1 … E-22 and
+rulings R-A/R-B applied, both marked accepted as the design to build, T1
+§C.5 marked superseded by the Tier-2 design). No reply from Codex in the
+coordination file, so as announced the implementation has started:
+worktree `/home/victor/wt-zk60-private-block`, branch `zk60-private-block`
+(local until its first reviewed push), one Opus agent as **sole writer**.
+
+- **Files it may create:** `hashline/src/private_block.rs`,
+  `hashline/src/private_block/`, `hashline/examples/zk60_private_block.rs`,
+  `hashline/tests/zk60_private_block.rs`, and its progress ledger
+  `docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK_IMPL_PROGRESS.md`. **Existing files it
+  may edit:** one `pub mod private_block;` line in `hashline/src/lib.rs` and
+  a dev-dependency on `private-block-kernel` in `hashline/Cargo.toml` (Codex:
+  these two are the only places a merge with your P-3 work could touch).
+  Nothing under `private_attention*`, `zk.rs`, `layer.rs`,
+  `zk_ffn_fresh_io.rs`, `private_seam.rs`, `scripts/` or the Python suite.
+- **Stages.** S0 scaffold (a faithful copy under a work-in-progress profile
+  string, every digest domain changed, the accepted attention files proven
+  byte-identical); S1 tests first (witness parity against
+  `private-block-kernel::run_block` over at least 1,000 generated inputs
+  including the kernel's refusals); S2 witness and layout growth to the whole
+  block (A 455 / H 384 rows asserted). Then, by a following agent: S3 the
+  argument's new arms and the tamper tests; S4 the block profile,
+  `BlockPublic` with the activation-table range check, the output endpoint's
+  move to `xres2` and the tripwire, all in one commit; S5 the rank and slot
+  tools on the real source. The final block profile string is forbidden until
+  S4.
+- **Box discipline:** every cargo call under `flock -w 540 /tmp/zk-build.lock`,
+  offline, `-j 2`, the rustup shim, sharing the design lane's warm target
+  directory; no heavy lock, no GPU, no benchmark, nothing over a few minutes.
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the
