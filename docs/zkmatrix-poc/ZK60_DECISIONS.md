@@ -25,6 +25,7 @@ back. Keep this file short enough to read in five minutes.
 | D13 | What the first MVP must prove: the hidden transformer blocks are enough; generating a token (embedding, final norm, head, token selection) is the next milestone | **decided** | 2026-09-19 | Victor (Telegram 11:50) |
 | D14 | Commission a costed design memo for the fewer-hashed-bytes speed lever (encoding rate 1/2 and/or a 31–32-bit field). Paper only: building it would move every frozen digest and the soundness accounting, and stays a separate ruling | **memo commissioned** | 2026-09-19 | Victor (Telegram 11:50) |
 | D15 | The custom line's "106 bits" is a per-opening figure; the projected whole 8B proof is about 94 bits. Every model-scale security statement quotes the whole-proof figure | **technical clarification**; the whole-proof target itself is a ruling still to be put to Victor | 2026-09-19 | Security owner (Fable), from `ZK60_FABLE_SECURITY_OBLIGATIONS.md` §5 and the D14 memo |
+| D16 | Before the private block's norm is widened toward real-model widths, its denominator and the two isqrt witnesses keep a direct byte-limb range pin sized to the new maximum, at most four limbs each, with an exact remainder window | **construction rule (precondition for widening; soundness)** | 2026-09-19 | Security owner (Fable), from the norm range lane |
 | — | RTX 5090 install (an action, not a ruling; the 600 W bound was ruled on 2026-09-04) | **go**; date, machine and host RAM still to be named | 2026-09-19 | Victor (Telegram 11:50) |
 
 Operational rules (detached heavy runs, the shared-box lock, command hygiene)
@@ -446,6 +447,55 @@ or a whole-proof figure, and how many bits, is Victor's ruling (the D14
 memo's question G.0-2). It is not urgent for a tiny-block MVP; it becomes
 binding before any byte freeze at model scale, and it decides whether the
 rate half of the D14 lever is a gain or a net cost.
+
+## D16 — The private block's norm before it is widened (construction rule, 2026-09-19)
+
+**In plain words.** A norm divides by a square root. The proof does not
+compute the square root; the prover supplies it (`D`) with two helper numbers,
+and the verifier checks algebra that pins it. Over a prime field that algebra
+has a second solution nobody intended — `D` replaced by `k + (p−1)/2` — unless
+something forces `D` to be a small non-negative integer. In the project's
+older public-IO attention prover nothing does (obligation R09): the alias is
+excluded at the tiny profile only because its remainders happen not to fit
+two 16-bit limbs, and **any profile with three remainder limbs — which is what
+an int24 residual at width 4096 needs — accepts an all-zero norm output.**
+
+**What was established today** (lane `zk60-private-norm-range`, pushed;
+`ZK60_PRIVATE_NORM_RANGE_OBLIGATION.md`; test-only Rust, 41 tests pass, 5
+new). The **private** block does not share that gap. It range-proves `D`
+directly: `d = l0 + 256·l1 + 65536·l2` with every limb looked up in the 8-bit
+table (`private_block/argument.rs:583–593`, `layout.rs:314–315`), for both
+norms. The alias was built against this module's own relations and is
+**refused by the verifier at the fixed profile by that range fact**, not by a
+width: with honest limbs the zero-check slot rejects; with limbs made to
+reconstruct the alias — so that every relation of all 23 slots holds in the
+field — the byte lookup rejects. Both catches were predicted before they were
+measured. Its remainders are proved in an exact window, so there is no
+R10-style slack either.
+
+**The rule, binding on any widening of the private block's geometry:**
+1. `D` keeps a direct byte-limb range pin with `⌈log256(Dmax + 1)⌉` limbs:
+   three today (Dmax 2^17) and at width 4096 with an int16 residual (2^21);
+   **four at width 4096 with an int24 residual (2^29).**
+2. The two isqrt witnesses `a1`, `a2` get the same treatment: their present
+   exclusion **lapses at four limbs** (the alias's `a1` is about 2^30).
+3. Never more than four limbs on any of them: `(2^32 − 1)² + (2^32 − 1) = p − 1`
+   exactly, so four is the last count at which the square relation cannot wrap.
+4. The remainder window stays exact and its coefficient is rewritten for the
+   new width; the present window keeps about one bit of margin at int24 /
+   4096 and less than a tenth of a bit at 8192, and `1 << (32 − NORM_WRHO)`
+   (`layout.rs:321`) underflows above 32.
+5. The audit that every committed value under a non-unit coefficient is
+   independently range-proved is re-run on the widened layout, and the
+   wraparound premise at `layout.rs:281–309` is re-derived.
+6. The alias tamper tests of this lane travel with the module and must reject
+   at every widened profile before it is used.
+**Cost at the first widening:** 6 more claim sites, 12 more `A` rows
+(455 → 467), 96 proof bytes, no new lookup, table, sumcheck or degree; a new
+statement version. **Not covered:** the widened profile was analysed on paper
+and by arithmetic tests, not run through the verifier, because reaching it
+needs production changes this lane was not allowed to make; the public-IO
+prover's R09 is unchanged and still owes the fix verified on 2026-09-08.
 
 ## D13 — What the first MVP must prove (decided 2026-09-19)
 

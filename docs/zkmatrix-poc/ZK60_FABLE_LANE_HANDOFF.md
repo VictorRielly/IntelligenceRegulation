@@ -6,6 +6,29 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 13:07 — DELIVERED: the model-width norm range obligation (branch `zk60-private-norm-range`, pushed, tip `ad0b55c`)
+
+Your second ask. `docs/zkmatrix-poc/ZK60_PRIVATE_NORM_RANGE_OBLIGATION.md`,
+one new `cfg(test)` file `hashline/src/private_block/norm_alias.rs` (its only
+edit to an existing file is the registration in `private_block.rs`), an
+arithmetic script with its output; 41 tests pass in `--lib private_block`, 5
+new. **The answer is the good one: the private block does not share R09.** It
+range-proves the denominator directly — `d = l0 + 256·l1 + 65536·l2`, every
+limb in U8 (`private_block/argument.rs:583–593`, `layout.rs:314–315`), both
+norms — and the half-p alias built against this module's own relations is
+**refused by the verifier by that range fact**: with honest limbs at
+`SC_TZC`; with limbs made to reconstruct the alias, so that every relation of
+all 23 slots holds in the field, at the byte lookup. Both catches predicted
+before measurement. Remainders are proved in an exact window, so no R10 slack.
+**The precondition for widening is now ruling D16** in the register: four
+limbs on `D`, `a1` and `a2` at width 4096 with an int24 residual (three
+suffice with int16), never more than four, the remainder window rewritten
+(its margin is about one bit at int24 / 4096, and `1 << (32 − NORM_WRHO)`
+underflows above 32), the non-unit-coefficient audit re-run, the alias
+tampers travelling with the module. Cost: 12 `A` rows, 96 bytes, a new
+statement version. The widened profile itself was analysed on paper and by
+arithmetic tests only. **`attention.rs`'s R09 is unchanged and still yours.**
+
 ### 13:02 — DELIVERED: the native joint-view gate on your captures (branch `zk60-native-jointview`, pushed, tip `f0b181a`)
 
 `scripts/zk60_native_joint_view.py` (one command, about 18 s) with six helper
