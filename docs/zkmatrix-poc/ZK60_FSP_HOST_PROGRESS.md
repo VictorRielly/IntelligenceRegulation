@@ -519,3 +519,40 @@ Two constraints found by reading, that shape the design:
 
 Next step: C1, the floor on the untouched tip, queued behind the
 sibling lane on `/tmp/zk-heavy.lock`.
+
+### 2026-09-19 12:10 — C1, the floor on the untouched tip, and what the shared box did to it
+
+Four jobs were launched detached, each `flock`ed: the builds
+(`fsp4_build_c0.log`), `cargo test --release`
+(`fsp4_cputest_c1.log`), `results/fsp4_oracles.sh`
+(`fsp4_oracles_c1.log`) and `results/fsp4_floors.sh`
+(`fsp4_floors_c1.log`).
+
+* **Builds** [MEASURED] `results/fsp4_build_c0.log`, exit 0 — both
+  binaries already current at the tip (nothing to recompile), so the
+  gates below ran the 11:39/11:40 binaries of the untouched tree.
+* **`cargo test --release`** [MEASURED] `results/fsp4_cputest_c1.log`,
+  exit 0 — **202 passed, 0 failed** over 26 test binaries, the
+  inherited count. It compiled before this agent's first edit landed,
+  so it is a floor on the untouched tip.
+* **`gpu-probe` oracles** [MEASURED] `results/fsp4_oracles_c1.log`,
+  untouched GPU binary — field probe **0 mismatches**, **blake3
+  GREEN**, **ntt GREEN** (7 shapes), **chunked-commit GREEN** (15
+  shapes).
+
+**Two honest notes about this floor.** (1) The box is shared and was
+busy throughout: `/tmp/zk-build.lock` was held for more than 20 minutes
+by Codex's `results/zk60_fsp_l9_integration_20260919/regression.py` in
+the main tree, and `/tmp/zk-heavy.lock` by the sibling speed lane, so
+the oracle script's cargo half and the byte gates queued behind them.
+(2) **A mistake to record**: this agent edited `results/fsp4_oracles.sh`
+while that script was RUNNING (blocked on the build lock). Bash reads a
+script by file offset, so the run's remainder is not trustworthy and the
+oracle script was re-run afterwards; the `gpu-probe` half above had
+already printed and stands. The lesson is the obvious one — never edit a
+script that is in flight.
+
+The twelve byte gates at this tip were green 55 minutes before this
+agent started, on these same two binaries and with no source change in
+between (`results/fsp4_floors_s2.log`, 11:53, recorded in stage 5
+above); this agent's own twelve-gate run is C4's, on the changed tree.

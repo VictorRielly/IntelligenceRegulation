@@ -30,4 +30,20 @@ for T in zk60_gpu_commit zk60_gpu_cache; do
     flock -w 1800 /tmp/zk-build.lock $CARGO test --release --offline -j 2 --features gpu-cuda --manifest-path $R/hashline/Cargo.toml --test $T 2>&1 \
     | grep -E '^test result|^error|panicked|FAILED|ZK60_CL4_SUMMARY'
 done
+# [FSP-HOST] ITEM (a)'s ORACLES. `hashline/src/bin/hashline.rs` is not this
+# lane's file, so the rung could not be added to the `gpu-probe` command;
+# both oracles are lib unit tests and neither needs a device:
+#   * gpu::planes::tests    — the plane fill against prove_layer_v3's own
+#                             buffer (every configuration),
+#   * gpu::cuda::fsp4_plane_oracle — the staged bytes against the REAL
+#                             pack_narrow at w = 1, over block-splitting
+#                             ranges and in the chunked/staging-piece form
+#                             (only under --features gpu-cuda).
+echo "=== [FSP-HOST] item (a) plane-fill oracles (gpu-cuda lib tests) ==="; date '+%F %T'
+CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=$CUDA_LD CARGO_TARGET_DIR=$R/hashline/target-gpu \
+  flock -w 1800 /tmp/zk-build.lock $CARGO test --release --offline -j 2 --features gpu-cuda --manifest-path $R/hashline/Cargo.toml --lib plane 2>&1 \
+  | grep -E '^test |^test result|^error|panicked|FAILED'
+echo "=== [FSP-HOST] item (a) plane-fill oracles (CPU lib tests) ==="; date '+%F %T'
+flock -w 1800 /tmp/zk-build.lock $CARGO test --release --offline -j 2 --manifest-path $R/hashline/Cargo.toml --lib plane 2>&1 \
+  | grep -E '^test |^test result|^error|panicked|FAILED'
 echo "=== ORACLES DONE ==="; date '+%F %T'

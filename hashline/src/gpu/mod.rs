@@ -30,6 +30,9 @@ pub use cuda::{dev_commit_zk, dev_commit_zk_from, dev_upload_rows};
 // [UPERF3-AC] the cached-W device entry (upload + encode, no hash) and the chunked-commit probe
 #[cfg(feature = "gpu-cuda")]
 pub use cuda::{dev_commit_check_chunked, dev_commit_zk_check_chunked, dev_encode_only};
+// [FSP-HOST] item (a): the commitment whose upload reads the int8 planes directly
+#[cfg(feature = "gpu-cuda")]
+pub use cuda::dev_commit_planes;
 // [ZK60-CL2] deferred-opening interleaving oracle, the strict/injection test
 // hooks, and the stage-major twiddle layout used to assert the monotonic cache
 #[cfg(feature = "gpu-cuda")]
@@ -181,6 +184,341 @@ pub mod open_plan {
         Ok(OpenPlan::Open(OpenIndices { fused, sel, slot, uniq, idx32, residues }))
     }
 }
+
+/// [FSP-HOST] ITEM (a) OF THE FIVE-SECOND PLAN'S STEP 4: the W
+/// commitment's SOURCE, as the three int8 planes plus the block map,
+/// instead of the converted `Vec<Fp>` copy of them.
+///
+/// WHY. `prove_layer_v3` builds `w_data: Vec<Fp>` — a block tiling of the
+/// int8 weight planes, eight bytes per weight — and hands it to the
+/// commitment, which uploads it in the NARROW form: `pack_narrow` reads
+/// all eight bytes of every element and writes the one byte that
+/// represents it (`gpu/cuda.rs`). At the 8B shape that is a 2.74 s fill
+/// [MEASURED, `results/hashline_convert_r3.log`] followed by a pass that
+/// reads 74.6 GB to write 9.3 GB. Reading the planes directly makes the
+/// fill unnecessary and turns the packing pass into a 9.3 GB -> 9.3 GB
+/// gather of contiguous `memcpy` runs.
+///
+/// WHY THE BYTES ARE IDENTICAL, not approximately. `pack_narrow` at
+/// `w = 1` emits `v as u8` when `v < 128` and `v.wrapping_sub(P) as u8`
+/// when `v >= P - 128`; `w_data[i] = Fp::from_i64(s as i64)` for an `i8`
+/// `s` gives `v = s` for `s >= 0` and `v = P + s` for `s < 0`, so both
+/// arms produce exactly the two's-complement byte `s as u8`. The map from
+/// element index to plane element is the one `prove_layer_v3` writes with
+/// and `zkp_core::ffn_v3::Layout` defines; it is transcribed once, here.
+///
+/// THE MAP (`Layout::new`): the W buffer is exactly `3 * nb_d * nb_f`
+/// blocks of `wb = db * fb` elements, contiguous, `wg` first (block
+/// `c * nb_f + b`), then `wu` (same index), then `wd` (block
+/// `b * nb_d + c`). A `wg`/`wu` block holds `db` rows of `fb`, row `kp`
+/// being `plane[(c*db+kp)*f + b*fb ..][..fb]`; a `wd` block holds `fb`
+/// rows of `db`, row `jp` being `wd[(b*fb+jp)*d + c*db ..][..db]`. Every
+/// row is CONTIGUOUS in its plane, which is what makes the byte fill a
+/// gather of `memcpy`s. The commitment's row width is `n = wb`
+/// (`params.pcs_for(lay.log_wb)`), so one commitment row is one block and
+/// a chunked upload's row range is a block range — but this module makes
+/// no such assumption: `fill_bytes` takes an arbitrary element range.
+pub mod planes {
+    use crate::field::Fp;
+    use rayon::prelude::*;
+
+    /// i8 as its two's-complement byte, for a whole run.
+    #[inline]
+    fn as_bytes(v: &[i8]) -> &[u8] {
+        // SAFETY: i8 and u8 have identical size, alignment and validity
+        // (the same pattern wcache.rs uses to digest a plane).
+        unsafe { std::slice::from_raw_parts(v.as_ptr() as *const u8, v.len()) }
+    }
+
+    /// The three int8 planes of one v3 layer plus the block map, as a
+    /// source the commitment reads instead of a converted `Vec<Fp>`.
+    #[derive(Clone, Copy, Debug)]
+    pub struct PlaneTiling<'a> {
+        pub wg: &'a [i8],
+        pub wu: &'a [i8],
+        pub wd: &'a [i8],
+        pub d: usize,
+        pub f: usize,
+        pub db: usize,
+        pub fb: usize,
+        pub nb_d: usize,
+        pub nb_f: usize,
+    }
+
+    impl<'a> PlaneTiling<'a> {
+        /// Build the source, checking the shape the caller claims: a wrong
+        /// block count or a short plane is a decline, never a wrong byte.
+        #[allow(clippy::too_many_arguments)]
+        pub fn new(wg: &'a [i8], wu: &'a [i8], wd: &'a [i8], d: usize, f: usize, db: usize, fb: usize, nb_d: usize, nb_f: usize) -> Result<PlaneTiling<'a>, String> {
+            if db == 0 || fb == 0 || nb_d == 0 || nb_f == 0 || nb_d * db != d || nb_f * fb != f {
+                return Err(format!("plane tiling: blocks {nb_d}x{db} / {nb_f}x{fb} do not tile d {d} / f {f}"));
+            }
+            if wg.len() != d * f || wu.len() != d * f || wd.len() != f * d {
+                return Err(format!("plane tiling: planes {} / {} / {} are not d*f = {}", wg.len(), wu.len(), wd.len(), d * f));
+            }
+            Ok(PlaneTiling { wg, wu, wd, d, f, db, fb, nb_d, nb_f })
+        }
+
+        /// Elements in the tiled buffer (`Layout::w_len`).
+        pub fn len(&self) -> usize {
+            3 * self.nb_d * self.nb_f * self.db * self.fb
+        }
+        pub fn is_empty(&self) -> bool {
+            self.len() == 0
+        }
+        /// Elements per block (`Layout::wb`).
+        pub fn wb(&self) -> usize {
+            self.db * self.fb
+        }
+        /// Blocks in the buffer.
+        pub fn blocks(&self) -> usize {
+            3 * self.nb_d * self.nb_f
+        }
+        /// Elements per row of block `blk` (`fb` for wg/wu, `db` for wd).
+        fn row_len(&self, blk: usize) -> usize {
+            if blk < 2 * self.nb_d * self.nb_f {
+                self.fb
+            } else {
+                self.db
+            }
+        }
+        /// Row `r` of block `blk`, as the contiguous run of its plane.
+        fn row(&self, blk: usize, r: usize) -> &'a [i8] {
+            let nb = self.nb_d * self.nb_f;
+            if blk < 2 * nb {
+                let (plane, k) = if blk < nb { (self.wg, blk) } else { (self.wu, blk - nb) };
+                let (c, b) = (k / self.nb_f, k % self.nb_f);
+                let base = (c * self.db + r) * self.f + b * self.fb;
+                &plane[base..base + self.fb]
+            } else {
+                let k = blk - 2 * nb;
+                let (b, c) = (k / self.nb_d, k % self.nb_d);
+                let base = (b * self.fb + r) * self.d + c * self.db;
+                &self.wd[base..base + self.db]
+            }
+        }
+
+        /// The two's-complement BYTE image of elements
+        /// `[off, off + dst.len())` — what `pack_narrow(dst, &w_data[off..],
+        /// 1)` writes, without `w_data`.
+        pub fn fill_bytes(&self, off: usize, dst: &mut [u8]) {
+            self.fill_range(off, dst.len(), dst, |d, s| d.copy_from_slice(as_bytes(s)));
+        }
+
+        /// The 64-bit FIELD image of the same range — what `prove_layer_v3`
+        /// writes into `w_data[off..]`. The reference the oracle compares
+        /// against, and the CPU-side fallback's building block.
+        pub fn fill_fp(&self, off: usize, dst: &mut [Fp]) {
+            self.fill_range(off, dst.len(), dst, |d, s| {
+                for (o, &v) in d.iter_mut().zip(s.iter()) {
+                    *o = Fp::from_i64(v as i64);
+                }
+            });
+        }
+
+        /// Walk the element range block by block; inside a block, head row,
+        /// whole rows in parallel, tail row. `put` writes one destination
+        /// run from one contiguous source run.
+        fn fill_range<T: Send + Sync>(&self, off: usize, len: usize, dst: &mut [T], put: impl Fn(&mut [T], &[i8]) + Sync) {
+            assert_eq!(dst.len(), len);
+            assert!(off + len <= self.len(), "plane fill {off}+{len} past the buffer's {} elements", self.len());
+            let wb = self.wb();
+            let mut pos = 0usize;
+            let mut e = off;
+            while pos < len {
+                let blk = e / wb;
+                let s = e - blk * wb;
+                let take = (wb - s).min(len - pos);
+                self.fill_block(blk, s, &mut dst[pos..pos + take], &put);
+                pos += take;
+                e += take;
+            }
+        }
+
+        fn fill_block<T: Send + Sync>(&self, blk: usize, s: usize, dst: &mut [T], put: &(impl Fn(&mut [T], &[i8]) + Sync)) {
+            let rl = self.row_len(blk);
+            let (mut r, c0) = (s / rl, s % rl);
+            let mut pos = 0usize;
+            if c0 != 0 {
+                let take = (rl - c0).min(dst.len());
+                put(&mut dst[..take], &self.row(blk, r)[c0..c0 + take]);
+                pos = take;
+                r += 1;
+            }
+            let rest = dst.len() - pos;
+            let (full, tail) = (rest / rl, rest % rl);
+            if full > 0 {
+                let r_mid = r;
+                dst[pos..pos + full * rl].par_chunks_mut(rl).enumerate().for_each(|(i, row)| put(row, self.row(blk, r_mid + i)));
+                pos += full * rl;
+            }
+            if tail > 0 {
+                put(&mut dst[pos..], &self.row(blk, r + full)[..tail]);
+            }
+        }
+    }
+
+    /// [FSP-HOST] THE ORACLE for item (a), host side, compiled in every
+    /// configuration. It pins two things:
+    ///
+    /// 1. `fill_fp` over the whole buffer == the buffer `prove_layer_v3`
+    ///    writes. The reference is a literal transcription of that
+    ///    function's three loops, driven by the REAL
+    ///    `zkp_core::ffn_v3::Layout` offsets, so the map is checked against
+    ///    its owner and not against itself. The fixture shape (12x512's
+    ///    768/2048) is one of the cases, and `fill_fp`'s image at that
+    ///    shape is what the four GPU byte gates prove end to end — so a
+    ///    wrong transcription would have to be wrong in the same way as
+    ///    the code the gates pin.
+    /// 2. `fill_bytes(off, len)` == the two's-complement byte image of
+    ///    `fill_fp` over the same range, at ranges that split blocks and
+    ///    rows and in the CHUNKED form (successive pieces that reassemble
+    ///    the buffer) — the form the 8B W commitment uses and the 12x512
+    ///    fixture cannot reach.
+    ///
+    /// The comparison against the REAL `pack_narrow` (the function whose
+    /// bytes must be reproduced) is the twin test in `gpu/cuda.rs`, which
+    /// only exists under `--features gpu-cuda`.
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use zkp_core::ffn_v3::Layout;
+
+        /// A deterministic plane covering the whole i8 range, both ends
+        /// included (-128 and 127 are the values `narrow_class` calls the
+        /// two edges of the field).
+        fn plane(n: usize, seed: u64) -> Vec<i8> {
+            let mut x = seed.wrapping_mul(0x9E37_79B9_7F4A_7C15) | 1;
+            (0..n)
+                .map(|i| {
+                    x ^= x << 13;
+                    x ^= x >> 7;
+                    x ^= x << 17;
+                    match i % 37 {
+                        0 => -128i8,
+                        1 => 127,
+                        2 => 0,
+                        3 => -1,
+                        _ => (x >> 24) as i8,
+                    }
+                })
+                .collect()
+        }
+
+        /// `prove_layer_v3`'s W fill, transcribed (layer.rs, "W data + commit").
+        fn reference(lay: &Layout, wg: &[i8], wu: &[i8], wd: &[i8]) -> Vec<Fp> {
+            let (d, f, wb) = (lay.d, lay.f, lay.wb);
+            let (db, fb) = (1usize << lay.log_db, 1usize << lay.log_fb);
+            let mut w_data = vec![Fp::ZERO; lay.w_len];
+            for c in 0..lay.nb_d {
+                for b in 0..lay.nb_f {
+                    for (offs, src) in [(&lay.wg, wg), (&lay.wu, wu)] {
+                        let off = offs[c * lay.nb_f + b];
+                        for kp in 0..db {
+                            let k = c * db + kp;
+                            for jp in 0..fb {
+                                w_data[off + kp * fb + jp] = Fp::from_i64(src[k * f + b * fb + jp] as i64);
+                            }
+                        }
+                    }
+                    let off = lay.wd[b * lay.nb_d + c];
+                    for jp in 0..fb {
+                        let j = b * fb + jp;
+                        for np in 0..db {
+                            w_data[off + jp * db + np] = Fp::from_i64(wd[j * d + c * db + np] as i64);
+                        }
+                    }
+                    assert_eq!(wb, db * fb);
+                }
+            }
+            w_data
+        }
+
+        /// `pack_narrow`'s w = 1 arm, transcribed (gpu/cuda.rs).
+        fn byte_image(v: &[Fp]) -> Vec<u8> {
+            let p = crate::field::P;
+            v.iter()
+                .map(|x| {
+                    let v = x.0;
+                    if v < 128 {
+                        v as u8
+                    } else if v >= p - 128 {
+                        v.wrapping_sub(p) as u8
+                    } else {
+                        panic!("value {v} is not an int8 in the field")
+                    }
+                })
+                .collect()
+        }
+
+        /// (t_rows, d, f): the 12x512 fixture, a two-sided multi-block
+        /// shape, the 8B block structure scaled down (nb_d 1, nb_f 7), and
+        /// a single-block shape.
+        const SHAPES: [(usize, usize, usize); 4] = [(512, 768, 2048), (16, 96, 192), (16, 256, 1792), (16, 64, 128)];
+
+        #[test]
+        fn fill_fp_is_the_layer_buffer() {
+            for (t, d, f) in SHAPES {
+                let lay = Layout::new(t, d, f);
+                let (wg, wu, wd) = (plane(d * f, 1), plane(d * f, 2), plane(f * d, 3));
+                let pt = PlaneTiling::new(&wg, &wu, &wd, d, f, 1 << lay.log_db, 1 << lay.log_fb, lay.nb_d, lay.nb_f).unwrap();
+                assert_eq!(pt.len(), lay.w_len, "shape {d}x{f}");
+                let want = reference(&lay, &wg, &wu, &wd);
+                let mut got = vec![Fp::ZERO; lay.w_len];
+                pt.fill_fp(0, &mut got);
+                assert!(got == want, "fill_fp != the layer buffer at {d}x{f}");
+            }
+        }
+
+        #[test]
+        fn fill_bytes_is_the_packed_image_over_every_range() {
+            for (t, d, f) in SHAPES {
+                let lay = Layout::new(t, d, f);
+                let (wg, wu, wd) = (plane(d * f, 4), plane(d * f, 5), plane(f * d, 6));
+                let pt = PlaneTiling::new(&wg, &wu, &wd, d, f, 1 << lay.log_db, 1 << lay.log_fb, lay.nb_d, lay.nb_f).unwrap();
+                let want = byte_image(&reference(&lay, &wg, &wu, &wd));
+                let (wb, rl) = (lay.wb, 1usize << lay.log_fb);
+                let n = lay.w_len;
+                // whole buffer, block/row aligned pieces, and pieces that
+                // start and end inside a row and inside a block
+                let mut ranges: Vec<(usize, usize)> = vec![(0, n), (0, 1), (n - 1, 1), (0, wb), (wb, wb), (wb / 2, wb), (1, wb + 3), (rl - 1, 2 * rl + 1), (wb - 1, 2), (2 * wb - 3, 7)];
+                if n > 3 * wb {
+                    ranges.push((wb + rl / 2, 2 * wb + 5));
+                }
+                for (off, len) in ranges {
+                    let len = len.min(n - off);
+                    let mut got = vec![0u8; len];
+                    pt.fill_bytes(off, &mut got);
+                    assert!(got == want[off..off + len], "fill_bytes({off}, {len}) at {d}x{f}");
+                }
+                // the CHUNKED form: successive pieces reassemble the buffer
+                for chunk in [wb, wb / 4 + 1, 3 * wb / 2, rl, 1000] {
+                    let mut all: Vec<u8> = Vec::with_capacity(n);
+                    let mut off = 0usize;
+                    while off < n {
+                        let m = chunk.min(n - off);
+                        let mut piece = vec![0u8; m];
+                        pt.fill_bytes(off, &mut piece);
+                        all.extend_from_slice(&piece);
+                        off += m;
+                    }
+                    assert!(all == want, "chunked fill (chunk {chunk}) at {d}x{f}");
+                }
+            }
+        }
+
+        #[test]
+        fn a_shape_that_does_not_tile_is_declined() {
+            let (d, f) = (96usize, 192usize);
+            let (wg, wu, wd) = (plane(d * f, 7), plane(d * f, 8), plane(f * d, 9));
+            assert!(PlaneTiling::new(&wg, &wu, &wd, d, f, 32, 64, 2, 3).is_err(), "wrong nb_d accepted");
+            assert!(PlaneTiling::new(&wg, &wu, &wd, d, f, 0, 64, 3, 3).is_err(), "zero block accepted");
+            assert!(PlaneTiling::new(&wg, &wu[..d * f - 1], &wd, d, f, 32, 64, 3, 3).is_err(), "short plane accepted");
+        }
+    }
+}
+
+pub use planes::PlaneTiling;
 
 /// [ZK60-CL20] The adapter side of `zkp_core::pcs`'s backend seam. The
 /// core's commitment offers its encode-and-hash to a `Backend`; this is the

@@ -333,6 +333,59 @@ pub fn commit_w(params: &PcsParams, data: &[Fp], ntt: &NttTables, key: &WKey) ->
     cm
 }
 
+/// [FSP-HOST] ITEM (a) THROUGH THE CACHE. `commit_w`'s hook, with the int8
+/// planes as the commitment's source instead of the `Vec<Fp>` tiling of
+/// them. `None` is a DECLINE: the caller builds that `Vec<Fp>` and calls
+/// `commit_w` unchanged.
+///
+/// The three routes, and why a cache HIT and a cache MISS stay
+/// byte-identical:
+///
+/// * **no cache configured** (every byte gate, and the 8B pass as it was
+///   run) — straight to `pcs::commit_planes`;
+/// * **configured, entry present (a HIT)** — DECLINED here. The hit route
+///   rebuilds the store with `reencode_store`, which needs the `Vec<Fp>`;
+///   rather than add a second encode path that no gate exercises, the
+///   caller builds the buffer and takes the inherited hit route, so a hit
+///   produces exactly the bytes it produces today. (The cost is that the
+///   key digest is then computed twice on that route — a blake3 over the
+///   three planes — and `secs_key` counts it twice.)
+/// * **configured, entry absent (a MISS)** — the plane commitment, then
+///   the SAME `save_tree` of the SAME Merkle tree. The key itself needs no
+///   change: `WKey` already hashes the three int8 planes and never
+///   `w_data`, so an entry written by either arm is the same entry.
+pub fn commit_w_planes(params: &PcsParams, pt: &crate::gpu::PlaneTiling, ntt: &NttTables, key: &WKey) -> Option<Committed> {
+    let Some(dir) = dir() else { return pcs::commit_planes(params, pt, ntt) };
+    let n = params.cols();
+    let len = pt.len();
+    if len == 0 || len % n != 0 {
+        return None;
+    }
+    let rows = len / n;
+    let t0 = Instant::now();
+    let kd = key.digest(params, rows, len);
+    stat(|s| s.secs_key += t0.elapsed().as_secs_f64());
+    let path = entry_path(dir, key, &kd);
+    if path.exists() {
+        return None; // the HIT route re-encodes from the Vec<Fp>; let the caller build it
+    }
+    let t3 = Instant::now();
+    let cm = pcs::commit_planes(params, pt, ntt)?;
+    stat(|s| {
+        s.misses += 1;
+        s.secs_commit += t3.elapsed().as_secs_f64();
+    });
+    let t4 = Instant::now();
+    match save_tree(&path, &kd, params, rows, &cm.tree) {
+        Ok(nbytes) => stat(|s| {
+            s.bytes_written += nbytes;
+            s.secs_save += t4.elapsed().as_secs_f64();
+        }),
+        Err(e) => eprintln!("[UPERF3-AC] wcache: cannot write {} ({e}); continuing uncached", path.display()),
+    }
+    Some(cm)
+}
+
 /// One line for the driver's report.
 pub fn report() -> Option<String> {
     let d = dir()?;

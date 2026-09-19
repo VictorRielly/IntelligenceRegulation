@@ -19,6 +19,7 @@ use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Instant;
 // [ZK60-CL15] the openings' pure index plan (mod.rs; compiled without the feature too)
 use super::open_plan::{plan_open_indices, residue_list, OpenPlan};
+use super::planes::PlaneTiling;
 
 const KSRC: &str = include_str!("kernels.cu");
 const MODULE: &str = "hlgpu";
@@ -953,16 +954,66 @@ fn pack_narrow(dst: &mut [u8], src: &[u64], w: usize) -> bool {
     ok.load(Ordering::Relaxed)
 }
 
+/// [FSP-HOST] ITEM (a): WHERE a commitment's staged bytes come from.
+///
+/// `Words` is the inherited source — the converted 64-bit buffer, read in
+/// full by `pack_narrow` to emit `w` bytes per element. `Planes` is the
+/// three int8 weight planes plus the block map (`gpu/mod.rs`'s `planes`),
+/// which produce the SAME bytes at `w = 1` by copying them: `pack_narrow`
+/// at `w = 1` emits the two's-complement byte of an int8-valued field
+/// element, which is the plane's own byte. Everything downstream —
+/// `k_widen`, the encode, the hash, the leaves — sees identical bytes at
+/// identical addresses, so no proof byte can move.
+#[derive(Clone, Copy)]
+enum UpSrc<'a> {
+    Words(&'a [u64]),
+    Planes(&'a PlaneTiling<'a>),
+}
+
+impl UpSrc<'_> {
+    fn len(&self) -> usize {
+        match self {
+            UpSrc::Words(v) => v.len(),
+            UpSrc::Planes(p) => p.len(),
+        }
+    }
+    /// The byte width on the wire: the strided probe for a word source,
+    /// always 1 for a plane source (an int8 plane IS one byte per element).
+    fn width(&self) -> usize {
+        match self {
+            UpSrc::Words(v) => {
+                if narrow_on() {
+                    narrow_probe(v)
+                } else {
+                    8
+                }
+            }
+            UpSrc::Planes(_) => 1,
+        }
+    }
+    fn is_planes(&self) -> bool {
+        matches!(self, UpSrc::Planes(_))
+    }
+}
+
 impl Uploader {
-    /// Pack `src` w bytes per element straight into the staging buffer and
-    /// hand it to the DMA — the int8 planes cross the bus as bytes, and the
-    /// device widens them back to the identical 64-bit image (`k_widen`).
-    fn send_packed(&mut self, dst_base: sys::CUdeviceptr, elem_off: usize, src: &[u64], w: usize) -> Result<(), String> {
+    /// Stage elements `[start, start + cnt)` of `src` as `w` bytes each
+    /// straight into the pinned buffer and hand them to the DMA — the
+    /// witness planes cross the bus as bytes and the device widens them
+    /// back to the identical 64-bit image (`k_widen`). `elem_off` is the
+    /// destination's element offset.
+    ///
+    /// [FSP-HOST] this is the old `send_packed` with the source behind
+    /// `UpSrc`: the `Words` arm is the inherited code, unchanged.
+    fn send_src(&mut self, dst_base: sys::CUdeviceptr, elem_off: usize, src: &UpSrc, start: usize, cnt: usize, w: usize) -> Result<(), String> {
+        if src.is_planes() && w != 1 {
+            return Err(format!("plane source staged at {w} bytes per element"));
+        }
         let per = (self.pin[0].len * 8) / w; // elements per staging piece
         let t0 = Instant::now();
         let mut done = 0usize;
-        while done < src.len() {
-            let m = per.min(src.len() - done);
+        while done < cnt {
+            let m = per.min(cnt - done);
             let b = self.cur;
             if self.armed[b] {
                 unsafe { cu::event::synchronize(self.ev[b]) }.map_err(|e| format!("cuEventSynchronize: {e}"))?;
@@ -970,8 +1021,13 @@ impl Uploader {
             }
             let bytes: &mut [u8] = unsafe { std::slice::from_raw_parts_mut(self.pin[b].ptr as *mut u8, m * w) };
             let tp = Instant::now(); // [FSP-HOST] timing only
-            if !pack_narrow(bytes, &src[done..done + m], w) {
-                return Err("narrow pack: value out of range".into());
+            match src {
+                UpSrc::Words(v) => {
+                    if !pack_narrow(bytes, &v[start + done..start + done + m], w) {
+                        return Err("narrow pack: value out of range".into());
+                    }
+                }
+                UpSrc::Planes(p) => p.fill_bytes(start + done, bytes),
             }
             self.pack_secs += tp.elapsed().as_secs_f64();
             self.pack_elems += m as u64;
@@ -1010,10 +1066,11 @@ impl Gpu {
     /// [UPERF3-AJ] One whole upload in the NARROW form: pack w bytes per
     /// element, DMA the bytes, widen on the device. `dst` is untouched
     /// unless the whole thing succeeds, so a failure falls back cleanly.
-    fn upload_narrow(&mut self, dst: &mut CudaSlice<u64>, src: &[u64], w: usize) -> Result<(), String> {
+    fn upload_narrow(&mut self, dst: &mut CudaSlice<u64>, src: UpSrc, w: usize) -> Result<(), String> {
         let dev = self.dev.clone();
         let f = dev.get_func(MODULE, "k_widen").ok_or("k_widen missing")?;
-        let mut d_pack = Pooled::take_min(&dev, (src.len() * w + 7) / 8)?;
+        let len = src.len();
+        let mut d_pack = Pooled::take_min(&dev, (len * w + 7) / 8)?;
         let pack_base: sys::CUdeviceptr = *d_pack.get().device_ptr();
         let data_base: sys::CUdeviceptr = *dst.device_ptr();
         if self.up().is_none() {
@@ -1021,7 +1078,7 @@ impl Gpu {
         }
         let mut up = self.up.take().unwrap();
         let (secs0, pack0) = (up.secs, up.pack_secs); // [FSP-HOST] timing only
-        let mut r = up.send_packed(pack_base, 0, src, w).and_then(|_| up.wait());
+        let mut r = up.send_src(pack_base, 0, &src, 0, len, w).and_then(|_| up.wait());
         if r.is_err() {
             // a half-issued transfer must land before the scratch goes back to the pool
             let _ = up.wait();
@@ -1031,12 +1088,32 @@ impl Gpu {
         self.up = Some(up);
         r?;
         if fsp4_timing() {
-            eprintln!("[FSP4] whole-buffer narrow upload {} elem w {w}: h2d counter {secs_up:.4} = host pack {pack_up:.4} + {:.4} rest", src.len(), secs_up - pack_up);
+            eprintln!("[FSP4] whole-buffer narrow upload {len} elem w {w} ({}): h2d counter {secs_up:.4} = host pack {pack_up:.4} + {:.4} rest",
+                if src.is_planes() { "int8 planes" } else { "64-bit words" }, secs_up - pack_up);
         }
-        let cfg = LaunchConfig::for_num_elems(src.len() as u32);
-        unsafe { f.launch(cfg, (pack_base, data_base, src.len() as i64, w as i32)) }.map_err(|e| format!("k_widen: {e}"))?;
+        let cfg = LaunchConfig::for_num_elems(len as u32);
+        unsafe { f.launch(cfg, (pack_base, data_base, len as i64, w as i32)) }.map_err(|e| format!("k_widen: {e}"))?;
         dev.synchronize().map_err(|e| e.to_string())?;
         drop(d_pack.0.take().map(pool_put));
+        Ok(())
+    }
+
+    /// [FSP-HOST] ITEM (a): the whole-buffer upload with the int8 planes as
+    /// the source. There is no 64-bit image to fall back to inside this
+    /// function, so an `Err` is a DECLINE: the caller builds the `Vec<Fp>`
+    /// and takes the inherited path, which is why every arm below stays in
+    /// the binary. The stats are charged exactly as `upload_sync` charges
+    /// them for the narrow word path.
+    fn upload_planes(&mut self, dst: &mut CudaSlice<u64>, pt: &PlaneTiling) -> Result<(), String> {
+        if !narrow_on() {
+            return Err("HL_GPU_NARROW=0: the plane source has no 64-bit form".into());
+        }
+        let t0 = Instant::now();
+        self.upload_narrow(dst, UpSrc::Planes(pt), 1)?;
+        stats_with(|s| {
+            s.secs_h2d += t0.elapsed().as_secs_f64();
+            s.bytes_h2d += pt.len() as u64;
+        });
         Ok(())
     }
 
@@ -1048,7 +1125,7 @@ impl Gpu {
         if narrow_on() && src.len() >= (1 << 20) {
             let w = narrow_probe(src);
             if w < 8 {
-                match self.upload_narrow(dst, src, w) {
+                match self.upload_narrow(dst, UpSrc::Words(src), w) {
                     Ok(()) => {
                         stats_with(|s| { s.secs_h2d += t0.elapsed().as_secs_f64(); s.bytes_h2d += (src.len() * w) as u64; });
                         return Ok(());
@@ -1875,11 +1952,27 @@ impl Gpu {
 /// the device; `HL_GPU_HOST_HASH=1` keeps rung 1's host hashing). `Err`
 /// -> the caller runs the CPU body.
 pub fn dev_commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Result<(DevCommit, Vec<Digest>), String> {
+    dev_commit_src(params, UpSrc::Words(as_u64s(data)), ntt)
+}
+
+/// [FSP-HOST] ITEM (a): the same commitment with the three int8 planes as
+/// the upload's source — no converted `Vec<Fp>` is built, and the packing
+/// pass reads one byte per element instead of eight. The staged bytes, the
+/// device buffer after `k_widen`, the encoding, the leaves and the root are
+/// the ones `dev_commit` produces from that `Vec<Fp>` (see `gpu/mod.rs`'s
+/// `planes` module for why, and its oracle for the check). An `Err` is a
+/// DECLINE: the caller builds the `Vec<Fp>` and calls `dev_commit`.
+pub fn dev_commit_planes(params: &PcsParams, pt: &PlaneTiling, ntt: &NttTables) -> Result<(DevCommit, Vec<Digest>), String> {
+    dev_commit_src(params, UpSrc::Planes(pt), ntt)
+}
+
+fn dev_commit_src(params: &PcsParams, src: UpSrc, ntt: &NttTables) -> Result<(DevCommit, Vec<Digest>), String> {
     let g = gpu().ok_or_else(init_err)?;
     let mut g = g.lock().unwrap();
     let n = params.cols();
-    assert!(data.len() % n == 0 && !data.is_empty());
-    let rows = data.len() / n;
+    let len = src.len();
+    assert!(len % n == 0 && len != 0);
+    let rows = len / n;
     let nn = params.enc_cols();
     let dev = g.dev.clone();
     // [UPERF3-AJ] the chunked class with an INTERLEAVED pinned upload: the
@@ -1890,8 +1983,8 @@ pub fn dev_commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Result<(D
         if let Err(e) = g.ensure_twiddles(ntt) {
             eprintln!("[UPERF3-AJ] streamed commit declined ({e}); block upload");
         } else {
-            let mut d_data = Pooled::take(&dev, data.len())?;
-            match g.commit_chunked_upload(as_u64s(data), &mut d_data, rows, params.log_cols, log_nn, chunk_rows()) {
+            let mut d_data = Pooled::take(&dev, len)?;
+            match g.commit_chunked_upload(src, &mut d_data, rows, params.log_cols, log_nn, chunk_rows()) {
                 Ok(leaves) => {
                     note_vram(&g);
                     return Ok((DevCommit { rows, log_n: params.log_cols, log_nn, data: d_data, enc: None, zk: None }, leaves));
@@ -1900,8 +1993,11 @@ pub fn dev_commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Result<(D
             }
         }
     }
-    let mut d_data = Pooled::take(&dev, data.len())?;
-    g.upload_sync(d_data.get_mut(), as_u64s(data))?;
+    let mut d_data = Pooled::take(&dev, len)?;
+    match src {
+        UpSrc::Words(v) => g.upload_sync(d_data.get_mut(), v)?,
+        UpSrc::Planes(p) => g.upload_planes(d_data.get_mut(), p)?,
+    }
     drop(g);
     dev_commit_from(params, d_data, rows, ntt)
 }
@@ -2200,7 +2296,7 @@ impl Gpu {
     /// hashes on the default stream. Identical values: the same rows reach
     /// the same device addresses and the same kernels run on them, so the
     /// leaves — and the proof — are the block-upload path's.
-    fn commit_chunked_upload(&mut self, host: &[u64], d_data: &mut Pooled, rows: usize, log_n: u32, log_nn: u32, chunk: usize) -> Result<Vec<Digest>, String> {
+    fn commit_chunked_upload(&mut self, host: UpSrc, d_data: &mut Pooled, rows: usize, log_n: u32, log_nn: u32, chunk: usize) -> Result<Vec<Digest>, String> {
         let dev = self.dev.clone();
         let n = 1usize << log_n;
         let nn = 1usize << log_nn;
@@ -2224,7 +2320,7 @@ impl Gpu {
         // image on the device (8x less DMA for a weight tensor). The pinned
         // DMA on this box runs at ~5.5 GB/s whatever the staging (the
         // rung-1 probe), so the bytes on the wire are the lever.
-        let w = if narrow_on() { narrow_probe(host) } else { 8 };
+        let w = host.width();
         let f_widen = self.dev.get_func(MODULE, "k_widen");
         let mut d_pack = if w < 8 && f_widen.is_some() {
             match Pooled::take_min(&dev, (host.len() * w + 7) / 8) {
@@ -2234,6 +2330,12 @@ impl Gpu {
         } else {
             None
         };
+        // [FSP-HOST] the plane source exists only in the narrow form: with no
+        // `k_widen` or no packing scratch it DECLINES here, before anything is
+        // staged, and the caller builds the `Vec<Fp>` and comes back.
+        if host.is_planes() && d_pack.is_none() {
+            return Err("plane source needs k_widen and the narrow packing scratch".into());
+        }
         let w = if d_pack.is_some() { w } else { 8 };
         let pack_base: sys::CUdeviceptr = d_pack.as_ref().map(|b| *b.get().device_ptr()).unwrap_or(0);
         let data_base: sys::CUdeviceptr = *d_data.get().device_ptr();
@@ -2245,9 +2347,11 @@ impl Gpu {
         let r = (|| -> Result<Vec<Digest>, String> {
             let (r0, rc) = plan[0];
             if w < 8 {
-                up.send_packed(pack_base, r0 * n, &host[r0 * n..(r0 + rc) * n], w)?;
+                up.send_src(pack_base, r0 * n, &host, r0 * n, rc * n, w)?;
+            } else if let UpSrc::Words(hv) = host {
+                up.send(d_data.get_mut(), r0 * n, &hv[r0 * n..(r0 + rc) * n])?;
             } else {
-                up.send(d_data.get_mut(), r0 * n, &host[r0 * n..(r0 + rc) * n])?;
+                return Err("plane source has no 64-bit upload form".into());
             }
             for (i, &(r0, rc)) in plan.iter().enumerate() {
                 up.wait()?;
@@ -2268,9 +2372,11 @@ impl Gpu {
                 if i + 1 < plan.len() {
                     let (r1, rc1) = plan[i + 1];
                     if w < 8 {
-                        up.send_packed(pack_base, r1 * n, &host[r1 * n..(r1 + rc1) * n], w)?;
+                        up.send_src(pack_base, r1 * n, &host, r1 * n, rc1 * n, w)?;
+                    } else if let UpSrc::Words(hv) = host {
+                        up.send(d_data.get_mut(), r1 * n, &hv[r1 * n..(r1 + rc1) * n])?;
                     } else {
-                        up.send(d_data.get_mut(), r1 * n, &host[r1 * n..(r1 + rc1) * n])?;
+                        return Err("plane source has no 64-bit upload form".into());
                     }
                 }
             }
@@ -2302,8 +2408,9 @@ impl Gpu {
         // host `pack_narrow` pass over the 64-bit staging vector, and the
         // rest (issue + the waits the engine really blocks on).
         if fsp4_timing() {
-            eprintln!("[FSP4] streamed commit rows {rows} n 2^{log_n} w {w}: h2d counter {secs_up:.4} = host pack {pack_up:.4} ({pel} elem, {:.2} GB read) + {:.4} rest | total {total:.4} s",
-                (pel * 8) as f64 / 1e9, secs_up - pack_up);
+            eprintln!("[FSP4] streamed commit rows {rows} n 2^{log_n} w {w} ({}): h2d counter {secs_up:.4} = host pack {pack_up:.4} ({pel} elem, {:.2} GB read) + {:.4} rest | total {total:.4} s",
+                if host.is_planes() { "int8 planes" } else { "64-bit words" },
+                (pel * if host.is_planes() { 1 } else { 8 }) as f64 / 1e9, secs_up - pack_up);
         }
         stats_with(|s| {
             s.secs_h2d += secs_up;
@@ -3664,4 +3771,121 @@ pub fn dev_upload_rows(d: &mut Pooled, offset: usize, data: &[Fp]) -> Result<(),
     dev.synchronize().map_err(|e| e.to_string())?;
     stats_with(|s| { s.secs_h2d += t0.elapsed().as_secs_f64(); s.bytes_h2d += (data.len() * 8) as u64; });
     Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// [FSP-HOST] ITEM (a)'s DEVICE-ARM ORACLE. `gpu/mod.rs`'s `planes` module
+// carries the host oracle (the plane fill against `prove_layer_v3`'s own
+// buffer, in every configuration). This one is the pair that only exists
+// with `--features gpu-cuda`: the staged bytes the plane source hands the
+// DMA are compared with the staged bytes `pack_narrow` — the real
+// function, not a transcription — produces from the converted `Vec<Fp>`,
+// at `w = 1`, over the same ranges, including a non-multiple-of-block
+// range and the CHUNKED form (the successive pieces of a row-chunked
+// upload). `hashline/src/bin/hashline.rs` is not this lane's file, so the
+// rung could not be added to the `gpu-probe` command; it is run by
+// `results/fsp4_oracles.sh` as `cargo test --features gpu-cuda --lib`.
+// Neither test needs a device: both sides are host code.
+#[cfg(test)]
+mod fsp4_plane_oracle {
+    use super::*;
+    use zkp_core::ffn_v3::Layout;
+
+    fn plane(n: usize, seed: u64) -> Vec<i8> {
+        let mut x = seed.wrapping_mul(0x9E37_79B9_7F4A_7C15) | 1;
+        (0..n)
+            .map(|i| {
+                x ^= x << 13;
+                x ^= x >> 7;
+                x ^= x << 17;
+                match i % 37 {
+                    0 => -128i8,
+                    1 => 127,
+                    2 => 0,
+                    3 => -1,
+                    _ => (x >> 24) as i8,
+                }
+            })
+            .collect()
+    }
+
+    /// (t_rows, d, f): the 12x512 fixture (nb_d 3, nb_f 1 — the shape the
+    /// four GPU byte gates prove end to end), a two-sided multi-block
+    /// shape, and the 8B block structure scaled down (nb_d 1, nb_f 7 —
+    /// the shape no fixture can reach).
+    const SHAPES: [(usize, usize, usize); 3] = [(512, 768, 2048), (16, 96, 192), (16, 256, 1792)];
+
+    #[test]
+    fn plane_fill_equals_pack_narrow_at_w1() {
+        for (t, d, f) in SHAPES {
+            let lay = Layout::new(t, d, f);
+            let (wg, wu, wd) = (plane(d * f, 11), plane(d * f, 12), plane(f * d, 13));
+            let pt = PlaneTiling::new(&wg, &wu, &wd, d, f, 1 << lay.log_db, 1 << lay.log_fb, lay.nb_d, lay.nb_f).unwrap();
+            assert_eq!(pt.len(), lay.w_len);
+            // the inherited source: the converted 64-bit buffer
+            let mut w_data = vec![Fp::ZERO; lay.w_len];
+            pt.fill_fp(0, &mut w_data);
+            let words = as_u64s(&w_data);
+            // the probe must agree that this buffer is an int8 plane
+            assert_eq!(narrow_probe(words), 1, "narrow_probe at {d}x{f}");
+            let (wb, rl) = (lay.wb, 1usize << lay.log_fb);
+            let n = lay.w_len;
+            let mut ranges: Vec<(usize, usize)> = vec![(0, n), (0, wb), (wb / 2, wb), (1, wb + 3), (rl - 1, 2 * rl + 1), (wb - 1, 2), (n - 1, 1)];
+            if n > 3 * wb {
+                ranges.push((wb + rl / 2, 2 * wb + 5));
+            }
+            for (off, len) in ranges {
+                let len = len.min(n - off);
+                let mut want = vec![0u8; len];
+                assert!(pack_narrow(&mut want, &words[off..off + len], 1), "pack_narrow refused {off}+{len}");
+                let mut got = vec![0u8; len];
+                pt.fill_bytes(off, &mut got);
+                assert!(got == want, "plane fill != pack_narrow at {off}+{len}, shape {d}x{f}");
+            }
+            // the chunked form: one row chunk at a time, as
+            // `commit_chunked_upload` stages them
+            for rows_per_chunk in [1usize, 2, 3, lay.w_len / wb] {
+                let cnt = rows_per_chunk * wb;
+                let mut off = 0usize;
+                while off < n {
+                    let m = cnt.min(n - off);
+                    let mut want = vec![0u8; m];
+                    assert!(pack_narrow(&mut want, &words[off..off + m], 1));
+                    let mut got = vec![0u8; m];
+                    pt.fill_bytes(off, &mut got);
+                    assert!(got == want, "chunked plane fill != pack_narrow at {off}+{m}, shape {d}x{f}");
+                    off += m;
+                }
+            }
+        }
+    }
+
+    /// The staging engine slices a send into pieces of
+    /// `pin_mb() MB / w` elements; the plane fill must reproduce
+    /// `pack_narrow` at EVERY such piece boundary, which for a small
+    /// staging buffer falls inside a block and inside a row.
+    #[test]
+    fn plane_fill_equals_pack_narrow_at_staging_piece_boundaries() {
+        let (t, d, f) = (16usize, 256usize, 1792usize);
+        let lay = Layout::new(t, d, f);
+        let (wg, wu, wd) = (plane(d * f, 21), plane(d * f, 22), plane(f * d, 23));
+        let pt = PlaneTiling::new(&wg, &wu, &wd, d, f, 1 << lay.log_db, 1 << lay.log_fb, lay.nb_d, lay.nb_f).unwrap();
+        let mut w_data = vec![Fp::ZERO; lay.w_len];
+        pt.fill_fp(0, &mut w_data);
+        let words = as_u64s(&w_data);
+        for per in [1usize, 7, 255, 4096, 65_537, lay.wb - 1, lay.wb + 1] {
+            let mut all: Vec<u8> = Vec::with_capacity(lay.w_len);
+            let mut off = 0usize;
+            while off < lay.w_len {
+                let m = per.min(lay.w_len - off);
+                let mut piece = vec![0u8; m];
+                pt.fill_bytes(off, &mut piece);
+                all.extend_from_slice(&piece);
+                off += m;
+            }
+            let mut want = vec![0u8; lay.w_len];
+            assert!(pack_narrow(&mut want, words, 1));
+            assert!(all == want, "staging pieces of {per} elements do not reassemble pack_narrow's image");
+        }
+    }
 }
