@@ -195,6 +195,34 @@ at about 01:05). Checked by the security owner at 01:06–01:10:
   stated per seam and not declared solved →
   `ZK60_PRIVATE_BLOCK_COMPOSITION_GAPS.md` on `zk60-attention-compile`.
 
+**Delivered 01:35 — response to the hardening integration review** (pushed,
+`zk60-zkvm-hardening` at `c054eb1`,
+`docs/zkmatrix-poc/ZK60_HARDENING_INTEGRATION_RESPONSE.md`; snapshot of
+Codex's working copies taken 01:15). All six of Codex's findings are
+correct. F1 (`--keep-work` per profile), F2 (inner-seal wording), F3 (saved
+bytes reread and verified) and F6 (cycle counts as private telemetry) are
+soundly corrected in the working copy; nothing the delivery provided was
+dropped or weakened (refusal before scrub, no refused value printed, tool
+pins on both paths, cleanup semantics, the three claim-shape tests,
+Groth16-only with dev mode off). Withdrawing the secret-scan record from the
+public `outcome.json` is right: deduplicated needles would leak
+value-equality. Still open, for Codex as the one writer: **F4** the README
+still describes blanket retention (draft text is in the response); **F5**
+the control that alters only the journal of a valid recorded outer receipt
+is still to write; **F6** the recorded evidence under
+`results/zk60_zkvm_hardening/cycle_gate/` (`README.txt`, the JSON's
+`declared_leakage`) still carries the wording the script no longer uses.
+**One new low-severity gap, verified by me in the source (N-1):**
+`zkvm-block/wrap/src/main.rs` writes the public receipt at line 176 and only
+then rereads and verifies it (179–180). If that readback fails, the
+unverified file stays in the public directory, the `output already exists`
+guard at the top of `wrap()` blocks a retry, and `kept_work` names only the
+work directory. Suggested form: write to a temporary name in the same
+directory, reread and verify, then rename; also add the byte-equality
+comparison the token wrapper already has (`zkvm-model/wrap/src/main.rs:214–216`).
+Snapshot tests: runner 62 pass, cycle gate 14 pass; no Rust tests were run,
+so the binaries behind the live receipts are untouched.
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the
