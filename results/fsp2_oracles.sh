@@ -21,8 +21,17 @@ GPU=$R/hashline/target-gpu/release/hashline
 echo "=== gpu-probe oracles ==="; date '+%F %T'
 nvidia-smi --query-gpu=memory.used --format=csv,noheader
 HL_GPU=1 LD_LIBRARY_PATH=$CUDA_LD "$GPU" gpu-probe 2>&1 | grep -E 'gpu-probe:|GeForce|ERROR|mismatch'
-echo "=== GPU-feature cargo tests ==="; date '+%F %T'
-CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=$CUDA_LD CARGO_TARGET_DIR=$R/hashline/target-gpu HL_GPU=1 HL_GPU_REQUIRED=1 \
-  flock -w 900 /tmp/zk-build.lock $CARGO test --release --offline -j 2 --features gpu-cuda --manifest-path $R/hashline/Cargo.toml 2>&1 \
-  | grep -E '^test result|^error|panicked|FAILED'
+# The DEVICE test binary only. `HL_GPU=1` must not be exported over the
+# whole suite: `zk60_attention_schedule` is a CPU gate that asserts HL_GPU
+# is unset, and `cargo test` stops at the first failing target, so a
+# whole-suite run with HL_GPU set never reaches the device tests at all
+# (seen on this lane's first attempt, results/fsp2_oracles_s3.log).
+# The CPU suite is covered separately by results/fsp2_cputest.log.
+echo "=== GPU-feature cargo tests (device targets) ==="; date '+%F %T'
+for T in zk60_gpu_commit zk60_gpu_cache; do
+  echo "--- $T ---"
+  CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=$CUDA_LD CARGO_TARGET_DIR=$R/hashline/target-gpu HL_GPU=1 HL_GPU_REQUIRED=1 \
+    flock -w 900 /tmp/zk-build.lock $CARGO test --release --offline -j 2 --features gpu-cuda --manifest-path $R/hashline/Cargo.toml --test $T 2>&1 \
+    | grep -E '^test result|^error|panicked|FAILED|ZK60_CL4_SUMMARY'
+done
 echo "=== ORACLES DONE ==="; date '+%F %T'

@@ -45,10 +45,11 @@ this lane.
 |---|---|---|
 | 0 | ledger created and committed | DONE |
 | 1 | baseline: builds, `cargo test --release`, `gpu-probe` oracles, twelve byte gates, re-encode benchmark | DONE — every gate green |
-| 2 | `k_dit_p1_pad_s`: remove the stage 3-4 bank conflicts and/or fuse with its one consumer | PENDING |
-| 3 | `k_dif_pb`: the same treatment | PENDING |
-| 4 | the host tail of `columns_chunked` | PENDING |
-| 5 | closing: gates, A/B, counted worth on the 8B pass | PENDING |
+| 2a | `k_dit_p1_pad_s`: remove the stage 3-4 bank conflicts | DONE — built, measured, **WITHDRAWN**: 0.93x mean, a regression. Default OFF behind `HL_GPU_SMEM_SWZ` |
+| 2b | `k_dit_p1_pad_s`: fuse it with its one consumer | DONE — `k_dit_p1_pad_c` + `k_ntt_p2_gather_spc`, **1.24x** on the kernel, **1.16x** on the four, byte-identical. Default ON, `HL_GPU_P1_COMPACT=0` restores |
+| 3 | `k_dif_pb`: the same treatment | DONE — same swizzle, **0.91x mean, also a regression**. Default OFF behind `HL_GPU_SMEM_SWZ_PB`. `k_dif_pb` is already at 66-77% of the memory roof |
+| 4 | the host tail of `columns_chunked` | PARTLY — the serial 256-vector split is now parallel (byte-identical, unmeasured); pooling the 22 MB output buffer is **blocked by an allocation assertion in `hashline/tests/zk60_gpu_commit.rs`, a file this lane does not own**; the pinned download is not done |
+| 5 | closing: gates, A/B, counted worth on the 8B pass | DONE — every gate green, **0.8-1.8 s counted** off the 58.40 s pass |
 
 ## Log
 
@@ -155,6 +156,67 @@ Run-to-run spread between the two baseline processes at 10,752 rows:
 `columns_chunked` 3.4%, `k_dit_p1_pad_s` 3.4%, `k_dif_pb` **17%**
 (`k_dif_pb` is the noisy one — any claim about it needs the ABBA).
 
+### 2026-09-19 — stage 2 part A and stage 3: THE BANK-CONFLICT ITEM IS A MEASURED NEGATIVE
+
+**What was built.** `kernels.cu` `shz(x) = x ^ (bit4(x) ? 15 : 0)` — a
+relabelling of shared-memory addresses that provably removes the 2-way
+bank conflicts of the contiguous-tile kernels' low stages. The proof is
+written out at the definition: shared memory is 32 banks of 4 bytes and
+a warp's 64-bit access is served in two 16-thread phases, so a phase is
+conflict-free exactly when its 16 u64 indices are distinct mod 16; at
+stage `st` the tile index `((b >> (st-1)) << st) + (b & (half-1))` has
+bit `st-1` always 0 and puts the fourth varying bit of `b` at bit 4, so
+sixteen threads reach only eight banks for every `st <= 4`. XOR-ing the
+low nibble by 15 when bit 4 is set splits those two groups of eight into
+disjoint halves of the sixteen banks, and for `st >= 5` it is a constant
+XOR that preserves the pattern that was already conflict-free. The
+partner index is free: `SWZ(i + half) == SWZ(i) ^ half`, except
+`^ 31` when `half == 16`. It is a permutation, hence byte-identical by
+construction: same operand pairs, same twiddles, same order, same global
+loads and stores.
+
+Kernels: `k_dit_p1_pad_sz` (switch `HL_GPU_SMEM_SWZ`) and `k_dif_pb_z`
+(switch `HL_GPU_SMEM_SWZ_PB`), both templated off the existing bodies so
+the inherited kernels are untouched code paths.
+
+**The A/B** [MEASURED] `results/fsp2_ab_s2.log`, ABBA over four
+processes, best of 7, `nvidia-smi` 0 MiB before, quiet box:
+
+| rows | `k_dit_p1_pad_s -> _sz` (4 processes) | `k_dif_pb -> _z` (4 processes) |
+|---:|---|---|
+| 1,024 | 0.907 / 0.897 / 0.948 / 0.914 | 0.921 / 0.908 / 0.923 / 0.917 |
+| 3,584 | 0.905 / 0.909 / 0.917 / 0.910 | 0.920 / 0.928 / 0.864 / 0.936 |
+| 10,752 | 0.968 / 0.937 / 1.012 / 0.933 | 0.941 / 0.897 / 0.905 / 0.814 |
+
+**Eleven of twelve measurements on each kernel are below parity.** Mean
+about **0.93x on `k_dit_p1_pad_s`** and **0.91x on `k_dif_pb`** — the
+change makes both kernels **slower**, consistently, at every shape.
+
+**What that means, and it is the useful part.** The four extra integer
+operations per butterfly (`shz(i)` plus one XOR for the partner) cost
+about 11% of this kernel, and the measurement says the net is about -7%.
+So **removing the residual bank conflicts is worth only about 4% of
+`k_dit_p1_pad_s`** — they are not what stands between this kernel and
+the memory roof. The kernel is bound by the per-butterfly instruction
+stream (a 64x64 Goldilocks multiply with a three-branch reduction, plus
+index arithmetic and a twiddle load), not by the shared-memory pipeline.
+A cheaper permutation does not exist: a padded layout (`x + (x >> 4)`,
+`x + (x >> 3)`, `x + (x >> 5)`) leaves 4 of the 16 banks colliding at
+`st = 2` and none of them fixes `st = 1`, which is why the XOR form was
+chosen; and swizzling only the low stages would need an in-place
+un-permute pass costing about half a stage to save about two stages'
+conflict overhead.
+
+**Disposition.** Both switches **default OFF**; the kernels stay in the
+module behind `HL_GPU_SMEM_SWZ=1` / `HL_GPU_SMEM_SWZ_PB=1` so the
+measurement is reproducible and no future lane re-derives it. The
+default path is byte-for-byte lane AO's. **Stage 3 (`k_dif_pb`, the same
+treatment) is answered by the same run and is also negative**;
+`k_dif_pb` is in any case at 168-197 GB/s = 66-77% of the 256 GB/s roof
+on a quiet box, which is where lane AO declared `k_dif_pa_f` closed.
+This costs the `ZK60_FIVE_SECOND_PLAN` ladder's step 3 its
+bank-conflict half.
+
 **A note on the bench's printed "residue" line.** It subtracts `kern`,
 which is built from the DENSE `k_ntt_p2_gather`; the opening actually
 runs the pruned `_sp`. The honest sum is
@@ -162,3 +224,202 @@ runs the pruned `_sp`. The honest sum is
 against `columns_chunked` = 0.0979 s, i.e. a host/d2h/launch residue of
 about **0.0073 s (7.4%)** at this shape — not AO's 17.3%, and not the
 negative number the line prints.
+
+### 2026-09-19 — stage 2 part B: FUSING THE EXPAND TRANSFORM WITH ITS ONE CONSUMER
+
+The other half of lane AO's item 1: *"its 537 MB of writes per chunk are
+read exactly once by the very next kernel, so the two can be fused."*
+
+**A literal fusion is impossible and it is worth saying why.** The
+consumer `k_ntt_p2_gather_sp` needs, for each residue `qq`, one element
+from EVERY one of the row's `nt` = 16 blocks — i.e. the whole
+65,536-wide encoded row, 512 KB, in one thread block. Ada has 100 KB of
+shared memory per SM. No launch shape fuses them.
+
+**What can be done instead: stop writing what the consumer never reads.**
+In the pruned opening the consumer touches only the `nq` distinct
+residues `col mod 4096` of the sampled columns — **244 of 4,096 at the
+8B draw, 6.0%**. So 94% of `k_dit_p1_pad_s`'s 4,096 stores per block are
+dead. Two new kernels:
+
+* `k_dit_p1_pad_c` — `k_dit_p1_pad_s` with the final store loop replaced
+  by `dst[(row * nt + blk) * nqp + jc] = sh[qlist[jc]]`. Every stage,
+  every twiddle, every operand pair and every global LOAD is unchanged;
+  `blk` IS the consumer's block index `t`, and `nqp` is the residue
+  list's PADDED length, so the padding lanes re-store a duplicate and no
+  address is written twice or needs a branch.
+* `k_ntt_p2_gather_spc` — `k_ntt_p2_gather_sp` whose tile load reads
+  `r[t * nqp + base + jc]` out of that compact block instead of
+  gathering `r[t * NTT_BLK + qlist[base + jc]]` out of the full row. The
+  value at that address is the same by the producer's store. Everything
+  after the load — twiddles, operand pairs, stage order, the `sel`
+  lookup, the output store — is the dense kernel's, byte for byte. The
+  compact read is also CONTIGUOUS in `jc` where the old one was a
+  scatter.
+
+Switch `HL_GPU_P1_COMPACT=0` restores the pair lane AO left. The scratch
+buffer is unchanged in size (the compact block simply occupies its first
+`rows * nt * nqp` elements), so no allocation and no allocation counter
+moves. It is used only where the pruned residue list exists, i.e. only
+on the NON-hiding chunked opening; the hiding opening
+(`encode_rows_view_zk_gather`) is untouched and is the obvious follow-up.
+
+**Traffic** [COUNTED, printed by the bench], at 10,752 rows: the
+producer's stores fall from `rows * nn * 8` = 5.64 GB to
+`rows * nt * nqp * 8` = 0.35 GB, a **16.0x cut**; its reads (1.41 GB)
+are unchanged. Total global traffic for the kernel **7,046 -> 1,762 MB,
+4.0x**.
+
+**The A/B** [MEASURED] `results/fsp2_ab_c.log`, six processes
+A-B-C-C-B-A, best of 7, `nvidia-smi` 0 MiB before each. The per-kernel
+arms run BACK TO BACK IN ONE PROCESS (the bench launches each kernel by
+name, independently of the switch), which is why they are the stable
+measurement:
+
+| rows | `k_dit_p1_pad_s -> _c` (4 processes) | `k_ntt_p2_gather_sp -> _spc` | the pair | the four kernels |
+|---:|---|---|---|---|
+| 1,024 | 1.076 / 1.065 / 1.076 / 1.085 | 1.665 / 1.674 / 1.683 / 1.754 | 1.11-1.13 | **1.076** mean |
+| 3,584 | 1.061 / 1.038 / 1.002 / 1.077 | 1.727 / 1.633 / 1.652 / 1.918 | 1.04-1.13 | **1.058** mean |
+| **10,752** (the 8B W shape) | **1.240 / 1.228 / 1.232 / 1.270** | **2.162 / 2.209 / 2.194 / 2.225** | **1.287-1.327** | **1.162** mean |
+
+At the 8B W shape, in seconds: `k_dit_p1_pad_s` **0.0546 -> 0.0441**,
+`k_ntt_p2_gather_sp` **0.0062 -> 0.0028**, the pair **0.0609 -> 0.0469**
+(**1.30x**), the four re-encode kernels **0.1035 -> 0.0898**
+(**1.162x**, spread 3.4% over four processes).
+
+Both halves move, and the consumer moves more in ratio than the
+producer: its tile load was a SCATTER over the full encoded row and is
+now a contiguous read of the block the producer just wrote.
+
+**The gain grows with the row count** (1.076x at 1,024, 1.058x at 3,584,
+1.162x at 10,752 on the four kernels) because at small row counts the
+grid does not fill 36 SMs and the kernels are launch-latency bound, so
+removing traffic buys less. The 8B shape is the large end, which is the
+right end.
+
+### 2026-09-19 — stage 4: the host tail of `columns_chunked`
+
+Lane AO's item 2 has three parts. What this lane did with each:
+
+1. **The serial loop copying 2.75 M `Fp` into 256 `Vec<Fp>`** — DONE.
+   The `q` destinations are disjoint and each is a straight copy of a
+   contiguous run, so the split is now a `rayon` `par_iter_mut` over the
+   columns, each an `extend_from_slice` of the downloaded block
+   reinterpreted as `&[Fp]` (`Fp` is `#[repr(transparent)]` over `u64`,
+   asserted in the SAFETY comment). Duplicated indices still take their
+   slot from `out_slot`, so the returned columns are identical.
+2. **The unpooled 22 MB `cuMemAlloc` for the output block** — **NOT
+   DONE, AND THE FILE THAT BLOCKS IT IS NOT THIS LANE'S.** Pooling it
+   (`Pooled::take`) would add a third pooled scratch take and remove
+   `rows * cols_out * 8` from the raw-allocation total, and
+   `hashline/tests/zk60_gpu_commit.rs` asserts both exactly:
+   `expect_alloc(&p.alloc, 2, rc, rb, &tag)` in the positive-control
+   block — "the non-hiding opening: two scratch takes (coef, enc)" — plus
+   the raw byte figure from `planned_raw`. Pooling it turns that green
+   gate red. The brief forbids adjusting a gate and `tests/` is not this
+   lane's file, so the change is described and not made. It needs the
+   test's owner to move the expectation to three takes in the same
+   commit.
+3. **The 22 MB pageable download** — NOT DONE. `dtoh_sync_copy`
+   allocates a fresh `Vec` per call and copies through the driver's own
+   staging buffer; measured in isolation at 0.0146 s for 22 MB = 1.5
+   GB/s, against roughly 6 GB/s for a pinned copy. `PinBuf` already
+   exists in this file but there is no d2h pin cache, and a fresh
+   `cuMemHostAlloc` of 22 MB per call would eat the win. It needs a
+   small pinned-download pool, which is a clean follow-up but not a
+   one-liner.
+
+**The host tail could not be MEASURED in this session, and the reason is
+worth recording.** In the six-process A/B run, `columns_chunked`
+end-to-end at 10,752 rows came out 0.100 / 0.147 s in the two identical
+arm-A processes — a **47% within-arm spread** — while the per-kernel
+timings in the very same processes held to 3%. The bench allocates a
+1.41 GB host vector per process at that shape on a 15 GB box, six times
+in a row; the host side of the call (a 22 MB pageable download, a 22 MB
+split, 256 vector allocations) is what that pressure hits. So the
+end-to-end arm of this A/B carries no signal and this lane does not
+quote one. The kernel A/B, taken back to back inside one process, does.
+The parallel split is byte-identical and strictly less host work, and is
+kept on that basis with **no measured gain** [NOT MEASURED].
+
+### 2026-09-19 — stage 5: the gates after the change, and what it is worth
+
+**Every gate green on the changed tree** (defaults: swizzles OFF, compact
+pair ON, parallel split in):
+
+* `gpu-probe` oracles, twice (`results/fsp2_oracles_s3.log`,
+  `results/fsp2_oracles_s3b.log`): field probe 0 mismatches, **blake3
+  checks GREEN**, **ntt checks GREEN**, **chunked-commit checks GREEN**
+  at all fifteen shapes — including the six with `log_nn > NTT_LOG_BLK`
+  that actually exercise the new pair, at inverse rates 2, 4 and 8
+  (rb = 1, 2, 3). That oracle compares the RE-ENCODED OPENING COLUMNS
+  against the CPU encoding element for element, which is the direct
+  check on both new kernels.
+* **The twelve byte gates GREEN** (`results/fsp2_floors_s3.log`,
+  exit 0): the same four digests at the same four byte counts on the CPU
+  binary, the GPU binary, and the GPU binary with the chunked path
+  forced.
+* `cargo test --release --features gpu-cuda --test zk60_gpu_commit`:
+  **34 passed, 0 failed** — this is the file that asserts the opening's
+  ALLOCATION ACCOUNTING (`expect_alloc(&p.alloc, 2, rc, rb, ...)`), so it
+  also confirms the compact pair moves no allocation.
+* `cargo test --release` (CPU, baseline run): 202/202.
+
+A process note: the first attempt at the device tests exported `HL_GPU=1`
+over the WHOLE suite, and `zk60_attention_schedule` is a CPU gate that
+asserts `HL_GPU` is unset — `cargo test` then stopped at that target and
+never reached the device tests. `results/fsp2_oracles.sh` now names the
+device test targets instead. The failure was the script's, not the
+tree's; the CPU suite run (`HL_GPU` unset) has that test passing.
+
+**What it is worth on the 8B pass** [COUNTED — this lane does not run
+the 8B pass and makes no measured claim about it].
+
+The 58.40 s public-IO 8B feed-forward prove spends **13.826 s** in the
+opening's re-encode (`results/hashline_convert_gpu.md` §7). On a quiet
+box the four re-encode kernels are 92% of `columns_chunked`
+(0.0906 of 0.0979 at the W shape). The four kernels improve **1.162x**
+at the 8B W row count and **1.06-1.08x** at the smaller row counts the A
+and H openings use. So:
+
+* upper end (all three openings behave like W): 13.826 x 0.92 x
+  (1 - 1/1.162) = **1.77 s**;
+* lower end (the small-shape ratio throughout): 13.826 x 0.92 x
+  (1 - 1/1.07) = **0.83 s**.
+
+**About 0.8-1.8 s off the 58.40 s, i.e. 1.014x-1.031x** [COUNTED]. The
+commit's 13.877 s encode is **not** helped: the commit needs every
+column, so the compact store does not apply to it.
+
+**Two honesty qualifications on that arithmetic.** First, the 13.826 s
+itself was measured on 2026-09-04 under the same loaded-box conditions
+that made lane AO's kernel table 1.8-2.3x pessimistic, so the true
+absolute saving on a quiet box is probably smaller in seconds even
+though the ratio holds. Second, `ZK60_FIVE_SECOND_PLAN.md` §5 step 3
+counts **-7 s** for this lane's three items. The measured answer is
+**-0.8 to -1.8 s from a mechanism the plan did not name**, and **zero
+from the two the plan did name** (the bank conflicts are a regression;
+`k_dif_pb` is already at 66-77% of the roof). Step 3 of that ladder
+should be re-priced.
+
+**What is left here, in order of what the counters now say:**
+
+1. **The same compact pair for the HIDING opening.**
+   `encode_rows_view_zk_gather` has the identical producer/consumer
+   shape and CL7 already gave it the pruned kernel; it would take the
+   same `k_dit_p1_pad_c` treatment, byte-gated by the two ZK digests.
+   This is the tier the product needs and it is the cheapest remaining
+   item in this file.
+2. **The pinned download + the pooled output buffer** in
+   `columns_chunked`'s tail (the latter blocked on a test file this lane
+   does not own — see stage 4).
+3. **`k_dit_p1_pad_c` is still the largest kernel** (0.0441 of 0.0898 =
+   49% of the four) at about 57 GB/s of real traffic now that its stores
+   are gone. It is no longer a bandwidth story at all: at 1.76 GB in
+   0.0441 s it is 16% of the memory roof and 80e9 butterfly/s. The next
+   lever on it is the per-butterfly instruction count (the Goldilocks
+   reduction's three branches, the twiddle load, the index arithmetic),
+   or a radix-4 stage pairing that halves the shared traffic and the
+   barriers. Neither is a small change.
+4. **The COMMIT's encode** (13.877 s of the 8B pass) is untouched by any
+   of this and is now the larger of the two transform phases.

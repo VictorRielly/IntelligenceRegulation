@@ -1,0 +1,405 @@
+=== ARM base (HL_GPU_SMEM_SWZ/_PB = 0) ===
+2026-09-19 10:54:48
+0 MiB
+gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AO] L9 re-encode bench: rows 1024 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 8 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.01489 s  (the opening's call; 43.95 e9 bf/s over 0.654 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.00138 s    6.92% of the four     12.19 e9 bf/s    195.1 GB/s
+[UPERF3-AO]   k_dif_pb           0.00287 s   14.44% of the four     35.07 e9 bf/s     93.5 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.01019 s   51.24% of the four     39.53 e9 bf/s     65.9 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.00545 s   27.40% of the four     24.64 e9 bf/s     98.9 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.00622 s   31.31% of the four     21.57 e9 bf/s    172.5 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00013 s    0.65% of the four      0.00 e9 bf/s   4180.4 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.00131 s    6.57% of the four     12.85 e9 bf/s    205.6 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.00845 s   42.50% of the four     39.71 e9 bf/s     79.4 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.00432 s   21.72% of the four     31.09 e9 bf/s    124.8 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.00634 s   31.90% of the four     21.17 e9 bf/s    169.3 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.00138 -> 0.00131 s   1.054x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.01019 -> 0.00845 s   1.206x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.00545 -> 0.00432 s   1.262x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.00622 -> 0.00634 s   0.981x
+[UPERF3-AO]   A/B four kernels       base 0.01988 -> 0.01694 s   1.173x
+[UPERF3-AO]   --- lever L9 rung 3, the output-pruned last stage group ---
+[UPERF3-AO]   k_ntt_p2_gather_sp 0.00085 s over 244 distinct residues of 4096 (6.0% of the dense axis)
+[UPERF3-AO]   A/B p2_gather_f -> sp  base 0.00432 -> 0.00085 s   5.065x
+[UPERF3-AO]   A/B four kernels (sp)  base 0.01988 -> 0.01348 s   1.475x
+[FSP-L9]   --- the swizzled shared layout on the two contiguous-tile kernels ---
+[UPERF3-AO]   k_dit_p1_pad_sz    0.00932 s   46.87% of the four     36.02 e9 bf/s     72.0 GB/s
+[UPERF3-AO]   k_dif_pb_z         0.00312 s   15.68% of the four     32.29 e9 bf/s     86.1 GB/s
+[UPERF3-AO]   A/B p1_pad_s -> _sz    base 0.00845 -> 0.00932 s   0.907x
+[UPERF3-AO]   A/B dif_pb -> _z       base 0.00287 -> 0.00312 s   0.921x
+[UPERF3-AO]   A/B four kernels (sp+z) base 0.01348 -> 0.01459 s   0.924x
+[UPERF3-AO]   A/B four kernels inherited -> sp+z base 0.01988 -> 0.01459 s   1.362x
+[UPERF3-AO]   four kernels 0.01988 s | d2h 0.00058 s | columns_chunked 0.01489 s => launch/alloc/host residue -0.00557 s (-37.4%)
+[UPERF3-AO] L9 re-encode bench: rows 3584 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 28 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.05206 s  (the opening's call; 43.99 e9 bf/s over 2.290 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.00472 s    6.86% of the four     12.44 e9 bf/s    199.0 GB/s
+[UPERF3-AO]   k_dif_pb           0.00989 s   14.37% of the four     35.62 e9 bf/s     95.0 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.03549 s   51.56% of the four     39.71 e9 bf/s     66.2 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.01873 s   27.21% of the four     25.08 e9 bf/s    100.7 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.02173 s   31.56% of the four     21.62 e9 bf/s    173.0 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00039 s    0.57% of the four      0.00 e9 bf/s   4827.7 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.00448 s    6.51% of the four     13.11 e9 bf/s    209.8 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.02945 s   42.78% of the four     39.88 e9 bf/s     79.8 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.01447 s   21.02% of the four     32.46 e9 bf/s    130.4 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.02209 s   32.09% of the four     21.27 e9 bf/s    170.1 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.00472 -> 0.00448 s   1.054x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.03549 -> 0.02945 s   1.205x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.01873 -> 0.01447 s   1.294x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.02173 -> 0.02209 s   0.984x
+[UPERF3-AO]   A/B four kernels       base 0.06883 -> 0.05829 s   1.181x
+[UPERF3-AO]   --- lever L9 rung 3, the output-pruned last stage group ---
+[UPERF3-AO]   k_ntt_p2_gather_sp 0.00286 s over 244 distinct residues of 4096 (6.0% of the dense axis)
+[UPERF3-AO]   A/B p2_gather_f -> sp  base 0.01447 -> 0.00286 s   5.068x
+[UPERF3-AO]   A/B four kernels (sp)  base 0.06883 -> 0.04667 s   1.475x
+[FSP-L9]   --- the swizzled shared layout on the two contiguous-tile kernels ---
+[UPERF3-AO]   k_dit_p1_pad_sz    0.03254 s   47.27% of the four     36.09 e9 bf/s     72.2 GB/s
+[UPERF3-AO]   k_dif_pb_z         0.01075 s   15.62% of the four     32.78 e9 bf/s     87.4 GB/s
+[UPERF3-AO]   A/B p1_pad_s -> _sz    base 0.02945 -> 0.03254 s   0.905x
+[UPERF3-AO]   A/B dif_pb -> _z       base 0.00989 -> 0.01075 s   0.920x
+[UPERF3-AO]   A/B four kernels (sp+z) base 0.04667 -> 0.05062 s   0.922x
+[UPERF3-AO]   A/B four kernels inherited -> sp+z base 0.06883 -> 0.05062 s   1.360x
+[UPERF3-AO]   four kernels 0.06883 s | d2h 0.00133 s | columns_chunked 0.05206 s => launch/alloc/host residue -0.01811 s (-34.8%)
+[UPERF3-AO] L9 re-encode bench: rows 10752 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 84 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.12302 s  (the opening's call; 55.85 e9 bf/s over 6.870 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.01332 s    8.90% of the four     13.22 e9 bf/s    211.6 GB/s
+[UPERF3-AO]   k_dif_pb           0.02291 s   15.30% of the four     46.13 e9 bf/s    123.0 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.07608 s   50.80% of the four     55.57 e9 bf/s     92.6 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.03744 s   25.00% of the four     37.64 e9 bf/s    151.1 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.05698 s   38.05% of the four     24.73 e9 bf/s    197.9 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00096 s    0.64% of the four      0.00 e9 bf/s   5883.9 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.01295 s    8.65% of the four     13.61 e9 bf/s    217.7 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.05896 s   39.37% of the four     59.76 e9 bf/s    119.5 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.03116 s   20.81% of the four     45.22 e9 bf/s    181.6 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.04987 s   33.30% of the four     28.26 e9 bf/s    226.1 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.01332 -> 0.01295 s   1.029x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.07608 -> 0.05896 s   1.290x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.03744 -> 0.03116 s   1.201x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.05698 -> 0.04987 s   1.143x
+[UPERF3-AO]   A/B four kernels       base 0.14975 -> 0.12598 s   1.189x
+[UPERF3-AO]   --- lever L9 rung 3, the output-pruned last stage group ---
+[UPERF3-AO]   k_ntt_p2_gather_sp 0.00619 s over 244 distinct residues of 4096 (6.0% of the dense axis)
+[UPERF3-AO]   A/B p2_gather_f -> sp  base 0.03116 -> 0.00619 s   5.034x
+[UPERF3-AO]   A/B four kernels (sp)  base 0.14975 -> 0.10101 s   1.483x
+[FSP-L9]   --- the swizzled shared layout on the two contiguous-tile kernels ---
+[UPERF3-AO]   k_dit_p1_pad_sz    0.06089 s   40.66% of the four     57.86 e9 bf/s    115.7 GB/s
+[UPERF3-AO]   k_dif_pb_z         0.02434 s   16.25% of the four     43.43 e9 bf/s    115.8 GB/s
+[UPERF3-AO]   A/B p1_pad_s -> _sz    base 0.05896 -> 0.06089 s   0.968x
+[UPERF3-AO]   A/B dif_pb -> _z       base 0.02291 -> 0.02434 s   0.941x
+[UPERF3-AO]   A/B four kernels (sp+z) base 0.10101 -> 0.10436 s   0.968x
+[UPERF3-AO]   A/B four kernels inherited -> sp+z base 0.14975 -> 0.10436 s   1.435x
+[UPERF3-AO]   four kernels 0.14975 s | d2h 0.00247 s | columns_chunked 0.12302 s => launch/alloc/host residue -0.02920 s (-23.7%)
+gpu-probe: NVIDIA GeForce RTX 4070 Laptop GPU — 1048576 pairs (incl. edge values): mul/add/sub mismatches 0 ; 0.2 G mul/s (the 3-op kernel, 50 launches)
+gpu-probe: blake3 checks GREEN (322 row counts x 64 columns; 0 failing)
+gpu-probe: ntt checks GREEN
+gpu-probe: chunked-commit checks GREEN
+=== ARM lane (HL_GPU_SMEM_SWZ/_PB = 1) ===
+2026-09-19 10:55:11
+0 MiB
+gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AO] L9 re-encode bench: rows 1024 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 8 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.01276 s  (the opening's call; 51.27 e9 bf/s over 0.654 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.00131 s    8.55% of the four     12.83 e9 bf/s    205.4 GB/s
+[UPERF3-AO]   k_dif_pb           0.00213 s   13.96% of the four     47.17 e9 bf/s    125.8 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.00766 s   50.09% of the four     52.59 e9 bf/s     87.6 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.00419 s   27.40% of the four     32.05 e9 bf/s    128.7 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.00633 s   41.42% of the four     21.20 e9 bf/s    169.6 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00010 s    0.65% of the four      0.00 e9 bf/s   5390.4 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.00125 s    8.15% of the four     13.46 e9 bf/s    215.4 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.00635 s   41.54% of the four     52.85 e9 bf/s    105.7 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.00340 s   22.26% of the four     39.44 e9 bf/s    158.4 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.00640 s   41.88% of the four     20.96 e9 bf/s    167.7 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.00131 -> 0.00125 s   1.049x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.00766 -> 0.00635 s   1.206x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.00419 -> 0.00340 s   1.231x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.00633 -> 0.00640 s   0.989x
+[UPERF3-AO]   A/B four kernels       base 0.01529 -> 0.01313 s   1.164x
+[UPERF3-AO]   --- lever L9 rung 3, the output-pruned last stage group ---
+[UPERF3-AO]   k_ntt_p2_gather_sp 0.00078 s over 244 distinct residues of 4096 (6.0% of the dense axis)
+[UPERF3-AO]   A/B p2_gather_f -> sp  base 0.00340 -> 0.00078 s   4.387x
+[UPERF3-AO]   A/B four kernels (sp)  base 0.01529 -> 0.01050 s   1.455x
+[FSP-L9]   --- the swizzled shared layout on the two contiguous-tile kernels ---
+[UPERF3-AO]   k_dit_p1_pad_sz    0.00708 s   46.31% of the four     47.40 e9 bf/s     94.8 GB/s
+[UPERF3-AO]   k_dif_pb_z         0.00235 s   15.37% of the four     42.85 e9 bf/s    114.3 GB/s
+[UPERF3-AO]   A/B p1_pad_s -> _sz    base 0.00635 -> 0.00708 s   0.897x
+[UPERF3-AO]   A/B dif_pb -> _z       base 0.00213 -> 0.00235 s   0.908x
+[UPERF3-AO]   A/B four kernels (sp+z) base 0.01050 -> 0.01145 s   0.917x
+[UPERF3-AO]   A/B four kernels inherited -> sp+z base 0.01529 -> 0.01145 s   1.335x
+[UPERF3-AO]   four kernels 0.01529 s | d2h 0.00049 s | columns_chunked 0.01276 s => launch/alloc/host residue -0.00301 s (-23.6%)
+[UPERF3-AO] L9 re-encode bench: rows 3584 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 28 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.04560 s  (the opening's call; 50.22 e9 bf/s over 2.290 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.00445 s    8.16% of the four     13.19 e9 bf/s    211.1 GB/s
+[UPERF3-AO]   k_dif_pb           0.00758 s   13.90% of the four     46.49 e9 bf/s    124.0 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.02726 s   50.01% of the four     51.69 e9 bf/s     86.2 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.01522 s   27.92% of the four     30.86 e9 bf/s    123.9 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.02203 s   40.41% of the four     21.32 e9 bf/s    170.6 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00039 s    0.72% of the four      0.00 e9 bf/s   4812.7 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.00428 s    7.86% of the four     13.70 e9 bf/s    219.3 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.02292 s   42.05% of the four     51.23 e9 bf/s    102.5 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.01228 s   22.52% of the four     38.26 e9 bf/s    153.6 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.02230 s   40.91% of the four     21.07 e9 bf/s    168.5 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.00445 -> 0.00428 s   1.039x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.02726 -> 0.02292 s   1.189x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.01522 -> 0.01228 s   1.240x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.02203 -> 0.02230 s   0.988x
+[UPERF3-AO]   A/B four kernels       base 0.05451 -> 0.04706 s   1.158x
+[UPERF3-AO]   --- lever L9 rung 3, the output-pruned last stage group ---
+[UPERF3-AO]   k_ntt_p2_gather_sp 0.00273 s over 244 distinct residues of 4096 (6.0% of the dense axis)
+[UPERF3-AO]   A/B p2_gather_f -> sp  base 0.01228 -> 0.00273 s   4.504x
+[UPERF3-AO]   A/B four kernels (sp)  base 0.05451 -> 0.03751 s   1.453x
+[FSP-L9]   --- the swizzled shared layout on the two contiguous-tile kernels ---
+[UPERF3-AO]   k_dit_p1_pad_sz    0.02522 s   46.27% of the four     46.56 e9 bf/s     93.1 GB/s
+[UPERF3-AO]   k_dif_pb_z         0.00817 s   14.98% of the four     43.14 e9 bf/s    115.0 GB/s
+[UPERF3-AO]   A/B p1_pad_s -> _sz    base 0.02292 -> 0.02522 s   0.909x
+[UPERF3-AO]   A/B dif_pb -> _z       base 0.00758 -> 0.00817 s   0.928x
+[UPERF3-AO]   A/B four kernels (sp+z) base 0.03751 -> 0.04040 s   0.929x
+[UPERF3-AO]   A/B four kernels inherited -> sp+z base 0.05451 -> 0.04040 s   1.349x
+[UPERF3-AO]   four kernels 0.05451 s | d2h 0.00137 s | columns_chunked 0.04560 s => launch/alloc/host residue -0.01028 s (-22.5%)
+[UPERF3-AO] L9 re-encode bench: rows 10752 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 84 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.14678 s  (the opening's call; 46.81 e9 bf/s over 6.870 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.01378 s    7.64% of the four     12.78 e9 bf/s    204.5 GB/s
+[UPERF3-AO]   k_dif_pb           0.02772 s   15.37% of the four     38.13 e9 bf/s    101.7 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.10280 s   57.00% of the four     41.13 e9 bf/s     68.5 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.03603 s   19.98% of the four     39.11 e9 bf/s    157.0 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.04907 s   27.21% of the four     28.72 e9 bf/s    229.7 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00109 s    0.60% of the four      0.00 e9 bf/s   5214.5 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.01322 s    7.33% of the four     13.33 e9 bf/s    213.2 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.05605 s   31.08% of the four     62.85 e9 bf/s    125.7 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.03012 s   16.70% of the four     46.79 e9 bf/s    187.9 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.04990 s   27.67% of the four     28.24 e9 bf/s    225.9 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.01378 -> 0.01322 s   1.043x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.10280 -> 0.05605 s   1.834x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.03603 -> 0.03012 s   1.196x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.04907 -> 0.04990 s   0.983x
+[UPERF3-AO]   A/B four kernels       base 0.18034 -> 0.12711 s   1.419x
+[UPERF3-AO]   --- lever L9 rung 3, the output-pruned last stage group ---
+[UPERF3-AO]   k_ntt_p2_gather_sp 0.00617 s over 244 distinct residues of 4096 (6.0% of the dense axis)
+[UPERF3-AO]   A/B p2_gather_f -> sp  base 0.03012 -> 0.00617 s   4.881x
+[UPERF3-AO]   A/B four kernels (sp)  base 0.18034 -> 0.10316 s   1.748x
+[FSP-L9]   --- the swizzled shared layout on the two contiguous-tile kernels ---
+[UPERF3-AO]   k_dit_p1_pad_sz    0.05981 s   33.17% of the four     58.91 e9 bf/s    117.8 GB/s
+[UPERF3-AO]   k_dif_pb_z         0.03090 s   17.14% of the four     34.20 e9 bf/s     91.2 GB/s
+[UPERF3-AO]   A/B p1_pad_s -> _sz    base 0.05605 -> 0.05981 s   0.937x
+[UPERF3-AO]   A/B dif_pb -> _z       base 0.02772 -> 0.03090 s   0.897x
+[UPERF3-AO]   A/B four kernels (sp+z) base 0.10316 -> 0.11010 s   0.937x
+[UPERF3-AO]   A/B four kernels inherited -> sp+z base 0.18034 -> 0.11010 s   1.638x
+[UPERF3-AO]   four kernels 0.18034 s | d2h 0.01723 s | columns_chunked 0.14678 s => launch/alloc/host residue -0.05080 s (-34.6%)
+gpu-probe: NVIDIA GeForce RTX 4070 Laptop GPU — 1048576 pairs (incl. edge values): mul/add/sub mismatches 0 ; 4.7 G mul/s (the 3-op kernel, 50 launches)
+gpu-probe: blake3 checks GREEN (322 row counts x 64 columns; 0 failing)
+gpu-probe: ntt checks GREEN
+gpu-probe: chunked-commit checks GREEN
+=== ARM lane (HL_GPU_SMEM_SWZ/_PB = 1) ===
+2026-09-19 10:55:26
+0 MiB
+gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AO] L9 re-encode bench: rows 1024 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 8 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.01154 s  (the opening's call; 56.69 e9 bf/s over 0.654 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.00127 s    9.55% of the four     13.21 e9 bf/s    211.4 GB/s
+[UPERF3-AO]   k_dif_pb           0.00191 s   14.32% of the four     52.83 e9 bf/s    140.9 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.00679 s   51.02% of the four     59.33 e9 bf/s     98.9 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.00334 s   25.11% of the four     40.18 e9 bf/s    161.3 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.00638 s   47.98% of the four     21.03 e9 bf/s    168.2 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00009 s    0.68% of the four      0.00 e9 bf/s   5990.2 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.00122 s    9.16% of the four     13.77 e9 bf/s    220.3 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.00566 s   42.53% of the four     59.31 e9 bf/s    118.6 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.00316 s   23.73% of the four     42.52 e9 bf/s    170.7 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.00634 s   47.66% of the four     21.17 e9 bf/s    169.3 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.00127 -> 0.00122 s   1.042x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.00679 -> 0.00566 s   1.200x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.00334 -> 0.00316 s   1.058x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.00638 -> 0.00634 s   1.007x
+[UPERF3-AO]   A/B four kernels       base 0.01330 -> 0.01194 s   1.114x
+[UPERF3-AO]   --- lever L9 rung 3, the output-pruned last stage group ---
+[UPERF3-AO]   k_ntt_p2_gather_sp 0.00076 s over 244 distinct residues of 4096 (6.0% of the dense axis)
+[UPERF3-AO]   A/B p2_gather_f -> sp  base 0.00316 -> 0.00076 s   4.133x
+[UPERF3-AO]   A/B four kernels (sp)  base 0.01330 -> 0.00954 s   1.394x
+[FSP-L9]   --- the swizzled shared layout on the two contiguous-tile kernels ---
+[UPERF3-AO]   k_dit_p1_pad_sz    0.00597 s   44.87% of the four     56.22 e9 bf/s    112.4 GB/s
+[UPERF3-AO]   k_dif_pb_z         0.00206 s   15.51% of the four     48.78 e9 bf/s    130.1 GB/s
+[UPERF3-AO]   A/B p1_pad_s -> _sz    base 0.00566 -> 0.00597 s   0.948x
+[UPERF3-AO]   A/B dif_pb -> _z       base 0.00191 -> 0.00206 s   0.923x
+[UPERF3-AO]   A/B four kernels (sp+z) base 0.00954 -> 0.01001 s   0.953x
+[UPERF3-AO]   A/B four kernels inherited -> sp+z base 0.01330 -> 0.01001 s   1.328x
+[UPERF3-AO]   four kernels 0.01330 s | d2h 0.00051 s | columns_chunked 0.01154 s => launch/alloc/host residue -0.00227 s (-19.7%)
+[UPERF3-AO] L9 re-encode bench: rows 3584 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 28 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.03694 s  (the opening's call; 62.00 e9 bf/s over 2.290 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.00422 s    9.96% of the four     13.92 e9 bf/s    222.6 GB/s
+[UPERF3-AO]   k_dif_pb           0.00550 s   12.97% of the four     64.09 e9 bf/s    170.9 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.02113 s   49.87% of the four     66.69 e9 bf/s    111.2 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.01153 s   27.20% of the four     40.75 e9 bf/s    163.6 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.02232 s   52.67% of the four     21.05 e9 bf/s    168.4 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00030 s    0.71% of the four      0.00 e9 bf/s   6266.0 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.00410 s    9.68% of the four     14.32 e9 bf/s    229.1 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.01927 s   45.47% of the four     60.95 e9 bf/s    121.9 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.01105 s   26.08% of the four     42.51 e9 bf/s    170.7 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.02188 s   51.63% of the four     21.47 e9 bf/s    171.8 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.00422 -> 0.00410 s   1.029x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.02113 -> 0.01927 s   1.097x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.01153 -> 0.01105 s   1.043x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.02232 -> 0.02188 s   1.020x
+[UPERF3-AO]   A/B four kernels       base 0.04238 -> 0.03992 s   1.062x
+[UPERF3-AO]   --- lever L9 rung 3, the output-pruned last stage group ---
+[UPERF3-AO]   k_ntt_p2_gather_sp 0.00262 s over 244 distinct residues of 4096 (6.0% of the dense axis)
+[UPERF3-AO]   A/B p2_gather_f -> sp  base 0.01105 -> 0.00262 s   4.223x
+[UPERF3-AO]   A/B four kernels (sp)  base 0.04238 -> 0.03148 s   1.346x
+[FSP-L9]   --- the swizzled shared layout on the two contiguous-tile kernels ---
+[UPERF3-AO]   k_dit_p1_pad_sz    0.02102 s   49.60% of the four     55.87 e9 bf/s    111.7 GB/s
+[UPERF3-AO]   k_dif_pb_z         0.00636 s   15.01% of the four     55.38 e9 bf/s    147.7 GB/s
+[UPERF3-AO]   A/B p1_pad_s -> _sz    base 0.01927 -> 0.02102 s   0.917x
+[UPERF3-AO]   A/B dif_pb -> _z       base 0.00550 -> 0.00636 s   0.864x
+[UPERF3-AO]   A/B four kernels (sp+z) base 0.03148 -> 0.03410 s   0.923x
+[UPERF3-AO]   A/B four kernels inherited -> sp+z base 0.04238 -> 0.03410 s   1.243x
+[UPERF3-AO]   four kernels 0.04238 s | d2h 0.00130 s | columns_chunked 0.03694 s => launch/alloc/host residue -0.00674 s (-18.2%)
+[UPERF3-AO] L9 re-encode bench: rows 10752 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 84 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.10858 s  (the opening's call; 63.27 e9 bf/s over 6.870 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.01282 s    9.16% of the four     13.75 e9 bf/s    219.9 GB/s
+[UPERF3-AO]   k_dif_pb           0.01862 s   13.31% of the four     56.76 e9 bf/s    151.4 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.07139 s   51.02% of the four     59.23 e9 bf/s     98.7 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.03710 s   26.51% of the four     37.99 e9 bf/s    152.5 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.05697 s   40.72% of the four     24.74 e9 bf/s    197.9 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00098 s    0.70% of the four      0.00 e9 bf/s   5746.8 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.01253 s    8.96% of the four     14.06 e9 bf/s    224.9 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.06224 s   44.48% of the four     56.61 e9 bf/s    113.2 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.03095 s   22.12% of the four     45.53 e9 bf/s    182.8 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.04989 s   35.65% of the four     28.25 e9 bf/s    226.0 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.01282 -> 0.01253 s   1.023x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.07139 -> 0.06224 s   1.147x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.03710 -> 0.03095 s   1.199x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.05697 -> 0.04989 s   1.142x
+[UPERF3-AO]   A/B four kernels       base 0.13992 -> 0.12434 s   1.125x
+[UPERF3-AO]   --- lever L9 rung 3, the output-pruned last stage group ---
+[UPERF3-AO]   k_ntt_p2_gather_sp 0.00626 s over 244 distinct residues of 4096 (6.0% of the dense axis)
+[UPERF3-AO]   A/B p2_gather_f -> sp  base 0.03095 -> 0.00626 s   4.944x
+[UPERF3-AO]   A/B four kernels (sp)  base 0.13992 -> 0.09965 s   1.404x
+[FSP-L9]   --- the swizzled shared layout on the two contiguous-tile kernels ---
+[UPERF3-AO]   k_dit_p1_pad_sz    0.06150 s   43.96% of the four     57.28 e9 bf/s    114.6 GB/s
+[UPERF3-AO]   k_dif_pb_z         0.02057 s   14.70% of the four     51.38 e9 bf/s    137.0 GB/s
+[UPERF3-AO]   A/B p1_pad_s -> _sz    base 0.06224 -> 0.06150 s   1.012x
+[UPERF3-AO]   A/B dif_pb -> _z       base 0.01862 -> 0.02057 s   0.905x
+[UPERF3-AO]   A/B four kernels (sp+z) base 0.09965 -> 0.10087 s   0.988x
+[UPERF3-AO]   A/B four kernels inherited -> sp+z base 0.13992 -> 0.10087 s   1.387x
+[UPERF3-AO]   four kernels 0.13992 s | d2h 0.01660 s | columns_chunked 0.10858 s => launch/alloc/host residue -0.04794 s (-44.2%)
+gpu-probe: NVIDIA GeForce RTX 4070 Laptop GPU — 1048576 pairs (incl. edge values): mul/add/sub mismatches 0 ; 4.8 G mul/s (the 3-op kernel, 50 launches)
+gpu-probe: blake3 checks GREEN (322 row counts x 64 columns; 0 failing)
+gpu-probe: ntt checks GREEN
+gpu-probe: chunked-commit checks GREEN
+=== ARM base (HL_GPU_SMEM_SWZ/_PB = 0) ===
+2026-09-19 10:55:40
+0 MiB
+gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AO] L9 re-encode bench: rows 1024 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 8 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.01180 s  (the opening's call; 55.44 e9 bf/s over 0.654 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.00128 s    8.77% of the four     13.15 e9 bf/s    210.4 GB/s
+[UPERF3-AO]   k_dif_pb           0.00208 s   14.32% of the four     48.30 e9 bf/s    128.8 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.00739 s   50.81% of the four     54.47 e9 bf/s     90.8 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.00380 s   26.10% of the four     35.34 e9 bf/s    141.9 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.00636 s   43.69% of the four     21.11 e9 bf/s    168.9 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00010 s    0.66% of the four      0.00 e9 bf/s   5616.4 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.00124 s    8.50% of the four     13.57 e9 bf/s    217.2 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.00603 s   41.42% of the four     55.67 e9 bf/s    111.3 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.00318 s   21.89% of the four     42.15 e9 bf/s    169.2 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.00636 s   43.74% of the four     21.09 e9 bf/s    168.7 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.00128 -> 0.00124 s   1.032x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.00739 -> 0.00603 s   1.227x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.00380 -> 0.00318 s   1.193x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.00636 -> 0.00636 s   0.999x
+[UPERF3-AO]   A/B four kernels       base 0.01455 -> 0.01253 s   1.161x
+[UPERF3-AO]   --- lever L9 rung 3, the output-pruned last stage group ---
+[UPERF3-AO]   k_ntt_p2_gather_sp 0.00077 s over 244 distinct residues of 4096 (6.0% of the dense axis)
+[UPERF3-AO]   A/B p2_gather_f -> sp  base 0.00318 -> 0.00077 s   4.114x
+[UPERF3-AO]   A/B four kernels (sp)  base 0.01455 -> 0.01012 s   1.438x
+[FSP-L9]   --- the swizzled shared layout on the two contiguous-tile kernels ---
+[UPERF3-AO]   k_dit_p1_pad_sz    0.00660 s   45.33% of the four     50.87 e9 bf/s    101.7 GB/s
+[UPERF3-AO]   k_dif_pb_z         0.00227 s   15.62% of the four     44.31 e9 bf/s    118.1 GB/s
+[UPERF3-AO]   A/B p1_pad_s -> _sz    base 0.00603 -> 0.00660 s   0.914x
+[UPERF3-AO]   A/B dif_pb -> _z       base 0.00208 -> 0.00227 s   0.917x
+[UPERF3-AO]   A/B four kernels (sp+z) base 0.01012 -> 0.01088 s   0.930x
+[UPERF3-AO]   A/B four kernels inherited -> sp+z base 0.01455 -> 0.01088 s   1.338x
+[UPERF3-AO]   four kernels 0.01455 s | d2h 0.00051 s | columns_chunked 0.01180 s => launch/alloc/host residue -0.00326 s (-27.6%)
+[UPERF3-AO] L9 re-encode bench: rows 3584 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 28 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.03700 s  (the opening's call; 61.90 e9 bf/s over 2.290 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.00427 s    9.91% of the four     13.77 e9 bf/s    220.3 GB/s
+[UPERF3-AO]   k_dif_pb           0.00603 s   14.02% of the four     58.40 e9 bf/s    155.7 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.02153 s   50.02% of the four     65.47 e9 bf/s    109.1 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.01121 s   26.04% of the four     41.92 e9 bf/s    168.3 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.02226 s   51.74% of the four     21.10 e9 bf/s    168.8 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00029 s    0.68% of the four      0.00 e9 bf/s   6416.7 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.00416 s    9.67% of the four     14.12 e9 bf/s    225.9 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.01825 s   42.41% of the four     64.36 e9 bf/s    128.7 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.01098 s   25.52% of the four     42.78 e9 bf/s    171.8 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.02192 s   50.95% of the four     21.43 e9 bf/s    171.4 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.00427 -> 0.00416 s   1.026x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.02153 -> 0.01825 s   1.180x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.01121 -> 0.01098 s   1.020x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.02226 -> 0.02192 s   1.016x
+[UPERF3-AO]   A/B four kernels       base 0.04303 -> 0.03942 s   1.092x
+[UPERF3-AO]   --- lever L9 rung 3, the output-pruned last stage group ---
+[UPERF3-AO]   k_ntt_p2_gather_sp 0.00259 s over 244 distinct residues of 4096 (6.0% of the dense axis)
+[UPERF3-AO]   A/B p2_gather_f -> sp  base 0.01098 -> 0.00259 s   4.234x
+[UPERF3-AO]   A/B four kernels (sp)  base 0.04303 -> 0.03103 s   1.387x
+[FSP-L9]   --- the swizzled shared layout on the two contiguous-tile kernels ---
+[UPERF3-AO]   k_dit_p1_pad_sz    0.02005 s   46.59% of the four     58.58 e9 bf/s    117.2 GB/s
+[UPERF3-AO]   k_dif_pb_z         0.00644 s   14.97% of the four     54.69 e9 bf/s    145.9 GB/s
+[UPERF3-AO]   A/B p1_pad_s -> _sz    base 0.01825 -> 0.02005 s   0.910x
+[UPERF3-AO]   A/B dif_pb -> _z       base 0.00603 -> 0.00644 s   0.936x
+[UPERF3-AO]   A/B four kernels (sp+z) base 0.03103 -> 0.03324 s   0.934x
+[UPERF3-AO]   A/B four kernels inherited -> sp+z base 0.04303 -> 0.03324 s   1.294x
+[UPERF3-AO]   four kernels 0.04303 s | d2h 0.00132 s | columns_chunked 0.03700 s => launch/alloc/host residue -0.00735 s (-19.9%)
+[UPERF3-AO] L9 re-encode bench: rows 10752 log_n 14 -> log_nn 16 (inv_rate 4), q 256 (254 distinct), chunk 128 rows x 84 chunks, 512 threads/block, best of 7
+[UPERF3-AO]   columns_chunked  0.10076 s  (the opening's call; 68.18 e9 bf/s over 6.870 e9 butterflies)
+[UPERF3-AO]   k_dif_pa           0.01257 s    9.72% of the four     14.02 e9 bf/s    224.3 GB/s
+[UPERF3-AO]   k_dif_pb           0.01505 s   11.65% of the four     70.21 e9 bf/s    187.2 GB/s
+[UPERF3-AO]   k_dit_p1_pad       0.06659 s   51.52% of the four     63.49 e9 bf/s    105.8 GB/s
+[UPERF3-AO]   k_ntt_p2_gather    0.03503 s   27.10% of the four     40.23 e9 bf/s    161.5 GB/s
+[UPERF3-AO]   --- not in the fused path, for reference ---
+[UPERF3-AO]   k_ntt_p2           0.06641 s   51.38% of the four     21.22 e9 bf/s    169.8 GB/s
+[UPERF3-AO]   k_gather_cols_off  0.00098 s    0.76% of the four      0.00 e9 bf/s   5794.2 GB/s
+[UPERF3-AO]   --- lever L9 rung 2, both arms back to back ---
+[UPERF3-AO]   k_dif_pa_f         0.01226 s    9.49% of the four     14.37 e9 bf/s    229.9 GB/s
+[UPERF3-AO]   k_dit_p1_pad_s     0.05612 s   43.42% of the four     62.78 e9 bf/s    125.6 GB/s
+[UPERF3-AO]   k_ntt_p2_gather_f  0.03159 s   24.44% of the four     44.61 e9 bf/s    179.1 GB/s
+[UPERF3-AO]   k_ntt_p2_f         0.05665 s   43.83% of the four     24.88 e9 bf/s    199.0 GB/s
+[UPERF3-AO]   A/B k_dif_pa           base 0.01257 -> 0.01226 s   1.025x
+[UPERF3-AO]   A/B k_dit_p1_pad       base 0.06659 -> 0.05612 s   1.186x
+[UPERF3-AO]   A/B k_ntt_p2_gather    base 0.03503 -> 0.03159 s   1.109x
+[UPERF3-AO]   A/B k_ntt_p2           base 0.06641 -> 0.05665 s   1.172x
+[UPERF3-AO]   A/B four kernels       base 0.12924 -> 0.11503 s   1.124x
+[UPERF3-AO]   --- lever L9 rung 3, the output-pruned last stage group ---
+[UPERF3-AO]   k_ntt_p2_gather_sp 0.00627 s over 244 distinct residues of 4096 (6.0% of the dense axis)
+[UPERF3-AO]   A/B p2_gather_f -> sp  base 0.03159 -> 0.00627 s   5.038x
+[UPERF3-AO]   A/B four kernels (sp)  base 0.12924 -> 0.08971 s   1.441x
+[FSP-L9]   --- the swizzled shared layout on the two contiguous-tile kernels ---
+[UPERF3-AO]   k_dit_p1_pad_sz    0.06016 s   46.55% of the four     58.56 e9 bf/s    117.1 GB/s
+[UPERF3-AO]   k_dif_pb_z         0.01850 s   14.31% of the four     57.14 e9 bf/s    152.4 GB/s
+[UPERF3-AO]   A/B p1_pad_s -> _sz    base 0.05612 -> 0.06016 s   0.933x
+[UPERF3-AO]   A/B dif_pb -> _z       base 0.01505 -> 0.01850 s   0.814x
+[UPERF3-AO]   A/B four kernels (sp+z) base 0.08971 -> 0.09719 s   0.923x
+[UPERF3-AO]   A/B four kernels inherited -> sp+z base 0.12924 -> 0.09719 s   1.330x
+[UPERF3-AO]   four kernels 0.12924 s | d2h 0.01306 s | columns_chunked 0.10076 s => launch/alloc/host residue -0.04154 s (-41.2%)
+gpu-probe: NVIDIA GeForce RTX 4070 Laptop GPU — 1048576 pairs (incl. edge values): mul/add/sub mismatches 0 ; 4.8 G mul/s (the 3-op kernel, 50 launches)
+gpu-probe: blake3 checks GREEN (322 row counts x 64 columns; 0 failing)
+gpu-probe: ntt checks GREEN
+gpu-probe: chunked-commit checks GREEN
+=== A/B DONE ===
