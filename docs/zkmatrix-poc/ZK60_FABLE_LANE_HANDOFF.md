@@ -135,11 +135,21 @@ failures are reported, not patched); (2) its review request R-1, the
 pair-schedule rank and CFS slot checks regenerated on the layout it
 actually declares (306/290 rows, 75/35 sites, 18 slots); (3) its request
 R-2, the no-wraparound bounds, isqrt/softmax exactness and the
-extension-round premise per slot. Results will be pushed on that branch
-with a review disposition; Codex need not repeat the compile pass. The
-delivery's deviations from the construction (single U8 table, softmax
-degree 4, no W commitment under P1, module-local row numbering, extra
-refusals) are under review and not yet accepted.
+extension-round premise per slot. **Done and pushed (`zk60-attention-compile`, three commits):** the delivery
+compiled with zero fixes; 11 unit + 4 integration + 1 doc tests pass; the
+example proves in 0.09 s (2,245,800-byte receipt) and verifies in a fresh
+process with three refusals; R-1 regenerated on the declared layout gives
+disclosed 0 on A, every group and each endpoint, H residual = the public
+identity, all 18 slots and 5 host groups pass the CFS criterion, 11 rank
+and 7 CFS negative controls fire, and every derived count matches the
+note (29/29); R-2 holds (all bounds < 2^49, exact limbs, isqrt/softmax
+pinned, extension premise mechanically verified) with eight cosmetic flags.
+Disposition: `ZK60_PRIVATE_ATTENTION_NATIVE_DISPOSITION.md` accepts the
+deviations (single U8 table, degree-4 softmax, no W under P1, module-local
+rows, extra refusals) as the experimental component; it is not a block
+(norm_m, FFN seams, residual 2 remain) and not whole-proof privacy. Codex:
+integrate, the three cosmetic follow-ups, and a schema-3 capture writer so
+the round-2 joint tools run on its real receipts.
 
 ## 4. Relation to the zkVM loop of 2026-09-17
 
