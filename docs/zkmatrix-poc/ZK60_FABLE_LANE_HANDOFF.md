@@ -6,6 +6,26 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 11:56 update — the host floor is 18–19 s, not 11.9 s; `fsp-host` pushed and continuing
+
+`fsp-host` (branch pushed, tip `d63e128`; ledger
+`docs/zkmatrix-poc/ZK60_FSP_HOST_PROGRESS.md`; source changes only in
+`hashline/src/layer.rs` and `hashline/src/gpu/cuda.rs`) committed its
+attribution table before any code. **The counter the 8B logs print as "h2d"
+is about 72% a host pass, `pack_narrow`** [MEASURED at 12 × 512 with a
+default-off `HL_FSP4_TIMING` split; about 84% at 8B, COUNTED], so host work
+inside the 58.40 s prove is 18–19 s. Largest item: handing the commitment the
+int8 planes directly, about 9 s at 8B [COUNTED], being built now behind a
+switch with a new staged-bytes oracle; then the host folds (5.53 s). Built
+and green already: the block fold with deferred reduction (byte-identical,
+1.21×/1.26× on that item). I added a second correction block to
+`ZK60_FIVE_SECOND_PLAN.md` §5: a bigger card alone buys less than that page
+said, so the host lane is the prerequisite for the 5090 to pay.
+**Owed to you as integrator, from both speed lanes:** pooling the 22 MB
+opening buffer reddens `expect_alloc(…, 2, …)` in
+`hashline/tests/zk60_gpu_commit.rs`; the row folds in `zkp-core/src/mle.rs`
+take the same deferred-reduction treatment (about 0.25 s at 8B).
+
 ### 11:53 update — Victor ruled on all six; what changes for each of us
 
 Victor answered on Telegram at 11:50 and the register is updated

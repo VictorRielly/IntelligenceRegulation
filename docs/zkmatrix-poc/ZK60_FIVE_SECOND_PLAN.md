@@ -630,6 +630,42 @@ distinguishes them, and it costs one detached job.**
 
 ## 5. The integrated plan to five seconds
 
+> **SECOND CORRECTION, FROM THE HOST-FLOOR LANE (orchestrator, 2026-09-19
+> 11:56). The host floor is 18–19 s of the 58.40 s, not 11.9 s, and step 4
+> is worth more than this page says.** Lane `fsp-host` (branch `fsp-host`,
+> pushed; ledger `ZK60_FSP_HOST_PROGRESS.md`) started from an all-green floor
+> and committed an attribution table **before writing any code**. It
+> re-derived the 8B host seconds item by item from the 58.40 s run's own
+> verbose lines, reconciling to the recorded 11.92 s, and then split the
+> counter this page calls "h2d 8.6 s" with a default-off timer: **72% of
+> that counter is a host pass, `pack_narrow`**, that packs the converted
+> 64-bit vector for upload [MEASURED at 12 × 512 over 24 uploads], about 84%
+> at the 8B shape [COUNTED]. So 6.2–7.2 s that every table on this page
+> filed under "device" is host work. The items, at 8B: the packing pass
+> 6.2–7.2 s [COUNTED]; matmul folds 5.53 s; conversion fill 2.74 s; commit
+> host residual 1.13 s; helpers + H host work 1.25 s; conversion allocation
+> 0.76 s; openings host tail 0.50 s. **Step 4's item (a)** — hand the
+> commitment the int8 planes directly — removes the fill and the allocation
+> and cuts the packing traffic about 4.5×: **about 9 s, not 3 s** [COUNTED].
+> Item (b), the host folds, is real at 5.53 s. Item (c), the 22 MB pool, is
+> real but small (the whole openings host tail is 0.50 s). The plan had
+> missed the packing pass, the commit residual and the H-phase host work.
+> **Built so far** (byte-identical; all twelve byte gates, every oracle and
+> 202 tests green before and after): the matmul block fold with the modular
+> reduction deferred — 1.21× on the GPU binary and 1.26× on the CPU binary
+> for that item at 12 × 512, every new-arm run below every old-arm run, on a
+> loaded box; counted 1.0–1.25 s at 8B. Item (a) is being built now.
+>
+> **What this does to the verdict.** It cuts both ways, and both matter.
+> *For this laptop*: more of the 58 s is reachable by software than this page
+> assumed — if item (a) and the folds deliver, the pass lands nearer **45 s**
+> than 58 s before any hardware [COUNTED]. *For the 5090*: the ceiling
+> argument in §4 used 11.9 s of host work; with 18–19 s, **a bigger card
+> alone buys less than §4.3 says** (device work is ~40 s, not ~46 s, and the
+> host share it cannot touch is larger) — which makes the host lane the
+> prerequisite for the card to pay, not an optional polish. The 10–15 s
+> projection for a 5090 stands only **after** the host work lands.
+
 > **CORRECTION FROM THE FIRST LANE THAT TESTED THIS PLAN (orchestrator,
 > 2026-09-19 11:18). Step 3 below is worth about 1–2 s, not 7 s, and step 1
 > is now in doubt for the same reason.** Lane `fsp-l9` (branch `fsp-l9`,
