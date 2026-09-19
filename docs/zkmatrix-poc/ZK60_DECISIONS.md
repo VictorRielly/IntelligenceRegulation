@@ -16,12 +16,15 @@ back. Keep this file short enough to read in five minutes.
 | D4 | Groth16 trusted setup accepted for soundness of the zkVM intermediate's public artifact | **accepted** | 2026-09-18 | Victor |
 | D5 | Public receipt kind: Groth16 only; composite never public; succinct is experimental evidence only | **decided (security review)** | 2026-09-18 | Fable disposition + Codex source review |
 | D6 | Groth16 proving path on this box: native tools extracted from the official prover image, digests pinned (Docker absent) | **in progress** | 2026-09-18 | Codex (implementation) |
-| D7 | New endpoint and weight identity profile for the zkVM route (salted SHA-256 commitments in a fixed journal; old PCS roots not compatible) | **implemented, ruling pending** | 2026-09-18 | Codex implemented; Victor to accept as the P1 statement |
+| D7 | New endpoint and weight identity profile for the zkVM route (salted SHA-256 commitments in a fixed journal; old PCS roots not compatible) | **accepted as the P1 statement of the zkVM line, with three recorded qualifiers**; the model approval record is still to be written | 2026-09-19 | Victor (Telegram 11:50); Codex implemented |
 | D8 | Custom line, caller-fixed endpoint roots: obligation stands; the "two programmed points" closure is retracted for roots with any prior public opening | **corrected** | 2026-09-18 | Codex review; accepted by the security owner |
-| D9 | Reduction-bias term of `fp()` challenge draws on the custom line (about 2^-75 at A00): accept as stated, or re-freeze fixtures with rejection sampling | **pending** | since 2026-09-15 | Victor |
-| D10 | Compact-PCS proof-size lever on the custom line (95–98 bits instead of 106) | **pending** | since 2026-09-03 | Victor |
+| D9 | Reduction-bias term of the prover's mask and pad draws on the custom line (about 2^-75 at the tiny shape, 2^-72 at 8B): accept as stated, or re-freeze fixtures with rejection sampling | **accepted as stated** | 2026-09-19 | Victor (Telegram 11:50) |
+| D10 | Compact-PCS proof-size lever on the custom line (95–98 bits instead of 106) | **declined: keep the Ligero-class commitment**; the free Merkle cap may be built | 2026-09-19 | Victor (Telegram 11:50, phrased as a question and confirmed back to him) |
 | D11 | D8's proposed reduction to empty history is not established by a consuming owner; prior authentication/hash history remains in scope | **technical correction** | 2026-09-18 | Codex native reproduction and independent review |
 | D12 | Composed private block on the custom line: one proof, one transcript, two external endpoints; no commitment opened twice; hidden intermediates never get a shared caller-fixed endpoint; the second norm's int8 range proof is mandatory | **construction rule (restrictive; not a privacy acceptance)** | 2026-09-19 | Security owner (Fable), from the composition gap inventory |
+| D13 | What the first MVP must prove: the hidden transformer blocks are enough; generating a token (embedding, final norm, head, token selection) is the next milestone | **decided** | 2026-09-19 | Victor (Telegram 11:50) |
+| D14 | Commission a costed design memo for the fewer-hashed-bytes speed lever (encoding rate 1/2 and/or a 31–32-bit field). Paper only: building it would move every frozen digest and the soundness accounting, and stays a separate ruling | **memo commissioned** | 2026-09-19 | Victor (Telegram 11:50) |
+| — | RTX 5090 install (an action, not a ruling; the 600 W bound was ruled on 2026-09-04) | **go**; date, machine and host RAM still to be named | 2026-09-19 | Victor (Telegram 11:50) |
 
 Operational rules (detached heavy runs, the shared-box lock, command hygiene)
 live in `CLAUDE.md`; they are not repeated here.
@@ -225,6 +228,30 @@ profile as the P1 statement for the intermediate, and a new approval record
 for the model digests. Until then the artifact is "complete-block
 experiment", not "private block".
 
+**Ruling (Victor, Telegram, 2026-09-19 11:50): accepted, with three
+qualifiers written into the acceptance.** In plain words: for the zkVM
+line, "private" now officially means that the prompt and the answer appear in
+the public record only as SHA-256 fingerprints, each mixed with a 32-byte
+secret salt, inside a fixed 144-byte record, and the model is named by
+digests of the exact bytes the program used. The two verified Groth16
+receipts (one block; the two-block token model) stop being "experiments"
+and may be called **zkVM line, private under D3, D4, D5 and D7**. The
+qualifiers, which travel with every such claim: (1) the hiding of an endpoint
+is the secrecy of its salt under SHA-256 — in the toy token model the answer
+is one of only 32 values, so whoever learns the salt learns the answer, and
+the model library still accepts an all-zero or repeated salt (hardening item
+H5 of the token source review; honest runs draw fresh salts); (2) the
+program's identity (its image ID) depends on the directory it was built in,
+so any approval record says "locally built, unreproduced" until a container
+build exists; (3) timing is declared leakage — the secret scan and the
+constant-cycle check were run for the block program on nine inputs (a
+sample, not a proof of constant time) and not yet for the token program.
+What this does **not** do: it is the definition of the claim, not a finding
+that a cryptographic analysis was performed beyond the reviewed Groth16
+premises; and the second half of D7, the approval record for the model
+digests, is still to be written and cannot be credible before qualifier (2)
+is fixed. Pages: `ZK60_RULINGS_FOR_VICTOR.md` §2.
+
 ## D8 — Caller-fixed endpoint roots on the custom line (corrected 2026-09-18)
 
 **Standing obligation.** A proof on the custom line must be simulatable for
@@ -337,15 +364,86 @@ Ruling and conditions:
 `ZK60_PRIVATE_BLOCK_CONSTRUCTION_DISPOSITION.md` on `zk60-attention-compile`
 (`e5962d2`).
 
-## D9 — `fp()` reduction bias (pending)
+## D9 — `fp()` reduction bias (accepted as stated, 2026-09-19)
 
 Challenge words are 128-bit draws reduced mod p, each within 2^-96 of
 uniform; over a proof this is about 2^-75 at A00. Either accept the term
 in the privacy bound or re-freeze fixtures with rejection sampling (a
 byte-changing change). Not gating any current work.
 
-## D10 — Compact-PCS proof-size lever (pending)
+**Ruling (Victor, Telegram, 2026-09-19 11:50): accept the term as stated.**
+In plain words: the prover's random masks are very slightly uneven, and the
+final privacy statement will read "indistinguishable up to about 2^-72" (one
+part in 5 × 10^21 at the 8B shape; 2^-75 at the tiny shape, 2^-72.9 at 125M)
+instead of being exact. Nothing is re-frozen. **Wording correction to the
+entry above**, from the source it cites (`ZK60_FABLE_TRANSCRIPT_REVIEW.md`
+§B.7): the term comes from every *mask and pad the prover draws*, not from
+the challenges, which the verifier reduces identically in both worlds and
+which contribute nothing; and it is a **privacy** term, not a soundness
+term — it does not make a false proof easier to forge. The bound already
+carries a larger residual of about 2^-62 at the same shape, which is why
+removing this one would not have made the statement unconditional. If an
+auditor ever requires it removed, the change is one line in `ZkRng::fp`
+(rejection sampling) plus a re-freeze of the zero-knowledge fixtures, and it
+should be done after any lane that leans on the two frozen zero-knowledge
+digests has landed. Pages: `ZK60_RULINGS_FOR_VICTOR.md` §6.
+
+## D10 — Compact-PCS proof-size lever (declined, 2026-09-19)
 
 Drops a Mistral-7B layer's proof from 38.7 MB to 1.94 MB at 4.4x the prover
 time and 95–98 bits instead of 106 (`START_HERE.md`, lane AF). A soundness
 ruling for Victor; not compatible with the GPU path or zero knowledge yet.
+
+**Ruling (Victor, Telegram, 2026-09-19 11:50): declined — keep the
+Ligero-class commitment.** His message put it as a question ("5 seems to be
+a no go?"); the recommendation in front of him was "no", it was confirmed
+back to him the same minute, and he can reverse it with two words. In plain
+words: the compact format would shrink an 8B proof from 1.23 GB to about
+62 MB, but it **cannot run in private mode at all** (`--pcs compact --zk` is
+refused by the prover), it does not live on the GPU, it multiplies proving
+time by about 4.4, and it lowers soundness from 106 bits to 95–98. The
+product is private (D1) and the goal is speed, so it pays on neither axis.
+The proof-size budget in the target contract therefore stays unmet and
+stays a recorded gap; the free improvement on that axis — capping the Merkle
+paths, about −29% of bytes [COUNTED, not implemented] — may be built, and the
+costed memo of D14 must say what its lever does to proof size as well as to
+time. Pages: `ZK60_RULINGS_FOR_VICTOR.md` §5.
+
+## D13 — What the first MVP must prove (decided 2026-09-19)
+
+**Ruling (Victor, Telegram, 2026-09-19 11:50): the hidden transformer blocks
+are enough for the first MVP; generating a token is the next milestone.** In
+plain words: the first MVP is a private proof that the blocks of a model were
+computed correctly on hidden inputs, with hidden outputs. It does not have to
+go all the way to an emitted word — the embedding, the final norm, the output
+head and the token selection are the milestone after. Why this was the
+moment: the target contract's clock covers only the feed-forward blocks; only
+the slow zkVM line has a token path at all (the two-block token model); and
+the custom line's token path (task A10) is unbuilt, uncosted, and carries two
+open design questions of its own. What it changes: A10 and everything
+downstream of an emitted word leave the MVP's critical path; the MVP's
+acceptance gates in `ZK60_MVP_COMPLETION_PLAN.md` §1.3 that concern
+embedding, head and token selection become next-milestone gates. What it does
+**not** change: P1 (D1) — inputs, outputs and activations hidden — and the
+two-line structure (D2). Pages: `ZK60_RULINGS_FOR_VICTOR.md` §3.
+
+## D14 — A costed memo for the fewer-hashed-bytes speed lever (commissioned 2026-09-19)
+
+**Ruling (Victor, Telegram, 2026-09-19 11:50): write the memo. Paper only.**
+In plain words: almost all of the prover's device time goes into encoding
+and hashing committed data. Two changes would shrink that data: a
+Reed–Solomon encoding rate of 1/2 instead of 1/4 or 1/8, and a 31–32-bit
+field instead of the 64-bit Goldilocks field. It is the only recorded lever
+that could take an RTX 5090 from 10–15 s per proof to 5–10 s [MODEL,
+`ZK60_FIVE_SECOND_PLAN.md` §5 step 6]. It is also the most expensive change
+the project could make: **it moves every frozen proof digest in the
+repository and changes the soundness accounting** (a smaller field needs
+extension-field challenges and more queries; a higher rate needs more
+queries for the same proximity bound). The 2026-09-04 deferral rested on
+"the 8B pass does not need it", which a 5-second target changes. This ruling
+commissions the memo that turns "is 5 s possible" into a yes or a no with a
+price: what changes, what it buys in seconds on the 4070 and the 5090, what
+it costs in bits of soundness or in extra queries to keep them, what it does
+to proof bytes, what must be re-frozen, how many weeks, and what could make
+it fail. **Building it remains a separate ruling.** Pages:
+`ZK60_RULINGS_FOR_VICTOR.md` §4.
