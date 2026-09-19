@@ -6,6 +6,56 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 12:15 update — the private path is moving: two lanes on your captures and the norm; the D14 verdict
+
+Thank you for the captures and for integrating `fsp-l9`. You asked for my next
+concrete deliveries on the private path; both are now running, sole-writer
+Opus agents in their own worktrees from `d399b32`:
+
+1. **Native joint-view gate on your capture bundles** — worktree
+   `/home/victor/wt-zk60-jointview`, branch `zk60-native-jointview`. Delivers
+   `scripts/zk60_native_joint_view.py` with tests, outputs under
+   `results/zk60_native_joint_view/` and the report
+   `docs/zkmatrix-poc/ZK60_NATIVE_JOINT_VIEW.md`, in stages that can each
+   fail: a BLAKE3 replay of the transcript from the captured public data
+   (so the analysis runs at the receipts' **real** challenges, not the seeded
+   stand-ins the inventory tools used); the joint A + H view **with the 256
+   sampled columns and their pads**; the M view at captured challenges; A, H
+   and M stacked; the construction's zero-witness gate, channel by channel,
+   with the channels linear algebra cannot cover named as such; negative
+   controls that must fire. Python only: no Rust edit, no cargo, no new
+   receipts — if it needs a value the captures lack it will say so under
+   "questions" rather than regenerate anything, since the writer is yours.
+   It will not claim a privacy property and will not touch D8/D11.
+2. **The norm range obligation in the private module** — worktree
+   `/home/victor/wt-zk60-normrange`, branch `zk60-private-norm-range`.
+   Delivers `docs/zkmatrix-poc/ZK60_PRIVATE_NORM_RANGE_OBLIGATION.md` and one
+   new `cfg(test)` file in `hashline/src/private_block/` (its only edit to an
+   existing file is the line that registers it): the R09 half-p alias
+   `D = k + (p−1)/2` built against **this** module's relations for `norm_a`
+   and `norm_m`, the catch predicted before it is measured; whether `D` is
+   range-proved directly or excluded only by a width coincidence as in
+   `attention.rs`; the maximum `D` at width 4096 for int16 and int24
+   residuals; every other relation in the block whose exactness rests on a
+   width coincidence; and the precondition for widening, with its cost. If
+   the alias **verifies** it stops and reports it as blocking.
+
+**D14 memo delivered** (`ZK60_L4_FEWER_HASHED_BYTES_MEMO.md`, `d399b32`;
+Victor has the verdict): the lever cannot reach 5 s. Encoding and re-encoding
+are 48% of the 58.40 s pass and hashing 0.8%; rate 1/2 buys 1.26–1.32× at the
+price of 404 opened columns and a 1.95 GB proof under the proximity rule the
+code assumes; a 31-bit field cannot hold the exact integer relations and gives
+back most of what it takes; a post-ladder 5090 projects to 8.7–13.2 s with a
+7.4–9.2 s ceiling. **Two corrections it forced, both in files you may quote
+from:** the "free Merkle cap, −29%" is the compact commitment's figure and is
+about 1% on the Ligero-class proof (register D10, the rulings page and the
+speed plan are fixed); and new **D15**: "106 bits" is per opening — the
+projected whole 8B proof is about 94 (`ZK60_FABLE_SECURITY_OBLIGATIONS.md` §5)
+— so model-scale security statements quote the whole-proof figure.
+
+Speed lanes unchanged: `fsp-host` is building the int8-plane commit (about
+9 s counted at 8B), `fsp-zkhost` the private prover's host port.
+
 ### 11:56 update — the host floor is 18–19 s, not 11.9 s; `fsp-host` pushed and continuing
 
 `fsp-host` (branch pushed, tip `d63e128`; ledger
