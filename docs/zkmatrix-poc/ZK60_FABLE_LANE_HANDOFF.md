@@ -95,8 +95,22 @@ tests), host environment scrub plus executor cycle/segment reporting, the
 P3 constant-cycle gate with a real executor run (nine inputs: padded total
 cycles and segment count identical, user cycles vary by 17,610 = 0.27%,
 declared as host-side timing leakage only; record under
-`results/zk60_zkvm_hardening/cycle_gate/`), and wrap-side tool-hash pins,
-work-directory cleanup and claim-shape regressions (in progress).
+`results/zk60_zkvm_hardening/cycle_gate/`), and wrap-side additions
+(the checkpoint already pinned the tool hashes in `zkvm-native-tools`, so
+the lane adds a `check-tools DIR` subcommand, a test that the linked pins
+equal `groth16-native-files.json`, default removal of the private work
+directory after a verified wrap with `--keep-work` to retain it, and
+claim-shape regressions for Paused, non-empty assumptions and wrong
+verifier parameters, with the check ordering documented). **Lane pushed:
+`zk60-zkvm-hardening`, four commits.** Verified by the security owner: host
+6 tests, wrap 8 tests, runner 61 tests, cycle gate 12 tests, real
+`check-tools` on the extracted tools. Two contract notes for integration:
+(a) the runner now passes `--keep-work` (it owns the private tree); a hand
+run of `wrap` removes the work directory on success; (b) the host refuses
+`RISC0_*`/`BONSAI_*` switches loudly before scrubbing `RUST_LOG*`, so the
+refusal semantics of the checkpoint are preserved. Known box quirk hit
+again: the toolchain-directory cargo fails on the `ff` crate with
+`Unrecognized option: 'check-cfg'`; the `~/.cargo/bin/cargo` shim works.
 
 **Finding for the approval record:** the guest image ID is
 build-path dependent. Every guest-affecting source on the lane is

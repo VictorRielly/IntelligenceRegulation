@@ -94,7 +94,16 @@ it does not exist yet.**
    runs under the shared lock);
    the security owner's source review of `zkvm-block/` with eight hardening
    items (`ZK60_ZKVM_BLOCK_SOURCE_REVIEW_FABLE.md` on branch
-   `zk60-mvp-fable`); pending rulings D7, D9, D10.
+   `zk60-mvp-fable`), now implemented and verified on branch
+   `zk60-zkvm-hardening` for Codex to integrate (secret-scan stage,
+   environment refusal and scrub, cycle reporting, constant-cycle gate with a
+   real executor run, tool-check command, work-directory cleanup,
+   claim-shape regressions); pending rulings D7, D9, D10.
+5. **A reproducibility fact to settle before any approval record:** the
+   guest image ID depends on the build directory (the ELF embeds one
+   absolute source path and the non-Docker build applies no path remap), so
+   the approved ID `8d74aab3…98d9` is reproducible only from the main
+   checkout's path or from a reproducible Docker build.
 
 ## 4. Where the evidence is
 
