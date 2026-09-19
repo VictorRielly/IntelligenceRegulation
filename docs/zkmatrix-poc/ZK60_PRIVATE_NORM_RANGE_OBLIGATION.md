@@ -523,6 +523,19 @@ off `d399b32`.
 | the new cases and the whole module | `flock -w 1800 /tmp/zk-build.lock env CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=8 cargo test --release --offline -j 2 --manifest-path hashline/Cargo.toml --lib private_block -- --test-threads=1` | **41 passed, 0 failed, 1 ignored**, 19.89 s -> `results/zk60_private_norm_range/test_private_block.log` |
 | the five new cases alone | the same with `--lib private_block::norm_alias` | 5 passed, 0 failed, 2.07 s |
 | production build unaffected | `cargo build --release --offline --lib` | exit 0 (the only change to a non-test file is one `#[cfg(test)] mod` line) |
+| the python gates that read this module | `python3 -m unittest tests.test_zk60_private_block_inventory tests.test_zk60_attention_native_inventory tests.test_aggregation_freeze tests.test_zk60_mvp_security_probe` | **85 tests, OK, 1 skipped**, 64 s |
+
+Commit: `7ab3daa` on `zk60-private-norm-range` (this document, `norm_alias.rs`,
+the one registration line, and the two `results/` artefacts).
+
+**Observed, PRE-EXISTING, not this lane's:** the block inventory tool prints
+`failures: ['count/A rows', 'gate/host sum L / rank match the design']` inside
+its diagnostic report while the unittest suite is green. It reads only
+`layout.rs`, `argument.rs`, `protocol.rs` and `zkp-core/src/pcs.rs`
+(`scripts/zk60_private_block_inventory.py:682-697`) — none of which this lane
+touches — so the two are a mismatch between the layout's declared counts and
+the design memo the tool compares against, present at `d399b32`. Recorded here
+only so that whoever re-runs the ledger does not attribute them to this lane.
 
 Files this lane owns and wrote:
 
