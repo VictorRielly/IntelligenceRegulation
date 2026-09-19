@@ -9,6 +9,11 @@ outputs and intermediate activations; weights may be public. The full version
 (P3) also hides weights. Read `docs/zkmatrix-poc/ZK60_PRIVACY_REQUIREMENTS.md`.
 Do not reopen this choice or substitute public IO to bypass a proof obligation.
 
+**Plain status for Victor:** `docs/zkmatrix-poc/MVP_STATUS.md` answers "do we
+have a workable proof, how slow are we against the target, what blocks the
+MVP" in one page with labelled numbers. Refresh it whenever a proof lands,
+a measurement changes or a blocker moves; never let it go stale for a week.
+
 **Decisions register:** `docs/zkmatrix-poc/ZK60_DECISIONS.md` holds every
 product and security ruling (accepted deviations such as the 97-bit zkVM
 level, the Groth16 trusted setup, receipt kinds, pending rulings). Read it

@@ -1,0 +1,141 @@
+[
+  {
+    "name": "wrap-build",
+    "command": [
+      "/home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "build",
+      "--release",
+      "--offline",
+      "--locked",
+      "-p",
+      "zk60-block-wrap"
+    ],
+    "exit_code": 0,
+    "seconds": 14.565321928996127
+  },
+  {
+    "name": "wrap-image-id",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-wrap",
+      "image-id"
+    ],
+    "exit_code": 0,
+    "seconds": 0.001616115972865373
+  },
+  {
+    "name": "groth16-wrap",
+    "command": [
+      "/usr/bin/time",
+      "-v",
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-wrap",
+      "wrap",
+      "/tmp/zk60-loop-20260917/demo-public/policy.bin",
+      "/tmp/zk60-loop-20260917/demo-public/receipt.bin",
+      "/tmp/zk60-loop-20260917/demo-public/groth16.bin",
+      "/tmp/zk60-loop-20260917/groth16-native",
+      "/tmp/zk60-loop-20260917/groth16-private-work",
+      "/home/victor/.cargo/bin/r0vm"
+    ],
+    "exit_code": 0,
+    "seconds": 197.29658473999007
+  },
+  {
+    "name": "groth16-independent-verify",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-wrap",
+      "verify",
+      "/tmp/zk60-loop-20260917/demo-public/policy.bin",
+      "/tmp/zk60-loop-20260917/demo-public/groth16.bin"
+    ],
+    "exit_code": 0,
+    "seconds": 0.007869755994761363
+  },
+  {
+    "name": "groth16-refuses-inner",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-wrap",
+      "verify",
+      "/tmp/zk60-loop-20260917/demo-public/policy.bin",
+      "/tmp/zk60-loop-20260917/demo-public/receipt.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.003640323004219681
+  },
+  {
+    "name": "groth16-wrong-context",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-wrap",
+      "verify",
+      "/tmp/zk60-loop-20260917/wrong-context.bin",
+      "/tmp/zk60-loop-20260917/demo-public/groth16.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.0014471740287262946
+  },
+  {
+    "name": "groth16-wrong-model",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-wrap",
+      "verify",
+      "/tmp/zk60-loop-20260917/wrong-model.bin",
+      "/tmp/zk60-loop-20260917/demo-public/groth16.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.0013812909892294556
+  },
+  {
+    "name": "groth16-wrong-input",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-wrap",
+      "verify",
+      "/tmp/zk60-loop-20260917/wrong-input.bin",
+      "/tmp/zk60-loop-20260917/demo-public/groth16.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.0014772410213481635
+  },
+  {
+    "name": "groth16-wrong-output",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-wrap",
+      "verify",
+      "/tmp/zk60-loop-20260917/wrong-output.bin",
+      "/tmp/zk60-loop-20260917/demo-public/groth16.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.0014687130169477314
+  },
+  {
+    "name": "groth16-truncated",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-wrap",
+      "verify",
+      "/tmp/zk60-loop-20260917/demo-public/policy.bin",
+      "/tmp/zk60-loop-20260917/groth16-truncated.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.0015177850145846605
+  },
+  {
+    "name": "groth16-trailing",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-wrap",
+      "verify",
+      "/tmp/zk60-loop-20260917/demo-public/policy.bin",
+      "/tmp/zk60-loop-20260917/groth16-trailing.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.0018064439937006682
+  },
+  {
+    "name": "groth16-tampered",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-wrap",
+      "verify",
+      "/tmp/zk60-loop-20260917/demo-public/policy.bin",
+      "/tmp/zk60-loop-20260917/groth16-tampered.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.0014071240148041397
+  }
+]

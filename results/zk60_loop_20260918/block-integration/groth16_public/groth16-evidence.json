@@ -1,0 +1,7 @@
+{
+  "receipt_bytes": 785,
+  "receipt_sha256": "6c67e05c70e6785023f5fd671770e95bc9de197c83558fc044817df4f16432e7",
+  "complete_tiny_block_relation": true,
+  "privacy_argument": "outer Groth16 under reviewed implementation/setup premises",
+  "model_mvp_complete": false
+}

@@ -51,6 +51,28 @@ functional intermediate with Groth16 receipts, under three rulings for
 Victor (sub-128-bit deviation, trusted setup, prover path) and a new
 endpoint/weight identity profile.
 
+## 3a. Source review of `zkvm-block/` (2026-09-18, evening)
+
+`docs/zkmatrix-poc/ZK60_ZKVM_BLOCK_SOURCE_REVIEW_FABLE.md` on the branch:
+guest, statement, model, host, wrap and the security calculator read line
+by line against D5 and the disposition. Verdict: consistent, no defect;
+eight hardening items (host should scrub `RISC0_DEV_MODE` itself; wrap
+should pin the native tool hashes; default to removing the private work
+directory after a verified wrap; add the P1 secret-scan and P3
+constant-cycle evidence; label the image ID unreproduced; keep segments at
+or below 2^20; add a D4 claim-shape regression). D7 remains Victor's.
+
+## 3b. First Groth16 receipt verified; evidence retained (2026-09-18 19:18)
+
+The security owner re-verified `demo-public/groth16.bin` (785 bytes) in a
+fresh process: `{"verified":true,"kind":"groth16"}`. Public artifacts were
+copied to `results/zk60_loop_20260918/block-integration/groth16_public/`
+(no private files) because `/tmp` evidence does not survive a reboot. D6 is
+closed in the register. For Codex: the eight hardening items of §3a are the
+suggested next hardening pass; the P1 secret-scan and P3 constant-cycle
+evidence are the two cheapest. `MVP_STATUS.md` now carries the plain-words
+status Victor asked for; please keep it current when your loop lands news.
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the
