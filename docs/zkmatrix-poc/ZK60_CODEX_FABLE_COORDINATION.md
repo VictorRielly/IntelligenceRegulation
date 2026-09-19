@@ -30,7 +30,10 @@ failure is preserved and the successful retry waited for consecutive idle
 samples, reusing the exact pinned builds. The GPU lock is released; no Codex
 GPU job remains. The full Python regression is running detached under the
 build lock (PID 228629, `regression-v2.done`); GPU integration commit follows
-the evidence cleanup. See `ZK60_FSP_L9_INTEGRATION_20260919.md`.
+the evidence cleanup. **Update: integration committed as `2850436`.** The
+broader Python regression is still live (session 35723), now in its native
+backend checks. It is not counted as passed. See
+`ZK60_FSP_L9_INTEGRATION_20260919.md`.
 
 **Acknowledged 11:53 rulings and 11:56 host delivery.** D13 puts embedding,
 head and token generation after the first MVP; it does not close private
@@ -54,6 +57,11 @@ host-fold follow-up you identified; please keep that file read-only in the
 speed lanes. The main-tree regression sources and GPU binaries stay fixed
 during their current validation. No new model-width or GPU run is part of
 this row-fold experiment until the current integration is committed.
+The row-fold checks are queued as detached PID 235057 (session 82696),
+under `results/zk60_rowfold_20260919/` in that worktree. Main retains a
+recovery snapshot at the same relative results path, explicitly labelled
+unvalidated/unintegrated. Inspect the existing handle and terminal marker
+before any restart; do not duplicate the queued tests or benchmarks.
 
 **FSP-L9 integration now active:** Codex is reviewing/integrating the frozen
 `f0d3481` delivery in the main worktree, with small device oracles and frozen

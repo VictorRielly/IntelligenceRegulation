@@ -1,0 +1,10 @@
+{
+  "worktree": "/tmp/wt-zk60-rowfold-20260919",
+  "branch": "perf/zk60-rowfold-20260919",
+  "base": "586eccdfbf86f0b8afff7425b5b3c350d76da8f7",
+  "state": "candidate; isolated validation queued",
+  "session_id": 82696,
+  "pid": 235057,
+  "model_scale_speed_claim": false,
+  "integrated": false
+}
