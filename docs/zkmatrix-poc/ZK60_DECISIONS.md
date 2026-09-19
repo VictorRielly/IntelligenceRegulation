@@ -19,11 +19,12 @@ back. Keep this file short enough to read in five minutes.
 | D7 | New endpoint and weight identity profile for the zkVM route (salted SHA-256 commitments in a fixed journal; old PCS roots not compatible) | **accepted as the P1 statement of the zkVM line, with three recorded qualifiers**; the model approval record is still to be written | 2026-09-19 | Victor (Telegram 11:50); Codex implemented |
 | D8 | Custom line, caller-fixed endpoint roots: obligation stands; the "two programmed points" closure is retracted for roots with any prior public opening | **corrected** | 2026-09-18 | Codex review; accepted by the security owner |
 | D9 | Reduction-bias term of the prover's mask and pad draws on the custom line (about 2^-75 at the tiny shape, 2^-72 at 8B): accept as stated, or re-freeze fixtures with rejection sampling | **accepted as stated** | 2026-09-19 | Victor (Telegram 11:50) |
-| D10 | Compact-PCS proof-size lever on the custom line (95–98 bits instead of 106) | **declined: keep the Ligero-class commitment**; the free Merkle cap may be built | 2026-09-19 | Victor (Telegram 11:50, phrased as a question and confirmed back to him) |
+| D10 | Compact-PCS proof-size lever on the custom line (95–98 bits instead of 106) | **declined: keep the Ligero-class commitment** (the "free Merkle cap" first recorded beside this ruling is worth about 1% here, not 29% — corrected the same day) | 2026-09-19 | Victor (Telegram 11:50, phrased as a question and confirmed back to him) |
 | D11 | D8's proposed reduction to empty history is not established by a consuming owner; prior authentication/hash history remains in scope | **technical correction** | 2026-09-18 | Codex native reproduction and independent review |
 | D12 | Composed private block on the custom line: one proof, one transcript, two external endpoints; no commitment opened twice; hidden intermediates never get a shared caller-fixed endpoint; the second norm's int8 range proof is mandatory | **construction rule (restrictive; not a privacy acceptance)** | 2026-09-19 | Security owner (Fable), from the composition gap inventory |
 | D13 | What the first MVP must prove: the hidden transformer blocks are enough; generating a token (embedding, final norm, head, token selection) is the next milestone | **decided** | 2026-09-19 | Victor (Telegram 11:50) |
 | D14 | Commission a costed design memo for the fewer-hashed-bytes speed lever (encoding rate 1/2 and/or a 31–32-bit field). Paper only: building it would move every frozen digest and the soundness accounting, and stays a separate ruling | **memo commissioned** | 2026-09-19 | Victor (Telegram 11:50) |
+| D15 | The custom line's "106 bits" is a per-opening figure; the projected whole 8B proof is about 94 bits. Every model-scale security statement quotes the whole-proof figure | **technical clarification**; the whole-proof target itself is a ruling still to be put to Victor | 2026-09-19 | Security owner (Fable), from `ZK60_FABLE_SECURITY_OBLIGATIONS.md` §5 and the D14 memo |
 | — | RTX 5090 install (an action, not a ruling; the 600 W bound was ruled on 2026-09-04) | **go**; date, machine and host RAM still to be named | 2026-09-19 | Victor (Telegram 11:50) |
 
 Operational rules (detached heavy runs, the shared-box lock, command hygiene)
@@ -404,10 +405,47 @@ refused by the prover), it does not live on the GPU, it multiplies proving
 time by about 4.4, and it lowers soundness from 106 bits to 95–98. The
 product is private (D1) and the goal is speed, so it pays on neither axis.
 The proof-size budget in the target contract therefore stays unmet and
-stays a recorded gap; the free improvement on that axis — capping the Merkle
-paths, about −29% of bytes [COUNTED, not implemented] — may be built, and the
+stays a recorded gap. **Correction, 2026-09-19 12:10 (security owner):** the
+first version of this entry offered "capping the Merkle paths, about −29% of
+bytes" as a free improvement. That figure was counted for the *compact*
+commitment (157 queries across about ten trees,
+`PROVING_CHANNEL_OPTIONS.md:244–248`); on the Ligero-class 1.23 GB proof the
+Merkle paths are about **1%** of the bytes, so the cap is worth about 1%
+[COUNTED, `ZK60_L4_FEWER_HASHED_BYTES_MEMO.md`]. There is no free lever on
+proof size on this commitment; the ruling is unaffected, because its reason
+is that the compact format cannot run privately. The
 costed memo of D14 must say what its lever does to proof size as well as to
 time. Pages: `ZK60_RULINGS_FOR_VICTOR.md` §5.
+
+## D15 — "106 bits" is per opening; the whole 8B proof is about 94 (technical clarification, 2026-09-19)
+
+**In plain words.** Each time the custom line's prover opens a commitment, a
+cheating prover slips past the check with probability about 2^-106: that is
+(3/4)^256, from 256 opened columns at encoding rate 1/4 under the proximity
+rule the code assumes (`zkp-core/src/pcs.rs:17–19`; reproduced exactly by the
+D14 memo). D3 above and several status pages quote that 106 as "hashline's
+security level". **It is the level of one opening, not of a proof.** An 8B
+proof makes about six openings per layer over 32 layers, and a forger needs
+only one of them to fail, so the chances add up: the security owner's own
+2026-09-08 projection puts the commitment term of the whole proof near
+2^-98.7 and the lookup term near 2^-94.2 — **about 94 bits for the whole 8B
+proof, before any cap from the hash** (`ZK60_FABLE_SECURITY_OBLIGATIONS.md`
+§5, the deployment row; a PROJECTION of the same relations, not a measured
+artifact). The tiny fixed block is a different object: about 2^-110 over its
+two commitments, and that figure does not scale up.
+
+**In practice.** Any statement of the custom line's security at model scale
+quotes the whole-proof figure, labelled a projection, next to the zkVM
+line's "about 97 bits conjectured" (D3): **at 8B both lines are below 100
+bits today**, against a 128-bit target. Raising it is possible — more opened
+columns, a lower rate, or batching openings across layers — and each costs
+proof bytes or prover time; the D14 memo prices the first two.
+
+**What is not decided here.** Whether the product's target is a per-opening
+or a whole-proof figure, and how many bits, is Victor's ruling (the D14
+memo's question G.0-2). It is not urgent for a tiny-block MVP; it becomes
+binding before any byte freeze at model scale, and it decides whether the
+rate half of the D14 lever is a gain or a net cost.
 
 ## D13 — What the first MVP must prove (decided 2026-09-19)
 

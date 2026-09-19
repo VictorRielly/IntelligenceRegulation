@@ -317,6 +317,18 @@ deferred`.
 
 ## 5. D10 — the compact commitment: 1.23 GB becomes 62 MB, at a price
 
+> **Correction after you ruled (security owner, 2026-09-19 12:10).** This page
+> recommended "keep the current scheme **and build the Merkle cap**, a free
+> −29% of proof bytes". The −29% is wrong for the scheme we are keeping: it
+> was counted for the *compact* scheme (157 queries across about ten trees,
+> `PROVING_CHANNEL_OPTIONS.md:244–248`). On the current 1.23 GB proof the
+> Merkle paths are about **1%** of the bytes, so the cap is worth about 1%.
+> The costed memo you commissioned under D14 caught it. **Your ruling is
+> unaffected** — its reason is that the compact scheme cannot run privately —
+> but there is no free lever on proof size, and the size budget stays a
+> recorded, unmet gap. Every mention of the Merkle cap below should be read
+> with this correction.
+
 **The question.** Do we switch the fast line's proof-packaging scheme to the
 compact (BaseFold-class) one — an 8B proof of about **62 MB instead of
 1.23 GB** — at **4.4× the proving time** and **95–98 bits of security instead

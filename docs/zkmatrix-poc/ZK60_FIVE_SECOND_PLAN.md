@@ -444,7 +444,7 @@ the 8B pass**, and where only that exists the row says so.
 | **Port lane AL's host fix into `zk.rs`** | `zk.rs` carries its **own** v3 prover body with its own staging buffers (`zk.rs:925-966`); lane AL deliberately did not touch it, so the private path never received the 1.687× | unknown on the private arm; the identical change was **1.687×** on the public one, and the private arm's host share has never been attributed | 8B, private | byte-preserving by the same tiling argument; gated by the two ZK byte gates `021485e4..` and `40eb5479..` | **unowned.** The single largest known unrealised factor on the tier the product actually needs |
 | **L8 — recover the ZK surcharge on the device** | on the private 8B pass, **helpers + commit H is 146.26 s of 265.34 (55%)** against the public arm's 5.36 s, and the device transform is **119.10 s** against 15.85 | up to **2.1×** [COUNTED from lane AI's phase table] | 8B, private, GPU | unchanged (bytes already carry over at +4.10%) | partly answered already: CL1 suggests much of it was the card, not the argument. Needs the 32-layer re-run before more design work |
 | **L3 — general kernel quality** | ordinary device engineering toward the counted spec-sheet floor | **1.5–5×** [COUNTED] | 8B GPU | — | nobody has done a systematic pass on this codebase for a device |
-| **Merkle cap** | truncate the top levels of the Merkle paths | **−29% of the proof bytes at zero soundness cost and zero prover cost** [COUNTED] | 125M and 8B | **yes** (that is the point) | not implemented; free money on the bytes line |
+| **Merkle cap** | truncate the top levels of the Merkle paths | ~~−29% of the proof bytes~~ **CORRECTED 2026-09-19: that figure is the compact commitment's (157 queries, ~10 trees); on the Ligero-class 1.23 GB proof the paths are about 1% of the bytes, so about −1%** [COUNTED, `ZK60_L4_FEWER_HASHED_BYTES_MEMO.md`] | 125M and 8B | **yes** (that is the point) | not implemented; free money on the bytes line |
 
 ### 3.D Levers that are rulings, not lanes
 
@@ -726,8 +726,9 @@ the host residue is small enough for hardware to matter.**
 
 **Running in parallel, off the critical path for seconds but on it for
 the contract:** the proof is 1,234,936,956 bytes against a frozen
-1,114,112-byte budget — about 1,100× over. The Merkle cap is a free
-−29% [COUNTED, not implemented]; the compact PCS is a 19.9× cut that
+1,114,112-byte budget — about 1,100× over. The Merkle cap is worth about
+−1% on this commitment (not the −29% first written here, which is the
+compact commitment's figure; corrected 2026-09-19); the compact PCS is a 19.9× cut that
 costs 4.36× the prover time and awaits ruling **D10** (95–98 bits
 against 106). Neither belongs inside the speed ladder, and both belong
 in the same conversation with Victor.
