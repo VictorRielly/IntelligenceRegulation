@@ -72,10 +72,24 @@ Plus the ROLLBACK arm: zk-v3 on the CPU binary with
 frozen proof from one binary, which is what makes the A/B a measurement
 of the same computation and the switches a real rollback.
 
-A further 20 A/B runs of the zk-v3 profile on the CPU binary (10 per arm,
-`results/fsp3_ab_cpu.log`) each reproduced `40eb54795e023c77..` at
-87,697,008 B, so the zk-v3 digest has now been reproduced 26 times across
-both arms, both binaries and three device configurations in this lane.
+A further 30 A/B runs of the zk-v3 profile (20 on the CPU binary and 10
+on the GPU binary, 10 and 5 per arm, `results/fsp3_ab_cpu.log` and
+`results/fsp3_ab_gpu.log`) each reproduced `40eb54795e023c77..` at
+87,697,008 B, so the zk-v3 digest has now been reproduced **37 times** in
+this lane across both arms, both binaries and three device
+configurations.
+
+`cargo test --release -- --test-threads=2`: the first attempt returned
+**101** — NOT a prover regression (259 passed, 0 failed across the 28
+binaries) but a DOCTEST this lane's own comment created: a four-space
+indented formula in a `///` block is compiled as Rust by rustdoc. Fenced
+as a `text` block; the re-run returned **exit 0, 259 passed / 0 failed,
+28 binaries — the baseline count exactly.** The zk-v3 byte gate was
+re-run on the rebuilt CPU binary after the doc fix: GREEN.
+
+Note for anyone repeating this: the binary's sha256 changes across a
+comment-only edit (rustc embeds source metadata), so binary identity
+cannot serve as the check — the byte gate is what settles it.
 
 **NO DIGEST MOVED AT ANY POINT IN THIS LANE.**
 
