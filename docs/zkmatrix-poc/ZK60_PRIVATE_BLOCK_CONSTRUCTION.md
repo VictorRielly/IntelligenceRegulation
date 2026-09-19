@@ -1,6 +1,6 @@
 # ZK60 — the composed private block on the custom line: construction memo
 
-**Status: DRAFT for the security owner's review — NOT ACCEPTED. Prepared by a delegated Opus agent on 2026-09-19. (draft complete)**
+**Status: ACCEPTED AS THE DESIGN TO BUILD, per `ZK60_PRIVATE_BLOCK_CONSTRUCTION_DISPOSITION.md` (security owner, 2026-09-19), with errata E-1 … E-22 of `ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2_CHECK.md` and rulings R-A and R-B applied in this text. Not a privacy acceptance; no privacy property is established; no speed claim. Drafted by delegated Opus agents.**
 
 | | |
 |---|---|
@@ -131,17 +131,35 @@ the feed-forward gate and up matmuls — two relations, one plane, two claim
 sites at two challenge points, each with its own reserved mask pair. Nothing is
 "shared between proofs" because there is one proof.
 
-**What must change, in which files.**
+**What must change, in which files.** Ruling **R-A**
+(`ZK60_PRIVATE_BLOCK_CONSTRUCTION_DISPOSITION.md` §2, security owner,
+2026-09-19) settles where the change lands: the block is built as a **new
+module**, `hashline/src/private_block.rs` and `hashline/src/private_block/`,
+**grown from a copy of the attention module**, with its own example and test
+file. The accepted attention component's files are **not edited**, so its
+receipt, its tests and the R-1 / R-2 records stay valid byte for byte, and
+Codex's integration of that component in the main tree gets no file
+collisions. The price is duplicated code, which is acceptable for a proof of
+concept and is revisited when the block itself is accepted. Each row below
+therefore names the block module's own file and the attention-module file it
+is copied from; the `:line` citations are to the original.
 
-| File | Change |
-|---|---|
-| `hashline/src/private_attention/layout.rs` | new `A` planes (§C.1, §C.2, §C.5), a new `Dom::F` for the feed-forward inner axis if `F != D` (at this geometry `F = D = 16`, so `Dom::D` serves), new entries in `lookups`/`helpers`, new slot ids in `SC_*`, `SLOT_NAMES`, `SLOTS`, `SLOT_KINDS`, `HOSTS`, `A_SITES`, `H_SITES`, `A_GROUPS`, `H_GROUPS`, `N_FUNCTIONALS`; `describe()` gains the new lines and the schedule digest changes |
-| `hashline/src/private_attention/witness.rs` | compute `norm_m`, the SiLU feed-forward and residual 2 with kernel semantics (`private-block-kernel/src/lib.rs:616-618`, `:627-645`, `:647-651`); `Witness::output()` returns `A_X2` instead of `A_X1` (`witness.rs:19-22`) |
-| `hashline/src/private_attention/argument.rs` | new arms in `define` for the new slots; extended `SC_TZC`, `SC_LZC`, `SC_DZC` arms; `SC_IO_OUT` opens `A_X2` (`:757`) |
-| `hashline/src/private_attention.rs` | `AttentionPublic` → `BlockPublic`: add `gamma_m`, `wg_t`, `wu_t`, `wd_t` and the activation table, new digest domain; new `PROFILE`; `IoSpec` slots and scale pinning (§F); `compute_output` returns `xres2` |
-| `hashline/src/private_attention/protocol.rs` | unchanged in structure; the parameters label and the transcript labels change (§D) |
-| `hashline/src/private_attention/wire.rs` | shape is derived from `Layout`, so it follows; only the profile magic changes |
-| **not touched** | `hashline/src/zk.rs`, `hashline/src/layer.rs`, `hashline/src/zk_ffn_fresh_io.rs`, `hashline/src/private_seam.rs` (except the slot-tag table of §F), `attention.rs`, any frozen profile |
+| File (new) | copied and grown from | Change |
+|---|---|---|
+| `hashline/src/private_block/layout.rs` | `private_attention/layout.rs` | new `A` planes (§C.1, §C.2, §C.5); a new `Dom::F` variant for the feed-forward inner axis, **required at every geometry** — `Dom` keys the lookup list, the helper block, `LOOKUP_DOMS` and `lookup_values`'s per-domain enumeration (`layout.rs:221`, `:263`, `:274`; `protocol.rs:203-208`), and `Dom::Q` is the precedent for two variants at the same log (`layout.rs:64-65`, "same flat index as `D`"); at this geometry only its *log* coincides with `Dom::D`'s. New entries in `lookups`/`helpers`, new slot ids in `SC_*`, `SLOT_NAMES`, `SLOTS`, `SLOT_KINDS`, `HOSTS`, `A_SITES`, `H_SITES`, `A_GROUPS`, `H_GROUPS`, `N_FUNCTIONALS`; `describe()` gains the new lines and the schedule digest changes |
+| `hashline/src/private_block/witness.rs` | `private_attention/witness.rs` | compute `norm_m`, the SiLU feed-forward and residual 2 with kernel semantics (`private-block-kernel/src/lib.rs:616-618`, `:627-645`, `:647-651`); `Witness::output()` returns `A_X2` instead of `A_X1` (`witness.rs:19-22`) |
+| `hashline/src/private_block/argument.rs` | `private_attention/argument.rs` | new arms in `define` for the new slots; extended `SC_TZC`, `SC_LZC`, `SC_DZC` arms; `SC_IO_OUT` opens `A_X2` (`:757`) |
+| `hashline/src/private_block.rs` | `hashline/src/private_attention.rs` | `AttentionPublic` → `BlockPublic`: add `gamma_m`, `wg_t`, `wu_t`, `wd_t` and the activation table, new digest domain; new `PROFILE`; `IoSpec` slots and scale pinning (§F); `compute_output` returns `xres2` |
+| `hashline/src/private_block/protocol.rs` | `private_attention/protocol.rs` | unchanged in structure; the parameters label and the transcript labels change (§D) |
+| `hashline/src/private_block/wire.rs` | `private_attention/wire.rs` | shape is derived from `Layout`, so it follows; only the profile magic changes |
+| a new example and a new test file | `hashline/examples/zk60_private_attention.rs`, `hashline/tests/zk60_private_attention.rs` | the block's own example and integration test, carrying the tripwire and parity tests of §C.2 |
+| **not touched** | | **`hashline/src/private_attention.rs` and `hashline/src/private_attention/*` — the accepted component is not edited at all (R-A)** — and `hashline/src/zk.rs`, `hashline/src/layer.rs`, `hashline/src/zk_ffn_fresh_io.rs`, `hashline/src/private_seam.rs` (except the slot-tag table of §F), `attention.rs`, any frozen profile |
+
+**One tool change R-A implies.** `scripts/zk60_attention_native_inventory.py`
+is written against one module's paths, so it must take the **module path as a
+parameter** (the two checks' drivers already do this by rebinding). Otherwise
+it keeps inventorying the attention module while the block grows beside it,
+and §G's re-run measures the wrong source.
 
 **Cost at the tiny geometry.** Derived in §C. Adding `norm_m` and residual 2
 alone: `A` 306 → 390 rows, `H` 290 → 332, sites 75/35 → 102/42, slots 18 → 19,
@@ -215,8 +233,9 @@ tails). Plus everything form (S) needs anyway for `norm_m` and residual 2
 (§C.1, §C.2), minus nothing. Plus a second `M` commitment in the receipt, a
 second mask opening and a second set of PCS column openings, which is the
 dominant byte cost: on the model of §C.4 a 20-row `M` opening alone is
-`8192 + 256 × (8 + 160 + 32 + 480) = 178,432` bytes [ESTIMATE, the model is
-reverse-derived].
+`2·1024·16 + 256 × (8 + 160 + 32 + 12·32) = 182,272` bytes [ESTIMATE of the
+form-(E) configuration; the byte model itself is not an estimate, it is read
+out of `hashline/src/private_attention/wire.rs:28-36`].
 
 **What it does not discharge.** Three things, all on record: the seam adds
 opening groups on rows other groups already open and **no joint analysis covers
@@ -370,9 +389,11 @@ domains change.
   *two-lookup* branch (`h·d1·d2 − (d1 + d2)`, degree 3). Multiplied by
   `eq(τ)` the `SC_LZC` zero-check therefore goes from degree 3 to **degree 4**:
   `SLOTS[SC_LZC]` `(9, 1, 3)` → `(9, 1, 4)`, `L = 10·4 + 2 = 42`.
-  (Alternative, recorded not proposed: give `A_LIMBM` its own slot at degree 3;
-  it costs one more slot and two more `M` rows and saves 10 bytes of proof. Not
-  worth it.)
+  (Alternative, recorded not proposed: give `A_LIMBM` its own slot at degree 3.
+  It **costs about 16.9 kB**, it does not save bytes: a second `Dom::L` slot
+  needs a second `Dom::L` helper, because `helper_sum` cannot be split across
+  slots (`argument.rs:454-470`), so arguments grow by 512 B, `M` goes 42 → 44
+  rows (+4,096 B) and `H` gains 6 rows (+12,288 B). Not worth it.)
 
 **Range lookups added, including D12 item 4.** All into the single 256-entry
 U8 table, in the `Dom::D` list (`layout.rs:225-233`), appended in this order:
@@ -427,10 +448,11 @@ claimed sum**: slot `SC_SS` (`argument.rs:516-521`) sums
 - **New slot `SC_SSM`**, `Private`, shape `(9, 1, 3)` exactly like `SC_SS`,
   tables `eq(r_t2, 0)` and `A_X1`, polynomial `v[0]·v[1]·v[1]`. One `A` site
   (`A_X1` at the new point `r_t2 ‖ ρ_SSM`) with its own reserved pair. `A_X1`
-  is thereby opened at four points in the block (`SC_DZC`'s `ρ_D`, `SC_SSM`'s
-  point, `SC_IO_OUT`'s old site is gone, and residual 2 reads it inside
-  `SC_DZC`) — permitted, and each point gets its own pair
-  (`layout.rs:9-10`).
+  is thereby opened at **two** points in the block: `SC_DZC`'s `ρ_D` and
+  `SC_SSM`'s own point. (`c5` and `c9` read `x1` inside `SC_DZC` at the site
+  already counted, `argument.rs:618`, `:637`, and `SC_IO_OUT`'s old site is
+  *removed*, `:757`, so neither is a further point.) Two points are
+  permitted, and each gets its own pair (`layout.rs:9-10`).
 - **Its host is `SC_TZC`, extended, not a new slot.** `Dsq_m` and `a1_m` live
   on `Dom::T`, the same domain `SC_TZC` already runs over, so the second norm's
   T-domain relations and second host term fold in:
@@ -497,6 +519,8 @@ from `A_X1` to `A_X2`. Nothing else about the slot changes: same shape
 `(9, 1, 2)`, same `eq(τ)·(plane − endpoint)` polynomial, same one `A` site and
 one endpoint terminal, same `check_endpoint_opening` shape test
 (`protocol.rs:186-198`). `z16` never becomes an external endpoint (D12 item 3).
+This move of the output endpoint from `A_X1` to `A_X2` is one of the three
+things the guard below holds back to the commit that also lands Tier 2.
 
 **`z16`'s own class.** Residual 2 does **not** prove `z16 ∈ int16`; the
 feed-forward half does, as the kernel does
@@ -504,6 +528,40 @@ feed-forward half does, as the kernel does
 as the existing feed-forward prover does through its `z`/`rd` LogUp helper
 (`zk.rs:2690`). Under form (S) that obligation moves into Tier 2 (§C.5) and
 must be discharged there — it is listed as an open item, not as done.
+
+**A Tier-1-only build must not be presentable as a block (erratum E-1,
+BLOCKING).** In a Tier-1 build `A_Z16` is constrained by `c9 = x2 − x1 − z16`
+and by nothing else: it takes no U8 lookup (§C.1's lookup list gives limbs to
+`A_X2` and none to `A_Z16`), no other relation reads it, and no Tier-1 slot
+ties it to `A_YM`. So for **any** int16 `xres2` a satisfying witness exists
+(`z16 := xres2 − xres1`), and the block statement is **vacuous on its
+output**. Therefore, as a condition on the build:
+
+1. the block profile string `hashline-zk-mr1/private-block-t32-poc/1`,
+   `BlockPublic` carrying `Wg/Wu/Wd/act`, and the `SC_IO_OUT → A_X2` change
+   land **in the same commit as Tier 2**, never before;
+2. until then a Tier-1 build keeps a distinct profile whose statement
+   **excludes** `Wg/Wu/Wd/act` and whose output endpoint keeps `xres1`, so the
+   statement it makes is the statement it proves;
+3. the verifier-side tripwire `block_output_cannot_be_chosen`
+   (`ZK60_PRIVATE_BLOCK_CONSTRUCTION_CHECK.md` §11.3: tamper `z16`
+   consistently, keep `xres2 = xres1 + z16` and every class proof satisfied,
+   require the **verifier** to reject) ships in that same Tier-2 commit and
+   must pass there, **together with the companion assertion that the honest
+   proof verifies** — otherwise the test passes on any build that is broken
+   for an unrelated reason.
+
+**Under ruling R-A there is no Tier-1 build of the accepted component at
+all**: the block is a new module and `hashline/src/private_attention*` is
+never edited, so item 2 governs no artifact there. The guard stands as the
+rule for the **new module's own history**: no commit of
+`hashline/src/private_block*` may carry the block profile string, `BlockPublic`
+with the feed-forward weights and activation table, or the output endpoint on
+`A_X2`, before the commit that also carries Tier 2's relations and this
+tripwire. Tier 2's obligation is correspondingly not only "prove
+`z16 ∈ int16`" — a range lookup alone would leave the gap wide open — but
+"**derive `z16` from `nm` through the three matmuls, the activation lookup and
+the product**".
 
 ### C.3 The counts, next to the accepted ones
 
@@ -583,8 +641,8 @@ grown:     + 7 helpers on Dom::D  7×4 = 28  →  246
 | **`M` rows** | **40** | **42** | `2·19 + 4` (`layout.rs:388`) |
 | **`M` functionals** | **28** | **29** | `19 + 5 + 5` (`layout.rs:533`) |
 | largest CFS slot `L` | 50 (`SC_SZC`) | **50** (`SC_SZC`) | `L_s + 256 = 306 ≤ 512`, headroom 206 |
-| `A` opening groups | 30 | **31** `[ESTIMATE]` | see below |
-| `H` opening groups | 8 | **8** `[ESTIMATE]` | see below |
+| `A` opening groups | 30 | **31**, derived | see below |
+| `H` opening groups | 8 | **8**, derived | see below |
 | U8 lookups | 47,104 | **54,784** | `2·512 + 34·512 + 13·512 + 12·256 + 13·2048` |
 | exp lookups | 2,048 | 2,048 | unchanged |
 | main + extension rounds | 129 + 20 | **138 + 21** | `+ (9, 1)` for `SC_SSM` |
@@ -595,7 +653,7 @@ The U8 total check, since it is easy to get wrong: today
 `ZK60_PRIVATE_ATTENTION_NATIVE.md:93`. Grown: `1,024 + 17,408 + 6,656 + 3,072 +
 26,624 = 54,784`.
 
-**Why the opening-group counts are `[ESTIMATE]`.** A group is a set of claims
+**Where the opening-group counts come from.** A group is a set of claims
 with the same PCS column key `(point tail, c0, len)`
 (`protocol.rs:62-67`; `zkp-core/src/pcs.rs` `zpart_weights`). The new sites mostly
 *join* existing groups, because they carry the same challenge tail as sites
@@ -606,23 +664,34 @@ windows `c0 ∈ {0, 32, …, 224}` that `A_D`, `A_DSQ` and the nine `A_LIMB`
 sub-slices already occupy **provided `A_DM`, `A_DSQM` and `A_LIMBM` are laid
 out row-aligned in the same pattern** — which the row arithmetic of
 `Layout::new` does automatically. Only `SC_SSM` draws a fresh challenge vector
-and therefore a fresh tail: `+1` group. Hence 31. I have **not** re-derived the
-grouping exhaustively by hand; `scripts/zk60_attention_native_inventory.py`
-does it from the source and is the authority (§G). The same reasoning gives
+and therefore a fresh tail: `+1` group. Hence 31. The same reasoning gives
 `H` unchanged at 8 (7 evaluation groups + the sum group; the 7 new `Dom::D`
-helpers share `ρ_D`'s tail).
+helpers share `ρ_D`'s tail). I did **not** re-derive the grouping exhaustively
+by hand; the Tier-1 check did, with the committed inventory tool on the grown
+paper schedule, and **both counts are now derived values, not estimates:
+`A` = 31 and `H` = 8, member for member**
+(`ZK60_PRIVATE_BLOCK_CONSTRUCTION_CHECK.md` §7 and its note N-1), so
+`A_GROUPS = 31` and `H_GROUPS = 8` go into `layout.rs`.
+`scripts/zk60_attention_native_inventory.py` re-derives them from the source
+and remains the authority (§G); both are transcript-bound through
+`describe()`, and a mis-declaration is a hard refusal on both sides
+(`protocol.rs:164-166`).
 
 ### C.4 Receipt bytes
 
 The published frame is 2,245,800 bytes = "136 envelope + roots, 11,296
 arguments, 223,232 M, 980,992 A, 768,000 H, 262,144 endpoints"
-(`ZK60_PRIVATE_ATTENTION_NATIVE.md:94`). Reverse-deriving a model that
-reproduces all four large figures exactly makes the grown frame computable
-rather than guessed. The model:
+(`ZK60_PRIVATE_ATTENTION_NATIVE.md:94`). The byte model is **read out of
+`hashline/src/private_attention/wire.rs:28-36`** (`opening_len`,
+`encoded_len`), verbatim — it is not fitted to the published figures, and it
+reproduces all four of them exactly, which makes the grown frame derived
+rather than guessed. The model, with `MASK_VEC = 1024` and `MASK_PATH = 12`
+(`wire.rs:23`, `:25`):
 
 ```
 opening(groups, rows) = (groups + 1)·512·16 + 256·(8 + rows·8 + 32 + 11·32)
-mask_open(M_ROWS)     = 512·16 + 256·(8 + M_ROWS·8 + 32 + 15·32)
+mask_open(M_ROWS)     = 2·MASK_VEC·16 + 256·(8 + M_ROWS·8 + 32 + MASK_PATH·32)
+                      = 2·1024·16     + 256·(8 + M_ROWS·8 + 32 + 12·32)
 arguments             = 16·( N_SLOTS + Σ_s (main+ext)·(degree+1) + terminals )
 ```
 
@@ -630,7 +699,8 @@ Checks against the published numbers: `A` = `31·8192 + 256·2840 = 980,992` ✓
 `H` = `9·8192 + 256·2712 = 768,000` ✓; each endpoint
 `2·512·16 + 256·(8 + 7·8 + 32 + 11·32) = 131,072`, two of them `262,144` ✓
 (the same constant the feed-forward profile hard-codes,
-`zk_ffn_fresh_io.rs:15`); `M` = `8,192 + 256·840 = 223,232` ✓;
+`zk_ffn_fresh_io.rs:15`); `M` = `32,768 + 256·(8 + 40·8 + 32 + 384)
+= 32,768 + 256·744 = 223,232` ✓;
 arguments: `Σ (main+ext)(degree+1)` over `SLOTS` (`layout.rs:319-338`) is
 **576**, terminals are `75 + 35 + 2 = 112`, so
 `16·(18 + 576 + 112) = 11,296` ✓; envelope `40` (`wire::HEADER`) + three
@@ -642,20 +712,32 @@ Grown:
 |---|---:|---:|---|
 | envelope + roots | 136 | 136 | unchanged |
 | arguments | 11,296 | **12,656** | `Σ(main+ext)(deg+1)` = 576 + 40 (`SC_SSM`: 10·4) + 10 (`SC_LZC` 10·4 → 10·5) = **626**; terminals `102 + 42 + 2 = 146`; `16·(19 + 626 + 146)` |
-| `M` opening | 223,232 | **227,328** | `8,192 + 256·(8 + 42·8 + 32 + 480)` |
-| `A` opening | 980,992 | **1,161,216** | `32·8,192 + 256·(8 + 390·8 + 32 + 352)`, at 31 groups `[ESTIMATE]`; each further group costs 8,192 |
+| `M` opening | 223,232 | **227,328** | `32,768 + 256·(8 + 42·8 + 32 + 384)` |
+| `A` opening | 980,992 | **1,161,216** | `32·8,192 + 256·(8 + 390·8 + 32 + 352)`, at the derived 31 groups; each further group costs 8,192 |
 | `H` opening | 768,000 | **854,016** | `9·8,192 + 256·(8 + 332·8 + 32 + 352)` |
 | endpoints | 262,144 | 262,144 | unchanged |
 | **total** | **2,245,800** | **2,517,496** | **+12.1 %** |
 
-The model itself is reverse-derived from four published figures and is not read
-out of `pcs.rs`; treat the *grown* total as derived-modulo-that-model, and the
-group count as `[ESTIMATE]`.
+The model itself is `wire.rs:28-36` verbatim, so the *grown* total is derived
+from source, and the group count 31 is derived too
+(`ZK60_PRIVATE_BLOCK_CONSTRUCTION_CHECK.md` §7).
 
 ### C.5 Tier 2: the feed-forward half under form (S) — `[ESTIMATE]`
 
-Everything in this subsection is an estimate. It is here so the security owner
-can see the whole block's shape, not because the encoding has been designed.
+> **Superseded — do not build from this subsection** (security owner,
+> 2026-09-19). The feed-forward half is designed precisely in
+> `ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2.md`, and its derived, independently
+> checked whole-block figures replace every estimate below: `A` 455 rows (not
+> ~510), `H` 384 (not ~410), 120 / 51 claim sites, 23 slots, 50 `M` rows, 34
+> functionals, opening groups `A` 35 / `H` 9, receipt 2,816,472 bytes (not
+> ~3.1 MB). The estimates are kept only as the record of what was guessed
+> before the design existed.
+
+Everything in this subsection is an estimate, with two exceptions marked in
+the table: the new-slot count and the slots / `M` rows / functionals line now
+carry the **derived** figures (erratum E-15). It is here so the security owner
+can see the whole block's shape; the encoding itself is designed in
+`ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2.md`, not here.
 
 What the feed-forward must prove, from the kernel
 (`private-block-kernel/src/lib.rs:627-645`): `g = nm·Wg` requantized at
@@ -663,8 +745,13 @@ What the feed-forward must prove, from the kernel
 `a = act[g + 128]` from the public 256-entry activation table;
 `h = a·u` requantized at `SH_H = 14` into int16; `z = h·Wd` at `SH_Z = 6` into
 int16. At this geometry `F = D = 16`, so the `f` axis is the same 512-entry,
-9-variable cube as `Dom::D` and **no new domain is needed** — that is a
-property of the tiny geometry and will not hold at 125M or 8B.
+9-variable cube as `Dom::D` — but **a new `Dom::F` variant is required
+anyway, at every geometry**: `Dom` keys the lookup list, the helper block,
+`LOOKUP_DOMS` **and** `lookup_values`'s per-domain enumeration
+(`layout.rs:221`, `:263`, `:274`; `protocol.rs:203-208`), and `Dom::Q` is the
+precedent for two variants at the same log (`layout.rs:64-65`, "same flat
+index as `D`"). Only the *log* coincides with `Dom::D`'s here, and that
+coincidence of size will not hold at 125M or 8B.
 
 | Item | `[ESTIMATE]` | Reasoning |
 |---|---:|---|
@@ -674,10 +761,10 @@ property of the tiny geometry and will not hold at 125M or 8B.
 | new `H` helper planes | ~8 + 1 | `⌈16/2⌉` on the cube, plus the activation-table helper |
 | new `A` sites | ~30 | three matmul slots (1 site each), one zero-check over the `f` cube (~20 sites), the `TAB` extension (2) |
 | new `H` sites | ~9 | one per helper in the zero-check, one in `TAB` |
-| new slots | 5 | `SC_GMM`, `SC_UMM`, `SC_DMM` (private matmuls) + `SC_FZC` (their host, plus the activation/product relations and the `f`-cube LogUp helpers); the down matmul is hosted by `SC_DZC`, which already hosts `SC_WO` |
+| new slots | **4** | `SC_GMM`, `SC_UMM`, `SC_DMM` (private matmuls) + `SC_FZC` (their host, plus the activation/product relations and the `f`-cube LogUp helpers) — four, which is what this cell names; the down matmul is hosted by `SC_DZC`, which already hosts `SC_WO`, and adds no slot |
 | `A` rows, whole block | ~510 | 390 + 40 data + 2·30 pairs |
 | `H` rows, whole block | ~410 | 332 + 9·4 data + 2·9 pairs |
-| slots / `M` rows / functionals | 24 / 52 / 37 | 19 + 5 slots |
+| slots / `M` rows / functionals | **23 / 50 / 34** | `19 + 4` slots; `M` rows `2·23 + 4`; functionals `23 + 5 + 6` (`layout.rs:388`, `:533`). Derived and tool-confirmed in `ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2_CHECK.md` §5.2 and §7.4; these three figures replace the ones this draft first carried, which counted five new slots while naming four (erratum E-15) |
 | receipt | ~3.1 MB | the model of §C.4 at those rows and ~33 `A` groups |
 
 The two structural questions Tier 2 must answer and this memo does not: (i)
@@ -705,11 +792,29 @@ statement (a whole block, two different external endpoints), and reusing
 either profile's Fiat–Shamir domain would let a receipt for one be considered
 against the other's statement.
 
+**When this string, and this statement, may first exist (erratum E-1,
+BLOCKING).** This profile string, the `BlockPublic` payload of step 3 below
+(with `Wg`, `Wu`, `Wd` and the activation table) and the move of the output
+endpoint to `A_X2` at step 11 slot 18 must land **in the same commit as Tier
+2's relations**, never before, together with the verifier-side tripwire
+`block_output_cannot_be_chosen` and the companion assertion that the honest
+proof verifies (§C.2). Before that commit, any build stops at a distinct
+profile whose statement excludes `Wg/Wu/Wd/act` and whose output endpoint
+keeps `xres1`. Under ruling R-A no such build exists in the accepted attention
+module, which is not edited; the guard is the rule for the new block module's
+own history.
+
 **The order.** Written in the style of
-`ZK60_PRIVATE_ATTENTION_CONSTRUCTION.md:104-112`, but at the granularity of the
-actual absorb calls, because that is what the transcript-order gate compares
-(`acc.order`, `argument.rs:255`, `:328`, `:335`; returned as
-`ProveStats.transcript_order`, `private_attention.rs:264`).
+`ZK60_PRIVATE_ATTENTION_CONSTRUCTION.md:104-112`, at the granularity of the
+actual absorb calls. Note what this granularity is **not** justified by: the
+transcript-order gate (`acc.order`, `argument.rs:255`, `:328`, `:335`;
+returned as `ProveStats.transcript_order`, `private_attention.rs:264`) holds
+exactly **three coarse strings per slot** ("slot NN begin", "slot NN
+scalar+rounds", "slot NN terminals") and covers **nothing outside the slot
+loop** — not the header labels, not the roots, not `β/γ/α`, not the openings.
+The list below is the right order (the Tier-1 check verified it against
+`protocol.rs`), but if it is to be *enforced* at this granularity, `acc.order`
+must grow to record it.
 
 ```
   1  Transcript::new("hashline-zk-mr1/private-block-t32-poc/1")        NEW string
@@ -734,15 +839,15 @@ actual absorb calls, because that is what the transcript-order gate compares
         (a) `define(s)` draws the slot's own challenge vectors
             (tau, the mu vector, the nu vector, and the point vectors it publishes
              into `Points` for later slots)
-        (b) absorb_u64 "pb-slot" <- s                                   NEW label (was "pa-slot")
+        (b) absorb_u64 "pb-slot" <- s          OPTIONAL rename (R-B); "pa-slot" may be kept
         (c) challenge c_s            (refused if zero)
-        (d) absorb_fp2 "pb-scalar" <- the ONE published scalar          NEW label (was "pa-scalar")
+        (d) absorb_fp2 "pb-scalar" <- the ONE published scalar   OPTIONAL rename (R-B)
               private slot : claim_s = s_s + c_s·G_s
               standalone   : Gamma_s = c_s·G_s
               host         : Gamma_host = c_h·G_h − sum_i nu_i·kappa_i·c_i·G_i
         (e) main sumcheck rounds (each round message absorbed, each round challenge drawn)
         (f) one extension round per private factor family (two for the bilinear slots)
-        (g) absorb_fp2 "pb-term" <- the masked terminals, in table order NEW label (was "pa-term")
+        (g) absorb_fp2 "pb-term" <- the masked terminals, in table order  OPTIONAL rename (R-B)
 
         slot order (module index : name : kind):
            00  SS_a           private  -> hosted by 02
@@ -787,11 +892,16 @@ three challenge draws `β, γ, α` in that order, and the whole opening block
 challenge-refusal replay from a cloned transcript, `protocol.rs:168-169`,
 `:196-197`). Their *payloads* change where noted; the labels do not.
 
-**New.** `"calibration"` (step 5, §F) and the three per-slot labels renamed
-`pb-slot` / `pb-scalar` / `pb-term`. The rename is cosmetic — the profile
-string at step 1 already separates the domains — but it makes a captured
-transcript self-describing and stops a copy-paste of the attention module's
-slot loop from silently producing attention-labelled block material.
+**New.** `"calibration"` (step 5, §F). The three per-slot labels **may** be
+renamed `pb-slot` / `pb-scalar` / `pb-term`, and under ruling R-B that rename
+is **not required**: the profile string at step 1 and the schedule digest at
+step 6 already separate the Fiat–Shamir domains, and the rename adds no
+separation they do not already give. It is not "cosmetic" either — the labels
+are hard-coded in `run_slot`, the shared code path (`argument.rs:254`, `:274`,
+`:305`, `:334`) — but under ruling R-A the block is a new module with its own
+copy of that path, so renaming forks nothing and cannot touch the accepted
+attention component's transcript. What it buys is a self-describing captured
+transcript; the choice is the implementer's.
 
 **Host-after-hosted is preserved.** `layout.rs:540` asserts `s < host` for
 every hosted slot, and a host's claimed sum consumes the hosted slots' masked
@@ -972,19 +1082,24 @@ only by the pair of `u64` slot ids folded into its digest
 load-bearing and deliberate: it is why a feed-forward IO endpoint cannot be
 presented to the attention prover (`private_attention.rs:155`,
 `into_ffn_endpoint` refusal at `private_seam.rs:156-161`). Nothing enumerates
-the allocation anywhere.
+the **endpoint slot-id** allocation anywhere. (The LogUp *table tag* namespace
+is a different thing and **is** enumerated — see Decision 10 and `tables_attn.rs`.)
 
 **Proposed allocation**, to be written down in one place (a `SLOT_TAGS` table
 in `private_seam.rs` plus this memo) and owned by the security owner:
 
 | Slots | Profile / role | Status |
 |---|---|---|
-| 1 / 2, 3 / 4 | `hashline-zk-mr1/ffn-v3-mr1-fresh-io-poc/2` input, output (`zk_ffn_fresh_io.rs:40-42`) | allocated, in use |
+| 1 / 2, 3 / 4 | `hashline-zk-mr1/ffn-v3-mr1-fresh-io-poc/2` input, output (`zk_ffn_fresh_io.rs:40-42`); 1 / 2 also appears in the seam suite's negative fixtures (`hashline/tests/zk60_private_seam.rs:193`, `:202-205`) | allocated, in use |
+| **10 / 11** | the standalone `private_seam` example and test fixtures (`hashline/examples/zk60_seam_receipt.rs:26`; `hashline/tests/zk60_private_seam.rs:8`, `:90-93`, `:219`) | **allocated, in use** |
 | 21 / 22, 23 / 24 | `hashline-zk-mr1/private-attention-t32-poc/1` input `x_in`, output `xres1` (`private_attention.rs:157`) | allocated, in use |
 | **41 / 42** | **block input endpoint `x_in`** | proposed |
 | **43 / 44** | **block output endpoint `xres2`** | proposed |
 | 45 / 46, 47 / 48 | reserved for form-(E) internal seams (`nm`, `z16`) | reserved, unused under form (S) |
 | 61 / 62 | reserved for the block-to-block residual seam (A4 / S5) | reserved, out of scope |
+
+A repo-wide grep of `SeamSpec::new` finds only `{1, 2, 3, 4}`, `{10, 11}` and
+`{21, 22, 23, 24}` in use, so 41–48 and 61/62 are genuinely free.
 
 **Why the block needs its own pair rather than reusing 21–24.** If the block
 reused the attention profile's tags, the only thing separating a block endpoint
@@ -1038,7 +1153,8 @@ statically, builds the inventory, and calls the other two tools by file path
   main_rounds_total 129, ext_rounds_total 20`, the eighteen `SLOTS` triples and
   `hosts_by_index {1:[0], 10:[9], 11:[4,8], 12:[5,6], 13:[3,7]}`. The grown
   values from §C.3 replace them: `390 / 184 / 204`, `332 / 246 / 84`,
-  `102 / 42`, `31 [ESTIMATE] / 8 [ESTIMATE]`, `42 / 29`, `largest_L 50`,
+  `102 / 42`, `A_GROUPS 31 / H_GROUPS 8` (derived, not estimated —
+  `ZK60_PRIVATE_BLOCK_CONSTRUCTION_CHECK.md` §7), `42 / 29`, `largest_L 50`,
   `54784 / 2048`, `138 / 21`, nineteen triples, and
   `hosts_by_index {2:[0,1], 11:[10], 12:[5,9], 13:[6,7], 14:[4,8]}`.
 - **`A_GROUPS` / `H_GROUPS` are the tool's answer, not the memo's.** It
@@ -1053,7 +1169,7 @@ Every one of these must read `disclosed_dim = 0`, `verdict = PASS`:
 
 | Verdict key | Expected | Note |
 |---|---:|---|
-| `whole_A_per_column` | 0 | all ~31 groups plus the proximity pair, jointly, per column |
+| `whole_A_per_column` | 0 | all 31 groups plus the proximity pair, jointly, per column |
 | `whole_A_with_values_n4` | 0 | the same with the terminal values |
 | `whole_H_per_column` | 0 | |
 | `group_A_g0 … g30` | 0 each | every opening group alone |
@@ -1065,18 +1181,27 @@ Every one of these must read `disclosed_dim = 0`, `verdict = PASS`:
 formula `2m + 2n − 2 + 2n` (the tool checks it,
 `zk60_attention_pair_schedule.py:1117-1119`).
 
-**Negative controls that must still fire.** Accepted values in brackets; the
-ones marked *grows* will report a larger number on the grown layout, and a
-larger number is a pass — a *smaller or zero* number is a stop.
+**Negative controls that must still fire.** Accepted values in brackets. For
+the two `no_mask_*` controls the grown layout reports a larger number, and a
+larger number is a pass while a *smaller or zero* number is a stop. **That
+rubric does not apply to every control**, and applying it to
+`single_base_row_per_claim_A_per_column` would raise a false stop on a
+correct implementation: that control's pass criterion is **equality with the
+tool's derived `native_singleton_expectation`**, not growth. It *falls* to 13
+on the grown Tier-1 layout (growing `SC_TZC` turns its seven `c0 = 32…224`
+singleton groups into two-member groups) and rises to 16 once Tier 2 adds
+three singleton matmul groups; both are passes, and both were measured
+(`ZK60_PRIVATE_BLOCK_CONSTRUCTION_CHECK.md` C-5,
+`…_TIER2_CHECK.md` §7.5).
 
 | Control | accepted | grown expectation |
 |---|---:|---|
-| `no_mask_A_per_column` | 37 | grows |
-| `no_mask_A_with_values_n4` | 208 | grows |
-| `single_base_row_per_claim_A_per_column` | 15 | grows |
+| `no_mask_A_per_column` | 37 | grows (measured 43 on Tier 1, 49 on the whole block) |
+| `no_mask_A_with_values_n4` | 208 | grows (measured 256 on Tier 1, 304 on the whole block) |
+| `single_base_row_per_claim_A_per_column` | 15 | **13** on Tier 1, 16 on the whole block; pass = equality with the derived expectation, not growth |
 | `single_prox_row_singleton_pair_claim_per_column` | 1 | 1 |
 | `prox_pair_singleton_pair_claim_per_column` *(positive control)* | 0 | 0 |
-| `helper_sums_published_n4` | 70 | grows (~82 `[ESTIMATE]`, two per published helper sum) |
+| `helper_sums_published_n4` | 70 | **84** on Tier 1 (measured), 100 on the whole block. State the criterion, not the number: `disclosed_dim = 2 × (modelled helper columns) + 6`, with `rank_of_the_sums = 2 × helpers` exactly — 64+6 = 70, 78+6 = 84, 94+6 = 100. (The rule `2 × (H claim sites)` fits the first two by coincidence and breaks on the whole block, where `2 × 51 = 102 ≠ 100`.) |
 | `zero_sum_row_without_fresh_pair_n4` | 8 | ≥ 8 |
 | `flipped_rope_SC_QZC_sharing_pair_with_values_n4` | 2 | 2 |
 | `flipped_rope_SC_KVZC_sharing_pair_with_values_n4` | 2 | 2 |
@@ -1221,13 +1346,20 @@ tool's is `--inventory --out [--hosts] [--alt-hosts] [--seed]`
   about 8B (`…_DISPOSITION.md:36`), and the ~12 % receipt growth of §C.4 is a
   byte count, not a time.
 - **D9** (`fp()` reduction bias) applies unchanged.
-- **The no-wraparound premise grows.** R-2 re-derived every constrained
-  integer expression for the attention half
-  (`ZK60_PRIVATE_ATTENTION_NATIVE_REVIEW_R2.md`). `norm_m`'s bounds are
-  *structurally* the same as `norm_a`'s but its input is `xres1`, an int16
-  value that can be twice as large as `x_in` at the extremes, so
-  `ss_m = Ceps + Σ xres1²` and `D_m² + a1_m` must be re-bounded, not assumed.
-  This is an R-2-shaped obligation on the grown layout and it is not done here.
+- **The no-wraparound premise grows — as a re-run, not a re-derivation.** R-2
+  re-derived every constrained integer expression for the attention half
+  (`ZK60_PRIVATE_ATTENTION_NATIVE_REVIEW_R2.md`). `norm_m`'s bounds are the
+  same as `norm_a`'s, and not merely structurally: the class the verifier
+  enforces on `xres1` is the class it enforces on `x_in` — the identical
+  two-limb, offset-32768 pattern, `byte(A_XL0)`/`byte(A_XL1)`
+  (`layout.rs:226`) with `c2` (`argument.rs:634`) for `x_in`, and
+  `byte(A_X1L0)`/`byte(A_X1L1)` (`layout.rs:232`) with `c4` (`:636`) for
+  `xres1`, both `[−32768, 32767]`. Under R-2's own method (bound over the
+  ranges the verifier enforces, never over what an honest prover produces)
+  every `norm_m` bound is therefore **bit-identical** to `norm_a`'s, worst
+  case `562,949,886,312,450 < 2⁴⁹`, unchanged. So what is owed on the grown
+  layout is a **re-run** of the R-2 machinery over the grown expression list,
+  not a re-derivation — and that re-run is not done here.
 
 ### H.2 Things found in the code or the documents that bear on D12 or the gap inventory
 
@@ -1299,10 +1431,24 @@ overturn. Recommendation first, then one sentence of reason.
 4. **The block's output endpoint carries `xres2`; `z16` and `nm` are never
    external endpoints.** D12 item 2 fixes the block's boundary at two external
    endpoints and item 3 forbids a caller-fixed root for a hidden intermediate.
-5. **Profile string `hashline-zk-mr1/private-block-t32-poc/1`, a new
-   `"parameters"` payload, and per-slot labels renamed `pb-slot` /
-   `pb-scalar` / `pb-term`.** A different statement must not share a
-   Fiat–Shamir domain with the attention-half component.
+   **With the E-1 guard attached** (§C.2): that endpoint move, the block
+   profile string and a `BlockPublic` carrying `Wg/Wu/Wd/act` land only in the
+   commit that also lands Tier 2's relations and the verifier-side tripwire
+   `block_output_cannot_be_chosen` (plus the assertion that the honest proof
+   verifies), because on Tier 1 alone `A_Z16` is unconstrained and the block
+   statement is vacuous on its output. Under R-A the guard governs the new
+   block module's history; the accepted attention module is not edited.
+5. **Profile string `hashline-zk-mr1/private-block-t32-poc/1` and a new
+   `"parameters"` payload; the per-slot labels are NOT required to be
+   renamed.** A different statement must not share a Fiat–Shamir domain with
+   the attention-half component, and the profile string plus the schedule
+   digest already give that separation — so, per ruling **R-B**, renaming
+   `pa-slot` / `pa-scalar` / `pa-term` to `pb-*` is left to the implementer.
+   It is not "cosmetic" (the labels are hard-coded in `run_slot`, the shared
+   path, `argument.rs:254`, `:274`, `:305`, `:334`), but under **R-A** the
+   block module owns its own copy of that path, so a rename forks nothing and
+   cannot disturb the accepted component's transcript, its receipt or the
+   R-1 / R-2 records.
 6. **Extend `SC_TZC` to host both SS slots rather than adding a second
    `Dom::T` zero-check.** The second norm's `T`-domain planes live on the same
    32-entry domain, so one host keeps the slot count at 19 and `M` at 42 rows;
@@ -1310,7 +1456,8 @@ overturn. Recommendation first, then one sentence of reason.
 7. **Add a second `Dom::L` plane `A_LIMBM` rather than repacking `A_LIMB`, and
    accept `SC_LZC` going from degree 3 to degree 4.** `A_LIMB` has seven free
    32-entry sub-planes and `norm_m` needs nine, so repacking is not available;
-   the degree rise costs `L` 32 → 42 and ten proof bytes.
+   the degree rise costs `L` 32 → 42 and 160 proof bytes, where the rejected
+   alternative of a second `Dom::L` slot would cost about 16.9 kB (§C.1).
 8. **Insert `SC_SSM` at slot index 1, renumbering the rest.** The host-runs-
    after-hosted invariant (`layout.rs:540`) requires both SS slots before
    `SC_TZC`, and keeping them adjacent makes the two norms read as one pattern.
@@ -1321,9 +1468,14 @@ overturn. Recommendation first, then one sentence of reason.
 10. **Allocate endpoint slot tags 41/42 and 43/44 to the block, reserve 45–48
     for form-(E) seams and 61/62 for the block-to-block seam, and enumerate
     the whole namespace in one table; allocate a third LogUp table tag
-    `TAG_ACT` for the activation table.** Nothing enumerates either namespace
-    today, and under form (S) the activation table shares one `(β, γ, α)` draw
-    with the U8 and exp tables.
+    `TAG_ACT` for the activation table.** Nothing enumerates the **endpoint
+    slot-id** namespace today. The **LogUp table-tag** namespace is a
+    different case: `hashline/src/tables_attn.rs:28-30`, `:47-79` already
+    enumerates the attention statement's tags and declares them disjoint from
+    the feed-forward's, so `TAG_ACT` must be allocated *into* that file rather
+    than invented beside it — which Tier 2 does, with `TAG_ACT = 134`,
+    confirmed free repo-wide. Under form (S) the activation table shares one
+    `(β, γ, α)` draw with the U8 and exp tables.
 11. **Build the named manifest (`RoleSet` from `Layout`, `finalize` naming a
     missing or doubled role) even though `audit_claims` already refuses both
     positionally.** The positional check cannot say which role was skipped,
@@ -1332,7 +1484,14 @@ overturn. Recommendation first, then one sentence of reason.
 12. **Re-run all three tools and update `NOTE_EXPECT` before the component is
     called a block; the accepted R-1 / R-2 verdicts do not transfer.** Every
     count they asserted changes, and the transfer is the thing G10 says must
-    not be assumed.
+    not be assumed. This decision is about re-running the tools and is **not**
+    the guard against a premature block statement: that guard is E-1 (§C.2 and
+    §D) — the block profile string, `BlockPublic` with the feed-forward
+    weights and the activation table, and the output endpoint on `A_X2` land
+    only in the commit that lands Tier 2 and the tripwire
+    `block_output_cannot_be_chosen` with its honest-proof companion
+    assertion, never before. Under R-A that rule governs the new block
+    module's own history, since the accepted attention module is not edited.
 13. **Accept, for the tiny block only, that form (S) re-derives the
     feed-forward on the host and does not inherit the GPU prover; record the
     8B revisit with the two measurements of §B.3.** Simplest-first: the tiny
@@ -1366,15 +1525,22 @@ openings, or `zkp-core/src/pcs.rs` at all — the PCS column-key rule I use in
 §C.3 is taken from the native module's own re-implementation of it
 (`protocol.rs:62-67`) and from the inventory tool's (`:830-834`).
 
-**Not derived.** (a) The grown `A_GROUPS` / `H_GROUPS`: I argued that only
-`SC_SSM` contributes a fresh column tail, and did not enumerate the grouping.
+**Not derived *here*.** (a) The grown `A_GROUPS` / `H_GROUPS`: I argued that
+only `SC_SSM` contributes a fresh column tail, and did not enumerate the
+grouping — the Tier-1 check did enumerate it with the committed inventory tool
+and derived `A` = 31, `H` = 8 member for member
+(`ZK60_PRIVATE_BLOCK_CONSTRUCTION_CHECK.md` §7).
 (b) The whole of §C.5 (Tier 2, the feed-forward half): plane counts, site
-counts, slot shapes, rows and bytes are estimates, and the feed-forward's
-encoding has not been designed. (c) Whether `SH_U = 0` leaves the "up"
-remainder plane and its lookups empty. (d) The byte model of §C.4 is
-reverse-derived from four published figures; it reproduces all four exactly but
-is not read out of the PCS source. (e) The exact grown value of the
-`helper_sums_published` control. (f) Whether `SC_DZC`'s μ vector growing from
+counts, slot shapes, rows and bytes are estimates here, and the feed-forward's
+encoding is designed in `ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2.md`, not in
+this memo. (c) Whether `SH_U = 0` leaves the "up"
+remainder plane and its lookups empty. (d) The byte model of §C.4: I
+reproduced it from four published figures without reading its source, but it
+is not a reverse-derivation — it is
+`hashline/src/private_attention/wire.rs:28-36` (`opening_len`, `encoded_len`)
+verbatim, as the Tier-1 check established (its C-3). (e) The exact grown value
+of the `helper_sums_published` control — measured at 84 by the Tier-1 check.
+(f) Whether `SC_DZC`'s μ vector growing from
 `6 + 10` to `10 + 17` has any effect I have not foreseen on the extension-round
 premise — I checked the *degree* argument, not the full monomial expansion that
 R-2 did for the accepted layout.
@@ -1399,3 +1565,31 @@ no ruling was reopened (D1, D3, D4, D5 and D12 stand as recorded), nothing
 under `/home/victor/IntelligenceRegulation` was touched, and no file other than
 this one was created or edited. The zkVM route (D7) is a separate profile and
 was not compared against this construction.
+
+## Errata applied (2026-09-19)
+
+Every change below is an item of `ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2_CHECK.md`'s
+errata table (E-1 … E-22, which merges the Tier-1 check's B-1 and C-1 … C-11)
+or a ruling of `ZK60_PRIVATE_BLOCK_CONSTRUCTION_DISPOSITION.md` (R-A, R-B).
+Nothing else in this memo was edited. E-2 and E-17 … E-22 touch Tier 2 only
+and are recorded in that memo's own table.
+
+| Item | Section changed | What changed |
+|---|---|---|
+| **E-1** (BLOCKING) | §C.2 (new guard block and the "Endpoint" paragraph), §D (profile string), Decision 4, Decision 12 | Added the guard: the block profile string, `BlockPublic` with `Wg/Wu/Wd/act` and the `SC_IO_OUT → A_X2` move land **in the same commit as Tier 2**, never before; until then a build keeps a distinct profile excluding `Wg/Wu/Wd/act` with its output endpoint on `xres1`; the verifier-side tripwire `block_output_cannot_be_chosen` ships in that commit with the companion assertion that the honest proof verifies. Recorded that under R-A there is no Tier-1 build of the accepted component at all, so the guard is the rule for the new block module's history. |
+| E-3 | §C.1, the `SC_SSM` bullet | `A_X1` is opened at **two** points, not four: `SC_DZC`'s `ρ_D` and `SC_SSM`'s own point; `c5`/`c9` read it at the site already counted and the removed `SC_IO_OUT` site is not a point. |
+| E-4 | §H.1, last bullet | Dropped the premise that `xres1` can be larger than `x_in`: both are enforced int16 by the identical two-limb, offset-32768 pattern (`layout.rs:226`/`:232` with `argument.rs:634`/`:636`), so every `norm_m` bound is bit-identical to `norm_a`'s, worst case `562,949,886,312,450 < 2⁴⁹`, and what is owed is a **re-run, not a re-derivation**. |
+| E-5 | §C.4 (model header and closing note), §B.2, §I "not derived" (d) | The byte model is **read out of `hashline/src/private_attention/wire.rs:28-36`** verbatim, not reverse-derived from published figures and not absent from source; every "reverse-derived" claim removed. |
+| E-6 | §C.4 (the `mask_open` line, the accepted-`M` check, the grown `M` row), §B.2 | `mask_open` is `2·MASK_VEC·16 + 256·(8 + M_ROWS·8 + 32 + MASK_PATH·32)` with `MASK_VEC = 1024`, `MASK_PATH = 12` — i.e. `32,768` and `12·32`, not `8,192` and `480`; the totals 223,232 and 227,328 are unchanged because the two errors cancel. (The §B.2 form-(E) figure, which used the same wrong form, was recomputed to 182,272.) |
+| E-7 | §G.2, the negative-control rubric and the `single_base_row_per_claim_A_per_column` row | The "larger is a pass, smaller is a stop" rubric is restricted to the two `no_mask_*` controls; `single_base_row_per_claim_A_per_column` passes on **equality with the derived `native_singleton_expectation`** — 13 on Tier 1, 16 on the whole block. |
+| E-8 | §G.2, the `helper_sums_published_n4` row | The estimate "~82" is replaced by the measured 84 (Tier 1) and 100 (whole block) and, as the criterion, `disclosed_dim = 2 × (modelled helper columns) + 6` with `rank_of_the_sums = 2 × helpers`. |
+| E-9 | §C.1 (the alternative to Decision 7), Decision 7 | The rejected alternative **costs about 16.9 kB** (arguments +512 B, `M` +2 rows, `H` +6 rows, because `helper_sum` cannot be split across slots); it does not save 10 bytes. Decision 7's mirror figure is now 160 proof bytes for the degree rise. |
+| E-10 | §F.2, the `SLOT_TAGS` table | Added the row **10 / 11** (the standalone `private_seam` example and test fixtures), noted 1 / 2 in the negative fixtures, and recorded that 41–48 and 61/62 are genuinely free. |
+| E-11 | §F.2 prose, Decision 10 | "Nothing enumerates either namespace" is true only of the endpoint slot ids: the LogUp table tags **are** enumerated in `tables_attn.rs:28-30`, `:47-79`, which declares them disjoint from the feed-forward's, so `TAG_ACT` is allocated *into* that file (Tier 2's 134). |
+| E-12 | §D, "The order" | The per-absorb granularity is no longer justified by the transcript-order gate: `acc.order` holds three coarse strings per slot and covers nothing outside the slot loop; the list is right, its justification was not, and enforcing it needs `acc.order` to grow. |
+| E-13 | Decision 5, §D "New.", §D slot-loop steps (b)/(d)/(g), §B.1 change table | The `pb-*` rename is not "cosmetic" — the labels are hard-coded in the shared `run_slot` — and under R-A/R-B it is optional; the change table now names the block module's own `argument.rs` copy. |
+| E-14 | §B.1 change table (`layout.rs` row), §C.5 | A new `Dom::F` **variant** is required at every geometry, not only when `F != D`: `Dom` keys the lookup list, the helper block, `LOOKUP_DOMS` and `lookup_values`; `Dom::Q` is the precedent at the same log. Only the *log* coincides here. |
+| E-15 | §C.5, the "new slots" and "slots / `M` rows / functionals" cells | New slots **4**, not 5 (the cell names exactly four); the slots / `M` rows / functionals line becomes **23 / 50 / 34**, derived and tool-confirmed. |
+| E-16 | §C.3 (totals and the group-count paragraph), §C.4, §G.1 `NOTE_EXPECT`, §G.2, §I "not derived" (a) | Tier 1's own opening-group `[ESTIMATE]` tags dropped: `A` = 31 and `H` = 8 are **derived** member for member by the Tier-1 check (`…_CHECK.md` §7, its N-1) and go into `layout.rs`. (The whole-block 35 / 9 of E-16 proper is Tier 2's and is recorded there.) |
+| **R-A** | §B.1 "what must change, in which files" (+ the tool note), §C.2 guard, Decisions 4, 5 and 12 | The block is a **new module**, `hashline/src/private_block.rs` and `hashline/src/private_block/{layout,witness,argument,protocol,wire}.rs` with its own example and test file, grown from a copy of the attention module; `hashline/src/private_attention*` is **not edited**; the inventory tool must take the module path as a parameter. |
+| **R-B** | Decision 5, §D "New." and the slot-loop label lines | The new profile string and `"parameters"` payload are accepted; renaming the per-slot labels to `pb-*` is **not required** and is left to the implementer. |

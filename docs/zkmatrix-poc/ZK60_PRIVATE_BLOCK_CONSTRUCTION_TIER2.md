@@ -1,6 +1,6 @@
 # ZK60 — Tier 2: the feed-forward half of the composed private block, in the attention module's idiom
 
-**Status: DRAFT for the security owner's review — NOT ACCEPTED. Prepared by a delegated Opus agent on 2026-09-19. Extends ZK60_PRIVATE_BLOCK_CONSTRUCTION.md section C.5. (draft complete)**
+**Status: ACCEPTED AS THE DESIGN TO BUILD, per `ZK60_PRIVATE_BLOCK_CONSTRUCTION_DISPOSITION.md` (security owner, 2026-09-19), with errata E-1 … E-22 of `ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2_CHECK.md` and rulings R-A and R-B applied in this text. Not a privacy acceptance; no privacy property is established; no speed claim. Drafted by delegated Opus agents.** Extends `ZK60_PRIVATE_BLOCK_CONSTRUCTION.md` section C.5.
 
 | | |
 |---|---|
@@ -45,6 +45,21 @@ x_in --(SC_IO_IN)-- A_X --(norm_a)-- A_Y --(QKV,RoPE,softmax,PV,Wo)-- A_AO
 Every arrow is a relation proved inside one sumcheck slot at one random point,
 and every plane named is a plane of the prover's own `A` commitment. No value
 in that chain is ever compared in the clear, and no commitment is opened twice.
+
+**Which files change (ruling R-A).** Every `layout.rs`, `argument.rs`,
+`protocol.rs`, `witness.rs` and `wire.rs` named below is the **block module's
+own copy**: the block is built as a new module, `hashline/src/private_block.rs`
+and `hashline/src/private_block/{layout,witness,argument,protocol,wire}.rs`,
+grown from a copy of the attention module, with its own example and test file
+(`ZK60_PRIVATE_BLOCK_CONSTRUCTION_DISPOSITION.md` §2, R-A, and
+`ZK60_PRIVATE_BLOCK_CONSTRUCTION.md` §B.1). **`hashline/src/private_attention.rs`
+and `hashline/src/private_attention/*` are not edited**, so the accepted
+component's receipt, tests and R-1 / R-2 records stay valid byte for byte; the
+`:line` citations throughout this memo point at the attention module, which is
+the source the copy is grown from. One consequence for the tools:
+`scripts/zk60_attention_native_inventory.py` must take the **module path as a
+parameter**, or it keeps inventorying the attention module while the block
+grows beside it.
 
 **How to read the numbers.** Another agent is independently checking Tier 1's
 counts (390 `A` rows, 332 `H` rows, 102 `A` sites, 42 `H` sites, 19 slots, 5
@@ -161,13 +176,25 @@ Two facts fall out of the single lookup, and both are needed:
    `I8N`, because the table has 256 rows.
 2. `a16 = act[g8 + 128]` — R2 itself.
 
-It is also the reason `a16` needs no range plane at all: its magnitude bound
-`|a16| ≤ 32768` is a property of the *public, digested* table (`act: [i16; 256]`,
-`lib.rs:182`), not of the witness. The existing feed-forward prover agrees: its
-LogUp helper specs cover `g8`/`a16` (as one fused pair), `u16`, `h16` and
-`z`/`rd`, and `a16` never appears in a class lookup of its own
-(`hashline/src/layer.rs:1395-1400`, `c_hg` at `:1695`). The R-2 review records
-the same reasoning for `A_E`, the exp-table output
+It is also the reason `a16` needs no range *plane* at all: its magnitude bound
+`|a16| ≤ 32768` is the value range of the public, digested table. **But that
+bound must be enforced by the proof's own public statement, not assumed of the
+caller's words (erratum E-2, BLOCKING).** The kernel's `act: [i16; 256]`
+(`lib.rs:182`) is a type in a crate the proof never runs, and the public
+statement carries the analogous exp table as `exp: Vec<i64>`
+(`private_attention.rs:66`) whose value range is enforced by an **explicit
+structural check**, `exp.iter().any(|e| !(0..=one_e).contains(e))` at
+`private_attention.rs:97-99`. So `BlockPublic::new` must validate
+`act.iter().all(|v| (-32768..=32767).contains(v))` — or hold `act: [i16; 256]`
+— mirroring that check (§F, §E and decision 7 carry the same condition).
+Without it `a16`'s class is a caller's promise, §E items 5 and 6 are
+unfounded, `f0` can wrap `p`, and `h16` is no longer pinned. With it, the
+conclusion stands. The existing feed-forward prover agrees that no *witness*
+range plane is needed: its LogUp helper specs cover `g8`/`a16` (as one fused
+pair), `u16`, `h16` and `z`/`rd`, and `a16` never appears in a class lookup of
+its own (`hashline/src/layer.rs:1395-1400`, `c_hg` at `:1695`). The R-2 review
+records the same reasoning for `A_E`, the exp-table output — and names the
+public table validation as half of the reason
 (`ZK60_PRIVATE_ATTENTION_NATIVE_REVIEW_R2.md:133`).
 
 ### A.4 R3 — the up matmul, and what `SH_U = 0` removes
@@ -286,10 +313,11 @@ two lookups and one `H` helper cheaper than the draft's `[ESTIMATE]` assumed.
 
 ### B.1 A new `Dom::F` — why a variant is needed even at `F = D`
 
-**A correction to the draft.** `ZK60_PRIVATE_BLOCK_CONSTRUCTION.md:138` and
-`:666-667` say "a new `Dom::F` for the feed-forward inner axis **if `F != D`**
-(at this geometry `F = D = 16`, so `Dom::D` serves)" and "no new domain is
-needed". That is true of the *size* and false of the *variant*. In this module
+**A correction to the draft, now applied there as erratum E-14.** Tier 1
+originally made the new `Dom::F` conditional on `F != D`, concluding that at
+this geometry `Dom::D` serves
+(`ZK60_PRIVATE_BLOCK_CONSTRUCTION.md:138`, `:666-667`, both since corrected).
+Such a conclusion is true of the *size* and false of the *variant*. In this module
 `Dom` is not a size — it is the key of a lookup family, a helper family and a
 zero-check:
 
@@ -502,7 +530,11 @@ shape test at `argument.rs:251`.
 index. `wg_t` is (input, output) (A.2), so the fold is over the *second* index:
 `fold_cols_i8(m, rows, cols, c) = Σ_j c[j]·m[i·cols + j]`
 (`zkp-core/src/mle.rs:136-149`, already used by `layer.rs:23` and `zk.rs:609`).
-It must be added to `argument.rs`'s `use crate::mle::{…}` line (`:27`). The
+It must be added to the `use crate::mle::{…}` line (`argument.rs:27`) of the
+**block module's own** `argument.rs` — under ruling R-A that is
+`hashline/src/private_block/argument.rs`, the copy grown from the attention
+module, which is itself not edited. (Read every "one change to the shared
+code" in this memo that way: the code is shared by copy, not in place.) The
 alternative — transpose the weights into `BlockPublic` — is rejected in §I.1
 decision 10: the statement digest should cover the same words the kernel
 authenticates.
@@ -566,15 +598,22 @@ tables [0] eq(tau, ·)                                  public
 hosted [(SC_GMM, nu[0]), (SC_UMM, nu[1])]
 ```
 
-with, writing `at(p)` for the table value of plane `p` and `lks =
-lk_tables(Dom::F, &idx, g_u8)`:
+with, writing `at(p)` for the table value of plane `p`, `lks =
+lk_tables(Dom::F, &idx, g_u8)`, and — the two bindings the module's own idiom
+requires — `let i_fact = b.h(H_FACT)?;` for the activation helper's **table
+index** (mirroring `let ihx = b.h(H_SEXP)?;` at `argument.rs:706`, read back
+as `v[ihx]` at `:721`) and `h0 = 14`, the table index of the first `U8`
+helper, for the `helper_sum` call. `H_FACT` is a *plane* constant, never a
+table index; written as a table index it would read the wrong table:
 
 ```
 f0    = at(A_A16)·at(A_U16) − 2^14·at(A_H16) − (at(A_RH0) + 256·at(A_RH1)) + 2^13     R4
 f1    = at(A_U16) + 32768 − (at(A_UL0) + 256·at(A_UL1))                               u16 int16
 f2    = at(A_H16) + 32768 − (at(A_HL0) + 256·at(A_HL1))                               h16 int16
-f_act = v[H_FACT]·( alpha − ( at(A_G8) + 128 + beta·at(A_A16) + g_act ) ) − 1          R2 + g8 class
+f_act = v[i_fact]·( alpha − ( at(A_G8) + 128 + beta·at(A_A16) + g_act ) ) − 1         R2 + g8 class
+        // i_fact = b.h(H_FACT)? — table index 19 in the listing above
 zc    = helper_sum(v, &lks, h0, alpha, &mu[4..]) + mu[0]·f0 + mu[1]·f1 + mu[2]·f2 + mu[3]·f_act
+        // h0 = 14, the table index of h(H_F0)
 host1 = 2^7·at(A_G8) + at(A_RGL) − 2^6                                                R1 requant
 host2 = at(A_U16)                                                                     R3, SH_U = 0
 poly  = v[0]·zc + nu[0]·v[1]·host1 + nu[1]·v[2]·host2
@@ -802,8 +841,8 @@ by `4 × 512 = 2,048`.
 | **`M` rows** | 40 | 42 | **50** | `2·23 + 4` (`layout.rs:388`) |
 | **`M` functionals** | 28 | 29 | **34** | `23 + 5 + 6` (`layout.rs:533`) |
 | largest CFS slot `L` | 50 | 50 | **50** (`SC_SZC`) | `L + 256 = 306 ≤ 512`, headroom 206 |
-| `A` opening groups | 30 | 31 `[E]` | **35** `[E]` | below |
-| `H` opening groups | 8 | 8 `[E]` | **9** `[E]` | below |
+| `A` opening groups | 30 | 31, derived | **35**, derived | below |
+| `H` opening groups | 8 | 8, derived | **9**, derived | below |
 | `U8` lookups | 47,104 | 54,784 | **61,440** | below |
 | exp lookups | 2,048 | 2,048 | 2,048 | unchanged |
 | **act lookups** | — | — | **512** | `T × F = 32 × 16` |
@@ -826,7 +865,7 @@ accepted 47,104 with `Dom::D` at 20 — `…_NATIVE.md:93`.) The multiplicity
 bound the no-wraparound premise needs is therefore 61,440, still far below `p`
 (§E).
 
-**Why the opening-group counts are `[ESTIMATE]`.** A group is a set of claims
+**Where the opening-group counts come from.** A group is a set of claims
 sharing the PCS column key `(point tail, c0, len)` (`protocol.rs:62-67`). Tier 2
 adds **four** fresh tails on `A` and **one** on `H`:
 
@@ -840,21 +879,31 @@ adds **four** fresh tails on `A` and **one** on `H`:
   helpers share `ρ_D`: **+0**. `H_GACT` shares `ρ_TAB`: **+0**.
 
 Hence 31 + 4 = **35** and 8 + 1 = **9**. I did **not** enumerate the grouping
-exhaustively; `scripts/zk60_attention_native_inventory.py` derives it from the
-source and is the authority (`:830-848`), and prover and verifier both refuse a
-mismatch (`protocol.rs:164-166`). If the tool says 36, the constant is wrong,
-not the tool. The tool's `H` count runs one below the declared constant by
+exhaustively here, but the check of this memo did, with the committed
+inventory tool on the whole-block schedule: **`A` = 35 and `H` = 9 are derived
+values, member for member, not estimates**
+(`ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2_CHECK.md` §7.3, its T-C3), and the
+four-fresh-tails argument above is right at every step. So `A_GROUPS = 35` and
+`H_GROUPS = 9` go into `layout.rs`. `scripts/zk60_attention_native_inventory.py`
+re-derives them from the source and remains the authority (`:830-848`); both
+are transcript-bound through `describe()` (`layout.rs:487`) and prover and
+verifier both refuse a mismatch (`protocol.rs:164-166`), which is a hard
+refusal, not a warning. If the tool says 36, the constant is wrong, not the
+tool. The tool's `H` count runs one below the declared constant by
 construction (adaptation R-4, `ZK60_PRIVATE_BLOCK_CONSTRUCTION.md:1060`); that
 offset carries unchanged.
 
 ### D.3 Receipt bytes
 
-On the Tier-1 memo's reverse-derived byte model (`:623-637`), which reproduces
-all four published figures of the accepted component exactly:
+On the byte model of the Tier-1 memo's §C.4, which is **read out of
+`hashline/src/private_attention/wire.rs:28-36`** (`opening_len`,
+`encoded_len`) verbatim and reproduces all four published figures of the
+accepted component exactly, with `MASK_VEC = 1024` and `MASK_PATH = 12`
+(`wire.rs:23`, `:25`):
 
 ```
 opening(groups, rows) = (groups + 1)*512*16 + 256*(8 + rows*8 + 32 + 11*32)
-mask_open(M_ROWS)     = 512*16 + 256*(8 + M_ROWS*8 + 32 + 15*32)
+mask_open(M_ROWS)     = 2*1024*16 + 256*(8 + M_ROWS*8 + 32 + 12*32)
 arguments             = 16*( N_SLOTS + sum_s (main+ext)*(degree+1) + terminals )
 ```
 
@@ -866,15 +915,15 @@ matmuls plus `(9+1)·5 = 50` for `SC_FZC` = **721**. Terminals: `120 + 51 + 2 =
 |---|---:|---:|---:|---|
 | envelope + roots | 136 | 136 | 136 | unchanged |
 | arguments | 11,296 | 12,656 | **14,672** | `16 × (23 + 721 + 173)` |
-| `M` opening | 223,232 | 227,328 | **243,712** | `8,192 + 256·(8 + 50·8 + 32 + 480)` |
-| `A` opening | 980,992 | 1,161,216 | **1,327,104** | `36·8,192 + 256·(8 + 455·8 + 32 + 352)`, 35 groups `[E]` |
+| `M` opening | 223,232 | 227,328 | **243,712** | `32,768 + 256·(8 + 50·8 + 32 + 384)` |
+| `A` opening | 980,992 | 1,161,216 | **1,327,104** | `36·8,192 + 256·(8 + 455·8 + 32 + 352)`, at the derived 35 groups |
 | `H` opening | 768,000 | 854,016 | **968,704** | `10·8,192 + 256·(8 + 384·8 + 32 + 352)` |
 | endpoints | 262,144 | 262,144 | 262,144 | unchanged |
 | **total** | **2,245,800** | **2,517,496** | **2,816,472** | **+25.4 % on the accepted component, +11.9 % on Tier 1** |
 
-Each further `A` opening group costs 8,192 bytes, so the `[ESTIMATE]` on the
-group count is worth ±8 KB per group, about 0.3 %. Treat the total as
-derived-modulo-that-model; the model is not read out of `zkp-core/src/pcs.rs`.
+Each further `A` opening group would cost 8,192 bytes, about 0.3 %, but the
+group count is derived rather than estimated (§D.2), and the model is
+`wire.rs:28-36` verbatim, so the total is derived from source.
 
 ### D.4 Against the draft's C.5 estimate
 
@@ -883,13 +932,13 @@ derived-modulo-that-model; the model is not read out of `zkp-core/src/pcs.rs`.
 | new `A` planes | ~20 | **15** | no `ru` plane (`SH_U = 0`), no `a16` limbs, no `g8` class plane |
 | new `A` data rows | ~40 | **29** | the same three savings, ×2 rows each, plus `A_MACT` at 1 row not 2 |
 | new lookups | ~16 | **13** | 9 on `Dom::F` + 4 on `Dom::D`; `ru`'s two and `a16`'s two are not needed, `z16`'s and `rd`'s are |
-| new `H` helper planes | ~8 + 1 | **9** | 5 `U8` + 1 act on `Dom::F`, 2 on `Dom::D`, 1 table helper — the draft missed the `Dom::D` growth and the extra table helper, and over-counted `Dom::F` |
+| new `H` helper planes | ~8 + 1 | **9** | **they agree**: the draft's `~8 + 1` is 9 and the derived value is 9. (Its composition differs — 5 `U8` + 1 act on `Dom::F`, 2 on `Dom::D`, 1 table helper — but the offsetting differences sit inside a total that does not differ.) |
 | new `A` sites | ~30 | **18** | the draft's "~20 sites" for the `f`-cube zero-check is 11 in fact; `SC_TAB` costs 1 not 2 |
 | new `H` sites | ~9 | **9** | agrees |
-| new slots | 5 | **4** | an arithmetic slip in the draft: its own text names exactly four (`SC_GMM`, `SC_UMM`, `SC_DMM`, `SC_FZC`) and its column says 5, which then propagates to `24 / 52 / 37` |
+| new slots | 5 | **4** | an arithmetic slip in the draft: its own text named exactly four (`SC_GMM`, `SC_UMM`, `SC_DMM`, `SC_FZC`) while its column said 5, which propagated into its slot / `M`-row / functional line; both cells are corrected in T1 by erratum E-15 |
 | `A` rows, whole block | ~510 | **455** | fewer planes, far fewer sites |
 | `H` rows, whole block | ~410 | **384** | |
-| slots / `M` rows / functionals | 24 / 52 / 37 | **23 / 50 / 34** | one fewer slot; functionals are `23 + 5 + 6` |
+| slots / `M` rows / functionals | the draft's line, since corrected by E-15 | **23 / 50 / 34** | one fewer slot; functionals are `23 + 5 + 6` |
 | receipt | ~3.1 MB | **2.82 MB** | |
 
 The direction is consistent: the estimate was conservative and the derived
@@ -916,7 +965,7 @@ stay below `2^49`.
 | `Wg`, `Wu`, `Wd` | `[−128, 127]` | public `i8` words; `−128` accepted (`private-block-kernel/src/lib.rs:129-130`) |
 | `g8` | `[−128, 127]` | the activation lookup (A.3) |
 | `rg` (`A_RGL`) | `[0, 2^7)` | `byte` + `scaled(·, 2)` |
-| `a16` | `[−32768, 32767]` | the **public** table's `i16` entries (`lib.rs:182`) |
+| `a16` | `[−32768, 32767]` | **`BlockPublic::new`'s value-range check on `act`** — `act.iter().all(\|v\| (-32768..=32767).contains(v))`, or `act: [i16; 256]` — mirroring the exp table's own check at `private_attention.rs:97-99` (erratum E-2). The kernel's `act: [i16; 256]` (`lib.rs:182`) is a type in a crate the proof never runs and enforces nothing here; without the statement-side check this row, and items 5 and 6 below, are unfounded |
 | `u16`, `h16`, `z16` | `[−32768, 32767]` | two byte limbs + offset 32768, exact |
 | `rh` | `[0, 2^14)` | `byte, byte, scaled(·, 4)` |
 | `rd` (`A_RDL`) | `[0, 2^6)` | `byte` + `scaled(·, 4)` |
@@ -962,16 +1011,21 @@ brute-force is owed — only a re-run of `limb_windows.py` on the grown list.
 * The claimed sums of `SC_GMM` / `SC_UMM` / `SC_DMM` are *masked* scalars
   `s + c·G`; the bounds above are on the integer value `s` stands for, which is
   what the host reconstructs. The masking itself is field arithmetic.
-* **A correction to Tier 1's §H.1.** The draft writes that `norm_m`'s bounds
-  must be re-derived because "its input is `xres1`, an int16 value that can be
-  twice as large as `x_in` at the extremes"
-  (`ZK60_PRIVATE_BLOCK_CONSTRUCTION.md:1226-1230`). `x_in` is *also* int16 —
-  the witness builder takes `input: &[i16]` (`witness.rs:103`, `:108`), the
-  calibration says `x_cls: Cls::Int16` (`causal_oracle.rs:115`), and R-2's
+* **A correction to Tier 1's §H.1** (erratum E-4, now applied there). The
+  draft originally argued that `norm_m`'s bounds must be re-derived because
+  its input `xres1` can exceed `x_in` at the extremes
+  (`ZK60_PRIVATE_BLOCK_CONSTRUCTION.md:1226-1230`). It cannot: the class the
+  **verifier enforces** on the two is the identical two-limb, offset-32768
+  pattern — `byte(A_XL0)`, `byte(A_XL1)` (`layout.rs:226`) with `c2`
+  (`argument.rs:634`) for `x_in`, and `byte(A_X1L0)`, `byte(A_X1L1)`
+  (`layout.rs:232`) with `c4` (`argument.rs:636`) for `xres1` — so both are
+  `[−32768, 32767]`, the same window. (The honest prover's input type
+  `input: &[i16]` and the calibration's `x_cls: Cls::Int16` are **not**
+  admissible warrants for this: R-2's method takes bounds only over ranges
+  the verifier enforces, `…_REVIEW_R2.md:35-39`.) R-2's
   `Σx² + ceps ≤ 17,179,869,185` is exactly `1 + 16·32768²`
-  (`…_REVIEW_R2.md:178`), i.e. already computed over the full int16 range.
-  `xres1 ∈ [−32768, 32767]` by `c4`'s limb decomposition, the same window. So
-  `norm_m`'s bounds are **byte-for-byte `norm_a`'s**, and the R-2 re-run for the
+  (`…_REVIEW_R2.md:178`), i.e. already computed over the full int16 range. So
+  `norm_m`'s bounds are **bit-for-bit `norm_a`'s**, and the R-2 re-run for the
   second norm is a re-run, not a re-derivation. (The obligation to *run* it on
   the grown layout stands.)
 
@@ -992,8 +1046,16 @@ pattern). The digest domain string changes with the profile
 the attention statement. **No separate "activation-table digest" absorb is
 needed**, and none should be added: a second absorb of the same words is a
 second thing to keep in sync. The structural validation `AttentionPublic::new`
-performs on `exp` and the rope tables (`private_attention.rs:93-105`) should
-gain an `act.len() == 256` shape check — structure, not provenance, exactly as
+performs on `exp` and the rope tables (`private_attention.rs:93-105`) must be
+carried over into `BlockPublic::new` for `act`, and it must be **more than a
+shape check**: besides `act.len() == 256`, the constructor **refuses any
+activation value outside `[−32768, 32767]`** —
+`act.iter().all(|v| (-32768..=32767).contains(v))`, or `act` held as
+`[i16; 256]` — exactly mirroring the exp table's own value-range check at
+`private_attention.rs:97-99` (erratum E-2, BLOCKING). A length check alone
+would leave `a16`'s int16 class a caller's promise, which §E's bounds, `f0`'s
+no-wraparound argument and `h16`'s pinning all depend on. This is structure,
+not provenance — the caller still owes the provenance of the words, exactly as
 the module already warns (`:66-69`).
 
 **Step 4, `"parameters"` — payload only.** The draft already proposes
@@ -1013,9 +1075,10 @@ the exp pair. **Nothing moves before the `H` root**: `H_F0..+4`, `H_FACT` and
 (`protocol.rs:316-333`).
 
 **Step 11, the slot loop — four new iterations and one renumbering.** The order
-is §C.3's twenty-three; the labels `pb-slot` / `pb-scalar` / `pb-term` are the
-draft's (`:738-745`) and Tier 2 adds no label. Concretely, relative to the
-draft's slot list:
+is §C.3's twenty-three; the per-slot labels are the draft's (`:738-745`) —
+`pa-slot` / `pa-scalar` / `pa-term`, which ruling **R-B** leaves the
+implementer free to rename `pb-*` but does not require — and Tier 2 adds no
+label either way. Concretely, relative to the draft's slot list:
 
 ```
  ...
@@ -1092,8 +1155,12 @@ verifier's claimed sum for slot 14 is
 that sum by `ν_1·2^6·Δ·eq(p_z, k)`, which is nonzero except on a negligible
 fraction of `p_z`; `claim_{SC_DMM}` is unchanged because `h16` and `Wd` are
 unchanged. The two sides differ, and `sumcheck::verify` rejects at the first
-round, where `g(0) + g(1) ≠ claimed` (`argument.rs:307`), with the message
-`slot 14 [03 D zero-check (hosts 12)]: …`.
+round, where `g(0) + g(1) ≠ claimed` (`argument.rs:307`), with a message of
+the form `slot 14 [<SLOT_NAMES[SC_DZC]>]: …`. **The name string itself
+changes in this commit** (erratum E-20): `SLOT_NAMES[SC_DZC]`
+(`layout.rs:308`) today reads `"03 D zero-check (hosts 12)"` and must name
+both hosted slots once `SC_DZC` hosts `SC_WO` **and** `SC_DMM`, so a test must
+assert on the slot **index**, not on the name.
 
 **And the prover cannot compensate.** The three ways to try:
 
@@ -1112,25 +1179,35 @@ round, where `g(0) + g(1) ≠ claimed` (`argument.rs:307`), with the message
   `p_z` is the standard grinding attack the transcript refusals already treat
   (`argument.rs:258-261`, `:331-333`).
 
-**Assertion to write.** `assert!(verify_inner(&public, &expected, &receipt).is_err())`,
+**Assertions to write.** `assert!(verify_inner(&public, &expected, &receipt).is_err())`,
 and — because a test that passes for the wrong reason is worse than none — a
-second assertion that the error string names slot 14, so a later refactor that
-moves the catch to, say, the `M` opening is noticed.
+second assertion that the error names **slot index 14** (not the slot's name
+string, which Tier 2 itself changes), so a later refactor that moves the catch
+to, say, the `M` opening is noticed; and a third, the companion assertion that
+the **honest** proof verifies, so the test cannot pass on a build that is
+broken for an unrelated reason (erratum E-20; the same companion is required
+of the E-1 tripwire).
 
 ### G.2 g, a, u, h
 
-Same harness; each isolates one relation. The "consistent" column says what the
-tamper recomputes so that no *other* check fires first.
+Same harness. Every row below **rejects at the verifier**, and each names a
+real relation — but **the rows do not all isolate one relation** (erratum
+E-19): four of them fire two or three independent catches, and the "kept
+consistent" column says only what the tamper recomputes, not that nothing
+else breaks. Where a row has more than one catch it is marked, because a test
+that can pass for three reasons cannot be used to confirm that one particular
+relation is *present*; to use these as presence tests, recompute the whole
+chain in each row.
 
 | # | tamper | kept consistent | what rejects, and why |
 |---:|---|---|---|
-| T-g1 | `g8[k] += 1`, `rg[k] −= 2^7` | the gate requant identity `gacc = 2^7·g8 + rg − 2^6` still holds over `Z` | `rg` leaves `[0, 2^7)`, so `scaled(A_RGL, 2)` has no table row: the **value-0 LogUp sum claim on `H`** fails. (`layer.rs:2178`'s `RemainderOutOfRange`, ported.) |
+| T-g1 | `g8[k] += 1`, `rg[k] −= 2^7` | the gate requant identity `gacc = 2^7·g8 + rg − 2^6` still holds over `Z` | **Three catches, not one.** `rg` leaves `[0, 2^7)` downwards, so it is `p − 128 + rg` in `Fp` and has **no row in either lookup**: `byte(A_RGL)` fails as well as `scaled(A_RGL, 2)` (E-18). And `a16` is not recomputed, so `(g8+1+128, a16)` is not a row of `act` and the **activation lookup** fails too. All of them surface as the **value-0 LogUp sum claim on `H`**. (`layer.rs:2178`'s `RemainderOutOfRange`, ported.) |
 | T-g2 | `g8[k] += 1`, `a16[k] = act[g8[k]+129]`, and `h16`/`rh`/`z16`/`rd` recomputed down the chain | every class, every lookup, every downstream requant identity | the **gate requant identity** breaks: `SC_FZC`'s `host1` no longer matches `SC_GMM`'s claim at `p_g`. Slot 18 rejects. This is the test that `g` is bound to `nm` |
 | T-a1 | `a16[k] += 1`, chain recomputed (`recompute_v3_from_a16`'s analogue) | every requant identity, every class | the pair `(g8[k]+128, a16[k]+1)` is not a row of `act`: the **activation LogUp** fails — `H_FACT`'s relation `f_act` in slot 18, and the `A_MACT` side of slot 19, cannot both be satisfied, so the one value-0 sum claim on `H` fails. (`layer.rs:2179`'s `WrongTableEntry`.) |
 | T-u1 | `u16[k] += 1`, `h16`/`rh`/`z16`/`rd` recomputed | classes and downstream identities | the **up identity** `uacc = u16` breaks at `p_u`: `SC_FZC`'s `host2` no longer matches `SC_UMM`'s claim. Slot 18 rejects. This is the test that `u` is bound to `nm` |
-| T-u2 | `u16[k] += 65536`, limbs "compensated" | — | impossible: `A_UL1` would need to hold 256+, refused by `byte(A_UL1)`. If the limbs are left alone, `f1` fails in slot 18. This is the **int16 class** test |
-| T-h1 | `h16[k] += 1`, `rh` unchanged | nothing else | `f0` fails: `a16·u16 ≠ 2^14·h16 + rh − 2^13`. Slot 18 rejects. (`layer.rs:2180`'s `WrongRequant`.) |
-| T-h2 | `h16[k] += 1`, `rh[k] −= 2^14` | `f0` holds over `Z` | `rh` leaves `[0, 2^14)`: `scaled(A_RH1, 4)` fails, LogUp sum claim rejects |
+| T-u2 | `u16[k] += 65536`, limbs "compensated" | — | **Two catches.** Impossible as stated: `A_UL1` would need to hold 256+, refused by `byte(A_UL1)`; if the limbs are left alone, `f1` fails in slot 18. Either way `host2` also fails, because `u16` no longer equals `uacc`. This is the **int16 class** test |
+| T-h1 | `h16[k] += 1`, `rh` unchanged | nothing else | **Two catches.** `f0` fails: `a16·u16 ≠ 2^14·h16 + rh − 2^13`, slot 18 rejects. Slot 14 fails too — `SC_DMM`'s claim moves with `h16` while `SC_DZC`'s `host2` does not. (`layer.rs:2180`'s `WrongRequant`.) |
+| T-h2 | `h16[k] += 1`, `rh[k] −= 2^14` | `f0` holds over `Z` | **Three catches.** `rh` leaves `[0, 2^14)` downwards, so `byte(A_RH0)`/`byte(A_RH1)` have no valid limbs at all and `scaled(A_RH1, 4)` fails with them; the LogUp sum claim rejects. Slot 14 fails too, for T-h1's reason |
 | T-h3 | `h16[k] += 1`, `z16`/`rd` recomputed from the new `h16` | the down requant identity | `f0` fails (the product no longer matches) — same catch as T-h1, which is the point: the product is pinned from *both* sides |
 | T-z1 | `z16[k] += 65536`, `rd[k] −= 65536·2^6` | the down requant identity over `Z` | `rd` leaves `[0, 2^6)` **and** `A_ZL1` leaves `[0, 256)`: two independent catches, both through the LogUp sum claim. (`layer.rs:2196`'s `OutOfRangeInt16`.) This is `z16`'s **int16 class** test |
 | T-z2 | §G.1 | | the binding test |
@@ -1197,7 +1274,8 @@ recommendation first, one sentence of reason.
    family key, not a size — the module already has two variants at log 9
    (`Dom::D`, `Dom::Q`, `layout.rs:62-66`) — and merging would make one slot
    carry 45 lookups, 48 `A` sites and four hosted slots. *(This corrects the
-   draft's "no new domain is needed".)*
+   Tier-1 draft on the point erratum E-14 records; T1 now carries the
+   correction.)*
 2. **One `f`-cube zero-check `SC_FZC`, hosting `SC_GMM` and `SC_UMM` and
    carrying the product, the two int16 decompositions, the activation lookup
    and the `Dom::F` LogUp helpers.** All of it is degree ≤ 4 on one cube, so a
@@ -1214,15 +1292,28 @@ recommendation first, one sentence of reason.
 5. **Bind the `(g8, a16)` pair by the random linear combination
    `(g8 + 128) + β·a16 + g_act`, not by two separate lookups.** It is the exp
    table's construction verbatim (`argument.rs:505-507`, `:721`) and it is the
-   only form that proves index and value came from the *same* row.
+   only form that proves index and value came from the *same* row. **This is
+   a soundness requirement, not a preference** (erratum E-22): wherever
+   `u16(x) = 0`, `f0` reads `a16·u16 = 0` and pins nothing about `a16(x)`,
+   and `f_act` is the only other relation `a16` appears in — so the rejected
+   alternative (separate class lookups on `g8` and on `a16`) would leave
+   `a16`, and with it `h16` and `z16`, **free at every zero of the up
+   matmul**.
 6. **No range lookup on `A_G8`, and specifically not `sym(A_G8)`.** The
    activation lookup already gives `g8 ∈ [−128, 127]`, and `sym()` gives
    `[−127, 127]` — the *wrong* window, since the kernel's gate class is `I8`
    not `I8N` (`private-block-kernel/src/lib.rs:629`, `:93-95`), so `sym()`
    would make an honest `g8 = −128` unprovable.
-7. **No range lookup on `A_A16`.** Its bound is a property of the public,
-   digested 256-entry `i16` table; the existing feed-forward prover ranges
-   `u16`, `h16` and `z16` and never `a16` (`layer.rs:1395-1400`).
+7. **No range lookup on `A_A16` — but `BlockPublic::new` must refuse an
+   out-of-range activation table.** Its bound is the value range of the
+   public, digested 256-entry table, and the existing feed-forward prover
+   likewise ranges `u16`, `h16` and `z16` and never `a16`
+   (`layer.rs:1395-1400`). That is only sound if the proof's **own public
+   statement** enforces the range: `BlockPublic::new` validates
+   `act.iter().all(|v| (-32768..=32767).contains(v))`, or holds
+   `act: [i16; 256]`, mirroring the exp table's check at
+   `private_attention.rs:97-99` (erratum E-2, BLOCKING). Without that the
+   class is a caller's promise and §E's bounds do not hold.
 8. **`SC_DMM` is hosted by `SC_DZC` (which then hosts two slots); `SC_GMM` and
    `SC_UMM` by `SC_FZC`.** A host term must live on the domain of the planes
    that reconstruct the value, and `z16`/`rd` are `d`-cube while `g8`/`rg`/`u16`
@@ -1248,14 +1339,17 @@ recommendation first, one sentence of reason.
     16:[6,7], 17:[4,8], 18:[11,12]}`.** It is the only placement that keeps
     host-after-hosted (`layout.rs:540`) and the point-publication order without
     disturbing the built attention slots' relative order.
-14. **Two Tier-1 statements I believe are wrong and would change if
-    confirmed.** (a) The draft's §C.5 says "new slots 5" while naming four,
-    which propagates into `24 / 52 / 37`; the derived figures are `23 / 50 /
-    34`. (b) The draft's §H.1 says `norm_m`'s bounds need re-derivation because
-    `xres1` can exceed `x_in`; both are int16 and R-2 already computed over the
-    full int16 range (`…_REVIEW_R2.md:178`), so it is a re-run, not a
-    re-derivation. Neither is a soundness issue; both change what the security
-    owner is told is outstanding.
+14. **Two Tier-1 statements that were wrong, both now corrected there.**
+    (a) The draft's §C.5 counted five new slots while naming four, which
+    propagated into its slot / `M`-row / functional line; the derived figures
+    are `23 / 50 / 34` (erratum E-15). (b) The draft's §H.1 said `norm_m`'s
+    bounds need re-derivation because `xres1` can exceed `x_in`; the class the
+    verifier enforces on both is the identical two-limb, offset-32768 pattern
+    (`layout.rs:226` + `argument.rs:634` for `x_in`, `layout.rs:232` +
+    `argument.rs:636` for `xres1`), so both are `[−32768, 32767]` and R-2
+    already computed over the full int16 range (`…_REVIEW_R2.md:178`): it is a
+    re-run, not a re-derivation (erratum E-4). Neither is a soundness issue;
+    both change what the security owner is told is outstanding.
 
 ### I.2 Open obligations
 
@@ -1271,7 +1365,8 @@ channel (`ZK60_PRIVATE_ATTENTION_CONSTRUCTION.md:135`) — is unmet and unaffect
   re-run must produce are in §C.4 and §D.2, and `NOTE_EXPECT`
   (`scripts/zk60_attention_native_inventory.py:1085-1100`) must be updated to
   `A 455/213/240`, `H 384/280/102`, `A_sites 120`, `H_sites 51`,
-  `A_GROUPS 35 [E]`, `H_GROUPS 9 [E]`, `M_ROWS 50`, `N_FUNCTIONALS 34`,
+  `A_GROUPS 35`, `H_GROUPS 9` (derived, not estimated — §D.2),
+  `M_ROWS 50`, `N_FUNCTIONALS 34`,
   `largest_L 50`, `U8 61,440`, `exp 2,048`, `act 512`, `main 159`, `ext 25`,
   twenty-three `SLOTS` triples and the `hosts_by_index` of decision 13.
   **Nothing here was run.**
@@ -1292,7 +1387,10 @@ channel (`ZK60_PRIVATE_ATTENTION_CONSTRUCTION.md:135`) — is unmet and unaffect
 * **The no-wraparound re-run.** §E derives the bounds; `limb_windows.py` and
   `wraparound_bounds.py` must be re-run over the grown expression list, and the
   multiplicity bound re-checked at 61,440.
-* **The inventory parser.** The new `define` arms must be written inside the
+* **The inventory parser, and the module it parses.** Under ruling R-A the
+  block is a new module, so the tool must take the **module path as a
+  parameter** rather than hard-coding the attention module's files. The new
+  `define` arms must be written inside the
   Rust subset `zk60_attention_native_inventory.py` understands (`b.a`,
   `b.a_at`, `b.a_slice`, `b.a_range`, `b.h`, `rho`, `fixed`, `cat`, one `for`
   loop, `match slot`), or the parser must be extended in the same commit. The
@@ -1318,10 +1416,14 @@ I did not read `zkp-core/src/pcs.rs`, `zk::mask_commit` / `mask_open`,
 `sumcheck.rs`, `private_attention/{wire.rs, tests.rs}`, or the three checking
 scripts beyond the lines cited.
 
-**Not derived.** (a) The opening-group counts 35 / 9 — argued from the tail
-rule, not enumerated. (b) The receipt total rests on Tier 1's reverse-derived
-byte model, which reproduces four published figures but is not read out of the
-PCS source. (c) Whether `SC_FZC`'s μ vector of 9 and `SC_DZC`'s of 30 have any
+**Not derived *here*.** (a) The opening-group counts 35 / 9 — argued from the
+tail rule, not enumerated in this memo; the check of this memo enumerated them
+with the committed inventory tool and both are now derived, member for member
+(`ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2_CHECK.md` §7.3). (b) The receipt total
+rests on Tier 1's byte model, which is
+`hashline/src/private_attention/wire.rs:28-36` verbatim (not a
+reverse-derivation, and not absent from source), though I did not read that
+file myself. (c) Whether `SC_FZC`'s μ vector of 9 and `SC_DZC`'s of 30 have any
 effect on the extension-round premise beyond the degree argument I checked —
 R-2 did a full monomial expansion for the accepted layout and I did not. (d)
 The exact grown values of the `helper_sums_published` and `no_mask_*` negative
@@ -1342,3 +1444,33 @@ extend the rank or CFS models, did not evaluate whether the grown layout is
 zero knowledge, and did not touch D1, D3, D4, D5 or D12, none of which is
 reopened here. Nothing under `/home/victor/IntelligenceRegulation` was read or
 written.
+
+## Errata applied (2026-09-19)
+
+Every change below is an item of this memo's check
+(`ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2_CHECK.md`, errata E-1 … E-22) or a
+ruling of `ZK60_PRIVATE_BLOCK_CONSTRUCTION_DISPOSITION.md` (R-A, R-B).
+Nothing else was edited. E-1, E-3 and E-7 … E-13 touch the Tier-1 memo only
+and are recorded in its own errata table; of those, **E-1 needed no change
+here** — §0 states the `z16` hole correctly and §G.1 gives the catch; what
+was missing was the *guard*, and that is added in T1 §C.2, §D, Decision 4 and
+Decision 12 — and **E-13 needed none either**: §F's "Tier 2 adds no label" was
+already right.
+
+| Item | Section changed | What changed |
+|---|---|---|
+| **E-2** (BLOCKING) | §A.3, §E (the `a16` "Enforced by" cell), §F, §I.1 decision 7 | `a16`'s int16 class is now enforced by the proof's own public statement: `BlockPublic::new` refuses any activation value outside `[−32768, 32767]` (`act.iter().all(\|v\| (-32768..=32767).contains(v))`, or `act: [i16; 256]`), mirroring the exp table's check at `hashline/src/private_attention.rs:97-99`; §E's cell cites **that** check, not the kernel's `[i16; 256]`; §F requires the range check and not only `act.len() == 256`. |
+| E-4 | §E (the correction to Tier 1's §H.1), §I.1 decision 14(b) | Right conclusion, inadmissible warrant: the honest prover's `input: &[i16]` (`witness.rs:103`, `:108`) and the calibration's `x_cls: Cls::Int16` (`causal_oracle.rs:115`) are replaced by the verifier-enforced classes, `layout.rs:226` + `argument.rs:634` for `x_in` and `layout.rs:232` + `argument.rs:636` for `xres1`, as R-2's method requires. |
+| E-5 | §D.3 (model header and closing note), §I.3 "not derived" (b) | The byte model is **read out of `hashline/src/private_attention/wire.rs:28-36`** verbatim; "reverse-derived" and "not read out of `zkp-core/src/pcs.rs`" are gone. |
+| E-6 | §D.3 (the `mask_open` line and the `M`-opening row) | `mask_open` is `2·1024·16 + 256·(8 + M_ROWS·8 + 32 + 12·32)`, i.e. `MASK_VEC = 1024` and `MASK_PATH = 12`, not `8,192` and `480`; 243,712 is unchanged, because the two errors cancel. |
+| E-14 | §B.1 (the opening paragraph) | The quoted Tier-1 wording is replaced by a reference: T1 made the new `Dom::F` conditional on `F != D`, and that is now corrected there. The finding itself — a variant is required at every geometry — is unchanged. |
+| E-15 | §D.4 (the "new slots" and slots / `M`-rows / functionals rows) | The draft's figures are marked as since corrected in T1; the derived `4` and `23 / 50 / 34` stand unchanged. |
+| E-16 | §D.2 (totals and the group-count paragraph), §D.3, §I.2, §I.3 "not derived" (a) | The `[E]` tags are dropped: `A` = 35 and `H` = 9 are **derived** member for member by this memo's check (§7.3), go into `layout.rs` as `A_GROUPS` / `H_GROUPS`, and are transcript-bound through `describe()`, a mis-declaration being a hard refusal on both sides. |
+| E-17 | §C.1, `SC_FZC`'s relations | `f_act` now reads `v[i_fact]` with `let i_fact = b.h(H_FACT)?;` — `H_FACT` is a **plane** constant, not a table index (the module's own idiom is `let ihx = b.h(H_SEXP)?;` … `v[ihx]`, `argument.rs:706`, `:721`) — and `h0 = 14` is bound explicitly for the `helper_sum` call. |
+| E-18 | §G.2, row T-g1 | `byte(A_RGL)` fails too, and always: a negative remainder is `p − 128 + rg` in `Fp`, in neither lookup's table. Both are now named. |
+| E-19 | §G.2, the rubric and rows T-g1, T-u2, T-h1, T-h2 | The "each isolates one relation" claim is dropped; each of those four rows now names its two or three independent catches (T-g1 also the activation lookup, T-u2 also `host2`, T-h1 and T-h2 also slot 14), with the reason such a row cannot confirm that one relation is present. |
+| E-20 | §G.1 (the quoted rejection message and the assertions) | The `SLOT_NAMES[SC_DZC]` string is one Tier 2 itself invalidates, so the quote is replaced and the test asserts on the slot **index**; a companion assertion that the **honest** proof verifies is added. |
+| E-21 | §D.4, the "new `H` helper planes" row | The estimate `~8 + 1` **agrees** with the derived 9; the "why they differ" cell said otherwise and now says so. |
+| E-22 | §I.1 decision 5 | Added the sentence that makes it a soundness requirement: wherever `u16(x) = 0`, `f0` pins nothing about `a16(x)` and `f_act` is the only other relation it appears in, so the rejected alternative leaves `a16`, `h16` and `z16` free at every zero of the up matmul. |
+| **R-A** | §0 (new "Which files change" paragraph), §C.1 (the `fold_cols_i8` change), §I.2 (the inventory-parser bullet) | Every module file named in this memo is the **block module's own copy** — `hashline/src/private_block.rs` and `hashline/src/private_block/*`, grown from a copy of the attention module, with its own example and test file; `hashline/src/private_attention*` is not edited; the inventory tool must take the module path as a parameter. |
+| **R-B** | §F, step 11 | The per-slot labels `pa-*` may be renamed `pb-*` but are not required to be; Tier 2 adds no label either way. |
