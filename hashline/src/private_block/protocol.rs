@@ -426,6 +426,8 @@ pub(crate) fn prove_inner(blk: &BlockPublic, wit: &Witness, expected: &ExpectedI
 /// Accepts only against the caller's own public statement and endpoint policy.
 /// Returns the absorb sequence (for the transcript-order gate).
 pub(crate) fn verify_inner(blk: &BlockPublic, expected: &ExpectedIo, receipt: &Receipt) -> Result<Vec<String>, String> {
+    #[cfg(test)]
+    super::capture::begin();
     let (public, ff) = (blk.attention(), blk.feed_forward());
     let lay = Layout::new();
     super::wire::validate(receipt, &lay)?;
@@ -446,16 +448,34 @@ pub(crate) fn verify_inner(blk: &BlockPublic, expected: &ExpectedIo, receipt: &R
     let ctx = Ctx { lay: &lay, public, ff, alpha, beta, g_u8, g_exp, g_act };
     let mut side = Side::Verify { slots: &receipt.slots };
     let acc = argument(&mut side, &ctx, &mut tr)?;
+    #[cfg(test)]
+    let capture_before = super::capture::checkpoint(&tr);
     zk::mask_verify(&receipt.mask_root, &mask_specs(), &acc.fs, &receipt.mask_open, &ntt, &mut tr).map_err(|e| format!("M: {e}"))?;
+    #[cfg(test)]
+    super::capture::mask(&receipt.mask_root, &acc.fs, &receipt.mask_open, capture_before, &tr);
     let order = acc.order;
     let [ac, hc, ic, oc] = finish_claims(acc.claims, &lay);
     check_opening(&ac, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, A_GROUPS, &tr)?;
+    #[cfg(test)]
+    let capture_before = super::capture::checkpoint(&tr);
     pcs::verify_zk(&params, &zko, &commitment(receipt.a_root, lay.a_rows), &ac, &receipt.a_open, &ntt, &mut tr).map_err(|e| format!("A: {e}"))?;
+    #[cfg(test)]
+    super::capture::pcs("A", receipt.a_root, lay.a_rows, &ac, &receipt.a_open, capture_before, &tr);
     check_opening(&hc, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, H_GROUPS, &tr)?;
+    #[cfg(test)]
+    let capture_before = super::capture::checkpoint(&tr);
     pcs::verify_zk(&params, &zko, &commitment(receipt.h_root, lay.h_rows), &hc, &receipt.h_open, &ntt, &mut tr).map_err(|e| format!("H: {e}"))?;
+    #[cfg(test)]
+    super::capture::pcs("H", receipt.h_root, lay.h_rows, &hc, &receipt.h_open, capture_before, &tr);
     for (i, (claims, root)) in [(&ic, expected.input), (&oc, expected.output)].into_iter().enumerate() {
         check_endpoint_opening(claims, &tr)?;
+        #[cfg(test)]
+        let capture_before = super::capture::checkpoint(&tr);
         pcs::verify_zk(&params, &zko, &commitment(root, ENDPOINT_ROWS), claims, &receipt.io_open[i], &ntt, &mut tr).map_err(|e| format!("endpoint {i}: {e}"))?;
+        #[cfg(test)]
+        super::capture::pcs(["Input", "Output"][i], root, ENDPOINT_ROWS, claims, &receipt.io_open[i], capture_before, &tr);
     }
+    #[cfg(test)]
+    super::capture::publish(blk, expected, receipt);
     Ok(order)
 }

@@ -463,6 +463,8 @@ impl Receipt {
 }
 
 pub fn verify_bytes(public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
+    #[cfg(test)]
+    capture::begin();
     verify(public, expected, &Receipt::from_bytes(public, expected, bytes)?)
 }
 
@@ -470,4 +472,14 @@ pub fn verify_bytes(public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -
 /// rows, 384 `H` rows, 23 slots, 50 `M` rows (its digest is transcript-bound).
 pub fn schedule() -> Vec<String> {
     layout::Layout::new().describe()
+}
+
+// Public synthetic receipt diagnostics; compiled out of production builds.
+#[cfg(test)]
+mod capture {
+    type Public = super::BlockPublic;
+    const SLOT_LABEL: &[u8] = b"pb-slot";
+    const SCALAR_LABEL: &[u8] = b"pb-scalar";
+    const TERM_LABEL: &[u8] = b"pb-term";
+    include!("native_capture.rs");
 }

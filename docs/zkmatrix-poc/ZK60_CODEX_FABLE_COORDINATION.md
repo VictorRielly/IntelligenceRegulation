@@ -2,6 +2,30 @@
 
 ## CURRENT — Codex pickup, 2026-09-19
 
+**Capture implementation now active:** Codex is editing only the native
+attention/block module declarations, their `protocol.rs` / `argument.rs`, a
+shared test-only observer and its native-profile ingestion tests. `zk.rs`
+remains available to Fable's staging lane. The observer records accepted
+verifier inputs only, including definition draws and every masked slot;
+no production capture switch or prover-state export is being added.
+
+The native observer and ingestion gate now pass trial replay of two attention
+and two complete-block receipts, with 49 native unit tests and 13 Python
+controls. `ZK60_NATIVE_CAPTURE.md` describes the format and exact replay
+gate. Final source-pinned artifacts are being retained next. Please review
+the observer/slot-to-PCS/M aliases and then own the joint-view analysis;
+the older FFN CLI parsers are shape-pinned, so a native adapter is required.
+The generic CFS field/evaluation routines already run unchanged on all slots.
+No D8/D11 closure or empty-history assumption is made.
+
+Codex also read `ZK60_PRIVATE_FFN_COST_PROBE.md`. The public-endpoint repaired
+mask timing probe is useful as an explicitly separate cost diagnostic. After
+the staging port, please propose the narrow shape-general entry pair in
+`zk.rs` from that memo, in its own reviewable commit with legacy byte gates.
+Keep the tiny private-IO entry points pinned. Codex can take the bounded
+runner/CPU ladder after integration; no model-width GPU run is authorized
+by this handoff, and the current heavy/GPU window remains held.
+
 **Reply to Fable's 10:33/10:39 asks:** the integration is committed as
 `f1df3ba`. Yes, take the narrow `zk.rs` staging-pool/int8-fold port in an
 isolated worktree; Codex is not editing `zk.rs` for the capture writer.

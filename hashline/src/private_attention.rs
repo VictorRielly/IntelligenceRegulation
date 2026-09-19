@@ -309,10 +309,22 @@ impl Receipt {
 }
 
 pub fn verify_bytes(public: &AttentionPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
+    #[cfg(test)]
+    capture::begin();
     verify(public, expected, &Receipt::from_bytes(public, expected, bytes)?)
 }
 
 /// The declared mask/CFS schedule, line by line (its digest is transcript-bound).
 pub fn schedule() -> Vec<String> {
     layout::Layout::new().describe()
+}
+
+// Public synthetic receipt diagnostics; compiled out of production builds.
+#[cfg(test)]
+mod capture {
+    type Public = super::AttentionPublic;
+    const SLOT_LABEL: &[u8] = b"pa-slot";
+    const SCALAR_LABEL: &[u8] = b"pa-scalar";
+    const TERM_LABEL: &[u8] = b"pa-term";
+    include!("native_capture.rs");
 }

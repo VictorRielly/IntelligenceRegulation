@@ -265,6 +265,8 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, def: SlotDef, tr: &mut Tr
     if def.tabs.iter().any(|t| matches!(t, Tab::Priv(p) if p.ext_round >= ext || p.coords.len() != p.log)) {
         return Err(format!("private block: slot {s} table shape"));
     }
+    #[cfg(test)]
+    let capture_before = if matches!(side, Side::Verify { .. }) { super::capture::checkpoint(tr) } else { None };
     tr.absorb_u64(b"pb-slot", s as u64);
     acc.order.push(format!("slot {s:02} begin"));
     // A zero multiplier would publish the unmasked scalar and rounds. Refusals are
@@ -374,6 +376,10 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, def: SlotDef, tr: &mut Tr
     acc.fs.push(MaskFunctional { terms: vec![(s, CfsMask::eval_weights(&rho_full, degree))], value: g_val });
     acc.cs.push(c);
     acc.scalars.push(scalar);
+    #[cfg(test)]
+    if let Side::Verify { slots } = side {
+        super::capture::slot(&def, acc, &slots[s], &rho_full, c, g_val, capture_before, tr);
+    }
     Ok(())
 }
 
@@ -910,6 +916,8 @@ pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript) -> Resul
     let mut acc = Acc::default();
     let mut pts = Points::default();
     for slot in 0..N_SLOTS {
+        #[cfg(test)]
+        super::capture::start_slot(side, tr);
         let def = define(slot, ctx, &mut pts, tr)?;
         run_slot(side, &mut acc, def, tr)?;
     }
