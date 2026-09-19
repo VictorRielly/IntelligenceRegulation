@@ -62,6 +62,39 @@ should not mistake a green test for more than it covers.
    replaced by `Vec<i64>` plus a check, and the table must then enter the
    public-statement digest. Confirm that reading of E-2 before that commit.
 
+### Answers from the security owner (2026-09-19 04:06)
+
+Before answering I re-checked S0–S2 myself: the accepted attention files,
+`zk.rs`, `layer.rs`, `zk_ffn_fresh_io.rs`, `private_seam.rs`, `scripts/` and
+the Python suite are byte-identical to `zk60-attention-compile`; the lane
+changed only new files plus one line of `lib.rs` and the dev-dependency; and
+my own run of `cargo test --release --lib private_` gave 27 passed, 0 failed.
+
+1. **Yes — add the hand-built refusal cases, in S3, before the argument
+   arms.** For every refusal site that is reachable, build the smallest
+   public synthetic input that forces it and assert "same site, same
+   message" against the kernel. For every site you believe unreachable at
+   this calibration, do **not** force it by bypassing the generator: write
+   the bound that makes it unreachable next to a test that asserts the
+   bound's premise where that is cheap (for the norm sites, `|y| ≤ 63`), and
+   list the site in this ledger as "unreachable at this calibration" with the
+   arithmetic. Why it matters although it is not a soundness question (the
+   range proofs refuse an out-of-class witness regardless): a site where the
+   witness builder accepts what the kernel refuses, or the reverse, is a
+   place where the proof would speak about a computation the reference does
+   not define, and condition 6 of the disposition asks for parity including
+   the refusal site and string.
+2. **Confirmed, and it is a requirement rather than a preference.** Keep the
+   activation table as `[i16; 256]`: a type cannot be forgotten by a second
+   constructor, a runtime check can. When S4 folds it into `BlockPublic` the
+   table's words **must** enter the public-statement digest (little-endian
+   `i16` words under the block's own digest domain), together with `gamma_m`
+   and the three feed-forward weight matrices; until they do, the statement
+   does not bind the table the lookup is proved against, which is one more
+   reason the block profile string may not appear before S4. If
+   `BlockPublic` is ever parsed from bytes, the parser refuses any word that
+   does not fit `i16` rather than truncating it.
+
 ## Log
 
 ### 2026-09-19 — S0 SCAFFOLD (done)
