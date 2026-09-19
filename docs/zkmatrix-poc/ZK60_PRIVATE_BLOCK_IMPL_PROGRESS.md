@@ -23,7 +23,7 @@ establishes a privacy property; D8/D11 stay open (disposition section 5).
 
 | Stage | What | Status |
 |---|---|---|
-| S0 | SCAFFOLD: `private_block` module as a faithful copy under new names, WIP profile `hashline-zk-mr1/private-block-t32-wip/0`, all digest/magic/parameter strings forked | not started |
+| S0 | SCAFFOLD: `private_block` module as a faithful copy under new names, WIP profile `hashline-zk-mr1/private-block-t32-wip/0`, all digest/magic/parameter strings forked | DONE |
 | S1 | TESTS FIRST: `private-block-kernel` as a dev-dependency; deterministic generator of public synthetic inputs/weights; witness-vs-kernel parity for the attention half (up to `xres1`) over >= 1,000 inputs including refusals | not started |
 | S2 | WITNESS AND LAYOUT GROWTH: whole-block layout (A 455 / H 384 rows) and witness (`norm_m`, `g8`, `a16`, `u16`, `h16`, `z16`, remainders, residual 2) with kernel semantics; parity extended to `xres2` and every intermediate | not started |
 | S3 | ARGUMENT: the new define arms, slots, sites; the tamper tests of T2-check section 8 | not started (next agent) |
@@ -41,4 +41,85 @@ relations of T2 are proved in the same commit.
 
 ## Log
 
-(empty)
+### 2026-09-19 — S0 SCAFFOLD (done)
+
+New files, each a copy of the accepted attention file with the renames below
+and nothing else changed:
+
+| new | from |
+|---|---|
+| `hashline/src/private_block.rs` | `src/private_attention.rs` |
+| `hashline/src/private_block/{layout,witness,argument,protocol,wire,tests}.rs` | `src/private_attention/*` |
+| `hashline/examples/zk60_private_block.rs` | `examples/zk60_private_attention.rs` |
+| `hashline/tests/zk60_private_block.rs` | `tests/zk60_private_attention.rs` |
+
+`src/private_attention/tests.rs` had to be copied too (it is `mod tests` of the
+module; without it the copied unit tests would not exist). The only edit to an
+existing Rust file is the single line `pub mod private_block;` in
+`hashline/src/lib.rs`, next to the attention export.
+
+The copy was produced by a deterministic, re-runnable script, kept at
+`/tmp/.../scratchpad/s0_copy.py` (a scratch file, not committed); the
+replacement list below IS the record.
+
+**Every string changed** (explicit replacements first, so that the profile
+never passes through the forbidden final string; then the three generic
+renames `private_attention`->`private_block`, `private attention`->`private
+block`, `Private attention`->`Private block`, which cover module paths, doc
+text and the `"private attention: ..."` error-message prefixes):
+
+| kind | accepted attention value | WIP block value |
+|---|---|---|
+| profile / Fiat-Shamir domain (`PROFILE`, `Transcript::new`, `ZkRng::from_os`) | `hashline-zk-mr1/private-attention-t32-poc/1` | `hashline-zk-mr1/private-block-t32-wip/0` |
+| public-statement digest domain | `hashline/private-attention-public/1` | `hashline/private-block-wip-public/0` |
+| schedule digest domain | `hashline/private-attention-schedule/1` | `hashline/private-block-wip-schedule/0` |
+| `describe()` line 0 (hashed into the schedule digest) | `private-attention-t32/1: ...` | `private-block-t32-wip/0: ...` |
+| expected-policy frame magic | `HATTEXP1` | `HPBWEXP0` |
+| receipt wire magic | `HLPATTN\x01` | `HLPBWIP0` |
+| absorbed `"parameters"` payload | `T32/d16/H2/KV1/dh8/log_cols8/inv_rate8/Q256/P1/two-private-endpoints` | same + `/block-wip` |
+| per-slot transcript labels | `pa-slot`, `pa-scalar`, `pa-term` | `pb-slot`, `pb-scalar`, `pb-term` |
+| example artifact names | `attention_receipt.bin`, `attention_expected.bin` | `block_receipt.bin`, `block_expected.bin` |
+| test / example context strings | `... private attention ...` | `... private block ...` (generic rename; the three contexts therefore differ from the attention ones) |
+
+So no transcript, digest or wire magic is shared with the accepted profile.
+The generic rename also forked the `IoSpec` context strings used by the tests
+and the example, which are hashed into `ExpectedIo`.
+
+**Deliberately NOT changed (condition 1 / E-1 of the disposition).** The final
+block profile string `hashline-zk-mr1/private-block-t32-poc/1` appears nowhere
+(the copy script asserts its absence). The public-statement type is still
+called `AttentionPublic`, not `BlockPublic`, and still covers exactly the
+attention weights and tables; the output endpoint still carries `xres1`. The
+module, example and test headers were hand-edited to say plainly that this
+profile proves the ATTENTION HALF ONLY and that no block statement follows
+from a receipt. Per ruling R-B the per-slot labels were not renamed to `pb-*`
+inside `SLOT_NAMES` (not required once R-A removed the shared code path); only
+the three transcript labels above carry the `pb-` prefix.
+
+**Commands and results** (all under `flock -w 540 /tmp/zk-build.lock`, offline,
+`-j 2`, `CARGO_TARGET_DIR` = the design lane's warm target, release overrides
+`LTO=false CODEGEN_UNITS=8`, exactly as the accepted delivery's own evidence
+`results/zk60_private_attention_native_evidence/compile/report.json` used):
+
+1. `cargo check --lib --tests --examples` -> exit 0, 4.71 s. Only the 8
+   pre-existing `src/attention.rs` warnings; `private_block` produced none.
+2. `cargo test --release --lib private_ -- --test-threads=1` -> **22 passed,
+   0 failed**, 9.73 s (11 pre-existing `private_attention::*` + the 11 copies
+   `private_block::*`, including `layout::tests::declared_counts_are_self_consistent`).
+3. `cargo test --release --test zk60_private_block -- --test-threads=1` ->
+   **4 passed, 0 failed**, 3.05 s.
+4. `cargo test --release --test zk60_private_attention -- --test-threads=1` ->
+   **4 passed, 0 failed**, 3.00 s (the accepted component is unaffected).
+5. `cargo test --release --doc private_block` -> **1 passed** (the
+   `compile_fail` one-use-endpoints doctest still fails to compile, as claimed).
+6. Byte-identity gate: `git --no-pager diff --stat zk60-attention-compile --
+   hashline/src/private_attention.rs hashline/src/private_attention
+   hashline/examples/zk60_private_attention.rs
+   hashline/tests/zk60_private_attention.rs` printed NOTHING.
+
+No deviation from the brief in S0.
+
+**Next step:** S1 — add `private-block-kernel` as a path dev-dependency of
+hashline, check that `--offline` still resolves, and write the fixed-seed
+public synthetic generator plus the witness-vs-kernel parity harness for the
+attention half in `hashline/tests/zk60_private_block.rs`.
