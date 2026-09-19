@@ -407,24 +407,67 @@ pass the dominant phase is **LogUp helpers + commit H at 146.259 s (55%
 of the prove)**, which neither of these changes touches. That is where
 the private pass's next lever is, not here.
 
-### 2026-09-19 — stage 5, the A/B on the GPU binary (PARTIAL, 5 of 10 runs)
+### 2026-09-19 — stage 5, the A/B on the GPU binary (COMPLETE, 10 runs)
 
-3 new / 2 old, order n,o,o,n,n, all byte-identical. Full table in
-`results/fsp3_ab.md`. Old/new: **matmul g/u 1.500, matmul d 1.622,
-commit W 1.235, commit A 1.194**, PROVE 1.097; controls (`helpers +
-commit H`, `zero-check F`) 0.955 and 0.914, so the residual order effect
-here favours the OLD arm and the four changed phases are if anything
-understated.
+5 per arm, order n,o,o,n,(o),n,o,o,n, **all ten byte-identical**. Full
+table in `results/fsp3_ab.md`. Old/new over all ten:
 
-**On the GPU binary the POOL is measurable even at 12 x 512**, unlike on
-the CPU binary, and the reason is structural: the device does the commit
-arithmetic, so the host allocation is a much larger share of the
-`commit W` / `commit A` phases. That is a useful, independent
-confirmation that the pool does what it is supposed to do, on the shape
-this lane is allowed to run.
+| phase | old/new | quiet block | loaded block |
+|---|---:|---:|---:|
+| **matmul g/u (zk)** | **1.504** | 1.519 | 1.423 |
+| **matmul d (zk)** | **1.605** | 1.656 | 1.517 |
+| **commit W** | **1.243** | 1.258 | 1.195 |
+| **commit A (zk)** | **1.249** | 1.231 | 1.260 |
+| pcs openings | 1.211 | 1.196 | 1.217 |
+| helpers + commit H (control) | 1.009 | 0.982 | 1.006 |
+| zero-check F (control) | 1.028 | 1.002 | 1.045 |
+| **PROVE** | **1.149** | 1.134 | 1.140 |
 
-**This is 3 against 2, not the 5 against 5 the lane owes.** The sixth run
-was launched and is still queued.
+**This is the lane's one clean measured headline: 1.149x on the whole
+private prove, on the GPU binary, at 12 x 512.** The two controls sit at
+unity (1.009, 1.028), both changed pairs are far outside that band, and
+the quiet and loaded blocks agree — so the number does not rest on the
+box having been quiet.
+
+**On the GPU binary the POOL is measurable even at 12 x 512** (1.24 /
+1.25), unlike on the CPU binary, and the reason is structural: the device
+does the commit arithmetic, so the host allocation is a much larger share
+of `commit W` / `commit A`. An independent confirmation that the pool
+does what it is meant to, on the only shape this lane may run.
+
+`pcs openings` also moves, 1.211, and the controls rule out noise; lane
+AL saw the same phase move in the public arm (18.557 -> 17.176 s). The
+openings fold over the committed data on the host, so they benefit from
+an already-resident, already-faulted buffer. A second-order effect of the
+pool — recorded, not claimed as a separate lever.
+
+### 2026-09-19 — the fold rung's test suite went RED, and why
+
+The queued suite returned **exit 101**. The failure was NOT in the
+prover: **259 tests passed and 0 failed across the 28 binaries**; the one
+failure was a DOCTEST created by this lane's own documentation.
+
+    ---- src/zk.rs - zk::fsp_i8fold (line 2381) stdout ----
+    error: expected one of `!` or `::`, found `[`
+    2382 | wgk[c*db + kp] = sum_j cw_gu[j] . src = sum_b lam_f[b] * blk_b[kp]
+
+The identity I wrote into the `fsp_i8fold` doc comment was indented four
+spaces, which Markdown makes a code block and rustdoc compiles as Rust.
+Lane AL has the same sentence in `layer.rs` but as a `//` comment inside
+a function body, so it never became a doctest. Fixed by fencing it as
+```` ```text ````, a documentation-only change.
+
+**Re-verified after the fix**, because "it cannot affect codegen" is an
+argument, not evidence: `cargo test --release --doc` exit 0, 5 passed /
+0 failed (the pre-lane doctest count — the fence emits no test); the
+zk-v3 byte gate on the rebuilt CPU binary GREEN at `40eb5479..` /
+87,697,008 B; and the full suite re-launched. Note that the binary's
+sha256 DID change across the doc fix (b354520946.. -> 95144d84b3..),
+because rustc embeds source metadata — so binary identity is not usable
+as a check here and the byte gate is what settles it.
+
+Lesson for the next lane in this file: an indented formula in a `///`
+comment in `zk.rs` is a compiled doctest.
 
 ### 2026-09-19 — state at hand-off, and the exact next step
 
@@ -438,19 +481,25 @@ it, both launched detached so they finish with or without a session:
 2. `cargo test --release -- --test-threads=2` for the fold rung — log
    `<scratch>/fsp3/test_fold.log`, marker `<scratch>/fsp3/test_fold.done`.
 
+**BOTH OF THOSE HAVE SINCE LANDED.** The lock freed, the GPU A/B was
+carried to 5 runs per arm (section above), and the suite came back 101 on
+the doctest, was fixed and re-launched. The remaining open item is one
+marker:
+
+    log    <scratch>/fsp3/test_fold2.log
+    marker <scratch>/fsp3/test_fold2.done   (holds the exit code)
+
 **THE EXACT NEXT STEP, in order.**
 
-1. Read `<scratch>/fsp3/test_fold.done`. Exit 0 with 259 passed / 0 failed
-   closes the fold rung; anything else is a regression in `zk.rs` and the
-   rung must be reverted, not adjusted. (`<scratch>` is
+1. Read `<scratch>/fsp3/test_fold2.done`. Exit 0 with 259 passed /
+   0 failed closes the fold rung. Anything else is a regression in
+   `zk.rs` and the rung must be REVERTED, not adjusted — and note that
+   the doctest that failed the first attempt is now fenced, so a second
+   failure would be a real one. (`<scratch>` is
    `/tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad`;
    if it is gone with the session, re-run the suite — the command is in
    the stage-4 entry above.)
-2. Finish the GPU A/B to 5 runs per arm: two more NEW and two more OLD,
-   `flock -w 1800 /tmp/zk-heavy.lock <scratch>/fsp3/ab.sh gpu <arm> <i>`,
-   ONE run per invocation, never two chained, balancing the order. Then
-   re-run the table in `results/fsp3_ab.md`.
-3. Then, and only in a quiet window with the card verified idle and
+2. Then, and only in a quiet window with the card verified idle and
    nothing else on `/tmp/zk-heavy.lock`: the eight v3 tamper legs at
    Mistral width through the GPU zero-knowledge prover (honest ACCEPT,
    then 8 of 8 REJECT), and the 8B A/B of these two switches, launched

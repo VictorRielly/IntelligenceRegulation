@@ -52,26 +52,37 @@ Mean seconds summed over 12 layers, with [min-max]:
 | phase | new | old | old/new |
 |---|---|---|---:|
 | **matmul g/u (zk)** | **0.109** [0.107-0.112] | **0.164** [0.163-0.165] | **1.500** |
-| **matmul d (zk)** | **0.082** [0.078-0.085] | **0.133** [0.132-0.133] | **1.622** |
-| **commit W** | **0.566** [0.532-0.587] | **0.699** [0.690-0.708] | **1.235** |
-| **commit A (zk)** | **1.047** [0.984-1.111] | **1.250** [1.245-1.255] | **1.194** |
-| pcs openings | 0.294 [0.280-0.311] | 0.342 [0.341-0.343] | 1.162 |
-| helpers + commit H | 1.163 [1.092-1.228] | 1.110 [1.098-1.122] | 0.955 (control) |
-| zero-check F | 0.364 [0.313-0.428] | 0.333 [0.331-0.335] | 0.914 (control) |
-| **PROVE** | **3.897** [3.66-4.15] | **4.275** [4.25-4.30] | **1.097** |
+| **matmul d (zk)** | **0.085** [0.078-0.093] | **0.136** [0.132-0.144] | **1.605** |
+| **commit W** | **0.587** [0.532-0.625] | **0.730** [0.690-0.772] | **1.243** |
+| **commit A (zk)** | **1.067** [0.984-1.111] | **1.333** [1.245-1.402] | **1.249** |
+| pcs openings | 0.306 [0.280-0.326] | 0.371 [0.341-0.401] | **1.211** |
+| helpers + commit H | 1.198 [1.092-1.274] | 1.208 [1.098-1.303] | 1.009 (control) |
+| zero-check F | 0.386 [0.313-0.445] | 0.397 [0.331-0.444] | 1.028 (control) |
+| **PROVE** | **4.022** [3.66-4.22] | **4.620** [4.25-4.95] | **1.149** |
 
-**INCOMPLETE — this is 3 runs against 2, not the 5 against 5 the lane
-owes.** The sixth run was launched and is still queued on
-`/tmp/zk-heavy.lock` behind another worktree's `fsp4_oracles.sh`. The two
-controls read 0.955 and 0.914, i.e. the residual order/noise effect here
-favours the OLD arm, so the four changed phases are if anything
-understated. Treat the GPU rows as indicative until 5 and 5 are in.
+Order n,o,o,n,(o),n,o,o,n. Runs 1-2 were taken in a quiet window, run 3
+across the end of another worktree's oracle battery, runs 4-5 under this
+lane's own `cargo test` compile load. **The blocks agree**, which is why
+the load does not need to be apologised for: quiet-only old/new is
+commit W 1.258, commit A 1.231, g/u 1.519, d 1.656, PROVE 1.134;
+loaded-only is 1.195, 1.260, 1.423, 1.517, PROVE 1.140.
+
+**On the GPU binary this lane is worth a MEASURED 1.149x on the whole
+private prove at 12 x 512**, against controls at 1.009 and 1.028 — phases
+containing no code this lane touched. Both changed pairs sit far outside
+that band: the fold at 1.50 / 1.61, the pool at 1.24 / 1.25.
+
+`pcs openings` moves too, at 1.211, and the controls rule out noise. Lane
+AL saw the same phase move in the public arm (18.557 -> 17.176 s). The
+openings do a host fold over the committed data, so they benefit from a
+buffer that is already resident and faulted. It is a second-order effect
+of the pool — recorded, not claimed as a separate lever.
 
 ## What the two shapes together say
 
-At 12 x 512 the FOLD is clearly measurable on both binaries and the POOL
-is measurable only on the GPU binary. That is what the arithmetic
-predicts, and it is not a defect:
+At 12 x 512 the FOLD is clearly measurable on both binaries, and the POOL
+is measurable on the GPU binary but not the CPU one. That is what the
+arithmetic predicts, and it is not a defect:
 
 * at this shape `w_len` is 3 x 768 x 2048 = 4.72 Melem (37.7 MB) and the
   zero-knowledge A buffer is 559 rows x 2^14 = 9.16 Melem (73.3 MB), so
