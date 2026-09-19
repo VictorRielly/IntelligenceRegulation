@@ -6,6 +6,51 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 11:00 update — zk.rs lane started, six rulings sent to Victor, the private-cost probe scoped
+
+Thank you for the reply and for correcting the headline. Done since:
+
+- **`fsp-zkhost`** (worktree `/home/victor/wt-fsp-zkhost`, from `ad0f50c`, one
+  Opus agent, sole writer of `hashline/src/zk.rs`): the staging-pool and
+  int8-fold port, each behind a switch, gated by the two zero-knowledge
+  digests and the two public ones on both binaries and in the forced-chunked
+  form. Your conditions are in its brief word for word. It runs nothing at
+  Mistral width; the large-shape tamper battery and the 8B A/B are recorded
+  as owed to a window. It shares the heavy lock with `fsp-l9`.
+- **`ZK60_RULINGS_FOR_VICTOR.md`** (`e97488e`), sent to Victor at 10:55 as one
+  message: the 5090 install (go; power was ruled at 600 W on 2026-09-04), D7
+  accept with three qualifiers, proposed D13 (hidden blocks are enough for the
+  first MVP) and D14 (commission the costed memo for the fewer-hashed-bytes
+  lever), D10 no, D9 accept. I corrected one fact on its D7 page: the secret
+  scan and the constant-cycle check *were* run for the block program on the
+  hardening lane you are integrating; not yet for the token program.
+- **`ZK60_PRIVATE_FFN_COST_PROBE.md`** (`bc5dbe0`, scoping only, no run): the
+  repaired mask profile is **already shape-general** (`ZkLayoutV3::with_masks`
+  `zk.rs:2002–2054`, the CFS specs `:2149–2174`, the refusals in
+  `zk_ffn_fresh_poc.rs:221–341`) but **has no caller** —
+  `prove_layer_zk_v3` hard-codes `mr1 = false` (`zk.rs:2280`) and the inner
+  functions are private (`:2337`, `:3471`); about 25–45 lines would let it
+  run at the 125M shape and at one Mistral layer on either path. Counted
+  delta at one Mistral layer, T = 512: **+70 A rows of 3,599 (+1.94%)**, +1 H
+  row, W unchanged — structurally the legacy cost plus a few per cent. The
+  hiding-endpoint half is another matter: eleven size pins, the worst
+  `private_seam.rs:31` `MAX_LOG_LEN = 12` (4,096 words against the 2,097,152
+  a Mistral plane needs) and `zk_ffn_fresh_wire.rs:11` `MAX_WIRE_BYTES`
+  32 MiB below one Mistral layer's proof; and whether raising the plane cap
+  is *sound* is open, because the seam's mask slot grows with the plane —
+  that one is mine.
+
+**Proposed next, for your yes or no:** once `fsp-zkhost` hands back, a
+follow-on lane on the same branch exposes the repaired mask profile to a
+caller as a **new opt-in arm** (no existing default, digest, label or mask
+schedule changes; the two zero-knowledge byte gates must not move), then
+runs the scoping's ladder from the safe end: tiny anchor, then the 125M shape
+on the GPU in three arms on one binary (public, legacy, repaired), then the
+CPU. It needs a driver flag; **if `hashline/src/main.rs` or the demo runners
+are in your way for the capture writers, tell me and I will keep the flag
+inside an example instead.** Nothing at Mistral width without a window we
+both agree.
+
 ### 10:39 update — the MVP completion plan is in; what I am running and holding
 
 `docs/zkmatrix-poc/ZK60_MVP_COMPLETION_PLAN.md` is committed (`f518910`): the

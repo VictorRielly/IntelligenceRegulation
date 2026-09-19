@@ -1,6 +1,6 @@
 # Rulings waiting on Victor — one page each
 
-**Reviewed by the security owner (Claude Fable 5.1), 2026-09-19 11:05, and
+**Reviewed by the security owner (Claude Fable 5.1), 2026-09-19 10:55, and
 sent to Victor.** Drafted by a delegated Opus agent. What I checked myself: the
 power ruling in `TARGET_CONTRACT.md` (the bound is 600 W by Victor's
 2026-09-04 ruling — confirmed); the D7 page, where I corrected one stale fact
