@@ -1,0 +1,238 @@
+=== box before ===
+2026-09-19 11:37:20
+ 11:37:20 up 10:32,  1 user,  load average: 2.44, 3.31, 3.12
+0 MiB
+=== GPU binary, v3 12x512 [base] ===
+pass (v3): 12 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export (d 768 f 2048; log_cols 14, inv_rate 4, col checks 256, threads 8)
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AL] conv W  l00: alloc 0.0124 fill 0.0024 | commit 0.0637 (dev h2d 0.0387 ntt 0.0129 hash 0.0022 -> host 0.0099) | 4 Melem
+[UPERF3-AL] conv A  l00: alloc 0.0236 fill 0.0057 | commit 0.0422 (dev h2d 0.0083 ntt 0.0244 hash 0.0034 -> host 0.0061) | 8 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0049 | 6 w_data blocks 0.0025
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0025 | 3 w_data blocks 0.0011
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0024 | rhos 0.0000 | fold 0.0018 | absorb+idx 0.0003 | columns 0.0008 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0009 | rhos 0.0000 | fold 0.0026 | absorb+idx 0.0002 | columns 0.0012 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0037 | rhos 0.0000 | fold 0.0028 | absorb+idx 0.0004 | columns 0.0012 s
+  layer  0: prove 0.270 s, 5899988 B
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0027 | commit 0.0158 (dev h2d 0.0048 ntt 0.0053 hash 0.0023 -> host 0.0034) | 4 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0063 | commit 0.0258 (dev h2d 0.0081 ntt 0.0095 hash 0.0031 -> host 0.0051) | 8 Melem
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0063 | 6 w_data blocks 0.0029
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0042 | 3 w_data blocks 0.0023
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0028 | rhos 0.0000 | fold 0.0018 | absorb+idx 0.0002 | columns 0.0008 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0015 | rhos 0.0000 | fold 0.0025 | absorb+idx 0.0003 | columns 0.0010 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0014 | rhos 0.0000 | fold 0.0028 | absorb+idx 0.0003 | columns 0.0010 s
+  layer  1: prove 0.147 s, 5960912 B
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0032 | commit 0.0187 (dev h2d 0.0047 ntt 0.0053 hash 0.0022 -> host 0.0066) | 4 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0062 | commit 0.0267 (dev h2d 0.0083 ntt 0.0095 hash 0.0031 -> host 0.0058) | 8 Melem
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0044 | 6 w_data blocks 0.0018
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0029 | 3 w_data blocks 0.0019
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0015 | rhos 0.0000 | fold 0.0018 | absorb+idx 0.0002 | columns 0.0009 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0022 | rhos 0.0001 | fold 0.0028 | absorb+idx 0.0002 | columns 0.0010 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0021 | rhos 0.0000 | fold 0.0029 | absorb+idx 0.0004 | columns 0.0011 s
+  layer  2: prove 0.143 s, 5960392 B
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0024 | commit 0.0158 (dev h2d 0.0045 ntt 0.0053 hash 0.0022 -> host 0.0039) | 4 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0116 | commit 0.0251 (dev h2d 0.0080 ntt 0.0096 hash 0.0031 -> host 0.0044) | 8 Melem
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0049 | 6 w_data blocks 0.0019
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0029 | 3 w_data blocks 0.0012
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0028 | rhos 0.0000 | fold 0.0018 | absorb+idx 0.0002 | columns 0.0009 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0022 | rhos 0.0001 | fold 0.0027 | absorb+idx 0.0002 | columns 0.0013 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0019 | rhos 0.0000 | fold 0.0029 | absorb+idx 0.0004 | columns 0.0011 s
+  layer  3: prove 0.145 s, 5896912 B
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0024 | commit 0.0175 (dev h2d 0.0046 ntt 0.0053 hash 0.0023 -> host 0.0054) | 4 Melem
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0050 | commit 0.0255 (dev h2d 0.0081 ntt 0.0095 hash 0.0029 -> host 0.0050) | 8 Melem
+[UPERF3-AL] fold gu l04: pre (eq + i8 row/col folds) 0.0042 | 6 w_data blocks 0.0031
+[UPERF3-AL] fold d  l04: pre (eq + i32 row / i8 col folds) 0.0029 | 3 w_data blocks 0.0019
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0018 | rhos 0.0000 | fold 0.0019 | absorb+idx 0.0002 | columns 0.0009 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0014 | rhos 0.0001 | fold 0.0026 | absorb+idx 0.0002 | columns 0.0010 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0008 | rhos 0.0000 | fold 0.0025 | absorb+idx 0.0004 | columns 0.0018 s
+  layer  4: prove 0.136 s, 5898448 B
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0024 | commit 0.0158 (dev h2d 0.0045 ntt 0.0053 hash 0.0023 -> host 0.0038) | 4 Melem
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0044 | commit 0.0258 (dev h2d 0.0081 ntt 0.0095 hash 0.0029 -> host 0.0052) | 8 Melem
+[UPERF3-AL] fold gu l05: pre (eq + i8 row/col folds) 0.0053 | 6 w_data blocks 0.0023
+[UPERF3-AL] fold d  l05: pre (eq + i32 row / i8 col folds) 0.0032 | 3 w_data blocks 0.0006
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0018 | rhos 0.0000 | fold 0.0018 | absorb+idx 0.0002 | columns 0.0009 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0017 | rhos 0.0000 | fold 0.0025 | absorb+idx 0.0003 | columns 0.0010 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0030 | rhos 0.0000 | fold 0.0029 | absorb+idx 0.0003 | columns 0.0006 s
+  layer  5: prove 0.139 s, 5862608 B
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0030 | commit 0.0173 (dev h2d 0.0044 ntt 0.0053 hash 0.0021 -> host 0.0055) | 4 Melem
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0057 | commit 0.0254 (dev h2d 0.0086 ntt 0.0095 hash 0.0030 -> host 0.0043) | 8 Melem
+[UPERF3-AL] fold gu l06: pre (eq + i8 row/col folds) 0.0046 | 6 w_data blocks 0.0016
+[UPERF3-AL] fold d  l06: pre (eq + i32 row / i8 col folds) 0.0026 | 3 w_data blocks 0.0009
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0036 | rhos 0.0000 | fold 0.0018 | absorb+idx 0.0002 | columns 0.0005 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0008 | rhos 0.0000 | fold 0.0025 | absorb+idx 0.0002 | columns 0.0011 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0015 | rhos 0.0000 | fold 0.0028 | absorb+idx 0.0004 | columns 0.0010 s
+  layer  6: prove 0.136 s, 5895120 B
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0026 | commit 0.0153 (dev h2d 0.0041 ntt 0.0053 hash 0.0021 -> host 0.0037) | 4 Melem
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0059 | commit 0.0256 (dev h2d 0.0083 ntt 0.0096 hash 0.0029 -> host 0.0048) | 8 Melem
+[UPERF3-AL] fold gu l07: pre (eq + i8 row/col folds) 0.0044 | 6 w_data blocks 0.0027
+[UPERF3-AL] fold d  l07: pre (eq + i32 row / i8 col folds) 0.0033 | 3 w_data blocks 0.0011
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0022 | rhos 0.0000 | fold 0.0017 | absorb+idx 0.0002 | columns 0.0008 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0015 | rhos 0.0001 | fold 0.0026 | absorb+idx 0.0002 | columns 0.0010 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0011 | rhos 0.0000 | fold 0.0028 | absorb+idx 0.0003 | columns 0.0009 s
+  layer  7: prove 0.148 s, 5862608 B
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0027 | commit 0.0166 (dev h2d 0.0049 ntt 0.0053 hash 0.0022 -> host 0.0043) | 4 Melem
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0047 | commit 0.0253 (dev h2d 0.0082 ntt 0.0095 hash 0.0029 -> host 0.0046) | 8 Melem
+[UPERF3-AL] fold gu l08: pre (eq + i8 row/col folds) 0.0056 | 6 w_data blocks 0.0031
+[UPERF3-AL] fold d  l08: pre (eq + i32 row / i8 col folds) 0.0037 | 3 w_data blocks 0.0009
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0010 | rhos 0.0000 | fold 0.0022 | absorb+idx 0.0002 | columns 0.0008 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0020 | rhos 0.0000 | fold 0.0025 | absorb+idx 0.0002 | columns 0.0007 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0010 | rhos 0.0000 | fold 0.0028 | absorb+idx 0.0003 | columns 0.0010 s
+  layer  8: prove 0.138 s, 5895376 B
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0027 | commit 0.0161 (dev h2d 0.0047 ntt 0.0053 hash 0.0022 -> host 0.0040) | 4 Melem
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0053 | commit 0.0253 (dev h2d 0.0084 ntt 0.0095 hash 0.0031 -> host 0.0043) | 8 Melem
+[UPERF3-AL] fold gu l09: pre (eq + i8 row/col folds) 0.0063 | 6 w_data blocks 0.0028
+[UPERF3-AL] fold d  l09: pre (eq + i32 row / i8 col folds) 0.0027 | 3 w_data blocks 0.0019
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0009 | rhos 0.0000 | fold 0.0018 | absorb+idx 0.0002 | columns 0.0008 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0021 | rhos 0.0000 | fold 0.0022 | absorb+idx 0.0003 | columns 0.0010 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0009 | rhos 0.0000 | fold 0.0028 | absorb+idx 0.0003 | columns 0.0009 s
+  layer  9: prove 0.135 s, 5895376 B
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0024 | commit 0.0173 (dev h2d 0.0045 ntt 0.0053 hash 0.0022 -> host 0.0053) | 4 Melem
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0053 | commit 0.0287 (dev h2d 0.0086 ntt 0.0096 hash 0.0029 -> host 0.0076) | 8 Melem
+[UPERF3-AL] fold gu l10: pre (eq + i8 row/col folds) 0.0041 | 6 w_data blocks 0.0015
+[UPERF3-AL] fold d  l10: pre (eq + i32 row / i8 col folds) 0.0026 | 3 w_data blocks 0.0010
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0015 | rhos 0.0000 | fold 0.0015 | absorb+idx 0.0002 | columns 0.0006 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0026 | rhos 0.0000 | fold 0.0025 | absorb+idx 0.0002 | columns 0.0010 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0029 | rhos 0.0000 | fold 0.0028 | absorb+idx 0.0003 | columns 0.0010 s
+  layer 10: prove 0.143 s, 5864148 B
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0029 | commit 0.0174 (dev h2d 0.0047 ntt 0.0053 hash 0.0021 -> host 0.0053) | 4 Melem
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0051 | commit 0.0253 (dev h2d 0.0085 ntt 0.0095 hash 0.0029 -> host 0.0044) | 8 Melem
+[UPERF3-AL] fold gu l11: pre (eq + i8 row/col folds) 0.0050 | 6 w_data blocks 0.0032
+[UPERF3-AL] fold d  l11: pre (eq + i32 row / i8 col folds) 0.0042 | 3 w_data blocks 0.0007
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0011 | rhos 0.0000 | fold 0.0018 | absorb+idx 0.0002 | columns 0.0009 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0020 | rhos 0.0001 | fold 0.0026 | absorb+idx 0.0002 | columns 0.0010 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0016 | rhos 0.0000 | fold 0.0029 | absorb+idx 0.0003 | columns 0.0010 s
+  layer 11: prove 0.140 s, 5866196 B
+prover phases (summed over layers):
+      commit W                  0.292 s
+      commit A                  0.422 s
+      helpers + commit H        0.339 s
+      matmul g/u                0.145 s
+      matmul d                  0.073 s
+      zero-check F              0.284 s
+      zero-check D              0.064 s
+      pcs openings              0.199 s
+  gpu device-side (summed): h2d 0.189 s (261 MB) | ntt 0.307 s | hash 0.094 s | sumcheck 0.348 s | fold 0.154 s | helpers 0.083 s | d2h 0.000 s (137 MB) | vram peak 2430 MB
+  gpu chunked [UPERF3-AC]: chunked commits 0 | opening re-encode 0.000 s
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+  proof written to /tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad/fsp4_attr/attrib-gpu.proof
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.66 s | PROVE 1.82 s | VERIFY 0.26 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.595e10 proven MAC/s (prove wall) | wall 3.86 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.659483845,"prove_s":1.818081642,"serialize_s":0.097579842,"proof_ready_s":3.598407346,"verify_s":0.256607478,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}
+5f368db6240e0614
+70758084
+=== CPU binary, v3 12x512 [base] ===
+pass (v3): 12 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export (d 768 f 2048; log_cols 14, inv_rate 4, col checks 256, threads 8)
+  gpu: off (built without --features gpu-cuda)
+[UPERF3-AL] conv W  l00: alloc 0.0134 fill 0.0026 | commit 0.1692 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1692) | 4 Melem
+[UPERF3-AL] conv A  l00: alloc 0.0219 fill 0.0063 | commit 0.2904 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2904) | 8 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0067 | 6 w_data blocks 0.0047
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0033 | 3 w_data blocks 0.0033
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0008 | rhos 0.0000 | fold 0.0083 | absorb+idx 0.0003 | columns 0.0004 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0034 | rhos 0.0001 | fold 0.0141 | absorb+idx 0.0002 | columns 0.0011 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0037 | rhos 0.0000 | fold 0.0156 | absorb+idx 0.0004 | columns 0.0005 s
+  layer  0: prove 1.308 s, 5899988 B
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0037 | commit 0.1645 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1645) | 4 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0069 | commit 0.2904 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2904) | 8 Melem
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0063 | 6 w_data blocks 0.0037
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0030 | 3 w_data blocks 0.0032
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0009 | rhos 0.0000 | fold 0.0080 | absorb+idx 0.0002 | columns 0.0008 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0033 | rhos 0.0000 | fold 0.0124 | absorb+idx 0.0002 | columns 0.0012 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0032 | rhos 0.0001 | fold 0.0151 | absorb+idx 0.0003 | columns 0.0011 s
+  layer  1: prove 1.218 s, 5960912 B
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0044 | commit 0.1659 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1659) | 4 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0100 | commit 0.2723 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2723) | 8 Melem
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0057 | 6 w_data blocks 0.0043
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0029 | 3 w_data blocks 0.0022
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0031 | rhos 0.0000 | fold 0.0078 | absorb+idx 0.0003 | columns 0.0005 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0036 | rhos 0.0000 | fold 0.0133 | absorb+idx 0.0002 | columns 0.0008 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0028 | rhos 0.0000 | fold 0.0150 | absorb+idx 0.0003 | columns 0.0006 s
+  layer  2: prove 1.232 s, 5960392 B
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0038 | commit 0.1568 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1568) | 4 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0069 | commit 0.2915 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2915) | 8 Melem
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0065 | 6 w_data blocks 0.0042
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0036 | 3 w_data blocks 0.0029
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0036 | rhos 0.0000 | fold 0.0086 | absorb+idx 0.0002 | columns 0.0008 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0051 | rhos 0.0001 | fold 0.0133 | absorb+idx 0.0003 | columns 0.0007 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0039 | rhos 0.0000 | fold 0.0157 | absorb+idx 0.0003 | columns 0.0011 s
+  layer  3: prove 1.297 s, 5896912 B
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0059 | commit 0.1591 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1591) | 4 Melem
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0056 | commit 0.2783 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2783) | 8 Melem
+[UPERF3-AL] fold gu l04: pre (eq + i8 row/col folds) 0.0062 | 6 w_data blocks 0.0034
+[UPERF3-AL] fold d  l04: pre (eq + i32 row / i8 col folds) 0.0028 | 3 w_data blocks 0.0006
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0023 | rhos 0.0000 | fold 0.0076 | absorb+idx 0.0003 | columns 0.0005 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0041 | rhos 0.0001 | fold 0.0122 | absorb+idx 0.0003 | columns 0.0011 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0042 | rhos 0.0000 | fold 0.0158 | absorb+idx 0.0003 | columns 0.0009 s
+  layer  4: prove 1.203 s, 5898448 B
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0024 | commit 0.1710 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1710) | 4 Melem
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0076 | commit 0.2783 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2783) | 8 Melem
+[UPERF3-AL] fold gu l05: pre (eq + i8 row/col folds) 0.0055 | 6 w_data blocks 0.0034
+[UPERF3-AL] fold d  l05: pre (eq + i32 row / i8 col folds) 0.0026 | 3 w_data blocks 0.0024
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0016 | rhos 0.0000 | fold 0.0076 | absorb+idx 0.0002 | columns 0.0006 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0019 | rhos 0.0000 | fold 0.0132 | absorb+idx 0.0002 | columns 0.0010 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0055 | rhos 0.0000 | fold 0.0150 | absorb+idx 0.0003 | columns 0.0009 s
+  layer  5: prove 1.229 s, 5862608 B
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0023 | commit 0.1587 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1587) | 4 Melem
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0065 | commit 0.2724 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2724) | 8 Melem
+[UPERF3-AL] fold gu l06: pre (eq + i8 row/col folds) 0.0046 | 6 w_data blocks 0.0029
+[UPERF3-AL] fold d  l06: pre (eq + i32 row / i8 col folds) 0.0029 | 3 w_data blocks 0.0026
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0008 | rhos 0.0000 | fold 0.0076 | absorb+idx 0.0002 | columns 0.0007 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0033 | rhos 0.0000 | fold 0.0137 | absorb+idx 0.0002 | columns 0.0009 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0041 | rhos 0.0000 | fold 0.0153 | absorb+idx 0.0003 | columns 0.0010 s
+  layer  6: prove 1.221 s, 5895120 B
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0038 | commit 0.1587 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1587) | 4 Melem
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0054 | commit 0.2791 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2791) | 8 Melem
+[UPERF3-AL] fold gu l07: pre (eq + i8 row/col folds) 0.0051 | 6 w_data blocks 0.0037
+[UPERF3-AL] fold d  l07: pre (eq + i32 row / i8 col folds) 0.0033 | 3 w_data blocks 0.0027
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0023 | rhos 0.0000 | fold 0.0087 | absorb+idx 0.0002 | columns 0.0005 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0025 | rhos 0.0000 | fold 0.0122 | absorb+idx 0.0002 | columns 0.0010 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0031 | rhos 0.0000 | fold 0.0150 | absorb+idx 0.0003 | columns 0.0010 s
+  layer  7: prove 1.207 s, 5862608 B
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0024 | commit 0.1647 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1647) | 4 Melem
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0055 | commit 0.2901 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2901) | 8 Melem
+[UPERF3-AL] fold gu l08: pre (eq + i8 row/col folds) 0.0056 | 6 w_data blocks 0.0037
+[UPERF3-AL] fold d  l08: pre (eq + i32 row / i8 col folds) 0.0030 | 3 w_data blocks 0.0021
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0034 | rhos 0.0000 | fold 0.0080 | absorb+idx 0.0003 | columns 0.0009 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0040 | rhos 0.0000 | fold 0.0128 | absorb+idx 0.0002 | columns 0.0009 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0038 | rhos 0.0000 | fold 0.0161 | absorb+idx 0.0003 | columns 0.0011 s
+  layer  8: prove 1.243 s, 5895376 B
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0037 | commit 0.1663 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1663) | 4 Melem
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0059 | commit 0.2863 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2863) | 8 Melem
+[UPERF3-AL] fold gu l09: pre (eq + i8 row/col folds) 0.0066 | 6 w_data blocks 0.0044
+[UPERF3-AL] fold d  l09: pre (eq + i32 row / i8 col folds) 0.0031 | 3 w_data blocks 0.0024
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0038 | rhos 0.0000 | fold 0.0079 | absorb+idx 0.0003 | columns 0.0009 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0028 | rhos 0.0001 | fold 0.0123 | absorb+idx 0.0002 | columns 0.0010 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0033 | rhos 0.0000 | fold 0.0164 | absorb+idx 0.0003 | columns 0.0013 s
+  layer  9: prove 1.239 s, 5895376 B
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0026 | commit 0.1704 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1704) | 4 Melem
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0056 | commit 0.2926 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2926) | 8 Melem
+[UPERF3-AL] fold gu l10: pre (eq + i8 row/col folds) 0.0057 | 6 w_data blocks 0.0045
+[UPERF3-AL] fold d  l10: pre (eq + i32 row / i8 col folds) 0.0027 | 3 w_data blocks 0.0018
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0022 | rhos 0.0000 | fold 0.0076 | absorb+idx 0.0003 | columns 0.0009 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0034 | rhos 0.0001 | fold 0.0144 | absorb+idx 0.0002 | columns 0.0011 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0042 | rhos 0.0000 | fold 0.0170 | absorb+idx 0.0003 | columns 0.0007 s
+  layer 10: prove 1.250 s, 5864148 B
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0038 | commit 0.1644 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1644) | 4 Melem
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0054 | commit 0.2800 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2800) | 8 Melem
+[UPERF3-AL] fold gu l11: pre (eq + i8 row/col folds) 0.0064 | 6 w_data blocks 0.0046
+[UPERF3-AL] fold d  l11: pre (eq + i32 row / i8 col folds) 0.0038 | 3 w_data blocks 0.0022
+[pcs::open] rows 288 n 16384 claims 9 groups 2: group_claims 0.0015 | rhos 0.0000 | fold 0.0078 | absorb+idx 0.0002 | columns 0.0012 s
+[pcs::open] rows 520 n 16384 claims 16 groups 2: group_claims 0.0031 | rhos 0.0001 | fold 0.0136 | absorb+idx 0.0002 | columns 0.0010 s
+[pcs::open] rows 432 n 16384 claims 12 groups 3: group_claims 0.0038 | rhos 0.0000 | fold 0.0149 | absorb+idx 0.0003 | columns 0.0006 s
+  layer 11: prove 1.235 s, 5866196 B
+prover phases (summed over layers):
+      commit W                  2.025 s
+      commit A                  3.502 s
+      helpers + commit H        4.329 s
+      matmul g/u                0.240 s
+      matmul d                  0.136 s
+      zero-check F              2.795 s
+      zero-check D              0.828 s
+      pcs openings              1.004 s
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+  proof written to /tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad/fsp4_attr/attrib-cpu.proof
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.54 s | PROVE 14.88 s | VERIFY 0.31 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.948e9 proven MAC/s (prove wall) | wall 16.84 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.538850699,"prove_s":14.881786347,"serialize_s":0.098166174,"proof_ready_s":16.531811390,"verify_s":0.308015181,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":false,"gpu_enabled":false,"randomness":"none"}
+5f368db6240e0614
+70758084
+=== box after ===
+2026-09-19 11:37:44
+ 11:37:44 up 10:32,  1 user,  load average: 2.94, 3.35, 3.14
+=== ATTRIB DONE ===

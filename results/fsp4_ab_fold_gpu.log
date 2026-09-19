@@ -1,0 +1,288 @@
+=== box before ===
+2026-09-19 11:41:22
+ 11:41:22 up 10:36,  1 user,  load average: 5.17, 3.33, 3.10
+0 MiB
+--- ARM 0 run 1 [gpu] ---
+2026-09-19 11:41:22
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0076 | 6 w_data blocks 0.0059
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0039 | 3 w_data blocks 0.0028
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0073 | 6 w_data blocks 0.0061
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0054 | 3 w_data blocks 0.0027
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0075 | 6 w_data blocks 0.0066
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0052 | 3 w_data blocks 0.0042
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0103 | 6 w_data blocks 0.0069
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0038 | 3 w_data blocks 0.0016
+[UPERF3-AL] fold gu l04: pre (eq + i8 row/col folds) 0.0081 | 6 w_data blocks 0.0071
+[UPERF3-AL] fold d  l04: pre (eq + i32 row / i8 col folds) 0.0048 | 3 w_data blocks 0.0034
+[UPERF3-AL] fold gu l05: pre (eq + i8 row/col folds) 0.0077 | 6 w_data blocks 0.0061
+[UPERF3-AL] fold d  l05: pre (eq + i32 row / i8 col folds) 0.0036 | 3 w_data blocks 0.0009
+[UPERF3-AL] fold gu l06: pre (eq + i8 row/col folds) 0.0073 | 6 w_data blocks 0.0059
+[UPERF3-AL] fold d  l06: pre (eq + i32 row / i8 col folds) 0.0043 | 3 w_data blocks 0.0040
+[UPERF3-AL] fold gu l07: pre (eq + i8 row/col folds) 0.0068 | 6 w_data blocks 0.0058
+[UPERF3-AL] fold d  l07: pre (eq + i32 row / i8 col folds) 0.0045 | 3 w_data blocks 0.0036
+[UPERF3-AL] fold gu l08: pre (eq + i8 row/col folds) 0.0092 | 6 w_data blocks 0.0078
+[UPERF3-AL] fold d  l08: pre (eq + i32 row / i8 col folds) 0.0056 | 3 w_data blocks 0.0041
+[UPERF3-AL] fold gu l09: pre (eq + i8 row/col folds) 0.0096 | 6 w_data blocks 0.0069
+[UPERF3-AL] fold d  l09: pre (eq + i32 row / i8 col folds) 0.0056 | 3 w_data blocks 0.0053
+[UPERF3-AL] fold gu l10: pre (eq + i8 row/col folds) 0.0095 | 6 w_data blocks 0.0072
+[UPERF3-AL] fold d  l10: pre (eq + i32 row / i8 col folds) 0.0039 | 3 w_data blocks 0.0040
+[UPERF3-AL] fold gu l11: pre (eq + i8 row/col folds) 0.0068 | 6 w_data blocks 0.0053
+[UPERF3-AL] fold d  l11: pre (eq + i32 row / i8 col folds) 0.0047 | 3 w_data blocks 0.0022
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.93 s | PROVE 2.52 s | VERIFY 0.44 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.150e10 proven MAC/s (prove wall) | wall 5.02 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM 1 run 1 [gpu] ---
+2026-09-19 11:41:31
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0089 | 6 w_data blocks 0.0060
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0031 | 3 w_data blocks 0.0053
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0065 | 6 w_data blocks 0.0059
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0042 | 3 w_data blocks 0.0040
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0065 | 6 w_data blocks 0.0059
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0036 | 3 w_data blocks 0.0046
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0076 | 6 w_data blocks 0.0073
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0039 | 3 w_data blocks 0.0017
+[UPERF3-AL] fold gu l04: pre (eq + i8 row/col folds) 0.0060 | 6 w_data blocks 0.0069
+[UPERF3-AL] fold d  l04: pre (eq + i32 row / i8 col folds) 0.0032 | 3 w_data blocks 0.0043
+[UPERF3-AL] fold gu l05: pre (eq + i8 row/col folds) 0.0086 | 6 w_data blocks 0.0077
+[UPERF3-AL] fold d  l05: pre (eq + i32 row / i8 col folds) 0.0039 | 3 w_data blocks 0.0024
+[UPERF3-AL] fold gu l06: pre (eq + i8 row/col folds) 0.0054 | 6 w_data blocks 0.0067
+[UPERF3-AL] fold d  l06: pre (eq + i32 row / i8 col folds) 0.0045 | 3 w_data blocks 0.0042
+[UPERF3-AL] fold gu l07: pre (eq + i8 row/col folds) 0.0049 | 6 w_data blocks 0.0053
+[UPERF3-AL] fold d  l07: pre (eq + i32 row / i8 col folds) 0.0050 | 3 w_data blocks 0.0040
+[UPERF3-AL] fold gu l08: pre (eq + i8 row/col folds) 0.0067 | 6 w_data blocks 0.0056
+[UPERF3-AL] fold d  l08: pre (eq + i32 row / i8 col folds) 0.0040 | 3 w_data blocks 0.0027
+[UPERF3-AL] fold gu l09: pre (eq + i8 row/col folds) 0.0058 | 6 w_data blocks 0.0058
+[UPERF3-AL] fold d  l09: pre (eq + i32 row / i8 col folds) 0.0038 | 3 w_data blocks 0.0031
+[UPERF3-AL] fold gu l10: pre (eq + i8 row/col folds) 0.0079 | 6 w_data blocks 0.0067
+[UPERF3-AL] fold d  l10: pre (eq + i32 row / i8 col folds) 0.0031 | 3 w_data blocks 0.0029
+[UPERF3-AL] fold gu l11: pre (eq + i8 row/col folds) 0.0096 | 6 w_data blocks 0.0049
+[UPERF3-AL] fold d  l11: pre (eq + i32 row / i8 col folds) 0.0036 | 3 w_data blocks 0.0043
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.88 s | PROVE 2.53 s | VERIFY 0.44 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.148e10 proven MAC/s (prove wall) | wall 4.97 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM 1 run 2 [gpu] ---
+2026-09-19 11:41:40
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0070 | 6 w_data blocks 0.0061
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0038 | 3 w_data blocks 0.0042
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0070 | 6 w_data blocks 0.0062
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0058 | 3 w_data blocks 0.0040
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0067 | 6 w_data blocks 0.0064
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0056 | 3 w_data blocks 0.0035
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0063 | 6 w_data blocks 0.0056
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0065 | 3 w_data blocks 0.0031
+[UPERF3-AL] fold gu l04: pre (eq + i8 row/col folds) 0.0063 | 6 w_data blocks 0.0051
+[UPERF3-AL] fold d  l04: pre (eq + i32 row / i8 col folds) 0.0056 | 3 w_data blocks 0.0047
+[UPERF3-AL] fold gu l05: pre (eq + i8 row/col folds) 0.0055 | 6 w_data blocks 0.0078
+[UPERF3-AL] fold d  l05: pre (eq + i32 row / i8 col folds) 0.0056 | 3 w_data blocks 0.0039
+[UPERF3-AL] fold gu l06: pre (eq + i8 row/col folds) 0.0061 | 6 w_data blocks 0.0067
+[UPERF3-AL] fold d  l06: pre (eq + i32 row / i8 col folds) 0.0043 | 3 w_data blocks 0.0033
+[UPERF3-AL] fold gu l07: pre (eq + i8 row/col folds) 0.0058 | 6 w_data blocks 0.0070
+[UPERF3-AL] fold d  l07: pre (eq + i32 row / i8 col folds) 0.0034 | 3 w_data blocks 0.0024
+[UPERF3-AL] fold gu l08: pre (eq + i8 row/col folds) 0.0050 | 6 w_data blocks 0.0065
+[UPERF3-AL] fold d  l08: pre (eq + i32 row / i8 col folds) 0.0054 | 3 w_data blocks 0.0040
+[UPERF3-AL] fold gu l09: pre (eq + i8 row/col folds) 0.0081 | 6 w_data blocks 0.0095
+[UPERF3-AL] fold d  l09: pre (eq + i32 row / i8 col folds) 0.0039 | 3 w_data blocks 0.0034
+[UPERF3-AL] fold gu l10: pre (eq + i8 row/col folds) 0.0058 | 6 w_data blocks 0.0066
+[UPERF3-AL] fold d  l10: pre (eq + i32 row / i8 col folds) 0.0047 | 3 w_data blocks 0.0043
+[UPERF3-AL] fold gu l11: pre (eq + i8 row/col folds) 0.0051 | 6 w_data blocks 0.0043
+[UPERF3-AL] fold d  l11: pre (eq + i32 row / i8 col folds) 0.0033 | 3 w_data blocks 0.0031
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.85 s | PROVE 2.42 s | VERIFY 0.42 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.200e10 proven MAC/s (prove wall) | wall 4.80 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM 0 run 2 [gpu] ---
+2026-09-19 11:41:49
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0062 | 6 w_data blocks 0.0071
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0047 | 3 w_data blocks 0.0035
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0081 | 6 w_data blocks 0.0059
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0039 | 3 w_data blocks 0.0050
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0087 | 6 w_data blocks 0.0057
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0060 | 3 w_data blocks 0.0045
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0077 | 6 w_data blocks 0.0066
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0047 | 3 w_data blocks 0.0052
+[UPERF3-AL] fold gu l04: pre (eq + i8 row/col folds) 0.0085 | 6 w_data blocks 0.0071
+[UPERF3-AL] fold d  l04: pre (eq + i32 row / i8 col folds) 0.0034 | 3 w_data blocks 0.0032
+[UPERF3-AL] fold gu l05: pre (eq + i8 row/col folds) 0.0102 | 6 w_data blocks 0.0057
+[UPERF3-AL] fold d  l05: pre (eq + i32 row / i8 col folds) 0.0041 | 3 w_data blocks 0.0017
+[UPERF3-AL] fold gu l06: pre (eq + i8 row/col folds) 0.0085 | 6 w_data blocks 0.0052
+[UPERF3-AL] fold d  l06: pre (eq + i32 row / i8 col folds) 0.0032 | 3 w_data blocks 0.0020
+[UPERF3-AL] fold gu l07: pre (eq + i8 row/col folds) 0.0095 | 6 w_data blocks 0.0052
+[UPERF3-AL] fold d  l07: pre (eq + i32 row / i8 col folds) 0.0059 | 3 w_data blocks 0.0031
+[UPERF3-AL] fold gu l08: pre (eq + i8 row/col folds) 0.0096 | 6 w_data blocks 0.0055
+[UPERF3-AL] fold d  l08: pre (eq + i32 row / i8 col folds) 0.0032 | 3 w_data blocks 0.0046
+[UPERF3-AL] fold gu l09: pre (eq + i8 row/col folds) 0.0078 | 6 w_data blocks 0.0046
+[UPERF3-AL] fold d  l09: pre (eq + i32 row / i8 col folds) 0.0039 | 3 w_data blocks 0.0036
+[UPERF3-AL] fold gu l10: pre (eq + i8 row/col folds) 0.0090 | 6 w_data blocks 0.0044
+[UPERF3-AL] fold d  l10: pre (eq + i32 row / i8 col folds) 0.0039 | 3 w_data blocks 0.0035
+[UPERF3-AL] fold gu l11: pre (eq + i8 row/col folds) 0.0083 | 6 w_data blocks 0.0052
+[UPERF3-AL] fold d  l11: pre (eq + i32 row / i8 col folds) 0.0053 | 3 w_data blocks 0.0045
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.85 s | PROVE 2.44 s | VERIFY 0.47 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.188e10 proven MAC/s (prove wall) | wall 4.89 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM 0 run 3 [gpu] ---
+2026-09-19 11:41:57
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0085 | 6 w_data blocks 0.0048
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0037 | 3 w_data blocks 0.0041
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0091 | 6 w_data blocks 0.0057
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0050 | 3 w_data blocks 0.0031
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0092 | 6 w_data blocks 0.0065
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0047 | 3 w_data blocks 0.0038
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0081 | 6 w_data blocks 0.0042
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0047 | 3 w_data blocks 0.0049
+[UPERF3-AL] fold gu l04: pre (eq + i8 row/col folds) 0.0092 | 6 w_data blocks 0.0052
+[UPERF3-AL] fold d  l04: pre (eq + i32 row / i8 col folds) 0.0043 | 3 w_data blocks 0.0031
+[UPERF3-AL] fold gu l05: pre (eq + i8 row/col folds) 0.0088 | 6 w_data blocks 0.0068
+[UPERF3-AL] fold d  l05: pre (eq + i32 row / i8 col folds) 0.0038 | 3 w_data blocks 0.0040
+[UPERF3-AL] fold gu l06: pre (eq + i8 row/col folds) 0.0071 | 6 w_data blocks 0.0068
+[UPERF3-AL] fold d  l06: pre (eq + i32 row / i8 col folds) 0.0042 | 3 w_data blocks 0.0036
+[UPERF3-AL] fold gu l07: pre (eq + i8 row/col folds) 0.0080 | 6 w_data blocks 0.0060
+[UPERF3-AL] fold d  l07: pre (eq + i32 row / i8 col folds) 0.0045 | 3 w_data blocks 0.0034
+[UPERF3-AL] fold gu l08: pre (eq + i8 row/col folds) 0.0088 | 6 w_data blocks 0.0077
+[UPERF3-AL] fold d  l08: pre (eq + i32 row / i8 col folds) 0.0042 | 3 w_data blocks 0.0031
+[UPERF3-AL] fold gu l09: pre (eq + i8 row/col folds) 0.0084 | 6 w_data blocks 0.0064
+[UPERF3-AL] fold d  l09: pre (eq + i32 row / i8 col folds) 0.0049 | 3 w_data blocks 0.0048
+[UPERF3-AL] fold gu l10: pre (eq + i8 row/col folds) 0.0096 | 6 w_data blocks 0.0072
+[UPERF3-AL] fold d  l10: pre (eq + i32 row / i8 col folds) 0.0033 | 3 w_data blocks 0.0031
+[UPERF3-AL] fold gu l11: pre (eq + i8 row/col folds) 0.0087 | 6 w_data blocks 0.0069
+[UPERF3-AL] fold d  l11: pre (eq + i32 row / i8 col folds) 0.0048 | 3 w_data blocks 0.0039
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.87 s | PROVE 2.38 s | VERIFY 0.46 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.218e10 proven MAC/s (prove wall) | wall 4.85 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM 1 run 3 [gpu] ---
+2026-09-19 11:42:06
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0076 | 6 w_data blocks 0.0052
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0040 | 3 w_data blocks 0.0031
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0057 | 6 w_data blocks 0.0049
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0045 | 3 w_data blocks 0.0052
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0080 | 6 w_data blocks 0.0069
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0041 | 3 w_data blocks 0.0027
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0058 | 6 w_data blocks 0.0054
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0053 | 3 w_data blocks 0.0030
+[UPERF3-AL] fold gu l04: pre (eq + i8 row/col folds) 0.0057 | 6 w_data blocks 0.0066
+[UPERF3-AL] fold d  l04: pre (eq + i32 row / i8 col folds) 0.0029 | 3 w_data blocks 0.0028
+[UPERF3-AL] fold gu l05: pre (eq + i8 row/col folds) 0.0071 | 6 w_data blocks 0.0068
+[UPERF3-AL] fold d  l05: pre (eq + i32 row / i8 col folds) 0.0053 | 3 w_data blocks 0.0037
+[UPERF3-AL] fold gu l06: pre (eq + i8 row/col folds) 0.0059 | 6 w_data blocks 0.0067
+[UPERF3-AL] fold d  l06: pre (eq + i32 row / i8 col folds) 0.0043 | 3 w_data blocks 0.0045
+[UPERF3-AL] fold gu l07: pre (eq + i8 row/col folds) 0.0055 | 6 w_data blocks 0.0057
+[UPERF3-AL] fold d  l07: pre (eq + i32 row / i8 col folds) 0.0041 | 3 w_data blocks 0.0040
+[UPERF3-AL] fold gu l08: pre (eq + i8 row/col folds) 0.0040 | 6 w_data blocks 0.0060
+[UPERF3-AL] fold d  l08: pre (eq + i32 row / i8 col folds) 0.0075 | 3 w_data blocks 0.0044
+[UPERF3-AL] fold gu l09: pre (eq + i8 row/col folds) 0.0079 | 6 w_data blocks 0.0053
+[UPERF3-AL] fold d  l09: pre (eq + i32 row / i8 col folds) 0.0029 | 3 w_data blocks 0.0034
+[UPERF3-AL] fold gu l10: pre (eq + i8 row/col folds) 0.0076 | 6 w_data blocks 0.0071
+[UPERF3-AL] fold d  l10: pre (eq + i32 row / i8 col folds) 0.0044 | 3 w_data blocks 0.0048
+[UPERF3-AL] fold gu l11: pre (eq + i8 row/col folds) 0.0050 | 6 w_data blocks 0.0075
+[UPERF3-AL] fold d  l11: pre (eq + i32 row / i8 col folds) 0.0037 | 3 w_data blocks 0.0032
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.88 s | PROVE 2.49 s | VERIFY 0.43 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.166e10 proven MAC/s (prove wall) | wall 4.92 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM 1 run 4 [gpu] ---
+2026-09-19 11:42:15
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0089 | 6 w_data blocks 0.0060
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0042 | 3 w_data blocks 0.0035
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0056 | 6 w_data blocks 0.0066
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0074 | 3 w_data blocks 0.0021
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0059 | 6 w_data blocks 0.0074
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0033 | 3 w_data blocks 0.0048
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0064 | 6 w_data blocks 0.0050
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0038 | 3 w_data blocks 0.0037
+[UPERF3-AL] fold gu l04: pre (eq + i8 row/col folds) 0.0063 | 6 w_data blocks 0.0083
+[UPERF3-AL] fold d  l04: pre (eq + i32 row / i8 col folds) 0.0028 | 3 w_data blocks 0.0039
+[UPERF3-AL] fold gu l05: pre (eq + i8 row/col folds) 0.0069 | 6 w_data blocks 0.0061
+[UPERF3-AL] fold d  l05: pre (eq + i32 row / i8 col folds) 0.0045 | 3 w_data blocks 0.0035
+[UPERF3-AL] fold gu l06: pre (eq + i8 row/col folds) 0.0045 | 6 w_data blocks 0.0047
+[UPERF3-AL] fold d  l06: pre (eq + i32 row / i8 col folds) 0.0027 | 3 w_data blocks 0.0034
+[UPERF3-AL] fold gu l07: pre (eq + i8 row/col folds) 0.0070 | 6 w_data blocks 0.0070
+[UPERF3-AL] fold d  l07: pre (eq + i32 row / i8 col folds) 0.0047 | 3 w_data blocks 0.0044
+[UPERF3-AL] fold gu l08: pre (eq + i8 row/col folds) 0.0072 | 6 w_data blocks 0.0066
+[UPERF3-AL] fold d  l08: pre (eq + i32 row / i8 col folds) 0.0043 | 3 w_data blocks 0.0042
+[UPERF3-AL] fold gu l09: pre (eq + i8 row/col folds) 0.0060 | 6 w_data blocks 0.0048
+[UPERF3-AL] fold d  l09: pre (eq + i32 row / i8 col folds) 0.0033 | 3 w_data blocks 0.0044
+[UPERF3-AL] fold gu l10: pre (eq + i8 row/col folds) 0.0078 | 6 w_data blocks 0.0053
+[UPERF3-AL] fold d  l10: pre (eq + i32 row / i8 col folds) 0.0045 | 3 w_data blocks 0.0022
+[UPERF3-AL] fold gu l11: pre (eq + i8 row/col folds) 0.0047 | 6 w_data blocks 0.0057
+[UPERF3-AL] fold d  l11: pre (eq + i32 row / i8 col folds) 0.0038 | 3 w_data blocks 0.0045
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.84 s | PROVE 2.45 s | VERIFY 0.44 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.182e10 proven MAC/s (prove wall) | wall 4.87 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM 0 run 4 [gpu] ---
+2026-09-19 11:42:24
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0102 | 6 w_data blocks 0.0074
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0043 | 3 w_data blocks 0.0062
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0086 | 6 w_data blocks 0.0073
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0044 | 3 w_data blocks 0.0039
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0090 | 6 w_data blocks 0.0067
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0046 | 3 w_data blocks 0.0036
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0083 | 6 w_data blocks 0.0068
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0039 | 3 w_data blocks 0.0025
+[UPERF3-AL] fold gu l04: pre (eq + i8 row/col folds) 0.0102 | 6 w_data blocks 0.0051
+[UPERF3-AL] fold d  l04: pre (eq + i32 row / i8 col folds) 0.0047 | 3 w_data blocks 0.0030
+[UPERF3-AL] fold gu l05: pre (eq + i8 row/col folds) 0.0092 | 6 w_data blocks 0.0109
+[UPERF3-AL] fold d  l05: pre (eq + i32 row / i8 col folds) 0.0042 | 3 w_data blocks 0.0031
+[UPERF3-AL] fold gu l06: pre (eq + i8 row/col folds) 0.0094 | 6 w_data blocks 0.0057
+[UPERF3-AL] fold d  l06: pre (eq + i32 row / i8 col folds) 0.0039 | 3 w_data blocks 0.0035
+[UPERF3-AL] fold gu l07: pre (eq + i8 row/col folds) 0.0096 | 6 w_data blocks 0.0065
+[UPERF3-AL] fold d  l07: pre (eq + i32 row / i8 col folds) 0.0044 | 3 w_data blocks 0.0040
+[UPERF3-AL] fold gu l08: pre (eq + i8 row/col folds) 0.0086 | 6 w_data blocks 0.0072
+[UPERF3-AL] fold d  l08: pre (eq + i32 row / i8 col folds) 0.0046 | 3 w_data blocks 0.0028
+[UPERF3-AL] fold gu l09: pre (eq + i8 row/col folds) 0.0079 | 6 w_data blocks 0.0044
+[UPERF3-AL] fold d  l09: pre (eq + i32 row / i8 col folds) 0.0045 | 3 w_data blocks 0.0025
+[UPERF3-AL] fold gu l10: pre (eq + i8 row/col folds) 0.0085 | 6 w_data blocks 0.0050
+[UPERF3-AL] fold d  l10: pre (eq + i32 row / i8 col folds) 0.0033 | 3 w_data blocks 0.0024
+[UPERF3-AL] fold gu l11: pre (eq + i8 row/col folds) 0.0082 | 6 w_data blocks 0.0066
+[UPERF3-AL] fold d  l11: pre (eq + i32 row / i8 col folds) 0.0043 | 3 w_data blocks 0.0029
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.88 s | PROVE 2.50 s | VERIFY 0.46 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.161e10 proven MAC/s (prove wall) | wall 4.97 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM 0 run 5 [gpu] ---
+2026-09-19 11:42:33
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0084 | 6 w_data blocks 0.0067
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0060 | 3 w_data blocks 0.0049
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0075 | 6 w_data blocks 0.0055
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0052 | 3 w_data blocks 0.0038
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0109 | 6 w_data blocks 0.0057
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0037 | 3 w_data blocks 0.0007
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0096 | 6 w_data blocks 0.0065
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0038 | 3 w_data blocks 0.0045
+[UPERF3-AL] fold gu l04: pre (eq + i8 row/col folds) 0.0076 | 6 w_data blocks 0.0053
+[UPERF3-AL] fold d  l04: pre (eq + i32 row / i8 col folds) 0.0041 | 3 w_data blocks 0.0030
+[UPERF3-AL] fold gu l05: pre (eq + i8 row/col folds) 0.0086 | 6 w_data blocks 0.0064
+[UPERF3-AL] fold d  l05: pre (eq + i32 row / i8 col folds) 0.0050 | 3 w_data blocks 0.0034
+[UPERF3-AL] fold gu l06: pre (eq + i8 row/col folds) 0.0084 | 6 w_data blocks 0.0060
+[UPERF3-AL] fold d  l06: pre (eq + i32 row / i8 col folds) 0.0047 | 3 w_data blocks 0.0041
+[UPERF3-AL] fold gu l07: pre (eq + i8 row/col folds) 0.0088 | 6 w_data blocks 0.0046
+[UPERF3-AL] fold d  l07: pre (eq + i32 row / i8 col folds) 0.0063 | 3 w_data blocks 0.0034
+[UPERF3-AL] fold gu l08: pre (eq + i8 row/col folds) 0.0099 | 6 w_data blocks 0.0048
+[UPERF3-AL] fold d  l08: pre (eq + i32 row / i8 col folds) 0.0050 | 3 w_data blocks 0.0023
+[UPERF3-AL] fold gu l09: pre (eq + i8 row/col folds) 0.0084 | 6 w_data blocks 0.0060
+[UPERF3-AL] fold d  l09: pre (eq + i32 row / i8 col folds) 0.0049 | 3 w_data blocks 0.0024
+[UPERF3-AL] fold gu l10: pre (eq + i8 row/col folds) 0.0092 | 6 w_data blocks 0.0045
+[UPERF3-AL] fold d  l10: pre (eq + i32 row / i8 col folds) 0.0047 | 3 w_data blocks 0.0027
+[UPERF3-AL] fold gu l11: pre (eq + i8 row/col folds) 0.0104 | 6 w_data blocks 0.0072
+[UPERF3-AL] fold d  l11: pre (eq + i32 row / i8 col folds) 0.0053 | 3 w_data blocks 0.0053
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.88 s | PROVE 2.45 s | VERIFY 0.43 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.185e10 proven MAC/s (prove wall) | wall 4.88 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM 1 run 5 [gpu] ---
+2026-09-19 11:42:41
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0076 | 6 w_data blocks 0.0067
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0063 | 3 w_data blocks 0.0027
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0081 | 6 w_data blocks 0.0069
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0036 | 3 w_data blocks 0.0036
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0078 | 6 w_data blocks 0.0042
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0039 | 3 w_data blocks 0.0042
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0062 | 6 w_data blocks 0.0066
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0037 | 3 w_data blocks 0.0065
+[UPERF3-AL] fold gu l04: pre (eq + i8 row/col folds) 0.0060 | 6 w_data blocks 0.0079
+[UPERF3-AL] fold d  l04: pre (eq + i32 row / i8 col folds) 0.0054 | 3 w_data blocks 0.0050
+[UPERF3-AL] fold gu l05: pre (eq + i8 row/col folds) 0.0067 | 6 w_data blocks 0.0061
+[UPERF3-AL] fold d  l05: pre (eq + i32 row / i8 col folds) 0.0041 | 3 w_data blocks 0.0041
+[UPERF3-AL] fold gu l06: pre (eq + i8 row/col folds) 0.0055 | 6 w_data blocks 0.0070
+[UPERF3-AL] fold d  l06: pre (eq + i32 row / i8 col folds) 0.0030 | 3 w_data blocks 0.0035
+[UPERF3-AL] fold gu l07: pre (eq + i8 row/col folds) 0.0074 | 6 w_data blocks 0.0069
+[UPERF3-AL] fold d  l07: pre (eq + i32 row / i8 col folds) 0.0041 | 3 w_data blocks 0.0029
+[UPERF3-AL] fold gu l08: pre (eq + i8 row/col folds) 0.0050 | 6 w_data blocks 0.0068
+[UPERF3-AL] fold d  l08: pre (eq + i32 row / i8 col folds) 0.0027 | 3 w_data blocks 0.0031
+[UPERF3-AL] fold gu l09: pre (eq + i8 row/col folds) 0.0059 | 6 w_data blocks 0.0060
+[UPERF3-AL] fold d  l09: pre (eq + i32 row / i8 col folds) 0.0029 | 3 w_data blocks 0.0027
+[UPERF3-AL] fold gu l10: pre (eq + i8 row/col folds) 0.0073 | 6 w_data blocks 0.0052
+[UPERF3-AL] fold d  l10: pre (eq + i32 row / i8 col folds) 0.0037 | 3 w_data blocks 0.0052
+[UPERF3-AL] fold gu l11: pre (eq + i8 row/col folds) 0.0048 | 6 w_data blocks 0.0057
+[UPERF3-AL] fold d  l11: pre (eq + i32 row / i8 col folds) 0.0038 | 3 w_data blocks 0.0015
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.87 s | PROVE 2.43 s | VERIFY 0.43 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.195e10 proven MAC/s (prove wall) | wall 4.86 s
+DIGEST 5f368db6240e0614 70758084 B
+=== box after ===
+2026-09-19 11:42:50
+ 11:42:50 up 10:38,  1 user,  load average: 7.18, 4.44, 3.52
+=== AB DONE ===
