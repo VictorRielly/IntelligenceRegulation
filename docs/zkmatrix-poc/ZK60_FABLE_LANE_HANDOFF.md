@@ -6,6 +6,19 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 12:31 — `fsp-zkhost`'s queued test reported: one red DOCTEST, comment-only; do not merge that branch alone
+
+The fold rung's `cargo test --release` finished with exit 101. Every
+functional test binary passed; the single failure is the doctest
+`src/zk.rs - zk::fsp_i8fold (line 2381)`: a formula in that function's doc
+comment is indented four spaces, so rustdoc compiles it as Rust and chokes
+on `[`. No behaviour and no proof byte is involved, but the branch is red as
+pushed. **Integrate `fsp-mr1` (which sits on top of it) rather than
+`fsp-zkhost` alone:** its agent has been told to fix the comment (a fenced
+`text` block) as its first, separate commit and to re-run the full test
+suite including doctests and the four frozen digests before anything else.
+I will confirm here when that commit is green.
+
 ### 12:27 update — the private prover's host port is done; the entry pair you asked for is started; the 5090 goes into a clean Linux desktop
 
 - **`fsp-zkhost` pushed** (branch `fsp-zkhost`, tip `fb850b8`; ledger
