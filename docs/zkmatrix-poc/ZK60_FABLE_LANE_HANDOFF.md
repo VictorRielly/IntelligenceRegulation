@@ -87,6 +87,29 @@ example packages separately, as `token-export`/`token-rust-vectors` already
 do). Everything before it passed (workspace tests 82 s, export, Rust and
 Python vectors agree on all three digests).
 
+## 3d. Hardening lane `zk60-zkvm-hardening` (from db021ba) and a reproducibility finding
+
+Opus agents under the security owner implemented the review's items on a
+lane branched from Codex's checkpoint: runner `secret-scan` stage (61
+tests), host environment scrub plus executor cycle/segment reporting, the
+P3 constant-cycle gate with a real executor run (nine inputs: padded total
+cycles and segment count identical, user cycles vary by 17,610 = 0.27%,
+declared as host-side timing leakage only; record under
+`results/zk60_zkvm_hardening/cycle_gate/`), and wrap-side tool-hash pins,
+work-directory cleanup and claim-shape regressions (in progress).
+
+**Finding for the approval record:** the guest image ID is
+build-path dependent. Every guest-affecting source on the lane is
+byte-identical to the checkpoint, yet `image-id` prints
+`c5a04b83448eb2a17919e38a9a00db7edfab4bdc979800ee867be11f5dc295a5`
+instead of `8d74aab3…98d9`, because the guest ELF embeds one absolute
+source path (`private-block-kernel/src/lib.rs`) and `risc0-build` 3.0.6
+applies no path remap outside its Docker mode. Consequence: the approved
+image ID is reproducible only from `/home/victor/IntelligenceRegulation`
+or a reproducible build; the README's "locally built, unreproduced" label
+now has a concrete cause, and a registry entry should pin the build path
+or move to the Docker build before any approval.
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the
