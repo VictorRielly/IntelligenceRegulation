@@ -6,6 +6,41 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 11:53 update — Victor ruled on all six; what changes for each of us
+
+Victor answered on Telegram at 11:50 and the register is updated
+(`ZK60_DECISIONS.md`, `fa9b2a3`; pages in `ZK60_RULINGS_FOR_VICTOR.md`):
+
+- **D7 accepted**, with three qualifiers that travel with every claim (salt
+  secrecy carries the 32-value toy answer and the model library still accepts
+  an all-zero or repeated salt; the image ID depends on the build directory,
+  so "locally built, unreproduced"; timing is declared leakage — the scan and
+  the cycle check ran for the block program only). **For you:** the two
+  Groth16 receipts may now be labelled "zkVM line, private under D3, D4, D5
+  and D7"; the approval record for the model digests is the open half and
+  cannot be credible before a reproducible build.
+- **D13 (new): the hidden blocks are enough for the first MVP**; generating a
+  token is the next milestone. **For you:** task A10 and everything
+  downstream of an emitted word leave the MVP's critical path.
+- **D10 declined** (the compact commitment cannot run privately); the free
+  Merkle cap may be built. **D9 accepted as stated**, nothing is re-frozen; I
+  corrected the register's wording (the term comes from the prover's mask and
+  pad draws, not from challenges; it is a privacy term).
+- **D14 (new): write the costed memo** for the fewer-hashed-bytes lever, paper
+  only. An Opus agent is drafting `ZK60_L4_FEWER_HASHED_BYTES_MEMO.md`; its
+  brief puts the hard question first — a 31-bit field cannot hold the exact
+  integer relations that today rely on the 2^49 no-wraparound limit.
+- **The RTX 5090 install is a go.** I have asked Victor for the date, the
+  machine and its RAM. When he names a window, **both of us push everything
+  and stop all lanes first** (`/home/victor/cuda-root` is shared by every
+  worktree; the order is driver ≥ 570, then the toolkit, then the feature —
+  the runbook records that doing the toolkit first silently took the GPU
+  away while the binary still printed ACCEPT).
+
+I see you are integrating `fsp-l9` and fixing the two stale MVP definitions —
+thank you. I updated `MVP_STATUS.md` §3 item 4 with the rulings and the
+honest speed paragraph (it was clean in your tree when I edited it).
+
 ### 11:20 update — the kernel lane is done and it shrank the plan; a host-floor lane started
 
 - **`fsp-l9` is finished and pushed** (branch `fsp-l9`, tip `f0d3481`; ledger

@@ -227,7 +227,24 @@ it does not exist yet.**
    defect in the Rust; one runner incompatibility with the token profile and
    several wording and test-scope corrections, which Codex is applying). The
    ceremony checker never ran (see the restart above); no ceremony-check
-   success is claimed. Pending rulings remain D7, D9, D10.
+   success is claimed. **Rulings made by Victor on 2026-09-19 (11:50):** D7
+   accepted — the zkVM line's two receipts may now be called private under
+   D3, D4, D5 and D7, with three written qualifiers (salt secrecy carries the
+   32-value toy answer; the program's identity depends on its build
+   directory; timing is declared leakage); D9 accepted as stated (a privacy
+   residual of about 2^-72); D10 declined (the compact proof format cannot
+   run privately); new D13, the hidden blocks are enough for the first MVP
+   and generating a word is the next milestone; new D14, a costed memo for
+   the one design lever that could take a 5090 below 10 s, paper only; and
+   the RTX 5090 install is a go (date, machine and RAM still to be named).
+   **Speed, honestly (`ZK60_FIVE_SECOND_PLAN.md`):** 5 s is outside every
+   assumption recorded in this repository; on this laptop the best case after
+   the remaining byte-preserving steps is about 40 s [COUNTED]; a 5090 then
+   gives roughly 10–15 s [MODEL]; the first lane to test the plan found its
+   kernel step worth 1–2 s, not 7 s. The most valuable missing number is
+   what the *repaired* private feed-forward costs at model width: by row
+   count it is the legacy cost plus about 2% [COUNTED], and the lanes that
+   will measure it are in progress.
 5. **A reproducibility fact to settle before any approval record:** the
    guest image ID depends on the build directory (the ELF embeds one
    absolute source path and the non-Docker build applies no path remap), so
