@@ -1,0 +1,24 @@
+### probe-cpu-public-1  2026-09-19T13:08:11-07:00
+uptime:  13:08:11 up 12:03,  1 user,  load average: 4.46, 3.93, 3.90
+nvidia-smi before: 0 MiB, 8188 MiB, 0 %
+=== [UPERF3-FSP5] repaired-mask COST PROBE — NO PRIVACY PROPERTY IS ESTABLISHED HERE ===
+    all three arms have PUBLIC endpoints; the hiding-endpoint profile is untouched and still pinned to T32/d16/f16.
+    export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export — model frugal-125m (T 512 d 768 f 2048 layers 12)
+    shape 12 layers x 512 tokens | log_cols 14, inv_rate 4, col checks 256 | threads 2
+    gpu: OFF | gpu: off (built without --features gpu-cuda)
+    both private arms draw fresh OS randomness (no seed), so the only difference between them is the mask schedule.
+--- ARM public ---
+  prover phases (summed over 12 layers):
+      commit W                      6.224 s
+      commit A                     10.871 s
+      helpers + commit H           12.727 s
+      matmul g/u                    0.404 s
+      matmul d                      0.147 s
+      zero-check F                  9.010 s
+      zero-check D                  1.365 s
+      pcs openings                  2.456 s
+  ARM public ACCEPT: 12 x 512 | witness load 4.78 s | PROVE 43.243 s | VERIFY 0.478 s | proof 70758084 B | rows A 520 H 432 W 288 M 0 | peak RSS 1165 MB | wall 48.51 s
+PROBE_JSON {"arm":"public","layers":12,"tokens":512,"d":768,"f":2048,"gpu":false,"accept":true,"prove_s":43.243268,"verify_s":0.477789,"load_s":4.781567,"bytes":70758084,"rows_a":520,"rows_h":432,"rows_w":288,"rows_m":0,"rss_mb":1164.6,"phases":{"commit W":6.224123,"commit A":10.870955,"helpers + commit H":12.726522,"matmul g/u":0.404051,"matmul d":0.146543,"zero-check F":9.009511,"zero-check D":1.365207,"pcs openings":2.455877}}
+nvidia-smi after: 0 MiB, 8188 MiB, 0 %
+uptime after:  13:08:59 up 12:04,  1 user,  load average: 6.81, 4.69, 4.16
+rc=0

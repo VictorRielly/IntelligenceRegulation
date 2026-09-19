@@ -342,3 +342,234 @@ question 2 ("whether `mr1 = true` actually runs at a shape other than the
 tiny one — nobody has tried") is now answered: **it does.** Committed rows
 at that shape, legacy -> repaired: A 169 -> 195 (+26, as counted), H
 161 -> 162, W 288 unchanged, M 16 unchanged. [MEASURED]
+
+### 2026-09-19 — stage 4, the first measurement at 12 x 512
+
+**Method.** `zk60_repaired_mask_probe 12 512 <arm> --export
+/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export --threads 2`,
+`RAYON_NUM_THREADS=2`. **One arm per process**, so each arm's peak resident
+memory and device counters are its own. 5 repeats x 3 arms per binary, and
+the ORDER IS ROTATED across the five repeats —
+
+| repeat | order |
+|---|---|
+| 1 | public, legacy, repaired |
+| 2 | repaired, legacy, public |
+| 3 | legacy, repaired, public |
+| 4 | public, repaired, legacy |
+| 5 | repaired, public, legacy |
+
+— because lane `fsp-zkhost` measured a 4-5% order effect on this box
+(whichever arm runs second is slower). Each arm therefore occupies each
+position at least once and the effect averages out instead of being
+charged to one arm.
+
+Every run records `uptime` and `nvidia-smi` before and after, in its own
+log under `results/fsp5_probe_12x512/`. The GPU runs are sequential by
+construction: the controller starts one child at a time and waits for it to
+exit; each child takes `/tmp/zk-heavy.lock` for itself and polls
+`nvidia-smi` WHILE HOLDING that lock until the card reads <= 1,024 MiB with
+no compute apps. Exactly one GPU process exists at any moment.
+
+**Box conditions, stated once because they bound every second below.** This
+was NOT a quiesced box: two other worktrees (`wt-fsp-host`'s A/B planes
+battery and `wt-zk60-normrange`'s test lane) were running throughout, the
+1-minute load average sat between 4.5 and 7.5 on a box this lane was using
+2 threads of, and the CPU and GPU probe ladders ran concurrently with each
+other. Every second below is therefore **[MEASURED, NOISY-SHARED]** and the
+run-to-run spread is wide. The BYTES and the ROWS are exact and are not
+affected by any of this.
+
+**30 runs, 15 per binary, every one ACCEPT.** Raw per-run logs, the
+per-run `PROBE_JSON` lines and the full ratio table are under
+`results/fsp5_probe_12x512/` (`probe-<label>-<arm>-<i>.log`,
+`fsp5_probe_<label>.jsonl`, `fsp5_analysis.txt`).
+
+#### What is exact, and identical on both binaries [MEASURED, exact]
+
+| | public | legacy | repaired | rep/leg | rep/pub |
+|---|---:|---:|---:|---:|---:|
+| proof bytes (12 layers) | 70,758,084 | 87,697,008 | **88,356,464** | **1.0075** | 1.2487 |
+| A rows | 520 | 559 | **585** | **1.0465** | 1.1250 |
+| H rows | 432 | 485 | **486** | **1.0021** | 1.1250 |
+| W rows | 288 | 288 | 288 | 1.0000 | 1.0000 |
+| M rows | — | 16 | 16 | 1.0000 | — |
+
+Every one of the 30 runs produced exactly these bytes and rows. **The
+repaired mask schedule costs +659,456 proof bytes over 12 layers —
+54,955 B per layer, +0.75%.** That is the 26 extra A rows read at each of
+the 256 opened columns (256 x 26 x 8 = 53,248 B) plus the extra group- and
+proximity-vector entries. [COUNTED, and it matches the measurement to
+1,707 B per layer.]
+
+#### The GPU binary — the clean measurement [MEASURED, NOISY-SHARED but tight]
+
+`HL_GPU=1`, RTX 4070 Laptop 8,188 MiB, card verified idle (0 MiB, 0 compute
+apps) before every run. The device does the commitment arithmetic, so the
+prove clock is short and the spreads are ~2%: the three arms' prove ranges
+do NOT overlap, which is what makes this the arm to quote.
+
+| phase (summed over 12 layers) | public | legacy | repaired | rep/leg | rep/pub | leg/pub |
+|---|---:|---:|---:|---:|---:|---:|
+| commit W | 0.431 | 0.636 | 0.677 | 1.064 | 1.571 | 1.476 |
+| **commit A** | 0.604 | 1.140 | **1.278** | **1.121** | 2.116 | 1.887 |
+| mask commit | — | 0.036 | 0.038 | 1.048 | — | — |
+| helpers + commit H | 0.374 | 1.302 | 1.311 | 1.007 | 3.505 | 3.482 |
+| matmul g/u | 0.157 | 0.115 | 0.123 | 1.070 | 0.788 | 0.736 |
+| matmul d | 0.101 | 0.092 | 0.097 | 1.057 | 0.958 | 0.906 |
+| zero-check F | 0.336 | 0.456 | 0.446 | 0.980 | 1.327 | 1.354 |
+| zero-check D | 0.084 | 0.090 | 0.101 | 1.126 | 1.201 | 1.066 |
+| table zero-check | — | 0.149 | 0.181 | 1.213 | — | — |
+| zsum + mask open | — | 0.032 | 0.034 | 1.048 | — | — |
+| pcs openings | 0.180 | 0.339 | 0.361 | 1.064 | 2.001 | 1.881 |
+| **PROVE** | **2.269** [2.079-2.758] | **4.389** [4.225-4.547] | **4.649** [4.561-4.771] | **1.0592** | **2.0492** | **1.9345** |
+| VERIFY | 0.393 | 0.545 | 0.573 | 1.052 | 1.460 | 1.388 |
+| peak VRAM | **2,430 MB** | **3,068 MB** | **3,101 MB** | 1.011 | 1.276 | 1.263 |
+| peak host RSS | 548 MB | 637 MB | 644 MB | 1.011 | 1.175 | 1.163 |
+
+**The repaired mask schedule costs +5.92% of prove at 12 x 512 on the
+GPU binary** (+0.260 s on 4.389 s), and the phase attribution CLOSES:
+summing the eleven per-phase deltas gives +0.260 s against a measured
+PROVE delta of +0.260 s. **53% of it is `commit A`** (+0.138 s) — the
+encode, the Merkle leaves and, on the host, the generation of 26 x 16,384
+fresh field elements per layer for the added mask rows. The rest is
+`commit W` +0.041 (W's rows are UNCHANGED, so this is the measurement's
+noise), `table zero-check` +0.032, `pcs openings` +0.022 and eight smaller
+terms.
+
+**Two cross-checks that the arms are the right ones.** The peak VRAM of
+the public and legacy arms, 2,430 MB and 3,068 MB, reproduce the recorded
+125M figures (`ZK60_CLAUDE_PROFILE.md:25-29`, P0 2,430 / P1 3,068)
+**exactly**. And every arm's proof digest-length matches the frozen gates.
+
+#### The CPU binary — the same shape, and why it says less [MEASURED, NOISY-SHARED]
+
+| | public | legacy | repaired | rep/leg | rep/pub | leg/pub |
+|---|---:|---:|---:|---:|---:|---:|
+| **PROVE** | **37.116** [34.5-43.2] | **41.266** [36.5-46.2] | **40.927** [37.9-46.0] | **0.9918** | **1.1027** | **1.1118** |
+| VERIFY | 0.409 | 0.673 | 0.629 | 0.935 | 1.539 | 1.647 |
+| commit A | 9.176 | 10.687 | 11.033 | 1.032 | 1.203 | 1.165 |
+| commit W | 5.280 | 5.534 | 5.230 | 0.945 | 0.990 | 1.048 |
+| helpers + commit H | 10.892 | 12.317 | 12.016 | 0.976 | 1.103 | 1.131 |
+| zero-check F | 7.818 | 8.248 | 8.061 | 0.977 | 1.031 | 1.055 |
+| pcs openings | 2.289 | 2.280 | 2.332 | 1.023 | 1.019 | 0.996 |
+| peak host RSS | 1,167 MB | 1,257 MB | 1,274 MB | 1.014 | 1.092 | 1.077 |
+
+**On the CPU binary the repair is BELOW the noise floor.** The
+repaired/legacy prove ratio is 0.9918 — the repaired arm measured
+*faster*, which is impossible and is the point: the per-arm ranges span
+[36.5-46.2] and [37.9-46.0], a +/-12% band on a box carrying two other
+worktrees' batteries at load average 4.5-7.5. `commit W`, whose rows are
+identical in all three arms, reads 0.945 and 1.048 in the two directions,
+which is the honest calibration of that noise. **The CPU rows and bytes
+are exact and agree with the GPU binary's; the CPU seconds bound the
+repair at "under about 10%" and nothing sharper.** The GPU binary's
++5.92% is the number to quote.
+
+#### Against the scoping memo's counted prediction
+
+| | memo | here |
+|---|---|---|
+| legacy A rows, one Mistral layer, T 512 | 3,599 | **3,599** — reproduced exactly |
+| repaired A rows, same | 3,669 (+70, +1.94%) | **3,665 (+66, +1.834%)**; the memo's extra 4 are the `io` endpoint mask pairs, which this profile does not have |
+| H | +1 row | **+1 row** |
+| W under P1 | unchanged | **unchanged** |
+| `mask commit` / M | "grows, 6 -> 8 CFS slots" | **unchanged, 16 rows** — the two extra slots are `io`-only (`mask_specs_v3` adds them under `zl.a_io.is_some()`); measured `mask commit` moves 1.048 on the GPU, which is noise |
+| "structurally the legacy private profile plus a few per cent, not 3x and not 30x" | prediction | **confirmed: +5.92% of prove, +0.75% of bytes, +1.1% of VRAM at 12 x 512** |
+| `pcs openings` "the largest relative growth" | prediction | **wrong here: `commit A` is, at +12.1%; openings grew 6.4%** |
+| does `mr1` even run above the tiny shape? (memo, could-not-determine 2) | unknown | **yes — 30 runs at 12 x 512 plus the smoke test, zero refusals** |
+
+#### COUNTED: what this is worth at one Mistral-width layer and at 32 layers
+
+**NOTHING AT MISTRAL WIDTH WAS RUN BY THIS LANE, on either processor, by
+instruction.** Everything in this subsection is [COUNTED] from the rows
+above and from figures already measured elsewhere in the repository.
+
+The added cost is the added MASK ROWS: their host generation (fresh field
+elements), their encoding, their Merkle leaves and their entries in each
+opened column. Rows are `a_n = 2^log_cols = 16,384` wide at both shapes,
+so the added work scales as the added row COUNT:
+
+```
+125M   12 x 512:  +26 A rows/layer   (559 -> 585)
+Mistral   1 x 512: +66 A rows/layer  (3,599 -> 3,665)
+scale factor = 66 / 26 = 2.538
+```
+
+**Prove time.** Measured GPU delta 0.260 s over 12 layers = **0.0217 s per
+125M layer**; scaled, **0.0551 s per Mistral-width layer** [COUNTED].
+Against the recorded legacy P1 one-Mistral-layer GPU clock of **3.453 s**
+[MEASURED, `ZK60_CLAUDE_GPU.md:262-265`]:
+
+```
+one Mistral layer : 3.453 + 0.055 = 3.508 s     -> +1.60%
+32 layers          : 32 x 3.508 = 112.3 s vs 110.5 s  -> +1.76 s, +1.60%
+```
+
+The 32-layer figure carries the memo's own caveat (§4.3): 32 x a measured
+one-layer clock is only valid **on a card that does not page**; the
+recorded 32-layer legacy GPU pass was 265.34 s because it spilled to
+8,585 MB on an 8,188 MiB card, and against that number the same +1.76 s
+would read +0.66%. Quote the 110.5 s base, not the 265.34 s one.
+
+**Proof bytes.** 256 opened columns x 66 extra rows x 8 B = **135,168 B per
+Mistral layer**, on the measured 40,186,228 B legacy private Mistral layer
+proof [MEASURED, `ZK60_CLAUDE_GPU.md:262-265`] -> **+0.34%**; over 32
+layers, +4.33 MB. [COUNTED]
+
+**Video memory.** Measured +33 MB at 125M for 26 added rows; scaled by
+2.538, **about +84 MB at one Mistral layer**, on the recorded 5,282 MB
+legacy one-layer anchor -> **~5,366 MB**, still 2.8 GB inside the card.
+[COUNTED]
+
+**In one sentence, and it is the lane's headline: fixing the mask leak
+costs about six per cent of the prove clock at 125M and, counted, about
+one and a half per cent at Mistral width — the relative cost SHRINKS with
+width, because the mask rows depend on `nb_d`/`nb_f` and the data rows do
+not.** It was never plausibly the thing standing between this project and
+five seconds, and now that is measured rather than assumed.
+
+**None of this is a privacy claim.** The endpoints were public in all
+three arms. What has been measured is the cost of the repaired MASK
+SCHEDULE; the hiding-endpoint half is untouched, still pinned to
+T32/d16/f16, and still unmeasured above that shape.
+
+### 2026-09-19 — state at hand-off, and the exact next step
+
+All four stages are DONE and the branch is green: `cargo test --release`
+265 passed / 0 failed / 5 doctests, and 12 of 12 byte gates on the changed
+tree with **no digest moved at any point in this lane**.
+
+Three commits on `fsp-mr1`:
+
+| commit | what |
+|---|---|
+| `2c0c70a` rung 0 | the ledger, the ownership, the memo's line numbers re-verified |
+| `e0edca5` rung 0b | the inherited doctest, fixed as a comment |
+| `9c45f1c` **rung 1** | the entry pair in `zk.rs` + the new `cfg(test)` file |
+| `72b00f0` **rung 2** | the driver example |
+| rung 3 (this commit) | the 12 x 512 measurement, its raw logs and the counted extrapolation |
+
+**THE EXACT NEXT STEP, in order.**
+
+1. **The integrator reconciles `fsp-mr1` with `fsp-zkhost`'s new tip
+   `e45ebda`.** Both branches carry a comment-only fix to the same
+   `fsp_i8fold` doc comment; expect exactly one trivial conflict there.
+   This lane did not merge, rebase or cherry-pick.
+2. **The bounded runner / CPU ladder is Codex's**, per the standing
+   instruction. The driver it needs already exists and takes the shape on
+   the command line; nothing further is required from this lane for it.
+3. **A quiesced repeat of the CPU arm.** The CPU seconds here are
+   worthless beyond "under about 10%" because two other worktrees were
+   running. The same 15 runs on a quiet box would settle whether the CPU
+   binary also shows ~+6% or whether the repair is genuinely free there
+   (it plausibly is: the CPU arm's `commit A` is dominated by arithmetic
+   the added rows do not change).
+4. **Still owed and NOT run here, by instruction:** anything at Mistral
+   width on either processor, and any model-width GPU run. The §COUNTED
+   numbers above are the substitute, and they are labelled.
+5. **The hiding-endpoint (`io`) half remains unmeasured above T32/d16/f16
+   and unbuilt above it.** It is the other half of "the repaired private
+   feed-forward" and the one with eleven shape pins
+   (`ZK60_PRIVATE_FFN_COST_PROBE.md` §2.2 A). Nothing in this lane touched
+   it, unpinned it, or says anything about what it costs.

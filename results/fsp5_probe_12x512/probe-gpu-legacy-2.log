@@ -1,0 +1,28 @@
+### probe-gpu-legacy-2  2026-09-19T13:11:50-07:00
+uptime:  13:11:50 up 12:07,  1 user,  load average: 6.67, 5.80, 4.70
+nvidia-smi before: 0 MiB, 8188 MiB, 0 %
+=== [UPERF3-FSP5] repaired-mask COST PROBE — NO PRIVACY PROPERTY IS ESTABLISHED HERE ===
+    all three arms have PUBLIC endpoints; the hiding-endpoint profile is untouched and still pinned to T32/d16/f16.
+    export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export — model frugal-125m (T 512 d 768 f 2048 layers 12)
+    shape 12 layers x 512 tokens | log_cols 14, inv_rate 4, col checks 256 | threads 2
+    gpu: ON | gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+    both private arms draw fresh OS randomness (no seed), so the only difference between them is the mask schedule.
+--- ARM legacy ---
+  prover phases (summed over 12 layers):
+      commit W                      0.667 s
+      commit A (zk)                 1.165 s
+      mask commit                   0.037 s
+      helpers + commit H (zk)       1.325 s
+      matmul g/u (zk)               0.127 s
+      matmul d (zk)                 0.105 s
+      zero-check F (zk)             0.475 s
+      zero-check D (zk)             0.095 s
+      table zero-check (zk)         0.165 s
+      zsum + mask open              0.034 s
+      pcs openings (zk)             0.352 s
+  gpu device-side (summed): h2d 0.403 s (1059 MB) | ntt 1.061 s | hash 0.109 s | sumcheck 0.608 s | fold 0.170 s | helpers 0.126 s | d2h 0.000 s (155 MB) | vram peak 3068 MB
+  ARM legacy ACCEPT: 12 x 512 | witness load 4.16 s | PROVE 4.547 s | VERIFY 0.585 s | proof 87697008 B | rows A 559 H 485 W 288 M 16 | peak RSS 624 MB | wall 9.32 s
+PROBE_JSON {"arm":"legacy","layers":12,"tokens":512,"d":768,"f":2048,"gpu":true,"accept":true,"prove_s":4.546826,"verify_s":0.584769,"load_s":4.162783,"bytes":87697008,"rows_a":559,"rows_h":485,"rows_w":288,"rows_m":16,"rss_mb":623.9,"phases":{"commit W":0.666592,"commit A (zk)":1.165280,"mask commit":0.036557,"helpers + commit H (zk)":1.324754,"matmul g/u (zk)":0.126876,"matmul d (zk)":0.104886,"zero-check F (zk)":0.474590,"zero-check D (zk)":0.095071,"table zero-check (zk)":0.164591,"zsum + mask open":0.034000,"pcs openings (zk)":0.352366}}
+nvidia-smi after: 0 MiB, 8188 MiB, 0 %
+uptime after:  13:12:03 up 12:07,  1 user,  load average: 6.44, 5.79, 4.71
+rc=0

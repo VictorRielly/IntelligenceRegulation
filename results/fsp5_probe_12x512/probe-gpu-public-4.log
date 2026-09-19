@@ -1,0 +1,25 @@
+### probe-gpu-public-4  2026-09-19T13:12:51-07:00
+uptime:  13:12:51 up 12:08,  1 user,  load average: 5.49, 5.62, 4.71
+nvidia-smi before: 0 MiB, 8188 MiB, 1 %
+=== [UPERF3-FSP5] repaired-mask COST PROBE — NO PRIVACY PROPERTY IS ESTABLISHED HERE ===
+    all three arms have PUBLIC endpoints; the hiding-endpoint profile is untouched and still pinned to T32/d16/f16.
+    export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export — model frugal-125m (T 512 d 768 f 2048 layers 12)
+    shape 12 layers x 512 tokens | log_cols 14, inv_rate 4, col checks 256 | threads 2
+    gpu: ON | gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+    both private arms draw fresh OS randomness (no seed), so the only difference between them is the mask schedule.
+--- ARM public ---
+  prover phases (summed over 12 layers):
+      commit W                      0.521 s
+      commit A                      0.741 s
+      helpers + commit H            0.457 s
+      matmul g/u                    0.198 s
+      matmul d                      0.129 s
+      zero-check F                  0.406 s
+      zero-check D                  0.096 s
+      pcs openings                  0.209 s
+  gpu device-side (summed): h2d 0.528 s (261 MB) | ntt 0.480 s | hash 0.153 s | sumcheck 0.501 s | fold 0.190 s | helpers 0.110 s | d2h 0.000 s (137 MB) | vram peak 2430 MB
+  ARM public ACCEPT: 12 x 512 | witness load 5.35 s | PROVE 2.758 s | VERIFY 0.472 s | proof 70758084 B | rows A 520 H 432 W 288 M 0 | peak RSS 556 MB | wall 8.61 s
+PROBE_JSON {"arm":"public","layers":12,"tokens":512,"d":768,"f":2048,"gpu":true,"accept":true,"prove_s":2.758218,"verify_s":0.472077,"load_s":5.354870,"bytes":70758084,"rows_a":520,"rows_h":432,"rows_w":288,"rows_m":0,"rss_mb":556.1,"phases":{"commit W":0.520814,"commit A":0.741227,"helpers + commit H":0.456649,"matmul g/u":0.198257,"matmul d":0.129276,"zero-check F":0.405571,"zero-check D":0.096460,"pcs openings":0.209208}}
+nvidia-smi after: 0 MiB, 8188 MiB, 0 %
+uptime after:  13:13:03 up 12:08,  1 user,  load average: 5.87, 5.69, 4.75
+rc=0
