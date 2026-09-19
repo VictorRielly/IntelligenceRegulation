@@ -1,0 +1,380 @@
+//! THE HALF-p ISQRT ALIAS (security obligation R09) AGAINST THE PRIVATE BLOCK.
+//!
+//! WHAT R09 IS. In the PUBLIC-IO attention prover (`attention.rs`, `norm.rs`)
+//! the RMS-norm denominator `D = isqrt(sum x^2 + Ceps)` is never range-proved
+//! directly: it is pinned only through `a2 = 2D - a1` and `SSe = a1 + D^2`.
+//! Over `p = 2^64 - 2^32 + 1` (p = 1 mod 4) that leaves an ALIAS. Whenever
+//! `a1 + a2` is odd, `D = k + (p-1)/2` satisfies every isqrt relation, the
+//! square check and the limb ranges for EVERY input row, and satisfies the
+//! division relation with an ALL-ZERO norm output. That profile excludes it
+//! only because the alias remainders (~2^42) do not fit two 16-bit limbs;
+//! at three or more remainder limbs the verifier ACCEPTS a wrong norm output
+//! (`ZK60_FABLE_SECURITY_OBLIGATIONS.md`, R09 and R10).
+//!
+//! WHY THIS MODULE IS DIFFERENT, AND WHAT THESE CASES MEASURE. This module
+//! encodes `d`, `a1` and `a2` as THREE BYTE LIMBS EACH in one packed
+//! `Dom::L` plane and pins the reconstruction with its own zero-check term:
+//!
+//!   (R1) dsq = d * d                                argument.rs:587 `mu[0]`
+//!   (R2) d   = l0 + 256 l1 + 65536 l2               argument.rs:587 `mu[1]`
+//!   (R3) 2d  = a1 + a2                              argument.rs:587 `mu[2]`
+//!   (R4) dsq + a1 - Ceps = SS(r_t)                  argument.rs:591 `nu[0]`
+//!
+//! with every limb looked up in the 256-entry U8 table (`byte(A_LIMB)`,
+//! `byte(A_LIMBM)`, layout.rs:314-315) through `SC_LZC`. (R2) is the range
+//! fact `attention.rs` lacks: it forces `d` into `[0, 2^24)` over the
+//! integers, and `(p-1)/2 = 2^63 - 2^31` is not in `[0, 2^24)`.
+//!
+//! So the alias must break something, and the two cases below measure WHICH,
+//! in the two forms available to a prover. Both were PREDICTED from
+//! `argument.rs` before they were run, and the prediction is recorded in each
+//! case's own comment:
+//!
+//!  * limbs left honest -> `d - dl` is false and NOTHING else in the slot is:
+//!    `Catch::Slot(SC_TZC)`, the (R2) pin itself.
+//!  * limbs made to RECONSTRUCT the alias (`l0 = d`, `l1 = l2 = 0`) -> every
+//!    relation of every slot holds in `F_p`, and the only thing left false is
+//!    that `l0` has no row in the U8 table: `Catch::LogUp`.
+//!
+//! The catch MOVING from `SC_TZC` to the LogUp sum claim between the two is
+//! the evidence that (R2) is present and load-bearing rather than decorative.
+//!
+//! NOT A WIDTH COINCIDENCE, and this is the whole point of the lane: the
+//! remainder window does NOT do the work here. `2^tn d = 2^(tn-1)(2k-1)` is a
+//! SMALL integer for small `k`, so the alias is an exact division by
+//! `2^(tn+1)(k - 1/2)` whose remainders sit inside the honest `[0, 2^29)`
+//! window (`results/zk60_private_norm_range/alias_arithmetic.txt`, section 3).
+//! Each case therefore leaves the quotient `y` HONEST and re-derives `rho`
+//! and `sigma` from (C0) and (C1), so that nothing downstream of the norm
+//! changes and the norm's own range facts are the only thing on trial.
+//!
+//! Every fixture is the PUBLIC SYNTHETIC one; no witness value is printed.
+//! These are SOUNDNESS cases: nothing here claims a privacy property.
+
+use super::layout::*;
+use super::protocol::{prove_inner, verify_inner};
+use super::witness::{self, Witness};
+use super::*;
+use crate::field::{Fp, P};
+
+fn spec() -> IoSpec {
+    IoSpec::new(*blake3::hash(b"private block: half-p isqrt alias context").as_bytes(), 0, 0).unwrap()
+}
+
+/// where the verifier must catch a tamper (the harness of `tamper.rs`, whose
+/// helpers are private to that file)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Catch {
+    /// `sumcheck::verify` rejects inside that slot's claimed sum
+    Slot(usize),
+    /// the ONE value-0 LogUp sum claim, carried by the `H` opening
+    LogUp,
+}
+
+impl Catch {
+    fn matches(self, err: &str) -> bool {
+        match self {
+            Catch::Slot(s) => err.starts_with(&format!("slot {s} [")),
+            Catch::LogUp => err.starts_with("H: "),
+        }
+    }
+    fn describe(self) -> String {
+        match self {
+            Catch::Slot(s) => format!("slot {s}"),
+            Catch::LogUp => "the value-0 LogUp sum claim on H".to_string(),
+        }
+    }
+}
+
+/// One attempt: edit the witness planes BEFORE the `A` commitment, let
+/// `prove_inner` run to completion, and return the VERIFIER's verdict. The
+/// endpoint owner commits the tampered output, so `SC_IO_OUT` cannot be what
+/// rejects (none of these cases moves the output anyway).
+fn prove_tampered(edit: impl FnOnce(&BlockPublic, &mut Witness)) -> Result<(), String> {
+    let (blk, input) = BlockPublic::synthetic_fixture();
+    let mut w = witness::build(blk.attention(), blk.feed_forward(), &input).expect("the public synthetic fixture is accepted");
+    let honest = w.output().expect("the honest output plane is in class");
+    edit(&blk, &mut w);
+    let output = w.output().unwrap_or(honest);
+    let (expected, owners) = prepare_endpoints(spec(), &input, &output).unwrap();
+    // the prover pre-checks no relation: a false witness still yields a receipt
+    let (receipt, _) = prove_inner(&blk, &w, &expected, owners)?;
+    verify_inner(&blk, &expected, &receipt).map(|_| ())
+}
+
+fn expect_rejection(name: &str, catch: Catch, edit: impl FnOnce(&BlockPublic, &mut Witness)) {
+    let err = prove_tampered(edit).expect_err(&format!("the half-p alias `{name}` VERIFIED"));
+    assert!(catch.matches(&err), "alias `{name}`: expected the catch at {}, got `{err}`", catch.describe());
+}
+
+// ---------------------------------------------------------------- field arithmetic
+
+/// `(p - 1) / 2 = 2^63 - 2^31`, the additive offset of the alias family.
+fn half_p_minus_one() -> Fp {
+    Fp::new((P - 1) / 2)
+}
+
+/// The `i64` a witness plane must hold for `Fp::from_i64` (protocol.rs:286) to
+/// read back `v`. Every field element is reachable: `v` itself below `2^63`,
+/// `v - p` above it.
+fn to_plane(v: Fp) -> i64 {
+    if v.0 < 1u64 << 63 {
+        v.0 as i64
+    } else {
+        (i128::from(v.0) - i128::from(P)) as i64
+    }
+}
+
+/// One norm site's planes. `norm_a` and `norm_m` are the SAME relation on
+/// different planes: one `witness::rms_norm` builds both (witness.rs:219,355)
+/// and `SC_TZC` proves both with the same six terms (argument.rs:587-592).
+#[derive(Clone, Copy)]
+struct Site {
+    /// the denominator plane and its square
+    d: usize,
+    dsq: usize,
+    /// the packed limb plane: sub-planes 0..3 `d`, 3..6 `a1`, 6..9 `a2`
+    limb: usize,
+    /// the quotient class plane
+    y: usize,
+    /// the first of the four `rho` limb planes, and of the four `sigma` ones
+    rho0: usize,
+    sig0: usize,
+    /// the plane the row sum of squares is taken over
+    x: usize,
+}
+
+const NORM_A: Site = Site { d: A_D, dsq: A_DSQ, limb: A_LIMB, y: A_Y, rho0: A_NR0, sig0: A_NS0, x: A_X };
+const NORM_M: Site = Site { d: A_DM, dsq: A_DSQM, limb: A_LIMBM, y: A_YM, rho0: A_MR0, sig0: A_MS0, x: A_X1 };
+
+/// Write one three-limb sub-plane triple of the packed limb plane so that it
+/// RECONSTRUCTS `v` in `F_p` (`l0 = v`, `l1 = l2 = 0`). For a `v` outside
+/// `[0, 256)` that is the only decomposition there is, and its `l0` has no row
+/// in the U8 table: exactly the trade the alias has to make.
+fn put_wide_limbs(w: &mut Witness, limb: usize, base: usize, t: usize, v: Fp) {
+    w.planes[limb][base * T + t] = to_plane(v);
+    w.planes[limb][(base + 1) * T + t] = 0;
+    w.planes[limb][(base + 2) * T + t] = 0;
+}
+
+/// THE ALIAS WITNESS, on row `t` of one norm site, with every dependent plane
+/// made as consistent as the relations allow.
+///
+/// `d := k + (p-1)/2` with `k` the honest denominator, then
+///   `dsq := d^2`                         so (R1) holds,
+///   `a1  := SSe - dsq`                   so (R4) holds,
+///   `a2  := 2d - a1`                     so (R3) holds,
+/// and, with the quotient `y` LEFT HONEST,
+///   `rho   := 2 Cn g x + 2^tn d - 2^(tn+1) y d`   so (C0) holds,
+///   `sigma := 2^(tn+1) d - 1 - rho`               so (C1) holds,
+/// every one of them in `F_p`. `force_d_limbs` chooses between the two forms
+/// the prover has: leave `d`'s own limbs honest (and fail (R2)), or make them
+/// reconstruct the alias (and leave the byte class as the only thing false).
+/// `a1` and `a2` always follow, so (R3) and the host row-sum term hold either
+/// way and the case is not decided by them.
+fn write_alias(w: &mut Witness, site: Site, gamma: &[i8], t: usize, force_d_limbs: bool) {
+    let honest_d = w.planes[site.d][t];
+    let d = Fp::from_i64(honest_d).add(half_p_minus_one());
+    let ss: i64 = NORM_CEPS + (0..D).map(|i| w.planes[site.x][t * D + i].pow(2)).sum::<i64>();
+    let dsq = d.mul(d);
+    let a1 = Fp::from_i64(ss).sub(dsq);
+    let a2 = d.double().sub(a1);
+    w.planes[site.d][t] = to_plane(d);
+    w.planes[site.dsq][t] = to_plane(dsq);
+    if force_d_limbs {
+        put_wide_limbs(w, site.limb, 0, t, d);
+    }
+    put_wide_limbs(w, site.limb, 3, t, a1);
+    put_wide_limbs(w, site.limb, 6, t, a2);
+    let dv = Fp::from_i64(1 << NORM_TN).mul(d);
+    let den = Fp::from_i64(1 << (NORM_TN + 1)).mul(d);
+    for i in 0..D {
+        let idx = t * D + i;
+        let y = Fp::from_i64(w.planes[site.y][idx]);
+        let num = Fp::from_i64(2 * NORM_CN * w.planes[site.x][idx] * i64::from(gamma[i]));
+        let rho = num.add(dv).sub(den.mul(y));
+        let sigma = den.sub(Fp::ONE).sub(rho);
+        w.planes[site.rho0][idx] = to_plane(rho);
+        w.planes[site.sig0][idx] = to_plane(sigma);
+        for k in 1..4 {
+            w.planes[site.rho0 + k][idx] = 0;
+            w.planes[site.sig0 + k][idx] = 0;
+        }
+    }
+}
+
+// ---------------------------------------------------------------- the cases
+
+/// (a) THE ALIAS WITH `d`'s LIMBS LEFT HONEST, on one `norm_a` row and one
+/// `norm_m` row.
+///
+/// PREDICTED (from argument.rs:583-593, before running). `dsq`, `a1`, `a2`,
+/// `rho` and `sigma` all follow the alias, so `mu[0]` (`dsq - d*d`), `mu[2]`
+/// (`2d - a1 - a2`), the `nu` host term (`dsq + a1 - Ceps` against `SC_SS`'s
+/// claimed row sum) and both `SC_DZC` division terms hold in `F_p`. The one
+/// relation left false is `mu[1]`, `d - dl`, because `dl` still reconstructs
+/// the honest `k`. `SC_TZC` is slot 2, and its claimed sum is a public zero
+/// plus the two hosted sums, so `sumcheck::verify` must reject there:
+/// `Catch::Slot(SC_TZC)`.
+///
+/// STATED, NOT ARGUED AWAY: `a1`'s and `a2`'s low limbs now sit outside
+/// `[0, 256)`, so the U8 lookups are false too — but that can only be caught
+/// by the `H` opening, which runs after all twenty-three slots. Slot 2 is
+/// therefore the FIRST catch, and case (b) is what isolates the byte class.
+#[test]
+fn the_half_p_isqrt_alias_is_refused_by_the_byte_limb_pin_on_the_denominator() {
+    expect_rejection("norm_a: d = k + (p-1)/2, d's limbs honest", Catch::Slot(SC_TZC), |blk, w| {
+        let gamma = blk.attention().gamma_a.clone();
+        write_alias(w, NORM_A, &gamma, 0, false);
+    });
+    expect_rejection("norm_m: dm = k + (p-1)/2, dm's limbs honest", Catch::Slot(SC_TZC), |blk, w| {
+        let gamma = blk.feed_forward().gamma_m.clone();
+        write_alias(w, NORM_M, &gamma, 0, false);
+    });
+    // beside them: the honest proof through the same path verifies (E-20)
+    prove_tampered(|_, _| {}).expect("the honest proof must verify beside every alias case");
+}
+
+/// (b) THE ALIAS WITH THE LIMBS MADE TO FOLLOW IT — the strongest form, and
+/// the one that decides whether the exclusion is a RANGE FACT or an accident
+/// of widths. `l0 = d`, `l1 = l2 = 0` satisfies (R2) in `F_p` exactly, so
+/// every relation of every slot now holds: (R1), (R2), (R3), (R4), `SC_DZC`'s
+/// `c0` / `c1` (the quotient is honest and `rho`, `sigma` were re-derived),
+/// every other zero-check, every LogUp helper relation pointwise (the prover
+/// builds its helpers from the same plane values), the M functionals and both
+/// endpoint equalities.
+///
+/// PREDICTED (before running): the ONLY thing false is that `l0`, and the low
+/// limbs of `a1`, `a2`, `rho` and `sigma`, have no row in the 256-entry U8
+/// table. The prover counts each miss into entry 0 (protocol.rs:293) so the
+/// histogram totals still match; nothing but the one value-0 LogUp sum claim
+/// on `H` can see it: `Catch::LogUp`.
+///
+/// IF THIS CASE EVER VERIFIES, the private block accepts a denominator that is
+/// not `isqrt(SSe)` and the norm's exactness is gone. It is the R09
+/// counterexample, transposed.
+#[test]
+fn the_half_p_isqrt_alias_with_reconstructing_limbs_is_refused_by_the_u8_table() {
+    expect_rejection("norm_a: d = k + (p-1)/2, limbs reconstruct it", Catch::LogUp, |blk, w| {
+        let gamma = blk.attention().gamma_a.clone();
+        write_alias(w, NORM_A, &gamma, 0, true);
+    });
+    expect_rejection("norm_m: dm = k + (p-1)/2, limbs reconstruct it", Catch::LogUp, |blk, w| {
+        let gamma = blk.feed_forward().gamma_m.clone();
+        write_alias(w, NORM_M, &gamma, 0, true);
+    });
+    prove_tampered(|_, _| {}).expect("the honest proof must verify beside every alias case");
+}
+
+// ------------------------------------------------- the arithmetic, on paper
+
+/// THE ALIAS IS ARITHMETICALLY SOUND — which is why only a RANGE fact can stop
+/// it. This replays (R1), (R3), (R4), (C0) and (C1) in `F_p` for a family of
+/// `k`, with no prover involved, and asserts that the alias satisfies every
+/// one of them exactly. If this test failed, the two cases above would be
+/// proving nothing (the verifier would be catching broken arithmetic, not a
+/// missing range fact).
+#[test]
+fn the_alias_satisfies_every_norm_relation_in_the_field() {
+    let half = half_p_minus_one();
+    for k in [0i64, 1, 2, 1023, 131072, (1 << 24) - 1] {
+        let d = Fp::from_i64(k).add(half);
+        // (R3): 2d = a1 + a2 with a1 + a2 = 2k - 1, the ODD branch
+        assert_eq!(d.double(), Fp::from_i64(2 * k - 1), "2d is not the odd integer 2k - 1 at k = {k}");
+        // (R1) and the identity d^2 = k^2 - k + inv(4)
+        let inv4 = Fp::from_i64(4).inv();
+        assert_eq!(d.mul(d), Fp::from_i64(k).mul(Fp::from_i64(k)).sub(Fp::from_i64(k)).add(inv4), "d^2 at k = {k}");
+        // (R4): a1 := SSe - d^2 satisfies dsq + a1 = SSe for ANY SSe
+        for sse in [1i64, 1000, (1 << 34) + 1] {
+            let a1 = Fp::from_i64(sse).sub(d.mul(d));
+            assert_eq!(d.mul(d).add(a1), Fp::from_i64(sse), "(R4) at k = {k}, SSe = {sse}");
+            // ... and (R3) closes with a2 = 2d - a1
+            let a2 = d.double().sub(a1);
+            assert_eq!(a1.add(a2), d.double(), "(R3) at k = {k}, SSe = {sse}");
+        }
+        // (C0) / (C1): the alias is an EXACT division by 2^tn (2k - 1), the
+        // half-integer denominator 2^(tn+1) (k - 1/2)
+        let den = Fp::from_i64(1 << (NORM_TN + 1)).mul(d);
+        let dv = Fp::from_i64(1 << NORM_TN).mul(d);
+        assert_eq!(den, Fp::from_i64((1 << NORM_TN) * (2 * k - 1)), "the alias denominator at k = {k}");
+        assert_eq!(dv, Fp::from_i64((1 << (NORM_TN - 1)) * (2 * k - 1)), "the alias rounding bias at k = {k}");
+        for (y, num) in [(0i64, 0i64), (7, 12345), (-100, -9_000_000)] {
+            let rho = Fp::from_i64(num).add(dv).sub(den.mul(Fp::from_i64(y)));
+            let sigma = den.sub(Fp::ONE).sub(rho);
+            assert_eq!(sigma.add(rho).add(Fp::ONE), den, "(C1) at k = {k}, y = {y}");
+            assert_eq!(Fp::from_i64(num).add(dv).sub(den.mul(Fp::from_i64(y))).sub(rho), Fp::ZERO, "(C0) at k = {k}, y = {y}");
+        }
+    }
+}
+
+/// THE EXCLUSION IS A DIRECT RANGE FACT ON `d`, NOT A WIDTH. The alias's `d`
+/// is at least `2^62` for every `k`, so no byte-limb count this field can
+/// express admits it; the alias's `a1`, by contrast, is only excluded at the
+/// three-limb window of the fixed profile and fits a FOUR-limb one — which is
+/// exactly the window an int24 residual class at width 4096 needs.
+///
+/// This is the paper form of the "wider setting" leg: `N_LIMBS` and the
+/// three-term `l3` reconstruction of argument.rs:584 are production constants,
+/// so a wider profile cannot be reached from a test without changing the
+/// prover, and this lane changes no prover behaviour.
+#[test]
+fn the_denominator_range_fact_excludes_the_alias_at_every_expressible_width() {
+    let half = half_p_minus_one();
+    // (i) d itself: never below 2^62, whatever k is
+    for k in [0u64, 1, 1 << 12, 1 << 24, 1 << 31, (1 << 32) - 1] {
+        let d = Fp::new(k).add(half);
+        assert!(d.0 >= 1u64 << 62, "the alias d fell below 2^62 at k = {k}");
+        // eight byte limbs are not expressible (2^64 > p); seven give 2^56
+        assert!(d.0 >= 1u64 << 56, "the alias d fits a seven-byte-limb window at k = {k}");
+    }
+    // (ii) a1 = SSe - d^2 at the FIXED profile's k window (R3 bounds k by the
+    // a1 / a2 limbs): never below 2^61, so three byte limbs refuse it
+    let sse_max = 1i64 + 16 * 32768 * 32768;
+    for k in [0i64, 1, (1 << 23) as i64, (1 << 24) - 1] {
+        let d = Fp::from_i64(k).add(half);
+        let a1 = Fp::from_i64(sse_max).sub(d.mul(d));
+        assert!(a1.0 >= 1u64 << 61, "the alias a1 fell below 2^61 at k = {k} (three-limb window is 2^24)");
+    }
+    // (iii) ... but at the k nearest `isqrt((p-1)/4 + SSe)` the same a1 is about
+    // 2^30 and DOES fit four byte limbs. The isqrt witness stops excluding the
+    // alias exactly when the geometry widens. (`a1(k) - a1(k+1) = 2k ~ 2^32` is
+    // the step, so the four-limb window catches one k for almost every SSe; a
+    // gap exists only for the few SSe where the step overshoots.)
+    let root = witness::isqrt((P - 1) / 4 + sse_max as u64) as i64;
+    let mut best = u64::MAX;
+    for k in root - 4..=root + 4 {
+        let d = Fp::from_i64(k).add(half);
+        best = best.min(Fp::from_i64(sse_max).sub(d.mul(d)).0);
+    }
+    assert!(best < 1u64 << 32, "the alias a1 near k = 2^31 should fit a four-byte-limb window, got 2^{}", 64 - best.leading_zeros());
+    assert!(best >= 1u64 << 29, "sanity: it is about 2^30, not small");
+}
+
+/// THE HONEST DENOMINATOR AT EACH GEOMETRY, and the limb count it needs. The
+/// three limbs of the fixed profile cover an int16 class at width 16 and even
+/// at width 4096; an int24 class at width 4096 needs FOUR, and four is also
+/// the last count at which `d^2 + a1 < p` still holds (`(2^32 - 1)^2 = p -
+/// 2^32`, so `d^2 + a1 <= p - 1` exactly). Five would wrap (R4) and the isqrt
+/// argument would collapse for a different reason.
+#[test]
+fn the_limb_count_the_widened_geometry_needs() {
+    let dmax = |width: u64, xmax: u64| witness::isqrt(1 + width * xmax * xmax);
+    let limbs = |d: u64| (64 - d.leading_zeros()).div_ceil(8) as usize;
+    // the fixed profile: D reaches exactly 2^17 on a saturated int16 row
+    assert_eq!(dmax(16, 32768), 1 << 17);
+    assert_eq!(limbs(dmax(16, 32768)), 3);
+    // width 4096, int16 residual: 2^21, still three limbs
+    assert_eq!(dmax(4096, 32768), 1 << 21);
+    assert_eq!(limbs(dmax(4096, 32768)), 3);
+    // width 4096, int24 residual: 2^29 -> FOUR limbs
+    assert_eq!(dmax(4096, 1 << 23), 1 << 29);
+    assert_eq!(limbs(dmax(4096, 1 << 23)), 4);
+    // a1 <= 2D needs the same count
+    assert_eq!(limbs(2 * dmax(4096, 1 << 23)), 4);
+    // four limbs is the no-wrap boundary, exactly
+    let m = u128::from(u32::MAX);
+    assert_eq!(m * m + m, u128::from(P) - 1, "four byte limbs on d and a1 sit exactly at d^2 + a1 = p - 1");
+    assert!((u128::from(u64::from(u32::MAX)) + 1).pow(2) > u128::from(P), "five would wrap");
+    // the fixed profile's remainder window is saturated: den = 2^(tn+1) D = 2^29
+    assert_eq!(dmax(16, 32768) << (NORM_TN + 1), 1 << NORM_WRHO);
+}

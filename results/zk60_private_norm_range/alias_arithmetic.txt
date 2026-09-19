@@ -1,0 +1,194 @@
+p          = 18446744069414584321 = 2^64 - 2^32 + 1
+p mod 4    = 1
+(p-1)/2    = 9223372034707292160 = 2^63 - 2^31
+(p-1)/4    = 4611686017353646080 = 2^62 - 2^30
+inv(2)     = 9223372034707292161
+inv(4)     = 13835058052060938241   (= p - (p-1)/4: True)
+
+==============================================================================
+1. WHICH d SATISFY (R3) WITHOUT BEING SMALL
+==============================================================================
+(R3) with a1, a2 in [0, 2^24) gives 2d = s over Z for some s in [0, 2^25),
+    so d = s/2 in F_p: s even -> d = s/2 < 2^24; s odd -> d = (s+p)/2 = k + (p-1)/2
+    with k = (s+1)/2 in [0, 2^24). That odd branch IS the R09 half-p alias.
+
+For d = k + (p-1)/2:  d^2 = k^2 - k + inv(4)  (mod p)
+    checked for k in {0,1,2,3,7,1024,131071,131072,2^24-1}: ALL AGREE
+
+(R4) then forces a1 = SSe - d^2 = SSe - k^2 + k - inv(4) = SSe + (p-1)/4 + k - k^2  (mod p)
+     with SSe = Ceps + sum_i x_i^2.
+
+==============================================================================
+2. CAN THE ALIAS'S a1 LIE IN THE BYTE-LIMB RANGE [0, 2^24)?
+==============================================================================
+fixed geometry (T32 d16, x int16): SSe <= 17179869185 = 2^34.000
+
+THE CONSTRAINT IS JOINT. (R3) with a1, a2 < 2^(8 na) bounds k: a1 + a2 = 2k - 1
+over Z, so k < 2^(8 na). (R4) then fixes a1, which must land in [0, 2^(8 na))
+as well. With na = 3 (three byte limbs) k < 2^24, and for every such k
+k^2 <= 2^48 is negligible against (p-1)/4 = 2^62 - 2^30:
+
+   SSe = 1            -> min a1 over k in [0, 2^24) = 4611404542427267071 = 2^62.000  at k = 16777215
+   SSe = 17179869185  -> min a1 over k in [0, 2^24) = 4611404559607136255 = 2^62.000  at k = 16777215
+
+=> at the fixed profile the alias's a1 is never below 2^62.0, so it has NO
+   three-byte-limb encoding (window 2^24). The a1 / a2 limbs alone refuse the
+   whole family here, independently of (R2) -- but see section 6: that is a
+   WIDTH argument (it depends on k < 2^24), while (R2) is not.
+
+==============================================================================
+3. WHAT THE ALIAS DOES TO THE DIVISION RELATIONS (C0), (C1)
+==============================================================================
+k = 1234, d = k + (p-1)/2
+2^(tn+1) d mod p = 5052416  = 2^11 (2k - 1)  : True
+2^tn     d mod p = 2526208  = 2^10 (2k - 1)  : True
+
+so (C0)/(C1) become an EXACT division by den' = 2^11 (2k-1) = 2^12 (k - 1/2),
+with the correct rounding bias den'/2. The alias is a norm with a HALF-INTEGER
+denominator k - 1/2 in place of the integer k. rho, sigma stay in [0, den'),
+so the exact 29-bit remainder window does NOT refuse it: den' < den <= 2^29.
+
+CONTRAST with attention.rs (R09): there tn = 11 forces k ~ 2^31 (a1 must fit
+2^32, not 2^24), den' ~ 2^42, y = 0 on every element, and the remainders ~2^42
+are what the two 16-bit limbs refuse. Here k is free to be small, so the
+remainder width is NOT the thing that excludes the alias.
+
+==============================================================================
+4. THE HONEST DENOMINATOR AT EACH GEOMETRY, AND THE LIMBS IT NEEDS
+==============================================================================
+geometry                           max SSe        max D     log2 D  limbs   2^(tn+1) D
+d=16   x int16 (FIXED PROFILE)     2^34.00        131072    2^17.00 3       2^29.00
+d=4096 x int16                     2^42.00        2097152   2^21.00 3       2^33.00
+d=4096 x int24                     2^58.00        536870912 2^29.00 4       2^41.00
+d=2048 x int24                     2^57.00        379625062 2^28.50 4       2^40.50
+d=8192 x int24                     2^59.00        759250124 2^29.50 4       2^41.50
+
+a1 <= 2D, so a1 needs the same limb count as 2D:
+   d=16   x int16 (FIXED PROFILE)     a1 <= 262144 = 2^18.00 -> 3 byte limbs
+   d=4096 x int16                     a1 <= 4194304 = 2^22.00 -> 3 byte limbs
+   d=4096 x int24                     a1 <= 1073741824 = 2^30.00 -> 4 byte limbs
+   d=2048 x int24                     a1 <= 759250124 = 2^29.50 -> 4 byte limbs
+   d=8192 x int24                     a1 <= 1518500248 = 2^30.50 -> 4 byte limbs
+
+==============================================================================
+5. THE NO-WRAP BOUNDARY: HOW MANY LIMBS ON D ARE SAFE
+==============================================================================
+(R4) is an identity over Z only if d^2 + a1 < p. With n byte limbs on d and
+on a1: d <= 2^(8n) - 1 and a1 <= 2^(8n) - 1, so the worst case is
+(2^(8n)-1)^2 + 2^(8n)-1:
+   n = 3: (2^24-1)^2 + (2^24-1) = 281474959933440  vs p = 18446744069414584321  -> SAFE
+   n = 4: (2^32-1)^2 + (2^32-1) = 18446744069414584320  vs p = 18446744069414584321  -> SAFE
+   n = 5: (2^40-1)^2 + (2^40-1) = 1208925819613529663078400  vs p = 18446744069414584321  -> WRAPS
+
+n = 4 is exact at the boundary: (2^32-1)^2 = p - 2^32 and a1 <= 2^32 - 1,
+so d^2 + a1 <= p - 1. One more limb, or an a1 window wider than 2^32, wraps.
+(a1 <= 2d is the other bound, and at n = 4 it is the weaker one only for d > 2^31.)
+
+==============================================================================
+6. GENERAL ADMISSION TEST FOR THE ALIAS (any limb counts)
+==============================================================================
+With nd byte limbs on d and na on a1, a2, the alias needs BOTH:
+   (i)  d = k + (p-1)/2 in [0, 2^(8 nd))    -- (R2), the DIRECT range fact
+   (ii) k < 2^(8 na) and a1 = SSe + (p-1)/4 + k - k^2 mod p in [0, 2^(8 na))
+
+(ii) alone, scanning every k that (R3) admits at that na (the minimum of a1
+     over k is attained at the k nearest isqrt((p-1)/4 + SSe) that (R3) allows):
+   na = 2: window 2^16 , k < 2^16  -> min a1 = 2^62.00   refuses
+   na = 3: window 2^24 , k < 2^24  -> min a1 = 2^62.00   refuses
+   na = 4: window 2^32 , k < 2^32  -> min a1 = 2^30.00   ADMITS (a1 fits)
+   na = 5: window 2^40 , k < 2^40  -> min a1 = 2^30.00   ADMITS (a1 fits)
+   na = 6: window 2^48 , k < 2^48  -> min a1 = 2^30.00   ADMITS (a1 fits)
+   na = 7: window 2^56 , k < 2^56  -> min a1 = 2^30.00   ADMITS (a1 fits)
+
+So (ii) stops refusing at na = 4: with FOUR byte limbs on a1 and a2 the
+alias's own a1 ~ 2^30 fits (at k in a narrow band around isqrt((p-1)/4) =
+2^31), and the isqrt WITNESS no longer excludes it. na = 4 is exactly what
+an int24 residual class at width 4096 needs (section 4).
+
+(i) refuses at EVERY expressible nd: (p-1)/2 = 2^63 - 2^31, so d >= 2^62 for
+every k, while nd <= 7 gives a window of at most 2^56 (nd = 8 is not
+expressible: 2^64 > p, and the no-wrap bound of section 5 caps nd at 4).
+   nd = 3: window 2^24  -> refuses (d >= 2^62)
+   nd = 4: window 2^32  -> refuses (d >= 2^62)
+   nd = 5: window 2^40  -> refuses (d >= 2^62)
+   nd = 6: window 2^48  -> refuses (d >= 2^62)
+   nd = 7: window 2^56  -> refuses (d >= 2^62)
+
+=> (R2), the direct byte-limb range fact on d, is the STRUCTURAL exclusion:
+   it holds at every limb count the field admits. The a1 / a2 limbs are a
+   SECOND exclusion that holds at the FIXED profile (na = 3) and LAPSES at
+   na = 4, i.e. as soon as the geometry is widened to int24 / 4096.
+
+------------------------------------------------------------------------------
+6b. THE THIRD EXCLUSION: THE EXACT REMAINDER WINDOW, AND ITS MARGIN
+------------------------------------------------------------------------------
+(C1) reads sigma + rho + 1 = 2^(tn+1) d. With rho, sigma in [0, 2^wrho)
+EXACTLY, the right side is an integer <= 2^(wrho+1) - 1, so the alias needs
+   2^tn (2k - 1) <= 2^(wrho+1) - 1,  i.e.  k <~ 2^(wrho - tn).
+The alias's k is pinned to a band around isqrt((p-1)/4 + SSe) ~ 2^31 by (ii),
+so (C1) refuses it whenever  wrho - tn < 31, i.e. wrho < tn + 31.
+An honest profile needs wrho = tn + 1 + ceil(log2 Dmax). So the remainder
+window excludes the alias iff  ceil(log2 Dmax) <= 29, i.e. Dmax <= 2^29.
+
+geometry                           Dmax         wrho_min  alias k   (C1) verdict
+d=16   x int16 (FIXED PROFILE)     2^17.00     29        2^31.000  refuses (margin 13.00 bits)
+d=4096 x int16                     2^21.00     33        2^31.000  refuses (margin 9.00 bits)
+d=4096 x int24                     2^29.00     41        2^31.044  refuses (margin 1.04 bits)
+d=2048 x int24                     2^28.50     41        2^31.022  refuses (margin 1.02 bits)
+d=8192 x int24                     2^29.50     42        2^31.085  refuses (margin 0.08 bits)
+
+=> at int24 / 4096 the remainder window still refuses, by about one bit.
+   Both secondary exclusions sit within one or two bits of lapsing there.
+   Only (R2) has real margin, and only (R2) is a fact about d itself.
+
+==============================================================================
+7. THE WIDTH COINCIDENCES THAT REMAIN (completeness edges, zero margin)
+==============================================================================
+norm remainder: honest den = 2^(tn+1) D <= 2^12 * 131072 = 536870912 = 2^29,
+   and rho <= den - 1 < 2^29, the EXACT window of the four limbs. ZERO margin:
+   D = 131072 = 2^17 is attained on a saturated int16 row (SSe = 16*2^30 + 1).
+   At d = 4096 / int16, den reaches 2^33; at d = 4096 / int24, 2^41.
+   wrho = 29 would refuse HONEST rows at either: it must grow with the width.
+   (C1) is a BACKSTOP range fact on D, but only GIVEN (R2): with d already
+   an integer below 2^24, 2^(tn+1) d < 2^36 < p, so rho + sigma + 1 <=
+   2^(wrho+1) - 1 forces d < 2^18 here. WITHOUT (R2), (C1) alone admits the
+   whole 12-adic family d = s/2^(tn+1) mod p, s < 2^(wrho+1); intersecting
+   it with (R3) leaves exactly {d small} union {the half-p family}.
+
+softmax denominator: Sum = sr + sg + 1 with sr, sg in [0, 2^14) EXACTLY
+   (byte + 4*l1 lookups, layout.rs:362-363). Honest Sum <= T * 2^fE = 16384 = 2^14,
+   so sg = Sum - 1 - sr <= 16383 < 2^14. ZERO margin again.
+   At T = 4096, Sum reaches 2097152 = 2^21, so wrho_s must be >= 21.
+   No-wrap there: p_soft*Sum + sr <= 2^10 * 2^21 + 2^21 = 2^31.0 << p, safe.
+   Sum itself is NEVER looked up: its only range fact is (C3). That is the
+   same shape as D's (R3) -- and Sum has no direct limb decomposition, so it
+   has the alias structure D would have without (R2). It is saved by the
+   coefficient being 1, not 2^(tn+1): Sum = sr + sg + 1 admits no halving.
+
+requantisation remainders: every one is byte + scaled(byte, 2^(8-s)) = an
+   EXACT [0, 2^s) window, not a limb multiple (layout.rs:324,334,340,344-348,
+   :360-363). No R10-style slack exists in this module.
+
+==============================================================================
+8. THE CONCRETE ALIAS WITNESS THE RUST TAMPER WRITES (one row)
+==============================================================================
+Plane values are i64 and reach the field through Fp::from_i64 (protocol.rs:286),
+so a field element v is written as v if v < 2^63 and as v - p otherwise.
+Every value the alias needs must be i64-representable:
+   d    = 9223372034707423232    -> plane i64 9223372034707423232    ok
+   dsq  = 13835058069240676353   -> plane i64 -4611686000173907968   ok
+   a1   = 4611686017353777153    -> plane i64 4611686017353777153    ok
+   a2   = 13835058052061069311   -> plane i64 -4611686017353515010   ok
+
+with the quotient y LEFT HONEST, (C0) fixes rho and (C1) fixes sigma:
+   rho   = 2 Cn g x + 2^tn d - 2^(tn+1) y d   (mod p)
+   sigma = 2^(tn+1) d - 1 - rho               (mod p)
+and 2^tn d = 2^(tn-1)(2k-1), 2^(tn+1) d = 2^tn (2k-1) are SMALL integers, so
+rho = rho_honest + 2^tn y - 2^(tn-1) and sigma = sigma_honest - 2^tn y - 2^(tn-1)
+stay i64-small. Worked example (k = 131072, y = 7, rho_honest = 1000):
+   den' = 2^tn (2k-1) = 536868864 ; rho = 14312 ; sigma = 536854551 ; rho+sigma+1 = 536868864
+   (C1) holds: True
+
+NOTHING downstream of the norm changes: y, and therefore the whole rest of the
+block, is untouched. The alias witness differs from the honest one on exactly
+d, dsq, a1, a2, their limbs, rho and sigma.
