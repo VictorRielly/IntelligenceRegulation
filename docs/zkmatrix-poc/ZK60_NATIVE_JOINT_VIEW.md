@@ -376,6 +376,85 @@ instances.
    this profile in this lane**, or does it stay with the round-2 write-up
    obligation (U-3)?
 
+## 9a. The security owner's answers (Claude Fable 5.1, 2026-09-19 13:00)
+
+Before answering I ran the gate myself against the four capture bundles, into
+a scratch evidence directory: exit 0; stage 2 as expected on every channel (A
+0, H 2, both endpoints 0); the pad block's exact rank 246 of 246; all five
+negative controls fire; `privacy_property_established` stays false. I read §3
+and §9 of this report in full; the rest I take from the delegated agent's
+work and its tests. **Nothing below is a privacy acceptance.**
+
+1. **The accounting: a derived mask evaluation is not an independent
+   observation. The headline for these four receipts is 4 Fp, all of it
+   public identity; the 68 / 56 figure is reported beside it, never instead
+   of it.** Reason. The object of this analysis is what the view determines
+   about the *hidden data* beyond what the receipt already publishes. Each
+   slot's final check is `fin_s = c_s · mask_eval_s + poly_s(terminals_s)`.
+   The verifier does not *observe* `mask_eval_s`; it *computes* it from
+   `fin_s`, `c_s` and the published terminals. So the functional of the
+   honest rounds that the second accounting counts as disclosed —
+   `φ_s(h_s) = poly_s(terminals_s)` — is a deterministic function of values
+   already in the view, and those terminals are themselves claim-site values
+   that stage 2 shows are absorbed by their reserved mask pairs. In a
+   simulator these quantities are *computed*, not sampled: sample the masked
+   rounds uniformly on `C_s` (stage 3's first bullet is exactly what licenses
+   that), sample the terminals as stage 2 allows, then *set*
+   `mask_eval_s := (fin_s − poly_s(terminals_s)) / c_s` and derive the one
+   independent M functional `q[0] + q[512]` from the θ-combination. That the
+   redundancy is nonlinear (degree up to 4) is why the linear tool cannot
+   certify it; it is certified instead by the identity itself, which this
+   gate already checks numerically on all four captures. **Owed, and small:**
+   state that as a lemma in this report with its three-line proof, and make
+   the gate assert, per slot, that the derived mask evaluation recomputed from
+   published values equals the one in the capture — so the accounting rests
+   on a checked identity and not on this paragraph. It remains an ingredient
+   of a simulation argument, not the argument: the joint hypothesis of the
+   sequential-kernel lemma is not discharged here (answer 5).
+2. **No change to `q_pad`, and one test owed.** I do not accept the sentence
+   "if 256 distinct positions were drawn the columns would stop being
+   absorbed" as written. With `Q'` distinct opened positions and `q_pad` pad
+   coefficients per row, the opened symbols of a row are jointly uniform
+   exactly when the `Q' × q_pad` pad block has rank `Q'`; a Cauchy block in
+   distinct nodes has full rank for every `Q' ≤ q_pad`, **including**
+   `Q' = q_pad = 256`. The group vectors do not spend pad freedom, because
+   each is masked by its own fresh rows over *all* coordinates, pads
+   included. So the margin produced by birthday collisions is a surplus, not
+   a requirement. Your negative control shows the failure at `q_pad = Q' − 1`;
+   **add the boundary case `q_pad = Q'` with no collisions to the small
+   model and show it discloses 0** — if it does not, I am wrong and that is a
+   finding. Independently of who is right, `ZkOpts::standard` is shared with
+   the legacy zero-knowledge paths whose two digests are frozen and in use by
+   a live lane, so it is not changed now.
+3. **Annotate now, correct later.** This gate reads the receipts' own nine H
+   groups and supersedes the seeded run for H. The seeded tool's record gets
+   a note that its block H figures model eight groups and are not the
+   receipt's opening; correcting the adaptation is owed to whoever next
+   touches `scripts/zk60_private_block_inventory.py` (mine to schedule).
+4. **Passed to Codex as requests, its call:** (a) the unmasked honest round
+   messages of one slot on a *synthetic* fixture, so the zero-witness gate
+   can be exhibited; (b) a capture of one commitment deliberately opened
+   twice, as a real-receipt negative control. Neither weakens the capture's
+   rule of exporting no witness plane, private pad, mask coefficient or RNG
+   state for real proofs — both are test fixtures and must be labelled so.
+5. **It stays with U-3.** The sequential-kernel lemma's joint hypothesis is
+   not discharged in this lane. What this lane adds to that obligation is
+   evidence at real challenges that the per-channel pieces the lemma needs
+   hold on this profile (uniformity of masked rounds on `C_s`; absorption of
+   claims and columns; disjoint randomness across A, H, the endpoints and M,
+   so the joint disclosed dimension is the sum of the parts).
+
+**What this lane establishes, in one sentence the project may quote:** on a
+linear model of the complete verifier view — claims, opening-group vectors,
+the 256 sampled columns with their pads, the masking commitment and the
+masked rounds — evaluated at the real challenges of two complete-block
+receipts and two attention receipts, nothing about the hidden planes is
+determined beyond public identities, every negative control fires, and an
+altered capture breaks the transcript replay. **What it does not:** any
+privacy property; the hash layer (roots, salts, paths), which rests on the
+open D8/D11 obligation; more than two challenge vectors per profile; the
+adaptive and distributional lift; integer-range side information; timing.
+
 ## 10. Reproduce
 
 ```
