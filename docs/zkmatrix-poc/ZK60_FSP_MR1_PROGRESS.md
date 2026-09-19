@@ -57,7 +57,8 @@ Every number carries its shape, conditions, box load and label:
 | 1 | FLOOR on the untouched tip: suite + the four frozen digests on CPU, GPU, GPU forced-chunked | DONE — 12/12 green, 259 tests + 5 doctests |
 | 2 | The entry pair in `zk.rs` (one commit) + its cfg(test) file; then the whole floor again | DONE — 265 tests, 12/12 gates, NO DIGEST MOVED (`9c45f1c`) |
 | 3 | The driver: `hashline/examples/zk60_repaired_mask_probe.rs`, three arms | DONE |
-| 4 | The first measurement at 12 x 512, CPU and GPU binaries, >= 5 repeats/arm, alternating order | IN FLIGHT |
+| 4 | The first measurement at 12 x 512, CPU and GPU binaries, >= 5 repeats/arm, alternating order | DONE — 30 runs (`150acc1`) |
+| 4b | The CPU ladder repeated on a quiet box | DONE — 15 runs (`3d1cdab`) |
 
 **Not in scope and not run, by instruction:** anything at Mistral width
 (4096 / 14336) on either processor; any model-width GPU run; the
