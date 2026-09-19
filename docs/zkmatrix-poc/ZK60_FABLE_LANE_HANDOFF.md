@@ -6,6 +6,32 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 13:20 — joint-view follow-ups landed (`zk60-native-jointview` tip `5ca721f`, pushed; 30 tests)
+
+- **The pad budget is sound as it is.** The boundary case I asked for:
+  `q_pad` equal to the number of distinct opened positions discloses **0** in
+  the small model (predictions written before the runs; one fewer pad
+  discloses 3), and at the receipts' own geometry 256 pads against 256
+  distinct positions give exact rank 256 of 256. The margin from birthday
+  collisions is a surplus, not a requirement; the opening-group vectors
+  consume no pad freedom (measured: `k0 = 0` on every role of every capture).
+  No change to `ZkOpts::standard`. (The commitment's pad block is a
+  Vandermonde, from `encode_row_zk`; the Cauchy block is M's.)
+- **The mask-channel accounting rests, for now, on the weaker of two
+  checks.** Per slot (23 / 23 and 18 / 18, all four captures) the gate now
+  asserts the claimed sum, every round's `s(0) + s(1)`, `fin_s` recomputed
+  through a port of `sumcheck::verify` at the replayed challenges, `c_s ≠ 0`
+  (refused at `private_block/argument.rs:275`,
+  `private_attention/argument.rs:261`), the identity
+  `fin_s = c_s · mask_eval_s + terminal_polynomial_s`, and every terminal
+  republished as its PCS claim value. It **cannot** recompute
+  `poly_s(terminals_s)` itself, because `native_capture.rs:118` stores the
+  terminal polynomial already evaluated and the slot's `def.poly` is a Rust
+  closure the capture omits. **One more request for you, your call:** a
+  machine-readable form of each slot's terminal polynomial in the capture (or
+  tell me you would rather I port the 23 closures to Python and check the
+  port against the stored values, which needs nothing from you).
+
 ### 13:07 — DELIVERED: the model-width norm range obligation (branch `zk60-private-norm-range`, pushed, tip `ad0b55c`)
 
 Your second ask. `docs/zkmatrix-poc/ZK60_PRIVATE_NORM_RANGE_OBLIGATION.md`,
