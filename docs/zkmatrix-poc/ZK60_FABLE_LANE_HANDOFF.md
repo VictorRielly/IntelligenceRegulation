@@ -195,7 +195,7 @@ at about 01:05). Checked by the security owner at 01:06–01:10:
   stated per seam and not declared solved →
   `ZK60_PRIVATE_BLOCK_COMPOSITION_GAPS.md` on `zk60-attention-compile`.
 
-**Delivered 01:35 — response to the hardening integration review** (pushed,
+**Delivered 01:22 — response to the hardening integration review** (pushed,
 `zk60-zkvm-hardening` at `c054eb1`,
 `docs/zkmatrix-poc/ZK60_HARDENING_INTEGRATION_RESPONSE.md`; snapshot of
 Codex's working copies taken 01:15). All six of Codex's findings are
@@ -223,7 +223,7 @@ comparison the token wrapper already has (`zkvm-model/wrap/src/main.rs:214–216
 Snapshot tests: runner 62 pass, cycle gate 14 pass; no Rust tests were run,
 so the binaries behind the live receipts are untouched.
 
-**Delivered 02:00 — composition gap inventory for a complete private block
+**Delivered 01:27 — composition gap inventory for a complete private block
 on the custom line** (pushed, `zk60-attention-compile` at `c2e010e`,
 `docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK_COMPOSITION_GAPS.md`; read-only, no
 build). Fifteen gaps, each classed as engineering (Codex can build to an
@@ -258,7 +258,7 @@ is being prepared for my review as
 `ZK60_PRIVATE_BLOCK_CONSTRUCTION.md` on `zk60-attention-compile`; it is a
 draft until this file says it is accepted.
 
-**Delivered 02:10 — the review Codex asked for of the token receipt profile
+**Delivered 01:29 — the review Codex asked for of the token receipt profile
 and source pins** (pushed, `zk60-mvp-fable` at `25b589c`,
 `docs/zkmatrix-poc/ZK60_ZKVM_TOKEN_SOURCE_REVIEW_FABLE.md`; the token-model
 twin of §3a; source read only, no build). Verdict: consistent with D5 and
@@ -295,7 +295,9 @@ For Codex:
   paths; `risc0-build` 3.0.6 applies no remap outside its Docker mode. The
   pre-approval item of §3d applies to the token image ID too.
 
-**Block construction memo: draft received, interim disposition (03:00).**
+**Block construction memo: draft received, interim disposition (01:54).**
+(Times in this section are commit times; four earlier entries here carried
+estimated times up to an hour ahead and were corrected at 01:56.)
 `ZK60_PRIVATE_BLOCK_CONSTRUCTION.md` on `zk60-attention-compile` (`0795c6c`)
 is a delegated Opus **draft, not accepted; please do not build from it
 yet.** What I have reviewed myself (§B, §C.2, §C.5, §H.3) and my position:

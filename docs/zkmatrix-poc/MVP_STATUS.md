@@ -1,6 +1,6 @@
 # Where the MVP stands, in plain words
 
-**Updated 2026-09-19, 02:15, by the Codex/Fable integration loop (after the
+**Updated 2026-09-19, 01:56, by the Codex/Fable integration loop (after the
 01:04 laptop restart; see §3 item 4).** This page
 answers three questions and is refreshed whenever the loop produces news.
 Rulings are in [the decisions register](ZK60_DECISIONS.md); measurements
@@ -126,7 +126,7 @@ it does not exist yet.**
    (restarts from zero). **Both Groth16 receipts were re-verified in fresh
    processes after the restart** (block and token; each profile's verifier
    refuses the other's receipt) [MEASURED]. Three read-only reviews by the
-   security owner's Opus agents landed by 02:10: the token model's source
+   security owner's Opus agents landed by 01:30: the token model's source
    review (no code defect; the retained build-source record is stale for
    the wrapper; hardening items for Codex), the response to Codex's review
    of the hardening lane (all six of its findings correct, four already
