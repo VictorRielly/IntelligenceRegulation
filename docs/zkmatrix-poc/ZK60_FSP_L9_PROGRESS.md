@@ -423,3 +423,35 @@ should be re-priced.
    barriers. Neither is a small change.
 4. **The COMMIT's encode** (13.877 s of the 8B pass) is untouched by any
    of this and is now the larger of the two transform phases.
+
+**THE EXACT NEXT STEP.** Give `encode_rows_view_zk_gather` (the HIDING
+chunked opening, `hashline/src/gpu/cuda.rs` around line 1613) the same
+treatment: pass the padded residue length through its `sp` tuple, launch
+`k_dit_p1_pad_c` in place of `kn_dit_p1_pad()` and
+`k_ntt_p2_gather_spc` in place of `k_ntt_p2_gather_sp` under the same
+`p1_compact()` switch, and gate it on the two zero-knowledge byte
+digests (`021485e4f80ec695..` 87,228,528 B and `40eb54795e023c77..`
+87,697,008 B, CPU / GPU / GPU-chunked) plus
+`results/fsp2_oracles.sh`. Both kernels already exist and are gated;
+the change is the plumbing in one function.
+
+**Switches this lane leaves behind**
+
+| switch | default | what it does |
+|---|---|---|
+| `HL_GPU_P1_COMPACT=0` | on | restores lane AO's `k_dit_p1_pad_s` + `k_ntt_p2_gather_sp` pair |
+| `HL_GPU_SMEM_SWZ=1` | off | the swizzled `k_dit_p1_pad_sz` (a measured regression, kept for the record) |
+| `HL_GPU_SMEM_SWZ_PB=1` | off | the swizzled `k_dif_pb_z` (likewise) |
+
+Lane AO's `HL_GPU_PAD_SKIP`, `HL_GPU_NTT_FAST`, `HL_GPU_PRUNE_P2` and
+`HL_GPU_BENCH_REENC` are unchanged and still restore the inherited
+kernels exactly; `HL_GPU_PAD_SKIP=0` and `HL_GPU_PRUNE_P2=0` both
+override this lane's compact pair, because the compact form is a
+descendant of both.
+
+**Scripts** (all this lane's own): `results/fsp2_build.sh`,
+`results/fsp2_floors.sh` (the twelve gates, `FSP_CPU_BIN`/`FSP_GPU_BIN`
+to point at a saved build), `results/fsp2_oracles.sh` (every
+device-vs-CPU oracle plus the two device test binaries),
+`results/fsp2_ab_reenc.sh` (the swizzle ABBA),
+`results/fsp2_ab_compact.sh` (the compact A-B-C-C-B-A).
