@@ -28,7 +28,7 @@ establishes a privacy property; D8/D11 stay open (disposition section 5).
 | S2 | WITNESS AND LAYOUT GROWTH: whole-block layout (A 455 / H 384 rows) and witness (`norm_m`, `g8`, `a16`, `u16`, `h16`, `z16`, remainders, residual 2) with kernel semantics; parity extended to `xres2` and every intermediate | DONE |
 | S3a | REFUSAL-SITE PARITY: a hand-built forcing case for every reachable kernel refusal site; the arithmetic and a premise test for every unreachable one | DONE |
 | S3b | ARGUMENT: the new define arms, slots, sites; the module moves to the whole-block layout | DONE |
-| S3c | TAMPER TESTS at the verifier (T2 section G as corrected by E-18 … E-20), by slot INDEX | not started |
+| S3c | TAMPER TESTS at the verifier (T2 section G as corrected by E-18 … E-20), by slot INDEX | DONE |
 | S4 | The block profile `hashline-zk-mr1/private-block-t32-poc/1`, `BlockPublic` with the E-2 activation-table range check, the output endpoint moved to `xres2`, the tripwire `block_output_cannot_be_chosen` (T1-check section 11.3) | not started (next agent) |
 | S5 | The checking tools re-run on the real Rust source (disposition condition 4) | not started (next agent) |
 
@@ -616,9 +616,75 @@ target dir, release overrides):
    hashline/examples/zk60_private_attention.rs
    hashline/tests/zk60_private_attention.rs` printed NOTHING.
 
-**Next step (S3c):** the tamper tests at the VERIFIER, per T2 section G as
-corrected by E-18, E-19 and E-20: `z16` (the binding test of G.1, catch at
-slot **14**), `g8`, `a16`, `u16`, `h16` and each remainder, each asserting the
-verifier rejects BY SLOT INDEX with the honest proof verifying beside it, and
-each recomputing the chain downstream where E-19 says the draft's row did not
-isolate. Then S4.
+*(superseded; S3c is done — see below)* **Next step (S3c):** the tamper tests at the VERIFIER.
+
+### 2026-09-19 — S3c TAMPER TESTS AT THE VERIFIER (done)
+
+New file `hashline/src/private_block/tamper.rs` (`#[cfg(test)]`, one added
+`mod` line). Every case edits the witness planes BEFORE the `A` commitment,
+lets `prove_inner` run to completion, and asserts `verify_inner` is an error.
+**No prover-side assertion catches any of them**, so no test-only receipt path
+was needed and none was added: the prover pre-checks no relation, an
+out-of-table lookup value is bucketed into entry 0 of the histogram, and the
+LogUp helpers are computed from whatever the witness holds.
+
+**Each case names ONE relation and recomputes the chain downstream of the
+tamper**, so that every OTHER relation, class proof and byte lookup still
+holds — which is what erratum E-19 says four of T2's own rows fail to do. The
+helpers `recompute_from_product` and `recompute_from_h16` redo `h16`, `rh`,
+`z16`, `rd`, `xres2` and every limb exactly as the witness builder does, and
+REFUSE (so the test picks another index) if any value would leave its class,
+because a tamper that needs an out-of-class plane would be caught by a range
+relation rather than by the one the case names.
+
+**The catch is asserted by slot INDEX, never by name** (erratum E-20:
+`SLOT_NAMES[SC_DZC]` is a string this very stage changed), or by the `H:`
+prefix where the catch is the one value-0 LogUp sum claim. Each test also
+asserts that the HONEST proof through the same path verifies.
+
+| tamper (what is kept consistent) | catch, asserted | what it shows |
+|---|---|---|
+| `z16 += 1`, `xres2` and both limb pairs recomputed — `c8`, `c9`, `c10` and every lookup still hold | **slot 14** (`SC_DZC`) | T2 section G.1: the block's output cannot be chosen. Under Tier 1 alone this receipt verified |
+| `g8 += 1`, `a16` re-read from the table, the WHOLE chain recomputed | **slot 18** (`SC_FZC`) | `g` is bound to `nm` through `SC_GMM`'s claim at `p_g` |
+| `a16 += 1`, the chain recomputed | **LogUp sum claim on `H`** | the pair `(g8 + 128, a16)` must be a row of `act`. The prover CAN satisfy `f_act` pointwise (it commits `H` after alpha); the multiplicity side is what fails — exactly T2's reading, and the relation E-22 makes a soundness requirement |
+| `u16 += 1`, limbs and the chain recomputed | **slot 18** | `u` is bound to `nm`; `host2` carries no coefficient and no constant (`SH_U = 0`) |
+| `h16 += 1`, limbs recomputed, `rh` left alone, everything BELOW recomputed so `SC_DMM` and `SC_DZC` still agree | **slot 18** | the product is pinned from both sides (`f0`) |
+| `rg` rotated inside `[0, 2^7)` | **slot 18** | the gate requantization identity |
+| `rh` rotated inside `[0, 2^14)`, limbs recomputed | **slot 18** | the product requantization identity |
+| `rd` rotated inside `[0, 2^6)` | **slot 14** | the down requantization identity |
+| `z16 += 2^16` with `rd` "compensated" and the limbs pushed out of `[0, 256)` | **LogUp sum claim on `H`** | T2 row T-z1, the int16 CLASS test. Kept with its TWO catches and labelled as such (E-19): it shows the class is enforced, not that one relation is present |
+
+Rotating a remainder inside its own window is what makes those three cases
+isolating: every byte lookup still has a row, so the only relation that can
+notice is the requantization identity the remainder appears in.
+
+**Commands:** `cargo test --release --lib private_block::tamper --
+--test-threads=1` -> **7 passed, 0 failed**, 3.04 s;
+`cargo test --release --lib private_ -- --test-threads=1` -> **35 passed,
+0 failed**, 14.59 s. Byte-identity gate against `zk60-attention-compile`:
+empty.
+
+**Two tamper checks T2 section G names that are NOT here, and where they go.**
+(a) The D12 item-3 boundary test — present an honest receipt against an output
+endpoint committing `xres1` instead of `xres2` — only becomes meaningful once
+the output endpoint IS `xres2`, so it belongs to S4 beside the tripwire.
+(b) The pair-sharing negative control (`A_H16`'s site sharing `A_U16`'s
+reserved mask pair) is a rank-tool control: `audit_claims` already refuses a
+shared pair positionally, and the disclosed-dimension half of it is S5's
+re-run on the real source. Both are recorded here so they are not lost.
+
+**Next step (S4), in ONE commit and only from this green tree:**
+(a) `BlockPublic` wrapping the attention and feed-forward words with ONE
+digest under `hashline/private-block-public/1`, the activation table held as
+`[i16; 256]`, and the `"feed-forward-statement"` absorb of S3b DROPPED;
+(b) the profile string `hashline-zk-mr1/private-block-t32-poc/1` with its own
+parameters payload, schedule domain, wire magic and expected-policy magic,
+replacing every work-in-progress string;
+(c) `SC_IO_OUT` moves from `A_X1` to `A_X2` and `Witness::output` with it;
+(d) `IoSpec::new` refuses anything but the approved calibration's
+`(e_r, e_r2) = (0, 0)`, and the calibration identity digest is absorbed under
+a new `"calibration"` label at step 5 of T1 section D (between `"parameters"`
+and `"schedule"`);
+(e) the tripwire `block_output_cannot_be_chosen` exactly as T1-check section
+11.3 specifies, with the honest-proof assertion beside it;
+(f) whole-block kernel parity still green through the public API's output.

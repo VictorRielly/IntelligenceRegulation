@@ -68,6 +68,8 @@ mod parity;
 #[cfg(test)]
 mod refusals;
 #[cfg(test)]
+mod tamper;
+#[cfg(test)]
 mod tests;
 
 use crate::field::Fp;
