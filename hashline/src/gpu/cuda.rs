@@ -817,6 +817,13 @@ struct Uploader {
     cur: usize,
     /// host seconds actually spent blocked in this engine (the honest h2d cost)
     secs: f64,
+    /// [FSP-HOST] of those seconds, the ones spent in `pack_narrow` — HOST
+    /// arithmetic over the 64-bit staging vector, not bus time. Timing only:
+    /// two `Instant`s per 64 MB staging piece, no value the transcript or the
+    /// proof depends on is read or written here.
+    pack_secs: f64,
+    /// [FSP-HOST] elements packed, for the rate.
+    pack_elems: u64,
 }
 
 impl Uploader {
@@ -828,7 +835,7 @@ impl Uploader {
         std::mem::forget(stream);
         let pin = [PinBuf::new(dev, cap)?, PinBuf::new(dev, cap)?];
         let mk = || cu::event::create(sys::CUevent_flags::CU_EVENT_DISABLE_TIMING).map_err(|e| format!("cuEventCreate: {e}"));
-        Ok(Uploader { stream: raw, pin, ev: [mk()?, mk()?], armed: [false, false], cur: 0, secs: 0.0 })
+        Ok(Uploader { stream: raw, pin, ev: [mk()?, mk()?], armed: [false, false], cur: 0, secs: 0.0, pack_secs: 0.0, pack_elems: 0 })
     }
 
     /// Stage and issue `src` into `dst[off..]`, asynchronously. The bytes
@@ -866,6 +873,14 @@ impl Uploader {
         self.secs += t0.elapsed().as_secs_f64();
         Ok(())
     }
+}
+
+/// [FSP-HOST] `HL_FSP4_TIMING=1` prints the upload's host/bus split (what
+/// the `secs_h2d` counter is made of). Default off; prints only, changes
+/// no proof byte.
+fn fsp4_timing() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| env_flag("HL_FSP4_TIMING"))
 }
 
 /// [UPERF3-AJ] `HL_GPU_NARROW=0` sends the 64-bit field image (the
@@ -954,9 +969,12 @@ impl Uploader {
                 self.armed[b] = false;
             }
             let bytes: &mut [u8] = unsafe { std::slice::from_raw_parts_mut(self.pin[b].ptr as *mut u8, m * w) };
+            let tp = Instant::now(); // [FSP-HOST] timing only
             if !pack_narrow(bytes, &src[done..done + m], w) {
                 return Err("narrow pack: value out of range".into());
             }
+            self.pack_secs += tp.elapsed().as_secs_f64();
+            self.pack_elems += m as u64;
             let dp = dst_base + ((elem_off + done) * w) as sys::CUdeviceptr;
             unsafe { cu::memcpy_htod_async(dp, &bytes[..m * w], self.stream) }.map_err(|e| format!("cuMemcpyHtoDAsync: {e}"))?;
             unsafe { cu::event::record(self.ev[b], self.stream) }.map_err(|e| format!("cuEventRecord: {e}"))?;
@@ -1002,14 +1020,19 @@ impl Gpu {
             return Err("pinned staging unavailable".into());
         }
         let mut up = self.up.take().unwrap();
+        let (secs0, pack0) = (up.secs, up.pack_secs); // [FSP-HOST] timing only
         let mut r = up.send_packed(pack_base, 0, src, w).and_then(|_| up.wait());
         if r.is_err() {
             // a half-issued transfer must land before the scratch goes back to the pool
             let _ = up.wait();
             r = r.and(Err("narrow upload abandoned".to_string()));
         }
+        let (secs_up, pack_up) = (up.secs - secs0, up.pack_secs - pack0);
         self.up = Some(up);
         r?;
+        if fsp4_timing() {
+            eprintln!("[FSP4] whole-buffer narrow upload {} elem w {w}: h2d counter {secs_up:.4} = host pack {pack_up:.4} + {:.4} rest", src.len(), secs_up - pack_up);
+        }
         let cfg = LaunchConfig::for_num_elems(src.len() as u32);
         unsafe { f.launch(cfg, (pack_base, data_base, src.len() as i64, w as i32)) }.map_err(|e| format!("k_widen: {e}"))?;
         dev.synchronize().map_err(|e| e.to_string())?;
@@ -2216,6 +2239,8 @@ impl Gpu {
         let data_base: sys::CUdeviceptr = *d_data.get().device_ptr();
         let mut up = self.up.take().unwrap();
         let secs0 = up.secs;
+        let pack0 = up.pack_secs;
+        let pel0 = up.pack_elems;
         let vb = verbose();
         let r = (|| -> Result<Vec<Digest>, String> {
             let (r0, rc) = plan[0];
@@ -2264,12 +2289,21 @@ impl Gpu {
             let _ = dev.synchronize();
         }
         let secs_up = up.secs - secs0;
+        let pack_up = up.pack_secs - pack0;
+        let pel = up.pack_elems - pel0;
         self.up = Some(up);
         let leaves = r?;
         drop(d_pack.take());
         let total = t0.elapsed().as_secs_f64();
         if vb {
             eprintln!("[UPERF3-AJ]   streamed commit rows {rows} 2^{log_n} -> 2^{log_nn} in {} chunks of <= {rmax} ({} B/elem on the wire): h2d visible {secs_up:.4} | total {total:.4} s", plan.len(), w);
+        }
+        // [FSP-HOST] what the `secs_h2d` counter is actually made of: the
+        // host `pack_narrow` pass over the 64-bit staging vector, and the
+        // rest (issue + the waits the engine really blocks on).
+        if fsp4_timing() {
+            eprintln!("[FSP4] streamed commit rows {rows} n 2^{log_n} w {w}: h2d counter {secs_up:.4} = host pack {pack_up:.4} ({pel} elem, {:.2} GB read) + {:.4} rest | total {total:.4} s",
+                (pel * 8) as f64 / 1e9, secs_up - pack_up);
         }
         stats_with(|s| {
             s.secs_h2d += secs_up;

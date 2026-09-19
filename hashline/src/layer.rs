@@ -402,8 +402,50 @@ fn i8fold() -> bool {
 /// `col0 .. col0 + cols`. Byte-identical by construction — the field is
 /// Z_p, every operation is exact, and skipping a zero adds zero (which is
 /// what `fold_cols_i8` already does elsewhere in this file).
+///
+/// [FSP-HOST] The inner loop has TWO arms and they compute the same field
+/// element. The inherited arm (`HL_FSP4_I128FOLD=0`) does a field multiply
+/// per element: `Fp::from_i64` (a branch plus, for the negative half of an
+/// int8 plane, a 128-bit negate and a reduction) and `Fp2::mul_base` (two
+/// 64x64 Goldilocks multiplies with their reductions). The default arm
+/// DEFERS the reduction: it shifts the int8 value to `u = v + 128` in
+/// `[0, 255]`, accumulates `sum_j c_j * u_j` as an exact 128-bit INTEGER
+/// (one unsigned 64x8 multiply and one 128-bit add per element, no branch
+/// and no reduction), and finishes each row with
+/// `sum_j c_j * v_j = red(sum_j c_j * u_j) - 128 * sum_j c_j`, where
+/// `sum_j c_j` is one Fp2 sum over the weights, computed once per call.
+///
+/// Why it is byte-identical: every `c_j` is a canonical representative in
+/// `[0, p)` and `Fp::from_i64(v) = v mod p`, so the integer sum reduced
+/// mod p IS the field sum — Z_p arithmetic is exact and the regrouping
+/// `sum c_j (u_j - 128) = sum c_j u_j - 128 sum c_j` is an identity over
+/// the integers. The overflow bound is stated at the accumulator.
 fn fold_block_i8(src: &[i8], row0: usize, rows: usize, stride: usize, col0: usize, cols: usize, c: &[Fp2]) -> Vec<Fp2> {
     debug_assert_eq!(c.len(), cols);
+    // [FSP-HOST] |sum_j c_j u_j| <= cols * 255 * (p - 1) < 2^48 * 2^8 * 2^64
+    // = 2^120 < u128::MAX, so the guard below is what makes the accumulator
+    // exact; a wider block falls back to the inherited arm.
+    if i128fold() && cols <= (1usize << 48) {
+        let mut sum_c = Fp2::ZERO;
+        for &cw in c.iter() {
+            sum_c = sum_c.add(cw);
+        }
+        let shift = sum_c.mul_base(Fp::new(128));
+        return (0..rows)
+            .into_par_iter()
+            .map(|i| {
+                let base = (row0 + i) * stride + col0;
+                let row = &src[base..base + cols];
+                let (mut s0, mut s1) = (0u128, 0u128);
+                for (&v, &cw) in row.iter().zip(c.iter()) {
+                    let u = (v as i32 + 128) as u128; // 0 ..= 255
+                    s0 += (cw.c0.0 as u128) * u;
+                    s1 += (cw.c1.0 as u128) * u;
+                }
+                Fp2::new(Fp::from_u128(s0), Fp::from_u128(s1)).sub(shift)
+            })
+            .collect();
+    }
     (0..rows)
         .into_par_iter()
         .map(|i| {
@@ -420,6 +462,13 @@ fn fold_block_i8(src: &[i8], row0: usize, rows: usize, stride: usize, col0: usiz
             acc
         })
         .collect()
+}
+
+/// [FSP-HOST] `HL_FSP4_I128FOLD=0` restores the inherited per-element field
+/// multiply in `fold_block_i8`, so the A/B runs on ONE binary.
+fn i128fold() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_FSP4_I128FOLD").map(|v| v != "0").unwrap_or(true))
 }
 
 // [UPERF3-AL] Host-conversion instrumentation (round 15, lever L2b).
