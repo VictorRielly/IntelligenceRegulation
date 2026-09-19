@@ -44,8 +44,15 @@ Every number carries its shape, conditions and label: [MEASURED],
 | 1 | Does the repaired private FFN run through this body? | DONE |
 | 2 | Baseline gates on the untouched tree | DONE — all green |
 | 3 | Port the staging pool behind `HL_FSP_POOL` | DONE — gates green |
-| 4 | Port the int8-plane fold behind `HL_FSP_I8FOLD` | DONE — byte gates green |
-| 5 | A/B at 12 x 512 only, CPU and GPU binaries | CPU done (20 runs); GPU partial |
+| 4 | Port the int8-plane fold behind `HL_FSP_I8FOLD` | DONE — all gates green |
+| 5 | A/B at 12 x 512 only, CPU and GPU binaries | DONE — 20 CPU + 10 GPU runs |
+
+**Lane closed green.** Every byte gate reproduced on both binaries in
+three device configurations and in both switch arms; `cargo test
+--release` 259 passed / 0 failed, the baseline count, after each rung.
+**No digest moved at any point.** Measured headline: **1.149x on the
+whole private prove, GPU binary, 12 x 512.** Counted at 8B: about
+227-235 s against the recorded 265.34 s — counted, not measured.
 
 Owed to a quiet window (NOT run by this lane, by instruction): the
 Mistral-width (4096 / 14336) tamper battery through the GPU zero-knowledge
@@ -481,25 +488,24 @@ it, both launched detached so they finish with or without a session:
 2. `cargo test --release -- --test-threads=2` for the fold rung — log
    `<scratch>/fsp3/test_fold.log`, marker `<scratch>/fsp3/test_fold.done`.
 
-**BOTH OF THOSE HAVE SINCE LANDED.** The lock freed, the GPU A/B was
-carried to 5 runs per arm (section above), and the suite came back 101 on
-the doctest, was fixed and re-launched. The remaining open item is one
-marker:
+**ALL OF THOSE HAVE SINCE LANDED AND THE LANE IS CLOSED GREEN.** The lock
+freed; the GPU A/B was carried to 5 runs per arm (section above); the
+suite came back 101 on the doctest, was fixed, and the re-run returned
+**exit 0, 259 passed / 0 failed across 28 binaries — the baseline count
+exactly** (log `<scratch>/fsp3/test_fold2.log`, marker
+`<scratch>/fsp3/test_fold2.done`).
 
-    log    <scratch>/fsp3/test_fold2.log
-    marker <scratch>/fsp3/test_fold2.done   (holds the exit code)
+**Every gate this lane owes on this box is green**, on both binaries, in
+the resident and both forced-chunked forms, in both switch arms:
 
-**THE EXACT NEXT STEP, in order.**
+| | baseline | after the pool | after the fold |
+|---|---|---|---|
+| v2, v3, zk, zk-v3 digests (CPU + GPU + chunked) | GREEN | GREEN | GREEN |
+| `cargo test --release` | 259 / 0 | 259 / 0 | **259 / 0** |
 
-1. Read `<scratch>/fsp3/test_fold2.done`. Exit 0 with 259 passed /
-   0 failed closes the fold rung. Anything else is a regression in
-   `zk.rs` and the rung must be REVERTED, not adjusted — and note that
-   the doctest that failed the first attempt is now fenced, so a second
-   failure would be a real one. (`<scratch>` is
-   `/tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad`;
-   if it is gone with the session, re-run the suite — the command is in
-   the stage-4 entry above.)
-2. Then, and only in a quiet window with the card verified idle and
+**THE EXACT NEXT STEP.**
+
+1. Only in a quiet window with the card verified idle and
    nothing else on `/tmp/zk-heavy.lock`: the eight v3 tamper legs at
    Mistral width through the GPU zero-knowledge prover (honest ACCEPT,
    then 8 of 8 REJECT), and the 8B A/B of these two switches, launched
