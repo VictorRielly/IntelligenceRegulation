@@ -1,0 +1,240 @@
+# ZK60 decisions register — the rulings that govern the proof project
+
+**Read this before claiming any security or privacy property, and record every
+new ruling here the day it is made.** One entry per decision: what was
+decided, by whom, why, what it means day to day, and what would reopen it.
+Entries are never deleted; a reversed decision gets a new entry that points
+back. Keep this file short enough to read in five minutes.
+
+## At a glance
+
+| ID | Decision | Status | Date | Decided by |
+|---|---|---|---|---|
+| D1 | Privacy scope: P1 hides inputs, outputs, activations (weights may be public); P3 also hides weights | **standing** | 2026-09-09 | Victor |
+| D2 | Two lines: a zkVM intermediate delivers the first complete private tiny block; the custom-PCS line remains the route to the throughput target | **standing** | 2026-09-17 | Victor |
+| D3 | Security level for the zkVM intermediate: about 97 bits conjectured soundness accepted, as a recorded deviation from the 128-bit target | **accepted** | 2026-09-18 | Victor |
+| D4 | Groth16 trusted setup accepted for soundness of the zkVM intermediate's public artifact | **accepted** | 2026-09-18 | Victor |
+| D5 | Public receipt kind: Groth16 only; composite never public; succinct is experimental evidence only | **decided (security review)** | 2026-09-18 | Fable disposition + Codex source review |
+| D6 | Groth16 proving path on this box: native tools extracted from the official prover image, digests pinned (Docker absent) | **in progress** | 2026-09-18 | Codex (implementation) |
+| D7 | New endpoint and weight identity profile for the zkVM route (salted SHA-256 commitments in a fixed journal; old PCS roots not compatible) | **implemented, ruling pending** | 2026-09-18 | Codex implemented; Victor to accept as the P1 statement |
+| D8 | Custom line, caller-fixed endpoint roots: obligation stands; the "two programmed points" closure is retracted for roots with any prior public opening | **corrected** | 2026-09-18 | Codex review; accepted by the security owner |
+| D9 | Reduction-bias term of `fp()` challenge draws on the custom line (about 2^-75 at A00): accept as stated, or re-freeze fixtures with rejection sampling | **pending** | since 2026-09-15 | Victor |
+| D10 | Compact-PCS proof-size lever on the custom line (95–98 bits instead of 106) | **pending** | since 2026-09-03 | Victor |
+
+Operational rules (detached heavy runs, the shared-box lock, command hygiene)
+live in `CLAUDE.md`; they are not repeated here.
+
+---
+
+## D1 — Privacy scope (standing since 2026-09-09)
+
+**Decided.** The first proof of concept, P1, hides inputs, outputs and every
+intermediate activation from the verifier and from every public artifact;
+model weights may be public. The full version, P3, also hides weights.
+
+**Why.** This is the product: a regulator or auditor can check that an
+approved model produced an answer without learning the prompt or the answer.
+
+**In practice.** Public-IO demos are diagnostics, never deliverables. A
+component that opens or publishes an endpoint value is not P1. An unresolved
+privacy argument is work to do, not a reason to shrink the private set.
+
+**Reopens only** on an explicit new instruction from Victor.
+Source: `ZK60_PRIVACY_REQUIREMENTS.md`.
+
+## D2 — Two lines (standing since 2026-09-17)
+
+**Decided.** Run an implementation, review and test loop until a workable
+private MVP exists, using a RISC Zero zkVM re-execution of the exact integer
+block as the intermediate. Keep the custom-PCS prover (hashline) as the
+route to the model-scale throughput target.
+
+**Why.** The custom line's privacy argument still has open obligations (D8)
+and its private attention is unbuilt; the zkVM route sidesteps both because
+its proof never opens the endpoint commitments. The zkVM route cannot reach
+the throughput target: re-executing an 8B model is on the order of 10^13
+cycles, so it is a functional intermediate and a differential oracle, not
+the product's prover.
+
+**In practice.** "Tiny block" claims come from `zkvm-block/`; speed claims
+come from hashline. Neither line's results are quoted as the other's.
+The exact-integer kernel (`private-block-kernel/`) is shared by both.
+
+**Reopens** if the zkVM route's assumptions (D3–D5) become unacceptable, or
+if the custom line's privacy acceptance lands first.
+Sources: `ZK60_MVP_LOOP_20260918.md`, `ZK60_ZKVM_REVIEW_DISPOSITION.md`
+(branch `zk60-mvp-fable`), `ZK60_FABLE_LANE_HANDOFF.md`.
+
+## D3 — About 97 bits of conjectured soundness accepted for the zkVM intermediate (2026-09-18)
+
+**Decided.** The zkVM intermediate's proofs are accepted at RISC Zero's
+shipped security level, about 97 bits conjectured for 2^20-cycle segments
+(95 at 2^24) and roughly 100 bits for the BN254 Groth16 layer, instead of
+the project's 128-bit target. This is a **recorded deviation**, not a change
+of the target: the target stays 128 bits for the product.
+
+**What the number means.** "Bits" measure the work a forger needs: about
+2^97 operations to produce a proof of a false block result. "Conjectured"
+means the figure rests on a widely used but unproven conjecture about the
+FRI protocol (the "toy problem" conjecture from ethSTARK); the bound that is
+actually proven is lower and must be read off the build (see below). For
+comparison, hashline's own default profile is 106 bits and its compact
+lever 95–98 (D10), so the whole project is currently below 128.
+
+**Why accepted.** The parameters (50 FRI queries, rate 1/4, the digest
+width) are compile-time constants baked into RISC Zero's recursion circuits,
+control roots and Groth16 circuit; no setting raises them. Reaching 128 bits
+would mean a different proof system. For an intermediate whose purpose is a
+complete private block, not a deployed product, the shortfall is accepted.
+
+**In practice.**
+- Every document that mentions the intermediate's security says
+  "about 97 bits conjectured (RISC Zero default), accepted per D3", never
+  "128 bits" and never "secure" without the number.
+- The first real proving run records the build's own two figures,
+  `conjectured_security` and `proven_soundness_error`, from
+  `risc0-zkp/src/prove/soundness.rs` (`RUST_LOG=risc0_zkp=info`), and this
+  entry is updated with them.
+- Segment size stays at 2^20 or below (larger segments lower the figure).
+
+**Reopens** when a proof system at or above 128 bits is adopted (the custom
+line, or a future RISC Zero circuit version with different parameters), or
+if the proven bound recorded from the build is unexpectedly low.
+Sources: `risc0-zkp-3.0.5/src/lib.rs:40–46`, `src/prove/soundness.rs:15–35`;
+`ZK60_ZKVM_REVIEW_DISPOSITION.md` §1–§2; vendor page
+`dev.risczero.com/api/security-model`.
+
+## D4 — Groth16 trusted setup accepted for soundness (2026-09-18)
+
+**Decided.** The public artifact of the zkVM intermediate is a Groth16
+receipt, whose soundness depends on RISC Zero's trusted-setup ceremony.
+This dependency is accepted.
+
+**What a trusted setup is, in plain words.** Groth16 proofs are tiny and
+fast to check because the verifier holds a fixed "reference string": a set
+of elliptic-curve points computed once from secret random numbers. Whoever
+knows those secret numbers can forge a proof of any false statement; nobody
+can forge if they were destroyed. A ceremony makes many participants
+contribute their own secret one after another and destroy it; the final
+string is safe as long as **at least one** participant was honest. RISC
+Zero ran such a ceremony for its STARK-verifier circuit and ships the
+resulting verifying key as constants.
+
+**What it does and does not affect.**
+- *Soundness*: a colluding ceremony (every participant dishonest) or
+  subverted ceremony software would allow forged receipts, i.e. a fake
+  proof of a block result that never happened. That is the risk accepted.
+- *Privacy*: **not affected.** Groth16's zero knowledge holds for any
+  well-formed reference string, even one whose secrets are known. Inputs,
+  outputs and activations stay hidden regardless of ceremony honesty.
+- *The inner STARK*: unaffected either way; it has no setup.
+
+**Why accepted.** The alternative, a succinct STARK receipt, has no setup
+but its hiding rests on the vendor's STARK blinding, for which the vendor
+itself states no finished mathematical argument (and the segment-level
+prover adds no blinding at all). Groth16 trades a soundness assumption the
+project can name and pin for a privacy argument it can cite (Groth 2016,
+Theorem 3). For a private-block intermediate, privacy is the property that
+matters most.
+
+**In practice.**
+- Pin and record: ceremony key `2024-05-17.1`, SHA-256
+  `69c6056451ea814b37e30ccbc44639dbaafef73540cbfbff6ec7e68e2d325735`;
+  verifying-key constants in `risc0-groth16-3.0.5/src/verifier.rs`;
+  default verifier-parameter digest
+  `73c457ba541936f0d907daf0c7253a39a9c5c427c225ba7709e44702d3c6eedc`;
+  prover image manifest
+  `sha256:7f173963196570b7a71816ed70565a4579264c5d2e3e0ecb028102538ad0e331`.
+- Run RISC Zero's published ceremony verification once
+  (`snarkjs zkey verify` against the published R1CS hash) and record the
+  outcome here; until then the well-formedness of the string is an
+  assumption, not a checked fact.
+- The verifier binary embeds its verifying key and control roots; it never
+  takes them from a receipt.
+
+**Reopens** if RISC Zero publishes a new ceremony or circuit (new key), if
+the ceremony verification fails, or when the product's prover no longer
+needs a setup (the custom line is transparent).
+Sources: `ZK60_ZKVM_SOURCE_REVIEW.md` (CRS and prover-randomness chain),
+`ZK60_ZKVM_REVIEW_DISPOSITION.md` §1, §3; vendor page
+`dev.risczero.com/api/trusted-setup-ceremony`.
+
+## D5 — Receipt kind: Groth16 only (2026-09-18)
+
+**Decided.** Only a Groth16 receipt leaves the prover. A composite receipt
+is never public: its per-segment claims carry memory-image roots at every
+split and its segment count reveals cycle counts, and the rv32im segment
+prover adds no blinding rows in circuit 4.0.5. A succinct receipt is used
+only as explicitly experimental evidence while the Groth16 wrap is being
+brought up; it is never presented as a private artifact.
+
+**In practice.** The verifier matches the receipt kind explicitly before
+anything else, refuses dev mode by construction, and is built with
+`default-features = false` (the crate's default features include the
+Bonsai upload path). Fake receipts are refused always.
+
+**Reopens** only with a reviewed zero-knowledge argument for the succinct
+receipt at the shipped parameters.
+Sources: `ZK60_ZKVM_REVIEW_DISPOSITION.md` §1–§2, §4;
+`ZK60_ZKVM_SOURCE_REVIEW.md`.
+
+## D6 — Groth16 proving path on this box (in progress)
+
+Docker is not installed; the crate's Docker path cannot run. Codex is
+extracting the native prover tools (`stark_verify`, `prover`, the proving
+key) from the official image at the pinned manifest digest and running
+them directly, with each tool's SHA-256 recorded (`scripts/zk60_zkvm_demo.py
+--native-tools`). The CUDA Groth16 component is the alternative, not
+installed; the 8 GB laptop GPU and the box's VRAM-freeze history make it
+the second choice. This entry closes when the first Groth16 receipt
+verifies and its tool hashes are recorded.
+
+## D7 — New endpoint and weight identity profile (implemented, ruling pending)
+
+The zkVM route commits endpoints as salted SHA-256 hashes inside a fixed
+public journal (Codex's implementation: 144 bytes; Fable's proposal: 260
+bytes, superseded by the implementation), and identifies weights and
+calibration by digests over the bytes the guest uses. Old PCS endpoint and
+weight roots have no meaning here; a chain of blocks is checked by journal
+equality, not by a seam argument. **Pending:** Victor's acceptance of this
+profile as the P1 statement for the intermediate, and a new approval record
+for the model digests. Until then the artifact is "complete-block
+experiment", not "private block".
+
+## D8 — Caller-fixed endpoint roots on the custom line (corrected 2026-09-18)
+
+**Standing obligation.** A proof on the custom line must be simulatable for
+endpoint roots the caller fixed, with the distinguisher allowed to keep
+prior public history (`ZK60_ENDPOINT_SIMULATION_MODEL.md`).
+
+**Correction.** The round-2 memo on `zk60-mvp-fable` claimed this is met by
+programming one oracle point per root. Codex's review showed that any
+previously published authentication path under that root reveals the
+honest top pair (the last sibling on the path), so the programmed point is
+detectable as a second preimage. The claim is **retracted for any root with
+a prior public opening**. What stands: for a root with no prior opening the
+argument is unaffected, and the `/2` protocol's own pad budget means a
+second opening of the same endpoint commitment is outside the protocol
+anyway (the consuming API enforces one opening). The obligation therefore
+reduces to stating the experiment for unopened roots and keeping one
+opening per commitment; that restatement is the security owner's next
+custom-line task, not a closed item.
+
+**In practice.** No document says the external-root obligation is closed.
+The joint-view tools and the attention construction remain valid
+engineering; they do not establish whole-proof privacy.
+Sources: `ZK60_JOINT_VIEW_REVIEW_20260918.md`; `ZK60_MVP_JOINT_VIEW.md`
+§1.1 with its correction note.
+
+## D9 — `fp()` reduction bias (pending)
+
+Challenge words are 128-bit draws reduced mod p, each within 2^-96 of
+uniform; over a proof this is about 2^-75 at A00. Either accept the term
+in the privacy bound or re-freeze fixtures with rejection sampling (a
+byte-changing change). Not gating any current work.
+
+## D10 — Compact-PCS proof-size lever (pending)
+
+Drops a Mistral-7B layer's proof from 38.7 MB to 1.94 MB at 4.4x the prover
+time and 95–98 bits instead of 106 (`START_HERE.md`, lane AF). A soundness
+ruling for Victor; not compatible with the GPU path or zero knowledge yet.

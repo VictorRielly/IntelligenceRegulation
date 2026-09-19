@@ -1,5 +1,11 @@
 # START HERE — the proof project in plain words
 
+**Rulings live in [the decisions register](ZK60_DECISIONS.md)** (2026-09-18):
+two lines (zkVM intermediate for the first complete private tiny block; the
+custom prover for the throughput target), about 97 bits conjectured accepted
+for the intermediate, the Groth16 trusted setup accepted, Groth16 receipts
+only, and the pending rulings. Read it before quoting any security number.
+
 **Current work, 2026-09-15:** [MVP refresh and results](ZK60_MVP_20260915.md).
 The [one-command component demo](ZK60_P1_DEMO.md) passes real proof generation,
 independent verification and six rejection controls. Fable 5.1's bounded

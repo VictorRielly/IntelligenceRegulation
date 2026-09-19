@@ -1,5 +1,9 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**Rulings: [ZK60_DECISIONS.md](ZK60_DECISIONS.md)** (2026-09-18: D3 97-bit
+zkVM level accepted, D4 Groth16 trusted setup accepted, D5 Groth16 receipts
+only, D7 endpoint profile pending, D8 external-root closure retracted).
+
 **2026-09-15, MVP integration:** use the
 [MVP plan and results](ZK60_MVP_20260915.md) and
 [review disposition](ZK60_MVP_REVIEW.md). The P1 FFN component demo passes

@@ -9,6 +9,12 @@ outputs and intermediate activations; weights may be public. The full version
 (P3) also hides weights. Read `docs/zkmatrix-poc/ZK60_PRIVACY_REQUIREMENTS.md`.
 Do not reopen this choice or substitute public IO to bypass a proof obligation.
 
+**Decisions register:** `docs/zkmatrix-poc/ZK60_DECISIONS.md` holds every
+product and security ruling (accepted deviations such as the 97-bit zkVM
+level, the Groth16 trusted setup, receipt kinds, pending rulings). Read it
+before claiming any security or privacy property; record a new ruling there
+the day it is made.
+
 **Any agent working on the proof clocks (Claude, Grok/Cursor, human):
 start at `docs/zkmatrix-poc/TASK_BOARD.md`** — the ordered queue of
 small, self-checking tasks with exact commands and byte-identity
