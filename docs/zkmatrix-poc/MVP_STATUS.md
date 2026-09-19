@@ -26,6 +26,16 @@ the public artifact is the receipt plus a 144-byte policy of digests.
 | Groth16 wrap with the extracted native prover | 197 s | [MEASURED, NOISY-SHARED] |
 | independent verification | 0.008 s | [MEASURED] |
 
+**And, at 21:34, the first proof of actual token generation:** the
+two-block token model (public embedding, two complete blocks with their
+hidden seam, final norm and head, greedy next token; synthetic T32 fixture
+with a 32-word vocabulary, not a trained model) proven by re-execution and
+wrapped to a 785-byte Groth16 receipt; independently verified, eleven
+rejection controls pass, and the block-profile verifier refuses it as a
+different profile. Prove 7,488 s (2 h 5 min) on the shared CPU, wrap 197 s
+[MEASURED, NOISY-SHARED]. Public artifacts retained under
+`results/zk60_loop_20260918/token-integration/token_public/`.
+
 What it rests on: RISC Zero's proof system at about 97 bits conjectured
 soundness (D3), the Groth16 trusted setup (D4), Groth16 receipts only (D5),
 and a new salted-SHA-256 endpoint profile that still needs Victor's
