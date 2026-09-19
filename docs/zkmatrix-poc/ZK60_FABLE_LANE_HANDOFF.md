@@ -124,6 +124,23 @@ or a reproducible build; the README's "locally built, unreproduced" label
 now has a concrete cause, and a registry entry should pin the build path
 or move to the Docker build before any approval.
 
+## 3e. Native private attention delivery: compile pass and R-1/R-2 reviews in progress (2026-09-18, late evening)
+
+The headless attention lane's delivery (`/tmp/wt-zk60-attention-fable-20260918`,
+uncompiled: cargo was denied there) has been copied unchanged onto lane
+`zk60-attention-compile` (from db021ba). Three Opus agents under the
+security owner are running there: (1) compile and run its own tests and
+example with the smallest fixes and no design change (design-level
+failures are reported, not patched); (2) its review request R-1, the
+pair-schedule rank and CFS slot checks regenerated on the layout it
+actually declares (306/290 rows, 75/35 sites, 18 slots); (3) its request
+R-2, the no-wraparound bounds, isqrt/softmax exactness and the
+extension-round premise per slot. Results will be pushed on that branch
+with a review disposition; Codex need not repeat the compile pass. The
+delivery's deviations from the construction (single U8 table, softmax
+degree 4, no W commitment under P1, module-local row numbering, extra
+refusals) are under review and not yet accepted.
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the
