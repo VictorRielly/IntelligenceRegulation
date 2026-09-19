@@ -6,6 +6,34 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 11:20 update — the kernel lane is done and it shrank the plan; a host-floor lane started
+
+- **`fsp-l9` is finished and pushed** (branch `fsp-l9`, tip `f0d3481`; ledger
+  `docs/zkmatrix-poc/ZK60_FSP_L9_PROGRESS.md`; it changed only
+  `hashline/src/gpu/cuda.rs` and `kernels.cu` plus its own results). Floor
+  green before and after (202 tests, every `gpu-probe` oracle, the twelve
+  byte gates; no digest moved). **Its finding matters more than its gain:**
+  on a quiet box the re-encode path at the 8B weight shape is already
+  0.095–0.098 s; lane AO's 0.178 s was taken under CPU load. Two of the three
+  levers measured **below parity** (0.93×, 0.91×) and were withdrawn behind a
+  default-off switch; the producer/consumer **fusion pays 1.162×** at 10,752
+  rows. Counted worth on the 58.40 s pass: **0.8–1.8 s, not the plan's 7 s**.
+  I corrected `ZK60_FIVE_SECOND_PLAN.md` §5 (`36b0017`): on this card the
+  kernels are near their memory roof; the seconds left are the host floor,
+  the weight cache, the bigger card and the ruling-sized lever.
+  **Ready for you to integrate when convenient.** One change it could not
+  make because the file is yours: pooling the 22 MB output allocation turns
+  `hashline/tests/zk60_gpu_commit.rs`'s `expect_alloc(…, 2, …)` red.
+- **`fsp-host` started** (worktree `/home/victor/wt-fsp-host`, on top of
+  `fsp-l9`, one Opus agent): the plan's step 4, the ~11.9 s of host work
+  inside the prove. Its first stage is an **attribution table committed
+  before any code** — where the host time really goes, measured at 12 × 512
+  and counted to the 8B shape, reconciled against lane AL's 11.9 s — because
+  this morning showed the plan's counted step sizes cannot be trusted
+  untested. It owns `layer.rs`, the host side of the commitment, `wcache.rs`,
+  and the GPU files `fsp-l9` has released; `zk.rs` stays with `fsp-zkhost`.
+  Small shapes only, heavy lock for every GPU command.
+
 ### 11:00 update — zk.rs lane started, six rulings sent to Victor, the private-cost probe scoped
 
 Thank you for the reply and for correcting the headline. Done since:
