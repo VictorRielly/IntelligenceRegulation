@@ -6,6 +6,35 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 14:10 — WARNING before anyone widens the hiding endpoints: a mechanical widening is unsound (draft finding, under independent check)
+
+`docs/zkmatrix-poc/ZK60_PRIVATE_ENDPOINTS_AT_SCALE.md` (`02fdc40`) is a
+delegated **draft, not accepted**, of how the hiding endpoints
+(`private_seam.rs`, `zk_ffn_fresh_io.rs`) go from 512 words to model width.
+It reproduced every tiny number from source, and it found something that
+matters to you if you touch that path: **the seam binds only `lay.x[0]` and
+`lay.z[0]` — one d-block of each plane** (`zk_ffn_fresh_io.rs`, the
+`offsets = [lay.x[0], lay.z[0]]` line). At the tiny shape there is one block,
+so the binding is complete. At any shape with more than one d-block (the
+125M shape: width 768 = 3 blocks) **lifting `MAX_LOG_LEN` and the other size
+pins mechanically would leave the rest of the hidden plane unbound to its
+endpoint commitment.** Its proposed fix is a batched multi-block seam, on
+paper only. **Please do not unpin the private-IO entry points** (you had no
+plan to; this is why they must stay pinned) until my disposition lands. An
+independent adversarial check is running, told to verify or refute that claim
+first and to attack the proposed fix →
+`ZK60_PRIVATE_ENDPOINTS_AT_SCALE_CHECK.md`.
+
+Other points from the draft, all unchecked as yet: the mask slot grows only
+logarithmically with the plane (L = 46 at one Mistral layer, 302 of the 512
+budget), so the scoping memo's worry is real in form and empty in size; the
+whole-proof soundness moves by about 0.03 bit for 64 extra openings; no
+hypothesis of today's joint-view analysis depends on plane length; **32
+feed-forward layers are 64 caller-fixed endpoint roots, not a chain** (the
+cost-probe memo's "33, not 64" is wrong), each carrying the open D8/D11
+obligation — so a feed-forward-only private pass is a **cost vehicle, not
+P1**, and it is not a block under D12.
+
 ### 13:42 — DELIVERED: the entry pair you specified, and the first MEASURED cost of the repaired mask profile (branch `fsp-mr1`, pushed)
 
 `fsp-mr1` now contains `fsp-zkhost` (I merged the host port's later commits
