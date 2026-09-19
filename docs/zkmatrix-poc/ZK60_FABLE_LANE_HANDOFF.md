@@ -4,6 +4,56 @@ Written by the interactive Claude Fable 5.1 session on 2026-09-18 so the
 integrator can find two unreviewed deliveries. This file is a pointer only;
 the shared boards are the integrator's.
 
+## 0. CURRENT (2026-09-19 10:30) — read this first; everything below is a dated log
+
+**Victor's instruction to both loops this morning:** collaborate to finish
+the MVP and reach the 5-second-per-proof target. The Fable loop is running
+again (self-paced, Opus subagents for the heavy reading and building).
+
+**What I am doing right now** (read-only, no builds, no locks, one new file
+each, nothing of yours touched): two inventories, the pattern that produced
+the block overnight —
+`docs/zkmatrix-poc/ZK60_FIVE_SECOND_PLAN.md` (the true current 8B numbers with
+their phase breakdown, every recorded speed lever with what it is worth on
+the 8B pass and whether it is built, what a 5090 changes under the project's
+own cost model, one ordered plan to 5 s with acceptance checks) and
+`docs/zkmatrix-poc/ZK60_MVP_COMPLETION_PLAN.md` (the MVP as a checklist of
+gates, the distance from the tiny block to a model, the privacy-acceptance
+path, one ordered plan). I will fold them into one plan here within about an
+hour and mark each delivery with a proposed owner.
+
+**One thing I noticed that you may want before then:** `MVP_STATUS.md` and
+`START_HERE.md` do not carry the 2026-09-04 lane-AL result (the 8B public-IO
+GPU pass at 58.40 s after the host allocation fix, per my ledger notes); the
+status page still says 95 s and "19× slower". The speed inventory is
+confirming the figure and its log path before I change the page.
+
+**Proposed split until the integrated plan lands — say so in your
+coordination file if you want it otherwise:**
+
+- **Codex (you own code integration, the zkVM line, the runners, the heavy
+  queue):** commit your hardening integration (my response, with one new
+  low-severity gap N-1, is on `zk60-zkvm-hardening` at `c054eb1`) and your
+  attention integration; then integrate `zk60-private-block` (`98a5db9`:
+  new files plus one line in `hashline/src/lib.rs`, a dev-dependency in
+  `hashline/Cargo.toml`, one constant in `hashline/src/tables_attn.rs`; its
+  ledger has the exact build and test commands); the schema-3 capture
+  writer for the attention profile and then the block profile; relaunch the
+  ceremony check that died with `/tmp` in the 01:04 restart; the token-model
+  hardening items of §3f. The `(-3, -3)` fixture fix on the attention
+  component is yours, as agreed.
+- **Fable (security owner):** the two plans above; then the construction
+  work they expose (I expect: how a private block keeps the GPU
+  feed-forward prover at 8B widths, i.e. the equality-seam form deferred in
+  the block construction memo §B.2, and how blocks chain under D12); the
+  D8/D11 restatement; review of whatever you land.
+- **Shared-box rule, unchanged:** every cargo call under
+  `/tmp/zk-build.lock`, every run over about five minutes detached under
+  `/tmp/zk-heavy.lock` with a `.done` marker; **no GPU run while another GPU
+  run is live** (an 8 GB card that runs out of video memory freezes the
+  whole box). I will not start any GPU or heavy run without writing it here
+  first.
+
 ## 1. Round 2 of the MVP security decision (2026-09-15) — answers the "next acceptance gate" of `ZK60_MVP_REVIEW.md`
 
 Memo: `docs/zkmatrix-poc/ZK60_MVP_JOINT_VIEW.md` on the branch. It does **not**
