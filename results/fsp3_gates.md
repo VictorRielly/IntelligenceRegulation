@@ -53,5 +53,37 @@ invocation; no two GPU runs were ever chained.
 | zk | GREEN | GREEN | GREEN | — |
 | zk-v3 | GREEN | GREEN | GREEN | GREEN |
 
-Every digest is the frozen one at the frozen length. No digest moved at
-any point in this lane.
+Every digest is the frozen one at the frozen length.
+
+`cargo test --release -- --test-threads=2`: **exit 0, 259 passed,
+0 failed, 28 test binaries** — identical to the baseline count.
+
+## Stage 4 — the int8-plane fold (`HL_FSP_I8FOLD`, default ON)
+
+| profile | cpu | gpu | gpu + `HL_ZK_CHUNK=1` | gpu + `HL_GPU_CHUNK_BYTES=100000000` |
+|---|---|---|---|---|
+| v2 | GREEN | GREEN | — | — |
+| v3 | GREEN | GREEN | — | — |
+| zk | GREEN | GREEN | GREEN | GREEN |
+| zk-v3 | GREEN | GREEN | GREEN | GREEN |
+
+Plus the ROLLBACK arm: zk-v3 on the CPU binary with
+`HL_FSP_POOL=0 HL_FSP_I8FOLD=0` — GREEN. Both arms of the A/B produce the
+frozen proof from one binary, which is what makes the A/B a measurement
+of the same computation and the switches a real rollback.
+
+A further 20 A/B runs of the zk-v3 profile on the CPU binary (10 per arm,
+`results/fsp3_ab_cpu.log`) each reproduced `40eb54795e023c77..` at
+87,697,008 B, so the zk-v3 digest has now been reproduced 26 times across
+both arms, both binaries and three device configurations in this lane.
+
+**NO DIGEST MOVED AT ANY POINT IN THIS LANE.**
+
+## Owed to a quiet window (NOT run here, by instruction)
+
+* The eight v3 tamper legs at Mistral width through the GPU
+  zero-knowledge prover (honest ACCEPT, then 8 of 8 REJECT).
+* Any 8B A/B of these two switches. The last private 8B pass peaked at
+  8,585 MB on an 8,188 MiB card and paged; it must be launched alone,
+  detached, with the card verified idle, never chained behind another
+  GPU job.

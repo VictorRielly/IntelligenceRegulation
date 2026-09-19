@@ -44,8 +44,8 @@ Every number carries its shape, conditions and label: [MEASURED],
 | 1 | Does the repaired private FFN run through this body? | DONE |
 | 2 | Baseline gates on the untouched tree | DONE — all green |
 | 3 | Port the staging pool behind `HL_FSP_POOL` | DONE — gates green |
-| 4 | Port the int8-plane fold behind `HL_FSP_I8FOLD` | pending |
-| 5 | A/B at 12 x 512 only, CPU and GPU binaries | pending |
+| 4 | Port the int8-plane fold behind `HL_FSP_I8FOLD` | DONE — byte gates green |
+| 5 | A/B at 12 x 512 only, CPU and GPU binaries | CPU done (20 runs); GPU partial |
 
 Owed to a quiet window (NOT run by this lane, by instruction): the
 Mistral-width (4096 / 14336) tamper battery through the GPU zero-knowledge
@@ -242,4 +242,167 @@ the frozen one at the frozen length.
 (The public v2/v3 gates on the GPU binary are re-run at the end of stage
 4; this lane changes no source they reach.)
 
-Next step: stage 4, the int8-plane fold.
+A note on the rung-1 commit message: a pair of backticks around the new
+module's name was expanded by the shell before `git commit` saw it, so the
+message reads "New : AL's two-slot pool". No amend (this lane may not
+amend); the content is here. Commit messages after this one carry no
+backticks.
+
+### 2026-09-19 — stage 4, the int8-plane fold (`HL_FSP_I8FOLD`)
+
+Four edits in `hashline/src/zk.rs`, all behind `HL_FSP_I8FOLD` (default
+ON): `fn fsp_i8fold()`, a copy of `layer.rs`'s private `fold_block_i8`,
+and the two fold sites of the v3 zero-knowledge body. Each site computes
+the per-block folds FIRST, straight off the int8 plane, and then derives
+the sumcheck's plane fold as their `lam` combination, instead of folding
+the int8 plane once for the tables and the 8x-larger `w_data` copy again
+for the terminals.
+
+Byte-identical by construction: `Fp2` multiplication is bilinear over the
+base field, so `(lam * eq) . v` and `lam * (eq . v)` are the same element;
+summation order is irrelevant in an abelian group; skipping a zero adds
+zero. Under P3 the terminals read the blocks out of the hiding
+commitment's `data`, whose block region is the same conversion of the same
+int8 planes (the P3 mask rows are appended after `lay.w_len`), so the
+substitution holds in both modes.
+
+**What this lane did NOT change, and why.** `zk.rs`'s OTHER prover body,
+`prove_layer_zk` (the v2 zero-knowledge path, `zk.rs:1135`), still
+allocates `vec![Fp::ZERO; ..]` at lines 1159 and 1175 and still folds
+`w_data` at line 1408. That is deliberate and follows AL's own reasoning
+for `layer.rs`: the v2 path runs only at the 125M shape (the driver at
+`hashline.rs:367` sends every `--profile v3` pass — which is every 8B pass
+— to `prove_layer_zk_v3`), where the same allocation is a few tens of MB.
+It is not worth a byte-gate risk. Recorded, not changed.
+
+**One thing found on the way, not acted on.** With `HL_FSP_I8FOLD` ON and
+mode P1, `w_data` has NO reader at all after the commitment: the only two
+sites that read `w_data_ref` under P1 were the two fold loops, and the
+P3-only mask evaluations are behind `if is_p3`. So under P1 the
+systematic 1.4-GB host W buffer is write-only from `commit W` to the end
+of the layer, and could be retired to the pool there instead of after the
+d terminals — which would also let W and A share one slot. Out of this
+lane's two-port scope; recorded for whoever takes the next rung.
+
+**Byte gates after the fold port** — every digest the frozen one at the
+frozen length, no digest moved:
+
+| profile | cpu | gpu | gpu + `HL_ZK_CHUNK=1` | gpu + `HL_GPU_CHUNK_BYTES=100000000` |
+|---|---|---|---|---|
+| v2 `50cf7bdf..` | GREEN | GREEN | — | — |
+| v3 `5f368db6..` | GREEN | GREEN | — | — |
+| zk `021485e4..` | GREEN | GREEN | GREEN | GREEN |
+| **zk-v3 `40eb5479..`** | GREEN | GREEN | GREEN | GREEN |
+
+plus the ROLLBACK arm: zk-v3 on the CPU binary with
+`HL_FSP_POOL=0 HL_FSP_I8FOLD=0` — GREEN, so both arms of the A/B produce
+the frozen proof from one binary.
+
+**`cargo test --release` for this rung is QUEUED, not yet green.** At
+11:47 another worktree (`/home/victor/wt-fsp-host`) took
+`/tmp/zk-heavy.lock` for its `fsp4_oracles.sh` battery, which takes
+`/tmp/zk-build.lock` internally for its cargo steps; this lane's suite is
+blocked behind it, launched detached per the no-hangup protocol so it
+completes whether or not this session survives:
+
+    log    <scratch>/fsp3/test_fold.log
+    marker <scratch>/fsp3/test_fold.done   (holds the exit code)
+
+The rung is committed on its BYTE gates, which are the load-bearing gate
+for a byte-preserving lane — 20 gate runs plus 20 A/B runs, every one the
+frozen digest at the frozen length. **Whoever picks this lane up must read
+that marker before the branch is merged.** The pool rung's suite, which
+exercises the same new code paths, was 259 passed / 0 failed.
+
+### 2026-09-19 — stage 5, the A/B at 12 x 512, CPU binary
+
+`pass 12 512 --threads 2 --zk --seed 1 --profile v3`, one binary, arms
+chosen by the switches, **20 runs**: 5 pairs run new-first (runs 1-5) and
+5 pairs run old-first (runs 6-10). **Every one of the 20 produced
+`40eb5479..` at 87,697,008 bytes.** Raw rows in
+`results/fsp3_ab_cpu.log`. [MEASURED, NOISY-SHARED — another worktree
+(`wt-fsp-host`) was building and then running its oracle battery
+throughout.]
+
+**The order confound is real and had to be removed.** `helpers + commit H`
+and `zero-check F` contain NO code this lane touched, so their old/new
+ratio must be 1.00. In the new-first pairs they read 1.039 and 1.024; in
+the old-first pairs 0.949 and 0.942. Whichever arm runs SECOND is about
+4-5% slower on this box. Averaged over both orders they return to 0.995
+and 0.984 — which is the measurement's honest noise floor, about +/-2%.
+
+**Both orders together, 10 pairs, mean seconds summed over 12 layers:**
+
+| phase | new (mean, [min-max]) | old (mean, [min-max]) | old/new | verdict |
+|---|---|---|---:|---|
+| **matmul g/u (zk)** | **0.368** [0.306-0.457] | **0.425** [0.363-0.517] | **1.157** | the fold, real |
+| **matmul d (zk)** | **0.130** [0.108-0.167] | **0.162** [0.131-0.196] | **1.248** | the fold, real |
+| commit W | 5.446 [4.63-6.63] | 5.529 [4.63-6.43] | 1.015 | inside the noise |
+| commit A (zk) | 10.692 [9.17-13.15] | 10.936 [9.08-13.11] | 1.023 | inside the noise |
+| helpers + commit H | 12.315 | 12.251 | 0.995 | unchanged code |
+| zero-check F | 8.229 | 8.098 | 0.984 | unchanged code |
+| pcs openings | 2.157 | 2.199 | 1.019 | unchanged code |
+| **PROVE** | **40.973** [35.28-49.89] | **41.210** [34.41-48.70] | **1.006** | inside the noise |
+
+**Read this honestly: at 12 x 512 the FOLD is measurable and the POOL is
+not.** That is what the buffer sizes predict and is not a defect. At this
+shape `w_len` is 3 x 768 x 2048 = 4.72 Melem (37.7 MB) and the zero-
+knowledge A buffer is 559 rows x 2^14 = 9.16 Melem (73.3 MB), so the
+allocation AL charged at 0.60 s/layer at model width is a few
+milliseconds here. At Mistral width `w_len` is 3 x 4096 x 14336 =
+176.2 Melem (1.409 GB) — **37.3x larger** — which is exactly the regime
+AL measured. The 12 x 512 A/B is therefore a BYTE gate for the pool and a
+TIMING measurement for the fold; the pool's worth is counted below, never
+measured here.
+
+### 2026-09-19 — what this is worth at 8B [COUNTED, never measured here]
+
+**This lane ran nothing at Mistral width, by instruction.** The figure
+below is COUNTED from lane AL's MEASURED public 8B A/B, and is not a
+measurement of the private pass. Do not quote it as one.
+
+The two inputs, both [MEASURED] and both already in the repository:
+
+* **The public 8B A/B**, 32 x 512, GPU, cold cache, both arms in one
+  session on one binary (`PROGRESS_UPERF3.md` "AL rung 3" line 12958;
+  log `results/hashline_convert_r3.log`): commit W 43.901 -> 19.823
+  (**-24.078 s**), commit A 16.155 -> 4.838 (**-11.317 s**) — the POOL's
+  two phases, **-35.395 s** together; matmul g/u 5.816 -> 3.441
+  (**-2.375 s**), matmul d 3.070 -> 2.092 (**-0.978 s**) — the FOLD's two
+  phases, **-3.353 s** together; openings -1.381 s as a side effect.
+  Those sum to -40.13 s against the measured PROVE delta of 98.54 -
+  58.40 = -40.14 s, so the phase attribution closes.
+* **AL's own instrumentation of the allocation alone** (same write-up,
+  section 1): W 0.573 / 0.611 / 0.631 s per layer, A 0.209 / 0.218 /
+  0.260 — about 0.83 s per layer, **-26.6 s over 32 layers**. This is the
+  conservative floor for the pool: it charges only the `vec!` zeroing,
+  not the page-fault pressure the phase delta also removed.
+* **The private 8B pass**, 32 x 512, GPU, cold cache (`lane AI`, log
+  `results/hashline_zk_8b_pass_gpu.log`): **PROVE 265.34 s**, commit W
+  54.176, commit A (hiding) 24.568, matmul sumchecks (g/u + d) 10.642.
+
+**The arithmetic.** The host allocation and the host block folds are
+absolute costs over the same buffers and the same int8 planes in both
+modes — that is what AL's instrumentation measured them to be, and the
+private pass's own commit W (54.176) and commit A (24.568) are LARGER
+than the public arm's before-values (43.901 / 16.155), so the count is
+not optimistic on that axis. Removing the same absolute costs:
+
+    265.34 - 26.6 (pool, conservative floor) - 3.35 (fold) = 235.4 s   (1.13x)
+    265.34 - 35.4 (pool, measured phase delta) - 3.35 (fold) = 226.6 s (1.17x)
+
+**COUNTED: the 8B private pass should land between about 227 and 235 s
+against the recorded 265.34 s — roughly 1.13x to 1.17x.**
+
+**Why that band is soft, and it is the honest caveat.** The recorded
+private 8B row peaked at **8,585 MB of video memory on an 8,188 MiB
+card** and PAGED: layer 0 proved in 4.36 s and layers 1-31 averaged
+8.42 s. A pass that is paging does not respond to a host-side saving the
+way a resident one does — the saving could be partly hidden, or partly
+amplified. Nothing settles it but running it, and this lane may not.
+
+Note the contrast with the public arm: there the same two changes were
+worth 1.687x, because 50.5% of that pass was host time. In the private
+pass the dominant phase is **LogUp helpers + commit H at 146.259 s (55%
+of the prove)**, which neither of these changes touches. That is where
+the private pass's next lever is, not here.

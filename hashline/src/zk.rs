@@ -2366,6 +2366,65 @@ mod zkhostbuf {
     }
 }
 
+/// [UPERF3-FSP3] Lane AL's second host fix (`layer.rs` rung 2), ported to the
+/// PRIVATE v3 prover body below. `HL_FSP_I8FOLD=0` restores the pre-lane arm
+/// (two passes over each int8 plane plus one over the 8x larger `w_data`) so
+/// the A/B runs on ONE binary.
+///
+/// The v3 prover folded each weight block TWICE, over two different copies of
+/// the same numbers: `fold_cols_i8` over the int8 plane to build the
+/// sumcheck's weight tables `wgk` / `wuk` / `wdk`, and `fold_cols_base` over
+/// the `w_data` blocks — the same numbers as `Fp`, 8x the bytes — to build the
+/// block terminals of `gu_term` / `d_term`. They are the same fold: with
+/// `cw_gu[j] = lam_f[b] * eq_rj[jp]` and `j = b * fb + jp`,
+///
+///     wgk[c*db + kp] = sum_j cw_gu[j] . src = sum_b lam_f[b] * blk_b[kp]
+///
+/// where `blk_b` is exactly the block fold the terminal wants. `eq_rj` is
+/// drawn BEFORE the sumcheck, so the block folds can be computed first and the
+/// plane fold read off them for the price of `d x nb_f` extension multiplies.
+///
+/// Byte-identical by construction, not by luck: the field is Z_p and every
+/// operation is exact; `Fp2` multiplication is bilinear over the base field,
+/// so `(lam * eq) . v` and `lam * (eq . v)` are the same element; summation
+/// order is irrelevant in an abelian group; and skipping a zero adds zero,
+/// which is what `fold_cols_i8` already does. Under P3 the terminals read the
+/// blocks out of the hiding commitment's `data`, whose block region is the
+/// same conversion of the same int8 planes (the P3 mask rows are appended
+/// AFTER `lay.w_len`), so the substitution is valid in both modes.
+fn fsp_i8fold() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_FSP_I8FOLD").map(|v| v != "0").unwrap_or(true))
+}
+
+/// [UPERF3-FSP3] `fold_cols_base` over ONE `w_data` block, read straight from
+/// the int8 source plane instead of from the converted 64-bit copy. The block
+/// at `wg[c * nb_f + b]` is laid out as
+/// `blk[kp * fb + jp] = Fp::from_i64(wg_t[(c * db + kp) * f + b * fb + jp])`,
+/// so folding its columns is a STRIDED fold over the plane: rows
+/// `row0 .. row0 + rows` of a `stride`-wide matrix, columns
+/// `col0 .. col0 + cols`. (A copy of `layer.rs`'s private helper of the same
+/// name; this lane may not change that file's visibility — see the ledger.)
+fn fold_block_i8(src: &[i8], row0: usize, rows: usize, stride: usize, col0: usize, cols: usize, c: &[Fp2]) -> Vec<Fp2> {
+    debug_assert_eq!(c.len(), cols);
+    (0..rows)
+        .into_par_iter()
+        .map(|i| {
+            let base = (row0 + i) * stride + col0;
+            let row = &src[base..base + cols];
+            let mut acc = Fp2::ZERO;
+            for (&v, &cw) in row.iter().zip(c.iter()) {
+                let v = v as i64;
+                if v == 0 {
+                    continue;
+                }
+                acc = acc.add(cw.mul_base(Fp::from_i64(v)));
+            }
+            acc
+        })
+        .collect()
+}
+
 /// Prove one v3 layer in ZK mode (P1) over the first `t_rows` rows of the witness.
 pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &NttTables, cfg: &ZkConfig, tr: &mut Transcript) -> ProveOutputZk {
     prove_layer_zk_v3_inner(w, t_rows, params, ntt, cfg, tr, false, cfg.rng(format!("layer-v3-{}", w.l).as_bytes())).expect("legacy FFN proof")
@@ -2846,9 +2905,41 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
     let eq_ri = eq_table_msb(&r_i);
     let eq_rj = eq_table_msb(&r_j);
     let xk = fold_rows_i8(&w.x[..t_rows * d], t_rows, d, &eq_ri);
-    let cw_gu: Vec<Fp2> = (0..f).into_par_iter().map(|j| lam_f[j / fb].mul(eq_rj[j % fb])).collect();
-    let wgk = fold_cols_i8(&w.wg_t, d, f, &cw_gu);
-    let wuk = fold_cols_i8(&w.wu_t, d, f, &cw_gu);
+    // [UPERF3-FSP3] the block folds first, off the int8 planes; the plane fold is their
+    // lam_f combination. The block order is the terminal loop's below (wg's nb_d x nb_f,
+    // then wu's), so `gu_blocks[half * nb_d * nb_f + c * nb_f + b]` is that loop's block.
+    let mut gu_blocks: Vec<Vec<Fp2>> = Vec::new();
+    let wgk: Vec<Fp2>;
+    let wuk: Vec<Fp2>;
+    if fsp_i8fold() {
+        gu_blocks.reserve(2 * nb_d * nb_f);
+        for src in [&w.wg_t[..], &w.wu_t[..]] {
+            for c in 0..nb_d {
+                for b in 0..nb_f {
+                    gu_blocks.push(fold_block_i8(src, c * db, db, f, b * fb, fb, &eq_rj));
+                }
+            }
+        }
+        let comb = |half: usize| -> Vec<Fp2> {
+            (0..d)
+                .into_par_iter()
+                .map(|k| {
+                    let (c, kp) = (k / db, k % db);
+                    let mut acc = Fp2::ZERO;
+                    for b in 0..nb_f {
+                        acc = acc.add(lam_f[b].mul(gu_blocks[half * nb_d * nb_f + c * nb_f + b][kp]));
+                    }
+                    acc
+                })
+                .collect()
+        };
+        wgk = comb(0);
+        wuk = comb(1);
+    } else {
+        let cw_gu: Vec<Fp2> = (0..f).into_par_iter().map(|j| lam_f[j / fb].mul(eq_rj[j % fb])).collect();
+        wgk = fold_cols_i8(&w.wg_t, d, f, &cw_gu);
+        wuk = fold_cols_i8(&w.wu_t, d, f, &cw_gu);
+    }
     let mut tables: Vec<Vec<Fp2>> = Vec::with_capacity(2 * nb_d);
     for c in 0..nb_d { tables.push(xk[c * db..(c + 1) * db].to_vec()); }
     for c in 0..nb_d {
@@ -2907,9 +2998,13 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
     for (ri, offs) in [(0usize, &lay.wg), (1, &lay.wu)] {
         for c in 0..nb_d {
             for b in 0..nb_f {
-                let blk = &w_data_ref[offs[c * nb_f + b]..offs[c * nb_f + b] + wb];
-                let folded = fold_cols_base(blk, db, fb, &eq_rj);
-                let v = eval_mle_ext(&folded, &r_kp);
+                // [UPERF3-FSP3] the same block, folded above in the single plane pass.
+                let v = if fsp_i8fold() {
+                    eval_mle_ext(&gu_blocks[ri * nb_d * nb_f + c * nb_f + b], &r_kp)
+                } else {
+                    let blk = &w_data_ref[offs[c * nb_f + b]..offs[c * nb_f + b] + wb];
+                    eval_mle_ext(&fold_cols_base(blk, db, fb, &eq_rj), &r_kp)
+                };
                 term.push(if is_p3 { cd_w_gu.mul(v).add(e_gu2.mul(w_mev[ri * nb_d * nb_f + c * nb_f + b])) } else { v });
             }
         }
@@ -2935,8 +3030,33 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
     let eq_rip = eq_table_msb(&r_ip);
     let eq_rjp = eq_table_msb(&r_jp);
     let hk = fold_rows_i32(&w.h16[..t_rows * f], t_rows, f, &eq_rip);
-    let cw_d: Vec<Fp2> = (0..d).into_par_iter().map(|k| lam_d[k / db].mul(eq_rjp[k % db])).collect();
-    let wdk = fold_cols_i8(&w.wd_t, f, d, &cw_d);
+    // [UPERF3-FSP3] the same fusion on the d side: the block at `wd[b*nb_d+c]` is
+    // `blk[jp*db+np] = wd_t[(b*fb+jp)*d + c*db+np]`, and `wdk[b*fb+jp] = sum_c lam_d[c] *
+    // blk_c[jp]`. The block order is the terminal loop's below.
+    let mut d_blocks: Vec<Vec<Fp2>> = Vec::new();
+    let wdk: Vec<Fp2>;
+    if fsp_i8fold() {
+        d_blocks.reserve(nb_f * nb_d);
+        for b in 0..nb_f {
+            for c in 0..nb_d {
+                d_blocks.push(fold_block_i8(&w.wd_t, b * fb, fb, d, c * db, db, &eq_rjp));
+            }
+        }
+        wdk = (0..f)
+            .into_par_iter()
+            .map(|j| {
+                let (b, jp) = (j / fb, j % fb);
+                let mut acc = Fp2::ZERO;
+                for c in 0..nb_d {
+                    acc = acc.add(lam_d[c].mul(d_blocks[b * nb_d + c][jp]));
+                }
+                acc
+            })
+            .collect();
+    } else {
+        let cw_d: Vec<Fp2> = (0..d).into_par_iter().map(|k| lam_d[k / db].mul(eq_rjp[k % db])).collect();
+        wdk = fold_cols_i8(&w.wd_t, f, d, &cw_d);
+    }
     let mut tables: Vec<Vec<Fp2>> = Vec::with_capacity(2 * nb_f);
     for b in 0..nb_f { tables.push(hk[b * fb..(b + 1) * fb].to_vec()); }
     for b in 0..nb_f { tables.push(wdk[b * fb..(b + 1) * fb].to_vec()); }
@@ -2980,9 +3100,13 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
     }
     for b in 0..nb_f {
         for c in 0..nb_d {
-            let blk = &w_data_ref[lay.wd[b * nb_d + c]..lay.wd[b * nb_d + c] + wb];
-            let folded = fold_cols_base(blk, fb, db, &eq_rjp);
-            let v = eval_mle_ext(&folded, &r_k);
+            // [UPERF3-FSP3] the same block, folded above in the single plane pass.
+            let v = if fsp_i8fold() {
+                eval_mle_ext(&d_blocks[b * nb_d + c], &r_k)
+            } else {
+                let blk = &w_data_ref[lay.wd[b * nb_d + c]..lay.wd[b * nb_d + c] + wb];
+                eval_mle_ext(&fold_cols_base(blk, fb, db, &eq_rjp), &r_k)
+            };
             term.push(if is_p3 { cd_w_d.mul(v).add(e_d2.mul(wd_mev[b * nb_d + c])) } else { v });
         }
     }

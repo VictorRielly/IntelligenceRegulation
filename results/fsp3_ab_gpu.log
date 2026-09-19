@@ -1,0 +1,5 @@
+gpu arm=new run=1 rc=0 BYTE-IDENTICAL PROVE=3.88 commitW=0.579 commitA=1.047 mmgu=0.107 mmd=0.078 helpersH=1.168 zcF=0.352 openings=0.292
+gpu arm=old run=1 rc=0 BYTE-IDENTICAL PROVE=4.30 commitW=0.708 commitA=1.255 mmgu=0.163 mmd=0.132 helpersH=1.122 zcF=0.335 openings=0.341
+gpu arm=old run=2 rc=0 BYTE-IDENTICAL PROVE=4.25 commitW=0.690 commitA=1.245 mmgu=0.165 mmd=0.133 helpersH=1.098 zcF=0.331 openings=0.343
+gpu arm=new run=2 rc=0 BYTE-IDENTICAL PROVE=3.66 commitW=0.532 commitA=0.984 mmgu=0.109 mmd=0.082 helpersH=1.092 zcF=0.313 openings=0.280
+gpu arm=new run=3 rc=0 BYTE-IDENTICAL PROVE=4.15 commitW=0.587 commitA=1.111 mmgu=0.112 mmd=0.085 helpersH=1.228 zcF=0.428 openings=0.311
