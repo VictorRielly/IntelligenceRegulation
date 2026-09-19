@@ -433,3 +433,89 @@ on `fsp-host` (`a4364cb` ledger, `7a2543c` attribution, `ba6b4b8` the
 fold + the upload timer, `e6d241a` the evidence logs), nothing pushed
 (this lane never pushes), no test expectation touched, no gate
 adjusted, no digest re-frozen.
+
+---
+
+# CONTINUATION, 2026-09-19 (second agent on lane FSP-HOST): ITEM (a)
+
+Same worktree, same branch, continuing from `d63e128`. Same rules:
+byte-preserving, one GPU process at a time under
+`flock /tmp/zk-heavy.lock`, only the 12x512 fixtures and `gpu-probe`,
+every 8B number [COUNTED] with its arithmetic shown.
+
+**The one item.** Item (a) of `ZK60_FIVE_SECOND_PLAN.md` §5 step 4, as
+the previous agent scoped it in THE EXACT NEXT STEP above: hand the W
+commitment the int8 planes directly instead of the converted
+`Vec<Fp>`. Counted worth at 8B ~9 s of the 58.40 s (the fill 2.74 s,
+most of the alloc 0.66 s, and `pack_narrow`'s traffic cut ~4.5x:
+~7 s -> ~1.5 s).
+
+## Stages (continuation)
+
+| # | stage | status |
+|---|---|---|
+| C0 | this heading, committed | DONE |
+| C1 | floor on the untouched tip `d63e128`: both binaries, `cargo test --release` (202), every `gpu-probe` oracle, `zk60_gpu_commit` + `zk60_gpu_cache`, the TWELVE byte gates | PENDING |
+| C2 | item (a): `commit_planes` + the plane-sourced staging fill, behind a switch, with the `Vec<Fp>` arm kept for every decline | PENDING |
+| C3 | the byte-image oracle for the new entry (plane fill == `pack_narrow` at w = 1, several shapes incl. non-multiples and the chunked split) | PENDING |
+| C4 | the floor again, then the A/B at 12x512 on both binaries with the `HL_FSP4_TIMING` split | PENDING |
+| C5 | if budget remains: the next smaller item, each with its own floor and A/B | PENDING |
+
+## Log (continuation)
+
+### 2026-09-19 12:00 — C0, the plan and what the source says
+
+Read before touching anything: this ledger in full,
+`ZK60_FIVE_SECOND_PLAN.md` §§1.2 and 5 incl. the CORRECTION block,
+`ZK60_FSP_L9_PROGRESS.md`, and the four lane scripts.
+
+Box at the start [MEASURED]: `uptime` load average 3.45 / 5.01 / 4.96
+(the sibling lane `wt-fsp-zkhost` holds `/tmp/zk-heavy.lock`),
+`nvidia-smi` 447 MiB used with no compute process listed (the WSL
+display allocation), 15 GB RAM with 13 GB available.
+
+**What the source says about the W layout** (read, not assumed —
+`zkp_core::ffn_v3::Layout::new`, `hashline/src/layer.rs:1338-1366`):
+
+* the W buffer is EXACTLY `3 * nb_d * nb_f` blocks of `wb = db * fb`
+  elements, contiguous, in the order `wg` (index `c*nb_f+b`), then `wu`
+  (same index), then `wd` (index `b*nb_d+c`); `w_len = 3*nb_d*nb_f*wb`
+  and nothing else is in the buffer;
+* `w_pcs = params.pcs_for(lay.log_wb)`, so the commitment's row width
+  is `n = wb` — **one commitment row is exactly one block**, and a
+  chunked upload's row range `[r0, r0+rc)` is a block range;
+* inside a `wg`/`wu` block, row `kp` is the contiguous run
+  `wg_t[(c*db+kp)*f + b*fb ..][..fb]`; inside a `wd` block, row `jp` is
+  the contiguous run `wd_t[(b*fb+jp)*d + c*db ..][..db]`.
+* `pack_narrow` at `w = 1` emits `v as u8` for `v < 128` and
+  `v.wrapping_sub(P) as u8` for `v >= P - 128`; since
+  `w_data[i] = Fp::from_i64(s as i64)` for an `i8` `s`, both arms give
+  exactly the two's-complement byte `s as u8`. **So the staged byte
+  image is a GATHER OF CONTIGUOUS `memcpy` RUNS off the three planes** —
+  no arithmetic at all, where the inherited path reads 8 bytes and
+  computes one.
+* at 12x512 (d 768, f 2048): db 256, fb 2048, nb_d 3, nb_f 1, so
+  9 rows of 524,288 = 4,718,592 elements, and `rows*nn*8` = 75.5 MB
+  < the 1 GiB chunk threshold, i.e. **the fixture's W takes the
+  RESIDENT path (`upload_sync` -> `upload_narrow`), not the chunked
+  one**; at 8B (d 4096, f 14336): db 4096, fb 2048, nb_d 1, nb_f 7, so
+  21 rows of 8,388,608 = 176,160,768 elements and 2.8 GB of encoding,
+  i.e. the CHUNKED path. **Both paths therefore need the plane source**,
+  and the chunked one cannot be exercised at the fixture shape by the
+  byte gates — which is why C3's oracle drives the fill directly at
+  chunk-sized, block-splitting offsets.
+
+Two constraints found by reading, that shape the design:
+
+1. `zkp-core/` is read-only for this lane, so `commit_planes` cannot go
+   through `zkp_core::pcs::commit_with`; it mirrors that function's
+   device branch (`try_commit` -> `MerkleTree::build` -> `Committed`)
+   exactly, the way `pcs::commit_zk_device` already does in this file.
+2. `hashline/src/bin/hashline.rs` is read-only, so a new rung cannot be
+   added to the `gpu-probe` command. The oracle is therefore a unit test
+   in this lane's own files, run under BOTH feature sets (the CPU suite
+   and a new `--lib` run in `results/fsp4_oracles.sh`). Adding a rung to
+   `gpu-probe` itself is owed to the integrator.
+
+Next step: C1, the floor on the untouched tip, queued behind the
+sibling lane on `/tmp/zk-heavy.lock`.
