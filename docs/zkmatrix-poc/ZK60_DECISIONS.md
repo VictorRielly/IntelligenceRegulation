@@ -322,6 +322,21 @@ Source: `ZK60_PRIVATE_BLOCK_COMPOSITION_GAPS.md` on branch
 `zk60-attention-compile` (`c2e010e`), sections 3, 4 and 5; the two code facts
 in items 4 and 5 were re-checked by the security owner in the source.
 
+**Follow-up, same day (03:01): the construction inside this rule is accepted
+as the design to build.** Of the two forms item 3 left open, the simpler one
+is built first: no seam at all, the attention construction grown into the
+whole block in a new module, so every hidden intermediate sits on one proof's
+own commitments. The other form (an equality between two components'
+commitments) is deferred with its cost written down; it is what 8B will
+probably need because it alone keeps the GPU feed-forward prover, and the two
+measurements that would force it are named. The design was drafted and
+independently checked by delegated agents, with the rank and slot tools run
+on a paper description of the whole block (nothing disclosed, every negative
+control fires) and 22 errata made binding. Still not a privacy acceptance.
+Ruling and conditions:
+`ZK60_PRIVATE_BLOCK_CONSTRUCTION_DISPOSITION.md` on `zk60-attention-compile`
+(`e5962d2`).
+
 ## D9 — `fp()` reduction bias (pending)
 
 Challenge words are 128-bit draws reduced mod p, each within 2^-96 of

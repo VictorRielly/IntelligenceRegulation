@@ -1,6 +1,6 @@
 # Where the MVP stands, in plain words
 
-**Updated 2026-09-19, 01:56, by the Codex/Fable integration loop (after the
+**Updated 2026-09-19, 03:01, by the Codex/Fable integration loop (after the
 01:04 laptop restart; see §3 item 4).** This page
 answers three questions and is refreshed whenever the loop produces news.
 Rulings are in [the decisions register](ZK60_DECISIONS.md); measurements
@@ -136,9 +136,19 @@ it does not exist yet.**
    not be joined by sharing one hidden commitment between two proofs,
    because two openings at that geometry reveal all 512 hidden words; a
    block is one proof under one transcript, and the second norm must prove
-   its output's range because the feed-forward prover does not. A draft of
-   the block construction memo that engineering waits on is being prepared
-   for the security owner's review. Earlier items:
+   its output's range because the feed-forward prover does not. **At 03:01
+   the design of the complete private block was accepted as the design to
+   build** (`ZK60_PRIVATE_BLOCK_CONSTRUCTION_DISPOSITION.md` on
+   `zk60-attention-compile`): the attention construction is grown into the
+   whole block, so there is no seam to prove; drafted and independently
+   checked by delegated agents, with the project's rank and slot tools run on
+   a paper description of the whole block (nothing disclosed; every negative
+   control fires) [COUNTED on a description, not measured on code]; 22
+   corrections made binding, including two that would have been soundness
+   holes (a block whose output the prover could choose, and an activation
+   table whose value range nothing enforced). The block itself is **not
+   built yet**; this is a design, not a privacy acceptance and not a speed
+   result. Expected size at the tiny shape: a 2.8 MB receipt. Earlier items:
    the security owner's source review of `zkvm-block/` with eight hardening
    items (`ZK60_ZKVM_BLOCK_SOURCE_REVIEW_FABLE.md` on branch
    `zk60-mvp-fable`), now implemented and verified on branch
