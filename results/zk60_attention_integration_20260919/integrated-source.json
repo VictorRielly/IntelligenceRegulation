@@ -1,0 +1,32 @@
+{
+  "head_at_final_integration": "cdfc7d2c0d2fd04016d347962c4a3b85efd5b53b",
+  "attention_delivery": "ea81815",
+  "block_delivery": "98a5db9",
+  "files": {
+    "hashline/Cargo.toml": "eaba50ecf1434ad8514feb83c6e610b0d662b8fd6d512f26bacdde69163b860a",
+    "hashline/Cargo.lock": "97b74f02153a9b041cd0151e487c912793ef6b662ceda603b598a81b7173d5cd",
+    "hashline/src/lib.rs": "fcb784d3853c9d3e21443bcb4f774ecf388c253a948de7122408a3c8cadfb8ac",
+    "hashline/src/tables_attn.rs": "5a874788e20581010b492d50ccc5e662255115c65b9eebcf2f88314733b121e3",
+    "hashline/src/private_attention.rs": "cba977fea684d11a03996666ff091ac9e8910b088dfea2395e52615990f42fa1",
+    "hashline/src/private_block.rs": "454f71bff4b8938579748cda4711e22db6cb0ab7be252582f44ffddf94c7bed1",
+    "hashline/src/private_attention/argument.rs": "096aeb865fac9927b070f609064b970140727ac02aecba60ab1b4d1e4ddc4a09",
+    "hashline/src/private_attention/layout.rs": "17159dcc677d47a9d81528d9e14bf7a28a2ef3854aa4db921719f9bd0ffc7bb1",
+    "hashline/src/private_attention/protocol.rs": "15f8520c4717c4bd091d04efc657088dbf76ce7c63dc1ec96efdfc21fd796f6a",
+    "hashline/src/private_attention/tests.rs": "a7b3e75e88673071705a4a1c76abc66d0a3afa556ae364c0240da80d4ab73e92",
+    "hashline/src/private_attention/wire.rs": "a35a468cf19eb672e5428c3286a3ece15f73e96e20291a220cf38dd4104dbdff",
+    "hashline/src/private_attention/witness.rs": "795cf6292e366bc48d1c1987b9a3173f9a19e266de537f72a9e738bdb5133ee0",
+    "hashline/src/private_block/argument.rs": "d241ab0b3bddcbd49153b72fbd7d21e0f92b026f3da8a8cc262436f0cfa469cc",
+    "hashline/src/private_block/layout.rs": "6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989",
+    "hashline/src/private_block/parity.rs": "19fba21b525bd21bebf59ca157df10bbfac743bc0d748a1416eca855a1bc0ac5",
+    "hashline/src/private_block/protocol.rs": "db2757a33055ffa40a31220d51b140a4365ef5e610180b1e1e1e8445945d2b6d",
+    "hashline/src/private_block/refusals.rs": "bf7fa2cd005d2b8355ce6a727f4e3bb837be8b184f206f506f863a3923cf27ae",
+    "hashline/src/private_block/tamper.rs": "32c209ae492ee491a1687d39e17499bc542bfedfcdf01e1430c0e64cd623f921",
+    "hashline/src/private_block/tests.rs": "5ceb0e11ed8d5ce90cfe59b05a27d5cf132f371e4fe5cb8e760b05f1cbb9a0a0",
+    "hashline/src/private_block/wire.rs": "5b11631d4c74b24d0ba82388385ad20c19c4304fa3a6c0026c0074b2c55d17d5",
+    "hashline/src/private_block/witness.rs": "640754fb5b3acb85d383e7505e2e3f5ac6b41739d307c10f2f971819b7ab70a5",
+    "hashline/examples/zk60_private_attention.rs": "e4cacdeacd236c03ea7ea4332339543fa6a8a94a0523fe7ea1595f26191d72c7",
+    "hashline/examples/zk60_private_block.rs": "593d3cff5fe85a611922bf1a06c1823e2fb95b4ca0a3e879d95136b4b158683c",
+    "hashline/tests/zk60_private_attention.rs": "cd7ef137336e99bbd4adcee453ed66527539a5e43487a22cca7e8c830f4df9d9",
+    "hashline/tests/zk60_private_block.rs": "e90791a4c8014e67915386e3fe2e5eccf863f3ef3b228855066437a847006a18"
+  }
+}

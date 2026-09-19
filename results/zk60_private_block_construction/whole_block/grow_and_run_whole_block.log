@@ -1,0 +1,870 @@
+{
+ "accepted": {
+  "A_groups": 30,
+  "A_sites": 75,
+  "H_groups": 8,
+  "H_sites": 35,
+  "a_rows": 306,
+  "h_rows": 290
+ },
+ "caveat": "These verdicts are about a PAPER schedule description, not about code. No Rust implements the whole-block layout; the tools' models exclude the sampled columns, the salted Merkle paths, the CFS channel, transcript conditioning and A<->H correlation, exactly as on the accepted layout. Nothing here establishes a privacy property.",
+ "cfs": {
+  "all_checks_pass": true,
+  "failures": [],
+  "hosts": {
+   "SC_DZC": {
+    "dim_S": 63,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_WO",
+     "SC_DMM"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 63,
+    "sum_L": 66
+   },
+   "SC_FZC": {
+    "dim_S": 63,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_GMM",
+     "SC_UMM"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 63,
+    "sum_L": 66
+   },
+   "SC_KVZC": {
+    "dim_S": 59,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_KMM",
+     "SC_VMM"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 59,
+    "sum_L": 62
+   },
+   "SC_QZC": {
+    "dim_S": 67,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_QMM",
+     "SC_PV"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 67,
+    "sum_L": 70
+   },
+   "SC_SZC": {
+    "dim_S": 97,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_RS",
+     "SC_SCORE"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 97,
+    "sum_L": 100
+   },
+   "SC_TZC": {
+    "dim_S": 81,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_SS",
+     "SC_SSM"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 81,
+    "sum_L": 84
+   }
+  },
+  "largest_slot": {
+   "constraint": "L_s + 256 <= 512 (zk.rs mask_commit)",
+   "degree": 4,
+   "headroom_coefficients": 206,
+   "len": 50,
+   "n_vars": 12,
+   "name": "06 softmax zero-check (hosts 07, 10)",
+   "slot": "SC_SZC"
+  },
+  "m_rows": 50,
+  "n_functionals": 34,
+  "n_slots": 23,
+  "negative_controls": {
+   "nc_extension_degree_exceeds_mask": true,
+   "nc_host_nu_zero": true,
+   "nc_hosted_c_zero": true,
+   "nc_qkv_unsplit": true,
+   "nc_row_budget_exceeded": true,
+   "nc_sigma_functional_for_host_slot": true,
+   "nc_sigma_functional_for_private_slot": true
+  },
+  "standalone": {
+   "SC_DMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_DZC": {
+    "dim_S": 41,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 41
+   },
+   "SC_FZC": {
+    "dim_S": 41,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 41
+   },
+   "SC_GMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_IO_IN": {
+    "dim_S": 21,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 21
+   },
+   "SC_IO_OUT": {
+    "dim_S": 21,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 21
+   },
+   "SC_KMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_KVZC": {
+    "dim_S": 37,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 37
+   },
+   "SC_LZC": {
+    "dim_S": 41,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 41
+   },
+   "SC_PV": {
+    "dim_S": 15,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 15
+   },
+   "SC_QMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_QZC": {
+    "dim_S": 41,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 41
+   },
+   "SC_RS": {
+    "dim_S": 37,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 37
+   },
+   "SC_SCORE": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_SS": {
+    "dim_S": 31,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 31
+   },
+   "SC_SSM": {
+    "dim_S": 31,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 31
+   },
+   "SC_SZC": {
+    "dim_S": 49,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 49
+   },
+   "SC_TAB": {
+    "dim_S": 28,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 28
+   },
+   "SC_TZC": {
+    "dim_S": 19,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 19
+   },
+   "SC_UMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_VMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_WO": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_ZS": {
+    "dim_S": 19,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 19
+   }
+  }
+ },
+ "failures": [],
+ "rank": {
+  "H_residual_is_exactly_the_public_identity": true,
+  "endpoints": {
+   "endpoint_In_with_values_n4": 0,
+   "endpoint_Out_with_values_n4": 0
+  },
+  "fa2_rank_mask_formula_all_pair_groups": {
+   "group_A_g0": true,
+   "group_A_g1": true,
+   "group_A_g10": true,
+   "group_A_g11": true,
+   "group_A_g12": true,
+   "group_A_g13": true,
+   "group_A_g14": true,
+   "group_A_g15": true,
+   "group_A_g16": true,
+   "group_A_g17": true,
+   "group_A_g18": true,
+   "group_A_g19": true,
+   "group_A_g2": true,
+   "group_A_g20": true,
+   "group_A_g21": true,
+   "group_A_g22": true,
+   "group_A_g23": true,
+   "group_A_g24": true,
+   "group_A_g25": true,
+   "group_A_g26": true,
+   "group_A_g27": true,
+   "group_A_g28": true,
+   "group_A_g29": true,
+   "group_A_g3": true,
+   "group_A_g30": true,
+   "group_A_g31": true,
+   "group_A_g32": true,
+   "group_A_g33": true,
+   "group_A_g34": true,
+   "group_A_g4": true,
+   "group_A_g5": true,
+   "group_A_g6": true,
+   "group_A_g7": true,
+   "group_A_g8": true,
+   "group_A_g9": true
+  },
+  "failures": [],
+  "groups_A": {
+   "group_A_g0": 0,
+   "group_A_g1": 0,
+   "group_A_g10": 0,
+   "group_A_g11": 0,
+   "group_A_g12": 0,
+   "group_A_g13": 0,
+   "group_A_g14": 0,
+   "group_A_g15": 0,
+   "group_A_g16": 0,
+   "group_A_g17": 0,
+   "group_A_g18": 0,
+   "group_A_g19": 0,
+   "group_A_g2": 0,
+   "group_A_g20": 0,
+   "group_A_g21": 0,
+   "group_A_g22": 0,
+   "group_A_g23": 0,
+   "group_A_g24": 0,
+   "group_A_g25": 0,
+   "group_A_g26": 0,
+   "group_A_g27": 0,
+   "group_A_g28": 0,
+   "group_A_g29": 0,
+   "group_A_g3": 0,
+   "group_A_g30": 0,
+   "group_A_g31": 0,
+   "group_A_g32": 0,
+   "group_A_g33": 0,
+   "group_A_g34": 0,
+   "group_A_g4": 0,
+   "group_A_g5": 0,
+   "group_A_g6": 0,
+   "group_A_g7": 0,
+   "group_A_g8": 0,
+   "group_A_g9": 0
+  },
+  "groups_H": {
+   "group_H_h0": 0,
+   "group_H_h1": 0,
+   "group_H_h2": 0,
+   "group_H_h3": 0,
+   "group_H_h4": 0,
+   "group_H_h5": 0,
+   "group_H_h6": 0
+  },
+  "groups_with_nonzero_disclosure": {},
+  "n_groups_checked": {
+   "A": 35,
+   "H": 7
+  },
+  "negative_controls": {
+   "flipped_rope_SC_KVZC_own_pair_with_values_n4": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_KVZC_sharing_pair_with_values_n4": {
+    "disclosed_dim": 2,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_QZC_own_pair_with_values_n4": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_QZC_sharing_pair_with_values_n4": {
+    "disclosed_dim": 2,
+    "verdict": "PASS"
+   },
+   "helper_sums_published_n4": {
+    "disclosed_dim": 100,
+    "verdict": "PASS"
+   },
+   "no_mask_A_per_column": {
+    "disclosed_dim": 49,
+    "verdict": "PASS"
+   },
+   "no_mask_A_with_values_n4": {
+    "disclosed_dim": 304,
+    "verdict": "PASS"
+   },
+   "prox_pair_singleton_pair_claim_per_column": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "single_base_row_per_claim_A_per_column": {
+    "disclosed_dim": 16,
+    "verdict": "PASS"
+   },
+   "single_prox_row_singleton_pair_claim_per_column": {
+    "disclosed_dim": 1,
+    "verdict": "PASS"
+   },
+   "zero_sum_row_without_fresh_pair_n4": {
+    "disclosed_dim": 8,
+    "verdict": "PASS"
+   }
+  },
+  "singleton_groups": {
+   "A": 17,
+   "H": 2
+  },
+  "whole_A_per_column": 0,
+  "whole_A_with_values_n4": 0,
+  "whole_H_per_column": 0,
+  "whole_H_with_values": {
+   "whole_H_with_values_n4": 2,
+   "whole_H_with_values_n8": 2
+  }
+ },
+ "self_check_accepted_claims_identical": true,
+ "tier1_record": {
+  "A_groups_derived": 31,
+  "A_sites": 102,
+  "H_groups_derived": 8,
+  "H_sites": 42,
+  "M_ROWS": 42,
+  "N_FUNCTIONALS": 29,
+  "U8_lookups": 54784,
+  "a_data_rows": 184,
+  "a_rows": 390,
+  "a_site_pair_rows": 204,
+  "exp_lookups": 2048,
+  "ext_rounds_total": 21,
+  "h_data_rows": 246,
+  "h_rows": 332,
+  "h_site_pair_rows": 84,
+  "hosts_by_index": {
+   "11": [
+    10
+   ],
+   "12": [
+    5,
+    9
+   ],
+   "13": [
+    6,
+    7
+   ],
+   "14": [
+    4,
+    8
+   ],
+   "2": [
+    0,
+    1
+   ]
+  },
+  "largest_L": 50,
+  "main_rounds_total": 138,
+  "slot_L": {
+   "SC_DZC": 42,
+   "SC_IO_IN": 22,
+   "SC_IO_OUT": 22,
+   "SC_KMM": 12,
+   "SC_KVZC": 38,
+   "SC_LZC": 42,
+   "SC_PV": 16,
+   "SC_QMM": 12,
+   "SC_QZC": 42,
+   "SC_RS": 38,
+   "SC_SCORE": 12,
+   "SC_SS": 32,
+   "SC_SSM": 32,
+   "SC_SZC": 50,
+   "SC_TAB": 29,
+   "SC_TZC": 20,
+   "SC_VMM": 12,
+   "SC_WO": 12,
+   "SC_ZS": 20
+  }
+ },
+ "whole_A_opening_groups": [
+  {
+   "c0": 0,
+   "group": 0,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 1,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 2,
+   "len": 32,
+   "m": 8
+  },
+  {
+   "c0": 32,
+   "group": 3,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 64,
+   "group": 4,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 96,
+   "group": 5,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 128,
+   "group": 6,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 160,
+   "group": 7,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 192,
+   "group": 8,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 224,
+   "group": 9,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 0,
+   "group": 10,
+   "len": 256,
+   "m": 2
+  },
+  {
+   "c0": 0,
+   "group": 11,
+   "len": 256,
+   "m": 2
+  },
+  {
+   "c0": 0,
+   "group": 12,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 13,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 14,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 15,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 16,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 17,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 18,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 19,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 20,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 21,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 22,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 23,
+   "len": 256,
+   "m": 35
+  },
+  {
+   "c0": 0,
+   "group": 24,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 0,
+   "group": 25,
+   "len": 256,
+   "m": 7
+  },
+  {
+   "c0": 0,
+   "group": 26,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 27,
+   "len": 256,
+   "m": 6
+  },
+  {
+   "c0": 0,
+   "group": 28,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 29,
+   "len": 256,
+   "m": 11
+  },
+  {
+   "c0": 0,
+   "group": 30,
+   "len": 64,
+   "m": 2
+  },
+  {
+   "c0": 0,
+   "group": 31,
+   "len": 256,
+   "m": 11
+  },
+  {
+   "c0": 0,
+   "group": 32,
+   "len": 256,
+   "m": 3
+  },
+  {
+   "c0": 0,
+   "group": 33,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 34,
+   "len": 256,
+   "m": 1
+  }
+ ],
+ "whole_H_opening_groups": [
+  {
+   "c0": 0,
+   "group": 0,
+   "len": 256,
+   "m": 1,
+   "sum_group": false
+  },
+  {
+   "c0": 0,
+   "group": 1,
+   "len": 256,
+   "m": 19,
+   "sum_group": false
+  },
+  {
+   "c0": 0,
+   "group": 2,
+   "len": 256,
+   "m": 7,
+   "sum_group": false
+  },
+  {
+   "c0": 0,
+   "group": 3,
+   "len": 256,
+   "m": 6,
+   "sum_group": false
+  },
+  {
+   "c0": 0,
+   "group": 4,
+   "len": 256,
+   "m": 8,
+   "sum_group": false
+  },
+  {
+   "c0": 0,
+   "group": 5,
+   "len": 256,
+   "m": 6,
+   "sum_group": false
+  },
+  {
+   "c0": 0,
+   "group": 6,
+   "len": 256,
+   "m": 3,
+   "sum_group": false
+  },
+  {
+   "c0": 0,
+   "group": 7,
+   "len": 256,
+   "m": 1,
+   "sum_group": false
+  },
+  {
+   "c0": 0,
+   "group": 8,
+   "len": 256,
+   "m": 1,
+   "sum_group": true
+  }
+ ],
+ "whole_counts": {
+  "A_groups_derived": 35,
+  "A_sites": 120,
+  "H_groups_derived": 9,
+  "H_sites": 51,
+  "M_ROWS": 50,
+  "N_FUNCTIONALS": 34,
+  "U8_lookups": 61440,
+  "a_data_rows": 213,
+  "a_rows": 455,
+  "a_site_pair_rows": 240,
+  "exp_lookups": 2048,
+  "ext_rounds_total": 25,
+  "h_data_rows": 280,
+  "h_rows": 384,
+  "h_site_pair_rows": 102,
+  "hosts_by_index": {
+   "2": [
+    0,
+    1
+   ],
+   "14": [
+    10,
+    13
+   ],
+   "15": [
+    5,
+    9
+   ],
+   "16": [
+    6,
+    7
+   ],
+   "17": [
+    4,
+    8
+   ],
+   "18": [
+    11,
+    12
+   ]
+  },
+  "largest_L": 50,
+  "main_rounds_total": 159,
+  "n_slots": 23,
+  "slot_L": {
+   "SC_DMM": 12,
+   "SC_DZC": 42,
+   "SC_FZC": 42,
+   "SC_GMM": 12,
+   "SC_IO_IN": 22,
+   "SC_IO_OUT": 22,
+   "SC_KMM": 12,
+   "SC_KVZC": 38,
+   "SC_LZC": 42,
+   "SC_PV": 16,
+   "SC_QMM": 12,
+   "SC_QZC": 42,
+   "SC_RS": 38,
+   "SC_SCORE": 12,
+   "SC_SS": 32,
+   "SC_SSM": 32,
+   "SC_SZC": 50,
+   "SC_TAB": 29,
+   "SC_TZC": 20,
+   "SC_UMM": 12,
+   "SC_VMM": 12,
+   "SC_WO": 12,
+   "SC_ZS": 20
+  },
+  "slot_L_plus_256": {
+   "SC_DMM": 268,
+   "SC_DZC": 298,
+   "SC_FZC": 298,
+   "SC_GMM": 268,
+   "SC_IO_IN": 278,
+   "SC_IO_OUT": 278,
+   "SC_KMM": 268,
+   "SC_KVZC": 294,
+   "SC_LZC": 298,
+   "SC_PV": 272,
+   "SC_QMM": 268,
+   "SC_QZC": 298,
+   "SC_RS": 294,
+   "SC_SCORE": 268,
+   "SC_SS": 288,
+   "SC_SSM": 288,
+   "SC_SZC": 306,
+   "SC_TAB": 285,
+   "SC_TZC": 276,
+   "SC_UMM": 268,
+   "SC_VMM": 268,
+   "SC_WO": 268,
+   "SC_ZS": 276
+  },
+  "sum_main_ext_times_degree_plus_1": 721,
+  "terminals": 173
+ }
+}

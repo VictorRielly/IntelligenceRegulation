@@ -1,5 +1,36 @@
 # Codex ↔ Fable active loop — 2026-09-18
 
+## CURRENT — Codex pickup, 2026-09-19
+
+Acknowledged Fable's 10:30 handoff and proposed split. Codex has integrated
+the attention delivery from `ea81815` and the reviewed complete-block delivery
+at `98a5db9`. Fable retains the two planning documents,
+the GPU-preserving construction and D12 chaining design, and D8/D11 work.
+Codex will not duplicate those drafts. No GPU job has been launched.
+
+Attention integration includes exact U8 inverse reuse (47,104 lookups reuse
+256 table inverses), explicit verifier-side tamper assertions, the R-2 comment
+corrections and finer phase clocks. All 17 attention Rust tests, native freeze,
+and 22 cross-version fresh-process verifications (66 corruption controls)
+pass. Ten alternating warm CPU diagnostics per binary give 50.5 / 49.0 ms;
+this noisy difference is not an established speedup. The full Python suite
+passes (1,098 tests, 61 skipped); the two known portability issues are corrected.
+Evidence is under
+`results/zk60_attention_integration_20260919/`.
+
+The old temporary jobs are absent after the restart; none has been counted
+as live or blindly restarted. Existing hardening integration edits are
+preserved. The bounded headless Fable review found no blocking attention
+verifier defect and confirmed integrating the overnight block. Its stale
+block-comment findings are corrected; its PCS draw-order pin remains a
+follow-up. Both combined profiles pass 47 unit, eight integration and two
+ownership doc tests; the block inventory passes 29 tests. A new 2,816,472-byte
+block receipt proves in 0.062 s and verifies in 0.020 s on the shared CPU;
+the archived lane receipt verifies too, with all corruption controls rejecting.
+These are tiny diagnostics, not a privacy/model-scale speed claim. Attention
+fixture scales now match `(0, 0)`. See `ZK60_ATTENTION_INTEGRATION_20260919.md`.
+Codex next advances captures and the remaining integration work.
+
 Victor explicitly asked the two live loops to collaborate toward the workable
 private MVP and the five-second target. This is the current handoff, not a
 claim that either target has been reached. Fable can acknowledge and report
@@ -9,8 +40,8 @@ its chosen branch/files in `ZK60_FABLE_LANE_HANDOFF.md`; Codex owns this file.
 
 Codex owns `private-block-kernel/`, `private-model-kernel/`, `zkvm-block/`,
 `zkvm-model/`, the maintained demo/tool runners, their tests, and integration
-evidence. Opus 5 is adapting the runner in its isolated worktree to explicit
-block/token profiles and independently supplied verifier image pins.
+evidence. Opus 5's block/token runner and native-tool pin helper are integrated
+and tested. A new Opus measurement task is listed below.
 
 - Complete block: 785-byte Groth16 receipt verifies; all eight rejection
   controls pass. The maintained Python verifier also accepts the saved receipt.
@@ -32,6 +63,16 @@ block/token profiles and independently supplied verifier image pins.
   `ZK60_TOKEN_MODEL_SOURCE_REVIEW.md`.
 
 ## Fable request: implement the custom attention path
+
+**Dispatch update:** the headless Claude Fable 5.1 implementation lane now
+has worktree `/tmp/wt-zk60-attention-fable-20260918`, branch
+`zk60-private-attention-fable-20260918` at checkpoint `db021ba`. It is the
+sole writer for the attention Rust files below. The interactive Fable loop
+is requested to review that delivery's construction and speed accounting,
+and the root token receipt, so two writers do not duplicate the same patch.
+Task/log/marker: `/tmp/zk60-loop-20260917/fable-attention-task.txt`,
+`fable-attention.log`, `fable-attention.done`. No heavy proof is delegated;
+Codex owns the shared heavy queue and integration.
 
 The zkVM computation is a functional intermediate, so its CPU proof duration
 cannot close the five-second gap. The next useful parallel delivery is the
@@ -62,6 +103,29 @@ private-model timing. Shared-box timings are diagnostic; no five-second or
 quiesced p95 claim follows from them. Larger timed runs share `/tmp/zk-heavy.lock`.
 
 ## Integration and rulings
+
+Opus 5's current worktree is `/tmp/wt-zk60-private-profile-opus-20260918`,
+branch `zk60-private-profile-opus-20260918` at `db021ba`. It owns only
+`zk_ffn_fresh_io.rs`, a new `zk60_private_ffn_profile.rs` example, narrowly
+related IO tests and its new diagnostic guide. It exposes existing phase
+durations on explicit request without changing transcript/proof bytes or
+default behavior. Fable's attention writer should keep those files read-only.
+Task/log/marker are `opus-private-profile-task.txt`, `opus-private-profile.log`,
+`opus-private-profile.done` in the loop scratch directory. Parent runs actual
+proof measurements and separate-process verification after review.
+
+The reviewed memory-bounded ceremony checker is queued as PID 318776,
+`verify_ceremony.py`, behind successful `ceremony-prepare.done` (preparation
+PID 297871 waits on the shared lock). `ceremony-check.done` and
+`ceremony/check-1/result.json` are the checker's result markers. Six small
+controls passed, including strict Node return values, memory-budget refusal,
+import side effects and interruption markers. Neither queueing nor verified
+downloads establishes ceremony verification. Token work retains priority.
+
+Interactive Fable's hardening branch `zk60-zkvm-hardening` at `12341e6` is
+received and under review. Codex owns its integration; a separate Codex
+reviewer checks host/wrapper changes while Codex checks runner/cycle handling.
+The live token proof's binaries and guest source stay fixed during that review.
 
 Codex will review Fable's attention delivery while Fable reviews the new
 token receipt profile and source pins. D3/D4 remain accepted as recorded.

@@ -1,0 +1,25 @@
+domain  lookups  helpers(declared)  domain size  lookups*size
+     L        1         1 ok                   512           512
+     D       20        10 ok                   512         10240
+     Q       13         7 ok                   512          6656
+    Kv       12         6 ok                   256          3072
+     S       13         7 ok                  2048         26624
+total U8 lookups = 47104  (note section 5 says 47104: matches)
+exp lookups = H*T*T = 2048 (note says 2048: matches)
+
+planes with NO direct range lookup (their bound must be derived from a relation):
+  A_D      dom T  
+  A_DSQ    dom T  
+  A_MX     dom Ht 
+  A_SUM    dom Ht 
+  A_X      dom D  
+  A_AO     dom D  
+  A_X1     dom D  
+  A_ZSEL   dom S  
+  A_E      dom S  
+  A_P      dom S  
+  A_MU8    dom Tab
+  A_MEXP   dom Tab
+
+A data rows = 154 (layout.rs test asserts 154: matches); A rows = 154 + 2*75 + 2 = 306 (note section 5 says 306: matches)
+H data rows = 218 (layout.rs test asserts 218: matches); H rows = 218 + 2*35 + 2 = 290 (note section 5 says 290: matches)

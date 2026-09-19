@@ -1,0 +1,42 @@
+{
+  "binary_sha256": "8b98c793a6bf5fbe7b2ea2f58a6951029fa525f75d1dad2c23c22b6db6e553ac",
+  "rayon_threads": 2,
+  "scope": "T32 d16 attention component, CPU diagnostic only",
+  "runs": [
+    {
+      "run": 0,
+      "process_wall_seconds": 0.061191509999957816,
+      "exit": 0,
+      "stdout": "profile: hashline-zk-mr1/private-attention-t32-poc/1\n  private-attention-t32/1: T32 d16 H2 KV1 dh8; n=256 inv_rate=8 Q=256; P1 (weights public, no W commitment)\n  A rows=306 data=154 site-pairs=75 prox-pair=(304,305)\n  H rows=290 data=218 site-pairs=35 zero-sum-pair=[216, 217] prox-pair=(288,289)\n  M rows=40 functionals=28 A-groups=30 H-groups=8 collapse=0\nreceipt frame: 2245800 bytes (fixed by the geometry: 2245800)\ncommitted rows: A 306 H 290 M 40; lookups: U8 47104 exp 2048\nprove 0.051 s (shared box, diagnostic only):\n  witness planes + commit A: 0.014 s\n  commit M: 0.005 s\n  LogUp helpers + commit H: 0.011 s\n  18 masked sumchecks: 0.011 s\n  M + A + H + endpoint openings: 0.009 s\nEXPERIMENTAL: no whole-proof privacy, MVP or 5-second claim follows from this run.\n",
+      "stderr": ""
+    },
+    {
+      "run": 1,
+      "process_wall_seconds": 0.05425901800003885,
+      "exit": 0,
+      "stdout": "profile: hashline-zk-mr1/private-attention-t32-poc/1\n  private-attention-t32/1: T32 d16 H2 KV1 dh8; n=256 inv_rate=8 Q=256; P1 (weights public, no W commitment)\n  A rows=306 data=154 site-pairs=75 prox-pair=(304,305)\n  H rows=290 data=218 site-pairs=35 zero-sum-pair=[216, 217] prox-pair=(288,289)\n  M rows=40 functionals=28 A-groups=30 H-groups=8 collapse=0\nreceipt frame: 2245800 bytes (fixed by the geometry: 2245800)\ncommitted rows: A 306 H 290 M 40; lookups: U8 47104 exp 2048\nprove 0.045 s (shared box, diagnostic only):\n  witness planes + commit A: 0.011 s\n  commit M: 0.005 s\n  LogUp helpers + commit H: 0.011 s\n  18 masked sumchecks: 0.010 s\n  M + A + H + endpoint openings: 0.009 s\nEXPERIMENTAL: no whole-proof privacy, MVP or 5-second claim follows from this run.\n",
+      "stderr": ""
+    },
+    {
+      "run": 2,
+      "process_wall_seconds": 0.056547156999954495,
+      "exit": 0,
+      "stdout": "profile: hashline-zk-mr1/private-attention-t32-poc/1\n  private-attention-t32/1: T32 d16 H2 KV1 dh8; n=256 inv_rate=8 Q=256; P1 (weights public, no W commitment)\n  A rows=306 data=154 site-pairs=75 prox-pair=(304,305)\n  H rows=290 data=218 site-pairs=35 zero-sum-pair=[216, 217] prox-pair=(288,289)\n  M rows=40 functionals=28 A-groups=30 H-groups=8 collapse=0\nreceipt frame: 2245800 bytes (fixed by the geometry: 2245800)\ncommitted rows: A 306 H 290 M 40; lookups: U8 47104 exp 2048\nprove 0.046 s (shared box, diagnostic only):\n  witness planes + commit A: 0.012 s\n  commit M: 0.005 s\n  LogUp helpers + commit H: 0.011 s\n  18 masked sumchecks: 0.010 s\n  M + A + H + endpoint openings: 0.008 s\nEXPERIMENTAL: no whole-proof privacy, MVP or 5-second claim follows from this run.\n",
+      "stderr": ""
+    },
+    {
+      "run": 3,
+      "process_wall_seconds": 0.05722112300003346,
+      "exit": 0,
+      "stdout": "profile: hashline-zk-mr1/private-attention-t32-poc/1\n  private-attention-t32/1: T32 d16 H2 KV1 dh8; n=256 inv_rate=8 Q=256; P1 (weights public, no W commitment)\n  A rows=306 data=154 site-pairs=75 prox-pair=(304,305)\n  H rows=290 data=218 site-pairs=35 zero-sum-pair=[216, 217] prox-pair=(288,289)\n  M rows=40 functionals=28 A-groups=30 H-groups=8 collapse=0\nreceipt frame: 2245800 bytes (fixed by the geometry: 2245800)\ncommitted rows: A 306 H 290 M 40; lookups: U8 47104 exp 2048\nprove 0.047 s (shared box, diagnostic only):\n  witness planes + commit A: 0.012 s\n  commit M: 0.005 s\n  LogUp helpers + commit H: 0.011 s\n  18 masked sumchecks: 0.011 s\n  M + A + H + endpoint openings: 0.009 s\nEXPERIMENTAL: no whole-proof privacy, MVP or 5-second claim follows from this run.\n",
+      "stderr": ""
+    },
+    {
+      "run": 4,
+      "process_wall_seconds": 0.05528112299998611,
+      "exit": 0,
+      "stdout": "profile: hashline-zk-mr1/private-attention-t32-poc/1\n  private-attention-t32/1: T32 d16 H2 KV1 dh8; n=256 inv_rate=8 Q=256; P1 (weights public, no W commitment)\n  A rows=306 data=154 site-pairs=75 prox-pair=(304,305)\n  H rows=290 data=218 site-pairs=35 zero-sum-pair=[216, 217] prox-pair=(288,289)\n  M rows=40 functionals=28 A-groups=30 H-groups=8 collapse=0\nreceipt frame: 2245800 bytes (fixed by the geometry: 2245800)\ncommitted rows: A 306 H 290 M 40; lookups: U8 47104 exp 2048\nprove 0.046 s (shared box, diagnostic only):\n  witness planes + commit A: 0.011 s\n  commit M: 0.005 s\n  LogUp helpers + commit H: 0.012 s\n  18 masked sumchecks: 0.010 s\n  M + A + H + endpoint openings: 0.008 s\nEXPERIMENTAL: no whole-proof privacy, MVP or 5-second claim follows from this run.\n",
+      "stderr": ""
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+[
+  {
+    "stage": "attention-unit",
+    "command": [
+      "/home/victor/.cargo/bin/cargo",
+      "test",
+      "--release",
+      "--offline",
+      "--locked",
+      "--manifest-path",
+      "hashline/Cargo.toml",
+      "--lib",
+      "private_attention",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 78.92889448200003
+  },
+  {
+    "stage": "attention-integration",
+    "command": [
+      "/home/victor/.cargo/bin/cargo",
+      "test",
+      "--release",
+      "--offline",
+      "--locked",
+      "--manifest-path",
+      "hashline/Cargo.toml",
+      "--test",
+      "zk60_private_attention",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 61.06574237099994
+  },
+  {
+    "stage": "attention-doc",
+    "command": [
+      "/home/victor/.cargo/bin/cargo",
+      "test",
+      "--release",
+      "--offline",
+      "--locked",
+      "--manifest-path",
+      "hashline/Cargo.toml",
+      "--doc",
+      "private_attention"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 0.28968097799952375
+  },
+  {
+    "stage": "attention-example",
+    "command": [
+      "/home/victor/.cargo/bin/cargo",
+      "build",
+      "--release",
+      "--offline",
+      "--locked",
+      "--manifest-path",
+      "hashline/Cargo.toml",
+      "--example",
+      "zk60_private_attention"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 6.724606374998984
+  },
+  {
+    "stage": "native-freeze",
+    "command": [
+      "zkmatrix-rs/target/release/ring_matmul",
+      "freeze-check"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 2.9110502129988163
+  }
+]

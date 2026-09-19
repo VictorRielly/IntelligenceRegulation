@@ -45,6 +45,10 @@ pub mod stable_weight_material;
 pub mod stable_weight_registration;
 // Experimental one-shot private equality gadget; not integrated into full blocks.
 pub mod private_seam;
+// Experimental masked attention component; whole-proof privacy remains open.
+pub mod private_attention;
+// Experimental complete tiny block; whole-proof privacy remains open.
+pub mod private_block;
 pub mod phase_profile;
 pub mod causal_oracle;
 // Public P0 arithmetic validation only; does not satisfy the P1 block policy.

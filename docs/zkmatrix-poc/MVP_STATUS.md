@@ -78,6 +78,16 @@ a second at width 16 says nothing about width 4096. Branch
 `zk60-private-block`; record
 `results/zk60_private_block_evidence/README.md` there.
 
+**Codex integration, 2026-09-19:** both native profiles are now in the main
+worktree. The integrated block produces a fresh 2,816,472-byte receipt in
+0.062–0.064 s and verifies it independently in 0.020–0.021 s on this shared
+CPU with two threads; the original lane receipt verifies too [MEASURED,
+NOISY-SHARED, tiny fixture only]. Fifty-seven combined Rust tests, 29
+block-inventory tests, the full Python regression (1,098 tests, 61 skipped)
+and native freeze pass. Attention's repeated byte-lookup inversions are
+removed and its fixture scale labels corrected. Whole-proof privacy and
+model-scale speed remain open. [Integration and evidence](ZK60_ATTENTION_INTEGRATION_20260919.md).
+
 What else exists on that line: a private feed-forward component at the same tiny shape
 with a bounded privacy diagnostic (whole-proof privacy not accepted, D8
 open); public-IO proofs of real 8B feed-forward stacks (below); the private
@@ -143,7 +153,8 @@ it does not exist yet.**
    an experimental component (`ZK60_PRIVATE_ATTENTION_NATIVE_DISPOSITION.md`
    on branch `zk60-attention-compile`). Using one 8-bit range table instead
    of the 65,536-entry ones cut the commitments to 306 and 290 rows. Still
-   missing for a block: the second norm, the two FFN seams and residual 2.
+   missing for this attention-only profile: the second norm, the FFN and
+   residual 2; the complete-block profile above now includes them.
    The 2026-09-19 gap inventory
    (`ZK60_PRIVATE_BLOCK_COMPOSITION_GAPS.md` on `zk60-attention-compile`)
    sorts fifteen gaps into engineering Codex can start now (the capture

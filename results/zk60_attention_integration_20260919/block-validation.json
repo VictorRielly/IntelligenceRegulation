@@ -1,0 +1,112 @@
+[
+  {
+    "stage": "block-and-attention-unit",
+    "command": [
+      "flock",
+      "/tmp/zk-build.lock",
+      "/home/victor/.cargo/bin/cargo",
+      "test",
+      "--release",
+      "--offline",
+      "--locked",
+      "--manifest-path",
+      "hashline/Cargo.toml",
+      "--lib",
+      "private_",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 139.47640500999842
+  },
+  {
+    "stage": "block-and-attention-integration",
+    "command": [
+      "flock",
+      "/tmp/zk-build.lock",
+      "/home/victor/.cargo/bin/cargo",
+      "test",
+      "--release",
+      "--offline",
+      "--locked",
+      "--manifest-path",
+      "hashline/Cargo.toml",
+      "--test",
+      "zk60_private_block",
+      "--test",
+      "zk60_private_attention",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 64.7167178239979
+  },
+  {
+    "stage": "block-and-attention-doc",
+    "command": [
+      "flock",
+      "/tmp/zk-build.lock",
+      "/home/victor/.cargo/bin/cargo",
+      "test",
+      "--release",
+      "--offline",
+      "--locked",
+      "--manifest-path",
+      "hashline/Cargo.toml",
+      "--doc",
+      "private_"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 0.3253764730034163
+  },
+  {
+    "stage": "block-example",
+    "command": [
+      "flock",
+      "/tmp/zk-build.lock",
+      "/home/victor/.cargo/bin/cargo",
+      "build",
+      "--release",
+      "--offline",
+      "--locked",
+      "--manifest-path",
+      "hashline/Cargo.toml",
+      "--example",
+      "zk60_private_block",
+      "--example",
+      "zk60_private_attention"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 7.974863783005276
+  },
+  {
+    "stage": "block-original-receipt",
+    "command": [
+      "hashline/target/release/examples/zk60_private_block",
+      "verify",
+      "results/zk60_private_block_evidence/owner_run1"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 0.05604029200185323
+  },
+  {
+    "stage": "block-prove",
+    "command": [
+      "hashline/target/release/examples/zk60_private_block",
+      "prove",
+      "/tmp/zk60-attention-integration-20260919/block-proof"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 0.074951834998501
+  },
+  {
+    "stage": "block-verify",
+    "command": [
+      "hashline/target/release/examples/zk60_private_block",
+      "verify",
+      "/tmp/zk60-attention-integration-20260919/block-proof"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 0.053724855999462306
+  }
+]

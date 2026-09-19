@@ -68,6 +68,13 @@ pub const TAG_INT8A: u64 = 131;
 pub const TAG_INT16A: u64 = 132;
 /// the unsigned 8-bit limb class [0, 256) (the int24 high limb)
 pub const TAG_U8: u64 = 133;
+/// the fused (g8 + 128, a16) activation lookup of the private block's
+/// feed-forward half: rows `i + beta * act[i]` (T2 decision 4, the next free
+/// scalar after TAG_U8). It must NOT reuse the FFN statement's
+/// `TAG_ACT16 = 3`: that namespace is deliberately disjoint and the two
+/// tables are different objects (256 int16 rows here; the frozen member with
+/// its own spec digest there).
+pub const TAG_ACT: u64 = 134;
 /// the softmax remainder class [0, 2^w)
 pub fn tag_srem_a(w: u32) -> u64 {
     assert!(w <= 40, "srem tag: width {w}");

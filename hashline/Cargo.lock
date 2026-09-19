@@ -198,6 +198,7 @@ dependencies = [
  "blake3",
  "chacha20poly1305",
  "cudarc",
+ "private-block-kernel",
  "rayon",
  "sha2",
  "zeroize",
@@ -245,6 +246,10 @@ dependencies = [
  "opaque-debug",
  "universal-hash",
 ]
+
+[[package]]
+name = "private-block-kernel"
+version = "0.1.0"
 
 [[package]]
 name = "rayon"

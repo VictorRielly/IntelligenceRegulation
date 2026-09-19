@@ -1,0 +1,5741 @@
+{
+ "A": {
+  "groups": [
+   {
+    "data_rows": [
+     2
+    ],
+    "group": 0,
+    "key": [
+     "rho_SC_SS[1]",
+     "rho_SC_SS[2]",
+     "rho_SC_SS[3]",
+     "rho_SC_SS[4]",
+     "rho_SC_SS[5]",
+     "rho_SC_SS[6]",
+     "rho_SC_SS[7]",
+     "rho_SC_SS[8]"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_SS#0 A[A_X]"
+    ]
+   },
+   {
+    "data_rows": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "group": 1,
+    "key": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 4,
+    "singleton": false,
+    "sites": [
+     "SC_TZC#0 A[A_D]",
+     "SC_TZC#1 A[A_DSQ]",
+     "SC_TZC#10 A[offset 1280, log 5]",
+     "SC_TZC#2 A[offset 1024, log 5]"
+    ]
+   },
+   {
+    "data_rows": [
+     1
+    ],
+    "group": 2,
+    "key": [
+     "#sub(c0=32,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_TZC#3 A[offset 1056, log 5]"
+    ]
+   },
+   {
+    "data_rows": [
+     1
+    ],
+    "group": 3,
+    "key": [
+     "#sub(c0=64,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_TZC#4 A[offset 1088, log 5]"
+    ]
+   },
+   {
+    "data_rows": [
+     1
+    ],
+    "group": 4,
+    "key": [
+     "#sub(c0=96,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_TZC#5 A[offset 1120, log 5]"
+    ]
+   },
+   {
+    "data_rows": [
+     1
+    ],
+    "group": 5,
+    "key": [
+     "#sub(c0=128,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_TZC#6 A[offset 1152, log 5]"
+    ]
+   },
+   {
+    "data_rows": [
+     1
+    ],
+    "group": 6,
+    "key": [
+     "#sub(c0=160,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_TZC#7 A[offset 1184, log 5]"
+    ]
+   },
+   {
+    "data_rows": [
+     1
+    ],
+    "group": 7,
+    "key": [
+     "#sub(c0=192,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_TZC#8 A[offset 1216, log 5]"
+    ]
+   },
+   {
+    "data_rows": [
+     1
+    ],
+    "group": 8,
+    "key": [
+     "#sub(c0=224,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_TZC#9 A[offset 1248, log 5]"
+    ]
+   },
+   {
+    "data_rows": [
+     2
+    ],
+    "group": 9,
+    "key": [
+     "rho_SC_LZC[1]",
+     "rho_SC_LZC[2]",
+     "rho_SC_LZC[3]",
+     "rho_SC_LZC[4]",
+     "rho_SC_LZC[5]",
+     "rho_SC_LZC[6]",
+     "rho_SC_LZC[7]",
+     "rho_SC_LZC[8]"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_LZC#0 A[A_LIMB]"
+    ]
+   },
+   {
+    "data_rows": [
+     8,
+     8
+    ],
+    "group": 10,
+    "key": [
+     "rho_SC_RS[3]",
+     "rho_SC_RS[4]",
+     "rho_SC_RS[5]",
+     "rho_SC_RS[6]",
+     "rho_SC_RS[7]",
+     "rho_SC_RS[8]",
+     "rho_SC_RS[9]",
+     "rho_SC_RS[10]"
+    ],
+    "m": 2,
+    "singleton": false,
+    "sites": [
+     "SC_RS#0 A[A_E]",
+     "SC_RS#1 A[A_ZSEL]"
+    ]
+   },
+   {
+    "data_rows": [
+     2
+    ],
+    "group": 11,
+    "key": [
+     "SC_QMM.r_q[1]",
+     "SC_QMM.r_q[2]",
+     "SC_QMM.r_q[3]",
+     "SC_QMM.r_q[4]",
+     "rho_SC_QMM[0]",
+     "rho_SC_QMM[1]",
+     "rho_SC_QMM[2]",
+     "rho_SC_QMM[3]"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_QMM#0 A[A_Y] @ point"
+    ]
+   },
+   {
+    "data_rows": [
+     2
+    ],
+    "group": 12,
+    "key": [
+     "SC_QMM.r_q[1]",
+     "SC_QMM.r_q[2]",
+     "SC_QMM.r_q[3]",
+     "SC_QMM.r_q[4]",
+     "rho_SC_KMM[0]",
+     "rho_SC_KMM[1]",
+     "rho_SC_KMM[2]",
+     "rho_SC_KMM[3]"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_KMM#0 A[A_Y] @ point"
+    ]
+   },
+   {
+    "data_rows": [
+     2
+    ],
+    "group": 13,
+    "key": [
+     "SC_QMM.r_q[1]",
+     "SC_QMM.r_q[2]",
+     "SC_QMM.r_q[3]",
+     "SC_QMM.r_q[4]",
+     "rho_SC_VMM[0]",
+     "rho_SC_VMM[1]",
+     "rho_SC_VMM[2]",
+     "rho_SC_VMM[3]"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_VMM#0 A[A_Y] @ point"
+    ]
+   },
+   {
+    "data_rows": [
+     2
+    ],
+    "group": 14,
+    "key": [
+     "SC_SCORE.r_t[1]",
+     "SC_SCORE.r_t[2]",
+     "SC_SCORE.r_t[3]",
+     "SC_SCORE.r_t[4]",
+     "SC_SCORE.r_h[0]",
+     "rho_SC_SCORE[0]",
+     "rho_SC_SCORE[1]",
+     "rho_SC_SCORE[2]"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_SCORE#0 A[A_QR8] @ point"
+    ]
+   },
+   {
+    "data_rows": [
+     1
+    ],
+    "group": 15,
+    "key": [
+     "SC_SCORE.r_j[0]",
+     "SC_SCORE.r_j[1]",
+     "SC_SCORE.r_j[2]",
+     "SC_SCORE.r_j[3]",
+     "SC_SCORE.r_j[4]",
+     "rho_SC_SCORE[0]",
+     "rho_SC_SCORE[1]",
+     "rho_SC_SCORE[2]"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_SCORE#1 A[A_KR8] @ point"
+    ]
+   },
+   {
+    "data_rows": [
+     8
+    ],
+    "group": 16,
+    "key": [
+     "SC_PV.r_t[2]",
+     "SC_PV.r_t[3]",
+     "SC_PV.r_t[4]",
+     "rho_SC_PV[0]",
+     "rho_SC_PV[1]",
+     "rho_SC_PV[2]",
+     "rho_SC_PV[3]",
+     "rho_SC_PV[4]"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_PV#0 A[A_P] @ point"
+    ]
+   },
+   {
+    "data_rows": [
+     1
+    ],
+    "group": 17,
+    "key": [
+     "rho_SC_PV[0]",
+     "rho_SC_PV[1]",
+     "rho_SC_PV[2]",
+     "rho_SC_PV[3]",
+     "rho_SC_PV[4]",
+     "SC_PV.r_i[0]",
+     "SC_PV.r_i[1]",
+     "SC_PV.r_i[2]"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_PV#1 A[A_V8] @ point"
+    ]
+   },
+   {
+    "data_rows": [
+     2
+    ],
+    "group": 18,
+    "key": [
+     "SC_WO.r_q[1]",
+     "SC_WO.r_q[2]",
+     "SC_WO.r_q[3]",
+     "SC_WO.r_q[4]",
+     "rho_SC_WO[0]",
+     "rho_SC_WO[1]",
+     "rho_SC_WO[2]",
+     "rho_SC_WO[3]"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_WO#0 A[A_O8] @ point"
+    ]
+   },
+   {
+    "data_rows": [
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "group": 19,
+    "key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "singleton": false,
+    "sites": [
+     "SC_DZC#0 A[A_X]",
+     "SC_DZC#1 A[A_XL0]",
+     "SC_DZC#10 A[A#15]",
+     "SC_DZC#11 A[A#16]",
+     "SC_DZC#12 A[A_AO]",
+     "SC_DZC#13 A[A_AL0]",
+     "SC_DZC#14 A[A_AL1]",
+     "SC_DZC#15 A[A_RAL]",
+     "SC_DZC#16 A[A_X1]",
+     "SC_DZC#17 A[A_X1L0]",
+     "SC_DZC#18 A[A_X1L1]",
+     "SC_DZC#2 A[A_XL1]",
+     "SC_DZC#3 A[A_Y]",
+     "SC_DZC#4 A[A_NR0]",
+     "SC_DZC#5 A[A#10]",
+     "SC_DZC#6 A[A#11]",
+     "SC_DZC#7 A[A#12]",
+     "SC_DZC#8 A[A_NS0]",
+     "SC_DZC#9 A[A#14]"
+    ]
+   },
+   {
+    "data_rows": [
+     1
+    ],
+    "group": 20,
+    "key": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_DZC#19 A[offset 0, log 5]"
+    ]
+   },
+   {
+    "data_rows": [
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2
+    ],
+    "group": 21,
+    "key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "singleton": false,
+    "sites": [
+     "SC_QZC#0 A[A_Q8]",
+     "SC_QZC#1 A[A_RQL]",
+     "SC_QZC#2 A[A_QR8]",
+     "SC_QZC#3 A[A_RQRL]",
+     "SC_QZC#4 A[A_O8]",
+     "SC_QZC#5 A[A_RO0]",
+     "SC_QZC#6 A[A_RO1]"
+    ]
+   },
+   {
+    "data_rows": [
+     2
+    ],
+    "group": 22,
+    "key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "1-rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_QZC#7 A[A_Q8] @ point"
+    ]
+   },
+   {
+    "data_rows": [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "group": 23,
+    "key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 6,
+    "singleton": false,
+    "sites": [
+     "SC_KVZC#0 A[A_K8]",
+     "SC_KVZC#1 A[A_RKL]",
+     "SC_KVZC#2 A[A_V8]",
+     "SC_KVZC#3 A[A_RVL]",
+     "SC_KVZC#4 A[A_KR8]",
+     "SC_KVZC#5 A[A_RKRL]"
+    ]
+   },
+   {
+    "data_rows": [
+     1
+    ],
+    "group": 24,
+    "key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "1-rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_KVZC#6 A[A_K8] @ point"
+    ]
+   },
+   {
+    "data_rows": [
+     8,
+     8,
+     8,
+     8,
+     8,
+     8,
+     8,
+     8,
+     8,
+     8,
+     8
+    ],
+    "group": 25,
+    "key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 11,
+    "singleton": false,
+    "sites": [
+     "SC_SZC#0 A[A_S8]",
+     "SC_SZC#1 A[A_RSL]",
+     "SC_SZC#10 A[A_SG1]",
+     "SC_SZC#2 A[A_ZSEL]",
+     "SC_SZC#3 A[A_E]",
+     "SC_SZC#4 A[A_P]",
+     "SC_SZC#5 A[A_PL0]",
+     "SC_SZC#6 A[A_PL1]",
+     "SC_SZC#7 A[A_SR0]",
+     "SC_SZC#8 A[A_SR1]",
+     "SC_SZC#9 A[A_SG0]"
+    ]
+   },
+   {
+    "data_rows": [
+     1,
+     1
+    ],
+    "group": 26,
+    "key": [
+     "#sub(c0=0,len=64)",
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "#pad"
+    ],
+    "m": 2,
+    "singleton": false,
+    "sites": [
+     "SC_SZC#11 A[offset 512, log 6]",
+     "SC_SZC#12 A[offset 768, log 6]"
+    ]
+   },
+   {
+    "data_rows": [
+     1,
+     1
+    ],
+    "group": 27,
+    "key": [
+     "rho_SC_TAB[0]",
+     "rho_SC_TAB[1]",
+     "rho_SC_TAB[2]",
+     "rho_SC_TAB[3]",
+     "rho_SC_TAB[4]",
+     "rho_SC_TAB[5]",
+     "rho_SC_TAB[6]",
+     "rho_SC_TAB[7]"
+    ],
+    "m": 2,
+    "singleton": false,
+    "sites": [
+     "SC_TAB#0 A[A_MU8]",
+     "SC_TAB#1 A[A_MEXP]"
+    ]
+   },
+   {
+    "data_rows": [
+     2
+    ],
+    "group": 28,
+    "key": [
+     "rho_SC_IO_IN[1]",
+     "rho_SC_IO_IN[2]",
+     "rho_SC_IO_IN[3]",
+     "rho_SC_IO_IN[4]",
+     "rho_SC_IO_IN[5]",
+     "rho_SC_IO_IN[6]",
+     "rho_SC_IO_IN[7]",
+     "rho_SC_IO_IN[8]"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_IO_IN#0 A[A_X]"
+    ]
+   },
+   {
+    "data_rows": [
+     2
+    ],
+    "group": 29,
+    "key": [
+     "rho_SC_IO_OUT[1]",
+     "rho_SC_IO_OUT[2]",
+     "rho_SC_IO_OUT[3]",
+     "rho_SC_IO_OUT[4]",
+     "rho_SC_IO_OUT[5]",
+     "rho_SC_IO_OUT[6]",
+     "rho_SC_IO_OUT[7]",
+     "rho_SC_IO_OUT[8]"
+    ],
+    "m": 1,
+    "singleton": true,
+    "sites": [
+     "SC_IO_OUT#0 A[A_X1]"
+    ]
+   }
+  ],
+  "prox": {
+   "coefficients": {
+    "P1": "rho_prox[re], rho_prox[im] drawn by zk_rhos, Fp-independent",
+    "P3": "unchanged"
+   },
+   "commitment": "A",
+   "group_key": "(proximity vector)",
+   "mask_kind": "prox_pair",
+   "mask_rows": [
+    304,
+    305
+   ],
+   "proof_field": "a_open.prox_vec",
+   "role": "a_prox"
+  },
+  "regions": {
+   "claim_pairs": [
+    154,
+    304
+   ],
+   "data_today": [
+    0,
+    154
+   ],
+   "histogram_data": [
+    154,
+    154
+   ],
+   "histogram_masks": [
+    304,
+    304
+   ],
+   "prox_pair": [
+    304,
+    305
+   ],
+   "receipt_endpoint_pairs": [
+    306,
+    306
+   ]
+  },
+  "rows_total": 306,
+  "sites": [
+   {
+    "added": false,
+    "aliases": [
+     "A#24",
+     "A#107"
+    ],
+    "claim_index": 0,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     6,
+     8
+    ],
+    "data_rows": 2,
+    "group": 0,
+    "group_key": [
+     "rho_SC_SS[1]",
+     "rho_SC_SS[2]",
+     "rho_SC_SS[3]",
+     "rho_SC_SS[4]",
+     "rho_SC_SS[5]",
+     "rho_SC_SS[6]",
+     "rho_SC_SS[7]",
+     "rho_SC_SS[8]"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     154,
+     155
+    ],
+    "proof_field": "AttnProof.vals[0] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#0",
+    "seam": false,
+    "section": "01 SS row sums (private)",
+    "single_row": false,
+    "site": "SC_SS#0 A[A_X]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#43"
+    ],
+    "claim_index": 1,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     0,
+     1
+    ],
+    "data_rows": 1,
+    "group": 1,
+    "group_key": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 4,
+    "mask_kind": "pair",
+    "mask_rows": [
+     156,
+     157
+    ],
+    "proof_field": "AttnProof.vals[1] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#1",
+    "seam": false,
+    "section": "02 norm squares zero-check (hosts 01)",
+    "single_row": true,
+    "site": "SC_TZC#0 A[A_D]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 2,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     1,
+     2
+    ],
+    "data_rows": 1,
+    "group": 1,
+    "group_key": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 4,
+    "mask_kind": "pair",
+    "mask_rows": [
+     158,
+     159
+    ],
+    "proof_field": "AttnProof.vals[2] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#2",
+    "seam": false,
+    "section": "02 norm squares zero-check (hosts 01)",
+    "single_row": true,
+    "site": "SC_TZC#1 A[A_DSQ]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#4",
+     "A#5",
+     "A#6",
+     "A#7",
+     "A#8",
+     "A#9",
+     "A#10"
+    ],
+    "claim_index": 3,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     4,
+     5
+    ],
+    "data_rows": 1,
+    "group": 1,
+    "group_key": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 4,
+    "mask_kind": "pair",
+    "mask_rows": [
+     160,
+     161
+    ],
+    "proof_field": "AttnProof.vals[3] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#3",
+    "seam": false,
+    "section": "02 norm squares zero-check (hosts 01)",
+    "single_row": true,
+    "site": "SC_TZC#2 A[offset 1024, log 5]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#3",
+     "A#5",
+     "A#6",
+     "A#7",
+     "A#8",
+     "A#9",
+     "A#10"
+    ],
+    "claim_index": 4,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     4,
+     5
+    ],
+    "data_rows": 1,
+    "group": 2,
+    "group_key": [
+     "#sub(c0=32,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     162,
+     163
+    ],
+    "proof_field": "AttnProof.vals[4] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#4",
+    "seam": false,
+    "section": "02 norm squares zero-check (hosts 01)",
+    "single_row": true,
+    "site": "SC_TZC#3 A[offset 1056, log 5]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#3",
+     "A#4",
+     "A#6",
+     "A#7",
+     "A#8",
+     "A#9",
+     "A#10"
+    ],
+    "claim_index": 5,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     4,
+     5
+    ],
+    "data_rows": 1,
+    "group": 3,
+    "group_key": [
+     "#sub(c0=64,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     164,
+     165
+    ],
+    "proof_field": "AttnProof.vals[5] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#5",
+    "seam": false,
+    "section": "02 norm squares zero-check (hosts 01)",
+    "single_row": true,
+    "site": "SC_TZC#4 A[offset 1088, log 5]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#3",
+     "A#4",
+     "A#5",
+     "A#7",
+     "A#8",
+     "A#9",
+     "A#10"
+    ],
+    "claim_index": 6,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     4,
+     5
+    ],
+    "data_rows": 1,
+    "group": 4,
+    "group_key": [
+     "#sub(c0=96,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     166,
+     167
+    ],
+    "proof_field": "AttnProof.vals[6] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#6",
+    "seam": false,
+    "section": "02 norm squares zero-check (hosts 01)",
+    "single_row": true,
+    "site": "SC_TZC#5 A[offset 1120, log 5]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#3",
+     "A#4",
+     "A#5",
+     "A#6",
+     "A#8",
+     "A#9",
+     "A#10"
+    ],
+    "claim_index": 7,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     4,
+     5
+    ],
+    "data_rows": 1,
+    "group": 5,
+    "group_key": [
+     "#sub(c0=128,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     168,
+     169
+    ],
+    "proof_field": "AttnProof.vals[7] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#7",
+    "seam": false,
+    "section": "02 norm squares zero-check (hosts 01)",
+    "single_row": true,
+    "site": "SC_TZC#6 A[offset 1152, log 5]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#3",
+     "A#4",
+     "A#5",
+     "A#6",
+     "A#7",
+     "A#9",
+     "A#10"
+    ],
+    "claim_index": 8,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     4,
+     5
+    ],
+    "data_rows": 1,
+    "group": 6,
+    "group_key": [
+     "#sub(c0=160,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     170,
+     171
+    ],
+    "proof_field": "AttnProof.vals[8] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#8",
+    "seam": false,
+    "section": "02 norm squares zero-check (hosts 01)",
+    "single_row": true,
+    "site": "SC_TZC#7 A[offset 1184, log 5]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#3",
+     "A#4",
+     "A#5",
+     "A#6",
+     "A#7",
+     "A#8",
+     "A#10"
+    ],
+    "claim_index": 9,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     4,
+     5
+    ],
+    "data_rows": 1,
+    "group": 7,
+    "group_key": [
+     "#sub(c0=192,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     172,
+     173
+    ],
+    "proof_field": "AttnProof.vals[9] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#9",
+    "seam": false,
+    "section": "02 norm squares zero-check (hosts 01)",
+    "single_row": true,
+    "site": "SC_TZC#8 A[offset 1216, log 5]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#3",
+     "A#4",
+     "A#5",
+     "A#6",
+     "A#7",
+     "A#8",
+     "A#9"
+    ],
+    "claim_index": 10,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     4,
+     5
+    ],
+    "data_rows": 1,
+    "group": 8,
+    "group_key": [
+     "#sub(c0=224,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     174,
+     175
+    ],
+    "proof_field": "AttnProof.vals[10] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#10",
+    "seam": false,
+    "section": "02 norm squares zero-check (hosts 01)",
+    "single_row": true,
+    "site": "SC_TZC#9 A[offset 1248, log 5]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 11,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     5,
+     6
+    ],
+    "data_rows": 1,
+    "group": 1,
+    "group_key": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 4,
+    "mask_kind": "pair",
+    "mask_rows": [
+     176,
+     177
+    ],
+    "proof_field": "AttnProof.vals[11] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#11",
+    "seam": false,
+    "section": "02 norm squares zero-check (hosts 01)",
+    "single_row": true,
+    "site": "SC_TZC#10 A[offset 1280, log 5]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 12,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     4,
+     6
+    ],
+    "data_rows": 2,
+    "group": 9,
+    "group_key": [
+     "rho_SC_LZC[1]",
+     "rho_SC_LZC[2]",
+     "rho_SC_LZC[3]",
+     "rho_SC_LZC[4]",
+     "rho_SC_LZC[5]",
+     "rho_SC_LZC[6]",
+     "rho_SC_LZC[7]",
+     "rho_SC_LZC[8]"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     178,
+     179
+    ],
+    "proof_field": "AttnProof.vals[12] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#12",
+    "seam": false,
+    "section": "08 limb zero-check",
+    "single_row": false,
+    "site": "SC_LZC#0 A[A_LIMB]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#85"
+    ],
+    "claim_index": 14,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     88,
+     96
+    ],
+    "data_rows": 8,
+    "group": 10,
+    "group_key": [
+     "rho_SC_RS[3]",
+     "rho_SC_RS[4]",
+     "rho_SC_RS[5]",
+     "rho_SC_RS[6]",
+     "rho_SC_RS[7]",
+     "rho_SC_RS[8]",
+     "rho_SC_RS[9]",
+     "rho_SC_RS[10]"
+    ],
+    "m": 2,
+    "mask_kind": "pair",
+    "mask_rows": [
+     180,
+     181
+    ],
+    "proof_field": "AttnProof.vals[14] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#14",
+    "seam": false,
+    "section": "07 masked row sums + selector (private)",
+    "single_row": false,
+    "site": "SC_RS#0 A[A_E]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#84"
+    ],
+    "claim_index": 15,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     80,
+     88
+    ],
+    "data_rows": 8,
+    "group": 10,
+    "group_key": [
+     "rho_SC_RS[3]",
+     "rho_SC_RS[4]",
+     "rho_SC_RS[5]",
+     "rho_SC_RS[6]",
+     "rho_SC_RS[7]",
+     "rho_SC_RS[8]",
+     "rho_SC_RS[9]",
+     "rho_SC_RS[10]"
+    ],
+    "m": 2,
+    "mask_kind": "pair",
+    "mask_rows": [
+     182,
+     183
+    ],
+    "proof_field": "AttnProof.vals[15] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#15",
+    "seam": false,
+    "section": "07 masked row sums + selector (private)",
+    "single_row": false,
+    "site": "SC_RS#1 A[A_ZSEL]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#17",
+     "A#18",
+     "A#27"
+    ],
+    "claim_index": 16,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "((1 - e2)(1 - e), (1 - e2) e, (1 - e2) e u): second extension round (private x private)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     12,
+     14
+    ],
+    "data_rows": 2,
+    "group": 11,
+    "group_key": [
+     "SC_QMM.r_q[1]",
+     "SC_QMM.r_q[2]",
+     "SC_QMM.r_q[3]",
+     "SC_QMM.r_q[4]",
+     "rho_SC_QMM[0]",
+     "rho_SC_QMM[1]",
+     "rho_SC_QMM[2]",
+     "rho_SC_QMM[3]"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     184,
+     185
+    ],
+    "proof_field": "AttnProof.vals[16] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#16",
+    "seam": false,
+    "section": "09Q matmul (private)",
+    "single_row": false,
+    "site": "SC_QMM#0 A[A_Y] @ point",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#16",
+     "A#18",
+     "A#27"
+    ],
+    "claim_index": 17,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "((1 - e2)(1 - e), (1 - e2) e, (1 - e2) e u): second extension round (private x private)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     12,
+     14
+    ],
+    "data_rows": 2,
+    "group": 12,
+    "group_key": [
+     "SC_QMM.r_q[1]",
+     "SC_QMM.r_q[2]",
+     "SC_QMM.r_q[3]",
+     "SC_QMM.r_q[4]",
+     "rho_SC_KMM[0]",
+     "rho_SC_KMM[1]",
+     "rho_SC_KMM[2]",
+     "rho_SC_KMM[3]"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     186,
+     187
+    ],
+    "proof_field": "AttnProof.vals[17] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#17",
+    "seam": false,
+    "section": "09K matmul (private)",
+    "single_row": false,
+    "site": "SC_KMM#0 A[A_Y] @ point",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#16",
+     "A#17",
+     "A#27"
+    ],
+    "claim_index": 18,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "((1 - e2)(1 - e), (1 - e2) e, (1 - e2) e u): second extension round (private x private)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     12,
+     14
+    ],
+    "data_rows": 2,
+    "group": 13,
+    "group_key": [
+     "SC_QMM.r_q[1]",
+     "SC_QMM.r_q[2]",
+     "SC_QMM.r_q[3]",
+     "SC_QMM.r_q[4]",
+     "rho_SC_VMM[0]",
+     "rho_SC_VMM[1]",
+     "rho_SC_VMM[2]",
+     "rho_SC_VMM[3]"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     188,
+     189
+    ],
+    "proof_field": "AttnProof.vals[18] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#18",
+    "seam": false,
+    "section": "09V matmul (private)",
+    "single_row": false,
+    "site": "SC_VMM#0 A[A_Y] @ point",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#56"
+    ],
+    "claim_index": 19,
+    "coefficients": {
+     "P1": "((1 - e2)(1 - e), (1 - e2) e, (1 - e2) e u): second extension round (private x private) -- needed already under P1 (eq_g == 1 at KV heads = 1, inventory R7)",
+     "P3": "((1 - e2)(1 - e), (1 - e2) e, (1 - e2) e u): second extension round (private x private)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     48,
+     50
+    ],
+    "data_rows": 2,
+    "group": 14,
+    "group_key": [
+     "SC_SCORE.r_t[1]",
+     "SC_SCORE.r_t[2]",
+     "SC_SCORE.r_t[3]",
+     "SC_SCORE.r_t[4]",
+     "SC_SCORE.r_h[0]",
+     "rho_SC_SCORE[0]",
+     "rho_SC_SCORE[1]",
+     "rho_SC_SCORE[2]"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     190,
+     191
+    ],
+    "proof_field": "AttnProof.vals[19] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#19",
+    "seam": false,
+    "section": "10 score matmul (private, bilinear)",
+    "single_row": false,
+    "site": "SC_SCORE#0 A[A_QR8] @ point",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#73"
+    ],
+    "claim_index": 20,
+    "coefficients": {
+     "P1": "((1 - e2)(1 - e), (1 - e2) e, (1 - e2) e u): second extension round (private x private) -- needed already under P1 (eq_g == 1 at KV heads = 1, inventory R7)",
+     "P3": "((1 - e2)(1 - e), (1 - e2) e, (1 - e2) e u): second extension round (private x private)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     62,
+     63
+    ],
+    "data_rows": 1,
+    "group": 15,
+    "group_key": [
+     "SC_SCORE.r_j[0]",
+     "SC_SCORE.r_j[1]",
+     "SC_SCORE.r_j[2]",
+     "SC_SCORE.r_j[3]",
+     "SC_SCORE.r_j[4]",
+     "rho_SC_SCORE[0]",
+     "rho_SC_SCORE[1]",
+     "rho_SC_SCORE[2]"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     192,
+     193
+    ],
+    "proof_field": "AttnProof.vals[20] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#20",
+    "seam": false,
+    "section": "10 score matmul (private, bilinear)",
+    "single_row": true,
+    "site": "SC_SCORE#1 A[A_KR8] @ point",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#86"
+    ],
+    "claim_index": 21,
+    "coefficients": {
+     "P1": "((1 - e2)(1 - e), (1 - e2) e, (1 - e2) e u): second extension round (private x private) -- needed already under P1 (eq_g == 1 at KV heads = 1, inventory R7)",
+     "P3": "((1 - e2)(1 - e), (1 - e2) e, (1 - e2) e u): second extension round (private x private)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     96,
+     104
+    ],
+    "data_rows": 8,
+    "group": 16,
+    "group_key": [
+     "SC_PV.r_t[2]",
+     "SC_PV.r_t[3]",
+     "SC_PV.r_t[4]",
+     "rho_SC_PV[0]",
+     "rho_SC_PV[1]",
+     "rho_SC_PV[2]",
+     "rho_SC_PV[3]",
+     "rho_SC_PV[4]"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     194,
+     195
+    ],
+    "proof_field": "AttnProof.vals[21] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#21",
+    "seam": false,
+    "section": "11 PV matmul (private, bilinear)",
+    "single_row": false,
+    "site": "SC_PV#0 A[A_P] @ point",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#71"
+    ],
+    "claim_index": 22,
+    "coefficients": {
+     "P1": "((1 - e2)(1 - e), (1 - e2) e, (1 - e2) e u): second extension round (private x private) -- needed already under P1 (eq_g == 1 at KV heads = 1, inventory R7)",
+     "P3": "((1 - e2)(1 - e), (1 - e2) e, (1 - e2) e u): second extension round (private x private)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     60,
+     61
+    ],
+    "data_rows": 1,
+    "group": 17,
+    "group_key": [
+     "rho_SC_PV[0]",
+     "rho_SC_PV[1]",
+     "rho_SC_PV[2]",
+     "rho_SC_PV[3]",
+     "rho_SC_PV[4]",
+     "SC_PV.r_i[0]",
+     "SC_PV.r_i[1]",
+     "SC_PV.r_i[2]"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     196,
+     197
+    ],
+    "proof_field": "AttnProof.vals[22] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#22",
+    "seam": false,
+    "section": "11 PV matmul (private, bilinear)",
+    "single_row": true,
+    "site": "SC_PV#1 A[A_V8] @ point",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#58"
+    ],
+    "claim_index": 23,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "((1 - e2)(1 - e), (1 - e2) e, (1 - e2) e u): second extension round (private x private)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     52,
+     54
+    ],
+    "data_rows": 2,
+    "group": 18,
+    "group_key": [
+     "SC_WO.r_q[1]",
+     "SC_WO.r_q[2]",
+     "SC_WO.r_q[3]",
+     "SC_WO.r_q[4]",
+     "rho_SC_WO[0]",
+     "rho_SC_WO[1]",
+     "rho_SC_WO[2]",
+     "rho_SC_WO[3]"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     198,
+     199
+    ],
+    "proof_field": "AttnProof.vals[23] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#23",
+    "seam": false,
+    "section": "12 Wo matmul (private)",
+    "single_row": false,
+    "site": "SC_WO#0 A[A_O8] @ point",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#0",
+     "A#107"
+    ],
+    "claim_index": 24,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     6,
+     8
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     200,
+     201
+    ],
+    "proof_field": "AttnProof.vals[24] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#24",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#0 A[A_X]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 25,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     8,
+     10
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     202,
+     203
+    ],
+    "proof_field": "AttnProof.vals[25] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#25",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#1 A[A_XL0]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 26,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     10,
+     12
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     204,
+     205
+    ],
+    "proof_field": "AttnProof.vals[26] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#26",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#2 A[A_XL1]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#16",
+     "A#17",
+     "A#18"
+    ],
+    "claim_index": 27,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     12,
+     14
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     206,
+     207
+    ],
+    "proof_field": "AttnProof.vals[27] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#27",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#3 A[A_Y]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 28,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     14,
+     16
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     208,
+     209
+    ],
+    "proof_field": "AttnProof.vals[28] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#28",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#4 A[A_NR0]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 29,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     16,
+     18
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     210,
+     211
+    ],
+    "proof_field": "AttnProof.vals[29] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#29",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#5 A[A#10]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 30,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     18,
+     20
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     212,
+     213
+    ],
+    "proof_field": "AttnProof.vals[30] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#30",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#6 A[A#11]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 31,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     20,
+     22
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     214,
+     215
+    ],
+    "proof_field": "AttnProof.vals[31] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#31",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#7 A[A#12]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 32,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     22,
+     24
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     216,
+     217
+    ],
+    "proof_field": "AttnProof.vals[32] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#32",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#8 A[A_NS0]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 33,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     24,
+     26
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     218,
+     219
+    ],
+    "proof_field": "AttnProof.vals[33] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#33",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#9 A[A#14]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 34,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     26,
+     28
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     220,
+     221
+    ],
+    "proof_field": "AttnProof.vals[34] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#34",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#10 A[A#15]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 35,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     28,
+     30
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     222,
+     223
+    ],
+    "proof_field": "AttnProof.vals[35] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#35",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#11 A[A#16]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 36,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     30,
+     32
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     224,
+     225
+    ],
+    "proof_field": "AttnProof.vals[36] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#36",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#12 A[A_AO]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 37,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     32,
+     34
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     226,
+     227
+    ],
+    "proof_field": "AttnProof.vals[37] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#37",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#13 A[A_AL0]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 38,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     34,
+     36
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     228,
+     229
+    ],
+    "proof_field": "AttnProof.vals[38] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#38",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#14 A[A_AL1]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 39,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     36,
+     38
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     230,
+     231
+    ],
+    "proof_field": "AttnProof.vals[39] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#39",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#15 A[A_RAL]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#108"
+    ],
+    "claim_index": 40,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     38,
+     40
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     232,
+     233
+    ],
+    "proof_field": "AttnProof.vals[40] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#40",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#16 A[A_X1]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 41,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     40,
+     42
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     234,
+     235
+    ],
+    "proof_field": "AttnProof.vals[41] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#41",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#17 A[A_X1L0]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 42,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     42,
+     44
+    ],
+    "data_rows": 2,
+    "group": 19,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 19,
+    "mask_kind": "pair",
+    "mask_rows": [
+     236,
+     237
+    ],
+    "proof_field": "AttnProof.vals[42] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#42",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#18 A[A_X1L1]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#1"
+    ],
+    "claim_index": 43,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     0,
+     1
+    ],
+    "data_rows": 1,
+    "group": 20,
+    "group_key": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     238,
+     239
+    ],
+    "proof_field": "AttnProof.vals[43] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#43",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": true,
+    "site": "SC_DZC#19 A[offset 0, log 5]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#61"
+    ],
+    "claim_index": 54,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     44,
+     46
+    ],
+    "data_rows": 2,
+    "group": 21,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "mask_kind": "pair",
+    "mask_rows": [
+     240,
+     241
+    ],
+    "proof_field": "AttnProof.vals[54] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#54",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#0 A[A_Q8]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 55,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     46,
+     48
+    ],
+    "data_rows": 2,
+    "group": 21,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "mask_kind": "pair",
+    "mask_rows": [
+     242,
+     243
+    ],
+    "proof_field": "AttnProof.vals[55] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#55",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#1 A[A_RQL]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#19"
+    ],
+    "claim_index": 56,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     48,
+     50
+    ],
+    "data_rows": 2,
+    "group": 21,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "mask_kind": "pair",
+    "mask_rows": [
+     244,
+     245
+    ],
+    "proof_field": "AttnProof.vals[56] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#56",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#2 A[A_QR8]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 57,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     50,
+     52
+    ],
+    "data_rows": 2,
+    "group": 21,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "mask_kind": "pair",
+    "mask_rows": [
+     246,
+     247
+    ],
+    "proof_field": "AttnProof.vals[57] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#57",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#3 A[A_RQRL]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#23"
+    ],
+    "claim_index": 58,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     52,
+     54
+    ],
+    "data_rows": 2,
+    "group": 21,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "mask_kind": "pair",
+    "mask_rows": [
+     248,
+     249
+    ],
+    "proof_field": "AttnProof.vals[58] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#58",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#4 A[A_O8]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 59,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     54,
+     56
+    ],
+    "data_rows": 2,
+    "group": 21,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "mask_kind": "pair",
+    "mask_rows": [
+     250,
+     251
+    ],
+    "proof_field": "AttnProof.vals[59] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#59",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#5 A[A_RO0]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 60,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     56,
+     58
+    ],
+    "data_rows": 2,
+    "group": 21,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "mask_kind": "pair",
+    "mask_rows": [
+     252,
+     253
+    ],
+    "proof_field": "AttnProof.vals[60] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#60",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#6 A[A_RO1]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#54"
+    ],
+    "claim_index": 61,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     44,
+     46
+    ],
+    "data_rows": 2,
+    "group": 22,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "1-rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     254,
+     255
+    ],
+    "proof_field": "AttnProof.vals[61] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#61",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#7 A[A_Q8] @ point",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#75"
+    ],
+    "claim_index": 69,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     58,
+     59
+    ],
+    "data_rows": 1,
+    "group": 23,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 6,
+    "mask_kind": "pair",
+    "mask_rows": [
+     256,
+     257
+    ],
+    "proof_field": "AttnProof.vals[69] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#69",
+    "seam": false,
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "single_row": true,
+    "site": "SC_KVZC#0 A[A_K8]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 70,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     59,
+     60
+    ],
+    "data_rows": 1,
+    "group": 23,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 6,
+    "mask_kind": "pair",
+    "mask_rows": [
+     258,
+     259
+    ],
+    "proof_field": "AttnProof.vals[70] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#70",
+    "seam": false,
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "single_row": true,
+    "site": "SC_KVZC#1 A[A_RKL]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#22"
+    ],
+    "claim_index": 71,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     60,
+     61
+    ],
+    "data_rows": 1,
+    "group": 23,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 6,
+    "mask_kind": "pair",
+    "mask_rows": [
+     260,
+     261
+    ],
+    "proof_field": "AttnProof.vals[71] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#71",
+    "seam": false,
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "single_row": true,
+    "site": "SC_KVZC#2 A[A_V8]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 72,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     61,
+     62
+    ],
+    "data_rows": 1,
+    "group": 23,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 6,
+    "mask_kind": "pair",
+    "mask_rows": [
+     262,
+     263
+    ],
+    "proof_field": "AttnProof.vals[72] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#72",
+    "seam": false,
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "single_row": true,
+    "site": "SC_KVZC#3 A[A_RVL]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#20"
+    ],
+    "claim_index": 73,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     62,
+     63
+    ],
+    "data_rows": 1,
+    "group": 23,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 6,
+    "mask_kind": "pair",
+    "mask_rows": [
+     264,
+     265
+    ],
+    "proof_field": "AttnProof.vals[73] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#73",
+    "seam": false,
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "single_row": true,
+    "site": "SC_KVZC#4 A[A_KR8]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 74,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     63,
+     64
+    ],
+    "data_rows": 1,
+    "group": 23,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 6,
+    "mask_kind": "pair",
+    "mask_rows": [
+     266,
+     267
+    ],
+    "proof_field": "AttnProof.vals[74] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#74",
+    "seam": false,
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "single_row": true,
+    "site": "SC_KVZC#5 A[A_RKRL]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#69"
+    ],
+    "claim_index": 75,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     58,
+     59
+    ],
+    "data_rows": 1,
+    "group": 24,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "1-rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     268,
+     269
+    ],
+    "proof_field": "AttnProof.vals[75] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#75",
+    "seam": false,
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "single_row": true,
+    "site": "SC_KVZC#6 A[A_K8] @ point",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 82,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     64,
+     72
+    ],
+    "data_rows": 8,
+    "group": 25,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 11,
+    "mask_kind": "pair",
+    "mask_rows": [
+     270,
+     271
+    ],
+    "proof_field": "AttnProof.vals[82] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#82",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#0 A[A_S8]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 83,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     72,
+     80
+    ],
+    "data_rows": 8,
+    "group": 25,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 11,
+    "mask_kind": "pair",
+    "mask_rows": [
+     272,
+     273
+    ],
+    "proof_field": "AttnProof.vals[83] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#83",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#1 A[A_RSL]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#15"
+    ],
+    "claim_index": 84,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     80,
+     88
+    ],
+    "data_rows": 8,
+    "group": 25,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 11,
+    "mask_kind": "pair",
+    "mask_rows": [
+     274,
+     275
+    ],
+    "proof_field": "AttnProof.vals[84] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#84",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#2 A[A_ZSEL]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#14"
+    ],
+    "claim_index": 85,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     88,
+     96
+    ],
+    "data_rows": 8,
+    "group": 25,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 11,
+    "mask_kind": "pair",
+    "mask_rows": [
+     276,
+     277
+    ],
+    "proof_field": "AttnProof.vals[85] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#85",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#3 A[A_E]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#21"
+    ],
+    "claim_index": 86,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     96,
+     104
+    ],
+    "data_rows": 8,
+    "group": 25,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 11,
+    "mask_kind": "pair",
+    "mask_rows": [
+     278,
+     279
+    ],
+    "proof_field": "AttnProof.vals[86] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#86",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#4 A[A_P]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 87,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     104,
+     112
+    ],
+    "data_rows": 8,
+    "group": 25,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 11,
+    "mask_kind": "pair",
+    "mask_rows": [
+     280,
+     281
+    ],
+    "proof_field": "AttnProof.vals[87] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#87",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#5 A[A_PL0]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 88,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     112,
+     120
+    ],
+    "data_rows": 8,
+    "group": 25,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 11,
+    "mask_kind": "pair",
+    "mask_rows": [
+     282,
+     283
+    ],
+    "proof_field": "AttnProof.vals[88] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#88",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#6 A[A_PL1]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 89,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     120,
+     128
+    ],
+    "data_rows": 8,
+    "group": 25,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 11,
+    "mask_kind": "pair",
+    "mask_rows": [
+     284,
+     285
+    ],
+    "proof_field": "AttnProof.vals[89] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#89",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#7 A[A_SR0]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 90,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     128,
+     136
+    ],
+    "data_rows": 8,
+    "group": 25,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 11,
+    "mask_kind": "pair",
+    "mask_rows": [
+     286,
+     287
+    ],
+    "proof_field": "AttnProof.vals[90] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#90",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#8 A[A_SR1]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 91,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     136,
+     144
+    ],
+    "data_rows": 8,
+    "group": 25,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 11,
+    "mask_kind": "pair",
+    "mask_rows": [
+     288,
+     289
+    ],
+    "proof_field": "AttnProof.vals[91] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#91",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#9 A[A_SG0]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 92,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     144,
+     152
+    ],
+    "data_rows": 8,
+    "group": 25,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 11,
+    "mask_kind": "pair",
+    "mask_rows": [
+     290,
+     291
+    ],
+    "proof_field": "AttnProof.vals[92] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#92",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#10 A[A_SG1]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 93,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     2,
+     3
+    ],
+    "data_rows": 1,
+    "group": 26,
+    "group_key": [
+     "#sub(c0=0,len=64)",
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "#pad"
+    ],
+    "m": 2,
+    "mask_kind": "pair",
+    "mask_rows": [
+     292,
+     293
+    ],
+    "proof_field": "AttnProof.vals[93] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#93",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": true,
+    "site": "SC_SZC#11 A[offset 512, log 6]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 94,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     3,
+     4
+    ],
+    "data_rows": 1,
+    "group": 26,
+    "group_key": [
+     "#sub(c0=0,len=64)",
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "#pad"
+    ],
+    "m": 2,
+    "mask_kind": "pair",
+    "mask_rows": [
+     294,
+     295
+    ],
+    "proof_field": "AttnProof.vals[94] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#94",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": true,
+    "site": "SC_SZC#12 A[offset 768, log 6]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 103,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     152,
+     153
+    ],
+    "data_rows": 1,
+    "group": 27,
+    "group_key": [
+     "rho_SC_TAB[0]",
+     "rho_SC_TAB[1]",
+     "rho_SC_TAB[2]",
+     "rho_SC_TAB[3]",
+     "rho_SC_TAB[4]",
+     "rho_SC_TAB[5]",
+     "rho_SC_TAB[6]",
+     "rho_SC_TAB[7]"
+    ],
+    "m": 2,
+    "mask_kind": "pair",
+    "mask_rows": [
+     296,
+     297
+    ],
+    "proof_field": "AttnProof.vals[103] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#103",
+    "seam": false,
+    "section": "TAB table helper zero-check",
+    "single_row": true,
+    "site": "SC_TAB#0 A[A_MU8]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [],
+    "claim_index": 105,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     153,
+     154
+    ],
+    "data_rows": 1,
+    "group": 27,
+    "group_key": [
+     "rho_SC_TAB[0]",
+     "rho_SC_TAB[1]",
+     "rho_SC_TAB[2]",
+     "rho_SC_TAB[3]",
+     "rho_SC_TAB[4]",
+     "rho_SC_TAB[5]",
+     "rho_SC_TAB[6]",
+     "rho_SC_TAB[7]"
+    ],
+    "m": 2,
+    "mask_kind": "pair",
+    "mask_rows": [
+     298,
+     299
+    ],
+    "proof_field": "AttnProof.vals[105] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#105",
+    "seam": false,
+    "section": "TAB table helper zero-check",
+    "single_row": true,
+    "site": "SC_TAB#1 A[A_MEXP]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#0",
+     "A#24"
+    ],
+    "claim_index": 107,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     6,
+     8
+    ],
+    "data_rows": 2,
+    "group": 28,
+    "group_key": [
+     "rho_SC_IO_IN[1]",
+     "rho_SC_IO_IN[2]",
+     "rho_SC_IO_IN[3]",
+     "rho_SC_IO_IN[4]",
+     "rho_SC_IO_IN[5]",
+     "rho_SC_IO_IN[6]",
+     "rho_SC_IO_IN[7]",
+     "rho_SC_IO_IN[8]"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     300,
+     301
+    ],
+    "proof_field": "AttnProof.vals[107] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#107",
+    "seam": false,
+    "section": "IO-in endpoint equality",
+    "single_row": false,
+    "site": "SC_IO_IN#0 A[A_X]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": [
+     "A#40"
+    ],
+    "claim_index": 108,
+    "coefficients": {
+     "P1": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)",
+     "P3": "(k0, k1, k1 u) = ((1 - e), e, e u) on (data slice at p, R_re at tail p, R_im at tail p)"
+    },
+    "commitment": "A",
+    "data_row_range": [
+     38,
+     40
+    ],
+    "data_rows": 2,
+    "group": 29,
+    "group_key": [
+     "rho_SC_IO_OUT[1]",
+     "rho_SC_IO_OUT[2]",
+     "rho_SC_IO_OUT[3]",
+     "rho_SC_IO_OUT[4]",
+     "rho_SC_IO_OUT[5]",
+     "rho_SC_IO_OUT[6]",
+     "rho_SC_IO_OUT[7]",
+     "rho_SC_IO_OUT[8]"
+    ],
+    "m": 1,
+    "mask_kind": "pair",
+    "mask_rows": [
+     302,
+     303
+    ],
+    "proof_field": "AttnProof.vals[108] today (clear) -> masked terminal (1 - e) fin + e (R_re~ + u R_im~) via MaskPoint::eval2",
+    "receipt_only": false,
+    "role": "A#108",
+    "seam": false,
+    "section": "IO-out endpoint equality",
+    "single_row": false,
+    "site": "SC_IO_OUT#0 A[A_X1]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   }
+  ]
+ },
+ "H": {
+  "groups": [
+   {
+    "group": 0,
+    "key": [
+     "rho_SC_LZC[1]",
+     "rho_SC_LZC[2]",
+     "rho_SC_LZC[3]",
+     "rho_SC_LZC[4]",
+     "rho_SC_LZC[5]",
+     "rho_SC_LZC[6]",
+     "rho_SC_LZC[7]",
+     "rho_SC_LZC[8]"
+    ],
+    "m": 1,
+    "sites": [
+     "SC_LZC#0 H[H_L]"
+    ],
+    "sum_group": false
+   },
+   {
+    "group": 1,
+    "key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 10,
+    "sites": [
+     "SC_DZC#0 H[H_D0]",
+     "SC_DZC#1 H[H#2]",
+     "SC_DZC#2 H[H#3]",
+     "SC_DZC#3 H[H#4]",
+     "SC_DZC#4 H[H#5]",
+     "SC_DZC#5 H[H#6]",
+     "SC_DZC#6 H[H#7]",
+     "SC_DZC#7 H[H#8]",
+     "SC_DZC#8 H[H#9]",
+     "SC_DZC#9 H[H#10]"
+    ],
+    "sum_group": false
+   },
+   {
+    "group": 2,
+    "key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "sites": [
+     "SC_QZC#0 H[H_Q0]",
+     "SC_QZC#1 H[H#12]",
+     "SC_QZC#2 H[H#13]",
+     "SC_QZC#3 H[H#14]",
+     "SC_QZC#4 H[H#15]",
+     "SC_QZC#5 H[H#16]",
+     "SC_QZC#6 H[H#17]"
+    ],
+    "sum_group": false
+   },
+   {
+    "group": 3,
+    "key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 6,
+    "sites": [
+     "SC_KVZC#0 H[H_KV0]",
+     "SC_KVZC#1 H[H#19]",
+     "SC_KVZC#2 H[H#20]",
+     "SC_KVZC#3 H[H#21]",
+     "SC_KVZC#4 H[H#22]",
+     "SC_KVZC#5 H[H#23]"
+    ],
+    "sum_group": false
+   },
+   {
+    "group": 4,
+    "key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 8,
+    "sites": [
+     "SC_SZC#0 H[H_S0]",
+     "SC_SZC#1 H[H#25]",
+     "SC_SZC#2 H[H#26]",
+     "SC_SZC#3 H[H#27]",
+     "SC_SZC#4 H[H#28]",
+     "SC_SZC#5 H[H#29]",
+     "SC_SZC#6 H[H#30]",
+     "SC_SZC#7 H[H_SEXP]"
+    ],
+    "sum_group": false
+   },
+   {
+    "group": 5,
+    "key": [
+     "rho_SC_TAB[0]",
+     "rho_SC_TAB[1]",
+     "rho_SC_TAB[2]",
+     "rho_SC_TAB[3]",
+     "rho_SC_TAB[4]",
+     "rho_SC_TAB[5]",
+     "rho_SC_TAB[6]",
+     "rho_SC_TAB[7]"
+    ],
+    "m": 2,
+    "sites": [
+     "SC_TAB#0 H[H_GU8]",
+     "SC_TAB#1 H[H_GEXP]"
+    ],
+    "sum_group": false
+   },
+   {
+    "group": 6,
+    "key": null,
+    "m": 1,
+    "sites": [
+     "LogUp identity (all-ones sum over every H plane)"
+    ],
+    "sum_group": true
+   }
+  ],
+  "h_u": {
+   "coefficients": {
+    "P1": "LogUp sum vector v_sum[j] = sum_h h[j] - sum_T g_T[j] + u[j] (all-ones weights; public value 0); zsum: ((1 - e_zs), e_zs, e_zs u) on (u, u'_re, u'_im)",
+    "P3": "unchanged"
+   },
+   "commitment": "H",
+   "construction": "u = (u_re, u_im) fresh with sum_j u_re[j] = sum_j u_im[j] = 0, added to the packed column-wise sum of the 19 helper columns minus the 10 g_T rows (the FFN's h_u packing); its zero sum is proven by the zsum claim at rho_zs masked by the fresh pair h_up (FA2 14.5 / FA3 2.2 generalised to 19 + 10 planes)",
+   "group_key": "rho_zs (the zsum claim) and the value-0 LogUp sum claim (empty point, all-ones column weights)",
+   "mask_kind": "zero_sum_pair",
+   "mask_rows": [
+    216,
+    217
+   ],
+   "proof_field": "the constant 0 (LogUp identity) and zs_term",
+   "replaces": [
+    "H#109"
+   ],
+   "role": "h_u"
+  },
+  "h_up": {
+   "coefficients": {
+    "P1": "(e_zs, e_zs u) on the zsum claim",
+    "P3": "unchanged"
+   },
+   "commitment": "H",
+   "group_key": "rho_zs",
+   "mask_kind": "pair",
+   "mask_rows": [
+    286,
+    287
+   ],
+   "proof_field": "zs_term",
+   "role": "h_up"
+  },
+  "prox": {
+   "commitment": "H",
+   "group_key": "(proximity vector)",
+   "mask_kind": "prox_pair",
+   "mask_rows": [
+    288,
+    289
+   ],
+   "proof_field": "h_open.prox_vec",
+   "role": "h_prox"
+  },
+  "regions": {
+   "data": [
+    0,
+    218
+   ],
+   "helper_pairs": [
+    218,
+    286
+   ],
+   "prox_pair": [
+    288,
+    289
+   ],
+   "u_prime_pair": [
+    286,
+    287
+   ],
+   "u_zero_sum_pair": [
+    216,
+    217
+   ]
+  },
+  "replaced_sum_claims": [
+   {
+    "claim_index": 109,
+    "role": "H#109",
+    "site": "LogUp identity (all-ones sum over every H plane)"
+   }
+  ],
+  "rows_total": 290,
+  "sites": [
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 13,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      0,
+      2
+     ],
+     [
+      2,
+      4
+     ]
+    ],
+    "data_rows": 2,
+    "group": 0,
+    "group_key": [
+     "rho_SC_LZC[1]",
+     "rho_SC_LZC[2]",
+     "rho_SC_LZC[3]",
+     "rho_SC_LZC[4]",
+     "rho_SC_LZC[5]",
+     "rho_SC_LZC[6]",
+     "rho_SC_LZC[7]",
+     "rho_SC_LZC[8]"
+    ],
+    "m": 1,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     218,
+     219
+    ],
+    "proof_field": "AttnProof.vals[13] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#13",
+    "seam": false,
+    "section": "08 limb zero-check",
+    "single_row": false,
+    "site": "SC_LZC#0 H[H_L]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 44,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      4,
+      6
+     ],
+     [
+      6,
+      8
+     ]
+    ],
+    "data_rows": 2,
+    "group": 1,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 10,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     220,
+     221
+    ],
+    "proof_field": "AttnProof.vals[44] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#44",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#0 H[H_D0]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 45,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      8,
+      10
+     ],
+     [
+      10,
+      12
+     ]
+    ],
+    "data_rows": 2,
+    "group": 1,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 10,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     222,
+     223
+    ],
+    "proof_field": "AttnProof.vals[45] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#45",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#1 H[H#2]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 46,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      12,
+      14
+     ],
+     [
+      14,
+      16
+     ]
+    ],
+    "data_rows": 2,
+    "group": 1,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 10,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     224,
+     225
+    ],
+    "proof_field": "AttnProof.vals[46] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#46",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#2 H[H#3]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 47,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      16,
+      18
+     ],
+     [
+      18,
+      20
+     ]
+    ],
+    "data_rows": 2,
+    "group": 1,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 10,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     226,
+     227
+    ],
+    "proof_field": "AttnProof.vals[47] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#47",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#3 H[H#4]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 48,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      20,
+      22
+     ],
+     [
+      22,
+      24
+     ]
+    ],
+    "data_rows": 2,
+    "group": 1,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 10,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     228,
+     229
+    ],
+    "proof_field": "AttnProof.vals[48] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#48",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#4 H[H#5]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 49,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      24,
+      26
+     ],
+     [
+      26,
+      28
+     ]
+    ],
+    "data_rows": 2,
+    "group": 1,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 10,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     230,
+     231
+    ],
+    "proof_field": "AttnProof.vals[49] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#49",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#5 H[H#6]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 50,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      28,
+      30
+     ],
+     [
+      30,
+      32
+     ]
+    ],
+    "data_rows": 2,
+    "group": 1,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 10,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     232,
+     233
+    ],
+    "proof_field": "AttnProof.vals[50] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#50",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#6 H[H#7]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 51,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      32,
+      34
+     ],
+     [
+      34,
+      36
+     ]
+    ],
+    "data_rows": 2,
+    "group": 1,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 10,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     234,
+     235
+    ],
+    "proof_field": "AttnProof.vals[51] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#51",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#7 H[H#8]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 52,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      36,
+      38
+     ],
+     [
+      38,
+      40
+     ]
+    ],
+    "data_rows": 2,
+    "group": 1,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 10,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     236,
+     237
+    ],
+    "proof_field": "AttnProof.vals[52] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#52",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#8 H[H#9]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 53,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      40,
+      42
+     ],
+     [
+      42,
+      44
+     ]
+    ],
+    "data_rows": 2,
+    "group": 1,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "m": 10,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     238,
+     239
+    ],
+    "proof_field": "AttnProof.vals[53] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#53",
+    "seam": false,
+    "section": "03 D zero-check (hosts 12)",
+    "single_row": false,
+    "site": "SC_DZC#9 H[H#10]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 62,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      44,
+      46
+     ],
+     [
+      46,
+      48
+     ]
+    ],
+    "data_rows": 2,
+    "group": 2,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     240,
+     241
+    ],
+    "proof_field": "AttnProof.vals[62] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#62",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#0 H[H_Q0]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 63,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      48,
+      50
+     ],
+     [
+      50,
+      52
+     ]
+    ],
+    "data_rows": 2,
+    "group": 2,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     242,
+     243
+    ],
+    "proof_field": "AttnProof.vals[63] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#63",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#1 H[H#12]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 64,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      52,
+      54
+     ],
+     [
+      54,
+      56
+     ]
+    ],
+    "data_rows": 2,
+    "group": 2,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     244,
+     245
+    ],
+    "proof_field": "AttnProof.vals[64] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#64",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#2 H[H#13]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 65,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      56,
+      58
+     ],
+     [
+      58,
+      60
+     ]
+    ],
+    "data_rows": 2,
+    "group": 2,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     246,
+     247
+    ],
+    "proof_field": "AttnProof.vals[65] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#65",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#3 H[H#14]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 66,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      60,
+      62
+     ],
+     [
+      62,
+      64
+     ]
+    ],
+    "data_rows": 2,
+    "group": 2,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     248,
+     249
+    ],
+    "proof_field": "AttnProof.vals[66] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#66",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#4 H[H#15]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 67,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      64,
+      66
+     ],
+     [
+      66,
+      68
+     ]
+    ],
+    "data_rows": 2,
+    "group": 2,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     250,
+     251
+    ],
+    "proof_field": "AttnProof.vals[67] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#67",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#5 H[H#16]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 68,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      68,
+      70
+     ],
+     [
+      70,
+      72
+     ]
+    ],
+    "data_rows": 2,
+    "group": 2,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "m": 7,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     252,
+     253
+    ],
+    "proof_field": "AttnProof.vals[68] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#68",
+    "seam": false,
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "single_row": false,
+    "site": "SC_QZC#6 H[H#17]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 76,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      72,
+      73
+     ],
+     [
+      73,
+      74
+     ]
+    ],
+    "data_rows": 1,
+    "group": 3,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 6,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     254,
+     255
+    ],
+    "proof_field": "AttnProof.vals[76] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#76",
+    "seam": false,
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "single_row": true,
+    "site": "SC_KVZC#0 H[H_KV0]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 77,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      74,
+      75
+     ],
+     [
+      75,
+      76
+     ]
+    ],
+    "data_rows": 1,
+    "group": 3,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 6,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     256,
+     257
+    ],
+    "proof_field": "AttnProof.vals[77] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#77",
+    "seam": false,
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "single_row": true,
+    "site": "SC_KVZC#1 H[H#19]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 78,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      76,
+      77
+     ],
+     [
+      77,
+      78
+     ]
+    ],
+    "data_rows": 1,
+    "group": 3,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 6,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     258,
+     259
+    ],
+    "proof_field": "AttnProof.vals[78] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#78",
+    "seam": false,
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "single_row": true,
+    "site": "SC_KVZC#2 H[H#20]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 79,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      78,
+      79
+     ],
+     [
+      79,
+      80
+     ]
+    ],
+    "data_rows": 1,
+    "group": 3,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 6,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     260,
+     261
+    ],
+    "proof_field": "AttnProof.vals[79] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#79",
+    "seam": false,
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "single_row": true,
+    "site": "SC_KVZC#3 H[H#21]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 80,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      80,
+      81
+     ],
+     [
+      81,
+      82
+     ]
+    ],
+    "data_rows": 1,
+    "group": 3,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 6,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     262,
+     263
+    ],
+    "proof_field": "AttnProof.vals[80] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#80",
+    "seam": false,
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "single_row": true,
+    "site": "SC_KVZC#4 H[H#22]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 81,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      82,
+      83
+     ],
+     [
+      83,
+      84
+     ]
+    ],
+    "data_rows": 1,
+    "group": 3,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "m": 6,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     264,
+     265
+    ],
+    "proof_field": "AttnProof.vals[81] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#81",
+    "seam": false,
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "single_row": true,
+    "site": "SC_KVZC#5 H[H#23]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 95,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      84,
+      92
+     ],
+     [
+      92,
+      100
+     ]
+    ],
+    "data_rows": 8,
+    "group": 4,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 8,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     266,
+     267
+    ],
+    "proof_field": "AttnProof.vals[95] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#95",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#0 H[H_S0]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 96,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      100,
+      108
+     ],
+     [
+      108,
+      116
+     ]
+    ],
+    "data_rows": 8,
+    "group": 4,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 8,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     268,
+     269
+    ],
+    "proof_field": "AttnProof.vals[96] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#96",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#1 H[H#25]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 97,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      116,
+      124
+     ],
+     [
+      124,
+      132
+     ]
+    ],
+    "data_rows": 8,
+    "group": 4,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 8,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     270,
+     271
+    ],
+    "proof_field": "AttnProof.vals[97] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#97",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#2 H[H#26]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 98,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      132,
+      140
+     ],
+     [
+      140,
+      148
+     ]
+    ],
+    "data_rows": 8,
+    "group": 4,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 8,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     272,
+     273
+    ],
+    "proof_field": "AttnProof.vals[98] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#98",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#3 H[H#27]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 99,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      148,
+      156
+     ],
+     [
+      156,
+      164
+     ]
+    ],
+    "data_rows": 8,
+    "group": 4,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 8,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     274,
+     275
+    ],
+    "proof_field": "AttnProof.vals[99] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#99",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#4 H[H#28]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 100,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      164,
+      172
+     ],
+     [
+      172,
+      180
+     ]
+    ],
+    "data_rows": 8,
+    "group": 4,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 8,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     276,
+     277
+    ],
+    "proof_field": "AttnProof.vals[100] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#100",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#5 H[H#29]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 101,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      180,
+      188
+     ],
+     [
+      188,
+      196
+     ]
+    ],
+    "data_rows": 8,
+    "group": 4,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 8,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     278,
+     279
+    ],
+    "proof_field": "AttnProof.vals[101] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#101",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#6 H[H#30]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 102,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      196,
+      204
+     ],
+     [
+      204,
+      212
+     ]
+    ],
+    "data_rows": 8,
+    "group": 4,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "m": 8,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     280,
+     281
+    ],
+    "proof_field": "AttnProof.vals[102] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#102",
+    "seam": false,
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "single_row": false,
+    "site": "SC_SZC#7 H[H_SEXP]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 104,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      212,
+      213
+     ],
+     [
+      213,
+      214
+     ]
+    ],
+    "data_rows": 1,
+    "group": 5,
+    "group_key": [
+     "rho_SC_TAB[0]",
+     "rho_SC_TAB[1]",
+     "rho_SC_TAB[2]",
+     "rho_SC_TAB[3]",
+     "rho_SC_TAB[4]",
+     "rho_SC_TAB[5]",
+     "rho_SC_TAB[6]",
+     "rho_SC_TAB[7]"
+    ],
+    "m": 2,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     282,
+     283
+    ],
+    "proof_field": "AttnProof.vals[104] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#104",
+    "seam": false,
+    "section": "TAB table helper zero-check",
+    "single_row": true,
+    "site": "SC_TAB#0 H[H_GU8]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   },
+   {
+    "added": false,
+    "aliases": null,
+    "claim_index": 106,
+    "coefficients": {
+     "P1": "(1 - e, e): parts (h_re, (1-e), p), (h_im, (1-e) u, p), (R_re, e, tail p), (R_im, e u, tail p)",
+     "P3": "unchanged"
+    },
+    "commitment": "H",
+    "data_row_range": [
+     [
+      214,
+      215
+     ],
+     [
+      215,
+      216
+     ]
+    ],
+    "data_rows": 1,
+    "group": 5,
+    "group_key": [
+     "rho_SC_TAB[0]",
+     "rho_SC_TAB[1]",
+     "rho_SC_TAB[2]",
+     "rho_SC_TAB[3]",
+     "rho_SC_TAB[4]",
+     "rho_SC_TAB[5]",
+     "rho_SC_TAB[6]",
+     "rho_SC_TAB[7]"
+    ],
+    "m": 2,
+    "mask_kind": "pair (Fp2 helper plane: data (re, im) with an Fp2 mask pair; FA3 h_mf / h_md, unchanged form)",
+    "mask_rows": [
+     284,
+     285
+    ],
+    "proof_field": "AttnProof.vals[106] today -> masked helper terminal",
+    "receipt_only": false,
+    "role": "H#106",
+    "seam": false,
+    "section": "TAB table helper zero-check",
+    "single_row": true,
+    "site": "SC_TAB#1 H[H_GEXP]",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs"
+   }
+  ]
+ },
+ "note": "row indices are this layout's (layout.rs Layout::new); the H region was renumbered onto layout.rs's rows after the tool built it (adaptation R-5)",
+ "row_cost": {
+  "A": {
+   "claim_pairs_added_sub_row_sites": 0,
+   "claim_pairs_inventory": 150,
+   "extra_bytes": 3112960,
+   "extra_rows": 152,
+   "histogram_data_rows": 0,
+   "histogram_mask_rows": 0,
+   "histogram_single_row_slots_paired": 0,
+   "prox_pair": 2,
+   "receipt_endpoint_pairs": 0,
+   "rows": 306,
+   "seam_pairs": 0,
+   "today": 154
+  },
+  "A_plus_H_extra_bytes": 4628480,
+  "H": {
+   "extra_bytes": 1515520,
+   "extra_rows": 74,
+   "g_T_data_rows": 0,
+   "g_T_mask_rows": 0,
+   "h_u_zero_sum_pair": 2,
+   "h_up_fresh_pair": 2,
+   "helper_pairs": 68,
+   "prox_pair": 2,
+   "rows": 290,
+   "sum_claims_replaced": 1,
+   "today": 216,
+   "today_has_masks": false
+  },
+  "W": {
+   "P1_extra_rows": 0,
+   "P1_rows": 0,
+   "P3_claim_pairs": 0,
+   "P3_extra_bytes": 40960,
+   "P3_extra_rows": 2,
+   "P3_prox_pair": 2,
+   "P3_rows": 2,
+   "today": 0
+  },
+  "alternative_multi_row_planes_as_base_blocks_extra_A_rows": 84,
+  "alternative_tables_all_pairs_extra_A_rows": 0,
+  "bytes_per_row": 20480,
+  "endpoints_mode": "pair",
+  "method": "FA3 section 8: rows counted from the schedule; bytes per extra row = n * 8 * (1 + inv_rate) + Q * 8 (data + full coset encoding + host pads); salts and Merkle trees are per column and unchanged; proof size grows per GROUP (group vectors), not per row",
+  "profile": "block"
+ }
+}

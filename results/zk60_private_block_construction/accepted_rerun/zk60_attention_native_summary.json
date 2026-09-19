@@ -1,0 +1,1085 @@
+{
+ "adaptations": {
+  "cfs": [
+   "C-1  `OPUS_TWELVE` / `TRANSCRIPT_ORDER` rebound to this layout's eighteen slot constants in layout.rs order; `SPLIT` and `ADDED_SLOTS` emptied (this layout already has three separate matmul slots and already carries TAB / ZS / IO-in / IO-out); `TWO_EXT` rebound to the two bilinear slots (SC_SCORE, SC_PV); `DEFAULT_HOSTS` rebound to layout.rs's `HOSTS`.",
+   "C-2  `build_report` / `main` are NOT called: two of their checks index the hard-coded split names SC_ATTN_08Q/K/V, which do not exist here.  The component functions (build_slot_table, standalone_report, host_groups_report, m_layout, largest_slot, r7_extension_check, negative_controls) are called unchanged and this script re-assembles the check list.",
+   "C-3  the QKV-unsplit negative control hard-codes SC_ATTN_03 / 04 / 08Q / 08K / 08V.  It is run verbatim on a NAME-MAPPED copy of this layout's slot table (SC_QZC -> SC_ATTN_03, SC_KVZC -> SC_ATTN_04, SC_QMM/KMM/VMM -> SC_ATTN_08Q/K/V), so the shapes are this layout's.  The function body is untouched.",
+   "C-4  P1 only.  `A2_cfs_slots.P3` is null: the module does not implement P3 (weights are public and there is no W commitment)."
+  ],
+  "rank": [
+   "R-1  `EXPECTED_CLAIMS` rebound from the legacy {block: 133, receipt: 135} to this layout's claim count; `load_inventory` is not called (its only job is that assertion plus index continuity, which this script guarantees by construction).",
+   "R-2  `ROWS_TODAY` rebound to {A: a_data_rows, H: h_data_rows - 2, W: 0}: this layout commits its histograms and table helpers as ordinary planes inside the data rows, and its zero-sum row u is the last H data plane, which the tool models as the `h_u` mask pair.  With these values the tool's row arithmetic reproduces A = 306 and H = 290 exactly.",
+   "R-3  `tables_from_inventory` rebound to return [] and `with_added` to the identity: the ten legacy range tables with block masks and the twelve added rho_2 sub-row sites do not exist here (one U8 table plus one exp table, each ONE row, each an ordinary claim site with its own reserved pair).",
+   "R-4  the SC_ZS slot's H site (the u' pair on the u plane) is not emitted in the tool's view of the claim list, because the tool builds that claim itself (`Builder.add_zsum` with the fresh pair u'). The inventory record keeps it; the derived group counts (A 30 / H 8) include it.",
+   "R-5  the H row indices the tool assigns are renumbered onto layout.rs's rows afterwards ([data | u | site pairs | u' | prox] instead of [data | site pairs | u | u' | prox]).  A bijective relabelling: the rank model keys on row NAMES.",
+   "R-6  `BILINEAR_SECTIONS` / `WEIGHT_MATMUL_SECTIONS` rebound to this layout's slot names so the score / PV terminals get the two-extension-round coefficient form.",
+   "R-7  `run_all` / `run_positive` / `run_negative` / `cross_check_groups` are NOT called: their expectations are hard-coded to the legacy inventory (a W commitment, one 19-member H sum group, an A seam group at index 38, the sm/lm sub-block alternative, 10 histogram tables).  The battery this script runs uses the same imported model functions (Builder / build_model / a_model_groups / h_model_groups / analyze_fast / engines_agree / fa2_groups / identity_check / verdict) with this layout's own expectations.",
+   "R-8  sub-row claim sites (the 32-entry T-domain and 64-entry Ht-domain slices: 14 A sites) are presented as single-row claims with a synthetic 8-symbol tail that preserves PCS key equality ((point, c0, len)).  The tool's row model has no sub-row granularity; the true window is recorded in each claim's `sub_row` field.  The approximation is confined to the terminal's column weights, which the with-values models draw at random in any case.",
+   "R-9  the two endpoint commitments are modelled separately (one claim, its own pair at rows 2-3, a proximity pair).  The real endpoint geometry has THREE proximity rows (4-6) of seven; modelling two is conservative (fewer mask rows can only disclose more)."
+  ]
+ },
+ "all_pass": true,
+ "ambiguities": [
+  "A-1  layout.rs declares only the site COUNTS per slot (`A_SITES` / `H_SITES`) and the hand-counted `A_GROUPS = 30` / `H_GROUPS = 8`.  The evaluation points -- the PCS column keys that DECIDE those two numbers -- live in `argument.rs::define`, not in layout.rs.  This script therefore parses `define` as well and derives the group counts from the PCS key rule; layout.rs alone cannot answer R-1.",
+  "A-2  the PCS key of a sub-row slice is (point, c0, len), not the point tail alone (zkp-core pcs::zpart_weights).  layout.rs does not state this; it is read from the PCS source.  It matters: the eleven 32-entry sites of SC_TZC fall into 8 groups, not 1 and not 11.",
+  "A-3  layout.rs's comment says 'the histograms are committed A rows' without saying they carry ordinary claim sites; `argument.rs::SC_TAB` settles it (`b.a(A_MU8)`, `b.a(A_MEXP)` each take a reserved pair).",
+  "A-4  the note's `A = 306 rows (154 data + 150 site-pair + 2 proximity)` counts u inside H's data rows and u' inside H's site pairs.  The rank tool's H model counts u and u' as mask rows; the totals agree, the region boundaries are relabelled (adaptation R-5)."
+ ],
+ "cfs_summary": {
+  "all_checks_pass": true,
+  "failures": [],
+  "hosts": {
+   "SC_DZC": {
+    "dim_S": 52,
+    "expected_kernel": 2,
+    "hosted": [
+     "SC_WO"
+    ],
+    "kernel": 2,
+    "leaked": 0,
+    "pass": true,
+    "rank": 52,
+    "sum_L": 54
+   },
+   "SC_KVZC": {
+    "dim_S": 59,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_KMM",
+     "SC_VMM"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 59,
+    "sum_L": 62
+   },
+   "SC_QZC": {
+    "dim_S": 67,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_QMM",
+     "SC_PV"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 67,
+    "sum_L": 70
+   },
+   "SC_SZC": {
+    "dim_S": 97,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_RS",
+     "SC_SCORE"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 97,
+    "sum_L": 100
+   },
+   "SC_TZC": {
+    "dim_S": 50,
+    "expected_kernel": 2,
+    "hosted": [
+     "SC_SS"
+    ],
+    "kernel": 2,
+    "leaked": 0,
+    "pass": true,
+    "rank": 50,
+    "sum_L": 52
+   }
+  },
+  "largest_slot": {
+   "constraint": "L_s + 256 <= 512 (zk.rs mask_commit)",
+   "degree": 4,
+   "headroom_coefficients": 206,
+   "len": 50,
+   "n_vars": 12,
+   "name": "06 softmax zero-check (hosts 07, 10)",
+   "slot": "SC_SZC"
+  },
+  "m_rows": 40,
+  "n_functionals": 28,
+  "n_slots": 18,
+  "standalone": {
+   "SC_DZC": {
+    "dim_S": 41,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 41
+   },
+   "SC_IO_IN": {
+    "dim_S": 21,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 21
+   },
+   "SC_IO_OUT": {
+    "dim_S": 21,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 21
+   },
+   "SC_KMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_KVZC": {
+    "dim_S": 37,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 37
+   },
+   "SC_LZC": {
+    "dim_S": 31,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 31
+   },
+   "SC_PV": {
+    "dim_S": 15,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 15
+   },
+   "SC_QMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_QZC": {
+    "dim_S": 41,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 41
+   },
+   "SC_RS": {
+    "dim_S": 37,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 37
+   },
+   "SC_SCORE": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_SS": {
+    "dim_S": 31,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 31
+   },
+   "SC_SZC": {
+    "dim_S": 49,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 49
+   },
+   "SC_TAB": {
+    "dim_S": 28,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 28
+   },
+   "SC_TZC": {
+    "dim_S": 19,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 19
+   },
+   "SC_VMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_WO": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_ZS": {
+    "dim_S": 19,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 19
+   }
+  }
+ },
+ "derived_counts": {
+  "A_data_rows": 154,
+  "A_groups_derived": 30,
+  "A_rows": 306,
+  "A_sites": 75,
+  "H_data_rows": 218,
+  "H_groups_derived": 8,
+  "H_rows": 290,
+  "H_sites": 35,
+  "M_rows": 40,
+  "U8_lookups": 47104,
+  "exp_lookups": 2048,
+  "functionals": 28,
+  "largest_L": 50
+ },
+ "derived_vs_note": [
+  {
+   "detail": "",
+   "got": 306,
+   "name": "A rows (layout arithmetic vs note section 5)",
+   "note_says": 306,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 154,
+   "name": "A data rows",
+   "note_says": 154,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 150,
+   "name": "A site-pair rows",
+   "note_says": 150,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 290,
+   "name": "H rows",
+   "note_says": 290,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 218,
+   "name": "H data rows (incl. u)",
+   "note_says": 218,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 70,
+   "name": "H site-pair rows (incl. u')",
+   "note_says": 70,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 75,
+   "name": "A claim sites",
+   "note_says": 75,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 35,
+   "name": "H claim sites",
+   "note_says": 35,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 75,
+   "name": "A claim sites found in argument.rs::define",
+   "note_says": 75,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 35,
+   "name": "H claim sites found in argument.rs::define",
+   "note_says": 35,
+   "pass": true
+  },
+  {
+   "detail": "layout.rs A_GROUPS is a hand count; this is the derivation",
+   "got": 30,
+   "name": "A opening groups (derived from the PCS key rule)",
+   "note_says": 30,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 8,
+   "name": "H opening groups (derived, incl. the sum group)",
+   "note_says": 8,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 30,
+   "name": "A_GROUPS declared in layout.rs",
+   "note_says": 30,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 8,
+   "name": "H_GROUPS declared in layout.rs",
+   "note_says": 8,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 40,
+   "name": "M rows",
+   "note_says": 40,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 40,
+   "name": "M rows = 2 * slots + 4",
+   "note_says": 40,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 28,
+   "name": "functionals = slots + standalone Gammas + one batched Gamma per host",
+   "note_says": 28,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 28,
+   "name": "N_FUNCTIONALS declared",
+   "note_says": 28,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": [
+    [
+     9,
+     1,
+     3
+    ],
+    [
+     5,
+     1,
+     3
+    ],
+    [
+     9,
+     1,
+     3
+    ],
+    [
+     11,
+     1,
+     3
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     3,
+     2,
+     2
+    ],
+    [
+     5,
+     2,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     9,
+     1,
+     4
+    ],
+    [
+     9,
+     1,
+     4
+    ],
+    [
+     8,
+     1,
+     4
+    ],
+    [
+     11,
+     1,
+     4
+    ],
+    [
+     8,
+     1,
+     3
+    ],
+    [
+     8,
+     1,
+     2
+    ],
+    [
+     9,
+     1,
+     2
+    ],
+    [
+     9,
+     1,
+     2
+    ]
+   ],
+   "name": "the 18 (main, ext, degree) triples",
+   "note_says": [
+    [
+     9,
+     1,
+     3
+    ],
+    [
+     5,
+     1,
+     3
+    ],
+    [
+     9,
+     1,
+     3
+    ],
+    [
+     11,
+     1,
+     3
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     3,
+     2,
+     2
+    ],
+    [
+     5,
+     2,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     9,
+     1,
+     4
+    ],
+    [
+     9,
+     1,
+     4
+    ],
+    [
+     8,
+     1,
+     4
+    ],
+    [
+     11,
+     1,
+     4
+    ],
+    [
+     8,
+     1,
+     3
+    ],
+    [
+     8,
+     1,
+     2
+    ],
+    [
+     9,
+     1,
+     2
+    ],
+    [
+     9,
+     1,
+     2
+    ]
+   ],
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 50,
+   "name": "largest mask row L",
+   "note_says": 50,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 129,
+   "name": "total main rounds",
+   "note_says": 129,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 20,
+   "name": "total extension rounds",
+   "note_says": 20,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 47104,
+   "name": "U8 lookups",
+   "note_says": 47104,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": 2048,
+   "name": "exp lookups",
+   "note_says": 2048,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": {
+    "1": [
+     0
+    ],
+    "10": [
+     9
+    ],
+    "11": [
+     4,
+     8
+    ],
+    "12": [
+     5,
+     6
+    ],
+    "13": [
+     3,
+     7
+    ]
+   },
+   "name": "hosts (module slot indices)",
+   "note_says": {
+    "1": [
+     0
+    ],
+    "10": [
+     9
+    ],
+    "11": [
+     4,
+     8
+    ],
+    "12": [
+     5,
+     6
+    ],
+    "13": [
+     3,
+     7
+    ]
+   },
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": true,
+   "name": "every slot L_s + 256 <= 512",
+   "note_says": true,
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": {
+    "D": 10,
+    "Kv": 6,
+    "L": 1,
+    "Q": 7,
+    "S": 7
+   },
+   "name": "helper planes cover the lookups pairwise",
+   "note_says": {
+    "D": 10,
+    "Kv": 6,
+    "L": 1,
+    "Q": 7,
+    "S": 7
+   },
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": [
+    154,
+    156,
+    158,
+    160,
+    162,
+    164,
+    166,
+    168,
+    170,
+    172,
+    174,
+    176,
+    178,
+    180,
+    182,
+    184,
+    186,
+    188,
+    190,
+    192,
+    194,
+    196,
+    198,
+    200,
+    202,
+    204,
+    206,
+    208,
+    210,
+    212,
+    214,
+    216,
+    218,
+    220,
+    222,
+    224,
+    226,
+    228,
+    230,
+    232,
+    234,
+    236,
+    238,
+    240,
+    242,
+    244,
+    246,
+    248,
+    250,
+    252,
+    254,
+    256,
+    258,
+    260,
+    262,
+    264,
+    266,
+    268,
+    270,
+    272,
+    274,
+    276,
+    278,
+    280,
+    282,
+    284,
+    286,
+    288,
+    290,
+    292,
+    294,
+    296,
+    298,
+    300,
+    302
+   ],
+   "name": "A reserved-pair first rows == layout.rs a_site(slot, k)",
+   "note_says": [
+    154,
+    156,
+    158,
+    160,
+    162,
+    164,
+    166,
+    168,
+    170,
+    172,
+    174,
+    176,
+    178,
+    180,
+    182,
+    184,
+    186,
+    188,
+    190,
+    192,
+    194,
+    196,
+    198,
+    200,
+    202,
+    204,
+    206,
+    208,
+    210,
+    212,
+    214,
+    216,
+    218,
+    220,
+    222,
+    224,
+    226,
+    228,
+    230,
+    232,
+    234,
+    236,
+    238,
+    240,
+    242,
+    244,
+    246,
+    248,
+    250,
+    252,
+    254,
+    256,
+    258,
+    260,
+    262,
+    264,
+    266,
+    268,
+    270,
+    272,
+    274,
+    276,
+    278,
+    280,
+    282,
+    284,
+    286,
+    288,
+    290,
+    292,
+    294,
+    296,
+    298,
+    300,
+    302
+   ],
+   "pass": true
+  },
+  {
+   "detail": "",
+   "got": [
+    218,
+    220,
+    222,
+    224,
+    226,
+    228,
+    230,
+    232,
+    234,
+    236,
+    238,
+    240,
+    242,
+    244,
+    246,
+    248,
+    250,
+    252,
+    254,
+    256,
+    258,
+    260,
+    262,
+    264,
+    266,
+    268,
+    270,
+    272,
+    274,
+    276,
+    278,
+    280,
+    282,
+    284,
+    286
+   ],
+   "name": "H reserved-pair first rows == layout.rs h_site(slot, k)",
+   "note_says": [
+    218,
+    220,
+    222,
+    224,
+    226,
+    228,
+    230,
+    232,
+    234,
+    236,
+    238,
+    240,
+    242,
+    244,
+    246,
+    248,
+    250,
+    252,
+    254,
+    256,
+    258,
+    260,
+    262,
+    264,
+    266,
+    268,
+    270,
+    272,
+    274,
+    276,
+    278,
+    280,
+    282,
+    284,
+    286
+   ],
+   "pass": true
+  }
+ ],
+ "failures": [],
+ "findings": [
+  {
+   "detail": "29 of 29 cross-checks agree",
+   "id": "F-0",
+   "mismatches": [],
+   "severity": "none",
+   "title": "derived counts against ZK60_PRIVATE_ATTENTION_NATIVE.md section 3 / section 5"
+  },
+  {
+   "detail": "the measured disclosure of the `one base mask row per claim` control is 15; the tool's helper predicts 14. The helper assumes two singleton groups with the same (rows, row-bit symbols) key leak the SAME functional.  That holds when the row bits are constants (the leak is a row's unit vector) but not when they are symbolic: the surviving base functional is Im(c) Re(a eq) - Re(c) Im(a eq), which depends on the group's own e and lambda, so k singleton groups on one R-row plane span min(k, R) dimensions.  Here SC_QMM / SC_KMM / SC_VMM all open A_Y (rows 12-13) at the same symbolic row bit and recover BOTH rows, and A_X (rows 6-7) is opened by SC_SS and SC_IO_IN.  This script uses the corrected expectation (`native_singleton_expectation`).  It changes no positive verdict: the delivery gives every site a pair, and the control's point (a single base row leaks, the pair closes it) is unaffected.",
+   "id": "F-1",
+   "severity": "tool helper, not the delivery",
+   "title": "the pair-schedule tool's `singleton_leak_expectation` under-counts this layout's base1 control"
+  },
+  {
+   "derived": {
+    "A": 30,
+    "H": 8
+   },
+   "detail": "layout.rs declares A_GROUPS = 30 and H_GROUPS = 8 as hand counts with no derivation; the PCS column keys that decide them are the evaluation points in argument.rs::define.  Parsing define and applying zkp-core's ZKey rule ((point tail, c0, len), first occurrence) reproduces 30 and 8 exactly, so the two constants the prover and verifier compare the PCS's real grouping against are right.",
+   "id": "F-2",
+   "severity": "ambiguity, resolved",
+   "title": "A_GROUPS / H_GROUPS cannot be checked from layout.rs alone"
+  },
+  {
+   "detail": "SC_TZC opens A_D, A_DSQ and the nine 32-entry limb sub-planes at ONE point.  Their point tails are identical, so a reader who groups by the tail alone counts one group; the PCS also keys on the column window (c0, len), which splits them into the c0 = 0 group {A_D, A_DSQ, limb 0, limb 8} and seven singletons at c0 = 32..224.  Ignoring (c0, len) would give A_GROUPS = 23 and the prover would refuse its own honest proof with `N opening groups, the schedule declares M`.  The declared 30 is the value the PCS actually produces.",
+   "id": "F-3",
+   "severity": "note for the reviewer",
+   "sub_row_groups": [
+    {
+     "c0": 0,
+     "group": 1,
+     "len": 32,
+     "m": 4
+    },
+    {
+     "c0": 32,
+     "group": 2,
+     "len": 32,
+     "m": 1
+    },
+    {
+     "c0": 64,
+     "group": 3,
+     "len": 32,
+     "m": 1
+    },
+    {
+     "c0": 96,
+     "group": 4,
+     "len": 32,
+     "m": 1
+    },
+    {
+     "c0": 128,
+     "group": 5,
+     "len": 32,
+     "m": 1
+    },
+    {
+     "c0": 160,
+     "group": 6,
+     "len": 32,
+     "m": 1
+    },
+    {
+     "c0": 192,
+     "group": 7,
+     "len": 32,
+     "m": 1
+    },
+    {
+     "c0": 224,
+     "group": 8,
+     "len": 32,
+     "m": 1
+    },
+    {
+     "c0": 0,
+     "group": 20,
+     "len": 32,
+     "m": 1
+    },
+    {
+     "c0": 0,
+     "group": 26,
+     "len": 64,
+     "m": 2
+    }
+   ],
+   "title": "the sub-row (c0, len) half of the PCS key carries 7 of the 30 A groups"
+  },
+  {
+   "detail": "both are linear-algebraic models at seeded stand-in challenges.  Outside them: the sampled columns and salted Merkle paths, transcript conditioning (no simulator), integer-range side information, cross-commitment correlation (A <-> H share data, never masks), the captured-receipt joint-view gate of the construction section 7, and D8 / D11 (the endpoint-reuse premises the note itself leaves open).  P3 is not modelled because the module does not implement it.",
+   "id": "F-4",
+   "severity": "scope",
+   "title": "what these two tools do NOT settle"
+  }
+ ],
+ "layout_source": {
+  "hashline/src/private_attention/argument.rs": "096aeb865fac9927b070f609064b970140727ac02aecba60ab1b4d1e4ddc4a09",
+  "hashline/src/private_attention/layout.rs": "ac8ca73762dbc2dc73d98914a596b88f486de79cdf9c794e7e4df306de0f9819",
+  "hashline/src/private_attention/protocol.rs": "9be2439bbc038fe8a354ae6dec0b0ea13adc9a3e08a5d8fc24f31bd98d6b7d1f",
+  "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
+ },
+ "outputs": [
+  "/home/victor/wt-zk60-attention-compile/results/zk60_private_block_construction/accepted_rerun/zk60_attention_native_cfs_slots.json",
+  "/home/victor/wt-zk60-attention-compile/results/zk60_private_block_construction/accepted_rerun/zk60_attention_native_hosts.json",
+  "/home/victor/wt-zk60-attention-compile/results/zk60_private_block_construction/accepted_rerun/zk60_attention_native_inventory.json",
+  "/home/victor/wt-zk60-attention-compile/results/zk60_private_block_construction/accepted_rerun/zk60_attention_native_pair_schedule.json",
+  "/home/victor/wt-zk60-attention-compile/results/zk60_private_block_construction/accepted_rerun/zk60_attention_native_schedule.json"
+ ],
+ "rank_summary": {
+  "H_residual_is_exactly_the_public_LogUp_identity": true,
+  "failures": [],
+  "groups_with_nonzero_disclosure": {},
+  "negative_controls": {
+   "flipped_rope_SC_KVZC_own_pair_with_values_n4": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_KVZC_sharing_pair_with_values_n4": {
+    "disclosed_dim": 2,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_QZC_own_pair_with_values_n4": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_QZC_sharing_pair_with_values_n4": {
+    "disclosed_dim": 2,
+    "verdict": "PASS"
+   },
+   "helper_sums_published_n4": {
+    "disclosed_dim": 70,
+    "verdict": "PASS"
+   },
+   "no_mask_A_per_column": {
+    "disclosed_dim": 37,
+    "verdict": "PASS"
+   },
+   "no_mask_A_with_values_n4": {
+    "disclosed_dim": 208,
+    "verdict": "PASS"
+   },
+   "prox_pair_singleton_pair_claim_per_column": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "single_base_row_per_claim_A_per_column": {
+    "disclosed_dim": 15,
+    "verdict": "PASS"
+   },
+   "single_prox_row_singleton_pair_claim_per_column": {
+    "disclosed_dim": 1,
+    "verdict": "PASS"
+   },
+   "zero_sum_row_without_fresh_pair_n4": {
+    "disclosed_dim": 8,
+    "verdict": "PASS"
+   }
+  },
+  "whole_A_per_column_disclosed_dim": 0,
+  "whole_A_with_values_disclosed_dim": 0,
+  "whole_H_per_column_disclosed_dim": 0,
+  "whole_H_with_values_disclosed_dim": {
+   "whole_H_with_values_n4": 2,
+   "whole_H_with_values_n8": 2
+  }
+ },
+ "task": "R-1: the pair-schedule rank check and the CFS slot check on the native layout"
+}

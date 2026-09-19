@@ -1,0 +1,2252 @@
+{
+ "adapters": [
+  "B-1  `Layout.limb_off_m` -- hashline/src/private_block/layout.rs:647 adds a second limb base (`a_off[A_LIMBM] + k * T`, norm_m's limbs) beside `limb_off`, and private_block/argument.rs:570 calls it inside a site: `b.a_slice(lay.limb_off_m(kk), 5, rho(0..5), 0)`.  The committed `Layout` class has no such method and the committed `DefineParser._int` substitutes only `lay.limb_off(..)`.  ADAPTER: `BlockLayout` (a subclass) adds `limb_off_m` with exactly layout.rs's arithmetic, and `BlockDefineParser._int` substitutes `lay.limb_off_m(k)` with it before delegating.  No value is assumed: the plane index and `T` come from the parsed consts.",
+  "B-2  receiver-qualified `lay.helpers(..)` -- the accepted argument.rs calls the free function `helpers(Dom::D).1` (private_attention/argument.rs:613, :621, :652, :666, :691); the block calls the method `lay.helpers(Dom::D).1` (private_block/argument.rs:690, :701, :743, :783, :797, :822).  The committed `_int`/`_statement` regexes are anchored on the free-function spelling.  ADAPTER: `BlockDefineParser` rewrites the exact token `lay.helpers(` to `helpers(` in each statement and expression before delegating.  Nothing else named `lay.` is touched (the committed parser already handles `lay.a_off[..]` and `lay.limb_off(..)`), and `helpers(` never occurs inside a site call's argument list.",
+  "B-3  `let <name> = if <cond> { <challenge> } else { <point>.clone() }` -- private_block/argument.rs:668, `let r_row = if slot == SC_DMM { tr.challenge_fp2_vec(5) } else { pts.r_tf.clone() };`, the one construct the feed-forward matmul arm needs and the accepted source never uses (the committed parser handles only the TUPLE form `let (a, b) = if flag {..} else {..}` and only with a bool local as the condition).  ADAPTER: `BlockDefineParser._statement` evaluates the condition with the committed `_cond`, takes the live branch and binds a challenge vector or a `pts.X` / `pts.X.clone()` vector; anything else falls through to the committed parser unchanged.  The bound symbols are `SC_DMM.r_row[i]` (the Rust local's own name), distinct from `SC_GMM.r_tf[i]`, which is what the PCS grouping keys on.",
+  "B-4  `protocol.rs::logup_sum_claim` indirections -- the accepted source loops `for p in 0..N_H` and signs with `if p == H_GU8 || p == H_GEXP`; the block (private_block/protocol.rs:54-55) loops `for p in lay.h_planes()` and signs with `if h_is_table(p)`.  The committed `parse_logup_sum` refuses the first and silently reads an EMPTY negated set from the second.  ADAPTER: `normalise_logup_source` resolves BOTH indirections out of layout.rs itself -- `fn h_planes` must read `(0..N_H).collect()` (layout.rs:615-617) and `fn h_is_table` must read `matches!(plane, ...)` (layout.rs:255-257) -- and rewrites those two lines into the spelling the committed parser understands, so that all of its own assertions (`point: vec![]`, `value: Fp2::ZERO`, loop range == N_H) still run.  Both forms are asserted, not assumed; an unexpected body is a hard parse error.",
+  "B-5  the two OWED negative controls re-use the committed rank tool with its accepted rebinding: after `INV.run_rank_tool` returns, the already-rebound module instance is taken from `sys.modules['zk60_attention_pair_schedule']` and its own `build_schedule` / `a_model_groups(share_mask=...)` / `build_model` / `analyze_fast` are called again.  No constant is rebound a second time and no tool function is redefined.",
+  "B-6  the activation table's lookup total.  The committed `lookup_total` knows two tables (U8 by summing `lookups(dom)` over `LOOKUP_DOMS`, exp as `1 << Dom::S.log()`).  The block has a third, the activation table (private_block/argument.rs:766 `f_act`, one lookup per `Dom::F` element).  `block_lookup_totals` adds `act = 1 << Dom::F.log()` by exactly the committed tool's own convention for exp.  The U8 and exp totals are the committed function's, unchanged."
+ ],
+ "adapters_used_by_the_define_parser": {
+  "B-1": 9,
+  "B-2": 8,
+  "B-3": 3
+ },
+ "adapters_used_note": "how many times each adapter FIRED while interpreting argument.rs::define, not how many source sites it covers (one statement can be normalised once as a statement and again as an integer expression).  B-1: private_block/argument.rs:570 (nine loop iterations); B-2: :690, :701, :743, :783 (x2 slots), :797 (x2 slots), :822; B-3: :668 (one arm, three slots).",
+ "all_pass": true,
+ "ambiguities": [
+  "A-1  layout.rs declares only the per-slot site COUNTS (`A_SITES` / `H_SITES`) and the hand-counted `A_GROUPS = 35` / `H_GROUPS = 9`.  The PCS column keys that DECIDE the group counts live in `argument.rs::define`.  This driver parses `define` and derives them, exactly as the committed tool does for the accepted layout.",
+  "A-2  the PCS key of a sub-row slice is (point tail, c0, len), read from `zkp-core/src/pcs.rs::zpart_weights`, not from layout.rs.",
+  "A-3  `WEIGHT_MATMUL_SECTIONS` is rebound by the committed `run_rank_tool` to the four attention matmul slots (SC_QMM / SC_KMM / SC_VMM / SC_WO) and therefore does not name the three feed-forward matmuls (SC_GMM / SC_UMM / SC_DMM).  Under P1 that constant only selects a COEFFICIENT-FORM STRING and a `p3` e-kind, neither of which is used in any P1 model, so the rank verdicts are unaffected.  The paper whole-block run has the same property, so the comparison is like for like.",
+  "A-4  the two owed controls are mutations of the derived claim list inside the rank model.  The source's own runtime defence against a shared pair is `private_block/protocol.rs::audit_claims` (`a reserved pair is unused or shared between claims`); that refusal is a Rust test, not this driver's business, and is NOT exercised here."
+ ],
+ "caveat": "These verdicts are about a LINEAR-ALGEBRA MODEL of the real Rust schedule of hashline/src/private_block/, at seeded stand-in challenges. The models exclude the sampled columns, the salted Merkle paths, the CFS channel, transcript conditioning, integer-range side information and correlation between A and H -- exactly as on the accepted attention layout (ZK60_PRIVATE_ATTENTION_NATIVE.md:79). NOTHING here establishes a privacy property of the construction: the joint-view gate on captured receipts is unmet and D8 / D11 stay open for the block's two external endpoints x_in and xres2. What is new relative to the paper runs is only that the schedule is now READ OUT OF CODE instead of out of a memo.",
+ "cfs_summary": {
+  "all_checks_pass": true,
+  "failures": [],
+  "hosts": {
+   "SC_DZC": {
+    "dim_S": 63,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_WO",
+     "SC_DMM"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 63,
+    "sum_L": 66
+   },
+   "SC_FZC": {
+    "dim_S": 63,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_GMM",
+     "SC_UMM"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 63,
+    "sum_L": 66
+   },
+   "SC_KVZC": {
+    "dim_S": 59,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_KMM",
+     "SC_VMM"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 59,
+    "sum_L": 62
+   },
+   "SC_QZC": {
+    "dim_S": 67,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_QMM",
+     "SC_PV"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 67,
+    "sum_L": 70
+   },
+   "SC_SZC": {
+    "dim_S": 97,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_RS",
+     "SC_SCORE"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 97,
+    "sum_L": 100
+   },
+   "SC_TZC": {
+    "dim_S": 81,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_SS",
+     "SC_SSM"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 81,
+    "sum_L": 84
+   }
+  },
+  "largest_slot": {
+   "constraint": "L_s + 256 <= 512 (zk.rs mask_commit)",
+   "degree": 4,
+   "headroom_coefficients": 206,
+   "len": 50,
+   "n_vars": 12,
+   "name": "06 softmax zero-check (hosts 07, 10)",
+   "slot": "SC_SZC"
+  },
+  "m_rows": 50,
+  "n_functionals": 34,
+  "n_slots": 23,
+  "negative_controls": {
+   "nc_extension_degree_exceeds_mask": true,
+   "nc_host_nu_zero": true,
+   "nc_hosted_c_zero": true,
+   "nc_qkv_unsplit": true,
+   "nc_row_budget_exceeded": true,
+   "nc_sigma_functional_for_host_slot": true,
+   "nc_sigma_functional_for_private_slot": true
+  },
+  "standalone": {
+   "SC_DMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_DZC": {
+    "dim_S": 41,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 41
+   },
+   "SC_FZC": {
+    "dim_S": 41,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 41
+   },
+   "SC_GMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_IO_IN": {
+    "dim_S": 21,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 21
+   },
+   "SC_IO_OUT": {
+    "dim_S": 21,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 21
+   },
+   "SC_KMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_KVZC": {
+    "dim_S": 37,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 37
+   },
+   "SC_LZC": {
+    "dim_S": 41,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 41
+   },
+   "SC_PV": {
+    "dim_S": 15,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 15
+   },
+   "SC_QMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_QZC": {
+    "dim_S": 41,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 41
+   },
+   "SC_RS": {
+    "dim_S": 37,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 37
+   },
+   "SC_SCORE": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_SS": {
+    "dim_S": 31,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 31
+   },
+   "SC_SSM": {
+    "dim_S": 31,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 31
+   },
+   "SC_SZC": {
+    "dim_S": 49,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 49
+   },
+   "SC_TAB": {
+    "dim_S": 28,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 28
+   },
+   "SC_TZC": {
+    "dim_S": 19,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 19
+   },
+   "SC_UMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_VMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_WO": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_ZS": {
+    "dim_S": 19,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 19
+   }
+  }
+ },
+ "derived_counts": {
+  "A_GROUPS_declared": 35,
+  "A_groups_derived": 35,
+  "A_sites": 120,
+  "H_GROUPS_declared": 9,
+  "H_groups_derived": 9,
+  "H_sites": 51,
+  "M_ROWS": 50,
+  "N_FUNCTIONALS": 34,
+  "U8_lookups": 61440,
+  "a_data_rows": 213,
+  "a_rows": 455,
+  "a_site_pair_rows": 240,
+  "act_lookups": 512,
+  "exp_lookups": 2048,
+  "ext_rounds_total": 25,
+  "h_data_rows": 280,
+  "h_rows": 384,
+  "h_site_pair_rows": 102,
+  "hosts_by_index": {
+   "2": [
+    0,
+    1
+   ],
+   "14": [
+    10,
+    13
+   ],
+   "15": [
+    5,
+    9
+   ],
+   "16": [
+    6,
+    7
+   ],
+   "17": [
+    4,
+    8
+   ],
+   "18": [
+    11,
+    12
+   ]
+  },
+  "largest_L": 50,
+  "main_rounds_total": 159,
+  "n_hosts": 6,
+  "n_slots": 23,
+  "slot_L": {
+   "SC_DMM": 12,
+   "SC_DZC": 42,
+   "SC_FZC": 42,
+   "SC_GMM": 12,
+   "SC_IO_IN": 22,
+   "SC_IO_OUT": 22,
+   "SC_KMM": 12,
+   "SC_KVZC": 38,
+   "SC_LZC": 42,
+   "SC_PV": 16,
+   "SC_QMM": 12,
+   "SC_QZC": 42,
+   "SC_RS": 38,
+   "SC_SCORE": 12,
+   "SC_SS": 32,
+   "SC_SSM": 32,
+   "SC_SZC": 50,
+   "SC_TAB": 29,
+   "SC_TZC": 20,
+   "SC_UMM": 12,
+   "SC_VMM": 12,
+   "SC_WO": 12,
+   "SC_ZS": 20
+  },
+  "slot_L_plus_256": {
+   "SC_DMM": 268,
+   "SC_DZC": 298,
+   "SC_FZC": 298,
+   "SC_GMM": 268,
+   "SC_IO_IN": 278,
+   "SC_IO_OUT": 278,
+   "SC_KMM": 268,
+   "SC_KVZC": 294,
+   "SC_LZC": 298,
+   "SC_PV": 272,
+   "SC_QMM": 268,
+   "SC_QZC": 298,
+   "SC_RS": 294,
+   "SC_SCORE": 268,
+   "SC_SS": 288,
+   "SC_SSM": 288,
+   "SC_SZC": 306,
+   "SC_TAB": 285,
+   "SC_TZC": 276,
+   "SC_UMM": 268,
+   "SC_VMM": 268,
+   "SC_WO": 268,
+   "SC_ZS": 276
+  },
+  "slot_kinds": {
+   "Host": 6,
+   "Private": 12,
+   "Standalone": 5
+  },
+  "sum_main_ext_times_degree_plus_1": 721,
+  "terminals": 173
+ },
+ "derived_vs_design": [
+  {
+   "derived": 455,
+   "design_says": 455,
+   "detail": "",
+   "name": "A rows",
+   "pass": true
+  },
+  {
+   "derived": 213,
+   "design_says": 213,
+   "detail": "",
+   "name": "A data rows",
+   "pass": true
+  },
+  {
+   "derived": 240,
+   "design_says": 240,
+   "detail": "",
+   "name": "A site-pair rows",
+   "pass": true
+  },
+  {
+   "derived": 2,
+   "design_says": 2,
+   "detail": "",
+   "name": "A proximity rows",
+   "pass": true
+  },
+  {
+   "derived": 384,
+   "design_says": 384,
+   "detail": "",
+   "name": "H rows",
+   "pass": true
+  },
+  {
+   "derived": 280,
+   "design_says": 280,
+   "detail": "",
+   "name": "H data rows (incl. u)",
+   "pass": true
+  },
+  {
+   "derived": 102,
+   "design_says": 102,
+   "detail": "",
+   "name": "H site-pair rows (incl. u')",
+   "pass": true
+  },
+  {
+   "derived": 2,
+   "design_says": 2,
+   "detail": "",
+   "name": "H proximity rows",
+   "pass": true
+  },
+  {
+   "derived": 120,
+   "design_says": 120,
+   "detail": "",
+   "name": "A claim sites declared in layout.rs A_SITES",
+   "pass": true
+  },
+  {
+   "derived": 51,
+   "design_says": 51,
+   "detail": "",
+   "name": "H claim sites declared in layout.rs H_SITES",
+   "pass": true
+  },
+  {
+   "derived": 120,
+   "design_says": 120,
+   "detail": "",
+   "name": "A claim sites found in argument.rs::define",
+   "pass": true
+  },
+  {
+   "derived": 51,
+   "design_says": 51,
+   "detail": "",
+   "name": "H claim sites found in argument.rs::define",
+   "pass": true
+  },
+  {
+   "derived": 35,
+   "design_says": 35,
+   "detail": "layout.rs A_GROUPS is a hand count; this is the derivation from argument.rs::define",
+   "name": "A opening groups (derived from the PCS key rule)",
+   "pass": true
+  },
+  {
+   "derived": 9,
+   "design_says": 9,
+   "detail": "",
+   "name": "H opening groups (derived, incl. the sum group)",
+   "pass": true
+  },
+  {
+   "derived": 35,
+   "design_says": 35,
+   "detail": "",
+   "name": "A_GROUPS declared in layout.rs",
+   "pass": true
+  },
+  {
+   "derived": 9,
+   "design_says": 9,
+   "detail": "",
+   "name": "H_GROUPS declared in layout.rs",
+   "pass": true
+  },
+  {
+   "derived": 23,
+   "design_says": 23,
+   "detail": "",
+   "name": "CFS slots",
+   "pass": true
+  },
+  {
+   "derived": {
+    "Host": 6,
+    "Private": 12,
+    "Standalone": 5
+   },
+   "design_says": {
+    "Host": 6,
+    "Private": 12,
+    "Standalone": 5
+   },
+   "detail": "",
+   "name": "slot kinds private / standalone / host",
+   "pass": true
+  },
+  {
+   "derived": 6,
+   "design_says": 6,
+   "detail": "",
+   "name": "host groups",
+   "pass": true
+  },
+  {
+   "derived": 50,
+   "design_says": 50,
+   "detail": "",
+   "name": "M rows",
+   "pass": true
+  },
+  {
+   "derived": 50,
+   "design_says": 50,
+   "detail": "",
+   "name": "M rows = 2 * slots + 4",
+   "pass": true
+  },
+  {
+   "derived": 34,
+   "design_says": 34,
+   "detail": "",
+   "name": "functionals = slots + standalone Gammas + one batched Gamma per host",
+   "pass": true
+  },
+  {
+   "derived": 34,
+   "design_says": 34,
+   "detail": "",
+   "name": "N_FUNCTIONALS declared in layout.rs",
+   "pass": true
+  },
+  {
+   "derived": [
+    [
+     9,
+     1,
+     3
+    ],
+    [
+     9,
+     1,
+     3
+    ],
+    [
+     5,
+     1,
+     3
+    ],
+    [
+     9,
+     1,
+     4
+    ],
+    [
+     11,
+     1,
+     3
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     3,
+     2,
+     2
+    ],
+    [
+     5,
+     2,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     9,
+     1,
+     4
+    ],
+    [
+     9,
+     1,
+     4
+    ],
+    [
+     8,
+     1,
+     4
+    ],
+    [
+     11,
+     1,
+     4
+    ],
+    [
+     9,
+     1,
+     4
+    ],
+    [
+     8,
+     1,
+     3
+    ],
+    [
+     8,
+     1,
+     2
+    ],
+    [
+     9,
+     1,
+     2
+    ],
+    [
+     9,
+     1,
+     2
+    ]
+   ],
+   "design_says": [
+    [
+     9,
+     1,
+     3
+    ],
+    [
+     9,
+     1,
+     3
+    ],
+    [
+     5,
+     1,
+     3
+    ],
+    [
+     9,
+     1,
+     4
+    ],
+    [
+     11,
+     1,
+     3
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     3,
+     2,
+     2
+    ],
+    [
+     5,
+     2,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     4,
+     1,
+     2
+    ],
+    [
+     9,
+     1,
+     4
+    ],
+    [
+     9,
+     1,
+     4
+    ],
+    [
+     8,
+     1,
+     4
+    ],
+    [
+     11,
+     1,
+     4
+    ],
+    [
+     9,
+     1,
+     4
+    ],
+    [
+     8,
+     1,
+     3
+    ],
+    [
+     8,
+     1,
+     2
+    ],
+    [
+     9,
+     1,
+     2
+    ],
+    [
+     9,
+     1,
+     2
+    ]
+   ],
+   "detail": "",
+   "name": "the 23 (main, ext, degree) triples",
+   "pass": true
+  },
+  {
+   "derived": 50,
+   "design_says": 50,
+   "detail": "",
+   "name": "largest mask row L",
+   "pass": true
+  },
+  {
+   "derived": "SC_SZC",
+   "design_says": "SC_SZC",
+   "detail": "",
+   "name": "the slot with the largest L",
+   "pass": true
+  },
+  {
+   "derived": 206,
+   "design_says": 206,
+   "detail": "",
+   "name": "largest slot's coefficient headroom (512 - 256 - L)",
+   "pass": true
+  },
+  {
+   "derived": true,
+   "design_says": true,
+   "detail": "{\"SC_SS\": 288, \"SC_SSM\": 288, \"SC_TZC\": 276, \"SC_LZC\": 298, \"SC_RS\": 294, \"SC_QMM\": 268, \"SC_KMM\": 268, \"SC_VMM\": 268, \"SC_SCORE\": 268, \"SC_PV\": 272, \"SC_WO\": 268, \"SC_GMM\": 268, \"SC_UMM\": 268, \"SC_DMM\": 268, \"SC_DZC\": 298, \"SC_QZC\": 298, \"SC_KVZC\": 294, \"SC_SZC\": 306, \"SC_FZC\": 298, \"SC_TAB\": 285, \"SC_ZS\": 276, \"SC_IO_IN\": 278, \"SC_IO_OUT\": 278}",
+   "name": "every slot L_s + 256 <= 512",
+   "pass": true
+  },
+  {
+   "derived": 159,
+   "design_says": 159,
+   "detail": "",
+   "name": "total main rounds",
+   "pass": true
+  },
+  {
+   "derived": 25,
+   "design_says": 25,
+   "detail": "",
+   "name": "total extension rounds",
+   "pass": true
+  },
+  {
+   "derived": 721,
+   "design_says": 721,
+   "detail": "",
+   "name": "sum (main + ext) * (degree + 1)",
+   "pass": true
+  },
+  {
+   "derived": 173,
+   "design_says": 173,
+   "detail": "",
+   "name": "terminals (A sites + H sites + 2 endpoints)",
+   "pass": true
+  },
+  {
+   "derived": 61440,
+   "design_says": 61440,
+   "detail": "",
+   "name": "U8 lookups",
+   "pass": true
+  },
+  {
+   "derived": 2048,
+   "design_says": 2048,
+   "detail": "",
+   "name": "exp lookups",
+   "pass": true
+  },
+  {
+   "derived": 512,
+   "design_says": 512,
+   "detail": "",
+   "name": "act lookups",
+   "pass": true
+  },
+  {
+   "derived": {
+    "2": [
+     0,
+     1
+    ],
+    "14": [
+     10,
+     13
+    ],
+    "15": [
+     5,
+     9
+    ],
+    "16": [
+     6,
+     7
+    ],
+    "17": [
+     4,
+     8
+    ],
+    "18": [
+     11,
+     12
+    ]
+   },
+   "design_says": {
+    "2": [
+     0,
+     1
+    ],
+    "14": [
+     10,
+     13
+    ],
+    "15": [
+     5,
+     9
+    ],
+    "16": [
+     6,
+     7
+    ],
+    "17": [
+     4,
+     8
+    ],
+    "18": [
+     11,
+     12
+    ]
+   },
+   "detail": "",
+   "name": "hosts (module slot indices)",
+   "pass": true
+  },
+  {
+   "derived": true,
+   "design_says": true,
+   "detail": "",
+   "name": "host runs after every slot it hosts",
+   "pass": true
+  },
+  {
+   "derived": 37,
+   "design_says": 37,
+   "detail": "",
+   "name": "A sites of SC_DZC",
+   "pass": true
+  },
+  {
+   "derived": 11,
+   "design_says": 11,
+   "detail": "",
+   "name": "A sites of SC_FZC",
+   "pass": true
+  },
+  {
+   "derived": 3,
+   "design_says": 3,
+   "detail": "",
+   "name": "A sites of SC_TAB",
+   "pass": true
+  },
+  {
+   "derived": 19,
+   "design_says": 19,
+   "detail": "",
+   "name": "H sites of SC_DZC",
+   "pass": true
+  },
+  {
+   "derived": 6,
+   "design_says": 6,
+   "detail": "",
+   "name": "H sites of SC_FZC",
+   "pass": true
+  },
+  {
+   "derived": 3,
+   "design_says": 3,
+   "detail": "",
+   "name": "H sites of SC_TAB",
+   "pass": true
+  },
+  {
+   "derived": {
+    "D": 19,
+    "F": 5,
+    "Kv": 6,
+    "L": 1,
+    "Q": 7,
+    "S": 7
+   },
+   "design_says": {
+    "D": 19,
+    "F": 5,
+    "Kv": 6,
+    "L": 1,
+    "Q": 7,
+    "S": 7
+   },
+   "detail": "",
+   "name": "helper planes cover the lookups pairwise",
+   "pass": true
+  },
+  {
+   "derived": [
+    213,
+    215,
+    217,
+    219,
+    221,
+    223,
+    225,
+    227,
+    229,
+    231,
+    233,
+    235,
+    237,
+    239,
+    241,
+    243,
+    245,
+    247,
+    249,
+    251,
+    253,
+    255,
+    257,
+    259,
+    261,
+    263,
+    265,
+    267,
+    269,
+    271,
+    273,
+    275,
+    277,
+    279,
+    281,
+    283,
+    285,
+    287,
+    289,
+    291,
+    293,
+    295,
+    297,
+    299,
+    301,
+    303,
+    305,
+    307,
+    309,
+    311,
+    313,
+    315,
+    317,
+    319,
+    321,
+    323,
+    325,
+    327,
+    329,
+    331,
+    333,
+    335,
+    337,
+    339,
+    341,
+    343,
+    345,
+    347,
+    349,
+    351,
+    353,
+    355,
+    357,
+    359,
+    361,
+    363,
+    365,
+    367,
+    369,
+    371,
+    373,
+    375,
+    377,
+    379,
+    381,
+    383,
+    385,
+    387,
+    389,
+    391,
+    393,
+    395,
+    397,
+    399,
+    401,
+    403,
+    405,
+    407,
+    409,
+    411,
+    413,
+    415,
+    417,
+    419,
+    421,
+    423,
+    425,
+    427,
+    429,
+    431,
+    433,
+    435,
+    437,
+    439,
+    441,
+    443,
+    445,
+    447,
+    449,
+    451
+   ],
+   "design_says": [
+    213,
+    215,
+    217,
+    219,
+    221,
+    223,
+    225,
+    227,
+    229,
+    231,
+    233,
+    235,
+    237,
+    239,
+    241,
+    243,
+    245,
+    247,
+    249,
+    251,
+    253,
+    255,
+    257,
+    259,
+    261,
+    263,
+    265,
+    267,
+    269,
+    271,
+    273,
+    275,
+    277,
+    279,
+    281,
+    283,
+    285,
+    287,
+    289,
+    291,
+    293,
+    295,
+    297,
+    299,
+    301,
+    303,
+    305,
+    307,
+    309,
+    311,
+    313,
+    315,
+    317,
+    319,
+    321,
+    323,
+    325,
+    327,
+    329,
+    331,
+    333,
+    335,
+    337,
+    339,
+    341,
+    343,
+    345,
+    347,
+    349,
+    351,
+    353,
+    355,
+    357,
+    359,
+    361,
+    363,
+    365,
+    367,
+    369,
+    371,
+    373,
+    375,
+    377,
+    379,
+    381,
+    383,
+    385,
+    387,
+    389,
+    391,
+    393,
+    395,
+    397,
+    399,
+    401,
+    403,
+    405,
+    407,
+    409,
+    411,
+    413,
+    415,
+    417,
+    419,
+    421,
+    423,
+    425,
+    427,
+    429,
+    431,
+    433,
+    435,
+    437,
+    439,
+    441,
+    443,
+    445,
+    447,
+    449,
+    451
+   ],
+   "detail": "",
+   "name": "A reserved-pair first rows == layout.rs a_site(slot, k)",
+   "pass": true
+  },
+  {
+   "derived": [
+    280,
+    282,
+    284,
+    286,
+    288,
+    290,
+    292,
+    294,
+    296,
+    298,
+    300,
+    302,
+    304,
+    306,
+    308,
+    310,
+    312,
+    314,
+    316,
+    318,
+    320,
+    322,
+    324,
+    326,
+    328,
+    330,
+    332,
+    334,
+    336,
+    338,
+    340,
+    342,
+    344,
+    346,
+    348,
+    350,
+    352,
+    354,
+    356,
+    358,
+    360,
+    362,
+    364,
+    366,
+    368,
+    370,
+    372,
+    374,
+    376,
+    378,
+    380
+   ],
+   "design_says": [
+    280,
+    282,
+    284,
+    286,
+    288,
+    290,
+    292,
+    294,
+    296,
+    298,
+    300,
+    302,
+    304,
+    306,
+    308,
+    310,
+    312,
+    314,
+    316,
+    318,
+    320,
+    322,
+    324,
+    326,
+    328,
+    330,
+    332,
+    334,
+    336,
+    338,
+    340,
+    342,
+    344,
+    346,
+    348,
+    350,
+    352,
+    354,
+    356,
+    358,
+    360,
+    362,
+    364,
+    366,
+    368,
+    370,
+    372,
+    374,
+    376,
+    378,
+    380
+   ],
+   "detail": "",
+   "name": "H reserved-pair first rows == layout.rs h_site(slot, k)",
+   "pass": true
+  }
+ ],
+ "failures": [],
+ "findings": [
+  {
+   "detail": "46 of 46 agree",
+   "id": "B-F0",
+   "mismatches": [],
+   "severity": "none",
+   "title": "every derived count against the design (TIER2_CHECK section 5.2 / the disposition)"
+  },
+  {
+   "detail": "11 of 11 pass",
+   "failed": [],
+   "id": "B-F1",
+   "severity": "none",
+   "title": "the verdict gates of disposition condition 4"
+  },
+  {
+   "detail": "no difference: every compared item is identical to the memo's run",
+   "differences": [],
+   "id": "B-F2",
+   "only_in_this_run": [
+    {
+     "item": "rank/negative_control/A_H16_own_pair_not_A_U16_pair_with_values_n4",
+     "paper_schedule": "not run (this is one of the OWED controls the paper runs could not wire)",
+     "real_source": 0
+    },
+    {
+     "item": "rank/negative_control/A_H16_shares_A_U16_pair_with_values_n4",
+     "paper_schedule": "not run (this is one of the OWED controls the paper runs could not wire)",
+     "real_source": 2
+    },
+    {
+     "item": "rank/negative_control/A_YM_own_pair_not_A_Y_pair_with_values_n4",
+     "paper_schedule": "not run (this is one of the OWED controls the paper runs could not wire)",
+     "real_source": 0
+    },
+    {
+     "item": "rank/negative_control/A_YM_shares_A_Y_pair_with_values_n4",
+     "paper_schedule": "not run (this is one of the OWED controls the paper runs could not wire)",
+     "real_source": 2
+    }
+   ],
+   "severity": "none",
+   "title": "the real Rust against the PAPER whole-block run"
+  },
+  {
+   "adapters": [
+    "B-1  `Layout.limb_off_m` -- hashline/src/private_block/layout.rs:647 adds a second limb base (`a_off[A_LIMBM] + k * T`, norm_m's limbs) beside `limb_off`, and private_block/argument.rs:570 calls it inside a site: `b.a_slice(lay.limb_off_m(kk), 5, rho(0..5), 0)`.  The committed `Layout` class has no such method and the committed `DefineParser._int` substitutes only `lay.limb_off(..)`.  ADAPTER: `BlockLayout` (a subclass) adds `limb_off_m` with exactly layout.rs's arithmetic, and `BlockDefineParser._int` substitutes `lay.limb_off_m(k)` with it before delegating.  No value is assumed: the plane index and `T` come from the parsed consts.",
+    "B-2  receiver-qualified `lay.helpers(..)` -- the accepted argument.rs calls the free function `helpers(Dom::D).1` (private_attention/argument.rs:613, :621, :652, :666, :691); the block calls the method `lay.helpers(Dom::D).1` (private_block/argument.rs:690, :701, :743, :783, :797, :822).  The committed `_int`/`_statement` regexes are anchored on the free-function spelling.  ADAPTER: `BlockDefineParser` rewrites the exact token `lay.helpers(` to `helpers(` in each statement and expression before delegating.  Nothing else named `lay.` is touched (the committed parser already handles `lay.a_off[..]` and `lay.limb_off(..)`), and `helpers(` never occurs inside a site call's argument list.",
+    "B-3  `let <name> = if <cond> { <challenge> } else { <point>.clone() }` -- private_block/argument.rs:668, `let r_row = if slot == SC_DMM { tr.challenge_fp2_vec(5) } else { pts.r_tf.clone() };`, the one construct the feed-forward matmul arm needs and the accepted source never uses (the committed parser handles only the TUPLE form `let (a, b) = if flag {..} else {..}` and only with a bool local as the condition).  ADAPTER: `BlockDefineParser._statement` evaluates the condition with the committed `_cond`, takes the live branch and binds a challenge vector or a `pts.X` / `pts.X.clone()` vector; anything else falls through to the committed parser unchanged.  The bound symbols are `SC_DMM.r_row[i]` (the Rust local's own name), distinct from `SC_GMM.r_tf[i]`, which is what the PCS grouping keys on.",
+    "B-4  `protocol.rs::logup_sum_claim` indirections -- the accepted source loops `for p in 0..N_H` and signs with `if p == H_GU8 || p == H_GEXP`; the block (private_block/protocol.rs:54-55) loops `for p in lay.h_planes()` and signs with `if h_is_table(p)`.  The committed `parse_logup_sum` refuses the first and silently reads an EMPTY negated set from the second.  ADAPTER: `normalise_logup_source` resolves BOTH indirections out of layout.rs itself -- `fn h_planes` must read `(0..N_H).collect()` (layout.rs:615-617) and `fn h_is_table` must read `matches!(plane, ...)` (layout.rs:255-257) -- and rewrites those two lines into the spelling the committed parser understands, so that all of its own assertions (`point: vec![]`, `value: Fp2::ZERO`, loop range == N_H) still run.  Both forms are asserted, not assumed; an unexpected body is a hard parse error.",
+    "B-5  the two OWED negative controls re-use the committed rank tool with its accepted rebinding: after `INV.run_rank_tool` returns, the already-rebound module instance is taken from `sys.modules['zk60_attention_pair_schedule']` and its own `build_schedule` / `a_model_groups(share_mask=...)` / `build_model` / `analyze_fast` are called again.  No constant is rebound a second time and no tool function is redefined.",
+    "B-6  the activation table's lookup total.  The committed `lookup_total` knows two tables (U8 by summing `lookups(dom)` over `LOOKUP_DOMS`, exp as `1 << Dom::S.log()`).  The block has a third, the activation table (private_block/argument.rs:766 `f_act`, one lookup per `Dom::F` element).  `block_lookup_totals` adds `act = 1 << Dom::F.log()` by exactly the committed tool's own convention for exp.  The U8 and exp totals are the committed function's, unchanged."
+   ],
+   "adapters_used": {
+    "B-1": 9,
+    "B-2": 8,
+    "B-3": 3
+   },
+   "detail": "each is handled by a named adapter in THIS driver; no committed script and no Rust file was edited",
+   "id": "B-F3",
+   "severity": "parser",
+   "title": "constructs of the block's Rust that the committed inventory parser does not understand (design decision 14's warning, realised)"
+  },
+  {
+   "detail": "both sharing controls must disclose >= 2; both own-pair controls must disclose 0",
+   "id": "B-F4",
+   "measured": {
+    "A_H16_own_pair_not_A_U16_pair_with_values_n4": 0,
+    "A_H16_shares_A_U16_pair_with_values_n4": 2,
+    "A_YM_own_pair_not_A_Y_pair_with_values_n4": 0,
+    "A_YM_shares_A_Y_pair_with_values_n4": 2
+   },
+   "severity": "none",
+   "title": "the two OWED negative controls (A_H16 sharing A_U16's pair; A_YM sharing A_Y's pair) and their positive counterparts"
+  },
+  {
+   "detail": "the tools are linear-algebraic models at seeded stand-in challenges.  Outside them: the sampled columns, the salted Merkle paths, the CFS channel, transcript conditioning, integer-range side information, A <-> H correlation, the captured-receipt joint-view gate, and D8 / D11.  P3 is not modelled because the module does not implement it.  Nothing here is a privacy property, and nothing here is a soundness property.",
+   "id": "B-F5",
+   "severity": "scope",
+   "title": "what this run does NOT settle"
+  }
+ ],
+ "gates": [
+  {
+   "detail": {
+    "n_groups": 35,
+    "nonzero": {}
+   },
+   "name": "every A opening group discloses 0",
+   "pass": true
+  },
+  {
+   "detail": {
+    "n_groups": 7,
+    "nonzero": {}
+   },
+   "name": "every modelled H group discloses 0",
+   "pass": true
+  },
+  {
+   "detail": {
+    "endpoint_In_with_values_n4": 0,
+    "endpoint_Out_with_values_n4": 0
+   },
+   "name": "both endpoints disclose 0",
+   "pass": true
+  },
+  {
+   "detail": {
+    "per_column": 0,
+    "with_values": 0
+   },
+   "name": "whole A discloses 0 per column and with values",
+   "pass": true
+  },
+  {
+   "detail": {
+    "whole_H_with_values_n4": {
+     "disclosed_dim": 2,
+     "residual_is_exactly_the_public_identity": true
+    },
+    "whole_H_with_values_n8": {
+     "disclosed_dim": 2,
+     "residual_is_exactly_the_public_identity": true
+    }
+   },
+   "name": "whole H's residual is EXACTLY the public LogUp identity and nothing more",
+   "pass": true
+  },
+  {
+   "detail": {
+    "SC_DZC": {
+     "dim_S": 63,
+     "kernel": 3,
+     "leaked": 0,
+     "pass": true,
+     "rank": 63,
+     "sum_L": 66
+    },
+    "SC_FZC": {
+     "dim_S": 63,
+     "kernel": 3,
+     "leaked": 0,
+     "pass": true,
+     "rank": 63,
+     "sum_L": 66
+    },
+    "SC_KVZC": {
+     "dim_S": 59,
+     "kernel": 3,
+     "leaked": 0,
+     "pass": true,
+     "rank": 59,
+     "sum_L": 62
+    },
+    "SC_QZC": {
+     "dim_S": 67,
+     "kernel": 3,
+     "leaked": 0,
+     "pass": true,
+     "rank": 67,
+     "sum_L": 70
+    },
+    "SC_SZC": {
+     "dim_S": 97,
+     "kernel": 3,
+     "leaked": 0,
+     "pass": true,
+     "rank": 97,
+     "sum_L": 100
+    },
+    "SC_TZC": {
+     "dim_S": 81,
+     "kernel": 3,
+     "leaked": 0,
+     "pass": true,
+     "rank": 81,
+     "sum_L": 84
+    }
+   },
+   "name": "every host group has kernel 3 and leaks 0, rank = dim S = sum L - (k + 1)",
+   "pass": true
+  },
+  {
+   "detail": {
+    "rank": {
+     "SC_DZC": 63,
+     "SC_FZC": 63,
+     "SC_KVZC": 59,
+     "SC_QZC": 67,
+     "SC_SZC": 97,
+     "SC_TZC": 81
+    },
+    "sum_L": {
+     "SC_DZC": 66,
+     "SC_FZC": 66,
+     "SC_KVZC": 62,
+     "SC_QZC": 70,
+     "SC_SZC": 100,
+     "SC_TZC": 84
+    }
+   },
+   "name": "host sum L / rank match the design",
+   "pass": true
+  },
+  {
+   "detail": {
+    "SC_DMM": {
+     "dim_S": 11,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 11
+    },
+    "SC_DZC": {
+     "dim_S": 41,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 41
+    },
+    "SC_FZC": {
+     "dim_S": 41,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 41
+    },
+    "SC_GMM": {
+     "dim_S": 11,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 11
+    },
+    "SC_IO_IN": {
+     "dim_S": 21,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 21
+    },
+    "SC_IO_OUT": {
+     "dim_S": 21,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 21
+    },
+    "SC_KMM": {
+     "dim_S": 11,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 11
+    },
+    "SC_KVZC": {
+     "dim_S": 37,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 37
+    },
+    "SC_LZC": {
+     "dim_S": 41,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 41
+    },
+    "SC_PV": {
+     "dim_S": 15,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 15
+    },
+    "SC_QMM": {
+     "dim_S": 11,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 11
+    },
+    "SC_QZC": {
+     "dim_S": 41,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 41
+    },
+    "SC_RS": {
+     "dim_S": 37,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 37
+    },
+    "SC_SCORE": {
+     "dim_S": 11,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 11
+    },
+    "SC_SS": {
+     "dim_S": 31,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 31
+    },
+    "SC_SSM": {
+     "dim_S": 31,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 31
+    },
+    "SC_SZC": {
+     "dim_S": 49,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 49
+    },
+    "SC_TAB": {
+     "dim_S": 28,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 28
+    },
+    "SC_TZC": {
+     "dim_S": 19,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 19
+    },
+    "SC_UMM": {
+     "dim_S": 11,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 11
+    },
+    "SC_VMM": {
+     "dim_S": 11,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 11
+    },
+    "SC_WO": {
+     "dim_S": 11,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 11
+    },
+    "SC_ZS": {
+     "dim_S": 19,
+     "kernel": 1,
+     "leaked": 0,
+     "rank": 19
+    }
+   },
+   "name": "every standalone slot: rank = dim S = N d + 1, leaked 0, kernel 1, and equals the design",
+   "pass": true
+  },
+  {
+   "detail": {
+    "SC_DMM": 268,
+    "SC_DZC": 298,
+    "SC_FZC": 298,
+    "SC_GMM": 268,
+    "SC_IO_IN": 278,
+    "SC_IO_OUT": 278,
+    "SC_KMM": 268,
+    "SC_KVZC": 294,
+    "SC_LZC": 298,
+    "SC_PV": 272,
+    "SC_QMM": 268,
+    "SC_QZC": 298,
+    "SC_RS": 294,
+    "SC_SCORE": 268,
+    "SC_SS": 288,
+    "SC_SSM": 288,
+    "SC_SZC": 306,
+    "SC_TAB": 285,
+    "SC_TZC": 276,
+    "SC_UMM": 268,
+    "SC_VMM": 268,
+    "SC_WO": 268,
+    "SC_ZS": 276
+   },
+   "name": "every slot L + 256 <= 512",
+   "pass": true
+  },
+  {
+   "detail": {
+    "failed": [],
+    "n_cfs": 7,
+    "n_rank": 15,
+    "n_total": 22,
+    "owed_two": {
+     "A_H16_own_pair_not_A_U16_pair_with_values_n4": 0,
+     "A_H16_shares_A_U16_pair_with_values_n4": 2,
+     "A_YM_own_pair_not_A_Y_pair_with_values_n4": 0,
+     "A_YM_shares_A_Y_pair_with_values_n4": 2
+    }
+   },
+   "name": "EVERY negative control fires",
+   "pass": true
+  },
+  {
+   "detail": {
+    "A_groups": 30,
+    "A_sites": 75,
+    "H_groups": 8,
+    "H_sites": 35,
+    "all_pass": true,
+    "cross_checks_all_pass": true,
+    "expected": {
+     "failures": [],
+     "n_cross_checks": 29
+    },
+    "failures": [],
+    "n_cross_checks": 29,
+    "n_cross_checks_pass": 29,
+    "out_dir": "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck",
+    "ran": "scripts/zk60_attention_native_inventory.py::build_all on hashline/src/private_attention/ (no rebinding of ours in force)",
+    "rank": {
+     "flipped_rope_SC_KVZC_own_pair_with_values_n4": {
+      "disclosed_dim": 0,
+      "verdict": "PASS"
+     },
+     "flipped_rope_SC_KVZC_sharing_pair_with_values_n4": {
+      "disclosed_dim": 2,
+      "verdict": "PASS"
+     },
+     "flipped_rope_SC_QZC_own_pair_with_values_n4": {
+      "disclosed_dim": 0,
+      "verdict": "PASS"
+     },
+     "flipped_rope_SC_QZC_sharing_pair_with_values_n4": {
+      "disclosed_dim": 2,
+      "verdict": "PASS"
+     },
+     "helper_sums_published_n4": {
+      "disclosed_dim": 70,
+      "verdict": "PASS"
+     },
+     "no_mask_A_per_column": {
+      "disclosed_dim": 37,
+      "verdict": "PASS"
+     },
+     "no_mask_A_with_values_n4": {
+      "disclosed_dim": 208,
+      "verdict": "PASS"
+     },
+     "prox_pair_singleton_pair_claim_per_column": {
+      "disclosed_dim": 0,
+      "verdict": "PASS"
+     },
+     "single_base_row_per_claim_A_per_column": {
+      "disclosed_dim": 15,
+      "verdict": "PASS"
+     },
+     "single_prox_row_singleton_pair_claim_per_column": {
+      "disclosed_dim": 1,
+      "verdict": "PASS"
+     },
+     "zero_sum_row_without_fresh_pair_n4": {
+      "disclosed_dim": 8,
+      "verdict": "PASS"
+     }
+    },
+    "reproduced_the_accepted_verdict": true
+   },
+   "name": "the self-check reproduced the accepted attention verdict",
+   "pass": true
+  }
+ ],
+ "logup_adapter_record": {
+  "h_is_table_body": "matches!(plane, H_GU8 | H_GEXP | H_GACT)",
+  "h_is_table_planes": [
+   "H_GU8",
+   "H_GEXP",
+   "H_GACT"
+  ],
+  "h_planes_body": "(0..N_H).collect()",
+  "h_planes_range_const": "N_H",
+  "rewrote": [
+   "for p in lay.h_planes() {",
+   "if h_is_table(p)"
+  ]
+ },
+ "n_values": 4,
+ "not_established": [
+  "No privacy property.  Every verdict is about a linear-algebra model; the models exclude the sampled columns, the salted Merkle paths, the CFS channel, transcript conditioning, integer-range side information and A <-> H correlation.",
+  "The construction's own gate -- a zero-witness preimage with the same free dimension as the real witness on every channel, on CAPTURED REAL RECEIPTS -- is unmet.",
+  "D8 and D11 stay open for the block's two external endpoints x_in and xres2; D9 stays pending.",
+  "Soundness is not checked here at all: these tools model what an opening DISCLOSES, not what it BINDS.  The tamper and tripwire tests are the source's own.",
+  "The runtime refusal `audit_claims` (a shared reserved pair) is not exercised by the two owed controls: they mutate the model, not the prover.",
+  "No completeness and no speed claim."
+ ],
+ "outputs": [
+  "accepted_selfcheck/",
+  "zk60_private_block_cfs_slots.json",
+  "zk60_private_block_hosts.json",
+  "zk60_private_block_inventory.done",
+  "zk60_private_block_inventory.json",
+  "zk60_private_block_inventory.log",
+  "zk60_private_block_pair_schedule.json",
+  "zk60_private_block_schedule.json",
+  "zk60_private_block_summary.json"
+ ],
+ "outputs_note": "the log and the .done marker are written by `main` after this record, so they are named here rather than listed from disk",
+ "paper_comparison": {
+  "agreeing_items": [
+   "cfs/host/SC_DZC",
+   "cfs/host/SC_FZC",
+   "cfs/host/SC_KVZC",
+   "cfs/host/SC_QZC",
+   "cfs/host/SC_SZC",
+   "cfs/host/SC_TZC",
+   "cfs/largest_slot",
+   "cfs/m_rows",
+   "cfs/n_functionals",
+   "cfs/negative_controls",
+   "cfs/standalone/SC_DMM",
+   "cfs/standalone/SC_DZC",
+   "cfs/standalone/SC_FZC",
+   "cfs/standalone/SC_GMM",
+   "cfs/standalone/SC_IO_IN",
+   "cfs/standalone/SC_IO_OUT",
+   "cfs/standalone/SC_KMM",
+   "cfs/standalone/SC_KVZC",
+   "cfs/standalone/SC_LZC",
+   "cfs/standalone/SC_PV",
+   "cfs/standalone/SC_QMM",
+   "cfs/standalone/SC_QZC",
+   "cfs/standalone/SC_RS",
+   "cfs/standalone/SC_SCORE",
+   "cfs/standalone/SC_SS",
+   "cfs/standalone/SC_SSM",
+   "cfs/standalone/SC_SZC",
+   "cfs/standalone/SC_TAB",
+   "cfs/standalone/SC_TZC",
+   "cfs/standalone/SC_UMM",
+   "cfs/standalone/SC_VMM",
+   "cfs/standalone/SC_WO",
+   "cfs/standalone/SC_ZS",
+   "count/A_groups_derived",
+   "count/A_sites",
+   "count/H_groups_derived",
+   "count/H_sites",
+   "count/M_ROWS",
+   "count/N_FUNCTIONALS",
+   "count/U8_lookups",
+   "count/a_data_rows",
+   "count/a_rows",
+   "count/a_site_pair_rows",
+   "count/exp_lookups",
+   "count/ext_rounds_total",
+   "count/h_data_rows",
+   "count/h_rows",
+   "count/h_site_pair_rows",
+   "count/hosts_by_index",
+   "count/largest_L",
+   "count/main_rounds_total",
+   "count/n_slots",
+   "count/slot_L",
+   "count/sum_main_ext_times_degree_plus_1",
+   "count/terminals",
+   "rank/endpoints",
+   "rank/groups_A",
+   "rank/groups_H",
+   "rank/negative_control/flipped_rope_SC_KVZC_own_pair_with_values_n4",
+   "rank/negative_control/flipped_rope_SC_KVZC_sharing_pair_with_values_n4",
+   "rank/negative_control/flipped_rope_SC_QZC_own_pair_with_values_n4",
+   "rank/negative_control/flipped_rope_SC_QZC_sharing_pair_with_values_n4",
+   "rank/negative_control/helper_sums_published_n4",
+   "rank/negative_control/no_mask_A_per_column",
+   "rank/negative_control/no_mask_A_with_values_n4",
+   "rank/negative_control/prox_pair_singleton_pair_claim_per_column",
+   "rank/negative_control/single_base_row_per_claim_A_per_column",
+   "rank/negative_control/single_prox_row_singleton_pair_claim_per_column",
+   "rank/negative_control/zero_sum_row_without_fresh_pair_n4",
+   "rank/singleton_groups",
+   "rank/whole_A_per_column",
+   "rank/whole_A_with_values_n4",
+   "rank/whole_H_per_column",
+   "rank/whole_H_with_values"
+  ],
+  "available": true,
+  "differences": [],
+  "n_agree": 74,
+  "n_items": 74,
+  "note": "the paper run is a verdict on a MEMO; this run is a verdict on the Rust. Any difference is a finding about one of the two, never a tolerance.",
+  "only_in_this_run": [
+   {
+    "item": "rank/negative_control/A_H16_own_pair_not_A_U16_pair_with_values_n4",
+    "paper_schedule": "not run (this is one of the OWED controls the paper runs could not wire)",
+    "real_source": 0
+   },
+   {
+    "item": "rank/negative_control/A_H16_shares_A_U16_pair_with_values_n4",
+    "paper_schedule": "not run (this is one of the OWED controls the paper runs could not wire)",
+    "real_source": 2
+   },
+   {
+    "item": "rank/negative_control/A_YM_own_pair_not_A_Y_pair_with_values_n4",
+    "paper_schedule": "not run (this is one of the OWED controls the paper runs could not wire)",
+    "real_source": 0
+   },
+   {
+    "item": "rank/negative_control/A_YM_shares_A_Y_pair_with_values_n4",
+    "paper_schedule": "not run (this is one of the OWED controls the paper runs could not wire)",
+    "real_source": 2
+   }
+  ],
+  "paper_source": "results/zk60_private_block_construction/whole_block/zk60_private_block_whole_summary.json"
+ },
+ "rank_summary": {
+  "H_residual_is_exactly_the_public_identity": true,
+  "endpoints": {
+   "endpoint_In_with_values_n4": 0,
+   "endpoint_Out_with_values_n4": 0
+  },
+  "fa2_rank_mask_formula_all_pair_groups": {
+   "group_A_g0": true,
+   "group_A_g1": true,
+   "group_A_g10": true,
+   "group_A_g11": true,
+   "group_A_g12": true,
+   "group_A_g13": true,
+   "group_A_g14": true,
+   "group_A_g15": true,
+   "group_A_g16": true,
+   "group_A_g17": true,
+   "group_A_g18": true,
+   "group_A_g19": true,
+   "group_A_g2": true,
+   "group_A_g20": true,
+   "group_A_g21": true,
+   "group_A_g22": true,
+   "group_A_g23": true,
+   "group_A_g24": true,
+   "group_A_g25": true,
+   "group_A_g26": true,
+   "group_A_g27": true,
+   "group_A_g28": true,
+   "group_A_g29": true,
+   "group_A_g3": true,
+   "group_A_g30": true,
+   "group_A_g31": true,
+   "group_A_g32": true,
+   "group_A_g33": true,
+   "group_A_g34": true,
+   "group_A_g4": true,
+   "group_A_g5": true,
+   "group_A_g6": true,
+   "group_A_g7": true,
+   "group_A_g8": true,
+   "group_A_g9": true
+  },
+  "failures": [],
+  "groups_A": {
+   "group_A_g0": 0,
+   "group_A_g1": 0,
+   "group_A_g10": 0,
+   "group_A_g11": 0,
+   "group_A_g12": 0,
+   "group_A_g13": 0,
+   "group_A_g14": 0,
+   "group_A_g15": 0,
+   "group_A_g16": 0,
+   "group_A_g17": 0,
+   "group_A_g18": 0,
+   "group_A_g19": 0,
+   "group_A_g2": 0,
+   "group_A_g20": 0,
+   "group_A_g21": 0,
+   "group_A_g22": 0,
+   "group_A_g23": 0,
+   "group_A_g24": 0,
+   "group_A_g25": 0,
+   "group_A_g26": 0,
+   "group_A_g27": 0,
+   "group_A_g28": 0,
+   "group_A_g29": 0,
+   "group_A_g3": 0,
+   "group_A_g30": 0,
+   "group_A_g31": 0,
+   "group_A_g32": 0,
+   "group_A_g33": 0,
+   "group_A_g34": 0,
+   "group_A_g4": 0,
+   "group_A_g5": 0,
+   "group_A_g6": 0,
+   "group_A_g7": 0,
+   "group_A_g8": 0,
+   "group_A_g9": 0
+  },
+  "groups_H": {
+   "group_H_h0": 0,
+   "group_H_h1": 0,
+   "group_H_h2": 0,
+   "group_H_h3": 0,
+   "group_H_h4": 0,
+   "group_H_h5": 0,
+   "group_H_h6": 0
+  },
+  "groups_with_nonzero_disclosure": {},
+  "n_groups_checked": {
+   "A": 35,
+   "H": 7
+  },
+  "negative_controls": {
+   "A_H16_own_pair_not_A_U16_pair_with_values_n4": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "A_H16_shares_A_U16_pair_with_values_n4": {
+    "disclosed_dim": 2,
+    "verdict": "PASS"
+   },
+   "A_YM_own_pair_not_A_Y_pair_with_values_n4": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "A_YM_shares_A_Y_pair_with_values_n4": {
+    "disclosed_dim": 2,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_KVZC_own_pair_with_values_n4": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_KVZC_sharing_pair_with_values_n4": {
+    "disclosed_dim": 2,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_QZC_own_pair_with_values_n4": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_QZC_sharing_pair_with_values_n4": {
+    "disclosed_dim": 2,
+    "verdict": "PASS"
+   },
+   "helper_sums_published_n4": {
+    "disclosed_dim": 100,
+    "verdict": "PASS"
+   },
+   "no_mask_A_per_column": {
+    "disclosed_dim": 49,
+    "verdict": "PASS"
+   },
+   "no_mask_A_with_values_n4": {
+    "disclosed_dim": 304,
+    "verdict": "PASS"
+   },
+   "prox_pair_singleton_pair_claim_per_column": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "single_base_row_per_claim_A_per_column": {
+    "disclosed_dim": 16,
+    "verdict": "PASS"
+   },
+   "single_prox_row_singleton_pair_claim_per_column": {
+    "disclosed_dim": 1,
+    "verdict": "PASS"
+   },
+   "zero_sum_row_without_fresh_pair_n4": {
+    "disclosed_dim": 8,
+    "verdict": "PASS"
+   }
+  },
+  "owed_negative_controls": [
+   "A_H16_own_pair_not_A_U16_pair_with_values_n4",
+   "A_H16_shares_A_U16_pair_with_values_n4",
+   "A_YM_own_pair_not_A_Y_pair_with_values_n4",
+   "A_YM_shares_A_Y_pair_with_values_n4"
+  ],
+  "schedule_coverage_checks": {
+   "A_mask_rows_disjoint_and_after_data": {
+    "data_rows": 213,
+    "mask_rows": 242,
+    "pass": true,
+    "rows_total": 455
+   },
+   "H_mask_rows_disjoint_and_after_data": {
+    "data_rows": 278,
+    "mask_rows": 106,
+    "pass": true,
+    "rows_total": 384
+   },
+   "W_mask_rows_disjoint_and_after_data": {
+    "data_rows": 0,
+    "mask_rows": 2,
+    "pass": true,
+    "rows_total": 2
+   },
+   "all_pass": true,
+   "every_claim_covered_exactly_once": {
+    "claims": 171,
+    "covered": 171,
+    "pass": true
+   }
+  },
+  "singleton_groups": {
+   "A": 17,
+   "H": 2
+  },
+  "whole_A_per_column": 0,
+  "whole_A_with_values_n4": 0,
+  "whole_H_per_column": 0,
+  "whole_H_with_values": {
+   "whole_H_with_values_n4": 2,
+   "whole_H_with_values_n8": 2
+  }
+ },
+ "seed": 2026,
+ "self_check_accepted_attention": {
+  "A_groups": 30,
+  "A_sites": 75,
+  "H_groups": 8,
+  "H_sites": 35,
+  "all_pass": true,
+  "cross_checks_all_pass": true,
+  "expected": {
+   "failures": [],
+   "n_cross_checks": 29
+  },
+  "failures": [],
+  "n_cross_checks": 29,
+  "n_cross_checks_pass": 29,
+  "out_dir": "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck",
+  "ran": "scripts/zk60_attention_native_inventory.py::build_all on hashline/src/private_attention/ (no rebinding of ours in force)",
+  "rank": {
+   "flipped_rope_SC_KVZC_own_pair_with_values_n4": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_KVZC_sharing_pair_with_values_n4": {
+    "disclosed_dim": 2,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_QZC_own_pair_with_values_n4": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_QZC_sharing_pair_with_values_n4": {
+    "disclosed_dim": 2,
+    "verdict": "PASS"
+   },
+   "helper_sums_published_n4": {
+    "disclosed_dim": 70,
+    "verdict": "PASS"
+   },
+   "no_mask_A_per_column": {
+    "disclosed_dim": 37,
+    "verdict": "PASS"
+   },
+   "no_mask_A_with_values_n4": {
+    "disclosed_dim": 208,
+    "verdict": "PASS"
+   },
+   "prox_pair_singleton_pair_claim_per_column": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "single_base_row_per_claim_A_per_column": {
+    "disclosed_dim": 15,
+    "verdict": "PASS"
+   },
+   "single_prox_row_singleton_pair_claim_per_column": {
+    "disclosed_dim": 1,
+    "verdict": "PASS"
+   },
+   "zero_sum_row_without_fresh_pair_n4": {
+    "disclosed_dim": 8,
+    "verdict": "PASS"
+   }
+  },
+  "reproduced_the_accepted_verdict": true
+ },
+ "source_sha256": {
+  "hashline/src/private_block/argument.rs": "bb6971c30b1601a191f1452de0f1c20f1f7474aa52206ee5bf0c33258f0fdfec",
+  "hashline/src/private_block/layout.rs": "6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989",
+  "hashline/src/private_block/protocol.rs": "db2757a33055ffa40a31220d51b140a4365ef5e610180b1e1e1e8445945d2b6d",
+  "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
+ },
+ "task": "disposition section 3 condition 4 -- the three committed tools on the REAL Rust of hashline/src/private_block/",
+ "tool": "scripts/zk60_private_block_inventory.py"
+}

@@ -1,0 +1,20 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.test_zk60_attention_native_inventory",
+    "tests.test_zk60_attention_pair_schedule",
+    "tests.test_zk60_attention_cfs_slots"
+  ],
+  "exit_code": 1,
+  "tests_run": 86,
+  "failures": [
+    "schedule artifact contained author checkout absolute path",
+    "cross-profile vocabulary test imported the optional FFN review tool not present in this checkout"
+  ],
+  "resolution": [
+    "compare inventory content hash and all schedule fields while normalizing only checkout path",
+    "separate optional cross-profile vocabulary check; retain mandatory attention layout, rank, host and functional checks"
+  ]
+}

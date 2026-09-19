@@ -1,0 +1,16 @@
+profile: hashline-zk-mr1/private-attention-t32-poc/1
+  private-attention-t32/1: T32 d16 H2 KV1 dh8; n=256 inv_rate=8 Q=256; P1 (weights public, no W commitment)
+  A rows=306 data=154 site-pairs=75 prox-pair=(304,305)
+  H rows=290 data=218 site-pairs=35 zero-sum-pair=[216, 217] prox-pair=(288,289)
+  M rows=40 functionals=28 A-groups=30 H-groups=8 collapse=0
+receipt frame: 2245800 bytes (fixed by the geometry: 2245800)
+committed rows: A 306 H 290 M 40; lookups: U8 47104 exp 2048
+prove 0.048974 s (shared box, diagnostic only):
+  integer witness: 0.000193 s
+  witness planes + commit A: 0.011617 s
+  commit M: 0.005158 s
+  LogUp helpers: 0.000794 s
+  commit H: 0.010527 s
+  18 masked sumchecks: 0.010976 s
+  M + A + H + endpoint openings: 0.009669 s
+EXPERIMENTAL: no whole-proof privacy, MVP or 5-second claim follows from this run.

@@ -1,0 +1,554 @@
+{
+ "accepted": {
+  "A_groups": 30,
+  "A_sites": 75,
+  "H_groups": 8,
+  "H_sites": 35,
+  "a_rows": 306,
+  "h_rows": 290
+ },
+ "caveat": "These verdicts are about a PAPER schedule description, not about code. No Rust implements the grown layout; the tools' models exclude the sampled columns, the salted Merkle paths, the CFS channel, transcript conditioning and A<->H correlation, exactly as on the accepted layout.",
+ "cfs": {
+  "all_checks_pass": true,
+  "failures": [],
+  "hosts": {
+   "SC_DZC": {
+    "dim_S": 52,
+    "expected_kernel": 2,
+    "hosted": [
+     "SC_WO"
+    ],
+    "kernel": 2,
+    "leaked": 0,
+    "pass": true,
+    "rank": 52,
+    "sum_L": 54
+   },
+   "SC_KVZC": {
+    "dim_S": 59,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_KMM",
+     "SC_VMM"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 59,
+    "sum_L": 62
+   },
+   "SC_QZC": {
+    "dim_S": 67,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_QMM",
+     "SC_PV"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 67,
+    "sum_L": 70
+   },
+   "SC_SZC": {
+    "dim_S": 97,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_RS",
+     "SC_SCORE"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 97,
+    "sum_L": 100
+   },
+   "SC_TZC": {
+    "dim_S": 81,
+    "expected_kernel": 3,
+    "hosted": [
+     "SC_SS",
+     "SC_SSM"
+    ],
+    "kernel": 3,
+    "leaked": 0,
+    "pass": true,
+    "rank": 81,
+    "sum_L": 84
+   }
+  },
+  "largest_slot": {
+   "constraint": "L_s + 256 <= 512 (zk.rs mask_commit)",
+   "degree": 4,
+   "headroom_coefficients": 206,
+   "len": 50,
+   "n_vars": 12,
+   "name": "06 softmax zero-check (hosts 07, 10)",
+   "slot": "SC_SZC"
+  },
+  "m_rows": 42,
+  "n_functionals": 29,
+  "n_slots": 19,
+  "negative_controls": {
+   "nc_extension_degree_exceeds_mask": true,
+   "nc_host_nu_zero": true,
+   "nc_hosted_c_zero": true,
+   "nc_qkv_unsplit": true,
+   "nc_row_budget_exceeded": true,
+   "nc_sigma_functional_for_host_slot": true,
+   "nc_sigma_functional_for_private_slot": true
+  },
+  "standalone": {
+   "SC_DZC": {
+    "dim_S": 41,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 41
+   },
+   "SC_IO_IN": {
+    "dim_S": 21,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 21
+   },
+   "SC_IO_OUT": {
+    "dim_S": 21,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 21
+   },
+   "SC_KMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_KVZC": {
+    "dim_S": 37,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 37
+   },
+   "SC_LZC": {
+    "dim_S": 41,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 41
+   },
+   "SC_PV": {
+    "dim_S": 15,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 15
+   },
+   "SC_QMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_QZC": {
+    "dim_S": 41,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 41
+   },
+   "SC_RS": {
+    "dim_S": 37,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 37
+   },
+   "SC_SCORE": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_SS": {
+    "dim_S": 31,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 31
+   },
+   "SC_SSM": {
+    "dim_S": 31,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 31
+   },
+   "SC_SZC": {
+    "dim_S": 49,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 49
+   },
+   "SC_TAB": {
+    "dim_S": 28,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 28
+   },
+   "SC_TZC": {
+    "dim_S": 19,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 19
+   },
+   "SC_VMM": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_WO": {
+    "dim_S": 11,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 11
+   },
+   "SC_ZS": {
+    "dim_S": 19,
+    "kernel": 1,
+    "leaked": 0,
+    "pass": true,
+    "rank": 19
+   }
+  }
+ },
+ "failures": [],
+ "grown_A_opening_groups": [
+  {
+   "c0": 0,
+   "group": 0,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 1,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 2,
+   "len": 32,
+   "m": 8
+  },
+  {
+   "c0": 32,
+   "group": 3,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 64,
+   "group": 4,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 96,
+   "group": 5,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 128,
+   "group": 6,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 160,
+   "group": 7,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 192,
+   "group": 8,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 224,
+   "group": 9,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 0,
+   "group": 10,
+   "len": 256,
+   "m": 2
+  },
+  {
+   "c0": 0,
+   "group": 11,
+   "len": 256,
+   "m": 2
+  },
+  {
+   "c0": 0,
+   "group": 12,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 13,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 14,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 15,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 16,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 17,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 18,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 19,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 20,
+   "len": 256,
+   "m": 32
+  },
+  {
+   "c0": 0,
+   "group": 21,
+   "len": 32,
+   "m": 2
+  },
+  {
+   "c0": 0,
+   "group": 22,
+   "len": 256,
+   "m": 7
+  },
+  {
+   "c0": 0,
+   "group": 23,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 24,
+   "len": 256,
+   "m": 6
+  },
+  {
+   "c0": 0,
+   "group": 25,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 26,
+   "len": 256,
+   "m": 11
+  },
+  {
+   "c0": 0,
+   "group": 27,
+   "len": 64,
+   "m": 2
+  },
+  {
+   "c0": 0,
+   "group": 28,
+   "len": 256,
+   "m": 2
+  },
+  {
+   "c0": 0,
+   "group": 29,
+   "len": 256,
+   "m": 1
+  },
+  {
+   "c0": 0,
+   "group": 30,
+   "len": 256,
+   "m": 1
+  }
+ ],
+ "grown_counts": {
+  "A_groups_derived": 31,
+  "A_sites": 102,
+  "H_groups_derived": 8,
+  "H_sites": 42,
+  "M_ROWS": 42,
+  "N_FUNCTIONALS": 29,
+  "U8_lookups": 54784,
+  "a_data_rows": 184,
+  "a_rows": 390,
+  "a_site_pair_rows": 204,
+  "exp_lookups": 2048,
+  "ext_rounds_total": 21,
+  "h_data_rows": 246,
+  "h_rows": 332,
+  "h_site_pair_rows": 84,
+  "hosts_by_index": {
+   "2": [
+    0,
+    1
+   ],
+   "11": [
+    10
+   ],
+   "12": [
+    5,
+    9
+   ],
+   "13": [
+    6,
+    7
+   ],
+   "14": [
+    4,
+    8
+   ]
+  },
+  "largest_L": 50,
+  "main_rounds_total": 138,
+  "slot_L": {
+   "SC_DZC": 42,
+   "SC_IO_IN": 22,
+   "SC_IO_OUT": 22,
+   "SC_KMM": 12,
+   "SC_KVZC": 38,
+   "SC_LZC": 42,
+   "SC_PV": 16,
+   "SC_QMM": 12,
+   "SC_QZC": 42,
+   "SC_RS": 38,
+   "SC_SCORE": 12,
+   "SC_SS": 32,
+   "SC_SSM": 32,
+   "SC_SZC": 50,
+   "SC_TAB": 29,
+   "SC_TZC": 20,
+   "SC_VMM": 12,
+   "SC_WO": 12,
+   "SC_ZS": 20
+  }
+ },
+ "rank": {
+  "H_residual_is_exactly_the_public_identity": true,
+  "endpoints": {
+   "endpoint_In_with_values_n4": 0,
+   "endpoint_Out_with_values_n4": 0
+  },
+  "failures": [],
+  "groups_with_nonzero_disclosure": {},
+  "n_groups_checked": {
+   "A": 31,
+   "H": 6
+  },
+  "negative_controls": {
+   "flipped_rope_SC_KVZC_own_pair_with_values_n4": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_KVZC_sharing_pair_with_values_n4": {
+    "disclosed_dim": 2,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_QZC_own_pair_with_values_n4": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "flipped_rope_SC_QZC_sharing_pair_with_values_n4": {
+    "disclosed_dim": 2,
+    "verdict": "PASS"
+   },
+   "helper_sums_published_n4": {
+    "disclosed_dim": 84,
+    "verdict": "PASS"
+   },
+   "no_mask_A_per_column": {
+    "disclosed_dim": 43,
+    "verdict": "PASS"
+   },
+   "no_mask_A_with_values_n4": {
+    "disclosed_dim": 256,
+    "verdict": "PASS"
+   },
+   "prox_pair_singleton_pair_claim_per_column": {
+    "disclosed_dim": 0,
+    "verdict": "PASS"
+   },
+   "single_base_row_per_claim_A_per_column": {
+    "disclosed_dim": 13,
+    "verdict": "PASS"
+   },
+   "single_prox_row_singleton_pair_claim_per_column": {
+    "disclosed_dim": 1,
+    "verdict": "PASS"
+   },
+   "zero_sum_row_without_fresh_pair_n4": {
+    "disclosed_dim": 8,
+    "verdict": "PASS"
+   }
+  },
+  "whole_A_per_column": 0,
+  "whole_A_with_values_n4": 0,
+  "whole_H_per_column": 0,
+  "whole_H_with_values": {
+   "whole_H_with_values_n4": 2,
+   "whole_H_with_values_n8": 2
+  }
+ },
+ "self_check_accepted_claims_identical": true
+}

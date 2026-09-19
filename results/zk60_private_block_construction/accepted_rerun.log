@@ -1,0 +1,33 @@
+derived vs the note:
+  ok   A rows (layout arithmetic vs note section 5): 306
+  ok   A data rows: 154
+  ok   A site-pair rows: 150
+  ok   H rows: 290
+  ok   H data rows (incl. u): 218
+  ok   H site-pair rows (incl. u'): 70
+  ok   A claim sites: 75
+  ok   H claim sites: 35
+  ok   A claim sites found in argument.rs::define: 75
+  ok   H claim sites found in argument.rs::define: 35
+  ok   A opening groups (derived from the PCS key rule): 30
+  ok   H opening groups (derived, incl. the sum group): 8
+  ok   A_GROUPS declared in layout.rs: 30
+  ok   H_GROUPS declared in layout.rs: 8
+  ok   M rows: 40
+  ok   M rows = 2 * slots + 4: 40
+  ok   functionals = slots + standalone Gammas + one batched Gamma per host: 28
+  ok   N_FUNCTIONALS declared: 28
+  ok   the 18 (main, ext, degree) triples: [(9, 1, 3), (5, 1, 3), (9, 1, 3), (11, 1, 3), (4, 1, 2), (4, 1, 2), (4, 1, 2), (3, 2, 2), (5, 2, 2), (4, 1, 2), (9, 1, 4), (9, 1, 4), (8, 1, 4), (11, 1, 4), (8, 1, 3), (8, 1, 2), (9, 1, 2), (9, 1, 2)]
+  ok   largest mask row L: 50
+  ok   total main rounds: 129
+  ok   total extension rounds: 20
+  ok   U8 lookups: 47104
+  ok   exp lookups: 2048
+  ok   hosts (module slot indices): {1: [0], 10: [9], 11: [4, 8], 12: [5, 6], 13: [3, 7]}
+  ok   every slot L_s + 256 <= 512: True
+  ok   helper planes cover the lookups pairwise: {'L': 1, 'D': 10, 'Q': 7, 'Kv': 6, 'S': 7}
+  ok   A reserved-pair first rows == layout.rs a_site(slot, k): [154, 156, 158, 160, 162, 164, 166, 168, 170, 172, 174, 176, 178, 180, 182, 184, 186, 188, 190, 192, 194, 196, 198, 200, 202, 204, 206, 208, 210, 212, 214, 216, 218, 220, 222, 224, 226, 228, 230, 232, 234, 236, 238, 240, 242, 244, 246, 248, 250, 252, 254, 256, 258, 260, 262, 264, 266, 268, 270, 272, 274, 276, 278, 280, 282, 284, 286, 288, 290, 292, 294, 296, 298, 300, 302]
+  ok   H reserved-pair first rows == layout.rs h_site(slot, k): [218, 220, 222, 224, 226, 228, 230, 232, 234, 236, 238, 240, 242, 244, 246, 248, 250, 252, 254, 256, 258, 260, 262, 264, 266, 268, 270, 272, 274, 276, 278, 280, 282, 284, 286]
+rank: {"whole_A_per_column_disclosed_dim": 0, "whole_A_with_values_disclosed_dim": 0, "whole_H_per_column_disclosed_dim": 0, "whole_H_with_values_disclosed_dim": {"whole_H_with_values_n4": 2, "whole_H_with_values_n8": 2}, "H_residual_is_exactly_the_public_LogUp_identity": true, "groups_with_nonzero_disclosure": {}, "negative_controls": {"no_mask_A_per_column": {"disclosed_dim": 37, "verdict": "PASS"}, "no_mask_A_with_values_n4": {"disclosed_dim": 208, "verdict": "PASS"}, "single_base_row_per_claim_A_per_column": {"disclosed_dim": 15, "verdict": "PASS"}, "single_prox_row_singleton_pair_claim_per_column": {"disclosed_dim": 1, "verdict": "PASS"}, "prox_pair_singleton_pair_claim_per_column": {"disclosed_dim": 0, "verdict": "PASS"}, "flipped_rope_SC_QZC_sharing_pair_with_values_n4": {"disclosed_dim": 2, "verdict": "PASS"}, "flipped_rope_SC_QZC_own_pair_with_values_n4": {"disclosed_dim": 0, "verdict": "PASS"}, "flipped_rope_SC_KVZC_sharing_pair_with_values_n4": {"disclosed_dim": 2, "verdict": "PASS"}, "flipped_rope_SC_KVZC_own_pair_with_values_n4": {"disclosed_dim": 0, "verdict": "PASS"}, "zero_sum_row_without_fresh_pair_n4": {"disclosed_dim": 8, "verdict": "PASS"}, "helper_sums_published_n4":
+cfs : {"n_slots": 18, "largest_slot": {"slot": "SC_SZC", "name": "06 softmax zero-check (hosts 07, 10)", "n_vars": 12, "degree": 4, "len": 50, "headroom_coefficients": 206, "constraint": "L_s + 256 <= 512 (zk.rs mask_commit)"}, "standalone": {"SC_SS": {"rank": 31, "dim_S": 31, "kernel": 1, "leaked": 0, "pass": true}, "SC_TZC": {"rank": 19, "dim_S": 19, "kernel": 1, "leaked": 0, "pass": true}, "SC_LZC": {"rank": 31, "dim_S": 31, "kernel": 1, "leaked": 0, "pass": true}, "SC_RS": {"rank": 37, "dim_S": 37, "kernel": 1, "leaked": 0, "pass": true}, "SC_QMM": {"rank": 11, "dim_S": 11, "kernel": 1, "leaked": 0, "pass": true}, "SC_KMM": {"rank": 11, "dim_S": 11, "kernel": 1, "leaked": 0, "pass": true}, "SC_VMM": {"rank": 11, "dim_S": 11, "kernel": 1, "leaked": 0, "pass": true}, "SC_SCORE": {"rank": 11, "dim_S": 11, "kernel": 1, "leaked": 0, "pass": true}, "SC_PV": {"rank": 15, "dim_S": 15, "kernel": 1, "leaked": 0, "pass": true}, "SC_WO": {"rank": 11, "dim_S": 11, "kernel": 1, "leaked": 0, "pass": true}, "SC_DZC": {"rank": 41, "dim_S": 41, "kernel": 1, "leaked": 0, "pass": true}, "SC_QZC": {"rank": 41, "dim_S": 41, "kernel": 1, "leaked": 0, "pass": true}, "SC_KVZC": {"rank": 37, "dim_S": 37, "ker
+failures: none

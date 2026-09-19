@@ -1,5 +1,15 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-19, integrated native block:** Codex has integrated Claude's reviewed
+attention and complete tiny-block profiles. Fifty-seven combined Rust tests,
+29 block-inventory tests, full Python regression (1,098 tests, 61 skipped),
+native freeze and fresh/archived receipt verification pass. See
+[the integration record](ZK60_ATTENTION_INTEGRATION_20260919.md).
+Next: schema-3 captures and joint privacy review, with Fable owning the
+GPU-preserving construction and D12 chaining plan. Tiny CPU timings do not
+satisfy the model-scale five-second target. Earlier entries below are dated
+history; the token-model proof completed and its public artifacts are retained.
+
 **Live Codex/Fable coordination, 2026-09-18:** Victor requested collaboration
 between the two loops. See [the active file ownership and next delivery](ZK60_CODEX_FABLE_COORDINATION.md):
 Codex integrates the token-model receipt; Fable is requested to implement the

@@ -1,5 +1,10 @@
 # START HERE — the proof project in plain words
 
+**Current integration, 2026-09-19:** the native attention and complete tiny
+block are now in the main worktree, with tests and independent receipt
+verification passing. [Integration and measurements](ZK60_ATTENTION_INTEGRATION_20260919.md).
+Whole-proof privacy and five-second model-scale proving remain open.
+
 **Current work, 2026-09-18:** [continuous MVP loop](ZK60_MVP_LOOP_20260918.md).
 The complete fixed block has a **785-byte Groth16 receipt**, independent
 verification and eight rejection controls. The full Python suite passes

@@ -1,0 +1,16 @@
+{
+  "base_commit": "7f52465031aca67741d1e9287a0a29b5881fa9a8",
+  "delivery_commit": "58f61507d802869f64884c4bb2cb870f3127049a",
+  "files": {
+    "hashline/src/lib.rs": "f4f139867e5b07eb0d66f74673e5fbf8f4beddef664cedb442c39116418e0707",
+    "hashline/src/private_attention.rs": "cba977fea684d11a03996666ff091ac9e8910b088dfea2395e52615990f42fa1",
+    "hashline/examples/zk60_private_attention.rs": "1f11e03e807ae8c632ecf5f3ff1b55a6ef1e0d6fb4e0091e0547d2b22b2e88e2",
+    "hashline/tests/zk60_private_attention.rs": "7c2e07985f927936f01d103e619d51fea52c5983074a4740f1fe0a6c9c1419f9",
+    "hashline/src/private_attention/argument.rs": "096aeb865fac9927b070f609064b970140727ac02aecba60ab1b4d1e4ddc4a09",
+    "hashline/src/private_attention/layout.rs": "17159dcc677d47a9d81528d9e14bf7a28a2ef3854aa4db921719f9bd0ffc7bb1",
+    "hashline/src/private_attention/protocol.rs": "15f8520c4717c4bd091d04efc657088dbf76ce7c63dc1ec96efdfc21fd796f6a",
+    "hashline/src/private_attention/tests.rs": "a35ec9bedb8ec051e64b443f701a7f923a195e4c47ea3de6328cb07ad4918e96",
+    "hashline/src/private_attention/wire.rs": "a35a468cf19eb672e5428c3286a3ece15f73e96e20291a220cf38dd4104dbdff",
+    "hashline/src/private_attention/witness.rs": "795cf6292e366bc48d1c1987b9a3173f9a19e266de537f72a9e738bdb5133ee0"
+  }
+}

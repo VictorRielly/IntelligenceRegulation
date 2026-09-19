@@ -1,0 +1,78 @@
+[
+  {
+    "profile": "attention",
+    "stage": "prove",
+    "command": [
+      "hashline/target/release/examples/zk60_private_attention",
+      "prove",
+      "results/zk60_attention_integration_20260919/attention_public"
+    ],
+    "exit_code": 0,
+    "process_wall_seconds": 0.059057065001979936,
+    "binary_sha256": "6c043e087b7b5214e6f9eb138a44ffcd3a5a2916e08a38853cc3823899ada1f9",
+    "log": "final-attention-prove.log"
+  },
+  {
+    "profile": "attention",
+    "stage": "verify",
+    "command": [
+      "hashline/target/release/examples/zk60_private_attention",
+      "verify",
+      "results/zk60_attention_integration_20260919/attention_public"
+    ],
+    "exit_code": 0,
+    "process_wall_seconds": 0.036828807002166286,
+    "binary_sha256": "6c043e087b7b5214e6f9eb138a44ffcd3a5a2916e08a38853cc3823899ada1f9",
+    "log": "final-attention-verify.log"
+  },
+  {
+    "profile": "attention",
+    "artifact": "results/zk60_attention_integration_20260919/attention_public/attention_expected.bin",
+    "bytes": 112,
+    "sha256": "b8e562503ea19fe20618e7b27a86b6b688096221a37a1acab780741063910629"
+  },
+  {
+    "profile": "attention",
+    "artifact": "results/zk60_attention_integration_20260919/attention_public/attention_receipt.bin",
+    "bytes": 2245800,
+    "sha256": "df0988e2b676cb49b8e4a8160be73b5de11def7354cd654f395efcdfda48c343"
+  },
+  {
+    "profile": "block",
+    "stage": "prove",
+    "command": [
+      "hashline/target/release/examples/zk60_private_block",
+      "prove",
+      "results/zk60_attention_integration_20260919/block_public"
+    ],
+    "exit_code": 0,
+    "process_wall_seconds": 0.07886982699710643,
+    "binary_sha256": "f28b4aea16c7924526a209d9a7229ab2000cb395757499f3258ff2cc7df2fa8e",
+    "log": "final-block-prove.log"
+  },
+  {
+    "profile": "block",
+    "stage": "verify",
+    "command": [
+      "hashline/target/release/examples/zk60_private_block",
+      "verify",
+      "results/zk60_attention_integration_20260919/block_public"
+    ],
+    "exit_code": 0,
+    "process_wall_seconds": 0.0561294010040001,
+    "binary_sha256": "f28b4aea16c7924526a209d9a7229ab2000cb395757499f3258ff2cc7df2fa8e",
+    "log": "final-block-verify.log"
+  },
+  {
+    "profile": "block",
+    "artifact": "results/zk60_attention_integration_20260919/block_public/block_expected.bin",
+    "bytes": 112,
+    "sha256": "8ff73f17bc5d1d73065fcbd3bdce8ad50963a5c5be6c6619ccfb461a6551fe3b"
+  },
+  {
+    "profile": "block",
+    "artifact": "results/zk60_attention_integration_20260919/block_public/block_receipt.bin",
+    "bytes": 2816472,
+    "sha256": "77186742500cbd6eea41d28868919fbad92b58e4ca83d2a9630dcdd2ed19fdf7"
+  }
+]

@@ -1,0 +1,503 @@
+{
+  "scope": "tiny attention component only; P1 experimental; CPU diagnostic; no privacy or model-scale acceptance",
+  "hardware": "Intel Core Ultra 9 185H",
+  "rayon_threads": 2,
+  "gpu_enabled": false,
+  "quiesced": false,
+  "warm_samples_per_implementation": 10,
+  "headline_eligible": false,
+  "source": {
+    "base_commit": "7f52465031aca67741d1e9287a0a29b5881fa9a8",
+    "delivery_commit": "58f61507d802869f64884c4bb2cb870f3127049a",
+    "files": {
+      "hashline/src/lib.rs": "f4f139867e5b07eb0d66f74673e5fbf8f4beddef664cedb442c39116418e0707",
+      "hashline/src/private_attention.rs": "cba977fea684d11a03996666ff091ac9e8910b088dfea2395e52615990f42fa1",
+      "hashline/examples/zk60_private_attention.rs": "1f11e03e807ae8c632ecf5f3ff1b55a6ef1e0d6fb4e0091e0547d2b22b2e88e2",
+      "hashline/tests/zk60_private_attention.rs": "7c2e07985f927936f01d103e619d51fea52c5983074a4740f1fe0a6c9c1419f9",
+      "hashline/src/private_attention/argument.rs": "096aeb865fac9927b070f609064b970140727ac02aecba60ab1b4d1e4ddc4a09",
+      "hashline/src/private_attention/layout.rs": "17159dcc677d47a9d81528d9e14bf7a28a2ef3854aa4db921719f9bd0ffc7bb1",
+      "hashline/src/private_attention/protocol.rs": "15f8520c4717c4bd091d04efc657088dbf76ce7c63dc1ec96efdfc21fd796f6a",
+      "hashline/src/private_attention/tests.rs": "a35ec9bedb8ec051e64b443f701a7f923a195e4c47ea3de6328cb07ad4918e96",
+      "hashline/src/private_attention/wire.rs": "a35a468cf19eb672e5428c3286a3ece15f73e96e20291a220cf38dd4104dbdff",
+      "hashline/src/private_attention/witness.rs": "795cf6292e366bc48d1c1987b9a3173f9a19e266de537f72a9e738bdb5133ee0"
+    }
+  },
+  "binary_sha256": {
+    "baseline": "8b98c793a6bf5fbe7b2ea2f58a6951029fa525f75d1dad2c23c22b6db6e553ac",
+    "candidate": "739f288046eb13a83f7e64825a64df04694af2c066e1af97e739e5173222676f"
+  },
+  "summary": {
+    "baseline": {
+      "median_prove_core_seconds": 0.0505,
+      "median_process_wall_seconds": 0.06006462349978392
+    },
+    "candidate": {
+      "median_prove_core_seconds": 0.049005999999999994,
+      "median_process_wall_seconds": 0.05939267899884726
+    }
+  },
+  "runs": [
+    {
+      "sample": 0,
+      "warm": false,
+      "implementation": "baseline",
+      "process_wall_seconds": 0.06517055100266589,
+      "prove_core_seconds": 0.052,
+      "phase_seconds": {
+        "witness planes + commit A": 0.012,
+        "commit M": 0.005,
+        "LogUp helpers + commit H": 0.013,
+        "18 masked sumchecks": 0.011,
+        "M + A + H + endpoint openings": 0.012
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "candidate",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "52b52a2c5f4bbbd3608c81655c28ba6e3f3b13f706430896c4a45f03266aabe9"
+    },
+    {
+      "sample": 0,
+      "warm": false,
+      "implementation": "candidate",
+      "process_wall_seconds": 0.05658123300236184,
+      "prove_core_seconds": 0.046123,
+      "phase_seconds": {
+        "integer witness": 0.000194,
+        "witness planes + commit A": 0.011259,
+        "commit M": 0.005129,
+        "LogUp helpers": 0.000858,
+        "commit H": 0.009777,
+        "18 masked sumchecks": 0.010173,
+        "M + A + H + endpoint openings": 0.008695
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "baseline",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "f81e9248c74ffbb690b776463f01e6448522b25ae5823b0c237072dcc5de0355"
+    },
+    {
+      "sample": 1,
+      "warm": true,
+      "implementation": "candidate",
+      "process_wall_seconds": 0.059706498999730684,
+      "prove_core_seconds": 0.04791,
+      "phase_seconds": {
+        "integer witness": 0.000235,
+        "witness planes + commit A": 0.011316,
+        "commit M": 0.005101,
+        "LogUp helpers": 0.000775,
+        "commit H": 0.009358,
+        "18 masked sumchecks": 0.012543,
+        "M + A + H + endpoint openings": 0.008545
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "baseline",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "2878eb633307b53131f164918b2e938a6b164adfdb00685dc6b9ab848a1a757d"
+    },
+    {
+      "sample": 1,
+      "warm": true,
+      "implementation": "baseline",
+      "process_wall_seconds": 0.05965221799851861,
+      "prove_core_seconds": 0.051,
+      "phase_seconds": {
+        "witness planes + commit A": 0.013,
+        "commit M": 0.005,
+        "LogUp helpers + commit H": 0.012,
+        "18 masked sumchecks": 0.01,
+        "M + A + H + endpoint openings": 0.01
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "candidate",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "81783df316d9b10758ec5a9d13fb6a61a5bbee4c1d4718d28c505cb312d224ee"
+    },
+    {
+      "sample": 2,
+      "warm": true,
+      "implementation": "baseline",
+      "process_wall_seconds": 0.06695018100435846,
+      "prove_core_seconds": 0.056,
+      "phase_seconds": {
+        "witness planes + commit A": 0.011,
+        "commit M": 0.005,
+        "LogUp helpers + commit H": 0.012,
+        "18 masked sumchecks": 0.015,
+        "M + A + H + endpoint openings": 0.014
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "candidate",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "b58f8d39824abf734739441357b5f9153b66fee22fd31b2847579d665225ccc4"
+    },
+    {
+      "sample": 2,
+      "warm": true,
+      "implementation": "candidate",
+      "process_wall_seconds": 0.061321248998865485,
+      "prove_core_seconds": 0.051925,
+      "phase_seconds": {
+        "integer witness": 0.000188,
+        "witness planes + commit A": 0.011491,
+        "commit M": 0.005399,
+        "LogUp helpers": 0.000802,
+        "commit H": 0.009478,
+        "18 masked sumchecks": 0.01251,
+        "M + A + H + endpoint openings": 0.01202
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "baseline",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "ef63400a55b3909031f6c46e3fb7776b756445f601a832949fe380e942f4e430"
+    },
+    {
+      "sample": 3,
+      "warm": true,
+      "implementation": "candidate",
+      "process_wall_seconds": 0.057896905003872234,
+      "prove_core_seconds": 0.048521,
+      "phase_seconds": {
+        "integer witness": 0.000191,
+        "witness planes + commit A": 0.011154,
+        "commit M": 0.004826,
+        "LogUp helpers": 0.000808,
+        "commit H": 0.010428,
+        "18 masked sumchecks": 0.010981,
+        "M + A + H + endpoint openings": 0.010095
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "baseline",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "9ff59e5670156fa4e4ea7072d85f2746908f54a11443b03708f2f74925c76c28"
+    },
+    {
+      "sample": 3,
+      "warm": true,
+      "implementation": "baseline",
+      "process_wall_seconds": 0.056075387001328636,
+      "prove_core_seconds": 0.047,
+      "phase_seconds": {
+        "witness planes + commit A": 0.012,
+        "commit M": 0.005,
+        "LogUp helpers + commit H": 0.011,
+        "18 masked sumchecks": 0.01,
+        "M + A + H + endpoint openings": 0.009
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "candidate",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "802e493b82f76dd4af6ed2638dda2962b3f41534665c55a13bf5b0dcfe26eb08"
+    },
+    {
+      "sample": 4,
+      "warm": true,
+      "implementation": "baseline",
+      "process_wall_seconds": 0.05758419699850492,
+      "prove_core_seconds": 0.048,
+      "phase_seconds": {
+        "witness planes + commit A": 0.012,
+        "commit M": 0.005,
+        "LogUp helpers + commit H": 0.012,
+        "18 masked sumchecks": 0.01,
+        "M + A + H + endpoint openings": 0.008
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "candidate",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "38c2bc090725a43d55b1c2a6b9b7089ae8f750408522818479cc2430091d8c1c"
+    },
+    {
+      "sample": 4,
+      "warm": true,
+      "implementation": "candidate",
+      "process_wall_seconds": 0.05768947499745991,
+      "prove_core_seconds": 0.047555,
+      "phase_seconds": {
+        "integer witness": 0.000198,
+        "witness planes + commit A": 0.011419,
+        "commit M": 0.004992,
+        "LogUp helpers": 0.00077,
+        "commit H": 0.010027,
+        "18 masked sumchecks": 0.011919,
+        "M + A + H + endpoint openings": 0.008182
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "baseline",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "f099597640a95577fad4ce7cbce51f20f652f91dec837738c6690356a829d4a0"
+    },
+    {
+      "sample": 5,
+      "warm": true,
+      "implementation": "candidate",
+      "process_wall_seconds": 0.05548400000407128,
+      "prove_core_seconds": 0.045123,
+      "phase_seconds": {
+        "integer witness": 0.000231,
+        "witness planes + commit A": 0.011313,
+        "commit M": 0.004629,
+        "LogUp helpers": 0.000774,
+        "commit H": 0.009455,
+        "18 masked sumchecks": 0.0098,
+        "M + A + H + endpoint openings": 0.008881
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "baseline",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "5c8a5634af7f7145e54df2cb65bf490c18423a437e0ffa595c59fcc8c95a3e97"
+    },
+    {
+      "sample": 5,
+      "warm": true,
+      "implementation": "baseline",
+      "process_wall_seconds": 0.06161042700114194,
+      "prove_core_seconds": 0.052,
+      "phase_seconds": {
+        "witness planes + commit A": 0.013,
+        "commit M": 0.005,
+        "LogUp helpers + commit H": 0.013,
+        "18 masked sumchecks": 0.01,
+        "M + A + H + endpoint openings": 0.01
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "candidate",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "c75a7355b4834c887eded70ae16070e718f54664d5f3580c70b14f626405601a"
+    },
+    {
+      "sample": 6,
+      "warm": true,
+      "implementation": "baseline",
+      "process_wall_seconds": 0.058172028002445586,
+      "prove_core_seconds": 0.049,
+      "phase_seconds": {
+        "witness planes + commit A": 0.011,
+        "commit M": 0.005,
+        "LogUp helpers + commit H": 0.012,
+        "18 masked sumchecks": 0.011,
+        "M + A + H + endpoint openings": 0.01
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "candidate",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "08e12ddbf8c3887203d1af21bf705f340570915346652bc65fe2185f6b397891"
+    },
+    {
+      "sample": 6,
+      "warm": true,
+      "implementation": "candidate",
+      "process_wall_seconds": 0.060469235002528876,
+      "prove_core_seconds": 0.050671,
+      "phase_seconds": {
+        "integer witness": 0.000193,
+        "witness planes + commit A": 0.011554,
+        "commit M": 0.004753,
+        "LogUp helpers": 0.000774,
+        "commit H": 0.009388,
+        "18 masked sumchecks": 0.014884,
+        "M + A + H + endpoint openings": 0.009082
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "baseline",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "5c8a2dade758ba78a44dfa7f880abcc1519b252586466c1390ef47ede9c515f4"
+    },
+    {
+      "sample": 7,
+      "warm": true,
+      "implementation": "candidate",
+      "process_wall_seconds": 0.06597782199969515,
+      "prove_core_seconds": 0.052023,
+      "phase_seconds": {
+        "integer witness": 0.000244,
+        "witness planes + commit A": 0.01149,
+        "commit M": 0.00585,
+        "LogUp helpers": 0.00088,
+        "commit H": 0.009836,
+        "18 masked sumchecks": 0.013949,
+        "M + A + H + endpoint openings": 0.009742
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "baseline",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "357975c721d330ee45f6b265a9d97e252f1c6b87ef3246915f619af9f88011ad"
+    },
+    {
+      "sample": 7,
+      "warm": true,
+      "implementation": "baseline",
+      "process_wall_seconds": 0.06088269699830562,
+      "prove_core_seconds": 0.051,
+      "phase_seconds": {
+        "witness planes + commit A": 0.013,
+        "commit M": 0.005,
+        "LogUp helpers + commit H": 0.012,
+        "18 masked sumchecks": 0.011,
+        "M + A + H + endpoint openings": 0.01
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "candidate",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "432ad43454148efe4af2a8ade3722220d5c278730a8cf5c149cb7cba2d9ef9f3"
+    },
+    {
+      "sample": 8,
+      "warm": true,
+      "implementation": "baseline",
+      "process_wall_seconds": 0.059219098999165,
+      "prove_core_seconds": 0.05,
+      "phase_seconds": {
+        "witness planes + commit A": 0.012,
+        "commit M": 0.005,
+        "LogUp helpers + commit H": 0.013,
+        "18 masked sumchecks": 0.011,
+        "M + A + H + endpoint openings": 0.009
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "candidate",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "743ec5083628e7beede1baec87eccd4aab1f93fc95a5d253e9d9ca4e3399f2c0"
+    },
+    {
+      "sample": 8,
+      "warm": true,
+      "implementation": "candidate",
+      "process_wall_seconds": 0.059700610996515024,
+      "prove_core_seconds": 0.049318,
+      "phase_seconds": {
+        "integer witness": 0.000206,
+        "witness planes + commit A": 0.012128,
+        "commit M": 0.005144,
+        "LogUp helpers": 0.000818,
+        "commit H": 0.010987,
+        "18 masked sumchecks": 0.0111,
+        "M + A + H + endpoint openings": 0.008904
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "baseline",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "2f4fdf48d620b6b68e112ae591466a6470f2cd3f360418ccbb0a04db786623cd"
+    },
+    {
+      "sample": 9,
+      "warm": true,
+      "implementation": "candidate",
+      "process_wall_seconds": 0.058249260000593495,
+      "prove_core_seconds": 0.049038,
+      "phase_seconds": {
+        "integer witness": 0.000186,
+        "witness planes + commit A": 0.012177,
+        "commit M": 0.005193,
+        "LogUp helpers": 0.000794,
+        "commit H": 0.010548,
+        "18 masked sumchecks": 0.011173,
+        "M + A + H + endpoint openings": 0.008922
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "baseline",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "366a9ad7eab0ef62444e4e7e9be18c765b577fc81d9fb8e9c47add2b38a8be28"
+    },
+    {
+      "sample": 9,
+      "warm": true,
+      "implementation": "baseline",
+      "process_wall_seconds": 0.06047702900104923,
+      "prove_core_seconds": 0.049,
+      "phase_seconds": {
+        "witness planes + commit A": 0.012,
+        "commit M": 0.005,
+        "LogUp helpers + commit H": 0.012,
+        "18 masked sumchecks": 0.011,
+        "M + A + H + endpoint openings": 0.01
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "candidate",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "241a99bc91033164570f48f35f1a4e38cec731a6dbe2811b86c36d417b635d30"
+    },
+    {
+      "sample": 10,
+      "warm": true,
+      "implementation": "baseline",
+      "process_wall_seconds": 0.06245614799991017,
+      "prove_core_seconds": 0.053,
+      "phase_seconds": {
+        "witness planes + commit A": 0.012,
+        "commit M": 0.005,
+        "LogUp helpers + commit H": 0.012,
+        "18 masked sumchecks": 0.011,
+        "M + A + H + endpoint openings": 0.013
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "candidate",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "599e2a5d5ab6ed06e0f693d0f86b139ad53ef45af3eeb1e21173b84d1c5e4bb1"
+    },
+    {
+      "sample": 10,
+      "warm": true,
+      "implementation": "candidate",
+      "process_wall_seconds": 0.059084747001179494,
+      "prove_core_seconds": 0.048974,
+      "phase_seconds": {
+        "integer witness": 0.000193,
+        "witness planes + commit A": 0.011617,
+        "commit M": 0.005158,
+        "LogUp helpers": 0.000794,
+        "commit H": 0.010527,
+        "18 masked sumchecks": 0.010976,
+        "M + A + H + endpoint openings": 0.009669
+      },
+      "prove_exit": 0,
+      "verify_exit": 0,
+      "verifier_implementation": "baseline",
+      "rejection_controls": 3,
+      "receipt_bytes": 2245800,
+      "receipt_sha256": "ca27d047491f0d77f2c54524bddc3e034a528e3368b7ac21eb3c29576f8793dc"
+    }
+  ]
+}

@@ -1,0 +1,6823 @@
+{
+ "A1_schedule": {
+  "claim_counts": {
+   "A": 75,
+   "H_eval": 35,
+   "H_sum": 1,
+   "total": 111
+  },
+  "claims": [
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SS[1]",
+     "rho_SC_SS[2]",
+     "rho_SC_SS[3]",
+     "rho_SC_SS[4]",
+     "rho_SC_SS[5]",
+     "rho_SC_SS[6]",
+     "rho_SC_SS[7]",
+     "rho_SC_SS[8]"
+    ],
+    "index": 0,
+    "log_size": 9,
+    "mask_rows": [
+     154,
+     155
+    ],
+    "offset": 1536,
+    "parts": 3,
+    "plane": 5,
+    "point": [
+     "rho_SC_SS[0]",
+     "rho_SC_SS[1]",
+     "rho_SC_SS[2]",
+     "rho_SC_SS[3]",
+     "rho_SC_SS[4]",
+     "rho_SC_SS[5]",
+     "rho_SC_SS[6]",
+     "rho_SC_SS[7]",
+     "rho_SC_SS[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "01 SS row sums (private)",
+    "site": "SC_SS#0 A[A_X]",
+    "site_index_in_slot": 0,
+    "slot": 0,
+    "slot_const": "SC_SS",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "index": 1,
+    "log_size": 8,
+    "mask_rows": [
+     156,
+     157
+    ],
+    "offset": 0,
+    "parts": 3,
+    "plane": 0,
+    "point": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "02 norm squares zero-check (hosts 01)",
+    "site": "SC_TZC#0 A[A_D]",
+    "site_index_in_slot": 0,
+    "slot": 1,
+    "slot_const": "SC_TZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sub_row": {
+     "c0": 0,
+     "element_offset": 0,
+     "len": 32,
+     "note": "sub-row slice: the PCS keys it on (point, c0, len); the rank tool's row model has no sub-row granularity, so the claim is presented as a single-row claim (log_size 8, data_rows 1) with a synthetic tail that preserves key equality",
+     "true_log_size": 5,
+     "true_point": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ]
+    },
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "index": 2,
+    "log_size": 8,
+    "mask_rows": [
+     158,
+     159
+    ],
+    "offset": 256,
+    "parts": 3,
+    "plane": 1,
+    "point": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "02 norm squares zero-check (hosts 01)",
+    "site": "SC_TZC#1 A[A_DSQ]",
+    "site_index_in_slot": 1,
+    "slot": 1,
+    "slot_const": "SC_TZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sub_row": {
+     "c0": 0,
+     "element_offset": 256,
+     "len": 32,
+     "note": "sub-row slice: the PCS keys it on (point, c0, len); the rank tool's row model has no sub-row granularity, so the claim is presented as a single-row claim (log_size 8, data_rows 1) with a synthetic tail that preserves key equality",
+     "true_log_size": 5,
+     "true_point": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ]
+    },
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "index": 3,
+    "log_size": 8,
+    "mask_rows": [
+     160,
+     161
+    ],
+    "offset": 1024,
+    "parts": 3,
+    "plane": null,
+    "point": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "02 norm squares zero-check (hosts 01)",
+    "site": "SC_TZC#2 A[offset 1024, log 5]",
+    "site_index_in_slot": 2,
+    "slot": 1,
+    "slot_const": "SC_TZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sub_row": {
+     "c0": 0,
+     "element_offset": 1024,
+     "len": 32,
+     "note": "sub-row slice: the PCS keys it on (point, c0, len); the rank tool's row model has no sub-row granularity, so the claim is presented as a single-row claim (log_size 8, data_rows 1) with a synthetic tail that preserves key equality",
+     "true_log_size": 5,
+     "true_point": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ]
+    },
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "#sub(c0=32,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "index": 4,
+    "log_size": 8,
+    "mask_rows": [
+     162,
+     163
+    ],
+    "offset": 1024,
+    "parts": 3,
+    "plane": null,
+    "point": [
+     "#sub(c0=32,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "02 norm squares zero-check (hosts 01)",
+    "site": "SC_TZC#3 A[offset 1056, log 5]",
+    "site_index_in_slot": 3,
+    "slot": 1,
+    "slot_const": "SC_TZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sub_row": {
+     "c0": 32,
+     "element_offset": 1056,
+     "len": 32,
+     "note": "sub-row slice: the PCS keys it on (point, c0, len); the rank tool's row model has no sub-row granularity, so the claim is presented as a single-row claim (log_size 8, data_rows 1) with a synthetic tail that preserves key equality",
+     "true_log_size": 5,
+     "true_point": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ]
+    },
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "#sub(c0=64,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "index": 5,
+    "log_size": 8,
+    "mask_rows": [
+     164,
+     165
+    ],
+    "offset": 1024,
+    "parts": 3,
+    "plane": null,
+    "point": [
+     "#sub(c0=64,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "02 norm squares zero-check (hosts 01)",
+    "site": "SC_TZC#4 A[offset 1088, log 5]",
+    "site_index_in_slot": 4,
+    "slot": 1,
+    "slot_const": "SC_TZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sub_row": {
+     "c0": 64,
+     "element_offset": 1088,
+     "len": 32,
+     "note": "sub-row slice: the PCS keys it on (point, c0, len); the rank tool's row model has no sub-row granularity, so the claim is presented as a single-row claim (log_size 8, data_rows 1) with a synthetic tail that preserves key equality",
+     "true_log_size": 5,
+     "true_point": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ]
+    },
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "#sub(c0=96,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "index": 6,
+    "log_size": 8,
+    "mask_rows": [
+     166,
+     167
+    ],
+    "offset": 1024,
+    "parts": 3,
+    "plane": null,
+    "point": [
+     "#sub(c0=96,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "02 norm squares zero-check (hosts 01)",
+    "site": "SC_TZC#5 A[offset 1120, log 5]",
+    "site_index_in_slot": 5,
+    "slot": 1,
+    "slot_const": "SC_TZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sub_row": {
+     "c0": 96,
+     "element_offset": 1120,
+     "len": 32,
+     "note": "sub-row slice: the PCS keys it on (point, c0, len); the rank tool's row model has no sub-row granularity, so the claim is presented as a single-row claim (log_size 8, data_rows 1) with a synthetic tail that preserves key equality",
+     "true_log_size": 5,
+     "true_point": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ]
+    },
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "#sub(c0=128,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "index": 7,
+    "log_size": 8,
+    "mask_rows": [
+     168,
+     169
+    ],
+    "offset": 1024,
+    "parts": 3,
+    "plane": null,
+    "point": [
+     "#sub(c0=128,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "02 norm squares zero-check (hosts 01)",
+    "site": "SC_TZC#6 A[offset 1152, log 5]",
+    "site_index_in_slot": 6,
+    "slot": 1,
+    "slot_const": "SC_TZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sub_row": {
+     "c0": 128,
+     "element_offset": 1152,
+     "len": 32,
+     "note": "sub-row slice: the PCS keys it on (point, c0, len); the rank tool's row model has no sub-row granularity, so the claim is presented as a single-row claim (log_size 8, data_rows 1) with a synthetic tail that preserves key equality",
+     "true_log_size": 5,
+     "true_point": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ]
+    },
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "#sub(c0=160,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "index": 8,
+    "log_size": 8,
+    "mask_rows": [
+     170,
+     171
+    ],
+    "offset": 1024,
+    "parts": 3,
+    "plane": null,
+    "point": [
+     "#sub(c0=160,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "02 norm squares zero-check (hosts 01)",
+    "site": "SC_TZC#7 A[offset 1184, log 5]",
+    "site_index_in_slot": 7,
+    "slot": 1,
+    "slot_const": "SC_TZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sub_row": {
+     "c0": 160,
+     "element_offset": 1184,
+     "len": 32,
+     "note": "sub-row slice: the PCS keys it on (point, c0, len); the rank tool's row model has no sub-row granularity, so the claim is presented as a single-row claim (log_size 8, data_rows 1) with a synthetic tail that preserves key equality",
+     "true_log_size": 5,
+     "true_point": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ]
+    },
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "#sub(c0=192,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "index": 9,
+    "log_size": 8,
+    "mask_rows": [
+     172,
+     173
+    ],
+    "offset": 1024,
+    "parts": 3,
+    "plane": null,
+    "point": [
+     "#sub(c0=192,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "02 norm squares zero-check (hosts 01)",
+    "site": "SC_TZC#8 A[offset 1216, log 5]",
+    "site_index_in_slot": 8,
+    "slot": 1,
+    "slot_const": "SC_TZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sub_row": {
+     "c0": 192,
+     "element_offset": 1216,
+     "len": 32,
+     "note": "sub-row slice: the PCS keys it on (point, c0, len); the rank tool's row model has no sub-row granularity, so the claim is presented as a single-row claim (log_size 8, data_rows 1) with a synthetic tail that preserves key equality",
+     "true_log_size": 5,
+     "true_point": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ]
+    },
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "#sub(c0=224,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "index": 10,
+    "log_size": 8,
+    "mask_rows": [
+     174,
+     175
+    ],
+    "offset": 1024,
+    "parts": 3,
+    "plane": null,
+    "point": [
+     "#sub(c0=224,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "02 norm squares zero-check (hosts 01)",
+    "site": "SC_TZC#9 A[offset 1248, log 5]",
+    "site_index_in_slot": 9,
+    "slot": 1,
+    "slot_const": "SC_TZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sub_row": {
+     "c0": 224,
+     "element_offset": 1248,
+     "len": 32,
+     "note": "sub-row slice: the PCS keys it on (point, c0, len); the rank tool's row model has no sub-row granularity, so the claim is presented as a single-row claim (log_size 8, data_rows 1) with a synthetic tail that preserves key equality",
+     "true_log_size": 5,
+     "true_point": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ]
+    },
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "index": 11,
+    "log_size": 8,
+    "mask_rows": [
+     176,
+     177
+    ],
+    "offset": 1280,
+    "parts": 3,
+    "plane": null,
+    "point": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_TZC[0]",
+     "rho_SC_TZC[1]",
+     "rho_SC_TZC[2]",
+     "rho_SC_TZC[3]",
+     "rho_SC_TZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "02 norm squares zero-check (hosts 01)",
+    "site": "SC_TZC#10 A[offset 1280, log 5]",
+    "site_index_in_slot": 10,
+    "slot": 1,
+    "slot_const": "SC_TZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sub_row": {
+     "c0": 0,
+     "element_offset": 1280,
+     "len": 32,
+     "note": "sub-row slice: the PCS keys it on (point, c0, len); the rank tool's row model has no sub-row granularity, so the claim is presented as a single-row claim (log_size 8, data_rows 1) with a synthetic tail that preserves key equality",
+     "true_log_size": 5,
+     "true_point": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ]
+    },
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_LZC[1]",
+     "rho_SC_LZC[2]",
+     "rho_SC_LZC[3]",
+     "rho_SC_LZC[4]",
+     "rho_SC_LZC[5]",
+     "rho_SC_LZC[6]",
+     "rho_SC_LZC[7]",
+     "rho_SC_LZC[8]"
+    ],
+    "index": 12,
+    "log_size": 9,
+    "mask_rows": [
+     178,
+     179
+    ],
+    "offset": 1024,
+    "parts": 3,
+    "plane": 4,
+    "point": [
+     "rho_SC_LZC[0]",
+     "rho_SC_LZC[1]",
+     "rho_SC_LZC[2]",
+     "rho_SC_LZC[3]",
+     "rho_SC_LZC[4]",
+     "rho_SC_LZC[5]",
+     "rho_SC_LZC[6]",
+     "rho_SC_LZC[7]",
+     "rho_SC_LZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "08 limb zero-check",
+    "site": "SC_LZC#0 A[A_LIMB]",
+    "site_index_in_slot": 0,
+    "slot": 2,
+    "slot_const": "SC_LZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_LZC[1]",
+     "rho_SC_LZC[2]",
+     "rho_SC_LZC[3]",
+     "rho_SC_LZC[4]",
+     "rho_SC_LZC[5]",
+     "rho_SC_LZC[6]",
+     "rho_SC_LZC[7]",
+     "rho_SC_LZC[8]"
+    ],
+    "index": 13,
+    "log_size": 9,
+    "mask_rows": [
+     218,
+     219
+    ],
+    "offset": 0,
+    "parts": 4,
+    "plane": 0,
+    "point": [
+     "rho_SC_LZC[0]",
+     "rho_SC_LZC[1]",
+     "rho_SC_LZC[2]",
+     "rho_SC_LZC[3]",
+     "rho_SC_LZC[4]",
+     "rho_SC_LZC[5]",
+     "rho_SC_LZC[6]",
+     "rho_SC_LZC[7]",
+     "rho_SC_LZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "08 limb zero-check",
+    "site": "SC_LZC#0 H[H_L]",
+    "site_index_in_slot": 0,
+    "slot": 2,
+    "slot_const": "SC_LZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_RS[3]",
+     "rho_SC_RS[4]",
+     "rho_SC_RS[5]",
+     "rho_SC_RS[6]",
+     "rho_SC_RS[7]",
+     "rho_SC_RS[8]",
+     "rho_SC_RS[9]",
+     "rho_SC_RS[10]"
+    ],
+    "index": 14,
+    "log_size": 11,
+    "mask_rows": [
+     180,
+     181
+    ],
+    "offset": 22528,
+    "parts": 3,
+    "plane": 40,
+    "point": [
+     "rho_SC_RS[0]",
+     "rho_SC_RS[1]",
+     "rho_SC_RS[2]",
+     "rho_SC_RS[3]",
+     "rho_SC_RS[4]",
+     "rho_SC_RS[5]",
+     "rho_SC_RS[6]",
+     "rho_SC_RS[7]",
+     "rho_SC_RS[8]",
+     "rho_SC_RS[9]",
+     "rho_SC_RS[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "07 masked row sums + selector (private)",
+    "site": "SC_RS#0 A[A_E]",
+    "site_index_in_slot": 0,
+    "slot": 3,
+    "slot_const": "SC_RS",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_RS[3]",
+     "rho_SC_RS[4]",
+     "rho_SC_RS[5]",
+     "rho_SC_RS[6]",
+     "rho_SC_RS[7]",
+     "rho_SC_RS[8]",
+     "rho_SC_RS[9]",
+     "rho_SC_RS[10]"
+    ],
+    "index": 15,
+    "log_size": 11,
+    "mask_rows": [
+     182,
+     183
+    ],
+    "offset": 20480,
+    "parts": 3,
+    "plane": 39,
+    "point": [
+     "rho_SC_RS[0]",
+     "rho_SC_RS[1]",
+     "rho_SC_RS[2]",
+     "rho_SC_RS[3]",
+     "rho_SC_RS[4]",
+     "rho_SC_RS[5]",
+     "rho_SC_RS[6]",
+     "rho_SC_RS[7]",
+     "rho_SC_RS[8]",
+     "rho_SC_RS[9]",
+     "rho_SC_RS[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "07 masked row sums + selector (private)",
+    "site": "SC_RS#1 A[A_ZSEL]",
+    "site_index_in_slot": 1,
+    "slot": 3,
+    "slot_const": "SC_RS",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "SC_QMM.r_q[1]",
+     "SC_QMM.r_q[2]",
+     "SC_QMM.r_q[3]",
+     "SC_QMM.r_q[4]",
+     "rho_SC_QMM[0]",
+     "rho_SC_QMM[1]",
+     "rho_SC_QMM[2]",
+     "rho_SC_QMM[3]"
+    ],
+    "index": 16,
+    "log_size": 9,
+    "mask_rows": [
+     184,
+     185
+    ],
+    "offset": 3072,
+    "parts": 3,
+    "plane": 8,
+    "point": [
+     "SC_QMM.r_q[0]",
+     "SC_QMM.r_q[1]",
+     "SC_QMM.r_q[2]",
+     "SC_QMM.r_q[3]",
+     "SC_QMM.r_q[4]",
+     "rho_SC_QMM[0]",
+     "rho_SC_QMM[1]",
+     "rho_SC_QMM[2]",
+     "rho_SC_QMM[3]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "09Q matmul (private)",
+    "site": "SC_QMM#0 A[A_Y] @ point",
+    "site_index_in_slot": 0,
+    "slot": 4,
+    "slot_const": "SC_QMM",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "SC_QMM.r_q[1]",
+     "SC_QMM.r_q[2]",
+     "SC_QMM.r_q[3]",
+     "SC_QMM.r_q[4]",
+     "rho_SC_KMM[0]",
+     "rho_SC_KMM[1]",
+     "rho_SC_KMM[2]",
+     "rho_SC_KMM[3]"
+    ],
+    "index": 17,
+    "log_size": 9,
+    "mask_rows": [
+     186,
+     187
+    ],
+    "offset": 3072,
+    "parts": 3,
+    "plane": 8,
+    "point": [
+     "SC_QMM.r_q[0]",
+     "SC_QMM.r_q[1]",
+     "SC_QMM.r_q[2]",
+     "SC_QMM.r_q[3]",
+     "SC_QMM.r_q[4]",
+     "rho_SC_KMM[0]",
+     "rho_SC_KMM[1]",
+     "rho_SC_KMM[2]",
+     "rho_SC_KMM[3]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "09K matmul (private)",
+    "site": "SC_KMM#0 A[A_Y] @ point",
+    "site_index_in_slot": 0,
+    "slot": 5,
+    "slot_const": "SC_KMM",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "SC_QMM.r_q[1]",
+     "SC_QMM.r_q[2]",
+     "SC_QMM.r_q[3]",
+     "SC_QMM.r_q[4]",
+     "rho_SC_VMM[0]",
+     "rho_SC_VMM[1]",
+     "rho_SC_VMM[2]",
+     "rho_SC_VMM[3]"
+    ],
+    "index": 18,
+    "log_size": 9,
+    "mask_rows": [
+     188,
+     189
+    ],
+    "offset": 3072,
+    "parts": 3,
+    "plane": 8,
+    "point": [
+     "SC_QMM.r_q[0]",
+     "SC_QMM.r_q[1]",
+     "SC_QMM.r_q[2]",
+     "SC_QMM.r_q[3]",
+     "SC_QMM.r_q[4]",
+     "rho_SC_VMM[0]",
+     "rho_SC_VMM[1]",
+     "rho_SC_VMM[2]",
+     "rho_SC_VMM[3]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "09V matmul (private)",
+    "site": "SC_VMM#0 A[A_Y] @ point",
+    "site_index_in_slot": 0,
+    "slot": 6,
+    "slot_const": "SC_VMM",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "SC_SCORE.r_t[1]",
+     "SC_SCORE.r_t[2]",
+     "SC_SCORE.r_t[3]",
+     "SC_SCORE.r_t[4]",
+     "SC_SCORE.r_h[0]",
+     "rho_SC_SCORE[0]",
+     "rho_SC_SCORE[1]",
+     "rho_SC_SCORE[2]"
+    ],
+    "index": 19,
+    "log_size": 9,
+    "mask_rows": [
+     190,
+     191
+    ],
+    "offset": 12288,
+    "parts": 3,
+    "plane": 26,
+    "point": [
+     "SC_SCORE.r_t[0]",
+     "SC_SCORE.r_t[1]",
+     "SC_SCORE.r_t[2]",
+     "SC_SCORE.r_t[3]",
+     "SC_SCORE.r_t[4]",
+     "SC_SCORE.r_h[0]",
+     "rho_SC_SCORE[0]",
+     "rho_SC_SCORE[1]",
+     "rho_SC_SCORE[2]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "10 score matmul (private, bilinear)",
+    "site": "SC_SCORE#0 A[A_QR8] @ point",
+    "site_index_in_slot": 0,
+    "slot": 7,
+    "slot_const": "SC_SCORE",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 1,
+    "group_key": [
+     "SC_SCORE.r_j[0]",
+     "SC_SCORE.r_j[1]",
+     "SC_SCORE.r_j[2]",
+     "SC_SCORE.r_j[3]",
+     "SC_SCORE.r_j[4]",
+     "rho_SC_SCORE[0]",
+     "rho_SC_SCORE[1]",
+     "rho_SC_SCORE[2]"
+    ],
+    "index": 20,
+    "log_size": 8,
+    "mask_rows": [
+     192,
+     193
+    ],
+    "offset": 15872,
+    "parts": 3,
+    "plane": 35,
+    "point": [
+     "SC_SCORE.r_j[0]",
+     "SC_SCORE.r_j[1]",
+     "SC_SCORE.r_j[2]",
+     "SC_SCORE.r_j[3]",
+     "SC_SCORE.r_j[4]",
+     "rho_SC_SCORE[0]",
+     "rho_SC_SCORE[1]",
+     "rho_SC_SCORE[2]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "10 score matmul (private, bilinear)",
+    "site": "SC_SCORE#1 A[A_KR8] @ point",
+    "site_index_in_slot": 1,
+    "slot": 7,
+    "slot_const": "SC_SCORE",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "SC_PV.r_t[2]",
+     "SC_PV.r_t[3]",
+     "SC_PV.r_t[4]",
+     "rho_SC_PV[0]",
+     "rho_SC_PV[1]",
+     "rho_SC_PV[2]",
+     "rho_SC_PV[3]",
+     "rho_SC_PV[4]"
+    ],
+    "index": 21,
+    "log_size": 11,
+    "mask_rows": [
+     194,
+     195
+    ],
+    "offset": 24576,
+    "parts": 3,
+    "plane": 41,
+    "point": [
+     "SC_PV.r_h[0]",
+     "SC_PV.r_t[0]",
+     "SC_PV.r_t[1]",
+     "SC_PV.r_t[2]",
+     "SC_PV.r_t[3]",
+     "SC_PV.r_t[4]",
+     "rho_SC_PV[0]",
+     "rho_SC_PV[1]",
+     "rho_SC_PV[2]",
+     "rho_SC_PV[3]",
+     "rho_SC_PV[4]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "11 PV matmul (private, bilinear)",
+    "site": "SC_PV#0 A[A_P] @ point",
+    "site_index_in_slot": 0,
+    "slot": 8,
+    "slot_const": "SC_PV",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 1,
+    "group_key": [
+     "rho_SC_PV[0]",
+     "rho_SC_PV[1]",
+     "rho_SC_PV[2]",
+     "rho_SC_PV[3]",
+     "rho_SC_PV[4]",
+     "SC_PV.r_i[0]",
+     "SC_PV.r_i[1]",
+     "SC_PV.r_i[2]"
+    ],
+    "index": 22,
+    "log_size": 8,
+    "mask_rows": [
+     196,
+     197
+    ],
+    "offset": 15360,
+    "parts": 3,
+    "plane": 33,
+    "point": [
+     "rho_SC_PV[0]",
+     "rho_SC_PV[1]",
+     "rho_SC_PV[2]",
+     "rho_SC_PV[3]",
+     "rho_SC_PV[4]",
+     "SC_PV.r_i[0]",
+     "SC_PV.r_i[1]",
+     "SC_PV.r_i[2]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "11 PV matmul (private, bilinear)",
+    "site": "SC_PV#1 A[A_V8] @ point",
+    "site_index_in_slot": 1,
+    "slot": 8,
+    "slot_const": "SC_PV",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "SC_WO.r_q[1]",
+     "SC_WO.r_q[2]",
+     "SC_WO.r_q[3]",
+     "SC_WO.r_q[4]",
+     "rho_SC_WO[0]",
+     "rho_SC_WO[1]",
+     "rho_SC_WO[2]",
+     "rho_SC_WO[3]"
+    ],
+    "index": 23,
+    "log_size": 9,
+    "mask_rows": [
+     198,
+     199
+    ],
+    "offset": 13312,
+    "parts": 3,
+    "plane": 28,
+    "point": [
+     "SC_WO.r_q[0]",
+     "SC_WO.r_q[1]",
+     "SC_WO.r_q[2]",
+     "SC_WO.r_q[3]",
+     "SC_WO.r_q[4]",
+     "rho_SC_WO[0]",
+     "rho_SC_WO[1]",
+     "rho_SC_WO[2]",
+     "rho_SC_WO[3]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "12 Wo matmul (private)",
+    "site": "SC_WO#0 A[A_O8] @ point",
+    "site_index_in_slot": 0,
+    "slot": 9,
+    "slot_const": "SC_WO",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 24,
+    "log_size": 9,
+    "mask_rows": [
+     200,
+     201
+    ],
+    "offset": 1536,
+    "parts": 3,
+    "plane": 5,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#0 A[A_X]",
+    "site_index_in_slot": 0,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 25,
+    "log_size": 9,
+    "mask_rows": [
+     202,
+     203
+    ],
+    "offset": 2048,
+    "parts": 3,
+    "plane": 6,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#1 A[A_XL0]",
+    "site_index_in_slot": 1,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 26,
+    "log_size": 9,
+    "mask_rows": [
+     204,
+     205
+    ],
+    "offset": 2560,
+    "parts": 3,
+    "plane": 7,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#2 A[A_XL1]",
+    "site_index_in_slot": 2,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 27,
+    "log_size": 9,
+    "mask_rows": [
+     206,
+     207
+    ],
+    "offset": 3072,
+    "parts": 3,
+    "plane": 8,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#3 A[A_Y]",
+    "site_index_in_slot": 3,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 28,
+    "log_size": 9,
+    "mask_rows": [
+     208,
+     209
+    ],
+    "offset": 3584,
+    "parts": 3,
+    "plane": 9,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#4 A[A_NR0]",
+    "site_index_in_slot": 4,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 29,
+    "log_size": 9,
+    "mask_rows": [
+     210,
+     211
+    ],
+    "offset": 4096,
+    "parts": 3,
+    "plane": 10,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#5 A[A#10]",
+    "site_index_in_slot": 5,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 30,
+    "log_size": 9,
+    "mask_rows": [
+     212,
+     213
+    ],
+    "offset": 4608,
+    "parts": 3,
+    "plane": 11,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#6 A[A#11]",
+    "site_index_in_slot": 6,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 31,
+    "log_size": 9,
+    "mask_rows": [
+     214,
+     215
+    ],
+    "offset": 5120,
+    "parts": 3,
+    "plane": 12,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#7 A[A#12]",
+    "site_index_in_slot": 7,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 32,
+    "log_size": 9,
+    "mask_rows": [
+     216,
+     217
+    ],
+    "offset": 5632,
+    "parts": 3,
+    "plane": 13,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#8 A[A_NS0]",
+    "site_index_in_slot": 8,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 33,
+    "log_size": 9,
+    "mask_rows": [
+     218,
+     219
+    ],
+    "offset": 6144,
+    "parts": 3,
+    "plane": 14,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#9 A[A#14]",
+    "site_index_in_slot": 9,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 34,
+    "log_size": 9,
+    "mask_rows": [
+     220,
+     221
+    ],
+    "offset": 6656,
+    "parts": 3,
+    "plane": 15,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#10 A[A#15]",
+    "site_index_in_slot": 10,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 35,
+    "log_size": 9,
+    "mask_rows": [
+     222,
+     223
+    ],
+    "offset": 7168,
+    "parts": 3,
+    "plane": 16,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#11 A[A#16]",
+    "site_index_in_slot": 11,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 36,
+    "log_size": 9,
+    "mask_rows": [
+     224,
+     225
+    ],
+    "offset": 7680,
+    "parts": 3,
+    "plane": 17,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#12 A[A_AO]",
+    "site_index_in_slot": 12,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 37,
+    "log_size": 9,
+    "mask_rows": [
+     226,
+     227
+    ],
+    "offset": 8192,
+    "parts": 3,
+    "plane": 18,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#13 A[A_AL0]",
+    "site_index_in_slot": 13,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 38,
+    "log_size": 9,
+    "mask_rows": [
+     228,
+     229
+    ],
+    "offset": 8704,
+    "parts": 3,
+    "plane": 19,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#14 A[A_AL1]",
+    "site_index_in_slot": 14,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 39,
+    "log_size": 9,
+    "mask_rows": [
+     230,
+     231
+    ],
+    "offset": 9216,
+    "parts": 3,
+    "plane": 20,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#15 A[A_RAL]",
+    "site_index_in_slot": 15,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 40,
+    "log_size": 9,
+    "mask_rows": [
+     232,
+     233
+    ],
+    "offset": 9728,
+    "parts": 3,
+    "plane": 21,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#16 A[A_X1]",
+    "site_index_in_slot": 16,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 41,
+    "log_size": 9,
+    "mask_rows": [
+     234,
+     235
+    ],
+    "offset": 10240,
+    "parts": 3,
+    "plane": 22,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#17 A[A_X1L0]",
+    "site_index_in_slot": 17,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 42,
+    "log_size": 9,
+    "mask_rows": [
+     236,
+     237
+    ],
+    "offset": 10752,
+    "parts": 3,
+    "plane": 23,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#18 A[A_X1L1]",
+    "site_index_in_slot": 18,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "index": 43,
+    "log_size": 8,
+    "mask_rows": [
+     238,
+     239
+    ],
+    "offset": 0,
+    "parts": 3,
+    "plane": null,
+    "point": [
+     "#sub(c0=0,len=32)",
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "#pad",
+     "#pad"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#19 A[offset 0, log 5]",
+    "site_index_in_slot": 19,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sub_row": {
+     "c0": 0,
+     "element_offset": 0,
+     "len": 32,
+     "note": "sub-row slice: the PCS keys it on (point, c0, len); the rank tool's row model has no sub-row granularity, so the claim is presented as a single-row claim (log_size 8, data_rows 1) with a synthetic tail that preserves key equality",
+     "true_log_size": 5,
+     "true_point": [
+      "rho_SC_DZC[0]",
+      "rho_SC_DZC[1]",
+      "rho_SC_DZC[2]",
+      "rho_SC_DZC[3]",
+      "rho_SC_DZC[4]"
+     ]
+    },
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 44,
+    "log_size": 9,
+    "mask_rows": [
+     220,
+     221
+    ],
+    "offset": 1024,
+    "parts": 4,
+    "plane": 1,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#0 H[H_D0]",
+    "site_index_in_slot": 0,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 45,
+    "log_size": 9,
+    "mask_rows": [
+     222,
+     223
+    ],
+    "offset": 2048,
+    "parts": 4,
+    "plane": 2,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#1 H[H#2]",
+    "site_index_in_slot": 1,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 46,
+    "log_size": 9,
+    "mask_rows": [
+     224,
+     225
+    ],
+    "offset": 3072,
+    "parts": 4,
+    "plane": 3,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#2 H[H#3]",
+    "site_index_in_slot": 2,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 47,
+    "log_size": 9,
+    "mask_rows": [
+     226,
+     227
+    ],
+    "offset": 4096,
+    "parts": 4,
+    "plane": 4,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#3 H[H#4]",
+    "site_index_in_slot": 3,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 48,
+    "log_size": 9,
+    "mask_rows": [
+     228,
+     229
+    ],
+    "offset": 5120,
+    "parts": 4,
+    "plane": 5,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#4 H[H#5]",
+    "site_index_in_slot": 4,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 49,
+    "log_size": 9,
+    "mask_rows": [
+     230,
+     231
+    ],
+    "offset": 6144,
+    "parts": 4,
+    "plane": 6,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#5 H[H#6]",
+    "site_index_in_slot": 5,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 50,
+    "log_size": 9,
+    "mask_rows": [
+     232,
+     233
+    ],
+    "offset": 7168,
+    "parts": 4,
+    "plane": 7,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#6 H[H#7]",
+    "site_index_in_slot": 6,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 51,
+    "log_size": 9,
+    "mask_rows": [
+     234,
+     235
+    ],
+    "offset": 8192,
+    "parts": 4,
+    "plane": 8,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#7 H[H#8]",
+    "site_index_in_slot": 7,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 52,
+    "log_size": 9,
+    "mask_rows": [
+     236,
+     237
+    ],
+    "offset": 9216,
+    "parts": 4,
+    "plane": 9,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#8 H[H#9]",
+    "site_index_in_slot": 8,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "index": 53,
+    "log_size": 9,
+    "mask_rows": [
+     238,
+     239
+    ],
+    "offset": 10240,
+    "parts": 4,
+    "plane": 10,
+    "point": [
+     "rho_SC_DZC[0]",
+     "rho_SC_DZC[1]",
+     "rho_SC_DZC[2]",
+     "rho_SC_DZC[3]",
+     "rho_SC_DZC[4]",
+     "rho_SC_DZC[5]",
+     "rho_SC_DZC[6]",
+     "rho_SC_DZC[7]",
+     "rho_SC_DZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "03 D zero-check (hosts 12)",
+    "site": "SC_DZC#9 H[H#10]",
+    "site_index_in_slot": 9,
+    "slot": 10,
+    "slot_const": "SC_DZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 54,
+    "log_size": 9,
+    "mask_rows": [
+     240,
+     241
+    ],
+    "offset": 11264,
+    "parts": 3,
+    "plane": 24,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#0 A[A_Q8]",
+    "site_index_in_slot": 0,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 55,
+    "log_size": 9,
+    "mask_rows": [
+     242,
+     243
+    ],
+    "offset": 11776,
+    "parts": 3,
+    "plane": 25,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#1 A[A_RQL]",
+    "site_index_in_slot": 1,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 56,
+    "log_size": 9,
+    "mask_rows": [
+     244,
+     245
+    ],
+    "offset": 12288,
+    "parts": 3,
+    "plane": 26,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#2 A[A_QR8]",
+    "site_index_in_slot": 2,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 57,
+    "log_size": 9,
+    "mask_rows": [
+     246,
+     247
+    ],
+    "offset": 12800,
+    "parts": 3,
+    "plane": 27,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#3 A[A_RQRL]",
+    "site_index_in_slot": 3,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 58,
+    "log_size": 9,
+    "mask_rows": [
+     248,
+     249
+    ],
+    "offset": 13312,
+    "parts": 3,
+    "plane": 28,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#4 A[A_O8]",
+    "site_index_in_slot": 4,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 59,
+    "log_size": 9,
+    "mask_rows": [
+     250,
+     251
+    ],
+    "offset": 13824,
+    "parts": 3,
+    "plane": 29,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#5 A[A_RO0]",
+    "site_index_in_slot": 5,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 60,
+    "log_size": 9,
+    "mask_rows": [
+     252,
+     253
+    ],
+    "offset": 14336,
+    "parts": 3,
+    "plane": 30,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#6 A[A_RO1]",
+    "site_index_in_slot": 6,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "1-rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 61,
+    "log_size": 9,
+    "mask_rows": [
+     254,
+     255
+    ],
+    "offset": 11264,
+    "parts": 3,
+    "plane": 24,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "1-rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#7 A[A_Q8] @ point",
+    "site_index_in_slot": 7,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 62,
+    "log_size": 9,
+    "mask_rows": [
+     240,
+     241
+    ],
+    "offset": 11264,
+    "parts": 4,
+    "plane": 11,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#0 H[H_Q0]",
+    "site_index_in_slot": 0,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 63,
+    "log_size": 9,
+    "mask_rows": [
+     242,
+     243
+    ],
+    "offset": 12288,
+    "parts": 4,
+    "plane": 12,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#1 H[H#12]",
+    "site_index_in_slot": 1,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 64,
+    "log_size": 9,
+    "mask_rows": [
+     244,
+     245
+    ],
+    "offset": 13312,
+    "parts": 4,
+    "plane": 13,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#2 H[H#13]",
+    "site_index_in_slot": 2,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 65,
+    "log_size": 9,
+    "mask_rows": [
+     246,
+     247
+    ],
+    "offset": 14336,
+    "parts": 4,
+    "plane": 14,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#3 H[H#14]",
+    "site_index_in_slot": 3,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 66,
+    "log_size": 9,
+    "mask_rows": [
+     248,
+     249
+    ],
+    "offset": 15360,
+    "parts": 4,
+    "plane": 15,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#4 H[H#15]",
+    "site_index_in_slot": 4,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 67,
+    "log_size": 9,
+    "mask_rows": [
+     250,
+     251
+    ],
+    "offset": 16384,
+    "parts": 4,
+    "plane": 16,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#5 H[H#16]",
+    "site_index_in_slot": 5,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "index": 68,
+    "log_size": 9,
+    "mask_rows": [
+     252,
+     253
+    ],
+    "offset": 17408,
+    "parts": 4,
+    "plane": 17,
+    "point": [
+     "rho_SC_QZC[0]",
+     "rho_SC_QZC[1]",
+     "rho_SC_QZC[2]",
+     "rho_SC_QZC[3]",
+     "rho_SC_QZC[4]",
+     "rho_SC_QZC[5]",
+     "rho_SC_QZC[6]",
+     "rho_SC_QZC[7]",
+     "rho_SC_QZC[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "site": "SC_QZC#6 H[H#17]",
+    "site_index_in_slot": 6,
+    "slot": 11,
+    "slot_const": "SC_QZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "index": 69,
+    "log_size": 8,
+    "mask_rows": [
+     256,
+     257
+    ],
+    "offset": 14848,
+    "parts": 3,
+    "plane": 31,
+    "point": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "site": "SC_KVZC#0 A[A_K8]",
+    "site_index_in_slot": 0,
+    "slot": 12,
+    "slot_const": "SC_KVZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "index": 70,
+    "log_size": 8,
+    "mask_rows": [
+     258,
+     259
+    ],
+    "offset": 15104,
+    "parts": 3,
+    "plane": 32,
+    "point": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "site": "SC_KVZC#1 A[A_RKL]",
+    "site_index_in_slot": 1,
+    "slot": 12,
+    "slot_const": "SC_KVZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "index": 71,
+    "log_size": 8,
+    "mask_rows": [
+     260,
+     261
+    ],
+    "offset": 15360,
+    "parts": 3,
+    "plane": 33,
+    "point": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "site": "SC_KVZC#2 A[A_V8]",
+    "site_index_in_slot": 2,
+    "slot": 12,
+    "slot_const": "SC_KVZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "index": 72,
+    "log_size": 8,
+    "mask_rows": [
+     262,
+     263
+    ],
+    "offset": 15616,
+    "parts": 3,
+    "plane": 34,
+    "point": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "site": "SC_KVZC#3 A[A_RVL]",
+    "site_index_in_slot": 3,
+    "slot": 12,
+    "slot_const": "SC_KVZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "index": 73,
+    "log_size": 8,
+    "mask_rows": [
+     264,
+     265
+    ],
+    "offset": 15872,
+    "parts": 3,
+    "plane": 35,
+    "point": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "site": "SC_KVZC#4 A[A_KR8]",
+    "site_index_in_slot": 4,
+    "slot": 12,
+    "slot_const": "SC_KVZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "index": 74,
+    "log_size": 8,
+    "mask_rows": [
+     266,
+     267
+    ],
+    "offset": 16128,
+    "parts": 3,
+    "plane": 36,
+    "point": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "site": "SC_KVZC#5 A[A_RKRL]",
+    "site_index_in_slot": 5,
+    "slot": 12,
+    "slot_const": "SC_KVZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "1-rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "index": 75,
+    "log_size": 8,
+    "mask_rows": [
+     268,
+     269
+    ],
+    "offset": 14848,
+    "parts": 3,
+    "plane": 31,
+    "point": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "1-rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "site": "SC_KVZC#6 A[A_K8] @ point",
+    "site_index_in_slot": 6,
+    "slot": 12,
+    "slot_const": "SC_KVZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "index": 76,
+    "log_size": 8,
+    "mask_rows": [
+     254,
+     255
+    ],
+    "offset": 18432,
+    "parts": 4,
+    "plane": 18,
+    "point": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "site": "SC_KVZC#0 H[H_KV0]",
+    "site_index_in_slot": 0,
+    "slot": 12,
+    "slot_const": "SC_KVZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "index": 77,
+    "log_size": 8,
+    "mask_rows": [
+     256,
+     257
+    ],
+    "offset": 18944,
+    "parts": 4,
+    "plane": 19,
+    "point": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "site": "SC_KVZC#1 H[H#19]",
+    "site_index_in_slot": 1,
+    "slot": 12,
+    "slot_const": "SC_KVZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "index": 78,
+    "log_size": 8,
+    "mask_rows": [
+     258,
+     259
+    ],
+    "offset": 19456,
+    "parts": 4,
+    "plane": 20,
+    "point": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "site": "SC_KVZC#2 H[H#20]",
+    "site_index_in_slot": 2,
+    "slot": 12,
+    "slot_const": "SC_KVZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "index": 79,
+    "log_size": 8,
+    "mask_rows": [
+     260,
+     261
+    ],
+    "offset": 19968,
+    "parts": 4,
+    "plane": 21,
+    "point": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "site": "SC_KVZC#3 H[H#21]",
+    "site_index_in_slot": 3,
+    "slot": 12,
+    "slot_const": "SC_KVZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "index": 80,
+    "log_size": 8,
+    "mask_rows": [
+     262,
+     263
+    ],
+    "offset": 20480,
+    "parts": 4,
+    "plane": 22,
+    "point": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "site": "SC_KVZC#4 H[H#22]",
+    "site_index_in_slot": 4,
+    "slot": 12,
+    "slot_const": "SC_KVZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "index": 81,
+    "log_size": 8,
+    "mask_rows": [
+     264,
+     265
+    ],
+    "offset": 20992,
+    "parts": 4,
+    "plane": 23,
+    "point": [
+     "rho_SC_KVZC[0]",
+     "rho_SC_KVZC[1]",
+     "rho_SC_KVZC[2]",
+     "rho_SC_KVZC[3]",
+     "rho_SC_KVZC[4]",
+     "rho_SC_KVZC[5]",
+     "rho_SC_KVZC[6]",
+     "rho_SC_KVZC[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "site": "SC_KVZC#5 H[H#23]",
+    "site_index_in_slot": 5,
+    "slot": 12,
+    "slot_const": "SC_KVZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 82,
+    "log_size": 11,
+    "mask_rows": [
+     270,
+     271
+    ],
+    "offset": 16384,
+    "parts": 3,
+    "plane": 37,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#0 A[A_S8]",
+    "site_index_in_slot": 0,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 83,
+    "log_size": 11,
+    "mask_rows": [
+     272,
+     273
+    ],
+    "offset": 18432,
+    "parts": 3,
+    "plane": 38,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#1 A[A_RSL]",
+    "site_index_in_slot": 1,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 84,
+    "log_size": 11,
+    "mask_rows": [
+     274,
+     275
+    ],
+    "offset": 20480,
+    "parts": 3,
+    "plane": 39,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#2 A[A_ZSEL]",
+    "site_index_in_slot": 2,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 85,
+    "log_size": 11,
+    "mask_rows": [
+     276,
+     277
+    ],
+    "offset": 22528,
+    "parts": 3,
+    "plane": 40,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#3 A[A_E]",
+    "site_index_in_slot": 3,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 86,
+    "log_size": 11,
+    "mask_rows": [
+     278,
+     279
+    ],
+    "offset": 24576,
+    "parts": 3,
+    "plane": 41,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#4 A[A_P]",
+    "site_index_in_slot": 4,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 87,
+    "log_size": 11,
+    "mask_rows": [
+     280,
+     281
+    ],
+    "offset": 26624,
+    "parts": 3,
+    "plane": 42,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#5 A[A_PL0]",
+    "site_index_in_slot": 5,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 88,
+    "log_size": 11,
+    "mask_rows": [
+     282,
+     283
+    ],
+    "offset": 28672,
+    "parts": 3,
+    "plane": 43,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#6 A[A_PL1]",
+    "site_index_in_slot": 6,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 89,
+    "log_size": 11,
+    "mask_rows": [
+     284,
+     285
+    ],
+    "offset": 30720,
+    "parts": 3,
+    "plane": 44,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#7 A[A_SR0]",
+    "site_index_in_slot": 7,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 90,
+    "log_size": 11,
+    "mask_rows": [
+     286,
+     287
+    ],
+    "offset": 32768,
+    "parts": 3,
+    "plane": 45,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#8 A[A_SR1]",
+    "site_index_in_slot": 8,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 91,
+    "log_size": 11,
+    "mask_rows": [
+     288,
+     289
+    ],
+    "offset": 34816,
+    "parts": 3,
+    "plane": 46,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#9 A[A_SG0]",
+    "site_index_in_slot": 9,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 92,
+    "log_size": 11,
+    "mask_rows": [
+     290,
+     291
+    ],
+    "offset": 36864,
+    "parts": 3,
+    "plane": 47,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#10 A[A_SG1]",
+    "site_index_in_slot": 10,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "#sub(c0=0,len=64)",
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "#pad"
+    ],
+    "index": 93,
+    "log_size": 8,
+    "mask_rows": [
+     292,
+     293
+    ],
+    "offset": 512,
+    "parts": 3,
+    "plane": null,
+    "point": [
+     "#sub(c0=0,len=64)",
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "#pad"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#11 A[offset 512, log 6]",
+    "site_index_in_slot": 11,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sub_row": {
+     "c0": 0,
+     "element_offset": 512,
+     "len": 64,
+     "note": "sub-row slice: the PCS keys it on (point, c0, len); the rank tool's row model has no sub-row granularity, so the claim is presented as a single-row claim (log_size 8, data_rows 1) with a synthetic tail that preserves key equality",
+     "true_log_size": 6,
+     "true_point": [
+      "rho_SC_SZC[0]",
+      "rho_SC_SZC[1]",
+      "rho_SC_SZC[2]",
+      "rho_SC_SZC[3]",
+      "rho_SC_SZC[4]",
+      "rho_SC_SZC[5]"
+     ]
+    },
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "#sub(c0=0,len=64)",
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "#pad"
+    ],
+    "index": 94,
+    "log_size": 8,
+    "mask_rows": [
+     294,
+     295
+    ],
+    "offset": 768,
+    "parts": 3,
+    "plane": null,
+    "point": [
+     "#sub(c0=0,len=64)",
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "#pad"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#12 A[offset 768, log 6]",
+    "site_index_in_slot": 12,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sub_row": {
+     "c0": 0,
+     "element_offset": 768,
+     "len": 64,
+     "note": "sub-row slice: the PCS keys it on (point, c0, len); the rank tool's row model has no sub-row granularity, so the claim is presented as a single-row claim (log_size 8, data_rows 1) with a synthetic tail that preserves key equality",
+     "true_log_size": 6,
+     "true_point": [
+      "rho_SC_SZC[0]",
+      "rho_SC_SZC[1]",
+      "rho_SC_SZC[2]",
+      "rho_SC_SZC[3]",
+      "rho_SC_SZC[4]",
+      "rho_SC_SZC[5]"
+     ]
+    },
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 95,
+    "log_size": 11,
+    "mask_rows": [
+     266,
+     267
+    ],
+    "offset": 21504,
+    "parts": 4,
+    "plane": 24,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#0 H[H_S0]",
+    "site_index_in_slot": 0,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 96,
+    "log_size": 11,
+    "mask_rows": [
+     268,
+     269
+    ],
+    "offset": 25600,
+    "parts": 4,
+    "plane": 25,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#1 H[H#25]",
+    "site_index_in_slot": 1,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 97,
+    "log_size": 11,
+    "mask_rows": [
+     270,
+     271
+    ],
+    "offset": 29696,
+    "parts": 4,
+    "plane": 26,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#2 H[H#26]",
+    "site_index_in_slot": 2,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 98,
+    "log_size": 11,
+    "mask_rows": [
+     272,
+     273
+    ],
+    "offset": 33792,
+    "parts": 4,
+    "plane": 27,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#3 H[H#27]",
+    "site_index_in_slot": 3,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 99,
+    "log_size": 11,
+    "mask_rows": [
+     274,
+     275
+    ],
+    "offset": 37888,
+    "parts": 4,
+    "plane": 28,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#4 H[H#28]",
+    "site_index_in_slot": 4,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 100,
+    "log_size": 11,
+    "mask_rows": [
+     276,
+     277
+    ],
+    "offset": 41984,
+    "parts": 4,
+    "plane": 29,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#5 H[H#29]",
+    "site_index_in_slot": 5,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 101,
+    "log_size": 11,
+    "mask_rows": [
+     278,
+     279
+    ],
+    "offset": 46080,
+    "parts": 4,
+    "plane": 30,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#6 H[H#30]",
+    "site_index_in_slot": 6,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 8,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "index": 102,
+    "log_size": 11,
+    "mask_rows": [
+     280,
+     281
+    ],
+    "offset": 50176,
+    "parts": 4,
+    "plane": 31,
+    "point": [
+     "rho_SC_SZC[0]",
+     "rho_SC_SZC[1]",
+     "rho_SC_SZC[2]",
+     "rho_SC_SZC[3]",
+     "rho_SC_SZC[4]",
+     "rho_SC_SZC[5]",
+     "rho_SC_SZC[6]",
+     "rho_SC_SZC[7]",
+     "rho_SC_SZC[8]",
+     "rho_SC_SZC[9]",
+     "rho_SC_SZC[10]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "site": "SC_SZC#7 H[H_SEXP]",
+    "site_index_in_slot": 7,
+    "slot": 13,
+    "slot_const": "SC_SZC",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_TAB[0]",
+     "rho_SC_TAB[1]",
+     "rho_SC_TAB[2]",
+     "rho_SC_TAB[3]",
+     "rho_SC_TAB[4]",
+     "rho_SC_TAB[5]",
+     "rho_SC_TAB[6]",
+     "rho_SC_TAB[7]"
+    ],
+    "index": 103,
+    "log_size": 8,
+    "mask_rows": [
+     296,
+     297
+    ],
+    "offset": 38912,
+    "parts": 3,
+    "plane": 48,
+    "point": [
+     "rho_SC_TAB[0]",
+     "rho_SC_TAB[1]",
+     "rho_SC_TAB[2]",
+     "rho_SC_TAB[3]",
+     "rho_SC_TAB[4]",
+     "rho_SC_TAB[5]",
+     "rho_SC_TAB[6]",
+     "rho_SC_TAB[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "TAB table helper zero-check",
+    "site": "SC_TAB#0 A[A_MU8]",
+    "site_index_in_slot": 0,
+    "slot": 14,
+    "slot_const": "SC_TAB",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_TAB[0]",
+     "rho_SC_TAB[1]",
+     "rho_SC_TAB[2]",
+     "rho_SC_TAB[3]",
+     "rho_SC_TAB[4]",
+     "rho_SC_TAB[5]",
+     "rho_SC_TAB[6]",
+     "rho_SC_TAB[7]"
+    ],
+    "index": 104,
+    "log_size": 8,
+    "mask_rows": [
+     282,
+     283
+    ],
+    "offset": 54272,
+    "parts": 4,
+    "plane": 32,
+    "point": [
+     "rho_SC_TAB[0]",
+     "rho_SC_TAB[1]",
+     "rho_SC_TAB[2]",
+     "rho_SC_TAB[3]",
+     "rho_SC_TAB[4]",
+     "rho_SC_TAB[5]",
+     "rho_SC_TAB[6]",
+     "rho_SC_TAB[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "TAB table helper zero-check",
+    "site": "SC_TAB#0 H[H_GU8]",
+    "site_index_in_slot": 0,
+    "slot": 14,
+    "slot_const": "SC_TAB",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_TAB[0]",
+     "rho_SC_TAB[1]",
+     "rho_SC_TAB[2]",
+     "rho_SC_TAB[3]",
+     "rho_SC_TAB[4]",
+     "rho_SC_TAB[5]",
+     "rho_SC_TAB[6]",
+     "rho_SC_TAB[7]"
+    ],
+    "index": 105,
+    "log_size": 8,
+    "mask_rows": [
+     298,
+     299
+    ],
+    "offset": 39168,
+    "parts": 3,
+    "plane": 49,
+    "point": [
+     "rho_SC_TAB[0]",
+     "rho_SC_TAB[1]",
+     "rho_SC_TAB[2]",
+     "rho_SC_TAB[3]",
+     "rho_SC_TAB[4]",
+     "rho_SC_TAB[5]",
+     "rho_SC_TAB[6]",
+     "rho_SC_TAB[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "TAB table helper zero-check",
+    "site": "SC_TAB#1 A[A_MEXP]",
+    "site_index_in_slot": 1,
+    "slot": 14,
+    "slot_const": "SC_TAB",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_TAB[0]",
+     "rho_SC_TAB[1]",
+     "rho_SC_TAB[2]",
+     "rho_SC_TAB[3]",
+     "rho_SC_TAB[4]",
+     "rho_SC_TAB[5]",
+     "rho_SC_TAB[6]",
+     "rho_SC_TAB[7]"
+    ],
+    "index": 106,
+    "log_size": 8,
+    "mask_rows": [
+     284,
+     285
+    ],
+    "offset": 54784,
+    "parts": 4,
+    "plane": 33,
+    "point": [
+     "rho_SC_TAB[0]",
+     "rho_SC_TAB[1]",
+     "rho_SC_TAB[2]",
+     "rho_SC_TAB[3]",
+     "rho_SC_TAB[4]",
+     "rho_SC_TAB[5]",
+     "rho_SC_TAB[6]",
+     "rho_SC_TAB[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "TAB table helper zero-check",
+    "site": "SC_TAB#1 H[H_GEXP]",
+    "site_index_in_slot": 1,
+    "slot": 14,
+    "slot_const": "SC_TAB",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 1,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_ZS[0]",
+     "rho_SC_ZS[1]",
+     "rho_SC_ZS[2]",
+     "rho_SC_ZS[3]",
+     "rho_SC_ZS[4]",
+     "rho_SC_ZS[5]",
+     "rho_SC_ZS[6]",
+     "rho_SC_ZS[7]"
+    ],
+    "index": 107,
+    "log_size": 8,
+    "mask_rows": [
+     286,
+     287
+    ],
+    "offset": 55296,
+    "parts": 4,
+    "plane": 34,
+    "point": [
+     "rho_SC_ZS[0]",
+     "rho_SC_ZS[1]",
+     "rho_SC_ZS[2]",
+     "rho_SC_ZS[3]",
+     "rho_SC_ZS[4]",
+     "rho_SC_ZS[5]",
+     "rho_SC_ZS[6]",
+     "rho_SC_ZS[7]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "ZS zero-sum row",
+    "site": "SC_ZS#0 H[H_U]",
+    "site_index_in_slot": 0,
+    "slot": 15,
+    "slot_const": "SC_ZS",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_IO_IN[1]",
+     "rho_SC_IO_IN[2]",
+     "rho_SC_IO_IN[3]",
+     "rho_SC_IO_IN[4]",
+     "rho_SC_IO_IN[5]",
+     "rho_SC_IO_IN[6]",
+     "rho_SC_IO_IN[7]",
+     "rho_SC_IO_IN[8]"
+    ],
+    "index": 108,
+    "log_size": 9,
+    "mask_rows": [
+     300,
+     301
+    ],
+    "offset": 1536,
+    "parts": 3,
+    "plane": 5,
+    "point": [
+     "rho_SC_IO_IN[0]",
+     "rho_SC_IO_IN[1]",
+     "rho_SC_IO_IN[2]",
+     "rho_SC_IO_IN[3]",
+     "rho_SC_IO_IN[4]",
+     "rho_SC_IO_IN[5]",
+     "rho_SC_IO_IN[6]",
+     "rho_SC_IO_IN[7]",
+     "rho_SC_IO_IN[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "IO-in endpoint equality",
+    "site": "SC_IO_IN#0 A[A_X]",
+    "site_index_in_slot": 0,
+    "slot": 16,
+    "slot_const": "SC_IO_IN",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "A",
+    "data_rows": 2,
+    "ext_round": 0,
+    "group_key": [
+     "rho_SC_IO_OUT[1]",
+     "rho_SC_IO_OUT[2]",
+     "rho_SC_IO_OUT[3]",
+     "rho_SC_IO_OUT[4]",
+     "rho_SC_IO_OUT[5]",
+     "rho_SC_IO_OUT[6]",
+     "rho_SC_IO_OUT[7]",
+     "rho_SC_IO_OUT[8]"
+    ],
+    "index": 109,
+    "log_size": 9,
+    "mask_rows": [
+     302,
+     303
+    ],
+    "offset": 9728,
+    "parts": 3,
+    "plane": 21,
+    "point": [
+     "rho_SC_IO_OUT[0]",
+     "rho_SC_IO_OUT[1]",
+     "rho_SC_IO_OUT[2]",
+     "rho_SC_IO_OUT[3]",
+     "rho_SC_IO_OUT[4]",
+     "rho_SC_IO_OUT[5]",
+     "rho_SC_IO_OUT[6]",
+     "rho_SC_IO_OUT[7]",
+     "rho_SC_IO_OUT[8]"
+    ],
+    "role": "masked terminal (reserved pair)",
+    "section": "IO-out endpoint equality",
+    "site": "SC_IO_OUT#0 A[A_X1]",
+    "site_index_in_slot": 0,
+    "slot": 17,
+    "slot_const": "SC_IO_OUT",
+    "source": "hashline/src/private_attention/argument.rs::define + layout.rs",
+    "sum_claim": false
+   },
+   {
+    "commitment": "H",
+    "data_rows": 1,
+    "group_key": null,
+    "index": 110,
+    "log_size": 8,
+    "mask_rows": [
+     216,
+     217
+    ],
+    "offset": 0,
+    "parsed_from_protocol_rs": {
+     "negated_planes": [
+      32,
+      33
+     ],
+     "parts_per_plane": 2,
+     "planes": 35,
+     "value": 0
+    },
+    "parts": 70,
+    "point": [],
+    "role": "value-0 sum claim (masked by the zero-sum pair u alone)",
+    "section": "ZS zero-sum row",
+    "site": "LogUp identity (all-ones sum over every H plane)",
+    "site_index_in_slot": null,
+    "slot": 15,
+    "slot_const": "SC_ZS",
+    "source": "hashline/src/private_attention/protocol.rs::logup_sum_claim",
+    "sum_claim": true,
+    "sum_parts": [
+     {
+      "im_offset": 512,
+      "log_size": 9,
+      "plane": 0,
+      "re_offset": 0,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 1536,
+      "log_size": 9,
+      "plane": 1,
+      "re_offset": 1024,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 2560,
+      "log_size": 9,
+      "plane": 2,
+      "re_offset": 2048,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 3584,
+      "log_size": 9,
+      "plane": 3,
+      "re_offset": 3072,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 4608,
+      "log_size": 9,
+      "plane": 4,
+      "re_offset": 4096,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 5632,
+      "log_size": 9,
+      "plane": 5,
+      "re_offset": 5120,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 6656,
+      "log_size": 9,
+      "plane": 6,
+      "re_offset": 6144,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 7680,
+      "log_size": 9,
+      "plane": 7,
+      "re_offset": 7168,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 8704,
+      "log_size": 9,
+      "plane": 8,
+      "re_offset": 8192,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 9728,
+      "log_size": 9,
+      "plane": 9,
+      "re_offset": 9216,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 10752,
+      "log_size": 9,
+      "plane": 10,
+      "re_offset": 10240,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 11776,
+      "log_size": 9,
+      "plane": 11,
+      "re_offset": 11264,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 12800,
+      "log_size": 9,
+      "plane": 12,
+      "re_offset": 12288,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 13824,
+      "log_size": 9,
+      "plane": 13,
+      "re_offset": 13312,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 14848,
+      "log_size": 9,
+      "plane": 14,
+      "re_offset": 14336,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 15872,
+      "log_size": 9,
+      "plane": 15,
+      "re_offset": 15360,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 16896,
+      "log_size": 9,
+      "plane": 16,
+      "re_offset": 16384,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 17920,
+      "log_size": 9,
+      "plane": 17,
+      "re_offset": 17408,
+      "rows": 2,
+      "sign": 1
+     },
+     {
+      "im_offset": 18688,
+      "log_size": 8,
+      "plane": 18,
+      "re_offset": 18432,
+      "rows": 1,
+      "sign": 1
+     },
+     {
+      "im_offset": 19200,
+      "log_size": 8,
+      "plane": 19,
+      "re_offset": 18944,
+      "rows": 1,
+      "sign": 1
+     },
+     {
+      "im_offset": 19712,
+      "log_size": 8,
+      "plane": 20,
+      "re_offset": 19456,
+      "rows": 1,
+      "sign": 1
+     },
+     {
+      "im_offset": 20224,
+      "log_size": 8,
+      "plane": 21,
+      "re_offset": 19968,
+      "rows": 1,
+      "sign": 1
+     },
+     {
+      "im_offset": 20736,
+      "log_size": 8,
+      "plane": 22,
+      "re_offset": 20480,
+      "rows": 1,
+      "sign": 1
+     },
+     {
+      "im_offset": 21248,
+      "log_size": 8,
+      "plane": 23,
+      "re_offset": 20992,
+      "rows": 1,
+      "sign": 1
+     },
+     {
+      "im_offset": 23552,
+      "log_size": 11,
+      "plane": 24,
+      "re_offset": 21504,
+      "rows": 8,
+      "sign": 1
+     },
+     {
+      "im_offset": 27648,
+      "log_size": 11,
+      "plane": 25,
+      "re_offset": 25600,
+      "rows": 8,
+      "sign": 1
+     },
+     {
+      "im_offset": 31744,
+      "log_size": 11,
+      "plane": 26,
+      "re_offset": 29696,
+      "rows": 8,
+      "sign": 1
+     },
+     {
+      "im_offset": 35840,
+      "log_size": 11,
+      "plane": 27,
+      "re_offset": 33792,
+      "rows": 8,
+      "sign": 1
+     },
+     {
+      "im_offset": 39936,
+      "log_size": 11,
+      "plane": 28,
+      "re_offset": 37888,
+      "rows": 8,
+      "sign": 1
+     },
+     {
+      "im_offset": 44032,
+      "log_size": 11,
+      "plane": 29,
+      "re_offset": 41984,
+      "rows": 8,
+      "sign": 1
+     },
+     {
+      "im_offset": 48128,
+      "log_size": 11,
+      "plane": 30,
+      "re_offset": 46080,
+      "rows": 8,
+      "sign": 1
+     },
+     {
+      "im_offset": 52224,
+      "log_size": 11,
+      "plane": 31,
+      "re_offset": 50176,
+      "rows": 8,
+      "sign": 1
+     },
+     {
+      "im_offset": 54528,
+      "log_size": 8,
+      "plane": 32,
+      "re_offset": 54272,
+      "rows": 1,
+      "sign": -1
+     },
+     {
+      "im_offset": 55040,
+      "log_size": 8,
+      "plane": 33,
+      "re_offset": 54784,
+      "rows": 1,
+      "sign": -1
+     },
+     {
+      "im_offset": 55552,
+      "log_size": 8,
+      "plane": 34,
+      "re_offset": 55296,
+      "rows": 1,
+      "sign": 1
+     }
+    ]
+   }
+  ],
+  "endpoint_commitments": [
+   {
+    "commitment": "In",
+    "data_rows": 2,
+    "log_size": 9,
+    "mask_rows": [
+     2,
+     3
+    ],
+    "point": [
+     "rho_SC_IO_IN[0]",
+     "rho_SC_IO_IN[1]",
+     "rho_SC_IO_IN[2]",
+     "rho_SC_IO_IN[3]",
+     "rho_SC_IO_IN[4]",
+     "rho_SC_IO_IN[5]",
+     "rho_SC_IO_IN[6]",
+     "rho_SC_IO_IN[7]",
+     "rho_SC_IO_IN[8]"
+    ],
+    "prox_rows": [
+     4,
+     5,
+     6
+    ],
+    "rows": 7,
+    "slot": 16,
+    "slot_const": "SC_IO_IN",
+    "source": "private_attention/argument.rs::B::endpoint + protocol.rs::check_endpoint_opening"
+   },
+   {
+    "commitment": "Out",
+    "data_rows": 2,
+    "log_size": 9,
+    "mask_rows": [
+     2,
+     3
+    ],
+    "point": [
+     "rho_SC_IO_OUT[0]",
+     "rho_SC_IO_OUT[1]",
+     "rho_SC_IO_OUT[2]",
+     "rho_SC_IO_OUT[3]",
+     "rho_SC_IO_OUT[4]",
+     "rho_SC_IO_OUT[5]",
+     "rho_SC_IO_OUT[6]",
+     "rho_SC_IO_OUT[7]",
+     "rho_SC_IO_OUT[8]"
+    ],
+    "prox_rows": [
+     4,
+     5,
+     6
+    ],
+    "rows": 7,
+    "slot": 17,
+    "slot_const": "SC_IO_OUT",
+    "source": "private_attention/argument.rs::B::endpoint + protocol.rs::check_endpoint_opening"
+   }
+  ],
+  "group_counts": {
+   "A": 30,
+   "H": 8
+  },
+  "logup_tables": [
+   {
+    "helper_plane": "H_GU8",
+    "mask_block_rows_if_hidden": 1,
+    "mask_kind_under_FA3_rule": "pair (one row at width 256)",
+    "multiplicity_plane": "A_MU8",
+    "note": "committed A row with its own claim site in slot SC_TAB; never published",
+    "required_total": 47104,
+    "table": "U8",
+    "table_rows": 256
+   },
+   {
+    "helper_plane": "H_GEXP",
+    "mask_block_rows_if_hidden": 1,
+    "mask_kind_under_FA3_rule": "pair (one row at width 256)",
+    "multiplicity_plane": "A_MEXP",
+    "note": "committed A row with its own claim site in slot SC_TAB; never published",
+    "required_total": 2048,
+    "table": "exp",
+    "table_rows": 256
+   }
+  ],
+  "opening_groups": {
+   "A": [
+    {
+     "c0": 0,
+     "group": 0,
+     "key": [
+      "rho_SC_SS[1]",
+      "rho_SC_SS[2]",
+      "rho_SC_SS[3]",
+      "rho_SC_SS[4]",
+      "rho_SC_SS[5]",
+      "rho_SC_SS[6]",
+      "rho_SC_SS[7]",
+      "rho_SC_SS[8]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      0
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 1,
+     "key": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ],
+     "len": 32,
+     "m": 4,
+     "members": [
+      1,
+      2,
+      3,
+      11
+     ]
+    },
+    {
+     "c0": 32,
+     "group": 2,
+     "key": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ],
+     "len": 32,
+     "m": 1,
+     "members": [
+      4
+     ]
+    },
+    {
+     "c0": 64,
+     "group": 3,
+     "key": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ],
+     "len": 32,
+     "m": 1,
+     "members": [
+      5
+     ]
+    },
+    {
+     "c0": 96,
+     "group": 4,
+     "key": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ],
+     "len": 32,
+     "m": 1,
+     "members": [
+      6
+     ]
+    },
+    {
+     "c0": 128,
+     "group": 5,
+     "key": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ],
+     "len": 32,
+     "m": 1,
+     "members": [
+      7
+     ]
+    },
+    {
+     "c0": 160,
+     "group": 6,
+     "key": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ],
+     "len": 32,
+     "m": 1,
+     "members": [
+      8
+     ]
+    },
+    {
+     "c0": 192,
+     "group": 7,
+     "key": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ],
+     "len": 32,
+     "m": 1,
+     "members": [
+      9
+     ]
+    },
+    {
+     "c0": 224,
+     "group": 8,
+     "key": [
+      "rho_SC_TZC[0]",
+      "rho_SC_TZC[1]",
+      "rho_SC_TZC[2]",
+      "rho_SC_TZC[3]",
+      "rho_SC_TZC[4]"
+     ],
+     "len": 32,
+     "m": 1,
+     "members": [
+      10
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 9,
+     "key": [
+      "rho_SC_LZC[1]",
+      "rho_SC_LZC[2]",
+      "rho_SC_LZC[3]",
+      "rho_SC_LZC[4]",
+      "rho_SC_LZC[5]",
+      "rho_SC_LZC[6]",
+      "rho_SC_LZC[7]",
+      "rho_SC_LZC[8]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      12
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 10,
+     "key": [
+      "rho_SC_RS[3]",
+      "rho_SC_RS[4]",
+      "rho_SC_RS[5]",
+      "rho_SC_RS[6]",
+      "rho_SC_RS[7]",
+      "rho_SC_RS[8]",
+      "rho_SC_RS[9]",
+      "rho_SC_RS[10]"
+     ],
+     "len": 256,
+     "m": 2,
+     "members": [
+      14,
+      15
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 11,
+     "key": [
+      "SC_QMM.r_q[1]",
+      "SC_QMM.r_q[2]",
+      "SC_QMM.r_q[3]",
+      "SC_QMM.r_q[4]",
+      "rho_SC_QMM[0]",
+      "rho_SC_QMM[1]",
+      "rho_SC_QMM[2]",
+      "rho_SC_QMM[3]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      16
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 12,
+     "key": [
+      "SC_QMM.r_q[1]",
+      "SC_QMM.r_q[2]",
+      "SC_QMM.r_q[3]",
+      "SC_QMM.r_q[4]",
+      "rho_SC_KMM[0]",
+      "rho_SC_KMM[1]",
+      "rho_SC_KMM[2]",
+      "rho_SC_KMM[3]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      17
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 13,
+     "key": [
+      "SC_QMM.r_q[1]",
+      "SC_QMM.r_q[2]",
+      "SC_QMM.r_q[3]",
+      "SC_QMM.r_q[4]",
+      "rho_SC_VMM[0]",
+      "rho_SC_VMM[1]",
+      "rho_SC_VMM[2]",
+      "rho_SC_VMM[3]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      18
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 14,
+     "key": [
+      "SC_SCORE.r_t[1]",
+      "SC_SCORE.r_t[2]",
+      "SC_SCORE.r_t[3]",
+      "SC_SCORE.r_t[4]",
+      "SC_SCORE.r_h[0]",
+      "rho_SC_SCORE[0]",
+      "rho_SC_SCORE[1]",
+      "rho_SC_SCORE[2]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      19
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 15,
+     "key": [
+      "SC_SCORE.r_j[0]",
+      "SC_SCORE.r_j[1]",
+      "SC_SCORE.r_j[2]",
+      "SC_SCORE.r_j[3]",
+      "SC_SCORE.r_j[4]",
+      "rho_SC_SCORE[0]",
+      "rho_SC_SCORE[1]",
+      "rho_SC_SCORE[2]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      20
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 16,
+     "key": [
+      "SC_PV.r_t[2]",
+      "SC_PV.r_t[3]",
+      "SC_PV.r_t[4]",
+      "rho_SC_PV[0]",
+      "rho_SC_PV[1]",
+      "rho_SC_PV[2]",
+      "rho_SC_PV[3]",
+      "rho_SC_PV[4]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      21
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 17,
+     "key": [
+      "rho_SC_PV[0]",
+      "rho_SC_PV[1]",
+      "rho_SC_PV[2]",
+      "rho_SC_PV[3]",
+      "rho_SC_PV[4]",
+      "SC_PV.r_i[0]",
+      "SC_PV.r_i[1]",
+      "SC_PV.r_i[2]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      22
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 18,
+     "key": [
+      "SC_WO.r_q[1]",
+      "SC_WO.r_q[2]",
+      "SC_WO.r_q[3]",
+      "SC_WO.r_q[4]",
+      "rho_SC_WO[0]",
+      "rho_SC_WO[1]",
+      "rho_SC_WO[2]",
+      "rho_SC_WO[3]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      23
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 19,
+     "key": [
+      "rho_SC_DZC[1]",
+      "rho_SC_DZC[2]",
+      "rho_SC_DZC[3]",
+      "rho_SC_DZC[4]",
+      "rho_SC_DZC[5]",
+      "rho_SC_DZC[6]",
+      "rho_SC_DZC[7]",
+      "rho_SC_DZC[8]"
+     ],
+     "len": 256,
+     "m": 19,
+     "members": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 20,
+     "key": [
+      "rho_SC_DZC[0]",
+      "rho_SC_DZC[1]",
+      "rho_SC_DZC[2]",
+      "rho_SC_DZC[3]",
+      "rho_SC_DZC[4]"
+     ],
+     "len": 32,
+     "m": 1,
+     "members": [
+      43
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 21,
+     "key": [
+      "rho_SC_QZC[1]",
+      "rho_SC_QZC[2]",
+      "rho_SC_QZC[3]",
+      "rho_SC_QZC[4]",
+      "rho_SC_QZC[5]",
+      "rho_SC_QZC[6]",
+      "rho_SC_QZC[7]",
+      "rho_SC_QZC[8]"
+     ],
+     "len": 256,
+     "m": 7,
+     "members": [
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 22,
+     "key": [
+      "rho_SC_QZC[1]",
+      "rho_SC_QZC[2]",
+      "rho_SC_QZC[3]",
+      "rho_SC_QZC[4]",
+      "rho_SC_QZC[5]",
+      "1-rho_SC_QZC[6]",
+      "rho_SC_QZC[7]",
+      "rho_SC_QZC[8]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      61
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 23,
+     "key": [
+      "rho_SC_KVZC[0]",
+      "rho_SC_KVZC[1]",
+      "rho_SC_KVZC[2]",
+      "rho_SC_KVZC[3]",
+      "rho_SC_KVZC[4]",
+      "rho_SC_KVZC[5]",
+      "rho_SC_KVZC[6]",
+      "rho_SC_KVZC[7]"
+     ],
+     "len": 256,
+     "m": 6,
+     "members": [
+      69,
+      70,
+      71,
+      72,
+      73,
+      74
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 24,
+     "key": [
+      "rho_SC_KVZC[0]",
+      "rho_SC_KVZC[1]",
+      "rho_SC_KVZC[2]",
+      "rho_SC_KVZC[3]",
+      "rho_SC_KVZC[4]",
+      "1-rho_SC_KVZC[5]",
+      "rho_SC_KVZC[6]",
+      "rho_SC_KVZC[7]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      75
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 25,
+     "key": [
+      "rho_SC_SZC[3]",
+      "rho_SC_SZC[4]",
+      "rho_SC_SZC[5]",
+      "rho_SC_SZC[6]",
+      "rho_SC_SZC[7]",
+      "rho_SC_SZC[8]",
+      "rho_SC_SZC[9]",
+      "rho_SC_SZC[10]"
+     ],
+     "len": 256,
+     "m": 11,
+     "members": [
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 26,
+     "key": [
+      "rho_SC_SZC[0]",
+      "rho_SC_SZC[1]",
+      "rho_SC_SZC[2]",
+      "rho_SC_SZC[3]",
+      "rho_SC_SZC[4]",
+      "rho_SC_SZC[5]"
+     ],
+     "len": 64,
+     "m": 2,
+     "members": [
+      93,
+      94
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 27,
+     "key": [
+      "rho_SC_TAB[0]",
+      "rho_SC_TAB[1]",
+      "rho_SC_TAB[2]",
+      "rho_SC_TAB[3]",
+      "rho_SC_TAB[4]",
+      "rho_SC_TAB[5]",
+      "rho_SC_TAB[6]",
+      "rho_SC_TAB[7]"
+     ],
+     "len": 256,
+     "m": 2,
+     "members": [
+      103,
+      105
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 28,
+     "key": [
+      "rho_SC_IO_IN[1]",
+      "rho_SC_IO_IN[2]",
+      "rho_SC_IO_IN[3]",
+      "rho_SC_IO_IN[4]",
+      "rho_SC_IO_IN[5]",
+      "rho_SC_IO_IN[6]",
+      "rho_SC_IO_IN[7]",
+      "rho_SC_IO_IN[8]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      108
+     ]
+    },
+    {
+     "c0": 0,
+     "group": 29,
+     "key": [
+      "rho_SC_IO_OUT[1]",
+      "rho_SC_IO_OUT[2]",
+      "rho_SC_IO_OUT[3]",
+      "rho_SC_IO_OUT[4]",
+      "rho_SC_IO_OUT[5]",
+      "rho_SC_IO_OUT[6]",
+      "rho_SC_IO_OUT[7]",
+      "rho_SC_IO_OUT[8]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      109
+     ]
+    }
+   ],
+   "H": [
+    {
+     "c0": 0,
+     "group": 0,
+     "key": [
+      "rho_SC_LZC[1]",
+      "rho_SC_LZC[2]",
+      "rho_SC_LZC[3]",
+      "rho_SC_LZC[4]",
+      "rho_SC_LZC[5]",
+      "rho_SC_LZC[6]",
+      "rho_SC_LZC[7]",
+      "rho_SC_LZC[8]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      13
+     ],
+     "sum_group": false
+    },
+    {
+     "c0": 0,
+     "group": 1,
+     "key": [
+      "rho_SC_DZC[1]",
+      "rho_SC_DZC[2]",
+      "rho_SC_DZC[3]",
+      "rho_SC_DZC[4]",
+      "rho_SC_DZC[5]",
+      "rho_SC_DZC[6]",
+      "rho_SC_DZC[7]",
+      "rho_SC_DZC[8]"
+     ],
+     "len": 256,
+     "m": 10,
+     "members": [
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53
+     ],
+     "sum_group": false
+    },
+    {
+     "c0": 0,
+     "group": 2,
+     "key": [
+      "rho_SC_QZC[1]",
+      "rho_SC_QZC[2]",
+      "rho_SC_QZC[3]",
+      "rho_SC_QZC[4]",
+      "rho_SC_QZC[5]",
+      "rho_SC_QZC[6]",
+      "rho_SC_QZC[7]",
+      "rho_SC_QZC[8]"
+     ],
+     "len": 256,
+     "m": 7,
+     "members": [
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68
+     ],
+     "sum_group": false
+    },
+    {
+     "c0": 0,
+     "group": 3,
+     "key": [
+      "rho_SC_KVZC[0]",
+      "rho_SC_KVZC[1]",
+      "rho_SC_KVZC[2]",
+      "rho_SC_KVZC[3]",
+      "rho_SC_KVZC[4]",
+      "rho_SC_KVZC[5]",
+      "rho_SC_KVZC[6]",
+      "rho_SC_KVZC[7]"
+     ],
+     "len": 256,
+     "m": 6,
+     "members": [
+      76,
+      77,
+      78,
+      79,
+      80,
+      81
+     ],
+     "sum_group": false
+    },
+    {
+     "c0": 0,
+     "group": 4,
+     "key": [
+      "rho_SC_SZC[3]",
+      "rho_SC_SZC[4]",
+      "rho_SC_SZC[5]",
+      "rho_SC_SZC[6]",
+      "rho_SC_SZC[7]",
+      "rho_SC_SZC[8]",
+      "rho_SC_SZC[9]",
+      "rho_SC_SZC[10]"
+     ],
+     "len": 256,
+     "m": 8,
+     "members": [
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102
+     ],
+     "sum_group": false
+    },
+    {
+     "c0": 0,
+     "group": 5,
+     "key": [
+      "rho_SC_TAB[0]",
+      "rho_SC_TAB[1]",
+      "rho_SC_TAB[2]",
+      "rho_SC_TAB[3]",
+      "rho_SC_TAB[4]",
+      "rho_SC_TAB[5]",
+      "rho_SC_TAB[6]",
+      "rho_SC_TAB[7]"
+     ],
+     "len": 256,
+     "m": 2,
+     "members": [
+      104,
+      106
+     ],
+     "sum_group": false
+    },
+    {
+     "c0": 0,
+     "group": 6,
+     "key": [
+      "rho_SC_ZS[0]",
+      "rho_SC_ZS[1]",
+      "rho_SC_ZS[2]",
+      "rho_SC_ZS[3]",
+      "rho_SC_ZS[4]",
+      "rho_SC_ZS[5]",
+      "rho_SC_ZS[6]",
+      "rho_SC_ZS[7]"
+     ],
+     "len": 256,
+     "m": 1,
+     "members": [
+      107
+     ],
+     "sum_group": false
+    },
+    {
+     "c0": 0,
+     "group": 7,
+     "key": null,
+     "len": 256,
+     "m": 1,
+     "members": [
+      110
+     ],
+     "sum_group": true
+    }
+   ]
+  },
+  "zero_sum_construction": {
+   "fresh_pair_u_prime_rows": [
+    286,
+    287
+   ],
+   "note": "the rank tool builds this pair (h_u, h_up) itself (build_model h_special); the SC_ZS H site is therefore NOT emitted in the tool view of the claim list -- see adaptation R-4",
+   "u_plane": "H_U",
+   "u_rows": [
+    216,
+    217
+   ],
+   "zsum_claim": "the SC_ZS slot's evaluation claim on H_U at rho_SC_ZS, masked by the reserved pair u'"
+  }
+ },
+ "A2_cfs_slots": {
+  "P1": [
+   {
+    "A_sites": 1,
+    "H_sites": 0,
+    "cfs_len": 32,
+    "claimed_sum": "one masked scalar s + c G (hosted by SC_TZC)",
+    "claimed_sum_form": "derived-from-claims (PRIVATE under a hiding profile)",
+    "degree": 3,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Private",
+    "main_rounds": 9,
+    "n_vars": 10,
+    "name": "01 SS row sums (private)",
+    "section": "01 SS row sums (private)",
+    "slot": "SC_SS",
+    "slot_index": 0,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 11,
+    "H_sites": 0,
+    "cfs_len": 20,
+    "claimed_sum": "public 0",
+    "claimed_sum_form": "public-zero",
+    "degree": 3,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Host",
+    "main_rounds": 5,
+    "n_vars": 6,
+    "name": "02 norm squares zero-check (hosts 01)",
+    "section": "02 norm squares zero-check (hosts 01)",
+    "slot": "SC_TZC",
+    "slot_index": 1,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 1,
+    "H_sites": 1,
+    "cfs_len": 32,
+    "claimed_sum": "public 0",
+    "claimed_sum_form": "public-zero",
+    "degree": 3,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Standalone",
+    "main_rounds": 9,
+    "n_vars": 10,
+    "name": "08 limb zero-check",
+    "section": "08 limb zero-check",
+    "slot": "SC_LZC",
+    "slot_index": 2,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 2,
+    "H_sites": 0,
+    "cfs_len": 38,
+    "claimed_sum": "one masked scalar s + c G (hosted by SC_SZC)",
+    "claimed_sum_form": "derived-from-claims (PRIVATE under a hiding profile)",
+    "degree": 3,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Private",
+    "main_rounds": 11,
+    "n_vars": 12,
+    "name": "07 masked row sums + selector (private)",
+    "section": "07 masked row sums + selector (private)",
+    "slot": "SC_RS",
+    "slot_index": 3,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 1,
+    "H_sites": 0,
+    "cfs_len": 12,
+    "claimed_sum": "one masked scalar s + c G (hosted by SC_QZC)",
+    "claimed_sum_form": "derived-from-claims (PRIVATE under a hiding profile)",
+    "degree": 2,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Private",
+    "main_rounds": 4,
+    "n_vars": 5,
+    "name": "09Q matmul (private)",
+    "section": "09Q matmul (private)",
+    "slot": "SC_QMM",
+    "slot_index": 4,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 1,
+    "H_sites": 0,
+    "cfs_len": 12,
+    "claimed_sum": "one masked scalar s + c G (hosted by SC_KVZC)",
+    "claimed_sum_form": "derived-from-claims (PRIVATE under a hiding profile)",
+    "degree": 2,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Private",
+    "main_rounds": 4,
+    "n_vars": 5,
+    "name": "09K matmul (private)",
+    "section": "09K matmul (private)",
+    "slot": "SC_KMM",
+    "slot_index": 5,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 1,
+    "H_sites": 0,
+    "cfs_len": 12,
+    "claimed_sum": "one masked scalar s + c G (hosted by SC_KVZC)",
+    "claimed_sum_form": "derived-from-claims (PRIVATE under a hiding profile)",
+    "degree": 2,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Private",
+    "main_rounds": 4,
+    "n_vars": 5,
+    "name": "09V matmul (private)",
+    "section": "09V matmul (private)",
+    "slot": "SC_VMM",
+    "slot_index": 6,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 2,
+    "H_sites": 0,
+    "cfs_len": 12,
+    "claimed_sum": "one masked scalar s + c G (hosted by SC_SZC)",
+    "claimed_sum_form": "derived-from-claims (PRIVATE under a hiding profile)",
+    "degree": 2,
+    "ext_rationale": "two private factor families: one extension round per side",
+    "ext_rounds": 2,
+    "kind": "Private",
+    "main_rounds": 3,
+    "n_vars": 5,
+    "name": "10 score matmul (private, bilinear)",
+    "section": "10 score matmul (private, bilinear)",
+    "slot": "SC_SCORE",
+    "slot_index": 7,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 2,
+    "H_sites": 0,
+    "cfs_len": 16,
+    "claimed_sum": "one masked scalar s + c G (hosted by SC_QZC)",
+    "claimed_sum_form": "derived-from-claims (PRIVATE under a hiding profile)",
+    "degree": 2,
+    "ext_rationale": "two private factor families: one extension round per side",
+    "ext_rounds": 2,
+    "kind": "Private",
+    "main_rounds": 5,
+    "n_vars": 7,
+    "name": "11 PV matmul (private, bilinear)",
+    "section": "11 PV matmul (private, bilinear)",
+    "slot": "SC_PV",
+    "slot_index": 8,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 1,
+    "H_sites": 0,
+    "cfs_len": 12,
+    "claimed_sum": "one masked scalar s + c G (hosted by SC_DZC)",
+    "claimed_sum_form": "derived-from-claims (PRIVATE under a hiding profile)",
+    "degree": 2,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Private",
+    "main_rounds": 4,
+    "n_vars": 5,
+    "name": "12 Wo matmul (private)",
+    "section": "12 Wo matmul (private)",
+    "slot": "SC_WO",
+    "slot_index": 9,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 20,
+    "H_sites": 10,
+    "cfs_len": 42,
+    "claimed_sum": "public 0",
+    "claimed_sum_form": "public-zero",
+    "degree": 4,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Host",
+    "main_rounds": 9,
+    "n_vars": 10,
+    "name": "03 D zero-check (hosts 12)",
+    "section": "03 D zero-check (hosts 12)",
+    "slot": "SC_DZC",
+    "slot_index": 10,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 8,
+    "H_sites": 7,
+    "cfs_len": 42,
+    "claimed_sum": "public 0",
+    "claimed_sum_form": "public-zero",
+    "degree": 4,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Host",
+    "main_rounds": 9,
+    "n_vars": 10,
+    "name": "04 Q zero-check (hosts 09Q, 11)",
+    "section": "04 Q zero-check (hosts 09Q, 11)",
+    "slot": "SC_QZC",
+    "slot_index": 11,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 7,
+    "H_sites": 6,
+    "cfs_len": 38,
+    "claimed_sum": "public 0",
+    "claimed_sum_form": "public-zero",
+    "degree": 4,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Host",
+    "main_rounds": 8,
+    "n_vars": 9,
+    "name": "05 KV zero-check (hosts 09K, 09V)",
+    "section": "05 KV zero-check (hosts 09K, 09V)",
+    "slot": "SC_KVZC",
+    "slot_index": 12,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 13,
+    "H_sites": 8,
+    "cfs_len": 50,
+    "claimed_sum": "public 0",
+    "claimed_sum_form": "public-zero",
+    "degree": 4,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Host",
+    "main_rounds": 11,
+    "n_vars": 12,
+    "name": "06 softmax zero-check (hosts 07, 10)",
+    "section": "06 softmax zero-check (hosts 07, 10)",
+    "slot": "SC_SZC",
+    "slot_index": 13,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 2,
+    "H_sites": 2,
+    "cfs_len": 29,
+    "claimed_sum": "public 0",
+    "claimed_sum_form": "public-zero",
+    "degree": 3,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Standalone",
+    "main_rounds": 8,
+    "n_vars": 9,
+    "name": "TAB table helper zero-check",
+    "section": "TAB table helper zero-check",
+    "slot": "SC_TAB",
+    "slot_index": 14,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 0,
+    "H_sites": 1,
+    "cfs_len": 20,
+    "claimed_sum": "public 0",
+    "claimed_sum_form": "public-zero",
+    "degree": 2,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Standalone",
+    "main_rounds": 8,
+    "n_vars": 9,
+    "name": "ZS zero-sum row",
+    "section": "ZS zero-sum row",
+    "slot": "SC_ZS",
+    "slot_index": 15,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 1,
+    "H_sites": 0,
+    "cfs_len": 22,
+    "claimed_sum": "public 0",
+    "claimed_sum_form": "public-zero",
+    "degree": 2,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Standalone",
+    "main_rounds": 9,
+    "n_vars": 10,
+    "name": "IO-in endpoint equality",
+    "section": "IO-in endpoint equality",
+    "slot": "SC_IO_IN",
+    "slot_index": 16,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   },
+   {
+    "A_sites": 1,
+    "H_sites": 0,
+    "cfs_len": 22,
+    "claimed_sum": "public 0",
+    "claimed_sum_form": "public-zero",
+    "degree": 2,
+    "ext_rationale": "a public factor (eq / a public table) extends to 0",
+    "ext_rounds": 1,
+    "kind": "Standalone",
+    "main_rounds": 9,
+    "n_vars": 10,
+    "name": "IO-out endpoint equality",
+    "section": "IO-out endpoint equality",
+    "slot": "SC_IO_OUT",
+    "slot_index": 17,
+    "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES"
+   }
+  ],
+  "P3": null,
+  "hosts": {
+   "SC_DZC": [
+    "SC_WO"
+   ],
+   "SC_KVZC": [
+    "SC_KMM",
+    "SC_VMM"
+   ],
+   "SC_QZC": [
+    "SC_QMM",
+    "SC_PV"
+   ],
+   "SC_SZC": [
+    "SC_RS",
+    "SC_SCORE"
+   ],
+   "SC_TZC": [
+    "SC_SS"
+   ]
+  },
+  "m_rows": 40,
+  "n_functionals": 28,
+  "note": "P3 is not implemented by this module (weights are public and uncommitted under P1)",
+  "transcript_order": [
+   "SC_SS",
+   "SC_TZC",
+   "SC_LZC",
+   "SC_RS",
+   "SC_QMM",
+   "SC_KMM",
+   "SC_VMM",
+   "SC_SCORE",
+   "SC_PV",
+   "SC_WO",
+   "SC_DZC",
+   "SC_QZC",
+   "SC_KVZC",
+   "SC_SZC",
+   "SC_TAB",
+   "SC_ZS",
+   "SC_IO_IN",
+   "SC_IO_OUT"
+  ]
+ },
+ "layout": {
+  "A_GROUPS_declared": 30,
+  "H_GROUPS_declared": 8,
+  "M_ROWS": 40,
+  "N_FUNCTIONALS": 28,
+  "a_data_rows": 154,
+  "a_mask_base": 154,
+  "a_plane_domains": {
+   "A_AL0": "D",
+   "A_AL1": "D",
+   "A_AO": "D",
+   "A_D": "T",
+   "A_DSQ": "T",
+   "A_E": "S",
+   "A_K8": "Kv",
+   "A_KR8": "Kv",
+   "A_LIMB": "L",
+   "A_MEXP": "Tab",
+   "A_MU8": "Tab",
+   "A_MX": "Ht",
+   "A_NR0": "D",
+   "A_NS0": "D",
+   "A_O8": "Q",
+   "A_P": "S",
+   "A_PL0": "S",
+   "A_PL1": "S",
+   "A_Q8": "Q",
+   "A_QR8": "Q",
+   "A_RAL": "D",
+   "A_RKL": "Kv",
+   "A_RKRL": "Kv",
+   "A_RO0": "Q",
+   "A_RO1": "Q",
+   "A_RQL": "Q",
+   "A_RQRL": "Q",
+   "A_RSL": "S",
+   "A_RVL": "Kv",
+   "A_S8": "S",
+   "A_SG0": "S",
+   "A_SG1": "S",
+   "A_SR0": "S",
+   "A_SR1": "S",
+   "A_SUM": "Ht",
+   "A_V8": "Kv",
+   "A_X": "D",
+   "A_X1": "D",
+   "A_X1L0": "D",
+   "A_X1L1": "D",
+   "A_XL0": "D",
+   "A_XL1": "D",
+   "A_Y": "D",
+   "A_ZSEL": "S"
+  },
+  "a_plane_offsets": {
+   "A_AL0": 8192,
+   "A_AL1": 8704,
+   "A_AO": 7680,
+   "A_D": 0,
+   "A_DSQ": 256,
+   "A_E": 22528,
+   "A_K8": 14848,
+   "A_KR8": 15872,
+   "A_LIMB": 1024,
+   "A_MEXP": 39168,
+   "A_MU8": 38912,
+   "A_MX": 512,
+   "A_NR0": 3584,
+   "A_NS0": 5632,
+   "A_O8": 13312,
+   "A_P": 24576,
+   "A_PL0": 26624,
+   "A_PL1": 28672,
+   "A_Q8": 11264,
+   "A_QR8": 12288,
+   "A_RAL": 9216,
+   "A_RKL": 15104,
+   "A_RKRL": 16128,
+   "A_RO0": 13824,
+   "A_RO1": 14336,
+   "A_RQL": 11776,
+   "A_RQRL": 12800,
+   "A_RSL": 18432,
+   "A_RVL": 15616,
+   "A_S8": 16384,
+   "A_SG0": 34816,
+   "A_SG1": 36864,
+   "A_SR0": 30720,
+   "A_SR1": 32768,
+   "A_SUM": 768,
+   "A_V8": 15360,
+   "A_X": 1536,
+   "A_X1": 9728,
+   "A_X1L0": 10240,
+   "A_X1L1": 10752,
+   "A_XL0": 2048,
+   "A_XL1": 2560,
+   "A_Y": 3072,
+   "A_ZSEL": 20480
+  },
+  "a_prox": 304,
+  "a_rows": 306,
+  "a_sites_per_slot": [
+   1,
+   11,
+   1,
+   2,
+   1,
+   1,
+   1,
+   2,
+   2,
+   1,
+   20,
+   8,
+   7,
+   13,
+   2,
+   0,
+   1,
+   1
+  ],
+  "cols_log": 8,
+  "dom_logs": {
+   "D": 9,
+   "Ht": 6,
+   "Kv": 8,
+   "L": 9,
+   "Q": 9,
+   "S": 11,
+   "T": 5,
+   "Tab": 8
+  },
+  "h_data_rows": 218,
+  "h_mask_base": 218,
+  "h_plane_domains": {
+   "H_D0": "D",
+   "H_GEXP": "Tab",
+   "H_GU8": "Tab",
+   "H_KV0": "Kv",
+   "H_L": "L",
+   "H_Q0": "Q",
+   "H_S0": "S",
+   "H_SEXP": "S",
+   "H_U": "Tab"
+  },
+  "h_plane_offsets": {
+   "H_D0": [
+    1024,
+    1536
+   ],
+   "H_GEXP": [
+    54784,
+    55040
+   ],
+   "H_GU8": [
+    54272,
+    54528
+   ],
+   "H_KV0": [
+    18432,
+    18688
+   ],
+   "H_L": [
+    0,
+    512
+   ],
+   "H_Q0": [
+    11264,
+    11776
+   ],
+   "H_S0": [
+    21504,
+    23552
+   ],
+   "H_SEXP": [
+    50176,
+    52224
+   ],
+   "H_U": [
+    55296,
+    55552
+   ]
+  },
+  "h_prox": 288,
+  "h_rows": 290,
+  "h_sites_per_slot": [
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   10,
+   7,
+   6,
+   8,
+   2,
+   1,
+   0,
+   0
+  ],
+  "h_u_rows": [
+   216,
+   217
+  ],
+  "helpers_per_domain": {
+   "D": [
+    "H_D0",
+    10
+   ],
+   "Kv": [
+    "H_KV0",
+    6
+   ],
+   "L": [
+    "H_L",
+    1
+   ],
+   "Q": [
+    "H_Q0",
+    7
+   ],
+   "S": [
+    "H_S0",
+    7
+   ]
+  },
+  "lookup_counts_per_domain": {
+   "D": 20,
+   "Ht": 0,
+   "Kv": 12,
+   "L": 1,
+   "Q": 13,
+   "S": 13,
+   "T": 0,
+   "Tab": 0
+  },
+  "n_a_planes": 50,
+  "n_cols": 256,
+  "n_h_planes": 35,
+  "planes": {
+   "A_AL0": 8192,
+   "A_AL1": 8704,
+   "A_AO": 7680,
+   "A_D": 0,
+   "A_DSQ": 256,
+   "A_E": 22528,
+   "A_K8": 14848,
+   "A_KR8": 15872,
+   "A_LIMB": 1024,
+   "A_MEXP": 39168,
+   "A_MU8": 38912,
+   "A_MX": 512,
+   "A_NR0": 3584,
+   "A_NS0": 5632,
+   "A_O8": 13312,
+   "A_P": 24576,
+   "A_PL0": 26624,
+   "A_PL1": 28672,
+   "A_Q8": 11264,
+   "A_QR8": 12288,
+   "A_RAL": 9216,
+   "A_RKL": 15104,
+   "A_RKRL": 16128,
+   "A_RO0": 13824,
+   "A_RO1": 14336,
+   "A_RQL": 11776,
+   "A_RQRL": 12800,
+   "A_RSL": 18432,
+   "A_RVL": 15616,
+   "A_S8": 16384,
+   "A_SG0": 34816,
+   "A_SG1": 36864,
+   "A_SR0": 30720,
+   "A_SR1": 32768,
+   "A_SUM": 768,
+   "A_V8": 15360,
+   "A_X": 1536,
+   "A_X1": 9728,
+   "A_X1L0": 10240,
+   "A_X1L1": 10752,
+   "A_XL0": 2048,
+   "A_XL1": 2560,
+   "A_Y": 3072,
+   "A_ZSEL": 20480
+  }
+ },
+ "profile": {
+  "geometry": {
+   "D": 16,
+   "DH": 8,
+   "H": 2,
+   "KV": 8,
+   "LOG_N": 8,
+   "N": 256,
+   "T": 32
+  },
+  "name": "hashline-zk-mr1/private-attention-t32-poc/1",
+  "privacy": "P1 (inputs / outputs / activations hidden; weights public, no W commitment)"
+ },
+ "source": {
+  "argument.rs": "hashline/src/private_attention/argument.rs",
+  "layout.rs": "hashline/src/private_attention/layout.rs",
+  "pcs.rs": "zkp-core/src/pcs.rs (zpart_weights / group_zclaims: the key rule)",
+  "protocol.rs": "hashline/src/private_attention/protocol.rs"
+ },
+ "source_sha256": {
+  "hashline/src/private_attention/argument.rs": "096aeb865fac9927b070f609064b970140727ac02aecba60ab1b4d1e4ddc4a09",
+  "hashline/src/private_attention/layout.rs": "ac8ca73762dbc2dc73d98914a596b88f486de79cdf9c794e7e4df306de0f9819",
+  "hashline/src/private_attention/protocol.rs": "9be2439bbc038fe8a354ae6dec0b0ea13adc9a3e08a5d8fc24f31bd98d6b7d1f",
+  "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
+ },
+ "task": "R-1 -- the pair-schedule rank check and the CFS slot check re-run on the NATIVE layout",
+ "tool": "scripts/zk60_attention_native_inventory.py"
+}

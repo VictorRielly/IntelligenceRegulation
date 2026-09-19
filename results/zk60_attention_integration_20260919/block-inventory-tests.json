@@ -1,0 +1,1 @@
+{"command": ["python3", "-m", "unittest", "tests.test_zk60_private_block_inventory"], "exit_code": 0, "tests": 29}

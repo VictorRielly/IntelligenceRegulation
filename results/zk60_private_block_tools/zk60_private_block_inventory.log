@@ -1,0 +1,67 @@
+self-check (accepted attention, committed tool unmodified): 29/29 cross-checks, failures none, reproduced=True
+derived from the real Rust vs the design: 46/46 agree
+  ok   A rows: 455
+  ok   A data rows: 213
+  ok   A site-pair rows: 240
+  ok   A proximity rows: 2
+  ok   H rows: 384
+  ok   H data rows (incl. u): 280
+  ok   H site-pair rows (incl. u'): 102
+  ok   H proximity rows: 2
+  ok   A claim sites declared in layout.rs A_SITES: 120
+  ok   H claim sites declared in layout.rs H_SITES: 51
+  ok   A claim sites found in argument.rs::define: 120
+  ok   H claim sites found in argument.rs::define: 51
+  ok   A opening groups (derived from the PCS key rule): 35
+  ok   H opening groups (derived, incl. the sum group): 9
+  ok   A_GROUPS declared in layout.rs: 35
+  ok   H_GROUPS declared in layout.rs: 9
+  ok   CFS slots: 23
+  ok   slot kinds private / standalone / host: {'Private': 12, 'Standalone': 5, 'Host': 6}
+  ok   host groups: 6
+  ok   M rows: 50
+  ok   M rows = 2 * slots + 4: 50
+  ok   functionals = slots + standalone Gammas + one batched Gamma per host: 34
+  ok   N_FUNCTIONALS declared in layout.rs: 34
+  ok   the 23 (main, ext, degree) triples: [(9, 1, 3), (9, 1, 3), (5, 1, 3), (9, 1, 4), (11, 1, 3), (4, 1, 2), (4, 1, 2), (4, 1, 2), (3, 2, 2), (5, 2, 2), (4, 1, 2), (4, 1, 2), (4, 1, 2), (4, 1, 2), (9, 1, 4), (9, 1, 4), (8, 1, 4), (11, 1, 4), (9, 1, 4), (8, 1, 3), (8, 1, 2), (9, 1, 2), (9, 1, 2)]
+  ok   largest mask row L: 50
+  ok   the slot with the largest L: 'SC_SZC'
+  ok   largest slot's coefficient headroom (512 - 256 - L): 206
+  ok   every slot L_s + 256 <= 512: True
+  ok   total main rounds: 159
+  ok   total extension rounds: 25
+  ok   sum (main + ext) * (degree + 1): 721
+  ok   terminals (A sites + H sites + 2 endpoints): 173
+  ok   U8 lookups: 61440
+  ok   exp lookups: 2048
+  ok   act lookups: 512
+  ok   hosts (module slot indices): {2: [0, 1], 14: [10, 13], 15: [5, 9], 16: [6, 7], 17: [4, 8], 18: [11, 12]}
+  ok   host runs after every slot it hosts: True
+  ok   A sites of SC_DZC: 37
+  ok   A sites of SC_FZC: 11
+  ok   A sites of SC_TAB: 3
+  ok   H sites of SC_DZC: 19
+  ok   H sites of SC_FZC: 6
+  ok   H sites of SC_TAB: 3
+  ok   helper planes cover the lookups pairwise: {'L': 1, 'D': 19, 'F': 5, 'Q': 7, 'Kv': 6, 'S': 7}
+  ok   A reserved-pair first rows == layout.rs a_site(slot, k): [213, 215, 217, 219, 221, 223, 225, 227, 229, 231, 233, 235, 237, 239, 241, 243, 245, 247, 249, 251, 253, 255, 257, 259, 261, 263, 265, 267, 269, 271, 273, 275, 277, 279, 281, 283, 285, 287, 289, 291, 293, 295, 297, 299, 301, 303, 305, 307, 309, 311, 313, 315, 317, 319, 321, 323, 325, 327, 329, 331, 333, 335, 337, 339, 341, 343, 345, 347, 349, 351, 353, 355, 357, 359, 361, 363, 365, 367, 369, 371, 373, 375, 377, 379, 381, 383, 385, 387, 389, 391, 393, 395, 397, 399, 401, 403, 405, 407, 409, 411, 413, 415, 417, 419, 421, 423, 425, 427, 429, 431, 433, 435, 437, 439, 441, 443, 445, 447, 449, 451]
+  ok   H reserved-pair first rows == layout.rs h_site(slot, k): [280, 282, 284, 286, 288, 290, 292, 294, 296, 298, 300, 302, 304, 306, 308, 310, 312, 314, 316, 318, 320, 322, 324, 326, 328, 330, 332, 334, 336, 338, 340, 342, 344, 346, 348, 350, 352, 354, 356, 358, 360, 362, 364, 366, 368, 370, 372, 374, 376, 378, 380]
+rank : {"whole_A_per_column": 0, "whole_A_with_values_n4": 0, "whole_H_per_column": 0, "whole_H_with_values": {"whole_H_with_values_n4": 2, "whole_H_with_values_n8": 2}, "H_residual_is_exactly_the_public_identity": true, "endpoints": {"endpoint_In_with_values_n4": 0, "endpoint_Out_with_values_n4": 0}, "groups_with_nonzero_disclosure": {}, "n_groups_checked": {"A": 35, "H": 7}, "singleton_groups": {"A": 17, "H": 2}}
+rank negative controls: {"no_mask_A_per_column": 49, "no_mask_A_with_values_n4": 304, "single_base_row_per_claim_A_per_column": 16, "single_prox_row_singleton_pair_claim_per_column": 1, "prox_pair_singleton_pair_claim_per_column": 0, "flipped_rope_SC_QZC_sharing_pair_with_values_n4": 2, "flipped_rope_SC_QZC_own_pair_with_values_n4": 0, "flipped_rope_SC_KVZC_sharing_pair_with_values_n4": 2, "flipped_rope_SC_KVZC_own_pair_with_values_n4": 0, "zero_sum_row_without_fresh_pair_n4": 8, "helper_sums_published_n4": 100, "A_H16_shares_A_U16_pair_with_values_n4": 2, "A_H16_own_pair_not_A_U16_pair_with_values_n4": 0, "A_YM_shares_A_Y_pair_with_values_n4": 2, "A_YM_own_pair_not_A_Y_pair_with_values_n4": 0}
+cfs  : {"n_slots": 23, "largest_slot": 50, "m_rows": 50, "n_functionals": 34, "hosts": {"SC_TZC": [84, 81, 3, 0], "SC_DZC": [66, 63, 3, 0], "SC_QZC": [70, 67, 3, 0], "SC_KVZC": [62, 59, 3, 0], "SC_SZC": [100, 97, 3, 0], "SC_FZC": [66, 63, 3, 0]}, "all_checks_pass": true}
+cfs negative controls: {"nc_hosted_c_zero": true, "nc_host_nu_zero": true, "nc_extension_degree_exceeds_mask": true, "nc_qkv_unsplit": true, "nc_row_budget_exceeded": true, "nc_sigma_functional_for_private_slot": true, "nc_sigma_functional_for_host_slot": true}
+  ok   gate: every A opening group discloses 0
+  ok   gate: every modelled H group discloses 0
+  ok   gate: both endpoints disclose 0
+  ok   gate: whole A discloses 0 per column and with values
+  ok   gate: whole H's residual is EXACTLY the public LogUp identity and nothing more
+  ok   gate: every host group has kernel 3 and leaks 0, rank = dim S = sum L - (k + 1)
+  ok   gate: host sum L / rank match the design
+  ok   gate: every standalone slot: rank = dim S = N d + 1, leaked 0, kernel 1, and equals the design
+  ok   gate: every slot L + 256 <= 512
+  ok   gate: EVERY negative control fires
+  ok   gate: the self-check reproduced the accepted attention verdict
+paper comparison: 74 of 74 items agree; differences: []; only in this run: ['rank/negative_control/A_H16_own_pair_not_A_U16_pair_with_values_n4', 'rank/negative_control/A_H16_shares_A_U16_pair_with_values_n4', 'rank/negative_control/A_YM_own_pair_not_A_Y_pair_with_values_n4', 'rank/negative_control/A_YM_shares_A_Y_pair_with_values_n4']
+adapters the define parser needed: {'B-1': 9, 'B-3': 3, 'B-2': 8}
+failures: none
+CAVEAT: These verdicts are about a LINEAR-ALGEBRA MODEL of the real Rust schedule of hashline/src/private_block/, at seeded stand-in challenges. The models exclude the sampled columns, the salted Merkle paths, the CFS channel, transcript conditioning, integer-range side information and correlation between A and H -- exactly as on the accepted attention layout (ZK60_PRIVATE_ATTENTION_NATIVE.md:79). NOTHING here establishes a privacy property of the construction: the joint-view gate on captured receipts is unmet and D8 / D11 stay open for the block's two external endpoints x_in and xres2. What is new relative to the paper runs is only that the schedule is now READ OUT OF CODE instead of out of a memo.
