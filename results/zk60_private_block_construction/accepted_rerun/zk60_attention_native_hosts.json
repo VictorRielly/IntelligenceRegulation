@@ -1,0 +1,24 @@
+{
+ "variant": "layout.rs HOSTS",
+ "hosts": {
+  "SC_TZC": [
+   "SC_SS"
+  ],
+  "SC_DZC": [
+   "SC_WO"
+  ],
+  "SC_QZC": [
+   "SC_QMM",
+   "SC_PV"
+  ],
+  "SC_KVZC": [
+   "SC_KMM",
+   "SC_VMM"
+  ],
+  "SC_SZC": [
+   "SC_RS",
+   "SC_SCORE"
+  ]
+ },
+ "extra_slots": {}
+}
