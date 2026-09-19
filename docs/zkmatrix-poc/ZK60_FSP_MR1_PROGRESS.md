@@ -53,6 +53,7 @@ Every number carries its shape, conditions, box load and label:
 | # | stage | status |
 |---|---|---|
 | 0 | Ledger, ownership, the scoping memo and the previous lane's ledger read | DONE |
+| 0b | Inherited red: one doctest on the base branch, comment-only fix | DONE |
 | 1 | FLOOR on the untouched tip: suite + the four frozen digests on CPU, GPU, GPU forced-chunked | IN FLIGHT |
 | 2 | The entry pair in `zk.rs` (one commit) + its cfg(test) file; then the whole floor again | TODO |
 | 3 | The driver: `hashline/examples/zk60_repaired_mask_probe.rs`, three arms | TODO |
@@ -100,7 +101,7 @@ written before lane `fsp-zkhost` landed and several have moved):
 | what | memo says | this branch |
 |---|---|---|
 | `ZkLayoutV3::with_masks` | 2002-2054 | **2002-2055** (unmoved) |
-| the masking-commitment specs | 2149-2174 | **moved: `mask_specs_v3` is now at 2245** |
+| the masking-commitment specs | 2149-2174 | **`mask_specs_v3` at 2149** (unmoved) |
 | `prove_layer_zk_v3` hard-codes `mr1 = false` | 2280 | **2429-2431** |
 | `prove_layer_zk_v3_inner` (private) | 2283 | **2433** |
 | `prepare_layer_zk_v3_inner` (private) | 2337 | **2494** |
@@ -113,5 +114,32 @@ So the memo's central claim holds on this branch: `with_masks` takes the
 shape as a parameter, every refusal in `zk_ffn_fresh_poc.rs` is written
 against `rows` / `log_n` / `mask_rows` / `prox`, and the only thing missing
 is a caller.
-</content>
-</invoke>
+
+### 2026-09-19 — stage 0b, an inherited red: one doctest, comment-only
+
+Reported by the orchestrator and confirmed by reading the source: on the
+base branch `fsp-zkhost`, `cargo test --release` fails exactly ONE doctest,
+`src/zk.rs - zk::fsp_i8fold (line 2381)`, with
+`expected one of `!` or `::`, found `[``. Every functional test passes.
+
+**Cause.** In the doc comment lane `fsp-zkhost` wrote above `fsp_i8fold`
+(zk.rs 2369-2394) the formula line
+
+    wgk[c*db + kp] = sum_j cw_gu[j] . src = sum_b lam_f[b] * blk_b[kp]
+
+is indented four spaces, which is Markdown for an indented code block;
+rustdoc defaults an unmarked code block to Rust and tries to compile the
+formula. Doctests are collected from private items too, so a private
+`fn` is not exempt.
+
+**Fix.** Wrap that one line in a fence marked `text` and un-indent it to
+one space after `///`. Nothing else in the file has a four-space-indented
+doc line at module level: the only other hits (zk.rs 4186-4201) are
+continuation lines of a numbered list inside `#[cfg(test)] mod tests_v3`,
+which rustdoc does not collect and which are list continuations, not code
+blocks. The `HL_FSP_POOL` module's doc comment (zk.rs 2288-2314) is clean.
+
+**It is comment-only: no proof byte can move.** The four frozen digests are
+run anyway, in stage 1, on the tree that carries this fix — so the floor
+below is the base tip PLUS this comment change, and that is what stage 2
+is compared against.

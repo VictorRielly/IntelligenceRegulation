@@ -2378,7 +2378,9 @@ mod zkhostbuf {
 /// block terminals of `gu_term` / `d_term`. They are the same fold: with
 /// `cw_gu[j] = lam_f[b] * eq_rj[jp]` and `j = b * fb + jp`,
 ///
-///     wgk[c*db + kp] = sum_j cw_gu[j] . src = sum_b lam_f[b] * blk_b[kp]
+/// ```text
+/// wgk[c*db + kp] = sum_j cw_gu[j] . src = sum_b lam_f[b] * blk_b[kp]
+/// ```
 ///
 /// where `blk_b` is exactly the block fold the terminal wants. `eq_rj` is
 /// drawn BEFORE the sumcheck, so the block folds can be computed first and the
