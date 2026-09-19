@@ -1,0 +1,2683 @@
+{
+ "adaptations": [
+  "C-1  `OPUS_TWELVE` / `TRANSCRIPT_ORDER` rebound to this layout's eighteen slot constants in layout.rs order; `SPLIT` and `ADDED_SLOTS` emptied (this layout already has three separate matmul slots and already carries TAB / ZS / IO-in / IO-out); `TWO_EXT` rebound to the two bilinear slots (SC_SCORE, SC_PV); `DEFAULT_HOSTS` rebound to layout.rs's `HOSTS`.",
+  "C-2  `build_report` / `main` are NOT called: two of their checks index the hard-coded split names SC_ATTN_08Q/K/V, which do not exist here.  The component functions (build_slot_table, standalone_report, host_groups_report, m_layout, largest_slot, r7_extension_check, negative_controls) are called unchanged and this script re-assembles the check list.",
+  "C-3  the QKV-unsplit negative control hard-codes SC_ATTN_03 / 04 / 08Q / 08K / 08V.  It is run verbatim on a NAME-MAPPED copy of this layout's slot table (SC_QZC -> SC_ATTN_03, SC_KVZC -> SC_ATTN_04, SC_QMM/KMM/VMM -> SC_ATTN_08Q/K/V), so the shapes are this layout's.  The function body is untouched.",
+  "C-4  P1 only.  `A2_cfs_slots.P3` is null: the module does not implement P3 (weights are public and there is no W commitment)."
+ ],
+ "all_checks_pass": true,
+ "cfs_channel_sha256": "ba05f0d140d72f67d69bbf48f4336d08a83cd99fbd01d2c49c417ec120066437",
+ "checks": [
+  {
+   "detail": "['SC_SS', 'SC_SSM', 'SC_TZC', 'SC_LZC', 'SC_RS', 'SC_QMM', 'SC_KMM', 'SC_VMM', 'SC_SCORE', 'SC_PV', 'SC_WO', 'SC_GMM', 'SC_UMM', 'SC_DMM', 'SC_DZC', 'SC_QZC', 'SC_KVZC', 'SC_SZC', 'SC_FZC', 'SC_TAB', 'SC_ZS', 'SC_IO_IN', 'SC_IO_OUT']",
+   "name": "23 slots in layout.rs transcript order",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "every slot L_s + 256 <= 512; largest SC_SZC L = 50",
+   "pass": true
+  },
+  {
+   "detail": "SC_SS:31/31, SC_SSM:31/31, SC_TZC:19/19, SC_LZC:41/41, SC_RS:37/37, SC_QMM:11/11, SC_KMM:11/11, SC_VMM:11/11, SC_SCORE:11/11, SC_PV:15/15, SC_WO:11/11, SC_GMM:11/11, SC_UMM:11/11, SC_DMM:11/11, SC_DZC:41/41, SC_QZC:41/41, SC_KVZC:37/37, SC_SZC:49/49, SC_FZC:41/41, SC_TAB:28/28, SC_ZS:19/19, SC_IO_IN:21/21, SC_IO_OUT:21/21",
+   "name": "FA6's criterion standalone on all 23 slots (rank = dim S = N d + 1, image in S, leaked 0, kernel 1)",
+   "pass": true
+  },
+  {
+   "detail": "rank 81 dim S 81 kernel 3 leaked 0",
+   "name": "host SC_TZC <- ['SC_SS', 'SC_SSM']: rank = dim S = sum L - (k+1) = 81, kernel 3, leaked 0, relabelling, f-part",
+   "pass": true
+  },
+  {
+   "detail": "[]",
+   "name": "host SC_TZC's hosted slots all precede it in transcript order",
+   "pass": true
+  },
+  {
+   "detail": "rank 63 dim S 63 kernel 3 leaked 0",
+   "name": "host SC_DZC <- ['SC_WO', 'SC_DMM']: rank = dim S = sum L - (k+1) = 63, kernel 3, leaked 0, relabelling, f-part",
+   "pass": true
+  },
+  {
+   "detail": "[]",
+   "name": "host SC_DZC's hosted slots all precede it in transcript order",
+   "pass": true
+  },
+  {
+   "detail": "rank 67 dim S 67 kernel 3 leaked 0",
+   "name": "host SC_QZC <- ['SC_QMM', 'SC_PV']: rank = dim S = sum L - (k+1) = 67, kernel 3, leaked 0, relabelling, f-part",
+   "pass": true
+  },
+  {
+   "detail": "[]",
+   "name": "host SC_QZC's hosted slots all precede it in transcript order",
+   "pass": true
+  },
+  {
+   "detail": "rank 59 dim S 59 kernel 3 leaked 0",
+   "name": "host SC_KVZC <- ['SC_KMM', 'SC_VMM']: rank = dim S = sum L - (k+1) = 59, kernel 3, leaked 0, relabelling, f-part",
+   "pass": true
+  },
+  {
+   "detail": "[]",
+   "name": "host SC_KVZC's hosted slots all precede it in transcript order",
+   "pass": true
+  },
+  {
+   "detail": "rank 97 dim S 97 kernel 3 leaked 0",
+   "name": "host SC_SZC <- ['SC_RS', 'SC_SCORE']: rank = dim S = sum L - (k+1) = 97, kernel 3, leaked 0, relabelling, f-part",
+   "pass": true
+  },
+  {
+   "detail": "[]",
+   "name": "host SC_SZC's hosted slots all precede it in transcript order",
+   "pass": true
+  },
+  {
+   "detail": "rank 63 dim S 63 kernel 3 leaked 0",
+   "name": "host SC_FZC <- ['SC_GMM', 'SC_UMM']: rank = dim S = sum L - (k+1) = 63, kernel 3, leaked 0, relabelling, f-part",
+   "pass": true
+  },
+  {
+   "detail": "[]",
+   "name": "host SC_FZC's hosted slots all precede it in transcript order",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "public standalone SC_LZC: rank = dim S, leaked 0, kernel 1",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "public standalone SC_TAB: rank = dim S, leaked 0, kernel 1",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "public standalone SC_ZS: rank = dim S, leaked 0, kernel 1",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "public standalone SC_IO_IN: rank = dim S, leaked 0, kernel 1",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "public standalone SC_IO_OUT: rank = dim S, leaked 0, kernel 1",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "M layout 50 rows = 2 * 23 + 4, every row fits",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "M rows match layout.rs M_ROWS = 50",
+   "pass": true
+  },
+  {
+   "detail": "34",
+   "name": "functionals match layout.rs N_FUNCTIONALS = 34",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "one eval per slot (23), one batched Gamma per host (6), 5 standalone Gamma, every private slot in exactly one batched Gamma, no standalone Sigma for private/host slots",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "R7: one private family vanishes on the mask branch with a public factor extending to 0; two private families with the public factor == 1 do not in one round and do in two",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "negative control nc_hosted_c_zero: refused; forced: leaked = dim S_SC_SS = N d + 1 (the hosted slot's messages and its s are in the clear: claim_s = s_s)",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "negative control nc_host_nu_zero: criterion passes (blind); binding lost; refusal recommended",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "negative control nc_extension_degree_exceeds_mask: leaked 1: exactly the clear top value h_{N-1}(d+1) (FA6 I1; the code asserts degree == mask.degree)",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "negative control nc_qkv_unsplit: ",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "negative control nc_row_budget_exceeded: refused (mask_commit's assert: L_s + 256 <= 512)",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "negative control nc_sigma_functional_for_private_slot: leaked 1: claim_SC_SS - c G_SC_SS = s in the clear; hence the M layout carries no standalone Sigma for private or host slots",
+   "pass": true
+  },
+  {
+   "detail": "",
+   "name": "negative control nc_sigma_functional_for_host_slot: leaked 1: (c_host G_host - Gamma_host) / nu = c G_SC_SS, then claim_SC_SS - c G_SC_SS = s",
+   "pass": true
+  }
+ ],
+ "constants": {
+  "MASK_M": 512,
+  "MASK_Q": 256
+ },
+ "host_groups": {
+  "SC_DZC": {
+   "dim_consistency_subspace": 63,
+   "expected_dim_S_sum_L_minus_k_plus_1": 63,
+   "expected_kernel_k_plus_1": 3,
+   "f_part_round0": {
+    "consistent": true,
+    "host_f_total": {
+     "s_SC_DMM": [
+      9531254691051182832,
+      7829468568235073341
+     ],
+     "s_SC_WO": [
+      15514186226803799361,
+      14100130447382654692
+     ]
+    },
+    "note": "f-part of the host's claimed sum = sum_i nu_i s_i (the host term); Gamma's f-part = 0; claim_i's f-part = s_i",
+    "residuals": {
+     "SC_DMM": {},
+     "SC_DZC": {},
+     "SC_WO": {}
+    }
+   },
+   "host": "SC_DZC",
+   "hosted": [
+    "SC_WO",
+    "SC_DMM"
+   ],
+   "hosted_after_host_in_transcript": [],
+   "hosted_after_host_note": "the linear model is order-free; in the transcript each hosted claim_i (and its c_i) must be absorbed before the host's round-0 challenge",
+   "image_inside_subspace": true,
+   "k": 2,
+   "kernel_dim_fp2": 3,
+   "leaked_dim_fp2": 0,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_DZC": true,
+    "g_SC_DMM(rho)": true,
+    "g_SC_DZC(rho)": true,
+    "g_SC_WO(rho)": true
+   },
+   "n_active_unknowns_fp2": 66,
+   "n_constraints": 20,
+   "n_unknowns_fp2": 66,
+   "n_view_fp2": 83,
+   "pass": true,
+   "rank_constraints": 20,
+   "rank_map": 63,
+   "relabelling": {
+    "gamma_equals_host_sum_minus_sum_nu_claims_exactly": true,
+    "gamma_in_view_span": true,
+    "host_sum_row_in_view_span": true,
+    "masked_scalars_in_view_span": true,
+    "pass": true
+   },
+   "sum_L": 66,
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_FZC": {
+   "dim_consistency_subspace": 63,
+   "expected_dim_S_sum_L_minus_k_plus_1": 63,
+   "expected_kernel_k_plus_1": 3,
+   "f_part_round0": {
+    "consistent": true,
+    "host_f_total": {
+     "s_SC_GMM": [
+      9733194482076871721,
+      8346011630717172761
+     ],
+     "s_SC_UMM": [
+      2006954858824536759,
+      14741439651254386135
+     ]
+    },
+    "note": "f-part of the host's claimed sum = sum_i nu_i s_i (the host term); Gamma's f-part = 0; claim_i's f-part = s_i",
+    "residuals": {
+     "SC_FZC": {},
+     "SC_GMM": {},
+     "SC_UMM": {}
+    }
+   },
+   "host": "SC_FZC",
+   "hosted": [
+    "SC_GMM",
+    "SC_UMM"
+   ],
+   "hosted_after_host_in_transcript": [],
+   "hosted_after_host_note": "the linear model is order-free; in the transcript each hosted claim_i (and its c_i) must be absorbed before the host's round-0 challenge",
+   "image_inside_subspace": true,
+   "k": 2,
+   "kernel_dim_fp2": 3,
+   "leaked_dim_fp2": 0,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_FZC": true,
+    "g_SC_FZC(rho)": true,
+    "g_SC_GMM(rho)": true,
+    "g_SC_UMM(rho)": true
+   },
+   "n_active_unknowns_fp2": 66,
+   "n_constraints": 20,
+   "n_unknowns_fp2": 66,
+   "n_view_fp2": 83,
+   "pass": true,
+   "rank_constraints": 20,
+   "rank_map": 63,
+   "relabelling": {
+    "gamma_equals_host_sum_minus_sum_nu_claims_exactly": true,
+    "gamma_in_view_span": true,
+    "host_sum_row_in_view_span": true,
+    "masked_scalars_in_view_span": true,
+    "pass": true
+   },
+   "sum_L": 66,
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_KVZC": {
+   "dim_consistency_subspace": 59,
+   "expected_dim_S_sum_L_minus_k_plus_1": 59,
+   "expected_kernel_k_plus_1": 3,
+   "f_part_round0": {
+    "consistent": true,
+    "host_f_total": {
+     "s_SC_KMM": [
+      2521870855459557378,
+      12515953698478964462
+     ],
+     "s_SC_VMM": [
+      15805324089174820627,
+      6709924736746720227
+     ]
+    },
+    "note": "f-part of the host's claimed sum = sum_i nu_i s_i (the host term); Gamma's f-part = 0; claim_i's f-part = s_i",
+    "residuals": {
+     "SC_KMM": {},
+     "SC_KVZC": {},
+     "SC_VMM": {}
+    }
+   },
+   "host": "SC_KVZC",
+   "hosted": [
+    "SC_KMM",
+    "SC_VMM"
+   ],
+   "hosted_after_host_in_transcript": [],
+   "hosted_after_host_note": "the linear model is order-free; in the transcript each hosted claim_i (and its c_i) must be absorbed before the host's round-0 challenge",
+   "image_inside_subspace": true,
+   "k": 2,
+   "kernel_dim_fp2": 3,
+   "leaked_dim_fp2": 0,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_KVZC": true,
+    "g_SC_KMM(rho)": true,
+    "g_SC_KVZC(rho)": true,
+    "g_SC_VMM(rho)": true
+   },
+   "n_active_unknowns_fp2": 62,
+   "n_constraints": 19,
+   "n_unknowns_fp2": 62,
+   "n_view_fp2": 78,
+   "pass": true,
+   "rank_constraints": 19,
+   "rank_map": 59,
+   "relabelling": {
+    "gamma_equals_host_sum_minus_sum_nu_claims_exactly": true,
+    "gamma_in_view_span": true,
+    "host_sum_row_in_view_span": true,
+    "masked_scalars_in_view_span": true,
+    "pass": true
+   },
+   "sum_L": 62,
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_QZC": {
+   "dim_consistency_subspace": 67,
+   "expected_dim_S_sum_L_minus_k_plus_1": 67,
+   "expected_kernel_k_plus_1": 3,
+   "f_part_round0": {
+    "consistent": true,
+    "host_f_total": {
+     "s_SC_PV": [
+      6337528562326517445,
+      5862712716530026497
+     ],
+     "s_SC_QMM": [
+      8684169472624556250,
+      12231138783825438572
+     ]
+    },
+    "note": "f-part of the host's claimed sum = sum_i nu_i s_i (the host term); Gamma's f-part = 0; claim_i's f-part = s_i",
+    "residuals": {
+     "SC_PV": {},
+     "SC_QMM": {},
+     "SC_QZC": {}
+    }
+   },
+   "host": "SC_QZC",
+   "hosted": [
+    "SC_QMM",
+    "SC_PV"
+   ],
+   "hosted_after_host_in_transcript": [],
+   "hosted_after_host_note": "the linear model is order-free; in the transcript each hosted claim_i (and its c_i) must be absorbed before the host's round-0 challenge",
+   "image_inside_subspace": true,
+   "k": 2,
+   "kernel_dim_fp2": 3,
+   "leaked_dim_fp2": 0,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_QZC": true,
+    "g_SC_PV(rho)": true,
+    "g_SC_QMM(rho)": true,
+    "g_SC_QZC(rho)": true
+   },
+   "n_active_unknowns_fp2": 70,
+   "n_constraints": 22,
+   "n_unknowns_fp2": 70,
+   "n_view_fp2": 89,
+   "pass": true,
+   "rank_constraints": 22,
+   "rank_map": 67,
+   "relabelling": {
+    "gamma_equals_host_sum_minus_sum_nu_claims_exactly": true,
+    "gamma_in_view_span": true,
+    "host_sum_row_in_view_span": true,
+    "masked_scalars_in_view_span": true,
+    "pass": true
+   },
+   "sum_L": 70,
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_SZC": {
+   "dim_consistency_subspace": 97,
+   "expected_dim_S_sum_L_minus_k_plus_1": 97,
+   "expected_kernel_k_plus_1": 3,
+   "f_part_round0": {
+    "consistent": true,
+    "host_f_total": {
+     "s_SC_RS": [
+      518128747417359841,
+      9283570638481488562
+     ],
+     "s_SC_SCORE": [
+      16031846957999377747,
+      1661200105564481636
+     ]
+    },
+    "note": "f-part of the host's claimed sum = sum_i nu_i s_i (the host term); Gamma's f-part = 0; claim_i's f-part = s_i",
+    "residuals": {
+     "SC_RS": {},
+     "SC_SCORE": {},
+     "SC_SZC": {}
+    }
+   },
+   "host": "SC_SZC",
+   "hosted": [
+    "SC_RS",
+    "SC_SCORE"
+   ],
+   "hosted_after_host_in_transcript": [],
+   "hosted_after_host_note": "the linear model is order-free; in the transcript each hosted claim_i (and its c_i) must be absorbed before the host's round-0 challenge",
+   "image_inside_subspace": true,
+   "k": 2,
+   "kernel_dim_fp2": 3,
+   "leaked_dim_fp2": 0,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_SZC": true,
+    "g_SC_RS(rho)": true,
+    "g_SC_SCORE(rho)": true,
+    "g_SC_SZC(rho)": true
+   },
+   "n_active_unknowns_fp2": 100,
+   "n_constraints": 29,
+   "n_unknowns_fp2": 100,
+   "n_view_fp2": 126,
+   "pass": true,
+   "rank_constraints": 29,
+   "rank_map": 97,
+   "relabelling": {
+    "gamma_equals_host_sum_minus_sum_nu_claims_exactly": true,
+    "gamma_in_view_span": true,
+    "host_sum_row_in_view_span": true,
+    "masked_scalars_in_view_span": true,
+    "pass": true
+   },
+   "sum_L": 100,
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_TZC": {
+   "dim_consistency_subspace": 81,
+   "expected_dim_S_sum_L_minus_k_plus_1": 81,
+   "expected_kernel_k_plus_1": 3,
+   "f_part_round0": {
+    "consistent": true,
+    "host_f_total": {
+     "s_SC_SS": [
+      15443159072391363372,
+      1349030457492376213
+     ],
+     "s_SC_SSM": [
+      4843583630931802839,
+      5561606227151076831
+     ]
+    },
+    "note": "f-part of the host's claimed sum = sum_i nu_i s_i (the host term); Gamma's f-part = 0; claim_i's f-part = s_i",
+    "residuals": {
+     "SC_SS": {},
+     "SC_SSM": {},
+     "SC_TZC": {}
+    }
+   },
+   "host": "SC_TZC",
+   "hosted": [
+    "SC_SS",
+    "SC_SSM"
+   ],
+   "hosted_after_host_in_transcript": [],
+   "hosted_after_host_note": "the linear model is order-free; in the transcript each hosted claim_i (and its c_i) must be absorbed before the host's round-0 challenge",
+   "image_inside_subspace": true,
+   "k": 2,
+   "kernel_dim_fp2": 3,
+   "leaked_dim_fp2": 0,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_TZC": true,
+    "g_SC_SS(rho)": true,
+    "g_SC_SSM(rho)": true,
+    "g_SC_TZC(rho)": true
+   },
+   "n_active_unknowns_fp2": 84,
+   "n_constraints": 26,
+   "n_unknowns_fp2": 84,
+   "n_view_fp2": 107,
+   "pass": true,
+   "rank_constraints": 26,
+   "rank_map": 81,
+   "relabelling": {
+    "gamma_equals_host_sum_minus_sum_nu_claims_exactly": true,
+    "gamma_in_view_span": true,
+    "host_sum_row_in_view_span": true,
+    "masked_scalars_in_view_span": true,
+    "pass": true
+   },
+   "sum_L": 84,
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  }
+ },
+ "largest_slot": {
+  "constraint": "L_s + 256 <= 512 (zk.rs mask_commit)",
+  "degree": 4,
+  "headroom_coefficients": 206,
+  "len": 50,
+  "n_vars": 12,
+  "name": "06 softmax zero-check (hosts 07, 10)",
+  "slot": "SC_SZC"
+ },
+ "m_layout": {
+  "convention": "scripts/zk60_joint_cfs_view.py FUNCTIONAL_ASSIGNMENT kinds eval / gamma / gamma_pair (here gamma_batched for k >= 1)",
+  "every_row_fits": true,
+  "functional_order_rule": "for each slot in transcript order: its Sigma-type functional (Gamma_s = c_s Sigma_s, public-zero standalone slots only) then eval(rho_s); then for each host in transcript order the batched Gamma_host = c_host Sigma_host - sum_i nu_i c_i Sigma_i (the round-2 tool's gamma_pair convention, k-ary)",
+  "largest": {
+   "constraint": "L_s + 256 <= 512 (zk.rs mask_commit)",
+   "degree": 4,
+   "headroom_coefficients": 206,
+   "len": 50,
+   "n_vars": 12,
+   "name": "06 softmax zero-check (hosts 07, 10)",
+   "slot": "SC_SZC"
+  },
+  "mask_functionals": [
+   {
+    "index": 0,
+    "kind": "eval",
+    "slots": [
+     "SC_SS"
+    ],
+    "value": "g_SC_SS(rho_SC_SS), derived by the verifier as div(fin - want(SC_SS_term), c_SC_SS)",
+    "weights": "eval_weights(rho_SC_SS, 3)"
+   },
+   {
+    "index": 1,
+    "kind": "eval",
+    "slots": [
+     "SC_SSM"
+    ],
+    "value": "g_SC_SSM(rho_SC_SSM), derived by the verifier as div(fin - want(SC_SSM_term), c_SC_SSM)",
+    "weights": "eval_weights(rho_SC_SSM, 3)"
+   },
+   {
+    "index": 2,
+    "kind": "eval",
+    "slots": [
+     "SC_TZC"
+    ],
+    "value": "g_SC_TZC(rho_SC_TZC), derived by the verifier as div(fin - want(SC_TZC_term), c_SC_TZC)",
+    "weights": "eval_weights(rho_SC_TZC, 3)"
+   },
+   {
+    "index": 3,
+    "kind": "gamma",
+    "slots": [
+     "SC_LZC"
+    ],
+    "value": "Gamma_SC_LZC (sent); the claimed sum is 0 + Gamma_SC_LZC",
+    "weights": "c_SC_LZC sum_weights(10, 4)"
+   },
+   {
+    "index": 4,
+    "kind": "eval",
+    "slots": [
+     "SC_LZC"
+    ],
+    "value": "g_SC_LZC(rho_SC_LZC), derived by the verifier as div(fin - want(SC_LZC_term), c_SC_LZC)",
+    "weights": "eval_weights(rho_SC_LZC, 4)"
+   },
+   {
+    "index": 5,
+    "kind": "eval",
+    "slots": [
+     "SC_RS"
+    ],
+    "value": "g_SC_RS(rho_SC_RS), derived by the verifier as div(fin - want(SC_RS_term), c_SC_RS)",
+    "weights": "eval_weights(rho_SC_RS, 3)"
+   },
+   {
+    "index": 6,
+    "kind": "eval",
+    "slots": [
+     "SC_QMM"
+    ],
+    "value": "g_SC_QMM(rho_SC_QMM), derived by the verifier as div(fin - want(SC_QMM_term), c_SC_QMM)",
+    "weights": "eval_weights(rho_SC_QMM, 2)"
+   },
+   {
+    "index": 7,
+    "kind": "eval",
+    "slots": [
+     "SC_KMM"
+    ],
+    "value": "g_SC_KMM(rho_SC_KMM), derived by the verifier as div(fin - want(SC_KMM_term), c_SC_KMM)",
+    "weights": "eval_weights(rho_SC_KMM, 2)"
+   },
+   {
+    "index": 8,
+    "kind": "eval",
+    "slots": [
+     "SC_VMM"
+    ],
+    "value": "g_SC_VMM(rho_SC_VMM), derived by the verifier as div(fin - want(SC_VMM_term), c_SC_VMM)",
+    "weights": "eval_weights(rho_SC_VMM, 2)"
+   },
+   {
+    "index": 9,
+    "kind": "eval",
+    "slots": [
+     "SC_SCORE"
+    ],
+    "value": "g_SC_SCORE(rho_SC_SCORE), derived by the verifier as div(fin - want(SC_SCORE_term), c_SC_SCORE)",
+    "weights": "eval_weights(rho_SC_SCORE, 2)"
+   },
+   {
+    "index": 10,
+    "kind": "eval",
+    "slots": [
+     "SC_PV"
+    ],
+    "value": "g_SC_PV(rho_SC_PV), derived by the verifier as div(fin - want(SC_PV_term), c_SC_PV)",
+    "weights": "eval_weights(rho_SC_PV, 2)"
+   },
+   {
+    "index": 11,
+    "kind": "eval",
+    "slots": [
+     "SC_WO"
+    ],
+    "value": "g_SC_WO(rho_SC_WO), derived by the verifier as div(fin - want(SC_WO_term), c_SC_WO)",
+    "weights": "eval_weights(rho_SC_WO, 2)"
+   },
+   {
+    "index": 12,
+    "kind": "eval",
+    "slots": [
+     "SC_GMM"
+    ],
+    "value": "g_SC_GMM(rho_SC_GMM), derived by the verifier as div(fin - want(SC_GMM_term), c_SC_GMM)",
+    "weights": "eval_weights(rho_SC_GMM, 2)"
+   },
+   {
+    "index": 13,
+    "kind": "eval",
+    "slots": [
+     "SC_UMM"
+    ],
+    "value": "g_SC_UMM(rho_SC_UMM), derived by the verifier as div(fin - want(SC_UMM_term), c_SC_UMM)",
+    "weights": "eval_weights(rho_SC_UMM, 2)"
+   },
+   {
+    "index": 14,
+    "kind": "eval",
+    "slots": [
+     "SC_DMM"
+    ],
+    "value": "g_SC_DMM(rho_SC_DMM), derived by the verifier as div(fin - want(SC_DMM_term), c_SC_DMM)",
+    "weights": "eval_weights(rho_SC_DMM, 2)"
+   },
+   {
+    "index": 15,
+    "kind": "eval",
+    "slots": [
+     "SC_DZC"
+    ],
+    "value": "g_SC_DZC(rho_SC_DZC), derived by the verifier as div(fin - want(SC_DZC_term), c_SC_DZC)",
+    "weights": "eval_weights(rho_SC_DZC, 4)"
+   },
+   {
+    "index": 16,
+    "kind": "eval",
+    "slots": [
+     "SC_QZC"
+    ],
+    "value": "g_SC_QZC(rho_SC_QZC), derived by the verifier as div(fin - want(SC_QZC_term), c_SC_QZC)",
+    "weights": "eval_weights(rho_SC_QZC, 4)"
+   },
+   {
+    "index": 17,
+    "kind": "eval",
+    "slots": [
+     "SC_KVZC"
+    ],
+    "value": "g_SC_KVZC(rho_SC_KVZC), derived by the verifier as div(fin - want(SC_KVZC_term), c_SC_KVZC)",
+    "weights": "eval_weights(rho_SC_KVZC, 4)"
+   },
+   {
+    "index": 18,
+    "kind": "eval",
+    "slots": [
+     "SC_SZC"
+    ],
+    "value": "g_SC_SZC(rho_SC_SZC), derived by the verifier as div(fin - want(SC_SZC_term), c_SC_SZC)",
+    "weights": "eval_weights(rho_SC_SZC, 4)"
+   },
+   {
+    "index": 19,
+    "kind": "eval",
+    "slots": [
+     "SC_FZC"
+    ],
+    "value": "g_SC_FZC(rho_SC_FZC), derived by the verifier as div(fin - want(SC_FZC_term), c_SC_FZC)",
+    "weights": "eval_weights(rho_SC_FZC, 4)"
+   },
+   {
+    "index": 20,
+    "kind": "gamma",
+    "slots": [
+     "SC_TAB"
+    ],
+    "value": "Gamma_SC_TAB (sent); the claimed sum is 0 + Gamma_SC_TAB",
+    "weights": "c_SC_TAB sum_weights(9, 3)"
+   },
+   {
+    "index": 21,
+    "kind": "eval",
+    "slots": [
+     "SC_TAB"
+    ],
+    "value": "g_SC_TAB(rho_SC_TAB), derived by the verifier as div(fin - want(SC_TAB_term), c_SC_TAB)",
+    "weights": "eval_weights(rho_SC_TAB, 3)"
+   },
+   {
+    "index": 22,
+    "kind": "gamma",
+    "slots": [
+     "SC_ZS"
+    ],
+    "value": "Gamma_SC_ZS (sent); the claimed sum is 0 + Gamma_SC_ZS",
+    "weights": "c_SC_ZS sum_weights(9, 2)"
+   },
+   {
+    "index": 23,
+    "kind": "eval",
+    "slots": [
+     "SC_ZS"
+    ],
+    "value": "g_SC_ZS(rho_SC_ZS), derived by the verifier as div(fin - want(SC_ZS_term), c_SC_ZS)",
+    "weights": "eval_weights(rho_SC_ZS, 2)"
+   },
+   {
+    "index": 24,
+    "kind": "gamma",
+    "slots": [
+     "SC_IO_IN"
+    ],
+    "value": "Gamma_SC_IO_IN (sent); the claimed sum is 0 + Gamma_SC_IO_IN",
+    "weights": "c_SC_IO_IN sum_weights(10, 2)"
+   },
+   {
+    "index": 25,
+    "kind": "eval",
+    "slots": [
+     "SC_IO_IN"
+    ],
+    "value": "g_SC_IO_IN(rho_SC_IO_IN), derived by the verifier as div(fin - want(SC_IO_IN_term), c_SC_IO_IN)",
+    "weights": "eval_weights(rho_SC_IO_IN, 2)"
+   },
+   {
+    "index": 26,
+    "kind": "gamma",
+    "slots": [
+     "SC_IO_OUT"
+    ],
+    "value": "Gamma_SC_IO_OUT (sent); the claimed sum is 0 + Gamma_SC_IO_OUT",
+    "weights": "c_SC_IO_OUT sum_weights(10, 2)"
+   },
+   {
+    "index": 27,
+    "kind": "eval",
+    "slots": [
+     "SC_IO_OUT"
+    ],
+    "value": "g_SC_IO_OUT(rho_SC_IO_OUT), derived by the verifier as div(fin - want(SC_IO_OUT_term), c_SC_IO_OUT)",
+    "weights": "eval_weights(rho_SC_IO_OUT, 2)"
+   },
+   {
+    "index": 28,
+    "kind": "gamma_batched",
+    "slots": [
+     "SC_TZC",
+     "SC_SS",
+     "SC_SSM"
+    ],
+    "value": "Gamma_SC_TZC (sent); the SC_TZC claimed sum is nu_SC_SS claim_SC_SS + nu_SC_SSM claim_SC_SSM + Gamma_SC_TZC",
+    "weights": "c_SC_TZC sum_weights(6, 3) on SC_TZC; -nu_SC_SS c_SC_SS sum_weights(10, 3) on SC_SS; -nu_SC_SSM c_SC_SSM sum_weights(10, 3) on SC_SSM"
+   },
+   {
+    "index": 29,
+    "kind": "gamma_batched",
+    "slots": [
+     "SC_DZC",
+     "SC_WO",
+     "SC_DMM"
+    ],
+    "value": "Gamma_SC_DZC (sent); the SC_DZC claimed sum is nu_SC_WO claim_SC_WO + nu_SC_DMM claim_SC_DMM + Gamma_SC_DZC",
+    "weights": "c_SC_DZC sum_weights(10, 4) on SC_DZC; -nu_SC_WO c_SC_WO sum_weights(5, 2) on SC_WO; -nu_SC_DMM c_SC_DMM sum_weights(5, 2) on SC_DMM"
+   },
+   {
+    "index": 30,
+    "kind": "gamma_batched",
+    "slots": [
+     "SC_QZC",
+     "SC_QMM",
+     "SC_PV"
+    ],
+    "value": "Gamma_SC_QZC (sent); the SC_QZC claimed sum is nu_SC_QMM claim_SC_QMM + nu_SC_PV claim_SC_PV + Gamma_SC_QZC",
+    "weights": "c_SC_QZC sum_weights(10, 4) on SC_QZC; -nu_SC_QMM c_SC_QMM sum_weights(5, 2) on SC_QMM; -nu_SC_PV c_SC_PV sum_weights(7, 2) on SC_PV"
+   },
+   {
+    "index": 31,
+    "kind": "gamma_batched",
+    "slots": [
+     "SC_KVZC",
+     "SC_KMM",
+     "SC_VMM"
+    ],
+    "value": "Gamma_SC_KVZC (sent); the SC_KVZC claimed sum is nu_SC_KMM claim_SC_KMM + nu_SC_VMM claim_SC_VMM + Gamma_SC_KVZC",
+    "weights": "c_SC_KVZC sum_weights(9, 4) on SC_KVZC; -nu_SC_KMM c_SC_KMM sum_weights(5, 2) on SC_KMM; -nu_SC_VMM c_SC_VMM sum_weights(5, 2) on SC_VMM"
+   },
+   {
+    "index": 32,
+    "kind": "gamma_batched",
+    "slots": [
+     "SC_SZC",
+     "SC_RS",
+     "SC_SCORE"
+    ],
+    "value": "Gamma_SC_SZC (sent); the SC_SZC claimed sum is nu_SC_RS claim_SC_RS + nu_SC_SCORE claim_SC_SCORE + Gamma_SC_SZC",
+    "weights": "c_SC_SZC sum_weights(12, 4) on SC_SZC; -nu_SC_RS c_SC_RS sum_weights(12, 3) on SC_RS; -nu_SC_SCORE c_SC_SCORE sum_weights(5, 2) on SC_SCORE"
+   },
+   {
+    "index": 33,
+    "kind": "gamma_batched",
+    "slots": [
+     "SC_FZC",
+     "SC_GMM",
+     "SC_UMM"
+    ],
+    "value": "Gamma_SC_FZC (sent); the SC_FZC claimed sum is nu_SC_GMM claim_SC_GMM + nu_SC_UMM claim_SC_UMM + Gamma_SC_FZC",
+    "weights": "c_SC_FZC sum_weights(10, 4) on SC_FZC; -nu_SC_GMM c_SC_GMM sum_weights(5, 2) on SC_GMM; -nu_SC_UMM c_SC_UMM sum_weights(5, 2) on SC_UMM"
+   }
+  ],
+  "message_positions": 512,
+  "n_functionals": 34,
+  "n_rows": 50,
+  "n_slots": 23,
+  "opened_once_at_one_theta": true,
+  "pads_per_row": 256,
+  "rows": [
+   {
+    "coefficients": 32,
+    "layout": "[32 coefficients | 256 pads | 224 zeros] on G_512",
+    "name": "a_SC_SS,re",
+    "pads": 256,
+    "row": 0,
+    "slot": "SC_SS",
+    "zeros": 224
+   },
+   {
+    "coefficients": 32,
+    "layout": "[32 coefficients | 256 pads | 224 zeros] on G_512",
+    "name": "a_SC_SS,im",
+    "pads": 256,
+    "row": 1,
+    "slot": "SC_SS",
+    "zeros": 224
+   },
+   {
+    "coefficients": 32,
+    "layout": "[32 coefficients | 256 pads | 224 zeros] on G_512",
+    "name": "a_SC_SSM,re",
+    "pads": 256,
+    "row": 2,
+    "slot": "SC_SSM",
+    "zeros": 224
+   },
+   {
+    "coefficients": 32,
+    "layout": "[32 coefficients | 256 pads | 224 zeros] on G_512",
+    "name": "a_SC_SSM,im",
+    "pads": 256,
+    "row": 3,
+    "slot": "SC_SSM",
+    "zeros": 224
+   },
+   {
+    "coefficients": 20,
+    "layout": "[20 coefficients | 256 pads | 236 zeros] on G_512",
+    "name": "a_SC_TZC,re",
+    "pads": 256,
+    "row": 4,
+    "slot": "SC_TZC",
+    "zeros": 236
+   },
+   {
+    "coefficients": 20,
+    "layout": "[20 coefficients | 256 pads | 236 zeros] on G_512",
+    "name": "a_SC_TZC,im",
+    "pads": 256,
+    "row": 5,
+    "slot": "SC_TZC",
+    "zeros": 236
+   },
+   {
+    "coefficients": 42,
+    "layout": "[42 coefficients | 256 pads | 214 zeros] on G_512",
+    "name": "a_SC_LZC,re",
+    "pads": 256,
+    "row": 6,
+    "slot": "SC_LZC",
+    "zeros": 214
+   },
+   {
+    "coefficients": 42,
+    "layout": "[42 coefficients | 256 pads | 214 zeros] on G_512",
+    "name": "a_SC_LZC,im",
+    "pads": 256,
+    "row": 7,
+    "slot": "SC_LZC",
+    "zeros": 214
+   },
+   {
+    "coefficients": 38,
+    "layout": "[38 coefficients | 256 pads | 218 zeros] on G_512",
+    "name": "a_SC_RS,re",
+    "pads": 256,
+    "row": 8,
+    "slot": "SC_RS",
+    "zeros": 218
+   },
+   {
+    "coefficients": 38,
+    "layout": "[38 coefficients | 256 pads | 218 zeros] on G_512",
+    "name": "a_SC_RS,im",
+    "pads": 256,
+    "row": 9,
+    "slot": "SC_RS",
+    "zeros": 218
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_QMM,re",
+    "pads": 256,
+    "row": 10,
+    "slot": "SC_QMM",
+    "zeros": 244
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_QMM,im",
+    "pads": 256,
+    "row": 11,
+    "slot": "SC_QMM",
+    "zeros": 244
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_KMM,re",
+    "pads": 256,
+    "row": 12,
+    "slot": "SC_KMM",
+    "zeros": 244
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_KMM,im",
+    "pads": 256,
+    "row": 13,
+    "slot": "SC_KMM",
+    "zeros": 244
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_VMM,re",
+    "pads": 256,
+    "row": 14,
+    "slot": "SC_VMM",
+    "zeros": 244
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_VMM,im",
+    "pads": 256,
+    "row": 15,
+    "slot": "SC_VMM",
+    "zeros": 244
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_SCORE,re",
+    "pads": 256,
+    "row": 16,
+    "slot": "SC_SCORE",
+    "zeros": 244
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_SCORE,im",
+    "pads": 256,
+    "row": 17,
+    "slot": "SC_SCORE",
+    "zeros": 244
+   },
+   {
+    "coefficients": 16,
+    "layout": "[16 coefficients | 256 pads | 240 zeros] on G_512",
+    "name": "a_SC_PV,re",
+    "pads": 256,
+    "row": 18,
+    "slot": "SC_PV",
+    "zeros": 240
+   },
+   {
+    "coefficients": 16,
+    "layout": "[16 coefficients | 256 pads | 240 zeros] on G_512",
+    "name": "a_SC_PV,im",
+    "pads": 256,
+    "row": 19,
+    "slot": "SC_PV",
+    "zeros": 240
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_WO,re",
+    "pads": 256,
+    "row": 20,
+    "slot": "SC_WO",
+    "zeros": 244
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_WO,im",
+    "pads": 256,
+    "row": 21,
+    "slot": "SC_WO",
+    "zeros": 244
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_GMM,re",
+    "pads": 256,
+    "row": 22,
+    "slot": "SC_GMM",
+    "zeros": 244
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_GMM,im",
+    "pads": 256,
+    "row": 23,
+    "slot": "SC_GMM",
+    "zeros": 244
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_UMM,re",
+    "pads": 256,
+    "row": 24,
+    "slot": "SC_UMM",
+    "zeros": 244
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_UMM,im",
+    "pads": 256,
+    "row": 25,
+    "slot": "SC_UMM",
+    "zeros": 244
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_DMM,re",
+    "pads": 256,
+    "row": 26,
+    "slot": "SC_DMM",
+    "zeros": 244
+   },
+   {
+    "coefficients": 12,
+    "layout": "[12 coefficients | 256 pads | 244 zeros] on G_512",
+    "name": "a_SC_DMM,im",
+    "pads": 256,
+    "row": 27,
+    "slot": "SC_DMM",
+    "zeros": 244
+   },
+   {
+    "coefficients": 42,
+    "layout": "[42 coefficients | 256 pads | 214 zeros] on G_512",
+    "name": "a_SC_DZC,re",
+    "pads": 256,
+    "row": 28,
+    "slot": "SC_DZC",
+    "zeros": 214
+   },
+   {
+    "coefficients": 42,
+    "layout": "[42 coefficients | 256 pads | 214 zeros] on G_512",
+    "name": "a_SC_DZC,im",
+    "pads": 256,
+    "row": 29,
+    "slot": "SC_DZC",
+    "zeros": 214
+   },
+   {
+    "coefficients": 42,
+    "layout": "[42 coefficients | 256 pads | 214 zeros] on G_512",
+    "name": "a_SC_QZC,re",
+    "pads": 256,
+    "row": 30,
+    "slot": "SC_QZC",
+    "zeros": 214
+   },
+   {
+    "coefficients": 42,
+    "layout": "[42 coefficients | 256 pads | 214 zeros] on G_512",
+    "name": "a_SC_QZC,im",
+    "pads": 256,
+    "row": 31,
+    "slot": "SC_QZC",
+    "zeros": 214
+   },
+   {
+    "coefficients": 38,
+    "layout": "[38 coefficients | 256 pads | 218 zeros] on G_512",
+    "name": "a_SC_KVZC,re",
+    "pads": 256,
+    "row": 32,
+    "slot": "SC_KVZC",
+    "zeros": 218
+   },
+   {
+    "coefficients": 38,
+    "layout": "[38 coefficients | 256 pads | 218 zeros] on G_512",
+    "name": "a_SC_KVZC,im",
+    "pads": 256,
+    "row": 33,
+    "slot": "SC_KVZC",
+    "zeros": 218
+   },
+   {
+    "coefficients": 50,
+    "layout": "[50 coefficients | 256 pads | 206 zeros] on G_512",
+    "name": "a_SC_SZC,re",
+    "pads": 256,
+    "row": 34,
+    "slot": "SC_SZC",
+    "zeros": 206
+   },
+   {
+    "coefficients": 50,
+    "layout": "[50 coefficients | 256 pads | 206 zeros] on G_512",
+    "name": "a_SC_SZC,im",
+    "pads": 256,
+    "row": 35,
+    "slot": "SC_SZC",
+    "zeros": 206
+   },
+   {
+    "coefficients": 42,
+    "layout": "[42 coefficients | 256 pads | 214 zeros] on G_512",
+    "name": "a_SC_FZC,re",
+    "pads": 256,
+    "row": 36,
+    "slot": "SC_FZC",
+    "zeros": 214
+   },
+   {
+    "coefficients": 42,
+    "layout": "[42 coefficients | 256 pads | 214 zeros] on G_512",
+    "name": "a_SC_FZC,im",
+    "pads": 256,
+    "row": 37,
+    "slot": "SC_FZC",
+    "zeros": 214
+   },
+   {
+    "coefficients": 29,
+    "layout": "[29 coefficients | 256 pads | 227 zeros] on G_512",
+    "name": "a_SC_TAB,re",
+    "pads": 256,
+    "row": 38,
+    "slot": "SC_TAB",
+    "zeros": 227
+   },
+   {
+    "coefficients": 29,
+    "layout": "[29 coefficients | 256 pads | 227 zeros] on G_512",
+    "name": "a_SC_TAB,im",
+    "pads": 256,
+    "row": 39,
+    "slot": "SC_TAB",
+    "zeros": 227
+   },
+   {
+    "coefficients": 20,
+    "layout": "[20 coefficients | 256 pads | 236 zeros] on G_512",
+    "name": "a_SC_ZS,re",
+    "pads": 256,
+    "row": 40,
+    "slot": "SC_ZS",
+    "zeros": 236
+   },
+   {
+    "coefficients": 20,
+    "layout": "[20 coefficients | 256 pads | 236 zeros] on G_512",
+    "name": "a_SC_ZS,im",
+    "pads": 256,
+    "row": 41,
+    "slot": "SC_ZS",
+    "zeros": 236
+   },
+   {
+    "coefficients": 22,
+    "layout": "[22 coefficients | 256 pads | 234 zeros] on G_512",
+    "name": "a_SC_IO_IN,re",
+    "pads": 256,
+    "row": 42,
+    "slot": "SC_IO_IN",
+    "zeros": 234
+   },
+   {
+    "coefficients": 22,
+    "layout": "[22 coefficients | 256 pads | 234 zeros] on G_512",
+    "name": "a_SC_IO_IN,im",
+    "pads": 256,
+    "row": 43,
+    "slot": "SC_IO_IN",
+    "zeros": 234
+   },
+   {
+    "coefficients": 22,
+    "layout": "[22 coefficients | 256 pads | 234 zeros] on G_512",
+    "name": "a_SC_IO_OUT,re",
+    "pads": 256,
+    "row": 44,
+    "slot": "SC_IO_OUT",
+    "zeros": 234
+   },
+   {
+    "coefficients": 22,
+    "layout": "[22 coefficients | 256 pads | 234 zeros] on G_512",
+    "name": "a_SC_IO_OUT,im",
+    "pads": 256,
+    "row": 45,
+    "slot": "SC_IO_OUT",
+    "zeros": 234
+   },
+   {
+    "coefficients": 1024,
+    "layout": "1024 coefficients, b[512] = -b[0] (the q' blinding hyperplane)",
+    "name": "b_re",
+    "row": 46,
+    "slot": null
+   },
+   {
+    "coefficients": 1024,
+    "layout": "1024 coefficients, b[512] = -b[0]",
+    "name": "b_im",
+    "row": 47,
+    "slot": null
+   },
+   {
+    "coefficients": 1024,
+    "layout": "1024 coefficients (the prox one-time pad)",
+    "name": "u_re",
+    "row": 48,
+    "slot": null
+   },
+   {
+    "coefficients": 1024,
+    "layout": "1024 coefficients",
+    "name": "u_im",
+    "row": 49,
+    "slot": null
+   }
+  ],
+  "rows_formula": "2 * 23 + 4 (b_re, b_im, u_re, u_im)",
+  "sigma_carried_by_host_gamma": {
+   "SC_DMM": "private: c_SC_DMM Sigma_SC_DMM enters only through Gamma_SC_DZC; the verifier holds claim_SC_DMM = s + c_SC_DMM G_SC_DMM, never G_SC_DMM",
+   "SC_DZC": "host: c_SC_DZC Sigma_SC_DZC enters only through its batched Gamma_SC_DZC (below); a standalone Sigma would let the verifier derive c_i G_i = (c_SC_DZC G_SC_DZC - Gamma_SC_DZC) / nu_i and hence s_i from claim_i",
+   "SC_FZC": "host: c_SC_FZC Sigma_SC_FZC enters only through its batched Gamma_SC_FZC (below); a standalone Sigma would let the verifier derive c_i G_i = (c_SC_FZC G_SC_FZC - Gamma_SC_FZC) / nu_i and hence s_i from claim_i",
+   "SC_GMM": "private: c_SC_GMM Sigma_SC_GMM enters only through Gamma_SC_FZC; the verifier holds claim_SC_GMM = s + c_SC_GMM G_SC_GMM, never G_SC_GMM",
+   "SC_KMM": "private: c_SC_KMM Sigma_SC_KMM enters only through Gamma_SC_KVZC; the verifier holds claim_SC_KMM = s + c_SC_KMM G_SC_KMM, never G_SC_KMM",
+   "SC_KVZC": "host: c_SC_KVZC Sigma_SC_KVZC enters only through its batched Gamma_SC_KVZC (below); a standalone Sigma would let the verifier derive c_i G_i = (c_SC_KVZC G_SC_KVZC - Gamma_SC_KVZC) / nu_i and hence s_i from claim_i",
+   "SC_PV": "private: c_SC_PV Sigma_SC_PV enters only through Gamma_SC_QZC; the verifier holds claim_SC_PV = s + c_SC_PV G_SC_PV, never G_SC_PV",
+   "SC_QMM": "private: c_SC_QMM Sigma_SC_QMM enters only through Gamma_SC_QZC; the verifier holds claim_SC_QMM = s + c_SC_QMM G_SC_QMM, never G_SC_QMM",
+   "SC_QZC": "host: c_SC_QZC Sigma_SC_QZC enters only through its batched Gamma_SC_QZC (below); a standalone Sigma would let the verifier derive c_i G_i = (c_SC_QZC G_SC_QZC - Gamma_SC_QZC) / nu_i and hence s_i from claim_i",
+   "SC_RS": "private: c_SC_RS Sigma_SC_RS enters only through Gamma_SC_SZC; the verifier holds claim_SC_RS = s + c_SC_RS G_SC_RS, never G_SC_RS",
+   "SC_SCORE": "private: c_SC_SCORE Sigma_SC_SCORE enters only through Gamma_SC_SZC; the verifier holds claim_SC_SCORE = s + c_SC_SCORE G_SC_SCORE, never G_SC_SCORE",
+   "SC_SS": "private: c_SC_SS Sigma_SC_SS enters only through Gamma_SC_TZC; the verifier holds claim_SC_SS = s + c_SC_SS G_SC_SS, never G_SC_SS",
+   "SC_SSM": "private: c_SC_SSM Sigma_SC_SSM enters only through Gamma_SC_TZC; the verifier holds claim_SC_SSM = s + c_SC_SSM G_SC_SSM, never G_SC_SSM",
+   "SC_SZC": "host: c_SC_SZC Sigma_SC_SZC enters only through its batched Gamma_SC_SZC (below); a standalone Sigma would let the verifier derive c_i G_i = (c_SC_SZC G_SC_SZC - Gamma_SC_SZC) / nu_i and hence s_i from claim_i",
+   "SC_TZC": "host: c_SC_TZC Sigma_SC_TZC enters only through its batched Gamma_SC_TZC (below); a standalone Sigma would let the verifier derive c_i G_i = (c_SC_TZC G_SC_TZC - Gamma_SC_TZC) / nu_i and hence s_i from claim_i",
+   "SC_UMM": "private: c_SC_UMM Sigma_SC_UMM enters only through Gamma_SC_FZC; the verifier holds claim_SC_UMM = s + c_SC_UMM G_SC_UMM, never G_SC_UMM",
+   "SC_VMM": "private: c_SC_VMM Sigma_SC_VMM enters only through Gamma_SC_KVZC; the verifier holds claim_SC_VMM = s + c_SC_VMM G_SC_VMM, never G_SC_VMM",
+   "SC_WO": "private: c_SC_WO Sigma_SC_WO enters only through Gamma_SC_DZC; the verifier holds claim_SC_WO = s + c_SC_WO G_SC_WO, never G_SC_WO"
+  }
+ },
+ "mode": "P1 only (this module does not implement P3: weights are public and uncommitted)",
+ "n_checks": 32,
+ "negative_controls": {
+  "all_pass": true,
+  "nc_extension_degree_exceeds_mask": {
+   "criterion": {
+    "dim_consistency_subspace": 82,
+    "image_inside_subspace": true,
+    "kernel_dim_fp2": 3,
+    "leaked_dim_fp2": 1,
+    "rank_map": 81,
+    "verdict": "DEFICIENT"
+   },
+   "expect": "leaked 1: exactly the clear top value h_{N-1}(d+1) (FA6 I1; the code asserts degree == mask.degree)",
+   "leaked_functionals": [
+    {
+     "SC_TZC.h5(4)": [
+      1,
+      0
+     ]
+    }
+   ],
+   "pass": true,
+   "where": "SC_TZC's extension round of degree 4 under a degree-3 mask"
+  },
+  "nc_host_nu_zero": {
+   "criterion": {
+    "dim_consistency_subspace": 81,
+    "image_inside_subspace": true,
+    "kernel_dim_fp2": 3,
+    "leaked_dim_fp2": 0,
+    "rank_map": 81,
+    "verdict": "surjective (view uniform on S, independent of the data)"
+   },
+   "expect": "criterion passes (blind); binding lost; refusal recommended",
+   "f_part_round0": {
+    "consistent": true,
+    "host_f_total": {
+     "s_SC_SSM": [
+      9048672572098548838,
+      7260592510884801397
+     ]
+    },
+    "note": "f-part of the host's claimed sum = sum_i nu_i s_i (the host term); Gamma's f-part = 0; claim_i's f-part = s_i",
+    "residuals": {
+     "SC_SS": {},
+     "SC_SSM": {},
+     "SC_TZC": {}
+    }
+   },
+   "host_f_total_contains_hosted_sum": false,
+   "pass": true,
+   "what_it_does_not_see": "the host term nu eq(p, x) V(x) vanishes, so claim_SC_SS's data part s is bound to no plane evaluation: soundness, not hiding. nu is a transcript challenge (probability p^-2 of 0); the code should refuse nu = 0 as it refuses c = 0",
+   "what_the_criterion_says": "surjective, leaked 0: two independent masked sumchecks; hiding is intact"
+  },
+  "nc_hosted_c_zero": {
+   "expect": "refused; forced: leaked = dim S_SC_SS = N d + 1 (the hosted slot's messages and its s are in the clear: claim_s = s_s)",
+   "forced": {
+    "dim_consistency_subspace": 81,
+    "image_inside_subspace": true,
+    "kernel_dim_fp2": 34,
+    "leaked_dim_fp2": 31,
+    "rank_map": 50,
+    "verdict": "DEFICIENT"
+   },
+   "leaked_expected_dim_S_of_hosted_slot": 31,
+   "pass": true,
+   "refused_by_the_tool_like_the_code": true
+  },
+  "nc_qkv_unsplit": {
+   "a_one_scalar_two_hosts": {
+    "data_relations_rank": 2,
+    "data_symbols": [
+     "acc_q",
+     "acc_k",
+     "acc_v"
+    ],
+    "expect": "mask channel surjective, honest f-part NOT in S, data relation rank 2",
+    "f_part_residual_KV_host": {
+     "acc_q": [
+      1577446610704602356,
+      875804391274106511
+     ]
+    },
+    "f_part_residual_Q_host": {
+     "acc_k": [
+      10745156674436083575,
+      7988030953512958206
+     ],
+     "acc_v": [
+      18286330464049414082,
+      14080027105533244061
+     ]
+    },
+    "honest_f_part_in_S": false,
+    "mask_channel": {
+     "dim_consistency_subspace": 89,
+     "image_inside_subspace": true,
+     "kernel_dim_fp2": 3,
+     "leaked_dim_fp2": 0,
+     "rank_map": 89,
+     "verdict": "surjective (view uniform on S, independent of the data)"
+    },
+    "meaning": "the Q host's relation forces lam_k acc_k + lam_v acc_v = 0 and the KV host's forces acc_q = 0: the whole lambda-combination is demanded from both hosts (double-counted), each can supply only its domain's part; generic honest data fails both relations (a completeness failure the verifier sees as a soundness refusal)"
+   },
+   "b_two_scalars_one_mask_total": {
+    "expect": "leaked 1: one mask total cannot hide two scalars",
+    "explicit_phi": "(1 - t) claim_Q - t claim_KV",
+    "leaked_functionals_from_analysis": [
+     {
+      "QKV.claim_KV (g-part (1 - t) c G)": [
+       1,
+       0
+      ],
+      "QKV.claim_Q (g-part t c G)": [
+       13668577263140053530,
+       6661055118907814018
+      ]
+     }
+    ],
+    "mask_channel": {
+     "dim_consistency_subspace": 90,
+     "image_inside_subspace": true,
+     "kernel_dim_fp2": 3,
+     "leaked_dim_fp2": 1,
+     "rank_map": 89,
+     "verdict": "DEFICIENT"
+    },
+    "phi_kills_every_mask": true,
+    "phi_not_a_verifier_relation": true,
+    "phi_of_data": {
+     "acc_k": [
+      2401861040743269583,
+      13873359899147074116
+     ],
+     "acc_q": [
+      4090236296938324857,
+      16703010888895268294
+     ],
+     "acc_v": [
+      522024028176576736,
+      4935629462535564650
+     ]
+    },
+    "phi_of_data_symbolic": "(1 - t) acc_q - t (lam_k acc_k + lam_v acc_v)",
+    "t_is_one_case": "t = 1 is the second scalar sent in the clear: phi = -claim_KV"
+   },
+   "c_split_three_scalars": {
+    "KV_host": {
+     "dim_consistency_subspace": 59,
+     "kernel_dim_fp2": 3,
+     "leaked_dim_fp2": 0,
+     "pass": true,
+     "rank_map": 59
+    },
+    "Q_host": {
+     "dim_consistency_subspace": 52,
+     "kernel_dim_fp2": 2,
+     "leaked_dim_fp2": 0,
+     "pass": true,
+     "rank_map": 52
+    },
+    "expect": "surjective, honest f-part in S: each masked scalar is one plane evaluation on one domain"
+   },
+   "claimed_sum": "acc_q + lam_k acc_k + lam_v acc_v (acc_q on the Q domain, acc_k / acc_v on the KV domain)",
+   "pass": true
+  },
+  "nc_row_budget_exceeded": {
+   "expect": "refused (mask_commit's assert: L_s + 256 <= 512)",
+   "message": "SC_ATTN_OVERSIZE: refused, mask row L = 257 (n_vars 51, degree 5) + 256 pads > 512 message positions",
+   "pass": true,
+   "refused": true,
+   "slot": "(51, 5): L = 257"
+  },
+  "nc_sigma_functional_for_host_slot": {
+   "criterion": {
+    "dim_consistency_subspace": 82,
+    "image_inside_subspace": true,
+    "kernel_dim_fp2": 3,
+    "leaked_dim_fp2": 1,
+    "rank_map": 81,
+    "verdict": "DEFICIENT"
+   },
+   "expect": "leaked 1: (c_host G_host - Gamma_host) / nu = c G_SC_SS, then claim_SC_SS - c G_SC_SS = s",
+   "pass": true
+  },
+  "nc_sigma_functional_for_private_slot": {
+   "criterion": {
+    "dim_consistency_subspace": 82,
+    "image_inside_subspace": true,
+    "kernel_dim_fp2": 3,
+    "leaked_dim_fp2": 1,
+    "rank_map": 81,
+    "verdict": "DEFICIENT"
+   },
+   "expect": "leaked 1: claim_SC_SS - c G_SC_SS = s in the clear; hence the M layout carries no standalone Sigma for private or host slots",
+   "leaked_functionals": [
+    {
+     "SC_SS.Sigma opened standalone (c_s G_s)": [
+      1,
+      0
+     ],
+     "SC_SS.claim(g-part = c_s G_s)": [
+      18446744069414584320,
+      0
+     ]
+    }
+   ],
+   "pass": true
+  }
+ },
+ "public_standalone": {
+  "SC_IO_IN": {
+   "dim_consistency_subspace": 21,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_IO_IN": true,
+    "g_SC_IO_IN(rho)": true
+   },
+   "n_active_unknowns_fp2": 22,
+   "n_constraints": 10,
+   "n_unknowns_fp2": 22,
+   "n_view_fp2": 31,
+   "pass": true,
+   "rank_constraints": 10,
+   "rank_map": 21,
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_IO_OUT": {
+   "dim_consistency_subspace": 21,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_IO_OUT": true,
+    "g_SC_IO_OUT(rho)": true
+   },
+   "n_active_unknowns_fp2": 22,
+   "n_constraints": 10,
+   "n_unknowns_fp2": 22,
+   "n_view_fp2": 31,
+   "pass": true,
+   "rank_constraints": 10,
+   "rank_map": 21,
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_LZC": {
+   "dim_consistency_subspace": 41,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_LZC": true,
+    "g_SC_LZC(rho)": true
+   },
+   "n_active_unknowns_fp2": 42,
+   "n_constraints": 10,
+   "n_unknowns_fp2": 42,
+   "n_view_fp2": 51,
+   "pass": true,
+   "rank_constraints": 10,
+   "rank_map": 41,
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_TAB": {
+   "dim_consistency_subspace": 28,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_TAB": true,
+    "g_SC_TAB(rho)": true
+   },
+   "n_active_unknowns_fp2": 29,
+   "n_constraints": 9,
+   "n_unknowns_fp2": 29,
+   "n_view_fp2": 37,
+   "pass": true,
+   "rank_constraints": 9,
+   "rank_map": 28,
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_ZS": {
+   "dim_consistency_subspace": 19,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_ZS": true,
+    "g_SC_ZS(rho)": true
+   },
+   "n_active_unknowns_fp2": 20,
+   "n_constraints": 9,
+   "n_unknowns_fp2": 20,
+   "n_view_fp2": 28,
+   "pass": true,
+   "rank_constraints": 9,
+   "rank_map": 19,
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  }
+ },
+ "r7_extension_check": {
+  "instance": {
+   "families": "A, B private (pair-masked, ext != 0), E public (ext 0) or eq_g == 1",
+   "n_main": 2
+  },
+  "model": "zkp-core/src/sumcheck.rs extension_round: s_k(X) = poly((1 - X) fin + X ext), product poly; mask branch = X = 1; the chain needs s_k(0) + s_k(1) = previous claim = poly(finals), i.e. s_k(1) = 0",
+  "one_private_public_extends_to_zero": {
+   "expect": "vanishes on the mask branch: the (1 - X) factor of the public family",
+   "factors": "E (ext 0) * A (ext extA)",
+   "message_degree": 2,
+   "one_minus_x_divides_s": true,
+   "s_at_0_equals_poly_finals": true,
+   "s_at_1_is_zero": true
+  },
+  "pass": true,
+  "scope": "an exact polynomial check on small instances, not a proof; it says why SC_ATTN_09 / SC_ATTN_10 carry two extension rounds",
+  "two_private_public_factor_is_one_single_round": {
+   "expect": "does NOT vanish: s(1) = extA extB != 0, the round stops summing to its claim",
+   "factors": "1 * A (ext extA) * B (ext extB)",
+   "message_degree": 3,
+   "one_minus_x_divides_s": false,
+   "s_at_1": [
+    4842247608721720935,
+    13274196266873165298
+   ],
+   "s_at_1_equals_extA_extB": true,
+   "s_at_1_is_zero": false
+  },
+  "two_private_two_rounds_one_per_side": {
+   "chain_s_k_at_e1_equals_s_k1_0_plus_s_k1_1": true,
+   "expect": "both rounds vanish on the mask branch; the terminal carries the (1 - e2) factor on the first side (FA6 section 1.2's P3 form)",
+   "round_k": "1 * A (ext extA) * B (ext 0)",
+   "round_k_plus_1": "1 * A' (ext 0) * B' (ext extB), A' = finA + e1 (extA - finA), B' = (1 - e1) finB",
+   "round_k_plus_1_s_at_1_is_zero": true,
+   "round_k_s_at_1_is_zero": true,
+   "terminal_equals_(1-e2)_A'_times_B'(e2)": true
+  },
+  "two_private_with_public_factor_extending_to_zero": {
+   "expect": "vanishes: a public factor extending to 0 covers any number of private families in one round (why the rule is 'no public factor vanishes' rather than 'two private families')",
+   "factors": "E (ext 0) * A * B",
+   "s_at_1_is_zero": true
+  }
+ },
+ "seed": 2026,
+ "slot_table": [
+  {
+   "claimed_sum_form": "private masked scalar claim_SC_SS = s + c_SC_SS G_SC_SS (sent once; hosted by SC_TZC: the host's claimed sum carries nu_SC_SS claim_SC_SS)",
+   "degree": 3,
+   "dim_S_expected": 31,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "host": "SC_TZC",
+   "index": 0,
+   "len": 32,
+   "main_rounds": 9,
+   "n_vars": 10,
+   "name": "01 SS row sums norm_a (private)",
+   "private": true,
+   "role": "private (hosted)",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "01 SS row sums norm_a (private)",
+   "slot": "SC_SS",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "one masked scalar s + c G (hosted by SC_TZC)"
+  },
+  {
+   "claimed_sum_form": "private masked scalar claim_SC_SSM = s + c_SC_SSM G_SC_SSM (sent once; hosted by SC_TZC: the host's claimed sum carries nu_SC_SSM claim_SC_SSM)",
+   "degree": 3,
+   "dim_S_expected": 31,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "host": "SC_TZC",
+   "index": 1,
+   "len": 32,
+   "main_rounds": 9,
+   "n_vars": 10,
+   "name": "01m SS row sums norm_m (private)",
+   "private": true,
+   "role": "private (hosted)",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "01m SS row sums norm_m (private)",
+   "slot": "SC_SSM",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "one masked scalar s + c G (hosted by SC_TZC)"
+  },
+  {
+   "claimed_sum_form": "batched: sum_i nu_i claim_i + Gamma_SC_TZC, Gamma_SC_TZC = c_SC_TZC G_SC_TZC - nu_SC_SS c_SC_SS G_SC_SS - nu_SC_SSM c_SC_SSM G_SC_SSM (sent); hosted: ['SC_SS', 'SC_SSM']",
+   "degree": 3,
+   "dim_S_expected": 19,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "hosted": [
+    "SC_SS",
+    "SC_SSM"
+   ],
+   "hosted_after_host_in_transcript": [],
+   "index": 2,
+   "len": 20,
+   "main_rounds": 5,
+   "n_vars": 6,
+   "name": "02 norm squares zero-check (hosts 01, 01m)",
+   "private": false,
+   "role": "public-zero host",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "02 norm squares zero-check (hosts 01, 01m)",
+   "slot": "SC_TZC",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "public 0"
+  },
+  {
+   "claimed_sum_form": "public 0 + Gamma_SC_LZC = c_SC_LZC G_SC_LZC (sent)",
+   "degree": 4,
+   "dim_S_expected": 41,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "index": 3,
+   "len": 42,
+   "main_rounds": 9,
+   "n_vars": 10,
+   "name": "08 limb zero-check",
+   "private": false,
+   "role": "public-zero standalone",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "08 limb zero-check",
+   "slot": "SC_LZC",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "public 0"
+  },
+  {
+   "claimed_sum_form": "private masked scalar claim_SC_RS = s + c_SC_RS G_SC_RS (sent once; hosted by SC_SZC: the host's claimed sum carries nu_SC_RS claim_SC_RS)",
+   "degree": 3,
+   "dim_S_expected": 37,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "host": "SC_SZC",
+   "index": 4,
+   "len": 38,
+   "main_rounds": 11,
+   "n_vars": 12,
+   "name": "07 masked row sums + selector (private)",
+   "private": true,
+   "role": "private (hosted)",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "07 masked row sums + selector (private)",
+   "slot": "SC_RS",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "one masked scalar s + c G (hosted by SC_SZC)"
+  },
+  {
+   "claimed_sum_form": "private masked scalar claim_SC_QMM = s + c_SC_QMM G_SC_QMM (sent once; hosted by SC_QZC: the host's claimed sum carries nu_SC_QMM claim_SC_QMM)",
+   "degree": 2,
+   "dim_S_expected": 11,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "host": "SC_QZC",
+   "index": 5,
+   "len": 12,
+   "main_rounds": 4,
+   "n_vars": 5,
+   "name": "09Q matmul (private)",
+   "private": true,
+   "role": "private (hosted)",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "09Q matmul (private)",
+   "slot": "SC_QMM",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "one masked scalar s + c G (hosted by SC_QZC)"
+  },
+  {
+   "claimed_sum_form": "private masked scalar claim_SC_KMM = s + c_SC_KMM G_SC_KMM (sent once; hosted by SC_KVZC: the host's claimed sum carries nu_SC_KMM claim_SC_KMM)",
+   "degree": 2,
+   "dim_S_expected": 11,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "host": "SC_KVZC",
+   "index": 6,
+   "len": 12,
+   "main_rounds": 4,
+   "n_vars": 5,
+   "name": "09K matmul (private)",
+   "private": true,
+   "role": "private (hosted)",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "09K matmul (private)",
+   "slot": "SC_KMM",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "one masked scalar s + c G (hosted by SC_KVZC)"
+  },
+  {
+   "claimed_sum_form": "private masked scalar claim_SC_VMM = s + c_SC_VMM G_SC_VMM (sent once; hosted by SC_KVZC: the host's claimed sum carries nu_SC_VMM claim_SC_VMM)",
+   "degree": 2,
+   "dim_S_expected": 11,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "host": "SC_KVZC",
+   "index": 7,
+   "len": 12,
+   "main_rounds": 4,
+   "n_vars": 5,
+   "name": "09V matmul (private)",
+   "private": true,
+   "role": "private (hosted)",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "09V matmul (private)",
+   "slot": "SC_VMM",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "one masked scalar s + c G (hosted by SC_KVZC)"
+  },
+  {
+   "claimed_sum_form": "private masked scalar claim_SC_SCORE = s + c_SC_SCORE G_SC_SCORE (sent once; hosted by SC_SZC: the host's claimed sum carries nu_SC_SCORE claim_SC_SCORE)",
+   "degree": 2,
+   "dim_S_expected": 11,
+   "ext_rationale": "two private factor families: one extension round per side",
+   "ext_rounds": 2,
+   "host": "SC_SZC",
+   "index": 8,
+   "len": 12,
+   "main_rounds": 3,
+   "n_vars": 5,
+   "name": "10 score matmul (private, bilinear)",
+   "private": true,
+   "role": "private (hosted)",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "10 score matmul (private, bilinear)",
+   "slot": "SC_SCORE",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "one masked scalar s + c G (hosted by SC_SZC)"
+  },
+  {
+   "claimed_sum_form": "private masked scalar claim_SC_PV = s + c_SC_PV G_SC_PV (sent once; hosted by SC_QZC: the host's claimed sum carries nu_SC_PV claim_SC_PV)",
+   "degree": 2,
+   "dim_S_expected": 15,
+   "ext_rationale": "two private factor families: one extension round per side",
+   "ext_rounds": 2,
+   "host": "SC_QZC",
+   "index": 9,
+   "len": 16,
+   "main_rounds": 5,
+   "n_vars": 7,
+   "name": "11 PV matmul (private, bilinear)",
+   "private": true,
+   "role": "private (hosted)",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "11 PV matmul (private, bilinear)",
+   "slot": "SC_PV",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "one masked scalar s + c G (hosted by SC_QZC)"
+  },
+  {
+   "claimed_sum_form": "private masked scalar claim_SC_WO = s + c_SC_WO G_SC_WO (sent once; hosted by SC_DZC: the host's claimed sum carries nu_SC_WO claim_SC_WO)",
+   "degree": 2,
+   "dim_S_expected": 11,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "host": "SC_DZC",
+   "index": 10,
+   "len": 12,
+   "main_rounds": 4,
+   "n_vars": 5,
+   "name": "12 Wo matmul (private)",
+   "private": true,
+   "role": "private (hosted)",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "12 Wo matmul (private)",
+   "slot": "SC_WO",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "one masked scalar s + c G (hosted by SC_DZC)"
+  },
+  {
+   "claimed_sum_form": "private masked scalar claim_SC_GMM = s + c_SC_GMM G_SC_GMM (sent once; hosted by SC_FZC: the host's claimed sum carries nu_SC_GMM claim_SC_GMM)",
+   "degree": 2,
+   "dim_S_expected": 11,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "host": "SC_FZC",
+   "index": 11,
+   "len": 12,
+   "main_rounds": 4,
+   "n_vars": 5,
+   "name": "13G gate matmul (private)",
+   "private": true,
+   "role": "private (hosted)",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "13G gate matmul (private)",
+   "slot": "SC_GMM",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "one masked scalar s + c G (hosted by SC_FZC)"
+  },
+  {
+   "claimed_sum_form": "private masked scalar claim_SC_UMM = s + c_SC_UMM G_SC_UMM (sent once; hosted by SC_FZC: the host's claimed sum carries nu_SC_UMM claim_SC_UMM)",
+   "degree": 2,
+   "dim_S_expected": 11,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "host": "SC_FZC",
+   "index": 12,
+   "len": 12,
+   "main_rounds": 4,
+   "n_vars": 5,
+   "name": "13U up matmul (private)",
+   "private": true,
+   "role": "private (hosted)",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "13U up matmul (private)",
+   "slot": "SC_UMM",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "one masked scalar s + c G (hosted by SC_FZC)"
+  },
+  {
+   "claimed_sum_form": "private masked scalar claim_SC_DMM = s + c_SC_DMM G_SC_DMM (sent once; hosted by SC_DZC: the host's claimed sum carries nu_SC_DMM claim_SC_DMM)",
+   "degree": 2,
+   "dim_S_expected": 11,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "host": "SC_DZC",
+   "index": 13,
+   "len": 12,
+   "main_rounds": 4,
+   "n_vars": 5,
+   "name": "13D down matmul (private)",
+   "private": true,
+   "role": "private (hosted)",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "13D down matmul (private)",
+   "slot": "SC_DMM",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "one masked scalar s + c G (hosted by SC_DZC)"
+  },
+  {
+   "claimed_sum_form": "batched: sum_i nu_i claim_i + Gamma_SC_DZC, Gamma_SC_DZC = c_SC_DZC G_SC_DZC - nu_SC_WO c_SC_WO G_SC_WO - nu_SC_DMM c_SC_DMM G_SC_DMM (sent); hosted: ['SC_WO', 'SC_DMM']",
+   "degree": 4,
+   "dim_S_expected": 41,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "hosted": [
+    "SC_WO",
+    "SC_DMM"
+   ],
+   "hosted_after_host_in_transcript": [],
+   "index": 14,
+   "len": 42,
+   "main_rounds": 9,
+   "n_vars": 10,
+   "name": "03 D zero-check (hosts 12, 13D)",
+   "private": false,
+   "role": "public-zero host",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "03 D zero-check (hosts 12, 13D)",
+   "slot": "SC_DZC",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "public 0"
+  },
+  {
+   "claimed_sum_form": "batched: sum_i nu_i claim_i + Gamma_SC_QZC, Gamma_SC_QZC = c_SC_QZC G_SC_QZC - nu_SC_QMM c_SC_QMM G_SC_QMM - nu_SC_PV c_SC_PV G_SC_PV (sent); hosted: ['SC_QMM', 'SC_PV']",
+   "degree": 4,
+   "dim_S_expected": 41,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "hosted": [
+    "SC_QMM",
+    "SC_PV"
+   ],
+   "hosted_after_host_in_transcript": [],
+   "index": 15,
+   "len": 42,
+   "main_rounds": 9,
+   "n_vars": 10,
+   "name": "04 Q zero-check (hosts 09Q, 11)",
+   "private": false,
+   "role": "public-zero host",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "04 Q zero-check (hosts 09Q, 11)",
+   "slot": "SC_QZC",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "public 0"
+  },
+  {
+   "claimed_sum_form": "batched: sum_i nu_i claim_i + Gamma_SC_KVZC, Gamma_SC_KVZC = c_SC_KVZC G_SC_KVZC - nu_SC_KMM c_SC_KMM G_SC_KMM - nu_SC_VMM c_SC_VMM G_SC_VMM (sent); hosted: ['SC_KMM', 'SC_VMM']",
+   "degree": 4,
+   "dim_S_expected": 37,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "hosted": [
+    "SC_KMM",
+    "SC_VMM"
+   ],
+   "hosted_after_host_in_transcript": [],
+   "index": 16,
+   "len": 38,
+   "main_rounds": 8,
+   "n_vars": 9,
+   "name": "05 KV zero-check (hosts 09K, 09V)",
+   "private": false,
+   "role": "public-zero host",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "05 KV zero-check (hosts 09K, 09V)",
+   "slot": "SC_KVZC",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "public 0"
+  },
+  {
+   "claimed_sum_form": "batched: sum_i nu_i claim_i + Gamma_SC_SZC, Gamma_SC_SZC = c_SC_SZC G_SC_SZC - nu_SC_RS c_SC_RS G_SC_RS - nu_SC_SCORE c_SC_SCORE G_SC_SCORE (sent); hosted: ['SC_RS', 'SC_SCORE']",
+   "degree": 4,
+   "dim_S_expected": 49,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "hosted": [
+    "SC_RS",
+    "SC_SCORE"
+   ],
+   "hosted_after_host_in_transcript": [],
+   "index": 17,
+   "len": 50,
+   "main_rounds": 11,
+   "n_vars": 12,
+   "name": "06 softmax zero-check (hosts 07, 10)",
+   "private": false,
+   "role": "public-zero host",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "06 softmax zero-check (hosts 07, 10)",
+   "slot": "SC_SZC",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "public 0"
+  },
+  {
+   "claimed_sum_form": "batched: sum_i nu_i claim_i + Gamma_SC_FZC, Gamma_SC_FZC = c_SC_FZC G_SC_FZC - nu_SC_GMM c_SC_GMM G_SC_GMM - nu_SC_UMM c_SC_UMM G_SC_UMM (sent); hosted: ['SC_GMM', 'SC_UMM']",
+   "degree": 4,
+   "dim_S_expected": 41,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "hosted": [
+    "SC_GMM",
+    "SC_UMM"
+   ],
+   "hosted_after_host_in_transcript": [],
+   "index": 18,
+   "len": 42,
+   "main_rounds": 9,
+   "n_vars": 10,
+   "name": "14 F zero-check (hosts 13G, 13U)",
+   "private": false,
+   "role": "public-zero host",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "14 F zero-check (hosts 13G, 13U)",
+   "slot": "SC_FZC",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "public 0"
+  },
+  {
+   "claimed_sum_form": "public 0 + Gamma_SC_TAB = c_SC_TAB G_SC_TAB (sent)",
+   "degree": 3,
+   "dim_S_expected": 28,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "index": 19,
+   "len": 29,
+   "main_rounds": 8,
+   "n_vars": 9,
+   "name": "TAB table helper zero-check",
+   "private": false,
+   "role": "public-zero standalone",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "TAB table helper zero-check",
+   "slot": "SC_TAB",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "public 0"
+  },
+  {
+   "claimed_sum_form": "public 0 + Gamma_SC_ZS = c_SC_ZS G_SC_ZS (sent)",
+   "degree": 2,
+   "dim_S_expected": 19,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "index": 20,
+   "len": 20,
+   "main_rounds": 8,
+   "n_vars": 9,
+   "name": "ZS zero-sum row",
+   "private": false,
+   "role": "public-zero standalone",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "ZS zero-sum row",
+   "slot": "SC_ZS",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "public 0"
+  },
+  {
+   "claimed_sum_form": "public 0 + Gamma_SC_IO_IN = c_SC_IO_IN G_SC_IO_IN (sent)",
+   "degree": 2,
+   "dim_S_expected": 21,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "index": 21,
+   "len": 22,
+   "main_rounds": 9,
+   "n_vars": 10,
+   "name": "IO-in endpoint equality",
+   "private": false,
+   "role": "public-zero standalone",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "IO-in endpoint equality",
+   "slot": "SC_IO_IN",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "public 0"
+  },
+  {
+   "claimed_sum_form": "public 0 + Gamma_SC_IO_OUT = c_SC_IO_OUT G_SC_IO_OUT (sent)",
+   "degree": 2,
+   "dim_S_expected": 21,
+   "ext_rationale": "a public factor (eq / a public table) extends to 0",
+   "ext_rounds": 1,
+   "index": 22,
+   "len": 22,
+   "main_rounds": 9,
+   "n_vars": 10,
+   "name": "IO-out endpoint equality",
+   "private": false,
+   "role": "public-zero standalone",
+   "row_budget_L_plus_256_le_512": true,
+   "section": "IO-out endpoint equality",
+   "slot": "SC_IO_OUT",
+   "source": "hashline/src/private_attention/layout.rs SLOTS / SLOT_KINDS / SLOT_NAMES",
+   "value": "public 0"
+  }
+ ],
+ "standalone": {
+  "SC_DMM": {
+   "degree": 2,
+   "dim_S_expected_N_d_plus_1": 11,
+   "dim_consistency_subspace": 11,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 12,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_DMM": true,
+    "g_SC_DMM(rho)": true
+   },
+   "n_constraints": 5,
+   "n_unknowns_fp2": 12,
+   "n_vars": 5,
+   "n_view_fp2": 16,
+   "pass": true,
+   "rank_map": 11,
+   "role": "private (hosted)",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_DZC": {
+   "degree": 4,
+   "dim_S_expected_N_d_plus_1": 41,
+   "dim_consistency_subspace": 41,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 42,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_DZC": true,
+    "g_SC_DZC(rho)": true
+   },
+   "n_constraints": 10,
+   "n_unknowns_fp2": 42,
+   "n_vars": 10,
+   "n_view_fp2": 51,
+   "pass": true,
+   "rank_map": 41,
+   "role": "public-zero host",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_FZC": {
+   "degree": 4,
+   "dim_S_expected_N_d_plus_1": 41,
+   "dim_consistency_subspace": 41,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 42,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_FZC": true,
+    "g_SC_FZC(rho)": true
+   },
+   "n_constraints": 10,
+   "n_unknowns_fp2": 42,
+   "n_vars": 10,
+   "n_view_fp2": 51,
+   "pass": true,
+   "rank_map": 41,
+   "role": "public-zero host",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_GMM": {
+   "degree": 2,
+   "dim_S_expected_N_d_plus_1": 11,
+   "dim_consistency_subspace": 11,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 12,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_GMM": true,
+    "g_SC_GMM(rho)": true
+   },
+   "n_constraints": 5,
+   "n_unknowns_fp2": 12,
+   "n_vars": 5,
+   "n_view_fp2": 16,
+   "pass": true,
+   "rank_map": 11,
+   "role": "private (hosted)",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_IO_IN": {
+   "degree": 2,
+   "dim_S_expected_N_d_plus_1": 21,
+   "dim_consistency_subspace": 21,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 22,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_IO_IN": true,
+    "g_SC_IO_IN(rho)": true
+   },
+   "n_constraints": 10,
+   "n_unknowns_fp2": 22,
+   "n_vars": 10,
+   "n_view_fp2": 31,
+   "pass": true,
+   "rank_map": 21,
+   "role": "public-zero standalone",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_IO_OUT": {
+   "degree": 2,
+   "dim_S_expected_N_d_plus_1": 21,
+   "dim_consistency_subspace": 21,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 22,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_IO_OUT": true,
+    "g_SC_IO_OUT(rho)": true
+   },
+   "n_constraints": 10,
+   "n_unknowns_fp2": 22,
+   "n_vars": 10,
+   "n_view_fp2": 31,
+   "pass": true,
+   "rank_map": 21,
+   "role": "public-zero standalone",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_KMM": {
+   "degree": 2,
+   "dim_S_expected_N_d_plus_1": 11,
+   "dim_consistency_subspace": 11,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 12,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_KMM": true,
+    "g_SC_KMM(rho)": true
+   },
+   "n_constraints": 5,
+   "n_unknowns_fp2": 12,
+   "n_vars": 5,
+   "n_view_fp2": 16,
+   "pass": true,
+   "rank_map": 11,
+   "role": "private (hosted)",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_KVZC": {
+   "degree": 4,
+   "dim_S_expected_N_d_plus_1": 37,
+   "dim_consistency_subspace": 37,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 38,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_KVZC": true,
+    "g_SC_KVZC(rho)": true
+   },
+   "n_constraints": 9,
+   "n_unknowns_fp2": 38,
+   "n_vars": 9,
+   "n_view_fp2": 46,
+   "pass": true,
+   "rank_map": 37,
+   "role": "public-zero host",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_LZC": {
+   "degree": 4,
+   "dim_S_expected_N_d_plus_1": 41,
+   "dim_consistency_subspace": 41,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 42,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_LZC": true,
+    "g_SC_LZC(rho)": true
+   },
+   "n_constraints": 10,
+   "n_unknowns_fp2": 42,
+   "n_vars": 10,
+   "n_view_fp2": 51,
+   "pass": true,
+   "rank_map": 41,
+   "role": "public-zero standalone",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_PV": {
+   "degree": 2,
+   "dim_S_expected_N_d_plus_1": 15,
+   "dim_consistency_subspace": 15,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 16,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_PV": true,
+    "g_SC_PV(rho)": true
+   },
+   "n_constraints": 7,
+   "n_unknowns_fp2": 16,
+   "n_vars": 7,
+   "n_view_fp2": 22,
+   "pass": true,
+   "rank_map": 15,
+   "role": "private (hosted)",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_QMM": {
+   "degree": 2,
+   "dim_S_expected_N_d_plus_1": 11,
+   "dim_consistency_subspace": 11,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 12,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_QMM": true,
+    "g_SC_QMM(rho)": true
+   },
+   "n_constraints": 5,
+   "n_unknowns_fp2": 12,
+   "n_vars": 5,
+   "n_view_fp2": 16,
+   "pass": true,
+   "rank_map": 11,
+   "role": "private (hosted)",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_QZC": {
+   "degree": 4,
+   "dim_S_expected_N_d_plus_1": 41,
+   "dim_consistency_subspace": 41,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 42,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_QZC": true,
+    "g_SC_QZC(rho)": true
+   },
+   "n_constraints": 10,
+   "n_unknowns_fp2": 42,
+   "n_vars": 10,
+   "n_view_fp2": 51,
+   "pass": true,
+   "rank_map": 41,
+   "role": "public-zero host",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_RS": {
+   "degree": 3,
+   "dim_S_expected_N_d_plus_1": 37,
+   "dim_consistency_subspace": 37,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 38,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_RS": true,
+    "g_SC_RS(rho)": true
+   },
+   "n_constraints": 12,
+   "n_unknowns_fp2": 38,
+   "n_vars": 12,
+   "n_view_fp2": 49,
+   "pass": true,
+   "rank_map": 37,
+   "role": "private (hosted)",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_SCORE": {
+   "degree": 2,
+   "dim_S_expected_N_d_plus_1": 11,
+   "dim_consistency_subspace": 11,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 12,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_SCORE": true,
+    "g_SC_SCORE(rho)": true
+   },
+   "n_constraints": 5,
+   "n_unknowns_fp2": 12,
+   "n_vars": 5,
+   "n_view_fp2": 16,
+   "pass": true,
+   "rank_map": 11,
+   "role": "private (hosted)",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_SS": {
+   "degree": 3,
+   "dim_S_expected_N_d_plus_1": 31,
+   "dim_consistency_subspace": 31,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 32,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_SS": true,
+    "g_SC_SS(rho)": true
+   },
+   "n_constraints": 10,
+   "n_unknowns_fp2": 32,
+   "n_vars": 10,
+   "n_view_fp2": 41,
+   "pass": true,
+   "rank_map": 31,
+   "role": "private (hosted)",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_SSM": {
+   "degree": 3,
+   "dim_S_expected_N_d_plus_1": 31,
+   "dim_consistency_subspace": 31,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 32,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_SSM": true,
+    "g_SC_SSM(rho)": true
+   },
+   "n_constraints": 10,
+   "n_unknowns_fp2": 32,
+   "n_vars": 10,
+   "n_view_fp2": 41,
+   "pass": true,
+   "rank_map": 31,
+   "role": "private (hosted)",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_SZC": {
+   "degree": 4,
+   "dim_S_expected_N_d_plus_1": 49,
+   "dim_consistency_subspace": 49,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 50,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_SZC": true,
+    "g_SC_SZC(rho)": true
+   },
+   "n_constraints": 12,
+   "n_unknowns_fp2": 50,
+   "n_vars": 12,
+   "n_view_fp2": 61,
+   "pass": true,
+   "rank_map": 49,
+   "role": "public-zero host",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_TAB": {
+   "degree": 3,
+   "dim_S_expected_N_d_plus_1": 28,
+   "dim_consistency_subspace": 28,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 29,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_TAB": true,
+    "g_SC_TAB(rho)": true
+   },
+   "n_constraints": 9,
+   "n_unknowns_fp2": 29,
+   "n_vars": 9,
+   "n_view_fp2": 37,
+   "pass": true,
+   "rank_map": 28,
+   "role": "public-zero standalone",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_TZC": {
+   "degree": 3,
+   "dim_S_expected_N_d_plus_1": 19,
+   "dim_consistency_subspace": 19,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 20,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_TZC": true,
+    "g_SC_TZC(rho)": true
+   },
+   "n_constraints": 6,
+   "n_unknowns_fp2": 20,
+   "n_vars": 6,
+   "n_view_fp2": 25,
+   "pass": true,
+   "rank_map": 19,
+   "role": "public-zero host",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_UMM": {
+   "degree": 2,
+   "dim_S_expected_N_d_plus_1": 11,
+   "dim_consistency_subspace": 11,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 12,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_UMM": true,
+    "g_SC_UMM(rho)": true
+   },
+   "n_constraints": 5,
+   "n_unknowns_fp2": 12,
+   "n_vars": 5,
+   "n_view_fp2": 16,
+   "pass": true,
+   "rank_map": 11,
+   "role": "private (hosted)",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_VMM": {
+   "degree": 2,
+   "dim_S_expected_N_d_plus_1": 11,
+   "dim_consistency_subspace": 11,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 12,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_VMM": true,
+    "g_SC_VMM(rho)": true
+   },
+   "n_constraints": 5,
+   "n_unknowns_fp2": 12,
+   "n_vars": 5,
+   "n_view_fp2": 16,
+   "pass": true,
+   "rank_map": 11,
+   "role": "private (hosted)",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_WO": {
+   "degree": 2,
+   "dim_S_expected_N_d_plus_1": 11,
+   "dim_consistency_subspace": 11,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 12,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_WO": true,
+    "g_SC_WO(rho)": true
+   },
+   "n_constraints": 5,
+   "n_unknowns_fp2": 12,
+   "n_vars": 5,
+   "n_view_fp2": 16,
+   "pass": true,
+   "rank_map": 11,
+   "role": "private (hosted)",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  },
+  "SC_ZS": {
+   "degree": 2,
+   "dim_S_expected_N_d_plus_1": 19,
+   "dim_consistency_subspace": 19,
+   "image_inside_subspace": true,
+   "kernel_dim_fp2": 1,
+   "leaked_dim_fp2": 0,
+   "len": 20,
+   "m_functionals_in_view_span": {
+    "Gamma_SC_ZS": true,
+    "g_SC_ZS(rho)": true
+   },
+   "n_constraints": 9,
+   "n_unknowns_fp2": 20,
+   "n_vars": 9,
+   "n_view_fp2": 28,
+   "pass": true,
+   "rank_map": 19,
+   "role": "public-zero standalone",
+   "theta_combination_in_view_span": true,
+   "verdict": "surjective (view uniform on S, independent of the data)"
+  }
+ },
+ "tool": "scripts/zk60_attention_cfs_slots.py",
+ "tool_sha256": "52d8e1a305e8efb601897ac11e914126ee096094aefd7c109f31cf9a02a00c03"
+}

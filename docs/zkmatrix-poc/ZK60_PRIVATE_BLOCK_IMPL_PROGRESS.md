@@ -30,7 +30,7 @@ establishes a privacy property; D8/D11 stay open (disposition section 5).
 | S3b | ARGUMENT: the new define arms, slots, sites; the module moves to the whole-block layout | DONE |
 | S3c | TAMPER TESTS at the verifier (T2 section G as corrected by E-18 … E-20), by slot INDEX | DONE |
 | S4 | The block profile `hashline-zk-mr1/private-block-t32-poc/1`, `BlockPublic` with the E-2 activation-table range check, the output endpoint moved to `xres2`, the tripwire `block_output_cannot_be_chosen` (T1-check section 11.3) | DONE |
-| S5 | The checking tools re-run on the real Rust source (disposition condition 4) | not started (next agent) |
+| S5 | The checking tools re-run on the real Rust source (disposition condition 4) | DONE — new driver `scripts/zk60_private_block_inventory.py`, evidence under `results/zk60_private_block_tools/`. 46/46 derived counts equal the design, 11/11 verdict gates pass, 22/22 negative controls fire (including the two owed ones), no difference against the paper whole-block run. Four parser adapters were needed (B-1…B-4). This is NOT a privacy acceptance: the verdicts are about a linear-algebra model, and the captured-receipt joint-view gate stays unmet. |
 
 Condition 1 of the disposition (errata E-1) BOUND every stage before S4:
 nothing in this module could carry the block profile string, a type named
@@ -847,3 +847,194 @@ already refuses a shared pair positionally, and the disclosed-dimension half
 is the tool's. Also owed by the design and NOT done here: the R-2 re-run of
 `limb_windows.py` / `wraparound_bounds.py` over the grown expression list with
 the multiplicity bound re-checked at 61,440.
+
+### 2026-09-19 — S5 THE CHECKING TOOLS ON THE REAL RUST (done)
+
+Disposition section 3, condition 4. Until today the three leak-checking tools
+had only ever seen the block as a **memo**: the two paper drivers
+`results/zk60_private_block_construction/grow_and_run{,_whole_block}.py` hand-built
+a `Layout` object and a site list from the T1/T2 text and fed those to the
+tools. This stage points the same tools at the **source** — the tool now
+parses `hashline/src/private_block/{layout,argument,protocol}.rs` and derives
+every count, every group and every slot from the code that proves.
+
+**New files (this lane's only writes this stage).**
+
+- `scripts/zk60_private_block_inventory.py` — the new driver. It imports the
+  committed `scripts/zk60_attention_native_inventory.py` **by file path** and
+  uses that module's own `Layout`, `DefineParser`, `parse_logup_sum`,
+  `build_inventory`, `run_rank_tool` and `run_cfs_tool`, so the accepted
+  adaptations R-1…R-9 (rank) and C-1…C-4 (CFS) are exactly the accepted ones.
+  **No committed script was edited and no Rust file was touched.**
+- `tests/test_zk60_private_block_inventory.py` — 29 tests, four layers.
+- `results/zk60_private_block_tools/` — the evidence (six JSON records, the
+  log, the `.done` marker, and `accepted_selfcheck/` holding the committed
+  tool's own six records on the ACCEPTED attention layout).
+
+**Commands, and what works.** No cargo, no proof, no GPU; the whole stage is
+Python and takes well under a minute, so nothing needed the detached-run
+protocol.
+
+1. `python3 /home/victor/wt-zk60-private-block/scripts/zk60_private_block_inventory.py
+   --repo /home/victor/wt-zk60-private-block
+   --out-dir /home/victor/wt-zk60-private-block/results/zk60_private_block_tools`
+   → exit **0** in **24.3 s**, peak RSS 46 MB. `zk60_private_block_inventory.done`
+   holds `0`.
+2. `python3 -m unittest tests.test_zk60_private_block_inventory` from
+   `/home/victor/wt-zk60-private-block` → **29 tests, OK, 39.3 s**.
+3. `python3 -m unittest discover -s /home/victor/wt-zk60-private-block/tests
+   -p "test_zk60_private_block_inventory.py"` → **29 tests, OK**, and this form
+   works from ANY working directory (the test resolves the repo root from
+   `__file__`); form 2 needs the worktree root as the working directory.
+4. `python3 -m unittest tests.test_zk60_attention_native_inventory` → **39
+   tests, OK** (the committed inventory tool's own suite, untouched).
+5. `python3 -m unittest tests.test_zk60_attention_pair_schedule` → 33 tests,
+   **1 pre-existing failure**, see "two pre-existing red tests" below.
+6. `python3 -m unittest tests.test_zk60_attention_cfs_slots` → 14 tests,
+   **1 pre-existing error**, same note.
+
+**Step 1, the self-check (the control that the rebinding broke nothing).**
+The driver first runs the committed tool, completely unmodified, on
+`hashline/src/private_attention/` through its own `build_all`:
+**29 of 29 cross-checks pass, `failures: []`, `all_pass: true`**, A sites 75,
+H sites 35, A groups 30, H groups 8 — the accepted verdict, reproduced. The
+five records are written to
+`results/zk60_private_block_tools/accepted_selfcheck/`.
+
+**Step 2, the counts, derived from the source and compared with the design**
+(`ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2_CHECK.md` section 5.2). **46 of 46
+agree; there is no disagreement to report.** `A` 455 rows = 213 data + 240
+site-pair + 2 proximity; `H` 384 = 280 + 102 + 2; `A` sites 120 and `H` sites
+51 both from `layout.rs`'s arrays AND from counting the sites
+`argument.rs::define` actually creates; opening groups **A 35 / H 9 derived
+from the PCS key rule** and equal to the constants `layout.rs` declares;
+23 slots, kinds 12 private / 5 standalone / 6 host; `M_ROWS` 50 = 2·23 + 4;
+`N_FUNCTIONALS` 34 = 23 + 5 + 6; largest `L` 50 at `SC_SZC`, headroom 206;
+main 159, ext 25, `Σ(m+e)(d+1)` 721, terminals 173; lookups **U8 61,440 /
+exp 2,048 / act 512**; `hosts_by_index {2:[0,1], 14:[10,13], 15:[5,9],
+16:[6,7], 17:[4,8], 18:[11,12]}` with every host after everything it hosts;
+`SC_DZC` 37/19, `SC_FZC` 11/6, `SC_TAB` 3/3; and the reserved-pair first rows
+the parse produces are exactly `layout.rs`'s `a_site(slot, k)` /
+`h_site(slot, k)` ranges. Source hashes are in the summary
+(`layout.rs 6cc8f6fe…`, `argument.rs bb6971c3…`, `protocol.rs db2757a3…`).
+
+**Step 3, the rank tool on the real source.** `failures: []`, coverage checks
+all pass. `whole_A_per_column` **0**, `whole_A_with_values_n4` **0**,
+`whole_H_per_column` **0**; all **35** `group_A_*` and all **7** modelled
+`group_H_*` **0** each (the tool models 7 of the 9 derived H groups because it
+builds the `SC_ZS` site and the sum group itself — committed adaptation R-4,
+the same offset of 2 the paper runs had); both endpoints **0**;
+`whole_H_with_values` **2** at n = 4 and n = 8 with
+`residual_is_exactly_the_public_identity: true`, i.e. **the residual is
+exactly the public LogUp identity and nothing more**. FA2 14.3's
+`rank_mask = 2m + 2n − 2 + 2n` holds on all 35 all-pair `A` groups. Singleton
+groups A 17 / H 2.
+
+**Step 4, the CFS tool on the real source.** `all_checks_pass: true`. All six
+host groups pass `rank = dim S = ΣL − (k+1)` with **kernel 3 and leaked 0**:
+`SC_TZC` 84/81, `SC_DZC` 66/63, `SC_QZC` 70/67, `SC_KVZC` 62/59, `SC_SZC`
+100/97, `SC_FZC` 66/63, and every host's hosted slots precede it. All 23
+standalone slots pass `rank = dim S = N·d + 1`, leaked 0, kernel 1, at exactly
+the design's dimensions. **Every slot satisfies `L + 256 ≤ 512`**; largest
+`SC_SZC` at 306.
+
+**Step 5, the negative controls — 22 of 22 fire.** Eleven rank controls:
+`no_mask_A_per_column` 49, `no_mask_A_with_values_n4` 304,
+`single_base_row_per_claim_A_per_column` 16 (equals the derived expectation,
+not "grows" — the C-5 erratum's rubric),
+`single_prox_row_singleton_pair_claim_per_column` 1,
+`prox_pair_…` 0, `helper_sums_published_n4` 100,
+`zero_sum_row_without_fresh_pair_n4` 8, the two
+`flipped_rope_*_sharing_pair` 2 each and the two `*_own_pair` 0 each. Seven
+CFS controls all pass (`nc_hosted_c_zero`, `nc_host_nu_zero`,
+`nc_extension_degree_exceeds_mask`, `nc_qkv_unsplit`, `nc_row_budget_exceeded`,
+and the two `nc_sigma_functional_for_*`).
+
+**THE TWO OWED CONTROLS ARE NOW IMPLEMENTED AND BOTH FIRE.** They are
+mutations of the DERIVED claim list inside the rank model, not edits to the
+Rust: `share_mask` is handed the two roles and the tool re-runs.
+
+| owed control | disclosed dim | required |
+|---|---:|---|
+| `A_H16_shares_A_U16_pair_with_values_n4` (T2 section G) | **2** | ≥ 2 |
+| `A_YM_shares_A_Y_pair_with_values_n4` (T1 section G.2, lines 1210-1214) | **2** | ≥ 2 |
+| `A_H16_own_pair_not_A_U16_pair_with_values_n4` *(positive)* | **0** | 0 |
+| `A_YM_own_pair_not_A_Y_pair_with_values_n4` *(positive)* | **0** | 0 |
+
+**Step 6, against the PAPER whole-block run.** 74 comparable items — every
+count, every disclosed dimension, every group, every endpoint, every singleton
+count, every host group, every standalone slot, the largest slot, `M` rows,
+functionals, and every shared negative control — and **74 of 74 agree. There is
+no difference between what the paper schedule said and what the real source
+says.** The only four items present here and absent there are the two owed
+controls and their two positive counterparts, which the paper drivers could not
+wire; they are reported under `only_in_this_run`, not as differences.
+
+**ADAPTERS THE PARSER NEEDED** (design decision 14's warning, realised). The
+committed parser, unmodified, **fails** on the block's Rust — the test module
+asserts that it does, so no adapter here is decoration. Each is a subclass or a
+source-level normalisation inside the new driver; no committed script and no
+Rust file changed.
+
+| id | construct, with Rust file:line | why the committed tool cannot read it | what the adapter does |
+|---|---|---|---|
+| **B-1** | `hashline/src/private_block/argument.rs:570` `b.a_slice(lay.limb_off_m(kk), 5, rho(0..5), 0)?;`, and the method `hashline/src/private_block/layout.rs:647` `fn limb_off_m` | the Python `Layout` has `limb_off` only; `_int` substitutes only `lay.limb_off(..)`, so the expression is unevaluable | `BlockLayout` adds `limb_off_m` with layout.rs's own arithmetic (`a_off[A_LIMBM] + k·T`, both read from the parsed consts) and `_int` substitutes it |
+| **B-2** | receiver-qualified `lay.helpers(..)` at `argument.rs:690, :701, :743, :783, :797, :822` (the accepted source calls the free function `helpers(..)`, `private_attention/argument.rs:613, :621, :652, :666, :691`) | the committed regexes are anchored on the free-function spelling; with the `lay.` prefix the substitution leaves `lay.19` and the parse dies | the exact token `lay.helpers(` is rewritten to `helpers(` in each statement/expression before delegating; nothing else named `lay.` is touched |
+| **B-3** | `argument.rs:668` `let r_row = if slot == SC_DMM { tr.challenge_fp2_vec(5) } else { pts.r_tf.clone() };` | the committed parser handles only the TUPLE form `let (a, b) = if flag {…} else {…}`, and only with a bool local as the condition | `_statement` evaluates the condition with the committed `_cond`, takes the live branch, and binds a challenge vector or a `pts.X[.clone()]` vector; anything else falls through unchanged. The symbols are `SC_DMM.r_row[i]`, the Rust local's own name, distinct from `SC_GMM.r_tf[i]` — which is what the PCS grouping keys on |
+| **B-4** | `hashline/src/private_block/protocol.rs:54-55` `for p in lay.h_planes()` and `let sign = if h_is_table(p)` (the accepted source says `for p in 0..N_H` and `if p == H_GU8 \|\| p == H_GEXP`) | `parse_logup_sum` **refuses** the first outright, and reads an **EMPTY** negated set from the second — it would have silently lost all three table signs | `normalise_logup_source` resolves both indirections out of `layout.rs` itself — `fn h_planes` must read `(0..N_H).collect()` (`layout.rs:615-617`) and `fn h_is_table` must read `matches!(plane, …)` (`layout.rs:255-257`), both asserted, an unexpected body is a hard error — and rewrites the two lines into the spelling the committed parser understands, so all of ITS assertions (`point: vec![]`, `value: Fp2::ZERO`, loop range == `N_H`) still run. Derived negated planes: `H_GU8, H_GEXP, H_GACT` |
+| **B-5** | the two owed controls | `run_rank_tool` does not expose the schedule it built | after it returns, the already-rebound tool instance is taken from `sys.modules` and its own `build_schedule` / `a_model_groups(share_mask=…)` / `build_model` / `analyze_fast` are called again. No constant is rebound twice and no tool function is redefined |
+| **B-6** | the third LogUp table | the committed `lookup_total` knows U8 and exp only | `act = 1 << Dom::F.log() = 512` is added by exactly the committed function's own convention for exp (`argument.rs:766`, the `f_act` term, one activation lookup per `Dom::F` element) |
+
+Adapter fire counts on this source: B-1 ×9 (the nine limb iterations), B-2 ×8,
+B-3 ×3 (one arm, three slots). **Nothing needed an edit to a committed tool or
+to the Rust**, so the stage did not have to stop.
+
+**A correction to S4's prediction.** The previous entry's "ONE new form to
+check", `let i_fact = b.h(H_FACT)?;`, turned out to need **no** adapter — the
+committed `_maybe_site` already strips a `let X =` prefix. The three forms that
+did need one (B-1, B-2, B-3) were not predicted, and the fourth (B-4) would
+have been the dangerous one: it does not crash, it silently returns a LogUp
+record with no negated planes.
+
+**Two pre-existing red tests in the wider Python suite**, neither touched by
+and neither caused by this stage (both fail identically with this stage's files
+removed from the run):
+`tests.test_zk60_attention_cfs_slots.MLayout.test_rows_and_functionals`
+errors with `FileNotFoundError: scripts/zk60_joint_cfs_view.py` — that script
+exists nowhere in the repo, including the main tree; and
+`tests.test_zk60_attention_pair_schedule.Schedule.test_committed_schedule_record_is_this_tools_output`
+fails because the committed record
+`docs/zkmatrix-poc/zk60_private_attention_schedule.json` embeds the absolute
+path of the worktree it was produced in
+(`/home/victor/wt-zk60-mvp-fable/results/…`) and the regenerated record embeds
+this one. Both are for whoever owns those files; this lane owns neither.
+
+**WHAT IS NOT ESTABLISHED.** Said plainly, because the numbers above are easy
+to over-read.
+
+- **No privacy property.** Every verdict is about a linear-algebra model at
+  seeded stand-in challenges. The models exclude the sampled columns, the
+  salted Merkle paths, the CFS channel, transcript conditioning, integer-range
+  side information and `A ↔ H` correlation. The change this stage makes is that
+  the model is now read out of CODE instead of out of a MEMO — nothing else.
+- The construction's own gate — a zero-witness preimage with the same free
+  dimension as the real witness on every channel, **on captured real
+  receipts** — is still unmet.
+- **D8 and D11 stay open** for the block's two external endpoints `x_in` and
+  `xres2`; D9 stays pending.
+- **No soundness claim.** These tools model what an opening DISCLOSES, not what
+  it BINDS. The tamper tests and the `block_output_cannot_be_chosen` tripwire
+  are the source's own (S3c, S4).
+- The runtime refusal `audit_claims` ("a reserved pair is unused or shared
+  between claims") is **not** exercised by the two owed controls: they mutate
+  the model, not the prover. A Rust test that forces a shared pair through the
+  real `audit_claims` is still owed.
+- Still owed by the design and NOT done here: the R-2 re-run of
+  `limb_windows.py` / `wraparound_bounds.py` over the grown expression list
+  with the multiplicity bound re-checked at 61,440.
+
+**Precise next step.** Nothing in S5 blocks; the stage table is complete. The
+open items for whoever picks the lane up are the three in the list above (the
+`audit_claims` Rust test, the R-2 limb/wraparound re-run, and the captured-
+receipt joint-view gate), plus the security owner's own reading of whether
+condition 4 is now discharged.
