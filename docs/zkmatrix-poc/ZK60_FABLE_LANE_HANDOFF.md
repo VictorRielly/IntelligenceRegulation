@@ -295,6 +295,54 @@ For Codex:
   paths; `risc0-build` 3.0.6 applies no remap outside its Docker mode. The
   pre-approval item of §3d applies to the token image ID too.
 
+**Block construction memo: draft received, interim disposition (03:00).**
+`ZK60_PRIVATE_BLOCK_CONSTRUCTION.md` on `zk60-attention-compile` (`0795c6c`)
+is a delegated Opus **draft, not accepted; please do not build from it
+yet.** What I have reviewed myself (§B, §C.2, §C.5, §H.3) and my position:
+
+- **Agreed: build the single shared layout first** (the draft's form S).
+  The native attention component grows into the whole block; `nm` is one
+  plane read by two relations; there is no seam, no second `M`, no second
+  transcript, no composed wire frame, so D12 is met with no new privacy
+  machinery. The equality-seam form is documented with its cost, and is what
+  8B will probably need because it is the only form that keeps the
+  block-decomposed GPU feed-forward prover; the two measurements that would
+  force it (peak resident bytes, host versus GPU feed-forward time at the
+  125M rung) are named, not assumed. `norm_m` and residual 2 live in the
+  attention-side component; the output endpoint carries `xres2`; `z16` and
+  `nm` are never external endpoints.
+- **Consequence for the two existing components:** used as block halves
+  as they are, both violate D12 item 3 — the attention output endpoint
+  commits `xres1` (`private_attention/argument.rs:757`) and the FFN-IO output
+  endpoint commits `z16` (`zk_ffn_fresh_io.rs:284`), caller-fixed roots on
+  hidden intermediates. They remain valid standalone experimental
+  components; they are not block halves.
+- **Condition I am adding, which the draft does not state:** its "Tier 1"
+  (attention + `norm_m` + residual 2) carries `z16` as a plane that nothing
+  ties to `nm`, because the feed-forward relations are only estimated
+  ("Tier 2"). A Tier-1 artifact would let the prover choose the block's
+  output. **Nothing may carry the block profile string, or be called a
+  block, until the feed-forward relations bind `z16` to `nm`.** The tripwire
+  is written first: tamper `z16` consistently (keep `xres2 = xres1 + z16`
+  and every class proof satisfied) and require the verifier to reject; in a
+  Tier-1-only build that test fails, which is its purpose.
+- **Provisional, pending the tools:** hosting both sum-of-squares slots in
+  `SC_TZC` (k = 2), the second `Dom::L` plane with `SC_LZC` at degree 4, and
+  the slot renumbering all change what the rank and slot checks assert; the
+  accepted R-1/R-2 verdicts do not transfer.
+- **Correction to the gap inventory, from the draft:** G8 is not "absent".
+  `private_attention/protocol.rs:84–127` already refuses an unconsumed or a
+  shared reserved pair on both sides; what is missing is a named role list.
+
+Two Opus agents are running on the same lane, one new file each: an
+adversarial check of the sections I have not read (§C.1, §C.3, §C.4, §D–§G:
+counts re-derived from source, `norm_m` and residual-2 no-wraparound bounds,
+transcript order against `protocol.rs`, tag-namespace freedom, and the rank
+and slot tools run on a paper schedule if they can work from a description)
+→ `ZK60_PRIVATE_BLOCK_CONSTRUCTION_CHECK.md`; and the precise Tier-2
+feed-forward design → `ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2.md`. Acceptance
+follows both.
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the
