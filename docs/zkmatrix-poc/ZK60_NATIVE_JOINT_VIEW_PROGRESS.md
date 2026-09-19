@@ -96,3 +96,48 @@ worktrees — is read-only.
   and byte count; all four are in `accepted` with
   `canonical_capture_reproduced` and `native_reverified` true and
   `privacy_review_complete` false. No surprise. Next: stage 2.
+
+- 2026-09-19 — **Stage 2 green.** Model and reduction written up in the
+  report §2. Numbers, all four captures: A 0, H 2, Input 0, Output 0 (Fp);
+  the two H dimensions are exactly the public LogUp identity (the span of
+  the disclosed row functionals equals the span of the sum claim's data-row
+  weights, both of dimension 2). `k0 = 0` on every role. Pad budget: 231-247
+  distinct sampled positions against 256 pads, margin 9-25; exact rank of
+  the pad block 246 of 246 in 2.2 s as a cross-check. The verifier's own
+  column identity and group identity were re-checked against my `E_j` model:
+  0 failures. Surprise, resolved: one H claim (34 attention / 50 block)
+  touches FOUR non-data rows — its own reserved pair plus the two zero-sum
+  (u) rows, because the zsum slot evaluates them. The reduction is
+  unaffected (only the reserved pair has to be exclusive) and the check was
+  relaxed accordingly, with the count reported.
+
+- 2026-09-19 — **Small model + controls green.** The reduction is validated
+  against a brute-force dense rank on a toy instance of the same shape:
+  honest 0 = 0, honest-with-zero-sum-pair 1 = 1. Controls fire: masks
+  removed 24, shared pair 8, opened twice 10, extra helper sum 1, one pad
+  fewer 3. Committed.
+
+- 2026-09-19 — **Stages 3-6 green; one finding.** CFS: `rank R_s = dim C_s`
+  on every slot of every capture (masks cover the whole consistency
+  subspace); the mask's rounds stay inside it. FINDING: every published M
+  functional lies in the round span (`rank F = 34/28`, `rank(F mod rounds) =
+  0`), so the accounting of the DERIVED mask evaluations decides the answer:
+  2 Fp counting only what the M opening independently reveals (the single
+  Fp2 functional `q[0]+q[512]`, whose verifier identity was checked on all
+  four captures), 68/56 Fp counting every derived value. In both readings
+  the disclosed functionals are the slots' public terminal identities; the
+  redundancy is nonlinear and linear algebra cannot show it. Reported as
+  question 1 for the security owner, not explained away. Stage 4: joint =
+  sum of parts = 4 Fp (disjoint randomness across the four commitments and
+  M). Stage 5: zero-data preimage exists in the model on every covered
+  channel (H's sum claim value is zero, checked); hash channels named as not
+  covered. Stage 6: all controls fire, including the altered-bytes control
+  on all four captures.
+
+  Difference from the seeded runs (a finding): the seeded pair-schedule run
+  records 8 H groups for the BLOCK profile and emits 7 H verdicts; the real
+  receipts and `layout.rs` have 9. Its A side agrees (35).
+
+  Gate `scripts/zk60_native_joint_view.py` runs all six stages in 19 s and
+  writes `results/zk60_native_joint_view/joint_view.json` + `.done`. Tests:
+  22 pass in 54 s. Report written. Lane complete.
