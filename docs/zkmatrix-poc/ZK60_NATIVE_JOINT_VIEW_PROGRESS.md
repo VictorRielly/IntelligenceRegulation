@@ -65,3 +65,34 @@ worktrees — is read-only.
   committed before any analysis code. Next: read
   `hashline/src/private_block/protocol.rs` label by label and the precedent
   replay tool, then build stage 1.
+
+- 2026-09-19 — **Stage 1 green on all four captures.** Sources read label by
+  label: `zkp-core/src/transcript.rs` (state/counter, `squeeze`,
+  `challenge_indices`), `zkp-core/src/ntt.rs`, `zkp-core/src/field.rs`,
+  `zkp-core/src/pcs.rs` (`encode_row_zk`, `zpart_weights`, `group_zclaims`,
+  `zk_rhos`, `verify_zk`), `zkp-core/src/sumcheck.rs` (`verify`, `CfsMask`,
+  `CfsMasker`), `hashline/src/zk.rs` (`mask_commit/open/verify`),
+  `hashline/src/native_capture.rs` (the capture writer), both
+  `protocol.rs` files. Wrote `scripts/zk60_native_jv_field.py` (Goldilocks,
+  Fp2, NTT, BLAKE3 transcript, exact rank/solve over Fp),
+  `scripts/zk60_native_jv_capture.py` (schema-3 reader + manifest
+  cross-check) and `scripts/zk60_native_jv_replay.py`.
+
+  Result, from the capture's public data only (expected-IO policy bytes,
+  public-statement digest, the pinned `parameters` literal, the block's
+  `calibration` digest `blake3("B3 public fixed calibration v1")`, the
+  schedule digest, the three roots, and every published field value):
+
+  | capture | checkpoints | challenges | final counter | failures |
+  |---|---|---|---|---|
+  | block `40083e7a…` | 80 | 1543 | 1863 | 0 |
+  | block `7d334e06…` | 80 | 1543 | 1863 | 0 |
+  | attention `6c5e83fd…` | 65 | 1122 | 1442 | 0 |
+  | attention `c26d1f05…` | 65 | 1122 | 1442 | 0 |
+
+  A checkpoint is the pair (32-byte state, next Fp2 challenge) as
+  `native_capture.rs::state` writes it, so the counter is checked too.
+  Manifest cross-check: 4/4 JSON bundles match `validation.json` by sha256
+  and byte count; all four are in `accepted` with
+  `canonical_capture_reproduced` and `native_reverified` true and
+  `privacy_review_complete` false. No surprise. Next: stage 2.
