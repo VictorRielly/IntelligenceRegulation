@@ -51,6 +51,26 @@ prover.
 | the same stack **with attention and privacy** (not yet built at 8B) | laptop GPU | about 290 s: attention counted at 2.9× the FFN cost, input privacy measured at +4.7% at 8B width | about 60× | [COUNTED from measured pieces] |
 | one tiny complete block in the zkVM (above) | laptop CPU | 3,743 s for roughly 10^5 multiply-accumulates; the 8B FFN pass is 2.9 × 10^12 | not a performance path at all: the zkVM line is the privacy demonstrator, never the product prover (D2) | [MEASURED; COUNTED] |
 
+**Amortized rate (weight commitment excluded).** The weight commitment is
+per-model work (cached by `--wcache`), so in the limit of many proofs the
+rate is 512 tokens over the activation-side prove time of one 512-token
+proof (Mistral-7B, 32 FFN layers, `results/hashline_zk_8b_gpu.md` §2):
+
+| run | prove | of which commit W | activation side | **tokens/s, amortized** | with W |
+|---|---:|---:|---:|---:|---:|
+| public IO, laptop GPU (lane AH, 2026-09-04) | 95.5 s | 41.9 s | 53.5 s | **9.6** | 5.4 |
+| private P1, laptop GPU (lane AI, same day; card 8.2 GB, run paged at 8.6 GB) | 265.3 s | 54.2 s | 211.2 s | **2.4** | 1.9 |
+| public IO, laptop CPU (2026-09-03) | 510 s | 225 s | 285 s | **1.8** | 1.0 |
+
+Labels: [MEASURED, NOISY-SHARED] per row; the division is [COUNTED]. These
+are prefill rates (512 tokens per proof), FFN-only (attention counted at
+2.9× the FFN cost would divide them by about 3), and the private row was
+starved of video memory (55% of its time is one paging-bound phase), so it
+understates a card with room. One-token-at-a-time decode is far worse per
+token: a single layer at 16 tokens cost 72% of the same layer at 256 on
+the CPU, so per-token cost at small batches is 10–20× the prefill figure
+[COUNTED from one measurement]; no decode run exists at 8B.
+
 A bigger GPU (a 5090 or an H100) has not been measured. The project's own
 throughput model says the built design does not reach the goal on any GPU
 without the recorded design changes (preprocessed weights, the two-tier
