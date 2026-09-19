@@ -50,9 +50,29 @@ pub(crate) fn isqrt(v: u64) -> u64 {
     res
 }
 
-/// round to nearest, ties toward +inf: (y, remainder in [-2^(s-1), 2^(s-1)))
-fn requant(acc: i64, sh: u32) -> (i64, i64) {
-    let y = (acc + (1i64 << (sh - 1))) >> sh;
+/// The rounding bias `2^(sh-1)`, and ZERO at `sh = 0`.
+///
+/// Defect D-2 of the code review: written inline as `1i64 << (sh - 1)` with
+/// `sh: u32`, the subtraction underflows to `u32::MAX` at `sh = 0` and the
+/// shift then panics in debug and is masked in release. No call reaches
+/// `sh = 0` today — the up matmul, the one site with `SH_U = 0`, deliberately
+/// bypasses `quantize` (T2 section A.4) — but `SH_U` is a calibration constant,
+/// so the trap is one constant away. At `sh = 0` the kernel's own rule is exact
+/// up-scaling by `2^0` (`private-block-kernel::requant`, the `sh <= 0` branch):
+/// the identity map with nothing to round and no remainder, which is what a
+/// zero bias gives here.
+pub(super) fn half(sh: u32) -> i64 {
+    if sh == 0 {
+        0
+    } else {
+        1i64 << (sh - 1)
+    }
+}
+
+/// round to nearest, ties toward +inf: (y, remainder in [-2^(s-1), 2^(s-1)));
+/// at `sh = 0` the identity `(acc, 0)`
+pub(super) fn requant(acc: i64, sh: u32) -> (i64, i64) {
+    let y = (acc + half(sh)) >> sh;
     (y, acc - (y << sh))
 }
 
@@ -70,7 +90,7 @@ fn quantize(acc: &[i64], sh: u32, lo: i64, hi: i64, site: &'static str) -> Resul
             return Err(range(site));
         }
         y.push(q);
-        r.push(rem + (1i64 << (sh - 1)));
+        r.push(rem + half(sh));
     }
     Ok((y, r))
 }

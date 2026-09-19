@@ -553,32 +553,37 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             let tau = tr.challenge_fp2_vec(5);
             let mu = tr.challenge_fp2_vec(6);
             let nu = nonzero(tr.challenge_fp2_vec(2))?;
-            // tables: 0 eq(tau), 1 eq(r_t), 2 eq(r_t2), 3 A_D, 4 A_DSQ,
-            // 5..14 A_LIMB's nine sub-slices, 14 A_DM, 15 A_DSQM,
-            // 16..25 A_LIMBM's nine sub-slices
-            b.eq(&tau, 0);
-            b.eq(&pts.r_t, 0);
-            b.eq(&pts.r_t2, 0);
-            b.a(A_D)?;
-            b.a(A_DSQ)?;
+            // Table indices are CAPTURED from the builder, never written as
+            // literals (defect D-1 of the code review: a hand-written list had
+            // drifted from the code it documented). The nine sub-slices of each
+            // limb plane are pushed by the loop that follows their `+ 1`, in
+            // sub-plane order: D's three, a1's three, a2's three.
+            let i_tau = b.eq(&tau, 0);
+            let i_rt = b.eq(&pts.r_t, 0);
+            let i_rt2 = b.eq(&pts.r_t2, 0);
+            let i_d = b.a(A_D)?;
+            let i_dsq = b.a(A_DSQ)?;
+            let i_limb = i_dsq + 1;
             for kk in 0..N_LIMBS {
                 b.a_slice(lay.limb_off(kk), 5, rho(0..5), 0)?;
             }
-            b.a(A_DM)?;
-            b.a(A_DSQM)?;
+            let i_dm = b.a(A_DM)?;
+            let i_dsqm = b.a(A_DSQM)?;
+            let i_limbm = i_dsqm + 1;
             for kk in 0..N_LIMBS {
                 b.a_slice(lay.limb_off_m(kk), 5, rho(0..5), 0)?;
             }
             let hosted = vec![(SC_SS, nu[0]), (SC_SSM, nu[1])];
             let poly = move |v: &[Fp2]| {
                 let l3 = |o: usize| v[o].add(v[o + 1].mul(p1)).add(v[o + 2].mul(p2));
-                let (d, dsq, dl, a1, a2) = (v[3], v[4], l3(5), l3(8), l3(11));
-                let (dm, dsqm, dlm, a1m, a2m) = (v[14], v[15], l3(16), l3(19), l3(22));
+                let (d, dsq, dl, a1, a2) = (v[i_d], v[i_dsq], l3(i_limb), l3(i_limb + 3), l3(i_limb + 6));
+                let (dm, dsqm, dlm, a1m, a2m) = (v[i_dm], v[i_dsqm], l3(i_limbm), l3(i_limbm + 3), l3(i_limbm + 6));
                 let zc = mu[0].mul(dsq.sub(d.mul(d))).add(mu[1].mul(d.sub(dl))).add(mu[2].mul(d.double().sub(a1).sub(a2)));
                 let zc = zc.add(mu[3].mul(dsqm.sub(dm.mul(dm)))).add(mu[4].mul(dm.sub(dlm))).add(mu[5].mul(dm.double().sub(a1m).sub(a2m)));
-                v[0].mul(zc)
-                    .add(nu[0].mul(v[1]).mul(dsq.add(a1).sub(k(NORM_CEPS))))
-                    .add(nu[1].mul(v[2]).mul(dsqm.add(a1m).sub(k(NORM_CEPS))))
+                v[i_tau]
+                    .mul(zc)
+                    .add(nu[0].mul(v[i_rt]).mul(dsq.add(a1).sub(k(NORM_CEPS))))
+                    .add(nu[1].mul(v[i_rt2]).mul(dsqm.add(a1m).sub(k(NORM_CEPS))))
             };
             b.finish(Box::new(poly), hosted)
         }

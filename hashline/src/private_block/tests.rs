@@ -3,12 +3,14 @@
 //! input, model or secret is involved, and nothing is written to disk.
 //! Run in release (`cargo test --release`): each leg is a full proof.
 
+use super::argument::{argument, Cm, Ctx, Side};
 use super::layout::*;
-use super::protocol::{audit_claims, check_opening_challenges, prove_inner, verify_inner};
+use super::protocol::{audit_claims, check_opening, check_opening_challenges, prove_inner, transcript, verify_inner};
 use super::witness::{self, Witness};
 use super::*;
-use crate::field::Fp2;
+use crate::field::{Fp, Fp2};
 use crate::pcs::{Slice, ZClaim, ZPart};
+use crate::tables_attn::{TAG_ACT, TAG_EXP, TAG_U8};
 
 fn spec() -> IoSpec {
     IoSpec::new(*blake3::hash(b"private block: public synthetic test context").as_bytes(), 0, 0).unwrap()
@@ -329,6 +331,126 @@ fn the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows() {
     assert!(audit_claims(&[claim(0, 4), dead], 10, &sites, None, 8).is_err(), "a zero mask coefficient");
     let unmasked = ZClaim { parts: vec![part(2, Fp2::ONE)], value: Fp2::ZERO };
     assert!(audit_claims(&[claim(0, 4), claim(1, 6), unmasked], 10, &sites, None, 8).is_err(), "an unmasked claim");
+}
+
+/// DEFECT D-2 of the 2026-09-19 code review: `witness::requant` computed its
+/// rounding bias as `1i64 << (sh - 1)` with `sh: u32`, so at `sh = 0` the
+/// subtraction underflowed to `u32::MAX` — a panic in debug, a masked shift in
+/// release. Nothing reaches it today (the up matmul, this profile's only
+/// `SH_U = 0` site, bypasses `quantize` deliberately), which is exactly why it
+/// needs a test rather than an argument. Two claims: the map is the identity
+/// with no remainder at shift 0, and at every shift the profile uses it is the
+/// integer reference's own requantization with the documented remainder.
+#[test]
+fn requant_is_the_identity_at_shift_zero_and_the_kernels_rounding_above_it() {
+    use private_block_kernel as kern;
+    assert_eq!(witness::half(0), 0);
+    for v in [0i64, 1, -1, 2, -2, 127, -128, 8191, -8192, 32767, -32768, 1 << 40, -(1 << 40)] {
+        assert_eq!(witness::requant(v, 0), (v, 0), "requant({v}, 0) is not the identity");
+        // the kernel's own rule at a non-positive shift: exact up-scaling by 2^0
+        assert_eq!(witness::requant(v, 0).0, kern::requant(v, 0, "test").expect("no overflow"));
+    }
+    // `acc = y 2^sh + r` with `r` in [-2^(sh-1), 2^(sh-1)), the biased limb
+    // `r + 2^(sh-1)` (what `quantize` commits) in [0, 2^sh), and `y` the
+    // kernel's value — over four full periods each side of zero, so every
+    // residue, both rounding ties and both signs are swept.
+    for sh in 1..=14u32 {
+        let (step, half) = (1i64 << sh, 1i64 << (sh - 1));
+        assert_eq!(witness::half(sh), half);
+        for acc in -4 * step..=4 * step {
+            let (y, r) = witness::requant(acc, sh);
+            assert_eq!(acc, y * step + r, "the requantization identity at sh={sh}, acc={acc}");
+            assert!((-half..half).contains(&r), "remainder outside its window at sh={sh}, acc={acc}");
+            assert!((0..step).contains(&(r + witness::half(sh))), "biased limb outside [0, 2^{sh}) at acc={acc}");
+            assert_eq!(y, kern::requant(acc, sh as i32, "test").expect("no overflow"), "kernel parity at sh={sh}, acc={acc}");
+        }
+    }
+}
+
+/// the two reserved-pair rows a claim carries (`build_claim` pushes the pair
+/// parts last, in row order)
+fn pair_rows(c: &ZClaim) -> [usize; 2] {
+    let n = c.parts.len();
+    [c.parts[n - 2].slice.offset / N, c.parts[n - 1].slice.offset / N]
+}
+
+fn absorb_root(tr: &mut crate::transcript::Transcript, label: &[u8], root: &[u8; 32], rows: usize) {
+    tr.absorb(label, root);
+    tr.absorb_u64(b"rows", rows as u64);
+    tr.absorb_u64(b"log-cols", LOG_N as u64);
+}
+
+/// The claim list the VERIFIER really builds for `A`, and the transcript state
+/// at the moment it audits it: `verify_inner`'s own steps in its own order
+/// (`protocol.rs:436-452`), with nothing simulated.
+fn verifier_a_claims(blk: &BlockPublic, expected: &ExpectedIo, receipt: &Receipt) -> (Vec<ZClaim>, crate::transcript::Transcript) {
+    let lay = Layout::new();
+    let ntt = crate::ntt::NttTables::new(12);
+    let mut tr = transcript(blk, expected, &lay);
+    absorb_root(&mut tr, b"A", &receipt.a_root, lay.a_rows);
+    tr.absorb(b"M", &receipt.mask_root);
+    let beta = tr.challenge_fp2();
+    let gamma = tr.challenge_fp2();
+    let alpha = tr.challenge_fp2();
+    let (g_u8, g_exp, g_act) = (gamma.mul_base(Fp::new(TAG_U8)), gamma.mul_base(Fp::new(TAG_EXP)), gamma.mul_base(Fp::new(TAG_ACT)));
+    absorb_root(&mut tr, b"H", &receipt.h_root, lay.h_rows);
+    let ctx = Ctx { lay: &lay, public: blk.attention(), ff: blk.feed_forward(), alpha, beta, g_u8, g_exp, g_act };
+    let mut side = Side::Verify { slots: &receipt.slots };
+    let acc = argument(&mut side, &ctx, &mut tr).expect("the honest receipt's slots verify");
+    crate::zk::mask_verify(&receipt.mask_root, &mask_specs(), &acc.fs, &receipt.mask_open, &ntt, &mut tr).expect("the M opening verifies");
+    (acc.claims[Cm::A as usize].clone(), tr)
+}
+
+/// OWED by the S5 ledger entry: the claim audit is exercised on HAND-BUILT
+/// lists by `the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows`,
+/// never on the list the argument really builds. This runs the verifier's own
+/// `argument()` over an honest receipt — the same call `verify_inner` makes
+/// (`protocol.rs:448`), producing the very list it audits (`:452`) — and puts
+/// that REAL list through `check_opening` with the exact arguments BOTH sides
+/// pass (`prove_inner` `:396` and `verify_inner` `:452`: `lay.a_rows`,
+/// `lay.a_site_rows()`, no sum pair, `lay.a_prox`, `A_GROUPS`). Two planes
+/// sharing one reserved pair, and a reserved pair no claim consumes, are both
+/// refused, by name.
+///
+/// WHAT IT DOES NOT DO, plainly: it does not force a degenerate list through
+/// `prove_inner` or `verify_inner` end to end. Which pair a site gets is
+/// `lay.a_site(slot, k)`, a function of the fixed layout alone, so no witness,
+/// receipt or public word can make the real list share or orphan a pair; the
+/// only way in from a test would be a hook inside `protocol.rs`, i.e. a
+/// release-reachable path, which is worse than the gap it would close. The
+/// prover audits the same structure: `run_slot` appends one `build_claim` per
+/// private table on both sides, from the same `def.tabs` and the same
+/// `p.mask_row`, and
+/// `honest_receipt_verifies_in_typed_and_wire_form_with_the_declared_transcript_order`
+/// pins that the two sides walk the same slots in the same order.
+#[test]
+fn the_real_claim_list_is_refused_when_a_reserved_pair_is_shared_or_unconsumed() {
+    let (blk, expected, receipt, _) = honest();
+    let lay = Layout::new();
+    let (ac, tr) = verifier_a_claims(&blk, &expected, &receipt);
+    let sites = lay.a_site_rows();
+    assert_eq!(ac.len(), sites.len() / 2, "one claim per reserved A pair");
+    assert!(ac.iter().all(|c| c.parts.len() == 3), "an A claim is one data slice and its pair");
+    let audit = |claims: &[ZClaim]| check_opening(claims, lay.a_rows, &sites, None, lay.a_prox, A_GROUPS, &tr);
+    audit(&ac).expect("the real claim list passes the audit both sides run");
+
+    // (i) two planes share one reserved pair: the second claim's pair parts are
+    // pointed at the first claim's rows, its own pair left with no claim
+    let mut shared = ac.clone();
+    let row = pair_rows(&ac[0])[0];
+    assert_ne!(row, pair_rows(&ac[1])[0], "the two claims must start out on different pairs");
+    for j in 0..2 {
+        let p = &mut shared[1].parts[1 + j];
+        p.slice.offset = (row + j) * N + p.slice.offset % N;
+    }
+    let err = audit(&shared).expect_err("a shared reserved pair passed the audit");
+    assert!(err.contains("unused or shared"), "expected the shared-pair refusal, got `{err}`");
+
+    // (ii) a reserved pair no claim consumes at all
+    let mut orphaned = ac.clone();
+    orphaned.remove(1);
+    let err = audit(&orphaned).expect_err("an unconsumed reserved pair passed the audit");
+    assert!(err.contains("unused or shared"), "expected the unconsumed-pair refusal, got `{err}`");
 }
 
 #[test]

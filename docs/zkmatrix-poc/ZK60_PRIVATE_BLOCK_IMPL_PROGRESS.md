@@ -1038,3 +1038,162 @@ open items for whoever picks the lane up are the three in the list above (the
 `audit_claims` Rust test, the R-2 limb/wraparound re-run, and the captured-
 receipt joint-view gate), plus the security owner's own reading of whether
 condition 4 is now discharged.
+
+### 2026-09-19 — S6 THE CODE REVIEW'S TWO DEFECTS AND ITS TEST GAPS (done, one item not reachable)
+
+Closing `ZK60_PRIVATE_BLOCK_CODE_REVIEW.md` D-1, D-2, H-1, H-2, H-3 and the
+S5 entry's owed `audit_claims` test. **No protocol behaviour, constant, label
+or count changed**, no accepted file touched, no script, Python test or design
+document touched. Four files, all inside the module: `argument.rs` (D-1),
+`witness.rs` (D-2), `tamper.rs`, `tests.rs`. Nothing here is a privacy
+acceptance and nothing here is a speed claim.
+
+**D-1 — the `SC_TZC` table-index comment. FIXED, structurally.** The comment
+that said `5..14 A_LIMB's nine sub-slices, 14 A_DM` (giving table 14 to two
+different things) is gone, and with it every hand-written index in the arm:
+`i_tau`, `i_rt`, `i_rt2`, `i_d`, `i_dsq`, `i_dm`, `i_dsqm` are now CAPTURED
+from `b.eq` / `b.a`, and the two nine-slice limb blocks are addressed as
+`i_dsq + 1` and `i_dsqm + 1`, the index the loop that immediately follows
+starts at. The polynomial reads `v[i_*]` instead of `v[3]`, `v[14]`, `l3(16)`.
+The two `b.a_slice` loop statements are left exactly as they were, so the
+inventory driver's adapter B-1 still matches (it does; see the commands
+below). Every index resolves to the same number it did before
+(0, 1, 2, 3, 4, 5, 14, 15, 16), which the cross-verification below measures
+rather than asserts.
+
+**D-2 — `requant` shift-underflows at `sh = 0`. FIXED.** `witness.rs` now has
+one `half(sh)` helper — `0` at `sh = 0`, `1 << (sh - 1)` above it — and both
+users call it: `requant`, where `1i64 << (sh - 1)` underflowed `u32` at
+`sh = 0`, and `quantize`'s biased-remainder line one screen below, which had
+the identical expression and the identical trap. At `sh = 0` `requant` is now
+the identity `(acc, 0)`, which is the kernel's own `sh <= 0` rule (exact
+up-scaling by `2^0`) rather than a new convention. `tamper.rs`'s copy of
+`requant` (the review's "the same underflow is duplicated") no longer
+duplicates anything: it calls `witness::requant` and adds `witness::half`, so
+the two cannot drift. `requant` and `half` are `pub(super)` so the test can
+see them; nothing outside `private_block` can.
+
+New test `requant_is_the_identity_at_shift_zero_and_the_kernels_rounding_above_it`
+(`tests.rs`): `requant(v, 0) == (v, 0)` for thirteen `v` including negatives
+and `±2^40`, and for `sh` in `1..=14` a sweep of `acc` over four full periods
+each side of zero (every residue, both rounding ties, both signs) asserting
+`acc = y·2^sh + r`, `r ∈ [-2^(sh-1), 2^(sh-1))`, the committed biased limb
+`r + 2^(sh-1) ∈ [0, 2^sh)`, and `y` equal to `private_block_kernel::requant`'s
+own value at that shift.
+
+**Test gap A (H-1) — the `norm_m` family now has verifier-side tamper tests.**
+Four cases, each in `tamper.rs`, each building a real receipt from a tampered
+witness, each requiring the VERIFIER to reject at a named slot index or at the
+LogUp sum claim, each with the honest proof asserted beside it. The catch was
+worked out from `argument.rs` and written into the test's doc comment BEFORE
+it was run; **predicted equals measured in all four**, so there is no finding
+to report here.
+
+| Case | What is tampered, and what is recomputed | Predicted | Measured |
+|---|---|---|---|
+| (a) `a_norm_m_output_not_derived_from_xres1_is_rejected` | `nm += 1` with the WHOLE feed-forward half recomputed honestly from it (gate, `rg`, activation lookup, up, product, `rh`, down, `rd`, residual 2, every limb) and the endpoint owner committing the resulting output | `Slot(SC_DZC)` — only `c6` is left | `Slot(SC_DZC)` |
+| (b1) `the_norm_m_denominator_is_pinned_by_its_isqrt_witness` | `dsqm += 1` alone | `Slot(SC_TZC)` (`mu[3]` and the `nu[1]` host term) | `Slot(SC_TZC)` |
+| (b2) same test | `dm += 1` with `dsqm` and `dm`'s three byte limbs recomputed | `Slot(SC_TZC)` (`mu[5]` and the host term; `SC_DZC`'s `c6`/`c7` break too and slot 2 runs before slot 14 — stated in the test, not argued away) | `Slot(SC_TZC)` |
+| (b3) same test | `dm += 1` made consistent everywhere the integers allow: `dsqm = dm²`, the limbs, `a1m = ss + Ceps − dsqm`, `a2m = 2dm − a1m`, then `nm`, `rho_m`, `sigma_m` and the whole feed-forward half recomputed, so all four `SC_TZC` relations, the host term and all of `SC_DZC` hold | `LogUp` — `a1m < 0` because `a1m ≤ 2dm` honestly, and a negative value's top byte limb leaves `[0, 256)` | `LogUp` |
+| (c) `a_norm_m_limb_outside_its_byte_range_is_rejected_by_the_lookups` | one limb pair of each of `dm`, `a1m`, `a2m` shifted `(+256, −1)`: the value is unchanged, only the byte class is broken | `LogUp` | `LogUp` |
+| (d) `the_norm_m_quotient_is_pinned_by_its_remainder_windows` | `(nm, rho_m, sigma_m) → (nm − 1, rho_m + den, sigma_m − den)` with `den = 2^12·dm`, so `c6` and `c7` still hold over the integers exactly, plus the whole feed-forward half recomputed from `nm − 1` | `LogUp` — `sigma_m − den < 0` leaves its window | `LogUp` |
+
+(b3) and (d) are the two worth reading: together they say that neither the
+isqrt witness nor the division identity pins `norm_m` by arithmetic alone —
+the byte windows on `a1m`, `a2m`, `rho_m`, `sigma_m` are load-bearing, and the
+tests now fail if they stop being enforced. The accepted attention component
+has no verifier-side `norm_a` tamper to mirror (`private_attention/tests.rs`
+moves `A_D` and `A_Y` only inside the loop that accepts any error), so these
+were written from the argument rather than copied.
+
+**Test gap C (H-3, erratum E-22) — the `u16 = 0` case. THE VERIFIER REJECTS;
+this is NOT a blocking finding.**
+`an_activation_value_at_a_zero_up_output_is_rejected_by_the_pair_lookup`.
+MEASURED: the public synthetic fixture has **no** index with `u16 = 0`, so the
+case is built from public synthetic weights by zeroing **column 0 of `Wu`**
+(`u16[t, 0] = Σ_i nm[t,i]·Wu[i,0] = 0` for every row, whatever `nm` is);
+everything else — the attention half, `gamma_m`, `Wg`, `Wd`, the activation
+table, the input — is the fixture's own, the statement stays public and
+digested, and the prover and the verifier get the same one. The test asserts
+which of the two constructions it used, so a later fixture change cannot
+silently downgrade it to the easy case. At that index `a16` is moved to
+another legal int16 that is not `act[g8 + 128]` and **nothing else is
+recomputed**, because nothing else changes: the test asserts `h16` and both
+`rh` limbs are untouched, and `f0 = a16·0 − 2^14·0 − 2^13 + 2^13 = 0` still
+holds. PREDICTED `LogUp` (the pair lookup is the only other relation `a16`
+appears in), MEASURED `LogUp`. The honest proof under the same statement
+verifies beside it.
+
+**Test gap B (H-2) — `A_MACT`. PARTLY DONE, and the part that is missing is
+not reachable from a test.** `a_moved_activation_multiplicity_is_rejected_by_the_logup_sum_claim`
+moves one unit of multiplicity from a table row to entry 0 with the TOTAL
+preserved, through the prover's own bucketing rule (an activation use whose
+pair is off its row is counted into entry 0, `protocol.rs:306`), asserts from
+`ProveStats` that `act_lookups` is still 512 and that the row it moved off is
+not entry 0, and requires `LogUp`. PREDICTED `LogUp`, MEASURED `LogUp`.
+What is NOT done: setting a multiplicity DIRECTLY (zeroing a count, or moving
+one with every denominator left honest). `A_MACT` is not a witness plane —
+`is_multiplicity` (`layout.rs:218-220`) keeps it out of the committed planes
+the witness fills and `prove_inner` derives the whole row from the witness
+(`:302-312`) — so no witness edit can reach it, and the histogram and the
+denominators it is checked against are always computed from the same witness
+in the same pass. Only a modified prover can choose the row freely; giving a
+test that power means a hook inside `protocol.rs`, i.e. a release-reachable
+path, which is worse than the gap. Recorded as an open item, not as done.
+
+**OWED (S5) — the claim audit on the list the argument really builds. DONE for
+`A`.** `the_real_claim_list_is_refused_when_a_reserved_pair_is_shared_or_unconsumed`
+(`tests.rs`) runs the VERIFIER's own `argument()` over an honest receipt —
+the same call `verify_inner` makes at `protocol.rs:448`, after the same header
+absorbs, the same `beta/gamma/alpha` and the same `M` verification — and puts
+the resulting real claim list through `check_opening` with the exact arguments
+both sides pass (`prove_inner:396`, `verify_inner:452`). The honest list
+passes; pointing the second claim's pair parts at the first claim's rows, and
+dropping a claim so its pair is consumed by nobody, are both refused with
+"a reserved pair is unused or shared between claims". What this does NOT do:
+force a degenerate list through `prove_inner`/`verify_inner` end to end. Which
+pair a site gets is `lay.a_site(slot, k)`, a function of the fixed layout
+alone, so no witness, receipt or public word can make the real list share or
+orphan a pair; the prover's list is built by the same `run_slot`/`build_claim`
+code from the same `p.mask_row` and audited by the same function with the same
+arguments, and the transcript-order test already pins that the two sides walk
+the same slots in the same order.
+
+**Commands and counts** (WSL box, `flock /tmp/zk-build.lock`, shared release
+target dir, no heavy lock, no GPU, nothing over a minute).
+
+1. `cargo check --lib --tests --examples` → exit 0, **8 warnings before and 8
+   after, all eight pre-existing and all in `src/attention.rs`**; zero in
+   `private_block`.
+2. `cargo test --release --lib private_ -- --test-threads=1` → **38 passed
+   before, 46 passed after** (private_block 27 → 35, private_attention 11
+   unchanged), 21.0 s.
+3. `cargo test --release --test zk60_private_block -- --test-threads=1` →
+   **4 passed**, 4.0 s. `--test zk60_private_attention` → **4 passed**, 3.0 s.
+4. `python3 -m unittest discover -s …/tests -p "test_zk60_private_block_inventory.py"`
+   → **29 tests, OK**, 39 s, from the worktree root and from another working
+   directory alike. The D-1 change did not disturb the parser's adapters.
+5. `git --no-pager diff --stat zk60-attention-compile -- hashline/src/private_attention.rs
+   hashline/src/private_attention hashline/examples/zk60_private_attention.rs
+   hashline/tests/zk60_private_attention.rs` → **prints nothing**.
+
+**The proof is unchanged — measured, not argued.** The receipt written by the
+example BEFORE these edits (2,816,472 bytes) was **verified by a fresh process
+running the code AFTER them**: `ACCEPT: 2816472 bytes verified in 0.044 s`,
+with the three corruption controls still refused. That single check covers
+everything the receipt is bound to: the profile, the expected-IO policy, the
+public-statement digest, the `"parameters"` payload, the calibration digest
+and the **schedule digest** are byte-identical (they form the 32-byte frame
+binding the parser re-derives), and every slot definition, challenge draw,
+table index and polynomial of `argument()` is unchanged (the verifier re-runs
+all twenty-three of them against the old frame). A fresh prove/verify after
+the change gives the same 2,816,472 bytes, the same six printed schedule
+lines and the same row and lookup counts.
+
+**What is still owed after this stage** (unchanged by it, and nothing here
+closes any of it): the direct `A_MACT` multiplicity tamper described above;
+the R-2 re-run of `limb_windows.py` / `wraparound_bounds.py` over the grown
+expression list; the captured-receipt joint-view gate; D8 / D11. The review's
+hardening items H-4 (the 18-case loop in `tests.rs` still accepts any error),
+H-5 (`Catch::LogUp` matches the whole `H` opening, not the sum claim alone),
+H-6, H-7 and H-8 were outside this brief's scope and were not touched.

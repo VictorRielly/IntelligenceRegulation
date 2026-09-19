@@ -62,11 +62,13 @@ impl Catch {
 
 // ---------------------------------------------------------------- arithmetic
 
-/// one biased requantization, exactly as `witness.rs` does it:
-/// `acc = 2^sh y + r' - 2^(sh-1)` with `r'` in `[0, 2^sh)`
+/// one biased requantization, exactly as `witness::quantize` stores it:
+/// `acc = 2^sh y + r' - 2^(sh-1)` with `r'` in `[0, 2^sh)`. It calls the
+/// witness's own `requant` rather than repeating it, so the two cannot drift
+/// and defect D-2's shift underflow is not duplicated here.
 fn requant(acc: i64, sh: u32) -> (i64, i64) {
-    let y = (acc + (1i64 << (sh - 1))) >> sh;
-    (y, acc - (y << sh) + (1i64 << (sh - 1)))
+    let (y, rem) = witness::requant(acc, sh);
+    (y, rem + witness::half(sh))
 }
 
 fn put_limbs(w: &mut Witness, l0: usize, l1: usize, idx: usize, v: i64) {
@@ -93,6 +95,85 @@ fn recompute_from_product(w: &mut Witness, ff: &FeedForwardPublic) -> bool {
         put_limbs(w, A_RH0, A_RH1, idx, rh);
     }
     recompute_from_h16(w, ff)
+}
+
+/// Recompute the WHOLE feed-forward half from `nm`, the way the witness
+/// builder does: the gate and its biased remainder, the activation lookup,
+/// the up matmul (`SH_U = 0`, so no remainder) and every limb, then the
+/// product, the down matmul, residual 2 and their limbs. After it, a tamper on
+/// `nm` leaves the norm relation itself as the only thing that can notice.
+/// Returns false if any value would leave its class.
+fn recompute_from_nm(w: &mut Witness, ff: &FeedForwardPublic) -> bool {
+    for t in 0..T {
+        for j in 0..F {
+            let idx = t * F + j;
+            let (mut gacc, mut uacc) = (0i64, 0i64);
+            for i in 0..D {
+                let nm = w.planes[A_YM][t * D + i];
+                gacc += nm * i64::from(ff.wg_t[i * F + j]);
+                uacc += nm * i64::from(ff.wu_t[i * F + j]);
+            }
+            let (g8, rg) = requant(gacc, SH_G);
+            // the gate's class is the kernel's I8 and INCLUDES -128 (T2 A.2)
+            if !(-128..=127).contains(&g8) || !in16(uacc) {
+                return false;
+            }
+            w.planes[A_G8][idx] = g8;
+            w.planes[A_RGL][idx] = rg;
+            w.planes[A_A16][idx] = i64::from(ff.act[(g8 + 128) as usize]);
+            w.planes[A_U16][idx] = uacc;
+            put_limbs(w, A_UL0, A_UL1, idx, uacc + 32768);
+        }
+    }
+    recompute_from_product(w, ff)
+}
+
+/// the `k`-th of `count` byte limbs, exactly `witness::limbs`: the top limb
+/// carries the sign, so a negative value leaves the byte class THERE and
+/// nowhere else
+fn limb(v: i64, k: usize, count: usize) -> i64 {
+    if k + 1 == count {
+        v >> (8 * k)
+    } else {
+        (v >> (8 * k)) & 255
+    }
+}
+
+/// the four-limb value of a `Dom::D` remainder plane family at one index
+fn l4(w: &Witness, p0: usize, idx: usize) -> i64 {
+    (0..4).map(|k| w.planes[p0 + k][idx] << (8 * k)).sum()
+}
+
+/// write one three-limb sub-plane triple of `A_LIMBM` (0 = `dm`, 3 = `a1m`,
+/// 6 = `a2m`; sixteen 32-entry sub-planes packed into one `Dom::L` plane)
+fn put_limbs_m(w: &mut Witness, base: usize, t: usize, v: i64) {
+    for k in 0..3 {
+        w.planes[A_LIMBM][(base + k) * T + t] = limb(v, k, 3);
+    }
+}
+
+/// Recompute `norm_m`'s quotient row from the committed `dm`, exactly as
+/// `witness::rms_norm` does: `nm = floor(num / den)`, `rho = num mod den`,
+/// `sigma = den - 1 - rho` and their four byte limbs each. False if any value
+/// would leave its class.
+fn recompute_norm_m_row(w: &mut Witness, ff: &FeedForwardPublic, t: usize) -> bool {
+    let dm = w.planes[A_DM][t];
+    let den = dm << (NORM_TN + 1);
+    for i in 0..D {
+        let idx = t * D + i;
+        let num = 2 * w.planes[A_X1][idx] * i64::from(ff.gamma_m[i]) * NORM_CN + (dm << NORM_TN);
+        let (q, rho) = (num.div_euclid(den), num.rem_euclid(den));
+        let sigma = den - 1 - rho;
+        if !(-127..=127).contains(&q) || rho >= 1 << NORM_WRHO || sigma >= 1 << NORM_WRHO {
+            return false;
+        }
+        w.planes[A_YM][idx] = q;
+        for k in 0..4 {
+            w.planes[A_MR0 + k][idx] = limb(rho, k, 4);
+            w.planes[A_MS0 + k][idx] = limb(sigma, k, 4);
+        }
+    }
+    true
 }
 
 /// Recompute `z16`, `rd`, `xres2` and their limbs from `h16`.
@@ -125,21 +206,34 @@ fn recompute_from_h16(w: &mut Witness, ff: &FeedForwardPublic) -> bool {
 /// the tamper pushes `xres2` out of int16 there is no such endpoint, and the
 /// honest one is committed instead; the only case that needs this is the
 /// int16-class test, which is about a class and has two catches anyway.)
-fn prove_tampered(edit: impl FnOnce(&FeedForwardPublic, &mut Witness)) -> Result<(), String> {
+fn prove_tampered(edit: impl FnOnce(&FeedForwardPublic, &mut Witness)) -> Result<ProveStats, String> {
     let (blk, input) = BlockPublic::synthetic_fixture();
-    let mut w = witness::build(blk.attention(), blk.feed_forward(), &input).expect("the public synthetic fixture is accepted");
+    prove_tampered_for(&blk, &input, edit)
+}
+
+/// The same attempt against a caller-supplied PUBLIC statement, for the one
+/// case that needs a public synthetic statement the default fixture does not
+/// provide (the `u16 = 0` index of erratum E-22). The prover and the verifier
+/// are given the SAME statement, as always.
+fn prove_tampered_for(blk: &BlockPublic, input: &[i16], edit: impl FnOnce(&FeedForwardPublic, &mut Witness)) -> Result<ProveStats, String> {
+    let mut w = witness::build(blk.attention(), blk.feed_forward(), input).expect("the public synthetic fixture is accepted");
     let honest = w.output().expect("the honest output plane is in class");
     edit(blk.feed_forward(), &mut w);
     let output = w.output().unwrap_or(honest);
-    let (expected, owners) = prepare_endpoints(spec(), &input, &output).unwrap();
+    let (expected, owners) = prepare_endpoints(spec(), input, &output).unwrap();
     // the prover does not pre-check any relation: a false witness still yields
     // a receipt, and that receipt must not verify
-    let (receipt, _) = prove_inner(&blk, &w, &expected, owners)?;
-    verify_inner(&blk, &expected, &receipt).map(|_| ())
+    let (receipt, stats) = prove_inner(blk, &w, &expected, owners)?;
+    verify_inner(blk, &expected, &receipt).map(|_| stats)
 }
 
 fn expect_rejection(name: &str, catch: Catch, edit: impl FnOnce(&FeedForwardPublic, &mut Witness)) {
     let err = prove_tampered(edit).expect_err(&format!("tamper `{name}` VERIFIED"));
+    assert!(catch.matches(&err), "tamper `{name}`: expected the catch at {}, got `{err}`", catch.describe());
+}
+
+fn expect_rejection_for(name: &str, blk: &BlockPublic, input: &[i16], catch: Catch, edit: impl FnOnce(&FeedForwardPublic, &mut Witness)) {
+    let err = prove_tampered_for(blk, input, edit).expect_err(&format!("tamper `{name}` VERIFIED"));
     assert!(catch.matches(&err), "tamper `{name}`: expected the catch at {}, got `{err}`", catch.describe());
 }
 
@@ -345,5 +439,277 @@ fn an_output_endpoint_committing_xres1_is_refused() {
     let (receipt, _) = prove_inner(&blk, &w, &expected, owners).unwrap();
     let err = verify_inner(&blk, &expected, &receipt).expect_err("an xres1 output endpoint verified");
     assert!(Catch::Slot(SC_IO_OUT).matches(&err), "expected the output endpoint to reject, got `{err}`");
+    prove_tampered(|_, _| {}).expect("the honest proof must verify beside every tamper");
+}
+
+// ------------------------------------------------- the norm_m family (H-1)
+//
+// The code review of 2026-09-19 found that NOTHING in this module tampered a
+// `norm_m` plane at the verifier: T1 section C.1's new material was covered
+// only by "the honest proof verifies" and by witness/kernel parity, which
+// together cannot show that a relation is PRESENT rather than vacuous. The
+// four cases below are the four families, each with the catch worked out from
+// `argument.rs` BEFORE it was measured and named in the case's own comment.
+// The accepted attention component has no verifier-side `norm_a` tamper to
+// mirror (its `tests.rs:122-123` moves `A_D` and `A_Y` inside the loop that
+// accepts any error), so these are written from the argument, not copied.
+
+/// (a) `nm` moved by one with the WHOLE feed-forward half recomputed honestly
+/// from it — gate, activation lookup, up, product, down, residual 2, every
+/// limb and biased remainder — and the endpoint owner committing the resulting
+/// output. Every class, every lookup, every requantization identity and both
+/// matmul host terms then still hold, so the only relation left is the norm
+/// quotient itself.
+///
+/// PREDICTED (from `argument.rs`): `nm` is read by `SC_GMM` / `SC_UMM`
+/// (consistent again after the recompute), by the `sym(A_YM)` class lookup
+/// (`+1` stays inside `[-127, 127]`) and by `c6` of `SC_DZC`
+/// (`2 Cn gamma_m x1 + 2^11 dm - 2^12 nm dm - rho_m`, under `mu[6]`). `c6` is
+/// the one that must break: `Catch::Slot(SC_DZC)`. THIS is the test that `nm`
+/// is bound to `xres1`.
+#[test]
+fn a_norm_m_output_not_derived_from_xres1_is_rejected() {
+    expect_rejection("nm (+1, the whole feed-forward half recomputed)", Catch::Slot(SC_DZC), |ff, w| {
+        let k = pick("nm", T * D, |k| {
+            if w.planes[A_YM][k] >= 127 {
+                return false;
+            }
+            let mut probe = Witness { planes: w.planes.clone() };
+            probe.planes[A_YM][k] += 1;
+            recompute_from_nm(&mut probe, ff)
+        });
+        w.planes[A_YM][k] += 1;
+        assert!(recompute_from_nm(w, ff));
+    });
+    prove_tampered(|_, _| {}).expect("the honest proof must verify beside every tamper");
+}
+
+/// (b) The denominator planes, in three forms of increasing consistency.
+///
+/// PREDICTED (from `argument.rs:552-583`): `SC_TZC` carries all four of
+/// `dsqm - dm^2` (`mu[3]`), `dm - dlm` (`mu[4]`), `2 dm - a1m - a2m`
+/// (`mu[5]`) and the host term `dsqm + a1m - Ceps` against `SC_SSM`'s claimed
+/// row sum (`nu[1]`), and `dm` is read again by `c6` / `c7` of `SC_DZC`.
+///  * `dsqm + 1` alone breaks `mu[3]` and the host term -> `Slot(SC_TZC)`.
+///  * `dm + 1` with `dsqm` and `dm`'s three byte limbs recomputed leaves
+///    `mu[5]` and the host term broken -> `Slot(SC_TZC)`. (`SC_DZC`'s `c6`
+///    and `c7` break too; `SC_TZC` is slot 2 and `SC_DZC` slot 14, so the
+///    first catch is `SC_TZC`. Stated, not argued away.)
+///  * `dm + 1` made CONSISTENT everywhere it can be — `dsqm = dm^2`, the limbs,
+///    `a1m = ss + Ceps - dsqm` and `a2m = 2 dm - a1m` so that all four
+///    relations and the host term hold over the integers, then `nm`, `rho_m`,
+///    `sigma_m` and the whole feed-forward half recomputed so `SC_DZC` holds
+///    too. What is left is the isqrt WINDOW: `a1m = ss + Ceps - (dm+1)^2 < 0`
+///    because `a1m <= 2 dm` honestly, and a negative value's top byte limb
+///    leaves `[0, 256)`. Nothing but the byte lookup can see it ->
+///    `Catch::LogUp`. This is the case that shows `a1m, a2m >= 0` is what
+///    pins `dm` to `isqrt(ss)`.
+#[test]
+fn the_norm_m_denominator_is_pinned_by_its_isqrt_witness() {
+    expect_rejection("dsqm (+1)", Catch::Slot(SC_TZC), |_, w| {
+        w.planes[A_DSQM][0] += 1;
+    });
+    expect_rejection("dm (+1, dsqm and dm's byte limbs recomputed)", Catch::Slot(SC_TZC), |_, w| {
+        let dm = w.planes[A_DM][0] + 1;
+        w.planes[A_DM][0] = dm;
+        w.planes[A_DSQM][0] = dm * dm;
+        put_limbs_m(w, 0, 0, dm);
+    });
+    expect_rejection("dm (+1, consistent everywhere the integers allow)", Catch::LogUp, |ff, w| {
+        let t = pick("dm", T, |t| {
+            let mut probe = Witness { planes: w.planes.clone() };
+            shift_norm_m_denominator(&mut probe, t);
+            recompute_norm_m_row(&mut probe, ff, t) && recompute_from_nm(&mut probe, ff)
+        });
+        shift_norm_m_denominator(w, t);
+        assert!(recompute_norm_m_row(w, ff, t));
+        assert!(recompute_from_nm(w, ff));
+    });
+    prove_tampered(|_, _| {}).expect("the honest proof must verify beside every tamper");
+}
+
+/// `dm + 1` on row `t` with `dsqm`, the limbs and the isqrt witness pair
+/// `(a1m, a2m)` all moved with it, so that every `SC_TZC` relation and its
+/// host term still hold over the integers. `a1m` goes negative, which is
+/// exactly the thing the byte class forbids.
+fn shift_norm_m_denominator(w: &mut Witness, t: usize) {
+    let ss: i64 = NORM_CEPS + (0..D).map(|i| w.planes[A_X1][t * D + i].pow(2)).sum::<i64>();
+    let dm = w.planes[A_DM][t] + 1;
+    let a1m = ss - dm * dm;
+    let a2m = 2 * dm - a1m;
+    w.planes[A_DM][t] = dm;
+    w.planes[A_DSQM][t] = dm * dm;
+    put_limbs_m(w, 0, t, dm);
+    put_limbs_m(w, 3, t, a1m);
+    put_limbs_m(w, 6, t, a2m);
+}
+
+/// (c) One limb of `norm_m`'s isqrt witness shifted by the suite's `(+256, -1)`
+/// pattern: `l0 + 256 l1` is unchanged, so `dm - dlm` and `2 dm - a1m - a2m`
+/// still hold exactly and the value the relation reads is the same.
+///
+/// PREDICTED: the only thing broken is that the low limb has left `[0, 256)`
+/// and has no row in the U8 table. `A_LIMBM` is read by `byte(A_LIMBM)`
+/// (`layout.rs:315`) through `SC_LZC`'s helper, so the one value-0 LogUp sum
+/// claim must catch it: `Catch::LogUp`.
+#[test]
+fn a_norm_m_limb_outside_its_byte_range_is_rejected_by_the_lookups() {
+    for (name, base) in [("dm's limbs", 0usize), ("a1m's limbs", 3), ("a2m's limbs", 6)] {
+        expect_rejection(name, Catch::LogUp, move |_, w| {
+            w.planes[A_LIMBM][base * T] += 256;
+            w.planes[A_LIMBM][(base + 1) * T] -= 1;
+        });
+    }
+    prove_tampered(|_, _| {}).expect("the honest proof must verify beside every tamper");
+}
+
+/// (d) The `rho_m` / `sigma_m` window. `(nm - 1, rho_m + den, sigma_m - den)`
+/// with `den = 2^12 dm` satisfies BOTH norm_m relations of `SC_DZC` over the
+/// integers — `c6` loses `2^12 dm` on the quotient term and gains it on the
+/// remainder, and `c7 = sigma + rho + 1 - 2^12 dm` is unchanged — so the
+/// division identity alone does not pin the quotient. The whole feed-forward
+/// half is recomputed from `nm - 1`, and `nm - 1` stays inside `sym(A_YM)`.
+///
+/// PREDICTED: only the WINDOWS are left. `sigma_m - den < 0`, so its top byte
+/// limb leaves `[0, 256)` (`byte(A_MS0 + 3)` and `scaled(A_MS0 + 3, 8)`,
+/// `layout.rs:330-331`); `rho_m + den` may also leave `[0, 2^29)`. Either way
+/// the catch is the one value-0 LogUp sum claim: `Catch::LogUp`. This is the
+/// test that the norm_m quotient is pinned by its remainder windows.
+#[test]
+fn the_norm_m_quotient_is_pinned_by_its_remainder_windows() {
+    expect_rejection("nm - 1 with rho_m + den and sigma_m - den", Catch::LogUp, |ff, w| {
+        let k = pick("norm_m window", T * D, |k| {
+            if w.planes[A_YM][k] <= -127 {
+                return false;
+            }
+            let mut probe = Witness { planes: w.planes.clone() };
+            shift_norm_m_quotient(&mut probe, k);
+            recompute_from_nm(&mut probe, ff)
+        });
+        shift_norm_m_quotient(w, k);
+        assert!(recompute_from_nm(w, ff));
+    });
+    prove_tampered(|_, _| {}).expect("the honest proof must verify beside every tamper");
+}
+
+/// `(nm, rho_m, sigma_m) -> (nm - 1, rho_m + den, sigma_m - den)` at one index.
+fn shift_norm_m_quotient(w: &mut Witness, idx: usize) {
+    let den = w.planes[A_DM][idx / D] << (NORM_TN + 1);
+    let rho = l4(w, A_MR0, idx) + den;
+    let sigma = l4(w, A_MS0, idx) - den;
+    w.planes[A_YM][idx] -= 1;
+    for k in 0..4 {
+        w.planes[A_MR0 + k][idx] = limb(rho, k, 4);
+        w.planes[A_MS0 + k][idx] = limb(sigma, k, 4);
+    }
+}
+
+// ------------------------------------- the activation pair lookup (H-2, H-3)
+
+/// ERRATUM E-22's OWN CASE, and the most valuable test in this file: an index
+/// where `u16 = 0`. There the product relation `f0 = a16 u16 - 2^14 h16 - rh +
+/// 2^13` reads `a16 * 0` and says NOTHING about `a16`; `h16 = 0` and
+/// `rh = 2^13` are what they were. `a16` is moved to another legal int16 that
+/// is NOT `act[g8 + 128]`, and NOTHING else is recomputed, because nothing
+/// else changes.
+///
+/// PREDICTED: the pair lookup `f_act` (`argument.rs:766`) binds
+/// `(g8 + 128, a16)` to a row of the public activation table, and it is the
+/// ONLY other relation `a16` appears in. The prover can still invert whatever
+/// denominator it likes (it commits `H` after alpha), but the multiplicity
+/// histogram it derives counts the miss into entry 0, so the one value-0 sum
+/// claim fails: `Catch::LogUp`. If this case ever VERIFIES, `a16` is an
+/// unconstrained plane at every zero of `u16` and the int16 premise under the
+/// whole no-wraparound argument is unfounded.
+#[test]
+fn an_activation_value_at_a_zero_up_output_is_rejected_by_the_pair_lookup() {
+    let (blk, input, k, how) = a_zero_up_case();
+    // MEASURED, and pinned so that a fixture change cannot silently downgrade
+    // this to the easy case (erratum H-3): the public synthetic fixture has no
+    // index with `u16 = 0`, so the case is built from public weights.
+    assert_eq!(how, "column 0 of Wu zeroed, built here from the public synthetic weights", "the fixture now has its own zero of u16: use it and say so");
+    expect_rejection_for(&format!("a16 at an index with u16 = 0 ({how})"), &blk, &input, Catch::LogUp, |_, w| {
+        assert_eq!(w.planes[A_U16][k], 0, "the case must sit at a zero of u16");
+        // a different legal int16, off this index's table row; h16 and rh are
+        // unchanged because the product is 0 either way
+        let before = (w.planes[A_H16][k], w.planes[A_RH0][k], w.planes[A_RH1][k]);
+        w.planes[A_A16][k] = if w.planes[A_A16][k] == 0 { 1 } else { 0 };
+        assert_eq!((w.planes[A_H16][k], w.planes[A_RH0][k], w.planes[A_RH1][k]), before);
+    });
+    prove_tampered_for(&blk, &input, |_, _| {}).expect("the honest proof must verify beside the tamper");
+}
+
+/// A public synthetic case with an index where `u16 = 0`, and how it was
+/// obtained. If the fixture has no such index, one is BUILT from the public
+/// synthetic weights by zeroing one column of `Wu`: the up matmul
+/// `u16[t, j] = sum_i nm[t, i] Wu[i, j]` is then 0 in that column for every
+/// row, whatever `nm` is. Everything else — the attention half, `gamma_m`,
+/// `Wg`, `Wd` and the activation table — is the fixture's own, the statement
+/// stays public and digested, and the prover and the verifier are given the
+/// same one.
+fn a_zero_up_case() -> (BlockPublic, Vec<i16>, usize, &'static str) {
+    let (blk, input) = BlockPublic::synthetic_fixture();
+    let w = witness::build(blk.attention(), blk.feed_forward(), &input).expect("the public synthetic fixture is accepted");
+    if let Some(k) = (0..T * F).find(|k| w.planes[A_U16][*k] == 0) {
+        return (blk, input, k, "an index of the public synthetic fixture itself");
+    }
+    let ff = blk.feed_forward();
+    let mut wu = ff.wu_t.clone();
+    for i in 0..D {
+        wu[i * F] = 0;
+    }
+    let built = BlockPublic::new(
+        blk.attention().clone(),
+        FeedForwardPublic::new(&ff.gamma_m, &ff.wg_t, &wu, &ff.wd_t, &ff.act).expect("a zeroed Wu column is a legal public statement"),
+    );
+    let w = witness::build(built.attention(), built.feed_forward(), &input).expect("the zero-column statement is still provable");
+    let k = (0..T * F).find(|k| w.planes[A_U16][*k] == 0).expect("a zero column of Wu gives u16 = 0");
+    (built, input, k, "column 0 of Wu zeroed, built here from the public synthetic weights")
+}
+
+/// The activation MULTIPLICITY row `A_MACT`, as far as a test can reach it.
+///
+/// WHAT THIS DOES NOT DO, said plainly: `A_MACT` is not a witness plane.
+/// `is_multiplicity` (`layout.rs:218-220`) keeps it out of the committed
+/// planes the witness fills (`protocol.rs:270`, `:283-287`) and `prove_inner`
+/// DERIVES the row from the witness itself (`:302-312`), so no edit here can
+/// set a multiplicity directly; only a modified prover could, and giving one a
+/// hook would mean a release-reachable path into `protocol.rs`.
+///
+/// WHAT IT DOES: it moves one unit of multiplicity from one table row to
+/// another through the prover's own bucketing rule, with the total preserved.
+/// An activation use whose `(index, value)` pair is off its table row is
+/// counted into entry 0 (`protocol.rs:306`), so row `g8 + 128` loses one count
+/// and row 0 gains one while `act_lookups` stays 512 — and the denominator
+/// column that use contributes has no matching row at all.
+///
+/// PREDICTED: no relation of `SC_FZC` can see it (the product is recomputed,
+/// every class holds), so the one value-0 LogUp sum claim must:
+/// `Catch::LogUp`.
+#[test]
+fn a_moved_activation_multiplicity_is_rejected_by_the_logup_sum_claim() {
+    let (blk, input) = BlockPublic::synthetic_fixture();
+    let ff = blk.feed_forward();
+    let mut w = witness::build(blk.attention(), ff, &input).expect("the public synthetic fixture is accepted");
+    let k = pick("a16 (multiplicity)", T * F, |k| {
+        if w.planes[A_A16][k] >= 32767 {
+            return false;
+        }
+        let mut probe = Witness { planes: w.planes.clone() };
+        probe.planes[A_A16][k] += 1;
+        recompute_from_product(&mut probe, ff)
+    });
+    // the row that loses the count; entry 0 gains it
+    let row = w.planes[A_G8][k] + 128;
+    assert_ne!(row, 0, "the case must move the count OFF a row other than entry 0");
+    w.planes[A_A16][k] += 1;
+    assert!(recompute_from_product(&mut w, ff));
+    let output = w.output().expect("the tampered output is in class");
+    let (expected, owners) = prepare_endpoints(spec(), &input, &output).unwrap();
+    let (receipt, stats) = prove_inner(&blk, &w, &expected, owners).expect("the prover does not pre-check any relation");
+    // the TOTAL is preserved: one unit moved between rows, nothing created
+    assert_eq!(stats.act_lookups, 512, "the activation histogram totals the Dom::F cube");
+    let err = verify_inner(&blk, &expected, &receipt).expect_err("a moved activation multiplicity VERIFIED");
+    assert!(Catch::LogUp.matches(&err), "expected {}, got `{err}`", Catch::LogUp.describe());
     prove_tampered(|_, _| {}).expect("the honest proof must verify beside every tamper");
 }
