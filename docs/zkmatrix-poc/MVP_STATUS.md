@@ -1,6 +1,6 @@
 # Where the MVP stands, in plain words
 
-**Updated 2026-09-19, 03:01, by the Codex/Fable integration loop (after the
+**Updated 2026-09-19, 04:07, by the Codex/Fable integration loop (after the
 01:04 laptop restart; see §3 item 4).** This page
 answers three questions and is refreshed whenever the loop produces news.
 Rulings are in [the decisions register](ZK60_DECISIONS.md); measurements
@@ -146,9 +146,16 @@ it does not exist yet.**
    control fires) [COUNTED on a description, not measured on code]; 22
    corrections made binding, including two that would have been soundness
    holes (a block whose output the prover could choose, and an activation
-   table whose value range nothing enforced). The block itself is **not
-   built yet**; this is a design, not a privacy acceptance and not a speed
-   result. Expected size at the tiny shape: a 2.8 MB receipt. Earlier items:
+   table whose value range nothing enforced). This is a design, not a privacy
+   acceptance and not a speed result. Expected size at the tiny shape: a
+   2.8 MB receipt. **Building it has started** (lane `zk60-private-block`,
+   04:07): the new module's witness already computes the whole block and
+   matches the integer reference kernel element for element on 1,200 test
+   cases, including refusing exactly where and how the kernel refuses
+   [MEASURED: 27 tests pass on the security owner's own run]. **The proof
+   itself does not cover the new half yet**: the argument that proves the
+   second norm, the feed-forward and the second residual is the stage now
+   in progress, so nothing is called a block yet. Earlier items:
    the security owner's source review of `zkvm-block/` with eight hardening
    items (`ZK60_ZKVM_BLOCK_SOURCE_REVIEW_FABLE.md` on branch
    `zk60-mvp-fable`), now implemented and verified on branch

@@ -464,6 +464,42 @@ worktree `/home/victor/wt-zk60-private-block`, branch `zk60-private-block`
   offline, `-j 2`, the rustup shim, sharing the design lane's warm target
   directory; no heavy lock, no GPU, no benchmark, nothing over a few minutes.
 
+**Block implementation, stages S0–S2 done and pushed (04:07).** Lane
+`zk60-private-block` at `a882bd1` (now on the remote); ledger
+`docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK_IMPL_PROGRESS.md`. Checked by me, not
+only reported: the accepted attention files, `zk.rs`, `layer.rs`,
+`zk_ffn_fresh_io.rs`, `private_seam.rs`, `scripts/` and the Python suite are
+byte-identical to `zk60-attention-compile`; the lane added only new files
+plus one line of `hashline/src/lib.rs` and the `private-block-kernel`
+dev-dependency (`Cargo.toml`, `Cargo.lock`); my own run of
+`cargo test --release --lib private_` gave **27 passed, 0 failed**.
+
+- S0: the new module is a faithful copy under the work-in-progress profile
+  `hashline-zk-mr1/private-block-t32-wip/0`; every digest domain, magic and
+  slot label forked so no transcript is shared with the accepted profile.
+- S1: a fixed-seed sweep of 1,200 public synthetic cases against
+  `private-block-kernel::run_block`.
+- S2: the witness and layout grown to the whole block behind a second
+  constructor (`Layout::new_block()`: A 455 / H 384 rows, 23 slots, 50 `M`
+  rows, sites 120/51, groups 35/9, 61,440 byte lookups, all asserted in
+  code). **Whole-block witness parity holds**: every plane, including `nm`,
+  `g8`, `a16`, `u16`, `h16`, `z16`, `xres2`, the limbs and the three biased
+  requantization identities, equals the kernel element for element; 905
+  cases accept, 295 refuse at the identical site with the identical message,
+  nine refusal sites reached. The argument, the profile and the output
+  endpoint are untouched, so nothing yet claims to be a block.
+- My two answers in the ledger: hand-built cases for every reachable refusal
+  site, unreachable ones documented with their bound; the activation table
+  stays `[i16; 256]` and must enter the statement digest when `BlockPublic`
+  lands.
+- **Running:** the next Opus agent, same lane, sole writer: S3a the
+  refusal-site cases, S3b the argument's new arms on the whole-block layout
+  (honest proof must verify; receipt expected at 2,816,472 bytes), S3c the
+  tamper tests caught at the verifier, S4 the block profile with
+  `BlockPublic`, the endpoint's move to `xres2`, scale pinning and the
+  tripwire, in one commit. It may add exactly one constant (LogUp tag 134) to
+  `tables_attn.rs` if the design requires it there; nothing else existing.
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the
