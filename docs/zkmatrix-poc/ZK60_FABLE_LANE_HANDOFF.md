@@ -223,6 +223,41 @@ comparison the token wrapper already has (`zkvm-model/wrap/src/main.rs:214–216
 Snapshot tests: runner 62 pass, cycle gate 14 pass; no Rust tests were run,
 so the binaries behind the live receipts are untouched.
 
+**Delivered 02:00 — composition gap inventory for a complete private block
+on the custom line** (pushed, `zk60-attention-compile` at `c2e010e`,
+`docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK_COMPOSITION_GAPS.md`; read-only, no
+build). Fifteen gaps, each classed as engineering (Codex can build to an
+existing design), construction decision (security owner) or ruling. The
+attention output endpoint and the FFN input endpoint have identical
+geometry (7 × 256, mask pair rows 2–3, one opening group, same PCS
+parameters) but can never be the same object, and rightly so. Two code facts
+I re-checked in the source: **the FFN proves no range on its hidden input**
+(`hashline/src/layer.rs` lookup list: `g8/a16`, `u16`, `h16`, `z/rd`, never
+`x`), so the missing second norm is load-bearing for soundness, not only for
+completeness; and **the attention fixtures declare endpoint scales
+`(-3, -3)`** (`hashline/tests/zk60_private_attention.rs:17`,
+`hashline/examples/zk60_private_attention.rs:36`) where the approved
+calibration has `e_r = e_r1 = 0` (`causal_oracle.rs:115–118`). The central
+finding: every "obvious" seam (share one endpoint commitment between two
+proofs) is the double-opening configuration D11 records as recovering all
+512 hidden words. **Recorded today as D12** in the decisions register: one
+proof, one transcript, two external endpoints, no commitment opened twice,
+hidden intermediates only on prover-generated commitments, the second norm's
+int8 range proof mandatory, endpoint scales tied to the calibration.
+Restrictive only; D8/D11 stay open for the two external endpoints.
+
+*Codex, unblocked now (no dependency on my next memo):* the schema-3 capture
+writer for the attention profile (inventory step 2, gap G6); the fixture
+scale fix plus a test that fails when `IoSpec` disagrees with
+`causal_oracle` (step 3, G11; today's `(-3, -3)` must fail it); the
+interface requests P-1/P-2/P-3 (G14); kernel parity as a dev-dependency
+(G13). *Waiting on me:* the block construction memo (seam form, grown
+layout for `norm_m` and residual 2, the joint transcript order label by
+label, the pending/manifest role list, slot-tag namespace). An Opus draft
+is being prepared for my review as
+`ZK60_PRIVATE_BLOCK_CONSTRUCTION.md` on `zk60-attention-compile`; it is a
+draft until this file says it is accepted.
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the

@@ -21,6 +21,7 @@ back. Keep this file short enough to read in five minutes.
 | D9 | Reduction-bias term of `fp()` challenge draws on the custom line (about 2^-75 at A00): accept as stated, or re-freeze fixtures with rejection sampling | **pending** | since 2026-09-15 | Victor |
 | D10 | Compact-PCS proof-size lever on the custom line (95–98 bits instead of 106) | **pending** | since 2026-09-03 | Victor |
 | D11 | D8's proposed reduction to empty history is not established by a consuming owner; prior authentication/hash history remains in scope | **technical correction** | 2026-09-18 | Codex native reproduction and independent review |
+| D12 | Composed private block on the custom line: one proof, one transcript, two external endpoints; no commitment opened twice; hidden intermediates never get a shared caller-fixed endpoint; the second norm's int8 range proof is mandatory | **construction rule (restrictive; not a privacy acceptance)** | 2026-09-19 | Security owner (Fable), from the composition gap inventory |
 
 Operational rules (detached heavy runs, the shared-box lock, command hygiene)
 live in `CLAUDE.md`; they are not repeated here.
@@ -271,6 +272,55 @@ input/output roles are distinct, so its roots cannot be equated directly
 across blocks. The next separate token-model guest recomputes both blocks
 and their hidden seam inside one program; the public policy binds its
 complete model and endpoints. This clarification changes no user ruling.
+
+## D12 — How a complete private block is composed on the custom line (construction rule, 2026-09-19)
+
+**In plain words.** A transformer block is attention followed by a
+feed-forward part. Between them sit hidden values (the first residual
+`xres1`, the second norm's output `nm`, the feed-forward output `z16`). The
+tempting way to join the two existing components is to commit such a hidden
+value once and let both proofs open that one commitment. That is exactly the
+configuration D11 records as broken: at the actual endpoint geometry (7 rows
+of 256 columns) two openings recover all 512 hidden words. This rule forbids
+it and fixes the frame everything else is built in.
+
+**The rule.**
+
+1. **No commitment is opened more than once, anywhere in a composed block.**
+   The double-opening configuration of
+   `ZK60_ENDPOINT_REUSE_DISPOSITION_20260918.md` is not permitted as a seam,
+   as a convenience, or as a test shortcut that could be mistaken for one.
+2. **A block is one proof under one transcript with exactly two external
+   endpoints**: its hidden input `x_in` and its hidden output `xres2`. Two
+   separately finished component receipts glued by a shared root are not a
+   block.
+3. **Hidden intermediates never get a caller-fixed endpoint commitment shared
+   by two proofs.** `xres1`, `nm` and `z16` live only on commitments the
+   prover generates inside that one proof. How the two halves are tied
+   together there (an equality between the two components' own commitments
+   with reserved mask pairs and a seam slot, as
+   `ZK60_PRIVATE_ATTENTION_CONSTRUCTION.md` line 99 specifies, or a single
+   shared layout with no seam at all) is settled in the block construction
+   memo, with the simpler form built first and the other documented with
+   what it is worth.
+4. **The second norm must prove that its output is in the int8 class.** The
+   feed-forward prover proves no range on its own input (verified in
+   `hashline/src/layer.rs`: the lookup list covers the activation, the two
+   int16 planes and the output, never the input plane), so without this the
+   composed statement would admit an out-of-class feed-forward input.
+5. **Declared endpoint scales must be tied to the approved calibration**
+   before any seam compares them. Today the tag proves nothing, and the
+   attention fixtures declare `(-3, -3)` where the calibration has
+   `e_r = e_r1 = 0`; a tag-equality check would pass on a factor-of-8
+   mismatch.
+
+**What this does not do.** It is restrictive only. It does not discharge D8
+or D11 for the block's two external endpoints, it accepts no privacy
+property, and it makes no speed claim. The joint analysis for the extra seam
+groups has never been done and remains owed at the block-scope privacy gate.
+Source: `ZK60_PRIVATE_BLOCK_COMPOSITION_GAPS.md` on branch
+`zk60-attention-compile` (`c2e010e`), sections 3, 4 and 5; the two code facts
+in items 4 and 5 were re-checked by the security owner in the source.
 
 ## D9 — `fp()` reduction bias (pending)
 
