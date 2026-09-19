@@ -630,6 +630,44 @@ distinguishes them, and it costs one detached job.**
 
 ## 5. The integrated plan to five seconds
 
+> **CORRECTION FROM THE FIRST LANE THAT TESTED THIS PLAN (orchestrator,
+> 2026-09-19 11:18). Step 3 below is worth about 1–2 s, not 7 s, and step 1
+> is now in doubt for the same reason.** Lane `fsp-l9` (branch `fsp-l9`,
+> pushed; ledger `ZK60_FSP_L9_PROGRESS.md`) started from an all-green floor
+> (202 tests, every `gpu-probe` oracle, the twelve byte gates) and measured
+> the re-encode path **on a quiet box**: `columns_chunked` at the 8B weight
+> shape runs in **0.095–0.098 s**, against the 0.178 s (after lane AO's
+> levers) and 0.222 s (before) that this plan's step-3 arithmetic was built
+> on. Lane AO took its numbers while another lane was loading the CPU, so its
+> table over-states what is left. What the lane then found, all [MEASURED] on
+> small shapes with ABBA ordering: removing the shared-memory bank conflicts
+> in `k_dit_p1_pad_s` is correct and provably conflict-free but **slower**
+> (mean 0.93×; 11 of 12 runs below parity) — withdrawn, left off behind
+> `HL_GPU_SMEM_SWZ`; the same treatment of `k_dif_pb` **0.91×** — withdrawn,
+> that kernel already sits at 66–77% of the memory roof; **the fusion pays**:
+> the producer writes only the 244 of 4,096 residues its pruned consumer
+> reads (traffic 7,046 → 1,762 MB), the four kernels go 0.1035 → 0.0898 s,
+> **1.162× at 10,752 rows** and 1.06–1.08× at the smaller row counts; the
+> host tail's serial 256-vector split is now parallel (byte-identical, not
+> measurable under that session's host memory pressure). No digest moved and
+> no oracle failed. **Counted worth on the 58.40 s pass: 0.8–1.8 s**
+> (13.826 s of re-encode × 92% in these kernels × the measured factor)
+> [COUNTED, not measured at 8B]. One change is owed to the integrator:
+> pooling the 22 MB output allocation turns
+> `hashline/tests/zk60_gpu_commit.rs`'s `expect_alloc(…, 2, …)` red, a file
+> that lane did not own.
+>
+> **What this does to the ladder.** Read step 3 as **−1 to −2 s**, and treat
+> step 1's −4 s (lane AO's kernels, never measured at 8B) as **unverified in
+> either direction** until the three-arm 8B measurement runs: if AO's A/B was
+> taken under the same load, its factors may hold while its absolute seconds
+> do not. The laptop's best case after steps 1–4 is therefore nearer **40 s
+> than 34 s** [COUNTED], and the conclusion of this page is *strengthened*,
+> not changed: **on this card the kernels are close to their memory roof;
+> what remains is the host floor (step 4), the weight cache (step 2), the
+> bigger card (step 5) and the ruling-sized lever (step 6).** Kernel work on
+> the 4070 is no longer where the seconds are.
+
 This is **one ordered plan**, not a menu. Each step assumes the ones
 before it. The baseline is the measured **58.40 s**, public IO,
 feed-forward only, 32 Mistral layers × 512 tokens, laptop RTX 4070,
