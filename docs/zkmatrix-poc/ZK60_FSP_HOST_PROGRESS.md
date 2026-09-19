@@ -412,3 +412,24 @@ and AJ's switches are untouched.
 3. Only then the device form of the folds, which needs a kernel, an
    upload and a new oracle for a 5.5 s item that the host is already
    collecting a quarter of.
+
+**THE EXACT NEXT STEP.** Take item (a) as scoped above, starting with
+the W commitment on the GPU path only: add to `hashline/src/pcs.rs` a
+`commit_planes` that takes `(&PcsParams, &PlaneTiling, &NttTables)`
+where `PlaneTiling` is `prove_layer_v3`'s existing block map (the three
+`lay.wg/wu/wd` offset tables plus `db`, `fb`, `d`, `f` and the three
+`&[i8]` sources), have `gpu/cuda.rs::commit_chunked_upload` fill the
+pinned staging buffer from that map instead of calling `pack_narrow`
+(the bytes are identical: `pack_narrow` at `w = 1` emits exactly the
+two's-complement int8 byte), and keep today's `Vec<Fp>` fill as the
+fallback whenever the device declines or `HL_GPU` is off. Gate it on
+the twelve byte gates, `results/fsp4_oracles.sh`, and an A/B of the
+`[FSP4]` pack line at 12×512. The weight cache key
+(`wcache::WKey::new`) already hashes the int8 planes, not `w_data`, so
+it needs no change.
+
+**Lane state at hand-back: GREEN.** Working tree clean, three commits
+on `fsp-host` (`a4364cb` ledger, `7a2543c` attribution, `ba6b4b8` the
+fold + the upload timer, `e6d241a` the evidence logs), nothing pushed
+(this lane never pushes), no test expectation touched, no gate
+adjusted, no digest re-frozen.
