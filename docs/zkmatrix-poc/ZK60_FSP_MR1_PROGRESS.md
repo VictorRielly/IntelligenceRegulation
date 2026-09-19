@@ -54,10 +54,10 @@ Every number carries its shape, conditions, box load and label:
 |---|---|---|
 | 0 | Ledger, ownership, the scoping memo and the previous lane's ledger read | DONE |
 | 0b | Inherited red: one doctest on the base branch, comment-only fix | DONE |
-| 1 | FLOOR on the untouched tip: suite + the four frozen digests on CPU, GPU, GPU forced-chunked | IN FLIGHT |
-| 2 | The entry pair in `zk.rs` (one commit) + its cfg(test) file; then the whole floor again | TODO |
-| 3 | The driver: `hashline/examples/zk60_repaired_mask_probe.rs`, three arms | TODO |
-| 4 | The first measurement at 12 x 512, CPU and GPU binaries, >= 5 repeats/arm, alternating order | TODO |
+| 1 | FLOOR on the untouched tip: suite + the four frozen digests on CPU, GPU, GPU forced-chunked | DONE — 12/12 green, 259 tests + 5 doctests |
+| 2 | The entry pair in `zk.rs` (one commit) + its cfg(test) file; then the whole floor again | DONE — 265 tests, 12/12 gates, NO DIGEST MOVED (`9c45f1c`) |
+| 3 | The driver: `hashline/examples/zk60_repaired_mask_probe.rs`, three arms | DONE |
+| 4 | The first measurement at 12 x 512, CPU and GPU binaries, >= 5 repeats/arm, alternating order | IN FLIGHT |
 
 **Not in scope and not run, by instruction:** anything at Mistral width
 (4096 / 14336) on either processor; any model-width GPU run; the
@@ -258,3 +258,87 @@ output and establishes no privacy property.
 
 **`cargo test --release -- --test-threads=2 --nocapture`: exit 0 — 28 test
 binaries, 265 passed (259 + the 6 new), 0 failed, plus 5 doctests.**
+
+**Byte gates on the CHANGED tree, 12 of 12 GREEN — NO DIGEST MOVED**
+(same runner, same frozen digests and lengths as stage 1; the card read
+0 MiB / 0 apps before each of the eight GPU launches):
+
+| gate | cpu | gpu | gpu `HL_ZK_CHUNK=1` | gpu `HL_GPU_CHUNK_BYTES=1e8` |
+|---|---|---|---|---|
+| v2 `50cf7bdf..` 66,844,928 B | GREEN | GREEN | — | — |
+| v3 `5f368db6..` 70,758,084 B | GREEN | GREEN | — | — |
+| zk `021485e4..` 87,228,528 B | GREEN | GREEN | GREEN | GREEN |
+| zk-v3 `40eb5479..` 87,697,008 B | GREEN | GREEN | GREEN | GREEN |
+
+**The counted row deltas the layout test harvests** (`--nocapture`;
+`inv_rate 4`, function 1, P1 — pure layout arithmetic, nothing proven at
+these widths here) [COUNTED]:
+
+| shape | A legacy -> repaired | H | W (P1) | M |
+|---|---|---|---|---|
+| T2 / d16 / f16, log_cols 5 | 5,173 -> 5,187 (+14, +0.271%) | 10,321 -> 10,322 | 24, unchanged | 16 -> 16 |
+| **T512 / d768 / f2048 (125M), log_cols 14** | **559 -> 585 (+26, +4.651%)** | 485 -> 486 | 288, unchanged | 16 -> 16 |
+| **T512 / d4096 / f14336 (Mistral), log_cols 14** | **3,599 -> 3,665 (+66, +1.834%)** | 3,029 -> 3,030 | 10,752, unchanged | 16 -> 16 |
+
+**Two corrections to `ZK60_PRIVATE_FFN_COST_PROBE.md` fall straight out of
+this table**, and they matter for how the measurement is read:
+
+1. The memo's Mistral row is **+70 rows / +1.94%**; that figure includes
+   the FOUR endpoint mask pair rows of the `io` profile
+   (`ZkLayoutV3::with_io` adds `4 * a_n` on top of `with_masks`). The
+   repaired MASK schedule alone — which is what this lane can run — adds
+   **+66 rows / +1.834%**. The memo's legacy A count, 3,599, reproduces
+   exactly. [COUNTED]
+2. The memo predicts `mask commit` **grows, 6 -> 8 CFS slots**. That is
+   also `io`-only: `mask_specs_v3` adds the two extra slots under
+   `zl.a_io.is_some()`, and under `mr1` alone the specification is
+   unchanged, so **M stays at 16 rows in every arm** (2 per mask + 4).
+   Any `mask commit` movement in the measurement below is therefore noise,
+   not the repair. [COUNTED]
+
+**And the relative cost of the repair is LARGER at 125M than at Mistral,
+not smaller** — +4.65% of A's rows against +1.83% — because the mask rows
+depend only on `nb_d` / `nb_f` while the data rows scale with the width.
+The memo makes this point about T; it applies to the width as well. The
+12 x 512 measurement below is therefore an UPPER bound on the repair's
+row-proportional cost at Mistral width, by a factor of about 2.5.
+
+### 2026-09-19 — stage 3, the driver
+
+`hashline/examples/zk60_repaired_mask_probe.rs` (new file; `src/main.rs` is
+NOT touched and examples are auto-discovered, so `Cargo.toml` is untouched
+too).
+
+```
+zk60_repaired_mask_probe <layers> <tokens> <public|legacy|repaired|all> \
+    [--export DIR] [--threads N] [--log-cols N] [--inv-rate N] [--col-checks N]
+```
+
+It loads the witness exactly as `hashline pass --profile v3` does — the
+same library calls, `export_dir_v3` / `V3Sidecar::load` / `load_layer_v3` /
+`derive_v3`, with the same `compare_planes` element-wise check and the same
+`range_ok` assertion — and defaults to the CLI's `log_cols 14, inv_rate 4,
+col-checks 256`. The device is controlled exactly as the CLI controls it
+(`HL_GPU`, read by `hashline::gpu`), and the header prints `gpu: ON` or
+`gpu: OFF` beside `gpu::label()`.
+
+Each arm PROVES and then VERIFIES every layer, and prints the prover's own
+phase breakdown summed over the layers, the device counters when the GPU is
+on, prove and verify seconds, proof bytes, the committed rows of A, H, W and
+M, and peak resident memory — plus one `PROBE_JSON` line per arm for the
+analysis. The header states, in the output itself, that this establishes no
+privacy property and that all three arms have public endpoints.
+
+Both private arms draw fresh OS randomness (no seed), so the ONLY difference
+between them is the mask schedule. One arm per process is the measurement
+form; `all` in one process is a convenience and says so, because `peak RSS`
+is a process high-water mark and the device counters accumulate.
+
+**The first execution of the repaired mask schedule above the tiny shape**
+(smoke test, 1 layer x 128 tokens, CPU, 125M export): all three arms ACCEPT.
+**No refusal fired** — not `check_masks`, not `check_opening_challenges`,
+not `check_table_point`, not `draw_mask_challenge`. The memo's open
+question 2 ("whether `mr1 = true` actually runs at a shape other than the
+tiny one — nobody has tried") is now answered: **it does.** Committed rows
+at that shape, legacy -> repaired: A 169 -> 195 (+26, as counted), H
+161 -> 162, W 288 unchanged, M 16 unchanged. [MEASURED]
