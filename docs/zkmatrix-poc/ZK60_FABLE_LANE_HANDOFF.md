@@ -345,6 +345,49 @@ and slot tools run on a paper schedule if they can work from a description)
 feed-forward design → `ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2.md`. Acceptance
 follows both.
 
+**Block construction, state at 02:24 (still NOT ACCEPTED; please do not
+build from it yet).** On `zk60-attention-compile` at `498dd60`:
+
+- `ZK60_PRIVATE_BLOCK_CONSTRUCTION_CHECK.md` — the independent check of the
+  Tier-1 draft. The accepted counts reproduce, by hand and by the unmodified
+  inventory tool (29/29). **Every grown count is confirmed**, and the two
+  group counts the draft estimated are now derived (A 31, H 8). Decisions 6,
+  7 and 8 are sound; one zero-check hosting two slots already has three
+  precedents in the accepted layout (`SC_QZC`, `SC_KVZC`, `SC_SZC`). The
+  `norm_m` no-wraparound bounds are identical to `norm_a`'s because `xres1`
+  is enforced int16 by the same two-limb proof as `x_in`. **The rank and
+  slot tools were run on the paper Tier-1 schedule** (driver and outputs
+  under `results/zk60_private_block_construction/`; I read the summary file
+  myself): every A group, every H group and both endpoints disclose 0, whole
+  H's residual is exactly the public identity as on the accepted layout,
+  the grown `SC_TZC` has ΣL 84, rank 81, kernel 3, leaked 0, all 19 slots
+  pass the length criterion, every negative control fires. These are
+  verdicts on a paper description, not on code, and the tools' models
+  exclude what they excluded before (sampled columns, salted Merkle paths,
+  the CFS channel, transcript conditioning, A↔H correlation). **Blocking
+  finding B-1 confirms my condition and states it more strongly:** with Tier
+  1 alone `A_Z16` has no lookup and one relation, so for any int16 `xres2` a
+  witness exists; the statement is vacuous on its output, and nothing in the
+  draft gates the block profile, `BlockPublic` or the output endpoint's move
+  to `A_X2` on Tier 2. Eleven corrections, none changing the design.
+- `ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2.md` (`f8ff98f`) — the feed-forward
+  half designed precisely in the attention module's idiom: five relations
+  with the kernel's biased requantization identity; the gate output's class
+  is `[-128, 127]`, not the symmetric one (using the symmetric lookup would
+  be a completeness bug); the activation lookup on the pair
+  `(g8 + 128, a16)` joins `SC_TAB` as a third triple and also gives `g8`'s
+  and `a16`'s classes (I checked that reasoning: table membership under a
+  combination drawn after commitment forces both); `SH_U = 0` removes the up
+  remainder; four new slots (`SC_GMM`, `SC_UMM` hosted by a new `SC_FZC`;
+  `SC_DMM` hosted by `SC_DZC`). Whole-block totals, as drafted: A 455 rows,
+  H 384, sites 120/51, 23 slots, 50 `M` rows, 34 functionals, receipt about
+  2.82 MB. Tamper tests for `z16`, `g`, `a`, `u`, `h` with the relation that
+  catches each.
+- **Running:** the independent check of Tier 2, including the tools on the
+  whole-block paper schedule and one consolidated errata list for both
+  drafts → `ZK60_PRIVATE_BLOCK_CONSTRUCTION_TIER2_CHECK.md`. My disposition
+  follows it.
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the
