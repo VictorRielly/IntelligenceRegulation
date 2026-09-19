@@ -406,3 +406,73 @@ worth 1.687x, because 50.5% of that pass was host time. In the private
 pass the dominant phase is **LogUp helpers + commit H at 146.259 s (55%
 of the prove)**, which neither of these changes touches. That is where
 the private pass's next lever is, not here.
+
+### 2026-09-19 — stage 5, the A/B on the GPU binary (PARTIAL, 5 of 10 runs)
+
+3 new / 2 old, order n,o,o,n,n, all byte-identical. Full table in
+`results/fsp3_ab.md`. Old/new: **matmul g/u 1.500, matmul d 1.622,
+commit W 1.235, commit A 1.194**, PROVE 1.097; controls (`helpers +
+commit H`, `zero-check F`) 0.955 and 0.914, so the residual order effect
+here favours the OLD arm and the four changed phases are if anything
+understated.
+
+**On the GPU binary the POOL is measurable even at 12 x 512**, unlike on
+the CPU binary, and the reason is structural: the device does the commit
+arithmetic, so the host allocation is a much larger share of the
+`commit W` / `commit A` phases. That is a useful, independent
+confirmation that the pool does what it is supposed to do, on the shape
+this lane is allowed to run.
+
+**This is 3 against 2, not the 5 against 5 the lane owes.** The sixth run
+was launched and is still queued.
+
+### 2026-09-19 — state at hand-off, and the exact next step
+
+At 12:0x another worktree (`/home/victor/wt-fsp-host`) took
+`/tmp/zk-heavy.lock` for `fsp4_oracles.sh`, which also takes
+`/tmp/zk-build.lock` internally. Two of this lane's jobs are queued behind
+it, both launched detached so they finish with or without a session:
+
+1. `flock -w 1800 /tmp/zk-heavy.lock <scratch>/fsp3/ab.sh gpu old 3` — the
+   sixth GPU A/B run.
+2. `cargo test --release -- --test-threads=2` for the fold rung — log
+   `<scratch>/fsp3/test_fold.log`, marker `<scratch>/fsp3/test_fold.done`.
+
+**THE EXACT NEXT STEP, in order.**
+
+1. Read `<scratch>/fsp3/test_fold.done`. Exit 0 with 259 passed / 0 failed
+   closes the fold rung; anything else is a regression in `zk.rs` and the
+   rung must be reverted, not adjusted. (`<scratch>` is
+   `/tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad`;
+   if it is gone with the session, re-run the suite — the command is in
+   the stage-4 entry above.)
+2. Finish the GPU A/B to 5 runs per arm: two more NEW and two more OLD,
+   `flock -w 1800 /tmp/zk-heavy.lock <scratch>/fsp3/ab.sh gpu <arm> <i>`,
+   ONE run per invocation, never two chained, balancing the order. Then
+   re-run the table in `results/fsp3_ab.md`.
+3. Then, and only in a quiet window with the card verified idle and
+   nothing else on `/tmp/zk-heavy.lock`: the eight v3 tamper legs at
+   Mistral width through the GPU zero-knowledge prover (honest ACCEPT,
+   then 8 of 8 REJECT), and the 8B A/B of these two switches, launched
+   alone and detached. **Both are OWED and neither was run here** — this
+   lane ran nothing wider than 12 x 512 on either processor, by
+   instruction.
+
+**Nothing in this lane moved a digest, at any stage, on any binary.**
+
+**Follow-ups found but deliberately not taken** (each is a separate
+rung, and each is recorded here so it is not re-derived):
+
+* `layer.rs`'s `mod hostbuf` and `fn fold_block_i8` are module-private.
+  Promoting them to `pub(crate)` and deleting the copies in `zk.rs` is
+  the right end state, and belongs to that file's owner.
+* With `HL_FSP_I8FOLD` ON and mode P1, `w_data` has no reader after the
+  commitment, so the W buffer could be retired to the pool at `commit W`
+  instead of after the d terminals — and W and A could then share one
+  slot.
+* `zk.rs`'s v2 zero-knowledge body (`prove_layer_zk`) still has both
+  pre-lane forms; it runs only at the 125M shape, so it was left alone
+  for the same reason lane AL left `layer.rs`'s v2 alone.
+* `zk.rs:2608` allocates `vec![Fp::ZERO; zl.h_len]` even when the device
+  helper path will fill it; the zeros are load-bearing there, so the
+  allocation cannot be pooled, but it may be avoidable another way.
