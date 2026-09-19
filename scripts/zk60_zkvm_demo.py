@@ -665,9 +665,14 @@ class Runner:
     def wrap(self):
         L = self.layout
         audit_public(L.public, PUBLIC_INPUTS)
+        # The wrap binary removes its private work directory after a verified
+        # wrap by default (the safe default for a hand run). This runner owns
+        # the whole private tree, keeps it at mode 0700 for diagnosis and never
+        # publishes it, so it asks the binary to keep the directory and checks
+        # its mode below.
         self.stage("groth16-wrap", [self.c["wrap"], "wrap", L.public / "policy.bin", L.inner,
                                     L.public / PUBLIC_RECEIPT, self.c["native_tools"],
-                                    L.wrap_work, self.c["r0vm"]], "wrap")
+                                    L.wrap_work, self.c["r0vm"], "--keep-work"], "wrap")
         audit_public(L.public, PUBLIC_INPUTS + (PUBLIC_RECEIPT,))
         check_private_mode(L.wrap_work, "wrap work directory")
         self.flags["groth16_wrapped"] = True

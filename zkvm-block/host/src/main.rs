@@ -16,6 +16,9 @@ use zk60_block_statement::{Statement, ELEMENTS, JOURNAL_BYTES};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 const MAX_RECEIPT: u64 = 16 * 1024 * 1024;
+// The executor's segment size. Reported with the executor-only cycle counts so
+// a constant-cycle record states the shape it was measured under.
+const SEGMENT_LIMIT_PO2: u32 = 18;
 fn codec() -> impl Options {
     bincode::DefaultOptions::new()
         .with_fixint_encoding()
@@ -147,15 +150,34 @@ fn prove(
         .write_slice(&model_bytes)
         .write_slice(&request_bytes)
         .write_slice(&policy_bytes)
-        .segment_limit_po2(18)
+        .segment_limit_po2(SEGMENT_LIMIT_PO2)
         .session_limit(Some(64 * 1024 * 1024))
         .build()?;
     let prover = ExternalProver::new("explicit-local-r0vm", r0vm);
     if execute {
         let session = prover.execute(env, PRIVATE_BLOCK_ELF)?;
         policy.check_journal(&session.journal.bytes)?;
+        // Execution shape only: `SessionInfo` carries one `SegmentInfo` per
+        // segment, whose `cycles` is the unpadded user count and whose `po2`
+        // is the proof-system size, so the prover-side total is the sum of
+        // 2^po2. These are counts, never witness values; a P3 constant-cycle
+        // gate compares them across hostile inputs.
+        let user_cycles = session.cycles();
+        let mut total_cycles: u64 = 0;
+        for segment in &session.segments {
+            let padded = 1u64
+                .checked_shl(segment.po2)
+                .ok_or("segment po2 out of range")?;
+            total_cycles = total_cycles
+                .checked_add(padded)
+                .ok_or("segment cycle total out of range")?;
+        }
         println!(
-            "{{\"execution_matches_policy\":true,\"proof_created\":false,\"mvp_complete\":false}}"
+            "{{\"execution_matches_policy\":true,\"proof_created\":false,\"total_cycles\":{},\"user_cycles\":{},\"segments\":{},\"segment_limit_po2\":{},\"mvp_complete\":false}}",
+            total_cycles,
+            user_cycles,
+            session.segments.len(),
+            SEGMENT_LIMIT_PO2
         );
         return Ok(());
     }
@@ -189,16 +211,55 @@ fn run() -> Result<()> {
 fn refused_variable(name: &str) -> bool {
     name.starts_with("RISC0_") || name.starts_with("BONSAI_")
 }
+// Named switches that select a prover, enable dev/fake mode, redirect work
+// directories or turn on logging. Every one is already covered by the prefix
+// rule below; the list records exactly what the scrub is meant to defeat.
+const SCRUBBED_NAMES: [&str; 7] = [
+    "RISC0_DEV_MODE",
+    "RISC0_PROVER",
+    "RISC0_WORK_DIR",
+    "BONSAI_API_URL",
+    "BONSAI_API_KEY",
+    "RISC0_INFO",
+    "RISC0_PPROF_OUT",
+];
+fn scrubbed_variable(name: &str) -> bool {
+    refused_variable(name) || name.starts_with("RUST_LOG") || SCRUBBED_NAMES.contains(&name)
+}
+/// Remove every prover-selection, dev-mode and logging switch from this
+/// process' environment, so the binary is safe when run by hand and not only
+/// under the maintained runner. Returns the removed NAMES; values are never
+/// returned, logged or printed.
+fn scrub_environment() -> Vec<String> {
+    let mut removed = Vec::new();
+    // `vars_os` is a snapshot, so removing during the walk is well defined.
+    for (key, _) in std::env::vars_os() {
+        let name = key.to_string_lossy().into_owned();
+        if scrubbed_variable(&name) {
+            std::env::remove_var(&key);
+            removed.push(name);
+        }
+    }
+    removed
+}
 fn main() {
     // Do this before the prover starts any threads. Upstream r0vm inherits
     // the environment and its debug logs can include private proof internals.
-    // The maintained runner also captures all child output in private logs.
-    std::env::set_var("RUST_LOG", "off");
-    std::env::set_var("RUST_BACKTRACE", "0");
-    if std::env::vars_os().any(|(k, _)| k.to_str().is_some_and(refused_variable)) {
+    // The maintained runner also scrubs the child environment; the binary
+    // scrubs its own so that a hand run is equally safe. Nothing is printed:
+    // the removed names are a return value for tests, not output.
+    // Prover-selection and dev-mode switches are refused loudly BEFORE any
+    // scrub: an operator who set RISC0_DEV_MODE or BONSAI_* by hand must learn
+    // it rather than have it silently discarded. Only then does the scrub run,
+    // which removes the logging switches (RUST_LOG*) that could carry prover
+    // internals into a hand run's terminal.
+    if std::env::vars_os().any(|(k, _)| refused_variable(&k.to_string_lossy())) {
         eprintln!("zk60 block: RISC0_* and BONSAI_* runtime switches must be unset");
         std::process::exit(1);
     }
+    let _removed = scrub_environment();
+    std::env::set_var("RUST_LOG", "off");
+    std::env::set_var("RUST_BACKTRACE", "0");
     if let Err(err) = run() {
         eprintln!("zk60 block: {err}");
         std::process::exit(1);
@@ -210,11 +271,16 @@ mod tests {
     use super::*;
     use std::os::unix::fs::PermissionsExt;
     use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::Mutex;
     static NEXT: AtomicUsize = AtomicUsize::new(0);
+    // Tests run in threads of one process; the environment is process-global.
+    // Every test that reads or writes it takes this lock first.
+    static ENV_LOCK: Mutex<()> = Mutex::new(());
 
     struct Temp(std::path::PathBuf);
     impl Temp {
         fn new() -> Self {
+            let _guard = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
             let p = std::env::temp_dir().join(format!(
                 "zk60-host-test-{}-{}",
                 std::process::id(),
@@ -358,6 +424,33 @@ mod tests {
         assert_eq!(fs::read(t.path("inner")).unwrap(), b"private");
     }
     #[test]
+    fn scrub_removes_prover_and_logging_switches_only() {
+        let _guard = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        // Start from a clean slate so the assertion is exact whatever the
+        // caller's shell had set.
+        scrub_environment();
+        std::env::set_var("RISC0_DEV_MODE", "1");
+        std::env::set_var("BONSAI_API_KEY", "x");
+        std::env::set_var("RUST_LOG_STYLE", "always");
+        std::env::set_var("ZK60_KEEP_ME", "1");
+        let mut removed = scrub_environment();
+        removed.sort();
+        assert_eq!(
+            removed,
+            vec![
+                "BONSAI_API_KEY".to_string(),
+                "RISC0_DEV_MODE".to_string(),
+                "RUST_LOG_STYLE".to_string()
+            ]
+        );
+        for name in ["RISC0_DEV_MODE", "BONSAI_API_KEY", "RUST_LOG_STYLE"] {
+            assert!(std::env::var_os(name).is_none(), "{name} survived the scrub");
+        }
+        assert_eq!(std::env::var("ZK60_KEEP_ME").unwrap(), "1");
+        std::env::remove_var("ZK60_KEEP_ME");
+        assert!(scrub_environment().is_empty());
+    }
+    #[test]
     fn fake_receipt_is_rejected_even_with_genuine_claim() {
         let p = Statement {
             context: [1; 32],
@@ -378,4 +471,8 @@ mod tests {
 fn refuses_profiler_and_unreviewed_runtime_switches() {
     for name in ["RISC0_PPROF_OUT", "RISC0_DEV_MODE", "RISC0_UNKNOWN", "BONSAI_API_KEY"] { assert!(refused_variable(name)); }
     for name in ["PATH", "RUST_LOG"] { assert!(!refused_variable(name)); }
+    // The scrub covers the refused set plus every logging switch.
+    for name in SCRUBBED_NAMES { assert!(scrubbed_variable(name)); }
+    for name in ["RUST_LOG", "RUST_LOG_STYLE", "RISC0_UNKNOWN", "BONSAI_UNKNOWN"] { assert!(scrubbed_variable(name)); }
+    for name in ["PATH", "HOME", "ZK60_KEEP_ME", "RUSTUP_TOOLCHAIN"] { assert!(!scrubbed_variable(name)); }
 }
