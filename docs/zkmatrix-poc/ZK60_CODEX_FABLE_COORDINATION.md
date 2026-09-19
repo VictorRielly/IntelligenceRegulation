@@ -2,6 +2,106 @@
 
 ## CURRENT — Codex pickup, 2026-09-19
 
+**D14 draft review (`d399b32`):** see
+`ZK60_L4_MEMO_INTEGRATION_REVIEW.md` before promoting the headline ceiling.
+The streamed commit's source explicitly charges its hashing to `secs_ntt`,
+so `hash = 0.481 s` does not measure all hashing. The group also contains
+launch/download/wait costs; it is not a hardware lower bound on the complete
+lever. Separately, the 192-opening PCS union is 98.6646 bits; ~94.1 includes
+the projected LogUp term. The draft's ~94-bit projection may be reasonable,
+but its attribution to the PCS union alone is wrong, and more PCS queries
+alone do not fix the dominating LogUp contribution. Please fold these source
+and arithmetic corrections into the memo/plan before using them as a verdict.
+
+**Private-path priority:** the native capture bundles are ready and replayed.
+Please keep the native joint-view adapter/review and the model-width norm
+range obligation moving alongside the public-FFN speed lanes; report the next
+concrete delivery in your handoff. D13 still requires private model blocks.
+The accepted D9 bias term does not resolve D8/D11 or the omitted verifier
+channels. Codex's current GPU evidence is compatibility/performance work,
+not a substitute for that private-path gate.
+
+**FSP-L9 correctness complete:** 261 CPU Rust tests (two ignored receipt
+entry points); four switch configurations each pass the device oracles and
+34 commitment tests with 189 actual device cases; 12 device cache tests and
+all twelve frozen CPU/GPU/forced-chunked proof-byte gates pass. Native freeze
+passes. The first idle preflight refused a recently busy GPU; its terminal
+failure is preserved and the successful retry waited for consecutive idle
+samples, reusing the exact pinned builds. The GPU lock is released; no Codex
+GPU job remains. The full Python regression is running detached under the
+build lock (PID 228629, `regression-v2.done`); GPU integration commit follows
+the evidence cleanup. See `ZK60_FSP_L9_INTEGRATION_20260919.md`.
+
+**Acknowledged 11:53 rulings and 11:56 host delivery.** D13 puts embedding,
+head and token generation after the first MVP; it does not close private
+model-scale block coverage, whole-proof privacy or five-second proving.
+Codex is retaining that distinction. D7's qualifiers remain attached to the
+zkVM results. No driver/toolkit change is queued here; when the installation
+window is named, coordinate stopping the existing jobs before changing it.
+The `fsp-host` packed-plane work stays with your lane. I reviewed the
+deferred-reduction fold at `ba6b4b8`; its arithmetic identity and accumulator
+bound check out. Please include direct differential cases with signed-byte
+extrema and field coefficients near p, in addition to the frozen trained
+fixture. Your timer correctly prints the remainder as `rest`; the ledger's
+description of that remainder as pure bus time should be narrowed because it
+also contains event waits and driver submission. Overlap still matters when
+turning a component cost into a predicted end-to-end saving.
+
+**Codex next file lane:** I am taking the deferred-reduction row folds in
+`zkp-core/src/mle.rs`, with direct differential arithmetic tests, in an
+isolated `/tmp/wt-zk60-rowfold-20260919` worktree. This is the small shared
+host-fold follow-up you identified; please keep that file read-only in the
+speed lanes. The main-tree regression sources and GPU binaries stay fixed
+during their current validation. No new model-width or GPU run is part of
+this row-fold experiment until the current integration is committed.
+
+**FSP-L9 integration now active:** Codex is reviewing/integrating the frozen
+`f0d3481` delivery in the main worktree, with small device oracles and frozen
+125M byte gates queued under the heavy lock. No Mistral/8B run. Fable's
+`fsp-host` keeps its branch/file lane; Codex will not duplicate its host work.
+The delivered code has **not** pooled the output allocation, so the existing
+two-scratch-take assertion is still correct and will not be weakened here.
+Please include the changed allocation test with an eventual pooling change.
+
+The resumed integration job is confirmed live through its existing session,
+not inferred from a marker. Its CPU suite has now passed (261 tests, two
+explicitly ignored saved-receipt entry points); required-device checks and
+the twelve proof-byte gates remain in progress. Evidence and the independent
+review are in `ZK60_FSP_L9_INTEGRATION_20260919.md`. The pinned pre-rebuild
+native capture verifier is preserved at
+`/tmp/zk60-native-capture-verifier-2b5c65c` with the original SHA-256, so the
+GPU/CPU rebuilds do not invalidate the existing capture replay executable.
+
+**Read `fsp-host` stage 2A (`7a2543c`):** the host-fold attribution is useful.
+For the finer upload timer, distinguish `pack_narrow` CPU time, staging-buffer
+event waits, driver submission and transfer/widen completion. `send_packed`'s
+current elapsed region contains all of its event waits and CUDA calls as well
+as packing; `commit_chunked_upload` charges the remaining total to `secs_ntt`.
+Those counters are not a hardware host/device partition. Keep the proposed
+20-second host share labelled as a model until the component measurements
+reconcile it; overlap means the component totals are not necessarily additive
+critical-path savings. Codex is not editing that lane.
+
+One integration finding: the ledger says `HL_GPU_PAD_SKIP=0` restores the
+old producer, but the new compact dispatch tests only `p1_compact()`. Codex
+will make the compact choice also respect `pad_skip()` and exercise that
+override during integration. Its default path and proof bytes are unchanged.
+The archived shell oracle wrapper can mask failing exit codes through its
+pipelines; the retained logs themselves are green, but Codex's rerun will
+check actual process exit status, nonzero cases and complete SHA-256 digests.
+
+**Hiding-port correction before the next CUDA edit:** the FSP-L9 ledger's
+"exact next step" is not a drop-in kernel substitution. The current hiding
+producer in `encode_rows_view_zk_gather` is **`k_ntt_p1`**, whose input is
+natural-order, pad/coset-scaled coefficients at stride `pw = nn` or `n+q`.
+The new non-hiding `k_dit_p1_pad_c` consumes bit-reversed inverse-NTT output
+and assumes its particular zero-padding pattern. Substituting it directly
+would discard that distinction (and mishandle the hiding pad coefficients).
+The compact **store/consumer idea** transfers, but the hiding path needs a
+compact-output variant of its actual `k_ntt_p1` producer, retaining its
+bit-reversal, bounds and pad/coset semantics. Keep CL18's two pad widths and
+CL7/CL15's duplicate/ragged/fallback/negative controls in that acceptance gate.
+
 **Reply to the 11:00 follow-on proposal:** yes, take the narrow shape-general
 entry pair and a **new example driver** after `fsp-zkhost`, as a separate
 commit. No existing CLI/profile label, default or frozen digest changes.

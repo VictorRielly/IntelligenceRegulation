@@ -1,5 +1,13 @@
 # START HERE — the proof project in plain words
 
+**Latest, 2026-09-19:** the GPU opening optimization passes independent
+device checks and all twelve CPU/GPU proof-byte gates; native freeze passes.
+Its local kernel gain is measured, but its 0.8–1.8-second full-pass saving
+remains an estimate. [Integration review](ZK60_FSP_L9_INTEGRATION_20260919.md).
+The full Python regression is still running. Under the new D13 ruling, the
+first MVP proves hidden model blocks; token generation follows. Model-scale
+private-block coverage and five-second proving remain open.
+
 **Current integration, 2026-09-19:** the native attention and complete tiny
 block are now in the main worktree, with tests and independent receipt
 verification passing. [Integration and measurements](ZK60_ATTENTION_INTEGRATION_20260919.md).

@@ -1,0 +1,1145 @@
+{
+  "binary_hashes": {
+    "hashline/target-gpu/release/deps/zk60_gpu_cache-df71f2a5e21fbfdc": "16d3a5e7d875ef0c617097c2082ed14622bfdc7be096e3010b7fcf3ebea9bcc9",
+    "hashline/target-gpu/release/deps/zk60_gpu_commit-79d5081a61aa25c2": "c0a83049ac4a35dd56df8f1a72d6a283f5c2c5fb510aba8479201499fdd52a06",
+    "hashline/target-gpu/release/hashline": "b127fe7e0ea7ca1885658c8e8c656dda9cf1bf983389df360e6da3530236cd0e",
+    "hashline/target/release/hashline": "1e6dc869ad2916e527f9a2c904ec9e7921467b34de028e2a62a322c0a51ac2d5"
+  },
+  "current": null,
+  "delivery_commit": "f0d34812e0653310eee9a87457f1df03d2ab77d6",
+  "gates": [
+    {
+      "accepted": true,
+      "bytes": 66844928,
+      "name": "cpu-v2",
+      "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d"
+    },
+    {
+      "accepted": true,
+      "bytes": 70758084,
+      "name": "cpu-v3",
+      "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d"
+    },
+    {
+      "accepted": true,
+      "bytes": 87228528,
+      "name": "cpu-legacy-zk",
+      "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d"
+    },
+    {
+      "accepted": true,
+      "bytes": 87697008,
+      "name": "cpu-legacy-zkv3",
+      "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17"
+    },
+    {
+      "accepted": true,
+      "bytes": 66844928,
+      "name": "gpu-v2",
+      "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d"
+    },
+    {
+      "accepted": true,
+      "bytes": 70758084,
+      "name": "gpu-v3",
+      "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d"
+    },
+    {
+      "accepted": true,
+      "bytes": 87228528,
+      "name": "gpu-legacy-zk",
+      "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d"
+    },
+    {
+      "accepted": true,
+      "bytes": 87697008,
+      "name": "gpu-legacy-zkv3",
+      "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17"
+    },
+    {
+      "accepted": true,
+      "bytes": 66844928,
+      "name": "gpu-chunked-v2",
+      "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d"
+    },
+    {
+      "accepted": true,
+      "bytes": 70758084,
+      "name": "gpu-chunked-v3",
+      "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d"
+    },
+    {
+      "accepted": true,
+      "bytes": 87228528,
+      "name": "gpu-chunked-legacy-zk",
+      "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d"
+    },
+    {
+      "accepted": true,
+      "bytes": 87697008,
+      "name": "gpu-chunked-legacy-zkv3",
+      "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17"
+    }
+  ],
+  "imported_runner_sha256": "22c7b1c7c2a797cbbc5495094f3b5ad3968e3bfcf918bfef5b06cccc450c3195",
+  "integration_base": "d321ebd3ec58611b52a41fec595c5b14be178e7d",
+  "model_scale_speed_claim": false,
+  "prior_report": "../validation.json",
+  "privacy_acceptance": false,
+  "reused_builds": [
+    "cpu-tests",
+    "cpu-build",
+    "gpu-test-build",
+    "gpu-build"
+  ],
+  "runner_sha256": "baabe09748b1a0822e7081c8bd97dce88abd1c36a95f8ef781a8001eeb86fc24",
+  "runs": [
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.0656999389975681,
+      "environment": {},
+      "exit_code": 0,
+      "name": "default-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06675602400355274,
+      "environment": {},
+      "exit_code": 0,
+      "name": "default-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.03317346300173085,
+      "environment": {},
+      "exit_code": 0,
+      "name": "default-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "gpu-probe"
+      ],
+      "elapsed_shared_seconds": 9.348426987999119,
+      "environment": {
+        "HL_GPU": "1",
+        "HL_GPU_REQUIRED": "1"
+      },
+      "exit_code": 0,
+      "name": "default-oracles"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06613397799810627,
+      "environment": {},
+      "exit_code": 0,
+      "name": "default-commit-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.065845632001583,
+      "environment": {},
+      "exit_code": 0,
+      "name": "default-commit-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06562916999973822,
+      "environment": {},
+      "exit_code": 0,
+      "name": "default-commit-gpu-idle-02"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.03346050799882505,
+      "environment": {},
+      "exit_code": 0,
+      "name": "default-commit-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/deps/zk60_gpu_commit-79d5081a61aa25c2",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "elapsed_shared_seconds": 27.405851613002596,
+      "environment": {
+        "HL_GPU": "1",
+        "HL_GPU_REQUIRED": "1"
+      },
+      "exit_code": 0,
+      "name": "default-commit"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.0659754910011543,
+      "environment": {},
+      "exit_code": 0,
+      "name": "compact-off-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06586456500372151,
+      "environment": {},
+      "exit_code": 0,
+      "name": "compact-off-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06570483200630406,
+      "environment": {},
+      "exit_code": 0,
+      "name": "compact-off-gpu-idle-02"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.03350177100219298,
+      "environment": {},
+      "exit_code": 0,
+      "name": "compact-off-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "gpu-probe"
+      ],
+      "elapsed_shared_seconds": 9.696536372000992,
+      "environment": {
+        "HL_GPU": "1",
+        "HL_GPU_P1_COMPACT": "0",
+        "HL_GPU_REQUIRED": "1"
+      },
+      "exit_code": 0,
+      "name": "compact-off-oracles"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06559240700153168,
+      "environment": {},
+      "exit_code": 0,
+      "name": "compact-off-commit-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.0655813630000921,
+      "environment": {},
+      "exit_code": 0,
+      "name": "compact-off-commit-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.0659102179997717,
+      "environment": {},
+      "exit_code": 0,
+      "name": "compact-off-commit-gpu-idle-02"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06552909200399881,
+      "environment": {},
+      "exit_code": 0,
+      "name": "compact-off-commit-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/deps/zk60_gpu_commit-79d5081a61aa25c2",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "elapsed_shared_seconds": 27.558810040995013,
+      "environment": {
+        "HL_GPU": "1",
+        "HL_GPU_P1_COMPACT": "0",
+        "HL_GPU_REQUIRED": "1"
+      },
+      "exit_code": 0,
+      "name": "compact-off-commit"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06568146399513353,
+      "environment": {},
+      "exit_code": 0,
+      "name": "pad-skip-off-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06618021000031149,
+      "environment": {},
+      "exit_code": 0,
+      "name": "pad-skip-off-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.0655585139975301,
+      "environment": {},
+      "exit_code": 0,
+      "name": "pad-skip-off-gpu-idle-02"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.033616236003581434,
+      "environment": {},
+      "exit_code": 0,
+      "name": "pad-skip-off-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "gpu-probe"
+      ],
+      "elapsed_shared_seconds": 9.747480685997289,
+      "environment": {
+        "HL_GPU": "1",
+        "HL_GPU_PAD_SKIP": "0",
+        "HL_GPU_REQUIRED": "1"
+      },
+      "exit_code": 0,
+      "name": "pad-skip-off-oracles"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06596041199372848,
+      "environment": {},
+      "exit_code": 0,
+      "name": "pad-skip-off-commit-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06603757900302298,
+      "environment": {},
+      "exit_code": 0,
+      "name": "pad-skip-off-commit-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06611101399903418,
+      "environment": {},
+      "exit_code": 0,
+      "name": "pad-skip-off-commit-gpu-idle-02"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.033407271999749355,
+      "environment": {},
+      "exit_code": 0,
+      "name": "pad-skip-off-commit-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/deps/zk60_gpu_commit-79d5081a61aa25c2",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "elapsed_shared_seconds": 24.949726555998495,
+      "environment": {
+        "HL_GPU": "1",
+        "HL_GPU_PAD_SKIP": "0",
+        "HL_GPU_REQUIRED": "1"
+      },
+      "exit_code": 0,
+      "name": "pad-skip-off-commit"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06539036000322085,
+      "environment": {},
+      "exit_code": 0,
+      "name": "swizzles-on-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06662932800099952,
+      "environment": {},
+      "exit_code": 0,
+      "name": "swizzles-on-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06604036600037944,
+      "environment": {},
+      "exit_code": 0,
+      "name": "swizzles-on-gpu-idle-02"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.03346513999713352,
+      "environment": {},
+      "exit_code": 0,
+      "name": "swizzles-on-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "gpu-probe"
+      ],
+      "elapsed_shared_seconds": 8.091548698001134,
+      "environment": {
+        "HL_GPU": "1",
+        "HL_GPU_REQUIRED": "1",
+        "HL_GPU_SMEM_SWZ": "1",
+        "HL_GPU_SMEM_SWZ_PB": "1"
+      },
+      "exit_code": 0,
+      "name": "swizzles-on-oracles"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06683796699508093,
+      "environment": {},
+      "exit_code": 0,
+      "name": "swizzles-on-commit-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.0663378049939638,
+      "environment": {},
+      "exit_code": 0,
+      "name": "swizzles-on-commit-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.0662260859971866,
+      "environment": {},
+      "exit_code": 0,
+      "name": "swizzles-on-commit-gpu-idle-02"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.033562926000740845,
+      "environment": {},
+      "exit_code": 0,
+      "name": "swizzles-on-commit-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/deps/zk60_gpu_commit-79d5081a61aa25c2",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "elapsed_shared_seconds": 23.2463739800005,
+      "environment": {
+        "HL_GPU": "1",
+        "HL_GPU_REQUIRED": "1",
+        "HL_GPU_SMEM_SWZ": "1",
+        "HL_GPU_SMEM_SWZ_PB": "1"
+      },
+      "exit_code": 0,
+      "name": "swizzles-on-commit"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06595875399943907,
+      "environment": {},
+      "exit_code": 0,
+      "name": "cache-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06648182399658253,
+      "environment": {},
+      "exit_code": 0,
+      "name": "cache-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.03429050200065831,
+      "environment": {},
+      "exit_code": 0,
+      "name": "cache-gpu-idle-02"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.0331272129988065,
+      "environment": {},
+      "exit_code": 0,
+      "name": "cache-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/deps/zk60_gpu_cache-df71f2a5e21fbfdc",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "elapsed_shared_seconds": 80.21020214500459,
+      "environment": {
+        "HL_GPU": "1",
+        "HL_GPU_REQUIRED": "1"
+      },
+      "exit_code": 0,
+      "name": "gpu-cache"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fsp-l9-integration-20260919-attempt-2/cpu-v2.proof"
+      ],
+      "elapsed_shared_seconds": 16.029156511998735,
+      "environment": {},
+      "exit_code": 0,
+      "name": "cpu-v2"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fsp-l9-integration-20260919-attempt-2/cpu-v3.proof",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "elapsed_shared_seconds": 16.78277416399942,
+      "environment": {},
+      "exit_code": 0,
+      "name": "cpu-v3"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fsp-l9-integration-20260919-attempt-2/cpu-legacy-zk.proof",
+        "--zk",
+        "--seed",
+        "1"
+      ],
+      "elapsed_shared_seconds": 18.19407709799998,
+      "environment": {},
+      "exit_code": 0,
+      "name": "cpu-legacy-zk"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fsp-l9-integration-20260919-attempt-2/cpu-legacy-zkv3.proof",
+        "--zk",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "elapsed_shared_seconds": 19.99541658799717,
+      "environment": {},
+      "exit_code": 0,
+      "name": "cpu-legacy-zkv3"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06571202899795026,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-v2-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06551920300262282,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-v2-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.03389615099877119,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-v2-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fsp-l9-integration-20260919-attempt-2/gpu-v2.proof"
+      ],
+      "elapsed_shared_seconds": 6.538424570993811,
+      "environment": {
+        "HL_GPU": "1"
+      },
+      "exit_code": 0,
+      "name": "gpu-v2"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06584512400149833,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-v3-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.033757708995835856,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-v3-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.033108294002886396,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-v3-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fsp-l9-integration-20260919-attempt-2/gpu-v3.proof",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "elapsed_shared_seconds": 6.687435653002467,
+      "environment": {
+        "HL_GPU": "1"
+      },
+      "exit_code": 0,
+      "name": "gpu-v3"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.0655576889985241,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-legacy-zk-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.03342017700197175,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-legacy-zk-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.033250249005504884,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-legacy-zk-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fsp-l9-integration-20260919-attempt-2/gpu-legacy-zk.proof",
+        "--zk",
+        "--seed",
+        "1"
+      ],
+      "elapsed_shared_seconds": 8.142030363997037,
+      "environment": {
+        "HL_GPU": "1"
+      },
+      "exit_code": 0,
+      "name": "gpu-legacy-zk"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06548453299910761,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-legacy-zkv3-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.03800693400262389,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-legacy-zkv3-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.033729447997757234,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-legacy-zkv3-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fsp-l9-integration-20260919-attempt-2/gpu-legacy-zkv3.proof",
+        "--zk",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "elapsed_shared_seconds": 9.698761284998909,
+      "environment": {
+        "HL_GPU": "1"
+      },
+      "exit_code": 0,
+      "name": "gpu-legacy-zkv3"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06621770399942761,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-chunked-v2-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06587393499648897,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-chunked-v2-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.033342387003358454,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-chunked-v2-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fsp-l9-integration-20260919-attempt-2/gpu-chunked-v2.proof"
+      ],
+      "elapsed_shared_seconds": 6.336589056001685,
+      "environment": {
+        "HL_GPU": "1",
+        "HL_GPU_CHUNK_BYTES": "100000000",
+        "HL_GPU_CHUNK_ROWS": "128"
+      },
+      "exit_code": 0,
+      "name": "gpu-chunked-v2"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06573680400470039,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-chunked-v3-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06569914699502988,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-chunked-v3-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.033657756001048256,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-chunked-v3-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fsp-l9-integration-20260919-attempt-2/gpu-chunked-v3.proof",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "elapsed_shared_seconds": 6.7877441289965645,
+      "environment": {
+        "HL_GPU": "1",
+        "HL_GPU_CHUNK_BYTES": "100000000",
+        "HL_GPU_CHUNK_ROWS": "128"
+      },
+      "exit_code": 0,
+      "name": "gpu-chunked-v3"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06595054399804212,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-chunked-legacy-zk-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06628481599909719,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-chunked-legacy-zk-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.033275137997407,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-chunked-legacy-zk-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fsp-l9-integration-20260919-attempt-2/gpu-chunked-legacy-zk.proof",
+        "--zk",
+        "--seed",
+        "1"
+      ],
+      "elapsed_shared_seconds": 8.594021165001323,
+      "environment": {
+        "HL_GPU": "1",
+        "HL_GPU_CHUNK_BYTES": "100000000",
+        "HL_GPU_CHUNK_ROWS": "128"
+      },
+      "exit_code": 0,
+      "name": "gpu-chunked-legacy-zk"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.0656337460022769,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-chunked-legacy-zkv3-gpu-idle-00"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06692086900147842,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-chunked-legacy-zkv3-gpu-idle-01"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-compute-apps=pid,used_gpu_memory",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.03329483800189337,
+      "environment": {},
+      "exit_code": 0,
+      "name": "gpu-chunked-legacy-zkv3-gpu-apps"
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target-gpu/release/hashline",
+        "pass",
+        "12",
+        "512",
+        "--threads",
+        "8",
+        "--proof-out",
+        "/tmp/zk60-fsp-l9-integration-20260919-attempt-2/gpu-chunked-legacy-zkv3.proof",
+        "--zk",
+        "--seed",
+        "1",
+        "--profile",
+        "v3",
+        "--export",
+        "/home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export"
+      ],
+      "elapsed_shared_seconds": 9.545683509997616,
+      "environment": {
+        "HL_GPU": "1",
+        "HL_GPU_CHUNK_BYTES": "100000000",
+        "HL_GPU_CHUNK_ROWS": "128"
+      },
+      "exit_code": 0,
+      "name": "gpu-chunked-legacy-zkv3"
+    }
+  ],
+  "source_hashes": {
+    "hashline/Cargo.lock": "97b74f02153a9b041cd0151e487c912793ef6b662ceda603b598a81b7173d5cd",
+    "hashline/Cargo.toml": "eaba50ecf1434ad8514feb83c6e610b0d662b8fd6d512f26bacdde69163b860a",
+    "hashline/src/gpu/cuda.rs": "35de7c06cbd2e6be69f7dd4267ac1da9ba94318d2f34fc1af2a1e0b664f1563b",
+    "hashline/src/gpu/kernels.cu": "bd00229fd61e86ae2bc0e037d5fa9cd90acc8a8a0f0fbf5583d501d2caf7b6aa",
+    "hashline/src/gpu/mod.rs": "a5ceeba218429637cb73f9dc5c28fcf3508c7d071ea288be110f7e43078b4229",
+    "hashline/tests/zk60_gpu_cache.rs": "a528f62450e0f1d645a326890cb87dc01ab56f1091927c70f86e33901d101ce3",
+    "hashline/tests/zk60_gpu_commit.rs": "4254d1bfa06aaff9791beed33d9a8a83b8493b3e2a097a539376805c36757945"
+  },
+  "state": "passed"
+}

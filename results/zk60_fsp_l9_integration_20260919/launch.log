@@ -1,0 +1,18 @@
+START cpu-tests
+PASS cpu-tests
+START cpu-build
+PASS cpu-build
+START gpu-test-build
+PASS gpu-test-build
+START gpu-build
+PASS gpu-build
+START default-gpu-idle
+PASS default-gpu-idle
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/results/zk60_fsp_l9_integration_20260919/run.py", line 159, in <module>
+    runner.finish()
+  File "/home/victor/IntelligenceRegulation/results/zk60_fsp_l9_integration_20260919/run.py", line 114, in finish
+    self.gpu_preflight(arm)
+  File "/home/victor/IntelligenceRegulation/results/zk60_fsp_l9_integration_20260919/run.py", line 80, in gpu_preflight
+    raise RuntimeError('GPU not idle or below the planned memory capacity; no job launched')
+RuntimeError: GPU not idle or below the planned memory capacity; no job launched

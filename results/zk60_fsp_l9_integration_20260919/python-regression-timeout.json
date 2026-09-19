@@ -1,0 +1,8 @@
+{
+  "observed_session": 14895,
+  "launcher_exit_code": 1,
+  "exception": "subprocess.TimeoutExpired",
+  "timeout_seconds": 240,
+  "test_result": "incomplete; no suite result emitted",
+  "replacement": "regression-v2.json"
+}

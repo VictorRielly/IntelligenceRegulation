@@ -1,0 +1,123 @@
+{
+  "binary_hashes": {
+    "hashline/target-gpu/release/deps/zk60_gpu_cache-df71f2a5e21fbfdc": "16d3a5e7d875ef0c617097c2082ed14622bfdc7be096e3010b7fcf3ebea9bcc9",
+    "hashline/target-gpu/release/deps/zk60_gpu_commit-79d5081a61aa25c2": "c0a83049ac4a35dd56df8f1a72d6a283f5c2c5fb510aba8479201499fdd52a06",
+    "hashline/target-gpu/release/hashline": "b127fe7e0ea7ca1885658c8e8c656dda9cf1bf983389df360e6da3530236cd0e",
+    "hashline/target/release/hashline": "1e6dc869ad2916e527f9a2c904ec9e7921467b34de028e2a62a322c0a51ac2d5"
+  },
+  "current": "default-gpu-idle",
+  "delivery_commit": "f0d34812e0653310eee9a87457f1df03d2ab77d6",
+  "error": "GPU not idle or below the planned memory capacity; no job launched",
+  "gates": [],
+  "integration_base": "0bd43ed34871aa2110091d199961d5338c395e6c",
+  "model_scale_speed_claim": false,
+  "privacy_acceptance": false,
+  "runner_sha256": "22c7b1c7c2a797cbbc5495094f3b5ad3968e3bfcf918bfef5b06cccc450c3195",
+  "runs": [
+    {
+      "argv": [
+        "/home/victor/.cargo/bin/cargo",
+        "test",
+        "--release",
+        "--offline",
+        "-j",
+        "2",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--",
+        "--test-threads=2"
+      ],
+      "elapsed_shared_seconds": 392.71696919299575,
+      "environment": {},
+      "exit_code": 0,
+      "name": "cpu-tests"
+    },
+    {
+      "argv": [
+        "/home/victor/.cargo/bin/cargo",
+        "build",
+        "--release",
+        "--offline",
+        "-j",
+        "2",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--bin",
+        "hashline"
+      ],
+      "elapsed_shared_seconds": 0.11465625600249041,
+      "environment": {},
+      "exit_code": 0,
+      "name": "cpu-build"
+    },
+    {
+      "argv": [
+        "/home/victor/.cargo/bin/cargo",
+        "test",
+        "--release",
+        "--offline",
+        "-j",
+        "2",
+        "--features",
+        "gpu-cuda",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--test",
+        "zk60_gpu_commit",
+        "--test",
+        "zk60_gpu_cache",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "elapsed_shared_seconds": 72.6299258509971,
+      "environment": {
+        "CARGO_TARGET_DIR": "/home/victor/IntelligenceRegulation/hashline/target-gpu"
+      },
+      "exit_code": 0,
+      "name": "gpu-test-build"
+    },
+    {
+      "argv": [
+        "/home/victor/.cargo/bin/cargo",
+        "build",
+        "--release",
+        "--offline",
+        "-j",
+        "2",
+        "--features",
+        "gpu-cuda",
+        "--manifest-path",
+        "hashline/Cargo.toml",
+        "--bin",
+        "hashline"
+      ],
+      "elapsed_shared_seconds": 0.0323387719981838,
+      "environment": {
+        "CARGO_TARGET_DIR": "/home/victor/IntelligenceRegulation/hashline/target-gpu"
+      },
+      "exit_code": 0,
+      "name": "gpu-build"
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader"
+      ],
+      "elapsed_shared_seconds": 0.06635494500369532,
+      "environment": {},
+      "exit_code": 0,
+      "name": "default-gpu-idle"
+    }
+  ],
+  "source_hashes": {
+    "hashline/Cargo.lock": "97b74f02153a9b041cd0151e487c912793ef6b662ceda603b598a81b7173d5cd",
+    "hashline/Cargo.toml": "eaba50ecf1434ad8514feb83c6e610b0d662b8fd6d512f26bacdde69163b860a",
+    "hashline/src/gpu/cuda.rs": "35de7c06cbd2e6be69f7dd4267ac1da9ba94318d2f34fc1af2a1e0b664f1563b",
+    "hashline/src/gpu/kernels.cu": "bd00229fd61e86ae2bc0e037d5fa9cd90acc8a8a0f0fbf5583d501d2caf7b6aa",
+    "hashline/src/gpu/mod.rs": "a5ceeba218429637cb73f9dc5c28fcf3508c7d071ea288be110f7e43078b4229",
+    "hashline/tests/zk60_gpu_cache.rs": "a528f62450e0f1d645a326890cb87dc01ab56f1091927c70f86e33901d101ce3",
+    "hashline/tests/zk60_gpu_commit.rs": "4254d1bfa06aaff9791beed33d9a8a83b8493b3e2a097a539376805c36757945"
+  },
+  "state": "failed"
+}

@@ -1,0 +1,108 @@
+{
+  "binary_hashes": {
+    "hashline/target-gpu/release/deps/zk60_gpu_cache-df71f2a5e21fbfdc": "16d3a5e7d875ef0c617097c2082ed14622bfdc7be096e3010b7fcf3ebea9bcc9",
+    "hashline/target-gpu/release/deps/zk60_gpu_commit-79d5081a61aa25c2": "c0a83049ac4a35dd56df8f1a72d6a283f5c2c5fb510aba8479201499fdd52a06",
+    "hashline/target-gpu/release/hashline": "b127fe7e0ea7ca1885658c8e8c656dda9cf1bf983389df360e6da3530236cd0e",
+    "hashline/target/release/hashline": "1e6dc869ad2916e527f9a2c904ec9e7921467b34de028e2a62a322c0a51ac2d5"
+  },
+  "cpu_tests": {
+    "failed": 0,
+    "ignored": 2,
+    "passed": 261
+  },
+  "delivery_commit": "f0d34812e0653310eee9a87457f1df03d2ab77d6",
+  "full_python_regression": "running; see regression-v2.json",
+  "gpu_cases": {
+    "compact-off": 189,
+    "default": 189,
+    "pad-skip-off": 189,
+    "swizzles-on": 189
+  },
+  "model_scale_speed_claim": false,
+  "native_freeze_exit": 0,
+  "privacy_acceptance": false,
+  "production_delta_from_delivery": "compact selection also requires pad_skip(); kernels otherwise exactly delivered",
+  "proof_gates": [
+    {
+      "accepted": true,
+      "bytes": 66844928,
+      "name": "cpu-v2",
+      "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d"
+    },
+    {
+      "accepted": true,
+      "bytes": 70758084,
+      "name": "cpu-v3",
+      "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d"
+    },
+    {
+      "accepted": true,
+      "bytes": 87228528,
+      "name": "cpu-legacy-zk",
+      "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d"
+    },
+    {
+      "accepted": true,
+      "bytes": 87697008,
+      "name": "cpu-legacy-zkv3",
+      "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17"
+    },
+    {
+      "accepted": true,
+      "bytes": 66844928,
+      "name": "gpu-v2",
+      "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d"
+    },
+    {
+      "accepted": true,
+      "bytes": 70758084,
+      "name": "gpu-v3",
+      "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d"
+    },
+    {
+      "accepted": true,
+      "bytes": 87228528,
+      "name": "gpu-legacy-zk",
+      "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d"
+    },
+    {
+      "accepted": true,
+      "bytes": 87697008,
+      "name": "gpu-legacy-zkv3",
+      "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17"
+    },
+    {
+      "accepted": true,
+      "bytes": 66844928,
+      "name": "gpu-chunked-v2",
+      "sha256": "50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d"
+    },
+    {
+      "accepted": true,
+      "bytes": 70758084,
+      "name": "gpu-chunked-v3",
+      "sha256": "5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d"
+    },
+    {
+      "accepted": true,
+      "bytes": 87228528,
+      "name": "gpu-chunked-legacy-zk",
+      "sha256": "021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d"
+    },
+    {
+      "accepted": true,
+      "bytes": 87697008,
+      "name": "gpu-chunked-legacy-zkv3",
+      "sha256": "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17"
+    }
+  ],
+  "source_hashes": {
+    "hashline/Cargo.lock": "97b74f02153a9b041cd0151e487c912793ef6b662ceda603b598a81b7173d5cd",
+    "hashline/Cargo.toml": "eaba50ecf1434ad8514feb83c6e610b0d662b8fd6d512f26bacdde69163b860a",
+    "hashline/src/gpu/cuda.rs": "35de7c06cbd2e6be69f7dd4267ac1da9ba94318d2f34fc1af2a1e0b664f1563b",
+    "hashline/src/gpu/kernels.cu": "bd00229fd61e86ae2bc0e037d5fa9cd90acc8a8a0f0fbf5583d501d2caf7b6aa",
+    "hashline/src/gpu/mod.rs": "a5ceeba218429637cb73f9dc5c28fcf3508c7d071ea288be110f7e43078b4229",
+    "hashline/tests/zk60_gpu_cache.rs": "a528f62450e0f1d645a326890cb87dc01ab56f1091927c70f86e33901d101ce3",
+    "hashline/tests/zk60_gpu_commit.rs": "4254d1bfa06aaff9791beed33d9a8a83b8493b3e2a097a539376805c36757945"
+  }
+}

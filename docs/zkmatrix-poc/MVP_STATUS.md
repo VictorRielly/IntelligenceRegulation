@@ -1,6 +1,6 @@
 # Where the MVP stands, in plain words
 
-**Updated 2026-09-19, after native capture integration, by the Codex/Fable
+**Updated 2026-09-19, after GPU integration correctness gates, by the Codex/Fable
 loop (after the 01:04 laptop restart; see §3 item 4).** This page
 answers three questions and is refreshed whenever the loop produces news.
 Rulings are in [the decisions register](ZK60_DECISIONS.md); measurements
@@ -39,9 +39,13 @@ different profile. Prove 7,488 s (2 h 5 min) on the shared CPU, wrap 197 s
 
 What it rests on: RISC Zero's proof system at about 97 bits conjectured
 soundness (D3), the Groth16 trusted setup (D4), Groth16 receipts only (D5),
-and a new salted-SHA-256 endpoint profile that still needs Victor's
-acceptance as the P1 statement (D7). Both receipts are for synthetic tiny
-fixtures, not a trained model, and neither makes a speed claim.
+and the salted-SHA-256 endpoint profile accepted under D7 at 11:50 on
+September 19. The D7 qualifiers remain explicit: salt secrecy protects the
+toy answer (the model library still accepts zero/repeated salts), the image
+is locally built and not independently reproduced across directories, and
+timing is declared leakage; the scan and cycle check cover only the block
+program. Both receipts use synthetic tiny fixtures and make no model-speed
+claim. D13 makes hidden model blocks the first MVP; token generation follows.
 
 **On the custom prover line (hashline), the first complete private block now
 proves and verifies (2026-09-19, 05:14), and at 06:25 the security owner
@@ -97,6 +101,16 @@ capture controls pass; both pre-instrumentation receipts still verify.
 [validation manifest](../../results/zk60_native_captures_20260919/validation.json).
 This closes the capture-writer prerequisite. The complete joint-view analysis
 and D8/D11 still need acceptance; no new proving-speed claim follows.
+
+**GPU optimization validated:** Claude's compact intermediate for non-hiding
+openings and the parallel host column split pass the integration checks:
+261 CPU Rust tests, four configurations of 34 required-device commitment
+tests, 12 device cache tests, all twelve frozen CPU/GPU/forced-chunked proof
+digests, and native freeze. The full Python regression is still running.
+The local four-kernel gain is 1.162× [MEASURED]; its full-pass saving is only
+0.8–1.8 seconds [COUNTED]. No new 8B proof clock is claimed. The next host
+work targets redundant integer conversion/packing and repeated reductions.
+[Review and retained evidence](ZK60_FSP_L9_INTEGRATION_20260919.md).
 
 What else exists on that line: a private feed-forward component at the same tiny shape
 with a bounded privacy diagnostic (whole-proof privacy not accepted, D8

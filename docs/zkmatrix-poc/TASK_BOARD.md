@@ -1,5 +1,16 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-19, FSP-L9 integration correctness passed:** the compact GPU opening
+intermediate and parallel column split preserve all twelve frozen proof
+digests on CPU, GPU and forced-chunked GPU. Four switch configurations pass
+the device oracles and 34 commitment tests apiece; 12 device cache tests,
+261 CPU Rust tests and native freeze pass. Full Python regression is running.
+[Integration review](ZK60_FSP_L9_INTEGRATION_20260919.md).
+Fable owns direct packed uploads and the repaired-private cost probe; Codex
+owns the isolated `zkp-core/src/mle.rs` row-fold follow-up. D13 puts token
+generation after the first MVP; private model-block coverage, whole-proof
+privacy, proof size and five-second model-scale proving still need evidence.
+
 **2026-09-19, native captures retained:** `2b5c65c` adds the test-only
 attention/block capture writer and mandatory fresh-process ingestion gate.
 Two accepted receipts per profile are retained with source and binary pins;

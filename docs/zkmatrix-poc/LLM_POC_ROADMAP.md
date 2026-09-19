@@ -1,5 +1,14 @@
 # The ZK-of-LLM PoC Roadmap — From the Closed Design Trench to a Proven Pass
 
+**Historical proposal, superseded in privacy scope:** the August P2
+definition below is not the current acceptance target. Under
+[D1](ZK60_DECISIONS.md), the first PoC must hide inputs, outputs and
+intermediate activations (P1; weights may be public), and P3 additionally
+hides weights. A public-input FFN pass cannot satisfy that requirement.
+The original cost/layout proposal is retained below as dated history.
+Use [MVP_STATUS.md](MVP_STATUS.md) for current evidence and outstanding
+complete-model coverage; the five-second model-scale objective remains open.
+
 Status: roadmap, written 2026-08-08 on Victor's console ask ("next
 steps to complete a proof of concept for the zk proofs of LLMs").
 This page consolidates what is otherwise spread across the tranche
