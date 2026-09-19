@@ -556,3 +556,60 @@ The twelve byte gates at this tip were green 55 minutes before this
 agent started, on these same two binaries and with no source change in
 between (`results/fsp4_floors_s2.log`, 11:53, recorded in stage 5
 above); this agent's own twelve-gate run is C4's, on the changed tree.
+
+### 2026-09-19 12:30 — C2, ITEM (a) AS BUILT
+
+**One sentence.** The v3 W commitment now fills the pinned staging
+buffer straight from the three int8 weight planes, so the converted
+`Vec<Fp>` is never built, never allocated and never read.
+
+**The five pieces** (each in a file this lane owns):
+
+| file | what was added |
+|---|---|
+| `hashline/src/gpu/mod.rs` | `planes::PlaneTiling` — the three planes plus the block map, with `fill_bytes` (the two's-complement byte image of an arbitrary element range) and `fill_fp` (the 64-bit field image of the same range). Compiled in EVERY configuration. |
+| `hashline/src/gpu/cuda.rs` | `UpSrc` (`Words` \| `Planes`), the upload's source; `send_packed` became `send_src`, whose `Words` arm is the inherited code unchanged; `upload_narrow` and `commit_chunked_upload` take `UpSrc`, so BOTH device routes are served; `upload_planes`; `dev_commit_planes`. |
+| `hashline/src/pcs.rs` | `commit_planes` — mirrors `zkp_core::pcs::commit_with`'s device branch (leaves -> `MerkleTree::build` -> `Committed`), the way `commit_zk_device` already does, because the core is not this lane's crate. `None` = decline. |
+| `hashline/src/wcache.rs` | `commit_w_planes` — no cache: straight through; a MISS: the plane commit and the SAME `save_tree`; a HIT: DECLINED, so the caller builds the buffer and the inherited hit route runs unchanged. The key needs nothing: `WKey` already hashes the planes, never `w_data`. |
+| `hashline/src/layer.rs` | the switch `HL_FSP4_PLANES` (default on) and the branch: try the planes, else run the inherited fill and commit verbatim. |
+
+**Why the bytes cannot move.** `pack_narrow` at `w = 1` emits `v as u8`
+for `v < 128` and `v.wrapping_sub(P) as u8` for `v >= P - 128`. For an
+`i8` `s`, `w_data[i] = Fp::from_i64(s as i64)` is `s` when `s >= 0` and
+`P + s` when `s < 0`, so both arms emit exactly `s as u8`. Every row of
+every block is a CONTIGUOUS run of its plane, so the fill is a gather of
+`memcpy`s — no arithmetic, nothing to round, nothing to order. The
+device sees the same bytes at the same addresses, `k_widen` restores the
+same 64-bit image, and the encode, the hash, the leaves, the root and
+the transcript are untouched.
+
+**Every arm that declines** (and therefore keeps today's behaviour
+exactly): `HL_FSP4_PLANES=0`; `HL_AL_I8FOLD=0` (the inherited fold arm
+is the only other reader of `w_data`); `--pcs compact`; no `gpu-cuda`
+feature; `HL_GPU` unset, i.e. **the whole CPU binary**; `HL_GPU_NARROW=0`;
+a missing `k_widen`; no packing scratch; a tiling that does not match
+the shape; a cache HIT. A decline costs one shape check and then runs
+the inherited code.
+
+**The two oracles.** `hashline/src/bin/hashline.rs` is not this lane's
+file, so a rung could not be added to the `gpu-probe` command; both are
+lib unit tests, neither needs a device, and `results/fsp4_oracles.sh`
+now runs them under BOTH feature sets:
+
+* `gpu::planes::tests` (every configuration) — `fill_fp` over the whole
+  buffer against a literal transcription of `prove_layer_v3`'s three
+  fill loops driven by the REAL `zkp_core::ffn_v3::Layout` offsets, then
+  `fill_bytes` against that buffer's byte image over ranges that split
+  blocks and rows and in the chunked form, at four shapes;
+* `gpu::cuda::fsp4_plane_oracle` (`--features gpu-cuda`) — the staged
+  bytes against the REAL `pack_narrow` at `w = 1`, over the same kind of
+  ranges, over row-chunk pieces (`commit_chunked_upload`'s form) and
+  over staging-piece boundaries of 1, 7, 255, 4096, 65537, `wb - 1` and
+  `wb + 1` elements (`send_src`'s form).
+
+The shapes are the 12x512 fixture's (768/2048 — `nb_d` 3, `nb_f` 1),
+a two-sided multi-block shape (96/192 — 3 and 3), the 8B block
+structure scaled down (256/1792 — `nb_d` 1, `nb_f` 7, which no fixture
+can reach) and a single-block shape. **Adding these raises the CPU
+suite's count from 202; the inherited 202 are unchanged and no
+expectation was touched.**
