@@ -37,7 +37,30 @@ relations of T2 are proved in the same commit.
 
 ## QUESTIONS FOR THE SECURITY OWNER
 
-(none yet)
+Neither of these blocked S0-S2; both are recorded because a later reader
+should not mistake a green test for more than it covers.
+
+1. **Refusal-site coverage of the parity sweep.** The 1,200 generated cases
+   reach nine of the kernel's refusal sites (`Q`, `K`, `V`, `QR`, `score`,
+   `residual 1`, `FFN gate`, `FFN down`, `residual 2`). They never reach
+   `KR`, `O`, `AO`, `FFN up`, `FFN product`, `exp difference`,
+   `softmax denominator`, `softmax quotient/remainder`,
+   `causal maximum attainment`, or either `norm` site. Some of those look
+   close to unreachable at this calibration by arithmetic rather than by
+   luck (`|y| <= gamma/2 <= 63` always, so the norm quotient cannot leave
+   its class; `o8` is a weighted average of `v8`, so `O` cannot); others are
+   reachable and the generator simply refuses earlier. Should the next stage
+   add hand-built witnesses that force each remaining site, so that
+   "same site, same message" is tested at every site rather than at nine of
+   them? It is cheap; I did not do it because the brief fixed the scope at a
+   generated sweep.
+2. **Where E-2 lives.** The activation table is held as `i16`, which the
+   erratum allows in place of a range check ("or holds it as `[i16; 256]`"),
+   but it is held today by `FeedForwardPublic`, which is NOT part of the
+   proved statement and is absorbed nowhere. When the next stage folds those
+   words into `BlockPublic`, the `i16` type should be kept rather than
+   replaced by `Vec<i64>` plus a check, and the table must then enter the
+   public-statement digest. Confirm that reading of E-2 before that commit.
 
 ## Log
 
