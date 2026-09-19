@@ -573,3 +573,54 @@ Three commits on `fsp-mr1`:
    feed-forward" and the one with eleven shape pins
    (`ZK60_PRIVATE_FFN_COST_PROBE.md` §2.2 A). Nothing in this lane touched
    it, unpinned it, or says anything about what it costs.
+
+### 2026-09-19 — stage 4b, the CPU ladder repeated on a QUIET box
+
+The box went quiet at 13:25 (the two other worktrees' batteries finished;
+1-minute load average 0.16). The CPU ladder was immediately repeated —
+same 15 runs, same rotation, this time holding `/tmp/zk-heavy.lock` for the
+whole ladder so nothing else could start beside it. Load average during
+the runs: **0.12 to 1.96** (against 4.5-7.5 for stage 4). Raw logs under
+`results/fsp5_probe_12x512_quiet/`. Every run ACCEPT; bytes and rows
+identical to stage 4 to the byte.
+
+| CPU binary, quiet | public | legacy | repaired | rep/leg | rep/pub | leg/pub |
+|---|---:|---:|---:|---:|---:|---:|
+| **PROVE** | **32.259** [32.06-32.58] | **35.369** [34.11-37.25] | **35.417** [34.13-36.23] | **1.0013** | **1.0979** | **1.0964** |
+| VERIFY | 0.340 | 0.493 | 0.538 | 1.090 | 1.583 | 1.452 |
+| commit W (control: identical rows in all three arms) | 4.612 | 4.679 | 4.575 | **0.978** | 0.992 | 1.015 |
+| commit A | 8.167 | 9.278 | 9.637 | **1.039** | 1.180 | 1.136 |
+| helpers + commit H | 9.671 | 10.912 | 10.769 | 0.987 | 1.114 | 1.128 |
+| zero-check F | 6.683 | 6.934 | 6.865 | 0.990 | 1.027 | 1.038 |
+| pcs openings | 1.763 | 1.740 | 1.741 | 1.001 | 0.987 | 0.987 |
+| mask commit | — | 0.033 | 0.032 | 0.959 | — | — |
+| table zero-check | — | 0.458 | 0.468 | 1.023 | — | — |
+| peak host RSS | 1,165 MB | 1,252 MB | 1,270 MB | 1.014 | 1.090 | 1.077 |
+
+**On the CPU binary the repaired mask schedule is FREE within the
+measurement: repaired / legacy prove = 1.0013, against a control phase
+(`commit W`, whose rows are identical in all three arms) reading 0.978 —
+so the noise floor is about +/-2% and the repair is inside it.** The one
+phase that does move is `commit A`, +3.9%, which is where the 26 added
+mask rows are generated, encoded and hashed; the CPU's `commit A` is
+dominated by arithmetic the extra rows barely touch, so 4% of that phase
+is 1% of the prove and the other phases absorb it.
+
+**The two binaries disagree, and the reason is structural, not a
+contradiction.** On the GPU binary the device does the commitment
+arithmetic, so the host's mask-row generation and the extra encode are a
+much larger SHARE of a much shorter clock: the same +0.26 s absolute lands
+on a 4.39 s prove instead of a 35.37 s one. This is the same structural
+effect lane `fsp-zkhost` recorded for its staging pool ("on the GPU binary
+the POOL is measurable even at 12 x 512, unlike on the CPU binary").
+
+**So the honest headline is a pair, not a number:**
+
+* **GPU binary, 12 x 512: +5.92% of prove [MEASURED], ranges disjoint.**
+* **CPU binary, 12 x 512: +0.1%, i.e. free inside a +/-2% floor
+  [MEASURED, quiet box].**
+* Bytes +0.75% and rows +4.65% of A, exact and binary-independent.
+* VRAM +33 MB, 3,068 -> 3,101 MB, exact and repeatable across 5 runs.
+
+The COUNTED Mistral extrapolation above is built on the GPU delta, which
+is the larger of the two, so it is the conservative direction.

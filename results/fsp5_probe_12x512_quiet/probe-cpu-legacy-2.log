@@ -1,0 +1,27 @@
+### probe-cpu-legacy-2  2026-09-19T13:28:23-07:00
+uptime:  13:28:23 up 12:23,  1 user,  load average: 1.63, 2.20, 3.57
+nvidia-smi before: 0 MiB, 8188 MiB, 0 %
+=== [UPERF3-FSP5] repaired-mask COST PROBE — NO PRIVACY PROPERTY IS ESTABLISHED HERE ===
+    all three arms have PUBLIC endpoints; the hiding-endpoint profile is untouched and still pinned to T32/d16/f16.
+    export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export — model frugal-125m (T 512 d 768 f 2048 layers 12)
+    shape 12 layers x 512 tokens | log_cols 14, inv_rate 4, col checks 256 | threads 2
+    gpu: OFF | gpu: off (built without --features gpu-cuda)
+    both private arms draw fresh OS randomness (no seed), so the only difference between them is the mask schedule.
+--- ARM legacy ---
+  prover phases (summed over 12 layers):
+      commit W                      4.832 s
+      commit A (zk)                10.025 s
+      mask commit                   0.034 s
+      helpers + commit H (zk)      11.495 s
+      matmul g/u (zk)               0.300 s
+      matmul d (zk)                 0.105 s
+      zero-check F (zk)             7.212 s
+      zero-check D (zk)             0.940 s
+      table zero-check (zk)         0.469 s
+      zsum + mask open              0.030 s
+      pcs openings (zk)             1.811 s
+  ARM legacy ACCEPT: 12 x 512 | witness load 4.11 s | PROVE 37.254 s | VERIFY 0.489 s | proof 87697008 B | rows A 559 H 485 W 288 M 16 | peak RSS 1261 MB | wall 41.85 s
+PROBE_JSON {"arm":"legacy","layers":12,"tokens":512,"d":768,"f":2048,"gpu":false,"accept":true,"prove_s":37.253722,"verify_s":0.489367,"load_s":4.106653,"bytes":87697008,"rows_a":559,"rows_h":485,"rows_w":288,"rows_m":16,"rss_mb":1260.9,"phases":{"commit W":4.831673,"commit A (zk)":10.024778,"mask commit":0.033509,"helpers + commit H (zk)":11.494906,"matmul g/u (zk)":0.300076,"matmul d (zk)":0.105062,"zero-check F (zk)":7.212392,"zero-check D (zk)":0.940169,"table zero-check (zk)":0.469301,"zsum + mask open":0.030405,"pcs openings (zk)":1.810506}}
+nvidia-smi after: 0 MiB, 8188 MiB, 0 %
+uptime after:  13:29:05 up 12:24,  1 user,  load average: 1.77, 2.16, 3.50
+rc=0
