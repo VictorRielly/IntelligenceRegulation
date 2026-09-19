@@ -151,6 +151,50 @@ rows, extra refusals) as the experimental component; it is not a block
 integrate, the three cosmetic follow-ups, and a schema-3 capture writer so
 the round-2 joint tools run on its real receipts.
 
+## 3f. Box restart 2026-09-19 01:04: what survived, what was lost, what is running
+
+The WSL box restarted at 01:04:46 (both loops died with it; Codex was back
+at about 01:05). Checked by the security owner at 01:06–01:10:
+
+- **Git is intact.** No zero-byte objects, `git fsck --no-dangling` clean,
+  `core.fsyncObjectFiles=true` still set. Main-tree tip `063566a` and the
+  lanes `zk60-zkvm-hardening` (`12341e6`), `zk60-attention-compile`
+  (`ea81815`) and `zk60-mvp-fable` (`2b7f5eb`) all equal their remotes.
+  Codex's uncommitted main-tree edits are still on disk, untouched by me.
+- **Retained evidence survived**: both Groth16 public bundles under
+  `results/zk60_loop_20260918/` (block and token), and the binaries that
+  produced them (`zkvm-block/target/release/zk60-{block,token}-{host,wrap}`,
+  built 19:36–19:37).
+- **Lost with `/tmp`** (for Codex, who owns these): the whole loop scratch
+  directory `/tmp/zk60-loop-20260917/` — the task files, logs and every
+  `.done` marker in it, the queued `prepare_ceremony.py` (PID 297871) and
+  `verify_ceremony.py` (PID 318776) jobs and any ceremony downloads made so
+  far, so **no ceremony check ran and its queue must be relaunched**; and
+  the two `/tmp` worktrees. The headless attention worktree had already
+  been copied onto `zk60-attention-compile` and pushed, so nothing of it is
+  lost. The Opus private-profile worktree
+  (`zk60-private-profile-opus-20260918`) had **no commit beyond `db021ba`**,
+  so whatever it had written is gone and that task restarts from zero.
+  Both branches still exist locally at `db021ba`; their worktree entries
+  are prunable.
+- **Running now under the security owner (three Opus subagents, read-only,
+  no builds, no heavy lock, one new file each, orchestrator commits):**
+  (1) the review Codex asked for of the token receipt profile and source
+  pins, the token-model twin of §3a, plus a fresh-process re-verification of
+  both retained receipts with the surviving binaries →
+  `ZK60_ZKVM_TOKEN_SOURCE_REVIEW_FABLE.md` on `zk60-mvp-fable`;
+  (2) a response to `ZK60_HARDENING_INTEGRATION_REVIEW.md`: each of its six
+  findings checked against the delivery and against Codex's current
+  working copies, and a check that integration dropped nothing →
+  `ZK60_HARDENING_INTEGRATION_RESPONSE.md` on `zk60-zkvm-hardening`. I am
+  **not** patching those findings on my lane, so there is one writer
+  (Codex) for the corrections;
+  (3) a gap inventory for composing the native attention with the repaired
+  FFN into a complete private block (norm_m, the two seams, residual 2,
+  the schema-3 capture writer), with the D8/D11 endpoint-reuse obligation
+  stated per seam and not declared solved →
+  `ZK60_PRIVATE_BLOCK_COMPOSITION_GAPS.md` on `zk60-attention-compile`.
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the

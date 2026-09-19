@@ -1,6 +1,7 @@
 # Where the MVP stands, in plain words
 
-**Updated 2026-09-18, evening, by the Codex/Fable integration loop.** This page
+**Updated 2026-09-19, 01:15, by the Codex/Fable integration loop (after the
+01:04 laptop restart; see §3 item 4).** This page
 answers three questions and is refreshed whenever the loop produces news.
 Rulings are in [the decisions register](ZK60_DECISIONS.md); measurements
 carry their labels ([MEASURED] a run happened, [COUNTED] arithmetic on
@@ -39,15 +40,16 @@ different profile. Prove 7,488 s (2 h 5 min) on the shared CPU, wrap 197 s
 What it rests on: RISC Zero's proof system at about 97 bits conjectured
 soundness (D3), the Groth16 trusted setup (D4), Groth16 receipts only (D5),
 and a new salted-SHA-256 endpoint profile that still needs Victor's
-acceptance as the P1 statement (D7). It is one block, not a model; it
-generates no tokens; it makes no speed claim.
+acceptance as the P1 statement (D7). Both receipts are for synthetic tiny
+fixtures, not a trained model, and neither makes a speed claim.
 
 **On the custom prover line (hashline), no complete private block exists.**
 What exists there: a private feed-forward component at the same tiny shape
 with a bounded privacy diagnostic (whole-proof privacy not accepted, D8
 open); public-IO proofs of real 8B feed-forward stacks (below); the private
-attention schedule designed and rank-checked, with its native implementation
-now assigned to Claude Fable 5.1 in an isolated worktree.
+attention schedule designed and rank-checked, and its native implementation
+built and reviewed at the tiny geometry as an experimental component (§3
+item 1).
 
 ## 2. How slow are we against the target?
 
@@ -112,19 +114,27 @@ it does not exist yet.**
 2. **Whole-proof privacy acceptance on the custom line.** The joint-view
    tools exist; the caller-fixed-root obligation is open (D8/D11).
 3. **Speed.** The gap above is a design gap, not a tuning gap.
-4. **In flight now (Codex's loop):** a two-block token-model proof for the
-   zkVM line (`zkvm-model/`: 24 tests and actual execution pass; proving now
-   runs under the shared lock);
+4. **In flight now.** The two-block token-model proof landed (§1). **The
+   laptop restarted at 01:04 on 2026-09-19**: git and the retained receipts
+   are intact and everything was already pushed, but the `/tmp` scratch area
+   is gone, which killed the queued ceremony checker before it ran (Codex
+   relaunches it) and erased the uncommitted Opus phase-diagnostics work
+   (restarts from zero). Since the restart the security owner has three
+   read-only Opus reviews running: the token receipt's source pins and
+   profile (with a re-verification of both retained receipts), a response to
+   Codex's review of the hardening lane, and an inventory of what a complete
+   private block on the custom line still needs. Earlier items:
    the security owner's source review of `zkvm-block/` with eight hardening
    items (`ZK60_ZKVM_BLOCK_SOURCE_REVIEW_FABLE.md` on branch
    `zk60-mvp-fable`), now implemented and verified on branch
    `zk60-zkvm-hardening` for Codex to integrate (secret-scan stage,
    environment refusal and scrub, cycle reporting, constant-cycle gate with a
    real executor run, tool-check command, work-directory cleanup,
-   claim-shape regressions). Codex is reviewing that delivery. The reviewed
-   ceremony checker is queued behind the token proof and artifact preparation;
-   no ceremony-check success is claimed yet. Opus 5 is adding private phase
-   diagnostics for the repaired FFN. Pending rulings remain D7, D9, D10.
+   claim-shape regressions). Codex reviewed that delivery (no acceptance
+   defect in the Rust; one runner incompatibility with the token profile and
+   several wording and test-scope corrections, which Codex is applying). The
+   ceremony checker never ran (see the restart above); no ceremony-check
+   success is claimed. Pending rulings remain D7, D9, D10.
 5. **A reproducibility fact to settle before any approval record:** the
    guest image ID depends on the build directory (the ELF embeds one
    absolute source path and the non-Docker build applies no path remap), so
