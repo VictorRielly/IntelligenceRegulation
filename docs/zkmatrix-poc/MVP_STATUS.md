@@ -1,7 +1,7 @@
 # Where the MVP stands, in plain words
 
-**Updated 2026-09-19, 06:25, by the Codex/Fable integration loop (after the
-01:04 laptop restart; see §3 item 4).** This page
+**Updated 2026-09-19, after native capture integration, by the Codex/Fable
+loop (after the 01:04 laptop restart; see §3 item 4).** This page
 answers three questions and is refreshed whenever the loop produces news.
 Rulings are in [the decisions register](ZK60_DECISIONS.md); measurements
 carry their labels ([MEASURED] a run happened, [COUNTED] arithmetic on
@@ -88,6 +88,16 @@ and native freeze pass. Attention's repeated byte-lookup inversions are
 removed and its fixture scale labels corrected. Whole-proof privacy and
 model-scale speed remain open. [Integration and evidence](ZK60_ATTENTION_INTEGRATION_20260919.md).
 
+**Verifier captures now retained:** source-pinned recordings from two fresh
+attention receipts and two complete-block receipts reproduce exactly in fresh
+verifier processes. They include all 18/23 slots, M and PCS openings, pads,
+sampled columns, salts and paths. Forty-nine native unit tests and 13 Python
+capture controls pass; both pre-instrumentation receipts still verify.
+[Capture format and review boundary](ZK60_NATIVE_CAPTURE.md),
+[validation manifest](../../results/zk60_native_captures_20260919/validation.json).
+This closes the capture-writer prerequisite. The complete joint-view analysis
+and D8/D11 still need acceptance; no new proving-speed claim follows.
+
 What else exists on that line: a private feed-forward component at the same tiny shape
 with a bounded privacy diagnostic (whole-proof privacy not accepted, D8
 open); public-IO proofs of real 8B feed-forward stacks (below); the private
@@ -163,13 +173,18 @@ it does not exist yet.**
    residual 2; the complete-block profile above now includes them.
    The 2026-09-19 gap inventory
    (`ZK60_PRIVATE_BLOCK_COMPOSITION_GAPS.md` on `zk60-attention-compile`)
-   sorts fifteen gaps into engineering Codex can start now (the capture
-   writer, the scale-tag fix, kernel parity) and construction decisions that
-   wait on the security owner's block memo, under ruling D12.
+   sorted fifteen gaps into engineering and construction work under D12.
+   The capture writer, fixture scale-tag fix and tiny-block kernel parity
+   are now implemented and tested; model-width construction remains open.
 2. **Whole-proof privacy acceptance on the custom line.** The joint-view
-   tools exist; the caller-fixed-root obligation is open (D8/D11).
+   tools exist and real native captures are retained. Their joint-view
+   adapters and the caller-fixed-root obligation are still open (D8/D11).
 3. **Speed.** The gap above is a design gap, not a tuning gap.
-4. **In flight now.** The two-block token-model proof landed (§1). **The
+4. **Current lanes:** Fable's GPU kernels and host staging port, then a
+   separately labelled repaired-mask cost probe; Codex's capture review
+   handoff and remaining zkVM hardening/ceremony integration. No model-width
+   GPU measurement window is reserved. The two-block token-model proof landed
+   (§1). **Earlier restart/build history:** the
    laptop restarted at 01:04 on 2026-09-19**: git and the retained receipts
    are intact and everything was already pushed, but the `/tmp` scratch area
    is gone, which killed the queued ceremony checker before it ran (Codex
@@ -199,14 +214,9 @@ it does not exist yet.**
    holes (a block whose output the prover could choose, and an activation
    table whose value range nothing enforced). This is a design, not a privacy
    acceptance and not a speed result. Expected size at the tiny shape: a
-   2.8 MB receipt. **Building it has started** (lane `zk60-private-block`,
-   04:07): the new module's witness already computes the whole block and
-   matches the integer reference kernel element for element on 1,200 test
-   cases, including refusing exactly where and how the kernel refuses
-   [MEASURED: 27 tests pass on the security owner's own run]. **The proof
-   itself does not cover the new half yet**: the argument that proves the
-   second norm, the feed-forward and the second residual is the stage now
-   in progress, so nothing is called a block yet. Earlier items:
+   2.8 MB receipt. Building started on `zk60-private-block` at 04:07;
+   the initial witness-only checkpoint was subsequently superseded by the
+   complete proof and its integration described in §1. Earlier items:
    the security owner's source review of `zkvm-block/` with eight hardening
    items (`ZK60_ZKVM_BLOCK_SOURCE_REVIEW_FABLE.md` on branch
    `zk60-mvp-fable`), now implemented and verified on branch

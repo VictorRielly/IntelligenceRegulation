@@ -1,0 +1,42 @@
+
+running 37 tests
+test private_block::capture::native_capture_saved_receipt ... ignored, requires explicit saved public-fixture receipt and expected policy paths
+test private_block::layout::tests::declared_counts_are_self_consistent ... ok
+test private_block::layout::tests::planes_are_row_aligned_and_contiguous_per_domain ... ok
+test private_block::parity::the_case_generator_is_deterministic_and_covers_its_grid ... ok
+test private_block::parity::the_whole_block_witness_equals_the_reference_kernel ... ok
+test private_block::refusals::every_reachable_refusal_site_is_forced_and_matches_the_kernel ... ok
+test private_block::refusals::the_softmax_weights_of_a_row_sum_to_at_most_one ... ok
+test private_block::refusals::the_unreachable_refusal_sites_have_their_premises ... ok
+test private_block::tamper::a_gate_output_not_derived_from_nm_is_rejected ... ok
+test private_block::tamper::a_limb_outside_its_byte_range_is_rejected_by_the_lookups ... ok
+test private_block::tamper::a_moved_activation_multiplicity_is_rejected_by_the_logup_sum_claim ... ok
+test private_block::capture::native_capture_roundtrip_and_refusals ... ok
+test private_block::tamper::a_norm_m_limb_outside_its_byte_range_is_rejected_by_the_lookups ... ok
+test private_block::tamper::a_norm_m_output_not_derived_from_xres1_is_rejected ... ok
+test private_block::tamper::a_product_output_not_equal_to_a16_times_u16_is_rejected ... ok
+test private_block::tamper::a_z16_outside_int16_cannot_reach_the_output_endpoint ... ok
+test private_block::tamper::an_activation_value_at_a_zero_up_output_is_rejected_by_the_pair_lookup ... ok
+test private_block::tamper::an_activation_value_off_its_table_row_is_rejected ... ok
+test private_block::tamper::an_up_output_not_derived_from_nm_is_rejected ... ok
+test private_block::tamper::an_output_endpoint_committing_xres1_is_refused ... ok
+test private_block::tamper::block_output_cannot_be_chosen ... ok
+test private_block::tamper::every_biased_remainder_is_pinned_by_its_requantization_identity ... ok
+test private_block::tamper::the_norm_m_denominator_is_pinned_by_its_isqrt_witness ... ok
+test private_block::tamper::the_norm_m_quotient_is_pinned_by_its_remainder_windows ... ok
+test private_block::tests::an_endpoint_committed_to_other_values_is_refused ... ok
+test private_block::tests::honest_receipt_verifies_in_typed_and_wire_form_with_the_declared_transcript_order ... ok
+test private_block::tests::no_published_word_is_a_small_integer ... ok
+test private_block::tests::opening_refusals_are_functions_of_the_challenges_only ... ok
+test private_block::tests::receipt_field_tampers_and_statement_mismatches_are_refused ... ok
+test private_block::tests::requant_is_the_identity_at_shift_zero_and_the_kernels_rounding_above_it ... ok
+test private_block::tests::the_declared_schedule_is_stable_and_bound ... ok
+test private_block::tests::the_endpoint_scales_and_calibration_are_the_approved_ones ... ok
+test private_block::tests::the_real_claim_list_is_refused_when_a_reserved_pair_is_shared_or_unconsumed ... ok
+test private_block::tests::the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows ... ok
+test private_block::tests::wire_frames_are_exact_canonical_and_bounded ... ok
+test private_block::tests::witness_equals_the_independent_fixed_causal_oracle ... ok
+test private_block::tests::every_relation_family_rejects_an_inconsistent_witness ... ok
+
+test result: ok. 36 passed; 0 failed; 1 ignored; 0 measured; 81 filtered out; finished in 5.67s
+

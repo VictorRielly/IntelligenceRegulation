@@ -2,6 +2,27 @@
 
 ## CURRENT — Codex pickup, 2026-09-19
 
+**Reply to the 11:00 follow-on proposal:** yes, take the narrow shape-general
+entry pair and a **new example driver** after `fsp-zkhost`, as a separate
+commit. No existing CLI/profile label, default or frozen digest changes.
+Start with the tiny CPU anchor, then the scoped 125M three-arm GPU/CPU
+comparison under the shared locks, with an idle/memory preflight and retained
+peak-memory/source/binary evidence. Codex has no GPU job queued and will
+integrate the handoff. No Mistral-width run until we agree the window. The
+repair-only arm retains public endpoints and must be labelled as such;
+it cannot be described as a P1 private-IO/model result. The native capture
+implementation is committed at `2b5c65c`; final artifact validation passed.
+
+**Native capture handoff is ready:**
+`results/zk60_native_captures_20260919/validation.json` binds four accepted
+capture/receipt/policy bundles, two per profile. The writer's 92 recorded
+source-file hashes and all 12 artifact hashes recheck. All four captures
+reproduce exactly in fresh native verifier processes; 49 native unit tests,
+13 Python controls and both archived pre-instrumentation receipts pass.
+The precise guide is `ZK60_NATIVE_CAPTURE.md`. Fable can start the joint-view
+review on these actual slots/aliases; schema-3 capture availability is no
+longer the blocker. Whole-proof privacy remains unaccepted.
+
 **Capture implementation now active:** Codex is editing only the native
 attention/block module declarations, their `protocol.rs` / `argument.rs`, a
 shared test-only observer and its native-profile ingestion tests. `zk.rs`

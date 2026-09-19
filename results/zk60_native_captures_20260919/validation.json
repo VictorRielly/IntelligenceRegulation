@@ -1,0 +1,174 @@
+{
+  "accepted": [
+    {
+      "canonical_capture_reproduced": true,
+      "native_reverified": true,
+      "privacy_review_complete": false,
+      "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+      "proof_sha256": "40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b",
+      "slot_pcs_and_mask_aliases_checked": true,
+      "slots": 23,
+      "source_commit": "2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75",
+      "verifier_binary_sha256": "fec86a7b39fe3069a389e98ae3156eb7359b7e36386fd451a7b4390a70f56d1d"
+    },
+    {
+      "canonical_capture_reproduced": true,
+      "native_reverified": true,
+      "privacy_review_complete": false,
+      "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+      "proof_sha256": "6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9",
+      "slot_pcs_and_mask_aliases_checked": true,
+      "slots": 18,
+      "source_commit": "2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75",
+      "verifier_binary_sha256": "fec86a7b39fe3069a389e98ae3156eb7359b7e36386fd451a7b4390a70f56d1d"
+    },
+    {
+      "canonical_capture_reproduced": true,
+      "native_reverified": true,
+      "privacy_review_complete": false,
+      "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+      "proof_sha256": "7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43",
+      "slot_pcs_and_mask_aliases_checked": true,
+      "slots": 23,
+      "source_commit": "2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75",
+      "verifier_binary_sha256": "fec86a7b39fe3069a389e98ae3156eb7359b7e36386fd451a7b4390a70f56d1d"
+    },
+    {
+      "canonical_capture_reproduced": true,
+      "native_reverified": true,
+      "privacy_review_complete": false,
+      "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+      "proof_sha256": "c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6",
+      "slot_pcs_and_mask_aliases_checked": true,
+      "slots": 18,
+      "source_commit": "2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75",
+      "verifier_binary_sha256": "fec86a7b39fe3069a389e98ae3156eb7359b7e36386fd451a7b4390a70f56d1d"
+    }
+  ],
+  "artifacts": {
+    "captures/40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b.expected": {
+      "bytes": 112,
+      "sha256": "0a9cc0f3b19e278c3b8b63007336e7c7707367cb98b5ab9a49769e28bca6cd43"
+    },
+    "captures/40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b.json": {
+      "bytes": 9251007,
+      "sha256": "c9ee5dcc7a1b94d4e5e8c1a0e2ea542690490e1f6ec81d6c6e8f66d1058c4b3d"
+    },
+    "captures/40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b.receipt": {
+      "bytes": 2816472,
+      "sha256": "40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b"
+    },
+    "captures/6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9.expected": {
+      "bytes": 112,
+      "sha256": "4567a6d3746fe39b78f1c21504db21d31a365faa49f4dbdcf2b5f22585ad9a67"
+    },
+    "captures/6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9.json": {
+      "bytes": 7532166,
+      "sha256": "5efd8724ad64d240ce974b03008d14af2ae1032b3bbdf12917fcdf9b756b9dee"
+    },
+    "captures/6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9.receipt": {
+      "bytes": 2245800,
+      "sha256": "6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9"
+    },
+    "captures/7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43.expected": {
+      "bytes": 112,
+      "sha256": "11ab6734290c0a8fd217db8cd95e4ae9945575b278b3eaa926d829ad96751da3"
+    },
+    "captures/7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43.json": {
+      "bytes": 9244657,
+      "sha256": "8b50f2a65cd2c62288d009646384b41c61ce9e605d6032fc0de5a80f0161e4c0"
+    },
+    "captures/7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43.receipt": {
+      "bytes": 2816472,
+      "sha256": "7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43"
+    },
+    "captures/c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6.expected": {
+      "bytes": 112,
+      "sha256": "4c23d49db0bd778479fedb23412764b4458d297b1f794d581d38ca8988b0cf94"
+    },
+    "captures/c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6.json": {
+      "bytes": 7532724,
+      "sha256": "b8df9d53e2877455b583532627b6b670cdd99c776ec14390ffb89ded1c5a8118"
+    },
+    "captures/c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6.receipt": {
+      "bytes": 2245800,
+      "sha256": "c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6"
+    }
+  },
+  "model_scale_or_speed_claim": false,
+  "privacy_review_complete": false,
+  "runs": [
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/deps/hashline-bae859507f0c14ad",
+        "private_attention",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "name": "attention-unit",
+      "seconds_shared_box_diagnostic": 2.122258281997347
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/deps/hashline-bae859507f0c14ad",
+        "private_block",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "name": "block-unit",
+      "seconds_shared_box_diagnostic": 5.684021077002399
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/deps/hashline-bae859507f0c14ad",
+        "native_capture_roundtrip_and_refusals",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "name": "generate",
+      "seconds_shared_box_diagnostic": 1.6701001269975677
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/deps/hashline-bae859507f0c14ad",
+        "--exact",
+        "private_attention::capture::native_capture_saved_receipt",
+        "--ignored",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "name": "attention-archived",
+      "seconds_shared_box_diagnostic": 0.11516726500121877
+    },
+    {
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/deps/hashline-bae859507f0c14ad",
+        "--exact",
+        "private_block::capture::native_capture_saved_receipt",
+        "--ignored",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "name": "block-archived",
+      "seconds_shared_box_diagnostic": 0.11501525500352727
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_native_capture.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "name": "python-capture-controls",
+      "seconds_shared_box_diagnostic": 8.745271127001615
+    }
+  ],
+  "source_commit": "2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75",
+  "verifier_binary_sha256": "fec86a7b39fe3069a389e98ae3156eb7359b7e36386fd451a7b4390a70f56d1d"
+}

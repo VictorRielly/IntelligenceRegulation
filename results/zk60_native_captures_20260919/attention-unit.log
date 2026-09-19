@@ -1,0 +1,19 @@
+
+running 14 tests
+test private_attention::capture::native_capture_saved_receipt ... ignored, requires explicit saved public-fixture receipt and expected policy paths
+test private_attention::layout::tests::declared_counts_are_self_consistent ... ok
+test private_attention::tests::an_endpoint_committed_to_other_values_is_refused ... ok
+test private_attention::tests::cached_u8_inverses_equal_reference_for_real_lookups_and_invalid_values ... ok
+test private_attention::capture::native_capture_roundtrip_and_refusals ... ok
+test private_attention::tests::honest_receipt_verifies_in_typed_and_wire_form_with_the_declared_transcript_order ... ok
+test private_attention::tests::no_published_word_is_a_small_integer ... ok
+test private_attention::tests::opening_refusals_are_functions_of_the_challenges_only ... ok
+test private_attention::tests::every_relation_family_rejects_an_inconsistent_witness ... ok
+test private_attention::tests::the_declared_schedule_is_stable_and_bound ... ok
+test private_attention::tests::the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows ... ok
+test private_attention::tests::wire_frames_are_exact_canonical_and_bounded ... ok
+test private_attention::tests::witness_equals_the_independent_fixed_causal_oracle ... ok
+test private_attention::tests::receipt_field_tampers_and_statement_mismatches_are_refused ... ok
+
+test result: ok. 13 passed; 0 failed; 1 ignored; 0 measured; 104 filtered out; finished in 2.08s
+

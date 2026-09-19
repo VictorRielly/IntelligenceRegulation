@@ -1,0 +1,11 @@
+
+running 2 tests
+NATIVE_CAPTURE profile=hashline-zk-mr1/private-attention-t32-poc/1 sha256=6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9 slots=18 all_openings_replayed=true
+NATIVE_CAPTURE profile=hashline-zk-mr1/private-block-t32-poc/1 sha256=7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43 slots=23 all_openings_replayed=true
+NATIVE_CAPTURE profile=hashline-zk-mr1/private-attention-t32-poc/1 sha256=c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6 slots=18 all_openings_replayed=true
+NATIVE_CAPTURE profile=hashline-zk-mr1/private-block-t32-poc/1 sha256=40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b slots=23 all_openings_replayed=true
+test private_attention::capture::native_capture_roundtrip_and_refusals ... ok
+test private_block::capture::native_capture_roundtrip_and_refusals ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 116 filtered out; finished in 1.66s
+

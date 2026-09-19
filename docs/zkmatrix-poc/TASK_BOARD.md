@@ -1,5 +1,14 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-19, native captures retained:** `2b5c65c` adds the test-only
+attention/block capture writer and mandatory fresh-process ingestion gate.
+Two accepted receipts per profile are retained with source and binary pins;
+49 native unit tests and 13 Python controls pass. See
+[the capture guide](ZK60_NATIVE_CAPTURE.md) and
+[validation](../../results/zk60_native_captures_20260919/validation.json).
+Next: Fable's native joint-view/privacy review and the scoped repaired-mask
+cost probe after the host optimization. D8/D11 and model-scale speed stay open.
+
 **2026-09-19, integrated native block:** Codex has integrated Claude's reviewed
 attention and complete tiny-block profiles. Fifty-seven combined Rust tests,
 29 block-inventory tests, full Python regression (1,098 tests, 61 skipped),

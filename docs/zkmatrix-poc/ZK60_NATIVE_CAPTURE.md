@@ -3,6 +3,14 @@
 2026-09-19, Codex integration lane. Engineering evidence for privacy review;
 **not a privacy acceptance, model-scale benchmark or five-second result.**
 
+Implementation commit: `2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75`.
+[Retained source/binary manifest](../../results/zk60_native_captures_20260919/source.json)
+and [validation results](../../results/zk60_native_captures_20260919/validation.json):
+two fresh receipts per profile reproduce exactly, 49 native unit tests and
+13 Python controls pass, and both retained pre-instrumentation receipts
+verify in fresh processes. Two opt-in saved-receipt tests are ignored in
+ordinary discovery and explicitly executed by the validation runner.
+
 The shared `hashline/src/native_capture.rs` observer is included only in
 unit-test builds of `private_attention` and `private_block`. Production
 builds have no capture API, environment switch or observer calls. The

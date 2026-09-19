@@ -5,6 +5,10 @@ block are now in the main worktree, with tests and independent receipt
 verification passing. [Integration and measurements](ZK60_ATTENTION_INTEGRATION_20260919.md).
 Whole-proof privacy and five-second model-scale proving remain open.
 
+**Capture prerequisite completed:** two receipts per native profile now have
+complete verifier recordings, reproduced in fresh processes with tampering
+controls. [Format, evidence and remaining privacy review](ZK60_NATIVE_CAPTURE.md).
+
 **Corrected model-scale baseline:** the retained lane-AL public-IO FFN-only
 Mistral-7B run proves in **58.40 s**, verifies in 1.08 s, and produces
 1,234,936,956 bytes after the host fix [MEASURED, NOISY-SHARED, 2026-09-04].

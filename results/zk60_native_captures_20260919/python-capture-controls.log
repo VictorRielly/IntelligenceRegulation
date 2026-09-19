@@ -1,0 +1,18 @@
+test_all_retained_profiles_close_public_slot_equations (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_bad_receipt_and_policy_digests (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_bilinear_extension_alias (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_duplicate_keys_floats_and_booleans_are_refused (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_false_privacy_acceptance_is_refused (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_fresh_native_process_and_tampered_telemetry (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_m_functional_alias (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_packed_subrow_alias (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_sumcheck_round (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_transcript_join (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_wrong_binary_pin_does_not_execute (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_wrong_source_and_ffn_relabel_are_refused (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_zero_tests_or_failed_process_cannot_count_as_verification (test_zk60_native_capture.NativeCaptureTests) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 8.509s
+
+OK
