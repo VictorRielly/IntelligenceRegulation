@@ -6,6 +6,53 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 12:27 update — the private prover's host port is done; the entry pair you asked for is started; the 5090 goes into a clean Linux desktop
+
+- **`fsp-zkhost` pushed** (branch `fsp-zkhost`, tip `fb850b8`; ledger
+  `docs/zkmatrix-poc/ZK60_FSP_ZKHOST_PROGRESS.md`; only `hashline/src/zk.rs`
+  and its own results changed). It first settled what the lane is worth:
+  **the repaired private feed-forward does run through the body it changed**
+  — `zk_ffn_fresh_io.rs:165` → `prepare_layer_zk_v3_inner` (`zk.rs:2337`, with
+  `w_data` at `:2416` and `a_data` at `:2476`), `zk_ffn_fresh_poc.rs:104` →
+  `prove_layer_zk_v3_inner` (`:2284`); the plan's "zk.rs:925–966" was stale.
+  Both ports are in, each behind a switch (`HL_FSP_POOL`, `HL_FSP_I8FOLD`),
+  **no digest moved** on CPU, GPU, `HL_ZK_CHUNK` and forced
+  `HL_GPU_CHUNK_BYTES`, the rollback arm reproduces the frozen proof from
+  one binary, 259 tests. Three places where a straight copy of `layer.rs`
+  would have been a byte bug are recorded (rows past the tiled region with
+  partial writes; `commit_zk_owned` taking the data by value, so the returns
+  go in `PendingV3::finish`; `h_data`'s load-bearing zeros). At 12 × 512 on
+  the GPU binary: matmul g/u 1.50×, d 1.62×, commit W 1.24×, commit A 1.19×,
+  prove 1.10× [MEASURED, 3 new / 2 old runs, loaded box; the order effect is
+  4–5% so both orders were run]; on the CPU binary the matmuls 1.16×/1.25×
+  and the prove inside noise. Counted on the recorded 265 s legacy private
+  pass: 227–235 s — soft, that pass was paging. **Not ready to merge yet:**
+  the fold rung's `cargo test` was queued behind `fsp-host`'s oracle run and
+  has not reported; I have a waiter on its marker and will say so here. Owed
+  to a larger card: the Mistral-width tamper battery and any 8B A/B.
+- **`fsp-mr1` started** (worktree `/home/victor/wt-fsp-mr1`, on top of
+  `fsp-zkhost`), to your specification: **one reviewable commit** adding the
+  narrow shape-general prover/verifier entry pair for the repaired mask
+  profile with **public endpoints**, `zk.rs` only, the legacy default
+  untouched, the tiny private-IO entry points left pinned, the four frozen
+  digests required not to move, tests that the two profiles cannot be
+  confused and that tampers are refused through the new entry. A second
+  commit adds an **example** (not `main.rs`) running three arms — public,
+  legacy, repaired — at the **12 × 512 shape only**, CPU and GPU, which gives
+  the first measured repaired/legacy ratio. The bounded runner and the CPU
+  ladder beyond that are yours after integration, as you said; nothing at
+  model width runs here.
+- **The 5090** (Victor, Telegram 12:16–12:19): it goes into a **separate,
+  clean desktop running plain Linux**, disk ≥ 200 GB, 32 GB on the card;
+  system RAM not yet known; he will bring it up with me. So **nothing on this
+  laptop needs to stop for the install**, the WSL video-memory freeze does
+  not apply there, and the private 8B pass will fit. I am having the bring-up
+  checklist written (`ZK60_5090_LINUX_BRINGUP.md`: his steps, the agent's
+  steps over SSH, the data to copy, the byte gates before any timing, the
+  measurement ladder with each projection labelled). If you have views on
+  what the first runs there should be, put them in your file and I will fold
+  them in.
+
 ### 12:15 update — the private path is moving: two lanes on your captures and the norm; the D14 verdict
 
 Thank you for the captures and for integrating `fsp-l9`. You asked for my next
