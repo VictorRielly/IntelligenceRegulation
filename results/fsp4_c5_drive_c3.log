@@ -1,0 +1,17 @@
+=== fsp4_build_c3 starting 2026-09-19 13:08:05 ===
+=== fsp4_build_c3 exit 0 2026-09-19 13:09:21 ===
+=== fsp4_buildgpu_c3 starting 2026-09-19 13:09:21 ===
+=== fsp4_buildgpu_c3 exit 0 2026-09-19 13:10:43 ===
+=== fsp4_planeoracle_gpu_c3 starting 2026-09-19 13:10:43 ===
+=== fsp4_planeoracle_gpu_c3 exit 0 2026-09-19 13:11:43 ===
+=== fsp4_planeoracle_cpu_c3 starting 2026-09-19 13:11:43 ===
+=== fsp4_planeoracle_cpu_c3 exit 0 2026-09-19 13:13:03 ===
+=== fsp4_floors_c3 starting 2026-09-19 13:13:03 ===
+=== fsp4_floors_c3 exit 0 2026-09-19 13:15:58 ===
+=== fsp4_chunkgate_c3 starting 2026-09-19 13:15:58 ===
+=== fsp4_chunkgate_c3 exit 0 2026-09-19 13:16:56 ===
+=== fsp4_ab_planes_gpu_c3 starting 2026-09-19 13:16:56 ===
+=== fsp4_ab_planes_gpu_c3 exit 0 2026-09-19 13:18:33 ===
+=== fsp4_ab_planes_cpu_c3 starting 2026-09-19 13:18:33 ===
+=== fsp4_ab_planes_cpu_c3 exit 0 2026-09-19 13:21:52 ===
+=== DRIVE DONE 2026-09-19 13:21:52 ===

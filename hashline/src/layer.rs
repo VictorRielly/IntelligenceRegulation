@@ -1373,40 +1373,43 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let w_planes_cm = tiling
         .as_ref()
         .and_then(|pt| crate::wcache::commit_w_planes(&w_pcs, pt, ntt, &crate::wcache::WKey::new("v3", w.l, d, f, &w.wg_t, &w.wu_t, &w.wd_t)));
+    if w_planes_cm.is_none() {
+        // THE INHERITED ARM, unchanged: build the block tiling as a
+        // `Vec<Fp>`. It is stored in `w_data` BEFORE the commit because the
+        // compact commitment borrows it and must not outlive it.
+        let t_conv = Instant::now();
+        let mut buf = hostbuf::take(hostbuf::W, lay.w_len); // [UPERF3-AL] arbitrary contents; every element is written below
+        s_w_alloc = t_conv.elapsed().as_secs_f64();
+        for c in 0..nb_d {
+            for b in 0..nb_f {
+                for (offs, src) in [(&lay.wg, &w.wg_t), (&lay.wu, &w.wu_t)] {
+                    let off = offs[c * nb_f + b];
+                    buf[off..off + wb].par_chunks_mut(fb).enumerate().for_each(|(kp, row)| {
+                        let k = c * db + kp;
+                        for jp in 0..fb { row[jp] = Fp::from_i64(src[k * f + b * fb + jp] as i64); }
+                    });
+                }
+                let off = lay.wd[b * nb_d + c];
+                buf[off..off + wb].par_chunks_mut(db).enumerate().for_each(|(jp, row)| {
+                    let j = b * fb + jp;
+                    for np in 0..db { row[np] = Fp::from_i64(w.wd_t[j * d + c * db + np] as i64); }
+                });
+            }
+        }
+        s_w_fill = t_conv.elapsed().as_secs_f64() - s_w_alloc;
+        w_data = Some(buf);
+    }
     let w_cm = match w_planes_cm {
         Some(cm) => pcs_compact::AnyCm::Ligero(cm),
         None => {
-            // THE INHERITED ARM, unchanged: build the block tiling as a
-            // `Vec<Fp>` and commit that.
-            let t_conv = Instant::now();
-            let mut buf = hostbuf::take(hostbuf::W, lay.w_len); // [UPERF3-AL] arbitrary contents; every element is written below
-            s_w_alloc = t_conv.elapsed().as_secs_f64();
-            for c in 0..nb_d {
-                for b in 0..nb_f {
-                    for (offs, src) in [(&lay.wg, &w.wg_t), (&lay.wu, &w.wu_t)] {
-                        let off = offs[c * nb_f + b];
-                        buf[off..off + wb].par_chunks_mut(fb).enumerate().for_each(|(kp, row)| {
-                            let k = c * db + kp;
-                            for jp in 0..fb { row[jp] = Fp::from_i64(src[k * f + b * fb + jp] as i64); }
-                        });
-                    }
-                    let off = lay.wd[b * nb_d + c];
-                    buf[off..off + wb].par_chunks_mut(db).enumerate().for_each(|(jp, row)| {
-                        let j = b * fb + jp;
-                        for np in 0..db { row[np] = Fp::from_i64(w.wd_t[j * d + c * db + np] as i64); }
-                    });
-                }
-            }
-            s_w_fill = t_conv.elapsed().as_secs_f64() - s_w_alloc;
+            let buf = w_data.as_ref().expect("the inherited W arm built the buffer above");
             // [UPERF3-AC]+[UPERF3-AF] the per-model weight cache serves the LIGERO path (its entries are
             // Ligero commitments); `--pcs compact` bypasses it and commits compactly.
-            let cm = if pcs_compact::selected() {
-                pcs_compact::commit(&w_pcs, &buf, ntt)
+            if pcs_compact::selected() {
+                pcs_compact::commit(&w_pcs, buf, ntt)
             } else {
-                pcs_compact::AnyCm::Ligero(crate::wcache::commit_w(&w_pcs, &buf, ntt, &crate::wcache::WKey::new("v3", w.l, d, f, &w.wg_t, &w.wu_t, &w.wd_t)))
-            };
-            w_data = Some(buf);
-            cm
+                pcs_compact::AnyCm::Ligero(crate::wcache::commit_w(&w_pcs, buf, ntt, &crate::wcache::WKey::new("v3", w.l, d, f, &w.wg_t, &w.wu_t, &w.wd_t)))
+            }
         }
     };
     if cv {

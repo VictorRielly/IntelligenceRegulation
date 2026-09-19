@@ -1,0 +1,161 @@
+=== box ===
+2026-09-19 13:16:11
+ 13:16:11 up 12:11,  1 user,  load average: 4.98, 5.64, 4.92
+0 MiB
+
+=== GATE v3 [HL_FSP4_PLANES=1, W forced chunked] ===
+2026-09-19 13:16:11
+[FSP4] streamed commit rows 288 n 2^14 w 1 (int8 planes): h2d counter 0.0065 = host pack 0.0040 (4718592 elem, 0.00 GB read) + 0.0025 rest | total 0.0561 s
+[UPERF3-AL] conv W  l00: alloc 0.0000 fill 0.0000 | commit 0.0805 (dev h2d 0.0065 ntt 0.0496 hash 0.0000 -> host 0.0244) | 4 Melem [planes]
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0122 = host pack 0.0088 (8519680 elem, 0.07 GB read) + 0.0034 rest | total 0.0167 s
+  layer  0: prove 0.304 s, 5899988 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (int8 planes): h2d counter 0.0052 = host pack 0.0042 (4718592 elem, 0.00 GB read) + 0.0010 rest | total 0.0106 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0107 = host pack 0.0075 (8519680 elem, 0.07 GB read) + 0.0032 rest | total 0.0163 s
+  layer  1: prove 0.180 s, 5960912 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (int8 planes): h2d counter 0.0051 = host pack 0.0041 (4718592 elem, 0.00 GB read) + 0.0010 rest | total 0.0102 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0115 = host pack 0.0084 (8519680 elem, 0.07 GB read) + 0.0031 rest | total 0.0161 s
+  layer  2: prove 0.199 s, 5960392 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (int8 planes): h2d counter 0.0050 = host pack 0.0040 (4718592 elem, 0.00 GB read) + 0.0010 rest | total 0.0103 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0119 = host pack 0.0087 (8519680 elem, 0.07 GB read) + 0.0032 rest | total 0.0166 s
+  layer  3: prove 0.178 s, 5896912 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (int8 planes): h2d counter 0.0052 = host pack 0.0042 (4718592 elem, 0.00 GB read) + 0.0010 rest | total 0.0109 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0125 = host pack 0.0091 (8519680 elem, 0.07 GB read) + 0.0034 rest | total 0.0171 s
+  layer  4: prove 0.194 s, 5898448 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (int8 planes): h2d counter 0.0052 = host pack 0.0042 (4718592 elem, 0.00 GB read) + 0.0010 rest | total 0.0103 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0122 = host pack 0.0090 (8519680 elem, 0.07 GB read) + 0.0032 rest | total 0.0164 s
+  layer  5: prove 0.198 s, 5862608 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (int8 planes): h2d counter 0.0051 = host pack 0.0041 (4718592 elem, 0.00 GB read) + 0.0010 rest | total 0.0101 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0108 = host pack 0.0076 (8519680 elem, 0.07 GB read) + 0.0032 rest | total 0.0163 s
+  layer  6: prove 0.180 s, 5895120 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (int8 planes): h2d counter 0.0055 = host pack 0.0043 (4718592 elem, 0.00 GB read) + 0.0011 rest | total 0.0103 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0118 = host pack 0.0085 (8519680 elem, 0.07 GB read) + 0.0033 rest | total 0.0164 s
+  layer  7: prove 0.192 s, 5862608 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (int8 planes): h2d counter 0.0057 = host pack 0.0047 (4718592 elem, 0.00 GB read) + 0.0011 rest | total 0.0102 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0125 = host pack 0.0092 (8519680 elem, 0.07 GB read) + 0.0033 rest | total 0.0165 s
+  layer  8: prove 0.193 s, 5895376 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (int8 planes): h2d counter 0.0055 = host pack 0.0045 (4718592 elem, 0.00 GB read) + 0.0010 rest | total 0.0112 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0121 = host pack 0.0089 (8519680 elem, 0.07 GB read) + 0.0032 rest | total 0.0172 s
+  layer  9: prove 0.190 s, 5895376 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (int8 planes): h2d counter 0.0055 = host pack 0.0044 (4718592 elem, 0.00 GB read) + 0.0011 rest | total 0.0111 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0130 = host pack 0.0098 (8519680 elem, 0.07 GB read) + 0.0032 rest | total 0.0177 s
+  layer 10: prove 0.206 s, 5864148 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (int8 planes): h2d counter 0.0051 = host pack 0.0041 (4718592 elem, 0.00 GB read) + 0.0010 rest | total 0.0106 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0125 = host pack 0.0092 (8519680 elem, 0.07 GB read) + 0.0033 rest | total 0.0172 s
+  layer 11: prove 0.196 s, 5866196 B
+prover phases (summed over layers):
+  proof written to /tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad/fsp4c3/chunkplanes-v3-1.proof
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.88 s | PROVE 2.41 s | VERIFY 0.46 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.202e10 proven MAC/s (prove wall) | wall 4.88 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.878176077,"prove_s":2.412418481,"serialize_s":0.111538737,"proof_ready_s":4.423130661,"verify_s":0.459872442,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}
+GATE OK   v3 [planes=1]  5f368db6240e0614  70758084 B
+
+=== GATE zkv3 [HL_FSP4_PLANES=1, W forced chunked] ===
+2026-09-19 13:16:20
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0065 = host pack 0.0055 (4718592 elem, 0.04 GB read) + 0.0010 rest | total 0.0563 s
+  layer  0: prove 0.618 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0100 = host pack 0.0051 (4718592 elem, 0.04 GB read) + 0.0050 rest | total 0.0154 s
+  layer  1: prove 0.557 s, 7318324 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0099 = host pack 0.0047 (4718592 elem, 0.04 GB read) + 0.0052 rest | total 0.0151 s
+  layer  2: prove 0.535 s, 7318324 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0096 = host pack 0.0052 (4718592 elem, 0.04 GB read) + 0.0044 rest | total 0.0153 s
+  layer  3: prove 0.530 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0099 = host pack 0.0049 (4718592 elem, 0.04 GB read) + 0.0050 rest | total 0.0155 s
+  layer  4: prove 0.543 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0061 = host pack 0.0048 (4718592 elem, 0.04 GB read) + 0.0013 rest | total 0.0156 s
+  layer  5: prove 0.581 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0094 = host pack 0.0052 (4718592 elem, 0.04 GB read) + 0.0042 rest | total 0.0163 s
+  layer  6: prove 0.590 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0099 = host pack 0.0045 (4718592 elem, 0.04 GB read) + 0.0054 rest | total 0.0170 s
+  layer  7: prove 0.550 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0094 = host pack 0.0045 (4718592 elem, 0.04 GB read) + 0.0048 rest | total 0.0171 s
+  layer  8: prove 0.583 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0090 = host pack 0.0052 (4718592 elem, 0.04 GB read) + 0.0038 rest | total 0.0172 s
+  layer  9: prove 0.596 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0073 = host pack 0.0055 (4718592 elem, 0.04 GB read) + 0.0018 rest | total 0.0175 s
+  layer 10: prove 0.579 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0101 = host pack 0.0051 (4718592 elem, 0.04 GB read) + 0.0050 rest | total 0.0167 s
+  layer 11: prove 0.591 s, 7306036 B
+prover phases (summed over layers):
+  proof written to /tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad/fsp4c3/chunkplanes-zkv3-1.proof
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 2.01 s | PROVE 6.85 s | VERIFY 0.91 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 4.232e9 proven MAC/s (prove wall) | wall 9.94 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":2.014874836,"prove_s":6.851156603,"serialize_s":0.140940752,"proof_ready_s":9.031335037,"verify_s":0.912902239,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+GATE OK   zkv3 [planes=1]  40eb54795e023c77  87697008 B
+
+=== GATE v3 [HL_FSP4_PLANES=0, W forced chunked] ===
+2026-09-19 13:16:34
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0062 = host pack 0.0051 (4718592 elem, 0.04 GB read) + 0.0011 rest | total 0.0541 s
+[UPERF3-AL] conv W  l00: alloc 0.0138 fill 0.0057 | commit 0.0744 (dev h2d 0.0062 ntt 0.0479 hash 0.0000 -> host 0.0203) | 4 Melem
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0148 = host pack 0.0107 (8519680 elem, 0.07 GB read) + 0.0041 rest | total 0.0181 s
+  layer  0: prove 0.320 s, 5899988 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0063 = host pack 0.0052 (4718592 elem, 0.04 GB read) + 0.0010 rest | total 0.0113 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0114 = host pack 0.0082 (8519680 elem, 0.07 GB read) + 0.0032 rest | total 0.0161 s
+  layer  1: prove 0.186 s, 5960912 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0066 = host pack 0.0055 (4718592 elem, 0.04 GB read) + 0.0011 rest | total 0.0108 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0123 = host pack 0.0091 (8519680 elem, 0.07 GB read) + 0.0032 rest | total 0.0169 s
+  layer  2: prove 0.187 s, 5960392 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0062 = host pack 0.0052 (4718592 elem, 0.04 GB read) + 0.0010 rest | total 0.0112 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0126 = host pack 0.0094 (8519680 elem, 0.07 GB read) + 0.0033 rest | total 0.0167 s
+  layer  3: prove 0.199 s, 5896912 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0057 = host pack 0.0046 (4718592 elem, 0.04 GB read) + 0.0011 rest | total 0.0109 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0112 = host pack 0.0080 (8519680 elem, 0.07 GB read) + 0.0032 rest | total 0.0160 s
+  layer  4: prove 0.188 s, 5898448 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0064 = host pack 0.0053 (4718592 elem, 0.04 GB read) + 0.0011 rest | total 0.0108 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0126 = host pack 0.0094 (8519680 elem, 0.07 GB read) + 0.0033 rest | total 0.0167 s
+  layer  5: prove 0.197 s, 5862608 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0062 = host pack 0.0051 (4718592 elem, 0.04 GB read) + 0.0010 rest | total 0.0104 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0122 = host pack 0.0090 (8519680 elem, 0.07 GB read) + 0.0032 rest | total 0.0166 s
+  layer  6: prove 0.189 s, 5895120 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0063 = host pack 0.0052 (4718592 elem, 0.04 GB read) + 0.0011 rest | total 0.0105 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0112 = host pack 0.0081 (8519680 elem, 0.07 GB read) + 0.0031 rest | total 0.0185 s
+  layer  7: prove 0.190 s, 5862608 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0061 = host pack 0.0050 (4718592 elem, 0.04 GB read) + 0.0011 rest | total 0.0106 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0115 = host pack 0.0083 (8519680 elem, 0.07 GB read) + 0.0033 rest | total 0.0166 s
+  layer  8: prove 0.196 s, 5895376 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0061 = host pack 0.0050 (4718592 elem, 0.04 GB read) + 0.0011 rest | total 0.0120 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0108 = host pack 0.0076 (8519680 elem, 0.07 GB read) + 0.0031 rest | total 0.0172 s
+  layer  9: prove 0.194 s, 5895376 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0063 = host pack 0.0051 (4718592 elem, 0.04 GB read) + 0.0011 rest | total 0.0114 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0129 = host pack 0.0096 (8519680 elem, 0.07 GB read) + 0.0032 rest | total 0.0181 s
+  layer 10: prove 0.205 s, 5864148 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0065 = host pack 0.0055 (4718592 elem, 0.04 GB read) + 0.0011 rest | total 0.0115 s
+[FSP4] streamed commit rows 520 n 2^14 w 2 (64-bit words): h2d counter 0.0123 = host pack 0.0090 (8519680 elem, 0.07 GB read) + 0.0032 rest | total 0.0171 s
+  layer 11: prove 0.202 s, 5866196 B
+prover phases (summed over layers):
+  proof written to /tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad/fsp4c3/chunkplanes-v3-0.proof
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.84 s | PROVE 2.45 s | VERIFY 0.42 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.182e10 proven MAC/s (prove wall) | wall 4.84 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.840544723,"prove_s":2.453632293,"serialize_s":0.111341925,"proof_ready_s":4.412477808,"verify_s":0.422595337,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}
+GATE OK   v3 [planes=0]  5f368db6240e0614  70758084 B
+
+=== GATE zkv3 [HL_FSP4_PLANES=0, W forced chunked] ===
+2026-09-19 13:16:43
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0079 = host pack 0.0051 (4718592 elem, 0.04 GB read) + 0.0028 rest | total 0.0534 s
+  layer  0: prove 0.593 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0094 = host pack 0.0048 (4718592 elem, 0.04 GB read) + 0.0045 rest | total 0.0154 s
+  layer  1: prove 0.540 s, 7318324 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0103 = host pack 0.0052 (4718592 elem, 0.04 GB read) + 0.0051 rest | total 0.0153 s
+  layer  2: prove 0.591 s, 7318324 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0095 = host pack 0.0048 (4718592 elem, 0.04 GB read) + 0.0046 rest | total 0.0153 s
+  layer  3: prove 0.562 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0093 = host pack 0.0044 (4718592 elem, 0.04 GB read) + 0.0050 rest | total 0.0164 s
+  layer  4: prove 0.541 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0096 = host pack 0.0046 (4718592 elem, 0.04 GB read) + 0.0049 rest | total 0.0166 s
+  layer  5: prove 0.554 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0100 = host pack 0.0046 (4718592 elem, 0.04 GB read) + 0.0054 rest | total 0.0168 s
+  layer  6: prove 0.536 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0098 = host pack 0.0052 (4718592 elem, 0.04 GB read) + 0.0046 rest | total 0.0169 s
+  layer  7: prove 0.572 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0099 = host pack 0.0044 (4718592 elem, 0.04 GB read) + 0.0055 rest | total 0.0169 s
+  layer  8: prove 0.540 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0095 = host pack 0.0050 (4718592 elem, 0.04 GB read) + 0.0045 rest | total 0.0169 s
+  layer  9: prove 0.519 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0094 = host pack 0.0040 (4718592 elem, 0.04 GB read) + 0.0054 rest | total 0.0165 s
+  layer 10: prove 0.537 s, 7306036 B
+[FSP4] streamed commit rows 288 n 2^14 w 1 (64-bit words): h2d counter 0.0096 = host pack 0.0047 (4718592 elem, 0.04 GB read) + 0.0048 rest | total 0.0164 s
+  layer 11: prove 0.499 s, 7306036 B
+prover phases (summed over layers):
+  proof written to /tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad/fsp4c3/chunkplanes-zkv3-0.proof
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.91 s | PROVE 6.58 s | VERIFY 0.74 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 4.405e9 proven MAC/s (prove wall) | wall 9.38 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.914053003,"prove_s":6.581960576,"serialize_s":0.130412915,"proof_ready_s":8.637303108,"verify_s":0.742328289,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+GATE OK   zkv3 [planes=0]  40eb54795e023c77  87697008 B
+
+=== VERDICT ===
+CHUNKED-W PLANE GATES GREEN (4: v3 and zk-v3, both arms)

@@ -1,0 +1,54 @@
+=== gpu-probe oracles ===
+2026-09-19 12:55:53
+0 MiB
+gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+gpu-probe: NVIDIA GeForce RTX 4070 Laptop GPU — 1048576 pairs (incl. edge values): mul/add/sub mismatches 0 ; 4.7 G mul/s (the 3-op kernel, 50 launches)
+gpu-probe: blake3 checks GREEN (322 row counts x 64 columns; 0 failing)
+  ntt check log_cols 4 inv_rate 4 rows 3: 0 mismatches (cpu encode 0.000 s, device commit incl. upload+hash 0.048 s)
+  ntt check log_cols 10 inv_rate 4 rows 5: 0 mismatches (cpu encode 0.001 s, device commit incl. upload+hash 0.001 s)
+  ntt check log_cols 12 inv_rate 4 rows 7: 0 mismatches (cpu encode 0.001 s, device commit incl. upload+hash 0.001 s)
+  ntt check log_cols 14 inv_rate 4 rows 5: 0 mismatches (cpu encode 0.003 s, device commit incl. upload+hash 0.002 s)
+  ntt check log_cols 14 inv_rate 4 rows 64: 0 mismatches (cpu encode 0.030 s, device commit incl. upload+hash 0.007 s)
+  ntt check log_cols 13 inv_rate 2 rows 4: 0 mismatches (cpu encode 0.001 s, device commit incl. upload+hash 0.001 s)
+  ntt check log_cols 12 inv_rate 8 rows 3: 0 mismatches (cpu encode 0.001 s, device commit incl. upload+hash 0.001 s)
+gpu-probe: ntt checks GREEN
+  chunked check log_cols 10 inv_rate 4 rows 300 chunk 128: 0 leaf mismatches, 0 column mismatches
+  chunked check log_cols 10 inv_rate 4 rows 127 chunk 128: 0 leaf mismatches, 0 column mismatches
+  chunked check log_cols 10 inv_rate 4 rows 128 chunk 128: 0 leaf mismatches, 0 column mismatches
+  chunked check log_cols 10 inv_rate 4 rows 129 chunk 128: 0 leaf mismatches, 0 column mismatches
+  chunked check log_cols 10 inv_rate 4 rows 255 chunk 128: 0 leaf mismatches, 0 column mismatches
+  chunked check log_cols 10 inv_rate 4 rows 256 chunk 128: 0 leaf mismatches, 0 column mismatches
+  chunked check log_cols 10 inv_rate 4 rows 257 chunk 128: 0 leaf mismatches, 0 column mismatches
+  chunked check log_cols 10 inv_rate 4 rows 1024 chunk 128: 0 leaf mismatches, 0 column mismatches
+  chunked check log_cols 10 inv_rate 4 rows 1025 chunk 256: 0 leaf mismatches, 0 column mismatches
+  chunked check log_cols 12 inv_rate 4 rows 1000 chunk 256: 0 leaf mismatches, 0 column mismatches
+  chunked check log_cols 14 inv_rate 4 rows 64 chunk 128: 0 leaf mismatches, 0 column mismatches
+  chunked check log_cols 14 inv_rate 4 rows 700 chunk 384: 0 leaf mismatches, 0 column mismatches
+  chunked check log_cols 13 inv_rate 2 rows 4 chunk 128: 0 leaf mismatches, 0 column mismatches
+  chunked check log_cols 12 inv_rate 8 rows 3 chunk 128: 0 leaf mismatches, 0 column mismatches
+  chunked check log_cols 14 inv_rate 4 rows 2200 chunk 1024: 0 leaf mismatches, 0 column mismatches
+gpu-probe: chunked-commit checks GREEN
+=== GPU-feature cargo tests (device targets) ===
+2026-09-19 12:55:58
+--- zk60_gpu_commit ---
+test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 21.30s
+--- zk60_gpu_cache ---
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 53.94s
+=== [FSP-HOST] item (a) plane-fill oracles (gpu-cuda lib tests) ===
+2026-09-19 13:03:59
+test gpu::planes::tests::a_shape_that_does_not_tile_is_declined ... ok
+test gpu::planes::tests::fill_fp_is_the_layer_buffer ... ok
+test gpu::cuda::fsp4_plane_oracle::plane_fill_equals_pack_narrow_at_staging_piece_boundaries ... ok
+test gpu::cuda::fsp4_plane_oracle::plane_fill_equals_pack_narrow_at_w1 ... ok
+test gpu::planes::tests::fill_bytes_is_the_packed_image_over_every_range ... ok
+test zk::mask_diagnostic::actual_ffn_t32_recovers_one_functional_per_column_of_two_row_planes ... ok
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 63 filtered out; finished in 4.23s
+=== [FSP-HOST] item (a) plane-fill oracles (CPU lib tests) ===
+2026-09-19 13:04:25
+test gpu::planes::tests::a_shape_that_does_not_tile_is_declined ... ok
+test gpu::planes::tests::fill_fp_is_the_layer_buffer ... ok
+test gpu::planes::tests::fill_bytes_is_the_packed_image_over_every_range ... ok
+test zk::mask_diagnostic::actual_ffn_t32_recovers_one_functional_per_column_of_two_row_planes ... ok
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 66 filtered out; finished in 4.17s
+=== ORACLES DONE ===
+2026-09-19 13:04:29

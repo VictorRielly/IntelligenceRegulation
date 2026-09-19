@@ -613,3 +613,189 @@ structure scaled down (256/1792 — `nb_d` 1, `nb_f` 7, which no fixture
 can reach) and a single-block shape. **Adding these raises the CPU
 suite's count from 202; the inherited 202 are unchanged and no
 expectation was touched.**
+
+**One correction to the plan's picture of the layout**: the commitment's
+row width is NOT the block width. `params.pcs_for(log_wb)` caps
+`log_cols`, so at the fixture shape a commitment row is 2^14 = 16,384
+elements and a block spans 32 rows. `fill_bytes` takes an arbitrary
+element range and never assumes otherwise.
+
+### 2026-09-19 13:10 — C3, THE FIRST MEASUREMENT SAID NO, AND WHY
+
+The first cut of the fill parallelised over BLOCK ROWS
+(`par_chunks_mut(row_len)`). The A/B at 12x512
+(`results/fsp4_ab_planes_gpu_c2.log`, 10 runs, every digest
+`5f368db6240e0614` at 70,758,084 B) [MEASURED, GPU binary, load average
+2.5-3.5]:
+
+| item, summed over the 12 W commitments | A: inherited | B: planes |
+|---|---:|---:|
+| `conv W` alloc | 0.0127 | **0** |
+| `conv W` fill | 0.0499 | **0** |
+| the h2d HOST packing pass for W | 0.0463 | **0.1051** |
+| commit host residual | 0.1202 | 0.1354 |
+| **the item** | **0.2283** | **0.2405 — WORSE** |
+
+**The packing pass got 2.3x SLOWER.** The cause is not the idea, it is
+the task size: the fixture's `wd` blocks are 2,048 rows of **256
+bytes**, and one rayon task per 256-byte copy is dominated by rayon's
+per-task cost. (The inherited `pack_narrow` parallelises in chunks of
+8,192 elements, i.e. 64 KB of source.)
+
+**The fix** (`gpu/mod.rs`, `fill_block`): one task per **64 KB** of
+destination rather than one per row (`GRAIN`), and — when a block's
+rows are contiguous in the plane, which is `wg`/`wu` whenever
+`nb_f == 1` and `wd` whenever `nb_d == 1` — a single split copy with no
+per-row work at all. At the fixture shape that fast path covers `wg`
+and `wu`; **at the 8B shape it covers `wd`** (`nb_d = 1`), and `wg`/`wu`
+there are 2,048-byte strided runs, eight times the fixture's.
+
+### 2026-09-19 13:20 — C4, THE FLOOR AGAIN AND THE A/B, ON THE FIXED TREE
+
+**Every gate green** (`results/*_c3.log`, and `*_c2.log` for the runs
+the first cut also passed):
+
+* **the TWELVE byte gates** [MEASURED] `fsp4_floors_c3.log`, exit 0 —
+  `50cf7bdfd6b5b182..` 66,844,928 B, `5f368db6240e0614..` 70,758,084 B,
+  `021485e4f80ec695..` 87,228,528 B, `40eb54795e023c77..` 87,697,008 B,
+  each on the CPU binary, the GPU binary and the GPU binary with the
+  chunked path forced. **ALL TWELVE GREEN**, with `HL_FSP4_PLANES`
+  defaulting ON (`fsp4_floors_c2.log` is a second, independent green
+  run of the same twelve).
+* **a THIRTEENTH-to-SIXTEENTH gate this lane added**
+  (`results/fsp4_planes_chunked_gate.sh`, `fsp4_chunkgate_c3.log`) —
+  the twelve never send W through `commit_chunked_upload` (at the
+  fixture shape W's encoding is 75.5 MB, under their forced 100 MB
+  threshold), which is the route the 8B shape uses. Forcing the
+  threshold to 10 MB puts W on it: the log shows
+  `streamed commit rows 288 n 2^14 w 1 (int8 planes)` and the frozen v3
+  and zk-v3 digests come out unmoved, in BOTH arms. **GREEN.**
+* **the plane-fill oracles** [MEASURED] `fsp4_planeoracle_gpu_c3.log`
+  (6 passed) and `fsp4_planeoracle_cpu_c3.log` (4 passed), 0 failed —
+  including the two that compare against the REAL `pack_narrow`.
+* **`cargo test --release`** [MEASURED] `fsp4_cputest_c2.log`, exit 0 —
+  **205 passed, 0 failed**: the inherited 202 plus this lane's three
+  plane tests.
+* **`gpu-probe` + the device test binaries** [MEASURED]
+  `fsp4_oracles_c2.log`, exit 0 — field probe 0 mismatches, blake3
+  GREEN, ntt GREEN, chunked-commit GREEN, `zk60_gpu_commit` 34 passed,
+  `zk60_gpu_cache` 12 passed.
+* the two A/Bs are 20 more byte checks: all 20 runs wrote
+  `5f368db6240e0614..` at 70,758,084 B.
+
+**THE A/B, GPU binary, 12x512, alternating, 5 runs per arm**
+(`results/fsp4_ab_planes_gpu_c3.log`) [MEASURED; `nvidia-smi` 0 MiB
+before, load average 1.6-2.6, the sibling lane idle for most of it]:
+
+| item, summed over the 12 W commitments | A: inherited `Vec<Fp>` | B: int8 planes | |
+|---|---:|---:|---|
+| `conv W` alloc | 0.0129 | **0** | gone |
+| `conv W` fill | 0.0498 | **0** | gone |
+| the h2d HOST packing pass for W | 0.0450 (0.0422-0.0476) | 0.0495 (0.0422-0.0542) | **0.91x — the plane gather is ~10% SLOWER here** |
+| commit host residual | 0.1192 | 0.1122 | 1.06x, inside the noise |
+| **THE ITEM** | **0.2222** (0.2200-0.2664) | **0.1581** (0.1545-0.1974) | **1.405x median, 1.424x best-of** |
+| the A commitment's pack (untouched control) | 0.0697 | 0.0691 | 1.01 — noise, as it must be |
+| PROVE | 2.33 s (2.23-2.60) | 2.22 s (2.15-2.37) | 1.05, INSIDE the 16% spread — not claimed |
+
+**Every one of the five B runs is below every one of the five A runs on
+the item** (A min 0.2200, B max 0.1974).
+
+**THE A/B, CPU binary** (`fsp4_ab_planes_cpu_c3.log`) [MEASURED, load
+average 2-4] — a NULL CONTROL, and it behaves as one: the plane path
+needs the device's narrow upload, so on the CPU binary both arms run
+the identical code. Item ratio **0.996x** (A median 2.1168, B 2.1259),
+`conv W` fill present in both arms (0.0392 / 0.0411), all ten digests
+frozen. **Item (a) is a GPU-path lever only**; the CPU path cannot use
+it without a `commit_with` that takes a source instead of a `&[Fp]`,
+and `zkp-core/` is not this lane's crate.
+
+**WHAT IT IS WORTH ON THE 8B PASS** [COUNTED — this lane never runs the
+8B pass]. Two of the three pieces are measured at 8B directly, in
+`results/hashline_convert_r3.log`'s own per-layer lines (32 layers):
+
+* the `conv W` **fill** — **1.652 s** — is removed outright;
+* the `conv W` **alloc** — **0.580 s** — is removed outright;
+* the **packing pass** — W's share of the h2d counter is 6.558 s, of
+  which ~84% ≈ 5.5 s is host packing [COUNTED in stage 2 part B] — is
+  taken at **PARITY**, because that is what this lane measured (0.91x
+  at the fixture shape).
+
+**So: 1.652 + 0.580 = 2.23 s of the 58.40 s pass, a 1.040x**
+[COUNTED]. That is well below the plan's ~9 s and below the previous
+agent's ~9 s re-count, and the reason is the one the measurement gave:
+**the packing pass does not get faster just because it reads 4.5x fewer
+bytes** — at the fixture's 256-byte runs it is latency-bound, not
+bandwidth-bound, and the gather is if anything slightly slower than the
+strided load-and-narrow it replaces.
+
+**The unmeasured upside, stated as a model and not counted.** At 8B a
+third of the W buffer (`wd`, `nb_d = 1`) takes the contiguous fast path
+and the rest is 2,048-byte runs against the fixture's 256; if the pass
+there did realise its 4.5x traffic cut it would add ~4.3 s, taking the
+item to ~6.5 s. **This lane has no evidence for that** and the honest
+number above is 2.23 s. The measurement that would settle it is one 8B
+pass with `HL_FSP4_TIMING=1` in both arms, in the quiet window the
+orchestrator arranges — the `[FSP4]` line prints the pack seconds
+directly.
+
+**The revised host share of the 58.40 s pass**: 18.1-19.1 s becomes
+**15.9-16.9 s (27-29%)** [COUNTED].
+
+### 2026-09-19 13:30 — the continuation's switches, what is owed, and the next step
+
+**Switches this continuation leaves behind** (the previous agent's
+`HL_FSP4_I128FOLD` and `HL_FSP4_TIMING` are untouched):
+
+| switch | default | what it does |
+|---|---|---|
+| `HL_FSP4_PLANES=0` | **on** | restores the inherited W commitment: build the `Vec<Fp>` block tiling and let `pack_narrow` read all eight bytes of every element (`layer.rs`, `pcs.rs`, `wcache.rs`, `gpu/cuda.rs`) |
+
+The default is on because every gate is green: the twelve byte gates
+twice, the four chunked-W gates, both plane oracles under both feature
+sets, `cargo test --release` 205/205, `gpu-probe` and the two device
+test binaries.
+
+**Owed to the integrator (not this lane's files).**
+
+1. **A `gpu-probe` rung for the plane oracle.** Both oracles are lib
+   unit tests because `hashline/src/bin/hashline.rs` is read-only here;
+   they belong beside the chunked-commit checks in `gpu_probe()`.
+2. **The A commitment's turn.** Item (a) as scoped covers W only. A's
+   fill is a further **1.091 s at 8B** [MEASURED] and its pack runs at
+   `w = 2` over int16 planes. Its layout is columns, not blocks, so it
+   needs its own tiling; the machinery (`UpSrc`, `send_src`,
+   `commit_planes`) already takes any source.
+3. **The weight cache's HIT route** declines to the `Vec<Fp>` today
+   (`wcache::commit_w_planes`), because the hit rebuilds the store with
+   `reencode_store`, which needs the buffer. A plane form of
+   `dev_encode_only` would close it; no gate exercises the hit route,
+   which is why this lane did not write it blind.
+4. **The CPU path cannot use the planes at all.** `zkp_core::pcs`'s
+   `Backend` seam passes `&[Fp]`; a source-taking `commit_with` is a
+   zkp-core change.
+5. **Inherited and still owed**: pooling the opening's 22 MB output
+   allocation (turns `expect_alloc(&p.alloc, 2, ...)` in
+   `hashline/tests/zk60_gpu_commit.rs` red — 0.50 s of the 58.40 s in
+   total for the whole openings tail), and the deferred-reduction
+   treatment of `fold_rows_i8` / `fold_rows_i32` / `fold_cols_i8` in
+   `zkp-core/src/mle.rs` (~0.25 s at 8B).
+
+**THE EXACT NEXT STEP.** Two, in this order.
+
+1. **Settle item (a)'s real worth with one 8B measurement**, in the
+   quiet window: the 8B feed-forward pass twice, `HL_FSP4_TIMING=1` and
+   `HL_CONV_VERBOSE=1`, once with `HL_FSP4_PLANES=0` and once with the
+   default. The `[FSP4]` line prints the W pack seconds and the
+   `conv W` line prints the alloc and the fill, so the three pieces are
+   read straight off. Counted worth today is **2.23 s** with the pack
+   at parity; the model's ceiling is ~6.5 s, and one pass decides which.
+2. **Then the A commitment (owed item 2 above)**, which is the same
+   pattern over int16 columns and is worth another 1.09 s of fill at 8B
+   [MEASURED] before any packing gain.
+
+**Lane state at this hand-back: GREEN.** Working tree clean, six
+commits on `fsp-host` (`602e405` the plan, `d7cc938` the code,
+`df745e1` the write-up and the driver, plus this section's commits),
+nothing pushed, no test expectation touched, no gate adjusted, no
+digest re-frozen, and one mistake recorded above (editing a script
+while it was running).

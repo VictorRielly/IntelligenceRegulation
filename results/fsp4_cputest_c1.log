@@ -1,0 +1,432 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-fsp-host/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 8 warnings (run `cargo fix --lib -p hashline` to apply 6 suggestions)
+warning: `hashline` (lib) generated 8 warnings (8 duplicates)
+warning: `hashline` (lib test) generated 8 warnings (8 duplicates)
+    Finished `release` profile [optimized] target(s) in 3m 54s
+     Running unittests src/lib.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/hashline-9eaa0189d63f29d2)
+
+running 67 tests
+test attention::chain_tests::norm_round_matches_the_relation ... ok
+test chain::tests::floor_requant_is_euclidean ... ok
+test chain::tests::witness_i8_matmul_zero_columns_still_rejects - should panic ... ok
+test export_v3::tests::witness_i64_matmul_zero_columns_still_rejects - should panic ... ok
+test field::verifier_hardening_tests::hardening_checked_batch_rejects_zero_without_mutation ... ok
+test field::verifier_hardening_tests::hardening_checked_batch_matches_legacy_and_individual_inverses ... ok
+test norm::tests::gadget_facts_hold_on_random_rows ... ok
+test norm::tests::window_rule_examples ... ok
+test pcs_compact::tests::pieces_and_queries ... ok
+test phase_profile::tests::disabled_profiling_preserves_result_and_records_nothing ... ok
+test phase_profile::tests::nested_profile_costs_are_exclusive ... ok
+test phase_profile::tests::profile_capture_cleans_up_after_unwind ... ok
+test silu::tests::frozen_members_regenerate_to_their_pins ... ok
+test stable_weight_slots::tests::binding_geometry_refuses_invalid_budgets_domains_and_aliases ... ok
+test tables_attn::tests::exp_members_match_the_python_generator ... ok
+test tables_attn::tests::rope_members_match_the_python_pins ... ok
+test chain::tests::matmul_small ... ok
+test export_v3::tests::matmul_i64_small ... ok
+test chain::tests::witness_i8_matmul_preserves_prefix_overflow_behavior ... ok
+test attention::chain_tests::requant_round_is_balanced ... ok
+test chain::tests::witness_i8_matmul_scalar_oracle_signed_extremes_and_tails ... ok
+test zk::cfs_safety_tests::complete_extension_matches_the_masked_round_and_terminal_identity ... ok
+test export_v3::tests::witness_i64_matmul_scalar_oracle_signed_extremes_and_tails ... ok
+test zk::cfs_safety_tests::zero_mask_challenge_aborts_without_resampling ... ok
+test zk::cfs_safety_tests::malformed_extension_refuses_before_changing_transcript_or_output ... ok
+test pcs_compact::tests::mobius_matches_multilinear_evaluation ... ok
+test pcs_compact::tests::ntt_dif_is_bitreversed_evaluation ... ok
+test wcache::tests::tree_roundtrip_and_every_corruption_rejected ... ok
+test wcache::atomic_tests::unfinished_and_failed_publications_clean_up_only_their_own_files ... ok
+test stable_weight_slots::tests::unexpected_file_length_poisoning_precedes_slot_exposure ... ok
+test wcache::atomic_tests::readers_keep_complete_entries_while_other_writers_are_partial ... ok
+test stable_weight_slots::tests::every_public_binding_field_is_checked_on_reopening ... ok
+test stable_weight_slots::tests::existing_missing_and_busy_stores_never_reset_the_counter ... ok
+test zk::fresh_poc::io::tests::bound_ffn_policy_and_endpoint_preflight ... ok
+test zk::mask_diagnostic::capture_guard_resets_on_unwind_and_rejects_nested_capture ... ok
+test zk::mask_diagnostic::diagnostic_refuses_degenerate_and_paired_mask_controls ... ok
+test stable_weight_slots::tests::failed_sync_poisoning_never_reissues_a_written_slot ... ok
+test stable_weight_slots::tests::corrupt_torn_reordered_and_over_budget_records_fail_closed ... ok
+test zk::mask_diagnostic::fresh_poc_tests::repaired_layout_and_degenerate_mask_controls ... ok
+test stable_weight_slots::tests::dropping_owner_unlocks_descriptors_inherited_during_process_startup ... ok
+test zk::tests::cloned_default_configs_never_reuse_a_mask_stream ... ok
+test zk::tests::explicit_zero_seed_keeps_legacy_stream_across_refills ... ok
+test stable_weight_slots::tests::spent_slots_survive_reopening_drop_unwind_and_exhaustion ... ok
+test pcs_compact::tests::compact_batch_of_three_commitments ... ok
+test wcache::atomic_tests::concurrent_same_key_saves_all_publish_complete_entries ... ok
+test export_v3::tests::requant_round_is_the_prescaled_floor ... ok
+test zk::fresh_poc::wire::tests::fixed_wire_bounds_cover_all_allowed_table_sizes ... ok
+test field::verifier_hardening_tests::cpu::hardening_v2_production_verifier_refuses_collision_after_honest_prefix ... ok
+test wcache::atomic_tests::concurrent_processes_publish_without_lost_saves_or_partial_reads ... ok
+test field::verifier_hardening_tests::cpu::hardening_attention_production_verifier_refuses_collision_and_preserves_bytes ... ok
+test field::verifier_hardening_tests::cpu::hardening_v3_production_verifier_refuses_collision_and_propagates ... ok
+test zk::fresh_poc::io::tests::bound_ffn_refuses_recommitted_wrong_input ... ok
+test pcs_compact::tests::compact_commit_open_verify_and_tampers ... ok
+test zk::fresh_poc::io::tests::bound_ffn_consumes_mismatched_owner_and_checks_slot ... ok
+test zk::fresh_poc::io::tests::bound_ffn_refuses_recommitted_wrong_output ... ok
+test zk::fresh_poc::io::tests::bound_ffn_adversarial_receipt_and_relabelled_policy ... ok
+test zk::mask_diagnostic::fresh_poc_tests::repaired_wire_roundtrip_and_adversarial_frames ... ok
+test zk::mask_diagnostic::fresh_poc_tests::repaired_fresh_poc_verifies_twice_and_blocks_single_mask_recovery ... ok
+test zk::tests_v3::fresh_os_proofs_verify_for_both_privacy_modes_with_reused_config ... ok
+test zk::fresh_poc::io::tests::bound_ffn_honest_p1_p3_and_fresh_owners ... ok
+test zk::mask_diagnostic::fresh_poc_tests::repaired_fresh_poc_rejects_tampering_and_legacy_profiles ... ok
+test zk::mask_diagnostic::actual_ffn_seeded_singleton_rows_are_recovered_in_p1_and_p3 ... ok
+test zk::mask_diagnostic::actual_ffn_fresh_os_singleton_rows_are_recovered_without_resampling ... ok
+test zk::mask_diagnostic::actual_ffn_t32_recovers_one_functional_per_column_of_two_row_planes ... ok
+test zk::tests_v3::zk_v3_p3_hides_the_weights_and_the_header_binds_the_claim ... ok
+test zk::tests_v3::zk_v3_layer_roundtrip_tampers_and_uniform_openings ... ok
+test zk::tests_v3::zk_v3_function2_binary_predicate_is_a_separate_statement ... ok
+
+test result: ok. 67 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.26s
+
+     Running unittests src/bin/hashline.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/hashline-b30f941de5f900c4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cli_claims.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/cli_claims-638b2531ce517722)
+
+running 3 tests
+test a_model_declaration_cannot_be_silently_ignored ... ok
+test attention_requires_a_real_layer_count_and_known_chain_options ... ok
+test attention_never_silently_drops_privacy_requests ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/zk60_attention_schedule.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_attention_schedule-98a44ea2ee9ed7c1)
+
+running 4 tests
+test capture_lifetime_is_explicit_and_metadata_encoding_is_framed ... ok
+test source_hook_inventory_cannot_silently_lose_a_recorder_family ... ok
+test cross_layer_hook_is_observed_with_synthetic_replay_not_a_two_layer_proof ... ok
+test executed_fixed_a00_schedule_replays_and_preserves_public_proof_bytes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.45s
+
+     Running tests/zk60_block_contract.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_block_contract-d9c3169e8a9e3355)
+
+running 9 tests
+test equivalent_integer_words_with_changed_boundary_scale_are_not_equal_values ... ok
+test adjacent_boundary_preflight_checks_order_identity_and_scale_but_not_values ... ok
+test honest_fixed_registration_matches_actual_layout_and_tables ... ok
+test fixed_contract_rejects_wider_norm_remainder_ranges ... ok
+test registration_snapshot_cannot_mutate_approved_state_and_digest_binds_transcript ... ok
+test hostile_public_fields_fail_closed_without_panics_or_value_disclosure ... ok
+test valid_metadata_changes_still_require_new_independent_approval ... ok
+test fixed_norm_and_ffn_have_an_honest_exact_integer_fixture_without_fitting ... ok
+test public_tensor_registration_recomputes_both_roots_and_preserves_identity ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+     Running tests/zk60_cl20_codec.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_cl20_codec-706b2c85dfbfd7ca)
+
+running 6 tests
+test round14_r1_oversized_query_count_is_a_shape_error_not_a_panic ... ok
+test round14_r2_unsupported_shift_is_a_shape_error_before_any_read ... ok
+test malformed_tiny_proof_bytes_are_refused_by_the_decoder_or_the_verifier_never_panic ... ok
+test legacy_tiny_proof_is_the_core_encoding_and_round_trips_through_the_bounded_decoder ... ok
+test round14_r3_log_cols_zero_honest_proof_decodes_with_the_pcs_groups ... ok
+test the_eight_tamper_legs_are_refused_by_the_verifier_after_decoding ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.93s
+
+     Running tests/zk60_endpoint_hash_boundary.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_endpoint_hash_boundary-23fcab09d14328e3)
+
+running 2 tests
+test salted_leaf_and_internal_node_share_the_same_oracle_input ... ok
+test dummy_endpoint_paths_cannot_be_transplanted_to_a_caller_root ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/zk60_fable_arith.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_fable_arith-f7963b2cca15062f)
+
+running 6 tests
+test fixed_profile_honest_witness_verifies_standalone_and_typed ... ok
+test known_r09_gap_wider_profile_three_limbs_accepts_an_all_zero_norm_row ... ok
+test known_r10_gap_advertised_remainder_width_is_a_label_not_a_proven_range ... ok
+test known_r31_gap_registrar_approves_a_root_over_out_of_class_words_and_the_proof_verifies ... ok
+test r32_typed_api_refuses_extra_messages_after_42471f0 ... ok
+test r09_alias_is_refused_at_the_fixed_profile_only_by_the_two_limb_remainder_width ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.81s
+
+     Running tests/zk60_fable_cfs_channel.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_fable_cfs_channel-b37b0a68750884d7)
+
+running 2 tests
+test cfs_mask_rounds_total_and_eval_match_the_python_model ... ok
+test extension_round_vanishes_at_one_only_with_a_public_factor ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/zk60_gpu_cache.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_gpu_cache-2062c4ef2af086d0)
+
+running 12 tests
+test p3_with_wcache_is_refused_by_the_driver_before_any_work ... ok
+test a_corrupted_entry_is_rejected_and_recommitted ... ok
+test a_different_pcs_shape_cannot_reuse_the_entry ... ok
+test configure_is_once_per_process_so_a_cached_process_cannot_later_serve_p3 ... ok
+test equivalent_approved_state_hits_and_preserves_the_commitment_root ... ok
+test every_keyed_field_separates_the_entry ... ok
+test same_key_concurrent_writers_leave_one_verifying_entry ... ok
+test the_callers_packing_ties_the_key_to_the_committed_data ... ok
+test the_shape_and_length_fields_separate_the_entry_too ... ok
+test there_is_no_eviction_entries_accumulate_by_key ... ok
+test a_fresh_uncached_p3_process_accepts_and_never_touches_a_cache ... ok
+test cold_and_warm_processes_produce_the_same_verified_proof_bytes ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 55.97s
+
+     Running tests/zk60_gpu_commit.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_gpu_commit-e6666627c06d6af4)
+
+running 9 tests
+test gpu_required_gate_refuses_a_build_without_the_feature ... ok
+test open_plan_boundary::an_empty_query_list_is_empty_on_every_route ... ok
+test open_plan_boundary::a_malformed_shape_is_an_error ... ok
+test open_plan_boundary::an_out_of_range_index_is_an_error_not_a_panic ... ok
+test open_plan_boundary::fusion_is_declined_at_or_below_the_block ... ok
+test open_plan_boundary::duplicates_collapse_to_one_slot_each_in_first_occurrence_order ... ok
+test open_plan_boundary::pruning_declines_above_a_quarter_of_the_block ... ok
+test open_plan_boundary::the_residue_list_is_sorted_deduped_and_padded_with_its_last_entry ... ok
+test open_plan_boundary::pruning_needs_the_switch_the_fusion_and_a_small_tile_count ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/zk60_identity_gap.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_identity_gap-29a337ee49c13ff7)
+
+running 5 tests
+test registration_rejects_unsupported_policy_invalid_shape_table_and_parameters ... ok
+test approved_p1_rejects_every_changed_statement_parameter_mode_and_commitment_field ... ok
+test approved_p1_rejects_incompatible_ntt_and_replay_under_another_registered_domain ... ok
+test known_p3_gap_same_declared_model_and_input_different_weights_both_verify ... ok
+test approved_p1_accepts_registered_weights_and_rejects_valid_substitute_and_forged_root ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+
+     Running tests/zk60_mask_rank.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_mask_rank-48965589a13f3175)
+
+running 2 tests
+test known_interface_hazard_verified_single_base_mask_reveals_entire_private_row ... ok
+test independent_fp2_mask_pair_blocks_this_specific_coordinate_extractor ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/zk60_memory_layout.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_memory_layout-dc38c6c0b002c35c)
+
+running 1 test
+test p3_weight_planner_examples_match_rust_layout_without_large_tensors ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/zk60_model_identity.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_model_identity-98ca8b1f4a465b55)
+
+running 5 tests
+test gap_p3_layer_swap_other_layer_weights_prove_this_layer ... ok
+test gap_calibration_exponents_are_absent_from_the_statement_and_the_proof ... ok
+test gap_p3_substitute_weights_verify_under_the_same_declared_model ... ok
+test p1_registered_boundary_rejects_substitute_copied_root_and_changed_statement ... ok
+test matrix_adversarial_cases_state_enforced_today_and_assert_the_observed_verdict ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.52s
+
+     Running tests/zk60_pending_layout.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_pending_layout-7a5ac9cb4e2377c6)
+
+running 4 tests
+test actual_boundary_slices_are_not_terminal_mask_rows ... ok
+test legacy_cfs_manifest_distinguishes_modes_and_has_no_seam_polynomials ... ok
+test legacy_tiny_counts_pin_the_real_retained_commitment_budget ... ok
+test legacy_reservations_have_no_free_terminal_or_histogram_rows ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/zk60_phase_profile.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_phase_profile-4e9630a7d1c12515)
+
+running 3 tests
+test phase_profile_keeps_exact_signed_matmul_output ... ok
+test phase_profile_refuses_gpu_without_initializing_it ... ok
+test phase_profile_rejects_unsupported_commands_before_export_access ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/zk60_private_seam.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_private_seam-981d2f16cbc40010)
+
+running 9 tests
+test invalid_shapes_inputs_and_prepared_contexts_fail_closed ... ok
+test every_message_family_is_authenticated ... ok
+test proof_cannot_choose_its_endpoint_roots_or_replay_connection ... ok
+test framed_decoder_rejects_truncation_extension_wrong_version_and_field_aliases ... ok
+test exact_counts_and_canonical_fields_reject_before_low_level_verifier ... ok
+test normal_calls_use_fresh_masks_and_changed_ntt_metadata_is_rejected ... ok
+test equal_unweighted_sums_do_not_substitute_for_pointwise_equality ... ok
+test unequal_recommitted_witnesses_fail_at_verifier_not_prover ... ok
+test honest_independent_commitments_roundtrip_at_subrow_row_and_multirow_shapes ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.39s
+
+     Running tests/zk60_proof_size.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_proof_size-6101b82530fb8942)
+
+running 5 tests
+test all_argument_families_and_optional_predicate_match_their_writers ... ok
+test complete_empty_fields_count_fixed_headers_and_scalar_arguments ... ok
+test every_missing_mandatory_commitment_refuses_a_complete_size_report ... ok
+test independent_section_mutations_cannot_hide_in_a_residual ... ok
+test ragged_openings_count_actual_columns_and_preserve_plain_vs_salted_framing ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/zk60_public_block.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_public_block-12a198dffb91a39d)
+
+running 7 tests
+test changed_public_weights_and_hostile_input_refuse_before_legacy_prover ... ok
+test short_weight_lifting_preserves_both_halves_and_rejects_unsupported_claims ... ok
+test recommitted_residual_with_wrong_z_copy_reaches_second_seam_refusal ... ok
+test typed_attention_and_block_reject_unused_proof_messages ... ok
+test recommitted_correct_ffn_on_different_x_reaches_seam_refusal ... ok
+test honest_fixed_block_proves_and_verifies_with_approved_roots ... ok
+test freshly_proven_other_weights_cannot_be_relabelled_as_approved_model ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.83s
+
+     Running tests/zk60_public_chain.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_public_chain-45bb5f1334118e3b)
+
+running 12 tests
+test runtime_policy_child ... ok
+test expected_state_rejects_unapproved_order_identity_profile_and_shapes ... ok
+test bounded_parser_rejects_missing_extra_counts_lengths_tags_and_truncation ... ok
+test changed_external_context_tensors_or_roots_cannot_be_relabelled ... ok
+test swapped_duplicate_and_changed_middle_receipts_refuse_even_after_relabelling ... ok
+test real_two_block_chain_roundtrips_with_nontrivial_residual_evolution ... ok
+test original_b4_layer_zero_bytes_remain_frozen ... ok
+test honest_prover_refuses_wrong_output_or_unapproved_weights ... ok
+test splicing_genuine_other_request_constituents_refuses_transcript_transplant ... ok
+test individually_valid_b4_receipts_with_inconsistent_actual_seam_cannot_compose ... ok
+test freshly_recommitted_wrong_middle_reaches_both_actual_arithmetic_endpoint_refusals ... ok
+test incompatible_runtime_policies_refuse_in_isolated_processes ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.78s
+
+     Running tests/zk60_public_receipt.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_public_receipt-67735f0e28a00bb4)
+
+running 8 tests
+test runtime_policy_child ... ok
+test expected_state_has_exact_owned_tensors_and_fixed_profile ... ok
+test incompatible_process_global_modes_refuse_in_isolated_processes ... ok
+test independent_context_input_output_and_approval_cannot_be_relabelled ... ok
+test public_bound_receipt_roundtrips_and_preserves_legacy_fixture_metadata ... ok
+test bounded_frames_and_unused_or_invalid_typed_messages_refuse ... ok
+test b3_and_b4_domains_are_not_interchangeable ... ok
+test freshly_committed_wrong_input_or_output_reaches_boundary_refusal_from_bytes ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.72s
+
+     Running tests/zk60_public_wire.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_public_wire-cb7d71f28a0e3439)
+
+running 8 tests
+test table_order_duplicates_and_excessive_multiplicities_are_rejected ... ok
+test nested_counts_reject_before_unbounded_allocation ... ok
+test unsupported_compact_missing_unused_and_shape_fields_refuse ... ok
+test header_backend_section_and_eof_tags_are_strict ... ok
+test noncanonical_base_and_extension_fields_are_not_reduced ... ok
+test truncation_at_headers_nested_fields_and_tail_refuses_without_panic ... ok
+test receipt_extra_claim_slots_are_preserved_not_treated_as_verification ... ok
+test complete_roundtrip_preserves_every_component_and_verifies ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.36s
+
+     Running tests/zk60_sequence_equivalence.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_sequence_equivalence-eaa31fc8b9caa50f)
+
+running 7 tests
+test hostile_norm_is_refused_before_the_source_assertion ... ok
+test hostile_ffn_is_refused_before_derive_clamping ... ok
+test causal_maximum_ties_select_an_on_support_first_position ... ok
+test root_shape_and_input_errors_are_static_and_do_not_autofit ... ok
+test asymmetric_signed_weights_pin_matmul_and_commitment_orientations ... ok
+test nontrivial_fixed_block_satisfies_integer_relations_and_existing_pack_layout ... ok
+test future_suffix_mutation_preserves_prefix_at_the_same_fixed_t32 ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.39s
+
+     Running tests/zk60_stable_weight_slots.rs (/home/victor/wt-fsp-host/hashline/target/release/deps/zk60_stable_weight_slots-3281224393f7499b)
+
+running 3 tests
+test slot_client_process ... ok
+test process_death_releases_lock_without_refunding_the_slot ... ok
+test competing_processes_reserve_each_slot_once ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+   Doc-tests hashline
+
+running 3 tests
+test src/stable_weight_slots.rs - stable_weight_slots::ReservedSlot (line 173) - compile fail ... ok
+test src/zk_ffn_fresh_io.rs - zk::fresh_poc::io::PendingProof (line 125) - compile fail ... ok
+test src/stable_weight_slots.rs - stable_weight_slots::ReservedSlot (line 182) - compile fail ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

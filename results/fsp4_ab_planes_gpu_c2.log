@@ -1,0 +1,539 @@
+=== box before ===
+2026-09-19 13:04:30
+ 13:04:30 up 11:59,  1 user,  load average: 4.19, 3.70, 3.83
+0 MiB
+--- ARM HL_FSP4_PLANES=0 run 1 [gpu] ---
+2026-09-19 13:04:30
+ 13:04:30 up 11:59,  1 user,  load average: 4.19, 3.70, 3.83
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0047 = host pack 0.0039 + 0.0009 rest
+[UPERF3-AL] conv W  l00: alloc 0.0144 fill 0.0028 | commit 0.0716 (dev h2d 0.0451 ntt 0.0127 hash 0.0023 -> host 0.0114) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0078 = host pack 0.0050 + 0.0028 rest
+[UPERF3-AL] conv A  l00: alloc 0.0251 fill 0.0053 | commit 0.0464 (dev h2d 0.0089 ntt 0.0251 hash 0.0031 -> host 0.0092) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0049 = host pack 0.0040 + 0.0009 rest
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0043 | commit 0.0252 (dev h2d 0.0058 ntt 0.0053 hash 0.0022 -> host 0.0119) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0086 = host pack 0.0057 + 0.0029 rest
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0113 | commit 0.0358 (dev h2d 0.0101 ntt 0.0097 hash 0.0032 -> host 0.0128) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0050 = host pack 0.0040 + 0.0009 rest
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0041 | commit 0.0239 (dev h2d 0.0058 ntt 0.0053 hash 0.0023 -> host 0.0105) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0083 = host pack 0.0054 + 0.0029 rest
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0120 | commit 0.0323 (dev h2d 0.0093 ntt 0.0095 hash 0.0031 -> host 0.0104) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0051 = host pack 0.0041 + 0.0010 rest
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0038 | commit 0.0271 (dev h2d 0.0065 ntt 0.0053 hash 0.0028 -> host 0.0125) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0082 = host pack 0.0054 + 0.0029 rest
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0112 | commit 0.0324 (dev h2d 0.0093 ntt 0.0095 hash 0.0031 -> host 0.0104) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0050 = host pack 0.0040 + 0.0010 rest
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0033 | commit 0.0218 (dev h2d 0.0059 ntt 0.0052 hash 0.0026 -> host 0.0081) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0077 = host pack 0.0048 + 0.0029 rest
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0115 | commit 0.0354 (dev h2d 0.0088 ntt 0.0094 hash 0.0033 -> host 0.0140) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0063 = host pack 0.0052 + 0.0010 rest
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0071 | commit 0.0254 (dev h2d 0.0072 ntt 0.0050 hash 0.0027 -> host 0.0106) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0105 = host pack 0.0076 + 0.0029 rest
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0125 | commit 0.0393 (dev h2d 0.0115 ntt 0.0089 hash 0.0035 -> host 0.0154) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0074 = host pack 0.0064 + 0.0010 rest
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0098 | commit 0.0321 (dev h2d 0.0084 ntt 0.0048 hash 0.0028 -> host 0.0161) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0104 = host pack 0.0075 + 0.0029 rest
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0180 | commit 0.0366 (dev h2d 0.0115 ntt 0.0086 hash 0.0031 -> host 0.0135) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0059 = host pack 0.0049 + 0.0010 rest
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0042 | commit 0.0289 (dev h2d 0.0069 ntt 0.0056 hash 0.0024 -> host 0.0140) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0103 = host pack 0.0074 + 0.0029 rest
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0107 | commit 0.0373 (dev h2d 0.0115 ntt 0.0101 hash 0.0031 -> host 0.0125) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0049 = host pack 0.0040 + 0.0009 rest
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0036 | commit 0.0244 (dev h2d 0.0058 ntt 0.0056 hash 0.0024 -> host 0.0107) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0087 = host pack 0.0059 + 0.0029 rest
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0085 | commit 0.0351 (dev h2d 0.0098 ntt 0.0105 hash 0.0032 -> host 0.0116) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0047 = host pack 0.0038 + 0.0009 rest
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0034 | commit 0.0232 (dev h2d 0.0056 ntt 0.0059 hash 0.0023 -> host 0.0095) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0091 = host pack 0.0061 + 0.0029 rest
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0130 | commit 0.0342 (dev h2d 0.0099 ntt 0.0105 hash 0.0034 -> host 0.0104) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0048 = host pack 0.0038 + 0.0010 rest
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0050 | commit 0.0254 (dev h2d 0.0056 ntt 0.0062 hash 0.0024 -> host 0.0113) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0092 = host pack 0.0063 + 0.0029 rest
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0132 | commit 0.0360 (dev h2d 0.0103 ntt 0.0111 hash 0.0032 -> host 0.0114) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0051 = host pack 0.0041 + 0.0009 rest
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0041 | commit 0.0271 (dev h2d 0.0065 ntt 0.0066 hash 0.0024 -> host 0.0117) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0093 = host pack 0.0065 + 0.0029 rest
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0073 | commit 0.0368 (dev h2d 0.0110 ntt 0.0117 hash 0.0035 -> host 0.0105) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 2.03 s | PROVE 2.52 s | VERIFY 0.49 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.151e10 proven MAC/s (prove wall) | wall 5.22 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=1 run 1 [gpu] ---
+2026-09-19 13:04:39
+ 13:04:39 up 11:59,  1 user,  load average: 4.57, 3.79, 3.86
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0093 = host pack 0.0083 + 0.0009 rest
+[UPERF3-AL] conv W  l00: alloc 0.0000 fill 0.0000 | commit 0.0892 (dev h2d 0.0561 ntt 0.0131 hash 0.0023 -> host 0.0177) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0098 = host pack 0.0069 + 0.0029 rest
+[UPERF3-AL] conv A  l00: alloc 0.0239 fill 0.0130 | commit 0.0523 (dev h2d 0.0113 ntt 0.0282 hash 0.0032 -> host 0.0096) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0098 = host pack 0.0089 + 0.0010 rest
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0000 | commit 0.0321 (dev h2d 0.0105 ntt 0.0053 hash 0.0024 -> host 0.0139) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0090 = host pack 0.0060 + 0.0030 rest
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0102 | commit 0.0325 (dev h2d 0.0101 ntt 0.0095 hash 0.0032 -> host 0.0097) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0115 = host pack 0.0105 + 0.0010 rest
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0000 | commit 0.0300 (dev h2d 0.0119 ntt 0.0052 hash 0.0024 -> host 0.0104) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0100 = host pack 0.0070 + 0.0030 rest
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0120 | commit 0.0348 (dev h2d 0.0113 ntt 0.0095 hash 0.0033 -> host 0.0107) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0080 = host pack 0.0071 + 0.0010 rest
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0000 | commit 0.0258 (dev h2d 0.0088 ntt 0.0053 hash 0.0022 -> host 0.0095) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0083 = host pack 0.0054 + 0.0029 rest
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0126 | commit 0.0340 (dev h2d 0.0094 ntt 0.0093 hash 0.0030 -> host 0.0122) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0132 = host pack 0.0122 + 0.0009 rest
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0000 | commit 0.0318 (dev h2d 0.0138 ntt 0.0050 hash 0.0029 -> host 0.0100) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0088 = host pack 0.0059 + 0.0029 rest
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0086 | commit 0.0318 (dev h2d 0.0096 ntt 0.0091 hash 0.0031 -> host 0.0100) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0104 = host pack 0.0094 + 0.0010 rest
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0000 | commit 0.0301 (dev h2d 0.0111 ntt 0.0050 hash 0.0022 -> host 0.0119) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0087 = host pack 0.0059 + 0.0029 rest
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0080 | commit 0.0361 (dev h2d 0.0097 ntt 0.0090 hash 0.0031 -> host 0.0143) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0105 = host pack 0.0096 + 0.0009 rest
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0000 | commit 0.0285 (dev h2d 0.0112 ntt 0.0049 hash 0.0021 -> host 0.0103) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0086 = host pack 0.0057 + 0.0029 rest
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0111 | commit 0.0332 (dev h2d 0.0096 ntt 0.0089 hash 0.0032 -> host 0.0115) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0101 = host pack 0.0092 + 0.0010 rest
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0000 | commit 0.0303 (dev h2d 0.0109 ntt 0.0060 hash 0.0023 -> host 0.0111) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0095 = host pack 0.0066 + 0.0029 rest
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0127 | commit 0.0323 (dev h2d 0.0106 ntt 0.0107 hash 0.0030 -> host 0.0080) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0123 = host pack 0.0114 + 0.0009 rest
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0000 | commit 0.0322 (dev h2d 0.0131 ntt 0.0063 hash 0.0026 -> host 0.0102) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0080 = host pack 0.0052 + 0.0029 rest
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0101 | commit 0.0321 (dev h2d 0.0093 ntt 0.0112 hash 0.0032 -> host 0.0084) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0107 = host pack 0.0098 + 0.0010 rest
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0000 | commit 0.0334 (dev h2d 0.0115 ntt 0.0063 hash 0.0024 -> host 0.0132) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0090 = host pack 0.0061 + 0.0029 rest
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0111 | commit 0.0354 (dev h2d 0.0101 ntt 0.0111 hash 0.0032 -> host 0.0111) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0102 = host pack 0.0092 + 0.0009 rest
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0000 | commit 0.0298 (dev h2d 0.0109 ntt 0.0061 hash 0.0024 -> host 0.0104) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0093 = host pack 0.0064 + 0.0029 rest
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0124 | commit 0.0361 (dev h2d 0.0104 ntt 0.0111 hash 0.0036 -> host 0.0110) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0066 = host pack 0.0056 + 0.0010 rest
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0000 | commit 0.0266 (dev h2d 0.0074 ntt 0.0062 hash 0.0024 -> host 0.0105) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0088 = host pack 0.0059 + 0.0030 rest
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0090 | commit 0.0343 (dev h2d 0.0100 ntt 0.0111 hash 0.0035 -> host 0.0097) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.89 s | PROVE 2.48 s | VERIFY 0.46 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.171e10 proven MAC/s (prove wall) | wall 4.96 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=1 run 2 [gpu] ---
+2026-09-19 13:04:48
+ 13:04:48 up 12:00,  1 user,  load average: 4.97, 3.90, 3.89
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0094 = host pack 0.0085 + 0.0009 rest
+[UPERF3-AL] conv W  l00: alloc 0.0000 fill 0.0000 | commit 0.0891 (dev h2d 0.0565 ntt 0.0128 hash 0.0021 -> host 0.0176) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0088 = host pack 0.0059 + 0.0028 rest
+[UPERF3-AL] conv A  l00: alloc 0.0242 fill 0.0113 | commit 0.0486 (dev h2d 0.0099 ntt 0.0242 hash 0.0032 -> host 0.0113) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0108 = host pack 0.0098 + 0.0009 rest
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0000 | commit 0.0292 (dev h2d 0.0115 ntt 0.0053 hash 0.0022 -> host 0.0101) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0084 = host pack 0.0055 + 0.0029 rest
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0113 | commit 0.0323 (dev h2d 0.0095 ntt 0.0096 hash 0.0030 -> host 0.0102) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0054 = host pack 0.0045 + 0.0009 rest
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0000 | commit 0.0206 (dev h2d 0.0061 ntt 0.0053 hash 0.0023 -> host 0.0068) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0084 = host pack 0.0056 + 0.0028 rest
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0104 | commit 0.0302 (dev h2d 0.0092 ntt 0.0096 hash 0.0031 -> host 0.0083) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0081 = host pack 0.0071 + 0.0010 rest
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0000 | commit 0.0252 (dev h2d 0.0089 ntt 0.0053 hash 0.0021 -> host 0.0089) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0081 = host pack 0.0052 + 0.0029 rest
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0082 | commit 0.0301 (dev h2d 0.0092 ntt 0.0096 hash 0.0029 -> host 0.0083) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0084 = host pack 0.0075 + 0.0009 rest
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0000 | commit 0.0255 (dev h2d 0.0091 ntt 0.0053 hash 0.0022 -> host 0.0089) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0077 = host pack 0.0048 + 0.0029 rest
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0088 | commit 0.0307 (dev h2d 0.0094 ntt 0.0096 hash 0.0029 -> host 0.0088) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0104 = host pack 0.0095 + 0.0009 rest
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0000 | commit 0.0292 (dev h2d 0.0111 ntt 0.0054 hash 0.0022 -> host 0.0104) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0087 = host pack 0.0058 + 0.0029 rest
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0102 | commit 0.0338 (dev h2d 0.0103 ntt 0.0096 hash 0.0029 -> host 0.0111) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0084 = host pack 0.0075 + 0.0009 rest
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0000 | commit 0.0270 (dev h2d 0.0091 ntt 0.0053 hash 0.0022 -> host 0.0104) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0097 = host pack 0.0068 + 0.0029 rest
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0105 | commit 0.0375 (dev h2d 0.0107 ntt 0.0095 hash 0.0035 -> host 0.0138) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0106 = host pack 0.0096 + 0.0010 rest
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0000 | commit 0.0314 (dev h2d 0.0114 ntt 0.0061 hash 0.0026 -> host 0.0113) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0105 = host pack 0.0076 + 0.0029 rest
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0190 | commit 0.0411 (dev h2d 0.0125 ntt 0.0110 hash 0.0035 -> host 0.0142) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0089 = host pack 0.0079 + 0.0009 rest
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0000 | commit 0.0268 (dev h2d 0.0097 ntt 0.0065 hash 0.0025 -> host 0.0082) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0091 = host pack 0.0062 + 0.0029 rest
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0100 | commit 0.0394 (dev h2d 0.0108 ntt 0.0116 hash 0.0033 -> host 0.0137) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0109 = host pack 0.0100 + 0.0009 rest
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0000 | commit 0.0299 (dev h2d 0.0117 ntt 0.0070 hash 0.0025 -> host 0.0087) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0095 = host pack 0.0066 + 0.0029 rest
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0169 | commit 0.0383 (dev h2d 0.0106 ntt 0.0120 hash 0.0034 -> host 0.0124) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0147 = host pack 0.0137 + 0.0009 rest
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0000 | commit 0.0404 (dev h2d 0.0156 ntt 0.0074 hash 0.0028 -> host 0.0146) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0102 = host pack 0.0073 + 0.0029 rest
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0126 | commit 0.0404 (dev h2d 0.0121 ntt 0.0132 hash 0.0038 -> host 0.0113) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0105 = host pack 0.0095 + 0.0010 rest
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0000 | commit 0.0443 (dev h2d 0.0114 ntt 0.0096 hash 0.0038 -> host 0.0195) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0172 = host pack 0.0142 + 0.0030 rest
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0244 | commit 0.0690 (dev h2d 0.0192 ntt 0.0160 hash 0.0066 -> host 0.0271) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 2.10 s | PROVE 2.70 s | VERIFY 0.68 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.075e10 proven MAC/s (prove wall) | wall 5.73 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=0 run 2 [gpu] ---
+2026-09-19 13:04:58
+ 13:04:58 up 12:00,  1 user,  load average: 4.82, 3.90, 3.89
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0060 = host pack 0.0045 + 0.0015 rest
+[UPERF3-AL] conv W  l00: alloc 0.0136 fill 0.0057 | commit 0.0805 (dev h2d 0.0498 ntt 0.0127 hash 0.0022 -> host 0.0158) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0118 = host pack 0.0089 + 0.0029 rest
+[UPERF3-AL] conv A  l00: alloc 0.0302 fill 0.0089 | commit 0.0587 (dev h2d 0.0127 ntt 0.0261 hash 0.0035 -> host 0.0164) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0051 = host pack 0.0042 + 0.0009 rest
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0094 | commit 0.0262 (dev h2d 0.0059 ntt 0.0050 hash 0.0023 -> host 0.0129) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0083 = host pack 0.0054 + 0.0029 rest
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0064 | commit 0.0338 (dev h2d 0.0094 ntt 0.0090 hash 0.0030 -> host 0.0124) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0056 = host pack 0.0046 + 0.0010 rest
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0040 | commit 0.0272 (dev h2d 0.0064 ntt 0.0049 hash 0.0023 -> host 0.0136) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0094 = host pack 0.0064 + 0.0030 rest
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0104 | commit 0.0345 (dev h2d 0.0105 ntt 0.0089 hash 0.0034 -> host 0.0117) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0056 = host pack 0.0047 + 0.0010 rest
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0053 | commit 0.0262 (dev h2d 0.0064 ntt 0.0049 hash 0.0022 -> host 0.0127) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0094 = host pack 0.0065 + 0.0029 rest
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0111 | commit 0.0341 (dev h2d 0.0105 ntt 0.0088 hash 0.0030 -> host 0.0118) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0050 = host pack 0.0040 + 0.0010 rest
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0070 | commit 0.0225 (dev h2d 0.0060 ntt 0.0048 hash 0.0023 -> host 0.0094) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0093 = host pack 0.0063 + 0.0030 rest
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0120 | commit 0.0350 (dev h2d 0.0104 ntt 0.0087 hash 0.0031 -> host 0.0128) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0049 = host pack 0.0039 + 0.0010 rest
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0048 | commit 0.0238 (dev h2d 0.0057 ntt 0.0055 hash 0.0023 -> host 0.0102) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0096 = host pack 0.0067 + 0.0029 rest
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0120 | commit 0.0351 (dev h2d 0.0106 ntt 0.0099 hash 0.0031 -> host 0.0115) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0058 = host pack 0.0049 + 0.0010 rest
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0034 | commit 0.0266 (dev h2d 0.0070 ntt 0.0058 hash 0.0024 -> host 0.0114) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0090 = host pack 0.0061 + 0.0029 rest
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0150 | commit 0.0361 (dev h2d 0.0104 ntt 0.0105 hash 0.0032 -> host 0.0120) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0052 = host pack 0.0041 + 0.0010 rest
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0039 | commit 0.0230 (dev h2d 0.0060 ntt 0.0062 hash 0.0024 -> host 0.0084) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0090 = host pack 0.0061 + 0.0029 rest
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0111 | commit 0.0373 (dev h2d 0.0100 ntt 0.0111 hash 0.0033 -> host 0.0128) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0056 = host pack 0.0046 + 0.0010 rest
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0045 | commit 0.0330 (dev h2d 0.0065 ntt 0.0065 hash 0.0031 -> host 0.0168) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0095 = host pack 0.0066 + 0.0029 rest
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0173 | commit 0.0390 (dev h2d 0.0107 ntt 0.0116 hash 0.0037 -> host 0.0130) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0050 = host pack 0.0041 + 0.0010 rest
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0052 | commit 0.0325 (dev h2d 0.0061 ntt 0.0104 hash 0.0037 -> host 0.0123) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0090 = host pack 0.0061 + 0.0029 rest
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0101 | commit 0.0367 (dev h2d 0.0106 ntt 0.0119 hash 0.0033 -> host 0.0109) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0051 = host pack 0.0041 + 0.0010 rest
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0034 | commit 0.0273 (dev h2d 0.0062 ntt 0.0076 hash 0.0032 -> host 0.0103) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0090 = host pack 0.0061 + 0.0029 rest
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0091 | commit 0.0401 (dev h2d 0.0102 ntt 0.0135 hash 0.0038 -> host 0.0126) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0048 = host pack 0.0039 + 0.0010 rest
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0064 | commit 0.0291 (dev h2d 0.0059 ntt 0.0079 hash 0.0025 -> host 0.0127) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0093 = host pack 0.0064 + 0.0029 rest
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0109 | commit 0.0366 (dev h2d 0.0110 ntt 0.0140 hash 0.0036 -> host 0.0080) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.99 s | PROVE 2.63 s | VERIFY 0.46 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.102e10 proven MAC/s (prove wall) | wall 5.21 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=0 run 3 [gpu] ---
+2026-09-19 13:05:08
+ 13:05:08 up 12:00,  1 user,  load average: 5.25, 4.02, 3.93
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0045 = host pack 0.0036 + 0.0009 rest
+[UPERF3-AL] conv W  l00: alloc 0.0122 fill 0.0039 | commit 0.0845 (dev h2d 0.0480 ntt 0.0202 hash 0.0022 -> host 0.0142) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0085 = host pack 0.0057 + 0.0028 rest
+[UPERF3-AL] conv A  l00: alloc 0.0202 fill 0.0085 | commit 0.0484 (dev h2d 0.0095 ntt 0.0254 hash 0.0031 -> host 0.0104) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0050 = host pack 0.0041 + 0.0009 rest
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0060 | commit 0.0216 (dev h2d 0.0058 ntt 0.0053 hash 0.0022 -> host 0.0083) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0090 = host pack 0.0061 + 0.0030 rest
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0115 | commit 0.0307 (dev h2d 0.0103 ntt 0.0096 hash 0.0030 -> host 0.0078) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0048 = host pack 0.0039 + 0.0009 rest
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0040 | commit 0.0242 (dev h2d 0.0057 ntt 0.0053 hash 0.0022 -> host 0.0110) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0087 = host pack 0.0058 + 0.0029 rest
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0122 | commit 0.0316 (dev h2d 0.0098 ntt 0.0096 hash 0.0030 -> host 0.0093) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0042 = host pack 0.0033 + 0.0009 rest
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0032 | commit 0.0203 (dev h2d 0.0050 ntt 0.0053 hash 0.0026 -> host 0.0074) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0076 = host pack 0.0047 + 0.0029 rest
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0107 | commit 0.0315 (dev h2d 0.0086 ntt 0.0095 hash 0.0030 -> host 0.0104) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0053 = host pack 0.0043 + 0.0010 rest
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0034 | commit 0.0208 (dev h2d 0.0062 ntt 0.0053 hash 0.0021 -> host 0.0072) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0082 = host pack 0.0054 + 0.0028 rest
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0103 | commit 0.0307 (dev h2d 0.0093 ntt 0.0096 hash 0.0030 -> host 0.0089) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0048 = host pack 0.0039 + 0.0010 rest
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0033 | commit 0.0252 (dev h2d 0.0054 ntt 0.0053 hash 0.0026 -> host 0.0119) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0080 = host pack 0.0051 + 0.0029 rest
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0108 | commit 0.0304 (dev h2d 0.0091 ntt 0.0096 hash 0.0035 -> host 0.0083) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0045 = host pack 0.0035 + 0.0010 rest
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0035 | commit 0.0202 (dev h2d 0.0053 ntt 0.0053 hash 0.0023 -> host 0.0072) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0088 = host pack 0.0060 + 0.0029 rest
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0098 | commit 0.0350 (dev h2d 0.0101 ntt 0.0097 hash 0.0034 -> host 0.0118) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0047 = host pack 0.0037 + 0.0009 rest
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0049 | commit 0.0239 (dev h2d 0.0057 ntt 0.0053 hash 0.0023 -> host 0.0106) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0083 = host pack 0.0054 + 0.0029 rest
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0102 | commit 0.0313 (dev h2d 0.0094 ntt 0.0096 hash 0.0029 -> host 0.0094) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0045 = host pack 0.0036 + 0.0009 rest
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0048 | commit 0.0242 (dev h2d 0.0054 ntt 0.0060 hash 0.0023 -> host 0.0105) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0085 = host pack 0.0056 + 0.0029 rest
+[UPERF3-AL] conv A  l08: alloc 0.0002 fill 0.0102 | commit 0.0316 (dev h2d 0.0095 ntt 0.0107 hash 0.0031 -> host 0.0082) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0055 = host pack 0.0045 + 0.0010 rest
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0056 | commit 0.0300 (dev h2d 0.0064 ntt 0.0063 hash 0.0029 -> host 0.0143) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0080 = host pack 0.0051 + 0.0029 rest
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0134 | commit 0.0346 (dev h2d 0.0091 ntt 0.0113 hash 0.0036 -> host 0.0106) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0052 = host pack 0.0043 + 0.0009 rest
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0040 | commit 0.0269 (dev h2d 0.0063 ntt 0.0066 hash 0.0025 -> host 0.0114) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0093 = host pack 0.0063 + 0.0029 rest
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0083 | commit 0.0365 (dev h2d 0.0104 ntt 0.0119 hash 0.0033 -> host 0.0109) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0046 = host pack 0.0036 + 0.0009 rest
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0030 | commit 0.0206 (dev h2d 0.0055 ntt 0.0067 hash 0.0023 -> host 0.0062) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0087 = host pack 0.0059 + 0.0029 rest
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0063 | commit 0.0334 (dev h2d 0.0099 ntt 0.0119 hash 0.0032 -> host 0.0084) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.83 s | PROVE 2.36 s | VERIFY 0.43 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.230e10 proven MAC/s (prove wall) | wall 4.73 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=1 run 3 [gpu] ---
+2026-09-19 13:05:17
+ 13:05:17 up 12:00,  1 user,  load average: 4.75, 3.95, 3.91
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0122 = host pack 0.0113 + 0.0009 rest
+[UPERF3-AL] conv W  l00: alloc 0.0000 fill 0.0000 | commit 0.0885 (dev h2d 0.0562 ntt 0.0133 hash 0.0024 -> host 0.0167) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0078 = host pack 0.0050 + 0.0028 rest
+[UPERF3-AL] conv A  l00: alloc 0.0234 fill 0.0100 | commit 0.0453 (dev h2d 0.0090 ntt 0.0248 hash 0.0032 -> host 0.0084) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0090 = host pack 0.0080 + 0.0010 rest
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0000 | commit 0.0268 (dev h2d 0.0097 ntt 0.0053 hash 0.0022 -> host 0.0096) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0087 = host pack 0.0058 + 0.0029 rest
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0144 | commit 0.0353 (dev h2d 0.0104 ntt 0.0096 hash 0.0031 -> host 0.0122) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0113 = host pack 0.0103 + 0.0010 rest
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0000 | commit 0.0337 (dev h2d 0.0120 ntt 0.0053 hash 0.0028 -> host 0.0135) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0095 = host pack 0.0066 + 0.0029 rest
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0087 | commit 0.0391 (dev h2d 0.0111 ntt 0.0095 hash 0.0032 -> host 0.0153) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0078 = host pack 0.0068 + 0.0010 rest
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0000 | commit 0.0235 (dev h2d 0.0084 ntt 0.0052 hash 0.0024 -> host 0.0074) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0087 = host pack 0.0057 + 0.0029 rest
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0098 | commit 0.0299 (dev h2d 0.0098 ntt 0.0094 hash 0.0029 -> host 0.0077) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0066 = host pack 0.0056 + 0.0010 rest
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0000 | commit 0.0223 (dev h2d 0.0073 ntt 0.0052 hash 0.0023 -> host 0.0075) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0083 = host pack 0.0055 + 0.0029 rest
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0110 | commit 0.0315 (dev h2d 0.0099 ntt 0.0094 hash 0.0030 -> host 0.0092) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0083 = host pack 0.0073 + 0.0010 rest
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0000 | commit 0.0272 (dev h2d 0.0090 ntt 0.0053 hash 0.0023 -> host 0.0106) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0088 = host pack 0.0058 + 0.0030 rest
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0112 | commit 0.0316 (dev h2d 0.0106 ntt 0.0096 hash 0.0029 -> host 0.0085) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0080 = host pack 0.0070 + 0.0009 rest
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0000 | commit 0.0276 (dev h2d 0.0087 ntt 0.0054 hash 0.0025 -> host 0.0110) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0083 = host pack 0.0055 + 0.0028 rest
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0124 | commit 0.0300 (dev h2d 0.0094 ntt 0.0095 hash 0.0030 -> host 0.0081) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0082 = host pack 0.0073 + 0.0009 rest
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0000 | commit 0.0224 (dev h2d 0.0088 ntt 0.0053 hash 0.0022 -> host 0.0061) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0082 = host pack 0.0053 + 0.0029 rest
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0081 | commit 0.0298 (dev h2d 0.0093 ntt 0.0095 hash 0.0030 -> host 0.0080) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0086 = host pack 0.0077 + 0.0009 rest
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0000 | commit 0.0268 (dev h2d 0.0093 ntt 0.0052 hash 0.0022 -> host 0.0101) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0090 = host pack 0.0060 + 0.0029 rest
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0129 | commit 0.0327 (dev h2d 0.0101 ntt 0.0095 hash 0.0031 -> host 0.0101) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0082 = host pack 0.0072 + 0.0010 rest
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0000 | commit 0.0275 (dev h2d 0.0089 ntt 0.0060 hash 0.0023 -> host 0.0102) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0082 = host pack 0.0054 + 0.0028 rest
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0123 | commit 0.0303 (dev h2d 0.0093 ntt 0.0108 hash 0.0032 -> host 0.0069) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0111 = host pack 0.0102 + 0.0010 rest
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0000 | commit 0.0322 (dev h2d 0.0119 ntt 0.0061 hash 0.0025 -> host 0.0118) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0093 = host pack 0.0064 + 0.0029 rest
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0112 | commit 0.0379 (dev h2d 0.0104 ntt 0.0113 hash 0.0038 -> host 0.0124) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0085 = host pack 0.0075 + 0.0010 rest
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0000 | commit 0.0303 (dev h2d 0.0092 ntt 0.0063 hash 0.0026 -> host 0.0122) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0090 = host pack 0.0061 + 0.0029 rest
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0084 | commit 0.0359 (dev h2d 0.0101 ntt 0.0113 hash 0.0033 -> host 0.0112) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.80 s | PROVE 2.32 s | VERIFY 0.40 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.249e10 proven MAC/s (prove wall) | wall 4.65 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=1 run 4 [gpu] ---
+2026-09-19 13:05:25
+ 13:05:25 up 12:00,  1 user,  load average: 4.53, 3.92, 3.90
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0083 = host pack 0.0073 + 0.0009 rest
+[UPERF3-AL] conv W  l00: alloc 0.0000 fill 0.0000 | commit 0.0805 (dev h2d 0.0516 ntt 0.0135 hash 0.0028 -> host 0.0127) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0087 = host pack 0.0058 + 0.0029 rest
+[UPERF3-AL] conv A  l00: alloc 0.0254 fill 0.0094 | commit 0.0503 (dev h2d 0.0098 ntt 0.0248 hash 0.0033 -> host 0.0124) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0119 = host pack 0.0109 + 0.0010 rest
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0000 | commit 0.0304 (dev h2d 0.0126 ntt 0.0053 hash 0.0023 -> host 0.0101) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0083 = host pack 0.0054 + 0.0029 rest
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0118 | commit 0.0306 (dev h2d 0.0094 ntt 0.0096 hash 0.0035 -> host 0.0081) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0080 = host pack 0.0071 + 0.0009 rest
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0000 | commit 0.0259 (dev h2d 0.0087 ntt 0.0053 hash 0.0024 -> host 0.0095) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0080 = host pack 0.0051 + 0.0029 rest
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0081 | commit 0.0304 (dev h2d 0.0095 ntt 0.0096 hash 0.0029 -> host 0.0083) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0080 = host pack 0.0071 + 0.0009 rest
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0000 | commit 0.0246 (dev h2d 0.0087 ntt 0.0053 hash 0.0022 -> host 0.0083) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0073 = host pack 0.0045 + 0.0029 rest
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0093 | commit 0.0319 (dev h2d 0.0089 ntt 0.0095 hash 0.0030 -> host 0.0105) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0091 = host pack 0.0081 + 0.0009 rest
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0000 | commit 0.0264 (dev h2d 0.0098 ntt 0.0053 hash 0.0023 -> host 0.0090) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0086 = host pack 0.0057 + 0.0029 rest
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0077 | commit 0.0320 (dev h2d 0.0097 ntt 0.0096 hash 0.0030 -> host 0.0098) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0078 = host pack 0.0069 + 0.0009 rest
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0000 | commit 0.0246 (dev h2d 0.0085 ntt 0.0053 hash 0.0022 -> host 0.0085) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0099 = host pack 0.0070 + 0.0029 rest
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0094 | commit 0.0324 (dev h2d 0.0110 ntt 0.0096 hash 0.0032 -> host 0.0086) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0088 = host pack 0.0079 + 0.0009 rest
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0000 | commit 0.0254 (dev h2d 0.0095 ntt 0.0053 hash 0.0023 -> host 0.0082) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0086 = host pack 0.0058 + 0.0029 rest
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0120 | commit 0.0300 (dev h2d 0.0098 ntt 0.0096 hash 0.0030 -> host 0.0077) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0074 = host pack 0.0065 + 0.0009 rest
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0000 | commit 0.0246 (dev h2d 0.0081 ntt 0.0053 hash 0.0022 -> host 0.0090) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0083 = host pack 0.0054 + 0.0029 rest
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0063 | commit 0.0322 (dev h2d 0.0094 ntt 0.0097 hash 0.0030 -> host 0.0102) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0063 = host pack 0.0054 + 0.0010 rest
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0000 | commit 0.0257 (dev h2d 0.0071 ntt 0.0061 hash 0.0024 -> host 0.0102) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0085 = host pack 0.0057 + 0.0028 rest
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0098 | commit 0.0332 (dev h2d 0.0097 ntt 0.0107 hash 0.0031 -> host 0.0098) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0065 = host pack 0.0056 + 0.0009 rest
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0000 | commit 0.0227 (dev h2d 0.0075 ntt 0.0061 hash 0.0023 -> host 0.0068) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0084 = host pack 0.0056 + 0.0028 rest
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0104 | commit 0.0321 (dev h2d 0.0095 ntt 0.0112 hash 0.0035 -> host 0.0080) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0081 = host pack 0.0072 + 0.0009 rest
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0000 | commit 0.0255 (dev h2d 0.0088 ntt 0.0062 hash 0.0024 -> host 0.0082) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0086 = host pack 0.0057 + 0.0029 rest
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0091 | commit 0.0335 (dev h2d 0.0094 ntt 0.0111 hash 0.0032 -> host 0.0099) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0082 = host pack 0.0073 + 0.0009 rest
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0000 | commit 0.0256 (dev h2d 0.0089 ntt 0.0062 hash 0.0023 -> host 0.0082) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0084 = host pack 0.0055 + 0.0029 rest
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0066 | commit 0.0328 (dev h2d 0.0095 ntt 0.0111 hash 0.0033 -> host 0.0089) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.76 s | PROVE 2.26 s | VERIFY 0.38 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.281e10 proven MAC/s (prove wall) | wall 4.54 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=0 run 4 [gpu] ---
+2026-09-19 13:05:34
+ 13:05:34 up 12:00,  1 user,  load average: 4.22, 3.87, 3.89
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0049 = host pack 0.0040 + 0.0009 rest
+[UPERF3-AL] conv W  l00: alloc 0.0124 fill 0.0052 | commit 0.0841 (dev h2d 0.0485 ntt 0.0132 hash 0.0021 -> host 0.0203) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0081 = host pack 0.0053 + 0.0028 rest
+[UPERF3-AL] conv A  l00: alloc 0.0223 fill 0.0106 | commit 0.0466 (dev h2d 0.0091 ntt 0.0250 hash 0.0035 -> host 0.0090) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0044 = host pack 0.0034 + 0.0010 rest
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0056 | commit 0.0234 (dev h2d 0.0052 ntt 0.0053 hash 0.0022 -> host 0.0107) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0081 = host pack 0.0052 + 0.0029 rest
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0100 | commit 0.0289 (dev h2d 0.0091 ntt 0.0096 hash 0.0030 -> host 0.0072) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0040 = host pack 0.0031 + 0.0009 rest
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0028 | commit 0.0222 (dev h2d 0.0047 ntt 0.0053 hash 0.0022 -> host 0.0099) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0081 = host pack 0.0052 + 0.0029 rest
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0099 | commit 0.0320 (dev h2d 0.0091 ntt 0.0096 hash 0.0030 -> host 0.0103) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0043 = host pack 0.0033 + 0.0010 rest
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0035 | commit 0.0209 (dev h2d 0.0051 ntt 0.0053 hash 0.0022 -> host 0.0083) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0074 = host pack 0.0045 + 0.0029 rest
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0071 | commit 0.0291 (dev h2d 0.0084 ntt 0.0096 hash 0.0029 -> host 0.0083) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0043 = host pack 0.0034 + 0.0009 rest
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0037 | commit 0.0199 (dev h2d 0.0051 ntt 0.0053 hash 0.0023 -> host 0.0072) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0082 = host pack 0.0053 + 0.0029 rest
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0085 | commit 0.0321 (dev h2d 0.0093 ntt 0.0096 hash 0.0044 -> host 0.0088) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0049 = host pack 0.0039 + 0.0009 rest
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0042 | commit 0.0219 (dev h2d 0.0059 ntt 0.0053 hash 0.0022 -> host 0.0085) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0082 = host pack 0.0053 + 0.0029 rest
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0075 | commit 0.0287 (dev h2d 0.0092 ntt 0.0095 hash 0.0029 -> host 0.0070) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0042 = host pack 0.0033 + 0.0009 rest
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0027 | commit 0.0228 (dev h2d 0.0050 ntt 0.0053 hash 0.0023 -> host 0.0101) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0077 = host pack 0.0048 + 0.0029 rest
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0107 | commit 0.0293 (dev h2d 0.0088 ntt 0.0095 hash 0.0031 -> host 0.0079) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0047 = host pack 0.0037 + 0.0009 rest
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0041 | commit 0.0197 (dev h2d 0.0054 ntt 0.0053 hash 0.0022 -> host 0.0068) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0083 = host pack 0.0054 + 0.0029 rest
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0091 | commit 0.0313 (dev h2d 0.0094 ntt 0.0095 hash 0.0030 -> host 0.0094) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0043 = host pack 0.0034 + 0.0009 rest
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0029 | commit 0.0221 (dev h2d 0.0049 ntt 0.0053 hash 0.0022 -> host 0.0097) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0080 = host pack 0.0052 + 0.0029 rest
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0086 | commit 0.0293 (dev h2d 0.0091 ntt 0.0096 hash 0.0030 -> host 0.0076) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0044 = host pack 0.0034 + 0.0009 rest
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0040 | commit 0.0207 (dev h2d 0.0053 ntt 0.0053 hash 0.0022 -> host 0.0079) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0085 = host pack 0.0056 + 0.0029 rest
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0108 | commit 0.0342 (dev h2d 0.0099 ntt 0.0107 hash 0.0032 -> host 0.0104) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0046 = host pack 0.0037 + 0.0009 rest
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0033 | commit 0.0220 (dev h2d 0.0054 ntt 0.0060 hash 0.0023 -> host 0.0083) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0089 = host pack 0.0060 + 0.0029 rest
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0095 | commit 0.0331 (dev h2d 0.0100 ntt 0.0108 hash 0.0031 -> host 0.0092) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0045 = host pack 0.0035 + 0.0009 rest
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0032 | commit 0.0219 (dev h2d 0.0052 ntt 0.0063 hash 0.0023 -> host 0.0081) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0082 = host pack 0.0053 + 0.0029 rest
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0077 | commit 0.0304 (dev h2d 0.0096 ntt 0.0113 hash 0.0032 -> host 0.0064) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.76 s | PROVE 2.25 s | VERIFY 0.38 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.288e10 proven MAC/s (prove wall) | wall 4.51 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=0 run 5 [gpu] ---
+2026-09-19 13:05:42
+ 13:05:42 up 12:00,  1 user,  load average: 4.03, 3.84, 3.88
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0045 = host pack 0.0036 + 0.0009 rest
+[UPERF3-AL] conv W  l00: alloc 0.0127 fill 0.0073 | commit 0.0871 (dev h2d 0.0564 ntt 0.0132 hash 0.0024 -> host 0.0151) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0078 = host pack 0.0050 + 0.0028 rest
+[UPERF3-AL] conv A  l00: alloc 0.0262 fill 0.0105 | commit 0.0461 (dev h2d 0.0089 ntt 0.0247 hash 0.0030 -> host 0.0095) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0045 = host pack 0.0035 + 0.0009 rest
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0038 | commit 0.0236 (dev h2d 0.0053 ntt 0.0053 hash 0.0023 -> host 0.0107) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0081 = host pack 0.0052 + 0.0029 rest
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0100 | commit 0.0293 (dev h2d 0.0091 ntt 0.0095 hash 0.0029 -> host 0.0078) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0045 = host pack 0.0035 + 0.0010 rest
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0048 | commit 0.0205 (dev h2d 0.0052 ntt 0.0053 hash 0.0023 -> host 0.0076) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0081 = host pack 0.0052 + 0.0029 rest
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0075 | commit 0.0323 (dev h2d 0.0091 ntt 0.0095 hash 0.0033 -> host 0.0104) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0041 = host pack 0.0031 + 0.0009 rest
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0027 | commit 0.0226 (dev h2d 0.0049 ntt 0.0053 hash 0.0023 -> host 0.0101) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0086 = host pack 0.0057 + 0.0029 rest
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0109 | commit 0.0310 (dev h2d 0.0096 ntt 0.0095 hash 0.0029 -> host 0.0089) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0045 = host pack 0.0036 + 0.0010 rest
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0044 | commit 0.0229 (dev h2d 0.0054 ntt 0.0052 hash 0.0022 -> host 0.0100) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0074 = host pack 0.0045 + 0.0029 rest
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0134 | commit 0.0291 (dev h2d 0.0084 ntt 0.0095 hash 0.0030 -> host 0.0082) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0046 = host pack 0.0037 + 0.0009 rest
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0033 | commit 0.0256 (dev h2d 0.0055 ntt 0.0053 hash 0.0022 -> host 0.0126) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0079 = host pack 0.0050 + 0.0028 rest
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0100 | commit 0.0296 (dev h2d 0.0089 ntt 0.0095 hash 0.0029 -> host 0.0084) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0048 = host pack 0.0039 + 0.0009 rest
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0048 | commit 0.0232 (dev h2d 0.0060 ntt 0.0053 hash 0.0022 -> host 0.0098) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0078 = host pack 0.0050 + 0.0029 rest
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0077 | commit 0.0311 (dev h2d 0.0089 ntt 0.0095 hash 0.0029 -> host 0.0098) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0042 = host pack 0.0033 + 0.0009 rest
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0033 | commit 0.0209 (dev h2d 0.0050 ntt 0.0053 hash 0.0022 -> host 0.0084) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0085 = host pack 0.0057 + 0.0029 rest
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0114 | commit 0.0320 (dev h2d 0.0096 ntt 0.0095 hash 0.0029 -> host 0.0100) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0042 = host pack 0.0033 + 0.0009 rest
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0031 | commit 0.0224 (dev h2d 0.0051 ntt 0.0060 hash 0.0024 -> host 0.0088) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0084 = host pack 0.0056 + 0.0028 rest
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0079 | commit 0.0333 (dev h2d 0.0093 ntt 0.0110 hash 0.0031 -> host 0.0099) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0043 = host pack 0.0033 + 0.0010 rest
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0054 | commit 0.0203 (dev h2d 0.0052 ntt 0.0061 hash 0.0023 -> host 0.0067) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0077 = host pack 0.0049 + 0.0028 rest
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0105 | commit 0.0314 (dev h2d 0.0089 ntt 0.0109 hash 0.0033 -> host 0.0084) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0045 = host pack 0.0036 + 0.0009 rest
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0034 | commit 0.0216 (dev h2d 0.0053 ntt 0.0060 hash 0.0022 -> host 0.0081) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0085 = host pack 0.0057 + 0.0029 rest
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0094 | commit 0.0313 (dev h2d 0.0096 ntt 0.0108 hash 0.0031 -> host 0.0077) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0044 = host pack 0.0035 + 0.0009 rest
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0036 | commit 0.0221 (dev h2d 0.0053 ntt 0.0060 hash 0.0023 -> host 0.0085) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0085 = host pack 0.0057 + 0.0028 rest
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0073 | commit 0.0328 (dev h2d 0.0096 ntt 0.0108 hash 0.0031 -> host 0.0093) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.75 s | PROVE 2.26 s | VERIFY 0.40 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.284e10 proven MAC/s (prove wall) | wall 4.53 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=1 run 5 [gpu] ---
+2026-09-19 13:05:50
+ 13:05:50 up 12:01,  1 user,  load average: 3.87, 3.81, 3.87
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0132 = host pack 0.0122 + 0.0010 rest
+[UPERF3-AL] conv W  l00: alloc 0.0000 fill 0.0000 | commit 0.0985 (dev h2d 0.0684 ntt 0.0132 hash 0.0028 -> host 0.0141) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0098 = host pack 0.0069 + 0.0029 rest
+[UPERF3-AL] conv A  l00: alloc 0.0243 fill 0.0096 | commit 0.0533 (dev h2d 0.0109 ntt 0.0238 hash 0.0038 -> host 0.0148) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0107 = host pack 0.0097 + 0.0010 rest
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0000 | commit 0.0352 (dev h2d 0.0114 ntt 0.0051 hash 0.0030 -> host 0.0158) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0090 = host pack 0.0060 + 0.0029 rest
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0169 | commit 0.0383 (dev h2d 0.0101 ntt 0.0091 hash 0.0038 -> host 0.0152) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0072 = host pack 0.0062 + 0.0010 rest
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0000 | commit 0.0270 (dev h2d 0.0079 ntt 0.0049 hash 0.0024 -> host 0.0119) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0104 = host pack 0.0074 + 0.0030 rest
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0138 | commit 0.0406 (dev h2d 0.0116 ntt 0.0088 hash 0.0035 -> host 0.0167) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0120 = host pack 0.0109 + 0.0010 rest
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0000 | commit 0.0345 (dev h2d 0.0127 ntt 0.0048 hash 0.0026 -> host 0.0143) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0096 = host pack 0.0067 + 0.0029 rest
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0103 | commit 0.0350 (dev h2d 0.0108 ntt 0.0086 hash 0.0033 -> host 0.0124) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0127 = host pack 0.0117 + 0.0010 rest
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0000 | commit 0.0359 (dev h2d 0.0135 ntt 0.0048 hash 0.0026 -> host 0.0150) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0102 = host pack 0.0072 + 0.0030 rest
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0125 | commit 0.0386 (dev h2d 0.0113 ntt 0.0084 hash 0.0036 -> host 0.0153) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0120 = host pack 0.0110 + 0.0010 rest
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0000 | commit 0.0311 (dev h2d 0.0127 ntt 0.0046 hash 0.0024 -> host 0.0114) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0091 = host pack 0.0062 + 0.0029 rest
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0118 | commit 0.0369 (dev h2d 0.0102 ntt 0.0080 hash 0.0038 -> host 0.0149) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0123 = host pack 0.0113 + 0.0010 rest
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0000 | commit 0.0343 (dev h2d 0.0131 ntt 0.0045 hash 0.0026 -> host 0.0141) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0091 = host pack 0.0062 + 0.0029 rest
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0097 | commit 0.0367 (dev h2d 0.0101 ntt 0.0078 hash 0.0035 -> host 0.0152) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0107 = host pack 0.0097 + 0.0010 rest
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0000 | commit 0.0297 (dev h2d 0.0115 ntt 0.0062 hash 0.0025 -> host 0.0094) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0090 = host pack 0.0060 + 0.0029 rest
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0121 | commit 0.0375 (dev h2d 0.0101 ntt 0.0111 hash 0.0034 -> host 0.0128) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0118 = host pack 0.0109 + 0.0010 rest
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0000 | commit 0.0351 (dev h2d 0.0126 ntt 0.0066 hash 0.0031 -> host 0.0129) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0096 = host pack 0.0067 + 0.0029 rest
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0088 | commit 0.0374 (dev h2d 0.0113 ntt 0.0116 hash 0.0035 -> host 0.0109) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0155 = host pack 0.0145 + 0.0010 rest
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0000 | commit 0.0408 (dev h2d 0.0163 ntt 0.0068 hash 0.0031 -> host 0.0147) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0097 = host pack 0.0068 + 0.0029 rest
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0124 | commit 0.0418 (dev h2d 0.0109 ntt 0.0134 hash 0.0046 -> host 0.0129) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0098 = host pack 0.0086 + 0.0012 rest
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0000 | commit 0.0319 (dev h2d 0.0106 ntt 0.0067 hash 0.0026 -> host 0.0119) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0101 = host pack 0.0071 + 0.0030 rest
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0130 | commit 0.0396 (dev h2d 0.0114 ntt 0.0120 hash 0.0040 -> host 0.0123) | 8 Melem
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (int8 planes): h2d counter 0.0092 = host pack 0.0083 + 0.0009 rest
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0000 | commit 0.0279 (dev h2d 0.0100 ntt 0.0067 hash 0.0027 -> host 0.0085) | 4 Melem [planes]
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0092 = host pack 0.0063 + 0.0029 rest
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0112 | commit 0.0371 (dev h2d 0.0108 ntt 0.0120 hash 0.0036 -> host 0.0108) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 2.19 s | PROVE 2.73 s | VERIFY 0.38 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.064e10 proven MAC/s (prove wall) | wall 5.44 s
+DIGEST 5f368db6240e0614 70758084 B
+=== box after ===
+2026-09-19 13:06:00
+ 13:06:00 up 12:01,  1 user,  load average: 4.13, 3.87, 3.88
+0 MiB
+=== AB DONE ===

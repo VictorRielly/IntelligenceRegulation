@@ -1,0 +1,89 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-fsp-host/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0597]: `buf` does not live long enough
+    --> src/layer.rs:1404:45
+     |
+1376 |     let w_cm = match w_planes_cm {
+     |         ---- borrow later stored here
+...
+1382 |             let mut buf = hostbuf::take(hostbuf::W, lay.w_len); // [UPERF3-AL] arbitrary contents; every element is written below
+     |                 ------- binding `buf` declared here
+...
+1404 |                 pcs_compact::commit(&w_pcs, &buf, ntt)
+     |                                             ^^^^ borrowed value does not live long enough
+...
+1410 |         }
+     |         - `buf` dropped here while still borrowed
+
+error[E0505]: cannot move out of `buf` because it is borrowed
+    --> src/layer.rs:1408:27
+     |
+1382 |             let mut buf = hostbuf::take(hostbuf::W, lay.w_len); // [UPERF3-AL] arbitrary contents; every element is written below
+     |                 ------- binding `buf` declared here
+...
+1404 |                 pcs_compact::commit(&w_pcs, &buf, ntt)
+     |                                             ---- borrow of `buf` occurs here
+...
+1408 |             w_data = Some(buf);
+     |                           ^^^ move out of `buf` occurs here
+1409 |             cm
+     |             -- borrow later used here
+     |
+help: consider cloning the value if the performance cost is acceptable
+     |
+1404 |                 pcs_compact::commit(&w_pcs, &buf.clone(), ntt)
+     |                                                 ++++++++
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+Some errors have detailed explanations: E0505, E0597.
+For more information about an error, try `rustc --explain E0505`.
+warning: `hashline` (lib) generated 6 warnings
+error: could not compile `hashline` (lib) due to 2 previous errors; 6 warnings emitted

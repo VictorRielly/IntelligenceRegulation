@@ -1,0 +1,244 @@
+
+=== GATE v2 [cpu] ===
+2026-09-19 13:13:03
+  layer  0: prove 1.574 s, 5573568 B
+  layer  1: prove 1.596 s, 5568692 B
+  layer  2: prove 1.552 s, 5570752 B
+  layer  3: prove 1.445 s, 5571020 B
+  layer  4: prove 1.457 s, 5572032 B
+  layer  5: prove 1.462 s, 5568832 B
+  layer  6: prove 1.426 s, 5568436 B
+  layer  7: prove 1.463 s, 5568832 B
+  layer  8: prove 1.481 s, 5568960 B
+  layer  9: prove 1.443 s, 5568960 B
+  layer 10: prove 1.488 s, 5570368 B
+  layer 11: prove 1.497 s, 5574476 B
+prover phases (summed over layers):
+PROOF sha256 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d (66844928 B)
+PASS ACCEPT: 12 x 512: witness load+chain 1.37 s | PROVE 17.89 s | VERIFY 0.45 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.621e9 proven MAC/s (prove wall) | wall 19.78 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.369205283,"prove_s":17.886558205,"serialize_s":0.075970973,"proof_ready_s":19.331902752,"verify_s":0.446947448,"verified":true,"proof_bytes":66844928,"serialized":true,"gpu_requested":false,"gpu_enabled":false,"randomness":"none"}
+GATE OK   v2 [cpu]  50cf7bdfd6b5b182  66844928 B
+
+=== GATE v3 [cpu] ===
+2026-09-19 13:13:23
+  layer  0: prove 1.536 s, 5899988 B
+  layer  1: prove 1.535 s, 5960912 B
+  layer  2: prove 1.532 s, 5960392 B
+  layer  3: prove 1.542 s, 5896912 B
+  layer  4: prove 1.471 s, 5898448 B
+  layer  5: prove 1.516 s, 5862608 B
+  layer  6: prove 1.488 s, 5895120 B
+  layer  7: prove 1.571 s, 5862608 B
+  layer  8: prove 1.539 s, 5895376 B
+  layer  9: prove 1.497 s, 5895376 B
+  layer 10: prove 1.519 s, 5864148 B
+  layer 11: prove 1.520 s, 5866196 B
+prover phases (summed over layers):
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.78 s | PROVE 18.27 s | VERIFY 0.47 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.587e9 proven MAC/s (prove wall) | wall 20.63 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.778173875,"prove_s":18.266746110,"serialize_s":0.108050874,"proof_ready_s":20.153721923,"verify_s":0.472787964,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":false,"gpu_enabled":false,"randomness":"none"}
+GATE OK   v3 [cpu]  5f368db6240e0614  70758084 B
+
+=== GATE zk [cpu] ===
+2026-09-19 13:13:44
+  layer  0: prove 1.737 s, 7269044 B
+  layer  1: prove 1.798 s, 7269044 B
+  layer  2: prove 1.649 s, 7269044 B
+  layer  3: prove 1.717 s, 7269044 B
+  layer  4: prove 1.659 s, 7269044 B
+  layer  5: prove 1.663 s, 7269044 B
+  layer  6: prove 1.637 s, 7269044 B
+  layer  7: prove 1.612 s, 7269044 B
+  layer  8: prove 1.666 s, 7269044 B
+  layer  9: prove 1.657 s, 7269044 B
+  layer 10: prove 1.620 s, 7269044 B
+  layer 11: prove 1.648 s, 7269044 B
+prover phases (summed over layers):
+PROOF sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d (87228528 B) [ZK randomness deterministic-test]
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 1.22 s | PROVE 20.06 s | VERIFY 0.72 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 1.445e9 proven MAC/s (prove wall) | wall 22.12 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.217850950,"prove_s":20.062911344,"serialize_s":0.127688487,"proof_ready_s":21.408612107,"verify_s":0.715875591,"verified":true,"proof_bytes":87228528,"serialized":true,"gpu_requested":false,"gpu_enabled":false,"randomness":"deterministic-test"}
+GATE OK   zk [cpu]  021485e4f80ec695  87228528 B
+
+=== GATE zkv3 [cpu] ===
+2026-09-19 13:14:07
+  layer  0: prove 1.810 s, 7306036 B
+  layer  1: prove 1.916 s, 7318324 B
+  layer  2: prove 1.812 s, 7318324 B
+  layer  3: prove 1.748 s, 7306036 B
+  layer  4: prove 1.686 s, 7306036 B
+  layer  5: prove 1.782 s, 7306036 B
+  layer  6: prove 1.720 s, 7306036 B
+  layer  7: prove 1.665 s, 7306036 B
+  layer  8: prove 1.695 s, 7306036 B
+  layer  9: prove 1.841 s, 7306036 B
+  layer 10: prove 1.992 s, 7306036 B
+  layer 11: prove 2.067 s, 7306036 B
+prover phases (summed over layers):
+PROOF sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) [ZK v3 randomness deterministic-test]
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.71 s | PROVE 21.73 s | VERIFY 0.94 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 1.334e9 proven MAC/s (prove wall) | wall 24.54 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.711277846,"prove_s":21.734209758,"serialize_s":0.144202035,"proof_ready_s":23.590578908,"verify_s":0.944672021,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":false,"gpu_enabled":false,"randomness":"deterministic-test"}
+GATE OK   zkv3 [cpu]  40eb54795e023c77  87697008 B
+
+=== GATE v2 [gpu] ===
+2026-09-19 13:14:31
+  layer  0: prove 0.320 s, 5573568 B
+  layer  1: prove 0.244 s, 5568692 B
+  layer  2: prove 0.260 s, 5570752 B
+  layer  3: prove 0.254 s, 5571020 B
+  layer  4: prove 0.220 s, 5572032 B
+  layer  5: prove 0.249 s, 5568832 B
+  layer  6: prove 0.232 s, 5568436 B
+  layer  7: prove 0.219 s, 5568832 B
+  layer  8: prove 0.229 s, 5568960 B
+  layer  9: prove 0.241 s, 5568960 B
+  layer 10: prove 0.240 s, 5570368 B
+  layer 11: prove 0.230 s, 5574476 B
+prover phases (summed over layers):
+PROOF sha256 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d (66844928 B)
+PASS ACCEPT: 12 x 512: witness load+chain 1.23 s | PROVE 2.94 s | VERIFY 0.41 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 9.870e9 proven MAC/s (prove wall) | wall 4.67 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.225723090,"prove_s":2.937147465,"serialize_s":0.101200214,"proof_ready_s":4.264157251,"verify_s":0.406762339,"verified":true,"proof_bytes":66844928,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}
+GATE OK   v2 [gpu]  50cf7bdfd6b5b182  66844928 B
+
+=== GATE v3 [gpu] ===
+2026-09-19 13:14:40
+  layer  0: prove 0.333 s, 5899988 B
+  layer  1: prove 0.184 s, 5960912 B
+  layer  2: prove 0.184 s, 5960392 B
+  layer  3: prove 0.178 s, 5896912 B
+  layer  4: prove 0.192 s, 5898448 B
+  layer  5: prove 0.169 s, 5862608 B
+  layer  6: prove 0.161 s, 5895120 B
+  layer  7: prove 0.161 s, 5862608 B
+  layer  8: prove 0.187 s, 5895376 B
+  layer  9: prove 0.177 s, 5895376 B
+  layer 10: prove 0.192 s, 5864148 B
+  layer 11: prove 0.183 s, 5866196 B
+prover phases (summed over layers):
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.83 s | PROVE 2.30 s | VERIFY 0.40 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.259e10 proven MAC/s (prove wall) | wall 4.67 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.828511288,"prove_s":2.301894282,"serialize_s":0.113671106,"proof_ready_s":4.266962192,"verify_s":0.401007426,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}
+GATE OK   v3 [gpu]  5f368db6240e0614  70758084 B
+
+=== GATE zk [gpu] ===
+2026-09-19 13:14:49
+  layer  0: prove 0.580 s, 7269044 B
+  layer  1: prove 0.427 s, 7269044 B
+  layer  2: prove 0.429 s, 7269044 B
+  layer  3: prove 0.445 s, 7269044 B
+  layer  4: prove 0.441 s, 7269044 B
+  layer  5: prove 0.490 s, 7269044 B
+  layer  6: prove 0.480 s, 7269044 B
+  layer  7: prove 0.469 s, 7269044 B
+  layer  8: prove 0.482 s, 7269044 B
+  layer  9: prove 0.492 s, 7269044 B
+  layer 10: prove 0.524 s, 7269044 B
+  layer 11: prove 0.502 s, 7269044 B
+prover phases (summed over layers):
+PROOF sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d (87228528 B) [ZK randomness deterministic-test]
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 1.23 s | PROVE 5.76 s | VERIFY 0.76 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 5.031e9 proven MAC/s (prove wall) | wall 7.89 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.228884845,"prove_s":5.762418986,"serialize_s":0.134484907,"proof_ready_s":7.125931517,"verify_s":0.761339053,"verified":true,"proof_bytes":87228528,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+GATE OK   zk [gpu]  021485e4f80ec695  87228528 B
+
+=== GATE zkv3 [gpu] ===
+2026-09-19 13:15:01
+  layer  0: prove 0.636 s, 7306036 B
+  layer  1: prove 0.593 s, 7318324 B
+  layer  2: prove 0.632 s, 7318324 B
+  layer  3: prove 0.609 s, 7306036 B
+  layer  4: prove 0.600 s, 7306036 B
+  layer  5: prove 0.607 s, 7306036 B
+  layer  6: prove 0.617 s, 7306036 B
+  layer  7: prove 0.615 s, 7306036 B
+  layer  8: prove 0.597 s, 7306036 B
+  layer  9: prove 0.610 s, 7306036 B
+  layer 10: prove 0.563 s, 7306036 B
+  layer 11: prove 0.564 s, 7306036 B
+prover phases (summed over layers):
+PROOF sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) [ZK v3 randomness deterministic-test]
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.97 s | PROVE 7.24 s | VERIFY 0.77 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 4.002e9 proven MAC/s (prove wall) | wall 10.13 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.967350110,"prove_s":7.244230211,"serialize_s":0.130027524,"proof_ready_s":9.360413060,"verify_s":0.771072445,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+GATE OK   zkv3 [gpu]  40eb54795e023c77  87697008 B
+
+=== GATE v2-chunked [gpu] ===
+2026-09-19 13:15:15
+  layer  0: prove 0.281 s, 5573568 B
+  layer  1: prove 0.209 s, 5568692 B
+  layer  2: prove 0.211 s, 5570752 B
+  layer  3: prove 0.218 s, 5571020 B
+  layer  4: prove 0.226 s, 5572032 B
+  layer  5: prove 0.216 s, 5568832 B
+  layer  6: prove 0.215 s, 5568436 B
+  layer  7: prove 0.215 s, 5568832 B
+  layer  8: prove 0.214 s, 5568960 B
+  layer  9: prove 0.219 s, 5568960 B
+  layer 10: prove 0.235 s, 5570368 B
+  layer 11: prove 0.230 s, 5574476 B
+prover phases (summed over layers):
+PROOF sha256 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d (66844928 B)
+PASS ACCEPT: 12 x 512: witness load+chain 1.23 s | PROVE 2.69 s | VERIFY 0.52 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.078e10 proven MAC/s (prove wall) | wall 4.56 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.234706190,"prove_s":2.689060286,"serialize_s":0.115390428,"proof_ready_s":4.039249802,"verify_s":0.517725896,"verified":true,"proof_bytes":66844928,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}
+GATE OK   v2-chunked [gpu]  50cf7bdfd6b5b182  66844928 B
+
+=== GATE v3-chunked [gpu] ===
+2026-09-19 13:15:23
+  layer  0: prove 0.294 s, 5899988 B
+  layer  1: prove 0.183 s, 5960912 B
+  layer  2: prove 0.201 s, 5960392 B
+  layer  3: prove 0.195 s, 5896912 B
+  layer  4: prove 0.200 s, 5898448 B
+  layer  5: prove 0.194 s, 5862608 B
+  layer  6: prove 0.195 s, 5895120 B
+  layer  7: prove 0.200 s, 5862608 B
+  layer  8: prove 0.196 s, 5895376 B
+  layer  9: prove 0.203 s, 5895376 B
+  layer 10: prove 0.212 s, 5864148 B
+  layer 11: prove 0.210 s, 5866196 B
+prover phases (summed over layers):
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.93 s | PROVE 2.48 s | VERIFY 0.51 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.168e10 proven MAC/s (prove wall) | wall 5.05 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.930899711,"prove_s":2.482572434,"serialize_s":0.112975061,"proof_ready_s":4.543114541,"verify_s":0.510003069,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}
+GATE OK   v3-chunked [gpu]  5f368db6240e0614  70758084 B
+
+=== GATE zk-chunked [gpu] ===
+2026-09-19 13:15:32
+  layer  0: prove 0.556 s, 7269044 B
+  layer  1: prove 0.490 s, 7269044 B
+  layer  2: prove 0.507 s, 7269044 B
+  layer  3: prove 0.523 s, 7269044 B
+  layer  4: prove 0.461 s, 7269044 B
+  layer  5: prove 0.503 s, 7269044 B
+  layer  6: prove 0.493 s, 7269044 B
+  layer  7: prove 0.509 s, 7269044 B
+  layer  8: prove 0.511 s, 7269044 B
+  layer  9: prove 0.518 s, 7269044 B
+  layer 10: prove 0.515 s, 7269044 B
+  layer 11: prove 0.484 s, 7269044 B
+prover phases (summed over layers):
+PROOF sha256 021485e4f80ec695ddc0b05423a941e1a165c222efe12aca5bf3cd2f0d02282d (87228528 B) [ZK randomness deterministic-test]
+PASS ACCEPT [ZK]: 12 x 512: witness load+chain 1.36 s | PROVE 6.07 s | VERIFY 0.70 s | proof 87228528 B (87.2 MB) | 2.899e10 MACs | 4.776e9 proven MAC/s (prove wall) | wall 8.27 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.359520069,"prove_s":6.070757941,"serialize_s":0.136020236,"proof_ready_s":7.566438687,"verify_s":0.704419289,"verified":true,"proof_bytes":87228528,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+GATE OK   zk-chunked [gpu]  021485e4f80ec695  87228528 B
+
+=== GATE zkv3-chunked [gpu] ===
+2026-09-19 13:15:45
+  layer  0: prove 0.606 s, 7306036 B
+  layer  1: prove 0.546 s, 7318324 B
+  layer  2: prove 0.534 s, 7318324 B
+  layer  3: prove 0.511 s, 7306036 B
+  layer  4: prove 0.515 s, 7306036 B
+  layer  5: prove 0.486 s, 7306036 B
+  layer  6: prove 0.558 s, 7306036 B
+  layer  7: prove 0.561 s, 7306036 B
+  layer  8: prove 0.568 s, 7306036 B
+  layer  9: prove 0.566 s, 7306036 B
+  layer 10: prove 0.583 s, 7306036 B
+  layer 11: prove 0.585 s, 7306036 B
+prover phases (summed over layers):
+PROOF sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) [ZK v3 randomness deterministic-test]
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 1.92 s | PROVE 6.62 s | VERIFY 0.84 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 4.381e9 proven MAC/s (prove wall) | wall 9.52 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":1.916966342,"prove_s":6.618021466,"serialize_s":0.140686003,"proof_ready_s":8.687981926,"verify_s":0.836282970,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}
+GATE OK   zkv3-chunked [gpu]  40eb54795e023c77  87697008 B
+
+=== VERDICT ===
+2026-09-19 13:15:58
+ALL TWELVE BYTE GATES GREEN (8 standard + 4 chunked-forced)

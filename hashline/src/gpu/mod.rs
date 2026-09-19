@@ -222,6 +222,15 @@ pub mod planes {
     use crate::field::Fp;
     use rayon::prelude::*;
 
+    /// [FSP-HOST] Bytes of destination that make ONE parallel task. The
+    /// first cut of this module used one task per block row and measured
+    /// 2.3x slower than the `pack_narrow` pass it replaces (0.105 s against
+    /// 0.046 s over the 12x512 fixture's 12 W commitments): the fixture's
+    /// `wd` rows are 256 bytes, and rayon's per-task cost is not small
+    /// against a 256-byte copy. 64 KB is ~8 tasks per block at that shape
+    /// and ~128 at the 8B shape.
+    const GRAIN: usize = 1 << 16;
+
     /// i8 as its two's-complement byte, for a whole run.
     #[inline]
     fn as_bytes(v: &[i8]) -> &[u8] {
@@ -282,19 +291,35 @@ pub mod planes {
                 self.db
             }
         }
-        /// Row `r` of block `blk`, as the contiguous run of its plane.
-        fn row(&self, blk: usize, r: usize) -> &'a [i8] {
+        /// The plane a block reads and the offset of its row `r` in it.
+        fn row_src(&self, blk: usize, r: usize) -> (&'a [i8], usize) {
             let nb = self.nb_d * self.nb_f;
             if blk < 2 * nb {
                 let (plane, k) = if blk < nb { (self.wg, blk) } else { (self.wu, blk - nb) };
                 let (c, b) = (k / self.nb_f, k % self.nb_f);
-                let base = (c * self.db + r) * self.f + b * self.fb;
-                &plane[base..base + self.fb]
+                (plane, (c * self.db + r) * self.f + b * self.fb)
             } else {
                 let k = blk - 2 * nb;
                 let (b, c) = (k / self.nb_d, k % self.nb_d);
-                let base = (b * self.fb + r) * self.d + c * self.db;
-                &self.wd[base..base + self.db]
+                (self.wd, (b * self.fb + r) * self.d + c * self.db)
+            }
+        }
+        /// Row `r` of block `blk`, as the contiguous run of its plane.
+        fn row(&self, blk: usize, r: usize) -> &'a [i8] {
+            let (plane, base) = self.row_src(blk, r);
+            &plane[base..base + self.row_len(blk)]
+        }
+        /// The distance in the plane between one row of `blk` and the next
+        /// (`f` for a wg/wu block, `d` for a wd block). When it equals the
+        /// row length the block's rows are ONE contiguous run of the plane
+        /// — true of wg/wu whenever `nb_f == 1` and of wd whenever
+        /// `nb_d == 1`, which covers the 12x512 fixture's wg/wu and the 8B
+        /// shape's wd.
+        fn row_stride(&self, blk: usize) -> usize {
+            if blk < 2 * self.nb_d * self.nb_f {
+                self.f
+            } else {
+                self.d
             }
         }
 
@@ -349,7 +374,26 @@ pub mod planes {
             let (full, tail) = (rest / rl, rest % rl);
             if full > 0 {
                 let r_mid = r;
-                dst[pos..pos + full * rl].par_chunks_mut(rl).enumerate().for_each(|(i, row)| put(row, self.row(blk, r_mid + i)));
+                let mid = &mut dst[pos..pos + full * rl];
+                if self.row_stride(blk) == rl {
+                    // the rows are one contiguous run of the plane: a single
+                    // split copy, no per-row work at all
+                    let (plane, base) = self.row_src(blk, r_mid);
+                    let src = &plane[base..base + full * rl];
+                    mid.par_chunks_mut(GRAIN).zip(src.par_chunks(GRAIN)).for_each(|(d, s)| put(d, s));
+                } else {
+                    // strided rows: one TASK per GRAIN bytes, not one per
+                    // row. [FSP-HOST] a task per row was measured 2.3x
+                    // SLOWER than the `pack_narrow` pass it replaces at the
+                    // 12x512 fixture, whose wd rows are 256 bytes: rayon's
+                    // per-task cost swamped a 256-byte copy.
+                    let k = (GRAIN / rl).max(1);
+                    mid.par_chunks_mut(k * rl).enumerate().for_each(|(t, part)| {
+                        for (i, row) in part.chunks_mut(rl).enumerate() {
+                            put(row, self.row(blk, r_mid + t * k + i));
+                        }
+                    });
+                }
                 pos += full * rl;
             }
             if tail > 0 {

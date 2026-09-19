@@ -1,0 +1,299 @@
+=== box before ===
+2026-09-19 13:18:47
+ 13:18:47 up 12:14,  1 user,  load average: 4.43, 5.24, 4.88
+0 MiB
+--- ARM HL_FSP4_PLANES=0 run 1 [cpu] ---
+2026-09-19 13:18:47
+ 13:18:47 up 12:14,  1 user,  load average: 4.43, 5.24, 4.88
+[UPERF3-AL] conv W  l00: alloc 0.0132 fill 0.0062 | commit 0.1962 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1962) | 4 Melem
+[UPERF3-AL] conv A  l00: alloc 0.0214 fill 0.0108 | commit 0.3262 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3262) | 8 Melem
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0033 | commit 0.1990 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1990) | 4 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0099 | commit 0.3297 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3297) | 8 Melem
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0044 | commit 0.2014 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2014) | 4 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0110 | commit 0.3273 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3273) | 8 Melem
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0045 | commit 0.1852 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1852) | 4 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0131 | commit 0.3388 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3388) | 8 Melem
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0032 | commit 0.1823 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1823) | 4 Melem
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0086 | commit 0.3362 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3362) | 8 Melem
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0038 | commit 0.2015 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2015) | 4 Melem
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0115 | commit 0.3233 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3233) | 8 Melem
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0039 | commit 0.1952 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1952) | 4 Melem
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0110 | commit 0.3229 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3229) | 8 Melem
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0038 | commit 0.1800 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1800) | 4 Melem
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0094 | commit 0.3299 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3299) | 8 Melem
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0051 | commit 0.1896 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1896) | 4 Melem
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0091 | commit 0.3338 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3338) | 8 Melem
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0035 | commit 0.2148 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2148) | 4 Melem
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0105 | commit 0.3388 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3388) | 8 Melem
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0042 | commit 0.2071 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2071) | 4 Melem
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0096 | commit 0.3452 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3452) | 8 Melem
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0045 | commit 0.1984 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1984) | 4 Melem
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0120 | commit 0.3138 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3138) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.77 s | PROVE 18.09 s | VERIFY 0.45 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.603e9 proven MAC/s (prove wall) | wall 20.44 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=1 run 1 [cpu] ---
+2026-09-19 13:19:08
+ 13:19:08 up 12:14,  1 user,  load average: 5.50, 5.42, 4.95
+[UPERF3-AL] conv W  l00: alloc 0.0129 fill 0.0030 | commit 0.1833 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1833) | 4 Melem
+[UPERF3-AL] conv A  l00: alloc 0.0216 fill 0.0092 | commit 0.3266 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3266) | 8 Melem
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0045 | commit 0.1869 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1869) | 4 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0099 | commit 0.3255 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3255) | 8 Melem
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0048 | commit 0.2091 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2091) | 4 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0131 | commit 0.3372 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3372) | 8 Melem
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0036 | commit 0.2025 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2025) | 4 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0109 | commit 0.3402 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3402) | 8 Melem
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0048 | commit 0.2047 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2047) | 4 Melem
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0124 | commit 0.3393 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3393) | 8 Melem
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0071 | commit 0.1987 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1987) | 4 Melem
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0072 | commit 0.3735 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3735) | 8 Melem
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0036 | commit 0.1993 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1993) | 4 Melem
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0085 | commit 0.3327 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3327) | 8 Melem
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0043 | commit 0.1993 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1993) | 4 Melem
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0108 | commit 0.3203 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3203) | 8 Melem
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0051 | commit 0.1989 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1989) | 4 Melem
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0108 | commit 0.3307 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3307) | 8 Melem
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0031 | commit 0.1787 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1787) | 4 Melem
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0085 | commit 0.3029 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3029) | 8 Melem
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0028 | commit 0.1754 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1754) | 4 Melem
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0100 | commit 0.3248 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3248) | 8 Melem
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0027 | commit 0.1924 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1924) | 4 Melem
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0112 | commit 0.3235 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3235) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.75 s | PROVE 17.84 s | VERIFY 0.38 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.625e9 proven MAC/s (prove wall) | wall 20.09 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=1 run 2 [cpu] ---
+2026-09-19 13:19:28
+ 13:19:28 up 12:14,  1 user,  load average: 5.63, 5.46, 4.97
+[UPERF3-AL] conv W  l00: alloc 0.0137 fill 0.0056 | commit 0.1847 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1847) | 4 Melem
+[UPERF3-AL] conv A  l00: alloc 0.0277 fill 0.0112 | commit 0.3074 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3074) | 8 Melem
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0025 | commit 0.1738 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1738) | 4 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0067 | commit 0.3020 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3020) | 8 Melem
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0034 | commit 0.1761 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1761) | 4 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0078 | commit 0.3097 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3097) | 8 Melem
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0028 | commit 0.1678 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1678) | 4 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0101 | commit 0.3135 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3135) | 8 Melem
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0027 | commit 0.1671 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1671) | 4 Melem
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0066 | commit 0.3140 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3140) | 8 Melem
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0031 | commit 0.1683 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1683) | 4 Melem
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0059 | commit 0.2926 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2926) | 8 Melem
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0041 | commit 0.1696 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1696) | 4 Melem
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0083 | commit 0.3118 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3118) | 8 Melem
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0033 | commit 0.1791 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1791) | 4 Melem
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0052 | commit 0.2834 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2834) | 8 Melem
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0047 | commit 0.1620 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1620) | 4 Melem
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0060 | commit 0.3012 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3012) | 8 Melem
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0029 | commit 0.1634 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1634) | 4 Melem
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0077 | commit 0.2952 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2952) | 8 Melem
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0035 | commit 0.1685 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1685) | 4 Melem
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0076 | commit 0.2836 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2836) | 8 Melem
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0025 | commit 0.1633 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1633) | 4 Melem
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0086 | commit 0.2958 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2958) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.60 s | PROVE 15.96 s | VERIFY 0.32 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.817e9 proven MAC/s (prove wall) | wall 18.00 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=0 run 2 [cpu] ---
+2026-09-19 13:19:46
+ 13:19:46 up 12:15,  1 user,  load average: 4.60, 5.24, 4.91
+[UPERF3-AL] conv W  l00: alloc 0.0118 fill 0.0028 | commit 0.1658 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1658) | 4 Melem
+[UPERF3-AL] conv A  l00: alloc 0.0242 fill 0.0068 | commit 0.3080 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3080) | 8 Melem
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0027 | commit 0.1680 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1680) | 4 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0066 | commit 0.3124 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3124) | 8 Melem
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0025 | commit 0.1603 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1603) | 4 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0053 | commit 0.2795 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2795) | 8 Melem
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0032 | commit 0.1701 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1701) | 4 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0076 | commit 0.2885 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2885) | 8 Melem
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0030 | commit 0.1630 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1630) | 4 Melem
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0068 | commit 0.2958 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2958) | 8 Melem
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0026 | commit 0.1657 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1657) | 4 Melem
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0077 | commit 0.2796 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2796) | 8 Melem
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0028 | commit 0.1831 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1831) | 4 Melem
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0092 | commit 0.2907 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2907) | 8 Melem
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0024 | commit 0.1651 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1651) | 4 Melem
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0110 | commit 0.3131 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3131) | 8 Melem
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0030 | commit 0.1661 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1661) | 4 Melem
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0080 | commit 0.3048 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3048) | 8 Melem
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0036 | commit 0.1672 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1672) | 4 Melem
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0074 | commit 0.2865 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2865) | 8 Melem
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0029 | commit 0.1651 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1651) | 4 Melem
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0079 | commit 0.2808 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2808) | 8 Melem
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0025 | commit 0.1627 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1627) | 4 Melem
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0066 | commit 0.2790 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2790) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.58 s | PROVE 15.53 s | VERIFY 0.29 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.867e9 proven MAC/s (prove wall) | wall 17.52 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=0 run 3 [cpu] ---
+2026-09-19 13:20:04
+ 13:20:04 up 12:15,  1 user,  load average: 5.13, 5.31, 4.94
+[UPERF3-AL] conv W  l00: alloc 0.0130 fill 0.0055 | commit 0.1777 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1777) | 4 Melem
+[UPERF3-AL] conv A  l00: alloc 0.0252 fill 0.0063 | commit 0.2938 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2938) | 8 Melem
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0038 | commit 0.1718 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1718) | 4 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0101 | commit 0.2899 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2899) | 8 Melem
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0027 | commit 0.1637 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1637) | 4 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0068 | commit 0.3384 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3384) | 8 Melem
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0033 | commit 0.1739 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1739) | 4 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0079 | commit 0.2900 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2900) | 8 Melem
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0040 | commit 0.1636 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1636) | 4 Melem
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0085 | commit 0.3017 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3017) | 8 Melem
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0038 | commit 0.1743 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1743) | 4 Melem
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0077 | commit 0.3091 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3091) | 8 Melem
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0032 | commit 0.1730 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1730) | 4 Melem
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0075 | commit 0.2831 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2831) | 8 Melem
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0049 | commit 0.1628 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1628) | 4 Melem
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0074 | commit 0.3344 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3344) | 8 Melem
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0033 | commit 0.1764 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1764) | 4 Melem
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0067 | commit 0.2754 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2754) | 8 Melem
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0027 | commit 0.1670 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1670) | 4 Melem
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0087 | commit 0.2945 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2945) | 8 Melem
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0034 | commit 0.1703 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1703) | 4 Melem
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0064 | commit 0.2891 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2891) | 8 Melem
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0029 | commit 0.1625 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1625) | 4 Melem
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0087 | commit 0.2851 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2851) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.61 s | PROVE 15.84 s | VERIFY 0.30 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.831e9 proven MAC/s (prove wall) | wall 17.87 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=1 run 3 [cpu] ---
+2026-09-19 13:20:22
+ 13:20:22 up 12:15,  1 user,  load average: 4.80, 5.24, 4.92
+[UPERF3-AL] conv W  l00: alloc 0.0133 fill 0.0028 | commit 0.1886 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1886) | 4 Melem
+[UPERF3-AL] conv A  l00: alloc 0.0230 fill 0.0052 | commit 0.3266 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3266) | 8 Melem
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0030 | commit 0.1693 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1693) | 4 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0073 | commit 0.2794 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2794) | 8 Melem
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0033 | commit 0.1672 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1672) | 4 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0110 | commit 0.3031 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3031) | 8 Melem
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0033 | commit 0.1642 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1642) | 4 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0070 | commit 0.2951 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2951) | 8 Melem
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0034 | commit 0.1658 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1658) | 4 Melem
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0070 | commit 0.2833 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2833) | 8 Melem
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0028 | commit 0.1658 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1658) | 4 Melem
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0094 | commit 0.2819 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2819) | 8 Melem
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0030 | commit 0.1760 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1760) | 4 Melem
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0081 | commit 0.3128 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3128) | 8 Melem
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0032 | commit 0.2079 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2079) | 4 Melem
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0100 | commit 0.2875 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2875) | 8 Melem
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0023 | commit 0.1778 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1778) | 4 Melem
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0084 | commit 0.2910 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2910) | 8 Melem
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0027 | commit 0.1622 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1622) | 4 Melem
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0066 | commit 0.2781 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2781) | 8 Melem
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0033 | commit 0.1651 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1651) | 4 Melem
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0090 | commit 0.3079 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3079) | 8 Melem
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0029 | commit 0.1656 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1656) | 4 Melem
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0062 | commit 0.2867 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2867) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.59 s | PROVE 15.62 s | VERIFY 0.31 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.856e9 proven MAC/s (prove wall) | wall 17.64 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=1 run 4 [cpu] ---
+2026-09-19 13:20:40
+ 13:20:40 up 12:15,  1 user,  load average: 5.21, 5.31, 4.95
+[UPERF3-AL] conv W  l00: alloc 0.0134 fill 0.0033 | commit 0.1686 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1686) | 4 Melem
+[UPERF3-AL] conv A  l00: alloc 0.0238 fill 0.0070 | commit 0.2962 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2962) | 8 Melem
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0028 | commit 0.1640 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1640) | 4 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0066 | commit 0.3018 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3018) | 8 Melem
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0052 | commit 0.1709 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1709) | 4 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0088 | commit 0.2774 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2774) | 8 Melem
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0039 | commit 0.1698 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1698) | 4 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0066 | commit 0.2769 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2769) | 8 Melem
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0046 | commit 0.1827 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1827) | 4 Melem
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0081 | commit 0.3141 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3141) | 8 Melem
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0037 | commit 0.1855 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1855) | 4 Melem
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0062 | commit 0.3050 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3050) | 8 Melem
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0027 | commit 0.1954 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1954) | 4 Melem
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0120 | commit 0.3339 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3339) | 8 Melem
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0051 | commit 0.1673 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1673) | 4 Melem
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0063 | commit 0.2879 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2879) | 8 Melem
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0026 | commit 0.1928 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1928) | 4 Melem
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0094 | commit 0.3090 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3090) | 8 Melem
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0043 | commit 0.1836 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1836) | 4 Melem
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0081 | commit 0.3184 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3184) | 8 Melem
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0032 | commit 0.1764 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1764) | 4 Melem
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0152 | commit 0.3086 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3086) | 8 Melem
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0042 | commit 0.1866 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1866) | 4 Melem
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0094 | commit 0.3039 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3039) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.65 s | PROVE 15.97 s | VERIFY 0.31 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.815e9 proven MAC/s (prove wall) | wall 18.05 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=0 run 4 [cpu] ---
+2026-09-19 13:20:58
+ 13:20:58 up 12:16,  1 user,  load average: 5.50, 5.36, 4.97
+[UPERF3-AL] conv W  l00: alloc 0.0150 fill 0.0043 | commit 0.1853 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1853) | 4 Melem
+[UPERF3-AL] conv A  l00: alloc 0.0251 fill 0.0116 | commit 0.3142 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3142) | 8 Melem
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0029 | commit 0.1648 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1648) | 4 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0088 | commit 0.2991 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2991) | 8 Melem
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0025 | commit 0.1760 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1760) | 4 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0065 | commit 0.2823 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2823) | 8 Melem
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0034 | commit 0.1715 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1715) | 4 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0077 | commit 0.2861 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2861) | 8 Melem
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0040 | commit 0.1688 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1688) | 4 Melem
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0066 | commit 0.2966 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2966) | 8 Melem
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0030 | commit 0.1743 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1743) | 4 Melem
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0066 | commit 0.3034 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3034) | 8 Melem
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0029 | commit 0.1724 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1724) | 4 Melem
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0114 | commit 0.3106 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3106) | 8 Melem
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0034 | commit 0.1694 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1694) | 4 Melem
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0053 | commit 0.3288 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3288) | 8 Melem
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0029 | commit 0.1715 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1715) | 4 Melem
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0106 | commit 0.3099 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3099) | 8 Melem
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0028 | commit 0.1713 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1713) | 4 Melem
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0054 | commit 0.2883 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2883) | 8 Melem
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0029 | commit 0.1676 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1676) | 4 Melem
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0058 | commit 0.2913 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2913) | 8 Melem
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0025 | commit 0.1714 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1714) | 4 Melem
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0085 | commit 0.2803 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2803) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.59 s | PROVE 15.72 s | VERIFY 0.33 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.844e9 proven MAC/s (prove wall) | wall 17.76 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=0 run 5 [cpu] ---
+2026-09-19 13:21:16
+ 13:21:16 up 12:16,  1 user,  load average: 6.05, 5.49, 5.02
+[UPERF3-AL] conv W  l00: alloc 0.0135 fill 0.0034 | commit 0.1792 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1792) | 4 Melem
+[UPERF3-AL] conv A  l00: alloc 0.0243 fill 0.0059 | commit 0.3002 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3002) | 8 Melem
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0035 | commit 0.1936 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1936) | 4 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0116 | commit 0.3213 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3213) | 8 Melem
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0036 | commit 0.1781 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1781) | 4 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0090 | commit 0.3324 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3324) | 8 Melem
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0024 | commit 0.1631 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1631) | 4 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0070 | commit 0.2801 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2801) | 8 Melem
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0024 | commit 0.1878 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1878) | 4 Melem
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0063 | commit 0.3202 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3202) | 8 Melem
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0030 | commit 0.1709 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1709) | 4 Melem
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0062 | commit 0.3146 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3146) | 8 Melem
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0030 | commit 0.1692 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1692) | 4 Melem
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0076 | commit 0.3465 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3465) | 8 Melem
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0031 | commit 0.1623 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1623) | 4 Melem
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0069 | commit 0.3092 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3092) | 8 Melem
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0041 | commit 0.1689 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1689) | 4 Melem
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0061 | commit 0.3310 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3310) | 8 Melem
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0046 | commit 0.1680 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1680) | 4 Melem
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0083 | commit 0.2742 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2742) | 8 Melem
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0035 | commit 0.1670 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1670) | 4 Melem
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0052 | commit 0.2790 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2790) | 8 Melem
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0026 | commit 0.1616 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1616) | 4 Melem
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0095 | commit 0.2781 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2781) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.56 s | PROVE 15.71 s | VERIFY 0.27 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.846e9 proven MAC/s (prove wall) | wall 17.66 s
+DIGEST 5f368db6240e0614 70758084 B
+--- ARM HL_FSP4_PLANES=1 run 5 [cpu] ---
+2026-09-19 13:21:34
+ 13:21:34 up 12:16,  1 user,  load average: 5.59, 5.41, 5.01
+[UPERF3-AL] conv W  l00: alloc 0.0119 fill 0.0030 | commit 0.1769 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1769) | 4 Melem
+[UPERF3-AL] conv A  l00: alloc 0.0241 fill 0.0051 | commit 0.3071 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3071) | 8 Melem
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0031 | commit 0.1686 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1686) | 4 Melem
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0063 | commit 0.2910 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2910) | 8 Melem
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0036 | commit 0.1788 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1788) | 4 Melem
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0063 | commit 0.3005 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3005) | 8 Melem
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0029 | commit 0.1634 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1634) | 4 Melem
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0069 | commit 0.3105 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3105) | 8 Melem
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0028 | commit 0.1656 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1656) | 4 Melem
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0100 | commit 0.2897 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2897) | 8 Melem
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0035 | commit 0.1653 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1653) | 4 Melem
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0088 | commit 0.2867 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2867) | 8 Melem
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0042 | commit 0.1799 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1799) | 4 Melem
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0076 | commit 0.3161 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3161) | 8 Melem
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0039 | commit 0.1719 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1719) | 4 Melem
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0075 | commit 0.2896 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2896) | 8 Melem
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0042 | commit 0.1681 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1681) | 4 Melem
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0079 | commit 0.2941 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2941) | 8 Melem
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0036 | commit 0.1996 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1996) | 4 Melem
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0102 | commit 0.3119 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3119) | 8 Melem
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0033 | commit 0.1672 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1672) | 4 Melem
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0074 | commit 0.2908 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.2908) | 8 Melem
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0029 | commit 0.1677 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.1677) | 4 Melem
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0077 | commit 0.3036 (dev h2d 0.0000 ntt 0.0000 hash 0.0000 -> host 0.3036) | 8 Melem
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 1.63 s | PROVE 15.85 s | VERIFY 0.35 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.829e9 proven MAC/s (prove wall) | wall 17.95 s
+DIGEST 5f368db6240e0614 70758084 B
+=== box after ===
+2026-09-19 13:21:52
+ 13:21:52 up 12:17,  1 user,  load average: 5.22, 5.33, 4.99
+0 MiB
+=== AB DONE ===
