@@ -3,13 +3,10 @@
 //! `causal_oracle::FixedCausalOracle`: no clamping, a value outside its class
 //! is a refusal naming a static site, and the refusal ORDER is the kernel's.
 //!
-//! `build` fills the attention half (norm_a, QKV, RoPE, causal softmax, PV, O,
-//! residual 1) — that is what the work-in-progress argument proves.
-//! `build_block` fills the whole block: the attention half, then `norm_m`, the
-//! SiLU feed-forward (gate, activation lookup, up, product, down) and
-//! residual 2, on the planes of `Layout::new_block()` (T1 sections C.1-C.2,
-//! T2 sections A-B). Growing the witness proves nothing by itself: the block
-//! planes carry no relation until the argument's new arms land.
+//! `build` fills the WHOLE BLOCK: norm_a, QKV, RoPE, causal softmax, PV, O,
+//! residual 1, then `norm_m`, the SiLU feed-forward (gate, activation lookup,
+//! up, product, down) and residual 2, on the planes of `Layout::new` (T1
+//! sections C.1-C.2, T2 sections A-B).
 //!
 //! The returned planes are SECRET. Nothing here prints, hashes or serializes
 //! them; a refusal carries a site name only (the refusal itself still depends
@@ -20,26 +17,20 @@ use super::{AttentionPublic, FeedForwardPublic};
 
 pub(crate) struct Witness {
     /// one vector per A plane, `N_A` of them, indexed by the `A_*` ids. A
-    /// plane this build does not fill (a lookup histogram, or a block plane
-    /// in an attention-half build) is an EMPTY vector, never a zero plane.
+    /// lookup histogram (which the prover derives, not this builder) is an
+    /// EMPTY vector, never a zero plane.
     pub planes: Vec<Vec<i64>>,
-    /// did this build fill the whole block?
-    pub block: bool,
 }
 
 impl Witness {
-    /// the committed output plane xres1 (secret) — the endpoint of the
-    /// work-in-progress profile
+    /// The committed output plane (secret). The work-in-progress profile's
+    /// output endpoint carries `xres1`; it moves to `xres2` in the commit that
+    /// carries the block profile (disposition condition 1).
     pub(crate) fn output(&self) -> Result<Vec<i16>, String> {
         self.planes[A_X1].iter().map(|v| i16::try_from(*v).map_err(|_| "fixed oracle range refusal: residual 1".to_string())).collect()
     }
-    /// The block output xres2 (secret). Computing it is not binding it: the
-    /// proof's output endpoint stays on `xres1` until the feed-forward
-    /// relations exist (disposition condition 1).
+    /// The block output xres2 (secret).
     pub(crate) fn block_output(&self) -> Result<Vec<i16>, String> {
-        if !self.block {
-            return Err("private block: xres2 was not built".into());
-        }
         self.planes[A_X2].iter().map(|v| i16::try_from(*v).map_err(|_| "fixed oracle range refusal: residual 2".to_string())).collect()
     }
 }
@@ -201,24 +192,12 @@ fn rms_norm(x: &[i64], gamma: &[i8]) -> Result<NormPlanes, String> {
     Ok(out)
 }
 
-/// the attention half only (the work-in-progress profile's witness)
-pub(crate) fn build(public: &AttentionPublic, input: &[i16]) -> Result<Witness, String> {
-    build_inner(public, None, input)
-}
-
-/// the whole block, on the planes of `Layout::new_block()`
-pub(crate) fn build_block(public: &AttentionPublic, ff: &FeedForwardPublic, input: &[i16]) -> Result<Witness, String> {
-    build_inner(public, Some(ff), input)
-}
-
-fn build_inner(public: &AttentionPublic, ff: Option<&FeedForwardPublic>, input: &[i16]) -> Result<Witness, String> {
+/// the whole block, on the planes of `Layout::new`
+pub(crate) fn build(public: &AttentionPublic, ff: &FeedForwardPublic, input: &[i16]) -> Result<Witness, String> {
     if input.len() != T * D {
         return Err("private block: input shape".into());
     }
-    let block = ff.is_some();
-    let mut pl: Vec<Vec<i64>> = (0..N_A)
-        .map(|p| if !is_multiplicity(p) && (block || a_in_wip(p)) { vec![0i64; a_dom(p).len()] } else { Vec::new() })
-        .collect();
+    let mut pl: Vec<Vec<i64>> = (0..N_A).map(|p| if is_multiplicity(p) { Vec::new() } else { vec![0i64; a_dom(p).len()] }).collect();
     let x: Vec<i64> = input.iter().map(|v| i64::from(*v)).collect();
 
     // ---- norm_a (round mode) ----
@@ -355,10 +334,6 @@ fn build_inner(public: &AttentionPublic, ff: Option<&FeedForwardPublic>, input: 
     pl[A_S8] = s8;
     pl[A_RSL] = rsl;
 
-    let Some(ff) = ff else {
-        return Ok(Witness { planes: pl, block: false });
-    };
-
     // ================= the block half (kernel lib.rs:616-663) =================
     // ---- norm_m: the same relation, with gamma_m and xres1 ----
     let x1 = pl[A_X1].clone();
@@ -435,5 +410,5 @@ fn build_inner(public: &AttentionPublic, ff: Option<&FeedForwardPublic>, input: 
     pl[A_Z16] = z16;
     pl[A_RDL] = rdl;
 
-    Ok(Witness { planes: pl, block: true })
+    Ok(Witness { planes: pl })
 }

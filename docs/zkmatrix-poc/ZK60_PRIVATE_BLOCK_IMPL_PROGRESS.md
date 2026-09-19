@@ -27,7 +27,7 @@ establishes a privacy property; D8/D11 stay open (disposition section 5).
 | S1 | TESTS FIRST: `private-block-kernel` as a dev-dependency; deterministic generator of public synthetic inputs/weights; witness-vs-kernel parity for the attention half (up to `xres1`) over >= 1,000 inputs including refusals | DONE |
 | S2 | WITNESS AND LAYOUT GROWTH: whole-block layout (A 455 / H 384 rows) and witness (`norm_m`, `g8`, `a16`, `u16`, `h16`, `z16`, remainders, residual 2) with kernel semantics; parity extended to `xres2` and every intermediate | DONE |
 | S3a | REFUSAL-SITE PARITY: a hand-built forcing case for every reachable kernel refusal site; the arithmetic and a premise test for every unreachable one | DONE |
-| S3b | ARGUMENT: the new define arms, slots, sites; the module moves to the whole-block layout | not started |
+| S3b | ARGUMENT: the new define arms, slots, sites; the module moves to the whole-block layout | DONE |
 | S3c | TAMPER TESTS at the verifier (T2 section G as corrected by E-18 … E-20), by slot INDEX | not started |
 | S4 | The block profile `hashline-zk-mr1/private-block-t32-poc/1`, `BlockPublic` with the E-2 activation-table range check, the output endpoint moved to `xres2`, the tripwire `block_output_cannot_be_chosen` (T1-check section 11.3) | not started (next agent) |
 | S5 | The checking tools re-run on the real Rust source (disposition condition 4) | not started (next agent) |
@@ -488,16 +488,137 @@ target dir, release overrides):
 No deviation from the brief in S3a. `witness::isqrt` was already
 `pub(crate)`; nothing in the module changed but the one `mod refusals;` line.
 
-**Next step (S3b):** the argument's new arms. In order:
-`SC_SSM` and the extended `SC_TZC` (T1 C.1), the extended `SC_DZC` terms
-`c6..c10` and its second host (T1 C.1-C.2, T2 C.2), `SC_GMM` / `SC_UMM` /
-`SC_DMM` and the new `SC_FZC` (T2 C.1), the third `SC_TAB` triple with
-`TAG_ACT = 134` and `table_values_act` (T2 A.7), and `fold_cols_i8` added to
-this module's `argument.rs` imports for the `(input, output)` feed-forward
-matrices. Switch `argument.rs` and `protocol.rs` to `Layout::new_block()` in
-the same commit, then delete the WIP slot tables and the `a_in_wip` /
-`h_in_wip` filters. The tamper tests of T2-check section 8 belong to that
-commit. S4 then lands the block profile, `BlockPublic` (fold
-`FeedForwardPublic` in, keep the `i16` activation table), the output endpoint
-move to `A_X2` and the tripwire `block_output_cannot_be_chosen` — all three
-together, never before, and with the honest-proof assertion beside it.
+*(superseded; S3b is done — see below)* **Next step (S3b):** the argument's new arms.
+
+### 2026-09-19 — S3b THE ARGUMENT (done)
+
+**The whole block is proved.** The argument now runs twenty-three slots over
+one `A`, one `H` and one `M`, and the chain
+`x_in -> norm_a -> QKV/RoPE/softmax/PV/Wo -> xres1 -> norm_m -> nm ->
+(g8, u16) -> a16 -> h16 -> z16 -> xres2` is closed link by link. An honest
+proof on the public synthetic fixture VERIFIES, in the unit tests, in the
+integration test (a fresh verifier from public data and receipt bytes only)
+and in the example's separate verify process.
+
+**ONE LAYOUT (the previous agent's planned collapse, carried out).**
+`Layout::new()` IS the whole-block layout; `new_block`, the `block` flag,
+`a_in_wip` / `h_in_wip`, `ABSENT` and the work-in-progress slot tables are
+gone, and the `*_BLOCK` constants took the plain names. That is why
+`wire.rs` needed **no edit at all** and `run_slot` / `sum_weights` /
+`slot_terms` needed none either: they read `SLOTS`, `SLOT_KINDS`,
+`SLOT_NAMES`, `A_SITES`, `H_SITES`, `M_ROWS`, `A_GROUPS`, `H_GROUPS` by name
+and those names now carry the block's values.
+
+**The new and changed arms** (`argument.rs`), each against its design text:
+
+| slot | arm | design |
+|---|---|---|
+| 01 `SC_SSM` | `eq(r_t2) * A_X1^2`, a second private claimed sum at its own row point | T1 C.1 |
+| 02 `SC_TZC` | `mu(6)`, `nu(2)`, tables `eq(tau), eq(r_t), eq(r_t2)`, then `A_D, A_DSQ`, nine `A_LIMB` sub-slices, `A_DM, A_DSQM`, nine `A_LIMBM` sub-slices; three new zero-check terms and a SECOND host term `nu1 eq(r_t2) (Dsqm + a1m - ceps)`. 22 A sites, shape unchanged `(5,1,3)` | T1 C.1, decision 6 |
+| 03 `SC_LZC` | `a_range(A_LIMB, A_LIMBM)`: the single `Dom::L` helper moves into the TWO-lookup branch, so the slot is degree 4, `L = 42` | T1 C.1, decision 7 |
+| 11/12/13 `SC_GMM`/`SC_UMM`/`SC_DMM` | `(4,1,2)` private matmuls, `v[0]*v[1]`; the gate and up share `r_tf` and read `A_YM`, the down draws `r_td` and reads `A_H16`; the public factor is `fold_cols_i8` (the `(input, output)` fold), NOT `fold_rows_i8` | T2 C.1, decisions 9, 10 |
+| 14 `SC_DZC` | `mu(11 + 19)`, `nu(2)`, a third `eq(p_z)` table, a second broadcast gain table `gamma_m`, `a_range(A_X, A_RDL)` (35 planes), the `A_DM` sub-row beside `A_D`, 19 helpers; terms `c6, c7` (norm_m), `c8, c9` (residual 2), `c10` (`z16` int16) and the second host term `2^6 z16 + rd - 2^5`. 37 A / 19 H sites, shape unchanged `(9,1,4)` | T1 C.1-C.2, T2 C.2 |
+| 18 `SC_FZC` | new host `(9,1,4)`: `a_range(A_G8, A_RH1)` (11 planes), five `Dom::F` helpers and `H_FACT`; `f0` (the product), `f1`, `f2` (the two int16 decompositions), `f_act` (the activation PAIR lookup), host terms `2^7 g8 + rg - 2^6` and bare `u16` | T2 C.1 |
+| 19 `SC_TAB` | a third `(multiplicity, helper, public values)` triple `(A_MACT, H_GACT, table_values_act)` under `mu[2]`; shape unchanged `(8,1,3)` | T2 C.1, A.7 |
+
+Erratum **E-17** is honoured literally: `f_act` reads `v[i_fact]` where
+`let i_fact = b.h(H_FACT)?;` returns the TABLE index, never the plane
+constant. Erratum **E-22** is why `f_act` binds the pair
+`(g8 + 128) + beta*a16 + g_act` rather than two class lookups: wherever
+`u16 = 0`, `f0` pins nothing about `a16`.
+
+**Every count the module asserts, against the design.** All are asserted in
+code, not just observed:
+
+| quantity | design | asserted where |
+|---|---:|---|
+| `A` rows / data / site-pairs / prox | 455 / 213 / 240 / 2 | `Layout::new` itself, plus the layout test |
+| `H` rows / data / site-pairs / prox | 384 / 280 / 102 / 2 | same |
+| claim sites `A` / `H` | 120 / 51 | layout test |
+| slots; private / standalone / host | 23; 12 / 5 / 6 | layout test |
+| host groups | 6 | `HOSTS` |
+| `M` rows / functionals | 50 / 34 | layout test, and `argument()` refuses a functional-count mismatch |
+| opening groups `A` / `H` | 35 / 9 | **derived at run time**: `check_opening` rebuilds the grouping from the claim list by the PCS column key and refuses a mismatch on BOTH sides, so the honest proof verifying IS the check |
+| largest slot `L`; `L + 256 <= 512` | 50; all | layout test |
+| main / extension rounds | 159 / 25 | layout test |
+| U8 / exp / act lookups | 61,440 / 2,048 / 512 | `ProveStats`, asserted in the unit test |
+| host runs after every slot it hosts | yes | layout test |
+| **receipt length** | **2,816,472 bytes** | asserted in the unit test AND the integration test; the example prints it |
+
+The 35 `A` groups came out on the first run, which is the strongest single
+confirmation of the whole schedule: the grouping is a function of every claim
+point the twenty-three arms draw.
+
+**DEVIATIONS, each with its reason.**
+1. **One layout, not two** (above). T1 and T2 assume one grown layout; the two
+   were a scaffold the brief allowed and the previous agent planned to remove.
+2. **Two layout tests rewritten, none weakened.**
+   `declared_counts_are_self_consistent` now asserts the WHOLE-BLOCK counts
+   (it asserted the accepted component's 75/35/154/218, which the accepted
+   `private_attention` module's own identical test still covers, untouched and
+   green). `the_two_layouts_share_one_plane_numbering` became
+   `planes_are_row_aligned_and_contiguous_per_domain`: it keeps every
+   substantive assertion (plane order, distinct offsets, row alignment) and
+   ADDS the contiguity obligation T2 section C.2 puts on the implementer,
+   which the two `a_range` sweeps depend on.
+3. **The attention-half parity test is gone; the whole-block one subsumes it
+   strictly.** It compares every attention plane the removed test compared,
+   plus every block plane, and allows no one-sided outcome at all — the
+   `WITNESS_COVERS_BLOCK` allowance and `BLOCK_HALF_SITES` are deleted with
+   it. `witness::build` is now the whole-block builder; `build_block` and the
+   `Witness::block` flag are gone.
+4. **The feed-forward words are absorbed under their own transcript label**
+   `"feed-forward-statement"` instead of being folded into the one
+   public-statement digest, because `BlockPublic` belongs to the S4 commit
+   (disposition condition 1). They ARE bound — a receipt does not verify under
+   any other `gamma_m`, `Wg`, `Wu`, `Wd` or activation word, and a test
+   asserts that on all five — but as a SECOND absorb, which T2 section F says
+   should not survive: S4 folds them into one digest and drops this label.
+5. **ONE EDIT TO AN EXISTING FILE**, the one the brief permits:
+   `pub const TAG_ACT: u64 = 134;` in `hashline/src/tables_attn.rs` (T2
+   decision 4 allocates it there; it is the next free scalar after
+   `TAG_U8 = 133` and must not reuse the FFN statement's `TAG_ACT16 = 3`).
+   Nothing else in that file changed; `git diff --stat` against
+   `zk60-attention-compile` shows 7 added lines and no deletion.
+6. `ProveStats` gained `act_lookups`; the `"parameters"` payload became T2
+   section F's self-describing string
+   `T32/d16/f16/.../sh-g7-u0-h14-z6/...` (still `/block-wip`); the public API
+   (`prove`, `prove_with_stats`, `verify`, `verify_bytes`, `compute_output`,
+   `Receipt::to_bytes` / `from_bytes`) takes `&FeedForwardPublic`;
+   `block_schedule()` is gone because there is one schedule now;
+   `FeedForwardPublic::synthetic_fixture()` was added beside
+   `AttentionPublic::synthetic_fixture()`.
+
+**E-1 is still respected.** `hashline-zk-mr1/private-block-t32-poc/1` appears
+nowhere, there is no `BlockPublic`, `SC_IO_OUT` still binds `A_X1`, the
+endpoint scales are still the fixtures' `(-3, -3)` and no calibration digest
+is absorbed. Those five, with the tripwire, are S4's single commit.
+
+**Commands** (all `flock -w 540 /tmp/zk-build.lock`, offline, `-j 2`, the warm
+target dir, release overrides):
+
+1. `cargo check --lib --tests --examples` -> exit 0; the only warnings are the
+   8 pre-existing `src/attention.rs` ones, `private_block` produces none.
+2. `cargo test --release --lib private_ -- --test-threads=1` -> **28 passed,
+   0 failed**, 11.52 s (11 accepted-component + 17 block).
+3. `cargo test --release --lib -- --test-threads=1` (the WHOLE library) ->
+   **95 passed, 0 failed**, 59.83 s.
+4. `cargo test --release --test zk60_private_block --test
+   zk60_private_attention -- --test-threads=1` -> **4 + 4 passed, 0 failed**.
+5. `cargo test --release --doc private_` -> **2 passed** (both `compile_fail`
+   one-use-endpoint doctests still fail to compile, as claimed).
+6. The example: `prove` 0.097 s, frame **2,816,472 bytes** = the design's
+   derived figure exactly; `verify` in a fresh process ACCEPT in 0.039 s with
+   all three negative controls refused. Run under the session scratchpad;
+   nothing written into the repository.
+7. Byte-identity gate: `git --no-pager diff --stat zk60-attention-compile --
+   hashline/src/private_attention.rs hashline/src/private_attention
+   hashline/examples/zk60_private_attention.rs
+   hashline/tests/zk60_private_attention.rs` printed NOTHING.
+
+**Next step (S3c):** the tamper tests at the VERIFIER, per T2 section G as
+corrected by E-18, E-19 and E-20: `z16` (the binding test of G.1, catch at
+slot **14**), `g8`, `a16`, `u16`, `h16` and each remainder, each asserting the
+verifier rejects BY SLOT INDEX with the honest proof verifying beside it, and
+each recomputing the chain downstream where E-19 says the draft's row did not
+isolate. Then S4.

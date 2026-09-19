@@ -244,7 +244,7 @@ fn every_reachable_refusal_site_is_forced_and_matches_the_kernel() {
     for f in &FORCED {
         let b = f.build();
         let kernel = kern::run_block_slice(&b.input, &b.kweights, &b.ktables, None);
-        let wit = witness::build_block(&b.public, &b.ff, &b.input);
+        let wit = witness::build(&b.public, &b.ff, &b.input);
         let want = format!("fixed oracle range refusal: {}", f.site);
         match (&kernel, &wit) {
             (Err(e), Err(m)) => {

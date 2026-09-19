@@ -1,4 +1,4 @@
-//! The eighteen masked sumchecks of the private block profile, written
+//! The twenty-three masked sumchecks of the private block profile, written
 //! ONCE and driven from both sides (`Side::Prove` / `Side::Verify`): the slot
 //! order, every challenge, every table, every polynomial, every PCS claim and
 //! every M functional come from the same code, so the two sides cannot build
@@ -22,9 +22,13 @@
 //! public factor would make honest proofs fail, not leak.
 
 use super::layout::*;
-use super::AttentionPublic;
+use super::{AttentionPublic, FeedForwardPublic};
 use crate::field::{Fp, Fp2};
-use crate::mle::{eq_point, eq_table_msb, eval_mle_ext, fold_rows_i8};
+// `fold_cols_i8` folds an (input, output) matrix over its SECOND index, which
+// is what the three feed-forward matrices need: the kernel stores them
+// (input, output) row-major and the statement digest covers the same words the
+// caller authenticates (T2 section C.1 and decision 10).
+use crate::mle::{eq_point, eq_table_msb, eval_mle_ext, fold_cols_i8, fold_rows_i8};
 use crate::pcs::{Slice, ZClaim, ZPart};
 use crate::sumcheck::{self, masked_terminal, CfsMask, SumcheckProof};
 use crate::transcript::Transcript;
@@ -112,15 +116,20 @@ pub(crate) struct Acc {
 pub(crate) struct Ctx<'a> {
     pub lay: &'a Layout,
     pub public: &'a AttentionPublic,
+    pub ff: &'a FeedForwardPublic,
     pub alpha: Fp2,
     pub beta: Fp2,
     pub g_u8: Fp2,
     pub g_exp: Fp2,
+    /// `gamma * TAG_ACT`, the third table tag (T2 decision 4)
+    pub g_act: Fp2,
 }
 
 #[derive(Default)]
 pub(crate) struct Points {
     r_t: Vec<Fp2>,
+    /// norm_m's row point (SC_SSM), read again by SC_TZC's second host term
+    r_t2: Vec<Fp2>,
     p_ht: Vec<Fp2>,
     lam_z: Fp2,
     r_q: Vec<Fp2>,
@@ -130,6 +139,11 @@ pub(crate) struct Points {
     p_s: Vec<Fp2>,
     p_o: Vec<Fp2>,
     p_a: Vec<Fp2>,
+    /// the row point shared by the gate and up matmuls (T2 decision 9)
+    r_tf: Vec<Fp2>,
+    p_g: Vec<Fp2>,
+    p_u: Vec<Fp2>,
+    p_z: Vec<Fp2>,
 }
 
 // ---------------------------------------------------------------- tables
@@ -505,11 +519,19 @@ pub(crate) fn table_values_u8(g_u8: Fp2) -> Vec<Fp2> {
 pub(crate) fn table_values_exp(public: &AttentionPublic, beta: Fp2, g_exp: Fp2) -> Vec<Fp2> {
     (0..N).map(|i| k(i as i64).add(beta.mul(k(public.exp[i]))).add(g_exp)).collect()
 }
+/// The activation table's public rows `i + beta * act[i] + g_act`, the exp
+/// table's construction verbatim under a third tag. Binding the PAIR is a
+/// soundness requirement, not a preference (T2 erratum E-22): wherever
+/// `u16 = 0` the product relation pins nothing about `a16`, and this is the
+/// only other relation `a16` appears in.
+pub(crate) fn table_values_act(ff: &FeedForwardPublic, beta: Fp2, g_act: Fp2) -> Vec<Fp2> {
+    (0..N).map(|i| k(i as i64).add(beta.mul(k(i64::from(ff.act[i])))).add(g_act)).collect()
+}
 
 /// Draw the slot's challenges and build its tables and polynomial. Identical on both sides.
 pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcript) -> Result<SlotDef, String> {
     let lay = ctx.lay;
-    let (alpha, beta, g_u8, g_exp) = (ctx.alpha, ctx.beta, ctx.g_u8, ctx.g_exp);
+    let (alpha, beta, g_u8, g_exp, g_act) = (ctx.alpha, ctx.beta, ctx.g_u8, ctx.g_exp, ctx.g_act);
     let mut b = B::new(lay, slot);
     let (p1, p2, p3) = (pow256(1), pow256(2), pow256(3));
     match slot {
@@ -519,29 +541,53 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.a(A_X)?;
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1]).mul(v[1])), vec![])
         }
+        // norm_m's row sums: the identical private claimed sum, over xres1
+        // instead of x_in, at its own row point (T1 section C.1)
+        SC_SSM => {
+            pts.r_t2 = tr.challenge_fp2_vec(5);
+            b.eq(&pts.r_t2, 0);
+            b.a(A_X1)?;
+            b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1]).mul(v[1])), vec![])
+        }
         SC_TZC => {
             let tau = tr.challenge_fp2_vec(5);
-            let mu = tr.challenge_fp2_vec(3);
-            let nu = nonzero(tr.challenge_fp2_vec(1))?[0];
+            let mu = tr.challenge_fp2_vec(6);
+            let nu = nonzero(tr.challenge_fp2_vec(2))?;
+            // tables: 0 eq(tau), 1 eq(r_t), 2 eq(r_t2), 3 A_D, 4 A_DSQ,
+            // 5..14 A_LIMB's nine sub-slices, 14 A_DM, 15 A_DSQM,
+            // 16..25 A_LIMBM's nine sub-slices
             b.eq(&tau, 0);
             b.eq(&pts.r_t, 0);
+            b.eq(&pts.r_t2, 0);
             b.a(A_D)?;
             b.a(A_DSQ)?;
             for kk in 0..N_LIMBS {
                 b.a_slice(lay.limb_off(kk), 5, rho(0..5), 0)?;
             }
+            b.a(A_DM)?;
+            b.a(A_DSQM)?;
+            for kk in 0..N_LIMBS {
+                b.a_slice(lay.limb_off_m(kk), 5, rho(0..5), 0)?;
+            }
+            let hosted = vec![(SC_SS, nu[0]), (SC_SSM, nu[1])];
             let poly = move |v: &[Fp2]| {
                 let l3 = |o: usize| v[o].add(v[o + 1].mul(p1)).add(v[o + 2].mul(p2));
-                let (d, dsq, dl, a1, a2) = (v[2], v[3], l3(4), l3(7), l3(10));
+                let (d, dsq, dl, a1, a2) = (v[3], v[4], l3(5), l3(8), l3(11));
+                let (dm, dsqm, dlm, a1m, a2m) = (v[14], v[15], l3(16), l3(19), l3(22));
                 let zc = mu[0].mul(dsq.sub(d.mul(d))).add(mu[1].mul(d.sub(dl))).add(mu[2].mul(d.double().sub(a1).sub(a2)));
-                v[0].mul(zc).add(nu.mul(v[1]).mul(dsq.add(a1).sub(k(NORM_CEPS))))
+                let zc = zc.add(mu[3].mul(dsqm.sub(dm.mul(dm)))).add(mu[4].mul(dm.sub(dlm))).add(mu[5].mul(dm.double().sub(a1m).sub(a2m)));
+                v[0].mul(zc)
+                    .add(nu[0].mul(v[1]).mul(dsq.add(a1).sub(k(NORM_CEPS))))
+                    .add(nu[1].mul(v[2]).mul(dsqm.add(a1m).sub(k(NORM_CEPS))))
             };
-            b.finish(Box::new(poly), vec![(SC_SS, nu)])
+            b.finish(Box::new(poly), hosted)
         }
+        // two lookups now (A_LIMB and norm_m's A_LIMBM), so the single helper
+        // moves into the two-lookup branch and the slot's degree is 4 (T1 C.1)
         SC_LZC => {
             let tau = tr.challenge_fp2_vec(9);
             b.eq(&tau, 0);
-            let idx = b.a_range(A_LIMB, A_LIMB)?;
+            let idx = b.a_range(A_LIMB, A_LIMBM)?;
             let h0 = b.h(H_L)?;
             let lks = lk_tables(lay, Dom::L, &idx, g_u8);
             b.finish(Box::new(move |v: &[Fp2]| v[0].mul(helper_sum(v, &lks, h0, alpha, &[Fp2::ONE]))), vec![])
@@ -608,41 +654,126 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.a_at(A_V8, cv, 1)?;
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1])), vec![])
         }
+        // The three feed-forward matmuls (T2 section C.1). The two weight
+        // matrices of the gate and up share one row point `r_tf`, mirroring
+        // SC_KMM / SC_VMM reusing SC_QMM's `r_q`; the two claim points on
+        // A_YM still differ through each slot's own rho, so each keeps its own
+        // reserved pair. SC_DMM is the one slot that reads an f-cube plane
+        // (A_H16) and publishes a d-cube point (p_z).
+        SC_GMM | SC_UMM | SC_DMM => {
+            if slot == SC_GMM {
+                pts.r_tf = tr.challenge_fp2_vec(5);
+            }
+            // SC_DMM draws its own row point `r_td`; the other two reuse `r_tf`
+            let r_row = if slot == SC_DMM { tr.challenge_fp2_vec(5) } else { pts.r_tf.clone() };
+            let r_j = tr.challenge_fp2_vec(4);
+            let (plane, w, rows, cols): (usize, &[i8], usize, usize) = match slot {
+                SC_GMM => (A_YM, ctx.ff.wg_t.as_slice(), D, F),
+                SC_UMM => (A_YM, ctx.ff.wu_t.as_slice(), D, F),
+                _ => (A_H16, ctx.ff.wd_t.as_slice(), F, D),
+            };
+            let mut coords = fixed(&r_row);
+            coords.extend(rho(0..4));
+            b.a_at(plane, coords, 0)?;
+            // w is (input i, output j): sum_j eq(r_j, j) w[i, j]
+            b.public(fold_cols_i8(w, rows, cols, &eq_table_msb(&r_j)));
+            let point = cat(&[&r_row, &r_j]);
+            match slot {
+                SC_GMM => pts.p_g = point,
+                SC_UMM => pts.p_u = point,
+                _ => pts.p_z = point,
+            }
+            b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1])), vec![])
+        }
         SC_DZC => {
             let tau = tr.challenge_fp2_vec(9);
-            let mu = tr.challenge_fp2_vec(6 + lay.helpers(Dom::D).1);
-            let nu = nonzero(tr.challenge_fp2_vec(1))?[0];
+            let mu = tr.challenge_fp2_vec(11 + lay.helpers(Dom::D).1);
+            let nu = nonzero(tr.challenge_fp2_vec(2))?;
             b.eq(&tau, 0);
             b.eq(&pts.p_a, 0);
+            b.eq(&pts.p_z, 0);
             let ig = b.public((0..T * D).map(|x| k(i64::from(ctx.public.gamma_a[x % D]))).collect());
-            let idx = b.a_range(A_X, A_X1L1)?;
+            let igm = b.public((0..T * D).map(|x| k(i64::from(ctx.ff.gamma_m[x % D]))).collect());
+            let idx = b.a_range(A_X, A_RDL)?;
             let id = b.a_slice(lay.a_off[A_D], 5, rho(0..5), 0)?;
+            let idm = b.a_slice(lay.a_off[A_DM], 5, rho(0..5), 0)?;
             let h0 = b.h(H_D0)?;
             for j in 1..lay.helpers(Dom::D).1 {
                 b.h(H_D0 + j)?;
             }
             let lks = lk_tables(lay, Dom::D, &idx, g_u8);
             let (k_num, k_dv, k_den) = (k(2 * NORM_CN), k(1 << NORM_TN), k(1 << (NORM_TN + 1)));
+            let hosted = vec![(SC_WO, nu[0]), (SC_DMM, nu[1])];
             let poly = move |v: &[Fp2]| {
                 let at = |p: usize| v[idx[p]];
                 let l4 = |o: usize| at(o).add(at(o + 1).mul(p1)).add(at(o + 2).mul(p2)).add(at(o + 3).mul(p3));
                 let l2 = |o: usize| at(o).add(at(o + 1).mul(p1));
                 let (x, y, ao, x1, d) = (at(A_X), at(A_Y), at(A_AO), at(A_X1), v[id]);
+                let (nm, x2, z16, dm) = (at(A_YM), at(A_X2), at(A_Z16), v[idm]);
                 let (nr, ns) = (l4(A_NR0), l4(A_NS0));
+                let (mr, ms) = (l4(A_MR0), l4(A_MS0));
                 let c0 = k_num.mul(v[ig]).mul(x).add(k_dv.mul(d)).sub(k_den.mul(y).mul(d)).sub(nr);
                 let c1 = ns.add(nr).add(Fp2::ONE).sub(k_den.mul(d));
                 let c2 = x.add(k(32768)).sub(l2(A_XL0));
                 let c3 = ao.add(k(32768)).sub(l2(A_AL0));
                 let c4 = x1.add(k(32768)).sub(l2(A_X1L0));
                 let c5 = x1.sub(x).sub(ao);
-                let mut zc = helper_sum(v, &lks, h0, alpha, &mu[6..]);
-                for (m, c) in mu.iter().zip([c0, c1, c2, c3, c4, c5]) {
+                // norm_m: the identical relation with gamma_m and xres1 (T1 C.1)
+                let c6 = k_num.mul(v[igm]).mul(x1).add(k_dv.mul(dm)).sub(k_den.mul(nm).mul(dm)).sub(mr);
+                let c7 = ms.add(mr).add(Fp2::ONE).sub(k_den.mul(dm));
+                // residual 2 and z16's int16 class (T1 C.2, T2 C.2)
+                let c8 = x2.add(k(32768)).sub(l2(A_X2L0));
+                let c9 = x2.sub(x1).sub(z16);
+                let c10 = z16.add(k(32768)).sub(l2(A_ZL0));
+                let mut zc = helper_sum(v, &lks, h0, alpha, &mu[11..]);
+                for (m, c) in mu.iter().zip([c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10]) {
                     zc = zc.add(m.mul(c));
                 }
-                let host = k(1 << SH_AO).mul(ao).add(at(A_RAL)).sub(k(1 << (SH_AO - 1)));
-                v[0].mul(zc).add(nu.mul(v[1]).mul(host))
+                let host_wo = k(1 << SH_AO).mul(ao).add(at(A_RAL)).sub(k(1 << (SH_AO - 1)));
+                let host_dmm = k(1 << SH_Z).mul(z16).add(at(A_RDL)).sub(k(1 << (SH_Z - 1)));
+                v[0].mul(zc).add(nu[0].mul(v[1]).mul(host_wo)).add(nu[1].mul(v[2]).mul(host_dmm))
             };
-            b.finish(Box::new(poly), vec![(SC_WO, nu)])
+            b.finish(Box::new(poly), hosted)
+        }
+        // The f-cube zero-check (T2 section C.1): the product, the two int16
+        // decompositions, the activation pair lookup and the Dom::F LogUp
+        // helpers, hosting the gate and up matmuls.
+        SC_FZC => {
+            let tau = tr.challenge_fp2_vec(9);
+            let n_help = lay.helpers(Dom::F).1;
+            let mu = tr.challenge_fp2_vec(4 + n_help);
+            let nu = nonzero(tr.challenge_fp2_vec(2))?;
+            b.eq(&tau, 0);
+            b.eq(&pts.p_g, 0);
+            b.eq(&pts.p_u, 0);
+            let idx = b.a_range(A_G8, A_RH1)?;
+            let h0 = b.h(H_F0)?;
+            for j in 1..n_help {
+                b.h(H_F0 + j)?;
+            }
+            // E-17: the activation helper is addressed by the TABLE INDEX the
+            // builder returns, never by the plane constant H_FACT
+            let i_fact = b.h(H_FACT)?;
+            let lks = lk_tables(lay, Dom::F, &idx, g_u8);
+            let hosted = vec![(SC_GMM, nu[0]), (SC_UMM, nu[1])];
+            let poly = move |v: &[Fp2]| {
+                let at = |p: usize| v[idx[p]];
+                let l2 = |o: usize| at(o).add(at(o + 1).mul(p1));
+                let (g8, a16, u16, h16) = (at(A_G8), at(A_A16), at(A_U16), at(A_H16));
+                let f0 = a16.mul(u16).sub(k(1 << SH_H_PROD).mul(h16)).sub(l2(A_RH0)).add(k(1 << (SH_H_PROD - 1)));
+                let f1 = u16.add(k(32768)).sub(l2(A_UL0));
+                let f2 = h16.add(k(32768)).sub(l2(A_HL0));
+                let f_act = v[i_fact].mul(alpha.sub(g8.add(k(128)).add(beta.mul(a16)).add(g_act))).sub(Fp2::ONE);
+                let mut zc = helper_sum(v, &lks, h0, alpha, &mu[4..]);
+                for (m, c) in mu.iter().zip([f0, f1, f2, f_act]) {
+                    zc = zc.add(m.mul(c));
+                }
+                let host_g = k(1 << SH_G).mul(g8).add(at(A_RGL)).sub(k(1 << (SH_G - 1)));
+                // SH_U = 0: no coefficient, no constant, no remainder (T2 A.4)
+                let host_u = u16;
+                v[0].mul(zc).add(nu[0].mul(v[1]).mul(host_g)).add(nu[1].mul(v[2]).mul(host_u))
+            };
+            b.finish(Box::new(poly), hosted)
         }
         SC_QZC | SC_KVZC => {
             let q = slot == SC_QZC;
@@ -729,9 +860,11 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             };
             b.finish(Box::new(poly), hosted)
         }
+        // three (multiplicity, helper, public values) triples now: U8, exp and
+        // the activation table under TAG_ACT (T2 section C.1)
         SC_TAB => {
             let tau = tr.challenge_fp2_vec(8);
-            let mu = tr.challenge_fp2_vec(2);
+            let mu = tr.challenge_fp2_vec(3);
             b.eq(&tau, 0);
             b.a(A_MU8)?;
             b.h(H_GU8)?;
@@ -739,10 +872,14 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.a(A_MEXP)?;
             b.h(H_GEXP)?;
             b.public(table_values_exp(ctx.public, beta, g_exp));
+            b.a(A_MACT)?;
+            b.h(H_GACT)?;
+            b.public(table_values_act(ctx.ff, beta, g_act));
             let poly = move |v: &[Fp2]| {
                 let r0 = v[2].mul(alpha.sub(v[3])).sub(v[1]);
                 let r1 = v[5].mul(alpha.sub(v[6])).sub(v[4]);
-                v[0].mul(mu[0].mul(r0).add(mu[1].mul(r1)))
+                let r2 = v[8].mul(alpha.sub(v[9])).sub(v[7]);
+                v[0].mul(mu[0].mul(r0).add(mu[1].mul(r1)).add(mu[2].mul(r2)))
             };
             b.finish(Box::new(poly), vec![])
         }
@@ -762,7 +899,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
     }
 }
 
-/// All eighteen slots in the declared order, then the functional list in the declared order.
+/// All twenty-three slots in the declared order, then the functional list in the declared order.
 pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript) -> Result<Acc, String> {
     let mut acc = Acc::default();
     let mut pts = Points::default();

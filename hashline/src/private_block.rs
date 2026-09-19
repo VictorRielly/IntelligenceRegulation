@@ -3,25 +3,31 @@
 //! `hashline-zk-mr1/private-block-t32-wip/0`.
 //!
 //! STATE (read this first). This module is a copy of the accepted private
-//! attention component (`crate::private_attention`, untouched) being grown into
-//! a complete private transformer block — attention, `norm_m`, the SiLU
+//! attention component (`crate::private_attention`, untouched) grown into a
+//! complete private transformer block — attention, `norm_m`, the SiLU
 //! feed-forward and residual 2 in ONE proof with no seam — per
-//! `docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK_CONSTRUCTION_DISPOSITION.md`. Until the
-//! feed-forward RELATIONS exist in the argument, condition 1 (erratum E-1) of
-//! that disposition binds: the work-in-progress profile above is deliberately
-//! NOT the block profile, there is no `BlockPublic`, and the output endpoint
-//! still carries `xres1`. WHAT THIS PROFILE PROVES TODAY IS THE ATTENTION HALF
-//! ONLY. A receipt of this profile says nothing whatever about the block's
-//! output, and the profile is not registered, not accepted and not for use.
+//! `docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK_CONSTRUCTION_DISPOSITION.md`. The
+//! whole-block ARGUMENT is present: twenty-three slots, six host groups, the
+//! chain `x_in -> ... -> nm -> (g8, u16) -> a16 -> h16 -> z16 -> xres2` closed
+//! link by link. What is NOT yet here, and what condition 1 (erratum E-1) of
+//! that disposition holds back to ONE later commit: the block profile string,
+//! a `BlockPublic` whose single statement digest covers the feed-forward words,
+//! the output endpoint on `xres2`, the calibration binding and the
+//! `block_output_cannot_be_chosen` tripwire. Until then this profile's OUTPUT
+//! ENDPOINT still carries `xres1`, the feed-forward words are absorbed under
+//! their own transcript label rather than folded into the statement digest,
+//! and the profile is not registered, not accepted and not for use.
 //!
-//! WHAT IT IS. A custom prover and verifier for the attention half of the
-//! fixed ZK60 block with the exact integer semantics of `private-block-kernel`
+//! WHAT IT IS. A custom prover and verifier for the fixed ZK60 block with the
+//! exact integer semantics of `private-block-kernel`
 //! (`causal_oracle::FixedCausalOracle`): RMSNorm (isqrt, rounded division),
 //! Q/K/V projections, half-split RoPE, causal scores, the integer softmax
 //! (masked max, exp table, masked row sum, quotient), PV, the output
-//! projection and residual 1. The private input `x_in` and the private output
-//! `xres1` are bound to two CALLER-FIXED hiding endpoint commitments by masked
-//! equality sumchecks; weights and tables are public (P1).
+//! projection, residual 1, the second RMSNorm, the SiLU feed-forward (gate,
+//! activation table lookup, up, product, down) and residual 2. The private
+//! input `x_in` and the private output are bound to two CALLER-FIXED hiding
+//! endpoint commitments by masked equality sumchecks; weights and tables are
+//! public (P1).
 //!
 //! WHAT IT IS NOT. Not an accepted whole-proof privacy result, not an MVP
 //! claim, not a registered block format and not a speed claim. Open, and NOT
@@ -157,12 +163,13 @@ impl AttentionPublic {
 /// three `(input, output)` row-major matrices `Wg`, `Wu`, `Wd` exactly as the
 /// kernel stores them, and the 256-entry int16-output activation table.
 ///
-/// NOT PART OF THE PROVED STATEMENT. Nothing here is absorbed into the
-/// transcript and no relation reads it yet; it exists so the witness and the
-/// kernel-parity harness can build the whole block while the argument still
-/// proves the attention half (disposition condition 1 / erratum E-1). The
-/// stage that adds the feed-forward relations folds these words into
-/// `BlockPublic` together with the block profile string.
+/// Every relation of the feed-forward half reads these words, and they are
+/// absorbed into the transcript under their own `"feed-forward-statement"`
+/// label. They are NOT yet part of the single public-statement digest: the
+/// commit that lands `BlockPublic` folds them into one digest under the
+/// block's own domain and drops the second absorb (disposition condition 1 /
+/// erratum E-1 keeps `BlockPublic` and the block profile string out until the
+/// output endpoint moves to `xres2` in that same commit).
 ///
 /// The activation table is held as `i16`, which is erratum E-2's requirement
 /// ("refuses an activation table with any value outside [-32768, 32767], or
@@ -185,6 +192,16 @@ impl FeedForwardPublic {
             return Err("private block: activation table shape".into());
         }
         Ok(Self { gamma_m: gamma_m.to_vec(), wg_t: wg_t.to_vec(), wu_t: wu_t.to_vec(), wd_t: wd_t.to_vec(), act: act.to_vec() })
+    }
+
+    /// The feed-forward half of the PUBLIC SYNTHETIC fixture
+    /// (`causal_oracle::public_synthetic_fixture` plus the frozen int16-out
+    /// SiLU member `(-3, -11)`). Deliberately public test data: NOT an
+    /// approved model and no privacy is at stake for these values.
+    pub fn synthetic_fixture() -> Self {
+        let (_, w, _) = crate::causal_oracle::public_synthetic_fixture();
+        let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member (-3, -11)");
+        Self::new(&w.gamma_m, &w.wg_t, &w.wu_t, &w.wd_t, &act).expect("feed-forward synthetic fixture")
     }
 
     pub fn digest(&self) -> Digest {
@@ -268,10 +285,10 @@ impl ExpectedIo {
 /// commitments does not type-check:
 ///
 /// ```compile_fail
-/// use hashline::private_block::{prove, AttentionPublic, Endpoints, ExpectedIo};
-/// fn twice(p: &AttentionPublic, x: &[i16], e: &ExpectedIo, owners: Endpoints) {
-///     let _ = prove(p, x, e, owners);
-///     let _ = prove(p, x, e, owners); // the first attempt consumed the owners
+/// use hashline::private_block::{prove, AttentionPublic, Endpoints, ExpectedIo, FeedForwardPublic};
+/// fn twice(p: &AttentionPublic, f: &FeedForwardPublic, x: &[i16], e: &ExpectedIo, owners: Endpoints) {
+///     let _ = prove(p, f, x, e, owners);
+///     let _ = prove(p, f, x, e, owners); // the first attempt consumed the owners
 /// }
 /// ```
 pub struct Endpoints {
@@ -295,18 +312,21 @@ pub fn prepare_endpoints(spec: IoSpec, input: &[i16], output: &[i16]) -> Result<
     Ok((expected, Endpoints { input, output }))
 }
 
-/// The SECRET attention output xres1 for `input` (the value an honest endpoint
-/// owner commits). Do not publish, log or hash it as a proof artifact.
-pub fn compute_output(public: &AttentionPublic, input: &[i16]) -> Result<Vec<i16>, String> {
-    witness::build(public, input)?.output()
+/// The SECRET value this profile's OUTPUT ENDPOINT carries, `xres1` (what an
+/// honest endpoint owner commits). It moves to `xres2` in the commit that
+/// lands the block profile (disposition condition 1). Do not publish, log or
+/// hash it as a proof artifact.
+pub fn compute_output(public: &AttentionPublic, ff: &FeedForwardPublic, input: &[i16]) -> Result<Vec<i16>, String> {
+    witness::build(public, ff, input)?.output()
 }
 
 /// The SECRET whole-block output `xres2` of `private-block-kernel::run_block`,
-/// recomputed by this module's own integer witness. It is a REFERENCE VALUE,
-/// not a proof artifact: no relation of the current argument reads it and no
-/// endpoint binds it (disposition condition 1). Do not publish, log or hash it.
+/// recomputed by this module's own integer witness. Every relation that
+/// derives it IS proved, but no endpoint binds it yet (disposition condition
+/// 1), so it is a reference value and not a proof artifact. Do not publish,
+/// log or hash it.
 pub fn compute_block_output(public: &AttentionPublic, ff: &FeedForwardPublic, input: &[i16]) -> Result<Vec<i16>, String> {
-    witness::build_block(public, ff, input)?.block_output()
+    witness::build(public, ff, input)?.block_output()
 }
 
 /// A candidate receipt. Parsing or holding one establishes nothing; acceptance
@@ -334,25 +354,26 @@ pub struct ProveStats {
     pub m_rows: usize,
     pub u8_lookups: usize,
     pub exp_lookups: usize,
+    pub act_lookups: usize,
     pub transcript_order: Vec<String>,
 }
 
-/// Prove the attention half for the private `input`, bound to the caller-fixed
+/// Prove the whole block for the private `input`, bound to the caller-fixed
 /// endpoints. Consumes the endpoint owners on success and on failure; draws
 /// one fresh OS randomness stream; publishes nothing on failure.
-pub fn prove(public: &AttentionPublic, input: &[i16], expected: &ExpectedIo, endpoints: Endpoints) -> Result<Receipt, String> {
-    prove_with_stats(public, input, expected, endpoints).map(|(r, _)| r)
+pub fn prove(public: &AttentionPublic, ff: &FeedForwardPublic, input: &[i16], expected: &ExpectedIo, endpoints: Endpoints) -> Result<Receipt, String> {
+    prove_with_stats(public, ff, input, expected, endpoints).map(|(r, _)| r)
 }
 
-pub fn prove_with_stats(public: &AttentionPublic, input: &[i16], expected: &ExpectedIo, endpoints: Endpoints) -> Result<(Receipt, ProveStats), String> {
+pub fn prove_with_stats(public: &AttentionPublic, ff: &FeedForwardPublic, input: &[i16], expected: &ExpectedIo, endpoints: Endpoints) -> Result<(Receipt, ProveStats), String> {
     // `endpoints` is dropped on the refusal path too: the owners never outlive the attempt
-    let wit = witness::build(public, input)?;
-    protocol::prove_inner(public, &wit, expected, endpoints)
+    let wit = witness::build(public, ff, input)?;
+    protocol::prove_inner(public, ff, &wit, expected, endpoints)
 }
 
 /// Verify against the caller's public statement and endpoint policy only.
-pub fn verify(public: &AttentionPublic, expected: &ExpectedIo, receipt: &Receipt) -> Result<(), String> {
-    protocol::verify_inner(public, expected, receipt).map(|_| ())
+pub fn verify(public: &AttentionPublic, ff: &FeedForwardPublic, expected: &ExpectedIo, receipt: &Receipt) -> Result<(), String> {
+    protocol::verify_inner(public, ff, expected, receipt).map(|_| ())
 }
 
 /// The exact frame length of this profile (a constant of the geometry).
@@ -362,14 +383,14 @@ pub fn encoded_len() -> usize {
 
 impl Receipt {
     /// Canonical bounded frame. Encoding checks representation, not validity.
-    pub fn to_bytes(&self, public: &AttentionPublic, expected: &ExpectedIo) -> Result<Vec<u8>, String> {
+    pub fn to_bytes(&self, public: &AttentionPublic, ff: &FeedForwardPublic, expected: &ExpectedIo) -> Result<Vec<u8>, String> {
         let lay = layout::Layout::new();
-        wire::encode(self, &protocol::transcript(public, expected, &lay).state(), &lay)
+        wire::encode(self, &protocol::transcript(public, ff, expected, &lay).state(), &lay)
     }
     /// Decode only: no count or length in the bytes controls allocation or loops.
-    pub fn from_bytes(public: &AttentionPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<Self, String> {
+    pub fn from_bytes(public: &AttentionPublic, ff: &FeedForwardPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<Self, String> {
         let lay = layout::Layout::new();
-        wire::decode(bytes, &protocol::transcript(public, expected, &lay).state(), &lay)
+        wire::decode(bytes, &protocol::transcript(public, ff, expected, &lay).state(), &lay)
     }
     /// Logical payload bytes (frame minus the 40-byte envelope).
     pub fn payload_size(&self) -> usize {
@@ -377,20 +398,12 @@ impl Receipt {
     }
 }
 
-pub fn verify_bytes(public: &AttentionPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
-    verify(public, expected, &Receipt::from_bytes(public, expected, bytes)?)
+pub fn verify_bytes(public: &AttentionPublic, ff: &FeedForwardPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
+    verify(public, ff, expected, &Receipt::from_bytes(public, ff, expected, bytes)?)
 }
 
-/// The declared mask/CFS schedule, line by line (its digest is transcript-bound).
+/// The declared mask/CFS schedule of the whole block, line by line: 455 `A`
+/// rows, 384 `H` rows, 23 slots, 50 `M` rows (its digest is transcript-bound).
 pub fn schedule() -> Vec<String> {
     layout::Layout::new().describe()
-}
-
-/// The DECLARED schedule of the grown whole-block layout (T1 sections C.1-C.2,
-/// T2 sections A-B): 455 `A` rows, 384 `H` rows, 23 slots, 50 `M` rows. It is a
-/// DESCRIPTION of the layout the witness now fills, NOT a profile and NOT what
-/// this module proves: the argument still proves the attention half, and
-/// nothing binds this schedule to any transcript (disposition condition 1).
-pub fn block_schedule() -> Vec<String> {
-    layout::Layout::new_block().describe()
 }

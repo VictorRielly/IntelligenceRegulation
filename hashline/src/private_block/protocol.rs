@@ -1,20 +1,20 @@
 //! The component transcript: header -> A root -> M root -> (beta, gamma,
-//! alpha) -> H root -> the eighteen slots -> ONE M opening -> ONE opening per
-//! hiding commitment (A, H, input endpoint, output endpoint), in that order.
+//! alpha) -> H root -> the twenty-three slots -> ONE M opening -> ONE opening
+//! per hiding commitment (A, H, input endpoint, output endpoint), in that order.
 //!
 //! Every private owner (the OS randomness stream, A, H, M, both endpoint
 //! planes) is created or consumed inside ONE `prove_inner` call and dropped
 //! before it returns, on success and on failure. There is no seed, no
 //! prepared-commitment handle and no second opening of anything.
 
-use super::argument::{argument, table_values_exp, table_values_u8, Ctx, ProverData, Side};
+use super::argument::{argument, table_values_act, table_values_exp, table_values_u8, Ctx, ProverData, Side};
 use super::layout::*;
 use super::witness::Witness;
-use super::{AttentionPublic, Endpoints, ExpectedIo, ProveStats, Receipt, PROFILE};
+use super::{AttentionPublic, Endpoints, ExpectedIo, FeedForwardPublic, ProveStats, Receipt, PROFILE};
 use crate::field::{batch_inverse2_checked, Fp, Fp2};
 use crate::ntt::NttTables;
 use crate::pcs::{self, Commitment, PcsParams, Slice, ZClaim, ZPart, ZkOpts};
-use crate::tables_attn::{TAG_EXP, TAG_U8};
+use crate::tables_attn::{TAG_ACT, TAG_EXP, TAG_U8};
 use crate::transcript::Transcript;
 use crate::zk::{self, ZkRng};
 
@@ -23,11 +23,21 @@ pub(crate) fn pcs_params() -> PcsParams {
 }
 
 /// Header, public statement and endpoint policy first; no challenge precedes them.
-pub(crate) fn transcript(public: &AttentionPublic, expected: &ExpectedIo, lay: &Layout) -> Transcript {
+///
+/// WORK IN PROGRESS. The feed-forward words (`gamma_m`, `Wg`, `Wu`, `Wd` and
+/// the activation table) are absorbed under their OWN label here, because the
+/// relations that read them exist while the single block statement digest does
+/// not yet (disposition condition 1 keeps `BlockPublic` and the block profile
+/// string out until the commit that also moves the output endpoint). The stage
+/// that lands `BlockPublic` folds these words into ONE `"public-statement"`
+/// digest under the block's own domain and drops this second absorb: a second
+/// absorb of the same words is a second thing to keep in sync (T2 section F).
+pub(crate) fn transcript(public: &AttentionPublic, ff: &FeedForwardPublic, expected: &ExpectedIo, lay: &Layout) -> Transcript {
     let mut tr = Transcript::new(PROFILE);
     tr.absorb(b"expected-IO", &expected.to_bytes());
     tr.absorb(b"public-statement", &public.digest());
-    tr.absorb(b"parameters", b"T32/d16/H2/KV1/dh8/log_cols8/inv_rate8/Q256/P1/two-private-endpoints/block-wip");
+    tr.absorb(b"feed-forward-statement", &ff.digest());
+    tr.absorb(b"parameters", b"T32/d16/f16/H2/KV1/dh8/log_cols8/inv_rate8/Q256/P1/sh-g7-u0-h14-z6/two-private-endpoints/block-wip");
     tr.absorb(b"schedule", &lay.schedule_digest());
     tr
 }
@@ -207,6 +217,11 @@ fn lookup_values(lay: &Layout, wit: &Witness, dom: Dom) -> Vec<Vec<i64>> {
         .collect()
 }
 
+/// the activation lookup's index column `g8 + 128` over the `Dom::F` cube
+fn act_indices(wit: &Witness) -> Vec<i64> {
+    wit.planes[A_G8].iter().map(|g| g + 128).collect()
+}
+
 /// max - masked score per (h, t, j)
 fn exp_deltas(wit: &Witness) -> Vec<i64> {
     (0..H * T * T)
@@ -245,7 +260,7 @@ fn check_endpoints(expected: &ExpectedIo, endpoints: Endpoints) -> Result<[pcs::
 
 /// Consumes the endpoint owners on success AND on failure. No equality precheck: an
 /// endpoint committed to other values must fail the verifier's polynomial identity.
-pub(crate) fn prove_inner(public: &AttentionPublic, wit: &Witness, expected: &ExpectedIo, endpoints: Endpoints) -> Result<(Receipt, ProveStats), String> {
+pub(crate) fn prove_inner(public: &AttentionPublic, ff: &FeedForwardPublic, wit: &Witness, expected: &ExpectedIo, endpoints: Endpoints) -> Result<(Receipt, ProveStats), String> {
     use std::time::Instant;
     let mut tick = Instant::now();
     let mut phases: Vec<(&'static str, f64)> = Vec::new();
@@ -255,8 +270,7 @@ pub(crate) fn prove_inner(public: &AttentionPublic, wit: &Witness, expected: &Ex
     };
     let lay = Layout::new();
     let [ein, eout] = check_endpoints(expected, endpoints)?;
-    // the work-in-progress profile commits the attention-half planes; a block
-    // witness carries more, which is accepted and ignored here
+    // every plane but the three derived histograms
     let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !is_multiplicity(*p)).collect();
     if wit.planes.len() != N_A || committed.iter().any(|p| wit.planes[*p].len() != a_dom(*p).len()) {
         return Err("private block: witness shape".into());
@@ -266,9 +280,9 @@ pub(crate) fn prove_inner(public: &AttentionPublic, wit: &Witness, expected: &Ex
     let ntt = NttTables::new(12);
     let params = pcs_params();
     let zko = ZkOpts::standard(&params);
-    let mut tr = transcript(public, expected, &lay);
+    let mut tr = transcript(public, ff, expected, &lay);
 
-    // ---- A: planes, the two committed histograms, every mask row drawn BEFORE the commitment ----
+    // ---- A: planes, the three committed histograms, every mask row drawn BEFORE the commitment ----
     let mut a_data = vec![Fp::ZERO; lay.a_rows * N];
     for p in &committed {
         for (i, v) in wit.planes[*p].iter().enumerate() {
@@ -289,9 +303,16 @@ pub(crate) fn prove_inner(public: &AttentionPublic, wit: &Witness, expected: &Ex
         let hit = (0..N as i64).contains(d) && public.exp[*d as usize] == wit.planes[A_E][x];
         m_exp[if hit { *d as usize } else { 0 }] += 1;
     }
+    let act_idx = act_indices(wit);
+    let mut m_act = vec![0u64; N];
+    for (x, i) in act_idx.iter().enumerate() {
+        let hit = (0..N as i64).contains(i) && i64::from(ff.act[*i as usize]) == wit.planes[A_A16][x];
+        m_act[if hit { *i as usize } else { 0 }] += 1;
+    }
     for i in 0..N {
         a_data[lay.a_off[A_MU8] + i] = Fp::new(m_u8[i]);
         a_data[lay.a_off[A_MEXP] + i] = Fp::new(m_exp[i]);
+        a_data[lay.a_off[A_MACT] + i] = Fp::new(m_act[i]);
     }
     for x in &mut a_data[lay.a_mask_base * N..] {
         *x = rng.fp();
@@ -303,7 +324,7 @@ pub(crate) fn prove_inner(public: &AttentionPublic, wit: &Witness, expected: &Ex
     absorb_root(&mut tr, b"A", &a_root, lay.a_rows);
     lap("witness planes + commit A", &mut tick);
 
-    // ---- M: all eighteen CFS masks, committed before any challenge ----
+    // ---- M: all twenty-three CFS masks, committed before any challenge ----
     let mc = zk::mask_commit(&mask_specs(), &ntt, &mut rng);
     let mask_root = mc.tree.root();
     tr.absorb(b"M", &mask_root);
@@ -315,6 +336,7 @@ pub(crate) fn prove_inner(public: &AttentionPublic, wit: &Witness, expected: &Ex
     let alpha = tr.challenge_fp2();
     let g_u8 = gamma.mul_base(Fp::new(TAG_U8));
     let g_exp = gamma.mul_base(Fp::new(TAG_EXP));
+    let g_act = gamma.mul_base(Fp::new(TAG_ACT));
     let mut h_data = vec![Fp::ZERO; lay.h_rows * N];
     for (dom, cols) in &looked {
         let (first, count) = lay.helpers(*dom);
@@ -329,7 +351,13 @@ pub(crate) fn prove_inner(public: &AttentionPublic, wit: &Witness, expected: &Ex
     }
     let exp_den = deltas.iter().zip(wit.planes[A_E].iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
     write_h(&mut h_data, lay.h_off[H_SEXP], &inverses(exp_den)?);
-    for (plane, tv, m) in [(H_GU8, table_values_u8(g_u8), &m_u8), (H_GEXP, table_values_exp(public, beta, g_exp), &m_exp)] {
+    let act_den = act_idx.iter().zip(wit.planes[A_A16].iter()).map(|(i, a)| alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect();
+    write_h(&mut h_data, lay.h_off[H_FACT], &inverses(act_den)?);
+    for (plane, tv, m) in [
+        (H_GU8, table_values_u8(g_u8), &m_u8),
+        (H_GEXP, table_values_exp(public, beta, g_exp), &m_exp),
+        (H_GACT, table_values_act(ff, beta, g_act), &m_act),
+    ] {
         let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
         let col: Vec<Fp2> = inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect();
         write_h(&mut h_data, lay.h_off[plane], &col);
@@ -353,8 +381,8 @@ pub(crate) fn prove_inner(public: &AttentionPublic, wit: &Witness, expected: &Ex
     absorb_root(&mut tr, b"H", &h_root, lay.h_rows);
     lap("LogUp helpers + commit H", &mut tick);
 
-    // ---- the eighteen slots ----
-    let ctx = Ctx { lay: &lay, public, alpha, beta, g_u8, g_exp };
+    // ---- the twenty-three slots ----
+    let ctx = Ctx { lay: &lay, public, ff, alpha, beta, g_u8, g_exp, g_act };
     let pd = ProverData { data: [a.data.as_slice(), h.data.as_slice(), ein.data.as_slice(), eout.data.as_slice()], masks: &mc.masks };
     let mut side = Side::Prove { pd, out: Vec::new() };
     let acc = argument(&mut side, &ctx, &mut tr)?;
@@ -362,7 +390,7 @@ pub(crate) fn prove_inner(public: &AttentionPublic, wit: &Witness, expected: &Ex
         Side::Prove { out, .. } => out,
         Side::Verify { .. } => unreachable!(),
     };
-    lap("18 masked sumchecks", &mut tick);
+    lap("23 masked sumchecks", &mut tick);
 
     // ---- ONE M opening, then ONE opening per commitment; each owner dropped after its opening ----
     let mask_open = zk::mask_open(&mc, &acc.fs, &ntt, &mut tr);
@@ -391,6 +419,7 @@ pub(crate) fn prove_inner(public: &AttentionPublic, wit: &Witness, expected: &Ex
         m_rows: M_ROWS,
         u8_lookups: m_u8.iter().sum::<u64>() as usize,
         exp_lookups: m_exp.iter().sum::<u64>() as usize,
+        act_lookups: m_act.iter().sum::<u64>() as usize,
         transcript_order: order,
     };
     Ok((receipt, stats))
@@ -400,14 +429,14 @@ pub(crate) fn prove_inner(public: &AttentionPublic, wit: &Witness, expected: &Ex
 
 /// Accepts only against the caller's own public statement and endpoint policy.
 /// Returns the absorb sequence (for the transcript-order gate).
-pub(crate) fn verify_inner(public: &AttentionPublic, expected: &ExpectedIo, receipt: &Receipt) -> Result<Vec<String>, String> {
+pub(crate) fn verify_inner(public: &AttentionPublic, ff: &FeedForwardPublic, expected: &ExpectedIo, receipt: &Receipt) -> Result<Vec<String>, String> {
     let lay = Layout::new();
     super::wire::validate(receipt, &lay)?;
     expected.spec.seams()?;
     let ntt = NttTables::new(12);
     let params = pcs_params();
     let zko = ZkOpts::standard(&params);
-    let mut tr = transcript(public, expected, &lay);
+    let mut tr = transcript(public, ff, expected, &lay);
     absorb_root(&mut tr, b"A", &receipt.a_root, lay.a_rows);
     tr.absorb(b"M", &receipt.mask_root);
     let beta = tr.challenge_fp2();
@@ -415,8 +444,9 @@ pub(crate) fn verify_inner(public: &AttentionPublic, expected: &ExpectedIo, rece
     let alpha = tr.challenge_fp2();
     let g_u8 = gamma.mul_base(Fp::new(TAG_U8));
     let g_exp = gamma.mul_base(Fp::new(TAG_EXP));
+    let g_act = gamma.mul_base(Fp::new(TAG_ACT));
     absorb_root(&mut tr, b"H", &receipt.h_root, lay.h_rows);
-    let ctx = Ctx { lay: &lay, public, alpha, beta, g_u8, g_exp };
+    let ctx = Ctx { lay: &lay, public, ff, alpha, beta, g_u8, g_exp, g_act };
     let mut side = Side::Verify { slots: &receipt.slots };
     let acc = argument(&mut side, &ctx, &mut tr)?;
     zk::mask_verify(&receipt.mask_root, &mask_specs(), &acc.fs, &receipt.mask_open, &ntt, &mut tr).map_err(|e| format!("M: {e}"))?;

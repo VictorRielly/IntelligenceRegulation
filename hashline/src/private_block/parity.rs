@@ -9,21 +9,13 @@
 //! counts and site names (never a witness value, as the kernel's own
 //! `Trace` documentation requires).
 //!
-//! SCOPE TODAY. The witness of this module computes the attention half
-//! (`x_in -> xres1`); the kernel computes the whole block. Three outcomes are
-//! therefore possible per case and all three are checked:
-//!  1. both accept — every attention plane with a kernel counterpart is
-//!     compared element for element;
-//!  2. both refuse — the refusal strings must be equal (same site, same text);
-//!  3. the kernel refuses where the witness accepts — allowed ONLY when the
-//!     kernel got past the attention half (every `na_dd` entry is >= 1, which
-//!     an honest run always satisfies because `ceps = 1`), every plane the
-//!     kernel traced before the refusal still agrees, and the refusal site is
-//!     one of the block-half sites this witness does not yet reach. When the
-//!     witness grows to the whole block this bucket must fall to zero, and the
-//!     test asserts that as soon as `WITNESS_COVERS_BLOCK` is set.
-//! The fourth combination — the witness refusing where the kernel accepts —
-//! is always a failure.
+//! SCOPE. The witness of this module computes the WHOLE block, so exactly two
+//! outcomes are allowed per case: both accept — every plane with a kernel
+//! counterpart compared element for element, and every plane without one
+//! (the remainder and limb planes, which the kernel keeps no witness for)
+//! checked against the kernel's own biased requantization identity — or both
+//! refuse with the SAME string (same site, same text). Either one-sided
+//! outcome is a failure.
 
 use super::layout::*;
 use super::witness::{self, Witness};
@@ -32,27 +24,8 @@ use private_block_kernel as kern;
 use std::collections::BTreeMap;
 use std::sync::OnceLock;
 
-/// Flipped to `true` by the stage that grows the witness to the whole block;
-/// it turns bucket 3 (a kernel-only refusal) into a hard failure. S2 grew the
-/// witness, so the block harness below runs with it TRUE and the attention-half
-/// harness keeps its own allowance (its witness still stops at `xres1`).
-pub(crate) const WITNESS_COVERS_BLOCK: bool = false;
-
 /// generated cases per parity run (the brief's floor is 1,000)
 const CASES: usize = 1_200;
-
-/// Refusal sites the attention-half witness cannot reach. The two norm sites
-/// appear here because `norm_m` reuses `norm_a`'s site strings; bucket 3 is
-/// only entered once the kernel has demonstrably finished the attention half.
-const BLOCK_HALF_SITES: [&str; 7] = [
-    "FFN gate",
-    "FFN up",
-    "FFN product",
-    "FFN down",
-    "residual 2",
-    "norm quotient/remainder",
-    "norm denominator",
-];
 
 // ---------------------------------------------------------------- generator
 
@@ -201,53 +174,6 @@ pub(crate) fn compare_attention_half(w: &Witness, tr: &kern::Trace, idx: usize) 
 
 // ---------------------------------------------------------------- the test
 
-#[test]
-fn witness_equals_the_reference_kernel_over_the_generated_sweep() {
-    let (mut both_ok, mut both_refuse, mut kernel_only_refuse) = (0usize, 0usize, 0usize);
-    let mut sites: BTreeMap<String, usize> = BTreeMap::new();
-    for idx in 0..CASES {
-        let c = case(idx);
-        let mut tr = Box::new(kern::Trace::zeroed());
-        let kernel = kern::run_block_slice(&c.input, &c.kweights, &c.ktables, Some(&mut *tr));
-        let wit = witness::build(&c.public, &c.input);
-        match (&kernel, &wit) {
-            (Ok(out), Ok(w)) => {
-                compare_attention_half(w, &tr, idx);
-                let mine = w.output().expect("xres1 is in class once the witness accepted");
-                assert!(mine.iter().zip(tr.xres1.iter()).all(|(a, b)| i64::from(*a) == *b), "case {idx}: the committed output plane differs from the kernel's xres1");
-                assert_eq!(out.len(), T * D, "case {idx}: kernel output length");
-                both_ok += 1;
-            }
-            (Err(e), Err(m)) => {
-                assert_eq!(&format!("{e}"), m, "case {idx}: the two refusals differ");
-                *sites.entry(m.clone()).or_default() += 1;
-                both_refuse += 1;
-            }
-            (Err(e), Ok(w)) => {
-                let site = format!("{e}");
-                assert!(!WITNESS_COVERS_BLOCK, "case {idx}: the whole-block witness accepted where the kernel refused ({site})");
-                // `ceps = 1` makes every honest `D` at least 1, so an all-zero
-                // `na_dd` means the kernel never reached the end of the
-                // attention half and this is a real disagreement.
-                assert!(tr.na_dd.iter().all(|d| *d >= 1), "case {idx}: the kernel refused inside the attention half ({site}) where the witness accepted");
-                assert!(BLOCK_HALF_SITES.iter().any(|s| site.ends_with(s)), "case {idx}: kernel-only refusal at the attention-half site `{site}`");
-                compare_traced_prefix(w, &tr, idx);
-                *sites.entry(format!("[block half, witness has no counterpart yet] {site}")).or_default() += 1;
-                kernel_only_refuse += 1;
-            }
-            (Ok(_), Err(m)) => panic!("case {idx}: the witness refused (`{m}`) where the kernel accepted"),
-        }
-    }
-    assert_eq!(both_ok + both_refuse + kernel_only_refuse, CASES);
-    assert!(both_ok >= 100, "the sweep must exercise accepted blocks: only {both_ok} of {CASES}");
-    assert!(both_refuse >= 100, "the sweep must exercise refusals: only {both_refuse} of {CASES}");
-    assert!(sites.len() >= 3, "the sweep must reach several refusal sites, it reached {}", sites.len());
-    eprintln!("private block parity: {CASES} generated public cases — {both_ok} accepted by both, {both_refuse} refused identically by both, {kernel_only_refuse} refused by the kernel in the block half only");
-    for (site, count) in &sites {
-        eprintln!("  refusal site `{site}`: {count}");
-    }
-}
-
 /// Every plane the block half adds, against its kernel counterpart. The
 /// remainder and limb planes have no kernel counterpart (the kernel keeps no
 /// requantization witness), so they are checked against the kernel's own
@@ -310,18 +236,17 @@ fn compare_block_half(c: &Case, w: &Witness, tr: &kern::Trace, idx: usize) {
 
 #[test]
 fn the_whole_block_witness_equals_the_reference_kernel() {
-    // the grown layout exists and holds every plane the witness fills
-    let lay = Layout::new_block();
+    // the layout exists and holds every plane the witness fills
+    let lay = Layout::new();
     let (mut both_ok, mut both_refuse) = (0usize, 0usize);
     let mut sites: BTreeMap<String, usize> = BTreeMap::new();
     for idx in 0..CASES {
         let c = case(idx);
         let mut tr = Box::new(kern::Trace::zeroed());
         let kernel = kern::run_block_slice(&c.input, &c.kweights, &c.ktables, Some(&mut *tr));
-        let wit = witness::build_block(&c.public, &c.ff, &c.input);
+        let wit = witness::build(&c.public, &c.ff, &c.input);
         match (&kernel, &wit) {
             (Ok(out), Ok(w)) => {
-                assert!(w.block, "case {idx}: the block build did not set its flag");
                 compare_attention_half(w, &tr, idx);
                 compare_block_half(&c, w, &tr, idx);
                 let mine = w.block_output().expect("xres2 is in class once the witness accepted");
