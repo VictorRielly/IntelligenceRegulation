@@ -1,0 +1,23 @@
+(a) isqrt: 663222 values tested in [0, 17179869185] (all of 0..70000, every perfect square +-1, 200000 random)
+    witness.rs / kernel binary isqrt disagreements with math.isqrt: 0
+    norm.rs float-seeded isqrt disagreements with math.isqrt:       0
+    max reachable D = isqrt(17179869185) = 131072 < 2^18; max reachable a1 = ss - D^2 <= 2D = 262144 < 2^19
+
+(b) uniqueness of D: ss in [0, 200000] exhaustive; rows where {D : D^2 <= ss <= D^2 + 2D} != {isqrt(ss)}: 0
+    (the general argument: D^2 <= ss <= D^2+2D < (D+1)^2 is exactly the
+     defining interval of floor(sqrt(ss)), and the intervals are disjoint.)
+    ss = 0 admits D = 0 only; ceps = 1 makes ss >= 1, so D >= 1 and the
+    norm denominator D*2^(tn+1) is nonzero: ss=0 -> [0], ss=1 -> [1]
+
+(c) softmax division: 200000 random (E, Sum) with Sum in [1, 2^15), E in [0, 2^9]
+    on-support rows where (p, rho) is not the unique floor quotient: 0
+    off-support rows where p*Sum + rho = 0 admits anything but (0,0): 0
+    note Sum >= 1 comes from c3: Sum = sigma + rho + 1 with sigma, rho >= 0 byte-limbed.
+    with Sum >= E (every on-support E is one of the summands of Sum) the quotient
+    is at most 2^fP = 512: e.g. E = Sum = 2^9 gives p = 512  (the enforced window is p < 2^10, i.e. one bit looser than the kernel's p <= 2^9).
+
+(d) first attainer: 20000 random rows; the kernel's arg is always the smallest
+    attainer and never exceeds t; rows where a different attainer would change
+    (max, Sum, p): 0
+    -> the constraint system only pins 'zsel sits on SOME attainer'; max, E, Sum, p
+       and therefore every committed output are identical for any choice.

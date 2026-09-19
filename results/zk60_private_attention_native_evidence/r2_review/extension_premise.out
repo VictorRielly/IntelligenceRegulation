@@ -1,0 +1,79 @@
+slot                                    monomials  maxdeg  decl  privtabs  premise
+00 01 SS row sums                             1      3        ok        ok  VANISHES
+01 02 norm squares zero-check                17      3        ok        ok  VANISHES
+02 08 limb zero-check                         3      3        ok        ok  VANISHES
+03 07 masked row sums + selector              2      3        ok        ok  VANISHES
+04 09Q matmul                                 1      2        ok        ok  VANISHES
+05 09K matmul                                 1      2        ok        ok  VANISHES
+06 09V matmul                                 1      2        ok        ok  VANISHES
+07 10 score matmul (bilinear)                 1      2        ok        ok  VANISHES
+08 11 PV matmul (bilinear)                    1      2        ok        ok  VANISHES
+09 12 Wo matmul                               1      2        ok        ok  VANISHES
+10 03 D zero-check (hosts 12)                63      4        ok        ok  VANISHES
+11 04 Q zero-check (hosts 09Q, 11)           38      4        ok        ok  VANISHES
+12 05 KV zero-check (hosts 09K, 09V)         33      4        ok        ok  VANISHES
+13 06 softmax zero-check (hosts 07, 10)      51      4        ok        ok  VANISHES
+14 TAB table helper zero-check                6      3        ok        ok  VANISHES
+15 ZS zero-sum row                            1      2        ok        ok  VANISHES
+16 IO-in endpoint equality                    2      2        ok        ok  VANISHES
+17 IO-out endpoint equality                   2      2        ok        ok  VANISHES
+
+per-slot detail (top-level factored structure and the zeroing factor):
+  00 01 SS row sums
+      public tables : ['eq(r_t)']
+      ext round 0   : 1 private tables
+  01 02 norm squares zero-check
+      public tables : ['eq(tau)', 'eq(r_t)']
+      ext round 0   : 11 private tables
+  02 08 limb zero-check
+      public tables : ['eq(tau)']
+      ext round 0   : 2 private tables
+  03 07 masked row sums + selector
+      public tables : ['eq(p_ht)', 'causal mask']
+      ext round 0   : 2 private tables
+  04 09Q matmul
+      public tables : ['folded W']
+      ext round 0   : 1 private tables
+  05 09K matmul
+      public tables : ['folded W']
+      ext round 0   : 1 private tables
+  06 09V matmul
+      public tables : ['folded W']
+      ext round 0   : 1 private tables
+  07 10 score matmul (bilinear)
+      public tables : NONE
+      ext round 0   : 1 private tables
+      ext round 1   : ['A_KR8']
+  08 11 PV matmul (bilinear)
+      public tables : NONE
+      ext round 0   : 1 private tables
+      ext round 1   : ['A_V8']
+  09 12 Wo matmul
+      public tables : ['folded W']
+      ext round 0   : 1 private tables
+  10 03 D zero-check (hosts 12)
+      public tables : ['eq(tau)', 'eq(p_a)', 'gamma table']
+      ext round 0   : 30 private tables
+  11 04 Q zero-check (hosts 09Q, 11)
+      public tables : ['eq(tau)', 'eq(p_mm)', 'eq(p_rope)', 'C table', "S' table"]
+      ext round 0   : 15 private tables
+  12 05 KV zero-check (hosts 09K, 09V)
+      public tables : ['eq(tau)', 'eq(p_mm)', 'eq(p_rope)', 'C table', "S' table"]
+      ext round 0   : 13 private tables
+  13 06 softmax zero-check (hosts 07, 10)
+      public tables : ['eq(tau)', 'eq(p_ht)', 'eq(p_s)', 'causal mask']
+      ext round 0   : 21 private tables
+  14 TAB table helper zero-check
+      public tables : ['eq(tau)', 'U8 table', 'exp table']
+      ext round 0   : 4 private tables
+  15 ZS zero-sum row
+      public tables : ['all-ones']
+      ext round 0   : 1 private tables
+  16 IO-in endpoint equality
+      public tables : ['eq(tau)']
+      ext round 0   : 2 private tables
+  17 IO-out endpoint equality
+      public tables : ['eq(tau)']
+      ext round 0   : 2 private tables
+
+PREMISE HOLDS FOR ALL 18 SLOTS

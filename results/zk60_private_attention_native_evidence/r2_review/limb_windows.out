@@ -1,0 +1,22 @@
+EXACT     int16 = l0+256*l1-32768   (A_XL*, A_AL*, A_X1L*; c2/c3/c4 of SC_DZC) [brute-forced]
+          representable [-32768, 32767] (65536 values) vs claimed [-32768, 32767] (65536 values)
+EXACT     norm rho,sigma: 4 limbs, 8*l3 in U8              -> [0, 2^29)
+          representable [0, 536870911] (536870912 values) vs claimed [0, 536870911] (536870912 values)
+EXACT     D,a1,a2: 3 plain byte limbs                      -> [0, 2^24)
+          representable [0, 16777215] (16777216 values) vs claimed [0, 16777215] (16777216 values)
+EXACT     requant sh=7 biased limb: l, 2l in U8, r=l-64    -> [-64, 64) [brute-forced]
+          representable [-64, 63] (128 values) vs claimed [-64, 63] (128 values)
+EXACT     requant sh=6 biased limb: l, 4l in U8, r=l-32    -> [-32, 32) [brute-forced]
+          representable [-32, 31] (64 values) vs claimed [-32, 31] (64 values)
+EXACT     requant sh=9 biased limb: l0, l1, 128*l1, r-256  -> [-256, 256) [brute-forced]
+          representable [-256, 255] (512 values) vs claimed [-256, 255] (512 values)
+EXACT     softmax rho_s,sigma_s: l0, l1, 4*l1 in U8        -> [0, 2^14) [brute-forced]
+          representable [0, 16383] (16384 values) vs claimed [0, 16383] (16384 values)
+EXACT     softmax p: l0, l1, 64*l1 in U8                   -> [0, 2^10) [brute-forced]
+          representable [0, 1023] (1024 values) vs claimed [0, 1023] (1024 values)
+EXACT     plain byte (A_LIMB)                              -> [0, 256) [brute-forced]
+          representable [0, 255] (256 values) vs claimed [0, 255] (256 values)
+EXACT     sym(): v+127 in U8 and 127-v in U8  (y,q8,k8,v8,qr8,kr8,s8,o8) [brute-forced]
+          representable [-127, 127] (255 values) vs claimed [-127, 127] (255 values)
+
+ALL DECOMPOSITIONS EXACT

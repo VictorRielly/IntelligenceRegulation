@@ -1,0 +1,73 @@
+p = 2^64 - 2^32 + 1 = 18446744069414584321   (p/2 ~ 2^63)
+note's claim: every constrained integer expression < 2^52 = 4503599627370496
+
+OK  |.| <=        281492139802625  < 2^49   norm SS:  D^2 + a1 - ceps - sum_i x_i^2
+       argument.rs:536-537 (zc), witness.rs:114-121   [D^2<=(16777215)^2, a1<2^24, sum of 16 squares of |x|<=2^15]
+OK  |.| <=        562949886312450  < 2^49   norm isqrt: Dsq - D*D
+       argument.rs:536 (mu0)   [both < 2^48]
+OK  |.| <=               33554430  < 2^25   norm isqrt: D - (l0+256l1+65536l2)
+       argument.rs:536 (mu1)
+OK  |.| <=               67108860  < 2^26   norm isqrt: 2D - a1 - a2
+       argument.rs:536 (mu2)
+OK  |.| <=          8770859567103  < 2^43   norm div c0: 2*cn*g*x + 2^tn*D - 2^(tn+1)*y*D - rho
+       argument.rs:632 (c0)   [|2 cn g x| <= 2^33; y in [-127,127]; D < 2^24]
+OK  |.| <=            69793214463  < 2^37   norm div c1: sigma + rho + 1 - 2^(tn+1)*D
+       argument.rs:633 (c1)
+OK  |.| <=                 131071  < 2^17   c2/c3/c4: v + 32768 - (l0 + 256 l1)
+       argument.rs:634-636   [v is x, ao or xres1]
+OK  |.| <=                  98304  < 2^17   c5 residual 1: xres1 - x - ao
+       argument.rs:637   [all three shifts are 0]
+OK  |.| <=                 260096  < 2^18   QKV matmul acc: sum_i y*W  (D terms)
+       witness.rs:160-162
+OK  |.| <=                 276416  < 2^19   QKV host: acc - (2^7*q8 + rql - 64)
+       argument.rs:679 / 683 (host1)
+OK  |.| <=                  48832  < 2^16   RoPE: C*x + S'*x_partner - 2^7*xr - r
+       argument.rs:675 (rope)   [|C|,|S'| <= 2^7 (public table validated in private_attention.rs:92-96)]
+OK  |.| <=                 129032  < 2^17   score acc: sum_{i<8} qr8*kr8
+       witness.rs:171
+OK  |.| <=                 137192  < 2^18   score host: acc - (2^6*s8 + rsl - 32)
+       argument.rs:727 (host_s)
+OK  |.| <=                    763  < 2^10   softmax delta: MX - mask*(s8+127) + 127
+       argument.rs:715 (delta)   [MX bounded only via the exp lookup]
+OK  |.| <=                      2  < 2^2    softmax c0: zsel^2 - zsel
+       argument.rs:716   [zsel is a field root of X^2-X]
+OK  |.| <=                    255  < 2^8    softmax c1: zsel*delta
+       argument.rs:717
+OK  |.| <=               33799168  < 2^26   softmax c2: 2^9*mask*E - p*Sum - rho_s
+       argument.rs:718 (c2)   [THE tightest expression: see margin below]
+OK  |.| <=                  65534  < 2^16   softmax c3: sigma_s + rho_s + 1 - Sum
+       argument.rs:719 (c3)
+OK  |.| <=                   2046  < 2^11   softmax c4: p - (l0 + 256 l1)
+       argument.rs:720 (c4)
+OK  |.| <=                4157472  < 2^22   PV acc: sum_{j<32} p*v8
+       witness.rs:233
+OK  |.| <=                4222752  < 2^23   PV host: acc - (2^9*o8 + ro - 256)
+       argument.rs:680 (host2)
+OK  |.| <=                 260096  < 2^18   Wo matmul acc: sum_i o8*Wo  (D terms)
+       witness.rs:238
+OK  |.| <=                4454464  < 2^23   Wo host: acc - (2^7*ao + ral - 64)
+       argument.rs:642 (host)   [|2^7 ao| uses the a-priori int16 range]
+OK  |.| <=                  65536  < 2^17   IO equality: x - endpoint word
+       argument.rs:759   [field equality; the integer content is A_X's own limb decomposition]
+OK  |.| <=                  47104  < 2^16   LogUp U8 multiplicity (max possible)
+       protocol.rs:275-282   [every U8 lookup could land on one table entry]
+OK  |.| <=                   2048  < 2^12   LogUp exp multiplicity (max possible)
+       protocol.rs:283-288
+
+worst case over all expressions: 562949886312450 < 2^49  (under the 2^52 claim, ratio to p/2 = 2^14 headroom)
+expressions exceeding 2^52: none
+
+tight spot 1 - layout.rs:213 claims 'p Sum + rho < 2^25':
+  with the ENFORCED bounds p <= 1023, Sum = sigma+rho+1 <= 32767, rho <= 16383:
+  p*Sum + rho <= 33537024   2^25 = 33554432   margin 17408   -> holds
+  with the comment's own 'Sum <= 2^14' (an honest-witness fact, Sum = sum of at most
+  32 exp entries each <= 2^9): p*Sum + rho <= 16777215 < 2^24
+
+tight spot 2 - layout.rs:206-207 claims 'D^2 + a1 < 2^49':
+  D,a1 < 2^24 -> D^2 + a1 <= 281474959933440 < 2^48  -> holds
+  and sum x^2 + ceps <= 17179869185 < 2^35 (the comment says < 2^35) -> holds
+
+derived (not stated in the note): c1 forces sigma+rho+1 = D*2^(tn+1) <= 2^30-1,
+  so D <= 262143 < 2^18, tighter than the 2^24 limb bound.
+
+U8 lookups: 47104 (note says 47104 -> matches); exp lookups: 2048 (note says 2048 -> matches)
