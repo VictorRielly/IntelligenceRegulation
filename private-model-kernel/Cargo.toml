@@ -1,0 +1,17 @@
+[package]
+name = "private-model-kernel"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "EXPERIMENTAL exact-integer synthetic ZK60 two-block token model (computation only, not a proof, not a trained model)"
+
+# Standalone: not a member of any parent workspace. The only dependency is
+# the unchanged sibling block kernel (itself dependency-free).
+[workspace]
+
+[lib]
+name = "private_model_kernel"
+path = "src/lib.rs"
+
+[dependencies]
+private-block-kernel = { path = "../private-block-kernel" }

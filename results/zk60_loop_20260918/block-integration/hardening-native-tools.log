@@ -1,0 +1,9 @@
+   Compiling zk60-native-tools v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-native-tools)
+    Finished `release` profile [optimized] target(s) in 0.20s
+     Running `/home/victor/IntelligenceRegulation/zkvm-block/target/release/examples/verify_tools /tmp/zk60-loop-20260917/groth16-native`
+risczero/risc0-groth16-prover:v2025-04-03.1 manifest sha256:7f173963196570b7a71816ed70565a4579264c5d2e3e0ecb028102538ad0e331
+a30a45c2f38b116fd123fee219ec3e40925670b64585f196e291a22d3cef281e 14627939 prover
+0670f7c8ce8fe757d0cf4808c5d5cd92c85ac7a96ea98170c2f6f756d49e80b5 260664474 stark_verify.cs
+6d76b07e187e3329b1d82498a5f826366c3b2e04fc6d99de3d790248eb1ea71f 2255766633 stark_verify_final.pk.dmp
+e407f61d2c6b9ee338e8194e10bef6ed815bd7497f9fac4687aa4944faa169c9 148060624 stark_verify
+f120ed88d4d090f7b4b78aef7dcc94bd98ecff6e592ea9f7a629c4279231b8b4 46203464 stark_verify.dat

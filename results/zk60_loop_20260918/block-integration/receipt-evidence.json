@@ -1,0 +1,9 @@
+{
+  "receipt_bytes": 223514,
+  "receipt_sha256": "6c428d49738a819198a32e60eb1c063b557f05500cddabb1abaab83a1fe71aa6",
+  "complete_tiny_block_relation": true,
+  "privacy_accepted": false,
+  "model_mvp_complete": false,
+  "proof_seconds_shared_box": 3742.809933937009,
+  "validation_note": "Original run failed only freeze fixture lookup; corrected M125_EXPORT_DIR check passes without changing code or proof"
+}

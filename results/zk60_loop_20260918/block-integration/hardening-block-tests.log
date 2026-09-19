@@ -1,0 +1,26 @@
+     Locking 1 package to latest compatible version
+      Adding zk60-native-tools v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-native-tools)
+   Compiling zk60-block-methods v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-block/methods)
+   Compiling zk60-native-tools v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-native-tools)
+   Compiling zk60-block-host v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-block/host)
+   Compiling zk60-block-wrap v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-block/wrap)
+    Finished `release` profile [optimized] target(s) in 18.99s
+     Running unittests src/main.rs (target/release/deps/zk60_block_host-003ddcb2ab8a1fa9)
+
+running 5 tests
+test refuses_profiler_and_unreviewed_runtime_switches ... ok
+test tests::fake_receipt_is_rejected_even_with_genuine_claim ... ok
+test tests::invalid_owner_input_and_aliases_leave_no_output ... ok
+test tests::private_artifact_cannot_overwrite_or_follow_a_symlink ... ok
+test tests::owner_input_is_bound_and_secrets_stay_in_private_directory ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/main.rs (target/release/deps/zk60_block_wrap-0be3d0e3f1e7657f)
+
+running 2 tests
+test refuses_profiler_and_unreviewed_runtime_switches ... ok
+test tests::fake_and_empty_outer_seals_cannot_assert_an_authentic_claim ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

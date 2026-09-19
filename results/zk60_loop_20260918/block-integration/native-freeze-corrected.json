@@ -1,0 +1,6 @@
+{
+  "exit_code": 0,
+  "seconds": 3.2510391190007795,
+  "correction": "M125_EXPORT_DIR uses existing WSL fixture, as prior validated pipeline",
+  "log": "native-freeze-corrected.log"
+}

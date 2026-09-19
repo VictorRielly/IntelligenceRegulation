@@ -1,5 +1,21 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**Live Codex/Fable coordination, 2026-09-18:** Victor requested collaboration
+between the two loops. See [the active file ownership and next delivery](ZK60_CODEX_FABLE_COORDINATION.md):
+Codex integrates the token-model receipt; Fable is requested to implement the
+custom private-attention path in an isolated lane. Whole-proof privacy and
+five-second performance remain separate acceptance gates.
+
+**2026-09-18, continuous MVP loop:** see the
+[live work record](ZK60_MVP_LOOP_20260918.md). Complete block: 785-byte Groth16
+receipt, independent verification, eight rejection controls. Full Python
+regression (962 tests, 60 skipped) and corrected native freeze pass. The
+block/token runner passes 52 tests. The token kernel (19 tests) and separate
+workspace (24 tests plus actual guest execution) pass; real token proving is
+running under `token-proof-v2.done`. Inspect markers before retrying. The
+[custom endpoint gate](ZK60_ENDPOINT_REUSE_DISPOSITION_20260918.md), D7,
+model-scale completion and the speed target remain open.
+
 **Rulings: [ZK60_DECISIONS.md](ZK60_DECISIONS.md)** (2026-09-18: D3 97-bit
 zkVM level accepted, D4 Groth16 trusted setup accepted, D5 Groth16 receipts
 only, D7 endpoint profile pending, D8 external-root closure retracted).

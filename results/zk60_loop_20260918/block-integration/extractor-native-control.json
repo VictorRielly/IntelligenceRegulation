@@ -1,0 +1,10 @@
+{
+  "verified": true,
+  "artifact": {
+    "file": "prover",
+    "bytes": 14627939,
+    "sha256": "a30a45c2f38b116fd123fee219ec3e40925670b64585f196e291a22d3cef281e"
+  },
+  "layer": "sha256:adb5a1b1cc574f81df826f385326b036687a7f91da3d2a5f637ab338ff5c6f01",
+  "downloaded_binary_executed": false
+}

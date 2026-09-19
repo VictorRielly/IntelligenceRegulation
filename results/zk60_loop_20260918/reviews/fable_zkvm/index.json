@@ -1,0 +1,19 @@
+{
+  "model": "claude-fable-5-1",
+  "baseline": "5d6f101",
+  "disposition": "proposal only; facts marked recalled require source verification; historical environment facts superseded; 128-bit requirement in parent brief was not established by repository requirements; proposed 260-byte codec is not implemented Rust profile",
+  "files": [
+    {
+      "path": "docs/zkmatrix-poc/ZK60_ZKVM_CONSTRUCTION_REVIEW.md",
+      "sha256": "cc6bbedf5059ccd5fb033e10a5eac23befd5e17b2d0e99a6039f4957774b4f74"
+    },
+    {
+      "path": "scripts/zk60_zkvm_contract_probe.py",
+      "sha256": "9a433dbcf420c7852cec7bac7c6b991d9d94189973a1be88addd5ea31b5a1ca5"
+    },
+    {
+      "path": "tests/test_zk60_zkvm_contract_probe.py",
+      "sha256": "f8277364d76df297208fdee71f36919ddc7f67528517894cee9a4a6ff89c5302"
+    }
+  ]
+}

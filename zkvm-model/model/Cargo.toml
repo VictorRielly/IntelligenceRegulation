@@ -1,0 +1,15 @@
+[package]
+name = "zk60-token-model"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+private-model-kernel = { path = "../../private-model-kernel" }
+zk60-token-statement = { path = "../statement" }
+
+# Test-only, read-only: the unchanged legacy block decoder checks that each
+# embedded block payload is a complete legacy Z60MDL01 encoding. It is not a
+# dependency of the library or of the guest image.
+[dev-dependencies]
+zk60-block-model = { path = "../../zkvm-block/model" }

@@ -1,0 +1,11 @@
+[package]
+name = "zk60-native-tools"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Standalone so `cargo test` works here; wrappers depend on it by path.
+[workspace]
+
+[dependencies]
+sha2 = "=0.10.9"

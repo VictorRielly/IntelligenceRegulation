@@ -1,0 +1,81 @@
+   Compiling zk60-token-statement v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-model/statement)
+   Compiling zk60-token-methods v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-model/methods)
+   Compiling private-model-kernel v0.1.0 (/home/victor/IntelligenceRegulation/private-model-kernel)
+   Compiling zk60-block-statement v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-block/statement)
+   Compiling zk60-block-model v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-block/model)
+   Compiling zk60-token-model v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-model/model)
+   Compiling zk60-token-host v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-model/host)
+   Compiling zk60-token-wrap v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-model/wrap)
+    Finished `release` profile [optimized] target(s) in 1m 21s
+     Running unittests src/main.rs (/home/victor/IntelligenceRegulation/zkvm-block/target/release/deps/zk60_token_host-1052cabd10179cda)
+
+running 7 tests
+test tests::image_id_and_environment_checks_are_exact ... ok
+test tests::invalid_owner_input_and_aliases_leave_no_output ... ok
+test tests::private_artifact_cannot_overwrite_or_follow_a_symlink ... ok
+test tests::fake_receipt_is_rejected_even_with_genuine_claim ... ok
+test tests::owner_input_is_bound_and_secrets_stay_in_private_directory ... ok
+test tests::prove_refuses_existing_receipt_relative_r0vm_and_mismatched_policy_before_any_prover ... ok
+test tests::fresh_requests_use_valid_tokens_and_independent_salts ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running unittests src/lib.rs (/home/victor/IntelligenceRegulation/zkvm-block/target/release/deps/zk60_token_methods-eed02b80e6e97f9e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/home/victor/IntelligenceRegulation/zkvm-block/target/release/deps/zk60_token_model-208f76757e5553a5)
+
+running 9 tests
+test tests::layout_offsets_and_sizes_are_exact ... ok
+test tests::model_parser_refuses_malformed_encodings ... ok
+test tests::owner_input_is_exactly_128_bytes_of_valid_tokens ... ok
+test tests::request_length_profile_and_token_range_are_strict ... ok
+test tests::digest_binds_every_region_and_block_order ... ok
+test tests::statement_binds_context_model_salts_roles_tokens_and_output ... ok
+test tests::embedded_blocks_are_complete_legacy_payloads_with_the_same_meaning ... ok
+test tests::model_roundtrip_is_canonical_and_computes_like_the_kernel_model ... ok
+test tests::output_endpoint_follows_the_recomputed_token ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src/lib.rs (/home/victor/IntelligenceRegulation/zkvm-block/target/release/deps/zk60_token_statement-0cdd488cb15c12ad)
+
+running 5 tests
+test tests::encoding_is_explicit_little_endian_and_domain_separated ... ok
+test tests::policy_is_exact_and_cannot_be_derived_from_candidate_journal ... ok
+test tests::each_endpoint_binds_role_context_model_salt_and_every_token ... ok
+test tests::profile_is_new_and_sizes_are_exact ... ok
+test tests::role_sizes_are_exact_and_separated ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/home/victor/IntelligenceRegulation/zkvm-block/target/release/deps/zk60_token_wrap-3aee153a94b652f3)
+
+running 3 tests
+test tests::image_id_and_environment_checks_are_exact ... ok
+test tests::fake_and_empty_outer_seals_cannot_assert_an_authentic_claim ... ok
+test tests::wrap_refuses_before_creating_work_or_output ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+   Doc-tests zk60_token_methods
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zk60_token_model
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests zk60_token_statement
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

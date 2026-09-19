@@ -1,0 +1,44 @@
+[
+  {
+    "name": "post-rust-tests",
+    "exit_code": 0,
+    "timed_out": false,
+    "seconds": 29.293991842016112
+  },
+  {
+    "name": "post-host-build",
+    "exit_code": 0,
+    "timed_out": false,
+    "seconds": 29.294358687999193
+  },
+  {
+    "name": "post-image-id",
+    "exit_code": 0,
+    "timed_out": false,
+    "seconds": 0.021006444992963225
+  },
+  {
+    "name": "post-owner-prepare",
+    "exit_code": 0,
+    "timed_out": false,
+    "seconds": 0.060780295985750854
+  },
+  {
+    "name": "post-owner-execute",
+    "exit_code": 0,
+    "timed_out": false,
+    "seconds": 0.14096462598536164
+  },
+  {
+    "name": "post-full-python",
+    "exit_code": 0,
+    "timed_out": false,
+    "seconds": 1081.4554237260018
+  },
+  {
+    "name": "post-native-freeze",
+    "exit_code": -6,
+    "timed_out": false,
+    "seconds": 0.020923065021634102
+  }
+]

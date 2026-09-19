@@ -1,5 +1,18 @@
 # ZK60 milestone map
 
+**2026-09-18, continuous implementation:** the complete fixed block has a
+**785-byte Groth16 receipt**, separate-process verification and eight passing
+rejection controls. Full Python regression: **962 tests, 60 skipped, pass**;
+corrected native freeze passes. The explicit-profile runner passes **52**
+mocked orchestration tests and verifies the real block receipt with its
+independent image pin. Both wrappers now require pinned native-tool hashes;
+all four CLIs refuse inherited prover/profiler switches. The two-block token
+kernel passes **19** native tests, its workspace passes **24** tests, and
+actual guest execution succeeds. Its real proof is running. D7 and the
+model-scale/speed gates remain open. [Live record](ZK60_MVP_LOOP_20260918.md),
+[Codex/Fable ownership](ZK60_CODEX_FABLE_COORDINATION.md),
+[custom privacy limits](ZK60_ENDPOINT_REUSE_DISPOSITION_20260918.md).
+
 **2026-09-15, MVP refresh:** [plan and results](ZK60_MVP_20260915.md).
 Opus 5's [one-command P1 FFN demo](ZK60_P1_DEMO.md) now produces a
 5,029,244-byte receipt, verifies it independently and rejects six altered

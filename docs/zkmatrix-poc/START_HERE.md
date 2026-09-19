@@ -1,5 +1,17 @@
 # START HERE — the proof project in plain words
 
+**Current work, 2026-09-18:** [continuous MVP loop](ZK60_MVP_LOOP_20260918.md).
+The complete fixed block has a **785-byte Groth16 receipt**, independent
+verification and eight rejection controls. The full Python suite passes
+(962 tests, 60 skipped); native freeze passes with the existing WSL fixture.
+The [runner](ZK60_ZKVM_DEMO.md) now supports explicit block/token profiles
+and trusted image pins (52 tests). The two-block token kernel has 19 passing
+tests; its guest/host has 24 passing tests and actual zkVM execution, and its
+real proof is running. [Codex/Fable coordination](ZK60_CODEX_FABLE_COORDINATION.md)
+splits functional integration from the requested custom attention delivery.
+D7 profile/model approval, custom whole-proof privacy, model-scale completion
+and the five-second target remain open.
+
 **Rulings live in [the decisions register](ZK60_DECISIONS.md)** (2026-09-18):
 two lines (zkVM intermediate for the first complete private tiny block; the
 custom prover for the throughput target), about 97 bits conjectured accepted

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "hardening-block-tests",
+    "exit_code": 0,
+    "seconds": 19.091834098042455
+  },
+  {
+    "name": "hardening-block-build",
+    "exit_code": 0,
+    "seconds": 32.73428071400849
+  },
+  {
+    "name": "hardening-token-tests",
+    "exit_code": 0,
+    "seconds": 37.15043560496997
+  },
+  {
+    "name": "hardening-token-build",
+    "exit_code": 0,
+    "seconds": 32.53405187401222
+  },
+  {
+    "name": "hardening-native-tools",
+    "exit_code": 0,
+    "seconds": 2.772960469010286
+  }
+]

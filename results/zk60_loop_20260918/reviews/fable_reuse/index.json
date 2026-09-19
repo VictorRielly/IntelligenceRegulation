@@ -1,0 +1,18 @@
+{
+  "model": "claude-fable-5-1",
+  "source_files": [
+    {
+      "path": "docs/zkmatrix-poc/ZK60_REUSABLE_ENDPOINT_REVIEW_20260918.md",
+      "sha256": "ab6317d5fbe20247815952d4ef747b7df5826064def9269351486b5b1d74f110"
+    },
+    {
+      "path": "scripts/zk60_reusable_endpoint_probe.py",
+      "sha256": "b77a5e97fc8de7a7e909eb3f537201fb89b663ee1546673a8925a7c1e174422e"
+    },
+    {
+      "path": "tests/test_zk60_reusable_endpoint_probe.py",
+      "sha256": "b7b7cd489f248616aa74d6860167dced1e350596d4987bc320f4fd3e7d618a35"
+    }
+  ],
+  "disposition": "native two-opening recovery reproduced; simulator and unrestricted prior-history closure not accepted"
+}

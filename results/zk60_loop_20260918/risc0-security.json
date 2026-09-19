@@ -1,0 +1,110 @@
+{
+  "kind": "public parameter calculation, not captured prover telemetry",
+  "records": [
+    {
+      "circuit": "rv32im-v4.0.5",
+      "conjectured_security_bits": 99.86557006835938,
+      "extension_degree": 4,
+      "proven_list_decoding_bits": 47.75474166870117,
+      "trace_po2": 14
+    },
+    {
+      "circuit": "rv32im-v4.0.5",
+      "conjectured_security_bits": 99.74260711669922,
+      "extension_degree": 4,
+      "proven_list_decoding_bits": 47.68069076538086,
+      "trace_po2": 15
+    },
+    {
+      "circuit": "rv32im-v4.0.5",
+      "conjectured_security_bits": 99.52425384521484,
+      "extension_degree": 4,
+      "proven_list_decoding_bits": 47.41749572753906,
+      "trace_po2": 16
+    },
+    {
+      "circuit": "rv32im-v4.0.5",
+      "conjectured_security_bits": 99.1670913696289,
+      "extension_degree": 4,
+      "proven_list_decoding_bits": 46.680206298828125,
+      "trace_po2": 17
+    },
+    {
+      "circuit": "rv32im-v4.0.5",
+      "conjectured_security_bits": 98.64241790771484,
+      "extension_degree": 4,
+      "proven_list_decoding_bits": 45.30139923095703,
+      "trace_po2": 18
+    },
+    {
+      "circuit": "rv32im-v4.0.5",
+      "conjectured_security_bits": 97.95557403564453,
+      "extension_degree": 4,
+      "proven_list_decoding_bits": 43.50985336303711,
+      "trace_po2": 19
+    },
+    {
+      "circuit": "rv32im-v4.0.5",
+      "conjectured_security_bits": 97.14198303222656,
+      "extension_degree": 4,
+      "proven_list_decoding_bits": 41.567039489746094,
+      "trace_po2": 20
+    },
+    {
+      "circuit": "recursion-v4.0.5",
+      "conjectured_security_bits": 99.98368072509766,
+      "extension_degree": 4,
+      "proven_list_decoding_bits": 47.76688003540039,
+      "trace_po2": 14
+    },
+    {
+      "circuit": "recursion-v4.0.5",
+      "conjectured_security_bits": 99.96753692626953,
+      "extension_degree": 4,
+      "proven_list_decoding_bits": 47.72736740112305,
+      "trace_po2": 15
+    },
+    {
+      "circuit": "recursion-v4.0.5",
+      "conjectured_security_bits": 99.935791015625,
+      "extension_degree": 4,
+      "proven_list_decoding_bits": 47.57932662963867,
+      "trace_po2": 16
+    },
+    {
+      "circuit": "recursion-v4.0.5",
+      "conjectured_security_bits": 99.87432098388672,
+      "extension_degree": 4,
+      "proven_list_decoding_bits": 47.10414123535156,
+      "trace_po2": 17
+    },
+    {
+      "circuit": "recursion-v4.0.5",
+      "conjectured_security_bits": 99.75871276855469,
+      "extension_degree": 4,
+      "proven_list_decoding_bits": 46.018375396728516,
+      "trace_po2": 18
+    },
+    {
+      "circuit": "recursion-v4.0.5",
+      "conjectured_security_bits": 99.55206298828125,
+      "extension_degree": 4,
+      "proven_list_decoding_bits": 44.378944396972656,
+      "trace_po2": 19
+    },
+    {
+      "circuit": "recursion-v4.0.5",
+      "conjectured_security_bits": 99.21074676513672,
+      "extension_degree": 4,
+      "proven_list_decoding_bits": 42.48516845703125,
+      "trace_po2": 20
+    }
+  ],
+  "risc0_zkp": "3.0.5",
+  "upstream_calculator": "src/prove/soundness.rs",
+  "whole_proof_security_bound": false,
+  "calculator_sha256": "6d814ec839d0f4b33f275cdfa2d382f4ce455957b1ec7932d9bc717ccf732921",
+  "caller_source_sha256": "6c9e341ef4c476c166c1c6e07cefb2dae58cb7a5a4cdf8a1e3b7557c8717b267",
+  "segment_limit_po2": 18,
+  "recursion_po2": 18
+}

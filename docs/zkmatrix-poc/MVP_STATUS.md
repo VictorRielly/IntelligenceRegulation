@@ -9,7 +9,7 @@ the laptop is shared with other jobs.
 
 ## 1. Do we have a workable proof?
 
-**Yes, for one small complete block, with privacy.** Today at 19:18 the
+**A complete small-block experiment works. The model MVP remains open.** Today at 19:18 the
 first complete transformer block (T32 tokens, width 16, FFN 16, two heads,
 the real integer kernel: both RMS norms, QKV, RoPE, causal integer softmax
 attention, PV, output projection, both residuals, SiLU FFN) was proven by
@@ -89,8 +89,9 @@ it does not exist yet.**
 2. **Whole-proof privacy acceptance on the custom line.** The joint-view
    tools exist; the caller-fixed-root obligation is open (D8/D11).
 3. **Speed.** The gap above is a design gap, not a tuning gap.
-4. **In flight now (Codex's loop):** a two-block token-model guest for the
-   zkVM line (`zkvm-model/`, headless Fable lane delivered, Codex building);
+4. **In flight now (Codex's loop):** a two-block token-model proof for the
+   zkVM line (`zkvm-model/`: 24 tests and actual execution pass; proving now
+   runs under the shared lock);
    the security owner's source review of `zkvm-block/` with eight hardening
    items (`ZK60_ZKVM_BLOCK_SOURCE_REVIEW_FABLE.md` on branch
    `zk60-mvp-fable`); pending rulings D7, D9, D10.
@@ -100,5 +101,5 @@ it does not exist yet.**
 Public artifacts of today's Groth16 receipt are retained under
 `results/zk60_loop_20260918/block-integration/groth16_public/` (policy,
 receipt, public model, stage records, hashes); the `/tmp` originals do not
-survive a reboot and the receipt cannot be regenerated. The loop's own
+survive a reboot and a new randomized receipt would have different bytes. The loop's own
 record is `ZK60_MVP_LOOP_20260918.md`.

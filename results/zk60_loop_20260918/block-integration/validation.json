@@ -1,0 +1,409 @@
+[
+  {
+    "name": "kernel-unit",
+    "command": [
+      "/home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "private-block-kernel/Cargo.toml",
+      "--lib"
+    ],
+    "exit_code": 0,
+    "seconds": 0.3151361049967818,
+    "expected_exit": 0
+  },
+  {
+    "name": "fixture-build",
+    "command": [
+      "/home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "hashline/Cargo.toml",
+      "--example",
+      "zk60_kernel_fixture"
+    ],
+    "exit_code": 0,
+    "seconds": 4.680472476000432,
+    "expected_exit": 0
+  },
+  {
+    "name": "fixture-0",
+    "command": [
+      "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_kernel_fixture",
+      "--out",
+      "/tmp/zk60-loop-20260917/public-fixture-0.fx"
+    ],
+    "exit_code": 0,
+    "seconds": 0.0160537320189178,
+    "expected_exit": 0
+  },
+  {
+    "name": "fixture-1",
+    "command": [
+      "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_kernel_fixture",
+      "--variant",
+      "7",
+      "--amp",
+      "9000",
+      "--weight-seed",
+      "3",
+      "--out",
+      "/tmp/zk60-loop-20260917/public-fixture-1.fx"
+    ],
+    "exit_code": 0,
+    "seconds": 0.016020762996049598,
+    "expected_exit": 0
+  },
+  {
+    "name": "fixture-2",
+    "command": [
+      "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_kernel_fixture",
+      "--fill",
+      "32767",
+      "--out",
+      "/tmp/zk60-loop-20260917/public-fixture-2.fx"
+    ],
+    "exit_code": 0,
+    "seconds": 0.007840261998353526,
+    "expected_exit": 0
+  },
+  {
+    "name": "fixture-3",
+    "command": [
+      "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_kernel_fixture",
+      "--fill",
+      "-32768",
+      "--out",
+      "/tmp/zk60-loop-20260917/public-fixture-3.fx"
+    ],
+    "exit_code": 0,
+    "seconds": 0.007717061002040282,
+    "expected_exit": 0
+  },
+  {
+    "name": "fixture-4",
+    "command": [
+      "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_kernel_fixture",
+      "--fill",
+      "0",
+      "--out",
+      "/tmp/zk60-loop-20260917/public-fixture-4.fx"
+    ],
+    "exit_code": 0,
+    "seconds": 0.01581130101112649,
+    "expected_exit": 0
+  },
+  {
+    "name": "fixture-5",
+    "command": [
+      "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_kernel_fixture",
+      "--variant",
+      "1",
+      "--amp",
+      "3",
+      "--weight-seed",
+      "0",
+      "--out",
+      "/tmp/zk60-loop-20260917/public-fixture-5.fx"
+    ],
+    "exit_code": 0,
+    "seconds": 0.015907860972220078,
+    "expected_exit": 0
+  },
+  {
+    "name": "fixture-6",
+    "command": [
+      "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_kernel_fixture",
+      "--variant",
+      "2",
+      "--amp",
+      "50",
+      "--weight-seed",
+      "0",
+      "--out",
+      "/tmp/zk60-loop-20260917/public-fixture-6.fx"
+    ],
+    "exit_code": 0,
+    "seconds": 0.015913126000668854,
+    "expected_exit": 0
+  },
+  {
+    "name": "fixture-7",
+    "command": [
+      "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_kernel_fixture",
+      "--variant",
+      "3",
+      "--amp",
+      "3000",
+      "--weight-seed",
+      "0",
+      "--out",
+      "/tmp/zk60-loop-20260917/public-fixture-7.fx"
+    ],
+    "exit_code": 0,
+    "seconds": 0.007646887999726459,
+    "expected_exit": 0
+  },
+  {
+    "name": "fixture-8",
+    "command": [
+      "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_kernel_fixture",
+      "--variant",
+      "4",
+      "--amp",
+      "10000",
+      "--weight-seed",
+      "0",
+      "--out",
+      "/tmp/zk60-loop-20260917/public-fixture-8.fx"
+    ],
+    "exit_code": 0,
+    "seconds": 0.015724947006674483,
+    "expected_exit": 0
+  },
+  {
+    "name": "fixture-9",
+    "command": [
+      "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_kernel_fixture",
+      "--variant",
+      "5",
+      "--amp",
+      "100",
+      "--weight-seed",
+      "1",
+      "--out",
+      "/tmp/zk60-loop-20260917/public-fixture-9.fx"
+    ],
+    "exit_code": 0,
+    "seconds": 0.015794163016835228,
+    "expected_exit": 0
+  },
+  {
+    "name": "fixture-10",
+    "command": [
+      "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_kernel_fixture",
+      "--variant",
+      "6",
+      "--amp",
+      "3000",
+      "--weight-seed",
+      "2",
+      "--out",
+      "/tmp/zk60-loop-20260917/public-fixture-10.fx"
+    ],
+    "exit_code": 0,
+    "seconds": 0.015858244005357847,
+    "expected_exit": 0
+  },
+  {
+    "name": "fixture-11",
+    "command": [
+      "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_kernel_fixture",
+      "--variant",
+      "8",
+      "--amp",
+      "20000",
+      "--weight-seed",
+      "5",
+      "--out",
+      "/tmp/zk60-loop-20260917/public-fixture-11.fx"
+    ],
+    "exit_code": 0,
+    "seconds": 0.01583011497859843,
+    "expected_exit": 0
+  },
+  {
+    "name": "oracle-parity",
+    "command": [
+      "/home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "private-block-kernel/Cargo.toml",
+      "--test",
+      "fixture_parity",
+      "--",
+      "--ignored",
+      "--nocapture"
+    ],
+    "exit_code": 0,
+    "seconds": 0.5656725179869682,
+    "expected_exit": 0
+  },
+  {
+    "name": "host-tests",
+    "command": [
+      "/home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "--release"
+    ],
+    "exit_code": 0,
+    "seconds": 17.936994453979423,
+    "expected_exit": 0
+  },
+  {
+    "name": "prepare",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-host",
+      "prepare",
+      "/tmp/zk60-loop-20260917/model.bin",
+      "/tmp/zk60-loop-20260917/demo-public",
+      "/tmp/zk60-loop-20260917/demo-private"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03221169800963253,
+    "expected_exit": 0
+  },
+  {
+    "name": "image-id",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-host",
+      "image-id"
+    ],
+    "exit_code": 0,
+    "seconds": 0.00150563198258169,
+    "expected_exit": 0
+  },
+  {
+    "name": "execute",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-host",
+      "execute",
+      "/tmp/zk60-loop-20260917/demo-public/model.bin",
+      "/tmp/zk60-loop-20260917/demo-private/request.bin",
+      "/tmp/zk60-loop-20260917/demo-public/policy.bin",
+      "/tmp/zk60-loop-20260917/demo-public/receipt.bin",
+      "/home/victor/.cargo/bin/r0vm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11443374399095774,
+    "expected_exit": 0
+  },
+  {
+    "name": "prove",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-host",
+      "prove",
+      "/tmp/zk60-loop-20260917/demo-public/model.bin",
+      "/tmp/zk60-loop-20260917/demo-private/request.bin",
+      "/tmp/zk60-loop-20260917/demo-public/policy.bin",
+      "/tmp/zk60-loop-20260917/demo-public/receipt.bin",
+      "/home/victor/.cargo/bin/r0vm"
+    ],
+    "exit_code": 0,
+    "seconds": 3742.809933937009,
+    "expected_exit": 0
+  },
+  {
+    "name": "independent-verify",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-host",
+      "verify",
+      "/tmp/zk60-loop-20260917/demo-public/policy.bin",
+      "/tmp/zk60-loop-20260917/demo-public/receipt.bin"
+    ],
+    "exit_code": 0,
+    "seconds": 0.017177964997245,
+    "expected_exit": 0
+  },
+  {
+    "name": "wrong-context",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-host",
+      "verify",
+      "/tmp/zk60-loop-20260917/wrong-context.bin",
+      "/tmp/zk60-loop-20260917/demo-public/receipt.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.0015328909794334322,
+    "expected_exit": 1
+  },
+  {
+    "name": "wrong-model",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-host",
+      "verify",
+      "/tmp/zk60-loop-20260917/wrong-model.bin",
+      "/tmp/zk60-loop-20260917/demo-public/receipt.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.0036055429955013096,
+    "expected_exit": 1
+  },
+  {
+    "name": "wrong-input",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-host",
+      "verify",
+      "/tmp/zk60-loop-20260917/wrong-input.bin",
+      "/tmp/zk60-loop-20260917/demo-public/receipt.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.0014044799900148064,
+    "expected_exit": 1
+  },
+  {
+    "name": "wrong-output",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-host",
+      "verify",
+      "/tmp/zk60-loop-20260917/wrong-output.bin",
+      "/tmp/zk60-loop-20260917/demo-public/receipt.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.0014827619888819754,
+    "expected_exit": 1
+  },
+  {
+    "name": "truncated",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-host",
+      "verify",
+      "/tmp/zk60-loop-20260917/demo-public/policy.bin",
+      "/tmp/zk60-loop-20260917/truncated.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.003659601992694661,
+    "expected_exit": 1
+  },
+  {
+    "name": "trailing",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-host",
+      "verify",
+      "/tmp/zk60-loop-20260917/demo-public/policy.bin",
+      "/tmp/zk60-loop-20260917/trailing.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.001512357994215563,
+    "expected_exit": 1
+  },
+  {
+    "name": "tampered",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-host",
+      "verify",
+      "/tmp/zk60-loop-20260917/demo-public/policy.bin",
+      "/tmp/zk60-loop-20260917/tampered.bin"
+    ],
+    "exit_code": 1,
+    "seconds": 0.0014642860041931272,
+    "expected_exit": 1
+  },
+  {
+    "name": "native-freeze",
+    "command": [
+      "/home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/ring_matmul",
+      "freeze-check"
+    ],
+    "exit_code": -6,
+    "seconds": 0.03230387199437246,
+    "expected_exit": 0
+  }
+]

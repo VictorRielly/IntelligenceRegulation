@@ -1,0 +1,111 @@
+freeze-check: every derive-time gate at the frozen point (k = 8, q8_31, e in {2,3,4})
+  ok   C0' LS18 quinary margin at (k=8, q8_31) > 1 (measured 1.30x)
+  ok   C0' LS18 quinary margin at (k=8, q8_46) > 1 (fallback modulus)
+  ok   C1' quinary d=128 challenge budget (2^297.2 >= 2^257)
+  ok   C2-C4 Pi2 2048^3 e=2: kappa=8 N_r=40 headroom 2.9 bits
+  ok   C2-C4 Pi2 2048^3 e=3: kappa=8 N_r=40 headroom 2.5 bits
+  ok   C2-C4 Pi2 2048^3 e=4: kappa=9 N_r=40 headroom 1.9 bits
+  ok   C2-C4 FFN 512x4096x11008 e=4: kappa=9 N_r=57 headroom 1.4 bits
+       P0 commit: key x ternary rho (b = 1)                          -> single-prime
+       P0 mask:   key x Gaussian y (b = 12 sigma = 3545028)          -> limb-split x3
+       P0 verify: key x response z (b = |z|_inf <= 52447150)         -> limb-split x3
+       P0 gate:   general x general (b = (q-1)/2 = 1073741624)       -> limb-split x3
+  ok   P0 A1 regimes all dispatch at the FFN point
+  ok   ARP binary side-condition budget closes at q8_46
+  ok   ARP binary side-condition budget at q8_31 is KNOWN-OPEN (must stay excluded, not assumed)
+  ok   Pi2 gate derived b = 8 (e = 4, L = 4) at the demo shape -> full grade r_g = 43 (r=1 pending the recursive-gate round)
+  ok   Pi2 gate derived b = 6 (e = 3, L = 6) at the FFN shape -> full grade r_g = 64
+  ok   CE gate execution/mask commitment shape (C4): kappa=8 n_r=152 msg_r=128
+  ok   CE pi2 wide shape (C4): kappa=8 n_r=280 msg_r=256
+  ok   CE tie digit chain (e=4, L=5, w=2^17) closes at the kappa-9 grade: sigma=2^18.0
+  ok   R1 quad-claim g-slots include the pads: 3/quad-ct, 2/quad-ring, 3/twisted-quad
+  ok   F3 q31 value CRS (msg_r=32, wave 16): kappa=9 N_r=56 headroom 2.0 bits, col 19.9 KB
+  ok   F3 q46 bit CRS (msg_r=32, wave 16): kappa=6 N_r=62 headroom 16.8 bits, 0.6 ring-MACs/el
+  ok   F3 link w_max(128, 4, q46) = 35 (frozen w = 11 <= w_max)
+  ok   F3 frozen point w = 11 -> l = 24 rows, w*l = 264 (2^-264 <= 2^-256)
+  ok   F3 ARP binary unit n=512 closes at q46
+  ok   F3 ARP binary unit n=1536 does NOT close at q46 (granularity cap stays pinned)
+  ok   F3 honest |y| model 2^16.3 < q46/2 = 2^45 (grounding gate, margin ~2^28)
+  ok   LKP-5 slot-field digest 0bcd6c1ee344e149 (k=8, deg 16, s0 = 2056890868)
+  ok   LKP-1 silu-int8-table-v1 spec digest 768b83d7c01d9bee (256 rows)
+  ok   LKP-2 characteristic ceiling: 2^23-leaf instances (and T=2048 per-layer) clear the 64x margin; 2^26 does NOT
+  ok   LKP-3 transcript shape at the FFN point: witness 368 rounds (1472+92 K-elems), table 68 rounds (272+32), degree 3
+  ok   LKP-6 E3-Z mask material: witness g 1197+R 252, table g 266+R 84, blinders 512 -> 2311 K-elems/pass
+  ok   LKP-7 masked transcript at the FFN point: witness 385 rounds/1862 K-el, table 84/532, pass 153216 B (150 KB) at 64 B/K-el
+  ok   LKP-4 E4 psi budget: 9 copies x 31 bits >= 257 over 48 coordinate rows
+  ok   E2 slot-link junk weights cover ALL non-constant coordinates: 240 at (n=16, k=8), w=11 l=24
+  ok   LKP-8 U-K8 block = 1020 el (blinder_positions(2^11)[0]), dt = 9, ceiling ok
+  ok   LKP-8 wall 1: q31 C2 wave cap — 113 commitments derive, 200 do NOT (single-descent committed lookups cap near 2^17 el/round)
+  ok   LKP-8 wall 2: q46 ARP unit 512 bits at alpha 3.5 closes; alpha 5.0 does NOT (4 restart-coupled units/round) [REPRODUCIBILITY pin, legacy range arm — NOT a ZK claim; audit 2026-07-14 C-01]
+  ok   LKP-8 q46 layer msg_r = 4 derives; binary theta rows = 6; link w = 11 -> l = 24
+  ok   LKP-9 q31 C2 wave capacity at the U-K5c shape = 134 commitments (135 FAILS)
+  ok   LKP-9 partition rule at 2^12/silu: data cap 76, 3 waves, chunk-wave budget 57; plan deterministic; 77-commit triple wave busts C2
+  ok   LKP-9 partial-sum gate: honest per-wave partials ACCEPT; a lied partial REJECTS (split_claims_verifier)
+  ok   LKP-9 range-table spec digest (ur2-range-table-v1, w=8, 256 rows) pinned
+  ok   LKP-9 ARP rejection constants at LKP-8 (t = 1.5, alpha = 3.5): log M(1) = 0.469388 (e^-0.47/unit), log M_joint(4) = 1.020408 (~2.8 attempts/round), joint < per-unit product [REPRODUCIBILITY pin, legacy range arm — NOT a ZK claim; audit 2026-07-14 C-01]
+  ok   LKP-10 pad layout: 9 pads/wave, wave-major, 113 pad-waves/commitment (1024/9), ceil(9W/1024)=6 pad commitments at W=670; layout_bytes deterministic (prover==verifier)
+  ok   LKP-10 data cap re-derived: masked cap = 75 (was 76; the +1 shared pad commitment per pin-bearing wave, from derive_ct_round_params' scan — not hand-carried); legacy Revealed shape keeps 76 (LKP-9)
+  ok   LKP-10 closing round: 9 exact zero-sum claims (design eq. 4), 2 g-groups (9 slots / msg_r 8), standalone over the pad commitments
+  ok   LKP-10 zeta deletion: per-chunk-wave reveal shares 57 -> 9 (9 pins kept; 2 families x l=24 = 48 identically-zero zeta reveals deleted; per-wave ForcedZero claims strictly stronger than the retired layer-wide gate)
+  ok   LKP-10 pad freshness: solved last pad (each row sums to 0 mod q) from the per-proof stream; WavePads non-Clone, consumed by the splitter — one-time freshness is structural
+  ok   UAGB1-1a w8s-weight-int8: e0=1 l0=8 rederives (3 rows/table); l0-1 fails coverage; recomposition integer-exact (non-wrap gate holds)
+  ok   UAGB1-1a a8s-act-int8: e0=2 l0=5 rederives (4 rows/table); l0-1 fails coverage; recomposition integer-exact (non-wrap gate holds)
+  ok   UAGB1-1a a8u-act-offset8: e0=2 l0=5 rederives (4 rows/table); l0-1 fails coverage; recomposition integer-exact (non-wrap gate holds)
+  ok   UAGB1-1a acc24-inner768: e0=2 l0=13 rederives (4 rows/table); l0-1 fails coverage; recomposition integer-exact (non-wrap gate holds)
+  ok   UAGB1-1a q31c-full-column: e0=2 l0=16 rederives (4 rows/table); l0-1 fails coverage; recomposition mod-q native (non-wrap gate violated BY DESIGN, pinned)
+  ok   UAGB1-1a trench alignment: weight class e0 = 1 (F-N2), q31 column l0 = ceil(31/2) = 16
+  ok   UAGB1-1b gamma_max(exact) = 4565228 ~ 2^22.12 ((q/8)/58.8; PARAMS 3.4 row 2)
+  ok   UAGB1-1b F-IF1.5 gate comparisons: act e0=2 (2^21.26) fits, e0=5 (2^23.68) does not; weight e0=1 (2^21.88) fits, e0=2 does not
+  ok   UAGB1-1b D2 classes at 512x768x2048: gammas 2^15.17 / 2^16.83 / 2^17.23 all under the gate
+  ok   UAGB1-1c decomposition digest 1602129d5922fbafca357ee36e5bdf3e4d3d25bc020790e4e8ee3e4df4462197
+  ok   UAGB1-1d non-wrap gate rejects (e0=2, l0=17) at q31; accepts every class-table row
+  ok   UAGB1-2a battery shape 128x768x256: 320 data cms (96 A + 192 B + 32 C), cap 131 = c2 134 - 1 pad - 2 g, 3 waves, 1 pad cm, acc bits 25
+  ok   UAGB1-2b 125M layer shape 512x768x2048: 2944 data cms (384 A + 1536 B + 1024 C), 23 waves at cap 131, 2993 commitments total, acc bits 25
+  ok   UAGB1-2c the wave budget is tight both directions: cap + pad + g fits C2; cap+1 does not
+  ok   UAGB1-2d acc interval at inner 768 = [-12,484,608, 12,582,912] (bits 25); D1 class acc24-inner768 range identical
+  ok    BD-0a kappa_agg = 11 (row KAP-11)
+  ok    BD-0b T_cap = 33 (row EB1-tcap)
+  ok    BD-0c floor base cap e <= 7 (row EB4-emax)
+  ok    BD-0d K-draw exponent 496 = 16*31 (row EB3-kdraw)
+  ok    BD-0e level wire = 4 + 11*516 = 5,680 B (FD F-IF1.7 class)
+  ok    BD-0f gamma_max(exact-digit) = (q/8)/58.8 ~ 2^22.12 (row H-gate-ed)
+  ok    BD-1a weight group = 3,072 value rings x l0 8 = 24,576 digit rings
+  ok    BD-1b act group = 12,288 x 5 (B a8s) + 8,192 x 13 (C acc) = 167,936 digit rings
+  ok    BD-1c accumulator l0 = 13 at inner 768 (UAGB1-1a class table)
+  ok    BD-2a weight level-0 gamma 2^15.17 under the exact-digit gate (headroom +6.95 b)
+  ok    BD-2b act level-0 gamma 2^17.56 under the exact-digit gate (headroom +4.57 b)
+  ok    BD-3 weight schedule derives: 6 levels -> floor 939 rings at e = 7 (every level gamma-gated)
+  ok    BD-3 act schedule derives: 7 levels -> floor 936 rings at e = 7 (every level gamma-gated)
+  ok   UAGB1-BE1a 12->16 ruling: lambda(12) = 4, slots 16, pads 4; the frozen 7B point lambda(32) = 5, slots 32, pads 0 reproduced; boundaries 11->4, 16->4, 17->5
+  ok   UAGB1-BE1b one-time law: log2 sqrt(12) = 1.792 b (real committed inventory), log2 sqrt(16) = 2.000 b (conservative index-space bound), both < the frozen FC2-law 32x row 2.500 b; chain identity law_delta(12x) exact
+  ok   UAGB1-BE1c weight group (12x, e0=1 sign-binary): N_limb 294,912, gamma 2^16.963, headroom +5.159 b (pin 5.159 +- 0.005)
+  ok   UAGB1-BE1c activation group (12x, ADOPTED e0=2): N_limb 1,867,776, gamma 2^19.294, headroom +2.828 b (pin 2.828 +- 0.005)
+  ok   UAGB1-BE1c HONEST FINDING row: at the 125M matmul-family inventory even e0=5 FITS (headroom +0.452 b, pin 0.452) — the 7B FC2-act5 negative does NOT transfer to this inventory; e0=2 stays ADOPTED as the declared class base, not gate-forced
+  ok   UAGB1-BE1d descent ruling: dw_pass = 21 + 4 = 25, kel(25) = 1,760 [MODEL] (BC's F-O2 row stands); fit reproduces all 4 recorded points 17/19/21/24 -> 1000/1166/1348/1651
+  ok   UAGB1-BE1e schedules: matmul = [2;10]++[3;4] (deg 2 inner rounds, deg 3 layer rounds), zero-check = [3;24]; pads add zero limb rings (N_limb counts committed classes only)
+  ok   UAGB1-BF-1a silu-int8-table-v2 members ((-3,-3), (-4,-4)) regenerate byte-identically; v2 spec digests match the pins
+  ok   UAGB1-BF-1b family identity: generate(-4,-4) == SILU_INT8_OUTPUTS; v1 spec digest unmoved (lookup.rs == manifest.rs)
+  ok   UAGB1-BF-1c member separation: m3 != m4 != v1 digests; non-frozen pair (-2,-2) refused
+  ok   UAGB1-BF-1d clamp never fires on frozen members; m3 output range [-2, 127]
+  ok   UAGB1-BF-2a manifest family digests == lookup.rs generation; v4 registry = [v1, m3, m4]; class table pins (w8s e0=1, others e0=2)
+  ok   UAGB1-BF-2b v3 reference digest pinned f2a5acba.. (got f2a5acbaa52acc25); cv1 wire, 502 B
+  ok   UAGB1-BF-2c v4 reference digest pinned 9f83d3e9.. (got 9f83d3e9b69d8cb4)
+  ok   UAGB1-BI-1a ZKWF v1 golden sample canonical bytes pinned: 51715 B, sha e5c2f998852ff373
+  ok   UAGB1-BI-1b golden round trip: decode == artifact, re-encode byte-identical
+  ok   UAGB1-BI-1c the other direction: a mutated byte fails decode or moves the pinned sha
+  ok   UAGB1-BG-1a pass inventories act/weight = 7823360/3538944 digit rings (pins 7823360/3538944)
+  ok   UAGB1-BG-1b pass schedules: act L9 floor 915 e7, weight L8 floor 939 e7, tierz-weight floor 1368 e4 (pins L9/915, L8/939, 1368)
+  ok   UAGB1-BG-1c F-Z1 corner at the P2 weight floor: b = 2^27.748 < 28.00 (growth branch dead)
+  ok   UAGB1-BG-2 mode digest/codec: None digest stable + P2 digest differs + round-trip + old wire -> None (v3/v4 reference digests enforced unmoved by UAGB1-BF-2b/2c)
+  ok   UAGB1-BL-1a n_g: mm-gate/up (lk 10) = 35, mm-down (lk 11) = 37 (pins 35/37)
+  ok   UAGB1-BL-1b derived wire surcharge = 1024 B (pin 1,024; BG [MODEL] ~1,664, delta = the absent terminal-batch sumcheck)
+  ok   UAGB1-BL-1c masked sumcheck: honest ACCEPTS + forged-G REJECTS (both directions, real K arithmetic)
+  ok   UAGB1-BL-1d pass schedules unmoved by the blind (+1728 rings): tierz L8 floor 1368 e4 (pins L8/1368/e4), bare L8 floor 939 e7 (pins L8/939/e7)
+  ok   UPERF3-BB-1a int16-out members regenerate byte-identically (9 silu + 6 gelu)
+  ok   UPERF3-BB-1b int16-out spec digests pin the frozen bytes; accessor serves exactly the frozen set
+  ok   UPERF3-BB-1c manifest.rs registry rows == lookup.rs pins (duplicated-constant discipline); v3 registry = v4 registry (unmoved) + 15 members
+  ok   UPERF3-BB-1d v2 family digests unmoved (v1/m3/m4 pins byte-equal across both files)
+
+thread 'main' (266939) panicked at src/bin/ring_matmul.rs:24957:9:
+cannot read results/m125_ffn_export/layer00_X.bin (No such file or directory (os error 2)) — run scripts/m125_export_ffn.py under the frugal venv first
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

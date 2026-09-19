@@ -1,0 +1,20 @@
+[package]
+name = "zk60-token-guest"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+risc0-zkvm = { version = "=3.0.6", default-features = false, features = ["std"] }
+zk60-token-model = { path = "../../model" }
+zk60-token-statement = { path = "../../statement" }
+
+[profile.release]
+lto = "thin"
+overflow-checks = true
+
+[[bin]]
+name = "private_token"
+path = "src/main.rs"

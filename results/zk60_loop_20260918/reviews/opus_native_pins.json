@@ -1,0 +1,19 @@
+{
+  "model": "claude-opus-5",
+  "files": {
+    "Cargo.toml": "9ef274b2dd2d7b2bcaa09ee15ab6924777345f1de3ce294f9dca41a3ecff1ad8",
+    "README.md": "82ba17a6149fea3c5b112f39b73e2996f80c0474d29d76e981d36dd29d428f64",
+    "tests/validate.rs": "ec094a0df6e73e018b896472b81ec20bd25518143961d37276b888b673e97c2b",
+    "src/lib.rs": "dd2255c2896b344550322f1b81d6a89d7d570eebb7b42c23f8c9fcc03fbe2abb"
+  },
+  "agent_tests_run": false,
+  "parent_validation": {
+    "tests": 8,
+    "passed": true,
+    "actual_official_files_passed": true,
+    "wrapper_tests": {
+      "block": 7,
+      "token": 10
+    }
+  }
+}

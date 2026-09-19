@@ -1,0 +1,9 @@
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling zk60-token-statement v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-model/statement)
+   Compiling zk60-block-statement v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-block/statement)
+   Compiling zk60-block-model v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-block/model)
+   Compiling zk60-token-model v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-model/model)
+    Finished `release` profile [optimized] target(s) in 2.77s
+     Running `/home/victor/IntelligenceRegulation/zkvm-block/target/release/examples/zk60_token_synthetic_model /tmp/zk60-loop-20260917/token-synthetic-model.bin`
+{"synthetic":true,"label":"zk60-synthetic-token-model v1 (NOT trained, NOT canonical tables)","format":"Z60TOK01","model_bytes":13928,"model_digest":"df600a214e06c4e8921ebe4e1f914414981641c3197280e9d2fd520cedfa4b60","registered_calibration":false,"model_approved":false}

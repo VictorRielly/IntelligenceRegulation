@@ -1,0 +1,5 @@
+[build]
+jobs = 2
+
+[net]
+offline = true

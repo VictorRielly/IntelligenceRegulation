@@ -1,0 +1,17 @@
+{
+  "purpose": "public synthetic complete-block fixture; not a trained model",
+  "source": "hashline/examples/zk60_kernel_fixture.rs",
+  "generator_arguments": [],
+  "model_bytes": 6184,
+  "model_sha256": "c345ccdb09ccfa4f235d04003835cca9eff9e5cb10c84a5555abc4d13a9bdc55",
+  "model_digest": "8b624b2f97621f97cd099a2cd4943fceaa0e14b939d26d1749e7da3a41003abc",
+  "shape": {
+    "tokens": 32,
+    "width": 16,
+    "ffn": 16,
+    "query_heads": 2,
+    "kv_heads": 1,
+    "head_dimension": 8
+  },
+  "model_approved": false
+}

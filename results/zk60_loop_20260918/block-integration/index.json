@@ -1,0 +1,142 @@
+{
+  "status": "block Groth16 verified; token proof running; D7 pending; model MVP open",
+  "files": {
+    "post-validation-corrected.done": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "wrap-v2-corrected.done": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "native-freeze-corrected.json": {
+      "bytes": 184,
+      "sha256": "238f48ee13f6be6d5ee53b2f2d9c2cc815168729fe5ed8cf9131d03fe9e0e837"
+    },
+    "hardening-block-tests.log": {
+      "bytes": 1472,
+      "sha256": "1bb6e3840294187798750b0735016ad36e37d4cb72e130bb9cf50c3cf6ebc99a"
+    },
+    "groth16-evidence.json": {
+      "bytes": 270,
+      "sha256": "9c6aaaeea1582ff618f42031b6711c5ba6f1b512e8aa999d2c7a81033b261517"
+    },
+    "validation.done": {
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "post-validation-consolidated.json": {
+      "bytes": 1365,
+      "sha256": "71f0145e60e10a69328d13bc576eb5bfa406c5df6f30a13ba3261681b18f1e68"
+    },
+    "maintained-runner-verify.json": {
+      "bytes": 350,
+      "sha256": "e1d9f17f497150ce1077bac316622eabfad6c01933b3848002ae1648ed02b521"
+    },
+    "hardening-token-tests.log": {
+      "bytes": 1712,
+      "sha256": "a45d6bf7e4e1f903cd0e9a3fa76da78c04b9f28de4688458376baedd2c8b54d0"
+    },
+    "receipt-evidence.json": {
+      "bytes": 409,
+      "sha256": "9e8010f7aefd539dd271d50831c58a8ce4216a51ceb7959ea50f34187f3ea896"
+    },
+    "groth16-native-files.json": {
+      "bytes": 1387,
+      "sha256": "f1974c81e2dd0619911b02bf90c2f9589574c68691d910afd0d7a89b48dac382"
+    },
+    "hardening-native-tools.log": {
+      "bytes": 872,
+      "sha256": "c5a18527736b3a3fa6e9118e81005c1d2d125cd6187409d19a58a5f610c22f0b"
+    },
+    "post-validation.json": {
+      "bytes": 845,
+      "sha256": "18eacac534a9adf2c42218afad60bfa1be45f7f1cbf4860dd92809fef09252af"
+    },
+    "validation.json": {
+      "bytes": 10543,
+      "sha256": "322eac7a609a9d437db7d5ccca21701044690a766e7027df5a3fa63887ad5563"
+    },
+    "extractor-native-control.json": {
+      "bytes": 295,
+      "sha256": "297f049ab43377e16ae0a18e17a9ec60fd4e376e1c65b7e1f78c726bfc82fe1a"
+    },
+    "validation-error.txt": {
+      "bytes": 29,
+      "sha256": "2964c931ac136c45aabe15964db2958362d13bfbd0f5488cf66a1deca4587ff7"
+    },
+    "native-hardening-validation.json": {
+      "bytes": 500,
+      "sha256": "7e746f927a23c0dff214d8696ecb0d5cc49531f18c0e274819e0fb92b17680d5"
+    },
+    "proof-build-source.json": {
+      "bytes": 2078,
+      "sha256": "4ed8d3a5a080a4e84c7223d2e764f3172317d95a9e93b476a3ebd49d6ed70bd5"
+    },
+    "native-hardening-controls.json": {
+      "bytes": 1972,
+      "sha256": "9195c87ad0b79bb630e68501c2b4479a27afb66011b2f5be32f71bc34a2fd2b2"
+    },
+    "image-id.log": {
+      "bytes": 65,
+      "sha256": "81ccfb2c7eadb0d285ca31c0e191cb409416322b0334a8e479aa3e491c864118"
+    },
+    "groth16-native.done": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "native-freeze.log": {
+      "bytes": 11752,
+      "sha256": "78d17eb8b651c2194f669bd9c7a3173dd543fa6a24679632e8fc50b67a98d812"
+    },
+    "groth16-image.json": {
+      "bytes": 5531,
+      "sha256": "4274787372b70c161e75a4a04474b9d85b9634abcfce73f5dfcc46c5f4f4414b"
+    },
+    "post-validation.done": {
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "native-freeze-corrected.log": {
+      "bytes": 11513,
+      "sha256": "ca64e2c697c0a0f1c402ebe9312e4a3f2033f42e08c12112e50505520fa40cac"
+    },
+    "validation-corrected.done": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "groth16_public/README.txt": {
+      "bytes": 552,
+      "sha256": "9ec1cf2fb3e4932c802c60a1bd359d95cc6ff847665860ab86d602aa03e76719"
+    },
+    "groth16_public/groth16-evidence.json": {
+      "bytes": 270,
+      "sha256": "9c6aaaeea1582ff618f42031b6711c5ba6f1b512e8aa999d2c7a81033b261517"
+    },
+    "groth16_public/model.bin": {
+      "bytes": 6184,
+      "sha256": "c345ccdb09ccfa4f235d04003835cca9eff9e5cb10c84a5555abc4d13a9bdc55"
+    },
+    "groth16_public/SHA256SUMS": {
+      "bytes": 1058,
+      "sha256": "2b84bc6cf6d6254f1c5be09349e11569c35c24e3cc03c11b23dc37956b1677fa"
+    },
+    "groth16_public/policy.bin": {
+      "bytes": 144,
+      "sha256": "6447e9909a38a90dd8e8f23c9d9e1959f862e04c6323421b49e9a5b3b8748f43"
+    },
+    "groth16_public/groth16.bin": {
+      "bytes": 785,
+      "sha256": "6c67e05c70e6785023f5fd671770e95bc9de197c83558fc044817df4f16432e7"
+    },
+    "groth16_public/wrap-v2.json": {
+      "bytes": 4117,
+      "sha256": "d4400fc34329c009b48b0ffb089c9227668dc8166cdc8226ef5b45ab8dc4cff6"
+    },
+    "groth16_public/wrap-image-id.log": {
+      "bytes": 65,
+      "sha256": "81ccfb2c7eadb0d285ca31c0e191cb409416322b0334a8e479aa3e491c864118"
+    }
+  },
+  "private_artifacts_excluded": true
+}

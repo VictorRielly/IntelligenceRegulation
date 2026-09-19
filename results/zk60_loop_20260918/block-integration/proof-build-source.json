@@ -1,0 +1,22 @@
+{
+  "zkvm-block/Cargo.toml": "ca81b8a38c197545f6edd29c01298e41752efacf29d14f54086f03efa0e303e3",
+  "zkvm-block/Cargo.lock": "9ceb31c75e3b7bb00cf2fd44438d68eba2a2e655d9f0771b4a2ee2fbe81c522d",
+  "zkvm-block/.gitignore": "306fd52e74fca6746e12acc750f232de15e71da917756a1270d74c91f5eb7368",
+  "zkvm-block/.cargo/config.toml": "16203c892767127940a5f8c9a8ef352508512b448c25cef66bf0426876c2c31b",
+  "zkvm-block/methods/build.rs": "3818ee7c373b455def1c8a8f50c8ad3a871a29b26b01c535116bf9b9f17739cf",
+  "zkvm-block/methods/Cargo.toml": "8fd11e538d7fb70b62553055496cdcaa0a352004145b1a0c4257396a931cadae",
+  "zkvm-block/methods/guest/Cargo.toml": "25a44ed7122595f062157e192b69eae0c9420eec9d50f33a9b852c3c6e958838",
+  "zkvm-block/methods/guest/Cargo.lock": "7c187e5d948dd4a3850c76a4bcae29a052cf8f15b7c20258489e098a4fcb2fd3",
+  "zkvm-block/methods/guest/src/main.rs": "68640d7954fc7cc235c5863e0c2569a02f2df7ed749c9cd7731534ca38e94349",
+  "zkvm-block/methods/src/lib.rs": "902d56d952004dd42e65c148a4b537710f869054556528b25ed3e67d050bb255",
+  "zkvm-block/statement/Cargo.toml": "0e32fb2efe35d51ce467b462889ccc83ce802645727b2c17b01a67189d197034",
+  "zkvm-block/statement/src/lib.rs": "3164c5f5ef2c3a54c0c7659cb2d6d2fb0315d2e56cbc774502da700775511559",
+  "zkvm-block/host/Cargo.toml": "274d977c1e7c4643be1859be79eda03df032dedc98db47bc812d11e281fa58b2",
+  "zkvm-block/host/src/main.rs": "6c35f261186e2d54a4d731993d1fcf5b73aea7a71ba3ad7dfc1f787adfd12c3f",
+  "zkvm-block/model/Cargo.toml": "27e02bf54779ece2ab98e62fffff1fb34451e671c172db11d169cc229d5e1ca3",
+  "zkvm-block/model/src/lib.rs": "696b99182079647aa4a1f5393a12cdf3b99a095cb987c226d79c5a3b2cc0916e",
+  "private-block-kernel/src/lib.rs": "9e7c9bff10790c643ab26dcd6335991a016e62d9cc19ae217a92de60e27d4cf6",
+  "private-block-kernel/Cargo.toml": "26fe3d447f1ec37140b0d3210421b0dc8fca7f6d69c78d7d4953545c0440be0d",
+  "hashline/examples/zk60_kernel_fixture.rs": "749475b1585ab6ac624db637acdd84372ca1e2dd8992b5ffa392110097285060",
+  "zkvm-block/target/release/zk60-block-host": "b8fecf9cc011cf65ea8ae839b2a7477862e538039bbd59ea0f98b66e01354a0e"
+}

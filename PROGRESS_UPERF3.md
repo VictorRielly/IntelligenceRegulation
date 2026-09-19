@@ -1,5 +1,16 @@
 # U-PERF3 tranche ledger — the 8B MVP on the lattice line (route 1)
 
+**2026-09-18 continuation:** checkpoint `5d6f101` preserves the prior FFN work.
+The [continuous loop](docs/zkmatrix-poc/ZK60_MVP_LOOP_20260918.md) now has a
+verified **785-byte Groth16 complete-block receipt** and eight rejection
+controls. Full Python regression passes (962 tests, 60 skipped), as does the
+corrected native freeze. The block/token runner passes 52 tests. The token
+kernel passes 19 tests; Fable's token guest passes 24 tests and actual execution,
+and real proving is running. Wrapper tool pins and profiler guards are tested.
+[The live Codex/Fable handoff](docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md)
+requests the custom private-attention implementation in parallel. D7,
+whole-model acceptance, custom privacy and the five-second target remain open.
+
 **2026-09-15 refresh:** the current integration branch is
 `perf/zk-batch-optimizations` at baseline `763e308`. See the
 [MVP work record](docs/zkmatrix-poc/ZK60_MVP_20260915.md) and

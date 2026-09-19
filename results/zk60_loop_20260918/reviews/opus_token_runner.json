@@ -1,0 +1,16 @@
+{
+  "model": "claude-opus-5",
+  "files": {
+    "scripts/zk60_zkvm_demo.py": "c96dbc622aee298cb57b30e022964c6ed8fec1e2bf546227dd306dae19b9c498",
+    "tests/test_zk60_zkvm_demo.py": "239d8e25cbd97fd56e04f2e658208fbbe35fe1d2a420aef3fcc04d91a469a14e",
+    "docs/zkmatrix-poc/ZK60_ZKVM_DEMO.md": "4b40e2f527a9334ea21d20041aedd06b3c05165fcf128cc9d21410205a597b51"
+  },
+  "agent_tests_run": false,
+  "parent_validation": {
+    "command": "python3 -m unittest discover -s tests -p test_zk60_zkvm_demo.py -v",
+    "tests": 52,
+    "passed": true,
+    "seconds": 25.232,
+    "mocked": true
+  }
+}

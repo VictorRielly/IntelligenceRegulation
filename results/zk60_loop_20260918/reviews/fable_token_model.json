@@ -1,0 +1,28 @@
+{
+  "model": "claude-fable-5-1",
+  "source": "/tmp/wt-zk60-loop-fable-20260917/zkvm-model",
+  "delivered_not_yet_validated": true,
+  "files": {
+    "Cargo.toml": "932b7b27e0b502760e8c1d4637ed8f619e3d512659a21b537ba309c0b2793d25",
+    "README.md": "1f9a35fd24b91962f555dd03719b21f420b21951164879a1dceb081be701b472",
+    "Cargo.lock": "e3eeee908bf65342eddee9a4b4065b52e31d9e96df7384ae332f0cad43065f82",
+    ".gitignore": "306fd52e74fca6746e12acc750f232de15e71da917756a1270d74c91f5eb7368",
+    "methods/build.rs": "3818ee7c373b455def1c8a8f50c8ad3a871a29b26b01c535116bf9b9f17739cf",
+    "methods/Cargo.toml": "2695e4b078e4683312aa60b2d42ae885a47a5311eede569be6fb1c69665ae4f2",
+    "methods/guest/Cargo.toml": "786d44cd2d4d2a9ff798d5bb2ff42d50791298b87f6a695f41cec2eceba0a5a8",
+    "methods/guest/Cargo.lock": "a5b2e53cb1e04c44b239c6f1c2dc823967f7c95d7ee3a51b75b05baff6a78162",
+    "methods/guest/src/main.rs": "28d1c5063390cd1ca28b9949c190bf88382332a314eef5520273c9f4b56c4f0b",
+    "methods/src/lib.rs": "902d56d952004dd42e65c148a4b537710f869054556528b25ed3e67d050bb255",
+    "reference/reference_vectors.py": "3d92af64cf3be67c8761df0edf918888610b69dbf03458772205404f28328fff",
+    "wrap/Cargo.toml": "6f44733f3087e4b85122c45236bd9a06954b6d7fcca4e60a19d6bbdeec8f6670",
+    "wrap/src/main.rs": "f2bd104e02abb9f7adb852f4c6d3ff9973c83a30a34f8a65d3d21fae4078b850",
+    "statement/Cargo.toml": "0e3a075603a25f31a30ef22d5068495d030bc76a92ba22fa0cf128b518835db0",
+    "statement/examples/zk60_token_vectors.rs": "ececf30986b37debf4877ed99f4cd74760ba5663d922b8a8b78b45ffcd6c1178",
+    "statement/src/lib.rs": "75e84556a1e163b1d1ae8143d4c30f0eb34535eaf6976d56977c390e63765343",
+    "host/Cargo.toml": "338c353c528eea3c515a26a3eca5287e3501b0d1c6ef7232f525f9b42dbf272d",
+    "host/src/main.rs": "3d8eeee58329e8840668fea85b1195e5f07f5bc50e8dcf234ff1d06a5c7c5ac5",
+    "model/Cargo.toml": "1e16f8c36f28ae315a24f1e81ef74a9ee3f42969db183d2e758f3952a3a887bf",
+    "model/examples/zk60_token_synthetic_model.rs": "33ff4638914d7acc64e9b5b182fd4a629a07217dd261d7120c03035e9d92a535",
+    "model/src/lib.rs": "d7beacb6aca79e7204b8fa9181764ae46560550a51fa20d48b901a46a5634076"
+  }
+}

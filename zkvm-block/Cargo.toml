@@ -1,0 +1,8 @@
+[workspace]
+resolver = "2"
+members = ["statement", "model", "methods", "host", "wrap", "security"]
+exclude = ["methods/guest"]
+
+[profile.release]
+lto = "thin"
+overflow-checks = true

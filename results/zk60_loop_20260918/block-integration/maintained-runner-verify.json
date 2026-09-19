@@ -1,0 +1,9 @@
+{
+  "verified": true,
+  "profile": "block",
+  "expected_image_id": "8d74aab3d58c1a713045dfd1ea4ffa15e61439e61af58b72a5fdb792111998d9",
+  "kind": "groth16",
+  "exit_code": 0,
+  "receipt_sha256": "6c67e05c70e6785023f5fd671770e95bc9de197c83558fc044817df4f16432e7",
+  "policy_sha256": "6447e9909a38a90dd8e8f23c9d9e1959f862e04c6323421b49e9a5b3b8748f43"
+}

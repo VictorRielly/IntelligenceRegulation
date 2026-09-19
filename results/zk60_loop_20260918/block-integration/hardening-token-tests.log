@@ -1,0 +1,28 @@
+     Locking 1 package to latest compatible version
+      Adding zk60-native-tools v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-native-tools)
+   Compiling zk60-token-methods v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-model/methods)
+   Compiling zk60-token-wrap v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-model/wrap)
+   Compiling zk60-token-host v0.1.0 (/home/victor/IntelligenceRegulation/zkvm-model/host)
+    Finished `release` profile [optimized] target(s) in 37.00s
+     Running unittests src/main.rs (/home/victor/IntelligenceRegulation/zkvm-block/target/release/deps/zk60_token_host-1052cabd10179cda)
+
+running 7 tests
+test tests::image_id_and_environment_checks_are_exact ... ok
+test tests::invalid_owner_input_and_aliases_leave_no_output ... ok
+test tests::fake_receipt_is_rejected_even_with_genuine_claim ... ok
+test tests::private_artifact_cannot_overwrite_or_follow_a_symlink ... ok
+test tests::owner_input_is_bound_and_secrets_stay_in_private_directory ... ok
+test tests::prove_refuses_existing_receipt_relative_r0vm_and_mismatched_policy_before_any_prover ... ok
+test tests::fresh_requests_use_valid_tokens_and_independent_salts ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running unittests src/main.rs (/home/victor/IntelligenceRegulation/zkvm-block/target/release/deps/zk60_token_wrap-b62b8138e476c5ff)
+
+running 3 tests
+test tests::image_id_and_environment_checks_are_exact ... ok
+test tests::fake_and_empty_outer_seals_cannot_assert_an_authentic_claim ... ok
+test tests::wrap_refuses_before_creating_work_or_output ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+

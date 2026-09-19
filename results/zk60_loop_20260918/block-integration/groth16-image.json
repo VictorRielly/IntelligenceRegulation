@@ -1,0 +1,142 @@
+{
+  "repo": "risczero/risc0-groth16-prover",
+  "tag": "v2025-04-03.1",
+  "digest": "sha256:7f173963196570b7a71816ed70565a4579264c5d2e3e0ecb028102538ad0e331",
+  "manifest": {
+    "schemaVersion": 2,
+    "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+    "config": {
+      "mediaType": "application/vnd.docker.container.image.v1+json",
+      "size": 2488,
+      "digest": "sha256:f6f756b0899c29d869d6a01fbbded3887a8f51429653177ee4b3ffad294324cd"
+    },
+    "layers": [
+      {
+        "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+        "size": 28204865,
+        "digest": "sha256:6e909acdb790c5a1989d9cfc795fda5a246ad6664bb27b5c688e2b734b2c5fad"
+      },
+      {
+        "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+        "size": 6874397,
+        "digest": "sha256:adb5a1b1cc574f81df826f385326b036687a7f91da3d2a5f637ab338ff5c6f01"
+      },
+      {
+        "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+        "size": 96650569,
+        "digest": "sha256:e735b5bcd9b5e9e50aab42375ea1f886c202106515dab8ca19b396a9aa5f4eb4"
+      },
+      {
+        "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+        "size": 2230715073,
+        "digest": "sha256:e09dc7fe7eae18a5d33fdd426135b97b0b46ebdaa29de89b68791c9e3401b402"
+      },
+      {
+        "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+        "size": 27195745,
+        "digest": "sha256:86045e485feb83f1667ae1da5e9320e093559d538fa787b0c57646b47a7d42e0"
+      },
+      {
+        "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+        "size": 9516489,
+        "digest": "sha256:b672a9635276f17423dc655a599458fa4a5ae88190ed00d1c3201447df63bc04"
+      },
+      {
+        "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+        "size": 599,
+        "digest": "sha256:2aac0f1f99e8b1d2551231bb6d39ce0cbf205e2fe4bf2e9814ec22d4f38fa657"
+      },
+      {
+        "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+        "size": 598,
+        "digest": "sha256:0438cae47bf9c40f982b2e7469cdcc03bb5538606d3dbdf85632181a9f0cc622"
+      },
+      {
+        "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+        "size": 32,
+        "digest": "sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1"
+      }
+    ]
+  },
+  "config": {
+    "architecture": "amd64",
+    "config": {
+      "Env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      ],
+      "Entrypoint": [
+        "/app/prover.sh"
+      ],
+      "WorkingDir": "/app"
+    },
+    "created": "2025-04-03T20:57:13.066767036Z",
+    "history": [
+      {
+        "created": "2025-03-17T00:00:00Z",
+        "created_by": "# debian.sh --arch 'amd64' out/ 'bookworm' '@1742169600'",
+        "comment": "debuerreotype 0.15"
+      },
+      {
+        "created": "2025-04-03T20:56:55.006864065Z",
+        "created_by": "COPY /usr/src/gnark/prover /usr/local/bin/prover # buildkit",
+        "comment": "buildkit.dockerfile.v0"
+      },
+      {
+        "created": "2025-04-03T20:56:56.09404593Z",
+        "created_by": "COPY /usr/src/gnark/groth16/stark_verify.cs /app/stark_verify.cs # buildkit",
+        "comment": "buildkit.dockerfile.v0"
+      },
+      {
+        "created": "2025-04-03T20:56:58.717077603Z",
+        "created_by": "COPY /usr/src/gnark/groth16/stark_verify_final.pk.dmp /app/stark_verify_final.pk.dmp # buildkit",
+        "comment": "buildkit.dockerfile.v0"
+      },
+      {
+        "created": "2025-04-03T20:57:01.576654744Z",
+        "created_by": "COPY /usr/src/stark_verify_cpp/stark_verify /usr/local/bin/stark_verify # buildkit",
+        "comment": "buildkit.dockerfile.v0"
+      },
+      {
+        "created": "2025-04-03T20:57:04.373381555Z",
+        "created_by": "COPY /usr/src/stark_verify_cpp/stark_verify.dat /app/stark_verify.dat # buildkit",
+        "comment": "buildkit.dockerfile.v0"
+      },
+      {
+        "created": "2025-04-03T20:57:07.129864377Z",
+        "created_by": "COPY scripts/prover.sh /app/prover.sh # buildkit",
+        "comment": "buildkit.dockerfile.v0"
+      },
+      {
+        "created": "2025-04-03T20:57:10.247317818Z",
+        "created_by": "RUN /bin/sh -c chmod +x /app/prover.sh # buildkit",
+        "comment": "buildkit.dockerfile.v0"
+      },
+      {
+        "created": "2025-04-03T20:57:13.066767036Z",
+        "created_by": "WORKDIR /app",
+        "comment": "buildkit.dockerfile.v0"
+      },
+      {
+        "created": "2025-04-03T20:57:13.066767036Z",
+        "created_by": "ENTRYPOINT [\"/app/prover.sh\"]",
+        "comment": "buildkit.dockerfile.v0",
+        "empty_layer": true
+      }
+    ],
+    "os": "linux",
+    "rootfs": {
+      "type": "layers",
+      "diff_ids": [
+        "sha256:1287fbecdfcce6ee8cf2436e5b9e9d86a4648db2d91080377d499737f1b307f3",
+        "sha256:a1df2ddbe1d261577d1249ac5b8c1dbc93fe52a3b07cc810104ce1ffcf6802da",
+        "sha256:87f3b3b8ef1927a4f02b128008cef75e6aed3cf9ddc8d573709ff72df69069b2",
+        "sha256:cb5da708be19cfb35b581bf05cd4f5799d016a7e34cf8b21846e526d839bf87e",
+        "sha256:5d21e71b4226f76bec94261ae17fcded16d0e80dfefb7035bf5b0c8b66d98cae",
+        "sha256:e77afea2db480cd6683a399b4de3e65fae17327bce2441061c116ece33af06c8",
+        "sha256:516ad49b812c924a34f5c9405295b9b77560b10de4c5b591eebec25b23ec7c9f",
+        "sha256:d49b92ea724c64e7c0333b43cc2e5f3686c57069eb68d0a31cb781c3c26c8df0",
+        "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef"
+      ]
+    }
+  }
+}

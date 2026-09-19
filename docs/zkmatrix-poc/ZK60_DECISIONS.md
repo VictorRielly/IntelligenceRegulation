@@ -20,6 +20,7 @@ back. Keep this file short enough to read in five minutes.
 | D8 | Custom line, caller-fixed endpoint roots: obligation stands; the "two programmed points" closure is retracted for roots with any prior public opening | **corrected** | 2026-09-18 | Codex review; accepted by the security owner |
 | D9 | Reduction-bias term of `fp()` challenge draws on the custom line (about 2^-75 at A00): accept as stated, or re-freeze fixtures with rejection sampling | **pending** | since 2026-09-15 | Victor |
 | D10 | Compact-PCS proof-size lever on the custom line (95–98 bits instead of 106) | **pending** | since 2026-09-03 | Victor |
+| D11 | D8's proposed reduction to empty history is not established by a consuming owner; prior authentication/hash history remains in scope | **technical correction** | 2026-09-18 | Codex native reproduction and independent review |
 
 Operational rules (detached heavy runs, the shared-box lock, command hygiene)
 live in `CLAUDE.md`; they are not repeated here.
@@ -103,6 +104,19 @@ if the proven bound recorded from the build is unexpectedly low.
 Sources: `risc0-zkp-3.0.5/src/lib.rs:40–46`, `src/prove/soundness.rs:15–35`;
 `ZK60_ZKVM_REVIEW_DISPOSITION.md` §1–§2; vendor page
 `dev.risczero.com/api/security-model`.
+
+**D3 measurement addendum, same day.** The installed upstream calculator
+has now been called directly with each actual circuit's tap set. At the
+integration's trace limit `2^18`, rv32im reports **98.6424 conjectured bits**
+and **45.3014 proven list-decoding bits**; recursion at its fixed `2^18`
+reports **99.7587** and **46.0184**, respectively. These are per-circuit
+calculator outputs, not a composition/whole-proof bound and not captured
+prover telemetry. At `2^20`, the rv32im outputs are 97.1420 and 41.5670.
+The accepted conjecture-based interpretation stays explicit. Source hashes
+and all rows are in `results/zk60_loop_20260918/risc0-security.json`;
+`zkvm-block/security/` invokes the installed Rust functions without private
+data. The first proof ran with debug logs disabled; contrary to the earlier
+command hint, this crate emits the per-proof figures at **debug**, not info.
 
 ## D4 — Groth16 trusted setup accepted for soundness (2026-09-18)
 
@@ -189,6 +203,15 @@ installed; the 8 GB laptop GPU and the box's VRAM-freeze history make it
 the second choice. This entry closes when the first Groth16 receipt
 verifies and its tool hashes are recorded.
 
+**Closed 2026-09-18 19:18.** The first Groth16 receipt (785 bytes, SHA-256
+`6c67e05c…32e7`, image `8d74aab3…98d9`) was produced by the native tools
+in 197 s and verified independently, by Codex's stage and again by the
+security owner in a fresh process; the inner succinct receipt and seven
+corrupted variants are refused. Tool provenance: `groth16-native-files.json`
+under `results/zk60_loop_20260918/block-integration/`; public artifacts
+retained in `…/groth16_public/`. Hardening items from the source review
+(`ZK60_ZKVM_BLOCK_SOURCE_REVIEW_FABLE.md`) are open but not blocking.
+
 ## D7 — New endpoint and weight identity profile (implemented, ruling pending)
 
 The zkVM route commits endpoints as salted SHA-256 hashes inside a fixed
@@ -225,6 +248,29 @@ The joint-view tools and the attention construction remain valid
 engineering; they do not establish whole-proof privacy.
 Sources: `ZK60_JOINT_VIEW_REVIEW_20260918.md`; `ZK60_MVP_JOINT_VIEW.md`
 §1.1 with its correction note.
+
+## D11 — Technical correction to D8 and profile clarification (2026-09-18)
+
+The historical D8 text is retained above, but its statement that one-use
+ownership reduces the privacy experiment to unopened roots is not accepted.
+An ordinary authentication path or root-child hash query can exist before
+the sole accepted `finish`; the consuming API does not erase that history.
+The general caller-fixed-root obligation stands unchanged.
+
+Two native PCS openings at the actual endpoint geometry recover all 512
+data words; fresh-owner controls do not. This confirms that consumption is
+necessary for that opening design, not that the remaining one-use proof is
+zero knowledge. A forced-challenge counterexample also refutes the new
+budgeted simulator's universal per-use rank premise, without establishing
+an efficient attack on randomly sampled challenges.
+[Evidence and limits](ZK60_ENDPOINT_REUSE_DISPOSITION_20260918.md).
+
+D7's phrase "a chain of blocks is checked by journal equality" is a proposed
+integration description, not an implemented property. The block profile's
+input/output roles are distinct, so its roots cannot be equated directly
+across blocks. The next separate token-model guest recomputes both blocks
+and their hidden seam inside one program; the public policy binds its
+complete model and endpoints. This clarification changes no user ruling.
 
 ## D9 — `fp()` reduction bias (pending)
 
