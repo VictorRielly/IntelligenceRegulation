@@ -24,7 +24,7 @@ establishes a privacy property; D8/D11 stay open (disposition section 5).
 | Stage | What | Status |
 |---|---|---|
 | S0 | SCAFFOLD: `private_block` module as a faithful copy under new names, WIP profile `hashline-zk-mr1/private-block-t32-wip/0`, all digest/magic/parameter strings forked | DONE |
-| S1 | TESTS FIRST: `private-block-kernel` as a dev-dependency; deterministic generator of public synthetic inputs/weights; witness-vs-kernel parity for the attention half (up to `xres1`) over >= 1,000 inputs including refusals | not started |
+| S1 | TESTS FIRST: `private-block-kernel` as a dev-dependency; deterministic generator of public synthetic inputs/weights; witness-vs-kernel parity for the attention half (up to `xres1`) over >= 1,000 inputs including refusals | DONE |
 | S2 | WITNESS AND LAYOUT GROWTH: whole-block layout (A 455 / H 384 rows) and witness (`norm_m`, `g8`, `a16`, `u16`, `h16`, `z16`, remainders, residual 2) with kernel semantics; parity extended to `xres2` and every intermediate | not started |
 | S3 | ARGUMENT: the new define arms, slots, sites; the tamper tests of T2-check section 8 | not started (next agent) |
 | S4 | The block profile `hashline-zk-mr1/private-block-t32-poc/1`, `BlockPublic` with the E-2 activation-table range check, the output endpoint moved to `xres2`, the tripwire `block_output_cannot_be_chosen` (T1-check section 11.3) | not started (next agent) |
@@ -123,3 +123,108 @@ No deviation from the brief in S0.
 hashline, check that `--offline` still resolves, and write the fixed-seed
 public synthetic generator plus the witness-vs-kernel parity harness for the
 attention half in `hashline/tests/zk60_private_block.rs`.
+
+### 2026-09-19 — S1 TESTS FIRST (done)
+
+**Dev-dependency.** `hashline/Cargo.toml` gained
+
+```
+[dev-dependencies]
+private-block-kernel = { path = "../private-block-kernel" }
+```
+
+`cargo check --offline` resolved it with no network: `Locking 1 package …
+Adding private-block-kernel v0.1.0 (/home/victor/wt-zk60-private-block/private-block-kernel)`,
+then `Finished dev profile in 3.44s`. `hashline/Cargo.lock` gained the one
+entry. The kernel crate is standalone (`[workspace]` in its own manifest, no
+dependencies), so nothing enters the library or the binary — it is linked into
+test binaries only.
+
+**DEVIATION (location of the harness), with the reason.** The brief says to
+write the parity harness "in the new test file". A witness-LEVEL harness has
+to read `witness::Witness::planes`, which is `pub(crate)`; an integration test
+under `hashline/tests/` sees only the public API (`compute_output`, i.e.
+`xres1` alone) and could not compare one intermediate plane. The harness is
+therefore a new crate-internal test module,
+`hashline/src/private_block/parity.rs`, reached by one added line
+`#[cfg(test)] mod parity;` in `hashline/src/private_block.rs`. It is a new
+file in the new module, so it breaks no rule about accepted files, and
+`cargo test --lib` runs it. `hashline/tests/zk60_private_block.rs` is
+unchanged from S0. No existing test was weakened or deleted.
+
+**What the harness is** (`parity.rs`, 260 lines):
+
+* `Rng` — SplitMix64 seeded by a fixed lane constant mixed with the case
+  index. No OS randomness, no clock, no hashing of addresses: case `i` gives
+  the same bytes in every process. A test asserts that directly.
+* `case(idx)` — one PUBLIC SYNTHETIC statement: `wq, wk, wv, wo` and the two
+  gains, plus `wg_t, wu_t, wd_t` for the kernel, as diagonal-64 matrices with
+  a signed random band; the three fixed public tables (rope pair and exp from
+  `tables_attn`, the frozen int16-out SiLU member `(-3, -11)` from
+  `tables_v3`, i.e. the fixture's activation table); and a random i16 input.
+  Four knobs sweep the cases: the attention band (13 values, 0..127), the norm
+  gain (4), the input amplitude (7 values, 1..32767) on a 13 x 4 x 7 grid that
+  1,200 cases cover completely, and the feed-forward band swept independently
+  at stride 11 (coprime with 364, so all 1,200 four-tuples are distinct). The
+  large amplitudes are what pushes a case into a refusal.
+* `witness_equals_the_reference_kernel_over_the_generated_sweep` — for each of
+  1,200 cases it runs `kern::run_block_slice` with a `Trace` and
+  `witness::build`, and sorts the outcome into three buckets: both accept
+  (every attention plane compared element for element), both refuse (the two
+  refusal STRINGS must be equal — same site, same text), or the kernel refuses
+  where this witness accepts. The fourth combination (the witness refusing
+  where the kernel accepts) panics.
+* Bucket 3 exists only because this witness stops at `xres1` while the kernel
+  runs the whole block. It is not a loophole: entering it requires that the
+  kernel finished the attention half (every `na_dd` >= 1, which `ceps = 1`
+  guarantees for an honest run, so a refusal inside `norm_a` cannot hide
+  here), that every plane the kernel traced still agrees element for element,
+  and that the refusal site is one of the seven block-half sites. A constant
+  `WITNESS_COVERS_BLOCK` (false today) turns the whole bucket into a hard
+  failure the moment the witness grows to the block, so S2 cannot quietly
+  inherit the allowance.
+* Values are never printed: `eq()` reports only the differing count and the
+  first differing index, as the kernel's own `Trace` documentation requires.
+
+**Planes compared when both accept** (element for element, 1,200 cases):
+`norm_a D` (`A_D` vs `na_dd`), `norm_a y`, `q8`, `k8`, `v8`, `qr8`, `kr8`,
+`s8`, `row max`, `row sum`, `softmax p`, `o8`, `ao`, `xres1`, plus two planes
+the kernel does not carry directly: `A_DSQ` against `na_dd^2` and the one-hot
+`A_ZSEL` against the kernel's `arg`. The committed output plane
+(`Witness::output()`) is compared against `tr.xres1` too.
+
+**Result of the sweep** (release, 1,200 cases, 0.28 s):
+
+```
+905 accepted by both, 201 refused identically by both,
+ 94 refused by the kernel in the block half only
+  Q 4, K 4, V 6, QR 3, score 168, residual 1 16          (identical refusals)
+  FFN gate 2, FFN down 8, residual 2 84                  (block half, no witness counterpart yet)
+```
+
+No plane mismatch and no refusal-message mismatch anywhere. Six distinct
+attention-half refusal sites are exercised. Sites the sweep does NOT reach
+(recorded so the next agent does not read the green test as more than it is):
+`KR`, `O`, `AO`, `exp difference`, `softmax denominator`,
+`softmax quotient/remainder`, `causal maximum attainment`, and both `norm`
+sites — for the last of these the arithmetic says they are close to
+unreachable at this calibration (`|y| <= gamma/2 <= 63` always, and
+`rho < den = D 2^12 < 2^29` unless every input word is near 32767).
+
+**Commands** (all `flock -w 540 /tmp/zk-build.lock`, offline, `-j 2`, the warm
+target dir, release overrides):
+
+1. `cargo check --lib --tests --examples` -> exit 0, 3.44 s (the resolve above).
+2. `cargo test --release --lib private_block -- --test-threads=1 --nocapture`
+   -> **13 passed, 0 failed**, 5.09 s (11 copied + the 2 new parity tests).
+3. `cargo test --release --lib private_ -- --test-threads=1` -> **24 passed,
+   0 failed**, 9.84 s (the 11 accepted-component unit tests included).
+4. Byte-identity gate against `zk60-attention-compile`: empty.
+
+**Next step:** S2 — read T1 sections C.1-C.2 and T2 sections A-B, grow
+`layout.rs` (the whole-block planes, limb/helper planes, the activation
+multiplicity row, `Dom::F`, the derived counts A 455 / H 384 asserted in code)
+and `witness.rs` (`norm_m`, `g8`, `a16`, `u16`, `h16`, `z16`, the remainders
+`rg`, `rh`, `rd` with the kernel's BIASED requantization identity, residual 2,
+every refusal), then set `WITNESS_COVERS_BLOCK = true` and extend the harness
+to `xres2` and every new intermediate.

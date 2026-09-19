@@ -58,6 +58,8 @@ mod wire;
 mod witness;
 
 #[cfg(test)]
+mod parity;
+#[cfg(test)]
 mod tests;
 
 use crate::field::Fp;

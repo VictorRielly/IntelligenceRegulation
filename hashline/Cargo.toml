@@ -34,6 +34,13 @@ zeroize = { version = "1.8.2", optional = true }
 # [UPERF3-XX] optional, only with `--features gpu-cuda` (see above).
 cudarc = { version = "0.13", default-features = false, features = ["driver", "nvrtc", "cuda-12040", "dynamic-linking", "std"], optional = true }
 
+[dev-dependencies]
+# [ZK60 private block] the portable exact-integer reference kernel, used ONLY by
+# tests (witness-vs-kernel parity of the private block, disposition condition 6).
+# A path dependency inside this checkout: nothing is fetched, the offline build
+# resolves it, and no dependency enters the library or the binary.
+private-block-kernel = { path = "../private-block-kernel" }
+
 [profile.release]
 opt-level = 3
 codegen-units = 1
