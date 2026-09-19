@@ -5,6 +5,15 @@ block are now in the main worktree, with tests and independent receipt
 verification passing. [Integration and measurements](ZK60_ATTENTION_INTEGRATION_20260919.md).
 Whole-proof privacy and five-second model-scale proving remain open.
 
+**Corrected model-scale baseline:** the retained lane-AL public-IO FFN-only
+Mistral-7B run proves in **58.40 s**, verifies in 1.08 s, and produces
+1,234,936,956 bytes after the host fix [MEASURED, NOISY-SHARED, 2026-09-04].
+That is 11.7× the five-second target for the proving phase; witness load+chain
+adds 134.50 s and total recorded wall is 196.79 s. It supersedes the earlier
+95-second lane-AH headline; older rows below retain their historical values.
+[Retained log](../../results/hashline_convert_r3.log),
+[current speed plan](ZK60_FIVE_SECOND_PLAN.md).
+
 **Current work, 2026-09-18:** [continuous MVP loop](ZK60_MVP_LOOP_20260918.md).
 The complete fixed block has a **785-byte Groth16 receipt**, independent
 verification and eight rejection controls. The full Python suite passes

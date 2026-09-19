@@ -104,10 +104,15 @@ prover.
 
 | What was proven | Where | Time | Distance from 5 s | Label |
 |---|---|---|---|---|
-| Mistral-7B, all 32 feed-forward layers × 512 tokens, **public IO** | laptop RTX 4070 (55–70 W) | prove 95 s, verify 1.1 s, proof 1.23 GB | **19× slower** than 5 s, 6× slower than 15 s | [MEASURED, NOISY-SHARED, 2026-09-04] |
+| Mistral-7B, all 32 feed-forward layers × 512 tokens, **public IO**, lane AL after the host fix | laptop RTX 4070 (55–70 W) | prove **58.40 s**, verify 1.08 s, proof 1.23 GB | **11.7× slower** than 5 s, 3.9× slower than 15 s, for the proving phase | [MEASURED, NOISY-SHARED, 2026-09-04] |
 | same, CPU only | laptop, 8 threads | 510 s | 100× | [MEASURED] |
 | the same stack **with attention and accepted P1 privacy** | not yet built at 8B | no measurement | unknown | earlier ~290 s estimate withdrawn: the +4.7% CPU surcharge does not transfer to the GPU, and the legacy privacy profile has disclosure defects |
 | one tiny complete block in the zkVM (above) | laptop CPU | 3,743 s for roughly 10^5 multiply-accumulates; the 8B FFN pass is 2.9 × 10^12 | not a performance path at all: the zkVM line is the privacy demonstrator, never the product prover (D2) | [MEASURED; COUNTED] |
+
+The newer lane-AL result supersedes the earlier 95-second lane-AH headline.
+Its retained log also records **134.50 s witness load+chain** and **196.79 s
+total wall**; 58.40 s is the proving phase, not complete request readiness.
+[Original measurement](../../results/hashline_convert_r3.log).
 
 **Activation-side arithmetic (weight-commit phase subtracted).** The table
 divides 512 tokens by the measured prove time minus its weight-commit phase
@@ -118,6 +123,7 @@ must be measured on the current implementation.
 
 | run | prove | of which commit W | activation side | **tokens/s, W phase subtracted** | with W |
 |---|---:|---:|---:|---:|---:|
+| public IO, laptop GPU (lane AL, 2026-09-04, host fix, cold W cache) | 58.40 s | 19.823 s | 38.577 s | **13.3** | 8.8 |
 | public IO, laptop GPU (lane AH, 2026-09-04) | 95.5 s | 41.9 s | 53.5 s | **9.6** | 5.4 |
 | legacy `--zk`, laptop GPU (lane AI, same day; card 8.2 GB, run paged at 8.6 GB; privacy claim subsequently invalidated) | 265.3 s | 54.2 s | 211.2 s | **2.4** | 1.9 |
 | public IO, laptop CPU (2026-09-03) | 510 s | 225 s | 285 s | **1.8** | 1.0 |
