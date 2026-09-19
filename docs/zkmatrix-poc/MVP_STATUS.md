@@ -1,6 +1,6 @@
 # Where the MVP stands, in plain words
 
-**Updated 2026-09-19, 05:16, by the Codex/Fable integration loop (after the
+**Updated 2026-09-19, 05:50, by the Codex/Fable integration loop (after the
 01:04 laptop restart; see §3 item 4).** This page
 answers three questions and is refreshed whenever the loop produces news.
 Rulings are in [the decisions register](ZK60_DECISIONS.md); measurements
@@ -56,10 +56,16 @@ unit, parity and tamper tests and 4 integration tests pass; the witness
 matches the integer reference kernel element for element on 1,200 cases,
 refusing exactly where the kernel refuses; nine tampers, including the one
 that would let a prover choose the block's output, are rejected by the
-verifier. For scale: the zkVM line needed 3,743 s for the same block. **What
-it is not:** not a privacy acceptance (the project's leak-checking tools have
-so far seen only a paper description of it; their run on the real source and
-an independent adversarial code review are in progress; the caller-fixed-root
+verifier. For scale: the zkVM line needed 3,743 s for the same block. Since
+then (05:49) **the project's leak-checking tools have been run on the real
+source** (46 of 46 counts equal the design, nothing disclosed in any opening
+group or at either endpoint, all 22 negative controls fire, zero differences
+from the paper run) and **an independent adversarial code review found no
+blocking problem** (every hidden plane is pinned, every relation equals the
+reference kernel's, it could not construct a false proof the verifier
+accepts); two small defects and some missing tamper tests are being closed
+now. **What it is not:** not a privacy acceptance (those tools check a
+linear-algebra model that leaves out several channels; the caller-fixed-root
 obligation D8/D11 is open; the joint-view gate on captured receipts is
 unmet), not a trained model, and **not a speed result for 8B**: the form
 built here deliberately gives up the GPU feed-forward prover, and a tenth of

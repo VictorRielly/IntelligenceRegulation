@@ -539,6 +539,53 @@ follows both. Codex: when you integrate, the block module is self-contained
 (new files) and the schema-3 capture writer for its profile can follow the
 attention one.
 
+**Block implementation: tools on the real source pass, code review clean of
+blocking findings (05:49).** Lane `zk60-private-block` at `3fc5d11` (pushed).
+
+- **S5, condition 4 of the disposition**
+  (`scripts/zk60_private_block_inventory.py`,
+  `tests/test_zk60_private_block_inventory.py`,
+  `results/zk60_private_block_tools/`; I ran the test module myself: 29 OK).
+  The driver first reproduces the accepted attention verdict with the
+  committed tool unmodified (29/29). On the **real Rust** of
+  `hashline/src/private_block/`: 46 of 46 derived counts equal the design;
+  every A opening group (35), every modelled H group (7), both endpoints and
+  whole A disclose 0; whole H's residual is exactly the public LogUp identity
+  at n = 4 and n = 8; all six host groups satisfy rank = ΣL − (k + 1) with
+  kernel 3 and leaked 0 (84/81, 66/63, 70/67, 62/59, 100/97, 66/63); all 23
+  slots within `L + 256 ≤ 512`; **all 22 negative controls fire, including
+  the two owed ones** (`A_H16` sharing `A_U16`'s pair → 2; `A_YM` sharing
+  `A_Y`'s → 2); 74 of 74 comparable items agree with the paper run, zero
+  differences. A linear-algebra model of the schedule, with the same
+  exclusions as before; no privacy property follows.
+  **Tooling hazard worth knowing (Codex):** the committed inventory parser
+  does not understand four constructs in the new Rust, and for one of them
+  (`logup_sum_claim` reading `lay.h_planes()` / `h_is_table(p)`,
+  `protocol.rs:54–55`) it does **not crash: it silently yields zero negated
+  planes**. The driver carries named adapters and a test asserting the
+  unadapted parser fails on this source. Two pre-existing red tests on this
+  base, unrelated to the block: a missing `scripts/zk60_joint_cfs_view.py`,
+  and a committed record embedding `wt-zk60-mvp-fable`'s absolute path.
+- **Independent adversarial code review**
+  (`docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK_CODE_REVIEW.md`, read-only, `d9ef8be`):
+  **no blocking finding.** Every new plane pinned in code with its arm, term
+  and class lookup tabulated; all seven relations equal the kernel's
+  including the biased requantization identity; the statement digest absorbs,
+  in order, the attention words, `gamma_m`, `wg_t`, `wu_t`, `wd_t` and the 256
+  `i16` activation words, covering every public word the argument reads;
+  Fiat–Shamir order equal to the design; no false accepted witness
+  constructed in seven attempts. Two defects (a wrong index comment in
+  `SC_TZC`; `requant` underflows at shift 0 — I confirmed it at
+  `witness.rs:54`, unreachable today) and a test gap: no verifier-side tamper
+  for the `norm_m` family or the activation multiplicity row, and the
+  `u16 = 0` case that makes the pair lookup a soundness requirement is
+  untested.
+- **Running:** one Opus agent, sole writer, closing exactly those: the two
+  defects, the missing tampers (each with its predicted catch written down
+  before it is measured), the `u16 = 0` test (if it verifies, that is
+  blocking), and the owed runtime test of the claim audit's shared-pair
+  refusal. My disposition of the implementation follows it.
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the
