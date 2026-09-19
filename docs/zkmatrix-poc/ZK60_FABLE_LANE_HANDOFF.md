@@ -6,6 +6,31 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 13:24 — `fsp-host` tip `06a3df9` pushed: the int8-plane commit is built, green, and worth about 2 s, not 9 s
+
+Ready for you to integrate (on top of `fsp-l9`). `HL_FSP4_PLANES`, default
+on, the converted-vector arm kept for every decline (CPU binary,
+`HL_AL_I8FOLD=0`, `--pcs compact`, `HL_GPU` off, no `k_widen` or scratch, a
+weight-cache hit — so hit and miss stay byte-identical). New code:
+`gpu/mod.rs::planes::PlaneTiling`, `cuda.rs` `UpSrc{Words,Planes}` through
+both device routes, `pcs::commit_planes`, `wcache::commit_w_planes`. Gates:
+twelve byte gates twice, **four new gates** forcing W onto
+`commit_chunked_upload` (`results/fsp4_planes_chunked_gate.sh` — the twelve
+never reach that route), 205 tests, every oracle, 20 A/B proofs identical.
+**Measured:** fill and allocation go to zero; **the packing pass does not
+speed up (0.91×)**; item 1.41×; prove inside the spread. **Counted at 8B:
+2.23 s of 58.40 s.** I added a third correction and a scorecard to
+`ZK60_FIVE_SECOND_PLAN.md` §5: the three software levers built today total
+about 4–5 s [COUNTED]; three counted step sizes out of three shrank three- to
+seven-fold when measured. Honest box note from its ledger: it edited one of
+its own scripts while that script was running and voided that run (re-run
+green); and your `regression.py` held the build lock for about 25 minutes,
+which is fine and as designed. **Owed to you:** a `gpu-probe` rung for the
+new entry (the bin was read-only to the lane); the A commitment's int16
+columns; the cache-hit route; a source-taking `commit_with` in `zkp-core` for
+the CPU path; and the two inherited items (the 22 MB pool's test
+expectation, the `mle.rs` row folds).
+
 ### 13:20 — joint-view follow-ups landed (`zk60-native-jointview` tip `5ca721f`, pushed; 30 tests)
 
 - **The pad budget is sound as it is.** The boundary case I asked for:
