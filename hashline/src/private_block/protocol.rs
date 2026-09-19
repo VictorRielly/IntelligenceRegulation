@@ -46,8 +46,8 @@ fn commitment(root: [u8; 32], rows: usize) -> Commitment {
 /// zero-sum pair `u`, as ONE all-ones sum claim. No helper sum is ever published.
 fn logup_sum_claim(lay: &Layout) -> ZClaim {
     let mut parts = Vec::with_capacity(2 * N_H);
-    for p in 0..N_H {
-        let sign = if p == H_GU8 || p == H_GEXP { Fp2::ONE.neg() } else { Fp2::ONE };
+    for p in lay.h_planes() {
+        let sign = if h_is_table(p) { Fp2::ONE.neg() } else { Fp2::ONE };
         let (re, im) = lay.h_off[p];
         let log_size = h_dom(p).log() as u32;
         parts.push(ZPart { slice: Slice { offset: re, log_size }, coef: sign, point: vec![] });
@@ -200,8 +200,8 @@ fn check_endpoint_opening(claims: &[ZClaim], tr: &Transcript) -> Result<(), Stri
 // ---------------------------------------------------------------- prover
 
 /// integer lookup values per lookup of a domain
-fn lookup_values(wit: &Witness, dom: Dom) -> Vec<Vec<i64>> {
-    lookups(dom)
+fn lookup_values(lay: &Layout, wit: &Witness, dom: Dom) -> Vec<Vec<i64>> {
+    lay.lookups(dom)
         .iter()
         .map(|l| (0..dom.len()).map(|x| l.terms.iter().fold(l.cst, |a, (p, c)| a.wrapping_add(c.wrapping_mul(wit.planes[*p][x])))).collect())
         .collect()
@@ -255,7 +255,10 @@ pub(crate) fn prove_inner(public: &AttentionPublic, wit: &Witness, expected: &Ex
     };
     let lay = Layout::new();
     let [ein, eout] = check_endpoints(expected, endpoints)?;
-    if wit.planes.len() != N_WITNESS || (0..N_WITNESS).any(|p| wit.planes[p].len() != a_dom(p).len()) {
+    // the work-in-progress profile commits the attention-half planes; a block
+    // witness carries more, which is accepted and ignored here
+    let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !is_multiplicity(*p)).collect();
+    if wit.planes.len() != N_A || committed.iter().any(|p| wit.planes[*p].len() != a_dom(*p).len()) {
         return Err("private block: witness shape".into());
     }
     // ONE OS stream per attempt; entropy failure aborts before anything public exists.
@@ -267,13 +270,13 @@ pub(crate) fn prove_inner(public: &AttentionPublic, wit: &Witness, expected: &Ex
 
     // ---- A: planes, the two committed histograms, every mask row drawn BEFORE the commitment ----
     let mut a_data = vec![Fp::ZERO; lay.a_rows * N];
-    for p in 0..N_WITNESS {
-        for (i, v) in wit.planes[p].iter().enumerate() {
-            a_data[lay.a_off[p] + i] = Fp::from_i64(*v);
+    for p in &committed {
+        for (i, v) in wit.planes[*p].iter().enumerate() {
+            a_data[lay.a_off[*p] + i] = Fp::from_i64(*v);
         }
     }
     let mut m_u8 = vec![0u64; N];
-    let looked: Vec<(Dom, Vec<Vec<i64>>)> = LOOKUP_DOMS.iter().map(|d| (*d, lookup_values(wit, *d))).collect();
+    let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_values(&lay, wit, *d))).collect();
     for (_, cols) in &looked {
         for v in cols.iter().flatten() {
             // a value outside the table counts into entry 0: only the LogUp identity can catch it
@@ -314,7 +317,7 @@ pub(crate) fn prove_inner(public: &AttentionPublic, wit: &Witness, expected: &Ex
     let g_exp = gamma.mul_base(Fp::new(TAG_EXP));
     let mut h_data = vec![Fp::ZERO; lay.h_rows * N];
     for (dom, cols) in &looked {
-        let (first, count) = helpers(*dom);
+        let (first, count) = lay.helpers(*dom);
         let inv: Vec<Vec<Fp2>> = cols.iter().map(|c| inverses(c.iter().map(|v| alpha.sub(Fp2::from_i64(*v).add(g_u8))).collect())).collect::<Result<_, _>>()?;
         for k in 0..count {
             let col: Vec<Fp2> = match inv.get(2 * k + 1) {

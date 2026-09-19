@@ -27,13 +27,15 @@
 
 use super::layout::*;
 use super::witness::{self, Witness};
-use super::AttentionPublic;
+use super::{AttentionPublic, FeedForwardPublic};
 use private_block_kernel as kern;
 use std::collections::BTreeMap;
 use std::sync::OnceLock;
 
 /// Flipped to `true` by the stage that grows the witness to the whole block;
-/// it turns bucket 3 (a kernel-only refusal) into a hard failure.
+/// it turns bucket 3 (a kernel-only refusal) into a hard failure. S2 grew the
+/// witness, so the block harness below runs with it TRUE and the attention-half
+/// harness keeps its own allowance (its witness still stops at `xres1`).
 pub(crate) const WITNESS_COVERS_BLOCK: bool = false;
 
 /// generated cases per parity run (the brief's floor is 1,000)
@@ -92,6 +94,8 @@ fn tables() -> &'static (Vec<i64>, Vec<i64>, [i64; 256], [i16; 256]) {
 /// and in the kernel's.
 pub(crate) struct Case {
     pub public: AttentionPublic,
+    /// the feed-forward half's public words, in this module's own form
+    pub ff: FeedForwardPublic,
     pub kweights: kern::PublicWeights,
     pub ktables: kern::PublicTables,
     pub input: Vec<i16>,
@@ -144,9 +148,10 @@ pub(crate) fn case(idx: usize) -> Case {
     let input: Vec<i16> = (0..T * D).map(|_| r.pick(-xmag, xmag) as i16).collect();
 
     let public = AttentionPublic::new(&wq, &wk, &wv, &wo, &gamma_a, cos, sin, exp).expect("generated public statement");
+    let ff = FeedForwardPublic::new(&gamma_m, &wg_t, &wu_t, &wd_t, act).expect("generated feed-forward statement");
     let kweights = kern::PublicWeights::from_slices(&wq, &wk, &wv, &wo, &gamma_a, &gamma_m, &wg_t, &wu_t, &wd_t).expect("generated kernel weights");
     let ktables = kern::PublicTables::from_slices(cos, sin, exp, act).expect("generated kernel tables");
-    Case { public, kweights, ktables, input }
+    Case { public, ff, kweights, ktables, input }
 }
 
 // ---------------------------------------------------------------- comparison
@@ -238,6 +243,111 @@ fn witness_equals_the_reference_kernel_over_the_generated_sweep() {
     assert!(both_refuse >= 100, "the sweep must exercise refusals: only {both_refuse} of {CASES}");
     assert!(sites.len() >= 3, "the sweep must reach several refusal sites, it reached {}", sites.len());
     eprintln!("private block parity: {CASES} generated public cases — {both_ok} accepted by both, {both_refuse} refused identically by both, {kernel_only_refuse} refused by the kernel in the block half only");
+    for (site, count) in &sites {
+        eprintln!("  refusal site `{site}`: {count}");
+    }
+}
+
+/// Every plane the block half adds, against its kernel counterpart. The
+/// remainder and limb planes have no kernel counterpart (the kernel keeps no
+/// requantization witness), so they are checked against the kernel's own
+/// BIASED requantization identity instead, which is the relation the argument
+/// will prove: `acc = 2^sh y + r' - 2^(sh-1)` with `r'` the committed plane.
+fn compare_block_half(c: &Case, w: &Witness, tr: &kern::Trace, idx: usize) {
+    eq(&w.planes[A_DM], &tr.nm_dd, idx, "norm_m D");
+    eq(&w.planes[A_YM], &tr.nm_y, idx, "norm_m y (nm)");
+    eq(&w.planes[A_G8], &tr.g8, idx, "g8");
+    eq(&w.planes[A_A16], &tr.a16, idx, "a16");
+    eq(&w.planes[A_U16], &tr.u16, idx, "u16");
+    eq(&w.planes[A_H16], &tr.h16, idx, "h16");
+    eq(&w.planes[A_Z16], &tr.z16, idx, "z16");
+    eq(&w.planes[A_X2], &tr.xres2, idx, "xres2");
+    let dsqm: Vec<i64> = tr.nm_dd.iter().map(|d| d * d).collect();
+    eq(&w.planes[A_DSQM], &dsqm, idx, "norm_m D^2");
+    // the two-limb int16 decompositions, offset 32768
+    for (v, l0, l1, name) in [
+        (A_U16, A_UL0, A_UL1, "u16 limbs"),
+        (A_H16, A_HL0, A_HL1, "h16 limbs"),
+        (A_Z16, A_ZL0, A_ZL1, "z16 limbs"),
+        (A_X2, A_X2L0, A_X2L1, "xres2 limbs"),
+    ] {
+        let joined: Vec<i64> = w.planes[l0].iter().zip(w.planes[l1].iter()).map(|(a, b)| a + 256 * b).collect();
+        let offset: Vec<i64> = w.planes[v].iter().map(|x| x + 32768).collect();
+        eq(&joined, &offset, idx, name);
+        assert!(w.planes[l0].iter().chain(w.planes[l1].iter()).all(|l| (0..256).contains(l)), "case {idx}: a limb of {name} is not a byte");
+    }
+    // the biased requantization identities of the gate, the product and the
+    // down matmul, recomputed from the kernel's own inputs
+    let gacc: Vec<i64> = (0..T * F)
+        .map(|k| {
+            let (t, j) = (k / F, k % F);
+            (0..D).map(|i| tr.nm_y[t * D + i] * i64::from(c.ff.wg_t[i * F + j])).sum()
+        })
+        .collect();
+    let gid: Vec<i64> = (0..T * F).map(|k| (1i64 << SH_G) * w.planes[A_G8][k] + w.planes[A_RGL][k] - (1i64 << (SH_G - 1))).collect();
+    eq(&gid, &gacc, idx, "gate requantization identity");
+    assert!(w.planes[A_RGL].iter().all(|r| (0..1 << SH_G).contains(r)), "case {idx}: a gate remainder leaves [0, 2^7)");
+    let hacc: Vec<i64> = (0..T * F).map(|k| tr.a16[k] * tr.u16[k]).collect();
+    let rh: Vec<i64> = (0..T * F).map(|k| w.planes[A_RH0][k] + 256 * w.planes[A_RH1][k]).collect();
+    let hid: Vec<i64> = (0..T * F).map(|k| (1i64 << SH_H_PROD) * w.planes[A_H16][k] + rh[k] - (1i64 << (SH_H_PROD - 1))).collect();
+    eq(&hid, &hacc, idx, "product requantization identity");
+    assert!(rh.iter().all(|r| (0..1 << SH_H_PROD).contains(r)), "case {idx}: a product remainder leaves [0, 2^14)");
+    let zacc: Vec<i64> = (0..T * D)
+        .map(|k| {
+            let (t, i) = (k / D, k % D);
+            (0..F).map(|j| tr.h16[t * F + j] * i64::from(c.ff.wd_t[j * D + i])).sum()
+        })
+        .collect();
+    let zid: Vec<i64> = (0..T * D).map(|k| (1i64 << SH_Z) * w.planes[A_Z16][k] + w.planes[A_RDL][k] - (1i64 << (SH_Z - 1))).collect();
+    eq(&zid, &zacc, idx, "down requantization identity");
+    assert!(w.planes[A_RDL].iter().all(|r| (0..1 << SH_Z).contains(r)), "case {idx}: a down remainder leaves [0, 2^6)");
+    // residual 2 and the classes the kernel refuses outside
+    let sum: Vec<i64> = (0..T * D).map(|k| w.planes[A_X1][k] + w.planes[A_Z16][k]).collect();
+    eq(&w.planes[A_X2], &sum, idx, "residual 2 (xres2 = xres1 + z16)");
+    assert!(w.planes[A_G8].iter().all(|g| (-128..=127).contains(g)), "case {idx}: g8 leaves the kernel's int8 class");
+    assert!(w.planes[A_YM].iter().all(|v| (-127..=127).contains(v)), "case {idx}: nm leaves the int8 subset");
+}
+
+#[test]
+fn the_whole_block_witness_equals_the_reference_kernel() {
+    // the grown layout exists and holds every plane the witness fills
+    let lay = Layout::new_block();
+    let (mut both_ok, mut both_refuse) = (0usize, 0usize);
+    let mut sites: BTreeMap<String, usize> = BTreeMap::new();
+    for idx in 0..CASES {
+        let c = case(idx);
+        let mut tr = Box::new(kern::Trace::zeroed());
+        let kernel = kern::run_block_slice(&c.input, &c.kweights, &c.ktables, Some(&mut *tr));
+        let wit = witness::build_block(&c.public, &c.ff, &c.input);
+        match (&kernel, &wit) {
+            (Ok(out), Ok(w)) => {
+                assert!(w.block, "case {idx}: the block build did not set its flag");
+                compare_attention_half(w, &tr, idx);
+                compare_block_half(&c, w, &tr, idx);
+                let mine = w.block_output().expect("xres2 is in class once the witness accepted");
+                assert_eq!(&mine[..], &out[..], "case {idx}: the block output differs from the kernel's");
+                // every plane the grown layout declares is filled at its declared length
+                for p in lay.a_planes() {
+                    let want = if is_multiplicity(p) { 0 } else { a_dom(p).len() };
+                    assert_eq!(w.planes[p].len(), want, "case {idx}: plane {p} length");
+                }
+                both_ok += 1;
+            }
+            (Err(e), Err(m)) => {
+                assert_eq!(&format!("{e}"), m, "case {idx}: the two refusals differ");
+                *sites.entry(m.clone()).or_default() += 1;
+                both_refuse += 1;
+            }
+            (Err(e), Ok(_)) => panic!("case {idx}: the whole-block witness accepted where the kernel refused ({e})"),
+            (Ok(_), Err(m)) => panic!("case {idx}: the whole-block witness refused (`{m}`) where the kernel accepted"),
+        }
+    }
+    assert_eq!(both_ok + both_refuse, CASES, "every case is decided the same way by both");
+    assert!(both_ok >= 100, "the sweep must exercise accepted blocks: only {both_ok} of {CASES}");
+    assert!(both_refuse >= 100, "the sweep must exercise refusals: only {both_refuse} of {CASES}");
+    assert!(sites.len() >= 6, "the sweep must reach several refusal sites, it reached {}", sites.len());
+    assert!(sites.keys().any(|s| s.contains("residual 2")), "the sweep must reach a block-half refusal");
+    eprintln!("private block whole-block parity: {CASES} generated public cases — {both_ok} accepted by both, {both_refuse} refused identically by both");
     for (site, count) in &sites {
         eprintln!("  refusal site `{site}`: {count}");
     }

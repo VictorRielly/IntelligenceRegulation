@@ -68,7 +68,7 @@ use crate::ntt::NttTables;
 use crate::pcs::OpeningZk;
 use crate::private_seam::{self, PreparedPlane, SeamSpec, Side};
 use crate::zk::MaskOpening;
-use layout::{D, DH, F_E, F_RO, HALF, KV, T};
+use layout::{D, DH, F, F_E, F_RO, HALF, KV, T};
 
 pub const PROFILE: &[u8] = b"hashline-zk-mr1/private-block-t32-wip/0";
 pub use wire::MAX_WIRE_BYTES;
@@ -148,6 +148,55 @@ impl AttentionPublic {
         let (exp, _) = crate::tables_attn::exp_member(0, DH, F_E);
         let public = Self::new(&w.wq, &w.wk, &w.wv, &w.wo, &w.gamma_a, &cos, &sin, &exp).expect("public synthetic fixture");
         (public, input)
+    }
+}
+
+/// The feed-forward half's PUBLIC words: the second norm gain `gamma_m`, the
+/// three `(input, output)` row-major matrices `Wg`, `Wu`, `Wd` exactly as the
+/// kernel stores them, and the 256-entry int16-output activation table.
+///
+/// NOT PART OF THE PROVED STATEMENT. Nothing here is absorbed into the
+/// transcript and no relation reads it yet; it exists so the witness and the
+/// kernel-parity harness can build the whole block while the argument still
+/// proves the attention half (disposition condition 1 / erratum E-1). The
+/// stage that adds the feed-forward relations folds these words into
+/// `BlockPublic` together with the block profile string.
+///
+/// The activation table is held as `i16`, which is erratum E-2's requirement
+/// ("refuses an activation table with any value outside [-32768, 32767], or
+/// holds it as `[i16; 256]`") discharged by the type rather than by a check.
+#[derive(Clone)]
+pub struct FeedForwardPublic {
+    gamma_m: Vec<i8>,
+    wg_t: Vec<i8>,
+    wu_t: Vec<i8>,
+    wd_t: Vec<i8>,
+    act: Vec<i16>,
+}
+
+impl FeedForwardPublic {
+    pub fn new(gamma_m: &[i8], wg_t: &[i8], wu_t: &[i8], wd_t: &[i8], act: &[i16]) -> Result<Self, String> {
+        if gamma_m.len() != D || [wg_t.len(), wu_t.len()] != [D * F; 2] || wd_t.len() != F * D {
+            return Err("private block: feed-forward weight shape".into());
+        }
+        if act.len() != 256 {
+            return Err("private block: activation table shape".into());
+        }
+        Ok(Self { gamma_m: gamma_m.to_vec(), wg_t: wg_t.to_vec(), wu_t: wu_t.to_vec(), wd_t: wd_t.to_vec(), act: act.to_vec() })
+    }
+
+    pub fn digest(&self) -> Digest {
+        let mut h = blake3::Hasher::new();
+        h.update(b"hashline/private-block-wip-feedforward/0");
+        for w in [&self.gamma_m, &self.wg_t, &self.wu_t, &self.wd_t] {
+            h.update(&(w.len() as u64).to_le_bytes());
+            h.update(&w.iter().map(|v| *v as u8).collect::<Vec<u8>>());
+        }
+        h.update(&(self.act.len() as u64).to_le_bytes());
+        for v in self.act.iter() {
+            h.update(&v.to_le_bytes());
+        }
+        *h.finalize().as_bytes()
     }
 }
 
@@ -250,6 +299,14 @@ pub fn compute_output(public: &AttentionPublic, input: &[i16]) -> Result<Vec<i16
     witness::build(public, input)?.output()
 }
 
+/// The SECRET whole-block output `xres2` of `private-block-kernel::run_block`,
+/// recomputed by this module's own integer witness. It is a REFERENCE VALUE,
+/// not a proof artifact: no relation of the current argument reads it and no
+/// endpoint binds it (disposition condition 1). Do not publish, log or hash it.
+pub fn compute_block_output(public: &AttentionPublic, ff: &FeedForwardPublic, input: &[i16]) -> Result<Vec<i16>, String> {
+    witness::build_block(public, ff, input)?.block_output()
+}
+
 /// A candidate receipt. Parsing or holding one establishes nothing; acceptance
 /// requires `verify` / `verify_bytes` against the caller's own statement.
 #[derive(Debug)]
@@ -325,4 +382,13 @@ pub fn verify_bytes(public: &AttentionPublic, expected: &ExpectedIo, bytes: &[u8
 /// The declared mask/CFS schedule, line by line (its digest is transcript-bound).
 pub fn schedule() -> Vec<String> {
     layout::Layout::new().describe()
+}
+
+/// The DECLARED schedule of the grown whole-block layout (T1 sections C.1-C.2,
+/// T2 sections A-B): 455 `A` rows, 384 `H` rows, 23 slots, 50 `M` rows. It is a
+/// DESCRIPTION of the layout the witness now fills, NOT a profile and NOT what
+/// this module proves: the argument still proves the attention half, and
+/// nothing binds this schedule to any transcript (disposition condition 1).
+pub fn block_schedule() -> Vec<String> {
+    layout::Layout::new_block().describe()
 }

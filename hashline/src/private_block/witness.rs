@@ -1,24 +1,46 @@
-//! The exact-integer attention-half witness (norm_a, QKV, RoPE, causal
-//! softmax, PV, O, residual 1), recomputed from the private input with the
-//! semantics of `private-block-kernel` / `causal_oracle::FixedCausalOracle`:
-//! no clamping, a value outside its class is a refusal naming a static site.
+//! The exact-integer witness of the private block, recomputed from the private
+//! input with the semantics of `private-block-kernel` /
+//! `causal_oracle::FixedCausalOracle`: no clamping, a value outside its class
+//! is a refusal naming a static site, and the refusal ORDER is the kernel's.
+//!
+//! `build` fills the attention half (norm_a, QKV, RoPE, causal softmax, PV, O,
+//! residual 1) — that is what the work-in-progress argument proves.
+//! `build_block` fills the whole block: the attention half, then `norm_m`, the
+//! SiLU feed-forward (gate, activation lookup, up, product, down) and
+//! residual 2, on the planes of `Layout::new_block()` (T1 sections C.1-C.2,
+//! T2 sections A-B). Growing the witness proves nothing by itself: the block
+//! planes carry no relation until the argument's new arms land.
 //!
 //! The returned planes are SECRET. Nothing here prints, hashes or serializes
 //! them; a refusal carries a site name only (the refusal itself still depends
 //! on the input, exactly as the kernel's does).
 
 use super::layout::*;
-use super::AttentionPublic;
+use super::{AttentionPublic, FeedForwardPublic};
 
 pub(crate) struct Witness {
-    /// one vector per witness plane, `N_WITNESS` of them, indexed by the `A_*` ids
+    /// one vector per A plane, `N_A` of them, indexed by the `A_*` ids. A
+    /// plane this build does not fill (a lookup histogram, or a block plane
+    /// in an attention-half build) is an EMPTY vector, never a zero plane.
     pub planes: Vec<Vec<i64>>,
+    /// did this build fill the whole block?
+    pub block: bool,
 }
 
 impl Witness {
-    /// the committed output plane xres1 (secret)
+    /// the committed output plane xres1 (secret) — the endpoint of the
+    /// work-in-progress profile
     pub(crate) fn output(&self) -> Result<Vec<i16>, String> {
         self.planes[A_X1].iter().map(|v| i16::try_from(*v).map_err(|_| "fixed oracle range refusal: residual 1".to_string())).collect()
+    }
+    /// The block output xres2 (secret). Computing it is not binding it: the
+    /// proof's output endpoint stays on `xres1` until the feed-forward
+    /// relations exist (disposition condition 1).
+    pub(crate) fn block_output(&self) -> Result<Vec<i16>, String> {
+        if !self.block {
+            return Err("private block: xres2 was not built".into());
+        }
+        self.planes[A_X2].iter().map(|v| i16::try_from(*v).map_err(|_| "fixed oracle range refusal: residual 2".to_string())).collect()
     }
 }
 
@@ -52,7 +74,7 @@ fn range(site: &'static str) -> String {
     format!("fixed oracle range refusal: {site}")
 }
 
-/// Requantize into the attention int8 subset; returns (values, biased remainder limb r + 2^(s-1)).
+/// Requantize into a class; returns (values, biased remainder limb r + 2^(s-1)).
 fn quantize(acc: &[i64], sh: u32, lo: i64, hi: i64, site: &'static str) -> Result<(Vec<i64>, Vec<i64>), String> {
     let mut y = Vec::with_capacity(acc.len());
     let mut r = Vec::with_capacity(acc.len());
@@ -73,6 +95,18 @@ fn matmul(x: &[i64], w: &[i8], inner: usize, outer: usize) -> Vec<i64> {
     for t in 0..T {
         for j in 0..outer {
             out[t * outer + j] = (0..inner).map(|i| x[t * inner + i] * i64::from(w[j * inner + i])).sum();
+        }
+    }
+    out
+}
+
+/// `out[t, j] = sum_i x[t, i] * w[i, j]`, `w` stored (input, output) — the
+/// feed-forward orientation, the kernel's `matmul_in_out`
+fn matmul_in_out(x: &[i64], w: &[i8], inner: usize, outer: usize) -> Vec<i64> {
+    let mut out = vec![0i64; T * outer];
+    for t in 0..T {
+        for j in 0..outer {
+            out[t * outer + j] = (0..inner).map(|i| x[t * inner + i] * i64::from(w[i * outer + j])).sum();
         }
     }
     out
@@ -100,15 +134,31 @@ fn limbs(v: i64, count: usize) -> Vec<i64> {
     (0..count).map(|k| if k + 1 == count { v >> (8 * k) } else { (v >> (8 * k)) & 255 }).collect()
 }
 
-pub(crate) fn build(public: &AttentionPublic, input: &[i16]) -> Result<Witness, String> {
-    if input.len() != T * D {
-        return Err("private block: input shape".into());
-    }
-    let mut pl: Vec<Vec<i64>> = (0..N_WITNESS).map(|p| vec![0i64; a_dom(p).len()]).collect();
-    let x: Vec<i64> = input.iter().map(|v| i64::from(*v)).collect();
+/// One RMSNorm site (round mode), planes and all: `D = isqrt(sum x^2 + Ceps)`,
+/// `y = floor((2 x g Cn + D 2^tn) / (D 2^(tn+1)))`, with the isqrt witness
+/// `a1 = ss - D^2`, `a2 = 2D - a1` and the byte limbs of `D`, `a1`, `a2`,
+/// `rho`, `sigma`. Used for norm_a and, unchanged, for norm_m (T1 section C.1:
+/// "the IDENTICAL relation, with gamma_m for gamma_a and xres1 for x_in").
+struct NormPlanes {
+    d: Vec<i64>,
+    dsq: Vec<i64>,
+    limb: Vec<i64>,
+    y: Vec<i64>,
+    rho: [Vec<i64>; 4],
+    sigma: [Vec<i64>; 4],
+}
 
-    // ---- norm_a (round mode): D = isqrt(sum x^2 + Ceps), y = floor((2 x g Cn + D 2^tn) / (D 2^(tn+1))) ----
+fn rms_norm(x: &[i64], gamma: &[i8]) -> Result<NormPlanes, String> {
     let wrho = 1i64 << NORM_WRHO;
+    let dl = Dom::D.len();
+    let mut out = NormPlanes {
+        d: vec![0i64; Dom::T.len()],
+        dsq: vec![0i64; Dom::T.len()],
+        limb: vec![0i64; Dom::L.len()],
+        y: vec![0i64; dl],
+        rho: [vec![0i64; dl], vec![0i64; dl], vec![0i64; dl], vec![0i64; dl]],
+        sigma: [vec![0i64; dl], vec![0i64; dl], vec![0i64; dl], vec![0i64; dl]],
+    };
     for t in 0..T {
         let row = &x[t * D..(t + 1) * D];
         let ss: i64 = NORM_CEPS + row.iter().map(|v| v * v).sum::<i64>();
@@ -118,11 +168,11 @@ pub(crate) fn build(public: &AttentionPublic, input: &[i16]) -> Result<Witness, 
         if d >= 1 << 24 || !(0..1i64 << 24).contains(&a1) || !(0..1i64 << 24).contains(&a2) {
             return Err(range("norm denominator"));
         }
-        pl[A_D][t] = d;
-        pl[A_DSQ][t] = d * d;
+        out.d[t] = d;
+        out.dsq[t] = d * d;
         for (base, v) in [(0usize, d), (3, a1), (6, a2)] {
             for (k, l) in limbs(v, 3).into_iter().enumerate() {
-                pl[A_LIMB][(base + k) * T + t] = l;
+                out.limb[(base + k) * T + t] = l;
             }
         }
         let dv = d << NORM_TN;
@@ -131,7 +181,7 @@ pub(crate) fn build(public: &AttentionPublic, input: &[i16]) -> Result<Witness, 
             return Err(range("norm denominator"));
         }
         for i in 0..D {
-            let num = 2 * row[i] * i64::from(public.gamma_a[i]) * NORM_CN + dv;
+            let num = 2 * row[i] * i64::from(gamma[i]) * NORM_CN + dv;
             let q = num.div_euclid(den);
             let rho = num.rem_euclid(den);
             let sigma = den - 1 - rho;
@@ -139,14 +189,49 @@ pub(crate) fn build(public: &AttentionPublic, input: &[i16]) -> Result<Witness, 
                 return Err(range("norm quotient/remainder"));
             }
             let idx = t * D + i;
-            pl[A_Y][idx] = q;
+            out.y[idx] = q;
             for (k, l) in limbs(rho, 4).into_iter().enumerate() {
-                pl[A_NR0 + k][idx] = l;
+                out.rho[k][idx] = l;
             }
             for (k, l) in limbs(sigma, 4).into_iter().enumerate() {
-                pl[A_NS0 + k][idx] = l;
+                out.sigma[k][idx] = l;
             }
         }
+    }
+    Ok(out)
+}
+
+/// the attention half only (the work-in-progress profile's witness)
+pub(crate) fn build(public: &AttentionPublic, input: &[i16]) -> Result<Witness, String> {
+    build_inner(public, None, input)
+}
+
+/// the whole block, on the planes of `Layout::new_block()`
+pub(crate) fn build_block(public: &AttentionPublic, ff: &FeedForwardPublic, input: &[i16]) -> Result<Witness, String> {
+    build_inner(public, Some(ff), input)
+}
+
+fn build_inner(public: &AttentionPublic, ff: Option<&FeedForwardPublic>, input: &[i16]) -> Result<Witness, String> {
+    if input.len() != T * D {
+        return Err("private block: input shape".into());
+    }
+    let block = ff.is_some();
+    let mut pl: Vec<Vec<i64>> = (0..N_A)
+        .map(|p| if !is_multiplicity(p) && (block || a_in_wip(p)) { vec![0i64; a_dom(p).len()] } else { Vec::new() })
+        .collect();
+    let x: Vec<i64> = input.iter().map(|v| i64::from(*v)).collect();
+
+    // ---- norm_a (round mode) ----
+    let na = rms_norm(&x, &public.gamma_a)?;
+    pl[A_D] = na.d;
+    pl[A_DSQ] = na.dsq;
+    pl[A_LIMB] = na.limb;
+    pl[A_Y] = na.y;
+    for (k, v) in na.rho.into_iter().enumerate() {
+        pl[A_NR0 + k] = v;
+    }
+    for (k, v) in na.sigma.into_iter().enumerate() {
+        pl[A_NS0 + k] = v;
     }
     for (idx, v) in x.iter().enumerate() {
         pl[A_X][idx] = *v;
@@ -269,5 +354,86 @@ pub(crate) fn build(public: &AttentionPublic, input: &[i16]) -> Result<Witness, 
     pl[A_RKRL] = rkrl;
     pl[A_S8] = s8;
     pl[A_RSL] = rsl;
-    Ok(Witness { planes: pl })
+
+    let Some(ff) = ff else {
+        return Ok(Witness { planes: pl, block: false });
+    };
+
+    // ================= the block half (kernel lib.rs:616-663) =================
+    // ---- norm_m: the same relation, with gamma_m and xres1 ----
+    let x1 = pl[A_X1].clone();
+    let nmp = rms_norm(&x1, &ff.gamma_m)?;
+    pl[A_DM] = nmp.d;
+    pl[A_DSQM] = nmp.dsq;
+    pl[A_LIMBM] = nmp.limb;
+    pl[A_YM] = nmp.y;
+    for (k, v) in nmp.rho.into_iter().enumerate() {
+        pl[A_MR0 + k] = v;
+    }
+    for (k, v) in nmp.sigma.into_iter().enumerate() {
+        pl[A_MS0 + k] = v;
+    }
+
+    // ---- the SiLU feed-forward, in the kernel's order so the FIRST refusal matches ----
+    let nm = pl[A_YM].clone();
+    // R1: the gate. Its class is the kernel's `I8`, which INCLUDES -128, not
+    // the attention subset: the activation table has 256 rows, so `sym()`
+    // would prove the wrong window (T2 section A.2).
+    let (g8, rgl) = quantize(&matmul_in_out(&nm, &ff.wg_t, D, F), SH_G, -128, 127, "FFN gate")?;
+    // R3: up. SH_U = 0, so `requant` is the identity: no remainder plane, no
+    // limbs for it, only the int16 class (T2 section A.4).
+    let u16 = matmul_in_out(&nm, &ff.wu_t, D, F);
+    if u16.iter().any(|v| !(-32768..=32767).contains(v)) {
+        return Err(range("FFN up"));
+    }
+    // R2: the activation lookup. `g8 + 128` is a valid index because R1's
+    // class check already passed; the kernel names the same site if it is not.
+    let a16: Vec<i64> = g8
+        .iter()
+        .map(|g| {
+            let slot = usize::try_from(g + 128).map_err(|_| range("FFN gate"))?;
+            ff.act.get(slot).map(|v| i64::from(*v)).ok_or_else(|| range("FFN gate"))
+        })
+        .collect::<Result<_, String>>()?;
+    // R4: the product
+    let hacc: Vec<i64> = a16.iter().zip(u16.iter()).map(|(a, u)| a * u).collect();
+    let (h16, rh) = quantize(&hacc, SH_H_PROD, -32768, 32767, "FFN product")?;
+    // R5: down
+    let (z16, rdl) = quantize(&matmul_in_out(&h16, &ff.wd_t, F, D), SH_Z, -32768, 32767, "FFN down")?;
+
+    for idx in 0..T * F {
+        let l = limbs(u16[idx] + 32768, 2);
+        pl[A_UL0][idx] = l[0];
+        pl[A_UL1][idx] = l[1];
+        let l = limbs(h16[idx] + 32768, 2);
+        pl[A_HL0][idx] = l[0];
+        pl[A_HL1][idx] = l[1];
+        let l = limbs(rh[idx], 2);
+        pl[A_RH0][idx] = l[0];
+        pl[A_RH1][idx] = l[1];
+    }
+    pl[A_G8] = g8;
+    pl[A_RGL] = rgl;
+    pl[A_A16] = a16;
+    pl[A_U16] = u16;
+    pl[A_H16] = h16;
+
+    // ---- residual 2 (all three shifts are 0: xres2 = xres1 + z16 exactly) ----
+    for idx in 0..T * D {
+        let x2 = x1[idx] + z16[idx];
+        if !(-32768..=32767).contains(&x2) {
+            return Err(range("residual 2"));
+        }
+        pl[A_X2][idx] = x2;
+        let l = limbs(x2 + 32768, 2);
+        pl[A_X2L0][idx] = l[0];
+        pl[A_X2L1][idx] = l[1];
+        let l = limbs(z16[idx] + 32768, 2);
+        pl[A_ZL0][idx] = l[0];
+        pl[A_ZL1][idx] = l[1];
+    }
+    pl[A_Z16] = z16;
+    pl[A_RDL] = rdl;
+
+    Ok(Witness { planes: pl, block: true })
 }

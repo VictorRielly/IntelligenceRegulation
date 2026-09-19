@@ -429,8 +429,8 @@ impl<'a> B<'a> {
         self.push(Tab::Priv(Priv { cm, slices: vec![(0, Fp2::ONE)], log: 9, coords: rho(0..9), mask_row: 2, ext_round: 0 }))
     }
     fn finish(self, poly: Poly, hosted: Vec<(usize, Fp2)>) -> Result<SlotDef, String> {
-        if self.ak != A_SITES[self.slot] || self.hk != H_SITES[self.slot] {
-            return Err(format!("private block: slot {} uses {} A / {} H sites, schedule declares {} / {}", self.slot, self.ak, self.hk, A_SITES[self.slot], H_SITES[self.slot]));
+        if self.ak != self.lay.a_sites()[self.slot] || self.hk != self.lay.h_sites()[self.slot] {
+            return Err(format!("private block: slot {} uses {} A / {} H sites, schedule declares {} / {}", self.slot, self.ak, self.hk, self.lay.a_sites()[self.slot], self.lay.h_sites()[self.slot]));
         }
         Ok(SlotDef { slot: self.slot, tabs: self.tabs, poly, hosted })
     }
@@ -443,8 +443,8 @@ struct LkT {
     cst: Fp2,
 }
 
-fn lk_tables(dom: Dom, idx: &[usize], g_u8: Fp2) -> Vec<LkT> {
-    lookups(dom)
+fn lk_tables(lay: &Layout, dom: Dom, idx: &[usize], g_u8: Fp2) -> Vec<LkT> {
+    lay.lookups(dom)
         .into_iter()
         .map(|l| LkT { terms: l.terms.iter().map(|(p, c)| (idx[*p], Fp::from_i64(*c))).collect(), cst: Fp2::from_i64(l.cst).add(g_u8) })
         .collect()
@@ -543,7 +543,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.eq(&tau, 0);
             let idx = b.a_range(A_LIMB, A_LIMB)?;
             let h0 = b.h(H_L)?;
-            let lks = lk_tables(Dom::L, &idx, g_u8);
+            let lks = lk_tables(lay, Dom::L, &idx, g_u8);
             b.finish(Box::new(move |v: &[Fp2]| v[0].mul(helper_sum(v, &lks, h0, alpha, &[Fp2::ONE]))), vec![])
         }
         SC_RS => {
@@ -610,7 +610,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
         }
         SC_DZC => {
             let tau = tr.challenge_fp2_vec(9);
-            let mu = tr.challenge_fp2_vec(6 + helpers(Dom::D).1);
+            let mu = tr.challenge_fp2_vec(6 + lay.helpers(Dom::D).1);
             let nu = nonzero(tr.challenge_fp2_vec(1))?[0];
             b.eq(&tau, 0);
             b.eq(&pts.p_a, 0);
@@ -618,10 +618,10 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             let idx = b.a_range(A_X, A_X1L1)?;
             let id = b.a_slice(lay.a_off[A_D], 5, rho(0..5), 0)?;
             let h0 = b.h(H_D0)?;
-            for j in 1..helpers(Dom::D).1 {
+            for j in 1..lay.helpers(Dom::D).1 {
                 b.h(H_D0 + j)?;
             }
-            let lks = lk_tables(Dom::D, &idx, g_u8);
+            let lks = lk_tables(lay, Dom::D, &idx, g_u8);
             let (k_num, k_dv, k_den) = (k(2 * NORM_CN), k(1 << NORM_TN), k(1 << (NORM_TN + 1)));
             let poly = move |v: &[Fp2]| {
                 let at = |p: usize| v[idx[p]];
@@ -649,7 +649,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             let (dom, first, last, src, h_first) = if q { (Dom::Q, A_Q8, A_RO1, A_Q8, H_Q0) } else { (Dom::Kv, A_K8, A_RKRL, A_K8, H_KV0) };
             let log = dom.log();
             let tau = tr.challenge_fp2_vec(log);
-            let mu = tr.challenge_fp2_vec(1 + helpers(dom).1);
+            let mu = tr.challenge_fp2_vec(1 + lay.helpers(dom).1);
             let nu = nonzero(tr.challenge_fp2_vec(2))?;
             b.eq(&tau, 0);
             b.eq(if q { &pts.pq } else { &pts.pk }, 0);
@@ -663,10 +663,10 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             cf[log - 3] = Coord::Flip(log - 3);
             let iflip = b.a_at(src, cf, 0)?;
             let h0 = b.h(h_first)?;
-            for j in 1..helpers(dom).1 {
+            for j in 1..lay.helpers(dom).1 {
                 b.h(h_first + j)?;
             }
-            let lks = lk_tables(dom, &idx, g_u8);
+            let lks = lk_tables(lay, dom, &idx, g_u8);
             let half = k(1 << (SH_QKV - 1));
             let hosted = if q { vec![(SC_QMM, nu[0]), (SC_PV, nu[1])] } else { vec![(SC_KMM, nu[0]), (SC_VMM, nu[1])] };
             let poly = move |v: &[Fp2]| {
@@ -688,7 +688,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
         }
         SC_SZC => {
             let tau = tr.challenge_fp2_vec(11);
-            let n_help = helpers(Dom::S).1;
+            let n_help = lay.helpers(Dom::S).1;
             let mu = tr.challenge_fp2_vec(5 + n_help + 1);
             let nu = nonzero(tr.challenge_fp2_vec(2))?;
             let lam = pts.lam_z;
@@ -704,7 +704,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 b.h(H_S0 + j)?;
             }
             let ihx = b.h(H_SEXP)?;
-            let lks = lk_tables(Dom::S, &idx, g_u8);
+            let lks = lk_tables(lay, Dom::S, &idx, g_u8);
             // the row-sum host term is constant in j: it sums to T * (Sum(p_ht) + lam_z)
             let hosted = vec![(SC_RS, nu[0].mul(k(T as i64))), (SC_SCORE, nu[1])];
             let poly = move |v: &[Fp2]| {

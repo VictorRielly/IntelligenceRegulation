@@ -25,7 +25,7 @@ establishes a privacy property; D8/D11 stay open (disposition section 5).
 |---|---|---|
 | S0 | SCAFFOLD: `private_block` module as a faithful copy under new names, WIP profile `hashline-zk-mr1/private-block-t32-wip/0`, all digest/magic/parameter strings forked | DONE |
 | S1 | TESTS FIRST: `private-block-kernel` as a dev-dependency; deterministic generator of public synthetic inputs/weights; witness-vs-kernel parity for the attention half (up to `xres1`) over >= 1,000 inputs including refusals | DONE |
-| S2 | WITNESS AND LAYOUT GROWTH: whole-block layout (A 455 / H 384 rows) and witness (`norm_m`, `g8`, `a16`, `u16`, `h16`, `z16`, remainders, residual 2) with kernel semantics; parity extended to `xres2` and every intermediate | not started |
+| S2 | WITNESS AND LAYOUT GROWTH: whole-block layout (A 455 / H 384 rows) and witness (`norm_m`, `g8`, `a16`, `u16`, `h16`, `z16`, remainders, residual 2) with kernel semantics; parity extended to `xres2` and every intermediate | DONE |
 | S3 | ARGUMENT: the new define arms, slots, sites; the tamper tests of T2-check section 8 | not started (next agent) |
 | S4 | The block profile `hashline-zk-mr1/private-block-t32-poc/1`, `BlockPublic` with the E-2 activation-table range check, the output endpoint moved to `xres2`, the tripwire `block_output_cannot_be_chosen` (T1-check section 11.3) | not started (next agent) |
 | S5 | The checking tools re-run on the real Rust source (disposition condition 4) | not started (next agent) |
@@ -221,10 +221,157 @@ target dir, release overrides):
    0 failed**, 9.84 s (the 11 accepted-component unit tests included).
 4. Byte-identity gate against `zk60-attention-compile`: empty.
 
-**Next step:** S2 — read T1 sections C.1-C.2 and T2 sections A-B, grow
+*(superseded; S2 is done — see below)* **Next step:** S2 — read T1 sections C.1-C.2 and T2 sections A-B, grow
 `layout.rs` (the whole-block planes, limb/helper planes, the activation
 multiplicity row, `Dom::F`, the derived counts A 455 / H 384 asserted in code)
 and `witness.rs` (`norm_m`, `g8`, `a16`, `u16`, `h16`, `z16`, the remainders
 `rg`, `rh`, `rd` with the kernel's BIASED requantization identity, residual 2,
 every refusal), then set `WITNESS_COVERS_BLOCK = true` and extend the harness
 to `xres2` and every new intermediate.
+
+### 2026-09-19 — S2 WITNESS AND LAYOUT GROWTH (done)
+
+**HOW THE MODULE WAS KEPT CONSISTENT (the brief's escape hatch, used).**
+Growing one `Layout` would have changed `a_rows` from 306 to something that is
+neither 306 nor 455 — the argument still declares eighteen slots and 75 `A`
+sites, so the grown planes alone give 365 rows — and would have broken the
+copied tests, the receipt size and the module's own site/group assertions. So
+layout.rs now builds **two layouts over ONE plane numbering**:
+
+* `Layout::new()` — the WORK-IN-PROGRESS layout the argument proves: the
+  accepted component's 50 `A` planes and 35 `H` planes, eighteen slots, 154 /
+  306 `A` rows, 218 / 290 `H` rows, 40 `M` rows, 30 / 8 opening groups. Byte
+  for byte the same statement as before; only the plane ids moved.
+* `Layout::new_block()` — the grown whole-block layout: all 81 `A` planes and
+  51 `H` planes, 23 slots, **213 / 455 `A` rows, 280 / 384 `H` rows, 50 `M`
+  rows, 34 functionals, 120 / 51 claim sites, 35 / 9 opening groups, 61,440
+  U8 lookups**. Those are the disposition section 1.2 / T2 section D.2 numbers
+  and `new_block` ASSERTS the four row totals itself, so a layout edit that
+  breaks them cannot ship.
+
+The single numbering is the block's, laid out **contiguously per domain**
+(`Dom::T`, `Ht`, `L`, `D`, `Q`, `Kv`, `S`, `F`, `Tab`) because T2 section C.2
+makes contiguity a layout-ordering obligation on the implementer: `SC_DZC`'s
+`a_range` must sweep one plane block. `Layout::new()` simply omits the
+block-only planes and packs the rest in plane order, so the relative order of
+the attention planes — and therefore the PCS grouping, which keys on
+`(point tail, offset % 256, len)` with every plane row-aligned — is unchanged.
+A plane a layout does not hold carries the offset `ABSENT = usize::MAX`, and a
+test asserts exactly which planes that is on both sides. `lookups`, `helpers`
+and `LOOKUP_DOMS` became layout methods, since the lists differ (`Dom::D`: 20
+lookups in the WIP layout, 38 in the block; `Dom::L`: 1 vs 2; `Dom::F`: 0 vs
+9), and `argument.rs` / `protocol.rs` now read them off the layout they were
+given, which makes the WIP argument correct by construction rather than by
+convention.
+
+**Planes added** (T1 C.1-C.2, T2 B.2), 31 on `A` and 16 on `H`:
+
+* `Dom::T`: `A_DM`, `A_DSQM`. `Dom::L`: `A_LIMBM` (nine of sixteen sub-planes,
+  the faithful mirror of `A_LIMB`).
+* `Dom::D`: `A_YM` (= `nm`), `A_MR0..3`, `A_MS0..3`, `A_Z16`, `A_X2`,
+  `A_X2L0/L1`, `A_ZL0/L1`, `A_RDL` — 16 planes.
+* `Dom::F` (new variant, `log = 9`): `A_G8`, `A_RGL`, `A_A16`, `A_U16`,
+  `A_UL0/L1`, `A_H16`, `A_HL0/L1`, `A_RH0/RH1` — 11 planes, 22 rows. There is
+  NO `up` remainder plane: `SH_U = 0` (T2 A.4).
+* `Dom::Tab`: `A_MACT`.
+* `H`: `H_D0+10..+18` (Tier 1's 7 plus Tier 2's 2, taking `Dom::D` to 19
+  helpers), `H_F0..+4`, `H_FACT`, `H_GACT`.
+
+**Witness.** `witness::build` (attention half, what the argument proves) and
+`witness::build_block` (the whole block) share one `build_inner`; the two
+RMSNorm sites share one `rms_norm` helper, which is T1 C.1's point that
+`norm_m` is the IDENTICAL relation with `gamma_m` for `gamma_a` and `xres1`
+for `x_in`. `Witness::planes` is now `N_A` long with an EMPTY vector (never a
+zero plane) for a plane this build does not fill. The block half follows the
+kernel's order exactly, so the FIRST refusal is the same one: `norm_m`, gate
+matmul + requant (`FFN gate`), up matmul + int16 class (`FFN up`), activation
+lookup, product + requant (`FFN product`), down matmul + requant
+(`FFN down`), residual 2 (`residual 2`). Every remainder is the BIASED one
+(`r' = r + 2^(sh-1)`), the module's idiom. The gate class is the kernel's
+`I8 = [-128, 127]`, NOT the attention subset — using `sym()` there would be a
+completeness bug (T2 A.2), and the code says so at the site.
+
+**New public surface** (deliberately small, and none of it a block claim):
+`FeedForwardPublic` (gamma_m, Wg, Wu, Wd as the kernel stores them, and the
+activation table as `Vec<i16>` — erratum E-2 discharged by the TYPE rather
+than a check, ready to move into `BlockPublic`), `compute_block_output`
+(a reference value, documented as not a proof artifact) and `block_schedule()`
+(the grown layout's declared description; tagged `private-block-t32/whole-block`,
+which is NOT a profile string and is absorbed nowhere).
+
+**E-1 is respected.** The argument, the profile string, the wire magic, the
+transcript and the output endpoint are untouched: `SC_IO_OUT` still binds
+`A_X1`, there is no `BlockPublic`, and `hashline-zk-mr1/private-block-t32-poc/1`
+appears nowhere. The block planes carry no relation, which is exactly why this
+commit proves nothing new — it is layout and arithmetic only.
+
+**Parity, extended.** `parity.rs` gained
+`the_whole_block_witness_equals_the_reference_kernel`, the same 1,200
+generated cases through `witness::build_block`, with only TWO outcomes
+allowed: both accept or both refuse identically. It compares, element for
+element: every attention plane as before, plus `norm_m D`, `norm_m D^2`,
+`nm`, `g8`, `a16`, `u16`, `h16`, `z16`, `xres2`, the four two-limb int16
+decompositions (and that every limb is a byte), the three BIASED
+requantization identities recomputed from the kernel's own `nm`/`a16`/`h16`
+(`gacc = 2^7 g8 + rg - 2^6`, `hacc = 2^14 h16 + rh - 2^13`,
+`zacc = 2^6 z16 + rd - 2^5`) with each remainder in its exact window,
+`xres2 = xres1 + z16`, the classes of `g8` and `nm`, and that every plane the
+grown layout declares is filled at its declared length. The block output is
+compared with `run_block`'s return value.
+
+```
+whole-block parity: 1200 cases — 905 accepted by both, 295 refused identically
+  Q 4, K 4, V 6, QR 3, score 168, residual 1 16,
+  FFN gate 2, FFN down 8, residual 2 84            (nine distinct sites)
+```
+
+No mismatch anywhere. The attention-half harness still runs beside it (905 /
+201 / 94), which is what keeps the WIP argument's own witness honest.
+
+**DEVIATIONS from the design, recorded.**
+1. `Layout::new_block()` is a second constructor rather than a grown
+   `Layout::new()`, for the reason above. The brief explicitly allows this;
+   T1 and T2 assume one grown layout, which becomes true when the argument
+   moves over in the next stage (delete `a_in_wip` / `h_in_wip`, the `block`
+   flag and the WIP slot tables, and the two collapse into one).
+2. The whole-block `describe()` is tagged `private-block-t32/whole-block` and
+   its digest still uses the WIP digest domain, because nothing absorbs it.
+   The stage that absorbs it must give it the final domain with the final
+   profile string.
+3. `SLOT_NAMES` was not renamed to `pb-*` (ruling R-B leaves that optional).
+4. Five `BC_*` slot indices and `Layout::limb_off_m` carry
+   `#[allow(dead_code)]` with a reason: they are the handles the next stage's
+   argument arms use. No other new item is unused; `private_block` compiles
+   with zero warnings.
+
+**Commands** (all `flock -w 540 /tmp/zk-build.lock`, offline, `-j 2`, warm
+target dir, release overrides):
+
+1. `cargo check --lib --tests --examples` -> exit 0, no `private_block`
+   warning (the only 8 warnings are the pre-existing `attention.rs` ones).
+2. `cargo test --release --lib private_block -- --test-threads=1 --nocapture`
+   -> **16 passed, 0 failed**, 5.31 s.
+3. `cargo test --release --lib private_ -- --test-threads=1` -> **27 passed,
+   0 failed**, 10.11 s (the 11 accepted-component unit tests included).
+4. `cargo test --release --test zk60_private_block --test zk60_private_attention`
+   -> **4 + 4 passed, 0 failed**.
+5. `cargo test --release --doc private_` -> **2 passed**.
+6. The example still proves and verifies: `prove` 0.083 s, frame 2,245,800
+   bytes (unchanged, as the WIP geometry is unchanged), `verify` in a fresh
+   process ACCEPT in 0.035 s with all three negative controls refused. Run
+   under the session scratchpad, nothing written into the repository.
+7. Byte-identity gate against `zk60-attention-compile`: empty.
+
+**Next step (S3, the next agent):** the argument's new arms. In order:
+`SC_SSM` and the extended `SC_TZC` (T1 C.1), the extended `SC_DZC` terms
+`c6..c10` and its second host (T1 C.1-C.2, T2 C.2), `SC_GMM` / `SC_UMM` /
+`SC_DMM` and the new `SC_FZC` (T2 C.1), the third `SC_TAB` triple with
+`TAG_ACT = 134` and `table_values_act` (T2 A.7), and `fold_cols_i8` added to
+this module's `argument.rs` imports for the `(input, output)` feed-forward
+matrices. Switch `argument.rs` and `protocol.rs` to `Layout::new_block()` in
+the same commit, then delete the WIP slot tables and the `a_in_wip` /
+`h_in_wip` filters. The tamper tests of T2-check section 8 belong to that
+commit. S4 then lands the block profile, `BlockPublic` (fold
+`FeedForwardPublic` in, keep the `i16` activation table), the output endpoint
+move to `A_X2` and the tripwire `block_output_cannot_be_chosen` — all three
+together, never before, and with the honest-proof assertion beside it.
