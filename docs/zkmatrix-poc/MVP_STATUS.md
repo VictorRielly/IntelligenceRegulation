@@ -1,6 +1,6 @@
 # Where the MVP stands, in plain words
 
-**Updated 2026-09-19, 04:07, by the Codex/Fable integration loop (after the
+**Updated 2026-09-19, 05:16, by the Codex/Fable integration loop (after the
 01:04 laptop restart; see §3 item 4).** This page
 answers three questions and is refreshed whenever the loop produces news.
 Rulings are in [the decisions register](ZK60_DECISIONS.md); measurements
@@ -43,8 +43,31 @@ and a new salted-SHA-256 endpoint profile that still needs Victor's
 acceptance as the P1 statement (D7). Both receipts are for synthetic tiny
 fixtures, not a trained model, and neither makes a speed claim.
 
-**On the custom prover line (hashline), no complete private block exists.**
-What exists there: a private feed-forward component at the same tiny shape
+**On the custom prover line (hashline), the first complete private block now
+proves and verifies (2026-09-19, 05:14) — experimental, not yet accepted.**
+The same kind of block as above (T32 tokens, width 16, two heads,
+feed-forward width 16: attention, both norms, both residuals, the SiLU
+feed-forward) in **one native proof with no seam**, inputs, outputs and
+activations hidden, weights public, on a public synthetic fixture. On the
+security owner's own run: **prove 0.095 s, verify 0.043 s in a fresh process
+from bytes only, receipt 2,816,472 bytes** — exactly the size the design
+derived before any code existed [MEASURED, NOISY-SHARED, diagnostic only]; 38
+unit, parity and tamper tests and 4 integration tests pass; the witness
+matches the integer reference kernel element for element on 1,200 cases,
+refusing exactly where the kernel refuses; nine tampers, including the one
+that would let a prover choose the block's output, are rejected by the
+verifier. For scale: the zkVM line needed 3,743 s for the same block. **What
+it is not:** not a privacy acceptance (the project's leak-checking tools have
+so far seen only a paper description of it; their run on the real source and
+an independent adversarial code review are in progress; the caller-fixed-root
+obligation D8/D11 is open; the joint-view gate on captured receipts is
+unmet), not a trained model, and **not a speed result for 8B**: the form
+built here deliberately gives up the GPU feed-forward prover, and a tenth of
+a second at width 16 says nothing about width 4096. Branch
+`zk60-private-block`; record
+`results/zk60_private_block_evidence/README.md` there.
+
+What else exists on that line: a private feed-forward component at the same tiny shape
 with a bounded privacy diagnostic (whole-proof privacy not accepted, D8
 open); public-IO proofs of real 8B feed-forward stacks (below); the private
 attention schedule designed and rank-checked, and its native implementation

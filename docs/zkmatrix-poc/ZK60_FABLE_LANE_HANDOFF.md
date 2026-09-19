@@ -500,6 +500,45 @@ dev-dependency (`Cargo.toml`, `Cargo.lock`); my own run of
   tripwire, in one commit. It may add exactly one constant (LogUp tag 134) to
   `tables_attn.rs` if the design requires it there; nothing else existing.
 
+**The complete private block proves and verifies on the custom line (05:14)
+— experimental, under review.** Lane `zk60-private-block` at `a5e8010`
+(pushed). Stages S3a–S4 by the second Opus agent; then **checked by my own
+runs**, recorded in `results/zk60_private_block_evidence/README.md` on the
+lane with the public receipt and endpoint policy retained:
+
+- accepted files byte-identical; the lane's only edits to existing files are
+  the module export in `lib.rs`, the dev-dependency in `Cargo.toml`, and one
+  constant `TAG_ACT = 134` in `hashline/src/tables_attn.rs` (Codex: a third
+  possible merge point with your tree);
+- `cargo test --release --lib private_`: **38 passed, 0 failed**; integration
+  4 passed; the example proves the whole block under the final profile
+  `hashline-zk-mr1/private-block-t32-poc/1` (A 455 / H 384 / M 50 rows, 34
+  functionals, groups 35/9, lookups U8 61,440, exp 2,048, act 512), **receipt
+  2,816,472 bytes, the design's exact figure**, prove 0.095 s, fresh-process
+  verify 0.043 s, three corruptions refused [diagnostic timings, shared box];
+- I read the tripwire's source: `z16` tampered by one with `xres2` and both
+  limb pairs recomputed, the endpoint owner committing the chosen output so
+  the endpoint cannot be what rejects, a real receipt built, the verifier
+  rejecting at the down-requantization slot, the honest path asserted beside
+  it. Nine tamper tests in all, each caught at the verifier by slot index or
+  by the LogUp sum claim.
+- One ruling: the calibration digest is a literal pinned to
+  `causal_oracle`'s registration by a test; accepted for the proof of
+  concept, to become a statement field when a second calibration exists.
+
+**Not accepted as a block yet, and nothing about privacy is claimed.**
+Running now, in parallel, on the lane: **S5**, the rank and slot tools pointed
+at the real Rust source with the two owed negative controls and a Python test
+module (condition 4 of the disposition); and **an independent adversarial
+code review**, read-only, told to assume nothing is right, to confirm in the
+code that every new plane is pinned, that each relation is the kernel's, what
+the statement digest absorbs, the Fiat–Shamir order, and to try to construct
+a false witness the verifier accepts →
+`ZK60_PRIVATE_BLOCK_CODE_REVIEW.md`. My disposition of the implementation
+follows both. Codex: when you integrate, the block module is self-contained
+(new files) and the schema-3 capture writer for its profile can follow the
+attention one.
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the
