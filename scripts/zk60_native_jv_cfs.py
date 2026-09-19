@@ -182,6 +182,189 @@ def lagrange_eval_weights(degree, r):
     return w
 
 
+# ------------------------------- the derived mask evaluation (report §3.1)
+# The verifier NEVER observes a slot's mask evaluation: it COMPUTES it, as
+#     g_val = (fin - poly(vals)) * c^-1           (argument.rs, both profiles)
+# i.e. the final check  fin_s = c_s * mask_eval_s + poly_s(terminals_s)
+# solved for mask_eval_s.  The functions below make that a CHECKED fact of
+# every slot of every capture instead of a paragraph.
+#
+# WHAT THE CAPTURE ALLOWS, exactly.  `native_capture.rs` writes the field
+# `terminal_polynomial` as `fin.sub(c.mul(mask_eval))` -- the ALREADY
+# EVALUATED value of poly_s, not its inputs.  The slot's composition
+# polynomial `def.poly` is a Rust closure (`Poly = Box<dyn Fn(&[Fp2]) ->
+# Fp2>`, argument.rs) and is NOT in the capture, so `poly_s(terminals_s)`
+# cannot be recomputed here from the terminals: the STRONG form of the check
+# is unavailable (report §3.1 says which field would restore it).  What IS
+# recomputed, and therefore what the assertion rests on:
+#   * `claimed_sum_s` from the published scalars and the hosted coefficients;
+#   * every round's own check  s_j(0) + s_j(1) == claim_j  (sumcheck.rs);
+#   * `fin_s` itself, by iterated `interpolate_eval` at the REPLAYED round
+#     challenges -- compared with the capture's `sumcheck_final`;
+#   * `c_s`, the replayed mask challenge, checked nonzero (the verifier
+#     refuses c = 0: private_block/argument.rs:275,
+#     private_attention/argument.rs:261);
+#   * the identity  mask_eval_s == (fin_s - terminal_polynomial_s) / c_s;
+#   * and, independently of all that, that every published terminal is
+#     REPUBLISHED as the value of the PCS claim the slot's private table
+#     names (`build_claim(..., value = terms[k])`, argument.rs:223) -- the
+#     link that makes a perturbed terminal detectable here at all.
+def sumcheck_final(rounds, degree, rho, claimed):
+    """zkp-core/src/sumcheck.rs::verify, without the transcript: the final
+    claim from the published rounds, plus whether every round's own
+    s(0) + s(1) == claim check holds."""
+    claim = claimed
+    consistent = True
+    for j, rnd in enumerate(rounds):
+        vals = [f2_from_list(v) for v in rnd]
+        if len(vals) != degree + 1:
+            return None, False
+        if f2_add(vals[0], vals[1]) != claim:
+            consistent = False
+        w = lagrange_eval_weights(degree, rho[j])
+        acc = F2_ZERO
+        for x in range(degree + 1):
+            acc = f2_add(acc, f2_mul(w[x], vals[x]))
+        claim = acc
+    return claim, consistent
+
+
+def terminal_identity(capture, replay):
+    """Per slot: the derived-mask-evaluation identity, and the terminals'
+    republication as PCS claim values.  Every count is a count of slots (or
+    of terminals) that PASS; a FAILURE is reported in `findings`."""
+    facts = {
+        "slots": len(capture.slots),
+        "claimed_sum_recomputed": 0,
+        "round_consistency_holds": 0,
+        "final_matches_the_capture": 0,
+        "mask_challenge_nonzero": 0,
+        "derived_mask_evaluation_identity": 0,
+        "terminals": 0,
+        "terminals_republished_as_claim_values": 0,
+        "strong_form_available": False,
+        "strong_form_missing_input": (
+            "the slot's composition polynomial def.poly (a Rust closure); the "
+            "capture holds terminal_polynomial only as fin - c*mask_eval"
+        ),
+        "findings": [],
+    }
+    scalars = [f2_from_list(a["scalar"]) for a in capture.slots]
+    tables = {"eq": 0, "public": 0, "private": 0, "public_tables_of_full_length": 0}
+    for arg in capture.slots:
+        s = arg["slot"]
+        degree = arg["degree"]
+        claimed = scalars[s]
+        for h in arg["hosted"]:
+            claimed = f2_add(claimed, f2_mul(f2_from_list(h["coefficient"]), scalars[h["slot"]]))
+        if claimed == f2_from_list(arg["claimed_sum"]):
+            facts["claimed_sum_recomputed"] += 1
+        else:
+            facts["findings"].append(f"slot {s}: claimed sum differs from scalar + hosted")
+        fin, consistent = sumcheck_final(arg["rounds"], degree, replay.rho[s], claimed)
+        if consistent:
+            facts["round_consistency_holds"] += 1
+        else:
+            facts["findings"].append(f"slot {s}: a round message fails s(0) + s(1) == claim")
+        if fin is not None and fin == f2_from_list(arg["sumcheck_final"]):
+            facts["final_matches_the_capture"] += 1
+        else:
+            facts["findings"].append(f"slot {s}: the recomputed sumcheck final differs")
+        c = replay.slot_c.get(s, f2_from_list(arg["c"]))
+        if f2_is_zero(c):
+            facts["findings"].append(f"slot {s}: zero mask challenge (the verifier refuses it)")
+        else:
+            facts["mask_challenge_nonzero"] += 1
+            derived = f2_mul(f2_sub(fin, f2_from_list(arg["terminal_polynomial"])), f2_inv(c))
+            if derived == f2_from_list(arg["mask_eval"]):
+                facts["derived_mask_evaluation_identity"] += 1
+            else:
+                facts["findings"].append(
+                    f"slot {s}: mask_eval != (fin - terminal_polynomial) / c"
+                )
+        k = 0
+        for t in arg["tables"]:
+            tables[t["kind"]] += 1
+            if t["kind"] == "public" and len(t["values"]) == 1 << arg["main"]:
+                tables["public_tables_of_full_length"] += 1
+            if t["kind"] != "private":
+                continue
+            facts["terminals"] += 1
+            claim = capture.role(t["role"])["claims"][t["claim"]]
+            if k < len(arg["terminals"]) and f2_from_list(claim["value"]) == f2_from_list(
+                arg["terminals"][k]
+            ):
+                facts["terminals_republished_as_claim_values"] += 1
+            else:
+                facts["findings"].append(
+                    f"slot {s} terminal {k}: not the value of the PCS claim it names"
+                )
+            k += 1
+        if k != len(arg["terminals"]):
+            facts["findings"].append(
+                f"slot {s}: {k} private tables for {len(arg['terminals'])} terminals"
+            )
+    facts["tables"] = tables
+    facts["ok"] = (
+        not facts["findings"]
+        and facts["derived_mask_evaluation_identity"] == facts["slots"]
+        and facts["terminals_republished_as_claim_values"] == facts["terminals"]
+    )
+    return facts
+
+
+def terminal_identity_controls(capture, replay, slot=0, replay_check=False):
+    """Negative controls for the identity above.  Each perturbs ONE published
+    field of one slot by one and re-runs the check; the perturbation is undone
+    before returning.  The terminal perturbation is the interesting one: the
+    per-slot mask-evaluation identity CANNOT see it (the capture stores the
+    already-evaluated terminal polynomial), while the terminal's republication
+    as a PCS claim value and the transcript replay both do."""
+    arg = capture.slots[slot]
+    out = {"slot": slot}
+
+    def fires():
+        return not terminal_identity(capture, replay)["ok"]
+
+    for name, key, index in (
+        ("last_round_coefficient", "rounds", -1),
+        ("mask_eval", "mask_eval", None),
+        ("terminal_polynomial", "terminal_polynomial", None),
+    ):
+        if index is None:
+            arg[key][0] = (arg[key][0] + 1) % P
+            out[name] = fires()
+            arg[key][0] = (arg[key][0] - 1) % P
+        else:
+            arg[key][index][0][0] = (arg[key][index][0][0] + 1) % P
+            out[name] = fires()
+            arg[key][index][0][0] = (arg[key][index][0][0] - 1) % P
+
+    arg["terminals"][0][0] = (arg["terminals"][0][0] + 1) % P
+    facts = terminal_identity(capture, replay)
+    out["terminal_mask_evaluation_identity"] = (
+        facts["derived_mask_evaluation_identity"] != facts["slots"]
+    )
+    out["terminal_claim_value_cross_check"] = (
+        facts["terminals_republished_as_claim_values"] != facts["terminals"]
+    )
+    if replay_check:
+        from zk60_native_jv_replay import Replay
+
+        out["terminal_transcript_replay"] = not Replay(capture).run().summary()["ok"]
+    arg["terminals"][0][0] = (arg["terminals"][0][0] - 1) % P
+    out["honest_again"] = terminal_identity(capture, replay)["ok"]
+    out["ok"] = (
+        out["last_round_coefficient"]
+        and out["mask_eval"]
+        and out["terminal_polynomial"]
+        and out["terminal_claim_value_cross_check"]
+        and out["honest_again"]
+        and (not replay_check or out["terminal_transcript_replay"])
+    )
+    return out
+
+
 def consistency_dim(n_vars, degree):
     return n_vars * degree + 1
 

@@ -343,6 +343,26 @@ class RoleView:
         mat = [column_functional_parts(j)[1] for j in distinct]
         return rank(mat, N_COLS), len(distinct)
 
+    def pad_block_rank_at_full_budget(self):
+        """The BOUNDARY the source actually allows (report §9b): Q_PAD pads
+        against Q_PAD DISTINCT opened positions, the collision-free draw.
+
+        The positions are this role's own distinct sampled ones, extended by
+        the next unused positions of the same encoded domain until there are
+        exactly Q_PAD = num_col_checks of them, so the geometry, the coset and
+        the nodes are the receipt's, only the birthday surplus is removed."""
+        distinct = sorted({c["index"] for c in self.role["columns"]})
+        used = set(distinct)
+        j = 0
+        while len(distinct) < Q_PAD and j < ENC_COLS:
+            if j not in used:
+                distinct.append(j)
+                used.add(j)
+            j += 1
+        distinct.sort()
+        mat = [column_functional_parts(k)[1] for k in distinct]
+        return rank(mat, Q_PAD), len(distinct)
+
     def _check_pair_schedule(self, data_rows, other_rows, prox_rows, u_rows):
         """H-pair, on the captured claims (protocol.rs::audit_claims, verified)."""
         used = {}

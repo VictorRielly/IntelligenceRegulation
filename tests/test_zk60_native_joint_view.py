@@ -20,7 +20,14 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 CAPTURES = os.path.join(ROOT, "results", "zk60_native_captures_20260919")
 
 from zk60_native_jv_capture import load_all, manifest_check  # noqa: E402
-from zk60_native_jv_cfs import CfsView, m_pad_block_rank, mask_len, rank2  # noqa: E402
+from zk60_native_jv_cfs import (  # noqa: E402
+    CfsView,
+    m_pad_block_rank,
+    mask_len,
+    rank2,
+    terminal_identity,
+    terminal_identity_controls,
+)
 from zk60_native_jv_field import (  # noqa: E402
     F2_ONE,
     P,
@@ -220,6 +227,107 @@ class Stage3MaskingCommitment(unittest.TestCase):
         self.assertEqual(r, d)
 
 
+class DerivedMaskEvaluation(unittest.TestCase):
+    """Report §3.1: the verifier COMPUTES each slot's mask evaluation from
+    published values.  The identity it computes it by is asserted per slot."""
+
+    def test_the_identity_holds_on_every_slot_of_every_capture(self):
+        cs, rp = caps()
+        want = {"block": 23, "attention": 18}
+        for c in cs:
+            f = terminal_identity(c, rp[c.proof_sha256])
+            with self.subTest(capture=c.proof_sha256[:12]):
+                self.assertEqual(f["findings"], [])
+                self.assertEqual(f["slots"], want[c.kind])
+                self.assertEqual(f["claimed_sum_recomputed"], f["slots"])
+                self.assertEqual(f["round_consistency_holds"], f["slots"])
+                self.assertEqual(f["final_matches_the_capture"], f["slots"])
+                self.assertEqual(f["mask_challenge_nonzero"], f["slots"])
+                self.assertEqual(f["derived_mask_evaluation_identity"], f["slots"])
+                self.assertTrue(f["ok"])
+
+    def test_every_terminal_is_republished_as_a_pcs_claim_value(self):
+        cs, rp = caps()
+        want = {"block": 173, "attention": 112}
+        for c in cs:
+            f = terminal_identity(c, rp[c.proof_sha256])
+            self.assertEqual(f["terminals"], want[c.kind])
+            self.assertEqual(f["terminals_republished_as_claim_values"], f["terminals"])
+
+    def test_the_strong_form_is_not_claimed(self):
+        """The capture stores terminal_polynomial as fin - c*mask_eval and not
+        the slot's composition polynomial, so poly_s(terminals_s) cannot be
+        recomputed here.  The record must say so rather than imply otherwise."""
+        cs, rp = caps()
+        for c in cs:
+            f = terminal_identity(c, rp[c.proof_sha256])
+            self.assertFalse(f["strong_form_available"])
+            self.assertIn("def.poly", f["strong_form_missing_input"])
+
+    def test_perturbing_a_published_field_breaks_the_identity(self):
+        cs, rp = caps()
+        for c in cs:
+            out = terminal_identity_controls(c, rp[c.proof_sha256])
+            with self.subTest(capture=c.proof_sha256[:12]):
+                self.assertTrue(out["last_round_coefficient"])
+                self.assertTrue(out["mask_eval"])
+                self.assertTrue(out["terminal_polynomial"])
+                # the weak identity cannot see a perturbed terminal ...
+                self.assertFalse(out["terminal_mask_evaluation_identity"])
+                # ... but the terminal's republication as a claim value does
+                self.assertTrue(out["terminal_claim_value_cross_check"])
+                self.assertTrue(out["honest_again"])
+                self.assertTrue(out["ok"])
+
+    def test_a_perturbed_terminal_also_breaks_the_transcript_replay(self):
+        cs, rp = caps()
+        c = cs[0]
+        out = terminal_identity_controls(c, rp[c.proof_sha256], replay_check=True)
+        self.assertTrue(out["terminal_transcript_replay"])
+        self.assertTrue(Replay(c).run().summary()["ok"])
+
+
+class PadBudgetBoundary(unittest.TestCase):
+    """Report §9b: q_pad == the number of DISTINCT opened positions."""
+
+    def test_the_three_boundary_cases_match_their_predictions(self):
+        b = smallmodel.pad_boundary()
+        self.assertEqual(b["q_pad_equals_distinct"]["bruteforce_disclosed"], 0)
+        self.assertEqual(b["q_pad_equals_distinct_plus_one"]["bruteforce_disclosed"], 0)
+        self.assertGreater(b["q_pad_equals_distinct_minus_one"]["bruteforce_disclosed"], 0)
+        offset = {
+            "q_pad_equals_distinct": 0,
+            "q_pad_equals_distinct_plus_one": 1,
+            "q_pad_equals_distinct_minus_one": -1,
+        }
+        for name, off in offset.items():
+            with self.subTest(case=name):
+                self.assertTrue(b[name]["as_predicted"])
+                self.assertEqual(b[name]["q_pad"], b[name]["distinct_opened_positions"] + off)
+        self.assertTrue(b["ok"])
+
+    def test_the_group_vectors_consume_no_pad_freedom(self):
+        b = smallmodel.pad_boundary()
+        for name, case in b.items():
+            if name == "ok":
+                continue
+            g = case["group_vectors"]
+            with self.subTest(case=name):
+                self.assertEqual(g["pad_freedom_consumed"], 0)
+                self.assertEqual(g["k0"], 0)
+                self.assertTrue(g["equals_q_pad_times_k0"])
+
+    def test_the_real_pad_block_is_full_rank_with_zero_margin(self):
+        """256 pads against 256 DISTINCT opened positions, at the receipts'
+        own coset and geometry: the collision-free draw the source allows."""
+        cs, rp = caps()
+        c = cs[0]
+        rv = RoleView(c, c.role("Input"), rp[c.proof_sha256].role_prox_rhos["Input"])
+        r, d = rv.pad_block_rank_at_full_budget()
+        self.assertEqual(d, 256)
+        self.assertEqual(r, 256)
+
+
 class Stage5ZeroWitness(unittest.TestCase):
     def test_a_zero_data_preimage_exists_in_the_model_on_every_channel(self):
         cs, rp = caps()
@@ -276,6 +384,13 @@ class GateRecord(unittest.TestCase):
         for row in rec["stage4_stacked"]["per_capture"]:
             self.assertEqual(row["pcs_sum_fp"], 2)
             self.assertEqual(row["joint_opening_only_fp"], 4)
+        s2 = rec["stage2_commitment_side_joint_view"]
+        self.assertTrue(s2["pad_block_at_the_full_budget"]["full_rank"])
+        self.assertEqual(s2["pad_block_at_the_full_budget"]["pad_margin"], 0)
+        self.assertFalse(s2["group_vectors_consume_pad_freedom"])
+        for row in rec["stage3_masking_commitment_view"]["per_capture"]:
+            self.assertTrue(row["derived_mask_evaluation"]["ok"])
+        self.assertTrue(rec["stage6_negative_controls"]["pad_budget_boundary"]["ok"])
 
 
 if __name__ == "__main__":

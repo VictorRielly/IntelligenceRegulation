@@ -47,7 +47,7 @@
  "ok": true,
  "privacy_property_established": false,
  "privacy_review_complete": false,
- "seconds": 17.9,
+ "seconds": 20.6,
  "stage1_transcript_replay": {
   "ok": true,
   "per_capture": [
@@ -96,14 +96,31 @@
    "Input": 0,
    "Output": 0
   },
+  "group_vectors_consume_pad_freedom": false,
+  "k0_by_role": {
+   "A": 0,
+   "H": 0,
+   "Input": 0,
+   "Output": 0
+  },
   "ok": true,
+  "pad_block_at_the_full_budget": {
+   "capture": "40083e7ac8f3f6c7",
+   "distinct_positions": 256,
+   "exact_rank_of_pad_block": 256,
+   "full_rank": true,
+   "pad_margin": 0,
+   "q_pad": 256,
+   "role": "Input",
+   "seconds": 1.9
+  },
   "pad_block_exact_rank_cross_check": {
    "capture": "40083e7ac8f3f6c7",
    "distinct_columns": 246,
    "exact_rank_of_pad_block": 246,
    "full_rank": true,
    "role": "Input",
-   "seconds": 1.9
+   "seconds": 2.1
   },
   "per_capture": [
    {
@@ -677,6 +694,26 @@
    {
     "capture": "40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b",
     "coefficients_total": 583,
+    "derived_mask_evaluation": {
+     "claimed_sum_recomputed": 23,
+     "derived_mask_evaluation_identity": 23,
+     "final_matches_the_capture": 23,
+     "findings": [],
+     "mask_challenge_nonzero": 23,
+     "ok": true,
+     "round_consistency_holds": 23,
+     "slots": 23,
+     "strong_form_available": false,
+     "strong_form_missing_input": "the slot's composition polynomial def.poly (a Rust closure); the capture holds terminal_polynomial only as fin - c*mask_eval",
+     "tables": {
+      "eq": 25,
+      "private": 173,
+      "public": 19,
+      "public_tables_of_full_length": 19
+     },
+     "terminals": 173,
+     "terminals_republished_as_claim_values": 173
+    },
     "disclosed_all_values_fp": 68,
     "disclosed_all_values_fp2": 34,
     "disclosed_opening_only_fp": 2,
@@ -707,6 +744,26 @@
    {
     "capture": "7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43",
     "coefficients_total": 583,
+    "derived_mask_evaluation": {
+     "claimed_sum_recomputed": 23,
+     "derived_mask_evaluation_identity": 23,
+     "final_matches_the_capture": 23,
+     "findings": [],
+     "mask_challenge_nonzero": 23,
+     "ok": true,
+     "round_consistency_holds": 23,
+     "slots": 23,
+     "strong_form_available": false,
+     "strong_form_missing_input": "the slot's composition polynomial def.poly (a Rust closure); the capture holds terminal_polynomial only as fin - c*mask_eval",
+     "tables": {
+      "eq": 25,
+      "private": 173,
+      "public": 19,
+      "public_tables_of_full_length": 19
+     },
+     "terminals": 173,
+     "terminals_republished_as_claim_values": 173
+    },
     "disclosed_all_values_fp": 68,
     "disclosed_all_values_fp2": 34,
     "disclosed_opening_only_fp": 2,
@@ -737,6 +794,26 @@
    {
     "capture": "6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9",
     "coefficients_total": 463,
+    "derived_mask_evaluation": {
+     "claimed_sum_recomputed": 18,
+     "derived_mask_evaluation_identity": 18,
+     "final_matches_the_capture": 18,
+     "findings": [],
+     "mask_challenge_nonzero": 18,
+     "ok": true,
+     "round_consistency_holds": 18,
+     "slots": 18,
+     "strong_form_available": false,
+     "strong_form_missing_input": "the slot's composition polynomial def.poly (a Rust closure); the capture holds terminal_polynomial only as fin - c*mask_eval",
+     "tables": {
+      "eq": 19,
+      "private": 112,
+      "public": 14,
+      "public_tables_of_full_length": 14
+     },
+     "terminals": 112,
+     "terminals_republished_as_claim_values": 112
+    },
     "disclosed_all_values_fp": 56,
     "disclosed_all_values_fp2": 28,
     "disclosed_opening_only_fp": 2,
@@ -767,6 +844,26 @@
    {
     "capture": "c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6",
     "coefficients_total": 463,
+    "derived_mask_evaluation": {
+     "claimed_sum_recomputed": 18,
+     "derived_mask_evaluation_identity": 18,
+     "final_matches_the_capture": 18,
+     "findings": [],
+     "mask_challenge_nonzero": 18,
+     "ok": true,
+     "round_consistency_holds": 18,
+     "slots": 18,
+     "strong_form_available": false,
+     "strong_form_missing_input": "the slot's composition polynomial def.poly (a Rust closure); the capture holds terminal_polynomial only as fin - c*mask_eval",
+     "tables": {
+      "eq": 19,
+      "private": 112,
+      "public": 14,
+      "public_tables_of_full_length": 14
+     },
+     "terminals": 112,
+     "terminals_republished_as_claim_values": 112
+    },
     "disclosed_all_values_fp": 56,
     "disclosed_all_values_fp2": 28,
     "disclosed_opening_only_fp": 2,
@@ -1071,7 +1168,105 @@
    "one_pad_fewer_than_opened_columns": true,
    "two_claims_share_one_pair": true
   },
+  "derived_mask_evaluation_controls": [
+   {
+    "capture": "40083e7ac8f3f6c7",
+    "honest_again": true,
+    "last_round_coefficient": true,
+    "mask_eval": true,
+    "ok": true,
+    "slot": 0,
+    "terminal_claim_value_cross_check": true,
+    "terminal_mask_evaluation_identity": false,
+    "terminal_polynomial": true,
+    "terminal_transcript_replay": true
+   },
+   {
+    "capture": "7d334e069c84f0c1",
+    "honest_again": true,
+    "last_round_coefficient": true,
+    "mask_eval": true,
+    "ok": true,
+    "slot": 0,
+    "terminal_claim_value_cross_check": true,
+    "terminal_mask_evaluation_identity": false,
+    "terminal_polynomial": true
+   },
+   {
+    "capture": "6c5e83fd1b2d8c16",
+    "honest_again": true,
+    "last_round_coefficient": true,
+    "mask_eval": true,
+    "ok": true,
+    "slot": 0,
+    "terminal_claim_value_cross_check": true,
+    "terminal_mask_evaluation_identity": false,
+    "terminal_polynomial": true
+   },
+   {
+    "capture": "c26d1f05754be35c",
+    "honest_again": true,
+    "last_round_coefficient": true,
+    "mask_eval": true,
+    "ok": true,
+    "slot": 0,
+    "terminal_claim_value_cross_check": true,
+    "terminal_mask_evaluation_identity": false,
+    "terminal_polynomial": true
+   }
+  ],
   "ok": true,
+  "pad_budget_boundary": {
+   "ok": true,
+   "q_pad_equals_distinct": {
+    "H-pad": true,
+    "as_predicted": true,
+    "bruteforce_disclosed": 0,
+    "distinct_opened_positions": 4,
+    "group_vectors": {
+     "equals_q_pad_times_k0": true,
+     "k0": 0,
+     "pad_freedom_consumed": 0,
+     "pad_functionals": 32,
+     "rank_over_all_rows": 32,
+     "rank_over_the_non_data_rows": 32
+    },
+    "prediction": 0,
+    "q_pad": 4
+   },
+   "q_pad_equals_distinct_minus_one": {
+    "H-pad": false,
+    "as_predicted": true,
+    "bruteforce_disclosed": 3,
+    "distinct_opened_positions": 4,
+    "group_vectors": {
+     "equals_q_pad_times_k0": true,
+     "k0": 0,
+     "pad_freedom_consumed": 0,
+     "pad_functionals": 24,
+     "rank_over_all_rows": 24,
+     "rank_over_the_non_data_rows": 24
+    },
+    "prediction": "> 0",
+    "q_pad": 3
+   },
+   "q_pad_equals_distinct_plus_one": {
+    "H-pad": true,
+    "as_predicted": true,
+    "bruteforce_disclosed": 0,
+    "distinct_opened_positions": 4,
+    "group_vectors": {
+     "equals_q_pad_times_k0": true,
+     "k0": 0,
+     "pad_freedom_consumed": 0,
+     "pad_functionals": 40,
+     "rank_over_all_rows": 40,
+     "rank_over_the_non_data_rows": 40
+    },
+    "prediction": 0,
+    "q_pad": 5
+   }
+  },
   "reduction_agrees_with_bruteforce": true,
   "small_model": {
    "commitment_opened_twice": {
@@ -1142,13 +1337,13 @@
   }
  },
  "tool_sha256": {
-  "zk60_native_joint_view.py": "d792f142eea184a4ef0971e2e0e93805b2dfc92f89fde227d7ad5f3bec453b57",
+  "zk60_native_joint_view.py": "d050e9e1845c45ff59cdc390e479adf9d648f3ba5ac65c914ff3dd9a82da4450",
   "zk60_native_jv_capture.py": "191f8bc95153d5a46644a3b2443c453f82b08ad934f7227efe28e3211aeb14b8",
-  "zk60_native_jv_cfs.py": "38dc1fb77b9be01f9ec8e61592da92e15d2759ec2a0cdfab41a134d4411e866e",
+  "zk60_native_jv_cfs.py": "12ad30bc87b8ece120410c84875eb8b5dbde1c4c59a526fe663510616163ba59",
   "zk60_native_jv_field.py": "09d2aa53784709d20d8f89ac3ab3e11ce38b2bbe4b20e513ea7639d9416f02f3",
-  "zk60_native_jv_pcs.py": "7fda7a1d72a60f6425a840de5584e1c79691e16d9fb9fb5708dccd757796559d",
+  "zk60_native_jv_pcs.py": "165b0ccdcbb44478e717737a91ce4660e35e95254a7465107afc03e5c9d5f41d",
   "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70",
-  "zk60_native_jv_smallmodel.py": "3b02d736a0b4c311146755a472a3f88fda180f1b00d82a0a852af08ab0630f35"
+  "zk60_native_jv_smallmodel.py": "00e698787b0230b90351275855f5be2c8d609502e9edb223673baa104f1857a2"
  },
  "version": 1
 }

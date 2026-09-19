@@ -15,11 +15,13 @@ each number means and, above all, for what it does NOT establish.
   2 COMMITMENT-SIDE VIEW  A and H (and both endpoints) jointly, with the
                           claim values, the group combinations and the 256
                           sampled columns with their pads
-  3 MASKING-COMMITMENT    the CFS masks, the slots' masked rounds and the
-                          one M opening
+  3 MASKING-COMMITMENT    the CFS masks, the slots' masked rounds, the one M
+                          opening, and the per-slot identity by which the
+                          verifier DERIVES each mask evaluation
   4 STACKED               A, H and M together against the sum of the parts
   5 ZERO-WITNESS GATE     a zero-data preimage of the same view, per channel
-  6 NEGATIVE CONTROLS     each must fire
+  6 NEGATIVE CONTROLS     each must fire, plus the pad-budget boundary
+                          (q_pad == the number of distinct opened positions)
   7 RECORD                results, hashes and a marker under --evidence
 
 NO STAGE ESTABLISHES A PRIVACY PROPERTY.  Every rank below is a rank of an
@@ -42,7 +44,12 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 from zk60_native_jv_capture import load_all, manifest_check  # noqa: E402
-from zk60_native_jv_cfs import CfsView, m_pad_block_rank  # noqa: E402
+from zk60_native_jv_cfs import (  # noqa: E402
+    CfsView,
+    m_pad_block_rank,
+    terminal_identity,
+    terminal_identity_controls as cfs_terminal_controls,
+)
 from zk60_native_jv_field import F2_ZERO, f2_from_list  # noqa: E402
 from zk60_native_jv_pcs import RoleView  # noqa: E402
 from zk60_native_jv_replay import Replay  # noqa: E402
@@ -100,6 +107,7 @@ def stage1_tamper(caps, replays):
 def stage2(caps, replays, pad_rank_check=True):
     out = []
     pad_rank = None
+    boundary = None
     for cap in caps:
         rp = replays[cap.proof_sha256]
         roles, total = [], 0
@@ -121,6 +129,20 @@ def stage2(caps, replays, pad_rank_check=True):
                     "full_rank": r == d,
                     "seconds": round(time.time() - t0, 1),
                 }
+                # The boundary the source allows: q_pad = num_col_checks pads
+                # against that many DISTINCT opened positions (report §9b).
+                t0 = time.time()
+                rb, db = rv.pad_block_rank_at_full_budget()
+                boundary = {
+                    "role": "Input",
+                    "capture": cap.proof_sha256[:16],
+                    "distinct_positions": db,
+                    "q_pad": db,
+                    "pad_margin": 0,
+                    "exact_rank_of_pad_block": rb,
+                    "full_rank": rb == db,
+                    "seconds": round(time.time() - t0, 1),
+                }
         out.append(
             {
                 "capture": cap.proof_sha256,
@@ -138,11 +160,20 @@ def stage2(caps, replays, pad_rank_check=True):
         for c in out
         for r in c["roles"]
     )
+    # k0 = 0 on every role is also the statement that the opening-group
+    # vectors consume no pad freedom: their pad entries are already reached
+    # through the mask rows, so they constrain no data row's pads (§9b).
+    k0s = {r["role"]: r["k0"] for c in out for r in c["roles"]}
     return {
         "per_capture": out,
         "expected": {"A": 0, "H": 2, "Input": 0, "Output": 0},
         "pad_block_exact_rank_cross_check": pad_rank,
-        "ok": ok and (pad_rank is None or pad_rank["full_rank"]),
+        "pad_block_at_the_full_budget": boundary,
+        "k0_by_role": k0s,
+        "group_vectors_consume_pad_freedom": any(v for v in k0s.values()),
+        "ok": ok
+        and (pad_rank is None or pad_rank["full_rank"])
+        and (boundary is None or boundary["full_rank"]),
     }
 
 
@@ -156,6 +187,9 @@ def stage3(caps, replays, pad_rank_check=True):
         f.pop("per_slot_detail", None)
         slots = f.pop("per_slot")
         f["slots_with_uncovered_directions"] = [p["slot"] for p in slots if p["uncovered"]]
+        # The derived mask evaluation is COMPUTED by the verifier, not observed
+        # (report §3.1): assert the identity it is computed by, per slot.
+        f["derived_mask_evaluation"] = terminal_identity(cap, rp)
         out.append({"capture": cap.proof_sha256, "profile": cap.profile, **f})
         if pad_rank_check and mpad is None:
             t0 = time.time()
@@ -172,6 +206,7 @@ def stage3(caps, replays, pad_rank_check=True):
         and c["uncovered_consistency_directions"] == 0
         and c["q_public_sum_identity"]
         and c["m_pad_margin"] > 0
+        and c["derived_mask_evaluation"]["ok"]
         for c in out
     )
     return {
@@ -290,12 +325,29 @@ def stage6(caps, replays):
     ]
     fired = {n: ctl[n]["bruteforce"] > 0 for n in names}
     tamper = stage1_tamper(caps, replays)
+    # the derived-mask-evaluation identity of stage 3 (report §3.1): one
+    # published field perturbed by one, per capture; the transcript replay is
+    # re-run on the first capture only (it is the expensive arm)
+    mask_ctl = [
+        {
+            "capture": cap.proof_sha256[:16],
+            **cfs_terminal_controls(cap, replays[cap.proof_sha256], replay_check=(i == 0)),
+        }
+        for i, cap in enumerate(caps)
+    ]
+    boundary = smallmodel.pad_boundary()
     return {
         "small_model": ctl,
         "reduction_agrees_with_bruteforce": honest_ok,
         "controls_fired": fired,
         "altered_capture_bytes_break_the_replay": tamper,
-        "ok": honest_ok and all(fired.values()) and tamper["ok"],
+        "derived_mask_evaluation_controls": mask_ctl,
+        "pad_budget_boundary": boundary,
+        "ok": honest_ok
+        and all(fired.values())
+        and tamper["ok"]
+        and all(m["ok"] for m in mask_ctl)
+        and boundary["ok"],
     }
 
 

@@ -141,3 +141,45 @@ worktrees — is read-only.
   Gate `scripts/zk60_native_joint_view.py` runs all six stages in 19 s and
   writes `results/zk60_native_joint_view/joint_view.json` + `.done`. Tests:
   22 pass in 54 s. Report written. Lane complete.
+
+- 2026-09-19 — **The two items owed by the security owner's answers (§9a) are
+  in.** Both are checks in the gate, not prose.
+
+  *Item 1 — the derived-mask-evaluation identity (report §3.1).* Per slot, on
+  every capture: the claimed sum recomputed from the published scalars and
+  hosted coefficients; every round's own `s(0)+s(1)=claim`; `fin_s`
+  recomputed from the published rounds by a port of `sumcheck::verify` at the
+  replayed challenges and equal to the capture's; `c_s ≠ 0`; and
+  `mask_eval_s == (fin_s − terminal_polynomial_s)/c_s`. 23/23 block slots,
+  18/18 attention slots, on both captures of each profile; plus every
+  terminal republished as the PCS claim value its private table names
+  (173/173 block, 112/112 attention). **Only the WEAK form is assertable**:
+  `native_capture.rs:118` stores `terminal_polynomial` as the evaluated
+  `fin − c·mask_eval`, and the slot's composition polynomial `def.poly` is a
+  Rust closure the capture does not carry, so `poly_s(terminals_s)` cannot be
+  recomputed here. Consequence, reported rather than hidden: the
+  terminal-perturbation control does NOT fire the per-slot identity; it fires
+  the terminal → claim cross-check and the transcript replay. Perturbing a
+  round coefficient, `mask_eval` or `terminal_polynomial` fires the identity
+  on all four captures. `c = 0` is refused at
+  `private_block/argument.rs:275` and `private_attention/argument.rs:261`.
+  The lemma with its three-line proof is report §3.1; the one captured field
+  that would restore the strong form (a machine-readable `def.poly`) is
+  listed there.
+
+  *Item 2 — the pad-budget boundary (report §9b).* Predictions written before
+  the runs, all three confirmed: `q_pad == distinct` discloses **0**,
+  `distinct + 1` discloses **0**, `distinct − 1` discloses **3**. At the
+  receipts' own geometry, 256 pads against 256 **distinct** positions:
+  exact rank **256 of 256** (2.0 s). **The security owner's answer 2 is right
+  and §9 question 2's sentence was wrong**; it is corrected in place (and the
+  §2.3 "the margin only has to be positive" line with it). The opening-group
+  vectors consume **no** pad freedom: measured directly in the model (rank
+  over all rows = rank over the non-data rows = 32, consumed 0) and equal to
+  `q_pad·k0`, which is 0 on every role of every capture. One correction of
+  detail: the PCS pad block is a **Vandermonde** (`encode_row_zk`), not a
+  Cauchy matrix; the Cauchy block is the masking commitment's — the
+  conclusion is the same for both.
+
+  Gate: 23 s, exit 0, all six stages ok, `privacy_property_established` and
+  `privacy_review_complete` still false. Tests: **30 pass in 49 s**.

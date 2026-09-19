@@ -5,8 +5,8 @@
 | Author | delegated security lane (Claude Opus 5), 2026-09-19 |
 | Lane | `zk60-native-jointview`, worktree `/home/victor/wt-zk60-jointview`, based on `d399b32` |
 | Inputs | the four source-pinned captures of `results/zk60_native_captures_20260919` (two `private-block-t32-poc/1`, two `private-attention-t32-poc/1`), source commit `2b5c65c3…`, verifier binary `fec86a7b…` |
-| Gate | `python3 scripts/zk60_native_joint_view.py --captures results/zk60_native_captures_20260919 --evidence results/zk60_native_joint_view` (19 s, record `results/zk60_native_joint_view/joint_view.json`, marker `joint_view.done`) |
-| Tests | `python3 -m unittest discover -s tests -p "test_zk60_native_joint_view.py"` — 22 tests, 54 s |
+| Gate | `python3 scripts/zk60_native_joint_view.py --captures results/zk60_native_captures_20260919 --evidence results/zk60_native_joint_view` (23 s, record `results/zk60_native_joint_view/joint_view.json`, marker `joint_view.done`) |
+| Tests | `python3 -m unittest discover -s tests -p "test_zk60_native_joint_view.py"` — 30 tests, 49 s |
 | Scope guard | P1 hides inputs, outputs and intermediate activations; weights may be public. Nothing here narrows that set. |
 | **Status** | **No privacy property is established.** Every number below is a rank of an explicitly stated **linear model** at **two receipts' real challenges**. The caller-fixed endpoint-root obligation (**D8/D11**) is untouched and remains **OPEN**. |
 
@@ -144,16 +144,20 @@ dimension 2 — the real and imaginary parts of one Fp2 identity whose
 published value is zero. Nothing else is disclosed on any role of any
 capture.
 
-**The pad budget is met, and only just.** Q = 256 pads are reserved per row
-and the receipt opens 256 columns; birthday collisions among the 256 draws
-from 2048 positions leave 231–247 **distinct** positions, so the margin is
-**9 to 25 pad symbols** — and the margin only has to be positive. An exact
-Gaussian elimination cross-check confirms the pad block's rank is exactly
-the distinct count (246 of 246, 2.2 s); for the other role/capture pairs the
-rank is taken from the Vandermonde theorem with the distinctness and
-`x_j^256 ≠ 1` checks done exactly. The control "one pad fewer than the
-distinct opened positions" discloses (§6), so this is a live budget, not
-slack.
+**The pad budget is met.** Q = 256 pads are reserved per row and the receipt
+opens 256 columns; birthday collisions among the 256 draws from 2048
+positions leave 231–247 **distinct** positions, so the observed margin is
+**9 to 25 pad symbols** — and what the reduction needs is only
+`distinct ≤ Q`, so a margin of **zero** would do (this is measured, not
+asserted: §9b). An exact Gaussian elimination cross-check confirms the pad
+block's rank is exactly the distinct count (246 of 246, 2.2 s), and a second
+one confirms it at the boundary — 256 pads against 256 **distinct** positions
+of the receipts' own coset, rank 256 of 256, 2.0 s. For the other
+role/capture pairs the rank is taken from the Vandermonde theorem with the
+distinctness and `x_j^256 ≠ 1` checks done exactly. The control "one pad
+fewer than the distinct opened positions" discloses (§6), so the budget is
+live in the sense that it cannot be *reduced*, not in the sense that the
+observed surplus is doing work.
 
 ## 3. Stage 3 — the masking-commitment (CFS / M) view, and the one finding
 
@@ -177,10 +181,13 @@ coefficients → rounds and `F_s` for the published functionals,
   theta-combination the `q` channel reveals is in the span too.
 
 The second bullet is the finding of this lane and it is reported as
-measured. Its consequence depends on an **accounting choice the security
-owner must make**, because the M functional *values* are not independently
-published — the verifier **derives** each from the slot's masked rounds and
-its terminals (`terminal_polynomial = fin − c·mask_eval` in the capture):
+measured. Its consequence depended on an **accounting choice**, because the
+M functional *values* are not independently published — the verifier
+**derives** each from the slot's masked rounds and its terminals
+(`terminal_polynomial = fin − c·mask_eval` in the capture). The choice has
+since been made (§9a answer 1: a derived value is not an independent
+observation; the headline is the first row, the second is reported beside
+it), and the identity it rests on is now asserted per slot — §3.1:
 
 | accounting | block | attention | what the disclosed functionals are |
 |---|---|---|---|
@@ -192,7 +199,106 @@ exactly the slots' **public terminal identities** — functions of values the
 receipt already publishes — and not additional information about the
 witness. But that redundancy is a **nonlinear** fact (`poly_s` has degree up
 to 4 in the terminals), so **linear algebra cannot show it** and this
-analysis does not. See §7 and the questions in §9.
+analysis does not; what it is shown by instead is the identity of §3.1,
+checked numerically per slot. See also §7 and the questions in §9.
+
+## 3.1 The lemma the accounting rests on, and what the gate now checks
+
+(Added after the security owner's answer 1 of §9a, which rules that a derived
+mask evaluation is not an independent observation. The paragraph above is
+therefore replaced by a lemma and a per-slot assertion.)
+
+**Statement.** For every slot `s`, the mask evaluation `mask_eval_s` — the
+quantity the pessimistic accounting counts as an extra observation — is a
+**deterministic function of values the receipt already publishes**. It is
+computed by the verifier, never observed.
+
+**Proof, in three lines.** The verifier's own final check of slot `s` is
+
+1. `fin_s = c_s · mask_eval_s + poly_s(terminals_s)` — this *is* the code:
+   `let g_val = fin.sub((def.poly)(&vals)).mul(c.inv());`
+   (`hashline/src/private_block/argument.rs:340`, and the same line in
+   `private_attention/argument.rs`), where `vals` holds the published
+   terminals in the slot's private-table positions and public values
+   (`eq_point`, `eval_mle_ext`) elsewhere;
+2. `c_s ≠ 0`, because the verifier refuses a zero mask challenge outright and
+   never redraws it — `if c.is_zero() { return Err("zero CFS mask challenge;
+   discard attempt") }`, `private_block/argument.rs:275` and
+   `private_attention/argument.rs:261` (the legacy paths refuse it too,
+   `zk.rs:1675`, `zk.rs:3533`);
+3. therefore `mask_eval_s = (fin_s − poly_s(terminals_s)) · c_s^{-1}`, and
+   every quantity on the right is public: `fin_s` is the sumcheck's final
+   claim, itself determined by the published round messages and the
+   transcript challenges (`zkp-core/src/sumcheck.rs::verify`), `c_s` is a
+   transcript challenge, and the terminals are published and absorbed under
+   the slot's terminal label. ∎
+
+**Consequence for the accounting.** The 68 Fp (block) / 56 Fp (attention)
+"derived" dimensions of the table above are functions of published values,
+so they are not observations of the hidden data; the functional the M opening
+independently reveals is the **single theta-combination** `q[0] + q[512]`,
+2 Fp. The headline for these four receipts is 4 Fp, with 70 / 58 reported
+beside it, never instead of it (§9a answer 1).
+
+**What the lemma does NOT give.** It is an *ingredient* of a simulation
+argument, not the argument. It says the simulator need not sample
+`mask_eval_s`; it does not say the simulator's other samples are correctly
+distributed, and it says nothing about the adaptive (distributional) lift:
+the **joint hypothesis of the sequential-kernel lemma stays open** (U-3,
+§9a answer 5). It is also silent on the hash layer and on D8/D11.
+
+**What the gate asserts, per slot, on all four captures** (stage 3,
+`derived_mask_evaluation` in the record):
+
+| checked, per slot | block (2 captures) | attention (2 captures) |
+|---|---|---|
+| `claimed_sum` recomputed from the published scalars and hosted coefficients | 23 / 23 | 18 / 18 |
+| every round's own `s(0) + s(1) = claim` | 23 / 23 | 18 / 18 |
+| `fin_s` recomputed by iterated `interpolate_eval` at the replayed challenges, equal to the capture's | 23 / 23 | 18 / 18 |
+| `c_s ≠ 0` | 23 / 23 | 18 / 18 |
+| **`mask_eval_s == (fin_s − terminal_polynomial_s) / c_s`**, the weak form (see below) | **23 / 23** | **18 / 18** |
+| every published terminal is republished as the value of the PCS claim its private table names | 173 / 173 | 112 / 112 |
+
+**The form actually asserted is the weak one, and here is exactly why.** The
+capture writes `terminal_polynomial` as the *already evaluated* value
+`fin.sub(c.mul(mask_eval))` (`hashline/src/native_capture.rs:118`), and the
+slot's composition polynomial `def.poly` is a Rust closure
+(`Poly = Box<dyn Fn(&[Fp2]) -> Fp2>`) that the capture does not carry. So
+`poly_s(terminals_s)` **cannot be recomputed here from the terminals**: what
+is asserted is that `fin_s − c_s·mask_eval_s` equals the stored terminal
+polynomial value, with `fin_s` and `c_s` **not** taken from the capture but
+recomputed — `fin_s` from the published rounds by a port of `sumcheck::verify`
+and `c_s` from the stage-1 transcript replay. The terminals themselves are
+anchored by the last row of the table: each one is republished as a PCS claim
+value (`build_claim(..., value = terms[k])`,
+`private_block/argument.rs:223`), which is the claim stage 2 shows is absorbed
+by its reserved mask pair.
+
+**Negative controls** (stage 6, `derived_mask_evaluation_controls`; each
+perturbs one published field of slot 0 by one and is undone afterwards):
+
+| perturbation | the per-slot identity | the terminal → claim cross-check | the transcript replay |
+|---|---|---|---|
+| one round coefficient | **fires** (4/4 captures) | — | — |
+| `mask_eval` | **fires** (4/4) | — | — |
+| `terminal_polynomial` | **fires** (4/4) | — | — |
+| **one terminal** | **does NOT fire** | **fires** (4/4) | **fires** (checked on capture `40083e7a…`) |
+
+The last row is the honest result and it is the measure of the gap: the weak
+identity is blind to a perturbed terminal, because the terminals only enter
+the stored value it uses. Two other published places do see it.
+
+**What would let the strong check run** (a request, not a defect): one
+additional captured field per slot — the slot's composition polynomial in
+machine-readable form, e.g. `"poly": [[coefficient, [table indices]], …]`, its
+monomials over the slot's declared table list. Everything else the evaluation
+needs is already in the capture and was checked structurally here (25 eq / 19
+public / 173 private tables per block capture, 19 / 14 / 112 per attention
+capture; every public table carries its full `2^main` values, and the private
+table count equals the terminal count on every slot). With that one field,
+`poly_s(terminals_s)` could be recomputed from the published terminals, a
+perturbed terminal would break the per-slot identity directly, and the lemma's
+step 1 would be checked rather than cited.
 
 The M opening's other channels are handled by three source facts, each
 checked here: `q = Σ_s p_{a_s} p_{W_s} + p_b` with `b` uniform on 1024
@@ -275,9 +381,12 @@ every control is run there, where the direct computation is feasible:
 | an extra published helper sum | **1** | n/a | none — the extra observation *is* the disclosure |
 | one pad fewer than the opened columns | **3** | n/a | H-pad |
 | **a capture whose bytes were altered** | the stage-1 replay **fails on all four captures** (first failure: `slot 0 round 0 challenge: challenge differs`), and the honest replay still passes afterwards | | |
+| the pad-budget **boundary** cases `q_pad = d`, `d + 1`, `d − 1` | **0**, **0**, **3** | — | §9b: a zero margin is sufficient |
+| one published field of a slot perturbed by one (round coefficient, `mask_eval`, `terminal_polynomial`, one terminal) | the derived-mask-evaluation identity fires on the first three; a perturbed **terminal** is seen by the terminal → claim cross-check and by the replay, not by that identity | — | §3.1 |
 
-Every control fires. The reduction agrees with brute force on both honest
-instances.
+Every control fires (the boundary cases are predictions, not controls: (a)
+and (b) are *expected* to disclose 0 and do). The reduction agrees with
+brute force on both honest instances.
 
 ## 7. What is NOT established
 
@@ -355,10 +464,16 @@ instances.
 2. **Is the pad margin acceptable as a design invariant?** It is 9–25 pad
    symbols and it is produced by birthday collisions among the 256 draws,
    not by a reserved surplus. `ZkOpts::standard` sets `q_pad =
-   num_col_checks` exactly. If a future profile ever drew 256 *distinct*
+   num_col_checks` exactly. ~~If a future profile ever drew 256 *distinct*
    positions (probability ≈ 1.2·10⁻⁷ per opening at this geometry), the
-   margin would be zero and the columns would stop being absorbed. Should
-   the source reserve `q_pad = num_col_checks + 1`?
+   margin would be zero and the columns would stop being absorbed.~~
+   **CORRECTED (§9b, measured): that sentence was wrong.** A zero margin is
+   sufficient — with 256 distinct opened positions the pad block is a square
+   Vandermonde in distinct nodes, rank 256, and the columns are still
+   absorbed (disclosed 0 in the small model, exact rank 256 of 256 at the
+   receipts' real geometry). The question stands only as a defence-in-depth
+   one, and the security owner's answer 2 declines it for a frozen-digest
+   reason: should the source reserve `q_pad = num_col_checks + 1` anyway?
 3. **The seeded tool's H geometry (§8).** Should
    `scripts/zk60_attention_pair_schedule.py`'s block adaptation be corrected
    to nine H groups, or its record annotated so its H numbers are not read
@@ -455,6 +570,74 @@ privacy property; the hash layer (roots, salts, paths), which rests on the
 open D8/D11 obligation; more than two challenge vectors per profile; the
 adaptive and distributional lift; integer-range side information; timing.
 
+## 9b. What the two owed items measured (this lane, after §9a)
+
+**Owed item 1 (answer 1) is discharged as a checked fact: see §3.1.** The
+lemma is stated there with its three-line proof and the source lines where
+`c_s = 0` is refused; the gate asserts the identity per slot (23 / 23 block,
+18 / 18 attention, on each of the two captures per profile) and the terminals'
+republication as PCS claim values (173 / 173 block, 112 / 112 attention).
+Only the **weak** form could be asserted, for the reason given in §3.1: the
+capture stores `terminal_polynomial` already evaluated and does not carry
+`def.poly`. The terminal-perturbation control is therefore blind in the
+per-slot identity and fires in the two other places, which is reported above
+rather than smoothed over.
+
+**Owed item 2 (answer 2): the boundary discloses 0. The security owner is
+right and the report's §9 question 2 was wrong; it is corrected in place.**
+
+Each case is a named check in the small model (where the dense rank is
+computable), built exactly as the real code builds the pad block, with its
+prediction written before the run:
+
+| case | distinct opened positions | `q_pad` | predicted | **brute-force disclosed** |
+|---|---|---|---|---|
+| (a) `q_pad == distinct`, no collisions | 4 | 4 | 0 | **0** |
+| (b) `q_pad == distinct + 1` | 4 | 5 | 0 | **0** |
+| (c) `q_pad == distinct − 1` (the existing control) | 4 | 3 | > 0 | **3** |
+
+and at the receipts' own geometry, as a second, non-toy check: 256 pads
+against **256 distinct** opened positions of the real encoded domain — this
+role's own distinct sampled positions extended by unused ones until the
+birthday surplus is gone — exact Gaussian rank **256 of 256** (2.0 s,
+`pad_block_at_the_full_budget` in the record). A zero margin is therefore
+**sufficient**, and the 9–25 symbols the receipts happen to have are a
+surplus, not a requirement. The one-line reason: the pad half of `E_j` is
+`diag(x_j^n − 1)` times a Vandermonde in the distinct nodes `x_j`, which has
+full row rank for **every** `d ≤ q_pad`, including `d = q_pad`; absorption
+needs full **row** rank (no nonzero combination of the opened columns vanishes
+on the pads), not spare columns.
+
+**One correction of detail to answer 2's reasoning, which does not change
+its conclusion.** The block that absorbs the *PCS* columns is a **Vandermonde**,
+not a Cauchy matrix: `encode_row_zk` (`zkp-core/src/pcs.rs:618`) subtracts
+`pad[i]` at coefficient position `i` and adds it at `n + i`, so
+`E_j[pad k] = (x_j^n − 1)·x_j^k`. The **Cauchy** block is the *masking
+commitment's* (§3): there the pads sit inside the 512-position message
+(`hashline/src/zk.rs::mask_commit:445`), so a column's pad coefficients are
+Lagrange weights `L_t(y_j)`. Both are full row rank in distinct nodes for
+`d ≤ q`, so the argument holds on both sides. (`ZkOpts::standard` sets
+`q_pad = num_col_checks`, `pcs.rs:543`; `commit_zk_owned_with` refuses
+`q_pad < num_col_checks`, `pcs.rs:670`.)
+
+**Do the opening-group vectors consume pad freedom? No — measured, not
+assumed.** A group vector contributes, per pad coordinate `k`, the functional
+`z ↦ Σ_i rho_g[i]·pad_i[k]`. It constrains a data row's pads only in the
+directions it cannot already reach through the mask rows, i.e. by
+`rank(over all rows) − rank(restricted to the non-data rows)`. Measured
+directly on the small model at all three boundary cases: **0** (32 pad
+functionals, rank 32 over all rows, rank 32 over the non-data rows alone),
+and equal to `q_pad · k0` as the reduction predicts. On the four real
+captures the same quantity is `q_pad · k0` with **`k0 = 0` on every role of
+every capture** (§2.3), so the group vectors consume no pad freedom there
+either — which is the security owner's reason (each group is masked by its
+own fresh reserved pair over all coordinates, pads included), confirmed in
+this model. The proximity vector is included in the same measurement.
+
+**Still true, and unchanged by either item:** no privacy property is
+established, D8/D11 is open, and the joint hypothesis of the
+sequential-kernel lemma stays with U-3.
+
 ## 10. Reproduce
 
 ```
@@ -468,5 +651,5 @@ The gate writes `results/zk60_native_joint_view/joint_view.json` (every
 number in this memo, plus the tool sha256s and the manifest cross-check) and
 the marker `joint_view.done` holding the exit code. It reads only the
 capture bundles; it runs no prover, no verifier, no Rust and no GPU, and it
-takes 19 s. `privacy_review_complete` and `privacy_property_established`
+takes 23 s. `privacy_review_complete` and `privacy_property_established`
 stay **false** in the record.

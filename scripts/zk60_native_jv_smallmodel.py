@@ -281,6 +281,87 @@ def honest(seed=1, u_pair=False):
     return ToyView(seed=seed, u_pair=u_pair).build()
 
 
+# ------------------------------------------- the pad-budget boundary (§9b)
+# The real source sets `q_pad = num_col_checks` exactly (pcs.rs::ZkOpts::
+# standard, line 543; commit_zk_owned_with asserts q_pad >= num_col_checks,
+# line 670), so on a receipt the opened positions can at most EQUAL the pads,
+# and do so only if the 256 draws collide nowhere.  The report's §9 question 2
+# asserted that the columns would then "stop being absorbed".  These checks
+# settle it in the model, where the dense rank is computable.
+#
+# PREDICTIONS, recorded before the runs (the pad half of E_j is
+# diag(x_j^n - 1) times a Vandermonde in the distinct nodes x_j, so its rank
+# is the number of DISTINCT opened positions whenever that number is <= q_pad):
+#   (a) q_pad == distinct opened positions  -> disclosed 0
+#   (b) q_pad == distinct + 1               -> disclosed 0
+#   (c) q_pad == distinct - 1               -> disclosed > 0 (the rank is one
+#                                              short, the columns leak)
+# and the group vectors consume NO pad freedom, because each group's row
+# combination is nonzero on its own fresh reserved pair: the pad entries of a
+# group vector are already explained by the mask rows' pads.
+def group_pad_freedom(view):
+    """Do the opening-group vectors spend the pads the columns need?
+
+    A group vector contributes, per pad coordinate k, the functional
+    z -> sum_i rho_g[i] pad_i[k].  It constrains the DATA rows' pads only in
+    the directions it does not already reach through the mask rows, i.e. by
+    rank(over all rows) - rank(restricted to the non-data rows).  That
+    difference is q_pad * k0 of the stage-2 reduction; here it is measured
+    directly from the functionals rather than taken from the formula."""
+    rows, q = view.rows, view.q_pad
+    data = set(view.data_rows)
+    mask_coords = [(i, k) for i in range(rows) if i not in data for k in range(q)]
+    obs_all, obs_mask = [], []
+    for rho in view.rhos:
+        for part in (0, 1):
+            for k in range(q):
+                v = [0] * (rows * q)
+                for i in range(rows):
+                    v[i * q + k] = rho[i][part]
+                obs_all.append(v)
+                obs_mask.append([v[i * q + kk] for (i, kk) in mask_coords])
+    r_all = rank(obs_all, rows * q)
+    r_mask = rank(obs_mask, len(mask_coords))
+    k0 = view.disclosed_reduction()[1]["k0"]
+    return {
+        "pad_functionals": len(obs_all),
+        "rank_over_all_rows": r_all,
+        "rank_over_the_non_data_rows": r_mask,
+        "pad_freedom_consumed": r_all - r_mask,
+        "equals_q_pad_times_k0": r_all - r_mask == q * k0,
+        "k0": k0,
+    }
+
+
+def pad_boundary(seed=6, n_cols=4):
+    """(a) q_pad == distinct, (b) q_pad == distinct + 1, (c) q_pad ==
+    distinct - 1, each as a named check with its prediction beside it.  The
+    toy draws its columns without replacement, so `distinct == n_cols`: the
+    'no collisions' case the receipts only approach."""
+    out = {}
+    for name, q_pad, prediction in (
+        ("q_pad_equals_distinct", n_cols, 0),
+        ("q_pad_equals_distinct_plus_one", n_cols + 1, 0),
+        ("q_pad_equals_distinct_minus_one", n_cols - 1, "> 0"),
+    ):
+        v = ToyView(seed=seed, n_cols=n_cols, q_pad=q_pad).build()
+        hyp = v.hypotheses()
+        disclosed = v.disclosed_bruteforce()
+        out[name] = {
+            "distinct_opened_positions": hyp["distinct_columns"],
+            "q_pad": q_pad,
+            "prediction": prediction,
+            "bruteforce_disclosed": disclosed,
+            "as_predicted": (disclosed == 0) if prediction == 0 else (disclosed > 0),
+            "H-pad": hyp["H-pad"],
+            "group_vectors": group_pad_freedom(v),
+        }
+    out["ok"] = all(out[k]["as_predicted"] for k in out if k != "ok") and all(
+        out[k]["group_vectors"]["pad_freedom_consumed"] == 0 for k in out if k != "ok"
+    )
+    return out
+
+
 def controls():
     """Every negative control, with the brute-force disclosed dimension."""
     out = {}
