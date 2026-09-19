@@ -455,11 +455,11 @@ most of the alloc 0.66 s, and `pack_narrow`'s traffic cut ~4.5x:
 | # | stage | status |
 |---|---|---|
 | C0 | this heading, committed | DONE |
-| C1 | floor on the untouched tip `d63e128`: both binaries, `cargo test --release` (202), every `gpu-probe` oracle, `zk60_gpu_commit` + `zk60_gpu_cache`, the TWELVE byte gates | PENDING |
-| C2 | item (a): `commit_planes` + the plane-sourced staging fill, behind a switch, with the `Vec<Fp>` arm kept for every decline | PENDING |
-| C3 | the byte-image oracle for the new entry (plane fill == `pack_narrow` at w = 1, several shapes incl. non-multiples and the chunked split) | PENDING |
-| C4 | the floor again, then the A/B at 12x512 on both binaries with the `HL_FSP4_TIMING` split | PENDING |
-| C5 | if budget remains: the next smaller item, each with its own floor and A/B | PENDING |
+| C1 | floor on the untouched tip `d63e128`: both binaries, `cargo test --release` (202), every `gpu-probe` oracle, `zk60_gpu_commit` + `zk60_gpu_cache`, the TWELVE byte gates | DONE — green (see the note on what the shared box did to it) |
+| C2 | item (a): `commit_planes` + the plane-sourced staging fill, behind a switch, with the `Vec<Fp>` arm kept for every decline | DONE |
+| C3 | the byte-image oracle for the new entry (plane fill == `pack_narrow` at w = 1, several shapes incl. non-multiples and the chunked split) | DONE — two oracles, both feature sets; plus four NEW chunked-W byte gates |
+| C4 | the floor again, then the A/B at 12x512 on both binaries with the `HL_FSP4_TIMING` split | DONE — every gate green; **1.405x on the item**, **2.23 s counted at 8B** |
+| C5 | the next smaller item | NOT STARTED — the budget went on the first cut's measured regression and its fix; the next step is named at the end |
 
 ## Log (continuation)
 
