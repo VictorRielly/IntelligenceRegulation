@@ -11,7 +11,22 @@
     "passed": 261
   },
   "delivery_commit": "f0d34812e0653310eee9a87457f1df03d2ab77d6",
-  "full_python_regression": "running; see regression-v2.json",
+  "full_python_regression": {
+    "cause": "outer lock deadlock; first targeted retry also hit shared-lock contention",
+    "changed_source": "tests/test_hashline_cl_gpu_gates.py; missing-cargo leg avoids real build lock",
+    "changed_source_sha256": "008050751887b57671565cfb795186ad0de9b71e111bc397165656b250d90bc3",
+    "clean_full_suite_rerun": false,
+    "original_errors": 1,
+    "original_passed": 1078,
+    "original_run": 1140,
+    "original_skipped": 61,
+    "source_files_rechecked": 153,
+    "state": "full run plus targeted rerun after test isolation fix",
+    "targeted_class_skipped": 0,
+    "targeted_class_tests_passed": 18,
+    "targeted_recheck": "regression-recheck-2.json",
+    "unresolved_test_failures": 0
+  },
   "gpu_cases": {
     "compact-off": 189,
     "default": 189,

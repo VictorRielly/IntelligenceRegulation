@@ -1,0 +1,39 @@
+test_bash_syntax (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_broken_parser_fails_before_any_build (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_core_commands_are_emitted_with_quoted_paths_locked_and_offline (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_dry_run_exits_zero_and_writes_nothing_under_scratch (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_dry_run_reports_both_crates_identity (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_env_defaults_are_honoured (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_every_emitted_command_survives_shell_splitting_with_spaced_paths (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_gpu_gates_carry_the_device_env_and_the_cpu_gates_do_not (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_header_documents_the_lock_ownership (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_manifest_lifecycle_is_emitted_for_every_case (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_missing_helper_fails_before_any_build (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_missing_or_dirty_core_refuses_to_start_before_any_build (test_hashline_cl_gpu_gates.FloorsRunner) ... ERROR
+test_required_order_self_test_before_build_before_hardware (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_storage_tests_cannot_overwrite_the_recorded_cpu_or_gpu_binary (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_suite_v3_dry_run_has_no_core_cases_but_records_the_identity (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_threads_and_shape_overrides_reach_every_prover_command (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_usage_and_success_line_name_the_core (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+test_usage_states_the_shape_rule (test_hashline_cl_gpu_gates.FloorsRunner) ... ok
+
+======================================================================
+ERROR: test_missing_or_dirty_core_refuses_to_start_before_any_build (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/tests/test_hashline_cl_gpu_gates.py", line 1217, in test_missing_or_dirty_core_refuses_to_start_before_any_build
+    r = subprocess.run(["bash", _FLOORS, "--repo", clean, "--gates", _SRC, "--v3-export", self.export, scratch],
+  File "/usr/lib/python3.10/subprocess.py", line 505, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+  File "/usr/lib/python3.10/subprocess.py", line 1154, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+  File "/usr/lib/python3.10/subprocess.py", line 2022, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+  File "/usr/lib/python3.10/subprocess.py", line 1198, in _check_timeout
+    raise TimeoutExpired(
+subprocess.TimeoutExpired: Command '['bash', '/home/victor/IntelligenceRegulation/results/cl1_floors.sh', '--repo', '/tmp/tmpwwpnu_la/ok repo', '--gates', '/home/victor/IntelligenceRegulation/scripts/hashline_cl_gpu_gates.py', '--v3-export', '/tmp/tmpwwpnu_la/export dir', '/tmp/tmpwwpnu_la/real ok']' timed out after 120 seconds
+
+----------------------------------------------------------------------
+Ran 18 tests in 124.068s
+
+FAILED (errors=1)

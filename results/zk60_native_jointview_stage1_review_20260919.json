@@ -1,0 +1,82 @@
+{
+  "baseline_manifest": {
+    "checked": 4,
+    "mismatch": [],
+    "privacy_review_complete": false,
+    "source_commit": "2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75",
+    "validation_json": "present",
+    "verifier_binary_sha256": "fec86a7b39fe3069a389e98ae3156eb7359b7e36386fd451a7b4390a70f56d1d"
+  },
+  "baseline_replays": [
+    {
+      "capture": "40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b",
+      "challenges_checked": 1543,
+      "checkpoints_checked": 80,
+      "failures": [],
+      "final_counter": 1863,
+      "ok": true,
+      "profile": "hashline-zk-mr1/private-block-t32-poc/1"
+    },
+    {
+      "capture": "7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43",
+      "challenges_checked": 1543,
+      "checkpoints_checked": 80,
+      "failures": [],
+      "final_counter": 1863,
+      "ok": true,
+      "profile": "hashline-zk-mr1/private-block-t32-poc/1"
+    },
+    {
+      "capture": "6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9",
+      "challenges_checked": 1122,
+      "checkpoints_checked": 65,
+      "failures": [],
+      "final_counter": 1442,
+      "ok": true,
+      "profile": "hashline-zk-mr1/private-attention-t32-poc/1"
+    },
+    {
+      "capture": "c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6",
+      "challenges_checked": 1122,
+      "checkpoints_checked": 65,
+      "failures": [],
+      "final_counter": 1442,
+      "ok": true,
+      "profile": "hashline-zk-mr1/private-attention-t32-poc/1"
+    }
+  ],
+  "reviewed_stage_commit": "ff7f04755dfafeeda348821ee4bbf3d39075c0f6",
+  "scope": "stage-1 helper; final CLI and controls not delivered yet",
+  "source_hashes": {
+    "zk60_native_jv_capture.py": "191f8bc95153d5a46644a3b2443c453f82b08ad934f7227efe28e3211aeb14b8",
+    "zk60_native_jv_field.py": "09d2aa53784709d20d8f89ac3ab3e11ce38b2bbe4b20e513ea7639d9416f02f3",
+    "zk60_native_jv_pcs.py": "9de31370136f8784c8192689b0965277a2c2e62d455c9c07fd2a3dfa71a43d80",
+    "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70"
+  },
+  "truncation_controls": [
+    {
+      "challenges_checked": 1542,
+      "failures": [],
+      "removed_last_element": "logup_challenges",
+      "replay_reports_ok": true
+    },
+    {
+      "challenges_checked": 1542,
+      "failures": [],
+      "removed_last_element": "mask.proximity_rhos",
+      "replay_reports_ok": true
+    },
+    {
+      "challenges_checked": 1542,
+      "failures": [],
+      "removed_last_element": "A.group.lambdas",
+      "replay_reports_ok": true
+    },
+    {
+      "challenges_checked": 1542,
+      "failures": [],
+      "removed_last_element": "A.proximity_rhos",
+      "replay_reports_ok": true
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+   Compiling version_check v0.9.5
+   Compiling crossbeam-utils v0.8.22
+   Compiling generic-array v0.14.7
+   Compiling typenum v1.20.1
+   Compiling crossbeam-epoch v0.9.20
+   Compiling shlex v2.0.1
+   Compiling crossbeam-deque v0.8.7
+   Compiling find-msvc-tools v0.1.11
+   Compiling cc v1.4.4
+   Compiling rayon-core v1.13.0
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling cfg-if v1.0.4
+   Compiling digest v0.10.7
+   Compiling blake3 v1.8.7
+   Compiling cpufeatures v0.2.17
+   Compiling either v1.18.0
+   Compiling constant_time_eq v0.4.2
+   Compiling cpufeatures v0.3.1
+   Compiling arrayvec v0.7.8
+   Compiling rayon v1.12.0
+   Compiling sha2 v0.10.9
+   Compiling zkp-core v0.1.0 (/tmp/wt-zk60-rowfold-20260919/zkp-core)
+    Finished `release` profile [optimized] target(s) in 16.98s
+     Running unittests src/lib.rs (zkp-core/target/release/deps/zkp_core-a6ba652bb22b7524)
+
+running 7 tests
+test mle::tests::deferred_rows_refuse_integer_overflow_before_reading_the_matrix ... ok
+test mle::tests::deferred_zero_rows_cancel_the_shift_with_nonzero_extension_weights ... ok
+test mle::tests::eq_table_sums_to_one_and_matches_point ... ok
+test mle::tests::interpolation ... ok
+test mle::tests::matrix_folds_are_tensor_evaluations ... ok
+test mle::tests::mle_eval_at_boolean_points_is_lookup ... ok
+test mle::tests::deferred_integer_rows_match_base_field_at_signed_and_field_edges ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.01s
+

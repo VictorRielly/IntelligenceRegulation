@@ -2,6 +2,96 @@
 
 ## CURRENT — Codex pickup, 2026-09-19
 
+
+**Native joint-view stage 1 independently replayed (`ff7f047`):** all four
+original captures reproduce (1,543 challenges/block; 1,122/attention).
+One bounded negative finding for the final gate: removing the last element
+from each of `logup_challenges`, `mask.proximity_rhos`, A group `lambdas`,
+or A `proximity_rhos` still makes `Replay.run().summary()["ok"]` true,
+with its count reduced by one. The comparison loops need explicit expected
+lengths. Recorded at `results/zk60_native_jointview_stage1_review_20260919.json`.
+The retained manifest catches changed file bytes, so this is a helper
+completeness issue, not an accepted bad native receipt. Require the final
+entry point to reject absent/mismatched manifests and malformed/truncated
+arrays; preferably reuse the mandatory native bundle ingestion gate. Do not
+claim the replay alone authenticates a capture or proves privacy.
+
+**Regression pickup complete:** the full run's only error is resolved. The
+first isolated retry still waited behind a real concurrent build; the final
+fix confines lock bypass to the test's deliberately missing-cargo leg (it
+cannot build anything and asserts the actual missing-tool failure). All 18
+FloorsRunner tests pass in 3.77 seconds. The recheck pins 153 source files,
+with only that test file changed; the original 1,140-test/61-skip run and both
+timeouts remain retained. This is combined evidence, not a clean full rerun.
+See `regression-recheck-2.json` in the FSP-L9 integration results.
+
+**Row-fold attempt 2 is terminal PASS, with an integration-blocking timing
+regression:** both seven-test arithmetic arms and the benchmark build pass;
+the 8-case ABBA shows dense gains 2.22–2.49x but 99%-zero inputs regress
+2.55–2.92x. I am retaining that evidence and replacing the unsigned-bias
+accumulator with bounded signed i128 sums, preserving the original zero
+skip. Attempt 3 repeats the same arithmetic and benchmark gate in the
+isolated row-fold lane. Nothing has been enabled in main yet. The affected
+native attention/block call sites are also in the eventual proof gates.
+
+**Earlier job pickup (superseded by the results above):** sessions 35723 and 82696 both exited 1.
+The Python suite completed 1,140 tests in 1,391 seconds, with 61 skipped and
+one error: its floors-runner test tried to take the same build lock held by
+my outer regression harness. This is a diagnosed harness deadlock, not a
+passing suite. I am retaining the failure and rerunning the affected runner
+class outside the outer lock. The row-fold arithmetic passed all seven tests
+with its switch on and off; only the benchmark failed to compile (ambiguous
+integer type). That type is fixed, with a separate attempt-2 runner queued
+next. No model-scale proof or GPU job is being added.
+
+**Direct-plane review at `d7cc938`:** please check two points before freezing
+the host delivery. `commit_w_planes` hashes the full three weight planes to
+find a cache hit, returns None on a hit, then `commit_w` hashes them again.
+That adds a full weight pass to the warm path; reuse the prepared cache key
+or decline early, and check warm-cache behavior separately from cold uploads.
+`PlaneTiling` also exposes all geometry fields publicly and uses unchecked
+products in its constructor/length, plus `off + len` in the range check.
+Please encapsulate validated geometry, use checked lengths/ranges, and add
+malformed/overflow controls. Honest Layout geometry looks consistent; I am
+not claiming an observed proof-soundness failure from this API issue.
+
+**Additional direct-plane rollback bug in `d7cc938`:**
+`upload_planes` checks `narrow_on()`, but the streamed branch enters
+`commit_chunked_upload` first, where `UpSrc::Planes::width()` returns 1
+unconditionally. With `HL_GPU_NARROW=0`, a large/forced-chunked plane commit
+therefore still uses narrow staging; the documented rollback is honored only
+by resident uploads. Guard the plane entry before either device strategy,
+and include a forced-chunked `HL_GPU_NARROW=0` arm with a path assertion (byte
+identity alone cannot tell which path ran). `layer.rs` / `pcs::commit_planes`
+at the reviewed tip do not precheck that switch.
+
+**5090 Linux desktop acknowledged:** no laptop shutdown needed for that
+separate installation. Start with GPU identity/free-memory and actual-device
+oracles, frozen bytes on CPU/GPU/forced-chunked paths, then paired public,
+legacy and repaired-profile cost diagnostics with peak memory. Label the
+repaired public-endpoint diagnostic explicitly; the private block still needs
+its own acceptance gate. Confirm host RAM before scheduling model-width work.
+
+
+**Earlier resumed review, after `f002a72`:** the preceding turn made progress (GPU
+integration committed, required-device/frozen-byte evidence retained). Both
+existing Codex processes are live; no duplicate was launched. The broad
+Python run is now in the legacy native backend battery, still under the
+build lock. The isolated row-fold check remains queued behind it. Subsequent
+byte-preserving speed patches will use focused arithmetic, repaired-profile
+and frozen-proof checks; do not repeat the unrelated lattice battery unless
+a change or failure justifies it.
+
+**Private host port reviewed through `a25c544`:** the tail-zeroing distinction
+is necessary and correct, and the returned A/P3-W data is retired after its
+last opening reader. Please retain that distinction if sharing the public
+pool later: making the public helper visible is not by itself an equivalent
+replacement. Before handoff, include a dirty-buffer test for a shrink/grow
+and changed tiled-prefix boundary, plus repaired P1/P3 private-IO verification
+with pool/fold switches on and off. Fixed-shape legacy byte gates alone do not
+exercise those appended rows or the repaired schedule. The public int8-plane
+fold algebra checks out; I am leaving the live `zk.rs` lane with you.
+
 **D14 draft review (`d399b32`):** see
 `ZK60_L4_MEMO_INTEGRATION_REVIEW.md` before promoting the headline ceiling.
 The streamed commit's source explicitly charges its hashing to `secs_ntt`,

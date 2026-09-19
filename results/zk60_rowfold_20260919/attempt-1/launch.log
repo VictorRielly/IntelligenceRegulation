@@ -1,0 +1,13 @@
+START arithmetic-1
+PASS arithmetic-1
+START arithmetic-0
+PASS arithmetic-0
+START bench-build
+Traceback (most recent call last):
+  File "/tmp/wt-zk60-rowfold-20260919/results/zk60_rowfold_20260919/run.py", line 63, in <module>
+    run()
+  File "/tmp/wt-zk60-rowfold-20260919/results/zk60_rowfold_20260919/run.py", line 41, in run
+    command('bench-build',[cargo,'build','--release','--offline','--locked','-j','2','--manifest-path','zkp-core/Cargo.toml','--example','row_fold_bench'])
+  File "/tmp/wt-zk60-rowfold-20260919/results/zk60_rowfold_20260919/run.py", line 29, in command
+    if code: raise RuntimeError(f'{name}: exit {code}')
+RuntimeError: bench-build: exit 101

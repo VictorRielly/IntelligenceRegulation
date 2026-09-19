@@ -11,8 +11,12 @@ with zero failures and two explicitly ignored saved-receipt capture entry
 points. Four required-device configurations each passed 34 commitment tests
 and reported 189 executed device cases; all four oracle sets passed. The
 12-test device cache suite, all twelve frozen proof-byte gates and the native
-lattice freeze also passed. The full Python regression is still running;
-its completion is tracked separately in `regression-v2.json`.
+lattice freeze also passed. The full Python regression completed 1,140 tests
+with 61 skipped and one harness error: the outer build lock deadlocked the
+floors-runner test, which takes that lock internally. After isolating the test's intentionally missing-compiler step from the
+real build lock, **all 18 tests in the affected class pass**; see
+`regression-recheck-2.json`. The original failure remains in
+`regression-v2.json`; this is combined evidence, not a clean full-suite rerun.
 
 ## What changes
 
@@ -91,7 +95,17 @@ required two consecutive idle samples before each GPU program. Its terminal
 exit marker is 0; it did not relax the memory, utilization or process checks.
 The first Python attempt reached its incorrectly short 240-second timeout;
 the detached retry uses the prior suite's recorded 861-second duration to
-justify its longer limit. No timed-out run is reported as passing.
+justify its longer limit. That retry completed in 1,391 seconds: 1,078
+passed, 61 skipped and one timeout. `cl1_floors.sh` explicitly warns against
+an outer build lock; the regression harness violated that rule. The
+first class rerun without that outer lock still timed out behind another
+lane's build. The final fix is confined to the test: its missing-cargo leg
+forwards only the expected first build command without taking the shared
+lock, and checks that cargo itself was unavailable. Real source identity,
+manifest creation and refusal checks still execute. All 18 class tests then
+pass in 3.77 seconds. The recheck validates 153 source hashes, explicitly
+recording this one changed test file; the other source files match the full
+run. Both timeout attempts remain failures in their retained reports.
 
 The five-second model-scale objective, complete model coverage and whole-proof
 privacy remain open. The native verifier captures are ready for Claude's

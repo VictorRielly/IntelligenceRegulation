@@ -1,5 +1,5 @@
 diff --git a/zkp-core/src/mle.rs b/zkp-core/src/mle.rs
-index 649a63d..f74723c 100644
+index 649a63d..024f538 100644
 --- a/zkp-core/src/mle.rs
 +++ b/zkp-core/src/mle.rs
 @@ -116,6 +116,11 @@ pub fn fold_cols_base(m: &[Fp], rows: usize, cols: usize, c: &[Fp2]) -> Vec<Fp2>
@@ -26,7 +26,7 @@ index 649a63d..f74723c 100644
      let chunk = 256usize.min(cols);
      let mut out = vec![Fp2::ZERO; cols];
      out.par_chunks_mut(chunk).enumerate().for_each(|(ci, oc)| {
-@@ -167,6 +177,55 @@ pub fn fold_rows_i32(m: &[i32], rows: usize, cols: usize, w: &[Fp2]) -> Vec<Fp2>
+@@ -167,6 +177,59 @@ pub fn fold_rows_i32(m: &[i32], rows: usize, cols: usize, w: &[Fp2]) -> Vec<Fp2>
      out
  }
  
@@ -39,41 +39,45 @@ index 649a63d..f74723c 100644
 +}
 +
 +/// Fold signed integers by reducing once per output, rather than once per
-+/// input. For bias B, sum_i w_i v_i = sum_i w_i (v_i+B) - B sum_i w_i.
-+/// Each extension component is accumulated as an exact unsigned integer.
-+/// The only callers have v in [-B, B-1], for B = 128 or 2^31.
++/// input. Each extension component accumulates the exact signed integer
++/// sum of the u64 coefficient times the signed matrix value. Retain the
++/// inherited zero skip: adding a bias to every value made sparse inputs
++/// substantially slower even though dense inputs improved.
++/// The only callers have |v| <= max_abs, for max_abs = 128 or 2^31.
 +///
 +/// Use the full u64 bound for coefficients so the accumulator cannot wrap
 +/// even before relying on the field's canonical-representation invariant.
-+/// Rows beyond this bound use the inherited field-arithmetic path. B and
-+/// max_value are public type constants; this choice does not inspect data.
-+fn fold_rows_deferred<T, F>(m: &[T], rows: usize, cols: usize, w: &[Fp2], bias: i64, value: F) -> Option<Vec<Fp2>>
++/// Rows beyond this bound use the inherited field-arithmetic path. The
++/// bound is public and ensures every partial sum fits, in any sign order.
++fn fold_rows_deferred<T, F>(m: &[T], rows: usize, cols: usize, w: &[Fp2], max_abs: i64, value: F) -> Option<Vec<Fp2>>
 +where
 +    T: Copy + Sync,
 +    F: Fn(T) -> i64 + Sync,
 +{
-+    let max_value = (2 * bias - 1) as u128;
-+    if rows as u128 > u128::MAX / (u64::MAX as u128 * max_value) {
++    if rows as u128 > i128::MAX as u128 / (u64::MAX as u128 * max_abs as u128) {
 +        return None;
 +    }
-+    let shift = w.iter().fold(Fp2::ZERO, |sum, &wi| sum.add(wi))
-+        .mul_base(Fp::from_i64(bias));
++    let reduce = |s: i128| {
++        let magnitude = Fp::from_u128(s.unsigned_abs());
++        if s < 0 { Fp::ZERO.sub(magnitude) } else { magnitude }
++    };
 +    let chunk = 256usize.min(cols);
 +    let mut out = vec![Fp2::ZERO; cols];
 +    out.par_chunks_mut(chunk).enumerate().for_each(|(ci, oc)| {
 +        let c0 = ci * chunk;
 +        // Fixed per-task scratch; no allocation inside the row loop.
-+        let mut sums = [(0u128, 0u128); 256];
++        let mut sums = [(0i128, 0i128); 256];
 +        for (i, &wi) in w.iter().enumerate() {
 +            let row = &m[i * cols + c0..i * cols + c0 + oc.len()];
 +            for (sum, &v) in sums.iter_mut().zip(row) {
-+                let u = (value(v) + bias) as u128;
-+                sum.0 += wi.c0.0 as u128 * u;
-+                sum.1 += wi.c1.0 as u128 * u;
++                let v = value(v) as i128;
++                if v == 0 { continue; }
++                sum.0 += wi.c0.0 as i128 * v;
++                sum.1 += wi.c1.0 as i128 * v;
 +            }
 +        }
 +        for (o, &(s0, s1)) in oc.iter_mut().zip(&sums) {
-+            *o = Fp2::new(Fp::from_u128(s0), Fp::from_u128(s1)).sub(shift);
++            *o = Fp2::new(reduce(s0), reduce(s1));
 +        }
 +    });
 +    Some(out)
@@ -82,7 +86,7 @@ index 649a63d..f74723c 100644
  pub fn fold_cols_i32(m: &[i32], rows: usize, cols: usize, c: &[Fp2]) -> Vec<Fp2> {
      assert_eq!(m.len(), rows * cols);
      assert_eq!(c.len(), cols);
-@@ -247,6 +306,66 @@ mod tests {
+@@ -247,6 +310,66 @@ mod tests {
          assert_eq!(full, dot2);
      }
  
@@ -129,7 +133,7 @@ index 649a63d..f74723c 100644
 +    }
 +
 +    #[test]
-+    fn deferred_zero_rows_cancel_the_shift_with_nonzero_extension_weights() {
++    fn deferred_zero_rows_with_nonzero_extension_weights() {
 +        let w = edge_weights(512);
 +        let want = vec![Fp2::ZERO; 257];
 +        assert_eq!(fold_rows_deferred(&vec![0i8; 512 * 257], 512, 257, &w, 128, |v| v as i64).unwrap(), want);
@@ -138,10 +142,10 @@ index 649a63d..f74723c 100644
 +
 +    #[test]
 +    fn deferred_rows_refuse_integer_overflow_before_reading_the_matrix() {
-+        for bias in [128, 1i64 << 31] {
-+            let limit = u128::MAX / (u64::MAX as u128 * (2 * bias - 1) as u128);
++        for max_abs in [128, 1i64 << 31] {
++            let limit = i128::MAX as u128 / (u64::MAX as u128 * max_abs as u128);
 +            if let Ok(rows) = usize::try_from(limit + 1) {
-+                assert!(fold_rows_deferred::<i32, _>(&[], rows, 1, &[], bias, |v| v as i64).is_none());
++                assert!(fold_rows_deferred::<i32, _>(&[], rows, 1, &[], max_abs, |v| v as i64).is_none());
 +            }
 +        }
 +    }

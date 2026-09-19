@@ -1,0 +1,80 @@
+{
+  "method": "same binary, modes 0/1/1/0; mean of per-process 11-sample medians",
+  "environment": "two Rayon threads, shared laptop, under heavy lock; other builds may run",
+  "measurements": [
+    {
+      "kind": "i8",
+      "rows": 512,
+      "cols": 768,
+      "sparse": false,
+      "baseline_median_mean_s": 0.0009586375,
+      "candidate_median_mean_s": 0.000385779,
+      "speedup": 2.4849395638435476
+    },
+    {
+      "kind": "i32",
+      "rows": 512,
+      "cols": 768,
+      "sparse": false,
+      "baseline_median_mean_s": 0.0010128024999999999,
+      "candidate_median_mean_s": 0.0004278185,
+      "speedup": 2.3673648988998837
+    },
+    {
+      "kind": "i8",
+      "rows": 512,
+      "cols": 768,
+      "sparse": true,
+      "baseline_median_mean_s": 0.000149583,
+      "candidate_median_mean_s": 0.00040955,
+      "speedup": 0.3652374557441094
+    },
+    {
+      "kind": "i32",
+      "rows": 512,
+      "cols": 768,
+      "sparse": true,
+      "baseline_median_mean_s": 0.000155361,
+      "candidate_median_mean_s": 0.0003985595,
+      "speedup": 0.3898062899015078
+    },
+    {
+      "kind": "i8",
+      "rows": 512,
+      "cols": 2048,
+      "sparse": false,
+      "baseline_median_mean_s": 0.0019121475,
+      "candidate_median_mean_s": 0.0008143474999999999,
+      "speedup": 2.3480731505898897
+    },
+    {
+      "kind": "i32",
+      "rows": 512,
+      "cols": 2048,
+      "sparse": false,
+      "baseline_median_mean_s": 0.002141178,
+      "candidate_median_mean_s": 0.0009663670000000001,
+      "speedup": 2.2156985907010482
+    },
+    {
+      "kind": "i8",
+      "rows": 512,
+      "cols": 2048,
+      "sparse": true,
+      "baseline_median_mean_s": 0.000264209,
+      "candidate_median_mean_s": 0.0007716435,
+      "speedup": 0.3423977523299296
+    },
+    {
+      "kind": "i32",
+      "rows": 512,
+      "cols": 2048,
+      "sparse": true,
+      "baseline_median_mean_s": 0.00032419,
+      "candidate_median_mean_s": 0.000826038,
+      "speedup": 0.3924637849590455
+    }
+  ],
+  "decision": "do not integrate biased accumulation; retain sparse zero skip in next candidate",
+  "model_scale_speed_claim": false
+}

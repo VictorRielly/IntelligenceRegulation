@@ -22,7 +22,7 @@ fn main() {
     let repeats: usize = args.get(2).map(|s| s.parse().unwrap()).unwrap_or(11);
     assert!(threads > 0 && repeats > 0);
     rayon::ThreadPoolBuilder::new().num_threads(threads).build_global().unwrap();
-    let rows = 512;
+    let rows: usize = 512;
     let weights: Vec<_> = (0..rows).map(|i| Fp2::new(
         Fp::new((i as u64 + 1).wrapping_mul(0xe4d9_38a7_166b_520f)),
         Fp::new((i as u64 + 1).wrapping_mul(0xc359_836d_407a_f18b)),

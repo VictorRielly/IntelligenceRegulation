@@ -1,0 +1,34 @@
+diff --git a/tests/test_hashline_cl_gpu_gates.py b/tests/test_hashline_cl_gpu_gates.py
+index dc5c997..8bc6f31 100644
+--- a/tests/test_hashline_cl_gpu_gates.py
++++ b/tests/test_hashline_cl_gpu_gates.py
+@@ -1214,12 +1214,29 @@ class FloorsRunner(unittest.TestCase):
+         scratch = os.path.join(self.tmp.name, "real ok")
+         e = {k: v for k, v in os.environ.items() if k not in ("HL_FLOORS_GATES", "HL_FLOORS_REPO", "HL_FLOORS_SUITE_VERSION")}
+         e["PATH"] = os.pathsep.join(p for p in e.get("PATH", "").split(os.pathsep) if not os.path.isfile(os.path.join(p, "cargo")))
++        # This leg tests source identity and manifest creation, then the
++        # missing-cargo failure. It must not wait behind unrelated builds
++        # (or deadlock if its parent suite holds the global build lock).
++        # Forward only the expected first build command without locking;
++        # cargo is absent from PATH, so no actual build can occur here.
++        no_cargo_bin = os.path.join(self.tmp.name, "missing cargo bin")
++        os.makedirs(no_cargo_bin)
++        no_cargo_flock = os.path.join(no_cargo_bin, "flock")
++        with open(no_cargo_flock, "w", encoding="utf-8") as fh:
++            fh.write('#!/bin/bash\n'
++                     '[[ "$1" == /tmp/zk-build.lock && "$2" == cargo && "$3" == build ]] || exit 98\n'
++                     'shift\n'
++                     'exec "$@"\n')
++        os.chmod(no_cargo_flock, 0o755)
++        e["PATH"] = no_cargo_bin + os.pathsep + e["PATH"]
+         r = subprocess.run(["bash", _FLOORS, "--repo", clean, "--gates", _SRC, "--v3-export", self.export, scratch],
+                            capture_output=True, text=True, env=e, timeout=120)
+         self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+         self.assertIn("present 1", r.stdout)
+         self.assertNotIn("nothing was built", r.stdout)
+         self.assertIn("FAILURE: build_cpu", r.stdout)
++        with open(os.path.join(scratch, "build_cpu.out"), encoding="utf-8") as fh:
++            self.assertIn("cargo: not found", fh.read())
+         m = gg.load_manifest(os.path.join(scratch, "manifest.json"))
+         self.assertEqual(m["source"]["crates"]["zkp_core"]["tree"], git(clean, "rev-parse", "HEAD:zkp-core"))
+         self.assertEqual(m["source"]["head"], git(clean, "rev-parse", "HEAD"))

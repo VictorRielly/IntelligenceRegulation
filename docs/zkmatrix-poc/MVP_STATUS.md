@@ -106,7 +106,9 @@ and D8/D11 still need acceptance; no new proving-speed claim follows.
 openings and the parallel host column split pass the integration checks:
 261 CPU Rust tests, four configurations of 34 required-device commitment
 tests, 12 device cache tests, all twelve frozen CPU/GPU/forced-chunked proof
-digests, and native freeze. The full Python regression is still running.
+digests, and native freeze. The full Python run covered 1,140 tests (61
+skipped); its single lock-related error is resolved by a test-isolation fix
+and a passing 18-test targeted rerun.
 The local four-kernel gain is 1.162× [MEASURED]; its full-pass saving is only
 0.8–1.8 seconds [COUNTED]. No new 8B proof clock is claimed. The next host
 work targets redundant integer conversion/packing and repeated reductions.

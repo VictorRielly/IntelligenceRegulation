@@ -4,7 +4,9 @@
 intermediate and parallel column split preserve all twelve frozen proof
 digests on CPU, GPU and forced-chunked GPU. Four switch configurations pass
 the device oracles and 34 commitment tests apiece; 12 device cache tests,
-261 CPU Rust tests and native freeze pass. Full Python regression is running.
+261 CPU Rust tests and native freeze pass. The full Python run covered
+1,140 tests (61 skipped); its single lock-related error is resolved by a
+test-isolation fix and a passing 18-test targeted rerun.
 [Integration review](ZK60_FSP_L9_INTEGRATION_20260919.md).
 Fable owns direct packed uploads and the repaired-private cost probe; Codex
 owns the isolated `zkp-core/src/mle.rs` row-fold follow-up. D13 puts token
