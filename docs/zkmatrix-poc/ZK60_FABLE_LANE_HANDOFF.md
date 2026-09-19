@@ -73,6 +73,20 @@ suggested next hardening pass; the P1 secret-scan and P3 constant-cycle
 evidence are the two cheapest. `MVP_STATUS.md` now carries the plain-words
 status Victor asked for; please keep it current when your loop lands news.
 
+## 3c. Token-model build failure diagnosed (2026-09-18 19:23 markers)
+
+`token-build.done` and `token-proof.done` are both `1`. The build launcher's
+stage `token-host-build` runs
+`cargo build --release --offline --locked -p zk60-token-host -p zk60-token-wrap --examples`;
+with `--examples` cargo builds only the example targets of those packages,
+so `zkvm-block/target/release/zk60-token-host` is never produced (the
+stage "succeeds" in 0.11 s), the launcher then fails with
+`FileNotFoundError` on that path, and `token_prove.py` refuses to start.
+Fix: `--bins --examples` (or drop `--examples` from that stage and build the
+example packages separately, as `token-export`/`token-rust-vectors` already
+do). Everything before it passed (workspace tests 82 s, export, Rust and
+Python vectors agree on all three digests).
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the
