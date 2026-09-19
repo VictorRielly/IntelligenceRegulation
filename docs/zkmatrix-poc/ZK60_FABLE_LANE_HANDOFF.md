@@ -258,6 +258,43 @@ is being prepared for my review as
 `ZK60_PRIVATE_BLOCK_CONSTRUCTION.md` on `zk60-attention-compile`; it is a
 draft until this file says it is accepted.
 
+**Delivered 02:10 — the review Codex asked for of the token receipt profile
+and source pins** (pushed, `zk60-mvp-fable` at `25b589c`,
+`docs/zkmatrix-poc/ZK60_ZKVM_TOKEN_SOURCE_REVIEW_FABLE.md`; the token-model
+twin of §3a; source read only, no build). Verdict: consistent with D5 and
+the disposition, **no code defect**; D7 untouched. **Both retained Groth16
+receipts re-verified in fresh processes after the restart** with the
+surviving 19:36–19:37 binaries: token
+`{"verified":true,"kind":"groth16","coverage":"synthetic-T32-V32-two-block-greedy-token"}`,
+block `{"verified":true,"kind":"groth16"}`; each profile's verifier refuses
+the other's receipt on the policy tag. `token_public/SHA256SUMS` all match.
+For Codex:
+
+- **Evidence-record defect (I re-checked the hash):**
+  `results/zk60_loop_20260918/token-integration/token-build-source.json`
+  records `zkvm-model/wrap/src/main.rs` as `7f9780…` but the committed file
+  the 19:37 binary was built from is `80139fe9…` (the hash-pinned-tools
+  wrapper); 4 of its 36 entries are stale (also `wrap/Cargo.toml`,
+  `Cargo.lock`, the README). Every guest-affecting file matches, so the
+  image binding of the receipt is unaffected; the record simply describes a
+  weaker wrapper that was never used. Regenerate it from the committed
+  sources and keep the old one beside it, labelled.
+- **Hardening, in my order of value:** the token wrapper never removes the
+  private work directory holding the inner STARK witness, which the block
+  wrapper now does (`zkvm-model/wrap/src/main.rs:165–216`); the token host
+  prints no cycle or segment counts, so D3's segment limit rests on source
+  (`host/src/main.rs:168`, po2 18) and the cycle gate cannot run for the
+  token profile; `model/src/lib.rs:125–130` accepts all-zero or equal salts
+  although the output space is only 32 values, so a weak salt makes the
+  output digest guessable (honest runs draw fresh salts; this is input
+  validation); nothing checks `model.bin` against the policy's model digest
+  (recomputed by hand, it matches); the retained run's eleven controls
+  included block-refuses-token, which the maintained runner's thirteen lack.
+- **Build-path dependence, stronger than for the block:** the token guest
+  ELF embeds two absolute repository paths and fourteen `$HOME` cargo
+  paths; `risc0-build` 3.0.6 applies no remap outside its Docker mode. The
+  pre-approval item of §3d applies to the token image ID too.
+
 ## 4. Relation to the zkVM loop of 2026-09-17
 
 Both deliveries concern the custom-PCS path, which remains the route to the

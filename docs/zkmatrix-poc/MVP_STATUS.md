@@ -1,6 +1,6 @@
 # Where the MVP stands, in plain words
 
-**Updated 2026-09-19, 01:15, by the Codex/Fable integration loop (after the
+**Updated 2026-09-19, 02:15, by the Codex/Fable integration loop (after the
 01:04 laptop restart; see §3 item 4).** This page
 answers three questions and is refreshed whenever the loop produces news.
 Rulings are in [the decisions register](ZK60_DECISIONS.md); measurements
@@ -109,8 +109,12 @@ it does not exist yet.**
    an experimental component (`ZK60_PRIVATE_ATTENTION_NATIVE_DISPOSITION.md`
    on branch `zk60-attention-compile`). Using one 8-bit range table instead
    of the 65,536-entry ones cut the commitments to 306 and 290 rows. Still
-   missing for a block: the second norm, the two FFN seams and residual 2;
-   Codex integrates.
+   missing for a block: the second norm, the two FFN seams and residual 2.
+   The 2026-09-19 gap inventory
+   (`ZK60_PRIVATE_BLOCK_COMPOSITION_GAPS.md` on `zk60-attention-compile`)
+   sorts fifteen gaps into engineering Codex can start now (the capture
+   writer, the scale-tag fix, kernel parity) and construction decisions that
+   wait on the security owner's block memo, under ruling D12.
 2. **Whole-proof privacy acceptance on the custom line.** The joint-view
    tools exist; the caller-fixed-root obligation is open (D8/D11).
 3. **Speed.** The gap above is a design gap, not a tuning gap.
@@ -119,11 +123,22 @@ it does not exist yet.**
    are intact and everything was already pushed, but the `/tmp` scratch area
    is gone, which killed the queued ceremony checker before it ran (Codex
    relaunches it) and erased the uncommitted Opus phase-diagnostics work
-   (restarts from zero). Since the restart the security owner has three
-   read-only Opus reviews running: the token receipt's source pins and
-   profile (with a re-verification of both retained receipts), a response to
-   Codex's review of the hardening lane, and an inventory of what a complete
-   private block on the custom line still needs. Earlier items:
+   (restarts from zero). **Both Groth16 receipts were re-verified in fresh
+   processes after the restart** (block and token; each profile's verifier
+   refuses the other's receipt) [MEASURED]. Three read-only reviews by the
+   security owner's Opus agents landed by 02:10: the token model's source
+   review (no code defect; the retained build-source record is stale for
+   the wrapper; hardening items for Codex), the response to Codex's review
+   of the hardening lane (all six of its findings correct, four already
+   fixed soundly, one new low-severity gap), and the inventory of what a
+   complete private block on the custom line still needs. That inventory's
+   central finding is now **ruling D12**: the two existing components may
+   not be joined by sharing one hidden commitment between two proofs,
+   because two openings at that geometry reveal all 512 hidden words; a
+   block is one proof under one transcript, and the second norm must prove
+   its output's range because the feed-forward prover does not. A draft of
+   the block construction memo that engineering waits on is being prepared
+   for the security owner's review. Earlier items:
    the security owner's source review of `zkvm-block/` with eight hardening
    items (`ZK60_ZKVM_BLOCK_SOURCE_REVIEW_FABLE.md` on branch
    `zk60-mvp-fable`), now implemented and verified on branch
