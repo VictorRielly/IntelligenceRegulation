@@ -2275,6 +2275,97 @@ struct HostTabsZkV3 {
     db: Vec<Vec<Vec<Fp2>>>,
 }
 
+/// [UPERF3-FSP3] Lane AL's host staging pool (`layer.rs` rung 1), ported to the
+/// PRIVATE v3 prover body below, which carries its own `w_data` / `a_data`
+/// allocations and was deliberately left out of lane AL.
+///
+/// The item AL found: `Fp` is a user type, so `vec![Fp::ZERO; len]` does NOT
+/// specialise to `alloc_zeroed`. The macro expands to an allocation plus a
+/// single-threaded write of the whole buffer, at the 8B shape 1.4 GB of zeros
+/// over ~344k first-touch page faults — 0.60 s per layer against 0.05 s for
+/// the `Fp::from_i64` fill that immediately overwrites every one of them.
+///
+/// WHY REIMPLEMENTED AND NOT CALLED: AL's `mod hostbuf` is module-private to
+/// `layer.rs`, which this lane does not own, and this lane may not change a
+/// foreign file's visibility. The statics are therefore separate. Promoting
+/// `layer.rs`'s `hostbuf` to `pub(crate)` and deleting this copy is left as a
+/// follow-up for that file's owner.
+///
+/// WHY `take` TAKES A `tiled` ARGUMENT, WHICH AL'S DOES NOT. AL's safety
+/// argument is that `LayoutV3`'s blocks tile the buffer exactly, so every
+/// element is written before any is read (`Layout::new` in
+/// `zkp-core/src/ffn_v3/statement.rs`: `a_len` is the 7 nb_f + 3 nb_d witness
+/// columns laid contiguously from 0, `w_len` the 3 nb_d nb_f weight blocks
+/// laid contiguously from 0 — and nothing else). That holds here for the same
+/// prefix, but `ZkLayoutV3` APPENDS rows after it — the CFS mask rows, the
+/// table rows, the table mask rows, the predicate row, the fresh-IO endpoint
+/// rows, and under P3 the W mask rows — and two of the writes into that tail
+/// are PARTIAL and rely on the surrounding zeros: the table multiplicity rows
+/// (columns `0..t.size` of `n`) and the predicate slack row (columns `0..16`
+/// of `n`). So the pooled arm zeroes `[tiled, len)` and skips the zeroing only
+/// over the provably tiled prefix `[0, tiled)`, which is where all but a
+/// handful of rows live. The contents handed back are then EXACTLY what
+/// `vec![Fp::ZERO; len]` followed by the same fills would have produced —
+/// which is what the frozen digests test, twelve layers deep: a buffer that
+/// was not fully overwritten would carry layer k-1's weights into layer k's
+/// commitment and move the digest on the second of twelve layers.
+///
+/// `HL_FSP_POOL=0` restores the pre-lane form (a fresh `vec![Fp::ZERO; len]`
+/// per layer, freed at the end of it) so the A/B runs on ONE binary.
+mod zkhostbuf {
+    use crate::field::Fp;
+    use rayon::prelude::*;
+    use std::sync::Mutex;
+
+    pub const W: usize = 0;
+    pub const A: usize = 1;
+    /// One retired buffer per slot. A second concurrent prover (the test suite
+    /// runs several) allocates its own and drops it on return, so the pool
+    /// cannot grow with the thread count.
+    const KEEP: usize = 1;
+    static POOL: Mutex<[Vec<Vec<Fp>>; 2]> = Mutex::new([Vec::new(), Vec::new()]);
+
+    pub fn on() -> bool {
+        static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+        *V.get_or_init(|| std::env::var("HL_FSP_POOL").map(|v| v != "0").unwrap_or(true))
+    }
+
+    /// A buffer of exactly `len` elements in which `[0, tiled)` holds ARBITRARY
+    /// contents — the caller must write every one of those elements before
+    /// reading any — and `[tiled, len)` is ZERO.
+    pub fn take(slot: usize, len: usize, tiled: usize) -> Vec<Fp> {
+        assert!(tiled <= len, "zk v3 staging pool: tiled prefix {tiled} exceeds the buffer {len}");
+        if !on() {
+            return vec![Fp::ZERO; len];
+        }
+        let mut v = POOL.lock().unwrap()[slot].pop().unwrap_or_default();
+        if v.capacity() < len {
+            drop(v);
+            return vec![Fp::ZERO; len];
+        }
+        if v.len() < len {
+            v.resize(len, Fp::ZERO);
+        } else {
+            v.truncate(len);
+        }
+        v[tiled..].par_chunks_mut(1 << 16).for_each(|c| c.fill(Fp::ZERO));
+        v
+    }
+
+    /// Retire a buffer. An emptied `Vec` (one whose contents were moved into a
+    /// commitment by `std::mem::take`) carries no capacity and is dropped
+    /// rather than parked, so it cannot displace a real buffer in the slot.
+    pub fn give(slot: usize, v: Vec<Fp>) {
+        if !on() || v.capacity() == 0 {
+            return;
+        }
+        let mut p = POOL.lock().unwrap();
+        if p[slot].len() < KEEP {
+            p[slot].push(v);
+        }
+    }
+}
+
 /// Prove one v3 layer in ZK mode (P1) over the first `t_rows` rows of the witness.
 pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &NttTables, cfg: &ZkConfig, tr: &mut Transcript) -> ProveOutputZk {
     prove_layer_zk_v3_inner(w, t_rows, params, ntt, cfg, tr, false, cfg.rng(format!("layer-v3-{}", w.l).as_bytes())).expect("legacy FFN proof")
@@ -2312,17 +2403,24 @@ impl PendingV3 {
         self.tick = std::time::Instant::now();
         match self.w {
             PendingWeightV3::Public(cm, claims) => { self.proof.w_open = pcs::open(&cm, &claims, tr); }
-            PendingWeightV3::Private(cm, claims) => {
+            PendingWeightV3::Private(mut cm, claims) => {
                 self.sites.push(format!("W: {} claims in {} groups", claims.len(), pcs::zk_groups_for_record(&cm, &claims)));
                 if zl.mr1 { fresh_poc::check_masks(&claims, cm.cm.rows, zl.log_wn, &zl.w_mask_rows(), zl.w_prox, tr)?; }
                 self.proof.w_open_zk = pcs::open_zk(&cm, &claims, tr);
                 self.sites.extend(pcs::last_mask_sites().into_iter().map(|s| format!("W {s}")));
+                // [UPERF3-FSP3] the hiding W commitment OWNS the staging buffer (P3 moved it
+                // in with `std::mem::take`). Its last reader is the opening above; retire it
+                // to the pool here instead of letting the commitment's drop free it.
+                zkhostbuf::give(zkhostbuf::W, std::mem::take(&mut cm.data));
             }
         }
         self.sites.push(format!("A: {} claims in {} groups", self.ac.len(), pcs::zk_groups_for_record(&self.a, &self.ac)));
         if zl.mr1 { fresh_poc::check_masks(&self.ac, self.a.cm.rows, zl.log_n, &zl.a_mask_rows(), zl.a_prox, tr)?; }
         self.proof.a_open = pcs::open_zk(&self.a, &self.ac, tr);
         self.sites.extend(pcs::last_mask_sites().into_iter().map(|s| format!("A {s}")));
+        // [UPERF3-FSP3] same for A, which is ALWAYS moved into its hiding commitment (both
+        // modes). The opening above is its last reader.
+        zkhostbuf::give(zkhostbuf::A, std::mem::take(&mut self.a.data));
         drop(self.a);
         self.sites.push(format!("H: {} claims in {} groups", self.hc.len(), pcs::zk_groups_for_record(&self.h, &self.hc)));
         if zl.mr1 { fresh_poc::check_masks(&self.hc, self.h.cm.rows, zl.log_n, &zl.h_mask_rows(), zl.h_prox, tr)?; }
@@ -2413,7 +2511,10 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
 
     // ---- W data + commit (P1: public weights, ZB's block layout; P3: the same
     // matrix with one mask row per block terminal and the HIDING commitment) ----
-    let mut w_data = vec![Fp::ZERO; if is_p3 { zl.w_len_p3 } else { lay.w_len }];
+    // [UPERF3-FSP3] pooled: `[0, lay.w_len)` is arbitrary and every element of it is written
+    // by the block loop below; the P3 tail (the W mask rows) is zero, as `vec![Fp::ZERO; ..]`
+    // left it, before the mask draw overwrites the rows it owns.
+    let mut w_data = zkhostbuf::take(zkhostbuf::W, if is_p3 { zl.w_len_p3 } else { lay.w_len }, lay.w_len);
     for c in 0..nb_d {
         for b in 0..nb_f {
             for (offs, src) in [(&lay.wg, &w.wg_t), (&lay.wu, &w.wu_t)] {
@@ -2473,7 +2574,12 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
     vnote("after commit W");
 
     // ---- A data + the committed multiplicities + mask rows + ZK commit ----
-    let mut a_data = vec![Fp::ZERO; zl.a_len];
+    // [UPERF3-FSP3] pooled: `[0, lay.a_len)` is arbitrary and every element of it is written
+    // by the witness-column loops below; the tail — the CFS mask rows, the table rows and
+    // their mask rows, the predicate row, the fresh-IO endpoint rows — is zero, which the
+    // PARTIAL writes into it (multiplicities `0..t.size` of `n`, predicate bits `0..16` of
+    // `n`) require.
+    let mut a_data = zkhostbuf::take(zkhostbuf::A, zl.a_len, lay.a_len);
     for b in 0..nb_f {
         for (offs, col) in [(&lay.g8, &w.g8), (&lay.rg, &w.rg), (&lay.a16, &w.a16), (&lay.u16, &w.u16v), (&lay.ru, &w.ru), (&lay.h16, &w.h16), (&lay.rh, &w.rh)] {
             let off = offs[b];
@@ -2885,7 +2991,11 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
     // the systematic W data is dead from here (its encoding lives in w_cm): 1.4 GB at the 7B
     // shape. Under P3 it is not: the ZK commitment owns it (`pcs::CommittedZk::data`) and the
     // host fold at the opening reads it, so the P3 row carries it to the end of the layer.
-    drop(w_data);
+    // [UPERF3-FSP3] was `drop(w_data)`. Under P1 this retires the systematic W buffer to the
+    // pool; under P3 `w_data` was emptied by the `std::mem::take` into `commit_zk_owned`, so
+    // it carries no capacity and `give` drops it — that buffer comes back from the
+    // commitment in `PendingV3::finish` instead.
+    zkhostbuf::give(zkhostbuf::W, w_data);
     lap("matmul d (zk)", &mut timings, &mut tick);
 
     // ---- zero-check F (masked; claim nu0 S''_gu + Gamma_F) ----

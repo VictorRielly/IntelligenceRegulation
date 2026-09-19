@@ -42,8 +42,8 @@ Every number carries its shape, conditions and label: [MEASURED],
 |---|---|---|
 | 0 | Ledger, ownership, the two AL changes read in full | DONE |
 | 1 | Does the repaired private FFN run through this body? | DONE |
-| 2 | Baseline gates on the untouched tree | pending |
-| 3 | Port the staging pool behind `HL_FSP_POOL` | pending |
+| 2 | Baseline gates on the untouched tree | DONE — all green |
+| 3 | Port the staging pool behind `HL_FSP_POOL` | DONE — gates green |
 | 4 | Port the int8-plane fold behind `HL_FSP_I8FOLD` | pending |
 | 5 | A/B at 12 x 512 only, CPU and GPU binaries | pending |
 
@@ -158,4 +158,88 @@ blind:
    would be a byte bug. AL did not touch the corresponding buffer either.
    Recorded, not changed.
 
-Next step: stage 2, the baseline gates on the untouched tree.
+### 2026-09-19 — stage 2, the baseline on the untouched tree
+
+**Builds.** The GPU build needs `CUDA_ROOT` — without it `cudarc v0.13.9`'s
+build script exits 101 (`results/cl1_floors.sh:276` sets it; the plan's
+lane brief does not). Recorded so the next lane does not lose the same
+ten minutes. Both builds ran detached under `flock -w 3600
+/tmp/zk-build.lock`, offline, `-j 2`:
+
+* CPU: `cargo build --release -j 2 --offline --manifest-path
+  hashline/Cargo.toml` — exit 0.
+* GPU: the same with `CUDA_ROOT=/home/victor/cuda-root`,
+  `LD_LIBRARY_PATH=<cuda-root>/lib64:...`,
+  `CARGO_TARGET_DIR=hashline/target-gpu`, `--features gpu-cuda` — exit 0.
+
+**Byte gates, untouched tree, `pass 12 512 --threads 2`** [MEASURED,
+NOISY-SHARED]. Runner
+`<scratch>/fsp3/gate.sh <label> <profile> <tag>`: one prover process per
+invocation; for GPU labels the caller wraps it in `flock -w 1800
+/tmp/zk-heavy.lock` and the script reads `nvidia-smi` WHILE HOLDING that
+lock (so the reading cannot be the other speed lane's job) and refuses to
+launch if any compute app is present or `memory.used > 1500 MiB`.
+
+| gate | label | digest | bytes | verdict |
+|---|---|---|---:|---|
+| v2 | cpu | `50cf7bdf..` | 66,844,928 | GREEN ACCEPT |
+| v3 | cpu | `5f368db6..` | 70,758,084 | GREEN ACCEPT |
+| **zk** | cpu | `021485e4..` | 87,228,528 | GREEN ACCEPT |
+| **zk-v3** | cpu | `40eb5479..` | 87,697,008 | GREEN ACCEPT |
+| v2 | gpu | `50cf7bdf..` | 66,844,928 | GREEN ACCEPT |
+| v3 | gpu | `5f368db6..` | 70,758,084 | GREEN ACCEPT |
+| **zk** | gpu | `021485e4..` | 87,228,528 | GREEN ACCEPT |
+| **zk-v3** | gpu | `40eb5479..` | 87,697,008 | GREEN ACCEPT |
+| **zk** | gpu-zkchunk | `021485e4..` | 87,228,528 | GREEN ACCEPT |
+| **zk-v3** | gpu-zkchunk | `40eb5479..` | 87,697,008 | GREEN ACCEPT |
+
+The card read 0 MiB used and 0 compute apps before every GPU launch.
+Prove clocks are NOT a baseline for anything — the CPU gates ran while the
+GPU build held two rustc jobs. Timing belongs to stage 5.
+
+**`cargo test --release -- --test-threads=2`: exit 0, 259 passed, 0 failed,
+across 28 test binaries** (log `<scratch>/fsp3/test_base.log`).
+
+**The floor is green. Work may proceed.**
+
+### 2026-09-19 — stage 3, the staging pool (`HL_FSP_POOL`)
+
+Four edits, all in `hashline/src/zk.rs`, all behind `HL_FSP_POOL`
+(default ON; `HL_FSP_POOL=0` is the pre-lane arm, in the same binary):
+
+1. **`mod zkhostbuf`** (before `prove_layer_zk_v3`) — AL's two-slot pool
+   with one extra argument. `take(slot, len, tiled)` returns a buffer of
+   `len` in which `[0, tiled)` is ARBITRARY and `[tiled, len)` is ZERO. The
+   tail is zeroed with a rayon chunked `fill`, not a single-threaded
+   `vec!` write. `give` drops a capacity-0 `Vec` rather than parking it, so
+   a buffer emptied by `std::mem::take` cannot displace a real one.
+2. **`w_data`** — `zkhostbuf::take(W, if is_p3 { zl.w_len_p3 } else {
+   lay.w_len }, lay.w_len)`.
+3. **`a_data`** — `zkhostbuf::take(A, zl.a_len, lay.a_len)`.
+4. **The returns.** `drop(w_data)` after the d terminals became
+   `give(W, w_data)` (P1: the real buffer; P3: an emptied `Vec`, dropped).
+   In `PendingV3::finish`, after each hiding opening — its last reader —
+   the buffer the commitment owns is retired:
+   `give(W, std::mem::take(&mut cm.data))` in the private-W arm and
+   `give(A, std::mem::take(&mut self.a.data))` before `drop(self.a)`.
+   Without this step the pool would be empty on every layer, because
+   `pcs::commit_zk_owned` takes the data BY VALUE — the difference from
+   `layer.rs`, where the public commit only borrows.
+
+`h_data` is untouched: its zeros are load-bearing on the device helper
+path (`pcs::commit_zk_device`'s `host_data` contract).
+
+**Gates after the port** [MEASURED, NOISY-SHARED]: every digest below is
+the frozen one at the frozen length.
+
+| profile | cpu | gpu | gpu-zkchunk | gpu, `HL_GPU_CHUNK_BYTES=100000000` |
+|---|---|---|---|---|
+| v2 `50cf7bdf..` | GREEN | — | — | — |
+| v3 `5f368db6..` | GREEN | — | — | — |
+| **zk `021485e4..`** | GREEN | GREEN | GREEN | GREEN |
+| **zk-v3 `40eb5479..`** | GREEN | GREEN | GREEN | GREEN |
+
+(The public v2/v3 gates on the GPU binary are re-run at the end of stage
+4; this lane changes no source they reach.)
+
+Next step: stage 4, the int8-plane fold.
