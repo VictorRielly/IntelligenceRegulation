@@ -253,14 +253,35 @@ it does not exist yet.**
    and generating a word is the next milestone; new D14, a costed memo for
    the one design lever that could take a 5090 below 10 s, paper only; and
    the RTX 5090 install is a go (date, machine and RAM still to be named).
-   **Speed, honestly (`ZK60_FIVE_SECOND_PLAN.md`):** 5 s is outside every
-   assumption recorded in this repository; on this laptop the best case after
-   the remaining byte-preserving steps is about 40 s [COUNTED]; a 5090 then
-   gives roughly 10–15 s [MODEL]; the first lane to test the plan found its
-   kernel step worth 1–2 s, not 7 s. The most valuable missing number is
-   what the *repaired* private feed-forward costs at model width: by row
-   count it is the legacy cost plus about 2% [COUNTED], and the lanes that
-   will measure it are in progress.
+   **Speed, honestly, as of 13:42 (`ZK60_FIVE_SECOND_PLAN.md`, three dated
+   corrections at the top of its §5):** 5 s is outside every assumption
+   recorded in this repository, and the costed memo commissioned under D14
+   confirms the one design lever left cannot reach it (best case on a 5090
+   about 7–9 s, for 15–25 lane-weeks and a 60% larger proof). The plan's three
+   software steps were built today, all byte-identical and green: together
+   they are worth **about 4–5 s of the 58.40 s [COUNTED]**, not the 24 s first
+   projected — every counted step shrank three- to seven-fold when measured.
+   On this laptop the public 8B pass is a roughly 55 s pass. Whether the 5090
+   reaches 15 s is **open** until its first measurement; 16–19 s of today's
+   pass is host work the card does not touch.
+   **The most valuable missing number now exists, at the small shape:** the
+   *repaired* private mask scheme ran for the first time above the tiny shape
+   (45 runs, zero refusals, 12 layers × 512 tokens at the 125M shape, three
+   arms on one binary, endpoints public in all three — a cost probe, not a
+   privacy result): **repaired ÷ legacy = 1.06 on the GPU binary and 1.00 on
+   the CPU binary; repaired ÷ public = 2.05 on the GPU** [MEASURED]; proof
+   bytes +0.75% over legacy; by row count +1.8% at Mistral width and about
+   +1.6% on a Mistral layer [COUNTED, not run]. So the repaired masks cost
+   what the legacy ones did, within a few per cent; what is still unmeasured
+   is the other half of P1, the hidden endpoints at model width.
+   **Privacy path, same day:** on Codex's retained captures of two block and
+   two attention receipts, a gate that replays the transcript at the
+   receipts' real challenges finds nothing determined about the hidden data
+   beyond public identities, with the 256 sampled columns included, and every
+   sabotage control caught — evidence on a linear model of four receipts,
+   **not** a privacy acceptance (D8/D11 open); and the private block's norm
+   was shown free of the soundness gap the older prover has, with the
+   precondition for widening it recorded as D16.
 5. **A reproducibility fact to settle before any approval record:** the
    guest image ID depends on the build directory (the ELF embeds one
    absolute source path and the non-Docker build applies no path remap), so

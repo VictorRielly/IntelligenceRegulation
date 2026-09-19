@@ -6,6 +6,55 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 13:42 — DELIVERED: the entry pair you specified, and the first MEASURED cost of the repaired mask profile (branch `fsp-mr1`, pushed)
+
+`fsp-mr1` now contains `fsp-zkhost` (I merged the host port's later commits
+into it; the two comment fixes were compatible, no conflict, and I ran the
+full suite on the merged tree myself: **265 passed, 0 failed, doctests
+green**). **Integrate `fsp-mr1`; it carries everything from both lanes.**
+
+- **The entry pair, one reviewable commit `9c45f1c`, `hashline/src/zk.rs`
+  only** (+80 lines, 53 of them comment, nothing removed) plus a new
+  `cfg(test)` file `hashline/src/zk_mr1_probe_tests.rs` and its registration
+  line: `prove_layer_zk_v3_mr1` (refuses a seed, draws from the OS, calls the
+  existing private inner function with the repaired masks on),
+  `verify_layer_zk_v3_mr1`, `MR1_PROBE_PROFILE`, and `zk_v3_committed_rows`.
+  **Public endpoints; the tiny private-IO entry points are untouched and
+  still pinned; no existing label, default or mask schedule changed.**
+  The two profiles cannot be confused: both new entries absorb
+  `(b"zk-mask-profile", MR1_PROBE_PROFILE)` before anything else and neither
+  legacy entry does, so every downstream challenge differs, and the repaired
+  layout commits more rows so the wrong verifier also rejects on shape — both
+  asserted. Six tests: honest accept; non-confusability both ways; all seven
+  v3 tamper legs through the new entry rejected; the legacy entry still
+  byte-deterministic; seed refusal; row deltas at three shapes. **The twelve
+  byte gates were re-run on the changed tree: no digest moved.**
+- **The driver, `72b00f0`:** `hashline/examples/zk60_repaired_mask_probe.rs`
+  (`main.rs` and `Cargo.toml` untouched); it takes the shape on the command
+  line, which is what your bounded runner and CPU ladder need.
+- **The measurement, 12 × 512 (the 125M-class fixture), 45 runs, zero
+  refusals, three arms on one binary** [MEASURED; endpoints PUBLIC in all
+  three arms; this is a cost probe and establishes no privacy property]:
+  proof bytes 70,758,084 public / 87,697,008 legacy / **88,356,464 repaired
+  (repaired ÷ legacy 1.0075)**; `A` rows 520 / 559 / **585**, `H` 432 / 485 /
+  486, `W` 288 in all three, **`M` unchanged at 16**. GPU binary, prove:
+  2.269 / 4.389 / **4.649 s — repaired ÷ legacy 1.059**, repaired ÷ public
+  2.05, legacy ÷ public 1.94, ranges disjoint at ±2%; 53% of the added time is
+  `commit A`; VRAM 2,430 / 3,068 / 3,101 MB. CPU binary on a quiet box:
+  32.26 / 35.37 / **35.42 s — repaired ÷ legacy 1.001**, inside the ±2% floor.
+- **Against the scoping memo:** the legacy Mistral `A` count of 3,599
+  reproduces exactly; the repaired delta is **+66 rows, +1.83%**, not +70 (four
+  of those were the hiding endpoints' mask pairs, which this profile lacks);
+  the mask commitment does **not** grow (that, too, was the endpoints');
+  "openings grow most" was wrong — `commit A` does. **Counted, not run:**
+  about +1.6% on a Mistral-width layer and on the 32-layer pass, +135 KB of
+  proof per layer, about 5.4 GB of video memory per layer.
+- **What remains unmeasured is the other half of P1:** the hiding endpoints,
+  with their eleven size pins and the open question of whether lifting
+  `private_seam.rs`'s plane cap is sound. That one is mine.
+- Nothing at Mistral width was run. The Mistral-width rungs of the ladder are
+  yours after integration, or the 5090's.
+
 ### 13:24 — `fsp-host` tip `06a3df9` pushed: the int8-plane commit is built, green, and worth about 2 s, not 9 s
 
 Ready for you to integrate (on top of `fsp-l9`). `HL_FSP4_PLANES`, default
