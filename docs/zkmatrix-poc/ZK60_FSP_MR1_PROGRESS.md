@@ -143,3 +143,118 @@ blocks. The `HL_FSP_POOL` module's doc comment (zk.rs 2288-2314) is clean.
 run anyway, in stage 1, on the tree that carries this fix — so the floor
 below is the base tip PLUS this comment change, and that is what stage 2
 is compared against.
+
+### 2026-09-19 — stage 1, the floor
+
+**Builds**, both detached under `flock -w /tmp/zk-build.lock`, offline,
+`-j 2`, from an empty target directory:
+
+* CPU: `cargo build --release -j 2 --offline --manifest-path
+  hashline/Cargo.toml` — exit 0, 1 m 12 s.
+* GPU: the same with `CUDA_ROOT=/home/victor/cuda-root`,
+  `LD_LIBRARY_PATH=<cuda-root>/lib64:...`,
+  `CARGO_TARGET_DIR=/home/victor/wt-fsp-mr1/hashline/target-gpu`,
+  `--features gpu-cuda` — exit 0, 1 m 20 s. (The previous lane's note holds:
+  without `CUDA_ROOT` the `cudarc` build script exits 101.)
+
+**Byte gates, `pass 12 512 --threads 2`, 12 of 12 GREEN** [MEASURED,
+NOISY-SHARED — another worktree's oracle battery and a second lane's cargo
+jobs were on the box throughout; the digests are what this table is for,
+the seconds are not]. Runner
+`<scratch>/mr1/gate.sh <label> <profile> <tag>`: exactly one prover process
+per invocation; each GPU label runs inside its own detached
+`flock -w 10800 /tmp/zk-heavy.lock` job, with a wrapper that polls
+`nvidia-smi` WHILE HOLDING that lock and only launches when the card reads
+<= 1,024 MiB with no compute apps. The card read **0 MiB / 0 apps** before
+every one of the eight GPU launches. Nothing was chained.
+
+| gate | label | digest | bytes | verdict | prove |
+|---|---|---|---:|---|---:|
+| v2 | cpu | `50cf7bdf..` | 66,844,928 | GREEN | 35.30 s |
+| v3 | cpu | `5f368db6..` | 70,758,084 | GREEN | 35.67 s |
+| zk | cpu | `021485e4..` | 87,228,528 | GREEN | 36.01 s |
+| zk-v3 | cpu | `40eb5479..` | 87,697,008 | GREEN | 37.34 s |
+| v2 | gpu | `50cf7bdf..` | 66,844,928 | GREEN | 2.24 s |
+| v3 | gpu | `5f368db6..` | 70,758,084 | GREEN | 1.99 s |
+| zk | gpu | `021485e4..` | 87,228,528 | GREEN | 3.80 s |
+| zk-v3 | gpu | `40eb5479..` | 87,697,008 | GREEN | 4.20 s |
+| zk | gpu, `HL_ZK_CHUNK=1` | `021485e4..` | 87,228,528 | GREEN | 3.76 s |
+| zk-v3 | gpu, `HL_ZK_CHUNK=1` | `40eb5479..` | 87,697,008 | GREEN | 3.92 s |
+| zk | gpu, `HL_GPU_CHUNK_BYTES=100000000` | `021485e4..` | 87,228,528 | GREEN | 3.87 s |
+| zk-v3 | gpu, `HL_GPU_CHUNK_BYTES=100000000` | `40eb5479..` | 87,697,008 | GREEN | 3.92 s |
+
+**`cargo test --release -- --test-threads=2`: exit 0 — 28 test binaries,
+259 passed, 0 failed, 0 ignored, plus 5 doctests passed** (log
+`<scratch>/mr1/test_base.log`). The inherited doctest red of stage 0b is
+gone: `Doc-tests hashline` now runs 5 tests and all pass.
+
+**The floor is green, everywhere. Work may proceed.**
+
+### 2026-09-19 — a note for the integrator about stage 0b
+
+The previous lane's agent has since fixed the SAME `fsp_i8fold` doc comment
+on `fsp-zkhost` itself (same shape of fix — the formula fenced as a text
+block); that branch's tip is now `e45ebda` with 259/0 and green doctests.
+This branch was cut from the older tip `fb850b8`, so it carries its own
+copy of the fix and is green on its own. **Both branches therefore carry a
+comment-only change to the same doc comment: expect a trivial conflict
+there at merge.** This lane did not merge, rebase or cherry-pick anything —
+the orchestrator reconciles the two branches.
+
+### 2026-09-19 — stage 2, the entry pair
+
+**One commit, `hashline/src/zk.rs` plus a new `cfg(test)` file and its one
+registration line. No other file.** 80 lines added to `zk.rs` (53 of them
+comment or doc comment, 27 code; nothing removed and no existing line
+altered), and a new 247-line `hashline/src/zk_mr1_probe_tests.rs`.
+
+**What was added.**
+
+1. `pub const MR1_PROBE_PROFILE: &[u8] =
+   b"hashline-zk-mr1/ffn-v3-mr1-probe/1"` — the probe's Fiat-Shamir domain
+   separator.
+2. `pub fn prove_layer_zk_v3_mr1(w, t_rows, params, ntt, cfg, tr) ->
+   Result<ProveOutputZk, String>`, next to `prove_layer_zk_v3`. It refuses a
+   deterministic seed, draws `ZkRng::from_os(MR1_PROBE_PROFILE)`, absorbs the
+   separator, and calls the EXISTING private
+   `prove_layer_zk_v3_inner(.., mr1 = true, rng)`.
+3. `pub fn verify_layer_zk_v3_mr1(st, proof, params, ntt, tr, mode) ->
+   Result<(), String>`, next to `verify_layer_zk_v3`. It absorbs the same
+   separator and calls the EXISTING private
+   `verify_layer_zk_v3_inner(.., mr1 = true)`.
+4. `pub fn zk_v3_committed_rows(st, params, is_p3, mr1) -> [usize; 4]` — the
+   A / H / W / M committed row counts from the layout alone, nothing proven
+   and nothing allocated. It exists because `ZkLayoutV3::with_masks` is
+   private, so the driver could not otherwise report the row counts it is
+   measuring.
+
+**No new protocol, no new cryptography.** The whole change is a caller: the
+mask schedule, the transcript labels inside the prover body, the layout, the
+CFS specification and every refusal are exactly the ones that already
+existed. The endpoints are PUBLIC — this pair does not hide the input or the
+output and establishes no privacy property.
+
+**How the two profiles are bound apart** (asserted, not assumed):
+
+* **The domain separator.** Both new entries absorb
+  `(b"zk-mask-profile", MR1_PROBE_PROFILE)` into the transcript before
+  anything else they do; neither legacy entry absorbs it. Every challenge
+  downstream therefore differs. The test asserts this directly on the
+  transcript state, not merely through the two rejections.
+* **The commitment shape.** The repaired layout commits strictly more rows,
+  so a verifier on the wrong profile rejects on the A commitment's row count
+  before it reaches a challenge at all.
+
+**Tests** (new file, 6 tests, all passing):
+
+| test | what it asserts |
+|---|---|
+| `the_repaired_entry_proves_and_its_verifier_accepts` | honest ACCEPT at the tiny shape; the repaired layout reports itself; the size breakdown matches the serialization |
+| `the_two_profiles_are_not_confusable` | the separator is in the transcript state; a repaired proof is REFUSED by `verify_layer_zk_v3`; a legacy proof is REFUSED by `verify_layer_zk_v3_mr1`; the repaired A commitment is strictly larger |
+| `every_tamper_leg_is_rejected_through_the_repaired_entry` | all 7 legs of the existing v3 tamper battery (`TamperV3::FlipX / FlipW / RemainderOutOfRange / WrongTableEntry / WrongRequant / WrongZ / OutOfRangeInt16`) proved through the new entry and REJECTED by the new verifier; the test additionally requires at least 4 legs to have reached the verifier rather than being refused at prove time |
+| `the_legacy_entry_is_unchanged` | the legacy entry is still byte-deterministic under a seed, still verifies, and still builds the legacy (width-1) layout with the same A commitment row count |
+| `the_repaired_entry_refuses_a_deterministic_seed` | the repaired entry refuses a seeded config |
+| `the_repaired_layout_is_the_legacy_layout_plus_the_counted_rows` | at three shapes, the repaired A row delta equals the counted `7 nb_f + 3 nb_d + nb_d + nb_f + 1` paired sites plus one per single-row table mask; H gains exactly one row; the public W plane is unchanged |
+
+**`cargo test --release -- --test-threads=2 --nocapture`: exit 0 — 28 test
+binaries, 265 passed (259 + the 6 new), 0 failed, plus 5 doctests.**

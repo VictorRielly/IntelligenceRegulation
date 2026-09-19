@@ -2436,6 +2436,60 @@ fn prove_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams, n
     prepare_layer_zk_v3_inner(w, t_rows, params, ntt, cfg, tr, mr1, false, rng)?.finish(ntt, tr)
 }
 
+// ===========================================================================
+// [UPERF3-FSP5] THE PUBLIC-ENDPOINT REPAIRED-MASK PROBE.
+//
+// `mr1` is the REPAIRED mask schedule: every CFS mask row becomes an
+// Fp2-valued PAIR, a zero mask challenge DISCARDS the attempt instead of
+// resampling it, and prover and verifier replay the PCS challenge prefix and
+// refuse unless the mask coefficients span Fp2 (`zk_ffn_fresh_poc.rs`
+// 221-341). It has ever run at exactly ONE shape — the T32/d16/f16 of
+// `zk_ffn_fresh_poc` — because `prove_layer_zk_v3` above hard-codes
+// `mr1 = false` and both inner functions are private. `ZkLayoutV3::with_masks`
+// takes the shape as a parameter, `mask_specs_v3` derives its counts from the
+// layout, and every refusal is written against `rows` / `log_n` / `mask_rows`
+// / `prox`, so the only thing missing was a caller. This pair is that caller
+// and nothing else: no new protocol, no new cryptography, no change to any
+// existing path's transcript, mask schedule, endpoints or policy.
+//
+// WHAT THIS IS NOT. The endpoints are PUBLIC here. This pair does not hide
+// the feed-forward's input or its output; the profile that does is
+// `zk_ffn_fresh_io`, which is untouched and still pinned to its tiny shape.
+// **Producing a proof through this pair establishes NO privacy property.** It
+// exists so that the repaired schedule's COST can be measured at a real shape,
+// which no binary, example or test could do before.
+//
+// THE TWO PROFILES CANNOT BE CONFUSED, by two independent mechanisms:
+//  1. both entries absorb `MR1_PROBE_PROFILE` into the Fiat-Shamir transcript
+//     before anything else they do, and neither legacy entry absorbs it, so
+//     every challenge downstream of it differs; and
+//  2. the repaired layout commits strictly more rows, so a verifier on the
+//     wrong profile rejects on the commitment's shape before it reaches a
+//     challenge at all.
+// ===========================================================================
+
+/// The Fiat-Shamir domain separator of the repaired-mask probe. Absorbed by
+/// [`prove_layer_zk_v3_mr1`] and [`verify_layer_zk_v3_mr1`], and by no other
+/// entry point in this file.
+pub const MR1_PROBE_PROFILE: &[u8] = b"hashline-zk-mr1/ffn-v3-mr1-probe/1";
+
+/// Prove one v3 layer with the REPAIRED mask schedule at the caller's shape,
+/// with PUBLIC endpoints. **Cost probe only: no privacy property is
+/// established by a proof made here.**
+///
+/// A deterministic seed is refused. The repaired schedule DISCARDS an attempt
+/// on a degenerate challenge instead of resampling it, and a replayable
+/// attempt is exactly what that refusal exists to prevent, so this entry draws
+/// fresh OS randomness the way `zk_ffn_fresh_poc::prove` does.
+pub fn prove_layer_zk_v3_mr1(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &NttTables, cfg: &ZkConfig, tr: &mut Transcript) -> Result<ProveOutputZk, String> {
+    if cfg.seed.is_some() {
+        return Err("repaired mask profile: a deterministic seed is refused (the schedule discards an attempt rather than resampling it)".into());
+    }
+    let rng = ZkRng::from_os(MR1_PROBE_PROFILE).map_err(|e| format!("repaired mask profile randomness: {e}"))?;
+    tr.absorb(b"zk-mask-profile", MR1_PROBE_PROFILE);
+    prove_layer_zk_v3_inner(w, t_rows, params, ntt, cfg, tr, true, rng)
+}
+
 // Private owners and claims are retained only until their ONE final opening.
 enum PendingWeightV3 {
     Public(pcs::Committed, Vec<Claim>),
@@ -3700,6 +3754,28 @@ pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &Layer
     verify_layer_zk_v3_inner(st, proof, params, ntt, tr, mode, false)
 }
 
+/// [UPERF3-FSP5] Verify a proof made by [`prove_layer_zk_v3_mr1`]: the
+/// REPAIRED mask schedule at the caller's shape, PUBLIC endpoints. **This
+/// accepting does not establish any privacy property** — see the block above
+/// `MR1_PROBE_PROFILE`. It absorbs the same profile separator the prover
+/// absorbs, so a legacy proof cannot be presented here and a repaired proof
+/// cannot be presented to [`verify_layer_zk_v3`].
+pub fn verify_layer_zk_v3_mr1(st: &StatementV3, proof: &LayerProofZk, params: &LayerParams, ntt: &NttTables, tr: &mut Transcript, mode: &ZkStatementMode) -> Result<(), String> {
+    tr.absorb(b"zk-mask-profile", MR1_PROBE_PROFILE);
+    verify_layer_zk_v3_inner(st, proof, params, ntt, tr, mode, true)
+}
+
+/// [UPERF3-FSP5] The committed row counts of one v3 layer — A, H, W and the
+/// CFS mask commitment M — under either mask schedule, computed from the
+/// layout alone with nothing proven and nothing allocated. `ZkLayoutV3`'s
+/// shape-taking constructor is private, so without this the probe's driver
+/// could not report the repaired row counts it is measuring.
+pub fn zk_v3_committed_rows(st: &StatementV3, params: &LayerParams, is_p3: bool, mr1: bool) -> [usize; 4] {
+    let zl = ZkLayoutV3::with_masks(st.t_rows, st.d, st.f, params, st.shifts, false, mr1);
+    let w_rows = if is_p3 { zl.w_len_p3 } else { zl.lay.w_len } / zl.w_n;
+    [zl.a_len / zl.a_n, zl.h_len / zl.a_n, w_rows, 2 * mask_specs_v3(&zl, is_p3).len() + 4]
+}
+
 fn verify_layer_zk_v3_inner(st: &StatementV3, proof: &LayerProofZk, params: &LayerParams, ntt: &NttTables, tr: &mut Transcript, mode: &ZkStatementMode, mr1: bool) -> Result<(), String> {
     verify_layer_zk_v3_with_seams(st, proof, params, ntt, tr, mode, mr1, false, |_, _, _, _| Ok(()))
 }
@@ -4025,6 +4101,10 @@ fn verify_layer_zk_v3_with_seams(st: &StatementV3, proof: &LayerProofZk, params:
 #[cfg(test)]
 #[path = "zk_ffn_mask_diagnostic.rs"]
 mod mask_diagnostic;
+
+#[cfg(test)]
+#[path = "zk_mr1_probe_tests.rs"]
+mod mr1_probe_tests;
 
 #[cfg(test)]
 mod tests_v3 {
