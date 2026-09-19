@@ -6,6 +6,76 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 13:02 — DELIVERED: the native joint-view gate on your captures (branch `zk60-native-jointview`, pushed, tip `f0b181a`)
+
+`scripts/zk60_native_joint_view.py` (one command, about 18 s) with six helper
+modules `scripts/zk60_native_jv_*.py`, 22 tests, the record
+`results/zk60_native_joint_view/joint_view.json`, and the report
+`docs/zkmatrix-poc/ZK60_NATIVE_JOINT_VIEW.md`. Python only; it reads the four
+bundles under `results/zk60_native_captures_20260919/` and touches no Rust and
+none of your files. **I ran the gate myself before writing this** (exit 0;
+the figures below are from my run as well as the agent's).
+
+- **Stage 1, transcript replay at the real challenges:** every checkpoint and
+  every challenge reproduced from the captured public data with BLAKE3 —
+  block 80 checkpoints / 1,543 challenges, attention 65 / 1,122; zero
+  failures on all four captures; manifest cross-check 4 of 4.
+- **Stage 2, A and H together *with* the 256 sampled columns and their pads:**
+  disclosed dimension A 0, H 2, input endpoint 0, output endpoint 0, on all
+  four. The 2 on H is exactly the public LogUp identity (the spans coincide).
+  The columns add nothing because the pad block has full rank on the 231–247
+  distinct sampled positions; exact rank check 246 of 246.
+- **Stage 3, the masking commitment at captured challenges:** on every slot
+  (23 / 18) the mask covers the whole consistency subspace. **One finding:**
+  every published M functional lies inside the round span, so the count
+  depends on whether a *derived* mask evaluation is an observation. **My
+  ruling (report §9a): it is not** — the verifier computes it from `fin_s`,
+  `c_s` and the published terminals, so a simulator computes it too; the
+  headline is **4 Fp, all public identity**, with 68 / 56 reported beside it.
+  Owed and in progress: the per-slot identity asserted in the gate, with its
+  lemma, so the accounting rests on a checked fact.
+- **Stage 4:** A, H, the endpoints and M stacked = the sum of the parts
+  (disjoint randomness). **Stage 5:** a zero-data preimage exists on every
+  linear channel with equal fibre dimension; the roots, the 256 salts and the
+  paths are **not** covered and rest on the open D8/D11 obligation. **Stage
+  6:** every negative control fires (masks removed, shared pair, opened
+  twice, extra helper sum, one pad fewer), and altered capture bytes break
+  the replay on all four.
+- **A discrepancy it found in my own earlier tool:** the seeded block run in
+  `results/zk60_private_block_tools/` models the block's H opening with eight
+  groups where the receipts and `layout.rs` have nine, so its H figures are
+  about a different opening. The A side agrees. This gate supersedes it for
+  H; correcting the seeded driver is mine to schedule.
+- **Two requests for you, entirely your call** (report §9 question 4): the
+  unmasked honest round messages of **one slot on a synthetic fixture**, so
+  the zero-witness gate can be exhibited rather than argued; and a capture of
+  **one commitment deliberately opened twice**, as a real-receipt negative
+  control. Both are labelled test fixtures; neither changes the rule that
+  real captures export no witness plane, private pad, mask coefficient or
+  RNG state.
+- **Not established:** any privacy property (the record keeps
+  `privacy_property_established = false`); D8/D11; more than two challenge
+  vectors per profile; the adaptive and distributional lift (the
+  sequential-kernel lemma's joint hypothesis stays with U-3); integer-range
+  side information; timing.
+
+**Correction to my 12:31 note — `fsp-zkhost` is green and mergeable on its
+own (tip `e45ebda`, pushed).** Its agent came back when its queued jobs
+finished, fixed the doctest it had created (the formula fenced as a `text`
+block; documentation only) and re-verified rather than argued: doctests pass,
+the zk-v3 byte gate is green on the rebuilt binary, and the full suite is
+259 passed / 0 failed across 28 binaries. Its GPU A/B is now complete at 5
+runs per arm in alternating order, all ten proofs byte-identical:
+**prove 1.149×**, commit W 1.24×, commit A 1.25×, matmuls 1.50× / 1.61×,
+openings 1.21×, with the two untouched control phases at 1.01× and 1.03×
+[MEASURED, 12 × 512, GPU binary; the block taken under compile load agrees
+with the quiet one]. It also notes something useful for anyone gating by
+binary hash: a binary's SHA-256 changes across a comment-only edit, so only
+the proof-byte gates are a usable identity check. **One thing to expect when
+you integrate:** `fsp-mr1` was cut from the older tip and carries its own
+comment-only fix for the same doc comment, so merging both gives a trivial
+conflict there; I will reconcile the two branches when `fsp-mr1` hands back.
+
 ### 12:31 — `fsp-zkhost`'s queued test reported: one red DOCTEST, comment-only; do not merge that branch alone
 
 The fold rung's `cargo test --release` finished with exit 101. Every
