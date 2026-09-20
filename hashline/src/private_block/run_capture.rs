@@ -41,6 +41,7 @@
 
 use super::argument::{Acc, Coord, Side, SlotDef, SlotProof, Tab};
 use super::layout::{Layout, N_SLOTS, SLOT_KINDS, SLOT_NAMES};
+use super::plane_index::{self, PlaneIndex, Ref};
 use super::shape::Shape;
 use crate::field::{Fp, Fp2};
 use crate::merkle::Digest;
@@ -62,13 +63,15 @@ pub(super) const SCHEMA: &str = "hashline-native-capture/4-run";
 /// Every Rust file whose bytes decide what a bundle contains. Their SHA-256 at
 /// capture time is the bundle's source pin, so a bundle can be tied to the
 /// code that produced it without trusting a commit id.
-pub(super) const SOURCE_FILES: [&str; 6] = [
+pub(super) const SOURCE_FILES: [&str; 7] = [
     "src/private_block/run_capture.rs",
     "src/private_block/run.rs",
     "src/private_block/boundary.rs",
     "src/private_block/protocol.rs",
     "src/private_block/argument.rs",
     "src/private_block/layout.rs",
+    // STAGE 15: the plane index table's own independent derivation
+    "src/private_block/plane_index.rs",
 ];
 
 // ---------------------------------------------------------------- the public words of a run
@@ -189,6 +192,11 @@ struct Rec {
     cur: Option<StageRec>,
     closed: usize,
     failure: Option<String>,
+    /// **STAGE 15.** The plane index table, built from the FIRST stage's
+    /// layout and re-built and compared at every later stage, so that
+    /// `run.json`'s one copy is a statement about every stage of the run.
+    index: Option<PlaneIndex>,
+    index_json: Vec<u8>,
 }
 
 thread_local! {
@@ -257,7 +265,7 @@ pub(super) fn begin_run(header: RunHeader, binding: Digest) {
         tr.absorb(b"parameters", header.parameter_line.as_bytes());
         tr.absorb(b"calibration", &header.calibration);
         tr.absorb(b"schedule", &header.schedule_digest);
-        let mut r = Rec { header, binding, own: tr, stages: Vec::new(), boundaries: Vec::new(), cur: None, closed: 0, failure: None };
+        let mut r = Rec { header, binding, own: tr, stages: Vec::new(), boundaries: Vec::new(), cur: None, closed: 0, failure: None, index: None, index_json: Vec::new() };
         if r.own.state() != r.binding {
             fail(&mut r, "replay: the rebuilt run header is not the verifier's binding".into());
         }
@@ -283,6 +291,26 @@ pub(super) fn stage_begin(k: usize, bytes: &[u8], start_tag: [u8; 32], b_root: O
             return;
         }
         at(r, &format!("the start of stage {k}"), tr);
+        // **STAGE 15: the plane index table.** Built from THIS stage's layout
+        // and compared, byte for byte as it will be written, with the one
+        // `run.json` carries. A stage whose plane numbering differed would be
+        // refused here rather than mis-described by a single copy.
+        match plane_index::build(lay) {
+            Ok(idx) => {
+                let json = idx.render();
+                if r.index.is_none() {
+                    r.index = Some(idx);
+                    r.index_json = json;
+                } else if json != r.index_json {
+                    fail(r, format!("replay: stage {k}'s plane index is not the run's"));
+                    return;
+                }
+            }
+            Err(e) => {
+                fail(r, format!("replay: the plane index does not build at stage {k}: {e}"));
+                return;
+            }
+        }
         r.cur = Some(StageRec {
             k,
             segment_bytes: bytes.len(),
@@ -415,6 +443,36 @@ pub(super) fn slot(def: &SlotDef, acc: &Acc, proof: &SlotProof, rho: &[Fp2], c: 
         r.own.absorb_fp2(b"pb-term", &proof.terms);
         at(r, &format!("the end of slot {s}"), after);
         if r.failure.is_some() {
+            return;
+        }
+        // **STAGE 15: THE PLANE INDEX TABLE, TIED TO THIS SLOT.** The slot's
+        // private tables, in the order the prover pushed them, located in the
+        // table by role and slice offset and compared with the table's own
+        // independent derivation of the same order. `run.json` states the
+        // order once; this is what makes that one statement true of every
+        // slot of every stage. A mismatch refuses the capture.
+        let order_error = match r.index.as_ref() {
+            None => Some(format!("replay: slot {s} arrived before the plane index was built")),
+            Some(idx) => {
+                let mut observed: Vec<Ref> = Vec::new();
+                let mut bad: Option<String> = None;
+                for t in &def.tabs {
+                    if let Tab::Priv(p) = t {
+                        let off = p.slices.first().map(|(o, _)| *o).unwrap_or(usize::MAX);
+                        match idx.locate(p.cm as usize, off) {
+                            Some(pr) => observed.push(pr),
+                            None => {
+                                bad.get_or_insert(format!("replay: slot {s} reads role {} at offset {off}, which is on no plane of the index", p.cm as usize));
+                            }
+                        }
+                    }
+                }
+                let declared = idx.slots.get(s);
+                bad.or_else(|| (declared != Some(&observed)).then(|| format!("replay: slot {s}'s private tables are not the plane index's push order")))
+            }
+        };
+        if let Some(e) = order_error {
+            fail(r, e);
             return;
         }
         let mut out = Vec::new();
@@ -644,6 +702,9 @@ pub(super) fn take() -> Result<Bundle, String> {
     }
     if r.cur.is_some() {
         return Err("run capture: a stage is still open".into());
+    }
+    if r.index.is_none() || r.index_json.is_empty() {
+        return Err("run capture: no plane index table was built; no bundle is written without one".into());
     }
     let run_json = write_run(&r);
     Ok(Bundle { run_json, stages: r.stages, profile: r.header.profile.to_string(), l: r.header.l })
@@ -1002,7 +1063,11 @@ fn write_run(r: &Rec) -> Vec<u8> {
     }
     write!(out, "],\"transcript_program\":").expect("write to a Vec");
     strings(&mut out, &TRANSCRIPT_PROGRAM.iter().map(|s| s.to_string()).collect::<Vec<_>>());
-    write!(out, ",\"mask_domain\":{{\"log_dom\":{},\"columns\":{}}}", crate::zk::MASK_LOG_DOM, sh.opened_cols).expect("write to a Vec");
+    write!(out, ",\"mask_domain\":{{\"log_dom\":{},\"columns\":{}}},", crate::zk::MASK_LOG_DOM, sh.opened_cols).expect("write to a Vec");
+    // **STAGE 15.** The plane index table: a property of the SHAPE, so it
+    // lives in the run file and not in a stage. `take` refuses a bundle
+    // without one, and `stage_begin` has compared it with every stage's.
+    out.write_all(&r.index_json).expect("write to a Vec");
     write!(out, ",\"not_in_a_capture\":[\"witness values\",\"pad values\",\"mask coefficients\",\"unopened columns\",\"unpublished salts\",\"unmasked sumcheck rounds\",\"hidden inputs, outputs and boundary planes\",\"prover randomness\"]").expect("write to a Vec");
     writeln!(out, "}}").expect("write to a Vec");
     out
@@ -1199,6 +1264,22 @@ pub(super) const ALLOWED_KEYS: &[&str] = &[
     "what",
     "log_dom",
     "not_in_a_capture",
+    // STAGE 15: the plane index table. PUBLIC LAYOUT ONLY — a plane's id, its
+    // name, its domain and its row range, and the per-slot push order. No
+    // plane CONTENT is behind any of these keys.
+    "plane_index",
+    "a_data_rows",
+    "h_data_rows",
+    "a_planes",
+    "h_planes",
+    "id",
+    "domain",
+    "re_first_row",
+    "im_first_row",
+    "re_offset",
+    "im_offset",
+    "slot_planes",
+    "planes",
     // shape
     "name",
     "tokens",

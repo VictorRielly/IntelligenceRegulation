@@ -135,6 +135,13 @@ mod run_tests;
 mod run_capture;
 #[cfg(test)]
 mod run_capture_tests;
+// STAGE 15: the PLANE INDEX TABLE a run capture carries — for every committed
+// A and H plane its id, name, domain and row range, and per slot the ordered
+// list of planes its terminal vector evaluates. Public layout data derived
+// from the shape, written independently of `argument.rs` and checked against
+// every captured stage. A recorder's module, `cfg(test)` like `run_capture`.
+#[cfg(test)]
+mod plane_index;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]

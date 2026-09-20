@@ -3608,3 +3608,146 @@ SHA-256 of `run_capture.rs`, `run.rs`, `boundary.rs`, `protocol.rs`,
    read first.
 2. **No privacy statement about any run** until the gate of ruling M-8 has
    read a bundle and been ruled on.
+
+## Stage 15 — the plane index table (2026-09-20, 13:2x–1x:xx)
+
+**Why.** The Python run gate of ruling M-8 read stage 14's two bundles and
+passed, and reported ONE thing a bundle LACKED and would not guess at: the
+plane index table. `run.json["shape"]` carried every geometry axis but not
+the `A`-plane and `H`-plane numbering of `layout.rs` nor the per-slot table
+push order, which is what the twenty-three terminal closures read — so the
+per-slot terminal identity `fin = c·mask_eval + poly(terminals)` stayed OPEN
+at the rung. It is **public** (a function of the public layout), so the lane
+could add it without publishing anything new. **Still not a privacy
+statement**: this stage adds a field and closes nothing about privacy.
+
+### What was added, and where it lives
+
+A NEW module `hashline/src/private_block/plane_index.rs`, `cfg(test)` like
+`run_capture.rs`, and one new member of `run.json`:
+
+* `plane_index.a_planes[i]` = `{id, name, domain, first_row, rows, offset,
+  log_size}` — every committed `A` plane in plane order;
+* `plane_index.h_planes[i]` = `{id, name, domain, rows, re_first_row,
+  im_first_row, re_offset, im_offset, log_size}` — every committed `H` plane,
+  which is `Fp2`-valued and therefore two equal runs of rows;
+* `plane_index.slot_planes[s]` = `{slot, name, planes:[{role, id, name}]}` —
+  **the plane whose evaluation each `terminals[j]` is**, in the order the
+  prover pushes them, `id` null for the two IO commitments;
+* `plane_index.a_data_rows` / `h_data_rows` — what the two lists tile.
+
+It is in the RUN file and not in a stage, because it is a property of the
+shape. **Nothing about a witness, a pad, a salt or a mask is in it**: plane
+names and shapes are public, plane contents never are.
+
+**The schema string does NOT move.** It stays
+`"hashline-native-capture/4-run"` because this is a pure addition — one new
+member, no existing field renamed, removed, re-typed or re-meant — so a
+reader written against stage 14 reads a stage-15 bundle unchanged and ignores
+a key it does not know. Recorded with the date at the head of
+`ZK60_RUN_CAPTURE_FORMAT.md` and in its new §3a.
+
+### It is an INDEPENDENT statement, and it is checked four ways
+
+The plane list, the name table and the per-slot push order are written in
+`plane_index.rs` from `layout.rs`'s declarations and `argument.rs`'s slot
+definitions, and `build` REFUSES unless:
+
+1. every plane's declared domain is `Ids::dom` / `HIds::dom` (which
+   `Ids::new` has already matched against `Shape::a_plane_doms`);
+2. the `A` planes tile `[0, a_data_rows)` and each `H` plane's `re` and `im`
+   halves tile `[0, h_data_rows)` — no gap, no overlap, totals the layout's;
+3. the per-slot `A` / `H` / IO counts are `Shape::claim_sites`';
+4. **and, at capture time, the ACTUAL private-table sequence of every slot of
+   every stage matches it**, located by role and slice offset
+   (`run_capture::slot`). `stage_begin` rebuilds the whole table from each
+   stage's own layout and refuses if it is not the run's; `take` refuses a
+   bundle with no table. A mismatch is a refused capture, not a footnote.
+
+A recorder still only observes: `plane_index.rs` takes a `&Layout` and
+returns data, no hook gives anything back, and no transcript, wire or proof
+byte moves.
+
+### Three field MEANINGS documented, not changed
+
+The gate reported three more facts, all public, none of them a defect. They
+are now written down in the format note with file:line, and the writer is
+untouched:
+
+1. **An IO table's `claim` is per STAGE and is always 0** (§4a). It is
+   `acc.claims[role].len()` at the moment the slot runs
+   (`run_capture.rs:509`, written at `:520`) and every stage has its own
+   `Acc` — so stage `k+1`'s slot 21 says `claim: 0` although its claim is
+   index 1 of the boundary. Take the index from `claim_sources` /
+   `claim_sites` and cross-check `mask_row`.
+2. **`H`'s `data_rows` counts the two zero-sum rows and `row_roles` does
+   not** (§4c). `data_rows` is `Layout::h_data_rows`
+   (`protocol.rs:893`, `layout.rs:1042`) and the zero-sum pair `u` is one of
+   the `H` planes (`shape.rs:490`); `row_kind` tests `sum_rows` first
+   (`run_capture.rs:884-894`). The difference IS `sum_rows`.
+3. **An external endpoint has one SPARE mask row, a derived boundary has
+   none** (§5). `MASK_ROWS = 5` (`endpoint_g.rs:51`) with the claim pair at
+   `data, data+1` and the proximity pair at `data+2, data+3`
+   (`endpoint_g.rs:205-206`), leaving `data+4` spare — ruling M-7's "a pair,
+   a proximity pair and a spare". A boundary is `data + 2*sites + 2`
+   (`boundary.rs:161,166,170`) and has exactly its sites and its proximity
+   pair.
+
+### Files this stage wrote, and the shared-file list
+
+NEW: `hashline/src/private_block/plane_index.rs`. EDITED:
+`hashline/src/private_block/run_capture.rs` (the import, `Rec.index` /
+`Rec.index_json`, the `stage_begin` build-and-compare, the `slot` order
+check, the `run.json` member, the `take` refusal, twelve allow-list keys, and
+`SOURCE_FILES` 6 -> 7 so a bundle pins the new module too),
+`hashline/src/private_block/run_capture_tests.rs` (three JSON readers, four
+tests, one added assertion, the gate-bundle tags), `private_block.rs` (one
+`mod` line), `docs/zkmatrix-poc/ZK60_RUN_CAPTURE_FORMAT.md`,
+`docs/zkmatrix-poc/ZK60_BLOCK125M_LANE_PROGRESS.md`.
+**Shared files touched outside `hashline/src/private_block*`: NONE.**
+`native_capture.rs`, `zk.rs`, `layer.rs`, `pcs.rs`, `wcache.rs`,
+`private_seam.rs`, `gpu/`, `zkp-core/`, `zkvm-block/`,
+`private-model-kernel/` and `private-block-kernel/` are untouched
+(`git diff --stat 11c01b2 -- private-block-kernel private-model-kernel
+zkvm-block` prints nothing).
+
+### The four new tests
+
+| test | what it ties together |
+|---|---|
+| `the_plane_index_tiles_the_a_and_h_commitments_of_the_rung_layout` | the row ranges tile `A` and `H` with no gap and no overlap; the totals are `lay.a_data_rows` / `lay.h_data_rows` READ FROM THE LAYOUT; each plane's rows are its domain's; each offset is its row times the row width; no two planes share a name |
+| `every_plane_a_slot_references_is_in_the_plane_index` | every id a slot references is a plane of this shape; each slot's list is as long as `Layout::slot_terms`; and the other direction — every committed plane is read by at least one slot |
+| `each_slots_terminal_vector_is_as_long_as_its_plane_list` | **the table against a REAL capture**: in every stage, `len(arguments[s].terminals) == len(slot_planes[s].planes)`; the table is in the run file exactly once and in no stage file |
+| `the_plane_index_is_the_same_in_two_independent_bundles` | two independent runs on different hidden inputs with fresh randomness carry the SAME table bytes, and those bytes are what the layout derives (`idx.render()`) |
+
+Plus one assertion added to
+`the_bundle_pins_every_source_file_that_decides_its_contents`: the pins name
+`plane_index.rs`. The recorder's own per-slot, per-stage check (point 4
+above) is the fifth tie and needs no test of its own — it refuses the
+capture.
+
+### Tests and commands of stage 15
+
+| command | log |
+|---|---|
+| **baseline**, before any edit: `--lib private_` | `x1-s15-baseline.log` — **191 passed, 0 failed, 6 ignored, 67 filtered out**, 307.08 s, exit 0 |
+| `--lib private_block::run_capture` | `x2-s15-capture.log` — **10 passed, 0 failed, 1 ignored**, 13.39 s; compiled with no error on the first build |
+| the table's own numbers, `--nocapture` | `x3-s15-sizes.log` — EMPTY: `flock -w 540` expired while another lane's `run.py` held `/tmp/zk-build.lock`. A cosmetic printout only; the numbers were read back out of the bundle instead, and the lock was never bypassed |
+| **the gate**: `--lib private_` | `x4-s15-filter.log` — **195 passed, 0 failed, 6 ignored, 67 filtered out**, 308.28 s, exit 0 (baseline 191 / 0 / 6: +4 tests, and no existing test was changed, weakened or removed). The toy's frozen parameter line, schedule digest and counted receipt lengths still pass |
+| the new gate bundles, `write_the_gate_bundles -- --ignored` | `x5-s15-bundles.log` |
+
+### The two new gate bundles
+
+`results/zk60_run_captures_20260920/run-c-tame/` and `.../run-d-zero/`: two
+INDEPENDENT honest three-block rung-G runs with the plane index table, the
+same procedure as stage 14 (fresh OS randomness, synthetic tame weights, the
+fixture's hidden input and the all-zero hidden input). Fresh randomness means
+fresh receipts: **the bytes differ from `run-a-tame` / `run-b-zero` and that
+is expected** — a capture pins the run it observed, not a previous one.
+
+**Nothing was deleted, moved or rewritten.** `run-a-tame` and `run-b-zero`
+stay byte for byte where they are, and their own `README.md` is NOT edited:
+each bundle's `manifest.json` pins its README by length and SHA-256, so an
+edit would break the bundle's self-consistency. The note that they predate
+the plane index table is in the new parent file
+`results/zk60_run_captures_20260920/README.md`, which covers all four.

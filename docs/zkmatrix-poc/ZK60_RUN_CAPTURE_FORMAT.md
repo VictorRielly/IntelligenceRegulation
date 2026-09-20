@@ -6,6 +6,18 @@ agent extending the Python privacy gates.** The writer is
 of the integrator's `hashline/src/native_capture.rs` (ruling M-8), and its
 schema is a strict superset of that writer's.
 
+**Revised 2026-09-20 (stage 15): the PLANE INDEX TABLE was added** — the one
+field the run privacy gate asked for and would not guess at (§3a). **The
+schema string does NOT move**: it stays `"hashline-native-capture/4-run"`,
+because the change is a PURE ADDITION — one new member `plane_index` of
+`run.json`, no existing field renamed, removed, re-typed or re-meant, so
+every reader written against stage 14's bundles still reads a stage-15 bundle
+correctly and simply ignores a key it does not know. The same revision writes
+down three field MEANINGS the gate found and did not change (§4a `claim`,
+§4c `data_rows`, §5 the endpoints' spare mask row). Bundles `run-c-tame` and
+`run-d-zero` carry the table; `run-a-tame` and `run-b-zero` predate it and are
+otherwise identical in format.
+
 **What a bundle is.** The VERIFIER'S VIEW of one private run of `L` blocks
 under one transcript, at the development rung (ruling M-8's geometry: 24
 tokens, width 96, hidden 192, 6 query heads over 2 key-value heads, `L = 3`).
@@ -108,6 +120,7 @@ whitespace.
 | `transcript_labels` | [{`label`,`what`}] | every Fiat-Shamir label, with what it carries |
 | `transcript_program` | [str] | the whole transcript in words, header to trailer (§7) |
 | `mask_domain` | {`log_dom`,`columns`} | the M commitment's evaluation domain (`2^12`) and opened columns |
+| `plane_index` | object | **NEW in stage 15**: the committed `A` and `H` planes with their names, domains and row ranges, and the per-slot terminal push order. §3a |
 | `not_in_a_capture` | [str] | the writer's own statement of what it never emits |
 
 ## 3. `run.json["shape"]` — every number the gate would otherwise port
@@ -127,6 +140,83 @@ rows** in an IO commitment). **These are not the toy's** `log_cols 8`,
 `inv_rate 8`, `ENC_COLS 2048`; the flat Python constants at
 `zk60_native_jv_capture.py:38-46` and `zk60_native_mask_commit.py:99-105` must
 come from here instead.
+
+## 3a. `run.json["plane_index"]` — the plane numbering and the push order
+
+**NEW in stage 15 (2026-09-20).** It is a property of the SHAPE, not of a
+stage, so there is exactly one copy and it lives in the run file. The writer
+is `hashline/src/private_block/plane_index.rs`.
+
+**Everything in it is PUBLIC.** A plane's id, name, domain and row range and
+the order in which a slot pushes its private tables are functions of the
+public `Shape` and of nothing else. **No plane CONTENT is here** — not a
+witness word, not a pad, not a salt, not a mask coefficient. The table says
+where a plane lives and what it is called; it says nothing about what is in
+it. Its keys are on the capture allow-list like every other field.
+
+| member | what |
+|---|---|
+| `a_data_rows`, `h_data_rows` | the counted data rows of the `A` and `H` commitments; the plane lists tile exactly these |
+| `a_planes` | one object per committed `A` plane, in plane order |
+| `h_planes` | one object per committed `H` plane, in plane order |
+| `slot_planes` | 23 objects `{slot, name, planes}`, the terminal push order |
+
+`a_planes[i]` = `{id, name, domain, first_row, rows, offset, log_size}`.
+`id` is `i` (the plane's own index at this shape, which is `Ids`' numbering);
+`name` is the `layout.rs` constant (`A_D`, `A_X`, `A_MU8`, …), with an index
+appended inside a group whose length moves with the shape (`A_NR0 … A_NR3`,
+`A_SR0 … A_SR2`, `A_PL0`, `A_MR*`, `A_MS*`, `A_NS*`, `A_SG*`); `domain` is
+one of `T, Ht, L, D, Q, Kv, S, F, Tab`; `first_row`/`rows` is the plane's row
+range and `offset = first_row * cols` is the element offset a slot's
+`tables[i].slices[].offset` is measured in; `log_size` is the plane's OWN
+domain log (a slot may read it on a coarser cube, and that slot's own
+`log_size` says so — `SC_TZC` reads the limb planes at `log(Dom::T)`).
+
+`h_planes[i]` = `{id, name, domain, rows, re_first_row, im_first_row,
+re_offset, im_offset, log_size}`. An `H` plane is `Fp2`-valued and therefore
+TWO equal runs of rows, the `re` half then the `im` half; `rows` is the
+length of ONE half. The names are `H_L0`, `H_D0 … `, `H_Q0 … `, `H_KV0 … `,
+`H_S0 … `, `H_SEXP`, `H_F0 … `, `H_FACT`, `H_GU8`, `H_GEXP`, `H_GACT`, `H_U`.
+
+`slot_planes[s].planes[j]` = `{role, id, name}` — **the plane whose
+evaluation the slot's `terminals[j]` is**, in the order the prover pushes
+them. `role` is `A`, `H`, `Input` or `Output` (the same four names the
+openings use); `id` indexes `a_planes` / `h_planes`, and is `null` for the two
+IO commitments, whose `name` is then `IO_IN` / `IO_OUT`. So
+`len(slot_planes[s].planes) == len(arguments[s].terminals)` in every stage,
+and the `j`-th private table of `arguments[s].tables` is the `j`-th entry
+here.
+
+A plane read on a SUB-SLICE or at a flipped coordinate appears AGAIN at its
+own position, because the terminal is another evaluation of the same
+committed plane: `SC_TZC` lists `A_LIMB` nine times and `A_LIMBM` nine times
+(the eighteen limb sub-planes), `SC_DZC` lists `A_D` and `A_DM` a second time
+(their `Dom::T` slices), `SC_SZC` lists `A_MX` and `A_SUM` (their `Dom::Ht`
+slices) and `SC_QZC` / `SC_KVZC` list `A_Q8` / `A_K8` a second time (the RoPE
+partner at the flipped bit). The `slices[].offset` of the stage file, against
+this table's `offset` and `rows`, says which evaluation it is.
+
+**What makes the table trustworthy.** It is derived in its own module from
+`layout.rs` and `shape.rs`, independently of `argument.rs`, and it is then
+checked against four things, each of which refuses:
+
+1. every plane's domain, against `Ids::dom` / `HIds::dom`;
+2. the row ranges: the `A` planes must tile `[0, a_data_rows)` and each `H`
+   plane's two halves must tile `[0, h_data_rows)`, with no gap and no
+   overlap;
+3. the per-slot `A` / `H` / IO counts, against `Shape::claim_sites`;
+4. **the ACTUAL private-table sequence of every slot of every stage of the
+   captured run** (`run_capture::slot`), located by role and slice offset. A
+   capture is refused if one slot of one stage differs, and `stage_begin`
+   rebuilds the whole table from each stage's own layout and refuses if it is
+   not the run's.
+
+At the development rung: **83 `A` planes tiling 377 rows** and **52 `H`
+planes tiling 470 rows** (the rung's third `sigma_s` limb adds two `A` planes
+and one `S` helper to the toy's 81 / 51, and the `Dom::D` helper block keeps
+its 19). `h_data_rows = 470` is the same 470 as `roles["H"].data_rows`, and
+468 of those rows carry `kind: "data"` — see §4c. Read every number from the
+file, never from this sentence.
 
 ## 4. `stage-NN.json`
 
@@ -175,8 +265,21 @@ slot definition, not from the toy's `SLOTS` literal. `tables[i]` is one of
 * `{"kind":"private","role":str,"claim":int,"log_size":int,"mask_row":int,"extension_round":int,"slices":[{offset,coefficient}],"coordinates":[{rho|flip|fixed}]}`
   — `role` is one of `A`, `H`, `Input`, `Output` and names **the claim site**,
   so slot 21's private IO table says `"Input"` and slot 22's says `"Output"`
-  even when the commitment behind them is an internal boundary. `claim` is the
-  index of the claim this table raises in that commitment's claim list.
+  even when the commitment behind them is an internal boundary.
+
+**`claim` is the index inside THIS STAGE's claim list for that role, not
+inside the commitment's** (stage 15, recorded after the run privacy gate
+found it; a documentation fix, nothing in the writer changed). The index is
+`acc.claims[role].len()` at the moment the slot runs, and `acc` is the
+stage's accumulator: `hashline/src/private_block/run_capture.rs:509` computes
+it and `:520` writes it. Every stage has its own `Acc`, so **every IO table
+of a run carries `claim: 0`**, including stage `k+1`'s slot 21, whose claim is
+index **1** of the boundary commitment it discharges. A tool that trusted this
+field would attribute both of a boundary's claims to claim 0. Take the claim
+index for an IO commitment from `internal_boundaries[].claim_sites` /
+`roles[].claim_sources` instead, and cross-check it against the table's
+`mask_row` (site 0 at `data`, site 1 at `data + 2`). For `A` and `H` the
+field means what it says, because those commitments are the stage's own.
 
 ### 4b. `mask` — the M commitment's one opening
 
@@ -208,11 +311,28 @@ NEW, and the reason the Python side needs no ported layout:
 
 `row_roles[].kind` is `"data"` (row `< data_rows`), `"prox"` (the proximity
 pair) or `"mask"` (everything else, including `H`'s zero-sum rows, the
-reserved claim pairs, and an endpoint's two spare mask rows). The single-block
+reserved claim pairs, and an endpoint's spare mask row). The single-block
 writer labelled an endpoint's rows `data+2 … data+4` all `"prox"`; here only
 the proximity PAIR is `"prox"`, which is what `pcs::OpeningZk`'s own
 `prox_mask_row` says. Use the explicit `data_rows` / `site_rows` / `prox_row`
 / `sum_rows` fields rather than the `kind` strings where it matters.
+
+**`H`'s `data_rows` COUNTS the two zero-sum rows and `row_roles` does not**
+(stage 15, recorded after the run privacy gate found it; nothing in the
+writer changed). `H`'s `data_rows` is `Layout::h_data_rows`
+(`hashline/src/private_block/protocol.rs:893`), which is the sum over every
+`H` plane of `2 * rows_of(domain)`
+(`hashline/src/private_block/layout.rs:1042`) — and the zero-sum masking pair
+`u` IS one of those planes
+(`hashline/src/private_block/shape.rs:490`, the last entry of
+`Shape::h_plane_doms`). `row_roles` labels those same two rows `"mask"`,
+because `row_kind` tests `sum_rows` FIRST
+(`hashline/src/private_block/run_capture.rs:884-894`). So for `H` the count
+of rows with `kind: "data"` is `data_rows - 2`, and the two missing rows are
+exactly `sum_rows`. Neither number is wrong: `data_rows` is where the
+committed planes end, `row_roles` is what each row is FOR. Split data from
+non-data with `row_roles`, as the toy tool does, and check the difference is
+`sum_rows`.
 
 ## 5. The endpoints and the boundaries
 
@@ -220,7 +340,24 @@ the proximity PAIR is `"prox"`, which is what `pcs::OpeningZk`'s own
 `log_n`, `inv_rate`, `input_scale`, `output_scale`, `opened_at_stage`
 (`[0, L-1]`). The run's two external endpoints keep today's `endpoint_g`
 geometry unchanged (ruling M-7): `data + 5` rows, one claim site at
-`(data, data+1)`, proximity row `data+2`.
+`(data, data+1)`, proximity pair `(data+2, data+3)`.
+
+**An external endpoint has one SPARE mask row and a derived boundary has
+none** (stage 15, recorded after the run privacy gate found it; nothing in
+the writer changed). `MASK_ROWS = 5`
+(`hashline/src/private_block/endpoint_g.rs:51`) and the assignment is the
+frozen seam's, word for word: the claim pair at `data, data+1`, the proximity
+pair at `data+2, data+3`
+(`hashline/src/private_block/endpoint_g.rs:205-206`) — leaving `data+4`
+masked, committed, published in no `site_rows` and used by nothing. That is
+ruling M-7's "a pair, a proximity pair and a spare". A boundary's row count
+is DERIVED as `data + 2*sites + 2`
+(`hashline/src/private_block/boundary.rs:161`, site rows at `:166`,
+proximity row at `:170`), so it has exactly `site_rows ∪ {prox, prox+1}` and
+no spare at all. At the rung: an endpoint is 9 rows with `site_rows = [4,5]`,
+proximity `(6,7)` and the spare `8`; a boundary is 10 rows with
+`site_rows = [4,5,6,7]` and proximity `(8,9)`. Report `spare_mask_rows` per
+opening; do not expect the two commitment kinds to agree.
 
 `internal_boundaries[k]`, one per internal boundary:
 
@@ -361,12 +498,34 @@ From a read of the current loader (`zk60_native_jv_capture.py`,
    H=2, DH=8, F=16, LOG_N=8, N=256`. The slot COUNT, names, kinds and table
    push order do not move at the rung; the geometry constants do, and every
    one of them is in `run.json["shape"]`.
+9. **STAGE 15: `_Layout`'s plane numbering is now data too.** The gate's one
+   missing field is `run.json["plane_index"]` (§3a): every committed `A` and
+   `H` plane with its id, name, domain and row range, and per slot the
+   ordered plane list its `terminals` evaluates. Read the plane numbering,
+   the row ranges and the push order from there instead of porting them, and
+   the per-slot terminal identity can be closed at the rung. Two facts the
+   same revision wrote down rather than changed, each of which a tool can get
+   wrong silently: an IO table's `claim` is per STAGE and is always 0 (§4a);
+   `H`'s `data_rows` includes the two zero-sum rows and `row_roles` does not
+   (§4c); and an external endpoint has one spare mask row while a boundary
+   has none (§5).
 
 ## 10. The bundles
 
 Written by `private_block::run_capture_tests::write_the_gate_bundles`
 (`#[ignore]`d; `HL_RUN_CAPTURE_DIR` chooses the directory). Two independent
 honest three-block rung-G runs, fresh OS randomness each, synthetic public
-weights from the lane's tame fixture: `run-a-tame` on the fixture's hidden
-input and `run-b-zero` on the all-zero hidden input. Neither hidden input is
-in its bundle. About 38.5 MB each without the segments.
+weights from the lane's tame fixture, one on the fixture's hidden input and
+one on the all-zero hidden input. Neither hidden input is in its bundle.
+About 38.5 MB each without the segments.
+
+**Four bundles now, in `results/zk60_run_captures_20260920/`.**
+`run-c-tame` and `run-d-zero` (stage 15) carry the plane index table and are
+the ones to read. `run-a-tame` and `run-b-zero` (stage 14) PREDATE it and are
+otherwise identical in format; they are kept exactly as they were, and their
+per-bundle `README.md` is not edited because each `manifest.json` pins it by
+length and SHA-256. The parent `README.md` of that directory says which is
+which. **The four are FOUR DIFFERENT RUNS**: fresh randomness means fresh
+receipts, so `run-c-tame` is not `run-a-tame` with a field added, and no byte
+of one bundle should be compared with a byte of another except the plane
+index table itself, which is a function of the shape and IS equal.

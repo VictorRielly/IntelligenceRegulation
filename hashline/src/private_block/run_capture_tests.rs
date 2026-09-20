@@ -12,6 +12,7 @@
 //! never seen a run, and ruling M-8 is not met by writing the input to it.
 
 use super::layout::*;
+use super::plane_index::{self, Ref};
 use super::run::{self, RunShape, RunStatement, RunWitnessSource};
 use super::run_capture::{self, Bundle};
 use super::shape::Shape;
@@ -143,6 +144,71 @@ impl TempDir {
 impl Drop for TempDir {
     fn drop(&mut self) {
         let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+
+// ---------------------------------------------------------------- reading a bundle's JSON
+
+/// Where the `i`-th occurrence of `needle` starts.
+fn find_nth(haystack: &[u8], needle: &str, i: usize) -> usize {
+    let n = needle.as_bytes();
+    assert!(haystack.len() >= n.len(), "the file is shorter than {needle:?}");
+    let mut seen = 0usize;
+    for p in 0..=haystack.len() - n.len() {
+        if &haystack[p..p + n.len()] == n {
+            if seen == i {
+                return p;
+            }
+            seen += 1;
+        }
+    }
+    panic!("the file has {seen} occurrences of {needle:?}, not {}", i + 1);
+}
+
+/// The number of top-level elements of the `i`-th `"<key>":[ … ]` array. The
+/// writer emits no string containing a bracket inside the arrays this reads
+/// (`terminals` is `Fp2` pairs), so a depth count over the brackets is exact.
+fn array_len(bytes: &[u8], key: &str, i: usize) -> usize {
+    let pat = format!("\"{key}\":[");
+    let mut j = find_nth(bytes, &pat, i) + pat.len();
+    let (mut depth, mut items, mut any) = (0usize, 0usize, false);
+    loop {
+        match bytes[j] {
+            b'[' | b'{' => depth += 1,
+            b']' if depth == 0 => break,
+            b']' | b'}' => depth -= 1,
+            b',' if depth == 0 => items += 1,
+            _ => {}
+        }
+        any = true;
+        j += 1;
+    }
+    if any {
+        items + 1
+    } else {
+        0
+    }
+}
+
+/// The `"<key>": { … }` member, key included, from the key to the matching
+/// brace. Used on the plane index table, none of whose strings holds a brace.
+fn object(bytes: &[u8], key: &str) -> Vec<u8> {
+    let pat = format!("\"{key}\":{{");
+    let start = find_nth(bytes, &pat, 0);
+    let mut j = start + pat.len() - 1;
+    let mut depth = 0usize;
+    loop {
+        match bytes[j] {
+            b'{' => depth += 1,
+            b'}' => {
+                depth -= 1;
+                if depth == 0 {
+                    return bytes[start..=j].to_vec();
+                }
+            }
+            _ => {}
+        }
+        j += 1;
     }
 }
 
@@ -353,6 +419,127 @@ fn the_bundle_pins_every_source_file_that_decides_its_contents() {
         assert!(sha.bytes().all(|b| b.is_ascii_hexdigit()));
     }
     assert!(pins.iter().any(|(n, _)| n.ends_with("run_capture.rs")), "the writer does not pin itself");
+    assert!(pins.iter().any(|(n, _)| n.ends_with("plane_index.rs")), "the plane index table's own source is not pinned");
+}
+
+// ---------------------------------------------------------------- stage 15: the plane index table
+
+/// **THE TABLE'S ROW RANGES TILE `A` AND `H` EXACTLY.** No gap, no overlap,
+/// and the totals are the layout's own counted data rows at the rung — read
+/// from the layout, never written here as literals. Each `H` plane is two
+/// equal runs of rows, `re` then `im`, and no two planes share a name.
+#[test]
+fn the_plane_index_tiles_the_a_and_h_commitments_of_the_rung_layout() {
+    let sh = Shape::rung_g();
+    let lay = Layout::for_shape(&sh).expect("the rung-G layout");
+    let idx = plane_index::build(&lay).expect("the plane index of the rung-G layout");
+    assert_eq!(idx.a.len(), lay.ids().n_a(), "the table does not list every A plane of the shape");
+    assert_eq!(idx.h.len(), lay.hids().n_h(), "the table does not list every H plane of the shape");
+    let mut row = 0usize;
+    for p in &idx.a {
+        assert_eq!(p.id, idx.a[p.id].id, "the A plane ids are not the table's own indices");
+        assert_eq!(p.first_row, row, "A plane {} starts at row {}, leaving a gap or an overlap at {row}", p.name, p.first_row);
+        assert_eq!(p.offset, row * lay.n(), "A plane {}'s element offset is not its row times the row width", p.name);
+        assert_eq!(p.rows, sh.rows_of(p.dom), "A plane {} does not take its domain's rows", p.name);
+        row += p.rows;
+    }
+    assert_eq!(row, lay.a_data_rows, "the A planes tile {row} rows and the layout counts {}", lay.a_data_rows);
+    let mut row = 0usize;
+    for p in &idx.h {
+        assert_eq!((p.re_first_row, p.im_first_row), (row, row + p.rows), "H plane {}'s two halves are not the next two runs of rows", p.name);
+        assert_eq!((p.re_offset, p.im_offset), (p.re_first_row * lay.n(), p.im_first_row * lay.n()), "H plane {}'s offsets are not its rows", p.name);
+        row += 2 * p.rows;
+    }
+    assert_eq!(row, lay.h_data_rows, "the H planes tile {row} rows and the layout counts {}", lay.h_data_rows);
+    let mut names: Vec<&str> = idx.a.iter().map(|p| p.name.as_str()).chain(idx.h.iter().map(|p| p.name.as_str())).collect();
+    let total = names.len();
+    names.sort_unstable();
+    names.dedup();
+    assert_eq!(names.len(), total, "two planes of the table share a name");
+    eprintln!(
+        "PLANE INDEX at the rung: {} A planes tiling {} rows, {} H planes tiling {} rows, row width {}",
+        idx.a.len(),
+        lay.a_data_rows,
+        idx.h.len(),
+        lay.h_data_rows,
+        lay.n()
+    );
+}
+
+/// **EVERY PLANE A SLOT REFERENCES IS IN THE TABLE**, the per-slot list is as
+/// long as the schedule's own terminal count, and — the other direction —
+/// every committed plane is read by at least one slot.
+#[test]
+fn every_plane_a_slot_references_is_in_the_plane_index() {
+    let lay = Layout::for_shape(&Shape::rung_g()).expect("the rung-G layout");
+    let idx = plane_index::build(&lay).expect("the plane index of the rung-G layout");
+    assert_eq!(idx.slots.len(), N_SLOTS);
+    let mut a_seen = vec![false; idx.a.len()];
+    let mut h_seen = vec![false; idx.h.len()];
+    for (s, refs) in idx.slots.iter().enumerate() {
+        assert_eq!(refs.len(), lay.slot_terms(s), "slot {s} [{}] lists {} planes and publishes {} terminals", SLOT_NAMES[s], refs.len(), lay.slot_terms(s));
+        for r in refs {
+            match r {
+                Ref::A(p) => {
+                    assert!(*p < idx.a.len(), "slot {s} [{}] references A plane {p}, which this shape does not have", SLOT_NAMES[s]);
+                    a_seen[*p] = true;
+                }
+                Ref::H(p) => {
+                    assert!(*p < idx.h.len(), "slot {s} [{}] references H plane {p}, which this shape does not have", SLOT_NAMES[s]);
+                    h_seen[*p] = true;
+                }
+                _ => assert!(s >= SC_IO_IN, "slot {s} [{}] reads an IO commitment", SLOT_NAMES[s]),
+            }
+        }
+    }
+    for (p, seen) in a_seen.iter().enumerate() {
+        assert!(seen, "A plane {} is committed and no slot ever opens it", idx.a[p].name);
+    }
+    for (p, seen) in h_seen.iter().enumerate() {
+        assert!(seen, "H plane {} is committed and no slot ever opens it", idx.h[p].name);
+    }
+}
+
+/// **THE TABLE IS TIED TO A REAL CAPTURE.** In every stage of a captured run,
+/// every slot's published terminal vector is exactly as long as that slot's
+/// plane list. (The recorder goes further and refuses a capture whose private
+/// tables are not in the table's order, plane by plane; this is the part a
+/// reader of the bundle can check for itself.)
+#[test]
+fn each_slots_terminal_vector_is_as_long_as_its_plane_list() {
+    let lay = Layout::for_shape(&Shape::rung_g()).expect("the rung-G layout");
+    let idx = plane_index::build(&lay).expect("the plane index of the rung-G layout");
+    let (_segs, bundle) = prove_and_capture(2, false);
+    for (k, stage) in bundle.stages.iter().enumerate() {
+        for s in 0..N_SLOTS {
+            let got = array_len(stage, "terminals", s);
+            assert_eq!(got, idx.slots[s].len(), "stage {k} slot {s} [{}] published {got} terminals and the plane index lists {} planes", SLOT_NAMES[s], idx.slots[s].len());
+        }
+    }
+    assert_eq!(count(&bundle.run_json, "\"plane_index\":"), 1, "the table is a property of the shape and belongs in the run file exactly once");
+    for stage in &bundle.stages {
+        assert!(!contains(stage, "\"plane_index\":"), "a stage file carries its own copy of the table");
+    }
+}
+
+/// **THE TABLE IS THE SAME ACROSS STAGES AND ACROSS BUNDLES.** Across stages
+/// by construction and by refusal: `run.json` carries one copy and
+/// `stage_begin` rebuilds it from every stage's own layout and compares it.
+/// Across bundles, here: two INDEPENDENT runs of the same shape, on different
+/// hidden inputs and with fresh randomness, carry the same bytes — and those
+/// bytes are what this code derives from the layout alone.
+#[test]
+fn the_plane_index_is_the_same_in_two_independent_bundles() {
+    let (_a_segs, a) = prove_and_capture(2, false);
+    let (_b_segs, b) = prove_and_capture(2, true);
+    let ta = object(&a.run_json, "plane_index");
+    let tb = object(&b.run_json, "plane_index");
+    assert!(ta.len() > 1000, "the table is only {} B; it is not being written", ta.len());
+    assert_eq!(ta, tb, "the plane index table differs between two independent runs of one shape");
+    let lay = Layout::for_shape(&Shape::rung_g()).expect("the rung-G layout");
+    let idx = plane_index::build(&lay).expect("the plane index of the rung-G layout");
+    assert_eq!(ta, idx.render(), "the bundle's plane index is not the table the layout derives");
+    eprintln!("PLANE INDEX TABLE: {} B in run.json, run.json {} B in all", ta.len(), a.run_json.len());
 }
 
 // ---------------------------------------------------------------- the gate bundles
@@ -366,16 +553,22 @@ fn the_bundle_pins_every_source_file_that_decides_its_contents() {
 /// fixture's tame hidden input, the second on the all-zero hidden input, so
 /// that the Python side has two runs of the same public statement shape whose
 /// hidden values differ.
+///
+/// **STAGE 15: the tags are `run-c-tame` and `run-d-zero`.** Stage 14's
+/// `run-a-tame` and `run-b-zero` predate the plane index table and are left
+/// exactly where they are; nothing here deletes or rewrites a bundle, and
+/// `write_bundle` creates every file with `create_new`, so a re-run into an
+/// existing directory refuses rather than overwrites.
 #[test]
 #[ignore = "writes the gate bundles; set HL_RUN_CAPTURE_DIR"]
 fn write_the_gate_bundles() {
     let root = PathBuf::from(std::env::var("HL_RUN_CAPTURE_DIR").expect("HL_RUN_CAPTURE_DIR is not set: this test writes a directory of evidence and will not choose one for you"));
     let mut total = 0usize;
-    for (tag, zero) in [("run-a-tame", false), ("run-b-zero", true)] {
+    for (tag, zero) in [("run-c-tame", false), ("run-d-zero", true)] {
         let (segs, bundle) = prove_and_capture(3, zero);
         let dir = root.join(tag);
         let note = format!(
-            "Bundle `{tag}`: one honest three-block run at the development rung\n(`Shape::rung_g`: 24 tokens, width 96, hidden 192, 6 query heads over 2\nkey-value heads), hidden input = {}. Fresh OS randomness; the public weights\nare the lane's synthetic tame fixture. This is the geometry ruling M-8 names\nfor the run privacy gate.",
+            "Bundle `{tag}`: one honest three-block run at the development rung\n(`Shape::rung_g`: 24 tokens, width 96, hidden 192, 6 query heads over 2\nkey-value heads), hidden input = {}. Fresh OS randomness; the public weights\nare the lane's synthetic tame fixture. This is the geometry ruling M-8 names\nfor the run privacy gate.\n\nSTAGE 15: `run.json` carries the PLANE INDEX TABLE — for every committed A\nand H plane its id, name, domain and row range, and per slot the ordered list\nof planes its terminal vector evaluates. Public layout data; no plane content.\nThe stage-14 bundles `run-a-tame` and `run-b-zero` predate it.",
             if zero { "the all-zero plane" } else { "the lane fixture's tame plane" }
         );
         run_capture::write_bundle(&dir, &bundle, &segs, &note, "HL_RUN_CAPTURE_DIR=<dir> cargo test --release --lib private_block::run_capture_tests::write_the_gate_bundles -- --ignored --nocapture").expect("the gate bundle is written");
