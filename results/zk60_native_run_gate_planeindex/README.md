@@ -120,3 +120,21 @@ which is why the old bundles read 16 of 24 and not 15 of 23; nothing they
 MEASURE moved (see `old_bundles_unchanged.json`: 21 of the 23 channel
 entries are byte-identical, and the leaf diff shows no rank, count,
 disclosed dimension, challenge count or control figure changed).
+
+The leaf diffs (`old_bundle_run-a-tame.diff.json`,
+`old_bundle_run-b-zero.diff.json`) hold **2,189 identical leaves** each. Sort
+every difference and there are only five kinds:
+
+1. `tool_sha256` — the gate plus three new modules;
+2. `stage8_plane_index_and_terminals` — the new block, which says the table
+   is absent and nothing is claimed;
+3. `stage7_channels` — the channel array grows by the split entry (and every
+   later entry shifts index, which is what makes the raw leaf count of
+   "changed" paths look large);
+4. `stage3_per_commitment/per_slot_terminal_check` — now the stage-8 note
+   rather than a standalone constant;
+5. three WALL-CLOCK leaves (`seconds`, the pad block's, the whole run's) and
+   one sentence of `what_it_does_not_show`, which now names the missing
+   table.
+
+Nothing in the list is a figure about the run.

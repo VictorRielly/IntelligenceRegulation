@@ -116,7 +116,22 @@ Nothing about the 125M shape. The hash layer is argued, not computed. The
 joint-law composition for a run is unwritten. The per-slot terminal identity
 is not checked at this shape. NOT a privacy acceptance.
 
-## 6. NEXT
+## R2.5 NEXT after round 2
+
+1. **Close the other eleven slots.** Ask the Rust lane for a capture with
+   `HL_RUN_CAPTURE_PUBLIC_TABLES=1` (or for the weight / gain / RoPE /
+   table-value preimages), and the same port covers 23 of 23 without a line
+   of new arithmetic: the ports are written, only the tables are absent.
+   That is the one thing that would turn the split channel into a single
+   DERIVED entry.
+2. The three items of round 1's NEXT that stand: generalise
+   `zk60_native_pg_pcs` to `MSG != PAD`; the run-wide preimage as one joint
+   object; and the orchestrator's refresh of the stale committed
+   `privacy_gate.json`.
+3. Nothing here moves D8/D11, ruling M-8's decision, or the run's joint-law
+   composition.
+
+## 6. NEXT (round 1, kept as written)
 
 The gate is built, green on both bundles, tested and reported. The three
 things a next lane would take, in order: (1) ask the Rust lane for the plane
@@ -151,9 +166,9 @@ precise reason.
 | T1 | plane-index loader + integrity (`zk60_native_rg_planes.py`); old bundle still loads, channel still OPEN, with a test | done |
 | T2 | the per-slot terminal identity at the rung (`zk60_native_rg_terminals.py`): recompute each slot's terminal polynomial from the captured terminals and compare with the sumcheck's final claim | done |
 | T3 | four controls: (a) perturbed terminal, (b) swapped plane list entries, (c) a slot re-pointed at a same-size plane, (d) an old bundle → OPEN not passed | done (five: a fifth on the rebuilt public tables' digests) |
-| T4 | the whole gate on `run-c-tame` + `run-d-zero`, evidence in `results/zk60_native_run_gate_planeindex/`; old bundles re-run unchanged | todo |
-| T5 | tests for T1–T3; the whole native suite re-run and counted | todo |
-| T6 | a dated section in `ZK60_NATIVE_RUN_GATE.md`: what is checked per slot, what stays OPEN and why, the recounted channel table | todo |
+| T4 | the whole gate on `run-c-tame` + `run-d-zero`, evidence in `results/zk60_native_run_gate_planeindex/`; old bundles re-run unchanged | done |
+| T5 | tests for T1–T3; the whole native suite re-run and counted | done |
+| T6 | a dated section in `ZK60_NATIVE_RUN_GATE.md`: what is checked per slot, what stays OPEN and why, the recounted channel table | done |
 
 ## R2.2 What T2 covers, and what it does not (measured 2026-09-20 14:25 PDT)
 
@@ -190,3 +205,26 @@ Same as round 1, plus: the toy gates' modules are pinned by
 none of their bytes are touched. Everything new is a `zk60_native_rg_*.py`
 module. NEVER mark a slot checked unless the identity was actually
 evaluated and compared for it.
+
+## R2.3 Commands and logs (round 2)
+
+| what | command | log |
+|---|---|---|
+| the gate, the two NEW bundles | `python3 scripts/zk60_native_run_gate.py --bundle <B>/run-c-tame --other <B>/run-d-zero --old <B>/run-a-tame --evidence results/zk60_native_run_gate_planeindex` (and swapped) | `results/zk60_native_run_gate_planeindex/run-{c,d}-*.log`, records beside them |
+| the gate, the two OLD bundles, refreshed in place | the same with `run-a-tame` / `run-b-zero` | `results/zk60_native_run_gate/run-{a,b}-*.log` |
+| the old records diffed leaf by leaf | `python3 scripts/zk60_native_rg_recdiff.py <old> <new> --out ...` | `results/zk60_native_run_gate_planeindex/old_bundle_*.diff.json`, `old_bundles_unchanged.json` |
+| the two RUN-gate test files | `python3 -m unittest discover -s /home/victor/wt-zk60-jointview/tests -p 'test_zk60_native_run_gate*.py' -v` | `results/zk60_native_run_gate_planeindex/tests_planeindex.log` — **65 tests, OK, 15.0 s** (39 of them this round's) |
+| the WHOLE native suite | `python3 -m unittest discover -s /home/victor/wt-zk60-jointview/tests -p 'test_zk60_native*.py' -v` | `results/zk60_native_run_gate_planeindex/tests_native_all.log` — **232 tests, OK, 227.8 s**, one skip and one recorded expected failure, against **193** before this round: the 39 new ones are `tests/test_zk60_native_run_gate_planeindex.py` |
+
+## R2.4 Results (MEASURED 2026-09-20, both new bundles, shared laptop, CPU only)
+
+| what | figure |
+|---|---|
+| plane index table | 83 `A` planes tiling 377 rows, 52 `H` planes whose halves tile 470; every plane read by a slot; 176 terminals against 176 planes per stage; 226 of 226 slice offsets inside the plane they name |
+| the table in two independent bundles | byte-identical (it is a function of the public shape) |
+| terminal identity | **12 of 23 slots**, **36 of 36 checks** equal and matching the stored `terminal_polynomial`, both bundles |
+| public tables rebuilt and digest-matched | 11 per stage: seven `supp` indicators, the causal mask, the all-ones `Dom::Tab` vector |
+| slots OPEN | **11**, one reason: `public_tables_included: false` and their tables are not functions of the shape (weights, norm gains, RoPE, exp / activation values) |
+| controls | **five, all fire** (CT-1 … CT-5) |
+| channels | **24**: 2 constructed, 3 derived, 4 argued, **15 open** (old bundles: 2 / 2 / 4 / **16**) |
+| the gate, per bundle | 10.8 s / 11.2 s |

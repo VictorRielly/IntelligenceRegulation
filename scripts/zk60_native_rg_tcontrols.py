@@ -110,13 +110,6 @@ def _repointed_table(bundle, slot: int, i: int, donor: int, id_only: bool):
     return table
 
 
-def _flip_one_public_entry(geom_cls, gate_geom, dom, cube):
-    vals = list(gate_geom.supp(dom, cube))
-    at = next(i for i, x in enumerate(vals) if x == 1)
-    vals[at] = 0
-    return vals, at
-
-
 def terminal_controls(bundle, index, replay=None, old_bundle=None) -> dict:
     """The five controls, each shown honest-then-perturbed."""
     honest = check_terminals(bundle, index, replay=replay)

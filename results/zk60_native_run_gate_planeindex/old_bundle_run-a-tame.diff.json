@@ -1,9 +1,19 @@
 {
  "changed": [
   {
-   "new": 9.1,
+   "new": 10.3,
    "old": 8.7,
    "path": "seconds"
+  },
+  {
+   "new": 3.9,
+   "old": 3.5,
+   "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
+  },
+  {
+   "new": 1.2,
+   "old": 1.1,
+   "path": "stage4_the_boundary/whole_run/seconds"
   },
   {
    "new": "M-2",
@@ -251,7 +261,7 @@
    "path": "what_it_does_not_show/[4]"
   }
  ],
- "identical_leaves": 2191,
+ "identical_leaves": 2189,
  "leaves_new": 2310,
  "leaves_old": 2280,
  "only_in_the_new_record": [

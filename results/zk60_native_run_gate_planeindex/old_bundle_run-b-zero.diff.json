@@ -1,12 +1,12 @@
 {
  "changed": [
   {
-   "new": 9.0,
+   "new": 10.2,
    "old": 8.7,
    "path": "seconds"
   },
   {
-   "new": 3.5,
+   "new": 3.9,
    "old": 3.4,
    "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
   },

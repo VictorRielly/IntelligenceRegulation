@@ -507,6 +507,7 @@ def gate_at(i, v):
     """`Gate::at` (argument.rs:727)."""
     return ONE if i is None else v[i]
 
+
 # =====================================================================
 #  one slot's context: the resolution of a plane NAME to a table index
 # =====================================================================

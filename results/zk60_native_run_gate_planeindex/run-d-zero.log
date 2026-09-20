@@ -6,4 +6,4 @@ stage4_the_boundary: ok
 stage5_zero_data_preimage: ok
 stage6_negative_controls: ok
 stage7_channels: ok
-record: results/zk60_native_run_gate_planeindex/run-d-zero.json (11.2 s)
+record: results/zk60_native_run_gate_planeindex/run-d-zero.json (12.5 s)

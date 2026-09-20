@@ -79,7 +79,7 @@ class Plane:
     __slots__ = ("role", "id", "name", "domain", "log_size", "rows",
                  "first_row", "offset", "im_first_row", "im_offset")
 
-    def __init__(self, role, d, cols):
+    def __init__(self, role, d):
         self.role = role
         self.id = d["id"]
         self.name = d["name"]
@@ -151,8 +151,8 @@ class PlaneIndex:
         self.findings: list[str] = []
         f = self.findings
 
-        self.a_planes = [Plane("A", d, cols) for d in table["a_planes"]]
-        self.h_planes = [Plane("H", d, cols) for d in table["h_planes"]]
+        self.a_planes = [Plane("A", d) for d in table["a_planes"]]
+        self.h_planes = [Plane("H", d) for d in table["h_planes"]]
         for role, planes in (("A", self.a_planes), ("H", self.h_planes)):
             for i, p in enumerate(planes):
                 if p.id != i:

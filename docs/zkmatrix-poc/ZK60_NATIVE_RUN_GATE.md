@@ -5,6 +5,14 @@
 `results/zk60_native_run_gate/`. Ledger:
 `docs/zkmatrix-poc/ZK60_NATIVE_RUN_GATE_PROGRESS.md`.
 
+> **Sections 1–5 are the first round (the two stage-14 bundles).
+> Section 6, added the same day, is the second round**: the Rust lane
+> shipped the PLANE INDEX TABLE that §3 item 4 asked for, and the per-slot
+> terminal identity is now recomputed at the run's shape for **12 of the 23
+> slots**, on two NEW bundles. Where §3 item 4, §4 and §5 say that check is
+> open, read them against §6, which says exactly how far it closed and why
+> the other eleven slots did not.
+
 > **THIS IS NOT A PRIVACY ACCEPTANCE AND ESTABLISHES NO PRIVACY PROPERTY.**
 > Every number below is a rank, a count or a digest of an explicitly stated
 > LINEAR model, at two captured runs' real challenges, at ONE development
@@ -343,11 +351,22 @@ One thing the bundle LACKS that the gate needs, and does not guess at:
    without publishing anything new. Until it is there, the per-slot terminal
    identity is OPEN for a run (see §4).
 
+   **RESOLVED the same day.** Stage 15 of the Rust lane added it as
+   `run.json["plane_index"]`, and the two NEW bundles `run-c-tame` and
+   `run-d-zero` carry it. §6 is what it bought: 12 of the 23 slots checked.
+   A FIFTH finding took its place as the thing the bundle lacks — see §6.2:
+   `public_tables_included` is `false`, so the eleven weight-, gain-,
+   RoPE- and table-value-bearing slots still cannot be evaluated.
+
 ---
 
 ## 4. What remains a reviewed obligation, or is simply not done
 
-* **The per-slot terminal check is OPEN at this shape.** The strong form
+* **The per-slot terminal check is OPEN at this shape** — as of the first
+  round, on the two stage-14 bundles. **Partly closed in §6** on the two
+  stage-15 bundles: 12 of 23 slots, all three stages, both bundles. The
+  paragraph below is the first round's statement and is kept as written.
+  The strong form
   `fin = c·mask_eval + poly(terminals)` needs the 23 composition closures
   ported at the rung geometry. `scripts/zk60_native_terminal_polys.py` is a
   hand-port of the TOY layout: its `_Layout` namespace carries that shape's
@@ -388,9 +407,224 @@ One thing the bundle LACKS that the gate needs, and does not guess at:
 * **The joint-law composition for a run is unwritten.** A rank of zero over
   a linear model is not a statement that the run's view is independent of the
   witness; it is evidence about that model at those challenges.
-* **The per-slot terminal identity is not checked**, so the nonlinear link
-  between the commitment and masking channels is outside everything here.
+* **The per-slot terminal identity is not checked** on the two stage-14
+  bundles, so the nonlinear link between the commitment and masking channels
+  is outside everything in sections 1–5. On the stage-15 bundles it is
+  checked for 12 of the 23 slots (§6) and open for the other eleven; even
+  there, the DISCLOSURE model of §2.3 and §2.4 stays linear.
 * **It is NOT a privacy acceptance**, and it establishes no privacy
   property. Ruling M-8 asks for this gate; passing it is one input to a
   decision that is the security owner's and, for the run's soundness level
   and its receipt size, the project owner's.
+
+---
+
+# 6. 2026-09-20, second round: the PLANE INDEX TABLE and the per-slot terminal identity
+
+**Written 2026-09-20 14:45 PDT on the same lane.** Stage 15 of the Rust
+lane added `run.json["plane_index"]` — the one field §3 item 4 above asked
+for and would not guess at — and wrote two NEW bundles that carry it:
+`run-c-tame` and `run-d-zero`. `run-a-tame` and `run-b-zero` predate it, and
+the four are **four different runs**, not one run with a field added.
+
+New tools, all new files (no toy gate's bytes were touched):
+`scripts/zk60_native_rg_planes.py` (the table, read and integrity-checked),
+`scripts/zk60_native_rg_terminals.py` (the identity), 
+`scripts/zk60_native_rg_tcontrols.py` (its controls),
+`scripts/zk60_native_rg_recdiff.py` (a record diff). They are stage 8 of
+`scripts/zk60_native_run_gate.py`. Evidence:
+`results/zk60_native_run_gate_planeindex/`.
+
+> **STILL NOT A PRIVACY ACCEPTANCE AND STILL NO PRIVACY PROPERTY.** What
+> this round adds is the VERIFIER'S OWN final check, recomputed from the
+> published terminals at the runs' real challenges. That the receipt is
+> self-consistent says nothing about what it discloses. The disclosure
+> figures of §2.3 and §2.4 are unchanged and are still ranks of a linear
+> model at ONE development shape.
+
+## 6.1 The table, and what is checked about it
+
+`run.json["plane_index"]` gives, for every committed `A` and `H` plane, its
+id, name, domain, row range and own domain log, and for every slot the
+ORDERED list of planes whose evaluations that slot's `terminals` carries.
+Everything in it is public: it says where a plane lives and what it is
+called, never what is in it.
+
+| check | `run-c-tame` and `run-d-zero`, identically |
+|---|---|
+| `A` planes tile `[0, a_data_rows)` exactly, no gap, no overlap | **83** planes, **377** rows |
+| each `H` plane's two halves (`re`, `im`) tile `[0, h_data_rows)` exactly | **52** planes, **470** rows |
+| `offset == first_row · cols` (and the same for both `H` halves) | holds for all 135 planes |
+| the totals against each stage's OWN `A` / `H` opening `data_rows` | equal, all three stages |
+| one log per domain, no plane of a domain disagreeing | `T 5, Ht 8, L 10, D 12, Q 12, Kv 10, S 13, F 13, Tab 10` |
+| every id a slot names exists and has the role the slot claims | yes |
+| every committed plane is read by at least one slot | yes |
+| `len(terminals) == len(planes)` per slot per stage | **176 = 176**, all three stages |
+| every private table's slice offset lies INSIDE the plane it names | **226 of 226**, all three stages |
+
+The last row is the one that makes the identification a check rather than a
+relabelling: the stage file's own `slices[].offset` must land in the row
+range the table gives the plane. A plane read on a sub-slice (`SC_TZC`'s
+nine limb sub-planes) or at a flipped coordinate is containment, not
+equality, so the test is containment.
+
+Two further facts, both computed: the table is **byte-identical in the two
+independent bundles** (it is a function of the public shape; the runs'
+bindings differ), and an OLD bundle loads exactly as before, with the
+channel left OPEN and the reason it had.
+
+## 6.2 The identity, per slot
+
+The check is the verifier's own last step,
+`fin_s == c_s·mask_eval_s + poly_s(vals_s)`
+(`argument.rs:381`), with `poly_s` recomputed from the PUBLISHED terminals
+and `vals_s` built the way the verifier builds it: `sel·eq_point(...)` for
+an `eq` table, `sel·eval_mle_ext(...)` for a public table, the published
+terminal for a private one. The capture writes
+`terminal_polynomial = fin − c·mask_eval`, so the recomputed polynomial is
+compared against that field too. Both comparisons must hold.
+
+**Twelve of the twenty-three slots are evaluated and compared, in every
+stage — 36 of 36 checks per bundle, all equal, all matching the stored
+`terminal_polynomial`:**
+
+| slot | name | what it covers that the toy did not have |
+|---|---|---|
+| 00 | `SC_SS` | the `supp(Dom::D)` gate |
+| 01 | `SC_SSM` | the same, on `norm_m` |
+| 02 | `SC_TZC` | the pad-zero term on `Dom::T` (four planes batched on `ζ`), the `supp(T)` gate on both host terms |
+| 03 | `SC_LZC` | the pad-zero term on `Dom::L` — the one domain with NO closed-form indicator |
+| 04 | `SC_RS` | the causal mask and the `supp(Dom::S)` gate |
+| 08 | `SC_SCORE` | GQA: the key-value factor at the QUERY head's group bits (C-1 / trap T-3) |
+| 09 | `SC_PV` | the same, on the value side |
+| 17 | `SC_SZC` | the rung's THIRD `sigma_s` limb (`A_SR2`, `A_SG2`), and the only slot that hosts two domains — `Dom::Ht`'s lifted indicator with its own pad-zero group (finding S9-F7) |
+| 18 | `SC_FZC` | the `Dom::F` pad-zero term and the ungated activation-pair LogUp arm |
+| 20 | `SC_ZS` | the zero-sum row on the lifted `Dom::Tab` cube |
+| 21 | `SC_IO_IN` | **a run's boundary claim site**: in every stage but the first, the IO table is an internal BOUNDARY at the reserved pair the stage's position implies |
+| 22 | `SC_IO_OUT` | the same, the outgoing site |
+
+Slots 21 and 22 are worth naming twice: with three stages, both claim sites
+of both boundaries (`stage k` slot 22 and `stage k+1` slot 21) are inside
+the checked set, so the equality the whole boundary construction rests on is
+now recomputed, not just ranked.
+
+**Eleven slots stay OPEN, and the reason is NOT the plane index.** It is
+that `run.json["public_tables_included"]` is `false`: a bundle carries a
+public table's length and SHA-256 but not its values, and these slots' tables
+are not functions of the shape.
+
+| slots | the table that is missing |
+|---|---|
+| 05 `SC_QMM`, 06 `SC_KMM`, 07 `SC_VMM`, 10 `SC_WO`, 11 `SC_GMM`, 12 `SC_UMM`, 13 `SC_DMM` | `fold_rows_i8` / `fold_cols_i8` of a public WEIGHT matrix at the round's point |
+| 14 `SC_DZC` | the two padded norm GAIN vectors `gamma_a`, `gamma_m` |
+| 15 `SC_QZC`, 16 `SC_KVZC` | the RoPE `(cos, sin)` pair |
+| 19 `SC_TAB` | the exp and activation lookup TABLE VALUES (two of its four public tables; the other two are rebuildable) |
+
+Nothing HIDDEN is missing from any of them — every one is a function of the
+public statement. A re-capture with `HL_RUN_CAPTURE_PUBLIC_TABLES=1`, or a
+bundle that carried the weights, closes all eleven without publishing
+anything new. **That is the single next step for this channel.**
+
+## 6.3 What is rebuilt, and why it is not taken on trust
+
+The public tables that ARE a function of the shape are rebuilt in Python
+from a port of `pad.rs` and `argument.rs::causal_mask_at`, and each is
+compared with **the capture's own SHA-256 of the real one** before it is
+used — 11 table instances per stage, every digest matching: `supp(T)`,
+`supp(Ht)`, `supp(L)`, `supp(D)`, `supp(S)`, `supp(F)`, the causal mask and
+`SC_ZS`'s all-ones `Dom::Tab` vector. That is a machine check of the
+pad-rule port itself, not a reading. A separate test also shows the closed
+multilinear form and the support oracle agree entry for entry on the eight
+domains that have a closed form, and that `Dom::L` has none — exactly what
+the memo says.
+
+The reading that is NOT machine-checked is each ported polynomial against
+its Rust closure. It is pinned rather than trusted: the bundle's own
+`manifest.json["source_pins"]` names `argument.rs 909670c9`,
+`layout.rs fec2e647`, `protocol.rs 4e916c69` and `plane_index.rs 9de8320a`,
+and those are exactly the digests the port declares it was read at. A pin
+that moved makes **every slot NOT CHECKED** rather than silently wrong, and
+a test asserts that.
+
+## 6.4 The controls
+
+Each is shown to pass honest first, and the record says WHICH check fired.
+
+| control | what | fires | how |
+|---|---|---|---|
+| **CT-1** | one captured terminal changed by +1 (stage 1, slot 17, terminal 3) | yes | the identity fails at **exactly** that slot and stage — 35 of 36 — and nowhere else; the transcript replay refuses the same bundle independently, because `pb-term` absorbs the terminals |
+| **CT-2** | two entries of slot 17's plane list SWAPPED (`A_SR0` / `A_SR1`: same domain, same row count) | yes | three ways — the port refuses the push order; with that check DROPPED the identity itself fails at slot 17 in **all three** stages; and the loader refuses, because the slice offsets no longer lie in the planes the list names |
+| **CT-3** | slot 17's `A_SR0` entry RE-POINTED at `A_SG0` (same domain, same rows) | yes | the loader refuses on the slice offset (`243712 is outside plane 66 (A_SG0), rows 262..270`) and the port cannot evaluate the slot in any stage. A second form, `id` moved with the name kept, is caught by the loader's name-against-id cross-check |
+| **CT-4** | an OLD bundle (`run-a-tame`, no table) | yes | the channel stays OPEN with the reason the gate had before, no slot is reported checked, and the stage is not a failure — a missing input is not a broken gate |
+| **CT-5** | one entry of the rebuilt `supp(Dom::S)` flipped 1 → 0 | yes | the capture's own SHA-256 refuses it, so the port never evaluates a polynomial the verifier did not evaluate |
+
+CT-2 is the sharpest: a swap that no count can see (same domain, same size,
+same slot, same polynomial) changes which terminal each factor reads, and
+the arithmetic catches it in every stage.
+
+One more perturbation, asserted in the tests rather than in the gate: a
+terminal of an UNCOVERED slot (15, `SC_QZC`) is changed and **nothing the
+gate reports moves** — the port does not silently claim a slot it never
+evaluated.
+
+## 6.5 The channel table, recounted
+
+Counted from the tool's own `stage7_channels.channels` array, not by hand.
+The terminal-identity channel is now TWO entries, because one status cannot
+honestly describe a channel that is 12/23 evaluated:
+
+| bundle | total | constructed | derived | argued | **open** |
+|---|---:|---:|---:|---:|---:|
+| `run-c-tame`, `run-d-zero` | **24** | 2 | **3** | 4 | **15** |
+| `run-a-tame`, `run-b-zero` (re-run) | **24** | 2 | 2 | 4 | **16** |
+| `run-a-tame`, `run-b-zero` (before this round) | 23 | 2 | 2 | 4 | 15 |
+
+The open COUNT does not fall, and that is the honest reading: half a channel
+closed and half a channel named. What moved is inside the entry — the
+DERIVED half now carries the derivation (36 of 36 slot checks) and the OPEN
+half carries one precise reason for eleven named slots instead of "the plane
+index table is missing".
+
+For the two OLD bundles **nothing measured changed**:
+`results/zk60_native_run_gate_planeindex/old_bundles_unchanged.json` shows
+21 of their 23 channel entries byte-identical (the terminal channel split in
+two, both OPEN for them; the nonlinear-functional channel gained a sentence),
+and the leaf-by-leaf diffs show **2,189 identical leaves** each, with the
+only changes being the tool hashes, the new stage-8 block saying the table is
+absent, the channel split (which shifts every later entry's index), three
+wall-clock leaves and one sentence of `what_it_does_not_show`. No rank,
+disclosed dimension, challenge count or control figure moved.
+
+## 6.6 The suite
+
+`python3 -m unittest discover -s tests -p 'test_zk60_native*.py'`:
+**232 tests, OK**, one skip and one recorded expected failure, 227.8 s —
+against **193** before this round. The 39 new ones are
+`tests/test_zk60_native_run_gate_planeindex.py`, in the two arms this lane
+already uses: a RECORDED arm that asserts every figure quoted above from the
+tracked evidence (and that the evidence was produced by the tool bytes now
+in the tree), and a LIVE arm that is skipped when the ~38.5 MB bundles are
+absent. The whole live arm runs in 5.5 s, so nothing here needs a
+`skipUnless` for time.
+
+## 6.7 What this round is NOT
+
+* **Linear channels only, still.** Recomputing the terminal identity does
+  not make the disclosure model nonlinear. §2.3 and §2.4's figures are the
+  same ranks of the same linear model; the "any nonlinear functional"
+  channel stays OPEN and now says so in those words.
+* **Two runs, one development shape.** `run-c-tame` and `run-d-zero` are two
+  captured runs at 24 tokens, width 96, hidden 192. Two runs are not a
+  distribution.
+* **Nothing about the 125M shape.** The port is shape-driven — every count
+  comes from `run.json["shape"]` or from the plane index table — but it has
+  been RUN at one shape, and `f_e`, `norm_wrho` and `wrho_s` move at 125M
+  while `SH_S`, `SH_G`, `SH_H_PROD`, `F_P` and `NORM_CEPS` are read here as
+  fixed calibration constants of `layout.rs`. At a shape where one of those
+  moved, the identity would simply fail; it would not be silently wrong.
+* **Eleven of twenty-three slots are not checked at all**, and the nonlinear
+  link between the commitment and masking channels is therefore covered for
+  twelve slots and not for eleven.
+* **Not a privacy claim.** The verifier's own check passing is a statement
+  about the receipt's self-consistency. Ruling M-8, D8/D11 and the run's
+  joint-law composition are untouched by this round.
