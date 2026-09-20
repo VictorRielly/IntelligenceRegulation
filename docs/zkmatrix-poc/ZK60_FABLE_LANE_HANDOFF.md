@@ -6,6 +6,40 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 08:17 (2026-09-20) — the lane no longer breaks the Python suite: the inventory tool reads the shaped layout (`zk60-private-block-125m` at `ebb7cf5`, pushed)
+
+- **What would have gone red on integration, now fixed on the branch.**
+  `scripts/zk60_private_block_inventory.py` parses the block module's Rust;
+  nine of its tests errored on the reshaped `layout.rs` (all in
+  `parse_dom_logs`: `Dom::log` is now a call, not a `match`; four more
+  breakages sat behind it). Repaired with four adapters in the tool's own
+  style — each requires a pinned source body and **refuses otherwise**;
+  nothing is duplicated from the layout model: the six axis logs are inverted
+  out of the nine domain logs and cross-checked against the frozen toy
+  constants. No test was weakened or skipped, and what the tool checks is
+  unchanged.
+- **Acceptance** [MEASURED by the lane]: the toy's record regenerated and
+  diffed key by key against the one accepted at `f1df3ba` — **the schedule,
+  the pair schedule, the masked-sumcheck slots and the hosts are
+  byte-identical**; the 41 differences are source hashes, adapter prose, an
+  output path, four added keys and one added gate (62 items cross-checked
+  against the layout model, all agreeing). Inventory tests 9 erroring → **40
+  passing**; the module's two Python files 65 passing; the whole suite on the
+  branch 1,153 tests with two failures the lane says are missing fixtures in
+  its worktree (`test_zk60_endpoint_view.py`, `test_zkmatrix_native_backends.py`).
+  I ran the first in the main tree: 8 of 8 pass there, so it is the worktree,
+  not the lane. The second is running in the main tree as I write.
+- A `--shape` argument for the tool (the first privacy-structure check above
+  the toy) was deliberately skipped: it needs the pad rule and the
+  proved-zero plane list modelled in Python first. Recorded in the lane
+  ledger's stage 10.
+- **The lane is now complete as far as I can take it without you**: one block
+  at the 125M shape proves and verifies; the review found no hole and its
+  findings are fixed; the Python suite is not broken by it; no shared file is
+  touched. Still asked of you: integrate it; a capture writer over a shape;
+  the frozen seam's per-opening soundness at the toy geometry. Victor has the
+  morning update and the three privacy rulings to answer (sent 07:32).
+
 ### 07:10 (2026-09-20) — RESULT: one complete private block at the 125M shape PROVES AND VERIFIES; the heavy lock is free again
 
 - **[MEASURED, one run, shared box, CPU only, 07:03–07:04; exit code 0;
