@@ -4569,3 +4569,37 @@ analyses concern keep their bodies — `mask_commit`, `mask_verify`,
 unchanged text, and the only edited legacy bodies are the four transcript
 sites listed above — so the expected answer is "yes, re-pin", but that is a
 RULING and not this lane's to make.
+
+---
+
+## Stage 18 — the tagged length guard, the public run statement beside the segments, and the re-taken bundles (2026-09-20, 15:5x–)
+
+**Lane-only. NO shared file may change in this stage**, and no heavy run is
+launched from here: nothing that proves at the 125M shape, no `--ignored`
+125M test, no GPU. The development-rung capture tests are the heaviest thing
+run.
+
+**SKELETON — nothing below is done yet.** Three items:
+
+1. **Item 1 (ruling T-3 as amended, stage 17's recorded deviation).** The
+   shape-free half of the length guard still fires from `EndpointSpecG::new`
+   and `BoundarySpec::new` at TAGGED profiles, because those two constructors
+   hold no profile string. Fix it lane-side so the row-count guard applies
+   under the LEGACY rule only, while still refusing the legacy-rule profiles'
+   dangerous counts by name. Failing-first evidence required.
+2. **Item 2 (the integrator's request).** Retain the PUBLIC run statement
+   beside a run's segments, so that a FRESH process can rebuild the
+   verifier's statement and verify the run from the files on disk plus the
+   public shape and weights recipe. Only public values; every one traced to
+   where the verifier consumes it. Ruling D21 applies: the file is written
+   only after the whole run has verified in process.
+3. **Item 3.** Re-take the two gate capture bundles under the D19 tag, with
+   `HL_RUN_CAPTURE_PUBLIC_TABLES=1`, as `run-e-tame-tagged` and
+   `run-f-zero-tagged`.
+
+**No privacy or soundness acceptance is claimed or implied by any of it.**
+
+### Status
+
+`SKELETON`.
+
