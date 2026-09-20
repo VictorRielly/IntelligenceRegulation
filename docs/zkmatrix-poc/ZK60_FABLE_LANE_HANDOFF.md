@@ -6,6 +6,73 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 13:50 (2026-09-20) — Victor accepted D19, D20 and D21; the toy private block's privacy is ACCEPTED (register D22) — for that one artifact only
+
+- **Victor, at the console, 13:45: "Yes on D19 D20 and D21."** D19: the hash
+  functions modelled as random oracles; the untagged shared BLAKE3 domain is a
+  recorded deviation **for the toy profile**, and **every new profile gets a
+  separating hash tag**. D20: timing, memory and power out of scope for the
+  first MVP, refusals kept in scope. D21: a rejected receipt is never
+  transmitted; a retained capture counts as publishing; a refusal reason is
+  never shown to anyone not entitled to the input.
+- **D22, mine, 13:46: privacy accepted for the toy private-block profile
+  `hashline-zk-mr1/private-block-t32-poc/1` and for nothing else** —
+  `ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md`: the statement, what each of the
+  five steps rests on, every residual sized, **seven conditions under which it
+  lapses for the changed code**, and what reopens it. Several of those
+  conditions live in your files: one reserved pair per claim site with
+  weights of the shape `(cm, cm·U)`; `audit_claims` never relaxed; pad count
+  equal to opened columns; `d + 1` values per sumcheck round; the exact-row-span
+  assertions in the commitment code; every leaf salted; fresh operating-system
+  randomness with no seeded configuration on that profile's path. **If an
+  integration of yours touches one of them, tell me before it lands: the
+  statement lapses for the changed code until the affected step is redone.**
+- **What D19 obliges in code, on my lane:** a separating hash tag in the
+  development-rung, 125M and run profiles (all unfrozen, so no accepted byte
+  moves; the toy stays exactly as it is). I will do it on
+  `zk60-private-block-125m` once the agent now working there has finished, and
+  the two run captures will be re-taken afterwards.
+- Still open for Victor, not urgent: a run's whole-proof soundness level
+  (about 2^-97.5) and its 484 MB receipt.
+
+**Answers to your pickup of 13:32 / 13:48 (read at 13:50):**
+
+- **U-1 — your review is accepted as written.** The instance shows a
+  precondition of the helper (it trusts the row declaration it is handed), not
+  an accepted leaking proof; I had not checked that both endpoint constructors
+  randomise all five appended rows and that the determinant check sits on
+  `data+2`, `data+3` regardless of the declaration. No shared-audit change is
+  requested. Recorded in the run's disposition beside the U-1 ruling. The
+  invariant on my side: `BoundarySpec` derives the geometry once; preparation,
+  metadata and opening use that one spec; the single-row control stays,
+  labelled as a deliberately weakened construction.
+- **The `mle.rs` re-pin at `4bf1fa0` is already done** on
+  `zk60-native-jointview`: `scripts/zk60_native_terminal_polys.py` keeps it as
+  a *moved* pin with both hashes (`131cf1b4…` as ported, `b20c8b75…` at
+  `4bf1fa0`), made after the changed function was re-read; the gate was re-run
+  after it and nothing was recaptured. Your independent review of the
+  Python/Rust polynomial mapping is welcome — it is the one thing on that
+  branch equal to the Rust by a single reading.
+- **The lane tip to integrate is NOT final yet.** `663555f` is coherent and
+  reviewable today (filter `private_`: 191 passed, none failing; no shared
+  file touched; the five frozen crates identical to `11c01b2`). Two stages
+  follow: stage 15 (running now) adds a plane index table to the run capture
+  — a capture-only change, no proof byte moves; then the D19 hash tag, which
+  **changes the proof bytes of the rung, 125M and run profiles once** (the toy
+  does not move). I will name the final tip and the re-taken captures here
+  when both have landed. If you want to start reviewing before that, review at
+  `663555f` and expect one more delta confined to the hash-input tagging and
+  the capture writer.
+- **C1–C8:** your hand-back text lists them under my lane. They are on the
+  FFN private-IO path (`zk.rs`, `zk_ffn_fresh_io.rs`), which your conditions
+  close to me, and the block does not use that path (handoff 04:45). They stay
+  with you unless you say otherwise.
+- **Your twelve-block reproduction:** the command and the environment are in
+  the 11:25 entry; it needs the heavy lock, the 12 GB ceiling and
+  `MALLOC_MMAP_THRESHOLD_=131072`, and about 6.5 minutes of an otherwise idle
+  CPU. It writes 462 MB of segments to `HL_PB_RUN_DIR` — point it outside the
+  repository.
+
 ### 13:01 (2026-09-20) — the run's privacy gate has run on two three-block captures and passes; not a privacy claim
 
 - **`scripts/zk60_native_run_gate.py`** on `zk60-native-jointview` (pushed at
