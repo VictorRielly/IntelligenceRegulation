@@ -27,6 +27,13 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+
+from zk60_native_rg_hashrule import rule_for_bundle  # noqa: E402
 
 SCHEMA = "hashline-native-capture/4-run"
 RUN_KIND = "zk60-run-verifier-observations"
@@ -213,6 +220,15 @@ class RunBundle:
             raise ValueError(f"run.json: {len(self.stages)} stage files for {self.blocks} blocks")
         with open(os.path.join(self.dir, "manifest.json"), "rb") as fh:
             self.manifest = json.loads(fh.read())
+        # STAGE 17 / decision D19: which BLAKE3 made these bytes.  The rule is
+        # DERIVED from the block profile this bundle's shape names and then
+        # compared with the declared `hash_tag`; it is never taken from it
+        # (ruling T-7).  `hash_rule` is None when the comparison refused, and
+        # a caller must not replay such a bundle.
+        self.hash_rule_record = rule_for_bundle(self)
+        self.hash_rule = self.hash_rule_record["rule"]
+        # STAGE 18: whether each public table carries its `values`.
+        self.public_tables_included = bool(d.get("public_tables_included", False))
 
     @property
     def name(self) -> str:
@@ -414,6 +430,11 @@ def integrity(bundle: RunBundle) -> dict:
     for k, v in twice.items():
         f.append(f"the commitment {k[:16]} is opened more than once: {v}")
 
+    # STAGE 17 / D19: the declared hash tag against this tool's own derivation
+    hr = bundle.hash_rule_record
+    for r in hr["refusals"]:
+        f.append(r)
+
     return {
         "bundle": bundle.name,
         "dir": bundle.dir,
@@ -429,6 +450,7 @@ def integrity(bundle: RunBundle) -> dict:
         "privacy_review_complete": bundle.run["privacy_review_complete"],
         "weight_policy": bundle.run["weight_policy"],
         "public_tables_included": bundle.run["public_tables_included"],
+        "hash_rule": {k: v for k, v in hr.items() if k != "rule"},
         "manifest_files_checked": checked,
         "manifest_total_bytes": total,
         "source_pins": man.get("source_pins", []),

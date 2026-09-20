@@ -36,7 +36,7 @@ A failure is recorded and named, never raised: this stage is allowed to FAIL.
 
 from __future__ import annotations
 
-from zk60_native_jv_field import Transcript, f2_bytes, f2_from_list
+from zk60_native_jv_field import f2_bytes, f2_from_list
 
 
 class RunReplay:
@@ -66,6 +66,8 @@ class RunReplay:
         self.run_binding_ok = None
         self.position_tags = []
         self.final_counter = None
+        # [D19] which hash rule the replay computed under, filled by `run`
+        self.rule_name = None
 
     # ------------------------------------------------------------- helpers
     def _fail(self, what: str) -> None:
@@ -102,7 +104,22 @@ class RunReplay:
         d = b.run
         sh = b.shape
 
-        tr = Transcript(domain=bytes(d["transcript_domain_bytes"]))
+        # [D19 / ruling T-1] the transcript is keyed under the BLOCK shape's
+        # Fiat-Shamir key on a tagged profile, and is the same unkeyed
+        # transcript as before on a legacy-rule one.  The rule comes from the
+        # loader, which DERIVED it from the profile; never from this file's
+        # own reading of the bundle.
+        rule = getattr(b, "hash_rule", None)
+        if rule is None:
+            self._fail(
+                "the hash rule was refused for this bundle, so no replay was "
+                "attempted (a replay under a rule the profile does not imply "
+                "would prove nothing)"
+            )
+            self.rule_name = None
+            return self
+        self.rule_name = rule.name
+        tr = rule.transcript(bytes(d["transcript_domain_bytes"]))
         shape_bytes = b"".join(int(v).to_bytes(8, "little") for v in d["run_shape_words"])
         tr.absorb(b"run-shape", shape_bytes)
         tr.absorb(b"expected-IO", bytes(d["expected_policy"]))
@@ -262,6 +279,7 @@ class RunReplay:
         return {
             "bundle": self.b.name,
             "profile": self.b.profile,
+            "hash_rule": self.rule_name,
             "stages": self.b.blocks,
             "run_binding_reproduced": self.run_binding_ok,
             "positions_checked": self.checkpoints,
