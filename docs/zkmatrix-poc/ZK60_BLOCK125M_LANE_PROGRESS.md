@@ -134,6 +134,9 @@ private-block-kernel/src/shaped_tests.rs
 | **S9 part 3 — ruling P-2, the public weights** | **DONE** | `2798148`; both §9a cases refused by name, plus the folded-vector form |
 | **S9 part 3b — the indicators (S9-F3) and the slot budget** | **DONE** | `2798148`; the table is the definition, the closed forms are asserted equal to it where they exist, `L + 256 <= 512` re-asserted at all three shapes |
 | **S9 part 4 — the pad-zero term itself** | **NOT BUILT** — it lives in `argument::define`, which is still toy-only; it is blocked by stage 3's step 2 (the shaped argument), not by anything in S9 | see the NEXT section |
+| **Shaped argument, step A — the H plane id map** | **DONE** | `0493be3`; `s9b-hids2.log:179` **98 / 0 / 4**. Built and tested, NOT wired into `argument.rs` / `protocol.rs` |
+| **Shaped argument, steps B, C — `Layout::for_shape`, the shaped `define` and `protocol`** | **NOT STARTED** | the ordered plan and the complete literal inventory are in the NEXT section |
+| **S10, S11, S12** | **NOT STARTED** — all three are prover/verifier side and blocked by step C | — |
 | **S8 the change itself** | **DONE** | `7f8e549` (the ids, the lookups, the premise) and `a21ffd7` (P-5's alias cases, the parity fixture retired). The deliverable test `the_rung_at_its_own_calibration_has_an_honest_witness` is un-ignored and green; hashline **86 / 0 / 2** (`s8-run7.log:165`), toy receipt 2,816,472 B and the digest unmoved |
 
 ## The toy freeze gate this stage added
@@ -220,6 +223,8 @@ flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attent
 | 51 | the same, corrected | `…/s9b-run1.log:195` | **97 passed, 0 failed, 4 ignored**, 29.12 s, 9 warnings (one new unused variable) |
 | 52 | the same, the warning cleared | `…/s9b-run2.log:178` | **97 passed, 0 failed, 4 ignored**, 29.09 s, **8 warnings — the baseline's 8** |
 | 53 | `git --no-pager diff --stat 11c01b2 -- private-block-kernel private-model-kernel zkvm-block` | — | **empty**: JOB K's acceptance is now literally met (the orchestrator's K4 deleted the two leftover paths) |
+| 54 | the Rust command, filter `private_`, with `HIds` (step A) | `…/s9b-hids1.log:187` | 98 passed, 0 failed, 4 ignored, 29.26 s, 9 warnings (one new unused `mut`) |
+| 55 | the same, the warning cleared | `…/s9b-hids2.log:179` | **98 passed, 0 failed, 4 ignored**, 31.50 s, **8 warnings — the baseline's 8** |
 
 ## Findings
 
@@ -903,9 +908,10 @@ versus closed form) therefore has a different answer at the rung than at
 
 ## NEXT
 
-**Where the lane stands.** JOB K, S8 and **S9 parts 1, 2 and 3 are DONE**
-(commit `2798148`). **97 passed / 0 failed / 4 ignored** on `--lib private_`
-(`s9b-run2.log:178`), 8 warnings — the baseline's 8. The toy receipt is
+**Where the lane stands.** JOB K, S8, **S9 parts 1, 2 and 3** (commit
+`2798148`) and **step A of the shaped argument** (commit `0493be3`) are
+DONE. **98 passed / 0 failed / 4 ignored** on `--lib private_`
+(`s9b-hids2.log:179`), 8 warnings — the baseline's 8. The toy receipt is
 2,816,472 B and the pinned schedule digest has not moved at any commit of
 any stage. `git --no-pager diff --stat 11c01b2 -- private-block-kernel
 private-model-kernel zkvm-block` is **empty**, so JOB K's acceptance is now
@@ -926,20 +932,29 @@ pad-zero term), S10, S11 and S12 all live on the prover/verifier side, and
 Nothing further can be built until they run over a `Shape`. That is the next
 agent's whole job, and the order below is the cheapest one.
 
-### Step A — the H-side plane id map (finding S9-F6). Half a day, self-contained.
+### Step A — the H-side plane id map (finding S9-F6). **DONE, commit `0493be3`.**
 
-The A plane ids became `layout::Ids` in S8; the H ids did not. `H_L`,
-`H_D0`, `H_D_LAST`, `H_Q0`, `H_KV0`, `H_S0`, `H_SEXP`, `H_F0`, `H_FACT`,
-`H_GU8`, `H_GEXP`, `H_GACT`, `H_U`, `N_H` and `h_dom` are literals
-(`layout.rs:405-433`), and the list is **52 at the rung** (the third
-`sigma_s` limb adds one `Dom::S` helper, pushing `H_SEXP` and everything
-above it up by one) and **50 at 125M** (C-6 drops four `Dom::D` lookups, so
-that block is 17 helpers, not 19). Build `HIds` exactly as S8 built `Ids`:
-a segment table `(first toy id, toy length, this shape's length, domain)`,
-a `new` that REFUSES unless the list it builds equals
-`Shape::h_plane_doms()` element for element, and an assertion that the map
-is the IDENTITY at the toy. `layout::helpers(dom)` (a match on literals,
-`layout.rs:632`) becomes `(HIds::first(dom), Shape::helpers(dom))`.
+`layout::HIds` is built and tested. It is the analogue of S8's `Ids`, with
+the same construction refusal ("this shape's H plane list differs from the
+pinned one") against `Shape::h_plane_doms()`. It is NOT a toy-id map,
+because the H list moves in BOTH directions: the `Dom::D` helper block is
+19 at the toy and the rung but **17** at 125M (C-6 drops four `Dom::D`
+lookups where the norm window fills its top byte limb), so at 125M
+`H_D_LAST` names a plane that does not exist; the `Dom::S` block is 7 at
+the toy and **8** at the rung and 125M (the third `sigma_s` limb). `N_H` is
+51 / **52** / **50**. The accessors are therefore by ROLE — `helper(dom,
+k)`, `first_helper(dom)`, `sexp()`, `fact()`, `table_helpers()`, `u()`,
+`dom()`, `is_table()` — which is how `argument.rs` already reads them.
+
+`the_h_plane_ids_are_the_toys_at_the_toy_and_each_shapes_elsewhere` pins
+the toy accessor by accessor and plane by plane (domain and table flag for
+all 51), agrees with the old `layout::helpers(dom)` block by block, and
+checks each shape's own list.
+
+**Not wired in**: `argument.rs` and `protocol.rs` still read the literals,
+which are correct at the toy and only at the toy, and `layout::helpers(dom)`
+(the literal match at `layout.rs:632`) still exists. Replacing both is part
+of step C.
 
 ### Step B — `Layout::for_shape`. The substrate; the toy is the gate.
 
