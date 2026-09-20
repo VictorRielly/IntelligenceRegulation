@@ -832,25 +832,77 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
     let acc = argument(&mut side, &ctx, tr, ph)?;
     #[cfg(test)]
     let capture_before = super::capture::checkpoint(tr);
+    // STAGE 14: the run capture observes the same site. Its `checkpoint`
+    // returns `None` unless a recorder is attached.
+    #[cfg(test)]
+    let run_capture_before = super::run_capture::checkpoint(tr);
     zk::mask_verify(&v.mask_root, &lay.mask_specs(), &acc.fs, v.mask_open, ntt, tr).map_err(|e| format!("M: {e}"))?;
     #[cfg(test)]
     super::capture::mask(&v.mask_root, &acc.fs, v.mask_open, capture_before, tr);
+    #[cfg(test)]
+    super::run_capture::mask(&lay.mask_specs(), &v.mask_root, &acc.fs, v.mask_open, ntt, run_capture_before, tr);
     ph.mark(Half::Open, "verify M (zk::mask_verify, ONE call)", M_ROWS as u64, "rows");
     let order = acc.order;
     let [ac, hc, ic, oc] = finish_claims(acc.claims, lay);
     check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), tr)?;
     #[cfg(test)]
     let capture_before = super::capture::checkpoint(tr);
+    #[cfg(test)]
+    let run_capture_before = super::run_capture::checkpoint(tr);
     pcs::verify_zk(&params, &zko, &commitment(v.a_root, lay.a_rows, sh.log_cols), &ac, v.a_open, ntt, tr).map_err(|e| format!("A: {e}"))?;
     #[cfg(test)]
     super::capture::pcs("A", v.a_root, lay.a_rows, &ac, v.a_open, capture_before, tr);
+    #[cfg(test)]
+    super::run_capture::pcs(
+        super::run_capture::Geom {
+            role: "A",
+            commitment_kind: "block",
+            params,
+            root: v.a_root,
+            rows: lay.a_rows,
+            data_rows: lay.a_data_rows,
+            site_rows: lay.a_site_rows(),
+            sum_rows: None,
+            prox_row: lay.a_prox,
+            boundary: None,
+            claim_sources: vec![],
+        },
+        &ac,
+        v.a_open,
+        ntt,
+        run_capture_before,
+        tr,
+    );
     ph.mark(Half::Open, "verify A (schedule audit + pcs::verify_zk)", ac.len() as u64, "claims");
     check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), tr)?;
     #[cfg(test)]
     let capture_before = super::capture::checkpoint(tr);
+    #[cfg(test)]
+    let run_capture_before = super::run_capture::checkpoint(tr);
     pcs::verify_zk(&params, &zko, &commitment(v.h_root, lay.h_rows, sh.log_cols), &hc, v.h_open, ntt, tr).map_err(|e| format!("H: {e}"))?;
     #[cfg(test)]
     super::capture::pcs("H", v.h_root, lay.h_rows, &hc, v.h_open, capture_before, tr);
+    #[cfg(test)]
+    super::run_capture::pcs(
+        super::run_capture::Geom {
+            role: "H",
+            commitment_kind: "block",
+            params,
+            root: v.h_root,
+            rows: lay.h_rows,
+            data_rows: lay.h_data_rows,
+            site_rows: lay.h_site_rows(),
+            sum_rows: Some(lay.h_u_rows()),
+            prox_row: lay.h_prox,
+            boundary: None,
+            claim_sources: vec![],
+        },
+        &hc,
+        v.h_open,
+        ntt,
+        run_capture_before,
+        tr,
+    );
     ph.mark(Half::Open, "verify H (schedule audit + pcs::verify_zk)", hc.len() as u64, "claims");
     Ok(([ic, oc], order))
 }

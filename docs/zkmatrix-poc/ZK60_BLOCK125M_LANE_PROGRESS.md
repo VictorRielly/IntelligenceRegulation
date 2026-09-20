@@ -3416,3 +3416,178 @@ private-model-kernel zkvm-block` prints nothing.
 3. **Ask the security owner** about finding U-5 and carry U-1 … U-6 into the
    disposition's record.
 
+## Stage 14 — the run capture (2026-09-20, 11:4x–12:5x)
+
+**What this stage is.** The INPUT to the privacy gate of ruling M-8: a
+capture of the verifier's view of a private RUN, written by a NEW module and
+never by editing the integrator's `hashline/src/native_capture.rs`. **It is
+not the gate and it is not a privacy statement.** The Python joint-view tools
+have still never seen a run; writing the input to a gate does not meet it.
+
+### The schema AS FOUND (the toy single-block capture), in one place
+
+`native_capture.rs` (500 lines, `include!`d into a `cfg(test)` `mod capture`
+of `private_block.rs` and of `private_attention.rs`) observes the VERIFIER
+through a thread-local, at five hook sites already in the lane's files:
+`argument.rs` (`start_slot`, `slot`), `protocol.rs` (`mask`, `pcs` for A, H
+and the two endpoints) and `publish`. A bundle is THREE files per proof, named
+by the receipt's SHA-256: `<sha>.receipt`, `<sha>.expected`, `<sha>.json`.
+
+The JSON is one object: `schema` (the integer 3), `kind`
+(`zk60-verifier-observations`), `coverage` (`native-all-slots-v1`), `profile`
+= `transcript_domain`, `source_commit`, `fully_verified`, `privacy`,
+`privacy_review_complete`, `weight_policy`, `field_modulus`,
+`extension_nonresidue`, `proof_sha256`, `proof_bytes`,
+`proof_digest_encoding`, `expected_policy` (+ its SHA-256),
+`public_statement_digest`, `layout_description`, `layout_digest`,
+`schedule_digest`, `opening_order`, `logup_challenges`, `header`
+(`{state,next}`), then `arguments` (23 slot objects: `slot`, `name`, `kind`,
+`main`, `extension`, `degree`, `definition_challenges`, `c`, `scalar`,
+`claimed_sum`, `rho`, `sumcheck_final`, `mask_eval`, `terminal_polynomial`,
+`terminals`, `rounds`, `hosted`, `tables` — `eq` / `public` / `private` with
+the private table's `role`, `claim`, `log_size`, `mask_row`,
+`extension_round`, `slices`, `coordinates` —, and the three transcript
+positions `before_definition`, `before`, `after`), `mask` (`root`, `specs`,
+`theta`, `proximity_rhos`, `functionals`, `q`, `prox`, `columns`, `before`,
+`after`) and `roles` (four objects, A / H / Input / Output: `params`,
+`commitment`, `claims`, `groups`, `proximity_rhos`, `proximity_vector`,
+`columns` with `index`/`values`/`salt`/`path`, `q_pad`, `row_roles`,
+`public_linear_constraints`, `before`, `after`).
+
+Encodings: `Fp` a decimal `u64`, `Fp2` a `[u64,u64]` pair, every 32-byte
+digest / salt / path node / transcript state a JSON array of 32 ints.
+
+**What the Python loader assumes about the toy** (read by a delegated
+read-only agent across `zk60_native_joint_view.py`,
+`zk60_native_privacy_gate.py`, `zk60_native_mask_commit.py` and the nine
+modules they import): it globs `<dir>/captures/*.json` and **never opens the
+`.receipt` or `.expected` files**; `Capture.__init__` refuses unless
+`schema == 3`, `kind` and `coverage` are the literals above and `profile` is
+one of TWO hard-coded strings; the transcript replay hard-codes every
+absorption label and the full parameter line as a byte literal per profile;
+`ROLE_ORDER` is a strict ordered four; and the shape is a set of flat module
+constants (`LOG_COLS=8, N_COLS=256, INV_RATE=8, ENC_COLS=2048,
+NUM_COL_CHECKS=256, Q_PAD=256, MASK_LOG_DOM=12`) that are **not** read from
+the JSON's own `params` / `q_pad` fields even though those exist. The slot
+port table and its `_Layout` (T=32, D=16, H=2, DH=8, F=16) are a hand-port of
+`argument.rs`, pinned by SHA-256. One thing already generalises: M's row
+count is computed as `2*len(specs)+4`.
+
+### The design: a strict superset, in a directory
+
+`schema: "hashline-native-capture/4-run"`. A bundle is `run.json` (the run
+header, the shape as data, the external endpoints, the `L-1` internal
+boundaries, the transcript labels and the transcript program in words), one
+`stage-NN.json` per stage carrying EXACTLY the single-block bundle's per-proof
+content for that block, `manifest.json` (every file's length and SHA-256, plus
+the SHA-256 of the six Rust files that decide what a bundle contains) and a
+README. Field by field: `docs/zkmatrix-poc/ZK60_RUN_CAPTURE_FORMAT.md`, which
+is the deliverable for the Python agent.
+
+Five things a reader must know: the schema string is new (today's loader
+refuses it by version, which is the intent); a run has TWO profile strings
+(the RUN transcript domain and the per-block shape's); there are four new
+Fiat-Shamir labels (`run-shape`, `pb-run-stage`, `pb-run-block`, `B`), all
+carried as data; the IO role names still name the CLAIM SITE, with the new
+`commitment_kind` / `boundary` / `claim_sources` fields naming the
+COMMITMENT; and a boundary's opening lives in the NEXT stage's file, because
+that is the only stage in which its claim list is complete.
+
+**Two deliberate deviations, both recorded in the format note.** (1) A slot's
+PUBLIC tables carry `len` + `sha256` and their `values` only under
+`HL_RUN_CAPTURE_PUBLIC_TABLES=1`: they are a function of the public statement
+and the stage's challenges and they dominate a rung bundle. (2) The segments
+are written only under `HL_RUN_CAPTURE_SEGMENTS=1`: every stage file already
+carries its segment's length and SHA-256, and the gate's loader reads only
+JSON.
+
+### How the capture is taken
+
+By OBSERVING THE VERIFIER. The hooks are `cfg(test)`, return on their first
+line unless a recorder is attached, are handed what the verifier already
+holds and give nothing back — so no branch of the protocol can depend on one.
+They sit beside the integrator's existing hooks in `argument.rs` (2 lines) and
+`protocol.rs` (6 lines), and in `run.rs` at the four sites a run adds (stage
+open, the incoming opening, the outgoing opening, stage close) plus the run's
+closing check.
+
+**The recorder replays independently.** It keeps its OWN transcript, seeded
+from the run statement's public words — never adopted from the verifier — and
+re-derives every challenge of the whole run from the recorded roots, claims
+and openings in transcript order, comparing its state with the verifier's at
+every site. It re-runs `zk::mask_verify` and `pcs::verify_zk` on its own
+transcript, and replays each slot's definition draws, CFS challenge and
+sumcheck. The first mismatch aborts the capture. **Nothing is recorded
+prover-side**: every field of every file is reachable from the decoded
+segment, the run statement and the verifier's own claim lists.
+
+### Files this stage wrote, and the shared-file list
+
+NEW: `hashline/src/private_block/run_capture.rs` (the writer),
+`hashline/src/private_block/run_capture_tests.rs`,
+`docs/zkmatrix-poc/ZK60_RUN_CAPTURE_FORMAT.md`. EDITED: `private_block.rs`
+(two `mod` lines), `private_block/run.rs` (the four hook sites, `binding()`
+and `capture_header()`, all `cfg(test)`), `private_block/protocol.rs` and
+`private_block/argument.rs` (the `cfg(test)` hook lines). **Shared files
+touched outside `hashline/src/private_block*`: NONE.** `native_capture.rs`,
+`zk.rs`, `layer.rs`, `pcs.rs`, `wcache.rs`, `private_seam.rs`, `gpu/`,
+`zkp-core/`, `zkvm-block/`, `private-model-kernel/` and
+`private-block-kernel/` are untouched.
+
+### Tests and commands of stage 14
+
+| command | log |
+|---|---|
+| `--lib private_block::run_capture --no-run`, first build | `w1-s14-first-build.log` — 2 errors (`Bundle` has no `Debug`, from two `expect_err`s) |
+| `--lib private_block::run_capture` | `w2-s14.log` — 4 passed, 2 failed (the README was written after the manifest was composed; the allow-list scan tripped on `run.json`'s own `not_in_a_capture` list) |
+| the same, both fixed | `w3-s14.log` — 5 passed, 1 failed (the forbidden-word scan tripped on `"hidden":192`, the shape's feed-forward width) |
+| the same | `w4-s14.log` — **6 passed, 0 failed, 1 ignored** |
+| **the gate**: `--lib private_` | `w5-s14-filter.log` — **191 passed, 0 failed, 6 ignored, 67 filtered out**, 291 s (baseline 185 / 5 ignored: +6 tests, +1 ignored). No existing test was changed, weakened or removed; the toy's frozen parameter line, schedule digest and counted receipt lengths still pass |
+| the gate bundles: `write_the_gate_bundles -- --ignored` | `w6-s14-bundles.log` — TO FILL |
+
+The six: `a_three_block_rung_g_run_is_captured_and_the_bundle_is_self_consistent`
+(the L = 3 rung-G capture, read back from disk file by file),
+`every_key_of_a_bundle_is_on_the_allow_list`,
+`a_tampered_run_is_refused_and_no_bundle_is_written`,
+`the_replay_refuses_a_header_that_is_not_the_verifiers`,
+`a_run_verifies_the_same_with_and_without_a_recorder` (same bytes, same
+verdict, same refusal, segments unchanged), and
+`the_bundle_pins_every_source_file_that_decides_its_contents`.
+
+**MEASURED, one run, shared box:** a three-block rung-G bundle is
+`run.json` 12,374 B + stage files 12,555,317 / 12,620,925 / 13,290,321 B =
+**38.5 MB on disk**, against 12,413,432 B of segments (pinned by digest, not
+written). Two gate bundles are about **77 MB**, under the 100 MB ceiling and
+each under 60 MB.
+
+### L = 1 at the toy through this module: NOT cheap, and not meaningful
+
+A run is a NEW profile under D17 with its own transcript domain, its own
+`run-shape` word and its own schedule digest, so an `L = 1` "run" at the toy
+would not share one byte of transcript with the integrator's toy capture and
+a field-by-field equality would compare nothing. `RunShape` also carries only
+the two run profiles. The structural comparison is made instead by the format
+note's field tables and by the allow-list, which names every field the two
+schemas share.
+
+### Findings
+
+* **U-7.** The Python analysis chain reads `params` and `q_pad` out of a
+  bundle NOWHERE — it uses flat module constants instead. Every bundle this
+  module writes carries the full shape, so the port can be deleted rather
+  than duplicated; until it is, a rung bundle will fail loudly (transcript
+  and column-identity mismatches), not silently.
+* **U-8.** `discover_shared_rows` identifies a shared plane only through a
+  slot with exactly two private tables one of which is role `"A"`. A run
+  satisfies that twice per boundary — slot 22 of stage `k` and slot 21 of
+  stage `k+1` — but the two are the SAME commitment only by
+  `claim_sources` / `internal_boundaries[].claim_sites`, never by role name.
+  This is the one fact the Python agent cannot infer from the old schema.
+
+### NEXT, in order
+
+1. **Hand the format note to the Python agent** — §9 of
+   `ZK60_RUN_CAPTURE_FORMAT.md` is the change list, and U-8 is the fact to
+   read first.
+2. **No privacy statement about any run** until the gate of ruling M-8 has
+   read a bundle and been ruled on.

@@ -127,6 +127,14 @@ mod rulings_tests;
 // boundary module exists; the rest drives the run at the development rung.
 #[cfg(test)]
 mod run_tests;
+// STAGE 14: the RUN CAPTURE — the verifier's view of a private run, written
+// for the privacy gate of ruling M-8. A NEW module beside the integrator's
+// `native_capture.rs`, which it never edits; `cfg(test)` like that one, so no
+// production build carries an export surface.
+#[cfg(test)]
+mod run_capture;
+#[cfg(test)]
+mod run_capture_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]

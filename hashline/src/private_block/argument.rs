@@ -303,6 +303,11 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, def: SlotDef, tr: &mut Tr
     }
     #[cfg(test)]
     let capture_before = if matches!(side, Side::Verify { .. }) { super::capture::checkpoint(tr) } else { None };
+    // STAGE 14: the run capture's own checkpoint. `checkpoint` returns `None`
+    // unless a recorder is attached, which makes the pair of lines below a
+    // no-op in every other test and in every production build.
+    #[cfg(test)]
+    let run_capture_before = if matches!(side, Side::Verify { .. }) { super::run_capture::checkpoint(tr) } else { None };
     tr.absorb_u64(b"pb-slot", s as u64);
     acc.order.push(format!("slot {s:02} begin"));
     // A zero multiplier would publish the unmasked scalar and rounds. Refusals are
@@ -415,6 +420,7 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, def: SlotDef, tr: &mut Tr
     #[cfg(test)]
     if let Side::Verify { slots } = side {
         super::capture::slot(&def, acc, &slots[s], &rho_full, c, g_val, capture_before, tr);
+        super::run_capture::slot(&def, acc, &slots[s], &rho_full, c, g_val, run_capture_before, tr);
     }
     Ok(())
 }
@@ -1457,6 +1463,8 @@ pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut
     for slot in 0..N_SLOTS {
         #[cfg(test)]
         super::capture::start_slot(side, tr);
+        #[cfg(test)]
+        super::run_capture::start_slot(side, tr);
         let def = define(slot, ctx, &mut pts, tr)?;
         run_slot(side, &mut acc, def, tr)?;
         // the slot's own sumcheck cube, `2^(main + extension rounds)`: a

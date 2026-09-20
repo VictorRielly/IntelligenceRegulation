@@ -256,6 +256,66 @@ impl RunStatement {
         Ok(tr)
     }
 
+    /// **STAGE 14.** The run binding — the transcript state after the header
+    /// and before any commitment — which is what the run capture compares its
+    /// independently rebuilt header against. Test-only.
+    #[cfg(test)]
+    pub(crate) fn binding(&self) -> Result<Digest, String> {
+        Ok(self.transcript()?.state())
+    }
+
+    /// **STAGE 14.** The run's public words, copied out for the run capture
+    /// (`run_capture.rs` is a sibling module and cannot read these private
+    /// fields). Every word the header absorbs is here in absorb order, so the
+    /// recorder rebuilds the header transcript from this alone and compares it
+    /// with the binding. Test-only, like the capture itself.
+    #[cfg(test)]
+    pub(crate) fn capture_header(&self) -> Result<super::run_capture::RunHeader, String> {
+        let sh = &self.rs.sh;
+        let mut boundaries = Vec::new();
+        for k in 0..self.rs.l.saturating_sub(1) {
+            let spec = self.boundary_spec(k)?;
+            boundaries.push(super::run_capture::BoundaryFacts {
+                index: (k + 1) as usize,
+                scale: spec.scale(),
+                sites: spec.sites(),
+                data_rows: spec.data_rows(),
+                rows: spec.commitment_rows(),
+                site_rows: spec.site_rows(),
+                prox_row: spec.prox_row(),
+                log_n: spec.log_n(),
+                inv_rate: sh.endpoint_inv_rate,
+                checks: sh.opened_cols,
+                digest: spec.digest(),
+                plane: (sh.t_pad, sh.d_pad),
+            });
+        }
+        Ok(super::run_capture::RunHeader {
+            profile: self.rs.profile,
+            l: self.rs.l,
+            sh: sh.clone(),
+            run_shape_words: [self.rs.l, sh.tokens, sh.width, sh.hidden, sh.q_heads, sh.kv_heads, sh.head_dim].iter().map(|v| *v as u64).collect(),
+            expected_bytes: self.expected.to_bytes(),
+            public_statement: self.public_statement(),
+            parameter_line: self.parameter_line()?,
+            calibration: self.calibration,
+            schedule_digest: self.schedule_digest()?,
+            context: self.context,
+            block_digests: self.block_digests.clone(),
+            boundary_scales: self.boundary_scales.clone(),
+            external_input_root: self.expected.input,
+            external_output_root: self.expected.output,
+            external_rows: sh.endpoint_rows,
+            external_data_rows: self.rs.data_rows(),
+            external_log_n: sh.endpoint_log_n,
+            external_inv_rate: sh.endpoint_inv_rate,
+            stage_lines: (0..self.rs.l).map(|k| self.stage_line(k)).collect::<Result<Vec<String>, String>>()?,
+            layout_description: Layout::for_shape(sh)?.describe(),
+            boundaries,
+            external_scales: (self.expected.spec.input_scale(), self.expected.spec.output_scale()),
+        })
+    }
+
     fn seg_geom(&self, k: usize) -> Result<SegGeom, String> {
         let boundary_rows = if self.rs.l > 1 { self.boundary_spec(0)?.commitment_rows() } else { 0 };
         Ok(SegGeom { l: self.rs.l, k, boundary_rows, sites: BOUNDARY_SITES })
@@ -494,6 +554,11 @@ impl<'a> RunVerifier<'a> {
         let lay = st.stage_layout(k)?;
         let start_tag = position_tag(&self.tr);
         let (seg, end_tag) = wire::decode_segment(bytes, &lay, st.seg_geom(k)?, &self.binding, &start_tag)?;
+        // STAGE 14: the run capture opens this stage. A no-op unless a
+        // recorder is attached; it is handed what the verifier already holds
+        // and returns nothing, so no branch below can depend on it.
+        #[cfg(test)]
+        super::run_capture::stage_begin(k, bytes, start_tag, seg.b_root, seg.a_root, seg.h_root, seg.mask_root, &lay, &self.tr);
         self.tr.absorb_u64(b"pb-run-stage", k as u64);
         self.tr.absorb(b"pb-run-block", &st.block_digests[k]);
         let cur = match (k + 1 < l, seg.b_root) {
@@ -518,24 +583,101 @@ impl<'a> RunVerifier<'a> {
         match self.prev.take() {
             Some((spec, root)) => {
                 // the verifier's OWN pending claim, computed in stage k-1
+                #[cfg(test)]
+                let pending = self.pending.len();
                 let mut claims = std::mem::take(&mut self.pending);
+                #[cfg(test)]
+                let incoming = ic.len();
                 claims.extend(ic);
                 boundary::check_opening(&spec, &claims, &self.tr)?;
                 let params = spec.params();
                 let cm = protocol::commitment(root, spec.commitment_rows(), spec.log_n());
+                #[cfg(test)]
+                let rc_before = super::run_capture::checkpoint(&self.tr);
                 pcs::verify_zk(&params, &ZkOpts::standard(&params), &cm, &claims, &seg.in_open, &self.ntt, &mut self.tr).map_err(|e| format!("boundary {}: {e}", k - 1))?;
+                #[cfg(test)]
+                super::run_capture::pcs(
+                    super::run_capture::Geom {
+                        role: "Input",
+                        commitment_kind: "internal-boundary",
+                        params,
+                        root,
+                        rows: spec.commitment_rows(),
+                        data_rows: spec.data_rows(),
+                        site_rows: spec.site_rows(),
+                        sum_rows: None,
+                        prox_row: spec.prox_row(),
+                        boundary: Some(k - 1),
+                        claim_sources: vec![(k - 1, super::layout::SC_IO_OUT, pending), (k, super::layout::SC_IO_IN, incoming)],
+                    },
+                    &claims,
+                    &seg.in_open,
+                    &self.ntt,
+                    rc_before,
+                    &self.tr,
+                );
             }
             None => {
                 protocol::check_endpoint_opening(&ic, sh, &self.tr)?;
                 let cm = protocol::commitment(st.expected.input, sh.endpoint_rows, sh.endpoint_log_n);
+                #[cfg(test)]
+                let rc_before = super::run_capture::checkpoint(&self.tr);
+                #[cfg(test)]
+                let incoming = ic.len();
                 pcs::verify_zk(&self.e_params, &self.e_zko, &cm, &ic, &seg.in_open, &self.ntt, &mut self.tr).map_err(|e| format!("run input endpoint: {e}"))?;
+                #[cfg(test)]
+                super::run_capture::pcs(
+                    super::run_capture::Geom {
+                        role: "Input",
+                        commitment_kind: "external-endpoint",
+                        params: self.e_params,
+                        root: st.expected.input,
+                        rows: sh.endpoint_rows,
+                        data_rows: st.rs.data_rows(),
+                        site_rows: vec![st.rs.data_rows(), st.rs.data_rows() + 1],
+                        sum_rows: None,
+                        prox_row: st.rs.data_rows() + 2,
+                        boundary: None,
+                        claim_sources: vec![(k, super::layout::SC_IO_IN, incoming)],
+                    },
+                    &ic,
+                    &seg.in_open,
+                    &self.ntt,
+                    rc_before,
+                    &self.tr,
+                );
             }
         }
         if k + 1 == l {
             let o = seg.out_open.as_ref().ok_or("private run: the last segment carries no output-endpoint opening")?;
             protocol::check_endpoint_opening(&oc, sh, &self.tr)?;
             let cm = protocol::commitment(st.expected.output, sh.endpoint_rows, sh.endpoint_log_n);
+            #[cfg(test)]
+            let rc_before = super::run_capture::checkpoint(&self.tr);
+            #[cfg(test)]
+            let outgoing = oc.len();
             pcs::verify_zk(&self.e_params, &self.e_zko, &cm, &oc, o, &self.ntt, &mut self.tr).map_err(|e| format!("run output endpoint: {e}"))?;
+            #[cfg(test)]
+            super::run_capture::pcs(
+                super::run_capture::Geom {
+                    role: "Output",
+                    commitment_kind: "external-endpoint",
+                    params: self.e_params,
+                    root: st.expected.output,
+                    rows: sh.endpoint_rows,
+                    data_rows: st.rs.data_rows(),
+                    site_rows: vec![st.rs.data_rows(), st.rs.data_rows() + 1],
+                    sum_rows: None,
+                    prox_row: st.rs.data_rows() + 2,
+                    boundary: None,
+                    claim_sources: vec![(k, super::layout::SC_IO_OUT, outgoing)],
+                },
+                &oc,
+                o,
+                &self.ntt,
+                rc_before,
+                &self.tr,
+            );
         } else {
             self.pending = oc;
             self.prev = cur;
@@ -545,6 +687,8 @@ impl<'a> RunVerifier<'a> {
         if position_tag(&self.tr) != end_tag {
             return Err(format!("private run: segment {k}'s trailer is not the verifier's own transcript position"));
         }
+        #[cfg(test)]
+        super::run_capture::stage_end(k, end_tag, &self.tr);
         Ok(())
     }
 
@@ -560,6 +704,8 @@ impl<'a> RunVerifier<'a> {
         if !self.pending.is_empty() || self.prev.is_some() {
             return Err("private run: a boundary claim was left undischarged at the end of the run".into());
         }
+        #[cfg(test)]
+        super::run_capture::run_accepted();
         Ok(())
     }
 }

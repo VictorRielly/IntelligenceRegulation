@@ -1,0 +1,372 @@
+# The RUN CAPTURE format — what a bundle contains, field by field
+
+**Written 2026-09-20 on lane `zk60-private-block-125m` (stage 14), for the
+agent extending the Python privacy gates.** The writer is
+`hashline/src/private_block/run_capture.rs`. It is a NEW module, never an edit
+of the integrator's `hashline/src/native_capture.rs` (ruling M-8), and its
+schema is a strict superset of that writer's.
+
+**What a bundle is.** The VERIFIER'S VIEW of one private run of `L` blocks
+under one transcript, at the development rung (ruling M-8's geometry: 24
+tokens, width 96, hidden 192, 6 query heads over 2 key-value heads, `L = 3`).
+It is the INPUT to a privacy gate that does not exist yet. **Nothing about a
+bundle is a privacy statement**, and writing one does not meet ruling M-8.
+
+**What a bundle is not.** It holds no witness value, no pad, no mask
+coefficient, no unopened column, no unpublished salt and no unmasked sumcheck
+round. A retained capture counts as publishing, so the writer emits only keys
+on a declared allow-list (`run_capture::ALLOWED_KEYS`) and the test
+`every_key_of_a_bundle_is_on_the_allow_list` fails if one appears that is not
+on it.
+
+---
+
+## 0. Read this first: the five things that differ from a single-block capture
+
+1. **The schema string is new.** `"schema": "hashline-native-capture/4-run"`
+   (a string, where the single-block writer emits the integer `3`), and
+   `"kind"` is `"zk60-run-verifier-observations"` for the run file and
+   `"zk60-run-stage-observations"` for a stage file. Today's loader
+   (`zk60_native_jv_capture.Capture.__init__`) refuses both by version, which
+   is the intent: a loader that does not know runs must refuse rather than
+   read a stage as a proof.
+2. **A bundle is a DIRECTORY, not one file.** `run.json` (the run header,
+   once) plus `stage-00.json … stage-{L-1}.json` (one per stage), plus
+   `manifest.json` and `README.md`. The single-block bundle's per-proof
+   content lives in a STAGE file: `header`, `logup_challenges`, `arguments`
+   (23 slots), `mask`, `roles`. Point the existing per-commitment analyses at
+   a stage file.
+3. **A run has TWO profile strings.** `profile` (= `transcript_domain`) is the
+   RUN profile `hashline-zk-mr1/private-run-rung-g-t24-dev/1` — the
+   `Transcript::new` domain — and `block_profile` is the per-block shape's
+   profile `hashline-zk-mr1/private-block-rung-g-t24-dev/1`. The per-block one
+   never appears in a run's transcript.
+4. **Four NEW Fiat-Shamir labels**, all listed as data in
+   `run.json["transcript_labels"]`: `run-shape`, `pb-run-stage`,
+   `pb-run-block`, `B`. The per-slot labels are the block family's
+   (`pb-slot`, `pb-scalar`, `pb-term`).
+5. **The IO role names still name the CLAIM SITE, not the commitment.** A
+   stage's incoming opening is `"role":"Input"` whether the commitment behind
+   it is the external input endpoint (stage 0) or internal boundary `k-1`
+   (every later stage); `"commitment_kind"` and `"boundary"` say which. The
+   four role names `A`, `H`, `Input`, `Output` are unchanged, so `ROLE_ORDER`
+   keeps working — but see §6, the openings per stage are 3, 3, …, 4.
+
+---
+
+## 1. The files
+
+| file | what |
+|---|---|
+| `run.json` | the run statement, the shape as data, the external endpoints, the `L-1` internal boundaries, the transcript labels and program |
+| `stage-NN.json` | one per stage `NN = 00 … L-1`: the stage's roots, its 23 slot transcripts, its M opening, and its A / H / IO openings |
+| `manifest.json` | every file with its byte length and SHA-256, plus the SHA-256 of every Rust source file that decides what a bundle contains |
+| `README.md` | what the bundle is, the command that made it, what is not in it |
+| `segments/segment-NN.bin` | the receipt segments that were verified. **Written only when `HL_RUN_CAPTURE_SEGMENTS=1`**: each stage file already carries its segment's `segment_bytes` and `segment_sha256`, so the bundle is pinned to the exact bytes either way, and the gate's loader reads only JSON |
+
+Encodings, unchanged from the single-block writer: an `Fp` is a decimal `u64`;
+an `Fp2` is `[c0, c1]` (two decimal `u64`, `u^2 = NONRESIDUE`); a 32-byte
+digest, salt, Merkle-path node or transcript state is a JSON array of 32
+integers `0..255`; a SHA-256 is a lowercase hex string. There is no
+whitespace.
+
+---
+
+## 2. `run.json`
+
+| field | type | what |
+|---|---|---|
+| `schema` | str | `"hashline-native-capture/4-run"` |
+| `kind` | str | `"zk60-run-verifier-observations"` |
+| `coverage` | str | `"native-run-all-stages-v1"` |
+| `profile`, `transcript_domain` | str | the RUN profile; equal, as in the single-block schema |
+| `transcript_domain_bytes` | [u8] | the same string as bytes — the `Transcript::new` domain, so nothing is re-encoded by hand |
+| `block_profile` | str | the per-block shape's profile (NOT in the run transcript) |
+| `blocks` | int | `L` |
+| `boundaries` | int | `L - 1` |
+| `fully_verified` | bool | always `true`: a bundle exists only for a run the verifier accepted |
+| `privacy`, `privacy_review_complete`, `weight_policy` | str/bool/str | `"P1"`, `false`, `"public-statement"` |
+| `field_modulus`, `extension_nonresidue` | int | the field |
+| `public_tables_included` | bool | whether each slot's public tables carry their `values` (see §4) |
+| `source_commit` | str | `HL_TEST_SOURCE_COMMIT` or `"uncommitted-test"` |
+| `run_binding` | [u8;32] | the transcript state after the run header and before any commitment |
+| `context` | [u8;32] | the run's context digest (in every endpoint and boundary statement) |
+| `calibration` | [u8;32] | the ONE calibration identity of the whole run (ruling M-4) |
+| `public_statement_digest` | [u8;32] | `H("hashline/private-run-blocks/1" ‖ block digests)` — a RUN digest, not a block's |
+| `parameter_line` | str | the exact bytes absorbed under `parameters` (the Python `PARAMETERS[profile]` literal, now data) |
+| `schedule_digest` | [u8;32] | the run schedule digest |
+| `expected_policy`, `expected_policy_sha256` | [u8] / hex | the endpoint policy bytes absorbed under `expected-IO` |
+| `run_shape_words` | [u64;7] | `[L, tokens, width, hidden, q_heads, kv_heads, head_dim]`, absorbed little-endian under `run-shape` |
+| `shape` | object | §3 |
+| `external_endpoints` | object | §5 |
+| `block_digests` | [[u8;32]; L] | block `k`'s public digest, absorbed under `pb-run-block` in stage `k` |
+| `internal_boundaries` | [object; L-1] | §5 |
+| `boundary_scales` | [i32; L-1] | ruling M-4: ONE scale per boundary |
+| `stage_lines` | [str; L] | the run schedule's own stage lines (what each stage commits, which reserved pair each IO tab uses, what it opens) |
+| `layout_description` | [str] | the block layout's declared schedule lines |
+| `stage_files` | [str; L] | `["stage-00.json", …]` |
+| `transcript_labels` | [{`label`,`what`}] | every Fiat-Shamir label, with what it carries |
+| `transcript_program` | [str] | the whole transcript in words, header to trailer (§7) |
+| `mask_domain` | {`log_dom`,`columns`} | the M commitment's evaluation domain (`2^12`) and opened columns |
+| `not_in_a_capture` | [str] | the writer's own statement of what it never emits |
+
+## 3. `run.json["shape"]` — every number the gate would otherwise port
+
+`name`, `profile`, `tokens`, `width`, `hidden`, `q_heads`, `kv_heads`,
+`head_dim`, `t_pad`, `d_pad`, `h_pad`, `f_pad`, `log_cols`, `cols`
+(`= 1 << log_cols`), `inv_rate`, `opened_cols` (`Q`), `f_e`, `endpoint_rows`,
+`endpoint_log_n`, `endpoint_inv_rate`, `endpoint_general`, `norm_wrho`,
+`wrho_s`, `slots` (`[[main, extension, degree]; 23]`), `a_groups`, `h_groups`,
+`n_slots`.
+
+At the development rung: `cols = 1024`, `inv_rate = 4` (so the PCS encoding
+domain is `4096` and a Merkle path is 12 nodes), `opened_cols = 256`,
+`endpoint_log_n = 10`, `endpoint_inv_rate = 4`, `endpoint_rows = 9`,
+`t_pad = 32`, `d_pad = 128` (the padded plane is `4096` words, so **4 data
+rows** in an IO commitment). **These are not the toy's** `log_cols 8`,
+`inv_rate 8`, `ENC_COLS 2048`; the flat Python constants at
+`zk60_native_jv_capture.py:38-46` and `zk60_native_mask_commit.py:99-105` must
+come from here instead.
+
+## 4. `stage-NN.json`
+
+| field | type | what |
+|---|---|---|
+| `schema`, `kind` | str | `"hashline-native-capture/4-run"`, `"zk60-run-stage-observations"` |
+| `stage`, `blocks` | int | `k`, `L` |
+| `block_digest` | [u8;32] | `= run.json["block_digests"][k]` |
+| `segment_bytes`, `segment_sha256` | int / hex | the segment the verifier read |
+| `start_tag`, `end_tag` | [u8;32] | the segment's header and trailer transcript-position tags. **Outside the Fiat-Shamir chain**: the verifier COMPARES them against its own position and never adopts them (ruling M-6) |
+| `boundary_committed` | null \| {`boundary`,`root`,`rows`,`log_cols`} | the boundary this stage commits, absorbed under `B` before any challenge of either adjacent equality slot. `null` in the last stage |
+| `a_root`, `a_rows`, `h_root`, `h_rows`, `mask_root`, `log_cols` | | the three block commitments, exactly as absorbed |
+| `logup_challenges` | [Fp2;3] | `beta, gamma, alpha`, drawn between `M` and `H` |
+| `layout_digest` | [u8;32] | this stage's `Layout::schedule_digest()` (the stage layout has the two IO tabs pointed at this stage's reserved pairs) |
+| `opening_order` | [str] | the openings of this stage in transcript order: `["M","A","H","Input"]`, and `["M","A","H","Input","Output"]` in the last stage |
+| `header` | {`state`,`next`} | the transcript position at the START of the stage, before `pb-run-stage` is absorbed |
+| `arguments` | [object; 23] | one per slot, §4a |
+| `mask` | object | §4b |
+| `roles` | [object] | one per opening after M, in `opening_order`, §4c |
+| `transcript_sites` | [{`stage`,`site`,`before`,`after`}] | the ordered index of this stage's sites, `slot 00 … slot 22`, `M opening`, `A opening`, `H opening`, `Input opening`, `Output opening` |
+
+A transcript position is always `{"state": [u8;32], "next": [u64,u64]}` — the
+32-byte state and the Fp2 challenge that WOULD be drawn next, exactly as the
+single-block schema writes it.
+
+### 4a. `arguments[s]` — one slot
+
+Every field of the single-block schema, unchanged: `slot`, `name`, `kind`
+(`Private` / `Host` / `Standalone`), `main`, `extension`, `degree`,
+`definition_challenges`, `c`, `scalar`, `claimed_sum`, `rho`,
+`sumcheck_final`, `mask_eval`, `terminal_polynomial`, `terminals`, `rounds`,
+`hosted` (`[{slot, coefficient}]`), `tables`, `before_definition`, `before`,
+`after`.
+
+`main`, `extension` and `degree` are **the stage's shape's**, read from the
+slot definition, not from the toy's `SLOTS` literal. `tables[i]` is one of
+
+* `{"kind":"eq","start":int,"point":[Fp2]}`
+* `{"kind":"public","len":int,"sha256":hex}` — and `"values":[Fp2]` only when
+  the capture was written with `HL_RUN_CAPTURE_PUBLIC_TABLES=1`. **This is the
+  one place the run schema carries LESS than the single-block one.** A public
+  table is a function of the public statement and the stage's challenges, and
+  at the rung the 23 public cubes dominate a bundle; the digest pins the
+  values a re-derivation must reproduce. `run.json["public_tables_included"]`
+  says which form a bundle is in.
+* `{"kind":"private","role":str,"claim":int,"log_size":int,"mask_row":int,"extension_round":int,"slices":[{offset,coefficient}],"coordinates":[{rho|flip|fixed}]}`
+  — `role` is one of `A`, `H`, `Input`, `Output` and names **the claim site**,
+  so slot 21's private IO table says `"Input"` and slot 22's says `"Output"`
+  even when the commitment behind them is an internal boundary. `claim` is the
+  index of the claim this table raises in that commitment's claim list.
+
+### 4b. `mask` — the M commitment's one opening
+
+`root`, `specs` (`[[n_vars, degree]; 23]`), **`rows`** (`2*slots + 4`, NEW and
+explicit), `theta`, `proximity_rhos`, `before`, `after`, `functionals`
+(`[{value, terms:[{slot, weights}]}]`), `q`, `prox`, `columns`.
+
+### 4c. `roles[i]` — one hiding commitment's one opening
+
+Single-block fields, unchanged: `role`, `params`
+(`{log_cols, inv_rate, num_col_checks}`), `commitment` (`{root, rows}`),
+`before`, `after`, `claims` (`[{value, parts:[{offset, log_size, coefficient,
+point}]}]`), `groups` (`[{members, lambdas, key:{tail, offset, len},
+vector}]`), `proximity_rhos`, `proximity_vector`, `columns`
+(`[{index, values, salt, path}]`), `q_pad`, `row_roles`
+(`[{row, kind, site}]`), `public_linear_constraints`.
+
+NEW, and the reason the Python side needs no ported layout:
+
+| field | what |
+|---|---|
+| `commitment_kind` | `"block"` (A, H), `"external-endpoint"`, `"internal-boundary"` |
+| `boundary` | which internal boundary this opening discharges, else `null` |
+| `data_rows` | rows carrying plane or witness words |
+| `site_rows` | every reserved claim-pair row, first row of each pair first |
+| `prox_row` | the first row of the proximity PAIR |
+| `sum_rows` | `H`'s two zero-sum rows (`null` elsewhere) |
+| `claim_sources` | `[{stage, slot, claims}]` in claim order — WHICH BLOCK AND SLOT raised each claim of this opening. For a boundary: `[{stage k-1, slot 22, n}, {stage k, slot 21, m}]` |
+
+`row_roles[].kind` is `"data"` (row `< data_rows`), `"prox"` (the proximity
+pair) or `"mask"` (everything else, including `H`'s zero-sum rows, the
+reserved claim pairs, and an endpoint's two spare mask rows). The single-block
+writer labelled an endpoint's rows `data+2 … data+4` all `"prox"`; here only
+the proximity PAIR is `"prox"`, which is what `pcs::OpeningZk`'s own
+`prox_mask_row` says. Use the explicit `data_rows` / `site_rows` / `prox_row`
+/ `sum_rows` fields rather than the `kind` strings where it matters.
+
+## 5. The endpoints and the boundaries
+
+`external_endpoints`: `input_root`, `output_root`, `rows`, `data_rows`,
+`log_n`, `inv_rate`, `input_scale`, `output_scale`, `opened_at_stage`
+(`[0, L-1]`). The run's two external endpoints keep today's `endpoint_g`
+geometry unchanged (ruling M-7): `data + 5` rows, one claim site at
+`(data, data+1)`, proximity row `data+2`.
+
+`internal_boundaries[k]`, one per internal boundary:
+
+| field | what |
+|---|---|
+| `boundary` | `k`, `0 … L-2` |
+| `index` | `k+1`, the index inside the boundary's own statement digest |
+| `scale` | the ONE shared scale (ruling M-4) |
+| `sites` | 2 |
+| `plane` | `[t_pad, d_pad]`, the padded hidden plane this boundary commits |
+| `data_rows`, `rows`, `site_rows`, `prox_row` | the DERIVED geometry |
+| `row_rule` | `"data + 2*sites + 2"` — ruling M-1: the row count is derived from the plane and the site count, never accepted from a caller. A single-proximity-row boundary (`data + 2*sites + 1`) has joint rank 5 of 6 on its reserved rows and is refused by name |
+| `log_n`, `inv_rate`, `checks` | the boundary's PCS parameters |
+| `statement_digest` | the boundary statement's own digest |
+| `committed_at_stage` | `k` |
+| `opened_at_stage` | `k+1` — the commitment is opened EXACTLY ONCE, and only there, because its second claim does not exist until then |
+| `claim_sites` | `[{site:0, stage:k, slot:22, first_row}, {site:1, stage:k+1, slot:21, first_row}]` |
+| `opening_in_stage_file` | `k+1`: the opening's payload is `stage-{k+1}.json["roles"]`'s `"Input"` entry |
+
+At the rung-G plane: `data_rows = 4`, `sites = 2`, so `rows = 10`,
+`site_rows = [4,5,6,7]` (site 0 at `(4,5)`, site 1 at `(6,7)`), `prox_row = 8`
+(the pair `(8,9)`).
+
+## 6. How the three roles of a boundary plane meet (what the M-8 gate needs)
+
+Ruling M-8 asks for the joint rank of **block `k`'s activation commitment, the
+boundary commitment, and block `k+1`'s activation commitment**, restricted to
+the reserved mask rows. Everything needed to identify the three is in one
+place:
+
+* Block `k`'s output-equality slot is `stage-{k}.json["arguments"][22]`. Its
+  two private tables are `role "A"` (block `k`'s activation commitment) and
+  `role "Output"` (the claim site on the boundary).
+* Block `k+1`'s input-equality slot is `stage-{k+1}.json["arguments"][21]`,
+  with private tables `role "A"` and `role "Input"`.
+* Both claims are discharged by ONE opening:
+  `stage-{k+1}.json["roles"]` entry with `"commitment_kind":"internal-boundary"`
+  and `"boundary": k`. Its `claim_sources` says, in claim order, which stage
+  and slot raised each claim; its `claims[].parts[].point` are the two
+  evaluation points; its `site_rows` are the two reserved pairs.
+
+So the existing `discover_shared_rows` pattern (a slot with exactly two
+private tables, one of them `"A"`) fires **twice** for one boundary — once in
+stage `k` and once in stage `k+1` — and the union-find merges
+`A_k[row] ~ Boundary_k[row] ~ A_{k+1}[row]` provided the tool knows that stage
+`k`'s `"Output"` site and stage `k+1`'s `"Input"` site are the SAME
+commitment. That fact is `claim_sources` (and `internal_boundaries[].claim_sites`);
+it cannot be inferred from the role names alone.
+
+The two controls the ruling names are checkable from the same fields: the
+**shared-pair** control is `site_rows` — the two sites must use DISJOINT
+adjacent pairs (`[4,5]` and `[6,7]`), and the claim audit refuses a shared
+pair; the **single-proximity-row** control is `row_rule` with `prox_row` and
+`rows` — a boundary must have a proximity PAIR, `rows = data + 2*sites + 2`.
+
+## 7. The transcript, and what a replay must do
+
+`run.json["transcript_program"]` states it in words and
+`run.json["transcript_labels"]` gives every label. In short:
+
+```
+Transcript::new(transcript_domain_bytes)
+absorb run-shape(run_shape_words, u64 LE) ; expected-IO(expected_policy)
+absorb public-statement ; parameters(parameter_line) ; calibration ; schedule
+-> the state here is run_binding
+for k in 0..L:
+    absorb pb-run-stage(k) ; pb-run-block(block_digests[k])
+    if k+1 < L: absorb B(root) ; rows ; log-cols          # boundary k
+    absorb A(root) ; rows ; log-cols ; M(mask_root)
+    draw 3 Fp2 = logup_challenges
+    absorb H(root) ; rows ; log-cols
+    for s in 0..23:  (the block family's own slot transcript, unchanged)
+        draw len(definition_challenges) ; absorb pb-slot(s) ; draw c
+        absorb pb-scalar ; per round absorb sc-round then draw ; absorb pb-term
+    M:  draw theta ; absorb mask-q(q) ; draw 2*23+2 ; absorb mask-prox(prox)
+        draw 256 indices over 2^12
+    then one PCS opening per role in opening_order[1:]:
+        per group draw |members| lambdas ; draw `rows` proximity coefficients
+        absorb pcs-vec per group ; absorb pcs-prox ; draw Q indices over cols*inv_rate
+```
+
+The Rust recorder does exactly this, from a transcript it seeds itself out of
+the run statement's public words, and compares its own state with the
+verifier's at every site; the first mismatch aborts the capture and no bundle
+is written. A Python replay can do the same and should refuse on the first
+mismatch, comparing both `state` and `next` at every recorded position.
+
+## 8. What is deliberately NOT in a capture
+
+Witness values; pad values; mask coefficients; unopened columns; unpublished
+salts; unmasked sumcheck rounds; the hidden input, the hidden output and every
+boundary plane; prover randomness; the `L-1` boundary ROOTS as part of the
+STATEMENT (they are in the stage files as observed commitments, because an
+internal boundary is a hidden intermediate and not an endpoint).
+
+Also not in a capture, and not a privacy matter: each slot's polynomial
+`def.poly` (a Rust closure — absent from the single-block capture for the same
+reason, which is why `zk60_native_terminal_polys.py` hand-ports them), and the
+public table VALUES unless asked for.
+
+## 9. What the Python agent must change first
+
+From a read of the current loader (`zk60_native_jv_capture.py`,
+`zk60_native_jv_replay.py`, `zk60_native_jv_pcs.py`, `zk60_native_jv_joint.py`,
+`zk60_native_mask_commit.py`, `zk60_native_terminal_polys.py`,
+`zk60_native_privacy_gate.py`):
+
+1. **Accept the new schema.** `Capture.__init__` refuses on `schema != 3`,
+   `kind`, `coverage` and `profile not in PARAMETERS`. A run bundle needs its
+   own loader: `run.json` once, then one `Capture`-like object per stage file.
+2. **Stop porting the shape.** `LOG_COLS`, `N_COLS`, `INV_RATE`, `ENC_COLS`,
+   `NUM_COL_CHECKS`, `Q_PAD`, `MASK_LOG_DOM` are toy literals at
+   `zk60_native_jv_capture.py:38-46` (and again in
+   `zk60_native_mask_commit.py:99-105`). Take them from `run.json["shape"]`
+   and `run.json["mask_domain"]`; `params` and `q_pad` are also in every
+   opening. At the rung they are 10 / 1024 / 4 / 4096 / 256 / 256 / 12.
+3. **`PARAMETERS[profile]` is now data.** Use `parameter_line` and
+   `transcript_domain_bytes` rather than a new literal; `calibration` is the
+   digest itself, so no `CALIBRATION_PREIMAGE` entry is needed.
+4. **The header is a RUN header.** `run-shape` comes FIRST, before
+   `expected-IO`; `public-statement` is the run's digest over the `L` block
+   digests. Then per stage the two new locality words and, before the A root,
+   the boundary root.
+5. **`ROLE_ORDER` is per stage.** Read `opening_order`: `M, A, H, Input` in
+   every stage but the last, which adds `Output`. `ENDPOINT_ROLES`,
+   `EXPECTED_PCS` and `privacy_gate.pcs_roles` keep the same four names, but
+   an `Input` opening whose `commitment_kind` is `"internal-boundary"` is a
+   different commitment from the external one and must be kept apart by
+   `(stage, boundary)`, not by role name.
+6. **The joint view is now run-wide.** §6. The per-boundary identification is
+   `claim_sources` / `internal_boundaries[].claim_sites`, not the role names.
+7. **Re-pin the sources.** `SOURCE_PINS` in `zk60_native_terminal_polys.py`
+   and `zk60_native_mask_commit.py` pin the toy's files; a run bundle carries
+   its own pins in `manifest.json["source_pins"]` (this writer, `run.rs`,
+   `boundary.rs`, `protocol.rs`, `argument.rs`, `layout.rs`).
+8. **The slot port table is shape-dependent.** `BLOCK_PORTS` and the `_Layout`
+   namespace in `zk60_native_terminal_polys.py` are the toy's `T=32, D=16,
+   H=2, DH=8, F=16, LOG_N=8, N=256`. The slot COUNT, names, kinds and table
+   push order do not move at the rung; the geometry constants do, and every
+   one of them is in `run.json["shape"]`.
+
+## 10. The bundles
+
+Written by `private_block::run_capture_tests::write_the_gate_bundles`
+(`#[ignore]`d; `HL_RUN_CAPTURE_DIR` chooses the directory). Two independent
+honest three-block rung-G runs, fresh OS randomness each, synthetic public
+weights from the lane's tame fixture: `run-a-tame` on the fixture's hidden
+input and `run-b-zero` on the all-zero hidden input. Neither hidden input is
+in its bundle. About 38.5 MB each without the segments.
