@@ -94,6 +94,30 @@ class SourcePins(unittest.TestCase):
             self.assertIn("MISMATCH", msg)
             self.assertIn("Do NOT re-pin to make this pass", msg)
 
+    def test_the_moved_mle_pin_keeps_both_hashes(self):
+        """The captures were taken against the OLD `mle.rs`; the pin moved on
+        2026-09-20 after the file was re-read function by function.  Both
+        hashes stay in the tool so a later reader can see what moved."""
+        rec = next(r for r in tp.REPIN_HISTORY if r.path == "zkp-core/src/mle.rs")
+        pin = next(p for p in tp.SOURCE_PINS if p.path == "zkp-core/src/mle.rs")
+        self.assertIn("131cf1b49a2f280147ccb1d8f374c139cd7033a8a4ddb02c473b751937409614",
+                      rec.captured_against)
+        self.assertIn("649a63d3bada92e3ca0c8c327f4591165fa3716f", rec.captured_against)
+        self.assertIn(pin.sha256, rec.repinned_at)
+        self.assertIn(pin.blob, rec.repinned_at)
+        self.assertEqual(rec.date, "2026-09-20")
+        reread = dict(rec.functions)
+        # every function the Python tools port or rely on, with its verdict
+        for name in ("eq_table", "eq_table_msb", "eq_point", "eval_mle_ext",
+                     "interpolate_eval"):
+            self.assertIn("byte-identical", reread[name])
+        self.assertIn("CHANGED", reread["fold_rows_i8"])
+        self.assertIn("CHANGED", reread["fold_rows_i32"])
+        pins = tp.check_source_pins(ROOT)
+        self.assertIn("captured_against", pins["zkp-core/src/mle.rs"])
+        self.assertEqual(len(pins["zkp-core/src/mle.rs"]["functions_reread"]),
+                         len(rec.functions))
+
     def test_a_missing_source_is_a_hard_error(self):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaises(tp.SourcePinError) as caught:
