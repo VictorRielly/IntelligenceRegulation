@@ -1,0 +1,120 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `g`
+   --> src/private_block/grow_tests.rs:736:9
+    |
+736 |     let g = super::witness::Geom::new(&s);
+    |         ^ help: if this is intentional, prefix it with an underscore: `_g`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `sup_d`
+   --> src/private_block/norm_alias.rs:459:9
+    |
+459 |     let sup_d = g.support(Dom::D);
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_sup_d`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 10 warnings (run `cargo fix --lib -p hashline --tests` to apply 8 suggestions)
+    Finished `release` profile [optimized] target(s) in 45.00s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5)
+
+running 9 tests
+test private_block::parity::a_witness_query_head_reads_only_its_own_key_value_head_at_the_rung ... private block rung grouping: case 14, group 3, 2 key-value heads
+ok
+test private_block::parity::the_case_generator_is_deterministic_and_covers_its_grid ... ok
+test private_block::parity::the_key_value_rope_table_is_laid_out_over_the_key_value_heads ... ok
+test private_block::parity::the_memo_section_three_bounds_hold_at_the_rung ... ok
+test private_block::parity::the_shaped_crate_copies_the_frozen_calibration_exactly ... ok
+test private_block::parity::the_shaped_crate_copies_the_frozen_primitives_exactly ... ok
+test private_block::parity::the_shaped_kernel_equals_the_frozen_kernel_at_the_toy ... job K cross-parity: 1200 toy cases — 905 accepted by both crates, 295 refused identically, 23 trace planes equal on every case
+ok
+test private_block::parity::the_whole_block_witness_equals_the_reference_kernel ... private block whole-block parity: 1200 generated public cases — 905 accepted by both, 295 refused identically by both
+  refusal site `fixed oracle range refusal: FFN down`: 8
+  refusal site `fixed oracle range refusal: FFN gate`: 2
+  refusal site `fixed oracle range refusal: K`: 4
+  refusal site `fixed oracle range refusal: Q`: 4
+  refusal site `fixed oracle range refusal: QR`: 3
+  refusal site `fixed oracle range refusal: V`: 6
+  refusal site `fixed oracle range refusal: residual 1`: 16
+  refusal site `fixed oracle range refusal: residual 2`: 84
+  refusal site `fixed oracle range refusal: score`: 168
+ok
+test private_block::parity::the_whole_block_witness_equals_the_reference_kernel_at_the_rung ... private block rung parity: 160 cases — 131 accepted by both, 29 refused identically by both
+  rung refusal site `fixed oracle range refusal: FFN gate`: 2
+  rung refusal site `fixed oracle range refusal: K`: 1
+  rung refusal site `fixed oracle range refusal: Q`: 3
+  rung refusal site `fixed oracle range refusal: QR`: 1
+  rung refusal site `fixed oracle range refusal: residual 1`: 3
+  rung refusal site `fixed oracle range refusal: residual 2`: 19
+ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 146 filtered out; finished in 1.14s
+

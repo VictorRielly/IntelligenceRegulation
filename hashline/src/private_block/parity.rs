@@ -328,36 +328,15 @@ use super::witness::Geom;
 /// generated cases per rung sweep
 const RUNG_CASES: usize = 160;
 
-/// THE RUNG OF RULING P-7, at the TOY's softmax calibration.
-///
-/// `Shape::rung()` carries `F_E = 12`, chosen so that `Sum <= T 2^F_E`
-/// breaks the `2^14` softmax window and forces a THIRD `sigma_s` limb. That
-/// third limb adds two planes to `Dom::S` and so shifts every `A_*` plane id
-/// above `A_SG1`, which the pinned plane table cannot express — it is step
-/// S8's change, not S6's. This shape is the rung's GEOMETRY (which is what
-/// S6 and S7 are about) with `F_E = 9`, at which `Sum <= 24 * 512 = 12,288`
-/// still fits the two-limb window. It is a parity fixture and nothing else:
-/// no receipt, no profile registration, no soundness or privacy claim.
-pub(crate) fn rung_parity_shape() -> Shape {
-    Shape::new(
-        "development rung geometry at the toy softmax calibration (S6/S7 parity)",
-        "hashline-zk-mr1/private-block-rung-t24-parity/1",
-        24,
-        96,
-        192,
-        6,
-        16,
-        2,
-        10,
-        4,
-        9,
-        14,
-        Some(8),
-        Some(4),
-        None,
-        None,
-    )
-    .expect("the rung parity shape is well formed")
+/// **THE RUNG ITSELF (step S8 retired the fixture).** S6 and S7 could only
+/// run the parity sweep at the rung's GEOMETRY with the toy's softmax
+/// calibration (`F_E = 9`), because `Shape::rung()`'s own `F_E = 12` forces
+/// a THIRD `sigma_s` limb and the plane table was pinned to two. S8's
+/// `layout::Ids` maps that third limb, so the sweep now runs at
+/// `Shape::rung()` — the shape of memo section 9a, windows and all — and
+/// the separate fixture profile is gone.
+fn rung_parity_shape() -> Shape {
+    Shape::rung()
 }
 
 /// the same geometry and the same three windows, in the kernel's own terms
@@ -447,7 +426,11 @@ fn compare_shaped(s: &Shape, w: &Witness, tbuf: &[i64], idx: usize) {
     };
     let maps: Vec<(Dom, Vec<usize>)> = [Dom::T, Dom::Ht, Dom::L, Dom::D, Dom::Kv, Dom::S, Dom::F].into_iter().map(|d| (d, g.support(d))).collect();
     let map = |d: Dom| &maps.iter().find(|(k, _)| *k == d).expect("mapped domain").1;
-    let eq_at = |plane: usize, k: &[i64], m: &[usize], name: &str| {
+    // S8: the plane ids are the SHAPE's, not the toy's literals — at the
+    // rung's three `sigma_s` limbs every id above `Dom::S` is two higher
+    let ids = Ids::new(s).expect("the parity shape has a plane map");
+    let eq_at = |toy_plane: usize, k: &[i64], m: &[usize], name: &str| {
+        let plane = ids.at(toy_plane);
         let mine: Vec<i64> = m.iter().map(|i| w.planes[plane][*i]).collect();
         eq(&mine, k, idx, name);
     };
@@ -496,8 +479,8 @@ fn compare_shaped(s: &Shape, w: &Witness, tbuf: &[i64], idx: usize) {
         for i in m {
             is_true[*i] = true;
         }
-        for p in 0..N_A {
-            if is_multiplicity(p) || a_dom(p) != *dom {
+        for p in 0..ids.n_a() {
+            if ids.is_multiplicity(p) || ids.dom(p) != *dom {
                 continue;
             }
             assert_eq!(w.planes[p].len(), s.size(*dom), "case {idx}: plane {p} length");
@@ -624,7 +607,7 @@ fn a_witness_query_head_reads_only_its_own_key_value_head_at_the_rung() {
 /// lived.
 #[test]
 fn the_key_value_rope_table_is_laid_out_over_the_key_value_heads() {
-    for s in [Shape::toy(), rung_parity_shape()] {
+    for s in [Shape::toy(), Shape::rung()] {
         let c = shaped_case(&s, 0);
         let (ct, st) = super::argument::rope_tables(&s, &c.public, s.kv_heads);
         let want = s.tokens * s.kv_heads * s.head_dim;
@@ -677,17 +660,23 @@ fn the_memo_section_three_bounds_hold_at_the_rung() {
     assert!(4096 * dmax - 1 < (1i128 << s.norm_wrho), "the norm remainder leaves its window at the rung");
     assert!(s.norm_wrho <= 32, "the four-limb `1 << (32 - wrho)` idiom needs wrho <= 32");
     assert_eq!(s.limbs_norm(), 4, "the norm remainder's limb count moved");
-    // 10: the softmax window, at THIS fixture's calibration
+    // 10: the softmax window, at the rung's OWN calibration (S8: the sweep no
+    // longer borrows the toy's `F_E`)
+    assert_eq!(s.f_e, 12, "the rung's exponential scale moved");
     let sum_max = t * (1i128 << s.f_e);
+    assert_eq!(sum_max, 98_304, "Sum's rung bound moved");
+    assert!(sum_max > (1i128 << 14), "the toy's 14-bit softmax window would be enough, so the rung proves nothing here");
     assert!(sum_max < (1i128 << s.wrho_s), "Sum {sum_max} leaves the 2^{} softmax window", s.wrho_s);
-    assert_eq!(s.limbs_sigma_s(), 2, "the softmax remainder's limb count moved");
+    assert_eq!((s.wrho_s, s.limbs_sigma_s()), (17, 3), "the rung's softmax window and its limb count");
     // 11: p * Sum + rho_s
     let quot = (1i128 << F_P) * sum_max + sum_max;
     assert!(quot < two49, "the softmax quotient identity {quot} reaches 2^49");
     // 12: delta < 256 is enforced by the builder's own `exp difference` refusal
-    // the plane table the S6 witness is pinned to
-    assert_eq!(s.a_plane_doms().len(), N_A, "the rung's A plane list is not the pinned one");
-    assert!((0..N_A).all(|q| s.a_plane_doms()[q] == a_dom(q)), "the rung's A plane list differs from the pinned one");
+    // the plane table the witness writes, through S8's shape-driven map
+    let ids = Ids::new(&s).expect("the rung has a plane map");
+    assert_eq!(s.a_plane_doms().len(), N_A + 2, "the rung's two extra Dom::S planes");
+    assert_eq!(ids.n_a(), N_A + 2, "the map and the shape disagree on the plane count");
+    assert!((0..N_A).all(|q| ids.dom(ids.at(q)) == a_dom(q)), "a toy plane maps onto another domain at the rung");
 }
 
 // ======================================================================

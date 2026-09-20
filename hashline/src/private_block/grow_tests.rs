@@ -493,7 +493,7 @@ fn window_shape(name: &'static str, profile: &'static str, f_e: u32, wrho_s: Opt
 /// a deterministic tame case at a shape: diagonal weights, a modest gain and
 /// a modest input, so that every class holds and the only thing that can
 /// refuse is a WINDOW
-fn tame_case(s: &Shape) -> (AttentionPublic, FeedForwardPublic, Vec<i16>) {
+pub(super) fn tame_case(s: &Shape) -> (AttentionPublic, FeedForwardPublic, Vec<i16>) {
     let (d, f, kvw, half) = (s.width, s.hidden, s.kv_heads * s.head_dim, s.head_dim / 2);
     let diag = |outer: usize, inner: usize| -> Vec<i8> { (0..outer * inner).map(|k| if k / inner == k % inner { 64i8 } else { 0 }).collect() };
     let gamma = vec![64i8; d];
@@ -733,7 +733,6 @@ fn the_rung_at_its_own_calibration_has_an_honest_witness() {
     }
     // the recomposed remainder pair closes `sigma_s = Sum - 1 - rho_s` on the
     // causal support, over the integers, at the rung's window
-    let g = super::witness::Geom::new(&s);
     let val = |p: usize, i: usize| w.planes[p][i];
     for h in 0..s.q_heads {
         for t in 0..s.tokens {

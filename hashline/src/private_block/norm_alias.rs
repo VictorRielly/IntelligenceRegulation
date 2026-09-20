@@ -378,3 +378,112 @@ fn the_limb_count_the_widened_geometry_needs() {
     // the fixed profile's remainder window is saturated: den = 2^(tn+1) D = 2^29
     assert_eq!(dmax(16, 32768) << (NORM_TN + 1), 1 << NORM_WRHO);
 }
+
+// ====================================================================
+// STEP S8 / RULING P-5 (decision D16 item 6): the alias at the WIDENED
+// norm window
+// ====================================================================
+//
+// S8 widens the norm remainder window from the toy's 2^29 to the rung's 2^31
+// and 125M's 2^32 (memo section 3.8 row 9). P-5 makes the alias cases above
+// the non-negotiable acceptance of that widening, so this section asks the
+// question the ruling asks: **does a wider `wrho` re-open the half-p alias?**
+//
+// AT WHAT LEVEL THIS RUNS, and why it is not the end-to-end form. The two
+// cases above call `prove_inner`, which is instantiable only at the toy
+// (finding S5-F2): the argument's claim points, tables and row geometry are
+// the toy's until steps S10 and S11. The obligation is therefore discharged
+// HERE at the level where the relation is decided — the four norm relations
+// (R1) .. (R4) of this module's header, evaluated in `F_p` on a REAL honest
+// witness built at the new profile — and the end-to-end form is owed again
+// at step S12, when a rung receipt exists. That is a smaller claim than
+// "the alias tamper tests reject at the new profile", and it is stated as
+// the smaller one.
+
+/// **THE EXCLUSION DOES NOT TOUCH THE WINDOW THAT MOVED.** The alias is
+/// excluded by (R2), a range fact about `d` held in `LIMBS_ISQRT = 3` byte
+/// limbs; `wrho` is a range fact about `rho` and `sigma`, held in
+/// `limbs_norm` limbs on different planes. S8 moves the second and not the
+/// first, and this test says so in numbers at all three shapes.
+#[test]
+fn the_widened_norm_window_does_not_re_open_the_alias() {
+    use super::shape::{Shape, LIMBS_ISQRT};
+    let half = half_p_minus_one();
+    let isqrt_window = 1i128 << (8 * LIMBS_ISQRT as u32);
+    for s in [Shape::toy(), Shape::rung(), Shape::m125()] {
+        // the window really did move, and the limb count that holds it too
+        assert!((29..=32).contains(&s.norm_wrho), "{}: wrho {}", s.name, s.norm_wrho);
+        assert_eq!(s.limbs_norm(), 4, "{}: the remainder still sits in four limbs", s.name);
+        // (R2)'s window did NOT move: three byte limbs, and the honest
+        // denominator still fits them at every shape
+        assert!(s.d_max < isqrt_window, "{}: D_max {} needs a fourth isqrt limb", s.name, s.d_max);
+        assert!(2 * s.d_max < isqrt_window, "{}: a1 = 2D needs a fourth isqrt limb", s.name);
+        // and `den = 2^(tn+1) D_max` saturates the shape's own window, which
+        // is what makes `wrho` the exact completeness bound of section 3.3
+        let den_max = s.d_max << (NORM_TN + 1);
+        assert!(den_max <= 1i128 << s.norm_wrho, "{}: den_max {den_max} leaves the 2^{} window", s.name, s.norm_wrho);
+        assert!(den_max > 1i128 << (s.norm_wrho - 1), "{}: the window is not tight, so it was not derived from D_max", s.name);
+        // THE POINT: the alias `d` is at least 2^62 for every `k` in the
+        // honest range, so it is outside (R2)'s three-limb window by 38 bits
+        // — and outside every window `wrho` could ever be, since `wrho <= 32`
+        for k in [0i64, 1, 1 << 12, i64::try_from(s.d_max).expect("D_max fits i64")] {
+            let d = Fp::from_i64(k).add(half);
+            assert!(u128::from(d.0) >= 1u128 << 62, "{}: the alias d fell below 2^62 at k = {k}", s.name);
+            assert!(u128::from(d.0) >= isqrt_window as u128, "{}: the alias d entered the three-limb window at k = {k}", s.name);
+            assert!(u128::from(d.0) >= 1u128 << s.norm_wrho, "{}: the alias d entered the remainder window at k = {k}", s.name);
+        }
+    }
+}
+
+/// **THE SAME VERDICT, ON A REAL WITNESS AT THE NEW PROFILE.** At
+/// `Shape::rung()` — the shape S8 exists for — an honest witness is built,
+/// and the alias is applied to one `norm_a` row exactly as `write_alias`
+/// applies it at the toy. Every relation the alias is designed to satisfy
+/// (R1), (R3), (R4) is checked to HOLD in `F_p` at the rung's numbers, so
+/// nothing else can be what refuses; and (R2), the byte-limb reconstruction
+/// of `d`, is checked to be the one that is false — in both of the prover's
+/// two forms, honest limbs (the reconstruction fails) and reconstructing
+/// limbs (`l0` leaves the byte class, which is what the U8 table catches).
+///
+/// This is the toy cases' `Catch::Slot(SC_TZC)` and `Catch::LogUp` at the
+/// relation level. The end-to-end rung receipt is step S12's.
+#[test]
+fn the_alias_still_breaks_exactly_r2_on_a_rung_witness() {
+    use super::shape::Shape;
+    let s = Shape::rung();
+    let ids = Ids::new(&s).expect("the rung has a plane map");
+    let (public, ff, input) = super::grow_tests::tame_case(&s);
+    let w = witness::build_shaped(&s, &public, &ff, &input).expect("the rung's honest witness");
+    let half = half_p_minus_one();
+    let (pd, pdsq, plimb) = (ids.at(A_D), ids.at(A_DSQ), ids.at(A_LIMB));
+    for t in [0usize, 1, s.tokens - 1] {
+        let honest_d = w.planes[pd][t];
+        // the honest row, first: (R1) .. (R4) all hold, so the alias is the
+        // only thing on trial
+        let ss: i64 = NORM_CEPS + (0..s.width).map(|i| w.planes[ids.at(A_X)][t * s.d_pad + i].pow(2)).sum::<i64>();
+        assert_eq!(w.planes[pdsq][t], honest_d * honest_d, "row {t}: the honest (R1)");
+        let hl: i64 = (0..3).map(|k| w.planes[plimb][k * s.t_pad + t] << (8 * k)).sum();
+        assert_eq!(hl, honest_d, "row {t}: the honest (R2)");
+        let (ha1, ha2): (i64, i64) =
+            ((0..3).map(|k| w.planes[plimb][(3 + k) * s.t_pad + t] << (8 * k)).sum(), (0..3).map(|k| w.planes[plimb][(6 + k) * s.t_pad + t] << (8 * k)).sum());
+        assert_eq!(ha1 + ha2, 2 * honest_d, "row {t}: the honest (R3)");
+        assert_eq!(honest_d * honest_d + ha1 - NORM_CEPS, ss - NORM_CEPS, "row {t}: the honest (R4)");
+        // now the alias
+        let d = Fp::from_i64(honest_d).add(half);
+        let dsq = d.mul(d);
+        let a1 = Fp::from_i64(ss).sub(dsq);
+        let a2 = d.double().sub(a1);
+        assert_eq!(dsq, d.mul(d), "row {t}: (R1) must hold for the alias");
+        assert_eq!(a1.add(a2), d.double(), "row {t}: (R3) must hold for the alias");
+        assert_eq!(dsq.add(a1).sub(Fp::from_i64(NORM_CEPS)), Fp::from_i64(ss - NORM_CEPS), "row {t}: (R4) must hold for the alias");
+        // form (a): the limbs are left honest, so (R2) is FALSE
+        assert_ne!(Fp::from_i64(hl), d, "row {t}: the honest limbs must not reconstruct the alias");
+        // form (b): the limbs are made to reconstruct it, so `l0 = d` leaves
+        // the byte class by 54 bits
+        assert!(u128::from(d.0) >= 1u128 << 62, "row {t}: the alias d must be huge");
+        assert!(d.0 >= 256, "row {t}: `l0 = d` must have no row in the 256-entry U8 table");
+    }
+    // and the rung's WIDER window is not what does it: the alias's d is above
+    // 2^62 while the widest window S8 introduces is 2^32
+    assert!(1u128 << 62 > 1u128 << Shape::m125().norm_wrho);
+}
