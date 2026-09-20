@@ -17,9 +17,85 @@ hand-back to the integrator:
 
 | file | commit | what |
 |---|---|---|
-| `private-block-kernel/src/lib.rs`, `src/shaped.rs` (new), `src/shaped_tests.rs` (new) | `cc94698` | S6 part 1: the reference kernel generalised over a shape; the fixed entry points became thin wrappers at `Shape::toy()`. It is a **dev-dependency** of `hashline` (`Cargo.toml:37-42`), so nothing enters the library or the binary. The one behavioural note is finding **S6-F3** below (`run_block`'s stack frame) |
+| `private-block-kernel/src/lib.rs`, `src/shaped.rs` (new), `src/shaped_tests.rs` (new) | `cc94698` | S6 part 1: the reference kernel generalised over a shape; the fixed entry points became thin wrappers at `Shape::toy()`. It is a **dev-dependency** of `hashline` (`Cargo.toml:37-42`), so nothing enters the library or the binary. The one behavioural note is finding **S6-F3** below (`run_block`'s stack frame). **WITHDRAWN by job K** — see the row below |
+| `private-block-kernel/src/lib.rs` | `2b0ebc4` | **JOB K: restored byte for byte to its content at `11c01b2`.** The crate is compiled into the zkVM guest, so it is frozen. `src/shaped.rs` and `src/shaped_tests.rs` are no longer referenced by it and **await deletion by the orchestrator** (this lane has no delete permission) |
+| `hashline/Cargo.toml`, `hashline/Cargo.lock` | `2b0ebc4` | JOB K: the new crate registered as a second **dev-dependency**. Nothing enters the library or the binary |
+| `private-block-kernel-shaped/` (new crate: `Cargo.toml`, `README.md`, `src/lib.rs`, `src/tests.rs`) | `fd72f48` | JOB K: the shape-driven kernel, moved out of the frozen crate. Standalone (`[workspace]`), no dependencies, and deliberately **not** a dependent of `private-block-kernel`, so the frozen crate stays a leaf the guest compiles alone |
 
 Nothing else outside those two trees is edited.
+
+## JOB K — un-sharing the reference kernel (security owner's ruling, 2026-09-20)
+
+**The ruling.** Stage 2's commit `cc94698` generalised `private-block-kernel/`
+IN PLACE. That crate is a dependency of `zkvm-block/model` and
+`private-model-kernel` and is compiled into the project's **zkVM guest**,
+whose image identity is an approved, recorded artifact of the other proving
+line — and finding **S6-F3** had already noticed one behavioural consequence
+(a 117 KB stack frame) that matters only there. The crate must therefore be
+**byte-identical to `11c01b2`**, and the shape-driven kernel lives in a new
+crate beside it.
+
+**What was done**, in three commits:
+
+| # | commit | what |
+|---|---|---|
+| K1 | `fd72f48` | `private-block-kernel-shaped/` created: `shaped.rs`'s content plus the `calib` table, `KernelError`/`Display` and the scalar primitives it used to import (`add`, `sub`, `mul`, `shl`, `requant`, `isqrt`) — **copied**, because the new crate may not depend on the frozen one. `no_std`, `forbid(unsafe_code)`, no dependencies, no allocation. Its five tests are stage 2's five (`k1-shaped-crate.log`: **5 passed / 0 failed**) |
+| K2 | `2b0ebc4` | **SHARED FILES.** `private-block-kernel/src/lib.rs` restored from `git show 11c01b2:<path>`, not re-typed; `hashline/Cargo.toml` + `Cargo.lock` register the new crate as a dev-dependency |
+| K3 | `7b2f1b3` | `parity.rs`'s shaped path repointed at the new crate, and the **cross-parity tests** added |
+
+**Acceptance, item by item.**
+
+* `git diff --stat 11c01b2 -- private-block-kernel private-model-kernel
+  zkvm-block` prints **exactly two paths, both awaiting deletion**:
+  `private-block-kernel/src/shaped.rs` and
+  `private-block-kernel/src/shaped_tests.rs`. The restored `lib.rs` declares
+  neither module, so neither enters the build; they are inert until the
+  orchestrator deletes them. Nothing under `private-model-kernel/` or
+  `zkvm-block/` is touched at all.
+* The frozen crate's own suite is back to its `11c01b2` counts:
+  **10 passed / 0 failed**, plus the 1 ignored integration gate
+  (`k2-frozen-crate.log`), against `s6-kernel-baseline.log`'s identical 10.
+* `private-model-kernel`: **19 passed / 0 failed** (`k3-model-kernel.log`),
+  unchanged.
+* hashline `--lib private_`: **82 passed / 0 failed / 3 ignored**
+  (`k4-hashline.log:165`), 9 warnings — the baseline's 9. Toy receipt
+  2,816,472 B and `the_toy_schedule_digest_is_frozen` both in the pass list.
+
+**The cross-parity gate (acceptance item 4), and why it is the load-bearing
+part of the split.** The copy of `calib` and of the primitives is the one way
+this split could silently change what either kernel computes. `parity.rs` is
+the only file in the repository that sees BOTH crates, so the guard lives
+there:
+
+| test | what it compares |
+|---|---|
+| `the_shaped_kernel_equals_the_frozen_kernel_at_the_toy` | all **1,200** toy fixture cases at `Shape::toy()`: the same verdict, the same refusal STRING, and all **23 trace planes element for element** — on refused cases too, since both traces are filled progressively in the same order. **905 accepted by both crates, 295 refused identically** (`k5-crossparity-counts.log:75`), which are the memo's own S6 acceptance figures |
+| `the_shaped_crate_copies_the_frozen_calibration_exactly` | 27 `calib` constants, one assertion each |
+| `the_shaped_crate_copies_the_frozen_primitives_exactly` | `isqrt` on 700+ values (every power-of-two neighbourhood, both `u64` edges, the 125M-scale norm values); `requant` at ten shifts x thirteen accumulators including `i64::MIN`/`MAX`, results **and** refusal strings; both matmuls at the toy row count; `softmax_row` against `softmax_row_into` on twenty rows, accepts and refusals |
+
+**K-F1 (what the split cost, and the one visibility widening).** Five items
+are `pub` in the new crate — `matmul_out_in`, `matmul_in_out`, `requant`,
+`isqrt`, `softmax_row_into` — because each has a `pub` counterpart in the
+frozen crate and the cross-parity test compares them function for function,
+not only end to end. `rms_norm` and `rotate` are private in the frozen crate,
+have nothing to compare against, and are `pub(crate)`. Nothing else moved
+visibility, and no hashline item was made `pub`.
+
+**K-F2 (finding S6-F3 is now moot for the guest, and stands for the new
+crate).** The 117 KB scratch frame S6-F3 reported was a consequence of
+`run_block` delegating to the flat-buffer path. With `lib.rs` restored,
+`run_block` is again the fixed-array implementation the guest has always
+compiled, so **the zkVM image is unaffected and the ruling S6-F3 asked for is
+no longer needed for it.** The flat-buffer cost remains a property of
+`private-block-kernel-shaped::run_shaped`, which no guest compiles.
+
+**PATHS AWAITING DELETION BY THE ORCHESTRATOR** (this lane has no delete
+permission, and emptying a file was rejected as a substitute):
+
+```
+private-block-kernel/src/shaped.rs
+private-block-kernel/src/shaped_tests.rs
+```
 
 ## The two parts
 
@@ -52,6 +128,7 @@ Nothing else outside those two trees is edited.
 | **S7 grouped-query attention (group 3)** | DONE | failing first: `…/s7-failing-test.log:123` (`kr8` differs from the kernel in 14 of 768 elements) and `:103` (the grouping property); after: `…/s7-run1.log:118` — **6 passed / 0 failed** in the parity module |
 | **S8 preparation: both windows reproduced as failures** | DONE | `…/s8-run4.log:158` — **79 passed / 0 failed / 3 ignored**; the norm and softmax windows each refuse an honest rung witness by name at the toy's setting and accept at the rung's; the deliverable is captured failing in `…/s8-ignored-test.log:82` |
 | **S8 the change itself** | NOT STARTED | the argument still carries the toy's coefficients as literals and the `A_*` ids are still literal indices (findings S6-F2, S8-F1) |
+| **JOB K un-share the reference kernel** | DONE | `fd72f48`, `2b0ebc4`, `7b2f1b3`; see the JOB K section below. Frozen crate back to 10/0 (+1 ignored), `private-model-kernel` 19/0, hashline **82 / 0 / 3** (`k4-hashline.log:165`), toy unmoved. TWO PATHS AWAIT DELETION |
 
 ## The toy freeze gate this stage added
 
@@ -115,6 +192,11 @@ flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attent
 | 29 | filter `…::the_rung_at_its_own_calibration_has_an_honest_witness`, `--include-ignored` (a deliberately failing run) | `…/s8-ignored-test.log:82` | **1 failed** — *"S8: the rung's own calibration must have an honest witness, got `private block: this shape's A plane list differs from the pinned one`"* |
 | 30 | the Rust command, filter `private_`, after the S8 preparation | `…/s8-run4.log` | **79 passed, 0 failed, 3 ignored**, 29.43 s, 9 warnings |
 | 31 | the same command shape, `--manifest-path …/private-model-kernel/Cargo.toml` — the OTHER consumer of the kernel crate, to check the shared-file change broke nothing | `…/s8-model-kernel.log` | **19 passed, 0 failed** |
+| 32 | the same shape, `--manifest-path …/private-block-kernel-shaped/Cargo.toml` (JOB K, the new crate) | `…/k1-shaped-crate.log` | **5 passed, 0 failed** |
+| 33 | the same shape, `--manifest-path …/private-block-kernel/Cargo.toml`, after the restore | `…/k2-frozen-crate.log` | **10 passed, 0 failed** (+1 ignored gate) — the `11c01b2` counts |
+| 34 | the same shape, `--manifest-path …/private-model-kernel/Cargo.toml`, after the restore | `…/k3-model-kernel.log` | **19 passed, 0 failed** |
+| 35 | the Rust command, filter `private_`, after all of JOB K | `…/k4-hashline.log` | **82 passed, 0 failed, 3 ignored**, 30.44 s, 9 warnings |
+| 36 | filter `…::the_shaped_kernel`, `--nocapture`, to read the cross-parity split off the test's own line | `…/k5-crossparity-counts.log:75` | 905 accepted by both crates, 295 refused identically |
 
 ## Findings
 
