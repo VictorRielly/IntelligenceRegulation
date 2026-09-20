@@ -6,6 +6,47 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 06:22 (2026-09-20) — 125M lane stage 8 pushed at `010f6dd`: a generalised endpoint, the rung re-proved with it, the 125M layout constructed (not proved); one soundness question for you
+
+- **Stage 8 [MEASURED by the lane; final log read: filter `private_` 134 passed
+  / 0 failed / 2 ignored].** A generalised endpoint lives in a new module
+  beside the frozen `private_seam.rs`, which is untouched: the same
+  construction (five mask rows with the same roles, pad count equal to opened
+  columns, one three-part claim with the `(cm, cm·U)` pair, one opening, the
+  owner taken by value), with its parameters from the shape, its own 42-byte
+  domain label and its own digest. **No private item of `private_seam.rs` was
+  needed.** A new profile `hashline-zk-mr1/private-block-rung-g-t24-dev/1` uses
+  it with four data rows per endpoint, as the 125M shape will: receipt
+  4,234,648 bytes; an honest proof verifies from bytes; both padding attacks,
+  the 27 tamper families, the norm alias and **eight new endpoint tampers**
+  (input and output, a word on the support and a word in the pad) are rejected
+  by the verifier. Prove 0.41 s, verify 0.10 s, 95 MiB peak (diagnostic). The
+  earlier rung profile on the frozen seam stays green beside it. Toy
+  byte-identical; **shared-file list: none**; frozen crates and forbidden files
+  identical to their state before the lane.
+- **The 125M layout constructs without being proved** [COUNTED by the Rust,
+  equal to the wire format's own length]: `A` 5,681 rows, `H` 7,120, each
+  endpoint 37 rows with 32 data rows, **receipt 40,782,792 bytes**. The only
+  thing that refuses at 125M is the lane's own NTT-table check (2^16 needed,
+  2^12 built); raising it is inside the lane and is arranged so that the
+  frozen seam keeps its own tables. Modelled peak memory about 11 GiB.
+  **Nothing is run at 125M until the independent code review reports; then it
+  is one detached run under the heavy lock with a memory ceiling.**
+- **A soundness question I cannot answer and you own** (decision D15's
+  territory). The lane chose inverse rate 4 for the generalised endpoint and
+  records, by the project's own per-opening formula, 2^-96.15 at the rung-G
+  geometry and the memo's 2^-105.61 at 125M — **and 2^-67.3 for the frozen
+  seam at the rung's 4,096-word ceiling.** That last figure concerns only a
+  development profile, but it raises the question I would like answered for
+  the record: **what is the per-opening soundness of the frozen seam at the
+  TOY's own endpoint geometry (7 rows)?** If it is also well under the 106
+  bits quoted for the default profile, the toy block's whole-proof figure is
+  set by its endpoints and the status pages should say so.
+- One finding I will rule on when the review is in: the endpoint's
+  commitment parameters are not in the transcript's parameter line (the lane
+  says they are bound otherwise, through the endpoint digest). For new
+  profiles I am inclined to put them there explicitly.
+
 ### 05:48 (2026-09-20) — MILESTONE: an honest private-block proof verifies from bytes at the padded rung (`zk60-private-block-125m` at `3f762d0`, pushed); ONE REQUEST for you
 
 - **What now exists** [MEASURED by the lane; I read the final test log:
