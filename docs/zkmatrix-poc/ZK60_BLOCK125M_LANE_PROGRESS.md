@@ -3400,6 +3400,7 @@ private-model-kernel zkvm-block` prints nothing.
 | `--lib private_block::run_tests::a_ -- --nocapture` (to read the refusals) | `v3-s13-nocapture.log` — 5 passed, every negative refused by name |
 | **the gate**: `--lib private_` | `v4-s13-filter.log` — **185 passed, 0 failed, 5 ignored, 67 filtered out**, 283 s (baseline 181 / 4 ignored: +4 tests, +1 ignored). The toy's frozen parameter line and schedule digest and every counted receipt length still pass (`the_toy_parameter_line_is_the_frozen_literal`, `the_toy_schedule_digest_is_frozen`, `the_codec_length_is_the_models_at_every_shape`, `the_125m_receipt_is_reproduced_part_by_part`); no existing test was changed, weakened or removed |
 | the heavy binary: `--lib private_ --no-run` | `v5-s13-build.log` |
+| the heavy test's FIRST GUARD, on the real binary, with `HL_PB_RUN_DIR` unset | `v6-s13-guards.log` — refused in **0.00 s**, before a byte of witness: "HL_PB_RUN_DIR is not set: this run writes hundreds of MB of segments and will not choose a directory for you". The other two guards (inside the repository, not empty) are the same asserts on the same path; the sink's own refusals are unit-tested in `the_directory_sink_refuses_a_directory_that_is_missing_or_not_empty` |
 
 ### NEXT, in order
 

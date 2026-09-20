@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::run_tests::private_run_125m_twelve_blocks ... 
+thread 'private_block::run_tests::private_run_125m_twelve_blocks' (423727) panicked at src/private_block/run_tests.rs:917:51:
+HL_PB_RUN_DIR is not set: this run writes hundreds of MB of segments and will not choose a directory for you
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::run_tests::private_run_125m_twelve_blocks
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 256 filtered out; finished in 0.00s
+
