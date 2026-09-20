@@ -621,11 +621,13 @@ fn the_run_ladder_at_the_rung_three_blocks_then_twelve() {
         let marks: Vec<i64> = stats.hwm_mib.iter().map(|m| m.round() as i64).collect();
         let rising = marks.windows(2).any(|w| w[1] > w[0]);
         eprintln!(
-            "RUN L={l} at the rung-G shape: prove {prove_s:.2} s, verify from segments {verify_s:.2} s, receipt {} B in {l} segments (counted {}), high-water mark after each block {marks:?} MiB — {}",
+            "RUN L={l} at the rung-G shape: prove {prove_s:.2} s, verify from segments {verify_s:.2} s, receipt {} B in {l} segments (counted {}), high-water mark after each block {marks:?} MiB — {}; {}",
             stats.segment_bytes.iter().sum::<usize>(),
             want.iter().sum::<usize>(),
-            if rising { "RISING (allocator fragmentation: reported, not repaired)" } else { "flat" }
+            if rising { "RISING (allocator fragmentation: reported, not repaired)" } else { "flat" },
+            malloc_threshold_note()
         );
+        hwm_report(&format!("RUN L={l} at rung-G"), &stats.hwm_mib);
         // the first segment closes the external input endpoint and the last
         // closes a boundary AND the external output endpoint, so the three
         // lengths are distinct in exactly the way the count says
@@ -664,6 +666,7 @@ fn the_run_ladder_at_the_rung_three_blocks_then_twelve() {
 #[ignore]
 fn private_run_125m_two_blocks() {
     let sh = Shape::m125();
+    eprintln!("125M RUN L=2: {}", malloc_threshold_note());
     let t0 = std::time::Instant::now();
     let mut c = Chain::honest(&sh, 2, false);
     eprintln!("125M RUN L=2: chain built (2 witnesses, dropped) in {:.2} s, peak RSS so far {:.2} GiB", t0.elapsed().as_secs_f64(), run::peak_rss_mib() / 1024.0);
@@ -683,10 +686,324 @@ fn private_run_125m_two_blocks() {
     let t2 = std::time::Instant::now();
     run::verify_run(&st, &blocks, &segs).expect("the 125M two-block run verifies from its segments");
     let verify_s = t2.elapsed().as_secs_f64();
+    hwm_report("125M RUN L=2", &stats.hwm_mib);
     eprintln!(
         "125M RUN L=2 RESULT: prove {prove_s:.2} s ({:?} per block), verify from segments {verify_s:.2} s, receipt {} B in 2 segments, peak RSS {:.2} GiB (shared box) — a CORRECTNESS result, not a privacy one",
         stats.prove_s.iter().map(|s| (s * 100.0).round() / 100.0).collect::<Vec<f64>>(),
         stats.segment_bytes.iter().sum::<usize>(),
         run::peak_rss_mib() / 1024.0
+    );
+}
+
+// ------------------------------------------ STAGE 13: WHERE the segments go
+//
+// Not WHAT is in one. The wire format of a segment does not move: these tests
+// are about a run whose segments are WRITTEN TO DISK as they are finished and
+// READ BACK ONE AT A TIME by the verifier, which is what a twelve-block 125M
+// run needs (484 MB of receipt against a 12 GiB ceiling).
+
+use super::run_sink::{self, DirSink, MemorySink, SegmentSink};
+use std::path::{Path, PathBuf};
+
+/// **THE ALLOCATOR CONDITION, PRINTED BY EVERY LARGE RUN.** Multi-block runs
+/// at large shapes are launched with `MALLOC_MMAP_THRESHOLD_=131072` in the
+/// environment. With glibc's DYNAMIC threshold, freeing a large mapped buffer
+/// raises the threshold, so later large buffers come from the heap and
+/// fragment it; pinned, every large buffer is mapped and returned to the
+/// system when it is freed. MEASURED on the same binary and the same
+/// two-block 125M run, 2026-09-20 (`results/zk60_block125m_lane/m125-run-l2.log`
+/// and `m125-run-l2-mmapthreshold.log`): high-water mark 10.67 then 10.82 GiB
+/// without it, 10.04 then 10.05 GiB — flat — with it, at no measurable cost in
+/// time. Nothing here calls `mallopt` and no library behaviour changes for any
+/// other caller: the variable is read by the C allocator at start-up and this
+/// is only a report of whether the launcher set it.
+fn malloc_threshold_note() -> String {
+    match std::env::var("MALLOC_MMAP_THRESHOLD_") {
+        Ok(v) => format!("MALLOC_MMAP_THRESHOLD_={v} (pinned: every large buffer is mapped and returned to the system on free)"),
+        Err(_) => "MALLOC_MMAP_THRESHOLD_ is NOT SET (glibc's dynamic threshold: expect the high-water mark to rise across blocks)".to_string(),
+    }
+}
+
+/// The process high-water mark after every block, its change from the block
+/// before, and `HWM-RISE` when that change is more than 1%. A whole-process
+/// figure on a shared box: it BOUNDS a stage's cost from above and is not a
+/// measurement of it.
+fn hwm_report(tag: &str, marks: &[f64]) {
+    for (k, m) in marks.iter().enumerate() {
+        let (d, pct) = if k == 0 { (0.0, 0.0) } else { (m - marks[k - 1], 100.0 * (m - marks[k - 1]) / marks[k - 1]) };
+        eprintln!("{tag}: block {k}: high-water mark {m:.1} MiB ({d:+.1} MiB, {pct:+.2}%){}", if pct > 1.0 { "  HWM-RISE" } else { "" });
+    }
+}
+
+/// A directory of the machine's temporary space that is REMOVED when the test
+/// leaves, so that no passing test leaves a file behind. Never inside the
+/// repository.
+struct TempRunDir(PathBuf);
+
+impl TempRunDir {
+    fn new(tag: &str) -> TempRunDir {
+        let n = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0);
+        let p = std::env::temp_dir().join(format!("hl-private-run-{tag}-{}-{n}", std::process::id()));
+        std::fs::create_dir_all(&p).unwrap_or_else(|e| panic!("the test's temporary run directory {}: {e}", p.display()));
+        TempRunDir(p)
+    }
+    fn path(&self) -> &Path {
+        &self.0
+    }
+}
+
+impl Drop for TempRunDir {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+
+/// One run, its segments handed to BOTH sinks: the directory sink writes each
+/// one out and keeps only its length and digest, the in-memory sink keeps the
+/// bytes, so that a test can compare what landed on disk with what the prover
+/// handed over FOR THIS RUN. Two separate runs cannot be compared byte for
+/// byte: the prover takes its randomness from the OS (`ZkRng::from_os`) and
+/// this lane adds no seeded path.
+fn prove_to_dir_and_memory(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn RunWitnessSource, owners: Endpoints, dir: &Path) -> Result<(DirSink, MemorySink, RunStats), String> {
+    let mut disk = DirSink::create(dir, st.rs.l)?;
+    let mut mem = MemorySink::default();
+    let stats = run::prove_run(st, blocks, src, owners, &mut |k, bytes| {
+        mem.accept(k, bytes.clone())?;
+        disk.accept(k, bytes)
+    })?;
+    Ok((disk, mem, stats))
+}
+
+/// **STAGE 13's ACCEPTANCE AT THE DEVELOPMENT RUNG: a TWELVE-block run whose
+/// segments are written to a directory as they are finished, and verified by
+/// reading them back ONE AT A TIME.** The prover holds nothing of a segment
+/// once the sink has it (ruling M-3), the verifier holds at most one
+/// segment's bytes, and `L` is the verifier's own.
+#[test]
+fn a_twelve_block_run_written_to_a_directory_verifies_by_streaming() {
+    let sh = Shape::rung_g();
+    let l = 12usize;
+    let tmp = TempRunDir::new("l12");
+    let mut c = Chain::honest(&sh, l, false);
+    let blocks = blocks_of(&sh, l);
+    let (st, owners) = statement_of(&c, l, &blocks);
+    let rows = st.boundary_spec(0).expect("the first boundary").commitment_rows();
+    let want = counted_segment_bytes(&sh, l, rows);
+    let t0 = std::time::Instant::now();
+    let (disk, mem, stats) = prove_to_dir_and_memory(&st, &blocks, &mut c, owners, tmp.path()).expect("the twelve-block run proves to a directory");
+    let prove_s = t0.elapsed().as_secs_f64();
+    assert_eq!(stats.segment_bytes, want, "a segment the prover counted is not the counted length");
+    assert_eq!(disk.lengths(), &want[..], "a segment FILE is not the counted length");
+    // what is on disk IS what the prover handed over, byte for byte, and the
+    // digest the sink recorded is the digest of the file
+    for k in 0..l {
+        let on_disk = std::fs::read(tmp.path().join(run_sink::segment_file_name(k))).expect("the segment file reads back");
+        assert_eq!(on_disk.len(), want[k], "segment {k} on disk is not the counted length");
+        assert_eq!(on_disk, mem.segments()[k], "segment {k} on disk is not the segment the in-memory sink was handed");
+        assert_eq!(run_sink::digest_hex(&on_disk), disk.digests()[k], "segment {k}'s recorded digest is not the file's");
+    }
+    // exactly twelve files and nothing else: no temporary name is left behind
+    let names = run_sink::dir_entry_names(tmp.path()).expect("the run directory lists");
+    assert_eq!(names.len(), l, "the run directory holds {names:?}");
+    assert_eq!(names[0], "segment-000.bin", "the first file is not the first segment");
+    let t1 = std::time::Instant::now();
+    run::verify_run_from_dir(&st, &blocks, tmp.path()).expect("the twelve-block run verifies by streaming from its directory");
+    let verify_s = t1.elapsed().as_secs_f64();
+    eprintln!(
+        "RUN L=12 TO DISK at the rung-G shape: prove {prove_s:.2} s, verify by streaming {verify_s:.2} s, receipt {} B in {l} files (counted {}), {}",
+        disk.total_bytes(),
+        want.iter().sum::<usize>(),
+        malloc_threshold_note()
+    );
+    hwm_report("RUN L=12 to disk at rung-G", &stats.hwm_mib);
+}
+
+/// **THE NEGATIVE BATTERY ON FILES.** Each mutation is made to a directory
+/// that has just verified, is rejected, and is then undone — and the run
+/// verifies again at the end, so every refusal is the mutation's and not a
+/// residue of the one before.
+#[test]
+fn a_missing_truncated_swapped_duplicated_or_foreign_segment_file_is_rejected() {
+    let sh = Shape::rung_g();
+    let l = 3usize;
+    let tmp = TempRunDir::new("neg");
+    let other_tmp = TempRunDir::new("neg-other");
+    let mut c = Chain::honest(&sh, l, false);
+    let blocks = blocks_of(&sh, l);
+    let (st, owners) = statement_of(&c, l, &blocks);
+    let (_disk, mem, _stats) = prove_to_dir_and_memory(&st, &blocks, &mut c, owners, tmp.path()).expect("the honest three-block run proves to a directory");
+    // a SECOND honest run of the same statement, in its own directory: same
+    // blocks, same planes, fresh randomness, so every segment differs
+    let (st2, owners2) = statement_of(&c, l, &blocks);
+    let (_d2, mem2, _s2) = prove_to_dir_and_memory(&st2, &blocks, &mut c, owners2, other_tmp.path()).expect("a second honest run proves to its own directory");
+    let path = |k: usize| tmp.path().join(run_sink::segment_file_name(k));
+    let put = |k: usize, bytes: &[u8]| std::fs::write(path(k), bytes).expect("the test writes a segment file");
+    let restore = |k: usize| put(k, &mem.segments()[k]);
+    let refused = |what: &str| {
+        let e = run::verify_run_from_dir(&st, &blocks, tmp.path()).err().unwrap_or_else(|| panic!("{what} was ACCEPTED"));
+        eprintln!("{what}: rejected: {e}");
+        e
+    };
+    run::verify_run_from_dir(&st, &blocks, tmp.path()).expect("the honest three-block run verifies by streaming");
+    // (1) a MISSING segment file
+    std::fs::remove_file(path(1)).expect("the test removes a segment file");
+    assert!(refused("a missing segment file").contains("segment-001.bin"), "the refusal did not name the missing file");
+    restore(1);
+    // (2) a TRUNCATED segment file
+    let short = &mem.segments()[1][..mem.segments()[1].len() - 1];
+    put(1, short);
+    assert!(refused("a truncated segment file").contains("counted length"), "the refusal did not name the counted length");
+    restore(1);
+    // (3) two segment files SWAPPED
+    put(0, &mem.segments()[1]);
+    put(1, &mem.segments()[0]);
+    refused("two segment files swapped");
+    restore(0);
+    restore(1);
+    // (4) a DUPLICATED segment: segment 0's bytes under segment 1's name
+    put(1, &mem.segments()[0]);
+    refused("a duplicated segment file");
+    restore(1);
+    // (5) an EXTRA segment file beyond L
+    put(l, &mem.segments()[l - 1]);
+    assert!(refused("an extra segment file beyond L").contains("segment-003.bin"), "the refusal did not name the extra file");
+    std::fs::remove_file(path(l)).expect("the test removes the extra file");
+    // (6) a FOREIGN segment file from a second honest run of the same statement
+    put(1, &mem2.segments()[1]);
+    assert!(refused("a foreign segment file from another honest run").contains("another run"), "the refusal was not the run binding");
+    restore(1);
+    // (7) a FOREIGN FILE in the run directory
+    std::fs::write(tmp.path().join("notes.txt"), b"not a segment").expect("the test writes a foreign file");
+    assert!(refused("a foreign file in the run directory").contains("notes.txt"), "the refusal did not name the foreign file");
+    std::fs::remove_file(tmp.path().join("notes.txt")).expect("the test removes the foreign file");
+    // and the honest run verifies again: every refusal above was its mutation
+    run::verify_run_from_dir(&st, &blocks, tmp.path()).expect("the restored three-block run verifies by streaming");
+}
+
+/// A run never writes into a directory that does not exist or already holds
+/// something: a half-run's segments must not be mistakable for this run's.
+#[test]
+fn the_directory_sink_refuses_a_directory_that_is_missing_or_not_empty() {
+    let tmp = TempRunDir::new("guard");
+    let missing = tmp.path().join("no-such-directory");
+    let e = DirSink::create(&missing, 2).err().expect("the sink accepted a directory that does not exist");
+    assert!(e.contains("does not exist"), "{e}");
+    std::fs::write(tmp.path().join("something.bin"), b"x").expect("the test writes a file");
+    let e = DirSink::create(tmp.path(), 2).err().expect("the sink accepted a directory that is not empty");
+    assert!(e.contains("not empty"), "{e}");
+}
+
+/// **THE TWELVE-BLOCK 125M RECEIPT, COUNTED — in a test that costs nothing.**
+/// The figure the heavy run below is measured against, derived from the
+/// block's own counted receipt and the run's framing constants and nothing
+/// else (finding U-6).
+#[test]
+fn the_twelve_block_125m_receipt_is_the_counted_484_100_736_bytes() {
+    let sh = Shape::m125();
+    let spec = super::boundary::BoundarySpec::new(run_context(), sh.t_pad, sh.d_pad, 0, 1, run::BOUNDARY_SITES, sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols, sh.endpoint_rows + 1)
+        .expect("the 125M internal boundary statement");
+    assert_eq!(spec.commitment_rows(), 38, "the 125M boundary is not the derived 38 rows");
+    let want = counted_segment_bytes(&sh, 12, spec.commitment_rows());
+    assert_eq!((want[0], want[1], want[11]), (40_033_336, 40_301_624, 41_051_160), "the three 125M segment lengths");
+    assert_eq!(want.iter().sum::<usize>(), 484_100_736, "the twelve-block 125M receipt is not the counted figure");
+}
+
+/// The directory a heavy run writes its segments to, from the environment.
+/// The run REFUSES TO START unless the variable is set to an existing, EMPTY
+/// directory outside the repository: 484 MB is not a thing to put somewhere
+/// by default, and no measurement of this project writes into its own source
+/// tree.
+fn heavy_run_dir(var: &str) -> PathBuf {
+    let v = std::env::var(var).unwrap_or_else(|_| panic!("{var} is not set: this run writes hundreds of MB of segments and will not choose a directory for you"));
+    let p = PathBuf::from(&v);
+    assert!(p.is_absolute(), "{var} = {v} is not an absolute path");
+    let dir = p.canonicalize().unwrap_or_else(|e| panic!("{var} = {v} does not exist (the orchestrator creates it): {e}"));
+    let repo = Path::new(env!("CARGO_MANIFEST_DIR")).parent().expect("the crate has a parent directory").to_path_buf();
+    assert!(!dir.starts_with(&repo), "{var} = {} is inside the repository {}: a run's segments never go there", dir.display(), repo.display());
+    let n = run_sink::dir_entry_names(&dir).unwrap_or_else(|e| panic!("{e}"));
+    assert!(n.is_empty(), "{var} = {} is not empty (it holds {n:?})", dir.display());
+    dir
+}
+
+/// **STAGE 13: TWELVE BLOCKS AT THE 125M SHAPE — PREPARED, NOT RUN.**
+///
+/// `#[ignore]`d, and this lane does NOT launch it: it is a heavy run and goes
+/// out detached, under the heavy lock, inside a memory ceiling, on a quiesced
+/// box, with `MALLOC_MMAP_THRESHOLD_=131072` in its environment. The exact
+/// command is in the lane ledger's stage 13 section.
+///
+/// **What is resident.** Twelve PUBLIC STATEMENTS — about 9.2 MB of padded
+/// weights each, 110 MB in all, because `prove_run` and `verify_run` both take
+/// the run's statements as one slice and a run's transcript absorbs every
+/// block's digest in the header. That is about 1% of the modelled peak and it
+/// is not worth an API that yields them one at a time. ONE witness (711 MB),
+/// built just in time by the chain and dropped. ZERO segments: each is written
+/// to `HL_PB_RUN_DIR` and dropped as it is finished (ruling M-3), and the
+/// verifier reads them back one at a time.
+///
+/// Predictions, so that the run can fail [MODEL from the MEASURED two-block
+/// run: prove 64.07 s, verify 2.38 s, peak 10.05 GiB with the threshold
+/// pinned]: about 12 x 31.5 s = 6.3 minutes of proving after a chain build of
+/// about 12 x 4.7 s, verify by streaming about 12 s, receipt 484,100,736 B,
+/// peak about 10.15 GiB (the ten further public statements and eleven further
+/// planes over the two-block run's 10.05).
+///
+/// It STOPS rather than running on if a segment length is not the counted one
+/// or if the high-water mark passes 11.5 GiB.
+#[test]
+#[ignore]
+fn private_run_125m_twelve_blocks() {
+    let sh = Shape::m125();
+    let l = 12usize;
+    let dir = heavy_run_dir("HL_PB_RUN_DIR");
+    eprintln!("125M RUN L=12: segments go to {}; {}", dir.display(), malloc_threshold_note());
+    let t0 = std::time::Instant::now();
+    let mut c = Chain::honest(&sh, l, false);
+    eprintln!("125M RUN L=12: chain built ({l} witnesses, each dropped) in {:.2} s, high-water mark so far {:.2} GiB", t0.elapsed().as_secs_f64(), run::peak_rss_mib() / 1024.0);
+    let blocks = blocks_of(&sh, l);
+    let (st, owners) = statement_of(&c, l, &blocks);
+    let rows = st.boundary_spec(0).expect("the run's first boundary").commitment_rows();
+    assert_eq!(rows, 38, "the 125M boundary is not the counted 38 rows");
+    let want = counted_segment_bytes(&sh, l, rows);
+    assert_eq!(want.iter().sum::<usize>(), 484_100_736, "the counted receipt moved");
+    let mut disk = DirSink::create(&dir, l).unwrap_or_else(|e| panic!("125M RUN L=12: {e}"));
+    let mut prev_hwm = run::peak_rss_mib();
+    let mut tick = std::time::Instant::now();
+    let t1 = std::time::Instant::now();
+    let stats = run::prove_run(&st, &blocks, &mut c, owners, &mut |k, bytes: Vec<u8>| {
+        let n = bytes.len();
+        if n != want[k] {
+            return Err(format!("STOP at block {k}: the segment is {n} B and the counted length is {} B", want[k]));
+        }
+        disk.accept(k, bytes)?;
+        let (hwm, stage_s) = (run::peak_rss_mib(), tick.elapsed().as_secs_f64());
+        let (d, pct) = (hwm - prev_hwm, 100.0 * (hwm - prev_hwm) / prev_hwm);
+        eprintln!(
+            "125M RUN L=12: block {k}: stage {stage_s:.2} s, segment {n} B (the counted length), high-water mark {:.2} GiB ({:+.3} GiB, {pct:+.2}%){}",
+            hwm / 1024.0,
+            d / 1024.0,
+            if pct > 1.0 { "  HWM-RISE" } else { "" }
+        );
+        if hwm > 11.5 * 1024.0 {
+            return Err(format!("STOP at block {k}: the high-water mark {:.2} GiB passed the 11.5 GiB ceiling", hwm / 1024.0));
+        }
+        (prev_hwm, tick) = (hwm, std::time::Instant::now());
+        Ok(())
+    })
+    .unwrap_or_else(|e| panic!("125M RUN L=12: {e}"));
+    let prove_s = t1.elapsed().as_secs_f64();
+    let t2 = std::time::Instant::now();
+    run::verify_run_from_dir(&st, &blocks, &dir).unwrap_or_else(|e| panic!("125M RUN L=12: the run did not verify by streaming: {e}"));
+    let verify_s = t2.elapsed().as_secs_f64();
+    for (k, (len, dg)) in disk.lengths().iter().zip(disk.digests()).enumerate() {
+        eprintln!("125M RUN L=12: {} {len} B sha256 {dg}", run_sink::segment_file_name(k));
+    }
+    hwm_report("125M RUN L=12", &stats.hwm_mib);
+    eprintln!(
+        "125M RUN L=12 RESULT: prove {prove_s:.2} s ({:?} per block), verify by streaming {verify_s:.2} s, receipt {} B in {l} files (counted 484,100,736), peak RSS {:.2} GiB, {} — a CORRECTNESS result, not a privacy one",
+        stats.prove_s.iter().map(|s| (s * 100.0).round() / 100.0).collect::<Vec<f64>>(),
+        disk.total_bytes(),
+        run::peak_rss_mib() / 1024.0,
+        malloc_threshold_note()
     );
 }

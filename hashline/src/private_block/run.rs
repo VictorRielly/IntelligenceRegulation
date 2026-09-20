@@ -31,6 +31,7 @@ use super::boundary::{self, BoundarySpec, PreparedBoundary};
 use super::endpoint_g;
 use super::layout::Layout;
 use super::protocol::{self, CoreView};
+use super::run_sink;
 use super::shape::Shape;
 use super::timing;
 use super::wire::{self, SegGeom, Segment};
@@ -326,6 +327,13 @@ fn words(v: &[i16]) -> Vec<Fp> {
 /// BLOCK. Each segment is handed to `sink` and DROPPED before the next stage
 /// commits anything (ruling M-3: segments are flushed, not held — eleven
 /// unflushed segments are 423 MiB at the 125M shape).
+///
+/// `sink` is called EXACTLY ONCE per finished segment, in order, with the
+/// bytes OWNED: after it returns the prover holds nothing of that segment but
+/// its length, in `stats`. Where the bytes then go is `run_sink.rs` —
+/// `MemorySink` keeps them (the development-rung tests) and `DirSink` writes
+/// each to its own file and keeps only a length and a SHA-256 (what a
+/// twelve-block 125M run, 484 MB of receipt, must use).
 pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn RunWitnessSource, externals: Endpoints, sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>) -> Result<RunStats, String> {
     use std::time::Instant;
     let (sh, l) = (&st.rs.sh, st.rs.l);
@@ -438,41 +446,60 @@ pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn
     Ok(stats)
 }
 
-/// **THE RUN VERIFIER.** It checks exactly `L` segments, `L` being its OWN
-/// (from the statement, never from a frame); it re-derives every geometry
-/// from its own statement; and it COMPUTES each pending boundary claim itself
-/// from the slot terminals rather than reading one from a segment. A segment
-/// header's transcript position is compared and never adopted (ruling M-6),
-/// and the header and trailer are outside the Fiat-Shamir chain.
-pub(crate) fn verify_run(st: &RunStatement, blocks: &[BlockPublic], segments: &[Vec<u8>]) -> Result<(), String> {
-    let (sh, l) = (&st.rs.sh, st.rs.l);
-    if blocks.len() != l {
-        return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
-    }
-    if segments.len() != l {
-        return Err(format!("private run: {} segments were offered, this run has {l}", segments.len()));
-    }
-    protocol::fits_the_ntt_tables(sh)?;
-    st.expected.spec.validate()?;
-    let ntt = NttTables::new(st.rs.ntt_log());
-    let e_params = PcsParams { log_cols: sh.endpoint_log_n as u32, inv_rate: sh.endpoint_inv_rate, num_col_checks: sh.opened_cols };
-    let e_zko = ZkOpts::standard(&e_params);
-    let mut tr = st.transcript()?;
-    let binding = tr.state();
-    let mut pending: Vec<ZClaim> = Vec::new();
-    let mut prev: Option<(BoundarySpec, Digest)> = None;
+/// **THE RUN VERIFIER, one segment at a time.** Everything it carries between
+/// segments and nothing else: the transcript, the run binding, the claim the
+/// previous stage raised and the boundary that is waiting to be opened. It
+/// never holds a segment — [`RunVerifier::step`] is handed one segment's
+/// bytes, which the caller is free to drop the moment it returns. That is
+/// what lets a twelve-block 125M run (484 MB of receipt) be verified inside a
+/// memory ceiling: see [`verify_run_from_dir`].
+struct RunVerifier<'a> {
+    st: &'a RunStatement,
+    blocks: &'a [BlockPublic],
+    ntt: NttTables,
+    e_params: PcsParams,
+    e_zko: ZkOpts,
+    tr: Transcript,
+    binding: Digest,
+    pending: Vec<ZClaim>,
+    prev: Option<(BoundarySpec, Digest)>,
+}
 
-    for k in 0..l {
+impl<'a> RunVerifier<'a> {
+    /// The run header, absorbed before any segment is looked at. `L` is the
+    /// statement's — never a frame's.
+    fn start(st: &'a RunStatement, blocks: &'a [BlockPublic]) -> Result<RunVerifier<'a>, String> {
+        let (sh, l) = (&st.rs.sh, st.rs.l);
+        if blocks.len() != l {
+            return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
+        }
+        protocol::fits_the_ntt_tables(sh)?;
+        st.expected.spec.validate()?;
+        let ntt = NttTables::new(st.rs.ntt_log());
+        let e_params = PcsParams { log_cols: sh.endpoint_log_n as u32, inv_rate: sh.endpoint_inv_rate, num_col_checks: sh.opened_cols };
+        let e_zko = ZkOpts::standard(&e_params);
+        let mut tr = st.transcript()?;
+        let binding = tr.state();
+        Ok(RunVerifier { st, blocks, ntt, e_params, e_zko, tr, binding, pending: Vec::new(), prev: None })
+    }
+
+    /// One stage: it re-derives every geometry from its own statement, and it
+    /// COMPUTES each pending boundary claim itself from the slot terminals
+    /// rather than reading one from a segment. A segment header's transcript
+    /// position is compared and never adopted (ruling M-6), and the header
+    /// and trailer are outside the Fiat-Shamir chain.
+    fn step(&mut self, k: usize, bytes: &[u8]) -> Result<(), String> {
+        let (st, sh, l) = (self.st, &self.st.rs.sh, self.st.rs.l);
         let mut ph = timing::Phases::start();
         let lay = st.stage_layout(k)?;
-        let start_tag = position_tag(&tr);
-        let (seg, end_tag) = wire::decode_segment(&segments[k], &lay, st.seg_geom(k)?, &binding, &start_tag)?;
-        tr.absorb_u64(b"pb-run-stage", k as u64);
-        tr.absorb(b"pb-run-block", &st.block_digests[k]);
+        let start_tag = position_tag(&self.tr);
+        let (seg, end_tag) = wire::decode_segment(bytes, &lay, st.seg_geom(k)?, &self.binding, &start_tag)?;
+        self.tr.absorb_u64(b"pb-run-stage", k as u64);
+        self.tr.absorb(b"pb-run-block", &st.block_digests[k]);
         let cur = match (k + 1 < l, seg.b_root) {
             (true, Some(root)) => {
                 let spec = st.boundary_spec(k)?;
-                protocol::absorb_root(&mut tr, b"B", &root, spec.commitment_rows(), spec.log_n());
+                protocol::absorb_root(&mut self.tr, b"B", &root, spec.commitment_rows(), spec.log_n());
                 Some((spec, root))
             }
             (false, None) => None,
@@ -487,48 +514,99 @@ pub(crate) fn verify_run(st: &RunStatement, blocks: &[BlockPublic], segments: &[
             a_open: &seg.a_open,
             h_open: &seg.h_open,
         };
-        let ([ic, oc], _) = protocol::verify_core(sh, &lay, &blocks[k], view, &ntt, &mut tr, &mut ph)?;
-        match prev.take() {
+        let ([ic, oc], _) = protocol::verify_core(sh, &lay, &self.blocks[k], view, &self.ntt, &mut self.tr, &mut ph)?;
+        match self.prev.take() {
             Some((spec, root)) => {
                 // the verifier's OWN pending claim, computed in stage k-1
-                let mut claims = std::mem::take(&mut pending);
+                let mut claims = std::mem::take(&mut self.pending);
                 claims.extend(ic);
-                boundary::check_opening(&spec, &claims, &tr)?;
+                boundary::check_opening(&spec, &claims, &self.tr)?;
                 let params = spec.params();
                 let cm = protocol::commitment(root, spec.commitment_rows(), spec.log_n());
-                pcs::verify_zk(&params, &ZkOpts::standard(&params), &cm, &claims, &seg.in_open, &ntt, &mut tr).map_err(|e| format!("boundary {}: {e}", k - 1))?;
+                pcs::verify_zk(&params, &ZkOpts::standard(&params), &cm, &claims, &seg.in_open, &self.ntt, &mut self.tr).map_err(|e| format!("boundary {}: {e}", k - 1))?;
             }
             None => {
-                protocol::check_endpoint_opening(&ic, sh, &tr)?;
+                protocol::check_endpoint_opening(&ic, sh, &self.tr)?;
                 let cm = protocol::commitment(st.expected.input, sh.endpoint_rows, sh.endpoint_log_n);
-                pcs::verify_zk(&e_params, &e_zko, &cm, &ic, &seg.in_open, &ntt, &mut tr).map_err(|e| format!("run input endpoint: {e}"))?;
+                pcs::verify_zk(&self.e_params, &self.e_zko, &cm, &ic, &seg.in_open, &self.ntt, &mut self.tr).map_err(|e| format!("run input endpoint: {e}"))?;
             }
         }
         if k + 1 == l {
             let o = seg.out_open.as_ref().ok_or("private run: the last segment carries no output-endpoint opening")?;
-            protocol::check_endpoint_opening(&oc, sh, &tr)?;
+            protocol::check_endpoint_opening(&oc, sh, &self.tr)?;
             let cm = protocol::commitment(st.expected.output, sh.endpoint_rows, sh.endpoint_log_n);
-            pcs::verify_zk(&e_params, &e_zko, &cm, &oc, o, &ntt, &mut tr).map_err(|e| format!("run output endpoint: {e}"))?;
+            pcs::verify_zk(&self.e_params, &self.e_zko, &cm, &oc, o, &self.ntt, &mut self.tr).map_err(|e| format!("run output endpoint: {e}"))?;
         } else {
-            pending = oc;
-            prev = cur;
+            self.pending = oc;
+            self.prev = cur;
         }
         // the trailer localises a corruption to its own segment; it is
         // COMPARED, never adopted
-        if position_tag(&tr) != end_tag {
+        if position_tag(&self.tr) != end_tag {
             return Err(format!("private run: segment {k}'s trailer is not the verifier's own transcript position"));
         }
+        Ok(())
     }
-    // **THE RUN CLOSING CHECK** (the design's §4.3 check 4, in the half that
-    // is real). Every claim the verifier accumulated has been discharged by
-    // an opening, and no commitment it absorbed is still waiting for one. The
-    // check's CORRECTION 8 is right that this is a REGRESSION GUARD ON THE
-    // VERIFIER'S OWN PATH and not a soundness upgrade — the run layout is a
-    // function of the verifier's own statement, so a prover cannot present a
-    // different set of openings without changing a segment length or the
-    // chain — but it is two lines and it fires if this code ever forgets one.
-    if !pending.is_empty() || prev.is_some() {
-        return Err("private run: a boundary claim was left undischarged at the end of the run".into());
+
+    /// **THE RUN CLOSING CHECK** (the design's §4.3 check 4, in the half that
+    /// is real). Every claim the verifier accumulated has been discharged by
+    /// an opening, and no commitment it absorbed is still waiting for one. The
+    /// check's CORRECTION 8 is right that this is a REGRESSION GUARD ON THE
+    /// VERIFIER'S OWN PATH and not a soundness upgrade — the run layout is a
+    /// function of the verifier's own statement, so a prover cannot present a
+    /// different set of openings without changing a segment length or the
+    /// chain — but it is two lines and it fires if this code ever forgets one.
+    fn finish(self) -> Result<(), String> {
+        if !self.pending.is_empty() || self.prev.is_some() {
+            return Err("private run: a boundary claim was left undischarged at the end of the run".into());
+        }
+        Ok(())
     }
-    Ok(())
+}
+
+/// **THE RUN VERIFIER.** It checks exactly `L` segments, `L` being its OWN
+/// (from the statement, never from a frame). The segments are the caller's,
+/// all of them resident; for a run whose receipt does not fit in memory use
+/// [`verify_run_from_dir`], which is the same verifier fed one segment at a
+/// time.
+pub(crate) fn verify_run(st: &RunStatement, blocks: &[BlockPublic], segments: &[Vec<u8>]) -> Result<(), String> {
+    let l = st.rs.l;
+    if blocks.len() != l {
+        return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
+    }
+    if segments.len() != l {
+        return Err(format!("private run: {} segments were offered, this run has {l}", segments.len()));
+    }
+    let mut v = RunVerifier::start(st, blocks)?;
+    for (k, bytes) in segments.iter().enumerate() {
+        v.step(k, bytes)?;
+    }
+    v.finish()
+}
+
+/// **THE STREAMING RUN VERIFIER: `L` files, read ONE AT A TIME.** Its memory
+/// is the verifier's own state plus ONE segment's bytes — 41 MB at the 125M
+/// shape, against a receipt of 484 MB — because each segment is read, stepped
+/// and dropped before the next is opened.
+///
+/// The directory must hold exactly the `L` files [`run_sink::segment_paths`]
+/// names and NOTHING ELSE, `L` being the verifier's own: a missing file, an
+/// extra segment beyond `L`, a leftover temporary or any foreign file is
+/// refused before a byte of any segment is read. Everything past that is the
+/// ordinary verifier, so a swapped, duplicated, truncated, foreign or altered
+/// FILE is caught exactly as the same bytes in memory would be.
+pub(crate) fn verify_run_from_dir(st: &RunStatement, blocks: &[BlockPublic], dir: &std::path::Path) -> Result<(), String> {
+    let l = st.rs.l;
+    if blocks.len() != l {
+        return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
+    }
+    let paths = run_sink::segment_paths(dir, l)?;
+    let mut v = RunVerifier::start(st, blocks)?;
+    for (k, p) in paths.iter().enumerate() {
+        // ONE segment's bytes are resident: read here, dropped at the end of
+        // this iteration, before the next file is opened
+        let bytes = std::fs::read(p).map_err(|e| format!("private run: segment {k} ({}) cannot be read: {e}", p.display()))?;
+        v.step(k, &bytes)?;
+    }
+    v.finish()
 }

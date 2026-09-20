@@ -84,6 +84,11 @@ mod protocol;
 // verifier that drive them. A run is a NEW profile (D17) beside the
 // single-block ones, which it leaves byte for byte where they were.
 mod run;
+// STAGE 13: WHERE a run's segments go — the sink the prover hands each
+// finished segment to (in memory, or a directory of one atomically written
+// file per segment) and the `L` file names a streaming verifier reads back
+// one at a time. The wire format of a segment does not move here.
+mod run_sink;
 mod shape;
 // STAGE 11: the phase clock. A write-only recorder, inert unless
 // `HL_PB_TIMING=1`, that answers WHERE the seconds of one block go (the P5
