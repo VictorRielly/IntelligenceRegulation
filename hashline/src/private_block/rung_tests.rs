@@ -179,7 +179,7 @@ fn pz1_at(shape: &Shape) {
     let supp = super::pad::indicator_table(&sh, Dom::D);
     let pad_pos = (0..sh.size(Dom::D)).find(|i| supp[*i] == 0).expect("Dom::D pads at the rung");
     w.planes[ids.at(A_RAL)][pad_pos] = 1;
-    assert_rejected(&sh, &blk, w, "PZ-1");
+    assert_verifier_rejects(&sh, &blk, w, "PZ-1");
 }
 
 /// **PZ-2 END TO END (blocking items B-1 / B-4).** `A_X`'s padded columns of
@@ -218,7 +218,7 @@ fn pz2_at(shape: &Shape) {
             w.planes[plimb][(base + kk) * sh.t_pad + t] = (v >> (8 * kk)) & 255;
         }
     }
-    assert_rejected(&sh, &blk, w, "PZ-2");
+    assert_verifier_rejects(&sh, &blk, w, "PZ-2");
 }
 
 /// **THE LOGUP ARM IS NEVER GATED (§3.7a), so EVERY position of every padded
@@ -326,7 +326,7 @@ fn every_toy_tamper_family_is_rejected_at(shape: &Shape) {
     for (name, plane, at, delta) in cases {
         let (_, blk, mut w) = rung_parts_at(&sh, false);
         w.planes[plane][at] += delta;
-        assert_rejected(&sh, &blk, w, name);
+        assert_verifier_rejects(&sh, &blk, w, name);
     }
 }
 
@@ -355,8 +355,10 @@ fn an_endpoint_that_seals_a_different_plane_is_rejected() {
                 let (_, _, w) = rung_parts_at(&shape, false);
                 let (expected, owners) = endpoints_of_t(&sh, &w, Some((which, at, 1)));
                 let label = format!("{}: {what} sealing {where_}", sh.name);
+                // FINDING F-8 applies here too: the prover must produce the
+                // receipt and the VERIFIER must be the one that refuses it.
                 match prove_inner_at(&sh, &blk, w, &expected, owners) {
-                    Err(e) => eprintln!("{label}: refused by the prover: {e}"),
+                    Err(e) => panic!("{label}: the PROVER refused, so this case says nothing about the verifier: {e}"),
                     Ok((receipt, _)) => {
                         let bytes = receipt.to_bytes_at(&sh, &blk, &expected).expect("the frame encodes");
                         let e = verify_bytes_at(&sh, &blk, &expected, &bytes).err().unwrap_or_else(|| panic!("{label}: a receipt against a foreign endpoint VERIFIED"));
@@ -402,21 +404,39 @@ fn the_norm_range_alias_is_rejected_at(shape: &Shape) {
         // the alias cannot satisfy
         w.planes[ids.at(A_D)][t] = super::norm_alias::to_plane(d);
         w.planes[ids.at(A_DSQ)][t] = super::norm_alias::to_plane(d.mul(d));
-        assert_rejected(&sh, &blk, w, &format!("the half-p isqrt alias on {form}"));
+        assert_verifier_rejects(&sh, &blk, w, &format!("the half-p isqrt alias on {form}"));
     }
 }
 
-/// A tampered witness must not produce an accepted receipt: either the honest
-/// prover refuses it (its own relation checks), or a receipt is produced and
-/// the VERIFIER rejects it from the bytes. Both are recorded, because which
-/// one happens is part of the finding.
-fn assert_rejected(sh: &Shape, blk: &BlockPublic, w: Witness, label: &str) {
+/// **FINDING F-8 of the independent review.** The helper this replaces counted
+/// a refusal BY THE PROVER as a pass, and a prover refusal is not a soundness
+/// statement: a cheating prover does not run the honest prover's own checks.
+/// A tamper test now has to say which of the two it means.
+///
+/// `assert_verifier_rejects`: the honest prover MUST produce a receipt from the
+/// tampered witness, and the VERIFIER must refuse it from the bytes. This is
+/// the one that carries a soundness claim, and every one of the lane's rung
+/// tamper cases uses it.
+fn assert_verifier_rejects(sh: &Shape, blk: &BlockPublic, w: Witness, label: &str) {
     match prove_rung(sh, blk, w) {
-        Err(e) => eprintln!("{label}: refused by the prover: {e}"),
+        Err(e) => panic!("{label}: the PROVER refused, so this case says nothing about the verifier: {e}"),
         Ok((expected, _, bytes)) => {
             let r = verify_bytes_at(sh, blk, &expected, &bytes);
             let e = r.err().unwrap_or_else(|| panic!("{label}: a tampered rung receipt VERIFIED"));
             eprintln!("{label}: rejected by the verifier: {e}");
         }
+    }
+}
+
+/// The other half of the split: a witness the HONEST PROVER is expected to
+/// refuse, because it is outside the range its own construction can encode.
+/// It is a liveness / diagnostics statement and NOT a soundness one — a
+/// cheating prover is not bound by it — so no case may use this helper unless
+/// the ledger records why the verifier cannot be the one to speak.
+#[allow(dead_code)]
+fn assert_the_honest_prover_refuses(sh: &Shape, blk: &BlockPublic, w: Witness, label: &str) {
+    match prove_rung(sh, blk, w) {
+        Err(e) => eprintln!("{label}: refused by the honest prover (NOT a soundness statement): {e}"),
+        Ok(_) => panic!("{label}: the honest prover was expected to refuse and did not"),
     }
 }

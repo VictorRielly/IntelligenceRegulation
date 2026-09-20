@@ -19,13 +19,27 @@ use crate::tables_attn::{TAG_ACT, TAG_EXP, TAG_U8};
 use crate::transcript::Transcript;
 use crate::zk::{self, ZkRng};
 
-/// The one NTT table this module builds. It must cover the largest evaluation
-/// domain any commitment of the proof uses: the `A` / `H` encoding
-/// (`log_cols + log2(inv_rate)`), the endpoint encoding and the fixed 4096-wide
-/// mask domain. The toy (2048) and the development rung (4096) both fit in
-/// `2^12`; the 125M shape would need `2^16`, and [`fits_the_ntt_tables`]
-/// refuses it BY NAME rather than silently building a wrong table.
-const NTT_LOG: u32 = 12;
+/// **STAGE 9, THE 125M TABLE.** This was the constant `NTT_LOG = 12`, and 125M needs
+/// `2^16` for its `A` / `H` encoding (`log_cols 14` at rate 1/4). It is a
+/// FUNCTION OF THE SHAPE now, and never smaller than the mask commitment's
+/// own fixed `2^12` domain (`zk::MASK_LOG_DOM`, which no shape moves).
+///
+/// Why this is safe for the frozen toy, by construction and not by argument:
+/// at the toy the maximum is `max(8 + 3, 12) = 12`, so the table it is handed
+/// is `NttTables::new(12)` exactly as before, and the same holds at both rung
+/// profiles (`max(10 + 2, 12) = 12`). Only 125M gets a different table. (The
+/// two endpoint commitments never see this table at all: `prepare_endpoints`
+/// builds one per construction — `new(12)` for the frozen seam, which demands
+/// that size exactly, and `new(enc_log)` for the generalised endpoint —
+/// finding S11b-F3.)
+fn ntt_log_at(sh: &Shape) -> u32 {
+    ((sh.log_cols + log2_exact(sh.inv_rate)) as u32).max(zk::MASK_LOG_DOM)
+}
+
+/// A bounded prototype ceiling, not a soundness bound. `2^20` is 16x the 125M
+/// shape's `2^16` and well inside the field's two-adic range; it exists so
+/// that a malformed shape cannot ask for an unbounded table.
+const NTT_LOG_MAX: u32 = 20;
 
 fn log2_exact(v: usize) -> usize {
     debug_assert!(v.is_power_of_two(), "a power of two");
@@ -33,12 +47,14 @@ fn log2_exact(v: usize) -> usize {
 }
 
 /// The shapes this module can prove at today. A refusal here is a capability
-/// statement, not a soundness one: nothing in the construction stops a wider
-/// NTT table, but no shape beyond the rung is run on this lane.
+/// statement, not a soundness one. Since stage 9 the table follows the shape,
+/// so what is left to refuse is a shape past the prototype ceiling — and the
+/// ENDPOINT's own encoding domain, which is built by a different table and
+/// whose two constructions have their own, different ceilings.
 pub(crate) fn fits_the_ntt_tables(sh: &Shape) -> Result<(), String> {
-    let need = [sh.log_cols + log2_exact(sh.inv_rate), sh.endpoint_log_n + log2_exact(sh.endpoint_inv_rate), NTT_LOG as usize];
-    if need.iter().any(|k| *k > NTT_LOG as usize) {
-        return Err(format!("private block: this shape's evaluation domain (2^{}) exceeds the module's NTT tables (2^{NTT_LOG})", need.iter().max().expect("three entries")));
+    let need = [ntt_log_at(sh) as usize, sh.endpoint_log_n + log2_exact(sh.endpoint_inv_rate)];
+    if need.iter().any(|k| *k > NTT_LOG_MAX as usize) {
+        return Err(format!("private block: this shape's evaluation domain (2^{}) exceeds the module's ceiling (2^{NTT_LOG_MAX})", need.iter().max().expect("two entries")));
     }
     Ok(())
 }
@@ -83,10 +99,25 @@ pub(crate) fn transcript(public: &BlockPublic, expected: &ExpectedIo, lay: &Layo
 /// three feed-forward shifts are calibration constants of the profile family,
 /// not shape fields, so they stay literal.
 pub(crate) fn parameter_line(sh: &Shape) -> String {
-    format!(
+    let base = format!(
         "T{}/d{}/f{}/H{}/KV{}/dh{}/log_cols{}/inv_rate{}/Q{}/P1/sh-g{SH_G}-u0-h{SH_H_PROD}-z{SH_Z}/two-private-endpoints/one-proof-one-transcript",
         sh.tokens, sh.width, sh.hidden, sh.q_heads, sh.kv_heads, sh.head_dim, sh.log_cols, sh.inv_rate, sh.opened_cols
-    )
+    );
+    if sh.is_frozen_toy() {
+        // D17: the toy's line is a frozen literal and gains nothing, ever.
+        return base;
+    }
+    // **THE SECURITY OWNER'S RULING ON STAGE 8's FINDING S11b-F4 (2026-09-20).**
+    // The endpoint's commitment parameters reached the transcript only through
+    // the endpoint DIGEST, which is a hash the reader of a receipt cannot
+    // unfold. In every NEW profile they are stated outright as well, so that
+    // the four numbers a verifier's endpoint geometry depends on — the
+    // commitment's row width, its inverse rate, its pad count and its row
+    // count — are bound to the transcript in a form a human can read. The
+    // digest still binds them; this is a second, explicit binding and not a
+    // replacement. The toy's bytes do not move; the two development rung
+    // profiles' receipts change value (not length), which ruling P-7 allows.
+    format!("{base}/endpoint-log_n{}-rate{}-pad{}-rows{}", sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols, sh.endpoint_rows)
 }
 
 fn absorb_root(tr: &mut Transcript, label: &[u8], root: &[u8; 32], rows: usize, log_cols: usize) {
@@ -280,7 +311,13 @@ pub(super) fn endpoint_geometry(sh: &Shape) -> Result<(usize, usize, usize), Str
         return Err(format!("private block: endpoint geometry of {rows} rows has no data rows"));
     }
     let g = (rows, rows - ENDPOINT_MASK_ROWS, rows - ENDPOINT_MASK_ROWS + 2);
-    debug_assert!(rows != ENDPOINT_ROWS || g == (ENDPOINT_ROWS, 2, ENDPOINT_PROX), "the toy's frozen endpoint geometry moved");
+    // **FINDING F-1's sweep.** This was a `debug_assert!`, which the release
+    // profile — the only one anything is proved in — compiles out. It costs
+    // two comparisons to make it a refusal, and what it pins is the FROZEN
+    // toy's endpoint geometry, so it is a real check now.
+    if rows == ENDPOINT_ROWS && g != (ENDPOINT_ROWS, 2, ENDPOINT_PROX) {
+        return Err("private block: the toy's frozen endpoint geometry moved".into());
+    }
     Ok(g)
 }
 
@@ -340,6 +377,39 @@ fn inverses(mut den: Vec<Fp2>) -> Result<Vec<Fp2>, String> {
     Ok(den)
 }
 
+// **FINDING F-4 OF THE INDEPENDENT REVIEW: THE ONE TEST-ONLY PROVER HOOK.**
+//
+// `Dom::Tab`'s pad-zero term is the single arm of ruling P-1 that NO witness
+// edit can reach, because its six planes — three histograms and three table
+// helpers — are DERIVED here from the witness rather than carried by it. It
+// is also the arm the P-3 lift's safety rests on. The hook moves ONE count
+// of one histogram from a true table row to the PADDED COPY of that same row
+// (the lift builds padded entry `i` from `i % 256`, so the two rows carry the
+// same value), and writes the table helper that position now needs. Every
+// other relation of `SC_TAB` and the whole value-0 LogUp identity still hold
+// — same total multiplicity, same value, consistent helper — so the pad-zero
+// term is the ONLY thing left that can catch it. It closes the
+// moved-multiplicity family at the same time.
+//
+// It is `#[cfg(test)]` throughout: the state, the setter and both injection
+// points vanish from a release build, and no public API of this crate names
+// them. `(which histogram 0/1/2, true row < 256, padded position >= 256)`.
+#[cfg(test)]
+thread_local! {
+    static MOVED_MULTIPLICITY: std::cell::Cell<Option<(usize, usize, usize)>> = const { std::cell::Cell::new(None) };
+}
+
+/// set or clear the hook above; a test MUST clear it before it returns
+#[cfg(test)]
+pub(crate) fn set_moved_multiplicity(v: Option<(usize, usize, usize)>) {
+    MOVED_MULTIPLICITY.with(|c| c.set(v));
+}
+
+#[cfg(test)]
+fn moved_multiplicity() -> Option<(usize, usize, usize)> {
+    MOVED_MULTIPLICITY.with(|c| c.get())
+}
+
 fn write_h(h: &mut [Fp], off: (usize, usize), col: &[Fp2]) {
     for (i, v) in col.iter().enumerate() {
         h[off.0 + i] = v.c0;
@@ -397,7 +467,7 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
     }
     // ONE OS stream per attempt; entropy failure aborts before anything public exists.
     let mut rng = ZkRng::from_os(sh.profile.as_bytes()).map_err(|e| format!("private block randomness: {e}"))?;
-    let ntt = NttTables::new(NTT_LOG);
+    let ntt = NttTables::new(ntt_log_at(sh));
     let params = pcs_params_at(sh);
     let zko = ZkOpts::standard(&params);
     let mut tr = transcript(blk, expected, &lay);
@@ -438,6 +508,23 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
         a_data[lay.a_off[ids.at(A_MU8)] + i] = Fp::new(m_u8[i]);
         a_data[lay.a_off[ids.at(A_MEXP)] + i] = Fp::new(m_exp[i]);
         a_data[lay.a_off[ids.at(A_MACT)] + i] = Fp::new(m_act[i]);
+    }
+    // FINDING F-4, injection point 1 of 2 (test builds only): one count moves
+    // from a true row to the padded copy of the same row. `m` is decremented
+    // as well, so the TABLE HELPER derived from it below stays consistent at
+    // the true row; the padded row's helper is written at injection point 2.
+    #[cfg(test)]
+    if let Some((which, from, to)) = moved_multiplicity() {
+        let (plane, m) = match which {
+            0 => (ids.at(A_MU8), &mut m_u8),
+            1 => (ids.at(A_MEXP), &mut m_exp),
+            _ => (ids.at(A_MACT), &mut m_act),
+        };
+        assert!(from < U8_LEN && to >= U8_LEN && to < sh.size(Dom::Tab) && to % U8_LEN == from, "the hook moves a count to the PADDED COPY of its own row");
+        assert!(m[from] > 0, "the hook's true row carries no multiplicity to move");
+        m[from] -= 1;
+        a_data[lay.a_off[plane] + from] = Fp::new(m[from]);
+        a_data[lay.a_off[plane] + to] = Fp::new(1);
     }
     for x in &mut a_data[lay.a_mask_base * n..] {
         *x = rng.fp();
@@ -507,6 +594,24 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
         let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
         let col: Vec<Fp2> = inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect();
         write_h(&mut h_data, lay.h_off[plane], &col);
+    }
+    // FINDING F-4, injection point 2 of 2 (test builds only): the padded row
+    // the count moved to now needs its own helper `1 / (alpha - value)`, and
+    // the padded value is the true row's by the P-3 lift's own construction.
+    // With it written, the value-0 LogUp identity and all three `SC_TAB`
+    // product relations hold, and only the pad-zero term can object.
+    #[cfg(test)]
+    if let Some((which, from, to)) = moved_multiplicity() {
+        let tab_len = sh.size(Dom::Tab);
+        let (plane, tv) = match which {
+            0 => (gu8, super::argument::table_values_u8_at(tab_len, g_u8)),
+            1 => (gexp, super::argument::table_values_exp_at(tab_len, public, beta, g_exp)),
+            _ => (gact, super::argument::table_values_act_at(tab_len, ff, beta, g_act)),
+        };
+        assert_eq!(tv[to], tv[from], "the padded row does not repeat its true row");
+        let val = inverses(vec![alpha.sub(tv[to])])?[0];
+        let off = lay.h_off[plane];
+        write_h(&mut h_data, (off.0 + to, off.1 + to), &[val]);
     }
     for x in &mut h_data[lay.h_mask_base * n..] {
         *x = rng.fp();
@@ -592,7 +697,7 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     // S11b: whichever endpoint construction this profile carries, its
     // statements must be well formed and their geometry the shape's
     expected.spec.validate()?;
-    let ntt = NttTables::new(NTT_LOG);
+    let ntt = NttTables::new(ntt_log_at(sh));
     let params = pcs_params_at(sh);
     let zko = ZkOpts::standard(&params);
     let mut tr = transcript(blk, expected, &lay);

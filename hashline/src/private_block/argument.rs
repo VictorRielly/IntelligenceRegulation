@@ -292,6 +292,15 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, def: SlotDef, tr: &mut Tr
     if def.tabs.iter().any(|t| matches!(t, Tab::Priv(p) if p.ext_round >= ext || p.coords.len() != p.log)) {
         return Err(format!("private block: slot {s} table shape"));
     }
+    // **FINDING F-6.** The table-length check below lives in the `Prove` arm,
+    // so on the VERIFY path a public table whose length is not the slot's cube
+    // used to fall through to `eval_mle_ext`'s own `assert_eq!` — a panic
+    // where a verifier owes a refusal. Public tables are shape-driven and no
+    // frame can choose one, so this is robustness and not a reachable attack;
+    // the refusal names a length, which is a function of the shape.
+    if def.tabs.iter().any(|t| matches!(t, Tab::Pub(v) if v.len() != 1usize << n)) {
+        return Err(format!("private block: slot {s} public table length"));
+    }
     #[cfg(test)]
     let capture_before = if matches!(side, Side::Verify { .. }) { super::capture::checkpoint(tr) } else { None };
     tr.absorb_u64(b"pb-slot", s as u64);
@@ -520,18 +529,25 @@ impl<'a> B<'a> {
     /// most-significant-first, so a coarser domain occupies the LEADING
     /// variables and its index is `x / rep`.
     ///
-    /// `None` when this profile carries no pad rule or the domain does not
+    /// `Ok(None)` when this profile carries no pad rule or the domain does not
     /// pad — which is how the frozen toy's transcript gains neither a table
     /// nor a challenge (finding S9-F1's profile gate).
-    fn supp(&mut self, dom: Dom, cube_len: usize) -> Option<usize> {
+    ///
+    /// **FINDING F-1 of the independent review.** The tiling was a
+    /// `debug_assert_eq!`, and the release profile — the only one the rung and
+    /// the 125M shape are ever built in — compiles debug assertions out. A
+    /// non-tiling indicator would then give the PROVER AND THE VERIFIER the
+    /// same wrong `(1 − supp)` and the proof would verify while meaning
+    /// something else. It is a real refusal now, taken on both sides by
+    /// [`tile_rep`], and the caller is in a `Result` context already.
+    fn supp(&mut self, dom: Dom, cube_len: usize) -> Result<Option<usize>, String> {
         let sh = self.lay.shape();
         if !sh.carries_pad_rule() || !sh.pads(dom) {
-            return None;
+            return Ok(None);
         }
         let t = super::pad::indicator_table(sh, dom);
-        let rep = cube_len / t.len();
-        debug_assert_eq!(rep * t.len(), cube_len, "an indicator that does not tile its slot's cube");
-        Some(self.public((0..cube_len).map(|x| k(t[x / rep])).collect()))
+        let rep = tile_rep(t.len(), cube_len)?;
+        Ok(Some(self.public((0..cube_len).map(|x| k(t[x / rep])).collect())))
     }
     fn finish(self, poly: Poly, hosted: Vec<(usize, Fp2)>) -> Result<SlotDef, String> {
         if self.ak != self.lay.a_sites()[self.slot] || self.hk != self.lay.h_sites()[self.slot] {
@@ -539,6 +555,36 @@ impl<'a> B<'a> {
         }
         Ok(SlotDef { slot: self.slot, tabs: self.tabs, poly, hosted, sh: self.lay.shape().clone() })
     }
+}
+
+/// **FINDING F-1.** How many times an indicator of `t_len` entries repeats to
+/// fill a cube of `cube_len` — a RELEASE-BUILD refusal, not an assumption.
+/// Both sides of the protocol build the public factor through [`B::supp`], so
+/// a non-tiling indicator would give them the SAME wrong `(1 − supp)` and the
+/// proof would verify while meaning something else; `t_len > cube_len` used to
+/// give `rep = 0` and a divide-by-zero panic instead. The refusal names no
+/// witness-dependent quantity: `t_len` and `cube_len` are both functions of
+/// the shape.
+pub(crate) fn tile_rep(t_len: usize, cube_len: usize) -> Result<usize, String> {
+    if t_len == 0 || cube_len == 0 || cube_len % t_len != 0 {
+        return Err(format!("private block: an indicator that does not tile its slot's cube ({t_len} entries in {cube_len})"));
+    }
+    Ok(cube_len / t_len)
+}
+
+/// **FINDING F-2.** `SC_TAB`'s pad-zero group, checked against what
+/// `pad.rs` DECLARES instead of assumed. Both lists are compared, in plane
+/// order; the caller passes the planes its own hard-coded table indices
+/// `[1, 4, 7]` and `[2, 5, 8]` stand for. A refusal here names a plane list,
+/// which is a function of the shape and of nothing private.
+pub(crate) fn tab_group_is_declared(sh: &Shape, ids: &Ids, a_declared: &[usize], h_declared: &[usize]) -> Result<(), String> {
+    if super::pad::zero_rule_h_planes(sh, Dom::Tab) != h_declared {
+        return Err("private block: a Dom::Tab helper is outside SC_TAB's pad-zero group".into());
+    }
+    if super::pad::zero_rule_a_planes(sh, ids, Dom::Tab) != a_declared {
+        return Err("private block: a Dom::Tab multiplicity is outside SC_TAB's pad-zero group".into());
+    }
+    Ok(())
 }
 
 /// `log2` of a power of two (every axis this profile addresses is one, by
@@ -851,7 +897,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             pts.r_t = tr.challenge_fp2_vec(lt);
             b.eq(&pts.r_t, 0);
             b.a(ids.at(A_X))?;
-            let g = Gate(b.supp(Dom::D, cube));
+            let g = Gate(b.supp(Dom::D, cube)?);
             b.finish(Box::new(move |v: &[Fp2]| g.at(v).mul(v[0]).mul(v[1]).mul(v[1])), vec![])
         }
         // norm_m's row sums: the identical private claimed sum, over xres1
@@ -860,7 +906,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             pts.r_t2 = tr.challenge_fp2_vec(lt);
             b.eq(&pts.r_t2, 0);
             b.a(ids.at(A_X1))?;
-            let g = Gate(b.supp(Dom::D, cube));
+            let g = Gate(b.supp(Dom::D, cube)?);
             b.finish(Box::new(move |v: &[Fp2]| g.at(v).mul(v[0]).mul(v[1]).mul(v[1])), vec![])
         }
         SC_TZC => {
@@ -896,7 +942,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             // and a padded row's claimed sum is zero, not `NORM_CEPS`
             // (finding S9-F8). Neither raises the slot's degree, so `SC_TZC`
             // is NOT one of the eight `INDICATOR_SLOT_DOMAIN` slots.
-            let gt = Gate(b.supp(Dom::T, cube));
+            let gt = Gate(b.supp(Dom::T, cube)?);
             let mut pz = PadTerm::none();
             if pad_on {
                 let planes: Result<Vec<usize>, String> = super::pad::zero_rule_a_planes(sh, ids, Dom::T)
@@ -942,7 +988,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             let mu = vec![Fp2::ONE; sh.helpers(Dom::L)];
             let mut pz = PadTerm::none();
             if pad_on {
-                let si = b.supp(Dom::L, cube);
+                let si = b.supp(Dom::L, cube)?;
                 let planes: Vec<usize> = super::pad::zero_rule_a_planes(sh, ids, Dom::L).iter().map(|p| b.tab(*p)).collect();
                 pz.mu = mu_pad;
                 pz.add(si, &planes, zeta);
@@ -961,7 +1007,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             // SUMMAND takes `supp_S`; `SC_SZC`'s matching host term takes
             // `supp_Ht`, which is constant in `j` and so leaves `per_row`
             // alone.
-            let g = Gate(b.supp(Dom::S, cube));
+            let g = Gate(b.supp(Dom::S, cube)?);
             b.finish(Box::new(move |v: &[Fp2]| g.at(v).mul(v[0]).mul(v[1].mul(v[2]).add(lam.mul(v[3])))), vec![])
         }
         SC_QMM | SC_KMM | SC_VMM | SC_WO => {
@@ -1089,7 +1135,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             // publish a matmul output whose weight matrix vanishes off the
             // support (ruling P-2), so their claimed value is already zero on
             // a padded position and the gated host matches it.
-            let gd = Gate(b.supp(Dom::D, cube));
+            let gd = Gate(b.supp(Dom::D, cube)?);
             let mut pz = PadTerm::none();
             if pad_on {
                 let planes: Vec<usize> = super::pad::zero_rule_a_planes(sh, ids, Dom::D).iter().map(|p| b.tab(*p)).collect();
@@ -1153,7 +1199,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             // helper relation — the LogUp arm — and is NOT gated: gating it
             // would drop the padded positions out of the value-0 identity
             // while their multiplicities still count them (§3.7a).
-            let gf = Gate(b.supp(Dom::F, cube));
+            let gf = Gate(b.supp(Dom::F, cube)?);
             let mut pz = PadTerm::none();
             if pad_on {
                 let planes: Vec<usize> = super::pad::zero_rule_a_planes(sh, ids, Dom::F).iter().map(|p| b.tab(*p)).collect();
@@ -1216,7 +1262,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             // inhomogeneous (the `2^(SH_ROPE-1)` bias) and takes the gate; so
             // do both host terms. The PARTNER slice `iflip` reads the same
             // plane at a flipped coordinate and needs no group of its own.
-            let gq = Gate(b.supp(dom, cube));
+            let gq = Gate(b.supp(dom, cube)?);
             let mut pz = PadTerm::none();
             if pad_on {
                 let planes: Vec<usize> = super::pad::zero_rule_a_planes(sh, ids, dom).iter().map(|p| b.tab(*p)).collect();
@@ -1280,8 +1326,8 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             // which would force a TRUE row's maximum to zero. `host_rs` takes
             // the LIFTED `supp_Ht` and not `supp_S`, because it is constant
             // in `j` and `per_row` must stay the full `t_pad`.
-            let ght = Gate(b.supp(Dom::Ht, cube));
-            let gs = Gate(b.supp(Dom::S, cube));
+            let ght = Gate(b.supp(Dom::Ht, cube)?);
+            let gs = Gate(b.supp(Dom::S, cube)?);
             let mut pz = PadTerm::none();
             if pad_on {
                 pz.mu = mu[5 + n_help + 1];
@@ -1342,10 +1388,17 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             // the memo's table outright rather than relying on that.
             let mut pz = PadTerm::none();
             if pad_on {
-                let si = b.supp(Dom::Tab, cube);
-                if super::pad::zero_rule_h_planes(sh, Dom::Tab) != th.to_vec() {
-                    return Err("private block: a Dom::Tab helper is outside SC_TAB's pad-zero group".into());
-                }
+                let si = b.supp(Dom::Tab, cube)?;
+                // **FINDING F-2.** The `A` list was hard-coded and, alone
+                // among the pad-zero groups, never checked against the
+                // declared one, so a fourth `Dom::Tab` `A` plane would have
+                // sat silently outside the term — the class of hole ruling
+                // P-1 exists to close. The three table indices stay literal
+                // because they are THIS slot's own push order (`eq` 0, then
+                // multiplicity / helper / values three times), but the PLANES
+                // they stand for are now checked against the declared lists,
+                // both of them, by one function a test can also call.
+                tab_group_is_declared(sh, ids, &[ids.at(A_MU8), ids.at(A_MEXP), ids.at(A_MACT)], &th)?;
                 pz.mu = mu[3];
                 pz.add(si, &[1, 4, 7], zeta);
                 pz.add(si, &[2, 5, 8], zeta);

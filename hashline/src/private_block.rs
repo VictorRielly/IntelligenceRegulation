@@ -94,6 +94,11 @@ mod rung_tests;
 // `docs/zkmatrix-poc/ZK60_BLOCK125M_RUNG_CODE_REVIEW.md`.
 #[cfg(test)]
 mod review_tests;
+// STAGE 9: the SECURITY OWNER'S RULINGS on that review's findings F-1 … F-9,
+// one test per ruling, and the grouped-attention acceptance tamper tests the
+// layout memo's section 9a asks for.
+#[cfg(test)]
+mod rulings_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]

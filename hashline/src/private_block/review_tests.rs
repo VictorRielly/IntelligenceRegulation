@@ -37,7 +37,7 @@ fn honest_rung() -> (Shape, BlockPublic, Witness) {
     (sh, BlockPublic::new(public, ff), w)
 }
 
-fn clone_witness(w: &Witness) -> Witness {
+pub(super) fn clone_witness(w: &Witness) -> Witness {
     Witness { planes: w.planes.clone() }
 }
 
@@ -61,17 +61,17 @@ fn prove_rung(sh: &Shape, blk: &BlockPublic, w: Witness) -> Result<(ExpectedIo, 
 /// consistency checks is not a soundness statement: a cheating prover simply
 /// does not run them.
 #[derive(Debug, PartialEq, Eq)]
-enum Outcome {
+pub(super) enum Outcome {
     Accepted,
     ProverRefused(String),
     VerifierRejected(String),
 }
 
 impl Outcome {
-    fn is_accepted(&self) -> bool {
+    pub(super) fn is_accepted(&self) -> bool {
         *self == Outcome::Accepted
     }
-    fn short(&self) -> String {
+    pub(super) fn short(&self) -> String {
         match self {
             Outcome::Accepted => "ACCEPTED".into(),
             Outcome::ProverRefused(e) => format!("prover refused: {e}"),
@@ -80,7 +80,7 @@ impl Outcome {
     }
 }
 
-fn outcome(sh: &Shape, blk: &BlockPublic, w: Witness) -> Outcome {
+pub(super) fn outcome(sh: &Shape, blk: &BlockPublic, w: Witness) -> Outcome {
     match prove_rung(sh, blk, w) {
         Err(e) => Outcome::ProverRefused(e),
         Ok((expected, bytes)) => match verify_bytes_at(sh, blk, &expected, &bytes) {
@@ -486,7 +486,7 @@ fn the_tame_rung_fixture_cannot_tell_the_two_key_value_heads_apart() {
 /// same tame fixture except that `Wk` and `Wv` weight the second key-value
 /// head's rows differently. Everything else — the input, the query and output
 /// projections, the tables — is `tame_case`'s.
-fn distinct_kv_case(s: &Shape) -> (BlockPublic, Vec<i16>) {
+pub(super) fn distinct_kv_case(s: &Shape) -> (BlockPublic, Vec<i16>) {
     let (d, f, kvw) = (s.width, s.hidden, s.kv_heads * s.head_dim);
     let diag = |outer: usize, inner: usize| -> Vec<i8> { (0..outer * inner).map(|k| if k / inner == k % inner { 64i8 } else { 0 }).collect() };
     // the second key-value head's diagonal is a THIRD of the first's, so its

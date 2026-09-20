@@ -1200,8 +1200,22 @@ fn a_shape_wider_than_the_ntt_tables_is_refused_by_name() {
     }
     let g = Shape::rung_g();
     assert_eq!(g.endpoint_log_n + g.endpoint_inv_rate.trailing_zeros() as usize, 12, "the rung-G endpoint's encoding domain");
-    let err = super::protocol::fits_the_ntt_tables(&Shape::m125()).expect_err("125M must be refused");
-    assert!(err.contains("exceeds the module's NTT tables"), "{err}");
+    // **STAGE 9.** The table is a function of the shape now, so 125M is no
+    // longer refused: `max(14 + 2, 12) = 16` for `A` / `H`, and its endpoint
+    // builds its own `2^16` table. What is refused is a shape past the
+    // prototype ceiling — whichever guard reaches it first.
+    super::protocol::fits_the_ntt_tables(&Shape::m125()).expect("125M fits the shape-driven tables");
+    let m = Shape::m125();
+    assert_eq!(m.log_cols + m.inv_rate.trailing_zeros() as usize, 16, "125M's A / H encoding domain");
+    assert_eq!(m.endpoint_log_n + m.endpoint_inv_rate.trailing_zeros() as usize, 16, "125M's endpoint encoding domain");
+    let wide = Shape::new("a shape past the prototype ceiling", "hashline-zk-mr1/private-block-too-wide-dev/1", 512, 768, 2048, 12, 64, 4, 19, 4, 9, 37, None, None, None, None);
+    match wide {
+        Err(e) => eprintln!("a 2^21 shape is refused at construction: {e}"),
+        Ok(s) => {
+            let err = super::protocol::fits_the_ntt_tables(&s).expect_err("a shape past the ceiling must be refused");
+            assert!(err.contains("exceeds the module's ceiling"), "{err}");
+        }
+    }
 }
 
 // ---------------------------------------------- the hash-layer code conditions
@@ -1401,14 +1415,13 @@ fn the_125m_shape_constructs_and_what_still_refuses_says_so_by_name() {
     // the endpoint STATEMENT builds at 125M, with no witness and no proof
     let spec = IoSpec::new_shaped(&sh, [11u8; 32], 0, 0).expect("the 125M endpoint spec builds");
     spec.validate().expect("125M's declared endpoint rows are what its parameters give");
-    // WHAT STILL REFUSES AT 125M, by name. (1) the module's single NTT
-    // table: 125M encodes `A`/`H` and its endpoints over 2^16 and the module
-    // builds 2^12. The table is built in THIS LANE's files
-    // (`protocol.rs`'s `NTT_LOG` and `private_block.rs`'s `prepare_endpoints`),
-    // not in a forbidden one, but raising it is a measurement question and
-    // not this step's.
-    let e = super::protocol::fits_the_ntt_tables(&sh).expect_err("125M must be refused by name");
-    assert!(e.contains("exceeds the module's NTT tables") && e.contains("2^16"), "{e}");
-    // (2) the frozen seam, which cannot carry the plane at all
+    // **STAGE 9 lifted the one thing that still refused.** The module's NTT
+    // table was the constant `2^12` and 125M encodes `A` / `H` over `2^16`;
+    // the table is a function of the shape now (`protocol::ntt_log_at`), the
+    // toy's and the rung's are unchanged at `2^12` by construction, and this
+    // gate passes. The endpoint builds its own table, as it always did.
+    super::protocol::fits_the_ntt_tables(&sh).expect("stage 9: 125M fits the shape-driven NTT tables");
+    // WHAT STILL REFUSES AT 125M, by name: the frozen seam, which cannot
+    // carry the plane at all
     assert!(crate::private_seam::SeamSpec::new([11u8; 32], sh.t_pad, sh.d_pad, 0, 41, 42).is_err(), "the frozen seam must refuse 125M's endpoint plane");
 }
