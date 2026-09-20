@@ -642,16 +642,33 @@ hand-written draw iterator and never compares with `zk_rhos`, and the
 attention twin (`private_attention/tests.rs:289`) is the same. Until such a
 test exists, label 8 stays **RELIES ON** and §6 item 2 stays open.
 
-**Restart semantics (condition O-5).** The lemma needs a refused attempt to
-be discarded whole and re-run with **fresh pads, salts and masks**, so that
-the accepted transcript is uniform on the non-refused set; a restart that
-reused the pads would correlate the two worlds. That holds here: refusals
-are never resampled on the same transcript (`argument.rs:272-273` states the
-rule) and every randomness owner is created and dropped inside one
-`prove_inner` (`protocol.rs:5-8`), so the attempts are i.i.d.
+**Single-attempt semantics (condition O-5, corrected 2026-09-20).** The
+draft read this condition as: a refused attempt is discarded whole and
+re-run with **fresh pads, salts and masks**, so that the accepted transcript
+is uniform on the non-refused set. **That mechanism does not exist in this
+profile — and it is not needed.** The independent check of the joint-law
+composition established the facts (`ZK60_JOINT_LAW_COMPOSITION_CHECK.md`
+§A5.4, its blocking item B-4; ruling J-4 of
+`ZK60_JOINT_LAW_COMPOSITION_DISPOSITION.md`):
+`private_block::prove_with_stats` calls `prove_inner` **once**
+(`private_block.rs:431-435`) and there is no retry loop anywhere in the
+module; the two endpoint commitments are caller-supplied `PreparedPlane`s
+whose roots are part of the public statement (`ExpectedIo`, absorbed at
+`protocol.rs:31`, re-checked at `:247-249`), so a fresh endpoint has a
+different root and fails `check_endpoints`; and `PreparedPlane` has **no
+`Clone`**, data getter or repeated-opening method
+(`private_seam.rs:142-147`), with `Endpoints` carrying a compile-fail
+doctest showing that the owners are consumed (`private_block.rs:360-370`).
+So a refusal is **terminal** for that `(statement, endpoints)` pair,
+**"opened twice" is prevented by the type system**, and conditioning on
+non-refusal is conditioning on a function of the challenges alone — which is
+exactly what §3.2 uses; no i.i.d.-attempts argument is needed or available.
+Operationally, a service that retries after a refusal does so with **fresh
+endpoints**; the refusal event is challenge-only, about `2^-62` per proof,
+and is visible as a changed root.
 
 **RELIES ON** those three call sites, the verifier-side re-runs above, and
-the restart semantics.
+the single-attempt semantics.
 
 **Conclusion of §3.2.** On a non-refused run the chosen minor is non-zero,
 so the non-data block has full row rank `g = 2(G+1)`, so `k0 = 0` (§1.3).
@@ -955,9 +972,13 @@ Two supports the check added, and they close §6 item 4: the number of
 openings and the row counts are witness-independent — `A_ROWS`, `H_ROWS`,
 `ENDPOINT_ROWS`, `A_GROUPS`, `H_GROUPS` are compile-time constants asserted
 by `Layout::new` (`layout.rs:588-591`), and the verifier refuses a different
-group count (`protocol.rs:169-171`); and a refused attempt restarts with
-fresh pads, salts and masks, so the accepted transcript is uniform on the
-non-refused set (§3.2 step 6, condition O-5).
+group count (`protocol.rs:169-171`); and **a refusal is terminal** for that
+statement and those endpoints — there is no restart (the earlier sentence
+here, "a refused attempt restarts with fresh pads, salts and masks", is
+**withdrawn**, corrected by the security owner on 2026-09-20 to match §3.2
+step 6 as corrected). Conditioning on non-refusal is conditioning on a
+function of the challenges alone, so the accepted transcript is uniform on the
+non-refused set (§3.2 step 6, condition O-5 as corrected).
 
 ### 3.7 The Schwartz–Zippel backstop, if a structural step is rejected
 
@@ -1413,6 +1434,7 @@ those two documents establish; no evidence file was edited.
 | O-3 | §2.3, §3.4, §3.8 row 10 | the pad budget stated as established: with-replacement sampling, 241-246 distinct, rank = distinct count, pad halves determined, 256 sufficient jointly per commitment with zero slack, pad count and Q must move together |
 | O-4 | §3.5c | the tool's Cauchy block is built at `[0,256)` while the real pads sit at `[L, L+256)`; harmless, but the tool should check the protocol's positions |
 | O-5 | §3.2 step 6, §3.6 | restart semantics stated: a refused attempt redraws pads, salts and masks (`protocol.rs:5-8`), so the accepted transcript is uniform on the non-refused set |
+| O-5, corrected 2026-09-20 | §3.2 step 6 ("Restart semantics" → "Single-attempt semantics") | the restart reading is **withdrawn**: `prove_inner` is called once, the endpoint owners are consumed, `PreparedPlane` has no `Clone`, and the endpoint roots are in the public statement, so a refusal is terminal for that `(statement, endpoints)` pair and "opened twice" is prevented by the type system; conditioning on non-refusal is conditioning on a function of the challenges alone. Evidence and citations: `ZK60_JOINT_LAW_COMPOSITION_CHECK.md` §A5.4 (its blocking item B-4); ruling J-4 of `ZK60_JOINT_LAW_COMPOSITION_DISPOSITION.md` |
 | O-6 | §3.8 row 23 | new label row for the uniformity of the non-data rows' messages (`protocol.rs:361`, `:364-372`, `private_seam.rs`) |
 | G-1 | §0, §1.5, §3.7 item 1, §3.8 rows 16 and 17, §4 item 3 | see C-12; plus the certifying-minor fix in progress recorded |
 | G-2 | §3.1 scope note, §3.8 row 20, §4 item 6 | "re-check" replaced by "re-prove"; what is owed spelled out (P-3 first, then `A_GROUPS` 35 → 36, 29-row endpoints with three data parts, the new pad-zero refusal, a second `(n, nn)` pair at the rung) |

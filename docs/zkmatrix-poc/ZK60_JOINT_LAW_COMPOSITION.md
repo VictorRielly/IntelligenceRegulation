@@ -1,8 +1,15 @@
 # The joint law of the field view (U-3b), and the nonlinear link between the two channels (item 21)
 
-**DRAFT argument for the security owner's review — NOT ACCEPTED, NOT a
-privacy acceptance. Delegated Opus draft, 2026-09-20. Every step is labelled
-proved here, relies on, or gap.**
+**Status: REVISED AFTER INDEPENDENT CHECK — the theorem's core is accepted
+for the toy block, per `ZK60_JOINT_LAW_COMPOSITION_DISPOSITION.md` (security
+owner, 2026-09-20): at fixed challenges the prover does not refuse on, in the
+uniform-blinding idealisation, the joint law of the published field values is
+the same for every admissible hidden input. Blocking items B-1 … B-4, the
+corrections and conditions of `ZK60_JOINT_LAW_COMPOSITION_CHECK.md` and
+rulings J-1 … J-5 applied. NOT a privacy acceptance: the hash layer and every
+other shape are gaps, and one step (the individual terminals) was supplied by
+the check and has been reviewed by nobody. Drafted by a delegated Opus
+agent.**
 
 ## 0. Plain words, for the project owner
 
@@ -18,13 +25,18 @@ has two published values each of which is uniform on its own, and together
 they hand over `w`. This memo writes the joint statement, for fixed
 challenges, and then says what is needed to lift it to the real protocol.
 
-**What is shown.** At fixed, non-refused challenges, the joint law of every
-field value a private-block receipt publishes is the same for every hidden
-input the constructors admit — *provided* five named inputs hold, four of them
-already accepted elsewhere. The argument has a concrete form: an algorithm,
-written out in §3.4, that samples the whole field view from public data alone,
-with exactly the honest prover's distribution. The earlier drafts called that
-object **O1** and said it did not exist. It does; §3.4 is it.
+**What is shown.** At fixed, non-refused challenges, **and in the
+uniform-blinding idealisation**, the joint law of every field value a
+private-block receipt publishes is the same for every hidden input the
+constructors admit — *provided* five named inputs hold, of which **only two
+((H2) and (H5)) are accepted elsewhere**: (H1) is this memo's own §4, (H3) is
+proved here, and (H4) rests on a construction premise that the independent
+check settled by reading (correction C-8). The argument has a concrete form:
+an algorithm, written out in §3.4, that samples the whole field view from
+public data alone, with exactly the honest prover's distribution in that
+idealisation. The earlier drafts called that object **O1** and said it did not
+exist. It does — **conditionally on (H1)–(H5), and for the field view only**
+(§3.5) — and its θ-batching step is corrected here per blocking item B-1.
 
 **What the argument turns on.** One identity does almost all the work. The
 mask commitment `M` — the one place where the blinding of the 23 sumchecks is
@@ -36,31 +48,49 @@ of the first. That is why the counterexample does not apply, and it is the
 answer to the question the project has been calling "the nonlinear link"
 (item 21), because the function in question is the degree-≤4 slot polynomial.
 
-**What it rests on.** (i) The generic-rank lemma, accepted 2026-09-20 for the
-two toy layouts, for the commitment side. (ii) A block-diagonality fact — no
-blinding source is shared between two commitments — which is read off the
-code and computed on four captures, not proved. (iii) The mask channel's two
-identities from that lemma's §3.5. (iv) The standard assumption that the
-prover's BLAKE3 stream is indistinguishable from uniform. (v) For the lift to
-real challenges, the random-oracle model for one untagged hash table, and
-salted-leaf hiding for the part of the Merkle tree that is never opened.
+**What it rests on.** (i) The generic-rank lemma, whose **core** was accepted
+2026-09-20 for the two toy layouts — the draft of that lemma was explicitly
+*not* accepted as written and went back for an errata pass (correction C-9) —
+for the commitment side. (ii) **Cross-role blinding independence**: no
+blinding source is shared between two commitments. The independent check
+settled this family by family by reading (its A5.1), and showed that the
+block-diagonality statement earlier drafts leaned on is not the hypothesis
+the joint statement needs (its A5.2); independence is computational (M-3) for
+the three commitments that share one BLAKE3 stream and information-theoretic
+for the two endpoints. (iii) The mask channel's two identities from that
+lemma's §3.5 — one of which (Fact 2.1) the check proved outright (§2.1).
+(iv) The standard assumption that the prover's BLAKE3 stream is
+indistinguishable from uniform. (v) For the lift to real challenges, the
+random-oracle model for one untagged hash table, and salted-leaf hiding for
+the part of the Merkle tree that is never opened. (vi) **One step supplied by
+the independent check and reviewed by nobody**: the per-group surjection that
+makes the 173 individual terminals safe (§4.3, ruling J-2).
 
 **What is still missing.** Three things, and they are named in §6 and §8.
 The hash layer is not covered by anything here — this memo is about field
-values, and the roots and authentication paths are not field values. The
-125M profile and the development rung owe the whole argument again from the
-start. And the step from "the law is the same for each fixed challenge
-vector" to "the law is the same when the challenges are hashes of the
-messages" is the sequential-kernel lemma, whose hypothesis this memo is
-written to discharge — for the field messages only, which is all that lemma
-ever asked for, but the lemma itself lives on a branch and not in the main
-tree.
+values, and the roots and authentication paths are not field values; it
+**remains a gap**, and what is owed under it is (H6) written as one
+random-oracle lemma with its query budget, and the sequential lift composed
+with it into a single argument (§5.2, condition O-4). The 125M profile and
+the development rung owe the whole argument again from the start. And the
+step from "the law is the same for each fixed challenge vector" to "the law
+is the same when the challenges are hashes of the messages" is the
+sequential-kernel lemma, whose hypothesis this memo is written to discharge —
+for the field messages only, which is all that lemma ever asked for, but the
+lemma itself lives on a branch and not in the main tree.
 
 **What must not be read into it.** Nothing here establishes a privacy
 property. It is one of the five steps of the path in
-`ZK60_PRIVACY_CASE_FIRST_MVP_DISPOSITION.md` §3 (step 4), it has not been
-independently checked, and its central theorem is stated with hypotheses two
-of which are themselves labelled "relies on". A checker should start at §8.
+`ZK60_PRIVACY_CASE_FIRST_MVP_DISPOSITION.md` §3 (step 4). It **has** now been
+independently checked (`ZK60_JOINT_LAW_COMPOSITION_CHECK.md`) and the
+theorem's core accepted by the security owner
+(`ZK60_JOINT_LAW_COMPOSITION_DISPOSITION.md`) — but the acceptance is of the
+core in the uniform-blinding idealisation, not of a privacy property; its
+central theorem is stated with hypotheses one of which is an assumption
+((H5): M-3, D9) and one of which ((H1)) stands on the accepted lemma's own
+"relies on" rows; and one step of the argument was supplied by the check
+itself and has been reviewed by nobody. A checker should start at §8, whose
+first item is that step.
 
 
 
@@ -130,7 +160,14 @@ Two facts about B1–B9 that the rest of the memo uses and does not prove:
   independent. In the code they are consecutive disjoint segments of at most
   three BLAKE3 XOF streams, so "independent" is **computational**, under
   assumption M-3 of the privacy case (`ZK60_PRIVACY_CASE_FIRST_MVP.md` §1.3,
-  ruling C-3), and "uniform" carries the `fp()` residual of D9.
+  ruling C-3), and "uniform" carries the `fp()` residual of D9. **Correction
+  C-11: this is not uniform across the five families.** `A`, `M` and `H`
+  (B1–B8) are three disjoint segments of **one** stream
+  (`protocol.rs:275` then `:313, 316, 324, 361, 373`), so for those the
+  independence is computational; the two endpoints (B9) are built by
+  `private_seam::prepare` from **their own** `ZkRng::from_os`
+  (`private_seam.rs:196`), so their independence of the block's stream is
+  **information-theoretic**, not an M-3 consequence.
 * **[RELIES ON]** no draw count depends on a witness value (privacy case item
   22, confirmed by its independent check), so the *assignment* of stream
   positions to families is a compile-time fact.
@@ -154,6 +191,14 @@ rounds, 721 round values, 173 terminals in total):
 | masked round values (`b"sc-round"`) | 721 `Fp2` | round `j` of slot `s`, `d_s+1` values at `X = 0…d_s`: `honest_j(X) + c_s·g_s.round(j, ρ_{<j})(X)` (`sumcheck.rs:284-294`, `zk.rs:984-997`). For `j < n_s` the honest part is `Σ_{x_{>j}} poly_s(tables(ρ_{<j},X,x_{>j}))`; for the `ext_s` extension rounds it is `poly_s((1−X)·cur + X·exts)` (`sumcheck.rs:296-309`) with `exts` = the reserved mask pair's evaluation for the private table extended in that round and `0` for every other table (`argument.rs:296-304`) |
 | masked terminals (`b"pb-term"`) | 173 `Fp2` | `term_k = cd·T̃_k(point_k) + cm_k·(R_re + U·R_im)(tail point_k)` with `cd = ∏_m (1−e_m)`, `cm_k = e_{r(k)}·∏_{m>r(k)}(1−e_m)` (`argument.rs:352-358`; the identity is `build_claim`'s doc, `:222-236`; the fold is `masked_terminal(fin, ext, e) = fin + e(ext − fin)`, `sumcheck.rs:311-314`) |
 | the mask evaluation `g_s(ρ_full)` | **0** | **not published.** The verifier *computes* it: `let g_val = fin.sub((def.poly)(&vals)).mul(c.inv());` (`argument.rs:340`). The wire frame has no field for it (`wire.rs:71-99`) |
+
+**The declared order of the 34 `M` functionals (correction C-1).** The
+functionals that `M` batches are pushed **interleaved, per slot in schedule
+order** — a Standalone slot's `Γ` functional immediately before that slot's
+own `eval` functional — with the six Host `Γ`s appended **last**
+(`private_block/argument.rs:361-376`, `:924-925`). That order is public data
+and is part of what any sampler of the field view needs (§3.1, §3.4 step 3);
+a layout change must not reorder it silently.
 
 **The single `M` opening** (`protocol.rs:392`, implementation
 `hashline/src/zk.rs:512-550`; geometry `MASK_LOG_MSG = 9`, `MASK_LOG_DOM = 12`,
@@ -282,16 +327,41 @@ shapes and five `ρ` regimes and gets `N_s d_s + 1` every time.)
 > captured challenges. Hence the map `a_s ↦ (G_s, R_s(a_s))` has image exactly
 > `C_s`.
 >
-> **RELIES ON** `ZK60_GENERIC_RANK_LEMMA.md` §3.5(a) (labelled PROVED HERE
-> there, by an explicit elimination on the round formula, and re-checked at
-> all 23 + 18 real `(N_s, d_s)` and five `ρ` regimes), which in turn relies on
-> the `d+1` published values per round (`sumcheck.rs:148-150`, ruling G-3).
-> The image identification uses in addition `G_s = Σ_x g_s(x) = r_0(0)+r_0(1)`
-> of the mask's own rounds (`sum_weights`, `sumcheck.rs:222-227`), so `G_s` is
-> a coordinate of `R_s(a_s)` rather than an extra output. Re-checked
-> independently by this drafter over a prime field at the block's 23 slot
-> shapes (11 distinct `(N, d)`) × 5 `ρ` regimes = 115 pairs, 0 failures:
-> §7.1, `mask_rank_identity.py`.
+> **PROVED (unconditional), over any field of odd characteristic.** The proof
+> below is the independent check's (its A3.2), reproduced here with credit;
+> the draft's earlier label **RELIES ON** `ZK60_GENERIC_RANK_LEMMA.md`
+> §3.5(a) is withdrawn — the fact does not need the lemma. Fix any `ρ`.
+>
+> 1. `Im R_s ⊆ C_s`: the mask's own round messages are an honest sumcheck of
+>    `g_s`, so `r_0(0) + r_0(1) = G_s` and `r_j(0) + r_j(1) =
+>    interpolate_eval(r_{j-1}, ρ_{j-1})`. (The Rust test
+>    `cfs_mask_rounds_match_brute_force`, `sumcheck.rs:363-365`, asserts
+>    exactly these two equalities.)
+> 2. `R_s` restricted to `{a′ = 0}` is **injective**. Suppose `R_s(a) = 0`
+>    with `a′ = 0`. Round `j`'s message is `2^{N-1-j}(base_j + u_j(X))`, a
+>    polynomial of degree `≤ d` in `X` vanishing at the `d+1` nodes `0..d`,
+>    hence identically zero; `u_j(0) = 0` forces `base_j = 0` and `u_j ≡ 0`,
+>    i.e. every `a_{j,e} = 0`; then `base_0 = a_0 = 0`. So `a = 0`.
+> 3. Hence `rank R_s ≥ L_s − 1 = N_s d_s + 1 = dim C_s ≥ rank R_s`, so
+>    **`Im R_s = C_s` and `dim ker R_s = 1`, for every `ρ`**. ∎
+>
+> The kernel is explicit: `a′ = 1`, `a_{j,1} = −2^{j+1−N} ∏_{i<j} ρ_i`,
+> `a_{j,e≥2} = 0`, `a_0 = −½ Σ_{i>0} a_{i,1}`. The `d+1`-published-values
+> invariant (`sumcheck.rs:148-150`, ruling G-3) is exactly what step 2
+> consumes, so it keeps its load-bearing status — for **this** reason, and
+> not for the reason §7.1's RESULT 4 gave (correction C-2). The image
+> identification uses in addition `G_s = Σ_x g_s(x) = r_0(0)+r_0(1)` of the
+> mask's own rounds (`sum_weights`, `sumcheck.rs:222-227`), so `G_s` is a
+> coordinate of `R_s(a_s)` rather than an extra output.
+>
+> The recomputations are now confirmations rather than supports: this
+> drafter's 115 (slot, ρ) pairs over a prime field (§7.1,
+> `mask_rank_identity.py`), and the check's independent 276 (slot, ρ) pairs
+> over two fields, with the closed-form round map validated against genuine
+> brute force (`results/zk60_joint_law_composition_check/check_mask_dof.txt`).
+> **Condition O-3 of the independent check**: `ZK60_GENERIC_RANK_LEMMA.md`
+> §3.5(a) should likewise carry this as a proved identity rather than a
+> sampled rank.
 
 ### 2.2 The slot-system lemma: the whole sumcheck channel is uniform on a public subspace
 
@@ -326,8 +396,8 @@ of coordinates. **PROVED HERE.**
 > independent of `w`. Hence `R(a)` is uniform on `C` and `T' = T'(w,0) + R(a)`
 > is uniform on `C`, whatever `T'(w,0) ∈ C` is. ∎
 >
-> **PROVED HERE**, given Fact 2.1 [RELIES ON], `c_s ≠ 0` [RELIES ON
-> `argument.rs:274-277`], and uniform independent `a` [RELIES ON M-3, D9].
+> **PROVED HERE**, given Fact 2.1 [now **PROVED**, §2.1], `c_s ≠ 0` [RELIES
+> ON `argument.rs:274-277`], and uniform independent `a` [RELIES ON M-3, D9].
 
 Three remarks, because Lemma 2.2 is stronger than the project's existing
 statement and it is worth seeing why.
@@ -357,24 +427,47 @@ Per slot, in `Fp2` dimensions:
 | **left over** | `dim ker R_s = 1` | a **redundancy of the parametrisation**, not spare masking power |
 
 So: **"exactly enough" is an identity, not a rank computed at captured
-challenges.** `Im(R_s) = C_s` holds for every `ρ`, by the elimination in the
-lemma's §3.5(a); the captures confirm it but do not carry it.
+challenges.** `Im(R_s) = C_s` holds for every `ρ`, by the proof of Fact 2.1
+in §2.1; the captures confirm it but do not carry it.
 
-**A discrepancy a checker should resolve (open question O-3 in §8).** The
-code's own comment says `a'` is *"the extra freedom that makes the total `G`
-AND the terminal `g(rho)` jointly uniform given the round messages"*
-(`sumcheck.rs:163-183`). The lemma's §3.5(a) computes `ker R_s` to be
-one-dimensional with `a'` as its free parameter — which says the opposite:
-that `a'` is removable without changing the image. This drafter recomputed
-both over a prime field at the block's 23 slot shapes × 5 `ρ` regimes
-(§7.1, `mask_rank_identity.py`): **dropping `a'` leaves the rank at
-`N d + 1` on 115 of 115 pairs, i.e. the mask still covers `C_s` exactly.** The two statements can
-both be true only if the code comment means "given the *masked* published
-rounds", under which `G` and `g(ρ)` are indeed not determined — but then `a'`
-is not what makes them uniform either, `c_s` and the unknown honest rounds
-are. The comment should be corrected or this drafter's reading refuted;
-nothing in this memo depends on which way it goes, because §2.2 uses only
-`Im(R_s) ⊇ C_s`.
+**The table itself is a mnemonic, not a theorem — ruling J-5 demotes it to
+ILLUSTRATION** (the check's A3.5). Its four "consumed 0" rows live in four
+different spaces — `M`'s pads, the mask coefficients, `rowspace(R_s)`, the
+`b`/`u` rows — and nothing in the proof of Theorem 3.3 ever adds them up. The
+substantive content is Fact 2.1 (§2.1), Lemma 3.1 (§3.1) and the factoring of
+`V` through `R` (§3.2), all of which stand. What the check did settle, on the
+question the table was written to answer, is that there is **no double
+count**: `q`'s law given `a` does not depend on `M`'s pads, because the
+weight vectors vanish on the 256 pad positions (`zk.rs:476-481`), so `q` and
+the a-columns are conditionally independent given `a` and each is counted
+once.
+
+**The `a'` discrepancy, resolved (was open question Q4; correction C-10).**
+The code's own comment says `a'` is *"the extra freedom that makes the total
+`G` AND the terminal `g(rho)` jointly uniform given the round messages"*
+(`sumcheck.rs:163-183`). **That comment is wrong about what the extra
+coefficient is for.** `G` *is* `r_0(0) + r_0(1)` of the mask's own rounds and
+`g(ρ)` *is* the chain's terminal value, so both are **determined** by the
+mask's round messages; no coefficient can make a determined quantity uniform.
+Correspondingly `sum_weights` and `eval_weights` lie in `rowspace(R_s)` —
+recomputed here on 115 of 115 (slot, ρ) pairs and independently by the check
+on 276 of 276. The comment is **harmless**: `dim ker R_s = 1` and no
+coefficient is special, so **nothing in the code changes because of it**
+(security owner's disposition, 2026-09-20).
+
+Two things this draft had over-personalised, corrected per C-10. First, the
+content is "**the kernel is one-dimensional**", not "`a'` is special": any
+coordinate on which the kernel vector is non-zero can be deleted without
+changing the image, and the check's control shows `a_0` is equally droppable
+at 5 of the 6 `ρ` regimes it tried — it fails only in the all-zero regime,
+where the kernel's `a_0` component vanishes. (Dropping `a'` itself leaves the
+rank at `N d + 1` on 115 of 115 pairs here, and on 138 of 138 per field in
+the check.) Second, whether the cited CFS/Libra literature needs that
+coefficient for a statement **this profile does not use** is **NOT
+VERIFIED** — the check could not verify it either. Removing `a'` would be a
+protocol change and a byte-changing re-freeze, and nothing here recommends
+it: fix the comment, leave the coefficient. Nothing in this memo depends on
+the coefficient either way, because §2.2 uses only `Im(R_s) ⊇ C_s`.
 
 **Where `L_s + 256 ≤ 512` and `n_base = 2·slots + 4` come from.** `M` is an
 ordinary Ligero-form commitment with its own geometry (`zk.rs:373-375`):
@@ -389,8 +482,12 @@ assert!(part.len() + MASK_Q <= m, "mask row: {} coefficients + {MASK_Q} pads > {
 ```
 
 i.e. `L_s ≤ 256`. At the toy block the largest is `L = 50` at the softmax
-zero-check (`layout.rs:733-736` asserts `n*d + 2 + 256 <= 512` for every
-slot). And `n_base = 2·masks.len() + 4 = 2·23 + 4 = 50` rows
+zero-check. **Correction C-14**: the assertion `n*d + 2 + 256 <= 512` for
+every slot at `layout.rs:733-736` is inside `mod tests` (from `:695`) and is
+therefore **test-only**; the load-bearing runtime assert is the one displayed
+above, `zk.rs:442`, which fires inside `mask_commit` on the shipped path.
+This draft cited the test as if it were an invariant of that path.
+And `n_base = 2·masks.len() + 4 = 2·23 + 4 = 50` rows
 (`zk.rs:434`, `M_ROWS`, `layout.rs:519`): two rows per slot, plus `b_re`,
 `b_im`, `u_re`, `u_im`. So **the "50-row `M`" and the "`L + 256 ≤ 512`"
 constraint are the same fact seen from two sides**: `M` is a 50 × 512 matrix
@@ -405,9 +502,20 @@ split (12 Private, 5 Standalone, 6 Host). The ordering rule "hosts after
 hosted slots" is enforced three times over: statically
 (`assert!(s < host, …)`, `layout.rs:716-723`), by construction (a host reads
 `acc.cs[hs]`, `acc.scalars[hs]`), and by the sequential-order refusal
-(`argument.rs:262-264`). Lemma 2.2 is exactly where that rule earns its
-keep: without `hosted(s) ⊂ {0..s-1}` the change of coordinates `T ↦ T'` need
-not be triangular, and the mask map need not be a direct sum.
+(`argument.rs:262-264`). Without `hosted(s) ⊂ {0..s-1}` the change of
+coordinates `T ↦ T'` need not be triangular, and the mask map need not be
+written as a direct sum in those coordinates.
+
+**Correction C-6: "Lemma 2.2 is exactly where that rule earns its keep"
+overstated it, and is withdrawn.** What the proof uses is that `T ↦ T'` is
+**invertible**; triangularity is a convenient sufficient condition, not the
+property the proof needs. The check's control G6 puts a hosted slot *before*
+its host with `κ_0κ_1 ≠ 1` and the law does **not** separate — any invertible
+claimed-sum change of coordinates preserves "uniform on `C`" — while at
+`κ_0κ_1 = 1` the scalar system `M(Γ_0, Γ_1) = (A_0, A_1)` is singular and for
+a generic witness **no honest prover exists at all** (control G6′, §7.3). So
+what the ordering rule buys is that the claimed-sum map is implementable and
+invertible, and a cycle's failure mode is a completeness failure, not a leak.
 [VERIFIED IN THE CODE + PROVED HERE for the consequence]
 
 **A Private slot never publishes its mask total as a functional.** Only the 5
@@ -455,6 +563,20 @@ rows) for the 5 Standalone and 6 Host `Γ`s (`argument.rs:361-376`). Let
 V(a) = Σ_{i<34} θ^i ⟨a_{s(i)}, w_i⟩        (combined_weights, zk.rs:469-486)
 ```
 
+**The index order `i` is the declared one, and it is interleaved
+(correction C-1).** `argument.rs:361-376` pushes, per slot in schedule order,
+a Standalone slot's `Γ` functional *then* that slot's `eval` functional,
+sending a Host slot's `Γ` to a separate list; `argument.rs:924-925` appends
+the six host `Γ`s at the end. So
+
+```
+[ (Γ_s if s standalone) , eval_s ]  for s = 0..22 , interleaved
+++ [ Γ_s for the six hosts, in slot order ]
+```
+
+is the order in which `θ` batches them. The draft wrote three concatenated
+blocks, which is wrong; §3.4 step 3 is corrected accordingly.
+
 > **Lemma 3.1 (`M` publishes exactly one `Fp2` functional of `a`).** Fix `ρ`
 > with `NR(ρ)`. Conditionally on `a`, the joint law of `M`'s published
 > opening `(q, prox, columns)` is:
@@ -489,10 +611,32 @@ V(a) = Σ_{i<34} θ^i ⟨a_{s(i)}, w_i⟩        (combined_weights, zk.rs:469-48
 > is what the module's own header comment states: *"b and u are determined by
 > (q', prox, the a columns)"* (`zk.rs:361-362`). ∎
 >
-> **PROVED HERE**, given: uniformity and mutual independence of `b`, `u` and
-> `M`'s pads [RELIES ON `zk.rs:443-457` and M-3]; `M-cols` [RELIES ON the
-> generic-rank lemma §3.4, which proves it for **every** column set,
-> conditional on `q_pad == num_col_checks == 256` with **zero slack**].
+> **PROVED HERE, now on M-3 only** (ruling J-5 promotes row 11 in part),
+> given: uniformity and mutual independence of `b`, `u` and `M`'s pads
+> [RELIES ON `zk.rs:443-457` and M-3]; and `M-cols`, which the independent
+> check **proves** rather than relies on (its A3.5): the pad block at the
+> `d ≤ 256` distinct sampled positions factors as
+> `diag((x_j^m−1)/m) · Cauchy(x_j; ω^{t_k}) · diag(ω^{t_k})`, of rank
+> `min(d, 256)` for distinct `x_j` off the subgroup, and the same
+> factorisation gives `H-pad` for the four PCS commitments. The generic-rank
+> lemma's §3.4 remains the prior statement of the same fact.
+
+**The inventory is complete — open question Q3 is closed.** This drafter had
+read only `mask_commit`, `mask_open` and the first lines of `mask_verify`.
+The check re-read `mask_verify` end to end — it is `hashline/src/zk.rs:552-590`,
+**not** in `sumcheck.rs` — and its complete list of checks is: `q.len() == 2m`
+(`:558`); `512·(q[0] + q[512]) == v` with `v` the θ-batched *declared*
+functional values the verifier computes itself (`:560-561`); absorb `q`, draw
+the `2S+2 = 48` proximity coefficients (`:562-563`); `prox.len() == 2m`,
+absorb `prox`, draw the 256 indices (`:564-566`); and per opened column the
+index match, `col.len() == 50`, the Merkle path, and the two identities
+`b(x_j) + Σ_s a_s(x_j)·W_s(x_j) == q(x_j)` and
+`u(x_j) + Σ_row r_row·row(x_j) == prox(x_j)` (`:573-588`). **Nothing else** —
+no degree bound on `q` beyond its 1,024 transmitted coefficients, no second
+sum identity, no per-column check pinning more than the `b` and `u` entries.
+Row 1 of the label table (the inventory of published field messages) is
+promoted to VERIFIED IN THE CODE on that reading, with the θ-order correction
+above.
 
 **So the entire cross-channel link is one `Fp2` equation**: the receipt
 publishes `q`, and the only thing `q` says about the 583 mask coefficients is
@@ -518,14 +662,37 @@ view.
 >    sumcheck channel and the terminals, of degree up to 4 in up to 61
 >    terminals, and with **no other dependence on the witness**.
 >
-> **RELIES ON** two things this memo does not re-derive: completeness of the
-> masked sumcheck with extension rounds, i.e. that the honest `fin_s` really
-> equals `poly_s(masked terminals) + c_s·g_s(ρ_full)`, which needs the
-> CONSTRUCTION PREMISE *"every slot polynomial has a public factor in every
-> monomial, so `poly(extensions) = 0`"* (`argument.rs:18-22`, stated there as
-> a premise); and the numerical confirmation of the same identity on all 82
-> slot equations of the four captures with two negative controls
-> (privacy case item 13, `ZK60_NATIVE_JOINT_VIEW.md` §11).
+> **VERIFIED IN THE CODE for the 23 toy-block closures** (ruling J-5 promotes
+> this row); **RELIES ON for every other schedule.** The identity needs
+> completeness of the masked sumcheck with extension rounds — the honest
+> `fin_s` really equals `poly_s(masked terminals) + c_s·g_s(ρ_full)` — and
+> that needs the CONSTRUCTION PREMISE *"every slot polynomial has a public
+> factor in every monomial, so `poly(extensions) = 0`"*
+> (`argument.rs:18-22`, stated there as a premise). **The independent check
+> settled the premise by reading all 23 closures** (`argument.rs:543-911`),
+> and found exactly two mechanisms: in 21 slots (SC_SS, SC_SSM, SC_TZC,
+> SC_LZC, SC_RS, SC_QMM, SC_KMM, SC_VMM, SC_WO, SC_GMM, SC_UMM, SC_DMM,
+> SC_DZC, SC_FZC, SC_QZC, SC_KVZC, SC_SZC, SC_TAB, SC_ZS, SC_IO_IN,
+> SC_IO_OUT) every monomial carries an `eq` or public table as a factor,
+> which is `0` in `exts`; in the two softmax slots (SC_SCORE, SC_PV) the two
+> private factors are extended in **different** rounds (`ext_round` 0 and 1,
+> `:649, 652` and `:662, 665`), so one of them is `0` in each round's `exts`.
+> The numerical confirmation of the same identity on all 82 slot equations of
+> the four captures with two negative controls (privacy case item 13,
+> `ZK60_NATIVE_JOINT_VIEW.md` §11) stands as a second and weaker support.
+>
+> Two consequences the draft did not draw. The identity is **structural and
+> witness-independent** — a statement about which table slots can be non-zero
+> in `exts`, not about values — which is exactly the form Theorem 3.3 needs,
+> because its proof requires `T′(w, π) ∈ C` for **every** `π`, not only for
+> the `π` that arise on runs that verified. And **no symbolic check and no
+> Python port is owed**: the port `scripts/zk60_native_terminal_polys.py` is
+> itself an unverified transcription, so a check run through it would be
+> weaker evidence than this reading. **Condition O-1 of the independent
+> check** is what is owed
+> instead: a Rust test that, for each slot, evaluates `def.poly` on a vector
+> supported on that extension round's private tables and asserts zero, so the
+> reading cannot rot at the next schedule edit.
 
 Item 12 of the privacy case already proved sentence 1 as an *accounting*
 rule: a derived value is not an independent observation. **Fact 3.2 is the
@@ -543,9 +710,12 @@ a redesign could break either:
   view and the argument would fail at exactly this point;
 * **the 34 weight vectors all lie in `rowspace(R_s)`** (lemma §3.5(b)), so
   `ker R ⊆ ker V` and `V` **factors through `R`**: there is a linear
-  functional `V̂` on `C` with `V(a) = V̂(R(a))`. **PROVED HERE** given
-  §3.5(b). This is used in the next proof and is not the same statement as
-  Fact 3.2.
+  functional `V̂` on `C` with `V(a) = V̂(R(a))`. **PROVED** (ruling J-5
+  promotes this row): it follows from the same argument that proves Fact 2.1
+  in §2.1 — the kernel of `R_s` is the explicit one-dimensional line, and
+  `sum_weights` and `eval_weights` annihilate it — and it is recomputed on
+  276 of 276 (slot, ρ) pairs by the check and 115 of 115 here. This is used
+  in the next proof and is not the same statement as Fact 3.2.
 
 ### 3.3 The composition theorem at fixed challenges
 
@@ -564,8 +734,16 @@ V_M   = F_M  (α, μ)         q, prox, M's 256 opened columns
 (`V_pcs` does not involve `α` or `μ`; `V_M` involves neither `w` nor `π`;
 `V_sc` involves `π` only through the extension rounds' `exts`.)
 
-> **Theorem 3.3 (the joint law at fixed challenges).** Fix an admissible
-> public statement and a challenge vector `ρ` with `NR(ρ)`. Assume
+**`V_sc` is not a product across roles (correction C-12).** One extension
+round mixes reserved-pair evaluations from `A`, `H` and an endpoint inside a
+single slot (SC_DZC, SC_IO_IN, SC_IO_OUT), so the per-role factorisation of
+§4.2 covers `V_pcs` **only**. That is why (H1) is stated for `V_pcs` rather
+than for the whole view, and why the theorem below conditions on the whole of
+`π` instead of splitting it by role.
+
+> **Theorem 3.3 (the joint law at fixed challenges, in the uniform-blinding
+> idealisation).** Fix an admissible public statement and a challenge vector
+> `ρ` with `NR(ρ)`. Assume
 >
 > * **(H1)** the law of `V_pcs` given `w` does not depend on `w` — §4;
 > * **(H2)** `Im R = C` and every fibre of `R` has the same size — Fact 2.1
@@ -577,7 +755,8 @@ V_M   = F_M  (α, μ)         q, prox, M's 256 opened columns
 > * **(H5)** `α`, `π`, `μ` are mutually independent and `α` is uniform.
 >
 > Then for every admissible `w`, `w′`, the joint law of
-> `(V_sc, V_pcs, V_M)` is the same, and it is given explicitly by
+> `(V_sc, V_pcs, V_M)` is the same — an exact equality of laws **in the
+> uniform-blinding idealisation of (H5)** — and it is given explicitly by
 >
 > ```
 > Pr[V_sc = t, V_pcs = v, V_M = m]
@@ -605,10 +784,24 @@ V_M   = F_M  (α, μ)         q, prox, M's 256 opened columns
 > `1[t′∈C]·|Fp2|^{-560}·Φ(m;V_pub(t,v))·Pr[F_pcs(w,π)=v]`, and the last
 > factor is `w`-independent by (H1). ∎
 >
-> **PROVED HERE**, on hypotheses (H1) [§4: PROVED HERE from the accepted
-> lemma **plus** a block-diagonality fact that is RELIES ON], (H2) [RELIES
-> ON], (H3) [PROVED HERE on RELIES ON inputs], (H4) [RELIES ON], (H5)
+> **PROVED HERE, in the uniform-blinding idealisation**, on hypotheses (H1)
+> [§4: mixed — from the accepted lemma's core, the cross-role blinding
+> independence the check settled by reading, and the terminals step the check
+> supplied], (H2) [now **PROVED**, §2.1], (H3) [PROVED HERE on M-3], (H4)
+> [**VERIFIED IN THE CODE** for the 23 toy-block closures, §3.2], (H5)
 > [ASSUMED: M-3, D9].
+>
+> **Remark — the real prover (blocking item B-3, ruling J-3).** The equality
+> above is exact only in the idealisation where the prover's blinding is
+> uniform and independent, which is (H5). Stated once here, and not repeated
+> elsewhere in this memo: against the **real** prover the two laws are within
+> **2^-77.7** in statistical distance for one toy-block proof — the sampler
+> residual of decision **D9, accepted**: 327,052 `fp()` draws at exactly
+> `2^-96` each — and beyond that they are indistinguishable only up to the
+> advantage against the **named generator**, the keyed BLAKE3 stream with a
+> counter (`zkp-core/src/rng.rs`), i.e. assumption M-3 in its two-sided
+> whole-stream form. Every later use of "perfect" or "exactly" in this memo
+> carries this idealisation.
 
 **What the factorisation says, in words.** The sumcheck channel is uniform on
 a public subspace and independent of everything else; the commitment channel
@@ -672,9 +865,15 @@ O1(statement, layout, ρ):
     for each slot s: vals_s ← the terminals of step 2 in the slot's
       private-table positions, public values elsewhere;
       g_val_s ← (fin_s − poly_s(vals_s))·c_s^{-1}
-    values ← [ Γ_s for standalone s ] ++ [ g_val_s for all s ]
-             ++ [ Γ_s for host s ]        (the declared order)
+    values ← [ ]                          THE DECLARED ORDER, INTERLEAVED:
+    for s = 0 .. 22, in schedule order:
+      if s is Standalone: push Γ_s          (a Standalone's Γ functional
+      push g_val_s                           immediately before that slot's
+                                             own eval functional)
+    for each Host slot s, in slot order:
+      push Γ_s                              (the six host Γs, appended last)
     V ← Σ_i θ^i · values_i
+    -- argument.rs:361-376 for the interleaved part, :924-925 for the hosts
 
  4. THE MASK COMMITMENT — sampled conditionally on V
     draw the 46 a-rows' values at the distinct sampled coset positions
@@ -689,15 +888,31 @@ O1(statement, layout, ρ):
  5. OUTPUT (V_sc, V_pcs, V_M).
 ```
 
-> **Corollary 3.4.** Under the hypotheses of Theorem 3.3, `O1(statement,
-> layout, ρ)` outputs a sample whose law is **exactly** the honest prover's
-> field view at challenges `ρ`, for every admissible hidden input.
+**The functional order is part of the public data O1 needs (blocking item
+B-1, ruling J-1).** The draft printed step 3 as three concatenated blocks,
+`[Γ_s for standalone s] ++ [g_val_s for all s] ++ [Γ_s for host s]`. The
+first two are **not** concatenated, they are interleaved, as above
+(`private_block/argument.rs:361-376`, `:924-925`). As printed, the sampler
+computed the wrong `θ`-batch and therefore sampled `q` on the wrong coset.
+Theorem 3.3 is untouched — it never fixes an order — but the algorithm was
+wrong, and the order is hereby recorded as **part of the public data the
+sampler needs**, on the same footing as the layout, `ρ` and the 34 weight
+vectors. A layout change must not reorder the functionals silently: the
+sampler and `combined_weights` have to move together.
+
+> **Corollary 3.4.** Under the hypotheses of Theorem 3.3, and **in the
+> uniform-blinding idealisation**, `O1(statement, layout, ρ)` outputs a
+> sample whose law is **exactly** the honest prover's field view at
+> challenges `ρ`, for every admissible hidden input.
 > **PROVED HERE** — it is the explicit law of Theorem 3.3 read as an
 > algorithm: step 1 samples `Uniform(C)` (the free-coordinate
 > parametrisation is a bijection onto `C` by the same count as §2.1), step 2
 > samples `P_pcs` (legitimate because (H1) says the law is the same for
-> every data rectangle, **including the all-zero one**), step 3 evaluates
-> `V_pub`, step 4 samples `Φ(· ; V)` (Lemma 3.1's four bullets).
+> every data rectangle, **including the all-zero one**; that the 173
+> individual terminals it reads off are themselves uniform given the rest is
+> the step imported in §4.3, supplied by the independent check), step 3
+> evaluates `V_pub` **in the declared order**, step 4 samples `Φ(· ; V)`
+> (Lemma 3.1's four bullets).
 
 **In what sense the sampler's existence *is* the theorem.** Perfect, for
 fixed non-refused challenges, in the uniform-blinding idealisation: the
@@ -740,7 +955,8 @@ they agree.
   * the challenge-driven refusal rate, **2^-62.0 per proof** at either toy
     profile (`ZK60_GENERIC_RANK_LEMMA.md` §5) — a **liveness** cost, not a
     distinguishing one, precisely because the profile refuses and never
-    resamples;
+    resamples: a refusal is terminal for that statement and those endpoints
+    (§5.4, blocking item B-4);
   * the hash-layer terms **M-1** and **M-2**, which are outside this memo.
 
 
@@ -811,6 +1027,13 @@ of the proximity combination (lemma §1.3, PROVED HERE there).
 > whose rows are all four roles' group and proximity generators and whose
 > columns are the **union** of all four roles' non-data rows, with
 > coordinates the protocol makes the same unknown identified.
+>
+> **This identification is demoted to an illustration and is unnecessary
+> (ruling J-5, row 18).** The independent check showed that the joint
+> statement does not need this matrix at all (its A5.2, imported as
+> Proposition 4.2′ below): mutual independence of the roles' blinding gives
+> the product law directly. The block is kept here only to show what the
+> earlier route would have had to prove.
 
 Two things must be said about it, and they are different.
 
@@ -826,12 +1049,41 @@ every `λ_c ≠ 0`, every `cm_c ≠ 0` and the proximity pair is independent —
 three quantities the prover's refusals test. **So the accepted lemma covers
 the across-slots composition inside one commitment.** [RELIES ON the accepted
 lemma; `audit_claims`, `protocol.rs:89-133`; `check_opening_challenges`,
-`:139-152`.]
+`:139-152`.] **One thing that reduction does *not* cover** is the 173
+individual terminals: its generators are only the `2(G+1)` real and
+imaginary parts of the group and proximity combinations, and each terminal is
+published separately rather than as a `λ`-combination. That is blocking item
+B-2, and the step that fills it is imported in §4.3.
 
-**(b) "Across commitments" is a corollary, on one hypothesis the lemma does
-not prove.**
+**(b) "Across commitments" follows from the roles' blinding being
+independent — not from a joint rank.**
 
-> **Proposition 4.2.** If no non-data coordinate class contains rows of two
+> **Proposition 4.2′ (the product law).** **Supplied by the independent
+> check (its A5.2)**, and adopted here as the route the joint statement
+> actually takes. Each role `r ∈ {A, H, In, Out}` publishes objects that are
+> a function of the shared data `d` and of that role's **own** blinding
+> `β_r`, and the `β_r` are mutually independent. Then
+>
+> ```
+> law(V_A, V_H, V_In, V_Out | d) = ⊗_r law(φ_r(d, β_r)) = ⊗_r P_r ,
+> ```
+>
+> so the four **per-role** witness-free statements give the joint one
+> directly: no rank computation, no block-diagonality lemma, and nothing
+> that has to be said about shared **data** coordinates. The endpoint
+> question then answers itself: the two endpoint planes commit the same
+> hidden values as `A[10], A[11], A[68], A[69]` under independent pads, and
+> since `law(φ_A(d, β_A))` is data-free for *every* `d` and `β_A ⊥ β_E`, the
+> pair (`A`'s view, the endpoint's view) is jointly data-free. The two IO
+> terminals being evaluations of the same plane at the same point is
+> likewise harmless: they carry independent reserved pairs, one in each
+> commitment. The hypothesis it needs — cross-role blinding independence —
+> is settled by reading immediately below.
+
+The draft's own route is kept for the record and is **superseded** (ruling
+J-5, row 20):
+
+> **Proposition 4.2 (superseded by 4.2′).** If no non-data coordinate class contains rows of two
 > different roles ("block diagonality"), then the joint non-data block is
 > block diagonal by role, so its rank is the sum of the four per-role ranks;
 > by the accepted lemma each equals `2(G_r+1)`, so the joint rank is
@@ -840,40 +1092,55 @@ not prove.**
 > Identifying **data** coordinates across roles can only *lower* the joint
 > disclosed dimension (it merges two columns into their sum, which can only
 > shrink `F ∩ T`), so the endpoint identification is harmless.
-> **PROVED HERE**, given block diagonality.
+> **PROVED HERE**, given block diagonality — but **superseded**, and §9 row
+> 20 labels it ILLUSTRATION accordingly: Proposition 4.2′ reaches the same
+> conclusion without the rank and without that hypothesis.
 
-Block diagonality itself is **[RELIES ON]**, on two independent supports and
-no proof:
+**Cross-role blinding independence, settled family by family by reading
+(ruling J-5 restates this row and promotes it; the draft's GAP G-1 is closed
+in this form).** The hypothesis the argument needs is not block diagonality
+of a matrix but this: *no blinding variable enters two commitments.* The
+independent check read every family and where it is drawn (its A5.1):
 
-* *the code*: every commitment draws its own pads, its own reserved mask
-  pairs and its own proximity rows, from disjoint consecutive segments of at
-  most three streams, and nothing is cloned or reused
-  (`pcs.rs:673-674` per commitment, `protocol.rs:313-315`, `:362-374`,
-  `private_seam.rs:196`; privacy-case item 22, VERIFIED IN THE CODE, with the
-  caveat that `A`, `M` and `H` are **one** stream so independence is
-  computational under M-3);
-* *the measurement*: the repaired stage 4 of the joint-view gate
-  (`zk60-native-jointview` at `14b7d20`, `ZK60_NATIVE_JOINT_VIEW.md` §12)
-  builds one generator system over the union of a receipt's commitments,
-  reports **0 shared non-data classes** and **4 shared data classes** (the
-  two endpoint planes, which are `A[10], A[11], A[68], A[69]`), and computes
-  joint `4` = sum `4` on all four captures, with a control that shares a
-  blinding row across two commitments and moves the joint from 4 to 260.
+| family | drawn where | enters |
+|---|---|---|
+| `A`'s 242 non-data rows (120 reserved pairs + the proximity pair) | `protocol.rs:313-315` | `A` only |
+| `A`'s 455 × 256 pads and 2,048 salts | `pcs.rs:673-674` inside `commit_zk_owned` (`protocol.rs:316`) | `A` only |
+| the 23 CFS coefficient vectors, `M`'s 46 × 256 pads, `b_re/b_im/u_re/u_im`, `M`'s 4,096 salts | `zk.rs:434, 445, 452-457, 462` inside `mask_commit` (`protocol.rs:324`) | `M` only |
+| `H`'s 104 non-data rows | `protocol.rs:361-363` | `H` only |
+| `H`'s zero-sum pair `u` | `protocol.rs:364-372` | `H` only |
+| `H`'s 384 × 256 pads and salts | `commit_zk_owned` (`protocol.rs:373`) | `H` only |
+| each endpoint's 5 non-data rows, 7 × 256 pads, salts | `private_seam.rs:196, 211-217` — its **own** `ZkRng::from_os` | that endpoint only |
 
-**The honest reading, and the gap.** The accepted lemma
-(`ZK60_GENERIC_RANK_LEMMA_DISPOSITION.md`) is explicit that all four of its
-items are *per commitment* and that the joint statement is U-3(b) and "not
-computed" as of its writing; ruling G-1's fix then made it computed, **on
-four captures**. So the joint statement's status is: *a theorem given block
-diagonality, whose hypothesis is a source reading plus four measurements.*
-**GAP G-1 (this memo's numbering): no argument establishes block diagonality
-for all runs; it is a structural property of the code, and the honest label
-for the joint step is PROVED-CONDITIONAL on it.** What would close it: a Rust
-invariant (or a test) asserting that the four PCS commitments' non-data rows
-are disjoint objects drawn from disjoint stream segments, plus the same for
-`M` — an assertion, not a proof, but one that cannot silently rot.
+Every write to `a_data` and `h_data` (`protocol.rs:282-316`, `:336-373`) was
+grepped: nothing is copied from one commitment's blinding into another's, no
+blinding value is read back, and `commit_zk_owned_with` draws `pads` then
+`salts` from the passed rng and nothing else (`pcs.rs:673-674`). So the
+hypothesis holds for the toy block **by reading**: computational under M-3
+for `A`, `M` and `H`, which are consecutive disjoint segments of one stream,
+and **information-theoretic** for the two endpoints. **VERIFIED IN THE CODE
+for the toy block — and still not machine-asserted**, which is **condition
+O-2 of the independent check**: a Rust assertion (or a stream-segment
+accounting test) that no
+blinding value enters two commitments. What remains is that guard, not an
+argument.
 
-**A precision on the pad step (open question O-4 in §8).** The lemma's
+*The measurement, quoted with its blind spot (correction C-3).* The repaired
+stage 4 of the joint-view gate (`zk60-native-jointview` at `14b7d20`,
+`ZK60_NATIVE_JOINT_VIEW.md` §12) builds one generator system over the union
+of a receipt's commitments, reports **0 shared non-data classes** and **4
+shared data classes** (the two endpoint planes, which are `A[10], A[11],
+A[68], A[69]`), and computes joint `4` = sum `4` on all four captures, with a
+control that shares a blinding row across two commitments and moves the joint
+from 4 to 260. **That control has a recorded blind spot**
+(`ZK60_NATIVE_JOINT_VIEW.md` §12.5): the joint rank sees a shared blinding
+row only at a *tight* position — a singleton opening group's pair, two
+generators against exactly two columns. `A` has 17 singleton groups out of 35
+and `H` 2 out of 9, so a sharing at a slack position would change no rank at
+all. The draft quoted the control without the blind spot; the source reading
+above, and not the control, is what carries the hypothesis.
+
+**A precision on the pad step, resolved (was open question Q7).** The lemma's
 disposition says "the pad halves of the group and proximity vectors are
 determined by those columns, so nothing is counted twice". Read literally
 that is exact only when all 256 sampled indices are distinct. The indices are
@@ -881,10 +1148,14 @@ drawn **with replacement** (`transcript.rs:118-131`; `pcs.rs:1193` says so in
 a test comment) and the captures record `d = 231…246` distinct, so only a
 `d`-dimensional projection of each published pad half is pinned by the
 columns; the remaining `256 − d ≈ 10…25` coordinates are published
-independently. They are combinations of *blinding only* and so cannot add a
-data functional, and the lemma's own rank is computed over the full generator
-system, so this drafter believes the conclusion stands and only the prose
-overstates. A checker should confirm that.
+independently. **The check confirmed the reading** (its row 22): those
+undetermined coordinates are supported on **pad** coordinates only, so they
+carry no data coordinate and cannot by themselves put a functional into
+`F ∩ T`; the lemma's own rank is computed over the full generator system.
+The prose overstated, the conclusion stands, and this is a correction of the
+prose rather than a gap. The correctness of the reduction
+`disclosed = 256·k0 + (the u-row term)` **as a whole** is unchanged and
+remains one of the **generic-rank lemma's** RELIES ON rows, not this memo's.
 
 ### 4.3 The masking commitment `M` inside the joint picture
 
@@ -902,6 +1173,58 @@ overstates. A checker should confirm that.
   it cannot be handled by the commitment-side rank at all and needs Lemma 3.1
   and Theorem 3.3 instead.
 
+**The 173 individual terminals — a step the argument needs that was in
+neither document (blocking item B-2, ruling J-2).** The receipt publishes
+each claim's terminal separately. Those terminals are inside the accepted
+lemma's functional space, but they are **not** among the generators of its
+reduction (`_p1_rows` holds only the `2(G+1)` real and imaginary parts of the
+group and proximity combinations), and they are not in the span of those: a
+group vector gives only the `λ`-combination `Σ_c λ_c value_c`, whereas the
+receipt publishes each `value_c`. So the sampler's step 2, which reads the
+terminals off the all-zero rectangle, was unjustified in both documents. The
+independent check supplied the missing step, and it enters here with its
+provenance stated.
+
+> **The per-group surjection.** Fix one opening group `g` with member claims
+> `c = 1..m`, shared column weights `cw ≠ 0`, and each claim's own reserved
+> pair contributing `P_c := msg_{r_c} + U·msg_{r_c+1} ∈ Fp2^{256}`, uniform
+> and independent across claims (`audit_claims` gives one pair per claim,
+> used by no other claim). The published objects that touch those pairs are
+> the group vector's message half `v = D + Σ_c λ_c cm_c P_c` and the `m`
+> terminals `y_c = d_c + cm_c⟨P_c, cw⟩`, and the verifier's own check forces
+> `⟨v, cw⟩ = Σ_c λ_c y_c`. Then the blinding map `(P_c)_c ↦ (v, y_1..y_m)`
+> is **onto** that consistency subspace whenever every `λ_c ≠ 0`, every
+> `cm_c ≠ 0` and `cw ≠ 0`. *Proof for `m = 2`; the general case is the same
+> induction.* Given a target, choose `P_1` freely with
+> `⟨P_1, cw⟩ = y_1/cm_1` and set `P_2 = (v − λ_1 cm_1 P_1)/(λ_2 cm_2)`; then
+> `⟨P_2, cw⟩ = (⟨v, cw⟩ − λ_1 y_1)/(λ_2 cm_2) = y_2/cm_2`. ∎ So the
+> individual terminals add **exactly nothing** beyond the group vector and
+> that one public identity, and each is uniform given the rest.
+>
+> **The three non-vanishing conditions, and the refusal that gives each.**
+> `λ_c ≠ 0`: the zero group-coefficient refusal (`check_opening_challenges`,
+> `protocol.rs:139-152`). `cm_c ≠ 0`: the zero mask-challenge refusal
+> (`argument.rs:347-349`, `audit_claims:103-108`). `cw ≠ 0`: the check
+> records this one as given by a refusal too, but does not pin it to a line;
+> §8's Q0 asks the next reviewer to confirm on which paths it is refused. The
+> proximity vector is handled the same way — `ρ_prox` is non-zero on the
+> reserved proximity pair and a dependent pair is refused
+> (`protocol.rs:141-151`), so `(a, b) ↦ ρ_p a + ρ_{p+1} b` is onto
+> `Fp2^{256}`.
+>
+> **Label: supplied by the independent check; verified by its script; not
+> independently reviewed.** The script is
+> `results/zk60_joint_law_composition_check/check_pad_and_group.py`, output
+> `(c)`: over the real Goldilocks prime with `U² = 7`, for groups of 1, 2 and
+> 4 members, the blinding map's rank is `2·ncol + 2m − 2` — every
+> observation but exactly one `Fp2`, which is the public identity — and the
+> control `cm_0 = 0` drops it, to **0** for a singleton group. **What this
+> leans on**: the accepted generic-rank lemma's *reduction*
+> (`disclosed = 256·k0 + u-term`, with generators `_p1_rows`), whose
+> correctness is one of **that lemma's own RELIES-ON rows**, machine-validated
+> only against a dense brute force on a small synthetic instance. This step
+> is the **first item for whoever reviews this argument next** (§8, Q0).
+
 So the correct statement of (H1) is about the **four PCS commitments only**:
 
 > **(H1), stated precisely.** For the toy private-block layout, at any
@@ -909,14 +1232,17 @@ So the correct statement of (H1) is about the **four PCS commitments only**:
 > opened columns and 173 terminals of `A`, `H`, `In` and `Out` — is the same
 > for every admissible hidden input.
 >
-> **PROVED HERE** from Lemma 4.1 + Proposition 4.2 + the accepted
-> generic-rank lemma's items 1–3 + the `Fp2::ZERO` value of the LogUp
-> identity, **conditional on**: block diagonality (GAP G-1); the lemma's own
-> RELIES ON rows (`audit_claims` on every path, the refusal replay order —
-> for which a Rust test is owed, the four `part_rows` assertions
+> **MIXED** (ruling J-5): proved here from Lemma 4.1 + Proposition 4.2′ (the
+> product law) + the accepted generic-rank lemma's core items 1–3 + the
+> `Fp2::ZERO` value of the LogUp identity + the terminals step above,
+> **conditional on**: cross-role blinding independence (VERIFIED IN THE CODE
+> for the toy block, not machine-asserted — condition O-2); the imported
+> terminals step, which has been reviewed by nobody; the lemma's own RELIES
+> ON rows (`audit_claims` on every path, the refusal replay order — for
+> which a Rust test is owed, the four `part_rows` assertions
 > `pcs.rs:759, 768, 775, 786`, the `d+1` values per round
 > `sumcheck.rs:148-150`, and the uniformity of the non-data rows'
-> messages); and the two toy layouts only (ruling G-2).
+> messages); and the two toy layouts only (ruling G-2, condition O-5).
 
 
 
@@ -949,6 +1275,16 @@ Three things it is not.
   uses it as stated and does not re-prove it.
 * **Carve-out (i) survives unchanged**: a witness-*dependent* refusal breaks
   the conclusion, and there is exactly one (§5.4).
+
+**Condition O-4 of the independent check: the lift is still owed as a
+per-step kernel argument.** This
+memo supplies the field part (Theorem 3.3) and §5.2 supplies the hash part
+conditionally on it, but the step from those two to "the law of the whole
+view is witness-independent" is written in prose. The check answered the
+draft's Q5 with **yes**: what is owed is a per-step kernel argument over
+messages that are **pairs** (field part, hash part), discharging the
+bad-event list of §5.2. Until that is written, the composition of Theorem
+3.3 with (H6) is prose, not a proof.
 
 ### 5.2 The hash layer: the one assumption, stated precisely
 
@@ -983,23 +1319,60 @@ in all (privacy-case item 15).
 > as a derivation *inside* the model; the model itself is **ASSUMED** (M-1,
 > M-2).
 
-**Does the shared untagged domain matter to *this* step?** No, and the reason
-should be recorded rather than waved at. The step needs only that a
-`q`-query adversary cannot predict the image of a 64-byte input whose last 32
-bytes it does not hold. A transcript absorption that lands in the same
-64-byte domain — `absorb(b"log-cols", 8 bytes)` gives
-`32 + 8 + 8 + 8 + 8 = 64` untagged bytes (`transcript.rs:44-52`;
-`private_block/protocol.rs:41-45`) — is an extra query on an input the
-adversary already knows, which does not help it guess a salt. The squeeze
-function is a 47-byte input (`transcript.rs:85-94`) and so is outside the
-node/leaf set entirely. Where the shared domain **does** matter is elsewhere
-and stays open: composing this privacy argument in the ROM with the
-*soundness* reduction over the same table (privacy-case item 16, condition
-O-7), and any argument that **programs** the oracle — which under D18 none
-here does (item 14). It also means `hash_column` on a commitment with exactly
-8 rows would itself be a 64-byte input; none of `A` (455), `H` (384), `M`
-(50) or the endpoints (7) is, but by arithmetic accident rather than by a
+**Does the shared untagged domain matter to *this* step? (correction C-5.)**
+No — but the draft's reason covers only one direction, and one term was
+missing. The draft argued that a transcript absorption landing in the same
+64-byte domain is an extra query on an input the adversary already knows,
+which does not help it guess a salt. True, and it answers the salt-guessing
+direction only. The check supplied the argument that closes the other
+direction, by input length:
+
+| query | input length |
+|---|---|
+| `Transcript::squeeze_bytes` (**every challenge**) | `32 + 7 + 8 = 47` (`transcript.rs:85-94`) |
+| `Transcript::absorb` | `48 + len(label) + len(data) ≥ 49` (`:44-52`) |
+| `merkle::hash_pair`, `pcs::salt_leaf` | `64` |
+| `hash_column` | `rows·8` ∈ {3640, 3072, 400, 56} for `A` / `H` / `M` / an endpoint |
+
+47 bytes is a length nothing else in the system uses, so **no
+challenge-producing query can coincide with a node, leaf or absorb query**,
+and the sequential lift's "each challenge is fresh uniform given the past"
+needs no separate argument about the shared domain. (Challenges *are*
+functions of leaf digests through the absorbed roots; that is by design and
+is what the sequential-kernel lemma allows.)
+
+**The one genuine overlap, and where it belongs.** Enumerating the labels on
+this path, only `absorb_u64(b"log-cols", 8)` gives
+`32 + 8 + 8 + 8 + 8 = 64` bytes (`private_block/protocol.rs:43`); `b"rows"`
+gives 60 and `b"pb-slot"` 63. Its last 32 bytes are the **fixed constant**
+`le64(8) ‖ "log-cols" ‖ le64(8) ‖ le64(8)`, so it collides with
+`hash_pair(a, b)` only if `b` equals that constant, and with
+`salt_leaf(d, s)` only if the salt does: `2^-256` per node or salt, about
+**`2^-243`** over one proof's objects. That term belongs **inside** (H6)'s
+"(collision terms)" above, where this draft did not put it. With the length
+argument and this term the dismissal stands.
+
+Where the shared domain **does** matter is elsewhere and stays open:
+composing this privacy argument in the ROM with the *soundness* reduction
+over the same table (privacy-case item 16, condition O-7), and any argument
+that **programs** the oracle — which under D18 none here does (item 14). It
+also means `hash_column` on a commitment with exactly 8 rows would itself be
+a 64-byte input; none of `A` (455), `H` (384), `M` (50) or the endpoints (7)
+is — the endpoints by one row — but by arithmetic accident rather than by a
 check (privacy-case item 16).
+
+**The hash layer remains a GAP, and here is what is owed.** Nothing above
+turns (H6) into a theorem: it is a statement inside an assumed model. Two
+things are owed before the hash layer can be called done — (i) **(H6)
+written as one random-oracle lemma with its query budget**, absorbing the
+`2^-243` term above and the `q·2^-256` salt term, and (ii) **the sequential
+lift composed with it into a single argument** (condition O-4), whose bad
+events are: two distinct `squeeze` inputs colliding (the challenge chain
+repeating), `2^-256` per pair and unreachable from any other table by the
+length argument; two distinct `absorb` inputs colliding (the transcript's
+binding); a `hash_pair`/`salt_leaf` input coinciding with a 64-byte `absorb`
+input, `≈ 2^-243`; and the prover's own oracle queries colliding with the
+transcript's, subsumed by the first three.
 
 ### 5.3 Why the known counterexample does not apply
 
@@ -1012,9 +1385,9 @@ it.
 | # | the blinding variable | published where, twice | what disposes of it |
 |---|---|---|---|
 | 1 | the **CFS mask coefficients** `a_s` (B6) | in the masked rounds (`c_s·R_s(a_s)`) **and** in `M`'s `q` | Lemma 3.1: `q` reveals exactly one `Fp2` functional `V(a)`; §3.2: `V` factors through `R`, so it is *not a second, independent encoding*; and Fact 3.2: `V(a)` equals a public function of the already-published values. **This is the exact analogue of the counterexample and it is where the protocol could have failed** — see below |
-| 2 | a **pad symbol** | in an opened column **and** in a group or proximity vector's pad half | the encoding identity `⟨E_j, v⟩ = Σ_i ρ[i]·col_j[i]` (`pcs.rs:1022-1031`) makes the pad half's values at the `d` distinct opened positions a function of the columns and the published message half; the residual `256 − d` coordinates are combinations of blinding only. The lemma's rank is computed over the whole generator system, so both are counted once — modulo the precision of §4.2 |
+| 2 | a **pad symbol** | in an opened column **and** in a group or proximity vector's pad half | the encoding identity `⟨E_j, v⟩ = Σ_i ρ[i]·col_j[i]` (`pcs.rs:1022-1031`) makes the pad half's values at the `d` distinct opened positions a function of the columns and the published message half; the residual `256 − d` coordinates are combinations of blinding only. The lemma's rank is computed over the whole generator system, so both are counted once; the precision of §4.2 is now **resolved** — those residual coordinates are supported on pad coordinates only and carry no data coordinate |
 | 3 | a **reserved mask pair row** | in the masked terminal it hides **and** in the group vector that batches that claim | the block-triangular factorisation (lemma §3.2): the pair carries coefficients `(cm, cm·U)`, an `Fp`-basis of `Fp2`, no other claim touches it (`audit_claims`), and the minor's factor `Norm(λ·cm)` is exactly what the refusals keep non-zero |
-| 4 | — (a shared **data** coordinate, not a blinding one) | the two endpoint planes are copies of `A[10], A[11], A[68], A[69]`, committed twice under independent blinding, and `SC_IO_IN`/`SC_IO_OUT` publish two terminals of the same values at the same `ρ` | Proposition 4.2: identifying data coordinates can only lower the joint disclosed dimension; the two terminals carry independent reserved pairs (§2.4) |
+| 4 | — (a shared **data** coordinate, not a blinding one) | the two endpoint planes are copies of `A[10], A[11], A[68], A[69]`, committed twice under independent blinding, and `SC_IO_IN`/`SC_IO_OUT` publish two terminals of the same values at the same `ρ` | Proposition 4.2′ (§4.2), which replaces the draft's reason: the four roles' blinding families are independent, so the joint law is the product of the per-role laws and a shared *data* coordinate cannot couple them — the endpoint planes are `A`'s own values committed under independent pads; the two terminals also carry independent reserved pairs (§2.4) |
 | 5 | the **zero-sum pair** `u` (B4), whose last entry is determined by the other 255 | inside `H`'s data block, and inside the LogUp sum claim | it is declared a mask row to the PCS (`protocol.rs:374`) and its disclosed contribution is exactly the 2-dimensional public identity of value `Fp2::ZERO` (Lemma 4.1(2)) |
 | 6 | `A`'s 256 **published salts**, drawn from the same stream that later produces `H`'s pads | the receipt, and (secretly) `H`'s pads | **only** assumption M-3 in its two-sided, whole-stream form (ruling C-3). This is the one candidate with no structural answer |
 
@@ -1022,7 +1395,8 @@ it.
 functional — whose value `G_s = (Γ_s − σ_s)/c_s` involves the *unpublished*
 honest sum `σ_s` — then `V(a)` would not be a public function of the view,
 the fibre argument in Theorem 3.3 would fail, and the joint law would become
-witness-dependent **with every marginal still perfectly uniform**. Likewise
+witness-dependent **with every marginal still exactly uniform in the
+uniform-blinding idealisation**. Likewise
 if one of the 34 weight vectors left `rowspace(R_s)` (lemma §3.5(b)), or if
 two slots shared a mask. §7's toy enumeration exhibits all three failures.
 
@@ -1036,8 +1410,7 @@ taken from elsewhere:
   **functions of the transcript challenges alone**, replayed from a *cloned*
   prefix so the decision never advances the live transcript
   (`protocol.rs:157-176`, `argument.rs:274-277`, `:347-349`, `:493-494`);
-  a refused attempt restarts with **fresh** pads, salts and masks, so the
-  accepted transcript is uniform on the non-refused set;
+  **there is no restart** — see immediately below;
 * conditioning on non-refusal is free **only in the ROM** — the refusal event
   is a deterministic function of `(w, β)` once BLAKE3 is fixed, and what
   makes its *law* witness-independent is M-1 (privacy-case correction C-12;
@@ -1051,6 +1424,39 @@ taken from elsewhere:
   privacy-case item 24's and is **not satisfied today** by the witness
   builder's 20 named sites (`witness.rs:79-96`).
 
+**There is no restart: the single-attempt reading (blocking item B-4, ruling
+J-4).** The draft asserted that a refused attempt restarts with fresh pads,
+salts and masks, and conditioned on that. **That mechanism does not exist in
+this profile**; the sentence is withdrawn, and the correction makes the
+argument cleaner rather than weaker.
+
+* `private_block::prove_with_stats` calls `prove_inner` **once**
+  (`private_block.rs:431-435`); there is no retry loop anywhere in the
+  module.
+* The two endpoint commitments are **not** created by the prover. They are
+  caller-supplied `PreparedPlane`s made by `private_seam::prepare` with
+  their own OS entropy, and **their roots are part of the public statement**
+  (`ExpectedIo`, absorbed first at `protocol.rs:31`, re-checked at
+  `:247-249`); a fresh endpoint has a different root and fails
+  `check_endpoints`.
+* `PreparedPlane` is documented and typed as *"No Clone, data getter, or
+  repeated-opening method"* (`private_seam.rs:142-147`), and `Endpoints`
+  carries a compile-fail doctest showing that the owners are consumed
+  (`private_block.rs:360-370`).
+
+So **a refusal is terminal for that `(statement, endpoints)` pair**, and
+**"opened twice" is prevented by the type system** — which answers the
+draft's Q8 outright, and makes the `2^-62.0` rate a liveness cost with no
+retry available at the same statement. Conditioning on non-refusal is then
+conditioning on `NR(ρ)`, a function of the challenges alone, which is
+precisely what Theorem 3.3 does; no i.i.d.-attempts argument is needed, and
+none is available.
+
+*The operational consequence, recorded with the rulings.* A service that
+retries after a refusal does so with **fresh endpoints**. The refusal event
+is challenge-only, at about `2^-62` per proof, and it is visible as a changed
+root; it carries no information about the input.
+
 > **Corollary 5.1 (the lift, stated with all its hypotheses).** Fix an
 > admissible public statement. Under (H1)–(H5) of Theorem 3.3, (H6) of §5.2,
 > the sequential-kernel lemma as stated on branch `zk60-mvp-fable`, and the
@@ -1060,10 +1466,13 @@ taken from elsewhere:
 > input, up to: the `fp()` term (≤ 2^-77.7, D9), the LogUp collision event
 > (2^-112.0), the PRG advantage against M-3, and the ROM/M-2 terms of (H6).
 >
-> **PROVED-CONDITIONAL**, on GAP G-1 (block diagonality), on Fact 3.2's
-> completeness premise, on (H6)'s model, and on a lemma that is not in the
-> main tree. **This is not a privacy acceptance** and must not be quoted as
-> one; five of the six inputs are themselves labelled RELIES ON or ASSUMED.
+> **PROVED-CONDITIONAL**, on cross-role blinding independence (VERIFIED IN
+> THE CODE for the toy block, not machine-asserted — condition O-2), on the
+> terminals step supplied by the independent check and reviewed by nobody,
+> on (H6)'s model, and on a lemma that is not in the main tree. **This is
+> not a privacy acceptance** and must not be quoted as one; its inputs still
+> include two assumptions (M-1/M-2 and M-3), one imported unreviewed step,
+> and a lemma on a branch.
 
 
 
@@ -1076,7 +1485,11 @@ Written so a status page can quote it without softening it.
    objects and nothing here is a rank, a sampler or a simulator for them.
    (H6) says what would have to be true of them; M-2 (salted-leaf and
    salted-*subtree* hiding) is an assumption, not implied by collision
-   resistance. **D8/D11 — a root fixed by a third party — is untouched**, and
+   resistance. What is owed here is named in §5.2: (H6) written as one
+   random-oracle lemma with its query budget (including the `≈ 2^-243`
+   domain-overlap term), and the sequential lift composed with it into a
+   single argument (condition O-4).
+   **D8/D11 — a root fixed by a third party — is untouched**, and
    under D18 it does not arise for this product today by the types
    (`private_seam.rs:142-161`), which is a statement about the product, not a
    theorem.
@@ -1094,12 +1507,18 @@ Written so a status page can quote it without softening it.
    field views is the product of `n` laws each witness-independent by Theorem
    3.3, hence witness-independent. **PROVED HERE, at the field layer, for any
    `n`**, conditional on Theorem 3.3 and on stream independence across proofs
-   (computational, M-3). It does **not** cover the hash layer, it does not
+   (computational, M-3). For the **endpoints** that premise is now
+   *structural* rather than assumed: two proofs about the same input
+   necessarily use different endpoint commitments, because the owners are
+   consumed and `PreparedPlane` has no `Clone` (§5.4). It does **not** cover
+   the hash layer, it does not
    discharge condition O-5 (the measured evidence for two proofs, round 23),
    and history item H7 — a different commitment to the same plane — is
    covered only as a data-channel correlation at the field layer.
 4. **Every other shape. The 125M profile and the development rung owe all of
-   this again from the start** (ruling G-2), not as a re-check:
+   this again from the start** (ruling G-2, and **condition O-5** of the
+   independent check: the scope is unchanged, the two toy layouts only), not
+   as a re-check:
    `A_GROUPS` moves 35 → 36, so the certifying minor changes; the endpoints
    are re-tiled to 29 rows with three data parts per claim; a new refusal
    (the pad-zero challenge `ζ`) joins the inventory; and the `H` step of the
@@ -1160,10 +1579,22 @@ small), building the round matrix from the closed form of
   the protocol applies;
 * **the `a'` finding of §2.3**: dropping `a'` leaves the rank at `N d + 1` on
   115 of 115 pairs, so `a'` is a redundancy of the parametrisation;
-* the `d+1`-values invariant (ruling G-3) is load-bearing: publishing only
-  `d` values per round drops the rank by 1 to 12 depending on the shape and
-  raises `dim ker R` to 2…13. This is the same verdict as the lemma's own
-  control, not the same number (§2.3).
+* **RESULT 4 is withdrawn as an argument (correction C-2).** The script
+  reports that publishing only `d` values per round drops the rank and raises
+  `dim ker R` to 2…13, and the draft concluded that the `d+1`-values
+  invariant (ruling G-3) is load-bearing. The numbers reproduce — the check
+  gets the same set — but the conclusion does not follow: the comparison is
+  against `N d + 1`, which is `dim C_s` for the **`d+1`-value** protocol,
+  and with `d` values per round the *observation* shrinks too; a smaller
+  observation cannot leak more. The check's control G2 publishes only `d`
+  values in the distributional toy and the law **does not separate** on any
+  witness pair (§7.3). The privacy-relevant invariant is *the mask's
+  per-variable degree equals the round degree* — experiment C of §7.2, which
+  does separate 3 of 3 — and the `d+1` length check
+  (`sumcheck.rs:148-150`) is load-bearing in the **other** direction: it
+  stops a prover sending *more* than `d+1` values, which the mask could not
+  cover. It is also the step the proof of Fact 2.1 consumes (§2.1), which is
+  where it now earns its keep.
 
 ### 7.2 `toy_joint_law.py` — the sampler and the four load-bearing rules
 
@@ -1191,6 +1622,19 @@ D and F are the two failures §5.3 has to rule out, and the memo rules them
 out by Lemma 3.1 (`M` reveals one functional) and Fact 3.2 (that functional
 is a public function of the view).
 
+**What this enumeration does not exercise (correction C-13).** Experiment
+A's view contains **no `M` object at all**, and F runs only the broken
+variant, never the honest two-slot case. So on its own the enumeration never
+exercises the composition it is offered as evidence for; the check's controls
+G1 and G7 supply exactly that, and both come out SAME (§7.3). The check also
+sorts the controls by what they test: **B** (`argument.rs:275`) and **E**
+(`:374`) are faithful rules of the real protocol, and **F** is a real rule
+(`mask_commit` draws one mask per spec); **C** is a *distributional
+analogue* — the real protocol fixes the mask's degree to the slot's degree by
+construction (`mask_specs()`), so no edit could lower it — and **D** is
+synthetic: no functional in `N_FUNCTIONALS` has that shape. D is the
+counterexample *shape*, which is its purpose.
+
 **Reproduce** (no build, no prover, a few seconds each):
 
 ```
@@ -1198,11 +1642,62 @@ python3 /home/victor/IntelligenceRegulation/results/zk60_joint_law_composition/m
 python3 /home/victor/IntelligenceRegulation/results/zk60_joint_law_composition/toy_joint_law.py
 ```
 
+### 7.3 The independent check's added controls
+
+`results/zk60_joint_law_composition_check/check_toy_controls.py`, with its
+recorded output `check_toy_controls.txt`: the model was re-coded from the
+Rust rather than imported, and every prediction was written down before the
+run. The check also re-ran the draft's own script and reproduced its recorded
+output **byte for byte** (`rerun_draft_toy_joint_law.txt`, `diff` clean).
+These are **illustrations**, exactly as §7.1 and §7.2 are. This drafter has
+neither re-run them nor edited the evidence.
+
+| control | what it publishes | result |
+|---|---|---|
+| **G1** | the single-slot view **plus** the derived `g_val` — i.e. `M` disclosing exactly `V`: the honest form of Lemma 3.1 + Fact 3.2 | **SAME**, 0 of 3 pairs separate (supports 15,625) |
+| **G7** | honest **two slots**, independent masks and reserved pairs, plus the θ-batched `V` | **SAME** — both marginals and the JOINT (support 531,441) |
+| **G4** | two slots whose terminals share **ONE reserved pair** (what `audit_claims:118-131` forbids), plus `V` | **marginals SAME, JOINT DIFFERENT** |
+| **G5** | the same sharing, without `V` | **marginals SAME, JOINT DIFFERENT** — the sharing, not the batching, is the fault |
+| **G2** | only `d` values per round | **SAME** — the control that refutes §7.1's RESULT 4 reading |
+| **G3** | `d + 2` values per round | **SAME** — the extra value is determined |
+| **G6** | **cyclic hosting**: a hosted slot placed *before* its host, `κ_0κ_1 ≠ 1` | **SAME** — any invertible claimed-sum change of coordinates preserves "uniform on `C`" |
+| **G6′** | the same with `κ_0κ_1 = 1` | **no honest prover exists**: `M(Γ_0, Γ_1) = (A_0, A_1)` is singular for a generic witness — a completeness failure, not a leak |
+
+**G4 and G5 are the check's most useful new result.** They exhibit the
+`(H(mask), mask ⊕ w)` shape on the *commitment* side: two terminals sharing
+one reserved pair, each marginal untouched, the joint separating. §5.3's
+table asserts that the accepted lemma's §3.2 disposes of that case but never
+showed what breaking it would cost; there is now an exact enumeration that
+does, and it is **a new instance of the marginal-versus-joint trap and the
+counterexample behind the rule "one reserved pair per claim site"**. It
+matches, by a second and independent route, the lemma's own finding that
+"two claims share one reserved pair" gives `k0 = 16`.
 
 
-## 8. Open questions for the checker, most doubtful first
 
-**Q1 — the completeness premise under Fact 3.2 is the load-bearing one, and
+## 8. Open questions for the next reviewer, most doubtful first
+
+The independent check of 2026-09-20 answered Q1, Q2, Q3, Q4, Q6, Q7 and Q8;
+each is kept below with the answer recorded, because the answer is now part
+of the argument. Q5 it confirmed as still owed, and Q9 and Q10 stand. **Q0
+is new, and it is the first thing the next reviewer should look at.**
+
+**Q0 — the step that entered from the check itself, and has been reviewed by
+nobody (ruling J-2).** The per-group surjection of §4.3 — the statement that
+the 173 individual terminals add nothing beyond the group vector and one
+public identity, on `λ_c ≠ 0`, `cm_c ≠ 0`, `cw ≠ 0` — was supplied by the
+independent check and verified only by the check's own script. Both the
+memo's original sampler step 2 and the accepted generic-rank lemma's
+reduction were silent about the individual terminals. A reviewer should
+re-derive it, test the induction beyond `m = 2` and beyond the group sizes
+the script tried (1, 2, 4), and decide whether the third condition (`cw ≠ 0`)
+is refused on every path or only on the ones cited. It also leans on the
+lemma's reduction, whose correctness is one of **that** lemma's RELIES-ON
+rows.
+
+**Q1 [CLOSED by the check — settled by reading all 23 closures; no symbolic
+check is owed, condition O-1's Rust guard is] — the completeness premise
+under Fact 3.2 is the load-bearing one, and
 it is a premise in the code's own words.** The whole cancellation in Theorem
 3.3 rests on `fin_s = poly_s(masked terminals) + c_s·g_s(ρ_full)` holding
 **identically**, for every witness and every non-refused challenge, which
@@ -1215,17 +1710,24 @@ map, not as an observation about runs that happened to verify. Is a symbolic
 per-slot check of `poly_s(extensions) = 0` owed — 23 closures, mechanically
 checkable — before the label on Fact 3.2 can rise above RELIES ON?
 
-**Q2 — block diagonality has no argument (GAP G-1).** Proposition 4.2 turns
-the accepted lemma's four per-role ranks into the joint statement *only* if
-no non-data coordinate class is shared between commitments. Today that is a
-source reading plus a measurement on four captures. Two sub-questions: could
-a future profile legitimately share a row (a common proximity row across the
-two endpoints, say) and would anything fire? And is a Rust assertion the
-right closure, or does the checker want the stronger statement that the
-four commitments' non-data rows are drawn from disjoint stream segments —
-which is what M-3 actually needs?
+**Q2 [CLOSED by the check, and restated: block diagonality is not the
+hypothesis that is needed — cross-role blinding independence is, and it is
+settled family by family by reading (§4.2). What remains is condition O-2,
+the Rust guard] — block diagonality had no argument (the draft's GAP G-1).**
+Proposition 4.2 turned the accepted lemma's four per-role ranks into the
+joint statement *only* if no non-data coordinate class is shared between
+commitments; Proposition 4.2′ now gets the joint statement from independence
+alone. Two sub-questions survive for the guard: could a future profile
+legitimately share a row (a common proximity row across the two endpoints,
+say) and would anything fire? And is a Rust assertion the right closure, or
+does the reviewer want the stronger statement that the four commitments'
+non-data rows are drawn from disjoint stream segments — which is what M-3
+actually needs?
 
-**Q3 — is Lemma 3.1's inventory of `M`'s published objects complete?** This
+**Q3 [ANSWERED by the check: yes, the inventory is complete —
+`mask_verify` is `hashline/src/zk.rs:552-590` and its five checks are
+exactly the ones §3.1 lists] — is Lemma 3.1's inventory of `M`'s published
+objects complete?** This
 drafter read `mask_commit`, `mask_open` and the first lines of `mask_verify`
 (`zk.rs:430-560`) and took `M-q`, `M-prox`, `M-cols` from the generic-rank
 lemma. If `mask_verify` checks anything else about `q`, the proximity vector
@@ -1234,17 +1736,19 @@ consistency that pins more than `b(x_j)` and `u(x_j)` — then "the opening
 reveals exactly one `Fp2` functional of `a`" is wrong and Theorem 3.3's
 (H3) fails. **This is the single source reading most worth redoing.**
 
-**Q4 — the `a'` discrepancy (§2.3).** `sumcheck.rs:163-183` says `a'` is the
-extra freedom that makes `G` and `g(ρ)` jointly uniform given the round
-messages; the lemma's §3.5(a) makes `a'` the free parameter of a
-one-dimensional kernel; this drafter's recomputation says dropping `a'`
-leaves the rank unchanged at 115 of 115 shapes. Which reading is right, and
-does the answer change anything about the mask's *design* (is `a'` needed for
-something this memo has not modelled — the legacy profile, say, or a slot
-with two extension rounds where the two extension challenges interact)?
+**Q4 [RESOLVED: the code comment is wrong about what the extra coefficient
+is for, harmlessly; nothing in the code changes because of it; the content
+is `dim ker R_s = 1`, not that `a'` is special — §2.3] — the `a'`
+discrepancy.** One sub-question is recorded as **not verified**, by this
+drafter and by the check alike: whether the cited CFS/Libra literature needs
+that coefficient for a statement **this profile does not use** (the legacy
+profile, say, or a slot with two extension rounds whose extension challenges
+interact). Removing it would be a protocol change and a byte-changing
+re-freeze, and nothing recommends it.
 
-**Q5 — the composition of Theorem 3.3 with (H6) into one sequential
-argument.** §5.1 says the message sequence includes the roots and §5.2
+**Q5 [ANSWERED "yes", and STILL OWED — condition O-4; the bad events are
+listed in §5.2] — the composition of Theorem 3.3 with (H6) into one
+sequential argument.** §5.1 says the message sequence includes the roots and §5.2
 supplies the hash part conditionally on the field part. The step from those
 two to "the law of the whole view is witness-independent" is written here in
 prose. Does the checker want it as a per-step kernel argument, with the
@@ -1252,7 +1756,11 @@ message at step `j` defined as the pair (field part, hash part)? And is the
 sequential-kernel lemma, which lives only on branch `zk60-mvp-fable`, in a
 state to carry it?
 
-**Q6 — (H5) is false information-theoretically.** `A`, `M` and `H` come from
+**Q6 [ANSWERED: the standard hybrid is enough; what was owed is the
+real-prover sentence, now stated once in §3.3's remark. And correction
+C-11: the two endpoints' blinding is independent of the block stream
+*information-theoretically*, not under M-3 — §1.2] — (H5) is false
+information-theoretically for `A`, `M` and `H`.** Those three come from
 **one** BLAKE3 stream as disjoint consecutive segments, so `α`, `π` and `μ`
 are independent only under M-3 (and `A`'s 256 salts are *published* before
 `H`'s pads are drawn, which is why M-3 must be two-sided, ruling C-3).
@@ -1260,21 +1768,27 @@ Theorem 3.3 is stated with exact independence. The reduction — an adversary
 distinguishing the two worlds yields a distinguisher against `ZkRng` — is not
 written here. Is it wanted explicitly, or is the standard hybrid enough?
 
-**Q7 — the pad-half determinacy prose (§4.2).** The lemma's disposition says
-the pad halves are determined by the opened columns; indices are drawn with
-replacement and the captures record 231–246 distinct, so `10…25` coordinates
-of each published pad half are *not* determined by the columns. This drafter
-believes the conclusion survives (the extra coordinates are blinding-only
-combinations and the rank is computed over the whole generator system). Does
-it?
+**Q7 [RESOLVED as to its own worry: yes, the conclusion survives — the
+undetermined coordinates are supported on pad coordinates only and carry no
+data coordinate, so this is a correction of the prose, not a gap (§4.2). The
+correctness of the reduction as a whole stays the generic-rank lemma's
+RELIES-ON row] — the pad-half determinacy prose.** The lemma's disposition
+says the pad halves are determined by the opened columns; indices are drawn
+with replacement and the captures record 231–246 distinct, so `10…25`
+coordinates of each published pad half are *not* determined by the columns.
 
-**Q8 — conditioning on non-refusal, and the restart.** Theorem 3.3 is stated
-at a fixed non-refused `ρ`. The claim that the *accepted* transcript is
-uniform on the non-refused set needs a refused attempt to restart with fresh
-pads, salts and masks; that restart is asserted (lemma §3.2 step 6, condition
-O-5) and not modelled here. Does the restart also redraw the endpoint
-commitments, and if not, does a second attempt on the same endpoints open
-them twice?
+**Q8 [ANSWERED by the check, and the question's premise was false: there is
+no restart in this profile] — conditioning on non-refusal.** The draft asked
+whether a second attempt on the same endpoints could open them twice. It
+cannot: `prove` is called once (`private_block.rs:431-435`), the endpoint
+owners are consumed, `PreparedPlane` has no `Clone`
+(`private_seam.rs:142-147`, `private_block.rs:360-370`), and the endpoint
+roots are in the public statement (`protocol.rs:31`, `:247-249`), so a
+refusal is terminal for that `(statement, endpoints)` pair and "opened
+twice" is prevented by the type system. Theorem 3.3 conditions on `NR(ρ)`, a
+function of the challenges, which is exactly what a single attempt supports
+(§5.4). The same correction is owed upstream and has been made in
+`ZK60_GENERIC_RANK_LEMMA.md` §3.2 (its condition O-5).
 
 **Q9 — the endpoint commitments were read at second hand.** Their geometry
 (7 rows: 2 data, one reserved pair, three proximity rows of which the refusal
@@ -1292,78 +1806,100 @@ check?
 
 ## 9. The label table
 
-Three labels, as the brief requires. **PROVED HERE** = a proof is written in
-this document and is unconditional *given the rows it names*. **RELIES ON** =
-a named, cited fact from the code or from another document, not re-derived
-here. **GAP** = nobody has established it; the row says what would close it.
-Where a PROVED HERE row stands on RELIES ON rows, it says so; a reader must
-not read it as unconditional.
+**The labels below are the independent check's, adopted whole by ruling
+J-5; nothing here is strengthened beyond what the check assigns.** The
+check re-labelled the draft's 32 rows and added three of its own, under the
+rule *never strengthen without a proof written down, and mark as mixed any
+row that stands on a RELIES ON, ASSUMED or GAP row*. **PROVED / PROVED HERE
+(unconditional)** = a proof is written down and needs nothing outside it.
+**VERIFIED IN THE CODE** = established by reading named lines.
+**PROVED HERE on named rows** = proved given rows that are themselves relied
+on or assumed. **RELIES ON** = a named, cited fact not re-derived here.
+**ASSUMED** = a model assumption. **GAP** = nobody has established it.
+**ILLUSTRATION** = it illustrates; it does not establish.
 
-| # | statement | § | label |
+| # | statement | § | label (the check's, per ruling J-5) |
 |---|---|---|---|
-| 1 | the inventory of published field messages and their exact forms | 1.3 | RELIES ON (a source reading at named lines) |
+| 1 | the inventory of published field messages and their exact forms | 1.3 | **VERIFIED IN THE CODE** (promotion): re-read end to end by the check — with correction C-1, the θ-order |
 | 2 | the linear / nonlinear split of the view | 1.4 | PROVED HERE |
-| 3 | the blinding families are uniform and mutually independent | 1.2 | RELIES ON (M-3, ruling C-3) + D9 for uniformity |
-| 4 | `dim C_s = N_s d_s + 1` | 2.1 | PROVED HERE |
-| 5 | `rank R_s = dim C_s`, `dim ker R_s = 1`, for every `ρ` (Fact 2.1) | 2.1 | RELIES ON `ZK60_GENERIC_RANK_LEMMA.md` §3.5(a) (which relies on `sumcheck.rs:148-150`); recomputed here at 115 (slot, ρ) pairs |
-| 6 | the claimed-sum change of coordinates is triangular, hence invertible | 2.2 | PROVED HERE, on the host-order rule `layout.rs:716-723` [RELIES ON] |
-| 7 | **Lemma 2.2**: the whole sumcheck channel is uniform on the public subspace `C` | 2.2 | PROVED HERE, on rows 3, 5, 6 |
-| 8 | the DOF accounting: rounds consume `dim C_s`, columns 0, mask evaluation 0, mask total 0, `q` 0 additional, slack 0 | 2.3 | PROVED HERE, on rows 5 and 13 and on `M-cols` [RELIES ON] |
-| 9 | `L_s + 256 ≤ 512` and `n_base = 2·slots + 4` are the same fact about `M`'s geometry | 2.3 | RELIES ON (`zk.rs:373-375`, `:434-447`; `layout.rs:519`, `:733-736`) |
-| 10 | shared evaluation points never share a reserved pair; the consequence for the law | 2.4 | RELIES ON (`audit_claims`) + PROVED HERE for the consequence |
-| 11 | **Lemma 3.1**: `M`'s opening depends on `a` only through `V(a)` | 3.1 | PROVED HERE, on the uniformity of `b`, `u`, `M`'s pads [RELIES ON] and `M-cols` [RELIES ON] |
-| 12 | **Fact 3.2**: all 34 `M` functional values are public functions of the view | 3.2 | RELIES ON (the completeness premise `argument.rs:18-22`, plus the 82-equation capture check) — **see Q1** |
-| 13 | `V` factors through `R` (`ker R ⊆ ker V`) | 3.2 | PROVED HERE, on the lemma's §3.5(b) [RELIES ON] |
-| 14 | **Theorem 3.3**: the joint law of the field view at fixed non-refused `ρ` is witness-independent | 3.3 | PROVED HERE, on (H1)…(H5) = rows 3, 5, 11, 12, 13, 23 |
-| 15 | **Corollary 3.4**: O1 exists and is perfect | 3.4 | PROVED HERE, on row 14 |
-| 16 | integer-range side information (privacy-case item 20) is discharged at the field layer | 3.3 | PROVED HERE, conditional on row 14 |
-| 17 | **Lemma 4.1**: `dim(F ∩ T) = 0` ⟺ the linear view's law is data-independent; and the general form | 4.1 | PROVED HERE |
-| 18 | the matrix for the joint statement is the `100 × 358` joint non-data block | 4.2 | PROVED HERE (an identification, from the tool's reduction [RELIES ON]) |
-| 19 | across slots *inside* one commitment is the same matrix, covered by the accepted lemma | 4.2 | RELIES ON (`ZK60_GENERIC_RANK_LEMMA.md` §3.2, ruling of 2026-09-20) |
-| 20 | **Proposition 4.2**: block diagonality ⟹ joint rank = sum, so `k0_joint = 0` | 4.2 | PROVED HERE, given row 21 |
-| 21 | **block diagonality** — no non-data coordinate class shared between commitments | 4.2 | **GAP** — a source reading (`pcs.rs:673-674`, item 22) plus four captures (`zk60-native-jointview` at `14b7d20`). Closure: a Rust invariant asserting disjointness |
-| 22 | "the pad halves are determined by the opened columns" is exact only for distinct indices | 4.2 | **GAP (a precision)** — see Q7; the conclusion is believed to survive |
-| 23 | **(H1)**: the four PCS commitments' field view has a witness-free law | 4.3 | PROVED HERE, on rows 17, 19, 20 and GAP 21, and on the lemma's own RELIES ON rows; **two toy layouts only** |
-| 24 | **(H6)**: the conditional law of roots and paths given the field view is witness-free | 5.2 | ASSUMED (M-1, M-2); the derivation *inside* the model is PROVED HERE |
-| 25 | the shared untagged 64-byte domain does not affect step (H6) | 5.2 | PROVED HERE (an argument about what the step needs) |
-| 26 | the `(H(mask), mask ⊕ w)` counterexample does not apply: rows 1–5 of the table | 5.3 | PROVED HERE / RELIES ON per row; **row 6 (the shared RNG stream) is ASSUMED (M-3)** |
-| 27 | conditioning on non-refusal is free, and the refusal channel carries no witness information except the LogUp collision | 5.4 | RELIES ON (lemma §3.6, correction C-11/C-12) + ASSUMED (M-1) |
-| 28 | **Corollary 5.1**: the lift to the real protocol | 5.4 | PROVED-CONDITIONAL on rows 12, 14, 21, 24, and on a lemma that is only on branch `zk60-mvp-fable` |
-| 29 | many proofs about the same or related inputs, at the field layer, for any `n` | 6.3 | PROVED HERE, conditional on row 14 and on cross-proof stream independence |
+| 3 | the blinding families are uniform and mutually independent | 1.2 | RELIES ON (M-3, ruling C-3) + D9 for uniformity; **information-theoretic for the two endpoints** (C-11) |
+| 4 | `dim C_s = N_s d_s + 1` | 2.1 | PROVED HERE (unconditional) |
+| 5 | `rank R_s = dim C_s`, `dim ker R_s = 1`, for every `ρ` (Fact 2.1) | 2.1 | **PROVED (unconditional)** (promotion): the check's five-line proof, §2.1; recomputed 276/276 |
+| 6 | the claimed-sum change of coordinates is invertible | 2.2 | PROVED HERE, on the order rule; *triangularity is sufficient, invertibility is what the proof needs* (C-6) |
+| 7 | **Lemma 2.2**: the whole sumcheck channel is uniform on the public subspace `C` | 2.2 | PROVED HERE, on rows 3, 5, 6 — now standing on a **proved** row 5 |
+| 8 | the DOF accounting: rounds consume `dim C_s`, columns 0, mask evaluation 0, mask total 0, `q` 0 additional, slack 0 | 2.3 | **ILLUSTRATION** (demotion): four different spaces, never summed in any proof |
+| 9 | `L_s + 256 ≤ 512` and `n_base = 2·slots + 4` are the same fact about `M`'s geometry | 2.3 | **VERIFIED IN THE CODE** (promotion): `zk.rs:373-375`, `:431-447`; the load-bearing runtime assert is `zk.rs:442`, **not** `layout.rs:735`, which is inside `mod tests` (C-14) |
+| 10 | shared evaluation points never share a reserved pair; the consequence for the law | 2.4 | RELIES ON (`audit_claims`) + PROVED HERE for the consequence; controls G4/G5 (§7.3) exhibit the cost of breaking it |
+| 11 | **Lemma 3.1**: `M`'s opening depends on `a` only through `V(a)` | 3.1 | PROVED HERE on **M-3 only** (partial promotion): `M-cols` proved in the check's A3.5, `mask_verify` re-read in its A2.2 |
+| 12 | **Fact 3.2**: all 34 `M` functional values are public functions of the view | 3.2 | **VERIFIED IN THE CODE** for the 23 toy-block closures (promotion); RELIES ON for every other schedule |
+| 13 | `V` factors through `R` (`ker R ⊆ ker V`) | 3.2 | **PROVED** (promotion): the same argument as row 5; recomputed 276/276 |
+| 14 | **Theorem 3.3**: the joint law of the field view at fixed non-refused `ρ` is witness-independent | 3.3 | PROVED HERE, on (H1)…(H5), **in the uniform-blinding idealisation** (B-3 / C-7) |
+| 15 | **Corollary 3.4**: O1 exists and is perfect *in the uniform-blinding idealisation* | 3.4 | PROVED HERE on row 14; **the printed algorithm was wrong** and is corrected (B-1) |
+| 16 | integer-range side information (privacy-case item 20) is discharged at the field layer | 3.3 | mixed — conditional on the whole stack; the field layer only |
+| 17 | **Lemma 4.1**: `dim(F ∩ T) = 0` ⟺ the linear view's law is data-independent; and the general form | 4.1 | PROVED HERE (unconditional) |
+| 18 | the matrix for the joint statement is the `100 × 358` joint non-data block | 4.2 | **ILLUSTRATION / unnecessary** (demotion): the joint statement follows from independence, not from that rank |
+| 19 | across slots *inside* one commitment is the same matrix, covered by the accepted lemma | 4.2 | RELIES ON (`ZK60_GENERIC_RANK_LEMMA.md` §3.2) **plus a step the lemma does not contain**, supplied in §4.3 |
+| 20 | **Proposition 4.2**: block diagonality ⟹ joint rank = sum, so `k0_joint = 0` | 4.2 | PROVED HERE given row 21, **superseded** by Proposition 4.2′ |
+| 21 | **cross-role blinding independence** — no blinding source shared between commitments (the draft's "block diagonality", restated) | 4.2 | **RESTATED and promoted from GAP**: **VERIFIED IN THE CODE** for the toy block + M-3; still not machine-asserted (condition O-2) |
+| 22 | "the pad halves are determined by the opened columns" is exact only for distinct indices | 4.2 | **RESOLVED as to Q7's own worry → a correction of the prose** (promotion); the reduction's correctness as a whole stays the **lemma's** RELIES ON row |
+| 23 | **(H1)**: the four PCS commitments' field view has a witness-free law | 4.3 | mixed — on rows 17, 19 (with the imported terminals step), 20/21 as restated, and **two toy layouts only** |
+| 24 | **(H6)**: the conditional law of roots and paths given the field view is witness-free | 5.2 | ASSUMED (M-1, M-2) + PROVED HERE inside the model, with the `≈ 2^-243` collision term of C-5 added |
+| 25 | the shared untagged 64-byte domain does not affect step (H6) | 5.2 | **mixed** (demotion): the draft's reason covers one direction only; it stands with the length argument and the `≈ 2^-243` term |
+| 26 | the `(H(mask), mask ⊕ w)` counterexample does not apply: rows 1–5 of the table | 5.3 | mixed, per row; row 4's reason replaced by Proposition 4.2′, row 2's completed by row 22; **row 6 (the shared RNG stream) is ASSUMED (M-3)** |
+| 27 | conditioning on non-refusal is free, and the refusal channel carries no witness information except the LogUp collision | 5.4 | RELIES ON (lemma §3.6) + ASSUMED (M-1) — **the restart the draft cited does not exist**; the single-attempt reading replaces it (B-4) |
+| 28 | **Corollary 5.1**: the lift to the real protocol | 5.4 | PROVED-CONDITIONAL, on rows 12, 14, 21 as restated, 24, the imported step of row 33, and a lemma that is only on branch `zk60-mvp-fable` |
+| 29 | many proofs about the same or related inputs, at the field layer, for any `n` | 6.3 | PROVED HERE conditional on row 14 and cross-proof stream independence — and the endpoint premise is now *structural* (owners consumed, no `Clone`) |
 | 30 | the 125M profile and the development rung | 6.4 | **GAP** — owed again from the start (ruling G-2) |
 | 31 | the hash layer beyond (H6); D8/D11; the ROM composition with soundness | 6.1, 6.5 | **GAP** |
-| 32 | the toy enumerations | 7 | **ILLUSTRATION**, explicitly not evidence for the real statement |
+| 32 | the toy enumerations | 7 | **ILLUSTRATION** — and experiment A contains no `M` object, so it does not illustrate the composition; the check's G1 and G7 supply it (§7.3) |
+| 33 | *(new)* the 173 individual terminals add nothing beyond the group vector and one public identity | 4.3 | **PROVED**, on `λ ≠ 0`, `cm ≠ 0`, `cw ≠ 0` — **supplied by the independent check; verified by its script; not independently reviewed** |
+| 34 | *(new)* no restart exists; the endpoints cannot be opened twice | 5.4 | **VERIFIED IN THE CODE** |
+| 35 | *(new)* no challenge query can coincide with a node, leaf or absorb query | 5.2 | **PROVED** (the check's, by input length) |
 
-**Tally, 32 rows.**
+**Tally, 35 rows — the check's, adopted by ruling J-5.**
 
 | label | count | rows |
 |---|---:|---|
-| **PROVED HERE** | 15 | 2, 4, 6, 7, 8, 11, 13, 14, 15, 16, 17, 18, 20, 25, 29 |
-| **RELIES ON** (primary) | 7 | 1, 3, 5, 9, 12, 19, 27 |
-| **mixed** (a PROVED HERE consequence on a RELIES ON / ASSUMED / GAP premise) | 5 | 10, 23, 24, 26, 28 |
-| **GAP** | 4 | 21, 22, 30, 31 |
-| **ILLUSTRATION** | 1 | 32 |
+| **PROVED / PROVED HERE (unconditional)** | 6 | 4, 5, 13, 17, 33, 35 |
+| **VERIFIED IN THE CODE** | 5 | 1, 9, 12, 21 (restated), 34 |
+| **PROVED HERE on named RELIES ON / ASSUMED rows** | 6 | 2, 6, 7, 11, 14, 15 |
+| **mixed** | 6 | 16, 19, 23, 24, 25, 26 |
+| **RELIES ON** (primary) | 4 | 3, 10, 27, 28 |
+| **GAP** | 2 | 30, 31 |
+| **ILLUSTRATION / superseded** | 6 | 8, 18, 20, 22, 29, 32 |
 
-> **Exactly two PROVED HERE rows are unconditional**: row 4 (`dim C_s =
-> N_s d_s + 1`) and row 17 (Lemma 4.1, the equivalence between "disclosed
-> dimension zero" and witness-independence of a linear view). Every other
-> PROVED HERE row — including Theorem 3.3 and the sampler — stands on at
-> least one RELIES ON row, and Theorem 3.3 stands on a GAP (row 21).
+**The three demotions**, with the check's reasons: row 8 (the DOF table is a
+mnemonic, not a theorem — its four rows live in four spaces that no proof
+adds up); row 18 (the `100 × 358` block is not the matrix the joint
+statement needs); row 25 (the untagged-domain argument as written covers one
+direction and omits a collision term). Row 32 is additionally re-labelled
+with the observation that its central experiment omits `M`. **The
+promotions**, each with a proof or a reading written above: rows 1, 5, 9,
+12, 13, 21, 22, and the three new rows 33–35.
 
-**The four gaps, named.** (21) **block diagonality** — no blinding source
-shared between commitments; a source reading plus four captures, no argument.
-(22) **the pad-half determinacy precision** — the prose is exact only when all
-256 sampled indices are distinct. (30) **every shape other than the two toy
-layouts** — owed again from the start. (31) **the hash layer beyond (H6),
-D8/D11, and the ROM composition with the soundness reduction over one table.**
-Assumptions carried: **M-1** (one untagged oracle), **M-2** (salted-leaf and
-salted-subtree hiding), **M-3** (whole-stream PRG, two-sided), and **D9**'s
-accepted `fp()` residual.
+> **Exactly six rows are unconditional**: 4, 5, 13, 17, 33 and 35 — and two
+> of those (33 and 35) are the independent check's rather than this memo's,
+> with **33 reviewed by nobody**. Every other proved row stands on at least
+> one row that is relied on, assumed, or established only by reading.
+
+**The two gaps, named.** (30) **every shape other than the two toy
+layouts** — owed again from the start (ruling G-2, condition O-5). (31)
+**the hash layer beyond (H6), D8/D11, and the ROM composition with the
+soundness reduction over one table.** Assumptions carried: **M-1** (one
+untagged oracle), **M-2** (salted-leaf and salted-subtree hiding), **M-3**
+(whole-stream PRG, two-sided), and **D9**'s accepted `fp()` residual. Two
+things that are not gaps but are not closed either, both of them guards that
+stop a reading from rotting: **condition O-1** (a per-slot
+`poly(extensions) = 0` Rust test) and **condition O-2** (a cross-role
+blinding-disjointness assertion).
 
 > **Nothing in this document establishes a privacy property.** It is step 4
-> of the five-step path in `ZK60_PRIVACY_CASE_FIRST_MVP_DISPOSITION.md` §3,
-> it has not been independently checked, and its central theorem's
-> hypotheses include one GAP and four RELIES ON rows.
+> of the five-step path in `ZK60_PRIVACY_CASE_FIRST_MVP_DISPOSITION.md` §3.
+> It has now been independently checked and the theorem's **core** accepted
+> for the toy block in the uniform-blinding idealisation — which is not a
+> privacy acceptance: two gaps remain (the hash layer and every other
+> shape), one step was supplied by the check and has been reviewed by
+> nobody, and the real prover is not the idealised one (§3.3's remark).
 
 
 
@@ -1383,22 +1919,22 @@ conditionality, and §9 is where it is counted.
 | §2.1 `dim C_s` | nothing | — | no |
 | §2.1 Fact 2.1 | the generic-rank lemma's §3.5(a), and through it `sumcheck.rs:148-150` | nothing here; the lemma is an input, already disposed of by the security owner | no |
 | §2.2 Lemma 2.2 | Fact 2.1; `c_s ≠ 0`; uniform independent `a`; the host-order rule | Fact 2.1 is §2.1; the rest are code facts | no |
-| §2.3 the DOF count | Fact 2.1, `M-cols`, §3.5(b), **and Lemma 3.1 for the "`q` consumes 0 additional" row** | **Lemma 3.1 is §3.1, which is *later*** | **no, but note it**: Lemma 3.1 does not use the DOF table, so the dependency runs one way only. The table is a summary, not a premise of anything |
+| §2.3 the DOF count | Fact 2.1, `M-cols`, §3.5(b), **and Lemma 3.1 for the "`q` consumes 0 additional" row** | **Lemma 3.1 is §3.1, which is *later*** | **no, but note it**: Lemma 3.1 does not use the DOF table, so the dependency runs one way only. The check confirmed this and demoted the table to an ILLUSTRATION (row 8): it is a mnemonic, not a premise of anything |
 | §2.4 hosts and shared points | `audit_claims`; the host-order assert | — | no |
 | §3.1 Lemma 3.1 | uniformity of `b`, `u`, `M`'s pads; `M-cols` | none of these is concluded later | no |
 | §3.2 Fact 3.2 | the completeness premise `argument.rs:18-22` | nothing later; it is Q1 | no |
 | §3.2 `V` factors through `R` | the lemma's §3.5(b) | — | no |
-| §3.3 Theorem 3.3 | (H1)…(H5) | **(H1) is §4**, which is *later in the document* but does not use Theorem 3.3 anywhere | **no** — §4 is self-contained: it uses Lemma 4.1, the accepted lemma, and block diagonality, none of which mentions §3 |
+| §3.3 Theorem 3.3 | (H1)…(H5) | **(H1) is §4**, which is *later in the document* but does not use Theorem 3.3 anywhere | **no** — §4 is self-contained: it uses Lemma 4.1, the accepted lemma, cross-role blinding independence and the imported terminals step, none of which mentions §3. The independent check re-derived this acyclicity itself (its A1.1) and found no circularity |
 | §3.4 Corollary 3.4 | Theorem 3.3 | — | no |
 | §3.3 item 20 discharged | Theorem 3.3 | — | no |
 | §4.1 Lemma 4.1 | nothing | — | no |
 | §4.2 the joint matrix | the tool's reduction `disclosed = 256 k0 + u-term` | nothing later; it is the lemma's row 14 [RELIES ON] | no |
-| §4.2 Proposition 4.2 | block diagonality | **nothing concludes it** — it is GAP 21, declared | no; a gap, not a loop |
+| §4.2 Propositions 4.2 and 4.2′ | 4.2: block diagonality; 4.2′: cross-role blinding independence | nothing in this memo concludes either — 4.2′'s hypothesis is settled by the check's source reading (row 21 restated) and 4.2 is superseded | no |
 | §4.3 (H1) | Lemma 4.1, Proposition 4.2, the accepted lemma, `Fp2::ZERO` | — | no |
 | §5.1 the lift's hypothesis | Theorem 3.3 | — | no |
 | §5.2 (H6) | M-1, M-2 | nothing concludes an assumption | no |
 | §5.3 the counterexample disposal | Lemma 3.1, Fact 3.2, the lemma's §3.2, Proposition 4.2, M-3 | all earlier or inputs | no |
-| §5.4 conditioning | M-1; the lemma's §3.6; the restart | the restart is asserted in the lemma, not here — Q8 | no |
+| §5.4 conditioning | M-1; the lemma's §3.6; a **single** prove attempt (there is no restart — row 34, VERIFIED IN THE CODE) | nothing later concludes it; the single-attempt facts are source readings | no |
 | §5.4 Corollary 5.1 | everything above plus the sequential-kernel lemma | — | no; it is correctly last |
 | §6.3 many proofs | Theorem 3.3; cross-proof stream independence | — | no |
 
@@ -1410,11 +1946,65 @@ witness-independence; "the pads are uniform given the view" appears nowhere —
 §4.2's precision is about what the *columns determine*, and it is used only
 to avoid double-counting, never to establish uniformity.
 
-**The one thing to watch** is the shape §9's tally is pointed at: **thirteen
-of the fifteen PROVED HERE rows stand on something that is not proved here.**
-The rule this memo proposes for anyone quoting it: *no sentence may state
-Theorem 3.3 or Corollary 3.4 without naming GAP 21 and the two toy layouts in
-the same sentence.*
+**The one thing to watch** is the shape §9's tally is pointed at: **of the 35
+rows, only six are unconditional, and two of those six are the independent
+check's rather than this memo's** — everything else stands on a row that is
+relied on, assumed, or established by reading.
 
-(draft complete)
+**The quoting rule, as condition O-6 amends it**: *no sentence may state
+Theorem 3.3 or Corollary 3.4 without naming, in the same sentence, the
+uniform-blinding idealisation, the cross-role blinding-independence
+hypothesis (the restatement of what the draft called GAP 21) and the two toy
+layouts.*
+
+## Revision record (2026-09-20)
+
+One row per adjudicated item: the blocking items B-1 … B-4, the corrections
+C-1 … C-14 and the conditions O-1 … O-7 of
+`ZK60_JOINT_LAW_COMPOSITION_CHECK.md`, and the rulings J-1 … J-5 of
+`ZK60_JOINT_LAW_COMPOSITION_DISPOSITION.md`. No claim was added beyond what
+those two documents establish, no label was strengthened beyond the check's,
+and no evidence file was edited.
+
+| Item | Section(s) changed | What changed |
+|---|---|---|
+| B-1 / C-1 / J-1 | §1.3, §3.1, §3.4 step 3, §9 rows 1 and 15 | the declared functional order written out — interleaved per slot, a Standalone's `Γ` immediately before that slot's `eval`, the six host `Γ`s last (`private_block/argument.rs:361-376`, `:924-925`) — the sampler's step 3 rewritten in it, and the order recorded as part of the public data the sampler needs and as something a layout change must not reorder silently |
+| B-2 / J-2 | §4.2(a), §4.3 (new block before the (H1) statement), §3.4 (Corollary 3.4), §8 Q0, §9 row 33 | the check's per-group surjection for the 173 individual terminals imported with its three non-vanishing conditions and the refusal that gives each, labelled "supplied by the independent check; verified by its script; not independently reviewed"; the accepted lemma's reduction named as the thing leaned on and its correctness as one of that lemma's own RELIES-ON rows; added as the first item for the next reviewer |
+| B-3 / C-7 / J-3 | status line, §0 "What is shown", §3.3 (theorem statement and a new remark), §3.4, §5.3, §9 rows 14 and 15 | every "perfect"/"exactly" now carries "in the uniform-blinding idealisation"; the real-prover form is stated **once**, in the theorem's remark: within D9's accepted 2^-77.7 for one toy proof, and otherwise up to the advantage against the named generator, the keyed BLAKE3 stream with a counter (`zkp-core/src/rng.rs`, M-3) |
+| B-4 / C-4 / J-4 | §3.5, §5.4 (bullet 1 and a new passage), §6 item 3, §8 Q8, Appendix A, §9 rows 27, 29, 34 | the restart sentence withdrawn and replaced by the single-attempt reading with the check's citations (`private_block.rs:431-435`, `:360-370`, `private_seam.rs:142-147`, `protocol.rs:31`, `:247-249`): a refusal is terminal for that statement and those endpoints, and "opened twice" is prevented by the type system; the operational consequence recorded — a service that retries uses fresh endpoints, and the refusal is challenge-only, about 2^-62, visible as a changed root |
+| J-5 | §9 (table, tally, notes), and the label lines in §2.1, §2.2, §2.3, §3.1, §3.2, §4.2, §4.3, §5.4 | the check's 35-row table and tally adopted whole — 6 proved unconditionally, 5 verified in the code, 6 proved on named rows, 6 mixed, 4 relying on cited facts, 2 gaps, 6 illustrations — with its three demotions (rows 8, 18, 25) and its promotions; nothing strengthened beyond it |
+| C-2 | §2.1, §7.1 | RESULT 4's reading withdrawn: the comparison was against the `d+1`-value protocol's `dim C_s`, publishing less cannot leak more, and the check's control G2 does not separate; the privacy-relevant invariant is mask degree = round degree (experiment C), and the `d+1` length check is load-bearing against *more* than `d+1` values and as the step Fact 2.1's proof consumes |
+| C-3 | §4.2 | the joint-view gate's shared-blinding control is now quoted with its recorded blind spot (it fires only at tight, singleton-group positions — `A` 17 of 35 groups, `H` 2 of 9) |
+| C-5 | §5.2, §9 rows 24, 25, 35 | the check's length argument added (challenges are 47-byte queries, a length nothing else uses, so no challenge query can coincide with a node, leaf or absorb query) together with the one real overlap — `absorb_u64(b"log-cols", 8)`, the protocol's only 64-byte absorb, fixed last 32 bytes, about 2^-243 per proof — folded into (H6)'s collision terms |
+| C-6 | §2.4 | "Lemma 2.2 is exactly where that rule earns its keep" withdrawn: invertibility, not triangularity, is what the proof uses, and a hosting cycle's failure mode is a completeness failure (controls G6 and G6′) |
+| C-8 | §0 "What is shown" | "four of them already accepted elsewhere" corrected to two ((H2) and (H5)); O1's existence stated as conditional on (H1)–(H5) and for the field view only |
+| C-9 | §0 "What it rests on" | the generic-rank lemma's **core** was accepted; its draft was explicitly not accepted as written |
+| C-10 | §2.3, §8 Q4 | the comment at `zkp-core/src/sumcheck.rs:163-183` stated plainly as wrong about what the extra coefficient is for, and harmless — nothing in the code changes because of it; the content is `dim ker R_s = 1`, not that `a'` is special (`a_0` is equally droppable at 5 of 6 `ρ` regimes); whether the cited literature needs the coefficient for a statement this profile does not use is recorded as NOT VERIFIED |
+| C-11 | §1.2, §8 Q6 | the two endpoints' blinding recorded as independent of the block's stream **information-theoretically** (their own `ZkRng::from_os`), not merely under M-3 |
+| C-12 | §3.3 | `V_sc` recorded as **not** a product across roles (one extension round mixes `A`'s, `H`'s and an endpoint's reserved pairs), which is why (H1) is stated for `V_pcs` only and the conditioning is on the whole of `π` |
+| C-13 | §7.2, new §7.3 | experiment A's missing `M` object and F's missing honest two-slot case recorded, with the check's G1 and G7 (both SAME) cited; the draft's controls sorted into real rules, a distributional analogue (C) and a synthetic shape (D) |
+| C-14 | §2.3, §9 row 9 | `layout.rs:733-736` marked test-only (inside `mod tests` from `:695`); the load-bearing runtime assert is `zk.rs:442` |
+| O-1 | §3.2 | the per-slot `poly(extensions) = 0` Rust guard recorded as what is owed, in place of a symbolic check or a run through the unverified Python port |
+| O-2 | §4.2, §9 (the two-gaps paragraph) | the cross-role blinding-disjointness assertion recorded as the closure still owed |
+| O-3 | §2.1 | Fact 2.1 restated as a proved identity here, with the same recommended for `ZK60_GENERIC_RANK_LEMMA.md` §3.5(a) |
+| O-4 | §5.1, §5.2, §6 item 1, §8 Q5 | the lift recorded as owed in the form of a per-step kernel argument over messages that are (field part, hash part) pairs, with the bad-event list written out |
+| O-5 | §4.3, §6 item 4 | scope unchanged and restated: the two toy layouts only |
+| O-6 | Appendix A | the quoting rule amended — the uniform-blinding idealisation, the cross-role independence hypothesis and the two toy layouts must be named in the same sentence as Theorem 3.3 or Corollary 3.4 |
+| O-7 | §8 Q8, §4.3, and `ZK60_GENERIC_RANK_LEMMA.md` §3.2 | the restart correction routed to the lemma and made there in this pass (with a row in that memo's revision record); the terminals step recorded here as the lemma's, imported with its provenance |
+| Promotion: the degrees-of-freedom fact | §2.1, §2.2, §3.2, §9 rows 5 and 13 | Fact 2.1 is now PROVED unconditionally, with the check's five-line proof written out and credited and the explicit kernel given; the 115 and 276 recomputations become confirmations rather than supports |
+| Promotion: the completeness premise | §3.2, §8 Q1 | recorded as settled by reading all 23 closures — 21 by a public factor in every monomial, the two softmax slots by different extension rounds — and as structural and witness-independent, which is the form Theorem 3.3 needs |
+| Promotion: block diagonality | §0, §4.2, §8 Q2, §9 rows 18, 20, 21 | recorded as settled family by family by reading **and** unnecessary: independent per-role blinding gives the product law directly (Proposition 4.2′), which also disposes of the endpoint planes being `A`'s own planes; the draft's GAP G-1 is closed in that restated form, leaving condition O-2 |
+| The hash layer | §0, §5.2, §6 item 1 | the check's finding added; the layer **remains a gap**, and what is owed is named: (H6) written as one random-oracle lemma with its query budget, and the sequential lift composed with it into a single argument |
+| The toy enumeration | new §7.3 | the check's controls and their results added — G1 and G7 (SAME), G4/G5 (identical marginals, different joint law: the new instance of the marginal-versus-joint trap and the counterexample behind "one reserved pair per claim site"), G2 (refuting RESULT 4), G3, and G6/G6′ (cyclic hosting). No evidence file was edited |
+| Status line | header | replaced with the text ruling J-5's disposition requires |
+| §0 and §9 prose | §0 "What must not be read into it", §9 closing paragraph | "it has not been independently checked" corrected — it has been, the theorem's core is accepted in the uniform-blinding idealisation, and one step was supplied by the check and reviewed by nobody |
+
+Items that needed no change: none of the adjudicated items was left
+unapplied. Remarks of the check that are not in its errata tables were not
+acted on, with one exception required by a ruling: its observation that the
+completeness premise bites at the `π`-uniformity step is recorded in §3.2,
+because it is the reason the reading discharges (H4) in the form Theorem 3.3
+needs.
+
+(revision complete)
 
