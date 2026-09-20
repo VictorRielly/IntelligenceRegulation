@@ -1,0 +1,14 @@
+.....s......./home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:116: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_gate_record_refresh/channel_counts_of_record.json' mode='r' encoding='UTF-8'>
+  cls.pin = json.load(open(PIN))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...............................................................................................................................................x....................................
+----------------------------------------------------------------------
+Ran 193 tests in 269.129s
+
+OK (skipped=1, expected failures=1)

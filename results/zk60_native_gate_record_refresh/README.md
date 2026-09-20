@@ -72,7 +72,7 @@ above.
 | `channel_counts_of_record.json` | the channel-label counts OF RECORD — 28 channels, 11 / 2 / 8 / 7 — the one place `tests/test_zk60_native_gate_record.py` and section 14.1 / 15 of `ZK60_NATIVE_JOINT_VIEW.md` both cite |
 | `guard_before.log`, `.done` | the new test BEFORE the refresh: **6 tests, FAILED (failures=2)** — the counts of the older record, and the `tool_sha256` of both |
 | `guard_after.log`, `.done` | the same test after the refresh: **6 tests, OK** |
-| `suite_after.log`, `.done` | the whole `test_zk60_native*.py` set after the refresh |
+| `suite_after.log`, `.done` | the whole `test_zk60_native*.py` set after the refresh: **Ran 193 tests in 269.1 s, OK** (1 skip, 1 expected failure), against 187 before this lane (`results/zk60_native_run_gate/tests_after.log`) — the six new ones are this guard |
 
 The test re-derives the counts from each committed record's own `channels`
 array, compares them with the record's own `grade.by_status`, with the pin,

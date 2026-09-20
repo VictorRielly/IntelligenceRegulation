@@ -215,7 +215,8 @@ ledger or in §14 changed** — the refreshed files hold exactly the 11 / 2 /
 `results/zk60_native_gate_record_refresh/channel_counts_of_record.json`: it
 re-derives the counts from every committed record, compares them with the
 pin and with §14.1's `after` row, and fails if a record's `tool_sha256` is
-not the tools now in the tree.
+not the tools now in the tree. Suite after the refresh: **193 tests in
+269.1 s, OK** (one skip, one expected failure), against 187 before it.
 
 ## NEXT
 

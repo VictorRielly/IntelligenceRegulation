@@ -1555,7 +1555,9 @@ already follows. **A tool edited without re-running the gate now turns the
 suite red**, which is exactly what did not happen on 2026-09-20. Before the
 refresh the new file was 6 tests, FAILED (failures=2), on precisely the two
 things above (`guard_before.log`); after it, 6 tests, OK
-(`guard_after.log`).
+(`guard_after.log`). The whole set: **193 tests in 269.1 s, OK** (one skip,
+one recorded expected failure) against **187** before this lane — the six
+new ones are the guard. `results/zk60_native_gate_record_refresh/suite_after.log`.
 
 **One older table now reads as history.** §3 of `ZK60_NATIVE_PRIVACY_GATE.md`
 states the P10 lane's channel table, 8 / 2 / 8 / 10, as of `825213e`. That
