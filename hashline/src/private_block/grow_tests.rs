@@ -874,3 +874,89 @@ fn the_h_plane_ids_are_the_toys_at_the_toy_and_each_shapes_elsewhere() {
         assert!(hi.is_table(hi.table_helpers()[2]) && !hi.is_table(hi.u()), "{}: only the three table helpers are table helpers", s.name);
     }
 }
+
+// ====================================================================
+// STEP B of the shaped argument: `Layout::for_shape`
+// ====================================================================
+
+/// **The row geometry at any shape, with the TOY as one instance.**
+///
+/// `Layout::new()` is now `for_shape(&Shape::toy())` plus the frozen
+/// assertions, so the whole toy transcript rests on this constructor. Two
+/// things are therefore pinned here and nowhere else:
+///
+/// * the toy's `describe()` is byte-identical, LINE BY LINE, to the text the
+///   frozen digest was taken over (`the_toy_schedule_digest_is_frozen`
+///   already pins the digest; this pins which line would have moved);
+/// * every other shape gets its OWN schedule — its own first line carrying
+///   its own profile id, its own row totals — so no two profiles can share a
+///   transcript-bound schedule digest.
+///
+/// It is a LAYOUT test. Nothing here proves anything at the rung or at 125M.
+#[test]
+fn the_layout_is_built_from_a_shape_and_the_toy_is_one_instance() {
+    let toy = Shape::toy();
+    let lay = Layout::new();
+    let direct = Layout::for_shape(&toy).expect("the toy shape has a layout");
+    assert_eq!(direct.describe(), lay.describe(), "`for_shape(toy)` and `new()` describe different schedules");
+    assert_eq!(direct.schedule_digest(), TOY_SCHEDULE_DIGEST, "`for_shape(toy)` is not the frozen toy schedule");
+
+    // the toy's six header lines, verbatim. These are the bytes the frozen
+    // digest is taken over; a shape-driven rewrite that changed one space
+    // would move every toy receipt.
+    let d = lay.describe();
+    assert_eq!(d[0], "private-block-t32/1: T32 d16 H2 KV1 dh8 F16; n=256 inv_rate=8 Q=256; P1 (weights public, no W commitment); whole block (attention, norm_m, feed-forward, residual 2)");
+    assert_eq!(d[1], "A rows=455 data=213 site-pairs=120 prox-pair=(453,454)");
+    assert_eq!(d[2], "H rows=384 data=280 site-pairs=51 zero-sum-pair=[278, 279] prox-pair=(382,383)");
+    assert_eq!(d[3], "M rows=50 functionals=34 A-groups=35 H-groups=9 collapse=0");
+    assert!(d[4].starts_with("calibration: norm tn=11 cn=1024 ceps=1 wrho=29;"), "{}", d[4]);
+    assert!(d[4].contains(" fE=9 fP=9 fRo=7 wrhoS=14 mask=-127;"), "{}", d[4]);
+    assert!(d[5].starts_with("feed-forward: F=16 shifts gate=7"), "{}", d[5]);
+    assert_eq!(d.len(), 6 + N_SLOTS + HOSTS.len(), "the schedule has six header lines, one per slot and one per host");
+
+    // the toy's own accessors, which every existing caller reads
+    assert_eq!(lay.n(), N);
+    assert_eq!(lay.slots(), &SLOTS);
+    assert_eq!(lay.a_sites(), &A_SITES[..]);
+    assert_eq!(lay.h_sites(), &H_SITES[..]);
+    assert_eq!(lay.shape(), &toy);
+    assert_eq!(lay.ids().n_a(), N_A);
+    assert_eq!(lay.hids().n_h(), N_H);
+    for dom in LOOKUP_DOMS {
+        assert_eq!(lay.helpers(dom), helpers(dom), "{dom:?}: the shaped helper block is not the toy's");
+        assert_eq!(lay.lookups(dom).len(), lookups(dom).len(), "{dom:?}: the shaped lookup list is not the toy's");
+    }
+    for dom in [Dom::T, Dom::Ht, Dom::Tab] {
+        assert_eq!(lay.helpers(dom), (0, 0), "{dom:?} owns no LogUp helpers at any shape");
+    }
+
+    // ---- the other two shapes: a layout each, and it matches the counted
+    // model of `Shape::totals` (itself checked against the Python model)
+    for sh in [Shape::rung(), Shape::m125()] {
+        let l = Layout::for_shape(&sh).unwrap_or_else(|e| panic!("{}: {e}", sh.name));
+        let t = sh.totals();
+        assert_eq!((l.a_data_rows, l.h_data_rows), (t.a_data_rows, t.h_data_rows), "{}: data rows", sh.name);
+        assert_eq!((l.a_rows, l.h_rows), (t.a_rows, t.h_rows), "{}: total rows", sh.name);
+        assert_eq!((l.a_off.len(), l.h_off.len()), (t.a_planes, t.h_planes), "{}: plane counts", sh.name);
+        assert_eq!(l.n(), 1usize << sh.log_cols, "{}: row width", sh.name);
+        assert_eq!(l.a_mask_base, t.a_data_rows, "{}: the site pairs start after the data rows", sh.name);
+        assert_eq!(l.a_prox, t.a_data_rows + 2 * t.a_sites, "{}: the proximity pair is last", sh.name);
+        assert_eq!(l.h_prox, t.h_data_rows + 2 * t.h_sites, "{}: the H proximity pair is last", sh.name);
+        // the last declared site of the last slot resolves; one past it does not
+        let last = (0..N_SLOTS).rev().find(|s| l.a_sites()[*s] > 0).expect("some slot raises an A claim");
+        assert!(l.a_site(last, l.a_sites()[last] - 1).is_ok(), "{}: the last A site", sh.name);
+        assert!(l.a_site(last, l.a_sites()[last]).is_err(), "{}: an undeclared A site is refused", sh.name);
+        // its schedule is its own, and carries its own profile id
+        assert!(l.describe()[0].starts_with(sh.profile), "{}: the schedule does not name the profile: {}", sh.name, l.describe()[0]);
+        assert_ne!(l.schedule_digest(), TOY_SCHEDULE_DIGEST, "{}: a new profile shares the toy's schedule digest", sh.name);
+        assert_eq!(l.helpers(Dom::S), (l.hids().first_helper(Dom::S), sh.helpers(Dom::S)), "{}: the Dom::S helper block", sh.name);
+        assert_eq!(l.lookups(Dom::S).len(), sh.lookups_per_position(Dom::S), "{}: the Dom::S lookup list", sh.name);
+        assert_eq!(l.limb_off(1) - l.limb_off(0), sh.t_pad, "{}: the limb sub-slices are t_pad apart", sh.name);
+    }
+    // and the two are distinct from each other, not only from the toy
+    assert_ne!(
+        Layout::for_shape(&Shape::rung()).unwrap().schedule_digest(),
+        Layout::for_shape(&Shape::m125()).unwrap().schedule_digest(),
+        "the rung and 125M share a schedule digest"
+    );
+}

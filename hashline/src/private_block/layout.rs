@@ -934,6 +934,17 @@ pub(crate) struct Layout {
     pub h_rows: usize,
     a_prefix: Vec<usize>,
     h_prefix: Vec<usize>,
+    /// **STEP B.** The shape this layout was built from, and the two plane-id
+    /// maps that go with it. Everything below that used to read a toy literal
+    /// now reads one of these.
+    sh: super::shape::Shape,
+    ids: Ids,
+    hids: HIds,
+    /// the row width `1 << sh.log_cols`
+    n: usize,
+    a_sites: [usize; N_SLOTS],
+    h_sites: [usize; N_SLOTS],
+    slots: [(usize, usize, usize); N_SLOTS],
 }
 
 impl Layout {
@@ -948,21 +959,45 @@ impl Layout {
     /// toy profile moving.
     pub(crate) fn new() -> Layout {
         let sh = super::shape::Shape::toy();
+        let lay = Layout::for_shape(&sh).expect("the toy shape is the pinned one");
+        // ---- THE TOY FREEZE GATE. Every literal of the accepted profile,
+        // re-asserted against what the shape-driven constructor produced. If
+        // one plane, one site or one row ever differs, this panics before a
+        // byte is committed.
+        assert_eq!(lay.ids.n_a(), N_A, "the shape-driven A plane list is not the declared one");
+        assert_eq!(lay.hids.n_h(), N_H, "the shape-driven H plane list is not the declared one");
+        assert!((0..N_A).all(|p| lay.ids.dom(p) == a_dom(p)), "a shape-driven A plane sits on another domain");
+        assert!((0..N_H).all(|p| lay.hids.dom(p) == h_dom(p)), "a shape-driven H plane sits on another domain");
+        assert!((0..N_A).all(|p| lay.ids.at(p) == p), "the toy's A plane id map is not the identity");
+        assert_eq!(lay.a_sites, A_SITES, "the shape-driven A claim sites are not the declared ones");
+        assert_eq!(lay.h_sites, H_SITES, "the shape-driven H claim sites are not the declared ones");
+        assert_eq!(lay.slots, SLOTS, "the shape-driven slot table is not the declared one");
+        assert_eq!((sh.a_groups(), sh.h_groups()), (A_GROUPS, H_GROUPS), "the shape-driven opening groups are not the declared ones");
+        assert_eq!(lay.n, N, "the shape's row width is not this profile's");
+        // the derived counts of the disposition section 1.2
+        assert_eq!(lay.a_data_rows, A_DATA_ROWS, "block A data rows");
+        assert_eq!(lay.h_data_rows, H_DATA_ROWS, "block H data rows");
+        assert_eq!(lay.a_rows, A_ROWS, "block A rows");
+        assert_eq!(lay.h_rows, H_ROWS, "block H rows");
+        lay
+    }
+
+    /// **STEP B: the same row geometry at ANY shape.** The toy is one
+    /// instance of it ([`Layout::new`], which adds the frozen assertions),
+    /// and a new shape is a NEW profile beside it (D17) — nothing here edits
+    /// the toy. Construction REFUSES BY NAME (through [`Ids::new`] and
+    /// [`HIds::new`]) any shape whose plane list is not the one the segment
+    /// tables describe.
+    pub(crate) fn for_shape(sh: &super::shape::Shape) -> Result<Layout, String> {
+        let ids = Ids::new(sh)?;
+        let hids = HIds::new(sh)?;
         let n = 1usize << sh.log_cols;
         let a_doms = sh.a_plane_doms();
         let h_doms = sh.h_plane_doms();
-        assert_eq!(a_doms.len(), N_A, "the shape-driven A plane list is not the declared one");
-        assert_eq!(h_doms.len(), N_H, "the shape-driven H plane list is not the declared one");
-        assert!((0..N_A).all(|p| a_doms[p] == a_dom(p)), "a shape-driven A plane sits on another domain");
-        assert!((0..N_H).all(|p| h_doms[p] == h_dom(p)), "a shape-driven H plane sits on another domain");
         let (a_sites, h_sites) = sh.claim_sites();
-        assert_eq!(a_sites, A_SITES, "the shape-driven A claim sites are not the declared ones");
-        assert_eq!(h_sites, H_SITES, "the shape-driven H claim sites are not the declared ones");
-        assert_eq!(sh.slots(), SLOTS, "the shape-driven slot table is not the declared one");
-        assert_eq!((sh.a_groups(), sh.h_groups()), (A_GROUPS, H_GROUPS), "the shape-driven opening groups are not the declared ones");
-        assert_eq!(n, N, "the shape's row width is not this profile's");
+        let slots = sh.slots();
         let mut row = 0usize;
-        let mut a_off = Vec::with_capacity(N_A);
+        let mut a_off = Vec::with_capacity(a_doms.len());
         for d in &a_doms {
             a_off.push(row * n);
             row += sh.rows_of(*d);
@@ -971,14 +1006,14 @@ impl Layout {
         let mut a_prefix = vec![0usize; N_SLOTS + 1];
         let mut h_prefix = vec![0usize; N_SLOTS + 1];
         for s in 0..N_SLOTS {
-            a_prefix[s + 1] = a_prefix[s] + A_SITES[s];
-            h_prefix[s + 1] = h_prefix[s] + H_SITES[s];
+            a_prefix[s + 1] = a_prefix[s] + a_sites[s];
+            h_prefix[s + 1] = h_prefix[s] + h_sites[s];
         }
         let a_mask_base = a_data_rows;
         let a_prox = a_mask_base + 2 * a_prefix[N_SLOTS];
         let a_rows = a_prox + 2;
         let mut row = 0usize;
-        let mut h_off = Vec::with_capacity(N_H);
+        let mut h_off = Vec::with_capacity(h_doms.len());
         for d in &h_doms {
             let r = sh.rows_of(*d);
             h_off.push((row * n, (row + r) * n));
@@ -988,47 +1023,80 @@ impl Layout {
         let h_mask_base = h_data_rows;
         let h_prox = h_mask_base + 2 * h_prefix[N_SLOTS];
         let h_rows = h_prox + 2;
-        // the derived counts of the disposition section 1.2
-        assert_eq!(a_data_rows, A_DATA_ROWS, "block A data rows");
-        assert_eq!(h_data_rows, H_DATA_ROWS, "block H data rows");
-        assert_eq!(a_rows, A_ROWS, "block A rows");
-        assert_eq!(h_rows, H_ROWS, "block H rows");
-        Layout { a_off, a_data_rows, a_mask_base, a_prox, a_rows, h_off, h_data_rows, h_mask_base, h_prox, h_rows, a_prefix, h_prefix }
+        Ok(Layout {
+            a_off,
+            a_data_rows,
+            a_mask_base,
+            a_prox,
+            a_rows,
+            h_off,
+            h_data_rows,
+            h_mask_base,
+            h_prox,
+            h_rows,
+            a_prefix,
+            h_prefix,
+            sh: sh.clone(),
+            ids,
+            hids,
+            n,
+            a_sites,
+            h_sites,
+            slots,
+        })
+    }
+
+    // ---- what this layout was built from ----
+    pub(crate) fn shape(&self) -> &super::shape::Shape {
+        &self.sh
+    }
+    pub(crate) fn ids(&self) -> &Ids {
+        &self.ids
+    }
+    pub(crate) fn hids(&self) -> &HIds {
+        &self.hids
+    }
+    /// the row width `1 << log_cols`
+    pub(crate) fn n(&self) -> usize {
+        self.n
+    }
+    pub(crate) fn slots(&self) -> &[(usize, usize, usize); N_SLOTS] {
+        &self.slots
     }
 
     // ---- the slot schedule ----
-    pub(crate) fn a_sites(&self) -> &'static [usize] {
-        &A_SITES
+    pub(crate) fn a_sites(&self) -> &[usize] {
+        &self.a_sites
     }
-    pub(crate) fn h_sites(&self) -> &'static [usize] {
-        &H_SITES
+    pub(crate) fn h_sites(&self) -> &[usize] {
+        &self.h_sites
     }
     pub(crate) fn lookup_doms(&self) -> &'static [Dom] {
         &LOOKUP_DOMS
     }
     pub(crate) fn lookups(&self, dom: Dom) -> Vec<Lk> {
-        lookups(dom)
+        lookups_at(&self.sh, &self.ids, dom)
     }
     pub(crate) fn helpers(&self, dom: Dom) -> (usize, usize) {
-        helpers(dom)
+        (self.hids.first_helper(dom), self.sh.helpers(dom))
     }
     /// every A / H plane, in plane order
     pub(crate) fn a_planes(&self) -> Vec<usize> {
-        (0..N_A).collect()
+        (0..self.ids.n_a()).collect()
     }
     pub(crate) fn h_planes(&self) -> Vec<usize> {
-        (0..N_H).collect()
+        (0..self.hids.n_h()).collect()
     }
 
     /// first row of the reserved pair of A site `k` of `slot`
     pub(crate) fn a_site(&self, slot: usize, k: usize) -> Result<usize, String> {
-        if k >= A_SITES[slot] {
+        if k >= self.a_sites[slot] {
             return Err(format!("private block: undeclared A site {k} in slot {slot}"));
         }
         Ok(self.a_mask_base + 2 * (self.a_prefix[slot] + k))
     }
     pub(crate) fn h_site(&self, slot: usize, k: usize) -> Result<usize, String> {
-        if k >= H_SITES[slot] {
+        if k >= self.h_sites[slot] {
             return Err(format!("private block: undeclared H site {k} in slot {slot}"));
         }
         Ok(self.h_mask_base + 2 * (self.h_prefix[slot] + k))
@@ -1042,35 +1110,48 @@ impl Layout {
     }
     /// the two zero-sum rows `u`
     pub(crate) fn h_u_rows(&self) -> [usize; 2] {
-        let (re, im) = self.h_off[H_U];
-        [re / N, im / N]
+        let (re, im) = self.h_off[self.hids.u()];
+        [re / self.n, im / self.n]
     }
     pub(crate) fn limb_off(&self, k: usize) -> usize {
-        self.a_off[A_LIMB] + k * T
+        self.a_off[self.ids.at(A_LIMB)] + k * self.sh.t_pad
     }
     pub(crate) fn limb_off_m(&self, k: usize) -> usize {
-        self.a_off[A_LIMBM] + k * T
+        self.a_off[self.ids.at(A_LIMBM)] + k * self.sh.t_pad
     }
 
     /// The declared schedule, line by line; its digest is transcript-bound.
     pub(crate) fn describe(&self) -> Vec<String> {
+        let sh = &self.sh;
+        // The toy's first line opens with a LEGACY label that is not its
+        // profile id; it is transcript-bound through `schedule_digest`, so
+        // normalising it would move every toy byte (D17). It is therefore
+        // kept verbatim for the toy profile and only for it, and every NEW
+        // profile puts its own profile id there — which is also what makes
+        // this digest separate two shapes of identical geometry.
+        let tag = if sh.profile == super::shape::TOY_PROFILE { "private-block-t32/1" } else { sh.profile };
         let mut out = vec![
-            format!("private-block-t32/1: T{T} d{D} H{H} KV1 dh{DH} F{F}; n={N} inv_rate=8 Q=256; P1 (weights public, no W commitment); whole block (attention, norm_m, feed-forward, residual 2)"),
+            format!(
+                "{tag}: T{} d{} H{} KV{} dh{} F{}; n={} inv_rate={} Q={}; P1 (weights public, no W commitment); whole block (attention, norm_m, feed-forward, residual 2)",
+                sh.tokens, sh.width, sh.q_heads, sh.kv_heads, sh.head_dim, sh.hidden, self.n, sh.inv_rate, sh.opened_cols
+            ),
             format!("A rows={} data={} site-pairs={} prox-pair=({},{})", self.a_rows, self.a_data_rows, self.a_prefix[N_SLOTS], self.a_prox, self.a_prox + 1),
             format!("H rows={} data={} site-pairs={} zero-sum-pair={:?} prox-pair=({},{})", self.h_rows, self.h_data_rows, self.h_prefix[N_SLOTS], self.h_u_rows(), self.h_prox, self.h_prox + 1),
-            format!("M rows={M_ROWS} functionals={N_FUNCTIONALS} A-groups={A_GROUPS} H-groups={H_GROUPS} collapse=0"),
+            format!("M rows={M_ROWS} functionals={N_FUNCTIONALS} A-groups={} H-groups={} collapse=0", sh.a_groups(), sh.h_groups()),
             format!(
-                "calibration: norm tn={NORM_TN} cn={NORM_CN} ceps={NORM_CEPS} wrho={NORM_WRHO}; shifts qkv={SH_QKV} rope={SH_ROPE} score={SH_S} o={SH_O} ao={SH_AO} residual=0; fE={F_E} fP={F_P} fRo={F_RO} wrhoS={WRHO_S} mask={MASK_SCORE}; classes int8=[-127,127] int16; tables U8 + exp"
+                "calibration: norm tn={NORM_TN} cn={NORM_CN} ceps={NORM_CEPS} wrho={}; shifts qkv={SH_QKV} rope={SH_ROPE} score={SH_S} o={SH_O} ao={SH_AO} residual=0; fE={} fP={F_P} fRo={F_RO} wrhoS={} mask={MASK_SCORE}; classes int8=[-127,127] int16; tables U8 + exp",
+                sh.norm_wrho, sh.f_e, sh.wrho_s
             ),
             format!(
-                "feed-forward: F={F} shifts gate={SH_G} up=0 product={SH_H_PROD} down={SH_Z} residual2=0; gate class int8=[-128,127]; tables U8 + exp + act"
+                "feed-forward: F={} shifts gate={SH_G} up=0 product={SH_H_PROD} down={SH_Z} residual2=0; gate class int8=[-128,127]; tables U8 + exp + act",
+                sh.hidden
             ),
         ];
         for s in 0..N_SLOTS {
-            let (n, e, d) = SLOTS[s];
+            let (n, e, d) = self.slots[s];
             out.push(format!(
                 "slot {s:02} [{}] main={n} ext={e} degree={d} kind={:?} A-sites={} H-sites={}",
-                SLOT_NAMES[s], SLOT_KINDS[s], A_SITES[s], H_SITES[s]
+                SLOT_NAMES[s], SLOT_KINDS[s], self.a_sites[s], self.h_sites[s]
             ));
         }
         for (host, hosted) in HOSTS {
