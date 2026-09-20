@@ -137,8 +137,10 @@ private-block-kernel/src/shaped_tests.rs
 | **Shaped argument, step A — the H plane id map** | **DONE** | `0493be3`; `s9b-hids2.log:179` **98 / 0 / 4**. Built and tested, NOT wired into `argument.rs` / `protocol.rs` |
 | **Shaped argument, step B — `Layout::for_shape`** | **DONE** | `a6ed423`; `s5b-run2.log:180` **99 / 0 / 4**. The layout owns its `Shape`, `Ids` and `HIds`; `Layout::new()` is `for_shape(&Shape::toy())` plus the frozen assertions. `describe()` byte-identical FIRST TRY, its six header lines now pinned verbatim on top of the digest pin |
 | **Shaped argument, step C part 1 — the shaped `define`** | **DONE** | `522b9c3`; `s5c-run2.log:181` **100 / 0 / 4**. Every toy literal gone from the 23 slot definitions; new sweep test builds all 23 at the toy AND at the rung and pins trap T-3 |
-| **Shaped argument, step C part 2 — the shaped `protocol` (and `wire`)** | **NOT STARTED** — this is what still blocks a rung PROOF | the literal inventory is in the NEXT section |
-| **S10, S11, S12** | **NOT STARTED** — all three are prover/verifier side and blocked by step C part 2 | — |
+| **Shaped argument, step C part 2 — the shaped `protocol` (and `wire`)** | **DONE** | `0dfdeb4`; `s6c-run1.log:185` **104 / 0 / 4**. Every line of the inventory ticked off (checklist in the stage 6 section); `prove_inner_at` / `verify_inner_at` are the shaped pair and the old pair is each at `Shape::toy()` |
+| **S10 — the rung's PCS parameters** | **DONE** (it fell out of step C part 2) | `0dfdeb4`; `pcs_params_at` is `log_cols` / `inv_rate` / `opened_cols`, asserted 8/8/256, **10/4/256**, 14/4/256 at the three shapes, with the pad count equal to the opened-column count |
+| **The hash layer's code conditions C-H1 / C-H4 / C-H4′ / C-H8** | **DONE** | `dcaec94`; `s6d-run2.log:188` **107 / 0 / 4**. C-H4 is a refusal inside `Layout::for_shape` (every shape); C-H4′ scans the module's own source; finding **C2-F1** recorded |
+| **S9 part 4, S11, S12** | **NOT STARTED** | see the stage 6 NEXT |
 | **S8 the change itself** | **DONE** | `7f8e549` (the ids, the lookups, the premise) and `a21ffd7` (P-5's alias cases, the parity fixture retired). The deliverable test `the_rung_at_its_own_calibration_has_an_honest_witness` is un-ignored and green; hashline **86 / 0 / 2** (`s8-run7.log:165`), toy receipt 2,816,472 B and the digest unmoved |
 
 ## The toy freeze gate this stage added
@@ -1222,3 +1224,124 @@ Nothing is written outside this worktree, and no witness value, salt or
 private plane appears in any evidence file: counts, sizes, booleans and
 digests only. A rung proof that verifies would be a CORRECTNESS milestone;
 the privacy checks are owed again at every new shape.
+
+---
+
+## Stage 6 (2026-09-20, 03:5x–04:4x): step C part 2 and the code conditions
+
+Commits `0dfdeb4` (step C part 2 + S10) and `dcaec94` (C-H1, C-H4, C-H4′,
+C-H8). Both touch `hashline/src/private_block/` only — `protocol.rs`,
+`wire.rs`, `layout.rs`, `tests.rs`, `grow_tests.rs`. **No new shared-file
+change**, and `git --no-pager diff --stat 11c01b2 -- private-block-kernel
+private-model-kernel zkvm-block` is empty after each.
+
+### Runs
+
+| # | Command | Log | Result |
+|---|---|---|---|
+| 39 | the Rust command, before any edit of this stage | `s6c-baseline.log:180` | **100 / 0 / 4 / 67 filtered out**, 30.44 s |
+| 40 | after the `protocol.rs` + `wire.rs` edit | `s6c-compile1.log` | 8 compile errors, all of them test call sites of the two widened signatures |
+| 41 | after fixing the call sites | `s6c-compile2.log:181` | **100 / 0 / 4**, 8 warnings (the baseline's 8) |
+| 42 | with the four step-C-part-2 tests | `s6c-run1.log:185` | **104 / 0 / 4**, 29.12 s |
+| 43 | with the four code-condition tests | `s6d-run1.log:202` | **106 / 1 / 4** — the deliberate discovery run: the C-H1 test's distinctness assertion failed, 1,225 distinct salts against 1,280 columns (finding C2-F1) |
+| 44 | with the C-H1 test corrected to the right property | `s6d-run2.log:188` | **107 / 0 / 4**, 29.29 s, 8 warnings |
+
+### Step C part 2 — the inventory, line by line
+
+Every row of stage 5's table, ticked off. All in `protocol.rs` unless said.
+
+| what | becomes | done |
+|---|---|---|
+| `pcs_params()`'s `LOG_N`, `inv_rate: 8`, `num_col_checks: 256` | `pcs_params_at(sh)` = `sh.log_cols` / `sh.inv_rate` / `sh.opened_cols`; the old no-argument form is it at the toy (`native_capture.rs` calls that signature) | ✔ **S10** |
+| `Transcript::new(PROFILE)` | `sh.profile.as_bytes()` | ✔ |
+| the literal `"parameters"` word | `parameter_line(sh)`, FORMATTED from the shape and pinned verbatim at the toy | ✔ |
+| `absorb_root`'s `LOG_N`, `commitment`'s `log_cols` | a `log_cols` argument, `sh.log_cols` at both call sites of each | ✔ |
+| `part_rows`'s `N` | an `n` argument | ✔ |
+| `opening_groups_at(claims, LOG_N)`, `check_opening(.., LOG_N)` | `check_opening` takes `log_n` and passes `1 << log_n` to `audit_claims` | ✔ |
+| `A_GROUPS` / `H_GROUPS` at the four `check_opening` sites | `sh.a_groups()` / `sh.h_groups()` | ✔ |
+| `ENDPOINT_ROWS = 7`, `ENDPOINT_PROX = 4` | `endpoint_geometry(sh)`, which REFUSES BY NAME any shape whose `endpoint_rows` is not the toy's — that is S11's, not this step's | ✔ (threaded) |
+| every `lay.a_off[A_*]` / `lay.h_off[H_*]` in `prove_inner` | `ids.at(..)`, `hids.sexp()`, `hids.fact()`, `hids.table_helpers()` | ✔ |
+| `wit.planes.len() != N_A`, `a_dom(*p).len()` | `ids.n_a()`, `sh.size(ids.dom(p))`; `is_multiplicity` → `ids.is_multiplicity` | ✔ |
+| `a_data` / `h_data` sized `* N`, the zero-sum loop `0..N-1` | `lay.n()` | ✔ |
+| `exp_deltas`'s `% T`, `A_S8` / `A_MX` / `A_G8` | `sh.t_pad` and `Dom::S`'s cube `(h * t_pad + t) * t_pad + j` (`witness.rs:193`), ids everywhere | ✔ |
+| `lookup_values`'s `dom.len()` (the toy's `Dom::len`) | `sh.size(dom)` — the P-3 lift makes `Dom::L` 1024 at the rung where the toy's `Dom::len()` says 512 | ✔ (was not on the stage 5 list; found while editing) |
+| `mask_specs()`, `slot_terms(s)` | `lay.mask_specs()`, `lay.slot_terms(s)`, new methods on the layout; the free functions stay for `native_capture.rs` | ✔ (not on the stage 5 list) |
+| `wire.rs`: `CHECKS`, `VEC`, `ENC_COLS`, `PATH`, `A_GROUPS`, `H_GROUPS`, `ENDPOINT_ROWS`, `SLOTS`, `slot_terms` | a `Dim { checks, vec, enc_cols, path }` built once for the block commitments and once for the endpoints, which have their own PCS parameters | ✔ |
+| `private_block.rs:98`'s `PROFILE` | kept for the toy; asserted equal to `Shape::toy().profile` | ✔ |
+
+**Is a rung receipt produced? NO, and the reason is S11, not this step.**
+`endpoint_geometry` refuses every shape whose `endpoint_rows` is not 7: the
+rung's endpoint plane is 24 × 96 = 2,304 words, which does not fit one
+`private_seam` block, and `IoSpec::seams()` still builds its two `SeamSpec`s
+from the toy's `T` and `D` literals. Everything else on the prover and
+verifier path is now shape-driven.
+
+### New in this stage, beyond the inventory
+
+* **`fits_the_ntt_tables(sh)`**. The module builds ONE `NttTables::new(12)`.
+  That covers the toy (2^8 × 8 = 2^11), the development rung (2^10 × 4 =
+  2^12), both endpoint encodings and the fixed 2^12 mask domain — but not
+  125M, which needs 2^16. Both shaped entry points refuse a shape that does
+  not fit, BY NAME, before anything public exists. A capability bound of this
+  lane, not a soundness statement.
+* **The codec against the model.** `wire::encoded_len(&Layout::for_shape(sh))`
+  is asserted equal to `Shape::receipt_bytes(sh).total` at all three shapes.
+  The toy's frozen **2,816,472 B** and the rung's modelled **4,173,208 B**
+  agreed part for part FIRST TRY, which is the strongest evidence so far that
+  the Python model and the Rust codec describe the same frame.
+
+### C-F5 (new) — `native_capture.rs` is toy-only, and that is a forbidden file
+
+The `#[cfg(test)]` capture diagnostics call `protocol::pcs_params()` (no
+shape), build `Commitment { .., log_cols: 8 }` as a literal and rebuild
+`Layout::new()`. They are inert unless a test arms the observer, so they cost
+nothing today and nothing in this stage needed them. **But a rung CAPTURE —
+the joint-view gate's input at the new shape — cannot be produced without
+editing `native_capture.rs`**, which the lane may not touch. What would be
+needed: `pcs_params` and the two literals taken from a shape the capture is
+told about. Written down, not done (ruling asked for exactly this).
+
+### C2-F1 (new) — the opened columns are drawn WITH REPLACEMENT
+
+Found by writing the C-H1 test. An honest toy receipt publishes 1,280 opened
+columns (Q = 256 for each of `A`, `H`, `M` and the two endpoints) at only
+**1,225 distinct indices** — 55 repeats, which is the birthday count for 256
+draws from 2,048 (4,096 for `M`). The repeats carry identical salts and
+identical Merkle paths, so nothing is inconsistent; the test now asserts the
+right property (one leaf, one salt; no two DIFFERENT columns share a salt;
+no zero salt). **For the security owner:** whether the soundness analysis
+counts drawn or distinct columns is a question this lane does not decide,
+and the same question applies to the privacy side, where 55 repeated columns
+carry no new information but also mean the verifier sees fewer independent
+positions than Q suggests.
+
+### The code conditions — where each is pinned
+
+| condition | where | form |
+|---|---|---|
+| **C-H1** no leaf without a salt | `grow_tests::every_opened_column_of_an_honest_receipt_carries_its_own_salt` | a test on an honest toy receipt; the unopened half lives in `zkp-core`, untouched |
+| **C-H4** no commitment with 5 or 8 rows | `layout::no_commitment_has_a_node_shaped_column`, called by `Layout::for_shape` | a REFUSAL at construction, for every shape, plus a test at the three shapes and on hand-made 5 and 8 |
+| **C-H4′** no 28- or 35-byte domain label | the same test | scans the block path's seven source files through `include_str!` for byte-string literals, so it cannot go stale |
+| **C-H8** pad count ≥ opened columns | `grow_tests::the_pad_count_is_at_least_the_number_of_opened_columns` and the S10 test | both the inequality and the equality `ZkOpts::standard` enforces |
+
+### NEXT: exactly what the next agent should do, in order
+
+1. **S9 part 4 — the pad-zero term** (stage 5's "step D" section above is the
+   complete specification; nothing has changed in it). It is not blocked by
+   anything now. Its two extra obligations stand: the ONE toy documentation
+   test recording which relations read `A_LIMB` / `A_LIMBM` on the toy's
+   padded `Dom::L`, and the closed forms asserted equal to the builder's
+   support table at the rung.
+2. **S11 — the hidden endpoints at the rung** (C1 … C8, ADDITIVELY). The
+   single place to start is `endpoint_geometry` in `protocol.rs`, which now
+   refuses any non-toy endpoint geometry by name, and `IoSpec::seams()` in
+   `private_block.rs`, which still builds both `SeamSpec`s from the toy's `T`
+   and `D`. Check whether C1 … C8 can be done without touching
+   `private_seam.rs`'s existing entry points (they are byte-frozen; new
+   entry points go BESIDE them).
+3. **S12 — the rung end to end**, as stage 5's NEXT item 4 states it.
+
+Standing rules unchanged: run the filter before every commit of Rust code and
+record the counts here; the toy receipt is 2,816,472 B and the schedule
+digest is the literal pin; nothing runs at the 125M shape; the empty-diff
+check must print nothing.
