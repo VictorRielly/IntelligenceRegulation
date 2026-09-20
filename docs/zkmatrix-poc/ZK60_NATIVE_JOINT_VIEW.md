@@ -704,6 +704,19 @@ table: the slot's index, its name, its **number of definition challenges**
 and its **table push order**. A mismatch makes that slot `not_checkable` with
 the reason, never silently equal.
 
+**What this check does NOT cover, stated so it is not read into it.** The
+PUBLIC tables (the folded int8 weight columns, the RoPE `C`/`S'` tables, the
+causal mask, the U8 / exp / activation value tables) are taken from the
+capture, which records the values the verifier itself built; they are **not
+re-derived from the public statement**, because the bundle carries only the
+statement's digest, not the public fixture. So this is the verifier's own
+equation on the verifier's own view, and the tie between those tables and the
+caller's public statement is the one the *receipt's* transcript makes
+(`public-statement` and `schedule` are absorbed in the header, §1), not one
+this stage re-checks. Re-deriving them here would need the public fixture, or
+a per-table digest, in the capture — a request only if someone wants that
+second tie checked, not a gap in the equation above.
+
 ### 11.2 Results — all four captures, every slot
 
 | capture | profile | slots | checked | **equal** | not checkable | poly = stored `terminal_polynomial` | mask eval = its M functional |

@@ -133,6 +133,16 @@ Tests: **43 before, 69 after** (`python3 -m unittest discover -s tests -p
 `results/zk60_native_terminal_polys/unittest-baseline.log` and
 `unittest.log`; evidence record `terminal_polys.json` with its `.done` marker.
 
+## Limits of the check (so they are not read into it)
+
+The public tables are taken from the capture (the values the verifier itself
+built) and are **not re-derived from the public statement**: the bundle
+carries the statement's digest, not the public fixture. The equation checked
+is therefore the verifier's own, on the verifier's own view. If Codex wants
+the second tie (public table = what the statement implies) checked here too,
+the capture would have to carry the public fixture or a per-table digest —
+that is the only capture-writer request this lane has, and it is optional.
+
 ## What a reviewer should look at first
 
 1. `SOURCE_PINS` and the two ordered slot tables in the module: index, name,
