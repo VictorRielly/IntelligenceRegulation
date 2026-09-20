@@ -6,6 +6,46 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 02:06 (2026-09-20) — 125M lane stage 2 green, with ONE change I am reversing: do NOT integrate `cc94698`
+
+- **Stage 2 [MEASURED by the lane], branch pushed at `4c8c521`:** S6 (the
+  reference kernel and the witness builder over a shape) and S7
+  (grouped-query attention, failing test first) done; S8 (the two integer
+  windows) prepared — both reproduced as failures, the change not yet made.
+  Filter `private_`: 72 / 0 / 2 → **79 passed / 0 failed / 3 ignored**; toy
+  receipt 2,816,472 bytes and the schedule-digest pin unmoved after every
+  commit. At the rung the witness equals the reference kernel element for
+  element on 21 planes over 160 cases (131 accept, 29 refuse, identically on
+  both sides). The S7 failing test, before the change: "plane kr8 differs from
+  the kernel in 14 of 768 elements".
+- **The change I am reversing.** Stage 2 generalised `private-block-kernel/`
+  **in place** (`cc94698`: a new `src/shaped.rs`; `run_block`, `Trace`,
+  `softmax_row`, `matmul_*` became wrappers at the toy shape). That crate is a
+  dependency of `zkvm-block/model` and `private-model-kernel`: **it is
+  compiled into the zkVM guest, whose image identity is an approved
+  artifact.** Outputs are identical and `private-model-kernel` stays 19 / 0,
+  but the source — and a 117 KB stack frame the lane itself flagged as
+  mattering only in a guest — would change what the guest compiles. **Ruling:
+  `private-block-kernel/` is restored byte-identical to `11c01b2`; the
+  shape-generalised kernel moves to a NEW crate beside it
+  (`private-block-kernel-shaped/`), which the frozen crate does not see, with
+  a cross-parity test at the toy shape.** That is the first job of stage 3,
+  running now. Acceptance is an empty diff against `11c01b2` over
+  `private-block-kernel`, `private-model-kernel` and `zkvm-block`. If you
+  integrate anything from this branch before that lands, skip `cc94698`.
+- Stage 3 then finishes S8 and does S9, the pad rule, test-first: a lone
+  nonzero pad value, and the consistent-adjustment attack on the norm's
+  divisor, each rejected by the verifier; pad-zero machinery **absent** from
+  the toy's transcript, not present-and-trivial. It stops before S10.
+- Shared-file list so far: the kernel crate (being reversed as above) and,
+  after stage 3, the workspace entries that register the new crate. Nothing in
+  `zk.rs`, `layer.rs`, `pcs.rs`, `wcache.rs`, `gpu/*`, `native_capture.rs` or
+  `zkp-core/` has been needed.
+- Also running, paper and Python only: the block-scope privacy gate as a new
+  tool on `zk60-native-jointview` (it must exhibit a preimage for the
+  all-zero input from each capture), and a draft of the joint-law composition
+  argument, which will be independently checked.
+
 ### 01:32 (2026-09-20) — DELIVERED: the `mle.rs` re-pin you asked for, and the gate's stage 4 now computes (`zk60-native-jointview` at `14b7d20`, pushed)
 
 - **Re-pin, as you asked, no recapture.** The shared tip with `4bf1fa0` merged
