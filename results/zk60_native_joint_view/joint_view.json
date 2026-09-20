@@ -47,7 +47,7 @@
  "ok": true,
  "privacy_property_established": false,
  "privacy_review_complete": false,
- "seconds": 22.9,
+ "seconds": 21.5,
  "stage1_transcript_replay": {
   "ok": true,
   "per_capture": [
@@ -112,7 +112,7 @@
    "pad_margin": 0,
    "q_pad": 256,
    "role": "Input",
-   "seconds": 2.3
+   "seconds": 1.6
   },
   "pad_block_exact_rank_cross_check": {
    "capture": "40083e7ac8f3f6c7",
@@ -120,7 +120,7 @@
    "exact_rank_of_pad_block": 246,
    "full_rank": true,
    "role": "Input",
-   "seconds": 2.0
+   "seconds": 1.8
   },
   "per_capture": [
    {
@@ -135,10 +135,13 @@
       "data_rows": 213,
       "disclosed_dimension": 0,
       "distinct_columns": 246,
+      "distinct_opened_columns": 246,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 242,
+      "pad_count": 256,
       "pad_margin": 10,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -165,10 +168,13 @@
       "data_rows": 278,
       "disclosed_dimension": 2,
       "distinct_columns": 242,
+      "distinct_opened_columns": 242,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 106,
+      "pad_count": 256,
       "pad_margin": 14,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -207,10 +213,13 @@
       "data_rows": 2,
       "disclosed_dimension": 0,
       "distinct_columns": 246,
+      "distinct_opened_columns": 246,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 5,
+      "pad_count": 256,
       "pad_margin": 10,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -237,10 +246,13 @@
       "data_rows": 2,
       "disclosed_dimension": 0,
       "distinct_columns": 241,
+      "distinct_opened_columns": 241,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 5,
+      "pad_count": 256,
       "pad_margin": 15,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -274,10 +286,13 @@
       "data_rows": 213,
       "disclosed_dimension": 0,
       "distinct_columns": 243,
+      "distinct_opened_columns": 243,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 242,
+      "pad_count": 256,
       "pad_margin": 13,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -304,10 +319,13 @@
       "data_rows": 278,
       "disclosed_dimension": 2,
       "distinct_columns": 240,
+      "distinct_opened_columns": 240,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 106,
+      "pad_count": 256,
       "pad_margin": 16,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -346,10 +364,13 @@
       "data_rows": 2,
       "disclosed_dimension": 0,
       "distinct_columns": 231,
+      "distinct_opened_columns": 231,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 5,
+      "pad_count": 256,
       "pad_margin": 25,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -376,10 +397,13 @@
       "data_rows": 2,
       "disclosed_dimension": 0,
       "distinct_columns": 239,
+      "distinct_opened_columns": 239,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 5,
+      "pad_count": 256,
       "pad_margin": 17,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -413,10 +437,13 @@
       "data_rows": 154,
       "disclosed_dimension": 0,
       "distinct_columns": 234,
+      "distinct_opened_columns": 234,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 152,
+      "pad_count": 256,
       "pad_margin": 22,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -443,10 +470,13 @@
       "data_rows": 216,
       "disclosed_dimension": 2,
       "distinct_columns": 243,
+      "distinct_opened_columns": 243,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 74,
+      "pad_count": 256,
       "pad_margin": 13,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -485,10 +515,13 @@
       "data_rows": 2,
       "disclosed_dimension": 0,
       "distinct_columns": 243,
+      "distinct_opened_columns": 243,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 5,
+      "pad_count": 256,
       "pad_margin": 13,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -515,10 +548,13 @@
       "data_rows": 2,
       "disclosed_dimension": 0,
       "distinct_columns": 235,
+      "distinct_opened_columns": 235,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 5,
+      "pad_count": 256,
       "pad_margin": 21,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -552,10 +588,13 @@
       "data_rows": 154,
       "disclosed_dimension": 0,
       "distinct_columns": 241,
+      "distinct_opened_columns": 241,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 152,
+      "pad_count": 256,
       "pad_margin": 15,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -582,10 +621,13 @@
       "data_rows": 216,
       "disclosed_dimension": 2,
       "distinct_columns": 239,
+      "distinct_opened_columns": 239,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 74,
+      "pad_count": 256,
       "pad_margin": 17,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -624,10 +666,13 @@
       "data_rows": 2,
       "disclosed_dimension": 0,
       "distinct_columns": 237,
+      "distinct_opened_columns": 237,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 5,
+      "pad_count": 256,
       "pad_margin": 19,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -654,10 +699,13 @@
       "data_rows": 2,
       "disclosed_dimension": 0,
       "distinct_columns": 239,
+      "distinct_opened_columns": 239,
+      "distinct_opened_columns_within_pad_count": true,
       "findings": [],
       "group_claim_identity_failures": 0,
       "k0": 0,
       "non_data_rows": 5,
+      "pad_count": 256,
       "pad_margin": 17,
       "proximity_pair_determinant_nonzero": true,
       "q_pad": 256,
@@ -687,7 +735,7 @@
    "distinct_columns": 246,
    "exact_rank_of_a_row_pad_block": 246,
    "full_rank": true,
-   "seconds": 1.7
+   "seconds": 1.6
   },
   "ok": true,
   "per_capture": [
@@ -894,15 +942,106 @@
   ]
  },
  "stage4_stacked": {
+  "corrected": "2026-09-20, ruling G-1: this stage used to hard-code joint_equals_sum_of_parts and its own verdict",
+  "joint_is_computed_not_assumed": true,
   "ok": true,
   "per_capture": [
    {
+    "aliasing_lost_to_the_endpoint_identification_fp": 0,
     "capture": "40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b",
     "cfs_all_derived_values_fp": 68,
     "cfs_opening_only_fp": 2,
+    "expected_parts_fp": {
+     "A": 0,
+     "CFS": 2,
+     "H": 2,
+     "Input": 0,
+     "M": 0,
+     "Output": 0
+    },
+    "findings": [],
     "joint_all_derived_values_fp": 70,
+    "joint_detail": {
+     "coordinate_classes": 899,
+     "data_classes": 491,
+     "disclosed_fp": 2,
+     "free_fp": 0,
+     "generators": 102,
+     "k0": 0,
+     "non_data_classes": 408,
+     "rank_all": 102,
+     "rank_on_non_data": 102,
+     "u_row_detail": {
+      "extra_dimension_beyond_k0": 2,
+      "indicators_admissible": 2,
+      "u_class_owners": [
+       "H[278]",
+       "H[279]"
+      ],
+      "u_classes": 2
+     },
+     "u_row_term_fp": 2
+    },
+    "joint_disclosed_over_the_commitments_fp": 2,
     "joint_equals_sum_of_parts": true,
+    "joint_fp": 4,
     "joint_opening_only_fp": 4,
+    "joint_without_the_endpoint_identification_fp": 4,
+    "ok": true,
+    "parts_detail": {
+     "A": {
+      "commits_witness_data": true,
+      "data_rows": 213,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 242,
+      "rank_all": 72,
+      "rank_on_non_data": 72,
+      "u_row_term_fp": 0
+     },
+     "H": {
+      "commits_witness_data": true,
+      "data_rows": 278,
+      "disclosed_fp": 2,
+      "k0": 0,
+      "non_data_rows": 106,
+      "rank_all": 20,
+      "rank_on_non_data": 20,
+      "u_row_term_fp": 2
+     },
+     "Input": {
+      "commits_witness_data": true,
+      "data_rows": 2,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 5,
+      "rank_all": 4,
+      "rank_on_non_data": 4,
+      "u_row_term_fp": 0
+     },
+     "M": {
+      "commits_witness_data": false,
+      "data_rows": 0,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 50,
+      "rank_all": 2,
+      "rank_on_non_data": 2,
+      "u_row_term_fp": 0
+     },
+     "Output": {
+      "commits_witness_data": true,
+      "data_rows": 2,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 5,
+      "rank_all": 4,
+      "rank_on_non_data": 4,
+      "u_row_term_fp": 0
+     }
+    },
+    "parts_exceeding_their_expected_value": [],
+    "parts_recomputed_through_the_joint_path_match_stage2": true,
     "pcs_parts_fp": {
      "A": 0,
      "H": 2,
@@ -910,15 +1049,172 @@
      "Output": 0
     },
     "pcs_sum_fp": 2,
-    "profile": "hashline-zk-mr1/private-block-t32-poc/1"
+    "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+    "reduction_hypotheses_hold": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
+    "shared_coordinates": {
+     "classes_shared_between_roles_data": 4,
+     "classes_shared_between_roles_non_data": 0,
+     "endpoint_equality_slots": [
+      {
+       "a_rows": [
+        10,
+        11
+       ],
+       "endpoint": "Input",
+       "endpoint_rows": [
+        0,
+        1
+       ],
+       "log_size": 9,
+       "same_evaluation_point": true,
+       "slot": 21,
+       "why": "a Standalone (zero-sum) slot proving eq(tau)*(A - endpoint) = 0, so the two planes are equal and their rows are the same unknowns"
+      },
+      {
+       "a_rows": [
+        68,
+        69
+       ],
+       "endpoint": "Output",
+       "endpoint_rows": [
+        0,
+        1
+       ],
+       "log_size": 9,
+       "same_evaluation_point": true,
+       "slot": 22,
+       "why": "a Standalone (zero-sum) slot proving eq(tau)*(A - endpoint) = 0, so the two planes are equal and their rows are the same unknowns"
+      }
+     ],
+     "identified_row_pairs": [
+      {
+       "a": "A[10]",
+       "b": "Input[0]"
+      },
+      {
+       "a": "A[11]",
+       "b": "Input[1]"
+      },
+      {
+       "a": "A[68]",
+       "b": "Output[0]"
+      },
+      {
+       "a": "A[69]",
+       "b": "Output[1]"
+      }
+     ],
+     "non_data_block_is_block_diagonal_by_role": true,
+     "source_facts": [
+      "private_block/argument.rs:902-908 and private_attention's counterpart define the endpoint slots as eq(tau) * (A_plane - endpoint_plane)",
+      "private_block/layout.rs:474-498 SLOT_KINDS marks them Standalone, so the sum they prove is zero and the published scalar is the CFS mask term alone"
+     ],
+     "what_that_means": "no blinding source is shared: every commitment's reserved mask pairs, proximity rows and pads are its own, so the non-data block of the joint generator matrix is block diagonal and joint == sum is a THEOREM about that block structure -- the rank below is computed anyway, and the controls show it moving when a blinding source IS shared"
+    },
+    "sum_of_parts_fp": 4,
+    "what_is_NOT_covered": "the two channels are linked NONLINEARLY by the terminal identity; no linear model sees that link.  The Merkle roots, the leaf salts and the authentication paths are hash objects and are not in this model either."
    },
    {
+    "aliasing_lost_to_the_endpoint_identification_fp": 0,
     "capture": "7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43",
     "cfs_all_derived_values_fp": 68,
     "cfs_opening_only_fp": 2,
+    "expected_parts_fp": {
+     "A": 0,
+     "CFS": 2,
+     "H": 2,
+     "Input": 0,
+     "M": 0,
+     "Output": 0
+    },
+    "findings": [],
     "joint_all_derived_values_fp": 70,
+    "joint_detail": {
+     "coordinate_classes": 899,
+     "data_classes": 491,
+     "disclosed_fp": 2,
+     "free_fp": 0,
+     "generators": 102,
+     "k0": 0,
+     "non_data_classes": 408,
+     "rank_all": 102,
+     "rank_on_non_data": 102,
+     "u_row_detail": {
+      "extra_dimension_beyond_k0": 2,
+      "indicators_admissible": 2,
+      "u_class_owners": [
+       "H[278]",
+       "H[279]"
+      ],
+      "u_classes": 2
+     },
+     "u_row_term_fp": 2
+    },
+    "joint_disclosed_over_the_commitments_fp": 2,
     "joint_equals_sum_of_parts": true,
+    "joint_fp": 4,
     "joint_opening_only_fp": 4,
+    "joint_without_the_endpoint_identification_fp": 4,
+    "ok": true,
+    "parts_detail": {
+     "A": {
+      "commits_witness_data": true,
+      "data_rows": 213,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 242,
+      "rank_all": 72,
+      "rank_on_non_data": 72,
+      "u_row_term_fp": 0
+     },
+     "H": {
+      "commits_witness_data": true,
+      "data_rows": 278,
+      "disclosed_fp": 2,
+      "k0": 0,
+      "non_data_rows": 106,
+      "rank_all": 20,
+      "rank_on_non_data": 20,
+      "u_row_term_fp": 2
+     },
+     "Input": {
+      "commits_witness_data": true,
+      "data_rows": 2,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 5,
+      "rank_all": 4,
+      "rank_on_non_data": 4,
+      "u_row_term_fp": 0
+     },
+     "M": {
+      "commits_witness_data": false,
+      "data_rows": 0,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 50,
+      "rank_all": 2,
+      "rank_on_non_data": 2,
+      "u_row_term_fp": 0
+     },
+     "Output": {
+      "commits_witness_data": true,
+      "data_rows": 2,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 5,
+      "rank_all": 4,
+      "rank_on_non_data": 4,
+      "u_row_term_fp": 0
+     }
+    },
+    "parts_exceeding_their_expected_value": [],
+    "parts_recomputed_through_the_joint_path_match_stage2": true,
     "pcs_parts_fp": {
      "A": 0,
      "H": 2,
@@ -926,15 +1222,172 @@
      "Output": 0
     },
     "pcs_sum_fp": 2,
-    "profile": "hashline-zk-mr1/private-block-t32-poc/1"
+    "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+    "reduction_hypotheses_hold": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
+    "shared_coordinates": {
+     "classes_shared_between_roles_data": 4,
+     "classes_shared_between_roles_non_data": 0,
+     "endpoint_equality_slots": [
+      {
+       "a_rows": [
+        10,
+        11
+       ],
+       "endpoint": "Input",
+       "endpoint_rows": [
+        0,
+        1
+       ],
+       "log_size": 9,
+       "same_evaluation_point": true,
+       "slot": 21,
+       "why": "a Standalone (zero-sum) slot proving eq(tau)*(A - endpoint) = 0, so the two planes are equal and their rows are the same unknowns"
+      },
+      {
+       "a_rows": [
+        68,
+        69
+       ],
+       "endpoint": "Output",
+       "endpoint_rows": [
+        0,
+        1
+       ],
+       "log_size": 9,
+       "same_evaluation_point": true,
+       "slot": 22,
+       "why": "a Standalone (zero-sum) slot proving eq(tau)*(A - endpoint) = 0, so the two planes are equal and their rows are the same unknowns"
+      }
+     ],
+     "identified_row_pairs": [
+      {
+       "a": "A[10]",
+       "b": "Input[0]"
+      },
+      {
+       "a": "A[11]",
+       "b": "Input[1]"
+      },
+      {
+       "a": "A[68]",
+       "b": "Output[0]"
+      },
+      {
+       "a": "A[69]",
+       "b": "Output[1]"
+      }
+     ],
+     "non_data_block_is_block_diagonal_by_role": true,
+     "source_facts": [
+      "private_block/argument.rs:902-908 and private_attention's counterpart define the endpoint slots as eq(tau) * (A_plane - endpoint_plane)",
+      "private_block/layout.rs:474-498 SLOT_KINDS marks them Standalone, so the sum they prove is zero and the published scalar is the CFS mask term alone"
+     ],
+     "what_that_means": "no blinding source is shared: every commitment's reserved mask pairs, proximity rows and pads are its own, so the non-data block of the joint generator matrix is block diagonal and joint == sum is a THEOREM about that block structure -- the rank below is computed anyway, and the controls show it moving when a blinding source IS shared"
+    },
+    "sum_of_parts_fp": 4,
+    "what_is_NOT_covered": "the two channels are linked NONLINEARLY by the terminal identity; no linear model sees that link.  The Merkle roots, the leaf salts and the authentication paths are hash objects and are not in this model either."
    },
    {
+    "aliasing_lost_to_the_endpoint_identification_fp": 0,
     "capture": "6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9",
     "cfs_all_derived_values_fp": 56,
     "cfs_opening_only_fp": 2,
+    "expected_parts_fp": {
+     "A": 0,
+     "CFS": 2,
+     "H": 2,
+     "Input": 0,
+     "M": 0,
+     "Output": 0
+    },
+    "findings": [],
     "joint_all_derived_values_fp": 58,
+    "joint_detail": {
+     "coordinate_classes": 646,
+     "data_classes": 370,
+     "disclosed_fp": 2,
+     "free_fp": 0,
+     "generators": 90,
+     "k0": 0,
+     "non_data_classes": 276,
+     "rank_all": 90,
+     "rank_on_non_data": 90,
+     "u_row_detail": {
+      "extra_dimension_beyond_k0": 2,
+      "indicators_admissible": 2,
+      "u_class_owners": [
+       "H[216]",
+       "H[217]"
+      ],
+      "u_classes": 2
+     },
+     "u_row_term_fp": 2
+    },
+    "joint_disclosed_over_the_commitments_fp": 2,
     "joint_equals_sum_of_parts": true,
+    "joint_fp": 4,
     "joint_opening_only_fp": 4,
+    "joint_without_the_endpoint_identification_fp": 4,
+    "ok": true,
+    "parts_detail": {
+     "A": {
+      "commits_witness_data": true,
+      "data_rows": 154,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 152,
+      "rank_all": 62,
+      "rank_on_non_data": 62,
+      "u_row_term_fp": 0
+     },
+     "H": {
+      "commits_witness_data": true,
+      "data_rows": 216,
+      "disclosed_fp": 2,
+      "k0": 0,
+      "non_data_rows": 74,
+      "rank_all": 18,
+      "rank_on_non_data": 18,
+      "u_row_term_fp": 2
+     },
+     "Input": {
+      "commits_witness_data": true,
+      "data_rows": 2,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 5,
+      "rank_all": 4,
+      "rank_on_non_data": 4,
+      "u_row_term_fp": 0
+     },
+     "M": {
+      "commits_witness_data": false,
+      "data_rows": 0,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 40,
+      "rank_all": 2,
+      "rank_on_non_data": 2,
+      "u_row_term_fp": 0
+     },
+     "Output": {
+      "commits_witness_data": true,
+      "data_rows": 2,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 5,
+      "rank_all": 4,
+      "rank_on_non_data": 4,
+      "u_row_term_fp": 0
+     }
+    },
+    "parts_exceeding_their_expected_value": [],
+    "parts_recomputed_through_the_joint_path_match_stage2": true,
     "pcs_parts_fp": {
      "A": 0,
      "H": 2,
@@ -942,15 +1395,172 @@
      "Output": 0
     },
     "pcs_sum_fp": 2,
-    "profile": "hashline-zk-mr1/private-attention-t32-poc/1"
+    "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+    "reduction_hypotheses_hold": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
+    "shared_coordinates": {
+     "classes_shared_between_roles_data": 4,
+     "classes_shared_between_roles_non_data": 0,
+     "endpoint_equality_slots": [
+      {
+       "a_rows": [
+        6,
+        7
+       ],
+       "endpoint": "Input",
+       "endpoint_rows": [
+        0,
+        1
+       ],
+       "log_size": 9,
+       "same_evaluation_point": true,
+       "slot": 16,
+       "why": "a Standalone (zero-sum) slot proving eq(tau)*(A - endpoint) = 0, so the two planes are equal and their rows are the same unknowns"
+      },
+      {
+       "a_rows": [
+        38,
+        39
+       ],
+       "endpoint": "Output",
+       "endpoint_rows": [
+        0,
+        1
+       ],
+       "log_size": 9,
+       "same_evaluation_point": true,
+       "slot": 17,
+       "why": "a Standalone (zero-sum) slot proving eq(tau)*(A - endpoint) = 0, so the two planes are equal and their rows are the same unknowns"
+      }
+     ],
+     "identified_row_pairs": [
+      {
+       "a": "A[6]",
+       "b": "Input[0]"
+      },
+      {
+       "a": "A[7]",
+       "b": "Input[1]"
+      },
+      {
+       "a": "A[38]",
+       "b": "Output[0]"
+      },
+      {
+       "a": "A[39]",
+       "b": "Output[1]"
+      }
+     ],
+     "non_data_block_is_block_diagonal_by_role": true,
+     "source_facts": [
+      "private_block/argument.rs:902-908 and private_attention's counterpart define the endpoint slots as eq(tau) * (A_plane - endpoint_plane)",
+      "private_block/layout.rs:474-498 SLOT_KINDS marks them Standalone, so the sum they prove is zero and the published scalar is the CFS mask term alone"
+     ],
+     "what_that_means": "no blinding source is shared: every commitment's reserved mask pairs, proximity rows and pads are its own, so the non-data block of the joint generator matrix is block diagonal and joint == sum is a THEOREM about that block structure -- the rank below is computed anyway, and the controls show it moving when a blinding source IS shared"
+    },
+    "sum_of_parts_fp": 4,
+    "what_is_NOT_covered": "the two channels are linked NONLINEARLY by the terminal identity; no linear model sees that link.  The Merkle roots, the leaf salts and the authentication paths are hash objects and are not in this model either."
    },
    {
+    "aliasing_lost_to_the_endpoint_identification_fp": 0,
     "capture": "c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6",
     "cfs_all_derived_values_fp": 56,
     "cfs_opening_only_fp": 2,
+    "expected_parts_fp": {
+     "A": 0,
+     "CFS": 2,
+     "H": 2,
+     "Input": 0,
+     "M": 0,
+     "Output": 0
+    },
+    "findings": [],
     "joint_all_derived_values_fp": 58,
+    "joint_detail": {
+     "coordinate_classes": 646,
+     "data_classes": 370,
+     "disclosed_fp": 2,
+     "free_fp": 0,
+     "generators": 90,
+     "k0": 0,
+     "non_data_classes": 276,
+     "rank_all": 90,
+     "rank_on_non_data": 90,
+     "u_row_detail": {
+      "extra_dimension_beyond_k0": 2,
+      "indicators_admissible": 2,
+      "u_class_owners": [
+       "H[216]",
+       "H[217]"
+      ],
+      "u_classes": 2
+     },
+     "u_row_term_fp": 2
+    },
+    "joint_disclosed_over_the_commitments_fp": 2,
     "joint_equals_sum_of_parts": true,
+    "joint_fp": 4,
     "joint_opening_only_fp": 4,
+    "joint_without_the_endpoint_identification_fp": 4,
+    "ok": true,
+    "parts_detail": {
+     "A": {
+      "commits_witness_data": true,
+      "data_rows": 154,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 152,
+      "rank_all": 62,
+      "rank_on_non_data": 62,
+      "u_row_term_fp": 0
+     },
+     "H": {
+      "commits_witness_data": true,
+      "data_rows": 216,
+      "disclosed_fp": 2,
+      "k0": 0,
+      "non_data_rows": 74,
+      "rank_all": 18,
+      "rank_on_non_data": 18,
+      "u_row_term_fp": 2
+     },
+     "Input": {
+      "commits_witness_data": true,
+      "data_rows": 2,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 5,
+      "rank_all": 4,
+      "rank_on_non_data": 4,
+      "u_row_term_fp": 0
+     },
+     "M": {
+      "commits_witness_data": false,
+      "data_rows": 0,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 40,
+      "rank_all": 2,
+      "rank_on_non_data": 2,
+      "u_row_term_fp": 0
+     },
+     "Output": {
+      "commits_witness_data": true,
+      "data_rows": 2,
+      "disclosed_fp": 0,
+      "k0": 0,
+      "non_data_rows": 5,
+      "rank_all": 4,
+      "rank_on_non_data": 4,
+      "u_row_term_fp": 0
+     }
+    },
+    "parts_exceeding_their_expected_value": [],
+    "parts_recomputed_through_the_joint_path_match_stage2": true,
     "pcs_parts_fp": {
      "A": 0,
      "H": 2,
@@ -958,7 +1568,75 @@
      "Output": 0
     },
     "pcs_sum_fp": 2,
-    "profile": "hashline-zk-mr1/private-attention-t32-poc/1"
+    "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+    "reduction_hypotheses_hold": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
+    "shared_coordinates": {
+     "classes_shared_between_roles_data": 4,
+     "classes_shared_between_roles_non_data": 0,
+     "endpoint_equality_slots": [
+      {
+       "a_rows": [
+        6,
+        7
+       ],
+       "endpoint": "Input",
+       "endpoint_rows": [
+        0,
+        1
+       ],
+       "log_size": 9,
+       "same_evaluation_point": true,
+       "slot": 16,
+       "why": "a Standalone (zero-sum) slot proving eq(tau)*(A - endpoint) = 0, so the two planes are equal and their rows are the same unknowns"
+      },
+      {
+       "a_rows": [
+        38,
+        39
+       ],
+       "endpoint": "Output",
+       "endpoint_rows": [
+        0,
+        1
+       ],
+       "log_size": 9,
+       "same_evaluation_point": true,
+       "slot": 17,
+       "why": "a Standalone (zero-sum) slot proving eq(tau)*(A - endpoint) = 0, so the two planes are equal and their rows are the same unknowns"
+      }
+     ],
+     "identified_row_pairs": [
+      {
+       "a": "A[6]",
+       "b": "Input[0]"
+      },
+      {
+       "a": "A[7]",
+       "b": "Input[1]"
+      },
+      {
+       "a": "A[38]",
+       "b": "Output[0]"
+      },
+      {
+       "a": "A[39]",
+       "b": "Output[1]"
+      }
+     ],
+     "non_data_block_is_block_diagonal_by_role": true,
+     "source_facts": [
+      "private_block/argument.rs:902-908 and private_attention's counterpart define the endpoint slots as eq(tau) * (A_plane - endpoint_plane)",
+      "private_block/layout.rs:474-498 SLOT_KINDS marks them Standalone, so the sum they prove is zero and the published scalar is the CFS mask term alone"
+     ],
+     "what_that_means": "no blinding source is shared: every commitment's reserved mask pairs, proximity rows and pads are its own, so the non-data block of the joint generator matrix is block diagonal and joint == sum is a THEOREM about that block structure -- the rank below is computed anyway, and the controls show it moving when a blinding source IS shared"
+    },
+    "sum_of_parts_fp": 4,
+    "what_is_NOT_covered": "the two channels are linked NONLINEARLY by the terminal identity; no linear model sees that link.  The Merkle roots, the leaf salts and the authentication paths are hash objects and are not in this model either."
    }
   ]
  },
@@ -1215,6 +1893,45 @@
     "terminal_polynomial": true
    }
   ],
+  "joint_reduction_against_a_dense_joint_rank": {
+   "honest_two_commitments": {
+    "joint_bruteforce": 0,
+    "joint_k0": 0,
+    "joint_minus_sum": 0,
+    "joint_reduction": 0,
+    "marginals_bruteforce": [
+     0,
+     0
+    ],
+    "reduction_agrees_with_bruteforce": true,
+    "sum_of_marginals": 0
+   },
+   "ok": true,
+   "one_blinding_row_shared": {
+    "joint_bruteforce": 4,
+    "joint_k0": 1,
+    "joint_minus_sum": 4,
+    "joint_reduction": 4,
+    "marginals_bruteforce": [
+     0,
+     0
+    ],
+    "reduction_agrees_with_bruteforce": true,
+    "sum_of_marginals": 0
+   },
+   "one_data_row_shared": {
+    "joint_bruteforce": 0,
+    "joint_k0": 0,
+    "joint_minus_sum": 0,
+    "joint_reduction": 0,
+    "marginals_bruteforce": [
+     0,
+     0
+    ],
+    "reduction_agrees_with_bruteforce": true,
+    "sum_of_marginals": 0
+   }
+  },
   "ok": true,
   "pad_budget_boundary": {
    "ok": true,
@@ -1333,6 +2050,104 @@
      "H-prox": true,
      "distinct_columns": 3
     }
+   }
+  },
+  "stage4_joint_controls": {
+   "all_fire": true,
+   "claim_weight_outside_its_reserved_pair": {
+    "direction": "the pair step of the reduction (H-pair) fails -- two claims now share a reserved pair -- so the stage refuses; the Rust verifier would already have panicked on the row-span assertions in pcs.rs, which is why this cannot be reached by a real receipt.",
+    "findings": [
+     "a commitment's reduction hypothesis (H-pad / H-pair / H-prox) fails, so the joint reduction does not apply and its ranks are not a disclosed dimension"
+    ],
+    "fires": true,
+    "hypotheses": {
+     "A": false,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
+    "joint_fp": 4,
+    "parts_fp": {
+     "A": 0,
+     "H": 2,
+     "Input": 0,
+     "M": 0,
+     "Output": 0
+    },
+    "sum_of_parts_fp": 4,
+    "what": "A's claim 0 given a weight on row 215, which belongs to another claim's reserved pair"
+   },
+   "honest": {
+    "joint_fp": 4,
+    "ok": true,
+    "parts_fp": {
+     "A": 0,
+     "H": 2,
+     "Input": 0,
+     "M": 0,
+     "Output": 0
+    },
+    "sum_of_parts_fp": 4
+   },
+   "ok": true,
+   "one_mask_row_removed": {
+    "direction": "UP, in the marginal AND in the joint: A discloses 256 Fp on its own, so the sum rises with the joint and they stay equal; stage 4 fails on the other arm, a part exceeding its expected public value.",
+    "exceeds": [
+     "A: 256 > 0"
+    ],
+    "findings": [
+     "the parts recomputed through the joint code path differ from stage 2's",
+     "a part exceeds its expected public value -- A: 256 > 0"
+    ],
+    "fires": true,
+    "joint_fp": 260,
+    "parts_fp": {
+     "A": 256,
+     "H": 2,
+     "Input": 0,
+     "M": 0,
+     "Output": 0
+    },
+    "sum_of_parts_fp": 260,
+    "what": "A[213] removed: the commitment has one blinding row fewer, so its singleton group's non-data block is 2 generators against 1 column"
+   },
+   "one_pad_fewer_than_the_distinct_opened_columns": {
+    "direction": "the pad step of the reduction (H-pad) fails, so the ranks below are no longer a disclosed dimension at all and the stage refuses rather than reporting a number.",
+    "findings": [
+     "a commitment's reduction hypothesis (H-pad / H-pair / H-prox) fails, so the joint reduction does not apply and its ranks are not a disclosed dimension"
+    ],
+    "fires": true,
+    "hypotheses": {
+     "A": false,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
+    "what": "A's pad count set to 245 against 246 distinct opened columns"
+   },
+   "shared_blinding_source": {
+    "direction": "UP.  Neither commitment discloses anything on its own -- the marginals do not move at all -- but once the two blinding rows are one unknown, a combination of the two commitments' group vectors cancels on every non-data coordinate and survives on the data rows, so the joint rises by 256 Fp per such direction while the sum of the parts stands still. This is precisely the case the hard-coded stage 4 could not see.",
+    "findings": [
+     "the joint disclosed dimension 260 differs from the sum of the parts 4"
+    ],
+    "fires": true,
+    "joint_fp": 260,
+    "joint_greater_than_sum": true,
+    "joint_k0": 1,
+    "parts_fp": {
+     "A": 0,
+     "H": 2,
+     "Input": 0,
+     "M": 0,
+     "Output": 0
+    },
+    "parts_unchanged": true,
+    "sum_of_parts_fp": 4,
+    "what": "A[213] and H[280] -- one reserved mask row of a singleton opening group in each commitment -- made the SAME unknown"
+   },
+   "singleton_opening_groups": {
+    "A": 17,
+    "H": 2
    }
   }
  },
@@ -1659,13 +2474,14 @@
   }
  },
  "tool_sha256": {
-  "zk60_native_joint_view.py": "417316f030bbead688a5e226841101152d6e97ec4e174b2ae20a1c9d5bfc5ff5",
+  "zk60_native_joint_view.py": "08d2a085069b1d8f9d9a0bbf6743bbbe6a8b4ca2e6fa046645ba004ad868c334",
   "zk60_native_jv_capture.py": "191f8bc95153d5a46644a3b2443c453f82b08ad934f7227efe28e3211aeb14b8",
   "zk60_native_jv_cfs.py": "12ad30bc87b8ece120410c84875eb8b5dbde1c4c59a526fe663510616163ba59",
   "zk60_native_jv_field.py": "09d2aa53784709d20d8f89ac3ab3e11ce38b2bbe4b20e513ea7639d9416f02f3",
-  "zk60_native_jv_pcs.py": "165b0ccdcbb44478e717737a91ce4660e35e95254a7465107afc03e5c9d5f41d",
+  "zk60_native_jv_joint.py": "544bfcc6412a861993091fb4c7b54345ac1612a20069acf991ac37549d52b907",
+  "zk60_native_jv_pcs.py": "3722b02aa5cd3410d992b83e934b1bb400f152253c5700fb3689ce397e31e635",
   "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70",
-  "zk60_native_jv_smallmodel.py": "00e698787b0230b90351275855f5be2c8d609502e9edb223673baa104f1857a2",
+  "zk60_native_jv_smallmodel.py": "66f2faca3c830c9dcae635e70eb9131352171a9f2b5dfb4c16e2b60a1ecfe9b2",
   "zk60_native_terminal_polys.py": "3ad8b71c6927f0d828aac0c97d891c8a89a4c963149f83c1e1e563d90f64b869"
  },
  "version": 1

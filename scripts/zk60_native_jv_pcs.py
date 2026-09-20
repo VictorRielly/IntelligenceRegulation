@@ -187,13 +187,25 @@ def column_functional_parts(j):
 class RoleView:
     """The stage-2 joint view of one commitment (A, H, Input or Output)."""
 
-    def __init__(self, capture, role, prox_rho, checks_budget=6):
+    def __init__(self, capture, role, prox_rho, checks_budget=6, perturb=None, q_pad=None):
+        """`perturb` and `q_pad` exist ONLY for the negative controls.
+
+        `perturb(view)` is called after the claim row weights `self.rws` and
+        the group combinations `self.rhos` have been built and before any
+        check runs, so a control can model a claim whose weight reaches a
+        non-data row outside its reserved pair.  `q_pad` overrides the
+        commitment's pad count, so a control can model a commitment with
+        fewer pads than the opening has distinct columns.  Both default to
+        the capture's own values; an honest run passes neither.
+        """
         self.cap = capture
         self.role = role
         self.name = role["role"]
         self.rows = role["commitment"]["rows"]
         self.prox_rho = prox_rho
         self.checks_budget = checks_budget
+        self.perturb = perturb
+        self.q_pad = Q_PAD if q_pad is None else q_pad
         self.findings: list[str] = []
         self.facts: dict = {"role": self.name, "rows": self.rows}
 
@@ -236,6 +248,12 @@ class RoleView:
         self.rws = rws
         self.groups = groups
         self.keys = keys
+        self.data_rows = data_rows
+        self.other_rows = other_rows
+        self.u_rows = u_rows
+        self._lambdas = lambdas
+        if self.perturb is not None:
+            self.perturb(self)
 
         self._check_group_claims(lambdas)
         self._check_columns()
@@ -317,20 +335,28 @@ class RoleView:
             if zn == 0:
                 zn_zero += 1
             nodes.add(xj)
-        ok = d <= Q_PAD and zn_zero == 0 and len(nodes) == d
+        q_pad = self.q_pad
+        ok = d <= q_pad and zn_zero == 0 and len(nodes) == d
         self.facts.update(
             {
                 "sampled_columns": len(idx),
                 "distinct_columns": d,
-                "q_pad": Q_PAD,
-                "pad_margin": Q_PAD - d,
+                "q_pad": q_pad,
+                "pad_margin": q_pad - d,
                 "coset_nodes_distinct": len(nodes) == d,
                 "vanishing_Zn_nodes": zn_zero,
+                # The pad budget has ZERO slack by construction (q_pad ==
+                # num_col_checks): the columns are sampled WITH replacement,
+                # the rank of the pad block equals the number of DISTINCT
+                # columns, and that number must not exceed the pad count.
+                "distinct_opened_columns": d,
+                "pad_count": q_pad,
+                "distinct_opened_columns_within_pad_count": d <= q_pad,
             }
         )
         if not ok:
             self.fail(
-                f"pad budget: {d} distinct opened columns, {Q_PAD} pads, "
+                f"pad budget: {d} distinct opened columns, {q_pad} pads, "
                 f"{zn_zero} vanishing Z_n nodes"
             )
         return ok

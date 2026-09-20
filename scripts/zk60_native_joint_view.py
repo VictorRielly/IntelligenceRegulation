@@ -18,7 +18,11 @@ each number means and, above all, for what it does NOT establish.
   3 MASKING-COMMITMENT    the CFS masks, the slots' masked rounds, the one M
                           opening, and the per-slot identity by which the
                           verifier DERIVES each mask evaluation
-  4 STACKED               A, H and M together against the sum of the parts
+  4 STACKED               A, H, the endpoints and M as ONE generator system
+                          over the union of their coordinates, with the
+                          coordinates the protocol shares identified: the
+                          joint disclosed dimension by rank, against the sum
+                          of the parts (both COMPUTED; see the note below)
   5 ZERO-WITNESS GATE     a zero-data preimage of the same view, per channel
   6 NEGATIVE CONTROLS     each must fire, plus the pad-budget boundary
                           (q_pad == the number of distinct opened positions)
@@ -32,6 +36,17 @@ NO STAGE ESTABLISHES A PRIVACY PROPERTY.  Every rank below is a rank of an
 explicitly stated linear model at two receipts' real challenges.  The
 caller-fixed endpoint-root obligation (decisions D8/D11) is untouched and
 remains OPEN.
+
+CORRECTION, 2026-09-20 (the security owner's ruling G-1).  Until this date
+stage 4 set `joint_equals_sum_of_parts` to the literal `True` and its own
+verdict to the literal `True` with it: the stage could not fail, and every
+statement that quoted "joint disclosed dimension 4, equal to the sum of the
+parts" was quoting four MARGINALS and an assumption.  Stage 4 now builds one
+generator system over the union of the commitments' coordinates, identifies
+the coordinates the protocol shares, and computes the joint disclosed
+dimension by rank; four negative controls, each of which makes it FAIL at an
+honest capture, are in stage 6.  `scripts/zk60_native_jv_joint.py` states
+the model and what is shared.
 """
 
 from __future__ import annotations
@@ -55,6 +70,7 @@ from zk60_native_jv_cfs import (  # noqa: E402
     terminal_identity_controls as cfs_terminal_controls,
 )
 from zk60_native_jv_field import F2_ZERO, f2_from_list  # noqa: E402
+from zk60_native_jv_joint import joint_controls, joint_view  # noqa: E402
 from zk60_native_jv_pcs import RoleView  # noqa: E402
 from zk60_native_jv_replay import Replay  # noqa: E402
 import zk60_native_jv_smallmodel as smallmodel  # noqa: E402
@@ -67,6 +83,7 @@ TOOLS = [
     "zk60_native_jv_replay.py",
     "zk60_native_jv_pcs.py",
     "zk60_native_jv_cfs.py",
+    "zk60_native_jv_joint.py",
     "zk60_native_jv_smallmodel.py",
     "zk60_native_terminal_polys.py",
 ]
@@ -114,12 +131,16 @@ def stage2(caps, replays, pad_rank_check=True):
     out = []
     pad_rank = None
     boundary = None
+    views = {}  # capture -> the RoleView objects, for stage 4
     for cap in caps:
         rp = replays[cap.proof_sha256]
         roles, total = [], 0
+        views[cap.proof_sha256] = []
         for role in cap.roles:
             rv = RoleView(cap, role, rp.role_prox_rhos[role["role"]])
             f = rv.run(rp.role_lambdas[role["role"]])
+            views[cap.proof_sha256].append(rv)
+            f = dict(f)
             f.pop("xi_vectors", None)
             f.pop("data_rows_index", None)
             roles.append(f)
@@ -180,7 +201,7 @@ def stage2(caps, replays, pad_rank_check=True):
         "ok": ok
         and (pad_rank is None or pad_rank["full_rank"])
         and (boundary is None or boundary["full_rank"]),
-    }
+    }, views
 
 
 # --------------------------------------------------------------- stage 3
@@ -223,14 +244,33 @@ def stage3(caps, replays, pad_rank_check=True):
 
 
 # --------------------------------------------------------------- stage 4
-def stage4(s2, s3):
-    """A, H and M stacked.  The four commitments and the CFS masks draw
-    disjoint parts of the prover's randomness, so a functional supported on
-    data coordinates decomposes channel by channel and the joint disclosed
-    space is the SUM of the parts (it can only be smaller under aliasing)."""
+def stage4(caps, replays, views, s2, s3):
+    """A, H, the two endpoints and M as ONE system, not four marginals.
+
+    CORRECTED 2026-09-20 (ruling G-1).  What this stage used to do: add the
+    per-commitment figures and write `joint_equals_sum_of_parts = True` as a
+    literal, with `ok = True` beside it.  What it does now: build one
+    generator system over the union of the commitments' coordinates, with
+    the coordinates the protocol makes the same unknown IDENTIFIED (the two
+    endpoint planes are A's planes -- the last two slots of either profile
+    prove exactly that), and compute the joint disclosed dimension by rank.
+
+    The stage FAILS when the joint differs from the sum, when a part exceeds
+    its expected public value, when the parts recomputed through the joint
+    code path disagree with stage 2's, or when a commitment's reduction
+    hypothesis does not hold.  `zk60_native_jv_joint` states the model, and
+    stage 6 carries four controls that each make this stage fail.
+    """
     rows = []
-    for c2, c3 in zip(s2["per_capture"], s3["per_capture"]):
+    for cap, c2, c3 in zip(caps, s2["per_capture"], s3["per_capture"]):
         pcs = {r["role"]: r["disclosed_dimension"] for r in c2["roles"]}
+        jv = joint_view(
+            cap,
+            replays[cap.proof_sha256],
+            views[cap.proof_sha256],
+            c3["disclosed_opening_only_fp"],
+        )
+        joint_pcs = jv["joint_detail"]["disclosed_fp"] + jv["parts_fp"]["M"]
         rows.append(
             {
                 "capture": c2["capture"],
@@ -239,13 +279,45 @@ def stage4(s2, s3):
                 "pcs_sum_fp": sum(pcs.values()),
                 "cfs_opening_only_fp": c3["disclosed_opening_only_fp"],
                 "cfs_all_derived_values_fp": c3["disclosed_all_values_fp"],
-                "joint_opening_only_fp": sum(pcs.values()) + c3["disclosed_opening_only_fp"],
-                "joint_all_derived_values_fp": sum(pcs.values())
-                + c3["disclosed_all_values_fp"],
-                "joint_equals_sum_of_parts": True,
+                # kept keys, now COMPUTED: the joint over the commitments'
+                # coordinates, plus the CFS channel's own figure (a disjoint
+                # unknown space: the honest sumcheck round messages)
+                "joint_opening_only_fp": jv["joint_fp"],
+                "joint_all_derived_values_fp": joint_pcs + c3["disclosed_all_values_fp"],
+                "joint_equals_sum_of_parts": jv["joint_equals_sum_of_parts"],
+                # new, all computed
+                "sum_of_parts_fp": jv["sum_of_parts_fp"],
+                "joint_fp": jv["joint_fp"],
+                "joint_disclosed_over_the_commitments_fp": joint_pcs,
+                "joint_detail": jv["joint_detail"],
+                "parts_detail": jv["parts_detail"],
+                "parts_recomputed_through_the_joint_path_match_stage2": jv[
+                    "parts_recomputed_through_the_joint_path_match_stage2"
+                ],
+                "reduction_hypotheses_hold": jv["reduction_hypotheses_hold"],
+                "shared_coordinates": jv["shared_coordinates"],
+                "joint_without_the_endpoint_identification_fp": jv[
+                    "joint_without_the_endpoint_identification_fp"
+                ],
+                "aliasing_lost_to_the_endpoint_identification_fp": jv[
+                    "aliasing_lost_to_the_endpoint_identification_fp"
+                ],
+                "expected_parts_fp": jv["expected_parts_fp"],
+                "parts_exceeding_their_expected_value": jv[
+                    "parts_exceeding_their_expected_value"
+                ],
+                "findings": jv["findings"],
+                "what_is_NOT_covered": jv["what_is_NOT_covered"],
+                "ok": jv["ok"],
             }
         )
-    return {"per_capture": rows, "ok": True}
+    return {
+        "per_capture": rows,
+        "joint_is_computed_not_assumed": True,
+        "corrected": "2026-09-20, ruling G-1: this stage used to hard-code "
+        "joint_equals_sum_of_parts and its own verdict",
+        "ok": all(r["ok"] for r in rows),
+    }
 
 
 # --------------------------------------------------------------- stage 5
@@ -315,7 +387,7 @@ def stage5(caps, s2):
 
 
 # --------------------------------------------------------------- stage 6
-def stage6(caps, replays):
+def stage6(caps, replays, views=None, s3=None):
     ctl = smallmodel.controls()
     honest_ok = (
         ctl["honest"]["bruteforce"] == ctl["honest"]["reduction"] == 0
@@ -342,6 +414,21 @@ def stage6(caps, replays):
         for i, cap in enumerate(caps)
     ]
     boundary = smallmodel.pad_boundary()
+    # stage 4's own controls (ruling G-1): the joint reduction validated
+    # against a DENSE joint rank on two toy commitments, and four
+    # perturbations of the real capture, each of which must make stage 4
+    # fail.  Run on the FIRST capture; the joint figures of the others are
+    # in stage 4 itself.
+    small_joint = smallmodel.joint_controls()
+    stage4_ctl = None
+    if views is not None and s3 is not None:
+        cap = caps[0]
+        stage4_ctl = joint_controls(
+            cap,
+            replays[cap.proof_sha256],
+            views[cap.proof_sha256],
+            s3["per_capture"][0]["disclosed_opening_only_fp"],
+        )
     return {
         "small_model": ctl,
         "reduction_agrees_with_bruteforce": honest_ok,
@@ -349,11 +436,15 @@ def stage6(caps, replays):
         "altered_capture_bytes_break_the_replay": tamper,
         "derived_mask_evaluation_controls": mask_ctl,
         "pad_budget_boundary": boundary,
+        "joint_reduction_against_a_dense_joint_rank": small_joint,
+        "stage4_joint_controls": stage4_ctl,
         "ok": honest_ok
         and all(fired.values())
         and tamper["ok"]
         and all(m["ok"] for m in mask_ctl)
-        and boundary["ok"],
+        and boundary["ok"]
+        and small_joint["ok"]
+        and (stage4_ctl is None or stage4_ctl["ok"]),
     }
 
 
@@ -436,17 +527,18 @@ def main(argv=None):
     }
     s1, replays = stage1(caps)
     record["stage1_transcript_replay"] = s1
-    record["stage2_commitment_side_joint_view"] = stage2(
-        caps, replays, not args.skip_exact_pad_rank
-    )
+    s2, views = stage2(caps, replays, not args.skip_exact_pad_rank)
+    record["stage2_commitment_side_joint_view"] = s2
     record["stage3_masking_commitment_view"] = stage3(
         caps, replays, not args.skip_exact_pad_rank
     )
     record["stage4_stacked"] = stage4(
-        record["stage2_commitment_side_joint_view"], record["stage3_masking_commitment_view"]
+        caps, replays, views, s2, record["stage3_masking_commitment_view"]
     )
     record["stage5_zero_witness_gate"] = stage5(caps, record["stage2_commitment_side_joint_view"])
-    record["stage6_negative_controls"] = stage6(caps, replays)
+    record["stage6_negative_controls"] = stage6(
+        caps, replays, views, record["stage3_masking_commitment_view"]
+    )
     record["stage7_terminal_polynomial_port"] = stage7(caps, replays)
     record["seconds"] = round(time.time() - t0, 1)
     stages = [k for k in record if k.startswith("stage")]

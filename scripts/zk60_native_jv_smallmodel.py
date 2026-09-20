@@ -362,6 +362,130 @@ def pad_boundary(seed=6, n_cols=4):
     return out
 
 
+# ------------------------------------- the JOINT reduction, brute-forced
+# The stage-4 reduction (`zk60_native_jv_joint`) says the joint disclosed
+# dimension of several commitments is
+#     N * (rank(gens_joint) - rank(gens_joint | non-data classes)) + u-term
+# over the JOINT row set, with a shared row merging two columns into their
+# sum.  On a receipt that rank is over ~900 classes and the dense
+# alternative is a rank over ~400,000 unknowns, so the reduction cannot be
+# checked there.  Here two toy commitments are stacked and BOTH are
+# computed: the dense joint rank from the definition, and the reduction.
+#
+# The identification is of MESSAGE coordinates only.  "The same blinding row
+# in two commitments" means the same committed row values; each commitment
+# still draws its own pads (pcs.rs::commit_zk_owned_with), and the toy keeps
+# that distinction.
+def _joint_coordinates(views, ident):
+    """Joint coordinate index per (view, row, position), message rows merged."""
+    width = N + views[0].q_pad
+    parent = {}
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for vi, v in enumerate(views):
+        for i in range(v.rows):
+            for t in range(width):
+                parent[(vi, i, t)] = (vi, i, t)
+    for (v0, r0), (v1, r1) in ident:
+        for t in range(N):  # message positions only: the pads stay private
+            a, b = find((v0, r0, t)), find((v1, r1, t))
+            if a != b:
+                parent[a] = b
+    index, order = {}, []
+    for vi, v in enumerate(views):
+        for i in range(v.rows):
+            for t in range(width):
+                root = find((vi, i, t))
+                if root not in index:
+                    index[root] = len(order)
+                    order.append(root)
+                index[(vi, i, t)] = index[root]
+    return index, len(order), width
+
+
+def joint_bruteforce(views, ident):
+    """The joint disclosed dimension from the DEFINITION, densely."""
+    index, total, width = _joint_coordinates(views, ident)
+    obs = []
+    for vi, v in enumerate(views):
+        for row in v.observation_rows():
+            out = [0] * total
+            for i in range(v.rows):
+                for t in range(width):
+                    x = row[i * width + t]
+                    if x % P:
+                        c = index[(vi, i, t)]
+                        out[c] = (out[c] + x) % P
+            obs.append(out)
+    dcols = set()
+    for vi, v in enumerate(views):
+        for i in v.data_rows:
+            for t in range(N):
+                dcols.add(index[(vi, i, t)])
+    keep = [c for c in range(total) if c not in dcols]
+    return rank(obs, total) - rank([[r[c] for c in keep] for r in obs], len(keep))
+
+
+def joint_reduction(views, ident):
+    """The same number through the stage-4 reduction."""
+    import zk60_native_jv_joint as joint
+
+    blocks = [
+        joint.Block(
+            name=str(vi),
+            rows=v.rows,
+            data_rows=v.data_rows,
+            u_rows=v.u_rows,
+            gens_f2=v.rhos,
+        )
+        for vi, v in enumerate(views)
+    ]
+    ids = [((str(a[0]), a[1]), (str(b[0]), b[1])) for a, b in ident]
+    return joint.JointSystem(blocks, identifications=ids).disclosed(msg_width=N)
+
+
+def joint_controls():
+    """Honest, one blinding row shared, one data row shared -- each with the
+    dense joint rank beside the reduction's."""
+    out = {}
+    cases = []
+    a, b = honest(seed=11), honest(seed=12)
+    cases.append(("honest_two_commitments", [a, b], []))
+    a2, b2 = honest(seed=11), honest(seed=12)
+    # a reserved-pair row of the first claim of each: where the non-data
+    # block is square, so the model can see the sharing at all
+    cases.append(
+        ("one_blinding_row_shared", [a2, b2], [((0, a2.pairs[0][0]), (1, b2.pairs[0][0]))])
+    )
+    a3, b3 = honest(seed=11), honest(seed=12)
+    cases.append(("one_data_row_shared", [a3, b3], [((0, 0), (1, 0))]))
+    for name, views, ident in cases:
+        marginals = [v.disclosed_bruteforce() for v in views]
+        bf = joint_bruteforce(views, ident)
+        red = joint_reduction(views, ident)
+        out[name] = {
+            "marginals_bruteforce": marginals,
+            "sum_of_marginals": sum(marginals),
+            "joint_bruteforce": bf,
+            "joint_reduction": red["disclosed_fp"],
+            "joint_k0": red["k0"],
+            "reduction_agrees_with_bruteforce": bf == red["disclosed_fp"],
+            "joint_minus_sum": bf - sum(marginals),
+        }
+    out["ok"] = (
+        all(out[c[0]]["reduction_agrees_with_bruteforce"] for c in cases)
+        and out["honest_two_commitments"]["joint_minus_sum"] == 0
+        and out["one_blinding_row_shared"]["joint_minus_sum"] > 0
+        and out["one_data_row_shared"]["joint_minus_sum"] <= 0
+    )
+    return out
+
+
 def controls():
     """Every negative control, with the brute-force disclosed dimension."""
     out = {}

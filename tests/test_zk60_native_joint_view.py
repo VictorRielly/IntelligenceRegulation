@@ -41,11 +41,14 @@ from zk60_native_jv_field import (  # noqa: E402
 )
 from zk60_native_jv_pcs import RoleView  # noqa: E402
 from zk60_native_jv_replay import Replay  # noqa: E402
+import zk60_native_jv_joint as joint  # noqa: E402
 import zk60_native_jv_smallmodel as smallmodel  # noqa: E402
 import zk60_native_joint_view as gate  # noqa: E402
 
 _CAPS = None
 _REPLAYS = None
+_VIEWS = None
+_CFS = None
 
 
 def caps():
@@ -54,6 +57,24 @@ def caps():
         _CAPS = load_all(CAPTURES)
         _REPLAYS = {c.proof_sha256: Replay(c).run() for c in _CAPS}
     return _CAPS, _REPLAYS
+
+
+def views():
+    """The four RoleViews of every capture, and the CFS figure, built once."""
+    global _VIEWS, _CFS
+    if _VIEWS is None:
+        cs, rp = caps()
+        _VIEWS, _CFS = {}, {}
+        for c in cs:
+            r = rp[c.proof_sha256]
+            vs = []
+            for role in c.roles:
+                v = RoleView(c, role, r.role_prox_rhos[role["role"]])
+                v.run(r.role_lambdas[role["role"]])
+                vs.append(v)
+            _VIEWS[c.proof_sha256] = vs
+            _CFS[c.proof_sha256] = CfsView(c, r).run()["disclosed_opening_only_fp"]
+    return _VIEWS, _CFS
 
 
 class FieldLayer(unittest.TestCase):
@@ -331,7 +352,9 @@ class PadBudgetBoundary(unittest.TestCase):
 class Stage5ZeroWitness(unittest.TestCase):
     def test_a_zero_data_preimage_exists_in_the_model_on_every_channel(self):
         cs, rp = caps()
-        s2 = gate.stage2(cs, rp, pad_rank_check=False)
+        # stage 2 now also hands its RoleView objects to stage 4 (the joint
+        # computation of ruling G-1), so it returns a pair.
+        s2, _views = gate.stage2(cs, rp, pad_rank_check=False)
         s5 = gate.stage5(cs, s2)
         self.assertTrue(s5["ok"])
         for row in s5["per_capture"]:
@@ -369,6 +392,178 @@ class Stage6Controls(unittest.TestCase):
         self.assertFalse(ctl["one_pad_fewer_than_opened_columns"]["hypotheses"]["H-pad"])
 
 
+class Stage4JointComputation(unittest.TestCase):
+    """Ruling G-1: stage 4 used to hard-code `joint == sum` and its own
+    verdict, so it could not fail.  These tests are about the COMPUTATION
+    that replaced the literal."""
+
+    def test_the_joint_is_computed_and_equals_the_sum_at_every_capture(self):
+        cs, rp = caps()
+        vs, cf = views()
+        for c in cs:
+            out = joint.joint_view(c, rp[c.proof_sha256], vs[c.proof_sha256],
+                                   cf[c.proof_sha256])
+            with self.subTest(capture=c.proof_sha256[:12]):
+                self.assertTrue(out["ok"], out["findings"])
+                self.assertEqual(out["sum_of_parts_fp"], 4)
+                self.assertEqual(out["joint_fp"], 4)
+                self.assertTrue(out["joint_equals_sum_of_parts"])
+                # the joint figure is a rank, not the sum written twice
+                self.assertEqual(out["joint_detail"]["k0"], 0)
+                self.assertEqual(out["joint_detail"]["u_row_term_fp"], 2)
+                self.assertEqual(
+                    out["joint_detail"]["rank_all"],
+                    out["joint_detail"]["rank_on_non_data"],
+                )
+                self.assertEqual(out["parts_fp"]["M"], 0)
+
+    def test_the_shared_coordinates_are_the_endpoint_planes_and_nothing_else(self):
+        cs, rp = caps()
+        vs, cf = views()
+        for c in cs:
+            out = joint.joint_view(c, rp[c.proof_sha256], vs[c.proof_sha256],
+                                   cf[c.proof_sha256])
+            sc = out["shared_coordinates"]
+            with self.subTest(capture=c.proof_sha256[:12]):
+                # two endpoint-equality slots, each identifying one plane
+                self.assertEqual(len(sc["endpoint_equality_slots"]), 2)
+                self.assertEqual(
+                    sorted(s["endpoint"] for s in sc["endpoint_equality_slots"]),
+                    ["Input", "Output"],
+                )
+                self.assertEqual(len(sc["identified_row_pairs"]), 4)
+                self.assertEqual(sc["classes_shared_between_roles_data"], 4)
+                # NO blinding source is shared: that is what makes joint == sum
+                # a theorem about the block structure here
+                self.assertEqual(sc["classes_shared_between_roles_non_data"], 0)
+                self.assertTrue(sc["non_data_block_is_block_diagonal_by_role"])
+                # and the data identification itself costs nothing at these
+                # captures: the only disclosed functional lives on H
+                self.assertEqual(out["aliasing_lost_to_the_endpoint_identification_fp"], 0)
+
+    def test_the_parts_recomputed_through_the_joint_path_match_stage2(self):
+        cs, rp = caps()
+        vs, cf = views()
+        for c in cs:
+            out = joint.joint_view(c, rp[c.proof_sha256], vs[c.proof_sha256],
+                                   cf[c.proof_sha256])
+            with self.subTest(capture=c.proof_sha256[:12]):
+                self.assertTrue(out["parts_recomputed_through_the_joint_path_match_stage2"])
+                self.assertEqual(out["stage2_parts_fp"],
+                                 {"A": 0, "H": 2, "Input": 0, "Output": 0})
+
+    def test_the_joint_reduction_matches_a_dense_joint_rank_in_the_small_model(self):
+        """The receipt's joint rank is a reduction; here the dense rank over
+        BOTH toy commitments is computed from the definition and compared."""
+        out = smallmodel.joint_controls()
+        self.assertTrue(out["ok"])
+        for name in ("honest_two_commitments", "one_blinding_row_shared",
+                     "one_data_row_shared"):
+            with self.subTest(case=name):
+                self.assertTrue(out[name]["reduction_agrees_with_bruteforce"])
+        self.assertEqual(out["honest_two_commitments"]["joint_minus_sum"], 0)
+        # the case the hard-coded stage 4 could not see: both marginals 0,
+        # the joint positive
+        self.assertEqual(out["one_blinding_row_shared"]["marginals_bruteforce"], [0, 0])
+        self.assertGreater(out["one_blinding_row_shared"]["joint_bruteforce"], 0)
+        # sharing DATA can only lower the joint, never raise it
+        self.assertLessEqual(out["one_data_row_shared"]["joint_minus_sum"], 0)
+
+
+class Stage4NegativeControls(unittest.TestCase):
+    """Each control must make stage 4 FAIL at an HONEST capture.  Every test
+    below shows both verdicts: a control that cannot fire is not a control."""
+
+    @classmethod
+    def setUpClass(cls):
+        cs, rp = caps()
+        vs, cf = views()
+        cls.cap = cs[0]
+        cls.rp = rp[cls.cap.proof_sha256]
+        cls.views = vs[cls.cap.proof_sha256]
+        cls.cfs = cf[cls.cap.proof_sha256]
+        cls.ctl = joint.joint_controls(cls.cap, cls.rp, cls.views, cls.cfs)
+
+    def test_the_honest_capture_passes(self):
+        self.assertTrue(self.ctl["honest"]["ok"])
+        self.assertEqual(self.ctl["honest"]["joint_fp"], 4)
+        self.assertEqual(self.ctl["honest"]["sum_of_parts_fp"], 4)
+
+    def test_a_shared_blinding_source_makes_the_joint_exceed_the_sum(self):
+        c = self.ctl["shared_blinding_source"]
+        self.assertTrue(c["fires"])
+        # the direction: UP.  The marginals do not move at all -- neither
+        # commitment discloses anything on its own -- and the joint rises by
+        # one whole message row (256 Fp) because a combination of the two
+        # commitments' group vectors now cancels on every non-data
+        # coordinate and survives on the data rows.
+        self.assertTrue(c["parts_unchanged"])
+        self.assertEqual(c["parts_fp"], self.ctl["honest"]["parts_fp"])
+        self.assertTrue(c["joint_greater_than_sum"])
+        self.assertEqual(c["joint_fp"], self.ctl["honest"]["joint_fp"] + 256)
+        self.assertEqual(c["joint_k0"], 1)
+
+    def test_removing_one_mask_row_makes_a_part_exceed_its_expected_value(self):
+        c = self.ctl["one_mask_row_removed"]
+        self.assertTrue(c["fires"])
+        # here the marginal moves WITH the joint, so the equality survives
+        # and the stage fails on its other arm
+        self.assertEqual(c["parts_fp"]["A"], 256)
+        self.assertIn("A: 256 > 0", c["exceeds"])
+        self.assertEqual(c["joint_fp"], c["sum_of_parts_fp"])
+
+    def test_one_pad_fewer_than_the_distinct_columns_makes_the_stage_refuse(self):
+        c = self.ctl["one_pad_fewer_than_the_distinct_opened_columns"]
+        self.assertTrue(c["fires"])
+        self.assertFalse(c["hypotheses"]["A"])
+
+    def test_a_claim_weight_outside_its_reserved_pair_makes_the_stage_refuse(self):
+        c = self.ctl["claim_weight_outside_its_reserved_pair"]
+        self.assertTrue(c["fires"])
+        self.assertFalse(c["hypotheses"]["A"])
+
+    def test_all_four_controls_fire(self):
+        self.assertTrue(self.ctl["all_fire"])
+        self.assertTrue(self.ctl["ok"])
+
+    def test_where_the_model_can_and_cannot_see_a_shared_blinding_row(self):
+        """The honest limitation, recorded as a test rather than a sentence.
+
+        The rank sees a shared blinding row only where the non-data block is
+        TIGHT: a singleton opening group's reserved pair is two generators
+        against exactly two columns, so losing one column costs a rank.
+        Where a group has several claims the block has slack and the same
+        sharing changes no rank at all -- the gate would not see it.  That
+        is a limit of this model, not a property of the protocol.
+        """
+        byname = {v.name: v for v in self.views}
+        a_single = joint.singleton_pair_rows(byname["A"])[0]["rows"][0]
+        h_single = joint.singleton_pair_rows(byname["H"])[0]["rows"][0]
+        h = byname["H"]
+        multi = None
+        for members in h.groups:
+            if len(members) > 1:
+                ci = members[0]
+                rows = sorted(
+                    r for r in h.other_rows
+                    if h.rws[ci][r] != (0, 0) and r not in h.u_rows
+                )
+                multi = rows[0]
+                break
+        self.assertIsNotNone(multi, "the capture has no multi-claim opening group")
+        seen = joint.joint_view(
+            self.cap, self.rp, self.views, self.cfs,
+            extra_identifications=[(("A", a_single), ("H", h_single))],
+        )
+        unseen = joint.joint_view(
+            self.cap, self.rp, self.views, self.cfs,
+            extra_identifications=[(("A", a_single), ("H", multi))],
+        )
+        self.assertFalse(seen["ok"])
+        self.assertTrue(unseen["ok"], "documented blind spot, not a passing property")
+        self.assertEqual(unseen["joint_fp"], unseen["sum_of_parts_fp"])
+
+
 class GateRecord(unittest.TestCase):
     def test_the_retained_record_matches_a_fresh_run_of_the_stages(self):
         path = os.path.join(ROOT, "results", "zk60_native_joint_view", "joint_view.json")
@@ -384,6 +579,25 @@ class GateRecord(unittest.TestCase):
         for row in rec["stage4_stacked"]["per_capture"]:
             self.assertEqual(row["pcs_sum_fp"], 2)
             self.assertEqual(row["joint_opening_only_fp"], 4)
+            # UPDATED 2026-09-20 (ruling G-1).  `joint_equals_sum_of_parts`
+            # was a hard-coded literal until this date, so the old assertion
+            # on it asserted nothing; these fields are now computed and the
+            # stage can fail.
+            self.assertTrue(row["joint_equals_sum_of_parts"])
+            self.assertEqual(row["sum_of_parts_fp"], row["joint_fp"])
+            self.assertEqual(row["joint_detail"]["k0"], 0)
+            self.assertEqual(row["parts_exceeding_their_expected_value"], [])
+            self.assertEqual(row["findings"], [])
+            self.assertEqual(
+                row["shared_coordinates"]["classes_shared_between_roles_non_data"], 0
+            )
+            self.assertEqual(
+                len(row["shared_coordinates"]["endpoint_equality_slots"]), 2
+            )
+        self.assertTrue(rec["stage4_stacked"]["joint_is_computed_not_assumed"])
+        s6 = rec["stage6_negative_controls"]
+        self.assertTrue(s6["joint_reduction_against_a_dense_joint_rank"]["ok"])
+        self.assertTrue(s6["stage4_joint_controls"]["all_fire"])
         s2 = rec["stage2_commitment_side_joint_view"]
         self.assertTrue(s2["pad_block_at_the_full_budget"]["full_rank"])
         self.assertEqual(s2["pad_block_at_the_full_budget"]["pad_margin"], 0)
