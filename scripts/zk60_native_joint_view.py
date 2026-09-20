@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The native joint-view gate: one command, seven stages, each able to FAIL.
+"""The native joint-view gate: one command, eight stages, each able to FAIL.
 
     python3 scripts/zk60_native_joint_view.py \
       --captures results/zk60_native_captures_20260919 \
@@ -22,7 +22,11 @@ each number means and, above all, for what it does NOT establish.
   5 ZERO-WITNESS GATE     a zero-data preimage of the same view, per channel
   6 NEGATIVE CONTROLS     each must fire, plus the pad-budget boundary
                           (q_pad == the number of distinct opened positions)
-  7 RECORD                results, hashes and a marker under --evidence
+  7 TERMINAL POLYNOMIALS  the STRONG form of each slot's final check,
+                          fin = c * mask_eval + poly(terminals), every poly
+                          recomputed by the Python port of the Rust closures
+                          (scripts/zk60_native_terminal_polys.py)
+  8 RECORD                results, hashes and a marker under --evidence
 
 NO STAGE ESTABLISHES A PRIVACY PROPERTY.  Every rank below is a rank of an
 explicitly stated linear model at two receipts' real challenges.  The
@@ -54,6 +58,7 @@ from zk60_native_jv_field import F2_ZERO, f2_from_list  # noqa: E402
 from zk60_native_jv_pcs import RoleView  # noqa: E402
 from zk60_native_jv_replay import Replay  # noqa: E402
 import zk60_native_jv_smallmodel as smallmodel  # noqa: E402
+import zk60_native_terminal_polys as terminal_polys  # noqa: E402
 
 TOOLS = [
     "zk60_native_joint_view.py",
@@ -63,6 +68,7 @@ TOOLS = [
     "zk60_native_jv_pcs.py",
     "zk60_native_jv_cfs.py",
     "zk60_native_jv_smallmodel.py",
+    "zk60_native_terminal_polys.py",
 ]
 
 
@@ -351,6 +357,49 @@ def stage6(caps, replays):
     }
 
 
+# --------------------------------------------------------------- stage 7
+def stage7(caps, replays, controls=True):
+    """The STRONG form of every slot's final check.
+
+    Stage 3 can only assert `mask_eval = (fin - terminal_polynomial) / c` with
+    the ALREADY EVALUATED terminal polynomial the capture stores, which is
+    blind to a perturbed terminal (report section 3.1).  Here every slot's
+    composition polynomial is RECOMPUTED from the published terminals by the
+    Python port of the Rust closures, and the verifier's own equation
+
+        fin_s == c_s * mask_eval_s + poly_s(vals_s)
+
+    is checked, per slot, on every capture.  The port refuses to run if a
+    pinned Rust source changed, and each slot is called checkable only after
+    its name, its number of definition challenges and its table push order
+    match the port's declared ones.
+
+    The equality of the port with the Rust closures remains a REVIEWED
+    obligation: it was established by reading, not by machine.  No privacy
+    property is established here either.
+    """
+    pins = terminal_polys.check_source_pins()
+    rows = []
+    for cap in caps:
+        row = terminal_polys.summary(cap, replays[cap.proof_sha256])
+        if controls:
+            row["negative_controls"] = terminal_polys.terminal_poly_controls(
+                cap, replays[cap.proof_sha256]
+            )
+        rows.append(row)
+    ok = all(
+        r["ok"] and (not controls or r["negative_controls"]["ok"]) for r in rows
+    )
+    return {
+        "per_capture": rows,
+        "source_pins": pins,
+        "port": "scripts/zk60_native_terminal_polys.py",
+        "equality_of_the_port_with_the_rust_closures": "reviewed obligation, by reading",
+        "privacy_property_established": False,
+        "ok": ok,
+    }
+
+
 # ------------------------------------------------------------------- main
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
@@ -398,6 +447,7 @@ def main(argv=None):
     )
     record["stage5_zero_witness_gate"] = stage5(caps, record["stage2_commitment_side_joint_view"])
     record["stage6_negative_controls"] = stage6(caps, replays)
+    record["stage7_terminal_polynomial_port"] = stage7(caps, replays)
     record["seconds"] = round(time.time() - t0, 1)
     stages = [k for k in record if k.startswith("stage")]
     record["ok"] = all(record[k]["ok"] for k in stages)

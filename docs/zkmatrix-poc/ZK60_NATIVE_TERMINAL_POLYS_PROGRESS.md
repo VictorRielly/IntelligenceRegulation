@@ -92,19 +92,55 @@ and read again by `SC_SZC`'s closure; it is `definition_challenges[6]` of the
 - [x] confirmed every definition-challenge count and every table-kind sequence
       against the four captures (probe, 2026-09-19)
 - [x] skeleton module with the ordered slot table and the source pins
-- [ ] the 23 block polynomials ported
-- [ ] the 18 attention polynomials ported
-- [ ] the strong comparison wired into `zk60_native_joint_view.py` (stage 7)
-- [ ] negative controls: changed terminal, changed claimed evaluation, pin
+- [x] the 23 block polynomials ported
+- [x] the 18 attention polynomials ported
+- [x] the strong comparison wired into `zk60_native_joint_view.py` (stage 7)
+- [x] negative controls: changed terminal, changed claimed evaluation, pin
       mismatch
-- [ ] evidence under `results/zk60_native_terminal_polys/`
-- [ ] report section
+- [x] evidence under `results/zk60_native_terminal_polys/`
+- [x] report section (`ZK60_NATIVE_JOINT_VIEW.md` §11, with a pointer from
+      §3.1; §3.1's own conclusions left as they were)
 
-## Results
+## Results (2026-09-19)
 
-(to be filled when the port runs on the four captures; baseline test count
-before this lane: 30, `python3 -m unittest discover -s tests -p
-'test_zk60_native*.py'`)
+Every slot of every capture is checked and equal; nothing is uncheckable and
+no capture field is missing.
+
+| capture | profile | slots | checked | equal | not checkable |
+|---|---|---|---|---|---|
+| `40083e7ac8f3f6c7…` | block | 23 | 23 | 23 | 0 |
+| `7d334e069c84f0c1…` | block | 23 | 23 | 23 | 0 |
+| `6c5e83fd1b2d8c16…` | attention | 18 | 18 | 18 | 0 |
+| `c26d1f05754be35c…` | attention | 18 | 18 | 18 | 0 |
+
+Two further per-slot ties, also 82 / 82: the recomputed polynomial equals the
+capture's stored `terminal_polynomial`, and each slot's mask evaluation is the
+value of the M functional the schedule reserves for it.
+
+Negative controls: perturbing a slot's ported polynomial by one term fails at
+that slot and only there, for **every** slot of both modules; perturbing one
+published claimed evaluation does the same (the perturbation the weak identity
+of §3.1 cannot see — asserted side by side in one test); altering a slot's
+table push order makes that slot `not_checkable` and the run not `ok`; a
+one-byte change to a pinned Rust file raises `SourcePinError`.
+
+Runtime: the port's own command 1.2 s; the gate 18.4 s with stage 7 (was
+20.6 s without it on the same box — the stage costs about 2 s, run-to-run
+noise covers the rest).
+
+Tests: **43 before, 69 after** (`python3 -m unittest discover -s tests -p
+'test_zk60_native*.py'`, 51 s, one pre-existing skip). Logs:
+`results/zk60_native_terminal_polys/unittest-baseline.log` and
+`unittest.log`; evidence record `terminal_polys.json` with its `.done` marker.
+
+## What a reviewer should look at first
+
+1. `SOURCE_PINS` and the two ordered slot tables in the module: index, name,
+   source file, closure line range, number of `define` draws, table push
+   order. The last two are checked against every capture at run time.
+2. The three big zero-checks of each module (`SC_DZC`, `SC_SZC`, `SC_FZC` /
+   `SC_DZC`, `SC_SZC`), where the lookup batteries and the host terms live.
+3. `slot_vals`: the `sel` factor multiplies the eq and public entries only.
 
 ## Reviewed obligation (unchanged by any of this)
 

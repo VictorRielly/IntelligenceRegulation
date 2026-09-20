@@ -47,7 +47,7 @@
  "ok": true,
  "privacy_property_established": false,
  "privacy_review_complete": false,
- "seconds": 20.6,
+ "seconds": 18.4,
  "stage1_transcript_replay": {
   "ok": true,
   "per_capture": [
@@ -112,7 +112,7 @@
    "pad_margin": 0,
    "q_pad": 256,
    "role": "Input",
-   "seconds": 1.9
+   "seconds": 1.7
   },
   "pad_block_exact_rank_cross_check": {
    "capture": "40083e7ac8f3f6c7",
@@ -120,7 +120,7 @@
    "exact_rank_of_pad_block": 246,
    "full_rank": true,
    "role": "Input",
-   "seconds": 2.1
+   "seconds": 1.6
   },
   "per_capture": [
    {
@@ -687,7 +687,7 @@
    "distinct_columns": 246,
    "exact_rank_of_a_row_pad_block": 246,
    "full_rank": true,
-   "seconds": 1.9
+   "seconds": 1.7
   },
   "ok": true,
   "per_capture": [
@@ -1336,14 +1336,317 @@
    }
   }
  },
+ "stage7_terminal_polynomial_port": {
+  "equality_of_the_port_with_the_rust_closures": "reviewed obligation, by reading",
+  "ok": true,
+  "per_capture": [
+   {
+    "capture": "40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b",
+    "challenges_from": "transcript replay",
+    "findings": [],
+    "mask_evaluations_published_as_the_slot_functional": 23,
+    "negative_controls": {
+     "capture": "40083e7ac8f3f6c7",
+     "controls": [
+      {
+       "changed_claimed_evaluation_fails_at": [
+        0
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        0
+       ],
+       "name": "01 SS row sums norm_a (private)",
+       "only_that_slot": true,
+       "slot": 0
+      },
+      {
+       "changed_claimed_evaluation_fails_at": [
+        11
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        11
+       ],
+       "name": "13G gate matmul (private)",
+       "only_that_slot": true,
+       "slot": 11
+      },
+      {
+       "changed_claimed_evaluation_fails_at": [
+        14
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        14
+       ],
+       "name": "03 D zero-check (hosts 12, 13D)",
+       "only_that_slot": true,
+       "slot": 14
+      },
+      {
+       "changed_claimed_evaluation_fails_at": [
+        17
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        17
+       ],
+       "name": "06 softmax zero-check (hosts 07, 10)",
+       "only_that_slot": true,
+       "slot": 17
+      }
+     ],
+     "honest_again": true,
+     "ok": true
+    },
+    "not_checkable": [],
+    "ok": true,
+    "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+    "slots": 23,
+    "slots_checked": 23,
+    "slots_equal": 23,
+    "slots_matching_the_stored_terminal_polynomial": 23,
+    "slots_unequal": []
+   },
+   {
+    "capture": "7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43",
+    "challenges_from": "transcript replay",
+    "findings": [],
+    "mask_evaluations_published_as_the_slot_functional": 23,
+    "negative_controls": {
+     "capture": "7d334e069c84f0c1",
+     "controls": [
+      {
+       "changed_claimed_evaluation_fails_at": [
+        0
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        0
+       ],
+       "name": "01 SS row sums norm_a (private)",
+       "only_that_slot": true,
+       "slot": 0
+      },
+      {
+       "changed_claimed_evaluation_fails_at": [
+        11
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        11
+       ],
+       "name": "13G gate matmul (private)",
+       "only_that_slot": true,
+       "slot": 11
+      },
+      {
+       "changed_claimed_evaluation_fails_at": [
+        14
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        14
+       ],
+       "name": "03 D zero-check (hosts 12, 13D)",
+       "only_that_slot": true,
+       "slot": 14
+      },
+      {
+       "changed_claimed_evaluation_fails_at": [
+        17
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        17
+       ],
+       "name": "06 softmax zero-check (hosts 07, 10)",
+       "only_that_slot": true,
+       "slot": 17
+      }
+     ],
+     "honest_again": true,
+     "ok": true
+    },
+    "not_checkable": [],
+    "ok": true,
+    "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+    "slots": 23,
+    "slots_checked": 23,
+    "slots_equal": 23,
+    "slots_matching_the_stored_terminal_polynomial": 23,
+    "slots_unequal": []
+   },
+   {
+    "capture": "6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9",
+    "challenges_from": "transcript replay",
+    "findings": [],
+    "mask_evaluations_published_as_the_slot_functional": 18,
+    "negative_controls": {
+     "capture": "6c5e83fd1b2d8c16",
+     "controls": [
+      {
+       "changed_claimed_evaluation_fails_at": [
+        0
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        0
+       ],
+       "name": "01 SS row sums (private)",
+       "only_that_slot": true,
+       "slot": 0
+      },
+      {
+       "changed_claimed_evaluation_fails_at": [
+        9
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        9
+       ],
+       "name": "12 Wo matmul (private)",
+       "only_that_slot": true,
+       "slot": 9
+      },
+      {
+       "changed_claimed_evaluation_fails_at": [
+        10
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        10
+       ],
+       "name": "03 D zero-check (hosts 12)",
+       "only_that_slot": true,
+       "slot": 10
+      },
+      {
+       "changed_claimed_evaluation_fails_at": [
+        13
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        13
+       ],
+       "name": "06 softmax zero-check (hosts 07, 10)",
+       "only_that_slot": true,
+       "slot": 13
+      }
+     ],
+     "honest_again": true,
+     "ok": true
+    },
+    "not_checkable": [],
+    "ok": true,
+    "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+    "slots": 18,
+    "slots_checked": 18,
+    "slots_equal": 18,
+    "slots_matching_the_stored_terminal_polynomial": 18,
+    "slots_unequal": []
+   },
+   {
+    "capture": "c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6",
+    "challenges_from": "transcript replay",
+    "findings": [],
+    "mask_evaluations_published_as_the_slot_functional": 18,
+    "negative_controls": {
+     "capture": "c26d1f05754be35c",
+     "controls": [
+      {
+       "changed_claimed_evaluation_fails_at": [
+        0
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        0
+       ],
+       "name": "01 SS row sums (private)",
+       "only_that_slot": true,
+       "slot": 0
+      },
+      {
+       "changed_claimed_evaluation_fails_at": [
+        9
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        9
+       ],
+       "name": "12 Wo matmul (private)",
+       "only_that_slot": true,
+       "slot": 9
+      },
+      {
+       "changed_claimed_evaluation_fails_at": [
+        10
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        10
+       ],
+       "name": "03 D zero-check (hosts 12)",
+       "only_that_slot": true,
+       "slot": 10
+      },
+      {
+       "changed_claimed_evaluation_fails_at": [
+        13
+       ],
+       "changed_terminal_polynomial_fails_at": [
+        13
+       ],
+       "name": "06 softmax zero-check (hosts 07, 10)",
+       "only_that_slot": true,
+       "slot": 13
+      }
+     ],
+     "honest_again": true,
+     "ok": true
+    },
+    "not_checkable": [],
+    "ok": true,
+    "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+    "slots": 18,
+    "slots_checked": 18,
+    "slots_equal": 18,
+    "slots_matching_the_stored_terminal_polynomial": 18,
+    "slots_unequal": []
+   }
+  ],
+  "port": "scripts/zk60_native_terminal_polys.py",
+  "privacy_property_established": false,
+  "source_pins": {
+   "hashline/src/native_capture.rs": {
+    "git_blob": "25a60ee36ce8a5dde9ed614b16374f06516d606e",
+    "sha256": "621f6459ccf516ebbc1434629f0061f997df8f3b8369d0c7f923201e9cb0e6e8"
+   },
+   "hashline/src/private_attention/argument.rs": {
+    "git_blob": "338689f1770081f50cf7338959bc7e8990624960",
+    "sha256": "3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25"
+   },
+   "hashline/src/private_attention/layout.rs": {
+    "git_blob": "4318665378866d00e13303b1539242c29923fee8",
+    "sha256": "17159dcc677d47a9d81528d9e14bf7a28a2ef3854aa4db921719f9bd0ffc7bb1"
+   },
+   "hashline/src/private_attention/protocol.rs": {
+    "git_blob": "aa454897c09a0fb1564847faab0780b98772c43e",
+    "sha256": "cf29722099739cb737e0596c5e6cd07bdb893bef51cb9eaa639d2223bdc4dc81"
+   },
+   "hashline/src/private_block/argument.rs": {
+    "git_blob": "e492afdb18bf205d246abafd89f8ae82a9eec3b2",
+    "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
+   },
+   "hashline/src/private_block/layout.rs": {
+    "git_blob": "4d72869b1bc98b4149bd2084b88c8e7e7f74a169",
+    "sha256": "6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989"
+   },
+   "hashline/src/private_block/protocol.rs": {
+    "git_blob": "39f6edc0e00eed931f708b4f438045e8257b2343",
+    "sha256": "d9455a1054aab7e18e1cba0194416a83847e862db26d8b4f5b9cf982ba082d65"
+   },
+   "zkp-core/src/mle.rs": {
+    "git_blob": "649a63d3bada92e3ca0c8c327f4591165fa3716f",
+    "sha256": "131cf1b49a2f280147ccb1d8f374c139cd7033a8a4ddb02c473b751937409614"
+   }
+  }
+ },
  "tool_sha256": {
-  "zk60_native_joint_view.py": "d050e9e1845c45ff59cdc390e479adf9d648f3ba5ac65c914ff3dd9a82da4450",
+  "zk60_native_joint_view.py": "417316f030bbead688a5e226841101152d6e97ec4e174b2ae20a1c9d5bfc5ff5",
   "zk60_native_jv_capture.py": "191f8bc95153d5a46644a3b2443c453f82b08ad934f7227efe28e3211aeb14b8",
   "zk60_native_jv_cfs.py": "12ad30bc87b8ece120410c84875eb8b5dbde1c4c59a526fe663510616163ba59",
   "zk60_native_jv_field.py": "09d2aa53784709d20d8f89ac3ab3e11ce38b2bbe4b20e513ea7639d9416f02f3",
   "zk60_native_jv_pcs.py": "165b0ccdcbb44478e717737a91ce4660e35e95254a7465107afc03e5c9d5f41d",
   "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70",
-  "zk60_native_jv_smallmodel.py": "00e698787b0230b90351275855f5be2c8d609502e9edb223673baa104f1857a2"
+  "zk60_native_jv_smallmodel.py": "00e698787b0230b90351275855f5be2c8d609502e9edb223673baa104f1857a2",
+  "zk60_native_terminal_polys.py": "62003e4317d1c2f44215407d6ecf92a5e012c890dec38904cae108d830ec32e0"
  },
  "version": 1
 }

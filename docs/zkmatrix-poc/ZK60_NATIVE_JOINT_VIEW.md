@@ -300,6 +300,12 @@ table count equals the terminal count on every slot). With that one field,
 perturbed terminal would break the per-slot identity directly, and the lemma's
 step 1 would be checked rather than cited.
 
+> *Later the same day: the request was answered the other way round — the
+> closures were PORTED to Python instead of encoded in the capture, and no new
+> capture field turned out to be needed. The strong check now runs on all four
+> captures; see §11. Everything above stands as the record of what was true
+> before that, and of why the weak form was the honest thing to claim then.*
+
 The M opening's other channels are handled by three source facts, each
 checked here: `q = Σ_s p_{a_s} p_{W_s} + p_b` with `b` uniform on 1024
 coefficients subject to `b[512] = −b[0]`, so `b` masks every coefficient of
@@ -653,3 +659,126 @@ the marker `joint_view.done` holding the exit code. It reads only the
 capture bundles; it runs no prover, no verifier, no Rust and no GPU, and it
 takes 23 s. `privacy_review_complete` and `privacy_property_established`
 stay **false** in the record.
+
+## 11. 2026-09-19 (later) — the terminal polynomials ported: the STRONG form of each slot's final check
+
+| | |
+|---|---|
+| Author | a second delegated security lane (Claude Opus 5), same worktree, 2026-09-19 |
+| Asked for by | Codex, in the integration review: *"port the 23/18 terminal polynomials to the Python diagnostic and compare every recomputed value against all four captures… with a changed-terminal negative control"* |
+| Port | `scripts/zk60_native_terminal_polys.py` (pure Python, the field layer imported from the existing tool) |
+| Runs as | stage 7 of the gate, and as its own command (`--evidence results/zk60_native_terminal_polys`, 1.2 s) |
+| **Status** | **Still no privacy property.** This is a consistency check of the verifier's view at the receipts' real challenges. **D8/D11 untouched and OPEN.** |
+
+### 11.1 What is now checked
+
+§3.1 could assert only the **weak** identity `mask_eval = (fin − stored
+terminal_polynomial) / c`, because the composition polynomial is a Rust
+closure. All 41 closures (23 block, 18 attention) are now **ported to Python**,
+so the verifier's own final equation is recomputed and compared, per slot:
+
+> `fin_s == c_s · mask_eval_s + poly_s(vals_s)`
+> (`private_block/argument.rs:340`, `private_attention/argument.rs:326`)
+
+with `vals_s` rebuilt exactly as the verifier builds it
+(`argument.rs:328-339` / `:314-325`): `sel·eq_point(point, rho_main[start…])`
+for an eq table, `sel·eval_mle_ext(values, rho_main)` for a public table, the
+**published terminal** for a private one, and `sel = Π(1 − e)` over the
+extension challenges. `fin_s` is recomputed from the published rounds,
+`c_s` and `rho` come from the stage-1 transcript replay, the challenges each
+closure captured are the slot's `definition_challenges` consumed in the Rust
+draw order, and `alpha`, `beta`, `g_u8`, `g_exp`, `g_act` come from the
+capture's `logup_challenges` = (β, γ, α) with `g_x = γ·TAG_x`.
+
+**No new capture field was needed.** The request of §3.1 is answered the other
+way round: the closures were ported rather than encoded, and everything the
+evaluation needs — the definition challenges, every eq point, every public
+table's full `2^main` values, the terminals, the hosted coefficients — is
+already in the schema-3 capture. **Nothing is "not checkable from this
+capture"** on any slot of any capture. The one cross-slot value a closure
+reads, `pts.lam_z` (drawn in `SC_RS`, read again by `SC_SZC`), is the `SC_RS`
+slot's seventh definition challenge of the same capture.
+
+Before a slot is scored, four structural facts must match the port's declared
+table: the slot's index, its name, its **number of definition challenges**
+and its **table push order**. A mismatch makes that slot `not_checkable` with
+the reason, never silently equal.
+
+### 11.2 Results — all four captures, every slot
+
+| capture | profile | slots | checked | **equal** | not checkable | poly = stored `terminal_polynomial` | mask eval = its M functional |
+|---|---|---|---|---|---|---|---|
+| `40083e7ac8f3f6c7…` | block | 23 | 23 | **23** | 0 | 23 / 23 | 23 / 23 |
+| `7d334e069c84f0c1…` | block | 23 | 23 | **23** | 0 | 23 / 23 | 23 / 23 |
+| `6c5e83fd1b2d8c16…` | attention | 18 | 18 | **18** | 0 | 18 / 18 | 18 / 18 |
+| `c26d1f05754be35c…` | attention | 18 | 18 | **18** | 0 | 18 / 18 | 18 / 18 |
+
+**82 of 82 slot equations hold**, at the receipts' real challenges. The last
+two columns are the links to the rest of the gate: the recomputed polynomial
+equals the value the capture stores (which is what §3.1's weak identity used),
+and each slot's mask evaluation is the value of the M functional the schedule
+reserves for it (`[Γ_s if standalone] eval_s`, hosts' batched Γ last), which
+is the functional stage 3 shows is absorbed by the M opening.
+
+### 11.3 Negative controls
+
+Each perturbs one published or ported quantity by one and is undone
+afterwards; the requirement is that it fails **at that slot and only there**.
+
+| control | block | attention |
+|---|---|---|
+| one term of the SLOT'S PORTED POLYNOMIAL (+1), every slot in turn | fires at that slot only, 23 / 23 | fires at that slot only, 18 / 18 |
+| one CLAIMED EVALUATION (a published terminal) perturbed, every slot in turn | fires at that slot only, 23 / 23 | fires at that slot only, 18 / 18 |
+| the same two, as the gate's standing controls on all four captures (slots 0, 11, 14, 17 block / 0, 9, 10, 13 attention) | pass | pass |
+| a slot's table push order altered | that slot is reported `not_checkable`, the run is not `ok` | — |
+| a pinned Rust source changed by one byte | `SourcePinError` naming the file | — |
+
+The second row is the gap §3.1 measured and could not close: **the weak
+identity is blind to a perturbed terminal, the ported polynomial is not.** A
+test asserts both halves side by side on slot 14 of a block capture — the weak
+per-slot identity still passes 23 / 23 while the strong check fails at 14.
+
+### 11.4 Source pins, and what remains a reviewed obligation
+
+The port is a transcription of code that lives elsewhere, so eight Rust files
+are pinned by **sha256 and git blob id** and re-checked at run time — both
+`argument.rs` (the closures), both `layout.rs` (plane indices, lookup lists,
+shifts, slot order), both `protocol.rs` (the (β, γ, α) derivation and the
+tags), `native_capture.rs` (the meaning of every captured field the port
+reads) and `zkp-core/src/mle.rs` (`eq_point`, `eval_mle_ext`). A changed file
+is a **hard error** that refuses to run and says to re-read the closures
+rather than re-pin. The pins are listed in `SOURCE_PINS` and copied into
+`ZK60_NATIVE_TERMINAL_POLYS_PROGRESS.md`.
+
+**REVIEWED OBLIGATION — stated plainly.** The equality of each Python function
+with its Rust closure is established **by reading, not by machine**. The
+reader is the delegated Opus agent that wrote the port; **the security owner
+has not re-read it line by line**, and no test can establish it (a test can
+only show that the two agree on the four captures' challenges, which is what
+§11.2 is). What the 82 agreements are worth: each closure is a polynomial of
+degree up to 4 in up to 61 table values at challenges neither side chose, so a
+wrong constant, a wrong plane index or a dropped term would have to vanish at
+those points — but that is evidence, not a proof of transcription.
+
+Unchanged by any of this: **no privacy property is established**, the joint
+hypothesis of the sequential-kernel lemma stays open (U-3), the hash layer is
+untouched, and **D8 / D11 remain OPEN**.
+
+### 11.5 Reproduce
+
+```
+python3 scripts/zk60_native_terminal_polys.py \
+  --captures results/zk60_native_captures_20260919 \
+  --evidence results/zk60_native_terminal_polys
+python3 scripts/zk60_native_joint_view.py \
+  --captures results/zk60_native_captures_20260919 \
+  --evidence results/zk60_native_joint_view
+python3 -m unittest discover -s tests -p "test_zk60_native*.py"
+```
+
+The port writes `results/zk60_native_terminal_polys/terminal_polys.json` and
+the marker `terminal_polys.done`; the gate's record gains
+`stage7_terminal_polynomial_port` (the same per-capture rows, the pins, and
+`privacy_property_established: false`). Counts, names and equal / not-equal
+only: no witness value, salt or plane leaves the capture bundles. The gate
+still runs in ~18 s; stage 7 adds ~2 s.
