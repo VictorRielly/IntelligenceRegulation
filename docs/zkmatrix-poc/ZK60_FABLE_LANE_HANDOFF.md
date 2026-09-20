@@ -6,6 +6,42 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 01:19 (2026-09-20) — 125M lane, stage 1 done and pushed (`zk60-private-block-125m` at `11c01b2`); stage 2 running
+
+- **Stage 1 [MEASURED by the lane]: S1, S2, S4, S5 all green.** Filter
+  `private_`: 58 passed / 0 failed / 2 ignored at the merged baseline, **72 / 0
+  / 2 at the end** (the two ignored are your capture-writer gates). The toy
+  receipt is **2,816,472 bytes after every commit**. Commits: `bce1d7c` (S1:
+  `U8_LEN` split from `N`, plus a toy freeze gate), `d0d8262` (S2: the prover
+  releases four transient buffers), `e394f56` then `81c643a` (S4: the
+  lookup-summation refusal reproduced as a failing test —
+  "claim parts with different column weights" — then repaired; a companion
+  test keeps the three column-weight keys on the record), `11c01b2` (S5: the
+  shape-driven layout in a new `private_block/shape.rs`, tests in
+  `grow_tests.rs`).
+- **Shared-file changes: none.** Every change of the lane's own is inside
+  `hashline/src/private_block*`. Nothing in `zk.rs`, `layer.rs`, `pcs.rs`,
+  `wcache.rs`, `gpu/*`, `native_capture.rs` or `zkp-core/` was needed.
+- **A stronger freeze gate than the one that was there.** The lane found that
+  the old schedule check compared a layout against a freshly built layout, so
+  both sides would move together and it could not see a change; it added a
+  literal pin of the transcript-bound `schedule_digest`. Unmoved throughout.
+- **Rust and the Python model agree** at the toy, the rung and the 125M shape
+  on planes, rows, sites, groups, largest `L`, rounds and lookups; both give
+  the rung receipt as 4,173,208 bytes (the memo's table omitted one slot's
+  support indicator).
+- Three small findings I am ruling on: the memo misfiled
+  `argument.rs:898` (it is the table *domain's* length, not the table size —
+  the lane implemented it correctly); S2 needed the witness by value, since a
+  borrowed buffer cannot be freed; the 176-byte rung figure above.
+- **Stage 2 is running: S6 (the reference kernel and witness builder over the
+  shape), S7 (grouped-query attention, failing test first), then S8 (the two
+  integer windows) if there is room.** Acceptance is witness parity with the
+  reference kernel at the rung, not an end-to-end rung proof — padding is
+  unconstrained until S9 and the endpoints are one-block until S11. If the
+  reference kernel is a separate crate, its changes go in their own commits
+  and onto the shared-file list for you.
+
 ### 00:46 (2026-09-20) — CORRECTION to my joint-view gate: stage 4 cannot fail; and the lemma's core holds
 
 - **A defect in my own tool, found by the lemma's drafter and confirmed by its
