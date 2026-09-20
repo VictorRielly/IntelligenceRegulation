@@ -6,6 +6,60 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 22:50 — DELIVERED: the terminal-polynomial port you asked for (`zk60-native-jointview` at `e7b6237`, pushed)
+
+- **What it is.** `scripts/zk60_native_terminal_polys.py`: the 23 block slots
+  and the 18 attention slots, one Python function per slot in the Rust slot
+  order, each quoting the Rust expression it ports. Wired into
+  `scripts/zk60_native_joint_view.py` as a new stage 7, additive; earlier
+  outputs unchanged. Commits `f8cabc7` (port), `f46dbc9` (stage 7, tests,
+  evidence, report §11), `e7b6237` (what the check does not cover).
+- **Result on your four captures** [MEASURED by the lane,
+  `results/zk60_native_terminal_polys/terminal_polys.json`]: `40083e7a` 23
+  slots / 23 checked / 23 equal; `7d334e06` 23/23/23; `6c5e83fd` 18/18/18;
+  `c26d1f05` 18/18/18; **none not checkable, no capture field missing.** The
+  equation is the verifier's own masked one, `fin = c·mask_eval + poly(vals)`,
+  with `fin` recomputed from the rounds and `c`, `rho` from the stage-1
+  replay. Two more ties hold 82/82: the recomputed polynomial equals the
+  capture's stored `terminal_polynomial`, and each `mask_eval` equals the
+  value of the M functional the schedule reserves for that slot.
+- **Negative controls, as you asked.** A changed terminal fails at that slot
+  and only there, for every one of the 41 slots; so does one changed claimed
+  evaluation (the change the weak per-slot identity cannot see; one test
+  holds both side by side on block slot 14). A drifted table push order gives
+  `not_checkable` and a failed run. A one-byte change to a pinned file is a
+  hard `SourcePinError`.
+- **Source pins** (SHA-256 and git blob, checked at run time): both
+  `argument.rs`, both `layout.rs`, both `protocol.rs`, `native_capture.rs`,
+  `zkp-core/src/mle.rs`. **Note for your row-fold work: `mle.rs` is pinned at
+  the branch's version.** When the row-fold change to `zkp-core/src/mle.rs`
+  lands, the gate will refuse until the pin is re-read and re-pinned; that is
+  the intended behaviour, and the re-pin is mine.
+- **Tests 43 → 69**, 51 s, green (1 skipped, as before); the gate runs in
+  18 s. Python only.
+- **What stays a reviewed obligation:** that each Python function equals its
+  Rust closure is established by the delegated agent's reading alone. I have
+  not re-read the port. Three things it noted while reading: `SC_SZC`'s
+  closure reads `lam_z` drawn in `SC_RS` (the only cross-slot value);
+  `SC_FZC`'s `host_u` is `u16` with `SH_U = 0`; `sel` multiplies public
+  entries only. **Recorded limit:** the public tables are read from the
+  capture, not re-derived from the statement. An optional request, yours to
+  decline: a public fixture or a per-table digest in the capture, so the
+  gate can tie them to the statement.
+- **Not a privacy acceptance.** This is a consistency check of the verifier's
+  view; D8 and D11 are untouched.
+- Also since 22:24: the form-E draft is revised and committed (`298ca1c`)
+  with one new ruling, R-6 (the feed-forward's statement absorb is the first
+  act of the unsplit frozen function, so it follows the attention roots; the
+  wrapper's statement digest must cover the exact `StatementV3` bytes, with a
+  verifier-side test); the sealed-handle scoping draft is committed
+  (`d22a60f`, NOT accepted, independent check running); the MVP completion
+  plan has tonight's status of all seventeen deliveries and a working ruling
+  on the fork (§5.2a: generalise the built single-commitment block to the
+  125M shape first; its paper layout is being drafted).
+- **Still holding for your answer: who writes the hidden-endpoints change
+  list (21:02).**
+
 ### 22:24 — your joint-view request is picked up; two paper lanes running
 
 - **Your request of 20:51 (port the 23/18 slot terminal polynomials to the
