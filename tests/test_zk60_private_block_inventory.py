@@ -4,6 +4,12 @@ re-run on the REAL Rust of `hashline/src/private_block/` (disposition condition 
 Four layers:
   1. the committed parser alone must FAIL on the block's Rust, and each adapter must be needed
      (otherwise the adapters would be decoration and the report would be misleading);
+     STAGE 10 (2026-09-20): `layout.rs` itself joined that list.  The shape generalisation
+     replaced `Dom::log`'s match by a call and `lookups`'s match by `lookups_at(&Shape::toy(),
+     ..)`, so the committed `Layout` class no longer reads it either and adapters B-7 / B-8
+     do; `test_layout_rs_no_longer_parses_with_the_committed_class` is the old
+     `test_layout_rs_parses_with_the_committed_class` inverted, and every number it used to
+     assert is now asserted on the ADAPTED layout instead, unchanged;
   2. one end-to-end run of the driver's own `main`, green, with the `.done` marker and the log;
   3. every count against the DESIGN, every disclosed dimension, every host group, every slot
      length, every negative control including the two owed ones, and the paper comparison;
@@ -59,6 +65,15 @@ DESIGN_STANDALONE = {"SC_SS": 31, "SC_SSM": 31, "SC_TZC": 19, "SC_LZC": 41, "SC_
                      "SC_WO": 11, "SC_GMM": 11, "SC_UMM": 11, "SC_DMM": 11, "SC_DZC": 41,
                      "SC_QZC": 41, "SC_KVZC": 37, "SC_SZC": 49, "SC_FZC": 41, "SC_TAB": 28,
                      "SC_ZS": 19, "SC_IO_IN": 21, "SC_IO_OUT": 21}
+# What the toy's `layout.rs` used to state as literals and now states over a shape (stage 10).
+# These are the values the tool printed BEFORE the lane, from the committed evidence under
+# results/zk60_private_block_tools/, and they must come out of the shaped source unchanged.
+TOY_DOM_LOGS = {"T": 5, "Ht": 6, "L": 9, "D": 9, "Q": 9, "Kv": 8, "S": 11, "F": 9, "Tab": 8}
+TOY_LOOKUP_COUNTS = {"T": 0, "Ht": 0, "L": 2, "D": 38, "Q": 13, "Kv": 12, "S": 13, "F": 9,
+                     "Tab": 0}
+TOY_AXIS_LOGS = {"lt": 5, "lh": 1, "ldh": 3, "ld": 4, "lf": 4, "lkv": 0}
+ADAPTERS_THE_DEFINE_PARSER_NEEDS = ["B-1", "B-10", "B-3", "B-9"]
+
 OWED_SHARING = ["A_H16_shares_A_U16_pair_with_values_n4",
                 "A_YM_shares_A_Y_pair_with_values_n4"]
 OWED_POSITIVE = ["A_H16_own_pair_not_A_U16_pair_with_values_n4",
@@ -94,20 +109,81 @@ class TestAdaptersAreNeeded(unittest.TestCase):
         with open(PROTOCOL_RS) as f:
             cls.protocol_src = f.read()
 
-    def test_layout_rs_parses_with_the_committed_class(self):
-        """Only `define` and `logup_sum_claim` need adapters; layout.rs itself does not."""
-        lay = self.INV.Layout(self.layout_src)
+    def test_layout_rs_no_longer_parses_with_the_committed_class(self):
+        """Since the shape generalisation `layout.rs` needs adapters too (B-7, B-8): the
+        committed `Layout` reads `Dom::log`'s and `lookups`'s matches, and neither is a match
+        any more.  The three numbers this test used to assert on the committed class are
+        asserted on the adapted one in `test_adapted_layout_reads_the_toy_layout` below."""
+        with self.assertRaises((self.INV.RustParseError, ValueError)):
+            self.INV.Layout(self.layout_src)
+
+    def test_adapted_layout_reads_the_toy_layout(self):
+        lay = PB.BlockLayout(self.INV, self.layout_src)
         self.assertEqual(lay.n_slots, 23)
         self.assertEqual(lay.a_rows, DESIGN["a_rows"])
         self.assertEqual(lay.h_rows, DESIGN["h_rows"])
+        self.assertEqual(lay.a_data_rows, DESIGN["a_data_rows"])
+        self.assertEqual(lay.h_data_rows, DESIGN["h_data_rows"])
+        self.assertEqual(lay.dom_logs, TOY_DOM_LOGS)
+        self.assertEqual(lay.lookup_counts, TOY_LOOKUP_COUNTS)
+        self.assertEqual(PB.block_lookup_totals(self.INV, lay),
+                         {"U8": DESIGN["U8_lookups"], "exp": DESIGN["exp_lookups"],
+                          "act": DESIGN["act_lookups"]})
+        # the P-3 lift is the identity at the toy, so no byte of the accepted profile moved
+        self.assertEqual(lay.block_layout_adapters["B-7"]["lifted_by_P3"], [])
+        self.assertEqual(lay.block_layout_adapters["B-7"]["natural_logs"], TOY_DOM_LOGS)
+
+    def test_the_toy_profile_the_layout_adapter_derives(self):
+        """B-7 inverts the six axis logs out of the nine domain logs and derives the three
+        byte-limb counts from the calibration windows; both are what the frozen toy declares."""
+        lay = PB.BlockLayout(self.INV, self.layout_src)
+        self.assertEqual(lay.block_toy["axis_logs"], TOY_AXIS_LOGS)
+        self.assertEqual((lay.block_toy["ln"], lay.block_toy["ls"], lay.block_toy["lp"]),
+                         (4, 2, 2))
+        self.assertTrue(lay.block_toy["norm_top"])
+        self.assertFalse(lay.block_toy["pad_on"])
+        self.assertEqual(lay.block_toy["n_pad"], 0)
+        self.assertEqual([c for c in lay.block_toy["cross_checks"]
+                          if c["derived"] != c["declared"]], [])
+        self.assertGreaterEqual(len(lay.block_toy["cross_checks"]), 10)
+
+    def test_the_layout_adapter_refuses_an_unexpected_log_body(self):
+        broken = self.layout_src.replace(
+            "domain_log_at(self.natural_log(), self.carries_h_planes(), LOG_N)",
+            "self.natural_log()")
+        self.assertNotEqual(broken, self.layout_src)
+        with self.assertRaises(self.INV.RustParseError):
+            PB.normalise_layout_source(self.INV, broken)
+
+    def test_the_layout_adapter_refuses_an_unexpected_lift(self):
+        broken = self.layout_src.replace("if carries_h_planes && natural < log_n {",
+                                         "if carries_h_planes && natural <= log_n {")
+        self.assertNotEqual(broken, self.layout_src)
+        with self.assertRaises(self.INV.RustParseError):
+            PB.normalise_layout_source(self.INV, broken)
+
+    def test_the_layout_adapter_refuses_an_unexpected_lookups_body(self):
+        broken = self.layout_src.replace(
+            "lookups_at(&super::shape::Shape::toy(), &Ids::toy(), dom)",
+            "lookups_at(&super::shape::Shape::rung(), &Ids::toy(), dom)")
+        self.assertNotEqual(broken, self.layout_src)
+        with self.assertRaises(self.INV.RustParseError):
+            PB.normalise_layout_source(self.INV, broken)
+
+    def test_the_layout_adapter_refuses_a_moved_limb_pin(self):
+        broken = self.layout_src.replace("pub(crate) const LS_TOY: usize = 2;",
+                                         "pub(crate) const LS_TOY: usize = 3;")
+        self.assertNotEqual(broken, self.layout_src)
+        with self.assertRaises(self.INV.RustParseError):
+            PB.normalise_layout_source(self.INV, broken)
 
     def test_committed_define_parser_fails_on_the_block(self):
-        lay = self.INV.Layout(self.layout_src)
+        lay = PB.BlockLayout(self.INV, self.layout_src)
         with self.assertRaises(self.INV.RustParseError):
             self.INV.DefineParser(lay, self.argument_src).parse()
 
     def test_committed_logup_parser_fails_on_the_block(self):
-        lay = self.INV.Layout(self.layout_src)
+        lay = PB.BlockLayout(self.INV, self.layout_src)
         with self.assertRaises(self.INV.RustParseError):
             self.INV.parse_logup_sum(self.protocol_src, lay)
 
@@ -124,7 +200,12 @@ class TestAdaptersAreNeeded(unittest.TestCase):
                              lay.slot_name_of[s])
             self.assertEqual(sum(1 for x in sites[s] if x.cm == "H"), lay.h_sites[s],
                              lay.slot_name_of[s])
-        self.assertEqual(sorted(parser.adapters_used), ["B-1", "B-2", "B-3"])
+        self.assertEqual(sorted(parser.adapters_used), ADAPTERS_THE_DEFINE_PARSER_NEEDS)
+        # B-9's rewrites are named and counted, not a blanket regex pass
+        self.assertGreaterEqual(parser.rewrites["B-9/ids.at"], 40)
+        for key in ("B-9/hids.first_helper", "B-9/hids.helper", "B-9/hids.table_helpers",
+                    "B-9/sh.helpers", "B-9/sh.log", "B-9/sh.size", "B-9/sh.axis", "B-9/lg"):
+            self.assertGreaterEqual(parser.rewrites[key], 1, key)
 
     def test_logup_adapter_finds_the_three_table_helpers(self):
         lay = PB.BlockLayout(self.INV, self.layout_src)
@@ -139,6 +220,23 @@ class TestAdaptersAreNeeded(unittest.TestCase):
     def test_logup_adapter_refuses_an_unexpected_layout_body(self):
         broken = self.layout_src.replace("matches!(plane, H_GU8 | H_GEXP | H_GACT)",
                                          "plane > 46 && plane < 50")
+        self.assertNotEqual(broken, self.layout_src)
+        with self.assertRaises(self.INV.RustParseError):
+            PB.normalise_logup_source(self.INV, self.protocol_src, broken)
+
+    def test_logup_adapter_refuses_a_missing_freeze_gate(self):
+        """The loop bound is `N_H` only because `Layout::new` asserts the shape-driven H plane
+        count IS `N_H` (layout.rs:985).  Take that assertion away and the adapter must refuse
+        rather than assume."""
+        broken = self.layout_src.replace("assert_eq!(lay.hids.n_h(), N_H,",
+                                         "assert!(lay.hids.n_h() > 0, ")
+        self.assertNotEqual(broken, self.layout_src)
+        with self.assertRaises(self.INV.RustParseError):
+            PB.normalise_logup_source(self.INV, self.protocol_src, broken)
+
+    def test_logup_adapter_refuses_an_unexpected_table_flag(self):
+        broken = self.layout_src.replace("(self.gu8..self.gu8 + 3).contains(&plane)",
+                                         "(self.gu8..self.gu8 + 4).contains(&plane)")
         self.assertNotEqual(broken, self.layout_src)
         with self.assertRaises(self.INV.RustParseError):
             PB.normalise_logup_source(self.INV, self.protocol_src, broken)
@@ -205,6 +303,33 @@ class TestEndToEnd(unittest.TestCase):
         self.assertEqual(sc["H_sites"], 35)
         self.assertEqual(sc["A_groups"], 30)
         self.assertEqual(sc["H_groups"], 8)
+
+    # ---- the shaped source (stage 10) ------------------------------------
+    def test_the_toy_profile_is_recorded_and_agrees_with_the_frozen_constants(self):
+        toy = self.s["toy_profile_read_from_the_rust"]
+        self.assertEqual(toy["axis_logs"], TOY_AXIS_LOGS)
+        self.assertEqual((toy["ln"], toy["ls"], toy["lp"]), (4, 2, 2))
+        self.assertFalse(toy["pad_on"])
+        self.assertEqual([c for c in toy["cross_checks"] if c["derived"] != c["declared"]], [])
+
+    def test_the_layout_adapter_record_is_the_toys_own_logs(self):
+        rec = self.s["layout_adapter_record"]
+        self.assertEqual(rec["B-7"]["logs"], TOY_DOM_LOGS)
+        self.assertEqual(rec["B-7"]["natural_logs"], TOY_DOM_LOGS)
+        self.assertEqual(rec["B-7"]["lifted_by_P3"], [])
+        self.assertEqual(sorted(rec["B-7"]["domains_without_h_planes"]), ["Ht", "T"])
+        self.assertEqual(rec["B-8"]["limbs"], {"ln": 4, "ls": 2, "lp": 2})
+        self.assertTrue(rec["B-8"]["norm_top"])
+        # every `if norm_top` block in `lookups_at` was decided, none left unresolved
+        self.assertGreaterEqual(len(rec["B-8"]["conditions_resolved"]), 4)
+        self.assertTrue(all(c == ["norm_top", True]
+                            for c in rec["B-8"]["conditions_resolved"]))
+
+    def test_the_independent_layout_model_agrees_with_the_rust(self):
+        mx = self.s["independent_model_cross_check"]
+        self.assertTrue(mx["available"], "the layout model was not found")
+        self.assertEqual(mx["differences"], [])
+        self.assertGreaterEqual(mx["n_items"], 30)
 
     # ---- the counts ------------------------------------------------------
     def test_every_derived_count_equals_the_design(self):
@@ -383,8 +508,13 @@ class TestEndToEnd(unittest.TestCase):
         self.assertIn("NOTHING here establishes a privacy property", self.s["caveat"])
         self.assertTrue(self.s["not_established"])
         self.assertEqual(sorted(self.s["adapters_used_by_the_define_parser"]),
-                         ["B-1", "B-2", "B-3"])
-        self.assertTrue(any(a.startswith("B-4") for a in self.s["adapters"]))
+                         ADAPTERS_THE_DEFINE_PARSER_NEEDS)
+        for tag in ("B-4", "B-7", "B-8", "B-9", "B-10"):
+            self.assertTrue(any(a.startswith(tag + " ") for a in self.s["adapters"]), tag)
+        # B-2 is kept on the record but is no longer exercised: the spelling it adapted is gone
+        b2 = next(a for a in self.s["adapters"] if a.startswith("B-2 "))
+        self.assertIn("NOT EXERCISED", b2)
+        self.assertNotIn("B-2", self.s["adapters_used_by_the_define_parser"])
         ids = [f["id"] for f in self.s["findings"]]
         for i in ("B-F0", "B-F1", "B-F2", "B-F3", "B-F4", "B-F5"):
             self.assertIn(i, ids)

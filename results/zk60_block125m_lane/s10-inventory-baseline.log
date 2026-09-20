@@ -1,0 +1,133 @@
+EEEEEE.self-check (accepted attention, committed tool unmodified): 29/29 cross-checks, failures none, reproduced=True
+EEE
+======================================================================
+ERROR: test_adapted_parser_reads_every_site (test_zk60_private_block_inventory.TestAdaptersAreNeeded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-block125m/tests/test_zk60_private_block_inventory.py", line 115, in test_adapted_parser_reads_every_site
+    lay = PB.BlockLayout(self.INV, self.layout_src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_private_block_inventory.py", line 187, in __new__
+    lay = INV.Layout(src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_committed_define_parser_fails_on_the_block (test_zk60_private_block_inventory.TestAdaptersAreNeeded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-block125m/tests/test_zk60_private_block_inventory.py", line 105, in test_committed_define_parser_fails_on_the_block
+    lay = self.INV.Layout(self.layout_src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_committed_logup_parser_fails_on_the_block (test_zk60_private_block_inventory.TestAdaptersAreNeeded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-block125m/tests/test_zk60_private_block_inventory.py", line 110, in test_committed_logup_parser_fails_on_the_block
+    lay = self.INV.Layout(self.layout_src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_layout_rs_parses_with_the_committed_class (test_zk60_private_block_inventory.TestAdaptersAreNeeded)
+Only `define` and `logup_sum_claim` need adapters; layout.rs itself does not.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-block125m/tests/test_zk60_private_block_inventory.py", line 99, in test_layout_rs_parses_with_the_committed_class
+    lay = self.INV.Layout(self.layout_src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_limb_off_m_matches_layout_arithmetic (test_zk60_private_block_inventory.TestAdaptersAreNeeded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-block125m/tests/test_zk60_private_block_inventory.py", line 147, in test_limb_off_m_matches_layout_arithmetic
+    lay = PB.BlockLayout(self.INV, self.layout_src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_private_block_inventory.py", line 187, in __new__
+    lay = INV.Layout(src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_logup_adapter_finds_the_three_table_helpers (test_zk60_private_block_inventory.TestAdaptersAreNeeded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-block125m/tests/test_zk60_private_block_inventory.py", line 130, in test_logup_adapter_finds_the_three_table_helpers
+    lay = PB.BlockLayout(self.INV, self.layout_src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_private_block_inventory.py", line 187, in __new__
+    lay = INV.Layout(src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: setUpClass (test_zk60_private_block_inventory.TestEndToEnd)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-block125m/tests/test_zk60_private_block_inventory.py", line 163, in setUpClass
+    cls.rc = PB.main(["--repo", ROOT, "--out-dir", cls.tmp])
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_private_block_inventory.py", line 1061, in main
+    s = build_all(args.repo, out_dir, seed=args.seed, n_values=args.n_values,
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_private_block_inventory.py", line 689, in build_all
+    lay = BlockLayout(INV, layout_src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_private_block_inventory.py", line 187, in __new__
+    lay = INV.Layout(src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_cross_checks_catch_a_wrong_expectation (test_zk60_private_block_inventory.TestWrongExpectationFails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-block125m/tests/test_zk60_private_block_inventory.py", line 403, in test_cross_checks_catch_a_wrong_expectation
+    lay = PB.BlockLayout(INV, f.read())
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_private_block_inventory.py", line 187, in __new__
+    lay = INV.Layout(src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_the_driver_fails_end_to_end_on_a_wrong_expectation (test_zk60_private_block_inventory.TestWrongExpectationFails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-block125m/tests/test_zk60_private_block_inventory.py", line 432, in test_the_driver_fails_end_to_end_on_a_wrong_expectation
+    s = PB.build_all(ROOT, tmp, seed=2026, expect=expect, self_check=False)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_private_block_inventory.py", line 689, in build_all
+    lay = BlockLayout(INV, layout_src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_private_block_inventory.py", line 187, in __new__
+    lay = INV.Layout(src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/home/victor/wt-zk60-block125m/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+----------------------------------------------------------------------
+Ran 9 tests in 9.173s
+
+FAILED (errors=9)

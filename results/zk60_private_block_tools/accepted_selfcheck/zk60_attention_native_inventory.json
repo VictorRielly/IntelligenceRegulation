@@ -2482,7 +2482,7 @@
     ],
     "role": "masked terminal (reserved pair)",
     "section": "03 D zero-check (hosts 12)",
-    "site": "SC_DZC#9 H[H#10]",
+    "site": "SC_DZC#9 H[H_D_LAST]",
     "site_index_in_slot": 9,
     "slot": 10,
     "slot_const": "SC_DZC",
@@ -3127,7 +3127,7 @@
     ],
     "role": "masked terminal (reserved pair)",
     "section": "04 Q zero-check (hosts 09Q, 11)",
-    "site": "SC_QZC#6 H[H#17]",
+    "site": "SC_QZC#6 H[H_Q_LAST]",
     "site_index_in_slot": 6,
     "slot": 11,
     "slot_const": "SC_QZC",
@@ -3673,7 +3673,7 @@
     ],
     "role": "masked terminal (reserved pair)",
     "section": "05 KV zero-check (hosts 09K, 09V)",
-    "site": "SC_KVZC#5 H[H#23]",
+    "site": "SC_KVZC#5 H[H_KV_LAST]",
     "site_index_in_slot": 5,
     "slot": 12,
     "slot_const": "SC_KVZC",
@@ -6638,11 +6638,14 @@
   "h_mask_base": 218,
   "h_plane_domains": {
    "H_D0": "D",
+   "H_D_LAST": "D",
    "H_GEXP": "Tab",
    "H_GU8": "Tab",
    "H_KV0": "Kv",
+   "H_KV_LAST": "Kv",
    "H_L": "L",
    "H_Q0": "Q",
+   "H_Q_LAST": "Q",
    "H_S0": "S",
    "H_SEXP": "S",
    "H_U": "Tab"
@@ -6651,6 +6654,10 @@
    "H_D0": [
     1024,
     1536
+   ],
+   "H_D_LAST": [
+    10240,
+    10752
    ],
    "H_GEXP": [
     54784,
@@ -6664,6 +6671,10 @@
     18432,
     18688
    ],
+   "H_KV_LAST": [
+    20992,
+    21248
+   ],
    "H_L": [
     0,
     512
@@ -6671,6 +6682,10 @@
    "H_Q0": [
     11264,
     11776
+   ],
+   "H_Q_LAST": [
+    17408,
+    17920
    ],
    "H_S0": [
     21504,
@@ -6813,9 +6828,9 @@
   "protocol.rs": "hashline/src/private_attention/protocol.rs"
  },
  "source_sha256": {
-  "hashline/src/private_attention/argument.rs": "096aeb865fac9927b070f609064b970140727ac02aecba60ab1b4d1e4ddc4a09",
-  "hashline/src/private_attention/layout.rs": "ac8ca73762dbc2dc73d98914a596b88f486de79cdf9c794e7e4df306de0f9819",
-  "hashline/src/private_attention/protocol.rs": "9be2439bbc038fe8a354ae6dec0b0ea13adc9a3e08a5d8fc24f31bd98d6b7d1f",
+  "hashline/src/private_attention/argument.rs": "3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25",
+  "hashline/src/private_attention/layout.rs": "17159dcc677d47a9d81528d9e14bf7a28a2ef3854aa4db921719f9bd0ffc7bb1",
+  "hashline/src/private_attention/protocol.rs": "cf29722099739cb737e0596c5e6cd07bdb893bef51cb9eaa639d2223bdc4dc81",
   "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
  },
  "task": "R-1 -- the pair-schedule rank check and the CFS slot check re-run on the NATIVE layout",

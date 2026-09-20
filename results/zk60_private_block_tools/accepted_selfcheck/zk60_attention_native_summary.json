@@ -1011,17 +1011,18 @@
   }
  ],
  "layout_source": {
-  "hashline/src/private_attention/argument.rs": "096aeb865fac9927b070f609064b970140727ac02aecba60ab1b4d1e4ddc4a09",
-  "hashline/src/private_attention/layout.rs": "ac8ca73762dbc2dc73d98914a596b88f486de79cdf9c794e7e4df306de0f9819",
-  "hashline/src/private_attention/protocol.rs": "9be2439bbc038fe8a354ae6dec0b0ea13adc9a3e08a5d8fc24f31bd98d6b7d1f",
+  "hashline/src/private_attention/argument.rs": "3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25",
+  "hashline/src/private_attention/layout.rs": "17159dcc677d47a9d81528d9e14bf7a28a2ef3854aa4db921719f9bd0ffc7bb1",
+  "hashline/src/private_attention/protocol.rs": "cf29722099739cb737e0596c5e6cd07bdb893bef51cb9eaa639d2223bdc4dc81",
   "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
  },
  "outputs": [
-  "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck/zk60_attention_native_cfs_slots.json",
-  "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck/zk60_attention_native_hosts.json",
-  "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck/zk60_attention_native_inventory.json",
-  "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck/zk60_attention_native_pair_schedule.json",
-  "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck/zk60_attention_native_schedule.json"
+  "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck/zk60_attention_native_cfs_slots.json",
+  "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck/zk60_attention_native_hosts.json",
+  "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck/zk60_attention_native_inventory.json",
+  "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck/zk60_attention_native_pair_schedule.json",
+  "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck/zk60_attention_native_schedule.json",
+  "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck/zk60_attention_native_summary.json"
  ],
  "rank_summary": {
   "H_residual_is_exactly_the_public_LogUp_identity": true,

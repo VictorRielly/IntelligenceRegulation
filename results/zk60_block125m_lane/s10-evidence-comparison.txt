@@ -1,0 +1,126 @@
+STAGE 10 -- the inventory tool's record, before and after the shape generalisation
+=================================================================================
+
+WHAT THIS IS.  `scripts/zk60_private_block_inventory.py` derives the toy block's layout by
+PARSING hashline/src/private_block/{layout,argument,protocol}.rs.  The lane's steps A..C
+rewrote those files over a `Shape`, and nine tests of the tool began to ERROR (finding S9-F6).
+Stage 10 taught the parser the new source structure.  The acceptance test for that repair is
+this file: the tool's own record, regenerated from the shaped source, compared KEY BY KEY with
+the record committed at f1df3ba, which was made from the pre-lane source.
+
+A = results/zk60_private_block_tools/ as committed at f1df3ba (the pre-lane record)
+B = the same directory regenerated on zk60-private-block-125m, stage 10
+
+Every DERIVED quantity is identical: every count, every claim site, every opening group, every
+row index, every rank verdict, every CFS verdict, every negative control, the whole schedule
+and the paper comparison.  `zk60_private_block_{schedule,pair_schedule,cfs_slots,hosts}.json`
+are identical in every key.  The differences below are, without exception:
+
+  * the three `source_sha256` entries for the Rust files the lane rewrote (twice each, in
+    the inventory and the summary);
+  * `adapters` and `adapters_used_note`, the tool's own PROSE: five adapter entries re-pinned
+    to the new line numbers and four new entries B-7..B-10;
+  * `adapters_used_by_the_define_parser` (and its copy inside the findings): B-2 is gone,
+    because the spelling it adapted (`lay.helpers(..)`) no longer occurs anywhere in
+    argument.rs, and B-9 / B-10 take its place;
+  * `logup_adapter_record/h_planes_body`, which quotes the source line that moved, and the
+    added `is_table_body`;
+  * four ADDED summary keys: `define_rewrites`, `layout_adapter_record`,
+    `toy_profile_read_from_the_rust`, `independent_model_cross_check`;
+  * one ADDED gate (11 -> 12, hence `findings[1]/detail` "11 of 11 pass" -> "12 of 12 pass"):
+    the toy profile read out of the shaped Rust against the independent layout model;
+  * `out_dir` / `outputs`, which name the worktree the run happened in.
+
+NOTHING BELOW IS A NUMBER THE TOOL DERIVED FROM THE RUST.
+
+41 differences
+  LEN zk60_private_block_inventory.json/adapters | 6 -> 10
+  VALUE zk60_private_block_inventory.json/adapters[0] | "B-1  `Layout.limb_off_m` -- hashline/src/private_block/layout.rs:647 adds a second lim... -> "B-1  `Layout.limb_off_m` -- hashline/src/private_block/layout.rs:1149-1151 adds a seco...
+  VALUE zk60_private_block_inventory.json/adapters[1] | "B-2  receiver-qualified `lay.helpers(..)` -- the accepted argument.rs calls the free f... -> "B-2  receiver-qualified `lay.helpers(..)` -- the accepted argument.rs calls the free f...
+  VALUE zk60_private_block_inventory.json/adapters[2] | "B-3  `let <name> = if <cond> { <challenge> } else { <point>.clone() }` -- private_bloc... -> "B-3  `let <name> = if <cond> { <challenge> } else { <point>.clone() }` -- private_bloc...
+  VALUE zk60_private_block_inventory.json/adapters[3] | "B-4  `protocol.rs::logup_sum_claim` indirections -- the accepted source loops `for p i... -> "B-4  `protocol.rs::logup_sum_claim` indirections -- the accepted source loops `for p i...
+  VALUE zk60_private_block_inventory.json/adapters[5] | "B-6  the activation table's lookup total.  The committed `lookup_total` knows two tabl... -> "B-6  the activation table's lookup total.  The committed `lookup_total` knows two tabl...
+  VALUE zk60_private_block_inventory.json/source_sha256/hashline/src/private_block/argument.rs | "bb6971c30b1601a191f1452de0f1c20f1f7474aa52206ee5bf0c33258f0fdfec" -> "50996a634536895487ee137519dc15b73167d5279b816846fcd982d70fef89d3"
+  VALUE zk60_private_block_inventory.json/source_sha256/hashline/src/private_block/layout.rs | "6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989" -> "15b5c20f164480ca1aef1a5ecf12ae8408287a860b03b571642861e902332c84"
+  VALUE zk60_private_block_inventory.json/source_sha256/hashline/src/private_block/protocol.rs | "db2757a33055ffa40a31220d51b140a4365ef5e610180b1e1e1e8445945d2b6d" -> "1c1fc24cf9e888a94adbcceefededd2c03b2b652331728202aafdebcecd169d2"
+  LEN zk60_private_block_summary.json/adapters | 6 -> 10
+  VALUE zk60_private_block_summary.json/adapters[0] | "B-1  `Layout.limb_off_m` -- hashline/src/private_block/layout.rs:647 adds a second lim... -> "B-1  `Layout.limb_off_m` -- hashline/src/private_block/layout.rs:1149-1151 adds a seco...
+  VALUE zk60_private_block_summary.json/adapters[1] | "B-2  receiver-qualified `lay.helpers(..)` -- the accepted argument.rs calls the free f... -> "B-2  receiver-qualified `lay.helpers(..)` -- the accepted argument.rs calls the free f...
+  VALUE zk60_private_block_summary.json/adapters[2] | "B-3  `let <name> = if <cond> { <challenge> } else { <point>.clone() }` -- private_bloc... -> "B-3  `let <name> = if <cond> { <challenge> } else { <point>.clone() }` -- private_bloc...
+  VALUE zk60_private_block_summary.json/adapters[3] | "B-4  `protocol.rs::logup_sum_claim` indirections -- the accepted source loops `for p i... -> "B-4  `protocol.rs::logup_sum_claim` indirections -- the accepted source loops `for p i...
+  VALUE zk60_private_block_summary.json/adapters[5] | "B-6  the activation table's lookup total.  The committed `lookup_total` knows two tabl... -> "B-6  the activation table's lookup total.  The committed `lookup_total` knows two tabl...
+  ADDED zk60_private_block_summary.json/adapters_used_by_the_define_parser/B-10 | None -> 23
+  REMOVED zk60_private_block_summary.json/adapters_used_by_the_define_parser/B-2 | 8 -> None
+  ADDED zk60_private_block_summary.json/adapters_used_by_the_define_parser/B-9 | None -> 177
+  VALUE zk60_private_block_summary.json/adapters_used_note | "how many times each adapter FIRED while interpreting argument.rs::define, not how many... -> "how many times each adapter FIRED while interpreting argument.rs::define, not how many...
+  ADDED zk60_private_block_summary.json/define_rewrites | None -> {"B-9/hids.first_helper": 5, "B-9/hids.helper": 4, "B-9/hids.named-helper": 3, "B-9/hid...
+  VALUE zk60_private_block_summary.json/findings[1]/detail | "11 of 11 pass" -> "12 of 12 pass"
+  LEN zk60_private_block_summary.json/findings[3]/adapters | 6 -> 10
+  VALUE zk60_private_block_summary.json/findings[3]/adapters[0] | "B-1  `Layout.limb_off_m` -- hashline/src/private_block/layout.rs:647 adds a second lim... -> "B-1  `Layout.limb_off_m` -- hashline/src/private_block/layout.rs:1149-1151 adds a seco...
+  VALUE zk60_private_block_summary.json/findings[3]/adapters[1] | "B-2  receiver-qualified `lay.helpers(..)` -- the accepted argument.rs calls the free f... -> "B-2  receiver-qualified `lay.helpers(..)` -- the accepted argument.rs calls the free f...
+  VALUE zk60_private_block_summary.json/findings[3]/adapters[2] | "B-3  `let <name> = if <cond> { <challenge> } else { <point>.clone() }` -- private_bloc... -> "B-3  `let <name> = if <cond> { <challenge> } else { <point>.clone() }` -- private_bloc...
+  VALUE zk60_private_block_summary.json/findings[3]/adapters[3] | "B-4  `protocol.rs::logup_sum_claim` indirections -- the accepted source loops `for p i... -> "B-4  `protocol.rs::logup_sum_claim` indirections -- the accepted source loops `for p i...
+  VALUE zk60_private_block_summary.json/findings[3]/adapters[5] | "B-6  the activation table's lookup total.  The committed `lookup_total` knows two tabl... -> "B-6  the activation table's lookup total.  The committed `lookup_total` knows two tabl...
+  ADDED zk60_private_block_summary.json/findings[3]/adapters_used/B-10 | None -> 23
+  REMOVED zk60_private_block_summary.json/findings[3]/adapters_used/B-2 | 8 -> None
+  ADDED zk60_private_block_summary.json/findings[3]/adapters_used/B-9 | None -> 177
+  LEN zk60_private_block_summary.json/gates | 11 -> 12
+  VALUE zk60_private_block_summary.json/gates[10]/detail/out_dir | "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck" -> "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck"
+  ADDED zk60_private_block_summary.json/independent_model_cross_check | None -> {"available": true, "differences": [], "model": "scripts/zk60_private_block_layout_mode...
+  ADDED zk60_private_block_summary.json/layout_adapter_record | None -> {"B-7": {"LOG_N": 8, "domains_without_h_planes": ["Ht", "T"], "lifted_by_P3": [], "logs...
+  VALUE zk60_private_block_summary.json/logup_adapter_record/h_planes_body | "(0..N_H).collect()" -> "(0..self.hids.n_h()).collect()"
+  ADDED zk60_private_block_summary.json/logup_adapter_record/is_table_body | None -> "(self.gu8..self.gu8 + 3).contains(&plane)"
+  VALUE zk60_private_block_summary.json/self_check_accepted_attention/out_dir | "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck" -> "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck"
+  VALUE zk60_private_block_summary.json/source_sha256/hashline/src/private_block/argument.rs | "bb6971c30b1601a191f1452de0f1c20f1f7474aa52206ee5bf0c33258f0fdfec" -> "50996a634536895487ee137519dc15b73167d5279b816846fcd982d70fef89d3"
+  VALUE zk60_private_block_summary.json/source_sha256/hashline/src/private_block/layout.rs | "6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989" -> "15b5c20f164480ca1aef1a5ecf12ae8408287a860b03b571642861e902332c84"
+  VALUE zk60_private_block_summary.json/source_sha256/hashline/src/private_block/protocol.rs | "db2757a33055ffa40a31220d51b140a4365ef5e610180b1e1e1e8445945d2b6d" -> "1c1fc24cf9e888a94adbcceefededd2c03b2b652331728202aafdebcecd169d2"
+  ADDED zk60_private_block_summary.json/toy_profile_read_from_the_rust | None -> {"axis_logs": {"ld": 4, "ldh": 3, "lf": 4, "lh": 1, "lkv": 0, "lt": 5}, "cross_checks":...
+
+
+THE SELF-CHECK SUBDIRECTORY (accepted_selfcheck/), separately
+------------------------------------------------------------
+These records are the COMMITTED attention tool's own run on hashline/src/private_attention/,
+which stage 10 did not touch.  Their differences are NOT attributable to this repair:
+
+  * private_attention/argument.rs changed on this lane after f1df3ba (record hash
+    096aeb86 = f1df3ba's; the working tree is 3343620e);
+  * the committed record was ALREADY STALE for two files when it was committed: it records
+    ac8ca737 for private_attention/layout.rs, while that file is 17159dcc both at f1df3ba and
+    today, and 9be2439b for protocol.rs, which matches neither f1df3ba (15f8520c) nor today
+    (cf297220).  The record was made in the other worktree before those files moved;
+  * consequently three H helper planes that the attention layout now NAMES (H_D_LAST,
+    H_Q_LAST, H_KV_LAST) print by name instead of by index, and the committed tool writes a
+    sixth output file.
+
+The self-check's VERDICT is unchanged and is what the gate reads: 29 of 29 cross-checks,
+failures none, reproduced_the_accepted_verdict = true, A sites 75, H sites 35, A groups 30,
+H groups 8.
+
+SELFCHECK 27 differences
+  VALUE accepted_selfcheck/zk60_attention_native_inventory.json/A1_schedule/claims[53]/site | "SC_DZC#9 H[H#10]" -> "SC_DZC#9 H[H_D_LAST]"
+  VALUE accepted_selfcheck/zk60_attention_native_inventory.json/A1_schedule/claims[68]/site | "SC_QZC#6 H[H#17]" -> "SC_QZC#6 H[H_Q_LAST]"
+  VALUE accepted_selfcheck/zk60_attention_native_inventory.json/A1_schedule/claims[81]/site | "SC_KVZC#5 H[H#23]" -> "SC_KVZC#5 H[H_KV_LAST]"
+  ADDED accepted_selfcheck/zk60_attention_native_inventory.json/layout/h_plane_domains/H_D_LAST | None -> "D"
+  ADDED accepted_selfcheck/zk60_attention_native_inventory.json/layout/h_plane_domains/H_KV_LAST | None -> "Kv"
+  ADDED accepted_selfcheck/zk60_attention_native_inventory.json/layout/h_plane_domains/H_Q_LAST | None -> "Q"
+  ADDED accepted_selfcheck/zk60_attention_native_inventory.json/layout/h_plane_offsets/H_D_LAST | None -> [10240, 10752]
+  ADDED accepted_selfcheck/zk60_attention_native_inventory.json/layout/h_plane_offsets/H_KV_LAST | None -> [20992, 21248]
+  ADDED accepted_selfcheck/zk60_attention_native_inventory.json/layout/h_plane_offsets/H_Q_LAST | None -> [17408, 17920]
+  VALUE accepted_selfcheck/zk60_attention_native_inventory.json/source_sha256/hashline/src/private_attention/argument.rs | "096aeb865fac9927b070f609064b970140727ac02aecba60ab1b4d1e4ddc4a09" -> "3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25"
+  VALUE accepted_selfcheck/zk60_attention_native_inventory.json/source_sha256/hashline/src/private_attention/layout.rs | "ac8ca73762dbc2dc73d98914a596b88f486de79cdf9c794e7e4df306de0f9819" -> "17159dcc677d47a9d81528d9e14bf7a28a2ef3854aa4db921719f9bd0ffc7bb1"
+  VALUE accepted_selfcheck/zk60_attention_native_inventory.json/source_sha256/hashline/src/private_attention/protocol.rs | "9be2439bbc038fe8a354ae6dec0b0ea13adc9a3e08a5d8fc24f31bd98d6b7d1f" -> "cf29722099739cb737e0596c5e6cd07bdb893bef51cb9eaa639d2223bdc4dc81"
+  VALUE accepted_selfcheck/zk60_attention_native_schedule.json/H/groups[1]/sites[9] | "SC_DZC#9 H[H#10]" -> "SC_DZC#9 H[H_D_LAST]"
+  VALUE accepted_selfcheck/zk60_attention_native_schedule.json/H/groups[2]/sites[6] | "SC_QZC#6 H[H#17]" -> "SC_QZC#6 H[H_Q_LAST]"
+  VALUE accepted_selfcheck/zk60_attention_native_schedule.json/H/groups[3]/sites[5] | "SC_KVZC#5 H[H#23]" -> "SC_KVZC#5 H[H_KV_LAST]"
+  VALUE accepted_selfcheck/zk60_attention_native_schedule.json/H/sites[10]/site | "SC_DZC#9 H[H#10]" -> "SC_DZC#9 H[H_D_LAST]"
+  VALUE accepted_selfcheck/zk60_attention_native_schedule.json/H/sites[17]/site | "SC_QZC#6 H[H#17]" -> "SC_QZC#6 H[H_Q_LAST]"
+  VALUE accepted_selfcheck/zk60_attention_native_schedule.json/H/sites[23]/site | "SC_KVZC#5 H[H#23]" -> "SC_KVZC#5 H[H_KV_LAST]"
+  VALUE accepted_selfcheck/zk60_attention_native_summary.json/layout_source/hashline/src/private_attention/argument.rs | "096aeb865fac9927b070f609064b970140727ac02aecba60ab1b4d1e4ddc4a09" -> "3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25"
+  VALUE accepted_selfcheck/zk60_attention_native_summary.json/layout_source/hashline/src/private_attention/layout.rs | "ac8ca73762dbc2dc73d98914a596b88f486de79cdf9c794e7e4df306de0f9819" -> "17159dcc677d47a9d81528d9e14bf7a28a2ef3854aa4db921719f9bd0ffc7bb1"
+  VALUE accepted_selfcheck/zk60_attention_native_summary.json/layout_source/hashline/src/private_attention/protocol.rs | "9be2439bbc038fe8a354ae6dec0b0ea13adc9a3e08a5d8fc24f31bd98d6b7d1f" -> "cf29722099739cb737e0596c5e6cd07bdb893bef51cb9eaa639d2223bdc4dc81"
+  LEN accepted_selfcheck/zk60_attention_native_summary.json/outputs | 5 -> 6
+  VALUE accepted_selfcheck/zk60_attention_native_summary.json/outputs[0] | "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck... -> "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck/zk6...
+  VALUE accepted_selfcheck/zk60_attention_native_summary.json/outputs[1] | "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck... -> "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck/zk6...
+  VALUE accepted_selfcheck/zk60_attention_native_summary.json/outputs[2] | "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck... -> "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck/zk6...
+  VALUE accepted_selfcheck/zk60_attention_native_summary.json/outputs[3] | "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck... -> "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck/zk6...
+  VALUE accepted_selfcheck/zk60_attention_native_summary.json/outputs[4] | "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck... -> "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck/zk6...

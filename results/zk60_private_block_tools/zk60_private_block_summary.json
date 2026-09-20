@@ -1,18 +1,23 @@
 {
  "adapters": [
-  "B-1  `Layout.limb_off_m` -- hashline/src/private_block/layout.rs:647 adds a second limb base (`a_off[A_LIMBM] + k * T`, norm_m's limbs) beside `limb_off`, and private_block/argument.rs:570 calls it inside a site: `b.a_slice(lay.limb_off_m(kk), 5, rho(0..5), 0)`.  The committed `Layout` class has no such method and the committed `DefineParser._int` substitutes only `lay.limb_off(..)`.  ADAPTER: `BlockLayout` (a subclass) adds `limb_off_m` with exactly layout.rs's arithmetic, and `BlockDefineParser._int` substitutes `lay.limb_off_m(k)` with it before delegating.  No value is assumed: the plane index and `T` come from the parsed consts.",
-  "B-2  receiver-qualified `lay.helpers(..)` -- the accepted argument.rs calls the free function `helpers(Dom::D).1` (private_attention/argument.rs:613, :621, :652, :666, :691); the block calls the method `lay.helpers(Dom::D).1` (private_block/argument.rs:690, :701, :743, :783, :797, :822).  The committed `_int`/`_statement` regexes are anchored on the free-function spelling.  ADAPTER: `BlockDefineParser` rewrites the exact token `lay.helpers(` to `helpers(` in each statement and expression before delegating.  Nothing else named `lay.` is touched (the committed parser already handles `lay.a_off[..]` and `lay.limb_off(..)`), and `helpers(` never occurs inside a site call's argument list.",
-  "B-3  `let <name> = if <cond> { <challenge> } else { <point>.clone() }` -- private_block/argument.rs:668, `let r_row = if slot == SC_DMM { tr.challenge_fp2_vec(5) } else { pts.r_tf.clone() };`, the one construct the feed-forward matmul arm needs and the accepted source never uses (the committed parser handles only the TUPLE form `let (a, b) = if flag {..} else {..}` and only with a bool local as the condition).  ADAPTER: `BlockDefineParser._statement` evaluates the condition with the committed `_cond`, takes the live branch and binds a challenge vector or a `pts.X` / `pts.X.clone()` vector; anything else falls through to the committed parser unchanged.  The bound symbols are `SC_DMM.r_row[i]` (the Rust local's own name), distinct from `SC_GMM.r_tf[i]`, which is what the PCS grouping keys on.",
-  "B-4  `protocol.rs::logup_sum_claim` indirections -- the accepted source loops `for p in 0..N_H` and signs with `if p == H_GU8 || p == H_GEXP`; the block (private_block/protocol.rs:54-55) loops `for p in lay.h_planes()` and signs with `if h_is_table(p)`.  The committed `parse_logup_sum` refuses the first and silently reads an EMPTY negated set from the second.  ADAPTER: `normalise_logup_source` resolves BOTH indirections out of layout.rs itself -- `fn h_planes` must read `(0..N_H).collect()` (layout.rs:615-617) and `fn h_is_table` must read `matches!(plane, ...)` (layout.rs:255-257) -- and rewrites those two lines into the spelling the committed parser understands, so that all of its own assertions (`point: vec![]`, `value: Fp2::ZERO`, loop range == N_H) still run.  Both forms are asserted, not assumed; an unexpected body is a hard parse error.",
+  "B-1  `Layout.limb_off_m` -- hashline/src/private_block/layout.rs:1149-1151 adds a second limb base (`a_off[ids.at(A_LIMBM)] + k * sh.t_pad`, norm_m's limbs) beside `limb_off`, and private_block/argument.rs:935 calls it inside a site: `b.a_slice(lay.limb_off_m(kk), lt, rho(0..lt), 0)`.  The committed `Layout` class has no such method and the committed `DefineParser._int` substitutes only `lay.limb_off(..)`.  ADAPTER: `BlockLayout` (a subclass) adds `limb_off_m` with exactly layout.rs's arithmetic, and `BlockDefineParser._int` substitutes `lay.limb_off_m(k)` with it before delegating.  No value is assumed: the plane index comes from the parsed consts and `t_pad` from the toy profile B-7 derives.  [PIN re-read 2026-09-20 after the shape generalisation: layout.rs:647 -> :1149-1151, argument.rs:570 -> :935; the arithmetic is the same at the toy, where `ids.at` is the identity and `t_pad == T`.]",
+  "B-2  receiver-qualified `lay.helpers(..)` -- the accepted argument.rs calls the free function `helpers(Dom::D).1` (private_attention/argument.rs:613, :621, :652, :666, :691); the block USED TO call the method `lay.helpers(Dom::D).1`.  ADAPTER: `BlockDefineParser` rewrites the exact token `lay.helpers(` to `helpers(` in each statement and expression before delegating.  [STATUS 2026-09-20: NOT EXERCISED any more, and kept only so that a revert would still parse.  The shape generalisation replaced every one of those calls with `sh.helpers(Dom::D)`, which returns the COUNT alone and is rewritten by B-9 instead; `lay.helpers(` occurs zero times in private_block/argument.rs.  `adapters_used` no longer reports B-2, and that is the evidence for this line.]",
+  "B-3  `let <name> = if <cond> { <challenge> } else { <point>.clone() }` -- private_block/argument.rs:1084, `let r_row = if slot == SC_DMM { tr.challenge_fp2_vec(lt) } else { pts.r_tf.clone() };`, the one construct the feed-forward matmul arm needs and the accepted source never uses (the committed parser handles only the TUPLE form `let (a, b) = if flag {..} else {..}` and only with a bool local as the condition).  ADAPTER: `BlockDefineParser._statement` evaluates the condition with the committed `_cond`, takes the live branch and binds a challenge vector or a `pts.X` / `pts.X.clone()` vector; anything else falls through to the committed parser unchanged.  The bound symbols are `SC_DMM.r_row[i]` (the Rust local's own name), distinct from `SC_GMM.r_tf[i]`, which is what the PCS grouping keys on.",
+  "B-4  `protocol.rs::logup_sum_claim` indirections -- the accepted source loops `for p in 0..N_H` and signs with `if p == H_GU8 || p == H_GEXP`; the block (private_block/protocol.rs:143-144) loops `for p in lay.h_planes()` and signs with `if hids.is_table(p)`.  The committed `parse_logup_sum` refuses the first and silently reads an EMPTY negated set from the second.  ADAPTER: `normalise_logup_source` resolves BOTH indirections out of layout.rs itself and rewrites those two lines into the spelling the committed parser understands, so that all of its own assertions (`point: vec![]`, `value: Fp2::ZERO`, loop range == N_H) still run.  Both forms are asserted, not assumed; an unexpected body is a hard parse error.  [PINS re-read 2026-09-20 after the shape generalisation.  protocol.rs:54-55 -> :143-144.  `fn h_planes` read `(0..N_H).collect()` at layout.rs:615-617 and now reads `(0..self.hids.n_h()).collect()` at :1117-1119, so the loop bound is taken as `N_H` on the strength of `Layout::new`'s own freeze gate `assert_eq!(lay.hids.n_h(), N_H, ..)` (layout.rs:985), which this adapter requires to be present and which grow_tests.rs:858 asserts again on `HIds::new(&Shape::toy())`.  The sign test moved from the free `h_is_table(p)` to the shape-driven `hids.is_table(p)`, whose body must read `(self.gu8..self.gu8 + 3).contains(&plane)` (layout.rs:549-551); the three PLANE NAMES are still read out of `fn h_is_table`'s `matches!(plane, ...)`, which survives at layout.rs:437-439, and grow_tests.rs:872 asserts the two agree on every plane at the toy.]",
   "B-5  the two OWED negative controls re-use the committed rank tool with its accepted rebinding: after `INV.run_rank_tool` returns, the already-rebound module instance is taken from `sys.modules['zk60_attention_pair_schedule']` and its own `build_schedule` / `a_model_groups(share_mask=...)` / `build_model` / `analyze_fast` are called again.  No constant is rebound a second time and no tool function is redefined.",
-  "B-6  the activation table's lookup total.  The committed `lookup_total` knows two tables (U8 by summing `lookups(dom)` over `LOOKUP_DOMS`, exp as `1 << Dom::S.log()`).  The block has a third, the activation table (private_block/argument.rs:766 `f_act`, one lookup per `Dom::F` element).  `block_lookup_totals` adds `act = 1 << Dom::F.log()` by exactly the committed tool's own convention for exp.  The U8 and exp totals are the committed function's, unchanged."
+  "B-6  the activation table's lookup total.  The committed `lookup_total` knows two tables (U8 by summing `lookups(dom)` over `LOOKUP_DOMS`, exp as `1 << Dom::S.log()`).  The block has a third, the activation table (private_block/argument.rs:1216 `f_act`, one lookup per `Dom::F` element).  `block_lookup_totals` adds `act = 1 << Dom::F.log()` by exactly the committed tool's own convention for exp.  The U8 and exp totals are the committed function's, unchanged.  [PIN re-read 2026-09-20: argument.rs:766 -> :1216.]",
+  "B-7  `Dom::log` no longer HOLDS the domain logs (step S6).  layout.rs:160-162 delegates to `domain_log_at(self.natural_log(), self.carries_h_planes(), LOG_N)`, and the committed `parse_dom_logs` reads a `match` that is no longer there -- this is the immediate cause of the nine errors finding S9-F6 reported.  ADAPTER: `normalise_layout_source` requires `Dom::log`'s body to be EXACTLY that call and `domain_log_at`'s body (layout.rs:136-142) to be exactly the ruling-P-3 lift `if carries_h_planes && natural < log_n { log_n } else { natural }`; it then runs the COMMITTED arm parser on `natural_log`'s own match (layout.rs:146-155), reads the domains that carry no H plane out of `carries_h_planes`'s `!matches!(self, ..)` (layout.rs:157-159) and `LOG_N` out of the consts, applies the lift in Python and rewrites `Dom::log`'s body into the literal match the committed parser reads.  At the toy the lift moves nothing (`lifted_by_P3` is empty) and the nine logs are the nine the accepted run recorded.  The same function derives the TOY PROFILE that adapters B-1 and B-9 need -- the six axis logs, inverted from the nine natural logs by `shape.rs:390-404`'s rule, and the three byte-limb counts, by `shape.rs:372-386`'s rule on layout.rs's own `NORM_WRHO` / `WRHO_S` / `F_P`.  Ten cross-checks travel with it, and any of them failing is a hard parse error, not a warning: the three domains the inversion does not consume, the six frozen toy geometry constants `T` / `D` / `H` / `DH` / `F` / `KV`, which no longer drive anything in layout.rs and are now only a witness, and the pinned `LN_TOY` / `LS_TOY` / `LP_TOY` (layout.rs:281-283).",
+  "B-8  `lookups(dom)` is now `lookups_at(&Shape::toy(), &Ids::toy(), dom)` (layout.rs:643-645), whose match arms are written over the shape: `(0..ln).map(..)` for a limb group and `if norm_top { .. }` for correction C-6's four droppable `scaled` lookups.  The committed `parse_lookup_counts` handles neither.  ADAPTER: `normalise_layout_source` requires `lookups`'s body to be exactly that call and `lookups_at` (layout.rs:667-742) to bind `let (ln, ls, lp) = (ids.ln, ids.ls, ids.lp);` and `let norm_top = !sh.norm_top_is_full_byte();`, substitutes the TOY's `ln` / `ls` / `lp` and resolves the `if norm_top` blocks (true at the toy, `NORM_WRHO = 29` against `8 * 4`), then hands the result to the COMMITTED counter, which still does all the counting (`v.push` = 1, `v.extend([..])` = the list's length, `sym(..)` = 2, `(0..k).map(..)` = k). An `else` branch or an unknown condition appearing in `lookups_at` is a hard parse error.",
+  "B-9  the shaped spellings inside `argument::define`.  Nine kinds of expression changed their spelling without changing their value at the toy, and `normalise_define_source` rewrites each one, inside `define`'s body alone, into the spelling the committed `DefineParser` already reads: `ids.at(P)` -> `P` and `ids.nr(k)`..`ids.sg(k)` -> their toy base plus `k` (the toy's id map is the identity -- `Layout::new`'s freeze gate, layout.rs:987, `assert!((0..N_A).all(|p| lay.ids.at(p) == p))`); `hids.first_helper(D)`, `hids.helper(D, j)`, `hids.sexp()`, `hids.fact()`, `hids.u()` and `hids.table_helpers()` -> the literal helper planes of `fn helpers` and the `H_*` constants, which grow_tests.rs:855-877 asserts one by one on `HIds::new(&Shape::toy())`; `sh.helpers(D)` -> `helpers(D).1`; `sh.log(D)` -> `D.log()`; `sh.size(D)` -> `1 << D.log()`; `sh.limbs_*()` and the six `sh.<axis>` fields -> the toy profile's values; and `lg(v)` -> `v.trailing_zeros()` (argument.rs:592-595).  Four small evaluator extensions go with it, all of them forms the accepted source never uses: `helpers(D).0` (the FIRST helper plane; the committed `_int` substitutes only the pair's second member), a list-valued local indexed by a literal (`th[0]`), an `if` EXPRESSION in integer position (`rho(0..if slot == SC_DMM { lf } else { ld })`), a local sliced to a prefix (`fixed(&r_h[..lkv])`), an integer-valued `let`, and a tuple-match arm whose value is an integer expression.  Every substituted value is the toy's and comes from B-7's profile; no count, row or plane is assumed.",
+  "B-10  `define`'s preamble is outside the parsed region.  The committed `parse()` runs the `match slot` arms only, and the shape generalisation moved the axis logs, the byte-limb counts and the pad-rule flags into a preamble above that match (argument.rs:873-891).  ADAPTER: `BlockDefineParser._statement` binds those eleven locals into each arm's environment at the toy's values before the first statement runs -- `lt` / `lh` / `ldh` / `ld` / `lf` / `lkv` from B-7's axis logs, `ln` / `ls` / `lp` from B-7's limb counts, and `pad_on = false` / `n_pad = 0`, which is what `Shape::toy()` gives: `pad.rs:365-368` returns no zero-rule plane unless `Shape::carries_pad_rule` (`shape.rs:360-362` is `!is_frozen_toy`, `shape.rs:367-369` is `profile == TOY_PROFILE`), so `define`'s `pad_doms` is empty, ruling P-1's pad term is absent and `B::supp` (argument.rs:543-547) returns `None` on every domain.  The pad branches this switches off contain no site call at all, so the committed `_run_arm`'s own `consumed == expected_calls` check still covers every site the arm makes."
  ],
  "adapters_used_by_the_define_parser": {
   "B-1": 9,
-  "B-2": 8,
-  "B-3": 3
+  "B-10": 23,
+  "B-3": 3,
+  "B-9": 177
  },
- "adapters_used_note": "how many times each adapter FIRED while interpreting argument.rs::define, not how many source sites it covers (one statement can be normalised once as a statement and again as an integer expression).  B-1: private_block/argument.rs:570 (nine loop iterations); B-2: :690, :701, :743, :783 (x2 slots), :797 (x2 slots), :822; B-3: :668 (one arm, three slots).",
+ "adapters_used_note": "how many times each adapter FIRED while interpreting argument.rs::define, not how many source sites it covers (one statement can be normalised once as a statement and again as an integer expression).  B-1: private_block/argument.rs:935 (nine loop iterations); B-3: :1084 (one arm, three slots); B-9: the source rewrites counted in `define_rewrites` plus the evaluator extensions, as they fire; B-10: once per slot arm.  B-2 is ABSENT because the spelling it adapts no longer occurs (see the B-2 entry above).",
  "all_pass": true,
  "ambiguities": [
   "A-1  layout.rs declares only the per-slot site COUNTS (`A_SITES` / `H_SITES`) and the hand-counted `A_GROUPS = 35` / `H_GROUPS = 9`.  The PCS column keys that DECIDE the group counts live in `argument.rs::define`.  This driver parses `define` and derives them, exactly as the committed tool does for the accepted layout.",
@@ -288,6 +293,20 @@
     "rank": 19
    }
   }
+ },
+ "define_rewrites": {
+  "B-9/hids.first_helper": 5,
+  "B-9/hids.helper": 4,
+  "B-9/hids.named-helper": 3,
+  "B-9/hids.table_helpers": 1,
+  "B-9/ids.at": 46,
+  "B-9/ids.limb-group": 8,
+  "B-9/lg": 7,
+  "B-9/sh.axis": 18,
+  "B-9/sh.helpers": 5,
+  "B-9/sh.limbs": 3,
+  "B-9/sh.log": 9,
+  "B-9/sh.size": 5
  },
  "derived_counts": {
   "A_GROUPS_declared": 35,
@@ -1380,7 +1399,7 @@
    "title": "every derived count against the design (TIER2_CHECK section 5.2 / the disposition)"
   },
   {
-   "detail": "11 of 11 pass",
+   "detail": "12 of 12 pass",
    "failed": [],
    "id": "B-F1",
    "severity": "none",
@@ -1417,17 +1436,22 @@
   },
   {
    "adapters": [
-    "B-1  `Layout.limb_off_m` -- hashline/src/private_block/layout.rs:647 adds a second limb base (`a_off[A_LIMBM] + k * T`, norm_m's limbs) beside `limb_off`, and private_block/argument.rs:570 calls it inside a site: `b.a_slice(lay.limb_off_m(kk), 5, rho(0..5), 0)`.  The committed `Layout` class has no such method and the committed `DefineParser._int` substitutes only `lay.limb_off(..)`.  ADAPTER: `BlockLayout` (a subclass) adds `limb_off_m` with exactly layout.rs's arithmetic, and `BlockDefineParser._int` substitutes `lay.limb_off_m(k)` with it before delegating.  No value is assumed: the plane index and `T` come from the parsed consts.",
-    "B-2  receiver-qualified `lay.helpers(..)` -- the accepted argument.rs calls the free function `helpers(Dom::D).1` (private_attention/argument.rs:613, :621, :652, :666, :691); the block calls the method `lay.helpers(Dom::D).1` (private_block/argument.rs:690, :701, :743, :783, :797, :822).  The committed `_int`/`_statement` regexes are anchored on the free-function spelling.  ADAPTER: `BlockDefineParser` rewrites the exact token `lay.helpers(` to `helpers(` in each statement and expression before delegating.  Nothing else named `lay.` is touched (the committed parser already handles `lay.a_off[..]` and `lay.limb_off(..)`), and `helpers(` never occurs inside a site call's argument list.",
-    "B-3  `let <name> = if <cond> { <challenge> } else { <point>.clone() }` -- private_block/argument.rs:668, `let r_row = if slot == SC_DMM { tr.challenge_fp2_vec(5) } else { pts.r_tf.clone() };`, the one construct the feed-forward matmul arm needs and the accepted source never uses (the committed parser handles only the TUPLE form `let (a, b) = if flag {..} else {..}` and only with a bool local as the condition).  ADAPTER: `BlockDefineParser._statement` evaluates the condition with the committed `_cond`, takes the live branch and binds a challenge vector or a `pts.X` / `pts.X.clone()` vector; anything else falls through to the committed parser unchanged.  The bound symbols are `SC_DMM.r_row[i]` (the Rust local's own name), distinct from `SC_GMM.r_tf[i]`, which is what the PCS grouping keys on.",
-    "B-4  `protocol.rs::logup_sum_claim` indirections -- the accepted source loops `for p in 0..N_H` and signs with `if p == H_GU8 || p == H_GEXP`; the block (private_block/protocol.rs:54-55) loops `for p in lay.h_planes()` and signs with `if h_is_table(p)`.  The committed `parse_logup_sum` refuses the first and silently reads an EMPTY negated set from the second.  ADAPTER: `normalise_logup_source` resolves BOTH indirections out of layout.rs itself -- `fn h_planes` must read `(0..N_H).collect()` (layout.rs:615-617) and `fn h_is_table` must read `matches!(plane, ...)` (layout.rs:255-257) -- and rewrites those two lines into the spelling the committed parser understands, so that all of its own assertions (`point: vec![]`, `value: Fp2::ZERO`, loop range == N_H) still run.  Both forms are asserted, not assumed; an unexpected body is a hard parse error.",
+    "B-1  `Layout.limb_off_m` -- hashline/src/private_block/layout.rs:1149-1151 adds a second limb base (`a_off[ids.at(A_LIMBM)] + k * sh.t_pad`, norm_m's limbs) beside `limb_off`, and private_block/argument.rs:935 calls it inside a site: `b.a_slice(lay.limb_off_m(kk), lt, rho(0..lt), 0)`.  The committed `Layout` class has no such method and the committed `DefineParser._int` substitutes only `lay.limb_off(..)`.  ADAPTER: `BlockLayout` (a subclass) adds `limb_off_m` with exactly layout.rs's arithmetic, and `BlockDefineParser._int` substitutes `lay.limb_off_m(k)` with it before delegating.  No value is assumed: the plane index comes from the parsed consts and `t_pad` from the toy profile B-7 derives.  [PIN re-read 2026-09-20 after the shape generalisation: layout.rs:647 -> :1149-1151, argument.rs:570 -> :935; the arithmetic is the same at the toy, where `ids.at` is the identity and `t_pad == T`.]",
+    "B-2  receiver-qualified `lay.helpers(..)` -- the accepted argument.rs calls the free function `helpers(Dom::D).1` (private_attention/argument.rs:613, :621, :652, :666, :691); the block USED TO call the method `lay.helpers(Dom::D).1`.  ADAPTER: `BlockDefineParser` rewrites the exact token `lay.helpers(` to `helpers(` in each statement and expression before delegating.  [STATUS 2026-09-20: NOT EXERCISED any more, and kept only so that a revert would still parse.  The shape generalisation replaced every one of those calls with `sh.helpers(Dom::D)`, which returns the COUNT alone and is rewritten by B-9 instead; `lay.helpers(` occurs zero times in private_block/argument.rs.  `adapters_used` no longer reports B-2, and that is the evidence for this line.]",
+    "B-3  `let <name> = if <cond> { <challenge> } else { <point>.clone() }` -- private_block/argument.rs:1084, `let r_row = if slot == SC_DMM { tr.challenge_fp2_vec(lt) } else { pts.r_tf.clone() };`, the one construct the feed-forward matmul arm needs and the accepted source never uses (the committed parser handles only the TUPLE form `let (a, b) = if flag {..} else {..}` and only with a bool local as the condition).  ADAPTER: `BlockDefineParser._statement` evaluates the condition with the committed `_cond`, takes the live branch and binds a challenge vector or a `pts.X` / `pts.X.clone()` vector; anything else falls through to the committed parser unchanged.  The bound symbols are `SC_DMM.r_row[i]` (the Rust local's own name), distinct from `SC_GMM.r_tf[i]`, which is what the PCS grouping keys on.",
+    "B-4  `protocol.rs::logup_sum_claim` indirections -- the accepted source loops `for p in 0..N_H` and signs with `if p == H_GU8 || p == H_GEXP`; the block (private_block/protocol.rs:143-144) loops `for p in lay.h_planes()` and signs with `if hids.is_table(p)`.  The committed `parse_logup_sum` refuses the first and silently reads an EMPTY negated set from the second.  ADAPTER: `normalise_logup_source` resolves BOTH indirections out of layout.rs itself and rewrites those two lines into the spelling the committed parser understands, so that all of its own assertions (`point: vec![]`, `value: Fp2::ZERO`, loop range == N_H) still run.  Both forms are asserted, not assumed; an unexpected body is a hard parse error.  [PINS re-read 2026-09-20 after the shape generalisation.  protocol.rs:54-55 -> :143-144.  `fn h_planes` read `(0..N_H).collect()` at layout.rs:615-617 and now reads `(0..self.hids.n_h()).collect()` at :1117-1119, so the loop bound is taken as `N_H` on the strength of `Layout::new`'s own freeze gate `assert_eq!(lay.hids.n_h(), N_H, ..)` (layout.rs:985), which this adapter requires to be present and which grow_tests.rs:858 asserts again on `HIds::new(&Shape::toy())`.  The sign test moved from the free `h_is_table(p)` to the shape-driven `hids.is_table(p)`, whose body must read `(self.gu8..self.gu8 + 3).contains(&plane)` (layout.rs:549-551); the three PLANE NAMES are still read out of `fn h_is_table`'s `matches!(plane, ...)`, which survives at layout.rs:437-439, and grow_tests.rs:872 asserts the two agree on every plane at the toy.]",
     "B-5  the two OWED negative controls re-use the committed rank tool with its accepted rebinding: after `INV.run_rank_tool` returns, the already-rebound module instance is taken from `sys.modules['zk60_attention_pair_schedule']` and its own `build_schedule` / `a_model_groups(share_mask=...)` / `build_model` / `analyze_fast` are called again.  No constant is rebound a second time and no tool function is redefined.",
-    "B-6  the activation table's lookup total.  The committed `lookup_total` knows two tables (U8 by summing `lookups(dom)` over `LOOKUP_DOMS`, exp as `1 << Dom::S.log()`).  The block has a third, the activation table (private_block/argument.rs:766 `f_act`, one lookup per `Dom::F` element).  `block_lookup_totals` adds `act = 1 << Dom::F.log()` by exactly the committed tool's own convention for exp.  The U8 and exp totals are the committed function's, unchanged."
+    "B-6  the activation table's lookup total.  The committed `lookup_total` knows two tables (U8 by summing `lookups(dom)` over `LOOKUP_DOMS`, exp as `1 << Dom::S.log()`).  The block has a third, the activation table (private_block/argument.rs:1216 `f_act`, one lookup per `Dom::F` element).  `block_lookup_totals` adds `act = 1 << Dom::F.log()` by exactly the committed tool's own convention for exp.  The U8 and exp totals are the committed function's, unchanged.  [PIN re-read 2026-09-20: argument.rs:766 -> :1216.]",
+    "B-7  `Dom::log` no longer HOLDS the domain logs (step S6).  layout.rs:160-162 delegates to `domain_log_at(self.natural_log(), self.carries_h_planes(), LOG_N)`, and the committed `parse_dom_logs` reads a `match` that is no longer there -- this is the immediate cause of the nine errors finding S9-F6 reported.  ADAPTER: `normalise_layout_source` requires `Dom::log`'s body to be EXACTLY that call and `domain_log_at`'s body (layout.rs:136-142) to be exactly the ruling-P-3 lift `if carries_h_planes && natural < log_n { log_n } else { natural }`; it then runs the COMMITTED arm parser on `natural_log`'s own match (layout.rs:146-155), reads the domains that carry no H plane out of `carries_h_planes`'s `!matches!(self, ..)` (layout.rs:157-159) and `LOG_N` out of the consts, applies the lift in Python and rewrites `Dom::log`'s body into the literal match the committed parser reads.  At the toy the lift moves nothing (`lifted_by_P3` is empty) and the nine logs are the nine the accepted run recorded.  The same function derives the TOY PROFILE that adapters B-1 and B-9 need -- the six axis logs, inverted from the nine natural logs by `shape.rs:390-404`'s rule, and the three byte-limb counts, by `shape.rs:372-386`'s rule on layout.rs's own `NORM_WRHO` / `WRHO_S` / `F_P`.  Ten cross-checks travel with it, and any of them failing is a hard parse error, not a warning: the three domains the inversion does not consume, the six frozen toy geometry constants `T` / `D` / `H` / `DH` / `F` / `KV`, which no longer drive anything in layout.rs and are now only a witness, and the pinned `LN_TOY` / `LS_TOY` / `LP_TOY` (layout.rs:281-283).",
+    "B-8  `lookups(dom)` is now `lookups_at(&Shape::toy(), &Ids::toy(), dom)` (layout.rs:643-645), whose match arms are written over the shape: `(0..ln).map(..)` for a limb group and `if norm_top { .. }` for correction C-6's four droppable `scaled` lookups.  The committed `parse_lookup_counts` handles neither.  ADAPTER: `normalise_layout_source` requires `lookups`'s body to be exactly that call and `lookups_at` (layout.rs:667-742) to bind `let (ln, ls, lp) = (ids.ln, ids.ls, ids.lp);` and `let norm_top = !sh.norm_top_is_full_byte();`, substitutes the TOY's `ln` / `ls` / `lp` and resolves the `if norm_top` blocks (true at the toy, `NORM_WRHO = 29` against `8 * 4`), then hands the result to the COMMITTED counter, which still does all the counting (`v.push` = 1, `v.extend([..])` = the list's length, `sym(..)` = 2, `(0..k).map(..)` = k). An `else` branch or an unknown condition appearing in `lookups_at` is a hard parse error.",
+    "B-9  the shaped spellings inside `argument::define`.  Nine kinds of expression changed their spelling without changing their value at the toy, and `normalise_define_source` rewrites each one, inside `define`'s body alone, into the spelling the committed `DefineParser` already reads: `ids.at(P)` -> `P` and `ids.nr(k)`..`ids.sg(k)` -> their toy base plus `k` (the toy's id map is the identity -- `Layout::new`'s freeze gate, layout.rs:987, `assert!((0..N_A).all(|p| lay.ids.at(p) == p))`); `hids.first_helper(D)`, `hids.helper(D, j)`, `hids.sexp()`, `hids.fact()`, `hids.u()` and `hids.table_helpers()` -> the literal helper planes of `fn helpers` and the `H_*` constants, which grow_tests.rs:855-877 asserts one by one on `HIds::new(&Shape::toy())`; `sh.helpers(D)` -> `helpers(D).1`; `sh.log(D)` -> `D.log()`; `sh.size(D)` -> `1 << D.log()`; `sh.limbs_*()` and the six `sh.<axis>` fields -> the toy profile's values; and `lg(v)` -> `v.trailing_zeros()` (argument.rs:592-595).  Four small evaluator extensions go with it, all of them forms the accepted source never uses: `helpers(D).0` (the FIRST helper plane; the committed `_int` substitutes only the pair's second member), a list-valued local indexed by a literal (`th[0]`), an `if` EXPRESSION in integer position (`rho(0..if slot == SC_DMM { lf } else { ld })`), a local sliced to a prefix (`fixed(&r_h[..lkv])`), an integer-valued `let`, and a tuple-match arm whose value is an integer expression.  Every substituted value is the toy's and comes from B-7's profile; no count, row or plane is assumed.",
+    "B-10  `define`'s preamble is outside the parsed region.  The committed `parse()` runs the `match slot` arms only, and the shape generalisation moved the axis logs, the byte-limb counts and the pad-rule flags into a preamble above that match (argument.rs:873-891).  ADAPTER: `BlockDefineParser._statement` binds those eleven locals into each arm's environment at the toy's values before the first statement runs -- `lt` / `lh` / `ldh` / `ld` / `lf` / `lkv` from B-7's axis logs, `ln` / `ls` / `lp` from B-7's limb counts, and `pad_on = false` / `n_pad = 0`, which is what `Shape::toy()` gives: `pad.rs:365-368` returns no zero-rule plane unless `Shape::carries_pad_rule` (`shape.rs:360-362` is `!is_frozen_toy`, `shape.rs:367-369` is `profile == TOY_PROFILE`), so `define`'s `pad_doms` is empty, ruling P-1's pad term is absent and `B::supp` (argument.rs:543-547) returns `None` on every domain.  The pad branches this switches off contain no site call at all, so the committed `_run_arm`'s own `consumed == expected_calls` check still covers every site the arm makes."
    ],
    "adapters_used": {
     "B-1": 9,
-    "B-2": 8,
-    "B-3": 3
+    "B-10": 23,
+    "B-3": 3,
+    "B-9": 177
    },
    "detail": "each is handled by a named adapter in THIS driver; no committed script and no Rust file was edited",
    "id": "B-F3",
@@ -1780,7 +1804,7 @@
     "failures": [],
     "n_cross_checks": 29,
     "n_cross_checks_pass": 29,
-    "out_dir": "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck",
+    "out_dir": "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck",
     "ran": "scripts/zk60_attention_native_inventory.py::build_all on hashline/src/private_attention/ (no rebinding of ours in force)",
     "rank": {
      "flipped_rope_SC_KVZC_own_pair_with_values_n4": {
@@ -1832,8 +1856,380 @@
    },
    "name": "the self-check reproduced the accepted attention verdict",
    "pass": true
+  },
+  {
+   "detail": {
+    "available": true,
+    "differences": [],
+    "n_items": 38
+   },
+   "name": "the toy profile read out of the shaped Rust equals the independent layout model's",
+   "pass": true
   }
  ],
+ "independent_model_cross_check": {
+  "available": true,
+  "differences": [],
+  "model": "scripts/zk60_private_block_layout_model.py",
+  "n_items": 38,
+  "rows": [
+   {
+    "item": "axis log lt (tokens)",
+    "model_says": 5,
+    "pass": true,
+    "read_from_the_rust": 5
+   },
+   {
+    "item": "axis log lh (query heads)",
+    "model_says": 1,
+    "pass": true,
+    "read_from_the_rust": 1
+   },
+   {
+    "item": "axis log ldh (head dim)",
+    "model_says": 3,
+    "pass": true,
+    "read_from_the_rust": 3
+   },
+   {
+    "item": "axis log ld (width)",
+    "model_says": 4,
+    "pass": true,
+    "read_from_the_rust": 4
+   },
+   {
+    "item": "axis log lf (hidden)",
+    "model_says": 4,
+    "pass": true,
+    "read_from_the_rust": 4
+   },
+   {
+    "item": "axis log lkv (kv heads)",
+    "model_says": 0,
+    "pass": true,
+    "read_from_the_rust": 0
+   },
+   {
+    "item": "byte limbs of a norm remainder",
+    "model_says": 4,
+    "pass": true,
+    "read_from_the_rust": 4
+   },
+   {
+    "item": "byte limbs of a softmax remainder",
+    "model_says": 2,
+    "pass": true,
+    "read_from_the_rust": 2
+   },
+   {
+    "item": "byte limbs of the softmax quotient",
+    "model_says": 2,
+    "pass": true,
+    "read_from_the_rust": 2
+   },
+   {
+    "item": "the C-6 scaled lookups are emitted",
+    "model_says": true,
+    "pass": true,
+    "read_from_the_rust": true
+   },
+   {
+    "item": "A rows",
+    "model_says": 455,
+    "pass": true,
+    "read_from_the_rust": 455
+   },
+   {
+    "item": "H rows",
+    "model_says": 384,
+    "pass": true,
+    "read_from_the_rust": 384
+   },
+   {
+    "item": "A claim sites",
+    "model_says": 120,
+    "pass": true,
+    "read_from_the_rust": 120
+   },
+   {
+    "item": "H claim sites",
+    "model_says": 51,
+    "pass": true,
+    "read_from_the_rust": 51
+   },
+   {
+    "item": "U8 lookups",
+    "model_says": 61440,
+    "pass": true,
+    "read_from_the_rust": 61440
+   },
+   {
+    "item": "exp lookups",
+    "model_says": 2048,
+    "pass": true,
+    "read_from_the_rust": 2048
+   },
+   {
+    "item": "act lookups",
+    "model_says": 512,
+    "pass": true,
+    "read_from_the_rust": 512
+   },
+   {
+    "item": "log of Dom::D",
+    "model_says": 9,
+    "pass": true,
+    "read_from_the_rust": 9
+   },
+   {
+    "item": "log of Dom::F",
+    "model_says": 9,
+    "pass": true,
+    "read_from_the_rust": 9
+   },
+   {
+    "item": "log of Dom::Ht",
+    "model_says": 6,
+    "pass": true,
+    "read_from_the_rust": 6
+   },
+   {
+    "item": "log of Dom::Kv",
+    "model_says": 8,
+    "pass": true,
+    "read_from_the_rust": 8
+   },
+   {
+    "item": "log of Dom::L",
+    "model_says": 9,
+    "pass": true,
+    "read_from_the_rust": 9
+   },
+   {
+    "item": "log of Dom::Q",
+    "model_says": 9,
+    "pass": true,
+    "read_from_the_rust": 9
+   },
+   {
+    "item": "log of Dom::S",
+    "model_says": 11,
+    "pass": true,
+    "read_from_the_rust": 11
+   },
+   {
+    "item": "log of Dom::T",
+    "model_says": 5,
+    "pass": true,
+    "read_from_the_rust": 5
+   },
+   {
+    "item": "log of Dom::Tab",
+    "model_says": 8,
+    "pass": true,
+    "read_from_the_rust": 8
+   },
+   {
+    "item": "U8 lookups per position of Dom::D",
+    "model_says": 38,
+    "pass": true,
+    "read_from_the_rust": 38
+   },
+   {
+    "item": "U8 lookups per position of Dom::F",
+    "model_says": 9,
+    "pass": true,
+    "read_from_the_rust": 9
+   },
+   {
+    "item": "U8 lookups per position of Dom::Kv",
+    "model_says": 12,
+    "pass": true,
+    "read_from_the_rust": 12
+   },
+   {
+    "item": "U8 lookups per position of Dom::L",
+    "model_says": 2,
+    "pass": true,
+    "read_from_the_rust": 2
+   },
+   {
+    "item": "U8 lookups per position of Dom::Q",
+    "model_says": 13,
+    "pass": true,
+    "read_from_the_rust": 13
+   },
+   {
+    "item": "U8 lookups per position of Dom::S",
+    "model_says": 13,
+    "pass": true,
+    "read_from_the_rust": 13
+   },
+   {
+    "item": "LogUp helper planes of Dom::D",
+    "model_says": 19,
+    "pass": true,
+    "read_from_the_rust": 19
+   },
+   {
+    "item": "LogUp helper planes of Dom::F",
+    "model_says": 5,
+    "pass": true,
+    "read_from_the_rust": 5
+   },
+   {
+    "item": "LogUp helper planes of Dom::Kv",
+    "model_says": 6,
+    "pass": true,
+    "read_from_the_rust": 6
+   },
+   {
+    "item": "LogUp helper planes of Dom::L",
+    "model_says": 1,
+    "pass": true,
+    "read_from_the_rust": 1
+   },
+   {
+    "item": "LogUp helper planes of Dom::Q",
+    "model_says": 7,
+    "pass": true,
+    "read_from_the_rust": 7
+   },
+   {
+    "item": "LogUp helper planes of Dom::S",
+    "model_says": 7,
+    "pass": true,
+    "read_from_the_rust": 7
+   }
+  ],
+  "shape": "toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)"
+ },
+ "layout_adapter_record": {
+  "B-7": {
+   "LOG_N": 8,
+   "domains_without_h_planes": [
+    "Ht",
+    "T"
+   ],
+   "lifted_by_P3": [],
+   "logs": {
+    "D": 9,
+    "F": 9,
+    "Ht": 6,
+    "Kv": 8,
+    "L": 9,
+    "Q": 9,
+    "S": 11,
+    "T": 5,
+    "Tab": 8
+   },
+   "natural_logs": {
+    "D": 9,
+    "F": 9,
+    "Ht": 6,
+    "Kv": 8,
+    "L": 9,
+    "Q": 9,
+    "S": 11,
+    "T": 5,
+    "Tab": 8
+   },
+   "toy_profile": {
+    "axis_logs": {
+     "ld": 4,
+     "ldh": 3,
+     "lf": 4,
+     "lh": 1,
+     "lkv": 0,
+     "lt": 5
+    },
+    "cross_checks": [
+     {
+      "declared": 9,
+      "derived": 9,
+      "name": "Dom::L is 16 limb sub-planes of t_pad"
+     },
+     {
+      "declared": 11,
+      "derived": 11,
+      "name": "Dom::S is h_pad * t_pad * t_pad"
+     },
+     {
+      "declared": 8,
+      "derived": 8,
+      "name": "Dom::Tab is the byte class"
+     },
+     {
+      "declared": 32,
+      "derived": 32,
+      "name": "t_pad == T"
+     },
+     {
+      "declared": 16,
+      "derived": 16,
+      "name": "d_pad == D"
+     },
+     {
+      "declared": 2,
+      "derived": 2,
+      "name": "h_pad == H"
+     },
+     {
+      "declared": 8,
+      "derived": 8,
+      "name": "head_dim == DH"
+     },
+     {
+      "declared": 16,
+      "derived": 16,
+      "name": "f_pad == F"
+     },
+     {
+      "declared": 8,
+      "derived": 8,
+      "name": "kv_heads * head_dim == KV"
+     },
+     {
+      "declared": true,
+      "derived": true,
+      "name": "norm_wrho fills no whole limb"
+     }
+    ],
+    "ln": 4,
+    "lp": 2,
+    "ls": 2,
+    "n_pad": 0,
+    "norm_top": true,
+    "pad_on": false
+   }
+  },
+  "B-8": {
+   "conditions_resolved": [
+    [
+     "norm_top",
+     true
+    ],
+    [
+     "norm_top",
+     true
+    ],
+    [
+     "norm_top",
+     true
+    ],
+    [
+     "norm_top",
+     true
+    ]
+   ],
+   "limbs": {
+    "ln": 4,
+    "lp": 2,
+    "ls": 2
+   },
+   "norm_top": true
+  }
+ },
  "logup_adapter_record": {
   "h_is_table_body": "matches!(plane, H_GU8 | H_GEXP | H_GACT)",
   "h_is_table_planes": [
@@ -1841,8 +2237,9 @@
    "H_GEXP",
    "H_GACT"
   ],
-  "h_planes_body": "(0..N_H).collect()",
+  "h_planes_body": "(0..self.hids.n_h()).collect()",
   "h_planes_range_const": "N_H",
+  "is_table_body": "(self.gu8..self.gu8 + 3).contains(&plane)",
   "rewrote": [
    "for p in lay.h_planes() {",
    "if h_is_table(p)"
@@ -2191,7 +2588,7 @@
   "failures": [],
   "n_cross_checks": 29,
   "n_cross_checks_pass": 29,
-  "out_dir": "/home/victor/wt-zk60-private-block/results/zk60_private_block_tools/accepted_selfcheck",
+  "out_dir": "/home/victor/wt-zk60-block125m/results/zk60_private_block_tools/accepted_selfcheck",
   "ran": "scripts/zk60_attention_native_inventory.py::build_all on hashline/src/private_attention/ (no rebinding of ours in force)",
   "rank": {
    "flipped_rope_SC_KVZC_own_pair_with_values_n4": {
@@ -2242,11 +2639,79 @@
   "reproduced_the_accepted_verdict": true
  },
  "source_sha256": {
-  "hashline/src/private_block/argument.rs": "bb6971c30b1601a191f1452de0f1c20f1f7474aa52206ee5bf0c33258f0fdfec",
-  "hashline/src/private_block/layout.rs": "6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989",
-  "hashline/src/private_block/protocol.rs": "db2757a33055ffa40a31220d51b140a4365ef5e610180b1e1e1e8445945d2b6d",
+  "hashline/src/private_block/argument.rs": "50996a634536895487ee137519dc15b73167d5279b816846fcd982d70fef89d3",
+  "hashline/src/private_block/layout.rs": "15b5c20f164480ca1aef1a5ecf12ae8408287a860b03b571642861e902332c84",
+  "hashline/src/private_block/protocol.rs": "1c1fc24cf9e888a94adbcceefededd2c03b2b652331728202aafdebcecd169d2",
   "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
  },
  "task": "disposition section 3 condition 4 -- the three committed tools on the REAL Rust of hashline/src/private_block/",
- "tool": "scripts/zk60_private_block_inventory.py"
+ "tool": "scripts/zk60_private_block_inventory.py",
+ "toy_profile_read_from_the_rust": {
+  "axis_logs": {
+   "ld": 4,
+   "ldh": 3,
+   "lf": 4,
+   "lh": 1,
+   "lkv": 0,
+   "lt": 5
+  },
+  "cross_checks": [
+   {
+    "declared": 9,
+    "derived": 9,
+    "name": "Dom::L is 16 limb sub-planes of t_pad"
+   },
+   {
+    "declared": 11,
+    "derived": 11,
+    "name": "Dom::S is h_pad * t_pad * t_pad"
+   },
+   {
+    "declared": 8,
+    "derived": 8,
+    "name": "Dom::Tab is the byte class"
+   },
+   {
+    "declared": 32,
+    "derived": 32,
+    "name": "t_pad == T"
+   },
+   {
+    "declared": 16,
+    "derived": 16,
+    "name": "d_pad == D"
+   },
+   {
+    "declared": 2,
+    "derived": 2,
+    "name": "h_pad == H"
+   },
+   {
+    "declared": 8,
+    "derived": 8,
+    "name": "head_dim == DH"
+   },
+   {
+    "declared": 16,
+    "derived": 16,
+    "name": "f_pad == F"
+   },
+   {
+    "declared": 8,
+    "derived": 8,
+    "name": "kv_heads * head_dim == KV"
+   },
+   {
+    "declared": true,
+    "derived": true,
+    "name": "norm_wrho fills no whole limb"
+   }
+  ],
+  "ln": 4,
+  "lp": 2,
+  "ls": 2,
+  "n_pad": 0,
+  "norm_top": true,
+  "pad_on": false
+ }
 }

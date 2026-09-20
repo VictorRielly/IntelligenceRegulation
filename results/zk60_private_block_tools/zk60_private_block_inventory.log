@@ -61,7 +61,8 @@ cfs negative controls: {"nc_hosted_c_zero": true, "nc_host_nu_zero": true, "nc_e
   ok   gate: every slot L + 256 <= 512
   ok   gate: EVERY negative control fires
   ok   gate: the self-check reproduced the accepted attention verdict
+  ok   gate: the toy profile read out of the shaped Rust equals the independent layout model's
 paper comparison: 74 of 74 items agree; differences: []; only in this run: ['rank/negative_control/A_H16_own_pair_not_A_U16_pair_with_values_n4', 'rank/negative_control/A_H16_shares_A_U16_pair_with_values_n4', 'rank/negative_control/A_YM_own_pair_not_A_Y_pair_with_values_n4', 'rank/negative_control/A_YM_shares_A_Y_pair_with_values_n4']
-adapters the define parser needed: {'B-1': 9, 'B-3': 3, 'B-2': 8}
+adapters the define parser needed: {'B-9': 177, 'B-10': 23, 'B-1': 9, 'B-3': 3}
 failures: none
 CAVEAT: These verdicts are about a LINEAR-ALGEBRA MODEL of the real Rust schedule of hashline/src/private_block/, at seeded stand-in challenges. The models exclude the sampled columns, the salted Merkle paths, the CFS channel, transcript conditioning, integer-range side information and correlation between A and H -- exactly as on the accepted attention layout (ZK60_PRIVATE_ATTENTION_NATIVE.md:79). NOTHING here establishes a privacy property of the construction: the joint-view gate on captured receipts is unmet and D8 / D11 stay open for the block's two external endpoints x_in and xres2. What is new relative to the paper runs is only that the schedule is now READ OUT OF CODE instead of out of a memo.

@@ -2386,3 +2386,158 @@ may be made about any of them.**
    correctness one.
 7. Re-read the toy freeze gate before every commit: receipt 2,816,472 B, the
    literal schedule digest, and the empty-diff check must print nothing.
+
+---
+
+## Stage 10 (2026-09-20, 07:2x–08:0x): the inventory tool on the shaped layout — S9-F6 CLOSED
+
+**The problem, in one line.** `scripts/zk60_private_block_inventory.py` does
+not read a memo; it PARSES `hashline/src/private_block/{layout,argument,
+protocol}.rs` and re-derives the toy block's layout from the source, then
+runs the two committed leak-checking tools on what it read. Steps A–C of this
+lane rewrote those three files over a `Shape`, and every spelling the parser
+was anchored on moved. All **nine** of its tests ERRORED (finding S9-F6), so
+the repository-wide suite would have gone red on integration and, worse, the
+tool that fed the block's acceptance as an experimental component was
+checking nothing.
+
+Python only, this stage. No Rust file was edited, no build was run, no proof
+was made, and no privacy property is claimed anywhere below.
+
+### The nine tests and their one cause
+
+Every one of the nine ends in the same three frames —
+`PB.BlockLayout` → `INV.Layout.__init__` → `parse_dom_logs`, at
+`zk60_attention_native_inventory.py:196`, `ValueError: substring not found`.
+The committed parser reads `Dom::log`'s `match` out of `layout.rs`; since
+step S6 `Dom::log` (layout.rs:160-162) is a CALL,
+`domain_log_at(self.natural_log(), self.carries_h_planes(), LOG_N)`, and
+there is no match to find. Six of the nine are in
+`TestAdaptersAreNeeded`, one is `TestEndToEnd.setUpClass` (which takes the
+whole end-to-end class with it), two are in `TestWrongExpectationFails`.
+Log: `results/zk60_block125m_lane/s10-inventory-baseline.log`.
+
+Fixing that one line uncovered four more breakages, each of which would have
+been the next error: `fn lookups` is now
+`lookups_at(&Shape::toy(), &Ids::toy(), dom)` with shape-driven arms;
+`define`'s preamble moved the axis logs out of the parsed region;
+`define`'s arms speak `ids.at(..)` / `hids.first_helper(..)` / `sh.log(..)`;
+and `logup_sum_claim` now loops `lay.h_planes()` over `hids.n_h()` and signs
+with `hids.is_table(p)`.
+
+### The repair: four new adapters, nothing weakened
+
+The tool's existing discipline is a named, cited ADAPTER per construct the
+block's Rust uses and the accepted attention Rust does not, each of which
+REFUSES rather than guesses when the source does not read as expected. Four
+were added in that style (`scripts/zk60_private_block_inventory.py`):
+
+| adapter | what it reads | what it does |
+|---|---|---|
+| **B-7** | `Dom::log` (layout.rs:160-162), `domain_log_at` (:136-142), `natural_log` (:146-155), `carries_h_planes` (:157-159), `LOG_N` | requires the delegation and the ruling-P-3 lift to read EXACTLY as pinned, runs the COMMITTED arm parser on `natural_log`'s own match, applies the lift in Python and rewrites `Dom::log`'s body into the literal match the committed parser reads. At the toy the lift moves nothing (`lifted_by_P3` empty) |
+| **B-7 (toy profile)** | the same nine natural logs, plus `NORM_WRHO` / `WRHO_S` / `F_P` and `LN_TOY` / `LS_TOY` / `LP_TOY` (:281-283) | inverts the SIX axis logs out of the nine domain logs by shape.rs:390-404's rule (every padded axis is a power of two, so the logs sum exactly) and derives the three byte-limb counts by shape.rs:372-386's rule. Ten cross-checks travel with it and any failure is a hard parse error: the three domains the inversion does not consume, the six frozen toy constants `T`/`D`/`H`/`DH`/`F`/`KV` (which no longer drive anything in layout.rs and are now only witnesses), and the three pinned limb counts |
+| **B-8** | `lookups` (:643-645) and `lookups_at` (:667-742) | requires `lookups` to be exactly the toy call and `lookups_at` to bind `(ln, ls, lp)` and `norm_top`, substitutes the toy's limb counts, resolves the four `if norm_top` blocks (true at the toy: `NORM_WRHO = 29` against `8 × 4`) and hands the result to the COMMITTED counter, which still does all the counting |
+| **B-9** | `define`'s body alone | rewrites the shaped spellings into the ones the committed `DefineParser` reads: `ids.at(P) → P` and the six limb-group accessors → their toy bases (the toy id map is the identity — `Layout::new`'s own freeze gate, layout.rs:987); the six `hids.*` accessors → the literal `H_*` planes (grow_tests.rs:855-877 asserts each one at the toy); `sh.helpers/log/size/limbs_*` and the six `sh.<axis>` fields → the toy profile's values; `lg(v) → v.trailing_zeros()`. Six small evaluator extensions go with it, all forms the accepted source never uses |
+| **B-10** | `define`'s preamble (argument.rs:873-891) | binds its eleven locals into each arm's environment at the toy's values, including `pad_on = false` / `n_pad = 0`, which is what `Shape::toy()` gives: pad.rs:365-368 returns no zero-rule plane unless `carries_pad_rule` (shape.rs:360-362 = `!is_frozen_toy`), so `B::supp` returns `None` and ruling P-1's pad term is absent. The branches this switches off contain **no site call**, so the committed `consumed == expected_calls` check still covers every site |
+
+**B-4 re-pinned** for `logup_sum_claim`: the loop bound is taken as `N_H`
+only on the strength of `Layout::new`'s freeze gate
+`assert_eq!(lay.hids.n_h(), N_H, ..)` (layout.rs:985), which the adapter now
+requires to be PRESENT in the source; the sign test's three planes are still
+read out of `fn h_is_table`'s `matches!` (which survives at :437-439), and
+`HIds::is_table`'s body must read `(self.gu8..self.gu8 + 3).contains(&plane)`
+(:549-551) — grow_tests.rs:872 asserts the two agree on every plane at the
+toy.
+
+**B-2 is now dead** and is kept only so a revert would still parse: the
+`lay.helpers(..)` spelling it adapted occurs **zero** times in argument.rs.
+That is stated in the adapter's own entry and is visible in the record, where
+`adapters_used_by_the_define_parser` no longer reports it.
+
+**No check was weakened, skipped or marked expected-failure, and no Rust
+file was touched.** Nothing the tool checks changed.
+
+### THE ACCEPTANCE: the toy's numbers are byte-identical
+
+The record was regenerated into `results/zk60_private_block_tools/` and
+compared KEY BY KEY with the copy committed at `f1df3ba`, which was made from
+the pre-lane source. **41 differences, none of them a derived quantity**
+(`results/zk60_block125m_lane/s10-evidence-comparison.txt`):
+
+* `zk60_private_block_{schedule,pair_schedule,cfs_slots,hosts}.json` and the
+  `.done` marker — **BYTE-identical**: `git status` reports no change to them
+  at all, so every claim site, opening group, row index, rank verdict, CFS
+  verdict and negative control is the same byte for byte;
+* `zk60_private_block_inventory.json` — the three `source_sha256` of the Rust
+  files the lane rewrote, and the `adapters` prose;
+* `zk60_private_block_summary.json` — the same three hashes, the prose, the
+  `out_dir` paths, `adapters_used_by_the_define_parser` (B-2 out, B-9/B-10
+  in), `logup_adapter_record/h_planes_body` (the quoted source line) plus an
+  added `is_table_body`, four added keys (`define_rewrites`,
+  `layout_adapter_record`, `toy_profile_read_from_the_rust`,
+  `independent_model_cross_check`) and one added gate, 11 → 12.
+
+So A 455 rows, H 384, A data 213, H data 280, 120 A sites, 51 H sites, 35 / 9
+opening groups, 23 slots, M 50 rows, 34 functionals, largest L 50, U8 61,440
+/ exp 2,048 / act 512, 159 main and 25 extension rounds, 173 terminals, all
+host sums and ranks, all standalone dims — every one comes out of the shaped
+source EXACTLY as it came out of the pre-lane source.
+
+`accepted_selfcheck/` differs in 27 keys, and **none of them is this
+stage's**: `private_attention/argument.rs` changed on this lane after
+`f1df3ba`, and the committed record was already STALE for two files when it
+was committed (it records `ac8ca737` for `private_attention/layout.rs`, which
+is `17159dcc` both at `f1df3ba` and today, and `9be2439b` for
+`protocol.rs`, which matches neither). The self-check's VERDICT is unmoved:
+29 of 29 cross-checks, failures none, reproduced = true, A sites 75, H sites
+35, A groups 30, H groups 8.
+
+### One new gate, and one new finding
+
+**The twelfth gate** compares the toy profile this driver READ OUT OF THE
+RUST with the independent shape-driven model
+`scripts/zk60_private_block_layout_model.py`, which computes the same
+quantities from a shape alone and never opens a Rust file: 38 items — the six
+axis logs, the three byte-limb counts, the C-6 flag, A / H rows and sites,
+the three lookup totals, the nine domain logs, the six per-position lookup
+counts and the six helper-plane counts. **All 38 agree.** The model is a
+second opinion, not an input: no value it produces enters the derivation.
+
+**S10-F1 (new, minor).** The pre-lane `accepted_selfcheck/` record committed
+at `f1df3ba` was already stale for two `private_attention` files, as above.
+Regenerating it here fixed it, but a record whose hashes name files it was
+not made from can mislead a reader; whoever integrates should regenerate the
+tool's record whenever the parsed source moves.
+
+**`--shape rung` was NOT added, deliberately.** It is not cheap and it would
+not be honest yet. At any shape but the toy `carries_pad_rule` is true, so
+`pad_on` is true, `B::supp` adds a public table to seven slots and ruling
+P-1's pad term adds a `mu` entry and a `zeta` power to eight of them; the
+parser would have to evaluate `pad::zero_rule_a_planes` — a whole further
+file of rules — to know which planes each pad term carries, and the two
+committed leak tools would then be modelling a claim list they have never
+seen. The rung's structural check is worth having, but it is a piece of work
+in its own right and it belongs after the rung CAPTURE (S9-F5), not before.
+
+### Tests and commands
+
+| what | log | result |
+|---|---|---|
+| the nine errors, reproduced | `results/zk60_block125m_lane/s10-inventory-baseline.log` | Ran 9, FAILED (errors=9) |
+| the inventory tests, repaired | `results/zk60_block125m_lane/s10-inventory-after.log` | **Ran 40, OK** |
+| both `test_zk60_private_block*` files | `results/zk60_block125m_lane/s10-module-tests.log` | **Ran 65, OK** |
+| the record regenerated | `results/zk60_block125m_lane/s10-tools-regenerate.log` | exit 0, `failures: none`, 12 of 12 gates |
+| the whole Python suite | `results/zk60_block125m_lane/s10-whole-suite.log` | see the line below |
+
+The inventory file went from 9 tests (nine errors) to **40 tests, all
+passing**: the six that were there plus the end-to-end class, and 25 new ones
+— the adapted layout's numbers, the derived toy profile, four refusal tests
+for B-7/B-8 (an unexpected `Dom::log` body, a changed lift, a `lookups` body
+that is not the toy's, a moved `LS_TOY`), three for B-4 (the `h_is_table`
+body, a removed freeze gate, a widened table-flag range), the named B-9
+rewrite counts, the layout adapter record and the model cross-check.
+`test_layout_rs_parses_with_the_committed_class` is now
+`test_layout_rs_no_longer_parses_with_the_committed_class` — the statement it
+made about the source has become false, so it was inverted into the same form
+as its two siblings, and all three numbers it asserted (23 slots, A 455, H
+384) are asserted on the ADAPTED layout instead, along with four more.
