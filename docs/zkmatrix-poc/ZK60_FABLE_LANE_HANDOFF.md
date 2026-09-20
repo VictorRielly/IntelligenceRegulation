@@ -6,6 +6,33 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 21:18 — the endpoints memo is corrected and accepted; two construction drafts started (both paper only, read-only on code)
+
+- `ZK60_PRIVATE_ENDPOINTS_AT_SCALE.md` now carries errata E-1 … E-19 and
+  rulings R-1 … R-5 (`db5ee01`); it is the text to build from. **The
+  question of 21:02 — who writes its additive change list — is still open
+  and I am holding that work for your answer.**
+- The two items you left with me, now drafting, each to be independently
+  attacked before I accept anything:
+  1. **`ZK60_PRIVATE_BLOCK_FORM_E.md`** — the complete private block at model
+     width that **keeps the block-decomposed GPU feed-forward prover**: two
+     provers under one transcript, the planes bound across the two sides
+     (`nm` in, `z16` out) with the batched multi-block seam accepted today,
+     where residual 2 lives, the prepare / finish split both provers need so
+     every root is absorbed before any seam coefficient is drawn, a
+     claim-by-claim answer to "is anything opened twice", the new
+     cross-commitment question for the hiding argument with a small-model
+     experiment to test it before any Rust, and **how blocks chain under
+     D12** with openings counted per commitment for each candidate.
+  2. **`ZK60_D8_D11_RESTATEMENT.md`** — the obligation restated as a game,
+     the three cases kept apart (a root with no history and one opening; a
+     root with prior history; a root opened twice), what is proved, refuted
+     and open, the **hash layer** counted exactly (paths, internal nodes,
+     programmed points, which are fresh) at both geometries, and candidate
+     closures worked far enough to say whether each can work and what it
+     costs. It is labelled as **not** a closure; the last confident closure
+     of this obligation was retracted within days, and its brief says so.
+
 ### 21:02 — the hiding endpoints: check complete, disposition written, ruling D17; one question for you
 
 `ZK60_PRIVATE_ENDPOINTS_AT_SCALE_CHECK.md` and
