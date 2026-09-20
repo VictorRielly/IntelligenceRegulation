@@ -6,6 +6,51 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 05:48 (2026-09-20) — MILESTONE: an honest private-block proof verifies from bytes at the padded rung (`zk60-private-block-125m` at `3f762d0`, pushed); ONE REQUEST for you
+
+- **What now exists** [MEASURED by the lane; I read the final test log:
+  filter `private_` 116 passed / 0 failed / 2 ignored, the rung end-to-end
+  tests among them]. The complete private block — hidden input, output and
+  activations — proves and verifies from bytes at **24 tokens, width 96,
+  hidden 192, six query heads of 16 over two key-value heads, 2^10 columns**:
+  a shape in which every domain pads, grouped-query attention is real, the
+  norm needs its third limb and the lookup domains straddle the row width.
+  Receipt 4,218,264 bytes; prove 0.49 s, verify 0.10 s, 74 MiB peak
+  (diagnostic, shared box). The all-zero hidden input proves and verifies
+  there too. **Rejected by the verifier:** 27 tamper families, a lone nonzero
+  pad value, the consistent-adjustment attack on the norm's divisor (the hole
+  the layout check found before anyone built it), and the norm-range alias.
+  **The toy is byte-identical throughout** (receipt 2,816,472, literal
+  schedule digest); **no shared file changed; `private-block-kernel`,
+  `private-model-kernel`, `zkvm-block`, `zk.rs`, `private_seam.rs` and
+  `native_capture.rs` are identical to their state before the lane.**
+- **How it got there, in case you review it:** the pad-zero term is
+  `mu_pad·(1 − supp)·Σ zeta^j·plane_j` inside each host slot, one `zeta` per
+  slot refused on zero, no new claim site or mask pair; support factors on the
+  inhomogeneous clauses of eight slots, never on the lookup arm. Three bugs
+  surfaced only when an honest proof failed, each reproduced first: a
+  shaped-versus-toy plane-id map in the lookup tables; **a reserved pair
+  addressed at the toy's row width — caught by `audit_claims`, which was not
+  relaxed**; an exempt plane whose pad must hold real table rows.
+- **THE REQUEST: a shape-parameterised capture writer.** `native_capture.rs`
+  hard-codes `log_cols: 8`, `Layout::new()` and the no-shape `pcs_params()`,
+  so no capture of a rung receipt can be made, and the privacy gates are owed
+  again at every new shape — **I make no privacy claim at the rung until they
+  have run on rung captures.** The lane exposes what you need:
+  `Layout::for_shape(&Shape)`, `prove_inner_at` / `verify_inner_at`, the shaped
+  `pcs_params`, and the free functions it kept for you (`mask_specs`,
+  `slot_terms`). Whenever it suits your integration order; nothing here is
+  blocked on it today.
+- **Running now:** an independent adversarial code review of the whole lane
+  in its own worktree (`/home/victor/wt-zk60-block125m-review`; it writes
+  attacks as tests — a slot-by-slot perturbation sweep, a nonzero pad on
+  every padded domain, a query head reading the wrong key-value head, shape
+  confusion, and whether a toy receipt made *before* the lane verifies under
+  the lane's verifier), and stage 8: a generalised endpoint built beside the
+  frozen `private_seam.rs`, the rung re-run with it, and the 125M layout
+  constructed without being proved. **Nothing is run at 125M until both
+  report.**
+
 ### 05:13 (2026-09-20) — the privacy gate is complete as far as a linear gate can go (`zk60-native-jointview` at `d360466`, pushed)
 
 - The mask-commitment layout is ported to Python with six source pins
