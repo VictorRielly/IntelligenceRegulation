@@ -1,0 +1,60 @@
+diff --git a/hashline/src/zk.rs b/hashline/src/zk.rs
+index 22c81d3..bee92f4 100644
+--- a/hashline/src/zk.rs
++++ b/hashline/src/zk.rs
+@@ -2364,6 +2364,55 @@ mod zkhostbuf {
+             p[slot].push(v);
+         }
+     }
++
++    #[cfg(test)]
++    mod tests {
++        use super::*;
++
++        #[test]
++        fn pooled_tail_is_cleared_when_geometry_changes() {
++            const CHILD: &str = "HL_TEST_PRIVATE_POOL_CHILD";
++            if std::env::var_os(CHILD).is_none() {
++                // Isolate the global pool and OnceLock from concurrent proof
++                // tests, and require actual reuse rather than a fresh buffer.
++                let out = std::process::Command::new(std::env::current_exe().unwrap())
++                    .args(["--exact", "zk::zkhostbuf::tests::pooled_tail_is_cleared_when_geometry_changes", "--nocapture"])
++                    .env(CHILD, "1").env("HL_FSP_POOL", "1")
++                    .output().unwrap();
++                assert!(out.status.success(), "{}\n{}", String::from_utf8_lossy(&out.stdout), String::from_utf8_lossy(&out.stderr));
++                assert!(String::from_utf8_lossy(&out.stdout).contains("1 passed; 0 failed; 0 ignored"));
++                return;
++            }
++            assert!(on());
++            for slot in [W, A] {
++                let mut initial = Vec::with_capacity(64);
++                initial.resize(60, Fp::from_i64(-91));
++                let ptr = initial.as_ptr();
++                let mut prior = initial.clone();
++                give(slot, initial);
++                // Shrink, grow within capacity, move the tiled boundary in
++                // both directions, and exercise empty/nonempty tails.
++                for (step, (len, tiled)) in [(32, 20), (56, 12), (24, 24), (48, 0), (64, 63)].into_iter().enumerate() {
++                    prior.resize(len, Fp::ZERO);
++                    prior.truncate(len);
++                    let mut v = take(slot, len, tiled);
++                    assert_eq!(v.as_ptr(), ptr, "test failed to exercise pool reuse");
++                    assert_eq!(&v[..tiled], &prior[..tiled]);
++                    assert!(v[tiled..].iter().all(|x| *x == Fp::ZERO), "stale private tail: slot {slot}, step {step}");
++                    // Simulate a complete prefix and a partial table/predicate
++                    // tail write. Every untouched tail position must stay zero.
++                    v[..tiled].fill(Fp::ONE);
++                    if tiled < len { v[tiled] = Fp::from_i64(7); }
++                    assert!(v[(tiled + 1).min(len)..].iter().all(|x| *x == Fp::ZERO));
++                    // Dirty *all* positions before the next geometry, so an
++                    // omitted tail reset cannot pass on pre-existing zeros.
++                    v.fill(Fp::from_i64(101 + step as i64));
++                    prior = v.clone();
++                    give(slot, v);
++                }
++            }
++        }
++    }
+ }
+ 
+ /// [UPERF3-FSP3] Lane AL's second host fix (`layer.rs` rung 2), ported to the

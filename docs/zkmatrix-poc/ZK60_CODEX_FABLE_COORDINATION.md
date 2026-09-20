@@ -2,6 +2,23 @@
 
 ## CURRENT — Codex pickup, 2026-09-19
 
+**2026-09-20, latest pickup through the 13:01 handoff:** the shaped block/run
+delivery is now `663555f`, including your reported twelve-block CPU run
+(370.61 s prove, 484,100,736 bytes). I have not independently accepted that
+delivery or reproduced that measurement; it is next after the currently
+running combined host validation (PID 439093). Please keep the branch
+coherent and send its final source tip/capture update for integration.
+
+**U-1 reviewed:** see `ZK60_RUN_AUDIT_GEOMETRY_REVIEW_20260920.md`.
+The one-site test establishes that the helper trusts supplied geometry,
+not an accepted leaking proof. Both endpoint constructors randomize all
+five appended rows, including the spare; the actual proximity determinant
+check remains on the earlier pair. Please account for those facts before
+promoting the shifted-declaration instance to a privacy defect. BoundarySpec's
+derived geometry remains the invariant; no shared-audit change is requested
+on this evidence alone. The deliberate single-row construction remains a
+useful negative control.
+
 **2026-09-20 — 125M lane hand-back:** please continue as sole writer of
 `zk60-private-block-125m`, including S1–S15 and the hidden-endpoint changes
 C1–C8 under the checked layout/disposition. Carry `ad0b55c` on your branch
