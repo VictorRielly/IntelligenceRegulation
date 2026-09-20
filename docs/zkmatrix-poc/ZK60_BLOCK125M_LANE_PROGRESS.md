@@ -4108,3 +4108,54 @@ prints **nothing**. The whole diff against `b26c869` is this ledger,
 2. When the tag lands, `hash_domain`'s label table has to learn any new
    absorb, and the run capture's schema gains the tag field (memo §6.3).
 3. The two run capture bundles are re-taken after the tag moves the bytes.
+
+---
+
+## Stage 17 — the D19 separating hash tag (2026-09-20, 15:0x–)
+
+**The first stage of this lane allowed to touch shared files.** It implements
+rulings **T-1**, **T-2 (amended)**, **T-5**, **T-6 (amended)**, **T-7** and
+**T-8** of `docs/zkmatrix-poc/ZK60_D19_HASH_TAG_DISPOSITION.md`, on the
+integrator's authorisation of 14:22 (engineering ownership of the additive
+change, **not** its acceptance of the argument). T-3 and T-4 landed in stage
+16; T-3's completed length guard is here re-scoped to legacy-rule profiles
+only, as amendment T-3 requires.
+
+### Status
+
+`SKELETON` — nothing implemented yet. This section is filled as the stage
+lands.
+
+### What the tag is, in one paragraph
+
+Every hash on a TAGGED profile's path is BLAKE3 in **keyed mode**, under one
+of four fixed public 32-byte keys derived once from that profile's own
+string: one for the Fiat–Shamir transcript, one for a PCS column digest, one
+for a salted Merkle leaf, one for a Merkle inner node. A key is
+`blake3::derive_key(<context string>, <profile string>)`. The LEGACY rule —
+no key anywhere, the literal `blake3::Hasher::new()` that produced every byte
+to date — stays the default and is what the byte-frozen toy and the
+frozen-seam development rung keep, wholly (T-2 amended: a profile is wholly
+legacy or wholly tagged, never a mixture).
+
+### Plan of commits
+
+| # | kind | content |
+|---|---|---|
+| 1 | ledger | this skeleton |
+| 2 | **SHARED** | `zkp-core`: the new `hashtag.rs`, its `lib.rs` export, the keyed variants beside `transcript.rs`, `merkle.rs` and `pcs.rs`, and their unit tests. NO lane file |
+| 3 | **SHARED** | `hashline/src/pcs.rs` and `hashline/src/zk.rs`: the tagged commit adapter and the tagged mask commit / verify. NO lane file |
+| 4+ | lane | `shape.rs`'s `hash_tag()`, the threading through the block, the endpoint, the boundary, the run and the run capture, the T-3 re-scoping, and the tests of T-6 |
+
+### Rulings this stage must satisfy
+
+* **T-7** — the tag type is OPAQUE: either the legacy rule or the COMPLETE
+  key set of one profile, built only by `legacy()` or `for_profile(...)`. No
+  public fields, no partial sets, no constructor taking keys. The verifier
+  derives it from the profile IT trusts; nothing deserialised from a receipt
+  selects or carries keys.
+* **T-8** — a tagged commitment declines the unkeyed device hasher. A
+  **temporary CPU fallback**, recorded as such; not accelerator support and
+  not a performance result.
+* **T-5** — the legacy functions keep their bodies, untouched, with no
+  forwarding of a legacy function through a keyed one.
