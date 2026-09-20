@@ -46,7 +46,17 @@ pub(crate) const KV: usize = 8;
 /// feed-forward width (the `f` axis)
 pub(crate) const F: usize = 16;
 pub(crate) const LOG_N: usize = 8;
+/// THE WIDTH OF A COMMITTED ROW, and nothing else (trap T-1 of the 125M layout
+/// memo). It moves with the row geometry: 16,384 at the 125M shape.
 pub(crate) const N: usize = 1 << LOG_N;
+/// THE NUMBER OF ENTRIES IN EACH OF THE THREE LOOKUP TABLES — the byte class
+/// `[0, 256)`. It is `256` at EVERY shape and must never be conflated with the
+/// row width `N` (trap T-1): the three table-value vectors, the three
+/// multiplicity histograms and the two in-class guards that index
+/// `AttentionPublic::exp` (256 words) and `FeedForwardPublic::act`
+/// (`[i16; 256]`) are all sized by THIS constant. At the toy shape
+/// `U8_LEN == N`, so the split moves no byte of a toy proof.
+pub(crate) const U8_LEN: usize = 256;
 
 /// Fixed public calibration (private-block-kernel `calib`).
 pub(crate) const NORM_TN: u32 = 11;

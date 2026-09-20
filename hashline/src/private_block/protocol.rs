@@ -285,27 +285,32 @@ pub(crate) fn prove_inner(blk: &BlockPublic, wit: &Witness, expected: &ExpectedI
             a_data[lay.a_off[*p] + i] = Fp::from_i64(*v);
         }
     }
-    let mut m_u8 = vec![0u64; N];
+    // The three histograms are indexed by a TABLE ENTRY, so they are `U8_LEN`
+    // long and their in-class guards test `[0, U8_LEN)` — never the row width
+    // `N` (trap T-1). The two guards that index `public.exp` (256 words) and
+    // `ff.act` (`[i16; 256]`) are what stops a widened `N` from turning a
+    // graceful bucket-0 fallback into an out-of-bounds panic (missed pin M-4).
+    let mut m_u8 = vec![0u64; U8_LEN];
     let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_values(&lay, wit, *d))).collect();
     for (_, cols) in &looked {
         for v in cols.iter().flatten() {
             // a value outside the table counts into entry 0: only the LogUp identity can catch it
-            m_u8[if (0..N as i64).contains(v) { *v as usize } else { 0 }] += 1;
+            m_u8[if (0..U8_LEN as i64).contains(v) { *v as usize } else { 0 }] += 1;
         }
     }
     let deltas = exp_deltas(wit);
-    let mut m_exp = vec![0u64; N];
+    let mut m_exp = vec![0u64; U8_LEN];
     for (x, d) in deltas.iter().enumerate() {
-        let hit = (0..N as i64).contains(d) && public.exp[*d as usize] == wit.planes[A_E][x];
+        let hit = (0..U8_LEN as i64).contains(d) && public.exp[*d as usize] == wit.planes[A_E][x];
         m_exp[if hit { *d as usize } else { 0 }] += 1;
     }
     let act_idx = act_indices(wit);
-    let mut m_act = vec![0u64; N];
+    let mut m_act = vec![0u64; U8_LEN];
     for (x, i) in act_idx.iter().enumerate() {
-        let hit = (0..N as i64).contains(i) && i64::from(ff.act[*i as usize]) == wit.planes[A_A16][x];
+        let hit = (0..U8_LEN as i64).contains(i) && i64::from(ff.act[*i as usize]) == wit.planes[A_A16][x];
         m_act[if hit { *i as usize } else { 0 }] += 1;
     }
-    for i in 0..N {
+    for i in 0..U8_LEN {
         a_data[lay.a_off[A_MU8] + i] = Fp::new(m_u8[i]);
         a_data[lay.a_off[A_MEXP] + i] = Fp::new(m_exp[i]);
         a_data[lay.a_off[A_MACT] + i] = Fp::new(m_act[i]);

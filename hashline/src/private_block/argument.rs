@@ -520,10 +520,10 @@ fn rope_tables(public: &AttentionPublic, heads: usize) -> (Vec<Fp2>, Vec<Fp2>) {
 }
 
 pub(crate) fn table_values_u8(g_u8: Fp2) -> Vec<Fp2> {
-    (0..N as i64).map(|i| k(i).add(g_u8)).collect()
+    (0..U8_LEN as i64).map(|i| k(i).add(g_u8)).collect()
 }
 pub(crate) fn table_values_exp(public: &AttentionPublic, beta: Fp2, g_exp: Fp2) -> Vec<Fp2> {
-    (0..N).map(|i| k(i as i64).add(beta.mul(k(public.exp[i]))).add(g_exp)).collect()
+    (0..U8_LEN).map(|i| k(i as i64).add(beta.mul(k(public.exp[i]))).add(g_exp)).collect()
 }
 /// The activation table's public rows `i + beta * act[i] + g_act`, the exp
 /// table's construction verbatim under a third tag. Binding the PAIR is a
@@ -531,7 +531,7 @@ pub(crate) fn table_values_exp(public: &AttentionPublic, beta: Fp2, g_exp: Fp2) 
 /// `u16 = 0` the product relation pins nothing about `a16`, and this is the
 /// only other relation `a16` appears in.
 pub(crate) fn table_values_act(ff: &FeedForwardPublic, beta: Fp2, g_act: Fp2) -> Vec<Fp2> {
-    (0..N).map(|i| k(i as i64).add(beta.mul(k(i64::from(ff.act[i])))).add(g_act)).collect()
+    (0..U8_LEN).map(|i| k(i as i64).add(beta.mul(k(i64::from(ff.act[i])))).add(g_act)).collect()
 }
 
 /// Draw the slot's challenges and build its tables and polynomial. Identical on both sides.
@@ -895,7 +895,13 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.finish(Box::new(poly), vec![])
         }
         SC_ZS => {
-            b.public(vec![Fp2::ONE; N]);
+            // The zero-sum row `u` lives on `h_dom(H_U) = Dom::Tab`, so the
+            // all-ones vector is as long as THAT DOMAIN — not the row width
+            // `N` and not the table size `U8_LEN`. The three coincide at the
+            // toy; after the P-3 lift (S4) `Dom::Tab` sits at the row width and
+            // this slot's cube grows with it, which is what §4.1 means by
+            // "`SC_ZS`'s rounds 8 -> 14".
+            b.public(vec![Fp2::ONE; Dom::Tab.len()]);
             b.h(H_U)?;
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1])), vec![])
         }
