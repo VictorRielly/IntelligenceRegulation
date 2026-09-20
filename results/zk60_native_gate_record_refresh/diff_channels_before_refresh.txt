@@ -1,0 +1,9 @@
+committed: /home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json
+current  : /home/victor/wt-zk60-jointview/results/zk60_native_gate_record_refresh/scratch/privacy_gate.json
+differing paths: 2
+  [  1x] /seconds
+          committed: 221.8
+          current  : 240.9
+  [  1x] /tool_sha256/zk60_native_jv_cfs.py
+          committed: '12ad30bc87b8ece120410c84875eb8b5dbde1c4c59a526fe663510616163ba59'
+          current  : '2338e6a7966793c0c5ee69d4e4c2bbed08ca739ee583985799b1c0023b0ea2cb'

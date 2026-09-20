@@ -1,0 +1,43 @@
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:116: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_gate_record_refresh/channel_counts_of_record.json' mode='r' encoding='UTF-8'>
+  cls.pin = json.load(open(PIN))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_every_record_agrees_with_its_own_grade (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_every_record_carries_the_counts_of_record (test_zk60_native_gate_record.GateRecordOfRecord) ... FAIL
+test_every_record_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_gate_record.GateRecordOfRecord) ... FAIL
+test_the_pin_is_the_reports_channel_table (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_the_pin_names_the_records_it_pins (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_the_records_are_ok_and_claim_no_privacy_property (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+
+======================================================================
+FAIL: test_every_record_carries_the_counts_of_record (test_zk60_native_gate_record.GateRecordOfRecord)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py", line 138, in test_every_record_carries_the_counts_of_record
+    self.assertEqual(
+AssertionError: {'constructed': 8, 'derived': 2, 'argued': 8, 'open': 10} != {'constructed': 11, 'derived': 2, 'argued': 8, 'open': 7}
+- {'argued': 8, 'constructed': 8, 'derived': 2, 'open': 10}
+?                              ^                        ^^
+
++ {'argued': 8, 'constructed': 11, 'derived': 2, 'open': 7}
+?                              ^^                        ^
+ : results/zk60_native_privacy_gate, capture 40083e7ac8f3f6c7: the channel labels on disk are not the counts of record; re-run the gate into this evidence directory (the command is in its README)
+
+======================================================================
+FAIL: test_every_record_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_gate_record.GateRecordOfRecord)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py", line 163, in test_every_record_was_produced_by_the_tools_now_in_the_tree
+    self.assertEqual(
+AssertionError: {'zk60_native_jv_capture.py': '191f8bc95153d5a46644a3b2[699 chars]8bd'} != {'zk60_native_privacy_gate.py': 'c33a27fbcc9aefe82c2661[797 chars]2cb'}
+Diff is 1082 characters long. Set self.maxDiff to None to see it. : results/zk60_native_privacy_gate: the record was produced by different tool bytes; re-run the gate and refresh the evidence (the command is in that directory's README)
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.008s
+
+FAILED (failures=2)

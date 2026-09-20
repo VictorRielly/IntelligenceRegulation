@@ -1,0 +1,114 @@
+committed: /home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json
+current  : /home/victor/wt-zk60-jointview/results/zk60_native_gate_record_refresh/scratch/privacy_gate.json
+differing paths: 218
+  [  4x] /per_capture/N/channels/N/b_zero_sum_admissible
+          committed: <absent>
+          current  : True
+  [ 12x] /per_capture/N/channels/N/closed
+          committed: <absent>
+          current  : '2026-09-20, by the port of zk.rs::mask_commit / mask_open into scripts/zk60_native_mask_commit.py (source-pinned)'
+  [  4x] /per_capture/N/channels/N/column_entries
+          committed: <absent>
+          current  : 12800
+  [  4x] /per_capture/N/channels/N/column_entries_differing
+          committed: <absent>
+          current  : 0
+  [ 12x] /per_capture/N/channels/N/declared_functional_order_checked
+          committed: <absent>
+          current  : True
+  [  4x] /per_capture/N/channels/N/disclosed_fp
+          committed: <absent>
+          current  : 0
+  [ 12x] /per_capture/N/channels/N/disclosed_fp_over_the_coefficients
+          committed: <absent>
+          current  : 2
+  [ 12x] /per_capture/N/channels/N/disclosed_fp_predicted
+          committed: <absent>
+          current  : 2
+  [  4x] /per_capture/N/channels/N/distinct_opened_columns
+          committed: <absent>
+          current  : 246
+  [ 12x] /per_capture/N/channels/N/fibre_dimension_fp
+          committed: <absent>
+          current  : 1164
+  [ 12x] /per_capture/N/channels/N/how
+          committed: <absent>
+          current  : "the masking commitment's row layout is now ported (zk60_native_mask_commit, pinned to zk.rs): b is 1,024 coefficients p
+  [  4x] /per_capture/N/channels/N/off_the_plane
+          committed: <absent>
+          current  : {'b_admissible': False, 'column_mismatches': 0, 'preimage_exhibited': False, 'q_sum_identity_holds': False, 'what': 'a c
+  [  4x] /per_capture/N/channels/N/pad_margin
+          committed: <absent>
+          current  : 10
+  [  4x] /per_capture/N/channels/N/pads_per_a_row
+          committed: <absent>
+          current  : 256
+  [ 12x] /per_capture/N/channels/N/preimage_exhibited
+          committed: False
+          current  : True
+  [ 12x] /per_capture/N/channels/N/preimage_exhibited_second_coefficient_vector
+          committed: <absent>
+          current  : True
+  [  4x] /per_capture/N/channels/N/prox_entries_differing
+          committed: <absent>
+          current  : 0
+  [  4x] /per_capture/N/channels/N/prox_entries_fp2
+          committed: <absent>
+          current  : 1024
+  [  4x] /per_capture/N/channels/N/q_entries_differing
+          committed: <absent>
+          current  : 0
+  [  4x] /per_capture/N/channels/N/q_entries_fp2
+          committed: <absent>
+          current  : 1024
+  [  4x] /per_capture/N/channels/N/q_is_reproduced_by_construction
+          committed: <absent>
+          current  : True
+  [ 12x] /per_capture/N/channels/N/reason
+          committed: "the gate does not model the masking commitment's row layout (zk.rs::mask_commit: 46 a-rows holding [L_s mask coefficien
+          current  : <absent>
+  [ 12x] /per_capture/N/channels/N/status
+          committed: 'open'
+          current  : 'constructed'
+  [  4x] /per_capture/N/channels/N/u_unknowns_fp
+          committed: <absent>
+          current  : 2048
+  [  4x] /per_capture/N/channels/N/what_the_channel_actually_pins
+          committed: <absent>
+          current  : "b's zero sum; the entry count records that the two arithmetic paths agree, not that q itself tested anything new"
+  [ 12x] /per_capture/N/channels/N/what_would_close_it
+          committed: "a port of encode_coeffs_coset and mask_commit's row layout into this tool; no capture field is missing"
+          current  : <absent>
+  [  4x] /per_capture/N/controls/control_names/len
+          committed: 7
+          current  : 10
+  [  4x] /per_capture/N/controls/mask_commitment_M
+          committed: <absent>
+          current  : {'all_fire': True, 'control_names': ['one_pad_fewer_than_the_distinct_opened_columns', 'functional_order_permuted', 'sec
+  [  4x] /per_capture/N/grade/by_status/constructed
+          committed: 8
+          current  : 11
+  [  4x] /per_capture/N/grade/by_status/open
+          committed: 10
+          current  : 7
+  [  4x] /per_capture/N/masking_commitment_M_opening
+          committed: <absent>
+          current  : {'declared_order': {'captured_functionals': 34, 'declared_order': "for each slot s in slot order: [Gamma_s, if slot s is
+  [  1x] /seconds
+          committed: 179.2
+          current  : 240.9
+  [  1x] /tool_sha256/zk60_native_jv_cfs.py
+          committed: '12ad30bc87b8ece120410c84875eb8b5dbde1c4c59a526fe663510616163ba59'
+          current  : '2338e6a7966793c0c5ee69d4e4c2bbed08ca739ee583985799b1c0023b0ea2cb'
+  [  1x] /tool_sha256/zk60_native_mask_commit.py
+          committed: <absent>
+          current  : '3312a925126fc632f6d5968056ddbac4ff21dccdf42e80bd36bfa5db0ae9e67c'
+  [  1x] /tool_sha256/zk60_native_privacy_gate.py
+          committed: 'efb85b67b63dd0f5b99b0b13ce24ca94f212d80b1ad577ebc0bd11d2450af8bd'
+          current  : 'c33a27fbcc9aefe82c2661efa5daeb6270d4057bcbbaa0e8cdd9f38e0fc3e345'
+  [  1x] /version
+          committed: 1
+          current  : 2
+  [  1x] /version_2
+          committed: <absent>
+          current  : "2026-09-20: the masking commitment M's row layout ported (scripts/zk60_native_mask_commit.py, source-pinned to zk.rs an
