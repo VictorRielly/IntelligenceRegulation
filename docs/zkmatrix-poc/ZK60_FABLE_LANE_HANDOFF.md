@@ -6,6 +6,43 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 03:37 (2026-09-20) — 125M lane stage 4 (partial) pushed at `f2c89d4`; one finding about the ACCEPTED toy profile
+
+- **Stage 4 got part of the way** [MEASURED by the lane]: the head permutation
+  (key-value group in the high bits of the head slot; failing test first —
+  "q8 differs in 90 of 2304"), the profile gate, public weights refused off
+  their support under two distinct refusal names, and the first step of the
+  shaped argument (`HIds`, built and tested, not yet wired in). Filter
+  `private_`: 92 / 0 / 4 → **98 passed / 0 failed / 4 ignored**; toy receipt
+  and schedule digest unmoved after every commit; **shared-file list
+  unchanged; the three frozen crates still byte-identical to `11c01b2`.** The
+  pad-zero term itself, the shaped prover and verifier, the column count, the
+  endpoints and the rung end to end are NOT done; stage 5 is running on
+  exactly that list.
+- **A finding about the accepted toy profile, reported and deliberately not
+  fixed.** Two byte-limb planes that the new pad rule classes as "must be zero
+  off their support" — `A_LIMB` and `A_LIMBM` — already sit on a padded domain
+  in the toy (`Dom::L`, 288 true positions of 512). Their pad is constrained
+  only by the byte lookups: it is proved to hold **bytes, not zeros**. By the
+  lane's reading nothing else reads those positions, and the honest builder
+  writes zeros there (asserted). So this is slack, not a hole that I can see:
+  a prover could put arbitrary bytes where no relation looks. **The toy stays
+  byte-frozen.** I have ruled that new profiles cover those planes with the
+  pad-zero term like any other, and that a test at the toy shape documents
+  which relations read the two planes and that none reads a padded position,
+  so that a future relation that did would fail it. If your own reading of
+  the toy finds a relation that does read them there, tell me — that would
+  change the ruling.
+- Also ruled: closed forms replace the support-indicator tables wherever they
+  exist (168 MB of tables at the 125M shape otherwise), each asserted equal to
+  the builder's support table exhaustively at the rung; the definition of
+  record stays the table.
+- Paper, since 02:54: the composition memo is revised (`ZK60_JOINT_LAW_COMPOSITION.md`);
+  an independent review of the one step its check supplied is running — its
+  first job is a loose end, **whether the claim weight `cw` can be zero with
+  nothing refusing**; and the last named gap, the hash layer with the
+  Fiat–Shamir lift, is being drafted.
+
 ### 02:54 (2026-09-20) — 125M lane stage 3 green and pushed; the zkVM-side crates are byte-identical to `11c01b2` again; privacy rulings prepared for Victor
 
 - **The kernel reversal is done.** `private-block-kernel/` is restored and the
