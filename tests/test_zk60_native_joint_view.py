@@ -77,6 +77,32 @@ def views():
     return _VIEWS, _CFS
 
 
+def bareiss_det(mat, p):
+    """A fraction-free determinant, INDEPENDENT of the tool's own routine.
+
+    `det_mod_p` in the tool eliminates with normalised pivot rows; this is
+    the Bareiss recurrence, which never normalises and divides only by the
+    previous pivot.  Two different algorithms agreeing on the same 72x72
+    matrix is the point.
+    """
+    n = len(mat)
+    a = [[x % p for x in row] for row in mat]
+    sign, prev = 1, 1
+    for k in range(n - 1):
+        if a[k][k] == 0:
+            swap = next((i for i in range(k + 1, n) if a[i][k]), None)
+            if swap is None:
+                return 0
+            a[k], a[swap] = a[swap], a[k]
+            sign = -sign
+        inv_prev = pow(prev, p - 2, p)
+        for i in range(k + 1, n):
+            for j in range(k + 1, n):
+                a[i][j] = (a[i][j] * a[k][k] - a[i][k] * a[k][j]) % p * inv_prev % p
+        prev = a[k][k]
+    return sign * a[n - 1][n - 1] % p
+
+
 class FieldLayer(unittest.TestCase):
     def test_two_adic_root_orders(self):
         self.assertEqual(two_adic_root(1), P - 1)
@@ -564,6 +590,66 @@ class Stage4NegativeControls(unittest.TestCase):
         self.assertEqual(unseen["joint_fp"], unseen["sum_of_parts_fp"])
 
 
+class CertifyingMinor(unittest.TestCase):
+    """JOB 3: the generic-rank lemma's good event is `rank(gens | non-data)
+    = g`, i.e. some g x g minor is nonsingular.  The gate now names one."""
+
+    def test_every_role_emits_a_nonsingular_g_by_g_minor(self):
+        cs, _ = caps()
+        vs, _cf = views()
+        for c in cs:
+            for v in vs[c.proof_sha256]:
+                m = v.facts["certifying_minor"]
+                with self.subTest(capture=c.proof_sha256[:12], role=v.name):
+                    self.assertEqual(m["g"], 2 * (m["G"] + 1))
+                    self.assertTrue(m["full_row_rank"])
+                    self.assertEqual(m["rank_on_non_data_rows"], m["g"])
+                    self.assertEqual(len(m["generator_indices"]), m["g"])
+                    self.assertEqual(len(m["non_data_row_indices"]), m["g"])
+                    self.assertEqual(len(set(m["non_data_row_indices"])), m["g"])
+                    self.assertTrue(m["determinant_nonzero"])
+                    self.assertNotEqual(m["determinant"] % P, 0)
+
+    def test_the_determinant_recomputes_independently_from_the_emitted_indices(self):
+        cs, _ = caps()
+        vs, _cf = views()
+        for c in cs:
+            for v in vs[c.proof_sha256]:
+                m = v.facts["certifying_minor"]
+                got = v.rebuild_minor(m["generator_indices"], m["non_data_row_indices"])
+                with self.subTest(capture=c.proof_sha256[:12], role=v.name):
+                    self.assertEqual(got["determinant"], m["determinant"])
+                    self.assertTrue(got["nonsingular"])
+                    # and by a different algorithm entirely
+                    self.assertEqual(bareiss_det(got["submatrix"], P), m["determinant"])
+
+    def test_a_singular_index_set_fails_the_verification(self):
+        cs, _ = caps()
+        vs, _cf = views()
+        v = vs[cs[0].proof_sha256][1]  # H
+        m = v.facts["certifying_minor"]
+        rows = list(m["non_data_row_indices"])
+        rows[-1] = rows[0]  # a repeated column: singular by construction
+        got = v.rebuild_minor(m["generator_indices"], rows)
+        self.assertEqual(got["determinant"], 0)
+        self.assertFalse(got["nonsingular"])
+        self.assertEqual(bareiss_det(got["submatrix"], P), 0)
+
+    def test_the_distinct_opened_columns_fit_in_the_pad_count(self):
+        cs, _ = caps()
+        vs, _cf = views()
+        for c in cs:
+            for v in vs[c.proof_sha256]:
+                f = v.facts
+                with self.subTest(capture=c.proof_sha256[:12], role=v.name):
+                    # sampled WITH replacement, so distinct < sampled; the
+                    # rank of the pad block is the DISTINCT count and the
+                    # budget has no slack beyond that
+                    self.assertLess(f["distinct_opened_columns"], f["sampled_columns"])
+                    self.assertLessEqual(f["distinct_opened_columns"], f["pad_count"])
+                    self.assertTrue(f["distinct_opened_columns_within_pad_count"])
+
+
 class GateRecord(unittest.TestCase):
     def test_the_retained_record_matches_a_fresh_run_of_the_stages(self):
         path = os.path.join(ROOT, "results", "zk60_native_joint_view", "joint_view.json")
@@ -598,6 +684,15 @@ class GateRecord(unittest.TestCase):
         s6 = rec["stage6_negative_controls"]
         self.assertTrue(s6["joint_reduction_against_a_dense_joint_rank"]["ok"])
         self.assertTrue(s6["stage4_joint_controls"]["all_fire"])
+        for c in rec["stage2_commitment_side_joint_view"]["per_capture"]:
+            for role in c["roles"]:
+                self.assertTrue(role["certifying_minor"]["determinant_nonzero"])
+                self.assertTrue(role["distinct_opened_columns_within_pad_count"])
+        self.assertTrue(
+            rec["stage2_commitment_side_joint_view"][
+                "certifying_minors_all_nonsingular_within_the_pad_budget"
+            ]
+        )
         s2 = rec["stage2_commitment_side_joint_view"]
         self.assertTrue(s2["pad_block_at_the_full_budget"]["full_rank"])
         self.assertEqual(s2["pad_block_at_the_full_budget"]["pad_margin"], 0)

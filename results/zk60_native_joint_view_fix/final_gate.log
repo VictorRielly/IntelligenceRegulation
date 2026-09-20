@@ -1,0 +1,8 @@
+stage1_transcript_replay: ok
+stage2_commitment_side_joint_view: ok
+stage3_masking_commitment_view: ok
+stage4_stacked: ok
+stage5_zero_witness_gate: ok
+stage6_negative_controls: ok
+stage7_terminal_polynomial_port: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_joint_view_fix/joint_view.json (21.4 s)

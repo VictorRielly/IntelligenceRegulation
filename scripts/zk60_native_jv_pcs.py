@@ -73,6 +73,7 @@ from zk60_native_jv_field import (
     P,
     F2_ONE,
     F2_ZERO,
+    det_mod_p,
     eq_table_msb,
     f2_add,
     f2_from_list,
@@ -261,6 +262,7 @@ class RoleView:
         pair_ok = self._check_pair_schedule(data_rows, other_rows, prox_rows, u_rows)
         prox_ok = self._check_prox_refusal(prox_rows)
         disclosed = self._disclosed(data_rows, other_rows, u_rows)
+        self.facts["certifying_minor"] = self.certifying_minor(other_rows)
         self.facts["reduction_hypotheses"] = {
             "H-pad": pad_ok,
             "H-pair": pair_ok,
@@ -450,6 +452,60 @@ class RoleView:
             out.append([v[0] for v in rho])
             out.append([v[1] for v in rho])
         return out
+
+    # ---------------------------------------------- the certifying minor
+    def certifying_minor(self, other_rows):
+        """The g x g nonsingular submatrix that CERTIFIES the good event.
+
+        The generic-rank lemma's good event is `rank(gens | non-data rows) =
+        g = 2(G+1)`, i.e. the non-vanishing of SOME g x g minor of the
+        non-data block.  The lemma argues about that minor; until now the
+        gate printed only the rank, so a reader could not check the claim
+        against anything.  Here the row reduction's pivot columns name one
+        such minor explicitly: which generators, which non-data rows, and
+        the determinant as an element of Fp.  A reader (and the gate's own
+        tests) can rebuild the submatrix from those indices alone.
+
+        `determinant_nonzero` is the certificate.  When the rank is short of
+        `g` there is no such minor and the fields say so.
+        """
+        gens = self._p1_rows()
+        g = len(gens)
+        block = [[row[i] for i in other_rows] for row in gens]
+        _, pivots = row_reduce(block, len(other_rows))
+        out = {
+            "g": g,
+            "G": len(self.rhos),
+            "generators": "the real and imaginary parts of the G group vectors and of "
+            "the proximity vector",
+            "rank_on_non_data_rows": len(pivots),
+            "full_row_rank": len(pivots) == g,
+            "generator_indices": list(range(g)) if len(pivots) == g else [],
+            "non_data_row_indices": [other_rows[c] for c in pivots],
+        }
+        if len(pivots) == g:
+            sub = [[gens[r][other_rows[c]] for c in pivots] for r in range(g)]
+            det = det_mod_p(sub)
+            out["determinant"] = det
+            out["determinant_nonzero"] = det != 0
+        else:
+            out["determinant"] = None
+            out["determinant_nonzero"] = False
+            self.fail(
+                f"the non-data block has rank {len(pivots)} < g = {g}: no certifying minor"
+            )
+        return out
+
+    def rebuild_minor(self, generator_indices, non_data_row_indices):
+        """The submatrix named by an emitted index pair, and its determinant.
+
+        Takes ONLY the indices, so a checker can start from the evidence file
+        and never from the object that produced it.
+        """
+        gens = self._p1_rows()
+        sub = [[gens[r][c] for c in non_data_row_indices] for r in generator_indices]
+        det = det_mod_p(sub)
+        return {"submatrix": sub, "determinant": det, "nonsingular": det != 0}
 
     def _disclosed(self, data_rows, other_rows, u_rows):
         gens = self._p1_rows()

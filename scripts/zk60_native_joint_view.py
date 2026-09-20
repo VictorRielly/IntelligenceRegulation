@@ -191,6 +191,15 @@ def stage2(caps, replays, pad_rank_check=True):
     # vectors consume no pad freedom: their pad entries are already reached
     # through the mask rows, so they constrain no data row's pads (§9b).
     k0s = {r["role"]: r["k0"] for c in out for r in c["roles"]}
+    # JOB 3: the certifying minor of the generic-rank lemma's good event,
+    # per role per capture, and the pad budget it has to live inside.
+    minors_ok = all(
+        r["certifying_minor"]["full_row_rank"]
+        and r["certifying_minor"]["determinant_nonzero"]
+        and r["distinct_opened_columns_within_pad_count"]
+        for c in out
+        for r in c["roles"]
+    )
     return {
         "per_capture": out,
         "expected": {"A": 0, "H": 2, "Input": 0, "Output": 0},
@@ -198,7 +207,9 @@ def stage2(caps, replays, pad_rank_check=True):
         "pad_block_at_the_full_budget": boundary,
         "k0_by_role": k0s,
         "group_vectors_consume_pad_freedom": any(v for v in k0s.values()),
+        "certifying_minors_all_nonsingular_within_the_pad_budget": minors_ok,
         "ok": ok
+        and minors_ok
         and (pad_rank is None or pad_rank["full_rank"])
         and (boundary is None or boundary["full_rank"]),
     }, views

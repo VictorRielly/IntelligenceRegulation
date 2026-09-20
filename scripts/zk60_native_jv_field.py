@@ -272,6 +272,40 @@ def rank(rows: list[list[int]], ncols: int | None = None) -> int:
     return r
 
 
+def det_mod_p(mat: list[list[int]]) -> int:
+    """Determinant over Fp of a square matrix, by Gaussian elimination.
+
+    Returns 0 exactly when the matrix is singular.  Used to PRINT the
+    certifying minor the generic-rank lemma argues about; the gate's tests
+    recompute the same determinant by an independent (fraction-free)
+    algorithm from the emitted indices.
+    """
+    n = len(mat)
+    if any(len(r) != n for r in mat):
+        raise ValueError("det_mod_p: not square")
+    a = [[x % P for x in r] for r in mat]
+    det = 1
+    for c in range(n):
+        piv = None
+        for i in range(c, n):
+            if a[i][c]:
+                piv = i
+                break
+        if piv is None:
+            return 0
+        if piv != c:
+            a[c], a[piv] = a[piv], a[c]
+            det = (-det) % P
+        det = det * a[c][c] % P
+        pinv = inv(a[c][c])
+        a[c] = [x * pinv % P for x in a[c]]
+        for i in range(c + 1, n):
+            f = a[i][c]
+            if f:
+                a[i] = [(x - f * y) % P for x, y in zip(a[i], a[c])]
+    return det % P
+
+
 def row_reduce(rows: list[list[int]], ncols: int):
     """Reduced row echelon basis of the row space, with the pivot columns."""
     mat = [list(r) for r in rows]
