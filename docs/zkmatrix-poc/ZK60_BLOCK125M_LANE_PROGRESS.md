@@ -145,6 +145,10 @@ private-block-kernel/src/shaped_tests.rs
 | **S12a — the rung END TO END** | **DONE** | `513a4ec`, `9a2b559`; **an honest rung proof VERIFIES FROM BYTES** — prove 0.49 s, verify 0.10 s, frame 4,218,264 B, peak RSS 74 MiB. `s12a-filter4.log:203` **116 / 0 / 2** |
 | **S11b, S12b (the tamper battery's remaining arms, a rung capture)** | **NOT STARTED** | see the stage 7 NEXT |
 | **S8 the change itself** | **DONE** | `7f8e549` (the ids, the lookups, the premise) and `a21ffd7` (P-5's alias cases, the parity fixture retired). The deliverable test `the_rung_at_its_own_calibration_has_an_honest_witness` is un-ignored and green; hashline **86 / 0 / 2** (`s8-run7.log:165`), toy receipt 2,816,472 B and the digest unmoved |
+| **S11b — the generalised endpoint, and the rung-G profile proved with it** | **DONE** | `da84882`, `010f6dd`; 134 / 0 / 2 |
+| **STAGE 9 items 1–10 — the rulings on the review's F-1 … F-9 and on S11b-F4** | **DONE** | see the stage 9 section; filter **156 / 0 / 3**, 221.01 s |
+| **STAGE 9 item 11 — the NTT tables follow the shape; the 125M layout CONSTRUCTS** | **DONE** | `protocol::ntt_log_at`; frame 40,782,792 B, endpoint 37 rows at 2^14 / rate 4, closed forms equal to the definition at every position of all six padded domains. No witness, no proof |
+| **STAGE 9 item 12 — one 125M block** | **PREPARED, NOT RUN** | `rulings_tests::private_block_125m_one_block`, `#[ignore]`d; the two commands are in the stage 9 section. Modelled peak 11.00 GiB against `MemAvailable` 12.84 GiB |
 
 ## The toy freeze gate this stage added
 
@@ -2042,3 +2046,294 @@ rewording the comment that quoted the frozen seam's label): **134 passed /
 0 failed / 2 ignored**, 72.28 s, and the compiler's warning count goes from
 the baseline's 10 to 9 (the new module adds none). Commits: design note
 `57d8e71`, implementation `da84882`, this line.
+
+## Stage 9 (2026-09-20, 06:2x–07:xx): THE RULINGS ON THE INDEPENDENT REVIEW, AND THE 125M RUN PREPARED
+
+The independent adversarial code review landed by merge (`485d5fa`, the
+reviewer's branch `zk60-private-block-125m-review`): **no hole**, nine
+findings F-1 … F-9, fifteen tests. This stage is the security owner's ruling
+on each of the nine, on stage 8's own finding S11b-F4, and the two things
+that stand between the lane and a 125M measurement: the NTT tables and a
+prepared, unlaunched run. **Nothing was proved at the 125M shape by this
+stage.**
+
+### THE MERGE IS GREEN
+
+`t0-merge-baseline.log`: **149 passed / 0 failed / 2 ignored**, 215.31 s —
+the lane's 134 plus the reviewer's 15, with nothing adjusted. **No reviewer
+test had to be touched**, for its harness or for anything else: the fifteen
+were written against stage 7 and all fifteen still hold after stage 8's
+generalised endpoint.
+
+### What each ruling is, and what decides it
+
+| # | finding | ruling | decided by |
+|---|---|---|---|
+| 1 | **F-1** the indicator-tiles-its-cube guard is a `debug_assert` | **a real refusal**, `argument::tile_rep`, on the path BOTH sides build their public factors on | `rulings_tests::a_non_tiling_indicator_is_refused_and_not_merely_debug_asserted` (four tiling cases, six non-tiling) |
+| 2 | **F-2** `SC_TAB`'s hard-coded `[1, 4, 7]` is never checked | **both lists checked**, by `argument::tab_group_is_declared` | `rulings_tests::sc_tabs_pad_zero_group_is_checked_against_the_declared_lists` (four wrong lists at three shapes) |
+| 3 | **F-3** the rung fixture cannot tell the heads apart | **the reviewer's `distinct_kv_case` is adopted** and memo §9a's SECOND acceptance tamper is written | `rulings_tests::two_query_heads_of_different_key_value_groups_exchanged_is_rejected_at_the_rung` |
+| 4 | **F-4** the `Dom::Tab` pad term is unexercisable | **one `#[cfg(test)]` prover hook**, which closes the moved-multiplicity family with it | `rulings_tests::a_multiplicity_moved_into_the_padded_copy_of_its_row_is_rejected_at_the_rung` |
+| 5 | **F-5** the memo's PZ cases are run one of three and one of four | **already closed by the merge** — see below | the reviewer's two sweeps, now the lane's |
+| 6 | **F-6** a mis-sized public table panics on the verify side | **a named refusal before `eval_mle_ext`**, hoisted out of the `Prove` arm | inspection; not reachable from a frame (see below) |
+| 7 | **F-7** `SC_TZC` reads the padded lookup domain ungated | **the code is right and the memo's row is wrong** — two independent reasons, below; a NOTE is opened, the memo is not edited | the reviewer's `Dom::L` sweep cases |
+| 8 | **F-8** `assert_rejected` counts a prover refusal as a pass | **split in two**; every rung tamper re-pointed at the verifier-only helper | the whole rung battery, green under the strict helper |
+| 9 | **F-9** memo §3.7a open question 4 is live | **resolved in code**: the endpoint binds the padded cube at every profile, and its pad is ZERO-rule | `rulings_tests::the_endpoint_binds_the_padded_cube_at_both_rung_profiles` |
+| 10 | **S11b-F4** (stage 8's own) the endpoint's PCS parameters are not in the parameter line | **stated explicitly in every NEW profile**; the toy's line is untouched | `rulings_tests::every_new_profile_states_its_endpoint_parameters_in_the_parameter_line` |
+| 11 | the 125M NTT tables | **the table is a function of the shape**, `protocol::ntt_log_at` | `rulings_tests::the_125m_layout_constructs_and_its_indicators_agree_with_the_definition` |
+| 12 | the 125M run | **PREPARED, NOT RUN**: `#[ignore]`d, and the exact detached command line is below | — |
+
+### F-1 in detail, and the sweep over every other `debug_assert`
+
+`B::supp` returns `Result<Option<usize>, String>` and takes its repetition
+count from `argument::tile_rep`, which refuses by name — *"private block: an
+indicator that does not tile its slot's cube (N entries in M)"* — for a
+non-divisor, for a table LONGER than the cube (which used to give `rep = 0`
+and a divide-by-zero panic) and for an empty table. All eleven call sites
+are inside `define`, which already returned `Result`, so both the prover and
+the verifier take the refusal. **No shape reachable through `Shape::new` can
+produce a non-tiling pair** — every axis is a power of two and every cube
+contains its domain, which the reviewer's own static test checks at all three
+shapes — so the refusal cannot be reached end to end, and `tile_rep` is
+tested directly instead, in the release build the filter runs.
+
+The sweep the ruling asks for — every other `debug_assert` in the lane's
+files, each ruled:
+
+| site | what it asserts | ruling |
+|---|---|---|
+| `protocol.rs:283` (was) | the toy's frozen endpoint geometry has not moved | **MADE A REAL CHECK.** Two comparisons in a function that already returns `Result`, and what it pins is the frozen profile |
+| `argument.rs:547` `lg()` | the value is a power of two | **HARMLESS.** Every axis it is called on is a power of two by `Shape::new`'s own refusals, which are release-time checks at construction; a shape that fails them never exists |
+| `protocol.rs:31` `log2_exact()` | the inverse rate is a power of two | **HARMLESS**, same reason: `Shape::new` refuses a non-power-of-two rate |
+| `private_block.rs:190` `weights_vanish_off_support` | the weight vector's length is `outer * inner` | **HARMLESS.** The length check really does run before it (the caller's), and were it ever false the loop below would index out of bounds — a panic, not a wrong acceptance |
+
+### F-5: already closed by the merge, case by case
+
+The memo's five missing cases are all run now, by the two tests the review
+brought with it. PZ-1: `every_zero_rule_plane_has_its_pad_proved_zero_at_the_rung`
+covers `A_RAL` on `Dom::D`, `A_SR0` at a padded head slot and `A_LIMB` in an
+unused limb sub-plane — and 148 more, 151 positions over nine domains. PZ-2:
+`pz2_at_the_second_norm_and_as_a_free_field_element_is_rejected_at_the_rung`
+covers norm_m's int16-fill variant and the free-field-element variant on both
+`A_X1` and `A_AO`. Nothing further is owed; the lane's own two PZ tests stay
+as the named §3.7a cases.
+
+### F-6: the refusal, and why there is no test
+
+`run_slot` now refuses *"private block: slot S public table length"* before
+the `Side` match, so the verifier takes it too. There is no end-to-end test
+because there is no way to reach it from a frame: public tables are built by
+`define` from the shape, a receipt cannot choose one, and the only way to
+hand `run_slot` a mis-sized `Tab::Pub` is to hand it a hand-built `SlotDef`,
+which no API exposes. Adding a constructor for one would widen the module's
+surface further than the fix. The check is on the shared path, so all 154
+tests pass through it.
+
+### F-7 RULED: the ungated read is SOUND, and the memo's row is wrong
+
+`SC_TZC`'s limb reconstruction reads `Dom::L`'s nine sub-slices
+`[k·t_pad, k·t_pad + t_pad)` ungated, and at any shape with `tokens < t_pad`
+those include the padded token positions. The memo's §3.7a `Dom::L` row says
+"nothing reads the pad". **The code is right; the memo's row is wrong for
+shapes where the token axis pads.** Two independent reasons, either of which
+suffices:
+
+1. **`Dom::L`'s own pad rule already covers those positions.** Its indicator
+   is a PRODUCT of two forms (`pad.rs:176`): the token form at stride 1 and
+   the sub-plane form at stride `t_pad`. So a padded token position inside a
+   USED sub-slice is a padded position of `Dom::L`, its planes are ZERO-rule,
+   and `SC_LZC`'s pad-zero term forces it to zero.
+2. **Even without it, the values are forced.** `Dom::T`'s pad-zero term makes
+   `d = dsq = 0` at a padded token, and the ungated relations `d − dl = 0`
+   and `2d − a1 − a2 = 0` then force the limb reconstruction to zero; the
+   LogUp arm is never gated (§3.7a), so every limb at those positions is a
+   genuine byte, and a nonnegative byte combination that sums to zero is
+   all zeros.
+
+What the reviewer observed is therefore a question of WHICH relation catches
+first (slot 2, not `SC_LZC`), not of whether anything catches. **NOTE for the
+memo, not made here** (the memo is not this lane's file): §3.7a's `Dom::L`
+row should read "read ungated by `SC_TZC`'s limb reconstruction at shapes
+where the token axis pads; sound because the positions are ZERO-rule and
+because `Dom::T`'s term plus the byte lookups force them" instead of "nothing
+reads the pad".
+
+### F-8: the split, and how many cases changed category
+
+`assert_rejected` is replaced by two helpers: **`assert_verifier_rejects`**
+(the prover MUST produce a receipt and the VERIFIER must refuse it — a
+soundness statement) and **`assert_the_honest_prover_refuses`** (a liveness
+statement, and no case uses it). The same lax pattern was written out inline
+in `an_endpoint_that_seals_a_different_plane_is_rejected`; it is tightened
+too.
+
+**How many changed category: NONE.** All four call sites and the inline one
+pass under the strict helper on the first run, which means every one of the
+cases they carry was already a verifier rejection and none was a prover
+refusal in disguise: the 27 toy tamper families at BOTH rung profiles (54),
+PZ-1 at both (2), PZ-2 at both (2), the half-`p` isqrt alias on two norm rows
+at both profiles (4), and the eight endpoint-sealing cases. `tamper.rs`, the
+toy battery, already demanded the verifier and needed nothing.
+
+### Item 11: the NTT tables, and what the 125M layout now gives
+
+`protocol::NTT_LOG` is gone; `protocol::ntt_log_at(sh)` is
+`max(log_cols + log2(inv_rate), zk::MASK_LOG_DOM)`. **The toy and both rung
+profiles get `NttTables::new(12)` by construction, exactly what they had**
+(`max(8 + 3, 12)` and `max(10 + 2, 12)`), and only 125M gets `2^16`. The
+endpoints never see this table: `prepare_endpoints` builds `new(12)` for the
+frozen seam, which demands that size exactly, and `new(enc_log)` for the
+generalised one (finding S11b-F3). `fits_the_ntt_tables` keeps its name and
+its callers and now refuses only a shape past a prototype ceiling of `2^20`.
+
+The 125M CONSTRUCTION test's figures, all of them the memo's counted ones:
+frame **40,782,792 B** (codec and count agree), endpoint **37 rows over
+524,288 words at 2^14 / rate 4**, `A` rows **5,681**, `H` rows **7,120**, and
+the six padded domains' closed-form indicators **equal to the geometry's own
+definition at every position** — the first time the two have been compared at
+this shape, with eight random positions per domain printed for the record.
+
+### Item 12: the 125M run, PREPARED AND NOT LAUNCHED
+
+The run is `private_block::rulings_tests::private_block_125m_one_block`,
+`#[ignore]`d. It is a test and not an `examples/` binary because the whole
+shaped path (`Shape::m125`, `witness::build_shaped`, `prove_inner_at`, the
+shaped `verify_bytes_at`) is `pub(crate)`, and an example links against the
+PUBLIC API only; making any of it `pub` to suit a benchmark would widen the
+library for no reason. Step S2's buffer frees are already in
+`prove_inner_at` (the witness, `looked`, `deltas` and `act_idx` are moved and
+dropped before the `H` commitment) and the test adds its own: the fixture
+input and the two endpoint word vectors are dropped as soon as they are
+consumed, and the receipt as soon as it is encoded.
+
+**`systemd-run --user --scope true` WORKS on this box** (probe run
+2026-09-20 06:48, exit 0), so the memory ceiling is the systemd scope and not
+`ulimit -v`. **`MemAvailable` at the time of writing: 13,467,748 kB =
+12.84 GiB** (`MemTotal` 15.39 GiB). The memo's §7 model puts the peak at
+**11.00 GiB**, 9.60 GiB after the S2 drops, so a 12 GiB ceiling is above the
+model and below what the box has free — it kills the PROCESS, not the box.
+
+**Step 1 — build under the build lock** (this leaves the run itself with
+nothing to compile):
+
+```
+flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attention-compile/hashline/target CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=8 /home/victor/.cargo/bin/cargo test --release --offline -j 2 --manifest-path /home/victor/wt-zk60-block125m/hashline/Cargo.toml --lib private_ --no-run > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-build.log 2>&1
+```
+
+Read the binary's path off that log's `Executable unittests` line. At the
+time of writing it is
+`/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5`
+(the target directory is SHARED with another worktree, so re-read the path
+and the mtime rather than trusting this line).
+
+**Step 2 — the detached, memory-capped run** (one line, nothing else heavy on
+the box, no GPU job, no release build):
+
+```
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 /home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block >> /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run1.log 2>&1; echo $? > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run1.done' >/dev/null 2>&1 &
+```
+
+What it prints: the witness build time, then
+`125M ONE BLOCK: prove X s, verify from bytes Y s, receipt 40,782,792 B,
+peak RSS Z MiB`. `m125-run1.done` holds the exit code. If the scope is
+killed for memory the marker holds a nonzero code and the log ends without
+the line — that is the measurement's answer too, and it is a finding rather
+than a failure.
+
+### Runs
+
+| log | what | result |
+|---|---|---|
+| `t0-merge-baseline.log` | the filter on the merge, before any change of mine | **149 passed / 0 failed / 2 ignored**, 215.31 s |
+| `t1-rulings1.log` | the filter after F-1, F-2, F-4, F-6, F-8, F-9 and the F-3 tamper | **154 passed / 0 failed / 2 ignored**, 218.09 s — every new test green on its first run |
+| `t2-rulings2.log` | the filter after the parameter line, the shape-driven NTT table and the 125M construction test | 154 passed / **2 failed** — both stale EXPECTATIONS, not defects: `grow_tests`' "125M must be refused by name" (the point of item 11 is that it is not refused any more) and my own head tuple written `(q, dh, kv)` where the shape reads `(q, kv, dh)` |
+| `t3-rulings3.log` | the filter, both corrected | **156 passed / 0 failed / 3 ignored**, 221.01 s. The third ignored test is the 125M run; the warning count is 10, the baseline's |
+
+### The toy freeze gate, after this stage
+
+Unmoved: receipt **2,816,472 B**, the literal schedule digest, the frozen
+parameter line (which the new endpoint clause explicitly does not touch —
+`is_frozen_toy()` returns before it), the toy's `NttTables::new(12)`, and the
+four archived pre-lane receipts that the review showed still verify. The two
+rung profiles' frames are still **4,218,264 B** and **4,234,648 B**: the
+parameter line changes the transcript's VALUES, so their receipts' bytes
+differ from stage 8's, but a parameter word is absorbed and never carried, so
+their counted LENGTHS do not move and both honest proofs verify from bytes.
+
+**Shared-file changes this stage: NONE.** Every file touched is
+`hashline/src/private_block.rs` or under `hashline/src/private_block/`:
+`argument.rs`, `protocol.rs`, `grow_tests.rs`, `rung_tests.rs`,
+`review_tests.rs` (four items widened to `pub(super)` so the new module can
+reuse the reviewer's `distinct_kv_case`, `clone_witness`, `outcome` and
+`Outcome` instead of copying sixty lines — no behaviour changed),
+`rulings_tests.rs` (new). The empty-diff check
+`git --no-pager -C /home/victor/wt-zk60-block125m diff --stat 11c01b2 --
+private-block-kernel private-model-kernel zkvm-block` prints nothing, and the
+two paths the earlier stages left awaiting deletion are gone.
+
+### Findings of this stage, for the security owner
+
+**S9-F1 (visibility).** Two lane items became `pub(crate)` because a test
+must call them where no end-to-end path can: `argument::tile_rep` and
+`argument::tab_group_is_declared`. Both are pure functions of the shape.
+Four items of `review_tests.rs` became `pub(super)` for reuse. Nothing of
+the library's public API moved.
+
+**S9-F2 (the one test-only hook).** `protocol::set_moved_multiplicity` is the
+first `#[cfg(test)]` injection point in the prover. It is three items — a
+thread-local, a setter and two `#[cfg(test)]` blocks — and it is what makes
+the `Dom::Tab` pad term and the moved-multiplicity family testable at all.
+It vanishes from a release build. A future reader should check it is still
+`#[cfg(test)]` before trusting any release claim about this module.
+
+**S9-F3 (what the F-4 test actually shows).** The hook moves a count to the
+padded COPY of its own row and writes the matching helper, so the total
+multiplicity, the value counted and every LogUp denominator are unchanged:
+the value-0 identity and all three `SC_TAB` product relations still hold, and
+the pad-zero term is the only thing that can object. It does. This is the
+first end-to-end evidence for the arm the P-3 lift's safety rests on.
+
+**S9-F4 (the rung profiles' receipts moved, by ruling).** Ruling 10 changes
+the transcript of every non-toy profile, so no receipt produced before this
+stage at the rung or rung-G will verify against one produced after it. Both
+are development grade (P-7) and no receipt from either has been shown to
+anyone, so nothing is broken; it is recorded because it is the first time
+this lane has deliberately invalidated a receipt.
+
+**S9-F6 (PRE-EXISTING, found while checking this stage, not caused by it).**
+`python3 -m unittest discover -s tests -p "test_zk60_private_block*.py"`:
+the layout model's **25 tests pass**, and all **9** tests of
+`test_zk60_private_block_inventory.py` ERROR in
+`zk60_attention_native_inventory.parse_dom_logs`, which cannot find a `match`
+block in `layout.rs`. That harness parses the Rust source for the TOY design
+numbers and has not been adapted to the SHAPED `layout.rs`; the file was last
+changed in `dcaec94` (stage 6), this stage did not touch it, and the same
+nine errors reproduce on that source. It is a stale test harness, not a
+defect in the block — but it means the Python inventory currently checks
+nothing, and someone should either adapt it or retire it.
+
+**S9-F5 (still open, unchanged).** The rung CAPTURE remains the blocker on
+any privacy statement (C-F5): `native_capture.rs` is forbidden and hard-codes
+`pcs_params()` with no shape. Neither rung profile, and certainly not 125M,
+has been through the rank / CFS / disclosure tools. **No privacy statement
+may be made about any of them.**
+
+### NEXT: exactly what the next agent should do, in order
+
+1. **LAUNCH THE 125M RUN** with the two commands above, in that order, on a
+   quiesced box, and paste the printed line into this ledger beside the
+   modelled 11.00 GiB. Nothing else heavy may run beside it. If the scope is
+   killed for memory, record the killed peak and re-cost the S2 drops before
+   raising the ceiling.
+2. **The rung capture** (S9-F5) is still what blocks every privacy claim. The
+   orchestrator must ask the integrator for a shape-parameterised capture
+   writer; the generalised endpoint makes it more urgent, not less.
+3. **The memo NOTE of F-7** (the `Dom::L` row) is for whoever owns
+   `ZK60_PRIVATE_BLOCK_125M_LAYOUT.md`; this lane does not edit it.
+4. **Ruling still wanted on S11b-F1** (the padded endpoint removes the need
+   for the memo's C6 at a cost of 32,768 B of receipt) and on S9-F4 above.
+5. **S9-F4 of stage 7 is still open**: the closed forms are the constructor
+   but `Tab::Pub` still materialises a vector on both sides (168 MB of
+   indicator tables at 125M). It is a memory question for the run, not a
+   correctness one.
+6. Re-read the toy freeze gate before every commit: receipt 2,816,472 B, the
+   literal schedule digest, and the empty-diff check must print nothing.
