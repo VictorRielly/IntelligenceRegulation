@@ -2247,6 +2247,36 @@ than a failure.
 | `t1-rulings1.log` | the filter after F-1, F-2, F-4, F-6, F-8, F-9 and the F-3 tamper | **154 passed / 0 failed / 2 ignored**, 218.09 s — every new test green on its first run |
 | `t2-rulings2.log` | the filter after the parameter line, the shape-driven NTT table and the 125M construction test | 154 passed / **2 failed** — both stale EXPECTATIONS, not defects: `grow_tests`' "125M must be refused by name" (the point of item 11 is that it is not refused any more) and my own head tuple written `(q, dh, kv)` where the shape reads `(q, kv, dh)` |
 | `t3-rulings3.log` | the filter, both corrected | **156 passed / 0 failed / 3 ignored**, 221.01 s. The third ignored test is the 125M run; the warning count is 10, the baseline's |
+| `t4-rulings-nocapture.log` | `--lib private_block::rulings_tests -- --nocapture`, on the EXACT COMMITTED source, for the evidence lines below | **7 passed / 0 failed / 1 ignored**, 2.36 s |
+
+### What the new tests printed (`t4-rulings-nocapture.log`)
+
+* **F-1**, in a build with `debug_assertions = false`: all six non-tiling
+  pairs refused — *"an indicator that does not tile its slot's cube (3
+  entries in 8)"*, and `(6, 64)`, `(16, 8)`, `(1024, 256)`, `(0, 64)`,
+  `(8, 0)`.
+* **F-2**: nine refusals, three wrong `A` lists at each of the three shapes,
+  plus the wrong helper list.
+* **F-4**: *one count of the byte histogram moved from row 0 to its padded
+  copy 256: verifier rejected: **slot 19 [TAB table helper zero-check]**,
+  sumcheck round 0*. That is `SC_TAB` — and because the hook preserves the
+  multiplicity total, the counted value and every LogUp denominator, all
+  three of that slot's product relations still hold, so the PAD-ZERO TERM is
+  the only term of its polynomial left to fail. The arm the P-3 lift rests
+  on is decided end to end for the first time.
+* **F-9**: the endpoint binds 4,096 words at both rung profiles and **524,288
+  at 125M**, the whole padded `Dom::D` cube, both planes ZERO-rule.
+* **S11b-F4**: the three new parameter lines, ending
+  `/endpoint-log_n8-rate8-pad256-rows21` (rung),
+  `/endpoint-log_n10-rate4-pad256-rows9` (rung-G) and
+  `/endpoint-log_n14-rate4-pad256-rows37` (125M).
+* **125M**: `Ht` 8,192 positions / 6,144 supported, `L` 16,384 / 4,608, `D`
+  524,288 / 393,216, `Q` 524,288 / 393,216, `S` 4,194,304 / 3,145,728, `Tab`
+  16,384 / 256 — the closed form equal to the definition **everywhere** in
+  all six, with eight sampled positions printed for each.
+* **The grouped-attention exchange**: *query head slots 0 and 4 exchanged
+  across 22 planes (1,416 positions differ): verifier rejected: **slot 14
+  [03 D zero-check (hosts 12, 13D)]***. See finding S9-F7.
 
 ### The toy freeze gate, after this stage
 
@@ -2299,6 +2329,22 @@ are development grade (P-7) and no receipt from either has been shown to
 anyone, so nothing is broken; it is recorded because it is the first time
 this lane has deliberately invalidated a receipt.
 
+**S9-F7 (the grouped-attention exchange is a MULTI-CATCH case, erratum
+E-19's sense).** The query-head exchange is rejected by the verifier, which
+is what memo §9a's second acceptance test asks for — but it is caught at
+**slot 14, the `Dom::D` zero-check**, and not at the score or PV relation.
+The reason is that the tamper exchanges everything the two head SLOTS own
+(`Dom::Q`, `Dom::Ht`, `Dom::S` — 22 planes) and leaves the attention OUTPUT
+on `Dom::D` alone, so the first relation downstream of the exchange fails
+before the grouped-read relation is reached. It therefore shows that a query
+head cannot be moved between key-value groups; it does NOT isolate the
+relation that binds a head slot to its group. The single-catch version needs
+the two heads' slices of the `Dom::D` attention-output planes exchanged as
+well, so that everything but the PV relation still holds — a follow-up, not
+a defect, and the review's key-value-side test
+(`a_query_head_reading_the_other_key_value_head_is_rejected_at_the_rung`)
+covers the same property from the other side.
+
 **S9-F6 (PRE-EXISTING, found while checking this stage, not caused by it).**
 `python3 -m unittest discover -s tests -p "test_zk60_private_block*.py"`:
 the layout model's **25 tests pass**, and all **9** tests of
@@ -2331,9 +2377,12 @@ may be made about any of them.**
    `ZK60_PRIVATE_BLOCK_125M_LAYOUT.md`; this lane does not edit it.
 4. **Ruling still wanted on S11b-F1** (the padded endpoint removes the need
    for the memo's C6 at a cost of 32,768 B of receipt) and on S9-F4 above.
-5. **S9-F4 of stage 7 is still open**: the closed forms are the constructor
+5. **The single-catch form of the query-head exchange** (S9-F7): exchange the
+   two heads' slices of the `Dom::D` attention-output planes too, so that the
+   PV relation is the only one that can fail.
+6. **S9-F4 of stage 7 is still open**: the closed forms are the constructor
    but `Tab::Pub` still materialises a vector on both sides (168 MB of
    indicator tables at 125M). It is a memory question for the run, not a
    correctness one.
-6. Re-read the toy freeze gate before every commit: receipt 2,816,472 B, the
+7. Re-read the toy freeze gate before every commit: receipt 2,816,472 B, the
    literal schedule digest, and the empty-diff check must print nothing.

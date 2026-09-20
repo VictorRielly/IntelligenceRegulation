@@ -1,0 +1,130 @@
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:252:18
+    |
+252 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 10 warnings (run `cargo fix --lib -p hashline --tests` to apply 8 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5)
+
+running 8 tests
+test private_block::rulings_tests::a_multiplicity_moved_into_the_padded_copy_of_its_row_is_rejected_at_the_rung ... F-4: one count of the byte histogram moved from row 0 to its padded copy 256: verifier rejected: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::rulings_tests::a_non_tiling_indicator_is_refused_and_not_merely_debug_asserted ... F-1: this test runs with debug_assertions = false (the filter runs --release, where it is false)
+F-1: 3 entries in a cube of 8: private block: an indicator that does not tile its slot's cube (3 entries in 8)
+F-1: 6 entries in a cube of 64: private block: an indicator that does not tile its slot's cube (6 entries in 64)
+F-1: 16 entries in a cube of 8: private block: an indicator that does not tile its slot's cube (16 entries in 8)
+F-1: 1024 entries in a cube of 256: private block: an indicator that does not tile its slot's cube (1024 entries in 256)
+F-1: 0 entries in a cube of 64: private block: an indicator that does not tile its slot's cube (0 entries in 64)
+F-1: 8 entries in a cube of 0: private block: an indicator that does not tile its slot's cube (8 entries in 0)
+ok
+test private_block::rulings_tests::every_new_profile_states_its_endpoint_parameters_in_the_parameter_line ... S11b-F4 (development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)): T24/d96/f192/H6/KV2/dh16/log_cols10/inv_rate4/Q256/P1/sh-g7-u0-h14-z6/two-private-endpoints/one-proof-one-transcript/endpoint-log_n8-rate8-pad256-rows21
+S11b-F4 (development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)): T24/d96/f192/H6/KV2/dh16/log_cols10/inv_rate4/Q256/P1/sh-g7-u0-h14-z6/two-private-endpoints/one-proof-one-transcript/endpoint-log_n10-rate4-pad256-rows9
+S11b-F4 (125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)): T512/d768/f2048/H12/KV4/dh64/log_cols14/inv_rate4/Q256/P1/sh-g7-u0-h14-z6/two-private-endpoints/one-proof-one-transcript/endpoint-log_n14-rate4-pad256-rows37
+ok
+test private_block::rulings_tests::private_block_125m_one_block ... ignored, the 125M run: about 11 GiB peak resident and minutes of wall clock. Launch it detached under ruling P-6's conditions with the command line in ZK60_BLOCK125M_LANE_PROGRESS.md; never from a session that is also building.
+test private_block::rulings_tests::sc_tabs_pad_zero_group_is_checked_against_the_declared_lists ... F-2 (development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)): a plane missing: private block: a Dom::Tab multiplicity is outside SC_TAB's pad-zero group
+F-2 (development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)): a fourth plane: private block: a Dom::Tab multiplicity is outside SC_TAB's pad-zero group
+F-2 (development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)): a permuted order: private block: a Dom::Tab multiplicity is outside SC_TAB's pad-zero group
+F-2 (development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)): a plane missing: private block: a Dom::Tab multiplicity is outside SC_TAB's pad-zero group
+F-2 (development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)): a fourth plane: private block: a Dom::Tab multiplicity is outside SC_TAB's pad-zero group
+F-2 (development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)): a permuted order: private block: a Dom::Tab multiplicity is outside SC_TAB's pad-zero group
+F-2 (125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)): a plane missing: private block: a Dom::Tab multiplicity is outside SC_TAB's pad-zero group
+F-2 (125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)): a fourth plane: private block: a Dom::Tab multiplicity is outside SC_TAB's pad-zero group
+F-2 (125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)): a permuted order: private block: a Dom::Tab multiplicity is outside SC_TAB's pad-zero group
+ok
+test private_block::rulings_tests::the_125m_layout_constructs_and_its_indicators_agree_with_the_definition ... 125M Ht: 8192 positions, 6144 supported, closed form equals the definition everywhere; sampled [(3501, 1), (118, 1), (310, 1), (3188, 1), (2796, 1), (7033, 1), (4815, 1), (4330, 1)]
+125M L: 16384 positions, 4608 supported, closed form equals the definition everywhere; sampled [(8843, 0), (3470, 1), (11029, 0), (7939, 0), (4605, 1), (158, 1), (4127, 1), (1023, 1)]
+125M D: 524288 positions, 393216 supported, closed form equals the definition everywhere; sampled [(190136, 1), (376181, 1), (84815, 0), (432665, 1), (24941, 1), (105199, 1), (172570, 1), (356830, 1)]
+125M Q: 524288 positions, 393216 supported, closed form equals the definition everywhere; sampled [(265405, 1), (162788, 0), (390675, 1), (485695, 1), (198701, 1), (361853, 1), (360759, 1), (63477, 0)]
+125M S: 4194304 positions, 3145728 supported, closed form equals the definition everywhere; sampled [(432986, 1), (2228460, 1), (1802221, 1), (3969618, 0), (4177910, 0), (1801481, 1), (862643, 0), (3981088, 0)]
+125M Tab: 16384 positions, 256 supported, closed form equals the definition everywhere; sampled [(3678, 0), (15810, 0), (10937, 0), (2988, 0), (5307, 0), (12242, 0), (7181, 0), (1653, 0)]
+125M CONSTRUCTS: frame 40782792 B, endpoint 37 rows over 524288 words at 2^14 / rate 4, A rows 5681, H rows 7120
+ok
+test private_block::rulings_tests::the_endpoint_binds_the_padded_cube_at_both_rung_profiles ... F-9 (development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)): the endpoint binds 4096 words, the whole padded Dom::D cube, and both endpoint planes are ZERO-rule
+F-9 (development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)): the endpoint binds 4096 words, the whole padded Dom::D cube, and both endpoint planes are ZERO-rule
+F-9 (125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)): the endpoint binds 524288 words, the whole padded Dom::D cube, and both endpoint planes are ZERO-rule
+ok
+test private_block::rulings_tests::two_query_heads_of_different_key_value_groups_exchanged_is_rejected_at_the_rung ... GQA: query head slots 0 and 4 exchanged across 22 planes (1416 positions differ): verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+
+test result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 218 filtered out; finished in 2.36s
+
