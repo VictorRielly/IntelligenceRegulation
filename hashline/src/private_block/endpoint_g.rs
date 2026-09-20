@@ -78,8 +78,31 @@ pub(crate) struct EndpointSpecG {
 }
 
 impl EndpointSpecG {
+    /// The statement under the LEGACY hash rule. Every check is
+    /// [`EndpointSpecG::new_with_tag`]'s; the rule decides one of them, the
+    /// C-H4 length guard, and the legacy rule is the one that imposes it
+    /// (the fail-closed direction, for a caller with no tag to offer).
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(context: Digest, rows: usize, cols: usize, scale: i32, left_slot: u64, right_slot: u64, log_n: usize, inv_rate: usize, checks: usize) -> Result<Self, String> {
+        Self::new_with_tag(context, rows, cols, scale, left_slot, right_slot, log_n, inv_rate, checks, &HashTag::legacy())
+    }
+
+    /// **STAGE 18, ruling T-3 AS AMENDED.** The same constructor, told which
+    /// hash rule the profile this statement belongs to runs under. The ONLY
+    /// thing the tag changes is the C-H4 length guard at the bottom: it is
+    /// imposed under the legacy rule and not under a tag, because on a tagged
+    /// profile the four hash domains are four different members of the BLAKE3
+    /// family and a coincidence of their input lengths separates nothing
+    /// (`hash_domain::imposed_shape_free`). Every other refusal — the
+    /// context, the slots, the plane's axes, the row geometry, the pad count
+    /// — is unchanged and fires under both rules.
+    ///
+    /// The tag is a PUBLIC function of the profile string and is never an
+    /// input a caller chooses: the one production call site is
+    /// `IoSpec::endpoints_g`, which passes the tag `Shape::hash_tag` derived
+    /// for it (ruling T-7).
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn new_with_tag(context: Digest, rows: usize, cols: usize, scale: i32, left_slot: u64, right_slot: u64, log_n: usize, inv_rate: usize, checks: usize, tag: &HashTag) -> Result<Self, String> {
         if context == [0; 32] || left_slot == right_slot {
             return Err("general endpoint: nonempty context and distinct endpoint slots required".into());
         }
@@ -104,8 +127,9 @@ impl EndpointSpecG {
         }
         let spec = Self { context, rows, cols, scale, left_slot, right_slot, log_len, log_n: log_n as u32, inv_rate, checks };
         // C-H4: a commitment whose column hashes to 40 or 64 bytes could be
-        // confused with a Merkle node or a refill block.
-        super::layout::no_commitment_has_a_node_shaped_column(&[("general endpoint", spec.commitment_rows())])?;
+        // confused with a Merkle node or a refill block. STAGE 18 (T-3
+        // amended): imposed under the LEGACY rule only.
+        super::layout::no_commitment_has_a_node_shaped_column_under(&[("general endpoint", spec.commitment_rows())], tag)?;
         Ok(spec)
     }
 

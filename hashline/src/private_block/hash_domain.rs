@@ -43,6 +43,7 @@
 //! byte: both are refusals on geometries no accepted profile has.
 
 use super::shape::Shape;
+use zkp_core::hashtag::HashTag;
 use crate::pcs::{OpeningZk, PcsParams};
 use crate::zk::MaskOpening;
 use std::collections::BTreeMap;
@@ -327,6 +328,35 @@ pub(crate) fn imposed_at_shape_with(sh: &Shape, run_parameter_line: Option<&str>
 /// [`imposed_at_shape_with`] for a SINGLE BLOCK.
 pub(crate) fn imposed_at_shape(sh: &Shape) -> HashInputs {
     imposed_at_shape_with(sh, None)
+}
+
+/// **STAGE 18: T-3 AS AMENDED AT THE TWO BARE STATEMENT CONSTRUCTORS.**
+///
+/// [`shape_free`] stays the honest DESCRIPTION of the shape-independent half
+/// of the set and every stage-16 test goes on pinning it. This is what
+/// `endpoint_g::EndpointSpecG::new_with_tag` and
+/// `boundary::BoundarySpec::new_with_tag` IMPOSE: the same half under the
+/// legacy rule, and an EMPTY set under a tag.
+///
+/// Stage 17 could not do this. Those two constructors hold no profile string,
+/// so they went on refusing the shape-free eight at every profile, which
+/// stage 17 recorded as a deviation from the letter of the amended ruling.
+/// They now take the rule from the caller that knows it — the shape's own
+/// [`Shape::hash_tag`], through `IoSpec` for an endpoint and through
+/// `RunStatement` for a boundary — so the amended rule holds at all four
+/// sites that impose the set and at none that does not.
+///
+/// The reason is [`imposed_at_shape_with`]'s: on a tagged profile a
+/// transcript absorb, a column digest, a salted leaf and a Merkle node are
+/// four different members of the BLAKE3 family, so a coincidence of their
+/// input LENGTHS separates nothing and costs real geometry.
+pub(crate) fn imposed_shape_free(tag: &HashTag) -> HashInputs {
+    // STAGE 18 FAILING-FIRST STEP: the tag is threaded through every caller
+    // but is DELIBERATELY IGNORED here, so that this commit's behaviour is
+    // byte for byte stage 17's and the two new tests fail the way stage 17's
+    // recorded deviation says they do. The fix is the next commit.
+    let _ = tag;
+    shape_free()
 }
 
 // ---------------------------------------------------------------- T-4: paths

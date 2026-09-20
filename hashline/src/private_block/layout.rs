@@ -938,7 +938,20 @@ pub(crate) fn rows_of(log: usize) -> usize {
 /// [`super::boundary::BoundarySpec::new`]) can check for themselves.
 /// [`Layout::for_shape`] uses the full, shape-driven set.
 pub(crate) fn no_commitment_has_a_node_shaped_column(rows: &[(&str, usize)]) -> Result<(), String> {
-    super::hash_domain::shape_free().refuse(rows)
+    no_commitment_has_a_node_shaped_column_under(rows, &zkp_core::hashtag::HashTag::legacy())
+}
+
+/// **STAGE 18, T-3 AS AMENDED**: the same shape-free half of the set, under
+/// the hash rule the CALLER knows — whole under the legacy rule, EMPTY under
+/// a tag (see [`super::hash_domain::imposed_shape_free`] for why). The two
+/// bare statement constructors take that rule from the shape, through
+/// [`super::endpoint_g::EndpointSpecG::new_with_tag`] and
+/// [`super::boundary::BoundarySpec::new_with_tag`].
+/// [`no_commitment_has_a_node_shaped_column`] is this at
+/// `HashTag::legacy()`, so a caller with no tag to offer still gets the whole
+/// set, which is the fail-closed direction.
+pub(crate) fn no_commitment_has_a_node_shaped_column_under(rows: &[(&str, usize)], tag: &zkp_core::hashtag::HashTag) -> Result<(), String> {
+    super::hash_domain::imposed_shape_free(tag).refuse(rows)
 }
 
 pub(crate) struct Layout {

@@ -604,7 +604,15 @@ impl IoSpec {
     fn endpoints_g(&self) -> Result<[EndpointSpecG; 2], String> {
         let (t, d, l, r) = (self.t_pad, self.d_pad, self.endpoint_log_n, self.endpoint_inv_rate);
         let q = self.opened_cols;
-        Ok([EndpointSpecG::new(self.context, t, d, self.input_scale, 41, 42, l, r, q)?, EndpointSpecG::new(self.context, t, d, self.output_scale, 43, 44, l, r, q)?])
+        // STAGE 18 (ruling T-3 as amended): the endpoint statement is built
+        // under THIS SPEC'S OWN hash tag, which `new_shaped` took once from
+        // the shape. The tag decides one refusal — the C-H4 length guard,
+        // imposed under the legacy rule and not under a tag — and nothing
+        // else about the statement.
+        Ok([
+            EndpointSpecG::new_with_tag(self.context, t, d, self.input_scale, 41, 42, l, r, q, &self.hash_tag)?,
+            EndpointSpecG::new_with_tag(self.context, t, d, self.output_scale, 43, 44, l, r, q, &self.hash_tag)?,
+        ])
     }
 
     /// **S11b.** The two committed endpoint planes, whichever construction

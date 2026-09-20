@@ -202,6 +202,122 @@ fn the_completed_guard_refuses_geometries_the_constructions_can_actually_reach()
     assert!(free.refuse(&[("internal boundary", 4 + 2 * 4 + 2)]).is_ok(), "14 boundary rows must stay accepted");
 }
 
+// ------------------------- STAGE 18: T-3 AS AMENDED AT THE TWO BARE CONSTRUCTORS
+
+/// The two geometries stage 17 recorded as its deviation, spelled once so
+/// that both halves of the test below use exactly the same numbers.
+///
+/// * a GENERALISED ENDPOINT of 13 rows: a `32 x 32` plane over a `2^7` row
+///   width is `2^3 = 8` data rows, plus `MASK_ROWS = 5`. Its column is 104
+///   bytes, which is a degree-2 `sc-round` absorb.
+/// * an INTERNAL BOUNDARY of 12 rows: the same plane over a `2^8` row width
+///   is `2^2 = 4` data rows, plus `2 * 3` reserved rows at three claim sites
+///   plus the proximity pair. Its column is 96 bytes, which is the
+///   `public-statement` absorb.
+fn s18_ctx() -> crate::merkle::Digest {
+    *blake3::hash(b"stage 18: T-3 amended at the two bare statement constructors").as_bytes()
+}
+
+/// **THE FAILING TEST OF STAGE 18 ITEM 1, written before the fix.**
+///
+/// Ruling T-3 as amended imposes the completed length guard on LEGACY-RULE
+/// profiles only, because on a tagged profile a transcript absorb, a column
+/// digest, a salted leaf and a Merkle node are four different members of the
+/// BLAKE3 family and a coincidence of input lengths between two of them means
+/// nothing. Stage 17 could not carry that through
+/// `EndpointSpecG::new` and `BoundarySpec::new`: they hold no profile string,
+/// so they kept refusing the shape-free eight at every profile, which stage 17
+/// recorded as a deviation from the letter of the amended ruling.
+///
+/// This test states the amended rule at those two constructors: the two
+/// geometries above CONSTRUCT under a tag and are still REFUSED BY NAME under
+/// the legacy rule. Against stage 17's code the two tagged constructions fail.
+#[test]
+fn the_length_guard_does_not_fire_at_a_tagged_profiles_statement_constructors() {
+    use crate::private_block::boundary::BoundarySpec;
+    use crate::private_block::endpoint_g::EndpointSpecG;
+    use zkp_core::hashtag::HashTag;
+    let tag = Shape::rung_g().hash_tag();
+    assert!(!tag.is_legacy(), "rung-G must be tagged for this test to mean anything");
+    let legacy = HashTag::legacy();
+    let c = s18_ctx();
+
+    // (1) THE TAGGED SIDE: both geometries construct, and their row counts
+    // are the ones the amended ruling is about.
+    let ep = EndpointSpecG::new_with_tag(c, 32, 32, 0, 41, 42, 7, 2, 32, &tag).expect("a TAGGED 13-row generalised endpoint must construct (T-3 amended)");
+    assert_eq!(ep.commitment_rows(), 13, "the fixture is not the 2^3 + 5 geometry");
+    let b = BoundarySpec::new_with_tag(c, 32, 32, 0, 1, 3, 8, 2, 32, 12, &tag).expect("a TAGGED 12-row internal boundary must construct (T-3 amended)");
+    assert_eq!(b.commitment_rows(), 12, "the fixture is not the 4 + 2*3 + 2 geometry");
+
+    // (2) THE LEGACY SIDE: the SAME geometries, refused by name, exactly as
+    // after stage 16. Both the explicit legacy tag and the bare constructor.
+    for (what, e) in [
+        ("an explicitly legacy 13-row endpoint", EndpointSpecG::new_with_tag(c, 32, 32, 0, 41, 42, 7, 2, 32, &legacy).expect_err("13 endpoint rows must be refused under the legacy rule")),
+        ("a bare-constructor 13-row endpoint", EndpointSpecG::new(c, 32, 32, 0, 41, 42, 7, 2, 32).expect_err("13 endpoint rows must be refused by the bare constructor")),
+    ] {
+        assert!(e.contains("C-H4"), "{what}: {e}");
+        assert!(e.contains("104 bytes"), "{what}: {e}");
+        assert!(e.contains("13 rows"), "{what}: {e}");
+        assert!(e.contains("sc-round"), "{what}: the refusal does not name the collision: {e}");
+    }
+    for (what, e) in [
+        ("an explicitly legacy 12-row boundary", BoundarySpec::new_with_tag(c, 32, 32, 0, 1, 3, 8, 2, 32, 12, &legacy).expect_err("12 boundary rows must be refused under the legacy rule")),
+        ("a bare-constructor 12-row boundary", BoundarySpec::new(c, 32, 32, 0, 1, 3, 8, 2, 32, 12).expect_err("12 boundary rows must be refused by the bare constructor")),
+    ] {
+        assert!(e.contains("C-H4"), "{what}: {e}");
+        assert!(e.contains("96 bytes"), "{what}: {e}");
+        assert!(e.contains("12 rows"), "{what}: {e}");
+        assert!(e.contains("public-statement"), "{what}: the refusal does not name the collision: {e}");
+    }
+
+    // (3) EVERY OTHER CHECK OF BOTH CONSTRUCTORS IS UNCHANGED UNDER A TAG.
+    // The tag switches off the length guard and nothing else: ruling M-1's
+    // declared-row check, the plane's power-of-two axes, the row geometry and
+    // the pad count all still refuse, by their own names, under the tag.
+    let e = BoundarySpec::new_with_tag(c, 32, 32, 0, 1, 3, 8, 2, 32, 13, &tag).expect_err("ruling M-1's declared-row check must still fire under a tag");
+    assert!(e.contains("declares 13 rows") && e.contains("give 12"), "{e}");
+    let e = EndpointSpecG::new_with_tag(c, 24, 32, 0, 41, 42, 7, 2, 32, &tag).expect_err("a non-power-of-two axis must still be refused under a tag");
+    assert!(e.contains("power-of-two axes"), "{e}");
+    let e = EndpointSpecG::new_with_tag(c, 32, 32, 0, 41, 42, 7, 2, 0, &tag).expect_err("a zero pad count must still be refused under a tag");
+    assert!(e.contains("pad count"), "{e}");
+    let e = BoundarySpec::new_with_tag(c, 32, 32, 0, 1, 9, 8, 2, 32, 12, &tag).expect_err("nine claim sites must still be refused under a tag");
+    assert!(e.contains("claim sites"), "{e}");
+
+    // (4) AND NO ACCEPTED PROFILE'S REAL GEOMETRY MOVED. rung-G's endpoint is
+    // 9 rows and its boundary 10; 125M's are 37 and 38. None is in the set, so
+    // this change makes no difference to any profile that exists today — which
+    // is why stage 17 could record it as a deviation and leave it.
+    for r in [9usize, 37] {
+        assert!(super::shape_free().refuse(&[("general endpoint", r)]).is_ok(), "{r} endpoint rows is in the shape-free set");
+    }
+    for r in [10usize, 38] {
+        assert!(super::shape_free().refuse(&[("internal boundary", r)]).is_ok(), "{r} boundary rows is in the shape-free set");
+    }
+}
+
+/// **THE GUARD IS STILL WHOLE ON THE PATH THAT REACHES IT IN PRODUCTION.**
+/// Item 1 changes WHICH profiles the two bare constructors impose the length
+/// set on; it changes nothing about the set, and nothing about the other two
+/// sites that impose it — `Layout::for_shape` and `RunStatement::new`, which
+/// hold a shape and were already legacy-only after stage 17. This test pins
+/// that the legacy-rule profiles still have the whole shape-free eight at the
+/// constructors, which is what stage 16 landed.
+#[test]
+fn the_constructors_guard_is_unchanged_under_the_legacy_rule() {
+    use zkp_core::hashtag::HashTag;
+    let legacy = HashTag::legacy();
+    assert!(legacy.is_legacy());
+    for r in [5usize, 8, 11, 12, 13, 15, 17, 19] {
+        let e = super::super::layout::no_commitment_has_a_node_shaped_column_under(&[("general endpoint", r)], &legacy).expect_err(&format!("{r} rows was accepted under the legacy rule"));
+        assert!(e.contains("C-H4") && e.contains(&format!("{} bytes", 8 * r)), "{e}");
+        // and the same count is CLEAR under a tag
+        super::super::layout::no_commitment_has_a_node_shaped_column_under(&[("general endpoint", r)], &Shape::rung_g().hash_tag()).unwrap_or_else(|e| panic!("{r} rows was refused under a tag: {e}"));
+    }
+    // the two legacy-rule profiles' own commitments are still checked and
+    // still pass, at the constructors' shape-free half
+    super::super::layout::no_commitment_has_a_node_shaped_column(&[("A", 455), ("H", 384), ("M", 50), ("endpoint", 7)]).expect("the toy's own counts are refused");
+}
+
 // -------------------------------------------- the label table's own coverage
 
 /// Every line of the lane's own non-test sources that calls an `absorb` with

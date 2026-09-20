@@ -100,8 +100,26 @@ impl BoundarySpec {
     /// `declared_rows` is CHECKED against the derived row count, never used as
     /// one: that is the whole of ruling M-1 in one line. A caller who wants
     /// the geometry has to state it and be told when it is wrong.
+    ///
+    /// This is [`BoundarySpec::new_with_tag`] under the LEGACY hash rule,
+    /// which is the rule that imposes the C-H4 length guard — the fail-closed
+    /// direction for a caller with no tag to offer.
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(context: Digest, rows: usize, cols: usize, scale: i32, index: u64, sites: usize, log_n: usize, inv_rate: usize, checks: usize, declared_rows: usize) -> Result<Self, String> {
+        Self::new_with_tag(context, rows, cols, scale, index, sites, log_n, inv_rate, checks, declared_rows, &HashTag::legacy())
+    }
+
+    /// **STAGE 18, ruling T-3 AS AMENDED.** The same constructor, told which
+    /// hash rule this boundary's run hashes under. The ONLY thing the tag
+    /// changes is the C-H4 length guard at the bottom — imposed under the
+    /// legacy rule, not under a tag
+    /// (`hash_domain::imposed_shape_free`). Ruling M-1's declared-row check
+    /// and every geometry refusal above it are unchanged and fire under both
+    /// rules. The one production call site is `RunStatement::boundary_spec`,
+    /// which passes the tag its own shape derives (ruling T-7: the key set is
+    /// never an input).
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn new_with_tag(context: Digest, rows: usize, cols: usize, scale: i32, index: u64, sites: usize, log_n: usize, inv_rate: usize, checks: usize, declared_rows: usize, tag: &HashTag) -> Result<Self, String> {
         if context == [0; 32] {
             return Err("boundary: a nonempty context is required".into());
         }
@@ -133,7 +151,8 @@ impl BoundarySpec {
         }
         // C-H4: a commitment whose column hashes to 40 or 64 bytes could be
         // confused with a randomness-refill block or an internal Merkle node.
-        super::layout::no_commitment_has_a_node_shaped_column(&[("internal boundary", derived)])?;
+        // STAGE 18 (T-3 amended): imposed under the LEGACY rule only.
+        super::layout::no_commitment_has_a_node_shaped_column_under(&[("internal boundary", derived)], tag)?;
         Ok(spec)
     }
 

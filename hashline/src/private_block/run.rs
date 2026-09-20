@@ -172,7 +172,9 @@ impl RunStatement {
     pub(crate) fn boundary_spec(&self, k: usize) -> Result<BoundarySpec, String> {
         let sh = &self.rs.sh;
         let scale = *self.boundary_scales.get(k).ok_or_else(|| format!("private run: boundary {k} is not one of this run's {}", self.rs.l.saturating_sub(1)))?;
-        BoundarySpec::new(self.context, sh.t_pad, sh.d_pad, scale, (k + 1) as u64, BOUNDARY_SITES, sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols, sh.endpoint_rows + 1)
+        // STAGE 18 (ruling T-3 as amended): built under the run's BLOCK shape's
+        // hash tag, which is the rule every hash of this run is made under.
+        BoundarySpec::new_with_tag(self.context, sh.t_pad, sh.d_pad, scale, (k + 1) as u64, BOUNDARY_SITES, sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols, sh.endpoint_rows + 1, &sh.hash_tag())
     }
 
     /// `H(block 1's digest || ... || block L's digest)`
