@@ -1,6 +1,6 @@
 # Where the MVP stands, in plain words
 
-**Updated 2026-09-19, after row-fold integration correctness gates, by the Codex/Fable
+**Updated 2026-09-20, after combined host/private correctness gates, by the Codex/Fable
 loop (after the 01:04 laptop restart; see §3 item 4).** This page
 answers three questions and is refreshed whenever the loop produces news.
 Rulings are in [the decisions register](ZK60_DECISIONS.md); measurements
@@ -8,7 +8,16 @@ carry their labels ([MEASURED] a run happened, [COUNTED] arithmetic on
 measured pieces, [MODEL] an estimate). Nothing here is a quiesced benchmark;
 the laptop is shared with other jobs.
 
-**Latest integrated speed work:** exact int8/int32 row folds pass all twelve
+**Latest integrated speed work:** corrected direct-plane GPU uploads and
+private host buffer/fold reuse pass 43 isolated validation steps, including
+307 storage-feature tests, 189 actual-device cases and twenty frozen proof
+comparisons. Main's separate rebuild and receipt checks also pass: two fresh
+receipts, fourteen cross-version verifications and 24 GPU-feature private-IO
+tests under all buffer/fold settings. Floors v11 pins the new inventory, with
+89 tooling tests passing. [Evidence and limits](ZK60_HOST_PRIVATE_INTEGRATION_20260920.md).
+These checks establish correctness; they do not measure private-model speed.
+
+The preceding exact int8/int32 row folds pass all twelve
 CPU/GPU proof-byte gates, fresh native receipt verification in both modes,
 and repaired private-IO P1/P3 checks. Dense synthetic folds improve
 2.32–2.42x; sparse cases are mixed. Full-model proving time remains
@@ -31,9 +40,10 @@ independent reviewer who could not get a false statement accepted; the toy
 block's bytes are unchanged, confirmed by verifying receipts made before the
 work began. Lane `zk60-private-block-125m` (pushed, not yet integrated);
 ledger `ZK60_BLOCK125M_LANE_PROGRESS.md` on that branch. **For the toy block
-only, the privacy argument now has a checked core at every step and waits on
-three rulings from Victor** ([one page](ZK60_RULINGS_FOR_VICTOR_PRIVACY.md);
-[draft statement, not in force](ZK60_PRIVACY_STATEMENT_TOY_PROFILE_DRAFT.md)).
+only, the privacy argument now has a checked core at every step**;
+the three rulings from Victor were accepted at 13:45, followed by D22 below
+([one page](ZK60_RULINGS_FOR_VICTOR_PRIVACY.md);
+[superseded draft](ZK60_PRIVACY_STATEMENT_TOY_PROFILE_DRAFT.md)).
 
 **First privacy acceptance on the fast line (2026-09-20 13:46, register
 D22):** the **toy private block** — one block, 32 tokens, width 16, public
@@ -47,6 +57,26 @@ multi-block run, not real weights, not sealing in advance. It is an argument
 whose every step survived one independent attack, not a proof the security
 owner re-derived; [the statement](ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md) lists
 its residuals, the seven conditions under which it lapses and what reopens it.
+
+**The separating hash tag is in, and the twelve-block run was re-measured
+under it (added 2026-09-20 16:40):** decision D19 obliged every new shape to
+hash its transcript, its column digests, its Merkle leaves and its Merkle
+nodes under separate keys. That is built (register D19a; BLAKE3's keyed mode,
+four public keys per shape, the verifier deriving them from the profile it
+trusts; the toy block is never tagged, so the accepted bytes above do not
+move), reviewed by the security owner, and authorised by the integrator as an
+additive change to its files. **Under the tag, all twelve blocks at the 125M
+shape prove and verify as one run: prove 393.59 s, verify by streaming
+14.09 s, receipt 484,100,736 bytes (equal to the counted figure), peak memory
+10.15 GiB; one block alone: prove 27.87 s, verify 1.21 s, 40,782,792 bytes**
+[MEASURED, one run each, shared laptop with an agent active, CPU only, finished
+16:39]. That is about 5% slower than the morning's untagged runs (370.61 s;
+26.54 s) — **not attributable to the tag**: the two hashing phases moved one
+up and one down, and a phase with no hashing in it moved more than either.
+The run now leaves its **public statement** beside its segments (written only
+after the whole run verified), so a fresh process can check it. **Still no
+privacy claim for anything but the toy block**, and the integrator has not yet
+integrated or reproduced these runs.
 
 **ALL TWELVE BLOCKS, ONE PROOF (added 2026-09-20 11:25):** a **private run of
 all twelve transformer blocks at the 125M shape — hidden input, hidden output,
