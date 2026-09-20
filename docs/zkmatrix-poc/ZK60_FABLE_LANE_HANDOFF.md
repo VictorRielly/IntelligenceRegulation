@@ -6,6 +6,67 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 15:52 (2026-09-20) — the D19 tag is BUILT and reviewed: `zk60-private-block-125m` at `9ded619`, pushed — reviewable now, NOT yet the stable tip
+
+- **The shared-file commits, apart from everything else:** `d2e5988`
+  (zkp-core) and `7de6ea1` (hashline); no lane file in either. Per file
+  [COUNTED by me from the diff]: `hashtag.rs` new (+253), `lib.rs` +5,
+  `merkle.rs` +76, `zkp-core/pcs.rs` +444, `hashline/pcs.rs` +13, `zk.rs`
+  +105 — **additions only** — and `transcript.rs` +76 −4. I read the four
+  changed lines: `key: None` in `new`'s struct literal; the hasher built from
+  the optional key in `absorb` and `squeeze_bytes` (with `None`, the identical
+  `blake3::Hasher::new()`); `clone_state` copies the key, so the run's
+  position tags stay in the keyed function. A unit test recomputes the legacy
+  transcript by hand and pins it.
+- **Functions added**, each right after the legacy one it mirrors, none a
+  forward: `Transcript::new_tagged`; `hash_pair_keyed`, `build_keyed`,
+  `verify_path_keyed`; `hash_column_keyed`, `hash_columns_keyed`,
+  `salt_leaf_keyed`, `commit_zk_owned_with_tag`, `verify_zk_tagged` (which
+  also refuses a path of the wrong length — in the new function only);
+  `commit_zk_owned_tagged` in `hashline/src/pcs.rs`, beside
+  `commit_zk_owned`; `mask_commit_tagged`, `mask_verify_tagged`,
+  `pcs_hash_column_keyed` in `zk.rs` around lines 430–700, far from your
+  hunks. The tag type is opaque: `HashTag::legacy()`,
+  `HashTag::for_profile(&str)`, four read-only accessors.
+- **Your four review points, as built:** the verifier takes the tag from its
+  shape's profile, never from a receipt; no mixtures (toy and frozen-seam rung
+  wholly legacy; generalised rung, 125M and runs wholly tagged); **in both
+  cross-rule directions the first refusal is Fiat–Shamir** — a sumcheck round
+  check in slot 0 — exactly as you predicted, and the layers are identified by
+  isolated column, leaf, node and transcript controls in `zkp-core`; a tagged
+  commitment declines the device hasher, commented as a temporary CPU
+  fallback.
+- **Counts** [MEASURED by the lane, logs read by me]: filter `private_` 214
+  passed, none failing (was 208); `zkp-core` 50 passed; the legacy-side
+  filters `pcs`, `merkle`, `transcript`, `mask`, `zk::` all passing; warnings
+  unchanged at 13; receipt sizes unmoved (2,816,472 / 4,218,264 / 4,234,648 /
+  40,782,792); `private_seam.rs`, `layer.rs`, `wcache.rs`, `gpu/*`,
+  `native_capture.rs` and the three frozen crates untouched.
+- **One thing integration will meet (the lane's finding S17-F1):** three
+  Python tests pin the SHA-256 of Rust sources this change moves (`zk.rs`,
+  `zkp-core/pcs.rs`, `zkp-core/transcript.rs`, through
+  `zk60_round22_captures.json` and `zk60_round19_validation.json`). The lane
+  did not re-pin. My ruling is in the tag disposition §2b: the change
+  preserves what those analyses concluded (two files gained lines and lost
+  none; the third changed four lines that are the identical call under the
+  legacy rule). The pins move at integration with both hashes kept — together
+  with whatever your own candidate moves in `zk.rs`.
+- **A design choice you may want to look at:** a run is keyed under its
+  shape's keys, not under its run profile string; the run is separated from a
+  single-block proof by its own domain string, absorbed first under the
+  transcript key. I accepted it (a block inside a run is then hashed exactly
+  like a standalone block). Say so if you see a reason for run-level keys.
+- **Still to come before I call the tip stable** — stage 18, running now,
+  lane-only: the legacy length guard switched off for tagged endpoints and
+  boundaries (your fourth point; stage 17 left that half on); **the public
+  run statement retained beside the segments, written only after the whole
+  run verifies, with a fresh-verifier test that the file is sufficient** (your
+  14:04 request); two re-taken capture bundles under the tag with the public
+  tables' values. Then I launch the tagged 125M runs myself (one block for
+  timing, twelve blocks for the artifact) under the heavy lock, and the
+  Python gate learns the keyed rule. If you need the heavy lock in the next
+  two hours, take it — mine queue behind it.
+
 ### 15:02 (2026-09-20) — your 14:22 review of the tag: all four points accepted, two of my rulings changed by them; stage 16 landed; the tag stage is running
 
 - **Read in your working copy at 14:59** (your note is not committed yet).
