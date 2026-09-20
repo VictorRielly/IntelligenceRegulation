@@ -49,7 +49,12 @@ fn commitment(root: [u8; 32], rows: usize) -> Commitment {
 
 /// The value-0 LogUp identity: every witness helper minus the two table helpers plus the
 /// zero-sum pair `u`, as ONE all-ones sum claim. No helper sum is ever published.
-fn logup_sum_claim(lay: &Layout) -> ZClaim {
+///
+/// `pub(crate)` for ONE reason (step S4): the B-3 acceptance test rebuilds
+/// this claim at the development rung's geometry, and it has to be able to
+/// show that its reconstruction agrees with THIS function at the toy before
+/// anything it says about the rung means anything.
+pub(crate) fn logup_sum_claim(lay: &Layout) -> ZClaim {
     let mut parts = Vec::with_capacity(2 * N_H);
     for p in lay.h_planes() {
         let sign = if h_is_table(p) { Fp2::ONE.neg() } else { Fp2::ONE };
@@ -63,12 +68,37 @@ fn logup_sum_claim(lay: &Layout) -> ZClaim {
 
 // ---------------------------------------------------------------- opening refusals
 
-/// the PCS column-weight key of a part (zkp_core::pcs::zpart_weights' rule)
-fn part_key(p: &ZPart) -> (Vec<Fp2>, usize, usize) {
+pub(crate) type PartKey = (Vec<Fp2>, usize, usize);
+
+/// the PCS column-weight key of a part (zkp_core::pcs::zpart_weights' rule) at
+/// a row width of `1 << log_n`
+pub(crate) fn part_key_at(p: &ZPart, log_n: usize) -> PartKey {
+    let n = 1usize << log_n;
     let ls = p.slice.log_size as usize;
-    let (c0, len) = if ls >= LOG_N { (0, N) } else { (p.slice.offset % N, 1usize << ls) };
-    let tail = if p.point.is_empty() { vec![] } else { p.point[ls.saturating_sub(LOG_N)..].to_vec() };
+    let (c0, len) = if ls >= log_n { (0, n) } else { (p.slice.offset % n, 1usize << ls) };
+    let tail = if p.point.is_empty() { vec![] } else { p.point[ls.saturating_sub(log_n)..].to_vec() };
     (tail, c0, len)
+}
+
+/// The column-weight groups a set of claims raises at a row width of
+/// `1 << log_n`, in FIRST-OCCURRENCE order — the grouping the PCS itself
+/// forms. A single claim whose own parts disagree on a key cannot be opened at
+/// all (`zkp-core/src/pcs.rs` asserts), so it is refused here first. Taking
+/// `log_n` as a parameter is what lets the row-width bug B-3 be reproduced as
+/// a test at a geometry this module cannot yet be instantiated at.
+pub(crate) fn opening_groups_at(claims: &[ZClaim], log_n: usize) -> Result<Vec<(PartKey, usize)>, String> {
+    let mut groups: Vec<(PartKey, usize)> = Vec::new();
+    for claim in claims {
+        let key = part_key_at(&claim.parts[0], log_n);
+        if claim.parts.iter().any(|p| part_key_at(p, log_n) != key) {
+            return Err("private block: claim parts with different column weights".into());
+        }
+        match groups.iter_mut().find(|(k, _)| *k == key) {
+            Some((_, count)) => *count += 1,
+            None => groups.push((key, 1)),
+        }
+    }
+    Ok(groups)
 }
 
 fn part_rows(p: &ZPart) -> std::ops::Range<usize> {
@@ -155,17 +185,7 @@ pub(crate) fn check_opening_challenges(groups: &[usize], rows: usize, prox: usiz
 pub(crate) fn check_opening(claims: &[ZClaim], rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize, want_groups: usize, tr: &Transcript) -> Result<(), String> {
     audit_claims(claims, rows, site_rows, sum_rows, prox)?;
     // first-occurrence grouping, as the PCS forms it
-    let mut groups: Vec<((Vec<Fp2>, usize, usize), usize)> = Vec::new();
-    for claim in claims {
-        let key = part_key(&claim.parts[0]);
-        if claim.parts.iter().any(|p| part_key(p) != key) {
-            return Err("private block: claim parts with different column weights".into());
-        }
-        match groups.iter_mut().find(|(k, _)| *k == key) {
-            Some((_, count)) => *count += 1,
-            None => groups.push((key, 1)),
-        }
-    }
+    let groups = opening_groups_at(claims, LOG_N)?;
     if groups.len() != want_groups {
         return Err(format!("private block: {} opening groups, the schedule declares {want_groups}", groups.len()));
     }

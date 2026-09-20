@@ -104,8 +104,30 @@ pub(crate) enum Dom {
     Tab,
 }
 
+/// THE P-3 LIFT (memo section 4.1, blocking item B-3), named here so it can be
+/// tested at a geometry the module cannot yet be instantiated at.
+///
+/// The value-0 LogUp identity is ONE sum claim with one part per `H` plane
+/// (`protocol::logup_sum_claim`), and the PCS keys a part by
+/// `(point tail, column offset, slice length)`: at or above the row width that
+/// is `(_, 0, N)`, below it `(_, offset % N, 1 << log)`. So every `H` plane
+/// whose domain sits BELOW the row width raises a different column-weight key,
+/// `check_opening` refuses with "claim parts with different column weights"
+/// and `zkp-core`'s `pcs` asserts below it — **no receipt is produced at all**.
+/// At the toy every `H` domain is already at or above `LOG_N = 8`, so the
+/// question has never arisen.
+///
+/// **NOT YET REPAIRED.** This body states, in one place, what the module does
+/// TODAY: the domain's log ignores the row width entirely. It is written down
+/// so that B-3 can be reproduced as a failing test at a geometry this module
+/// cannot yet be instantiated at (ruling P-7). The repair replaces the body.
+pub(crate) fn domain_log_at(natural: usize, _carries_h_planes: bool, _log_n: usize) -> usize {
+    natural
+}
+
 impl Dom {
-    pub(crate) fn log(self) -> usize {
+    /// the log the domain's PADDED true extent asks for, before the P-3 lift
+    pub(crate) fn natural_log(self) -> usize {
         match self {
             Dom::T => 5,
             Dom::Ht => 6,
@@ -113,6 +135,14 @@ impl Dom {
             Dom::Kv | Dom::Tab => 8,
             Dom::S => 11,
         }
+    }
+    /// `Dom::T` and `Dom::Ht` carry `A` planes only; every other domain owns
+    /// LogUp helper planes and so contributes a part to the single sum claim.
+    pub(crate) fn carries_h_planes(self) -> bool {
+        !matches!(self, Dom::T | Dom::Ht)
+    }
+    pub(crate) fn log(self) -> usize {
+        domain_log_at(self.natural_log(), self.carries_h_planes(), LOG_N)
     }
     pub(crate) fn len(self) -> usize {
         1usize << self.log()
