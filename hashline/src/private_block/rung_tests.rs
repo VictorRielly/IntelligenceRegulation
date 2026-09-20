@@ -195,6 +195,86 @@ fn every_rung_lookup_is_a_genuine_table_row() {
     }
 }
 
+/// **EVERY TOY TAMPER FAMILY, RE-RUN AT THE RUNG SHAPE.** `tamper.rs` and
+/// `norm_alias.rs` decide their cases at the TOY, where nothing pads, the
+/// head axis is the identity and the row width is the seam's. This battery
+/// re-runs one representative of each family at the rung, on a TRUE support
+/// position so that the pad rule is never what catches it, and requires each
+/// to be refused by the prover or rejected by the verifier from the bytes.
+/// The reason each is caught is printed, so a tamper that starts being
+/// caught by the WRONG relation is visible in the log.
+#[test]
+fn every_toy_tamper_family_is_rejected_at_the_rung() {
+    let sh = Shape::rung();
+    let ids = Ids::new(&sh).expect("the rung has a plane map");
+    // one true-support position of each cube: index 0 is `(t 0, i 0)`,
+    // `(t 0, j 0)`, `(head slot 0, t 0, j 0)` and so on, and head slot 0 is
+    // a true slot at the rung
+    let cases: Vec<(&str, usize, usize, i64)> = vec![
+        ("the norm_a denominator", ids.at(A_D), 0, 1),
+        ("a norm_a byte limb", ids.at(A_LIMB), 0, 300),
+        ("the norm_a quotient", ids.at(A_Y), 0, 1),
+        ("residual 1", ids.at(A_X1), 0, 1),
+        ("the input plane", ids.at(A_X), 0, 1),
+        ("an int16 byte limb of x", ids.at(A_XL0), 0, 300),
+        ("the Q projection", ids.at(A_Q8), 0, 1),
+        ("the rotated query", ids.at(A_QR8), 0, 1),
+        ("the K projection", ids.at(A_K8), 0, 1),
+        ("the V projection", ids.at(A_V8), 0, 1),
+        ("the score", ids.at(A_S8), 0, 1),
+        ("the row maximum", ids.at(A_MX), 0, 1),
+        ("the exp value", ids.at(A_E), 0, 1),
+        ("the softmax quotient", ids.at(A_P), 0, 1),
+        ("the output projection", ids.at(A_O8), 0, 1),
+        ("the attention output", ids.at(A_AO), 0, 1),
+        ("a biased attention remainder", ids.at(A_RAL), 0, 1),
+        ("the norm_m denominator", ids.at(A_DM), 0, 1),
+        ("a norm_m byte limb", ids.at(A_LIMBM), 0, 300),
+        ("the norm_m quotient", ids.at(A_YM), 0, 1),
+        ("the gate output", ids.at(A_G8), 0, 1),
+        ("a biased gate remainder", ids.at(A_RGL), 0, 1),
+        ("the activation value", ids.at(A_A16), 0, 1),
+        ("the up output", ids.at(A_U16), 0, 1),
+        ("the gate-up product", ids.at(A_H16), 0, 1),
+        ("the feed-forward output", ids.at(A_Z16), 0, 1),
+        ("residual 2", ids.at(A_X2), 0, 1),
+    ];
+    // NOT in the table: the three histograms. They are DERIVED by the prover
+    // from the witness (`protocol.rs:418-441`) and the integer builder leaves
+    // their planes empty, so the toy's moved-multiplicity tamper has to edit
+    // the prover's own buffer and cannot be expressed as a witness edit. It
+    // stays a toy case (`tamper::a_moved_activation_multiplicity_is_rejected_
+    // by_the_logup_sum_claim`); what the rung adds for that arm is
+    // `every_rung_lookup_is_a_genuine_table_row` above.
+    for (name, plane, at, delta) in cases {
+        let (_, blk, mut w) = rung_parts(false);
+        w.planes[plane][at] += delta;
+        assert_rejected(&sh, &blk, w, name);
+    }
+}
+
+/// **THE NORM-RANGE ALIAS (ruling P-5), END TO END AT THE RUNG.** The
+/// half-`p` alias of the isqrt denominator satisfies (R1), (R3) and (R4) in
+/// `F_p` — `norm_alias::the_alias_still_breaks_exactly_r2_on_a_rung_witness`
+/// proves that at the rung's own numbers — and is refused only by (R2), the
+/// byte-limb reconstruction. Here it is refused END TO END, from the bytes,
+/// at the rung.
+#[test]
+fn the_norm_range_alias_is_rejected_end_to_end_at_the_rung() {
+    let sh = Shape::rung();
+    let ids = Ids::new(&sh).expect("the rung has a plane map");
+    let half = super::norm_alias::half_p_minus_one();
+    for (t, form) in [(0usize, "norm_a row 0"), (1, "norm_a row 1")] {
+        let (_, blk, mut w) = rung_parts(false);
+        let d = crate::field::Fp::from_i64(w.planes[ids.at(A_D)][t]).add(half);
+        // form (a): the limbs are left honest, so (R2) is the one relation
+        // the alias cannot satisfy
+        w.planes[ids.at(A_D)][t] = super::norm_alias::to_plane(d);
+        w.planes[ids.at(A_DSQ)][t] = super::norm_alias::to_plane(d.mul(d));
+        assert_rejected(&sh, &blk, w, &format!("the half-p isqrt alias on {form}"));
+    }
+}
+
 /// A tampered witness must not produce an accepted receipt: either the honest
 /// prover refuses it (its own relation checks), or a receipt is produced and
 /// the VERIFIER rejects it from the bytes. Both are recorded, because which

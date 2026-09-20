@@ -110,14 +110,14 @@ fn expect_rejection(name: &str, catch: Catch, edit: impl FnOnce(&BlockPublic, &m
 // ---------------------------------------------------------------- field arithmetic
 
 /// `(p - 1) / 2 = 2^63 - 2^31`, the additive offset of the alias family.
-fn half_p_minus_one() -> Fp {
+pub(super) fn half_p_minus_one() -> Fp {
     Fp::new((P - 1) / 2)
 }
 
 /// The `i64` a witness plane must hold for `Fp::from_i64` (protocol.rs:286) to
 /// read back `v`. Every field element is reachable: `v` itself below `2^63`,
 /// `v - p` above it.
-fn to_plane(v: Fp) -> i64 {
+pub(super) fn to_plane(v: Fp) -> i64 {
     if v.0 < 1u64 << 63 {
         v.0 as i64
     } else {
