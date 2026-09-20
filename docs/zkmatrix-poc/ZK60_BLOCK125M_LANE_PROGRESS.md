@@ -2035,3 +2035,10 @@ private-block-kernel private-model-kernel zkvm-block` prints nothing.
    prover-side hook rather than a witness edit, and stays a toy case.
 6. Re-read the toy freeze gate before every commit: receipt 2,816,472 B, the
    literal schedule digest, and the empty-diff check must print nothing.
+
+**The gate run on the exact committed source** (`s11b-run3.log`, after two
+cosmetic follow-ups — removing an unused `EndpointSpecG::scale` getter and
+rewording the comment that quoted the frozen seam's label): **134 passed /
+0 failed / 2 ignored**, 72.28 s, and the compiler's warning count goes from
+the baseline's 10 to 9 (the new module adds none). Commits: design note
+`57d8e71`, implementation `da84882`, this line.
