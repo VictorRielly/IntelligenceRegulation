@@ -31,6 +31,15 @@ four existing bundles (`run-a-tame`, `run-b-zero`, `run-c-tame`,
 any tagged run is judged; until the Python run gate learns the rule, a tagged
 bundle is not gate evidence (ruling T-6).
 
+**Revised 2026-09-20 (stage 18): the bundles were RE-TAKEN under the tag,
+with the public tables' values** — `run-e-tame-tagged` and
+`run-f-zero-tagged` (§10). Nothing in the schema moves: the two new bundles
+are the same format written by the same writer, with `hash_tag.rule` =
+`blake3-keyed/1` and `public_tables_included` = `true`. The four older
+bundles are LEGACY-RULE bundles and are superseded for gate purposes. The
+same stage adds a SEPARATE artifact that is not a capture at all — the
+public RUN STATEMENT retained beside a run's segments (§11).
+
 **What a bundle is.** The VERIFIER'S VIEW of one private run of `L` blocks
 under one transcript, at the development rung (ruling M-8's geometry: 24
 tokens, width 96, hidden 192, 6 query heads over 2 key-value heads, `L = 3`).
@@ -595,3 +604,55 @@ which. **The four are FOUR DIFFERENT RUNS**: fresh randomness means fresh
 receipts, so `run-c-tame` is not `run-a-tame` with a field added, and no byte
 of one bundle should be compared with a byte of another except the plane
 index table itself, which is a function of the shape and IS equal.
+
+**STAGE 18: two TAGGED bundles, with the public tables' values.**
+`run-e-tame-tagged` and `run-f-zero-tagged`, written by
+`private_block::run_capture_tests::write_the_tagged_gate_bundles`
+(`#[ignore]`d; `HL_RUN_CAPTURE_DIR` chooses the directory, and the test
+REFUSES unless `HL_RUN_CAPTURE_PUBLIC_TABLES=1` is set). They exist because
+stage 17's D19 tag moved every proof byte of the two tagged profiles — so
+`run-a-tame` … `run-d-zero` are legacy-rule bundles and are not evidence
+about what the code produces now — and because the run gate could close only
+twelve of its twenty-three per-slot terminal checks without the public
+tables' values. `run.json` carries `"hash_tag":{"rule":"blake3-keyed/1",…}`
+and `"public_tables_included":true`; everything else is the format above,
+unchanged. **Re-derive the four keys from the contexts and the profile and
+COMPARE; never take a key from a bundle** (§2a, ruling T-7).
+
+## 11. A DIFFERENT artifact: the public run statement (stage 18)
+
+Not a capture and not in a bundle. A run leaves `L` segment files in its run
+directory; the SEGMENTS are the proof and they are not the STATEMENT, so
+until stage 18 a run's 484 MB of receipt could not be checked by any process
+but the one that proved it. `hashline/src/private_block/run_statement_file.rs`
+retains the public statement beside them:
+
+```
+<run dir>/segment-000.bin … segment-(L-1).bin   (bytes and names unchanged)
+<run dir>/statement/run-statement.json
+```
+
+`run_sink::segment_paths` allows exactly that one extra entry, which must be
+a DIRECTORY; every other foreign entry is refused before a byte of a segment
+is read, as before. Schema `hashline-private-run-statement/1`; one top-level
+member per line, every digest lower-case hex.
+
+It carries ONLY what the verifier already takes as its public statement: the
+run and block profiles, `L`, the shape numbers, the run-shape words, the
+context, the two external endpoint commitments with their scales and the
+endpoint policy bytes, the `L` block digests, the block and boundary scales,
+the calibration identity, the derived public-statement digest / parameter
+line / schedule digest / run binding, the stage lines, the hash tag, the
+`L-1` internal boundaries' public facts and statement digests, and the `L`
+segment files' names, lengths and SHA-256. **The public weights are NOT
+dumped**: the file names a deterministic RECIPE and the reader regenerates
+them and checks them against the block digests. A reader rebuilds a
+`RunStatement` from the file plus its own shape and recipe, recomputes every
+derived member and refuses by name on any mismatch, then verifies the run
+from the segments in a fresh `RunVerifier`.
+
+**Ruling D21**: `verify_then_write` is the only writer and it verifies the
+whole run first, so a failed run leaves no statement file and no `statement/`
+directory. The full member list, and the trace of each member to the line of
+`run.rs` at which the verifier consumes it, is in the stage 18 section of
+`ZK60_BLOCK125M_LANE_PROGRESS.md`.

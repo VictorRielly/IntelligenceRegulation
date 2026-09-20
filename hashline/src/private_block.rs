@@ -158,6 +158,14 @@ mod plane_index;
 // `zkp-core`; this is the profile-level half.
 #[cfg(test)]
 mod hash_tag_tests;
+// STAGE 18: the PUBLIC RUN STATEMENT retained beside a run's segments, so
+// that a process that did not prove the run can rebuild the verifier's
+// statement from the files on disk plus the public shape and weights recipe,
+// and check the run. Only public values, and ruling D21's rule structurally:
+// the only writer verifies the whole run first. `cfg(test)` like
+// `run_capture`, and the tests are in `run_tests.rs` beside the runs.
+#[cfg(test)]
+mod run_statement_file;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]

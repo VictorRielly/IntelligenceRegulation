@@ -62,15 +62,41 @@ pub(crate) fn dir_entry_names(dir: &Path) -> Result<Vec<String>, String> {
     Ok(names)
 }
 
+/// **STAGE 18.** The ONE entry a run directory may hold beside its `L`
+/// segment files: the directory in which the run's PUBLIC STATEMENT is
+/// retained after the run has verified
+/// (`run_statement_file.rs`, `<dir>/statement/run-statement.json`). The
+/// segments keep their names and their bytes; nothing is written into this
+/// directory unless the whole run verified in process (ruling D21).
+pub(crate) const STATEMENT_DIR: &str = "statement";
+
 /// **THE `L` SEGMENT FILES OF A RUN DIRECTORY, IN ORDER.** Exactly `L` files
-/// must be there and NOTHING ELSE may be: a missing one is named, and any
-/// other entry — an extra segment beyond `L`, a leftover `.partial`, a
-/// foreign file — is refused before a byte of any segment is read. `l` is the
-/// VERIFIER'S OWN, from its statement, never from the directory.
+/// must be there and nothing else may be except the one
+/// [`STATEMENT_DIR`] directory: a missing segment is named, and any other
+/// entry — an extra segment beyond `L`, a leftover `.partial`, a foreign file,
+/// or a plain FILE called `statement` — is refused before a byte of any
+/// segment is read. `l` is the VERIFIER'S OWN, from its statement, never from
+/// the directory.
+///
+/// **Why the one exception.** The public run statement has to be retained
+/// BESIDE the segments so that a fresh process can rebuild the verifier's
+/// statement from the files on disk; putting it inside the directory the
+/// verifier scans is the only place that is unambiguously "this run's". It is
+/// a single allowed NAME which must be a DIRECTORY, it is never read by
+/// `verify_run_from_dir`, and it widens nothing else: every other foreign
+/// entry is refused exactly as before
+/// (`a_missing_truncated_swapped_duplicated_or_foreign_segment_file_is_rejected`
+/// still fires on `notes.txt`).
 pub(crate) fn segment_paths(dir: &Path, l: usize) -> Result<Vec<PathBuf>, String> {
     let names = dir_entry_names(dir)?;
     let want: Vec<String> = (0..l).map(segment_file_name).collect();
     for n in &names {
+        if n == STATEMENT_DIR {
+            if dir.join(n).is_dir() {
+                continue;
+            }
+            return Err(format!("private run: the run directory {} holds a FILE called {n}; the only entry allowed beside this run's {l} segments is the {STATEMENT_DIR} DIRECTORY", dir.display()));
+        }
         if !want.contains(n) {
             return Err(format!("private run: the run directory {} holds {n}, which is not one of this run's {l} segments", dir.display()));
         }

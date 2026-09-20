@@ -617,3 +617,69 @@ fn write_the_gate_bundles() {
     }
     eprintln!("GATE BUNDLES total about {:.1} MB in {}", total as f64 / 1e6, root.display());
 }
+
+// -------------------- STAGE 18: the TAGGED gate bundles, with the public tables
+
+/// **WRITE THE TWO TAGGED GATE BUNDLES** of ruling M-8, into
+/// `HL_RUN_CAPTURE_DIR`. `#[ignore]`d for the same reason as the stage-15
+/// writer: it writes a directory of evidence and must be asked for by name.
+///
+/// **Why they had to be re-taken.** Stage 17's D19 separating hash tag moved
+/// every proof byte of the two TAGGED profiles, so the stage-14 and stage-15
+/// bundles (`run-a-tame` … `run-d-zero`) are LEGACY-RULE bundles and are not
+/// evidence about anything the code produces now. And the Python run gate
+/// could not close eleven of its twenty-three per-slot terminal checks
+/// because those four bundles were taken with `public_tables_included: false`
+/// and it would not guess at a public table's values.
+///
+/// So these two are taken **with `HL_RUN_CAPTURE_PUBLIC_TABLES=1`**. A public
+/// table is a function of the public statement and the stage's challenges —
+/// weights are public under this project's privacy model — so including its
+/// values publishes nothing that is not already implied by the statement and
+/// the transcript. It is the single largest thing in a bundle, which is the
+/// only reason it is opt-in.
+///
+/// Nothing here deletes or rewrites a bundle: `write_bundle` creates every
+/// file with `create_new`, so a re-run into an existing directory refuses.
+#[test]
+#[ignore = "writes the tagged gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1"]
+fn write_the_tagged_gate_bundles() {
+    let root = PathBuf::from(std::env::var("HL_RUN_CAPTURE_DIR").expect("HL_RUN_CAPTURE_DIR is not set: this test writes a directory of evidence and will not choose one for you"));
+    assert!(
+        std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").map(|v| v == "1").unwrap_or(false),
+        "HL_RUN_CAPTURE_PUBLIC_TABLES=1 is not set: the whole point of these two bundles is that the public tables carry their VALUES, so the run gate can close the eleven slots it could not"
+    );
+    let sh = Shape::rung_g();
+    assert!(!sh.hashes_under_the_legacy_rule(), "these bundles are meant to be TAGGED and this shape is not");
+    let mut total = 0usize;
+    for (tag, zero) in [("run-e-tame-tagged", false), ("run-f-zero-tagged", true)] {
+        let (segs, bundle) = prove_and_capture(3, zero);
+        // the bundle says which rule made it, and it is the keyed one
+        assert!(contains(&bundle.run_json, "\"hash_tag\":{\"rule\":\"blake3-keyed/1\""), "{tag}: the run file does not name the keyed hash rule");
+        assert!(contains(&bundle.run_json, "\"public_tables_included\":true"), "{tag}: the run file does not declare that the public tables are included");
+        let dir = root.join(tag);
+        let note = format!(
+            "Bundle `{tag}`: one honest three-block run at the development rung\n(`Shape::rung_g`: 24 tokens, width 96, hidden 192, 6 query heads over 2\nkey-value heads), hidden input = {}. Fresh OS randomness; the public weights\nare the lane's synthetic tame fixture. This is the geometry ruling M-8 names\nfor the run privacy gate.\n\nSTAGE 18, and this is what is new about it:\n\n* the run is proved and verified under the **D19 SEPARATING HASH TAG**\n  (stage 17, ruling T-1): every hash of every stage is keyed BLAKE3 under one\n  of the four public keys derived from the block profile string. `run.json`\n  carries `hash_tag` with the rule name `blake3-keyed/1`, the profile, the\n  four context strings and the four keys as hex. A reader must RE-DERIVE\n  those keys from the contexts and the profile and COMPARE; it must never\n  take a key from a bundle (ruling T-7).\n* it was taken with `HL_RUN_CAPTURE_PUBLIC_TABLES=1`, so every public table\n  carries its **values** as well as its length and SHA-256. That is what the\n  run gate needs to close the per-slot terminal identity at every slot.\n\nThe four earlier bundles `run-a-tame`, `run-b-zero`, `run-c-tame` and\n`run-d-zero` are LEGACY-RULE bundles taken before the tag and without the\npublic tables' values; the parent README says so.\n\nStill not a privacy result: no gate has read this.",
+            if zero { "the all-zero plane" } else { "the lane fixture's tame plane" }
+        );
+        run_capture::write_bundle(
+            &dir,
+            &bundle,
+            &segs,
+            &note,
+            "HL_RUN_CAPTURE_DIR=<dir> HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=<commit> cargo test --release --lib private_block::run_capture_tests::write_the_tagged_gate_bundles -- --ignored --nocapture",
+        )
+        .expect("the tagged gate bundle is written");
+        let n: usize = std::fs::read_dir(&dir).expect("the bundle directory").filter_map(|e| e.ok()).map(|e| e.metadata().map(|m| m.len() as usize).unwrap_or(0)).sum();
+        total += n;
+        assert!(n < 120_000_000, "{tag} is {n} B, past the 120 MB ceiling this stage was given");
+        eprintln!(
+            "TAGGED GATE BUNDLE {tag}: {} B run file, {} B of stage files, {} B of segments (pinned by digest; written only with HL_RUN_CAPTURE_SEGMENTS=1), {n} B on disk ({:.1} MB)",
+            bundle.run_json.len(),
+            bundle.stages.iter().map(|s| s.len()).sum::<usize>(),
+            segs.iter().map(|s| s.len()).sum::<usize>(),
+            n as f64 / 1e6
+        );
+    }
+    eprintln!("TAGGED GATE BUNDLES total about {:.1} MB in {}", total as f64 / 1e6, root.display());
+}

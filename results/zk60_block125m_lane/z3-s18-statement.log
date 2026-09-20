@@ -1,0 +1,240 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:572:13
+    |
+572 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:284:18
+    |
+284 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:194:5
+    |
+187 | struct Rec {
+    |        --- field in this struct
+...
+194 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:284:15
+    |
+284 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 13 warnings (run `cargo fix --lib -p hashline --tests` to apply 9 suggestions)
+    Finished `release` profile [optimized] target(s) in 53.47s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5)
+
+running 27 tests
+test private_block::run_tests::a_boundary_scale_disagreement_does_not_construct_and_a_foreign_calibration_is_rejected ... a foreign calibration: rejected: private run wire: this segment belongs to another run
+ok
+test private_block::run_tests::a_dropped_reordered_duplicated_or_foreign_segment_is_rejected ... a dropped last segment: rejected: private run: 2 segments were offered, this run has 3
+a dropped middle segment: rejected: private run: 2 segments were offered, this run has 3
+two segments swapped: rejected: private run wire: segment 0 is 4089352 B, the counted length is 4066824
+a duplicated segment: rejected: private run wire: segment 1 is 4066824 B, the counted length is 4089352
+a foreign segment from another honest run: rejected: private run wire: this segment belongs to another run
+every segment foreign but the first: rejected: private run wire: this segment belongs to another run
+only the third segment: rejected: private run: 1 segments were offered, this run has 3
+ok
+test private_block::run_tests::a_failed_run_leaves_no_statement_file ... STAGE 18 D21: the corrupted run is refused and nothing is written: A: pcs zk: Merkle path for column 3370 fails
+ok
+test private_block::run_tests::a_missing_truncated_swapped_duplicated_or_foreign_segment_file_is_rejected ... a missing segment file: rejected: private run: the run directory /tmp/hl-private-run-neg-474064-1789946049885011761 is missing segment-001.bin
+a truncated segment file: rejected: private run wire: segment 1 is 4089351 B, the counted length is 4089352
+two segment files swapped: rejected: private run wire: segment 0 is 4089352 B, the counted length is 4066824
+a duplicated segment file: rejected: private run wire: segment 1 is 4066824 B, the counted length is 4089352
+an extra segment file beyond L: rejected: private run: the run directory /tmp/hl-private-run-neg-474064-1789946049885011761 holds segment-003.bin, which is not one of this run's 3 segments
+a foreign segment file from another honest run: rejected: private run wire: this segment belongs to another run
+a foreign file in the run directory: rejected: private run: the run directory /tmp/hl-private-run-neg-474064-1789946049885011761 holds notes.txt, which is not one of this run's 3 segments
+ok
+test private_block::run_tests::a_run_is_rebuilt_from_its_statement_file_alone_and_verifies_in_a_fresh_verifier ... STAGE 18 RUN STATEMENT: 5977 B, sha256 27fd345e2e5a6310a98fd9a1725ca8cae041af889ded7ab2fcd567372856056a, verify by streaming 0.31 s, run binding d48c6b4aa9e8a8f97cb67c3d65d63cbac80ed9dbff5ff0660aafd09186fef460
+ok
+test private_block::run_tests::a_run_verified_with_the_wrong_l_is_rejected ... ok
+test private_block::run_tests::a_statement_file_with_one_byte_changed_is_refused ... STAGE 18 statement refusal, one byte of the external INPUT endpoint commitment: run statement: the run binding: this statement gives 27985fe7d2a9ccede11c2b205e06f97c4e783bf7bf9c0d8e64df2414f40fc4ed, the file declares 1525cf003e21eb4788cce6bac307d3d179a15f8b3285468e8adcd6ac5a952747
+STAGE 18 statement refusal, one byte of the external OUTPUT endpoint commitment: run statement: the run binding: this statement gives 59e60eeee8921d73a8508789dbf68c58c95e5254589adbd2201b2d1187491de5, the file declares 1525cf003e21eb4788cce6bac307d3d179a15f8b3285468e8adcd6ac5a952747
+STAGE 18 statement refusal, one byte of the declared run binding: run statement: the run binding: this statement gives 1525cf003e21eb4788cce6bac307d3d179a15f8b3285468e8adcd6ac5a952747, the file declares 1525cf003e21eb4788cce6bac307d3d179a15f8b3285468e8adcd6ac5a952740
+STAGE 18 statement refusal, one byte of the declared endpoint policy bytes: run statement: the endpoint policy bytes: this statement gives 48424c4b45585031487da094a6a7e05547e11496d0ac188f6ccb25dcefe636dd60a328815a42869700000000000000009374eaee37838a849d37c38b8d977eff6612d2e69943c1114295e5af55737c908cb05b8c1248cdcce02bfc6d00f20a0bc0b490a330940d632d73e7ba96b3a263, the file declares 48424c4b45585031487da094a6a7e05547e11496d0ac188f6ccb25dcefe636dd60a328815a42869700000000000000009374eaee37838a849d37c38b8d977eff6612d2e69943c1114295e5af55737c908cb05b8c1248cdcce02bfc6d00f20a0bc0b490a330940d632d73e7ba96b3a260
+STAGE 18 statement refusal, one byte of a block's public digest: run statement: the recipe's block 0 is not the block digest the file declares
+STAGE 18 statement refusal, one byte of the calibration identity: run statement: the calibration identity: this statement gives 1f23aeca58f7878c0397c52db919ba0a42073c1869eae4a0598c7e2bc9d498ff, the file declares 1f23aeca58f7878c0397c52db919ba0a42073c1869eae4a0598c7e2bc9d498f0
+STAGE 18 statement refusal, one byte of a boundary's statement digest: run statement: boundary 0's statement digest: this statement gives 9e339c1271f88cc6ee430f8d2d05ee999f7197d554afa856f05de6db600b3dd1, the file declares 9e339c1271f88cc6ee430f8d2d05ee999f7197d554afa856f05de6db600b3dd0
+STAGE 18 statement refusal, one byte of a segment's SHA-256: run statement: segment 0's SHA-256 on disk: this statement gives 19efb105c7125f866a662e39ae3794a5331217de59a8b172c2ec8df081e66046, the file declares 19efb105c7125f866a662e39ae3794a5331217de59a8b172c2ec8df081e66040
+ok
+test private_block::run_tests::a_tagged_run_is_refused_by_a_legacy_rule_run_verifier ... STAGE 17 cross-rule refusal at the run: tagged run, legacy verifier: private run wire: this segment belongs to another run
+STAGE 17 cross-rule refusal at the run: legacy run, tagged verifier: private run wire: this segment belongs to another run
+ok
+test private_block::run_tests::a_three_block_run_proves_and_verifies_under_the_tag ... ok
+test private_block::run_tests::a_twelve_block_run_written_to_a_directory_verifies_by_streaming ... RUN L=12 TO DISK at the rung-G shape: prove 6.19 s, verify by streaming 1.18 s, receipt 49217600 B in 12 files (counted 49217600), MALLOC_MMAP_THRESHOLD_ is NOT SET (glibc's dynamic threshold: expect the high-water mark to rise across blocks)
+RUN L=12 to disk at rung-G: block 0: high-water mark 133.3 MiB (+0.0 MiB, +0.00%)
+RUN L=12 to disk at rung-G: block 1: high-water mark 133.3 MiB (+0.0 MiB, +0.00%)
+RUN L=12 to disk at rung-G: block 2: high-water mark 133.3 MiB (+0.0 MiB, +0.00%)
+RUN L=12 to disk at rung-G: block 3: high-water mark 133.3 MiB (+0.0 MiB, +0.00%)
+RUN L=12 to disk at rung-G: block 4: high-water mark 133.3 MiB (+0.0 MiB, +0.00%)
+RUN L=12 to disk at rung-G: block 5: high-water mark 133.3 MiB (+0.0 MiB, +0.00%)
+RUN L=12 to disk at rung-G: block 6: high-water mark 133.3 MiB (+0.0 MiB, +0.00%)
+RUN L=12 to disk at rung-G: block 7: high-water mark 133.3 MiB (+0.0 MiB, +0.00%)
+RUN L=12 to disk at rung-G: block 8: high-water mark 133.3 MiB (+0.0 MiB, +0.00%)
+RUN L=12 to disk at rung-G: block 9: high-water mark 156.4 MiB (+23.1 MiB, +17.33%)  HWM-RISE
+RUN L=12 to disk at rung-G: block 10: high-water mark 161.3 MiB (+4.9 MiB, +3.10%)  HWM-RISE
+RUN L=12 to disk at rung-G: block 11: high-water mark 165.1 MiB (+3.9 MiB, +2.40%)  HWM-RISE
+ok
+test private_block::run_tests::an_honest_two_block_run_verifies_from_its_segments ... RUN L=2 at the rung-G shape: prove 1.00 s ([0.51, 0.49]), verify from segments 0.20 s, segments [4066824, 4257256] B (total 8324080 B), boundary 10 rows, peak RSS 165 MiB (shared box, diagnostics only)
+ok
+test private_block::run_tests::every_key_of_a_run_statement_is_on_the_allow_list ... STAGE 18 RUN STATEMENT: 95 keys, all on the allow list of 84
+ok
+test private_block::run_tests::every_single_block_tamper_family_is_still_rejected_inside_a_run ... the norm_a denominator in block 2 of a run: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+a norm_a byte limb in block 2 of a run: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+the norm_a quotient in block 2 of a run: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+residual 1 in block 2 of a run: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+the input plane in block 2 of a run: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+an int16 byte limb of x in block 2 of a run: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+the Q projection in block 2 of a run: rejected by the verifier: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+the rotated query in block 2 of a run: rejected by the verifier: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+the K projection in block 2 of a run: rejected by the verifier: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+the V projection in block 2 of a run: rejected by the verifier: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+the score in block 2 of a run: rejected by the verifier: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+the row maximum in block 2 of a run: rejected by the verifier: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+the exp value in block 2 of a run: rejected by the verifier: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+the softmax quotient in block 2 of a run: rejected by the verifier: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+the output projection in block 2 of a run: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+the attention output in block 2 of a run: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+a biased attention remainder in block 2 of a run: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+the norm_m denominator in block 2 of a run: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+a norm_m byte limb in block 2 of a run: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+the norm_m quotient in block 2 of a run: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+the gate output in block 2 of a run: rejected by the verifier: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+a biased gate remainder in block 2 of a run: rejected by the verifier: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+the activation value in block 2 of a run: rejected by the verifier: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+the up output in block 2 of a run: rejected by the verifier: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+the gate-up product in block 2 of a run: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+the feed-forward output in block 2 of a run: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+residual 2 in block 2 of a run: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::run_tests::private_run_125m_twelve_blocks ... ignored
+test private_block::run_tests::private_run_125m_two_blocks ... ignored
+test private_block::run_tests::the_all_zero_hidden_input_proves_and_verifies_as_a_run ... ok
+test private_block::run_tests::the_boundary_derives_its_row_count_and_refuses_the_37_row_geometry_by_name ... ok
+test private_block::run_tests::the_claim_audit_accepts_two_boundary_claims_on_disjoint_pairs ... ok
+test private_block::run_tests::the_claim_audit_is_not_what_enforces_the_hiding_geometry ... ok
+test private_block::run_tests::the_claim_audit_refusals_fire_at_the_boundary_geometry ... ok
+test private_block::run_tests::the_claim_audit_refuses_two_boundary_claims_that_share_a_pair ... ok
+test private_block::run_tests::the_directory_sink_refuses_a_directory_that_is_missing_or_not_empty ... ok
+test private_block::run_tests::the_headline_negative_test_a_second_block_on_another_input_is_rejected_by_the_verifier ... (i) block 2 run on something other than block 1's output: rejected by the verifier: slot 21 [IO-in endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+(ii) block 1's output is not what the boundary holds: rejected by the verifier: slot 22 [IO-out endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::run_tests::the_run_directory_allows_the_statement_directory_and_nothing_else ... ok
+test private_block::run_tests::the_run_ladder_at_the_rung_three_blocks_then_twelve ... RUN L=3 at the rung-G shape: prove 1.50 s, verify from segments 0.30 s, receipt 12413432 B in 3 segments (counted 12413432), high-water mark after each block [165, 165, 165] MiB — flat; MALLOC_MMAP_THRESHOLD_ is NOT SET (glibc's dynamic threshold: expect the high-water mark to rise across blocks)
+RUN L=3 at rung-G: block 0: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+RUN L=3 at rung-G: block 1: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+RUN L=3 at rung-G: block 2: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+RUN L=12 at the rung-G shape: prove 6.00 s, verify from segments 1.20 s, receipt 49217600 B in 12 segments (counted 49217600), high-water mark after each block [165, 165, 165, 165, 165, 165, 165, 165, 165, 165, 165, 165] MiB — flat; MALLOC_MMAP_THRESHOLD_ is NOT SET (glibc's dynamic threshold: expect the high-water mark to rise across blocks)
+RUN L=12 at rung-G: block 0: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+RUN L=12 at rung-G: block 1: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+RUN L=12 at rung-G: block 2: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+RUN L=12 at rung-G: block 3: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+RUN L=12 at rung-G: block 4: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+RUN L=12 at rung-G: block 5: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+RUN L=12 at rung-G: block 6: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+RUN L=12 at rung-G: block 7: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+RUN L=12 at rung-G: block 8: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+RUN L=12 at rung-G: block 9: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+RUN L=12 at rung-G: block 10: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+RUN L=12 at rung-G: block 11: high-water mark 165.1 MiB (+0.0 MiB, +0.00%)
+ok
+test private_block::run_tests::the_statement_files_json_reader_is_strict ... 
+thread 'private_block::run_tests::the_statement_files_json_reader_is_strict' (474293) panicked at src/private_block/run_tests.rs:1294:9:
+a \u escape was accepted
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test private_block::run_tests::the_twelve_block_125m_receipt_is_the_counted_484_100_736_bytes ... ok
+
+failures:
+
+failures:
+    private_block::run_tests::the_statement_files_json_reader_is_strict
+
+test result: FAILED. 24 passed; 1 failed; 2 ignored; 0 measured; 269 filtered out; finished in 78.26s
+
+error: test failed, to rerun pass `--lib`

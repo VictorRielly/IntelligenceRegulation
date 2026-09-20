@@ -992,9 +992,22 @@ fn private_run_125m_twelve_blocks() {
     })
     .unwrap_or_else(|e| panic!("125M RUN L=12: {e}"));
     let prove_s = t1.elapsed().as_secs_f64();
-    let t2 = std::time::Instant::now();
-    run::verify_run_from_dir(&st, &blocks, &dir).unwrap_or_else(|e| panic!("125M RUN L=12: the run did not verify by streaming: {e}"));
-    let verify_s = t2.elapsed().as_secs_f64();
+    // **STAGE 18.** The run is verified by streaming AND its PUBLIC statement
+    // is retained beside the segments, in that order and only in that order
+    // (ruling D21): `verify_then_write` verifies first and writes nothing if
+    // the run does not verify, so the presence of
+    // `<HL_PB_RUN_DIR>/statement/run-statement.json` afterwards is itself the
+    // statement that this run verified in this process. The file carries only
+    // public values — the geometry, the two external endpoint commitments and
+    // their scales, the twelve block digests, the calibration identity, the
+    // hash rule, the eleven boundaries' public statement digests and the
+    // twelve segment files' lengths and SHA-256 — so a later process can
+    // rebuild the verifier's statement and check the 484 MB of receipt this
+    // run leaves behind.
+    let w = super::run_statement_file::verify_then_write(&st, &blocks, &dir, &super::run_statement_file::TAME_FIXTURE)
+        .unwrap_or_else(|e| panic!("125M RUN L=12: the run did not verify by streaming, or its public statement could not be retained: {e}"));
+    let verify_s = w.verify_s;
+    eprintln!("125M RUN L=12: the PUBLIC run statement is retained at {} — {} B, sha256 {}", w.path.display(), w.bytes, w.sha256);
     for (k, (len, dg)) in disk.lengths().iter().zip(disk.digests()).enumerate() {
         eprintln!("125M RUN L=12: {} {len} B sha256 {dg}", run_sink::segment_file_name(k));
     }
@@ -1065,4 +1078,227 @@ fn a_tagged_run_is_refused_by_a_legacy_rule_run_verifier() {
     let e2 = run::verify_run(&st2, &blocks2, &segs2).expect_err("a LEGACY-rule run verified under the TAG");
     eprintln!("STAGE 17 cross-rule refusal at the run: legacy run, tagged verifier: {e2}");
     assert!(!e2.is_empty());
+}
+
+// ---------------------- STAGE 18: the PUBLIC RUN STATEMENT beside the segments
+//
+// `run_statement_file.rs` retains the run's PUBLIC statement in
+// `<run dir>/statement/run-statement.json` after the run has verified, so
+// that a process that did not prove the run can rebuild the verifier's
+// statement and check it. These tests are at the DEVELOPMENT RUNG, never at
+// 125M: what they prove is that the file is SUFFICIENT and SELF-CHECKING, and
+// three blocks show that exactly as well as twelve.
+
+use super::run_statement_file::{self, TAME_FIXTURE};
+
+/// Prove an honest tagged `l`-block rung-G run into a fresh directory and
+/// retain its statement. Returns the temporary directory (which removes
+/// itself), the statement's own size and the streaming verification's time.
+fn a_run_with_its_statement(tag: &str, l: usize, zero: bool) -> (TempRunDir, run_statement_file::Written) {
+    let sh = Shape::rung_g();
+    let tmp = TempRunDir::new(tag);
+    let mut c = Chain::honest(&sh, l, zero);
+    let blocks = blocks_of(&sh, l);
+    let (st, owners) = statement_of(&c, l, &blocks);
+    prove_to_dir_and_memory(&st, &blocks, &mut c, owners, tmp.path()).expect("the honest run proves to a directory");
+    let w = run_statement_file::verify_then_write(&st, &blocks, tmp.path(), &TAME_FIXTURE).expect("the run verifies and its statement is retained");
+    (tmp, w)
+}
+
+/// **THE STATEMENT FILE IS SUFFICIENT.** A three-block tagged run is written
+/// to a directory; then, from the FILES ON DISK plus this build's public
+/// shape and weights recipe and nothing else, the verifier's statement is
+/// rebuilt and the run is verified from its segments in a FRESH
+/// `RunVerifier`. No value crosses over from the process that proved it —
+/// `run_statement_file::read` opens one file, regenerates the public weights
+/// from the named recipe, and recomputes every derived quantity.
+///
+/// This is the whole point of the file, and it is the test the integrator
+/// asked for.
+#[test]
+fn a_run_is_rebuilt_from_its_statement_file_alone_and_verifies_in_a_fresh_verifier() {
+    let (tmp, w) = a_run_with_its_statement("stmt", 3, false);
+    // the file is beside the segments, not among them
+    assert_eq!(w.path, tmp.path().join("statement").join("run-statement.json"), "the statement is not where it is documented to be");
+    let names = run_sink::dir_entry_names(tmp.path()).expect("the run directory lists");
+    assert_eq!(names, vec!["segment-000.bin".to_string(), "segment-001.bin".into(), "segment-002.bin".into(), "statement".into()], "the run directory holds {names:?}");
+    // THE FRESH VERIFIER: the file and the recipe, and nothing else
+    run_statement_file::verify_from_disk(tmp.path()).expect("the statement file alone does not rebuild a run that verifies");
+    // and the rebuilt statement IS the one that proved: same binding
+    let (st2, blocks2) = run_statement_file::read(tmp.path()).expect("the statement reads back");
+    assert_eq!(blocks2.len(), 3, "the recipe gave {} blocks", blocks2.len());
+    let h = st2.capture_header().expect("the rebuilt statement's header");
+    assert_eq!(h.l, 3);
+    eprintln!(
+        "STAGE 18 RUN STATEMENT: {} B, sha256 {}, verify by streaming {:.2} s, run binding {}",
+        w.bytes,
+        w.sha256,
+        w.verify_s,
+        st2.binding().expect("the rebuilt binding").iter().map(|b| format!("{b:02x}")).collect::<String>()
+    );
+    assert!(w.bytes > 1500 && w.bytes < 200_000, "the statement file is {} B, which is not the size a run statement should be", w.bytes);
+}
+
+/// **ONE BYTE CHANGED IN AN ENDPOINT COMMITMENT IS REFUSED.** The file
+/// recomputes everything it declares, so the altered root is caught by the
+/// run binding it no longer matches — before a segment is opened, and by the
+/// name of the quantity that moved. The same mutation in the run binding
+/// itself, in a block digest and in a segment digest is refused too, each by
+/// its own name.
+#[test]
+fn a_statement_file_with_one_byte_changed_is_refused() {
+    let (tmp, _w) = a_run_with_its_statement("stmt-neg", 3, false);
+    let path = run_statement_file::statement_path(tmp.path());
+    let good = std::fs::read(&path).expect("the statement file reads");
+    run_statement_file::verify_from_disk(tmp.path()).expect("the honest statement verifies");
+    // flip the last hex digit of a named member's first hex string
+    let flip = |what: &str, key: &str| -> String {
+        let s = String::from_utf8(good.clone()).expect("the statement file is ASCII");
+        let at = s.find(key).unwrap_or_else(|| panic!("{key} is not in the statement file"));
+        let q = s[at..].find(':').expect("a key is followed by a colon") + at;
+        let start = s[q..].find('"').expect("a hex value is quoted") + q + 1;
+        let end = s[start..].find('"').expect("a hex value is quoted") + start;
+        let mut b = good.clone();
+        b[end - 1] = if b[end - 1] == b'0' { b'1' } else { b'0' };
+        std::fs::write(&path, &b).expect("the test writes the statement file");
+        let e = run_statement_file::verify_from_disk(tmp.path()).expect_err(&format!("{what} was ACCEPTED"));
+        eprintln!("STAGE 18 statement refusal, {what}: {e}");
+        std::fs::write(&path, &good).expect("the test restores the statement file");
+        e
+    };
+    let e = flip("one byte of the external INPUT endpoint commitment", "\"input_root\"");
+    assert!(e.contains("run binding"), "the refusal did not name the run binding: {e}");
+    let e = flip("one byte of the external OUTPUT endpoint commitment", "\"output_root\"");
+    assert!(e.contains("run binding"), "the refusal did not name the run binding: {e}");
+    let e = flip("one byte of the declared run binding", "\"run_binding\"");
+    assert!(e.contains("run binding"), "the refusal did not name the run binding: {e}");
+    let e = flip("one byte of the declared endpoint policy bytes", "\"policy_bytes\"");
+    assert!(e.contains("endpoint policy bytes"), "the refusal did not name the endpoint policy: {e}");
+    let e = flip("one byte of a block's public digest", "\"block_digests\"");
+    assert!(e.contains("block 0"), "the refusal did not name the block: {e}");
+    let e = flip("one byte of the calibration identity", "\"calibration\"");
+    assert!(e.contains("calibration"), "the refusal did not name the calibration: {e}");
+    let e = flip("one byte of a boundary's statement digest", "\"statement_digest\"");
+    assert!(e.contains("boundary 0"), "the refusal did not name the boundary: {e}");
+    let e = flip("one byte of a segment's SHA-256", "\"sha256\"");
+    assert!(e.contains("SHA-256"), "the refusal did not name the segment digest: {e}");
+    // and the honest file still verifies: every refusal above was its mutation
+    run_statement_file::verify_from_disk(tmp.path()).expect("the restored statement verifies");
+}
+
+/// **THE ALLOW LIST**, as a capture bundle has one. A retained file beside
+/// the segments is PUBLISHING, so the writer may emit no key it has not
+/// declared — and adding one to the list is the moment to ask whether the
+/// quantity behind it is in the verifier's public statement.
+#[test]
+fn every_key_of_a_run_statement_is_on_the_allow_list() {
+    let (tmp, _w) = a_run_with_its_statement("stmt-keys", 2, false);
+    let bytes = std::fs::read(run_statement_file::statement_path(tmp.path())).expect("the statement file reads");
+    let keys = super::run_capture::keys_of(&bytes);
+    assert!(keys.len() > 40, "only {} keys were found; the scanner is not reading this file", keys.len());
+    for k in &keys {
+        assert!(run_statement_file::ALLOWED_KEYS.contains(&k.as_str()), "the statement file carries the key {k:?}, which is not on the allow list");
+    }
+    // and the allow list carries nothing the writer never emits, so the list
+    // cannot drift into a wish list
+    for a in run_statement_file::ALLOWED_KEYS {
+        assert!(keys.iter().any(|k| k == a), "the allow list carries {a:?}, which this writer never emits");
+    }
+    // the file is valid JSON to a reader that is not this one: no key twice
+    // in one object, no trailing byte (both are parser refusals)
+    run_statement_file::json::parse(&bytes).expect("the statement file parses");
+    eprintln!("STAGE 18 RUN STATEMENT: {} keys, all on the allow list of {}", keys.len(), run_statement_file::ALLOWED_KEYS.len());
+}
+
+/// **RULING D21: A FAILED RUN LEAVES NO STATEMENT FILE.** The only writer
+/// verifies the whole run from its directory first and writes nothing if that
+/// fails, so a corrupted segment leaves the directory exactly as it was —
+/// no `statement/` directory at all.
+#[test]
+fn a_failed_run_leaves_no_statement_file() {
+    let sh = Shape::rung_g();
+    let l = 3usize;
+    let tmp = TempRunDir::new("stmt-d21");
+    let mut c = Chain::honest(&sh, l, false);
+    let blocks = blocks_of(&sh, l);
+    let (st, owners) = statement_of(&c, l, &blocks);
+    let (_disk, mem, _stats) = prove_to_dir_and_memory(&st, &blocks, &mut c, owners, tmp.path()).expect("the honest run proves to a directory");
+    // corrupt one byte in the middle of segment 1
+    let mut bad = mem.segments()[1].clone();
+    let at = bad.len() / 2;
+    bad[at] ^= 1;
+    std::fs::write(tmp.path().join(run_sink::segment_file_name(1)), &bad).expect("the test corrupts a segment file");
+    let e = run_statement_file::verify_then_write(&st, &blocks, tmp.path(), &TAME_FIXTURE).expect_err("a statement was written for a run that did NOT verify");
+    eprintln!("STAGE 18 D21: the corrupted run is refused and nothing is written: {e}");
+    assert!(!tmp.path().join("statement").exists(), "a failed run left a statement directory");
+    assert!(!run_statement_file::statement_path(tmp.path()).exists(), "a failed run left a statement file");
+    let names = run_sink::dir_entry_names(tmp.path()).expect("the run directory lists");
+    assert_eq!(names.len(), l, "the failed run left {names:?}");
+    // and with the segment restored it verifies and the statement appears
+    std::fs::write(tmp.path().join(run_sink::segment_file_name(1)), &mem.segments()[1]).expect("the test restores the segment file");
+    run_statement_file::verify_then_write(&st, &blocks, tmp.path(), &TAME_FIXTURE).expect("the restored run verifies and its statement is retained");
+    assert!(run_statement_file::statement_path(tmp.path()).exists(), "the restored run left no statement file");
+}
+
+/// **THE ONE ALLOWED ENTRY IS A NAME AND A KIND, AND NOTHING ELSE MOVED.**
+/// `segment_paths` lets a run directory hold the `statement` DIRECTORY beside
+/// its `L` segments; a FILE of that name, and every other foreign entry, is
+/// still refused before a byte of any segment is read.
+#[test]
+fn the_run_directory_allows_the_statement_directory_and_nothing_else() {
+    let (tmp, _w) = a_run_with_its_statement("stmt-dir", 2, false);
+    let (st, blocks) = run_statement_file::read(tmp.path()).expect("the statement reads back");
+    run::verify_run_from_dir(&st, &blocks, tmp.path()).expect("the run verifies with the statement directory present");
+    // a foreign FILE is still refused, by name
+    std::fs::write(tmp.path().join("notes.txt"), b"not a segment").expect("the test writes a foreign file");
+    let e = run::verify_run_from_dir(&st, &blocks, tmp.path()).expect_err("a foreign file was accepted");
+    assert!(e.contains("notes.txt"), "{e}");
+    std::fs::remove_file(tmp.path().join("notes.txt")).expect("the test removes the foreign file");
+    // and a FILE called `statement`, in a directory that has none, is refused
+    let other = TempRunDir::new("stmt-file");
+    std::fs::write(other.path().join("statement"), b"x").expect("the test writes a file called statement");
+    let e = run_sink::segment_paths(other.path(), 2).expect_err("a FILE called statement was accepted");
+    assert!(e.contains("a FILE called statement"), "{e}");
+    run::verify_run_from_dir(&st, &blocks, tmp.path()).expect("the run still verifies");
+}
+
+/// **THE STATEMENT FILE'S OWN JSON READER IS STRICT.** It is a hundred lines
+/// of hand-written parser in a crate with no JSON dependency, so what it
+/// accepts and refuses is pinned here rather than assumed.
+#[test]
+fn the_statement_files_json_reader_is_strict() {
+    use super::run_statement_file::json::{self, J};
+    let ok = json::parse(br#"{"a":1,"b":[-2,3],"c":{"d":"x\ny"},"e":true,"f":false,"g":null}"#).expect("a well-formed value parses");
+    assert_eq!(ok.get("a").expect("a").int().expect("an int"), 1);
+    assert_eq!(ok.get("b").expect("b").ints().expect("ints"), vec![-2, 3]);
+    assert_eq!(ok.get("c").expect("c").get("d").expect("d").str().expect("a string"), "x\ny");
+    assert!(ok.get("e").expect("e").boolean().expect("a bool"));
+    assert_eq!(*ok.get("g").expect("g"), J::Null);
+    assert!(ok.get("h").is_err(), "a missing key must be an error");
+    // whitespace between tokens is fine
+    json::parse(b" { \"a\" : [ 1 , 2 ] } ").expect("whitespace parses");
+    // and every one of these is refused
+    for (what, src) in [
+        ("a repeated key", &br#"{"a":1,"a":2}"#[..]),
+        ("a trailing byte", &br#"{"a":1} x"#[..]),
+        ("a trailing comma", &br#"{"a":1,}"#[..]),
+        ("an unterminated object", &br#"{"a":1"#[..]),
+        ("an unterminated string", &br#"{"a":"x"#[..]),
+        ("a float", &br#"{"a":1.5}"#[..]),
+        ("an exponent", &br#"{"a":1e3}"#[..]),
+        // a `\u` escape, spelled with an escaped backslash so that the source
+        // really does carry the two characters `\` and `u`
+        ("a unicode escape", &b"{\"a\":\"\\u0041\"}"[..]),
+        ("a bare word", &br#"{"a":yes}"#[..]),
+        ("a single-quoted string", b"{'a':1}"),
+        ("an empty input", b""),
+    ] {
+        assert!(json::parse(src).is_err(), "{what} was accepted");
+    }
+    // a digest is 64 lower-case hex characters and nothing else
+    let d = json::parse(br#"{"x":"00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff","y":"00AA","z":3}"#).expect("parses");
+    assert_eq!(d.get("x").expect("x").hex32().expect("a digest")[0], 0x00);
+    assert_eq!(d.get("x").expect("x").hex32().expect("a digest")[31], 0xff);
+    assert!(d.get("y").expect("y").hex32().is_err(), "a short/upper-case digest was accepted");
+    assert!(d.get("z").expect("z").hex32().is_err(), "a number was read as a digest");
 }
