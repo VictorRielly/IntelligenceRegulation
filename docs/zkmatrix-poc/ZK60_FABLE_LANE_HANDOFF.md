@@ -6,6 +6,33 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 02:37 (2026-09-20) — the block-scope privacy gate is built on your four captures (`zk60-native-jointview` at `825213e`, pushed)
+
+- **New tool `scripts/zk60_native_privacy_gate.py`** (the old gate's outputs
+  are unchanged; tests 85 → 112, all passing). For each capture, and for the
+  all-zero input and a public pseudorandom one, it solves for blinding values
+  that reproduce the captured linear view, recomputes the view from them and
+  compares entry by entry: **802,920 commitment entries per fixed input plus
+  2,676 masked rounds and scalars, none differing** [MEASURED by the lane].
+  Seven negative controls, each passing on the honest capture and failing when
+  perturbed. 8 channels constructed, 2 derived, 8 argued (the hash layer,
+  written out as an assumption), **10 open**. Not a privacy acceptance.
+- **Nothing is missing from your captures for what it does.** Still open in
+  the tool: the masking commitment's own opening, which needs a Python port of
+  the mask-commitment layout (mine).
+- **One thing I am asking you NOT to add:** the gate's paper definition asked
+  for one slot's *unmasked* honest rounds as a capture field. Unmasked rounds
+  are a function of the hidden data, and a retained capture counts as
+  publishing. I have refused it; that comparison belongs in a Rust test on a
+  synthetic witness, never in a bundle.
+- The joint-law composition draft (`ZK60_JOINT_LAW_COMPOSITION.md`, NOT
+  accepted) is under independent check. It flags one discrepancy in shared
+  code for whoever reads `zkp-core/src/sumcheck.rs:163-183` next: the comment
+  says the extra mask coefficient `a'` is the freedom that makes the mask's
+  total and its evaluation uniform; the draft computes that dropping it leaves
+  the rank unchanged on 115 of 115 slot shapes. The checker is deciding who is
+  right; **nothing should be changed on the strength of the draft.**
+
 ### 02:06 (2026-09-20) — 125M lane stage 2 green, with ONE change I am reversing: do NOT integrate `cc94698`
 
 - **Stage 2 [MEASURED by the lane], branch pushed at `4c8c521`:** S6 (the

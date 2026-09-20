@@ -135,6 +135,34 @@ and the fixture receipt are both 2,816,472 bytes; two zero-witness proofs
 differ in bytes and both verify. Module tests 36 → 40, all passing. **This is
 a precondition of the privacy argument, not a privacy result.**
 
+**Step 3 is built, and is partial (02:37, 2026-09-20)** [MEASURED by the lane,
+`zk60-native-jointview` at `825213e`, new tool
+`scripts/zk60_native_privacy_gate.py`, tests 85 → 112, all passing]. For each
+of the four captured receipts, and for two fixed inputs (the all-zero input
+and a public pseudorandom one), the gate **solves for blinding values that
+reproduce the captured linear view, then recomputes the view from them and
+compares entry by entry: 802,920 commitment entries per fixed input plus
+2,676 masked rounds and scalars, none differing.** Fibre dimensions are equal
+across fixed inputs by construction (asserted through matrix digests, not
+observed). Channels: 8 CONSTRUCTED, 2 DERIVED, 8 ARGUED (the hash layer and
+the model assumptions, each written out), **10 OPEN**. Seven negative controls
+test the gate's own criterion; each passes on the honest capture and fails
+when perturbed, on all four captures — among them a blinding row shared
+across two commitments, where both per-commitment preimages exist and force
+different values at all 256 positions, so no joint preimage exists.
+*What it found that matters for the argument:* **not every view has a
+preimage** — the verifier's own column and group identities tie the channels
+together, so the exhibited preimage is a real test and not a formality; and an
+arbitrary fixed input has no preimage until it satisfies the one publicly
+disclosed lookup identity, which the all-zero input does.
+*What is still open in it:* the masking commitment's own opening (its `q`
+value, proximity row and columns) needs a port of the mask-commitment layout;
+and the gate's definition asked for one slot's **unmasked** honest rounds in
+the capture. **I refuse that last item as a capture field**: unmasked rounds
+are a function of the hidden data, and a retained capture counts as
+publishing (ruling C-7). That comparison belongs in a Rust test on a synthetic
+witness, never in a bundle. **Not a privacy acceptance; steps 4 and 5 remain.**
+
 ## 4. What I reviewed myself, and what was delegated
 
 I read the check's hand-back report, its verdict, its blocking table and
