@@ -148,12 +148,40 @@ precise reason.
 | # | item | state |
 |---|---|---|
 | T0 | this skeleton; baseline recorded | done |
-| T1 | plane-index loader + integrity (`zk60_native_rg_planes.py`); old bundle still loads, channel still OPEN, with a test | todo |
-| T2 | the per-slot terminal identity at the rung (`zk60_native_rg_terminals.py`): recompute each slot's terminal polynomial from the captured terminals and compare with the sumcheck's final claim | todo |
-| T3 | four controls: (a) perturbed terminal, (b) swapped plane list entries, (c) a slot re-pointed at a same-size plane, (d) an old bundle → OPEN not passed | todo |
+| T1 | plane-index loader + integrity (`zk60_native_rg_planes.py`); old bundle still loads, channel still OPEN, with a test | done |
+| T2 | the per-slot terminal identity at the rung (`zk60_native_rg_terminals.py`): recompute each slot's terminal polynomial from the captured terminals and compare with the sumcheck's final claim | done |
+| T3 | four controls: (a) perturbed terminal, (b) swapped plane list entries, (c) a slot re-pointed at a same-size plane, (d) an old bundle → OPEN not passed | done (five: a fifth on the rebuilt public tables' digests) |
 | T4 | the whole gate on `run-c-tame` + `run-d-zero`, evidence in `results/zk60_native_run_gate_planeindex/`; old bundles re-run unchanged | todo |
 | T5 | tests for T1–T3; the whole native suite re-run and counted | todo |
 | T6 | a dated section in `ZK60_NATIVE_RUN_GATE.md`: what is checked per slot, what stays OPEN and why, the recounted channel table | todo |
+
+## R2.2 What T2 covers, and what it does not (measured 2026-09-20 14:25 PDT)
+
+**12 of the 23 slots** are evaluated and compared, in every stage: 00 SC_SS,
+01 SC_SSM, 02 SC_TZC, 03 SC_LZC, 04 SC_RS, 08 SC_SCORE, 09 SC_PV, 17 SC_SZC,
+18 SC_FZC, 20 SC_ZS, 21 SC_IO_IN, 22 SC_IO_OUT — 36 slot checks per bundle,
+all equal, all matching the capture's own `terminal_polynomial`.
+
+**11 of the 23 stay OPEN for ONE reason**, and it is not the plane index:
+`run.json["public_tables_included"]` is `false`, so a bundle carries a public
+table's length and SHA-256 but not its values, and the missing tables of
+those slots are folds of the public WEIGHTS (05, 06, 07, 10, 11, 12, 13), the
+two norm GAINS (14), the RoPE `(cos, sin)` pair (15, 16) or the exp /
+activation table values (19) — none of which a bundle carries. Nothing
+HIDDEN is missing; all of it is public and could be re-captured.
+
+**The public tables that ARE a function of the shape are rebuilt here and
+checked against the capture's own SHA-256** before use: `supp(T)`, `supp(Ht)`,
+`supp(L)`, `supp(D)`, `supp(S)`, `supp(F)`, the causal mask and `SC_ZS`'s
+all-ones `Dom::Tab` vector — 11 table instances per stage, every digest
+matching. That is a machine check of the pad-rule port itself.
+
+Covered, and NEW at the rung: the pad-zero term
+`mu_pad·(1−supp)·Σ ζ^j·plane_j` (slots 02, 03, 17, 18) and the `supp` gate
+(00, 01, 04, 17, 18); the third `sigma_s` limb `A_SR2` / `A_SG2` (17); the
+grouped-head (GQA) bilinear slots (08, 09); and the run's two boundary claim
+sites (21 and 22, whose IO table is an internal BOUNDARY in every stage but
+the first and the last).
 
 ## R2.1 Rules kept
 
