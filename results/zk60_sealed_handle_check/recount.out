@@ -1,0 +1,84 @@
+=== A. field / S-box arithmetic ===
+p              = 18446744069414584321
+p-1            = 18446744069414584320 = 2^32 * (2^32-1)? True
+2^32-1 factors = 3*5*17*257*65537 = 4294967295 (equal: True)
+  gcd( 2, p-1) = 2  -> x^2 is a permutation: False
+  gcd( 3, p-1) = 3  -> x^3 is a permutation: False
+  gcd( 4, p-1) = 4  -> x^4 is a permutation: False
+  gcd( 5, p-1) = 5  -> x^5 is a permutation: False
+  gcd( 6, p-1) = 6  -> x^6 is a permutation: False
+  gcd( 7, p-1) = 1  -> x^7 is a permutation: True
+  gcd(11, p-1) = 1  -> x^11 is a permutation: True
+log2(p)        = 64.0000 bits per field element
+  BabyBear 2^31-2^27+1: smallest permutation power in {3,5,7} = [7]
+  KoalaBear 2^31-2^24+1: smallest permutation power in {3,5,7} = [3]
+  Mersenne31 2^31-1: smallest permutation power in {3,5,7} = [5]
+
+=== B. capacity needed for a stated collision level ===
+  Goldilocks 64-bit: target  94 bits -> capacity >= 3 elements (192 capacity bits)
+  Goldilocks 64-bit: target 106 bits -> capacity >= 4 elements (256 capacity bits)
+  Goldilocks 64-bit: target 128 bits -> capacity >= 5 elements (320 capacity bits)
+  31-bit field: target  94 bits -> capacity >= 7 elements (217 capacity bits)
+  31-bit field: target 106 bits -> capacity >= 7 elements (217 capacity bits)
+  31-bit field: target 128 bits -> capacity >= 9 elements (279 capacity bits)
+
+=== C. the draft's own model, reproduced (section 3.3) ===
+  tiny (T32xd16)       A: perms=     63 values=      7434 rows=   30 bytes=    585728  matches draft: True
+  tiny (T32xd16)       C: perms=     63 values=     14994 rows=   59 bytes=    645120  matches draft: True
+  tiny (T32xd16)       B: perms=     63 values=     32256 rows=  126 bytes=    307200  matches draft: True
+  125M (512x768)       A: perms=  49151 values=   5799818 rows=  354 bytes=   1249280  matches draft: True
+  125M (512x768)       C: perms=  49151 values=  11697938 rows=  714 bytes=   1986560  matches draft: True
+  125M (512x768)       B: perms=  49151 values=  25165312 rows= 1536 bytes=   3194880  matches draft: True
+  Mistral (512x4096)   A: perms= 262143 values=  30932874 rows= 1888 bytes=   4390912  matches draft: True
+  Mistral (512x4096)   C: perms= 262143 values=  62390034 rows= 3808 bytes=   8323072  matches draft: True
+  Mistral (512x4096)   B: perms= 262143 values= 134217216 rows= 8192 bytes=  16826368  matches draft: True
+  Mistral int8         A: perms= 131071 values=  15466378 rows=  944 bytes=   2457600  matches draft: True
+  ALL section-3.3 cells reproduce exactly: True
+
+=== D. claim sites under LEVEL-WISE plane families (section 2.5 says section 3 prices this form) ===
+  tiny (T32xd16)      : leaves=     32 levels= 6 sites 128 -> 708  proof bytes     585728 ->     2961408  (x5.06)
+  125M (512x768)      : leaves=  24576 levels=15 sites 128 -> 1770  proof bytes    1249280 ->     7974912  (x6.38)
+  Mistral (512x4096)  : leaves= 131072 levels=18 sites 128 -> 2124  proof bytes    4390912 ->    12566528  (x2.86)
+
+=== E. unrolled-leaf sponge: k permutations per leaf, no shift needed ===
+  leaves L = n_abs/(8k); leaf perms = k*L = n_abs/8; tree nodes = L-1
+  total/linear-sponge ratio = 1 + 1/k  (k=1 is the draft's binary tree)
+    k=  1 permutations per leaf -> overhead factor 2.0000   plane families 1+1
+    k=  2 permutations per leaf -> overhead factor 1.5000   plane families 2+1
+    k=  4 permutations per leaf -> overhead factor 1.2500   plane families 4+1
+    k=  8 permutations per leaf -> overhead factor 1.1250   plane families 8+1
+    k= 16 permutations per leaf -> overhead factor 1.0625   plane families 16+1
+    k= 64 permutations per leaf -> overhead factor 1.0156   plane families 64+1
+    Mistral int16, k= 1: perms=  262143 values=  30932874 rows= 1888 sites=  236 proof=   4833280 B
+    Mistral int16, k= 4: perms=  163839 values=  19333002 rows= 1180 sites=  590 proof=   4833280 B
+    Mistral int16, k= 8: perms=  147455 values=  17399690 rows= 1062 sites= 1062 proof=   6524928 B
+
+=== F. D18's SHA-256 figure, and what the draft proposes to do to it ===
+  one Mistral int16 endpoint = 4194304 B = 65536 SHA-256 compressions
+  record central, linear chain (the D18 basis)  : lookups   22.8%  words  3.35%    3.23 s =   5.5% of the public pass
+  record central, x2 binary tree (draft SO-7)   : lookups   45.7%  words  6.70%    6.46 s =  11.1% of the public pass
+  record central, x(1+1/8) unrolled leaves      : lookups   25.7%  words  3.77%    3.63 s =   6.2% of the public pass
+  drafter's own SHA count, linear chain         : lookups   73.1%  words  3.35%    6.02 s =  10.3% of the public pass
+  drafter's own SHA count, x2 tree              : lookups  146.1%  words  6.70%   12.04 s =  20.6% of the public pass
+
+=== G. the algebraic gadget as a fraction (draft section 3.4) ===
+  Mistral 2 endpoints, layout A: values    61865748 =  0.63% of the public pass,  0.37 s =  0.63%, proof   8.78 MB
+  Mistral 2 endpoints, layout C: values   124780068 =  1.28% of the public pass,  0.75 s =  1.28%, proof  16.65 MB
+  Mistral 2 endpoints, layout B: values   268434432 =  2.75% of the public pass,  1.61 s =  2.75%, proof  33.65 MB
+  125M private pass: words 270,336,000 (2.703e+08), 4.649 s, 88,356,464 B
+  125M 2 endpoints, layout A:  4.29% of words, + 0.20 s of 4.649 s, proof + 2.50 MB (+ 2.83%)
+  125M 2 endpoints, layout C:  8.65% of words, + 0.40 s of 4.649 s, proof + 3.97 MB (+ 4.50%)
+  tiny, layout B, ONE endpoint: 307200 B of 2,816,472 B = 10.9%
+  tiny, layout A, ONE endpoint: 585728 B of 2,816,472 B = 20.8%
+
+=== H. the gadget's OWN sumcheck arithmetic (omitted from the '+0.37 s' headline) ===
+  Mistral, layout A: 7.461e+10 Goldilocks mul-adds per endpoint
+      at 5e10 op/s (optimistic GPU):   1.49 s per endpoint,   2.98 s for two
+      at 1e10 op/s (pessimistic GPU):   7.46 s per endpoint,  14.92 s for two
+  Mistral, layout C: 4.267e+10 Goldilocks mul-adds per endpoint
+      at 5e10 op/s (optimistic GPU):   0.85 s per endpoint,   1.71 s for two
+      at 1e10 op/s (pessimistic GPU):   4.27 s per endpoint,   8.53 s for two
+  Mistral, layout B: 3.865e+10 Goldilocks mul-adds per endpoint
+      at 5e10 op/s (optimistic GPU):   0.77 s per endpoint,   1.55 s for two
+      at 1e10 op/s (pessimistic GPU):   3.87 s per endpoint,   7.73 s for two
+

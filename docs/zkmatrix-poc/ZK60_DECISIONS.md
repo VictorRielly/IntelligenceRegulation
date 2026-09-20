@@ -616,6 +616,26 @@ a gadget that does not exist; it must be scoped and measured before it is
 quoted. The same handle is what chaining separately finished proofs needs.
 **D8 and D11 remain open**, and they bind that future configuration.
 
+*Scoping note, 2026-09-19 23:13.* The todo was scoped on paper the same
+evening and the scoping was attacked by an independent check
+(`ZK60_SEALED_HANDLE_SCOPING.md`, its `_CHECK.md`, and the security owner's
+`_DISPOSITION.md`). What that leaves on the record: the construction's shape
+is accepted as the right one for this option; the memo is **not** accepted as
+a basis for any cost or for the choice of hash. Of the two figures above, the
+public one follows from its stated basis; **the private one (+12.6%) has no
+published derivation and could not be reproduced — treat it as unverified.**
+A claim in the draft that both figures were two times too low was checked and
+withdrawn. The GPU zero-check is capped at degree 4 and the private block has
+no device path, so no GPU-denominated cost for the gadget exists. **Which hash
+the handle uses is a security acceptance for Victor of the same kind as D3, D4
+and D7; it is taken when this option is scheduled, with the published
+cryptanalysis read again that week** (it moved during 2026). The security
+owner's direction for the design is a two-layer handle: an algebraic hash
+inside the proof whose root is never published, wrapped in one standard salted
+hash, so that hiding rests on the assumption D7 already accepted and only
+collision resistance rests on the newer primitive. Unchecked and unpriced.
+Nothing is scheduled to be built; the first MVP seals at proof time.
+
 ## D13 — What the first MVP must prove (decided 2026-09-19)
 
 **Ruling (Victor, Telegram, 2026-09-19 11:50): the hidden transformer blocks

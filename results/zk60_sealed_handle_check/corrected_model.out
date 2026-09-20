@@ -1,0 +1,62 @@
+=== 1. per absorbed field element, corrected against the literature ===
+design                    perm vals  rate  vals/elt  lk/elt   draft sec 2.7 (tree-doubled)
+Poseidon2 w12 r8                118     8     14.75     0.0   29.5 vals / 0 lk  -> undoubled 14.75 vs 14.75
+RescuePrimeOpt w12 r8            96     8     12.00     0.0   42 vals / 0 lk  -> undoubled 21.0 vs 12.00
+Monolith64 w12 r8               480     8     60.00    24.0   38 vals / 24 lk  -> undoubled 19.0 vs 60.00
+Tip5 w16 r10                    380    10     38.00    16.0   30 vals / 16 lk  -> undoubled 15.0 vs 38.00
+
+=== 2. the tree factor is (1 + 1/k), not 2 ===
+   k =   1 permutations unrolled per leaf -> overhead 2.0000   (1 leaf plane families + one per level)
+   k =   2 permutations unrolled per leaf -> overhead 1.5000   (2 leaf plane families + one per level)
+   k =   4 permutations unrolled per leaf -> overhead 1.2500   (4 leaf plane families + one per level)
+   k =   8 permutations unrolled per leaf -> overhead 1.1250   (8 leaf plane families + one per level)
+   k =  16 permutations unrolled per leaf -> overhead 1.0625   (16 leaf plane families + one per level)
+   k =  64 permutations unrolled per leaf -> overhead 1.0156   (64 leaf plane families + one per level)
+
+=== 3. Mistral int16 endpoint: k sweep, Poseidon2 layout A ===
+  k   leaves  lvls    perms  dataRows  sites  maskRows    committed  proofMB
+  1   131072    17   262143      1888   2124      4248    100532224    12.57
+  2    65536    16   196607      1416   2124      4248     92798976    11.60
+  4    32768    15   163839      1180   2242      4484     92798976    11.60
+  8    16384    14   147455      1062   2596      5192    102465536    12.81
+ 16     8192    13   139263      1003   3422      6844    128565248    16.07
+ 32     4096    12   135167       974   5192     10384    186089472    23.26
+
+=== 4. corrected table: TWO external endpoints ===
+shape                  design             k  %words     sec    %sec   proofMB   %bytes   [draft]
+Mistral 8B public      Poseidon2 w12 r8   1   2.06%    1.20   2.06%     25.13    1.95%   0.63% / 0.37 s / 8.78 MB / 0.68%
+Mistral 8B public      Poseidon2 w12 r8   4   1.90%    1.11   1.90%     23.20    1.80%   
+Mistral 8B public      RescuePrimeOpt w12 r8   1   1.67%    0.98   1.68%     20.45    1.59%   
+Mistral 8B public      RescuePrimeOpt w12 r8   4   1.54%    0.90   1.55%     18.87    1.47%   
+125M 12L private       Poseidon2 w12 r8   1  50.06%    2.33  50.06%     16.92   19.15%   4.29% / 0.20 s / 2.50 MB / 2.83%
+125M 12L private       Poseidon2 w12 r8   4  51.32%    2.39  51.32%     17.34   19.63%   
+125M 12L private       RescuePrimeOpt w12 r8   1  40.73%    1.89  40.73%     13.76   15.58%   
+125M 12L private       RescuePrimeOpt w12 r8   4  41.75%    1.94  41.75%     14.11   15.97%   
+
+=== 4b. LOWER BOUND of the band: keep the draft's own 128 flat sites, but count their mask rows in committed volume too ===
+   Mistral 8B public    rows= 2144 committed=   70254592 ( 0.72% of words) + 0.42 s  proof   8.78 MB ( 0.68%)
+   125M 12L private     rows=  610 committed=   19988480 ( 7.39% of words) + 0.34 s  proof   2.50 MB ( 2.83%)
+
+=== 5. tiny shape, ONE endpoint, receipt is 2,816,472 B ===
+   Poseidon2 w12 r8       k=1: perms=  63 dataRows=  30 sites=  708 proof=2,961,408 B =  105.1% of the receipt   [draft layout A: 585,728 B = 20.8%]
+   Poseidon2 w12 r8       k=4: perms=  39 dataRows=  18 sites=  826 proof=3,420,160 B =  121.4% of the receipt   [draft layout A: 585,728 B = 20.8%]
+   RescuePrimeOpt w12 r8  k=1: perms=  63 dataRows=  24 sites=  576 proof=2,408,448 B =   85.5% of the receipt   [draft layout A: 585,728 B = 20.8%]
+   RescuePrimeOpt w12 r8  k=4: perms=  39 dataRows=  15 sites=  672 proof=2,783,232 B =   98.8% of the receipt   [draft layout A: 585,728 B = 20.8%]
+
+=== 6. what the '+0.37 s' headline leaves out ===
+  (a) the gadget's OWN degree-7 zero-check, per endpoint at Mistral:
+      layout A (~130-term forms): 4.66e+10 Goldilocks mul-adds; at 1e10..1e11 op/s = 0.47..4.66 s per endpoint
+      layout C (<=34-term forms): 2.67e+10 Goldilocks mul-adds; at 1e10..1e11 op/s = 0.27..2.67 s per endpoint
+  (b) no GPU kernel exists above degree 4 (kernels.cu:601 '#define SC_DEG 4').
+      host/GPU ratio measured on the private feed-forward at 12x512: 7.62x
+      125M, Poseidon2 w12 r8: 51.32% of words -> +2.39 s if on GPU, +18.18 s if the slot runs on the host (391% of the 4.649 s pass)
+      125M, RescuePrimeOpt w12 r8: 41.75% of words -> +1.94 s if on GPU, +14.78 s if the slot runs on the host (318% of the 4.649 s pass)
+  (c) mask-row host generation: the MR1 lane found host mask cost = 53% of the repaired profile's added cost; not modelled here.
+
+=== 7. D18's SHA-256 figure under the corrected tree factor ===
+   record central, linear chain  (D18 basis)      3.23 s =   5.5% of the public pass
+   record central, x2 tree       (draft SO-7)     6.46 s =  11.1% of the public pass
+   record central, k=8 unrolled  (correct)        3.63 s =   6.2% of the public pass
+   record central, k=64 unrolled (correct)        3.28 s =   5.6% of the public pass
+   drafter's own 12,800 lk, linear chain          6.02 s =  10.3% of the public pass
+
