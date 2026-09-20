@@ -1,0 +1,39 @@
+   Compiling private-model-kernel v0.1.0 (/home/victor/wt-zk60-block125m/private-model-kernel)
+    Finished `release` profile [optimized] target(s) in 0.80s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/private_model_kernel-aec46f453ed33a2d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/model.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/model-6704375b276556f7)
+
+running 19 tests
+test construction_shape_and_table_refusals ... ok
+test block_refusals_carry_the_layer ... ok
+test equal_head_rows_tie_to_lower_index_end_to_end ... ok
+test final_norm_hand_cases ... ok
+test greedy_lowest_index_tie_break ... ok
+test errors_display_without_data ... ok
+test head_orientation_is_vocab_by_d_and_signed ... ok
+test synthetic_model_is_deterministic ... ok
+test fixed_context_length_only ... ok
+test invalid_tokens_refuse_before_computation ... ok
+test identity_block_is_exact_identity_in_kernel ... ok
+test embedding_gather_is_exact ... ok
+test both_layer_seam ... ok
+test signed_head_end_to_end ... ok
+test final_norm_equals_block_kernel_norm_calibration ... ok
+test final_norm_matches_independent_i128 ... ok
+test earlier_positions_reach_the_last_row_through_attention ... ok
+test end_to_end_matches_independent_reference ... ok
+test both_blocks_and_their_order_affect_the_next_token ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+   Doc-tests private_model_kernel
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

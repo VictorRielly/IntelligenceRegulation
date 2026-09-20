@@ -114,6 +114,7 @@ flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attent
 | 28 | the same, the input magnitude chosen and its reason written down | `…/s8-run3.log` | **17 passed, 0 failed, 1 ignored** |
 | 29 | filter `…::the_rung_at_its_own_calibration_has_an_honest_witness`, `--include-ignored` (a deliberately failing run) | `…/s8-ignored-test.log:82` | **1 failed** — *"S8: the rung's own calibration must have an honest witness, got `private block: this shape's A plane list differs from the pinned one`"* |
 | 30 | the Rust command, filter `private_`, after the S8 preparation | `…/s8-run4.log` | **79 passed, 0 failed, 3 ignored**, 29.43 s, 9 warnings |
+| 31 | the same command shape, `--manifest-path …/private-model-kernel/Cargo.toml` — the OTHER consumer of the kernel crate, to check the shared-file change broke nothing | `…/s8-model-kernel.log` | **19 passed, 0 failed** |
 
 ## Findings
 
