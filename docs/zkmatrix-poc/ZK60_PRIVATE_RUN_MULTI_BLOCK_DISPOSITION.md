@@ -209,6 +209,29 @@ runs at one development shape, on the linear channels. **It says nothing about
 the 125M shape, the hash layer is argued and not computed, and the joint-law
 composition for a run is unwritten. No privacy claim is made about any run.**
 
+**Round 2 (14:51, 2026-09-20): the table landed and the per-slot check now
+runs — for 12 slots of 23.** [MEASURED by the lane; I re-ran its 39 new tests,
+all passing; `zk60-native-jointview` at `fdc210e`, pushed; suite 232, all
+passing.] The Rust lane added the plane index table (stage 15, `b26c869`; a
+function of the public layout only — I read the module) and two new bundles.
+On both, for every stage, the gate recomputes each checked slot's terminal
+value from the captured evaluations and compares it with the sumcheck's final
+claim: **36 of 36 equal**. The twelve cover everything that is new at this
+shape except the weight slots: the pad-zero term and the support gates, the
+grouped-head slots, the third limb, and **both boundary claim sites**. Five
+controls fired, each for its stated reason (a perturbed evaluation fails at
+exactly its slot; swapped or re-pointed planes are refused three ways; an old
+bundle stays OPEN rather than "passed"; a flipped support entry is caught by
+the capture's hash).
+**The other eleven slots stay OPEN, and not for want of the table**: the
+bundles were taken without the *values* of the public tables (folded public
+weights, norm gains, the rotary pair, the exponent table) — only their lengths
+and hashes. Nothing hidden is missing. **Ruling: the re-capture already owed
+under the D19 tag is taken with the public tables included**, which closes
+those eleven with no new arithmetic. The channel count is now 15 open of 24
+(the terminal channel was honestly split in two), so the headline does not
+move yet.
+
 ## 3. What I reviewed myself, and what was delegated
 
 I read the check's hand-back report. M-7's choice (keep the external
