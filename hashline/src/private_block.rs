@@ -89,6 +89,11 @@ mod refusals;
 // that proves at the rung shape and hands the bytes to a fresh verifier.
 #[cfg(test)]
 mod rung_tests;
+// INDEPENDENT ADVERSARIAL CODE REVIEW (delegated reviewer, 2026-09-20): the
+// soundness attacks on the lane's shaped block at the development rung. Report:
+// `docs/zkmatrix-poc/ZK60_BLOCK125M_RUNG_CODE_REVIEW.md`.
+#[cfg(test)]
+mod review_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]

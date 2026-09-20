@@ -1,0 +1,524 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m-review/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:185:18
+    |
+185 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 10 warnings (run `cargo fix --lib -p hashline --tests` to apply 8 suggestions)
+    Finished `release` profile [optimized] target(s) in 46.79s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-bc435a48a74b382c)
+
+running 119 tests
+test private_block::capture::native_capture_roundtrip_and_refusals ... ok
+test private_block::capture::native_capture_saved_receipt ... ignored, requires explicit saved public-fixture receipt and expected policy paths
+test private_block::grow_tests::a_shape_wider_than_the_ntt_tables_is_refused_by_name ... ok
+test private_block::grow_tests::an_inexpressible_shape_is_refused_at_construction_by_name ... ok
+test private_block::grow_tests::an_out_of_class_lookup_value_falls_into_bucket_zero ... ok
+test private_block::grow_tests::every_opened_column_of_an_honest_receipt_carries_its_own_salt ... ok
+test private_block::grow_tests::every_shape_has_its_own_profile_id ... ok
+test private_block::grow_tests::no_commitment_column_and_no_domain_label_can_be_confused_with_a_hash_input ... ok
+test private_block::grow_tests::the_125m_receipt_is_reproduced_part_by_part ... ok
+test private_block::grow_tests::the_byte_table_length_is_split_from_the_row_width ... ok
+test private_block::grow_tests::the_codec_length_is_the_models_at_every_shape ... ok
+test private_block::grow_tests::the_h_plane_ids_are_the_toys_at_the_toy_and_each_shapes_elsewhere ... ok
+test private_block::grow_tests::the_integer_windows_come_from_the_shape ... ok
+test private_block::grow_tests::the_layout_is_built_from_a_shape_and_the_toy_is_one_instance ... ok
+test private_block::grow_tests::the_lift_is_a_no_op_at_the_toy ... ok
+test private_block::grow_tests::the_lifted_u8_table_proves_exactly_256_values ... ok
+test private_block::grow_tests::the_logup_sum_claim_has_one_column_weight_key_at_the_rung ... ok
+test private_block::grow_tests::the_norm_window_of_the_toy_refuses_an_honest_rung_witness ... ok
+test private_block::grow_tests::the_pad_count_is_at_least_the_number_of_opened_columns ... ok
+test private_block::grow_tests::the_pcs_parameters_come_from_the_shape_and_the_pad_count_tracks_the_opened_columns ... ok
+test private_block::grow_tests::the_plane_id_map_expresses_a_third_sigma_s_limb ... ok
+test private_block::grow_tests::the_reconstructed_sum_claim_equals_the_modules_own_at_the_toy ... ok
+test private_block::grow_tests::the_rung_at_its_own_calibration_has_an_honest_witness ... ok
+test private_block::grow_tests::the_shape_driven_layout_matches_the_python_model_at_the_rung_and_at_125m ... ok
+test private_block::grow_tests::the_shape_driven_layout_reproduces_the_toy_exactly ... ok
+test private_block::grow_tests::the_shape_driven_lookup_list_matches_the_counted_one ... ok
+test private_block::grow_tests::the_slot_definitions_are_built_from_the_shape ... ok
+test private_block::grow_tests::the_softmax_window_of_the_toy_refuses_an_honest_rung_witness ... ok
+test private_block::grow_tests::the_toy_parameter_line_is_the_frozen_literal ... ok
+test private_block::grow_tests::the_toy_schedule_digest_is_frozen ... ok
+test private_block::grow_tests::the_unlifted_rung_sum_claim_raises_three_keys_and_is_refused ... ok
+test private_block::layout::tests::declared_counts_are_self_consistent ... ok
+test private_block::layout::tests::planes_are_row_aligned_and_contiguous_per_domain ... ok
+test private_block::norm_alias::the_alias_satisfies_every_norm_relation_in_the_field ... ok
+test private_block::norm_alias::the_alias_still_breaks_exactly_r2_on_a_rung_witness ... ok
+test private_block::norm_alias::the_denominator_range_fact_excludes_the_alias_at_every_expressible_width ... ok
+test private_block::norm_alias::the_half_p_isqrt_alias_is_refused_by_the_byte_limb_pin_on_the_denominator ... ok
+test private_block::norm_alias::the_half_p_isqrt_alias_with_reconstructing_limbs_is_refused_by_the_u8_table ... ok
+test private_block::norm_alias::the_limb_count_the_widened_geometry_needs ... ok
+test private_block::norm_alias::the_widened_norm_window_does_not_re_open_the_alias ... ok
+test private_block::pad::tests::a_weight_nonzero_off_its_support_is_refused_at_construction ... ok
+test private_block::pad::tests::every_slot_fits_the_mask_budget_with_the_indicator ... private block slot budget: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) — closest slot 17, L = 50, L + 256 = 306
+private block slot budget: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) — closest slot 18, L = 72, L + 256 = 328
+private block slot budget: 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) — closest slot 17, L = 117, L + 256 = 373
+ok
+test private_block::pad::tests::every_support_indicator_has_the_true_sizes_weight ... ok
+test private_block::pad::tests::pz1_a_lone_nonzero_pad_value_is_rejected ... ok
+test private_block::pad::tests::pz2_a_consistently_adjusted_pad_is_rejected ... ok
+test private_block::pad::tests::the_builders_head_layout_is_the_memos ... ok
+test private_block::pad::tests::the_closed_forms_equal_the_tables ... ok
+test private_block::pad::tests::the_folded_weight_vectors_vanish_off_support ... ok
+test private_block::pad::tests::the_honest_rung_witness_passes_every_checkable_relation ... ok
+test private_block::pad::tests::the_pad_rule_table_reproduces_the_memos_counts ... ok
+test private_block::pad::tests::the_padded_head_slots_are_one_per_key_value_group ... ok
+test private_block::pad::tests::the_toy_already_pads_one_domain_and_must_not_gain_the_term ... ok
+test private_block::pad::tests::the_toy_profiles_padded_planes_and_what_constrains_them ... ok
+test private_block::parity::a_witness_query_head_reads_only_its_own_key_value_head_at_the_rung ... private block rung grouping: case 14, group 3, 2 key-value heads
+ok
+test private_block::parity::the_case_generator_is_deterministic_and_covers_its_grid ... ok
+test private_block::parity::the_key_value_rope_table_is_laid_out_over_the_key_value_heads ... ok
+test private_block::parity::the_memo_section_three_bounds_hold_at_the_rung ... ok
+test private_block::parity::the_shaped_crate_copies_the_frozen_calibration_exactly ... ok
+test private_block::parity::the_shaped_crate_copies_the_frozen_primitives_exactly ... ok
+test private_block::parity::the_shaped_kernel_equals_the_frozen_kernel_at_the_toy ... job K cross-parity: 1200 toy cases — 905 accepted by both crates, 295 refused identically, 23 trace planes equal on every case
+ok
+test private_block::parity::the_whole_block_witness_equals_the_reference_kernel ... private block whole-block parity: 1200 generated public cases — 905 accepted by both, 295 refused identically by both
+  refusal site `fixed oracle range refusal: FFN down`: 8
+  refusal site `fixed oracle range refusal: FFN gate`: 2
+  refusal site `fixed oracle range refusal: K`: 4
+  refusal site `fixed oracle range refusal: Q`: 4
+  refusal site `fixed oracle range refusal: QR`: 3
+  refusal site `fixed oracle range refusal: V`: 6
+  refusal site `fixed oracle range refusal: residual 1`: 16
+  refusal site `fixed oracle range refusal: residual 2`: 84
+  refusal site `fixed oracle range refusal: score`: 168
+ok
+test private_block::parity::the_whole_block_witness_equals_the_reference_kernel_at_the_rung ... private block rung parity: 160 cases — 131 accepted by both, 29 refused identically by both
+  rung refusal site `fixed oracle range refusal: FFN gate`: 2
+  rung refusal site `fixed oracle range refusal: K`: 1
+  rung refusal site `fixed oracle range refusal: Q`: 3
+  rung refusal site `fixed oracle range refusal: QR`: 1
+  rung refusal site `fixed oracle range refusal: residual 1`: 3
+  rung refusal site `fixed oracle range refusal: residual 2`: 19
+ok
+test private_block::refusals::every_reachable_refusal_site_is_forced_and_matches_the_kernel ... ok
+test private_block::refusals::the_softmax_weights_of_a_row_sum_to_at_most_one ... ok
+test private_block::refusals::the_unreachable_refusal_sites_have_their_premises ... ok
+test private_block::review_tests::a_corrupted_rung_frame_is_refused_and_never_panics ... CODEC: 56 single-byte corruptions, a short frame and a long frame all refused, none panicking
+ok
+test private_block::review_tests::a_query_head_reading_the_other_key_value_head_is_rejected_at_the_rung ... GQA: the two key-value heads exchanged (2213 positions differ): verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::review_tests::a_receipt_does_not_verify_under_another_shape_at_the_rung ... SHAPE: the rung frame under a 5-head / 1-KV verifier of the same padded sizes: Err("private block wire: expected statement mismatch")
+SHAPE: toy frame 2816472 B, rung frame 4218264 B; each refused by the other's verifier
+ok
+test private_block::review_tests::a_remainder_above_its_window_is_rejected_at_the_rung ... WINDOW norm_a rho top limb set to 128 (the first value outside the window): verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+WINDOW norm_a sigma top limb set to 128 (the first value outside the window): verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+WINDOW norm_m rho top limb set to 128 (the first value outside the window): verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+WINDOW norm_m sigma top limb set to 128 (the first value outside the window): verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+WINDOW softmax rho_s top limb set to 2 (the first value outside the window): verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+WINDOW softmax sigma_s top limb set to 2 (the first value outside the window): verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies ... PRE-LANE /../results/zk60_rowfold_20260919/integration/native-block-0: 2816472 B, verify = Ok(())
+PRE-LANE /../results/zk60_rowfold_20260919/integration/native-block-1: 2816472 B, verify = Ok(())
+PRE-LANE /../results/zk60_private_block_evidence/owner_run1: 2816472 B, verify = Ok(())
+PRE-LANE /../results/zk60_attention_integration_20260919/block_public: 2816472 B, verify = Ok(())
+PRE-LANE: 4 archived toy receipts still verify under the lane's verifier
+ok
+test private_block::review_tests::an_endpoint_with_a_nonzero_pad_is_rejected_at_the_rung ... ENDPOINT pad: Err("slot 21 [IO-in endpoint equality]: sumcheck round 0: s(0) + s(1) != claim")
+ok
+test private_block::review_tests::every_committed_plane_is_constrained_on_its_true_support_at_the_rung ... SUPPORT T plane 0 (toy id Some(0)) at true position 0: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT T plane 1 (toy id Some(1)) at true position 0: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT T plane 2 (toy id Some(2)) at true position 0: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT T plane 3 (toy id Some(3)) at true position 0: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Ht plane 4 (toy id Some(4)) at true position 0: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Ht plane 5 (toy id Some(5)) at true position 0: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT L plane 6 (toy id Some(6)) at true position 0: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT L plane 7 (toy id Some(7)) at true position 0: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 8 (toy id Some(8)) at true position 0: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 9 (toy id Some(9)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 10 (toy id Some(10)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 11 (toy id Some(11)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 12 (toy id Some(12)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 13 (toy id Some(13)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 14 (toy id Some(14)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 15 (toy id Some(15)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 16 (toy id Some(16)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 17 (toy id Some(17)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 18 (toy id Some(18)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 19 (toy id Some(19)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 20 (toy id Some(20)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 21 (toy id Some(21)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 22 (toy id Some(22)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 23 (toy id Some(23)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 24 (toy id Some(24)) at true position 0: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 25 (toy id Some(25)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 26 (toy id Some(26)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 27 (toy id Some(27)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 28 (toy id Some(28)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 29 (toy id Some(29)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 30 (toy id Some(30)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 31 (toy id Some(31)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 32 (toy id Some(32)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 33 (toy id Some(33)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 34 (toy id Some(34)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 35 (toy id Some(35)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 36 (toy id Some(36)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 37 (toy id Some(37)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 38 (toy id Some(38)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 39 (toy id Some(39)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 40 (toy id Some(40)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 41 (toy id Some(41)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT D plane 42 (toy id Some(42)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Q plane 43 (toy id Some(43)) at true position 0: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Q plane 44 (toy id Some(44)) at true position 0: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Q plane 45 (toy id Some(45)) at true position 0: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Q plane 46 (toy id Some(46)) at true position 0: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Q plane 47 (toy id Some(47)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Q plane 48 (toy id Some(48)) at true position 0: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Q plane 49 (toy id Some(49)) at true position 0: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Kv plane 50 (toy id Some(50)) at true position 0: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Kv plane 51 (toy id Some(51)) at true position 0: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Kv plane 52 (toy id Some(52)) at true position 0: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Kv plane 53 (toy id Some(53)) at true position 0: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Kv plane 54 (toy id Some(54)) at true position 0: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT Kv plane 55 (toy id Some(55)) at true position 0: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT S plane 56 (toy id Some(56)) at true position 0: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT S plane 57 (toy id Some(57)) at true position 0: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT S plane 58 (toy id Some(58)) at true position 0: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT S plane 59 (toy id Some(59)) at true position 0: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT S plane 60 (toy id Some(60)) at true position 0: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT S plane 61 (toy id Some(61)) at true position 0: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT S plane 62 (toy id Some(62)) at true position 0: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT S plane 63 (toy id Some(63)) at true position 0: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT S plane 64 (toy id Some(64)) at true position 0: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT S plane 65 (toy id None) at true position 0: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT S plane 66 (toy id Some(65)) at true position 0: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT S plane 67 (toy id Some(66)) at true position 0: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT S plane 68 (toy id None) at true position 0: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT F plane 69 (toy id Some(67)) at true position 0: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT F plane 70 (toy id Some(68)) at true position 0: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT F plane 71 (toy id Some(69)) at true position 0: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT F plane 72 (toy id Some(70)) at true position 0: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT F plane 73 (toy id Some(71)) at true position 0: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT F plane 74 (toy id Some(72)) at true position 0: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT F plane 75 (toy id Some(73)) at true position 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT F plane 76 (toy id Some(74)) at true position 0: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT F plane 77 (toy id Some(75)) at true position 0: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT F plane 78 (toy id Some(76)) at true position 0: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT F plane 79 (toy id Some(77)) at true position 0: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+SUPPORT SWEEP: 80 planes; 0 accepted; 0 caught by the prover only
+ok
+test private_block::review_tests::every_zero_rule_plane_has_its_pad_proved_zero_at_the_rung ... PAD T plane 0 (toy id Some(0)) at 24 — the first padded position of the domain: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+PAD T plane 1 (toy id Some(1)) at 24 — the first padded position of the domain: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+PAD T plane 2 (toy id Some(2)) at 24 — the first padded position of the domain: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+PAD T plane 3 (toy id Some(3)) at 24 — the first padded position of the domain: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Ht plane 4 (toy id Some(4)) at 96 — a padded head slot at a true token: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Ht plane 4 (toy id Some(4)) at 31 — a padded token of a true head slot: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Ht plane 4 (toy id Some(4)) at 24 — the first padded position of the domain: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Ht plane 5 (toy id Some(5)) at 96 — a padded head slot at a true token: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Ht plane 5 (toy id Some(5)) at 31 — a padded token of a true head slot: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Ht plane 5 (toy id Some(5)) at 24 — the first padded position of the domain: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD L plane 6 (toy id Some(6)) at 288 — an unused limb sub-plane, which no relation reads: verifier rejected: slot 3 [08 limb zero-check]: sumcheck round 0: s(0) + s(1) != claim
+PAD L plane 6 (toy id Some(6)) at 1023 — the last position of the lifted domain: verifier rejected: slot 3 [08 limb zero-check]: sumcheck round 0: s(0) + s(1) != claim
+PAD L plane 6 (toy id Some(6)) at 24 — the first padded position of the domain: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+PAD L plane 7 (toy id Some(7)) at 288 — an unused limb sub-plane, which no relation reads: verifier rejected: slot 3 [08 limb zero-check]: sumcheck round 0: s(0) + s(1) != claim
+PAD L plane 7 (toy id Some(7)) at 1023 — the last position of the lifted domain: verifier rejected: slot 3 [08 limb zero-check]: sumcheck round 0: s(0) + s(1) != claim
+PAD L plane 7 (toy id Some(7)) at 24 — the first padded position of the domain: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 8 (toy id Some(8)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 8 (toy id Some(8)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 9 (toy id Some(9)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 9 (toy id Some(9)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 10 (toy id Some(10)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 10 (toy id Some(10)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 11 (toy id Some(11)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 11 (toy id Some(11)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 12 (toy id Some(12)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 12 (toy id Some(12)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 13 (toy id Some(13)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 13 (toy id Some(13)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 14 (toy id Some(14)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 14 (toy id Some(14)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 15 (toy id Some(15)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 15 (toy id Some(15)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 16 (toy id Some(16)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 16 (toy id Some(16)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 17 (toy id Some(17)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 17 (toy id Some(17)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 18 (toy id Some(18)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 18 (toy id Some(18)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 19 (toy id Some(19)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 19 (toy id Some(19)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 20 (toy id Some(20)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 20 (toy id Some(20)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 21 (toy id Some(21)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 21 (toy id Some(21)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 22 (toy id Some(22)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 22 (toy id Some(22)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 23 (toy id Some(23)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 23 (toy id Some(23)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 24 (toy id Some(24)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 24 (toy id Some(24)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 25 (toy id Some(25)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 25 (toy id Some(25)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 26 (toy id Some(26)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 26 (toy id Some(26)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 27 (toy id Some(27)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 27 (toy id Some(27)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 28 (toy id Some(28)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 28 (toy id Some(28)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 29 (toy id Some(29)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 29 (toy id Some(29)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 30 (toy id Some(30)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 30 (toy id Some(30)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 31 (toy id Some(31)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 31 (toy id Some(31)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 32 (toy id Some(32)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 32 (toy id Some(32)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 33 (toy id Some(33)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 33 (toy id Some(33)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 34 (toy id Some(34)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 34 (toy id Some(34)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 35 (toy id Some(35)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 35 (toy id Some(35)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 36 (toy id Some(36)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 36 (toy id Some(36)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 37 (toy id Some(37)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 37 (toy id Some(37)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 38 (toy id Some(38)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 38 (toy id Some(38)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 39 (toy id Some(39)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 39 (toy id Some(39)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 40 (toy id Some(40)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 40 (toy id Some(40)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 41 (toy id Some(41)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 41 (toy id Some(41)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 42 (toy id Some(42)) at 96 — a padded width column of a true token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD D plane 42 (toy id Some(42)) at 3072 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Q plane 43 (toy id Some(43)) at 48 — a padded head slot at a true token: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Q plane 44 (toy id Some(44)) at 48 — a padded head slot at a true token: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Q plane 45 (toy id Some(45)) at 48 — a padded head slot at a true token: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Q plane 46 (toy id Some(46)) at 48 — a padded head slot at a true token: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Q plane 47 (toy id Some(47)) at 48 — a padded head slot at a true token: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Q plane 48 (toy id Some(48)) at 48 — a padded head slot at a true token: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Q plane 49 (toy id Some(49)) at 48 — a padded head slot at a true token: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Kv plane 50 (toy id Some(50)) at 1023 — the last position of the domain: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Kv plane 50 (toy id Some(50)) at 768 — the first padded position of the domain: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Kv plane 51 (toy id Some(51)) at 1023 — the last position of the domain: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Kv plane 51 (toy id Some(51)) at 768 — the first padded position of the domain: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Kv plane 52 (toy id Some(52)) at 1023 — the last position of the domain: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Kv plane 52 (toy id Some(52)) at 768 — the first padded position of the domain: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Kv plane 53 (toy id Some(53)) at 1023 — the last position of the domain: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Kv plane 53 (toy id Some(53)) at 768 — the first padded position of the domain: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Kv plane 54 (toy id Some(54)) at 1023 — the last position of the domain: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Kv plane 54 (toy id Some(54)) at 768 — the first padded position of the domain: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Kv plane 55 (toy id Some(55)) at 1023 — the last position of the domain: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+PAD Kv plane 55 (toy id Some(55)) at 768 — the first padded position of the domain: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 56 (toy id Some(56)) at 3072 — a padded head slot at true (t, j): verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 56 (toy id Some(56)) at 24 — a padded key index j of a true row: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 57 (toy id Some(57)) at 3072 — a padded head slot at true (t, j): verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 57 (toy id Some(57)) at 24 — a padded key index j of a true row: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 58 (toy id Some(58)) at 3072 — a padded head slot at true (t, j): verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 58 (toy id Some(58)) at 24 — a padded key index j of a true row: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 60 (toy id Some(60)) at 3072 — a padded head slot at true (t, j): verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 60 (toy id Some(60)) at 24 — a padded key index j of a true row: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 61 (toy id Some(61)) at 3072 — a padded head slot at true (t, j): verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 61 (toy id Some(61)) at 24 — a padded key index j of a true row: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 62 (toy id Some(62)) at 3072 — a padded head slot at true (t, j): verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 62 (toy id Some(62)) at 24 — a padded key index j of a true row: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 63 (toy id Some(63)) at 3072 — a padded head slot at true (t, j): verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 63 (toy id Some(63)) at 24 — a padded key index j of a true row: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 64 (toy id Some(64)) at 3072 — a padded head slot at true (t, j): verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 64 (toy id Some(64)) at 24 — a padded key index j of a true row: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 65 (toy id None) at 3072 — a padded head slot at true (t, j): verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 65 (toy id None) at 24 — a padded key index j of a true row: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 66 (toy id Some(65)) at 3072 — a padded head slot at true (t, j): verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 66 (toy id Some(65)) at 24 — a padded key index j of a true row: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 67 (toy id Some(66)) at 3072 — a padded head slot at true (t, j): verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 67 (toy id Some(66)) at 24 — a padded key index j of a true row: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 68 (toy id None) at 3072 — a padded head slot at true (t, j): verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD S plane 68 (toy id None) at 24 — a padded key index j of a true row: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 69 (toy id Some(67)) at 6144 — a padded token row: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 69 (toy id Some(67)) at 192 — the first padded position of the domain: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 70 (toy id Some(68)) at 6144 — a padded token row: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 70 (toy id Some(68)) at 192 — the first padded position of the domain: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 71 (toy id Some(69)) at 6144 — a padded token row: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 71 (toy id Some(69)) at 192 — the first padded position of the domain: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 72 (toy id Some(70)) at 6144 — a padded token row: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 72 (toy id Some(70)) at 192 — the first padded position of the domain: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 73 (toy id Some(71)) at 6144 — a padded token row: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 73 (toy id Some(71)) at 192 — the first padded position of the domain: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 74 (toy id Some(72)) at 6144 — a padded token row: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 74 (toy id Some(72)) at 192 — the first padded position of the domain: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 75 (toy id Some(73)) at 6144 — a padded token row: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 75 (toy id Some(73)) at 192 — the first padded position of the domain: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 76 (toy id Some(74)) at 6144 — a padded token row: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 76 (toy id Some(74)) at 192 — the first padded position of the domain: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 77 (toy id Some(75)) at 6144 — a padded token row: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 77 (toy id Some(75)) at 192 — the first padded position of the domain: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 78 (toy id Some(76)) at 6144 — a padded token row: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 78 (toy id Some(76)) at 192 — the first padded position of the domain: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 79 (toy id Some(77)) at 6144 — a padded token row: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD F plane 79 (toy id Some(77)) at 192 — the first padded position of the domain: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+PAD SWEEP: 151 cases over 79 ZERO-rule A planes; 3 derived histograms skipped; 0 accepted; 0 caught by the prover only
+ok
+test private_block::review_tests::pz2_at_the_second_norm_and_as_a_free_field_element_is_rejected_at_the_rung ... PZ-2 norm_m, int16 fill: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+PZ-2 free field element in A_X1's pad: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+PZ-2 free field element in A_AO's pad: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::review_tests::the_exempt_pads_entries_are_outside_the_softmax_row_sum_at_the_rung ... EXEMPT exclusion: a padded head slot's causal triangle sums to 16384 while its A_SUM is 0 — so SC_RS's summand must carry supp_S (M-3); on a true row the padded j entries sum to 0, killed by the causal mask alone
+ok
+test private_block::review_tests::the_exempt_planes_pad_is_still_pinned_to_its_table_row_at_the_rung ... EXEMPT pad at 768 (head slot 0, t 24, j 0) carries a nonzero exp row
+EXEMPT pad, not a table row: verifier rejected: H: pcs zk: group 8: <v, c> != combined claim
+EXEMPT pad, a genuine table row of another delta: verifier rejected: H: pcs zk: group 8: <v, c> != combined claim
+ok
+test private_block::review_tests::the_key_value_group_is_the_high_bits_of_the_head_slot_at_every_shape ... ok
+test private_block::review_tests::the_mask_schedule_audit_still_refuses_every_case_at_the_rungs_row_width ... AUDIT: all six refusals fire at both the endpoints' width (256) and the rung's (1,024)
+ok
+test private_block::review_tests::the_pad_terms_unstated_invariants_hold_at_every_shape ... PAD STATIC: the Dom::Tab group is the three histograms, every ZERO-rule plane is on its own domain, and every indicator tiles its slot's cube at all three shapes
+ok
+test private_block::review_tests::the_tame_rung_fixture_cannot_tell_the_two_key_value_heads_apart ... COVERAGE: at the rung, tame_case's two key-value heads carry identical data, so every head-permuting tamper on it is a no-op
+ok
+test private_block::rung_tests::every_rung_lookup_is_a_genuine_table_row ... ok
+test private_block::rung_tests::every_toy_tamper_family_is_rejected_at_the_rung ... the norm_a denominator: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+a norm_a byte limb: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+the norm_a quotient: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+residual 1: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+the input plane: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+an int16 byte limb of x: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+the Q projection: rejected by the verifier: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+the rotated query: rejected by the verifier: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+the K projection: rejected by the verifier: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+the V projection: rejected by the verifier: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+the score: rejected by the verifier: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+the row maximum: rejected by the verifier: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+the exp value: rejected by the verifier: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+the softmax quotient: rejected by the verifier: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+the output projection: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+the attention output: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+a biased attention remainder: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+the norm_m denominator: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+a norm_m byte limb: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+the norm_m quotient: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+the gate output: rejected by the verifier: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+a biased gate remainder: rejected by the verifier: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+the activation value: rejected by the verifier: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+the up output: rejected by the verifier: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+the gate-up product: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+the feed-forward output: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+residual 2: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::rung_tests::pz1_end_to_end_a_lone_nonzero_pad_value_is_rejected_by_the_verifier ... PZ-1: rejected by the verifier: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::rung_tests::pz2_end_to_end_a_consistently_adjusted_pad_is_rejected_by_the_verifier ... PZ-2: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::rung_tests::the_all_zero_hidden_input_proves_and_verifies_at_the_rung ... ok
+test private_block::rung_tests::the_honest_rung_proof_verifies_from_bytes ... S12a rung end to end: prove 0.49 s, verify from bytes 0.10 s, frame 4218264 B, peak RSS 95 MiB (shared box, diagnostics only)
+ok
+test private_block::rung_tests::the_norm_range_alias_is_rejected_end_to_end_at_the_rung ... the half-p isqrt alias on norm_a row 0: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+the half-p isqrt alias on norm_a row 1: rejected by the verifier: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::tamper::a_gate_output_not_derived_from_nm_is_rejected ... ok
+test private_block::tamper::a_limb_outside_its_byte_range_is_rejected_by_the_lookups ... ok
+test private_block::tamper::a_moved_activation_multiplicity_is_rejected_by_the_logup_sum_claim ... ok
+test private_block::tamper::a_norm_m_limb_outside_its_byte_range_is_rejected_by_the_lookups ... ok
+test private_block::tamper::a_norm_m_output_not_derived_from_xres1_is_rejected ... ok
+test private_block::tamper::a_product_output_not_equal_to_a16_times_u16_is_rejected ... ok
+test private_block::tamper::a_z16_outside_int16_cannot_reach_the_output_endpoint ... ok
+test private_block::tamper::an_activation_value_at_a_zero_up_output_is_rejected_by_the_pair_lookup ... ok
+test private_block::tamper::an_activation_value_off_its_table_row_is_rejected ... ok
+test private_block::tamper::an_output_endpoint_committing_xres1_is_refused ... ok
+test private_block::tamper::an_up_output_not_derived_from_nm_is_rejected ... ok
+test private_block::tamper::block_output_cannot_be_chosen ... ok
+test private_block::tamper::every_biased_remainder_is_pinned_by_its_requantization_identity ... ok
+test private_block::tamper::the_norm_m_denominator_is_pinned_by_its_isqrt_witness ... ok
+test private_block::tamper::the_norm_m_quotient_is_pinned_by_its_remainder_windows ... ok
+test private_block::tests::an_endpoint_committed_to_other_values_is_refused ... ok
+test private_block::tests::every_relation_family_rejects_an_inconsistent_witness ... ok
+test private_block::tests::honest_receipt_verifies_in_typed_and_wire_form_with_the_declared_transcript_order ... ok
+test private_block::tests::no_published_word_is_a_small_integer ... ok
+test private_block::tests::opening_refusals_are_functions_of_the_challenges_only ... ok
+test private_block::tests::receipt_field_tampers_and_statement_mismatches_are_refused ... ok
+test private_block::tests::requant_is_the_identity_at_shift_zero_and_the_kernels_rounding_above_it ... ok
+test private_block::tests::the_declared_schedule_is_stable_and_bound ... ok
+test private_block::tests::the_endpoint_scales_and_calibration_are_the_approved_ones ... ok
+test private_block::tests::the_real_claim_list_is_refused_when_a_reserved_pair_is_shared_or_unconsumed ... ok
+test private_block::tests::the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows ... ok
+test private_block::tests::wire_frames_are_exact_canonical_and_bounded ... ok
+test private_block::tests::witness_equals_the_independent_fixed_causal_oracle ... ok
+test private_block::zero_witness_tests::the_all_zero_hidden_input_proves_and_its_receipt_verifies_from_bytes ... ok
+test private_block::zero_witness_tests::the_zero_witness_pins_the_two_constants_and_the_two_range_boundaries ... ok
+test private_block::zero_witness_tests::the_zero_witness_receipt_length_equals_the_fixture_receipt_length ... ok
+test private_block::zero_witness_tests::two_zero_witness_proofs_differ_in_their_bytes_and_both_verify ... ok
+
+test result: ok. 118 passed; 0 failed; 1 ignored; 0 measured; 81 filtered out; finished in 183.98s
+
