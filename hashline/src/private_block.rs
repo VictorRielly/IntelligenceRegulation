@@ -86,7 +86,7 @@ use crate::ntt::NttTables;
 use crate::pcs::OpeningZk;
 use crate::private_seam::{self, PreparedPlane, SeamSpec, Side};
 use crate::zk::MaskOpening;
-use layout::{D, DH, F, F_E, F_RO, HALF, KV, T};
+use layout::{D, DH, F_E, F_RO, T};
 
 pub const PROFILE: &[u8] = b"hashline-zk-mr1/private-block-t32-poc/1";
 pub use wire::MAX_WIRE_BYTES;
@@ -128,17 +128,36 @@ pub struct AttentionPublic {
 impl AttentionPublic {
     #[allow(clippy::too_many_arguments)]
     pub fn new(wq: &[i8], wk: &[i8], wv: &[i8], wo: &[i8], gamma_a: &[i8], rope_cos: &[i64], rope_sin: &[i64], exp: &[i64]) -> Result<Self, String> {
-        if [wq.len(), wo.len()] != [D * D; 2] || [wk.len(), wv.len()] != [KV * D; 2] || gamma_a.len() != D {
+        Self::new_shaped(&shape::Shape::toy(), wq, wk, wv, wo, gamma_a, rope_cos, rope_sin, exp)
+    }
+
+    /// The same statement at any [`shape::Shape`] (step S6): the weight and
+    /// table LENGTHS and the exponential table's scale come from the shape,
+    /// the structural rules do not move. `new` is this at `Shape::toy()`.
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn new_shaped(
+        sh: &shape::Shape,
+        wq: &[i8],
+        wk: &[i8],
+        wv: &[i8],
+        wo: &[i8],
+        gamma_a: &[i8],
+        rope_cos: &[i64],
+        rope_sin: &[i64],
+        exp: &[i64],
+    ) -> Result<Self, String> {
+        let (d, kv, half) = (sh.width, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
+        if [wq.len(), wo.len()] != [d * d; 2] || [wk.len(), wv.len()] != [kv * d; 2] || gamma_a.len() != d {
             return Err("private block: public weight shape".into());
         }
-        if [rope_cos.len(), rope_sin.len()] != [T * HALF; 2] || exp.len() != 256 {
+        if [rope_cos.len(), rope_sin.len()] != [sh.tokens * half; 2] || exp.len() != 256 {
             return Err("private block: public table shape".into());
         }
         let one_ro = 1i64 << F_RO;
-        let one_e = 1i64 << F_E;
+        let one_e = 1i64 << sh.f_e;
         if rope_cos.iter().chain(rope_sin.iter()).any(|v| !(-one_ro..=one_ro).contains(v))
-            || rope_cos[..HALF].iter().any(|c| *c != one_ro)
-            || rope_sin[..HALF].iter().any(|s| *s != 0)
+            || rope_cos[..half].iter().any(|c| *c != one_ro)
+            || rope_sin[..half].iter().any(|s| *s != 0)
         {
             return Err("private block: rope table structure".into());
         }
@@ -206,7 +225,13 @@ pub struct FeedForwardPublic {
 
 impl FeedForwardPublic {
     pub fn new(gamma_m: &[i8], wg_t: &[i8], wu_t: &[i8], wd_t: &[i8], act: &[i16]) -> Result<Self, String> {
-        if gamma_m.len() != D || [wg_t.len(), wu_t.len()] != [D * F; 2] || wd_t.len() != F * D {
+        Self::new_shaped(&shape::Shape::toy(), gamma_m, wg_t, wu_t, wd_t, act)
+    }
+
+    /// The same feed-forward statement at any [`shape::Shape`] (step S6).
+    pub(crate) fn new_shaped(sh: &shape::Shape, gamma_m: &[i8], wg_t: &[i8], wu_t: &[i8], wd_t: &[i8], act: &[i16]) -> Result<Self, String> {
+        let (d, f) = (sh.width, sh.hidden);
+        if gamma_m.len() != d || [wg_t.len(), wu_t.len()] != [d * f; 2] || wd_t.len() != f * d {
             return Err("private block: feed-forward weight shape".into());
         }
         let act: [i16; 256] = act.try_into().map_err(|_| "private block: activation table shape".to_string())?;
