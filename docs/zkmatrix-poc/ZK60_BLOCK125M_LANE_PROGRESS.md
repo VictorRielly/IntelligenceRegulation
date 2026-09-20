@@ -2827,10 +2827,10 @@ that level for the native line is the project owner's ruling.
 |---|---|---|
 | R1 | the claim audit on a hand-built two-claim boundary schedule | **done** (4 tests) |
 | R2 | `boundary.rs`: derived rows, two claim sites, one opening | **done** (11 + 1 tests) |
-| R3 | `run.rs`: the run prover and verifier, `L = 2` at rung-G | pending |
-| R4 | the negative battery at `L = 2` | pending |
-| R5 | `L = 3`, then `L = 12` at rung-G | pending |
-| R6 | `L = 2` at 125M: PREPARED, NOT RUN | pending |
+| R3 | `run.rs`: the run prover and verifier, `L = 2` at rung-G | **done** |
+| R4 | the negative battery at `L = 2` and `L = 3` | **done** (13 run tests) |
+| R5 | `L = 3`, then `L = 12` at rung-G | **done**, measured |
+| R6 | `L = 2` at 125M: PREPARED, NOT RUN | **prepared**, command in the ledger, NOT launched |
 
 ### Baseline, before anything of this stage
 
@@ -2927,9 +2927,250 @@ it can never be bypassed by a declaration.
 
 ### Shared files touched outside `hashline/src/private_block*`
 
-None so far.
+**None.** Every file this stage wrote is `hashline/src/private_block.rs` or
+under `hashline/src/private_block/`. The check's reachability table A9.3 is
+confirmed in practice: no forbidden file was needed on the prover or the
+verifier path. Of the seven "permitted sites that move" the check listed,
+only ONE moved — `argument.rs`'s `sh.endpoint_rows - 5`, which now reads the
+layout — because ruling M-7 keeps the external endpoints' geometry and
+removed the other six.
 
-### NEXT
+### R3 / R4 / R5 — the run prover, the run verifier, and the ladder
 
-R3: `hashline/src/private_block/run.rs` — the run prover and verifier over
-the checked stage order, with the segment framing, and `L = 2` at rung-G.
+Three new library files and one refactor, all inside
+`hashline/src/private_block*`:
+
+* **`run.rs`** — `RunShape`, `RunStatement`, `prove_run`, `verify_run`, the
+  transcript position tag and the `RunWitnessSource` trait.
+* **`wire.rs`** — the segment codec, appended; nothing of the block frame
+  moved.
+* **`protocol.rs`** — `prove_inner_at` and `verify_inner_at` SPLIT into the
+  body a stage and a block share (`prove_core` / `verify_core`: `A`, `M`, the
+  LogUp challenges, `H`, the 23 slots, and the openings of `M`, `A`, `H`, in
+  exactly that order) and the parts that differ (the header, and the IO
+  openings, which a block does at once and a run does one stage apart). Every
+  transcript operation is in the same order it was, which is why every
+  existing profile's bytes and digests are unmoved.
+* **`layout.rs` / `argument.rs`** — the reserved pair an IO tab claims comes
+  from the LAYOUT (`Layout::with_io_mask_rows`) instead of the literal
+  `sh.endpoint_rows - 5` in `argument.rs`. For every single-block profile the
+  layout's value IS `sh.endpoint_rows - 5`; a run sets it per stage. It is not
+  in `describe()`, so no schedule digest moves; the run's OWN schedule digest
+  carries it.
+
+**The stage order, as built** (the design's §2.2): position tag; absorb the
+stage index and the block's public digest; commit `B_k` and absorb its root
+with its rows and row width; `prove_core` (the measured block, unchanged);
+open `B_{k-1}` with block `k-1`'s slot-22 claim and block `k`'s slot-21 claim
+together — the first moment its claim list is complete; on the last stage
+open the external output endpoint too; position tag; write the segment; hand
+it to the sink and drop it; keep only `B_k`.
+
+**What crosses a stage.** On the prover: the `PreparedBoundary` owner of
+`B_k` and the one `ZClaim` block `k`'s slot 22 raised. On the verifier: the
+boundary's root and spec and **its own** `ZClaim` — `argument.rs` pushes each
+claim outside the prove/verify match, so the verify arm computes the pending
+claim identically and NOTHING about a claim is read from a segment.
+
+**The segment, and its byte-exact length.** One format, used by the encoder
+and the decoder alike: an 88-byte header (magic `HLPRUNS1`, the run's binding
+digest, `L`, the segment index, the transcript position tag), then `B_k`'s
+root when this stage commits one, the three block roots, the 23 slot proofs,
+the `M`, `A` and `H` openings, the opening this stage CLOSES, the external
+output endpoint's opening on the last stage, and a 32-byte trailer. The
+header and trailer are **outside** the Fiat-Shamir chain (never absorbed —
+a state cannot hash itself) and are **compared, never adopted** (ruling M-6).
+
+**FINDING U-3.** The design asks the header to carry "the 32-byte transcript
+state plus the 8-byte squeeze counter". `zkp-core/src/transcript.rs`
+publishes `state()` but **no counter accessor**, and it is a file this lane
+does not edit. Comparing the state alone would miss a counter mismatch. What
+is carried instead is a **position tag**: a challenge squeezed from a CLONE
+of the transcript, which is a function of the state AND the counter (the two
+are the whole state, as `clone_state` shows), in 32 bytes. The clone is
+discarded and nothing the live transcript will produce is disturbed — the
+device `check_opening` has always used for its challenge replay. The framing
+is therefore 88 + 32 = 120 B, not the design's 96 + 40 = 136.
+
+**THE BYTE COUNT RECONCILES WITH THE DESIGN EXACTLY** [COUNTED, and
+MEASURED at the rung]. The test computes the three segment lengths from the
+block's own counted receipt and nothing else, and asserts them:
+
+| | rung-G (measured = counted) | 125M (counted) |
+|---|---|---|
+| external endpoint opening (1 group) | 167,936 | 749,568 |
+| boundary opening (2 groups) | 190,464 | **1,017,856** (the design's figure to the byte) |
+| segment 1 | 4,066,824 | 40,033,336 |
+| interior segment | 4,089,352 | 40,301,624 |
+| last segment | 4,257,256 | 41,051,160 |
+| `L = 2` total | **8,324,080** | 81,084,496 |
+| `L = 12` total | **49,217,600** | **484,100,736** |
+
+The design counted 484,095,680 for twelve 125M blocks with 40 B of framing
+and 36-row external endpoints. The difference is exactly
+`12 x 80` (the framing this build actually uses, finding U-3) `+ 2 x 2,048`
+(ruling M-7: the externals keep today's 37 rows), i.e. 5,056 B. The design's
+correction C7 — "R6's acceptance currently fails an honest run by 96 bytes
+per segment" — cannot bite here, because the acceptance figure is DERIVED in
+the test from the block's counted receipt and the framing constants.
+
+### The measured ladder at the development rung (rung-G)
+
+[MEASURED, one run each, shared box, 2026-09-20 10:2x; development grade, no
+receipt from it is shown to anyone]
+
+| `L` | prove, s | verify from segments, s | receipt, B | counted | high-water mark after each block, MiB |
+|---|---|---|---|---|---|
+| 2 | 0.99 (0.51 + 0.49) | 0.20 | 8,324,080 | ✔ | 117, 117 |
+| 3 | 1.50 | 0.30 | 12,413,432 | ✔ | 117, 117, 117 — flat |
+| 12 | 5.87 | 1.16 | 49,217,600 | ✔ | 117 x6, 122, 137 x5 — **RISING** |
+
+**FINDING U-4: the high-water mark RISES across a twelve-block run**, from
+117 MiB to 137 MiB, in two steps at blocks 7 and 8, and then stays flat. That
+is +17% on a run whose per-stage working set is constant by construction, and
+it is the allocator-fragmentation signal the check's OMITTED CONDITION 3 asks
+for. It is REPORTED, NOT REPAIRED, per the brief. At the rung the absolute
+numbers are trivial; at 125M the same relative rise on a 10.4 GiB stage would
+be about 1.8 GiB and would put a twelve-block run past the 12 GiB ceiling, so
+this must be measured at 125M before `L = 12` is attempted there, and the
+`L = 2` run of R6 is the first place it can be seen.
+
+### The negative battery at `L = 2` and `L = 3` (R4)
+
+| test | outcome |
+|---|---|
+| **THE HEADLINE NEGATIVE TEST (i)**: the boundary holds block 1's TRUE output, block 2 was run on something else | rejected BY THE VERIFIER at **slot 21 `[IO-in endpoint equality]`**, `sumcheck round 0: s(0) + s(1) != claim` |
+| **THE HEADLINE NEGATIVE TEST (ii)**: the boundary holds block 2's input, block 1's output differs | rejected BY THE VERIFIER at **slot 22 `[IO-out endpoint equality]`** |
+| a boundary claim on a SHARED pair | refused by `audit_claims`, on the prover's opening path and on the verifier's (`boundary::into_opening` and `boundary::check_opening` both call it); R1 and `a_boundary_opening_on_a_shared_pair_is_refused` |
+| a dropped last segment / a dropped middle segment | rejected: the segment count is the verifier's own |
+| two segments swapped / a duplicated segment | rejected: the header's position tag is not the verifier's own |
+| a FOREIGN segment from a second honest run of the same statement | rejected at the header's run binding, **before a field element is parsed** |
+| every segment foreign but the first / only the third segment offered | rejected |
+| a one-bit change anywhere in any of the three segments | rejected |
+| a truncated segment | rejected: "the counted length" |
+| a run verified with the wrong `L` | rejected: `L` is in the verifier's statement, the profile, the `"run-shape"` absorb, the parameter line and the schedule digest |
+| block `k+1` declaring a different input scale than block `k`'s output scale | **does not construct**: "a boundary has ONE scale" (ruling M-4) |
+| a receipt made under one calibration identity, verified under another | rejected at the run binding digest |
+| the ALL-ZERO hidden input, as a RUN | proves and verifies; segment lengths unmoved |
+| every one of the 27 single-block tamper families, applied to BLOCK 2 of a run | all rejected by the VERIFIER, each naming the slot that caught it (the prover succeeded in every case) |
+
+### R6 — ONE `L = 2` run at the 125M shape: PREPARED, NOT RUN
+
+The `#[ignore]`d test is
+`private_block::run_tests::private_run_125m_two_blocks`. It asserts the
+boundary is the counted 38 rows and the two segments the counted 40,033,336
+and 41,051,160 B, and prints the chain-build seconds, per block the proving
+seconds and the high-water mark after it, and the verifying seconds.
+
+Predictions, so the run can fail [MODEL from MEASURED, the single 125M block
+being prove 26.54 s, verify 1.04 s, receipt 40,782,792 B, peak 10.42 GiB]:
+prove about 2 x 31 s of stage time, **peak about 10.74 GiB** (ruling M-3's
+flushed figure; predict under 11.0 against a `MemAvailable` of about 13 GiB),
+verify from segments about 2.1 s, total receipt 81,084,496 B. The witness is
+built FOUR times, not twice — the chain builds each to learn the planes and
+drops it, and the prover builds each again just in time so that no two 125M
+witnesses (711 MB each) are ever resident — so about 4 x 4.7 s of the wall
+clock is witness building and is not proving time.
+
+**Step 1 — build under the build lock** (done; log
+`results/zk60_block125m_lane/u15-r6-build.log`):
+
+```
+flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attention-compile/hashline/target CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=8 /home/victor/.cargo/bin/cargo test --release --offline -j 2 --manifest-path /home/victor/wt-zk60-block125m/hashline/Cargo.toml --lib private_ --no-run > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/u15-r6-build.log 2>&1
+```
+
+The `Executable unittests` line names
+`/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5`
+— the same name as stages 9 and 11, because the hash is of the crate's
+metadata and not of its source; the binary was rebuilt (mtime 2026-09-20
+10:36, 11,077,920 B). **Re-read the path and the mtime before launching**:
+the target directory is shared with another worktree, and it must be NEWER
+than the last commit of this lane.
+
+**Step 2 — the detached, memory-capped run.** `MemAvailable` at the time of
+writing is about 13 GiB against a modelled peak of 10.74 GiB. One line,
+nothing else heavy on the box, no GPU job, no release build:
+
+```
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 /home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::run_tests::private_run_125m_two_blocks >> /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run-l2.log 2>&1; echo $? > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run-l2.done' >/dev/null 2>&1 &
+```
+
+The phase clock is deliberately OFF (no `HL_PB_TIMING=1`): what this run is
+for is the two stage times, the per-stage high-water marks and the segment
+lengths, and the clock's 54 `/proc/self/status` reads per stage are not
+wanted in the first multi-block measurement. `m125-run-l2.done` holds the
+exit code; a memory kill leaves a nonzero code and a log without the RESULT
+line, which is **finding U-4's answer at scale** and not a failure.
+
+What it prints, in order: `125M RUN L=2: chain built …`, then one line per
+block with its proving seconds and the high-water mark AFTER it, then the two
+segment lengths against the counted `[40033336, 41051160]`, then the
+`125M RUN L=2 RESULT:` line.
+
+**RESULTS (TO BE FILLED BY WHOEVER LAUNCHES IT)**
+
+| figure | prediction | measured |
+|---|---|---|
+| chain build (2 witnesses), s | ~9.4 | |
+| prove, block 0 / block 1, s | ~31 / ~31 | |
+| high-water mark after block 0 / block 1, GiB | ~10.4 / <11.0 | |
+| segments, B | 40,033,336 / 41,051,160 | |
+| verify from segments, s | ~2.1 | |
+| does the high-water mark RISE between the two blocks? | unknown — this is the measurement | |
+
+### Tests and commands of R3 / R4 / R5
+
+| command | log |
+|---|---|
+| `--lib private_block::tests` (the toy, after the `protocol.rs` split) | `u8-refactor.log` — 13 passed, 0 failed |
+| `--lib private_block::run_tests` (first write of `run.rs`) | `u9-r3-compile.log` — compiles, nothing used yet |
+| the same, with the run tests | `u10-r3.log` — `error[E0425]` (the tamper battery's plane ids) |
+| the same | `u11-r3.log` — 5 passed, 8 FAILED: `Witness::output()` returns the PADDED plane, so the chain was feeding the next block a padded vector |
+| the same, chaining through the TRUE hidden state | `u12-r3.log` — 12 passed, 1 FAILED: the headline negative test's variant (ii) was moving block 1's INPUT, so slot 21 caught it before slot 22 could |
+| the same, variant (ii) moving the BOUNDARY instead | `u13-r3.log` — **13 passed, 0 failed** |
+| **the gate**: `--lib private_` | `u14-r3-filter.log` — **181 passed, 0 failed, 4 ignored, 67 filtered out**, 272 s |
+| the R6 binary: `--lib private_ --no-run` | `u15-r6-build.log` |
+| **the final gate**, after the run's closing check was added | `u16-final-filter.log` — **181 passed, 0 failed, 4 ignored, 67 filtered out**, 270 s |
+
+Baseline 157 -> 181: +11 `boundary`, +13 `run_tests` (4 of R1, 1 of R2, 8 of
+R3/R4/R5), +1 ignored (R6). **No existing test was changed, weakened or
+removed**; the toy's frozen parameter line and schedule digest still pass
+(`the_toy_parameter_line_is_the_frozen_literal`,
+`the_toy_schedule_digest_is_frozen`) and every counted receipt length still
+passes (`the_codec_length_is_the_models_at_every_shape`,
+`the_125m_receipt_is_reproduced_part_by_part`).
+
+### Findings of this stage, for the security owner
+
+| # | finding |
+|---|---|
+| **U-1** | `audit_claims` tracks the caller's DECLARED geometry, not the true one. The check's B4 evidence (that it accepts the leaking 37-row two-site geometry) does not reproduce — that case is refused, for bookkeeping reasons — but the CONCLUSION holds, and the real instance is the one-site `data + 5` budget with the proximity position declared one row too high, which the audit accepts. Ruling M-1's derived row count is what closes it, and it is built. |
+| **U-2** | A one-site boundary at the rung-G plane would be 8 rows and C-H4 refuses it. Nothing in a run asks for one (ruling M-7), but a uniform `sites = 1` external endpoint — the draft's R-D2 — is unbuildable at any shape with four data rows. |
+| **U-3** | `zkp-core`'s `Transcript` publishes no squeeze-counter accessor and is a forbidden file, so the segment header cannot carry "state + counter" as the design specifies. It carries a 32-byte POSITION TAG (a challenge from a discarded clone) instead, which binds both. Framing is 120 B per segment, not 136; the design's correction C7 is moot because the acceptance figure is derived, not literal. |
+| **U-4** | **The process high-water mark RISES across a twelve-block run at the rung**, 117 -> 137 MiB in two steps at blocks 7 and 8, on a run whose per-stage working set is constant by construction. +17%. At 125M the same relative rise on a 10.4 GiB stage would be about 1.8 GiB and would put `L = 12` past a 12 GiB ceiling. Reported, not repaired, per the brief; R6 is the first place it can be seen at scale. |
+| **U-5** | The design's §4.3 **check 4 is implemented only in its "every claim discharged" half** — after the last segment the verifier requires its pending-claim slot and its held boundary to be empty. The "every commitment opened exactly once" half is NOT a runtime table: which commitments exist and where each is opened is a function of the verifier's own statement and fixes each segment's length, so a second opening inside the transcript is a schedule the verifier does not have. That is the check's own CORRECTION 8 position; if the security owner wants the table anyway it is a small addition to `verify_run`. |
+| **U-6** | The run's counted receipt reconciles with the design to the byte once ruling M-7 (37-row externals) and finding U-3 (120 B framing) are applied: 484,100,736 B for twelve 125M blocks against the design's 484,095,680, the difference being exactly `12 x 80 + 2 x 2,048`. |
+
+### NEXT: exactly what the next agent should do, in order
+
+1. **Launch R6** — the detached, memory-capped `L = 2` run at 125M, exactly
+   the step-2 command above, after re-reading the binary's path and mtime and
+   checking `MemAvailable` is above about 12 GiB and the box is quiesced.
+   Watch by the `.done` marker, never in the foreground. Fill in the RESULTS
+   table. The one number to read first is **the high-water mark after block 1
+   against the one after block 0** (finding U-4).
+2. **Only then** consider `L = 12` at 125M: 484,100,736 B of receipt, about
+   6.3 minutes of proving, and a peak that finding U-4 says may not be flat.
+   It needs a segment sink that WRITES TO DISK (the `L = 2` test keeps its
+   two segments in memory, which a twelve-block run must not do).
+3. **The run capture and the `L = 3` gate (ruling M-8)** — a NEW
+   `private_block/run_capture.rs`, never an edit to the integrator's
+   `native_capture.rs`, writing the three roles of each interior boundary
+   plane (`A_k`'s output rows, `B_k`, `A_{k+1}`'s input rows) so the
+   joint-view lane can rank them JOINTLY and RESTRICTED TO THE RESERVED MASK
+   ROWS (the check's OMITTED CONDITIONS 7 and 10). No privacy statement about
+   any run before that gate.
+4. **Ask the security owner** about finding U-5 (whether the open-commitment
+   table is wanted as a runtime check) and carry findings U-1 … U-6 into the
+   disposition's record.
+

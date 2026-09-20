@@ -516,9 +516,18 @@ impl<'a> B<'a> {
     /// 2). **S11b is still owed**: 125M's endpoint is 393,216 words, far past
     /// the frozen seam's 4,096-word ceiling, and needs a generalised endpoint
     /// built beside `private_seam.rs`.
+    ///
+    /// **STAGE 12.** The terminal pair's row is no longer the literal
+    /// `endpoint_rows - 5`: it comes from the LAYOUT
+    /// (`Layout::io_mask_row`), which is `endpoint_rows - 5` for every
+    /// single-block profile — byte for byte what it was — and, for a stage of
+    /// a RUN, the DERIVED pair of the boundary commitment this side claims
+    /// (site 0 at `data` for the outgoing claim, site 1 at `data + 2` for the
+    /// incoming one). The row WIDTH is unchanged: a boundary and an endpoint
+    /// share `sh.endpoint_log_n`, so `row_log` needs no case.
     fn endpoint(&mut self, cm: Cm) -> usize {
         let sh = self.lay.shape();
-        let (log, mask_row) = (sh.log(Dom::D), sh.endpoint_rows - 5);
+        let (log, mask_row) = (sh.log(Dom::D), self.lay.io_mask_row(cm == Cm::Out));
         self.push(Tab::Priv(Priv { cm, slices: vec![(0, Fp2::ONE)], log, coords: rho(0..log), mask_row, ext_round: 0 }))
     }
     /// **RULING P-1's public factor (S9 part 4).** `supp(dom)` laid out over

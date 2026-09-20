@@ -37,7 +37,7 @@ use crate::zk::{self, ZkRng};
 /// builds one per construction — `new(12)` for the frozen seam, which demands
 /// that size exactly, and `new(enc_log)` for the generalised endpoint —
 /// finding S11b-F3.)
-fn ntt_log_at(sh: &Shape) -> u32 {
+pub(super) fn ntt_log_at(sh: &Shape) -> u32 {
     ((sh.log_cols + log2_exact(sh.inv_rate)) as u32).max(zk::MASK_LOG_DOM)
 }
 
@@ -125,13 +125,13 @@ pub(crate) fn parameter_line(sh: &Shape) -> String {
     format!("{base}/endpoint-log_n{}-rate{}-pad{}-rows{}", sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols, sh.endpoint_rows)
 }
 
-fn absorb_root(tr: &mut Transcript, label: &[u8], root: &[u8; 32], rows: usize, log_cols: usize) {
+pub(super) fn absorb_root(tr: &mut Transcript, label: &[u8], root: &[u8; 32], rows: usize, log_cols: usize) {
     tr.absorb(label, root);
     tr.absorb_u64(b"rows", rows as u64);
     tr.absorb_u64(b"log-cols", log_cols as u64);
 }
 
-fn commitment(root: [u8; 32], rows: usize, log_cols: usize) -> Commitment {
+pub(super) fn commitment(root: [u8; 32], rows: usize, log_cols: usize) -> Commitment {
     Commitment { root, rows, log_cols: log_cols as u32 }
 }
 
@@ -330,7 +330,7 @@ pub(super) fn endpoint_geometry(sh: &Shape) -> Result<(usize, usize, usize), Str
 // (2, 3) and three proximity rows from row 4. The seven-row geometry does not end in
 // its proximity pair, so the one claim's shape is checked directly; the challenge
 // refusals require rows (4, 5) independent, exactly as the repaired FFN IO profile.
-fn check_endpoint_opening(claims: &[ZClaim], sh: &Shape, tr: &Transcript) -> Result<(), String> {
+pub(super) fn check_endpoint_opening(claims: &[ZClaim], sh: &Shape, tr: &Transcript) -> Result<(), String> {
     let (rows, data, prox) = endpoint_geometry(sh)?;
     let n = 1usize << sh.endpoint_log_n;
     let ok = claims.len() == 1
@@ -422,7 +422,7 @@ fn write_h(h: &mut [Fp], off: (usize, usize), col: &[Fp2]) {
     }
 }
 
-fn check_endpoints(sh: &Shape, expected: &ExpectedIo, endpoints: Endpoints) -> Result<[pcs::CommittedZk; 2], String> {
+pub(super) fn check_endpoints(sh: &Shape, expected: &ExpectedIo, endpoints: Endpoints) -> Result<[pcs::CommittedZk; 2], String> {
     let (rows, _, _) = endpoint_geometry(sh)?;
     // S11b: whichever construction this profile's endpoints ride
     let [input, output] = expected.spec.into_committed(endpoints)?;
@@ -454,31 +454,121 @@ pub(crate) fn prove_inner(blk: &BlockPublic, wit: Witness, expected: &ExpectedIo
 /// unchanged, and a new shape is a NEW profile beside it (D17).
 pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expected: &ExpectedIo, endpoints: Endpoints) -> Result<(Receipt, ProveStats), String> {
     use std::time::Instant;
-    let (public, ff) = (blk.attention(), blk.feed_forward());
     let mut tick = Instant::now();
     let mut ph = timing::Phases::start();
     let mut phases: Vec<(&'static str, f64)> = Vec::new();
-    let mut lap = |name: &'static str, tick: &mut Instant| {
-        phases.push((name, tick.elapsed().as_secs_f64()));
-        *tick = Instant::now();
-    };
     fits_the_ntt_tables(sh)?;
     let lay = Layout::for_shape(sh)?;
-    let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
     let [ein, eout] = check_endpoints(sh, expected, endpoints)?;
-    // every plane but the three derived histograms
-    let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !ids.is_multiplicity(*p)).collect();
-    if wit.planes.len() != ids.n_a() || committed.iter().any(|p| wit.planes[*p].len() != sh.size(ids.dom(*p))) {
-        return Err("private block: witness shape".into());
-    }
     // ONE OS stream per attempt; entropy failure aborts before anything public exists.
     let mut rng = ZkRng::from_os(sh.profile.as_bytes()).map_err(|e| format!("private block randomness: {e}"))?;
     ph.mark(Half::Setup, "setup: layout, endpoint owners, OS randomness", (lay.a_rows + lay.h_rows) as u64, "A+H rows");
     let ntt = NttTables::new(ntt_log_at(sh));
     ph.mark(Half::Setup, "setup: NTT tables", 1u64 << ntt_log_at(sh), "domain");
+    let mut tr = transcript(blk, expected, &lay);
+    let core = prove_core(sh, &lay, blk, wit, [ein.data.as_slice(), eout.data.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)?;
+    let [ic, oc] = core.io_claims;
+    check_endpoint_opening(&ic, sh, &tr)?;
+    let in_open = pcs::open_zk(&ein, &ic, &mut tr);
+    drop(ein);
+    ph.mark(Half::Open, "open endpoint IN (pcs::open_zk)", sh.endpoint_rows as u64, "rows");
+    check_endpoint_opening(&oc, sh, &tr)?;
+    let out_open = pcs::open_zk(&eout, &oc, &mut tr);
+    drop(eout);
+    ph.mark(Half::Open, "open endpoint OUT (pcs::open_zk)", sh.endpoint_rows as u64, "rows");
+    lap(&mut phases, &mut tick, "M + A + H + endpoint openings");
+    ph.report("prove", sh.name);
+
+    let receipt = Receipt {
+        a_root: core.a_root,
+        h_root: core.h_root,
+        mask_root: core.mask_root,
+        slots: core.slots,
+        mask_open: core.mask_open,
+        a_open: core.a_open,
+        h_open: core.h_open,
+        io_open: [in_open, out_open],
+    };
+    let stats = ProveStats {
+        phases: phases.iter().map(|(n, s)| (n.to_string(), *s)).collect(),
+        a_rows: lay.a_rows,
+        h_rows: lay.h_rows,
+        m_rows: M_ROWS,
+        u8_lookups: core.lookups[0],
+        exp_lookups: core.lookups[1],
+        act_lookups: core.lookups[2],
+        transcript_order: core.order,
+    };
+    Ok((receipt, stats))
+}
+
+fn lap(phases: &mut Vec<(&'static str, f64)>, tick: &mut std::time::Instant, name: &'static str) {
+    phases.push((name, tick.elapsed().as_secs_f64()));
+    *tick = std::time::Instant::now();
+}
+
+/// **STAGE 12.** What ONE stage of a run and ONE single block have in common,
+/// produced by [`prove_core`]: the `A` commitment, `M`, the LogUp challenges,
+/// `H`, the twenty-three slots and the openings of `M`, `A` and `H`, in
+/// exactly that order and with exactly the bytes they had before this split.
+///
+/// What is deliberately NOT here is (a) the transcript header — a block's is
+/// [`transcript`], a run's is the run's — and (b) the openings of the two IO
+/// commitments, which a block performs at once and a run performs one stage
+/// apart, because a boundary's second claim does not exist until the next
+/// block's slot 21 has raised it. `io_claims` hands those two claim lists back
+/// to the caller unopened.
+pub(crate) struct CoreProof {
+    pub a_root: crate::merkle::Digest,
+    pub h_root: crate::merkle::Digest,
+    pub mask_root: crate::merkle::Digest,
+    pub slots: Vec<super::argument::SlotProof>,
+    pub mask_open: zk::MaskOpening,
+    pub a_open: pcs::OpeningZk,
+    pub h_open: pcs::OpeningZk,
+    /// the claims slot 21 (incoming) and slot 22 (outgoing) raised on the two
+    /// IO commitments; the CALLER opens them, and a run opens the incoming one
+    /// only once the previous stage's outgoing claim is beside it
+    pub io_claims: [Vec<ZClaim>; 2],
+    /// the absorb sequence, label by label
+    pub order: Vec<String>,
+    /// `(U8, exp, activation)` lookup totals, a function of the geometry
+    pub lookups: [usize; 3],
+}
+
+/// **STAGE 12.** The body every proving stage shares. `io_data` is the
+/// committed matrix of the incoming and of the outgoing IO commitment — two
+/// endpoint planes for a single block, and a boundary plane in one or both
+/// places for a stage of a run. Nothing here knows which: the slot loop reads
+/// `pd.data[2]` and `pd.data[3]` exactly as it always did, and the reserved
+/// pair each IO tab uses comes from the LAYOUT (`Layout::with_io_mask_rows`),
+/// which is where a run's two-site geometry enters.
+///
+/// The caller owns the transcript, the OS randomness stream, the NTT tables
+/// and the phase recorder, because a run has ONE of each for `L` stages.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn prove_core(
+    sh: &Shape,
+    lay: &Layout,
+    blk: &BlockPublic,
+    wit: Witness,
+    io_data: [&[Fp]; 2],
+    ntt: &NttTables,
+    rng: &mut ZkRng,
+    tr: &mut Transcript,
+    ph: &mut timing::Phases,
+    phases: &mut Vec<(&'static str, f64)>,
+    tick: &mut std::time::Instant,
+) -> Result<CoreProof, String> {
+    let (public, ff) = (blk.attention(), blk.feed_forward());
+    let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
+    // every plane but the three derived histograms
+    let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !ids.is_multiplicity(*p)).collect();
+    if wit.planes.len() != ids.n_a() || committed.iter().any(|p| wit.planes[*p].len() != sh.size(ids.dom(*p))) {
+        return Err("private block: witness shape".into());
+    }
     let params = pcs_params_at(sh);
     let zko = ZkOpts::standard(&params);
-    let mut tr = transcript(blk, expected, &lay);
 
     // ---- A: planes, the three committed histograms, every mask row drawn BEFORE the commitment ----
     let mut a_data = vec![Fp::ZERO; lay.a_rows * n];
@@ -544,24 +634,24 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
         *x = rng.fp();
     }
     ph.mark(Half::Commit, "A: mask + proximity rows (fresh randomness)", ((lay.a_rows - lay.a_mask_base) * n) as u64, "words");
-    let mut a = pcs::commit_zk_owned(&params, a_data, &ntt, &zko, &mut rng);
+    let mut a = pcs::commit_zk_owned(&params, a_data, ntt, &zko, rng);
     a.mask_rows = lay.a_site_rows();
     a.prox_mask_row = Some(lay.a_prox);
     let a_root = a.commitment().root;
-    absorb_root(&mut tr, b"A", &a_root, lay.a_rows, sh.log_cols);
+    absorb_root(tr, b"A", &a_root, lay.a_rows, sh.log_cols);
     // STAGE 11: row encoding and column hashing are NOT separable here. Both
     // live inside `pcs::commit_zk_owned`, which is `hashline/src/pcs.rs` — a
     // file this lane does not edit — so the enclosing call is one phase.
     ph.mark(Half::Commit, "A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)", lay.a_rows as u64, "rows");
-    lap("witness planes + commit A", &mut tick);
+    lap(phases, tick, "witness planes + commit A");
 
     // ---- M: all twenty-three CFS masks, committed before any challenge ----
-    let mc = zk::mask_commit(&lay.mask_specs(), &ntt, &mut rng);
+    let mc = zk::mask_commit(&lay.mask_specs(), ntt, rng);
     let mask_root = mc.tree.root();
     tr.absorb(b"M", &mask_root);
     // the same: `zk::mask_commit` is `hashline/src/zk.rs`, one enclosing call
     ph.mark(Half::Commit, "M: mask commit (zk::mask_commit, ONE call)", M_ROWS as u64, "rows");
-    lap("commit M", &mut tick);
+    lap(phases, tick, "commit M");
 
     // ---- LogUp challenges, helpers, table helpers, the zero-sum pair, commit H ----
     let beta = tr.challenge_fp2();
@@ -652,65 +742,118 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
         h_data[r * n + n - 1] = sum.neg();
     }
     ph.mark(Half::Commit, "H: mask rows + the zero-sum rows", ((lay.h_rows - lay.h_mask_base) * n) as u64, "words");
-    let mut h = pcs::commit_zk_owned(&params, h_data, &ntt, &zko, &mut rng);
+    let mut h = pcs::commit_zk_owned(&params, h_data, ntt, &zko, rng);
     h.mask_rows = lay.h_site_rows().into_iter().chain(lay.h_u_rows()).collect();
     h.prox_mask_row = Some(lay.h_prox);
     let h_root = h.commitment().root;
-    absorb_root(&mut tr, b"H", &h_root, lay.h_rows, sh.log_cols);
+    absorb_root(tr, b"H", &h_root, lay.h_rows, sh.log_cols);
     ph.mark(Half::Commit, "H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)", lay.h_rows as u64, "rows");
-    lap("LogUp helpers + commit H", &mut tick);
+    lap(phases, tick, "LogUp helpers + commit H");
 
     // ---- the twenty-three slots ----
-    let ctx = Ctx { lay: &lay, public, ff, alpha, beta, g_u8, g_exp, g_act };
-    let pd = ProverData { data: [a.data.as_slice(), h.data.as_slice(), ein.data.as_slice(), eout.data.as_slice()], masks: &mc.masks };
+    let ctx = Ctx { lay, public, ff, alpha, beta, g_u8, g_exp, g_act };
+    let pd = ProverData { data: [a.data.as_slice(), h.data.as_slice(), io_data[0], io_data[1]], masks: &mc.masks };
     let mut side = Side::Prove { pd, out: Vec::new() };
-    let acc = argument(&mut side, &ctx, &mut tr, &mut ph)?;
+    let acc = argument(&mut side, &ctx, tr, ph)?;
     let slots = match side {
         Side::Prove { out, .. } => out,
         Side::Verify { .. } => unreachable!(),
     };
-    lap("23 masked sumchecks", &mut tick);
+    lap(phases, tick, "23 masked sumchecks");
 
     // ---- ONE M opening, then ONE opening per commitment; each owner dropped after its opening ----
-    let mask_open = zk::mask_open(&mc, &acc.fs, &ntt, &mut tr);
+    let mask_open = zk::mask_open(&mc, &acc.fs, ntt, tr);
     drop(mc);
     ph.mark(Half::Open, "open M (zk::mask_open, ONE call)", M_ROWS as u64, "rows");
     let order = acc.order;
-    let [ac, hc, ic, oc] = finish_claims(acc.claims, &lay);
-    check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), &tr)?;
-    let a_open = pcs::open_zk(&a, &ac, &mut tr);
+    let [ac, hc, ic, oc] = finish_claims(acc.claims, lay);
+    check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), tr)?;
+    let a_open = pcs::open_zk(&a, &ac, tr);
     drop(a);
     ph.mark(Half::Open, "open A (schedule audit + pcs::open_zk)", ac.len() as u64, "claims");
-    check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), &tr)?;
-    let h_open = pcs::open_zk(&h, &hc, &mut tr);
+    check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), tr)?;
+    let h_open = pcs::open_zk(&h, &hc, tr);
     drop(h);
     ph.mark(Half::Open, "open H (schedule audit + pcs::open_zk)", hc.len() as u64, "claims");
-    check_endpoint_opening(&ic, sh, &tr)?;
-    let in_open = pcs::open_zk(&ein, &ic, &mut tr);
-    drop(ein);
-    ph.mark(Half::Open, "open endpoint IN (pcs::open_zk)", sh.endpoint_rows as u64, "rows");
-    check_endpoint_opening(&oc, sh, &tr)?;
-    let out_open = pcs::open_zk(&eout, &oc, &mut tr);
-    drop(eout);
-    ph.mark(Half::Open, "open endpoint OUT (pcs::open_zk)", sh.endpoint_rows as u64, "rows");
-    lap("M + A + H + endpoint openings", &mut tick);
-    ph.report("prove", sh.name);
-
-    let receipt = Receipt { a_root, h_root, mask_root, slots, mask_open, a_open, h_open, io_open: [in_open, out_open] };
-    let stats = ProveStats {
-        phases: phases.iter().map(|(n, s)| (n.to_string(), *s)).collect(),
-        a_rows: lay.a_rows,
-        h_rows: lay.h_rows,
-        m_rows: M_ROWS,
-        u8_lookups: m_u8.iter().sum::<u64>() as usize,
-        exp_lookups: m_exp.iter().sum::<u64>() as usize,
-        act_lookups: m_act.iter().sum::<u64>() as usize,
-        transcript_order: order,
-    };
-    Ok((receipt, stats))
+    Ok(CoreProof {
+        a_root,
+        h_root,
+        mask_root,
+        slots,
+        mask_open,
+        a_open,
+        h_open,
+        io_claims: [ic, oc],
+        order,
+        lookups: [m_u8.iter().sum::<u64>() as usize, m_exp.iter().sum::<u64>() as usize, m_act.iter().sum::<u64>() as usize],
+    })
 }
 
 // ---------------------------------------------------------------- verifier
+
+/// **STAGE 12.** The verifier's view of the bytes [`prove_core`] produced —
+/// one stage of a run, or the whole of a single block. Every count the
+/// verifier needs comes from its own [`Layout`], never from this view.
+pub(crate) struct CoreView<'a> {
+    pub a_root: crate::merkle::Digest,
+    pub h_root: crate::merkle::Digest,
+    pub mask_root: crate::merkle::Digest,
+    pub slots: &'a [super::argument::SlotProof],
+    pub mask_open: &'a zk::MaskOpening,
+    pub a_open: &'a pcs::OpeningZk,
+    pub h_open: &'a pcs::OpeningZk,
+}
+
+/// **STAGE 12.** The verifying body every stage shares: the `A` and `M`
+/// roots, the LogUp challenges, the `H` root, the twenty-three slots and the
+/// verification of `M`, `A` and `H`, in exactly that order.
+///
+/// It returns the two IO claim lists **it computed itself** from the slot
+/// terminals (`argument.rs` pushes each claim outside the prove/verify match,
+/// so the verify arm builds them identically). Nothing about a claim is ever
+/// read from a frame — which is what lets a run's verifier carry block `k`'s
+/// pending boundary claim into stage `k + 1` without trusting a segment.
+pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreView, ntt: &NttTables, tr: &mut Transcript, ph: &mut timing::Phases) -> Result<([Vec<ZClaim>; 2], Vec<String>), String> {
+    let (public, ff) = (blk.attention(), blk.feed_forward());
+    let params = pcs_params_at(sh);
+    let zko = ZkOpts::standard(&params);
+    absorb_root(tr, b"A", &v.a_root, lay.a_rows, sh.log_cols);
+    tr.absorb(b"M", &v.mask_root);
+    let beta = tr.challenge_fp2();
+    let gamma = tr.challenge_fp2();
+    let alpha = tr.challenge_fp2();
+    let g_u8 = gamma.mul_base(Fp::new(TAG_U8));
+    let g_exp = gamma.mul_base(Fp::new(TAG_EXP));
+    let g_act = gamma.mul_base(Fp::new(TAG_ACT));
+    absorb_root(tr, b"H", &v.h_root, lay.h_rows, sh.log_cols);
+    let ctx = Ctx { lay, public, ff, alpha, beta, g_u8, g_exp, g_act };
+    let mut side = Side::Verify { slots: v.slots };
+    ph.mark(Half::Setup, "transcript header + the A and H roots", 2, "roots");
+    let acc = argument(&mut side, &ctx, tr, ph)?;
+    #[cfg(test)]
+    let capture_before = super::capture::checkpoint(tr);
+    zk::mask_verify(&v.mask_root, &lay.mask_specs(), &acc.fs, v.mask_open, ntt, tr).map_err(|e| format!("M: {e}"))?;
+    #[cfg(test)]
+    super::capture::mask(&v.mask_root, &acc.fs, v.mask_open, capture_before, tr);
+    ph.mark(Half::Open, "verify M (zk::mask_verify, ONE call)", M_ROWS as u64, "rows");
+    let order = acc.order;
+    let [ac, hc, ic, oc] = finish_claims(acc.claims, lay);
+    check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), tr)?;
+    #[cfg(test)]
+    let capture_before = super::capture::checkpoint(tr);
+    pcs::verify_zk(&params, &zko, &commitment(v.a_root, lay.a_rows, sh.log_cols), &ac, v.a_open, ntt, tr).map_err(|e| format!("A: {e}"))?;
+    #[cfg(test)]
+    super::capture::pcs("A", v.a_root, lay.a_rows, &ac, v.a_open, capture_before, tr);
+    ph.mark(Half::Open, "verify A (schedule audit + pcs::verify_zk)", ac.len() as u64, "claims");
+    check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), tr)?;
+    #[cfg(test)]
+    let capture_before = super::capture::checkpoint(tr);
+    pcs::verify_zk(&params, &zko, &commitment(v.h_root, lay.h_rows, sh.log_cols), &hc, v.h_open, ntt, tr).map_err(|e| format!("H: {e}"))?;
+    #[cfg(test)]
+    super::capture::pcs("H", v.h_root, lay.h_rows, &hc, v.h_open, capture_before, tr);
+    ph.mark(Half::Open, "verify H (schedule audit + pcs::verify_zk)", hc.len() as u64, "claims");
+    Ok(([ic, oc], order))
+}
 
 /// Accepts only against the caller's own public statement and endpoint policy.
 /// Returns the absorb sequence (for the transcript-order gate).
@@ -725,7 +868,6 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     #[cfg(test)]
     super::capture::begin();
     let mut ph = timing::Phases::start();
-    let (public, ff) = (blk.attention(), blk.feed_forward());
     fits_the_ntt_tables(sh)?;
     let lay = Layout::for_shape(sh)?;
     super::wire::validate(receipt, &lay)?;
@@ -735,44 +877,17 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     ph.mark(Half::Setup, "setup: layout + frame shape validation", (lay.a_rows + lay.h_rows) as u64, "A+H rows");
     let ntt = NttTables::new(ntt_log_at(sh));
     ph.mark(Half::Setup, "setup: NTT tables", 1u64 << ntt_log_at(sh), "domain");
-    let params = pcs_params_at(sh);
-    let zko = ZkOpts::standard(&params);
     let mut tr = transcript(blk, expected, &lay);
-    absorb_root(&mut tr, b"A", &receipt.a_root, lay.a_rows, sh.log_cols);
-    tr.absorb(b"M", &receipt.mask_root);
-    let beta = tr.challenge_fp2();
-    let gamma = tr.challenge_fp2();
-    let alpha = tr.challenge_fp2();
-    let g_u8 = gamma.mul_base(Fp::new(TAG_U8));
-    let g_exp = gamma.mul_base(Fp::new(TAG_EXP));
-    let g_act = gamma.mul_base(Fp::new(TAG_ACT));
-    absorb_root(&mut tr, b"H", &receipt.h_root, lay.h_rows, sh.log_cols);
-    let ctx = Ctx { lay: &lay, public, ff, alpha, beta, g_u8, g_exp, g_act };
-    let mut side = Side::Verify { slots: &receipt.slots };
-    ph.mark(Half::Setup, "transcript header + the A and H roots", 2, "roots");
-    let acc = argument(&mut side, &ctx, &mut tr, &mut ph)?;
-    #[cfg(test)]
-    let capture_before = super::capture::checkpoint(&tr);
-    zk::mask_verify(&receipt.mask_root, &lay.mask_specs(), &acc.fs, &receipt.mask_open, &ntt, &mut tr).map_err(|e| format!("M: {e}"))?;
-    #[cfg(test)]
-    super::capture::mask(&receipt.mask_root, &acc.fs, &receipt.mask_open, capture_before, &tr);
-    ph.mark(Half::Open, "verify M (zk::mask_verify, ONE call)", M_ROWS as u64, "rows");
-    let order = acc.order;
-    let [ac, hc, ic, oc] = finish_claims(acc.claims, &lay);
-    check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), &tr)?;
-    #[cfg(test)]
-    let capture_before = super::capture::checkpoint(&tr);
-    pcs::verify_zk(&params, &zko, &commitment(receipt.a_root, lay.a_rows, sh.log_cols), &ac, &receipt.a_open, &ntt, &mut tr).map_err(|e| format!("A: {e}"))?;
-    #[cfg(test)]
-    super::capture::pcs("A", receipt.a_root, lay.a_rows, &ac, &receipt.a_open, capture_before, &tr);
-    ph.mark(Half::Open, "verify A (schedule audit + pcs::verify_zk)", ac.len() as u64, "claims");
-    check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), &tr)?;
-    #[cfg(test)]
-    let capture_before = super::capture::checkpoint(&tr);
-    pcs::verify_zk(&params, &zko, &commitment(receipt.h_root, lay.h_rows, sh.log_cols), &hc, &receipt.h_open, &ntt, &mut tr).map_err(|e| format!("H: {e}"))?;
-    #[cfg(test)]
-    super::capture::pcs("H", receipt.h_root, lay.h_rows, &hc, &receipt.h_open, capture_before, &tr);
-    ph.mark(Half::Open, "verify H (schedule audit + pcs::verify_zk)", hc.len() as u64, "claims");
+    let view = CoreView {
+        a_root: receipt.a_root,
+        h_root: receipt.h_root,
+        mask_root: receipt.mask_root,
+        slots: &receipt.slots,
+        mask_open: &receipt.mask_open,
+        a_open: &receipt.a_open,
+        h_open: &receipt.h_open,
+    };
+    let ([ic, oc], order) = verify_core(sh, &lay, blk, view, &ntt, &mut tr, &mut ph)?;
     let e_params = PcsParams { log_cols: sh.endpoint_log_n as u32, inv_rate: sh.endpoint_inv_rate, num_col_checks: sh.opened_cols };
     let e_zko = ZkOpts::standard(&e_params);
     for (i, (claims, root)) in [(&ic, expected.input), (&oc, expected.output)].into_iter().enumerate() {

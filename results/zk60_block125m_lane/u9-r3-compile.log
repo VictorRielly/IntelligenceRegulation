@@ -1,0 +1,318 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:284:18
+    |
+284 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: method `scale` is never used
+   --> src/private_block/boundary.rs:151:19
+    |
+ 98 | impl BoundarySpec {
+    | ----------------- method in this implementation
+...
+151 |     pub(crate) fn scale(&self) -> i32 {
+    |                   ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `with_io_mask_rows` is never used
+    --> src/private_block/layout.rs:1086:19
+     |
+ 970 | impl Layout {
+     | ----------- method in this implementation
+...
+1086 |     pub(crate) fn with_io_mask_rows(mut self, rows: [usize; 2]) -> Layout {
+     |                   ^^^^^^^^^^^^^^^^^
+
+warning: constant `BOUNDARY_SITES` is never used
+  --> src/private_block/run.rs:48:18
+   |
+48 | pub(crate) const BOUNDARY_SITES: usize = 2;
+   |                  ^^^^^^^^^^^^^^
+
+warning: constant `RUN_PROFILE_RUNG_G` is never used
+  --> src/private_block/run.rs:50:18
+   |
+50 | pub(crate) const RUN_PROFILE_RUNG_G: &str = "hashline-zk-mr1/private-run-rung-g-t24-dev/1";
+   |                  ^^^^^^^^^^^^^^^^^^
+
+warning: constant `RUN_PROFILE_M125` is never used
+  --> src/private_block/run.rs:51:18
+   |
+51 | pub(crate) const RUN_PROFILE_M125: &str = "hashline-zk-mr1/private-run-m125/1";
+   |                  ^^^^^^^^^^^^^^^^
+
+warning: struct `RunShape` is never constructed
+  --> src/private_block/run.rs:57:19
+   |
+57 | pub(crate) struct RunShape {
+   |                   ^^^^^^^^
+
+warning: associated items `new`, `rung_g`, `m125`, `data_rows`, and `ntt_log` are never used
+  --> src/private_block/run.rs:64:19
+   |
+63 | impl RunShape {
+   | ------------- associated items in this implementation
+64 |     pub(crate) fn new(sh: Shape, l: usize, profile: &'static str) -> Result<RunShape, String> {
+   |                   ^^^
+...
+70 |     pub(crate) fn rung_g(l: usize) -> Result<RunShape, String> {
+   |                   ^^^^^^
+...
+73 |     pub(crate) fn m125(l: usize) -> Result<RunShape, String> {
+   |                   ^^^^
+...
+79 |     pub(crate) fn data_rows(&self) -> usize {
+   |                   ^^^^^^^^^
+...
+83 |     fn ntt_log(&self) -> u32 {
+   |        ^^^^^^^
+
+warning: struct `RunStatement` is never constructed
+  --> src/private_block/run.rs:93:19
+   |
+93 | pub(crate) struct RunStatement {
+   |                   ^^^^^^^^^^^^
+
+warning: multiple associated items are never used
+   --> src/private_block/run.rs:111:19
+    |
+105 | impl RunStatement {
+    | ----------------- associated items in this implementation
+...
+111 |     pub(crate) fn new(rs: RunShape, context: Digest, expected: ExpectedIo, blocks: &[BlockPublic], block_scales: &[(i32, i32)]) -> ...
+    |                   ^^^
+...
+140 |     pub(crate) fn with_calibration(mut self, d: Digest) -> RunStatement {
+    |                   ^^^^^^^^^^^^^^^^
+...
+151 |     pub(crate) fn boundary_spec(&self, k: usize) -> Result<BoundarySpec, String> {
+    |                   ^^^^^^^^^^^^^
+...
+158 |     fn public_statement(&self) -> Digest {
+    |        ^^^^^^^^^^^^^^^^
+...
+172 |     fn parameter_line(&self) -> Result<String, String> {
+    |        ^^^^^^^^^^^^^^
+...
+190 |     fn stage_line(&self, k: usize) -> Result<String, String> {
+    |        ^^^^^^^^^^
+...
+207 |     fn in_site(&self, k: usize) -> Result<usize, String> {
+    |        ^^^^^^^
+...
+215 |     fn out_site(&self, k: usize) -> Result<usize, String> {
+    |        ^^^^^^^^
+...
+223 |     fn schedule_digest(&self) -> Result<Digest, String> {
+    |        ^^^^^^^^^^^^^^^
+...
+242 |     fn transcript(&self) -> Result<Transcript, String> {
+    |        ^^^^^^^^^^
+...
+258 |     fn seg_geom(&self, k: usize) -> Result<SegGeom, String> {
+    |        ^^^^^^^^
+...
+265 |     fn stage_layout(&self, k: usize) -> Result<Layout, String> {
+    |        ^^^^^^^^^^^^
+
+warning: function `position_tag` is never used
+   --> src/private_block/run.rs:278:4
+    |
+278 | fn position_tag(tr: &Transcript) -> [u8; 32] {
+    |    ^^^^^^^^^^^^
+
+warning: function `peak_rss_mib` is never used
+   --> src/private_block/run.rs:292:15
+    |
+292 | pub(crate) fn peak_rss_mib() -> f64 {
+    |               ^^^^^^^^^^^^
+
+warning: trait `RunWitnessSource` is never used
+   --> src/private_block/run.rs:304:18
+    |
+304 | pub(crate) trait RunWitnessSource {
+    |                  ^^^^^^^^^^^^^^^^
+
+warning: struct `RunStats` is never constructed
+   --> src/private_block/run.rs:312:19
+    |
+312 | pub(crate) struct RunStats {
+    |                   ^^^^^^^^
+
+warning: function `words` is never used
+   --> src/private_block/run.rs:320:4
+    |
+320 | fn words(v: &[i16]) -> Vec<Fp> {
+    |    ^^^^^
+
+warning: function `prove_run` is never used
+   --> src/private_block/run.rs:329:15
+    |
+329 | pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn RunWitnessSource, externals: Endpoints, sink: &mut...
+    |               ^^^^^^^^^
+
+warning: function `verify_run` is never used
+   --> src/private_block/run.rs:447:15
+    |
+447 | pub(crate) fn verify_run(st: &RunStatement, blocks: &[BlockPublic], segments: &[Vec<u8>]) -> Result<(), String> {
+    |               ^^^^^^^^^^
+
+warning: constant `RUN_MAGIC` is never used
+   --> src/private_block/wire.rs:235:7
+    |
+235 | const RUN_MAGIC: &[u8; 8] = b"HLPRUNS1";
+    |       ^^^^^^^^^
+
+warning: constant `RUN_HEADER` is never used
+   --> src/private_block/wire.rs:248:18
+    |
+248 | pub(crate) const RUN_HEADER: usize = 8 + 32 + 8 + 8 + 32;
+    |                  ^^^^^^^^^^
+
+warning: constant `RUN_TRAILER` is never used
+   --> src/private_block/wire.rs:250:18
+    |
+250 | pub(crate) const RUN_TRAILER: usize = 32;
+    |                  ^^^^^^^^^^^
+
+warning: struct `Segment` is never constructed
+   --> src/private_block/wire.rs:254:19
+    |
+254 | pub(crate) struct Segment {
+    |                   ^^^^^^^
+
+warning: struct `SegGeom` is never constructed
+   --> src/private_block/wire.rs:275:19
+    |
+275 | pub(crate) struct SegGeom {
+    |                   ^^^^^^^
+
+warning: methods `commits_boundary`, `closes_output`, and `incoming` are never used
+   --> src/private_block/wire.rs:286:19
+    |
+284 | impl SegGeom {
+    | ------------ methods in this implementation
+285 |     /// does this stage commit an internal boundary?
+286 |     pub(crate) fn commits_boundary(&self) -> bool {
+    |                   ^^^^^^^^^^^^^^^^
+...
+290 |     pub(crate) fn closes_output(&self) -> bool {
+    |                   ^^^^^^^^^^^^^
+...
+294 |     fn incoming(&self, endpoint_rows: usize) -> (usize, usize) {
+    |        ^^^^^^^^
+
+warning: function `segment_len` is never used
+   --> src/private_block/wire.rs:307:15
+    |
+307 | pub(crate) fn segment_len(lay: &Layout, g: SegGeom) -> usize {
+    |               ^^^^^^^^^^^
+
+warning: function `validate_segment` is never used
+   --> src/private_block/wire.rs:328:4
+    |
+328 | fn validate_segment(s: &Segment, lay: &Layout, g: SegGeom) -> Result<(), String> {
+    |    ^^^^^^^^^^^^^^^^
+
+warning: function `encode_segment` is never used
+   --> src/private_block/wire.rs:361:15
+    |
+361 | pub(crate) fn encode_segment(s: &Segment, lay: &Layout, g: SegGeom, binding: &Digest, start_tag: &[u8; 32], end_tag: &[u8; 32]) -> ...
+    |               ^^^^^^^^^^^^^^
+
+warning: function `decode_segment` is never used
+   --> src/private_block/wire.rs:404:15
+    |
+404 | pub(crate) fn decode_segment(bytes: &[u8], lay: &Layout, g: SegGeom, binding: &Digest, start_tag: &[u8; 32]) -> Result<(Segment, [u...
+    |               ^^^^^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 36 warnings (run `cargo fix --lib -p hashline --tests` to apply 8 suggestions)
+    Finished `release` profile [optimized] target(s) in 49.54s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5)
+
+running 5 tests
+test private_block::run_tests::the_boundary_derives_its_row_count_and_refuses_the_37_row_geometry_by_name ... ok
+test private_block::run_tests::the_claim_audit_accepts_two_boundary_claims_on_disjoint_pairs ... ok
+test private_block::run_tests::the_claim_audit_is_not_what_enforces_the_hiding_geometry ... ok
+test private_block::run_tests::the_claim_audit_refusals_fire_at_the_boundary_geometry ... ok
+test private_block::run_tests::the_claim_audit_refuses_two_boundary_claims_that_share_a_pair ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 238 filtered out; finished in 0.00s
+

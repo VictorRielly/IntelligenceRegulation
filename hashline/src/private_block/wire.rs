@@ -227,3 +227,224 @@ pub(crate) fn decode(bytes: &[u8], binding: &Digest, lay: &Layout) -> Result<Rec
     }
     Ok(Receipt { a_root, h_root, mask_root, slots, mask_open, a_open, h_open, io_open })
 }
+
+// ---------------------------------------------------------------- STAGE 12: the run's segments
+
+/// A run's segment frame. A block receipt's magic is `HLPBLOK1`; a segment is
+/// never a block receipt and never decodes as one.
+const RUN_MAGIC: &[u8; 8] = b"HLPRUNS1";
+
+/// magic (8) + the run's binding digest (32) + `L` (8) + the segment index (8)
+/// + the transcript POSITION TAG the verifier must already be at (32).
+///
+/// **RULING M-6 and the check's OMITTED CONDITION 5.** The header and the
+/// trailer are OUTSIDE the Fiat-Shamir chain: they are never absorbed (a
+/// state cannot hash itself), they are COMPARED and never adopted, and the
+/// real binding between segments is the chain itself. The position tag is a
+/// challenge squeezed from a CLONE of the transcript, which is a function of
+/// the 32-byte state AND the squeeze counter — `zkp-core`'s `Transcript`
+/// publishes no counter accessor and is a file this lane does not edit, so a
+/// tag is how both are compared with 32 bytes (finding U-3).
+pub(crate) const RUN_HEADER: usize = 8 + 32 + 8 + 8 + 32;
+/// the position tag at the end of the stage
+pub(crate) const RUN_TRAILER: usize = 32;
+
+/// One stage's bytes: the existing per-block frame with the endpoint openings
+/// replaced by the openings a run's stage actually performs.
+pub(crate) struct Segment {
+    /// the internal boundary this stage COMMITS (`B_k`), absent on the last
+    pub b_root: Option<Digest>,
+    pub a_root: Digest,
+    pub h_root: Digest,
+    pub mask_root: Digest,
+    pub slots: Vec<SlotProof>,
+    pub mask_open: MaskOpening,
+    pub a_open: OpeningZk,
+    pub h_open: OpeningZk,
+    /// the opening of the commitment this stage CLOSES: `B_{k-1}` with its two
+    /// claims for `k > 0`, the run's external input endpoint for `k = 0`
+    pub in_open: OpeningZk,
+    /// the external OUTPUT endpoint's opening; the last stage only
+    pub out_open: Option<OpeningZk>,
+}
+
+/// The geometry of segment `k` of an `L`-stage run. Every number here is a
+/// function of the VERIFIER'S OWN statement — `L`, the shape, the boundary
+/// construction — and none of it is ever read from a frame.
+#[derive(Clone, Copy)]
+pub(crate) struct SegGeom {
+    pub l: usize,
+    pub k: usize,
+    /// an internal boundary's DERIVED row count
+    pub boundary_rows: usize,
+    /// how many claim sites an internal boundary has (its opening's groups)
+    pub sites: usize,
+}
+
+impl SegGeom {
+    /// does this stage commit an internal boundary?
+    pub(crate) fn commits_boundary(&self) -> bool {
+        self.k + 1 < self.l
+    }
+    /// does this stage close the run's external output endpoint?
+    pub(crate) fn closes_output(&self) -> bool {
+        self.k + 1 == self.l
+    }
+    /// `(groups, rows)` of the opening this stage closes
+    fn incoming(&self, endpoint_rows: usize) -> (usize, usize) {
+        if self.k == 0 {
+            (1, endpoint_rows)
+        } else {
+            (self.sites, self.boundary_rows)
+        }
+    }
+}
+
+/// The exact byte length of segment `k`. Three lengths occur in a run — the
+/// first (which closes the external input endpoint), the interior ones (which
+/// close a two-group boundary) and the last (which closes a boundary AND the
+/// external output endpoint) — and each is counted here, never measured.
+pub(crate) fn segment_len(lay: &Layout, g: SegGeom) -> usize {
+    let sh = lay.shape();
+    let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
+    let sl = lay.slots();
+    let slots: usize = (0..N_SLOTS).map(|s| (1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + lay.slot_terms(s)) * 16).sum();
+    let mask = 2 * MASK_VEC * 16 + bd.checks * (8 + M_ROWS * 8 + 32 + MASK_PATH * 32);
+    let (gi, ri) = g.incoming(sh.endpoint_rows);
+    RUN_HEADER
+        + usize::from(g.commits_boundary()) * 32
+        + 3 * 32
+        + slots
+        + mask
+        + bd.opening_len(sh.a_groups(), lay.a_rows)
+        + bd.opening_len(sh.h_groups(), lay.h_rows)
+        + ed.opening_len(gi, ri)
+        + usize::from(g.closes_output()) * ed.opening_len(1, sh.endpoint_rows)
+        + RUN_TRAILER
+}
+
+/// The typed shape check of one segment, run by the prover's encoder and by
+/// the verifier's decoder alike.
+fn validate_segment(s: &Segment, lay: &Layout, g: SegGeom) -> Result<(), String> {
+    let sh = lay.shape();
+    let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
+    if s.slots.len() != N_SLOTS {
+        return Err("private run wire: slot count".into());
+    }
+    for (i, sp) in s.slots.iter().enumerate() {
+        let (n, e, d) = lay.slots()[i];
+        if sp.sc.rounds.len() != n + e || sp.sc.rounds.iter().any(|x| x.len() != d + 1) || sp.terms.len() != lay.slot_terms(i) {
+            return Err("private run wire: argument shape".into());
+        }
+    }
+    if s.b_root.is_some() != g.commits_boundary() || s.out_open.is_some() != g.closes_output() {
+        return Err("private run wire: this segment's parts are not the run schedule's".into());
+    }
+    let m = &s.mask_open;
+    let (gi, ri) = g.incoming(sh.endpoint_rows);
+    if m.q.len() != MASK_VEC
+        || m.prox.len() != MASK_VEC
+        || m.columns.len() != bd.checks
+        || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != M_ROWS || p.len() != MASK_PATH)
+        || !bd.hiding_ok(&s.a_open, sh.a_groups(), lay.a_rows)
+        || !bd.hiding_ok(&s.h_open, sh.h_groups(), lay.h_rows)
+        || !ed.hiding_ok(&s.in_open, gi, ri)
+        || s.out_open.as_ref().is_some_and(|o| !ed.hiding_ok(o, 1, sh.endpoint_rows))
+    {
+        return Err("private run wire: opening shape".into());
+    }
+    Ok(())
+}
+
+/// `binding` is the run transcript's state after its HEADER — the one value
+/// every segment of one run shares and no segment of another does.
+pub(crate) fn encode_segment(s: &Segment, lay: &Layout, g: SegGeom, binding: &Digest, start_tag: &[u8; 32], end_tag: &[u8; 32]) -> Result<Vec<u8>, String> {
+    validate_segment(s, lay, g)?;
+    let len = segment_len(lay, g);
+    if len > MAX_WIRE_BYTES_ANY {
+        return Err("private run wire: segment exceeds bound".into());
+    }
+    let mut out = Vec::with_capacity(len);
+    out.extend_from_slice(RUN_MAGIC);
+    out.extend_from_slice(binding);
+    out.extend_from_slice(&(g.l as u64).to_le_bytes());
+    out.extend_from_slice(&(g.k as u64).to_le_bytes());
+    out.extend_from_slice(start_tag);
+    if let Some(r) = &s.b_root {
+        out.extend_from_slice(r);
+    }
+    for root in [&s.a_root, &s.h_root, &s.mask_root] {
+        out.extend_from_slice(root);
+    }
+    for sp in &s.slots {
+        out.extend_from_slice(&sp.scalar.to_bytes());
+        sp.sc.write_bytes(&mut out);
+        for t in &sp.terms {
+            out.extend_from_slice(&t.to_bytes());
+        }
+    }
+    s.mask_open.write_bytes(&mut out);
+    s.a_open.write_bytes(&mut out);
+    s.h_open.write_bytes(&mut out);
+    s.in_open.write_bytes(&mut out);
+    if let Some(o) = &s.out_open {
+        o.write_bytes(&mut out);
+    }
+    out.extend_from_slice(end_tag);
+    if out.len() != len {
+        return Err(format!("private run wire: segment {} is {} B, the counted length is {len}", g.k, out.len()));
+    }
+    Ok(out)
+}
+
+/// Decode segment `k`. The header is COMPARED against the verifier's own run
+/// binding, its own `L`, its own index and its own transcript position, and
+/// none of it is absorbed or adopted (ruling M-6). The trailer is returned for
+/// the caller to compare once the stage has been replayed.
+pub(crate) fn decode_segment(bytes: &[u8], lay: &Layout, g: SegGeom, binding: &Digest, start_tag: &[u8; 32]) -> Result<(Segment, [u8; 32]), String> {
+    let sh = lay.shape();
+    let len = segment_len(lay, g);
+    if bytes.len() != len || len > MAX_WIRE_BYTES_ANY {
+        return Err(format!("private run wire: segment {} is {} B, the counted length is {len}", g.k, bytes.len()));
+    }
+    let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
+    let mut r = Reader { bytes, pos: 0 };
+    if &r.take::<8>()? != RUN_MAGIC {
+        return Err("private run wire: segment profile".into());
+    }
+    if &r.take::<32>()? != binding {
+        return Err("private run wire: this segment belongs to another run".into());
+    }
+    if u64::from_le_bytes(r.take::<8>()?) != g.l as u64 || u64::from_le_bytes(r.take::<8>()?) != g.k as u64 {
+        return Err(format!("private run wire: segment {} is not the {}-segment run's segment {}", g.k, g.l, g.k));
+    }
+    if &r.take::<32>()? != start_tag {
+        return Err(format!("private run wire: segment {}'s header is not the verifier's own transcript position", g.k));
+    }
+    let b_root = if g.commits_boundary() { Some(r.take::<32>()?) } else { None };
+    let (a_root, h_root, mask_root) = (r.take::<32>()?, r.take::<32>()?, r.take::<32>()?);
+    let mut slots = Vec::with_capacity(N_SLOTS);
+    for s in 0..N_SLOTS {
+        let (n, e, d) = lay.slots()[s];
+        let scalar = r.fp2()?;
+        let rounds = (0..n + e).map(|_| r.fp2_vec(d + 1)).collect::<Result<Vec<_>, String>>()?;
+        let terms = r.fp2_vec(lay.slot_terms(s))?;
+        slots.push(SlotProof { scalar, sc: SumcheckProof { rounds }, terms });
+    }
+    let q = r.fp2_vec(MASK_VEC)?;
+    let prox = r.fp2_vec(MASK_VEC)?;
+    let columns = (0..bd.checks).map(|_| r.column(M_ROWS, MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
+    let mask_open = MaskOpening { q, prox, columns };
+    let a_open = r.hiding(bd, sh.a_groups(), lay.a_rows)?;
+    let h_open = r.hiding(bd, sh.h_groups(), lay.h_rows)?;
+    let (gi, ri) = g.incoming(sh.endpoint_rows);
+    let in_open = r.hiding(ed, gi, ri)?;
+    let out_open = if g.closes_output() { Some(r.hiding(ed, 1, sh.endpoint_rows)?) } else { None };
+    let end_tag = r.take::<32>()?;
+    if r.pos != bytes.len() {
+        return Err("private run wire: trailing bytes".into());
+    }
+    let seg = Segment { b_root, a_root, h_root, mask_root, slots, mask_open, a_open, h_open, in_open, out_open };
+    validate_segment(&seg, lay, g)?;
+    Ok((seg, end_tag))
+}

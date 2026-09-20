@@ -962,6 +962,9 @@ pub(crate) struct Layout {
     a_sites: [usize; N_SLOTS],
     h_sites: [usize; N_SLOTS],
     slots: [(usize, usize, usize); N_SLOTS],
+    /// **STAGE 12.** `[incoming, outgoing]`: the first row of the reserved
+    /// pair each IO tab claims. See [`Layout::with_io_mask_rows`].
+    io_mask_row: [usize; 2],
 }
 
 impl Layout {
@@ -1061,7 +1064,34 @@ impl Layout {
             a_sites,
             h_sites,
             slots,
+            // **STAGE 12.** A single block's two IO commitments are
+            // `endpoint_g`/`private_seam` planes with ONE claim site, whose
+            // terminal pair sits immediately above the data rows. That is
+            // today's `argument.rs` constant `sh.endpoint_rows - 5`, moved
+            // here unchanged: nothing of any existing profile moves, and a
+            // RUN overrides it per stage through `with_io_mask_rows`.
+            io_mask_row: [sh.endpoint_rows.saturating_sub(super::endpoint_g::MASK_ROWS); 2],
         })
+    }
+
+    /// **STAGE 12.** The reserved pair each IO tab of this stage uses, as
+    /// `[incoming, outgoing]`. A single block leaves it alone. A stage of a
+    /// run sets it from the DERIVED boundary geometry: the outgoing claim
+    /// (slot 22, block `k`'s output) takes site 0 at `data`, and the incoming
+    /// claim (slot 21, block `k + 1`'s input) takes site 1 at `data + 2`, so
+    /// that the two claims a boundary carries land on DISJOINT pairs — the
+    /// whole defence against the shared-pair counterexample. The assignment
+    /// is the run's declared schedule and is covered by the run's schedule
+    /// digest; it is not in `describe()` and so moves no existing byte.
+    pub(crate) fn with_io_mask_rows(mut self, rows: [usize; 2]) -> Layout {
+        self.io_mask_row = rows;
+        self
+    }
+
+    /// the reserved pair of the incoming (`Cm::In`) or outgoing (`Cm::Out`)
+    /// IO commitment of this stage
+    pub(crate) fn io_mask_row(&self, outgoing: bool) -> usize {
+        self.io_mask_row[usize::from(outgoing)]
     }
 
     // ---- what this layout was built from ----

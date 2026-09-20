@@ -79,6 +79,11 @@ mod layout;
 // PZ-1 and PZ-2 live in its own `mod tests`.
 mod pad;
 mod protocol;
+// STAGE 12: the private RUN of `L` blocks under ONE transcript — the run
+// statement, the stage order, the segmented receipt, and the prover and
+// verifier that drive them. A run is a NEW profile (D17) beside the
+// single-block ones, which it leaves byte for byte where they were.
+mod run;
 mod shape;
 // STAGE 11: the phase clock. A write-only recorder, inert unless
 // `HL_PB_TIMING=1`, that answers WHERE the seconds of one block go (the P5

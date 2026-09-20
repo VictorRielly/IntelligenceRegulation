@@ -1,0 +1,483 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m/hashline)
+error[E0425]: cannot find value `A_D` in this scope
+   --> src/private_block/run_tests.rs:531:43
+    |
+531 |         ("the norm_a denominator", ids.at(A_D), 1),
+    |                                           ^^^
+    |
+   ::: src/private_block/layout.rs:183:1
+    |
+183 | pub(crate) const A_X: usize = 8;
+    | -------------------------------- similarly named constant `A_X` defined here
+    |
+note: constant `crate::private_attention::layout::A_D` exists but is inaccessible
+   --> src/private_attention/layout.rs:90:1
+    |
+ 90 | pub(crate) const A_D: usize = 0;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: a constant with a similar name exists
+    |
+531 -         ("the norm_a denominator", ids.at(A_D), 1),
+531 +         ("the norm_a denominator", ids.at(A_X), 1),
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_D;
+    |
+
+error[E0425]: cannot find value `A_LIMB` in this scope
+   --> src/private_block/run_tests.rs:532:39
+    |
+532 |         ("a norm_a byte limb", ids.at(A_LIMB), 300),
+    |                                       ^^^^^^ not found in this scope
+    |
+note: constant `crate::private_attention::layout::A_LIMB` exists but is inaccessible
+   --> src/private_attention/layout.rs:97:1
+    |
+ 97 | pub(crate) const A_LIMB: usize = 4;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_LIMB;
+    |
+
+error[E0425]: cannot find value `A_Y` in this scope
+   --> src/private_block/run_tests.rs:533:40
+    |
+533 |         ("the norm_a quotient", ids.at(A_Y), 1),
+    |                                        ^^^
+    |
+   ::: src/private_block/layout.rs:183:1
+    |
+183 | pub(crate) const A_X: usize = 8;
+    | -------------------------------- similarly named constant `A_X` defined here
+    |
+note: constant `crate::private_attention::layout::A_Y` exists but is inaccessible
+   --> src/private_attention/layout.rs:101:1
+    |
+101 | pub(crate) const A_Y: usize = 8;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: a constant with a similar name exists
+    |
+533 -         ("the norm_a quotient", ids.at(A_Y), 1),
+533 +         ("the norm_a quotient", ids.at(A_X), 1),
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_Y;
+    |
+
+error[E0425]: cannot find value `A_X1` in this scope
+   --> src/private_block/run_tests.rs:534:31
+    |
+534 |         ("residual 1", ids.at(A_X1), 1),
+    |                               ^^^^
+    |
+   ::: src/private_block/layout.rs:183:1
+    |
+183 | pub(crate) const A_X: usize = 8;
+    | -------------------------------- similarly named constant `A_X` defined here
+    |
+note: constant `crate::private_attention::layout::A_X1` exists but is inaccessible
+   --> src/private_attention/layout.rs:108:1
+    |
+108 | pub(crate) const A_X1: usize = 21;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: a constant with a similar name exists
+    |
+534 -         ("residual 1", ids.at(A_X1), 1),
+534 +         ("residual 1", ids.at(A_X), 1),
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_X1;
+    |
+
+error[E0425]: cannot find value `A_XL0` in this scope
+   --> src/private_block/run_tests.rs:536:44
+    |
+536 |         ("an int16 byte limb of x", ids.at(A_XL0), 300),
+    |                                            ^^^^^ not found in this scope
+    |
+note: constant `crate::private_attention::layout::A_XL0` exists but is inaccessible
+   --> src/private_attention/layout.rs:99:1
+    |
+ 99 | pub(crate) const A_XL0: usize = 6;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_XL0;
+    |
+
+error[E0425]: cannot find value `A_Q8` in this scope
+   --> src/private_block/run_tests.rs:537:37
+    |
+537 |         ("the Q projection", ids.at(A_Q8), 1),
+    |                                     ^^^^ not found in this scope
+    |
+note: constant `crate::private_attention::layout::A_Q8` exists but is inaccessible
+   --> src/private_attention/layout.rs:111:1
+    |
+111 | pub(crate) const A_Q8: usize = 24;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_Q8;
+    |
+
+error[E0425]: cannot find value `A_QR8` in this scope
+   --> src/private_block/run_tests.rs:538:38
+    |
+538 |         ("the rotated query", ids.at(A_QR8), 1),
+    |                                      ^^^^^ not found in this scope
+    |
+note: constant `crate::private_attention::layout::A_QR8` exists but is inaccessible
+   --> src/private_attention/layout.rs:113:1
+    |
+113 | pub(crate) const A_QR8: usize = 26;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_QR8;
+    |
+
+error[E0425]: cannot find value `A_K8` in this scope
+   --> src/private_block/run_tests.rs:539:37
+    |
+539 |         ("the K projection", ids.at(A_K8), 1),
+    |                                     ^^^^ not found in this scope
+    |
+note: constant `crate::private_attention::layout::A_K8` exists but is inaccessible
+   --> src/private_attention/layout.rs:118:1
+    |
+118 | pub(crate) const A_K8: usize = 31;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_K8;
+    |
+
+error[E0425]: cannot find value `A_V8` in this scope
+   --> src/private_block/run_tests.rs:540:37
+    |
+540 |         ("the V projection", ids.at(A_V8), 1),
+    |                                     ^^^^ not found in this scope
+    |
+note: constant `crate::private_attention::layout::A_V8` exists but is inaccessible
+   --> src/private_attention/layout.rs:120:1
+    |
+120 | pub(crate) const A_V8: usize = 33;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_V8;
+    |
+
+error[E0425]: cannot find value `A_S8` in this scope
+   --> src/private_block/run_tests.rs:541:30
+    |
+541 |         ("the score", ids.at(A_S8), 1),
+    |                              ^^^^ not found in this scope
+    |
+note: constant `crate::private_attention::layout::A_S8` exists but is inaccessible
+   --> src/private_attention/layout.rs:124:1
+    |
+124 | pub(crate) const A_S8: usize = 37;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_S8;
+    |
+
+error[E0425]: cannot find value `A_MX` in this scope
+   --> src/private_block/run_tests.rs:542:36
+    |
+542 |         ("the row maximum", ids.at(A_MX), 1),
+    |                                    ^^^^
+    |
+   ::: src/private_block/layout.rs:183:1
+    |
+183 | pub(crate) const A_X: usize = 8;
+    | -------------------------------- similarly named constant `A_X` defined here
+    |
+note: constant `crate::private_attention::layout::A_MX` exists but is inaccessible
+   --> src/private_attention/layout.rs:94:1
+    |
+ 94 | pub(crate) const A_MX: usize = 2;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: a constant with a similar name exists
+    |
+542 -         ("the row maximum", ids.at(A_MX), 1),
+542 +         ("the row maximum", ids.at(A_X), 1),
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_MX;
+    |
+
+error[E0425]: cannot find value `A_E` in this scope
+   --> src/private_block/run_tests.rs:543:34
+    |
+543 |         ("the exp value", ids.at(A_E), 1),
+    |                                  ^^^
+    |
+   ::: src/private_block/layout.rs:183:1
+    |
+183 | pub(crate) const A_X: usize = 8;
+    | -------------------------------- similarly named constant `A_X` defined here
+    |
+note: constant `crate::private_attention::layout::A_E` exists but is inaccessible
+   --> src/private_attention/layout.rs:127:1
+    |
+127 | pub(crate) const A_E: usize = 40;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: a constant with a similar name exists
+    |
+543 -         ("the exp value", ids.at(A_E), 1),
+543 +         ("the exp value", ids.at(A_X), 1),
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_E;
+    |
+
+error[E0425]: cannot find value `A_P` in this scope
+   --> src/private_block/run_tests.rs:544:41
+    |
+544 |         ("the softmax quotient", ids.at(A_P), 1),
+    |                                         ^^^
+    |
+   ::: src/private_block/layout.rs:183:1
+    |
+183 | pub(crate) const A_X: usize = 8;
+    | -------------------------------- similarly named constant `A_X` defined here
+    |
+note: constant `crate::private_attention::layout::A_P` exists but is inaccessible
+   --> src/private_attention/layout.rs:128:1
+    |
+128 | pub(crate) const A_P: usize = 41;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: a constant with a similar name exists
+    |
+544 -         ("the softmax quotient", ids.at(A_P), 1),
+544 +         ("the softmax quotient", ids.at(A_X), 1),
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_P;
+    |
+
+error[E0425]: cannot find value `A_O8` in this scope
+   --> src/private_block/run_tests.rs:545:42
+    |
+545 |         ("the output projection", ids.at(A_O8), 1),
+    |                                          ^^^^ not found in this scope
+    |
+note: constant `crate::private_attention::layout::A_O8` exists but is inaccessible
+   --> src/private_attention/layout.rs:115:1
+    |
+115 | pub(crate) const A_O8: usize = 28;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_O8;
+    |
+
+error[E0425]: cannot find value `A_AO` in this scope
+   --> src/private_block/run_tests.rs:546:41
+    |
+546 |         ("the attention output", ids.at(A_AO), 1),
+    |                                         ^^^^ not found in this scope
+    |
+note: constant `crate::private_attention::layout::A_AO` exists but is inaccessible
+   --> src/private_attention/layout.rs:104:1
+    |
+104 | pub(crate) const A_AO: usize = 17;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_AO;
+    |
+
+error[E0425]: cannot find value `A_RAL` in this scope
+   --> src/private_block/run_tests.rs:547:49
+    |
+547 |         ("a biased attention remainder", ids.at(A_RAL), 1),
+    |                                                 ^^^^^ not found in this scope
+    |
+note: constant `crate::private_attention::layout::A_RAL` exists but is inaccessible
+   --> src/private_attention/layout.rs:107:1
+    |
+107 | pub(crate) const A_RAL: usize = 20;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not accessible
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_RAL;
+    |
+
+error[E0425]: cannot find value `A_DM` in this scope
+   --> src/private_block/run_tests.rs:548:43
+    |
+548 |         ("the norm_m denominator", ids.at(A_DM), 1),
+    |                                           ^^^^ not found in this scope
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_DM;
+    |
+
+error[E0425]: cannot find value `A_LIMBM` in this scope
+   --> src/private_block/run_tests.rs:549:39
+    |
+549 |         ("a norm_m byte limb", ids.at(A_LIMBM), 300),
+    |                                       ^^^^^^^ not found in this scope
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_LIMBM;
+    |
+
+error[E0425]: cannot find value `A_YM` in this scope
+   --> src/private_block/run_tests.rs:550:40
+    |
+550 |         ("the norm_m quotient", ids.at(A_YM), 1),
+    |                                        ^^^^ not found in this scope
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_YM;
+    |
+
+error[E0425]: cannot find value `A_G8` in this scope
+   --> src/private_block/run_tests.rs:551:36
+    |
+551 |         ("the gate output", ids.at(A_G8), 1),
+    |                                    ^^^^ not found in this scope
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_G8;
+    |
+
+error[E0425]: cannot find value `A_RGL` in this scope
+   --> src/private_block/run_tests.rs:552:44
+    |
+552 |         ("a biased gate remainder", ids.at(A_RGL), 1),
+    |                                            ^^^^^ not found in this scope
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_RGL;
+    |
+
+error[E0425]: cannot find value `A_A16` in this scope
+   --> src/private_block/run_tests.rs:553:41
+    |
+553 |         ("the activation value", ids.at(A_A16), 1),
+    |                                         ^^^^^ not found in this scope
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_A16;
+    |
+
+error[E0425]: cannot find value `A_U16` in this scope
+   --> src/private_block/run_tests.rs:554:34
+    |
+554 |         ("the up output", ids.at(A_U16), 1),
+    |                                  ^^^^^ not found in this scope
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_U16;
+    |
+
+error[E0425]: cannot find value `A_H16` in this scope
+   --> src/private_block/run_tests.rs:555:40
+    |
+555 |         ("the gate-up product", ids.at(A_H16), 1),
+    |                                        ^^^^^ not found in this scope
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_H16;
+    |
+
+error[E0425]: cannot find value `A_Z16` in this scope
+   --> src/private_block/run_tests.rs:556:44
+    |
+556 |         ("the feed-forward output", ids.at(A_Z16), 1),
+    |                                            ^^^^^ not found in this scope
+    |
+help: consider importing this constant
+    |
+ 19 + use crate::private_block::layout::A_Z16;
+    |
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:284:18
+    |
+284 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+For more information about this error, try `rustc --explain E0425`.
+warning: `hashline` (lib test) generated 8 warnings
+error: could not compile `hashline` (lib test) due to 25 previous errors; 8 warnings emitted
