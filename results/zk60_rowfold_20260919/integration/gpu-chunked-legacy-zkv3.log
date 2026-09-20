@@ -1,0 +1,386 @@
+INSECURE TEST RANDOMNESS: --seed reproduces public masks and provides no privacy; use only for fixtures.
+pass (v3) [ZK, randomness deterministic-test]: 12 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export (d 768 f 2048; log_cols 14, inv_rate 4, col checks 256, threads 2)
+  MODE P1 (fast tier) [v3] header "P1-v3": private = {the input X, EVERY activation plane including the output z16, the remainders, the multiplicities}; public = {the weights W, the shapes, the signed shifts, the activation-table digest}; output claim: function 1 (attested inference) — the output is committed, nothing more is claimed; model identity: the W commitment root (public weights: stable per model)
+[UPERF3-XX] gpu init: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB), NVRTC compile 3.52s
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AI] drain layer top: freed 0 pooled buffers
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0117 | total 0.0583 s
+[UPERF3-AI] vram after commit W: free 6862 MiB / 8187 MiB, pool 4
+[ZK60-CL1]   zk commit rows 559 2^14 -> 2^16 (q 256, 293 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0058 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 47 2^16 (n_src 65536, inverse false): p1 0.0015 | p2 0.0004 s
+[ZK60-CL1]   chunked ZK commit rows 559 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0228 s
+[UPERF3-AI] vram after commit A: free 6734 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 6446 MiB / 8187 MiB, pool 7
+[ZK60-CL1]   zk commit rows 485 2^14 -> 2^16 (q 256, 254 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0044 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 101 2^16 (n_src 65536, inverse false): p1 0.0025 | p2 0.0007 s
+[ZK60-CL1]   chunked ZK commit rows 485 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0183 s
+[UPERF3-AI] drain after H: freed 7 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 6798 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0140 s | rounds 0.0166 s | folds 0.0040 s | sync/absorb 0.0012 s | total 0.0362 s
+[UPERF3-AI] vram after zcF: free 6574 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0008 s | rounds 0.0037 s | folds 0.0009 s | sync/absorb 0.0010 s | total 0.0069 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0069 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0045 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 559 (5 chunks, fused, pruned 249/4096): 0.0164 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 485 (4 chunks, fused, pruned 243/4096): 0.0112 s
+  layer  0: prove 0.423 s, 7306036 B
+[UPERF3-AI] drain layer top: freed 7 pooled buffers
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0128 | total 0.0182 s
+[UPERF3-AI] vram after commit W: free 6862 MiB / 8187 MiB, pool 4
+[ZK60-CL1]   zk commit rows 561 2^14 -> 2^16 (q 256, 294 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0058 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 49 2^16 (n_src 65536, inverse false): p1 0.0014 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 561 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0225 s
+[UPERF3-AI] vram after commit A: free 6734 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 6446 MiB / 8187 MiB, pool 7
+[ZK60-CL1]   zk commit rows 489 2^14 -> 2^16 (q 256, 256 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0045 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 105 2^16 (n_src 65536, inverse false): p1 0.0026 | p2 0.0007 s
+[ZK60-CL1]   chunked ZK commit rows 489 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0189 s
+[UPERF3-AI] drain after H: freed 7 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 6798 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0152 s | rounds 0.0165 s | folds 0.0040 s | sync/absorb 0.0011 s | total 0.0372 s
+[UPERF3-AI] vram after zcF: free 6574 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0011 s | rounds 0.0039 s | folds 0.0008 s | sync/absorb 0.0010 s | total 0.0076 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0076 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0040 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 561 (5 chunks, fused, pruned 249/4096): 0.0297 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 489 (4 chunks, fused, pruned 244/4096): 0.0150 s
+  layer  1: prove 0.417 s, 7318324 B
+[UPERF3-AI] drain layer top: freed 7 pooled buffers
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0125 | total 0.0177 s
+[UPERF3-AI] vram after commit W: free 6862 MiB / 8187 MiB, pool 4
+[ZK60-CL1]   zk commit rows 561 2^14 -> 2^16 (q 256, 294 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0058 | p2 0.0010 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 49 2^16 (n_src 65536, inverse false): p1 0.0015 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 561 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0223 s
+[UPERF3-AI] vram after commit A: free 6734 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 6446 MiB / 8187 MiB, pool 7
+[ZK60-CL1]   zk commit rows 489 2^14 -> 2^16 (q 256, 256 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0044 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 105 2^16 (n_src 65536, inverse false): p1 0.0026 | p2 0.0007 s
+[ZK60-CL1]   chunked ZK commit rows 489 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0185 s
+[UPERF3-AI] drain after H: freed 7 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 6798 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0141 s | rounds 0.0162 s | folds 0.0038 s | sync/absorb 0.0011 s | total 0.0354 s
+[UPERF3-AI] vram after zcF: free 6574 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0010 s | rounds 0.0031 s | folds 0.0007 s | sync/absorb 0.0006 s | total 0.0057 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0063 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0044 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 561 (5 chunks, fused, pruned 248/4096): 0.0162 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 489 (4 chunks, fused, pruned 249/4096): 0.0110 s
+  layer  2: prove 0.373 s, 7318324 B
+[UPERF3-AI] drain layer top: freed 7 pooled buffers
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0126 | total 0.0176 s
+[UPERF3-AI] vram after commit W: free 6862 MiB / 8187 MiB, pool 4
+[ZK60-CL1]   zk commit rows 559 2^14 -> 2^16 (q 256, 293 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0058 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 47 2^16 (n_src 65536, inverse false): p1 0.0015 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 559 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0228 s
+[UPERF3-AI] vram after commit A: free 6734 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 6446 MiB / 8187 MiB, pool 7
+[ZK60-CL1]   zk commit rows 485 2^14 -> 2^16 (q 256, 254 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0044 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 101 2^16 (n_src 65536, inverse false): p1 0.0025 | p2 0.0007 s
+[ZK60-CL1]   chunked ZK commit rows 485 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0206 s
+[UPERF3-AI] drain after H: freed 7 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 6798 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0141 s | rounds 0.0168 s | folds 0.0038 s | sync/absorb 0.0014 s | total 0.0368 s
+[UPERF3-AI] vram after zcF: free 6574 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0008 s | rounds 0.0032 s | folds 0.0008 s | sync/absorb 0.0007 s | total 0.0059 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0068 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0044 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 559 (5 chunks, fused, pruned 247/4096): 0.0161 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 485 (4 chunks, fused, pruned 243/4096): 0.0119 s
+  layer  3: prove 0.388 s, 7306036 B
+[UPERF3-AI] drain layer top: freed 7 pooled buffers
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0122 | total 0.0173 s
+[UPERF3-AI] vram after commit W: free 6862 MiB / 8187 MiB, pool 4
+[ZK60-CL1]   zk commit rows 559 2^14 -> 2^16 (q 256, 293 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0055 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 47 2^16 (n_src 65536, inverse false): p1 0.0014 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 559 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0220 s
+[UPERF3-AI] vram after commit A: free 6734 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 6446 MiB / 8187 MiB, pool 7
+[ZK60-CL1]   zk commit rows 485 2^14 -> 2^16 (q 256, 254 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0043 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 101 2^16 (n_src 65536, inverse false): p1 0.0026 | p2 0.0008 s
+[ZK60-CL1]   chunked ZK commit rows 485 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0200 s
+[UPERF3-AI] drain after H: freed 7 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 6798 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0143 s | rounds 0.0162 s | folds 0.0038 s | sync/absorb 0.0011 s | total 0.0358 s
+[UPERF3-AI] vram after zcF: free 6574 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0015 s | rounds 0.0031 s | folds 0.0007 s | sync/absorb 0.0005 s | total 0.0061 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0176 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0045 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 559 (5 chunks, fused, pruned 252/4096): 0.0160 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 485 (4 chunks, fused, pruned 246/4096): 0.0112 s
+  layer  4: prove 0.391 s, 7306036 B
+[UPERF3-AI] drain layer top: freed 7 pooled buffers
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0129 | total 0.0178 s
+[UPERF3-AI] vram after commit W: free 6862 MiB / 8187 MiB, pool 4
+[ZK60-CL1]   zk commit rows 559 2^14 -> 2^16 (q 256, 293 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0057 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 47 2^16 (n_src 65536, inverse false): p1 0.0014 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 559 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0239 s
+[UPERF3-AI] vram after commit A: free 6734 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 6446 MiB / 8187 MiB, pool 7
+[ZK60-CL1]   zk commit rows 485 2^14 -> 2^16 (q 256, 254 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0046 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 101 2^16 (n_src 65536, inverse false): p1 0.0025 | p2 0.0007 s
+[ZK60-CL1]   chunked ZK commit rows 485 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0186 s
+[UPERF3-AI] drain after H: freed 7 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 6798 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0143 s | rounds 0.0174 s | folds 0.0042 s | sync/absorb 0.0020 s | total 0.0391 s
+[UPERF3-AI] vram after zcF: free 6574 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0012 s | rounds 0.0032 s | folds 0.0008 s | sync/absorb 0.0007 s | total 0.0063 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0072 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0044 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 559 (5 chunks, fused, pruned 252/4096): 0.0162 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 485 (4 chunks, fused, pruned 253/4096): 0.0110 s
+  layer  5: prove 0.384 s, 7306036 B
+[UPERF3-AI] drain layer top: freed 7 pooled buffers
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0119 | total 0.0176 s
+[UPERF3-AI] vram after commit W: free 6862 MiB / 8187 MiB, pool 4
+[ZK60-CL1]   zk commit rows 559 2^14 -> 2^16 (q 256, 293 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0056 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 47 2^16 (n_src 65536, inverse false): p1 0.0014 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 559 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0220 s
+[UPERF3-AI] vram after commit A: free 6734 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 6446 MiB / 8187 MiB, pool 7
+[ZK60-CL1]   zk commit rows 485 2^14 -> 2^16 (q 256, 254 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0042 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 101 2^16 (n_src 65536, inverse false): p1 0.0025 | p2 0.0007 s
+[ZK60-CL1]   chunked ZK commit rows 485 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0191 s
+[UPERF3-AI] drain after H: freed 7 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 6798 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0141 s | rounds 0.0167 s | folds 0.0038 s | sync/absorb 0.0014 s | total 0.0368 s
+[UPERF3-AI] vram after zcF: free 6574 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0013 s | rounds 0.0032 s | folds 0.0007 s | sync/absorb 0.0006 s | total 0.0066 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0074 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0043 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 559 (5 chunks, fused, pruned 247/4096): 0.0163 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 485 (4 chunks, fused, pruned 247/4096): 0.0110 s
+  layer  6: prove 0.381 s, 7306036 B
+[UPERF3-AI] drain layer top: freed 7 pooled buffers
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0124 | total 0.0173 s
+[UPERF3-AI] vram after commit W: free 6862 MiB / 8187 MiB, pool 4
+[ZK60-CL1]   zk commit rows 559 2^14 -> 2^16 (q 256, 293 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0056 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 47 2^16 (n_src 65536, inverse false): p1 0.0014 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 559 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0222 s
+[UPERF3-AI] vram after commit A: free 6734 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 6446 MiB / 8187 MiB, pool 7
+[ZK60-CL1]   zk commit rows 485 2^14 -> 2^16 (q 256, 254 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0043 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 101 2^16 (n_src 65536, inverse false): p1 0.0025 | p2 0.0007 s
+[ZK60-CL1]   chunked ZK commit rows 485 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0194 s
+[UPERF3-AI] drain after H: freed 7 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 6798 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0140 s | rounds 0.0161 s | folds 0.0037 s | sync/absorb 0.0009 s | total 0.0351 s
+[UPERF3-AI] vram after zcF: free 6574 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0010 s | rounds 0.0037 s | folds 0.0008 s | sync/absorb 0.0009 s | total 0.0072 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0066 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0043 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 559 (5 chunks, fused, pruned 246/4096): 0.0172 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 485 (4 chunks, fused, pruned 249/4096): 0.0109 s
+  layer  7: prove 0.381 s, 7306036 B
+[UPERF3-AI] drain layer top: freed 7 pooled buffers
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0119 | total 0.0172 s
+[UPERF3-AI] vram after commit W: free 6862 MiB / 8187 MiB, pool 4
+[ZK60-CL1]   zk commit rows 559 2^14 -> 2^16 (q 256, 293 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0055 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 47 2^16 (n_src 65536, inverse false): p1 0.0014 | p2 0.0004 s
+[ZK60-CL1]   chunked ZK commit rows 559 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0258 s
+[UPERF3-AI] vram after commit A: free 6734 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 6446 MiB / 8187 MiB, pool 7
+[ZK60-CL1]   zk commit rows 485 2^14 -> 2^16 (q 256, 254 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0043 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 101 2^16 (n_src 65536, inverse false): p1 0.0025 | p2 0.0007 s
+[ZK60-CL1]   chunked ZK commit rows 485 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0452 s
+[UPERF3-AI] drain after H: freed 7 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 6798 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0141 s | rounds 0.0165 s | folds 0.0039 s | sync/absorb 0.0011 s | total 0.0361 s
+[UPERF3-AI] vram after zcF: free 6574 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0013 s | rounds 0.0034 s | folds 0.0009 s | sync/absorb 0.0010 s | total 0.0073 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0120 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0044 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 559 (5 chunks, fused, pruned 244/4096): 0.0162 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 485 (4 chunks, fused, pruned 248/4096): 0.0109 s
+  layer  8: prove 0.414 s, 7306036 B
+[UPERF3-AI] drain layer top: freed 7 pooled buffers
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0123 | total 0.0173 s
+[UPERF3-AI] vram after commit W: free 6862 MiB / 8187 MiB, pool 4
+[ZK60-CL1]   zk commit rows 559 2^14 -> 2^16 (q 256, 293 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0058 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 47 2^16 (n_src 65536, inverse false): p1 0.0015 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 559 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0224 s
+[UPERF3-AI] vram after commit A: free 6734 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 6446 MiB / 8187 MiB, pool 7
+[ZK60-CL1]   zk commit rows 485 2^14 -> 2^16 (q 256, 254 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0043 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 101 2^16 (n_src 65536, inverse false): p1 0.0025 | p2 0.0006 s
+[ZK60-CL1]   chunked ZK commit rows 485 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0185 s
+[UPERF3-AI] drain after H: freed 7 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 6798 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0143 s | rounds 0.0165 s | folds 0.0039 s | sync/absorb 0.0012 s | total 0.0364 s
+[UPERF3-AI] vram after zcF: free 6574 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0012 s | rounds 0.0035 s | folds 0.0010 s | sync/absorb 0.0008 s | total 0.0072 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0074 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0043 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 559 (5 chunks, fused, pruned 251/4096): 0.0161 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 485 (4 chunks, fused, pruned 247/4096): 0.0107 s
+  layer  9: prove 0.378 s, 7306036 B
+[UPERF3-AI] drain layer top: freed 7 pooled buffers
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0132 | total 0.0180 s
+[UPERF3-AI] vram after commit W: free 6862 MiB / 8187 MiB, pool 4
+[ZK60-CL1]   zk commit rows 559 2^14 -> 2^16 (q 256, 293 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0057 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 47 2^16 (n_src 65536, inverse false): p1 0.0014 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 559 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0225 s
+[UPERF3-AI] vram after commit A: free 6734 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 6446 MiB / 8187 MiB, pool 7
+[ZK60-CL1]   zk commit rows 485 2^14 -> 2^16 (q 256, 254 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0044 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0042 | p2 0.0012 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 101 2^16 (n_src 65536, inverse false): p1 0.0025 | p2 0.0007 s
+[ZK60-CL1]   chunked ZK commit rows 485 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0210 s
+[UPERF3-AI] drain after H: freed 7 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 6798 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0165 s | rounds 0.0164 s | folds 0.0040 s | sync/absorb 0.0012 s | total 0.0387 s
+[UPERF3-AI] vram after zcF: free 6574 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0012 s | rounds 0.0033 s | folds 0.0008 s | sync/absorb 0.0007 s | total 0.0063 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0071 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0043 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 559 (5 chunks, fused, pruned 255/4096): 0.0161 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 485 (4 chunks, fused, pruned 250/4096): 0.0109 s
+  layer 10: prove 0.387 s, 7306036 B
+[UPERF3-AI] drain layer top: freed 7 pooled buffers
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0129 | total 0.0177 s
+[UPERF3-AI] vram after commit W: free 6862 MiB / 8187 MiB, pool 4
+[ZK60-CL1]   zk commit rows 559 2^14 -> 2^16 (q 256, 293 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0057 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 47 2^16 (n_src 65536, inverse false): p1 0.0014 | p2 0.0003 s
+[ZK60-CL1]   chunked ZK commit rows 559 2^14 -> 2^16 (q 256) in 5 chunks of <= 128: 0.0226 s
+[UPERF3-AI] vram after commit A: free 6734 MiB / 8187 MiB, pool 5
+[UPERF3-AI] vram after dev_helpers: free 6446 MiB / 8187 MiB, pool 7
+[ZK60-CL1]   zk commit rows 485 2^14 -> 2^16 (q 256, 254 MB resident): CHUNKED (forced)
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0043 | p2 0.0009 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0030 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 128 2^16 (n_src 65536, inverse false): p1 0.0029 | p2 0.0008 s
+[UPERF3-XX]   ntt rows 101 2^16 (n_src 65536, inverse false): p1 0.0025 | p2 0.0006 s
+[ZK60-CL1]   chunked ZK commit rows 485 2^14 -> 2^16 (q 256) in 4 chunks of <= 128: 0.0188 s
+[UPERF3-AI] drain after H: freed 7 pooled buffers
+[UPERF3-AI] vram after helpers+H: free 6798 MiB / 8187 MiB, pool 0
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0141 s | rounds 0.0163 s | folds 0.0041 s | sync/absorb 0.0013 s | total 0.0363 s
+[UPERF3-AI] vram after zcF: free 6574 MiB / 8187 MiB, pool 1
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0011 s | rounds 0.0033 s | folds 0.0009 s | sync/absorb 0.0008 s | total 0.0066 s
+[UPERF3-AH] table zero-check (2^16 x 19, 6 slots): 0.0072 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0043 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 559 (5 chunks, fused, pruned 251/4096): 0.0165 s
+[ZK60-CL1]   chunked ZK re-encode + gather rows 485 (4 chunks, fused, pruned 247/4096): 0.0108 s
+  layer 11: prove 0.381 s, 7306036 B
+prover phases (summed over layers):
+      commit W                      0.575 s
+      commit A (zk)                 1.175 s
+      mask commit                   0.036 s
+      helpers + commit H (zk)       1.014 s
+      matmul g/u (zk)               0.201 s
+      matmul d (zk)                 0.134 s
+      zero-check F (zk)             0.453 s
+      zero-check D (zk)             0.095 s
+      table zero-check (zk)         0.185 s
+      zsum + mask open              0.033 s
+      pcs openings (zk)             0.796 s
+mask sites (v3; layer 0 — every layer identical in structure up to its window sizes):
+      layout: n = 2^14 columns; table zero-check over 2^16 (the INT16 class spans 4 rows); A 559 rows = 520 data + 21 masks + 18 table/mask rows; H 485 rows = 432 data + 17 masks + 36 helper/mask rows
+      A masks: 7 f-planes (g8,rg,a16,u16,ru,h16,rh x 1 f-blocks) at rho_F -> rows [520, 521, 522, 523, 524, 525, 526]; 9 d-planes (X,z16,rd x 3 d-blocks) at rho_D -> rows [527, 528, 529, 530, 531, 532, 533, 534, 535]; X-blocks at p2 -> [536, 537, 538]; h16-blocks at p5 -> [539]; prox row 540
+      table slot tag 3 (256 entries, 2^14 slice, 1 row(s)): m at A rows 541.., mask at A rows 542..; helper h_t at H rows re 449.. im 450.., its mask re 451.. im 452..
+      table slot tag 4 (65536 entries, 2^16 slice, 4 row(s)): m at A rows 543.., mask at A rows 547..; helper h_t at H rows re 453.. im 457.., its mask re 461.. im 465..
+      table slot tag 81 (512 entries, 2^14 slice, 1 row(s)): m at A rows 551.., mask at A rows 552..; helper h_t at H rows re 469.. im 470.., its mask re 471.. im 472..
+      table slot tag 73 (2 entries, 2^14 slice, 1 row(s)): m at A rows 553.., mask at A rows 554..; helper h_t at H rows re 473.. im 474.., its mask re 475.. im 476..
+      table slot tag 86 (16384 entries, 2^14 slice, 1 row(s)): m at A rows 555.., mask at A rows 556..; helper h_t at H rows re 477.. im 478.., its mask re 479.. im 480..
+      table slot tag 82 (1024 entries, 2^14 slice, 1 row(s)): m at A rows 557.., mask at A rows 558..; helper h_t at H rows re 481.. im 482.., its mask re 483.. im 484..
+      H masks: 3 helper planes (hg,hu,hh x 1 f-blocks) at rho_F -> rows [(432, 433), (434, 435), (436, 437)]; 3 hz planes at rho_D -> rows [(438, 439), (440, 441), (442, 443)]; zero-sum u rows (444, 445) (its extension mask u' (446, 447)) for the value-0 LogUp sum group; prox row 448
+      A: 26 claims in 5 groups
+      A group vector 0: mask rows [520, 521, 522, 523, 524, 525, 526]
+      A group vector 1: mask rows [527, 528, 529, 530, 531, 532, 533, 534, 535]
+      A group vector 2: mask rows [536, 537, 538]
+      A group vector 3: mask rows [539]
+      A group vector 4: mask rows [542, 547, 548, 549, 550, 552, 554, 556, 558]
+      A proximity vector: prox mask row 540 (+ every mask row with its random rho)
+      A 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      A 65536 Merkle leaves salted
+      H: 14 claims in 5 groups
+      H group vector 0: mask rows [432, 433, 434, 435, 436, 437]
+      H group vector 1: mask rows [438, 439, 440, 441, 442, 443]
+      H group vector 2: mask rows [444, 445, 446, 447]
+      H group vector 3: mask rows [451, 452, 461, 462, 463, 464, 465, 466, 467, 468, 471, 472, 475, 476, 479, 480, 483, 484]
+      H group vector 4: mask rows [444, 445]
+      H proximity vector: prox mask row 448 (+ every mask row with its random rho)
+      H 256 opened columns: 256 pad symbols per row on the coset (no systematic position)
+      H 65536 Merkle leaves salted
+  gpu device-side (summed): h2d 0.363 s (1059 MB) | ntt 0.633 s | hash 0.000 s | sumcheck 0.621 s | fold 0.198 s | helpers 0.101 s | d2h 0.000 s (155 MB) | vram peak 1860 MB
+PROOF sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17 (87697008 B) [ZK v3 randomness deterministic-test]
+  proof written to /tmp/zk60-rowfold-proof-gates-jkwdqny9/gpu-chunked-legacy-zkv3.proof
+PASS-V3 ACCEPT [ZK]: 12 x 512 (d 768 f 2048): witness load+chain 4.10 s | PROVE 4.70 s | VERIFY 0.57 s | proof 87697008 B (87.7 MB) | 2.899e10 MACs | 6.172e9 proven MAC/s (prove wall) | wall 9.51 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P1","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":4.100801425,"prove_s":4.697191828,"serialize_s":0.136892333,"proof_ready_s":8.947047850,"verify_s":0.565691560,"verified":true,"proof_bytes":87697008,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"deterministic-test"}

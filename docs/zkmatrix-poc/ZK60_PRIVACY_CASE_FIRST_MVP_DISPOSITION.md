@@ -121,6 +121,20 @@ Only after all five can I write "privacy accepted for the toy profile, in the
 stated model, with these named residuals". The 125M profile then owes the
 gate again from the start.
 
+**Step 1 is done (00:36, 2026-09-20)** [MEASURED, lane
+`zk60-private-block-125m`, commit `ec84dac`, new file
+`hashline/src/private_block/zero_witness_tests.rs` plus one `mod` line]: the
+all-zero hidden input **proves and verifies** on the toy profile — typed, after
+a byte round trip, and through `verify_bytes`; no refusal. The test pins what
+the argument leans on: `NORM_CEPS == 1`; the exponential table's first entry
+as a *constructor refusal* (`AttentionPublic::new` rejects a zero first
+entry); and the two boundaries, each asserted as "equal to the limit" and "one
+more would refuse" — 16,383 on `A_SG0 + 256·A_SG1` against the exclusive
+16,384, and 512 on `A_P` against the inclusive 512. The zero-witness receipt
+and the fixture receipt are both 2,816,472 bytes; two zero-witness proofs
+differ in bytes and both verify. Module tests 36 → 40, all passing. **This is
+a precondition of the privacy argument, not a privacy result.**
+
 ## 4. What I reviewed myself, and what was delegated
 
 I read the check's hand-back report, its verdict, its blocking table and

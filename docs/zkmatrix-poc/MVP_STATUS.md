@@ -1,12 +1,18 @@
 # Where the MVP stands, in plain words
 
-**Updated 2026-09-19, after GPU integration correctness gates, by the Codex/Fable
+**Updated 2026-09-19, after row-fold integration correctness gates, by the Codex/Fable
 loop (after the 01:04 laptop restart; see §3 item 4).** This page
 answers three questions and is refreshed whenever the loop produces news.
 Rulings are in [the decisions register](ZK60_DECISIONS.md); measurements
 carry their labels ([MEASURED] a run happened, [COUNTED] arithmetic on
 measured pieces, [MODEL] an estimate). Nothing here is a quiesced benchmark;
 the laptop is shared with other jobs.
+
+**Latest integrated speed work:** exact int8/int32 row folds pass all twelve
+CPU/GPU proof-byte gates, fresh native receipt verification in both modes,
+and repaired private-IO P1/P3 checks. Dense synthetic folds improve
+2.32–2.42x; sparse cases are mixed. Full-model proving time remains
+unmeasured. [Evidence and limits](ZK60_ROWFOLD_INTEGRATION_20260919.md).
 
 ## 1. Do we have a workable proof?
 

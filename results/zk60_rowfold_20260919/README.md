@@ -1,28 +1,34 @@
-# Isolated row-fold candidate, 2026-09-19
+# Integrated integer row folds — 2026-09-19
 
-This is a recovery snapshot, not an integrated optimization.
-The source worktree is `/tmp/wt-zk60-rowfold-20260919`, branch
-`perf/zk60-rowfold-20260919`, based on `586eccd`.
+The signed-accumulator candidate from attempt 4 is accepted into main after
+exact arithmetic and full proof validation. Production change:
+`zkp-core/src/mle.rs`; benchmark: `zkp-core/examples/row_fold_bench.rs`.
+`HL_FSP_ROW_FOLD=0` restores the inherited fold in the same binary.
 
-- `candidate.patch` changes only `zkp-core/src/mle.rs`.
-- `row_fold_bench.rs` belongs in that worktree's `zkp-core/examples/`.
-- All Python runners here are archived copies from the isolated worktree.
-  Do not run this snapshot against main.
-- `attempt-1/` retains the first arithmetic passes and benchmark compile
-  failure (ambiguous integer type, corrected with `rows: usize`).
-- `attempt-2/` retains the corrected build, seven arithmetic tests in each
-  switch configuration and the same-binary 0/1/1/0 benchmark. The unsigned
-  bias strategy is 2.22–2.49x faster on dense inputs but 2.55–2.92x slower
-  on 99%-zero inputs. See `comparison.json`; this candidate was rejected
-  for integration. Its exact source is retained as `attempt-2/mle.rs`.
-- `candidate.patch` now uses signed i128 accumulation and retains the
-  inherited zero skip. The sum bound covers every intermediate sum;
-  reduction happens once per output component.
-- The current detached validation is PID 254599, session 47015, launched
-  with `attempt-3.py`. It uses the same arithmetic and 8-case benchmark
-  gates, under the build and heavy locks respectively. Inspect that handle
-  and `attempt-3/run.done` in the isolated worktree before any restart.
+- `attempt-1/`: arithmetic passed, benchmark compile failed (corrected type).
+- `attempt-2/`: unsigned bias passed correctness but regressed sparse input
+  2.55–2.92x. Rejected; exact source retained.
+- `attempt-3/`: signed sums with the inherited zero skip; dense gain,
+  sparse results near baseline.
+- `attempt-4/`: adds the zero-accumulator reduction shortcut. Seven arithmetic
+  tests in both modes, eight independent fold comparisons per benchmark run;
+  ABBA dense ratio 2.32–2.42x, sparse 0.89–1.20x. Shared laptop, two threads,
+  concurrent builds permitted; no full-model timing claim.
+- `integration/`: 37 core and 261 default hashline tests, twelve frozen
+  CPU/GPU/forced-chunked proof-byte gates, four retained native receipts
+  cross-verified with both fold modes and corruption controls, six repaired
+  private-IO P1/P3 checks per mode. Source, binary, runner and log pins.
+- `storage-gate/`: 288 storage-feature tests pass, two explicit native capture
+  writers ignored, twelve doctests included. Separate build output protects
+  the frozen CPU/GPU binaries. Pins the inventory used by floors suite v10.
+- `integration/floors-v10-tests.*`: all 88 gate-helper tests pass. The first
+  local run caught the shell runner still selecting v9 and an outdated usage
+  string; both were corrected before this retained passing run.
+- `integration/audit.json`: independent post-run source/artifact recheck.
 
-Acceptance still requires exact differential tests, inspection of dense and
-sparse timing behavior, and full proof-byte gates before main integration.
-No model-scale speed or privacy claim follows from this candidate.
+The isolated source worktree was `/tmp/wt-zk60-rowfold-20260919`, branch
+`perf/zk60-rowfold-20260919`, based on `586eccd`. Attempt runners are archived
+copies; do not run them against main. `integrate.py` and `storage-gate.py`
+are the main-checkout runners; their output directories are write-once.
+No row-fold jobs remain live. Model-scale speed and whole-proof privacy
+remain open. See `docs/zkmatrix-poc/ZK60_ROWFOLD_INTEGRATION_20260919.md`.

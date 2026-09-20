@@ -126,6 +126,34 @@ the second instructed to assume the first was wrong. **Nothing here
 establishes a privacy property**; a grown layout owes the joint-view gate
 again from the start.
 
+## 3a. After the errata pass: an independent recount (00:36, 2026-09-20)
+
+A pure-Python, shape-driven layout model
+(`scripts/zk60_private_block_layout_model.py` on lane
+`zk60-private-block-125m`, commit `b22fe74`, 25 tests) was written from the
+rules and from `layout.rs`, and was required to reproduce the toy **exactly**
+before anything else counted. It does: all 23 numbers the Rust asserts (455 /
+384 / 50 rows, the group and site counts, 61,440 lookups, 2,816,472 bytes),
+and the slot table and site arrays element for element. Then [COUNTED by the
+model, nothing run]:
+
+- **125M shape: zero differences** from the revised memo, receipt rebuilt part
+  by part to 40,750,024 bytes.
+- **The rung: one difference, 4,173,208 bytes against the memo's 4,173,032.**
+  The whole 176 bytes is the support indicator of one slot (`SC_KVZC`): the
+  memo's text gives the key-value domain an indicator and its receipt
+  arithmetic leaves it out. The model's figure stands; the memo's §9a figure
+  is to be read as 4,173,208.
+- **The pad table is complete**: 100 planes = 64 ruled ZERO + 35 EXEMPT by
+  name + 1 with no pad after the lookup repair (`H_U`). The editor's summary
+  figures (62 / 61 / 35) counted three different populations and cannot be
+  added; the table itself has no unclassified plane.
+- The refusal of blocking item B-3 (three column-weight keys at the new row
+  width) was reproduced independently, and the model notes that the lookup
+  domain already pads at the toy.
+
+The model is now the oracle for the change list's shape-driven layout step.
+
 ## 4. Next steps
 
 1. Errata pass on L: B-1 … B-4 as ruled, the 15 corrections, the 6 conditions,

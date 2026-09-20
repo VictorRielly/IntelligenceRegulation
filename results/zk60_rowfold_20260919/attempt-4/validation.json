@@ -1,0 +1,493 @@
+{
+  "binary_sha256": "7b6daf7e83eed94b24ef4e709bf40a23a3e60a57abf066ee61f1f0bc939de926",
+  "current": null,
+  "model_scale_speed_claim": false,
+  "proof_byte_gates_run": false,
+  "runner_sha256": "7cd16e28badd2249ad8d0b3c45d33ca886a28c6e0eab323fc106a8cbdf13751a",
+  "runs": [
+    {
+      "argv": [
+        "/home/victor/.cargo/bin/cargo",
+        "test",
+        "--release",
+        "--offline",
+        "--locked",
+        "-j",
+        "2",
+        "--manifest-path",
+        "zkp-core/Cargo.toml",
+        "--lib",
+        "mle::tests",
+        "--",
+        "--test-threads=2"
+      ],
+      "elapsed_shared_seconds": 15.117376549002074,
+      "environment": {
+        "HL_FSP_ROW_FOLD": "1"
+      },
+      "exit_code": 0,
+      "name": "arithmetic-1"
+    },
+    {
+      "argv": [
+        "/home/victor/.cargo/bin/cargo",
+        "test",
+        "--release",
+        "--offline",
+        "--locked",
+        "-j",
+        "2",
+        "--manifest-path",
+        "zkp-core/Cargo.toml",
+        "--lib",
+        "mle::tests",
+        "--",
+        "--test-threads=2"
+      ],
+      "elapsed_shared_seconds": 0.06422483899950748,
+      "environment": {
+        "HL_FSP_ROW_FOLD": "0"
+      },
+      "exit_code": 0,
+      "name": "arithmetic-0"
+    },
+    {
+      "argv": [
+        "/home/victor/.cargo/bin/cargo",
+        "build",
+        "--release",
+        "--offline",
+        "--locked",
+        "-j",
+        "2",
+        "--manifest-path",
+        "zkp-core/Cargo.toml",
+        "--example",
+        "row_fold_bench"
+      ],
+      "elapsed_shared_seconds": 6.5359283900033915,
+      "environment": {},
+      "exit_code": 0,
+      "name": "bench-build"
+    },
+    {
+      "argv": [
+        "/tmp/wt-zk60-rowfold-20260919/zkp-core/target/release/examples/row_fold_bench",
+        "2",
+        "11"
+      ],
+      "elapsed_shared_seconds": 0.1645454579993384,
+      "environment": {
+        "HL_FSP_ROW_FOLD": "0"
+      },
+      "exit_code": 0,
+      "measurements": [
+        {
+          "best_s": 0.000845087,
+          "cols": 768,
+          "kind": "i8",
+          "median_s": 0.000878135,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000910257,
+          "cols": 768,
+          "kind": "i32",
+          "median_s": 0.000942857,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.00013285,
+          "cols": 768,
+          "kind": "i8",
+          "median_s": 0.000141794,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000141825,
+          "cols": 768,
+          "kind": "i32",
+          "median_s": 0.000165842,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        },
+        {
+          "best_s": 0.001705206,
+          "cols": 2048,
+          "kind": "i8",
+          "median_s": 0.001783974,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.001762124,
+          "cols": 2048,
+          "kind": "i32",
+          "median_s": 0.001887613,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000221033,
+          "cols": 2048,
+          "kind": "i8",
+          "median_s": 0.00023719,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        },
+        {
+          "best_s": 0.00025864,
+          "cols": 2048,
+          "kind": "i32",
+          "median_s": 0.000266251,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        }
+      ],
+      "name": "bench-0-0"
+    },
+    {
+      "argv": [
+        "/tmp/wt-zk60-rowfold-20260919/zkp-core/target/release/examples/row_fold_bench",
+        "2",
+        "11"
+      ],
+      "elapsed_shared_seconds": 0.1143850329972338,
+      "environment": {
+        "HL_FSP_ROW_FOLD": "1"
+      },
+      "exit_code": 0,
+      "measurements": [
+        {
+          "best_s": 0.000373538,
+          "cols": 768,
+          "kind": "i8",
+          "median_s": 0.000399837,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000364424,
+          "cols": 768,
+          "kind": "i32",
+          "median_s": 0.000422486,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.00014376,
+          "cols": 768,
+          "kind": "i8",
+          "median_s": 0.000144376,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000131615,
+          "cols": 768,
+          "kind": "i32",
+          "median_s": 0.000134592,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        },
+        {
+          "best_s": 0.00068429,
+          "cols": 2048,
+          "kind": "i8",
+          "median_s": 0.000780388,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000747067,
+          "cols": 2048,
+          "kind": "i32",
+          "median_s": 0.00079079,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000236665,
+          "cols": 2048,
+          "kind": "i8",
+          "median_s": 0.000259932,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000229938,
+          "cols": 2048,
+          "kind": "i32",
+          "median_s": 0.000287282,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        }
+      ],
+      "name": "bench-1-1"
+    },
+    {
+      "argv": [
+        "/tmp/wt-zk60-rowfold-20260919/zkp-core/target/release/examples/row_fold_bench",
+        "2",
+        "11"
+      ],
+      "elapsed_shared_seconds": 0.11436058000253979,
+      "environment": {
+        "HL_FSP_ROW_FOLD": "1"
+      },
+      "exit_code": 0,
+      "measurements": [
+        {
+          "best_s": 0.00035974,
+          "cols": 768,
+          "kind": "i8",
+          "median_s": 0.000379932,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000349943,
+          "cols": 768,
+          "kind": "i32",
+          "median_s": 0.000387692,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000133315,
+          "cols": 768,
+          "kind": "i8",
+          "median_s": 0.000159434,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000121106,
+          "cols": 768,
+          "kind": "i32",
+          "median_s": 0.00012955,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000701809,
+          "cols": 2048,
+          "kind": "i8",
+          "median_s": 0.000737254,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.00073579,
+          "cols": 2048,
+          "kind": "i32",
+          "median_s": 0.00078799,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000253332,
+          "cols": 2048,
+          "kind": "i8",
+          "median_s": 0.00029592,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000241845,
+          "cols": 2048,
+          "kind": "i32",
+          "median_s": 0.000276942,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        }
+      ],
+      "name": "bench-2-1"
+    },
+    {
+      "argv": [
+        "/tmp/wt-zk60-rowfold-20260919/zkp-core/target/release/examples/row_fold_bench",
+        "2",
+        "11"
+      ],
+      "elapsed_shared_seconds": 0.16461073300160933,
+      "environment": {
+        "HL_FSP_ROW_FOLD": "0"
+      },
+      "exit_code": 0,
+      "measurements": [
+        {
+          "best_s": 0.000862619,
+          "cols": 768,
+          "kind": "i8",
+          "median_s": 0.000935054,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000959749,
+          "cols": 768,
+          "kind": "i32",
+          "median_s": 0.001017363,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000130034,
+          "cols": 768,
+          "kind": "i8",
+          "median_s": 0.000147773,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000130698,
+          "cols": 768,
+          "kind": "i32",
+          "median_s": 0.000149952,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        },
+        {
+          "best_s": 0.001722808,
+          "cols": 2048,
+          "kind": "i8",
+          "median_s": 0.001818071,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.001826365,
+          "cols": 2048,
+          "kind": "i32",
+          "median_s": 0.001896765,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": false,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000241163,
+          "cols": 2048,
+          "kind": "i8",
+          "median_s": 0.000258656,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        },
+        {
+          "best_s": 0.000306066,
+          "cols": 2048,
+          "kind": "i32",
+          "median_s": 0.000336256,
+          "reference_equal": true,
+          "repeats": 11,
+          "rows": 512,
+          "sparse": true,
+          "threads": 2
+        }
+      ],
+      "name": "bench-3-0"
+    }
+  ],
+  "source_hashes": {
+    "zkp-core/Cargo.lock": "24fb1de3953c017d54113014882b05c4c52b941f900ef50f3c2554f06523fc7b",
+    "zkp-core/Cargo.toml": "b9038a52f34e0ee8313aa93eec656ff62ea29571a04b3df7f3db349d623ba842",
+    "zkp-core/examples/row_fold_bench.rs": "ba8303ac16561521fdd78a4da385646a785f8431457362377e1ae1e9e2e6c508",
+    "zkp-core/src/mle.rs": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e"
+  },
+  "state": "passed"
+}

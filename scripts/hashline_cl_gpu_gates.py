@@ -17,6 +17,9 @@ Stdlib only; CPU only. Nothing here builds, proves or touches a device: the
 runner does, and reports each case through `start` / `record`.
 
 Suite versions
+  10 Native private attention/block, capture and row-fold regressions:
+     37 core tests; 288 storage-enabled hashline tests, 2 ignored capture
+     writer entry points (their explicit capture runs are separate evidence).
   9  Bound FFN regressions: storage-enabled hashline count 227.
   7  Fresh paired-mask FFN regressions: storage-enabled hashline count 218.
   8  Fresh FFN wire regressions: storage-enabled hashline count 220.
@@ -278,12 +281,32 @@ def _suite_v9():
     return s
 
 
+def _suite_v10():
+    s = copy.deepcopy(_suite_v9())
+    s["version"] = 10
+    for c in s["cases"]:
+        if c["id"] == "core_tests":
+            c["expect"] = {"passed": 37, "failed": 0, "ignored": 0}
+            c["established"] = (
+                "2026-09-19 row-fold integration: 35 lib plus 2 integration tests; "
+                "results/zk60_rowfold_20260919/integration/core-tests.log. Includes three exact integer-fold regressions.")
+        if c["id"] == "storage_tests":
+            c["expect"] = {"passed": 288, "failed": 0, "ignored": 2}
+            c["established"] = (
+                "2026-09-19 integrated native private profiles and captures: "
+                "results/zk60_rowfold_20260919/storage-gate/storage-tests.log (includes 12 doctests). "
+                "The two ignored tests are explicit native attention/block capture writers; "
+                "their source-pinned, fresh-process capture validation is separate evidence. "
+                "All other test results must pass; these exact counts are fixed to v10.")
+    return s
+
+
 def _suite_v0():
-    # [ZK60-CL21] derived from the newest production suite (v9) so the synthetic
+    # [ZK60-CL21] derived from the newest production suite (v10) so the synthetic
     # round trip exercises every case kind, the core's included. The synthetic
     # suite records identity when the runner gives it one but does not REQUIRE
     # it: it is never evidence and the CLI round trip runs without a checkout.
-    suite = copy.deepcopy(_suite_v9())
+    suite = copy.deepcopy(_suite_v10())
     suite.update({"version": 0, "production": False, "requires_source_identity": False, "requires_untracked_identity": False,
                   "note": "synthetic self-check suite: tiny fixed byte strings stand in for proofs; never evidence"})
     for case in suite["cases"]:
@@ -337,8 +360,8 @@ def _suite_v3():
     return suite
 
 
-SUITES = {9: _suite_v9(), 8: _suite_v8(), 7: _suite_v7(), 6: _suite_v6(), 5: _suite_v5(), 4: _suite_v4(), 3: _suite_v3(), 2: _suite_v2(), 1: _suite_v1(), 0: _suite_v0()}
-DEFAULT_SUITE = 9
+SUITES = {10: _suite_v10(), 9: _suite_v9(), 8: _suite_v8(), 7: _suite_v7(), 6: _suite_v6(), 5: _suite_v5(), 4: _suite_v4(), 3: _suite_v3(), 2: _suite_v2(), 1: _suite_v1(), 0: _suite_v0()}
+DEFAULT_SUITE = 10
 
 
 def suite(version):
@@ -1030,9 +1053,11 @@ def synthetic_log(case, manifest, device="gpu: ON — synthetic device (sm_00, 1
         return P3_REFUSAL + " P3 hides the weights; a cached public commitment is recoverable by linear algebra.\n"
     if kind in ("core_tests", "storage_tests"):
         n = case["expect"]["passed"]
-        return (f"     Running unittests src/lib.rs (zkp-core/target/release/deps/zkp_core-0000)\n\nrunning {n} tests\n"
+        ignored = case["expect"]["ignored"]
+        return (f"     Running unittests src/lib.rs (zkp-core/target/release/deps/zkp_core-0000)\n\nrunning {n + ignored} tests\n"
                 + "".join(f"test synthetic::t{i} ... ok\n" for i in range(n))
-                + f"\ntest result: ok. {n} passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n"
+                + "".join(f"test synthetic::ignored{i} ... ignored\n" for i in range(ignored))
+                + f"\ntest result: ok. {n} passed; 0 failed; {ignored} ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n"
                 "   Doc-tests zkp_core\n\nrunning 0 tests\n\n"
                 "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n")
     if kind == "core_example":

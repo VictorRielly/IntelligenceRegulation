@@ -1,0 +1,79 @@
+{
+  "method": "same binary, modes 0/1/1/0; mean of per-process 11-sample medians",
+  "environment": "two Rayon threads, shared laptop, heavy lock held; concurrent builds permitted",
+  "measurements": [
+    {
+      "kind": "i8",
+      "rows": 512,
+      "cols": 768,
+      "sparse": false,
+      "baseline_median_mean_s": 0.0009065945000000001,
+      "candidate_median_mean_s": 0.0003898845,
+      "speedup": 2.325289925606173
+    },
+    {
+      "kind": "i32",
+      "rows": 512,
+      "cols": 768,
+      "sparse": false,
+      "baseline_median_mean_s": 0.00098011,
+      "candidate_median_mean_s": 0.00040508899999999997,
+      "speedup": 2.4194930003036372
+    },
+    {
+      "kind": "i8",
+      "rows": 512,
+      "cols": 768,
+      "sparse": true,
+      "baseline_median_mean_s": 0.0001447835,
+      "candidate_median_mean_s": 0.00015190499999999998,
+      "speedup": 0.9531187255192392
+    },
+    {
+      "kind": "i32",
+      "rows": 512,
+      "cols": 768,
+      "sparse": true,
+      "baseline_median_mean_s": 0.000157897,
+      "candidate_median_mean_s": 0.000132071,
+      "speedup": 1.1955463349259112
+    },
+    {
+      "kind": "i8",
+      "rows": 512,
+      "cols": 2048,
+      "sparse": false,
+      "baseline_median_mean_s": 0.0018010225,
+      "candidate_median_mean_s": 0.000758821,
+      "speedup": 2.373448415370687
+    },
+    {
+      "kind": "i32",
+      "rows": 512,
+      "cols": 2048,
+      "sparse": false,
+      "baseline_median_mean_s": 0.0018921889999999999,
+      "candidate_median_mean_s": 0.0007893900000000001,
+      "speedup": 2.3970268181760597
+    },
+    {
+      "kind": "i8",
+      "rows": 512,
+      "cols": 2048,
+      "sparse": true,
+      "baseline_median_mean_s": 0.000247923,
+      "candidate_median_mean_s": 0.000277926,
+      "speedup": 0.8920468038254786
+    },
+    {
+      "kind": "i32",
+      "rows": 512,
+      "cols": 2048,
+      "sparse": true,
+      "baseline_median_mean_s": 0.0003012535,
+      "candidate_median_mean_s": 0.000282112,
+      "speedup": 1.0678507117740472
+    }
+  ],
+  "model_scale_speed_claim": false
+}

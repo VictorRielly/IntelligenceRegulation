@@ -1,5 +1,10 @@
 # START HERE — the proof project in plain words
 
+**Latest, 2026-09-19:** exact integer row folds pass all twelve frozen
+CPU/GPU proof-byte gates and repaired-private checks. Dense synthetic folds
+improve 2.32–2.42x; sparse ratios are mixed and full-model speed is unmeasured.
+[Row-fold integration](ZK60_ROWFOLD_INTEGRATION_20260919.md).
+
 **Latest, 2026-09-19:** the GPU opening optimization passes independent
 device checks and all twelve CPU/GPU proof-byte gates; native freeze passes.
 Its local kernel gain is measured, but its 0.8–1.8-second full-pass saving

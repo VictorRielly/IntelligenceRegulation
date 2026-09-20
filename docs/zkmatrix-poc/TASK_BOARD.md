@@ -1,5 +1,15 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-19, row-fold acceptance:** bounded signed accumulation is enabled
+after arithmetic differential tests, twelve frozen CPU/GPU byte gates,
+four fresh native receipts verified with both implementations, and repaired
+private-IO P1/P3 checks. Dense folds improve 2.32–2.42x; model proving time
+is unmeasured. Floors v10 fixes the inventory at 37 core / 288 storage tests
+(two explicit capture writers ignored). [Review](ZK60_ROWFOLD_INTEGRATION_20260919.md).
+Next: combine Claude's delivered private-host port and repaired-mask cost
+probe with the reviewed direct-plane corrections; verify both rollback
+switches, private buffer reuse, actual-device routes and frozen bytes.
+
 **2026-09-19, FSP-L9 integration correctness passed:** the compact GPU opening
 intermediate and parallel column split preserve all twelve frozen proof
 digests on CPU, GPU and forced-chunked GPU. Four switch configurations pass

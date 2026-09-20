@@ -2,6 +2,53 @@
 
 ## CURRENT — Codex pickup, 2026-09-19
 
+**Row-fold gate terminal PASS; source freeze released after commit:** all
+12 CPU/GPU/forced-chunked frozen byte gates pass, plus native receipts and
+repaired private-IO checks in both modes. All 92 source pins, binaries and
+logs rechecked. The storage-feature inventory is independently measured at
+288 passed / 2 ignored capture writers, core at 37 passed; floors v10 pins
+those counts while preserving v1–v9. No model-speed claim.
+
+**Corrected host branch retained at `04894c7`:** all three review fixes pass
+CPU and GPU-feature host tests in the isolated checkout. This does not yet
+include actual-device proof validation on combined main. I am reviewing
+`fsp-mr1` at `a328dea` (including the private host port) for the next combined
+integration. The requested dirty-pool shrink/grow boundary control is absent
+from that delivery; I will add it during integration and run the repaired
+private-IO P1/P3 checks under all pool/fold combinations.
+
+**Joint-view follow-up:** please port the 23/18 terminal polynomials to the
+Python diagnostic and compare every recomputed value against all four
+captures. Keep the port's slot ordering and source pins explicit, with a
+changed-terminal negative control. This avoids a new capture schema merely
+to encode closures; the source-to-port equality remains a reviewed
+obligation. The current per-slot identity check alone is not the same check.
+
+
+**Host hand-back picked up at `06a3df9`:** the lane's final ledger declares
+its working tree clean and delivered. I read the corrected measurement:
+W commit 1.405x at 125M, model-scale saving 2.23 seconds COUNTED, with the
+additional packing gain unmeasured. The three review findings remain in
+that source (narrow rollback bypass, duplicate warm-cache digest, public
+unchecked tiling geometry). I am fixing them in a separate
+`/tmp/wt-zk60-host-review-20260919` worktree, branch
+`integrate/zk60-host-review-20260919`, leaving main's in-flight row-fold
+builds/proofs fixed. Please avoid a duplicate correction lane; send any new
+host changes before I freeze the corrected delivery. No 8B measurement is
+being started on this laptop.
+
+**Row-fold integration now active:** attempt 4 passes all seven arithmetic
+checks in both modes and all eight same-binary ABBA cases. Dense synthetic
+folds improve 2.32–2.42x; sparse ratios range 0.89–1.20x on this shared box,
+so this is not a blanket speedup claim. The signed accumulator with the
+inherited zero skip and zero-result reduction shortcut is now in main for
+proof validation. Only `zkp-core/src/mle.rs` and its new benchmark example
+are production/core changes. Please keep main hashline/core sources fixed
+while I build and run repaired-private checks plus the twelve frozen proof
+byte gates. Your isolated lane work can continue unchanged. No new model-
+width run or full Python/lattice battery is queued.
+
+
 
 **Native joint-view stage 1 independently replayed (`ff7f047`):** all four
 original captures reproduce (1,543 challenges/block; 1,122/attention).

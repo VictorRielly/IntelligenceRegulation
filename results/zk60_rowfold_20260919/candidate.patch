@@ -1,5 +1,5 @@
 diff --git a/zkp-core/src/mle.rs b/zkp-core/src/mle.rs
-index 649a63d..024f538 100644
+index 649a63d..51655b7 100644
 --- a/zkp-core/src/mle.rs
 +++ b/zkp-core/src/mle.rs
 @@ -116,6 +116,11 @@ pub fn fold_cols_base(m: &[Fp], rows: usize, cols: usize, c: &[Fp2]) -> Vec<Fp2>
@@ -26,7 +26,7 @@ index 649a63d..024f538 100644
      let chunk = 256usize.min(cols);
      let mut out = vec![Fp2::ZERO; cols];
      out.par_chunks_mut(chunk).enumerate().for_each(|(ci, oc)| {
-@@ -167,6 +177,59 @@ pub fn fold_rows_i32(m: &[i32], rows: usize, cols: usize, w: &[Fp2]) -> Vec<Fp2>
+@@ -167,6 +177,62 @@ pub fn fold_rows_i32(m: &[i32], rows: usize, cols: usize, w: &[Fp2]) -> Vec<Fp2>
      out
  }
  
@@ -58,6 +58,9 @@ index 649a63d..024f538 100644
 +        return None;
 +    }
 +    let reduce = |s: i128| {
++        // Sparse matrices can leave whole columns at zero. Avoid the
++        // wide remainder in that case, just as the inherited fold does.
++        if s == 0 { return Fp::ZERO; }
 +        let magnitude = Fp::from_u128(s.unsigned_abs());
 +        if s < 0 { Fp::ZERO.sub(magnitude) } else { magnitude }
 +    };
@@ -86,7 +89,7 @@ index 649a63d..024f538 100644
  pub fn fold_cols_i32(m: &[i32], rows: usize, cols: usize, c: &[Fp2]) -> Vec<Fp2> {
      assert_eq!(m.len(), rows * cols);
      assert_eq!(c.len(), cols);
-@@ -247,6 +310,66 @@ mod tests {
+@@ -247,6 +313,66 @@ mod tests {
          assert_eq!(full, dot2);
      }
  

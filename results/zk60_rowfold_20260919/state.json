@@ -2,12 +2,12 @@
   "worktree": "/tmp/wt-zk60-rowfold-20260919",
   "branch": "perf/zk60-rowfold-20260919",
   "base": "586eccdfbf86f0b8afff7425b5b3c350d76da8f7",
-  "state": "signed accumulator candidate; attempt-3 queued",
-  "session_id": 47015,
-  "pid": 254599,
+  "state": "accepted after full integration gates",
   "model_scale_speed_claim": false,
-  "integrated": false,
-  "previous_attempt": "attempt-2/validation.json",
-  "previous_result": "arithmetic passed; dense faster but sparse slower; not integrated",
-  "candidate_sha256": "8fba1a23e5b4fbc67ee07bfd14894544155371c1e4672417b75adc521a858bd8"
+  "integrated": true,
+  "candidate_sha256": "020249211e1abb7b7cf38acaa9c4e780c6a3b712d3cedef41e9af6173ffa75d1",
+  "final_attempt": "attempt-4/validation.json",
+  "integration": "integration/validation.json",
+  "audit": "integration/audit.json",
+  "privacy_acceptance": false
 }
