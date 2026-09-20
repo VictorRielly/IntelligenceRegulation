@@ -1,0 +1,31 @@
+   Compiling private-block-kernel v0.1.0 (/home/victor/wt-zk60-block125m/private-block-kernel)
+    Finished `release` profile [optimized] target(s) in 1.17s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/private_block_kernel-ea2d1f393c78ea63)
+
+running 10 tests
+test tests::isqrt_boundaries ... ok
+test tests::matrix_orientation ... ok
+test tests::rope_half_split_orientation ... ok
+test tests::shape_and_table_rejection ... ok
+test tests::softmax_first_attainer_and_causality ... ok
+test tests::range_refusals_never_clamp ... ok
+test tests::softmax_refusals ... ok
+test tests::requant_signed_and_tie_rounding ... ok
+test tests::norm_rounding_signs_and_extremes ... ok
+test tests::end_to_end_matches_independent_reference ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/fixture_parity.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/fixture_parity-bbd2e208c1aa5e87)
+
+running 1 test
+test oracle_fixture_parity ... ignored, requires canonical exported fixtures; run with ZK60_KERNEL_FIXTURE and --ignored
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests private_block_kernel
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
