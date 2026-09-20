@@ -1,0 +1,23 @@
+{
+ "what": "the P10 gate's channel-label counts OF RECORD: the one place the report and the test both read, so a record on disk cannot drift from the report without turning the suite red",
+ "gate": "zk60-native-privacy-gate-P10",
+ "as_of": "2026-09-20",
+ "channels": 28,
+ "by_status": {
+  "constructed": 11,
+  "derived": 2,
+  "argued": 8,
+  "open": 7
+ },
+ "identical_on_every_capture": true,
+ "since": "commit d360466, which closed the masking commitment M's three OPEN channels (8 / 2 / 8 / 10 before it)",
+ "records": [
+  "results/zk60_native_privacy_gate/privacy_gate.json",
+  "results/zk60_native_privacy_gate_channels/privacy_gate.json"
+ ],
+ "report": "docs/zkmatrix-poc/ZK60_NATIVE_JOINT_VIEW.md, section 14.1, the `after` row of the channel table (and section 15, this refresh)",
+ "cited_by": "tests/test_zk60_native_gate_record.py",
+ "how_to_change_it": "close or open a channel in scripts/zk60_native_privacy_gate.py, re-run the gate into BOTH evidence directories with the command in their READMEs, move this file and the report's channel table together",
+ "is_a_privacy_acceptance": false,
+ "privacy_property_established": false
+}

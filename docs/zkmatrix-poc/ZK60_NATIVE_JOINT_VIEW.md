@@ -1494,3 +1494,71 @@ P10 takes 222 s with M (193 s without), the joint view 24 s, the case runner
 one pre-existing skip and one recorded expected failure. Logs:
 `results/zk60_native_privacy_gate_channels/tests_baseline.log` (139, OK) and
 `tests_after.log` (161, OK).
+
+## 15. 2026-09-20 (13:46 PDT) — the committed P10 record refreshed: it was stale, and no number moved
+
+Bookkeeping, not a result. **No figure quoted in this report or in
+`ZK60_NATIVE_PRIVACY_GATE.md` changes, no privacy property is claimed and
+nothing here is a privacy acceptance.** Evidence:
+`results/zk60_native_gate_record_refresh/`.
+
+**What was stale.** §14 closed M's three channels in the tool but wrote the
+new record into one evidence directory only. Since commit `d360466`, the
+older committed record — `results/zk60_native_privacy_gate/privacy_gate.json`,
+last written at `825213e` — still carried the pre-port picture: `version` 1,
+**8 / 2 / 8 / 10**, no `masking_commitment_M_opening` block, 7 controls
+instead of 10, and the pre-port `tool_sha256`. The report numbers were right
+all along; the file on disk was behind the tool that is supposed to have
+produced it. The run-gate lane found it and, correctly, left another lane's
+evidence alone (`ZK60_NATIVE_RUN_GATE_PROGRESS.md`, finding 5); this section
+answers it.
+
+**What the comparison showed.** The gate was re-run with the documented
+command into a scratch path first, and compared leaf by leaf with each
+committed record (`jsondiff.py` in the refresh directory):
+
+| committed record | differing paths | which |
+|---|---:|---|
+| `zk60_native_privacy_gate/privacy_gate.json` | 218 | the three M channels on each of the four captures (`open` -> `constructed`), the two `by_status` counters, the new `masking_commitment_M_opening` block, the three M controls, `version` / `version_2`, three `tool_sha256` entries, `seconds` |
+| `zk60_native_privacy_gate_channels/privacy_gate.json` | 2 | `seconds`, and `tool_sha256/zk60_native_jv_cfs.py` — that run finished at 05:01 and the pad-budget guard moved into `jv_cfs.py` at 05:02, inside the same commit |
+
+Everything else is identical: `transcript_replay`, `model`, `fixed_inputs`,
+`masking_commitment`, `proof_bytes` and `ok` on all four captures, and the
+other 25 channels entry for entry. So §14.1's "**the two records were
+compared key by key**" claim holds against the current tool as well.
+
+**What was refreshed.** Both records, in place, by re-running the documented
+command with the evidence path of record: **249.1 s** into
+`results/zk60_native_privacy_gate/` and **267.7 s** into
+`results/zk60_native_privacy_gate_channels/`, four captures `ok` and marker
+`0` each (logs `gate_refresh_p10.log` and `gate_refresh_channels.log` in the
+refresh directory; the box was shared, which is why the same work reads
+between 240.9 s and 267.7 s across the three runs). Nothing was copied and
+nothing was deleted; the old bytes stay in git history, correct at `825213e`
+and `d360466` respectively. Both now read **28 channels, 11 CONSTRUCTED / 2
+DERIVED / 8 ARGUED / 7 OPEN** on every capture — the counts of §14.1's
+`after` row, unchanged — and each is identical to the scratch run leaf for
+leaf **except `seconds`**, so the gate is deterministic at this shape over
+three independent runs. `seconds` is the only figure in either file that no
+report quotes.
+
+**The guard.** `tests/test_zk60_native_gate_record.py`. The counts of record
+live in one small JSON,
+`results/zk60_native_gate_record_refresh/channel_counts_of_record.json`,
+which this report and the test both cite; the test re-derives the counts from
+each committed record's own `channels` array, compares them with that record's
+own `grade.by_status`, with the pin and with the `after` row of §14.1 parsed
+narrowly (the section by its heading, the status order from the table's own
+header row), and compares each record's `tool_sha256` with the hashes of the
+tools now in the tree — the convention `tests/test_zk60_native_run_gate.py`
+already follows. **A tool edited without re-running the gate now turns the
+suite red**, which is exactly what did not happen on 2026-09-20. Before the
+refresh the new file was 6 tests, FAILED (failures=2), on precisely the two
+things above (`guard_before.log`); after it, 6 tests, OK
+(`guard_after.log`).
+
+**One older table now reads as history.** §3 of `ZK60_NATIVE_PRIVACY_GATE.md`
+states the P10 lane's channel table, 8 / 2 / 8 / 10, as of `825213e`. That
+statement was and remains true of that lane; it is no longer the content of
+the record in that lane's evidence directory, and a dated pointer in that
+report now says so. No number in it was edited.

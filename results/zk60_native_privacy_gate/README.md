@@ -6,6 +6,21 @@ Produced by `scripts/zk60_native_privacy_gate.py` on branch
 above all, for what they do NOT establish. **Nothing here is a privacy
 acceptance and nothing here establishes a privacy property.**
 
+> **2026-09-20, later: `privacy_gate.json` was REGENERATED here.** Commit
+> `d360466` changed the gate (the masking commitment M's row layout ported)
+> without refreshing this record, so what was on disk stayed at the P10
+> lane's picture — `version` 1, 8 / 2 / 8 / 10, 7 controls, pre-port
+> `tool_sha256` — while every report already quoted the port's numbers. The
+> record here is now the current tool's output: **28 channels, 11
+> CONSTRUCTED / 2 DERIVED / 8 ARGUED / 7 OPEN**, `version` 2, 10 controls,
+> four captures `ok`, 249.1 s, marker `0`
+> (`results/zk60_native_gate_record_refresh/gate_refresh_p10.log`). The old
+> bytes stay in git history, correct at `825213e`, and `gate_run.log` below
+> is that original 179.2 s run. **No number quoted in any report changed**;
+> the comparison, key by key, is in
+> `results/zk60_native_gate_record_refresh/README.md` and in §15 of
+> `docs/zkmatrix-poc/ZK60_NATIVE_JOINT_VIEW.md`.
+
 | file | what it is |
 |---|---|
 | `privacy_gate.json` | the gate's record: per capture, the model's sizes, the two fixed inputs' preimages with their verification counts and fibre dimensions, the masking commitment's two accountings, the `channels` array (one entry per channel of the privacy case's §2, each with a status), the grade, and the negative controls |

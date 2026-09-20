@@ -193,6 +193,30 @@ row-space generators and has nothing to do with the pad budget, so it now
 calls the unguarded entry point and says why in place. The guard caught a
 real caller on its first run, which is the right kind of noise.
 
+## 3. Follow-up, 2026-09-20 13:46 PDT — the record this lane left stale
+
+Closed by a later lane, reported in §15 of `ZK60_NATIVE_JOINT_VIEW.md`,
+evidence `results/zk60_native_gate_record_refresh/`. S3 rewrote the gate and
+wrote the new record into `results/zk60_native_privacy_gate_channels/` only;
+`results/zk60_native_privacy_gate/privacy_gate.json`, last written at
+`825213e`, was left at `version` 1, 8 / 2 / 8 / 10, 7 controls and pre-port
+`tool_sha256`, and no test compared a record with the tool that produced it.
+S5's own one-liner made this lane's own record one key stale as well: the
+run finished at 05:01 and the pad-budget guard moved into
+`scripts/zk60_native_jv_cfs.py` at 05:02, so `tool_sha256` named tool bytes
+that no longer existed.
+
+Both records were regenerated in place with the documented command (249.1 s
+and 267.7 s, four captures `ok`, markers `0`), and each is now identical to
+a fresh scratch run leaf for leaf except `seconds`. **No figure in this
+ledger or in §14 changed** — the refreshed files hold exactly the 11 / 2 /
+8 / 7 the report already stated. The guard is
+`tests/test_zk60_native_gate_record.py` with the counts of record in
+`results/zk60_native_gate_record_refresh/channel_counts_of_record.json`: it
+re-derives the counts from every committed record, compares them with the
+pin and with §14.1's `after` row, and fails if a record's `tool_sha256` is
+not the tools now in the tree.
+
 ## NEXT
 
 Nothing owed in this lane. Handing back to the security owner: the port

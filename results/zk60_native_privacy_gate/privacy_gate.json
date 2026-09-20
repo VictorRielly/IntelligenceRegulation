@@ -197,30 +197,67 @@
     },
     {
      "assumption": null,
+     "b_zero_sum_admissible": true,
      "channel": "the M opening's q",
-     "preimage_exhibited": false,
-     "reason": "the gate does not model the masking commitment's row layout (zk.rs::mask_commit: 46 a-rows holding [L_s mask coefficients | 256 pads | zeros] in value form over G_512, two b rows and two u rows of 1,024 coefficients), so no b-row preimage is exhibited.  What IS constructed is the mask coefficients those a-rows hold, together with the one functional identity this channel pins -- 512 (q[0] + q[512]) = sum_i theta^i value_i -- which the gate's CFS projection enforces and verifies",
+     "closed": "2026-09-20, by the port of zk.rs::mask_commit / mask_open into scripts/zk60_native_mask_commit.py (source-pinned)",
+     "declared_functional_order_checked": true,
+     "disclosed_fp_over_the_coefficients": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 1164,
+     "how": "the masking commitment's row layout is now ported (zk60_native_mask_commit, pinned to zk.rs): b is 1,024 coefficients per part with the single constraint b[512] = -b[0], and the gate solves for it as q minus the product part.  b is admissible exactly when 512 (q[0] + q[512]) = V(a), the verifier's own first check, so the q channel pins ONE Fp2 functional of the coefficients and nothing else -- exhibited at two coefficient vectors that differ everywhere else, and REFUSED off that plane",
+     "off_the_plane": {
+      "b_admissible": false,
+      "column_mismatches": 0,
+      "preimage_exhibited": false,
+      "q_sum_identity_holds": false,
+      "what": "a coefficient vector with V(a) one off the captured batch",
+      "why": "b's only constraint is its zero sum over G_512, which reads 512 (q[0] + q[512]) = V(a); off that plane no b exists and the fibre is EMPTY.  The columns still match -- the pads absorb every coefficient vector -- so the disclosure is exactly this one Fp2 and nothing else"
+     },
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_coefficient_vector": true,
+     "q_entries_differing": 0,
+     "q_entries_fp2": 1024,
+     "q_is_reproduced_by_construction": true,
      "section": "2.1",
-     "status": "open",
-     "what_would_close_it": "a port of encode_coeffs_coset and mask_commit's row layout into this tool; no capture field is missing"
+     "status": "constructed",
+     "what_the_channel_actually_pins": "b's zero sum; the entry count records that the two arithmetic paths agree, not that q itself tested anything new"
     },
     {
      "assumption": null,
      "channel": "the M proximity vector",
-     "preimage_exhibited": false,
-     "reason": "same as the q channel: the u row that masks it is not modelled here.  The joint-view tool's stage 3 records the source fact that the proximity combination adds a uniform u row with coefficient 1",
+     "closed": "2026-09-20, by the port of zk.rs::mask_commit / mask_open into scripts/zk60_native_mask_commit.py (source-pinned)",
+     "declared_functional_order_checked": true,
+     "disclosed_fp": 0,
+     "disclosed_fp_over_the_coefficients": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 1164,
+     "how": "u_re and u_im are 1,024 FREE coefficients each with no constraint at all, and the gate solves for them as prox minus the replayed rho-combination of the a and b rows (zk.rs:537-541).  Every one of the 1,024 published Fp2 entries is met and the channel discloses nothing",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_coefficient_vector": true,
+     "prox_entries_differing": 0,
+     "prox_entries_fp2": 1024,
      "section": "2.1",
-     "status": "open",
-     "what_would_close_it": "the same port; no capture field is missing"
+     "status": "constructed",
+     "u_unknowns_fp": 2048
     },
     {
      "assumption": null,
      "channel": "opened column values (the M opening's own 256 columns)",
-     "preimage_exhibited": false,
-     "reason": "the a-row pads that absorb them are not modelled here (see the q channel).  The joint-view tool computes the exact rank of that pad block and finds it full, which is the existence certificate this gate would turn into an exhibited preimage",
+     "closed": "2026-09-20, by the port of zk.rs::mask_commit / mask_open into scripts/zk60_native_mask_commit.py (source-pinned)",
+     "column_entries": 12800,
+     "column_entries_differing": 0,
+     "declared_functional_order_checked": true,
+     "disclosed_fp_over_the_coefficients": 2,
+     "disclosed_fp_predicted": 2,
+     "distinct_opened_columns": 246,
+     "fibre_dimension_fp": 1164,
+     "how": "the 256 pads of each a-row are the preimage: the map from the pads to the row's values at the distinct sampled nodes is a Cauchy matrix in distinct nodes, solved here in closed form, and the b and u rows' own column values then follow from q and prox.  Every opened column value of every one of M's rows is recomputed through the ported NTT path and compared",
+     "pad_margin": 10,
+     "pads_per_a_row": 256,
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_coefficient_vector": true,
      "section": "2.1",
-     "status": "open",
-     "what_would_close_it": "the same port; no capture field is missing"
+     "status": "constructed"
     },
     {
      "assumption": "shape facts",
@@ -335,7 +372,10 @@
      "one_pad_fewer_than_the_distinct_opened_columns",
      "shared_blinding_unknown_between_two_commitments",
      "second_fixed_input_off_the_disclosed_identity",
-     "cfs_zero_transcript"
+     "cfs_zero_transcript",
+     "mask_commitment_M/one_pad_fewer_than_the_distinct_opened_columns",
+     "mask_commitment_M/functional_order_permuted",
+     "mask_commitment_M/second_functional_leaked"
     ],
     "honest": {
      "A": true,
@@ -350,6 +390,56 @@
      "Output": true
     },
     "honest_again": true,
+    "mask_commitment_M": {
+     "all_fire": true,
+     "control_names": [
+      "one_pad_fewer_than_the_distinct_opened_columns",
+      "functional_order_permuted",
+      "second_functional_leaked"
+     ],
+     "functional_order_permuted": {
+      "batched_value_changed": true,
+      "fires": true,
+      "forced_to_the_captured_sum_b_admissible": true,
+      "forced_to_the_captured_sum_column_entries": 12800,
+      "forced_to_the_captured_sum_column_mismatches": 1024,
+      "forced_to_the_captured_sum_fires": true,
+      "forced_to_the_captured_sum_first_mismatch": {
+       "column": 1958,
+       "row": 46
+      },
+      "honest_passes": true,
+      "same_coefficients_b_admissible": false,
+      "same_coefficients_fires": true,
+      "what": "functionals 0 and 1 of the DECLARED order swapped, so each is weighted by the other's power of theta",
+      "why": "the first flavour fails b's zero-sum: the permuted batch is a different functional of the same coefficients. The second removes that excuse by forcing the coefficients onto the PERMUTED plane -- b is then admissible, and the view still has no preimage, because the verifier's per-column identity acc = sum_s a_s(x) W_s(x) + b(x) reads the weights themselves and the captured b columns no longer fit. The order is pinned by the columns, not only by the scalar sum"
+     },
+     "honest": {
+      "b_admissible": true,
+      "column_entries": 400,
+      "column_mismatches": 0,
+      "preimage_exhibited": true
+     },
+     "ok": true,
+     "one_pad_fewer_than_the_distinct_opened_columns": {
+      "b_admissible": true,
+      "column_mismatches": 50,
+      "fires": true,
+      "honest_passes": true,
+      "what": "every a-row of M modelled with 245 pads against 246 distinct opened columns (the real budget is 256, margin 10)",
+      "why": "with fewer pad symbols than distinct opened columns the a-row's message cannot meet the captured column values at every sampled node, so the view leaves the image of the blinding map and has no preimage. This is the control on the side that CAN fail: at the real budget the Cauchy block is square and nonsingular, and then EVERY admissible coefficient vector on the V plane has a preimage"
+     },
+     "second_functional_leaked": {
+      "disclosed_fp_honest": 2,
+      "disclosed_fp_leaked": 6,
+      "fibre_fp_honest": 1164,
+      "fibre_fp_leaked": 1160,
+      "fires": true,
+      "honest_passes": true,
+      "what": "functionals [0, 1] published on their own beside the theta batch, as an unbatched opening would",
+      "why": "batching is what keeps M's disclosure at one Fp2. Publishing two of the 34 functional values separately makes three independent Fp2 functionals of the coefficients visible and the disclosed dimension rises from 2 to 6 over Fp, with the fibre losing exactly those 4 dimensions"
+     }
+    },
     "ok": true,
     "one_pad_fewer_than_the_distinct_opened_columns": {
      "fires": true,
@@ -722,9 +812,9 @@
    "grade": {
     "by_status": {
      "argued": 8,
-     "constructed": 8,
+     "constructed": 11,
      "derived": 2,
-     "open": 10
+     "open": 7
     },
     "channels": 28,
     "failures": [],
@@ -1080,6 +1170,194 @@
      "zero_transcript_is_infeasible": true
     }
    },
+   "masking_commitment_M_opening": {
+    "declared_order": {
+     "captured_functionals": 34,
+     "declared_order": "for each slot s in slot order: [Gamma_s, if slot s is Standalone] then eval_s; then every Host slot's Gamma, in slot order, last (private_block/argument.rs:361-376 and 924-925)",
+     "expected_functionals": 34,
+     "failures": [],
+     "host_gammas_last": true,
+     "kinds": {
+      "Host": 6,
+      "Private": 12,
+      "Standalone": 5
+     },
+     "ok": true,
+     "order_as_declared": [
+      "eval_00",
+      "eval_01",
+      "eval_02",
+      "Gamma_03",
+      "eval_03",
+      "eval_04",
+      "eval_05",
+      "eval_06",
+      "eval_07",
+      "eval_08",
+      "eval_09",
+      "eval_10",
+      "eval_11",
+      "eval_12",
+      "eval_13",
+      "eval_14",
+      "eval_15",
+      "eval_16",
+      "eval_17",
+      "eval_18",
+      "Gamma_19",
+      "eval_19",
+      "Gamma_20",
+      "eval_20",
+      "Gamma_21",
+      "eval_21",
+      "Gamma_22",
+      "eval_22",
+      "Gamma_02",
+      "Gamma_14",
+      "Gamma_15",
+      "Gamma_16",
+      "Gamma_17",
+      "Gamma_18"
+     ],
+     "position_matches": 34,
+     "slots": 23,
+     "value_matches": 34,
+     "weight_matches": 34
+    },
+    "disclosed": {
+     "coefficient_unknowns_fp": 1166,
+     "disclosed_fp_computed": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 1164,
+     "matches_prediction": true,
+     "published_functionals_fp2": 1
+    },
+    "model_failures": [],
+    "off_the_V_plane_has_no_preimage": {
+     "b_admissible": false,
+     "column_mismatches": 0,
+     "preimage_exhibited": false,
+     "q_sum_identity_holds": false,
+     "what": "a coefficient vector with V(a) one off the captured batch",
+     "why": "b's only constraint is its zero sum over G_512, which reads 512 (q[0] + q[512]) = V(a); off that plane no b exists and the fibre is EMPTY.  The columns still match -- the pads absorb every coefficient vector -- so the disclosure is exactly this one Fp2 and nothing else"
+    },
+    "ok": true,
+    "preimage_a1": {
+     "coefficients": "public, seeded; corrected at one position onto the V plane",
+     "corrected_at": {
+      "index": 0,
+      "slot": 0
+     },
+     "exhibited_randomness_sha256": "e0513e2248d0f773fe872691429add245acb64d0b557f42112ab1381f203d015",
+     "no_preimage_reason": [],
+     "preimage_exhibited": true,
+     "verification": {
+      "all_entries_equal": true,
+      "b_admissible": true,
+      "column_entries": 12800,
+      "column_mismatches": 0,
+      "first_column_mismatch": null,
+      "functional_value_equals_the_captured_batch": true,
+      "ok": true,
+      "prox_entries": 1024,
+      "prox_mismatches": 0,
+      "prox_reproduced_by_construction": true,
+      "q_entries": 1024,
+      "q_mismatches": 0,
+      "q_reproduced_by_construction": true,
+      "q_sum_identity_holds": true
+     }
+    },
+    "preimage_a2": {
+     "coefficients": "public, seeded; corrected at one position onto the V plane",
+     "corrected_at": {
+      "index": 0,
+      "slot": 0
+     },
+     "exhibited_randomness_sha256": "f943d3a08c3663bc53405a82509988a8b066143ef590130fb007aa03eb90c5d6",
+     "no_preimage_reason": [],
+     "preimage_exhibited": true,
+     "verification": {
+      "all_entries_equal": true,
+      "b_admissible": true,
+      "column_entries": 12800,
+      "column_mismatches": 0,
+      "first_column_mismatch": null,
+      "functional_value_equals_the_captured_batch": true,
+      "ok": true,
+      "prox_entries": 1024,
+      "prox_mismatches": 0,
+      "prox_reproduced_by_construction": true,
+      "q_entries": 1024,
+      "q_mismatches": 0,
+      "q_reproduced_by_construction": true,
+      "q_sum_identity_holds": true
+     }
+    },
+    "shape": {
+     "blinding_unknowns_fp": 15870,
+     "coefficients_plus_pads_fit": true,
+     "column_height_unique": true,
+     "data_coefficients_fp": 1166,
+     "distinct_columns": 246,
+     "failed": [],
+     "nodes_distinct": true,
+     "nodes_off_G512": true,
+     "ok": true,
+     "pad_margin": 10,
+     "pads_per_a_row": 256,
+     "prox_len": 1024,
+     "proximity_rhos": 48,
+     "proximity_rhos_expected": 48,
+     "q_len": 1024,
+     "q_prox_len_expected": 1024,
+     "rows": 50,
+     "rows_expected": 50,
+     "sampled_columns": 256,
+     "slots": 23,
+     "weights_vanish_above_L": true
+    },
+    "source_pins": {
+     "hashline/src/private_attention/argument.rs": {
+      "git_blob": "338689f1770081f50cf7338959bc7e8990624960",
+      "ported": "the same declared order for the attention profile's 18 slots",
+      "sha256": "3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25"
+     },
+     "hashline/src/private_block/argument.rs": {
+      "git_blob": "e492afdb18bf205d246abafd89f8ae82a9eec3b2",
+      "ported": "the DECLARED functional order: run_slot 361-376 and argument 924-925",
+      "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
+     },
+     "hashline/src/zk.rs": {
+      "git_blob": "28f32f184751d14188a45b830c42fde8811ca155",
+      "ported": "mask_commit / mask_open / mask_verify, encode_coeffs_coset, combined_weights, weight_polys, poly_mul_512, and the three constants",
+      "sha256": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310"
+     },
+     "zkp-core/src/ntt.rs": {
+      "git_blob": "66758af0c58f7daf609d1fee3bf93dd607c867e9",
+      "ported": "forward/inverse: coefficients <-> evaluations at omega^i in natural order, the convention the whole port rests on",
+      "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890"
+     },
+     "zkp-core/src/pcs.rs": {
+      "git_blob": "8806bbe0e9ca8d9e3f8717972e84fd81a1bf8ec3",
+      "ported": "coset_powers, and its assertion that the coset misses the subgroup",
+      "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
+     },
+     "zkp-core/src/sumcheck.rs": {
+      "git_blob": "5543a3a6d34d958951731adf1dd03547f458afaa",
+      "ported": "CfsMask::len / sum_weights / eval_weights, the weights every functional carries",
+      "sha256": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+     }
+    },
+    "two_preimages_at_different_coefficients": {
+     "blinding_digests_differ": true,
+     "both_reproduce_the_captured_opening": true,
+     "coefficient_positions": 583,
+     "positions_where_the_two_coefficient_vectors_differ": 583,
+     "same_batched_functional_value": true,
+     "what_it_shows": "the captured opening is reproduced at two coefficient vectors that agree in NOTHING but the one Fp2 functional V, which is the disclosed dimension made concrete rather than argued"
+    }
+   },
    "model": {
     "A": {
      "M_data_shape": [
@@ -1370,30 +1648,67 @@
     },
     {
      "assumption": null,
+     "b_zero_sum_admissible": true,
      "channel": "the M opening's q",
-     "preimage_exhibited": false,
-     "reason": "the gate does not model the masking commitment's row layout (zk.rs::mask_commit: 46 a-rows holding [L_s mask coefficients | 256 pads | zeros] in value form over G_512, two b rows and two u rows of 1,024 coefficients), so no b-row preimage is exhibited.  What IS constructed is the mask coefficients those a-rows hold, together with the one functional identity this channel pins -- 512 (q[0] + q[512]) = sum_i theta^i value_i -- which the gate's CFS projection enforces and verifies",
+     "closed": "2026-09-20, by the port of zk.rs::mask_commit / mask_open into scripts/zk60_native_mask_commit.py (source-pinned)",
+     "declared_functional_order_checked": true,
+     "disclosed_fp_over_the_coefficients": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 1164,
+     "how": "the masking commitment's row layout is now ported (zk60_native_mask_commit, pinned to zk.rs): b is 1,024 coefficients per part with the single constraint b[512] = -b[0], and the gate solves for it as q minus the product part.  b is admissible exactly when 512 (q[0] + q[512]) = V(a), the verifier's own first check, so the q channel pins ONE Fp2 functional of the coefficients and nothing else -- exhibited at two coefficient vectors that differ everywhere else, and REFUSED off that plane",
+     "off_the_plane": {
+      "b_admissible": false,
+      "column_mismatches": 0,
+      "preimage_exhibited": false,
+      "q_sum_identity_holds": false,
+      "what": "a coefficient vector with V(a) one off the captured batch",
+      "why": "b's only constraint is its zero sum over G_512, which reads 512 (q[0] + q[512]) = V(a); off that plane no b exists and the fibre is EMPTY.  The columns still match -- the pads absorb every coefficient vector -- so the disclosure is exactly this one Fp2 and nothing else"
+     },
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_coefficient_vector": true,
+     "q_entries_differing": 0,
+     "q_entries_fp2": 1024,
+     "q_is_reproduced_by_construction": true,
      "section": "2.1",
-     "status": "open",
-     "what_would_close_it": "a port of encode_coeffs_coset and mask_commit's row layout into this tool; no capture field is missing"
+     "status": "constructed",
+     "what_the_channel_actually_pins": "b's zero sum; the entry count records that the two arithmetic paths agree, not that q itself tested anything new"
     },
     {
      "assumption": null,
      "channel": "the M proximity vector",
-     "preimage_exhibited": false,
-     "reason": "same as the q channel: the u row that masks it is not modelled here.  The joint-view tool's stage 3 records the source fact that the proximity combination adds a uniform u row with coefficient 1",
+     "closed": "2026-09-20, by the port of zk.rs::mask_commit / mask_open into scripts/zk60_native_mask_commit.py (source-pinned)",
+     "declared_functional_order_checked": true,
+     "disclosed_fp": 0,
+     "disclosed_fp_over_the_coefficients": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 1164,
+     "how": "u_re and u_im are 1,024 FREE coefficients each with no constraint at all, and the gate solves for them as prox minus the replayed rho-combination of the a and b rows (zk.rs:537-541).  Every one of the 1,024 published Fp2 entries is met and the channel discloses nothing",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_coefficient_vector": true,
+     "prox_entries_differing": 0,
+     "prox_entries_fp2": 1024,
      "section": "2.1",
-     "status": "open",
-     "what_would_close_it": "the same port; no capture field is missing"
+     "status": "constructed",
+     "u_unknowns_fp": 2048
     },
     {
      "assumption": null,
      "channel": "opened column values (the M opening's own 256 columns)",
-     "preimage_exhibited": false,
-     "reason": "the a-row pads that absorb them are not modelled here (see the q channel).  The joint-view tool computes the exact rank of that pad block and finds it full, which is the existence certificate this gate would turn into an exhibited preimage",
+     "closed": "2026-09-20, by the port of zk.rs::mask_commit / mask_open into scripts/zk60_native_mask_commit.py (source-pinned)",
+     "column_entries": 12800,
+     "column_entries_differing": 0,
+     "declared_functional_order_checked": true,
+     "disclosed_fp_over_the_coefficients": 2,
+     "disclosed_fp_predicted": 2,
+     "distinct_opened_columns": 247,
+     "fibre_dimension_fp": 1164,
+     "how": "the 256 pads of each a-row are the preimage: the map from the pads to the row's values at the distinct sampled nodes is a Cauchy matrix in distinct nodes, solved here in closed form, and the b and u rows' own column values then follow from q and prox.  Every opened column value of every one of M's rows is recomputed through the ported NTT path and compared",
+     "pad_margin": 9,
+     "pads_per_a_row": 256,
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_coefficient_vector": true,
      "section": "2.1",
-     "status": "open",
-     "what_would_close_it": "the same port; no capture field is missing"
+     "status": "constructed"
     },
     {
      "assumption": "shape facts",
@@ -1508,7 +1823,10 @@
      "one_pad_fewer_than_the_distinct_opened_columns",
      "shared_blinding_unknown_between_two_commitments",
      "second_fixed_input_off_the_disclosed_identity",
-     "cfs_zero_transcript"
+     "cfs_zero_transcript",
+     "mask_commitment_M/one_pad_fewer_than_the_distinct_opened_columns",
+     "mask_commitment_M/functional_order_permuted",
+     "mask_commitment_M/second_functional_leaked"
     ],
     "honest": {
      "A": true,
@@ -1523,6 +1841,56 @@
      "Output": true
     },
     "honest_again": true,
+    "mask_commitment_M": {
+     "all_fire": true,
+     "control_names": [
+      "one_pad_fewer_than_the_distinct_opened_columns",
+      "functional_order_permuted",
+      "second_functional_leaked"
+     ],
+     "functional_order_permuted": {
+      "batched_value_changed": true,
+      "fires": true,
+      "forced_to_the_captured_sum_b_admissible": true,
+      "forced_to_the_captured_sum_column_entries": 12800,
+      "forced_to_the_captured_sum_column_mismatches": 1024,
+      "forced_to_the_captured_sum_fires": true,
+      "forced_to_the_captured_sum_first_mismatch": {
+       "column": 178,
+       "row": 46
+      },
+      "honest_passes": true,
+      "same_coefficients_b_admissible": false,
+      "same_coefficients_fires": true,
+      "what": "functionals 0 and 1 of the DECLARED order swapped, so each is weighted by the other's power of theta",
+      "why": "the first flavour fails b's zero-sum: the permuted batch is a different functional of the same coefficients. The second removes that excuse by forcing the coefficients onto the PERMUTED plane -- b is then admissible, and the view still has no preimage, because the verifier's per-column identity acc = sum_s a_s(x) W_s(x) + b(x) reads the weights themselves and the captured b columns no longer fit. The order is pinned by the columns, not only by the scalar sum"
+     },
+     "honest": {
+      "b_admissible": true,
+      "column_entries": 400,
+      "column_mismatches": 0,
+      "preimage_exhibited": true
+     },
+     "ok": true,
+     "one_pad_fewer_than_the_distinct_opened_columns": {
+      "b_admissible": true,
+      "column_mismatches": 50,
+      "fires": true,
+      "honest_passes": true,
+      "what": "every a-row of M modelled with 246 pads against 247 distinct opened columns (the real budget is 256, margin 9)",
+      "why": "with fewer pad symbols than distinct opened columns the a-row's message cannot meet the captured column values at every sampled node, so the view leaves the image of the blinding map and has no preimage. This is the control on the side that CAN fail: at the real budget the Cauchy block is square and nonsingular, and then EVERY admissible coefficient vector on the V plane has a preimage"
+     },
+     "second_functional_leaked": {
+      "disclosed_fp_honest": 2,
+      "disclosed_fp_leaked": 6,
+      "fibre_fp_honest": 1164,
+      "fibre_fp_leaked": 1160,
+      "fires": true,
+      "honest_passes": true,
+      "what": "functionals [0, 1] published on their own beside the theta batch, as an unbatched opening would",
+      "why": "batching is what keeps M's disclosure at one Fp2. Publishing two of the 34 functional values separately makes three independent Fp2 functionals of the coefficients visible and the disclosed dimension rises from 2 to 6 over Fp, with the fibre losing exactly those 4 dimensions"
+     }
+    },
     "ok": true,
     "one_pad_fewer_than_the_distinct_opened_columns": {
      "fires": true,
@@ -1895,9 +2263,9 @@
    "grade": {
     "by_status": {
      "argued": 8,
-     "constructed": 8,
+     "constructed": 11,
      "derived": 2,
-     "open": 10
+     "open": 7
     },
     "channels": 28,
     "failures": [],
@@ -2253,6 +2621,194 @@
      "zero_transcript_is_infeasible": true
     }
    },
+   "masking_commitment_M_opening": {
+    "declared_order": {
+     "captured_functionals": 34,
+     "declared_order": "for each slot s in slot order: [Gamma_s, if slot s is Standalone] then eval_s; then every Host slot's Gamma, in slot order, last (private_block/argument.rs:361-376 and 924-925)",
+     "expected_functionals": 34,
+     "failures": [],
+     "host_gammas_last": true,
+     "kinds": {
+      "Host": 6,
+      "Private": 12,
+      "Standalone": 5
+     },
+     "ok": true,
+     "order_as_declared": [
+      "eval_00",
+      "eval_01",
+      "eval_02",
+      "Gamma_03",
+      "eval_03",
+      "eval_04",
+      "eval_05",
+      "eval_06",
+      "eval_07",
+      "eval_08",
+      "eval_09",
+      "eval_10",
+      "eval_11",
+      "eval_12",
+      "eval_13",
+      "eval_14",
+      "eval_15",
+      "eval_16",
+      "eval_17",
+      "eval_18",
+      "Gamma_19",
+      "eval_19",
+      "Gamma_20",
+      "eval_20",
+      "Gamma_21",
+      "eval_21",
+      "Gamma_22",
+      "eval_22",
+      "Gamma_02",
+      "Gamma_14",
+      "Gamma_15",
+      "Gamma_16",
+      "Gamma_17",
+      "Gamma_18"
+     ],
+     "position_matches": 34,
+     "slots": 23,
+     "value_matches": 34,
+     "weight_matches": 34
+    },
+    "disclosed": {
+     "coefficient_unknowns_fp": 1166,
+     "disclosed_fp_computed": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 1164,
+     "matches_prediction": true,
+     "published_functionals_fp2": 1
+    },
+    "model_failures": [],
+    "off_the_V_plane_has_no_preimage": {
+     "b_admissible": false,
+     "column_mismatches": 0,
+     "preimage_exhibited": false,
+     "q_sum_identity_holds": false,
+     "what": "a coefficient vector with V(a) one off the captured batch",
+     "why": "b's only constraint is its zero sum over G_512, which reads 512 (q[0] + q[512]) = V(a); off that plane no b exists and the fibre is EMPTY.  The columns still match -- the pads absorb every coefficient vector -- so the disclosure is exactly this one Fp2 and nothing else"
+    },
+    "ok": true,
+    "preimage_a1": {
+     "coefficients": "public, seeded; corrected at one position onto the V plane",
+     "corrected_at": {
+      "index": 0,
+      "slot": 0
+     },
+     "exhibited_randomness_sha256": "6ae4d84217a73d10dfc8856eff0a5c270d10f1e0844c77d18b937bbc571c0aa4",
+     "no_preimage_reason": [],
+     "preimage_exhibited": true,
+     "verification": {
+      "all_entries_equal": true,
+      "b_admissible": true,
+      "column_entries": 12800,
+      "column_mismatches": 0,
+      "first_column_mismatch": null,
+      "functional_value_equals_the_captured_batch": true,
+      "ok": true,
+      "prox_entries": 1024,
+      "prox_mismatches": 0,
+      "prox_reproduced_by_construction": true,
+      "q_entries": 1024,
+      "q_mismatches": 0,
+      "q_reproduced_by_construction": true,
+      "q_sum_identity_holds": true
+     }
+    },
+    "preimage_a2": {
+     "coefficients": "public, seeded; corrected at one position onto the V plane",
+     "corrected_at": {
+      "index": 0,
+      "slot": 0
+     },
+     "exhibited_randomness_sha256": "cf640ef2da9856da9e1340f0fbc3f1c128b9a6d177e961398a8a78973b3bdbc5",
+     "no_preimage_reason": [],
+     "preimage_exhibited": true,
+     "verification": {
+      "all_entries_equal": true,
+      "b_admissible": true,
+      "column_entries": 12800,
+      "column_mismatches": 0,
+      "first_column_mismatch": null,
+      "functional_value_equals_the_captured_batch": true,
+      "ok": true,
+      "prox_entries": 1024,
+      "prox_mismatches": 0,
+      "prox_reproduced_by_construction": true,
+      "q_entries": 1024,
+      "q_mismatches": 0,
+      "q_reproduced_by_construction": true,
+      "q_sum_identity_holds": true
+     }
+    },
+    "shape": {
+     "blinding_unknowns_fp": 15870,
+     "coefficients_plus_pads_fit": true,
+     "column_height_unique": true,
+     "data_coefficients_fp": 1166,
+     "distinct_columns": 247,
+     "failed": [],
+     "nodes_distinct": true,
+     "nodes_off_G512": true,
+     "ok": true,
+     "pad_margin": 9,
+     "pads_per_a_row": 256,
+     "prox_len": 1024,
+     "proximity_rhos": 48,
+     "proximity_rhos_expected": 48,
+     "q_len": 1024,
+     "q_prox_len_expected": 1024,
+     "rows": 50,
+     "rows_expected": 50,
+     "sampled_columns": 256,
+     "slots": 23,
+     "weights_vanish_above_L": true
+    },
+    "source_pins": {
+     "hashline/src/private_attention/argument.rs": {
+      "git_blob": "338689f1770081f50cf7338959bc7e8990624960",
+      "ported": "the same declared order for the attention profile's 18 slots",
+      "sha256": "3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25"
+     },
+     "hashline/src/private_block/argument.rs": {
+      "git_blob": "e492afdb18bf205d246abafd89f8ae82a9eec3b2",
+      "ported": "the DECLARED functional order: run_slot 361-376 and argument 924-925",
+      "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
+     },
+     "hashline/src/zk.rs": {
+      "git_blob": "28f32f184751d14188a45b830c42fde8811ca155",
+      "ported": "mask_commit / mask_open / mask_verify, encode_coeffs_coset, combined_weights, weight_polys, poly_mul_512, and the three constants",
+      "sha256": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310"
+     },
+     "zkp-core/src/ntt.rs": {
+      "git_blob": "66758af0c58f7daf609d1fee3bf93dd607c867e9",
+      "ported": "forward/inverse: coefficients <-> evaluations at omega^i in natural order, the convention the whole port rests on",
+      "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890"
+     },
+     "zkp-core/src/pcs.rs": {
+      "git_blob": "8806bbe0e9ca8d9e3f8717972e84fd81a1bf8ec3",
+      "ported": "coset_powers, and its assertion that the coset misses the subgroup",
+      "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
+     },
+     "zkp-core/src/sumcheck.rs": {
+      "git_blob": "5543a3a6d34d958951731adf1dd03547f458afaa",
+      "ported": "CfsMask::len / sum_weights / eval_weights, the weights every functional carries",
+      "sha256": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+     }
+    },
+    "two_preimages_at_different_coefficients": {
+     "blinding_digests_differ": true,
+     "both_reproduce_the_captured_opening": true,
+     "coefficient_positions": 583,
+     "positions_where_the_two_coefficient_vectors_differ": 583,
+     "same_batched_functional_value": true,
+     "what_it_shows": "the captured opening is reproduced at two coefficient vectors that agree in NOTHING but the one Fp2 functional V, which is the disclosed dimension made concrete rather than argued"
+    }
+   },
    "model": {
     "A": {
      "M_data_shape": [
@@ -2543,30 +3099,67 @@
     },
     {
      "assumption": null,
+     "b_zero_sum_admissible": true,
      "channel": "the M opening's q",
-     "preimage_exhibited": false,
-     "reason": "the gate does not model the masking commitment's row layout (zk.rs::mask_commit: 46 a-rows holding [L_s mask coefficients | 256 pads | zeros] in value form over G_512, two b rows and two u rows of 1,024 coefficients), so no b-row preimage is exhibited.  What IS constructed is the mask coefficients those a-rows hold, together with the one functional identity this channel pins -- 512 (q[0] + q[512]) = sum_i theta^i value_i -- which the gate's CFS projection enforces and verifies",
+     "closed": "2026-09-20, by the port of zk.rs::mask_commit / mask_open into scripts/zk60_native_mask_commit.py (source-pinned)",
+     "declared_functional_order_checked": true,
+     "disclosed_fp_over_the_coefficients": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 924,
+     "how": "the masking commitment's row layout is now ported (zk60_native_mask_commit, pinned to zk.rs): b is 1,024 coefficients per part with the single constraint b[512] = -b[0], and the gate solves for it as q minus the product part.  b is admissible exactly when 512 (q[0] + q[512]) = V(a), the verifier's own first check, so the q channel pins ONE Fp2 functional of the coefficients and nothing else -- exhibited at two coefficient vectors that differ everywhere else, and REFUSED off that plane",
+     "off_the_plane": {
+      "b_admissible": false,
+      "column_mismatches": 0,
+      "preimage_exhibited": false,
+      "q_sum_identity_holds": false,
+      "what": "a coefficient vector with V(a) one off the captured batch",
+      "why": "b's only constraint is its zero sum over G_512, which reads 512 (q[0] + q[512]) = V(a); off that plane no b exists and the fibre is EMPTY.  The columns still match -- the pads absorb every coefficient vector -- so the disclosure is exactly this one Fp2 and nothing else"
+     },
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_coefficient_vector": true,
+     "q_entries_differing": 0,
+     "q_entries_fp2": 1024,
+     "q_is_reproduced_by_construction": true,
      "section": "2.1",
-     "status": "open",
-     "what_would_close_it": "a port of encode_coeffs_coset and mask_commit's row layout into this tool; no capture field is missing"
+     "status": "constructed",
+     "what_the_channel_actually_pins": "b's zero sum; the entry count records that the two arithmetic paths agree, not that q itself tested anything new"
     },
     {
      "assumption": null,
      "channel": "the M proximity vector",
-     "preimage_exhibited": false,
-     "reason": "same as the q channel: the u row that masks it is not modelled here.  The joint-view tool's stage 3 records the source fact that the proximity combination adds a uniform u row with coefficient 1",
+     "closed": "2026-09-20, by the port of zk.rs::mask_commit / mask_open into scripts/zk60_native_mask_commit.py (source-pinned)",
+     "declared_functional_order_checked": true,
+     "disclosed_fp": 0,
+     "disclosed_fp_over_the_coefficients": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 924,
+     "how": "u_re and u_im are 1,024 FREE coefficients each with no constraint at all, and the gate solves for them as prox minus the replayed rho-combination of the a and b rows (zk.rs:537-541).  Every one of the 1,024 published Fp2 entries is met and the channel discloses nothing",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_coefficient_vector": true,
+     "prox_entries_differing": 0,
+     "prox_entries_fp2": 1024,
      "section": "2.1",
-     "status": "open",
-     "what_would_close_it": "the same port; no capture field is missing"
+     "status": "constructed",
+     "u_unknowns_fp": 2048
     },
     {
      "assumption": null,
      "channel": "opened column values (the M opening's own 256 columns)",
-     "preimage_exhibited": false,
-     "reason": "the a-row pads that absorb them are not modelled here (see the q channel).  The joint-view tool computes the exact rank of that pad block and finds it full, which is the existence certificate this gate would turn into an exhibited preimage",
+     "closed": "2026-09-20, by the port of zk.rs::mask_commit / mask_open into scripts/zk60_native_mask_commit.py (source-pinned)",
+     "column_entries": 10240,
+     "column_entries_differing": 0,
+     "declared_functional_order_checked": true,
+     "disclosed_fp_over_the_coefficients": 2,
+     "disclosed_fp_predicted": 2,
+     "distinct_opened_columns": 247,
+     "fibre_dimension_fp": 924,
+     "how": "the 256 pads of each a-row are the preimage: the map from the pads to the row's values at the distinct sampled nodes is a Cauchy matrix in distinct nodes, solved here in closed form, and the b and u rows' own column values then follow from q and prox.  Every opened column value of every one of M's rows is recomputed through the ported NTT path and compared",
+     "pad_margin": 9,
+     "pads_per_a_row": 256,
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_coefficient_vector": true,
      "section": "2.1",
-     "status": "open",
-     "what_would_close_it": "the same port; no capture field is missing"
+     "status": "constructed"
     },
     {
      "assumption": "shape facts",
@@ -2681,7 +3274,10 @@
      "one_pad_fewer_than_the_distinct_opened_columns",
      "shared_blinding_unknown_between_two_commitments",
      "second_fixed_input_off_the_disclosed_identity",
-     "cfs_zero_transcript"
+     "cfs_zero_transcript",
+     "mask_commitment_M/one_pad_fewer_than_the_distinct_opened_columns",
+     "mask_commitment_M/functional_order_permuted",
+     "mask_commitment_M/second_functional_leaked"
     ],
     "honest": {
      "A": true,
@@ -2696,6 +3292,56 @@
      "Output": true
     },
     "honest_again": true,
+    "mask_commitment_M": {
+     "all_fire": true,
+     "control_names": [
+      "one_pad_fewer_than_the_distinct_opened_columns",
+      "functional_order_permuted",
+      "second_functional_leaked"
+     ],
+     "functional_order_permuted": {
+      "batched_value_changed": true,
+      "fires": true,
+      "forced_to_the_captured_sum_b_admissible": true,
+      "forced_to_the_captured_sum_column_entries": 10240,
+      "forced_to_the_captured_sum_column_mismatches": 1024,
+      "forced_to_the_captured_sum_fires": true,
+      "forced_to_the_captured_sum_first_mismatch": {
+       "column": 2895,
+       "row": 36
+      },
+      "honest_passes": true,
+      "same_coefficients_b_admissible": false,
+      "same_coefficients_fires": true,
+      "what": "functionals 0 and 1 of the DECLARED order swapped, so each is weighted by the other's power of theta",
+      "why": "the first flavour fails b's zero-sum: the permuted batch is a different functional of the same coefficients. The second removes that excuse by forcing the coefficients onto the PERMUTED plane -- b is then admissible, and the view still has no preimage, because the verifier's per-column identity acc = sum_s a_s(x) W_s(x) + b(x) reads the weights themselves and the captured b columns no longer fit. The order is pinned by the columns, not only by the scalar sum"
+     },
+     "honest": {
+      "b_admissible": true,
+      "column_entries": 320,
+      "column_mismatches": 0,
+      "preimage_exhibited": true
+     },
+     "ok": true,
+     "one_pad_fewer_than_the_distinct_opened_columns": {
+      "b_admissible": true,
+      "column_mismatches": 40,
+      "fires": true,
+      "honest_passes": true,
+      "what": "every a-row of M modelled with 246 pads against 247 distinct opened columns (the real budget is 256, margin 9)",
+      "why": "with fewer pad symbols than distinct opened columns the a-row's message cannot meet the captured column values at every sampled node, so the view leaves the image of the blinding map and has no preimage. This is the control on the side that CAN fail: at the real budget the Cauchy block is square and nonsingular, and then EVERY admissible coefficient vector on the V plane has a preimage"
+     },
+     "second_functional_leaked": {
+      "disclosed_fp_honest": 2,
+      "disclosed_fp_leaked": 6,
+      "fibre_fp_honest": 924,
+      "fibre_fp_leaked": 920,
+      "fires": true,
+      "honest_passes": true,
+      "what": "functionals [0, 1] published on their own beside the theta batch, as an unbatched opening would",
+      "why": "batching is what keeps M's disclosure at one Fp2. Publishing two of the 34 functional values separately makes three independent Fp2 functionals of the coefficients visible and the disclosed dimension rises from 2 to 6 over Fp, with the fibre losing exactly those 4 dimensions"
+     }
+    },
     "ok": true,
     "one_pad_fewer_than_the_distinct_opened_columns": {
      "fires": true,
@@ -3068,9 +3714,9 @@
    "grade": {
     "by_status": {
      "argued": 8,
-     "constructed": 8,
+     "constructed": 11,
      "derived": 2,
-     "open": 10
+     "open": 7
     },
     "channels": 28,
     "failures": [],
@@ -3366,6 +4012,188 @@
      "zero_transcript_is_infeasible": true
     }
    },
+   "masking_commitment_M_opening": {
+    "declared_order": {
+     "captured_functionals": 28,
+     "declared_order": "for each slot s in slot order: [Gamma_s, if slot s is Standalone] then eval_s; then every Host slot's Gamma, in slot order, last (private_block/argument.rs:361-376 and 924-925)",
+     "expected_functionals": 28,
+     "failures": [],
+     "host_gammas_last": true,
+     "kinds": {
+      "Host": 5,
+      "Private": 8,
+      "Standalone": 5
+     },
+     "ok": true,
+     "order_as_declared": [
+      "eval_00",
+      "eval_01",
+      "Gamma_02",
+      "eval_02",
+      "eval_03",
+      "eval_04",
+      "eval_05",
+      "eval_06",
+      "eval_07",
+      "eval_08",
+      "eval_09",
+      "eval_10",
+      "eval_11",
+      "eval_12",
+      "eval_13",
+      "Gamma_14",
+      "eval_14",
+      "Gamma_15",
+      "eval_15",
+      "Gamma_16",
+      "eval_16",
+      "Gamma_17",
+      "eval_17",
+      "Gamma_01",
+      "Gamma_10",
+      "Gamma_11",
+      "Gamma_12",
+      "Gamma_13"
+     ],
+     "position_matches": 28,
+     "slots": 18,
+     "value_matches": 28,
+     "weight_matches": 28
+    },
+    "disclosed": {
+     "coefficient_unknowns_fp": 926,
+     "disclosed_fp_computed": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 924,
+     "matches_prediction": true,
+     "published_functionals_fp2": 1
+    },
+    "model_failures": [],
+    "off_the_V_plane_has_no_preimage": {
+     "b_admissible": false,
+     "column_mismatches": 0,
+     "preimage_exhibited": false,
+     "q_sum_identity_holds": false,
+     "what": "a coefficient vector with V(a) one off the captured batch",
+     "why": "b's only constraint is its zero sum over G_512, which reads 512 (q[0] + q[512]) = V(a); off that plane no b exists and the fibre is EMPTY.  The columns still match -- the pads absorb every coefficient vector -- so the disclosure is exactly this one Fp2 and nothing else"
+    },
+    "ok": true,
+    "preimage_a1": {
+     "coefficients": "public, seeded; corrected at one position onto the V plane",
+     "corrected_at": {
+      "index": 0,
+      "slot": 0
+     },
+     "exhibited_randomness_sha256": "d1671a854028d579fa429c852a0571fd67c43e59c57f2a0b2a2c019835698b8c",
+     "no_preimage_reason": [],
+     "preimage_exhibited": true,
+     "verification": {
+      "all_entries_equal": true,
+      "b_admissible": true,
+      "column_entries": 10240,
+      "column_mismatches": 0,
+      "first_column_mismatch": null,
+      "functional_value_equals_the_captured_batch": true,
+      "ok": true,
+      "prox_entries": 1024,
+      "prox_mismatches": 0,
+      "prox_reproduced_by_construction": true,
+      "q_entries": 1024,
+      "q_mismatches": 0,
+      "q_reproduced_by_construction": true,
+      "q_sum_identity_holds": true
+     }
+    },
+    "preimage_a2": {
+     "coefficients": "public, seeded; corrected at one position onto the V plane",
+     "corrected_at": {
+      "index": 0,
+      "slot": 0
+     },
+     "exhibited_randomness_sha256": "e78672020ea11583fdecd9b506080db000a5e2dad56c6ad176621d5591dd3440",
+     "no_preimage_reason": [],
+     "preimage_exhibited": true,
+     "verification": {
+      "all_entries_equal": true,
+      "b_admissible": true,
+      "column_entries": 10240,
+      "column_mismatches": 0,
+      "first_column_mismatch": null,
+      "functional_value_equals_the_captured_batch": true,
+      "ok": true,
+      "prox_entries": 1024,
+      "prox_mismatches": 0,
+      "prox_reproduced_by_construction": true,
+      "q_entries": 1024,
+      "q_mismatches": 0,
+      "q_reproduced_by_construction": true,
+      "q_sum_identity_holds": true
+     }
+    },
+    "shape": {
+     "blinding_unknowns_fp": 13310,
+     "coefficients_plus_pads_fit": true,
+     "column_height_unique": true,
+     "data_coefficients_fp": 926,
+     "distinct_columns": 247,
+     "failed": [],
+     "nodes_distinct": true,
+     "nodes_off_G512": true,
+     "ok": true,
+     "pad_margin": 9,
+     "pads_per_a_row": 256,
+     "prox_len": 1024,
+     "proximity_rhos": 38,
+     "proximity_rhos_expected": 38,
+     "q_len": 1024,
+     "q_prox_len_expected": 1024,
+     "rows": 40,
+     "rows_expected": 40,
+     "sampled_columns": 256,
+     "slots": 18,
+     "weights_vanish_above_L": true
+    },
+    "source_pins": {
+     "hashline/src/private_attention/argument.rs": {
+      "git_blob": "338689f1770081f50cf7338959bc7e8990624960",
+      "ported": "the same declared order for the attention profile's 18 slots",
+      "sha256": "3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25"
+     },
+     "hashline/src/private_block/argument.rs": {
+      "git_blob": "e492afdb18bf205d246abafd89f8ae82a9eec3b2",
+      "ported": "the DECLARED functional order: run_slot 361-376 and argument 924-925",
+      "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
+     },
+     "hashline/src/zk.rs": {
+      "git_blob": "28f32f184751d14188a45b830c42fde8811ca155",
+      "ported": "mask_commit / mask_open / mask_verify, encode_coeffs_coset, combined_weights, weight_polys, poly_mul_512, and the three constants",
+      "sha256": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310"
+     },
+     "zkp-core/src/ntt.rs": {
+      "git_blob": "66758af0c58f7daf609d1fee3bf93dd607c867e9",
+      "ported": "forward/inverse: coefficients <-> evaluations at omega^i in natural order, the convention the whole port rests on",
+      "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890"
+     },
+     "zkp-core/src/pcs.rs": {
+      "git_blob": "8806bbe0e9ca8d9e3f8717972e84fd81a1bf8ec3",
+      "ported": "coset_powers, and its assertion that the coset misses the subgroup",
+      "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
+     },
+     "zkp-core/src/sumcheck.rs": {
+      "git_blob": "5543a3a6d34d958951731adf1dd03547f458afaa",
+      "ported": "CfsMask::len / sum_weights / eval_weights, the weights every functional carries",
+      "sha256": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+     }
+    },
+    "two_preimages_at_different_coefficients": {
+     "blinding_digests_differ": true,
+     "both_reproduce_the_captured_opening": true,
+     "coefficient_positions": 463,
+     "positions_where_the_two_coefficient_vectors_differ": 463,
+     "same_batched_functional_value": true,
+     "what_it_shows": "the captured opening is reproduced at two coefficient vectors that agree in NOTHING but the one Fp2 functional V, which is the disclosed dimension made concrete rather than argued"
+    }
+   },
    "model": {
     "A": {
      "M_data_shape": [
@@ -3656,30 +4484,67 @@
     },
     {
      "assumption": null,
+     "b_zero_sum_admissible": true,
      "channel": "the M opening's q",
-     "preimage_exhibited": false,
-     "reason": "the gate does not model the masking commitment's row layout (zk.rs::mask_commit: 46 a-rows holding [L_s mask coefficients | 256 pads | zeros] in value form over G_512, two b rows and two u rows of 1,024 coefficients), so no b-row preimage is exhibited.  What IS constructed is the mask coefficients those a-rows hold, together with the one functional identity this channel pins -- 512 (q[0] + q[512]) = sum_i theta^i value_i -- which the gate's CFS projection enforces and verifies",
+     "closed": "2026-09-20, by the port of zk.rs::mask_commit / mask_open into scripts/zk60_native_mask_commit.py (source-pinned)",
+     "declared_functional_order_checked": true,
+     "disclosed_fp_over_the_coefficients": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 924,
+     "how": "the masking commitment's row layout is now ported (zk60_native_mask_commit, pinned to zk.rs): b is 1,024 coefficients per part with the single constraint b[512] = -b[0], and the gate solves for it as q minus the product part.  b is admissible exactly when 512 (q[0] + q[512]) = V(a), the verifier's own first check, so the q channel pins ONE Fp2 functional of the coefficients and nothing else -- exhibited at two coefficient vectors that differ everywhere else, and REFUSED off that plane",
+     "off_the_plane": {
+      "b_admissible": false,
+      "column_mismatches": 0,
+      "preimage_exhibited": false,
+      "q_sum_identity_holds": false,
+      "what": "a coefficient vector with V(a) one off the captured batch",
+      "why": "b's only constraint is its zero sum over G_512, which reads 512 (q[0] + q[512]) = V(a); off that plane no b exists and the fibre is EMPTY.  The columns still match -- the pads absorb every coefficient vector -- so the disclosure is exactly this one Fp2 and nothing else"
+     },
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_coefficient_vector": true,
+     "q_entries_differing": 0,
+     "q_entries_fp2": 1024,
+     "q_is_reproduced_by_construction": true,
      "section": "2.1",
-     "status": "open",
-     "what_would_close_it": "a port of encode_coeffs_coset and mask_commit's row layout into this tool; no capture field is missing"
+     "status": "constructed",
+     "what_the_channel_actually_pins": "b's zero sum; the entry count records that the two arithmetic paths agree, not that q itself tested anything new"
     },
     {
      "assumption": null,
      "channel": "the M proximity vector",
-     "preimage_exhibited": false,
-     "reason": "same as the q channel: the u row that masks it is not modelled here.  The joint-view tool's stage 3 records the source fact that the proximity combination adds a uniform u row with coefficient 1",
+     "closed": "2026-09-20, by the port of zk.rs::mask_commit / mask_open into scripts/zk60_native_mask_commit.py (source-pinned)",
+     "declared_functional_order_checked": true,
+     "disclosed_fp": 0,
+     "disclosed_fp_over_the_coefficients": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 924,
+     "how": "u_re and u_im are 1,024 FREE coefficients each with no constraint at all, and the gate solves for them as prox minus the replayed rho-combination of the a and b rows (zk.rs:537-541).  Every one of the 1,024 published Fp2 entries is met and the channel discloses nothing",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_coefficient_vector": true,
+     "prox_entries_differing": 0,
+     "prox_entries_fp2": 1024,
      "section": "2.1",
-     "status": "open",
-     "what_would_close_it": "the same port; no capture field is missing"
+     "status": "constructed",
+     "u_unknowns_fp": 2048
     },
     {
      "assumption": null,
      "channel": "opened column values (the M opening's own 256 columns)",
-     "preimage_exhibited": false,
-     "reason": "the a-row pads that absorb them are not modelled here (see the q channel).  The joint-view tool computes the exact rank of that pad block and finds it full, which is the existence certificate this gate would turn into an exhibited preimage",
+     "closed": "2026-09-20, by the port of zk.rs::mask_commit / mask_open into scripts/zk60_native_mask_commit.py (source-pinned)",
+     "column_entries": 10240,
+     "column_entries_differing": 0,
+     "declared_functional_order_checked": true,
+     "disclosed_fp_over_the_coefficients": 2,
+     "disclosed_fp_predicted": 2,
+     "distinct_opened_columns": 249,
+     "fibre_dimension_fp": 924,
+     "how": "the 256 pads of each a-row are the preimage: the map from the pads to the row's values at the distinct sampled nodes is a Cauchy matrix in distinct nodes, solved here in closed form, and the b and u rows' own column values then follow from q and prox.  Every opened column value of every one of M's rows is recomputed through the ported NTT path and compared",
+     "pad_margin": 7,
+     "pads_per_a_row": 256,
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_coefficient_vector": true,
      "section": "2.1",
-     "status": "open",
-     "what_would_close_it": "the same port; no capture field is missing"
+     "status": "constructed"
     },
     {
      "assumption": "shape facts",
@@ -3794,7 +4659,10 @@
      "one_pad_fewer_than_the_distinct_opened_columns",
      "shared_blinding_unknown_between_two_commitments",
      "second_fixed_input_off_the_disclosed_identity",
-     "cfs_zero_transcript"
+     "cfs_zero_transcript",
+     "mask_commitment_M/one_pad_fewer_than_the_distinct_opened_columns",
+     "mask_commitment_M/functional_order_permuted",
+     "mask_commitment_M/second_functional_leaked"
     ],
     "honest": {
      "A": true,
@@ -3809,6 +4677,56 @@
      "Output": true
     },
     "honest_again": true,
+    "mask_commitment_M": {
+     "all_fire": true,
+     "control_names": [
+      "one_pad_fewer_than_the_distinct_opened_columns",
+      "functional_order_permuted",
+      "second_functional_leaked"
+     ],
+     "functional_order_permuted": {
+      "batched_value_changed": true,
+      "fires": true,
+      "forced_to_the_captured_sum_b_admissible": true,
+      "forced_to_the_captured_sum_column_entries": 10240,
+      "forced_to_the_captured_sum_column_mismatches": 1024,
+      "forced_to_the_captured_sum_fires": true,
+      "forced_to_the_captured_sum_first_mismatch": {
+       "column": 2846,
+       "row": 36
+      },
+      "honest_passes": true,
+      "same_coefficients_b_admissible": false,
+      "same_coefficients_fires": true,
+      "what": "functionals 0 and 1 of the DECLARED order swapped, so each is weighted by the other's power of theta",
+      "why": "the first flavour fails b's zero-sum: the permuted batch is a different functional of the same coefficients. The second removes that excuse by forcing the coefficients onto the PERMUTED plane -- b is then admissible, and the view still has no preimage, because the verifier's per-column identity acc = sum_s a_s(x) W_s(x) + b(x) reads the weights themselves and the captured b columns no longer fit. The order is pinned by the columns, not only by the scalar sum"
+     },
+     "honest": {
+      "b_admissible": true,
+      "column_entries": 320,
+      "column_mismatches": 0,
+      "preimage_exhibited": true
+     },
+     "ok": true,
+     "one_pad_fewer_than_the_distinct_opened_columns": {
+      "b_admissible": true,
+      "column_mismatches": 40,
+      "fires": true,
+      "honest_passes": true,
+      "what": "every a-row of M modelled with 248 pads against 249 distinct opened columns (the real budget is 256, margin 7)",
+      "why": "with fewer pad symbols than distinct opened columns the a-row's message cannot meet the captured column values at every sampled node, so the view leaves the image of the blinding map and has no preimage. This is the control on the side that CAN fail: at the real budget the Cauchy block is square and nonsingular, and then EVERY admissible coefficient vector on the V plane has a preimage"
+     },
+     "second_functional_leaked": {
+      "disclosed_fp_honest": 2,
+      "disclosed_fp_leaked": 6,
+      "fibre_fp_honest": 924,
+      "fibre_fp_leaked": 920,
+      "fires": true,
+      "honest_passes": true,
+      "what": "functionals [0, 1] published on their own beside the theta batch, as an unbatched opening would",
+      "why": "batching is what keeps M's disclosure at one Fp2. Publishing two of the 34 functional values separately makes three independent Fp2 functionals of the coefficients visible and the disclosed dimension rises from 2 to 6 over Fp, with the fibre losing exactly those 4 dimensions"
+     }
+    },
     "ok": true,
     "one_pad_fewer_than_the_distinct_opened_columns": {
      "fires": true,
@@ -4181,9 +5099,9 @@
    "grade": {
     "by_status": {
      "argued": 8,
-     "constructed": 8,
+     "constructed": 11,
      "derived": 2,
-     "open": 10
+     "open": 7
     },
     "channels": 28,
     "failures": [],
@@ -4479,6 +5397,188 @@
      "zero_transcript_is_infeasible": true
     }
    },
+   "masking_commitment_M_opening": {
+    "declared_order": {
+     "captured_functionals": 28,
+     "declared_order": "for each slot s in slot order: [Gamma_s, if slot s is Standalone] then eval_s; then every Host slot's Gamma, in slot order, last (private_block/argument.rs:361-376 and 924-925)",
+     "expected_functionals": 28,
+     "failures": [],
+     "host_gammas_last": true,
+     "kinds": {
+      "Host": 5,
+      "Private": 8,
+      "Standalone": 5
+     },
+     "ok": true,
+     "order_as_declared": [
+      "eval_00",
+      "eval_01",
+      "Gamma_02",
+      "eval_02",
+      "eval_03",
+      "eval_04",
+      "eval_05",
+      "eval_06",
+      "eval_07",
+      "eval_08",
+      "eval_09",
+      "eval_10",
+      "eval_11",
+      "eval_12",
+      "eval_13",
+      "Gamma_14",
+      "eval_14",
+      "Gamma_15",
+      "eval_15",
+      "Gamma_16",
+      "eval_16",
+      "Gamma_17",
+      "eval_17",
+      "Gamma_01",
+      "Gamma_10",
+      "Gamma_11",
+      "Gamma_12",
+      "Gamma_13"
+     ],
+     "position_matches": 28,
+     "slots": 18,
+     "value_matches": 28,
+     "weight_matches": 28
+    },
+    "disclosed": {
+     "coefficient_unknowns_fp": 926,
+     "disclosed_fp_computed": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 924,
+     "matches_prediction": true,
+     "published_functionals_fp2": 1
+    },
+    "model_failures": [],
+    "off_the_V_plane_has_no_preimage": {
+     "b_admissible": false,
+     "column_mismatches": 0,
+     "preimage_exhibited": false,
+     "q_sum_identity_holds": false,
+     "what": "a coefficient vector with V(a) one off the captured batch",
+     "why": "b's only constraint is its zero sum over G_512, which reads 512 (q[0] + q[512]) = V(a); off that plane no b exists and the fibre is EMPTY.  The columns still match -- the pads absorb every coefficient vector -- so the disclosure is exactly this one Fp2 and nothing else"
+    },
+    "ok": true,
+    "preimage_a1": {
+     "coefficients": "public, seeded; corrected at one position onto the V plane",
+     "corrected_at": {
+      "index": 0,
+      "slot": 0
+     },
+     "exhibited_randomness_sha256": "34c67bde00d633a47f49433666ffb697829971684c70b5002888a207c0f9e2e6",
+     "no_preimage_reason": [],
+     "preimage_exhibited": true,
+     "verification": {
+      "all_entries_equal": true,
+      "b_admissible": true,
+      "column_entries": 10240,
+      "column_mismatches": 0,
+      "first_column_mismatch": null,
+      "functional_value_equals_the_captured_batch": true,
+      "ok": true,
+      "prox_entries": 1024,
+      "prox_mismatches": 0,
+      "prox_reproduced_by_construction": true,
+      "q_entries": 1024,
+      "q_mismatches": 0,
+      "q_reproduced_by_construction": true,
+      "q_sum_identity_holds": true
+     }
+    },
+    "preimage_a2": {
+     "coefficients": "public, seeded; corrected at one position onto the V plane",
+     "corrected_at": {
+      "index": 0,
+      "slot": 0
+     },
+     "exhibited_randomness_sha256": "9a5d9a70e851c7b22b50fb1ab930680986a6ae59ed6f9058a8faf50e3c7deb6f",
+     "no_preimage_reason": [],
+     "preimage_exhibited": true,
+     "verification": {
+      "all_entries_equal": true,
+      "b_admissible": true,
+      "column_entries": 10240,
+      "column_mismatches": 0,
+      "first_column_mismatch": null,
+      "functional_value_equals_the_captured_batch": true,
+      "ok": true,
+      "prox_entries": 1024,
+      "prox_mismatches": 0,
+      "prox_reproduced_by_construction": true,
+      "q_entries": 1024,
+      "q_mismatches": 0,
+      "q_reproduced_by_construction": true,
+      "q_sum_identity_holds": true
+     }
+    },
+    "shape": {
+     "blinding_unknowns_fp": 13310,
+     "coefficients_plus_pads_fit": true,
+     "column_height_unique": true,
+     "data_coefficients_fp": 926,
+     "distinct_columns": 249,
+     "failed": [],
+     "nodes_distinct": true,
+     "nodes_off_G512": true,
+     "ok": true,
+     "pad_margin": 7,
+     "pads_per_a_row": 256,
+     "prox_len": 1024,
+     "proximity_rhos": 38,
+     "proximity_rhos_expected": 38,
+     "q_len": 1024,
+     "q_prox_len_expected": 1024,
+     "rows": 40,
+     "rows_expected": 40,
+     "sampled_columns": 256,
+     "slots": 18,
+     "weights_vanish_above_L": true
+    },
+    "source_pins": {
+     "hashline/src/private_attention/argument.rs": {
+      "git_blob": "338689f1770081f50cf7338959bc7e8990624960",
+      "ported": "the same declared order for the attention profile's 18 slots",
+      "sha256": "3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25"
+     },
+     "hashline/src/private_block/argument.rs": {
+      "git_blob": "e492afdb18bf205d246abafd89f8ae82a9eec3b2",
+      "ported": "the DECLARED functional order: run_slot 361-376 and argument 924-925",
+      "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
+     },
+     "hashline/src/zk.rs": {
+      "git_blob": "28f32f184751d14188a45b830c42fde8811ca155",
+      "ported": "mask_commit / mask_open / mask_verify, encode_coeffs_coset, combined_weights, weight_polys, poly_mul_512, and the three constants",
+      "sha256": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310"
+     },
+     "zkp-core/src/ntt.rs": {
+      "git_blob": "66758af0c58f7daf609d1fee3bf93dd607c867e9",
+      "ported": "forward/inverse: coefficients <-> evaluations at omega^i in natural order, the convention the whole port rests on",
+      "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890"
+     },
+     "zkp-core/src/pcs.rs": {
+      "git_blob": "8806bbe0e9ca8d9e3f8717972e84fd81a1bf8ec3",
+      "ported": "coset_powers, and its assertion that the coset misses the subgroup",
+      "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
+     },
+     "zkp-core/src/sumcheck.rs": {
+      "git_blob": "5543a3a6d34d958951731adf1dd03547f458afaa",
+      "ported": "CfsMask::len / sum_weights / eval_weights, the weights every functional carries",
+      "sha256": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+     }
+    },
+    "two_preimages_at_different_coefficients": {
+     "blinding_digests_differ": true,
+     "both_reproduce_the_captured_opening": true,
+     "coefficient_positions": 463,
+     "positions_where_the_two_coefficient_vectors_differ": 463,
+     "same_batched_functional_value": true,
+     "what_it_shows": "the captured opening is reproduced at two coefficient vectors that agree in NOTHING but the one Fp2 functional V, which is the disclosed dimension made concrete rather than argued"
+    }
+   },
    "model": {
     "A": {
      "M_data_shape": [
@@ -4600,18 +5700,20 @@
    2816472
   ]
  },
- "seconds": 179.2,
+ "seconds": 249.1,
  "tool_sha256": {
   "zk60_native_jv_capture.py": "191f8bc95153d5a46644a3b2443c453f82b08ad934f7227efe28e3211aeb14b8",
-  "zk60_native_jv_cfs.py": "12ad30bc87b8ece120410c84875eb8b5dbde1c4c59a526fe663510616163ba59",
+  "zk60_native_jv_cfs.py": "2338e6a7966793c0c5ee69d4e4c2bbed08ca739ee583985799b1c0023b0ea2cb",
   "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
   "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
   "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70",
+  "zk60_native_mask_commit.py": "3312a925126fc632f6d5968056ddbac4ff21dccdf42e80bd36bfa5db0ae9e67c",
   "zk60_native_pg_cfs.py": "4ee924228f3248f965dc8dce5c5f88fac0131b11ee4ede5ec72b2c3dac7d8302",
   "zk60_native_pg_pcs.py": "9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50",
-  "zk60_native_privacy_gate.py": "efb85b67b63dd0f5b99b0b13ce24ca94f212d80b1ad577ebc0bd11d2450af8bd"
+  "zk60_native_privacy_gate.py": "c33a27fbcc9aefe82c2661efa5daeb6270d4057bcbbaa0e8cdd9f38e0fc3e345"
  },
- "version": 1,
+ "version": 2,
+ "version_2": "2026-09-20: the masking commitment M's row layout ported (scripts/zk60_native_mask_commit.py, source-pinned to zk.rs and private_block/argument.rs), which turns M's three OPEN channels -- its q, its proximity vector and its own 256 opened columns -- into CONSTRUCTED ones, with three controls of their own. No other channel and no other number changed",
  "what_it_does_not_show": [
   "the hash layer is ARGUED, not computed: the roots, the 256 leaf salts per opening and the 11- and 12-level authentication paths rest on M-2 and M-3",
   "the composition of the channels into one distribution (open item U-3b) is untouched",

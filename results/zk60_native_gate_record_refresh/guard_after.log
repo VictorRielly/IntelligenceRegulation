@@ -1,0 +1,20 @@
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:116: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_gate_record_refresh/channel_counts_of_record.json' mode='r' encoding='UTF-8'>
+  cls.pin = json.load(open(PIN))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_every_record_agrees_with_its_own_grade (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_every_record_carries_the_counts_of_record (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_every_record_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_the_pin_is_the_reports_channel_table (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_the_pin_names_the_records_it_pins (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_the_records_are_ok_and_claim_no_privacy_property (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.006s
+
+OK

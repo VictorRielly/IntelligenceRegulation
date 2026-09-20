@@ -34,6 +34,16 @@ receipts at two toy layouts.
 Gate run (`--columns full --controls-on all`): **four captures, ok, 179.2 s**,
 `results/zk60_native_privacy_gate/privacy_gate.json`, marker `0`.
 
+> **2026-09-20 13:46 PDT, later: that record has been regenerated in place.**
+> Commit `d360466` changed the gate without refreshing this lane's evidence,
+> so the file kept this lane's labels (8 / 2 / 8 / 10) and pre-port tool
+> hashes long after the reports had moved on. It now holds the current
+> tool's output — 11 / 2 / 8 / 7, `version` 2, 10 controls, 249.1 s — and
+> `gate_run.log` is still this lane's original 179.2 s run. **Nothing in
+> this ledger changed**; the figures above remain true of commit `825213e`.
+> §15 of `ZK60_NATIVE_JOINT_VIEW.md`, evidence
+> `results/zk60_native_gate_record_refresh/`.
+
 ## 1. Commands and logs
 
 | what | command | log |

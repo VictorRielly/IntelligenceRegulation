@@ -125,6 +125,15 @@ the privacy case's §2.1 and §2.2 plus the two §4.2 adds:
 | **ARGUED** | 8 | the three Merkle roots (**M-2**); the leaf salts (**M-3**); the authentication paths (**M-2**); counts and lengths, the wire envelope, the framing residue (**shape facts**); the public statement and the 112-byte policy (**O-1**); the receipt's length (**shape facts**) |
 | **OPEN** | 10 | the M opening's `q`; the M proximity vector; the M opening's own 256 columns; whether a proof attempt produced a receipt; rejected-but-emitted receipts; retained captures; timing, memory and power; prior proofs by the same prover; the integer-range facts the statement implies; any nonlinear functional of the joint view |
 
+> **2026-09-20, later: this table is this lane's state, as of commit
+> `825213e`, and it is history.** The masking commitment M's row layout was
+> afterwards ported into the gate (commit `d360466`), which moved M's three
+> OPEN channels — its `q`, its proximity vector and its own 256 opened
+> columns — to CONSTRUCTED: **11 / 2 / 8 / 7** on every capture. The record
+> in `results/zk60_native_privacy_gate/` was regenerated on 2026-09-20 and
+> now holds those labels; the table above is deliberately left as written.
+> See §14 and §15 of `ZK60_NATIVE_JOINT_VIEW.md`. No number above changed.
+
 Every ARGUED channel names its assumption in the record, so **the hash layer
 is not silent**: the gate fails if any of the three hash channels is missing
 or names no assumption, and its own tests check that it does fail.

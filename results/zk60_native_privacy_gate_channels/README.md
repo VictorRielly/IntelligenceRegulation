@@ -5,6 +5,18 @@ in `docs/zkmatrix-poc/ZK60_NATIVE_GATE_CHANNELS_PROGRESS.md` and reported in
 section 14 of `docs/zkmatrix-poc/ZK60_NATIVE_JOINT_VIEW.md`. **Nothing here
 is a privacy acceptance and nothing here establishes a privacy property.**
 
+> **2026-09-20, later: `privacy_gate.json` was REGENERATED here too, and
+> not one channel moved.** The run that wrote it finished at 05:01 and the
+> pad-budget guard moved into `scripts/zk60_native_jv_cfs.py` at 05:02,
+> inside the same commit, so the record's `tool_sha256` named tool bytes
+> that no longer existed — the only key in which it was behind. Re-running
+> the documented command reproduced it exactly: **267.7 s, four captures
+> `ok`, marker `0`**
+> (`results/zk60_native_gate_record_refresh/gate_refresh_channels.log`), and
+> the new file differs from the pre-refresh one in `seconds` and that one
+> hash and in nothing else. `gate_with_M.log` below is the original 221.8 s
+> run of `d360466`. **No number quoted in any report changed.**
+
 | file | what it is |
 |---|---|
 | `privacy_gate.json` | the P10 gate's record AFTER the masking commitment M was ported: 28 channels, **11 CONSTRUCTED / 2 DERIVED / 8 ARGUED / 7 OPEN** on every one of the four captures, with M's own stage (`masking_commitment_M_opening`) and M's three controls |
