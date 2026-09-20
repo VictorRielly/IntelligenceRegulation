@@ -1483,7 +1483,9 @@ gives 60 and `b"pb-slot"` 63. Its last 32 bytes are the **fixed constant**
 `le64(8) ‖ "log-cols" ‖ le64(8) ‖ le64(8)`, so it collides with
 `hash_pair(a, b)` only if `b` equals that constant, and with
 `salt_leaf(d, s)` only if the salt does: `2^-256` per node or salt, about
-**`2^-243`** over one proof's objects. That term belongs **inside** (H6)'s
+**2^-241.42** (first written as 2^-243; corrected 2026-09-20 by
+`ZK60_HASH_LAYER_AND_FS_LIFT_CHECK.md`) over one proof's objects. That
+term belongs **inside** (H6)'s
 "(collision terms)" above, where this draft did not put it. With the length
 argument and this term the dismissal stands.
 
@@ -1500,13 +1502,17 @@ check (privacy-case item 16).
 turns (H6) into a theorem: it is a statement inside an assumed model. Two
 things are owed before the hash layer can be called done — (i) **(H6)
 written as one random-oracle lemma with its query budget**, absorbing the
-`2^-243` term above and the `q·2^-256` salt term, and (ii) **the sequential
+2^-241.42 (first written as 2^-243; corrected 2026-09-20 by
+`ZK60_HASH_LAYER_AND_FS_LIFT_CHECK.md`) term above and the `q·2^-256` salt
+term, and (ii) **the sequential
 lift composed with it into a single argument** (condition O-4), whose bad
 events are: two distinct `squeeze` inputs colliding (the challenge chain
 repeating), `2^-256` per pair and unreachable from any other table by the
 length argument; two distinct `absorb` inputs colliding (the transcript's
 binding); a `hash_pair`/`salt_leaf` input coinciding with a 64-byte `absorb`
-input, `≈ 2^-243`; and the prover's own oracle queries colliding with the
+input, ≈ 2^-241.42 (first written as 2^-243; corrected 2026-09-20 by
+`ZK60_HASH_LAYER_AND_FS_LIFT_CHECK.md`); and the prover's own oracle
+queries colliding with the
 transcript's, subsumed by the first three.
 
 ### 5.3 Why the known counterexample does not apply
@@ -1622,9 +1628,10 @@ Written so a status page can quote it without softening it.
    (H6) says what would have to be true of them; M-2 (salted-leaf and
    salted-*subtree* hiding) is an assumption, not implied by collision
    resistance. What is owed here is named in §5.2: (H6) written as one
-   random-oracle lemma with its query budget (including the `≈ 2^-243`
-   domain-overlap term), and the sequential lift composed with it into a
-   single argument (condition O-4).
+   random-oracle lemma with its query budget (including the ≈ 2^-241.42
+   (first written as 2^-243; corrected 2026-09-20 by
+   `ZK60_HASH_LAYER_AND_FS_LIFT_CHECK.md`) domain-overlap term), and the
+   sequential lift composed with it into a single argument (condition O-4).
    **D8/D11 — a root fixed by a third party — is untouched**, and
    under D18 it does not arise for this product today by the types
    (`private_seam.rs:142-161`), which is a statement about the product, not a
@@ -2008,8 +2015,8 @@ on or assumed. **RELIES ON** = a named, cited fact not re-derived here.
 | 21 | **cross-role blinding independence** — no blinding source shared between commitments (the draft's "block diagonality", restated) | 4.2 | **RESTATED and promoted from GAP**: **VERIFIED IN THE CODE** for the toy block + M-3; still not machine-asserted (condition O-2) |
 | 22 | "the pad halves are determined by the opened columns" is exact only for distinct indices | 4.2 | **RESOLVED as to Q7's own worry → a correction of the prose** (promotion); the reduction's correctness as a whole stays the **lemma's** RELIES ON row |
 | 23 | **(H1)**: the four PCS commitments' field view has a witness-free law | 4.3 | mixed — on rows 17, 19 (with the imported terminals step), 20/21 as restated, and **two toy layouts only** |
-| 24 | **(H6)**: the conditional law of roots and paths given the field view is witness-free | 5.2 | ASSUMED (M-1, M-2) + PROVED HERE inside the model, with the `≈ 2^-243` collision term of C-5 added |
-| 25 | the shared untagged 64-byte domain does not affect step (H6) | 5.2 | **mixed** (demotion): the draft's reason covers one direction only; it stands with the length argument and the `≈ 2^-243` term |
+| 24 | **(H6)**: the conditional law of roots and paths given the field view is witness-free | 5.2 | ASSUMED (M-1, M-2) + PROVED HERE inside the model, with the ≈ 2^-241.42 (first written as 2^-243; corrected 2026-09-20 by `ZK60_HASH_LAYER_AND_FS_LIFT_CHECK.md`) collision term of C-5 added |
+| 25 | the shared untagged 64-byte domain does not affect step (H6) | 5.2 | **mixed** (demotion): the draft's reason covers one direction only; it stands with the length argument and the ≈ 2^-241.42 (first written as 2^-243; corrected 2026-09-20 by `ZK60_HASH_LAYER_AND_FS_LIFT_CHECK.md`) term |
 | 26 | the `(H(mask), mask ⊕ w)` counterexample does not apply: rows 1–5 of the table | 5.3 | mixed, per row; row 4's reason replaced by Proposition 4.2′, row 2's completed by row 22; **row 6 (the shared RNG stream) is ASSUMED (M-3)** |
 | 27 | conditioning on non-refusal is free, and the refusal channel carries no witness information except the LogUp collision | 5.4 | RELIES ON (lemma §3.6) + ASSUMED (M-1) — **the restart the draft cited does not exist**; the single-attempt reading replaces it (B-4) |
 | 28 | **Corollary 5.1**: the lift to the real protocol | 5.4 | PROVED-CONDITIONAL, on rows 12, 14, 21 as restated, 24, the imported step of row 33, and a lemma that is only on branch `zk60-mvp-fable` |
@@ -2142,6 +2149,11 @@ table. R-8 is a test-side change to the joint-view gate's small model and is
 not made in this memo. No proof byte changes and no new refusal follows from
 any of them.
 
+A **third pass, later on 2026-09-20**, corrects **one number** in place —
+the 64-byte absorb's overlap with the node format, from ≈ 2^-243 to
+2^-241.42 — on correction C-1 of `ZK60_HASH_LAYER_AND_FS_LIFT_CHECK.md`.
+Its row is the last of the table. No other text was touched in that pass.
+
 | Item | Section(s) changed | What changed |
 |---|---|---|
 | B-1 / C-1 / J-1 | §1.3, §3.1, §3.4 step 3, §9 rows 1 and 15 | the declared functional order written out — interleaved per slot, a Standalone's `Γ` immediately before that slot's `eval`, the six host `Γ`s last (`private_block/argument.rs:361-376`, `:924-925`) — the sampler's step 3 rewritten in it, and the order recorded as part of the public data the sampler needs and as something a layout change must not reorder silently |
@@ -2151,7 +2163,7 @@ any of them.
 | J-5 | §9 (table, tally, notes), and the label lines in §2.1, §2.2, §2.3, §3.1, §3.2, §4.2, §4.3, §5.4 | the check's 35-row table and tally adopted whole — 6 proved unconditionally, 5 verified in the code, 6 proved on named rows, 6 mixed, 4 relying on cited facts, 2 gaps, 6 illustrations — with its three demotions (rows 8, 18, 25) and its promotions; nothing strengthened beyond it |
 | C-2 | §2.1, §7.1 | RESULT 4's reading withdrawn: the comparison was against the `d+1`-value protocol's `dim C_s`, publishing less cannot leak more, and the check's control G2 does not separate; the privacy-relevant invariant is mask degree = round degree (experiment C), and the `d+1` length check is load-bearing against *more* than `d+1` values and as the step Fact 2.1's proof consumes |
 | C-3 | §4.2 | the joint-view gate's shared-blinding control is now quoted with its recorded blind spot (it fires only at tight, singleton-group positions — `A` 17 of 35 groups, `H` 2 of 9) |
-| C-5 | §5.2, §9 rows 24, 25, 35 | the check's length argument added (challenges are 47-byte queries, a length nothing else uses, so no challenge query can coincide with a node, leaf or absorb query) together with the one real overlap — `absorb_u64(b"log-cols", 8)`, the protocol's only 64-byte absorb, fixed last 32 bytes, about 2^-243 per proof — folded into (H6)'s collision terms |
+| C-5 | §5.2, §9 rows 24, 25, 35 | the check's length argument added (challenges are 47-byte queries, a length nothing else uses, so no challenge query can coincide with a node, leaf or absorb query) together with the one real overlap — `absorb_u64(b"log-cols", 8)`, the protocol's only 64-byte absorb, fixed last 32 bytes, about 2^-241.42 (first written as 2^-243; corrected 2026-09-20 by `ZK60_HASH_LAYER_AND_FS_LIFT_CHECK.md`) per proof — folded into (H6)'s collision terms |
 | C-6 | §2.4 | "Lemma 2.2 is exactly where that rule earns its keep" withdrawn: invertibility, not triangularity, is what the proof uses, and a hosting cycle's failure mode is a completeness failure (controls G6 and G6′) |
 | C-8 | §0 "What is shown" | "four of them already accepted elsewhere" corrected to two ((H2) and (H5)); O1's existence stated as conditional on (H1)–(H5) and for the field view only |
 | C-9 | §0 "What it rests on" | the generic-rank lemma's **core** was accepted; its draft was explicitly not accepted as written |
@@ -2181,6 +2193,7 @@ any of them.
 | R-5 | §4.3, new paragraph before the label (and `ZK60_GENERIC_RANK_LEMMA.md` §3.3) | `H`'s exception recorded: two opening groups share the zero-sum pair, so the per-group decomposition is invalid there; ranked jointly the disclosure is 2 `Fp` and equals the public LogUp identity by span equality on all four captures; why this one sharing is sound (the claims are tied by the public identity) while sharing a pair between two ordinary terminals is not — the reproduced counterexample, marginals rank 2 each, the joint dropping 4 to 2 and moving with the data |
 | R-7 | §4.3 label, §8 Q0 (and new Q0′), §9 row 33 and tally note, §0, status line, Corollary 5.1 | the step's label relabelled to "independently reviewed and corrected (2026-09-20), `ZK60_TERMINAL_SURJECTION_REVIEW.md`" with the evidence directory cited and "not a privacy acceptance" kept; Q0 closed with its three answers (the `cw` proof, the `λ` demotion, the `(cm, cm·U)` promotion) and replaced by Q0′, the review's own "not checked" list; the numerical confirmation recorded where the step's evidence is cited (own rank code importing nothing from the project's tools; every group of `A`, `H`, `Input`, `Output` on all four captures; rank `2(256 + m) − 2`; disclosed 0 `Fp` except the one `H` group at 2 `Fp`; 2,040 fresh and adversarial challenge vectors, no failure; the pad block 246 × 256 of rank 246; and the control that fired against the reviewer's own reduction, from which the pad count and the number of opened columns move together) |
 | Invariants of §4 | §4.3, end | a short list added of what an implementer must not weaken in this section — the pair-shape condition first, then pair exclusivity with `H`'s documented exception, the two `cm ≠ 0` refusals, and the pad budget; `λ_c ≠ 0` explicitly not on it for privacy |
+| C-1 of `ZK60_HASH_LAYER_AND_FS_LIFT_CHECK.md` (**third pass**, 2026-09-20) | §5.2 (three places), §6 item 1, §9 rows 24 and 25, and the C-5 row of this record | the 64-byte transcript absorb's overlap with the node and salted-leaf formats corrected in place from ≈ 2^-243 to **2^-241.42**: the earlier figure counted about 8,200 objects — the salted leaves of the four 2,048-leaf trees alone — leaving out `M`'s 4,096 leaves and all 12,283 internal nodes, whereas the candidates are 12,283 node inputs plus 12,288 salted-leaf inputs = 24,571, and `24,571 · 2^-256 = 2^-241.4153` [RECOMPUTED by that check, evidence `results/zk60_hash_layer_fs_lift_check/`]. Nothing else in this memo changes: the term sits about 130 bits below the dominant residual |
 
 Items that needed no change: none of the adjudicated items was left
 unapplied. Remarks of the check that are not in its errata tables were not
