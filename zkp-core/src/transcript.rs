@@ -19,6 +19,10 @@ pub struct Transcript {
     counter: u64,
     masker: Option<Box<dyn RoundMask>>,
     masked_rounds: Vec<Vec<Fp2>>,
+    /// [ZK60 D19, ruling T-1] the Fiat-Shamir key of a TAGGED profile, or
+    /// `None` for the legacy rule. With `None` every hasher below is the
+    /// identical `blake3::Hasher::new()` call this file always made.
+    key: Option<[u8; 32]>,
 }
 
 impl Transcript {
@@ -26,7 +30,18 @@ impl Transcript {
         let mut h = blake3::Hasher::new();
         h.update(b"hashline-v1/");
         h.update(domain);
-        Transcript { state: *h.finalize().as_bytes(), counter: 0, masker: None, masked_rounds: Vec::new() }
+        Transcript { state: *h.finalize().as_bytes(), counter: 0, masker: None, masked_rounds: Vec::new(), key: None }
+    }
+
+    /// [ZK60 D19, ruling T-1] The same transcript in BLAKE3's KEYED mode,
+    /// under a tagged profile's Fiat-Shamir key. The absorbed messages and
+    /// their order are unchanged; only the hash function is another member of
+    /// the family. `new` is this with no key, and keeps its own body.
+    pub fn new_tagged(domain: &[u8], key: [u8; 32]) -> Transcript {
+        let mut h = crate::hashtag::hasher(Some(&key));
+        h.update(b"hashline-v1/");
+        h.update(domain);
+        Transcript { state: *h.finalize().as_bytes(), counter: 0, masker: None, masked_rounds: Vec::new(), key: Some(key) }
     }
 
     /// [UPERF3-ZA] Install a round masker (see `RoundMask`).
@@ -42,7 +57,8 @@ impl Transcript {
     }
 
     pub fn absorb(&mut self, label: &[u8], data: &[u8]) {
-        let mut h = blake3::Hasher::new();
+        // [ZK60 D19, ruling T-1] with `key: None` this IS `blake3::Hasher::new()`.
+        let mut h = crate::hashtag::hasher(self.key.as_ref());
         h.update(&self.state);
         h.update(&(label.len() as u64).to_le_bytes());
         h.update(label);
@@ -83,7 +99,8 @@ impl Transcript {
     }
 
     fn squeeze_bytes(&mut self) -> [u8; 32] {
-        let mut h = blake3::Hasher::new();
+        // [ZK60 D19, ruling T-1] with `key: None` this IS `blake3::Hasher::new()`.
+        let mut h = crate::hashtag::hasher(self.key.as_ref());
         h.update(&self.state);
         h.update(b"squeeze");
         h.update(&self.counter.to_le_bytes());
@@ -138,7 +155,10 @@ impl Transcript {
     /// attempt can be abandoned without disturbing the caller's transcript.
     pub fn clone_state(tr: &Transcript) -> Transcript {
         assert!(tr.masker.is_none(), "transcript: clone_state with a masker installed");
-        Transcript { state: tr.state, counter: tr.counter, masker: None, masked_rounds: Vec::new() }
+        // [ZK60 D19, ruling T-7] the MODE travels with the clone: the run's
+        // position tags are squeezed from a discarded clone, and a clone that
+        // dropped the key would squeeze them under the legacy function.
+        Transcript { state: tr.state, counter: tr.counter, masker: None, masked_rounds: Vec::new(), key: tr.key }
     }
 }
 
@@ -167,5 +187,57 @@ mod tests {
         let idx = e.challenge_indices(100, 1024);
         assert_eq!(idx.len(), 100);
         assert!(idx.iter().all(|&i| i < 1024));
+    }
+
+    /// [ZK60 D19, ruling T-6] **The transcript's isolated control.** On the
+    /// same domain and the same absorbs, a KEYED transcript draws different
+    /// challenges from the unkeyed one, and from one under another role's
+    /// key; and a CLONE of a keyed transcript draws the SAME challenges as
+    /// its original, because `clone_state` carries the key.
+    #[test]
+    fn a_keyed_transcript_separates_and_its_clone_does_not() {
+        let tag = crate::hashtag::HashTag::for_profile("hashline-zk-mr1/private-block-rung-g-t24-dev/1");
+        let k = *tag.transcript_key().expect("a tagged profile carries a transcript key");
+        let other = *tag.node_key().expect("another role's key");
+        let absorbs = |t: &mut Transcript| {
+            t.absorb(b"x", &[1, 2, 3]);
+            t.absorb_u64(b"log-cols", 10);
+        };
+        let mut plain = Transcript::new(b"d");
+        let mut keyed = Transcript::new_tagged(b"d", k);
+        let mut wrong = Transcript::new_tagged(b"d", other);
+        absorbs(&mut plain);
+        absorbs(&mut keyed);
+        absorbs(&mut wrong);
+        // the states already differ, before a single challenge is drawn
+        assert_ne!(plain.state(), keyed.state(), "a keyed transcript reached the unkeyed state");
+        assert_ne!(keyed.state(), wrong.state(), "two role keys gave the same transcript state");
+        // the clone, taken BEFORE the challenges, must track the original
+        let mut clone = Transcript::clone_state(&keyed);
+        let (p, kk, w) = (plain.challenge_fp2(), keyed.challenge_fp2(), wrong.challenge_fp2());
+        assert_ne!(p, kk, "the keyed transcript drew the unkeyed challenge");
+        assert_ne!(kk, w, "two role keys drew the same challenge");
+        assert_eq!(kk, clone.challenge_fp2(), "a clone of a keyed transcript lost the key");
+        assert_eq!(keyed.challenge_fp2(), clone.challenge_fp2(), "the clone diverged on the second challenge");
+    }
+
+    /// The legacy rule is untouched: an unkeyed transcript's clone is what it
+    /// always was, and no keyed transcript equals it.
+    #[test]
+    fn the_unkeyed_transcript_is_unchanged() {
+        let mut a = Transcript::new(b"hashline-zk-mr1/private-block-t32-poc/1");
+        a.absorb(b"schedule", &[7u8; 32]);
+        let want = a.state();
+        let mut h = blake3::Hasher::new();
+        h.update(b"hashline-v1/");
+        h.update(b"hashline-zk-mr1/private-block-t32-poc/1");
+        let start: [u8; 32] = *h.finalize().as_bytes();
+        let mut h2 = blake3::Hasher::new();
+        h2.update(&start);
+        h2.update(&8u64.to_le_bytes());
+        h2.update(b"schedule");
+        h2.update(&32u64.to_le_bytes());
+        h2.update(&[7u8; 32]);
+        assert_eq!(want, *h2.finalize().as_bytes(), "the legacy transcript rule moved");
     }
 }
