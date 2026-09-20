@@ -1,0 +1,19 @@
+   Compiling private-block-kernel-shaped v0.1.0 (/home/victor/wt-zk60-block125m/private-block-kernel-shaped)
+    Finished `release` profile [optimized] target(s) in 0.63s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/private_block_kernel_shaped-f9d1140db63a11e9)
+
+running 5 tests
+test tests::a_query_head_reads_only_its_own_key_value_head ... ok
+test tests::the_buffer_lengths_are_checked ... ok
+test tests::the_shape_refusals_fire_by_name ... ok
+test tests::the_toy_shape_is_the_frozen_geometry ... ok
+test tests::the_trace_length_closed_form_equals_the_part_table ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests private_block_kernel_shaped
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

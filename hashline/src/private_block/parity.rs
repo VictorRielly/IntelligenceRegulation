@@ -21,6 +21,10 @@ use super::layout::*;
 use super::witness::{self, Witness};
 use super::{AttentionPublic, BlockPublic, FeedForwardPublic};
 use private_block_kernel as kern;
+// JOB K: the SHAPE-DRIVEN reference lives in its own crate, because
+// `private-block-kernel` is compiled into the zkVM guest and is byte-frozen.
+// `cross_parity_tests` below is what keeps the two from drifting.
+use private_block_kernel_shaped as kshaped;
 use std::collections::BTreeMap;
 use std::sync::OnceLock;
 
@@ -357,8 +361,8 @@ pub(crate) fn rung_parity_shape() -> Shape {
 }
 
 /// the same geometry and the same three windows, in the kernel's own terms
-fn kernel_shape(s: &Shape) -> kern::shaped::Shape {
-    kern::shaped::Shape::new(s.tokens, s.width, s.hidden, s.q_heads, s.kv_heads, s.head_dim, s.f_e, F_P, s.wrho_s, s.norm_wrho)
+fn kernel_shape(s: &Shape) -> kshaped::Shape {
+    kshaped::Shape::new(s.tokens, s.width, s.hidden, s.q_heads, s.kv_heads, s.head_dim, s.f_e, F_P, s.wrho_s, s.norm_wrho)
 }
 
 /// One generated public case at an arbitrary shape: the same words in the
@@ -375,12 +379,12 @@ struct ShapedCase {
 }
 
 impl ShapedCase {
-    fn weights(&self) -> kern::shaped::WeightsRef<'_> {
+    fn weights(&self) -> kshaped::WeightsRef<'_> {
         let w = &self.words;
-        kern::shaped::WeightsRef { wq: &w[0], wk: &w[1], wv: &w[2], wo: &w[3], gamma_a: &w[4], gamma_m: &w[5], wg_t: &w[6], wu_t: &w[7], wd_t: &w[8] }
+        kshaped::WeightsRef { wq: &w[0], wk: &w[1], wv: &w[2], wo: &w[3], gamma_a: &w[4], gamma_m: &w[5], wg_t: &w[6], wu_t: &w[7], wd_t: &w[8] }
     }
-    fn tables(&self) -> kern::shaped::TablesRef<'_> {
-        kern::shaped::TablesRef { rope_cos: &self.cos, rope_sin: &self.sin, exp: &self.exp, act: &self.act }
+    fn tables(&self) -> kshaped::TablesRef<'_> {
+        kshaped::TablesRef { rope_cos: &self.cos, rope_sin: &self.sin, exp: &self.exp, act: &self.act }
     }
 }
 
@@ -420,12 +424,12 @@ fn shaped_case(s: &Shape, idx: usize) -> ShapedCase {
 }
 
 /// Run the reference kernel at `s`, returning its verdict and trace buffer.
-fn run_kernel_shaped(s: &Shape, c: &ShapedCase) -> (Result<Vec<i16>, kern::KernelError>, Vec<i64>) {
+fn run_kernel_shaped(s: &Shape, c: &ShapedCase) -> (Result<Vec<i16>, kshaped::KernelError>, Vec<i64>) {
     let ksh = kernel_shape(s);
     let mut scratch = vec![0i64; ksh.scratch_len()];
     let mut tbuf = vec![0i64; ksh.trace_len()];
     let mut out = vec![0i16; ksh.x_len()];
-    let r = kern::shaped::run_shaped(&ksh, &c.input, &c.weights(), &c.tables(), &mut scratch, Some(&mut tbuf), &mut out);
+    let r = kshaped::run_shaped(&ksh, &c.input, &c.weights(), &c.tables(), &mut scratch, Some(&mut tbuf), &mut out);
     (r.map(|()| out), tbuf)
 }
 
@@ -434,7 +438,7 @@ fn run_kernel_shaped(s: &Shape, c: &ShapedCase) -> (Result<Vec<i16>, kern::Kerne
 /// carry, plus the fact that every PAD position is still zero (which is a
 /// statement about today's builder, not the pad rule of S9).
 fn compare_shaped(s: &Shape, w: &Witness, tbuf: &[i64], idx: usize) {
-    use kern::shaped::Part;
+    use kshaped::Part;
     let ksh = kernel_shape(s);
     let g = Geom::new(s);
     let part = |p: Part| {
@@ -684,4 +688,200 @@ fn the_memo_section_three_bounds_hold_at_the_rung() {
     // the plane table the S6 witness is pinned to
     assert_eq!(s.a_plane_doms().len(), N_A, "the rung's A plane list is not the pinned one");
     assert!((0..N_A).all(|q| s.a_plane_doms()[q] == a_dom(q)), "the rung's A plane list differs from the pinned one");
+}
+
+// ======================================================================
+// JOB K: THE TWO KERNEL CRATES AGREE AT THE TOY
+// ======================================================================
+//
+// `private-block-kernel` is compiled into the project's zkVM guest, whose
+// image identity is an approved recorded artifact, so it is BYTE-FROZEN at
+// commit `11c01b2` and the shape-driven kernel was moved into the separate
+// crate `private-block-kernel-shaped`. That crate may not depend on the
+// frozen one (the guest must keep compiling the frozen crate as a leaf), so
+// the calibration table and the scalar primitives are COPIES.
+//
+// A copy can drift silently. These tests are the only thing that stops it:
+// this file is the one place in the repository that sees BOTH crates.
+
+/// One trace part of the frozen crate's fixed [`kern::Trace`], by the
+/// shape-driven crate's own part name.
+fn frozen_part<'a>(tr: &'a kern::Trace, p: kshaped::Part) -> &'a [i64] {
+    use kshaped::Part as P;
+    match p {
+        P::NaDd => &tr.na_dd,
+        P::NaY => &tr.na_y,
+        P::Q8 => &tr.q8,
+        P::K8 => &tr.k8,
+        P::V8 => &tr.v8,
+        P::Qr8 => &tr.qr8,
+        P::Kr8 => &tr.kr8,
+        P::S8 => &tr.s8,
+        P::MRow => &tr.m_row,
+        P::Arg => &tr.arg,
+        P::Sum => &tr.sum,
+        P::P => &tr.p,
+        P::O8 => &tr.o8,
+        P::Ao8 => &tr.ao8,
+        P::Xres1 => &tr.xres1,
+        P::NmDd => &tr.nm_dd,
+        P::NmY => &tr.nm_y,
+        P::G8 => &tr.g8,
+        P::A16 => &tr.a16,
+        P::U16 => &tr.u16,
+        P::H16 => &tr.h16,
+        P::Z16 => &tr.z16,
+        P::Xres2 => &tr.xres2,
+    }
+}
+
+/// **JOB K's acceptance.** At `Shape::toy()` the shape-driven crate computes
+/// what the frozen crate computes, on EVERY case of the 1,200-case toy
+/// fixture sweep — the same verdict, the same refusal string, and on both
+/// outcomes every one of the 23 trace planes element for element (the traces
+/// are filled progressively in the same order, so a refused case's partial
+/// trace is compared too).
+#[test]
+fn the_shaped_kernel_equals_the_frozen_kernel_at_the_toy() {
+    let sh = kshaped::Shape::toy();
+    assert_eq!((sh.tokens, sh.width, sh.hidden), (T, D, F), "the shaped toy geometry is not the module's");
+    assert_eq!((sh.q_heads, sh.kv_heads, sh.head_dim), (H, kern::HKV, DH), "the shaped toy head layout is not the module's");
+    let (mut both_ok, mut both_refuse) = (0usize, 0usize);
+    for idx in 0..CASES {
+        let c = case(idx);
+        let mut tr = Box::new(kern::Trace::zeroed());
+        let frozen = kern::run_block_slice(&c.input, &c.kweights, &c.ktables, Some(&mut *tr));
+        // the SAME public words, read off this case's own statement
+        let w = kshaped::WeightsRef {
+            wq: &c.public.wq,
+            wk: &c.public.wk,
+            wv: &c.public.wv,
+            wo: &c.public.wo,
+            gamma_a: &c.public.gamma_a,
+            gamma_m: &c.ff.gamma_m,
+            wg_t: &c.ff.wg_t,
+            wu_t: &c.ff.wu_t,
+            wd_t: &c.ff.wd_t,
+        };
+        let tab = kshaped::TablesRef { rope_cos: &c.public.rope_cos, rope_sin: &c.public.rope_sin, exp: &c.public.exp, act: &c.ff.act };
+        let mut scratch = vec![0i64; sh.scratch_len()];
+        let mut tbuf = vec![0i64; sh.trace_len()];
+        let mut out = vec![0i16; sh.x_len()];
+        let shaped = kshaped::run_shaped(&sh, &c.input, &w, &tab, &mut scratch, Some(&mut tbuf), &mut out);
+        // plane by plane, on BOTH outcomes
+        for p in kshaped::PARTS {
+            let (o, n) = sh.part(p);
+            eq(&tbuf[o..o + n], frozen_part(&tr, p), idx, &format!("shaped-vs-frozen {p:?}"));
+        }
+        match (&frozen, &shaped) {
+            (Ok(a), Ok(())) => {
+                assert_eq!(&a[..], &out[..], "case {idx}: the two crates' block outputs differ");
+                both_ok += 1;
+            }
+            (Err(a), Err(b)) => {
+                assert_eq!(format!("{a}"), format!("{b}"), "case {idx}: the two crates refuse with different strings");
+                both_refuse += 1;
+            }
+            (Err(a), Ok(())) => panic!("case {idx}: the shaped crate accepted where the frozen crate refused ({a})"),
+            (Ok(_), Err(b)) => panic!("case {idx}: the shaped crate refused (`{b}`) where the frozen crate accepted"),
+        }
+    }
+    assert_eq!(both_ok + both_refuse, CASES);
+    assert!(both_ok >= 100 && both_refuse >= 100, "the cross-parity sweep must exercise both outcomes: {both_ok} / {both_refuse}");
+    eprintln!("job K cross-parity: {CASES} toy cases — {both_ok} accepted by both crates, {both_refuse} refused identically, 23 trace planes equal on every case");
+}
+
+/// The COPIED calibration table, constant for constant. A drift here is the
+/// one way the split could change what either kernel computes without any
+/// test of either crate alone noticing.
+#[test]
+fn the_shaped_crate_copies_the_frozen_calibration_exactly() {
+    assert_eq!(kshaped::calib::NORM_TN, kern::calib::NORM_TN);
+    assert_eq!(kshaped::calib::NORM_CN, kern::calib::NORM_CN);
+    assert_eq!(kshaped::calib::NORM_CEPS, kern::calib::NORM_CEPS);
+    assert_eq!(kshaped::calib::NORM_WRHO, kern::calib::NORM_WRHO);
+    assert_eq!(kshaped::calib::SH_Q, kern::calib::SH_Q);
+    assert_eq!(kshaped::calib::SH_K, kern::calib::SH_K);
+    assert_eq!(kshaped::calib::SH_V, kern::calib::SH_V);
+    assert_eq!(kshaped::calib::SH_QR, kern::calib::SH_QR);
+    assert_eq!(kshaped::calib::SH_KR, kern::calib::SH_KR);
+    assert_eq!(kshaped::calib::SH_S, kern::calib::SH_S);
+    assert_eq!(kshaped::calib::SH_O, kern::calib::SH_O);
+    assert_eq!(kshaped::calib::SH_AO, kern::calib::SH_AO);
+    assert_eq!(kshaped::calib::SH_X1, kern::calib::SH_X1);
+    assert_eq!(kshaped::calib::SH_A1, kern::calib::SH_A1);
+    assert_eq!(kshaped::calib::SH_R1, kern::calib::SH_R1);
+    assert_eq!(kshaped::calib::F_E, kern::calib::F_E);
+    assert_eq!(kshaped::calib::F_P, kern::calib::F_P);
+    assert_eq!(kshaped::calib::F_RO, kern::calib::F_RO);
+    assert_eq!(kshaped::calib::WRHO_S, kern::calib::WRHO_S);
+    assert_eq!(kshaped::calib::SH_G, kern::calib::SH_G);
+    assert_eq!(kshaped::calib::SH_U, kern::calib::SH_U);
+    assert_eq!(kshaped::calib::SH_H, kern::calib::SH_H);
+    assert_eq!(kshaped::calib::SH_Z, kern::calib::SH_Z);
+    assert_eq!(kshaped::calib::SH_X2, kern::calib::SH_X2);
+    assert_eq!(kshaped::calib::SH_Z2, kern::calib::SH_Z2);
+    assert_eq!(kshaped::calib::SH_R2, kern::calib::SH_R2);
+    assert_eq!(kshaped::calib::MASK, kern::calib::MASK);
+    // and the shaped toy shape reads the same four windows the module does
+    let sh = kshaped::Shape::toy();
+    assert_eq!((sh.f_e, sh.f_p, sh.wrho_s, sh.norm_wrho), (kern::calib::F_E, kern::calib::F_P, kern::calib::WRHO_S, kern::calib::NORM_WRHO));
+}
+
+/// The COPIED scalar primitives and the two matmuls, function for function
+/// rather than only through a whole block: a difference in a corner neither
+/// fixture reaches would otherwise wait for a shape nobody has run yet.
+#[test]
+fn the_shaped_crate_copies_the_frozen_primitives_exactly() {
+    // isqrt over small values, powers of two and their neighbours, and the
+    // range the norm actually reaches at 125M widths
+    let mut vals: Vec<u64> = (0u64..512).collect();
+    for k in 0..63u32 {
+        let b = 1u64 << k;
+        vals.extend([b.saturating_sub(1), b, b + 1]);
+    }
+    vals.extend([u64::MAX, u64::MAX - 1, 321_049u64 * 321_049, 4_096 * 321_049]);
+    for v in &vals {
+        assert_eq!(kshaped::isqrt(*v), kern::isqrt(*v), "isqrt differs at {v}");
+    }
+    // requant at every shift the calibration uses, plus the two edges
+    let accs: [i64; 13] = [0, 1, -1, 2, -2, 127, -127, 32_767, -32_768, 1 << 40, -(1 << 40), i64::MAX, i64::MIN];
+    for sh in [-2i32, -1, 0, 1, 6, 7, 9, 14, 62, 63] {
+        for a in accs {
+            let (x, y) = (kshaped::requant(a, sh, "s"), kern::requant(a, sh, "s"));
+            assert_eq!(x.ok(), y.ok(), "requant({a}, {sh}) differs");
+            assert_eq!(x.err().map(|e| format!("{e}")), y.err().map(|e| format!("{e}")), "requant({a}, {sh}) refuses differently");
+        }
+    }
+    // the two matmuls at the toy's row count, on a deterministic fixture
+    let mut r = Rng::seeded(424_242);
+    let x: Vec<i64> = (0..T * D).map(|_| r.pick(-32_768, 32_767)).collect();
+    let w: Vec<i8> = (0..D * D).map(|_| r.pick(-128, 127) as i8).collect();
+    let (mut a, mut b) = (vec![0i64; T * D], vec![0i64; T * D]);
+    kshaped::matmul_out_in(T, &x, &w, D, D, &mut a).expect("shaped matmul_out_in");
+    kern::matmul_out_in(&x, &w, D, D, &mut b).expect("frozen matmul_out_in");
+    assert_eq!(a, b, "matmul_out_in differs between the two crates");
+    kshaped::matmul_in_out(T, &x, &w, D, D, &mut a).expect("shaped matmul_in_out");
+    kern::matmul_in_out(&x, &w, D, D, &mut b).expect("frozen matmul_in_out");
+    assert_eq!(a, b, "matmul_in_out differs between the two crates");
+    // the softmax row, including its refusals, on rows drawn to hit both
+    let sh = kshaped::Shape::toy();
+    let (_, _, exp, _) = tables();
+    for t in [0usize, 1, 7, 31] {
+        for band in [1i64, 8, 64, 127, 200] {
+            let scores: Vec<i64> = (0..T).map(|_| r.pick(-band, band)).collect();
+            let row: &[i64; T] = scores[..].try_into().expect("row");
+            let frozen = kern::softmax_row(row, t, exp);
+            let (mut e, mut p) = (vec![0i64; T], vec![0i64; T]);
+            let shaped = kshaped::softmax_row_into(&sh, &scores, t, exp, &mut e, &mut p);
+            match (&frozen, &shaped) {
+                (Ok(f), Ok((max, arg, sum))) => {
+                    assert_eq!((f.max, f.arg, f.sum), (*max, *arg, *sum), "softmax scalars differ at t={t} band={band}");
+                    assert_eq!(&f.p[..], &p[..], "softmax p differs at t={t} band={band}");
+                }
+                (Err(f), Err(s)) => assert_eq!(format!("{f}"), format!("{s}"), "softmax refusals differ at t={t} band={band}"),
+                _ => panic!("softmax verdicts differ at t={t} band={band}"),
+            }
+        }
+    }
 }
