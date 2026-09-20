@@ -469,3 +469,155 @@ fn the_125m_receipt_is_reproduced_part_by_part() {
     // and the toy's, which the wire format actually produces
     assert_eq!(Shape::toy().receipt_bytes().total, 2_816_472);
 }
+
+// ====================================================================
+// STEP S8 PREPARATION: the two integer windows, reproduced before the fix
+// ====================================================================
+//
+// S8 widens the norm remainder window (2^29 -> 2^32, memo section 3.8 row 9)
+// and the softmax remainder window (2^14 -> 2^18, row 10, +2 planes on
+// `Dom::S`). S6 already made the WITNESS and the reference KERNEL take both
+// windows from the shape, so the failures below are real and reproducible
+// today; what is NOT done is the ARGUMENT side, which still carries the
+// toy's coefficients as literals, and the plane table, which cannot hold a
+// third `sigma_s` limb.
+//
+// Nothing here moves a toy byte: every test builds a shape BESIDE the toy.
+
+/// the rung geometry with a chosen softmax calibration and norm window,
+/// for exercising one window at a time
+fn window_shape(name: &'static str, profile: &'static str, f_e: u32, wrho_s: Option<u32>, norm_wrho: Option<u32>) -> Shape {
+    Shape::new(name, profile, 24, 96, 192, 6, 16, 2, 10, 4, f_e, 14, Some(8), Some(4), norm_wrho, wrho_s).expect("a window fixture shape is well formed")
+}
+
+/// a deterministic tame case at a shape: diagonal weights, a modest gain and
+/// a modest input, so that every class holds and the only thing that can
+/// refuse is a WINDOW
+fn tame_case(s: &Shape) -> (AttentionPublic, FeedForwardPublic, Vec<i16>) {
+    let (d, f, kvw, half) = (s.width, s.hidden, s.kv_heads * s.head_dim, s.head_dim / 2);
+    let diag = |outer: usize, inner: usize| -> Vec<i8> { (0..outer * inner).map(|k| if k / inner == k % inner { 64i8 } else { 0 }).collect() };
+    let gamma = vec![64i8; d];
+    let (cos, sin) = crate::tables_attn::rope_tables_generate(s.tokens, s.head_dim, 10000.0, F_RO);
+    assert_eq!(cos.len(), s.tokens * half);
+    let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
+    let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member");
+    let public = AttentionPublic::new_shaped(s, &diag(d, d), &diag(kvw, d), &diag(kvw, d), &diag(d, d), &gamma, &cos, &sin, &exp).expect("statement");
+    let ff = FeedForwardPublic::new_shaped(s, &gamma, &diag(d, f), &diag(d, f), &diag(f, d), &act).expect("feed-forward statement");
+    // The input magnitude is chosen, not incidental: the norm denominator is
+    // `4096 * isqrt(1 + sum x^2)`, so only a LARGE input makes the remainder
+    // window bite. At |x| about 24,000 over 96 columns, `D` is about 235,000
+    // and `den - 1` about 9.6e8 — past the toy's 2^29 = 5.37e8 and inside
+    // the rung's 2^31. A small input accepts at 29 and proves nothing.
+    let input: Vec<i16> = (0..s.tokens * d)
+        .map(|k| {
+            let base: i64 = if k % 2 == 0 { 24_000 } else { -24_000 };
+            (base + ((k * 37 + 11) % 401) as i64 - 200) as i16
+        })
+        .collect();
+    (public, ff, input)
+}
+
+/// **WINDOW 1 (memo section 3.8 row 9), reproduced.** At width 96 the norm
+/// denominator is `4096 * D` with `D` up to 321,049, so the remainder needs
+/// **31** bits. The toy's `NORM_WRHO = 29` is not enough and the honest
+/// witness refuses by name; the shape's own 31 accepts the SAME input.
+///
+/// This is the completeness failure the memo predicts, not an arithmetic
+/// one: nothing wraps, the prover simply cannot prove its own honest value.
+#[test]
+fn the_norm_window_of_the_toy_refuses_an_honest_rung_witness() {
+    let narrow = window_shape("rung geometry at the TOY norm window", "hashline-zk-mr1/private-block-rung-norm29/1", 9, None, Some(29));
+    let honest = window_shape("rung geometry at its own norm window", "hashline-zk-mr1/private-block-rung-norm31/1", 9, None, None);
+    assert_eq!(narrow.norm_wrho, 29);
+    assert_eq!(honest.norm_wrho, 31, "the rung's own norm window is 31 = tn + 1 + bits(D_max)");
+    // by counting, before any witness is built: 29 cannot hold den - 1
+    let den_max = 4096 * honest.d_max - 1;
+    assert!(den_max >= (1i128 << 29), "the toy's 29-bit norm window would in fact be enough at width 96");
+    assert!(den_max < (1i128 << 31), "31 bits is not enough for the rung's norm remainder");
+    // and in the builder
+    let (public, ff, input) = tame_case(&narrow);
+    // (the witness is never `Debug`: its planes are secret, so `expect_err`
+    // is not available and the two outcomes are matched by hand)
+    let refused = match super::witness::build_shaped(&narrow, &public, &ff, &input) {
+        Err(m) => m,
+        Ok(_) => panic!("the toy's norm window must refuse an honest rung witness"),
+    };
+    assert_eq!(refused, "fixed oracle range refusal: norm quotient/remainder", "the refusal must name the norm window");
+    let (public, ff, input) = tame_case(&honest);
+    super::witness::build_shaped(&honest, &public, &ff, &input).expect("the rung's own 31-bit norm window accepts the same honest input");
+    // the four coefficients S8 has to rewrite, and what they become
+    assert_eq!(1i64 << (32 - Shape::toy().norm_wrho), 8, "the toy's `scaled(.., 1 << (32 - wrho))` coefficient");
+    assert_eq!(1i64 << (32 - honest.norm_wrho), 2, "the rung's coefficient");
+    assert_eq!(Shape::m125().norm_wrho, 32, "125M sits exactly on the four-limb ceiling");
+    assert!(Shape::m125().norm_top_is_full_byte(), "at 125M the scaled lookup is redundant and C-6 drops four of them");
+    assert!(!honest.norm_top_is_full_byte() && !Shape::toy().norm_top_is_full_byte());
+}
+
+/// **WINDOW 2 (memo section 3.8 row 10), reproduced.** The rung's own
+/// calibration is `F_E = 12`, at which `Sum <= 24 * 2^12 = 98,304` and the
+/// softmax remainder needs **17** bits. At the toy's `WRHO_S = 14` the
+/// honest witness refuses by name, while the reference kernel — which takes
+/// the window from the shape too — accepts the same case at 17.
+#[test]
+fn the_softmax_window_of_the_toy_refuses_an_honest_rung_witness() {
+    let narrow = window_shape("rung geometry, F_E 12 at the TOY softmax window", "hashline-zk-mr1/private-block-rung-fe12-w14/1", 12, Some(14), None);
+    assert_eq!(narrow.limbs_sigma_s(), 2, "two limbs, so the pinned plane table still holds");
+    // by counting: Sum can reach 98,304, which does not fit 2^14
+    let sum_max = (narrow.tokens as i128) << narrow.f_e;
+    assert_eq!(sum_max, 98_304);
+    assert!(sum_max > (1i128 << 14), "the toy's 14-bit softmax window would in fact be enough at F_E = 12");
+    assert!(sum_max < (1i128 << 18), "18 bits is not enough for the rung's softmax remainder");
+    let (public, ff, input) = tame_case(&narrow);
+    let refused = match super::witness::build_shaped(&narrow, &public, &ff, &input) {
+        Err(m) => m,
+        Ok(_) => panic!("the toy's softmax window must refuse an honest rung witness at F_E = 12"),
+    };
+    assert_eq!(refused, "fixed oracle range refusal: softmax quotient/remainder", "the refusal must name the softmax window");
+    // the third limb the fix needs, and the `scaled` coefficient that goes
+    // with it: 4 = 1 << (16 - 14) today, 64 = 1 << (24 - 18) at three limbs
+    let wide = Shape::rung();
+    assert_eq!((wide.f_e, wide.wrho_s, wide.limbs_sigma_s()), (12, 17, 3), "the rung's own softmax calibration");
+    assert_eq!(1i64 << (8 * Shape::toy().limbs_sigma_s() as u32 - Shape::toy().wrho_s), 4, "the toy's `scaled(A_SG1, ..)` coefficient");
+    assert_eq!(1i64 << (8 * Shape::m125().limbs_sigma_s() as u32 - Shape::m125().wrho_s), 64, "125M's, which is the memo's `scaled(l2, 64)`");
+}
+
+/// **THE PLANE-TABLE BOUNDARY (finding S6-F2).** A third `sigma_s` limb adds
+/// two planes to `Dom::S`, which shifts every `A_*` id above `A_SG1`. The
+/// witness refuses such a shape by name rather than writing the wrong
+/// planes, and this test records exactly which shapes are on which side.
+#[test]
+fn a_shape_whose_plane_list_moves_is_refused_by_name() {
+    for s in [Shape::toy(), window_shape("rung geometry at the toy softmax window", "hashline-zk-mr1/private-block-rung-t24-parity/1", 9, None, None)] {
+        assert_eq!(s.a_plane_doms().len(), N_A, "{}: plane count", s.name);
+        assert!((0..N_A).all(|p| s.a_plane_doms()[p] == a_dom(p)), "{}: plane list", s.name);
+    }
+    for s in [Shape::rung(), Shape::m125()] {
+        assert_eq!(s.limbs_sigma_s(), 3, "{}: three sigma_s limbs", s.name);
+        assert_eq!(s.a_plane_doms().len(), N_A + 2, "{}: two extra Dom::S planes", s.name);
+        let (public, ff, input) = tame_case(&Shape::toy());
+        let refused = match super::witness::build_shaped(&s, &public, &ff, &input) {
+            Err(m) => m,
+            Ok(_) => panic!("a shape whose plane list moved must be refused"),
+        };
+        assert_eq!(refused, "private block: this shape's A plane list differs from the pinned one", "{}: the refusal must name the plane table", s.name);
+    }
+}
+
+/// **WHAT S8 MUST DELIVER, as a test that FAILS today** (ignored, with the
+/// reason). At `Shape::rung()` — the rung with its own `F_E = 12`, its
+/// 17-bit softmax window and its three `sigma_s` limbs — an honest witness
+/// must exist. Today it does not: the plane table cannot hold the two extra
+/// `Dom::S` planes, so `build_shaped` refuses at the door. Un-ignore this
+/// after S8 has made the `A_*` ids shape-derived and added the third limb's
+/// planes, its `scaled(l2, 64)` lookup and its claim sites.
+#[test]
+#[ignore = "S8: the third sigma_s limb adds two Dom::S planes and shifts every A_* id above A_SG1 (finding S6-F2)"]
+fn the_rung_at_its_own_calibration_has_an_honest_witness() {
+    let s = Shape::rung();
+    let (public, ff, input) = tame_case(&s);
+    let w = match super::witness::build_shaped(&s, &public, &ff, &input) {
+        Ok(w) => w,
+        Err(m) => panic!("S8: the rung's own calibration must have an honest witness, got `{m}`"),
+    };
+    assert_eq!(w.planes.len(), s.a_plane_doms().len());
+}
