@@ -123,6 +123,17 @@ def reduce2(vec, basis, pivots):
     return out
 
 
+# The order the M functionals are declared in, taken from the code and not
+# from an earlier memo (private_block/argument.rs:361-376 and 924-925; the
+# attention profile's argument.rs says the same).  `zk60_native_mask_commit.
+# declared_functional_order` checks it against every capture, position by
+# position, value by value and weight by weight.
+M_DECLARED_ORDER = (
+    "for each slot s in slot order: [Gamma_s, if slot s is Standalone] then "
+    "eval_s; then every Host slot's Gamma, in slot order, last"
+)
+
+
 # ------------------------------------------------------------- CfsMask ops
 def mask_len(n_vars, degree):
     return n_vars * degree + 2
@@ -530,6 +541,29 @@ class CfsView:
         if got != want:
             self.fail("M: 512*(q[0]+q[512]) != the theta-combined functional value")
         out["q_disclosed_functionals_fp2"] = 1  # exactly the identity above
+        # ... and since 2026-09-20 that 1 is COMPUTED, not asserted: the port
+        # of M's row layout (`zk60_native_mask_commit`, pinned to zk.rs) builds
+        # the Fp matrix of the theta-batched functional over the coefficient
+        # unknowns and takes its exact rank.  The P10 gate goes further and
+        # exhibits preimages at two coefficient vectors on that plane; here we
+        # only cross-check the figure this stage hands to stage 4.
+        from zk60_native_mask_commit import MaskModel, disclosed_dimension
+
+        mmodel = MaskModel(cap, rp)
+        dd = disclosed_dimension(mmodel)
+        out["m_row_layout_ported"] = True
+        out["m_declared_functional_order"] = M_DECLARED_ORDER
+        out["m_coefficient_unknowns_fp"] = dd["coefficient_unknowns_fp"]
+        out["m_disclosed_fp_computed"] = dd["disclosed_fp_computed"]
+        out["m_fibre_dimension_fp"] = dd["fibre_dimension_fp"]
+        out["m_computed_matches_the_asserted_one_fp2"] = (
+            dd["disclosed_fp_computed"] == 2 * out["q_disclosed_functionals_fp2"]
+        )
+        if not out["m_computed_matches_the_asserted_one_fp2"]:
+            self.fail(
+                "M: the ported row layout computes a disclosed dimension of "
+                f"{dd['disclosed_fp_computed']} Fp, not the 2 this stage asserts"
+            )
         # M-cols: the pad budget of the a-rows
         idx = [c["index"] for c in m["columns"]]
         distinct = sorted(set(idx))

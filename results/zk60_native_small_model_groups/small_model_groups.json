@@ -1580,7 +1580,7 @@
  ],
  "tool_sha256": {
   "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
-  "zk60_native_jv_groups.py": "7c402d469f7d9f9c05423a42589e0611b8f8e8323deb5fa47547cc6f4997eaa4",
-  "zk60_native_jv_smallmodel.py": "66f2faca3c830c9dcae635e70eb9131352171a9f2b5dfb4c16e2b60a1ecfe9b2"
+  "zk60_native_jv_groups.py": "1fa29c305a011517fbb5aa42ff019a5d41dc67200b33c4c38ffba222c6eeb314",
+  "zk60_native_jv_smallmodel.py": "3cc982ab8cb5b005c6590efc55ad4a0159c2219b8a0e4e12ec3380c2eb06c0de"
  }
 }

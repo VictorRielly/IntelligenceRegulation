@@ -86,6 +86,7 @@ TOOLS = [
     "zk60_native_jv_joint.py",
     "zk60_native_jv_smallmodel.py",
     "zk60_native_terminal_polys.py",
+    "zk60_native_mask_commit.py",
 ]
 
 
@@ -300,6 +301,29 @@ def stage4(caps, replays, views, s2, s3):
                 "sum_of_parts_fp": jv["sum_of_parts_fp"],
                 "joint_fp": jv["joint_fp"],
                 "joint_disclosed_over_the_commitments_fp": joint_pcs,
+                # M's own contribution, and where each half of it comes from.
+                # Since 2026-09-20 both halves are COMPUTED: M is in the union
+                # of commitments as a block with 2S+4 rows, no data row and
+                # one published row combination (its proximity vector), which
+                # is why its part over the commitments' coordinates is 0; and
+                # its figure over its OWN unknown space -- the mask
+                # coefficients -- is the rank of the theta-batched functional,
+                # taken from the ported row layout rather than asserted.
+                "M_in_the_union_of_commitments": {
+                    "rows": jv["parts_detail"]["M"]["non_data_rows"]
+                    + jv["parts_detail"]["M"]["data_rows"],
+                    "commits_witness_data": jv["parts_detail"]["M"][
+                        "commits_witness_data"
+                    ],
+                    "part_fp_over_the_commitment_coordinates": jv["parts_fp"]["M"],
+                    "own_disclosed_fp_over_the_coefficients": c3[
+                        "disclosed_opening_only_fp"
+                    ],
+                    "own_disclosed_fp_computed_from_the_ported_layout": c3.get(
+                        "m_disclosed_fp_computed"
+                    ),
+                    "row_layout_ported": True,
+                },
                 "joint_detail": jv["joint_detail"],
                 "parts_detail": jv["parts_detail"],
                 "parts_recomputed_through_the_joint_path_match_stage2": jv[

@@ -1,0 +1,7 @@
+a: dense 0, reduction 0, per-group 0, ok
+b: dense 2, reduction 0, per-group 2, ok
+c: dense 2, reduction 2, per-group 0, ok
+d: dense 4, reduction 4, per-group 4, ok
+e: dense 0, reduction 0, per-group 0, ok
+f: dense 3, reduction refused, per-group 0, ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_small_model_groups/small_model_groups.json (0.6 s)

@@ -37,10 +37,14 @@ forward map with no reduction at all.
 THE GUARD.  The real-capture path refuses when the number of DISTINCT opened
 columns exceeds the pad count (`zk60_native_jv_pcs.py`,
 `distinct_opened_columns_within_pad_count`, which feeds stage 2's verdict).
-The small-model path did not: `ToyView.disclosed_reduction` computes a figure
-whatever the pad budget is, and case (f) below shows that figure is WRONG
-there.  `GroupedToyView.disclosed_reduction` therefore raises
-`PadBudgetRefusal` on exactly that condition before computing anything.
+The small-model path did not: `ToyView.disclosed_reduction` computed a figure
+whatever the pad budget was, and case (f) below shows that figure is WRONG
+there.  `GroupedToyView.disclosed_reduction` raised `PadBudgetRefusal` on
+exactly that condition before computing anything.  **Since 2026-09-20 the
+guard is in the BASE class** (`zk60_native_jv_smallmodel.ToyView`), where the
+condition belongs; the override here is kept because its message names the
+group-aware hypothesis key, and `PadBudgetRefusal` below is now an alias of
+the base module's class, so both paths raise the same exception.
 
 NOTHING HERE ESTABLISHES A PRIVACY PROPERTY.  Every number is a rank of an
 explicitly stated linear model on a synthetic instance whose data and
@@ -70,15 +74,14 @@ NN = smallmodel.NN  # encoded positions (16)
 U = (0, 1)  # the Fp2 generator u, u^2 = 7; the second weight of a reserved pair
 
 
-class PadBudgetRefusal(Exception):
-    """The reduction refuses: more distinct opened positions than pads.
-
-    The same condition the real-capture path already checks
-    (`zk60_native_jv_pcs.RoleView._check_pad_budget`, fact
-    `distinct_opened_columns_within_pad_count`).  Case (f) is why it has to
-    be a refusal and not a warning: beyond the budget the reduction's answer
-    is 0 and the truth is not.
-    """
+# The reduction's refusal: more distinct opened positions than pads.  The same
+# condition the real-capture path already checks
+# (`zk60_native_jv_pcs.RoleView._check_pad_budget`, fact
+# `distinct_opened_columns_within_pad_count`).  Case (f) is why it has to be a
+# refusal and not a warning: beyond the budget the reduction's answer is 0 and
+# the truth is not.  Defined in the base module since 2026-09-20 and ALIASED
+# here, so `groups.PadBudgetRefusal` keeps working and is the same class.
+PadBudgetRefusal = smallmodel.PadBudgetRefusal
 
 
 # --------------------------------------------------------------- the schedule
@@ -291,7 +294,11 @@ class GroupedToyView(smallmodel.ToyView):
 
     # ------------------------------------------------- the guarded reduction
     def disclosed_reduction(self):
-        """The tool's reduction, behind the pad-budget guard (see the header)."""
+        """The tool's reduction, behind the pad-budget guard (see the header).
+
+        Since 2026-09-20 the base class carries the same guard; this override
+        is kept only so the message names the group-aware hypothesis key.
+        """
         hyp = self.hypotheses()
         if not hyp["H-pad"]:
             raise PadBudgetRefusal(
@@ -299,10 +306,6 @@ class GroupedToyView(smallmodel.ToyView):
                 f"exceed the {self.q_pad} pads: the message-half reduction is "
                 f"not valid outside the pad budget"
             )
-        return super().disclosed_reduction()
-
-    def disclosed_reduction_unguarded(self):
-        """The same reduction with the guard removed, to SHOW what it misses."""
         return super().disclosed_reduction()
 
     # ------------------------------------------ the per-group message-half system

@@ -1238,3 +1238,259 @@ expected failure; the case runner takes ~0.5 s. Ledger:
 `docs/zkmatrix-poc/ZK60_NATIVE_SMALL_MODEL_GROUPS_PROGRESS.md`. Both gates
 were re-run against the four real captures afterwards and their records
 compared with the committed ones; nothing but the timing fields moved.
+
+## 14. 2026-09-20 — the masking commitment M ported: its three OPEN channels closed
+
+Author: delegated security lane (Claude Opus 5), worktree
+`/home/victor/wt-zk60-jointview`, branch `zk60-native-jointview`, off
+`1857c04`. Ledger:
+`docs/zkmatrix-poc/ZK60_NATIVE_GATE_CHANNELS_PROGRESS.md`.
+
+**Nothing in this section establishes a privacy property and nothing here is
+a privacy acceptance.** The P10 gate is a consistency gate on four captured
+receipts at two fixed toy layouts. Every figure below is a rank, a count or
+an entry-by-entry comparison in an explicitly stated **linear** model at
+those four receipts' real challenges.
+
+### 14.1 The channel table, before and after
+
+P10 grades 28 channels, and its `by_status` count is identical on all four
+captures. Before this lane, and after:
+
+| | CONSTRUCTED | DERIVED | ARGUED | OPEN |
+|---|---|---|---|---|
+| **before** (record of 04:41) | 8 | 2 | 8 | **10** |
+| **after** (record of 05:01) | **11** | 2 | 8 | **7** |
+
+The three that moved are M's own: **the M opening's `q`**, **the M proximity
+vector** and **opened column values (the M opening's own 256 columns)**. All
+three said the same thing before — "a port of `encode_coeffs_coset` and
+`mask_commit`'s row layout into this tool; **no capture field is missing**"
+— and the port is what this section reports.
+
+Nothing else moved. The two records were compared key by key: every
+difference is inside those three channel entries or the two `by_status`
+counters, with `seconds`, `tool_sha256` and the new `version_2` note
+excluded. No other channel's status, no fibre dimension, no rank and no
+mismatch count changed.
+
+**The seven that remain OPEN, each with why and the memo that covers it.**
+None of them is closable from a capture, and none of them needs a capture
+field that does not exist — so **no field was requested from the
+integrator**, and in particular none that is a function of hidden data (the
+security owner has already refused one such, a slot's unmasked honest
+rounds).
+
+| channel | § | why it cannot be closed here | covered by |
+|---|---|---|---|
+| whether a proof attempt produced a receipt | 2.2 | a refusal event. One refusal class is witness-dependent at about 2^-112, and **no capture can ever show it, because a capture only exists when the proof was accepted** (ruling C-2) | the refusal rate counted as liveness in `ZK60_HASH_LAYER_AND_FS_LIFT.md` (revised) |
+| rejected-but-emitted receipts | 2.2 | a procedural condition on the deployment (history item H8): `finish` has no equality precheck, so a rejected receipt is fully constructed and must never be transmitted | a deployment condition, not a channel |
+| retained captures | 2.2 | a procedural condition (H9): a retained capture IS a published opening of its two endpoint roots. Today the writer is behind `#[cfg(test)]` and every capture is of a deliberately public fixture | a deployment condition (and the D8/D11 obligation) |
+| timing, memory, power | 2.2 | declared out of scope for the first MVP (M-5, ruling C-2); no field of the capture bears on it | a scope ruling |
+| prior proofs by the same prover | 2.2 | multi-receipt composition; this gate analyses one receipt at a time | `ZK60_JOINT_LAW_COMPOSITION.md` (revised), chain item 21 / open item U-3b |
+| the integer-range facts the statement implies | 4.2 r16 | chain item 20: the statement implies the hidden values are in range, which is information about them that **no preimage argument removes** | `ZK60_JOINT_LAW_COMPOSITION.md` (revised) |
+| any nonlinear functional of the joint view | 4.2 r17 | the terminal identity links the commitment and masking channels with degree up to 4 in the terminals, and **no linear model sees that link** | `ZK60_JOINT_LAW_COMPOSITION.md` (revised) |
+
+The eight ARGUED channels are unchanged: the three hash-layer ones (the
+roots, the 256 leaf salts per opening and the 11- and 12-level
+authentication paths) under M-2 and M-3, the four shape-fact ones, and the
+public statement and policy under condition O-1. **The port does not hash**,
+so it moves none of them.
+
+### 14.2 The port
+
+`scripts/zk60_native_mask_commit.py`. Six source pins, each checked (sha256
+and git blob) at every entry point, and each ported function's docstring
+quotes the Rust it transcribes:
+
+| pinned file | what is ported from it |
+|---|---|
+| `hashline/src/zk.rs` | `MASK_LOG_MSG/DOM/Q` (373-375), `MaskCommit`'s row layout (377-390, 430-467), `encode_coeffs_coset` (424-428), `combined_weights` (470-487), `weight_polys` (490-496), `poly_mul_512` (499-510), `mask_open` (512-550), `mask_verify`'s three identities (552-590) |
+| `hashline/src/private_block/argument.rs` | the DECLARED functional order (361-376, 924-925) |
+| `hashline/src/private_attention/argument.rs` | the same order for the 18-slot profile |
+| `zkp-core/src/sumcheck.rs` | `CfsMask::len / sum_weights / eval_weights` (197-243) |
+| `zkp-core/src/ntt.rs` | `forward`/`inverse` (55-108): the convention the whole port rests on |
+| `zkp-core/src/pcs.rs` | `coset_powers` (605-614) and its assertion that the coset misses the subgroup |
+
+**M's row layout**, with `S` slots (`S = 23` on the block profile, 18 on
+attention; `2S + 4` rows, so 50 and 40):
+
+| rows | what it holds | its free values |
+|---|---|---|
+| `0 .. 2S-1` | two a-rows per slot (re, im), each the message `[L_s coefficients \| 256 pads \| zeros]` in **value** form over G_512, with `L_s = n_s d_s + 2` | the 256 pads |
+| `2S, 2S+1` | `b_re`, `b_im`, 1,024 coefficients each with the single constraint `b[512] = -b[0]` (zero sum over G_512) | 1,023 each |
+| `2S+2, 2S+3` | `u_re`, `u_im`, 1,024 coefficients each | 1,024 each, unconstrained |
+
+**The declared functional order — taken from the code, not from the earlier
+memo, which had it wrong.** `run_slot` pushes, for slot `s`: a **Standalone**
+slot's Gamma first, then that slot's evaluation functional; a **Host** slot's
+Gamma goes to a separate list and only its evaluation is pushed here; a
+**Private** slot contributes its evaluation alone. Then `argument`
+(`:924-925`) does `acc.fs.extend(hosts)`. So:
+
+> for each slot `s` in slot order: **`[Gamma_s, if slot s is Standalone]`
+> then `eval_s`**; then **every Host slot's Gamma, in slot order, LAST**.
+
+On the block capture (23 slots — 12 Private, 6 Host, 5 Standalone — and 34
+functionals) the port checks that order against the capture three ways and
+all three pass **34 of 34**: **position** (each functional's term rows),
+**value** (against the slot's own captured `scalar` for a Gamma, `mask_eval`
+for an evaluation) and **weights** (recomputed here from
+`CfsMask::sum_weights * c` and `CfsMask::eval_weights` at the replayed
+challenges, and for a Host Gamma the hosted terms' coefficient
+`-(coef * c_hs)`). The order as the code has it, first six and last seven:
+
+```
+eval_00 eval_01 eval_02 Gamma_03 eval_03 eval_04 ...
+... eval_22 Gamma_02 Gamma_14 Gamma_15 Gamma_16 Gamma_17 Gamma_18
+```
+
+**The solver.** An a-row's value at a sampled node `y` is
+`sum_t msg[t] L_t(y)` with `L_t(y) = ((y^512 - 1)/512) · g^t / (y - g^t)`, so
+over the pad positions the map is a **Cauchy matrix** in the distinct sampled
+nodes and 256 consecutive powers of `g` — nonsingular whenever the nodes are
+distinct and off G_512, both of which the gate checks. It is solved in closed
+form by a rational interpolation rather than by elimination, so a preimage
+builds in 1.9 s and verifies in 0.6 s per capture.
+
+### 14.3 What the three channels now say
+
+| figure | block (23 slots) | attention (18 slots) |
+|---|---|---|
+| coefficient unknowns | 1,166 Fp (583 Fp2) | 926 Fp (463 Fp2) |
+| blinding unknowns | 15,870 Fp | 13,310 Fp |
+| **disclosed dimension, predicted** | **2 Fp** | **2 Fp** |
+| **disclosed dimension, computed** | **2 Fp** | **2 Fp** |
+| fibre dimension | 1,164 Fp | 924 Fp |
+| `q` entries recomputed / differing | 1,024 Fp2 / **0** | 1,024 / **0** |
+| `prox` entries recomputed / differing | 1,024 Fp2 / **0** | 1,024 / **0** |
+| opened column entries recomputed / differing | **12,800** / **0** | 10,240 / **0** |
+| distinct opened columns / pads / margin | 246 and 247 / 256 / 10 and 9 | 247 and 249 / 256 / 9 and 7 |
+
+(the two captures of each profile differ only in how many of the 256 sampled
+column indices collide; the figures above name both)
+
+The predicted figure is **one Fp2 — the theta-batched functional value `V`,
+and nothing else** — and it is *computed*, as the exact Fp rank of `V` over
+the coefficient unknowns, rather than asserted. The derivation the gate
+checks rather than assumes:
+
+* the sum over G_512 of `p_{a_s} p_{W_s}` is `sum_t msg_s[t] · ws[s][t]`;
+* `combined_weights` bounds every term's weights by `L_row`, so
+  `ws[s][t] = 0` for `t >= L_s` and **the pads drop out of that sum**
+  (checked on every capture as `weights_vanish_above_L`);
+* therefore `b`'s only constraint, its zero sum, reads exactly
+  `512 (q[0] + q[512]) = V(a)` — the verifier's own first check.
+
+This is the composition memo's hypotheses H3/H4 (M's opening depends on the
+coefficients only through one functional `V(a)` that is a public function of
+the rest of the view) **derived and checked here, not assumed**.
+
+**The preimage, exhibited twice.** Two coefficient vectors, both generated
+from a published seed and each corrected at one position onto the plane
+`V(a) = 512 (q[0] + q[512])`, each with a full set of blinding values — 256
+pads per a-row, the two b rows, the two u rows — that reproduces the captured
+opening entry by entry. **All 583 coefficient positions differ between the
+two**; the two blinding digests differ; both verify with zero mismatches.
+And **off** that plane, at `V(a)` one away from the captured batch, `b` is
+inadmissible and **the fibre is EMPTY** — while the 256 columns still match,
+because the pads absorb every coefficient vector. The disclosure is exactly
+that one Fp2 and nothing else.
+
+**Honest epistemics, recorded in the gate's own JSON.** `q` and `prox` are
+reproduced BY CONSTRUCTION — `b` and `u` are *defined* as the residues — so
+their zero mismatch counts record that two arithmetic paths agree, not that
+anything new was tested. What the `q` channel actually pins is `b`'s zero-sum
+admissibility. What the **column** channel tests is genuinely independent
+data: the pads were solved by rational interpolation and are re-encoded here
+through the NTT path `mask_commit` itself uses, and the b and u rows' own
+column values follow from `q` and `prox`.
+
+**M in the joint stage (§4 / §12).** M was already in the union of
+commitments as a block (`zk60_native_jv_joint.mask_block`: `2S+4` rows, no
+data row, one published row combination — its proximity vector). Both of its
+figures are now computed rather than asserted: its part over the
+commitments' coordinates is **0** (it commits no witness data) and its own
+disclosed figure over the coefficients is **2 Fp**, cross-checked in stage 3
+against the ported layout's exact rank. Stage 4 is unchanged: **joint 4, sum
+of parts 4, equal — on all four captures** (2 Fp from H's LogUp identity,
+2 Fp from M's `q`).
+
+### 14.4 The three controls
+
+Each must PASS on the honest capture and FAIL when perturbed; each entry in
+the record carries the honest verdict beside the perturbed one. All three
+fire on all four captures.
+
+| control | honest | perturbed |
+|---|---|---|
+| **a pad removed from M** — every a-row modelled with 245 pads against 246 distinct opened columns (the real budget is 256, margin 10, so the control has to go *below* the distinct count to bite) | preimage exhibited, 0 of 12,800 wrong | **50 of 12,800 column entries wrong** — exactly one unmet node, on all 50 rows: the 46 a-rows and the b and u rows, which inherit it |
+| **the functional order permuted** — functionals 0 and 1 swapped, so each takes the other's power of theta | preimage exhibited | *flavour 1*, same coefficients: the batched value moves and **b is inadmissible**. *flavour 2*, which removes b's excuse by choosing coefficients so the PERMUTED batch still hits the captured `512 (q[0]+q[512])`: **b IS admissible and the view still has no preimage — 1,024 of 12,800 column entries wrong** (the four b and u rows at all 256 columns, first at row 46). The order is pinned by the per-column identity, not only by the scalar sum |
+| **a second functional leaked** — functionals 0 and 1 published on their own beside the theta batch, as an unbatched opening would | disclosed **2 Fp** | disclosed **6 Fp**, fibre 1,164 → 1,160. Batching is what keeps M's disclosure at one Fp2 |
+
+### 14.5 The owed one-line follow-up: the pad-budget guard in the base class
+
+§13 left one item owed: the guard that refuses when the distinct opened
+positions exceed the pad count lived only in
+`zk60_native_jv_groups.GroupedToyView`, because editing the base module
+changes the hash recorded in evidence already committed. It is now in the
+base class. `PadBudgetRefusal` is defined in `zk60_native_jv_smallmodel`;
+`ToyView.disclosed_reduction` raises it and `disclosed_reduction_unguarded`
+is the way to see what the reduction would have said;
+`zk60_native_jv_groups.PadBudgetRefusal` is an **alias of the same class**,
+so every existing `except` and `assertRaises` against either name catches
+both paths. One internal caller moved to the unguarded entry point on
+purpose and says why in place: `group_pad_freedom` reads only `k0`, a rank of
+the row-space generators that has nothing to do with the pad budget, and is
+called on the deliberately out-of-budget case (c) of `pad_boundary`.
+
+**Evidence regenerated, and exactly what changed in it:**
+
+| record | command | what moved |
+|---|---|---|
+| `results/zk60_native_small_model_groups/small_model_groups.json` | `python3 scripts/zk60_native_jv_groups.py --evidence results/zk60_native_small_model_groups` | **`tool_sha256` and `seconds` only.** Compared key by key against the committed version: **zero** other differences |
+| `results/zk60_native_joint_view/joint_view.json` | `python3 scripts/zk60_native_joint_view.py --captures results/zk60_native_captures_20260919 --evidence results/zk60_native_joint_view` | `tool_sha256`, `seconds`, and 28 **ADDED** keys (M's ported figures in stage 3, M's block summary in stage 4). **No existing value changed** |
+
+The third record that carries the same tool hash,
+`results/zk60_native_joint_view_fix/joint_view.json`, is a superseded
+snapshot of the §12 fix round and is deliberately left as it was.
+
+### 14.6 What remains a reviewed obligation
+
+* **The port equals the Rust by this lane's reading only.** Six files are
+  pinned by sha256 and git blob, every ported function's docstring quotes
+  the lines it transcribes, and the arithmetic is checked against the four
+  captures — but no reviewer other than this lane has read the
+  transcription. A changed pin is a hard error, never a warning, and
+  re-pinning to make it pass is forbidden.
+* **The port does not hash.** M's root, its 256 leaf salts and its 12-level
+  authentication paths stay ARGUED under M-2 and M-3.
+* **Four captures, two toy layouts, fixed challenges.** Nothing here is a
+  statement about the 125M profile, about all challenges, or about the
+  composition of the channels into one law.
+* **The seven remaining OPEN channels of §14.1** are unchanged, and four of
+  them are conditions on a deployment or on scope rather than anything a
+  gate can close.
+
+### 14.7 Reproduce
+
+```
+python3 scripts/zk60_native_privacy_gate.py \
+  --captures results/zk60_native_captures_20260919 \
+  --evidence results/zk60_native_privacy_gate_channels \
+  --columns full --controls-on all
+python3 scripts/zk60_native_joint_view.py \
+  --captures results/zk60_native_captures_20260919 \
+  --evidence results/zk60_native_joint_view
+python3 scripts/zk60_native_jv_groups.py \
+  --evidence results/zk60_native_small_model_groups
+python3 -m unittest discover -s tests -p "test_zk60_native*.py"
+```
+
+P10 takes 222 s with M (193 s without), the joint view 24 s, the case runner
+0.6 s. **161 tests in 213 s, OK** (139 before this section; 21 new in
+`tests/test_zk60_native_mask_commit.py`, and one more in
+`tests/test_zk60_native_small_model_groups.py` for the guard's two names),
+one pre-existing skip and one recorded expected failure. Logs:
+`results/zk60_native_privacy_gate_channels/tests_baseline.log` (139, OK) and
+`tests_after.log` (161, OK).

@@ -60,6 +60,16 @@ from zk60_native_jv_field import F2_ZERO, P, f2_add, f2_mul_base, f2_sub  # noqa
 from zk60_native_jv_joint import singleton_pair_rows  # noqa: E402
 from zk60_native_jv_pcs import RoleView  # noqa: E402
 from zk60_native_jv_replay import Replay  # noqa: E402
+from zk60_native_mask_commit import (  # noqa: E402
+    MaskModel,
+    MaskPreimage,
+    check_source_pins,
+    declared_functional_order,
+    disclosed_dimension,
+    force_functional,
+    mask_controls,
+    synthetic_coefficients,
+)
 from zk60_native_pg_cfs import CfsPreimage  # noqa: E402
 from zk60_native_pg_pcs import MSG, RoleLayout, RolePreimage, solve_pair  # noqa: E402
 
@@ -67,6 +77,7 @@ TOOLS = [
     "zk60_native_privacy_gate.py",
     "zk60_native_pg_pcs.py",
     "zk60_native_pg_cfs.py",
+    "zk60_native_mask_commit.py",
     "zk60_native_jv_field.py",
     "zk60_native_jv_capture.py",
     "zk60_native_jv_replay.py",
@@ -274,7 +285,95 @@ def run_capture(cap, replay, columns="full"):
     out["cfs"]["stage3_disclosed_opening_only_fp"] = cfsview["disclosed_opening_only_fp"]
     out["cfs"]["slots"] = cfsview["slots"]
     out["cfs"]["published_functionals"] = cfsview["functionals"]
+    out["mask"] = mask_stage(cap, replay, columns=columns)
     return out, layouts, views
+
+
+# --------------------------------------------- the masking commitment M
+def mask_stage(cap, replay, columns="full"):
+    """M's own opening, with the ported row layout: the three channels closed.
+
+    Until this lane the gate had no model of M's rows, so its `q`, its
+    proximity vector and its own 256 opened columns were three OPEN channels
+    whose stated remedy was "a port of encode_coeffs_coset and mask_commit's
+    row layout into this tool; no capture field is missing".  The port is
+    `zk60_native_mask_commit`; this stage runs it.
+
+    What is exhibited: TWO distinct, public, seeded coefficient vectors on the
+    plane the verifier's own first check cuts out, each with a full set of
+    blinding values -- 256 pads per a-row, the two b rows, the two u rows --
+    that reproduces the captured opening entry by entry.  The coefficient
+    vectors are generated from a published seed and are prover randomness of
+    the same kind M's own coefficients are; no witness, mask coefficient,
+    salt or private plane is read or invented.
+    """
+    mm = MaskModel(cap, replay)
+    out = {
+        "source_pins": check_source_pins(),
+        "shape": mm.shape(),
+        "declared_order": declared_functional_order(cap, replay),
+        "disclosed": disclosed_dimension(mm),
+        "model_failures": mm.failures,
+    }
+    pres = []
+    for tag in ("a1", "a2"):
+        coefs, where = force_functional(mm, synthetic_coefficients(mm, tag), mm.v)
+        pre = MaskPreimage(mm, coefs).build()
+        ver = pre.verify(columns=columns) if pre.ok else None
+        pres.append((coefs, pre, ver))
+        out[f"preimage_{tag}"] = {
+            "coefficients": "public, seeded; corrected at one position onto the "
+            "V plane",
+            "corrected_at": where,
+            "preimage_exhibited": bool(ver and ver["all_entries_equal"]),
+            "exhibited_randomness_sha256": pre.blinding_digest() if pre.ok else None,
+            "verification": ver,
+            "no_preimage_reason": pre.failures,
+        }
+    (c1, p1, _), (c2, p2, _) = pres
+    diff = sum(
+        1 for s in range(mm.S) for t in range(mm.L[s]) if c1[s][t] != c2[s][t]
+    )
+    out["two_preimages_at_different_coefficients"] = {
+        "coefficient_positions": sum(mm.L),
+        "positions_where_the_two_coefficient_vectors_differ": diff,
+        "same_batched_functional_value": p1.functional_value() == p2.functional_value(),
+        "blinding_digests_differ": p1.blinding_digest() != p2.blinding_digest(),
+        "both_reproduce_the_captured_opening": all(
+            v and v["all_entries_equal"] for _, _, v in pres
+        ),
+        "what_it_shows": "the captured opening is reproduced at two coefficient "
+        "vectors that agree in NOTHING but the one Fp2 functional V, which is the "
+        "disclosed dimension made concrete rather than argued",
+    }
+    # the off-plane refusal: the other side of the same statement
+    off, _ = force_functional(
+        mm, synthetic_coefficients(mm, "a3"), f2_add(mm.v, (1, 0))
+    )
+    po = MaskPreimage(mm, off).build()
+    vo = po.verify(columns=4)
+    out["off_the_V_plane_has_no_preimage"] = {
+        "what": "a coefficient vector with V(a) one off the captured batch",
+        "b_admissible": vo["b_admissible"],
+        "q_sum_identity_holds": vo["q_sum_identity_holds"],
+        "column_mismatches": vo["column_mismatches"],
+        "preimage_exhibited": vo["all_entries_equal"],
+        "why": "b's only constraint is its zero sum over G_512, which reads "
+        "512 (q[0] + q[512]) = V(a); off that plane no b exists and the fibre is "
+        "EMPTY.  The columns still match -- the pads absorb every coefficient "
+        "vector -- so the disclosure is exactly this one Fp2 and nothing else",
+    }
+    out["ok"] = bool(
+        out["shape"]["ok"]
+        and out["declared_order"]["ok"]
+        and out["disclosed"]["matches_prediction"]
+        and out["two_preimages_at_different_coefficients"][
+            "both_reproduce_the_captured_opening"
+        ]
+        and not vo["all_entries_equal"]
+        and not mm.failures
+    )
+    return out
 
 
 # ----------------------------------------------------------- the channels
@@ -297,6 +396,44 @@ def channels_for(cap, res):
         for r in pcs_roles
     )
     cfs = res["cfs"]["all"]
+    mk = res["mask"]
+
+    def mask_entry(name, section, how, ver_of, extra=None):
+        """One of M's three channels, CONSTRUCTED by the ported row layout.
+
+        Closed in this lane (2026-09-20).  The status is not written down: it
+        is read off the exhibited preimage, so a port that stopped working
+        would drop the channel back through the grade's own fail rule
+        ("constructed but no preimage exhibited").
+        """
+        ver = ver_of(mk)
+        ok = bool(mk["ok"] and ver and ver["all_entries_equal"])
+        e = {
+            "channel": name,
+            "section": section,
+            "status": "constructed" if ok else "open",
+            "assumption": None,
+            "preimage_exhibited": ok,
+            "preimage_exhibited_second_coefficient_vector": bool(
+                mk["preimage_a2"]["preimage_exhibited"]
+            ),
+            "how": how,
+            "closed": "2026-09-20, by the port of zk.rs::mask_commit / mask_open "
+            "into scripts/zk60_native_mask_commit.py (source-pinned)",
+            "disclosed_fp_over_the_coefficients": mk["disclosed"]["disclosed_fp_computed"],
+            "disclosed_fp_predicted": mk["disclosed"]["disclosed_fp_predicted"],
+            "fibre_dimension_fp": mk["disclosed"]["fibre_dimension_fp"],
+            "declared_functional_order_checked": mk["declared_order"]["ok"],
+        }
+        if not ok:
+            e["reason"] = "the ported model of M did not exhibit a preimage: " + str(
+                (mk.get("model_failures") or [])[:2]
+                or (ver or {}).get("failures")
+                or mk["shape"]["failed"]
+            )
+        if extra:
+            e.update(extra(mk))
+        return e
 
     def pcs_entry(name, section, note):
         return {
@@ -464,45 +601,59 @@ def channels_for(cap, res):
             "input off this identity has no preimage, which is the disclosed "
             "dimension 2 of stage 2 made visible",
         },
-        {
-            "channel": "the M opening's q",
-            "section": "2.1",
-            "status": "open",
-            "assumption": None,
-            "preimage_exhibited": False,
-            "reason": "the gate does not model the masking commitment's row layout "
-            "(zk.rs::mask_commit: 46 a-rows holding [L_s mask coefficients | 256 pads "
-            "| zeros] in value form over G_512, two b rows and two u rows of 1,024 "
-            "coefficients), so no b-row preimage is exhibited.  What IS constructed is "
-            "the mask coefficients those a-rows hold, together with the one functional "
-            "identity this channel pins -- 512 (q[0] + q[512]) = sum_i theta^i value_i "
-            "-- which the gate's CFS projection enforces and verifies",
-            "what_would_close_it": "a port of encode_coeffs_coset and mask_commit's "
-            "row layout into this tool; no capture field is missing",
-        },
-        {
-            "channel": "the M proximity vector",
-            "section": "2.1",
-            "status": "open",
-            "assumption": None,
-            "preimage_exhibited": False,
-            "reason": "same as the q channel: the u row that masks it is not modelled "
-            "here.  The joint-view tool's stage 3 records the source fact that the "
-            "proximity combination adds a uniform u row with coefficient 1",
-            "what_would_close_it": "the same port; no capture field is missing",
-        },
-        {
-            "channel": "opened column values (the M opening's own 256 columns)",
-            "section": "2.1",
-            "status": "open",
-            "assumption": None,
-            "preimage_exhibited": False,
-            "reason": "the a-row pads that absorb them are not modelled here (see the "
-            "q channel).  The joint-view tool computes the exact rank of that pad "
-            "block and finds it full, which is the existence certificate this gate "
-            "would turn into an exhibited preimage",
-            "what_would_close_it": "the same port; no capture field is missing",
-        },
+        mask_entry(
+            "the M opening's q", "2.1",
+            "the masking commitment's row layout is now ported "
+            "(zk60_native_mask_commit, pinned to zk.rs): b is 1,024 coefficients per "
+            "part with the single constraint b[512] = -b[0], and the gate solves for "
+            "it as q minus the product part.  b is admissible exactly when "
+            "512 (q[0] + q[512]) = V(a), the verifier's own first check, so the q "
+            "channel pins ONE Fp2 functional of the coefficients and nothing else -- "
+            "exhibited at two coefficient vectors that differ everywhere else, and "
+            "REFUSED off that plane",
+            lambda mk: mk["preimage_a1"]["verification"],
+            extra=lambda mk: {
+                "b_zero_sum_admissible": mk["preimage_a1"]["verification"]["b_admissible"],
+                "q_entries_fp2": mk["preimage_a1"]["verification"]["q_entries"],
+                "q_entries_differing": mk["preimage_a1"]["verification"]["q_mismatches"],
+                "q_is_reproduced_by_construction": True,
+                "what_the_channel_actually_pins": "b's zero sum; the entry count "
+                "records that the two arithmetic paths agree, not that q itself "
+                "tested anything new",
+                "off_the_plane": mk["off_the_V_plane_has_no_preimage"],
+            },
+        ),
+        mask_entry(
+            "the M proximity vector", "2.1",
+            "u_re and u_im are 1,024 FREE coefficients each with no constraint at "
+            "all, and the gate solves for them as prox minus the replayed "
+            "rho-combination of the a and b rows (zk.rs:537-541).  Every one of the "
+            "1,024 published Fp2 entries is met and the channel discloses nothing",
+            lambda mk: mk["preimage_a1"]["verification"],
+            extra=lambda mk: {
+                "prox_entries_fp2": mk["preimage_a1"]["verification"]["prox_entries"],
+                "prox_entries_differing": mk["preimage_a1"]["verification"]["prox_mismatches"],
+                "u_unknowns_fp": 2 * 2 * (1 << 9),
+                "disclosed_fp": 0,
+            },
+        ),
+        mask_entry(
+            "opened column values (the M opening's own 256 columns)", "2.1",
+            "the 256 pads of each a-row are the preimage: the map from the pads to "
+            "the row's values at the distinct sampled nodes is a Cauchy matrix in "
+            "distinct nodes, solved here in closed form, and the b and u rows' own "
+            "column values then follow from q and prox.  Every opened column value "
+            "of every one of M's rows is recomputed through the ported NTT path and "
+            "compared",
+            lambda mk: mk["preimage_a1"]["verification"],
+            extra=lambda mk: {
+                "column_entries": mk["preimage_a1"]["verification"]["column_entries"],
+                "column_entries_differing": mk["preimage_a1"]["verification"]["column_mismatches"],
+                "pads_per_a_row": mk["shape"]["pads_per_a_row"],
+                "distinct_opened_columns": mk["shape"]["distinct_columns"],
+                "pad_margin": mk["shape"]["pad_margin"],
+            },
+        ),
         {
             "channel": "counts and lengths",
             "section": "2.1",
@@ -797,15 +948,23 @@ def controls(cap, replay, layouts, views, columns=8):
         "preimage exactly on the plane those identities cut out",
     }
 
+    # (7) the masking commitment's own three controls, from the ported layout:
+    # a pad removed from M, the functional order permuted, a second functional
+    # leaked.  Each records the honest verdict beside the perturbed one.
+    out["mask_commitment_M"] = mask_controls(MaskModel(cap, replay))
+
     # every perturbation above is undone; prove it, on every commitment
     out["honest_after_every_control"] = {
         nm: not RolePreimage(layouts[nm], {}).build().fail for nm in layouts
     }
     names = [k for k in out if isinstance(out[k], dict) and "fires" in out[k]]
     out["all_fire"] = all(out[k]["fires"] for k in names)
-    out["control_names"] = names
+    out["control_names"] = names + [
+        "mask_commitment_M/" + n for n in out["mask_commitment_M"]["control_names"]
+    ]
     out["ok"] = (
         out["all_fire"]
+        and out["mask_commitment_M"]["ok"]
         and out["honest_again"]
         and all(out["honest"].values())
         and all(out["honest_after_every_control"].values())
@@ -831,7 +990,13 @@ def main(argv=None):
         return 2
     record = {
         "gate": "zk60-native-privacy-gate-P10",
-        "version": 1,
+        "version": 2,
+        "version_2": "2026-09-20: the masking commitment M's row layout ported "
+        "(scripts/zk60_native_mask_commit.py, source-pinned to zk.rs and "
+        "private_block/argument.rs), which turns M's three OPEN channels -- its q, "
+        "its proximity vector and its own 256 opened columns -- into CONSTRUCTED "
+        "ones, with three controls of their own. No other channel and no other "
+        "number changed",
         "definition": "ZK60_PRIVACY_CASE_FIRST_MVP.md section 4 (ruling C-6)",
         "privacy_property_established": False,
         "privacy_review_complete": False,
@@ -871,7 +1036,7 @@ def main(argv=None):
         ctl = None
         if args.controls_on == "all" or (args.controls_on == "first" and n == 0):
             ctl = controls(cap, rp, layouts, views)
-        ok = s["ok"] and gr["ok"] and (ctl is None or ctl["ok"])
+        ok = s["ok"] and gr["ok"] and res["mask"]["ok"] and (ctl is None or ctl["ok"])
         all_ok = all_ok and ok
         record["per_capture"].append({
             "capture": cap.proof_sha256,
@@ -881,6 +1046,7 @@ def main(argv=None):
             "model": res["roles"],
             "fixed_inputs": res["fixed_inputs"],
             "masking_commitment": res["cfs"],
+            "masking_commitment_M_opening": res["mask"],
             "channels": ch,
             "grade": gr,
             "controls": ctl,

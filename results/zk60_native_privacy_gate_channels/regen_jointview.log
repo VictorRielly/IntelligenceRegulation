@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/scripts/zk60_native_joint_view.py", line 596, in <module>
+    raise SystemExit(main())
+  File "/home/victor/wt-zk60-jointview/scripts/zk60_native_joint_view.py", line 574, in main
+    record["stage6_negative_controls"] = stage6(
+  File "/home/victor/wt-zk60-jointview/scripts/zk60_native_joint_view.py", line 451, in stage6
+    boundary = smallmodel.pad_boundary()
+  File "/home/victor/wt-zk60-jointview/scripts/zk60_native_jv_smallmodel.py", line 393, in pad_boundary
+    "group_vectors": group_pad_freedom(v),
+  File "/home/victor/wt-zk60-jointview/scripts/zk60_native_jv_smallmodel.py", line 361, in group_pad_freedom
+    k0 = view.disclosed_reduction()[1]["k0"]
+  File "/home/victor/wt-zk60-jointview/scripts/zk60_native_jv_smallmodel.py", line 256, in disclosed_reduction
+    raise PadBudgetRefusal(
+zk60_native_jv_smallmodel.PadBudgetRefusal: 4 distinct opened positions exceed the 3 pads: the message-half reduction is not valid outside the pad budget

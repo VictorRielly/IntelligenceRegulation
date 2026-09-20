@@ -478,16 +478,33 @@ class TheExistingSmallModelIsUntouched(unittest.TestCase):
             with self.subTest(control=name):
                 self.assertGreater(ctl[name]["bruteforce"], 0)
 
-    def test_the_old_reduction_still_has_no_guard_of_its_own(self):
-        """Recorded, not asserted as desirable: `ToyView.disclosed_reduction`
-        answers 0 on an instance beyond the pad budget without refusing.  The
-        guard lives in the subclass because the hashed module may not change;
-        moving it into `ToyView` is a one-line follow-up for the next time the
-        gate's evidence is regenerated."""
+    def test_the_base_class_now_carries_the_guard_too(self):
+        """The owed one-line follow-up, taken 2026-09-20.
+
+        `ToyView.disclosed_reduction` used to answer 0 on an instance beyond
+        the pad budget without refusing; the guard lived only in the subclass,
+        because editing this module changes the hash recorded in evidence
+        already committed.  The evidence has now been regenerated, so the
+        guard is in the base class and the UNGUARDED entry point is the only
+        way to see the wrong answer -- which the dense rank contradicts.
+        """
         v = smallmodel.ToyView(seed=6, n_cols=4, q_pad=3).build()
         self.assertFalse(v.hypotheses()["H-pad"])
-        self.assertEqual(v.disclosed_reduction()[0], 0)  # no refusal
+        with self.assertRaises(smallmodel.PadBudgetRefusal) as cm:
+            v.disclosed_reduction()
+        self.assertIn("exceed the 3 pads", str(cm.exception))
+        self.assertEqual(v.disclosed_reduction_unguarded()[0], 0)
         self.assertGreater(v.disclosed_bruteforce(), 0)
+
+    def test_the_two_refusal_classes_are_one_class(self):
+        """`groups.PadBudgetRefusal` is an alias, so every existing
+        `except`/`assertRaises` against either name catches both paths."""
+        self.assertIs(groups.PadBudgetRefusal, smallmodel.PadBudgetRefusal)
+        v = groups.beyond_the_pad_budget(m=3, seed=2, q_pad=4, extra=2)
+        with self.assertRaises(smallmodel.PadBudgetRefusal):
+            v.disclosed_reduction()
+        with self.assertRaises(groups.PadBudgetRefusal):
+            smallmodel.ToyView.disclosed_reduction(v)
 
 
 if __name__ == "__main__":

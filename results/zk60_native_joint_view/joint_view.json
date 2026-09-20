@@ -47,7 +47,7 @@
  "ok": true,
  "privacy_property_established": false,
  "privacy_review_complete": false,
- "seconds": 20.9,
+ "seconds": 23.5,
  "stage1_transcript_replay": {
   "ok": true,
   "per_capture": [
@@ -113,7 +113,7 @@
    "pad_margin": 0,
    "q_pad": 256,
    "role": "Input",
-   "seconds": 1.8
+   "seconds": 1.9
   },
   "pad_block_exact_rank_cross_check": {
    "capture": "40083e7ac8f3f6c7",
@@ -121,7 +121,7 @@
    "exact_rank_of_pad_block": 246,
    "full_rank": true,
    "role": "Input",
-   "seconds": 1.6
+   "seconds": 1.8
   },
   "per_capture": [
    {
@@ -1696,7 +1696,7 @@
    "distinct_columns": 246,
    "exact_rank_of_a_row_pad_block": 246,
    "full_rank": true,
-   "seconds": 1.6
+   "seconds": 1.8
   },
   "ok": true,
   "per_capture": [
@@ -1730,12 +1730,18 @@
     "findings": [],
     "functional_round_overlap": 34,
     "functionals": 34,
+    "m_coefficient_unknowns_fp": 1166,
+    "m_computed_matches_the_asserted_one_fp2": true,
+    "m_declared_functional_order": "for each slot s in slot order: [Gamma_s, if slot s is Standalone] then eval_s; then every Host slot's Gamma, in slot order, last",
+    "m_disclosed_fp_computed": 2,
     "m_distinct_columns": 246,
     "m_expected_rows": 50,
+    "m_fibre_dimension_fp": 1164,
     "m_nodes_distinct": true,
     "m_pad_margin": 10,
     "m_pads_per_a_row": 256,
     "m_proximity_rhos": 48,
+    "m_row_layout_ported": true,
     "m_rows": 50,
     "m_sampled_columns": 256,
     "m_vanishing_Z_nodes": 0,
@@ -1780,12 +1786,18 @@
     "findings": [],
     "functional_round_overlap": 34,
     "functionals": 34,
+    "m_coefficient_unknowns_fp": 1166,
+    "m_computed_matches_the_asserted_one_fp2": true,
+    "m_declared_functional_order": "for each slot s in slot order: [Gamma_s, if slot s is Standalone] then eval_s; then every Host slot's Gamma, in slot order, last",
+    "m_disclosed_fp_computed": 2,
     "m_distinct_columns": 247,
     "m_expected_rows": 50,
+    "m_fibre_dimension_fp": 1164,
     "m_nodes_distinct": true,
     "m_pad_margin": 9,
     "m_pads_per_a_row": 256,
     "m_proximity_rhos": 48,
+    "m_row_layout_ported": true,
     "m_rows": 50,
     "m_sampled_columns": 256,
     "m_vanishing_Z_nodes": 0,
@@ -1830,12 +1842,18 @@
     "findings": [],
     "functional_round_overlap": 28,
     "functionals": 28,
+    "m_coefficient_unknowns_fp": 926,
+    "m_computed_matches_the_asserted_one_fp2": true,
+    "m_declared_functional_order": "for each slot s in slot order: [Gamma_s, if slot s is Standalone] then eval_s; then every Host slot's Gamma, in slot order, last",
+    "m_disclosed_fp_computed": 2,
     "m_distinct_columns": 247,
     "m_expected_rows": 40,
+    "m_fibre_dimension_fp": 924,
     "m_nodes_distinct": true,
     "m_pad_margin": 9,
     "m_pads_per_a_row": 256,
     "m_proximity_rhos": 38,
+    "m_row_layout_ported": true,
     "m_rows": 40,
     "m_sampled_columns": 256,
     "m_vanishing_Z_nodes": 0,
@@ -1880,12 +1898,18 @@
     "findings": [],
     "functional_round_overlap": 28,
     "functionals": 28,
+    "m_coefficient_unknowns_fp": 926,
+    "m_computed_matches_the_asserted_one_fp2": true,
+    "m_declared_functional_order": "for each slot s in slot order: [Gamma_s, if slot s is Standalone] then eval_s; then every Host slot's Gamma, in slot order, last",
+    "m_disclosed_fp_computed": 2,
     "m_distinct_columns": 249,
     "m_expected_rows": 40,
+    "m_fibre_dimension_fp": 924,
     "m_nodes_distinct": true,
     "m_pad_margin": 7,
     "m_pads_per_a_row": 256,
     "m_proximity_rhos": 38,
+    "m_row_layout_ported": true,
     "m_rows": 40,
     "m_sampled_columns": 256,
     "m_vanishing_Z_nodes": 0,
@@ -1908,6 +1932,14 @@
   "ok": true,
   "per_capture": [
    {
+    "M_in_the_union_of_commitments": {
+     "commits_witness_data": false,
+     "own_disclosed_fp_computed_from_the_ported_layout": 2,
+     "own_disclosed_fp_over_the_coefficients": 2,
+     "part_fp_over_the_commitment_coordinates": 0,
+     "row_layout_ported": true,
+     "rows": 50
+    },
     "aliasing_lost_to_the_endpoint_identification_fp": 0,
     "capture": "40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b",
     "cfs_all_derived_values_fp": 68,
@@ -2081,6 +2113,14 @@
     "what_is_NOT_covered": "the two channels are linked NONLINEARLY by the terminal identity; no linear model sees that link.  The Merkle roots, the leaf salts and the authentication paths are hash objects and are not in this model either."
    },
    {
+    "M_in_the_union_of_commitments": {
+     "commits_witness_data": false,
+     "own_disclosed_fp_computed_from_the_ported_layout": 2,
+     "own_disclosed_fp_over_the_coefficients": 2,
+     "part_fp_over_the_commitment_coordinates": 0,
+     "row_layout_ported": true,
+     "rows": 50
+    },
     "aliasing_lost_to_the_endpoint_identification_fp": 0,
     "capture": "7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43",
     "cfs_all_derived_values_fp": 68,
@@ -2254,6 +2294,14 @@
     "what_is_NOT_covered": "the two channels are linked NONLINEARLY by the terminal identity; no linear model sees that link.  The Merkle roots, the leaf salts and the authentication paths are hash objects and are not in this model either."
    },
    {
+    "M_in_the_union_of_commitments": {
+     "commits_witness_data": false,
+     "own_disclosed_fp_computed_from_the_ported_layout": 2,
+     "own_disclosed_fp_over_the_coefficients": 2,
+     "part_fp_over_the_commitment_coordinates": 0,
+     "row_layout_ported": true,
+     "rows": 40
+    },
     "aliasing_lost_to_the_endpoint_identification_fp": 0,
     "capture": "6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9",
     "cfs_all_derived_values_fp": 56,
@@ -2427,6 +2475,14 @@
     "what_is_NOT_covered": "the two channels are linked NONLINEARLY by the terminal identity; no linear model sees that link.  The Merkle roots, the leaf salts and the authentication paths are hash objects and are not in this model either."
    },
    {
+    "M_in_the_union_of_commitments": {
+     "commits_witness_data": false,
+     "own_disclosed_fp_computed_from_the_ported_layout": 2,
+     "own_disclosed_fp_over_the_coefficients": 2,
+     "part_fp_over_the_commitment_coordinates": 0,
+     "row_layout_ported": true,
+     "rows": 40
+    },
     "aliasing_lost_to_the_endpoint_identification_fp": 0,
     "capture": "c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6",
     "cfs_all_derived_values_fp": 56,
@@ -3435,14 +3491,15 @@
   }
  },
  "tool_sha256": {
-  "zk60_native_joint_view.py": "63fd503a7f8353a1a214dd54752874920f732b778eabc5809694d312837f8e31",
+  "zk60_native_joint_view.py": "ca48c67a4f14be0dc14cebff0b358106ae86f248336b656d1457f364e5ab9aad",
   "zk60_native_jv_capture.py": "191f8bc95153d5a46644a3b2443c453f82b08ad934f7227efe28e3211aeb14b8",
-  "zk60_native_jv_cfs.py": "12ad30bc87b8ece120410c84875eb8b5dbde1c4c59a526fe663510616163ba59",
+  "zk60_native_jv_cfs.py": "2338e6a7966793c0c5ee69d4e4c2bbed08ca739ee583985799b1c0023b0ea2cb",
   "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
   "zk60_native_jv_joint.py": "544bfcc6412a861993091fb4c7b54345ac1612a20069acf991ac37549d52b907",
   "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
   "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70",
-  "zk60_native_jv_smallmodel.py": "66f2faca3c830c9dcae635e70eb9131352171a9f2b5dfb4c16e2b60a1ecfe9b2",
+  "zk60_native_jv_smallmodel.py": "620e676cd9981c0f8098dea8165220a79a55a6167fb52983f4708fb397d73a33",
+  "zk60_native_mask_commit.py": "3312a925126fc632f6d5968056ddbac4ff21dccdf42e80bd36bfa5db0ae9e67c",
   "zk60_native_terminal_polys.py": "3ad8b71c6927f0d828aac0c97d891c8a89a4c963149f83c1e1e563d90f64b869"
  },
  "version": 1

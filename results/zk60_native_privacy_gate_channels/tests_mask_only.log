@@ -1,0 +1,31 @@
+test_a_pad_removed_leaves_exactly_the_unmet_nodes_wrong (test_zk60_native_mask_commit.TheControls) ... ok
+test_every_control_fires_and_the_honest_capture_passes (test_zk60_native_mask_commit.TheControls) ... ok
+test_leaking_a_second_functional_raises_the_disclosed_dimension (test_zk60_native_mask_commit.TheControls) ... ok
+test_the_permuted_order_is_caught_by_the_columns_not_only_the_sum (test_zk60_native_mask_commit.TheControls) ... ok
+test_a_standalone_gamma_sits_immediately_before_its_own_evaluation (test_zk60_native_mask_commit.TheDeclaredOrder) ... ok
+test_every_host_gamma_comes_last_and_in_slot_order (test_zk60_native_mask_commit.TheDeclaredOrder) ... ok
+test_swapping_two_functionals_is_seen (test_zk60_native_mask_commit.TheDeclaredOrder)
+The order is load-bearing: a swap moves the batched value. ... ok
+test_the_order_matches_the_capture_on_every_capture (test_zk60_native_mask_commit.TheDeclaredOrder) ... ok
+test_a_preimage_reproduces_the_captured_opening_entry_by_entry (test_zk60_native_mask_commit.TheModelOnTheRealCaptures) ... ok
+test_off_the_V_plane_the_fibre_is_empty (test_zk60_native_mask_commit.TheModelOnTheRealCaptures)
+The other half of "disclosed exactly 2 Fp": b has no admissible value. ... ok
+test_the_disclosed_dimension_is_two_fp_on_every_capture (test_zk60_native_mask_commit.TheModelOnTheRealCaptures) ... ok
+test_the_pads_are_the_only_freedom_the_a_rows_have (test_zk60_native_mask_commit.TheModelOnTheRealCaptures)
+A pad solved from the capture must re-encode to the captured column. ... ok
+test_the_shape_facts_hold_on_every_capture (test_zk60_native_mask_commit.TheModelOnTheRealCaptures) ... ok
+test_the_verifiers_own_sum_identity_holds (test_zk60_native_mask_commit.TheModelOnTheRealCaptures)
+512 (q[0] + q[512]) == sum_i theta^i value_i (zk.rs:560-561). ... ok
+test_two_preimages_at_coefficient_vectors_that_share_only_V (test_zk60_native_mask_commit.TheModelOnTheRealCaptures) ... ok
+test_a_changed_pin_is_a_hard_error_not_a_warning (test_zk60_native_mask_commit.ThePort) ... ok
+test_encode_coeffs_coset_is_evaluation_at_the_coset (test_zk60_native_mask_commit.ThePort)
+`encode_coeffs_coset` must give P(7 * omega_4096^j) (zk.rs:424-428). ... ok
+test_every_source_pin_is_present_and_unchanged (test_zk60_native_mask_commit.ThePort) ... ok
+test_poly_mul_512_is_the_convolution (test_zk60_native_mask_commit.ThePort) ... ok
+test_the_two_cfsmask_weight_formulas (test_zk60_native_mask_commit.ThePort) ... ok
+test_the_blinding_is_a_digest_and_the_coefficients_are_public (test_zk60_native_mask_commit.TheRecordCarriesNoSecret) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 40.512s
+
+OK

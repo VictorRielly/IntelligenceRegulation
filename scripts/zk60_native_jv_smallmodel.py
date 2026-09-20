@@ -16,6 +16,17 @@ is a blocking finding).
 
 Nothing here touches a receipt: the toy instance is generated from a seeded
 PRNG and carries no captured material.
+
+THE PAD-BUDGET GUARD (moved here 2026-09-20).  The reduction's message-half
+step is valid only while the DISTINCT opened positions fit inside the pad
+count; case (f) of `zk60_native_jv_groups` exhibits an instance one position
+beyond the budget where the reduction answers 0 and the dense rank does not.
+The guard used to live only in the subclass, because editing this module
+changes the hash recorded in evidence already committed.  It is now in the
+base class, where it belongs: `disclosed_reduction` REFUSES outside the
+budget and `disclosed_reduction_unguarded` is the way to see what the
+reduction would have said.  Regenerating the two affected records changed
+their `tool_sha256` and their timings and nothing else.
 """
 
 from __future__ import annotations
@@ -38,6 +49,14 @@ LOG_N = 2
 INV_RATE = 4
 NN = N * INV_RATE  # 16 encoded positions
 COSET = 7
+
+
+class PadBudgetRefusal(Exception):
+    """The reduction refuses: more distinct opened positions than pads.
+
+    `zk60_native_jv_groups` re-exports this name; the two are the same class,
+    so every existing `except groups.PadBudgetRefusal` still catches it.
+    """
 
 
 def col_functional(j, n=N, nn=NN, q=None):
@@ -225,6 +244,23 @@ class ToyView:
 
     # ------------------------------------------------ the stage-2 reduction
     def disclosed_reduction(self):
+        """The reduction, behind the pad-budget guard (see the header).
+
+        Outside the budget the message-half step is not valid and the answer
+        this method would give is WRONG, not merely unproven, so it refuses
+        rather than returning a number.
+        """
+        hyp = self.hypotheses()
+        if not hyp["H-pad"]:
+            d = hyp.get("distinct_opened_positions", hyp.get("distinct_columns"))
+            raise PadBudgetRefusal(
+                f"{d} distinct opened positions exceed the {self.q_pad} pads: "
+                "the message-half reduction is not valid outside the pad budget"
+            )
+        return self.disclosed_reduction_unguarded()
+
+    def disclosed_reduction_unguarded(self):
+        """The same reduction with the guard removed, to SHOW what it misses."""
         gens = []
         for rho in self.rhos:
             gens.append([v[0] for v in rho])
@@ -322,7 +358,13 @@ def group_pad_freedom(view):
                 obs_mask.append([v[i * q + kk] for (i, kk) in mask_coords])
     r_all = rank(obs_all, rows * q)
     r_mask = rank(obs_mask, len(mask_coords))
-    k0 = view.disclosed_reduction()[1]["k0"]
+    # the UNGUARDED entry point on purpose: `k0` is a rank of the row-space
+    # generators alone (rank over all rows minus rank over the non-data rows)
+    # and has nothing to do with the pad budget, while this function is called
+    # on the deliberately out-of-budget case (c) of `pad_boundary`.  Only the
+    # message-half DISCLOSED figure is invalid there, and that figure is not
+    # read here.
+    k0 = view.disclosed_reduction_unguarded()[1]["k0"]
     return {
         "pad_functionals": len(obs_all),
         "rank_over_all_rows": r_all,
