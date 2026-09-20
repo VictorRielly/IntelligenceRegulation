@@ -1697,3 +1697,117 @@ table, with the coordinates and whether each axis is true or padded.
    into the polynomial would leave 0.26 MB.
 5. Re-read the toy freeze gate before every commit: receipt 2,816,472 B, the
    literal schedule digest, and the empty-diff check must print nothing.
+
+## Stage 8 (2026-09-20, 05:5x–): S11b, THE GENERALISED ENDPOINT
+
+### The design note, written BEFORE any code (step 1 of the brief)
+
+**What the generalised endpoint is.** Exactly the frozen seam's construction
+— a hiding PCS commitment to the padded endpoint plane, laid out as `data`
+rows of the plane's words followed by five reserved random rows, with the
+terminal pair at `(data, data + 1)`, the proximity row at `data + 2`, one
+opening per commitment and the owner consumed by value — with every
+PARAMETER that `private_seam.rs` fixes as a module constant taken instead
+from the `Shape`. Nothing about the argument, the claim shape, the audit or
+the transcript order moves.
+
+**The parameters, and where each comes from.**
+
+| parameter | frozen `private_seam.rs` | generalised `endpoint_g.rs` |
+|---|---|---|
+| plane | `(rows, cols)`, both powers of two, `2 <= rows*cols <= 2^12` | `(t_pad, d_pad)` of the shape, both powers of two by `Shape::new`, `2 <= len <= 2^24` |
+| row width | `LOG_COLS = 8` | `sh.endpoint_log_n` (10 at the rung-G profile, 14 at 125M) |
+| inverse rate | `INV_RATE = 8` | `sh.endpoint_inv_rate` (4) |
+| opened columns / pads | `CHECKS = 256` | `sh.opened_cols` (256 at every shape today) |
+| data rows | `len / 2^LOG_COLS` | `len / 2^log_n` |
+| commitment rows | `data + 5` | `data + 5` (unchanged) |
+| NTT table | EXACTLY `NttTables::new(12)`, pinned by `check_ntt` | any canonical table that covers `log_n + log2(inv_rate)` |
+
+**The rate: 4, not 8.** Three reasons, in order of weight.
+
+1. **Rate 8 does not fit at either new shape.** The encoded domain is
+   `2^(log_n + log2(inv_rate))`. At the rung-G profile `log_n = 10`, so rate
+   8 needs `2^13` and `protocol::fits_the_ntt_tables` refuses it against
+   `NTT_LOG = 12`; at 125M `log_n = 14` and rate 8 needs `2^17` against the
+   `2^16` that rate 4 already needs. Rate 8 also doubles the encoded matrix,
+   which §7.1 already prices at 9.6 GiB resident for one block.
+2. **At rate 4 the endpoint stops being the weakest opening.** With the
+   memo's own count (§2.2: message length `n + Q`, `rho = (n+Q)/(n *
+   inv_rate)`, `delta = (1 - rho)/3`, soundness `(1 - delta)^Q`), the
+   generalised endpoint gives **2^-96.15 per opening at the rung-G profile**
+   (`n = 1024`, `Q = 256`, `rho = 0.3125`) — the SAME figure as the rung's
+   own `A` and `H` openings (§9a's 2^-96.1, message 1,280 of 4,096) — and
+   **2^-105.61 at 125M** (`n = 2^14`, `rho = 0.2539`), which is the figure
+   §2.2 quotes for the whole 125M proof. The frozen seam at the rung's
+   declared rate 4 and `n = 256` gives §9a's **2^-67.3**, and it is the
+   weakest term in that receipt by thirty bits.
+3. **It is the shape's own rate.** `Shape::new` defaults
+   `endpoint_inv_rate` to `inv_rate` and `endpoint_log_n` to `log_cols`, so
+   the rung-G profile takes the DEFAULTS and rehearses 125M's configuration
+   exactly, instead of rehearsing a second set of parameters that 125M will
+   not use.
+
+Rows and bytes of that choice: rung-G endpoint **9 commitment rows, 4 data
+rows** (against the frozen seam's 21 and 16), two endpoint openings
+**335,872 B** against 319,488 B, so the rung-G frame is the rung's 4,218,264
+**+ 16,384 = 4,234,648 B**. At 125M the padded plane is 2^19 words, **37
+commitment rows, 32 data rows**, two openings **1,499,136 B**.
+
+**Its own digest and its own label.** `DOMAIN = b"hashline/private-block/
+general-endpoint/v1"` — 42 bytes, so neither of the two forbidden
+domain-label lengths (C-H4': 28 and 35; the frozen seam's own
+`b"experimental-private-seam/v1"` is 28, which is one reason the new label
+cannot be a variation of it). `EndpointSpecG::digest()` hashes that domain,
+the context, the plane axes, the two endpoint slots, `log_n`, `inv_rate`,
+`checks`, `MASK_ROWS` and the scale — the frozen seam's field list with the
+four constants replaced by values. A collision with `SeamSpec::digest()` is
+impossible: the domain string differs and is absorbed first.
+
+**What stays IDENTICAL, so that the privacy analysis carries over in form.**
+
+1. `MASK_ROWS = 5` and their roles: two terminal mask rows at `(data, data +
+   1)` published as `mask_rows`, the proximity row at `data + 2` published
+   as `prox_mask_row`, and two further uniformly random rows above it. All
+   five are drawn from the OS stream BEFORE the commitment.
+2. The pad count equals the number of opened columns, through the same
+   `ZkOpts::standard(&params)` whose `q_pad` IS `num_col_checks`.
+3. The claim's reserved pair has the exact shape `(cm, cm.U)` on two adjacent
+   rows, and the endpoint raises exactly ONE claim with three parts — the
+   data slice, the pair row and the pair row + 1. The generalised endpoint
+   adds NO claim and changes no coefficient: `argument::B::endpoint` already
+   takes its `mask_row` from `sh.endpoint_rows - 5`, so only the row NUMBER
+   moves.
+4. The claim discipline: `protocol::check_endpoint_opening` (the endpoint's
+   analogue of `audit_claims`, which cannot be used directly because an
+   endpoint commitment does NOT end in its proximity pair — `prox + 2 = rows
+   - 1`) checks the three part row-ranges and the nonzero coefficients, then
+   replays the PCS challenge prefix through `check_opening_challenges`.
+   Neither is relaxed, and both are already shape-driven.
+5. One opening per commitment; the owner is consumed by value on success and
+   on failure; fresh OS entropy per `prepare`, no seed, no data getter, no
+   `Clone`.
+6. The data region: the plane's words at the front of the matrix, zero fill
+   to the data-row boundary, mask rows above — byte for byte the frozen
+   seam's `prepare_with_rng` layout.
+
+**Private items of `private_seam.rs` that this needs.** None is reachable,
+and none is requested. The file's `DOMAIN`, `LOG_COLS`, `INV_RATE`, `CHECKS`,
+`DEGREE`, `MAX_LOG_LEN`, `MASK_ROWS`, `SeamSpec`'s fields, `data_rows`,
+`commitment_rows`, `check_ntt` and `prepare_with_rng` are all private. The
+new module therefore DUPLICATES two small things, each with a comment citing
+the original by file and line: the five-row mask budget (already duplicated
+once, as `protocol::ENDPOINT_MASK_ROWS`) and the shape of `check_ntt`
+(`private_seam.rs:164-182`), generalised from "exactly `NttTables::new(12)`"
+to "a canonical table that covers the needed domain". Everything else it
+needs — `pcs::commit_zk_owned`, `ZkOpts::standard`, `CommittedZk`'s
+`mask_rows` / `prox_mask_row` fields, `ZkRng::from_os` — is already public
+in `zkp-core`. **No change to `private_seam.rs` is required or made.**
+
+**Which profile gets which endpoint.** A shape uses the frozen seam exactly
+when the frozen seam can carry its declared endpoint — plane at most 4,096
+words with power-of-two axes, `endpoint_log_n = 8`, `endpoint_inv_rate = 8`
+— and the generalised endpoint otherwise. The toy and the existing rung
+profile satisfy all four conditions and do not move by one byte; the new
+rung-G profile and 125M fail them by their declared parameters. The rule is
+a derivation rather than a flag so that a shape cannot silently declare
+parameters the machinery it selects does not honour.
