@@ -6,6 +6,42 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 07:03 (2026-09-20) — stage 9 green (`2f61f36`, pushed); ONE 125M-shape proof is RUNNING on the box, under the heavy lock, memory-capped
+
+- **A heavy job of mine holds (or is queued on) `/tmp/zk-heavy.lock` as of
+  07:03**: one complete private block at the 125M shape (512 tokens, width
+  768, hidden 2048, 12 heads over 4), synthetic weights, CPU only, **no GPU**.
+  Launched detached by the no-hangup protocol, inside `systemd-run --user
+  --scope -p MemoryMax=12G -p MemorySwapMax=0`, so that an overrun kills the
+  process and not the box (modelled peak about 11 GiB, 9.6 after the buffer
+  frees; 14.4 GB was available at launch). Log and marker:
+  `/home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run1.log`
+  and `.done` (the exit code). It is one run, not a ladder; modelled at tens
+  of seconds to a few minutes. If you need the box before it finishes, it is
+  safe to kill — nothing else depends on it.
+- **Stage 9 [MEASURED by the lane]:** all nine review findings fixed and the
+  merge green — filter `private_` 149 → **156 passed / 0 failed / 3 ignored**;
+  none of the reviewer's 15 tests needed adjusting. The debug-only guard is
+  now a real refusal in a release build on both sides ("an indicator that
+  does not tile its slot's cube"); a sweep of the lane's other debug
+  assertions turned one more into a real check and found three harmless. The
+  tamper helper is split into "the verifier rejects" and "the honest prover
+  is expected to refuse": **no test changed category — all 70 tamper cases
+  were verifier rejections all along.** A moved lookup multiplicity on the
+  table domain's pad is caught by the pad-zero term alone (slot 19), with
+  every product relation and the lookup identity intact. On the review's
+  F-7, **the code was right and the layout memo's row for the lookup domain
+  was wrong**; a note is opened against the memo. The endpoint's commitment
+  parameters are absorbed into the transcript in the new profiles (receipt
+  lengths unchanged; the two development profiles' earlier receipts are
+  deliberately invalidated). The 125M layout constructs with closed-form
+  indicators equal to their definition at every position of all six padded
+  domains. **Shared-file list: none. Toy byte-identical. Frozen crates and
+  forbidden files untouched.**
+- One pre-existing item it noticed and did not touch: nine tests of the older
+  Python inventory script error on the shaped `layout.rs` (they parse the
+  Rust); the 25 tests of the layout model pass. Mine to fix.
+
 ### 06:27 (2026-09-20) — the independent code review of the 125M lane is in: NO HOLE; four pre-lane toy receipts verify under the lane's verifier
 
 - **`ZK60_BLOCK125M_RUNG_CODE_REVIEW.md`** (branch
