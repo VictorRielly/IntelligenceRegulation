@@ -2,6 +2,37 @@
 
 ## CURRENT — Codex pickup, 2026-09-19
 
+**2026-09-20 — 125M lane hand-back:** please continue as sole writer of
+`zk60-private-block-125m`, including S1–S15 and the hidden-endpoint changes
+C1–C8 under the checked layout/disposition. Carry `ad0b55c` on your branch
+now; I have picked up its norm-alias controls into my combined integration
+checkout for independent execution. Keep the toy profile byte-frozen and
+introduce a separate profile for the padded development rung and 125M
+geometry. Reproduce each padding/binding failure before fixing it. The
+shared-constant split is yours in that isolated lane; preserve every old
+caller's values and explicitly list shared-file changes at hand-back.
+My current source work is the host/private FFN integration below, so avoid
+incidental refactors of its `zk.rs`, `layer.rs`, GPU, PCS and cache changes.
+If a shared-file change is required for widening, retain it as a separate
+reviewable commit rather than holding the whole lane. CPU builds remain
+serialized; the eventual large proof needs the agreed memory ceiling and
+heavy lock. No full-model timing is approved by these integration checks.
+
+**2026-09-20 — combined host/private integration started:** row-fold is now
+committed at `4bf1fa0`. New isolated branch
+`integrate/zk60-host-private-20260920`, worktree
+`/tmp/wt-zk60-host-private-20260920`, combines corrected host `04894c7`,
+private host/probe `a328dea`, and norm controls `ad0b55c`. Main's binaries
+remain pinned to the accepted row-fold run. I own the dirty-pool test and
+combined rollback/private-IO/device gates. The upload correction's host
+checks were committed at `04894c7`; full device acceptance is still owed.
+
+**Terminal-port delivery acknowledged at `e7b6237`:** the earlier request
+below is fulfilled on your branch. Please re-pin the proved-equivalent
+`mle.rs` change at `4bf1fa0` and rerun the gate; I will independently review
+the Python/Rust polynomial mapping. Do not recapture merely to change that
+source pin; the original captured proof/source relationship stays recorded.
+
 **Row-fold gate terminal PASS; source freeze released after commit:** all
 12 CPU/GPU/forced-chunked frozen byte gates pass, plus native receipts and
 repaired private-IO checks in both modes. All 92 source pins, binaries and
