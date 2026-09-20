@@ -1,0 +1,4628 @@
+{
+ "captures_dir": "/home/victor/wt-zk60-jointview/results/zk60_native_captures_20260919",
+ "definition": "ZK60_PRIVACY_CASE_FIRST_MVP.md section 4 (ruling C-6)",
+ "fixed_inputs": {
+  "prg": "a pseudorandom in-range input, value = sha256('zk60-privacy-gate/fixed-input/v1|profile|role|row|block') read as little-endian u32 modulo 256; public, deterministic, and NOT a witness",
+  "zero": "the all-zero hidden input, the same one the Rust zero-witness test proves and verifies"
+ },
+ "gate": "zk60-native-privacy-gate-P10",
+ "is_a_privacy_acceptance": false,
+ "manifest": {
+  "checked": 4,
+  "mismatch": [],
+  "privacy_review_complete": false,
+  "source_commit": "2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75",
+  "validation_json": "present",
+  "verifier_binary_sha256": "fec86a7b39fe3069a389e98ae3156eb7359b7e36386fd451a7b4390a70f56d1d"
+ },
+ "ok": true,
+ "per_capture": [
+  {
+   "capture": "40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b",
+   "channels": [
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "opening-group vectors",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 47180,
+      "H": 27026,
+      "Input": 286,
+      "Output": 301
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "solved on each claim's reserved mask pair (msg) and through the pad polynomials' free coefficients above the sampled nodes (pad); all 512 entries of every group recomputed and compared",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "proximity vectors (PCS)",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 47180,
+      "H": 27026,
+      "Input": 286,
+      "Output": 301
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "solved on the proximity pair, which no claim touches; all 512 entries recomputed and compared",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "claimed evaluations",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 47180,
+      "H": 27026,
+      "Input": 286,
+      "Output": 301
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "each claim's own reserved pair carries its value; every claim value recomputed from the exhibited randomness and compared",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "opened column values",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 47180,
+      "H": 27026,
+      "Input": 286,
+      "Output": 301
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "the pads are the preimage: Lagrange interpolation through the distinct sampled nodes, inside the Q = 256 pad budget; every opened column value of A, H and both endpoints recomputed and compared.  The M opening's own columns are NOT constructed -- see the open channel below",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "column indices",
+     "function": "Transcript::challenge_indices over the public prefix; stage 1 of the joint-view tool re-derives every index from public data and this gate re-reads them from that replay",
+     "note": "derived, not sampled by the prover",
+     "preimage_exhibited": null,
+     "recomputed": true,
+     "section": "2.1",
+     "status": "derived"
+    },
+    {
+     "assumption": "M-3",
+     "channel": "leaf salts",
+     "counts": {
+      "bytes_each": 32,
+      "openings": 5,
+      "per_opening": 256
+     },
+     "model_assumption": "the salts are fresh uniform bytes in both worlds and equality of the two laws rests on M-3, the assumption that the whole output stream of the generator the code uses (ZkRng) is indistinguishable from uniform, including in the direction that published later outputs do not reveal earlier secret ones",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "M-2",
+     "channel": "the three Merkle roots",
+     "model_assumption": "the roots are generated by the prover itself under ruling D18, no oracle point is programmed, and indistinguishability of the two worlds' roots rests on M-2, the hiding of unopened salted leaves in the random-oracle model",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "M-2",
+     "channel": "authentication paths",
+     "counts": {
+      "levels_mask": 12,
+      "levels_pcs": 11,
+      "paths_per_opening": 256
+     },
+     "model_assumption": "the paths are genuine hashes of the same world's own columns; hiding of the roughly 212.5 unopened leaf digests and of the internal nodes above them per 2,048-leaf tree rests on M-2",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "masked sumcheck rounds",
+     "entries_checked": 721,
+     "entries_differing": 0,
+     "fibre_dim_real": "the same matrix: R_s and the sum weights are functions of the replayed challenges and the slot geometry only",
+     "fibre_dim_zero": 46,
+     "how": "the CFS mask coefficients are solved per slot and every published round entry is recomputed from (fixed transcript, coefficients)",
+     "per_slot_statement": "for slot s the gate exhibits mask coefficients with masked_round_j = honest_round_j + c_s g_s.round(j, rho_<j) at EVERY round and evaluation point, for a named fixed honest transcript; the remaining freedom is one Fp2 coefficient direction per slot",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "published masked scalars, Gamma",
+     "entries_checked": 23,
+     "entries_differing": 0,
+     "how": "the same coefficients, through CfsMask::sum_weights: scalar_s = honest_scalar_s + c_s * <sum_weights, coef_s>, recomputed and compared for every slot",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "published terminals",
+     "how": "every terminal is republished as the value of the PCS claim its private table names (argument.rs:223) -- CHECKED here, not assumed -- and those claim values are among the entries the commitment-side preimage reproduces exactly",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed",
+     "terminals": {
+      "all_republished": true,
+      "republished_as_claim_values": 173,
+      "terminals": 173
+     }
+    },
+    {
+     "assumption": null,
+     "channel": "mask evaluations",
+     "function": "mask_eval_s = (fin_s - terminal_polynomial_s) * c_s^-1, the verifier's own final check solved for the evaluation; the joint-view tool's stage 3 asserts the identity per slot on every capture",
+     "preimage_exhibited": null,
+     "recomputed": true,
+     "section": "2.1",
+     "status": "derived"
+    },
+    {
+     "assumption": null,
+     "channel": "LogUp sums",
+     "how": "the one disclosed identity: the zsum claim's published value is Fp2::ZERO, and the all-zero input gives exactly that, so the fibre over the zero input is non-empty and the preimage is exhibited.  The gate's controls force the value nonzero and show the fibre becomes EMPTY",
+     "note": "this is the channel where the fixed input is not free: a fixed input off this identity has no preimage, which is the disclosed dimension 2 of stage 2 made visible",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "the M opening's q",
+     "preimage_exhibited": false,
+     "reason": "the gate does not model the masking commitment's row layout (zk.rs::mask_commit: 46 a-rows holding [L_s mask coefficients | 256 pads | zeros] in value form over G_512, two b rows and two u rows of 1,024 coefficients), so no b-row preimage is exhibited.  What IS constructed is the mask coefficients those a-rows hold, together with the one functional identity this channel pins -- 512 (q[0] + q[512]) = sum_i theta^i value_i -- which the gate's CFS projection enforces and verifies",
+     "section": "2.1",
+     "status": "open",
+     "what_would_close_it": "a port of encode_coeffs_coset and mask_commit's row layout into this tool; no capture field is missing"
+    },
+    {
+     "assumption": null,
+     "channel": "the M proximity vector",
+     "preimage_exhibited": false,
+     "reason": "same as the q channel: the u row that masks it is not modelled here.  The joint-view tool's stage 3 records the source fact that the proximity combination adds a uniform u row with coefficient 1",
+     "section": "2.1",
+     "status": "open",
+     "what_would_close_it": "the same port; no capture field is missing"
+    },
+    {
+     "assumption": null,
+     "channel": "opened column values (the M opening's own 256 columns)",
+     "preimage_exhibited": false,
+     "reason": "the a-row pads that absorb them are not modelled here (see the q channel).  The joint-view tool computes the exact rank of that pad block and finds it full, which is the existence certificate this gate would turn into an exhibited preimage",
+     "section": "2.1",
+     "status": "open",
+     "what_would_close_it": "the same port; no capture field is missing"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "counts and lengths",
+     "model_assumption": "every count and length in the receipt is a function of the public geometry alone (layout.rs:521-526, wire.rs:28-36), so it is the same in both worlds; the gate checks the two captures of one profile have identical proof byte counts",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "the wire envelope",
+     "model_assumption": "the 8-byte magic and the 32-byte binding digest are the transcript state after the header, a function of the public statement and the policy only -- witness-independent except through the endpoint roots, which the policy carries and which the D8/D11 obligation covers",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "slots, scalars, framing (the residue, less the envelope)",
+     "model_assumption": "the framing bytes are lengths and tags fixed by the public schedule; the payload inside them is the slot channels above",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "O-1",
+     "channel": "the public statement and the 112-byte expected-IO policy",
+     "model_assumption": "the statement and policy are public inputs, identical in both worlds; condition O-1 rides on this channel -- if a deployment computes the 32-byte context digest from the request then for a low-entropy prompt the digest IS the prompt, which no property of the proof repairs",
+     "preimage_exhibited": null,
+     "section": "2.2",
+     "status": "argued"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "the receipt's length",
+     "model_assumption": "2,816,472 bytes at the block profile for every witness; the zero-witness Rust test asserts the zero input's receipt has exactly that length",
+     "preimage_exhibited": null,
+     "section": "2.2",
+     "status": "argued"
+    },
+    {
+     "assumption": null,
+     "channel": "whether a proof attempt produced a receipt",
+     "preimage_exhibited": null,
+     "reason": "the refusal channel is inside the game (ruling C-2) and one refusal class is witness-dependent at about 2^-112; no capture can show it, because a capture only exists when the proof was accepted",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "rejected-but-emitted receipts",
+     "preimage_exhibited": null,
+     "reason": "history item H8, a procedural condition on the deployment: finish has no equality precheck, so a rejected receipt is fully constructed and must never be transmitted",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "retained captures",
+     "preimage_exhibited": null,
+     "reason": "history item H9, a procedural condition: a retained capture is a published opening of its two endpoint roots.  Today the writer is behind #[cfg(test)] and every capture is of a deliberately public fixture",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "timing, memory, power",
+     "preimage_exhibited": null,
+     "reason": "declared out of scope for the first MVP (M-5, ruling C-2); no field of the capture bears on it",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "prior proofs by the same prover",
+     "preimage_exhibited": null,
+     "reason": "the composition of several receipts is chain item 21 and open item U-3b; this gate analyses one receipt at a time",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "the integer-range facts the statement implies",
+     "preimage_exhibited": null,
+     "reason": "chain item 20: the statement implies the hidden values are in range, which is information about them that no preimage argument removes",
+     "section": "4.2 row 16",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "any nonlinear functional of the joint view",
+     "preimage_exhibited": null,
+     "reason": "chain item 21: the terminal identity links the commitment and masking channels with degree up to 4 in the terminals, and no linear model sees that link.  This gate is linear",
+     "section": "4.2 row 17",
+     "status": "open"
+    }
+   ],
+   "controls": {
+    "all_fire": true,
+    "cfs_zero_transcript": {
+     "fires": true,
+     "projected_transcript_feasible": true,
+     "what": "the canonical zero honest transcript against the published functional values",
+     "why": "the M opening pins functionals of the mask coefficients that lie in the round span, so the fixed transcript is not free: the gate exhibits the preimage exactly on the plane those identities cut out",
+     "zero_transcript_infeasible": true
+    },
+    "control_names": [
+     "unsatisfiable_group_vector_0",
+     "unsatisfiable_group_vector_256",
+     "witness_bearing_logup_value",
+     "one_pad_fewer_than_the_distinct_opened_columns",
+     "shared_blinding_unknown_between_two_commitments",
+     "second_fixed_input_off_the_disclosed_identity",
+     "cfs_zero_transcript"
+    ],
+    "honest": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
+    "honest_after_every_control": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
+    "honest_again": true,
+    "ok": true,
+    "one_pad_fewer_than_the_distinct_opened_columns": {
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "Input: row 0 -- NO PREIMAGE: 245 pad symbols cannot meet 246 distinct opened columns (the interpolant of the required values has degree 245)"
+     ],
+     "what": "Input modelled with 245 pad symbols against 246 distinct opened columns -- one blinding unknown short of the budget",
+     "why": "with fewer pad symbols than distinct opened columns the row's pad polynomial cannot meet the opened values, so the view leaves the image of the blinding map and has no preimage.  This is the control on the side that CAN fail: at the real budget the map is onto, and then EVERY view has a preimage, which is what nothing-disclosed means"
+    },
+    "second_fixed_input_off_the_disclosed_identity": {
+     "after_projection_has_a_preimage": true,
+     "before_projection_has_a_preimage": false,
+     "fires": true,
+     "projection": {
+      "applied": true,
+      "identities": [
+       {
+        "already_satisfied": false,
+        "applied": true,
+        "corrected_rows": [
+         0,
+         2
+        ],
+        "group": 8,
+        "identity": "the LogUp sum claim: the view determines sum over data rows of rw[i] * (row sum), and the published value is 0",
+        "residual_before": [
+         14291018265464922278,
+         17626419048439067710
+        ]
+       }
+      ]
+     },
+     "what": "the pseudorandom fixed input on H, before and after projection onto the one identity the view discloses",
+     "why": "the disclosed dimension is not a number here but a refusal: a fixed input off the LogUp plane has no preimage at all"
+    },
+    "shared_blinding_unknown_between_two_commitments": {
+     "fires": true,
+     "first_differing_position": 0,
+     "honest_passes": "the honest receipt shares no blinding row (the joint-view tool's stage 4 computes that the non-data block is block diagonal by role), so both preimages stand on the honest capture",
+     "per_commitment_preimages_exist": true,
+     "positions_where_the_two_forced_values_differ": 256,
+     "rows": {
+      "A": 213,
+      "H": 280
+     },
+     "what": "one reserved mask row of a singleton opening group in A and one in H declared to be the SAME unknown",
+     "why": "both rows belong to SINGLETON opening groups, so inside each commitment the pair's message is the unique solution of an invertible 2x2 system at every position: A forces one value on the shared unknown and H forces another.  The per-commitment preimages exist and the JOINT one does not -- the case a per-commitment acceptance cannot see"
+    },
+    "unsatisfiable_group_vector_0": {
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "Input: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the kernel of the group-vector constraint"
+     ],
+     "what": "Input's opening-group vector perturbed by one at message position 0, the opened columns left alone",
+     "why_it_can_fire": "the view's own public identities tie the channels together -- the verifier's column identity says the group vector's encoding at a sampled node equals the group combination of that column's values -- so a perturbation of one channel alone leaves the image of the blinding map and no preimage exists"
+    },
+    "unsatisfiable_group_vector_256": {
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "Input: pad:group0 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the residual is not divisible by the sampled nodes' vanishing polynomial)"
+     ],
+     "what": "Input's opening-group vector perturbed by one at pad coefficient 0, the opened columns left alone",
+     "why_it_can_fire": "the view's own public identities tie the channels together -- the verifier's column identity says the group vector's encoding at a sampled node equals the group combination of that column's values -- so a perturbation of one channel alone leaves the image of the blinding map and no preimage exists"
+    },
+    "witness_bearing_logup_value": {
+     "claim": [
+      51
+     ],
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "H: group 8 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the kernel of the group-vector constraint"
+     ],
+     "what": "H's LogUp sum claim forced to a value other than Fp2::ZERO",
+     "why": "the u pair's message sums to zero by the layout's public linear constraint, so the zero input can only reach a zero published value: the fibre over the all-zero input becomes EMPTY"
+    }
+   },
+   "fixed_inputs": {
+    "prg": {
+     "A": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "c8445fdf55793aeb402a03391dc28ce21d8a5d8e04a4bd06801650ecf3a83b32",
+      "fibre": {
+       "blinding_unknowns": 178432,
+       "distinct_opened_columns": 246,
+       "fibre_dimension_fp": 47180,
+       "generators_fp": 72,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 43350,
+       "pad_block_fp": 3830,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "cc8f67ffbd7f651883329c868e92437591746d36efcdfb561d3d52732231e679",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false,
+       "identities": []
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 120,
+       "column_entries": 111930,
+       "column_mismatches": 0,
+       "columns_verified": 246,
+       "group_vector_entries": 17920,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "H": {
+      "before_projection_has_no_preimage": true,
+      "exhibited_randomness_sha256": "0506d180951f1c851d6acafa6229f81b34314ae535ae292e456d8aacffd49a95",
+      "fibre": {
+       "blinding_unknowns": 125438,
+       "distinct_opened_columns": 242,
+       "fibre_dimension_fp": 27026,
+       "generators_fp": 20,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 21930,
+       "pad_block_fp": 5096,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "39f725994131b797f577593ad1b8780f5818033aa41a02a5e70861b1603daa72",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": true,
+       "identities": [
+        {
+         "already_satisfied": false,
+         "applied": true,
+         "corrected_rows": [
+          0,
+          2
+         ],
+         "group": 8,
+         "identity": "the LogUp sum claim: the view determines sum over data rows of rw[i] * (row sum), and the published value is 0",
+         "residual_before": [
+          14291018265464922278,
+          17626419048439067710
+         ]
+        }
+       ]
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 52,
+       "column_entries": 92928,
+       "column_mismatches": 0,
+       "columns_verified": 242,
+       "group_vector_entries": 4608,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Input": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "a4d5645953b625f68855696c2ddbaf4d01486b6095e3cd4dec12f79c1394a177",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 246,
+       "fibre_dimension_fp": 286,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 30,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "243cb64c20da537ae2790d6fef286a364937f907b3b9df1efd920241e32f6a11",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false,
+       "identities": []
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1722,
+       "column_mismatches": 0,
+       "columns_verified": 246,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Output": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "730e8a1550b1752d360a28d09c428280877dfb4101aa5ed8fe4d037632c1ddfc",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 241,
+       "fibre_dimension_fp": 301,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 45,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "b4959ffaeecbe3e231043ed1850a3ab2836a1ecaa35753c50a887746d1837845",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false,
+       "identities": []
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1687,
+       "column_mismatches": 0,
+       "columns_verified": 241,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     }
+    },
+    "zero": {
+     "A": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "f3e9c75ac3223ad50a88ccbb8e33f03538640a8c1381917a0337f52be436a01a",
+      "fibre": {
+       "blinding_unknowns": 178432,
+       "distinct_opened_columns": 246,
+       "fibre_dimension_fp": 47180,
+       "generators_fp": 72,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 43350,
+       "pad_block_fp": 3830,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "cc8f67ffbd7f651883329c868e92437591746d36efcdfb561d3d52732231e679",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 120,
+       "column_entries": 111930,
+       "column_mismatches": 0,
+       "columns_verified": 246,
+       "group_vector_entries": 17920,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "H": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "f0847f50b205f070044874df1757093b320e0fdebea278e501b311fa868481db",
+      "fibre": {
+       "blinding_unknowns": 125438,
+       "distinct_opened_columns": 242,
+       "fibre_dimension_fp": 27026,
+       "generators_fp": 20,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 21930,
+       "pad_block_fp": 5096,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "39f725994131b797f577593ad1b8780f5818033aa41a02a5e70861b1603daa72",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 52,
+       "column_entries": 92928,
+       "column_mismatches": 0,
+       "columns_verified": 242,
+       "group_vector_entries": 4608,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Input": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "6ff55e8baa675accb39c69264de665a99b25ff6d41530e4abaf96dc4dee6f5dd",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 246,
+       "fibre_dimension_fp": 286,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 30,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "243cb64c20da537ae2790d6fef286a364937f907b3b9df1efd920241e32f6a11",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1722,
+       "column_mismatches": 0,
+       "columns_verified": 246,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Output": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "123dc2ba6acaacced68f79b1d5c49c61041cb4faea4654cd7e53d451e53b15f6",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 241,
+       "fibre_dimension_fp": 301,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 45,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "b4959ffaeecbe3e231043ed1850a3ab2836a1ecaa35753c50a887746d1837845",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1687,
+       "column_mismatches": 0,
+       "columns_verified": 241,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     }
+    }
+   },
+   "grade": {
+    "by_status": {
+     "argued": 8,
+     "constructed": 8,
+     "derived": 2,
+     "open": 10
+    },
+    "channels": 28,
+    "failures": [],
+    "ok": true
+   },
+   "masking_commitment": {
+    "all": {
+     "fibre": {
+      "blinding_unknowns_fp": 1166,
+      "fibre_dimension_fp": 46,
+      "independent_of_the_fixed_input": true,
+      "per_slot": [
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 0
+       },
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 1
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 2
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 3
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 4
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 5
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 6
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 7
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 8
+       },
+       {
+        "L_fp2": 16,
+        "dim_C_fp2": 15,
+        "free_fp": 2,
+        "slot": 9
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 10
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 11
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 12
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 13
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 14
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 15
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 16
+       },
+       {
+        "L_fp2": 50,
+        "dim_C_fp2": 49,
+        "free_fp": 2,
+        "slot": 17
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 18
+       },
+       {
+        "L_fp2": 29,
+        "dim_C_fp2": 28,
+        "free_fp": 2,
+        "slot": 19
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 20
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 21
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 22
+       }
+      ],
+      "why": "R_s and the sum weights are functions of the replayed challenges and the slot geometry only; the fixed transcript enters the right-hand side alone"
+     },
+     "findings": [],
+     "fixed_transcript": "the flat honest transcript whose claimed sum is what the hosted slots' published scalars force, projected onto the identities the M opening pins",
+     "functional_values": {
+      "functionals": 34,
+      "mismatches": 0
+     },
+     "preimage_exhibited": true,
+     "projection": {
+      "applied": true,
+      "conditions": 34,
+      "conditions_on_the_fixed_transcript_fp": 68,
+      "needed": true,
+      "unmet_before": 29,
+      "which": "all"
+     },
+     "verification": {
+      "all_entries_equal": true,
+      "round_entries": 721,
+      "round_mismatches": 0,
+      "scalar_mismatches": 0,
+      "scalars": 23,
+      "theta_identity_holds": true
+     },
+     "zero_transcript_is_infeasible": true
+    },
+    "published_functionals": 34,
+    "slots": 23,
+    "stage3_disclosed_all_values_fp": 68,
+    "stage3_disclosed_opening_only_fp": 2,
+    "theta": {
+     "fibre": {
+      "blinding_unknowns_fp": 1166,
+      "fibre_dimension_fp": 46,
+      "independent_of_the_fixed_input": true,
+      "per_slot": [
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 0
+       },
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 1
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 2
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 3
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 4
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 5
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 6
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 7
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 8
+       },
+       {
+        "L_fp2": 16,
+        "dim_C_fp2": 15,
+        "free_fp": 2,
+        "slot": 9
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 10
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 11
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 12
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 13
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 14
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 15
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 16
+       },
+       {
+        "L_fp2": 50,
+        "dim_C_fp2": 49,
+        "free_fp": 2,
+        "slot": 17
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 18
+       },
+       {
+        "L_fp2": 29,
+        "dim_C_fp2": 28,
+        "free_fp": 2,
+        "slot": 19
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 20
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 21
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 22
+       }
+      ],
+      "why": "R_s and the sum weights are functions of the replayed challenges and the slot geometry only; the fixed transcript enters the right-hand side alone"
+     },
+     "findings": [],
+     "fixed_transcript": "the flat honest transcript whose claimed sum is what the hosted slots' published scalars force, projected onto the identities the M opening pins",
+     "functional_values": {
+      "functionals": 34,
+      "mismatches": 29
+     },
+     "preimage_exhibited": true,
+     "projection": {
+      "applied": true,
+      "conditions": 1,
+      "conditions_on_the_fixed_transcript_fp": 2,
+      "needed": true,
+      "unmet_before": 1,
+      "which": "theta"
+     },
+     "verification": {
+      "all_entries_equal": true,
+      "round_entries": 721,
+      "round_mismatches": 0,
+      "scalar_mismatches": 0,
+      "scalars": 23,
+      "theta_identity_holds": true
+     },
+     "zero_transcript_is_infeasible": true
+    }
+   },
+   "model": {
+    "A": {
+     "M_data_shape": [
+      213,
+      256
+     ],
+     "M_nondata_unknowns": 178432,
+     "claims": 120,
+     "data_rows": 213,
+     "disclosed_dimension_fp_stage2": 0,
+     "distinct_opened_columns": 246,
+     "layout_findings": [],
+     "matrix_digest": "cc8f67ffbd7f651883329c868e92437591746d36efcdfb561d3d52732231e679",
+     "non_data_rows": 242,
+     "opening_groups": 35,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 455,
+     "u_rows": [],
+     "y_entries": 130482
+    },
+    "H": {
+     "M_data_shape": [
+      278,
+      256
+     ],
+     "M_nondata_unknowns": 125438,
+     "claims": 52,
+     "data_rows": 278,
+     "disclosed_dimension_fp_stage2": 2,
+     "distinct_opened_columns": 242,
+     "layout_findings": [],
+     "matrix_digest": "39f725994131b797f577593ad1b8780f5818033aa41a02a5e70861b1603daa72",
+     "non_data_rows": 106,
+     "opening_groups": 9,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 384,
+     "u_rows": [
+      278,
+      279
+     ],
+     "y_entries": 98100
+    },
+    "Input": {
+     "M_data_shape": [
+      2,
+      256
+     ],
+     "M_nondata_unknowns": 3072,
+     "claims": 1,
+     "data_rows": 2,
+     "disclosed_dimension_fp_stage2": 0,
+     "distinct_opened_columns": 246,
+     "layout_findings": [],
+     "matrix_digest": "243cb64c20da537ae2790d6fef286a364937f907b3b9df1efd920241e32f6a11",
+     "non_data_rows": 5,
+     "opening_groups": 1,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 7,
+     "u_rows": [],
+     "y_entries": 2747
+    },
+    "Output": {
+     "M_data_shape": [
+      2,
+      256
+     ],
+     "M_nondata_unknowns": 3072,
+     "claims": 1,
+     "data_rows": 2,
+     "disclosed_dimension_fp_stage2": 0,
+     "distinct_opened_columns": 241,
+     "layout_findings": [],
+     "matrix_digest": "b4959ffaeecbe3e231043ed1850a3ab2836a1ecaa35753c50a887746d1837845",
+     "non_data_rows": 5,
+     "opening_groups": 1,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 7,
+     "u_rows": [],
+     "y_entries": 2712
+    }
+   },
+   "ok": true,
+   "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+   "proof_bytes": 2816472,
+   "transcript_replay": {
+    "capture": "40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b",
+    "challenges_checked": 1543,
+    "checkpoints_checked": 80,
+    "failures": [],
+    "final_counter": 1863,
+    "ok": true,
+    "profile": "hashline-zk-mr1/private-block-t32-poc/1"
+   }
+  },
+  {
+   "capture": "7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43",
+   "channels": [
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "opening-group vectors",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 48329,
+      "H": 27754,
+      "Input": 331,
+      "Output": 307
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "solved on each claim's reserved mask pair (msg) and through the pad polynomials' free coefficients above the sampled nodes (pad); all 512 entries of every group recomputed and compared",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "proximity vectors (PCS)",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 48329,
+      "H": 27754,
+      "Input": 331,
+      "Output": 307
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "solved on the proximity pair, which no claim touches; all 512 entries recomputed and compared",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "claimed evaluations",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 48329,
+      "H": 27754,
+      "Input": 331,
+      "Output": 307
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "each claim's own reserved pair carries its value; every claim value recomputed from the exhibited randomness and compared",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "opened column values",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 48329,
+      "H": 27754,
+      "Input": 331,
+      "Output": 307
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "the pads are the preimage: Lagrange interpolation through the distinct sampled nodes, inside the Q = 256 pad budget; every opened column value of A, H and both endpoints recomputed and compared.  The M opening's own columns are NOT constructed -- see the open channel below",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "column indices",
+     "function": "Transcript::challenge_indices over the public prefix; stage 1 of the joint-view tool re-derives every index from public data and this gate re-reads them from that replay",
+     "note": "derived, not sampled by the prover",
+     "preimage_exhibited": null,
+     "recomputed": true,
+     "section": "2.1",
+     "status": "derived"
+    },
+    {
+     "assumption": "M-3",
+     "channel": "leaf salts",
+     "counts": {
+      "bytes_each": 32,
+      "openings": 5,
+      "per_opening": 256
+     },
+     "model_assumption": "the salts are fresh uniform bytes in both worlds and equality of the two laws rests on M-3, the assumption that the whole output stream of the generator the code uses (ZkRng) is indistinguishable from uniform, including in the direction that published later outputs do not reveal earlier secret ones",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "M-2",
+     "channel": "the three Merkle roots",
+     "model_assumption": "the roots are generated by the prover itself under ruling D18, no oracle point is programmed, and indistinguishability of the two worlds' roots rests on M-2, the hiding of unopened salted leaves in the random-oracle model",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "M-2",
+     "channel": "authentication paths",
+     "counts": {
+      "levels_mask": 12,
+      "levels_pcs": 11,
+      "paths_per_opening": 256
+     },
+     "model_assumption": "the paths are genuine hashes of the same world's own columns; hiding of the roughly 212.5 unopened leaf digests and of the internal nodes above them per 2,048-leaf tree rests on M-2",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "masked sumcheck rounds",
+     "entries_checked": 721,
+     "entries_differing": 0,
+     "fibre_dim_real": "the same matrix: R_s and the sum weights are functions of the replayed challenges and the slot geometry only",
+     "fibre_dim_zero": 46,
+     "how": "the CFS mask coefficients are solved per slot and every published round entry is recomputed from (fixed transcript, coefficients)",
+     "per_slot_statement": "for slot s the gate exhibits mask coefficients with masked_round_j = honest_round_j + c_s g_s.round(j, rho_<j) at EVERY round and evaluation point, for a named fixed honest transcript; the remaining freedom is one Fp2 coefficient direction per slot",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "published masked scalars, Gamma",
+     "entries_checked": 23,
+     "entries_differing": 0,
+     "how": "the same coefficients, through CfsMask::sum_weights: scalar_s = honest_scalar_s + c_s * <sum_weights, coef_s>, recomputed and compared for every slot",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "published terminals",
+     "how": "every terminal is republished as the value of the PCS claim its private table names (argument.rs:223) -- CHECKED here, not assumed -- and those claim values are among the entries the commitment-side preimage reproduces exactly",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed",
+     "terminals": {
+      "all_republished": true,
+      "republished_as_claim_values": 173,
+      "terminals": 173
+     }
+    },
+    {
+     "assumption": null,
+     "channel": "mask evaluations",
+     "function": "mask_eval_s = (fin_s - terminal_polynomial_s) * c_s^-1, the verifier's own final check solved for the evaluation; the joint-view tool's stage 3 asserts the identity per slot on every capture",
+     "preimage_exhibited": null,
+     "recomputed": true,
+     "section": "2.1",
+     "status": "derived"
+    },
+    {
+     "assumption": null,
+     "channel": "LogUp sums",
+     "how": "the one disclosed identity: the zsum claim's published value is Fp2::ZERO, and the all-zero input gives exactly that, so the fibre over the zero input is non-empty and the preimage is exhibited.  The gate's controls force the value nonzero and show the fibre becomes EMPTY",
+     "note": "this is the channel where the fixed input is not free: a fixed input off this identity has no preimage, which is the disclosed dimension 2 of stage 2 made visible",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "the M opening's q",
+     "preimage_exhibited": false,
+     "reason": "the gate does not model the masking commitment's row layout (zk.rs::mask_commit: 46 a-rows holding [L_s mask coefficients | 256 pads | zeros] in value form over G_512, two b rows and two u rows of 1,024 coefficients), so no b-row preimage is exhibited.  What IS constructed is the mask coefficients those a-rows hold, together with the one functional identity this channel pins -- 512 (q[0] + q[512]) = sum_i theta^i value_i -- which the gate's CFS projection enforces and verifies",
+     "section": "2.1",
+     "status": "open",
+     "what_would_close_it": "a port of encode_coeffs_coset and mask_commit's row layout into this tool; no capture field is missing"
+    },
+    {
+     "assumption": null,
+     "channel": "the M proximity vector",
+     "preimage_exhibited": false,
+     "reason": "same as the q channel: the u row that masks it is not modelled here.  The joint-view tool's stage 3 records the source fact that the proximity combination adds a uniform u row with coefficient 1",
+     "section": "2.1",
+     "status": "open",
+     "what_would_close_it": "the same port; no capture field is missing"
+    },
+    {
+     "assumption": null,
+     "channel": "opened column values (the M opening's own 256 columns)",
+     "preimage_exhibited": false,
+     "reason": "the a-row pads that absorb them are not modelled here (see the q channel).  The joint-view tool computes the exact rank of that pad block and finds it full, which is the existence certificate this gate would turn into an exhibited preimage",
+     "section": "2.1",
+     "status": "open",
+     "what_would_close_it": "the same port; no capture field is missing"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "counts and lengths",
+     "model_assumption": "every count and length in the receipt is a function of the public geometry alone (layout.rs:521-526, wire.rs:28-36), so it is the same in both worlds; the gate checks the two captures of one profile have identical proof byte counts",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "the wire envelope",
+     "model_assumption": "the 8-byte magic and the 32-byte binding digest are the transcript state after the header, a function of the public statement and the policy only -- witness-independent except through the endpoint roots, which the policy carries and which the D8/D11 obligation covers",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "slots, scalars, framing (the residue, less the envelope)",
+     "model_assumption": "the framing bytes are lengths and tags fixed by the public schedule; the payload inside them is the slot channels above",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "O-1",
+     "channel": "the public statement and the 112-byte expected-IO policy",
+     "model_assumption": "the statement and policy are public inputs, identical in both worlds; condition O-1 rides on this channel -- if a deployment computes the 32-byte context digest from the request then for a low-entropy prompt the digest IS the prompt, which no property of the proof repairs",
+     "preimage_exhibited": null,
+     "section": "2.2",
+     "status": "argued"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "the receipt's length",
+     "model_assumption": "2,816,472 bytes at the block profile for every witness; the zero-witness Rust test asserts the zero input's receipt has exactly that length",
+     "preimage_exhibited": null,
+     "section": "2.2",
+     "status": "argued"
+    },
+    {
+     "assumption": null,
+     "channel": "whether a proof attempt produced a receipt",
+     "preimage_exhibited": null,
+     "reason": "the refusal channel is inside the game (ruling C-2) and one refusal class is witness-dependent at about 2^-112; no capture can show it, because a capture only exists when the proof was accepted",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "rejected-but-emitted receipts",
+     "preimage_exhibited": null,
+     "reason": "history item H8, a procedural condition on the deployment: finish has no equality precheck, so a rejected receipt is fully constructed and must never be transmitted",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "retained captures",
+     "preimage_exhibited": null,
+     "reason": "history item H9, a procedural condition: a retained capture is a published opening of its two endpoint roots.  Today the writer is behind #[cfg(test)] and every capture is of a deliberately public fixture",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "timing, memory, power",
+     "preimage_exhibited": null,
+     "reason": "declared out of scope for the first MVP (M-5, ruling C-2); no field of the capture bears on it",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "prior proofs by the same prover",
+     "preimage_exhibited": null,
+     "reason": "the composition of several receipts is chain item 21 and open item U-3b; this gate analyses one receipt at a time",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "the integer-range facts the statement implies",
+     "preimage_exhibited": null,
+     "reason": "chain item 20: the statement implies the hidden values are in range, which is information about them that no preimage argument removes",
+     "section": "4.2 row 16",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "any nonlinear functional of the joint view",
+     "preimage_exhibited": null,
+     "reason": "chain item 21: the terminal identity links the commitment and masking channels with degree up to 4 in the terminals, and no linear model sees that link.  This gate is linear",
+     "section": "4.2 row 17",
+     "status": "open"
+    }
+   ],
+   "controls": {
+    "all_fire": true,
+    "cfs_zero_transcript": {
+     "fires": true,
+     "projected_transcript_feasible": true,
+     "what": "the canonical zero honest transcript against the published functional values",
+     "why": "the M opening pins functionals of the mask coefficients that lie in the round span, so the fixed transcript is not free: the gate exhibits the preimage exactly on the plane those identities cut out",
+     "zero_transcript_infeasible": true
+    },
+    "control_names": [
+     "unsatisfiable_group_vector_0",
+     "unsatisfiable_group_vector_256",
+     "witness_bearing_logup_value",
+     "one_pad_fewer_than_the_distinct_opened_columns",
+     "shared_blinding_unknown_between_two_commitments",
+     "second_fixed_input_off_the_disclosed_identity",
+     "cfs_zero_transcript"
+    ],
+    "honest": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
+    "honest_after_every_control": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
+    "honest_again": true,
+    "ok": true,
+    "one_pad_fewer_than_the_distinct_opened_columns": {
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "Input: row 0 -- NO PREIMAGE: 230 pad symbols cannot meet 231 distinct opened columns (the interpolant of the required values has degree 230)"
+     ],
+     "what": "Input modelled with 230 pad symbols against 231 distinct opened columns -- one blinding unknown short of the budget",
+     "why": "with fewer pad symbols than distinct opened columns the row's pad polynomial cannot meet the opened values, so the view leaves the image of the blinding map and has no preimage.  This is the control on the side that CAN fail: at the real budget the map is onto, and then EVERY view has a preimage, which is what nothing-disclosed means"
+    },
+    "second_fixed_input_off_the_disclosed_identity": {
+     "after_projection_has_a_preimage": true,
+     "before_projection_has_a_preimage": false,
+     "fires": true,
+     "projection": {
+      "applied": true,
+      "identities": [
+       {
+        "already_satisfied": false,
+        "applied": true,
+        "corrected_rows": [
+         0,
+         2
+        ],
+        "group": 8,
+        "identity": "the LogUp sum claim: the view determines sum over data rows of rw[i] * (row sum), and the published value is 0",
+        "residual_before": [
+         13118235451426141099,
+         5933047595583084089
+        ]
+       }
+      ]
+     },
+     "what": "the pseudorandom fixed input on H, before and after projection onto the one identity the view discloses",
+     "why": "the disclosed dimension is not a number here but a refusal: a fixed input off the LogUp plane has no preimage at all"
+    },
+    "shared_blinding_unknown_between_two_commitments": {
+     "fires": true,
+     "first_differing_position": 0,
+     "honest_passes": "the honest receipt shares no blinding row (the joint-view tool's stage 4 computes that the non-data block is block diagonal by role), so both preimages stand on the honest capture",
+     "per_commitment_preimages_exist": true,
+     "positions_where_the_two_forced_values_differ": 256,
+     "rows": {
+      "A": 213,
+      "H": 280
+     },
+     "what": "one reserved mask row of a singleton opening group in A and one in H declared to be the SAME unknown",
+     "why": "both rows belong to SINGLETON opening groups, so inside each commitment the pair's message is the unique solution of an invertible 2x2 system at every position: A forces one value on the shared unknown and H forces another.  The per-commitment preimages exist and the JOINT one does not -- the case a per-commitment acceptance cannot see"
+    },
+    "unsatisfiable_group_vector_0": {
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "Input: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the kernel of the group-vector constraint"
+     ],
+     "what": "Input's opening-group vector perturbed by one at message position 0, the opened columns left alone",
+     "why_it_can_fire": "the view's own public identities tie the channels together -- the verifier's column identity says the group vector's encoding at a sampled node equals the group combination of that column's values -- so a perturbation of one channel alone leaves the image of the blinding map and no preimage exists"
+    },
+    "unsatisfiable_group_vector_256": {
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "Input: pad:group0 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the residual is not divisible by the sampled nodes' vanishing polynomial)"
+     ],
+     "what": "Input's opening-group vector perturbed by one at pad coefficient 0, the opened columns left alone",
+     "why_it_can_fire": "the view's own public identities tie the channels together -- the verifier's column identity says the group vector's encoding at a sampled node equals the group combination of that column's values -- so a perturbation of one channel alone leaves the image of the blinding map and no preimage exists"
+    },
+    "witness_bearing_logup_value": {
+     "claim": [
+      51
+     ],
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "H: group 8 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the kernel of the group-vector constraint"
+     ],
+     "what": "H's LogUp sum claim forced to a value other than Fp2::ZERO",
+     "why": "the u pair's message sums to zero by the layout's public linear constraint, so the zero input can only reach a zero published value: the fibre over the all-zero input becomes EMPTY"
+    }
+   },
+   "fixed_inputs": {
+    "prg": {
+     "A": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "7966de068161eb02d8622e74dd8cd6ad75b0f465e861e6c7e5aa3b20505f5cce",
+      "fibre": {
+       "blinding_unknowns": 178432,
+       "distinct_opened_columns": 243,
+       "fibre_dimension_fp": 48329,
+       "generators_fp": 72,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 43350,
+       "pad_block_fp": 4979,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "8e0a784314968bd9289f72ab9dd9974d034107f021b08e66938cc28a4768d47c",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false,
+       "identities": []
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 120,
+       "column_entries": 110565,
+       "column_mismatches": 0,
+       "columns_verified": 243,
+       "group_vector_entries": 17920,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "H": {
+      "before_projection_has_no_preimage": true,
+      "exhibited_randomness_sha256": "aa2378fbcc4735280eff75b78168f8966d87b6320549563f67e406cdcf08b23c",
+      "fibre": {
+       "blinding_unknowns": 125438,
+       "distinct_opened_columns": 240,
+       "fibre_dimension_fp": 27754,
+       "generators_fp": 20,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 21930,
+       "pad_block_fp": 5824,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "5598bdb2d7681f810aab02b3371d6d5beae6a5f50be19262da2f33c05d3fc011",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": true,
+       "identities": [
+        {
+         "already_satisfied": false,
+         "applied": true,
+         "corrected_rows": [
+          0,
+          2
+         ],
+         "group": 8,
+         "identity": "the LogUp sum claim: the view determines sum over data rows of rw[i] * (row sum), and the published value is 0",
+         "residual_before": [
+          13118235451426141099,
+          5933047595583084089
+         ]
+        }
+       ]
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 52,
+       "column_entries": 92160,
+       "column_mismatches": 0,
+       "columns_verified": 240,
+       "group_vector_entries": 4608,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Input": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "d2771ed68cb8ae8dacc24efbb2a8d7a77280aa5eae1d2eb9e5cd97a2a0b5bdfe",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 231,
+       "fibre_dimension_fp": 331,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 75,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "f4224c9a5a62fcf0fa2372ed1286c84b7b6c1f0572508142b2e5e6af8d3e4584",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false,
+       "identities": []
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1617,
+       "column_mismatches": 0,
+       "columns_verified": 231,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Output": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "2212665d6f64058650a69b0b0d933148e75300b838b73f332b627b5003329b94",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 239,
+       "fibre_dimension_fp": 307,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 51,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "15a6f988f05ed6c352bc6a1a72e3887ea237c6dd1dedcca185789af1f53e65a1",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false,
+       "identities": []
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1673,
+       "column_mismatches": 0,
+       "columns_verified": 239,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     }
+    },
+    "zero": {
+     "A": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "c9c0c821be14b5742ad8fac1523e3b73cf552bdd784fd631b675f78b113c6277",
+      "fibre": {
+       "blinding_unknowns": 178432,
+       "distinct_opened_columns": 243,
+       "fibre_dimension_fp": 48329,
+       "generators_fp": 72,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 43350,
+       "pad_block_fp": 4979,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "8e0a784314968bd9289f72ab9dd9974d034107f021b08e66938cc28a4768d47c",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 120,
+       "column_entries": 110565,
+       "column_mismatches": 0,
+       "columns_verified": 243,
+       "group_vector_entries": 17920,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "H": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "ce13623fa78bb51333ae8ef9eb15bbde2a2fce84bd89cca7d583fbe37e6256de",
+      "fibre": {
+       "blinding_unknowns": 125438,
+       "distinct_opened_columns": 240,
+       "fibre_dimension_fp": 27754,
+       "generators_fp": 20,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 21930,
+       "pad_block_fp": 5824,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "5598bdb2d7681f810aab02b3371d6d5beae6a5f50be19262da2f33c05d3fc011",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 52,
+       "column_entries": 92160,
+       "column_mismatches": 0,
+       "columns_verified": 240,
+       "group_vector_entries": 4608,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Input": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "9cb003ab0d063ad2c7d05987b1030d044852dbef6213153892b556b9d394ce1b",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 231,
+       "fibre_dimension_fp": 331,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 75,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "f4224c9a5a62fcf0fa2372ed1286c84b7b6c1f0572508142b2e5e6af8d3e4584",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1617,
+       "column_mismatches": 0,
+       "columns_verified": 231,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Output": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "4b94f96ec6a4ead4ab0b10284ee9f07aa905f3b770ef531262b48f72898943b7",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 239,
+       "fibre_dimension_fp": 307,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 51,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "15a6f988f05ed6c352bc6a1a72e3887ea237c6dd1dedcca185789af1f53e65a1",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1673,
+       "column_mismatches": 0,
+       "columns_verified": 239,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     }
+    }
+   },
+   "grade": {
+    "by_status": {
+     "argued": 8,
+     "constructed": 8,
+     "derived": 2,
+     "open": 10
+    },
+    "channels": 28,
+    "failures": [],
+    "ok": true
+   },
+   "masking_commitment": {
+    "all": {
+     "fibre": {
+      "blinding_unknowns_fp": 1166,
+      "fibre_dimension_fp": 46,
+      "independent_of_the_fixed_input": true,
+      "per_slot": [
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 0
+       },
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 1
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 2
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 3
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 4
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 5
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 6
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 7
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 8
+       },
+       {
+        "L_fp2": 16,
+        "dim_C_fp2": 15,
+        "free_fp": 2,
+        "slot": 9
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 10
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 11
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 12
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 13
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 14
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 15
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 16
+       },
+       {
+        "L_fp2": 50,
+        "dim_C_fp2": 49,
+        "free_fp": 2,
+        "slot": 17
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 18
+       },
+       {
+        "L_fp2": 29,
+        "dim_C_fp2": 28,
+        "free_fp": 2,
+        "slot": 19
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 20
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 21
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 22
+       }
+      ],
+      "why": "R_s and the sum weights are functions of the replayed challenges and the slot geometry only; the fixed transcript enters the right-hand side alone"
+     },
+     "findings": [],
+     "fixed_transcript": "the flat honest transcript whose claimed sum is what the hosted slots' published scalars force, projected onto the identities the M opening pins",
+     "functional_values": {
+      "functionals": 34,
+      "mismatches": 0
+     },
+     "preimage_exhibited": true,
+     "projection": {
+      "applied": true,
+      "conditions": 34,
+      "conditions_on_the_fixed_transcript_fp": 68,
+      "needed": true,
+      "unmet_before": 29,
+      "which": "all"
+     },
+     "verification": {
+      "all_entries_equal": true,
+      "round_entries": 721,
+      "round_mismatches": 0,
+      "scalar_mismatches": 0,
+      "scalars": 23,
+      "theta_identity_holds": true
+     },
+     "zero_transcript_is_infeasible": true
+    },
+    "published_functionals": 34,
+    "slots": 23,
+    "stage3_disclosed_all_values_fp": 68,
+    "stage3_disclosed_opening_only_fp": 2,
+    "theta": {
+     "fibre": {
+      "blinding_unknowns_fp": 1166,
+      "fibre_dimension_fp": 46,
+      "independent_of_the_fixed_input": true,
+      "per_slot": [
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 0
+       },
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 1
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 2
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 3
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 4
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 5
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 6
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 7
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 8
+       },
+       {
+        "L_fp2": 16,
+        "dim_C_fp2": 15,
+        "free_fp": 2,
+        "slot": 9
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 10
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 11
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 12
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 13
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 14
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 15
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 16
+       },
+       {
+        "L_fp2": 50,
+        "dim_C_fp2": 49,
+        "free_fp": 2,
+        "slot": 17
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 18
+       },
+       {
+        "L_fp2": 29,
+        "dim_C_fp2": 28,
+        "free_fp": 2,
+        "slot": 19
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 20
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 21
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 22
+       }
+      ],
+      "why": "R_s and the sum weights are functions of the replayed challenges and the slot geometry only; the fixed transcript enters the right-hand side alone"
+     },
+     "findings": [],
+     "fixed_transcript": "the flat honest transcript whose claimed sum is what the hosted slots' published scalars force, projected onto the identities the M opening pins",
+     "functional_values": {
+      "functionals": 34,
+      "mismatches": 29
+     },
+     "preimage_exhibited": true,
+     "projection": {
+      "applied": true,
+      "conditions": 1,
+      "conditions_on_the_fixed_transcript_fp": 2,
+      "needed": true,
+      "unmet_before": 1,
+      "which": "theta"
+     },
+     "verification": {
+      "all_entries_equal": true,
+      "round_entries": 721,
+      "round_mismatches": 0,
+      "scalar_mismatches": 0,
+      "scalars": 23,
+      "theta_identity_holds": true
+     },
+     "zero_transcript_is_infeasible": true
+    }
+   },
+   "model": {
+    "A": {
+     "M_data_shape": [
+      213,
+      256
+     ],
+     "M_nondata_unknowns": 178432,
+     "claims": 120,
+     "data_rows": 213,
+     "disclosed_dimension_fp_stage2": 0,
+     "distinct_opened_columns": 243,
+     "layout_findings": [],
+     "matrix_digest": "8e0a784314968bd9289f72ab9dd9974d034107f021b08e66938cc28a4768d47c",
+     "non_data_rows": 242,
+     "opening_groups": 35,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 455,
+     "u_rows": [],
+     "y_entries": 129117
+    },
+    "H": {
+     "M_data_shape": [
+      278,
+      256
+     ],
+     "M_nondata_unknowns": 125438,
+     "claims": 52,
+     "data_rows": 278,
+     "disclosed_dimension_fp_stage2": 2,
+     "distinct_opened_columns": 240,
+     "layout_findings": [],
+     "matrix_digest": "5598bdb2d7681f810aab02b3371d6d5beae6a5f50be19262da2f33c05d3fc011",
+     "non_data_rows": 106,
+     "opening_groups": 9,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 384,
+     "u_rows": [
+      278,
+      279
+     ],
+     "y_entries": 97332
+    },
+    "Input": {
+     "M_data_shape": [
+      2,
+      256
+     ],
+     "M_nondata_unknowns": 3072,
+     "claims": 1,
+     "data_rows": 2,
+     "disclosed_dimension_fp_stage2": 0,
+     "distinct_opened_columns": 231,
+     "layout_findings": [],
+     "matrix_digest": "f4224c9a5a62fcf0fa2372ed1286c84b7b6c1f0572508142b2e5e6af8d3e4584",
+     "non_data_rows": 5,
+     "opening_groups": 1,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 7,
+     "u_rows": [],
+     "y_entries": 2642
+    },
+    "Output": {
+     "M_data_shape": [
+      2,
+      256
+     ],
+     "M_nondata_unknowns": 3072,
+     "claims": 1,
+     "data_rows": 2,
+     "disclosed_dimension_fp_stage2": 0,
+     "distinct_opened_columns": 239,
+     "layout_findings": [],
+     "matrix_digest": "15a6f988f05ed6c352bc6a1a72e3887ea237c6dd1dedcca185789af1f53e65a1",
+     "non_data_rows": 5,
+     "opening_groups": 1,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 7,
+     "u_rows": [],
+     "y_entries": 2698
+    }
+   },
+   "ok": true,
+   "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+   "proof_bytes": 2816472,
+   "transcript_replay": {
+    "capture": "7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43",
+    "challenges_checked": 1543,
+    "checkpoints_checked": 80,
+    "failures": [],
+    "final_counter": 1863,
+    "ok": true,
+    "profile": "hashline-zk-mr1/private-block-t32-poc/1"
+   }
+  },
+  {
+   "capture": "6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9",
+   "channels": [
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "opening-group vectors",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 28318,
+      "H": 17816,
+      "Input": 295,
+      "Output": 319
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "solved on each claim's reserved mask pair (msg) and through the pad polynomials' free coefficients above the sampled nodes (pad); all 512 entries of every group recomputed and compared",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "proximity vectors (PCS)",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 28318,
+      "H": 17816,
+      "Input": 295,
+      "Output": 319
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "solved on the proximity pair, which no claim touches; all 512 entries recomputed and compared",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "claimed evaluations",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 28318,
+      "H": 17816,
+      "Input": 295,
+      "Output": 319
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "each claim's own reserved pair carries its value; every claim value recomputed from the exhibited randomness and compared",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "opened column values",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 28318,
+      "H": 17816,
+      "Input": 295,
+      "Output": 319
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "the pads are the preimage: Lagrange interpolation through the distinct sampled nodes, inside the Q = 256 pad budget; every opened column value of A, H and both endpoints recomputed and compared.  The M opening's own columns are NOT constructed -- see the open channel below",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "column indices",
+     "function": "Transcript::challenge_indices over the public prefix; stage 1 of the joint-view tool re-derives every index from public data and this gate re-reads them from that replay",
+     "note": "derived, not sampled by the prover",
+     "preimage_exhibited": null,
+     "recomputed": true,
+     "section": "2.1",
+     "status": "derived"
+    },
+    {
+     "assumption": "M-3",
+     "channel": "leaf salts",
+     "counts": {
+      "bytes_each": 32,
+      "openings": 5,
+      "per_opening": 256
+     },
+     "model_assumption": "the salts are fresh uniform bytes in both worlds and equality of the two laws rests on M-3, the assumption that the whole output stream of the generator the code uses (ZkRng) is indistinguishable from uniform, including in the direction that published later outputs do not reveal earlier secret ones",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "M-2",
+     "channel": "the three Merkle roots",
+     "model_assumption": "the roots are generated by the prover itself under ruling D18, no oracle point is programmed, and indistinguishability of the two worlds' roots rests on M-2, the hiding of unopened salted leaves in the random-oracle model",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "M-2",
+     "channel": "authentication paths",
+     "counts": {
+      "levels_mask": 12,
+      "levels_pcs": 11,
+      "paths_per_opening": 256
+     },
+     "model_assumption": "the paths are genuine hashes of the same world's own columns; hiding of the roughly 212.5 unopened leaf digests and of the internal nodes above them per 2,048-leaf tree rests on M-2",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "masked sumcheck rounds",
+     "entries_checked": 576,
+     "entries_differing": 0,
+     "fibre_dim_real": "the same matrix: R_s and the sum weights are functions of the replayed challenges and the slot geometry only",
+     "fibre_dim_zero": 36,
+     "how": "the CFS mask coefficients are solved per slot and every published round entry is recomputed from (fixed transcript, coefficients)",
+     "per_slot_statement": "for slot s the gate exhibits mask coefficients with masked_round_j = honest_round_j + c_s g_s.round(j, rho_<j) at EVERY round and evaluation point, for a named fixed honest transcript; the remaining freedom is one Fp2 coefficient direction per slot",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "published masked scalars, Gamma",
+     "entries_checked": 18,
+     "entries_differing": 0,
+     "how": "the same coefficients, through CfsMask::sum_weights: scalar_s = honest_scalar_s + c_s * <sum_weights, coef_s>, recomputed and compared for every slot",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "published terminals",
+     "how": "every terminal is republished as the value of the PCS claim its private table names (argument.rs:223) -- CHECKED here, not assumed -- and those claim values are among the entries the commitment-side preimage reproduces exactly",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed",
+     "terminals": {
+      "all_republished": true,
+      "republished_as_claim_values": 112,
+      "terminals": 112
+     }
+    },
+    {
+     "assumption": null,
+     "channel": "mask evaluations",
+     "function": "mask_eval_s = (fin_s - terminal_polynomial_s) * c_s^-1, the verifier's own final check solved for the evaluation; the joint-view tool's stage 3 asserts the identity per slot on every capture",
+     "preimage_exhibited": null,
+     "recomputed": true,
+     "section": "2.1",
+     "status": "derived"
+    },
+    {
+     "assumption": null,
+     "channel": "LogUp sums",
+     "how": "the one disclosed identity: the zsum claim's published value is Fp2::ZERO, and the all-zero input gives exactly that, so the fibre over the zero input is non-empty and the preimage is exhibited.  The gate's controls force the value nonzero and show the fibre becomes EMPTY",
+     "note": "this is the channel where the fixed input is not free: a fixed input off this identity has no preimage, which is the disclosed dimension 2 of stage 2 made visible",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "the M opening's q",
+     "preimage_exhibited": false,
+     "reason": "the gate does not model the masking commitment's row layout (zk.rs::mask_commit: 46 a-rows holding [L_s mask coefficients | 256 pads | zeros] in value form over G_512, two b rows and two u rows of 1,024 coefficients), so no b-row preimage is exhibited.  What IS constructed is the mask coefficients those a-rows hold, together with the one functional identity this channel pins -- 512 (q[0] + q[512]) = sum_i theta^i value_i -- which the gate's CFS projection enforces and verifies",
+     "section": "2.1",
+     "status": "open",
+     "what_would_close_it": "a port of encode_coeffs_coset and mask_commit's row layout into this tool; no capture field is missing"
+    },
+    {
+     "assumption": null,
+     "channel": "the M proximity vector",
+     "preimage_exhibited": false,
+     "reason": "same as the q channel: the u row that masks it is not modelled here.  The joint-view tool's stage 3 records the source fact that the proximity combination adds a uniform u row with coefficient 1",
+     "section": "2.1",
+     "status": "open",
+     "what_would_close_it": "the same port; no capture field is missing"
+    },
+    {
+     "assumption": null,
+     "channel": "opened column values (the M opening's own 256 columns)",
+     "preimage_exhibited": false,
+     "reason": "the a-row pads that absorb them are not modelled here (see the q channel).  The joint-view tool computes the exact rank of that pad block and finds it full, which is the existence certificate this gate would turn into an exhibited preimage",
+     "section": "2.1",
+     "status": "open",
+     "what_would_close_it": "the same port; no capture field is missing"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "counts and lengths",
+     "model_assumption": "every count and length in the receipt is a function of the public geometry alone (layout.rs:521-526, wire.rs:28-36), so it is the same in both worlds; the gate checks the two captures of one profile have identical proof byte counts",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "the wire envelope",
+     "model_assumption": "the 8-byte magic and the 32-byte binding digest are the transcript state after the header, a function of the public statement and the policy only -- witness-independent except through the endpoint roots, which the policy carries and which the D8/D11 obligation covers",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "slots, scalars, framing (the residue, less the envelope)",
+     "model_assumption": "the framing bytes are lengths and tags fixed by the public schedule; the payload inside them is the slot channels above",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "O-1",
+     "channel": "the public statement and the 112-byte expected-IO policy",
+     "model_assumption": "the statement and policy are public inputs, identical in both worlds; condition O-1 rides on this channel -- if a deployment computes the 32-byte context digest from the request then for a low-entropy prompt the digest IS the prompt, which no property of the proof repairs",
+     "preimage_exhibited": null,
+     "section": "2.2",
+     "status": "argued"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "the receipt's length",
+     "model_assumption": "2,816,472 bytes at the block profile for every witness; the zero-witness Rust test asserts the zero input's receipt has exactly that length",
+     "preimage_exhibited": null,
+     "section": "2.2",
+     "status": "argued"
+    },
+    {
+     "assumption": null,
+     "channel": "whether a proof attempt produced a receipt",
+     "preimage_exhibited": null,
+     "reason": "the refusal channel is inside the game (ruling C-2) and one refusal class is witness-dependent at about 2^-112; no capture can show it, because a capture only exists when the proof was accepted",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "rejected-but-emitted receipts",
+     "preimage_exhibited": null,
+     "reason": "history item H8, a procedural condition on the deployment: finish has no equality precheck, so a rejected receipt is fully constructed and must never be transmitted",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "retained captures",
+     "preimage_exhibited": null,
+     "reason": "history item H9, a procedural condition: a retained capture is a published opening of its two endpoint roots.  Today the writer is behind #[cfg(test)] and every capture is of a deliberately public fixture",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "timing, memory, power",
+     "preimage_exhibited": null,
+     "reason": "declared out of scope for the first MVP (M-5, ruling C-2); no field of the capture bears on it",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "prior proofs by the same prover",
+     "preimage_exhibited": null,
+     "reason": "the composition of several receipts is chain item 21 and open item U-3b; this gate analyses one receipt at a time",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "the integer-range facts the statement implies",
+     "preimage_exhibited": null,
+     "reason": "chain item 20: the statement implies the hidden values are in range, which is information about them that no preimage argument removes",
+     "section": "4.2 row 16",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "any nonlinear functional of the joint view",
+     "preimage_exhibited": null,
+     "reason": "chain item 21: the terminal identity links the commitment and masking channels with degree up to 4 in the terminals, and no linear model sees that link.  This gate is linear",
+     "section": "4.2 row 17",
+     "status": "open"
+    }
+   ],
+   "controls": {
+    "all_fire": true,
+    "cfs_zero_transcript": {
+     "fires": true,
+     "projected_transcript_feasible": true,
+     "what": "the canonical zero honest transcript against the published functional values",
+     "why": "the M opening pins functionals of the mask coefficients that lie in the round span, so the fixed transcript is not free: the gate exhibits the preimage exactly on the plane those identities cut out",
+     "zero_transcript_infeasible": true
+    },
+    "control_names": [
+     "unsatisfiable_group_vector_0",
+     "unsatisfiable_group_vector_256",
+     "witness_bearing_logup_value",
+     "one_pad_fewer_than_the_distinct_opened_columns",
+     "shared_blinding_unknown_between_two_commitments",
+     "second_fixed_input_off_the_disclosed_identity",
+     "cfs_zero_transcript"
+    ],
+    "honest": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
+    "honest_after_every_control": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
+    "honest_again": true,
+    "ok": true,
+    "one_pad_fewer_than_the_distinct_opened_columns": {
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "Input: row 0 -- NO PREIMAGE: 242 pad symbols cannot meet 243 distinct opened columns (the interpolant of the required values has degree 242)"
+     ],
+     "what": "Input modelled with 242 pad symbols against 243 distinct opened columns -- one blinding unknown short of the budget",
+     "why": "with fewer pad symbols than distinct opened columns the row's pad polynomial cannot meet the opened values, so the view leaves the image of the blinding map and has no preimage.  This is the control on the side that CAN fail: at the real budget the map is onto, and then EVERY view has a preimage, which is what nothing-disclosed means"
+    },
+    "second_fixed_input_off_the_disclosed_identity": {
+     "after_projection_has_a_preimage": true,
+     "before_projection_has_a_preimage": false,
+     "fires": true,
+     "projection": {
+      "applied": true,
+      "identities": [
+       {
+        "already_satisfied": false,
+        "applied": true,
+        "corrected_rows": [
+         0,
+         2
+        ],
+        "group": 7,
+        "identity": "the LogUp sum claim: the view determines sum over data rows of rw[i] * (row sum), and the published value is 0",
+        "residual_before": [
+         14211067415734237043,
+         2205136863463822413
+        ]
+       }
+      ]
+     },
+     "what": "the pseudorandom fixed input on H, before and after projection onto the one identity the view discloses",
+     "why": "the disclosed dimension is not a number here but a refusal: a fixed input off the LogUp plane has no preimage at all"
+    },
+    "shared_blinding_unknown_between_two_commitments": {
+     "fires": true,
+     "first_differing_position": 0,
+     "honest_passes": "the honest receipt shares no blinding row (the joint-view tool's stage 4 computes that the non-data block is block diagonal by role), so both preimages stand on the honest capture",
+     "per_commitment_preimages_exist": true,
+     "positions_where_the_two_forced_values_differ": 256,
+     "rows": {
+      "A": 154,
+      "H": 218
+     },
+     "what": "one reserved mask row of a singleton opening group in A and one in H declared to be the SAME unknown",
+     "why": "both rows belong to SINGLETON opening groups, so inside each commitment the pair's message is the unique solution of an invertible 2x2 system at every position: A forces one value on the shared unknown and H forces another.  The per-commitment preimages exist and the JOINT one does not -- the case a per-commitment acceptance cannot see"
+    },
+    "unsatisfiable_group_vector_0": {
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "Input: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the kernel of the group-vector constraint"
+     ],
+     "what": "Input's opening-group vector perturbed by one at message position 0, the opened columns left alone",
+     "why_it_can_fire": "the view's own public identities tie the channels together -- the verifier's column identity says the group vector's encoding at a sampled node equals the group combination of that column's values -- so a perturbation of one channel alone leaves the image of the blinding map and no preimage exists"
+    },
+    "unsatisfiable_group_vector_256": {
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "Input: pad:group0 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the residual is not divisible by the sampled nodes' vanishing polynomial)"
+     ],
+     "what": "Input's opening-group vector perturbed by one at pad coefficient 0, the opened columns left alone",
+     "why_it_can_fire": "the view's own public identities tie the channels together -- the verifier's column identity says the group vector's encoding at a sampled node equals the group combination of that column's values -- so a perturbation of one channel alone leaves the image of the blinding map and no preimage exists"
+    },
+    "witness_bearing_logup_value": {
+     "claim": [
+      35
+     ],
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "H: group 7 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the kernel of the group-vector constraint"
+     ],
+     "what": "H's LogUp sum claim forced to a value other than Fp2::ZERO",
+     "why": "the u pair's message sums to zero by the layout's public linear constraint, so the zero input can only reach a zero published value: the fibre over the all-zero input becomes EMPTY"
+    }
+   },
+   "fixed_inputs": {
+    "prg": {
+     "A": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "0a50c32e41ad0ed273956a6f90392515c32a5f84d6fb1df632283eb1fcdec14e",
+      "fibre": {
+       "blinding_unknowns": 117248,
+       "distinct_opened_columns": 234,
+       "fibre_dimension_fp": 28318,
+       "generators_fp": 62,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 22950,
+       "pad_block_fp": 5368,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "a8bd66c2b6a127f43e514845dee290cd9229df14f5810bf33d85e8b2ecac0952",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false,
+       "identities": []
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 75,
+       "column_entries": 71604,
+       "column_mismatches": 0,
+       "columns_verified": 234,
+       "group_vector_entries": 15360,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "H": {
+      "before_projection_has_no_preimage": true,
+      "exhibited_randomness_sha256": "f187e9a799ecb2ec5335559ec2d494c996e341ac4d2d29119c414335909f8155",
+      "fibre": {
+       "blinding_unknowns": 93182,
+       "distinct_opened_columns": 243,
+       "fibre_dimension_fp": 17816,
+       "generators_fp": 18,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 14280,
+       "pad_block_fp": 3536,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "8f311736cc2be6d571d7f180d929c3bdf139a8cdaa842f1e99b23bc655f20d80",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": true,
+       "identities": [
+        {
+         "already_satisfied": false,
+         "applied": true,
+         "corrected_rows": [
+          0,
+          2
+         ],
+         "group": 7,
+         "identity": "the LogUp sum claim: the view determines sum over data rows of rw[i] * (row sum), and the published value is 0",
+         "residual_before": [
+          14211067415734237043,
+          2205136863463822413
+         ]
+        }
+       ]
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 36,
+       "column_entries": 70470,
+       "column_mismatches": 0,
+       "columns_verified": 243,
+       "group_vector_entries": 4096,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Input": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "6ed45e45a4c771e2aef916b915c25099a8ca8153c87272fd55f08891f8d8380b",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 243,
+       "fibre_dimension_fp": 295,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 39,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "a83ad8b5e0d7ffdd07b2ce3dc9f98b60827f17fd5b8c8e4583e4c41deb631e73",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false,
+       "identities": []
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1701,
+       "column_mismatches": 0,
+       "columns_verified": 243,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Output": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "5264b38c80a4a5247ec3415d6bdb4a3dc8f034deac24cdf636c20a60db82dd07",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 235,
+       "fibre_dimension_fp": 319,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 63,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "57f8ae426297a786666cc2d7281248744d4fec36736bdedc4cdb23be9fa4a6c3",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false,
+       "identities": []
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1645,
+       "column_mismatches": 0,
+       "columns_verified": 235,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     }
+    },
+    "zero": {
+     "A": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "bcb215d72cdd7e76b2e8ad3e1b40901303556c001b71acc7c3b8b683d88604a5",
+      "fibre": {
+       "blinding_unknowns": 117248,
+       "distinct_opened_columns": 234,
+       "fibre_dimension_fp": 28318,
+       "generators_fp": 62,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 22950,
+       "pad_block_fp": 5368,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "a8bd66c2b6a127f43e514845dee290cd9229df14f5810bf33d85e8b2ecac0952",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 75,
+       "column_entries": 71604,
+       "column_mismatches": 0,
+       "columns_verified": 234,
+       "group_vector_entries": 15360,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "H": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "9b97eb9aa476cdd9516fd6bca67340b7cc87c5dd304a84e09881ed38b9351568",
+      "fibre": {
+       "blinding_unknowns": 93182,
+       "distinct_opened_columns": 243,
+       "fibre_dimension_fp": 17816,
+       "generators_fp": 18,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 14280,
+       "pad_block_fp": 3536,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "8f311736cc2be6d571d7f180d929c3bdf139a8cdaa842f1e99b23bc655f20d80",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 36,
+       "column_entries": 70470,
+       "column_mismatches": 0,
+       "columns_verified": 243,
+       "group_vector_entries": 4096,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Input": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "11c26799bf90d250d3357875597f7c3e0cab56b91b6bb95bbdf1f73cfed796ae",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 243,
+       "fibre_dimension_fp": 295,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 39,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "a83ad8b5e0d7ffdd07b2ce3dc9f98b60827f17fd5b8c8e4583e4c41deb631e73",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1701,
+       "column_mismatches": 0,
+       "columns_verified": 243,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Output": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "fa162bc13b1ecb322f7f9e806ebf029a1955e668a9d91f7d3c6fa361cfb3744c",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 235,
+       "fibre_dimension_fp": 319,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 63,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "57f8ae426297a786666cc2d7281248744d4fec36736bdedc4cdb23be9fa4a6c3",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1645,
+       "column_mismatches": 0,
+       "columns_verified": 235,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     }
+    }
+   },
+   "grade": {
+    "by_status": {
+     "argued": 8,
+     "constructed": 8,
+     "derived": 2,
+     "open": 10
+    },
+    "channels": 28,
+    "failures": [],
+    "ok": true
+   },
+   "masking_commitment": {
+    "all": {
+     "fibre": {
+      "blinding_unknowns_fp": 926,
+      "fibre_dimension_fp": 36,
+      "independent_of_the_fixed_input": true,
+      "per_slot": [
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 0
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 1
+       },
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 2
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 3
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 4
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 5
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 6
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 7
+       },
+       {
+        "L_fp2": 16,
+        "dim_C_fp2": 15,
+        "free_fp": 2,
+        "slot": 8
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 9
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 10
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 11
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 12
+       },
+       {
+        "L_fp2": 50,
+        "dim_C_fp2": 49,
+        "free_fp": 2,
+        "slot": 13
+       },
+       {
+        "L_fp2": 29,
+        "dim_C_fp2": 28,
+        "free_fp": 2,
+        "slot": 14
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 15
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 16
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 17
+       }
+      ],
+      "why": "R_s and the sum weights are functions of the replayed challenges and the slot geometry only; the fixed transcript enters the right-hand side alone"
+     },
+     "findings": [],
+     "fixed_transcript": "the flat honest transcript whose claimed sum is what the hosted slots' published scalars force, projected onto the identities the M opening pins",
+     "functional_values": {
+      "functionals": 28,
+      "mismatches": 0
+     },
+     "preimage_exhibited": true,
+     "projection": {
+      "applied": true,
+      "conditions": 28,
+      "conditions_on_the_fixed_transcript_fp": 56,
+      "needed": true,
+      "unmet_before": 23,
+      "which": "all"
+     },
+     "verification": {
+      "all_entries_equal": true,
+      "round_entries": 576,
+      "round_mismatches": 0,
+      "scalar_mismatches": 0,
+      "scalars": 18,
+      "theta_identity_holds": true
+     },
+     "zero_transcript_is_infeasible": true
+    },
+    "published_functionals": 28,
+    "slots": 18,
+    "stage3_disclosed_all_values_fp": 56,
+    "stage3_disclosed_opening_only_fp": 2,
+    "theta": {
+     "fibre": {
+      "blinding_unknowns_fp": 926,
+      "fibre_dimension_fp": 36,
+      "independent_of_the_fixed_input": true,
+      "per_slot": [
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 0
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 1
+       },
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 2
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 3
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 4
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 5
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 6
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 7
+       },
+       {
+        "L_fp2": 16,
+        "dim_C_fp2": 15,
+        "free_fp": 2,
+        "slot": 8
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 9
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 10
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 11
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 12
+       },
+       {
+        "L_fp2": 50,
+        "dim_C_fp2": 49,
+        "free_fp": 2,
+        "slot": 13
+       },
+       {
+        "L_fp2": 29,
+        "dim_C_fp2": 28,
+        "free_fp": 2,
+        "slot": 14
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 15
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 16
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 17
+       }
+      ],
+      "why": "R_s and the sum weights are functions of the replayed challenges and the slot geometry only; the fixed transcript enters the right-hand side alone"
+     },
+     "findings": [],
+     "fixed_transcript": "the flat honest transcript whose claimed sum is what the hosted slots' published scalars force, projected onto the identities the M opening pins",
+     "functional_values": {
+      "functionals": 28,
+      "mismatches": 23
+     },
+     "preimage_exhibited": true,
+     "projection": {
+      "applied": true,
+      "conditions": 1,
+      "conditions_on_the_fixed_transcript_fp": 2,
+      "needed": true,
+      "unmet_before": 1,
+      "which": "theta"
+     },
+     "verification": {
+      "all_entries_equal": true,
+      "round_entries": 576,
+      "round_mismatches": 0,
+      "scalar_mismatches": 0,
+      "scalars": 18,
+      "theta_identity_holds": true
+     },
+     "zero_transcript_is_infeasible": true
+    }
+   },
+   "model": {
+    "A": {
+     "M_data_shape": [
+      154,
+      256
+     ],
+     "M_nondata_unknowns": 117248,
+     "claims": 75,
+     "data_rows": 154,
+     "disclosed_dimension_fp_stage2": 0,
+     "distinct_opened_columns": 234,
+     "layout_findings": [],
+     "matrix_digest": "a8bd66c2b6a127f43e514845dee290cd9229df14f5810bf33d85e8b2ecac0952",
+     "non_data_rows": 152,
+     "opening_groups": 30,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 306,
+     "u_rows": [],
+     "y_entries": 87551
+    },
+    "H": {
+     "M_data_shape": [
+      216,
+      256
+     ],
+     "M_nondata_unknowns": 93182,
+     "claims": 36,
+     "data_rows": 216,
+     "disclosed_dimension_fp_stage2": 2,
+     "distinct_opened_columns": 243,
+     "layout_findings": [],
+     "matrix_digest": "8f311736cc2be6d571d7f180d929c3bdf139a8cdaa842f1e99b23bc655f20d80",
+     "non_data_rows": 74,
+     "opening_groups": 8,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 290,
+     "u_rows": [
+      216,
+      217
+     ],
+     "y_entries": 75114
+    },
+    "Input": {
+     "M_data_shape": [
+      2,
+      256
+     ],
+     "M_nondata_unknowns": 3072,
+     "claims": 1,
+     "data_rows": 2,
+     "disclosed_dimension_fp_stage2": 0,
+     "distinct_opened_columns": 243,
+     "layout_findings": [],
+     "matrix_digest": "a83ad8b5e0d7ffdd07b2ce3dc9f98b60827f17fd5b8c8e4583e4c41deb631e73",
+     "non_data_rows": 5,
+     "opening_groups": 1,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 7,
+     "u_rows": [],
+     "y_entries": 2726
+    },
+    "Output": {
+     "M_data_shape": [
+      2,
+      256
+     ],
+     "M_nondata_unknowns": 3072,
+     "claims": 1,
+     "data_rows": 2,
+     "disclosed_dimension_fp_stage2": 0,
+     "distinct_opened_columns": 235,
+     "layout_findings": [],
+     "matrix_digest": "57f8ae426297a786666cc2d7281248744d4fec36736bdedc4cdb23be9fa4a6c3",
+     "non_data_rows": 5,
+     "opening_groups": 1,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 7,
+     "u_rows": [],
+     "y_entries": 2670
+    }
+   },
+   "ok": true,
+   "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+   "proof_bytes": 2245800,
+   "transcript_replay": {
+    "capture": "6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9",
+    "challenges_checked": 1122,
+    "checkpoints_checked": 65,
+    "failures": [],
+    "final_counter": 1442,
+    "ok": true,
+    "profile": "hashline-zk-mr1/private-attention-t32-poc/1"
+   }
+  },
+  {
+   "capture": "c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6",
+   "channels": [
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "opening-group vectors",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 26610,
+      "H": 18904,
+      "Input": 313,
+      "Output": 307
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "solved on each claim's reserved mask pair (msg) and through the pad polynomials' free coefficients above the sampled nodes (pad); all 512 entries of every group recomputed and compared",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "proximity vectors (PCS)",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 26610,
+      "H": 18904,
+      "Input": 313,
+      "Output": 307
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "solved on the proximity pair, which no claim touches; all 512 entries recomputed and compared",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "claimed evaluations",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 26610,
+      "H": 18904,
+      "Input": 313,
+      "Output": 307
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "each claim's own reserved pair carries its value; every claim value recomputed from the exhibited randomness and compared",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "opened column values",
+     "fibre_dim_real": "the same matrix: M_nondata does not depend on the hidden input, so the fibre dimension at the real witness is the same number; the gate asserts it by re-deriving the matrices at the second fixed input and comparing their digests",
+     "fibre_dim_zero": {
+      "A": 26610,
+      "H": 18904,
+      "Input": 313,
+      "Output": 307
+     },
+     "fibre_dimension_equal_across_fixed_inputs": true,
+     "how": "the pads are the preimage: Lagrange interpolation through the distinct sampled nodes, inside the Q = 256 pad budget; every opened column value of A, H and both endpoints recomputed and compared.  The M opening's own columns are NOT constructed -- see the open channel below",
+     "preimage_exhibited": true,
+     "preimage_exhibited_second_fixed_input": true,
+     "residual_entries_differing": 0,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "column indices",
+     "function": "Transcript::challenge_indices over the public prefix; stage 1 of the joint-view tool re-derives every index from public data and this gate re-reads them from that replay",
+     "note": "derived, not sampled by the prover",
+     "preimage_exhibited": null,
+     "recomputed": true,
+     "section": "2.1",
+     "status": "derived"
+    },
+    {
+     "assumption": "M-3",
+     "channel": "leaf salts",
+     "counts": {
+      "bytes_each": 32,
+      "openings": 5,
+      "per_opening": 256
+     },
+     "model_assumption": "the salts are fresh uniform bytes in both worlds and equality of the two laws rests on M-3, the assumption that the whole output stream of the generator the code uses (ZkRng) is indistinguishable from uniform, including in the direction that published later outputs do not reveal earlier secret ones",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "M-2",
+     "channel": "the three Merkle roots",
+     "model_assumption": "the roots are generated by the prover itself under ruling D18, no oracle point is programmed, and indistinguishability of the two worlds' roots rests on M-2, the hiding of unopened salted leaves in the random-oracle model",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "M-2",
+     "channel": "authentication paths",
+     "counts": {
+      "levels_mask": 12,
+      "levels_pcs": 11,
+      "paths_per_opening": 256
+     },
+     "model_assumption": "the paths are genuine hashes of the same world's own columns; hiding of the roughly 212.5 unopened leaf digests and of the internal nodes above them per 2,048-leaf tree rests on M-2",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": null,
+     "augmented_rank_equal": true,
+     "channel": "masked sumcheck rounds",
+     "entries_checked": 576,
+     "entries_differing": 0,
+     "fibre_dim_real": "the same matrix: R_s and the sum weights are functions of the replayed challenges and the slot geometry only",
+     "fibre_dim_zero": 36,
+     "how": "the CFS mask coefficients are solved per slot and every published round entry is recomputed from (fixed transcript, coefficients)",
+     "per_slot_statement": "for slot s the gate exhibits mask coefficients with masked_round_j = honest_round_j + c_s g_s.round(j, rho_<j) at EVERY round and evaluation point, for a named fixed honest transcript; the remaining freedom is one Fp2 coefficient direction per slot",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "published masked scalars, Gamma",
+     "entries_checked": 18,
+     "entries_differing": 0,
+     "how": "the same coefficients, through CfsMask::sum_weights: scalar_s = honest_scalar_s + c_s * <sum_weights, coef_s>, recomputed and compared for every slot",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "published terminals",
+     "how": "every terminal is republished as the value of the PCS claim its private table names (argument.rs:223) -- CHECKED here, not assumed -- and those claim values are among the entries the commitment-side preimage reproduces exactly",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed",
+     "terminals": {
+      "all_republished": true,
+      "republished_as_claim_values": 112,
+      "terminals": 112
+     }
+    },
+    {
+     "assumption": null,
+     "channel": "mask evaluations",
+     "function": "mask_eval_s = (fin_s - terminal_polynomial_s) * c_s^-1, the verifier's own final check solved for the evaluation; the joint-view tool's stage 3 asserts the identity per slot on every capture",
+     "preimage_exhibited": null,
+     "recomputed": true,
+     "section": "2.1",
+     "status": "derived"
+    },
+    {
+     "assumption": null,
+     "channel": "LogUp sums",
+     "how": "the one disclosed identity: the zsum claim's published value is Fp2::ZERO, and the all-zero input gives exactly that, so the fibre over the zero input is non-empty and the preimage is exhibited.  The gate's controls force the value nonzero and show the fibre becomes EMPTY",
+     "note": "this is the channel where the fixed input is not free: a fixed input off this identity has no preimage, which is the disclosed dimension 2 of stage 2 made visible",
+     "preimage_exhibited": true,
+     "section": "2.1",
+     "status": "constructed"
+    },
+    {
+     "assumption": null,
+     "channel": "the M opening's q",
+     "preimage_exhibited": false,
+     "reason": "the gate does not model the masking commitment's row layout (zk.rs::mask_commit: 46 a-rows holding [L_s mask coefficients | 256 pads | zeros] in value form over G_512, two b rows and two u rows of 1,024 coefficients), so no b-row preimage is exhibited.  What IS constructed is the mask coefficients those a-rows hold, together with the one functional identity this channel pins -- 512 (q[0] + q[512]) = sum_i theta^i value_i -- which the gate's CFS projection enforces and verifies",
+     "section": "2.1",
+     "status": "open",
+     "what_would_close_it": "a port of encode_coeffs_coset and mask_commit's row layout into this tool; no capture field is missing"
+    },
+    {
+     "assumption": null,
+     "channel": "the M proximity vector",
+     "preimage_exhibited": false,
+     "reason": "same as the q channel: the u row that masks it is not modelled here.  The joint-view tool's stage 3 records the source fact that the proximity combination adds a uniform u row with coefficient 1",
+     "section": "2.1",
+     "status": "open",
+     "what_would_close_it": "the same port; no capture field is missing"
+    },
+    {
+     "assumption": null,
+     "channel": "opened column values (the M opening's own 256 columns)",
+     "preimage_exhibited": false,
+     "reason": "the a-row pads that absorb them are not modelled here (see the q channel).  The joint-view tool computes the exact rank of that pad block and finds it full, which is the existence certificate this gate would turn into an exhibited preimage",
+     "section": "2.1",
+     "status": "open",
+     "what_would_close_it": "the same port; no capture field is missing"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "counts and lengths",
+     "model_assumption": "every count and length in the receipt is a function of the public geometry alone (layout.rs:521-526, wire.rs:28-36), so it is the same in both worlds; the gate checks the two captures of one profile have identical proof byte counts",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "the wire envelope",
+     "model_assumption": "the 8-byte magic and the 32-byte binding digest are the transcript state after the header, a function of the public statement and the policy only -- witness-independent except through the endpoint roots, which the policy carries and which the D8/D11 obligation covers",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "slots, scalars, framing (the residue, less the envelope)",
+     "model_assumption": "the framing bytes are lengths and tags fixed by the public schedule; the payload inside them is the slot channels above",
+     "preimage_exhibited": null,
+     "section": "2.1",
+     "status": "argued"
+    },
+    {
+     "assumption": "O-1",
+     "channel": "the public statement and the 112-byte expected-IO policy",
+     "model_assumption": "the statement and policy are public inputs, identical in both worlds; condition O-1 rides on this channel -- if a deployment computes the 32-byte context digest from the request then for a low-entropy prompt the digest IS the prompt, which no property of the proof repairs",
+     "preimage_exhibited": null,
+     "section": "2.2",
+     "status": "argued"
+    },
+    {
+     "assumption": "shape facts",
+     "channel": "the receipt's length",
+     "model_assumption": "2,816,472 bytes at the block profile for every witness; the zero-witness Rust test asserts the zero input's receipt has exactly that length",
+     "preimage_exhibited": null,
+     "section": "2.2",
+     "status": "argued"
+    },
+    {
+     "assumption": null,
+     "channel": "whether a proof attempt produced a receipt",
+     "preimage_exhibited": null,
+     "reason": "the refusal channel is inside the game (ruling C-2) and one refusal class is witness-dependent at about 2^-112; no capture can show it, because a capture only exists when the proof was accepted",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "rejected-but-emitted receipts",
+     "preimage_exhibited": null,
+     "reason": "history item H8, a procedural condition on the deployment: finish has no equality precheck, so a rejected receipt is fully constructed and must never be transmitted",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "retained captures",
+     "preimage_exhibited": null,
+     "reason": "history item H9, a procedural condition: a retained capture is a published opening of its two endpoint roots.  Today the writer is behind #[cfg(test)] and every capture is of a deliberately public fixture",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "timing, memory, power",
+     "preimage_exhibited": null,
+     "reason": "declared out of scope for the first MVP (M-5, ruling C-2); no field of the capture bears on it",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "prior proofs by the same prover",
+     "preimage_exhibited": null,
+     "reason": "the composition of several receipts is chain item 21 and open item U-3b; this gate analyses one receipt at a time",
+     "section": "2.2",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "the integer-range facts the statement implies",
+     "preimage_exhibited": null,
+     "reason": "chain item 20: the statement implies the hidden values are in range, which is information about them that no preimage argument removes",
+     "section": "4.2 row 16",
+     "status": "open"
+    },
+    {
+     "assumption": null,
+     "channel": "any nonlinear functional of the joint view",
+     "preimage_exhibited": null,
+     "reason": "chain item 21: the terminal identity links the commitment and masking channels with degree up to 4 in the terminals, and no linear model sees that link.  This gate is linear",
+     "section": "4.2 row 17",
+     "status": "open"
+    }
+   ],
+   "controls": {
+    "all_fire": true,
+    "cfs_zero_transcript": {
+     "fires": true,
+     "projected_transcript_feasible": true,
+     "what": "the canonical zero honest transcript against the published functional values",
+     "why": "the M opening pins functionals of the mask coefficients that lie in the round span, so the fixed transcript is not free: the gate exhibits the preimage exactly on the plane those identities cut out",
+     "zero_transcript_infeasible": true
+    },
+    "control_names": [
+     "unsatisfiable_group_vector_0",
+     "unsatisfiable_group_vector_256",
+     "witness_bearing_logup_value",
+     "one_pad_fewer_than_the_distinct_opened_columns",
+     "shared_blinding_unknown_between_two_commitments",
+     "second_fixed_input_off_the_disclosed_identity",
+     "cfs_zero_transcript"
+    ],
+    "honest": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
+    "honest_after_every_control": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
+    "honest_again": true,
+    "ok": true,
+    "one_pad_fewer_than_the_distinct_opened_columns": {
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "Input: row 0 -- NO PREIMAGE: 236 pad symbols cannot meet 237 distinct opened columns (the interpolant of the required values has degree 236)"
+     ],
+     "what": "Input modelled with 236 pad symbols against 237 distinct opened columns -- one blinding unknown short of the budget",
+     "why": "with fewer pad symbols than distinct opened columns the row's pad polynomial cannot meet the opened values, so the view leaves the image of the blinding map and has no preimage.  This is the control on the side that CAN fail: at the real budget the map is onto, and then EVERY view has a preimage, which is what nothing-disclosed means"
+    },
+    "second_fixed_input_off_the_disclosed_identity": {
+     "after_projection_has_a_preimage": true,
+     "before_projection_has_a_preimage": false,
+     "fires": true,
+     "projection": {
+      "applied": true,
+      "identities": [
+       {
+        "already_satisfied": false,
+        "applied": true,
+        "corrected_rows": [
+         0,
+         2
+        ],
+        "group": 7,
+        "identity": "the LogUp sum claim: the view determines sum over data rows of rw[i] * (row sum), and the published value is 0",
+        "residual_before": [
+         4217595252666916021,
+         17843388681042424134
+        ]
+       }
+      ]
+     },
+     "what": "the pseudorandom fixed input on H, before and after projection onto the one identity the view discloses",
+     "why": "the disclosed dimension is not a number here but a refusal: a fixed input off the LogUp plane has no preimage at all"
+    },
+    "shared_blinding_unknown_between_two_commitments": {
+     "fires": true,
+     "first_differing_position": 0,
+     "honest_passes": "the honest receipt shares no blinding row (the joint-view tool's stage 4 computes that the non-data block is block diagonal by role), so both preimages stand on the honest capture",
+     "per_commitment_preimages_exist": true,
+     "positions_where_the_two_forced_values_differ": 256,
+     "rows": {
+      "A": 154,
+      "H": 218
+     },
+     "what": "one reserved mask row of a singleton opening group in A and one in H declared to be the SAME unknown",
+     "why": "both rows belong to SINGLETON opening groups, so inside each commitment the pair's message is the unique solution of an invertible 2x2 system at every position: A forces one value on the shared unknown and H forces another.  The per-commitment preimages exist and the JOINT one does not -- the case a per-commitment acceptance cannot see"
+    },
+    "unsatisfiable_group_vector_0": {
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "Input: group 0 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the kernel of the group-vector constraint"
+     ],
+     "what": "Input's opening-group vector perturbed by one at message position 0, the opened columns left alone",
+     "why_it_can_fire": "the view's own public identities tie the channels together -- the verifier's column identity says the group vector's encoding at a sampled node equals the group combination of that column's values -- so a perturbation of one channel alone leaves the image of the blinding map and no preimage exists"
+    },
+    "unsatisfiable_group_vector_256": {
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "Input: pad:group0 -- NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the residual is not divisible by the sampled nodes' vanishing polynomial)"
+     ],
+     "what": "Input's opening-group vector perturbed by one at pad coefficient 0, the opened columns left alone",
+     "why_it_can_fire": "the view's own public identities tie the channels together -- the verifier's column identity says the group vector's encoding at a sampled node equals the group combination of that column's values -- so a perturbation of one channel alone leaves the image of the blinding map and no preimage exists"
+    },
+    "witness_bearing_logup_value": {
+     "claim": [
+      35
+     ],
+     "fires": true,
+     "honest_passes": true,
+     "how": [
+      "H: group 7 -- NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the kernel of the group-vector constraint"
+     ],
+     "what": "H's LogUp sum claim forced to a value other than Fp2::ZERO",
+     "why": "the u pair's message sums to zero by the layout's public linear constraint, so the zero input can only reach a zero published value: the fibre over the all-zero input becomes EMPTY"
+    }
+   },
+   "fixed_inputs": {
+    "prg": {
+     "A": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "dbfc0f818ccac91e7357ccc6be83e3bff0af964a15ffe0976429b67fe31f6b31",
+      "fibre": {
+       "blinding_unknowns": 117248,
+       "distinct_opened_columns": 241,
+       "fibre_dimension_fp": 26610,
+       "generators_fp": 62,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 22950,
+       "pad_block_fp": 3660,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "5c22697fde6d6bb929ff6c8d2fe172715578a03e63051e8fc637bab25998803d",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false,
+       "identities": []
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 75,
+       "column_entries": 73746,
+       "column_mismatches": 0,
+       "columns_verified": 241,
+       "group_vector_entries": 15360,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "H": {
+      "before_projection_has_no_preimage": true,
+      "exhibited_randomness_sha256": "3963e95ad820b64da44cfaf5289cf94fa29eaa32dba7291a8bb0c0a58ca21d70",
+      "fibre": {
+       "blinding_unknowns": 93182,
+       "distinct_opened_columns": 239,
+       "fibre_dimension_fp": 18904,
+       "generators_fp": 18,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 14280,
+       "pad_block_fp": 4624,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "a125ec61032506c5f0934260d551193cafde8163017cacdcc2923bfb3666b734",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": true,
+       "identities": [
+        {
+         "already_satisfied": false,
+         "applied": true,
+         "corrected_rows": [
+          0,
+          2
+         ],
+         "group": 7,
+         "identity": "the LogUp sum claim: the view determines sum over data rows of rw[i] * (row sum), and the published value is 0",
+         "residual_before": [
+          4217595252666916021,
+          17843388681042424134
+         ]
+        }
+       ]
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 36,
+       "column_entries": 69310,
+       "column_mismatches": 0,
+       "columns_verified": 239,
+       "group_vector_entries": 4096,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Input": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "6d75f28d1d329d9c7435db405b48cf6fd19d709e8560a7fa2259d3584ce8fce0",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 237,
+       "fibre_dimension_fp": 313,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 57,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "d314079dee6532e3ad4ba325c0e5cdca33d475dae26d1161bf48fd9679a10701",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false,
+       "identities": []
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1659,
+       "column_mismatches": 0,
+       "columns_verified": 237,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Output": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "3ab6259c492efc08a0462dfc6b610e1a1e25afbbee9dceaa17b8331fabd1422e",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 239,
+       "fibre_dimension_fp": 307,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 51,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "fe338381f26674de9208e98035d7a201efe5d3cd97927b0de4c3639f08502cf0",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false,
+       "identities": []
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1673,
+       "column_mismatches": 0,
+       "columns_verified": 239,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     }
+    },
+    "zero": {
+     "A": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "dc0525cc9485a51eb1b227252bbf011241fcb16dd4b9fc346668680aff71a144",
+      "fibre": {
+       "blinding_unknowns": 117248,
+       "distinct_opened_columns": 241,
+       "fibre_dimension_fp": 26610,
+       "generators_fp": 62,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 22950,
+       "pad_block_fp": 3660,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "5c22697fde6d6bb929ff6c8d2fe172715578a03e63051e8fc637bab25998803d",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 75,
+       "column_entries": 73746,
+       "column_mismatches": 0,
+       "columns_verified": 241,
+       "group_vector_entries": 15360,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "H": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "678d713be2d851b30e94732ff82e12ab4fdc2bdb65ba4892e7fbfcf29cca9233",
+      "fibre": {
+       "blinding_unknowns": 93182,
+       "distinct_opened_columns": 239,
+       "fibre_dimension_fp": 18904,
+       "generators_fp": 18,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 14280,
+       "pad_block_fp": 4624,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "a125ec61032506c5f0934260d551193cafde8163017cacdcc2923bfb3666b734",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 36,
+       "column_entries": 69310,
+       "column_mismatches": 0,
+       "columns_verified": 239,
+       "group_vector_entries": 4096,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Input": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "d2ce9c17250d5870aaa2fa22180d34793e4174bc62ad0dbbacc7189648861a13",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 237,
+       "fibre_dimension_fp": 313,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 57,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "d314079dee6532e3ad4ba325c0e5cdca33d475dae26d1161bf48fd9679a10701",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1659,
+       "column_mismatches": 0,
+       "columns_verified": 237,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     },
+     "Output": {
+      "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "3150009c01af953634813c96ea3a5d437d8bb25f4374391ed24f8618b5af37ef",
+      "fibre": {
+       "blinding_unknowns": 3072,
+       "distinct_opened_columns": 239,
+       "fibre_dimension_fp": 307,
+       "generators_fp": 4,
+       "independent_of_the_fixed_input": true,
+       "msg_block_fp": 256,
+       "pad_block_fp": 51,
+       "why": "every matrix solved is a function of rho, rw, cw and the sampled nodes only; the fixed input enters the right-hand side alone"
+      },
+      "matrix_digest": "fe338381f26674de9208e98035d7a201efe5d3cd97927b0de4c3639f08502cf0",
+      "matrix_digest_unchanged": true,
+      "no_preimage_reason": [],
+      "preimage_exhibited": true,
+      "projection_onto_the_disclosed_identity": {
+       "applied": false
+      },
+      "verification": {
+       "all_entries_equal": true,
+       "claim_value_mismatches": 0,
+       "claim_values": 1,
+       "column_entries": 1673,
+       "column_mismatches": 0,
+       "columns_verified": 239,
+       "group_vector_entries": 512,
+       "group_vector_mismatches": 0,
+       "proximity_entries": 512,
+       "proximity_mismatches": 0
+      }
+     }
+    }
+   },
+   "grade": {
+    "by_status": {
+     "argued": 8,
+     "constructed": 8,
+     "derived": 2,
+     "open": 10
+    },
+    "channels": 28,
+    "failures": [],
+    "ok": true
+   },
+   "masking_commitment": {
+    "all": {
+     "fibre": {
+      "blinding_unknowns_fp": 926,
+      "fibre_dimension_fp": 36,
+      "independent_of_the_fixed_input": true,
+      "per_slot": [
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 0
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 1
+       },
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 2
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 3
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 4
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 5
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 6
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 7
+       },
+       {
+        "L_fp2": 16,
+        "dim_C_fp2": 15,
+        "free_fp": 2,
+        "slot": 8
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 9
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 10
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 11
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 12
+       },
+       {
+        "L_fp2": 50,
+        "dim_C_fp2": 49,
+        "free_fp": 2,
+        "slot": 13
+       },
+       {
+        "L_fp2": 29,
+        "dim_C_fp2": 28,
+        "free_fp": 2,
+        "slot": 14
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 15
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 16
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 17
+       }
+      ],
+      "why": "R_s and the sum weights are functions of the replayed challenges and the slot geometry only; the fixed transcript enters the right-hand side alone"
+     },
+     "findings": [],
+     "fixed_transcript": "the flat honest transcript whose claimed sum is what the hosted slots' published scalars force, projected onto the identities the M opening pins",
+     "functional_values": {
+      "functionals": 28,
+      "mismatches": 0
+     },
+     "preimage_exhibited": true,
+     "projection": {
+      "applied": true,
+      "conditions": 28,
+      "conditions_on_the_fixed_transcript_fp": 56,
+      "needed": true,
+      "unmet_before": 23,
+      "which": "all"
+     },
+     "verification": {
+      "all_entries_equal": true,
+      "round_entries": 576,
+      "round_mismatches": 0,
+      "scalar_mismatches": 0,
+      "scalars": 18,
+      "theta_identity_holds": true
+     },
+     "zero_transcript_is_infeasible": true
+    },
+    "published_functionals": 28,
+    "slots": 18,
+    "stage3_disclosed_all_values_fp": 56,
+    "stage3_disclosed_opening_only_fp": 2,
+    "theta": {
+     "fibre": {
+      "blinding_unknowns_fp": 926,
+      "fibre_dimension_fp": 36,
+      "independent_of_the_fixed_input": true,
+      "per_slot": [
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 0
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 1
+       },
+       {
+        "L_fp2": 32,
+        "dim_C_fp2": 31,
+        "free_fp": 2,
+        "slot": 2
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 3
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 4
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 5
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 6
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 7
+       },
+       {
+        "L_fp2": 16,
+        "dim_C_fp2": 15,
+        "free_fp": 2,
+        "slot": 8
+       },
+       {
+        "L_fp2": 12,
+        "dim_C_fp2": 11,
+        "free_fp": 2,
+        "slot": 9
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 10
+       },
+       {
+        "L_fp2": 42,
+        "dim_C_fp2": 41,
+        "free_fp": 2,
+        "slot": 11
+       },
+       {
+        "L_fp2": 38,
+        "dim_C_fp2": 37,
+        "free_fp": 2,
+        "slot": 12
+       },
+       {
+        "L_fp2": 50,
+        "dim_C_fp2": 49,
+        "free_fp": 2,
+        "slot": 13
+       },
+       {
+        "L_fp2": 29,
+        "dim_C_fp2": 28,
+        "free_fp": 2,
+        "slot": 14
+       },
+       {
+        "L_fp2": 20,
+        "dim_C_fp2": 19,
+        "free_fp": 2,
+        "slot": 15
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 16
+       },
+       {
+        "L_fp2": 22,
+        "dim_C_fp2": 21,
+        "free_fp": 2,
+        "slot": 17
+       }
+      ],
+      "why": "R_s and the sum weights are functions of the replayed challenges and the slot geometry only; the fixed transcript enters the right-hand side alone"
+     },
+     "findings": [],
+     "fixed_transcript": "the flat honest transcript whose claimed sum is what the hosted slots' published scalars force, projected onto the identities the M opening pins",
+     "functional_values": {
+      "functionals": 28,
+      "mismatches": 23
+     },
+     "preimage_exhibited": true,
+     "projection": {
+      "applied": true,
+      "conditions": 1,
+      "conditions_on_the_fixed_transcript_fp": 2,
+      "needed": true,
+      "unmet_before": 1,
+      "which": "theta"
+     },
+     "verification": {
+      "all_entries_equal": true,
+      "round_entries": 576,
+      "round_mismatches": 0,
+      "scalar_mismatches": 0,
+      "scalars": 18,
+      "theta_identity_holds": true
+     },
+     "zero_transcript_is_infeasible": true
+    }
+   },
+   "model": {
+    "A": {
+     "M_data_shape": [
+      154,
+      256
+     ],
+     "M_nondata_unknowns": 117248,
+     "claims": 75,
+     "data_rows": 154,
+     "disclosed_dimension_fp_stage2": 0,
+     "distinct_opened_columns": 241,
+     "layout_findings": [],
+     "matrix_digest": "5c22697fde6d6bb929ff6c8d2fe172715578a03e63051e8fc637bab25998803d",
+     "non_data_rows": 152,
+     "opening_groups": 30,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 306,
+     "u_rows": [],
+     "y_entries": 89693
+    },
+    "H": {
+     "M_data_shape": [
+      216,
+      256
+     ],
+     "M_nondata_unknowns": 93182,
+     "claims": 36,
+     "data_rows": 216,
+     "disclosed_dimension_fp_stage2": 2,
+     "distinct_opened_columns": 239,
+     "layout_findings": [],
+     "matrix_digest": "a125ec61032506c5f0934260d551193cafde8163017cacdcc2923bfb3666b734",
+     "non_data_rows": 74,
+     "opening_groups": 8,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 290,
+     "u_rows": [
+      216,
+      217
+     ],
+     "y_entries": 73954
+    },
+    "Input": {
+     "M_data_shape": [
+      2,
+      256
+     ],
+     "M_nondata_unknowns": 3072,
+     "claims": 1,
+     "data_rows": 2,
+     "disclosed_dimension_fp_stage2": 0,
+     "distinct_opened_columns": 237,
+     "layout_findings": [],
+     "matrix_digest": "d314079dee6532e3ad4ba325c0e5cdca33d475dae26d1161bf48fd9679a10701",
+     "non_data_rows": 5,
+     "opening_groups": 1,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 7,
+     "u_rows": [],
+     "y_entries": 2684
+    },
+    "Output": {
+     "M_data_shape": [
+      2,
+      256
+     ],
+     "M_nondata_unknowns": 3072,
+     "claims": 1,
+     "data_rows": 2,
+     "disclosed_dimension_fp_stage2": 0,
+     "distinct_opened_columns": 239,
+     "layout_findings": [],
+     "matrix_digest": "fe338381f26674de9208e98035d7a201efe5d3cd97927b0de4c3639f08502cf0",
+     "non_data_rows": 5,
+     "opening_groups": 1,
+     "reduction_hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true
+     },
+     "rows": 7,
+     "u_rows": [],
+     "y_entries": 2698
+    }
+   },
+   "ok": true,
+   "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+   "proof_bytes": 2245800,
+   "transcript_replay": {
+    "capture": "c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6",
+    "challenges_checked": 1122,
+    "checkpoints_checked": 65,
+    "failures": [],
+    "final_counter": 1442,
+    "ok": true,
+    "profile": "hashline-zk-mr1/private-attention-t32-poc/1"
+   }
+  }
+ ],
+ "privacy_property_established": false,
+ "privacy_review_complete": false,
+ "receipt_length_is_the_same_within_a_profile": {
+  "hashline-zk-mr1/private-attention-t32-poc/1": [
+   2245800
+  ],
+  "hashline-zk-mr1/private-block-t32-poc/1": [
+   2816472
+  ]
+ },
+ "seconds": 192.7,
+ "tool_sha256": {
+  "zk60_native_jv_capture.py": "191f8bc95153d5a46644a3b2443c453f82b08ad934f7227efe28e3211aeb14b8",
+  "zk60_native_jv_cfs.py": "12ad30bc87b8ece120410c84875eb8b5dbde1c4c59a526fe663510616163ba59",
+  "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
+  "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
+  "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70",
+  "zk60_native_pg_cfs.py": "4ee924228f3248f965dc8dce5c5f88fac0131b11ee4ede5ec72b2c3dac7d8302",
+  "zk60_native_pg_pcs.py": "9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50",
+  "zk60_native_privacy_gate.py": "efb85b67b63dd0f5b99b0b13ce24ca94f212d80b1ad577ebc0bd11d2450af8bd"
+ },
+ "version": 1,
+ "what_it_does_not_show": [
+  "the hash layer is ARGUED, not computed: the roots, the 256 leaf salts per opening and the 11- and 12-level authentication paths rest on M-2 and M-3",
+  "the composition of the channels into one distribution (open item U-3b) is untouched",
+  "no nonlinear functional of the view is covered; the terminal identity links the two channels nonlinearly",
+  "this is four captured receipts at two toy layouts, not a statement about the 125M profile or about all challenges"
+ ],
+ "zero_witness_acceptance_test": {
+  "run_by_this_gate": false,
+  "what": "the component's zero-witness acceptance test the gate's definition refers to (ZK60_PRIVACY_CASE_FIRST_MVP.md section 4.5, obligation U-4)",
+  "what_it_pins": "the all-zero hidden input proves and verifies on the toy profile; NORM_CEPS == 1; the exponential table's first entry as a constructor refusal; the two range boundaries (16,383 of an exclusive 16,384 and 512 of an inclusive 512); the zero-witness receipt is 2,816,472 bytes, like the fixture's",
+  "where": "hashline/src/private_block/zero_witness_tests.rs, branch zk60-private-block-125m, commit ec84dac",
+  "why_not": "this lane is Python-only and does not build Rust; the test is cited as the precondition it is, on the security owner's record (ZK60_PRIVACY_CASE_FIRST_MVP_DISPOSITION.md section 3, step 1, 2026-09-20 00:36)"
+ }
+}
