@@ -6,6 +6,66 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 16:41 (2026-09-20) — HAND-BACK: the tagged Rust tip is `zk60-private-block-125m` at `caa9b9a` (pushed). Production source is final from my side; the heavy lock is free
+
+**What "final" means.** The prover, the verifier, the wire format, the run and
+its sink will not change again on my side. The only thing still in flight is
+the Python run gate learning the keyed rule on its own branch; if it finds a
+defect in a *capture* (test-only code, `#[cfg(test)]`), I will fix that and
+tell you — nothing you integrate or optimise against would move. So you can
+cut your optimisation delta against `caa9b9a`.
+
+**Stage 18 (lane-only; `dc16648`), then my evidence commit `caa9b9a`:**
+- *The legacy length guard is off for tagged endpoints and boundaries* (your
+  fourth point): `EndpointSpecG::new_with_tag`, `BoundarySpec::new_with_tag`;
+  the bare constructors mean the legacy rule and stay fail-closed. Shown
+  failing first (a tagged 13-row endpoint refused), then fixed; legacy-rule
+  geometries are still refused by name.
+- *The public run statement beside the segments* (your 14:04 request):
+  `<run dir>/statement/run-statement.json`, schema
+  `hashline-private-run-statement/1`, written **only after the whole run has
+  verified**; a corrupted segment leaves no `statement/` at all. Segments keep
+  their names and bytes at the top level; the sink allows exactly that one
+  directory and still refuses everything else. **A fresh `RunVerifier` built
+  from the file plus the public weights recipe alone verifies a three-block
+  run** (test), and eight one-byte tampers are each refused — a flipped
+  endpoint commitment lands on the run binding. Public weights are not dumped;
+  the recipe and digests are. I read the writer against the capture rule: it
+  takes the verifier's statement types and nothing else.
+- *Two re-taken bundles under the tag*, with the public tables' values:
+  `results/zk60_run_captures_20260920/run-e-tame-tagged`,
+  `run-f-zero-tagged` (82.5 MB the pair); a–d are legacy-rule and superseded
+  for gate purposes (README says so).
+- Counts [MEASURED by the lane, log read by me]: filter `private_` 222 passed,
+  none failing, 7 ignored (was 214); warnings 13; receipt sizes unmoved; **no
+  shared file changed in stage 18** — the whole shared change is still the two
+  commits `d2e5988` and `7de6ea1`.
+- **The tagged 125M runs** [MEASURED by me, one run each, shared box with one
+  agent doing light work, CPU only, 12 GB ceiling, allocator threshold pinned;
+  launched 16:30, finished 16:39; logs `m125-run-l12-tagged.log`,
+  `m125-one-block-tagged.log` on the lane]: **twelve blocks — prove 393.59 s
+  (32.4–34.0 s per block), verify by streaming 14.09 s, receipt 484,100,736
+  bytes equal to the counted figure, peak 10.15 GiB; one block — prove
+  27.87 s, verify from bytes 1.21 s, 40,782,792 bytes, peak 9.99 GiB.** About
+  5% over the morning's untagged figures. **I do not attribute it to the
+  tag**: the two `commit_zk_owned` calls moved 3.00 → 3.37 s and 3.63 → 3.52 s
+  (one up, one down), while the helper inversions — no hashing in them — moved
+  3.92 → 4.25 s. A quiet-box A/B would settle it; I have not run one.
+- The twelve-block artifact is at
+  `/home/victor/zk60-artifacts/m125-run-l12-tagged` (462 MB, outside the
+  repository, with its `statement/`); a copy of the statement is committed
+  beside the logs. To reproduce: the 11:25 entry's command with
+  `HL_PB_RUN_DIR` pointed at a fresh directory; the test binary is
+  `…/target/release/deps/hashline-70a7a72f73401de5` (built 16:22).
+
+**For your integration list:** (1) the two shared commits; (2) the three Python
+source pins of finding S17-F1, to move with both hashes kept; (3) the one-line
+path-length check in the *legacy* verifiers, yours to decide; (4) D22's pins
+when your candidate is committed — tell me the commit; (5) the command-line
+wrapper and its publication boundary, with the refusal-reason rule. **The
+three speed levers are yours from here.** From my side next: the Python gate
+under the tag, then the privacy argument owed at the new shapes.
+
 ### 15:52 (2026-09-20) — the D19 tag is BUILT and reviewed: `zk60-private-block-125m` at `9ded619`, pushed — reviewable now, NOT yet the stable tip
 
 - **The shared-file commits, apart from everything else:** `d2e5988`
