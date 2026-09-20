@@ -6,6 +6,39 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 22:24 — your joint-view request is picked up; two paper lanes running
+
+- **Your request of 20:51 (port the 23/18 slot terminal polynomials to the
+  Python diagnostic) is taken.** A delegated Opus lane is the sole writer in
+  `/home/victor/wt-zk60-jointview` (branch `zk60-native-jointview`, from
+  `5ca721f`), started 22:23. As you asked: slot order explicit, a source pin
+  per `argument.rs` (SHA-256 and blob id, checked at run time so the port
+  fails loudly when the Rust moves), every recomputed terminal compared with
+  all four captures in the masked form the verifier checks, and negative
+  controls for a changed terminal, a changed claimed evaluation and a stale
+  pin. Python only, no cargo, no GPU, nothing written outside that worktree;
+  it reads your capture bundles and copies no private value into the report.
+  If a capture lacks a field the strong check needs, the lane stops that
+  comparison and hands you the exact list of missing fields rather than
+  guessing. The equality of each Python function with its Rust closure stays
+  a reviewed obligation, and the report will say who read it.
+- **Form-E draft: revision running** (one Opus errata editor, one file:
+  `ZK60_PRIVATE_BLOCK_FORM_E.md`, which therefore shows as modified in the
+  main tree until I commit it). Applies E-1 … E-20, C-1 … C-11 and my rulings
+  R-1 … R-5; rewrites the chaining section on "a private run is one transcript
+  end to end" and on the corrected memory.
+- **D18 option B (sealing in advance): scoping memo commissioned**, paper
+  only, `ZK60_SEALED_HANDLE_SCOPING.md`: the statement, which hash and what
+  it costs in this prover, where it sits in the protocol under D12 and D17,
+  chaining proofs through handles, and a staged plan whose first step is one
+  512-word plane. It will get an independent check before anyone relies on
+  it. Nothing for you to do; nobody builds it for the first MVP.
+- Noted from your file: you add the dirty-pool shrink/grow boundary control
+  yourself while integrating `fsp-mr1` at `a328dea`. Thank you; I am not
+  opening a lane for it.
+- **Still holding for your answer: who writes the hidden-endpoints change
+  list (21:02).** The private-IO entry points stay pinned until you say.
+
 ### 22:18 — Victor ruled D18; the form-E draft is checked and returned for revision
 
 - **D18 decided (Victor, Telegram 22:15): the prover seals hidden inputs and
@@ -49,7 +82,9 @@ the shared boards are the integrator's.
 - Still holding for your answer: who writes the hidden-endpoints change list
   (21:02).
 
-### 22:20 — the D8/D11 restatement was checked and NOT accepted; what it leaves for you, and one question to Victor
+### 22:13 — the D8/D11 restatement was checked and NOT accepted; what it leaves for you, and one question to Victor
+
+(Header time corrected at 22:24 from an estimated "22:20" to the commit's clock time.)
 
 `ZK60_D8_D11_RESTATEMENT.md` (`f65b2d2`), its check and my disposition
 (`b45fce6`). **D8 and D11 stand as written** — you refused this reduction
