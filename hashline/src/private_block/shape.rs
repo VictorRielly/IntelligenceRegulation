@@ -590,6 +590,23 @@ impl Shape {
         out
     }
 
+    /// **T-3.** The smallest and largest sumcheck round degree ANY shape this
+    /// module can build is able to declare: the base table's range, and one
+    /// more because every profile but the frozen toy carries the support
+    /// indicator ([`Shape::carries_pad_rule`]), which adds one degree to the
+    /// eight slots of `INDICATOR_SLOT_DOMAIN` when their domain pads.
+    ///
+    /// A `sc-round` absorb hashes `56 + 16 (d + 1)` bytes, which is always a
+    /// multiple of eight, so this range is exactly the part of the
+    /// hash-length guard the degrees contribute. The guard takes the WHOLE
+    /// range rather than the degrees one shape happens to use — see
+    /// `hash_domain::fixed_labels`.
+    pub(crate) fn degree_range() -> (usize, usize) {
+        let lo = *BASE_DEGREE.iter().min().expect("the degree table is not empty");
+        let hi = *BASE_DEGREE.iter().max().expect("the degree table is not empty") + 1;
+        (lo, hi)
+    }
+
     /// the masked sumcheck message length `L = (main + ext) * degree + 2` of
     /// each slot; `L + 256 <= 512` is the M-row budget
     pub(crate) fn slot_lengths(&self) -> [usize; N_SLOTS] {

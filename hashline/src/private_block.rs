@@ -71,6 +71,16 @@ mod boundary;
 // every wider shape — the rung-G profile and 125M — takes its endpoint
 // parameters from the `Shape` through this module.
 mod endpoint_g;
+// STAGE 16: the two HASH-DOMAIN guards, rulings T-3 and T-4 of the D19
+// disposition. Every hash here is an untagged blake3, so hash domains are
+// separated only by input LENGTH: this module rebuilds, from the shape alone,
+// the whole set of hash-input lengths on a profile's path and refuses any
+// commitment whose column digest lands on one (T-3, which completes the
+// hard-coded C-H4 of `layout.rs`), and it checks explicitly that every opened
+// column's Merkle path has exactly its commitment's tree depth (T-4, which
+// makes a protection that was an accident of the wire format into a named
+// check of the verifier). It reads no witness and moves no proof byte.
+mod hash_domain;
 mod layout;
 // STEP S9: the pad rule of ruling P-1 — the support indicators, the per-plane
 // ZERO / EXEMPT table and the slot map. Part 4 built the term itself in

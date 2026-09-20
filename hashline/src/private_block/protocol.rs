@@ -78,6 +78,15 @@ pub(crate) fn pcs_params() -> PcsParams {
     pcs_params_at(&Shape::toy())
 }
 
+/// The PCS parameters of this shape's ENDPOINT geometry — the two external
+/// endpoints and (by construction, `run::RunStatement::boundary_spec`) every
+/// internal boundary. The same three fields were written out at three call
+/// sites; they are one function now so that the T-4 path-length check and the
+/// verifiers it guards cannot be reading two different geometries.
+pub(crate) fn endpoint_pcs_params(sh: &Shape) -> PcsParams {
+    PcsParams { log_cols: sh.endpoint_log_n as u32, inv_rate: sh.endpoint_inv_rate, num_col_checks: sh.opened_cols }
+}
+
 /// Header, public statement, endpoint policy and calibration first; no
 /// challenge precedes them. The order is T1 section D steps 1-6: PROFILE,
 /// `"expected-IO"`, `"public-statement"` (ONE digest over the attention AND

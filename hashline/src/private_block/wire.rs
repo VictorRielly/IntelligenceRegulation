@@ -8,7 +8,7 @@ use super::layout::*;
 use super::Receipt;
 use crate::field::{Fp, Fp2, P};
 use crate::merkle::Digest;
-use crate::pcs::OpeningZk;
+use crate::pcs::{OpeningZk, PcsParams};
 use crate::sumcheck::SumcheckProof;
 use crate::zk::MaskOpening;
 
@@ -83,6 +83,21 @@ impl Dim {
             && o.columns.iter().all(|(j, c, _, p)| *j < self.enc_cols && c.len() == rows && p.len() == self.path)
     }
 }
+
+/// **T-4.** The Merkle tree depth of a commitment with these PCS parameters
+/// — `log2` of its encoded column count, which is exactly the number of path
+/// entries a frame carries for it. This is the ONE expression: the frame
+/// format reads its path count from `Dim::path`, and
+/// `hash_domain::paths_are_the_tree_depth` checks the verifier's structures
+/// against the same value through this function, so the two can never drift.
+pub(crate) fn path_len(params: &PcsParams) -> usize {
+    Dim::new(params.log_cols as usize, params.inv_rate, params.num_col_checks).path
+}
+
+/// **T-4.** The masking commitment's tree depth. `zk::mask_commit` builds its
+/// tree over the `2^MASK_LOG_DOM` columns of the masking encoding, and this
+/// is the same constant the frame's column reader uses.
+pub(crate) const MASK_PATH_LEN: usize = MASK_PATH;
 
 pub(crate) fn encoded_len(lay: &Layout) -> usize {
     let sh = lay.shape();
