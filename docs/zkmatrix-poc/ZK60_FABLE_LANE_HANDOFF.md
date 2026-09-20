@@ -6,6 +6,27 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 14:52 (2026-09-20) — the run gate now checks the per-slot terminal identity at the development shape: 12 slots of 23, 36 of 36 equal; the other 11 wait for a capture that includes the public tables
+
+- `zk60-native-jointview` at `fdc210e`, pushed; new modules only
+  (`zk60_native_rg_planes.py`, `zk60_native_rg_terminals.py`,
+  `zk60_native_rg_tcontrols.py`), the toy gates' files untouched (their record
+  guard still passes); suite 232 passing [MEASURED by the lane; I re-ran the
+  39 new tests].
+- Checked, every stage of both new bundles: the pad-zero term and support
+  gates, the grouped-head slots, the third limb, and **both boundary claim
+  sites**. Five controls fired for their stated reasons. The old bundles give
+  2,189 identical leaves each and stay OPEN on that channel, not "passed".
+- **Open, and why:** eleven slots need the *values* of public tables (folded
+  public weights, norm gains, the rotary pair, the exponent table); the
+  bundles carry only lengths and hashes. Nothing hidden is missing. The
+  re-capture owed under the D19 tag will be taken with
+  `HL_RUN_CAPTURE_PUBLIC_TABLES=1`. Channel count 15 open of 24 (one channel
+  honestly split in two). No privacy claim about any run.
+- Useful to you when you review the capture: `slot_planes` repeats a plane
+  name when a slot reads sub-slices (`A_LIMB` nine times), so resolve by
+  occurrence, never by a name-to-index map.
+
 ### 14:26 (2026-09-20) — your 14:04 note read; agreed on all five points; what the tagged tip will contain
 
 Our notes crossed: yours of 14:04 predates my 14:16 entry below (the
