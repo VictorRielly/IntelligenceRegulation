@@ -80,6 +80,11 @@ pub(crate) struct SlotDef {
     pub poly: Poly,
     /// (hosted private slot, nu * kappa)
     pub hosted: Vec<(usize, Fp2)>,
+    /// **STEP C.** The slot schedule this definition was built against, so
+    /// that `run_slot` reads the SHAPE's `(main, ext, degree)` and terminal
+    /// counts instead of the toy constants. At the toy it is `Shape::toy()`
+    /// and `sh.slots() == SLOTS` is asserted by `Layout::new`.
+    pub sh: Shape,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -248,8 +253,8 @@ fn total(tables: &[Vec<Fp2>], poly: &Poly) -> Fp2 {
     acc
 }
 
-fn sum_weights(slot: usize) -> Vec<Fp2> {
-    let (n, e, d) = SLOTS[slot];
+fn sum_weights(sh: &Shape, slot: usize) -> Vec<Fp2> {
+    let (n, e, d) = sh.slots()[slot];
     CfsMask::sum_weights(n + e, d)
 }
 
@@ -257,10 +262,11 @@ fn sum_weights(slot: usize) -> Vec<Fp2> {
 
 pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, def: SlotDef, tr: &mut Transcript) -> Result<(), String> {
     let s = def.slot;
-    let (n, ext, degree) = SLOTS[s];
+    let sh = def.sh.clone();
+    let (n, ext, degree) = sh.slots()[s];
     let kind = SLOT_KINDS[s];
     let n_priv = def.tabs.iter().filter(|t| matches!(t, Tab::Priv(_))).count();
-    if s != acc.cs.len() || n_priv != slot_terms(s) || (kind == SlotKind::Host) == def.hosted.is_empty() {
+    if s != acc.cs.len() || n_priv != sh.slot_terms()[s] || (kind == SlotKind::Host) == def.hosted.is_empty() {
         return Err(format!("private block: slot {s} differs from the declared schedule"));
     }
     if def.tabs.iter().any(|t| matches!(t, Tab::Priv(p) if p.ext_round >= ext || p.coords.len() != p.log)) {
@@ -363,12 +369,12 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, def: SlotDef, tr: &mut Tr
     let mut rho_full = rho;
     rho_full.extend_from_slice(&es);
     match kind {
-        SlotKind::Standalone => acc.fs.push(MaskFunctional { terms: vec![(s, sum_weights(s).iter().map(|w| w.mul(c)).collect())], value: scalar }),
+        SlotKind::Standalone => acc.fs.push(MaskFunctional { terms: vec![(s, sum_weights(&sh, s).iter().map(|w| w.mul(c)).collect())], value: scalar }),
         SlotKind::Host => {
-            let mut terms = vec![(s, sum_weights(s).iter().map(|w| w.mul(c)).collect::<Vec<Fp2>>())];
+            let mut terms = vec![(s, sum_weights(&sh, s).iter().map(|w| w.mul(c)).collect::<Vec<Fp2>>())];
             for (hs, coef) in &def.hosted {
                 let k = coef.mul(acc.cs[*hs]).neg();
-                terms.push((*hs, sum_weights(*hs).iter().map(|w| w.mul(k)).collect()));
+                terms.push((*hs, sum_weights(&sh, *hs).iter().map(|w| w.mul(k)).collect()));
             }
             acc.host_fs.push(MaskFunctional { terms, value: scalar });
         }
@@ -392,6 +398,11 @@ struct B<'a> {
     tabs: Vec<Tab>,
     ak: usize,
     hk: usize,
+    /// **STEP C.** SHAPED plane id -> table index, filled by [`B::a_range`].
+    /// The growing limb groups (the third `sigma_s` limb at the rung) have no
+    /// toy id, so they are reached through this map and `Ids::sr` / `sg` /
+    /// `pl` / `nr` / `ns` / `mr` / `ms`, never by arithmetic on a toy const.
+    shaped: Vec<usize>,
 }
 
 fn rho(r: std::ops::Range<usize>) -> Vec<Coord> {
@@ -406,7 +417,7 @@ fn cat(parts: &[&Vec<Fp2>]) -> Vec<Fp2> {
 
 impl<'a> B<'a> {
     fn new(lay: &'a Layout, slot: usize) -> Self {
-        B { lay, slot, tabs: Vec::new(), ak: 0, hk: 0 }
+        B { lay, slot, tabs: Vec::new(), ak: 0, hk: 0, shaped: Vec::new() }
     }
     fn push(&mut self, t: Tab) -> usize {
         self.tabs.push(t);
@@ -423,38 +434,79 @@ impl<'a> B<'a> {
         self.ak += 1;
         Ok(self.push(Tab::Priv(Priv { cm: Cm::A, slices: vec![(off, Fp2::ONE)], log, coords, mask_row, ext_round })))
     }
+    /// the log of a SHAPED A plane's own domain
+    fn a_log(&self, plane: usize) -> usize {
+        self.lay.shape().log(self.lay.ids().dom(plane))
+    }
     fn a_at(&mut self, plane: usize, coords: Vec<Coord>, ext_round: usize) -> Result<usize, String> {
-        self.a_slice(self.lay.a_off[plane], a_dom(plane).log(), coords, ext_round)
+        let (off, log) = (self.lay.a_off[plane], self.a_log(plane));
+        self.a_slice(off, log, coords, ext_round)
     }
     /// an A plane on its own domain (the slot's domain)
     fn a(&mut self, plane: usize) -> Result<usize, String> {
-        self.a_at(plane, rho(0..a_dom(plane).log()), 0)
+        let log = self.a_log(plane);
+        self.a_at(plane, rho(0..log), 0)
     }
-    /// the planes `first ..= last`, returning plane -> table index
+    /// The SHAPED planes `first ..= last`, in plane order, returning a map
+    /// TOY plane id -> table index (`usize::MAX` where the toy has no name
+    /// for the plane, or where the plane is outside the range). The shaped
+    /// map is kept in `self.shaped` for [`B::tab`].
     fn a_range(&mut self, first: usize, last: usize) -> Result<Vec<usize>, String> {
-        let mut idx = vec![usize::MAX; N_A];
+        let lay: &'a Layout = self.lay;
+        let ids = lay.ids();
+        let mut shaped = vec![usize::MAX; ids.n_a()];
         for p in first..=last {
-            idx[p] = self.a(p)?;
+            shaped[p] = self.a(p)?;
         }
+        let mut idx = vec![usize::MAX; N_A];
+        for (p, slot) in idx.iter_mut().enumerate() {
+            let q = ids.at(p);
+            if (first..=last).contains(&q) {
+                *slot = shaped[q];
+            }
+        }
+        self.shaped = shaped;
         Ok(idx)
+    }
+    /// the table index of a SHAPED plane pushed by [`B::a_range`]
+    fn tab(&self, plane: usize) -> usize {
+        self.shaped[plane]
     }
     fn h(&mut self, plane: usize) -> Result<usize, String> {
         let mask_row = self.lay.h_site(self.slot, self.hk)?;
         self.hk += 1;
         let (re, im) = self.lay.h_off[plane];
-        let log = h_dom(plane).log();
+        let log = self.lay.shape().log(self.lay.hids().dom(plane));
         Ok(self.push(Tab::Priv(Priv { cm: Cm::H, slices: vec![(re, Fp2::ONE), (im, Fp2::U)], log, coords: rho(0..log), mask_row, ext_round: 0 })))
     }
-    /// a caller-fixed endpoint plane (private_seam geometry: data rows 0..2, pair rows 2..4)
+    /// A caller-fixed endpoint plane (private_seam geometry: data rows 0..2,
+    /// pair rows 2..4). **S11 owes the rest of this at the rung**: an
+    /// endpoint wider than one block needs the batched multi-block seam of
+    /// `ZK60_PRIVATE_ENDPOINTS_AT_SCALE.md` (C1..C8). Here only the log is
+    /// shape-driven, which is correct exactly while the endpoint fits one
+    /// block.
     fn endpoint(&mut self, cm: Cm) -> usize {
-        self.push(Tab::Priv(Priv { cm, slices: vec![(0, Fp2::ONE)], log: 9, coords: rho(0..9), mask_row: 2, ext_round: 0 }))
+        let log = self.lay.shape().log(Dom::D);
+        self.push(Tab::Priv(Priv { cm, slices: vec![(0, Fp2::ONE)], log, coords: rho(0..log), mask_row: 2, ext_round: 0 }))
     }
     fn finish(self, poly: Poly, hosted: Vec<(usize, Fp2)>) -> Result<SlotDef, String> {
         if self.ak != self.lay.a_sites()[self.slot] || self.hk != self.lay.h_sites()[self.slot] {
             return Err(format!("private block: slot {} uses {} A / {} H sites, schedule declares {} / {}", self.slot, self.ak, self.hk, self.lay.a_sites()[self.slot], self.lay.h_sites()[self.slot]));
         }
-        Ok(SlotDef { slot: self.slot, tabs: self.tabs, poly, hosted })
+        Ok(SlotDef { slot: self.slot, tabs: self.tabs, poly, hosted, sh: self.lay.shape().clone() })
     }
+}
+
+/// `log2` of a power of two (every axis this profile addresses is one, by
+/// [`Shape::new`]'s refusals)
+fn lg(v: usize) -> usize {
+    debug_assert!(v.is_power_of_two(), "an axis that is not a power of two reached a coordinate list");
+    v.trailing_zeros() as usize
+}
+
+/// `sum_k v[ix[k]] * 256^k` — a byte-limb decomposition of `ix.len()` limbs
+fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    ix.iter().enumerate().fold(Fp2::ZERO, |a, (k, i)| a.add(v[*i].mul(pow256(k))))
 }
 
 /// a U8 lookup in table-index space: value = cst + sum coef * v[idx] (the tag folded into cst)
@@ -501,9 +553,24 @@ fn k(v: i64) -> Fp2 {
     Fp2::from_i64(v)
 }
 
-/// the causal support: 1 on j <= t, (h, t, j) order
+/// The causal support: 1 on j <= t, (h, t, j) order. This is the TOY's table
+/// written out with the toy's literals; `causal_mask_at` is the shape-driven
+/// one, and `grow_tests` asserts the two agree entry for entry at the toy, so
+/// the literal stays an independent oracle for the frozen profile.
 pub(crate) fn causal_mask() -> Vec<Fp2> {
     (0..H * T * T).map(|x| if x % T <= (x / T) % T { Fp2::ONE } else { Fp2::ZERO }).collect()
+}
+
+/// **STEP C: the same mask over the PADDED `Dom::S` cube (M-3).** The cube is
+/// `(head slot, t, j)` with the token axes at their PADDED extent, and the
+/// mask keys on `(t, j)` only, so it is 1 on every padded head slot exactly
+/// as it is on a true one. What a padded POSITION's planes may contain is
+/// ruling P-1's pad-zero term (S9 part 4), not this table; the mask is the
+/// causal predicate and nothing else. At the toy nothing pads and this is
+/// the frozen table, value for value.
+pub(crate) fn causal_mask_at(sh: &Shape) -> Vec<Fp2> {
+    let t = sh.t_pad;
+    (0..sh.size(Dom::S)).map(|x| if x % t <= (x / t) % t { Fp2::ONE } else { Fp2::ZERO }).collect()
 }
 
 /// (C, S') with out = C * x + S' * x_partner, over `heads` heads per row.
@@ -516,6 +583,40 @@ pub(crate) fn causal_mask() -> Vec<Fp2> {
 /// the shape. The table is still laid out DENSELY
 /// (`tokens * heads * head_dim`); putting it on the padded domain stride is
 /// the pad rule of memo section 3.7a, step S9.
+/// **STEP C: the RoPE tables on the PADDED domain stride.** `rope_tables`
+/// lays the two tables out densely over `tokens * heads * head_dim`, which is
+/// what the kernel-facing parity tests want and what the toy's cube happens
+/// to be. A slot's public table must be as long as the slot's CUBE, so at any
+/// shape that pads, the values have to sit at their padded coordinates and
+/// the pad has to hold something: it holds ZERO, the same rule ruling P-2
+/// puts on the public weights.
+///
+/// The RoPE value depends on `(t, i)` only, never on the head, so a padded
+/// HEAD SLOT is zero-filled for the same reason a padded token is: nothing
+/// true lives there. The relation those tables enter (`SC_QZC` / `SC_KVZC`'s
+/// rope clause) is INHOMOGENEOUS — it carries `+ 2^(SH_ROPE - 1)` — so a
+/// zeroed pad does not make it vanish there; switching the clause off on the
+/// pad is the support indicator of S9 part 4, and it is owed.
+pub(super) fn rope_tables_at(sh: &Shape, public: &AttentionPublic, dom: Dom) -> (Vec<Fp2>, Vec<Fp2>) {
+    let (dh, half) = (sh.head_dim, sh.head_dim / 2);
+    // `Dom::Q` is indexed by the PADDED head slot, `Dom::Kv` by the key-value
+    // head, which is not padded (`kv_heads` divides the padded head count)
+    let heads = if dom == Dom::Q { sh.h_pad } else { sh.kv_heads };
+    let n = sh.size(dom);
+    let (mut c, mut s) = (vec![Fp2::ZERO; n], vec![Fp2::ZERO; n]);
+    for x in 0..n {
+        let (i, slot, t) = (x % dh, (x / dh) % heads, x / (dh * heads));
+        let live = t < sh.tokens && (dom != Dom::Q || sh.slot_is_true_head(slot)) && x < sh.t_pad * heads * dh;
+        if !live {
+            continue;
+        }
+        let at = t * half + i % half;
+        c[x] = k(public.rope_cos[at]);
+        s[x] = k(if i < half { -public.rope_sin[at] } else { public.rope_sin[at] });
+    }
+    (c, s)
+}
+
 pub(super) fn rope_tables(sh: &Shape, public: &AttentionPublic, heads: usize) -> (Vec<Fp2>, Vec<Fp2>) {
     let (dh, half) = (sh.head_dim, sh.head_dim / 2);
     let width = heads * dh;
@@ -561,29 +662,65 @@ pub(crate) fn table_values_act_at(len: usize, ff: &FeedForwardPublic, beta: Fp2,
     (0..len).map(|x| x % U8_LEN).map(|i| k(i as i64).add(beta.mul(k(i64::from(ff.act[i])))).add(g_act)).collect()
 }
 
-/// Draw the slot's challenges and build its tables and polynomial. Identical on both sides.
+/// Draw the slot's challenges and build its tables and polynomial. Identical
+/// on both sides.
+///
+/// **STEP C: the slot definitions over a SHAPE.**
+///
+/// Every literal that used to name the toy's geometry — the challenge vector
+/// lengths, the matmul widths, the coordinate lists, the plane ids, the
+/// helper ids, the public table lengths — now comes from `ctx.lay`'s shape
+/// and its two plane-id maps. The toy is `Shape::toy()` of this same code and
+/// every one of its bytes is unmoved (the schedule digest and the 2,816,472
+/// byte receipt are the gate).
+///
+/// Three slots change MEANING at a shape with grouped query heads or a third
+/// softmax limb, and they are the ones to read first:
+///
+/// * `SC_SCORE` and `SC_PV` — the key-value factor's claim point takes its
+///   group coordinates from the QUERY head's challenge (`r_h`'s top
+///   `log2(kv_heads)` entries), because correction C-1 puts the group in the
+///   HIGH bits of the padded head slot. Trap T-3: reading the key-value side
+///   at its own free coordinate would prove a different statement.
+/// * `SC_SZC` — the `rho_s` / `sigma_s` limb groups are `limbs_sigma_s` long,
+///   not two, and the third limb has no toy id, so the group is addressed
+///   through `Ids::sr` / `Ids::sg`.
+/// * `SC_QZC` / `SC_KVZC` — the RoPE partner bit sits at `log - log2(dh)`
+///   (T-8) and the two public tables are laid out on the PADDED stride.
+///
+/// **WHAT THIS STEP DOES NOT DO.** The pad rule (ruling P-1, S9 part 4) is
+/// NOT here: at a shape that pads, the inhomogeneous clauses of `SC_DZC`,
+/// `SC_QZC`, `SC_KVZC`, `SC_SZC`, `SC_FZC`, `SC_SS`, `SC_SSM` and `SC_RS`
+/// still speak on padded positions. Until the support indicator lands, a
+/// definition built at the rung is a DEFINITION, not a sound argument.
 pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcript) -> Result<SlotDef, String> {
     let lay = ctx.lay;
+    let (sh, ids, hids) = (lay.shape(), lay.ids(), lay.hids());
     let (alpha, beta, g_u8, g_exp, g_act) = (ctx.alpha, ctx.beta, ctx.g_u8, ctx.g_exp, ctx.g_act);
     let mut b = B::new(lay, slot);
-    let (p1, p2, p3) = (pow256(1), pow256(2), pow256(3));
+    let (p1, p2) = (pow256(1), pow256(2));
+    // the axis logs, once: tokens, head slots, head dimension, width, hidden,
+    // and the key-value group bits that sit at the TOP of the head slot (C-1)
+    let (lt, lh, ldh) = (lg(sh.t_pad), lg(sh.h_pad), lg(sh.head_dim));
+    let (ld, lf, lkv) = (lg(sh.d_pad), lg(sh.f_pad), lg(sh.kv_heads));
+    let (ln, ls, lp) = (sh.limbs_norm(), sh.limbs_sigma_s(), sh.limbs_p());
     match slot {
         SC_SS => {
-            pts.r_t = tr.challenge_fp2_vec(5);
+            pts.r_t = tr.challenge_fp2_vec(lt);
             b.eq(&pts.r_t, 0);
-            b.a(A_X)?;
+            b.a(ids.at(A_X))?;
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1]).mul(v[1])), vec![])
         }
         // norm_m's row sums: the identical private claimed sum, over xres1
         // instead of x_in, at its own row point (T1 section C.1)
         SC_SSM => {
-            pts.r_t2 = tr.challenge_fp2_vec(5);
+            pts.r_t2 = tr.challenge_fp2_vec(lt);
             b.eq(&pts.r_t2, 0);
-            b.a(A_X1)?;
+            b.a(ids.at(A_X1))?;
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1]).mul(v[1])), vec![])
         }
         SC_TZC => {
-            let tau = tr.challenge_fp2_vec(5);
+            let tau = tr.challenge_fp2_vec(lt);
             let mu = tr.challenge_fp2_vec(6);
             let nu = nonzero(tr.challenge_fp2_vec(2))?;
             // Table indices are CAPTURED from the builder, never written as
@@ -594,17 +731,17 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             let i_tau = b.eq(&tau, 0);
             let i_rt = b.eq(&pts.r_t, 0);
             let i_rt2 = b.eq(&pts.r_t2, 0);
-            let i_d = b.a(A_D)?;
-            let i_dsq = b.a(A_DSQ)?;
+            let i_d = b.a(ids.at(A_D))?;
+            let i_dsq = b.a(ids.at(A_DSQ))?;
             let i_limb = i_dsq + 1;
             for kk in 0..N_LIMBS {
-                b.a_slice(lay.limb_off(kk), 5, rho(0..5), 0)?;
+                b.a_slice(lay.limb_off(kk), lt, rho(0..lt), 0)?;
             }
-            let i_dm = b.a(A_DM)?;
-            let i_dsqm = b.a(A_DSQM)?;
+            let i_dm = b.a(ids.at(A_DM))?;
+            let i_dsqm = b.a(ids.at(A_DSQM))?;
             let i_limbm = i_dsqm + 1;
             for kk in 0..N_LIMBS {
-                b.a_slice(lay.limb_off_m(kk), 5, rho(0..5), 0)?;
+                b.a_slice(lay.limb_off_m(kk), lt, rho(0..lt), 0)?;
             }
             let hosted = vec![(SC_SS, nu[0]), (SC_SSM, nu[1])];
             let poly = move |v: &[Fp2]| {
@@ -623,40 +760,45 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
         // two lookups now (A_LIMB and norm_m's A_LIMBM), so the single helper
         // moves into the two-lookup branch and the slot's degree is 4 (T1 C.1)
         SC_LZC => {
-            let tau = tr.challenge_fp2_vec(9);
+            let tau = tr.challenge_fp2_vec(sh.log(Dom::L));
             b.eq(&tau, 0);
-            let idx = b.a_range(A_LIMB, A_LIMBM)?;
-            let h0 = b.h(H_L)?;
+            let idx = b.a_range(ids.at(A_LIMB), ids.at(A_LIMBM))?;
+            let h0 = b.h(hids.first_helper(Dom::L))?;
             let lks = lk_tables(lay, Dom::L, &idx, g_u8);
-            b.finish(Box::new(move |v: &[Fp2]| v[0].mul(helper_sum(v, &lks, h0, alpha, &[Fp2::ONE]))), vec![])
+            let mu = vec![Fp2::ONE; sh.helpers(Dom::L)];
+            b.finish(Box::new(move |v: &[Fp2]| v[0].mul(helper_sum(v, &lks, h0, alpha, &mu))), vec![])
         }
         SC_RS => {
-            pts.p_ht = tr.challenge_fp2_vec(6);
+            pts.p_ht = tr.challenge_fp2_vec(sh.log(Dom::Ht));
             pts.lam_z = tr.challenge_fp2();
             let lam = pts.lam_z;
             b.eq(&pts.p_ht, 0);
-            b.public(causal_mask());
-            b.a(A_E)?;
-            b.a(A_ZSEL)?;
+            b.public(causal_mask_at(sh));
+            b.a(ids.at(A_E))?;
+            b.a(ids.at(A_ZSEL))?;
             b.finish(Box::new(move |v: &[Fp2]| v[0].mul(v[1].mul(v[2]).add(lam.mul(v[3])))), vec![])
         }
         SC_QMM | SC_KMM | SC_VMM | SC_WO => {
             if slot == SC_QMM || slot == SC_WO {
-                pts.r_q = tr.challenge_fp2_vec(5);
+                pts.r_q = tr.challenge_fp2_vec(lt);
             }
+            // M-2: the four matmuls do NOT share one output width. The Q and
+            // the output projection write the full width; the key and value
+            // projections write `kv_heads * head_dim`.
+            let kvw = sh.kv_heads * sh.head_dim;
             let (plane, w, outer): (usize, &[i8], usize) = match slot {
-                SC_QMM => (A_Y, ctx.public.wq.as_slice(), D),
-                SC_KMM => (A_Y, ctx.public.wk.as_slice(), KV),
-                SC_VMM => (A_Y, ctx.public.wv.as_slice(), KV),
-                _ => (A_O8, ctx.public.wo.as_slice(), D),
+                SC_QMM => (ids.at(A_Y), ctx.public.wq.as_slice(), sh.d_pad),
+                SC_KMM => (ids.at(A_Y), ctx.public.wk.as_slice(), kvw),
+                SC_VMM => (ids.at(A_Y), ctx.public.wv.as_slice(), kvw),
+                _ => (ids.at(A_O8), ctx.public.wo.as_slice(), sh.d_pad),
             };
-            let r_j = tr.challenge_fp2_vec(outer.trailing_zeros() as usize);
+            let r_j = tr.challenge_fp2_vec(lg(outer));
             let point = cat(&[&pts.r_q, &r_j]);
             let mut coords = fixed(&pts.r_q);
-            coords.extend(rho(0..4));
+            coords.extend(rho(0..ld));
             b.a_at(plane, coords, 0)?;
             // w is (output j, input i): sum_j eq(r_j, j) w[j, i]
-            b.public(fold_rows_i8(w, outer, D, &eq_table_msb(&r_j)));
+            b.public(fold_rows_i8(w, outer, sh.d_pad, &eq_table_msb(&r_j)));
             match slot {
                 SC_QMM => pts.pq = point,
                 SC_KMM => pts.pk = point,
@@ -666,30 +808,34 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1])), vec![])
         }
         SC_SCORE => {
-            let r_h = tr.challenge_fp2_vec(1);
-            let r_t = tr.challenge_fp2_vec(5);
-            let r_j = tr.challenge_fp2_vec(5);
+            let r_h = tr.challenge_fp2_vec(lh);
+            let r_t = tr.challenge_fp2_vec(lt);
+            let r_j = tr.challenge_fp2_vec(lt);
             pts.p_s = cat(&[&r_h, &r_t, &r_j]);
             // two private factors: qr is masked in extension round 0, kr in round 1
             let mut cq = fixed(&cat(&[&r_t, &r_h]));
-            cq.extend(rho(0..3));
-            b.a_at(A_QR8, cq, 0)?;
+            cq.extend(rho(0..ldh));
+            b.a_at(ids.at(A_QR8), cq, 0)?;
+            // C-1 / trap T-3: the key-value head of the query head the
+            // challenge selects is the TOP `log2(kv_heads)` bits of `r_h`.
             let mut ck = fixed(&r_j);
-            ck.extend(rho(0..3));
-            b.a_at(A_KR8, ck, 1)?;
+            ck.extend(fixed(&r_h[..lkv]));
+            ck.extend(rho(0..ldh));
+            b.a_at(ids.at(A_KR8), ck, 1)?;
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1])), vec![])
         }
         SC_PV => {
-            let r_h = tr.challenge_fp2_vec(1);
-            let r_t = tr.challenge_fp2_vec(5);
-            let r_i = tr.challenge_fp2_vec(3);
+            let r_h = tr.challenge_fp2_vec(lh);
+            let r_t = tr.challenge_fp2_vec(lt);
+            let r_i = tr.challenge_fp2_vec(ldh);
             pts.p_o = cat(&[&r_t, &r_h, &r_i]);
             let mut cp = fixed(&cat(&[&r_h, &r_t]));
-            cp.extend(rho(0..5));
-            b.a_at(A_P, cp, 0)?;
-            let mut cv = rho(0..5);
+            cp.extend(rho(0..lt));
+            b.a_at(ids.at(A_P), cp, 0)?;
+            let mut cv = rho(0..lt);
+            cv.extend(fixed(&r_h[..lkv]));
             cv.extend(fixed(&r_i));
-            b.a_at(A_V8, cv, 1)?;
+            b.a_at(ids.at(A_V8), cv, 1)?;
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1])), vec![])
         }
         // The three feed-forward matmuls (T2 section C.1). The two weight
@@ -700,18 +846,18 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
         // (A_H16) and publishes a d-cube point (p_z).
         SC_GMM | SC_UMM | SC_DMM => {
             if slot == SC_GMM {
-                pts.r_tf = tr.challenge_fp2_vec(5);
+                pts.r_tf = tr.challenge_fp2_vec(lt);
             }
             // SC_DMM draws its own row point `r_td`; the other two reuse `r_tf`
-            let r_row = if slot == SC_DMM { tr.challenge_fp2_vec(5) } else { pts.r_tf.clone() };
-            let r_j = tr.challenge_fp2_vec(4);
+            let r_row = if slot == SC_DMM { tr.challenge_fp2_vec(lt) } else { pts.r_tf.clone() };
+            let r_j = tr.challenge_fp2_vec(if slot == SC_DMM { ld } else { lf });
             let (plane, w, rows, cols): (usize, &[i8], usize, usize) = match slot {
-                SC_GMM => (A_YM, ctx.ff.wg_t.as_slice(), D, F),
-                SC_UMM => (A_YM, ctx.ff.wu_t.as_slice(), D, F),
-                _ => (A_H16, ctx.ff.wd_t.as_slice(), F, D),
+                SC_GMM => (ids.at(A_YM), ctx.ff.wg_t.as_slice(), sh.d_pad, sh.f_pad),
+                SC_UMM => (ids.at(A_YM), ctx.ff.wu_t.as_slice(), sh.d_pad, sh.f_pad),
+                _ => (ids.at(A_H16), ctx.ff.wd_t.as_slice(), sh.f_pad, sh.d_pad),
             };
             let mut coords = fixed(&r_row);
-            coords.extend(rho(0..4));
+            coords.extend(rho(0..if slot == SC_DMM { lf } else { ld }));
             b.a_at(plane, coords, 0)?;
             // w is (input i, output j): sum_j eq(r_j, j) w[i, j]
             b.public(fold_cols_i8(w, rows, cols, &eq_table_msb(&r_j)));
@@ -724,32 +870,38 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1])), vec![])
         }
         SC_DZC => {
-            let tau = tr.challenge_fp2_vec(9);
-            let mu = tr.challenge_fp2_vec(11 + lay.helpers(Dom::D).1);
+            let tau = tr.challenge_fp2_vec(sh.log(Dom::D));
+            let n_help = sh.helpers(Dom::D);
+            let mu = tr.challenge_fp2_vec(11 + n_help);
             let nu = nonzero(tr.challenge_fp2_vec(2))?;
             b.eq(&tau, 0);
             b.eq(&pts.p_a, 0);
             b.eq(&pts.p_z, 0);
-            let ig = b.public((0..T * D).map(|x| k(i64::from(ctx.public.gamma_a[x % D]))).collect());
-            let igm = b.public((0..T * D).map(|x| k(i64::from(ctx.ff.gamma_m[x % D]))).collect());
-            let idx = b.a_range(A_X, A_RDL)?;
-            let id = b.a_slice(lay.a_off[A_D], 5, rho(0..5), 0)?;
-            let idm = b.a_slice(lay.a_off[A_DM], 5, rho(0..5), 0)?;
-            let h0 = b.h(H_D0)?;
-            for j in 1..lay.helpers(Dom::D).1 {
-                b.h(H_D0 + j)?;
+            // The two norm gains are the PADDED vectors of ruling P-2: zero
+            // off the width's support, so a padded column contributes nothing
+            // to the gain factor of the norm relation.
+            let (dp, nd) = (sh.d_pad, sh.size(Dom::D));
+            let ig = b.public((0..nd).map(|x| k(i64::from(ctx.public.gamma_a[x % dp]))).collect());
+            let igm = b.public((0..nd).map(|x| k(i64::from(ctx.ff.gamma_m[x % dp]))).collect());
+            let idx = b.a_range(ids.at(A_X), ids.at(A_RDL))?;
+            let (i_nr, i_ns): (Vec<usize>, Vec<usize>) = ((0..ln).map(|kk| b.tab(ids.nr(kk))).collect(), (0..ln).map(|kk| b.tab(ids.ns(kk))).collect());
+            let (i_mr, i_ms): (Vec<usize>, Vec<usize>) = ((0..ln).map(|kk| b.tab(ids.mr(kk))).collect(), (0..ln).map(|kk| b.tab(ids.ms(kk))).collect());
+            let id = b.a_slice(lay.a_off[ids.at(A_D)], lt, rho(0..lt), 0)?;
+            let idm = b.a_slice(lay.a_off[ids.at(A_DM)], lt, rho(0..lt), 0)?;
+            let h0 = b.h(hids.first_helper(Dom::D))?;
+            for j in 1..n_help {
+                b.h(hids.helper(Dom::D, j))?;
             }
             let lks = lk_tables(lay, Dom::D, &idx, g_u8);
             let (k_num, k_dv, k_den) = (k(2 * NORM_CN), k(1 << NORM_TN), k(1 << (NORM_TN + 1)));
             let hosted = vec![(SC_WO, nu[0]), (SC_DMM, nu[1])];
             let poly = move |v: &[Fp2]| {
                 let at = |p: usize| v[idx[p]];
-                let l4 = |o: usize| at(o).add(at(o + 1).mul(p1)).add(at(o + 2).mul(p2)).add(at(o + 3).mul(p3));
                 let l2 = |o: usize| at(o).add(at(o + 1).mul(p1));
                 let (x, y, ao, x1, d) = (at(A_X), at(A_Y), at(A_AO), at(A_X1), v[id]);
                 let (nm, x2, z16, dm) = (at(A_YM), at(A_X2), at(A_Z16), v[idm]);
-                let (nr, ns) = (l4(A_NR0), l4(A_NS0));
-                let (mr, ms) = (l4(A_MR0), l4(A_MS0));
+                let (nr, ns) = (limbs(v, &i_nr), limbs(v, &i_ns));
+                let (mr, ms) = (limbs(v, &i_mr), limbs(v, &i_ms));
                 let c0 = k_num.mul(v[ig]).mul(x).add(k_dv.mul(d)).sub(k_den.mul(y).mul(d)).sub(nr);
                 let c1 = ns.add(nr).add(Fp2::ONE).sub(k_den.mul(d));
                 let c2 = x.add(k(32768)).sub(l2(A_XL0));
@@ -777,21 +929,21 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
         // decompositions, the activation pair lookup and the Dom::F LogUp
         // helpers, hosting the gate and up matmuls.
         SC_FZC => {
-            let tau = tr.challenge_fp2_vec(9);
-            let n_help = lay.helpers(Dom::F).1;
+            let tau = tr.challenge_fp2_vec(sh.log(Dom::F));
+            let n_help = sh.helpers(Dom::F);
             let mu = tr.challenge_fp2_vec(4 + n_help);
             let nu = nonzero(tr.challenge_fp2_vec(2))?;
             b.eq(&tau, 0);
             b.eq(&pts.p_g, 0);
             b.eq(&pts.p_u, 0);
-            let idx = b.a_range(A_G8, A_RH1)?;
-            let h0 = b.h(H_F0)?;
+            let idx = b.a_range(ids.at(A_G8), ids.at(A_RH1))?;
+            let h0 = b.h(hids.first_helper(Dom::F))?;
             for j in 1..n_help {
-                b.h(H_F0 + j)?;
+                b.h(hids.helper(Dom::F, j))?;
             }
             // E-17: the activation helper is addressed by the TABLE INDEX the
             // builder returns, never by the plane constant H_FACT
-            let i_fact = b.h(H_FACT)?;
+            let i_fact = b.h(hids.fact())?;
             let lks = lk_tables(lay, Dom::F, &idx, g_u8);
             let hosted = vec![(SC_GMM, nu[0]), (SC_UMM, nu[1])];
             let poly = move |v: &[Fp2]| {
@@ -815,38 +967,39 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
         }
         SC_QZC | SC_KVZC => {
             let q = slot == SC_QZC;
-            let (dom, first, last, src, h_first) = if q { (Dom::Q, A_Q8, A_RO1, A_Q8, H_Q0) } else { (Dom::Kv, A_K8, A_RKRL, A_K8, H_KV0) };
-            let log = dom.log();
+            let (dom, first, last, src) = if q { (Dom::Q, A_Q8, A_RO1, A_Q8) } else { (Dom::Kv, A_K8, A_RKRL, A_K8) };
+            let log = sh.log(dom);
             let tau = tr.challenge_fp2_vec(log);
-            let mu = tr.challenge_fp2_vec(1 + lay.helpers(dom).1);
+            let n_help = sh.helpers(dom);
+            let mu = tr.challenge_fp2_vec(1 + n_help);
             let nu = nonzero(tr.challenge_fp2_vec(2))?;
             b.eq(&tau, 0);
             b.eq(if q { &pts.pq } else { &pts.pk }, 0);
             b.eq(if q { &pts.p_o } else { &pts.pv }, 0);
-            // S7 / M-1: the key-value side is laid out over `kv_heads` heads.
-            // The argument is still toy-pinned (finding S5-F2), so the shape
-            // is the toy's here; S9..S11 is where the layout's own shape
-            // reaches this call site.
-            let sh = Shape::toy();
-            let (ct, st) = rope_tables(&sh, ctx.public, if q { sh.q_heads } else { sh.kv_heads });
+            // S7 / M-1: the key-value side is laid out over `kv_heads` heads,
+            // and step C puts both tables on the PADDED domain stride.
+            let (ct, st) = rope_tables_at(sh, ctx.public, dom);
             let ic = b.public(ct);
             let is = b.public(st);
-            let idx = b.a_range(first, last)?;
-            // the partner half: the most significant bit of i' flipped (its own site, its own pair)
+            let idx = b.a_range(ids.at(first), ids.at(last))?;
+            let i_src = idx[src];
+            let (i_rot, i_rot_rem) = if q { (idx[A_QR8], idx[A_RQRL]) } else { (idx[A_KR8], idx[A_RKRL]) };
+            // the partner half: the most significant bit of i' flipped, which
+            // sits at `log - log2(head_dim)` (trap T-8); its own site, its own pair
             let mut cf = rho(0..log);
-            cf[log - 3] = Coord::Flip(log - 3);
-            let iflip = b.a_at(src, cf, 0)?;
-            let h0 = b.h(h_first)?;
-            for j in 1..lay.helpers(dom).1 {
-                b.h(h_first + j)?;
+            cf[log - ldh] = Coord::Flip(log - ldh);
+            let iflip = b.a_at(ids.at(src), cf, 0)?;
+            let h0 = b.h(hids.first_helper(dom))?;
+            for j in 1..n_help {
+                b.h(hids.helper(dom, j))?;
             }
             let lks = lk_tables(lay, dom, &idx, g_u8);
             let half = k(1 << (SH_QKV - 1));
             let hosted = if q { vec![(SC_QMM, nu[0]), (SC_PV, nu[1])] } else { vec![(SC_KMM, nu[0]), (SC_VMM, nu[1])] };
             let poly = move |v: &[Fp2]| {
                 let at = |p: usize| v[idx[p]];
-                let (rot, rot_rem) = if q { (at(A_QR8), at(A_RQRL)) } else { (at(A_KR8), at(A_RKRL)) };
-                let rope = v[ic].mul(at(src)).add(v[is].mul(v[iflip])).sub(k(1 << SH_ROPE).mul(rot)).sub(rot_rem).add(k(1 << (SH_ROPE - 1)));
+                let (rot, rot_rem) = (v[i_rot], v[i_rot_rem]);
+                let rope = v[ic].mul(v[i_src]).add(v[is].mul(v[iflip])).sub(k(1 << SH_ROPE).mul(rot)).sub(rot_rem).add(k(1 << (SH_ROPE - 1)));
                 let zc = mu[0].mul(rope).add(helper_sum(v, &lks, h0, alpha, &mu[1..]));
                 let (host1, host2) = if q {
                     (
@@ -861,37 +1014,45 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.finish(Box::new(poly), hosted)
         }
         SC_SZC => {
-            let tau = tr.challenge_fp2_vec(11);
-            let n_help = lay.helpers(Dom::S).1;
+            let tau = tr.challenge_fp2_vec(sh.log(Dom::S));
+            let n_help = sh.helpers(Dom::S);
             let mu = tr.challenge_fp2_vec(5 + n_help + 1);
             let nu = nonzero(tr.challenge_fp2_vec(2))?;
             let lam = pts.lam_z;
             b.eq(&tau, 0);
             b.eq(&pts.p_ht, 0);
             b.eq(&pts.p_s, 0);
-            let im = b.public(causal_mask());
-            let idx = b.a_range(A_S8, A_SG1)?;
-            let imx = b.a_slice(lay.a_off[A_MX], 6, rho(0..6), 0)?;
-            let isum = b.a_slice(lay.a_off[A_SUM], 6, rho(0..6), 0)?;
-            let h0 = b.h(H_S0)?;
+            let im = b.public(causal_mask_at(sh));
+            // the `Dom::S` block runs to the LAST `sigma_s` limb, which the toy
+            // has no name for when `limbs_sigma_s` is three (S8)
+            let idx = b.a_range(ids.at(A_S8), ids.sg(ls - 1))?;
+            let i_pl: Vec<usize> = (0..lp).map(|kk| b.tab(ids.pl(kk))).collect();
+            let i_sr: Vec<usize> = (0..ls).map(|kk| b.tab(ids.sr(kk))).collect();
+            let i_sg: Vec<usize> = (0..ls).map(|kk| b.tab(ids.sg(kk))).collect();
+            let lht = sh.log(Dom::Ht);
+            let imx = b.a_slice(lay.a_off[ids.at(A_MX)], lht, rho(0..lht), 0)?;
+            let isum = b.a_slice(lay.a_off[ids.at(A_SUM)], lht, rho(0..lht), 0)?;
+            let h0 = b.h(hids.first_helper(Dom::S))?;
             for j in 1..n_help {
-                b.h(H_S0 + j)?;
+                b.h(hids.helper(Dom::S, j))?;
             }
-            let ihx = b.h(H_SEXP)?;
+            let ihx = b.h(hids.sexp())?;
             let lks = lk_tables(lay, Dom::S, &idx, g_u8);
-            // the row-sum host term is constant in j: it sums to T * (Sum(p_ht) + lam_z)
-            let hosted = vec![(SC_RS, nu[0].mul(k(T as i64))), (SC_SCORE, nu[1])];
+            // the row-sum host term is constant in j: it sums to (the number of
+            // j positions of the S cube per Ht position) * (Sum(p_ht) + lam_z)
+            let per_row = (sh.size(Dom::S) / sh.size(Dom::Ht)) as i64;
+            let hosted = vec![(SC_RS, nu[0].mul(k(per_row))), (SC_SCORE, nu[1])];
             let poly = move |v: &[Fp2]| {
                 let at = |p: usize| v[idx[p]];
                 let (mask, s8, zsel, e, p, sum) = (v[im], at(A_S8), at(A_ZSEL), at(A_E), at(A_P), v[isum]);
-                let sr = at(A_SR0).add(at(A_SR1).mul(p1));
+                let sr = limbs(v, &i_sr);
                 // delta = max - masked score, the masked score being mask * (s8 + 127) - 127
                 let delta = v[imx].sub(mask.mul(s8.add(k(-MASK_SCORE)))).add(k(-MASK_SCORE));
                 let c0 = zsel.mul(zsel).sub(zsel);
                 let c1 = zsel.mul(delta);
                 let c2 = k(1 << F_P).mul(mask).mul(e).sub(p.mul(sum)).sub(sr);
-                let c3 = at(A_SG0).add(at(A_SG1).mul(p1)).add(sr).add(Fp2::ONE).sub(sum);
-                let c4 = p.sub(at(A_PL0)).sub(at(A_PL1).mul(p1));
+                let c3 = limbs(v, &i_sg).add(sr).add(Fp2::ONE).sub(sum);
+                let c4 = p.sub(limbs(v, &i_pl));
                 let cx = v[ihx].mul(alpha.sub(delta.add(beta.mul(e)).add(g_exp))).sub(Fp2::ONE);
                 let mut zc = helper_sum(v, &lks, h0, alpha, &mu[5..5 + n_help]).add(mu[5 + n_help].mul(cx));
                 for (m, c) in mu.iter().zip([c0, c1, c2, c3, c4]) {
@@ -906,18 +1067,20 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
         // three (multiplicity, helper, public values) triples now: U8, exp and
         // the activation table under TAG_ACT (T2 section C.1)
         SC_TAB => {
-            let tau = tr.challenge_fp2_vec(8);
+            let tab_len = sh.size(Dom::Tab);
+            let tau = tr.challenge_fp2_vec(sh.log(Dom::Tab));
             let mu = tr.challenge_fp2_vec(3);
+            let th = hids.table_helpers();
             b.eq(&tau, 0);
-            b.a(A_MU8)?;
-            b.h(H_GU8)?;
-            b.public(table_values_u8(g_u8));
-            b.a(A_MEXP)?;
-            b.h(H_GEXP)?;
-            b.public(table_values_exp(ctx.public, beta, g_exp));
-            b.a(A_MACT)?;
-            b.h(H_GACT)?;
-            b.public(table_values_act(ctx.ff, beta, g_act));
+            b.a(ids.at(A_MU8))?;
+            b.h(th[0])?;
+            b.public(table_values_u8_at(tab_len, g_u8));
+            b.a(ids.at(A_MEXP))?;
+            b.h(th[1])?;
+            b.public(table_values_exp_at(tab_len, ctx.public, beta, g_exp));
+            b.a(ids.at(A_MACT))?;
+            b.h(th[2])?;
+            b.public(table_values_act_at(tab_len, ctx.ff, beta, g_act));
             let poly = move |v: &[Fp2]| {
                 let r0 = v[2].mul(alpha.sub(v[3])).sub(v[1]);
                 let r1 = v[5].mul(alpha.sub(v[6])).sub(v[4]);
@@ -933,15 +1096,15 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             // toy; after the P-3 lift (S4) `Dom::Tab` sits at the row width and
             // this slot's cube grows with it, which is what §4.1 means by
             // "`SC_ZS`'s rounds 8 -> 14".
-            b.public(vec![Fp2::ONE; Dom::Tab.len()]);
-            b.h(H_U)?;
+            b.public(vec![Fp2::ONE; sh.size(Dom::Tab)]);
+            b.h(hids.u())?;
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1])), vec![])
         }
         SC_IO_IN | SC_IO_OUT => {
-            let tau = tr.challenge_fp2_vec(9);
+            let tau = tr.challenge_fp2_vec(sh.log(Dom::D));
             b.eq(&tau, 0);
             // the block's two external endpoints: x_in and xres2 (D12 item 2)
-            b.a(if slot == SC_IO_IN { A_X } else { A_X2 })?;
+            b.a(ids.at(if slot == SC_IO_IN { A_X } else { A_X2 }))?;
             b.endpoint(if slot == SC_IO_IN { Cm::In } else { Cm::Out });
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1].sub(v[2]))), vec![])
         }

@@ -960,3 +960,107 @@ fn the_layout_is_built_from_a_shape_and_the_toy_is_one_instance() {
         "the rung and 125M share a schedule digest"
     );
 }
+
+// ====================================================================
+// STEP C of the shaped argument: `define` over a `Shape`
+// ====================================================================
+
+/// **Every slot definition, at the toy AND at the rung.**
+///
+/// `argument::define` used to carry the toy's geometry as literals; it now
+/// reads `ctx.lay`'s shape. This walks all twenty-three slots at both shapes
+/// and checks what the definition alone can be held to:
+///
+/// * it is built at all — `B::finish` refuses unless the slot uses exactly
+///   the A and H claim sites the shape's schedule declares;
+/// * every PUBLIC table is as long as the slot's cube (this is what caught
+///   the dense RoPE tables and the dense causal mask: at the rung they are
+///   2,304 and 4,608 entries against cubes of 4,096 and 8,192);
+/// * every PRIVATE table's coordinate list is as long as its own domain's
+///   log, every free coordinate is inside the slot's cube, and its masking
+///   extension round is one the schedule declares;
+/// * the private terminal count is the shape's, slot by slot.
+///
+/// And it pins **trap T-3** where it can be seen: at a shape with grouped
+/// query heads, the key-value factor of `SC_SCORE` and of `SC_PV` must be
+/// read at the key-value group of the QUERY head the challenge picked, so
+/// the group coordinate of the key-value claim point is literally the same
+/// field element as the head challenge's first coordinate. Reading the
+/// key-value side at a free coordinate of its own would prove a different
+/// statement, and this equality is what forbids it.
+///
+/// It is a DEFINITION test: no proof is produced at the rung, and the pad
+/// rule (S9 part 4) is not in the argument yet.
+#[test]
+fn the_slot_definitions_are_built_from_the_shape() {
+    use super::argument::{causal_mask, causal_mask_at, define, rope_tables, rope_tables_at, Coord, Ctx, Points, Priv, Tab};
+    // the two shape-driven public tables, against the toy's own literals
+    let toy = Shape::toy();
+    assert_eq!(causal_mask_at(&toy), causal_mask(), "the shaped causal mask is not the toy's table");
+    let (public_toy, _, _) = tame_case(&toy);
+    for (dom, heads) in [(Dom::Q, toy.q_heads), (Dom::Kv, toy.kv_heads)] {
+        assert_eq!(rope_tables_at(&toy, &public_toy, dom), rope_tables(&toy, &public_toy, heads), "the shaped RoPE tables are not the toy's on {dom:?}");
+    }
+    for sh in [Shape::toy(), Shape::rung()] {
+        let lay = Layout::for_shape(&sh).unwrap_or_else(|e| panic!("{}: {e}", sh.name));
+        let (public, ff, _input) = tame_case(&sh);
+        let ctx = Ctx {
+            lay: &lay,
+            public: &public,
+            ff: &ff,
+            alpha: Fp2::from_u64(7).add(Fp2::U),
+            beta: Fp2::from_u64(11),
+            g_u8: Fp2::from_u64(13),
+            g_exp: Fp2::from_u64(17),
+            g_act: Fp2::from_u64(19),
+        };
+        let mut tr = crate::transcript::Transcript::new(sh.profile.as_bytes());
+        let mut pts = Points::default();
+        let (slots, terms) = (sh.slots(), sh.slot_terms());
+        let (lt, lkv) = (sh.t_pad.trailing_zeros() as usize, sh.kv_heads.trailing_zeros() as usize);
+        let (mut kv_score, mut kv_pv) = (None, None);
+        for s in 0..N_SLOTS {
+            let def = define(s, &ctx, &mut pts, &mut tr).unwrap_or_else(|e| panic!("{}: slot {s}: {e}", sh.name));
+            let (main, ext, _) = slots[s];
+            let mut n_priv = 0usize;
+            let fixed_at = |p: &Priv, i: usize| match &p.coords[i] {
+                Coord::Fixed(f) => *f,
+                c => panic!("{}: slot {s}: coordinate {i} is {c:?}, not a fixed one", sh.name),
+            };
+            for (i, t) in def.tabs.iter().enumerate() {
+                match t {
+                    Tab::Pub(v) => assert_eq!(v.len(), 1usize << main, "{}: slot {s} table {i}: a public table is not the slot's cube", sh.name),
+                    Tab::Eq { point, start } => assert!(start + point.len() <= main, "{}: slot {s} table {i}: the eq point overruns the cube", sh.name),
+                    Tab::Priv(p) => {
+                        n_priv += 1;
+                        assert_eq!(p.coords.len(), p.log, "{}: slot {s} table {i}: coordinate list", sh.name);
+                        assert!(p.ext_round < ext, "{}: slot {s} table {i}: undeclared extension round", sh.name);
+                        for c in &p.coords {
+                            if let Coord::Rho(kk) | Coord::Flip(kk) = c {
+                                assert!(*kk < main, "{}: slot {s} table {i}: free coordinate {kk} outside the cube", sh.name);
+                            }
+                        }
+                        // T-3: the key-value factor's group coordinate
+                        if lkv > 0 && s == SC_SCORE {
+                            let v = fixed_at(p, lt);
+                            match kv_score {
+                                None => kv_score = Some(v),
+                                Some(q) => assert_eq!(q, v, "{}: SC_SCORE reads the key side at a group of its own", sh.name),
+                            }
+                        }
+                        if lkv > 0 && s == SC_PV {
+                            let v = if n_priv == 1 { fixed_at(p, 0) } else { fixed_at(p, lt) };
+                            match kv_pv {
+                                None => kv_pv = Some(v),
+                                Some(q) => assert_eq!(q, v, "{}: SC_PV reads the value side at a group of its own", sh.name),
+                            }
+                        }
+                    }
+                }
+            }
+            assert_eq!(n_priv, terms[s], "{}: slot {s}: private terminals", sh.name);
+        }
+        assert_eq!(kv_score.is_some(), lkv > 0, "{}: the grouped-head check ran iff the shape groups", sh.name);
+        assert_eq!(kv_pv.is_some(), lkv > 0, "{}: the grouped-head check ran iff the shape groups", sh.name);
+    }
+}
