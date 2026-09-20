@@ -1861,7 +1861,7 @@
    "detail": {
     "available": true,
     "differences": [],
-    "n_items": 38
+    "n_items": 62
    },
    "name": "the toy profile read out of the shaped Rust equals the independent layout model's",
    "pass": true
@@ -1871,7 +1871,7 @@
   "available": true,
   "differences": [],
   "model": "scripts/zk60_private_block_layout_model.py",
-  "n_items": 38,
+  "n_items": 62,
   "rows": [
    {
     "item": "axis log lt (tokens)",
@@ -1974,6 +1974,334 @@
     "model_says": 512,
     "pass": true,
     "read_from_the_rust": 512
+   },
+   {
+    "item": "no slot carries the support indicator (pad_on)",
+    "model_says": false,
+    "pass": true,
+    "read_from_the_rust": false
+   },
+   {
+    "item": "slot SC_SS (main, ext, degree)",
+    "model_says": [
+     9,
+     1,
+     3
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     9,
+     1,
+     3
+    ]
+   },
+   {
+    "item": "slot SC_SSM (main, ext, degree)",
+    "model_says": [
+     9,
+     1,
+     3
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     9,
+     1,
+     3
+    ]
+   },
+   {
+    "item": "slot SC_TZC (main, ext, degree)",
+    "model_says": [
+     5,
+     1,
+     3
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     5,
+     1,
+     3
+    ]
+   },
+   {
+    "item": "slot SC_LZC (main, ext, degree)",
+    "model_says": [
+     9,
+     1,
+     4
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     9,
+     1,
+     4
+    ]
+   },
+   {
+    "item": "slot SC_RS (main, ext, degree)",
+    "model_says": [
+     11,
+     1,
+     3
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     11,
+     1,
+     3
+    ]
+   },
+   {
+    "item": "slot SC_QMM (main, ext, degree)",
+    "model_says": [
+     4,
+     1,
+     2
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     4,
+     1,
+     2
+    ]
+   },
+   {
+    "item": "slot SC_KMM (main, ext, degree)",
+    "model_says": [
+     4,
+     1,
+     2
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     4,
+     1,
+     2
+    ]
+   },
+   {
+    "item": "slot SC_VMM (main, ext, degree)",
+    "model_says": [
+     4,
+     1,
+     2
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     4,
+     1,
+     2
+    ]
+   },
+   {
+    "item": "slot SC_SCORE (main, ext, degree)",
+    "model_says": [
+     3,
+     2,
+     2
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     3,
+     2,
+     2
+    ]
+   },
+   {
+    "item": "slot SC_PV (main, ext, degree)",
+    "model_says": [
+     5,
+     2,
+     2
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     5,
+     2,
+     2
+    ]
+   },
+   {
+    "item": "slot SC_WO (main, ext, degree)",
+    "model_says": [
+     4,
+     1,
+     2
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     4,
+     1,
+     2
+    ]
+   },
+   {
+    "item": "slot SC_GMM (main, ext, degree)",
+    "model_says": [
+     4,
+     1,
+     2
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     4,
+     1,
+     2
+    ]
+   },
+   {
+    "item": "slot SC_UMM (main, ext, degree)",
+    "model_says": [
+     4,
+     1,
+     2
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     4,
+     1,
+     2
+    ]
+   },
+   {
+    "item": "slot SC_DMM (main, ext, degree)",
+    "model_says": [
+     4,
+     1,
+     2
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     4,
+     1,
+     2
+    ]
+   },
+   {
+    "item": "slot SC_DZC (main, ext, degree)",
+    "model_says": [
+     9,
+     1,
+     4
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     9,
+     1,
+     4
+    ]
+   },
+   {
+    "item": "slot SC_QZC (main, ext, degree)",
+    "model_says": [
+     9,
+     1,
+     4
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     9,
+     1,
+     4
+    ]
+   },
+   {
+    "item": "slot SC_KVZC (main, ext, degree)",
+    "model_says": [
+     8,
+     1,
+     4
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     8,
+     1,
+     4
+    ]
+   },
+   {
+    "item": "slot SC_SZC (main, ext, degree)",
+    "model_says": [
+     11,
+     1,
+     4
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     11,
+     1,
+     4
+    ]
+   },
+   {
+    "item": "slot SC_FZC (main, ext, degree)",
+    "model_says": [
+     9,
+     1,
+     4
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     9,
+     1,
+     4
+    ]
+   },
+   {
+    "item": "slot SC_TAB (main, ext, degree)",
+    "model_says": [
+     8,
+     1,
+     3
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     8,
+     1,
+     3
+    ]
+   },
+   {
+    "item": "slot SC_ZS (main, ext, degree)",
+    "model_says": [
+     8,
+     1,
+     2
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     8,
+     1,
+     2
+    ]
+   },
+   {
+    "item": "slot SC_IO_IN (main, ext, degree)",
+    "model_says": [
+     9,
+     1,
+     2
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     9,
+     1,
+     2
+    ]
+   },
+   {
+    "item": "slot SC_IO_OUT (main, ext, degree)",
+    "model_says": [
+     9,
+     1,
+     2
+    ],
+    "pass": true,
+    "read_from_the_rust": [
+     9,
+     1,
+     2
+    ]
    },
    {
     "item": "log of Dom::D",

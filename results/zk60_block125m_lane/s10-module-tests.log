@@ -66,7 +66,7 @@ paper comparison: 74 of 74 items agree; differences: []; only in this run: ['ran
 adapters the define parser needed: {'B-9': 177, 'B-10': 23, 'B-1': 9, 'B-3': 3}
 failures: none
 CAVEAT: These verdicts are about a LINEAR-ALGEBRA MODEL of the real Rust schedule of hashline/src/private_block/, at seeded stand-in challenges. The models exclude the sampled columns, the salted Merkle paths, the CFS channel, transcript conditioning, integer-range side information and correlation between A and H -- exactly as on the accepted attention layout (ZK60_PRIVATE_ATTENTION_NATIVE.md:79). NOTHING here establishes a privacy property of the construction: the joint-view gate on captured receipts is unmet and D8 / D11 stay open for the block's two external endpoints x_in and xres2. What is new relative to the paper runs is only that the schedule is now READ OUT OF CODE instead of out of a memo.
-....../home/victor/wt-zk60-block125m/tests/test_zk60_private_block_inventory.py:286: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/zk60-private-block-tools-3kw9j4oc/zk60_private_block_inventory.log' mode='r' encoding='UTF-8'>
+....../home/victor/wt-zk60-block125m/tests/test_zk60_private_block_inventory.py:286: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/zk60-private-block-tools-lnfpmmh0/zk60_private_block_inventory.log' mode='r' encoding='UTF-8'>
   log = open(os.path.join(self.tmp, "zk60_private_block_inventory.log")).read()
 ResourceWarning: Enable tracemalloc to get the object allocation traceback
 ..................derived from the real Rust vs the design: 45/46 agree; MISMATCHES: A rows
@@ -138,6 +138,6 @@ failures: ['count/A rows', 'gate/host sum L / rank match the design']
 CAVEAT: These verdicts are about a LINEAR-ALGEBRA MODEL of the real Rust schedule of hashline/src/private_block/, at seeded stand-in challenges. The models exclude the sampled columns, the salted Merkle paths, the CFS channel, transcript conditioning, integer-range side information and correlation between A and H -- exactly as on the accepted attention layout (ZK60_PRIVATE_ATTENTION_NATIVE.md:79). NOTHING here establishes a privacy property of the construction: the joint-view gate on captured receipts is unmet and D8 / D11 stay open for the block's two external endpoints x_in and xres2. What is new relative to the paper runs is only that the schedule is now READ OUT OF CODE instead of out of a memo.
 ..........................
 ----------------------------------------------------------------------
-Ran 65 tests in 39.933s
+Ran 65 tests in 39.920s
 
 OK

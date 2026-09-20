@@ -329,7 +329,12 @@ class TestEndToEnd(unittest.TestCase):
         mx = self.s["independent_model_cross_check"]
         self.assertTrue(mx["available"], "the layout model was not found")
         self.assertEqual(mx["differences"], [])
-        self.assertGreaterEqual(mx["n_items"], 30)
+        self.assertGreaterEqual(mx["n_items"], 60)
+        items = {r["item"] for r in mx["rows"]}
+        # the observable consequence of adapter B-10's `pad_on = false`: the declared slot
+        # degrees carry no support indicator at the toy
+        self.assertIn("no slot carries the support indicator (pad_on)", items)
+        self.assertEqual(sum(1 for i in items if i.startswith("slot SC_")), DESIGN["n_slots"])
 
     # ---- the counts ------------------------------------------------------
     def test_every_derived_count_equals_the_design(self):

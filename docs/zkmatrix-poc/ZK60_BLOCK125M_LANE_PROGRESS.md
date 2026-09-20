@@ -2497,11 +2497,24 @@ is `17159dcc` both at `f1df3ba` and today, and `9be2439b` for
 **The twelfth gate** compares the toy profile this driver READ OUT OF THE
 RUST with the independent shape-driven model
 `scripts/zk60_private_block_layout_model.py`, which computes the same
-quantities from a shape alone and never opens a Rust file: 38 items — the six
-axis logs, the three byte-limb counts, the C-6 flag, A / H rows and sites,
-the three lookup totals, the nine domain logs, the six per-position lookup
-counts and the six helper-plane counts. **All 38 agree.** The model is a
+quantities from a shape alone and never opens a Rust file: **62 items** — the
+six axis logs, the three byte-limb counts, the C-6 flag, A / H rows and
+sites, the three lookup totals, the nine domain logs, the six per-position
+lookup counts, the six helper-plane counts, all 23 slots' (main, extension,
+degree), and the support-indicator flag. **All 62 agree.** The model is a
 second opinion, not an input: no value it produces enters the derivation.
+
+The slot rows are there for a specific reason. Adapter B-10 takes
+`pad_on = false` from `pad.rs` and `shape.rs`, and those two files are NOT
+among the three this driver parses — so the assumption is checked by its
+OBSERVABLE CONSEQUENCE instead: a slot whose relation the support indicator
+gates gains one degree, the model carries no indicator at the toy, and
+layout.rs's own declared `SLOTS` degrees agree with it slot by slot. A toy
+that had started to carry the pad rule would fail that gate rather than pass
+silently. (Independently: if `pad_on` were set true by hand the parser
+REFUSES outright, on `super::pad::zero_rule_a_planes(..) != vec![A_MX,
+A_SUM]`, which it cannot evaluate — it cannot quietly produce a different
+answer.)
 
 **S10-F1 (new, minor).** The pre-lane `accepted_selfcheck/` record committed
 at `f1df3ba` was already stale for two `private_attention` files, as above.
@@ -2527,7 +2540,20 @@ in its own right and it belongs after the rung CAPTURE (S9-F5), not before.
 | the inventory tests, repaired | `results/zk60_block125m_lane/s10-inventory-after.log` | **Ran 40, OK** |
 | both `test_zk60_private_block*` files | `results/zk60_block125m_lane/s10-module-tests.log` | **Ran 65, OK** |
 | the record regenerated | `results/zk60_block125m_lane/s10-tools-regenerate.log` | exit 0, `failures: none`, 12 of 12 gates |
-| the whole Python suite | `results/zk60_block125m_lane/s10-whole-suite.log` | see the line below |
+| the whole Python suite | `results/zk60_block125m_lane/s10-whole-suite.log` | Ran **1153**, 1 failure + 1 error + 80 skipped, 854.96 s — both are MISSING FIXTURES, neither is this stage's |
+
+**The two whole-suite failures, by name, and why they are not this
+stage's.** `test_zkmatrix_native_backends.NativeBackendTests.test_ring_freeze_check`
+ERRORs with `FixtureConfigurationError: no complete local 125M regression
+fixture` — `results/m125_ffn_export{,_wsl}/layer00_X.bin` are absent in this
+worktree. `test_zk60_endpoint_view.EndpointGeneration.test_plan_does_not_read_captured_output_values`
+FAILs on `mandatory retained captures absent`: it globs
+`results/zk60_round22_captures/*.json` and that DIRECTORY does not exist
+here (only the file `results/zk60_round22_captures.json` does). Neither test
+imports anything this stage touched, and neither reads
+`hashline/src/private_block/`. **They were not touched.** Before this stage
+the same suite would also have carried the nine inventory errors; it now
+carries none of them.
 
 The inventory file went from 9 tests (nine errors) to **40 tests, all
 passing**: the six that were there plus the end-to-end class, and 25 new ones

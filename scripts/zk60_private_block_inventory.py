@@ -386,10 +386,12 @@ def block_toy_profile(INV, layout_src_stripped: str, consts: Dict[str, int],
     # `pad_on` / `n_pad`: `pad.rs:365-368` returns NO zero-rule plane unless
     # `Shape::carries_pad_rule` (`shape.rs:360-362` = `!is_frozen_toy`, and
     # `shape.rs:367-369` is `profile == TOY_PROFILE`), so `define`'s `pad_doms` is empty and
-    # `B::supp` (`argument.rs:543-547`) returns `None` at the toy, on every domain.
-    body = " ".join(INV.fn_body(layout_src_stripped, "is_multiplicity").split())
-    if not body.startswith("matches!("):
-        raise INV.RustParseError(f"layout.rs::is_multiplicity has an unexpected body {body!r}")
+    # `B::supp` (`argument.rs:543-547`) returns `None` at the toy, on every domain.  Those two
+    # files are NOT among the three this driver parses, so the assumption is checked by its
+    # OBSERVABLE CONSEQUENCE instead: a slot whose relation the support indicator gates gains
+    # one degree, and `model_cross_check` compares layout.rs's own declared `SLOTS` degrees
+    # with the model's, which carries no indicator at the toy.  A toy that had started to
+    # carry the pad rule would fail that gate.
     return {"axis_logs": axes, "ln": ln, "ls": ls, "lp": lp,
             "norm_top": consts["NORM_WRHO"] != 8 * ln,
             "pad_on": False, "n_pad": 0,
@@ -872,6 +874,16 @@ def model_cross_check(INV, lay, repo: str) -> dict:
             ("U8 lookups", tot["U8"], LM.lookups(toy)["u8_total"]),
             ("exp lookups", tot["exp"], LM.lookups(toy)["exp_pairs"]),
             ("act lookups", tot["act"], LM.lookups(toy)["act_pairs"])]
+    # The slot table is where the pad rule would SHOW: a slot whose relation the support
+    # indicator gates gains one degree at a shape that pads and carries the rule.  The model
+    # says no slot carries an indicator at the toy; layout.rs's declared `SLOTS` must agree,
+    # and that is the observable consequence of adapter B-10's `pad_on = false`.
+    msl = LM.slots(toy)
+    rows.append(("no slot carries the support indicator (pad_on)",
+                 lay.block_toy["pad_on"], any(s["carries_support_indicator"] for s in msl)))
+    for s, m in enumerate(msl):
+        rows.append((f"slot {lay.slot_name_of[s]} (main, ext, degree)", tuple(lay.slots[s]),
+                     (m["main_rounds"], m["extension_rounds"], m["degree"])))
     rows += [(f"log of Dom::{d}", lay.dom_logs[d], toy.log(d)) for d in sorted(lay.dom_logs)]
     rows += [(f"U8 lookups per position of Dom::{d}", lay.lookup_counts[d], lk[d])
              for d in sorted(lk)]
