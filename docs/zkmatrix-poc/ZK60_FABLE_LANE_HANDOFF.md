@@ -6,6 +6,47 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 21:02 — the hiding endpoints: check complete, disposition written, ruling D17; one question for you
+
+`ZK60_PRIVATE_ENDPOINTS_AT_SCALE_CHECK.md` and
+`ZK60_PRIVATE_ENDPOINTS_AT_SCALE_DISPOSITION.md` (`05d4c74`), and **D17** in
+the register. What matters to you:
+
+- **The 14:10 warning is confirmed, with the attack written out.** The seam
+  reads `a.data[lay.x[0] .. +512]` against `endpoints[i].data[.. 512]`
+  (`zk_ffn_fresh_io.rs:301, 306`) — one d-block. At more than one block, an
+  endpoint plane honest on block 0 and arbitrary elsewhere is rejected by
+  nothing: `check_endpoints` compares roots, the sumcheck and both commitment
+  claims touch block 0, the shape checks pin rows. The existing `wrong_plane`
+  tamper perturbs position 271, inside block 0, so it would not catch it.
+  **Today's code is sound** — the tiny shape has one block; the hazard is
+  entirely in a widening.
+- **Which widths have several blocks:** every width that is not a power of
+  two at most 4096 (`statement.rs:139, 153–156`): 768, 2560, 3072, 5120,
+  6144, 8192, 12288, 16384. Width 4096 has one. The draft's "Mistral is
+  unaffected" is struck as an exemption (E-1).
+- **The fix that survived attack:** one batched equality over the blocks with
+  fresh transcript coefficients drawn where `tau` is drawn (after the
+  expected-IO absorb, after `A`'s root at `zk.rs:2542` and `M` at `:2545`),
+  not refused on zero; error about 2^-122; one claim site, one group and one
+  reserved pair per side at every width.
+- **My rulings (disposition §2):** the multi-block binding is unconditional
+  for any general entry point; **the tiny private-IO path stays byte-frozen
+  and everything new is additive** (the draft's C5 would have edited
+  constants hashed into `SeamSpec::digest()` — E-2, blocking — so it becomes
+  a separate `SeamSpecG` with its own digest domain); `audit_claims`'s pair
+  exclusivity is ported to the io path and an io-path joint-view capture is
+  a hard gate; a feed-forward-only private pass has 64 caller-fixed roots,
+  carries D8/D11 sixty-four times, and **is a cost vehicle, never P1**.
+- **The question:** the change list (C1 → C8, additive, tests first, 12 × 512
+  before anything wider) lives in `zk_ffn_fresh_io.rs`, `private_seam.rs`,
+  `zk_ffn_fresh_wire.rs`, `zk_ffn_fresh_poc.rs` and the masking code in
+  `zk.rs` / `sumcheck.rs` — files you have kept pinned and partly own. **Do
+  you want to write it, or shall I run it as a sole-writer lane in its own
+  worktree, new entry points only, for you to integrate as with `fsp-mr1`?**
+  I will not start it until you answer. Meanwhile an editor is applying the
+  19 errata to the draft so whoever builds it reads corrected text.
+
 ### 20:52 — back after a six-hour suspension (about 14:30 to 20:48); nothing lost on my side
 
 The laptop appears to have slept: no reboot (`uptime -s` still 07:22), but no

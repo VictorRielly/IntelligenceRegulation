@@ -26,6 +26,7 @@ back. Keep this file short enough to read in five minutes.
 | D14 | Commission a costed design memo for the fewer-hashed-bytes speed lever (encoding rate 1/2 and/or a 31–32-bit field). Paper only: building it would move every frozen digest and the soundness accounting, and stays a separate ruling | **memo commissioned** | 2026-09-19 | Victor (Telegram 11:50) |
 | D15 | The custom line's "106 bits" is a per-opening figure; the projected whole 8B proof is about 94 bits. Every model-scale security statement quotes the whole-proof figure | **technical clarification**; the whole-proof target itself is a ruling still to be put to Victor | 2026-09-19 | Security owner (Fable), from `ZK60_FABLE_SECURITY_OBLIGATIONS.md` §5 and the D14 memo |
 | D16 | Before the private block's norm is widened toward real-model widths, its denominator and the two isqrt witnesses keep a direct byte-limb range pin sized to the new maximum, at most four limbs each, with an exact remainder window | **construction rule (precondition for widening; soundness)** | 2026-09-19 | Security owner (Fable), from the norm range lane |
+| D17 | Hiding endpoints beyond the tiny shape: the whole hidden plane is bound at every width (the batched multi-block seam, unconditional); the tiny private-IO path stays byte-frozen and new entry points are additive; a feed-forward-only private pass is a cost vehicle, never P1 | **construction rule (soundness) and a naming rule** | 2026-09-19 | Security owner (Fable), from the endpoints-at-scale draft and its independent check |
 | — | RTX 5090 install (an action, not a ruling; the 600 W bound was ruled on 2026-09-04) | **go**; date, machine and host RAM still to be named | 2026-09-19 | Victor (Telegram 11:50) |
 
 Operational rules (detached heavy runs, the shared-box lock, command hygiene)
@@ -496,6 +497,47 @@ statement version. **Not covered:** the widened profile was analysed on paper
 and by arithmetic tests, not run through the verifier, because reaching it
 needs production changes this lane was not allowed to make; the public-IO
 prover's R09 is unchanged and still owes the fix verified on 2026-09-08.
+
+## D17 — Hiding endpoints beyond the tiny shape (construction rule, 2026-09-19)
+
+**In plain words.** The private feed-forward hides its input and its output
+by putting each in its own sealed commitment and proving, without opening
+either, that the sealed plane equals the plane inside the proof. Today that
+equality is checked over **one block** of the plane. At the tiny shape a
+plane is one block, so that is the whole plane and the code is sound. At any
+shape with several blocks, simply raising the size limits would leave the
+rest of the plane **unbound**: an independent check built the attack (a
+sealed plane honest on the first block and arbitrary elsewhere) and showed
+that nothing in the present code rejects it; the existing tamper test would
+not catch it either, because its one perturbed position lies in the first
+block.
+
+**The rule.**
+1. **Any entry point that accepts a shape other than the pinned tiny one binds
+   the whole plane**, through the batched multi-block seam, at every width.
+   No width is exempt: a plane has one block only when the model width is a
+   power of two no larger than 4096, so widths 768, 5120, 6144, 8192, 12288
+   and 16384 all have several.
+2. **The tiny private-IO path stays byte-frozen.** Its constants are hashed
+   into its digests and fix its endpoint roots. Everything new is additive: a
+   general spec with its own digest domain, a new profile tag, a new entry
+   pair beside the pinned ones.
+3. **Pair exclusivity is enforced in code on this path**, and a joint-view
+   analysis of a captured receipt at the widened shape is a hard gate before
+   the path is used for any measurement that is quoted.
+4. **Naming.** A feed-forward-only private pass over 32 layers has **64
+   endpoint roots fixed by the caller, not a chain** — attention, two norms
+   and a residual sit between consecutive feed-forward blocks — and every one
+   of them carries the open D8/D11 obligation. It is not a block under D12,
+   and D13's "blocks" means complete blocks. **It is a cost vehicle and is
+   never called P1**, in code, documents or status pages.
+
+**What it costs** [COUNTED, none of it measured]: at one Mistral-width layer
+about 274 more committed rows (1.6%) and 2.3 MiB of proof (6%); the whole-proof
+soundness moves by 0.03 bit. **What it does not do:** it establishes no
+privacy property and leaves D8 and D11 exactly where they were. Ruling and
+the 19 binding errata:
+`ZK60_PRIVATE_ENDPOINTS_AT_SCALE_DISPOSITION.md`.
 
 ## D13 — What the first MVP must prove (decided 2026-09-19)
 
