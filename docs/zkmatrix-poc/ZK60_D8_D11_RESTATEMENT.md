@@ -1,7 +1,30 @@
-# D8/D11 restated: the caller-fixed endpoint-root obligation, the hash layer, and the closures that could discharge it
+# ZK60 — the D8/D11 obligation stated as a game, and a costed survey of ways to meet it (NOT a discharge)
 
-**DRAFT for the security owner's review — NOT ACCEPTED, and NOT a closure of
-D8/D11. Delegated Opus draft, 2026-09-19. Paper only.**
+**Status: CORRECTED AFTER INDEPENDENT CHECK — NOT accepted as the project's position, per `ZK60_D8_D11_RESTATEMENT_DISPOSITION.md` (security owner, 2026-09-19). D8 and D11 stand as written in the register. This page states the obligation and surveys routes with their costs; it recommends no reduction. Corrections of `ZK60_D8_D11_RESTATEMENT_CHECK.md` applied. Drafted by a delegated Opus agent.**
+
+## Where this stands after ruling D18
+
+For the first MVP the prover generates every commitment at proof time (D18,
+`ZK60_DECISIONS.md:582-617`). So the configuration D8 and D11 bind — somebody
+other than the prover fixing a commitment in advance — **does not arise in the
+first MVP's artifacts**, and the standard privacy game, in which the simulator
+produces the commitments, is the one that applies to them. That is all it
+says. It is **not** a privacy acceptance: the joint-view checks remain what
+they are, and U-3 remains open.
+
+The obligation binds from the day a third party fixes a commitment in advance.
+The route the project expects to take then is the **sealed handle**: a salted
+hash of the plane, checked inside the proof against a **fresh
+prover-generated** commitment. It is scoped separately in
+`ZK60_SEALED_HANDLE_SCOPING.md` (commissioned 2026-09-19).
+
+Durable facts the independent check confirmed: in today's code **the committer
+is the prover**; the two-point simulator has **no ordering problem**; the
+hash-layer counts of §3.3 **reproduce**; separately finished private proofs
+**cannot chain through a commitment root**; the transcript and the Merkle and
+leaf hashes **share an untagged 64-byte BLAKE3 domain**; and D9's figures are
+exact — **statistical distance 2^-96 per draw, per-outcome relative bias
+2^-64**.
 
 | | |
 |---|---|
@@ -46,21 +69,34 @@ There are only three ways out, and §3.6 proves it is only three:
 1. Make sure the root has **never been opened before** and give the simulator
    one free "let this fingerprint come out however I want" move, which is a
    standard and widely used modelling assumption (the *random-oracle model*).
-   This is the cheapest route and it is where this draft's recommendation
-   lands — but it only works for a root with no earlier opening, and it means
+   This is the cheapest route, and the first version of this page proposed
+   restricting the obligation to it. **That reduction was attempted and
+   refused** (`ZK60_D8_D11_RESTATEMENT_DISPOSITION.md` §1): it is circular —
+   the restriction that is supposed to make the case safe simply states the
+   conclusion — and it protects the hidden value against everyone **except
+   the party who sealed it**, which is the party D8 is named for. The refused
+   attempt is kept below, as a record of what does not work and why. It only
+   ever applied to a root with no earlier opening, and it would have meant
    changing what the project promises about roots.
 2. Make the root something the **prover generates fresh inside each proof**,
-   and have the caller refer to the hidden data by something else. This is
-   what the other proving line already does (D7, salted SHA-256 handles). On
-   the custom line it costs a proof that the two references agree, and §4.2
-   counts that cost: it is large, and at model scale it is bigger than the
-   entire speed budget.
+   and have the caller refer to the hidden data by something else — the
+   **sealed handle**. This is what the other proving line already does (D7,
+   salted SHA-256 handles), and D18 records it as the approach the product is
+   expected to use. On the custom line it costs a proof that the two
+   references agree, and §4.2 counts that cost: about **+5.5 % of a public
+   pass and +12.6 % of a private one** — a relative cost that scales with the
+   pass, not a fixed slice of the speed budget. The first version of this
+   page called it "bigger than the entire speed budget", which compared a
+   figure derived from today's pass against tomorrow's target; that is
+   withdrawn (§4.2). It still needs a hashing gadget that does not exist.
 3. **Never publish the opening at all** — check the envelope inside the proof.
    That is the zkVM line. It is correct and it is roughly 10^4 times too slow
    to be the product (D2).
 
-Nothing in this document closes D8 or D11. §5 says which route to attack
-first, what theorem it would need, and what result would kill it.
+Nothing in this document settles D8 or D11; they stand exactly as written in
+the register. §5 sets out the theorem the refused route would have needed, the
+proof obligations that remain whichever route is taken, and what result would
+kill each of them.
 
 ---
 
@@ -152,34 +188,62 @@ D11 says prior authentication/hash history "remains in scope"
 | **H4** | A distinguisher oracle query at the honest top pair `l‖r` | Requires already holding `(l, r)`, i.e. H3, or the committer's salts, or a `2^-256`-per-try guess |
 | **H5** | A distinguisher oracle query at any other node or salted-leaf input of the honest tree | Same: requires the salts or the encoded columns |
 | **H6** | Application side information about the plane's *contents* (e.g. "the answer is one of 32 values" — the qualifier already written into D7 for the zkVM line, `ZK60_DECISIONS.md:242-247`) | Yes, always. It is not hash-layer history; it bounds what *any* hiding commitment can buy |
-| **H7** | A **different** commitment to the same plane, with independent randomness, opened by another proof | Yes, and it is exactly what closure (iii) would create. It is a *data-channel* correlation (the round-23 "two proofs of one witness" study, `ZK60_ROUND23.md:29`), not hash-layer history: the two trees share no oracle point except by `2^-256` accident |
+| **H7** | A **different** commitment to the same plane, with independent randomness, opened by another proof | Yes, and it is exactly what route (iii) would create. It is a *data-channel* correlation, not hash-layer history: the two trees share no oracle point except by `2^-256` accident. Its field-layer status is **measured, not unexamined**: round 23 ran the two-proof joint analysis and reports zero disclosed base dimensions over 88,064 shared data unknowns, four with every private commitment added (exactly the two public `H` LogUp identities), and 256 in the single-mask ablation control (`ZK60_ROUND23.md:58-65`) — at **fixed coefficients, on two captures, field channels only**, explicitly excluding the CFS, pad, encoded-column and Merkle channels and adaptive composition (`:67-71`), and explicitly not covering commitment reuse or an arbitrary number of proofs |
+| **H8** | A **rejected-but-emitted** receipt under `R` — `finish` has "No equality precheck" (`zk_ffn_fresh_io.rs:256-257`; same comment at `private_block/protocol.rs:256-257`), so a proof against a mismatched witness is fully built and emits 256 genuine authentication paths before the verifier's polynomial identity rejects it | **Yes, today, with no new interface.** It is a published path set under `R`, i.e. H3-grade history. The consuming owner means no *second* opening follows, but the bytes are out. Added after the independent check; §1.5 noticed it and the first version of this table omitted it |
+| **H9** | A **retained capture** — `native_capture.rs:275-281` writes each accepted receipt, its 112-byte policy and its JSON to disk, and the joint-view lane reads those files | **Yes.** A retained capture is a published opening of its two endpoint roots. Today each capture uses fresh roots, so one path set per root still holds; but any "first published with the consuming proof" rule must count writing a capture as publishing, or the project's own evidence pipeline violates it. Added after the independent check |
 
-**The point of the table.** The only entry that breaks the hash-layer
-argument is **H3**, and H3 is exactly "the root was opened before". So the
-case split that matters is not "history / no history" but **"opened before /
-not opened before"**, and D8's own correction text already says this
-(`ZK60_DECISIONS.md:268-274`). D11 is nevertheless right to refuse the
-reduction as it was argued in round 2, for the reason in §1.8.
+**The point of the table, as corrected.** The entries that break the
+hash-layer argument are **H3, H8 and H9**, and all three are the same thing:
+a published path set under `R`. That is why the case split that matters is
+not "history / no history" but **"a path set has been published before / it
+has not"**, and D8's own correction text already says this
+(`ZK60_DECISIONS.md:268-274`).
+
+**But note what that observation is worth, because the first version of this
+page over-claimed it.** Saying "the only history that hurts is a prior
+opening" is very close to a definition: an authentication path *under `R`* is
+by construction a component of an opening of the commitment whose root is
+`R` (`OpeningZk.columns` carries `(index, column, salt, path)`,
+`pcs.rs:571-572`, and nothing else in the system emits a sibling chain). The
+enumeration is useful bookkeeping — and it is not an argument. D11 refuses
+the reduction as it was argued in round 2, and the disposition of 2026-09-19
+refuses it again in the form §3.7 first gave it; see §1.8 and §3.7.
 
 ### 1.4 The three cases the documents conflate
 
 - **Case (a)** — `R` has no prior opening and no prior history at all (H0,
   optionally H1/H2), and is consumed by exactly one proof.
-- **Case (b)** — `R` has prior history but still exactly one opening in
-  total. By §1.3 this can only be H1, H2, H6 or H7. **A prior
+- **Case (b)** — `R` has prior history but still exactly one **published path
+  set** in total. By §1.3 this can only be H1, H2, H6 or H7. **A prior
   authentication path is not in case (b): it is case (c).** The documents
-  place it in (b) and that is the conflation.
-- **Case (c)** — `R` is opened more than once. This is where the two-opening
-  recovery of §2.1 lives, and it is fatal at this geometry.
+  place it in (b) and that is the conflation. Note the unit: it is a
+  published path set, not an accepted `finish`. H8 (a rejected-but-emitted
+  receipt) and H9 (a retained capture) are path sets too, so they sit with
+  case (c) even though neither is a second accepted proof.
+- **Case (c)** — a path set under `R` is published more than once. This is
+  where the two-opening recovery of §2.1 lives, and it is fatal at this
+  geometry.
 
-Three consequences, stated now and argued below:
+Three observations follow. **They are bookkeeping, not results, and the first
+version of this page wrote them as results** — the disposition of 2026-09-19
+(hole 1) records that as the document's central defect:
 
 1. Case (b) as it can actually arise (H1, H2, H6, H7) does **not** touch the
    hash layer. H1/H2 are public outputs and parameters; H6 is an
-   application-level bound on any commitment; H7 lives on a disjoint tree.
-2. The "case (b)" the retraction was about (H3) is case (c) in disguise.
-3. So the hash-layer question reduces to: **is there a simulator for case (a)
-   — and is case (c) excluded by something a verifier can rely on?**
+   application-level bound on any commitment; H7 lives on a disjoint tree
+   (and its field-layer status is measured — §1.3).
+2. The "case (b)" the retraction was about (H3) is case (c) in disguise —
+   which is true by the definition of an authentication path, not by an
+   argument.
+3. The hash-layer question that is left is: **is there a simulator for case
+   (a) — and is case (c) excluded by something a verifier can rely on?** The
+   honest answer to the second half is that a verifier cannot check it from
+   the bytes at all; it is a rule about the world.
+
+**What must not be inferred from any of the three.** They do not show that
+case (b) is empty. Everything in (b) that would break the construction is
+excluded by the restrictions R1 and R2 of §5.2, and R2 *states* that
+exclusion. Read as a narrowing of D11 the argument is circular; see §3.7.
 
 ### 1.5 What the code enforces, and for which roots
 
@@ -204,18 +268,37 @@ and the only producer of a `PreparedPlane` is `private_seam::prepare` with
 fresh OS entropy. There is no import interface, no seed interface and no
 serialisation.
 
-**Two things this does not settle.**
+The independent check re-walked every path named above, plus the examples,
+the release CLI and a grep for `unsafe`, `from_os` and `seed:`, and confirmed
+each row. **Five things this does not settle.**
 
 - It is a property of *this crate's public API*, not of the verifier's
   statement. `verify` will accept a receipt for any root; whether some other
   producer could ever exist is a system rule, not a type.
+- **What the types enforce is "at most one `finish`", not "at most one
+  published path set".** Those are different rules, and the second is the one
+  the privacy argument needs. The next two bullets are why.
 - A **failed** attempt still emits bytes. `finish` builds the full receipt
   and only the verifier's polynomial identity rejects it
   (`zk_ffn_fresh_io.rs:274-275`: "No equality precheck"). A rejected receipt
-  carries 256 genuine authentication paths under `R`. The owner is consumed,
-  so no *second* opening follows — but if anyone ever adds a retry path that
-  re-prepares the same plane **with the same randomness**, H3 becomes
-  reachable. Today it cannot, because there is no seed interface.
+  carries 256 genuine authentication paths under `R` — this is H8. The owner
+  is consumed, so no *second* opening follows — but if anyone ever adds a
+  retry path that re-prepares the same plane **with the same randomness**,
+  H3 becomes reachable. Today it cannot, because there is no seed interface.
+- **Retained captures publish path sets too** (H9): `native_capture.rs:275-281`
+  writes each accepted receipt, its policy and its JSON to disk. Any rule of
+  the form "a root is first published with the proof that consumes it" has to
+  count a capture as a publication.
+- The types do not protect the plane *inside* the crate, and two adjacent
+  facts are worth asserting rather than assuming: `CommittedZk`'s `data`,
+  `pads` and `salts` fields are all `pub` (`pcs.rs:551-564`), so the
+  endpoint's secrecy inside `hashline` rests only on `PreparedPlane.committed`
+  being private (`private_seam.rs:146`) and `into_ffn_endpoint` being
+  `pub(crate)` and by-value; and the release CLI's `--zk --seed N`
+  (`hashline/src/bin/hashline.rs:120`) makes the legacy zk path's `A`/`H`/`M`
+  commitments byte-reproducible, which the binary itself flags as "INSECURE
+  TEST RANDOMNESS … provides no privacy" (`:178-179`) and which does not
+  reach endpoints. Both belong in the mechanical invariant of O4.
 
 ### 1.6 The experiment, written as a game
 
@@ -248,19 +331,44 @@ keeps its own state, and `SimProve` must then honour them
 workflow completely and covers Game E not at all, because `SimPrepare` chose
 the roots.
 
-**Why the "`r` is given to neither" clause is load-bearing, and contestable.**
-If `D` holds `r`, it can rebuild the honest tree, read off the honest top pair
-`(l, r̂)` with `blake3(l‖r̂) = c_in`, and detect any programmed second
-preimage — no simulator of the present shape survives. Restricting `aux` to
-exclude the commitment randomness is exactly the restriction in
-Lyubashevsky–Nguyen–Seiler Definition 2.8 (randomness drawn from `χ`, not
-chosen by the adversary), which O9 §5 checked against the primary source
-(`ZK60_OPUS_ENDPOINT_EXPERIMENT_REVIEW.md:221-236`). It is a **weaker notion
-than textbook NIZK zero knowledge**, which quantifies over all auxiliary
-inputs. It has to be written into any theorem this project states, and it has
-to be defended on product grounds: the party holding the salts is the endpoint
-owner, who in this system is the prover, i.e. the party whose privacy is being
-protected — not the regulator.
+**Why the "`r` is given to neither" clause is load-bearing, and why it is the
+first thing the check struck down.** If `D` holds `r`, it can rebuild the
+honest tree, read off the honest top pair `(l, r̂)` with `blake3(l‖r̂) =
+c_in`, and detect any programmed second preimage — with probability **1**,
+not `2^-256`. No simulator of the present shape survives.
+
+**So the clause decides who may be the adversary, and it excludes the party
+who fixed the root** (hole 2). It may be the verifier or regulator that
+receives only the 112-byte policy and the receipt, any third party, or a
+model owner that did not commit. It may **not** be the committer, or anyone
+the committer gave the randomness to. Concretely: *a regulator, user or data
+owner who fixes a root by committing the plane itself is excluded from ever
+being the distinguisher* — and that is precisely the party D8 is named for.
+The dichotomy is unpleasant in both branches. If the **prover** commits — the
+configuration all of today's code is in, and the one D18 pins for the first
+MVP — then the standard game in which the simulator issues its own roots
+(Game J below) covers it and no programming is needed at all. If a **third
+party** commits, that party holds `r`, must never be the distinguisher, must
+never open the commitment, and in practice must destroy `r` after handing the
+plane over. **No document in this repository names such a party**, which is
+condition 22 of the check and a ruling only Victor can give.
+
+**The notion this game defines is new and project-specific, and must be
+labelled as such** (hole 3). The first version of this page called the
+restriction "exactly the restriction in Lyubashevsky–Nguyen–Seiler Definition
+2.8" and "the established commit-and-prove notion". **That citation does not
+license it.** O9 §5 — this page's own source — maps Def 2.8 the other way:
+its ideal-world commitments are produced by `SimCom_ck(x)`, i.e. the
+simulator chooses them, which is Game J, not Game E
+(`ZK60_OPUS_ENDPOINT_EXPERIMENT_REVIEW.md:227-228`, `:236-239`). Game E under
+this clause keeps the commitments environment-produced and demands that the
+simulator hit them: strictly harder for `S` than Def 2.8, strictly weaker
+than textbook NIZK zero knowledge (which quantifies over all auxiliary
+inputs), and a **third, intermediate notion with no source in the record or
+in the cited paper**. Any theorem this project states must name it as new,
+must carry the excluded parties in the product claim the way D7's three
+qualifiers travel with the zkVM claim (`ZK60_DECISIONS.md:242-251`), and must
+not describe it as established.
 
 ### 1.7 The security notion, and the residual terms already accepted
 
@@ -281,17 +389,26 @@ theorem must carry rather than hide:
 | PRG assumption on the keyed BLAKE3 prover stream | assumption, not a term | `ZK60_NATIVE_JOINT_VIEW.md` §7 item 7 (branch `zk60-native-jointview`) |
 | hash-layer programming freshness | `≤ q/2^256` per programmed point, **plus** the union terms of §3.5 | `ZK60_ENDPOINT_SIMULATION_MODEL.md` "fresh-query bound"; O10 §3 |
 
-**One correction to the record, offered for the security owner's ruling.**
-O10 **F10.4** states a reduction-bias floor of `2^-51.4` from
-`6144 · 2^-64`, using the "bias 2^-64" wording in the source comments
-(`ZK60_OPUS_ORACLE_BOOKKEEPING_REVIEW.md:135-142`). D9's accepted ruling uses
-`2^-96` per draw (`ZK60_DECISIONS.md:372`). At `2^-96`, the same 6,144
-endpoint draws give `6144 · 2^-96 ≈ 2^-83.4`, and the whole-proof figure of
-`2^-75` is dominated by the ~`2^21` draws of the *whole* proof, not by the
-endpoints. F10.4's qualitative conclusion — that the reduction term dwarfs
-the `q/2^256` hash term and a bound must not lead with `q/2^256` — is
-**unchanged and correct**. Only the number moves. I did not re-derive either
-per-draw figure and flag this as a discrepancy to be closed, not as a finding.
+**The `2^-64` / `2^-96` question is settled; it is not open.** The first
+version of this page offered it to the security owner as a discrepancy. It
+had already been ruled on the same day, in **D9's verification note**
+(`ZK60_DECISIONS.md:394-408`), and the independent check reproduced the
+arithmetic with exact rationals. The two numbers are two different
+quantities, not a disagreement: with `p = 2^64 − 2^32 + 1` and a draw a
+uniform 128-bit integer reduced mod `p` (`zkp-core/src/rng.rs:72-77`),
+`2^128 mod p = p − 2^32`, so the **total statistical distance of one draw
+from uniform is exactly `2^-96`** and the **relative bias of a single outcome
+is exactly `2^-64`**. A privacy bound sums statistical distances, so the
+per-draw term is `2^-96`, and D9's accumulated figures stand: `2^-75.0` at
+`2^21` draws, `2^-72.9` at `2^23.1`, `2^-71.7` at `2^24.3`; the 6,144
+endpoint draws alone give `2^-83.4`. The document that states it wrongly is
+O10 **F10.4** (`ZK60_OPUS_ORACLE_BOOKKEEPING_REVIEW.md:135-142`, `:167-169`),
+which reads the per-outcome relative bias as the per-draw distance and so
+derives a `2^-51.4` floor; the origin of the confusion is the source comments
+`rng.rs:72` and `transcript.rs:96`, which say "bias 2^-64" without saying
+which bias and should say both numbers. F10.4's qualitative conclusion — that
+the reduction term dwarfs the `q/2^256` hash term and a bound must not lead
+with `q/2^256` — is **unchanged and correct**; only its number moves.
 
 ### 1.8 What a reviewer attacks first in this section
 
@@ -300,25 +417,37 @@ per-draw figure and flag this as a discrepancy to be closed, not as a finding.
    unreachable and was retracted because the *verifier's statement* does not
    know about the API (`ZK60_MVP_JOINT_VIEW.md` §1.1 and its correction note;
    D8's correction, `ZK60_DECISIONS.md:268-274`). §1.5 makes no claim about
-   the statement. It says only: *if* the project chooses closure (i) or (v),
-   the system rule those closures need is already enforced by the types for
-   every root this prover can prove about, so the rule costs nothing to adopt
-   and is cheap to test. That is a different claim, and it still requires a
-   decision by Victor about what the product promises.
+   the statement. It says only: *if* the project chooses route (i) or (v),
+   the types already enforce **one `finish`** for every root this prover can
+   prove about. **That is not the rule those routes need**, which is "one
+   published path set of any kind, accepted, rejected or captured" — H8 and
+   H9 are outside what the types can see (§1.5). So the rule is cheaper to
+   adopt than it looks and is *not* free, and it still requires a decision by
+   Victor about what the product promises.
 2. **"H3 unreachable" is a claim about a moving target.** It rests on there
    being no import, no seed and no serialisation interface. Any of the three
    would reopen it. It should be a named, tested invariant (§5), not an
    observation.
-3. **The `aux`-excludes-`r` clause (§1.6).** The first thing an external
-   cryptographer will say is that this is not zero knowledge as usually
-   defined. The honest answer is that no hash-Merkle commit-and-prove system
-   achieves the stronger notion for foreign roots, that the weaker notion is
-   the established one for commit-and-prove (LNS Def 2.8), and that the
-   product's threat model matches it. That answer must be written down and
-   accepted, not assumed.
-4. **Case (b)'s emptiness (§1.4).** If anyone finds a fifth kind of history
-   that is neither a public output, a parameter, an application bound nor a
-   disjoint tree, the case split collapses and §4's costing changes.
+3. **The `aux`-excludes-`r` clause (§1.6), and this is where the check
+   landed first.** An external cryptographer will say that this is not zero
+   knowledge as usually defined, and they are right. The answer originally
+   given here — that it is "the established commit-and-prove notion (LNS Def
+   2.8)" — **is withdrawn**: the cited source maps Def 2.8 to the game in
+   which the simulator produces the commitments (§1.6). What can honestly be
+   said is that no hash-Merkle commit-and-prove system is known to achieve
+   the stronger notion for foreign roots, and that this is therefore a new,
+   project-specific notion whose excluded parties must be written into the
+   product claim. Whether the product's threat model matches it is exactly
+   the unanswered question of §1.6: nobody has named the third-party
+   committer.
+4. **Case (b)'s emptiness (§1.4).** This has already happened twice: the
+   check found **H8** (a rejected-but-emitted receipt) and **H9** (a
+   retained capture), both reachable today with no new interface and both
+   published path sets, so the enumeration that was offered as exhaustive was
+   not. Any further kind of history that is neither a public output, a
+   parameter, an application bound nor a disjoint tree changes §4's costing
+   again — which is one reason the enumeration is not load-bearing and
+   should not be treated as one.
 
 ## 2. What is proved, what is refuted, what is open
 
@@ -546,7 +675,12 @@ Everything below is about the hash layer.
 | the joint hypothesis itself | **OPEN (U-3)** | `ZK60_NATIVE_JOINT_VIEW.md` §9a.5 |
 | disclosed dimension 0 on the linear channels of real receipts | **MEASURED** on four captures at real challenges | `ZK60_NATIVE_JOINT_VIEW.md` §2.3, §5, §9b |
 | the hash layer (roots, salts, paths) for foreign roots | **OPEN — no construction exists** | `ZK60_NATIVE_JOINT_VIEW.md` §5, §7.1; O9 §7.1 |
-| one opening per commitment, enforced in code | **enforced at compile time for every root this prover can prove about**; not a property of the verifier's statement | §1.5 |
+| one opening per commitment, enforced in code | **one `finish` is enforced at compile time for every root this prover can prove about**, confirmed on every code path by the independent check; **"one published path set" is not enforced** (H8, H9), and neither is a property of the verifier's statement | §1.5 |
+| "within the hash layer, case (b) is either empty or equal to case (a)" | **ATTEMPTED AND REFUSED** — circular: its content is restriction R2, which assumes it | §1.4, §3.7; `ZK60_D8_D11_RESTATEMENT_DISPOSITION.md` §1.1 |
+| the two-point simulator's programming order | **no ordering problem** — the programmed point is the top node, drawn before the 256 indices exist | §3.5 |
+| the two-proof-of-one-witness (H7) field-layer joint law | **MEASURED** at fixed coefficients on two captures, field channels only — zero disclosed base dimensions over 88,064 shared unknowns | `ZK60_ROUND23.md:58-65`, scope at `:67-71` |
+| chaining two separately finished private proofs through a commitment root | **IMPOSSIBLE** — the upstream receipt already opens that root, so the downstream proof is a second opening (case c), and it is unimplementable today | §5.5; `ZK60_D8_D11_RESTATEMENT_DISPOSITION.md` §2.5 |
+| the Fiat–Shamir table and the Merkle/leaf table | **share one untagged 64-byte BLAKE3 domain** — no attack follows, but O5 is concrete, not hypothetical | §3.8 item 1 |
 
 ## 3. The hash layer, which is the actual gap
 
@@ -565,24 +699,50 @@ Per endpoint, exactly (`pcs.rs:567-573`, `:915-943`; serialisation `:582-601`):
 | **authentication paths** | 256 × 11 digests | **90,112** | full path emitted per *draw*, duplicates included |
 | **total** | | **131,072** | matches `ENDPOINT_OPEN_BYTES`, `zk_ffn_fresh_io.rs:15` |
 
-So the hash layer is `32 + 8,192 + 90,112 = 98,336` bytes of the 131,072 —
-**75 % of an endpoint opening is hash material**, and none of it is covered
-by the linear analysis of §2.5.
+So the hash layer inside the opening is `8,192 + 90,112 = 98,304` bytes of
+the 131,072 — **exactly 75.00 % of an endpoint opening is hash material**,
+and none of it is covered by the linear analysis of §2.5. (The root's 32
+bytes are *not* part of that total: `ENDPOINT_OPEN_BYTES` does not contain
+them, because the root travels in the 112-byte policy, as the table above
+says. The first version of this page added them in and wrote `98,336`.)
 
 ### 3.2 What a simulator must produce
 
 For case (a), `S` receives `(pp, x, R_in, R_out)` and must output, per
 endpoint:
 
-1. **256 column value vectors.** These it can sample: the pad argument
-   (§2.5, `ZK60_NATIVE_JOINT_VIEW.md` §9b) shows that with `q_pad = 256` pads
-   per row and up to 256 distinct opened positions, the opened symbols of
-   each row are **jointly uniform given the data** — the pad half of the
-   column map is `diag(x_j^n − 1)` times a Vandermonde in distinct nodes,
-   full row rank for every `d ≤ q_pad`. Sampling a real commitment to the
-   all-zero plane and reading off its columns gives exactly the right law.
-2. **256 salts.** Uniform 32-byte strings, drawn freshly. Same law in both
-   worlds (`pcs.rs:674`).
+1. **256 column value vectors.** The pad argument (§2.5,
+   `ZK60_NATIVE_JOINT_VIEW.md` §9b) shows that with `q_pad = 256` pads per
+   row and up to 256 distinct opened positions, the opened symbols of each
+   row are **jointly uniform given the data** — the pad half of the column
+   map is `diag(x_j^n − 1)` times a Vandermonde in distinct nodes, full row
+   rank for every `d ≤ q_pad`; and because the draws are with replacement,
+   `d ≤ 256 = q_pad` always, so the statement applies with probability 1.
+   That is sound **as a statement about the linear channel only, and it is
+   not a sampler.** The first version of this page said "sampling a real
+   commitment to the all-zero plane and reading off its columns gives
+   exactly the right law"; **that sentence is withdrawn.** `verify_zk`
+   imposes *two* conditions on these objects, not one —
+   `⟨v[..n], c⟩ == combined claim` (`pcs.rs:976-979`) and, per opened column,
+   `Σ_i ρ[i]·col[i] == encoded_group_vec[j]` (`pcs.rs:1022-1030`) — so the
+   matrix is conditioned on the FFN's own claim value and on the published
+   vectors at the sampled positions, and the leaf preimage covers the mask
+   and proximity rows as well as the data rows (`pcs.rs:137-143`, all 7 words
+   published per opened column at `:934`). What is required is the **joint
+   conditional sampler O1**, which does not exist; §3.5's last paragraph says
+   so, and this step must be read against it, not against the withdrawn
+   sentence.
+2. **256 salts.** Uniform 32-byte strings, drawn freshly (`pcs.rs:674`).
+   **The laws are equal only under a stated assumption, not flatly.** In the
+   real world the salts come from the **same keyed BLAKE3 stream** that
+   moments earlier produced this plane's five secret mask rows
+   (`private_seam.rs:211-213`) and its `rows × 256` pads (`pcs.rs:673` — pads
+   then salts, in that order, from the same `rng`), and 256 of those 2,048
+   salts, 8,192 bytes of stream output, are then published in the clear
+   (`pcs.rs:935`). Equality of laws therefore rests on the **PRG assumption
+   on `ZkRng`**, in a specific direction: published later outputs must not
+   reveal earlier secret outputs. That assumption belongs in the theorem
+   beside salted-leaf hiding, not only in §1.7's table.
 3. **256 authentication paths verifying under a root it did not choose.**
    This is the whole problem.
 4. **Group and proximity vectors consistent with (1)** and with the FFN's
@@ -648,10 +808,14 @@ reason to widen the endpoint profile with the layer, independent of privacy.
 
 **Two things this count makes concrete.** First, the tiny geometry publishes
 **40 % of the tree** — near the top, every node is revealed (`A_j` saturates:
-levels 6–11 are fully covered). Second, the top pair is *always* revealed:
-`A_{10} = 2.0` exactly, because 256 draws hit both halves of a 2048-leaf tree
-with probability `1 − 2·2^-256`. There is no "sometimes the top pair stays
-hidden" case to hide behind. Same at the model geometry (`A_{15} = 2.0`).
+levels 6–11 are fully covered). Second, the top pair is revealed **with
+probability `1 − 2^-255`**: 256 draws miss one half of the tree only if every
+draw lands in the other, so the deficit `2 − A_{depth−1}` is exactly `2^-255`
+at both geometries (independently verified). There is no "sometimes the top
+pair stays hidden" case to hide behind, but it is a probability statement,
+not an identity — `A_{10}` is `2 − 2^-255`, not 2, and any gate that asserts
+equality asserts something false with probability `2^-255` (see §5.4). Same
+at the model geometry, where `A_{15} = 2 − 2^-255`.
 
 ### 3.4 The unopened leaves, the salt, and what hiding requires of the oracle
 
@@ -708,10 +872,31 @@ zero data, not the round-23 free-handle tool). Per endpoint:
 | internal nodes, levels 1..depth−1 | `hash_pair` up its own tree | 2,046 / 65,534 | genuine |
 | **root** | `hash_pair(l′, r′) ↦ R` | **1** | **programmed** |
 
-**One programmed point per endpoint, two per proof, both at the topmost
-level** (the hash of the two level-`(depth−1)` children). Everything else —
-6,142 of 6,143 queries at the tiny geometry, 196,606 of 196,607 at the model
-geometry — is a genuine oracle call.
+**One programmed point per endpoint root, both at the topmost level** (the
+hash of the two level-`(depth−1)` children). Everything else — 6,142 of 6,143
+queries at the tiny geometry, 196,606 of 196,607 at the model geometry — is a
+genuine oracle call. **"Two per proof" is the pinned tiny profile only, and
+must not be carried to model scale:** D17 rule 4 records that a
+feed-forward-only 32-layer private pass has **64 caller-fixed endpoint
+roots**, every one of which carries the open D8/D11 obligation
+(`ZK60_DECISIONS.md:544-549`). At that scale the programming count, the
+freshness union and the one-path-set bookkeeping are all 32× larger, and
+every model-scale sentence below must be read with `m = 64`, not `m = 2`.
+
+**The strongest single property of this shape, which the first version of
+this page never stated.** The two-point construction **has no ordering
+problem.** The programmed point is the tree's top node, and it is independent
+of the 256 column indices — which are drawn only *after* the group and
+proximity vectors have been absorbed (`pcs.rs:922-928` →
+`transcript.rs:119-131`). The simulator's own tree is complete over all 2,048
+(or 65,536) leaves before any index exists, so it can serve any index
+multiset, and it is never allowed to choose leaves after seeing the indices
+and never needs to. That is exactly where the round-23 free-handle
+construction is weak — late salted-leaf programming, which O9 (`:95-99`) and
+the model document (`ZK60_ENDPOINT_SIMULATION_MODEL.md:114-116`) flag as
+"consistent late assignment, not adaptive Fiat–Shamir security". It is the
+clearest reason to prefer the two-point shape, and it was confirmed
+independently against the source order in `pcs.rs` and `transcript.rs`.
 
 **Is the programmed point fresh in case (a)?** Freshness means: no answer for
 the 64-byte string `l′‖r′` exists yet. The bad events, counted:
@@ -719,15 +904,24 @@ the 64-byte string `l′‖r′` exists yet. The bad events, counted:
 | event | bound (tiny) | bound (model) |
 |---|---|---|
 | the distinguisher already answered `l′‖r′` (it must guess two uniform digests) | `q·2^-256` per endpoint | same |
-| `l′‖r′` collides with one of the simulator's own genuine node or salted-leaf inputs | `(2,046 + 2,048)·2^-256 ≈ 2^-244.0` | `(65,534 + 65,536)·2^-256 ≈ 2^-239.0` |
+| `l′‖r′` collides with one of the simulator's own genuine inputs — **every** one, not just the endpoint tree's: its `A` (702 rows), `H` (1,326) and `M` (20) trees each contribute `nn` column hashes, `nn` salted leaves and `nn−1` nodes, and the transcript's own absorbs and squeezes contribute too | endpoint tree alone is `(2,046 + 2,048)·2^-256 ≈ 2^-244.0`; the **correct** union is over the simulator's whole honest query count `Q_S`, of order `3 × 10^4`, i.e. `≈ 2^-241` | same construction; `≈ 2^-239` from the endpoint tree, larger union with `Q_S` |
 | `l′‖r′` collides with a `hash_column` input | **0** — column inputs are `8·rows` bytes, never 64, by the invariant of §3.4 | 0 |
 | the two endpoints' programmed points coincide | `2^-256` | `2^-256` |
 | the distinguisher's own verification queries enter the same table (O10 **F10.5**) — 13 queries per opening it checks at the tiny geometry, 18 at the model geometry | inside `q` | inside `q` |
 | **a second preimage of `R` is already public** | **excluded by the case-(a) hypothesis** — this is exactly H3 | — |
 
-**Total hash-layer term in case (a): about `2·(q + 4,094)·2^-256`** [COUNTED
-from the stated events]. For any realistic `q` (say `2^80`) this is about
-`2^-175`. **It is dwarfed by the accepted D9 term of `2^-72`** (§1.7).
+**Total hash-layer term in case (a): about `m·(q + Q_S)·2^-256`** [COUNTED
+from the stated events], where `m` is the number of caller-fixed endpoint
+roots (2 at the tiny profile, **64** at a 32-layer feed-forward-only private
+pass, D17 rule 4) and `Q_S` is the simulator's **total** honest query count
+across all its commitments and the transcript, of order `3 × 10^4` at the
+tiny profile. The first version of this page wrote the constant as
+`2·(q + 4,094)`, counting only the endpoint tree's own points; the corrected
+union gives `≈ 2^-241` in place of `2^-244`. For any realistic `q` (say
+`2^80`) the whole term is still about `2^-175`, and **it is dwarfed by the
+accepted D9 term of `2^-72`** (§1.7). The correction is numerically
+irrelevant and is recorded because the constant, not the conclusion, was
+wrong.
 
 **The honest reading of that.** In case (a), the hash layer is *not* the
 binding constraint on the privacy bound — the mask/pad reduction bias and
@@ -803,37 +997,83 @@ programmed point `l′‖r′ ↦ R` of §3.5:
 | **H4** a query at the honest top pair | **YES** | same detection, arrived at differently; requires H3 or the salts |
 | **H5** a query at another honest node/leaf input | **partially** | it does not break the top programming, but it lets the distinguisher rebuild part of the honest tree upward and eventually reach `(l, r̂)` — from a level-`j` honest node it needs the `2^j` honest leaves below it. Reachable only with the salts or the columns |
 | **H6** application knowledge of the plane's contents | **no** (to the hash layer) | it bounds what hiding is worth, exactly as D7's qualifier (1) records for the zkVM line (`ZK60_DECISIONS.md:242-247`). It is a product statement, not a simulator failure |
-| **H7** a second, independent commitment to the same plane | **no** (to the hash layer) | the two trees share no oracle point except with probability `≈ 6,143·6,143·2^-256`. It **does** load the *field* layer: two openings of two commitments to one plane is the round-23 "two proofs of one witness" configuration, whose joint analysis is not done (`ZK60_ROUND23.md:29`) |
+| **H7** a second, independent commitment to the same plane | **no** (to the hash layer) | the two trees share no oracle point except with probability `≈ 6,143·6,143·2^-256`. It **does** load the *field* layer: two openings of two commitments to one plane is the round-23 "two proofs of one witness" configuration. That configuration has been **measured**, not left unexamined: zero disclosed base dimensions over 88,064 shared data unknowns, four with every private commitment added (the two public `H` identities), 256 in the single-mask control (`ZK60_ROUND23.md:58-65`) — at fixed coefficients, on two captures, field channels only, excluding CFS, pads, encoded columns, Merkle and adaptive composition, and not covering commitment reuse (`:67-71`). The first version of this page called it "not done" and cited `:29`, which is the section's heading |
+| **H8** a rejected-but-emitted receipt under `R` | **YES — fatally, exactly as H3** | the 256 authentication paths are genuine and are published whether or not the verifier accepts (`zk_ffn_fresh_io.rs:256-257`, no equality precheck). The output-collision detector does not care that the receipt was rejected |
+| **H9** a retained capture of an accepted receipt | **YES — exactly as H3** | `native_capture.rs:275-281` writes the receipt, the policy and the JSON to disk; that is a published path set under both endpoint roots |
 
-**So: within the hash layer, case (b) is either empty or equal to case (a).**
-Every history that breaks the construction (H3, H4, H5) requires a prior
-opening or the commitment randomness — i.e. it is case (c) or it violates the
-`aux`-excludes-`r` clause of §1.6. Every history that is genuinely reachable
-with one opening (H1, H2, H6, H7) leaves the programmed point fresh **and**
-leaves the output-collision detector without a second preimage.
+**What the first version of this page concluded here, and why it is
+refused.** It wrote, in bold: *"within the hash layer, case (b) is either
+empty or equal to case (a)"*, on the grounds that every history that breaks
+the construction (H3, H4, H5) requires a prior opening or the commitment
+randomness, and every history reachable with one opening (H1, H2, H6, H7)
+leaves the programmed point fresh. **That sentence is withdrawn**, on the
+security owner's disposition of 2026-09-19 (`§1.1`, hole 1), for two reasons
+kept here as a record of what does not work:
 
-**This is a narrowing of D11, and it needs the security owner's ruling, not
-mine.** D11 says the general obligation "stands unchanged"
-(`ZK60_DECISIONS.md:283-296`). Nothing above contradicts that as a statement
-about the *verifier's statement space*. What it claims is narrower: *in this
-system, with these interfaces, the only prior history that defeats the
-hash-layer construction is a prior opening.* If that is accepted, the
-obligation becomes "exclude case (c) by a rule, and prove case (a)".
+1. **It is circular.** "H3 requires a prior opening" is the definition of an
+   authentication path, not a finding. Everything else is excluded by the
+   theorem's own restrictions R1 and R2 of §5.2 — and R2 literally states
+   the conclusion: *"neither root's honest top pair has reached the
+   distinguisher by any route."* So §3.7 derives from R1 and R2 exactly what
+   R1 and R2 assume. This is the third time the project has been offered
+   this reduction; D11 refused it, and
+   `ZK60_ENDPOINT_REUSE_DISPOSITION_20260918.md:36-38` called the same move
+   "too strong".
+2. **The enumeration it rests on was not exhaustive.** H8 and H9 above are
+   reachable today with no new interface, and both were missing.
+
+**What is left, stated as bookkeeping and not as a narrowing.** D11 says the
+general obligation "stands unchanged" (`ZK60_DECISIONS.md:283-296`), and it
+does. The rows above are an inventory of **what R2 assumes**, useful for
+writing R2 down precisely and for costing an operational control. The honest
+form of the reduction is: *"D11 becomes: exclude case (c) by rule **and**
+assume R2"* — which is a restatement with an added hypothesis, not a
+narrowing, and which still leaves the hash-layer simulator unbuilt for any
+root the prover did not generate.
 
 ### 3.8 What a reviewer attacks first in this section
 
 1. **Programming for privacy on the same oracle table that carries
-   Fiat–Shamir soundness.** The simulator fixes `blake3(l′‖r′) = R`. The
-   transcript's challenges are `squeeze_bytes` outputs on 47-byte inputs
-   (`transcript.rs:85`, O10 row 3) — a different length, so no direct
-   overlap. But a *joint* statement ("this system is sound **and** zero
-   knowledge") quantifies over one oracle, and the soundness reduction may
-   not remain valid against an adversary that sees programmed answers. This
-   composition is **not** addressed anywhere in the record and is the single
-   most likely place an external reviewer stops. Naming it is part of the
-   deliverable of §5.
-2. **The `2·(q + 4,094)·2^-256` figure.** It counts the events I could
-   enumerate. O10 §3 lists seven gap classes between a local fresh-query
+   Fiat–Shamir soundness — and the two tables genuinely overlap.** The
+   simulator fixes `blake3(l′‖r′) = R`. The first version of this page
+   dismissed the composition concern by length: *"the transcript's challenges
+   are `squeeze_bytes` outputs on 47-byte inputs (`transcript.rs:85`, O10
+   row 3) — a different length, so no direct overlap."* **That is false and
+   is withdrawn.** The transcript does not only squeeze; it **absorbs**, on
+   the same untagged BLAKE3, with input
+   `state(32) ‖ len(label)(8) ‖ label ‖ len(data)(8) ‖ data`
+   (`transcript.rs:44-52`), whose length is `48 + |label| + |data|` and is
+   therefore **exactly 64 whenever `|label| + |data| = 16`**. `absorb_u64`
+   supplies 8 bytes of data (`transcript.rs:54-56`), so any 8-character
+   label lands in the 64-byte domain, and one such call is on the private
+   path: `absorb_u64(b"log-cols", …)` at `private_seam.rs:253`,
+   `private_block/protocol.rs:43`, `private_attention/protocol.rs:38` and
+   `native_capture.rs:206`. So **the Fiat–Shamir table and the Merkle-node /
+   salted-leaf table share one untagged 64-byte input domain**, and O10
+   F10.1's "domain separation is dimensional, not designed"
+   (`ZK60_OPUS_ORACLE_BOOKKEEPING_REVIEW.md:143-157`) extends to the
+   transcript, which no document previously recorded. **Numerically nothing
+   moves**: for `l′‖r′` to be such an absorb input the uniform right child
+   `r′` would have to equal a fixed 32-byte string, i.e. `2^-256` per
+   candidate. What moves is O5's status. It is not "two uses that happen to
+   be length-separated"; it is **two uses of one domain**, so a simulator
+   that programs a 64-byte point is programming a point the Fiat–Shamir
+   reduction may also need to control. The length argument must be replaced
+   by a **counted union over every 64-byte point the protocol answers**, and
+   O5 restated against the real shared domain. A mechanical form of the same
+   check is worth running beside the written argument: *does any 64-byte
+   point the simulator programs lie in the set of 64-byte points the
+   protocol itself answers?* — a finite, checkable statement about
+   `hash_pair`, `salt_leaf`, `hash_column` at 8 rows, and every `absorb`
+   whose `|label| + |data| = 16`. A *joint* statement ("this system is sound
+   **and** zero knowledge") quantifies over one oracle, and the soundness
+   reduction may not remain valid against an adversary that sees programmed
+   answers. This composition is **not** addressed anywhere in the record and
+   is the single most likely place an external reviewer stops. Naming it is
+   part of the deliverable of §5.
+2. **The `m·(q + Q_S)·2^-256` figure.** It counts the events I could
+   enumerate, with the union corrected to cover the simulator's whole honest
+   query count. O10 §3 lists seven gap classes between a local fresh-query
    bound and a whole-view bound; items 1, 3 and 4 of that list are covered
    above, items 5 (reduction bias) and 7 (unmodelled couplings) are carried
    in §1.7 and §3.5's last paragraph, and item 2 (unopened leaves) does not
@@ -879,11 +1119,18 @@ stays byte-frozen and everything new is additive
 consumes it**. Nothing is proved about roots with prior openings, because no
 such root can occur.
 
-**Does the code already do this?** For every root this prover can prove
-about, yes — §1.5. What is missing is that it is not *stated*, not *asserted*
-and not *tested as an invariant*, and that the verifier cannot check it from
-the bytes. "This root has never been opened before" is a property of the
-world, not of the artefact.
+**Does the code already do this?** **Partly, and less than the first version
+of this page claimed.** The types enforce **one `finish`** for every root
+this prover can prove about — §1.5, confirmed on every code path by the
+independent check. They do **not** enforce "one published path set": a
+rejected receipt is emitted in full (H8) and a retained capture is written to
+disk (H9). So the rule this route needs must read **"at most one published
+path set of any kind per root — accepted, rejected or captured"**, and that
+is not what the types say. It is also not *stated*, not *asserted* and not
+*tested as an invariant*, and the verifier cannot check it from the bytes.
+"This root has never been opened before" is a property of the world, not of
+the artefact. At model scale the rule binds **64 roots per feed-forward-only
+32-layer private pass**, not two (D17 rule 4, `ZK60_DECISIONS.md:544-549`).
 
 **What it makes the verifier's statement.** Today: "there exist hidden planes
 under `R_in`, `R_out` such that the model maps one to the other." Under (i):
@@ -914,9 +1161,11 @@ prompt was used in these two proofs"; a downstream proof cannot refer to an
 upstream hidden output by its root. §4.3 shows the second of those is
 recoverable architecturally and the first is not.
 
-**Closes:** (a) — in the sense that it makes (a) the only case. **(b):**
-vacuously, since §3.7 shows the reachable (b) histories do not touch the
-hash layer. **(c):** excluded by rule, and by the types today.
+**Would cover:** (a) — in the sense that it makes (a) the only case. **(b):**
+only by assumption, not by argument — §3.7's "the reachable (b) histories do
+not touch the hash layer" is the content of restriction R2 restated, so this
+route assumes (b) away rather than disposing of it. **(c):** excluded by
+rule, and by the types today only in the weaker "one `finish`" sense.
 **Residual assumptions:** everything in §5's theorem, plus the operational
 control. **Files:** `ZK60_DECISIONS.md` (a new ruling),
 `ZK60_ENDPOINT_SIMULATION_MODEL.md`, this document, and one new test file
@@ -962,19 +1211,35 @@ central; +2 to +8 s across the band** [COUNTED from the stated assumptions;
 NOT MEASURED]. On a **private** profile, where helpers are 55 % of the time,
 the same +22.9 % is **+12.6 % of the whole pass**.
 
-**The honest verdict on those numbers.** Against 58.40 s, +3 to +8 s is
-survivable. Against the **5-second target** (`MVP_STATUS.md:132-135`) it is
-between 60 % and 160 % of the *entire* budget, paid on every proof, for a
-statement that is bookkeeping rather than computation. It is the wrong place
-to spend the last remaining headroom. And this is before the bit
+**The honest verdict on those numbers — corrected.** The first version of
+this page wrote: *"against the **5-second target** (`MVP_STATUS.md:132-135`)
+it is between 60 % and 160 % of the *entire* budget … the wrong place to
+spend the last remaining headroom."* **That verdict is a category error and
+is withdrawn.** The +3.2 s was computed as a fraction of the *same pass's own
+work* — 22.8 % of its helper time and 3.35 % of its committed volume — and
+the 58.40 s pass is **11.7×** the 5 s target (`MVP_STATUS.md:137`). If the
+pass ever reaches 5 s it reaches it by making that same work cheaper, and a
+gadget proportional to committed volume takes the same discount: **+0.28 s,
+i.e. 5.5 % of the 5 s budget.** The honest metric for a lever of this shape
+is the relative one computed two paragraphs above: **about +5.5 % of a public
+pass and +12.6 % of a private pass** [COUNTED from the stated assumptions,
+factor-two band, NO GADGET EXISTS]. The caveat runs the other way too, and
+must be said rather than picked silently: if part of the 11.7× ever comes
+from a change that does *not* help the gadget — a lower encoding rate under
+D14, say — then for that part the absolute figure is the right one. Against
+58.40 s, +3 to +8 s is survivable. And all of this is before the bit
 decomposition of `2^21` words (another 3.4 × 10^7 bit cells per endpoint
 minimum), before the new 8-bit table planes and their multiplicity planes,
 and before the wire and verifier work.
 
 *At the tiny shape* the same estimate gives 16 compressions per endpoint,
 **128,000 extra lookups (+38 % of the tiny `H` = 1,326 × 256 = 339,456)** and
-**80,000 extra committed words (+13 %)** [COUNTED]. Proportionally worse,
-because the tiny proof's fixed overheads are small.
+**80,000 extra committed words** [COUNTED]. The first version of this page
+put the second figure at "+13 %" without naming a denominator, and no
+denominator stated anywhere in the document reproduces it; against the
+message-part committed words `(702 + 1,326 + 20 + 2×7) × 256 = 527,872` it is
+**+15.2 %**. Proportionally worse than at model scale, because the tiny
+proof's fixed overheads are small.
 
 **Cheaper algebraic handles, worked and rejected.** The obvious question is
 whether the caller's handle can be something the verifier checks with field
@@ -984,10 +1249,17 @@ arithmetic instead of a hash.
   same problem, and it would have to be opened, which is case (c).
 - *Pedersen*: the commitment itself is cheap to publish, but linking a
   Pedersen-committed vector to a Ligero-committed one is a cross-system
-  argument (LegoSNARK-style CP-link) that needs the second commitment to be
-  homomorphic. Ligero is not. This is a new proof system beside the existing
-  one, plus elliptic-curve arithmetic in a verifier that today does
-  Goldilocks only.
+  argument (LegoSNARK-style CP-link). **The reason first given here — "it
+  needs the second commitment to be homomorphic, and Ligero is not" — is
+  wrong and is withdrawn:** a Ligero/Brakedown opening *is* a linear
+  functional of the committed rows (`fold_rows_multi_zk`, `pcs.rs:922`), and
+  CP-link constructions do not in general require both commitments to be
+  group-homomorphic. **The real and sufficient obstruction is the next
+  clause:** an elliptic-curve multi-scalar multiplication would have to be
+  arithmetised non-natively over Goldilocks, and this verifier does
+  Goldilocks only. So it is a new proof system beside the existing one, plus
+  elliptic-curve arithmetic in a verifier that cannot do it. The conclusion
+  stands; only the reason changes.
 - *Ajtai/SIS over the same Goldilocks prime*, which looks attractive because
   the plane is **already short** (int8/int16) and the relation `t = A·x mod p`
   is **linear over `Fp`**, i.e. exactly the shape the existing sumcheck
@@ -996,12 +1268,23 @@ arithmetic instead of a hash.
   of `A` at the sumcheck's point, which for a dense `k × 2^21` matrix is
   `O(k·2^21)` verifier work — non-succinct. Structuring `A` to be succinct
   (for instance "evaluate the plane's MLE at `k` fixed public points")
-  **destroys binding for short vectors**: the multilinear polynomials
-  vanishing at `k` fixed points form a space of dimension `2^21 − k`, which
-  by pigeonhole contains short vectors, so two distinct short planes collide.
-  I could not find a structured `A` that is both succinct for this verifier
-  and SIS-binding, and I record that as a negative result rather than an
-  exhausted search.
+  **destroys binding for short vectors** — but the reasoning first given
+  here proved too much and is corrected. The pigeonhole count ("the
+  multilinear polynomials vanishing at `k` fixed points form a space of
+  dimension `2^21 − k`, which by pigeonhole contains short vectors, so two
+  distinct short planes collide") applies equally to a **random** `A`: any
+  map from `2^21` int8 words (`2^24` bits) to `k` Goldilocks elements
+  (`64k` bits) has colliding short preimages for every `k ≪ 2^18`, and SIS
+  binding is *computational*, so the mere existence of short collisions is
+  not a break — as written the argument would also refute the primitive
+  being proposed. The correct statement is that for this **structured** `A`
+  the collisions are efficiently **findable**: the vanishing subspace is
+  explicit linear algebra, and with `n = 2^21 ≫ k` the instance is so
+  over-determined that combinatorial or lattice search is easy, whereas for
+  a random `A` at `n ≈ k log q` they are conjectured hard. I could not find
+  a structured `A` that is both succinct for this verifier and SIS-binding,
+  and I record that as a negative result rather than an exhausted search,
+  and certainly not as an impossibility.
 - *Delegating the link to the zkVM line*: a small RISC Zero program could
   prove `h = SHA-256(plane ‖ s)` **and** that the same plane produces the
   PCS root, but the second half means recomputing a coset NTT and 2,048
@@ -1010,9 +1293,15 @@ arithmetic instead of a hash.
   out (D2's arithmetic, `ZK60_DECISIONS.md:62-65`). It would also import D3
   (97 bits) and D4 (trusted setup) into the custom line's statement.
 
-**Closes:** (a), (b) **and** (c) — because a fresh prover-generated root is
-opened exactly once and has no history at all, and the caller's handle is
-never opened. This is the only option that closes all three.
+**Would cover:** (a), (b) **and** (c) — because a fresh prover-generated root
+is opened exactly once and has no history at all, and the caller's handle is
+never opened. It is the only option that reaches all three, **provided** the
+caller's handle is never opened, the fresh PCS root carries exactly one
+published path set, and Game J's simulator exists — which it does not: the
+model document says of `SimProve`, "This algorithm is not yet complete"
+(`ZK60_ENDPOINT_SIMULATION_MODEL.md:76`). This is the route D18 records as
+the expected end state, scoped separately in `ZK60_SEALED_HANDLE_SCOPING.md`
+(commissioned 2026-09-19).
 **Residual assumptions:** hiding of the salted hash handle (with D7's
 qualifier (1): the handle hides only as well as the salt's secrecy and the
 plane's own entropy, `ZK60_DECISIONS.md:242-247`); Game J's simulator, still
@@ -1059,13 +1348,28 @@ model's hidden input and its hidden output); every intermediate activation
 lives on a commitment the prover generates inside that one proof and opens
 once.** Then `k = 1` everywhere and no link argument is needed.
 
-**Is that architecture already there?** Partly, and this is encouraging: the
-measured 58.40 s pass is produced by `hashline pass <layers> <t_rows>`,
+**Is that architecture already there? No — and the first version of this
+page's "partly, and this is encouraging" is withdrawn.** It rested on the
+measured 58.40 s pass being produced by `hashline pass <layers> <t_rows>`,
 documented as "the multi-layer pass, **one transcript**"
-(`hashline/src/bin/hashline.rs:6`), which builds a single
-`Transcript::new(b"hashline-pass")` at `:707` and then loops the layers at
-`:714`. One transcript is a necessary condition, not a sufficient one — see
-§6 item 2.
+(`hashline/src/bin/hashline.rs:6`), building a single
+`Transcript::new(b"hashline-pass")` at `:707` and looping the layers at
+`:714`. The independent check traced it, which this page had not: `pass`
+calls `hashline::layer::prove_layer` (imported at `:25`, called at `:714`),
+the **public** prover, building a per-layer `Statement { l, t_rows, shifts,
+table, table_digest }` (`:717`) with **public** inter-layer activations
+(rung 1, `chain`, "reproduces every z digest", `:3`), and `MVP_STATUS.md:137`
+labels that row "**public IO**". So the measured pass is **32 statements
+sharing one transcript with public activations** — which is precisely why
+`k = 1` is free there, and says nothing about the private case. The private
+path has **no multi-block entry point at all**; the only chain example is
+`hashline/examples/zk60_chain_receipt.rs`, which is `public_chain_receipt`,
+mode "P0-public-synthetic" (`:9-10`, `:97`). One transcript is a necessary
+condition, not a sufficient one, and for the private prover it has not been
+built. This is now an **architecture decision that has to be taken in
+writing** — one transcript per private request end to end, or route (ii)'s
+non-PCS handle at run boundaries — and until it is taken, "the multi-block
+story survives" must not be stated (§5.5, check condition 27).
 
 **What it costs.** In the `k = 1` architecture: nothing extra; it is the
 architecture already measured. In the link-argument form: one extra seam
@@ -1073,8 +1377,29 @@ argument per link. At the tiny shape a seam proof is 416,456 bytes
 (`ZK60_PRIVATE_SEAM.md`, validation section) against a much smaller FFN
 receipt, so links are not cheap even before they break D12.
 
-**Closes:** neither (a) nor (b) on its own. Its value is that it removes the
-*reason* to want case (b) or (c), which is what makes closure (i) affordable.
+**Chaining, which this page originally waved away.** The configuration is an
+output root published **with** the upstream proof and consumed **later** by a
+downstream proof. Three things are true of it at once, and the independent
+check put them together. First, **it is a second opening**: the upstream
+receipt already contains a full opening of that commitment — 256 columns,
+salts and 11-level paths (`pcs.rs:930-941`) — so consuming the same root
+downstream opens it again, and §2.1's proved recovery applies (two openings
+at the 7×256 geometry recover **all 512 data words**). That is case (c), and
+D12 rule 1 forbids it (`ZK60_DECISIONS.md:319-322`). Second, **it is also
+prior history**: the upstream paths hand out the honest top pair, so the
+hash-layer construction dies independently of the first mechanism. Third,
+**it is unimplementable today**: `Endpoints` is consumed and non-`Clone` and
+`prepare` always draws fresh OS entropy (`private_seam.rs:196`), so the
+prover could not rebuild the commitment even if it wanted to. **The
+consequence: there is no way to chain two separately finished private proofs
+through a commitment root at all.** The only surviving composition is one
+transcript end to end — or a boundary handle that is not a
+polynomial-commitment root, i.e. route (ii).
+
+**Would cover:** neither (a) nor (b) on its own. Its value is that it removes
+the *reason* to want case (b) or (c), which is what would make route (i)
+affordable — if the `k = 1` architecture existed for the private prover,
+which it does not.
 **Residual assumptions:** unchanged. **Files:** none if the architecture is
 already `k = 1`; the composition work D12 and D17 already schedule otherwise.
 **Measurement:** confirm from a real 32-layer receipt that no commitment root
@@ -1120,7 +1445,7 @@ does nothing for (c), and on proof size it is worth about **1 %** on this
 commitment, not the 29 % first recorded — a figure D10's correction already
 fixed (`ZK60_DECISIONS.md:411-418`). **Verdict: not a privacy lever.**
 
-**Closes:** (iv-b) would close (a) and (b) and not (c); the others close
+**Would cover:** (iv-b) would reach (a) and (b) and not (c); the others reach
 nothing. **Files:** `zkp-core/src/pcs.rs`, `zkp-core/src/merkle.rs` — the
 frozen core, so nothing here can be additive under D17.2; it is a new
 profile from the ground up.
@@ -1130,8 +1455,11 @@ profile from the ground up.
 This is (i) plus the written theorem. It is not an alternative to (i); it is
 what (i) has to produce to be worth anything. Stated in §5.
 
-**Closes:** (a), with (b) reduced to (a) by §3.7 and (c) excluded by the rule
-of (i). **Residual assumptions:** the programmable ROM; salted-leaf hiding in
+**Would cover:** (a) only, and only if proved. (b) is **not** reduced to (a):
+§3.7's attempt to do so is circular and has been refused, so (b) is assumed
+away by restriction R2 rather than handled. (c) is excluded by the rule of
+(i), which the types enforce only in the weaker "one `finish`" sense.
+**Residual assumptions:** the programmable ROM; salted-leaf hiding in
 the standard model if anyone wants a standard-model reading (§3.4); D9's
 `2^-72`; the LogUp collision; the PRG assumption on `ZkRng`; and the
 composition of programming with Fiat–Shamir soundness (§3.8 item 1).
@@ -1140,53 +1468,120 @@ composition of programming with Fiat–Shamir soundness (§3.8 item 1).
 
 ### 4.6 Side by side
 
-| | closes (a) | closes (b) | closes (c) | prover cost, tiny | prover cost, 8B | proof bytes | frozen bytes move? | files |
+| | covers (a) | covers (b) | covers (c) | prover cost, tiny | prover cost, 8B | proof bytes | frozen bytes move? | files |
 |---|---|---|---|---|---|---|---|---|
-| **(i)** restrict to case (a) | makes it the only case | vacuously (§3.7) | by rule + by the types | **0** | **0** | **0** | no | docs + 1 test |
-| **(ii)** caller fixes a salted handle, PCS root fresh per proof | yes (Game J) | yes | **yes** | +13 % words, +38 % lookups [COUNTED from an ESTIMATE] | **+3 to +4 s central (+2 to +8 s band) on 58.40 s**; +12.6 % of a private pass | +hash witness rows | no (additive) | new handle module, hash gadget + tables, wire, verifier, new profile tag |
-| **(iii)** re-randomise + link | no | no | no — **breaks D12** in star or path form | one seam per link (416 KB at tiny) | not costed; dominated | + a seam per link | no | dominated by (ii); its `k = 1` reading is free |
+| **(i)** restrict to case (a) | makes it the only case | **no — assumed away by R2, which is circular (§3.7)** | by rule; by the types only as "one `finish`", not "one published path set" (H8, H9) | **0** | **0** | **0** | no | docs + 1 test |
+| **(ii)** caller fixes a salted handle, PCS root fresh per proof | yes (Game J), whose simulator is unbuilt | yes | **yes** | +15.2 % words (of the 527,872 message-part committed words), +38 % lookups [COUNTED from an ESTIMATE] | **+5.5 % of a public pass, +12.6 % of a private one** — i.e. +3 to +4 s central on 58.40 s, and about **+0.28 s** if the pass reaches 5 s by a uniform speedup | +hash witness rows | no (additive) | new handle module, hash gadget + tables, wire, verifier, new profile tag |
+| **(iii)** re-randomise + link | no | no | no — **breaks D12** in star or path form | one seam per link (416 KB at tiny) | not costed; dominated | + a seam per link | no | dominated by (ii); its `k = 1` reading is **refuted** for the private prover (§4.3) |
 | **(iv-b)** equivocal/trapdoor vector commitment | yes | yes | **no** | new scheme | new scheme | new scheme | **yes, all of them** | `pcs.rs`, `merkle.rs`, GPU commit path |
 | **(iv-d)** Merkle cap | neutral | neutral | no | ~0 | ~0 | −1 % | yes (format) | `pcs.rs` |
-| **(v)** the written case-(a) theorem | yes, if proved | yes via §3.7 | no (needs (i)'s rule) | **0** | **0** | **0** | no | docs + 1 test |
+| **(v)** the written case-(a) theorem | yes, if proved | **no — §3.7's route to (b) is refused** | no (needs (i)'s rule) | **0** | **0** | **0** | no | docs + 1 test |
 
-## 5. Recommendation
+**Scope note on the whole table** (correction 16): the per-proof programming
+and bookkeeping counts above are the pinned **tiny** profile's. A
+feed-forward-only 32-layer private pass has **64** caller-fixed endpoint
+roots, each carrying the open D8/D11 obligation (D17 rule 4,
+`ZK60_DECISIONS.md:544-549`), so every model-scale row must be read at
+`m = 64`.
 
-### 5.1 In plain words, for the project owner
+## 5. The reduction that was attempted and refused, and the obligations that remain
 
-**Pursue (i) + (v) first: make "a sealed envelope is used exactly once and is
-first published with the proof that uses it" a rule of the product, and then
-write the theorem for that case.** It costs no proving time and no proof
-bytes, the code already enforces it for every root this prover can prove
-about, and the analysis in §3 says the remaining hash-layer risk in that case
-is astronomically smaller than terms the project has already accepted
-(`2^-175`-class against D9's accepted `2^-72`).
+### 5.1 The attempted reduction, recorded as REFUSED
 
-**What it gives up, said plainly.** The root stops being a permanent public
-name for a hidden prompt or answer. A regulator can no longer point at two
-different receipts and say "these used the same input" — unless the
-application gives it a different way to do that. **That is a product
-decision and it belongs to Victor, not to the security owner.** Two
-cheap mitigations exist and neither is cryptography: a registry of
+**This page makes no recommendation.** The first version of it did, and the
+recommendation was not accepted. It is kept here in full, with the reasons it
+fails, because a route that does not work is worth recording once so that it
+is not proposed a fourth time.
+
+**What was proposed.** *"Pursue (i) + (v) first: make 'a sealed envelope is
+used exactly once and is first published with the proof that uses it' a rule
+of the product, and then write the theorem for that case. It costs no proving
+time and no proof bytes, the code already enforces it for every root this
+prover can prove about, and the analysis in §3 says the remaining hash-layer
+risk in that case is astronomically smaller than terms the project has
+already accepted (`2^-175`-class against D9's accepted `2^-72`)."*
+
+**Why it was refused** (`ZK60_D8_D11_RESTATEMENT_DISPOSITION.md` §1; the
+security owner's verdict is that D8 and D11 stand exactly as written):
+
+1. **The central reduction is circular.** The restriction that is supposed to
+   make case (b) safe — R2 of §5.2, "neither root's honest top pair has
+   reached the distinguisher by any route" — *is* the conclusion §3.7 draws
+   from it. A previously published path under a root is an opening by
+   definition, and every other history is excluded by R1 and R2 themselves.
+   D11 and `ZK60_ENDPOINT_REUSE_DISPOSITION_20260918.md:36-38` refused this
+   same move twice before.
+2. **The party who fixed the root is excluded from ever being the
+   adversary.** R1 keeps the commitment randomness from the distinguisher,
+   and whoever holds the salts can rebuild the honest tree and detect the
+   programmed top pair with probability 1. So the notion protects a hidden
+   input against everyone **except the party who committed it** — and a
+   regulator who supplies *and commits* an input is exactly that party
+   (§1.6). No document names a third-party committer who is not the
+   verifier, never opens and withholds the randomness, so the theorem has no
+   named beneficiary.
+
+Two further defects make the proposal unquotable even as an intention: the
+advantage expression of §5.2 **is not a bound** while U-3 is open (§5.2
+below), and the enumeration it rests on was not exhaustive (H8, H9 in §1.3).
+
+**What survives the refusal, and it is a great deal** — listed in the
+disposition's §2 and, on this page, in §2.6's ledger and in the framing
+section at the top: the obligation stated as a game with its three cases kept
+apart and case (c) dead by a proved recovery; the committer being the prover
+in today's code; the two-point simulator having no ordering problem; the
+hash-layer counts; the impossibility of chaining separately finished private
+proofs through a commitment root; the corrected cost of the sealed-handle
+route; the shared 64-byte BLAKE3 domain; the code-level invariants worth
+asserting; and D9's figures.
+
+**What is *not* settled by any of it.** The remaining hash-layer risk figure
+quoted in the withdrawn recommendation (`2^-175`-class) is conditional on the
+field-layer sampler O1, which does not exist, and on the programmable ROM; it
+is not a privacy result and must not be quoted as one.
+
+**On pricing the sealed-handle route.** Route (ii) is the only one that
+reaches all three cases, it is what D18 records as the expected end state,
+and its cost is still an estimate with a factor-of-two band. One SHA-256 (or
+BLAKE3) compression implemented in the existing lookup framework converts
+that band into a number; it is a day of work. `ZK60_SEALED_HANDLE_SCOPING.md`
+(commissioned 2026-09-19) carries that scoping, not this page.
+
+**What the refused route would have given up, if anyone revisits it.** The
+root stops being a permanent public name for a hidden prompt or answer. A
+regulator can no longer point at two different receipts and say "these used
+the same input" — unless the application gives it a different way to do
+that. That is a product decision and it belongs to Victor. Two cheap
+mitigations exist and neither is cryptography: a registry of
 `(root, context)` pairs, and making the 32-byte `context` a per-request
 nonce (the field already exists and is already absorbed).
 
-**What it does not give up.** The multi-block story survives: §4.3 shows the
-reason to want a reusable root is joining separately-finished proofs, and the
-project's own D12 already forbids that inside a block. Extending the same
-rule to the whole request — one transcript, two external endpoints, every
-intermediate on a prover-generated commitment opened once — removes the need
-entirely, and the 58.40 s pass is already built as one transcript.
+**And what must no longer be said about it.** The first version of this page
+wrote "the multi-block story survives", on the grounds that the 58.40 s pass
+is already built as one transcript. **That claim is withdrawn** (§4.3): the
+measured pass is the *public* prover with public inter-layer activations, the
+private path has no multi-block entry point, and a boundary between two
+separately finished private runs is a root opened twice (§5.5). Until the
+architecture question is settled in writing — one transcript per private
+request end to end, or route (ii)'s non-PCS handle at run boundaries — the
+multi-block story is an open question, not a survival.
 
-**Keep (ii) alive as the fallback, and buy the one measurement that prices
-it.** (ii) is the only option that closes all three cases, and its cost is
-currently an estimate with a factor-of-two band. One SHA-256 compression
-implemented in the existing lookup framework converts that band into a
-number. Do that before deciding anything irreversible.
+### 5.2 The theorem the refused route would have needed
 
-### 5.2 The theorem it would need
+**Read this as the statement the project would have to *intend* to prove, not
+as a bound.** The displayed inequality below contains the term "whatever the
+discharge of U-3 contributes", and U-3 is open
+(`ZK60_NATIVE_JOINT_VIEW.md` §9a answer 5, branch `zk60-native-jointview`),
+so as an inequality it states nothing and **must never be quoted as a
+`2^-175`-class result** (hole 6). The notion it defines is **new and
+project-specific** — not LNS Definition 2.8, which maps to the game in which
+the simulator produces the commitments (§1.6, hole 3) — and its **excluded
+parties must travel with any product claim built on it**, the way D7's three
+qualifiers travel with the zkVM claim.
 
 **Theorem (PROPOSED — NOT PROVED; no part of this is established in this
-repository).** Fix the pinned tiny profile `pp` (`T32/d16/f16`,
+repository; the route it belongs to has been refused).** Fix the pinned tiny
+profile `pp` (`T32/d16/f16`,
 `log_cols 8 / inv_rate 8 / Q 256`, endpoint shape `rows 7`). Model BLAKE3 as
 a programmable random oracle `O`, shared by the commitment layer, the
 transcript and the prover's RNG refill (one table, per O10 §1). Consider
@@ -1197,27 +1592,56 @@ Game E of §1.6 under these restrictions:
   choice with randomness from the honest distribution (`ZkRng::from_os`,
   `private_seam.rs:196`). That randomness — salts, pads, mask rows — is given
   to neither the simulator nor the distinguisher.
-- **(R2) First publication.** No opening of either commitment, accepting or
-  rejecting, has been published before the challenge receipt, and neither
-  root's honest top pair has reached the distinguisher by any route.
+- **(R2) First publication.** No **published path set of any kind** under
+  either commitment — accepted, rejected (H8) or written out as a retained
+  capture (H9) — exists before the challenge receipt, and neither root's
+  honest top pair has reached the distinguisher by any route. *Note what this
+  clause does: the second half of it is the conclusion §3.7 tried to derive,
+  which is why the route is circular and refused. It is written here as a
+  hypothesis, which is the only honest place for it.*
 - **(R3) Bounded, randomness-independent auxiliary input.** The
   distinguisher's auxiliary input is independent of the commitment
   randomness, and it makes at most `q` oracle queries in total, including the
-  queries its own verification performs.
+  queries its own verification performs. **As written this is too permissive
+  for `Δ_field` below** (hole 4): a second receipt on an *independent*
+  commitment to the *same plane* — H7 — is independent of *this*
+  commitment's randomness, so R3 admits it, and then `Δ_field` would have to
+  cover a two-proof joint law. Either `aux` is restricted to exclude other
+  receipts on the same plane, or `Δ_field` is extended and round 23 named as
+  its only evidence (measured, fixed coefficients, two captures, field
+  channels only, `ZK60_ROUND23.md:58-65`, scope at `:67-71`).
+- **(R4) Generator assumption.** `ZkRng` is a pseudorandom generator in the
+  direction the construction needs: its published later outputs (the 256
+  salts served per opening) do not reveal its earlier secret outputs (this
+  plane's mask rows and pads). Without this, §3.2 step 2's equality of laws
+  does not hold (hole 8). Salted-leaf hiding (§3.4) is the companion
+  assumption and belongs here too.
 
 Then there is an efficient simulator `S`, given only `(pp, x, R_in, R_out,
-aux)`, which makes **exactly two programming calls**, both at the top node of
-an endpoint tree, such that no distinguisher's advantage exceeds
+aux)`, which makes **one programming call per caller-fixed endpoint root** —
+`m = 2` at this pinned profile, and `m = 64` at a feed-forward-only 32-layer
+private pass (D17 rule 4, `ZK60_DECISIONS.md:544-549`) — each at the top node
+of an endpoint tree, such that no distinguisher's advantage exceeds
 
-> `2·(q + 2·nn − 2)·2^-256  +  Δ_field`,
+> `m·(q + Q_S)·2^-256  +  Δ_field`,
 
-where `nn = 2048` and `Δ_field` is the field-layer term: D9's `2^-75` at this
-shape, plus the LogUp collision term `(lookups + table rows)/2^128`, plus
-whatever the discharge of U-3 contributes.
+where `Q_S` is the simulator's **total** honest oracle-query count (its
+endpoint trees, its `A`/`H`/`M` trees and the transcript's own queries;
+order `3 × 10^4` at this profile) and `Δ_field` is the field-layer term: D9's
+`2^-75` at this shape, plus the LogUp collision term
+`(lookups + table rows)/2^128`, **plus whatever the discharge of U-3
+contributes — which is unquantified, and is why this expression is an
+intention and not a bound.** The first version of this page wrote the
+constant as `2·(q + 2·nn − 2)` with `nn = 2048`, which under-counts the
+union (correction 15) and fixes `m` at the tiny profile's 2
+(correction 16).
 
 **Every clause of that statement is load-bearing.** Drop (R1) and the
-distinguisher rebuilds the honest tree. Drop (R2) and §3.7's H3 row applies
-and the theorem is false — that is the retraction of 2026-09-18. Drop the
+distinguisher rebuilds the honest tree — and note that (R1) is what excludes
+the party who fixed the root from being the adversary at all (hole 2), so it
+is load-bearing in a way that costs the theorem its product meaning. Drop
+(R2) and §3.7's H3 row applies and the theorem is false — that is the
+retraction of 2026-09-18. Drop (R4) and the salts are not argued. Drop the
 programmability of `O` and §3.6 says no simulator exists at all.
 
 ### 5.3 The proof obligations, in order
@@ -1227,9 +1651,23 @@ programmability of `O` and §3.6 says no simulator exists at all.
 | **O1** | **The joint conditional field-view sampler exists** at the pinned profile: given fixed challenges, produce the columns, group vectors, proximity vectors, CFS rounds and terminals with the real joint law from the zero witness. This is U-3's substance plus O9 §7.2 | **written construction + proof**; the hard one | security owner, then external review |
 | **O2** | The sequential-kernel lemma's **joint hypothesis** holds at the pinned profile for **every** non-refused challenge vector — not four captures (`ZK60_JOINT_VIEW_REVIEW_20260918.md:67-69`) | written proof (a generic-rank argument, or a verifier-side refusal of the degenerate set) | security owner |
 | **O3** | The **hash-layer lemma of §3.5** written against the actual `pcs.rs` geometry with one-table overlap accounting. This is **U-6** of `ZK60_MVP_JOINT_VIEW.md` §4, and §3.3/§3.5 supply its arithmetic | short written proof | delegable |
-| **O4** | **Salted-leaf hiding** named as an explicit assumption (§3.4), and the **domain invariant** asserted: `commitment_rows ∉ {5, 8}` for every reachable seam shape, and no commitment in a receipt has a 64-byte or 40-byte `hash_column` input | one sentence + **mechanical** | delegable |
-| **O5** | **Composition of the two uses of `O`**: programming two node points for privacy must not invalidate the Fiat–Shamir soundness reduction that uses the same table (§3.8 item 1). Nothing in the record addresses this | written proof; **most likely external stopping point** | external reviewer |
-| **O6** | **(R2) enforced as a system rule** with a code-level invariant, a test, and an operational control (registry or nonce context) | **mechanical** + a ruling | Codex + Victor |
+| **O4** | **Salted-leaf hiding** named as an explicit assumption (§3.4), the **PRG assumption on `ZkRng`** named beside it (R4), and the **mechanical invariants** asserted and tested: `commitment_rows ∉ {5, 8}` for every reachable seam shape (today always one of `{6, 7, 9, 13, 21}`); `8·rows ∉ {40, 64}` for every commitment in a receipt; **no deployment-path commitment reproducible from a seed**; and **no new accessor exposing `PreparedPlane`'s `CommittedZk`**, whose `data`, `pads` and `salts` fields are `pub` (`pcs.rs:551-564`) | one sentence + **mechanical** | delegable |
+| **O5** | **Composition of the two uses of `O`**: programming node points for privacy must not invalidate the Fiat–Shamir soundness reduction that uses the same table — and the two tables **genuinely share the untagged 64-byte BLAKE3 domain** (§3.8 item 1), so this is concrete, not hypothetical. It must be restated against the real shared domain, with a counted union over every 64-byte point the protocol answers and the mechanical point-set check beside the written argument. Nothing in the record addresses it | written proof + **mechanical**; **most likely external stopping point** | external reviewer |
+| **O6** | **(R2) enforced as a system rule**: "**at most one published path set of any kind per root** — accepted, rejected or captured", with a code-level invariant, a capture-level gate that refuses two retained receipts sharing an endpoint root or a context digest, a negative control, and an operational control (registry or nonce context) | **mechanical** + a ruling | Codex + Victor |
+
+**The seven conditions the independent check attached** (conditions 22–28),
+recorded here because none of them is met and no route can be adopted until
+the ones it depends on are:
+
+| # | condition | where it lands above |
+|---|---|---|
+| 22 | A ruling from Victor **naming the party that fixes a root**: not the verifier, never opens, does not retain or forward the commitment randomness. Without it the theorem has no product meaning | §1.6, §5.2 (R1) |
+| 23 | The notion **written out as project-specific**, with R1/R2/R3 and the **excluded parties** in the product claim, as D7's qualifiers travel with the zkVM claim | §1.6, §5.2 |
+| 24 | R2 enforced as "**one published path set of any kind per root**" — accepted, rejected or captured — with a capture-level gate and a negative control | O6 |
+| 25 | The **joint conditional field sampler** and the **joint hypothesis** discharged, or `Δ_field` stays unbounded and the whole of §3 is moot | O1, O2 |
+| 26 | **O5 restated against the actual shared 64-byte domain**, with the mechanical point-set check alongside the written composition argument | O5, §3.8 item 1 |
+| 27 | The **architecture question settled in writing**: one transcript per private request end to end, or route (ii) at run boundaries. Until then "the multi-block story survives" must not be stated | §4.3, §5.1, §5.5 |
+| 28 | The **mechanical invariants asserted in code and tested** | O4 |
 
 ### 5.4 What can be checked mechanically today, and what cannot
 
@@ -1243,14 +1681,25 @@ programmability of `O` and §3.6 says no simulator exists at all.
   `8·rows ∉ {40, 64}`, and over `SeamSpec`/`SeamSpecG` that
   `data_rows + MASK_ROWS ∉ {5, 8}`. Both are one-line checks and both are
   cheap negative controls (feed a synthetic 8-row commitment; the gate must
-  fire).
+  fire). Two more belong in the same gate (condition 28): **no
+  deployment-path commitment is reproducible from a seed**, and **no new
+  accessor exposes `PreparedPlane`'s `CommittedZk`**, whose `data`, `pads`
+  and `salts` fields are `pub`.
 - **O3's arithmetic.** Recompute §3.3's node counts from a real receipt's
-  own 256 paths and check them against the closed form. Also assert the
-  thing §3.3 predicts and no test currently checks: the **top pair is always
-  revealed** (`A_{depth−1} = 2`), so a construction that assumed otherwise is
-  refuted by the artefact.
-- **The `k = 1` architecture claim of §4.3.** Check that no commitment root
-  appears in two openings anywhere in a 32-layer receipt.
+  own 256 paths and check them against the closed form. The thing §3.3
+  predicts and no test currently checks is that the **top pair is revealed
+  with probability `1 − 2^-255`** — so the gate must assert
+  `A_{depth−1} = 2 − 2^-255`, or assert the revelation as an event on the
+  actual paths. A gate that asserts `A_{depth−1} = 2` exactly is asserting
+  something false with probability `2^-255` (correction 18); negligible in
+  practice, wrong as written, and a gate is the wrong place to be wrong.
+- **The `k = 1` architecture question of §4.3 — and note it is a question,
+  not a claim.** The claim that the architecture is already there has been
+  **refuted** for the private prover: the measured 32-layer pass is the
+  public prover with public activations and the private path has no
+  multi-block entry point (§4.3). What remains checkable is the narrower
+  fact: that no commitment root appears in two openings anywhere in a
+  32-layer receipt.
 
 **Needs a written proof and an external reviewer:** O1, O2, O5. O1 and O2 are
 the U-3 obligation the security owner already owns. **O5 is the one nobody
@@ -1279,16 +1728,43 @@ of §5.2.
 **Second kill, on the assumption rather than the algebra.** If **O5** cannot
 be argued — if programming the oracle for privacy is shown to invalidate the
 Fiat–Shamir soundness reduction on the same table — then route 1 of §3.6 is
-closed for this system and only (ii) and the zkVM shape remain. That would
-make the one-compression measurement of §4.2 urgent rather than prudent.
+ruled out for this system and only (ii) and the zkVM shape remain. That would
+make the one-compression measurement of §4.2 urgent rather than prudent. As
+stated, though, that is a proof-shaped criterion nobody will discharge or
+refute cleanly, so a **sharper mechanical form belongs beside it**: *does any
+64-byte point the simulator programs lie in the set of 64-byte points the
+protocol itself answers?* — a finite, checkable statement about `hash_pair`,
+`salt_leaf`, `hash_column` at 8 rows, and every `absorb` whose
+`|label| + |data| = 16` (§3.8 item 1).
 
-**What is explicitly not a kill.** A reviewer objecting that (R1) or (R3)
-makes the notion weaker than textbook NIZK zero knowledge is right, and it
-is not a kill: it is the established commit-and-prove notion (LNS Def 2.8,
-checked against the primary source at
-`ZK60_OPUS_ENDPOINT_EXPERIMENT_REVIEW.md:221-236`), and the honest response
-is to write the weakening into the product claim, as D7 already does for the
-zkVM line's three qualifiers.
+**Two further kills, both cheaper than the primary and both decidable
+without cryptography.**
+
+- **A product kill (condition 22), decidable this week.** If the party of
+  §1.6 cannot be named — if every realistic committer is either the prover
+  (in which case the standard game applies and no Game E theorem is needed,
+  which is what D18 pins for the first MVP) or the verifier/regulator
+  (excluded by R1) — then the theorem is worth nothing even if proved. This
+  costs one question to Victor and should be answered **before** anything in
+  §5.2 is written.
+- **An architecture kill (condition 27), decidable by counting.** If an 8B
+  private pass cannot be one transcript end to end — for memory, or because
+  a "short runs of blocks" form is adopted — then route (i) does not survive,
+  because a run boundary is a root opened by two proofs (§4.3's chaining
+  paragraph). The `k = 1` claim that (i) leaned on is already refuted for the
+  only pass that has been measured (§4.3).
+
+**What is explicitly not a kill, and what the first version of this page got
+wrong about it.** A reviewer objecting that (R1) or (R3) makes the notion
+weaker than textbook NIZK zero knowledge is right, and that objection on its
+own is not a kill. **But the defence originally offered here is withdrawn:**
+it is *not* "the established commit-and-prove notion (LNS Def 2.8)" — the
+cited source maps Def 2.8 to the game in which the simulator produces the
+commitments (§1.6, hole 3). It is a new, project-specific notion. The honest
+response is to name it as new and to write the weakening **and the excluded
+parties** into the product claim, as D7 already does for the zkVM line's
+three qualifiers — and to accept that the weakening is exactly what the
+product kill above tests.
 
 ## 6. What I did not read, and what I could not determine
 
@@ -1301,29 +1777,26 @@ zkVM line's three qualifiers.
    delivery through `git show` and **skips** if the commit is unavailable
    (lines 24-35). So the "validated, three tests, 0.068 s" record is a
    statement about that branch, and I did not re-run anything.
-2. **Whether the 32-layer pass is one proof with two external endpoints, or
-   32 statements sharing one transcript.** The CLI is documented as "the
-   multi-layer pass, one transcript" (`hashline/src/bin/hashline.rs:6`) and
-   uses a single `Transcript::new(b"hashline-pass")` at `:707`, but the
-   measured pass is **public IO** and I did not trace how the per-layer
-   activations are joined. §4.3's conclusion — that the `k = 1` architecture
-   is already there — depends on this and should be confirmed before it is
-   relied on.
+2. ~~**Whether the 32-layer pass is one proof with two external endpoints,
+   or 32 statements sharing one transcript.**~~ **RESOLVED by the
+   independent check, and the answer is the unfavourable one.** It is **32
+   statements sharing one transcript with public activations**: `pass` calls
+   the public prover `hashline::layer::prove_layer`
+   (`hashline/src/bin/hashline.rs:25`, `:714`), building a per-layer
+   `Statement` at `:717`, and `MVP_STATUS.md:137` labels that row "public
+   IO". The private path has no multi-block entry point. §4.3's conclusion —
+   that the `k = 1` architecture is already there — **is withdrawn**.
 3. **The per-compression cost of a hash gadget in this arithmetisation.**
    §4.2's central figures (4,000 lookups, 2,500 committed words per SHA-256
    compression) are an **estimate with a factor-two band**, derived from the
    structure of SHA-256 against an 8-bit lookup arithmetisation. The project
    has no bitwise gadget to measure. The measurement is named in §4.2.
-4. **Whether the D9 per-draw bias is `2^-64` or `2^-96`.** O10 F10.4 uses the
-   first and derives a `2^-51.4` floor
-   (`ZK60_OPUS_ORACLE_BOOKKEEPING_REVIEW.md:135-142`); D9 as ruled uses the
-   second (`ZK60_DECISIONS.md:372`). §1.7 records the discrepancy and the
-   recomputation; I did not re-derive either figure from `rng.rs`.
-5. **Whether a structured SIS matrix exists that is both succinct for this
-   verifier and binding for short vectors.** §4.2 gives a pigeonhole argument
-   against the one structure I tried (evaluation at fixed public points). It
-   is not an exhausted search and I would not want it cited as impossibility.
-6. **The exact endpoint geometry a widened profile will adopt.** §3.3 costs
+4. **Whether a structured SIS matrix exists that is both succinct for this
+   verifier and binding for short vectors.** §4.2 gives a corrected argument
+   against the one structure I tried (evaluation at fixed public points):
+   for that structured `A` the short collisions are efficiently *findable*.
+   It is not an exhausted search and it must not be cited as impossibility.
+5. **The exact endpoint geometry a widened profile will adopt.** §3.3 costs
    both readings (`log_cols 8 / inv_rate 8` keeping 2,048 leaves, and
    `log_cols 14 / inv_rate 4` giving 65,536), because
    `ZK60_PRIVATE_ENDPOINTS_AT_SCALE.md` §2.3 (P12) records the two-sources-of-
@@ -1362,4 +1835,54 @@ Every number labelled [COUNTED] is arithmetic from geometry or from a figure
 cited to a measured source; every number labelled [ESTIMATE] is mine and is
 banded. No file other than this one was created or modified.
 
-*(draft complete)*
+*(original draft complete 2026-09-19; corrected the same day — see the
+correction record below)*
+
+## Correction record (2026-09-19)
+
+Every numbered item of `ZK60_D8_D11_RESTATEMENT_CHECK.md` §8, applied in
+place by a delegated editor working to
+`ZK60_D8_D11_RESTATEMENT_DISPOSITION.md`. Items 1–10 are the check's HOLES,
+11–21 its CORRECTIONS, 22–28 its CONDITIONS. Nothing in this record, and
+nothing in the corrected text, establishes a privacy property; D8 and D11
+stand as written in the register.
+
+| # | kind | sections changed | what changed |
+|---|---|---|---|
+| 1 | HOLE | §0 step 1, §1.3, §1.4, §1.8 item 4, §2.6, §3.7, §4.1, §4.5, §4.6, §5.1 | "Within the hash layer, case (b) is either empty or equal to case (a)" **withdrawn everywhere**. §3.7 demoted from a result to an enumeration of what restriction R2 assumes, with the circularity stated (R2 contains the conclusion) and the two prior refusals cited; §1.4's "three consequences" relabelled bookkeeping; the (b) cells of the §4.6 table and the "would cover" lines of (i) and (v) rewritten to "assumed away by R2, which is circular" |
+| 2 | HOLE | §1.6, §5.2 (R1), §5.1, §5.5 | R1 now says plainly that it **excludes the party who fixed the root from ever being the distinguisher** — a regulator who supplies *and* commits an input is excluded — and that no document names a third-party committer; the dichotomy (prover commits → standard game; third party commits → unnamed party) is written out, with condition 22 and a product kill in §5.5 |
+| 3 | HOLE | §1.6, §1.8 item 3, §5.2 preamble, §5.5 | The LNS Definition 2.8 defence is **withdrawn**: the cited source maps Def 2.8 to the game in which the simulator produces the commitments. The notion is now named as **new and project-specific**, "established" removed, and it is removed from §5.5's "what is explicitly not a kill" |
+| 4 | HOLE | §5.2 (R3) | R3 now records that it admits a second receipt on an independent commitment to the same plane (H7), which `Δ_field` does not cover, and names the two repairs: restrict `aux`, or extend `Δ_field` with round 23 as its only evidence (scope stated) |
+| 5 | HOLE | §3.8 item 1, §5.3 (O5), §5.5, framing section | The "47-byte inputs, a different length, so no direct overlap" argument is **withdrawn as false**. `Transcript::absorb` is a 64-byte BLAKE3 input whenever `|label| + |data| = 16`, and `absorb_u64(b"log-cols", …)` is exactly that on the private path; Fiat–Shamir and the Merkle/leaf layer **share the untagged 64-byte domain**. The bound does not move (`2^-256` per candidate); O5 is restated against the real shared domain and the mechanical point-set check added beside it |
+| 6 | HOLE | §5.2 preamble and displayed bound | The advantage expression is labelled **the statement the project would have to intend to prove, not a bound**, in the theorem itself, because `Δ_field` contains the unquantified U-3 term; "must never be quoted as a `2^-175`-class result" added |
+| 7 | HOLE | §3.2 step 1 | "Sampling a real commitment to the all-zero plane … gives exactly the right law" **deleted**; replaced by the two verifier identities that condition the matrix (`pcs.rs:976-979`, `:1022-1030`) and a pointer to the unbuilt joint conditional sampler O1. The pad argument is retained as a linear-channel statement, with `d ≤ q_pad` justified |
+| 8 | HOLE | §3.2 step 2, §5.2 (new R4) | "Same law in both worlds" replaced by the **PRG assumption on `ZkRng`**, stated in the direction needed (published later outputs must not reveal earlier secret outputs), with the shared-stream sources cited; promoted into the theorem as restriction R4 beside salted-leaf hiding |
+| 9 | HOLE | §4.3, §5.1, §5.4, §6 item 2 | "The multi-block story survives" and "the `k = 1` architecture is already there" **withdrawn**. The measured 58.40 s pass is traced to the **public** prover, 32 statements sharing one transcript with public activations; the private path has no multi-block entry point; the architecture decision is named as condition 27 and as an architecture kill |
+| 10 | HOLE | §1.3 (table and the paragraph after it), §1.4, §1.5, §1.8 item 4, §3.7, §4.1, §5.2 (R2), §5.3 (O6) | **H8** (rejected-but-emitted receipt) and **H9** (retained capture) added as reachable histories; R2 restated as "no **published path set of any kind** — accepted, rejected or captured"; §1.5 now says the types enforce "one `finish`", not "one published path set" |
+| 11 | CORRECTION | §0 step 2, §4.2, §4.6, §5.1 | The "60–160 % of the entire budget" verdict **withdrawn as a category error**. Replaced by the relative figures **+5.5 % of a public pass, +12.6 % of a private one**, with **+0.28 s of a 5 s budget** under a uniform 11.7× speedup, and the explicit caveat that a speedup which does not help the gadget leaves the absolute figure right for that part |
+| 12 | CORRECTION | §4.2 Pedersen bullet | Reason replaced: a Ligero opening *is* a linear functional of the rows and CP-link does not need both sides homomorphic; the valid obstruction is non-native elliptic-curve arithmetic over Goldilocks. Conclusion kept |
+| 13 | CORRECTION | §4.2 SIS bullet, §6 item 4 | The pigeonhole argument is corrected: it proves too much (it applies to a random `A` as well, and SIS binding is computational). The right statement — for this structured `A` the collisions are efficiently **findable** — substituted, and the "not an impossibility" flag strengthened |
+| 14 | CORRECTION | §1.3 H7 row, §2.6, §3.7 H7 row | "The joint analysis is not done" (citing `ZK60_ROUND23.md:29`, a heading) replaced with round 23's measured result — zero disclosed base dimensions over 88,064 shared unknowns, four with every private commitment, 256 in the control — and its scope: fixed coefficients, two captures, field channels only, excluding CFS/pad/encoded-column/Merkle and adaptive composition |
+| 15 | CORRECTION | §3.5 table and total, §3.8 item 2, §5.2 | The freshness union now covers the simulator's whole honest query count `Q_S` (its `A`/`H`/`M` trees and the transcript), order `3 × 10^4`, giving `≈ 2^-241` in place of `2^-244`; the constant `2·(q + 2nn − 2)` replaced by `m·(q + Q_S)` |
+| 16 | CORRECTION | §3.5, §4.1, §4.6 (scope note), §5.2 | "Exactly two top-node programming calls" scoped to the pinned tiny profile; **64 caller-fixed endpoint roots** at a feed-forward-only 32-layer private pass (D17 rule 4) recorded, and the theorem restated for `m` roots |
+| 17 | CORRECTION | §3.1 | `32 + 8,192 + 90,112 = 98,336` corrected to `8,192 + 90,112 = 98,304` of 131,072 = **exactly 75.00 %**; the root's 32 bytes travel in the 112-byte policy, not in `ENDPOINT_OPEN_BYTES` |
+| 18 | CORRECTION | §3.3, §5.4 | "The top pair is *always* revealed / `A_{10} = 2.0` exactly" replaced by **probability `1 − 2^-255`**, with `A_{depth−1} = 2 − 2^-255`; §5.4's proposed gate rewritten so it does not assert something false with probability `2^-255` |
+| 19 | CORRECTION | §1.7, §6 (item 4 deleted, later items renumbered) | The `2^-64` / `2^-96` question is **no longer presented as open**. §1.7 now cites D9's verification note (`ZK60_DECISIONS.md:394-408`): statistical distance exactly `2^-96` per draw, per-outcome relative bias exactly `2^-64`, `6144·2^-96 = 2^-83.4`, `2^21·2^-96 = 2^-75.0`; O10 F10.4 named as the document that states it wrongly, and the two source comments named. §6's item 4 deleted |
+| 20 | CORRECTION | §4.2 tiny shape, §4.6 | "+13 % committed words" replaced by **+15.2 %** against the stated denominator, the message-part committed words `(702 + 1,326 + 20 + 2×7) × 256 = 527,872`; the missing denominator called out |
+| 21 | CORRECTION *(in the draft's favour)* | §3.5, §2.6 | **Added:** the two-point construction has **no ordering problem** — the programmed point is the top node, independent of the 256 indices, which are drawn only after the group and proximity vectors are absorbed (`pcs.rs:922-928`), so the simulator's tree is complete before any index exists. Contrasted with the round-23 free-handle construction's late salted-leaf programming |
+| 22 | CONDITION | §1.6, §5.3 (conditions table), §5.5 | Recorded: a ruling from Victor **naming the party that fixes a root**, and the matching product kill. No text elsewhere claims such a party exists |
+| 23 | CONDITION | §1.6, §5.2 preamble, §5.3 (conditions table) | Recorded: the notion written out as project-specific with R1/R2/R3 and the **excluded parties** in the product claim, as D7's qualifiers travel with the zkVM claim |
+| 24 | CONDITION | §5.3 (O6 and conditions table), §5.2 (R2), §4.1 | Recorded: R2 enforced as "one published path set of any kind per root", with a capture-level gate and a negative control |
+| 25 | CONDITION | §5.3 (conditions table) | Recorded: O1 and O2 discharged, or `Δ_field` stays unbounded and §3 is moot. §3.5's closing paragraph already said §3 is conditional on O1 and is unchanged |
+| 26 | CONDITION | §3.8 item 1, §5.3 (O5 and conditions table), §5.5 | Recorded: O5 restated against the actual shared 64-byte domain, with the mechanical point-set check |
+| 27 | CONDITION | §4.3, §5.1, §5.3 (conditions table), §5.5 | Recorded: the architecture question settled in writing — one transcript per private request end to end, or route (ii) at run boundaries — and the instruction that until then "the multi-block story survives" must not be stated |
+| 28 | CONDITION | §1.5, §5.3 (O4 and conditions table), §5.4 | Recorded: the mechanical invariants — `commitment_rows ∉ {5, 8}`; `8·rows ∉ {40, 64}`; no deployment-path commitment reproducible from a seed; no new accessor exposing `PreparedPlane`'s `CommittedZk`, whose `data`, `pads` and `salts` fields are `pub` |
+| — | **RE-TITLING AND RE-FRAMING** | title, status line, §0 step 1, §0 closing, §2.6, §4.1–§4.6 ("Closes:" → "Would cover:"), §5 heading, §5.1, §5.2 heading, §6 sign-off | Per the disposition: the page is no longer a recommendation. New title and status line; §5 renamed and §5.1 rewritten so the proposed (i) + (v) route is recorded as **ATTEMPTED AND REFUSED**, quoting what was proposed and giving the two reasons (circular restriction R2; the root-fixer excluded from being the adversary), kept as a record of what does not work |
+| — | **NEW SECTION** | "Where this stands after ruling D18", immediately after the status line | States that for the first MVP the prover generates every commitment at proof time, so the configuration D8/D11 bind **does not arise in the first MVP's artifacts** and the standard privacy game applies to them — explicitly not a privacy acceptance, with the joint-view checks and U-3 unchanged; that the obligation binds from the day a third party fixes a commitment in advance; that the expected route then is the **sealed handle**, scoped in `ZK60_SEALED_HANDLE_SCOPING.md` (commissioned 2026-09-19); and the six durable facts the check confirmed |
+
+**Applied without needing a text change:** none — every numbered item above
+either changed text or added a recorded condition. **Not changed:** anything
+the check judged sound (the hash-layer counts of §3.3, which reproduce
+exactly; the enforcement audit of §1.5, confirmed on every code path; §3.6's
+trilemma, which stays demoted to a taxonomy; §2.1's proved two-opening
+recovery).
