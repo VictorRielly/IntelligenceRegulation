@@ -6,6 +6,70 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 23:31 — the next build is ruled: one private block at the 125M shape; two questions for you
+
+- **What is decided** (`ZK60_PRIVATE_BLOCK_125M_LAYOUT_DISPOSITION.md`, with
+  the draft and its independent check beside it; `ZK60_MVP_COMPLETION_PLAN.md`
+  §5.2a for why): the built single-commitment block is grown to the 125M
+  shape (512 tokens, width 768, hidden 2048, 12 query heads of 64 over 4
+  key-value heads) as a **new profile beside the byte-frozen toy**; form E is
+  not built first (it would save 10–17% at this shape; the attention half is
+  about 80% of a block). Deliverable: **one block on synthetic weights.**
+- **What the check found that touches your code, so you hear it from me
+  first.** (1) At the toy every domain is a power of two, so no relation was
+  ever evaluated on padding; at width 768 the norm's sum of squares reads 256
+  padded columns that nothing forces to zero — a prover could choose the
+  divisor. Ruled: every hidden plane on a padded domain is **proved** zero off
+  its support by a batched pad-zero term; exemptions by name only. (2) Public
+  weights must be zero off their support, stated and checked at construction.
+  (3) At 2^14 columns the lookup-summation claim's parts straddle the row
+  width: `check_opening` (`private_block/protocol.rs:161–163`) refuses and
+  `zkp-core/src/pcs.rs:817` asserts — **no proof would be produced at all**;
+  the repair (lift the lookup and table domains to the row width, padded table
+  positions repeating an existing entry) comes before the geometry step.
+  (4) `private_block/argument.rs:626` (`outer.trailing_zeros()`) is a **panic**
+  at any width that is not a power of two (`zkp-core/src/mle.rs:118` asserts
+  the fold length) — loud, not a soundness hole. (5) Six pins the draft
+  missed, among them a bare `1` that is the key-value head count
+  (`argument.rs:799`) and `protocol.rs:299/:305` becoming out-of-bounds.
+  Nothing in the accepted toy profile is affected by any of these.
+- **Method I ruled** (P-7): test-first on a small rung that pads everywhere
+  the 125M shape pads (width 48 → 64, grouped-query group 3, straddling
+  helper domains, endpoints wider than one block), every hole reproduced as a
+  failing test before its fix; then the 125M block as a **heavy run** —
+  detached, heavy lock, a memory ceiling that kills the process and not the
+  box (peak modelled 11.0 GiB, 9.6 after the buffer frees), peak resident
+  memory recorded as an acceptance figure. An errata pass on the layout is
+  running now; nobody implements before it lands.
+- **Question 1 — who implements?** By the precedent of the block itself, I can
+  run it as a sole-writer lane on a new branch in its own worktree (additive
+  files plus the shared constants the layout names; builds queued on
+  `/tmp/zk-build.lock`, nothing in your main tree touched) and hand it to you
+  to integrate. If you would rather take it, or want the shared-constant
+  split (`U8_LEN` from `N`) done your way first, say so. **Absent an answer by
+  the time the errata pass lands, I start the rung only** — tests and the
+  layout builder, no change to any file your row-fold or host-review
+  integration touches — and stop before shared constants.
+- **Question 2 — please integrate `zk60-private-norm-range` (`ad0b55c`).** It
+  is pushed and not in the integration branch; decision D16 makes it the
+  precondition for any widening, and the 125M lane needs to branch from a tip
+  that has it. If you see a reason not to, tell me and I will carry it on the
+  lane branch.
+- Also tonight, all paper, all pushed: the sealed-handle scoping was checked
+  and ruled (`ZK60_SEALED_HANDLE_SCOPING_DISPOSITION.md`: shape accepted, no
+  cost or hash accepted, nothing scheduled to be built; one finding you may
+  care about — the CUDA zero-check is hard-capped at degree 4,
+  `hashline/src/gpu/kernels.cu:601`); a privacy case for the first MVP is
+  drafted and under independent check (`ZK60_PRIVACY_CASE_FIRST_MVP.md`; it
+  reports that `finish` emits a rejected receipt in full,
+  `private_block/protocol.rs:255–257`, and that retained captures write
+  receipts to disk, `native_capture.rs:267–281` — I will rule on those when
+  the check reports); the D8/D11 memo is corrected and re-titled.
+- **Still holding for your answer: who writes the hidden-endpoints change
+  list (21:02).** It is now on the 125M lane's critical path (width 768 is
+  not a power of two), so I fold it into Question 1: whoever implements the
+  125M block implements C1 … C8 with it.
+
 ### 22:50 — DELIVERED: the terminal-polynomial port you asked for (`zk60-native-jointview` at `e7b6237`, pushed)
 
 - **What it is.** `scripts/zk60_native_terminal_polys.py`: the 23 block slots
