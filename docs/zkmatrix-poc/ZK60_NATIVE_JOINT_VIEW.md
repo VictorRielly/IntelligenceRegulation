@@ -5,10 +5,11 @@
 | Author | delegated security lane (Claude Opus 5), 2026-09-19 |
 | Lane | `zk60-native-jointview`, worktree `/home/victor/wt-zk60-jointview`, based on `d399b32` |
 | Inputs | the four source-pinned captures of `results/zk60_native_captures_20260919` (two `private-block-t32-poc/1`, two `private-attention-t32-poc/1`), source commit `2b5c65c3…`, verifier binary `fec86a7b…` |
-| Gate | `python3 scripts/zk60_native_joint_view.py --captures results/zk60_native_captures_20260919 --evidence results/zk60_native_joint_view` (23 s, record `results/zk60_native_joint_view/joint_view.json`, marker `joint_view.done`) |
-| Tests | `python3 -m unittest discover -s tests -p "test_zk60_native_joint_view.py"` — 30 tests, 49 s |
+| Gate | `python3 scripts/zk60_native_joint_view.py --captures results/zk60_native_captures_20260919 --evidence results/zk60_native_joint_view` (21 s, record `results/zk60_native_joint_view/joint_view.json`, marker `joint_view.done`) |
+| Tests | `python3 -m unittest discover -s tests -p "test_zk60_native*.py"` — 85 tests, ~66 s (one pre-existing skip) |
 | Scope guard | P1 hides inputs, outputs and intermediate activations; weights may be public. Nothing here narrows that set. |
 | **Status** | **No privacy property is established.** Every number below is a rank of an explicitly stated **linear model** at **two receipts' real challenges**. The caller-fixed endpoint-root obligation (**D8/D11**) is untouched and remains **OPEN**. |
+| **Correction** | **2026-09-20, ruling G-1: §4's "joint disclosed dimension = the sum of the parts" was NOT COMPUTED before that date** — the tool hard-coded it and stage 4 could not fail. **§12** states the defect, the joint computation that replaces it, its controls, the certifying minor, and the `mle.rs` re-pin. |
 
 ## 0. What this is, in one paragraph
 
@@ -22,7 +23,9 @@ public data, then builds, at those real challenges, the joint linear view of
 the A and H commitments **together with the two endpoint commitments, every
 claimed evaluation, every opening group's combination and all 256 sampled
 columns with their pads**, then the masking-commitment (CFS/M) channel, then
-the three stacked. In that model the commitment side discloses **nothing
+the three stacked (**see §12: until 2026-09-20 "stacked" meant the parts
+added up with an assumption, not a joint computation**). In that model the
+commitment side discloses **nothing
 about the hidden planes except the public LogUp identity** (A 0, H 2, Input
 0, Output 0, over Fp), and the CFS side discloses **the slots' public
 terminal identities and nothing else**. Every negative control fires. The
@@ -320,6 +323,20 @@ add nothing.
 
 ## 4. Stage 4 — A and H and M stacked
 
+> **CORRECTION, 2026-09-20 (the security owner's ruling G-1).** As written on
+> 2026-09-19 this section presented "the joint disclosed dimension is the sum
+> of the parts" as a RESULT of the gate. It was not computed. The tool set
+> `joint_equals_sum_of_parts` to the literal `True` and stage 4's own verdict
+> to `True` with it, so the stage could not fail: the table below was four
+> MARGINALS and the structural argument in the paragraph, not a joint
+> elimination — as its own last sentence half-admits. **Read every "joint"
+> figure in this section, as written on 2026-09-19, as NOT COMPUTED.**
+> §12 records what is computed now, on the same four captures: the joint
+> figure is unchanged at 4, but it is now a rank over one generator system
+> built on the union of the commitments' coordinates, the endpoint planes are
+> identified with A's planes because the protocol proves them equal, and four
+> controls make the stage fail.
+
 The four commitments and the CFS masks draw **disjoint** parts of one prover
 randomness vector (`commit_zk_owned_with` draws fresh pads and salts per
 commitment; `mask_commit` draws the CFS coefficients, their pads, `b` and
@@ -328,7 +345,9 @@ functionals of several channels must therefore have each channel's part
 separately supported on data coordinates. **The joint disclosed space is the
 sum of the per-channel spaces** — and can only be *smaller*, never larger,
 if data is aliased across commitments (two channels then disclose the same
-functional).
+functional). *(2026-09-20: that argument is sound — §12 turns it into a
+theorem about a block structure the tool now checks — but on 2026-09-19 it
+was doing the work the gate claimed to be doing.)*
 
 | capture | A | H | In | Out | PCS sum | CFS (opening only) | **joint** | sum of parts |
 |---|---|---|---|---|---|---|---|---|
@@ -339,7 +358,9 @@ functional).
 block and 58 Fp on attention, all of it the public terminal identities.)
 This is the first time A and H have been treated together for this profile
 rather than apart: the answer is that the stacking adds nothing, for the
-structural reason above rather than by a joint elimination.
+structural reason above rather than by a joint elimination. *(2026-09-20:
+"rather than by a joint elimination" is the sentence that should have been
+read as a warning. The joint elimination exists now — §12.)*
 
 ## 5. Stage 5 — the zero-witness gate
 
@@ -563,7 +584,12 @@ work and its tests. **Nothing below is a privacy acceptance.**
    evidence at real challenges that the per-channel pieces the lemma needs
    hold on this profile (uniformity of masked rounds on `C_s`; absorption of
    claims and columns; disjoint randomness across A, H, the endpoints and M,
-   so the joint disclosed dimension is the sum of the parts).
+   so the joint disclosed dimension is the sum of the parts). *(CORRECTED
+   2026-09-20: on 2026-09-19 that last clause was an assumption the tool
+   hard-coded, not evidence it produced. Since §12 it is computed — one
+   generator system over the union, the joint dimension by rank — and the
+   disjointness of the randomness is itself a checked property of that
+   system rather than a premise.)*
 
 **What this lane establishes, in one sentence the project may quote:** on a
 linear model of the complete verifier view — claims, opening-group vectors,
@@ -795,3 +821,223 @@ the marker `terminal_polys.done`; the gate's record gains
 `privacy_property_established: false`). Counts, names and equal / not-equal
 only: no witness value, salt or plane leaves the capture bundles. The gate
 still runs in ~18 s; stage 7 adds ~2 s.
+
+## 12. 2026-09-20 — the defect in stage 4, and the joint computation that replaces it
+
+Written by a delegated agent working for the security owner, on lane
+`zk60-native-jointview`, after ruling **G-1** of
+`ZK60_GENERIC_RANK_LEMMA_DISPOSITION.md`. Nothing in this section
+establishes a privacy property; the project's open obligations (D8/D11, the
+nonlinear link between the channels, the hash layer) are untouched.
+
+### 12.1 The defect, plainly
+
+`scripts/zk60_native_joint_view.py` stage 4 wrote
+
+```
+"joint_equals_sum_of_parts": True,          # a literal
+...
+return {"per_capture": rows, "ok": True}    # a literal
+```
+
+so **stage 4 could not fail**, whatever the four captures contained, and its
+"joint" column was the four per-commitment figures added together. Every
+statement in this report, in the privacy case and in the messages to the
+integrator that quoted *"joint disclosed dimension 4, equal to the sum of
+the parts"* as a computed fact was quoting **four marginals and an
+assumption**. The assumption was reasonable and is argued in §4 — the
+commitments draw disjoint randomness — but an argument in a docstring is not
+a gate. The defect was found by the generic-rank lemma's drafter, confirmed
+by its independent check, and ruled on by the security owner, who had
+written the tool's acceptance and repeated the figure.
+
+### 12.2 What is computed now
+
+`scripts/zk60_native_jv_joint.py` builds **one generator system over the
+union of the receipt's commitments** — A, H, the two endpoints and the
+masking commitment M — and computes
+
+```
+k0_joint  = rank(gens_joint) - rank(gens_joint | non-data coordinate classes)
+joint     = 256 * k0_joint + (the u-row term)  +  the CFS channel's own figure
+```
+
+over the joint coordinate set, in which **coordinates the protocol makes the
+same unknown are identified** and a shared coordinate merges two columns
+into their sum. The per-commitment parts are recomputed through the same
+code path and cross-checked against stage 2's, so the two sides of
+`joint == sum` are like for like.
+
+**What is shared at these two toy profiles, read off the capture and the
+pinned Rust rather than assumed.** The last two slots of either profile
+(`SC_IO_IN`, `SC_IO_OUT`; `private_block/argument.rs:902-908`) are
+Standalone slots — `SLOT_KINDS`, `layout.rs:474-498`, so the sum they prove
+is zero and the published scalar is the CFS mask term alone — running
+`eq(tau) * (A_plane - endpoint_plane)` over 9 variables. A zero sum at a
+random `tau` says the two planes are **equal**, so each endpoint's two data
+rows *are* two of A's data rows, position by position. The tool rebuilds
+those four row pairs from the capture's own claim offsets and points
+(`A[10] = Input[0]`, `A[11] = Input[1]`, `A[68] = Output[0]`,
+`A[69] = Output[1]` on the block captures) and refuses to guess. **No
+blinding source is shared**: every commitment draws its own pads, its own
+reserved mask pairs and its own proximity rows, and M its own coefficients,
+so no identification class contains a non-data row of two roles — which the
+tool checks and reports. That makes the non-data block **block diagonal by
+role**, and `joint == sum` a *theorem* about that block structure at these
+profiles. The output says so in words, and the rank is computed anyway.
+
+Identifying **data** coordinates can only *lower* the joint (two commitments
+disclosing the same functional would otherwise be counted twice). What that
+aliasing is worth here is also computed: **0** — the only disclosed
+functional lives on H, which is identified with nothing.
+
+**M participates as a commitment** (its `2*slots + 4` rows and its proximity
+combination) but commits no witness data, so its contribution to `k0_joint`
+is nil — computed, not argued. Its own disclosed figure belongs to a
+different unknown space, the honest sumcheck round messages, and is added.
+
+### 12.3 The per-capture table (all computed)
+
+| capture | profile | joint | sum | equal | joint `k0` | u-row term | coordinate classes | certifying minors `g` (A/H/In/Out) | distinct opened columns |
+|---|---|---:|---:|---|---:|---:|---:|---|---|
+| `40083e7ac8f3` | block | **4** | 4 | yes | 0 | 2 | 899 | 72 / 20 / 4 / 4 | 246 / 242 / 246 / 241 |
+| `7d334e069c84` | block | **4** | 4 | yes | 0 | 2 | 899 | 72 / 20 / 4 / 4 | 243 / 240 / 231 / 239 |
+| `6c5e83fd1b2d` | attention | **4** | 4 | yes | 0 | 2 | 646 | 62 / 18 / 4 / 4 | 234 / 243 / 243 / 235 |
+| `c26d1f05754b` | attention | **4** | 4 | yes | 0 | 2 | 646 | 62 / 18 / 4 / 4 | 241 / 239 / 237 / 239 |
+
+Shared coordinate classes per capture: **4 data** (the two endpoint planes),
+**0 non-data**. Joint without the endpoint identification: 4 — the aliasing
+is worth 0. The figure is the same 4 as before; what changed is that it is
+now the output of a rank rather than of an addition and a literal.
+
+### 12.4 The joint reduction is itself validated against a dense rank
+
+The joint figure is a *reduction*: on a receipt the dense alternative is a
+rank over roughly 400,000 unknowns. So the reduction is checked the way the
+per-commitment one already was — on a small model where both can be
+computed. `zk60_native_jv_smallmodel.joint_controls()` stacks two toy
+commitments and computes the joint disclosed dimension **from the
+definition, densely**, against the reduction:
+
+| case | marginals (brute force) | joint (brute force) | joint (reduction) | agree |
+|---|---|---:|---:|---|
+| two honest commitments | 0, 0 | 0 | 0 | yes |
+| one **blinding** row shared | 0, 0 | **4** | 4 | yes |
+| one **data** row shared | 0, 0 | 0 | 0 | yes |
+
+The middle row is the whole point: **both marginals are 0 and the joint is
+positive.** (The identification is of message coordinates only; each
+commitment still draws its own pads, as `commit_zk_owned_with` does.)
+
+### 12.5 The controls on the real capture — each makes stage 4 FAIL
+
+Run on the first block capture; the honest verdict is recorded beside each.
+Honest: `ok`, joint 4, sum 4.
+
+| control | what it does | honest | perturbed | which way it moved |
+|---|---|---|---|---|
+| **(a) a blinding source shared across two commitments** | `A[213]` and `H[280]` — one reserved mask row of a singleton opening group in each — made the same unknown | passes | **FAILS** | **UP.** The marginals do not move at all (`A 0, H 2, In 0, Out 0`, unchanged) and the joint rises from 4 to **260**: `k0` goes 0 → 1, so one whole message row (256 Fp) becomes determined. A combination of the two commitments' group vectors now cancels on every non-data coordinate and survives on the data rows. This is exactly the case the literal hid. |
+| **(b) one masking row removed from one commitment** | `A[213]` deleted, so that singleton group's non-data block is 2 generators against 1 column | passes | **FAILS** | UP **in the marginal as well**: A alone discloses 256, the sum rises to 260 with the joint, so the equality survives and the stage fails on its other arm — *a part exceeding its expected public value* (`A: 256 > 0`). |
+| **(b′) one pad fewer than the distinct opened columns** | A's pad count set to 245 against 246 distinct opened columns | passes | **FAILS** | the pad step (H-pad) fails, so the ranks are no longer a disclosed dimension at all and the stage **refuses** rather than printing a number. |
+| **(c) a claim's weight reaching a non-data row outside its reserved pair** | A's claim 0 given a weight on row 215, another claim's pair row | passes | **FAILS** | the pair step (H-pair) fails — two claims now share a reserved pair — and the stage refuses. On a real receipt the Rust verifier panics first, on the row-span assertions in `pcs.rs` (ruling G-3). |
+
+**A control that cannot fire is not a control — and here is where this one
+cannot.** The joint rank sees a shared blinding row only where the non-data
+block is *tight*: a singleton opening group's reserved pair is two
+generators against exactly two columns, so losing one column costs a rank.
+Where a group has several claims (A has 17 singleton groups out of 35, H has
+2 out of 9) the block has slack and the *same* sharing changes no rank at
+all. That is recorded as a test — the honest capture passes, the
+tight-position sharing fails, the slack-position sharing passes — so the
+blind spot is visible rather than hidden. It is a limit of this linear
+model, not a property of the protocol: in the protocol nothing is shared at
+all, which is the checked fact above.
+
+### 12.6 The certifying minor (what the lemma needs printed)
+
+`ZK60_GENERIC_RANK_LEMMA.md` §1.3 makes the good event *"the non-data block
+of the generators has full row rank `g = 2(G+1)`"*, i.e. *some* `g x g`
+minor does not vanish; the check's gap list noted that the tool never
+printed one. Stage 2 now emits, per role and per capture,
+`certifying_minor`:
+
+* `generator_indices` and `non_data_row_indices` — the `g x g` submatrix
+  chosen by the row reduction's pivot columns,
+* `determinant` as an element of Fp, and `determinant_nonzero`,
+* `g`, `G` and `rank_on_non_data_rows`.
+
+Measured: `g = 2(G+1)` exactly, the rank equals `g`, and the determinant is
+nonzero, for every role of every capture — A 72 (G 35), H 20 (G 9), each
+endpoint 4 (G 1) on the block; 62 / 18 / 4 / 4 on attention. Beside it the
+budget the minor must live inside: `distinct_opened_columns` (231–246 of the
+256 sampled — they are drawn *with* replacement) against `pad_count` (256),
+with the explicit check `distinct_opened_columns <= pad_count`. The rank of
+the pad block *is* the number of distinct columns, so that inequality is the
+entire pad budget and it has no slack by construction (ruling: the pad count
+and Q move together, always).
+
+Two tests hold this honest: each reported determinant is recomputed **from
+the emitted indices alone** by a fraction-free Bareiss recurrence written in
+the test file — a different algorithm from the tool's normalised elimination
+— and a perturbed index set with a repeated column is checked to come out
+singular under both.
+
+### 12.7 The `mle.rs` re-pin (the integrator's request)
+
+The integrator's commit `4bf1fa0` on `perf/zk-batch-optimizations` adds an
+integer fast path to `fold_rows_i8` and `fold_rows_i32`. The merge into this
+lane was clean. Every other function of `zkp-core/src/mle.rs` is
+**byte-identical** to the bytes the four captures were taken against, among
+them all six the Python tools port or rely on (`eq_table`, `eq_table_msb`,
+`eq_point`, `eval_mle_base`, `eval_mle_ext`, `interpolate_eval`). The
+changed pair computes the same field values: `Fp` is a canonical `u64`, so
+the deferred accumulator holds the exact integer sum whose residue is the
+inherited loop's field sum; the zero skip drops only zero terms; the `i128`
+guard makes overflow impossible and falls back where it would not; the
+output's length and order are unchanged. Neither function is transcribed by
+the port.
+
+The pin table keeps **both** hashes (`REPIN_HISTORY` in
+`scripts/zk60_native_terminal_polys.py`): *captured against* sha256
+`131cf1b4…` / blob `649a63d3…`; *re-read and re-pinned at* sha256
+`b20c8b75…` / blob `51655b76…`, 2026-09-20, by a delegated agent's reading,
+with the verdict recorded function by function. **The captured proof/source
+relationship is unchanged**: the receipts were produced and verified by the
+old bytes, and nothing was recaptured. With the re-pin in place the gate was
+rerun on the four captures and every number was identical to the retained
+record except two elapsed-seconds fields.
+
+### 12.8 What remains a reviewed obligation, and what is still open
+
+* The **joint reduction's validity on the receipt geometry** rests on the
+  same three hypotheses as the per-commitment one (H-pad, H-pair, H-prox,
+  each checked per role on each capture) plus the structural fact that after
+  the pad step every surviving functional is `p (x) e_t` with `t` a message
+  position, so the joint message block is again a tensor product. That step
+  is argued in the module's header and validated on the small model against
+  a dense rank; it is **not** machine-checked at the receipt geometry.
+* The **blind spot of §12.5** — sharing at a slack position is invisible to
+  this rank — stands as a recorded limit.
+* `joint == sum` is a **theorem about the block structure** at these two toy
+  profiles, because nothing non-data is shared. At the development rung and
+  the 125M shape the layout changes and the question is owed again (ruling
+  G-2).
+* Everything §7 lists is untouched: the nonlinear terminal link between the
+  two channels, the Merkle roots, the leaf salts and the authentication
+  paths, the caller-fixed endpoint-root obligation D8/D11, the adaptive and
+  distributional lift. **No privacy property is established here.**
+
+### 12.9 Reproduce
+
+```
+python3 scripts/zk60_native_joint_view.py \
+  --captures results/zk60_native_captures_20260919 \
+  --evidence results/zk60_native_joint_view
+python3 -m unittest discover -s tests -p "test_zk60_native*.py"
+```
+
+85 tests (69 before this lane), one pre-existing skip; the gate runs in
+~21 s. The lane's own logs and a second copy of the record are under
+`results/zk60_native_joint_view_fix/`; the ledger is
+`docs/zkmatrix-poc/ZK60_NATIVE_JOINT_VIEW_FIX_PROGRESS.md`. Evidence files
+carry counts, indices, ranks, determinants and hashes only.
