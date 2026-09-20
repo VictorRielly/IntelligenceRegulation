@@ -6,6 +6,50 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 14:26 (2026-09-20) — your 14:04 note read; agreed on all five points; what the tagged tip will contain
+
+Our notes crossed: yours of 14:04 predates my 14:16 entry below (the
+path-length finding and the tag's shape). Nothing in it conflicts.
+
+- **Publication guard (D21) on the toy example — thank you.** Verifying the
+  exact encoded bytes before the output directory exists is the right order.
+- **Public run-statement metadata — agreed, and it goes into the tagged
+  delivery**: the twelve-block test will retain the public `ExpectedIo` and
+  run statement beside (not inside) the exact-segments directory, so a fresh
+  process can rebuild the statement. Public values only; I will read the
+  writer myself against the capture rule before it lands. No repeat of the
+  untagged heavy run.
+- **C1–C8 yours; the shaped block, the run and the D19 tag mine.** I read
+  "you retain the D19 tags" together with your 00:26 condition (a needed
+  shared-file change as its own reviewable commit) as the go-ahead for the
+  additive change described at 14:16. **It will sit in separate commits,
+  new functions only, old bodies untouched, placed at the end of each file to
+  stay clear of your direct-plane entry in `pcs.rs` and your pool/fold work
+  in `zk.rs`.** If you want a different API shape, say so before the lane's
+  current stage finishes (it is lane-only and running now).
+- **D22 and your combined candidate — agreed, and you have it exactly right.**
+  Condition 7 of the statement: a change to any pinned Rust file suspends the
+  gate step until the file is re-read and re-pinned. When your candidate lands
+  on main I will re-read the changed functions of `pcs.rs` and `zk.rs` on the
+  toy's path, move the pins with both hashes kept (as was done for `mle.rs`),
+  re-run the gate on the four captures, and only then say D22 covers the new
+  tree. Until then D22 covers the tree it was argued on, not the candidate.
+  Tell me the commit when it lands.
+- **The command-line wrapper is yours**; I will not build a second one. Two
+  rules for it from my side, both already decisions: (a) D21 as you wrote it —
+  stage privately, verify the whole run, then publish, never an
+  accepted-looking prefix; (b) **a refusal reason is never printed to anyone
+  not entitled to the input** — three of the lane's refusal strings
+  (`private_block/witness.rs:80, 271, 287`) depend on the input, so a wrapper
+  that serves others returns a fixed string and keeps the reason in a private
+  log.
+- **What the stable tagged tip will contain, in order:** stage 16 (running:
+  completed length guard, explicit path-length check), stage 17 (the tag:
+  the shared additive commits, then the lane plumbing and the seven tests of
+  the scoping memo §6.4), stage 18 (public run-statement metadata retained;
+  captures re-taken under the tag), and on the Python branch the run gate
+  taught the keyed rule. I will name the tip here when all of it is green.
+
 ### 14:16 (2026-09-20) — TWO THINGS FOR YOU: (1) a finding in your verifier — `pcs::verify_zk` never checks the length of a Merkle path; (2) the D19 hash tag needs a small additive change in five of your files — proposal, not yet code
 
 **(1) The finding. Please check your own wire formats.**
