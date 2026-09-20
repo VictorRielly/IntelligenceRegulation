@@ -146,8 +146,70 @@ SOURCE_PINS = (
     ),
     Pin(
         "zkp-core/src/mle.rs",
-        "131cf1b49a2f280147ccb1d8f374c139cd7033a8a4ddb02c473b751937409614",
-        "649a63d3bada92e3ca0c8c327f4591165fa3716f",
+        "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+        "51655b76e0ae39fb77d9eebd5f5c0beadb3df10f",
+    ),
+)
+
+# A pin that MOVED after the captures were taken, with both hashes kept.
+# Moving a pin is only ever allowed after the changed file has been re-read
+# function by function; this table records that reading, so a later reviewer
+# can see WHY the tool now accepts a file the captures were not taken
+# against.  The captured proof/source relationship stays as it was: the four
+# receipts of 2026-09-19 were produced and verified by the OLD bytes.
+RepinRecord = collections.namedtuple(
+    "RepinRecord", "path captured_against repinned_at commit date reason functions"
+)
+
+REPIN_HISTORY = (
+    RepinRecord(
+        path="zkp-core/src/mle.rs",
+        captured_against=(
+            "sha256 131cf1b49a2f280147ccb1d8f374c139cd7033a8a4ddb02c473b751937409614, "
+            "git blob 649a63d3bada92e3ca0c8c327f4591165fa3716f"
+        ),
+        repinned_at=(
+            "sha256 b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e, "
+            "git blob 51655b76e0ae39fb77d9eebd5f5c0beadb3df10f"
+        ),
+        commit="4bf1fa0 (perf/zk-batch-optimizations), 'Integrate exact integer row folds'",
+        date="2026-09-20",
+        reason=(
+            "re-read and re-pinned by a delegated agent's reading, at the integrator's "
+            "request; the change adds an integer fast path to fold_rows_i8/fold_rows_i32 "
+            "and touches no function this port transcribes"
+        ),
+        functions=(
+            # (function, verdict of the 2026-09-20 re-reading)
+            ("eq_table", "byte-identical to the captured version; unchanged"),
+            ("eq_table_msb", "byte-identical; unchanged"),
+            ("eq_point", "byte-identical; the port's _eq_point transcribes it"),
+            ("eval_mle_base", "byte-identical; unchanged"),
+            ("eval_mle_ext", "byte-identical; unchanged"),
+            ("interpolate_eval", "byte-identical; the CFS port's Lagrange weights rest on it"),
+            ("fold_rows_base", "byte-identical; unchanged"),
+            ("fold_cols_base", "byte-identical; unchanged"),
+            ("fold_cols_i8", "byte-identical; unchanged"),
+            ("fold_cols_i32", "byte-identical; unchanged"),
+            (
+                "fold_rows_i8",
+                "CHANGED: a deferred-reduction fast path runs first. Same value: the "
+                "accumulator holds the exact integer sum of (w.c0 in [0,P)) * v over the "
+                "rows, and reduce() returns that sum mod P with its sign, which is the "
+                "field sum the inherited loop computes; the zero skip changes nothing; "
+                "the i128 guard rows <= i128::MAX/(u64::MAX*max_abs) makes overflow "
+                "impossible and falls back when it would not; output length and order "
+                "unchanged. Not transcribed by this port (no witness is folded here)",
+            ),
+            (
+                "fold_rows_i32",
+                "CHANGED in the same way, with max_abs = 2^31; same verdict",
+            ),
+            (
+                "deferred_rows / fold_rows_deferred",
+                "NEW private helpers implementing the above; no public meaning added",
+            ),
+        ),
     ),
 )
 
@@ -185,6 +247,17 @@ def check_source_pins(root: str = REPO_ROOT, pins=SOURCE_PINS) -> dict:
                 "ported functions and only then re-pin. Do NOT re-pin to make this pass."
             )
         out[pin.path] = {"sha256": got, "git_blob": blob}
+    for rec in REPIN_HISTORY:
+        if rec.path in out:
+            out[rec.path] = dict(
+                out[rec.path],
+                captured_against=rec.captured_against,
+                repinned_at=rec.repinned_at,
+                repinned_by=rec.reason,
+                repinned_on=rec.date,
+                repinned_commit=rec.commit,
+                functions_reread=[f"{n}: {v}" for n, v in rec.functions],
+            )
     return out
 
 

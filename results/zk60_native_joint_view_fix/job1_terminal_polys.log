@@ -1,0 +1,5 @@
+40083e7ac8f3f6c7 hashline-zk-mr1/private-block-t32-poc/1: checked 23/23, equal 23, not checkable 0
+7d334e069c84f0c1 hashline-zk-mr1/private-block-t32-poc/1: checked 23/23, equal 23, not checkable 0
+6c5e83fd1b2d8c16 hashline-zk-mr1/private-attention-t32-poc/1: checked 18/18, equal 18, not checkable 0
+c26d1f05754be35c hashline-zk-mr1/private-attention-t32-poc/1: checked 18/18, equal 18, not checkable 0
+record: /home/victor/wt-zk60-jointview/results/zk60_native_terminal_polys/terminal_polys.json (1.1 s) ok

@@ -264,10 +264,10 @@
    "slots_unequal": []
   }
  ],
- "port_sha256": "62003e4317d1c2f44215407d6ecf92a5e012c890dec38904cae108d830ec32e0",
+ "port_sha256": "3ad8b71c6927f0d828aac0c97d891c8a89a4c963149f83c1e1e563d90f64b869",
  "privacy_property_established": false,
  "reviewed_obligation": "the equality of each ported function with its Rust closure is established by reading, not by machine",
- "seconds": 1.2,
+ "seconds": 1.1,
  "source_pins": {
   "hashline/src/native_capture.rs": {
    "git_blob": "25a60ee36ce8a5dde9ed614b16374f06516d606e",
@@ -298,8 +298,28 @@
    "sha256": "d9455a1054aab7e18e1cba0194416a83847e862db26d8b4f5b9cf982ba082d65"
   },
   "zkp-core/src/mle.rs": {
-   "git_blob": "649a63d3bada92e3ca0c8c327f4591165fa3716f",
-   "sha256": "131cf1b49a2f280147ccb1d8f374c139cd7033a8a4ddb02c473b751937409614"
+   "captured_against": "sha256 131cf1b49a2f280147ccb1d8f374c139cd7033a8a4ddb02c473b751937409614, git blob 649a63d3bada92e3ca0c8c327f4591165fa3716f",
+   "functions_reread": [
+    "eq_table: byte-identical to the captured version; unchanged",
+    "eq_table_msb: byte-identical; unchanged",
+    "eq_point: byte-identical; the port's _eq_point transcribes it",
+    "eval_mle_base: byte-identical; unchanged",
+    "eval_mle_ext: byte-identical; unchanged",
+    "interpolate_eval: byte-identical; the CFS port's Lagrange weights rest on it",
+    "fold_rows_base: byte-identical; unchanged",
+    "fold_cols_base: byte-identical; unchanged",
+    "fold_cols_i8: byte-identical; unchanged",
+    "fold_cols_i32: byte-identical; unchanged",
+    "fold_rows_i8: CHANGED: a deferred-reduction fast path runs first. Same value: the accumulator holds the exact integer sum of (w.c0 in [0,P)) * v over the rows, and reduce() returns that sum mod P with its sign, which is the field sum the inherited loop computes; the zero skip changes nothing; the i128 guard rows <= i128::MAX/(u64::MAX*max_abs) makes overflow impossible and falls back when it would not; output length and order unchanged. Not transcribed by this port (no witness is folded here)",
+    "fold_rows_i32: CHANGED in the same way, with max_abs = 2^31; same verdict",
+    "deferred_rows / fold_rows_deferred: NEW private helpers implementing the above; no public meaning added"
+   ],
+   "git_blob": "51655b76e0ae39fb77d9eebd5f5c0beadb3df10f",
+   "repinned_at": "sha256 b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e, git blob 51655b76e0ae39fb77d9eebd5f5c0beadb3df10f",
+   "repinned_by": "re-read and re-pinned by a delegated agent's reading, at the integrator's request; the change adds an integer fast path to fold_rows_i8/fold_rows_i32 and touches no function this port transcribes",
+   "repinned_commit": "4bf1fa0 (perf/zk-batch-optimizations), 'Integrate exact integer row folds'",
+   "repinned_on": "2026-09-20",
+   "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e"
   }
  },
  "version": 1,
