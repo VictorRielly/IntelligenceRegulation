@@ -2802,3 +2802,95 @@ two-prover design would have to pay TWICE or split.
 | attention share | |
 | how the measured feed-forward share compares with the counted 20% of committed rows | |
 | does the measured split support or refute the paper "10–17%" saving of P5 | |
+
+## Stage 12 — the multi-block run (2026-09-20, 09:4x–)
+
+**What this stage builds.** A private RUN of `L` transformer blocks under ONE
+transcript, block `k`'s hidden output being block `k+1`'s hidden input, with
+nothing about either published. The design is
+`ZK60_PRIVATE_RUN_MULTI_BLOCK.md`, the independent attack on it is
+`..._CHECK.md`, and the rulings that bind this build are
+`..._DISPOSITION.md` M-1 … M-8. Where draft and check disagree the check
+wins; where check and disposition disagree the disposition wins.
+
+**What a green run here is, and is NOT.** A run that verifies is a
+CORRECTNESS milestone. It is not a privacy result: the obligations a run adds
+over one block (the boundary plane's joint rank over all THREE commitments
+that hold it, blinding independence across blocks, the run-wide joint law)
+have no tools yet and no gate has been run. The run's soundness is about
+2^-97.5 for twelve blocks at the 125M geometry (ruling M-2) and accepting
+that level for the native line is the project owner's ruling.
+
+### Status
+
+| step | what | state |
+|---|---|---|
+| R1 | the claim audit on a hand-built two-claim boundary schedule | **done** (4 tests) |
+| R2 | `boundary.rs`: derived rows, two claim sites, one opening | pending |
+| R3 | `run.rs`: the run prover and verifier, `L = 2` at rung-G | pending |
+| R4 | the negative battery at `L = 2` | pending |
+| R5 | `L = 3`, then `L = 12` at rung-G | pending |
+| R6 | `L = 2` at 125M: PREPARED, NOT RUN | pending |
+
+### Baseline, before anything of this stage
+
+`u1-baseline.log` (detached, heavy-lock-free build lock, 219 s):
+**157 passed, 0 failed, 3 ignored, 67 filtered out** on the `private_` filter.
+That is the number every later commit of this stage is measured against.
+
+### R1 — the rule, before the code
+
+`run_tests.rs` (new, `#[cfg(test)]`), four tests, no new library code and no
+new module in the tree. Every case is stated at the 125M boundary geometry
+(32 data rows of `2^14`, `rows = data + 2*sites + 2 = 38`, `prox = 36`,
+site rows `[32,33,34,35]`) with claims of exactly the shape
+`argument::build_claim` produces — the data slice over the whole padded plane
+plus a reserved pair with weights `(cm, cm*U)`.
+
+| case | verdict of `audit_claims` |
+|---|---|
+| two claims, DISJOINT pairs, proximity pair last (either order) | accepted |
+| both claims on pair 0 | refused: "a reserved pair is unused or shared between claims" |
+| a claim reaching the proximity pair | refused: "a claim reaches the proximity pair or leaves the commitment" |
+| a zero pair coefficient | refused: "zero terminal mask coefficient; discard attempt" |
+| a pair straddling the pair grid (rows 33,34) | refused: "a claim does not carry exactly its own reserved pair" |
+| only one of the two sites used | refused: "a reserved pair is unused or shared between claims" |
+
+**FINDING U-1 (it refines blocking item B4 / ruling M-1).** The check
+predicted that `audit_claims` ACCEPTS the leaking 37-row two-site geometry
+(`rows = data + 2*sites + 1`, a single proximity row) and that this is why
+the row count must be derived. Run against the real function, the two-site
+37-row schedule is in fact REFUSED — but for bookkeeping reasons and not
+because the geometry leaks: with `prox = 35` (forced by `prox + 2 == rows`)
+the second reserved pair at rows `(34,35)` overlaps the declared proximity
+position, so the claim "reaches the proximity pair"; with `prox = 36` the
+placement rule `prox + 2 == rows` fails. Neither refusal is the hiding
+requirement.
+
+**The sharper instance, and it is a real one.** Hand `audit_claims` the
+external endpoint's own ONE-site `data + 5` budget with the proximity
+position declared at `data + 3` — one row above where
+`check_opening_challenges` actually requires independence, at
+`(data + 2, data + 3)` — and it **accepts**. Declared at the true `data + 2`
+the same geometry is refused. So the audit's verdict tracks the caller's
+DECLARATION and not the truth of the geometry, which is exactly why ruling
+M-1's "derive `rows`, refuse anything else" has to live in the boundary
+module and cannot be delegated to the audit. The conclusion of B4 stands; its
+stated evidence does not, and the test records both.
+
+| command | log |
+|---|---|
+| `cargo test --release --offline -j 2 --lib private_block::run_tests -- --test-threads=1` (first write, expected to fail) | `u2-r1.log` — 3 passed, 1 FAILED (the wrong prediction above) |
+| the same, after the test was corrected to what the function does | `u3-r1.log` — **4 passed, 0 failed** |
+
+### Shared files touched outside `hashline/src/private_block*`
+
+None so far.
+
+### NEXT
+
+R2: `hashline/src/private_block/boundary.rs` — the hiding commitment to the
+padded boundary plane with TWO claim sites, `rows` DERIVED as
+`data + 2*sites + 2` and any other row count refused by name, its own domain
+label (length neither 28 nor 35) and its own digest, and an owner consumed by
+a wrapper around `open_zk` so that a second opening does not type-check.

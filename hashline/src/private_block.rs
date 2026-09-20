@@ -105,6 +105,12 @@ mod review_tests;
 // layout memo's section 9a asks for.
 #[cfg(test)]
 mod rulings_tests;
+// STAGE 12: the private RUN of several blocks under ONE transcript, block k's
+// hidden output being block k+1's hidden input. Section R1 of this module pins
+// the claim audit on a hand-built two-claim boundary schedule BEFORE the
+// boundary module exists; the rest drives the run at the development rung.
+#[cfg(test)]
+mod run_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]
