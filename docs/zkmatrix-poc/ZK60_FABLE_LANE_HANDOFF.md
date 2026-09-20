@@ -6,6 +6,66 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 14:16 (2026-09-20) — TWO THINGS FOR YOU: (1) a finding in your verifier — `pcs::verify_zk` never checks the length of a Merkle path; (2) the D19 hash tag needs a small additive change in five of your files — proposal, not yet code
+
+**(1) The finding. Please check your own wire formats.**
+`zkp-core/src/pcs.rs:1019` passes the opening's path to
+`MerkleTree::verify_path` (`merkle.rs:56-63`), which folds however many
+siblings it is handed; nothing compares `path.len()` with `log_cols` (the
+non-hiding verifier at `:489` lacks the check too; there a leaf is the bare
+column digest, so the confusion below needs a 64-byte column, that is, an
+8-row commitment). Because a salted leaf and an inner
+node are the same function on the same 64 bytes, **an inner node one level
+above the leaves verifies as the salted leaf of any column whose digest is its
+left child, with its right child as the "salt", under a path one entry
+shorter** — at the two indices congruent to its position. I ran it
+(`results/zk60_d19_hash_tag/short_path_demo.py`, a mirror of `verify_path`
+with SHA-256 standing in, the point being structural) [MEASURED 14:15]: index
+1 opens two ways, index 5 opens to the planted column, the planted left child
+becomes unopenable, and a length check refuses both short openings.
+- **The private block is not reachable this way**: `private_block/wire.rs:178`
+  reads the number of path entries from the layout, never from the receipt. I
+  read it myself.
+- **I have not looked at your other wire formats** (the FFN private-IO
+  receipts, the compact GPU openings, the public block receipt). Any one that
+  carries a length-prefixed path inherits the gap.
+- **Size of the problem** [ARGUED by me, unchecked]: my rough look at one
+  attack family does not beat the accepted per-opening figure — each planted
+  node kills a position, and I get at most about (2/3)^256 against the
+  accounted (3/4)^256 — but nobody has analysed it and it is a binding gap in
+  principle. **Suggested fix, yours to make: `path.len() == params.log_cols`
+  (or the tree depth) inside both verifiers. It rejects no honest proof and
+  moves no byte.** It also vanishes wherever leaves and nodes are keyed apart.
+
+**(2) The D19 tag: `ZK60_D19_HASH_TAG_DISPOSITION.md` (my rulings T-1..T-6),
+on `ZK60_D19_HASH_TAG_SCOPING.md` (the agent's inventory, with `file:line`).**
+- **What:** BLAKE3 keyed mode, four public keys per profile (transcript,
+  column digest, salted leaf, Merkle node), each
+  `derive_key(<context>, <profile string>)`. No extra compressions: the key
+  replaces the initial value. The legacy rule — no key — is today's literal
+  call and stays the default; the toy is never tagged.
+- **Where it touches you, all additive:** a new `zkp-core/src/hashtag.rs`;
+  `transcript.rs` (one `key: Option<[u8;32]>` field, `new_tagged`, and the
+  hasher constructed from the key in `absorb` and `squeeze_bytes` — the only
+  edits to existing bodies, and with `None` it is the same call);
+  `merkle.rs` (`hash_pair_keyed`, `build_keyed`, `verify_path_keyed`);
+  `zkp-core/src/pcs.rs` (`salt_leaf_keyed`, `hash_columns_keyed`,
+  `commit_zk_owned_with_tag`, `verify_zk_tagged`); `hashline/src/pcs.rs` (a
+  five-line adapter); `hashline/src/zk.rs` (`mask_commit_tagged`,
+  `mask_verify_tagged`). **Old functions keep their bodies untouched — no
+  forwarding through the new ones.** `gpu/*` untouched: a tagged commitment
+  declines the accelerator in one line of the new function; keying the CUDA
+  kernel is a later, separate change. `private_seam.rs` untouched.
+- **Who writes it:** your 00:26 conditions allow a needed shared-file change
+  as its own reviewable commit. **If you would rather write it, or want a
+  different shape of API, say so here.** Otherwise the lane writes it as
+  separate commits after its next stage (lane-only: the completed length
+  guard and a path-length check before every opening) and lists them at
+  hand-back. I will not start the shared part before that stage is done.
+- **What moves:** the proof bytes of the rung, the generalised rung, the 125M
+  block and the run, once. Receipt sizes do not (the wire carries no tag).
+  Toy: nothing.
+
 ### 14:06 (2026-09-20) — stage 15 landed on the 125M lane (`b26c869`, pushed): the run capture gained its plane index table; no proof byte moved
 
 - **What:** a new test-only module `private_block/plane_index.rs` and one new
