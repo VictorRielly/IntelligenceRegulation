@@ -1,0 +1,25 @@
+== the all-zero input through witness::build ==
+  ss=1 D=1 a1=0 a2=2 den=4096 y=0 rho=2048 sigma=2047
+  D limbs [1, 0, 0], a1 [0, 0, 0], a2 [2, 0, 0] -> all bytes: True
+  rho limbs [0, 8, 0, 0] sigma limbs [255, 7, 0, 0]; top-limb lookups 0, 0
+  quantize sites at acc = 0 (y, biased remainder, and its U8 lookups):
+    Q/K/V    sh= 7 y=0 biased_rem=   64 lookups [64, 128] -> ok
+    QR/KR    sh= 7 y=0 biased_rem=   64 lookups [64, 128] -> ok
+    score    sh= 6 y=0 biased_rem=   32 lookups [32, 128] -> ok
+    O        sh= 9 y=0 biased_rem=  256 lookups [0, 1, 128] -> ok
+    AO       sh= 7 y=0 biased_rem=   64 lookups [64, 128] -> ok
+    gate     sh= 7 y=0 biased_rem=   64 lookups [64, 128] -> ok
+    product  sh=14 y=0 biased_rem= 8192 lookups [0, 32, 128] -> ok
+    down     sh= 6 y=0 biased_rem=   32 lookups [32, 128] -> ok
+  softmax: max sigma_s = 16383 of the window 16384 (headroom 0); max scaled top limb 252 of 255
+  softmax: max p = 512 of the window 512; max 64*p_limb1 = 128 of 255
+  feed-forward: a16 = act[128] is arbitrary but multiplies u16 = 0, so h16 = z16 = 0
+
+RESULT: the all-zero input passes every range refusal of witness::build,
+        for EVERY public statement the two constructors admit.
+        The load-bearing public-statement facts are:
+          * NORM_CEPS = 1 (layout.rs:54): ss = 1 > 0, so D = 1 and den = 4096 > 0.
+            At NORM_CEPS = 0 the zero input is REFUSED ('norm denominator').
+          * exp[0] == 2^F_E, enforced by AttentionPublic::new (private_block.rs:138).
+            With exp[0] = 0 the zero input is REFUSED ('softmax denominator').
+          * MASK_SCORE = -127, so the masked delta 127 stays inside [0, 256).
