@@ -1,0 +1,28 @@
+=== 40083e7a block H: 384 rows, u rows [278, 279], sum claim index [51], its group [8] (size [1])
+    groups: 9; the sum claim's group has 1 member(s)
+    trial 0: admissible u indicators 2/2, generators used [16, 17], rank(xi) 2, rank(logup) 2, rank(xi+logup) 2, SPANS EQUAL True
+    trial 1: admissible u indicators 2/2, generators used [16, 17], rank(xi) 2, rank(logup) 2, rank(xi+logup) 2, SPANS EQUAL True
+    trial 2: admissible u indicators 2/2, generators used [16, 17], rank(xi) 2, rank(logup) 2, rank(xi+logup) 2, SPANS EQUAL True
+    sum-claim declared value (must be public 0): [0, 0]
+
+=== 6c5e83fd attention H: 290 rows, u rows [216, 217], sum claim index [35], its group [7] (size [1])
+    groups: 8; the sum claim's group has 1 member(s)
+    trial 0: admissible u indicators 2/2, generators used [14, 15], rank(xi) 2, rank(logup) 2, rank(xi+logup) 2, SPANS EQUAL True
+    trial 1: admissible u indicators 2/2, generators used [14, 15], rank(xi) 2, rank(logup) 2, rank(xi+logup) 2, SPANS EQUAL True
+    trial 2: admissible u indicators 2/2, generators used [14, 15], rank(xi) 2, rank(logup) 2, rank(xi+logup) 2, SPANS EQUAL True
+    sum-claim declared value (must be public 0): [0, 0]
+
+=== 7d334e06 block H: 384 rows, u rows [278, 279], sum claim index [51], its group [8] (size [1])
+    groups: 9; the sum claim's group has 1 member(s)
+    trial 0: admissible u indicators 2/2, generators used [16, 17], rank(xi) 2, rank(logup) 2, rank(xi+logup) 2, SPANS EQUAL True
+    trial 1: admissible u indicators 2/2, generators used [16, 17], rank(xi) 2, rank(logup) 2, rank(xi+logup) 2, SPANS EQUAL True
+    trial 2: admissible u indicators 2/2, generators used [16, 17], rank(xi) 2, rank(logup) 2, rank(xi+logup) 2, SPANS EQUAL True
+    sum-claim declared value (must be public 0): [0, 0]
+
+=== c26d1f05 attention H: 290 rows, u rows [216, 217], sum claim index [35], its group [7] (size [1])
+    groups: 8; the sum claim's group has 1 member(s)
+    trial 0: admissible u indicators 2/2, generators used [14, 15], rank(xi) 2, rank(logup) 2, rank(xi+logup) 2, SPANS EQUAL True
+    trial 1: admissible u indicators 2/2, generators used [14, 15], rank(xi) 2, rank(logup) 2, rank(xi+logup) 2, SPANS EQUAL True
+    trial 2: admissible u indicators 2/2, generators used [14, 15], rank(xi) 2, rank(logup) 2, rank(xi+logup) 2, SPANS EQUAL True
+    sum-claim declared value (must be public 0): [0, 0]
+

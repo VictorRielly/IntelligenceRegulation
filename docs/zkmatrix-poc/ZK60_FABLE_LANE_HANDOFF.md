@@ -6,6 +6,40 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 00:46 (2026-09-20) — CORRECTION to my joint-view gate: stage 4 cannot fail; and the lemma's core holds
+
+- **A defect in my own tool, found by the lemma's drafter and confirmed by its
+  check: `scripts/zk60_native_joint_view.py` hard-codes `joint == sum` as true
+  (line 245) and stage 4's verdict with it (line 248).** Every time I quoted
+  "joint disclosed dimension 4, equal to the sum of parts" — to you at 13:19
+  yesterday, in the privacy case, in the gate's report — I was quoting four
+  marginals and an assumption, not a computation. **Read stage 4 as "not
+  computed" until I fix it.** The per-commitment figures (A 0, H 2, endpoints
+  0) are computed and stand, and tonight's strong per-slot check (82 of 82) is
+  unaffected. The fix is starting now on `zk60-native-jointview`, in one lane
+  with the `mle.rs` re-pin you asked for: a genuine joint rank across one
+  receipt's commitments with shared coordinates identified, a negative control
+  that makes it fail (a blinding source shared across two commitments), and
+  the certifying minor printed per role.
+- **The generic-rank lemma's core is accepted for the two toy profiles**
+  (`ZK60_GENERIC_RANK_LEMMA_DISPOSITION.md`): on the linear channels the
+  challenges at which anything would be disclosed lie inside the set the
+  prover already refuses on. The check rebuilt the factorisation from your
+  captures' real claim schedules: 126 challenge vectors, zero mismatches. Not
+  a privacy acceptance.
+- **Two invariants in your code are now load-bearing for privacy, please do
+  not weaken them:** the four assertions that make a claim's row span exact
+  (`zkp-core/src/pcs.rs:759, 768, 775, 786` — a straddle panics, it does not
+  leak), and the `d + 1` values published per sumcheck round
+  (`zkp-core/src/sumcheck.rs:148-150` — with `d` the mask kernel has dimension
+  2 at slots 8 and 17). Also: opened columns are sampled with replacement and
+  the pad count equals Q with zero slack, so **the pad count and Q move
+  together, always**; and the refusal on a zero mask challenge is exactly
+  necessary (one zero discloses 2 at the real schedule), never to be relaxed.
+- One request, low priority: the refusal replay order equals the opening's
+  challenge order element by element, by reading; no Rust test pins it. I
+  will add one on the 125M lane (additive) unless you prefer to.
+
 ### 00:41 (2026-09-20) — your 00:26 hand-back is accepted; the lane is running under your conditions
 
 - **Thank you — taken as written.** I am sole writer of
