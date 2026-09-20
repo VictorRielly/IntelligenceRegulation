@@ -1,0 +1,117 @@
+========================================================================
+CHECK 1 — reproduce the counted 125M receipt from wire.rs' formula
+========================================================================
+  mask opening               243,712 B
+  A opening (36 groups)   21,626,880 B
+  H opening (9 groups)    17,385,472 B
+  2 endpoint openings      1,499,136 B   (grow_tests.rs says 1,499,136)
+  header + three roots           136 B
+  => the 23 slot proofs       27,456 B  (residual; not recomputed)
+  total                   40,782,792 B  MATCHES MODEL_M125
+
+========================================================================
+SEGMENTED RECEIPT, L = 12 (boundary commitment, one segment per stage)
+========================================================================
+  boundary commitment: 32 data rows + 2 pairs + prox pair = 38 rows
+  boundary opening (2 groups, 38 rows) = 1,017,856 B
+  one external endpoint opening (1 group, 37 rows) = 749,568 B
+  segment 1              40,033,256 B
+  segment 2..11 (each)   40,301,544 B
+  segment 12             41,051,080 B
+  largest segment        41,051,080 B  (39.1 MiB vs the 64 MiB frame bound: FITS)
+  run total, L = 12      484,099,776 B  (484.1 MB)
+  naive L x one-block   489,393,504 B  (489.4 MB)
+  saved by sharing the boundary: 5,293,728 B
+  option B (A_k<->A_k+1 seam, no boundary commitment):
+    A opening grows by       270,336 B per seam (one more group, two more rows)
+    run total            475,876,704 B  (475.9 MB), 8,223,072 B less than the boundary form
+
+========================================================================
+CHECK 2 — the D9 sampler residual, reproduced at the toy and at 125M
+========================================================================
+     toy: draws between 325,468 and 327,676  -> 2^18.31 .. 2^18.32
+          residual  2^-77.7 .. 2^-77.7   (published: 2^-77.7)
+    125M: draws between 9,177,436 and 9,182,726  -> 2^23.13 .. 2^23.13
+          residual  2^-72.9 .. 2^-72.9   (published: 2^-72.9)
+
+========================================================================
+THE RUN, L = 12: draws and residual
+========================================================================
+  per block, no endpoints           8,999,942
+  x 12 blocks                      107,999,304
+  11 boundary commitments           1,188,352   (108,032 each)
+  2 external endpoints                182,784
+  RUN TOTAL                       109,370,440  = 2^26.70
+  residual = draws * 2^-96     2^-69.3
+  (one 125M block alone:       2^-72.9)
+  1,000,000 such runs:          2^-49.4
+
+========================================================================
+MEMORY, from the measured run (m125-run2-timing.log, MiB)
+========================================================================
+  measured one-block peak (HWM)             10,837 MiB  (10.58 GiB)
+  A commitment, whole owner (drop delta)     3,550 MiB
+  H commitment, whole owner (drop delta)     4,450 MiB
+  RSS after all openings, before next block    727 MiB
+  one boundary commitment (38 rows)           29.8 MiB  [MODEL from the same allocation rule]
+  one external endpoint (36 rows)             28.6 MiB
+  IO commitments resident, interior stage     88.2 MiB  (B_k-1 + B_k + E_out)
+  IO commitments resident, stage 1            87.0 MiB  (E_in + B_1 + E_out)
+  PEAK, L = 12, boundary form               10,925 MiB  (10.67 GiB)
+  PEAK, L = 2 (stage 1 is also the first stage)   10,924 MiB  (10.67 GiB)
+  a_k held across a_k+1's commit (option B) +3,550 MiB at the seam,
+     giving 8,635 MiB there — below the 10,837 MiB peak,
+     so option B's peak is also about 10,837 MiB IF A_k is freed
+     before H_k+1 is committed ('seam early').
+
+========================================================================
+TIME, L = 12, from the measured run
+========================================================================
+  prove, one block                  26.54 s  [MEASURED]
+  witness build, one block           4.69 s  [MEASURED, outside the prover]
+  boundary commit (38 rows)         0.020 s  [MODEL, A's per-row rate]
+  boundary open                     0.010 s  [MODEL, endpoint rate]
+  RUN prove wall, L = 12             375.3 s  (6.26 min)
+  the 'about 5.3 min' figure         5.31 min   (12 x prove only; it omits the witness build)
+  RUN verify, L = 12                  12.3 s  [COUNTED from MEASURED]
+
+========================================================================
+THE DEVELOPMENT RUNG (rung-G), where the small multi-block gate would run
+========================================================================
+  endpoint: 4 data rows + 5 = 9 rows; one opening 167,936 B
+  boundary: 4 + 4 + 2 = 10 rows; one opening (2 groups) 190,464 B
+  a boundary commitment's blinding unknowns: 6144 Fp (3 mask-row pairs x 1024 columns)
+  at 125M the same object: 98304 Fp
+
+========================================================================
+VARIANT: the run's EXTERNAL endpoints given the same construction with
+one site (rows = data + 2*1 + 2 = 36), so that ONE module and ONE audit
+rule (audit_claims) cover all L+1 IO commitments of the run
+========================================================================
+  external endpoint at 36 rows: one opening 747,520 B  (2,048 B less than the 37-row endpoint_g form)
+  run total, L = 12, uniform construction: 484,095,680 B  (484.1 MB)
+  run draws 109,402,696 = 2^26.71  -> residual 2^-69.3  (unchanged to one decimal)
+  segment 1              40,031,208 B   <- THE RECOMMENDED VARIANT'S
+  segment 2..11 (each)   40,301,544 B      segment table
+  segment 12             41,049,032 B
+  largest                41,049,032 B  (39.1 MiB)
+
+========================================================================
+THE JOINT-VIEW GATE'S MATRIX, for one block and for a run
+========================================================================
+  toy block, measured joint stage: 102 generators x 903 rows  -> 9.39e+06 mults; whole 8-stage gate 23.5 s
+  one 125M block  :   104 generators x  12,923 rows  -> 1.40e+08 mults  (15x the toy joint)
+  L=3 at the rung :   308 generators x   3,785 rows  -> 3.59e+08 mults  (38x the toy joint)
+  L=12 at 125M    :  1226 generators x 154,702 rows  -> 2.33e+11 mults  (24,751x the toy joint)
+
+========================================================================
+NOTE on the option-B receipt estimate above
+========================================================================
+  It charges each seam one extra A opening group and two extra A rows.
+  It does NOT model the fact that option B also re-cuts the slot
+  schedule for interior blocks (block k loses its outgoing IO slot and
+  block k+1's incoming IO slot gains a second private table on another
+  commitment), which moves N_SLOTS, M_ROWS = 2*N_SLOTS+4, slot_terms,
+  the schedule digest and every counted constant for interior blocks.
+  Treat the option-B byte figure as an order-of-magnitude [MODEL]: the
+  sign (option B is smaller by about 1.7%) is safe, the digits are not.

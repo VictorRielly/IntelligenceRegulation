@@ -1,0 +1,1444 @@
+# A private RUN of L blocks under one transcript — the boundary object, the order, the memory, the receipt, and what privacy would still owe
+
+DRAFT for the security owner's review — NOT ACCEPTED, NOT a privacy acceptance. Delegated Opus draft, 2026-09-20. Paper only: nothing here has been built or run.
+
+## Plain words, for a reader who is not a cryptographer
+
+This morning one complete transformer block of a 125M-sized model proved and
+verified: 26.5 seconds, a 40.8 MB receipt, 10.6 GB of memory, on the laptop.
+A model has twelve such blocks, and each block's output is the next block's
+input. This memo works out how to prove all twelve as **one** proof, because
+proving them as twelve separate proofs and stapling them together is
+forbidden by the project's own rules (a finished proof has already "opened"
+its output, and opening the same thing twice is exactly the failure the rules
+exist to prevent).
+
+The question that decides everything is what the **handover** between two
+blocks looks like. Two designs are possible.
+
+* **A boundary commitment.** The handover values get their own sealed box.
+  Block 1 proves "my output is what is in the box", block 2 proves "my input
+  is what is in the box", and the box is unsealed exactly once, in the masked
+  way the rest of the proof uses. (That this masked unsealing reveals nothing
+  is what section 5 says is **owed**, not established — here and for one block
+  alike.)
+* **A direct comparison.** No box: block 2's proof reaches back into block 1's
+  own sealed material and compares the two planes there.
+
+**This memo recommends the boundary commitment**, and the reason is not
+memory or speed — those come out nearly the same — but that it leaves the
+block we already measured *completely unchanged*. Every counted constant of
+the measured block (how many rows it commits, how many slots it runs, how big
+its receipt is) stays exactly what it is; the only thing that changes is
+which box two of its twenty-three steps point at. The direct comparison moves
+those constants for the ten middle blocks and would need three variants of
+the block instead of one. It also confines the one genuinely new privacy
+question to a small object — a 38-row box — instead of spreading it over the
+5,681-row main commitment.
+
+The numbers that come out, all built from this morning's measurements:
+
+| | one block [MEASURED] | twelve blocks, this design |
+|---|---|---|
+| prove | 26.5 s (+4.7 s to build the witness) | **6.3 minutes** [MODEL from measured parts] |
+| verify | 1.03 s | **12.3 s**, streaming [COUNTED] |
+| peak memory | 10.58 GiB | **10.67 GiB** — one block plus 88 MiB [MODEL] |
+| receipt | 40.8 MB | **484 MB**, in twelve pieces of ≤ 39.1 MiB [COUNTED] |
+
+The memory answer is the important one: **twelve blocks cost the same memory
+as one**, because each block's big commitments are opened and thrown away
+before the next block's are built, and only the small handover box survives
+the crossing. The receipt has to be cut into pieces because one file of
+484 MB would break the format's own 64 MiB frame limit; the pieces are tied
+together by the running hash that the whole proof is built on, so a piece
+cannot be dropped, reordered, or taken from a different run.
+
+**What this memo does not do.** It establishes no privacy property, at any
+shape, for any number of blocks. It names, in section 5, exactly what a
+privacy argument for a run would have to prove *in addition* to what the
+one-block argument already assumes — and the honest headline there is that
+the one-block argument itself relies on a step ("the different sealed boxes
+use independent randomness") that has never been proved, only checked by
+reading the code. A run makes that step carry more weight, and it adds a new
+one: the handover box is claimed by two different blocks, so the two claims
+must be shown to reveal nothing *jointly*, not just one at a time. The
+project already has a counterexample showing those are different questions.
+
+## 0. What this memo is, what it supersedes, and how its numbers are labelled
+
+**What it is.** A paper design for a private RUN: `L` complete private blocks
+proved and verified as one transcript, at the 125M shape (`L = 12`). It
+answers seven questions the security owner posed — the boundary object, the
+transcript order and soundness, the memory schedule, the receipt, the new
+privacy obligations, the D12 amendment, and the build plan — against the real
+code on branch `zk60-private-block-125m` (worktree
+`/home/victor/wt-zk60-block125m`, read-only for this memo) and the measured
+numbers of the 2026-09-20 07:03 run.
+
+**What it supersedes.** `ZK60_PRIVATE_BLOCK_125M_LAYOUT.md` §8 ("Chaining
+twelve blocks") and the attack on it in
+`ZK60_PRIVATE_BLOCK_125M_LAYOUT_CHECK.md` §9. Both were written before the
+block existed, from a paper model of its memory. Three of their conclusions
+change:
+
+1. §8's table ranks a boundary commitment for an internal handover as option
+   (i), "forbidden", conflating it with a **caller-fixed endpoint root shared
+   by two proofs**. What D12 items 1 and 3 forbid is a *shared, caller-fixed*
+   root opened by *two proofs*. A **prover-generated** commitment inside
+   **one** transcript, opened **once**, with **one reserved pair per claim
+   site**, is not that configuration; it is the same object D12 item 3
+   already permits for `xres1`, `nm` and `z16`. §8's (i) and this memo's
+   option A are different things, and §8 does not consider the latter.
+2. §8's memory model for its preferred option (iii) said 9.6 GiB "with step
+   S2 applied", from a paper allocation model. The measured peak of the built
+   block is **10.58 GiB** [MEASURED], reached at the softmax zero-check with
+   `A` and `H` both resident, and the correct statement for either option is
+   that the run's peak is the **one-block peak plus a small constant** —
+   because the seam-early order (§8's own) keeps `A_k` alive only during
+   block `k+1`'s commit phase, which is 8.4 GiB, below the peak that comes
+   later anyway.
+3. §8 quotes "5–7 minutes modelled". `12 × 26.54 s = 5.31 min` omits the
+   witness build, which is **4.69 s per block** [MEASURED] and is not inside
+   the prover's phase table. The honest figure is **6.3 minutes**
+   [MODEL from measured parts], and the same omission should be corrected
+   wherever "about 5.3 minutes" appears.
+
+**Labels.** Every figure below is marked:
+
+* **[MEASURED]** — from `results/zk60_block125m_lane/m125-run2-timing.log`
+  (one run, shared box, 2026-09-20 08:47) or from the pinned constants of the
+  Rust. The source is named at the figure.
+* **[COUNTED]** — exact arithmetic from those measurements and from the code's
+  own formulas. Every counted figure in this memo is computed by
+  `results/zk60_private_run_multi_block/run_arithmetic.py`, whose output is
+  committed beside it as `run_arithmetic.txt`. That script **reproduces two
+  published numbers first as a check on its method**: the counted 125M
+  receipt (40,782,792 B, `grow_tests.rs` `MODEL_M125`) and the D9 sampler
+  residual at both shapes (2^-77.7 at the toy, 2^-72.9 at 125M). Both match.
+* **[MODEL]** — a projection. Stated with the rule it is projected under.
+
+**Standing rule for every step below:** *what does this assume that a later
+step concludes?* Where the answer is "something nobody has proved", it is
+written down as an obligation and not smoothed over. The memo's value is its
+named gaps.
+
+## 1. The boundary object
+
+### 1.1 What the code does today: two external endpoints, one claim each
+
+The built block has four hiding commitments — `A` (5,681 rows), `H` (7,120),
+the masking commitment `M` (50), and **two endpoint commitments** of 37 rows
+each — and opens each exactly once, in that order
+(`private_block/protocol.rs:1-8`, `:674-696`).
+
+An endpoint commitment (`private_block/endpoint_g.rs`) holds the padded
+`(t_pad, d_pad) = (512, 1024) = 2^19`-word plane laid out over
+`2^19 / 2^14 = 32` data rows, followed by **five** reserved random rows
+(`endpoint_g.rs:51`, `:196-207`): the terminal pair at `(data, data+1)`, the
+proximity row at `data+2`, and two further random rows. Its claim is raised
+by exactly one slot — `SC_IO_IN` (slot 21) for the input, `SC_IO_OUT` (slot
+22) for the output:
+
+```rust
+SC_IO_IN | SC_IO_OUT => {                          // argument.rs:1425-1432
+    let tau = tr.challenge_fp2_vec(sh.log(Dom::D));
+    b.eq(&tau, 0);
+    b.a(ids.at(if slot == SC_IO_IN { A_X } else { A_X2 }))?;
+    b.endpoint(if slot == SC_IO_IN { Cm::In } else { Cm::Out });
+    b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1].sub(v[2]))), vec![])
+}
+```
+
+That is a masked zero-check of `eq_tau(x) · (A_plane(x) − endpoint_plane(x))`
+over the whole padded `Dom::D` cube — the *whole* plane, which is what D17
+item 1 demands and what S11b's padding argument buys (a padded plane is a
+power of two, so no `mu`-batched multi-block claim is needed). The endpoint
+tab is built with `mask_row = sh.endpoint_rows − 5`, i.e. the terminal pair
+sits immediately above the data rows (`argument.rs:519-523`), and
+`build_claim` turns the slot's terminal into **one three-part claim**: the
+data slice, plus two mask parts at rows `(mask_row, mask_row+1)` with
+coefficients **exactly `(cm, cm·U)`** (`argument.rs:248-262`) — the weight
+shape the terminal-surjection review found load-bearing rather than
+cosmetic.
+
+The endpoint roots reach the transcript through the **statement**, not
+through a root absorb: `ExpectedIo::to_bytes` carries them and the header
+absorbs it under `b"expected-IO"` before anything else
+(`protocol.rs:91-101`, `private_block.rs:584-593`). That is D18 in code — the
+prover seals them at proof time and publishes the roots with the receipt.
+
+### 1.2 Option A — one boundary commitment, two claim sites, one opening
+
+**The object.** For each internal boundary `k` (between block `k` and block
+`k+1`, `k = 1..L−1`) the prover commits the padded output plane **once**, to
+a commitment `B_k` of its own, and two slots claim it:
+
+* block `k`'s slot 22 (`SC_IO_OUT`) proves `A_k`'s `A_X2` plane equals `B_k`'s
+  plane;
+* block `k+1`'s slot 21 (`SC_IO_IN`) proves `A_{k+1}`'s `A_X` plane equals
+  `B_k`'s plane.
+
+Transitively `A_k.A_X2 = A_{k+1}.A_X` word for word, which is the chaining
+statement. `B_k` is opened **once**, in stage `k+1`, with both claims in that
+one opening.
+
+**Geometry: rows, pairs, proximity.** One reserved pair **per claim site** is
+not negotiable — the known counterexample is two terminals sharing one pair,
+where both marginals stay uniform and the *joint* law moves with the witness
+(`ZK60_TERMINAL_SURJECTION_REVIEW.md` §3.6, reproduced at real scale: joint
+rank drops 4 → 2 and rises back to 4 when the data is added). So `B_k` needs
+**two** pairs. For the proximity rows the memo recommends the **`A`/`H`
+discipline rather than the seam's**: `rows = data + 2·sites + 2`, with the
+proximity **pair** as the last two rows. At 125M that is
+
+```
+rows 0..31    the padded plane (32 data rows of 2^14 columns)
+rows 32,33    reserved pair for the OUT claim  (block k's slot 22)
+rows 34,35    reserved pair for the IN  claim  (block k+1's slot 21)
+rows 36,37    the proximity pair
+              ------------------------------------------------
+              38 rows                                  [COUNTED]
+```
+
+The reason to prefer this over `endpoint_g`'s five-row budget (pair +
+proximity row + two spare, `rows = data + 5`) is not thrift — it is that
+`rows = data + 2·sites + 2` is **exactly the geometry `audit_claims` is
+written for** (`protocol.rs:208-252` refuses unless `prox + 2 == rows`), so
+the boundary commitment inherits the reviewed pair-exclusivity check verbatim
+instead of needing a bespoke one. `check_endpoint_opening`
+(`protocol.rs:333-347`), which hard-codes "exactly one claim of exactly three
+parts", cannot serve a two-site commitment and is not asked to: it stays for
+the existing one-block profiles, untouched.
+
+**Recommended corollary.** Give the run's **two external endpoints the same
+construction with `sites = 1`** (`rows = 32 + 2 + 2 = 36`). Then one module
+and one audit rule cover all `L+1` IO commitments of a run, the external and
+the internal ones differing only in a site count. It costs 2,048 B less per
+external endpoint than the 37-row `endpoint_g` form and changes the run
+residual by nothing to one decimal [COUNTED]. It is a **new profile** either
+way (D17), so no existing byte moves.
+
+**Are the two claims at different points?** Yes, and not merely because the
+two slots draw different `tau`: the claim's evaluation point is the slot's
+own masked-sumcheck challenge vector `rho` mapped through the tab's
+coordinates (`argument.rs:157-166`, `:393`), and the two slots live in two
+different blocks' slot loops with different transcript states. The PCS keys
+claims by `(point tail beyond the row width, column offset, slice length)`
+(`zkp-core/src/pcs.rs:744-791`); the boundary plane's slice is `2^19 ≥ 2^14`,
+so `c0 = 0`, `len = n`, and the key is the **last 14 coordinates of the
+19-coordinate point**. Two independent points collide there with probability
+about `(2/p²)^14 ≈ 2^-1792`. So the opening has **two groups**, and if the
+astronomically unlikely collision happened the encoder's declared group count
+(2) would not match the formed count (1) and `check_opening` would **refuse**
+(`protocol.rs:275-285`) — a completeness failure at 2^-1792, never an
+unsoundness.
+
+### 1.3 Option B — a direct equality between two `A` commitments, no boundary commitment
+
+The alternative, and the one `ZK60_PRIVATE_BLOCK_125M_LAYOUT.md` §8 chose as
+its option (iii): no boundary commitment at all. Block `k+1`'s incoming
+equality slot binds `A_{k+1}`'s `A_X` plane **directly** to `A_k`'s `A_X2`
+plane — one slot, two private tables, on two different commitments. Block `k`
+then has no outgoing IO slot at all (for interior `k`).
+
+This is structurally expressible today: a slot's private tables each push a
+claim onto their own commitment's list (`argument.rs:390-396`), `build_claim`
+already takes the row width from the commitment the plane lives in
+(`argument.rs:228-233`, finding S12-F2), and `A_k` has 122 claim sites
+already, so a 123rd is not a new kind of thing. What it costs:
+
+* **`A_k` must stay unopened until block `k+1`'s seam slot has run.** Its
+  claim list is not final before then. With §8's "seam early" order — commit
+  `A_{k+1}`, commit `M_{k+1}`, run the seam, open `A_k`, drop it, *then* draw
+  `(β,γ,α)_{k+1}` and commit `H_{k+1}` — the two `A`s are resident together
+  only during block `k+1`'s commit phase. Measured decomposition: the whole
+  `A` owner is **3,550 MiB** (the RSS drop at `drop(a)`, 8,727 → 5,177
+  [MEASURED]); the RSS at the end of block `k+1`'s `A` commit is **5,085 MiB**
+  [MEASURED]; so the seam moment is **8,635 MiB** [COUNTED], *below* the
+  10,837 MiB peak that arrives later at the softmax zero-check. **Option B
+  does not raise the peak** — provided `A_k` is freed before `H_{k+1}` is
+  committed. §8's 9.6 GiB and the check's re-derivation both under-modelled
+  the one-block peak; the right statement is "the peak is the one-block peak,
+  in both options".
+* **It moves the block's counted constants for interior blocks.** Interior
+  block `k` loses its outgoing IO slot and block `k+1`'s incoming IO slot
+  gains a second private table on a foreign commitment. That changes
+  `N_SLOTS` (23 → 22 for interior blocks), hence `M_ROWS = 2·N_SLOTS + 4`
+  (50 → 48), hence the mask schedule, the schedule digest, `slot_terms`,
+  `a_groups`, `a_rows`, and the receipt arithmetic — for interior blocks
+  only, so a run needs **three layout variants** (first, interior, last)
+  where option A needs one. Every frozen-count test of the measured block
+  would have to be extended to three shapes.
+* **It puts the cross-block joint-view question on the 5,681-row `A`.** In
+  option A the only object claimed from two blocks is a 38-row commitment
+  with two sites; in option B it is `A_k` itself, whose opening also carries
+  that block's own 122 sites and 36 groups. Whatever a cross-block
+  joint-law analysis has to compute, it is computed on a much bigger object.
+* **It interleaves the receipt.** `A_k`'s opening lands inside stage `k+1`,
+  so a "segment per block" is no longer a segment per block; the segment
+  boundary has to fall in the middle of a stage, and the streaming verifier
+  carries block `k`'s whole claim list across it rather than one claim.
+
+It buys, in exchange: **one fewer commitment per boundary** — about 8.2 MB
+off a 484 MB receipt, about 1.7% [MODEL: the estimate charges each seam one
+extra `A` group and two extra `A` rows, and does not model the slot re-cut,
+so the sign is safe and the digits are not] — and 11 × 30 ms of prover time
+[MODEL].
+
+### 1.4 The comparison, honestly, and the recommendation
+
+| | A: boundary commitment | B: direct `A_k` ↔ `A_{k+1}` |
+|---|---|---|
+| peak memory, `L = 12` | 10.67 GiB [MODEL from MEASURED] | ≈ 10.58 GiB [MODEL from MEASURED], and only with "seam early" |
+| receipt, `L = 12` | 484.1 MB [COUNTED] | ≈ 475.9 MB [MODEL] |
+| per-block layout | **unchanged from the measured block** — same 23 slots, 50 `M` rows, 5,681 `A` rows, 36 groups, 122 sites | three variants; `N_SLOTS`, `M_ROWS`, `a_groups`, `a_rows` all move for interior blocks |
+| new code | one module (`boundary.rs`, modelled on `endpoint_g.rs`, ~200 lines), plus run plumbing | a fifth `Cm` target and a fifth `ProverData` pointer, plus three layouts, plus run plumbing |
+| commitments per run | `3L + (L−1) + 2` = 49 | `3L` = 36 |
+| object claimed by two blocks | a 38-row commitment, 2 sites | the 5,681-row `A`, 123 sites |
+| receipt segmentation | one segment per stage, clean | segment boundary inside a stage |
+| what "one opening per commitment" needs | unchanged | unchanged |
+
+**Recommendation: option A.** The deciding arguments are not memory (a tie)
+and not bytes (option B wins by 1.7%), they are:
+
+1. **The measured block is re-used unchanged.** Every constant this project
+   has counted, frozen in tests and reproduced against a Python model stays
+   exactly what it is; the run is plumbing plus one new small module. Option
+   B re-cuts the block for ten of the twelve positions, which means
+   re-counting and re-freezing everything that `grow_tests.rs` pins, for a
+   1.7% byte saving.
+2. **It confines the new privacy question to a small object.** The one thing
+   a run adds to the one-block privacy argument is a commitment claimed from
+   two blocks. In option A that is 38 rows × 2^14 columns with two sites and
+   three mask-row pairs (98,304 `Fp` of blinding unknowns [COUNTED]); at the
+   development rung the same object is 10 rows and 6,144 `Fp`. In option B
+   the object claimed from two blocks is `A_k` itself. Both are within the
+   exact-rank tools' reach per commitment (§5.4 corrects the assumption that
+   they are not), but the *joint* system a cross-block argument must rank is
+   where the difference bites, and adding a 38-row, 6-generator block to it
+   is not the same as re-opening the 74-generator, 5,681-row one.
+3. **Segment-per-stage falls out.** The receipt has to be segmented (§4), and
+   option A's stages are self-contained.
+
+Option B should be kept on file as the design to revisit **if** receipt size
+becomes the binding constraint (the measurement that would justify it: a
+run-size budget under about 480 MB, or a shape where the boundary
+commitment's opening is a materially larger fraction than the 0.21% of a
+stage it is here) — this is the "simplest first, alternatives documented with
+what each is worth" rule, and the worth is 1.7%.
+
+### 1.5 What the single opening batches, and what a second claim does and does not consume
+
+`open_zk` (`zkp-core/src/pcs.rs:915-944`) does exactly this, for any
+commitment:
+
+1. `group_zclaims` buckets the claims by column-weight key, in first-occurrence
+   order (`:809-831`). The boundary's two claims give two buckets.
+2. `zk_rhos` (`:835-856`) draws `lambda` per group member, forms each group's
+   row-weight vector `rho_g = Σ_c lambda_c · rw_c`, then draws a **fresh
+   proximity `rho` over every row**.
+3. `fold_rows_multi_zk` (`:859-875`) folds, for each `rho`, the message rows
+   **and the pad block** with the same weights, producing vectors of length
+   `n + q = 16,384 + 256`.
+4. `assert_mask_sites` (`:881-896`) asserts every group's `rho` touches at
+   least one declared mask row and the proximity `rho` touches the declared
+   proximity row.
+5. The 256 opened column indices are drawn from the transcript **once**, after
+   all vectors are absorbed, and the same 256 columns serve every group.
+
+So the single opening of `B_k` publishes **two group vectors + one proximity
+vector + 256 columns** instead of one + one + 256. In bytes at 125M:
+`(2+1)·16,640·16 + 256·(8 + 38·8 + 32 + 16·32) = 1,017,856 B` [COUNTED],
+against `2 × 749,568 = 1,499,136 B` for the two separate 37-row endpoint
+commitments a naive per-block form would use.
+
+**Does the second claim consume anything the first did not?** Precisely:
+
+* **Pads: no.** The pad budget is a property of the *commitment*, not of the
+  claims: `q_pad = num_col_checks = 256` pads **per row**
+  (`pcs.rs:542-544`, `:670`), and the load-bearing condition the surjection
+  review identified is **`H-pad`: the pad block must have rank equal to the
+  number of distinct opened positions** (`ZK60_TERMINAL_SURJECTION_REVIEW.md`
+  §3.5 — "one opened position more than pads: disclosed 2 under brute force,
+  0 under the reduction"). The number of distinct opened positions is a
+  function of the 256 sampled columns, not of how many claims were folded, so
+  a second claim consumes **no pad**. Measured margin on the real captures:
+  246 distinct positions on `A`, 241–246 on the endpoints, against 256 pads.
+* **Reserved rows: yes, two.** One pair per claim site, and the pair must be
+  exclusive to that claim *and to its group*.
+* **Bytes: yes, one more group vector** — `16,640 × 16 = 266,240 B`.
+* **Challenges: yes** — one more `lambda` (and the refusal list grows by one
+  zero-`lambda` check; `check_opening_challenges`, `protocol.rs:260-271`,
+  takes the per-group member counts, so the boundary passes `[1, 1]`).
+* **Privacy analysis: yes, and this is the real cost.** With two groups on one
+  commitment the per-group decomposition is only valid if the pairs are
+  disjoint **across groups**, and the review found that condition **false on
+  `H`** and had to redo `H` as a joint rank over connected components
+  (`ts_components.py`; §1.3(a), A2). The boundary's two pairs are disjoint by
+  construction — but "by construction" is what `audit_claims` has to enforce,
+  and the joint rank over both groups is what the gate has to compute. See
+  §5.1.
+
+### 1.6 What `audit_claims` must check for a boundary commitment
+
+`audit_claims(claims, n, rows, site_rows, sum_rows, prox)`
+(`protocol.rs:208-252`) already encodes everything needed, and applies
+**verbatim** at `rows = data + 2·sites + 2`:
+
+| check | line | what it gives the boundary |
+|---|---|---|
+| `prox + 2 == rows` | `:210` | the proximity pair is the last two rows |
+| no claim's part reaches row `≥ prox` | `:220-222` | no claim touches the proximity pair |
+| a non-sum claim touches **exactly two adjacent** site rows, aligned to the pair grid | `:237-241` | each claim carries exactly one pair, and a whole one |
+| `uses[r] == 1` for every site row | `:248-250` | **no pair is shared between the two claims, and none is left unused** — the pair-exclusivity check the privacy statement calls "the whole defence against a shared pair" |
+| zero pair coefficient refused | `:224-227` | `cm ≠ 0`; with `build_claim`'s `(cm, cm·U)` this is the load-bearing weight shape |
+| `sum_rows = None` | `:230-243` | the boundary has no zero-sum claim; only `H` does |
+
+Two things must be added around it, both public and both checkable:
+
+* **A declared site schedule for the run.** Which pair each claim uses must be
+  fixed by the run schedule, not by the caller: the **OUT** claim (block `k`,
+  slot 22) takes pair 0 at rows `(data, data+1)`, the **IN** claim (block
+  `k+1`, slot 21) takes pair 1 at `(data+2, data+3)`. Today
+  `B::endpoint` hard-codes `mask_row = sh.endpoint_rows − 5`
+  (`argument.rs:521`); the run form must take the pair index from the tab's
+  **role** (incoming vs outgoing) and the commitment's **site count**, and the
+  schedule digest (`lay.schedule_digest()`, absorbed in the header at
+  `protocol.rs:99`) must cover it.
+* **The declared group count.** `check_opening` compares the formed group
+  count against the schedule's (`protocol.rs:275-285`); for a boundary that
+  is 2 (external endpoints 1). A mismatch is a refusal.
+
+Both sides run all of this: `check_opening` is called from the prover
+(`protocol.rs:680`, `:684`) **and** from the verifier (`:762`, `:769`), which
+is what makes it a check rather than an assumption.
+
+## 2. The transcript order and soundness
+
+### 2.1 The run statement and the run header
+
+A run is **one transcript end to end** (the D8/D11 restatement's §2.5, carried
+into `ZK60_PRIVATE_BLOCK_FORM_E_DISPOSITION.md` §3.1). It is also a **new
+profile** under D17 — a new profile id, a new parameter line, its own
+digests — so no existing byte moves.
+
+The header is built the way `protocol::transcript` builds a block's
+(`protocol.rs:91-101`), with the run's quantities in place of the block's,
+and **absorbed before any commitment exists**:
+
+```
+Transcript::new(run_profile)                       # "…/private-run-m125-L12/1"
+  absorb "run-shape"        L, tokens, width, hidden, q_heads, kv_heads, head_dim
+  absorb "expected-IO"      E_in root, E_out root, the IO spec (D18: the prover's own seals)
+  absorb "public-statement" H(block 1's digest ‖ … ‖ block L's digest)
+  absorb "parameters"       the run parameter line (below)
+  absorb "calibration"      calibration_identity()
+  absorb "schedule"         the run schedule digest (below)
+```
+
+* **`"expected-IO"` carries only the run's two external roots.** The `L−1`
+  boundary roots are *not* in the statement — they are prover commitments
+  absorbed inside the run (§2.2). This is the whole point of the D12
+  amendment in §6: an internal boundary is a hidden intermediate, not an
+  endpoint.
+* **The parameter line** is the block's (`protocol.rs:106-126`) plus
+  `L{L}/boundary-log_n{…}-rate{…}-pad{…}-rows38-sites2/one-run-one-transcript`.
+  The security owner's S11b-F4 ruling — that a verifier's geometry inputs must
+  appear in a form a human can read, not only inside a digest — applies to the
+  boundary geometry exactly as it did to the endpoint's.
+* **The schedule digest** must cover the run schedule, not only a block's:
+  for each stage, which commitments are absorbed, which claim site (pair
+  index) each IO tab uses, and which commitments are opened. A verifier that
+  reads the schedule from the receipt rather than from its own statement
+  would be reading the prover's choice of geometry; it never does — the
+  verifier builds the layout from its caller's shape (`protocol.rs:721-724`)
+  and this must hold for the run layout too.
+* **Per-stage re-absorb.** At the start of stage `k` the transcript also
+  absorbs `k` and block `k`'s own public digest. It is redundant with the
+  header's list and it costs two hashes; it buys an explicit, local binding
+  of "these slots are block `k`'s weights", and it is what makes the segment
+  header of §4.3 checkable at a glance.
+
+### 2.2 The per-stage order, commitment by commitment
+
+Write `B_k` for the boundary between blocks `k` and `k+1` (`k = 1..L−1`),
+`B_0 := E_in`, `B_L := E_out`. **Stage `k`** is:
+
+| # | step | why it is here |
+|---|---|---|
+| 1 | absorb `k`, block `k`'s public digest | locality (§2.1) |
+| 2 | **commit `B_k`** (for `k < L`), absorb its root with its rows and row width | `B_k` must be fixed **before any challenge of either adjacent equality slot**. Block `k`'s slot 22 challenges are drawn later in this stage; block `k+1`'s slot 21 challenges are drawn later still. Absorbing earlier is always safe; this is the earliest natural point. |
+| 3 | commit `A_k`, absorb root + rows + log-cols | unchanged from `protocol.rs:547-555` |
+| 4 | commit `M_k`, absorb root | unchanged; before every slot challenge it masks |
+| 5 | draw `(β, γ, α)_k` | **after** `A_k` (which carries the three multiplicity planes) and `M_k`; LogUp soundness requires exactly this |
+| 6 | build `H_k`'s helpers, commit `H_k`, absorb root + rows + log-cols | unchanged |
+| 7 | run the 23 slots | slot 21 claims `B_{k−1}`, slot 22 claims `B_k`; both commitments already absorbed |
+| 8 | open `M_k`; open `A_k`; open `H_k`; **open `B_{k−1}`** | `B_{k−1}`'s claim list is complete: block `k−1`'s slot 22 gave it one claim, block `k`'s slot 21 the other |
+| 9 | drop `M_k`, `A_k`, `H_k`, `B_{k−1}` | nothing later claims them |
+
+and stage `L` additionally opens `B_L = E_out` (its only claim came from
+block `L`'s slot 22 in the same stage). Stage 1 opens `B_0 = E_in` in step 8
+with one claim.
+
+**The two external commitments are made before the header**, not in a stage:
+D18 puts their roots in the statement and the header absorbs the statement
+(§2.1). So `E_in` exists from before stage 1 and is opened at the end of
+stage 1; `E_out` exists from before stage 1 and is opened at the end of stage
+`L`, which is why it is resident for the whole run (§3). The `L−1` internal
+boundaries are the only IO commitments created inside the run, and that
+difference is exactly what §6's amendment turns into a rule.
+
+The order **inside** a stage is the built block's order unchanged
+(`protocol.rs:1-8`: A → M → (β,γ,α) → H → slots → M open → A open → H open →
+IO opens), with two insertions: the boundary commit at the top and the
+incoming boundary's opening at the bottom. That is deliberate: the whole
+value of option A is that a stage is the measured block plus two lines.
+
+### 2.3 Can block k be freed before block k+1 is committed?
+
+**Yes — everything except the outgoing boundary commitment.** The reason is a
+claim-list fact, not an optimisation: a commitment may be opened once its
+claim list is final, and
+
+* `A_k`'s claims come only from block `k`'s own 23 slots (`argument.rs:390-396`
+  pushes each private tab's claim onto that tab's own commitment). No slot of
+  block `k+1` names `A_k` — in option A, block `k+1`'s slot 21 names `B_k`.
+* `H_k`'s claims likewise, plus its own LogUp sum claim (`protocol.rs:288-292`).
+* `M_k`'s functionals are block `k`'s 34 (`protocol.rs:675`).
+
+So at the end of stage `k` the only object that must survive is `B_k`, which
+the next stage's slot 21 claims and whose opening is the next stage's step 8.
+Two boundary commitments are resident during a stage (`B_{k−1}`, awaiting its
+opening, and `B_k`, just committed), alongside `E_out`, which is committed
+before the header and lives for the whole run: **88.2 MiB** of IO commitments
+at 125M [MODEL, §3].
+
+Under option B the answer is *no* for `A_k`, which is the whole difference in
+§1.3.
+
+**A soundness note on freeing early.** Opening `A_k` before `A_{k+1}` is
+committed means `A_{k+1}` is chosen by the prover *after* seeing block `k`'s
+opened vectors and columns. That is harmless: the adaptivity a Fiat–Shamir
+argument must exclude is a commitment chosen **after** the challenges that
+test *it*, and every challenge of block `k+1` is drawn after `A_{k+1}`'s root
+is absorbed. It is not harmless for **privacy**, where it is a new surface:
+block `k`'s opened vectors are public before block `k+1`'s masks are used
+(the layout check's omitted condition O-3). §5.1 carries it as an obligation.
+
+### 2.4 One masking commitment per block, or one for the run?
+
+**One per block.** The constraints the security owner named both survive
+either way — `L_s + 256 ≤ 512` is per **row** (`zk.rs:442`: a mask a-row
+carries `L_s` coefficients plus `MASK_Q = 256` pads inside `2^MASK_LOG_MSG =
+512` message positions), and `n_base = 2·slots + 4` would be `2·276 + 4 =
+556` rows of a 4,096-column domain for a whole run, which is 18 MB and fits.
+So this is not a feasibility question; it is a "what does it change" question,
+and the answers all point one way:
+
+* **Per block, every counted constant of the measured block is preserved**:
+  `M_ROWS = 50`, the 34 functionals, the mask schedule, `mask_open`'s
+  243,712 B, `zk::mask_verify`'s five checks. A run-wide `M` changes all of
+  them and re-opens the CFS analysis at a new geometry.
+* **A run-wide `M` would be opened once with functionals from all `L` blocks**,
+  which is a **cross-block channel on a single commitment** — precisely the
+  kind of object the joint-law argument has never been run on. The CFS stage
+  of the gate computes `disclosed_s` per slot over the mask coefficients; a
+  shared `M` makes the slots of different blocks share a commitment's
+  blinding, and the per-block decomposition would have to be re-argued.
+* **It would force all `L` blocks' CFS masks to be drawn at the run's start**
+  and held to the end — small in bytes, but it means the mask material of
+  block 12 exists while block 1 is being opened, for no gain.
+* The saving is `11 × (32 + 243,712) = 2.7 MB` of a 484 MB receipt, 0.55%
+  [COUNTED].
+
+**Recommendation: one `M` per block, and record the reason as a privacy
+reason and not a byte reason.**
+
+### 2.5 One LogUp challenge triple per block
+
+**Forced, not chosen.** `(β, γ, α)_k` must be drawn after `A_k` (which
+carries the three multiplicity planes `A_MU8`, `A_MEXP`, `A_MACT`,
+`protocol.rs:520-524`) and before `H_k` (whose helper columns are
+`1/(α − …)`, `protocol.rs:576-590`). A single triple for the whole run would
+have to follow `A_L`, which is committed in stage 12 — after `H_1` has
+already been built and opened. So the run draws **`L` triples, one per
+stage**, each in step 5. The three domain tags `TAG_U8/TAG_EXP/TAG_ACT`
+(`tables_attn.rs`) keep the three tables separated inside a block; nothing
+new is needed to separate blocks, because each block's helpers are checked
+against that block's own `α`.
+
+### 2.6 The three public tables
+
+The byte table, the exponential table and the activation table are **public
+and are not committed at all** — both sides evaluate them from the public
+statement (`argument::table_values_u8/exp/act`, called at
+`protocol.rs:614-618`). They reach the transcript only through the
+`"public-statement"` digest. So:
+
+* **Absorbed once per run**, inside the header's digest over the `L` block
+  public statements (and again per stage in the redundant re-absorb of §2.1).
+* **Nothing is committed or re-committed per block.** What *is* per block is
+  the three **table helper columns** on `H_k` (`protocol.rs:613-623`), because
+  they are `multiplicity / (α_k − table value)` and depend on that block's
+  `α_k` and `β_k`. That is unavoidable and is already counted in `H`'s rows.
+* If all `L` blocks share one activation table and one exponential table — as
+  a real checkpoint does — the run header's digest is over `L` public
+  statements that repeat those tables. Deduplicating them is a **statement
+  encoding** question with no effect on the proof; do not deduplicate before
+  the first run works, and if it is ever done, the digest must still cover
+  each block's table **by reference**, so that no block can silently use a
+  different table.
+
+### 2.7 Every challenge, and what it must follow
+
+The obligation is that **every challenge is drawn after everything it must
+bind**. Stage `k`'s challenges, in transcript order, with what each must
+follow:
+
+| challenge | drawn at | must follow | does it? |
+|---|---|---|---|
+| `(β, γ, α)_k` | step 5 | `A_k` (multiplicities), `M_k` | yes, steps 3–4 |
+| slot `s`'s CFS multiplier `c` (`argument.rs:310`) | step 7 | `M_k` (the mask it multiplies), `A_k`, `H_k` | yes |
+| slot `s`'s `tau` / definition challenges (`argument.rs:1426`) | step 7 | the commitments the slot reads: `A_k`, `H_k`, **and `B_{k−1}` / `B_k` for slots 21/22** | yes — `B_{k−1}` was absorbed in stage `k−1` step 2, `B_k` in this stage's step 2 |
+| slot `s`'s sumcheck round challenges `rho` | step 7 | the same | yes |
+| the extension challenges `e` | step 7 | the same | yes |
+| `M_k`'s opening challenges (`theta`, proximity rhos) | step 8 | all 34 functionals, i.e. all 23 slots | yes |
+| each opening's group `lambda`s and proximity `rho` (`pcs.rs:835-856`) | step 8 | that commitment's root and all its claims | yes |
+| each opening's 256 column indices (`pcs.rs:928`) | step 8 | that opening's group and proximity vectors | yes, inside `open_zk` |
+| **`B_{k−1}`'s `lambda`s and column indices** | step 8 of stage `k` | `B_{k−1}`'s root (stage `k−1`) **and both its claims** — block `k−1`'s slot 22 and block `k`'s slot 21 | **yes, and this is the new one**: it is why `B_{k−1}` is opened in stage `k` and not in stage `k−1` |
+
+Two properties worth stating because they are the ones a reviewer should
+attack:
+
+1. **The boundary commitment is fixed before either block that claims it is
+   proved.** `B_k` is absorbed in stage `k` step 2, before block `k`'s slots
+   and long before block `k+1`'s. The prover therefore cannot adapt the
+   boundary plane to any challenge of either equality check.
+2. **No commitment is opened before its claim list is final, and none is
+   claimed after it is opened.** `B_{k−1}` is the only commitment whose claim
+   list spans two stages, and its opening is placed after the later of the
+   two. A mechanical check should assert this at run-definition time (a
+   refusal naming the commitment), not leave it to review.
+
+## 3. The memory schedule on a 15 GB host
+
+All of the following comes from the RSS and HWM columns of
+`results/zk60_block125m_lane/m125-run2-timing.log` (one run, shared box,
+under a 12 GiB ceiling, CPU only).
+
+**What the measured block does, phase by phase** [MEASURED, MiB]:
+
+| phase | RSS | HWM | what is resident |
+|---|---|---|---|
+| setup | 687 | 708 | witness planes (711 MB) |
+| `A`: allocate + planes → rows | 1,397 | 1,397 | + `a_data` (745 MB) |
+| `A`: lookup values + histogram | 2,128 | 2,128 | + `looked` (789 MB) |
+| `A`: mask + proximity rows | 2,168 | 2,168 | + deltas, act indices |
+| **`A`: commit** | **5,085** | 5,085 | + `A` encoded (2.98 GB) + tree |
+| `M`: commit | 5,085 | 5,085 | + 18 MB |
+| `H`: helper inverses | 6,031 | 7,054 | + `H` data, transient inverse buffers |
+| `H`: the S2 drops | 5,039 | 7,054 | − witness, `looked`, deltas, indices |
+| **`H`: commit** | **8,615** | 8,615 | + `H` encoded (3.73 GB) |
+| slot 17, **softmax zero-check** | 8,727 | **10,837** | `A` + `H` + the 8.4 M-entry slot tables ← **the peak** |
+| open `A`, drop | 5,177 | 10,837 | `A` owner freed: **3,550 MiB** |
+| open `H`, drop | **727** | 10,837 | `H` owner freed: **4,450 MiB** |
+
+Two numbers matter for a run: the **peak, 10,837 MiB (10.58 GiB)**, and the
+**resident set between blocks, 727 MiB** — after the openings essentially
+nothing of a block survives.
+
+**What an IO commitment costs.** Same allocation rule as any hiding
+commitment (`pcs.rs:665-699`: `data`, `encoded`, `pads`, `salts`, `tree`),
+at `n = 2^14` and rate 1/4 [MODEL, from the measured rule]:
+
+```
+                     38 rows (a boundary)     36 rows (an external endpoint)
+data      rows × 16,384 × 8    4,980,736 B                      4,718,592 B
+encoded   rows × 65,536 × 8   19,922,944                        18,874,368
+pads      rows ×    256 × 8       77,824                            73,728
+salts     65,536 × 32          2,097,152                         2,097,152
+tree      ~2 × 65,536 × 32     4,194,304                         4,194,304
+                             ------------                      ------------
+                               29.8 MiB                           28.6 MiB
+```
+
+**The run's peak.** Under §2.2's order, stage `k` holds exactly what the
+measured block holds, plus **three** IO commitments: `B_{k−1}` (awaiting its
+opening), `B_k` (just committed), and `E_out` — which is committed **before
+the header**, because D18 puts its root in the statement, and therefore
+lives from the run's first byte to its last opening. (`E_in` is in the same
+position but is opened at the end of stage 1.)
+
+```
+IO resident, interior stage = 29.8 + 29.8 + 28.6 = 88.2 MiB
+IO resident, stage 1        = 28.6 + 29.8 + 28.6 = 87.0 MiB
+
+PEAK(L = 12) = 10,837 MiB + 88.2 MiB = 10,925 MiB = 10.67 GiB   [MODEL from MEASURED]
+```
+
+**It does not grow with `L`.** The carry across a stage boundary is one
+boundary commitment (29.8 MiB) plus `E_out` (28.6 MiB, constant for the whole
+run), the transcript state (32 bytes + an 8-byte counter,
+`transcript.rs:17-22`), one pending `ZClaim` (three parts and a
+19-coordinate point, about 1 KB), and the run statement. Nothing else.
+
+(`E_out` could in principle be committed late and its root back-filled into
+the statement — it must not be. The root is absorbed in the header, so
+committing it late would mean re-deriving the same commitment from stored
+randomness, which is exactly the consume-by-value, fresh-entropy discipline
+the endpoint types exist to prevent. 28.6 MiB is not worth that.)
+
+**What would break it** — the failure modes to watch, each with the sign it
+would show:
+
+1. **Two blocks' `A` or `H` resident at once.** Option B does this
+   deliberately and gets away with it only because the overlap (8,635 MiB
+   [COUNTED]) is below the peak; an implementation that opened `A_k` *after*
+   committing `H_{k+1}` instead of before would sit at
+   `3,550 + 8,615 = 12,165` MiB plus slot tables — **over the 12 GiB ceiling
+   the measured run used and within a gigabyte of the box**. This is the one
+   ordering mistake that turns a working run into a dead box (and on the WSL
+   laptop an out-of-memory event is a whole-box freeze, not a process kill).
+   Option A cannot make this mistake, because nothing of block `k` is alive
+   to be held.
+2. **Deferring boundary openings.** If `B_k` were opened at the *end of the
+   run* instead of in stage `k+1`, all `L−1` boundary commitments would be
+   resident: `11 × 29.8 = 328 MiB`. Survivable, but it buys nothing and it
+   breaks segment-per-stage.
+3. **Holding the witness across stages.** The witness build peaks at 708 MiB
+   [MEASURED] and the S2 drops release 1.5 GB mid-stage
+   (`protocol.rs:591-612`). A run driver that built all `L` witnesses up
+   front would add `12 × 711 MB = 8.5 GB` and not fit. Build block `k`'s
+   witness at the top of stage `k`, from the plane the prover already holds.
+4. **The prover's own forward pass.** The honest prover must know all `L`
+   boundary planes to commit them. Each padded plane is
+   `512 × 1024 × 2 B = 1 MB` as `i16` (`12 MB` for the run) — negligible, but
+   it must be held for the whole run, and it is the most sensitive material
+   in the process. It belongs behind the same no-`Clone`, no-getter,
+   consumed-by-value discipline as `PreparedPlaneG` (`endpoint_g.rs:144-162`).
+
+**Operating conditions** are the measured run's, unchanged: detached, the
+heavy lock held, a memory ceiling on the process that kills the process and
+not the box, nothing else building.
+
+## 4. The segmented receipt
+
+### 4.1 Why segmentation is forced, and where the segment boundary goes
+
+`wire.rs` bounds a frame two ways: `MAX_WIRE_BYTES = 4 MiB` for the frozen
+toy, and `MAX_WIRE_BYTES_ANY = 64 MiB` as the ceiling **any** profile's frame
+must fit, with each profile additionally bounded by its own counted receipt
+length (`wire.rs:20-45`). A 484 MB run receipt cannot be one frame, and
+raising the ceiling would be the wrong repair: the bound exists so that
+nothing read from a frame controls an allocation, and a verifier that has to
+hold half a gigabyte before it can check anything is a verifier nobody can
+run in a constrained place.
+
+**The segment is the stage.** Segment `k` carries exactly the bytes the
+transcript gains during stage `k`:
+
+```
+segment k = header
+          | B_k root (k < L)
+          | A_k root | M_k root | H_k root
+          | 23 slot proofs (scalar, sumcheck rounds, terminals)
+          | M_k opening | A_k opening | H_k opening | B_{k-1} opening
+          | (stage 1 only: E_in opening)   (stage L only: E_out opening)
+          | trailer
+```
+
+This is the existing per-block frame (`wire.rs:87-94`, `:123-151`,
+`:196-229`) with the endpoint openings replaced by boundary openings and a
+header/trailer added. Everything the decoder needs to size a field still
+comes from the **layout**, never from the frame — the run layout is a
+function of the run shape and `L`, both of which the verifier has from its
+own statement.
+
+### 4.2 Sizes
+
+[COUNTED, `run_arithmetic.py`; the script first reproduces the block's
+counted 40,782,792 B from `wire.rs`'s own formula]
+
+| | bytes | note |
+|---|---|---|
+| boundary opening (2 groups, 38 rows) | 1,017,856 | vs 1,499,136 for two 37-row endpoint commitments |
+| external endpoint opening (1 group, 36 rows) | 747,520 | the uniform construction of §1.2 (2,048 B less than `endpoint_g`'s 37-row form) |
+| segment 1 | 40,031,208 | opens `E_in` |
+| segments 2 … 11 (each) | 40,301,544 | opens `B_{k−1}` |
+| segment 12 | 41,049,032 | opens `B_11` and `E_out` |
+| **largest segment** | **41,049,032 (39.1 MiB)** | **fits the existing 64 MiB frame bound** |
+| **run total, `L = 12`** | **484,095,680 (484.1 MB)** | vs `12 × 40,782,792 = 489.4 MB` as separate receipts |
+
+(Keeping the external endpoints on today's 37-row `endpoint_g` instead adds
+4,096 B to the run: 484,099,776 B. The choice is R-D2, not a byte question.)
+
+The boundary openings are **0.21% of a stage**. The dominant terms are
+unchanged: `A`'s opening 21,626,880 B and `H`'s 17,385,472 B, i.e. 96% of
+every segment is the two big commitments' 256 opened columns and their group
+vectors.
+
+**Verifier time and memory** [COUNTED from MEASURED]: `12 × 1.027 s = 12.3 s`
+of verification, plus `12 × 0.015 s` of decoding. The measured verifier's RSS
+while verifying a decoded 40.8 MB receipt is **727 MiB** [MEASURED], and a
+streaming run verifier holds one segment at a time, so it stays at about
+that — **not** 484 MB. It additionally needs block `k`'s public weights
+during stage `k` (about 7 MB of `int8` at this shape, from its own copy of
+the statement, streamable).
+
+### 4.3 What binds the segments together
+
+**The transcript does, implicitly**: every challenge in segment `k+1` is
+squeezed from a BLAKE3 chain value over *all* bytes absorbed in segments
+`1..k` (`transcript.rs:44-52`, `:85-94`). Drop, reorder, or splice a segment
+and every later sumcheck and every later opening check fails. That is the
+real binding, and it is why a run is one transcript.
+
+**But a verifier should refuse by name, not by symptom.** Four explicit
+checks, all cheap:
+
+1. **Segment header** = magic `HLPRUNS1`, the run profile id's digest, `L`,
+   the segment index `k`, and the **32-byte transcript state plus the 8-byte
+   squeeze counter the verifier must already be at**. The verifier compares
+   against its own running `tr.state()` / counter (`transcript.rs:133-142`)
+   and refuses on mismatch, before parsing a single field element. A segment
+   from another run fails here at its first 40 bytes, because the two runs'
+   headers differ in at least `E_in`/`E_out` (fresh commitments, fresh
+   salts).
+2. **Index discipline**: the verifier accepts segments in order `1..L` and
+   refuses a repeat, a gap or an out-of-range index. `L` is the verifier's
+   own, from the statement, never the frame's.
+3. **Segment trailer** = the transcript state and counter at the end of the
+   stage, compared with the verifier's own after it has absorbed everything.
+   This localises a corruption to one segment instead of surfacing it as an
+   inscrutable failure three segments later.
+4. **Run closing check**: after segment `L`, the verifier checks that it
+   consumed exactly `L` segments, that the final transcript state equals the
+   final trailer, that **every commitment it absorbed was opened exactly
+   once** and **every claim it accumulated was discharged by an opening** —
+   the run-level statement of "one opening per commitment", which at block
+   scope is today an invariant of the code rather than something a verifier
+   checks (the D8/D11 restatement notes exactly this: "a verifier cannot
+   check that from the bytes"). At run scale it becomes checkable and
+   should be checked: the verifier maintains a small table of absorbed roots
+   and pending claims and requires it to be empty at the end.
+
+Check 4 is the only genuinely new verifier obligation, and it is the one that
+makes "the run is one transcript" a property the verifier enforces rather
+than a property the prover promises.
+
+### 4.4 What the verifier keeps between segments, and what it must check at the end
+
+Between segment `k` and segment `k+1` the verifier keeps:
+
+| object | size |
+|---|---|
+| transcript state + squeeze counter | 40 B |
+| `B_k`'s root, rows, row width, site schedule | ~64 B |
+| block `k`'s slot-22 claim on `B_k` (3 parts, a 19-coordinate point) | ~1 KB |
+| the run statement (its own copy: `L`, shape, `E_in`, `E_out`, the `L` public digests) | `L × 32 B` + the shape |
+| the open-commitment table of check 4 (at most 2 entries) | ~128 B |
+
+Under 2 KB plus the statement. The block's public **weights** are needed only
+during their own stage.
+
+At the end it checks: all `L` segments seen in order; final state matches;
+the open-commitment table empty; `E_in` and `E_out` are the roots its own
+statement names (they are absorbed in the header, so a mismatch is caught at
+segment 1's state check, but the explicit comparison is worth its two lines);
+and the run profile id is the one it expected. Only then does it accept —
+and what it accepts is what §6's amendment says a run proves, no more.
+
+## 5. Privacy: what is new relative to one block, stated as obligations
+
+**Nothing in this section claims a privacy property.** Nothing about privacy
+is established at the 125M shape for even one block; the checked argument
+exists for **one toy block** and is itself a draft awaiting three rulings
+(`ZK60_PRIVACY_STATEMENT_TOY_PROFILE_DRAFT.md`, status line: "not in force").
+What follows is the list of things a run would owe *in addition*, written so
+that each can be assigned.
+
+### 5.1 (a) The boundary plane: one hidden intermediate, two relations, two claim sites
+
+The one-block argument has five steps: the all-zero witness is admissible;
+per commitment the linear view discloses nothing; the gate constructs
+blinding reproducing each captured view; **at fixed challenges the joint law
+of all published field values is input-free**; the hash layer adds nothing
+and the fixed-challenge theorem lifts. A run changes the fourth step and
+stresses one of its hypotheses. Four obligations, in the order they bite.
+
+**O-R1. The boundary commitment's two groups must be ranked JOINTLY, and its
+two pairs must be disjoint across groups as well as across claims.** The
+terminal-surjection review's §1.3(a) is explicit that the per-group
+decomposition "needs the reserved pairs to be disjoint *across groups*, not
+only across claims — true on `A`, `Input`, `Output`; **false on `H`**", where
+two groups share the zero-sum rows and the answer had to be recovered by a
+joint rank over connected components (`ts_components.py`). The boundary's two
+pairs are disjoint by construction and `audit_claims` enforces it (§1.6), so
+the per-group decomposition is *expected* to be valid — but "expected" is the
+word that has already cost this project one correction, and the gate must
+compute the boundary's rank **jointly over both groups** and report it, not
+sum two marginals. The object is small: at 125M, `2(2+1) = 6` generators over
+38 rows; at the rung, 6 over 10 rows.
+
+Two facts make this the cheapest new check in the project, and both should be
+said out loud because they are unusually favourable:
+
+* each of the boundary's groups is a **singleton** (one claim per group), and
+  the joint-view gate's shared-blinding negative control "fires only at tight
+  (singleton-group) positions" (`ZK60_NATIVE_JOINT_VIEW.md` §12.5, quoted in
+  `ZK60_JOINT_LAW_COMPOSITION_CHECK.md:870`) — so the control that is blind
+  elsewhere is exactly sharp here;
+* the counterexample the whole rule exists for (two claims, one pair) is
+  *reproducible on this object directly*: point both slots at pair 0 and the
+  joint rank must drop while both marginals stay full. That is the headline
+  negative control of §7.
+
+**O-R2. Cross-block independence of blinding — the hypothesis the one-block
+argument already assumes and never proves.** The terminal-surjection review
+says it in one sentence (§6): "**Cross-role independence.** That `A`, `H` and
+the two endpoints draw disjoint randomness is condition O-2 of the
+composition memo, verified in the code there and not re-verified here; my
+per-commitment computations assume it." The joint-law disposition rests the
+whole product law on it: "independent per-role blinding gives the product law
+directly". A run multiplies the number of roles by `L` and adds `L−1`
+boundaries, so the same unproved hypothesis carries `49` commitments instead
+of `4`.
+
+What the code does today: `prove_inner_at` creates **one** `ZkRng::from_os`
+per proof (`protocol.rs:475`) and every mask row, pad and salt of `A`, `H`,
+`M` comes from that one stream, while each endpoint plane draws its **own**
+`ZkRng::from_os` inside `endpoint_g::prepare` (`endpoint_g.rs:193`). So both
+patterns are already in use, and "independence" today means "distinct
+positions of one CSPRNG stream" for three of the four commitments.
+
+**Recommendation: one `ZkRng::from_os` per COMMITMENT for the run** — per
+block (its `A`/`H`/`M`, as now) and per boundary commitment (as
+`endpoint_g::prepare` already does). Then cross-block independence rests on
+operating-system entropy rather than on stream separation inside one
+generator, the one-block argument applies to each stage verbatim, and the
+named assumption in the privacy statement ("the prover's randomness
+generator's output stream is indistinguishable from uniform") is not asked to
+do new work at `L = 12`. The cost is `L + (L−1)` extra OS reads. **What this
+does not do:** it does not *prove* O-2; it makes the thing O-2 assumes as
+close to unconditional as the platform allows, and leaves the proof owed.
+
+**O-R3. The run-wide joint law, and the new hiding surface the order
+creates.** The fourth step must be restated for a run: *at fixed challenges,
+the joint law of every field value the whole run publishes — all `L` blocks'
+group vectors, proximity vectors, terminals and opened columns, and all
+`L−1` boundary openings — is the same for every admissible hidden input.* Two
+things are new:
+
+* **Sequencing.** Block `k`'s opened vectors and columns are public **before
+  block `k+1`'s masks are used** — the layout check's omitted condition O-3,
+  which it raised for option B and which is equally true of option A (the
+  stages are sequential either way). The fixed-challenge formulation absorbs
+  this correctly *if* the blinding is independent across commitments
+  (O-R2): conditioned on the challenges, each commitment's published vectors
+  are a function of its own blinding and its own data, so the law factorises.
+  **This is the shape of the argument, not the argument.** Nobody has written
+  it, and the step it leans on is the one the review declined to re-verify.
+* **The boundary appears in two blocks' relations.** `B_k`'s plane is
+  constrained by block `k`'s slot 22 *and* block `k+1`'s slot 21, so its
+  claim values are tied to two different blocks' witnesses. The generic-rank
+  lemma is per commitment and does not care; the joint-law composition does,
+  because `B_k`'s two claim values are the only published quantities in the
+  run that are functions of two blocks' data at once. The obligation is to
+  show that the pair of claim values discloses nothing beyond the public
+  relation — which is exactly the `m = 2`, two-singleton-groups case of the
+  corrected Proposition (`ZK60_TERMINAL_SURJECTION_REVIEW.md` §1.4), *given*
+  disjoint pairs.
+
+**O-R4. The refusal channel at run scale.** Proposed D20 keeps refusals
+inside the privacy argument: challenge-only at about 2^-62, with one
+input-dependent class (a zero LogUp denominator) at about 2^-112. A run makes
+`L` independent draws of every refusal class, so the run's refusal
+probabilities are about `L ×` the block's: **`12 × 2^-62 ≈ 2^-58.4`** for the
+challenge-only classes and **`12 × 2^-112 ≈ 2^-108.4`** for the
+input-dependent one [COUNTED]. Neither is alarming; both must appear in the
+run's statement rather than being inherited silently. And one operational
+consequence is sharper for a run than for a block: a refusal in stage 12
+throws away eleven stages of work (about 5.7 minutes), so the temptation to
+retry is real — and a retry must use **fresh** endpoints and a fresh run, as
+the single-attempt reading (J-4) requires. No partial re-run, ever.
+
+### 5.2 (b) The internal boundaries are never sealed for anyone
+
+Under D18 the prover seals the run's two external endpoints at proof time and
+publishes their roots with the receipt. The `L−1` internal boundaries are
+sealed for **nobody**: they are prover-generated commitments to hidden
+intermediates, exactly as `xres1`, `nm` and `z16` are inside one block (D12
+item 3).
+
+**What is published about `B_k`, exhaustively:**
+
+| published | what it is |
+|---|---|
+| its root | a Merkle root over **salted** column hashes of a hiding commitment (`pcs.rs:674`, `:689-690`) |
+| its rows, row width, rate, pad count, site count | public geometry, in the parameter line and the schedule digest |
+| its scale tag | a public calibration constant of the profile |
+| one opening: 2 group vectors + 1 proximity vector (16,640 `Fp2` each) and 256 columns with salts and paths | the masked linear view the whole privacy argument is about |
+
+**And nothing else — provided:**
+
+1. **No second opening, ever.** One opening per commitment is the rule the
+   whole geometry rests on ("a commitment opened twice is dead at this
+   geometry"). For `B_k` this is sharper than for an endpoint, because two
+   *stages* touch it: the implementation must make a second opening
+   impossible by type, as `PreparedPlaneG`/`Endpoints` do today (no `Clone`,
+   no data getter, no repeated-opening method, consumed by value —
+   `endpoint_g.rs:144-162`, `private_block.rs:604-618`). The boundary owner
+   must be consumed by the opening call, not borrowed.
+2. **No boundary plane leaves the process.** No getter, no log line, no
+   telemetry, no debug print, no capture field. `native_capture.rs` is
+   test-only and exports "no witness plane, private pad, mask coefficient,
+   endpoint preimage or RNG state"; the run's capture writer must keep that
+   invariant for boundary planes and boundary mask rows (§5.4).
+3. **A retained capture bundle counts as publishing** (the privacy
+   statement's operating rules, §6). A run capture is a much bigger bundle
+   (§5.4); the rule does not weaken.
+4. **The run's driver does not return the planes to its caller.** The honest
+   prover computes all `L` planes in the clear — that is inference — but the
+   proving API must take them by value and drop them.
+
+### 5.3 (c) The sampler's residual for L = 12, and the many-proofs arithmetic
+
+D9's term is a **privacy** term and counts **every mask and pad the prover
+draws**, each within 2^-96 of uniform in total variation (the Goldilocks-
+specific figure; a generic 64-bit prime would give about 2^-66 per draw).
+Salts are raw bytes with no modular reduction and contribute nothing.
+
+`run_arithmetic.py` counts the draws from the code
+(`protocol.rs:543-546`, `:642-654`; `pcs.rs:673`; `zk.rs:430-457`) and
+**reproduces the two published figures before counting anything new**:
+
+| | draws | residual |
+|---|---|---|
+| one toy block | 325,468 – 327,676 = 2^18.31 | **2^-77.7** — published 2^-77.7 ✔ |
+| one 125M block | 9,177,436 – 9,182,726 = 2^23.13 | **2^-72.9** — published 2^-72.9 ✔ |
+
+(The ranges are the only uncertainty: the masking commitment's coefficient
+count depends on the per-slot message lengths `L_s`, bounded here by
+`23 × largest_slot_length`; it moves the total by under 0.06%.)
+
+The run, `L = 12` at 125M, with 11 boundary commitments and 2 external
+endpoints [COUNTED]:
+
+```
+per block, excluding IO commitments        8,999,942
+  × 12 blocks                            107,999,304
+11 boundary commitments (108,032 each)     1,188,352
+2 external endpoints                         182,784
+                                        ------------
+RUN TOTAL                                109,370,440  = 2^26.70
+residual = draws × 2^-96                 2^-69.3
+```
+
+So **one 12-block run at 125M is 2^-69.3**, against 2^-72.9 for one block —
+3.6 bits, the cost of twelve times the blinding material. One million such
+runs is **2^-49.4** (distance grows linearly), against the statement draft's
+2^-57.7 for a million toy proofs. Both are far from any practical threshold,
+and both must be **stated** rather than inherited: the run's privacy
+statement, if one is ever signed, carries 2^-69.3 per run.
+
+Two properties of this term worth recording: it is a distance, so it adds
+across runs and across blocks with no cancellation; and it is the term that
+disappears entirely if `ZkRng::fp` ever moves to rejection sampling (one
+line, plus a re-freeze of the zero-knowledge fixtures), which at run scale
+is a slightly better bargain than it was at block scale.
+
+### 5.4 (d) Capture and gates at this scale; what to check at a small multi-block shape
+
+**Where the gate is.** The joint-view gate is *not* in the main tree: it is
+`scripts/zk60_native_joint_view.py` + `zk60_native_jv_*.py` on branch
+`zk60-native-jointview` (worktree `/home/victor/wt-zk60-jointview`), eight
+stages, run on **four schema-3 captures at two toy profiles** and nowhere
+else. Its verdict there is `A 0 / H 2 / Input 0 / Output 0` disclosed, with
+`H`'s 2 being the public LogUp identity. Every document that could say so
+says the same thing about a new shape: "the joint-view gate is owed on the
+grown layout … and again on a two-block capture before any chain"
+(`ZK60_PRIVATE_BLOCK_125M_LAYOUT.md` §10.2, O-3), "the 125M profile owes the
+gate again from the start" (`ZK60_NATIVE_PRIVACY_GATE.md`), "at the
+development rung and the 125M shape the layout changes and the question is
+owed again" (ruling G-2).
+
+**The feasibility answer is the opposite of what the question assumed, and
+this is the most useful finding in this section.** An exact rank over a
+5,681-row commitment is **not** the problem: the matrix the gate actually
+factors is `2(G+1)` **generators** (the real and imaginary parts of the `G`
+group vectors and the proximity vector) by **the commitment's rows** —
+`74 × 5,681` for `A` at 125M — not rows × rows and not rows × opened columns
+(`zk60_native_jv_pcs.py:451-456`, `:510-512`). Elimination stops after at
+most `g` pivots, so the cost is `O(g² · rows)`, the group count barely moves
+between the toy (35) and 125M (36), and the pad-block rank is `≤ 256 × 256`
+at every shape forever (1.8 s measured). What *is* infeasible is different:
+
+| | matrix | cost vs the measured toy joint stage |
+|---|---|---|
+| one 125M block, per role | 74 × 5,681 | 15× — **fine** |
+| **L = 3 at the rung, joint over the whole run** | 308 × 3,785 | 38× — **fine** |
+| **L = 12 at 125M, joint over the whole run** | 1,226 × 154,702 | **24,751×** — not in pure Python |
+
+[COUNTED, `run_arithmetic.py`; the toy reference is the gate's measured
+stage 4, 102 generators over 903 rows, inside a whole-gate 23.5 s.]
+
+Two further walls at 125M, both engineering rather than mathematics:
+
+* **The capture file.** A toy block capture is 9.25 MB of JSON, dominated by
+  `columns` — 256 sampled indices × **one value per committed row** — which
+  is linear in rows. At 125M that is roughly **120–140 MB** [MODEL,
+  extrapolated linearly by row count], and
+  `scripts/zk60_native_capture.py:143` refuses any capture over **64 MiB**
+  (`bounded(path, 64 * 1024 * 1024)`), so a 125M capture is rejected before
+  any checking, while `zk60_native_jv_capture.py:52-56` reads with no bound
+  at all and would turn 130 MB of decimal `u64`s into multi-GB of Python
+  objects. A run capture at `L = 12` would be twelve of those.
+* **The per-claim and per-column work**, `O(sites × rows)` and
+  `O(checked × rows × 512)`, is what turned a 702/1,326-row FFN capture into
+  165 s; at 125M it extrapolates to tens of minutes per block [MODEL].
+
+**Therefore: gate the run at a SMALL multi-block shape, and say precisely
+what that does and does not transfer.**
+
+*Proposal:* `L = 3` on the **rung-G profile** (the development rung carried
+on the generalised endpoint: `T24 / d96 / f192`, `A 623 / H 576 / M 50`,
+`a_groups 36 / h_groups 9`, boundary commitment `4 + 4 + 2 = 10` rows,
+boundary opening 190,464 B [COUNTED]). `L = 3` and not 2, because 3 is the
+smallest run with an **interior** block — one that has a boundary on both
+sides — and with two consecutive boundaries.
+
+**What it would settle** (all of it new, none of it available from a
+one-block capture):
+
+1. The boundary commitment's **joint** rank over its two singleton groups:
+   disclosed 0, with the shared-pair control firing (it fires precisely at
+   singleton positions).
+2. That the two claims on one commitment, raised in two different stages at
+   two different points, form two groups with disjoint pairs, and that
+   `audit_claims` refuses when they do not.
+3. The **run-wide joint** system — all 3 blocks' `A`/`H`/`M`, both
+   boundaries, both external endpoints as one rank — and whether
+   `joint == sum of parts` still holds when a commitment is shared between
+   stages. This is the exact question ruling G-2 says is owed again whenever
+   "something non-data is shared", and a boundary commitment is the first
+   deliberately shared object the project has.
+4. That block `k`'s published opening, absorbed before block `k+1`'s masks
+   are used, adds no disclosure (O-3).
+5. The transcript replay across segments: stage 1's challenges reproduce
+   from the header, stage 2's from stage 1's bytes, and a dropped or
+   reordered segment fails the state check.
+
+**What it does not transfer:**
+
+* **Nothing numerical about 125M.** The disclosed dimensions at the rung say
+  nothing about the grown layout — G-2 and D17/R-3 say so explicitly, and the
+  project has already been burned once by a gate result quoted across shapes.
+  125M still owes the one-block gate from the start (steps S12/S13), and the
+  run gate at 125M would owe it again on top.
+* **The pad-budget margin.** 246–256 distinct opened positions against 256
+  pads is shape-dependent through the sampling, and `H-pad` is load-bearing
+  (one position beyond the budget discloses 2 `Fp` the reduction cannot see).
+* **Everything the rung does not exercise**: the 125M pad rule at its own
+  padded domains, the grouped-head permutation, the third `sigma_s` limb.
+* **The structural facts DO transfer**, and that is the point of choosing
+  `L = 3`: the boundary object has **two sites at every shape**, its
+  geometry is `data + 2·sites + 2` at every shape, and `audit_claims` runs on
+  both sides at every profile. What the small shape checks is the
+  **construction**, not the instance.
+
+**Capture format for a run.** The writer must gain: a `run` block (profile,
+`L`, the segment index, the per-stage transcript checkpoints), a `boundary`
+role per boundary commitment with the same fields a `Input`/`Output` role has
+today plus **two** claim entries and a `row_roles` table naming both pairs,
+and a cross-stage `opening_order` for the run. It must gain **nothing** that
+names a boundary plane word, a boundary mask row or a pad. And the 64 MiB
+ingestion bound must be raised deliberately, per profile, with the reason
+recorded — not silently, because that bound is the thing standing between
+"the tool refused" and "the tool consumed 12 GB".
+
+## 6. The D12 amendment, as text for the decisions register
+
+D12 item 2 reads "a block is one proof under one transcript with **exactly
+two external endpoints**". Read literally that forbids a multi-block run,
+which has two external endpoints *for the run* and none for its `L−1`
+interior boundaries. The layout check confirmed the amendment is "genuinely
+needed" and should be "filed as a pending ruling in `ZK60_DECISIONS.md`, not
+left in a memo". Proposed text:
+
+> ### D12a — What a private RUN is (amendment to D12, proposed 2026-09-20)
+>
+> **In plain words.** D12 describes one block. A model has many, and each
+> block's hidden output is the next block's hidden input. This amendment says
+> what it means to prove several blocks at once, and keeps every restriction
+> D12 imposed.
+>
+> **The rule.**
+>
+> 1. **A private RUN of `L` blocks is ONE proof under ONE transcript, end to
+>    end.** Its statement fixes `L`, the shape, every block's public weights,
+>    the calibration and the schedule, and it is a **new profile** (D17) with
+>    its own digests. Separately finished private proofs are **not** a run and
+>    may not be joined: the upstream receipt has already opened its output
+>    commitment, so consuming that root downstream is a second opening and is
+>    prior history (D8/D11 restatement §2.5). Joining finished runs needs the
+>    sealed handle of D18 option B, which does not exist.
+> 2. **A run has exactly two EXTERNAL endpoints** — the hidden input of block
+>    1 and the hidden output of block `L` — and, for the first MVP, the
+>    prover seals both at proof time (D18). This generalises, and does not
+>    contradict, D12 item 2: "exactly two external endpoints" is a property of
+>    the **run**, and a block inside a run has none of its own.
+> 3. **A run's internal boundary planes are HIDDEN INTERMEDIATES under D12
+>    item 3.** Each lives on a commitment the **prover** generates inside that
+>    one transcript, is claimed by exactly two claim sites — the outgoing
+>    equality of block `k` and the incoming equality of block `k+1` — each
+>    with **its own reserved mask pair**, and is **opened exactly once**, with
+>    both claims in that one opening. A boundary commitment fixed by anyone
+>    other than the prover, or shared with any proof outside this transcript,
+>    is forbidden exactly as D12 item 1 forbids it for `xres1`, `nm` and
+>    `z16`.
+> 4. **Nothing else about an internal boundary is published**: its root, its
+>    public geometry, and its single masked opening. No boundary plane, mask
+>    row or pad leaves the proving process, in any build, including a capture
+>    bundle (a retained capture counts as publishing).
+> 5. **What stays forbidden.** Joining two finished runs. Opening any
+>    commitment twice. A caller-fixed root for an internal boundary. Reusing
+>    a boundary commitment across two transcripts. Re-running part of a run
+>    after a refusal: a refusal is terminal for the whole run, and a retry
+>    uses fresh endpoints and fresh boundary commitments.
+>
+> **What this does not do.** It establishes no privacy property for a run,
+> at any shape. It does not discharge D8 or D11 for the run's two external
+> endpoints. It adds obligations rather than removing them: the joint-law
+> argument must be restated for a run (the boundary commitment is claimed by
+> two blocks, and every block's opening is public before the next block's
+> masks are used), and the joint-view gate is owed on a multi-block capture
+> before any run's result is quoted. Source: `ZK60_PRIVATE_RUN_MULTI_BLOCK.md`
+> §§1, 2, 5.
+
+## 7. A staged build plan, smallest failing test first
+
+**Lane rules.** The implementer works inside `hashline/src/private_block/`
+and may not edit `zk.rs`, `pcs.rs`, `private_seam.rs`, `native_capture.rs`,
+`zkp-core/` or the frozen kernel crates. **Nothing in the prover or verifier
+path needs any of them** — see §7.8. Every step keeps the frozen toy profile
+and both rung profiles byte-identical; that is an acceptance criterion at
+every step, not only at the end.
+
+### 7.1 R1 — the rule, before the code (the first test, and it must fail)
+
+Write, at the boundary geometry and with no new module in the tree, a test
+that calls the existing `audit_claims` (`protocol.rs:208-252`) on a
+hand-built two-claim schedule at `rows = data + 2·sites + 2`:
+
+* two claims, disjoint pairs at `(data, data+1)` and `(data+2, data+3)`,
+  proximity pair last → **accepted**;
+* the same two claims both on pair 0 → **refused**, with the message "a
+  reserved pair is unused or shared between claims";
+* a claim reaching the proximity pair → refused;
+* a zero pair coefficient → refused.
+
+This pins the rule before anything can be built around it, it needs no new
+code, and it is the test that would have caught the project's known
+counterexample.
+
+### 7.2 R2 — `boundary.rs`, the commitment itself
+
+A new module beside `endpoint_g.rs`, modelled on it line for line, with
+`sites` as a parameter: its **own** domain label (so its digest can never
+collide with `endpoint_g`'s or `private_seam`'s), `rows = data + 2·sites + 2`,
+`mask_rows = [data … data + 2·sites − 1]`, `prox_mask_row = data + 2·sites`,
+fresh OS entropy per call, no `Clone`, no data getter, consumed by value.
+
+Tests: the declared geometry at rung-G (`4 + 4 + 2 = 10` rows) and at 125M
+(`32 + 4 + 2 = 38`); digest separation from both existing constructions and
+movement with every parameter; every malformed statement refused **by name**;
+two commitments to one plane give two roots; the C-H4 node-shaped-column
+refusal; and — the point of the module — **one opening carrying two claims at
+two different points verifies through `pcs::verify_zk`, a one-bit change to
+either claim value rejects, and two claims at the same point produce one
+group and trip `check_opening`'s declared-count refusal.**
+
+### 7.3 R3 — `L = 2` at the development rung (rung-G): the run driver
+
+`prove_run` / `verify_run_bytes` over a run layout, the transcript of §2.1,
+the stage order of §2.2, the segment framing of §4. Acceptance:
+
+1. **honest run verifies from segments** (from bytes, with a fresh layout —
+   the only form in which a run counts for anything);
+2. **THE HEADLINE NEGATIVE TEST: block 2 rebuilt on a hidden input that is
+   not block 1's output is REJECTED BY THE VERIFIER.** Both variants must be
+   tested, because they fail at different places: (i) the boundary holds
+   block 1's true output and block 2 was run on something else → block 2's
+   slot 21 equality fails; (ii) the boundary holds block 2's input and block
+   1's output differs → block 1's slot 22 fails. The test asserts the
+   refusal **names the failing slot**, and that no panic is reachable;
+3. a boundary claim built on a **shared pair** is refused by `audit_claims`
+   on the **prover** path and on the **verifier** path (both call sites);
+4. a **dropped**, **reordered**, **duplicated** or **foreign** segment
+   (spliced from a second honest run with different external endpoints) is
+   rejected at the segment state check, by name, before any field element is
+   parsed;
+5. a one-bit change anywhere in any segment rejects; truncation and trailing
+   bytes are refused;
+6. `L = 1` through the run driver reproduces the single-block statement's
+   counted receipt length, or the delta is stated and explained;
+7. the frozen toy and both rung profiles are byte-identical to their
+   pinned digests.
+
+### 7.4 R4 — `L = 3` at the rung: the interior block, and the capture
+
+`L = 3` is the smallest run with a block that has a boundary on both sides
+and with two consecutive boundaries. New acceptance beyond R3: the middle
+block rebuilt on a different input rejects; the run-level open-commitment
+table (§4.3 check 4) is empty at the end and **fails when a boundary opening
+is removed**; each boundary commitment is opened exactly once (asserted by
+the driver and by the verifier); and the **run capture** is written and
+handed to the joint-view lane (§5.4). The gate itself runs on branch
+`zk60-native-jointview` and is not this lane's work — this lane owes the
+capture and the schema.
+
+### 7.5 R5 — `L = 12` at the rung
+
+No new mechanism; it catches whatever scales — segment indices, row indices,
+the segment writer's own memory, the `L`-fold statement digest. Cheap enough
+to run in the test suite.
+
+### 7.6 R6 — ONE measured `L = 2` at the 125M shape (a heavy run)
+
+Detached, under the heavy lock, CPU only, inside a memory ceiling that kills
+the process and not the box, phase timing on, evidence written under
+`results/`. Predicted before the run, so the run can fail: prove wall about
+`2 × 31.2 = 62 s` (26.54 prove + 4.69 witness per block) [MODEL from
+MEASURED]; peak RSS about **10.67 GiB** (predict: under 11.0); two segments of 40,031,208 and
+41,049,032 bytes **exactly** [COUNTED, the uniform construction of R-D2];
+verify from segments about 2.1 s. A
+segment length that is not the counted one is a failed acceptance, not a
+curiosity.
+
+### 7.7 R7 — `L = 12` at 125M
+
+Only after R6. Predictions: **6.3 minutes** of proving [MODEL], **484.1 MB**
+in twelve segments [COUNTED], peak **10.67 GiB** [MODEL], verify **12.3 s**
+[COUNTED]. Same operating conditions. This is a measurement, not a privacy
+claim, and the statement attached to it must say so in the same sentence.
+
+### 7.8 What needs a forbidden file
+
+**The prover and verifier path needs none.** Checked:
+
+* `zkp-core/src/pcs.rs` — `open_zk`/`verify_zk` already batch any number of
+  claims into groups and fold pads with every `rho` (`:915-944`, `:947-…`);
+  `assert_mask_sites` is satisfied by setting `mask_rows` and
+  `prox_mask_row` from the caller, which is exactly what `endpoint_g.rs:205`
+  does today. **No change.**
+* `hashline/src/zk.rs` — one masking commitment per block of 23 slots
+  (§2.4), so `mask_commit`, `mask_open`, `mask_verify` and `M_ROWS = 50` are
+  untouched. **No change.**
+* `private_seam.rs` — untouched; the run never uses it. **No change.**
+* Only slots 21 and 22 touch an IO commitment: `b.endpoint` is called at
+  exactly one site in the whole argument (`argument.rs:1430`) [VERIFIED by
+  grep], so the routing change is local.
+
+**One thing does.** The run's **capture writer** would naturally be an edit
+to `native_capture.rs`, which is forbidden. Two ways out, and the first is
+recommended: (a) a **new** test-only `private_block/run_capture.rs`, included
+the way `native_capture.rs` is included (`private_block.rs:786`), sharing the
+schema conventions but not the file — the run's roles are new
+(`boundary`) and the stage/segment structure is new, so there is little to
+reuse; or (b) an explicit exception from the security owner to extend
+`native_capture.rs` with a `boundary` role and a run header. Either way the
+Python side's ingestion bound (`scripts/zk60_native_capture.py:143`,
+`bounded(path, 64 MiB)`) must be raised deliberately and per profile, with
+the reason recorded.
+
+## 8. Decisions for the security owner, open obligations, and what I did not check
+
+### 8.1 Decisions
+
+| # | decision | recommendation | why, in one sentence |
+|---|---|---|---|
+| **R-D1** | The boundary object: a boundary commitment with two claim sites (A), or a direct equality between two `A` commitments (B)? | **A** | Memory is a tie and B is 1.7% smaller, but A leaves every counted constant of the measured block untouched and confines the one new joint-law question to a 38-row object instead of the 5,681-row `A`. |
+| **R-D2** | The boundary's geometry: `data + 2·sites + 2` (the `A`/`H` discipline) or `data + 5` (the seam's)? | **`data + 2·sites + 2`**, and give the run's two external endpoints the same construction with `sites = 1` | It is exactly the geometry `audit_claims` is written for, so the boundary inherits the reviewed pair-exclusivity check verbatim instead of needing a bespoke one. |
+| **R-D3** | One masking commitment per block, or one per run? | **Per block** | A run-wide `M` would be a single commitment carrying `L` blocks' functionals — a cross-block channel nobody has analysed — and it saves 0.55% of the receipt. |
+| **R-D4** | Randomness: one OS stream per run, or one per commitment? | **One `ZkRng::from_os` per commitment** (per block as now, per boundary as `endpoint_g::prepare` already does) | It makes cross-block independence rest on operating-system entropy rather than on stream separation inside one generator, which is the hypothesis (O-2) the one-block argument assumes and never proves. |
+| **R-D5** | When is `B_k` opened, and is anything of block `k` held past its stage? | **`B_k` in stage `k+1`; `A_k`, `H_k`, `M_k` opened and dropped at the end of stage `k`** | It is the only placement that puts the opening after both claims while keeping the peak at one block's, and deferring boundary openings to the end of the run buys nothing and costs 328 MiB. |
+| **R-D6** | Receipt: one frame, or segments? | **One segment per stage**, each with a header and trailer carrying the transcript state and squeeze counter | 484 MB cannot be one frame under the existing 64 MiB bound, and a segment-per-stage receipt keeps the verifier at 727 MiB with 2 KB carried across each boundary. |
+| **R-D7** | A new verifier obligation: must the verifier itself check "every commitment opened exactly once, every claim discharged"? | **Yes, at run scale** | At block scale a verifier cannot check it from the bytes (the D8/D11 restatement says so); at run scale it becomes a small table the verifier can keep, and it is what makes "one transcript" enforced rather than promised. |
+| **R-D8** | The D12 amendment: record before or after the first `L > 1` run? | **Before** | The layout check already ruled that item 2 read literally forbids a run, so proving one first would put the artifact ahead of the rule. |
+| **R-D9** | Where is the multi-block gate run? | **`L = 3` at rung-G**, and explicitly **not** the run-wide joint rank at 125M with the present tools | The rung's run-wide joint matrix is 38× the measured toy stage and the 125M run's is 24,751×; the structural facts (two sites, one pair each, `audit_claims` on both sides) transfer, the numbers do not. |
+| **R-D10** | The "about 5.3 minutes for twelve blocks" figure in `ZK60_PRIVATE_BLOCK_125M_LAYOUT.md` §8 and anywhere it was copied | **Correct it to 6.3 minutes** | `12 × 26.54 s` omits the 4.69 s-per-block witness build, which is measured and is outside the prover's phase table. |
+| **R-D11** | Is streaming verification a requirement or a nicety? | **A requirement** | It is what keeps the verifier's memory at one segment and it forces the segment binding (§4.3) to be explicit checks rather than "it would fail anyway". |
+
+### 8.2 Open obligations
+
+**New, created by a run** (none of these exists today):
+
+* **O-R1** The boundary commitment's two groups ranked **jointly**, with the
+  shared-pair control firing — and `audit_claims` enforcing cross-group pair
+  disjointness on it (§5.1).
+* **O-R2** Cross-block independence of blinding — the generalisation of
+  condition O-2, which the terminal-surjection review explicitly assumes and
+  does not re-verify. R-D4 makes it as close to unconditional as the platform
+  allows; it does not prove it.
+* **O-R3** The run-wide joint law at fixed challenges, including the
+  sequencing surface (block `k`'s opening is public before block `k+1`'s
+  masks are used — the layout check's O-3, unchanged by the choice of
+  boundary object).
+* **O-R4** The refusal channel at run scale: `12 × 2^-62` challenge-only and
+  `12 × 2^-112` input-dependent, to be **stated** in any run statement; and
+  the operational rule that a refusal is terminal for the **whole** run.
+* **O-R5** The run capture format and writer, in a new file (§7.8), plus a
+  deliberate rise of the Python ingestion bound.
+* **O-R6** The run-level "one opening per commitment / every claim
+  discharged" check in the verifier (R-D7).
+* **O-R7** The D12a amendment recorded in `ZK60_DECISIONS.md` (§6).
+
+**Inherited, and made heavier by a run:**
+
+* The one-block privacy statement is a **draft not in force**, pending D19,
+  D20, D21, and is scoped to the **toy** profile "and no other".
+* The joint-view gate is **owed from the start** at the rung and at 125M,
+  for one block, before any run gate means anything.
+* D8 and D11 remain open for the run's two external endpoints; D18 says the
+  prover seals them for the first MVP.
+* The sampler residual for a run is **2^-69.3** per run and grows linearly
+  across runs (**2^-49.4** at a million).
+* `H`'s deliberate shared-pair exception (the zero-sum rows) is unchanged by
+  a run, but it is the precedent showing that "pairs are disjoint" must be
+  checked per commitment, not assumed.
+
+### 8.3 What I did not check
+
+* **I built nothing and ran nothing.** No cargo, no prover, no Rust test, no
+  benchmark. Every "[MODEL]" figure is arithmetic over measured parts.
+* I did not re-derive the generic-rank lemma, the terminal-surjection
+  Proposition or the joint-law composition; I read the dispositions and the
+  review and took their statements and their stated hypotheses as given.
+* The masking commitment's coefficient count enters the draw total as a
+  **bound**, not an exact count (the per-slot `L_s` at 125M was not
+  recomputed); it moves the total by under 0.06% and cannot move the
+  residual at one decimal.
+* The **option-B receipt figure is a sketch**: it charges each seam one extra
+  `A` group and two extra `A` rows and does not model the slot re-cut that
+  option B forces on interior blocks. The sign (B is smaller) is safe; the
+  digits are not.
+* The rung's `A 623 / H 576` row counts come from
+  `ZK60_PRIVATE_BLOCK_125M_LAYOUT.md` §9a via a delegated read, not from
+  running `Shape::rung().totals()`. The 125M counts (`5,681 / 7,120`, groups
+  `36 / 9`, receipt `40,782,792`) I checked against `grow_tests.rs`
+  `MODEL_M125` and reproduced arithmetically.
+* I did not verify that a real 12-block checkpoint's public weights
+  (about 85 MB of `int8` across twelve blocks) raise no statement-handling
+  problem; the proof arithmetic is indifferent to it, the plumbing may not be.
+* I did not examine any GPU or device path — this module has none — nor the
+  zkVM line, nor form E.
+* I did not check whether `Layout`/`Shape` refusals are complete for a run
+  shape (`L` out of range, a boundary geometry that disagrees with the
+  declared rows); those refusals do not exist yet and belong to R3.
+* I read the two IO slot definitions and confirmed by grep that
+  `b.endpoint` is called at exactly one site; I did **not** read all
+  twenty-three slot definitions line by line.
+* Nothing here has been attacked by an independent checker. It is a draft
+  written to be attacked.
+
+*(draft complete)*
