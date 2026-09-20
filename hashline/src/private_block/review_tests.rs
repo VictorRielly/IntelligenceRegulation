@@ -264,6 +264,52 @@ fn the_pad_terms_unstated_invariants_hold_at_every_shape() {
     eprintln!("PAD STATIC: the Dom::Tab group is the three histograms, every ZERO-rule plane is on its own domain, and every indicator tiles its slot's cube at all three shapes");
 }
 
+/// **PZ-2, THE TWO VARIANTS THE LANE DOES NOT RUN.** Memo §3.7a asks for
+/// PZ-2 "in both the int16-fill and the free-field-element variants", and
+/// names `A_X1` as the SECOND B-1 hole (`SC_SSM`'s claimed sum reads the
+/// padded cube exactly as `SC_SS`'s does). `rung_tests::pz2_end_to_end_...`
+/// runs one variant on one of the two norms. Here are the other three cases.
+#[test]
+fn pz2_at_the_second_norm_and_as_a_free_field_element_is_rejected_at_the_rung() {
+    let (sh, blk, base) = honest_rung();
+    let ids = Ids::new(&sh).expect("the rung has a plane map");
+    let t = 0usize;
+    // (i) the SECOND norm, int16-fill: `A_X1`'s padded columns of one token
+    // row, with that row's whole `norm_m` isqrt witness recomputed from the
+    // enlarged sum of squares, so every relation but the pad rule holds under
+    // a divisor the prover chose
+    let mut w = clone_witness(&base);
+    for i in sh.width..sh.d_pad {
+        w.planes[ids.at(A_X1)][t * sh.d_pad + i] = 32_767;
+        let v = 32_767 + 32_768;
+        w.planes[ids.at(A_X1L0)][t * sh.d_pad + i] = v & 255;
+        w.planes[ids.at(A_X1L1)][t * sh.d_pad + i] = v >> 8;
+    }
+    let ss: i64 = 1 + (0..sh.d_pad).map(|i| w.planes[ids.at(A_X1)][t * sh.d_pad + i].pow(2)).sum::<i64>();
+    let d = witness::isqrt(ss as u64) as i64;
+    let (a1, a2) = (ss - d * d, 2 * d - (ss - d * d));
+    w.planes[ids.at(A_DM)][t] = d;
+    w.planes[ids.at(A_DSQM)][t] = d * d;
+    for (base_k, v) in [(0usize, d), (3, a1), (6, a2)] {
+        for kk in 0..3 {
+            w.planes[ids.at(A_LIMBM)][(base_k + kk) * sh.t_pad + t] = (v >> (8 * kk)) & 255;
+        }
+    }
+    let o = outcome(&sh, &blk, w);
+    eprintln!("PZ-2 norm_m, int16 fill: {}", o.short());
+    assert!(!o.is_accepted(), "a consistently adjusted norm_m pad was ACCEPTED");
+    // (ii) the FREE FIELD ELEMENT variant, on a plane that is not an endpoint
+    // (an endpoint word outside int16 is refused by `prepare_endpoints`, which
+    // would pass for the wrong reason)
+    for (name, plane) in [("A_X1", ids.at(A_X1)), ("A_AO", ids.at(A_AO))] {
+        let mut w = clone_witness(&base);
+        w.planes[plane][t * sh.d_pad + sh.width] = 1_000_000_007;
+        let o = outcome(&sh, &blk, w);
+        eprintln!("PZ-2 free field element in {name}'s pad: {}", o.short());
+        assert!(!o.is_accepted(), "{name}: a free field element in a pad was ACCEPTED");
+    }
+}
+
 /// **ATTACK 1(e), the EXEMPT plane.** `A_E` is the one `A` plane the memo
 /// exempts, because `exp[0] != 0` and a zero there is not a table row. The
 /// exemption must buy a cheating prover NOTHING: whatever it writes into

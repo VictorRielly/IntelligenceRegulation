@@ -24,9 +24,9 @@ a failure of the test, because a cheating prover does not run them.
 development rung, in any of the nine attacks I ran.** The pad rule of ruling
 P-1 is real and it is complete over the planes the memo declares: a nonzero
 value written into a padded position of any one of the 79 editable ZERO-rule
-`A` planes, at 145 padded positions across all nine padded domains, is
-rejected by the verifier every time (151 cases); so is a perturbation of any
-one of the 80 committed `A` planes on its true support. **The most important single
+`A` planes, at one to three padded positions each across all nine padded
+domains — 151 cases — is rejected by the verifier every time; so is a
+perturbation of any one of the 80 committed `A` planes on its true support. **The most important single
 result is that four toy receipts produced BEFORE this lane still verify,
 byte for byte as they stand, under the lane's verifier** — which is a much
 stronger statement about the frozen toy than the lane's own length-and-digest
@@ -118,6 +118,17 @@ row (`Dom::D`, `Dom::F`, `Dom::Ht`), a padded key index `j` of a true row
 (`Dom::S`), a padded width column (`Dom::D`), a padded hidden column
 (`Dom::F`), the key-value planes (`Dom::Kv`, two positions), an unused limb
 sub-plane and the last position of the lifted domain (`Dom::L`).
+
+PZ-2 gets its three missing variants (F-5):
+`pz2_at_the_second_norm_and_as_a_free_field_element_is_rejected_at_the_rung`
+writes `A_X1`'s padded columns of one token row and recomputes that row's
+whole `norm_m` isqrt witness from the enlarged sum of squares — the memo's
+SECOND B-1 hole, which the lane's PZ-2 does not touch — and then puts a free
+field element (`1_000_000_007`, far outside int16) into the pad of `A_X1` and
+of `A_AO`, which are not endpoints so `prepare_endpoints` cannot refuse them
+first. All three rejected: the norm_m case at slot 2 (`SC_TZC`'s newly gated
+host term, the same place the lane's norm_a case lands), the two free field
+elements at slot 14.
 
 The EXEMPT plane gets its own two tests. `the_exempt_planes_pad_is_still_
 pinned_to_its_table_row_at_the_rung` writes into `A_E`'s pad (i) a value that
@@ -226,7 +237,10 @@ are bound by the schedule digest.
 a rung frame read by a verifier at 5 query heads over 1 key-value head with
 the SAME profile id and every padded size identical (refused at the codec,
 `"private block wire: expected statement mismatch"` — the 32-byte frame
-binding separates them before the transcript is opened); the rung frame under
+binding separates them before the sumchecks are reached — that binding IS the
+transcript's state after the six header absorbs, `private_block.rs:636`, so
+the same words separate the two shapes in the frame and in the transcript);
+the rung frame under
 the frozen toy verifier; and the toy frame under the rung verifier. All three
 refused.
 
@@ -344,7 +358,7 @@ robustness point.
 | **F-2** | WEAKNESS | `SC_TAB` batches its three `Dom::Tab` `A` planes by hard-coded table indices `[1, 4, 7]` and never checks them against `pad::zero_rule_a_planes(Dom::Tab)`, although it DOES check the helper list against `zero_rule_h_planes` on the line above, and although `SC_TZC` and `SC_SZC` both check theirs. A fourth `Dom::Tab` `A` plane would be silently outside the pad-zero term — the exact class of hole ruling P-1 exists to close. | `argument.rs:1344-1351` (check at `:1346`, unchecked list at `:1350`) | `review_tests::the_pad_terms_unstated_invariants_hold_at_every_shape` | add the same `!=` refusal for the `A` list that `:1346` does for the helpers |
 | **F-3** | WEAKNESS | `grow_tests::tame_case`, the ONLY fixture the rung is proved at, gives every head identical data: its input alternates with period two in the width index and `head_dim` is even, and `Wk`/`Wv` are one diagonal for both key-value groups. So at the rung **every head-permuting tamper is a no-op on the witness**, and memo §9a's two S7 acceptance tests ("a tamper that swaps two key-value heads is rejected"; "a tamper that makes one query head read the wrong key-value group is rejected") are ABSENT from the lane and could not have been written on this fixture. The head permutation of the QUERY slots is likewise untested by any tamper. | `hashline/src/private_block/grow_tests.rs:566-590` | `review_tests::the_tame_rung_fixture_cannot_tell_the_two_key_value_heads_apart` (passing, pins the limitation) and `review_tests::a_query_head_reading_the_other_key_value_head_is_rejected_at_the_rung` (passing, on a fixture that CAN) | adopt `review_tests::distinct_kv_case` (or break the period-two input) as the rung fixture, and add the query-slot permutation tamper |
 | **F-4** | WEAKNESS | Two of the nine pad-zero terms had no end-to-end test before this review. `Dom::Tab`'s term in `SC_TAB` still has none and cannot have one from a witness edit: its six planes (three histograms, three table helpers) are DERIVED by the prover, so that arm needs a prover-side hook — the same gap the ledger already records for the moved-multiplicity tamper family. It is the term the P-3 lift's safety rests on. | `argument.rs:1343-1352`; `protocol.rs:418-441` | not testable as a witness edit; recorded, not fixed | a prover-side injection point (a `#[cfg(test)]` hook on the three histogram buffers) would close both this and the moved-multiplicity family at once |
-| **F-5** | WEAKNESS | The lane's rung PZ-1 tests one of the memo's three named cases (`A_RAL` on `Dom::D`, slot 14). The other two (`A_SR0` at a padded head slot, `A_LIMB` in an unused limb sub-plane — the only case in which `Dom::L`'s own term in `SC_LZC` can be the catcher) were not there. | `hashline/src/private_block/rung_tests.rs:118-126` | `review_tests::every_zero_rule_plane_has_its_pad_proved_zero_at_the_rung` covers all three and 148 more | keep the sweep, or add the memo's two missing cases by name |
+| **F-5** | WEAKNESS | The lane's rung acceptance runs a strict subset of the memo's own PZ cases. PZ-1: one of three (`A_RAL` on `Dom::D`, slot 14) — `A_SR0` at a padded head slot and `A_LIMB` in an unused limb sub-plane (the only case in which `Dom::L`'s own term in `SC_LZC` can be the catcher) were not there. PZ-2: one of four — §3.7a asks for it "in both the int16-fill and the free-field-element variants" and names `A_X1` as the SECOND B-1 hole (`SC_SSM`'s claimed sum reads the padded cube exactly as `SC_SS`'s does); only norm_a's int16-fill was run. | `hashline/src/private_block/rung_tests.rs:118-155` | `review_tests::every_zero_rule_plane_has_its_pad_proved_zero_at_the_rung` (PZ-1, all three and 148 more) and `review_tests::pz2_at_the_second_norm_and_as_a_free_field_element_is_rejected_at_the_rung` (PZ-2, the other three) | keep both, or add the memo's five missing cases by name |
 | **F-6** | NOTE | The verifier has no named refusal for a public table whose length is not the slot's cube: the length check lives inside the `Side::Prove` arm only, so on the verify path a mis-sized `Tab::Pub` reaches `eval_mle_ext`'s `assert_eq!` — a panic, not a refusal. Unreachable from a frame (public tables are shape-driven), so this is the same class as the `argument.rs:626` panic the disposition already recorded, not a denial of service. | `argument.rs:308` (prover only); `zkp-core/src/mle.rs:73` | read, not tested | move the table-length check out of the `Prove` arm |
 | **F-7** | NOTE | At any shape with `tokens < t_pad`, `SC_TZC`'s limb reconstruction READS padded positions of `Dom::L` — the nine sub-slices `[k·t_pad, k·t_pad + t_pad)` include the padded token indices — and reads them UNGATED. Memo §3.7a's `Dom::L` row says "nothing reads the pad", and `pad.rs`'s toy documentation test says so correctly for the toy (where `tokens == t_pad`); neither is true at the rung. It is SOUND (the `Dom::T` term forces `d = dsq = 0` there, and `d − dl = 0` with `2d − a1 − a2 = 0` plus the byte lookups then force the limbs to zero), but it means the `Dom::L` pad-zero term is not what catches a tamper inside a used sub-slice — slot 2 gets there first. | `argument.rs:882-890`; memo §3.7a, `Dom::L` row | the sweep's `Dom::L` cases: inside a used sub-slice → slot 2; in an unused sub-plane → `SC_LZC` | correct the memo's `Dom::L` row for shapes where the token axis pads |
 | **F-8** | NOTE | `rung_tests::assert_rejected` counts a refusal by the PROVER as a pass. A prover refusal is not a soundness statement. Nothing is hidden today — every one of the lane's 27 rung tamper cases is verifier-rejected, and my 231 are too — but the helper would hide a regression. | `rung_tests.rs:282-291` | the review's 231 sweep cases separate the two and fail on prover-only | assert the verifier path, or record the split in the test's own assertion |
@@ -375,14 +389,15 @@ robustness point.
 ## 12. Tests added
 
 All in `hashline/src/private_block/review_tests.rs`, registered by one
-`#[cfg(test)] mod review_tests;` line in `private_block.rs`. **14 tests, 14
+`#[cfg(test)] mod review_tests;` line in `private_block.rs`. **15 tests, 15
 passing, 0 ignored-failing** — no test demonstrates a hole, because I found
-none. Runtime about 2.5 minutes in release, `--test-threads=1`, no GPU,
+none. Runtime about 3 minutes in release, `--test-threads=1`, no GPU,
 nothing at the 125M shape.
 
 | test | what it decides |
 |---|---|
 | `every_zero_rule_plane_has_its_pad_proved_zero_at_the_rung` | attack 1(a)(e), 151 cases, nine domains |
+| `pz2_at_the_second_norm_and_as_a_free_field_element_is_rejected_at_the_rung` | PZ-2's three missing variants (F-5) |
 | `the_pad_terms_unstated_invariants_hold_at_every_shape` | F-1 and F-2, at all three shapes |
 | `the_exempt_planes_pad_is_still_pinned_to_its_table_row_at_the_rung` | attack 1(e), the exempt plane, two junk kinds |
 | `the_exempt_pads_entries_are_outside_the_softmax_row_sum_at_the_rung` | attack 1(e), the exclusion, correction M-3 |
@@ -397,6 +412,18 @@ nothing at the 125M shape.
 | `an_endpoint_with_a_nonzero_pad_is_rejected_at_the_rung` | attack 2, the endpoints |
 | `the_mask_schedule_audit_still_refuses_every_case_at_the_rungs_row_width` | attack 7, six refusals at two widths |
 
-Logs: `results/zk60_block125m_review/baseline.log` (the lane's own filter in
-this worktree, 103 passed / 0 failed / 1 ignored),
-`review-run1.log` … `review-run3.log`.
+The whole `--lib private_block` filter with the review module in it is green:
+**103 passed before, 118 after, 0 failed**, one pre-existing ignored test
+(`capture::native_capture_saved_receipt`). Nothing of the lane's was changed,
+so nothing of the lane's could regress; the number is here so that the next
+reader can tell the two populations apart.
+
+Logs, all under `results/zk60_block125m_review/`: `baseline.log` (the lane's
+own `--lib private_block` filter in this worktree BEFORE any file of mine
+existed — 103 passed / 0 failed / 1 ignored, the ignored one being
+`capture::native_capture_saved_receipt`, which needs explicit saved paths);
+`compile1.log`; `review-run1.log` … `review-run3.log` (the review module
+alone, with `--nocapture`, so every one of the 231 sweep outcomes and the
+slot that caught it is in the log); `final-filter.log` and
+`final-filter2.log` (the whole `private_block` filter with the review module
+in it).
