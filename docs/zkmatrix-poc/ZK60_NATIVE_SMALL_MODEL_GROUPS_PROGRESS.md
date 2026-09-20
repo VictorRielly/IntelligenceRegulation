@@ -39,7 +39,7 @@ capture, no Rust source is touched.
 - [x] S2 tests
 - [x] S3 evidence run under `results/zk60_native_small_model_groups/`
 - [x] S4 report section in `ZK60_NATIVE_JOINT_VIEW.md`
-- [ ] S5 both gates re-run, JSON compared with the committed evidence
+- [x] S5 both gates re-run, JSON compared with the committed evidence
 
 ## Log
 
@@ -115,5 +115,34 @@ Findings, all three written into §13.5:
 - **Extra, not owed:** the per-group blinding rank is the review's closed
   form `2(n + m) − 2` for every `m` from 1 to 6, with codimension exactly 2
   (the verifier's identity). Machine-checked for the first time.
+
+### 2026-09-20 04:55 — S5: the suite and both gates
+
+**Tests.** 112 before, **139 after** (`+27`), one pre-existing skip and the
+one recorded expected failure. `results/zk60_native_small_model_groups/`
+holds `tests_baseline.log` (112, OK, 157.1 s), `tests_after.log` (139, OK,
+162.6 s) and `tests_final.log`.
+
+**Both gates re-run on the four real captures**, into scratch evidence
+directories so the committed records were never touched, and compared field
+by field against them:
+
+| gate | diffs against the committed record |
+|---|---|
+| `zk60_native_joint_view.py` | **2, both timing**: `/seconds` 20.9 -> 23.5 and `/stage3.../m_pad_block_exact_rank_cross_check/seconds` 1.6 -> 1.8. `tool_sha256` identical, `ok` true, every figure identical. |
+| `zk60_native_privacy_gate.py` | **1, timing**: `/seconds` 179.2 -> 165.6. Everything else identical. |
+
+One note for the record: the first privacy-gate re-run used the tool's
+default `--controls-on first`, while the committed record was made with
+`--controls-on all`; the three later captures' `controls` blocks were
+therefore absent, which is an argument difference and not a result
+difference. Re-run with `--controls-on all` the record matches to the one
+timing field above. Logs: `gate_jointview_after.log`,
+`gate_privacy_after.log` (default), `gate_privacy_after2.log` (all
+controls).
+
+**Nothing in either gate's output moved**, which is what the additive rule
+asked for: the extension is a new module outside `TOOLS` plus a new test
+file, and no file the gates hash was edited.
 </content>
 </invoke>
