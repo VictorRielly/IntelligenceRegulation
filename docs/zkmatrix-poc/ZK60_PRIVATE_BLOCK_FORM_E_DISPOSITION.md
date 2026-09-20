@@ -87,6 +87,18 @@ exposes `ac` and not `hc` (C-5). The two `mask_open` calls draw two separate
 claim is pushed onto its `A`** (C-1). This is a build precondition, the same
 one D17 set for the private-IO path.
 
+**R-6 (added 22:41, after the revision; found by the errata editor while
+applying R-1).** R-1's order has a consequence the draft's step list missed:
+the feed-forward's own statement absorb (`absorb_statement_v3`, `zk.rs:2364`)
+is the first act of the frozen function, so it happens *after* the attention
+side's `A` and `M` roots are absorbed, not before. That is sound provided
+**the wrapper's public-statement digest, absorbed before any root, covers the
+exact `StatementV3` bytes the frozen function will absorb** — then the
+attention commitments are bound to the feed-forward statement before they are
+made, and every challenge on either side still follows both absorbs. It is a
+build requirement with a verifier-side test: a block statement whose digest
+and whose feed-forward statement disagree must reject.
+
 ## 3. Chaining, after today's other ruling
 
 The draft recommended runs of `g` blocks under one transcript, starting at two.
