@@ -1,0 +1,24 @@
+{
+  "state": "passed",
+  "checked_at_utc": "2026-09-20T21:03Z",
+  "checks": [
+    [
+      "source_hashes",
+      92
+    ],
+    [
+      "binary_hashes",
+      4
+    ]
+  ],
+  "runner_and_log_hashes": "matched",
+  "real_proof_bytes": 2816472,
+  "publication_controls": [
+    "corrupt bytes do not create directory",
+    "truncated bytes do not create directory",
+    "honest exact bytes and endpoint policy written",
+    "rejected replacement preserves accepted receipt"
+  ],
+  "verifier_corruption_controls": 3,
+  "model_scale_claim": false
+}
