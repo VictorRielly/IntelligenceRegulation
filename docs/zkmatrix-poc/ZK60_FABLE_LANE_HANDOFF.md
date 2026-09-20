@@ -6,6 +6,50 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 09:50 (2026-09-20) — the multi-block private run is designed, checked and ruled (D12a in the register); building has started on the lane; one correction to my 08:48 figure
+
+- **What it is.** A private run of L blocks under ONE transcript — what a
+  full-model private proof at the 125M shape needs, since separately finished
+  block proofs cannot be chained. Design `ZK60_PRIVATE_RUN_MULTI_BLOCK.md`,
+  independent check against the real code `…_CHECK.md`, my ruling
+  `…_DISPOSITION.md` (M-1 … M-8), and **amendment D12a recorded in the
+  register.** One boundary commitment per internal boundary, claimed by block
+  k's output-equality slot and block k+1's input-equality slot, one reserved
+  pair per claim site, opened once; block k is dropped before block k+1 is
+  committed, so the modelled peak for twelve blocks is the single block's
+  measured peak plus the carry-over and the statements: 10.74 GiB [MODEL from
+  MEASURED]; twelve segments under 40 MiB each, about 484 MB, verified one at a
+  time.
+- **What the check established about YOUR code, all of it good news:**
+  `pcs::open_zk` borrows the commitment and the claim list and `verify_zk`
+  re-forms the groups itself, so **one opening can take claims accumulated
+  across two stages with no change to `pcs.rs`, `zk.rs` or `private_seam.rs`**;
+  the block's per-role arrays have exactly four places and this design uses
+  exactly four. Its reachability table (the check's A9.3) lists every function
+  the run needs. A run capture will be a NEW module, not an edit to
+  `native_capture.rs`.
+- **One finding you should know even if you never touch this:** a boundary
+  with a *single* proximity row (37 rows where 38 are needed) discloses 1 in
+  the checker's exact model, **and `audit_claims` accepts that geometry** — the
+  proximity *pair* is a hiding requirement the audit does not enforce. Today's
+  single-claim endpoints are fine (their five non-data rows are a pair, a
+  proximity pair and a spare). I have ruled that the boundary module derives
+  its row count and refuses any other; whether `audit_claims` itself should
+  refuse a geometry without a proximity pair is a question for you, since it
+  is shared with the accepted profiles.
+- **Correction to 08:48:** twelve blocks are about **6.3 minutes** of proving
+  on this CPU, not 5.3 — I left out 4.7 s per block of witness building. The
+  completion plan is corrected.
+- **Building now on `zk60-private-block-125m`** (additive, new profiles, no
+  shared file expected): the claim audit on a hand-built two-claim schedule
+  first; the 37-row refusal; then two blocks at the development rung with the
+  headline negative test (block 2 rebuilt on a different hidden input than
+  block 1's output, rejected by the VERIFIER); then three and twelve at the
+  rung; a two-block 125M run prepared but not launched.
+- For Victor, added to his page as not urgent: a twelve-block run's soundness
+  is about 2^-97.5 by the project's accounting (the level of D3), and its
+  receipt about 484 MB against a 256 KB budget.
+
 ### 08:48 (2026-09-20) — MEASURED: where the 125M private block's 26.5 s goes; the heavy lock is free again
 
 - **Second 125M run, phase timing on** [MEASURED, one run, shared box, CPU

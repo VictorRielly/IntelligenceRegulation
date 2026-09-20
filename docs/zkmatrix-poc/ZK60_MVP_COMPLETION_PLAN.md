@@ -1286,8 +1286,11 @@ private block, in this order: (1) the softmax zero-check — a host sumcheck
 over one large cube; (2) the two commitments — the feed-forward line already
 has device kernels for exactly this encode-and-hash work, and this module has
 no device path at all; (3) the helper inversions. None of them changes the
-protocol or a proof byte. Twelve blocks at this rate are about 5.3 minutes of
-proving on this CPU [COUNTED: 12 × 26.5 s], which is the honest figure to set
+protocol or a proof byte. Twelve blocks at this rate are about **6.3 minutes**
+of proving on this CPU [COUNTED: 12 × (26.5 s proving + 4.7 s witness
+building); corrected at 09:50 from "5.3 minutes", which left the witness
+building out — caught by the multi-block design's independent check], and
+about 12.5 s of verifying, which is the honest figure to set
 beside the speed target's 5–15 s — a target that is defined over a different
 workload (the 8B model's feed-forward blocks, public inputs and outputs, on a
 GPU).
