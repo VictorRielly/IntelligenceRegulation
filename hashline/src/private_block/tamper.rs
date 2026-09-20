@@ -223,7 +223,7 @@ fn prove_tampered_for(blk: &BlockPublic, input: &[i16], edit: impl FnOnce(&FeedF
     let (expected, owners) = prepare_endpoints(spec(), input, &output).unwrap();
     // the prover does not pre-check any relation: a false witness still yields
     // a receipt, and that receipt must not verify
-    let (receipt, stats) = prove_inner(blk, &w, &expected, owners)?;
+    let (receipt, stats) = prove_inner(blk, w, &expected, owners)?;
     verify_inner(blk, &expected, &receipt).map(|_| stats)
 }
 
@@ -436,7 +436,7 @@ fn an_output_endpoint_committing_xres1_is_refused() {
     let xres1: Vec<i16> = w.planes[A_X1].iter().map(|v| *v as i16).collect();
     assert_ne!(xres1, xres2, "the fixture's two residuals coincide; the test would be vacuous");
     let (expected, owners) = prepare_endpoints(spec(), &input, &xres1).unwrap();
-    let (receipt, _) = prove_inner(&blk, &w, &expected, owners).unwrap();
+    let (receipt, _) = prove_inner(&blk, w, &expected, owners).unwrap();
     let err = verify_inner(&blk, &expected, &receipt).expect_err("an xres1 output endpoint verified");
     assert!(Catch::Slot(SC_IO_OUT).matches(&err), "expected the output endpoint to reject, got `{err}`");
     prove_tampered(|_, _| {}).expect("the honest proof must verify beside every tamper");
@@ -706,7 +706,7 @@ fn a_moved_activation_multiplicity_is_rejected_by_the_logup_sum_claim() {
     assert!(recompute_from_product(&mut w, ff));
     let output = w.output().expect("the tampered output is in class");
     let (expected, owners) = prepare_endpoints(spec(), &input, &output).unwrap();
-    let (receipt, stats) = prove_inner(&blk, &w, &expected, owners).expect("the prover does not pre-check any relation");
+    let (receipt, stats) = prove_inner(&blk, w, &expected, owners).expect("the prover does not pre-check any relation");
     // the TOTAL is preserved: one unit moved between rows, nothing created
     assert_eq!(stats.act_lookups, 512, "the activation histogram totals the Dom::F cube");
     let err = verify_inner(&blk, &expected, &receipt).expect_err("a moved activation multiplicity VERIFIED");

@@ -138,7 +138,7 @@ fn prove_tampered(edit: impl FnOnce(&mut Witness)) -> Result<(), String> {
     let mut w = witness::build(blk.attention(), blk.feed_forward(), &input).unwrap();
     edit(&mut w);
     // the prover does not pre-check the relation: a false witness yields a receipt that must not verify
-    let (receipt, _) = prove_inner(&blk, &w, &expected, owners)?;
+    let (receipt, _) = prove_inner(&blk, w, &expected, owners)?;
     verify(&blk, &expected, &receipt)
 }
 

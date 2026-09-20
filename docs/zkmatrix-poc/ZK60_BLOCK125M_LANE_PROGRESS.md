@@ -35,7 +35,7 @@ changes* (files outside those two trees), for the hand-back: **none.**
 | B4 pad-table recount | DONE | `results/zk60_block125m_lane/pad_table_recount.json` |
 | **S0 baseline on the merged tree** | DONE | `results/zk60_block125m_lane/s-baseline.log:138` — **58 passed / 0 failed / 2 ignored / 67 filtered out**, 27.74 s. The two ignored are the two `capture::native_capture_saved_receipt` gates (they need saved receipt paths). Toy receipt 2,816,472 B asserted by `private_block/tests.rs:108` and `zero_witness_tests.rs:172`, both in the pass list |
 | **S1 split `U8_LEN` from `N`** | DONE | `…/s1-run2.log:140` — **61 passed / 0 failed / 2 ignored**; toy receipt still 2,816,472 B |
-| **S2 free the witness and lookup buffers** | — | |
+| **S2 free the witness and lookup buffers** | DONE | `…/s2-run1.log:140` — **61 passed / 0 failed / 2 ignored**; toy receipt still 2,816,472 B; digest gate held |
 | **S4 lookup-summation repair** | — | |
 | **S5 shape-driven layout** | — | |
 
@@ -78,6 +78,7 @@ flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attent
 | 6 | the same, after S1 | `…/s1-run1.log` | 60 passed, 0 failed, 2 ignored, 27.77 s |
 | 7 | filter `private_block::grow_tests`, to CAPTURE the toy schedule digest (a deliberately failing assertion) | `…/s1-digest-capture.log:86` | 2 passed, 1 failed — the digest read off the failure message |
 | 8 | the Rust command, filter `private_`, after S1 + the digest pin | `…/s1-run2.log` | **61 passed, 0 failed, 2 ignored**, 27.87 s |
+| 9 | the Rust command, filter `private_`, after S2 | `…/s2-run1.log` | **61 passed, 0 failed, 2 ignored**, 27.93 s |
 
 ## Findings
 
@@ -211,6 +212,30 @@ that was not actually checked was the digest — `tests.rs:462` compares a
 layout against a freshly built layout, so both sides move together. The lane
 pinned it as a literal (above). That gate is what S4 and S5 are measured
 against.
+
+**S2-F1 (the drop had to change the signature, and that is the point).**
+`prove_inner` took `wit: &Witness`. A borrowed witness cannot be released —
+the memory stays alive in the CALLER's frame for the whole proof — so the
+memo's "free the witness planes" is not expressible without taking the
+witness BY VALUE. It now does; the six call sites (`private_block.rs`,
+`tests.rs`, `norm_alias.rs`, three in `tamper.rs`) all pass `w` instead of
+`&w` and none of them reads the witness afterwards, so nothing else moved.
+Four buffers are released at the point C-11 identifies (after the `H_FACT`
+helper column, the last read of both): `looked`, the witness planes, and also
+`deltas` and `act_idx`, which die at the same line and are the +42 MB of pins
+C-12 and M-7. Nothing new is allocated, so the peak can only fall.
+
+**S2-F2 (the acceptance test the memo asks for is better served by the
+compiler).** §9's S2 row wants "an assertion that both buffers are gone before
+the first slot" and "a test that must fail if the drop is moved too early". In
+Rust both are structural: the buffers are MOVED, so a read after the drop
+point does not compile, and a drop moved earlier does not compile either. A
+runtime assertion could only observe a pointer, not a release. This is
+recorded as a deliberate substitution, not an omission. The remaining part of
+the acceptance — "peak RSS of the toy example does not rise" — is not
+measured here: at the toy the four buffers total about 2 MB, which is below
+the run-to-run noise of this box, and the figure that matters (9.6 GiB against
+11.0 GiB) is S14's, on a quiesced box.
 
 **No disagreement between the memo's rules and `layout.rs` was found at the
 toy shape**: every rule the memo states reproduces the Rust's own numbers.

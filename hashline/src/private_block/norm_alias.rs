@@ -98,7 +98,7 @@ fn prove_tampered(edit: impl FnOnce(&BlockPublic, &mut Witness)) -> Result<(), S
     let output = w.output().unwrap_or(honest);
     let (expected, owners) = prepare_endpoints(spec(), &input, &output).unwrap();
     // the prover pre-checks no relation: a false witness still yields a receipt
-    let (receipt, _) = prove_inner(&blk, &w, &expected, owners)?;
+    let (receipt, _) = prove_inner(&blk, w, &expected, owners)?;
     verify_inner(&blk, &expected, &receipt).map(|_| ())
 }
 

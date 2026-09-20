@@ -438,7 +438,7 @@ pub fn prove(public: &BlockPublic, input: &[i16], expected: &ExpectedIo, endpoin
 pub fn prove_with_stats(public: &BlockPublic, input: &[i16], expected: &ExpectedIo, endpoints: Endpoints) -> Result<(Receipt, ProveStats), String> {
     // `endpoints` is dropped on the refusal path too: the owners never outlive the attempt
     let wit = witness::build(public.attention(), public.feed_forward(), input)?;
-    protocol::prove_inner(public, &wit, expected, endpoints)
+    protocol::prove_inner(public, wit, expected, endpoints)
 }
 
 /// Verify against the caller's public statement and endpoint policy only.

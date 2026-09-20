@@ -255,7 +255,14 @@ fn check_endpoints(expected: &ExpectedIo, endpoints: Endpoints) -> Result<[pcs::
 
 /// Consumes the endpoint owners on success AND on failure. No equality precheck: an
 /// endpoint committed to other values must fail the verifier's polynomial identity.
-pub(crate) fn prove_inner(blk: &BlockPublic, wit: &Witness, expected: &ExpectedIo, endpoints: Endpoints) -> Result<(Receipt, ProveStats), String> {
+///
+/// `wit` is taken BY VALUE (step S2 / C-11): the witness planes are the
+/// prover's largest long-lived buffer (711 MB at the 125M shape) and are dead
+/// once the LogUp helper columns are written, so the prover must be able to
+/// release them before the `H` commitment and the twenty-three slots. Taking a
+/// reference would leave that memory alive in the caller's frame for the whole
+/// proof. Nothing here keeps a copy.
+pub(crate) fn prove_inner(blk: &BlockPublic, wit: Witness, expected: &ExpectedIo, endpoints: Endpoints) -> Result<(Receipt, ProveStats), String> {
     use std::time::Instant;
     let (public, ff) = (blk.attention(), blk.feed_forward());
     let mut tick = Instant::now();
@@ -291,20 +298,20 @@ pub(crate) fn prove_inner(blk: &BlockPublic, wit: &Witness, expected: &ExpectedI
     // `ff.act` (`[i16; 256]`) are what stops a widened `N` from turning a
     // graceful bucket-0 fallback into an out-of-bounds panic (missed pin M-4).
     let mut m_u8 = vec![0u64; U8_LEN];
-    let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_values(&lay, wit, *d))).collect();
+    let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_values(&lay, &wit, *d))).collect();
     for (_, cols) in &looked {
         for v in cols.iter().flatten() {
             // a value outside the table counts into entry 0: only the LogUp identity can catch it
             m_u8[if (0..U8_LEN as i64).contains(v) { *v as usize } else { 0 }] += 1;
         }
     }
-    let deltas = exp_deltas(wit);
+    let deltas = exp_deltas(&wit);
     let mut m_exp = vec![0u64; U8_LEN];
     for (x, d) in deltas.iter().enumerate() {
         let hit = (0..U8_LEN as i64).contains(d) && public.exp[*d as usize] == wit.planes[A_E][x];
         m_exp[if hit { *d as usize } else { 0 }] += 1;
     }
-    let act_idx = act_indices(wit);
+    let act_idx = act_indices(&wit);
     let mut m_act = vec![0u64; U8_LEN];
     for (x, i) in act_idx.iter().enumerate() {
         let hit = (0..U8_LEN as i64).contains(i) && i64::from(ff.act[*i as usize]) == wit.planes[A_A16][x];
@@ -354,6 +361,26 @@ pub(crate) fn prove_inner(blk: &BlockPublic, wit: &Witness, expected: &ExpectedI
     write_h(&mut h_data, lay.h_off[H_SEXP], &inverses(exp_den)?);
     let act_den = act_idx.iter().zip(wit.planes[A_A16].iter()).map(|(i, a)| alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect();
     write_h(&mut h_data, lay.h_off[H_FACT], &inverses(act_den)?);
+    // ---- STEP S2 (C-11): the prover's four transient buffers die HERE ----
+    // The two lines above are the LAST reads of the witness planes and of
+    // `looked`; the memo's earlier proposal to drop them at the histogram loop
+    // is wrong, because `lookup_values`, `exp_deltas`, `act_indices` and the
+    // two `A_E` / `A_A16` denominators all read the planes after it, and the
+    // helper columns above read `looked`. Releasing them before the three
+    // table helpers, the `H` commitment and the twenty-three slots is the
+    // difference between an 11.0 GiB and a 9.6 GiB modelled peak at the 125M
+    // shape (memo section 7.1), where the planes are 711 MB, `looked` 789 MB,
+    // `deltas` 33.6 MB and `act_idx` 8.4 MB. At the toy the four are about
+    // 2 MB, which is why nobody has had a reason to do it before.
+    //
+    // A drop that is too EARLY is a compile error here, not a silent bug: the
+    // buffers are moved, so any later read fails to build. That is a stronger
+    // guarantee than the acceptance test the memo asks for, and it is why this
+    // step takes the witness by value rather than by reference.
+    drop(looked);
+    drop(wit);
+    drop(deltas);
+    drop(act_idx);
     for (plane, tv, m) in [
         (H_GU8, table_values_u8(g_u8), &m_u8),
         (H_GEXP, table_values_exp(public, beta, g_exp), &m_exp),
