@@ -2567,3 +2567,238 @@ rewrite counts, the layout adapter record and the model cross-check.
 made about the source has become false, so it was inverted into the same form
 as its two siblings, and all three numbers it asserted (23 slots, A 455, H
 384) are asserted on the ADAPTED layout instead, along with four more.
+
+## Stage 11 (2026-09-20, 08:1x–08:4x): PHASE TIMING — where the seconds go
+
+Commit `68d5f0e`. **Shared-file changes: NONE.** Every file touched is
+`hashline/src/private_block.rs` or under `hashline/src/private_block/`:
+`timing.rs` (new), `protocol.rs`, `argument.rs`, `rung_tests.rs`,
+`rulings_tests.rs`, `tests.rs`.
+
+### Why
+
+One block at the 125M shape proves in **26.89 s** (stage 9 item 12, one run
+on a shared box). Nobody knew WHICH PART of the block those seconds belong
+to. The open design question **P5** of
+`ZK60_MVP_COMPLETION_PLAN.md` §5.2a — is a two-prover design that keeps the
+feed-forward half on a GPU worth building? — was answered on paper by a COUNT
+of committed rows (the feed-forward half is about 20% of them; the design
+could save "10–17%" at this shape). A measured phase split replaces the
+count. This stage builds the instrument and prepares the 125M run that uses
+it; **it does not run 125M.**
+
+### What is timed, and how
+
+`hashline/src/private_block/timing.rs` holds a small recorder, `Phases`: a
+pair of `Instant`s and a vector of labelled rows, each row carrying a
+duration, the COUNTED figure the duration should be read against (committed
+rows, a sumcheck cube, a word count, a claim count — all functions of the
+public shape), and the process's `VmRSS` and `VmHWM` read from
+`/proc/self/status` at that moment.
+
+* **It is off unless `HL_PB_TIMING=1`.** The variable is read FRESH at every
+  proof, never memoised in a `OnceLock`, in the house style of `HL_TIMING` in
+  `pcs.rs` and `zk.rs`. With it unset, `Phases::start` does two clock reads
+  and builds an empty `Vec` (which does not allocate), and every `mark`,
+  `slot` and `report` returns on its first line: no allocation, no `/proc`
+  read, no print on the proving path.
+* **It cannot influence a proof.** There is deliberately NO accessor for the
+  switch outside the module — an unused-method warning is what removed the
+  first draft's one — so no branch of `protocol.rs`, `argument.rs` or any
+  other lane file can read the recorder back. It touches no transcript, no
+  randomness stream and no committed buffer.
+* **It records nothing private.** Durations, byte counts, row counts, cube
+  sizes, memory readings, and the schedule's own already-public `SLOT_NAMES`.
+  Never a witness value, a salt, a pad, a private plane, a challenge, a
+  claimed sum or a terminal.
+
+**What could NOT be split, and why.** The brief asked for commit A split into
+row encoding and column hashing/Merkle. Both live inside
+`pcs::commit_zk_owned`, which is `hashline/src/pcs.rs` — a file this lane
+does not edit — so the enclosing call is ONE phase and is labelled as such.
+The same holds for `zk::mask_commit`, `zk::mask_open` and `zk::mask_verify`
+in `hashline/src/zk.rs`. Everything the lane's own files do around those
+calls IS split: the `A` build into five phases, the `H` build into six
+(including the S2 buffer drops), the slot loop into twenty-three, the
+openings into five.
+
+**42 prover phases:** two setup, five building `A`, the `M` commitment, six
+building `H`, twenty-three slots, five openings — plus the wire encode, which
+happens outside `prove_inner_at` and gets its own line from
+`timing::timed`. **31 verifier phases:** three setup, twenty-three slots,
+four verifications — plus the wire decode, likewise its own line.
+
+### The slot-to-half classification
+
+Taken from the layout's own slot definitions in `argument::define`, and
+carried in code as `timing::SLOT_HALF`.
+
+| half | slots | why |
+|---|---|---|
+| **norm** | 00 `SC_SS`, 01 `SC_SSM`, 02 `SC_TZC`, 03 `SC_LZC` | the two RMS norms (`norm_a` before attention, `norm_m` before the feed-forward): their row sums, their reciprocal squares, and the byte limbs of both |
+| **attention** | 04 `SC_RS`, 05 `SC_QMM`, 06 `SC_KMM`, 07 `SC_VMM`, 08 `SC_SCORE`, 09 `SC_PV`, 10 `SC_WO`, 15 `SC_QZC`, 16 `SC_KVZC`, 17 `SC_SZC` | the Q/K/V projections and their two RoPE zero-checks, the score and PV bilinear matmuls, the softmax row sums and its zero-check, the output projection |
+| **feed-forward** | 11 `SC_GMM`, 12 `SC_UMM`, 13 `SC_DMM`, 18 `SC_FZC` | the gate, up and down matmuls and the f-cube zero-check that hosts the first two and carries the activation pair lookup |
+| **residual** | 14 `SC_DZC` | the ONE MIXED slot. It carries both residual adds (`x1 = x + ao`, `x2 = x1 + z16`), the int16 classes of all four width planes, BOTH norm relations, and it hosts one ATTENTION matmul (`SC_WO`) and one FEED-FORWARD matmul (`SC_DMM`). It is counted whole under `residual` and never split: no part of its single sumcheck can be attributed to one half without re-deriving the slot. Every table prints a line naming it |
+| **lookup-table** | 19 `SC_TAB`, 20 `SC_ZS` | the three public byte tables' helper relations and the zero-sum row |
+| **endpoints** | 21 `SC_IO_IN`, 22 `SC_IO_OUT` | the two external endpoint equalities |
+
+Four further labels are for phases that are not a slot at all: **setup**
+(layout, plane maps, NTT tables, endpoint owners), **commit** (building and
+committing `A`, `M`, `H`), **openings** (the `M`, `A`, `H` and endpoint
+openings, or their verifications), **frame** (the wire encode and decode).
+
+**Pad-zero hosts are not a half.** Every zero-check slot hosts one or more of
+ruling P-1's pad-zero groups (`SC_TZC` on `Dom::T`, `SC_LZC` on `Dom::L`,
+`SC_DZC` on `Dom::D`, `SC_QZC` / `SC_KVZC` on `Dom::Q` / `Dom::Kv`, `SC_SZC`
+on BOTH `Dom::S` and `Dom::Ht`, `SC_FZC` on `Dom::F`, `SC_TAB` on
+`Dom::Tab`), so the pad rule's cost is already inside those slots' seconds
+and does not form a category of its own.
+
+### The rung-G phase table [MEASURED, one run, shared box, 2026-09-20 08:27]
+
+`results/zk60_block125m_lane/s11-rungg-timing.log`, the honest rung-G proof
+with `HL_PB_TIMING=1` (development rung: 24 tokens, width 96, hidden 192,
+6 query heads of 16 over 2 key-value heads). **1 passed / 0 failed**, 0.70 s.
+
+Prover, the phases above 1% of the wall clock:
+
+| phase | half | s | % | size |
+|---|---|---|---|---|
+| slot 14 `03 D zero-check (hosts 12, 13D)` | residual | 0.143 | 31.3% | 8,192 cube |
+| slot 17 `06 softmax zero-check (hosts 07, 10)` | attention | 0.088 | 19.2% | 16,384 cube |
+| slot 18 `14 F zero-check (hosts 13G, 13U)` | feed-forward | 0.065 | 14.2% | 16,384 cube |
+| `A: commit (pcs::commit_zk_owned)` | commit | 0.038 | 8.2% | 623 rows |
+| `H: commit (pcs::commit_zk_owned)` | commit | 0.033 | 7.2% | 576 rows |
+| `M: mask commit (zk::mask_commit)` | commit | 0.018 | 4.0% | 50 rows |
+| `H: LogUp helper inverses` | commit | 0.012 | 2.7% | 419,840 words |
+| slot 15 `04 Q zero-check (hosts 09Q, 11)` | attention | 0.011 | 2.5% | 8,192 cube |
+| `open A (audit + pcs::open_zk)` | openings | 0.008 | 1.7% | 122 claims |
+| `open H (audit + pcs::open_zk)` | openings | 0.007 | 1.6% | 53 claims |
+
+Prover half totals: setup 0.000 s (0.0%), **commit 0.111 s (24.4%)**, norm
+0.003 s (0.6%), **attention 0.105 s (23.0%)**, **feed-forward 0.069 s
+(15.2%)**, **residual 0.143 s (31.3%)**, lookup-table 0.001 s (0.2%),
+endpoints 0.001 s (0.2%), openings 0.022 s (4.7%). The requested three-way
+split: **attention 23.0% | feed-forward 15.2% | the rest 61.5%**. Wire encode
+0.003 s for the 4,234,648 B frame.
+
+Verifier half totals: setup 0.1%, norm 7.2%, **attention 37.5%**,
+**feed-forward 18.8%**, residual 7.6%, lookup-table 9.9%, endpoints 0.1%,
+openings 17.8%. Wire decode 0.002 s.
+
+**Does it add up?** Prover: sum of phases **0.455 s** against a wall clock of
+**0.456 s** — unaccounted **0.001 s, 0.2%**. Verifier: sum **0.100 s**
+against a wall of **0.100 s** — unaccounted **0.9%**. Both are inside "a few
+percent"; the residue is the recorder's own `/proc` reads and the clock
+restart between phases.
+
+**Read the rung numbers as a shape, not as a forecast.** The rung's cubes are
+tiny (64 to 16,384) and its fixed costs (the two PCS commitments, 24.4% of
+the prover here) do not scale like its slots. The 125M run is what decides
+P5; this table exists to show the instrument works and sums.
+
+### Nothing changed
+
+| gate | before | after |
+|---|---|---|
+| the module filter `--lib private_` | 156 passed / 0 failed / 3 ignored (`t3-rulings3.log`, stage 9) | **157 passed / 0 failed / 3 ignored**, 218.10 s (`s11-filter1.log`) |
+| the toy frame | 2,816,472 B | **2,816,472 B** (`tests.rs:108`, `zero_witness_tests.rs:172`, `review_tests.rs:696`, `grow_tests.rs:497/1170/1184`, all green) |
+| the frozen schedule digest | literal | **unmoved** (`grow_tests::the_toy_schedule_digest_is_frozen`, green) |
+| the frozen toy parameter line | literal | **unmoved** (`grow_tests::the_toy_parameter_line_is_the_frozen_literal`, green) |
+| both rung frames | 4,218,264 B / 4,234,648 B | **unchanged**, both honest proofs verify from bytes |
+| compiler warnings | 10 | **10** |
+| `git diff --stat 11c01b2 -- private-block-kernel private-model-kernel zkvm-block` | empty | **empty** |
+
+The one new test is the parity gate,
+`rung_tests::a_proof_made_with_the_phase_clock_on_verifies_with_it_off`: a
+rung-G proof made with the clock ON verifies, in typed form AND from bytes,
+under a verifier with the clock OFF; both frames are the counted 4,234,648 B;
+a one-byte truncation of the clocked frame is still refused. **Byte equality
+between the two proofs is NOT asserted and is not expected** — every attempt
+draws a fresh OS randomness stream, so two honest proofs of one statement
+differ in their bytes whatever the switch is doing. The test drives the
+switch through a `#[cfg(test)]` THREAD-LOCAL override (`timing::force`) and
+not `std::env::set_var`, which is not thread-safe and would race any other
+test reading the variable whenever the suite runs multi-threaded; the same
+shape and discipline as `protocol::set_moved_multiplicity`.
+
+### The 125M timing run: PREPARED AND NOT LAUNCHED
+
+**Step 1 — build under the build lock** (already done at commit `68d5f0e`;
+log `results/zk60_block125m_lane/s11-m125-build.log`):
+
+```
+flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attention-compile/hashline/target CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=8 /home/victor/.cargo/bin/cargo test --release --offline -j 2 --manifest-path /home/victor/wt-zk60-block125m/hashline/Cargo.toml --lib private_ --no-run > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/s11-m125-build.log 2>&1
+```
+
+The `Executable unittests` line of that log names
+`/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5`
+— the SAME name as stage 9's, because the hash is of the crate's metadata and
+not of its source; the binary itself was rebuilt (mtime 2026-09-20 08:39:07,
+10,854,728 B). **Re-read the path and the mtime before launching**: the
+target directory is shared with another worktree.
+
+**Step 2 — the detached, memory-capped run.** Stage 9's command with
+`env HL_PB_TIMING=1` INSIDE the scope, a new log and a new marker. One line,
+nothing else heavy on the box, no GPU job, no release build:
+
+```
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 env HL_PB_TIMING=1 /home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block >> /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run2-timing.log 2>&1; echo $? > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run2-timing.done' >/dev/null 2>&1 &
+```
+
+What it prints, in order: `125M: the phase clock (HL_PB_TIMING) is ON…`, the
+witness build time and RSS, the **prover's 42-row phase table** with its half
+totals and the attention / feed-forward / rest split, the `encode to bytes`
+line, the **verifier's 31-row table** with the same summaries, the
+`125M ONE BLOCK:` result line, and a `125M PHASE TABLES ABOVE:` line giving
+the prover and verifier wall clocks the two `SUM OF PHASES` figures are to be
+checked against. `m125-run2-timing.done` holds the exit code; a memory kill
+leaves a nonzero code and a log without the result line, which is a finding
+and not a failure.
+
+**The clock's own cost.** About 54 `/proc/self/status` reads on the prover
+and 31 on the verifier, plus one `Vec` of ~54 small rows. It is inside the
+noise of a 26 s proof, but it is not zero, and the run's headline
+prove/verify seconds should still be compared against stage 9's
+**26.89 s / 1.04 s**, which were taken with the clock absent.
+
+### RESULTS — 125M with the phase clock (TO BE FILLED BY THE ORCHESTRATOR)
+
+`m125-run2-timing.log`, launched …, exit code …
+
+| figure | stage 9 run 1 (no clock) | run 2 (clock on) |
+|---|---|---|
+| prove, s | 26.89 | |
+| verify from bytes, s | 1.04 | |
+| witness build, s | (in the log) | |
+| receipt, B | 40,782,792 | |
+| peak RSS, GiB | 10.42 | |
+| SUM OF PHASES / wall, prover | — | |
+| SUM OF PHASES / wall, verifier | — | |
+
+Prover, by half:
+
+| half | s | % of prove |
+|---|---|---|
+| setup | | |
+| commit (A, M, H) | | |
+| norm | | |
+| **attention** | | |
+| **feed-forward** | | |
+| residual (slot 14, mixed) | | |
+| lookup-table | | |
+| endpoints | | |
+| openings | | |
+| frame (encode) | | |
+
+The three phases to read first, because P5 turns on them: the
+**feed-forward** total (slots 11, 12, 13, 18), the **attention** total, and
+the share that is neither — above all the two PCS commitments, which a
+two-prover design would have to pay TWICE or split.
+
+| question | answer from run 2 |
+|---|---|
+| feed-forward share of the prove time | |
+| attention share | |
+| how the measured feed-forward share compares with the counted 20% of committed rows | |
+| does the measured split support or refute the paper "10–17%" saving of P5 | |
