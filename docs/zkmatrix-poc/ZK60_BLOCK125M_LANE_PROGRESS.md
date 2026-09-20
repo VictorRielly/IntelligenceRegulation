@@ -3798,24 +3798,313 @@ disposition of the scoping memo `ZK60_D19_HASH_TAG_SCOPING.md`):
 
 ### Status
 
-`SKELETON` — opened at 14:26. Sections below are filled as the work lands.
+`LANDED`, filter green. Both guards are wired. Three commits: the skeleton
+`a2c42e1`, the FAILING-FIRST evidence `18d5b0f` (204 passed / **3 failed** /
+6 ignored, an intended FAILED result), the fix `7fe2245` (**208 passed / 0
+failed / 6 ignored**, exit 0, 297.68 s, 13 warnings — the baseline's 13).
+Baseline before the stage: 195 / 0 / 6, so **+13 tests and not one existing
+test changed, weakened or removed** except the four statement FIXTURES of
+finding S16-F1, which are documented below and in place.
+
+### Why this is a real hole and not bookkeeping
+
+Every hash in this system is an **untagged** BLAKE3 call. A commitment's
+column is `blake3` over `8 · rows` bytes; a transcript absorb is `blake3` over
+`48 + |label| + |data|`; a Merkle node and a salted leaf are both `blake3`
+over the same 64 bytes. Nothing in any of those inputs says what it is. The
+only thing that separates the domains today is the **length** of the input —
+so a geometry whose column happens to be as long as some other hash input of
+the same proof is a structural defect, whether or not anyone can exploit it.
+The tag of ruling T-1 fixes this properly; T-3 and T-4 are what the lane can
+do now, and T-3 stays afterwards as the second line and as the ONLY line at
+the byte-frozen toy, which is never tagged.
 
 ### S16-1 — the failing tests, first
 
-(to be filled)
+Written and run BEFORE any guard was changed
+(`x1-s16-failing-first.log`, **204 passed / 3 failed / 6 ignored**, exit 101,
+an intended FAILED result; committed at `18d5b0f`). The three failures, as
+the run printed them:
+
+| test | what today's code did |
+|---|---|
+| `the_constructors_guard_refuses_every_shape_free_dangerous_count` | `11 rows was accepted by the constructors' guard` — `layout.rs`'s hard-coded `{5, 8}` lets an 88-byte column through, and 88 is the `schedule` absorb |
+| `a_short_or_long_merkle_path_is_refused_by_the_core_verifier_by_name` | `A/false: the core's refusal is not the lane's own: A: pcs zk: Merkle path for column 555 fails` — the truncated path reached `pcs::verify_zk`, which **never checks the path length**; it hashed the column, folded ten siblings instead of eleven, and refused only because the root happened not to match |
+| `a_short_or_long_merkle_path_is_refused_by_the_whole_verifier_by_name` | `A/false: the refusal is not the lane's own: private block wire: opening shape` — the FRAME shape check caught it, which names no commitment, says nothing about paths, and does not apply at all to a structure that never went through a wire |
+
+Nine of the twelve new tests passed in that same run, which is the part of
+T-3 that needed no fix: the computed length set at all four shapes, every
+real commitment clear of its own set, the label table's source scan, the
+tree-depth identity with the wire format, and the wire's existing refusal of
+a frame one path entry short or long.
 
 ### S16-2 — T-3, the completed length guard
 
-(to be filled)
+**The new module `hashline/src/private_block/hash_domain.rs`** (with
+`hash_domain_tests.rs`) rebuilds, from a shape alone, every hash input on
+that profile's path that is NOT a column digest, and refuses by name any
+commitment whose `8 · rows` lands on one. It reads no witness and no
+committed value; every number in it is a public fact.
+
+**The three fixed lengths, each read off the cited source** (all in files
+this lane does not edit, and all pinned by a test that reads their source
+text — `the_length_formulas_are_still_the_ones_zkp_core_hashes`):
+
+| input | bytes | where |
+|---|---:|---|
+| a transcript absorb | `48 + |label| + |data|` | `zkp-core/src/transcript.rs:44-52` |
+| `Transcript::new` | `12 + |profile|` | `transcript.rs:25-30` |
+| a squeeze | 47 | `transcript.rs:85-90` |
+| the generator's refill | 40 | `zkp-core/src/rng.rs:52-56` |
+| a Merkle node / a salted leaf | 64 | `merkle.rs:14-19`, `pcs.rs:640-645` |
+
+**The label table is the single source of truth**, and it carries twenty-two
+labels with the `file:line` of each site. Seventeen are absorbed in the
+lane's own files; five — `sc-round`, `mask-q`, `mask-prox`, `pcs-vec`,
+`pcs-prox` — are absorbed inside `zkp-core/src/sumcheck.rs`,
+`zkp-core/src/pcs.rs` and `hashline/src/zk.rs` and are listed with their line
+numbers in a comment, because no lane file spells them.
+
+**THE COMPUTED SETS** (the test `the_computed_length_set_is_pinned_at_every_shape`
+pins these exactly). Dangerous row counts, i.e. `length / 8` for every
+length in the set divisible by eight:
+
+| shape | dangerous row counts |
+|---|---|
+| every shape | **5** (the 40-byte refill), **8** (the 64-byte node/leaf, and the `log-cols` absorb, which is 64 for the sole reason that `"log-cols"` has eight characters), **11** (`schedule`, 88), **12** (`public-statement`, 96), **13 / 15 / 17 / 19** (`sc-round` at degrees 2, 3, 4, 5 — 104, 120, 136, 152) |
+| toy, extra | **1031** (`pcs-prox`, 8,248 B) |
+| frozen-seam rung, extra | **7** (`Transcript::new`, 56 B), **1031**, **2567** |
+| rung-G, extra | **2567** (`pcs-prox`, 20,536 B) |
+| 125M, extra | **6** (`Transcript::new`, 48 B), **33287** (`pcs-prox`, 266,296 B) |
+
+**Against the memo's table** (`ZK60_D19_HASH_TAG_SCOPING.md` §4c): the eight
+at every shape, the 6 at 125M and the 7 at the rung all agree exactly, and
+the two shape-dependent lengths the memo counted — `Transcript::new` at
+51 / 56 / 58 / 48 and the `parameters` absorb at 171 / 210 / 210 / 215 — are
+re-derived here and agree to the byte. **TWO DIFFERENCES, both the code's and
+both in the direction of more refusals:**
+
+1. **`pcs-prox` was missing from the memo's dangerous list.** Its absorb is
+   `48 + 8 + 16 (n + Q)` bytes, which is ALWAYS a multiple of eight, so it
+   contributes a dangerous row count `7 + 2 (n + Q)` at every shape: 1,031 at
+   the toy, 1,031 and 2,567 at the frozen-seam rung (block and endpoint
+   geometries differ there), 2,567 at rung-G, 33,287 at 125M. No commitment
+   is remotely near those and nothing changes for any profile, but the set is
+   computed and not curated, so they are in it and are pinned.
+2. **`sc-round` is taken over the module's WHOLE declared degree range, not
+   the degrees one shape uses.** The frozen toy carries no support indicator
+   (`Shape::carries_pad_rule`), so its own degrees stop at 4 and 19 rows
+   would in fact be safe there today. The guard refuses 19 at the toy too.
+   That is a deliberate over-approximation: a guard whose answer moves with a
+   calibration flag is one nobody can reason about, and refusing a geometry
+   no profile has costs nothing. `Shape::degree_range` is the one place the
+   range is stated.
+
+**Where the check runs.**
+
+* `Layout::for_shape` — the full shape-driven set, against `A`, `H`, `M` and
+  the endpoint. This is the replacement for the hard-coded call.
+* `layout::no_commitment_has_a_node_shaped_column` keeps its name and
+  signature for the two statement constructors that hold NO profile string
+  (`EndpointSpecG::new`, `BoundarySpec::new`) and is now the **shape-free**
+  half of the set. That half is exactly the memo's eight; the two
+  profile-dependent counts (6 at 125M, 7 at the rung) cannot be seen without
+  a profile string, which is why `Layout::for_shape` uses the full set.
+* **`RunStatement::new`** — new. A run absorbs one word no block does, its
+  own `parameters` line, whose length moves with `L`; and it commits one
+  thing no block does, an internal boundary. Both go through the RUN's own
+  set here, before the statement can prove anything.
+
+**The near miss that justifies the run-level check** [COUNTED, this stage]:
+at 125M the internal boundary's column is `8 · 38 = 304` bytes and the
+external endpoint's is `8 · 37 = 296`. The twelve-block 125M run's
+`parameters` absorb is **302 bytes** — two short of the boundary's column and
+six past the endpoint's. At rung-G with `L = 12` that absorb is **296 bytes
+exactly**, a multiple of eight; it is harmless there only because rung-G's
+endpoint is 9 rows and its boundary 10. A run whose parameter line came out
+246 bytes long would collide with a 38-row boundary outright. Nothing is
+broken today; the margin is two bytes of a formatted string.
+
+**FINDING S16-F1 — the completed guard is not decorative.** The generalised
+endpoint's reachable commitment row counts are `2^k + MASK_ROWS` = 6, 7, 9,
+13, 21, 37, …, and **13 is now refused at every profile** (its column is 104
+bytes, a degree-2 `sc-round` absorb), **6 at the 125M profile** and **7 at
+the frozen-seam rung**. An internal boundary's counts are `2^k + 2s + 2`,
+which is 12 at three claim sites on a four-data-row plane — the
+`public-statement` absorb. Three existing statement FIXTURES had to move off
+13 and one off 12 (`endpoint_g.rs` twice at `log_n 9 -> 11` and once at the
+8,192-word plane `log_n 10 -> 11`; `boundary.rs` from three claim sites to
+four). None of them is a geometry any accepted profile uses, the changes are
+commented in place with the reason, and the first of them now asserts the new
+refusal by name instead of silently avoiding it. The old doc comment on
+`endpoint_g::a_node_shaped_endpoint_column_is_unreachable_and_still_refused`
+claimed the refusal "can NEVER fire for this construction"; that sentence is
+corrected in place. Its assertions are unchanged and still hold: 5 and 8 in
+particular remain unreachable.
+
+**How strong the label table's coverage test is, plainly.** `Transcript`
+lives in `zkp-core`, which this lane may not edit, so no recording wrapper
+could be installed and the table is pinned by SCANNING SOURCE instead.
+
+* The lane's fourteen non-test sources are scanned exhaustively (53 labelled
+  absorbs found); any `absorb` with a literal label the table does not carry
+  fails the test.
+* `hashline/src/zk.rs`, `zkp-core/src/pcs.rs` and `zkp-core/src/sumcheck.rs`
+  are scanned too (83 labelled absorbs), against the table plus an explicit
+  list of the 24 labels of theirs that belong to the feed-forward layer
+  prover and not to this path. A new label in any of those three files fails
+  the test and someone has to decide which list it joins.
+* **What it cannot see:** an absorb whose label is a VARIABLE. There are two
+  on the path — `protocol::absorb_root` (`protocol.rs:129`) and
+  `zk::absorb_com` (`zk.rs:867-868`) — and both are covered anyway because
+  their callers spell the literal, which the scan does see. It also cannot
+  follow a call chain into a fourth file; none exists today. **This, and the
+  source-text pin on the three `zkp-core` hasher bodies, are the weak links
+  of T-3, and they are weak in the same way: they pin TEXT, not behaviour.**
 
 ### S16-3 — T-4, the explicit path-length check
 
-(to be filled)
+**The hole.** `zkp_core::pcs::verify_zk` hands the published path straight to
+`MerkleTree::verify_path` (`pcs.rs:1019` -> `merkle.rs:56-63`), which folds
+however many siblings it is given and never checks how many there are. A
+Merkle inner node is `blake3(left ‖ right)` and a salted leaf is
+`blake3(column digest ‖ salt)` — the same function on the same 64 bytes — so
+a prover free to choose the path LENGTH can present an inner node as a leaf.
+The private block was safe only because `wire.rs` reads a fixed number of
+path entries out of the layout and never out of the frame: an accident of the
+transport, not a statement of the verifier.
+
+**The check.** `hash_domain::paths_are_the_tree_depth` requires every opened
+column's path to have exactly `log2(encoded columns)` entries, and
+`mask_paths_are_the_tree_depth` the masking commitment's `MASK_LOG_DOM = 12`.
+**The depth comes from `wire::path_len`, which is `Dim::new(..).path` — the
+same expression the frame format uses**, so the two cannot drift; the test
+`the_tree_depth_is_the_wire_formats_own_number` pins the identity at all four
+shapes and for the mask. Three call sites, all before any hashing:
+
+| site | what it covers |
+|---|---|
+| `protocol::verify_inner_at`, **before `wire::validate`** | a block receipt's five commitments: `A`, `H`, `M` and the two external endpoints |
+| `protocol::verify_core`, before the first absorb | `A`, `H`, `M` — the body a run's stages share |
+| `run::RunVerifier::step`, immediately after `decode_segment` | a segment's five: the three above plus the incoming boundary-or-endpoint opening and the last stage's output endpoint |
+
+The refusal is fixed text plus public numbers only — the commitment's name,
+the opening's POSITION in the frame (a loop index, not the sampled column
+index), the path length carried and the tree's depth:
+
+```
+private block: opened column 0 of the A commitment carries a Merkle path of
+10 entries; this commitment's tree is 11 deep (T-4)
+```
+
+**The negatives.** A genuine toy receipt is proved in memory and one opened
+column's path is shortened by one entry, and separately lengthened by one, on
+each of the five commitments — ten mutations through the whole verifier, six
+through the core verifier alone. Every one is refused by the lane, by name.
+Before the fix the same ten produced `private block wire: opening shape` and
+the same six produced `A: pcs zk: Merkle path for column 555 fails` (S16-1).
+
+**The wire level is PINNED, not added.** A frame 32 bytes short (exactly one
+path entry) and a frame 32 bytes long are both refused at decode as
+`private block wire: frame length`, because `decode` requires the exact
+counted length and `Reader::column` reads a fixed number of entries out of
+the layout (`wire.rs:178-193`). That test passed before this stage and is
+kept as the pin.
+
+**What T-4 does NOT do.** It does not fix `pcs::verify_zk`, which is in
+`zkp-core` and outside this lane. The finding stands for the integrator and
+its other wire formats: the one-line fix there is `path.len() == log_cols`,
+which rejects no honest proof and moves no byte.
 
 ### Files this stage wrote, and the shared-file list
 
-(to be filled)
+**Shared files touched: NONE.** Everything is under
+`hashline/src/private_block/`, plus this ledger and
+`results/zk60_block125m_lane/`.
+
+| file | what |
+|---|---|
+| `private_block/hash_domain.rs` | **new.** The length set (T-3) and the path-depth checks (T-4) |
+| `private_block/hash_domain_tests.rs` | **new.** Thirteen tests |
+| `private_block.rs` | one `mod hash_domain;` line and its comment |
+| `private_block/layout.rs` | the guard's body becomes the shape-free set; `Layout::for_shape` uses the full one |
+| `private_block/shape.rs` | `Shape::degree_range`, additive |
+| `private_block/wire.rs` | `path_len` and `MASK_PATH_LEN`, additive |
+| `private_block/protocol.rs` | `endpoint_pcs_params` (one definition replacing two inline copies); the T-4 checks in `verify_core` and `verify_inner_at` |
+| `private_block/run.rs` | the run-level T-3 check in `RunStatement::new`; the T-4 check in `RunVerifier::step`; `e_params` from the new helper |
+| `private_block/endpoint_g.rs` | three test fixtures off the now-refused 13-row geometry, with the refusal asserted by name; one doc comment corrected |
+| `private_block/boundary.rs` | one test fixture off the now-refused 12-row geometry |
+
+The **byte-frozen toy** is untouched: its receipt is still 2,816,472 B (the
+new wire test asserts it), its parameter line, schedule digest and frame
+lengths are unmoved, and no test that pins them was edited.
 
 ### Tests and commands of stage 16
 
-(to be filled)
+| command | log |
+|---|---|
+| **failing first**, before any guard changed: `--lib private_` | `x1-s16-failing-first.log` — **204 passed, 3 failed, 6 ignored, 67 filtered out**, 312.81 s, exit 101, the intended FAILED result |
+| **the gate**, after the fix: `--lib private_` | `x2-s16-filter.log` — **208 passed, 0 failed, 6 ignored, 67 filtered out**, 297.68 s, exit 0, **13 warnings, the same 13 as the stage-15 baseline** (baseline 195 / 0 / 6: +13 tests). The toy's frozen parameter line, schedule digest, 2,816,472-byte receipt and both round trips are in the pass list, as are all 21 `endpoint_g` / `boundary` tests |
+
+**The forbidden-files proof**, run after the fix committed at `7fe2245`:
+
+```
+git --no-pager -C /home/victor/wt-zk60-block125m diff --stat b26c869 -- \
+  hashline/src/zk.rs hashline/src/layer.rs hashline/src/pcs.rs \
+  hashline/src/wcache.rs hashline/src/gpu hashline/src/native_capture.rs \
+  hashline/src/private_seam.rs zkp-core private-block-kernel \
+  private-model-kernel zkvm-block
+```
+
+prints **nothing**. The whole diff against `b26c869` is this ledger,
+`results/zk60_block125m_lane/`, and ten files under
+`hashline/src/private_block*`.
+
+### The thirteen new tests
+
+| test | what it pins |
+|---|---|
+| `the_length_formulas_are_still_the_ones_zkp_core_hashes` | the three hasher bodies in `zkp-core`, by source text, and the five constants derived from them |
+| `the_shape_free_dangerous_row_counts_are_the_memos_eight` | the shape-free set is exactly `{5, 8, 11, 12, 13, 15, 17, 19}`, each naming its collision |
+| `the_computed_length_set_is_pinned_at_every_shape` | the exact set at all four shapes, and the memo's `Transcript::new` and `parameters` lengths re-derived |
+| `every_dangerous_row_count_is_refused_by_name_at_every_shape` | every count in every shape's set refuses, naming the commitment, the rows, the bytes, the collision and `C-H4` |
+| `the_constructors_guard_refuses_every_shape_free_dangerous_count` | the guard the two bare statement constructors call (**the T-3 failing-first test**) |
+| `no_commitment_of_any_shape_collides_and_the_toy_is_clear` | the four shapes' real commitments, the toy's 455 / 384 / 50 / 7 by hand, and both boundaries |
+| `the_runs_own_parameter_line_enters_the_length_set` | a run's set carries its own `parameters` word and a block's does not |
+| `the_completed_guard_refuses_geometries_the_constructions_can_actually_reach` | finding S16-F1: 6, 7, 13 endpoint rows and 12 boundary rows |
+| `every_absorb_label_on_the_path_is_in_the_table` | 53 labelled absorbs in the lane, 83 in the three foreign files, against the table plus the 24 not-on-this-path labels |
+| `the_tree_depth_is_the_wire_formats_own_number` | `wire::path_len` is the tree depth at all four shapes and for the mask |
+| `a_short_or_long_merkle_path_is_refused_by_the_core_verifier_by_name` | six mutations through `verify_core` (**a T-4 failing-first test**) |
+| `a_short_or_long_merkle_path_is_refused_by_the_whole_verifier_by_name` | ten mutations through `verify_inner_at`, including the exact refusal string (**a T-4 failing-first test**) |
+| `a_frame_one_path_entry_short_is_refused_at_decode` | the wire's existing refusal, pinned; and the toy frame is still 2,816,472 B |
+
+### What this stage did NOT do
+
+* **It did not implement the tag** (ruling T-1). T-3 and T-4 are the lane-only
+  half of the disposition; the keyed-BLAKE3 tag needs the additive change to
+  `zkp-core` and `zk.rs` that T-5 puts to the integrator first. Length
+  separation remains the only separation there is.
+* **It did not fix `pcs::verify_zk`.** That function still folds any path
+  length it is handed. The lane is covered at all its own call sites; the
+  integrator's other wire formats are not checked and the one-line fix
+  (`path.len() == log_cols`) is still owed there.
+* **It did not analyse the depth-confusion attack.** The disposition's rough
+  estimate — that a planted node costs the prover another opening position
+  and does not beat the accounted per-opening figure — is still unchecked by
+  anybody.
+* **No privacy or soundness acceptance** is claimed or implied, and D22's
+  scope is unchanged.
+* **The cross-profile coincidence the memo recorded still stands and is out of
+  scope for a per-shape guard**: the toy's 7-row endpoint column is 56 bytes,
+  which is exactly the frozen-seam rung's `Transcript::new` input length.
+  Different proofs, so nothing is broken; but no per-shape check can see it,
+  and only the tag closes it.
+
+### NEXT, in order
+
+1. **The integrator** decides who writes the shared, additive `hashtag.rs`
+   part of T-1 / T-5, and takes the `pcs::verify_zk` path-length finding for
+   the other wire formats.
+2. When the tag lands, `hash_domain`'s label table has to learn any new
+   absorb, and the run capture's schema gains the tag field (memo §6.3).
+3. The two run capture bundles are re-taken after the tag moves the bytes.
