@@ -17,7 +17,32 @@ pub(crate) const HEADER: usize = 8 + 32;
 const MASK_VEC: usize = 1024;
 const MASK_DOM: usize = 4096;
 const MASK_PATH: usize = 12;
+/// **THE TOY'S wire bound, unchanged in name and value for every existing
+/// caller.** A toy frame over 4 MiB is refused exactly as it always was.
 pub const MAX_WIRE_BYTES: usize = 4 * 1024 * 1024;
+
+/// The absolute ceiling any profile's frame must fit, whatever its shape
+/// says: nothing beyond this is ever length-checked, let alone allocated.
+/// 125M's counted receipt is about 40.7 MB, so this leaves headroom without
+/// letting a shape ask for an unbounded frame.
+pub(crate) const MAX_WIRE_BYTES_ANY: usize = 64 * 1024 * 1024;
+
+/// **THE WIRE BOUND, PER PROFILE (the S11a ruling).** `MAX_WIRE_BYTES` is the
+/// TOY's and stays exactly what it is. Every other profile is bounded by its
+/// OWN shape's counted receipt length — the number `decode` already requires
+/// equality with — capped by [`MAX_WIRE_BYTES_ANY`]. The bound is a transport
+/// limit and is absorbed into no transcript: the padded rung endpoint puts
+/// the rung frame 23,960 B over 4 MiB and the 125M frame far past it, and a
+/// fixed constant would refuse a correctly formed receipt for no reason a
+/// verifier could state.
+pub(crate) fn wire_bound(lay: &Layout) -> usize {
+    let sh = lay.shape();
+    if sh.is_frozen_toy() {
+        MAX_WIRE_BYTES
+    } else {
+        std::cmp::min(sh.receipt_bytes().total, MAX_WIRE_BYTES_ANY)
+    }
+}
 
 /// **STEP C part 2.** The four numbers that fix the transport of ONE hiding
 /// opening, as a function of the shape: how many columns are opened, the
@@ -98,7 +123,7 @@ pub(crate) fn validate(r: &Receipt, lay: &Layout) -> Result<(), String> {
 pub(crate) fn encode(r: &Receipt, binding: &Digest, lay: &Layout) -> Result<Vec<u8>, String> {
     validate(r, lay)?;
     let len = encoded_len(lay);
-    if len > MAX_WIRE_BYTES {
+    if len > wire_bound(lay) {
         return Err("private block wire: frame exceeds bound".into());
     }
     let mut out = Vec::with_capacity(len);
@@ -169,7 +194,7 @@ impl Reader<'_> {
 }
 
 pub(crate) fn decode(bytes: &[u8], binding: &Digest, lay: &Layout) -> Result<Receipt, String> {
-    if bytes.len() != encoded_len(lay) || bytes.len() > MAX_WIRE_BYTES {
+    if bytes.len() != encoded_len(lay) || bytes.len() > wire_bound(lay) {
         return Err("private block wire: frame length".into());
     }
     let sh = lay.shape();

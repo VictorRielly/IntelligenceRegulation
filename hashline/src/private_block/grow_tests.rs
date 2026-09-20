@@ -303,12 +303,24 @@ const MODEL_RUNG: Expected = Expected {
     u8_lookups: 419_840,
     exp_pairs: 8_192,
     act_pairs: 8_192,
-    // the memo's §9a table says 4,173,032; the model's extra 176 B is
+    // the memo's §9a table says 4,173,032; the Python model's extra 176 B is
     // `SC_KVZC`'s support indicator, which §9a's own domain paragraph
     // requires because `Dom::Kv` pads at the rung (lane finding B-F3, open
-    // for the security owner). The Rust agrees with the model, not with the
-    // table.
-    receipt_total: 4_173_208,
+    // for the security owner).
+    //
+    // **S11a: +45,056 B on top of the model's 4,173,208 (finding S11-F4).**
+    // The model priced the endpoints at the TRUE `(24, 96)` plane — 14 rows
+    // at inverse rate 4 — and `SeamSpec::new` refuses that plane outright
+    // (both axes must be powers of two). What the frozen seam actually gives
+    // is the PADDED `(32, 128)` plane at exactly its 4,096-word ceiling: 16
+    // data rows, `16 + MASK_ROWS = 21` commitment rows, and the seam's frozen
+    // `INV_RATE = 8`, which is hashed into every `SeamSpec::digest()` and so
+    // not editable. The two endpoint openings therefore cost
+    // `2 * [(1+1)(256+256)(16) + 256(8 + 21*8 + 32 + 11*32)] = 319,488 B`
+    // against the model's 274,432 B. The PYTHON MODEL IS UNCHANGED and now
+    // differs from the Rust by exactly this term; the difference and its
+    // cause are recorded in the lane ledger, as the ruling on S11-F4 asks.
+    receipt_total: 4_218_264,
 };
 
 const MODEL_M125: Expected = Expected {
@@ -1129,16 +1141,30 @@ fn the_pcs_parameters_come_from_the_shape_and_the_pad_count_tracks_the_opened_co
 /// literals (the 512-word clear vector, the 2048-column encoding, the 11-step
 /// path, the 256 checks) plus `A_GROUPS` / `H_GROUPS` / `ENDPOINT_ROWS`. It
 /// now reads all of them off the layout's shape, so it must agree PART FOR
-/// PART with `Shape::receipt_bytes`, the independent Python-checked model, at
-/// every shape — including the toy's frozen 2,816,472 bytes and the rung's
-/// modelled 4,173,208.
+/// PART with `Shape::receipt_bytes` at every shape — including the toy's
+/// frozen 2,816,472 bytes and, since S11a, the rung's 4,218,264 (the Python
+/// model's 4,173,208 plus the 45,056 B the frozen seam's padded endpoint
+/// costs; see `MODEL_RUNG`).
+///
+/// It also pins the PER-PROFILE wire bound (the S11a ruling): the toy's is
+/// the unchanged 4 MiB constant and the toy frame is under it; every other
+/// profile's is its own counted length, which the rung frame exceeds 4 MiB
+/// to reach and the 125M frame exceeds it many times over.
 #[test]
 fn the_codec_length_is_the_models_at_every_shape() {
-    for (sh, want) in [(Shape::toy(), 2_816_472usize), (Shape::rung(), 4_173_208), (Shape::m125(), Shape::m125().receipt_bytes().total)] {
+    for (sh, want) in [(Shape::toy(), 2_816_472usize), (Shape::rung(), 4_218_264), (Shape::m125(), Shape::m125().receipt_bytes().total)] {
         let lay = Layout::for_shape(&sh).expect("the shape is well formed");
         assert_eq!(sh.receipt_bytes().total, want, "{}: the model's receipt total", sh.name);
         assert_eq!(super::wire::encoded_len(&lay), want, "{}: the codec's frame length differs from the model", sh.name);
+        assert_eq!(super::wire::wire_bound(&lay), if sh.is_frozen_toy() { MAX_WIRE_BYTES } else { want }, "{}: the wire bound", sh.name);
+        assert!(want <= super::wire::wire_bound(&lay), "{}: the frame does not fit its own bound", sh.name);
     }
+    // the toy's bound is the frozen constant and the toy frame is under it;
+    // the rung's frame is 23,960 B OVER that constant, which is why the bound
+    // had to become per-profile at all
+    assert!(2_816_472 < MAX_WIRE_BYTES && 4_218_264 > MAX_WIRE_BYTES);
+    assert_eq!(4_218_264 - MAX_WIRE_BYTES, 23_960, "the rung frame's overshoot of the toy bound");
+    assert!(Shape::m125().receipt_bytes().total <= super::wire::MAX_WIRE_BYTES_ANY, "125M must fit the absolute ceiling");
     // the toy path is unchanged: the public entry point still reports the frozen length
     assert_eq!(encoded_len(), 2_816_472);
 }

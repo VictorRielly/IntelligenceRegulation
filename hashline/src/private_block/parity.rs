@@ -490,6 +490,16 @@ fn compare_shaped(s: &Shape, w: &Witness, tbuf: &[i64], idx: usize) {
                 continue;
             }
             assert_eq!(w.planes[p].len(), s.size(*dom), "case {idx}: plane {p} length");
+            // **S12a.** The rule is the memo's table (`pad::a_rule`), not
+            // "everything is zero": `A_E` is EXEMPT, and its padded
+            // positions carry a genuine `exp` row on purpose — the LogUp arm
+            // is never gated, so a zero there would put a pair that is not a
+            // table row into the value-0 identity (finding S12-F3). Every
+            // ZERO-rule plane is still zero off its support, and that is
+            // what the pad-zero term proves.
+            if super::pad::a_rule(s, &ids, p) == Some(super::pad::Rule::Exempt) {
+                continue;
+            }
             let bad = (0..w.planes[p].len()).filter(|i| !is_true[*i] && w.planes[p][*i] != 0).count();
             assert_eq!(bad, 0, "case {idx}: plane {p} has {bad} nonzero pad positions");
         }

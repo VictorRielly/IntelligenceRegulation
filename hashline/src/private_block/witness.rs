@@ -570,6 +570,23 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
             }
         }
     }
+    // **S12a, finding S12-F3: `A_E` is EXEMPT from the pad rule and its
+    // PADDED positions must still be genuine exp-table rows.** The LogUp arm
+    // is never gated (§3.7a), so `protocol::exp_deltas` reads the WHOLE
+    // padded `Dom::S` cube and the prover's histogram folds any pair that is
+    // not a table row into entry 0, where only the value-0 identity notices
+    // it — which is what the first honest rung proof failed on ("H: pcs zk:
+    // group 8"). At a padded token row `A_MX` is 0 and `A_S8` is 0, so the
+    // pair would be `(delta 0, e 0)` while `exp[0] = 2^F_E != 0`. That is
+    // exactly the reason the memo's table EXEMPTS `A_E` (`pad::a_rule`).
+    //
+    // One pass over the whole cube, with `protocol::exp_deltas`' own formula,
+    // fills it. On a TRUE position it recomputes the value the loop above
+    // already wrote (`best` IS `A_MX`, and the mask is the same predicate),
+    // so the toy — where `t_pad == tokens`, `h_pad == q_heads` and every
+    // position is true — does not move by one word.
+    // The pass itself is BELOW, after `A_S8`'s plane is written: it reads the
+    // committed plane, exactly as `protocol::exp_deltas` does.
     let (o8, ro) = quantize(&oacc, &sup_q, SH_O, -127, 127, "O")?;
     // `Wo` reads the head-permuted `Dom::Q` axis and writes `Dom::D`: both
     // are the PADDED width, with the padded head columns and the padded
@@ -612,6 +629,19 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
     pl[ap(A_RKRL)] = rkrl;
     pl[ap(A_S8)] = s8;
     pl[ap(A_RSL)] = rsl;
+    // the `A_E` pad pass promised above, on the committed `A_S8` plane
+    {
+        let (tp, mx, s8p, ep) = (g.t_pad, ap(A_MX), ap(A_S8), ap(A_E));
+        for x in 0..shape.size(Dom::S) {
+            let (ht, j) = (x / tp, x % tp);
+            let masked = if j <= ht % tp { pl[s8p][x] } else { MASK_SCORE };
+            let delta = pl[mx][ht] - masked;
+            if !(0..256).contains(&delta) {
+                return Err(range("exp difference"));
+            }
+            pl[ep][x] = public.exp[delta as usize];
+        }
+    }
 
     // ================= the block half (kernel lib.rs:616-663) =================
     // ---- norm_m: the same relation, with gamma_m and xres1 ----

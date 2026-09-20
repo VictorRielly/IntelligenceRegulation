@@ -257,18 +257,31 @@ fn finish_claims(claims: [Vec<ZClaim>; 4], lay: &Layout) -> [Vec<ZClaim>; 4] {
 
 pub(crate) const ENDPOINT_ROWS: usize = 7;
 const ENDPOINT_PROX: usize = 4;
+/// `private_seam::MASK_ROWS`: the terminal pair and three proximity rows that
+/// sit above a seam commitment's data rows, at every shape the seam accepts.
+const ENDPOINT_MASK_ROWS: usize = 5;
 
 /// The endpoint geometry of a shape: `(rows, data rows, proximity row)`. The
-/// toy's is the frozen `(7, 2, 4)`. **STEP C part 2 threads it; S11 is what
-/// decides it at the rung**, where the endpoint plane no longer fits one
-/// `private_seam` block (`nb_d = 3`) — until then a shape whose
-/// `endpoint_rows` is not the toy's is refused BY NAME here rather than
-/// proved against a geometry nobody has checked.
+/// toy's is the frozen `(7, 2, 4)`.
+///
+/// **S11a.** A `private_seam` commitment is `data` rows, the terminal pair at
+/// `(data, data + 1)` and three proximity rows from `data + 2`, so
+/// `rows = data + MASK_ROWS` with `MASK_ROWS = 5` and the geometry is
+/// `(rows, rows - 5, rows - 3)` at every shape the frozen seam accepts. At
+/// the rung that is 21 rows: the PADDED `(32, 128)` endpoint is 4,096 words,
+/// exactly the seam's ceiling, and `4096 / 256 = 16` data rows. **S11b is
+/// still owed**: 125M's endpoint plane is 393,216 words (`log_len` 19 against
+/// `MAX_LOG_LEN` 12) and the frozen seam cannot carry it at all, so a
+/// generalised endpoint must be built BESIDE `private_seam.rs` and the rung
+/// re-run with it before anything runs at 125M.
 fn endpoint_geometry(sh: &Shape) -> Result<(usize, usize, usize), String> {
-    if sh.endpoint_rows != ENDPOINT_ROWS {
-        return Err(format!("private block: endpoint geometry of {} rows is S11's, not built yet", sh.endpoint_rows));
+    let rows = sh.endpoint_rows;
+    if rows <= ENDPOINT_MASK_ROWS {
+        return Err(format!("private block: endpoint geometry of {rows} rows has no data rows"));
     }
-    Ok((ENDPOINT_ROWS, 2, ENDPOINT_PROX))
+    let g = (rows, rows - ENDPOINT_MASK_ROWS, rows - ENDPOINT_MASK_ROWS + 2);
+    debug_assert!(rows != ENDPOINT_ROWS || g == (ENDPOINT_ROWS, 2, ENDPOINT_PROX), "the toy's frozen endpoint geometry moved");
+    Ok(g)
 }
 
 // The endpoint planes are `private_seam` commitments: 2 data rows, the terminal pair
@@ -295,7 +308,7 @@ fn check_endpoint_opening(claims: &[ZClaim], sh: &Shape, tr: &Transcript) -> Res
 
 /// integer lookup values per lookup of a domain, over the domain's PADDED
 /// extent at this layout's shape (`Dom::len()` is the toy's)
-fn lookup_values(lay: &Layout, wit: &Witness, dom: Dom) -> Vec<Vec<i64>> {
+pub(super) fn lookup_values(lay: &Layout, wit: &Witness, dom: Dom) -> Vec<Vec<i64>> {
     let len = lay.shape().size(dom);
     lay.lookups(dom)
         .iter()
@@ -304,13 +317,13 @@ fn lookup_values(lay: &Layout, wit: &Witness, dom: Dom) -> Vec<Vec<i64>> {
 }
 
 /// the activation lookup's index column `g8 + 128` over the `Dom::F` cube
-fn act_indices(lay: &Layout, wit: &Witness) -> Vec<i64> {
+pub(super) fn act_indices(lay: &Layout, wit: &Witness) -> Vec<i64> {
     wit.planes[lay.ids().at(A_G8)].iter().map(|g| g + 128).collect()
 }
 
 /// max - masked score per `(h, t, j)`, over `Dom::S`'s cube
 /// `(h * t_pad + t) * t_pad + j` (`witness.rs:193`)
-fn exp_deltas(lay: &Layout, wit: &Witness) -> Vec<i64> {
+pub(super) fn exp_deltas(lay: &Layout, wit: &Witness) -> Vec<i64> {
     let (sh, ids) = (lay.shape(), lay.ids());
     let (tp, s8, mx) = (sh.t_pad, ids.at(A_S8), ids.at(A_MX));
     (0..sh.h_pad * tp * tp)

@@ -60,6 +60,12 @@
 
 mod argument;
 mod layout;
+// STEP S9: the pad rule of ruling P-1 — the support indicators, the per-plane
+// ZERO / EXEMPT table and the slot map. Part 4 built the term itself in
+// `argument::define`, so this module is no longer `cfg(test)`: it is now
+// library code beside `layout` and `witness`, and its two acceptance tests
+// PZ-1 and PZ-2 live in its own `mod tests`.
+mod pad;
 mod protocol;
 mod shape;
 mod wire;
@@ -69,17 +75,14 @@ mod witness;
 mod grow_tests;
 #[cfg(test)]
 mod norm_alias;
-// STEP S9, PREPARED: the pad rule's SPECIFICATION (support indicators, the
-// per-plane ZERO / EXEMPT table) and its two acceptance tests PZ-1 and PZ-2,
-// written before the term itself. It is `cfg(test)` only because the term is
-// not built yet: when `argument::define` carries the pad-zero term this
-// module moves into the library beside `layout` and `witness`.
-#[cfg(test)]
-mod pad;
 #[cfg(test)]
 mod parity;
 #[cfg(test)]
 mod refusals;
+// STEP S12a: the development rung end to end — the first step of this lane
+// that proves at the rung shape and hands the bytes to a fresh verifier.
+#[cfg(test)]
+mod rung_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]
@@ -93,7 +96,9 @@ use crate::ntt::NttTables;
 use crate::pcs::OpeningZk;
 use crate::private_seam::{self, PreparedPlane, SeamSpec, Side};
 use crate::zk::MaskOpening;
-use layout::{D, DH, F_E, F_RO, T};
+// `D` left this list at S11a: `IoSpec` now takes the endpoint plane's extent
+// from its shape (`t_pad`, `d_pad`) instead of the toy's two literals.
+use layout::{DH, F_E, F_RO, T};
 
 pub const PROFILE: &[u8] = b"hashline-zk-mr1/private-block-t32-poc/1";
 pub use wire::MAX_WIRE_BYTES;
@@ -422,6 +427,15 @@ pub struct IoSpec {
     context: Digest,
     input_scale: i32,
     output_scale: i32,
+    /// **S11a.** The endpoint plane's PADDED extent, `(t_pad, d_pad)` of the
+    /// shape this spec is for. `SeamSpec::new` requires both axes to be
+    /// powers of two, so the TRUE `(24, 96)` rung endpoint is refused by name
+    /// and the padded `(32, 128)` is what the block commits — which is
+    /// exactly the `Dom::D` slice `SC_IO_IN` / `SC_IO_OUT` already claim.
+    /// The toy's `(T, D)` are unchanged, so [`IoSpec::new`] is byte for byte
+    /// what it was.
+    t_pad: usize,
+    d_pad: usize,
 }
 
 impl IoSpec {
@@ -433,12 +447,20 @@ impl IoSpec {
     /// declare `(-3, -3)`; that is Codex's fix on that component and is not
     /// touched from here.
     pub fn new(context: Digest, input_scale: i32, output_scale: i32) -> Result<Self, String> {
+        Self::new_shaped(&shape::Shape::toy(), context, input_scale, output_scale)
+    }
+    /// The same spec at any [`shape::Shape`] (S11a). `new` is this at `Shape::toy()`.
+    pub(crate) fn new_shaped(sh: &shape::Shape, context: Digest, input_scale: i32, output_scale: i32) -> Result<Self, String> {
         if (input_scale, output_scale) != ENDPOINT_SCALES {
             return Err("private block: endpoint scales are pinned to the approved calibration (0, 0)".into());
         }
-        let spec = Self { context, input_scale, output_scale };
+        let spec = Self { context, input_scale, output_scale, t_pad: sh.t_pad, d_pad: sh.d_pad };
         spec.seams()?;
         Ok(spec)
+    }
+    /// the padded endpoint plane's word count, `t_pad * d_pad`
+    pub(crate) fn plane_len(&self) -> usize {
+        self.t_pad * self.d_pad
     }
     pub fn input_scale(&self) -> i32 {
         self.input_scale
@@ -450,7 +472,8 @@ impl IoSpec {
     // attention-half endpoint (21..24) or an FFN-IO endpoint (1..4) does not
     // fit, and the separation is structural rather than by the scale field.
     fn seams(&self) -> Result<[SeamSpec; 2], String> {
-        Ok([SeamSpec::new(self.context, T, D, self.input_scale, 41, 42)?, SeamSpec::new(self.context, T, D, self.output_scale, 43, 44)?])
+        let (t, d) = (self.t_pad, self.d_pad);
+        Ok([SeamSpec::new(self.context, t, d, self.input_scale, 41, 42)?, SeamSpec::new(self.context, t, d, self.output_scale, 43, 44)?])
     }
 }
 
@@ -515,7 +538,7 @@ pub struct Endpoints {
 /// than the block output makes every later proof fail verification.
 pub fn prepare_endpoints(spec: IoSpec, input: &[i16], output: &[i16]) -> Result<(ExpectedIo, Endpoints), String> {
     let [si, so] = spec.seams()?;
-    if input.len() != T * D || output.len() != T * D {
+    if input.len() != spec.plane_len() || output.len() != spec.plane_len() {
         return Err("private block: endpoint shape".into());
     }
     let ntt = NttTables::new(12);
@@ -601,6 +624,26 @@ impl Receipt {
     pub fn payload_size(&self) -> usize {
         encoded_len() - wire::HEADER
     }
+    /// **S12a.** The same codec at any [`shape::Shape`]; `to_bytes` is this at
+    /// the toy, whose path is left exactly where it was.
+    pub(crate) fn to_bytes_at(&self, sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo) -> Result<Vec<u8>, String> {
+        let lay = layout::Layout::for_shape(sh)?;
+        wire::encode(self, &protocol::transcript(public, expected, &lay).state(), &lay)
+    }
+    pub(crate) fn from_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<Self, String> {
+        let lay = layout::Layout::for_shape(sh)?;
+        wire::decode(bytes, &protocol::transcript(public, expected, &lay).state(), &lay)
+    }
+}
+
+/// **S12a.** `verify_bytes` at any [`shape::Shape`]: decode from bytes with a
+/// FRESH layout and verify, which is the only form in which a rung run counts
+/// for anything.
+pub(crate) fn verify_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
+    #[cfg(test)]
+    capture::begin();
+    let receipt = Receipt::from_bytes_at(sh, public, expected, bytes)?;
+    protocol::verify_inner_at(sh, public, expected, &receipt).map(|_| ())
 }
 
 pub fn verify_bytes(public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {

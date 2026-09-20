@@ -214,21 +214,41 @@ fn table_of(tab: &Tab, n_vars: usize, pd: &ProverData) -> Vec<Fp2> {
     }
 }
 
+/// **FINDING S12-F2 (S12a), fixed here.** The ROW WIDTH a claim's reserved
+/// pair is addressed in is the row width of the COMMITMENT the plane lives
+/// in, and the two commitments do not share one: `A` and `H` are the block's
+/// PCS (`log_cols`), the two endpoints are the frozen seam's (`LOG_COLS` 8,
+/// carried as `endpoint_log_n`). Both are 8 at the toy, which is why the
+/// module's `LOG_N` / `N` literals worked there and why no test could see the
+/// difference. At the rung `log_cols` is 10 and the literals put every `A` /
+/// `H` reserved pair four rows too low, which `audit_claims` refuses by name
+/// ("a claim does not carry exactly its own reserved pair") — correctly:
+/// that check is the whole defence against a shared pair and is never
+/// relaxed.
+fn row_log(sh: &Shape, cm: Cm) -> usize {
+    match cm {
+        Cm::A | Cm::H => sh.log_cols,
+        _ => sh.endpoint_log_n,
+    }
+}
+
 /// the mask pair's value at the claim's column tail
-fn mask_eval(p: &Priv, data: &[Fp], point: &[Fp2]) -> Fp2 {
-    let logm = p.log.min(LOG_N);
-    let c0 = if p.log < LOG_N { p.slices[0].0 % N } else { 0 };
+fn mask_eval(sh: &Shape, p: &Priv, data: &[Fp], point: &[Fp2]) -> Fp2 {
+    let (log_n, n) = (row_log(sh, p.cm), 1usize << row_log(sh, p.cm));
+    let logm = p.log.min(log_n);
+    let c0 = if p.log < log_n { p.slices[0].0 % n } else { 0 };
     let eq = eq_table_msb(&point[p.log - logm..]);
     let row = |r: usize| {
-        data[r * N + c0..r * N + c0 + eq.len()].iter().zip(eq.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(e.mul_base(*x)))
+        data[r * n + c0..r * n + c0 + eq.len()].iter().zip(eq.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(e.mul_base(*x)))
     };
     row(p.mask_row).add(Fp2::U.mul(row(p.mask_row + 1)))
 }
 
 /// `cd * plane~(point) + cm * (R_re + u R_im)(tail point)`: data parts then the reserved pair
-fn build_claim(p: &Priv, point: &[Fp2], cd: Fp2, cm: Fp2, value: Fp2) -> ZClaim {
-    let logm = p.log.min(LOG_N);
-    let c0 = if p.log < LOG_N { p.slices[0].0 % N } else { 0 };
+fn build_claim(sh: &Shape, p: &Priv, point: &[Fp2], cd: Fp2, cm: Fp2, value: Fp2) -> ZClaim {
+    let (log_n, n) = (row_log(sh, p.cm), 1usize << row_log(sh, p.cm));
+    let logm = p.log.min(log_n);
+    let c0 = if p.log < log_n { p.slices[0].0 % n } else { 0 };
     let tail = point[p.log - logm..].to_vec();
     let mut parts: Vec<ZPart> = p
         .slices
@@ -236,7 +256,7 @@ fn build_claim(p: &Priv, point: &[Fp2], cd: Fp2, cm: Fp2, value: Fp2) -> ZClaim 
         .map(|(off, coef)| ZPart { slice: Slice { offset: *off, log_size: p.log as u32 }, coef: coef.mul(cd), point: point.to_vec() })
         .collect();
     for (k, u) in [Fp2::ONE, Fp2::U].into_iter().enumerate() {
-        parts.push(ZPart { slice: Slice { offset: (p.mask_row + k) * N + c0, log_size: logm as u32 }, coef: cm.mul(u), point: tail.clone() });
+        parts.push(ZPart { slice: Slice { offset: (p.mask_row + k) * n + c0, log_size: logm as u32 }, coef: cm.mul(u), point: tail.clone() });
     }
     ZClaim { parts, value }
 }
@@ -304,7 +324,7 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, def: SlotDef, tr: &mut Tr
                     .tabs
                     .iter()
                     .map(|t| match t {
-                        Tab::Priv(p) if p.ext_round == m => mask_eval(p, pd.data[p.cm as usize], &claim_point(p, &rho)),
+                        Tab::Priv(p) if p.ext_round == m => mask_eval(&sh, p, pd.data[p.cm as usize], &claim_point(p, &rho)),
                         _ => Fp2::ZERO,
                     })
                     .collect();
@@ -361,7 +381,7 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, def: SlotDef, tr: &mut Tr
     for t in &def.tabs {
         if let Tab::Priv(p) = t {
             let cm = es[p.ext_round + 1..].iter().fold(es[p.ext_round], |a, e| a.mul(Fp2::ONE.sub(*e)));
-            acc.claims[p.cm as usize].push(build_claim(p, &claim_point(p, &rho), cd, cm, terms[k]));
+            acc.claims[p.cm as usize].push(build_claim(&sh, p, &claim_point(p, &rho), cd, cm, terms[k]));
             k += 1;
         }
     }
@@ -479,15 +499,18 @@ impl<'a> B<'a> {
         let log = self.lay.shape().log(self.lay.hids().dom(plane));
         Ok(self.push(Tab::Priv(Priv { cm: Cm::H, slices: vec![(re, Fp2::ONE), (im, Fp2::U)], log, coords: rho(0..log), mask_row, ext_round: 0 })))
     }
-    /// A caller-fixed endpoint plane (private_seam geometry: data rows 0..2,
-    /// pair rows 2..4). **S11 owes the rest of this at the rung**: an
-    /// endpoint wider than one block needs the batched multi-block seam of
-    /// `ZK60_PRIVATE_ENDPOINTS_AT_SCALE.md` (C1..C8). Here only the log is
-    /// shape-driven, which is correct exactly while the endpoint fits one
-    /// block.
+    /// A caller-fixed endpoint plane. **S11a.** The seam commits the PADDED
+    /// `(t_pad, d_pad)` cube, which is exactly the `Dom::D` slice this slot
+    /// already claims, so the only shape-dependent numbers are the log and
+    /// the terminal pair's row: a seam commitment has `endpoint_rows - 5`
+    /// data rows and its pair sits immediately above them (the toy's frozen
+    /// 2). **S11b is still owed**: 125M's endpoint is 393,216 words, far past
+    /// the frozen seam's 4,096-word ceiling, and needs a generalised endpoint
+    /// built beside `private_seam.rs`.
     fn endpoint(&mut self, cm: Cm) -> usize {
-        let log = self.lay.shape().log(Dom::D);
-        self.push(Tab::Priv(Priv { cm, slices: vec![(0, Fp2::ONE)], log, coords: rho(0..log), mask_row: 2, ext_round: 0 }))
+        let sh = self.lay.shape();
+        let (log, mask_row) = (sh.log(Dom::D), sh.endpoint_rows - 5);
+        self.push(Tab::Priv(Priv { cm, slices: vec![(0, Fp2::ONE)], log, coords: rho(0..log), mask_row, ext_round: 0 }))
     }
     /// **RULING P-1's public factor (S9 part 4).** `supp(dom)` laid out over
     /// THIS slot's cube: the domain's own indicator when the cube is the
@@ -537,10 +560,20 @@ struct LkT {
     cst: Fp2,
 }
 
-fn lk_tables(lay: &Layout, dom: Dom, idx: &[usize], g_u8: Fp2) -> Vec<LkT> {
+/// **FINDING S12-F1 (S12a), fixed here.** `Layout::lookups` names its planes
+/// by SHAPED id (`lookups_at(&self.sh, &self.ids, dom)`), so the map it is
+/// resolved through must be the SHAPED one — [`B::shaped`] — and never
+/// `a_range`'s toy-indexed `idx`. The two coincide at the toy and at every
+/// plane below the first growing limb group, which is why no earlier test
+/// could see the difference: the slot-definition sweep BUILDS the polynomial
+/// but never EVALUATES it, and `lk_tables` is the only place a plane id is
+/// read at definition time. At the rung the third `sigma_s` limb shifts every
+/// `Dom::F` and `Dom::Tab` plane by one and the wrong map indexes past the
+/// end, which is the panic the first honest rung proof produced.
+fn lk_tables(lay: &Layout, dom: Dom, shaped: &[usize], g_u8: Fp2) -> Vec<LkT> {
     lay.lookups(dom)
         .into_iter()
-        .map(|l| LkT { terms: l.terms.iter().map(|(p, c)| (idx[*p], Fp::from_i64(*c))).collect(), cst: Fp2::from_i64(l.cst).add(g_u8) })
+        .map(|l| LkT { terms: l.terms.iter().map(|(p, c)| (shaped[*p], Fp::from_i64(*c))).collect(), cst: Fp2::from_i64(l.cst).add(g_u8) })
         .collect()
 }
 
@@ -903,9 +936,9 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             let mu_pad = if pad_on { tr.challenge_fp2() } else { Fp2::ZERO };
             let zeta = if pad_on { nonzero(tr.challenge_fp2_vec(1))?[0] } else { Fp2::ZERO };
             b.eq(&tau, 0);
-            let idx = b.a_range(ids.at(A_LIMB), ids.at(A_LIMBM))?;
+            b.a_range(ids.at(A_LIMB), ids.at(A_LIMBM))?;
             let h0 = b.h(hids.first_helper(Dom::L))?;
-            let lks = lk_tables(lay, Dom::L, &idx, g_u8);
+            let lks = lk_tables(lay, Dom::L, &b.shaped, g_u8);
             let mu = vec![Fp2::ONE; sh.helpers(Dom::L)];
             let mut pz = PadTerm::none();
             if pad_on {
@@ -1046,7 +1079,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             for j in 1..n_help {
                 b.h(hids.helper(Dom::D, j))?;
             }
-            let lks = lk_tables(lay, Dom::D, &idx, g_u8);
+            let lks = lk_tables(lay, Dom::D, &b.shaped, g_u8);
             let (k_num, k_dv, k_den) = (k(2 * NORM_CN), k(1 << NORM_TN), k(1 << (NORM_TN + 1)));
             let hosted = vec![(SC_WO, nu[0]), (SC_DMM, nu[1])];
             // **S9 part 4 on `Dom::D`.** Every one of the domain's planes is
@@ -1114,7 +1147,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             // E-17: the activation helper is addressed by the TABLE INDEX the
             // builder returns, never by the plane constant H_FACT
             let i_fact = b.h(hids.fact())?;
-            let lks = lk_tables(lay, Dom::F, &idx, g_u8);
+            let lks = lk_tables(lay, Dom::F, &b.shaped, g_u8);
             let hosted = vec![(SC_GMM, nu[0]), (SC_UMM, nu[1])];
             // S9 part 4 on `Dom::F`. `f_act` is the activation PAIR LOOKUP's
             // helper relation — the LogUp arm — and is NOT gated: gating it
@@ -1176,7 +1209,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             for j in 1..n_help {
                 b.h(hids.helper(dom, j))?;
             }
-            let lks = lk_tables(lay, dom, &idx, g_u8);
+            let lks = lk_tables(lay, dom, &b.shaped, g_u8);
             let half = k(1 << (SH_QKV - 1));
             let hosted = if q { vec![(SC_QMM, nu[0]), (SC_PV, nu[1])] } else { vec![(SC_KMM, nu[0]), (SC_VMM, nu[1])] };
             // S9 part 4 on `Dom::Q` / `Dom::Kv`. The RoPE clause is
@@ -1233,7 +1266,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 b.h(hids.helper(Dom::S, j))?;
             }
             let ihx = b.h(hids.sexp())?;
-            let lks = lk_tables(lay, Dom::S, &idx, g_u8);
+            let lks = lk_tables(lay, Dom::S, &b.shaped, g_u8);
             // the row-sum host term is constant in j: it sums to (the number of
             // j positions of the S cube per Ht position) * (Sum(p_ht) + lam_z)
             let per_row = (sh.size(Dom::S) / sh.size(Dom::Ht)) as i64;

@@ -31,7 +31,9 @@
 
 use super::layout::*;
 use super::shape::{Shape, LIMBS_ISQRT};
-use super::witness::{self, Geom};
+use super::witness::Geom;
+#[cfg(test)]
+use super::witness;
 
 // ---------------------------------------------------------------- indicators
 
@@ -57,6 +59,8 @@ pub(crate) fn support_indicator(s: &Shape, dom: Dom) -> Vec<i64> {
 /// `group = q_heads / kv_heads` of each are true, so the padded slots are
 /// `{3, 7}` at the rung and `{3, 7, 11, 15}` at 125M. This is the oracle
 /// [`support_indicator`] is checked against.
+/// Test-only oracle: not read by the argument.
+#[cfg(test)]
 pub(crate) fn memo_head_indicator(s: &Shape, dom: Dom) -> Vec<i64> {
     head_indicator(s, dom, &|h: usize| {
         let per_group = s.h_pad / s.kv_heads;
@@ -68,10 +72,13 @@ pub(crate) fn memo_head_indicator(s: &Shape, dom: Dom) -> Vec<i64> {
 /// what the builder wrote before the head permutation (finding S9-F2) and
 /// what a prefix-mask indicator would call supported. It is the negative
 /// control of the head tests and of PZ-1's head case; nothing builds on it.
+/// Test-only negative control: not read by the argument.
+#[cfg(test)]
 pub(crate) fn contiguous_head_indicator(s: &Shape, dom: Dom) -> Vec<i64> {
     head_indicator(s, dom, &|h: usize| h < s.q_heads)
 }
 
+#[cfg(test)]
 fn head_indicator(s: &Shape, dom: Dom, head_true: &dyn Fn(usize) -> bool) -> Vec<i64> {
     let mut v = vec![0i64; s.size(dom)];
     let t_pad = s.t_pad;
@@ -191,6 +198,7 @@ pub(crate) fn closed_form_indicator(s: &Shape, dom: Dom) -> Option<(Vec<i64>, Ve
 /// slot, `argument.rs:206`), and whether a closed form exists at this shape.
 /// `bytes` prices the conservative form the memo prices: one `Fp2` (16 B) per
 /// entry per materialisation.
+#[cfg(test)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct IndicatorCost {
     pub dom: Dom,
@@ -213,6 +221,7 @@ pub(crate) struct IndicatorCost {
 /// force a TRUE row's `A_MX` and `A_SUM` to zero; and `Dom::T`'s four planes
 /// are ZERO-rule by the memo's own table and are read by `SC_TZC`, whose cube
 /// IS `Dom::T`. Each therefore carries its own table in its host slot.
+#[cfg(test)]
 pub(crate) fn indicator_slots(dom: Dom) -> &'static [usize] {
     match dom {
         Dom::D => &[SC_SS, SC_SSM, SC_DZC],
@@ -231,6 +240,7 @@ pub(crate) fn indicator_slots(dom: Dom) -> &'static [usize] {
 /// How many support tables `argument::define` materialises in each slot — the
 /// transpose of [`indicator_slots`] over the shape's padded domains, and zero
 /// everywhere on the frozen toy profile.
+#[cfg(test)]
 pub(crate) fn indicator_tables_per_slot(s: &Shape) -> [usize; N_SLOTS] {
     let mut out = [0usize; N_SLOTS];
     if !s.carries_pad_rule() {
@@ -247,6 +257,7 @@ pub(crate) fn indicator_tables_per_slot(s: &Shape) -> [usize; N_SLOTS] {
     out
 }
 
+#[cfg(test)]
 pub(crate) fn indicator_costs(s: &Shape) -> Vec<IndicatorCost> {
     s.padded_domains()
         .into_iter()
@@ -370,6 +381,7 @@ pub(crate) fn zero_rule_h_planes(s: &Shape, dom: Dom) -> Vec<usize> {
 }
 
 /// `(zero, exempt, none)` over both commitments at `shape`.
+#[cfg(test)]
 pub(crate) fn rule_counts(s: &Shape, ids: &Ids) -> (usize, usize, usize) {
     let (mut z, mut e, mut n) = (0, 0, 0);
     for p in 0..ids.n_a() {
@@ -395,6 +407,7 @@ pub(crate) fn rule_counts(s: &Shape, ids: &Ids) -> (usize, usize, usize) {
 // ------------------------------------------------------------- the two tests
 
 /// A deterministic honest witness at `Shape::rung()`, and its geometry.
+#[cfg(test)]
 fn rung_witness() -> (Shape, Ids, witness::Witness) {
     let s = Shape::rung();
     let ids = Ids::new(&s).expect("the rung has a plane map");
@@ -412,6 +425,7 @@ fn rung_witness() -> (Shape, Ids, witness::Witness) {
 /// `:552-557` build them and exactly where blocking item B-1 lives.
 ///
 /// `true` means "everything this module can check still holds".
+#[cfg(test)]
 fn every_checkable_relation_holds(s: &Shape, ids: &Ids, w: &witness::Witness) -> bool {
     let g = Geom::new(s);
     let sup_d = g.support(Dom::D);
@@ -862,16 +876,31 @@ mod tests {
     fn the_honest_rung_witness_passes_every_checkable_relation() {
         let (s, ids, w) = rung_witness();
         assert!(every_checkable_relation_holds(&s, &ids, &w), "the honest rung witness fails a relation the module can check");
-        // and its pad really is all zero today (finding S6-F4)
+        // and its pad is what the memo's TABLE says (finding S6-F4, corrected
+        // by S12-F3): every ZERO-rule plane vanishes off its support, and the
+        // one EXEMPT `A` plane, `A_E`, does NOT — its padded positions carry
+        // a genuine `exp` row, because the LogUp arm is never gated and a
+        // zero there would put a pair that is no table row into the value-0
+        // identity. That exemption is why the first honest rung proof failed
+        // at the `H` sum group until the builder filled it.
+        let mut exempt = Vec::new();
         for dom in ALL_DOMS {
             let supp = support_indicator(&s, dom);
             for p in 0..ids.n_a() {
                 if ids.is_multiplicity(p) || ids.dom(p) != dom {
                     continue;
                 }
-                assert!((0..w.planes[p].len()).all(|i| supp[i] == 1 || w.planes[p][i] == 0), "plane {p} has a nonzero pad position");
+                let zero_off_support = (0..w.planes[p].len()).all(|i| supp[i] == 1 || w.planes[p][i] == 0);
+                match a_rule(&s, &ids, p) {
+                    Some(Rule::Exempt) => {
+                        exempt.push(p);
+                        assert!(!zero_off_support, "the EXEMPT plane {p} has an all-zero pad: the exp pair would not be a table row");
+                    }
+                    _ => assert!(zero_off_support, "plane {p} has a nonzero pad position"),
+                }
             }
         }
+        assert_eq!(exempt, vec![ids.at(A_E)], "the rung's exempt A planes");
     }
 
     /// **PZ-1 (ruling P-1, memo section 3.7a).** ONE nonzero value written

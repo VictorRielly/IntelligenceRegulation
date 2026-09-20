@@ -225,9 +225,17 @@ impl Shape {
             10,
             4,
             12,
-            14,
+            // **S11a: the endpoint numbers the frozen seam actually gives.**
+            // `SeamSpec::new` refuses the TRUE `(24, 96)` endpoint (both axes
+            // must be powers of two), and accepts the PADDED `(t_pad, d_pad)
+            // = (32, 128)` at exactly its 4,096-word ceiling. That plane has
+            // `4096 / 2^LOG_COLS = 16` data rows and `16 + MASK_ROWS = 21`
+            // commitment rows, and the seam's `INV_RATE` is the frozen 8,
+            // hashed into every `SeamSpec::digest()` and so not editable.
+            // The declared 14 / 4 were the TRUE shape's and matched nothing.
+            21,
             Some(8),
-            Some(4),
+            Some(8),
             None,
             None,
         )
@@ -281,7 +289,14 @@ impl Shape {
     /// stays exactly as unconstrained as it always was (D17); every other
     /// profile carries the rule.
     pub(crate) fn carries_pad_rule(&self) -> bool {
-        self.profile != TOY_PROFILE
+        !self.is_frozen_toy()
+    }
+
+    /// The ONE profile whose receipt bytes are pinned (D17): the toy. Every
+    /// bound, gate and freeze that must not move for an existing caller keys
+    /// on this and never on a geometry.
+    pub(crate) fn is_frozen_toy(&self) -> bool {
+        self.profile == TOY_PROFILE
     }
 
     // ---- the byte-limb counts the two integer windows force ----------------
