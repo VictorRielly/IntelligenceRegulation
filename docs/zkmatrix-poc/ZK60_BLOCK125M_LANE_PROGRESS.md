@@ -128,6 +128,7 @@ private-block-kernel/src/shaped_tests.rs
 | **S7 grouped-query attention (group 3)** | DONE | failing first: `…/s7-failing-test.log:123` (`kr8` differs from the kernel in 14 of 768 elements) and `:103` (the grouping property); after: `…/s7-run1.log:118` — **6 passed / 0 failed** in the parity module |
 | **S8 preparation: both windows reproduced as failures** | DONE | `…/s8-run4.log:158` — **79 passed / 0 failed / 3 ignored**; the norm and softmax windows each refuse an honest rung witness by name at the toy's setting and accept at the rung's; the deliverable is captured failing in `…/s8-ignored-test.log:82` |
 | **JOB K un-share the reference kernel** | DONE | `fd72f48`, `2b0ebc4`, `7b2f1b3`; see the JOB K section below. Frozen crate back to 10/0 (+1 ignored), `private-model-kernel` 19/0, hashline **82 / 0 / 3** (`k4-hashline.log:165`), toy unmoved. TWO PATHS AWAIT DELETION |
+| **S9 the pad rule (P-1)** | **PREPARED** — both acceptance tests reproduced as failures, the specification built, the TERM NOT BUILT | `f3ce0ba`; see the S9 section. `s9-pz-failing.log:83,:89`; spec `s9-pad1.log:85` 6/0/2; filter `s9-run1.log:172` **92 / 0 / 4** |
 | **S8 the change itself** | **DONE** | `7f8e549` (the ids, the lookups, the premise) and `a21ffd7` (P-5's alias cases, the parity fixture retired). The deliverable test `the_rung_at_its_own_calibration_has_an_honest_witness` is un-ignored and green; hashline **86 / 0 / 2** (`s8-run7.log:165`), toy receipt 2,816,472 B and the digest unmoved |
 
 ## The toy freeze gate this stage added
@@ -204,6 +205,9 @@ flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attent
 | 41 | filter `private_block::parity`, `--nocapture`, the sweep moved to `Shape::rung()` | `…/s8-parity-rung.log:110` | **9 passed, 0 failed**; 160 rung cases, 131 accepted by both, 29 refused identically |
 | 42 | the Rust command, filter `private_`, after all of S8 (two new warnings) | `…/s8-run6.log:178` | 86 passed, 0 failed, 2 ignored, 11 warnings |
 | 43 | the same, the two warnings cleared | `…/s8-run7.log:165` | **86 passed, 0 failed, 2 ignored**, 28.74 s, 9 warnings — the baseline's 9 |
+| 44 | filter `private_block::pad`, the S9 specification | `…/s9-pad1.log:85` | **6 passed, 0 failed, 2 ignored** |
+| 45 | filter `…::pad::tests::pz`, `--include-ignored` (a deliberately failing run) | `…/s9-pz-failing.log:83, :89` | **2 failed** — PZ-1 and PZ-2, each with its own message |
+| 46 | the Rust command, filter `private_`, after the S9 preparation | `…/s9-run1.log:172` | **92 passed, 0 failed, 4 ignored**, 28.70 s, 9 warnings |
 
 ## Findings
 
@@ -644,16 +648,91 @@ private plane appears in any evidence file: counts, sizes, booleans and
 digests only. A zero-witness proof that verifies is a PRECONDITION for the
 privacy argument, not a privacy result.
 
+## S9 — the pad rule of ruling P-1: PREPARED, not implemented
+
+**What exists** (`hashline/src/private_block/pad.rs`, commit `f3ce0ba`,
+`cfg(test)` only until the term is built):
+
+| piece | state |
+|---|---|
+| the six (at the rung, nine) **support indicators**, over each domain's padded flat index in the convention `witness::Geom` lays planes out in | BUILT and tested: weight equals the domain's true size at all three shapes, equals the builder's own support set element for element, is 0/1, and `supp_D != supp_Q` exactly where the head axis pads |
+| the **interleaved head slots** of correction C-1 | BUILT as a predicate: padded slots `{3, 7}` at the rung, `{3, 7, 11, 15}` at 125M, with a prefix mask shown to accept slot 3 |
+| the **per-plane ZERO / EXEMPT table** of §3.7a | BUILT and reproduces the memo's recount at 125M EXACTLY: **64 ZERO, 35 EXEMPT, 1 with no rule, 100 planes**, the one exempt `A` plane being `A_E` by name, the `H` side counted through `Shape::h_plane_doms` (50 planes at 125M, not the toy's 51, because C-6 drops four `Dom::D` lookups). The rung's own table is **85 / 49 / 1** over all 135 committed planes |
+| **PZ-1** and **PZ-2** | WRITTEN, `#[ignore]`d, and FAILING with their own messages |
+| the batched **pad-zero term** `mu_pad (1 - supp) Σ ζ^j plane_j`, its `ζ` refused on zero, the support factor on the constraint groups and host terms, the P-2 construction-time weight check, the slot arithmetic with the indicator | **NOT BUILT** |
+
+**At what level PZ-1 and PZ-2 run, and why.** The rejection ruling P-1 asks
+for is a term in `argument::define`'s zero-check bracket, and `argument` is
+instantiable only at the toy (finding **S5-F2**): the claim points, the RoPE
+tables, the row geometry (S10) and the endpoints (S11) are still the toy's,
+so **a padded shape produces no receipt at all** and a verifier-side test
+cannot be written yet. Both tests are therefore written at the level where
+the relation is decided — every relation the module CAN evaluate against a
+real honest witness built at `Shape::rung()`: the four norm relations
+(R1)..(R4) of `norm_alias.rs` on every token row of both norms with (R4)
+reading the **full padded** cube exactly as `argument.rs:544-557` builds the
+two claimed sums, both residual identities, and the byte class of every
+plane a lookup reads. The honest witness passes all of them; each tamper
+also passes all of them, and that is the failure.
+
+* **PZ-1** writes `1` into a padded position of `A_RAL` — a ZERO-rule plane
+  no claimed sum reads — and it is invisible. That is the coverage half of
+  B-1.
+* **PZ-2** writes `32,767` into `A_X`'s padded columns of token row 0 **with
+  the byte limbs filled consistently** (the int16-fill branch, so `SC_DZC`'s
+  `c2` holds on the pad too and the tamper is not decided by a limb
+  relation) and recomputes `D`, `a1`, `a2`, `D^2` and the packed limb plane
+  from the enlarged sum of squares. Every relation still holds, with a
+  divisor the prover chose. That is B-1 itself.
+
+**S9-F1 (the toy is NOT a no-pad shape, and the rule must be gated by
+PROFILE).** The brief's standing condition is that at the toy nothing pads,
+so the pad-zero machinery must be ABSENT from the toy's transcript. But
+`Dom::L` pads at the toy — nine of sixteen limb sub-planes carry the isqrt
+witness, 288 true of 512 (finding B-F5) — so a rule of the form "add the
+term wherever `Shape::pads(dom)`" WOULD put a term in `SC_LZC` and move
+every toy byte. **The gate must be the profile, not the domain**: a new
+profile carries the pad rule, the frozen toy profile does not, and the toy's
+`Dom::L` pad stays unconstrained exactly as it always was (D17). That is a
+statement about the toy profile the security owner should see, not a defect
+introduced here. Tested by
+`the_toy_already_pads_one_domain_and_must_not_gain_the_term`, which also
+records the toy's own would-be table: 2 ZERO, 1 EXEMPT.
+
+**S9-F2 (a prerequisite inside S9 that is not built: the head
+permutation).** `witness::build_shaped` indexes query heads CONTIGUOUSLY
+(`g.dix(t, h * head_dim + i)`, `h` in `0 .. q_heads`), so today's padded head
+slots are the TAIL of the head axis — `{6, 7}` at the rung — while
+correction C-1 and ruling P-2 require them INTERLEAVED, `{3, 7}`, one per
+key-value group. The two layouts are shown to disagree on `Dom::Q`,
+`Dom::S` and `Dom::Ht` at both padded shapes and to coincide at the toy
+(which is why no toy test could have seen it — the same lesson as
+**S6-F1**). **The permutation has to land before the `Dom::Q` and `Dom::S`
+indicators mean anything**, and it moves the witness's plane layout, the
+kernel-index map `Geom::support`, the `SC_WO` folded weight order and P-2's
+"head-permuted" construction refusal together.
+
+**S9-F3 (the memo's indicator formulas are 125M-only).** §3.7a gives
+`supp_D = 1 - b9 b8` and friends as closed forms on a single axis. At the
+**rung the token axis pads too** (24 of 32), so no rung indicator is a
+single two-bit product: `supp_D` is `[t < 24] and [i < 96]`, a product of a
+prefix predicate and a two-bit term. The memo's open question 1 (table
+versus closed form) therefore has a different answer at the rung than at
+125M, and the tables built here are the conservative form the memo prices.
+
 ## NEXT
 
-**JOB K, S8 and their ledger entries are done and green: 86 passed / 0 failed
-/ 2 ignored on `--lib private_` (`s8-run7.log:165`), 5 / 0 on the new
+**JOB K and S8 are DONE; S9 is PREPARED test-first and its term is NOT
+built. 92 passed / 0 failed / 4 ignored on `--lib private_`
+(`s9-run1.log:172`), 5 / 0 on the new
 `private-block-kernel-shaped` crate, 10 / 0 (+1 ignored) on the frozen
 `private-block-kernel` — its `11c01b2` counts — and 19 / 0 on
 `private-model-kernel`. The toy receipt is 2,816,472 B and the pinned
-schedule digest has not moved at any commit of any stage. The two ignored
-tests are the two `capture::native_capture_saved_receipt` gates, which need
-saved receipt paths; this lane has left NO ignored test behind.**
+schedule digest has not moved at any commit of any stage. Of the four
+ignored tests, two are the pre-existing `capture::native_capture_saved_receipt`
+gates (they need saved receipt paths) and two are **PZ-1 and PZ-2**, left
+ignored ON PURPOSE with their failure captured at `s9-pz-failing.log:83`
+and `:89`.**
 
 **FIRST, for the orchestrator:** delete
 `private-block-kernel/src/shaped.rs` and
@@ -662,11 +741,35 @@ enter any build, but until they are gone
 `git diff --stat 11c01b2 -- private-block-kernel private-model-kernel
 zkvm-block` is not empty and job K's acceptance is not literally met.
 
-The next agent does **S9, the pad rule (ruling P-1, memo §3.7a)** — see the
-S9 section of this ledger for where it stands — and then S10 (the column
-count) and S11 (the hidden endpoints), after which S12's end-to-end rung
-gate becomes constructible for the first time (finding **S6-F5** says
-exactly what is and is not exercisable before then).
+The next agent **finishes S9**. The S9 section above says exactly what
+exists. In order:
+
+1. **The head permutation (finding S9-F2), first** — nothing in the
+   `Dom::Q` / `Dom::S` indicators is correct until the builder's head
+   layout is the interleaved one. It moves `witness::build_shaped`'s head
+   indexing, `Geom::support(Dom::Q | Dom::S | Dom::Ht)`, the parity
+   comparison's map, `SC_WO`'s folded weight order and P-2's
+   "not head-permuted" construction refusal together. The failing test is
+   already written: `pad::tests::the_memos_head_layout_is_not_yet_the_builders`
+   asserts the two DISAGREE, so it must be inverted when the permutation
+   lands.
+2. **The profile gate (finding S9-F1)** — the pad rule is carried by a
+   profile, never by "does this domain pad", or `Dom::L` puts a term in the
+   toy's `SC_LZC` and every toy byte moves.
+3. **P-2, the public weights**, which is buildable TODAY and needs no
+   receipt: a construction-time check in `AttentionPublic::new_shaped` /
+   `FeedForwardPublic::new_shaped` that every folded weight vector vanishes
+   off the DESTINATION axis's support, plus the second case (a matrix that
+   is not head-permuted) refused by name.
+4. **The term itself** in `argument::define`, with its `mu_pad`, its one
+   fresh `ζ` refused on zero (witness-independently), the support factor on
+   the inhomogeneous groups, the host terms, `SC_SS` / `SC_SSM` and
+   `SC_RS`, and the exemptions excluded from those summations. Then
+   re-check `L + 256 <= 512` on every slot and ASSERT what you get (the
+   memo counts the closest at `L = 117`).
+5. Un-ignore **PZ-1** and **PZ-2** at S12, when S10 (the column count) and
+   S11 (the hidden endpoints) make a rung receipt constructible — finding
+   **S6-F5** says exactly what is and is not exercisable before then.
 
 Still waiting on the security owner, none of them blocking S9:
 
