@@ -1,0 +1,30 @@
+A / H / endpoint pad block  (E_j[pad k] = Z_n(x_j) x_j^k)
+  encoded positions nn           = 2048
+  distinct nodes x_j             = 2048  (want 2048)
+  nodes equal to zero            = 0  (want 0)
+  j with Z_n(x_j) == 0           = 0  (want 0)
+  7^2048 mod p == 1?            = False  (if True the coset would meet the n-th roots of unity)
+  7^256 * w_8^j == 1 for some j? = False  (want False)
+  rank of the pad block, 256 consecutive from 0                     = 256 / 256  OK
+  rank of the pad block, 256 consecutive from 1792                  = 256 / 256  OK
+  rank of the pad block, 256 maximally spread (step 8)              = 256 / 256  OK
+  rank of the pad block, 246 spread (the observed distinct count)   = 246 / 246  OK
+  rank of the pad block, 256 pseudo-random (LCG, no repeats)        = 256 / 256  OK
+  negative control, one index repeated              = 255 / 256  OK (rank drops, as it must)
+
+M pad block  (Lagrange weights on the 256 pad positions)
+  encoded positions              = 4096
+  distinct nodes y_j             = 4096  (want 4096)
+  j with Z(y_j) == 0             = 0  (want 0)
+  y_j that collide with a message node = 0  (want 0)
+  7^4096 mod p == 1?            = False  (want False)
+  rank of the M pad block, 256 consecutive from 0                   = 256 / 256  OK
+  rank of the M pad block, 256 spread (step 16)                     = 256 / 256  OK
+  rank of the M pad block, 246 spread (the observed distinct count) = 246 / 246  OK
+
+CONCLUSION.  H-pad and M-cols hold for every admissible set of opened
+columns, because the only inputs are node distinctness (automatic: the
+index map j -> 7 w^j is injective) and the nonvanishing of a fixed
+scalar per node (checked exhaustively above over the whole encoded
+domain).  NO union bound over column sets is needed, and no challenge
+enters.

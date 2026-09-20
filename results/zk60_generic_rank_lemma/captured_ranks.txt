@@ -1,0 +1,21 @@
+The four captured receipts of results/zk60_native_captures_20260919, as the
+joint-view gate measured them (record: the zk60-native-jointview worktree,
+results/zk60_native_joint_view/joint_view.json).  Ranks and counts only.
+
+capture            profile                    role     rows  data  nondata  gens  rk(P1)  rk|nd  k0  disc  pairs  dcols
+40083e7ac8f3f6c7   private-block-t32-poc      A         455   213      242    72      72     72   0     0    120    246
+40083e7ac8f3f6c7   private-block-t32-poc      H         384   278      106    20      20     20   0     2     52    242
+40083e7ac8f3f6c7   private-block-t32-poc      Input       7     2        5     4       4      4   0     0      1    246
+40083e7ac8f3f6c7   private-block-t32-poc      Output      7     2        5     4       4      4   0     0      1    241
+7d334e069c84f0c1   private-block-t32-poc      A         455   213      242    72      72     72   0     0    120    243
+7d334e069c84f0c1   private-block-t32-poc      H         384   278      106    20      20     20   0     2     52    240
+7d334e069c84f0c1   private-block-t32-poc      Input       7     2        5     4       4      4   0     0      1    231
+7d334e069c84f0c1   private-block-t32-poc      Output      7     2        5     4       4      4   0     0      1    239
+6c5e83fd1b2d8c16   private-attention-t32-poc  A         306   154      152    62      62     62   0     0     75    234
+6c5e83fd1b2d8c16   private-attention-t32-poc  H         290   216       74    18      18     18   0     2     36    243
+6c5e83fd1b2d8c16   private-attention-t32-poc  Input       7     2        5     4       4      4   0     0      1    243
+6c5e83fd1b2d8c16   private-attention-t32-poc  Output      7     2        5     4       4      4   0     0      1    235
+c26d1f05754be35c   private-attention-t32-poc  A         306   154      152    62      62     62   0     0     75    241
+c26d1f05754be35c   private-attention-t32-poc  H         290   216       74    18      18     18   0     2     36    239
+c26d1f05754be35c   private-attention-t32-poc  Input       7     2        5     4       4      4   0     0      1    237
+c26d1f05754be35c   private-attention-t32-poc  Output      7     2        5     4       4      4   0     0      1    239
