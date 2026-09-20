@@ -1,0 +1,203 @@
+
+========================================================================
+1. Domain logs and rows (layout.rs:98-106, :537-539 rows_of)
+========================================================================
+toy {'T': 5, 'Ht': 6, 'L': 9, 'D': 9, 'Q': 9, 'Kv': 8, 'S': 11, 'F': 9, 'Tab': 8}
+125M {'T': 9, 'Ht': 13, 'L': 13, 'D': 19, 'Q': 19, 'Kv': 17, 'S': 22, 'F': 20, 'Tab': 8}
+125M padding waste (true/padded):
+  Ht 12*512=6144 -> 8192   x1.3333
+  L  9*512=4608  -> 8192   x1.7778
+  D  512*768=393216 -> 524288 x1.3333
+  Q  512*12*64=393216 -> 524288 x1.3333
+  S  12*512*512=3145728 -> 4194304 x1.3333
+  Kv 512*4*64=131072 -> 131072 x1.0000 (no pad)
+  F  512*2048=1048576 -> 1048576 x1.0000 (no pad)
+
+========================================================================
+2. A / H row totals, the module's own rule
+========================================================================
+toy  A: data 213 rows 455  (layout.rs:525,523 assert 213 / 455)
+125M A: data 5435 rows 5681    draft says 5,435 / 5,681
+toy lookups per domain: {'L': 2, 'D': 38, 'F': 9, 'Q': 13, 'Kv': 12, 'S': 13} (code: L2 D38 F9 Q13 Kv12 S13)
+toy per-domain U8 totals: [1024, 19456, 4608, 6656, 3072, 26624] sum 61440  (layout.rs:745 declares [1024,19456,4608,6656,3072,26624] = 61440)
+toy helpers: {'L': 1, 'D': 19, 'F': 5, 'Q': 7, 'Kv': 6, 'S': 7} (layout.rs:371-381: L1 D19 F5 Q7 Kv6 S7)
+
+========================================================================
+2b. H rows at 125M, two scenarios
+========================================================================
+toy  H planes 51 data 280 sites 51 rows 384  (layout.rs:526,524 assert 280 / 384; H_SITES sums to 51)
+125M scenario A (int16 class, wrho 32): D lookups 34 helpers 17 | H planes 50 data 7018 sites 50 rows 7120
+125M scenario B (class 2^12, wrho 29): D lookups 40 helpers 20 | H planes 53 data 7210 sites 53 rows 7318
+draft claims: D lookups 36, helpers 18, H planes 51, data 7,082, rows 7,186
+
+========================================================================
+3. Lookup totals at 125M
+========================================================================
+A (wrho 32)      U8 lookups 98,582,528  (draft says 99,631,104)
+     L     2 x     8,192 =       16,384
+     D    34 x   524,288 =   17,825,792
+     F     9 x 1,048,576 =    9,437,184
+     Q    13 x   524,288 =    6,815,744
+     Kv   12 x   131,072 =    1,572,864
+     S    15 x 4,194,304 =   62,914,560
+B (class 2^12)   U8 lookups 101,728,256  (draft says 99,631,104)
+     L     2 x     8,192 =       16,384
+     D    40 x   524,288 =   20,971,520
+     F     9 x 1,048,576 =    9,437,184
+     Q    13 x   524,288 =    6,815,744
+     Kv   12 x   131,072 =    1,572,864
+     S    15 x 4,194,304 =   62,914,560
+draft            U8 lookups 99,631,104  (draft says 99,631,104)
+     L     2 x     8,192 =       16,384
+     D    36 x   524,288 =   18,874,368
+     F     9 x 1,048,576 =    9,437,184
+     Q    13 x   524,288 =    6,815,744
+     Kv   12 x   131,072 =    1,572,864
+     S    15 x 4,194,304 =   62,914,560
+exp pairs 4,194,304  act pairs 1,048,576
+largest histogram entry <= total; log2(99.6M) = 26.57, field 2^64 base / 2^128 ext
+
+========================================================================
+4. The norm window, exact integers (witness.rs:157-208, layout.rs:321)
+========================================================================
+toy d16 int16                ss=2^34.00 Dmax=   131,068 (2^17.00, 3 limbs) a1max=         1 den=   536,854,528 = 2^29.000 -> wrho 29
+toy d16 int16 (|x|<=32768)   ss=2^34.00 Dmax=   131,072 (2^17.00, 3 limbs) a1max=         1 den=   536,870,912 = 2^29.000 -> wrho 29
+125M d768 int16              ss=2^39.58 Dmax=   908,065 (2^19.79, 3 limbs) a1max= 1,345,728 den= 3,719,434,240 = 2^31.792 -> wrho 32
+125M d768 |x|<2^12           ss=2^33.58 Dmax=   113,483 (2^16.79, 3 limbs) a1max=   219,912 den=   464,826,368 = 2^28.792 -> wrho 29
+125M d768 |x|<2^11           ss=2^31.58 Dmax=    56,728 (2^15.79, 2 limbs) a1max=    14,529 den=   232,357,888 = 2^27.792 -> wrho 28
+125M d768 |x|<2^10           ss=2^29.58 Dmax=    28,350 (2^14.79, 2 limbs) a1max=    11,773 den=   116,121,600 = 2^26.791 -> wrho 27
+125M d768 int8 (127)         ss=2^23.56 Dmax=     3,519 (2^11.78, 2 limbs) a1max=     3,712 den=    14,413,824 = 2^23.781 -> wrho 24
+125M d768 real (83)          ss=2^22.34 Dmax=     2,300 (2^11.17, 2 limbs) a1max=       753 den=     9,420,800 = 2^23.167 -> wrho 24
+8B d4096 int16               ss=2^42.00 Dmax= 2,097,088 (2^21.00, 3 limbs) a1max=         1 den= 8,589,672,448 = 2^33.000 -> wrho 33
+
+125M int16: den = 3719434240, 2^32 = 4294967296
+margin factor 2^32/den = 1.154737  = 0.2076 bits
+D^2 + a1 = 824583389953 = 2^39.58  (premise says < 2^49)
+witness.rs:174 refuses d >= 2^24: Dmax 908065 < 16777216 -> True
+a1 < 2^24? True   a2 = 2D - a1 = 470402 >= 0? True
+rho/sigma limbs needed at wrho 32: 4 bytes
+layout.rs:321 coefficient at wrho 32: 1 << (32-32) = 1  -> scaled() == byte(), redundant
+sites with that coefficient: layout.rs:321, :323, :329, :331 = FOUR (rho_a, sigma_a, rho_m, sigma_m)
+
+========================================================================
+5. The softmax window (witness.rs:256-309)
+========================================================================
+toy T32    Sum in [2^9, T*2^9] -> max 16,384 = 2^14.00; sigma < Sum -> wrho_s 14; limbs 2
+125M T512  Sum in [2^9, T*2^9] -> max 262,144 = 2^18.00; sigma < Sum -> wrho_s 18; limbs 3
+8B T512    Sum in [2^9, T*2^9] -> max 262,144 = 2^18.00; sigma < Sum -> wrho_s 18; limbs 3
+p proved bound: two limbs with scaled(l1,64) -> l1 < 4 -> p < 1024 = 2^10 (honest p <= 2^9)
+p*Sum + rho_s worst PROVED at 125M: 268435455 = 2^28.00 (draft quotes the honest 2^27.00)
+delta = mx - masked <= 127 + 127 = 254 < 256 at every T and d  -> exp table unchanged
+
+========================================================================
+6. Accumulations (witness.rs:99-119, :250, :312, :317)
+========================================================================
+QKV / Wo / gate / up (d=768)             12,387,072 = 2^ 23.56   headroom to 2^49: 2^25.44
+down (f=2048, int16 x int8)           8,522,565,632 = 2^ 32.99   headroom to 2^49: 2^16.01
+scores (dh=64)                            1,032,256 = 2^ 19.98   headroom to 2^49: 2^29.02
+PV (T=512, p<2^10 proved)                66,519,552 = 2^ 25.99   headroom to 2^49: 2^23.01
+PV (T=512, p<=2^9 honest)                33,292,288 = 2^ 24.99   headroom to 2^49: 2^24.01
+a16*u16                               1,073,676,289 = 2^ 30.00   headroom to 2^49: 2^19.00
+norm c0 terms at 125M: 2*Cn*gamma*x = 8522565632 = 2^32.99 ; y*D*2^(tn+1) = 472368148480 = 2^38.78
+
+========================================================================
+7. Slots: L = (main+ext)*degree + 2 (zkp-core/sumcheck.rs:197-198)
+========================================================================
+SC_SS      toy L  32 | 125M L  62 (+256 = 318) | with support  82 (+256 = 338)
+SC_SSM     toy L  32 | 125M L  62 (+256 = 318) | with support  82 (+256 = 338)
+SC_TZC     toy L  20 | 125M L  32 (+256 = 288) | with support  32 (+256 = 288)
+SC_LZC     toy L  42 | 125M L  58 (+256 = 314) | with support  58 (+256 = 314)
+SC_RS      toy L  38 | 125M L  71 (+256 = 327) | with support  94 (+256 = 350)
+SC_QMM     toy L  12 | 125M L  24 (+256 = 280) | with support  24 (+256 = 280)
+SC_KMM     toy L  12 | 125M L  24 (+256 = 280) | with support  24 (+256 = 280)
+SC_VMM     toy L  12 | 125M L  24 (+256 = 280) | with support  24 (+256 = 280)
+SC_SCORE   toy L  12 | 125M L  18 (+256 = 274) | with support  18 (+256 = 274)
+SC_PV      toy L  16 | 125M L  24 (+256 = 280) | with support  24 (+256 = 280)
+SC_WO      toy L  12 | 125M L  24 (+256 = 280) | with support  24 (+256 = 280)
+SC_GMM     toy L  12 | 125M L  24 (+256 = 280) | with support  24 (+256 = 280)
+SC_UMM     toy L  12 | 125M L  24 (+256 = 280) | with support  24 (+256 = 280)
+SC_DMM     toy L  12 | 125M L  26 (+256 = 282) | with support  26 (+256 = 282)
+SC_DZC     toy L  42 | 125M L  82 (+256 = 338) | with support 102 (+256 = 358)
+SC_QZC     toy L  42 | 125M L  82 (+256 = 338) | with support 102 (+256 = 358)
+SC_KVZC    toy L  38 | 125M L  74 (+256 = 330) | with support  74 (+256 = 330)
+SC_SZC     toy L  50 | 125M L  94 (+256 = 350) | with support 117 (+256 = 373)
+SC_FZC     toy L  42 | 125M L  86 (+256 = 342) | with support  86 (+256 = 342)
+SC_TAB     toy L  29 | 125M L  29 (+256 = 285) | with support  29 (+256 = 285)
+SC_ZS      toy L  20 | 125M L  20 (+256 = 276) | with support  20 (+256 = 276)
+SC_IO_IN   toy L  22 | 125M L  42 (+256 = 298) | with support  42 (+256 = 298)
+SC_IO_OUT  toy L  22 | 125M L  42 (+256 = 298) | with support  42 (+256 = 298)
+worst 125M L: (94, 'SC_SZC')  worst with support factor: (117, 'SC_SZC')  budget 512 (zk.rs:444)
+M rows n_base = 2*23 + 4 = 50  (zk.rs:435-ish `n_base = 2*masks.len() + 4`; independent of log_cols)
+M geometry fixed: MASK_LOG_MSG 9 (512), MASK_LOG_DOM 12 (4096), MASK_Q 256 -> 50*4096*8 = 1638400 B
+
+========================================================================
+8. Receipt bytes (wire.rs:28-36)
+========================================================================
+draft (A35/H9, H 7186)           A  21,360,640  H  17,520,640  EP 1,466,368  M  243,712  slots  24,704  TOTAL   40,616,200 B = 38.73 MiB
+checked A (A36/H9, wrho32)       A  21,626,880  H  17,385,472  EP 1,466,368  M  243,712  slots  24,688  TOTAL   40,747,256 B = 38.86 MiB
+checked B (A36/H9, class 2^12)   A  21,626,880  H  17,790,976  EP 1,466,368  M  243,712  slots  24,736  TOTAL   41,152,808 B = 39.25 MiB
+12 blocks (checked A): 489.0 MB / 466.3 MiB
+12 blocks (draft's own inputs): 487.4 MB
+toy receipt for control: 2,816,472 B (measured, disposition section 3)
+
+========================================================================
+9. Committed material, bytes
+========================================================================
+A 5,681            systematic    744,620,032 B =    710.1 MiB   encoded  2,978,480,128 B =   2840.5 MiB
+H 7,186 (draft)    systematic    941,883,392 B =    898.2 MiB   encoded  3,767,533,568 B =   3593.0 MiB
+H 7120 (checked)   systematic    933,232,640 B =    890.0 MiB   encoded  3,732,930,560 B =   3560.0 MiB
+
+========================================================================
+10. Memory residency at the peak (protocol.rs allocation sites)
+========================================================================
+witness planes (Vec<Vec<i64>>, protocol.rs:271 requires padded length): 88,901,632 values = 711 MB
+looked (protocol.rs:289, i64 per lookup): 98,582,528 = 789 MB
+A systematic 745 MB  A encoded 2978 MB
+H systematic 933 MB  H encoded 3733 MB
+two endpoints (29 rows, sys+enc) 38 MB ; M 1.6 MB
+per-commitment extras: pads rows*256*8, salts 65536*32, tree ~4 MB -> 39 MB for A+H
+  SC_RS       4 tables x 2^22 =   16,777,216 points =      268 MB
+  SC_DZC     59 tables x 2^19 =   30,932,992 points =      495 MB
+  SC_QZC     20 tables x 2^19 =   10,485,760 points =      168 MB
+  SC_SZC     28 tables x 2^22 =  117,440,512 points =     1879 MB
+  SC_FZC     20 tables x 2^20 =   20,971,520 points =      336 MB
+total table-points over 23 slots: 204,276,352 (draft says 212.7M)
+largest slot's live tables: SC_SZC = 1879 MB (28 tables x 2^22)
+PEAK (everything alive at the largest slot): 11.81 GB = 11.00 GiB
+with the two drops of step S2:            10.31 GB = 9.60 GiB
+
+========================================================================
+11. Per-opening soundness (pcs.rs:16-19; hiding rows are n + Q)
+========================================================================
+toy block  log_cols 8 / inv_rate 8     rate 0.250000  (1-delta/3) 0.750000  -> 2^-106.25 per opening
+125M       log_cols 14 / inv_rate 4    rate 0.253906  (1-delta/3) 0.751302  -> 2^-105.61 per opening
+(no hiding pad, inv_rate 8)            rate 0.250000  (1-delta/3) 0.750000  -> 2^-106.25 per opening
+(no hiding pad, inv_rate 4)            rate 0.253906  (1-delta/3) 0.751302  -> 2^-105.61 per opening
+non-hiding inv_rate 8 control: (17/24)^256 = 2^-127.36 (obligations doc line 376)
+one block: A, H, In, Out     union 4 x 2^-105.61 = 2^-103.61
+twelve blocks: 4 x 12        union 48 x 2^-105.61 = 2^-100.02
+LogUp Schwartz-Zippel term per block: N/|Fp2| with N = 103,825,408 -> 2^-101.37
+twelve blocks (independent alpha each): 2^-97.79
+whole 12-block private 125M pass, dominant term: about 2^-100.5
+
+========================================================================
+12. Time model, rebuilt from the measured mr1 phases
+========================================================================
+commit A rate 1.3728 ms/row ; commit W rate 1.3238 ms/row (control)
+blended commit rate 1.3566 ms/row
+modelled commit H 7.912 s -> helper phase 2.857 s
+(the helper rate needs the FFN's helper count, which this check did not derive)
+opening rate over ALL opened rows 0.1055 ms/row (draft used A+H only: 0.1355)
+one block row-equivalents: 12909
+commit term 17.5 s ; opening term 1.4 s
+crude all-in rate 2.756 ms/row x 12801 rows = 35.3 s
+
+========================================================================
+13. The form-E split, by rows and by sumcheck table-points
+========================================================================
+attention rows 9943 (A 4213 + H 5730) = 79.9%
+feed-forward rows 2499 (A 1219 + H 1280) = 20.1%
+feed-forward sumcheck table-points 22,028,288 of 204,276,352 = 10.8%
+Amdahl: share 0.205 moved to a 7.62x path -> saving 17.8%
+Amdahl: share 0.160 moved to a 7.62x path -> saving 13.9%
+Amdahl: share 0.250 moved to a 7.62x path -> saving 21.7%
