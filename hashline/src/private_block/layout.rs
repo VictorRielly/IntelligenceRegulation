@@ -1063,6 +1063,18 @@ impl Layout {
     pub(crate) fn slots(&self) -> &[(usize, usize, usize); N_SLOTS] {
         &self.slots
     }
+    /// **STEP C part 2.** The CFS mask specification of THIS layout's slot
+    /// table — `(rounds, degree)` per slot — the shaped form of the free
+    /// [`mask_specs`], which reads the toy's `SLOTS` literal. At the toy the
+    /// two are equal (asserted in `grow_tests`), so no toy byte moves.
+    pub(crate) fn mask_specs(&self) -> Vec<(usize, usize)> {
+        self.slots.iter().map(|&(n, e, d)| (n + e, d)).collect()
+    }
+    /// private terminals slot `s` publishes at THIS shape (the shaped form of
+    /// the free [`slot_terms`], which reads `A_SITES` / `H_SITES`)
+    pub(crate) fn slot_terms(&self, slot: usize) -> usize {
+        self.a_sites[slot] + self.h_sites[slot] + usize::from(slot >= SC_IO_IN)
+    }
 
     // ---- the slot schedule ----
     pub(crate) fn a_sites(&self) -> &[usize] {

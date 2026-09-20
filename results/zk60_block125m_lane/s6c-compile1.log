@@ -1,0 +1,183 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0061]: this function takes 6 arguments but 5 arguments were supplied
+   --> src/private_block/tests.rs:324:5
+    |
+324 |     audit_claims(&[claim(0, 4), claim(1, 6)], 10, &sites, None, 8).unwrap();
+    |     ^^^^^^^^^^^^                                  ------ argument #3 of type `usize` is missing
+    |
+note: function defined here
+   --> src/private_block/protocol.rs:172:15
+    |
+172 | pub(crate) fn audit_claims(claims: &[ZClaim], n: usize, rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize...
+    |               ^^^^^^^^^^^^                              -----------
+help: provide the argument
+    |
+324 |     audit_claims(&[claim(0, 4), claim(1, 6)], 10, /* usize */, &sites, None, 8).unwrap();
+    |                                                   ++++++++++++
+
+error[E0061]: this function takes 6 arguments but 5 arguments were supplied
+   --> src/private_block/tests.rs:325:13
+    |
+325 |     assert!(audit_claims(&[claim(0, 4), claim(1, 4)], 10, &sites, None, 8).is_err(), "a pair shared by two claims");
+    |             ^^^^^^^^^^^^                                  ------ argument #3 of type `usize` is missing
+    |
+note: function defined here
+   --> src/private_block/protocol.rs:172:15
+    |
+172 | pub(crate) fn audit_claims(claims: &[ZClaim], n: usize, rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize...
+    |               ^^^^^^^^^^^^                              -----------
+help: provide the argument
+    |
+325 |     assert!(audit_claims(&[claim(0, 4), claim(1, 4)], 10, /* usize */, &sites, None, 8).is_err(), "a pair shared by two claims");
+    |                                                           ++++++++++++
+
+error[E0061]: this function takes 6 arguments but 5 arguments were supplied
+   --> src/private_block/tests.rs:326:13
+    |
+326 |     assert!(audit_claims(&[claim(0, 4)], 10, &sites, None, 8).is_err(), "an unused reserved pair");
+    |             ^^^^^^^^^^^^                     ------ argument #3 of type `usize` is missing
+    |
+note: function defined here
+   --> src/private_block/protocol.rs:172:15
+    |
+172 | pub(crate) fn audit_claims(claims: &[ZClaim], n: usize, rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize...
+    |               ^^^^^^^^^^^^                              -----------
+help: provide the argument
+    |
+326 |     assert!(audit_claims(&[claim(0, 4)], 10, /* usize */, &sites, None, 8).is_err(), "an unused reserved pair");
+    |                                              ++++++++++++
+
+error[E0061]: this function takes 6 arguments but 5 arguments were supplied
+   --> src/private_block/tests.rs:327:13
+    |
+327 |     assert!(audit_claims(&[claim(0, 5), claim(1, 6)], 10, &sites, None, 8).is_err(), "a misaligned pair");
+    |             ^^^^^^^^^^^^                                  ------ argument #3 of type `usize` is missing
+    |
+note: function defined here
+   --> src/private_block/protocol.rs:172:15
+    |
+172 | pub(crate) fn audit_claims(claims: &[ZClaim], n: usize, rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize...
+    |               ^^^^^^^^^^^^                              -----------
+help: provide the argument
+    |
+327 |     assert!(audit_claims(&[claim(0, 5), claim(1, 6)], 10, /* usize */, &sites, None, 8).is_err(), "a misaligned pair");
+    |                                                           ++++++++++++
+
+error[E0061]: this function takes 6 arguments but 5 arguments were supplied
+   --> src/private_block/tests.rs:328:13
+    |
+328 |     assert!(audit_claims(&[claim(0, 4), claim(1, 8)], 10, &sites, None, 8).is_err(), "a claim on the proximity pair");
+    |             ^^^^^^^^^^^^                                  ------ argument #3 of type `usize` is missing
+    |
+note: function defined here
+   --> src/private_block/protocol.rs:172:15
+    |
+172 | pub(crate) fn audit_claims(claims: &[ZClaim], n: usize, rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize...
+    |               ^^^^^^^^^^^^                              -----------
+help: provide the argument
+    |
+328 |     assert!(audit_claims(&[claim(0, 4), claim(1, 8)], 10, /* usize */, &sites, None, 8).is_err(), "a claim on the proximity pair");
+    |                                                           ++++++++++++
+
+error[E0061]: this function takes 6 arguments but 5 arguments were supplied
+   --> src/private_block/tests.rs:331:13
+    |
+331 |     assert!(audit_claims(&[claim(0, 4), dead], 10, &sites, None, 8).is_err(), "a zero mask coefficient");
+    |             ^^^^^^^^^^^^                           ------ argument #3 of type `usize` is missing
+    |
+note: function defined here
+   --> src/private_block/protocol.rs:172:15
+    |
+172 | pub(crate) fn audit_claims(claims: &[ZClaim], n: usize, rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize...
+    |               ^^^^^^^^^^^^                              -----------
+help: provide the argument
+    |
+331 |     assert!(audit_claims(&[claim(0, 4), dead], 10, /* usize */, &sites, None, 8).is_err(), "a zero mask coefficient");
+    |                                                    ++++++++++++
+
+error[E0061]: this function takes 6 arguments but 5 arguments were supplied
+   --> src/private_block/tests.rs:333:13
+    |
+333 |     assert!(audit_claims(&[claim(0, 4), claim(1, 6), unmasked], 10, &sites, None, 8).is_err(), "an unmasked claim");
+    |             ^^^^^^^^^^^^                                            ------ argument #3 of type `usize` is missing
+    |
+note: function defined here
+   --> src/private_block/protocol.rs:172:15
+    |
+172 | pub(crate) fn audit_claims(claims: &[ZClaim], n: usize, rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize...
+    |               ^^^^^^^^^^^^                              -----------
+help: provide the argument
+    |
+333 |     assert!(audit_claims(&[claim(0, 4), claim(1, 6), unmasked], 10, /* usize */, &sites, None, 8).is_err(), "an unmasked claim");
+    |                                                                     ++++++++++++
+
+error[E0061]: this function takes 8 arguments but 7 arguments were supplied
+   --> src/private_block/tests.rs:434:37
+    |
+434 |     let audit = |claims: &[ZClaim]| check_opening(claims, lay.a_rows, &sites, None, lay.a_prox, A_GROUPS, &tr);
+    |                                     ^^^^^^^^^^^^^                     ------ argument #3 of type `usize` is missing
+    |
+note: function defined here
+   --> src/private_block/protocol.rs:239:15
+    |
+239 | pub(crate) fn check_opening(claims: &[ZClaim], log_n: usize, rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: ...
+    |               ^^^^^^^^^^^^^                                  -----------
+help: provide the argument
+    |
+434 -     let audit = |claims: &[ZClaim]| check_opening(claims, lay.a_rows, &sites, None, lay.a_prox, A_GROUPS, &tr);
+434 +     let audit = |claims: &[ZClaim]| check_opening(claims, lay.a_rows, /* usize */, &sites, None, A_GROUPS, lay.a_prox, &tr);
+    |
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+For more information about this error, try `rustc --explain E0061`.
+warning: `hashline` (lib test) generated 6 warnings
+error: could not compile `hashline` (lib test) due to 8 previous errors; 6 warnings emitted

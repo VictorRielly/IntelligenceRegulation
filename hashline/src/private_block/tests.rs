@@ -321,16 +321,16 @@ fn the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows() {
     let claim = |data: usize, pair: usize| ZClaim { parts: vec![part(data, Fp2::ONE), part(pair, Fp2::U), part(pair + 1, Fp2::U.mul(Fp2::U))], value: Fp2::ZERO };
     // rows: data 0..4, reserved pairs (4,5) (6,7), proximity pair (8,9)
     let sites = [4usize, 5, 6, 7];
-    audit_claims(&[claim(0, 4), claim(1, 6)], 10, &sites, None, 8).unwrap();
-    assert!(audit_claims(&[claim(0, 4), claim(1, 4)], 10, &sites, None, 8).is_err(), "a pair shared by two claims");
-    assert!(audit_claims(&[claim(0, 4)], 10, &sites, None, 8).is_err(), "an unused reserved pair");
-    assert!(audit_claims(&[claim(0, 5), claim(1, 6)], 10, &sites, None, 8).is_err(), "a misaligned pair");
-    assert!(audit_claims(&[claim(0, 4), claim(1, 8)], 10, &sites, None, 8).is_err(), "a claim on the proximity pair");
+    audit_claims(&[claim(0, 4), claim(1, 6)], N, 10, &sites, None, 8).unwrap();
+    assert!(audit_claims(&[claim(0, 4), claim(1, 4)], N, 10, &sites, None, 8).is_err(), "a pair shared by two claims");
+    assert!(audit_claims(&[claim(0, 4)], N, 10, &sites, None, 8).is_err(), "an unused reserved pair");
+    assert!(audit_claims(&[claim(0, 5), claim(1, 6)], N, 10, &sites, None, 8).is_err(), "a misaligned pair");
+    assert!(audit_claims(&[claim(0, 4), claim(1, 8)], N, 10, &sites, None, 8).is_err(), "a claim on the proximity pair");
     let mut dead = claim(1, 6);
     dead.parts[1].coef = Fp2::ZERO;
-    assert!(audit_claims(&[claim(0, 4), dead], 10, &sites, None, 8).is_err(), "a zero mask coefficient");
+    assert!(audit_claims(&[claim(0, 4), dead], N, 10, &sites, None, 8).is_err(), "a zero mask coefficient");
     let unmasked = ZClaim { parts: vec![part(2, Fp2::ONE)], value: Fp2::ZERO };
-    assert!(audit_claims(&[claim(0, 4), claim(1, 6), unmasked], 10, &sites, None, 8).is_err(), "an unmasked claim");
+    assert!(audit_claims(&[claim(0, 4), claim(1, 6), unmasked], N, 10, &sites, None, 8).is_err(), "an unmasked claim");
 }
 
 /// DEFECT D-2 of the 2026-09-19 code review: `witness::requant` computed its
@@ -431,7 +431,7 @@ fn the_real_claim_list_is_refused_when_a_reserved_pair_is_shared_or_unconsumed()
     let sites = lay.a_site_rows();
     assert_eq!(ac.len(), sites.len() / 2, "one claim per reserved A pair");
     assert!(ac.iter().all(|c| c.parts.len() == 3), "an A claim is one data slice and its pair");
-    let audit = |claims: &[ZClaim]| check_opening(claims, lay.a_rows, &sites, None, lay.a_prox, A_GROUPS, &tr);
+    let audit = |claims: &[ZClaim]| check_opening(claims, LOG_N, lay.a_rows, &sites, None, lay.a_prox, A_GROUPS, &tr);
     audit(&ac).expect("the real claim list passes the audit both sides run");
 
     // (i) two planes share one reserved pair: the second claim's pair parts are

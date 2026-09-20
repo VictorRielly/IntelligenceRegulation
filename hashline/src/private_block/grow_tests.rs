@@ -1064,3 +1064,73 @@ fn the_slot_definitions_are_built_from_the_shape() {
         assert_eq!(kv_pv.is_some(), lkv > 0, "{}: the grouped-head check ran iff the shape groups", sh.name);
     }
 }
+
+// ---------------------------------------------------- step C part 2: the shaped protocol
+
+/// **STEP C part 2, the freeze half.** `protocol::transcript` no longer
+/// absorbs a literal parameter word: it FORMATS one from the layout's shape.
+/// The toy's line is transcript-bound, so a single changed character would
+/// move every toy byte. This pins it verbatim, exactly as the schedule digest
+/// is pinned, and pins the toy profile string the transcript is opened with.
+#[test]
+fn the_toy_parameter_line_is_the_frozen_literal() {
+    assert_eq!(
+        super::protocol::parameter_line(&Shape::toy()),
+        "T32/d16/f16/H2/KV1/dh8/log_cols8/inv_rate8/Q256/P1/sh-g7-u0-h14-z6/two-private-endpoints/one-proof-one-transcript"
+    );
+    assert_eq!(Shape::toy().profile.as_bytes(), PROFILE, "the toy shape's profile is the module's PROFILE constant");
+    // every other shape gets its own line AND its own profile id (D17)
+    for sh in [Shape::rung(), Shape::m125()] {
+        assert_ne!(super::protocol::parameter_line(&sh), super::protocol::parameter_line(&Shape::toy()), "{}: parameter line", sh.name);
+        assert_ne!(sh.profile, Shape::toy().profile, "{}: profile id", sh.name);
+    }
+}
+
+/// **STEP S10.** The PCS parameters are the shape's: at the toy `log_cols 8`,
+/// rate 1/8, `Q = 256`; at the development rung `log_cols 10`, rate 1/4,
+/// `Q = 256`. The load-bearing invariant checked here is that THE PAD COUNT
+/// AND THE NUMBER OF OPENED COLUMNS MOVE TOGETHER: `ZkOpts::standard` takes
+/// its `q_pad` from `num_col_checks`, so one cannot be changed without the
+/// other, and the hiding clear vector is `n + Q` long at every shape.
+#[test]
+fn the_pcs_parameters_come_from_the_shape_and_the_pad_count_tracks_the_opened_columns() {
+    for (sh, want) in [(Shape::toy(), (8u32, 8usize, 256usize)), (Shape::rung(), (10, 4, 256)), (Shape::m125(), (14, 4, 256))] {
+        let p = super::protocol::pcs_params_at(&sh);
+        assert_eq!((p.log_cols, p.inv_rate, p.num_col_checks), want, "{}: PCS parameters", sh.name);
+        assert_eq!(crate::pcs::ZkOpts::standard(&p).q_pad, p.num_col_checks, "{}: the pad count is the opened-column count", sh.name);
+        assert_eq!(p.enc_cols(), (1usize << sh.log_cols) * sh.inv_rate, "{}: encoded row width", sh.name);
+    }
+}
+
+/// **STEP C part 2, the wire half.** `wire::encoded_len` was four toy
+/// literals (the 512-word clear vector, the 2048-column encoding, the 11-step
+/// path, the 256 checks) plus `A_GROUPS` / `H_GROUPS` / `ENDPOINT_ROWS`. It
+/// now reads all of them off the layout's shape, so it must agree PART FOR
+/// PART with `Shape::receipt_bytes`, the independent Python-checked model, at
+/// every shape — including the toy's frozen 2,816,472 bytes and the rung's
+/// modelled 4,173,208.
+#[test]
+fn the_codec_length_is_the_models_at_every_shape() {
+    for (sh, want) in [(Shape::toy(), 2_816_472usize), (Shape::rung(), 4_173_208), (Shape::m125(), Shape::m125().receipt_bytes().total)] {
+        let lay = Layout::for_shape(&sh).expect("the shape is well formed");
+        assert_eq!(sh.receipt_bytes().total, want, "{}: the model's receipt total", sh.name);
+        assert_eq!(super::wire::encoded_len(&lay), want, "{}: the codec's frame length differs from the model", sh.name);
+    }
+    // the toy path is unchanged: the public entry point still reports the frozen length
+    assert_eq!(encoded_len(), 2_816_472);
+}
+
+/// **STEP C part 2, the capability bound.** The module builds ONE NTT table,
+/// wide enough for the toy and the development rung (both `2^12`) and for the
+/// fixed mask domain. The 125M shape needs `2^16`, and both shaped entry
+/// points refuse it BY NAME before anything public exists rather than
+/// building a table that is silently too small. This is a capability
+/// statement about this lane, not a soundness one.
+#[test]
+fn a_shape_wider_than_the_ntt_tables_is_refused_by_name() {
+    for sh in [Shape::toy(), Shape::rung()] {
+        super::protocol::fits_the_ntt_tables(&sh).unwrap_or_else(|e| panic!("{}: {e}", sh.name));
+    }
+    let err = super::protocol::fits_the_ntt_tables(&Shape::m125()).expect_err("125M must be refused");
+    assert!(err.contains("exceeds the module's NTT tables"), "{err}");
+}

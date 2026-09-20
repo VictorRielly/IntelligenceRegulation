@@ -9,8 +9,9 @@
 
 use super::argument::{argument, table_values_act, table_values_exp, table_values_u8, Ctx, ProverData, Side};
 use super::layout::*;
+use super::shape::Shape;
 use super::witness::Witness;
-use super::{BlockPublic, Endpoints, ExpectedIo, ProveStats, Receipt, PROFILE};
+use super::{BlockPublic, Endpoints, ExpectedIo, ProveStats, Receipt};
 use crate::field::{batch_inverse2_checked, Fp, Fp2};
 use crate::ntt::NttTables;
 use crate::pcs::{self, Commitment, PcsParams, Slice, ZClaim, ZPart, ZkOpts};
@@ -18,33 +19,84 @@ use crate::tables_attn::{TAG_ACT, TAG_EXP, TAG_U8};
 use crate::transcript::Transcript;
 use crate::zk::{self, ZkRng};
 
+/// The one NTT table this module builds. It must cover the largest evaluation
+/// domain any commitment of the proof uses: the `A` / `H` encoding
+/// (`log_cols + log2(inv_rate)`), the endpoint encoding and the fixed 4096-wide
+/// mask domain. The toy (2048) and the development rung (4096) both fit in
+/// `2^12`; the 125M shape would need `2^16`, and [`fits_the_ntt_tables`]
+/// refuses it BY NAME rather than silently building a wrong table.
+const NTT_LOG: u32 = 12;
+
+fn log2_exact(v: usize) -> usize {
+    debug_assert!(v.is_power_of_two(), "a power of two");
+    v.trailing_zeros() as usize
+}
+
+/// The shapes this module can prove at today. A refusal here is a capability
+/// statement, not a soundness one: nothing in the construction stops a wider
+/// NTT table, but no shape beyond the rung is run on this lane.
+pub(crate) fn fits_the_ntt_tables(sh: &Shape) -> Result<(), String> {
+    let need = [sh.log_cols + log2_exact(sh.inv_rate), sh.endpoint_log_n + log2_exact(sh.endpoint_inv_rate), NTT_LOG as usize];
+    if need.iter().any(|k| *k > NTT_LOG as usize) {
+        return Err(format!("private block: this shape's evaluation domain (2^{}) exceeds the module's NTT tables (2^{NTT_LOG})", need.iter().max().expect("three entries")));
+    }
+    Ok(())
+}
+
+/// **STEP C part 2 / S10.** The PCS parameters of a shape: at the toy
+/// `log_cols 8`, rate 1/8, `Q = 256`; at the development rung `log_cols 10`,
+/// rate 1/4, `Q = 256`. The pad count and the number of opened columns move
+/// together — both are `sh.opened_cols` — because `ZkOpts::standard` takes its
+/// `q_pad` from `num_col_checks`.
+pub(crate) fn pcs_params_at(sh: &Shape) -> PcsParams {
+    PcsParams { log_cols: sh.log_cols as u32, inv_rate: sh.inv_rate, num_col_checks: sh.opened_cols }
+}
+
+/// the toy profile's PCS parameters (the signature `native_capture.rs` calls)
 pub(crate) fn pcs_params() -> PcsParams {
-    PcsParams { log_cols: LOG_N as u32, inv_rate: 8, num_col_checks: 256 }
+    pcs_params_at(&Shape::toy())
 }
 
 /// Header, public statement, endpoint policy and calibration first; no
 /// challenge precedes them. The order is T1 section D steps 1-6: PROFILE,
 /// `"expected-IO"`, `"public-statement"` (ONE digest over the attention AND
 /// feed-forward words), `"parameters"`, `"calibration"`, `"schedule"`.
+///
+/// **STEP C part 2.** The profile string and the parameter line are the
+/// LAYOUT'S OWN SHAPE's, not the toy's (D17: a new shape is a new profile, and
+/// it separates its transcript). At `Shape::toy()` the formatted line is the
+/// frozen literal byte for byte — `the_toy_parameter_line_is_the_frozen_literal`
+/// pins it — so no toy byte moves.
 pub(crate) fn transcript(public: &BlockPublic, expected: &ExpectedIo, lay: &Layout) -> Transcript {
-    let mut tr = Transcript::new(PROFILE);
+    let sh = lay.shape();
+    let mut tr = Transcript::new(sh.profile.as_bytes());
     tr.absorb(b"expected-IO", &expected.to_bytes());
     tr.absorb(b"public-statement", &public.digest());
-    tr.absorb(b"parameters", b"T32/d16/f16/H2/KV1/dh8/log_cols8/inv_rate8/Q256/P1/sh-g7-u0-h14-z6/two-private-endpoints/one-proof-one-transcript");
+    tr.absorb(b"parameters", parameter_line(sh).as_bytes());
     // D12 item 5: a receipt cannot be replayed under another approved calibration
     tr.absorb(b"calibration", &super::calibration_identity());
     tr.absorb(b"schedule", &lay.schedule_digest());
     tr
 }
 
-fn absorb_root(tr: &mut Transcript, label: &[u8], root: &[u8; 32], rows: usize) {
-    tr.absorb(label, root);
-    tr.absorb_u64(b"rows", rows as u64);
-    tr.absorb_u64(b"log-cols", LOG_N as u64);
+/// The `"parameters"` word of the transcript, as a function of the shape. The
+/// three feed-forward shifts are calibration constants of the profile family,
+/// not shape fields, so they stay literal.
+pub(crate) fn parameter_line(sh: &Shape) -> String {
+    format!(
+        "T{}/d{}/f{}/H{}/KV{}/dh{}/log_cols{}/inv_rate{}/Q{}/P1/sh-g{SH_G}-u0-h{SH_H_PROD}-z{SH_Z}/two-private-endpoints/one-proof-one-transcript",
+        sh.tokens, sh.width, sh.hidden, sh.q_heads, sh.kv_heads, sh.head_dim, sh.log_cols, sh.inv_rate, sh.opened_cols
+    )
 }
 
-fn commitment(root: [u8; 32], rows: usize) -> Commitment {
-    Commitment { root, rows, log_cols: LOG_N as u32 }
+fn absorb_root(tr: &mut Transcript, label: &[u8], root: &[u8; 32], rows: usize, log_cols: usize) {
+    tr.absorb(label, root);
+    tr.absorb_u64(b"rows", rows as u64);
+    tr.absorb_u64(b"log-cols", log_cols as u64);
+}
+
+fn commitment(root: [u8; 32], rows: usize, log_cols: usize) -> Commitment {
+    Commitment { root, rows, log_cols: log_cols as u32 }
 }
 
 /// The value-0 LogUp identity: every witness helper minus the two table helpers plus the
@@ -55,11 +107,12 @@ fn commitment(root: [u8; 32], rows: usize) -> Commitment {
 /// show that its reconstruction agrees with THIS function at the toy before
 /// anything it says about the rung means anything.
 pub(crate) fn logup_sum_claim(lay: &Layout) -> ZClaim {
-    let mut parts = Vec::with_capacity(2 * N_H);
+    let (sh, hids) = (lay.shape(), lay.hids());
+    let mut parts = Vec::with_capacity(2 * hids.n_h());
     for p in lay.h_planes() {
-        let sign = if h_is_table(p) { Fp2::ONE.neg() } else { Fp2::ONE };
+        let sign = if hids.is_table(p) { Fp2::ONE.neg() } else { Fp2::ONE };
         let (re, im) = lay.h_off[p];
-        let log_size = h_dom(p).log() as u32;
+        let log_size = sh.log(hids.dom(p)) as u32;
         parts.push(ZPart { slice: Slice { offset: re, log_size }, coef: sign, point: vec![] });
         parts.push(ZPart { slice: Slice { offset: im, log_size }, coef: sign.mul(Fp2::U), point: vec![] });
     }
@@ -101,9 +154,9 @@ pub(crate) fn opening_groups_at(claims: &[ZClaim], log_n: usize) -> Result<Vec<(
     Ok(groups)
 }
 
-fn part_rows(p: &ZPart) -> std::ops::Range<usize> {
-    let r0 = p.slice.offset / N;
-    r0..r0 + (1usize << p.slice.log_size).div_ceil(N)
+fn part_rows(p: &ZPart, n: usize) -> std::ops::Range<usize> {
+    let r0 = p.slice.offset / n;
+    r0..r0 + (1usize << p.slice.log_size).div_ceil(n)
 }
 
 /// THE SCHEDULE AUDIT (whole commitment, not one site): every reserved pair row is
@@ -116,7 +169,7 @@ fn part_rows(p: &ZPart) -> std::ops::Range<usize> {
 /// whatever the data is. PREMISE, not proven here: independence from the sampled
 /// columns, the salted paths and the CFS channel (the joint-view gate of the
 /// construction section 7 is still owed on captured receipts).
-pub(crate) fn audit_claims(claims: &[ZClaim], rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize) -> Result<(), String> {
+pub(crate) fn audit_claims(claims: &[ZClaim], n: usize, rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize) -> Result<(), String> {
     let fail = |what: &str| Err(format!("private block: mask schedule audit: {what}"));
     if prox + 2 != rows || site_rows.len() % 2 != 0 {
         return fail("proximity pair placement");
@@ -126,7 +179,7 @@ pub(crate) fn audit_claims(claims: &[ZClaim], rows: usize, site_rows: &[usize], 
     for (ci, claim) in claims.iter().enumerate() {
         let mut touched: Vec<usize> = Vec::new();
         for part in &claim.parts {
-            let pr = part_rows(part);
+            let pr = part_rows(part, n);
             if pr.end > prox {
                 return fail("a claim reaches the proximity pair or leaves the commitment");
             }
@@ -140,7 +193,7 @@ pub(crate) fn audit_claims(claims: &[ZClaim], rows: usize, site_rows: &[usize], 
         let is_sum = claim.parts.iter().all(|p| p.point.is_empty());
         match (is_sum, sum_rows) {
             (true, Some(u)) if ci + 1 == claims.len() => {
-                let covered = |row: usize| claim.parts.iter().any(|p| part_rows(p).contains(&row) && !p.coef.is_zero());
+                let covered = |row: usize| claim.parts.iter().any(|p| part_rows(p, n).contains(&row) && !p.coef.is_zero());
                 if !touched.is_empty() || !covered(u[0]) || !covered(u[1]) {
                     return fail("the sum claim is not masked by the zero-sum pair alone");
                 }
@@ -182,10 +235,11 @@ pub(crate) fn check_opening_challenges(groups: &[usize], rows: usize, prox: usiz
 }
 
 /// Audit, exact group count, and the challenge refusals of ONE opening. Public inputs only.
-pub(crate) fn check_opening(claims: &[ZClaim], rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize, want_groups: usize, tr: &Transcript) -> Result<(), String> {
-    audit_claims(claims, rows, site_rows, sum_rows, prox)?;
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn check_opening(claims: &[ZClaim], log_n: usize, rows: usize, site_rows: &[usize], sum_rows: Option<[usize; 2]>, prox: usize, want_groups: usize, tr: &Transcript) -> Result<(), String> {
+    audit_claims(claims, 1usize << log_n, rows, site_rows, sum_rows, prox)?;
     // first-occurrence grouping, as the PCS forms it
-    let groups = opening_groups_at(claims, LOG_N)?;
+    let groups = opening_groups_at(claims, log_n)?;
     if groups.len() != want_groups {
         return Err(format!("private block: {} opening groups, the schedule declares {want_groups}", groups.len()));
     }
@@ -204,46 +258,66 @@ fn finish_claims(claims: [Vec<ZClaim>; 4], lay: &Layout) -> [Vec<ZClaim>; 4] {
 pub(crate) const ENDPOINT_ROWS: usize = 7;
 const ENDPOINT_PROX: usize = 4;
 
+/// The endpoint geometry of a shape: `(rows, data rows, proximity row)`. The
+/// toy's is the frozen `(7, 2, 4)`. **STEP C part 2 threads it; S11 is what
+/// decides it at the rung**, where the endpoint plane no longer fits one
+/// `private_seam` block (`nb_d = 3`) — until then a shape whose
+/// `endpoint_rows` is not the toy's is refused BY NAME here rather than
+/// proved against a geometry nobody has checked.
+fn endpoint_geometry(sh: &Shape) -> Result<(usize, usize, usize), String> {
+    if sh.endpoint_rows != ENDPOINT_ROWS {
+        return Err(format!("private block: endpoint geometry of {} rows is S11's, not built yet", sh.endpoint_rows));
+    }
+    Ok((ENDPOINT_ROWS, 2, ENDPOINT_PROX))
+}
+
 // The endpoint planes are `private_seam` commitments: 2 data rows, the terminal pair
 // (2, 3) and three proximity rows from row 4. The seven-row geometry does not end in
 // its proximity pair, so the one claim's shape is checked directly; the challenge
 // refusals require rows (4, 5) independent, exactly as the repaired FFN IO profile.
-fn check_endpoint_opening(claims: &[ZClaim], tr: &Transcript) -> Result<(), String> {
+fn check_endpoint_opening(claims: &[ZClaim], sh: &Shape, tr: &Transcript) -> Result<(), String> {
+    let (rows, data, prox) = endpoint_geometry(sh)?;
+    let n = 1usize << sh.endpoint_log_n;
     let ok = claims.len() == 1
         && claims[0].parts.len() == 3
-        && part_rows(&claims[0].parts[0]) == (0..2)
-        && part_rows(&claims[0].parts[1]) == (2..3)
-        && part_rows(&claims[0].parts[2]) == (3..4)
+        && part_rows(&claims[0].parts[0], n) == (0..data)
+        && part_rows(&claims[0].parts[1], n) == (data..data + 1)
+        && part_rows(&claims[0].parts[2], n) == (data + 1..data + 2)
         && claims[0].parts.iter().all(|p| !p.coef.is_zero());
     if !ok {
         return Err("private block: endpoint claim differs from the declared schedule".into());
     }
     let mut replay = Transcript::clone_state(tr);
-    check_opening_challenges(&[1], ENDPOINT_ROWS, ENDPOINT_PROX, || replay.challenge_fp2())
+    check_opening_challenges(&[1], rows, prox, || replay.challenge_fp2())
 }
 
 // ---------------------------------------------------------------- prover
 
-/// integer lookup values per lookup of a domain
+/// integer lookup values per lookup of a domain, over the domain's PADDED
+/// extent at this layout's shape (`Dom::len()` is the toy's)
 fn lookup_values(lay: &Layout, wit: &Witness, dom: Dom) -> Vec<Vec<i64>> {
+    let len = lay.shape().size(dom);
     lay.lookups(dom)
         .iter()
-        .map(|l| (0..dom.len()).map(|x| l.terms.iter().fold(l.cst, |a, (p, c)| a.wrapping_add(c.wrapping_mul(wit.planes[*p][x])))).collect())
+        .map(|l| (0..len).map(|x| l.terms.iter().fold(l.cst, |a, (p, c)| a.wrapping_add(c.wrapping_mul(wit.planes[*p][x])))).collect())
         .collect()
 }
 
 /// the activation lookup's index column `g8 + 128` over the `Dom::F` cube
-fn act_indices(wit: &Witness) -> Vec<i64> {
-    wit.planes[A_G8].iter().map(|g| g + 128).collect()
+fn act_indices(lay: &Layout, wit: &Witness) -> Vec<i64> {
+    wit.planes[lay.ids().at(A_G8)].iter().map(|g| g + 128).collect()
 }
 
-/// max - masked score per (h, t, j)
-fn exp_deltas(wit: &Witness) -> Vec<i64> {
-    (0..H * T * T)
+/// max - masked score per `(h, t, j)`, over `Dom::S`'s cube
+/// `(h * t_pad + t) * t_pad + j` (`witness.rs:193`)
+fn exp_deltas(lay: &Layout, wit: &Witness) -> Vec<i64> {
+    let (sh, ids) = (lay.shape(), lay.ids());
+    let (tp, s8, mx) = (sh.t_pad, ids.at(A_S8), ids.at(A_MX));
+    (0..sh.h_pad * tp * tp)
         .map(|x| {
-            let (ht, j) = (x / T, x % T);
-            let masked = if j <= ht % T { wit.planes[A_S8][x] } else { MASK_SCORE };
-            wit.planes[A_MX][ht].wrapping_sub(masked)
+            let (ht, j) = (x / tp, x % tp);
+            let masked = if j <= ht % tp { wit.planes[s8][x] } else { MASK_SCORE };
+            wit.planes[mx][ht].wrapping_sub(masked)
         })
         .collect()
 }
@@ -260,14 +334,15 @@ fn write_h(h: &mut [Fp], off: (usize, usize), col: &[Fp2]) {
     }
 }
 
-fn check_endpoints(expected: &ExpectedIo, endpoints: Endpoints) -> Result<[pcs::CommittedZk; 2], String> {
+fn check_endpoints(sh: &Shape, expected: &ExpectedIo, endpoints: Endpoints) -> Result<[pcs::CommittedZk; 2], String> {
+    let (rows, _, _) = endpoint_geometry(sh)?;
     let [si, so] = expected.spec.seams()?;
     let input = endpoints.input.into_ffn_endpoint(&si)?;
     let output = endpoints.output.into_ffn_endpoint(&so)?;
     if input.commitment().root != expected.input || output.commitment().root != expected.output {
         return Err("private block: expected endpoint root mismatch".into());
     }
-    if input.cm.rows != ENDPOINT_ROWS || output.cm.rows != ENDPOINT_ROWS {
+    if input.cm.rows != rows || output.cm.rows != rows {
         return Err("private block: endpoint geometry".into());
     }
     Ok([input, output])
@@ -283,6 +358,14 @@ fn check_endpoints(expected: &ExpectedIo, endpoints: Endpoints) -> Result<[pcs::
 /// reference would leave that memory alive in the caller's frame for the whole
 /// proof. Nothing here keeps a copy.
 pub(crate) fn prove_inner(blk: &BlockPublic, wit: Witness, expected: &ExpectedIo, endpoints: Endpoints) -> Result<(Receipt, ProveStats), String> {
+    prove_inner_at(&Shape::toy(), blk, wit, expected, endpoints)
+}
+
+/// **STEP C part 2.** The same prover at any [`Shape`]. `prove_inner` is this
+/// at `Shape::toy()`, exactly as `AttentionPublic::new` is `new_shaped` at the
+/// toy — the toy's code path, its transcript and every one of its bytes are
+/// unchanged, and a new shape is a NEW profile beside it (D17).
+pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expected: &ExpectedIo, endpoints: Endpoints) -> Result<(Receipt, ProveStats), String> {
     use std::time::Instant;
     let (public, ff) = (blk.attention(), blk.feed_forward());
     let mut tick = Instant::now();
@@ -291,22 +374,24 @@ pub(crate) fn prove_inner(blk: &BlockPublic, wit: Witness, expected: &ExpectedIo
         phases.push((name, tick.elapsed().as_secs_f64()));
         *tick = Instant::now();
     };
-    let lay = Layout::new();
-    let [ein, eout] = check_endpoints(expected, endpoints)?;
+    fits_the_ntt_tables(sh)?;
+    let lay = Layout::for_shape(sh)?;
+    let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
+    let [ein, eout] = check_endpoints(sh, expected, endpoints)?;
     // every plane but the three derived histograms
-    let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !is_multiplicity(*p)).collect();
-    if wit.planes.len() != N_A || committed.iter().any(|p| wit.planes[*p].len() != a_dom(*p).len()) {
+    let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !ids.is_multiplicity(*p)).collect();
+    if wit.planes.len() != ids.n_a() || committed.iter().any(|p| wit.planes[*p].len() != sh.size(ids.dom(*p))) {
         return Err("private block: witness shape".into());
     }
     // ONE OS stream per attempt; entropy failure aborts before anything public exists.
-    let mut rng = ZkRng::from_os(PROFILE).map_err(|e| format!("private block randomness: {e}"))?;
-    let ntt = NttTables::new(12);
-    let params = pcs_params();
+    let mut rng = ZkRng::from_os(sh.profile.as_bytes()).map_err(|e| format!("private block randomness: {e}"))?;
+    let ntt = NttTables::new(NTT_LOG);
+    let params = pcs_params_at(sh);
     let zko = ZkOpts::standard(&params);
     let mut tr = transcript(blk, expected, &lay);
 
     // ---- A: planes, the three committed histograms, every mask row drawn BEFORE the commitment ----
-    let mut a_data = vec![Fp::ZERO; lay.a_rows * N];
+    let mut a_data = vec![Fp::ZERO; lay.a_rows * n];
     for p in &committed {
         for (i, v) in wit.planes[*p].iter().enumerate() {
             a_data[lay.a_off[*p] + i] = Fp::from_i64(*v);
@@ -325,35 +410,35 @@ pub(crate) fn prove_inner(blk: &BlockPublic, wit: Witness, expected: &ExpectedIo
             m_u8[if (0..U8_LEN as i64).contains(v) { *v as usize } else { 0 }] += 1;
         }
     }
-    let deltas = exp_deltas(&wit);
+    let deltas = exp_deltas(&lay, &wit);
     let mut m_exp = vec![0u64; U8_LEN];
     for (x, d) in deltas.iter().enumerate() {
-        let hit = (0..U8_LEN as i64).contains(d) && public.exp[*d as usize] == wit.planes[A_E][x];
+        let hit = (0..U8_LEN as i64).contains(d) && public.exp[*d as usize] == wit.planes[ids.at(A_E)][x];
         m_exp[if hit { *d as usize } else { 0 }] += 1;
     }
-    let act_idx = act_indices(&wit);
+    let act_idx = act_indices(&lay, &wit);
     let mut m_act = vec![0u64; U8_LEN];
     for (x, i) in act_idx.iter().enumerate() {
-        let hit = (0..U8_LEN as i64).contains(i) && i64::from(ff.act[*i as usize]) == wit.planes[A_A16][x];
+        let hit = (0..U8_LEN as i64).contains(i) && i64::from(ff.act[*i as usize]) == wit.planes[ids.at(A_A16)][x];
         m_act[if hit { *i as usize } else { 0 }] += 1;
     }
     for i in 0..U8_LEN {
-        a_data[lay.a_off[A_MU8] + i] = Fp::new(m_u8[i]);
-        a_data[lay.a_off[A_MEXP] + i] = Fp::new(m_exp[i]);
-        a_data[lay.a_off[A_MACT] + i] = Fp::new(m_act[i]);
+        a_data[lay.a_off[ids.at(A_MU8)] + i] = Fp::new(m_u8[i]);
+        a_data[lay.a_off[ids.at(A_MEXP)] + i] = Fp::new(m_exp[i]);
+        a_data[lay.a_off[ids.at(A_MACT)] + i] = Fp::new(m_act[i]);
     }
-    for x in &mut a_data[lay.a_mask_base * N..] {
+    for x in &mut a_data[lay.a_mask_base * n..] {
         *x = rng.fp();
     }
     let mut a = pcs::commit_zk_owned(&params, a_data, &ntt, &zko, &mut rng);
     a.mask_rows = lay.a_site_rows();
     a.prox_mask_row = Some(lay.a_prox);
     let a_root = a.commitment().root;
-    absorb_root(&mut tr, b"A", &a_root, lay.a_rows);
+    absorb_root(&mut tr, b"A", &a_root, lay.a_rows, sh.log_cols);
     lap("witness planes + commit A", &mut tick);
 
     // ---- M: all twenty-three CFS masks, committed before any challenge ----
-    let mc = zk::mask_commit(&mask_specs(), &ntt, &mut rng);
+    let mc = zk::mask_commit(&lay.mask_specs(), &ntt, &mut rng);
     let mask_root = mc.tree.root();
     tr.absorb(b"M", &mask_root);
     lap("commit M", &mut tick);
@@ -365,7 +450,7 @@ pub(crate) fn prove_inner(blk: &BlockPublic, wit: Witness, expected: &ExpectedIo
     let g_u8 = gamma.mul_base(Fp::new(TAG_U8));
     let g_exp = gamma.mul_base(Fp::new(TAG_EXP));
     let g_act = gamma.mul_base(Fp::new(TAG_ACT));
-    let mut h_data = vec![Fp::ZERO; lay.h_rows * N];
+    let mut h_data = vec![Fp::ZERO; lay.h_rows * n];
     for (dom, cols) in &looked {
         let (first, count) = lay.helpers(*dom);
         let inv: Vec<Vec<Fp2>> = cols.iter().map(|c| inverses(c.iter().map(|v| alpha.sub(Fp2::from_i64(*v).add(g_u8))).collect())).collect::<Result<_, _>>()?;
@@ -377,10 +462,10 @@ pub(crate) fn prove_inner(blk: &BlockPublic, wit: Witness, expected: &ExpectedIo
             write_h(&mut h_data, lay.h_off[first + k], &col);
         }
     }
-    let exp_den = deltas.iter().zip(wit.planes[A_E].iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
-    write_h(&mut h_data, lay.h_off[H_SEXP], &inverses(exp_den)?);
-    let act_den = act_idx.iter().zip(wit.planes[A_A16].iter()).map(|(i, a)| alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect();
-    write_h(&mut h_data, lay.h_off[H_FACT], &inverses(act_den)?);
+    let exp_den = deltas.iter().zip(wit.planes[ids.at(A_E)].iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
+    write_h(&mut h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
+    let act_den = act_idx.iter().zip(wit.planes[ids.at(A_A16)].iter()).map(|(i, a)| alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect();
+    write_h(&mut h_data, lay.h_off[hids.fact()], &inverses(act_den)?);
     // ---- STEP S2 (C-11): the prover's four transient buffers die HERE ----
     // The two lines above are the LAST reads of the witness planes and of
     // `looked`; the memo's earlier proposal to drop them at the histogram loop
@@ -401,32 +486,33 @@ pub(crate) fn prove_inner(blk: &BlockPublic, wit: Witness, expected: &ExpectedIo
     drop(wit);
     drop(deltas);
     drop(act_idx);
+    let [gu8, gexp, gact] = hids.table_helpers();
     for (plane, tv, m) in [
-        (H_GU8, table_values_u8(g_u8), &m_u8),
-        (H_GEXP, table_values_exp(public, beta, g_exp), &m_exp),
-        (H_GACT, table_values_act(ff, beta, g_act), &m_act),
+        (gu8, table_values_u8(g_u8), &m_u8),
+        (gexp, table_values_exp(public, beta, g_exp), &m_exp),
+        (gact, table_values_act(ff, beta, g_act), &m_act),
     ] {
         let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
         let col: Vec<Fp2> = inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect();
         write_h(&mut h_data, lay.h_off[plane], &col);
     }
-    for x in &mut h_data[lay.h_mask_base * N..] {
+    for x in &mut h_data[lay.h_mask_base * n..] {
         *x = rng.fp();
     }
     for r in lay.h_u_rows() {
         let mut sum = Fp::ZERO;
-        for j in 0..N - 1 {
+        for j in 0..n - 1 {
             let v = rng.fp();
-            h_data[r * N + j] = v;
+            h_data[r * n + j] = v;
             sum = sum.add(v);
         }
-        h_data[r * N + N - 1] = sum.neg();
+        h_data[r * n + n - 1] = sum.neg();
     }
     let mut h = pcs::commit_zk_owned(&params, h_data, &ntt, &zko, &mut rng);
     h.mask_rows = lay.h_site_rows().into_iter().chain(lay.h_u_rows()).collect();
     h.prox_mask_row = Some(lay.h_prox);
     let h_root = h.commitment().root;
-    absorb_root(&mut tr, b"H", &h_root, lay.h_rows);
+    absorb_root(&mut tr, b"H", &h_root, lay.h_rows, sh.log_cols);
     lap("LogUp helpers + commit H", &mut tick);
 
     // ---- the twenty-three slots ----
@@ -445,16 +531,16 @@ pub(crate) fn prove_inner(blk: &BlockPublic, wit: Witness, expected: &ExpectedIo
     drop(mc);
     let order = acc.order;
     let [ac, hc, ic, oc] = finish_claims(acc.claims, &lay);
-    check_opening(&ac, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, A_GROUPS, &tr)?;
+    check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), &tr)?;
     let a_open = pcs::open_zk(&a, &ac, &mut tr);
     drop(a);
-    check_opening(&hc, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, H_GROUPS, &tr)?;
+    check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), &tr)?;
     let h_open = pcs::open_zk(&h, &hc, &mut tr);
     drop(h);
-    check_endpoint_opening(&ic, &tr)?;
+    check_endpoint_opening(&ic, sh, &tr)?;
     let in_open = pcs::open_zk(&ein, &ic, &mut tr);
     drop(ein);
-    check_endpoint_opening(&oc, &tr)?;
+    check_endpoint_opening(&oc, sh, &tr)?;
     let out_open = pcs::open_zk(&eout, &oc, &mut tr);
     drop(eout);
     lap("M + A + H + endpoint openings", &mut tick);
@@ -478,17 +564,25 @@ pub(crate) fn prove_inner(blk: &BlockPublic, wit: Witness, expected: &ExpectedIo
 /// Accepts only against the caller's own public statement and endpoint policy.
 /// Returns the absorb sequence (for the transcript-order gate).
 pub(crate) fn verify_inner(blk: &BlockPublic, expected: &ExpectedIo, receipt: &Receipt) -> Result<Vec<String>, String> {
+    verify_inner_at(&Shape::toy(), blk, expected, receipt)
+}
+
+/// **STEP C part 2.** The same verifier at any [`Shape`]; `verify_inner` is
+/// this at `Shape::toy()`. The verifier reads the shape from its CALLER, never
+/// from the receipt: nothing in the frame chooses a geometry.
+pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &ExpectedIo, receipt: &Receipt) -> Result<Vec<String>, String> {
     #[cfg(test)]
     super::capture::begin();
     let (public, ff) = (blk.attention(), blk.feed_forward());
-    let lay = Layout::new();
+    fits_the_ntt_tables(sh)?;
+    let lay = Layout::for_shape(sh)?;
     super::wire::validate(receipt, &lay)?;
     expected.spec.seams()?;
-    let ntt = NttTables::new(12);
-    let params = pcs_params();
+    let ntt = NttTables::new(NTT_LOG);
+    let params = pcs_params_at(sh);
     let zko = ZkOpts::standard(&params);
     let mut tr = transcript(blk, expected, &lay);
-    absorb_root(&mut tr, b"A", &receipt.a_root, lay.a_rows);
+    absorb_root(&mut tr, b"A", &receipt.a_root, lay.a_rows, sh.log_cols);
     tr.absorb(b"M", &receipt.mask_root);
     let beta = tr.challenge_fp2();
     let gamma = tr.challenge_fp2();
@@ -496,36 +590,38 @@ pub(crate) fn verify_inner(blk: &BlockPublic, expected: &ExpectedIo, receipt: &R
     let g_u8 = gamma.mul_base(Fp::new(TAG_U8));
     let g_exp = gamma.mul_base(Fp::new(TAG_EXP));
     let g_act = gamma.mul_base(Fp::new(TAG_ACT));
-    absorb_root(&mut tr, b"H", &receipt.h_root, lay.h_rows);
+    absorb_root(&mut tr, b"H", &receipt.h_root, lay.h_rows, sh.log_cols);
     let ctx = Ctx { lay: &lay, public, ff, alpha, beta, g_u8, g_exp, g_act };
     let mut side = Side::Verify { slots: &receipt.slots };
     let acc = argument(&mut side, &ctx, &mut tr)?;
     #[cfg(test)]
     let capture_before = super::capture::checkpoint(&tr);
-    zk::mask_verify(&receipt.mask_root, &mask_specs(), &acc.fs, &receipt.mask_open, &ntt, &mut tr).map_err(|e| format!("M: {e}"))?;
+    zk::mask_verify(&receipt.mask_root, &lay.mask_specs(), &acc.fs, &receipt.mask_open, &ntt, &mut tr).map_err(|e| format!("M: {e}"))?;
     #[cfg(test)]
     super::capture::mask(&receipt.mask_root, &acc.fs, &receipt.mask_open, capture_before, &tr);
     let order = acc.order;
     let [ac, hc, ic, oc] = finish_claims(acc.claims, &lay);
-    check_opening(&ac, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, A_GROUPS, &tr)?;
+    check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), &tr)?;
     #[cfg(test)]
     let capture_before = super::capture::checkpoint(&tr);
-    pcs::verify_zk(&params, &zko, &commitment(receipt.a_root, lay.a_rows), &ac, &receipt.a_open, &ntt, &mut tr).map_err(|e| format!("A: {e}"))?;
+    pcs::verify_zk(&params, &zko, &commitment(receipt.a_root, lay.a_rows, sh.log_cols), &ac, &receipt.a_open, &ntt, &mut tr).map_err(|e| format!("A: {e}"))?;
     #[cfg(test)]
     super::capture::pcs("A", receipt.a_root, lay.a_rows, &ac, &receipt.a_open, capture_before, &tr);
-    check_opening(&hc, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, H_GROUPS, &tr)?;
+    check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), &tr)?;
     #[cfg(test)]
     let capture_before = super::capture::checkpoint(&tr);
-    pcs::verify_zk(&params, &zko, &commitment(receipt.h_root, lay.h_rows), &hc, &receipt.h_open, &ntt, &mut tr).map_err(|e| format!("H: {e}"))?;
+    pcs::verify_zk(&params, &zko, &commitment(receipt.h_root, lay.h_rows, sh.log_cols), &hc, &receipt.h_open, &ntt, &mut tr).map_err(|e| format!("H: {e}"))?;
     #[cfg(test)]
     super::capture::pcs("H", receipt.h_root, lay.h_rows, &hc, &receipt.h_open, capture_before, &tr);
+    let e_params = PcsParams { log_cols: sh.endpoint_log_n as u32, inv_rate: sh.endpoint_inv_rate, num_col_checks: sh.opened_cols };
+    let e_zko = ZkOpts::standard(&e_params);
     for (i, (claims, root)) in [(&ic, expected.input), (&oc, expected.output)].into_iter().enumerate() {
-        check_endpoint_opening(claims, &tr)?;
+        check_endpoint_opening(claims, sh, &tr)?;
         #[cfg(test)]
         let capture_before = super::capture::checkpoint(&tr);
-        pcs::verify_zk(&params, &zko, &commitment(root, ENDPOINT_ROWS), claims, &receipt.io_open[i], &ntt, &mut tr).map_err(|e| format!("endpoint {i}: {e}"))?;
+        pcs::verify_zk(&e_params, &e_zko, &commitment(root, sh.endpoint_rows, sh.endpoint_log_n), claims, &receipt.io_open[i], &ntt, &mut tr).map_err(|e| format!("endpoint {i}: {e}"))?;
         #[cfg(test)]
-        super::capture::pcs(["Input", "Output"][i], root, ENDPOINT_ROWS, claims, &receipt.io_open[i], capture_before, &tr);
+        super::capture::pcs(["Input", "Output"][i], root, sh.endpoint_rows, claims, &receipt.io_open[i], capture_before, &tr);
     }
     #[cfg(test)]
     super::capture::publish(blk, expected, receipt);
