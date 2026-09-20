@@ -228,3 +228,51 @@ evaluated and compared for it.
 | controls | **five, all fire** (CT-1 … CT-5) |
 | channels | **24**: 2 constructed, 3 derived, 4 argued, **15 open** (old bundles: 2 / 2 / 4 / **16**) |
 | the gate, per bundle | 10.8 s / 11.2 s |
+
+---
+
+# Round 3 — the KEYED HASH RULE (D19) and the two TAGGED bundles
+
+**Opened 2026-09-20 16:35 PDT on the same lane.** Stage 17 of the Rust lane
+landed decision D19's separating hash tag and stage 18 re-took the bundles
+under it, WITH the public tables' values: `run-e-tame-tagged` and
+`run-f-zero-tagged` in the same read-only directory. Those two supersede
+`run-a-tame` … `run-d-zero` for gate purposes — the older four were made
+under the LEGACY (unkeyed) rule, which this profile's code no longer uses.
+
+Two things move in this round, and they are independent:
+
+1. **The rule.** On a tagged profile every BLAKE3 call is in KEYED mode
+   under one of four public 32-byte keys, each
+   `blake3.derive_key(<context>, <block profile>)`. The gate must DERIVE
+   the four keys itself from the contexts pinned in its OWN source and the
+   profile its shape names, and COMPARE with what the bundle declares —
+   **re-derive, never consume** (ruling T-7). A bundle naming `legacy`, or
+   carrying no `hash_tag`, replays exactly as in rounds 1 and 2.
+2. **The public tables' values.** `public_tables_included: true`, so the
+   eleven slots round 2 left OPEN — 05, 06, 07, 10, 11, 12, 13, 14, 15, 16,
+   19 — can be evaluated for the first time.
+
+## R3.0 Stages
+
+| # | item | state |
+|---|---|---|
+| U0 | this skeleton; the tagged bundles read; the keys pinned in the tool's own source | open |
+| U1 | `scripts/zk60_native_rg_hashrule.py`: the rule, the four keys, a keyed transcript, keyed column / leaf / node, the bundle comparison | open |
+| U2 | the loader and the replay under the rule, selected per bundle | open |
+| U3 | the HASH LAYER computed, not argued: every opened column's leaf and Merkle path under the rule | open |
+| U4 | the eleven slots closed from the captured public tables' values | open |
+| U5 | controls: a perturbed key set / context / profile / rule; a perturbed table value; a perturbed terminal in a newly checked slot | open |
+| U6 | the whole gate on both tagged bundles; the old four re-run and shown unchanged | open |
+| U7 | tests; the whole native suite re-counted | open |
+| U8 | evidence `results/zk60_native_run_gate_tagged/` and a dated section 7 of the report | open |
+
+## R3.1 Rules kept
+
+Round 2's, unchanged: the toy gates' modules are pinned by
+`tests/test_zk60_native_gate_record.py` against their committed records and
+**none of their bytes are touched** — in particular `zk60_native_jv_field`'s
+`Transcript` hard-codes the unkeyed call, so the keyed transcript is a NEW
+subclass in a new `zk60_native_rg_*.py` module, never an edit. NEVER mark a
+slot checked unless the identity was evaluated and compared. A key is never
+taken from a bundle.
