@@ -53,22 +53,76 @@ new `zk60_native_rg_*.py` modules; shape-agnostic code
 
 | what | command | log |
 |---|---|---|
-| baseline tests | `python3 -m unittest discover -s /home/victor/wt-zk60-jointview/tests -p 'test_zk60_native*.py' -v` | `results/zk60_native_run_gate/tests_baseline.log` |
-| tests after | same | `results/zk60_native_run_gate/tests_after.log` |
-| the gate, run A | `python3 scripts/zk60_native_run_gate.py --bundle <run-a-tame> --evidence results/zk60_native_run_gate --name run-a-tame` | `results/zk60_native_run_gate/run-a-tame.log` |
-| the gate, run B | same with `run-b-zero` | `results/zk60_native_run_gate/run-b-zero.log` |
-| toy joint-view gate, re-run | `python3 scripts/zk60_native_joint_view.py --captures results/zk60_native_captures_20260919 --evidence /tmp/.../toy_recheck` | `results/zk60_native_run_gate/toy_unchanged.json` |
+| baseline tests | `python3 -m unittest discover -s /home/victor/wt-zk60-jointview/tests -p 'test_zk60_native*.py' -v` | `results/zk60_native_run_gate/tests_baseline.log` — **161 tests, OK** (skipped 1, expected failures 1) |
+| tests after | same | `results/zk60_native_run_gate/tests_after.log` — **187 tests** (161 + this lane's 26) |
+| the gate, run A | `python3 scripts/zk60_native_run_gate.py --bundle <run-a-tame> --other <run-b-zero> --evidence results/zk60_native_run_gate` | `results/zk60_native_run_gate/run-a-tame.log` |
+| the gate, run B | the same with the two bundles swapped | `results/zk60_native_run_gate/run-b-zero.log` |
+| this lane's tests alone | `python3 -m unittest discover -s tests -p 'test_zk60_native_run_gate.py' -v` | `results/zk60_native_run_gate/tests_run_gate.log` (26 tests, OK) |
+| the two toy gates, re-run and diffed | `python3 scripts/zk60_native_joint_view.py` and `scripts/zk60_native_privacy_gate.py`, both `--captures results/zk60_native_captures_20260919`, into a scratch dir | `results/zk60_native_run_gate/toy_recheck.log`, diff in `toy_unchanged.json` |
 
-## 3. Findings
+## 3. Results (MEASURED 2026-09-20, both bundles, shared laptop, CPU only)
 
-(kept current; see §5 NEXT)
+About 9 s per bundle. Largest exact rank: **308 x 3,761** over Goldilocks
+(the whole run as one system), ~1.0 s. Slowest single step: the pad block,
+247 x 256, 3.7 s. Nothing approached 4 GB or 20 minutes.
 
-## 4. What this lane does NOT show
+| what | figure |
+|---|---|
+| replay | run binding + 375 positions + **6,086** challenges re-derived; 6 segment position tags; **nothing left un-re-derived** |
+| per commitment (3 stages) | `A` 0, `H` 2, endpoints 0, boundaries 0, `M` 0 — each equal to its expected value, every certifying minor nonsingular, 243..251 distinct opened columns inside 256 pads, 0 column-identity failures |
+| boundary, reserved rows | rank **6 of 6**, disclosed **0**, both boundaries, both bundles |
+| three roles of a boundary plane | joint **0** = sum of parts; non-data block diagonal; a theorem here, and computed anyway |
+| whole run | 308 x 3,761: joint **6** = sum of parts (three copies of `H`'s public LogUp identity) |
+| zero-data preimage | message half exhibited and verified for `B0`, `B1`, `E-Input`, `E-Output`; `A`/`H` skipped, not faked |
+| controls | six, all fire: shared pair **rank 4, disclosed 2**; single proximity row **rank 5, disclosed 1**; shared blinding row joint 0 -> **1,024** with the marginals unmoved; swapped claim source refused; foreign stage file refused; one pad short refuses the reduction |
+| channels | 23: 2 constructed, 2 derived, 4 argued, **15 open** |
+
+## 4. Findings (all about a field's meaning; none is a privacy matter)
+
+1. **`tables[i].claim` of an IO table is the index inside the STAGE's own
+   claim pair, not the index in the commitment's claim list** as format §4a
+   says: every IO table of both bundles carries `claim: 0`, including stage
+   `k+1`'s slot 21 whose claim is index **1** of the boundary. The gate takes
+   the index from `claim_sources`' accumulation and cross-checks it against
+   the table's `mask_row`. Public data.
+2. **`roles[i].data_rows` counts `H`'s two zero-sum rows; `row_roles` does
+   not** (470 vs 468, difference `sum_rows`). The gate uses `row_roles` and
+   records the check that the difference IS the zero-sum pair. Public data.
+3. **An external endpoint has one SPARE mask row; a derived boundary has
+   none** (ruling M-7). The gate reports `spare_mask_rows` rather than
+   demanding `site_rows` exhaust the mask rows.
+4. **MISSING, and public: the plane index table at the run's shape.**
+   `run.json["shape"]` has every geometry axis but not the `A_*` / `H_*`
+   plane index assignment of `layout.rs` nor the per-slot table push order.
+   Without it the 23 terminal closures cannot be ported, so the per-slot
+   terminal identity is OPEN for a run. It is a function of the public
+   layout, so the lane can add it.
+5. **Pre-existing, NOT this lane's doing: the committed
+   `results/zk60_native_privacy_gate/privacy_gate.json` is stale.** It was
+   produced by earlier bytes of `zk60_native_privacy_gate.py` and
+   `zk60_native_jv_cfs.py`; commit d360466 ("M's three OPEN channels closed
+   in the P10 gate") changed them without refreshing the record. Re-running
+   the gate now differs from the committed record in exactly `tool_sha256`,
+   `version`, and the three M channels that commit closed (q, the proximity
+   vector, the M opening's own columns: `open` -> `constructed`), and is
+   `ok: true`. This lane did not refresh another lane's evidence; the
+   orchestrator should. The joint-view gate's record is identical field for
+   field.
+
+## 5. What this lane does NOT show
 
 Linear channels of two captured three-block runs at ONE development shape.
 Nothing about the 125M shape. The hash layer is argued, not computed. The
-joint-law composition for a run is unwritten. NOT a privacy acceptance.
+joint-law composition for a run is unwritten. The per-slot terminal identity
+is not checked at this shape. NOT a privacy acceptance.
 
-## 5. NEXT
+## 6. NEXT
 
-S0: ledger committed; baseline test run in flight.
+The gate is built, green on both bundles, tested and reported. The three
+things a next lane would take, in order: (1) ask the Rust lane for the plane
+index table in `run.json["shape"]` (finding 4) and port the 23 terminal
+closures at the rung, which closes the largest OPEN channel; (2) generalise
+`zk60_native_pg_pcs` to `MSG != PAD` so `A`, `H` and the pad halves become
+CONSTRUCTED rather than OPEN; (3) the run-wide preimage as one joint object.
+Also for the orchestrator: refresh the stale committed `privacy_gate.json`
+(finding 5).

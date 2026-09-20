@@ -1,0 +1,13 @@
+stage1_transcript_replay: ok
+stage2_commitment_side_joint_view: ok
+stage3_masking_commitment_view: ok
+stage4_stacked: ok
+stage5_zero_witness_gate: ok
+stage6_negative_controls: ok
+stage7_terminal_polynomial_port: ok
+record: /tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad/toy_jv/joint_view.json (21.0 s)
+40083e7ac8f3f6c7 block: ok
+7d334e069c84f0c1 block: ok
+6c5e83fd1b2d8c16 attention: ok
+c26d1f05754be35c attention: ok
+record: /tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad/toy_pg/privacy_gate.json (147.4 s)

@@ -214,10 +214,15 @@ class RunRoleView(RoleView):
         if role["prox_row"] != prox_rows[0] or prox_rows != [role["prox_row"],
                                                              role["prox_row"] + 1]:
             self.fail("the declared prox_row is not the pair row_roles marks 'prox'")
-        if sorted(role["site_rows"]) != sorted(
-            r for r in other_rows if r not in prox_rows and r not in u_rows
-        ):
-            self.fail("site_rows is not the set of reserved non-proximity mask rows")
+        mask_rows = [r for r in other_rows if r not in prox_rows and r not in u_rows]
+        spare = [r for r in mask_rows if r not in role["site_rows"]]
+        if any(r not in mask_rows for r in role["site_rows"]):
+            self.fail("a declared site row is not a reserved mask row")
+        # an external endpoint keeps today's geometry (ruling M-7): one claim
+        # pair, a proximity pair and ONE spare mask row; a boundary's rows are
+        # derived and have no spare
+        self.facts["spare_mask_rows"] = spare
+        self.facts["reserved_mask_rows"] = len(mask_rows)
 
         keys, groups, rws = self.sp.group_claims(role["claims"], rows)
         if [g for g in groups] != [g["members"] for g in role["groups"]]:

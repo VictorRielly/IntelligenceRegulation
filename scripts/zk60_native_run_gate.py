@@ -1,0 +1,679 @@
+#!/usr/bin/env python3
+"""The RUN gate: the privacy-consistency checks of a multi-block run capture.
+
+    python3 scripts/zk60_native_run_gate.py \
+      --bundle /path/to/run-a-tame \
+      --evidence results/zk60_native_run_gate
+
+Input: a RUN CAPTURE bundle, schema `hashline-native-capture/4-run`, written
+by `hashline/src/private_block/run_capture.rs` on lane
+`zk60-private-block-125m`; format `docs/zkmatrix-poc/ZK60_RUN_CAPTURE_FORMAT.md`.
+Report: `docs/zkmatrix-poc/ZK60_NATIVE_RUN_GATE.md`.
+
+  1 LOAD AND INTEGRITY    the manifest's hashes and byte lengths, the schema
+                          strings, every size against `run.json["shape"]`,
+                          the boundary table against the two stages that use
+                          it, and "no commitment opened twice"
+  2 TRANSCRIPT REPLAY     every challenge of every stage re-derived with
+                          BLAKE3 from the bundle's public data, in run order,
+                          plus the segment position tags (outside the chain)
+  3 PER COMMITMENT        A, H, the masking commitment M, the external
+                          endpoints and each internal boundary: the disclosed
+                          dimension by exact rank, the certifying minor, the
+                          distinct opened columns against the pad count
+  4 THE BOUNDARY          ruling M-8: (a) each boundary's figure RESTRICTED
+                          to its reserved rows; (b) the three roles of one
+                          boundary plane as one system; (c) the whole run as
+                          one system
+  5 ZERO-DATA PREIMAGE    the message half of every singleton-group
+                          commitment reproduced under the all-zero input
+  6 NEGATIVE CONTROLS     six, each shown to pass honest and fail perturbed
+  7 CHANNELS              every channel of a run's view labelled CONSTRUCTED
+                          / DERIVED / ARGUED / OPEN with its reason
+  8 RECORD                the machine-readable result under --evidence
+
+NO STAGE ESTABLISHES A PRIVACY PROPERTY, AND THIS IS NOT A PRIVACY
+ACCEPTANCE.  Every rank below is a rank of an explicitly stated linear model
+at one captured run's real challenges, at ONE development shape.  The hash
+layer is argued, not computed.  The joint-law composition for a run is
+unwritten.  `run.json` itself carries `privacy_review_complete: false`.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import sys
+import time
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+
+from zk60_native_rg_bundle import RunBundle, integrity  # noqa: E402
+from zk60_native_rg_controls import controls  # noqa: E402
+from zk60_native_rg_joint import (  # noqa: E402
+    boundary_reserved_figure,
+    discover_shared_planes,
+    mask_block,
+    run_wide_figure,
+    three_role_figure,
+)
+from zk60_native_rg_pcs import RunRoleView  # noqa: E402
+from zk60_native_rg_preimage import preimages  # noqa: E402
+from zk60_native_rg_replay import RunReplay  # noqa: E402
+from zk60_native_jv_joint import JointSystem  # noqa: E402
+
+TOOLS = [
+    "zk60_native_run_gate.py",
+    "zk60_native_rg_bundle.py",
+    "zk60_native_rg_replay.py",
+    "zk60_native_rg_pcs.py",
+    "zk60_native_rg_joint.py",
+    "zk60_native_rg_preimage.py",
+    "zk60_native_rg_controls.py",
+    "zk60_native_jv_field.py",
+    "zk60_native_jv_pcs.py",
+    "zk60_native_jv_joint.py",
+]
+
+EXPECTED_DISCLOSED = {
+    "A": 0,
+    "H": 2,
+    "external-endpoint": 0,
+    "internal-boundary": 0,
+    "M": 0,
+}
+
+
+def tool_hashes():
+    out = {}
+    for t in TOOLS:
+        with open(os.path.join(HERE, t), "rb") as fh:
+            out[t] = hashlib.sha256(fh.read()).hexdigest()
+    return out
+
+
+def expected_for(view):
+    if view.name.startswith("H@"):
+        return EXPECTED_DISCLOSED["H"]
+    if view.name.startswith("A@"):
+        return EXPECTED_DISCLOSED["A"]
+    return EXPECTED_DISCLOSED[view.role["commitment_kind"]]
+
+
+# --------------------------------------------------------------- stage 3
+def stage3(bundle, replay, pad_rank=True):
+    """Every commitment of every stage, at the run's own shape."""
+    views, rows = {}, []
+    for st in bundle.stages:
+        for role in st.roles:
+            key = st.key(role["role"])
+            v = RunRoleView(
+                st, role, replay.stages[st.index]["role_prox_rhos"][key],
+                bundle.shape, name=key,
+            )
+            f = dict(v.run(replay.stages[st.index]["role_lambdas"][key]))
+            views[key] = v
+            f.pop("xi_vectors", None)
+            f.pop("data_rows_index", None)
+            f["site_role"] = role["role"]
+            f["expected_disclosed_dimension"] = expected_for(v)
+            f["meets_expectation"] = f["disclosed_dimension"] == f["expected_disclosed_dimension"]
+            rows.append(f)
+    # the masking commitment of each stage, as a block with no data row
+    masks = []
+    for st in bundle.stages:
+        blk = mask_block(st)
+        d = JointSystem([blk]).disclosed(msg_width=bundle.shape.cols)
+        masks.append(
+            {
+                "commitment": blk.name,
+                "rows": blk.rows,
+                "data_rows": 0,
+                "commits_witness_data": False,
+                "disclosed_dimension": d["disclosed_fp"],
+                "expected_disclosed_dimension": EXPECTED_DISCLOSED["M"],
+                "opened_columns": len(st.mask["columns"]),
+                "specs": len(st.mask["specs"]),
+                "batched_value": "the theta-batched functional of the slots' mask "
+                "evaluations; M commits no witness data, so its part over the "
+                "commitments' coordinates is 0 and that is computed here, not argued",
+                "meets_expectation": d["disclosed_fp"] == EXPECTED_DISCLOSED["M"],
+            }
+        )
+    pad = None
+    if pad_rank:
+        key = f"B{0}" if bundle.boundaries else bundle.stages[0].key("Input")
+        t0 = time.time()
+        r, d = views[key].pad_block_rank()
+        pad = {
+            "commitment": key,
+            "distinct_columns": d,
+            "pad_positions": views[key].pad_len,
+            "exact_rank_of_the_pad_block": r,
+            "full_rank": r == d,
+            "seconds": round(time.time() - t0, 1),
+            "what": "H-pad, computed rather than assumed: the pad block of the {E_j} "
+            "over the distinct sampled columns has rank equal to their number, so no "
+            "functional of the opened columns is supported on the message positions",
+        }
+    ok = all(
+        r["findings"] == []
+        and all(r["reduction_hypotheses"].values())
+        and r["column_identity_failures"] == 0
+        and r["group_claim_identity_failures"] == 0
+        and r["meets_expectation"]
+        and r["certifying_minor"]["full_row_rank"]
+        and r["certifying_minor"]["determinant_nonzero"]
+        and r["distinct_opened_columns_within_pad_count"]
+        for r in rows
+    ) and all(m["meets_expectation"] for m in masks)
+    return (
+        {
+            "per_commitment": rows,
+            "masking_commitments": masks,
+            "expected": EXPECTED_DISCLOSED,
+            "pad_block_exact_rank_cross_check": pad,
+            "per_slot_terminal_check": PER_SLOT_TERMINAL_OPEN,
+            "ok": ok and (pad is None or pad["full_rank"]),
+        },
+        views,
+    )
+
+
+PER_SLOT_TERMINAL_OPEN = {
+    "status": "open",
+    "what": "the STRONG form of each slot's final check, fin = c*mask_eval + "
+    "poly(terminals), with every composition polynomial recomputed from the "
+    "published terminals",
+    "why_open": "the port `scripts/zk60_native_terminal_polys.py` is a hand-port of "
+    "the TOY layout: its `_Layout` namespace carries that shape's plane index table "
+    "(A_D .. N_A = 81, H_L .. H_U) and its `SOURCE_PINS` pin argument.rs, layout.rs "
+    "and protocol.rs by sha256 at commit 5ca721f, while this bundle's "
+    "manifest.json[source_pins] names different digests of the same files at commit "
+    "cb27845.  The shape's geometry axes (norm_wrho 31, wrho_s 17, f_e 12, the pads) "
+    "ARE in run.json[shape], but the PLANE INDEX TABLE is not, and it is what the 23 "
+    "closures read",
+    "missing_field": "run.json[shape] carries no plane index table; the A-plane and "
+    "H-plane index assignment of layout.rs at the run's shape (A_* / H_* and N_A), "
+    "plus the per-slot table push order",
+    "is_it_public": "yes -- it is a function of the public layout, not of any hidden "
+    "value, so the lane can add it to the bundle without publishing anything new",
+    "consequence": "the per-slot terminal identity is NOT checked for a run; the "
+    "toy gate checks it for the four single-block captures",
+}
+
+
+# --------------------------------------------------------------- stage 4
+def stage4(bundle, views, shared, run_wide=True):
+    per_boundary = []
+    for k in range(bundle.boundaries):
+        res = boundary_reserved_figure(bundle, views[f"B{k}"], k)
+        three = three_role_figure(bundle, views, shared, k)
+        per_boundary.append(
+            {
+                "boundary": k,
+                "restricted_to_the_reserved_rows": res,
+                "three_roles_of_the_plane": three,
+                "ok": (
+                    res["disclosed_on_the_reserved_block_fp"] == 0
+                    and res["full_row_rank"]
+                    and res["determinant_nonzero"]
+                    and three["ok"]
+                ),
+            }
+        )
+    whole = None
+    pairs = []
+    if run_wide:
+        t0 = time.time()
+        whole = run_wide_figure(bundle, views, shared)
+        whole["seconds"] = round(time.time() - t0, 1)
+        for k in range(bundle.boundaries):
+            sub = [f"A@{k}", f"H@{k}", f"A@{k+1}", f"H@{k+1}", f"B{k}",
+                   f"M@{k}", f"M@{k+1}"]
+            if k == 0:
+                sub.append("E-Input")
+            if k == bundle.boundaries - 1:
+                sub.append("E-Output")
+            pairs.append(
+                run_wide_figure(bundle, views, shared, subset=sub,
+                                label=f"stages {k} and {k+1} with boundary {k}")
+            )
+    return {
+        "per_boundary": per_boundary,
+        "adjacent_stage_pairs": pairs,
+        "whole_run": whole,
+        "shared_planes": {
+            "identified_row_pairs": len(shared["pairs"]),
+            "equality_slots": shared["slots"],
+            "source_facts": shared["source_facts"],
+            "findings": shared["findings"],
+        },
+        "ruling": "M-8: three blocks at the development rung, all three roles of each "
+        "boundary plane ranked jointly, the shared-pair and single-proximity-row "
+        "controls included",
+        "ok": all(b["ok"] for b in per_boundary)
+        and not shared["findings"]
+        and (whole is None or whole["ok"])
+        and all(p["ok"] for p in pairs),
+    }
+
+
+# --------------------------------------------------------------- stage 7
+def channels(bundle, record):
+    """Every channel of a RUN's view, with a status and a reason."""
+    s3 = record["stage3_per_commitment"]
+    s5 = record["stage5_zero_data_preimage"]
+    pre = {p["commitment"]: p for p in s5["per_commitment"]}
+    constructed = [c for c, p in pre.items() if p.get("preimage_exhibited")]
+    ver_ok = all(
+        p["verification"]["all_entries_equal"]
+        for p in pre.values()
+        if "verification" in p
+    )
+    disclosed = {r["role"]: r["disclosed_dimension"] for r in s3["per_commitment"]}
+    seg = [
+        {"stage": st.index, "bytes": st.doc["segment_bytes"],
+         "sha256": st.doc["segment_sha256"][:16]}
+        for st in bundle.stages
+    ]
+    ch = [
+        # ------------------------------------------------ the commitment side
+        {
+            "channel": "opening-group and proximity vectors, message half "
+            "(the internal boundaries and the two external endpoints)",
+            "section": "run 2.1",
+            "status": "constructed" if constructed and ver_ok else "open",
+            "assumption": None,
+            "preimage_exhibited": bool(constructed and ver_ok),
+            "how": "every group of these commitments is a singleton, so at each of the "
+            "1,024 message positions the view is one 2(G+1) x (non-data rows) system "
+            "over Fp; with the hidden data fixed to zero it is solved exactly and the "
+            "view recomputed entry by entry",
+            "commitments": constructed,
+        },
+        {
+            "channel": "claim values (the internal boundaries and the two external "
+            "endpoints)",
+            "section": "run 2.1",
+            "status": "constructed" if constructed and ver_ok else "open",
+            "assumption": None,
+            "preimage_exhibited": bool(constructed and ver_ok),
+            "how": "recomputed from the exhibited zero-data randomness and compared "
+            "with the capture",
+        },
+        {
+            "channel": "opening-group and proximity vectors of A and H",
+            "section": "run 2.1",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": False,
+            "reason": "their opening groups have several members, so each claim's own "
+            "published value is an extra constraint; the correction step that handles "
+            "it is in zk60_native_pg_pcs, whose MSG == PAD == 256 does not hold at this "
+            "shape (1,024 message positions against 256 pads)",
+            "what_is_computed_instead": {
+                "disclosed_dimension_by_exact_rank": {
+                    k: v for k, v in disclosed.items() if k.startswith(("A@", "H@"))
+                },
+                "note": "A discloses 0 and H discloses 2, the public LogUp identity, "
+                "with a certifying minor; that is a rank, not a preimage",
+            },
+        },
+        {
+            "channel": "the pad half of every published vector",
+            "section": "run 2.1",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": False,
+            "reason": "constructing it needs the Lagrange interpolation through the "
+            "distinct sampled nodes and the Z_S divisibility test of "
+            "zk60_native_pg_pcs, which assumes MSG == PAD; what IS computed is H-pad, "
+            "the exact rank of the pad block over the distinct opened columns",
+        },
+        {
+            "channel": "opened column values",
+            "section": "run 2.1",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": False,
+            "reason": "they are a function of the pads, which are not constructed "
+            "here; the verifier's own column identity IS reproduced from the model on "
+            "a sample of columns of every commitment, with no failures",
+            "identities_reproduced": sum(
+                r["column_identity_checked"] for r in s3["per_commitment"]
+            ),
+            "identity_failures": sum(
+                r["column_identity_failures"] for r in s3["per_commitment"]
+            ),
+        },
+        {
+            "channel": "column indices (PCS and M)",
+            "section": "run 2.1",
+            "status": "derived",
+            "assumption": None,
+            "preimage_exhibited": None,
+            "function": "Transcript::challenge_indices over the public prefix; the "
+            "gate's stage 2 re-derives every index of every opening of every stage",
+            "recomputed": True,
+        },
+        {
+            "channel": "every Fiat-Shamir challenge of the run (definition draws, the "
+            "slot challenges c, the sumcheck rhos, theta, the M proximity rhos, the "
+            "opening lambdas and proximity coefficients)",
+            "section": "run 2.1",
+            "status": "derived",
+            "assumption": None,
+            "preimage_exhibited": None,
+            "function": "re-derived with BLAKE3 from the bundle's public data",
+            "challenges_rederived": record["stage2_transcript_replay"][
+                "challenges_checked"
+            ],
+            "positions_compared": record["stage2_transcript_replay"]["positions_checked"],
+        },
+        {
+            "channel": "the masked sumcheck round messages and the published scalars",
+            "section": "run 2.1",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": False,
+            "reason": "the CFS analysis (zk60_native_jv_cfs) and the mask-row port "
+            "(zk60_native_mask_commit) are written at the toy's row layout and slot "
+            "specs; at the rung they would have to be re-derived from the shape.  The "
+            "masking commitment IS carried in the joint system as a block with 2S+4 "
+            "rows and no data row, and its part is computed as 0",
+        },
+        {
+            "channel": "the derived mask evaluation per slot (the terminal identity)",
+            "section": "run 2.1",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": False,
+            "reason": PER_SLOT_TERMINAL_OPEN["why_open"],
+            "missing_field": PER_SLOT_TERMINAL_OPEN["missing_field"],
+            "is_it_public": PER_SLOT_TERMINAL_OPEN["is_it_public"],
+        },
+        {
+            "channel": "the Merkle roots (A, H, M per stage, the L-1 boundary roots, "
+            "the two endpoint roots)",
+            "section": "run 2.1",
+            "status": "argued",
+            "assumption": "M-2",
+            "preimage_exhibited": None,
+            "model_assumption": "the roots are generated by the prover itself (ruling "
+            "D18) and indistinguishability rests on M-2, the hiding of unopened salted "
+            "leaves in the random-oracle model.  A boundary root is an observed "
+            "commitment and NOT part of the run statement",
+            "roots_this_run": record["stage1_integrity"]["distinct_roots_opened"] + len(
+                bundle.stages
+            ),
+        },
+        {
+            "channel": "leaf salts",
+            "section": "run 2.1",
+            "status": "argued",
+            "assumption": "M-3",
+            "preimage_exhibited": None,
+            "model_assumption": "fresh uniform bytes in both worlds; equality of the "
+            "two laws rests on M-3, the assumption that the whole output stream of "
+            "ZkRng is indistinguishable from uniform",
+            "counts": {
+                "per_opening": bundle.shape.opened_cols,
+                "openings": sum(len(st.roles) + 1 for st in bundle.stages),
+            },
+        },
+        {
+            "channel": "authentication paths",
+            "section": "run 2.1",
+            "status": "argued",
+            "assumption": "M-2",
+            "preimage_exhibited": None,
+            "model_assumption": "the paths are genuine hashes of the same world's own "
+            "columns; hiding of the unopened leaf digests rests on M-2",
+            "levels": {
+                "pcs": bundle.shape.log_cols + bundle.shape.inv_rate.bit_length() - 1,
+                "mask": bundle.shape.mask_log_dom,
+            },
+        },
+        # ---------------------------------------------- NEW FOR A RUN
+        {
+            "channel": "the sequencing surface: the number of segments, their byte "
+            "lengths and their position tags",
+            "section": "run 2.2 (NEW)",
+            "status": "argued",
+            "assumption": "shape facts + ruling M-6",
+            "preimage_exhibited": None,
+            "model_assumption": "L is a public word of the run statement (absorbed "
+            "under run-shape) and a segment's length is a function of the shape and of "
+            "the stage's position, not of the witness; the position tags are squeezed "
+            "from a DISCARDED transcript clone, compared by the verifier and never "
+            "absorbed (ruling M-6), so they are a public function of public transcript "
+            "data.  EVIDENCE, not proof: the two bundles are independent runs on "
+            "different hidden inputs and their three segment lengths agree exactly",
+            "segments": seg,
+            "position_tags_rederived": record["stage2_transcript_replay"][
+                "segment_position_tags"
+            ],
+        },
+        {
+            "channel": "the cross-block joint law beyond the linear rank",
+            "section": "run 2.2 (NEW)",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": None,
+            "reason": "obligation O-R3: what is computed here is a RANK of a linear "
+            "model over the run's commitments.  That the three views of a boundary "
+            "plane are jointly input-free needs per-commitment independent blinding "
+            "(O-R2, verified in the code, not here) and a composition argument for a "
+            "run, which is unwritten.  The check's OMITTED CONDITION 7 -- that the "
+            "gate must rank the two A commitments that hold the same plane, not the "
+            "boundary alone -- IS met by stage 4(b)",
+        },
+        {
+            "channel": "the preimage construction for a RUN (one randomness "
+            "reproducing the whole run's view under a fixed input)",
+            "section": "run 2.2 (NEW)",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": False,
+            "reason": "exhibited here per commitment, message half only, for the "
+            f"{len(constructed)} singleton-group commitments of the run.  A RUN "
+            "preimage is a joint object: it must reproduce every stage's view at once "
+            "with the boundary planes shared between three commitments, and it needs "
+            "the pad half and the CFS channel first",
+            "constructed_so_far": constructed,
+        },
+        {
+            "channel": "the boundary scale tags and the one calibration identity",
+            "section": "run 2.2 (NEW)",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": None,
+            "reason": "check A7.5: nothing in the run's privacy section covers the "
+            "boundary's scale/calibration binding, and D12 item 5 records that a tag "
+            "equality check would pass on a factor-of-8 mismatch.  The gate reads the "
+            "scales as public constants and checks that the run declares ONE "
+            "calibration identity (ruling M-4); it does not check what the tag proves",
+            "boundary_scales": bundle.run["boundary_scales"],
+            "one_calibration_identity": True,
+        },
+        # ---------------------------------------------- out of band
+        {
+            "channel": "whether a proof attempt produced a receipt (refusal events)",
+            "section": "run 2.2",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": None,
+            "reason": "the refusal channel is inside the game (ruling C-2); a capture "
+            "exists only when the run was accepted.  For a RUN the check adds one more "
+            "refusal class: with 49 commitments a run makes 23 more ZkRng::from_os "
+            "calls, and from_os fails closed -- now possibly in stage 12, minutes in "
+            "(A7.2)",
+        },
+        {
+            "channel": "rejected-but-emitted receipts",
+            "section": "run 2.2",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": None,
+            "reason": "history item H8, a procedural condition on the deployment",
+        },
+        {
+            "channel": "retained captures",
+            "section": "run 2.2",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": None,
+            "reason": "history item H9: a retained capture is a published opening.  "
+            "This bundle is of a deliberately public synthetic fixture and its writer "
+            "is behind #[cfg(test)]",
+        },
+        {
+            "channel": "timing, memory, power",
+            "section": "run 2.2",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": None,
+            "reason": "declared out of scope for the first MVP (M-5, ruling C-2).  A "
+            "run adds per-stage wall-clock and a per-stage high-water mark to what an "
+            "observer could time; no field of the capture bears on it",
+        },
+        {
+            "channel": "prior proofs by the same prover",
+            "section": "run 2.2",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": None,
+            "reason": "open item U-3b; this gate analyses one run at a time",
+        },
+        {
+            "channel": "the integer-range facts the statement implies",
+            "section": "run 2.2",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": None,
+            "reason": "chain item 20: the statement implies the hidden values are in "
+            "range, which is information about them that no preimage argument removes",
+        },
+        {
+            "channel": "any nonlinear functional of the joint view",
+            "section": "run 2.2",
+            "status": "open",
+            "assumption": None,
+            "preimage_exhibited": None,
+            "reason": "chain item 21: the terminal identity links the commitment and "
+            "masking channels with degree up to 4 in the terminals; this gate is linear",
+        },
+    ]
+    counts = {}
+    for c in ch:
+        counts[c["status"]] = counts.get(c["status"], 0) + 1
+    bad = []
+    for c in ch:
+        st = c.get("status")
+        if st not in ("constructed", "derived", "argued", "open"):
+            bad.append(f"{c['channel']}: status {st!r} is not one of the four labels")
+        if st == "constructed" and not c.get("preimage_exhibited"):
+            bad.append(f"{c['channel']}: constructed but no preimage exhibited")
+        if st == "argued" and not c.get("assumption"):
+            bad.append(f"{c['channel']}: argued but no assumption named")
+        if st == "open" and not c.get("reason"):
+            bad.append(f"{c['channel']}: open with no reason")
+    return {
+        "channels": ch,
+        "counts": counts,
+        "total": len(ch),
+        "new_for_a_run": [c["channel"] for c in ch if "(NEW)" in c["section"]],
+        "grading_failures": bad,
+        "ok": not bad,
+    }
+
+
+# ------------------------------------------------------------------- main
+def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True, do_controls=True):
+    t0 = time.time()
+    bundle = RunBundle(bundle_dir)
+    record = {
+        "gate": "zk60-native-run-gate",
+        "version": 1,
+        "privacy_property_established": False,
+        "privacy_acceptance": False,
+        "privacy_review_complete": bundle.run["privacy_review_complete"],
+        "what_this_is": "the linear channels of ONE captured private run of "
+        f"{bundle.blocks} blocks at the development rung shape, at that run's real "
+        "challenges",
+        "bundle": bundle.name,
+        "bundle_dir": bundle.dir,
+        "tool_sha256": tool_hashes(),
+    }
+    record["stage1_integrity"] = integrity(bundle)
+    replay = RunReplay(bundle).run()
+    record["stage2_transcript_replay"] = replay.summary()
+    s3, views = stage3(bundle, replay, pad_rank=pad_rank)
+    record["stage3_per_commitment"] = s3
+    shared = discover_shared_planes(bundle)
+    record["stage4_the_boundary"] = stage4(bundle, views, shared, run_wide=run_wide)
+    singles = [k for k, v in views.items() if all(len(m) == 1 for m in v.groups)]
+    record["stage5_zero_data_preimage"] = preimages(bundle, views, sorted(singles))
+    if do_controls and other_dir:
+        record["stage6_negative_controls"] = controls(
+            bundle, RunBundle(other_dir), views, replay, shared
+        )
+    else:
+        record["stage6_negative_controls"] = {
+            "ok": False,
+            "skipped": "the controls need a second bundle (--other) for the "
+            "swapped-stage control",
+        }
+    record["stage7_channels"] = channels(bundle, record)
+    record["seconds"] = round(time.time() - t0, 1)
+    stages = [k for k in record if k.startswith("stage")]
+    record["ok"] = all(record[k]["ok"] for k in stages)
+    record["what_it_does_not_show"] = [
+        "linear channels of ONE captured three-block run at ONE development shape",
+        "nothing about the 125M shape, where exact rank over thousands of rows per "
+        "commitment is a different computation",
+        "the hash layer is ARGUED, not computed",
+        "the joint-law composition for a run is unwritten",
+        "the per-slot terminal identity is not checked at this shape",
+        "NOT a privacy acceptance and NOT a privacy property",
+    ]
+    return record
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--bundle", required=True)
+    ap.add_argument("--other", help="a second bundle, for the swapped-stage control")
+    ap.add_argument("--evidence", required=True)
+    ap.add_argument("--name")
+    ap.add_argument("--skip-exact-pad-rank", action="store_true")
+    ap.add_argument("--skip-run-wide", action="store_true")
+    args = ap.parse_args(argv)
+
+    record = run_gate(
+        args.bundle,
+        other_dir=args.other,
+        pad_rank=not args.skip_exact_pad_rank,
+        run_wide=not args.skip_run_wide,
+    )
+    os.makedirs(args.evidence, exist_ok=True)
+    name = args.name or record["bundle"]
+    out = os.path.join(args.evidence, f"{name}.json")
+    with open(out, "w") as fh:
+        json.dump(record, fh, indent=1, sort_keys=True)
+        fh.write("\n")
+    with open(os.path.join(args.evidence, f"{name}.done"), "w") as fh:
+        fh.write("0\n" if record["ok"] else "1\n")
+    for k in [k for k in record if k.startswith("stage")]:
+        print(f"{k}: {'ok' if record[k]['ok'] else 'FAIL'}")
+    print(f"record: {out} ({record['seconds']} s)")
+    return 0 if record["ok"] else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

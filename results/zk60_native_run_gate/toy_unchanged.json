@@ -1,0 +1,160 @@
+{
+ "gates": {
+  "joint_view": {
+   "committed_ok": true,
+   "committed_record": "/home/victor/wt-zk60-jointview/results/zk60_native_joint_view/joint_view.json",
+   "difference_count": 0,
+   "differences_ignoring_timing": [],
+   "identical": true,
+   "rerun_ok": true,
+   "rerun_record": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad/toy_jv/joint_view.json",
+   "tool_bytes": {
+    "zk60_native_joint_view.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_jv_capture.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_jv_cfs.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_jv_field.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_jv_joint.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_jv_pcs.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_jv_replay.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_jv_smallmodel.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_mask_commit.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_terminal_polys.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    }
+   }
+  },
+  "privacy_gate": {
+   "committed_ok": true,
+   "committed_record": "/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json",
+   "difference_count": 214,
+   "differences_ignoring_timing": [
+    "/per_capture[0]/channels[13]/b_zero_sum_admissible: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[13]/closed: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[13]/declared_functional_order_checked: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[13]/disclosed_fp_over_the_coefficients: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[13]/disclosed_fp_predicted: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[13]/fibre_dimension_fp: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[13]/how: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[13]/off_the_plane: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[13]/preimage_exhibited: re-run True, committed False",
+    "/per_capture[0]/channels[13]/preimage_exhibited_second_coefficient_vector: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[13]/q_entries_differing: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[13]/q_entries_fp2: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[13]/q_is_reproduced_by_construction: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[13]/reason: in the committed record, absent from the re-run",
+    "/per_capture[0]/channels[13]/status: re-run 'constructed', committed 'open'",
+    "/per_capture[0]/channels[13]/what_the_channel_actually_pins: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[13]/what_would_close_it: in the committed record, absent from the re-run",
+    "/per_capture[0]/channels[14]/closed: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[14]/declared_functional_order_checked: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[14]/disclosed_fp: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[14]/disclosed_fp_over_the_coefficients: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[14]/disclosed_fp_predicted: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[14]/fibre_dimension_fp: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[14]/how: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[14]/preimage_exhibited: re-run True, committed False",
+    "/per_capture[0]/channels[14]/preimage_exhibited_second_coefficient_vector: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[14]/prox_entries_differing: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[14]/prox_entries_fp2: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[14]/reason: in the committed record, absent from the re-run",
+    "/per_capture[0]/channels[14]/status: re-run 'constructed', committed 'open'",
+    "/per_capture[0]/channels[14]/u_unknowns_fp: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[14]/what_would_close_it: in the committed record, absent from the re-run",
+    "/per_capture[0]/channels[15]/closed: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[15]/column_entries: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[15]/column_entries_differing: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[15]/declared_functional_order_checked: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[15]/disclosed_fp_over_the_coefficients: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[15]/disclosed_fp_predicted: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[15]/distinct_opened_columns: in the re-run, absent from the committed record",
+    "/per_capture[0]/channels[15]/fibre_dimension_fp: in the re-run, absent from the committed record"
+   ],
+   "identical": false,
+   "rerun_ok": true,
+   "rerun_record": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad/toy_pg/privacy_gate.json",
+   "tool_bytes": {
+    "zk60_native_jv_capture.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_jv_cfs.py": {
+     "current_file_matches_the_committed_record": false,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_jv_field.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_jv_pcs.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_jv_replay.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_pg_cfs.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_pg_pcs.py": {
+     "current_file_matches_the_committed_record": true,
+     "current_file_matches_the_rerun": true
+    },
+    "zk60_native_privacy_gate.py": {
+     "current_file_matches_the_committed_record": false,
+     "current_file_matches_the_rerun": true
+    }
+   },
+   "what_exactly_differs": {
+    "channel_entries": [
+     "the M opening's q: committed 'open', re-run 'constructed'",
+     "the M proximity vector: committed 'open', re-run 'constructed'",
+     "opened column values (the M opening's own 256 columns): committed 'open', re-run 'constructed'"
+    ],
+    "channel_indices": [
+     13,
+     14,
+     15
+    ],
+    "everything_else": "identical field for field on all four captures",
+    "top_level_keys": [
+     "tool_sha256",
+     "version (the re-run also carries version_2)"
+    ]
+   },
+   "why_it_differs": "NOT this lane's doing.  This lane edited no module either gate hashes into its evidence (`git status` shows only new zk60_native_rg_* / run-gate files), and the joint-view gate's record is identical field for field.  The committed privacy_gate.json was ALREADY stale at the lane's starting commit d360466 ('M's three OPEN channels closed in the P10 gate'): that commit changed zk60_native_privacy_gate.py and zk60_native_jv_cfs.py without refreshing the record, and the differences are exactly the three M channels it closed -- the M opening's q, its proximity vector and its own opened columns -- moving from 'open' to 'constructed'.  Both records are ok=True.  This lane does not refresh another lane's evidence; the staleness is reported to the orchestrator."
+  }
+ },
+ "ok": true,
+ "this_lane_edited_no_module_either_gate_hashes": true,
+ "what": "the two TOY gates re-run on the four schema-3 captures after this lane's work, diffed against their committed records field by field; the keys 'seconds', 'captures_dir' and 'evidence' are excluded as timing and path fields"
+}

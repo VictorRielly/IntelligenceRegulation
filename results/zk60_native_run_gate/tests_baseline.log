@@ -1,0 +1,202 @@
+test_all_retained_profiles_close_public_slot_equations (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_bad_receipt_and_policy_digests (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_bilinear_extension_alias (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_duplicate_keys_floats_and_booleans_are_refused (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_false_privacy_acceptance_is_refused (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_fresh_native_process_and_tampered_telemetry (test_zk60_native_capture.NativeCaptureTests) ... skipped 'set HL_NATIVE_CAPTURE_TEST_BINARY for real-process controls'
+test_m_functional_alias (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_packed_subrow_alias (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_sumcheck_round (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_transcript_join (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_wrong_binary_pin_does_not_execute (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_wrong_source_and_ffn_relabel_are_refused (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_zero_tests_or_failed_process_cannot_count_as_verification (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_every_capture_pins_the_same_source_commit (test_zk60_native_joint_view.Captures) ... ok
+test_four_source_pinned_captures_are_present_and_manifested (test_zk60_native_joint_view.Captures) ... ok
+test_a_singular_index_set_fails_the_verification (test_zk60_native_joint_view.CertifyingMinor) ... ok
+test_every_role_emits_a_nonsingular_g_by_g_minor (test_zk60_native_joint_view.CertifyingMinor) ... ok
+test_the_determinant_recomputes_independently_from_the_emitted_indices (test_zk60_native_joint_view.CertifyingMinor) ... ok
+test_the_distinct_opened_columns_fit_in_the_pad_count (test_zk60_native_joint_view.CertifyingMinor) ... ok
+test_a_perturbed_terminal_also_breaks_the_transcript_replay (test_zk60_native_joint_view.DerivedMaskEvaluation) ... ok
+test_every_terminal_is_republished_as_a_pcs_claim_value (test_zk60_native_joint_view.DerivedMaskEvaluation) ... ok
+test_perturbing_a_published_field_breaks_the_identity (test_zk60_native_joint_view.DerivedMaskEvaluation) ... ok
+test_the_identity_holds_on_every_slot_of_every_capture (test_zk60_native_joint_view.DerivedMaskEvaluation) ... ok
+test_the_strong_form_is_not_claimed (test_zk60_native_joint_view.DerivedMaskEvaluation)
+The capture stores terminal_polynomial as fin - c*mask_eval and not ... ok
+test_fp2_inverse (test_zk60_native_joint_view.FieldLayer) ... ok
+test_ntt_roundtrip_and_convention (test_zk60_native_joint_view.FieldLayer) ... ok
+test_rank_is_exact (test_zk60_native_joint_view.FieldLayer) ... ok
+test_transcript_matches_the_rust_construction (test_zk60_native_joint_view.FieldLayer) ... ok
+test_two_adic_root_orders (test_zk60_native_joint_view.FieldLayer) ... ok
+test_the_retained_record_matches_a_fresh_run_of_the_stages (test_zk60_native_joint_view.GateRecord) ... ok
+test_the_group_vectors_consume_no_pad_freedom (test_zk60_native_joint_view.PadBudgetBoundary) ... ok
+test_the_real_pad_block_is_full_rank_with_zero_margin (test_zk60_native_joint_view.PadBudgetBoundary)
+256 pads against 256 DISTINCT opened positions, at the receipts' ... ok
+test_the_three_boundary_cases_match_their_predictions (test_zk60_native_joint_view.PadBudgetBoundary) ... ok
+test_altered_capture_bytes_break_the_replay (test_zk60_native_joint_view.Stage1Replay) ... ok
+test_counts_are_the_recorded_ones (test_zk60_native_joint_view.Stage1Replay) ... ok
+test_every_checkpoint_and_challenge_is_reproduced (test_zk60_native_joint_view.Stage1Replay) ... ok
+test_disclosed_dimensions_are_zero_except_the_public_logup_identity (test_zk60_native_joint_view.Stage2CommitmentSide) ... ok
+test_the_pad_block_has_exactly_full_rank (test_zk60_native_joint_view.Stage2CommitmentSide) ... ok
+test_the_pad_budget_is_met_with_a_positive_margin (test_zk60_native_joint_view.Stage2CommitmentSide) ... ok
+test_the_a_row_pad_block_has_full_rank (test_zk60_native_joint_view.Stage3MaskingCommitment) ... ok
+test_the_mask_opening_checks_hold (test_zk60_native_joint_view.Stage3MaskingCommitment) ... ok
+test_the_masks_cover_every_consistency_direction (test_zk60_native_joint_view.Stage3MaskingCommitment) ... ok
+test_the_published_functionals_lie_in_the_round_span (test_zk60_native_joint_view.Stage3MaskingCommitment)
+The finding of this lane: every M functional is determined by the ... ok
+test_the_joint_is_computed_and_equals_the_sum_at_every_capture (test_zk60_native_joint_view.Stage4JointComputation) ... ok
+test_the_joint_reduction_matches_a_dense_joint_rank_in_the_small_model (test_zk60_native_joint_view.Stage4JointComputation)
+The receipt's joint rank is a reduction; here the dense rank over ... ok
+test_the_parts_recomputed_through_the_joint_path_match_stage2 (test_zk60_native_joint_view.Stage4JointComputation) ... ok
+test_the_shared_coordinates_are_the_endpoint_planes_and_nothing_else (test_zk60_native_joint_view.Stage4JointComputation) ... ok
+test_a_claim_weight_outside_its_reserved_pair_makes_the_stage_refuse (test_zk60_native_joint_view.Stage4NegativeControls) ... ok
+test_a_shared_blinding_source_makes_the_joint_exceed_the_sum (test_zk60_native_joint_view.Stage4NegativeControls) ... ok
+test_all_four_controls_fire (test_zk60_native_joint_view.Stage4NegativeControls) ... ok
+test_one_pad_fewer_than_the_distinct_columns_makes_the_stage_refuse (test_zk60_native_joint_view.Stage4NegativeControls) ... ok
+test_removing_one_mask_row_makes_a_part_exceed_its_expected_value (test_zk60_native_joint_view.Stage4NegativeControls) ... ok
+test_the_honest_capture_passes (test_zk60_native_joint_view.Stage4NegativeControls) ... ok
+test_where_the_model_can_and_cannot_see_a_shared_blinding_row (test_zk60_native_joint_view.Stage4NegativeControls)
+The honest limitation, recorded as a test rather than a sentence. ... ok
+test_a_zero_data_preimage_exists_in_the_model_on_every_channel (test_zk60_native_joint_view.Stage5ZeroWitness) ... ok
+test_every_negative_control_fires (test_zk60_native_joint_view.Stage6Controls) ... ok
+test_the_hypothesis_checks_name_the_broken_hypothesis (test_zk60_native_joint_view.Stage6Controls) ... ok
+test_the_reduction_agrees_with_the_brute_force_dense_rank (test_zk60_native_joint_view.Stage6Controls) ... ok
+test_a_pad_removed_leaves_exactly_the_unmet_nodes_wrong (test_zk60_native_mask_commit.TheControls) ... ok
+test_every_control_fires_and_the_honest_capture_passes (test_zk60_native_mask_commit.TheControls) ... ok
+test_leaking_a_second_functional_raises_the_disclosed_dimension (test_zk60_native_mask_commit.TheControls) ... ok
+test_the_permuted_order_is_caught_by_the_columns_not_only_the_sum (test_zk60_native_mask_commit.TheControls) ... ok
+test_a_standalone_gamma_sits_immediately_before_its_own_evaluation (test_zk60_native_mask_commit.TheDeclaredOrder) ... ok
+test_every_host_gamma_comes_last_and_in_slot_order (test_zk60_native_mask_commit.TheDeclaredOrder) ... ok
+test_swapping_two_functionals_is_seen (test_zk60_native_mask_commit.TheDeclaredOrder)
+The order is load-bearing: a swap moves the batched value. ... ok
+test_the_order_matches_the_capture_on_every_capture (test_zk60_native_mask_commit.TheDeclaredOrder) ... ok
+test_a_preimage_reproduces_the_captured_opening_entry_by_entry (test_zk60_native_mask_commit.TheModelOnTheRealCaptures) ... ok
+test_off_the_V_plane_the_fibre_is_empty (test_zk60_native_mask_commit.TheModelOnTheRealCaptures)
+The other half of "disclosed exactly 2 Fp": b has no admissible value. ... ok
+test_the_disclosed_dimension_is_two_fp_on_every_capture (test_zk60_native_mask_commit.TheModelOnTheRealCaptures) ... ok
+test_the_pads_are_the_only_freedom_the_a_rows_have (test_zk60_native_mask_commit.TheModelOnTheRealCaptures)
+A pad solved from the capture must re-encode to the captured column. ... ok
+test_the_shape_facts_hold_on_every_capture (test_zk60_native_mask_commit.TheModelOnTheRealCaptures) ... ok
+test_the_verifiers_own_sum_identity_holds (test_zk60_native_mask_commit.TheModelOnTheRealCaptures)
+512 (q[0] + q[512]) == sum_i theta^i value_i (zk.rs:560-561). ... ok
+test_two_preimages_at_coefficient_vectors_that_share_only_V (test_zk60_native_mask_commit.TheModelOnTheRealCaptures) ... ok
+test_a_changed_pin_is_a_hard_error_not_a_warning (test_zk60_native_mask_commit.ThePort) ... ok
+test_encode_coeffs_coset_is_evaluation_at_the_coset (test_zk60_native_mask_commit.ThePort)
+`encode_coeffs_coset` must give P(7 * omega_4096^j) (zk.rs:424-428). ... ok
+test_every_source_pin_is_present_and_unchanged (test_zk60_native_mask_commit.ThePort) ... ok
+test_poly_mul_512_is_the_convolution (test_zk60_native_mask_commit.ThePort) ... ok
+test_the_two_cfsmask_weight_formulas (test_zk60_native_mask_commit.ThePort) ... ok
+test_the_blinding_is_a_digest_and_the_coefficients_are_public (test_zk60_native_mask_commit.TheRecordCarriesNoSecret) ... ok
+test_every_masked_round_and_scalar_is_reproduced (test_zk60_native_privacy_gate.TestCfsChannel) ... ok
+test_sum_weights_match_the_first_round (test_zk60_native_privacy_gate.TestCfsChannel)
+CfsMask::round and CfsMask::sum_weights agree: s_0(0) + s_0(1) = total. ... ok
+test_the_fp_form_of_an_fp2_system_is_faithful (test_zk60_native_privacy_gate.TestCfsChannel) ... ok
+test_the_zero_transcript_is_infeasible_and_the_projection_fixes_it (test_zk60_native_privacy_gate.TestCfsChannel) ... ok
+test_every_commitment_has_an_exhibited_zero_witness_preimage (test_zk60_native_privacy_gate.TestConstructedPreimages) ... ok
+test_the_data_block_really_carries_the_fixed_input (test_zk60_native_privacy_gate.TestConstructedPreimages) ... ok
+test_the_exhibited_randomness_respects_the_public_row_constraint (test_zk60_native_privacy_gate.TestConstructedPreimages)
+H's u pair really does sum to zero over the message positions. ... ok
+test_the_fibre_dimension_does_not_depend_on_the_fixed_input (test_zk60_native_privacy_gate.TestConstructedPreimages) ... ok
+test_the_preimage_reproduces_every_entry_of_a_whole_commitment (test_zk60_native_privacy_gate.TestConstructedPreimages)
+One commitment, verified with no sampling at all. ... ok
+test_the_second_fixed_input_needs_the_disclosed_identity_on_H (test_zk60_native_privacy_gate.TestConstructedPreimages) ... ok
+test_a_nonzero_logup_value_empties_the_fibre (test_zk60_native_privacy_gate.TestControls) ... ok
+test_a_perturbed_group_vector_has_no_preimage (test_zk60_native_privacy_gate.TestControls) ... ok
+test_a_shared_blinding_unknown_has_no_joint_preimage (test_zk60_native_privacy_gate.TestControls) ... ok
+test_one_pad_fewer_than_the_opened_columns_has_no_preimage (test_zk60_native_privacy_gate.TestControls) ... ok
+test_kernel_basis_is_a_kernel (test_zk60_native_privacy_gate.TestExactArithmetic) ... ok
+test_lagrange_interpolates_and_vanishes (test_zk60_native_privacy_gate.TestExactArithmetic) ... ok
+test_polynomial_division_is_exact_and_detects_a_remainder (test_zk60_native_privacy_gate.TestExactArithmetic) ... ok
+test_solve_pair_inverts_and_refuses_a_singular_pair (test_zk60_native_privacy_gate.TestExactArithmetic) ... ok
+test_every_channel_of_section_2_is_present_with_a_status (test_zk60_native_privacy_gate.TestGateRecord) ... ok
+test_the_fixed_inputs_are_public_and_deterministic (test_zk60_native_privacy_gate.TestGateRecord) ... ok
+test_the_grade_fails_a_constructed_channel_without_a_preimage (test_zk60_native_privacy_gate.TestGateRecord) ... ok
+test_the_grade_fails_an_argued_channel_with_no_assumption (test_zk60_native_privacy_gate.TestGateRecord) ... ok
+test_the_grade_fails_when_a_hash_channel_is_missing (test_zk60_native_privacy_gate.TestGateRecord) ... ok
+test_the_zero_witness_rust_test_is_cited_and_not_run (test_zk60_native_privacy_gate.TestGateRecord) ... ok
+test_a_pad_budget_below_the_opened_columns_loses_rank (test_zk60_native_privacy_gate.TestSmallModel)
+The control's premise, on the small model: with at least as many ... ok
+test_the_fibre_dimension_is_the_same_at_every_fixed_input (test_zk60_native_privacy_gate.TestSmallModel)
+M_nondata does not depend on d: a dense rank says so, exactly. ... ok
+test_the_view_is_linear_and_splits_into_data_and_blinding (test_zk60_native_privacy_gate.TestSmallModel) ... ok
+test_the_blinding_rank_is_the_reviews_closed_form (test_zk60_native_small_model_groups.CaseAMultiMemberGroup)
+The review's annihilator proof gives rank = 2(n + m) - 2 over Fp for ... ok
+test_the_group_vector_really_is_the_lambda_batch_of_its_members (test_zk60_native_small_model_groups.CaseAMultiMemberGroup)
+rho_g = sum_c lambda_c rw_c, as pcs.rs::zk_rhos and RoleView.run do ... ok
+test_the_reduction_equals_the_dense_rank_at_several_m_and_several_draws (test_zk60_native_small_model_groups.CaseAMultiMemberGroup) ... ok
+test_across_two_groups_the_per_group_figure_misses_it_as_well (test_zk60_native_small_model_groups.CaseBSharedPair)
+Sharing WITHIN one group is caught by that group's own system (the ... ok
+test_every_marginal_is_unchanged_and_discloses_nothing (test_zk60_native_small_model_groups.CaseBSharedPair) ... ok
+test_the_gate_refuses_it_and_the_dense_rank_sees_it (test_zk60_native_small_model_groups.CaseBSharedPair)
+The gate's H-pair check is what catches this: the reduction alone ... ok
+test_the_joint_law_is_short_and_moves_with_the_data (test_zk60_native_small_model_groups.CaseBSharedPair) ... ok
+test_ranked_jointly_the_only_disclosure_is_the_public_identity (test_zk60_native_small_model_groups.CaseCHStyleSharing) ... ok
+test_ranked_per_group_the_figure_is_wrong (test_zk60_native_small_model_groups.CaseCHStyleSharing) ... ok
+test_the_gates_own_pair_check_does_not_notice_the_sharing (test_zk60_native_small_model_groups.CaseCHStyleSharing)
+The review's section 3.4 finding, reproduced: `audit_claims` (and ... ok
+test_the_two_groups_really_do_share_the_zero_sum_pair (test_zk60_native_small_model_groups.CaseCHStyleSharing) ... ok
+test_a_singleton_group_discloses_one_message_width_although_cm_is_nonzero (test_zk60_native_small_model_groups.CaseDWrongPairShape) ... ok
+test_in_a_multi_member_group_the_other_members_cover_the_loss (test_zk60_native_small_model_groups.CaseDWrongPairShape)
+The review's control C8: the same broken shape in a 35-member group ... ok
+test_removing_the_pair_discloses_the_whole_message_half (test_zk60_native_small_model_groups.CaseDWrongPairShape) ... ok
+test_the_zeroed_member_is_absent_from_the_group_vector (test_zk60_native_small_model_groups.CaseEZeroLambda) ... ok
+test_zero_lambda_discloses_nothing_at_several_m_and_several_draws (test_zk60_native_small_model_groups.CaseEZeroLambda) ... ok
+test_the_dense_rank_sees_the_disclosure (test_zk60_native_small_model_groups.CaseFBeyondThePadBudget) ... ok
+test_the_guard_refuses_exactly_outside_the_budget (test_zk60_native_small_model_groups.CaseFBeyondThePadBudget)
+The guard added by this lane.  Its condition is the one the ... ok
+test_the_reduction_does_not_see_one_position_beyond_the_pad_budget (test_zk60_native_small_model_groups.CaseFBeyondThePadBudget)
+EXPECTED FAILURE, recorded as the finding it is. ... expected failure
+test_the_refusal_is_raised_and_names_the_budget (test_zk60_native_small_model_groups.CaseFBeyondThePadBudget) ... ok
+test_the_base_class_now_carries_the_guard_too (test_zk60_native_small_model_groups.TheExistingSmallModelIsUntouched)
+The owed one-line follow-up, taken 2026-09-20. ... ok
+test_the_old_controls_still_report_what_the_gate_expects (test_zk60_native_small_model_groups.TheExistingSmallModelIsUntouched) ... ok
+test_the_two_refusal_classes_are_one_class (test_zk60_native_small_model_groups.TheExistingSmallModelIsUntouched)
+`groups.PadBudgetRefusal` is an alias, so every existing ... ok
+test_one_group_per_claim_still_reproduces_the_old_small_models_answer (test_zk60_native_small_model_groups.TheModelIsTheToolsOwn)
+A grouped view with every group a singleton is the old toy's shape, ... ok
+test_the_grouped_view_inherits_the_tools_reduction_and_dense_map (test_zk60_native_small_model_groups.TheModelIsTheToolsOwn) ... ok
+test_all_six_cases_run_and_the_record_is_self_consistent (test_zk60_native_small_model_groups.TheRecord) ... ok
+test_the_disclosed_space_basis_agrees_with_the_dense_figure (test_zk60_native_small_model_groups.TheRecord)
+A cross-check of the machinery the H-style identity test rests on: ... ok
+test_the_retained_evidence_matches_a_fresh_run (test_zk60_native_small_model_groups.TheRecord) ... ok
+test_the_retained_port_evidence_matches_a_fresh_run (test_zk60_native_terminal_polys.GateStage7) ... ok
+test_the_retained_record_carries_the_stage (test_zk60_native_terminal_polys.GateStage7) ... ok
+test_the_stage_runs_and_reports_every_capture (test_zk60_native_terminal_polys.GateStage7) ... ok
+test_a_changed_claimed_evaluation_fails_at_that_slot_and_only_there (test_zk60_native_terminal_polys.NegativeControls)
+The perturbation the WEAK identity of report section 3.1 cannot see. ... ok
+test_a_changed_terminal_polynomial_fails_at_that_slot_and_only_there (test_zk60_native_terminal_polys.NegativeControls) ... ok
+test_a_slot_whose_table_order_differs_is_not_checkable (test_zk60_native_terminal_polys.NegativeControls)
+A drifted capture (or a drifted port) must be REPORTED, not scored. ... ok
+test_the_standing_controls_pass_on_all_four_captures (test_zk60_native_terminal_polys.NegativeControls) ... ok
+test_the_weak_identity_stays_blind_where_the_strong_one_fires (test_zk60_native_terminal_polys.NegativeControls)
+Side by side, on one slot: the stored-value identity of stage 3 does ... ok
+test_every_slot_of_every_capture_matches_its_port_entry (test_zk60_native_terminal_polys.PortTable) ... ok
+test_the_table_kind_spec_expands_as_written (test_zk60_native_terminal_polys.PortTable) ... ok
+test_the_two_tables_have_the_declared_slot_counts_in_order (test_zk60_native_terminal_polys.PortTable) ... ok
+test_eq_point_agrees_with_the_eq_table_of_the_tool (test_zk60_native_terminal_polys.PortedPieces)
+eq(r, s) = sum_x eq(r, x) eq(s, x): the port's two-point form against ... ok
+test_lam_z_comes_from_the_slot_that_draws_it (test_zk60_native_terminal_polys.PortedPieces) ... ok
+test_pow256_is_the_limb_base (test_zk60_native_terminal_polys.PortedPieces) ... ok
+test_the_context_reads_the_logup_challenges_in_draw_order (test_zk60_native_terminal_polys.PortedPieces)
+protocol.rs draws beta, then gamma, then alpha. ... ok
+test_the_lookup_lists_have_the_declared_lengths (test_zk60_native_terminal_polys.PortedPieces)
+layout.rs asserts `lookups(dom).len().div_ceil(2) == helpers(dom).1` ... ok
+test_the_tag_offsets_are_the_source_constants (test_zk60_native_terminal_polys.PortedPieces) ... ok
+test_a_changed_source_is_a_hard_error_naming_the_file (test_zk60_native_terminal_polys.SourcePins) ... ok
+test_a_missing_source_is_a_hard_error (test_zk60_native_terminal_polys.SourcePins) ... ok
+test_both_argument_files_are_pinned (test_zk60_native_terminal_polys.SourcePins) ... ok
+test_every_pinned_source_matches_the_file_in_the_worktree (test_zk60_native_terminal_polys.SourcePins) ... ok
+test_the_moved_mle_pin_keeps_both_hashes (test_zk60_native_terminal_polys.SourcePins)
+The captures were taken against the OLD `mle.rs`; the pin moved on ... ok
+test_each_mask_evaluation_is_the_published_m_functional_value (test_zk60_native_terminal_polys.StrongTerminalCheck) ... ok
+test_every_slot_of_every_capture_is_checked_and_equal (test_zk60_native_terminal_polys.StrongTerminalCheck) ... ok
+test_the_check_runs_at_the_replayed_challenges (test_zk60_native_terminal_polys.StrongTerminalCheck) ... ok
+test_the_recomputed_polynomial_equals_the_stored_one (test_zk60_native_terminal_polys.StrongTerminalCheck)
+The capture stores `fin - c*mask_eval`; the port recomputes the same ... ok
+test_the_summary_carries_no_witness_material (test_zk60_native_terminal_polys.StrongTerminalCheck)
+The record must carry counts, names and equal / not equal only. ... ok
+
+----------------------------------------------------------------------
+Ran 161 tests in 213.263s
+
+OK (skipped=1, expected failures=1)
