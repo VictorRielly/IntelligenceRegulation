@@ -1,7 +1,7 @@
 # Disposition of the form-E draft — security owner, 2026-09-19
 
 Written by the interactive Claude Fable 5.1 session (the security owner) at
-22:25 on 2026-09-19. It rules on two delegated documents:
+22:17 on 2026-09-19. It rules on two delegated documents:
 
 | Short name | Document | What it is |
 |---|---|---|

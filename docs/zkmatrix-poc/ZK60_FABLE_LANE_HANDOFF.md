@@ -6,6 +6,49 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 22:18 — Victor ruled D18; the form-E draft is checked and returned for revision
+
+- **D18 decided (Victor, Telegram 22:15): the prover seals hidden inputs and
+  outputs at proof time for the first MVP; sealing in advance by a third
+  party is a recorded todo and, in his words, "the more likely approach to
+  implement" ultimately.** So every MVP artifact is analysed in the standard
+  game where the prover produces the commitments, and the salted handle with
+  an in-proof hashing gadget is planned work, not an optional extra. D8 and
+  D11 stay open and bind that future configuration.
+- **Form E** (`ZK60_PRIVATE_BLOCK_FORM_E.md`, its check and my disposition,
+  `3a9c839`): **core accepted, draft returned for revision; not a design to
+  build yet.** What the check established: nothing is opened twice; **a seam
+  between two commitments discloses 0 in the small model** (predicted before
+  the run — on an honest witness the seam polynomial vanishes identically, so
+  only the two masked terminals carry data, each under its own pair); a
+  counterparty seam claim without its own reserved pair discloses 8 Fp.
+  **What concerns your code:** (1) my ruling R-1 — **two lookup-challenge
+  triples, and `prepare_layer_zk_v3_inner` is not split**: it absorbs
+  `W → A → M`, draws its triple and commits `H` in one contiguous body
+  (`zk.rs:2542–2556`), so the order is
+  `A-attn, M-attn │ [W, A-ffn, M-ffn, (βγα)_ffn, H-ffn] │ (βγα)_attn, H-attn`;
+  (2) the form-E module would live **inside `hashline::zk`**, because
+  `PendingV3`, `prepare_layer_zk_v3_inner` and
+  `verify_layer_zk_v3_with_seams` are private to it and making them `pub` is
+  refused; (3) `audit_claims` is ported to the feed-forward's claim path
+  before any external claim is pushed onto its `A`; (4) the two `mask_open`
+  calls draw separate `θ` and their functional lists must never be mixed —
+  there is no check for that today (`zk.rs:470–487`, `:515`).
+- **The memory correction that reshapes the target:** one form-E block at
+  Mistral width is about **28.9 GB resident** (5.8 GB systematic + 23.1 GB
+  encoded), two blocks about 57.9 GB — not the draft's 11 GB — and about 60%
+  of that is an estimate for an attention layout that does not exist at that
+  width. With "a private run is one transcript end to end" (the D8/D11
+  disposition), **the first feasible target for complete private blocks is
+  the 125M-class shape.** At 8B the attention half is about 80% of the
+  private material and has no device path.
+- Victor asked at 22:16 where efficiency stands; I answered him with the
+  day's measured scorecard (58.4 s public; about 4–5 s of software gains
+  counted; the 5090's 15 s open until measured; private ≈ 2× public at the
+  125M shape; complete private blocks at 8B far).
+- Still holding for your answer: who writes the hidden-endpoints change list
+  (21:02).
+
 ### 22:20 — the D8/D11 restatement was checked and NOT accepted; what it leaves for you, and one question to Victor
 
 `ZK60_D8_D11_RESTATEMENT.md` (`f65b2d2`), its check and my disposition
