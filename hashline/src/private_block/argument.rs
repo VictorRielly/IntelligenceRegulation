@@ -22,6 +22,7 @@
 //! public factor would make honest proofs fail, not leak.
 
 use super::layout::*;
+use super::shape::Shape;
 use super::{AttentionPublic, FeedForwardPublic};
 use crate::field::{Fp, Fp2};
 // `fold_cols_i8` folds an (input, output) matrix over its SECOND index, which
@@ -505,16 +506,26 @@ pub(crate) fn causal_mask() -> Vec<Fp2> {
     (0..H * T * T).map(|x| if x % T <= (x / T) % T { Fp2::ONE } else { Fp2::ZERO }).collect()
 }
 
-/// (C, S') with out = C * x + S' * x_partner, over `heads` heads per row
-fn rope_tables(public: &AttentionPublic, heads: usize) -> (Vec<Fp2>, Vec<Fp2>) {
-    let width = heads * DH;
-    let mut c = Vec::with_capacity(T * width);
-    let mut s = Vec::with_capacity(T * width);
-    for x in 0..T * width {
-        let (t, i) = (x / width, x % DH);
-        let at = t * HALF + i % HALF;
+/// (C, S') with out = C * x + S' * x_partner, over `heads` heads per row.
+///
+/// **STEP S7 (M-1).** `heads` is the number of heads the table is laid out
+/// for, and on the KEY-VALUE side that is `kv_heads`, not the literal `1`
+/// the toy could get away with: at the rung `SC_KVZC`'s table must hold
+/// `tokens * kv_heads * head_dim` entries or the slot's own table-length
+/// check refuses. Tokens, head dimension and the half split all come from
+/// the shape. The table is still laid out DENSELY
+/// (`tokens * heads * head_dim`); putting it on the padded domain stride is
+/// the pad rule of memo section 3.7a, step S9.
+pub(super) fn rope_tables(sh: &Shape, public: &AttentionPublic, heads: usize) -> (Vec<Fp2>, Vec<Fp2>) {
+    let (dh, half) = (sh.head_dim, sh.head_dim / 2);
+    let width = heads * dh;
+    let mut c = Vec::with_capacity(sh.tokens * width);
+    let mut s = Vec::with_capacity(sh.tokens * width);
+    for x in 0..sh.tokens * width {
+        let (t, i) = (x / width, x % dh);
+        let at = t * half + i % half;
         c.push(k(public.rope_cos[at]));
-        s.push(k(if i < HALF { -public.rope_sin[at] } else { public.rope_sin[at] }));
+        s.push(k(if i < half { -public.rope_sin[at] } else { public.rope_sin[at] }));
     }
     (c, s)
 }
@@ -812,7 +823,12 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.eq(&tau, 0);
             b.eq(if q { &pts.pq } else { &pts.pk }, 0);
             b.eq(if q { &pts.p_o } else { &pts.pv }, 0);
-            let (ct, st) = rope_tables(ctx.public, if q { H } else { 1 });
+            // S7 / M-1: the key-value side is laid out over `kv_heads` heads.
+            // The argument is still toy-pinned (finding S5-F2), so the shape
+            // is the toy's here; S9..S11 is where the layout's own shape
+            // reaches this call site.
+            let sh = Shape::toy();
+            let (ct, st) = rope_tables(&sh, ctx.public, if q { sh.q_heads } else { sh.kv_heads });
             let ic = b.public(ct);
             let is = b.public(st);
             let idx = b.a_range(first, last)?;

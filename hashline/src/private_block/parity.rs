@@ -300,3 +300,388 @@ fn the_case_generator_is_deterministic_and_covers_its_grid() {
     assert_eq!(with_ffn.len(), CASES, "the (attention band, gain, input, feed-forward band) settings are not all distinct");
     assert_ne!(case(0).input, case(1).input, "two cases share an input");
 }
+
+// ======================================================================
+// STEP S6/S7: THE SAME PARITY AT THE DEVELOPMENT RUNG
+// ======================================================================
+//
+// The toy sweep above is the frozen contract. Everything below runs the
+// SAME two implementations — this module's witness builder and
+// `private-block-kernel` — at the development rung of ruling P-7
+// (`T24 / d96 / f192, 6 query heads of 16 over 2 KV heads`, GROUP 3), the
+// shape the toy cannot express. The acceptance is WITNESS PARITY on the
+// true (non-padded) coordinates and the no-wraparound bounds of memo
+// section 3; it is NOT an end-to-end rung proof, which needs the pad rule
+// (S9), the column count (S10) and the hidden endpoints (S11).
+//
+// Still public synthetic test data from a fixed-seed integer generator: no
+// OS randomness, no real model, no real input, nothing on disk, and nothing
+// printed but counts and site names.
+
+use super::shape::Shape;
+use super::witness::Geom;
+
+/// generated cases per rung sweep
+const RUNG_CASES: usize = 160;
+
+/// THE RUNG OF RULING P-7, at the TOY's softmax calibration.
+///
+/// `Shape::rung()` carries `F_E = 12`, chosen so that `Sum <= T 2^F_E`
+/// breaks the `2^14` softmax window and forces a THIRD `sigma_s` limb. That
+/// third limb adds two planes to `Dom::S` and so shifts every `A_*` plane id
+/// above `A_SG1`, which the pinned plane table cannot express — it is step
+/// S8's change, not S6's. This shape is the rung's GEOMETRY (which is what
+/// S6 and S7 are about) with `F_E = 9`, at which `Sum <= 24 * 512 = 12,288`
+/// still fits the two-limb window. It is a parity fixture and nothing else:
+/// no receipt, no profile registration, no soundness or privacy claim.
+pub(crate) fn rung_parity_shape() -> Shape {
+    Shape::new(
+        "development rung geometry at the toy softmax calibration (S6/S7 parity)",
+        "hashline-zk-mr1/private-block-rung-t24-parity/1",
+        24,
+        96,
+        192,
+        6,
+        16,
+        2,
+        10,
+        4,
+        9,
+        14,
+        Some(8),
+        Some(4),
+        None,
+        None,
+    )
+    .expect("the rung parity shape is well formed")
+}
+
+/// the same geometry and the same three windows, in the kernel's own terms
+fn kernel_shape(s: &Shape) -> kern::shaped::Shape {
+    kern::shaped::Shape::new(s.tokens, s.width, s.hidden, s.q_heads, s.kv_heads, s.head_dim, s.f_e, F_P, s.wrho_s, s.norm_wrho)
+}
+
+/// One generated public case at an arbitrary shape: the same words in the
+/// module's statement form and in the kernel's.
+struct ShapedCase {
+    public: AttentionPublic,
+    ff: FeedForwardPublic,
+    input: Vec<i16>,
+    words: [Vec<i8>; 9],
+    cos: Vec<i64>,
+    sin: Vec<i64>,
+    exp: Vec<i64>,
+    act: Vec<i16>,
+}
+
+impl ShapedCase {
+    fn weights(&self) -> kern::shaped::WeightsRef<'_> {
+        let w = &self.words;
+        kern::shaped::WeightsRef { wq: &w[0], wk: &w[1], wv: &w[2], wo: &w[3], gamma_a: &w[4], gamma_m: &w[5], wg_t: &w[6], wu_t: &w[7], wd_t: &w[8] }
+    }
+    fn tables(&self) -> kern::shaped::TablesRef<'_> {
+        kern::shaped::TablesRef { rope_cos: &self.cos, rope_sin: &self.sin, exp: &self.exp, act: &self.act }
+    }
+}
+
+/// Case `idx` of a deterministic sweep at `s`, built the way the toy
+/// fixtures are: diagonal-plus-band matrices, a gain-swept norm gain and an
+/// amplitude-swept input, on three nested strides plus an independent
+/// feed-forward band.
+fn shaped_case(s: &Shape, idx: usize) -> ShapedCase {
+    // a lane constant well clear of the toy sweep's indices
+    let mut r = Rng::seeded(1_000_000 + idx);
+    let (d, f, kvw) = (s.width, s.hidden, s.kv_heads * s.head_dim);
+    // the band is narrower than the toy's: at 96 inputs per accumulation a
+    // full band leaves the int8 class six times sooner than at 16
+    const BAND: [i64; 8] = [0, 1, 2, 4, 8, 16, 48, 127];
+    let mag = BAND[idx % 8];
+    let gain = [8i64, 24, 64, 127][(idx / 8) % 4];
+    let xmag = [1i64, 4, 32, 512, 32_767][(idx / 32) % 5];
+    let ffn_mag = BAND[(idx / 3) % 8];
+    let (cos, sin) = crate::tables_attn::rope_tables_generate(s.tokens, s.head_dim, 10000.0, F_RO);
+    let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
+    let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member (-3, -11)");
+    let words = [
+        matrix(&mut r, d, d, 64, mag),
+        matrix(&mut r, kvw, d, 64, mag),
+        matrix(&mut r, kvw, d, 64, mag),
+        matrix(&mut r, d, d, 64, mag),
+        (0..d).map(|_| r.pick(gain - 8, gain).clamp(-127, 127) as i8).collect(),
+        (0..d).map(|_| r.pick(gain - 8, gain).clamp(-127, 127) as i8).collect(),
+        matrix(&mut r, d, f, 64, ffn_mag),
+        matrix(&mut r, d, f, 64, ffn_mag),
+        matrix(&mut r, f, d, 64, ffn_mag),
+    ];
+    let input: Vec<i16> = (0..s.tokens * d).map(|_| r.pick(-xmag, xmag) as i16).collect();
+    let public = AttentionPublic::new_shaped(s, &words[0], &words[1], &words[2], &words[3], &words[4], &cos, &sin, &exp).expect("generated public statement");
+    let ff = FeedForwardPublic::new_shaped(s, &words[5], &words[6], &words[7], &words[8], &act).expect("generated feed-forward statement");
+    ShapedCase { public, ff, input, words, cos, sin, exp: exp.to_vec(), act: act.to_vec() }
+}
+
+/// Run the reference kernel at `s`, returning its verdict and trace buffer.
+fn run_kernel_shaped(s: &Shape, c: &ShapedCase) -> (Result<Vec<i16>, kern::KernelError>, Vec<i64>) {
+    let ksh = kernel_shape(s);
+    let mut scratch = vec![0i64; ksh.scratch_len()];
+    let mut tbuf = vec![0i64; ksh.trace_len()];
+    let mut out = vec![0i16; ksh.x_len()];
+    let r = kern::shaped::run_shaped(&ksh, &c.input, &c.weights(), &c.tables(), &mut scratch, Some(&mut tbuf), &mut out);
+    (r.map(|()| out), tbuf)
+}
+
+/// Every witness plane with a kernel counterpart, on the TRUE coordinates,
+/// element for element — plus the two derived planes the kernel does not
+/// carry, plus the fact that every PAD position is still zero (which is a
+/// statement about today's builder, not the pad rule of S9).
+fn compare_shaped(s: &Shape, w: &Witness, tbuf: &[i64], idx: usize) {
+    use kern::shaped::Part;
+    let ksh = kernel_shape(s);
+    let g = Geom::new(s);
+    let part = |p: Part| {
+        let (o, n) = ksh.part(p);
+        &tbuf[o..o + n]
+    };
+    let maps: Vec<(Dom, Vec<usize>)> = [Dom::T, Dom::Ht, Dom::L, Dom::D, Dom::Kv, Dom::S, Dom::F].into_iter().map(|d| (d, g.support(d))).collect();
+    let map = |d: Dom| &maps.iter().find(|(k, _)| *k == d).expect("mapped domain").1;
+    let eq_at = |plane: usize, k: &[i64], m: &[usize], name: &str| {
+        let mine: Vec<i64> = m.iter().map(|i| w.planes[plane][*i]).collect();
+        eq(&mine, k, idx, name);
+    };
+    eq_at(A_D, part(Part::NaDd), map(Dom::T), "norm_a D");
+    eq_at(A_DM, part(Part::NmDd), map(Dom::T), "norm_m D");
+    eq_at(A_MX, part(Part::MRow), map(Dom::Ht), "row max");
+    eq_at(A_SUM, part(Part::Sum), map(Dom::Ht), "row sum");
+    for (plane, p, name) in [
+        (A_Y, Part::NaY, "norm_a y"),
+        (A_YM, Part::NmY, "norm_m y (nm)"),
+        (A_Q8, Part::Q8, "q8"),
+        (A_QR8, Part::Qr8, "qr8"),
+        (A_O8, Part::O8, "o8"),
+        (A_AO, Part::Ao8, "ao"),
+        (A_X1, Part::Xres1, "xres1"),
+        (A_Z16, Part::Z16, "z16"),
+        (A_X2, Part::Xres2, "xres2"),
+    ] {
+        eq_at(plane, part(p), map(Dom::D), name);
+    }
+    for (plane, p, name) in [(A_K8, Part::K8, "k8"), (A_V8, Part::V8, "v8"), (A_KR8, Part::Kr8, "kr8")] {
+        eq_at(plane, part(p), map(Dom::Kv), name);
+    }
+    for (plane, p, name) in [(A_S8, Part::S8, "s8"), (A_P, Part::P, "softmax p")] {
+        eq_at(plane, part(p), map(Dom::S), name);
+    }
+    for (plane, p, name) in [(A_G8, Part::G8, "g8"), (A_A16, Part::A16, "a16"), (A_U16, Part::U16, "u16"), (A_H16, Part::H16, "h16")] {
+        eq_at(plane, part(p), map(Dom::F), name);
+    }
+    // the two planes the kernel keeps no witness for
+    let dsq: Vec<i64> = part(Part::NaDd).iter().map(|d| d * d).collect();
+    eq_at(A_DSQ, &dsq, map(Dom::T), "norm_a D^2");
+    let dsqm: Vec<i64> = part(Part::NmDd).iter().map(|d| d * d).collect();
+    eq_at(A_DSQM, &dsqm, map(Dom::T), "norm_m D^2");
+    // the one-hot selector against the kernel's argmax index
+    let smap = map(Dom::S);
+    let mut zsel = vec![0i64; smap.len()];
+    for (row, arg) in part(Part::Arg).iter().enumerate() {
+        zsel[row * s.tokens + *arg as usize] = 1;
+    }
+    eq_at(A_ZSEL, &zsel, smap, "softmax selector");
+    // every plane is exactly its padded domain's length, and every position
+    // OUTSIDE the true support is zero (S9 is what rules on what it should be)
+    for (dom, m) in &maps {
+        let mut is_true = vec![false; s.size(*dom)];
+        for i in m {
+            is_true[*i] = true;
+        }
+        for p in 0..N_A {
+            if is_multiplicity(p) || a_dom(p) != *dom {
+                continue;
+            }
+            assert_eq!(w.planes[p].len(), s.size(*dom), "case {idx}: plane {p} length");
+            let bad = (0..w.planes[p].len()).filter(|i| !is_true[*i] && w.planes[p][*i] != 0).count();
+            assert_eq!(bad, 0, "case {idx}: plane {p} has {bad} nonzero pad positions");
+        }
+    }
+}
+
+/// THE ACCEPTANCE OF S6/S7: at the rung, the witness builder and the
+/// reference kernel decide every generated case the same way, and on an
+/// accepted case every plane with a kernel counterpart agrees element for
+/// element on every true coordinate.
+///
+/// BEFORE step S7 this test FAILS at `kr8` (and then at `s8` and `o8`): the
+/// witness rotated one key head and read key-value head 0 for all six query
+/// heads, while the kernel reads head `h / 3`.
+#[test]
+fn the_whole_block_witness_equals_the_reference_kernel_at_the_rung() {
+    let s = rung_parity_shape();
+    assert_eq!(s.q_heads / s.kv_heads, 3, "the rung's group is 3");
+    let (mut both_ok, mut both_refuse) = (0usize, 0usize);
+    let mut sites: BTreeMap<String, usize> = BTreeMap::new();
+    for idx in 0..RUNG_CASES {
+        let c = shaped_case(&s, idx);
+        let (kernel, tbuf) = run_kernel_shaped(&s, &c);
+        let wit = witness::build_shaped(&s, &c.public, &c.ff, &c.input);
+        match (&kernel, &wit) {
+            (Ok(out), Ok(w)) => {
+                compare_shaped(&s, w, &tbuf, idx);
+                let dmap = Geom::new(&s).support(Dom::D);
+                let mine: Vec<i16> = dmap.iter().map(|i| w.planes[A_X2][*i] as i16).collect();
+                assert_eq!(&mine[..], &out[..], "case {idx}: the block output differs from the kernel's");
+                both_ok += 1;
+            }
+            (Err(e), Err(m)) => {
+                assert_eq!(&format!("{e}"), m, "case {idx}: the two refusals differ");
+                *sites.entry(m.clone()).or_default() += 1;
+                both_refuse += 1;
+            }
+            (Err(e), Ok(_)) => panic!("case {idx}: the rung witness accepted where the kernel refused ({e})"),
+            (Ok(_), Err(m)) => panic!("case {idx}: the rung witness refused (`{m}`) where the kernel accepted"),
+        }
+    }
+    assert_eq!(both_ok + both_refuse, RUNG_CASES, "every rung case is decided the same way by both");
+    assert!(both_ok >= 100, "the rung sweep must exercise accepted blocks: only {both_ok} of {RUNG_CASES}");
+    assert!(both_refuse >= 20, "the rung sweep must exercise refusals: only {both_refuse} of {RUNG_CASES}");
+    assert!(sites.len() >= 4, "the rung sweep must reach several refusal sites, it reached {}", sites.len());
+    eprintln!("private block rung parity: {RUNG_CASES} cases — {both_ok} accepted by both, {both_refuse} refused identically by both");
+    for (site, count) in &sites {
+        eprintln!("  rung refusal site `{site}`: {count}");
+    }
+}
+
+/// THE GROUP STRUCTURE IN THE WITNESS, as a property and not a literal
+/// (step S7's permanent regression test).
+///
+/// Zeroing key-value head `kill`'s `Wk` and `Wv` rows makes that head's
+/// `k8`, `kr8` and `v8` identically zero, so every query head that READS it
+/// gets an all-zero score row and an all-zero attention output. The test
+/// therefore first finds a case whose base scores and outputs are nonzero on
+/// EVERY query head — which makes "the plane changed" a consequence of the
+/// grouping and not of the fixture — and then asserts that killing head
+/// `kill` moves exactly the query heads of that group and leaves the others
+/// bit for bit unchanged.
+///
+/// With the ungrouped code every query head read key-value head 0, so
+/// killing head 1 changed NOTHING and this test failed.
+#[test]
+fn a_witness_query_head_reads_only_its_own_key_value_head_at_the_rung() {
+    let s = rung_parity_shape();
+    let g = Geom::new(&s);
+    let group = s.q_heads / s.kv_heads;
+    let d = s.width;
+    let ssup = g.support(Dom::S);
+    let head_rows = |h: usize| &ssup[h * s.tokens * s.tokens..(h + 1) * s.tokens * s.tokens];
+    let head_out: Vec<Vec<usize>> = (0..s.q_heads).map(|h| (0..s.tokens).flat_map(|t| (0..s.head_dim).map(move |i| t * s.d_pad + h * s.head_dim + i)).collect()).collect();
+    let build = |c: &ShapedCase, kill: Option<usize>| -> Result<Witness, String> {
+        let mut words = c.words.clone();
+        if let Some(h) = kill {
+            for j in h * s.head_dim..(h + 1) * s.head_dim {
+                for i in 0..d {
+                    words[1][j * d + i] = 0;
+                    words[2][j * d + i] = 0;
+                }
+            }
+        }
+        let public = AttentionPublic::new_shaped(&s, &words[0], &words[1], &words[2], &words[3], &words[4], &c.cos, &c.sin, &c.exp).expect("statement");
+        witness::build_shaped(&s, &public, &c.ff, &c.input)
+    };
+    // a case that ACCEPTS and whose every query head has something to lose
+    let mut chosen = None;
+    for idx in 0..RUNG_CASES {
+        let c = shaped_case(&s, idx);
+        if let Ok(w) = build(&c, None) {
+            let live = (0..s.q_heads).all(|h| head_rows(h).iter().any(|i| w.planes[A_S8][*i] != 0) && head_out[h].iter().any(|i| w.planes[A_O8][*i] != 0));
+            if live {
+                chosen = Some((idx, c, w));
+                break;
+            }
+        }
+    }
+    let (idx, case, all) = chosen.expect("the rung sweep has an accepted case with a nonzero score and output on every query head");
+    eprintln!("private block rung grouping: case {idx}, group {group}, {} key-value heads", s.kv_heads);
+    for kill in 0..s.kv_heads {
+        let w = build(&case, Some(kill)).expect("zeroing a key-value head's projection cannot make an accepted case refuse");
+        for h in 0..s.q_heads {
+            let same_s = head_rows(h).iter().all(|i| w.planes[A_S8][*i] == all.planes[A_S8][*i]);
+            assert_eq!(same_s, h / group != kill, "killing key-value head {kill}: query head {h}'s scores (unchanged = {same_s}) do not follow the grouping");
+            let same_o = head_out[h].iter().all(|i| w.planes[A_O8][*i] == all.planes[A_O8][*i]);
+            assert_eq!(same_o, h / group != kill, "killing key-value head {kill}: query head {h}'s attention output (unchanged = {same_o}) does not follow the grouping");
+        }
+    }
+}
+
+/// **M-1, the argument side of S7.** `SC_KVZC`'s public RoPE table is laid
+/// out over the KEY-VALUE heads: at the rung it must hold
+/// `tokens * kv_heads * head_dim` entries. With the bare literal `1` it held
+/// `tokens * 1 * head_dim` and the slot's own table-length check
+/// (`run_slot`, `argument.rs`) would refuse the first proof.
+///
+/// The argument is still instantiable only at the toy (finding S5-F2), so
+/// this exercises the table BUILDER at the rung, which is where the literal
+/// lived.
+#[test]
+fn the_key_value_rope_table_is_laid_out_over_the_key_value_heads() {
+    for s in [Shape::toy(), rung_parity_shape()] {
+        let c = shaped_case(&s, 0);
+        let (ct, st) = super::argument::rope_tables(&s, &c.public, s.kv_heads);
+        let want = s.tokens * s.kv_heads * s.head_dim;
+        assert_eq!(ct.len(), want, "{}: the key-value RoPE cos table is not T * H_kv * d_h", s.name);
+        assert_eq!(st.len(), want, "{}: the key-value RoPE sin table is not T * H_kv * d_h", s.name);
+        // the bare `1` is exactly `kv_heads` times too short at the rung
+        let (bare, _) = super::argument::rope_tables(&s, &c.public, 1);
+        assert_eq!(bare.len() * s.kv_heads, want, "{}: the ungrouped table length is not the grouped one over kv_heads", s.name);
+        assert_eq!(bare.len() == want, s.kv_heads == 1, "{}: the bare literal 1 is only right at one key-value head", s.name);
+        // the query side is unchanged: one table row per (t, h, i')
+        let (qt, _) = super::argument::rope_tables(&s, &c.public, s.q_heads);
+        assert_eq!(qt.len(), s.tokens * s.q_heads * s.head_dim, "{}: the query RoPE table moved", s.name);
+    }
+}
+
+/// THE NO-WRAPAROUND BOUNDS OF MEMO SECTION 3, at the rung's widths, as
+/// assertions computed from the shape. Rows 1-6 and 11-12 of the summary
+/// table of section 3.8; rows 7-10 are the two limb counts and the two
+/// windows, which the shape derives and the builder enforces.
+#[test]
+fn the_memo_section_three_bounds_hold_at_the_rung() {
+    let s = rung_parity_shape();
+    let two49 = 1i128 << 49;
+    // the field of the proof: p = 2^64 - 2^32 + 1
+    let p: i128 = (1i128 << 64) - (1i128 << 32) + 1;
+    let (d, f, dh, t) = (s.width as i128, s.hidden as i128, s.head_dim as i128, s.tokens as i128);
+    // 1: QKV / Wo / gate / up, int8 x int8 over the width (weights may be -128)
+    let mm = d * 127 * 128;
+    assert!(mm < two49, "the width-{d} matmul accumulation {mm} reaches 2^49");
+    // 2: down, int16 x int8 over the hidden width
+    let down = f * 32_767 * 128;
+    assert!(down < two49, "the down accumulation {down} reaches 2^49");
+    // 3: scores, int8 x int8 over the head dimension
+    let score = dh * 127 * 127;
+    assert!(score < two49, "the score accumulation {score} reaches 2^49");
+    // 4: PV, at the PROVED bound p < 2^10 (two limbs with scaled(A_PL1, 64))
+    let pv = t * ((1i128 << 10) - 1) * 127;
+    assert!(pv < two49, "the PV accumulation {pv} reaches 2^49");
+    // 5: a16 * u16
+    let prod = 32_767i128 * 32_767;
+    assert!(prod < two49, "the activation product {prod} reaches 2^49");
+    // 6, 7, 8: the isqrt witness and its three byte limbs
+    let dmax = s.d_max;
+    assert_eq!(dmax, 321_049, "the rung's D_max moved");
+    assert!(dmax * dmax + 2 * dmax < p, "D^2 + a1 reaches the field modulus");
+    let limb_window = 1i128 << (8 * super::shape::LIMBS_ISQRT);
+    assert!(dmax < limb_window && 2 * dmax < limb_window, "D, a1 or a2 needs a fourth byte limb at the rung");
+    // 9: the norm remainder window. den - 1 = 4096 D_max - 1 must fit
+    assert_eq!(s.norm_wrho, 31, "the rung's norm window moved");
+    assert!(4096 * dmax - 1 < (1i128 << s.norm_wrho), "the norm remainder leaves its window at the rung");
+    assert!(s.norm_wrho <= 32, "the four-limb `1 << (32 - wrho)` idiom needs wrho <= 32");
+    assert_eq!(s.limbs_norm(), 4, "the norm remainder's limb count moved");
+    // 10: the softmax window, at THIS fixture's calibration
+    let sum_max = t * (1i128 << s.f_e);
+    assert!(sum_max < (1i128 << s.wrho_s), "Sum {sum_max} leaves the 2^{} softmax window", s.wrho_s);
+    assert_eq!(s.limbs_sigma_s(), 2, "the softmax remainder's limb count moved");
+    // 11: p * Sum + rho_s
+    let quot = (1i128 << F_P) * sum_max + sum_max;
+    assert!(quot < two49, "the softmax quotient identity {quot} reaches 2^49");
+    // 12: delta < 256 is enforced by the builder's own `exp difference` refusal
+    // the plane table the S6 witness is pinned to
+    assert_eq!(s.a_plane_doms().len(), N_A, "the rung's A plane list is not the pinned one");
+    assert!((0..N_A).all(|q| s.a_plane_doms()[q] == a_dom(q)), "the rung's A plane list differs from the pinned one");
+}

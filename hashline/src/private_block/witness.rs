@@ -23,13 +23,12 @@
 //! of memo section 3.7a — step S9, not this one. Until it lands, a padded
 //! shape has an unconstrained pad and cannot be proved.
 //!
-//! **GROUPED-QUERY ATTENTION IS NOT HERE YET (step S7).** Three sites still
-//! read key-value head 0 for every query head and rotate one key head: the
-//! `KR` rotation, the score accumulator and the PV accumulator, each marked
-//! `NOT YET GROUPED`. At the toy (one key-value head) that is correct; at any
-//! shape with `kv_heads > 1` it computes the wrong attention, which is what
-//! `grow_tests::the_ungrouped_witness_disagrees_with_the_kernel_at_the_rung`
-//! is for.
+//! **GROUPED-QUERY ATTENTION (step S7).** Query head `h` reads key-value head
+//! `h / group` with `group = q_heads / kv_heads`, and the key rotation runs
+//! over `kv_heads` heads. Three sites carry it: the `KR` rotation, the score
+//! accumulator and the PV accumulator. At the toy there is ONE key-value
+//! head, so the group is every query head, the offset is always 0 and the
+//! rotation runs over one head — bit for bit what the ungrouped code did.
 //!
 //! The returned planes are SECRET. Nothing here prints, hashes or serializes
 //! them; a refusal carries a site name only (the refusal itself still depends
@@ -157,7 +156,7 @@ impl<'a> Geom<'a> {
         }
     }
 
-    fn len(&self, dom: Dom) -> usize {
+    pub(super) fn len(&self, dom: Dom) -> usize {
         self.s.size(dom)
     }
     /// `(t, i)` of `Dom::D`, and `(t, h, i')` of `Dom::Q` (the same flat index)
@@ -184,8 +183,11 @@ impl<'a> Geom<'a> {
     fn lix(&self, k: usize, t: usize) -> usize {
         k * self.t_pad + t
     }
-    /// the true positions of a domain, in the order the toy visits them
-    fn support(&self, dom: Dom) -> Vec<usize> {
+    /// The true positions of a domain, in the order the toy visits them —
+    /// which is also the order the reference kernel lays its dense buffers
+    /// out in, so this doubles as the kernel-index-to-plane-index map the
+    /// parity test needs.
+    pub(super) fn support(&self, dom: Dom) -> Vec<usize> {
         let mut v = Vec::with_capacity(self.s.true_size(dom));
         match dom {
             Dom::D | Dom::Q => {
@@ -435,17 +437,17 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
     let (k8, rkl) = quantize(&matmul(&g, &y, g.d_pad, &public.wk, g.d, g.kvw, g.kvw, kvl), &sup_kv, SH_QKV, -127, 127, "K")?;
     let (v8, rvl) = quantize(&matmul(&g, &y, g.d_pad, &public.wv, g.d, g.kvw, g.kvw, kvl), &sup_kv, SH_QKV, -127, 127, "V")?;
     let (qr8, rqrl) = quantize(&rotate(&g, &q8, g.hq, g.d_pad, dl, &public.rope_cos, &public.rope_sin), &sup_d, SH_ROPE, -127, 127, "QR")?;
-    // NOT YET GROUPED (step S7): the key rotation runs over ONE head and
-    // every query head reads key-value head 0, which is what the toy's
-    // `rotate(&k8, 1, ..)` and `kr8[j * KV + i]` did.
-    let (kr8, rkrl) = quantize(&rotate(&g, &k8, 1, g.kvw, kvl, &public.rope_cos, &public.rope_sin), &sup_kv, SH_ROPE, -127, 127, "KR")?;
+    // S7: the key rotation runs over the KEY-VALUE heads, not over one head
+    let (kr8, rkrl) = quantize(&rotate(&g, &k8, g.hkv, g.kvw, kvl, &public.rope_cos, &public.rope_sin), &sup_kv, SH_ROPE, -127, 127, "KR")?;
 
     // ---- scores over ALL (h, t, j): an out-of-range masked score still refuses ----
     let mut sacc = vec![0i64; sl];
     for h in 0..g.hq {
+        // S7: query head h reads key-value head h / group
+        let kv = h / g.group;
         for t in 0..g.t {
             for j in 0..g.t {
-                sacc[g.six(h, t, j)] = (0..g.dh).map(|i| qr8[g.dix(t, h * g.dh + i)] * kr8[g.kvix(j, 0, i)]).sum();
+                sacc[g.six(h, t, j)] = (0..g.dh).map(|i| qr8[g.dix(t, h * g.dh + i)] * kr8[g.kvix(j, kv, i)]).sum();
             }
         }
     }
@@ -454,6 +456,8 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
     // ---- causal softmax, PV ----
     let mut oacc = vec![0i64; dl];
     for h in 0..g.hq {
+        // S7: the value mixing reads the same key-value head as the scores
+        let kv = h / g.group;
         for t in 0..g.t {
             let masked = |j: usize| if j <= t { s8[g.six(h, t, j)] } else { MASK_SCORE };
             let mut best = i64::MIN;
@@ -508,8 +512,7 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
             }
             for i in 0..g.dh {
                 // (t, h, i') order, the Q-domain layout of o8
-                // NOT YET GROUPED (step S7): key-value head 0 for every query head
-                oacc[g.dix(t, h * g.dh + i)] = (0..=t).map(|j| pl[A_P][g.six(h, t, j)] * v8[g.kvix(j, 0, i)]).sum();
+                oacc[g.dix(t, h * g.dh + i)] = (0..=t).map(|j| pl[A_P][g.six(h, t, j)] * v8[g.kvix(j, kv, i)]).sum();
             }
         }
     }
