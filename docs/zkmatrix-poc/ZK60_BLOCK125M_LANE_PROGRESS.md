@@ -3107,16 +3107,23 @@ block with its proving seconds and the high-water mark AFTER it, then the two
 segment lengths against the counted `[40033336, 41051160]`, then the
 `125M RUN L=2 RESULT:` line.
 
-**RESULTS (TO BE FILLED BY WHOEVER LAUNCHES IT)**
+**RESULTS — MEASURED by the orchestrator, 2026-09-20 about 10:45 and 10:50,
+one run each, shared box, CPU only, exit 0 in both** (logs
+`m125-run-l2.log` and `m125-run-l2-mmapthreshold.log`; commits `1879dd3` and
+`53227fe`)
 
-| figure | prediction | measured |
-|---|---|---|
-| chain build (2 witnesses), s | ~9.4 | |
-| prove, block 0 / block 1, s | ~31 / ~31 | |
-| high-water mark after block 0 / block 1, GiB | ~10.4 / <11.0 | |
-| segments, B | 40,033,336 / 41,051,160 | |
-| verify from segments, s | ~2.1 | |
-| does the high-water mark RISE between the two blocks? | unknown — this is the measurement | |
+| figure | prediction | measured | measured, `MALLOC_MMAP_THRESHOLD_=131072` |
+|---|---|---|---|
+| chain build (2 witnesses), s | ~9.4 | **9.86** | 10.57 |
+| prove, block 0 / block 1, s | ~31 / ~31 | **31.19 / 31.67** | 32.43 / 31.64 |
+| high-water mark after block 0 / block 1, GiB | ~10.4 / <11.0 | **10.67 / 10.82** | **10.04 / 10.05** |
+| segments, B | 40,033,336 / 41,051,160 | **exactly those** | exactly those |
+| verify from segments, s | ~2.1 | **2.04** | 2.38 |
+| does the high-water mark RISE between the two blocks? | unknown — this is the measurement | **YES, +0.15 GiB** | **NO — flat** |
+
+**The answer to finding U-4 at scale: the rise is the ALLOCATOR, not the
+protocol**, and pinning glibc's mmap threshold removes it at no measurable
+cost in time. That is stage 13's operating rule.
 
 ### Tests and commands of R3 / R4 / R5
 
@@ -3172,5 +3179,239 @@ passes (`the_codec_length_is_the_models_at_every_shape`,
    any run before that gate.
 4. **Ask the security owner** about finding U-5 (whether the open-commitment
    table is wanted as a runtime check) and carry findings U-1 … U-6 into the
+   disposition's record.
+
+**R6 was LAUNCHED and MEASURED by the orchestrator** on 2026-09-20 at about
+10:45 and again at about 10:50 (commits `1879dd3` and `53227fe`); its results
+table is filled in above and its answer to finding U-4 is stage 13's first
+paragraph. Item 2 of this list is stage 13 below.
+
+## Stage 13 — the twelve-block 125M run, PREPARED (2026-09-20, 11:0x–)
+
+**What this stage builds, and what it deliberately does not.** Everything a
+twelve-block private run at the 125M shape needs, EXCEPT the run: a segment
+sink that writes each finished segment to its own file, a verifier that reads
+those files back ONE AT A TIME, the operating rule that removes the
+between-block memory rise, and the `#[ignore]`d test with its launch command.
+**Nothing at the 125M shape was executed by this stage.** A run that verifies
+is a CORRECTNESS milestone and never a privacy one: the run's privacy
+obligations (the boundary plane's joint rank over all three commitments,
+blinding independence across blocks, the run-wide joint law) still have no
+tools and no gate has been run (ruling M-8).
+
+### The two facts stage 13 is built on, both MEASURED at 125M by the orchestrator
+
+| fact | evidence |
+|---|---|
+| a two-block private run at 125M proves 62.86 s (31.19 + 31.67), verifies from its segments 2.04 s, receipt 81,084,496 B = the counted figure, peak 10.82 GiB — but the high-water mark ROSE between the blocks, 10.67 → 10.82 GiB | `results/zk60_block125m_lane/m125-run-l2.log`, exit 0 |
+| **the same run with `MALLOC_MMAP_THRESHOLD_=131072` in the environment: 10.04 → 10.05 GiB, FLAT, peak 10.05 GiB, prove 64.07 s, verify 2.38 s, same receipt to the byte** | `results/zk60_block125m_lane/m125-run-l2-mmapthreshold.log`, exit 0 |
+
+**FINDING U-4 IS ANSWERED, AND IT IS NOT THE PROTOCOL.** The rise is glibc's
+allocator: with the DYNAMIC mmap threshold, freeing a large mapped buffer
+raises the threshold, so the next large buffer is taken from the heap and
+fragments it; pinned at 128 KiB, every large buffer is mapped and returned to
+the system when it is freed. **THE OPERATING RULE: every multi-block run at a
+large shape is launched with `MALLOC_MMAP_THRESHOLD_=131072` in its
+environment.** It costs nothing measurable in time (64.07 s against 62.86 s,
+inside this box's run-to-run variance) and it is what makes twelve blocks fit
+under a 12 GiB ceiling. Nothing in the code calls `mallopt` and no library
+behaviour changes for any other caller: the variable is read by the C
+allocator at start-up, and the only thing the code does is PRINT whether the
+launcher set it.
+
+### S1 — the sink, and the streaming verifier
+
+| piece | where | what it is |
+|---|---|---|
+| the hand-over | `run.rs` (unchanged) | `prove_run` calls `sink(k, bytes)` EXACTLY ONCE per finished segment, in order, with the bytes OWNED. Afterwards the prover holds nothing of that segment but its length in `RunStats` (ruling M-3). The signature did not have to move: the abstraction was already there |
+| `SegmentSink` | `run_sink.rs` (NEW) | the trait the two destinations implement — `accept(&mut self, k, Vec<u8>)` |
+| `MemorySink` | `run_sink.rs` | keeps the bytes; what the development-rung tests use. The existing tests' own closure is untouched, so no existing test changed behaviour |
+| `DirSink` | `run_sink.rs` | one file per segment, `segment-000.bin` …, written ATOMICALLY: the bytes go to `segment-kkk.bin.partial`, are written, `sync_all`-flushed to the device, and only then RENAMED into place. So a file under a segment's own name either is the whole segment or does not exist — a run killed by the memory ceiling leaves no half-segment a later verifier could take for a whole one. It keeps only each segment's LENGTH and SHA-256 (`export_v3::sha256_hex`, the crate's existing `sha2` dependency; nothing added). It REFUSES a directory that does not exist or is not empty |
+| `segment_paths` | `run_sink.rs` | the `L` files a run directory must hold, `L` being the VERIFIER'S OWN. Exactly those and NOTHING ELSE: a missing one is named, and an extra segment beyond `L`, a leftover `.partial` or any foreign file is refused before a byte of any segment is read |
+| `RunVerifier` | `run.rs` | the verifier's between-segment state (transcript, run binding, the pending claim, the waiting boundary) with `start` / `step(k, &[u8]) / finish`. `verify_run` is now this fed from a slice — the same operations in the same order, which is why every existing run test's bytes and refusals are unmoved |
+| `verify_run_from_dir` | `run.rs` | the SAME verifier fed one FILE at a time: read, stepped, dropped before the next is opened. **Never more than one segment's bytes resident** — 41 MB at 125M against a 484 MB receipt |
+
+**The bytes on disk ARE the bytes the prover handed over.** The rung test
+feeds both sinks from ONE run and compares the file with the in-memory
+segment byte for byte, and the recorded digest with the file's own SHA-256.
+Two SEPARATE runs cannot be compared: the prover takes its randomness from
+the OS (`ZkRng::from_os`) and **this lane did not add a deterministic test
+path** (the brief forbids inventing one), so for separate runs what is
+compared is the lengths and the verifier's acceptance.
+
+### S2 — the tests, and each negative in one line
+
+| test | what it shows |
+|---|---|
+| `a_twelve_block_run_written_to_a_directory_verifies_by_streaming` | TWELVE blocks at rung-G written to a temporary directory: prove 6.19 s, verify BY STREAMING 1.16 s, 49,217,600 B in 12 files = the counted figure, every file byte-identical to what the in-memory sink was handed, exactly twelve entries in the directory and no `.partial` left behind |
+| a MISSING segment file | refused, naming `segment-001.bin`, before a byte is read |
+| a TRUNCATED segment file | refused: "segment 1 is 4,089,351 B, the counted length is 4,089,352" |
+| two segment files SWAPPED | refused at the counted length, then (at equal lengths) at the header's position tag |
+| a DUPLICATED segment (segment 0's bytes under segment 1's name) | refused |
+| an EXTRA segment file beyond `L` (`segment-003.bin`) | refused by name: `L` is the verifier's own |
+| a FOREIGN segment file from a second honest run of the same statement | refused at the run binding: "this segment belongs to another run" |
+| a FOREIGN FILE in the run directory (`notes.txt`) | refused by name, before any segment is read |
+| after every one of the above is undone | the run verifies again, so each refusal was its own mutation |
+| `the_directory_sink_refuses_a_directory_that_is_missing_or_not_empty` | a run never writes into a directory that does not exist or already holds something |
+| `the_twelve_block_125m_receipt_is_the_counted_484_100_736_bytes` | the twelve-block 125M figure, in a test that costs nothing: segments 40,033,336 / 40,301,624 (×10) / 41,051,160, total **484,100,736 B**, derived from the block's own counted receipt and the framing constants |
+
+**No temporary file survives a passing test**: each test's directory is a
+`TempRunDir` under the machine's temporary space, removed when the test
+leaves, and never inside the repository.
+
+**The allocator condition is PRINTED by every large-run test** — the ladder at
+the rung, the two-block 125M run and the twelve-block one — as
+`MALLOC_MMAP_THRESHOLD_=<v> (pinned…)` or `MALLOC_MMAP_THRESHOLD_ is NOT SET`,
+together with the high-water mark after every block, its change from the
+block before, and `HWM-RISE` when that change is more than 1%. **Caveat at the
+rung**: `VmHWM` is a PROCESS figure and the rung tests share one test binary
+with two hundred others, so the rung's marks are polluted by whatever ran
+before them (the twelve-block file test reports a flat 130.7 MiB for that
+reason). The 125M runs are launched `--exact`, alone in their process, which
+is the only place the mark means what it says.
+
+### S3 — the twelve-block 125M test, `#[ignore]`d and NOT LAUNCHED
+
+`private_block::run_tests::private_run_125m_twelve_blocks`.
+
+**What it keeps resident.** TWELVE public statements — about 9.2 MB of padded
+weights each (`wq`, `wo` 1024×1024, `wk`, `wv` 256×1024, `wg_t`, `wu_t`,
+`wd_t` 1024×2048, plus the tables), **about 110 MB in all** — because
+`prove_run` and `verify_run` both take the run's statements as ONE SLICE and
+the run header absorbs every block's digest before the first commitment. That
+is about 1% of the modelled peak, so no lazy-statement API was built for it;
+the code as it stands does not allow one statement at a time and this is the
+honest report of that. ONE witness (711 MB), built just in time by the chain
+and dropped. Thirteen padded planes (1 MB each) and twelve true inputs (0.79
+MB each), the chain's own data. **ZERO segments**: each is written to
+`HL_PB_RUN_DIR` and dropped as it is finished, and the verifier reads them
+back one at a time.
+
+**What it refuses.** It does not start unless `HL_PB_RUN_DIR` is set to an
+ABSOLUTE, EXISTING, EMPTY directory OUTSIDE THE REPOSITORY (checked against
+the crate's own parent directory). **It STOPS, rather than running on, if a
+segment's length is not the counted one or if the high-water mark passes 11.5
+GiB** — both inside the sink, at the block where it happens.
+
+**What it prints.** Per block: the stage seconds, the segment's length against
+the counted figure, the high-water mark, its change in GiB and per cent, and
+`HWM-RISE` past 1%. At the end: the length and **SHA-256 of every segment**
+(so the evidence committed to the repository is hashes and lengths, never the
+484 MB of bytes), the per-block prove seconds, the total prove seconds, the
+verify seconds, the total against the counted 484,100,736 B, the peak resident
+memory and the allocator note.
+
+**Predictions, so that the run can fail** [MODEL from the MEASURED two-block
+run with the threshold pinned]:
+
+| figure | prediction |
+|---|---|
+| chain build (12 witnesses, each dropped) | about 59 s (12 × 4.93) |
+| proving | about **6.4 minutes** (12 × ~32 s, each stage including its just-in-time witness build) |
+| verify by streaming | about 14 s (12 × ~1.1 s plus reading 484 MB) |
+| total wall clock | about **7.6 minutes** |
+| receipt | **484,100,736 B** in twelve files |
+| peak resident memory | about **10.15 GiB** (the two-block run's measured 10.05 plus ten further public statements and eleven further planes) |
+| the high-water mark across blocks | FLAT, within 1%, with the threshold pinned — this is the prediction the run tests |
+
+### S4 — the launch, for the ORCHESTRATOR (this lane does not run it)
+
+**Step 1 — the binary, built under the build lock** (done; log
+`results/zk60_block125m_lane/v5-s13-build.log`):
+
+```
+flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attention-compile/hashline/target CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=8 /home/victor/.cargo/bin/cargo test --release --offline -j 2 --manifest-path /home/victor/wt-zk60-block125m/hashline/Cargo.toml --lib private_ --no-run > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/v5-s13-build.log 2>&1
+```
+
+The `Executable unittests` line names
+
+```
+/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5
+```
+
+— the same name as stages 9, 11 and 12, because the hash is of the crate's
+METADATA and not of its source. **mtime 2026-09-20 11:01, 11,183,760 B**,
+which is later than every source file of this lane (the latest is `run.rs` at
+11:00) and later than the code commit it belongs to, so this binary contains
+stage 13. `--no-run` relinked nothing: the filter gate had already built it.
+
+**Step 2 — create the artifacts directory.** THE ORCHESTRATOR CREATES IT; this
+lane does not, and the test refuses to start if it is missing or not empty:
+
+```
+mkdir -p /home/victor/zk60-artifacts/m125-run-l12
+```
+
+**Step 3 — the detached, memory-capped run**, one line, with the allocator
+threshold pinned:
+
+```
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 env MALLOC_MMAP_THRESHOLD_=131072 HL_PB_RUN_DIR=/home/victor/zk60-artifacts/m125-run-l12 HL_PB_TIMING=0 /home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::run_tests::private_run_125m_twelve_blocks >> /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run-l12.log 2>&1; echo $? > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run-l12.done' >/dev/null 2>&1 &
+```
+
+**Headroom at the time of writing (2026-09-20 11:03 PDT).**
+
+| resource | have | run needs |
+|---|---|---|
+| `grep MemAvailable /proc/meminfo` | 14,387,928 kB = **13.72 GiB** | modelled peak **about 10.15 GiB**, ceiling 12 GiB |
+| `df -h /home/victor` | **747 G free** of 1007 G | **484 MB** of segments |
+| time | — | about 7.6 minutes, one heavy job at a time |
+
+The phase clock is OFF (`HL_PB_TIMING=0`): what this run is for is the twelve
+stage times, the per-stage high-water marks, the segment lengths and their
+digests. `m125-run-l12.done` holds the exit code; a memory kill leaves a
+nonzero code and a log without the `RESULT` line. **Re-read the binary's path
+and mtime before launching** — the target directory is shared with another
+worktree, and the binary must be NEWER than this lane's last commit. The
+segments are 484 MB under `/home/victor/zk60-artifacts/`, outside the
+repository; the orchestrator deletes them when the run's digests and lengths
+are in the ledger.
+
+**RESULTS (TO BE FILLED BY WHOEVER LAUNCHES IT)**
+
+| figure | prediction | measured |
+|---|---|---|
+| chain build (12 witnesses), s | ~59 | |
+| prove, total, s | ~384 (12 × ~32) | |
+| high-water mark after each block, GiB | ~10.15, FLAT within 1% | |
+| any `HWM-RISE` line? | none expected with the threshold pinned | |
+| segments, B | 40,033,336 / 40,301,624 ×10 / 41,051,160 | |
+| total receipt, B | 484,100,736 | |
+| verify by streaming, s | ~14 | |
+| peak resident memory, GiB | ~10.15 | |
+| exit code | 0 | |
+
+### Files this stage wrote, and the shared-file list
+
+Everything is `hashline/src/private_block.rs` (one `mod run_sink;` line) or
+under `hashline/src/private_block/` (`run_sink.rs` NEW, `run.rs`,
+`run_tests.rs`), plus this ledger. **Shared files touched outside
+`hashline/src/private_block*`: NONE.** No item was made `pub`; everything new
+is `pub(crate)` inside the module tree, as its neighbours are. The frozen
+crates are untouched: `git diff --stat 11c01b2 -- private-block-kernel
+private-model-kernel zkvm-block` prints nothing.
+
+### Tests and commands of stage 13
+
+| command | log |
+|---|---|
+| `--lib private_block::run_tests`, the new tests written and no `run_sink` module | `v1-s13-first-fail.log` — `error[E0432]: unresolved import super::run_sink`, `error[E0425]: cannot find function verify_run_from_dir` (×5) |
+| the same, with the module and the streaming verifier | `v2-s13.log` — **17 passed, 0 failed, 2 ignored** |
+| `--lib private_block::run_tests::a_ -- --nocapture` (to read the refusals) | `v3-s13-nocapture.log` — 5 passed, every negative refused by name |
+| **the gate**: `--lib private_` | `v4-s13-filter.log` — **185 passed, 0 failed, 5 ignored, 67 filtered out**, 283 s (baseline 181 / 4 ignored: +4 tests, +1 ignored). The toy's frozen parameter line and schedule digest and every counted receipt length still pass (`the_toy_parameter_line_is_the_frozen_literal`, `the_toy_schedule_digest_is_frozen`, `the_codec_length_is_the_models_at_every_shape`, `the_125m_receipt_is_reproduced_part_by_part`); no existing test was changed, weakened or removed |
+| the heavy binary: `--lib private_ --no-run` | `v5-s13-build.log` |
+
+### NEXT, in order
+
+1. **Launch the twelve-block 125M run** — step 2 then step 3 of S4, after
+   re-reading the binary's mtime, checking `MemAvailable` is above about 12
+   GiB and the box is quiesced. Watch by the `.done` marker, never in the
+   foreground. Fill in the RESULTS table; the first numbers to read are the
+   twelve high-water marks (flat or not) and the total against 484,100,736 B.
+2. **The run capture and the `L = 3` gate (ruling M-8)** — unchanged from
+   stage 12's list: a NEW `private_block/run_capture.rs`, never an edit to
+   the integrator's `native_capture.rs`. **No privacy statement about any run
+   before that gate**, whatever the twelve-block run measures.
+3. **Ask the security owner** about finding U-5 and carry U-1 … U-6 into the
    disposition's record.
 
