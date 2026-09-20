@@ -26,7 +26,11 @@ Written by the interactive Claude Fable 5.1 session (the security owner) at
   sharing one pair — disclosed 2, the control fires 40 of 40.
 - **No challenge precedes what it must bind**; the stage order was checked
   line by line against `prove_inner_at`.
-- **The memory carry-over is exact to the byte** (88.2 MiB), the time
+- **The memory carry-over is exact to the byte** (88.2 MiB at the first
+  stage; *corrected 2026-09-20 14:56: an interior stage carries 88.8 MiB — two
+  boundaries and the output endpoint — as the revised design's §3 says; the
+  0.6 MiB does not change any conclusion, the measured peak being 10.15 GiB
+  inside a 12 GB ceiling*), the time
   recomputes to 6.26 minutes of proving and 12.5 s of verifying for twelve
   blocks, every receipt byte reproduces, and the draw count and residual
   (109.4 million draws, 2^-69.3 for one twelve-block run) are confirmed.
