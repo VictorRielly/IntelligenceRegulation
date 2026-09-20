@@ -8,8 +8,8 @@ the same for every admissible hidden input. Blocking items B-1 … B-4, the
 corrections and conditions of `ZK60_JOINT_LAW_COMPOSITION_CHECK.md` and
 rulings J-1 … J-5 applied. NOT a privacy acceptance: the hash layer and every
 other shape are gaps, and one step (the individual terminals) was supplied by
-the check and has been reviewed by nobody. Drafted by a delegated Opus
-agent.**
+the check and has since been independently reviewed and corrected. Drafted by
+a delegated Opus agent.**
 
 ## 0. Plain words, for the project owner
 
@@ -63,8 +63,9 @@ lemma's §3.5 — one of which (Fact 2.1) the check proved outright (§2.1).
 indistinguishable from uniform. (v) For the lift to real challenges, the
 random-oracle model for one untagged hash table, and salted-leaf hiding for
 the part of the Merkle tree that is never opened. (vi) **One step supplied by
-the independent check and reviewed by nobody**: the per-group surjection that
-makes the 173 individual terminals safe (§4.3, ruling J-2).
+the independent check and since independently reviewed and corrected**: the
+per-group surjection that makes the 173 individual terminals safe (§4.3,
+ruling J-2 as resolved 2026-09-20, `ZK60_TERMINAL_SURJECTION_REVIEW.md`).
 
 **What is still missing.** Three things, and they are named in §6 and §8.
 The hash layer is not covered by anything here — this memo is about field
@@ -89,8 +90,9 @@ core in the uniform-blinding idealisation, not of a privacy property; its
 central theorem is stated with hypotheses one of which is an assumption
 ((H5): M-3, D9) and one of which ((H1)) stands on the accepted lemma's own
 "relies on" rows; and one step of the argument was supplied by the check
-itself and has been reviewed by nobody. A checker should start at §8, whose
-first item is that step.
+itself and has since been independently reviewed and corrected
+(`ZK60_TERMINAL_SURJECTION_REVIEW.md`, 2026-09-20). A checker should start at
+§8, whose first item is what that review left open about that step.
 
 
 
@@ -1182,48 +1184,163 @@ group and proximity combinations), and they are not in the span of those: a
 group vector gives only the `λ`-combination `Σ_c λ_c value_c`, whereas the
 receipt publishes each `value_c`. So the sampler's step 2, which reads the
 terminals off the all-zero rectangle, was unjustified in both documents. The
-independent check supplied the missing step, and it enters here with its
+independent check supplied the missing step; the independent review of
+2026-09-20 (`ZK60_TERMINAL_SURJECTION_REVIEW.md`) found it correct in its
+conclusion but wrong in the conditions it named and too weak in the form it
+was stated, and corrected it. It enters here in that corrected form, with its
 provenance stated.
 
-> **The per-group surjection.** Fix one opening group `g` with member claims
-> `c = 1..m`, shared column weights `cw ≠ 0`, and each claim's own reserved
-> pair contributing `P_c := msg_{r_c} + U·msg_{r_c+1} ∈ Fp2^{256}`, uniform
-> and independent across claims (`audit_claims` gives one pair per claim,
-> used by no other claim). The published objects that touch those pairs are
-> the group vector's message half `v = D + Σ_c λ_c cm_c P_c` and the `m`
-> terminals `y_c = d_c + cm_c⟨P_c, cw⟩`, and the verifier's own check forces
+> **The per-group surjection, in the corrected form.** Fix one opening group
+> `g` with member claims `c = 1..m`, shared column weights `cw`, and each
+> claim's own reserved pair contributing
+> `P_c := msg_{r_c} + U·msg_{r_c+1} ∈ Fp2^{256}`, uniform and independent
+> across claims (`audit_claims` gives one pair per claim, used by no other
+> claim). The published objects that touch those pairs are the group vector's
+> message half `v = D + Σ_c λ_c cm_c P_c` and the `m` terminals
+> `y_c = d_c + cm_c⟨P_c, cw⟩`, and the verifier's own check forces
 > `⟨v, cw⟩ = Σ_c λ_c y_c`. Then the blinding map `(P_c)_c ↦ (v, y_1..y_m)`
-> is **onto** that consistency subspace whenever every `λ_c ≠ 0`, every
-> `cm_c ≠ 0` and `cw ≠ 0`. *Proof for `m = 2`; the general case is the same
-> induction.* Given a target, choose `P_1` freely with
-> `⟨P_1, cw⟩ = y_1/cm_1` and set `P_2 = (v − λ_1 cm_1 P_1)/(λ_2 cm_2)`; then
-> `⟨P_2, cw⟩ = (⟨v, cw⟩ − λ_1 y_1)/(λ_2 cm_2) = y_2/cm_2`. ∎ So the
+> is **onto** that consistency subspace — **jointly** in the group vector and
+> all `m` terminals at once, which is the statement that is needed, and not
+> the per-claim marginal one — under the conditions restated next. So the
 > individual terminals add **exactly nothing** beyond the group vector and
-> that one public identity, and each is uniform given the rest.
+> that one public identity.
 >
-> **The three non-vanishing conditions, and the refusal that gives each.**
-> `λ_c ≠ 0`: the zero group-coefficient refusal (`check_opening_challenges`,
-> `protocol.rs:139-152`). `cm_c ≠ 0`: the zero mask-challenge refusal
-> (`argument.rs:347-349`, `audit_claims:103-108`). `cw ≠ 0`: the check
-> records this one as given by a refusal too, but does not pin it to a line;
-> §8's Q0 asks the next reviewer to confirm on which paths it is refused. The
-> proximity vector is handled the same way — `ρ_prox` is non-zero on the
-> reserved proximity pair and a dependent pair is refused
-> (`protocol.rs:141-151`), so `(a, b) ↦ ρ_p a + ρ_{p+1} b` is onto
-> `Fp2^{256}`.
+> **The conditions, restated (change R-1 of the review).** (i) Each claim's
+> reserved pair carries the two weights **exactly `(cm_c, cm_c·U)`** — an
+> `Fp`-basis of `Fp2`, which is what makes `P_c` range over the whole of
+> `Fp2^{256}` — with `cm_c ≠ 0` (`build_claim`,
+> `private_block/argument.rs:232-234`). **This shape, and not `cm_c ≠ 0`
+> alone, is the condition that carries the conclusion**: with `cm_c ≠ 0` but
+> the pair's two weights `Fp`-dependent a **singleton** group discloses
+> **256 `Fp`**, and with the pair removed altogether **512 `Fp`**
+> (recomputed by the review, its controls A3 and A4). `cm_c ≠ 0` is what the
+> code refuses on, and it is refused twice over on **both** sides: the
+> degenerate extension-challenge refusal (`argument.rs:346-349`, inside
+> `run_slot`, the same function on `Side::Prove` and `Side::Verify`, reached
+> from `prove_inner` `protocol.rs:384` and `verify_inner` `:450`) and the
+> zero-coefficient refusal of `audit_claims` (`protocol.rs:103-108`, called
+> through `check_opening` from the prover at `protocol.rs:396, :399` and from
+> the verifier at `:458, :464`; endpoints `check_endpoint_opening:191-203`,
+> called at `:402, :405` and `:471`). (ii) The reserved pair is exclusive to
+> that claim **and to that group** (`audit_claims:118-122`, `:129-131`).
+> (iii) `cw ≠ 0`, which is a theorem and not a refusal (next paragraph).
+> **`λ_c ≠ 0` is not a condition of this step**, and the memo's earlier list
+> of three overstated what it buys: the zero group-coefficient refusal
+> (`check_opening_challenges`, `protocol.rs:141-152`, the loop at `:142-146`)
+> is a **soundness** refusal — it stops a prover discarding a claim from the
+> batch, which is what its error string says — and the conclusion survives
+> `λ_c = 0`, disclosure staying 0 `Fp` on a real 35-member group and on a
+> real singleton (controls C3 and A4).
 >
-> **Label: supplied by the independent check; verified by its script; not
-> independently reviewed.** The script is
-> `results/zk60_joint_law_composition_check/check_pad_and_group.py`, output
-> `(c)`: over the real Goldilocks prime with `U² = 7`, for groups of 1, 2 and
-> 4 members, the blinding map's rank is `2·ncol + 2m − 2` — every
-> observation but exactly one `Fp2`, which is the public identity — and the
-> control `cm_0 = 0` drops it, to **0** for a singleton group. **What this
-> leans on**: the accepted generic-rank lemma's *reduction*
-> (`disclosed = 256·k0 + u-term`, with generators `_p1_rows`), whose
-> correctness is one of **that lemma's own RELIES-ON rows**, machine-validated
-> only against a dense brute force on a small synthetic instance. This step
-> is the **first item for whoever reviews this argument next** (§8, Q0).
+> **`cw ≠ 0` is an unconditional public fact, not a refusal (change R-2).**
+> The earlier text recorded this condition as "given by a refusal too, but
+> not pinned to a line", and that reading is withdrawn: `cw` is not a
+> challenge at all. `cw = zkey_weights(key)`
+> (`zkp-core/src/pcs.rs:794-807`) is either all-ones on `1 ≤ len ≤ 256`
+> positions, so `Σ_j cw_j = len`, an integer between 1 and 256 and therefore
+> non-zero in `Fp`; or it is the equality tensor `eq_table_msb(tail)`
+> (`mle.rs:13-51`), whose construction starts from the single entry `1` and
+> repeatedly splits an entry `e` into `(e(1−r), e·r)`, an operation that
+> preserves the total, so `Σ_j cw_j = 1` at **every** point whatsoever. A
+> vector whose entries sum to 1, or to `len`, is not the zero vector.
+> **No refusal is needed, `cw = 0` has probability exactly zero rather than
+> `2^{-k}`, and there is no new privacy residual to list.** Measured on all
+> sixteen role-captures: every group's `cw` sums to 1 or to `len`, with
+> support between 32 and 256 entries.
+>
+> **Proof (change R-3): the annihilator form, exact for every `m`.** With
+> `P_c` ranging over `Fp2^{256}` — which is what condition (i) gives — the
+> image of `(P_c)_c ↦ (v, y)` is spanned by the vectors
+> `T_{c,j} = λ_c cm_c · e_{v_j} + cw_j cm_c · e_{y_c}`, one per member `c`
+> and column `j`, each with at most two non-zero coordinates. A functional
+> `φ` kills all of them iff `λ_c φ(v_j) + cw_j φ(y_c) = 0` for every `c, j`
+> (dividing by `cm_c ≠ 0`). Pick any `j` with `cw_j ≠ 0` — one exists
+> because `cw ≠ 0`: then `φ(y_c) = −λ_c φ(v_j)/cw_j`; comparing two such
+> `j, j′` forces `φ(v_j)/cw_j = φ(v_{j′})/cw_{j′}`; and at a `j` with
+> `cw_j = 0` the relation is `λ_c φ(v_j) = 0`. Hence, as soon as some
+> `λ_c ≠ 0`, the annihilator is the single line
+> `φ = t·(cw_j on v_j, −λ_c on y_c)` — the verifier's own identity — and the
+> image is precisely its kernel, the consistency subspace. If every
+> `λ_c = 0` then `ρ_g = 0`, the group vector is identically zero, and the
+> image is all of `Fp2^m` in the terminals. In both cases the data
+> contributions lie in the image, because `ρ_g = Σ_c λ_c rw_c` by
+> construction makes `⟨D, cw⟩ = Σ_c λ_c d_c`. ∎ The rank is exactly
+> `2(256 + m) − 2` over `Fp` for **every** `m` and every `cw ≠ 0`. This
+> replaces the `m = 2` induction the check supplied: no induction is needed,
+> and the annihilator form also says what survives when a condition fails.
+>
+> The proximity vector is handled separately, as the check said it should be
+> — `ρ_prox` is non-zero on the reserved proximity pair and a dependent pair
+> is refused (`protocol.rs:141-151`), so `(a, b) ↦ ρ_p a + ρ_{p+1} b` is onto
+> `Fp2^{256}`; the review confirmed that no claim and no group combination
+> touches a proximity row on any of the sixteen role-captures, and that the
+> proximity pair alone has rank 512 on the proximity vector.
+>
+> **What the step does NOT give on its own (change R-4).** It is **one
+> group's message half**, at fixed challenges. The joint statement the
+> theorem needs additionally requires: (i) the reserved pairs disjoint
+> **across groups**, not only across claims — true on `A`, `Input` and
+> `Output`, and **false on `H`** (the exception below); (ii) the proximity
+> pair exclusive and with `wedge ≠ 0`, which is what makes the proximity
+> functional vanish identically (previous paragraph); and (iii) the accepted
+> lemma's **`H-pad`**, which is what licenses dropping the pad halves and the
+> opened columns in favour of the message-half system. `H-pad` is
+> load-bearing here and not decorative: in the review's own small model one
+> opened position beyond the pad budget discloses **2 `Fp`** that the
+> message-half reduction does not see. Beyond those, the step says nothing
+> about the hash layer, nothing about the masking commitment `M` (the top of
+> this section, Lemma 3.1 and Theorem 3.3 territory), nothing about cross-role
+> independence (it is assumed, condition O-2), and nothing about any shape
+> but the toy block and the toy attention component.
+>
+> **`H`'s exception, recorded (change R-5).** Two of `H`'s opening groups
+> share the zero-sum pair — the `zsum` slot's claim *evaluates* those rows
+> and the LogUp sum claim is *masked* by them — so on `H` the per-group
+> decomposition is **invalid as written**, and no document had said so. The
+> two groups must be ranked as **one** system: done jointly (1,028 `Fp`
+> observations, blinding rank 1,022, with the data 1,024) the disclosure is
+> **2 `Fp`**, the same number as before, and it is exactly the public LogUp
+> identity — `rank(disclosed) = rank(public identity) = rank(both together)
+> = 2` on all four captures, by span equality
+> (`ts_addendum.py` A1, `ts_components.py`). **The number stands because of
+> that joint computation, not because of the per-group argument.** This is
+> the one deliberate exception to "one reserved pair per claim site", and it
+> is sound **only** because the two groups' claims are tied by the public
+> identity the statement already announces. Sharing a pair between two
+> **ordinary** terminals is not sound, and the review reproduced the
+> counterexample at the real scale: with two claims of `A` moved onto one
+> pair, each terminal's **marginal** is still fully blinded (rank 2 on each
+> alone), while the **joint** rank of the two drops from 4 to 2 and rises
+> back to 4 once the data is added — the joint law moves with the witness
+> although neither marginal does. That is why the statement above must be
+> joint and not per claim.
+>
+> **Label: independently reviewed and corrected (2026-09-20),
+> `ZK60_TERMINAL_SURJECTION_REVIEW.md`** — conditions restated, joint form,
+> `H` exception. **Not a privacy acceptance.** The review wrote its **own**
+> exact rank code, importing nothing from the project's tools
+> (`results/zk60_terminal_surjection_review/`: `ts_field.py`, `ts_review.py`,
+> `ts_addendum.py`, `ts_components.py`), and computed the system at the real
+> schedule: **every group of `A`, `H`, `Input` and `Output` on all four
+> captures**, group sizes up to 35 members at 256 columns, blinding rank
+> exactly `2(256 + m) − 2`, **disclosed 0 `Fp` — except the one `H` group at
+> 2 `Fp`, the public lookup identity**; then **2,040 fresh and adversarial
+> challenge vectors with no failure**; the fold identity behind the
+> message-half reduction checked 200 times with 0 failures; and `A`'s pad
+> block at its real opened positions **246 × 256 of exact rank 246**, inside
+> the 256-pad budget (`H` 242, endpoints 246 and 241). One control fired
+> against the reviewer's **own** reduction: one opened position beyond the
+> pad budget discloses 2 `Fp` that the message-half reduction misses — from
+> which the ruling draws the standing consequence that **the pad count and
+> the number of opened columns move together** (ruling J-2 as resolved,
+> 03:49, 2026-09-20). **What this still leans on**: the accepted
+> generic-rank lemma's *reduction* (`disclosed = 256·k0 + u-term`, with
+> generators `_p1_rows`), whose correctness is one of **that lemma's own
+> RELIES-ON rows** — the individual claims are now a proved step of that
+> reduction (`ZK60_GENERIC_RANK_LEMMA.md` §3.2, change R-6), and the gate's
+> own small model still validates the reduction with one group per claim
+> only, which is change R-8 (test-side, made elsewhere). **What the review
+> did not check** is listed in §8, under the closure of Q0.
 
 So the correct statement of (H1) is about the **four PCS commitments only**:
 
@@ -1237,12 +1354,30 @@ So the correct statement of (H1) is about the **four PCS commitments only**:
 > `Fp2::ZERO` value of the LogUp identity + the terminals step above,
 > **conditional on**: cross-role blinding independence (VERIFIED IN THE CODE
 > for the toy block, not machine-asserted — condition O-2); the imported
-> terminals step, which has been reviewed by nobody; the lemma's own RELIES
-> ON rows (`audit_claims` on every path, the refusal replay order — for
-> which a Rust test is owed, the four `part_rows` assertions
+> terminals step, now independently reviewed and corrected (2026-09-20),
+> with the `H` exception and the `H-pad` dependence it names; the lemma's own
+> RELIES ON rows (`audit_claims` on every path, the refusal replay order —
+> for which a Rust test is owed, the four `part_rows` assertions
 > `pcs.rs:759, 768, 775, 786`, the `d+1` values per round
 > `sumcheck.rs:148-150`, and the uniformity of the non-data rows'
 > messages); and the two toy layouts only (ruling G-2, condition O-5).
+
+**The invariants of this section that an implementer must not weaken.** Four,
+and the first is new with the review of 2026-09-20. (1) **The reserved pair's
+weight shape `(cm_c, cm_c·U)`** (`private_block/argument.rs:232-234`): an
+`Fp`-basis of `Fp2`, not merely a non-zero `cm_c`. Keeping `cm_c ≠ 0` while
+making the two weights `Fp`-dependent discloses 256 `Fp` on a singleton
+group, and dropping the pair discloses 512. (2) **One reserved pair per
+claim, exclusive to that claim and to its group** (`audit_claims:118-122`,
+`:129-131`) — with `H`'s zero-sum pair as the single documented exception,
+sound only because the two claims that share it are tied by the public LogUp
+identity. (3) **`cm_c ≠ 0`, refused on both sides twice over**
+(`argument.rs:346-349`; `audit_claims:103-108`, reached from the prover at
+`protocol.rs:396, :399` and the verifier at `:458, :464`). (4) **The pad
+budget**: the pad count and the number of opened columns move together, since
+one opened position beyond the budget puts 2 `Fp` into the view that the
+message-half reduction does not see. `λ_c ≠ 0` is *not* on this list for
+privacy; its refusal stays, for soundness.
 
 
 
@@ -1468,11 +1603,12 @@ root; it carries no information about the input.
 >
 > **PROVED-CONDITIONAL**, on cross-role blinding independence (VERIFIED IN
 > THE CODE for the toy block, not machine-asserted — condition O-2), on the
-> terminals step supplied by the independent check and reviewed by nobody,
+> terminals step supplied by the independent check and since independently
+> reviewed and corrected (§4.3, 2026-09-20),
 > on (H6)'s model, and on a lemma that is not in the main tree. **This is
 > not a privacy acceptance** and must not be quoted as one; its inputs still
-> include two assumptions (M-1/M-2 and M-3), one imported unreviewed step,
-> and a lemma on a branch.
+> include two assumptions (M-1/M-2 and M-3), one imported step whose review
+> left its own list of unchecked items (§8, Q0), and a lemma on a branch.
 
 
 
@@ -1680,20 +1816,49 @@ matches, by a second and independent route, the lemma's own finding that
 The independent check of 2026-09-20 answered Q1, Q2, Q3, Q4, Q6, Q7 and Q8;
 each is kept below with the answer recorded, because the answer is now part
 of the argument. Q5 it confirmed as still owed, and Q9 and Q10 stand. **Q0
-is new, and it is the first thing the next reviewer should look at.**
+asked for an independent review of the terminals step; that review has been
+done (2026-09-20) and Q0 is closed — what the review itself did not check is
+kept in its place, and is still the first thing the next reviewer should look
+at.**
 
-**Q0 — the step that entered from the check itself, and has been reviewed by
-nobody (ruling J-2).** The per-group surjection of §4.3 — the statement that
-the 173 individual terminals add nothing beyond the group vector and one
-public identity, on `λ_c ≠ 0`, `cm_c ≠ 0`, `cw ≠ 0` — was supplied by the
-independent check and verified only by the check's own script. Both the
-memo's original sampler step 2 and the accepted generic-rank lemma's
-reduction were silent about the individual terminals. A reviewer should
-re-derive it, test the induction beyond `m = 2` and beyond the group sizes
-the script tried (1, 2, 4), and decide whether the third condition (`cw ≠ 0`)
-is refused on every path or only on the ones cited. It also leans on the
-lemma's reduction, whose correctness is one of **that** lemma's RELIES-ON
-rows.
+**Q0 [CLOSED by the independent review of the terminals step,
+`ZK60_TERMINAL_SURJECTION_REVIEW.md`, evidence
+`results/zk60_terminal_surjection_review/`; ruling J-2 as resolved, 03:49,
+2026-09-20]** — the per-group surjection of §4.3 was supplied by the check
+itself and, when Q0 was written, verified only by the check's own script.
+The review re-derived it with its own exact rank code and answered the three
+things Q0 asked: (a) **`cw ≠ 0` needs no refusal** — it is an unconditional
+public fact, `cw` summing to 1 or to `len` at every point, so `cw = 0` has
+probability zero (§4.3, change R-2); (b) **`λ_c ≠ 0` is demoted** — it is not
+a condition of the step at all, and its refusal is a soundness refusal
+(change R-1); (c) **the pair shape `(cm_c, cm_c·U)` is promoted** — it, and
+not `cm_c ≠ 0` alone, is the condition that carries the conclusion (change
+R-1). The `m = 2` induction is replaced by an annihilator proof exact for
+every `m` (R-3), the statement is now joint rather than per claim (R-4), and
+`H`'s shared zero-sum pair is recorded as an exception (R-5). The step still
+leans on the lemma's reduction, whose correctness is one of **that** lemma's
+RELIES-ON rows — with the individual claims now added to it as a proved step
+(`ZK60_GENERIC_RANK_LEMMA.md` §3.2, R-6).
+
+**Q0′ — what that review did not check, and is owed next.** In the review's
+own words: **the hash layer** (salts, Merkle paths, leaf digests, the
+Fiat–Shamir lift — everything there is a statement about field values at
+fixed challenges); **the masking commitment `M`**, whose opening is Lemma 3.1
+/ Theorem 3.3 territory and a different shape; **cross-role independence**,
+which it assumed as condition O-2 rather than re-verifying; **every shape but
+the toy block and the toy attention component** — the structural facts are
+enforced by code that runs on every profile, but the numbers are the four
+captures of 2026-09-19 at those receipts' challenges; **the captured
+challenges themselves**, taken from the captures rather than replayed through
+BLAKE3 (they are tied together by the verifier's identity
+`⟨v, cw⟩ = Σ λ y`, recomputed with 0 failures on all sixteen role-captures, and
+a transcript replay is what `scripts/zk60_native_joint_view.py` stage 1 does);
+**whether the sampler as printed computes the right `θ`-order** (correction
+C-1, out of that review's scope); and **`k0 = 0` on the group generators**,
+which is the accepted lemma's own result. The gate-side item is change R-8:
+the joint-view gate's small model has one group per claim, so the
+`λ`-batched multi-member case has never been machine-validated inside the
+gate.
 
 **Q1 [CLOSED by the check — settled by reading all 23 closures; no symbolic
 check is owed, condition O-1's Rust guard is] — the completeness premise
@@ -1838,7 +2003,7 @@ on or assumed. **RELIES ON** = a named, cited fact not re-derived here.
 | 16 | integer-range side information (privacy-case item 20) is discharged at the field layer | 3.3 | mixed — conditional on the whole stack; the field layer only |
 | 17 | **Lemma 4.1**: `dim(F ∩ T) = 0` ⟺ the linear view's law is data-independent; and the general form | 4.1 | PROVED HERE (unconditional) |
 | 18 | the matrix for the joint statement is the `100 × 358` joint non-data block | 4.2 | **ILLUSTRATION / unnecessary** (demotion): the joint statement follows from independence, not from that rank |
-| 19 | across slots *inside* one commitment is the same matrix, covered by the accepted lemma | 4.2 | RELIES ON (`ZK60_GENERIC_RANK_LEMMA.md` §3.2) **plus a step the lemma does not contain**, supplied in §4.3 |
+| 19 | across slots *inside* one commitment is the same matrix, covered by the accepted lemma | 4.2 | RELIES ON (`ZK60_GENERIC_RANK_LEMMA.md` §3.2, whose reduction now includes the individual claims as its Step 7, added 2026-09-20 from the independent review; the step is also written out in §4.3 here) — label unchanged, wording corrected by the security owner |
 | 20 | **Proposition 4.2**: block diagonality ⟹ joint rank = sum, so `k0_joint = 0` | 4.2 | PROVED HERE given row 21, **superseded** by Proposition 4.2′ |
 | 21 | **cross-role blinding independence** — no blinding source shared between commitments (the draft's "block diagonality", restated) | 4.2 | **RESTATED and promoted from GAP**: **VERIFIED IN THE CODE** for the toy block + M-3; still not machine-asserted (condition O-2) |
 | 22 | "the pad halves are determined by the opened columns" is exact only for distinct indices | 4.2 | **RESOLVED as to Q7's own worry → a correction of the prose** (promotion); the reduction's correctness as a whole stays the **lemma's** RELIES ON row |
@@ -1852,7 +2017,7 @@ on or assumed. **RELIES ON** = a named, cited fact not re-derived here.
 | 30 | the 125M profile and the development rung | 6.4 | **GAP** — owed again from the start (ruling G-2) |
 | 31 | the hash layer beyond (H6); D8/D11; the ROM composition with soundness | 6.1, 6.5 | **GAP** |
 | 32 | the toy enumerations | 7 | **ILLUSTRATION** — and experiment A contains no `M` object, so it does not illustrate the composition; the check's G1 and G7 supply it (§7.3) |
-| 33 | *(new)* the 173 individual terminals add nothing beyond the group vector and one public identity | 4.3 | **PROVED**, on `λ ≠ 0`, `cm ≠ 0`, `cw ≠ 0` — **supplied by the independent check; verified by its script; not independently reviewed** |
+| 33 | *(new)* the 173 individual terminals add nothing beyond the group vector and one public identity | 4.3 | **PROVED**, on the pair shape `(cm, cm·U)` with `cm ≠ 0`, the pair exclusive to its claim and its group, and `cw ≠ 0` (a theorem, not a refusal) — **independently reviewed and corrected (2026-09-20), `ZK60_TERMINAL_SURJECTION_REVIEW.md`**: conditions restated, joint form, `H` exception; proved for every group of the four captures and 2,040 further challenge vectors (`results/zk60_terminal_surjection_review/`). Not a privacy acceptance |
 | 34 | *(new)* no restart exists; the endpoints cannot be opened twice | 5.4 | **VERIFIED IN THE CODE** |
 | 35 | *(new)* no challenge query can coincide with a node, leaf or absorb query | 5.2 | **PROVED** (the check's, by input length) |
 
@@ -1879,8 +2044,10 @@ promotions**, each with a proof or a reading written above: rows 1, 5, 9,
 
 > **Exactly six rows are unconditional**: 4, 5, 13, 17, 33 and 35 — and two
 > of those (33 and 35) are the independent check's rather than this memo's,
-> with **33 reviewed by nobody**. Every other proved row stands on at least
-> one row that is relied on, assumed, or established only by reading.
+> with **33 independently reviewed and corrected on 2026-09-20** (its
+> conditions restated, its proof replaced, `H`'s exception recorded). Every
+> other proved row stands on at least one row that is relied on, assumed, or
+> established only by reading.
 
 **The two gaps, named.** (30) **every shape other than the two toy
 layouts** — owed again from the start (ruling G-2, condition O-5). (31)
@@ -1898,8 +2065,9 @@ blinding-disjointness assertion).
 > It has now been independently checked and the theorem's **core** accepted
 > for the toy block in the uniform-blinding idealisation — which is not a
 > privacy acceptance: two gaps remain (the hash layer and every other
-> shape), one step was supplied by the check and has been reviewed by
-> nobody, and the real prover is not the idealised one (§3.3's remark).
+> shape), one step was supplied by the check and has since been
+> independently reviewed and corrected, with its own list of unchecked items
+> (§8, Q0′), and the real prover is not the idealised one (§3.3's remark).
 
 
 
@@ -1966,6 +2134,14 @@ C-1 … C-14 and the conditions O-1 … O-7 of
 those two documents establish, no label was strengthened beyond the check's,
 and no evidence file was edited.
 
+A **second pass, later on 2026-09-20**, applied changes R-1 … R-7 of
+`ZK60_TERMINAL_SURJECTION_REVIEW.md` — the independent review of the
+terminals step — as accepted by ruling J-2 as resolved (03:49) in
+`ZK60_JOINT_LAW_COMPOSITION_DISPOSITION.md`. Those rows are at the end of the
+table. R-8 is a test-side change to the joint-view gate's small model and is
+not made in this memo. No proof byte changes and no new refusal follows from
+any of them.
+
 | Item | Section(s) changed | What changed |
 |---|---|---|
 | B-1 / C-1 / J-1 | §1.3, §3.1, §3.4 step 3, §9 rows 1 and 15 | the declared functional order written out — interleaved per slot, a Standalone's `Γ` immediately before that slot's `eval`, the six host `Γ`s last (`private_block/argument.rs:361-376`, `:924-925`) — the sampler's step 3 rewritten in it, and the order recorded as part of the public data the sampler needs and as something a layout change must not reorder silently |
@@ -1998,6 +2174,13 @@ and no evidence file was edited.
 | The toy enumeration | new §7.3 | the check's controls and their results added — G1 and G7 (SAME), G4/G5 (identical marginals, different joint law: the new instance of the marginal-versus-joint trap and the counterexample behind "one reserved pair per claim site"), G2 (refuting RESULT 4), G3, and G6/G6′ (cyclic hosting). No evidence file was edited |
 | Status line | header | replaced with the text ruling J-5's disposition requires |
 | §0 and §9 prose | §0 "What must not be read into it", §9 closing paragraph | "it has not been independently checked" corrected — it has been, the theorem's core is accepted in the uniform-blinding idealisation, and one step was supplied by the check and reviewed by nobody |
+| R-1 | §4.3, the quoted block (the conditions), §9 row 33 | the three conditions replaced: the reserved pair's weight **shape** `(cm_c, cm_c·U)` with `cm_c ≠ 0` (`argument.rs:232-234`) and pair exclusivity across claims *and* groups (`audit_claims:118-122`, `:129-131`) are what the step needs; `cm_c ≠ 0` is kept as what the code refuses on, with both refusal sites cited on both the prover and the verifier path; `λ_c ≠ 0` is dropped from the conditions and re-filed as a **soundness** refusal, with the recomputed disclosure of 0 `Fp` at `λ_c = 0` |
+| R-2 | §4.3, the `cw ≠ 0` sentence | "the check records this one as given by a refusal too, but does not pin it to a line" withdrawn and replaced by the proof: `zkey_weights` (`pcs.rs:794-807`) gives all-ones (sum `len`) or the equality tensor `eq_table_msb` (`mle.rs:13-51`, sum exactly 1 at every point), so `cw = 0` has probability zero — no refusal, no residual |
+| R-3 | §4.3, the proof | the `m = 2` induction replaced by the review's annihilator proof, exact for every group size `m`, with the rank stated as `2(256 + m) − 2` over `Fp` |
+| R-4 | §4.3, new paragraph before the label | what the step does **not** give on its own written down: one group's message half only; the joint statement additionally needs cross-group pair disjointness, the exclusive proximity pair with `wedge ≠ 0`, and the lemma's `H-pad` (load-bearing: one opened position beyond the pad budget discloses 2 `Fp` the message-half reduction misses); and it covers neither the hash layer, nor `M`, nor cross-role independence, nor any shape but the two toy ones |
+| R-5 | §4.3, new paragraph before the label (and `ZK60_GENERIC_RANK_LEMMA.md` §3.3) | `H`'s exception recorded: two opening groups share the zero-sum pair, so the per-group decomposition is invalid there; ranked jointly the disclosure is 2 `Fp` and equals the public LogUp identity by span equality on all four captures; why this one sharing is sound (the claims are tied by the public identity) while sharing a pair between two ordinary terminals is not — the reproduced counterexample, marginals rank 2 each, the joint dropping 4 to 2 and moving with the data |
+| R-7 | §4.3 label, §8 Q0 (and new Q0′), §9 row 33 and tally note, §0, status line, Corollary 5.1 | the step's label relabelled to "independently reviewed and corrected (2026-09-20), `ZK60_TERMINAL_SURJECTION_REVIEW.md`" with the evidence directory cited and "not a privacy acceptance" kept; Q0 closed with its three answers (the `cw` proof, the `λ` demotion, the `(cm, cm·U)` promotion) and replaced by Q0′, the review's own "not checked" list; the numerical confirmation recorded where the step's evidence is cited (own rank code importing nothing from the project's tools; every group of `A`, `H`, `Input`, `Output` on all four captures; rank `2(256 + m) − 2`; disclosed 0 `Fp` except the one `H` group at 2 `Fp`; 2,040 fresh and adversarial challenge vectors, no failure; the pad block 246 × 256 of rank 246; and the control that fired against the reviewer's own reduction, from which the pad count and the number of opened columns move together) |
+| Invariants of §4 | §4.3, end | a short list added of what an implementer must not weaken in this section — the pair-shape condition first, then pair exclusivity with `H`'s documented exception, the two `cm ≠ 0` refusals, and the pad budget; `λ_c ≠ 0` explicitly not on it for privacy |
 
 Items that needed no change: none of the adjudicated items was left
 unapplied. Remarks of the check that are not in its errata tables were not

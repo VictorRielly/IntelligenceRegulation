@@ -670,9 +670,78 @@ and is visible as a changed root.
 **RELIES ON** those three call sites, the verifier-side re-runs above, and
 the single-attempt semantics.
 
+**Step 7 (the individual claim values collapse into the group combinations;
+the review's "Step 6" of this reduction, change R-6).** §1.1 puts **each
+claim value** into the observation space `F`, and §1.2 asserts, as part of
+the reduction, that under H-pair the claim values collapse into the group
+combinations — but the generators of `P1` are only the `2(G+1)` real and
+imaginary parts of the group and proximity combinations (§1.3), so that
+collapse was a silent assumption. It is a step of the reduction, and this is
+its proof, taken from the independent review of the terminal-surjection step
+(`ZK60_TERMINAL_SURJECTION_REVIEW.md` §1.4, 2026-09-20). It widens the
+**reduction** only; the good event of §1.3 (the `g x g` minor) is unchanged,
+and so is every label in §3.8.
+
+Fix one group `g` with member claims `c = 1..m` and shared column weights
+`cw`. `cw != 0` is a theorem and not a refusal: `zkey_weights`
+(`pcs.rs:794-807`) returns either all ones on `1 <= len <= 256` positions,
+summing to `len`, or the equality tensor `eq_table_msb(tail)`
+(`mle.rs:13-51`), whose construction splits each entry `e` into
+`(e(1-r), e r)` and so keeps the total equal to 1 at **every** point; a
+vector summing to 1 or to `len` is not zero, and `cw = 0` has probability
+zero. By Steps 1 and 2 each claim's reserved pair contributes
+`P_c = msg_{r_c} + U msg_{r_c+1}`, ranging over the whole of `Fp2^256`
+because the pair's two coefficients are `(cm_c, cm_c U)`, an Fp-basis of
+Fp2, with `cm_c != 0` by Step 6. By Step 3 the group vector's message half
+is `v = D + sum_c lambda_c cm_c P_c`, the published claim values are
+`y_c = d_c + cm_c <P_c, cw>`, and the verifier's own check ties them:
+`<v, cw> = sum_c lambda_c y_c` (`verify_zk`, `pcs.rs:970-979`).
+
+The image of `(P_c)_c -> (v, y)` is spanned by the vectors
+`T_{c,j} = lambda_c cm_c e_{v_j} + cw_j cm_c e_{y_c}`, one per member `c` and
+column `j`, each with at most two non-zero coordinates. A functional `phi`
+annihilates all of them iff `lambda_c phi(v_j) + cw_j phi(y_c) = 0` for every
+`c, j` (divide by `cm_c != 0`). Pick any `j` with `cw_j != 0` — one exists
+because `cw != 0`: then `phi(y_c) = -lambda_c phi(v_j)/cw_j`; comparing two
+such `j, j'` forces `phi(v_j)/cw_j = phi(v_{j'})/cw_{j'}`; and at a `j` with
+`cw_j = 0` the relation is `lambda_c phi(v_j) = 0`. So as soon as some
+`lambda_c != 0`, the annihilator is the single line
+`phi = t (cw_j on v_j, -lambda_c on y_c)` — the verifier's identity — and the
+image is precisely its kernel. If every `lambda_c = 0` then `rho_g = 0`, the
+group vector is identically zero, and the image is all of `Fp2^m` in the
+claim values. In both cases the data contributions lie in the image, because
+`rho_g = sum_c lambda_c rw_c` (Step 3) makes `<D, cw> = sum_c lambda_c d_c`.
+Hence **the `m` individual claim values add nothing to `F intersect T`
+beyond the group combination and that one public identity**, at every group
+size `m`, the rank of the group's system being exactly `2(256 + m) - 2` over
+Fp. **PROVED HERE**, on Steps 1-4 and on `cm_c != 0` from Step 6. Note that
+`lambda_c != 0` is **not** needed for this step, and that what is needed is
+the pair's `(cm_c, cm_c U)` **shape**, not merely `cm_c != 0`: with
+Fp-dependent pair weights a singleton group discloses 256 Fp.
+
+Checked at the real schedule by the review's own exact rank code, which
+imports nothing from the project's tools: every group of A, H, Input and
+Output on all four captures (group sizes up to 35 members at 256 columns),
+rank `2(256 + m) - 2` exactly, disclosed 0 Fp — except H's one group at
+2 Fp, the public LogUp identity (§3.3) — and 2,040 fresh and adversarial
+challenge vectors with no failure (`results/zk60_terminal_surjection_review/`).
+The review also validated the message-half reduction against brute force on
+its own small model, where a control fired: **one opened position beyond the
+pad budget discloses 2 Fp that the message-half reduction does not see**, so
+this step stands on H-pad (§3.4) and on the standing condition that the pad
+count and Q move together.
+
+**The exception, stated here and recorded in §3.3 (change R-5).** Taking the
+groups one at a time needs the reserved pairs to be disjoint **across
+groups**, not only across claims. That holds on A and on both endpoints; on
+**H it fails** — two opening groups share the zero-sum pair — and there the
+two groups must be ranked as one system.
+
 **Conclusion of §3.2.** On a non-refused run the chosen minor is non-zero,
-so the non-data block has full row rank `g = 2(G+1)`, so `k0 = 0` (§1.3).
-**PROVED HERE**, conditional on the RELIES ON items.
+so the non-data block has full row rank `g = 2(G+1)`, so `k0 = 0` (§1.3);
+and by Step 7 the individual claim values add nothing beyond the group
+combinations and one public identity per group, with H's shared pair as the
+documented exception. **PROVED HERE**, conditional on the RELIES ON items.
 
 **Which refusals are necessary, measured on the real schedules (B-4, ruling
 G-4).** The zero-mask-challenge refusal is **exactly necessary, not
@@ -784,6 +853,34 @@ check confirmed it at fresh challenges: the solved u-row combination uses
 **only** generators `{16, 17}` on block H and `{14, 15}` on attention H,
 i.e. the Re/Im pair of the sum claim's own singleton group. The tool already
 documents this case (`zk60_native_jv_pcs.py:377-380`).
+
+**H's exception to the per-group decomposition (change R-5, 2026-09-20).**
+The two claims just described are in **different opening groups**, and they
+both touch the zero-sum rows: the `zsum` slot's claim *evaluates* them and
+the LogUp sum claim is *masked* by them. So on H — and only on H — the
+reserved pairs are **not** disjoint across groups, and the per-group form of
+Step 7 of §3.2 does not apply there; A, Input and Output are disjoint on
+every capture. The independent review of the terminal-surjection step redid
+H as connected components of "two groups share a non-data row" and ranked
+the shared component `{7, 8}` (block) / `{6, 7}` (attention) as **one**
+system: 1,028 Fp observations, blinding rank 1,022, with the data 1,024, so
+**disclosed 2 Fp** — the same number as the per-group sum, and the same as
+steps 1-5 above give. It also computed the left null space of the
+component's blinding block, pushed it through the data block and compared
+spans with the sum claim's own data-row weights:
+`rank(disclosed) = rank(public identity) = rank(both together) = 2` on all
+four captures. **So the 2 Fp is the public LogUp identity, and it is the
+joint computation that establishes it, not the per-group argument**
+(`ZK60_TERMINAL_SURJECTION_REVIEW.md` §3.4, evidence
+`results/zk60_terminal_surjection_review/ts_components.py`,
+`ts_addendum.py` A1). This is the one deliberate exception to "one reserved
+pair per claim site" and it is sound **only** because the two groups' claims
+are tied by that public identity: two *ordinary* terminals sharing a pair is
+the counterexample `audit_claims` forbids — the review reproduced it at the
+real scale on A, where both marginals stay fully blinded (rank 2 each) while
+the joint rank of the two terminals drops from 4 to 2 and returns to 4 with
+the data added, i.e. the joint law moves with the witness although neither
+marginal does.
 
 **Why the tool adds 2 and not `256 * 2` — the reduction step (condition
 O-2).** `_disclosed` adds `u_dim` (2), not `256 * u_dim`, to `disclosed`
@@ -1414,6 +1511,13 @@ conditions of `ZK60_GENERIC_RANK_LEMMA_CHECK.md` and the rulings G-1 … G-5
 of `ZK60_GENERIC_RANK_LEMMA_DISPOSITION.md`. No claim was added beyond what
 those two documents establish; no evidence file was edited.
 
+A **second pass, later on 2026-09-20**, applied changes R-5 and R-6 of
+`ZK60_TERMINAL_SURJECTION_REVIEW.md` — the independent review of the
+terminal-surjection step — as accepted by ruling J-2 as resolved (03:49) in
+`ZK60_JOINT_LAW_COMPOSITION_DISPOSITION.md`. They widen the **reduction** of
+§1.2; the lemma's statement, its good event and the labels of §3.8 are
+unchanged, and no proof byte and no refusal changes.
+
 | Item | Section(s) changed | What changed |
 |---|---|---|
 | B-1 | §3.1, §3.3, §3.8 row 9, §4 item 6, §6 item 3 | the enabling hypothesis ("every H plane's `log_size` on one side of `LOG_N`") is now stated, with the 125M/rung citations and the refusal string; §3.3 is flagged as being about a claim that cannot be formed there until the P-3 repair |
@@ -1443,6 +1547,8 @@ those two documents establish; no evidence file was edited.
 | G-5 | new §3.9 | "What this lets the privacy case say": seven linear-channel steps may be re-labelled PROVED-CONDITIONAL for the two toy layouts, under the three named conditions; the joint statement stays not computed |
 | Evidence of record | §0, §3.2 step 5, §3.8 row 4, §7 | the check's runs on the real claim schedules (48 uniform + 78 adversarial vectors, zero mismatches, ranks 72/20/4/4 and 62/18/4/4) recorded as the confirmation of record; `pair_block_identity.py` marked superseded for that purpose (its identity checks stand) |
 | Status line | header | replaced with the revised-after-check status required by the disposition |
+| R-6 | §3.2 (new step after step 6; the existing step 6 keeps its number, so the new one is numbered 7), §3.2 conclusion | the collapse of the **individual claim values** into the group combinations — assumed silently by the reduction of §1.2 — is added as a proved step of the reduction, with the review's annihilator proof (image spanned by two-support vectors, annihilator exactly the verifier's identity line, rank `2(256 + m) - 2` for every `m`), its dependence on the `(cm, cm U)` pair shape and on H-pad, the note that `lambda != 0` is not needed for it, and the review's numbers at the real schedule (every group of A, H, Input and Output on all four captures, disclosed 0 Fp except H's one group at 2 Fp, 2,040 further challenge vectors with no failure). The lemma's good event and §3.8's labels are untouched |
+| R-5 | §3.3 (new paragraph after correction C-2's), §3.2 (the exception note at the end of the new step) | H's exception recorded: the two claims that touch the zero-sum rows sit in **different opening groups**, so on H the reserved pairs are not disjoint across groups and the per-group form does not apply; ranked jointly the component gives blinding rank 1,022 of 1,024 with data, i.e. 2 Fp disclosed, and span equality shows those 2 Fp are the public LogUp identity on all four captures; why this one sharing is sound (the claims are tied by the public identity) while two ordinary terminals sharing a pair is the forbidden counterexample, reproduced at the real scale on A |
 
 Items that needed no change: none of the adjudicated items was left
 unapplied. The check's suggestions that are not in its errata tables (for
