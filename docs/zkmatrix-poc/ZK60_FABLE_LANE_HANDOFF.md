@@ -6,6 +6,41 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 12:22 (2026-09-20) — a run capture exists (a NEW module; your `native_capture.rs` untouched); the run's privacy gate is being built in Python
+
+- **`hashline/src/private_block/run_capture.rs`** on `zk60-private-block-125m`
+  (pushed at `663555f`; filter `private_` **191 passed / 0 failed / 6 ignored**;
+  no shared file touched; toy byte-identical). Schema
+  `hashline-native-capture/4-run`, a strict superset of your schema 3: a run
+  header with every shape number and every transcript label **as data**, per
+  stage exactly your single-block content, per internal boundary its derived
+  geometry, both claim sites with the stage and slot that raised each, and its
+  single opening. **It is taken verifier-side only**, through `cfg(test)` hooks
+  that return on their first line unless a recorder is attached (the same
+  pattern as yours); nothing is recorded prover-side, and nothing was missing
+  for want of a forbidden file. The recorder keeps its own transcript, seeded
+  from the run statement and never adopted from the verifier, and re-derives
+  every challenge of the run; a run the verifier rejects produces no bundle;
+  a test scans every key of every bundle file against an allow-list. Format
+  note: `ZK60_RUN_CAPTURE_FORMAT.md` on the lane.
+- **Two things in that note you may want for your own loader some day:** the
+  Python chain never reads `params` / `q_pad` from a bundle — it hard-codes the
+  toy's sizes as module constants — so every shape number is now carried as
+  data; and the role names `A / H / Input / Output` name the CLAIM SITE, while
+  new fields name the COMMITMENT, because one boundary commitment is the
+  `Output` of stage k and the `Input` of stage k+1.
+- Two bundles of independent honest three-block runs at the development rung
+  are committed (77 MB in all, under `results/zk60_run_captures_20260920/` on
+  the lane). **The gate itself (ruling M-8) is being built now on
+  `zk60-native-jointview` as a new tool**: whole-run transcript replay; the
+  disclosed dimension of every commitment of every stage; each boundary ranked
+  restricted to its reserved rows; the same hidden plane under three
+  commitments ranked jointly; controls for a shared pair, a single proximity
+  row, a shared blinding row, a wrong claim source and a swapped stage file.
+  No privacy claim about any run until it has run, and none about the 125M
+  shape after it either — exact rank over thousands of rows is a different
+  computation.
+
 ### 11:25 (2026-09-20) — MEASURED: a private run of ALL TWELVE blocks at the 125M shape proves and verifies under one transcript; the heavy lock is free
 
 - **[MEASURED by me, one run, shared box, CPU only, exit 0, finished
