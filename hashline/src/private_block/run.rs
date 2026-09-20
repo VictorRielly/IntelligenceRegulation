@@ -131,7 +131,25 @@ impl RunStatement {
             return Err(format!("private run: the run's external scales ({first}, {last}) are not the endpoint policy's ({}, {})", expected.spec.input_scale(), expected.spec.output_scale()));
         }
         let boundary_scales: Vec<i32> = (0..rs.l - 1).map(|k| block_scales[k].1).collect();
-        Ok(RunStatement { rs, expected, block_digests: blocks.iter().map(|b| b.digest()).collect(), context, boundary_scales, calibration: super::calibration_identity() })
+        let st = RunStatement { rs, expected, block_digests: blocks.iter().map(|b| b.digest()).collect(), context, boundary_scales, calibration: super::calibration_identity() };
+        // **STAGE 16, ruling T-3.** `Layout::for_shape` has already checked
+        // `A`, `H`, `M` and the external endpoint against the BLOCK's set of
+        // hash-input lengths. A run absorbs one word no block does — its own
+        // `parameters` line, whose length moves with `L` — and it commits one
+        // thing no block does, an internal boundary. Both are checked here,
+        // against the run's OWN set, before the statement can prove anything.
+        // At 125M with twelve blocks the run's line is about 247 bytes, which
+        // puts its absorb within a few bytes of the boundary's 304-byte
+        // column; that is why this check is at the run and not at the shape.
+        let line = st.parameter_line()?;
+        let set = super::hash_domain::at_shape_with(&st.rs.sh, Some(line.as_str()));
+        let lay = Layout::for_shape(&st.rs.sh)?;
+        let mut commitments = vec![("A", lay.a_rows), ("H", lay.h_rows), ("M", super::layout::M_ROWS), ("external endpoint", st.rs.sh.endpoint_rows)];
+        if st.rs.l > 1 {
+            commitments.push(("internal boundary", st.boundary_spec(0)?.commitment_rows()));
+        }
+        set.refuse(&commitments)?;
+        Ok(st)
     }
 
     /// TEST ONLY. The run header absorbs ONE calibration identity covering
@@ -536,7 +554,7 @@ impl<'a> RunVerifier<'a> {
         protocol::fits_the_ntt_tables(sh)?;
         st.expected.spec.validate()?;
         let ntt = NttTables::new(st.rs.ntt_log());
-        let e_params = PcsParams { log_cols: sh.endpoint_log_n as u32, inv_rate: sh.endpoint_inv_rate, num_col_checks: sh.opened_cols };
+        let e_params = protocol::endpoint_pcs_params(sh);
         let e_zko = ZkOpts::standard(&e_params);
         let mut tr = st.transcript()?;
         let binding = tr.state();
@@ -554,6 +572,14 @@ impl<'a> RunVerifier<'a> {
         let lay = st.stage_layout(k)?;
         let start_tag = position_tag(&self.tr);
         let (seg, end_tag) = wire::decode_segment(bytes, &lay, st.seg_geom(k)?, &self.binding, &start_tag)?;
+        // **STAGE 16, ruling T-4.** Every opened column's Merkle path has
+        // exactly its commitment's tree depth, checked HERE — before a byte
+        // of this stage is hashed — and not left to be an accident of the
+        // frame format. `pcs::verify_zk` folds however many siblings it is
+        // handed, and a Merkle inner node is the same 64-byte hash as a
+        // salted leaf, so a path one entry short is a way to present a node
+        // as a leaf. `wire::path_len` is the one source of both numbers.
+        super::hash_domain::segment_paths_are_the_tree_depth(&seg, sh)?;
         // STAGE 14: the run capture opens this stage. A no-op unless a
         // recorder is attached; it is handed what the verifier already holds
         // and returns nothing, so no branch below can depend on it.

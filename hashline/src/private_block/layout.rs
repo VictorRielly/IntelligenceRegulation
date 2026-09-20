@@ -921,19 +921,24 @@ pub(crate) fn rows_of(log: usize) -> usize {
 
 /// **CODE CONDITION C-H4** of the hash-layer disposition, pinned here because
 /// this is the one place every commitment of the block path declares its row
-/// count. A committed column is hashed as `8 * rows` bytes, and the two hash
-/// inputs that must never be ambiguous with a column are the 40-byte
-/// randomness-refill block and the 64-byte internal Merkle node — so no
-/// commitment may have 5 or 8 rows. The condition is checked for EVERY shape
-/// at construction, before a byte is committed, and it changes no proof byte:
-/// the toy's counts are 455, 384, 50 and 7.
+/// count. A committed column is hashed as `8 * rows` bytes, and no other hash
+/// input on the path may have that length, or the two are ambiguous — every
+/// hash in this system is an untagged blake3, so LENGTH is the whole of the
+/// domain separation. The condition is checked at construction for EVERY
+/// shape, before a byte is committed, and it changes no proof byte: the toy's
+/// counts are 455, 384, 50 and 7, all clear.
+///
+/// **STAGE 16, ruling T-3.** This used to be the hard-coded pair `{5, 8}` —
+/// the 40-byte randomness-refill block and the 64-byte internal Merkle node —
+/// and that set was INCOMPLETE: with today's labels 11, 12, 13, 15, 17 and 19
+/// rows are dangerous too. The whole set is computed from the shape now, in
+/// [`super::hash_domain`], and this function is the SHAPE-FREE part of it,
+/// which is what the two statement constructors that hold no profile string
+/// ([`super::endpoint_g::EndpointSpecG::new`] and
+/// [`super::boundary::BoundarySpec::new`]) can check for themselves.
+/// [`Layout::for_shape`] uses the full, shape-driven set.
 pub(crate) fn no_commitment_has_a_node_shaped_column(rows: &[(&str, usize)]) -> Result<(), String> {
-    for (what, r) in rows {
-        if *r == 5 || *r == 8 {
-            return Err(format!("private block: the {what} commitment has {r} rows, whose column hashes to {} bytes (C-H4)", 8 * r));
-        }
-    }
-    Ok(())
+    super::hash_domain::shape_free().refuse(rows)
 }
 
 pub(crate) struct Layout {
@@ -1043,7 +1048,13 @@ impl Layout {
         let h_mask_base = h_data_rows;
         let h_prox = h_mask_base + 2 * h_prefix[N_SLOTS];
         let h_rows = h_prox + 2;
-        no_commitment_has_a_node_shaped_column(&[("A", a_rows), ("H", h_rows), ("M", M_ROWS), ("endpoint", sh.endpoint_rows)])?;
+        // **C-H4 / T-3, at the FULL shape-driven set.** The shape-free set
+        // above is what a bare statement constructor can check; here the
+        // profile string and the geometry are both in hand, so the profile's
+        // transcript constructor length and its clear-vector lengths are in
+        // the set too (6 rows is dangerous at 125M and 7 at the frozen-seam
+        // rung, and neither is visible without the profile).
+        super::hash_domain::at_shape(sh).refuse(&[("A", a_rows), ("H", h_rows), ("M", M_ROWS), ("endpoint", sh.endpoint_rows)])?;
         Ok(Layout {
             a_off,
             a_data_rows,

@@ -236,9 +236,19 @@ mod tests {
         assert!(SeamSpec::new(ctx(), 32, 128, 0, 41, 42).is_ok(), "the padded rung plane is the frozen seam's ceiling");
         // and 125M's plane is refused too
         assert!(SeamSpec::new(ctx(), 512, 1024, 0, 41, 42).is_err(), "125M's endpoint plane must be refused by the frozen seam");
-        // the generalised endpoint accepts all three
+        // the generalised endpoint accepts all three.
+        //
+        // **STAGE 16 (ruling T-3).** The row width is 2^11 here and was 2^10.
+        // At 2^10 the 8,192-word plane gives `8 + MASK_ROWS = 13` commitment
+        // rows, whose column hashes to 104 bytes — the length of a degree-2
+        // `sc-round` absorb — and the COMPLETED C-H4 refuses it. That is a
+        // real refusal of a real geometry, not a test artefact, so it is
+        // asserted here rather than dodged silently; the three planes are
+        // then accepted at a width that clears the set.
+        let e = EndpointSpecG::new(ctx(), 64, 128, 0, 41, 42, 10, 4, 256).expect_err("a 13-row endpoint must be refused by the completed C-H4");
+        assert!(e.contains("C-H4") && e.contains("104 bytes") && e.contains("sc-round"), "the completed C-H4 refusal: {e}");
         for (r, c) in [(64usize, 128usize), (32, 128), (512, 1024)] {
-            EndpointSpecG::new(ctx(), r, c, 0, 41, 42, 10, 4, 256).unwrap_or_else(|e| panic!("({r}, {c}): {e}"));
+            EndpointSpecG::new(ctx(), r, c, 0, 41, 42, 11, 4, 256).unwrap_or_else(|e| panic!("({r}, {c}): {e}"));
         }
     }
 
@@ -267,7 +277,10 @@ mod tests {
             ("plane rows", EndpointSpecG::new(ctx(), 64, 64, 0, 41, 42, 10, 4, 256)),
             ("scale", EndpointSpecG::new(ctx(), 32, 128, 1, 41, 42, 10, 4, 256)),
             ("slots", EndpointSpecG::new(ctx(), 32, 128, 0, 43, 44, 10, 4, 256)),
-            ("row width", EndpointSpecG::new(ctx(), 32, 128, 0, 41, 42, 9, 4, 256)),
+            // STAGE 16 (T-3): the neighbouring width is 2^11 and was 2^9,
+            // because 2^9 gives 13 commitment rows and the completed C-H4
+            // refuses that column length (104 bytes, a degree-2 `sc-round`).
+            ("row width", EndpointSpecG::new(ctx(), 32, 128, 0, 41, 42, 11, 4, 256)),
             ("inverse rate", EndpointSpecG::new(ctx(), 32, 128, 0, 41, 42, 10, 2, 256)),
             ("opened columns", EndpointSpecG::new(ctx(), 32, 128, 0, 41, 42, 10, 4, 128)),
         ];
@@ -293,6 +306,17 @@ mod tests {
         }
     }
 
+    /// **CORRECTED BY STAGE 16 (ruling T-3): the second sentence below is no
+    /// longer true.** C-H4 forbids more than 5 and 8 rows now — the whole set
+    /// of hash-input lengths on the profile's path — and the reachable row
+    /// counts of this construction are `2^k + MASK_ROWS`, i.e. 6, 7, 9, 13,
+    /// 21, 37, ... Of those, **13 is refused at every profile** (its column
+    /// is 104 bytes, a degree-2 `sc-round` absorb), **6 is refused at the
+    /// 125M profile** and **7 at the frozen-seam rung** (their transcript
+    /// constructors). So the refusal is reachable, and two tests above now
+    /// exercise it on real geometries. The assertions below are unchanged and
+    /// still hold: 5 and 8 in particular remain unreachable.
+    ///
     /// **FINDING S11b-F2, as a test.** The C-H4 refusal (no commitment whose
     /// column hashes to 40 or 64 bytes, i.e. 5 or 8 rows) is checked by
     /// `EndpointSpecG::new` and can NEVER fire for this construction: the
@@ -364,7 +388,9 @@ mod tests {
         for (what, other) in [
             ("the output endpoint's slots", EndpointSpecG::new(ctx(), 32, 128, 0, 43, 44, 10, 4, 256)),
             ("another context", EndpointSpecG::new([3u8; 32], 32, 128, 0, 41, 42, 10, 4, 256)),
-            ("another row width", EndpointSpecG::new(ctx(), 32, 128, 0, 41, 42, 9, 4, 256)),
+            // STAGE 16 (T-3): 2^11, not 2^9 — see the note in
+            // `the_digest_is_its_own_and_moves_with_every_parameter`
+            ("another row width", EndpointSpecG::new(ctx(), 32, 128, 0, 41, 42, 11, 4, 256)),
         ] {
             let p = prepare(&spec, &values, &ntt).expect("the owner commits");
             // neither `CommittedZk` nor `PreparedPlaneG` is `Debug` (no data

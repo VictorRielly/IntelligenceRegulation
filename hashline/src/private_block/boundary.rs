@@ -384,7 +384,12 @@ mod tests {
             ("plane axes", BoundarySpec::new(ctx(), 64, 64, 0, 1, 2, 10, 4, 256, 10)),
             ("scale", BoundarySpec::new(ctx(), 32, 128, 1, 1, 2, 10, 4, 256, 10)),
             ("boundary index", BoundarySpec::new(ctx(), 32, 128, 0, 2, 2, 10, 4, 256, 10)),
-            ("claim sites", BoundarySpec::new(ctx(), 32, 128, 0, 1, 3, 10, 4, 256, 12)),
+            // STAGE 16 (T-3): FOUR claim sites, not three. Three gives
+            // `4 + 6 + 2 = 12` commitment rows, whose column hashes to 96
+            // bytes — the length of the `public-statement` absorb — and the
+            // completed C-H4 refuses it. Four gives 14, which is clear, and
+            // still isolates the site count from every other parameter.
+            ("claim sites", BoundarySpec::new(ctx(), 32, 128, 0, 1, 4, 10, 4, 256, 14)),
             ("row width", BoundarySpec::new(ctx(), 32, 128, 0, 1, 2, 9, 4, 256, 14)),
             ("inverse rate", BoundarySpec::new(ctx(), 32, 128, 0, 1, 2, 10, 2, 256, 10)),
             ("opened columns", BoundarySpec::new(ctx(), 32, 128, 0, 1, 2, 10, 4, 128, 10)),

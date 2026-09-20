@@ -826,6 +826,18 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
     let (public, ff) = (blk.attention(), blk.feed_forward());
     let params = pcs_params_at(sh);
     let zko = ZkOpts::standard(&params);
+    // **STAGE 16, ruling T-4.** Before anything of this stage is hashed:
+    // every opened column of the three commitments this body verifies
+    // carries exactly its commitment's tree depth. The core verifier folds
+    // whatever path length it is handed (`zkp-core/src/merkle.rs:56-63`), and
+    // an inner node is the same 64-byte hash as a salted leaf, so the length
+    // is what stops a node being opened as a leaf. This was implicit in
+    // `wire.rs` reading a fixed path count out of the layout; it is a named
+    // check of the verifier now, and it holds for a structure that never
+    // went through a wire.
+    super::hash_domain::paths_are_the_tree_depth("A", &params, v.a_open)?;
+    super::hash_domain::paths_are_the_tree_depth("H", &params, v.h_open)?;
+    super::hash_domain::mask_paths_are_the_tree_depth(v.mask_open)?;
     absorb_root(tr, b"A", &v.a_root, lay.a_rows, sh.log_cols);
     tr.absorb(b"M", &v.mask_root);
     let beta = tr.challenge_fp2();
@@ -931,6 +943,11 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     let mut ph = timing::Phases::start();
     fits_the_ntt_tables(sh)?;
     let lay = Layout::for_shape(sh)?;
+    // **STAGE 16, ruling T-4**, before the frame shape check so that the
+    // refusal a caller sees names the commitment and the two path lengths
+    // rather than being the generic "opening shape". The five commitments of
+    // a block receipt: `A`, `H`, `M` and the two external endpoints.
+    super::hash_domain::receipt_paths_are_the_tree_depth(receipt, sh)?;
     super::wire::validate(receipt, &lay)?;
     // S11b: whichever endpoint construction this profile carries, its
     // statements must be well formed and their geometry the shape's
@@ -949,7 +966,7 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
         h_open: &receipt.h_open,
     };
     let ([ic, oc], order) = verify_core(sh, &lay, blk, view, &ntt, &mut tr, &mut ph)?;
-    let e_params = PcsParams { log_cols: sh.endpoint_log_n as u32, inv_rate: sh.endpoint_inv_rate, num_col_checks: sh.opened_cols };
+    let e_params = endpoint_pcs_params(sh);
     let e_zko = ZkOpts::standard(&e_params);
     for (i, (claims, root)) in [(&ic, expected.input), (&oc, expected.output)].into_iter().enumerate() {
         check_endpoint_opening(claims, sh, &tr)?;

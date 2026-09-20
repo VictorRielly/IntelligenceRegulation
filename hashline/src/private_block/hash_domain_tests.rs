@@ -174,6 +174,34 @@ fn the_runs_own_parameter_line_enters_the_length_set() {
     assert!(with.refuse(&[("internal boundary", len / 8)]).is_err(), "the run's set does not refuse a commitment of that column length");
 }
 
+/// **FINDING S16-F1, as a test.** The completed guard is not decorative: the
+/// generalised endpoint's reachable commitment row counts are
+/// `2^k + MASK_ROWS` = 6, 7, 9, 13, 21, 37, ... and three of them are in the
+/// set. 13 is refused at every profile (its column is 104 bytes, a degree-2
+/// `sc-round` absorb); 6 is refused at the 125M profile and 7 at the
+/// frozen-seam rung (their transcript constructors, 48 and 56 bytes). An
+/// internal boundary's counts are `2^k + 2 s + 2`, which reaches 12 at
+/// `s = 3` on a four-data-row plane — the `public-statement` absorb. Two
+/// existing statement fixtures had to move off 13 and 12 for this stage;
+/// neither is a geometry any accepted profile uses.
+#[test]
+fn the_completed_guard_refuses_geometries_the_constructions_can_actually_reach() {
+    let reachable_endpoint: Vec<usize> = (0..6).map(|k| (1usize << k) + 5).collect();
+    assert_eq!(reachable_endpoint, vec![6, 7, 9, 13, 21, 37]);
+    let free = super::shape_free();
+    for r in &reachable_endpoint {
+        let refused = free.refuse(&[("general endpoint", *r)]).is_err();
+        assert_eq!(refused, *r == 13, "the shape-free guard's verdict on {r} endpoint rows changed");
+    }
+    // 6 and 7 need the profile string to be seen at all
+    assert!(super::at_shape(&Shape::m125()).refuse(&[("general endpoint", 6)]).is_err(), "6 rows is clear at the 125M profile");
+    assert!(super::at_shape(&Shape::rung()).refuse(&[("general endpoint", 7)]).is_err(), "7 rows is clear at the frozen-seam rung");
+    assert!(super::at_shape(&Shape::toy()).refuse(&[("general endpoint", 7)]).is_ok(), "the toy's own 7-row endpoint must stay accepted");
+    // a boundary at three claim sites on a four-data-row plane
+    assert!(free.refuse(&[("internal boundary", 4 + 2 * 3 + 2)]).is_err(), "12 boundary rows is clear");
+    assert!(free.refuse(&[("internal boundary", 4 + 2 * 4 + 2)]).is_ok(), "14 boundary rows must stay accepted");
+}
+
 // -------------------------------------------- the label table's own coverage
 
 /// Every line of the lane's own non-test sources that calls an `absorb` with
