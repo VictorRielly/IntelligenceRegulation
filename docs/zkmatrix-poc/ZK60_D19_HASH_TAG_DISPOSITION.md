@@ -110,6 +110,73 @@ literals so the Python tools can be checked against the same numbers. The
 Python run gate must learn the rule before any tagged capture is judged; until
 then tagged bundles are not gate evidence.
 
+## 2a. Amendments after the integrator's review and the lane's stage 16 (15:01, 2026-09-20)
+
+The integrator read the scoping memo and answered at 14:22: the lane may write
+the additive change, the five shared files and the new `hashtag.rs` with its
+`lib.rs` export included, as separate reviewable commits with the legacy
+branches preserved; integration and the keyed CUDA path stay with it; **this
+is engineering ownership, not its acceptance of the argument.** It made four
+review points. I accept all four, and two of my rulings change because of
+them.
+
+**T-1, wording corrected.** "Two profiles can never share a key" was wrong:
+key derivation is a hash, so distinct profiles or roles share a key with
+negligible probability (a collision in `derive_key`), not never. **The model,
+stated explicitly:** for a tagged profile, decision D19's random oracle is read
+as a *family* of independent random functions indexed by BLAKE3's mode and
+key — the four keyed functions of a profile, the generator's keyed function
+under its secret key, and the unkeyed function the legacy rule uses. That is
+BLAKE3's own design claim for its modes; it is an idealisation like the rest
+of D19, and it is what "separating hash tag" means in that model. "No extra
+compression" is a count, not a timing: the run time is re-measured.
+
+**T-2, changed: no mixtures, so the frozen-seam rung stays entirely on the
+legacy rule.** The integrator's point — never a partial mixture of legacy and
+tagged modes — is right, and my earlier T-2 (keyed transcript and block
+commitments, legacy endpoint) was exactly such a mixture. The frozen-seam
+development rung therefore keeps the legacy rule as a whole. It is a
+stepping-stone fixture, never a deliverable, **barred by name from any privacy
+statement**, and the generalised rung replaces it. Recorded as a scoping note
+under D19 in the register, and reported to the project owner as what it is: a
+development fixture outside D19's obligation, not a tagged profile.
+
+**T-3, changed: the completed length guard applies to legacy-rule profiles
+only** (the toy, the frozen-seam rung). Stage 16 showed why (its finding
+S16-F1): the completed guard refuses geometries the constructions really
+reach — a generalised endpoint of 13 rows, a boundary of 12 — and the run's
+own parameter line sits two bytes from a boundary column's length at the 125M
+shape. On a tagged profile those coincidences are between *different
+functions* and mean nothing, so the guard is not imposed there. It stays on
+for the toy, whose accepted geometry it already passes.
+
+**T-6, changed.** A full-profile mismatch may be refused by Fiat–Shamir
+consistency before any Merkle check, so the cross-rule tests require
+**rejection in both directions, whatever the first refusal is**, and the
+layers are identified by **isolated controls**: a column digest, a salted
+leaf and a Merkle node each computed under the right key, the wrong key and no
+key, all pairwise different.
+
+**T-7, new: the key set is never an input.** The tag type is opaque: it is
+either the legacy rule or the complete key set of one profile, built only by
+`legacy()` or `for_profile(<profile string>)` — no public fields, no partial
+sets. The verifier derives it from the profile it trusts; nothing in a receipt
+or a capture selects or carries keys (a capture may *name* the rule for the
+Python tools, which re-derive the keys themselves and compare). The mode is
+carried through every endpoint, boundary, masking tree and transcript clone,
+**the run's position tags included**.
+
+**T-8, new: the accelerator.** A tagged commitment declines the unkeyed device
+hasher. That is a **temporary CPU fallback, recorded as such** — not a
+performance result and not accelerator support; the keyed device path is the
+integrator's, later.
+
+**The path-length check (T-4) landed in stage 16** (`f67f3fc`, pushed; filter
+208 passed, none failing; no shared file touched): before the fix a truncated
+path was refused only deep inside the core verifier, as a Merkle mismatch
+after hashing; now the lane refuses it by name before any hashing, from the
+same single source of depth the wire format uses.
+
 ## 3. What this is not
 
 Not a privacy or soundness acceptance of anything. It changes nothing in D22.
