@@ -1,0 +1,125 @@
+# Disposition of the multi-block private run — security owner, 2026-09-20
+
+Written by the interactive Claude Fable 5.1 session (the security owner) at
+09:46 on 2026-09-20. It rules on two delegated documents:
+
+| Short name | Document | What it is |
+|---|---|---|
+| R | `ZK60_PRIVATE_RUN_MULTI_BLOCK.md` | a paper design for a private RUN of L transformer blocks (12 at the 125M shape) under one transcript, block k's hidden output being block k+1's hidden input |
+| R-check | `ZK60_PRIVATE_RUN_MULTI_BLOCK_CHECK.md` | an independent adversarial check against the real code (`results/zk60_private_run_multi_block_check/`): 4 blocking items (B1 … B4), 13 corrections, 11 omitted conditions |
+
+| Verdict | **Accepted as the design to build, subject to the four blocking items and the rulings of §2.** The checker, told to assume it wrong, attacked the boundary construction hardest and it held; it also tried to break the rejected alternative's memory claim and could not. **Nothing here is a privacy acceptance and nothing has been built or run.** |
+|---|---|
+
+## 1. What survived the attack
+
+- **One boundary commitment per internal boundary, two claim sites, opened
+  once — and the real code can do it without touching a forbidden file.**
+  `open_zk` borrows the commitment and a list of claims and the verifier
+  re-forms the groups itself; the block's claim accumulators cross a stage
+  boundary as plain data, pushed outside the prove/verify branch, so **the
+  verifier computes the pending claim itself and never reads it from a
+  segment.** The prover's per-role arrays have exactly four places and this
+  option uses exactly four; the rejected option would need five.
+- **The boundary's hiding, in an exact small model of the checker's own:**
+  honest geometry — rank 6 of 6 on the reserved rows, disclosed 0; two claims
+  sharing one pair — disclosed 2, the control fires 40 of 40.
+- **No challenge precedes what it must bind**; the stage order was checked
+  line by line against `prove_inner_at`.
+- **The memory carry-over is exact to the byte** (88.2 MiB), the time
+  recomputes to 6.26 minutes of proving and 12.5 s of verifying for twelve
+  blocks, every receipt byte reproduces, and the draw count and residual
+  (109.4 million draws, 2^-69.3 for one twelve-block run) are confirmed.
+- **The same hidden plane under three commitments** (block k's activation
+  commitment, the boundary, block k+1's) is the two-commitment argument
+  applied once more, not a new one — but the gate must rank all three roles.
+- The rejected alternative really is a near-tie on memory (its kept matrix is
+  3.5 GiB, and the seam can be placed early); it loses on the four-place
+  arrays and on needing a re-cut slot schedule.
+
+## 2. Rulings
+
+**M-1 (B4): the boundary's row count is DERIVED, never accepted.** The
+checker's model found that a boundary with a *single* proximity row — 37 rows
+instead of 38 — has rank 5 and **discloses 1, and that `audit_claims` accepts
+that geometry.** So `rows = data + 2·sites + 2` is a hiding requirement the
+audit does not enforce. The boundary module computes its geometry from the
+plane and the number of claim sites and refuses any other; a test builds the
+37-row geometry and shows it refused by name; and the gate ranks the boundary
+**restricted to its reserved rows** (over all rows every case looks like full
+rank). Today's single-claim endpoints are unaffected: their five non-data rows
+already are a pair, a proximity pair and a spare — and the draft's description
+of them as "a further random row" is corrected.
+
+**M-2 (B1): the run's soundness is stated wherever the run is described:
+about 2^-97.5 for twelve blocks at this geometry** (twelve blocks at 2^-101.1
+and eleven boundary openings at 2^-105.6, by the project's own accounting).
+That is the level Victor accepted for the zkVM line in D3; **whether it is
+acceptable for a native-line run is his ruling, not mine**, and it goes to him
+with decision D15's open question. It does not block building.
+
+**M-3 (B2): segments are flushed.** Each block's segment is written out and
+dropped before the next block is committed; holding twelve of them adds 423
+MiB and was missing from the model. With the twelve statements' weights the
+modelled peak is **10.74 GiB**. The first measured multi-block runs record the
+high-water mark per stage: a rising mark across blocks is the sign of
+allocator fragmentation and stops the ladder.
+
+**M-4 (B3): calibration is bound at every boundary.** D12's fifth item ties
+the scales of the two external endpoints to the calibration; a run multiplies
+the places where a scale is declared from 2 to 13. **A boundary's scale is ONE
+field, shared by construction between block k's output and block k+1's input,
+and the run header absorbs one calibration identity covering all of them.**
+Test: a run whose block k+1 declares a different input scale than block k's
+output scale does not construct, and a receipt made under one calibration
+identity is rejected under another.
+
+**M-5 (D12a): the amendment is recorded in the register today**, with the
+check's corrections: all five items of D12 carried over (the fourth — the
+int8 range proof on the second norm — is in fact satisfied at both ends of
+every boundary, and says so); "joining finished runs needs D18's option B
+**and** D8/D11 discharged"; a boundary commitment fixed by anyone but the
+prover stays forbidden.
+
+**M-6 (the receipt).** The segment framing is one format, counted once: the
+draft counted 40 bytes of framing and specified 136; the byte-exact acceptance
+test uses the specified figure. The header's transcript state is **re-derived
+by the verifier and compared, never absorbed and never adopted.** A verifier
+checks exactly L segments, L being its own; one that stops early knows nothing.
+**A receipt of about 484 MB is a product fact for Victor** (the contract's
+proof-size budget is 256 KB, and the one lever that shrinks it cannot run
+privately — decision D10); it goes on his page as a recorded deviation, not as
+a blocker.
+
+**M-7 (the moving sites).** "No forbidden file is needed" is confirmed, but
+seven permitted sites move and were unlisted — among them a mask-row constant
+**inside a digest** and a constructor that today refuses the draft's 36-row
+external endpoint by name. **The run's external endpoints keep today's
+geometry unchanged** (37 rows at the 125M shape); only internal boundaries use
+the new two-site geometry. That removes the digest change and the refusal
+from the build.
+
+**M-8 (the gate).** Three blocks at the development rung, all three roles of
+each boundary plane ranked jointly, the shared-pair and single-proximity-row
+controls included; capture by a NEW run-capture module, never by editing the
+integrator's capture writer. No privacy statement about any run before it.
+
+## 3. What I reviewed myself, and what was delegated
+
+I read the check's hand-back report. M-7's choice (keep the external
+endpoints' geometry) is mine: it removes two of the seven moving sites and
+keeps the measured single block's digest meaningful inside a run. I did not
+re-run the rank model or re-read the stage order. Both documents were produced
+by delegated Opus agents, the second instructed to assume the first was wrong.
+
+## 4. Next steps
+
+1. Errata pass on R (the four blocking items, 13 corrections, 11 conditions,
+   M-1 … M-8).
+2. Build, test-first, on the lane `zk60-private-block-125m`: the claim audit on
+   a hand-built two-claim boundary schedule; the 37-row refusal; then two
+   blocks at the development rung with the headline negative test (block 2
+   rebuilt on a different hidden input than block 1's output, rejected by the
+   VERIFIER); then three; then twelve at the rung.
+3. One measured two-block run at the 125M shape — detached, heavy lock, memory
+   ceiling, per-stage high-water marks — before twelve.

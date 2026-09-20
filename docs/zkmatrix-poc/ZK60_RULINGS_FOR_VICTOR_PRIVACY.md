@@ -107,6 +107,26 @@ Also for services, a rule I am attaching to D21: when the prover refuses an
 input it does not admit, **the reason is never shown to anyone not entitled to
 the input** — a few refusal messages name what was wrong with it.
 
+## Two more, not urgent (added 2026-09-20 09:46) — for when the multi-block run exists
+
+Neither blocks any work today. Both are yours, and I would rather you see
+them coming than meet them in a status line.
+
+- **Soundness of a whole run.** A private run of twelve blocks at the 125M
+  shape would have a whole-proof soundness of about **2^-97.5** by the
+  project's own accounting [COUNTED; one block measured, the run not built].
+  That is the level you accepted for the slow line in D3 (about 97 bits). The
+  per-opening figure people quote (about 106 bits) is not the whole-proof
+  figure; decision D15 already says so. **Recommendation when it comes:
+  accept about 97 bits for native-line runs, as for the slow line.**
+- **Proof size.** One private block at the 125M shape is 40.8 MB [MEASURED];
+  twelve blocks are about 484 MB [COUNTED], verified one 40 MB segment at a
+  time. The contract's budget is 256 KB. The one lever that shrinks the proof
+  a lot (decision D10) cannot run privately, which is why you declined it.
+  **Recommendation when it comes: record the size as a deviation for the
+  first MVP**, and keep "a small outer proof about the big one" (as the slow
+  line does with Groth16) as the recorded route to a small receipt.
+
 ## If you answer in one line
 
 "D19 yes, D20 yes, D21 yes" is enough. If you want the tag added to the toy

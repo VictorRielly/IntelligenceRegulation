@@ -1,0 +1,30 @@
+==========================================================================
+BOUNDARY JOINT RANK — my own exact model, Goldilocks Fp2 = Fp[u]/(u^2-7)
+==========================================================================
+125M boundary: 32 data rows, sites = 2, G = 2 groups, 3 published vectors
+required real dimension for a uniform view: 2*(G+1) = 6
+
+  case honest           rows 38  mask rows [32, 33, 34, 35, 36, 37]
+    rank restricted to the mask rows : 6   (expected 6)
+    rank over all rows (incl. data)  : 6
+    DISCLOSED real dimensions        : 0
+
+  case shared_pair      rows 38  mask rows [32, 33, 34, 35, 36, 37]
+    rank restricted to the mask rows : 4   (expected < 6)
+    rank over all rows (incl. data)  : 6
+    DISCLOSED real dimensions        : 2
+
+  case single_prox_row  rows 37  mask rows [32, 33, 34, 35, 36]
+    rank restricted to the mask rows : 5   (expected < 6)
+    rank over all rows (incl. data)  : 6
+    DISCLOSED real dimensions        : 1
+
+  pad block (all 38 rows are free unknowns): rank 6 of 6 needed
+
+  shared-pair control fired in 40/40 random draws
+  honest case degenerate in 0/40 random draws
+
+NOTE: this models the GROUP/PROX VECTOR channel only (the linear view the
+rank stage of the joint-view gate factors). It says nothing about the
+opened columns, the Merkle salts or the CFS channel, and it is NOT a
+privacy result.

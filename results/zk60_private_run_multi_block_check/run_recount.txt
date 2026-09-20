@@ -1,0 +1,73 @@
+==========================================================================
+1. RECEIPT — reproduce the block, then the segments
+==========================================================================
+  mask opening             243,712   A opening   21,626,880   H opening   17,385,472
+  endpoint 37 rows         749,568   endpoint 36 rows      747,520   boundary 38 rows    1,017,856
+  residual slot bytes       27,456  (block total 40,782,792 reproduced)
+  segment 1 40,031,208 | interior 40,301,544 | segment 12 41,049,032
+  run total 484,095,680 B  (484.1 MB)   draft says 484,095,680
+  DRAFT SEGMENT FRAMING = 40 B/segment (magic+binding only).
+  but SS 4.3 describes header 96 B + trailer 40 B = 136 B, i.e. +96 B per segment
+  -> the design's real segment sizes are 40,031,304 / 40,301,640 / 41,049,128
+  -> the design's real run total 484,096,832 B
+  largest segment 39.15 MiB vs the 64 MiB ceiling
+
+==========================================================================
+2. MEMORY — a commitment's resident bytes from pcs.rs' own allocations
+==========================================================================
+  36 rows:  29,958,112 B =  28.57 MiB   data 4.50 encoded 18.00 pads 0.07 salts 2.00 tree 4.00
+  37 rows:  30,615,520 B =  29.20 MiB   data 4.62 encoded 18.50 pads 0.07 salts 2.00 tree 4.00
+  38 rows:  31,272,928 B =  29.82 MiB   data 4.75 encoded 19.00 pads 0.07 salts 2.00 tree 4.00
+  IO resident in an interior stage (B_k-1 + B_k + E_out) = 88.2 MiB   [draft: 88.2]
+  measured one-block peak 10837 MiB (10.58 GiB)
+  draft's run peak        10925 MiB (10.67 GiB)
+
+  ONE block's public statement: 6,292,992 B of int8 + 264,192 B of i64 = 6.3 MiB
+  TWELVE blocks' statements   : 75.0 MiB (the run's caller holds them all unless they are streamed)
+  eleven EXTRA over one block : 68.8 MiB
+  eleven finished SEGMENTS held in memory (if not flushed): 423 MiB
+  peak with all 12 statements resident, segments flushed: 10994 MiB (10.74 GiB)
+  peak if segments are NOT flushed as they are produced:  11417 MiB (11.15 GiB)  <- over the 12 GiB ceiling? no
+
+==========================================================================
+3. TIME
+==========================================================================
+  measured: prove 26.539 s, witness 4.69 s, verify 1.027 s, encode 0.021 s, decode 0.015 s
+  boundary commit modelled at A's per-row rate: 20.0 ms
+  L x (prove + witness)            = 374.7 s  (6.25 min)
+  + 11 boundary commits and opens  = 0.6 s
+  RUN PROVE                        = 375.4 s  (6.26 min)   [draft: 6.3 min]
+  12 x prove only (the old figure) = 5.31 min
+  RUN VERIFY  = 12.3 s + 0.18 s decode = 12.5 s   [draft: 12.3 s]
+
+==========================================================================
+4. SOUNDNESS — the union bound the draft never states
+==========================================================================
+  one 125M block      2^-101.10   (prior documents)
+  12 blocks           2^-97.52
+  + 11 boundary PCS openings at 2^-105.61 each
+  RUN, L = 12         2^-97.46   (prior docs' twelve-block pass: 2^-97.5)
+  the draft's section 2 is titled 'transcript order and soundness' and gives NO such figure.
+
+==========================================================================
+5. D9 SAMPLER DRAWS — recount
+==========================================================================
+  A mask rows 4,030,464 [MEASURED log line] + A pads 1,454,336
+  H mask rows 1,671,168 [MEASURED log line] + H pads 1,822,720
+  subtotal 8,978,688; the draft's per-block figure 8,999,942
+  => M (coefficients + 12,800 pads) accounts for the remaining 21,254
+  boundary  38 rows: 108,032   [draft: 108,032]
+  endpoint  37 rows: 91,392   endpoint 36 rows: 74,752
+  RUN with 37-row external endpoints: 109,370,440 = 2^26.70 -> residual 2^-69.3   [draft: 109,370,440 / 2^-69.3]
+  RUN with 36-row external endpoints: 109,337,160 = 2^26.70 -> residual 2^-69.3
+  run_arithmetic.py prints 109,402,696 for the 36-row variant, which is 65,536 too many:
+    it charges a 36-row endpoint SIX mask rows (6*16384 = 98,304) when 36 = 32 data + FOUR.
+  effect on the headline: none to one decimal (2^-69.30 vs 2^-69.29).
+
+  a million runs: 2^-49.4  [draft: 2^-49.4]
+
+==========================================================================
+6. REFUSALS AT RUN SCALE
+==========================================================================
+  12 x 2^-62  = 2^-58.42   [draft: 2^-58.4]
+  12 x 2^-112 = 2^-108.42  [draft: 2^-108.4]
