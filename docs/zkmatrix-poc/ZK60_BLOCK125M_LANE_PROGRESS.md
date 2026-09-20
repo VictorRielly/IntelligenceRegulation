@@ -3751,3 +3751,30 @@ each bundle's `manifest.json` pins its README by length and SHA-256, so an
 edit would break the bundle's self-consistency. The note that they predate
 the plane index table is in the new parent file
 `results/zk60_run_captures_20260920/README.md`, which covers all four.
+
+**MEASURED, one write, 2026-09-20 14:02, exit 0 (`x5-s15-bundles.log`).**
+
+| bundle | `run.json` | stage files | on disk | source pin |
+|---|---:|---:|---:|---|
+| `run-c-tame` | 34,812 B | 38,472,032 B | **38,509,009 B** | `aff891d` |
+| `run-d-zero` | 34,787 B | 38,463,004 B | **38,499,945 B** | `aff891d` |
+
+**77.0 MB added** (each under 60 MB, as before), against 77.0 MB already in
+the tree for stage 14's two — **154 MB in `results/zk60_run_captures_2026-
+0920/` in all**, which is the cost of keeping the old pair rather than
+replacing it. The segments (12,413,432 B per run) are not written; each stage
+file pins its own by length and SHA-256.
+
+**The table's own size: 22,411 B of the 34,812 B run file** — `run.json`
+grew from 12,385 B to 34,812 B, and the stage files did not move. Both new
+bundles carry **the same 22,411 bytes** of it (SHA-256 prefix `fb4cb872…`),
+which is the across-bundle equality the Rust test also checks in memory.
+
+Read back with `python3 json.load` after the write: both parse; both declare
+`schema hashline-native-capture/4-run`; the table lists **83 `A` planes
+tiling 377 rows and 52 `H` planes tiling 470 rows**, with 23 slot lists of
+lengths `[1, 1, 22, 3, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 56, 15, 13, 24, 17, 6,
+1, 2, 2]`; `H_U` sits at rows 468 and 469, which is exactly the `sum_rows`
+pair the gate reported and the two rows by which `H`'s `data_rows` 470
+exceeds its 468 `"data"` rows; and each manifest pins all seven source files
+including `plane_index.rs`.
