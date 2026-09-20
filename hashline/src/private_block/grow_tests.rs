@@ -989,8 +989,10 @@ fn the_layout_is_built_from_a_shape_and_the_toy_is_one_instance() {
 /// key-value side at a free coordinate of its own would prove a different
 /// statement, and this equality is what forbids it.
 ///
-/// It is a DEFINITION test: no proof is produced at the rung, and the pad
-/// rule (S9 part 4) is not in the argument yet.
+/// It is a DEFINITION test: no proof is produced at the rung. Since S9 part 4
+/// it also counts the pad rule's public tables slot by slot — the toy must
+/// declare none at all, and each of the rung's extra public tables must be an
+/// indicator `pad::indicator_slots` names.
 #[test]
 fn the_slot_definitions_are_built_from_the_shape() {
     use super::argument::{causal_mask, causal_mask_at, define, rope_tables, rope_tables_at, Coord, Ctx, Points, Priv, Tab};
@@ -1001,7 +1003,11 @@ fn the_slot_definitions_are_built_from_the_shape() {
     for (dom, heads) in [(Dom::Q, toy.q_heads), (Dom::Kv, toy.kv_heads)] {
         assert_eq!(rope_tables_at(&toy, &public_toy, dom), rope_tables(&toy, &public_toy, heads), "the shaped RoPE tables are not the toy's on {dom:?}");
     }
+    // the public-table count per slot, toy first, so the rung's EXTRA public
+    // tables can be counted against `pad::indicator_slots` (S9 part 4)
+    let mut pub_toy: Option<[usize; N_SLOTS]> = None;
     for sh in [Shape::toy(), Shape::rung()] {
+        let mut pubs = [0usize; N_SLOTS];
         let lay = Layout::for_shape(&sh).unwrap_or_else(|e| panic!("{}: {e}", sh.name));
         let (public, ff, _input) = tame_case(&sh);
         let ctx = Ctx {
@@ -1059,9 +1065,26 @@ fn the_slot_definitions_are_built_from_the_shape() {
                 }
             }
             assert_eq!(n_priv, terms[s], "{}: slot {s}: private terminals", sh.name);
+            pubs[s] = def.tabs.iter().filter(|t| matches!(t, Tab::Pub(_))).count();
         }
         assert_eq!(kv_score.is_some(), lkv > 0, "{}: the grouped-head check ran iff the shape groups", sh.name);
         assert_eq!(kv_pv.is_some(), lkv > 0, "{}: the grouped-head check ran iff the shape groups", sh.name);
+        match pub_toy {
+            None => {
+                // the TOY carries no pad machinery at all (finding S9-F1)
+                assert_eq!(super::pad::indicator_tables_per_slot(&sh), [0usize; N_SLOTS], "the frozen toy profile declares an indicator table");
+                pub_toy = Some(pubs);
+            }
+            Some(toy_pubs) => {
+                // and at the rung every extra public table in a slot is an
+                // indicator, one per entry of `pad::indicator_slots`
+                let want = super::pad::indicator_tables_per_slot(&sh);
+                assert_eq!(want.iter().sum::<usize>(), 12, "the rung materialises twelve indicator tables");
+                for s in 0..N_SLOTS {
+                    assert_eq!(pubs[s] - toy_pubs[s], want[s], "{}: slot {s} builds {} public tables against the toy's {}, not {} more", sh.name, pubs[s], toy_pubs[s], want[s]);
+                }
+            }
+        }
     }
 }
 

@@ -12,18 +12,19 @@
 //! plane_j(x)` added to that domain's existing zero-check, with exemptions by
 //! name and an exempted plane excluded from every summation by the indicator.
 //!
-//! **WHAT THIS MODULE IS, AND WHAT IT IS NOT.** It is the SPECIFICATION of
-//! that rule as code — the support indicators, the per-plane ZERO / EXEMPT
-//! table, and the two acceptance tests PZ-1 and PZ-2 — written BEFORE the
-//! term itself, which is the order ruling P-7 requires. **The term is not
-//! implemented.** It lives in `argument::define`'s zero-check brackets, and
-//! `argument` is instantiable only at the toy (finding S5-F2): the claim
-//! points, the RoPE tables, the row geometry (step S10) and the endpoints
-//! (step S11) are still the toy's, so a padded shape produces no receipt at
-//! all and a verifier-side test of the term cannot be written yet. PZ-1 and
-//! PZ-2 below are therefore `#[ignore]`d and FAIL, each with the reason, and
-//! what they demonstrate today is the HOLE: a pad tamper changes nothing that
-//! any relation this module can evaluate at the rung looks at.
+//! **WHAT THIS MODULE IS (S9 parts 1–4).** It is the SPECIFICATION of that
+//! rule as code — the support indicators, the per-plane ZERO / EXEMPT table,
+//! the slot map, and the two acceptance tests PZ-1 and PZ-2 — written BEFORE
+//! the term itself, which is the order ruling P-7 requires. Since S9 part 4
+//! the TERM is built too: `argument::define` puts one batched
+//! `mu_pad · (1 − supp) · Σ ζ^j plane_j` in each host slot of
+//! [`indicator_slots`] and the support factor on the inhomogeneous clauses
+//! and host terms of the eight `INDICATOR_SLOT_DOMAIN` slots. PZ-1 and PZ-2
+//! are decided HERE, at the witness level, by the same statement the term
+//! carries; the END-TO-END form — rejected by the verifier, from receipt
+//! bytes — is step S12, and until it exists no rung run is a proof.
+//!
+//! The frozen toy profile carries none of it ([`Shape::carries_pad_rule`]).
 //!
 //! Nothing here proves, claims or establishes a soundness or privacy
 //! property; no witness value is printed.
@@ -201,21 +202,49 @@ pub(crate) struct IndicatorCost {
 
 /// The slots that carry `dom`'s indicator: the domain's own zero-check host
 /// plus every slot whose relation the indicator gates (§3.7a, "what the
-/// indicator gates").
+/// indicator gates"). This is the list `argument::define` actually
+/// materialises, one `Tab::Pub` per entry, and
+/// [`indicator_tables_per_slot`] is its transpose.
+///
+/// **Corrected in S9 part 4 (finding S9-F7).** `Dom::Ht` and `Dom::T` were
+/// listed as carrying no table: `Dom::Ht`'s term was to ride in `SC_SZC` on
+/// `supp_S` (§3.7a open question 2) and `Dom::T` had no term at all. Neither
+/// works. `supp_S` is zero wherever the `j` axis pads, so riding on it would
+/// force a TRUE row's `A_MX` and `A_SUM` to zero; and `Dom::T`'s four planes
+/// are ZERO-rule by the memo's own table and are read by `SC_TZC`, whose cube
+/// IS `Dom::T`. Each therefore carries its own table in its host slot.
 pub(crate) fn indicator_slots(dom: Dom) -> &'static [usize] {
     match dom {
         Dom::D => &[SC_SS, SC_SSM, SC_DZC],
         Dom::Q => &[SC_QZC],
         Dom::S => &[SC_RS, SC_SZC],
-        // `Dom::Ht`'s term rides in `SC_SZC` on `supp_S` (open question 2),
-        // so it materialises no table of its own
-        Dom::Ht => &[],
+        // lifted over the trailing `j` axis of the `Dom::S` cube
+        Dom::Ht => &[SC_SZC],
         Dom::Kv => &[SC_KVZC],
         Dom::F => &[SC_FZC],
         Dom::L => &[SC_LZC],
         Dom::Tab => &[SC_TAB],
-        Dom::T => &[],
+        Dom::T => &[SC_TZC],
     }
+}
+
+/// How many support tables `argument::define` materialises in each slot — the
+/// transpose of [`indicator_slots`] over the shape's padded domains, and zero
+/// everywhere on the frozen toy profile.
+pub(crate) fn indicator_tables_per_slot(s: &Shape) -> [usize; N_SLOTS] {
+    let mut out = [0usize; N_SLOTS];
+    if !s.carries_pad_rule() {
+        return out;
+    }
+    for dom in ALL_DOMS {
+        if !s.pads(dom) {
+            continue;
+        }
+        for sl in indicator_slots(dom) {
+            out[*sl] += 1;
+        }
+    }
+    out
 }
 
 pub(crate) fn indicator_costs(s: &Shape) -> Vec<IndicatorCost> {
@@ -283,6 +312,61 @@ pub(crate) fn h_rule(s: &Shape, doms: &[Dom], plane: usize) -> Option<Rule> {
         return Some(Rule::Zero);
     }
     Some(Rule::Exempt)
+}
+
+/// **The indicator the ARGUMENT builds (ruling on finding S9-F4).** The closed
+/// multilinear form where one exists, the builder's public support table
+/// otherwise. `the_closed_forms_equal_the_tables` asserts the two agree entry
+/// for entry at every shape, so this is an optimisation of the CONSTRUCTOR and
+/// never a second definition: [`support_indicator`] stays the definition of
+/// record. It does NOT yet make the verifier table-free — `Tab::Pub` holds a
+/// materialised vector on both sides — which is what S9-F4 still asks for.
+pub(crate) fn indicator_table(s: &Shape, dom: Dom) -> Vec<i64> {
+    match closed_form_indicator(s, dom) {
+        Some((v, _)) => v,
+        None => support_indicator(s, dom),
+    }
+}
+
+/// **Which slot carries a padded domain's batched pad-zero term.** The
+/// domain's own zero-check, except for the two domains that have none of their
+/// own: `Dom::T`'s planes are read by `SC_TZC` (its cube IS `Dom::T`) and
+/// `Dom::Ht`'s two planes are read inside `SC_SZC`, where the indicator is
+/// lifted over the trailing `j` axis of the `Dom::S` cube (finding S9-F7).
+pub(crate) fn pad_zero_host(dom: Dom) -> usize {
+    match dom {
+        Dom::T => SC_TZC,
+        Dom::Ht => SC_SZC,
+        Dom::L => SC_LZC,
+        Dom::D => SC_DZC,
+        Dom::Q => SC_QZC,
+        Dom::Kv => SC_KVZC,
+        Dom::S => SC_SZC,
+        Dom::F => SC_FZC,
+        Dom::Tab => SC_TAB,
+    }
+}
+
+/// The ZERO-rule `A` planes of one domain, in plane order — the batched
+/// pad-zero term's summands. Empty when the profile carries no pad rule or the
+/// domain does not pad, which is how the toy's transcript stays free of the
+/// machinery (the profile gate of finding S9-F1).
+pub(crate) fn zero_rule_a_planes(s: &Shape, ids: &Ids, dom: Dom) -> Vec<usize> {
+    if !s.carries_pad_rule() {
+        return Vec::new();
+    }
+    (0..ids.n_a()).filter(|p| ids.dom(*p) == dom && a_rule(s, ids, *p) == Some(Rule::Zero)).collect()
+}
+
+/// The ZERO-rule `H` planes of one domain, in plane order (the three table
+/// helpers, and nothing else — every LogUp helper of a value domain is EXEMPT
+/// and `H_U` carries no rule).
+pub(crate) fn zero_rule_h_planes(s: &Shape, dom: Dom) -> Vec<usize> {
+    if !s.carries_pad_rule() {
+        return Vec::new();
+    }
+    let doms = s.h_plane_doms();
+    (0..doms.len()).filter(|p| doms[*p] == dom && h_rule(s, &doms, *p) == Some(Rule::Zero)).collect()
 }
 
 /// `(zero, exempt, none)` over both commitments at `shape`.
@@ -367,6 +451,24 @@ fn every_checkable_relation_holds(s: &Shape, ids: &Ids, w: &witness::Witness) ->
             }
         }
     }
+    // **S9 PART 4: ruling P-1's own relation.** Every ZERO-rule plane on a
+    // padded domain vanishes off its support. This is the relation the
+    // batched pad-zero term of `argument::define` decides, written here at the
+    // witness level so that PZ-1 and PZ-2 are decided by the SAME statement
+    // the argument carries. The end-to-end form (rejected BY THE VERIFIER) is
+    // step S12.
+    for dom in ALL_DOMS {
+        let planes = zero_rule_a_planes(s, ids, dom);
+        if planes.is_empty() {
+            continue;
+        }
+        let supp = indicator_table(s, dom);
+        for p in planes {
+            if (0..w.planes[p].len()).any(|i| supp[i] == 0 && w.planes[p][i] != 0) {
+                return false;
+            }
+        }
+    }
     true
 }
 
@@ -421,8 +523,17 @@ mod tests {
                 if let Some((cf, _)) = closed_form_indicator(&s, dom) {
                     assert_eq!(cf, support_indicator(&s, dom), "{}: {dom:?}'s closed form differs from the support table", s.name);
                 }
+                // the CONSTRUCTOR the argument uses is the closed form where
+                // one exists, and it is the table's equal, exhaustively
+                assert_eq!(indicator_table(&s, dom), support_indicator(&s, dom), "{}: {dom:?}'s indicator_table differs from the support table", s.name);
             }
         }
+        // where the optimisation actually bites: five of the rung's nine
+        // padded domains are built from a product form and never touch
+        // `Geom::support`
+        let r = Shape::rung();
+        let closed: Vec<Dom> = ALL_DOMS.into_iter().filter(|d| r.pads(*d) && closed_form_indicator(&r, *d).is_some()).collect();
+        assert_eq!(closed, vec![Dom::T, Dom::Ht, Dom::D, Dom::Q, Dom::Kv, Dom::S, Dom::F, Dom::Tab], "the rung's closed-form domains");
         // 125M: the memo's own six padded domains, and its own verdict on
         // which of them has a cheap closed form (`supp_L`'s `[k < 9]` does
         // not — the memo says so in the indicator table)
@@ -595,12 +706,47 @@ mod tests {
             assert_eq!(lk.terms, vec![(*p, 1)], "a plain byte lookup on plane {p}");
             assert_eq!(lk.cst, 0, "with no constant offset");
         }
+        // **WHICH RELATIONS READ THOSE PLANES, AND WHERE (the ruling on
+        // S9-F1 asks for exactly this, at the toy, as ONE test).** Only two
+        // slots touch a `Dom::L` plane:
+        //
+        // * `SC_LZC`, whose cube IS `Dom::L`: it reads the WHOLE padded
+        //   domain, but only through the LogUp arm, which is homogeneous and
+        //   is the one arm ruling P-1 never gates. It decides nothing about a
+        //   padded value beyond the byte class the two lookups above give it.
+        // * `SC_TZC`, which reads NINE fixed sub-slices of each limb plane,
+        //   `[k * t_pad, k * t_pad + t_pad)` for `k < 9`.
+        //
+        // At the toy `tokens == t_pad`, so those nine slices are EXACTLY the
+        // support: no relation of the toy reads a padded position. A future
+        // relation that read one would move `read` below outside `supp` and
+        // fail here.
+        let lay = Layout::for_shape(&t).expect("the toy layout");
+        let supp = support_indicator(&t, Dom::L);
+        let mut read = vec![false; t.size(Dom::L)];
+        for kk in 0..N_LIMBS {
+            for (off, base) in [(lay.limb_off(kk), lay.a_off[ids.at(A_LIMB)]), (lay.limb_off_m(kk), lay.a_off[ids.at(A_LIMBM)])] {
+                for tt in 0..t.t_pad {
+                    read[off - base + tt] = true;
+                }
+            }
+        }
+        assert_eq!(read.iter().filter(|r| **r).count(), N_LIMBS * t.t_pad, "SC_TZC reads nine sub-slices of each limb plane");
+        for i in 0..t.size(Dom::L) {
+            assert!(!(read[i] && supp[i] == 0), "a toy relation reads padded Dom::L position {i}");
+        }
         // and the honest builder really does leave that pad at zero
         let (public, ff, input) = super::super::grow_tests::tame_case(&t);
         let w = witness::build_shaped(&t, &public, &ff, &input).expect("the toy's honest witness");
-        let supp = support_indicator(&t, Dom::L);
         for p in &on_l {
             assert!((0..w.planes[*p].len()).all(|i| supp[i] == 1 || w.planes[*p][i] == 0), "the toy's honest Dom::L pad is not zero on plane {p}");
+        }
+        // THE TOY'S TRANSCRIPT CARRIES NO PAD MACHINERY: the profile gate
+        // empties both plane lists, so `define` pushes no indicator table and
+        // draws no `zeta` (the byte-for-byte gate is the frozen receipt).
+        for dom in ALL_DOMS {
+            assert!(zero_rule_a_planes(&t, &ids, dom).is_empty(), "the toy must carry no pad-zero term on {dom:?}");
+            assert!(zero_rule_h_planes(&t, dom).is_empty(), "the toy must carry no pad-zero term on {dom:?}'s helpers");
         }
     }
 
@@ -732,16 +878,14 @@ mod tests {
     /// into a padded position of a ZERO-rule plane that no claimed sum reads
     /// must be REJECTED BY THE VERIFIER.
     ///
-    /// WHY IT IS IGNORED AND WHAT IT PROVES TODAY. The rejection is a term in
-    /// `argument::define`'s zero-check bracket, and `argument` is
-    /// instantiable only at the toy (finding S5-F2), so no rung receipt
-    /// exists to verify. The test is written at the level where the relation
-    /// is decided — every relation this module CAN evaluate at the rung —
-    /// and it fails because the tampered witness satisfies all of them: the
-    /// padded position of `A_RAL` is read by nothing at all. That is exactly
-    /// the coverage half of B-1.
+    /// WHAT LEVEL IT IS DECIDED AT (S9 part 4). Until the term existed this
+    /// test was `#[ignore]`d and FAILED: the padded position of `A_RAL` was
+    /// read by nothing at all, which is the coverage half of B-1. It is now
+    /// decided by ruling P-1's own relation inside
+    /// [`every_checkable_relation_holds`] — the same statement the batched
+    /// pad-zero term of `argument::define` carries. The END-TO-END form
+    /// (rejected by the verifier, from receipt bytes) is step S12.
     #[test]
-    #[ignore = "S9: the pad-zero term lives in argument::define, which is instantiable only at the toy (finding S5-F2); un-ignore when S10 and S11 make a rung receipt possible"]
     fn pz1_a_lone_nonzero_pad_value_is_rejected() {
         let (s, ids, mut w) = rung_witness();
         let supp = support_indicator(&s, Dom::D);
@@ -761,13 +905,12 @@ mod tests {
     /// constraint, every sum and every lookup is satisfied, under a divisor
     /// the prover chose.
     ///
-    /// Ignored for the same reason as PZ-1, and what it demonstrates today is
-    /// the sharper half of B-1: this test writes the pad, recomputes the
-    /// norm row, and then asserts the module notices — and it does not,
-    /// because `SC_SS`'s claimed row sum reads the padded cube and the
-    /// recomputed `D` matches it exactly.
+    /// Decided at the same level as PZ-1 (S9 part 4). Before the term it
+    /// FAILED, which is the sharper half of B-1: this test writes the pad,
+    /// recomputes the norm row, and the module did not notice, because
+    /// `SC_SS`'s claimed row sum reads the padded cube and the recomputed `D`
+    /// matches it exactly. The END-TO-END form is step S12.
     #[test]
-    #[ignore = "S9: the pad-zero term lives in argument::define, which is instantiable only at the toy (finding S5-F2); un-ignore when S10 and S11 make a rung receipt possible"]
     fn pz2_a_consistently_adjusted_pad_is_rejected() {
         let (s, ids, mut w) = rung_witness();
         assert!(every_checkable_relation_holds(&s, &ids, &w), "the honest witness must pass first");

@@ -489,6 +489,27 @@ impl<'a> B<'a> {
         let log = self.lay.shape().log(Dom::D);
         self.push(Tab::Priv(Priv { cm, slices: vec![(0, Fp2::ONE)], log, coords: rho(0..log), mask_row: 2, ext_round: 0 }))
     }
+    /// **RULING P-1's public factor (S9 part 4).** `supp(dom)` laid out over
+    /// THIS slot's cube: the domain's own indicator when the cube is the
+    /// domain, and the same table repeated over the trailing coordinates when
+    /// a COARSER domain is being gated inside a finer cube (`Dom::Ht` inside
+    /// the `Dom::S` cube, `Dom::T` inside nothing today). Coordinates are
+    /// most-significant-first, so a coarser domain occupies the LEADING
+    /// variables and its index is `x / rep`.
+    ///
+    /// `None` when this profile carries no pad rule or the domain does not
+    /// pad — which is how the frozen toy's transcript gains neither a table
+    /// nor a challenge (finding S9-F1's profile gate).
+    fn supp(&mut self, dom: Dom, cube_len: usize) -> Option<usize> {
+        let sh = self.lay.shape();
+        if !sh.carries_pad_rule() || !sh.pads(dom) {
+            return None;
+        }
+        let t = super::pad::indicator_table(sh, dom);
+        let rep = cube_len / t.len();
+        debug_assert_eq!(rep * t.len(), cube_len, "an indicator that does not tile its slot's cube");
+        Some(self.public((0..cube_len).map(|x| k(t[x / rep])).collect()))
+    }
     fn finish(self, poly: Poly, hosted: Vec<(usize, Fp2)>) -> Result<SlotDef, String> {
         if self.ak != self.lay.a_sites()[self.slot] || self.hk != self.lay.h_sites()[self.slot] {
             return Err(format!("private block: slot {} uses {} A / {} H sites, schedule declares {} / {}", self.slot, self.ak, self.hk, self.lay.a_sites()[self.slot], self.lay.h_sites()[self.slot]));
@@ -540,6 +561,81 @@ fn helper_sum(v: &[Fp2], lks: &[LkT], h0: usize, alpha: Fp2, mu: &[Fp2]) -> Fp2 
         acc = acc.add(mu[k].mul(rel));
     }
     acc
+}
+
+/// **THE BATCHED PAD-ZERO TERM of ruling P-1 (memo §3.7a, S9 part 4).**
+///
+/// One group per padded domain hosted in this slot: the table index of that
+/// domain's support indicator, and the ZERO-rule planes it governs paired with
+/// their power of the slot's single batching challenge `zeta`. The value is
+///
+/// ```text
+/// mu_pad * sum_groups (1 - supp(x)) * sum_j zeta^j * plane_j(x)
+/// ```
+///
+/// added INSIDE the slot's `eq(tau) * (..)` bracket, so the zero-check decides
+/// it at every point of the cube. EXEMPT planes never enter a group, which is
+/// the "excluded from every summation by the indicator" of the memo's table.
+///
+/// A slot that carries no pad rule builds [`PadTerm::none`]: no group, no
+/// `zeta`, no `mu` entry and no public table, so the frozen toy's transcript
+/// and its 2,816,472 bytes are untouched.
+struct PadTerm {
+    groups: Vec<(usize, Vec<(usize, Fp2)>)>,
+    mu: Fp2,
+}
+
+impl PadTerm {
+    fn none() -> PadTerm {
+        PadTerm { groups: Vec::new(), mu: Fp2::ZERO }
+    }
+    /// the powers `zeta^0, zeta^1, ..` continue ACROSS the groups of one slot,
+    /// so a plane is batched at one power and one only
+    fn add(&mut self, supp: Option<usize>, planes: &[usize], zeta: Fp2) {
+        let Some(supp) = supp else { return };
+        if planes.is_empty() {
+            return;
+        }
+        let mut p = Fp2::ONE;
+        for _ in 0..self.groups.iter().map(|(_, g)| g.len()).sum::<usize>() {
+            p = p.mul(zeta);
+        }
+        let mut g = Vec::with_capacity(planes.len());
+        for t in planes {
+            g.push((*t, p));
+            p = p.mul(zeta);
+        }
+        self.groups.push((supp, g));
+    }
+    fn eval(&self, v: &[Fp2]) -> Fp2 {
+        let mut acc = Fp2::ZERO;
+        for (supp, planes) in &self.groups {
+            let anti = Fp2::ONE.sub(v[*supp]);
+            let mut inner = Fp2::ZERO;
+            for (t, w) in planes {
+                inner = inner.add(w.mul(v[*t]));
+            }
+            acc = acc.add(anti.mul(inner));
+        }
+        self.mu.mul(acc)
+    }
+}
+
+/// `supp(x)` at the slot's cube point, or the constant ONE where this profile
+/// carries no pad rule. This is the factor ruling P-1 puts on the
+/// INHOMOGENEOUS constraint groups and on every host term of a gated slot; it
+/// is never put on the LogUp arm (§3.7a), which must keep speaking on padded
+/// positions or the value-0 identity loses its summands.
+#[derive(Clone, Copy)]
+struct Gate(Option<usize>);
+
+impl Gate {
+    fn at(self, v: &[Fp2]) -> Fp2 {
+        match self.0 {
+            Some(i) => v[i],
+            None => Fp2::ONE,
+        }
+    }
 }
 
 fn nonzero(v: Vec<Fp2>) -> Result<Vec<Fp2>, String> {
@@ -704,12 +800,26 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
     let (lt, lh, ldh) = (lg(sh.t_pad), lg(sh.h_pad), lg(sh.head_dim));
     let (ld, lf, lkv) = (lg(sh.d_pad), lg(sh.f_pad), lg(sh.kv_heads));
     let (ln, ls, lp) = (sh.limbs_norm(), sh.limbs_sigma_s(), sh.limbs_p());
+    // **RULING P-1 (S9 part 4), per slot.** `pad_doms` are the padded domains
+    // whose batched pad-zero term THIS slot hosts, in `ALL_DOMS` order — the
+    // declared order the `zeta` powers follow. `n_pad` is the one extra `mu`
+    // entry the term costs, and `cube` is the slot's own main cube, which is
+    // the length every public table of the slot must have. All three are
+    // empty / zero on the frozen toy profile (`Shape::carries_pad_rule`).
+    let pad_doms: Vec<Dom> = ALL_DOMS.into_iter().filter(|d| super::pad::pad_zero_host(*d) == slot && !super::pad::zero_rule_a_planes(sh, ids, *d).is_empty()).collect();
+    let (pad_on, cube) = (!pad_doms.is_empty(), 1usize << sh.slots()[slot].0);
+    let n_pad = usize::from(pad_on);
     match slot {
+        // P-1: the claimed row sum runs over the FULL PADDED `Dom::D` cube
+        // (blocking item B-1), so its SUMMAND takes the support factor and the
+        // sum is over the true columns alone. `SC_TZC`'s matching host term
+        // takes `supp_T` (finding S9-F8).
         SC_SS => {
             pts.r_t = tr.challenge_fp2_vec(lt);
             b.eq(&pts.r_t, 0);
             b.a(ids.at(A_X))?;
-            b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1]).mul(v[1])), vec![])
+            let g = Gate(b.supp(Dom::D, cube));
+            b.finish(Box::new(move |v: &[Fp2]| g.at(v).mul(v[0]).mul(v[1]).mul(v[1])), vec![])
         }
         // norm_m's row sums: the identical private claimed sum, over xres1
         // instead of x_in, at its own row point (T1 section C.1)
@@ -717,12 +827,14 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             pts.r_t2 = tr.challenge_fp2_vec(lt);
             b.eq(&pts.r_t2, 0);
             b.a(ids.at(A_X1))?;
-            b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1]).mul(v[1])), vec![])
+            let g = Gate(b.supp(Dom::D, cube));
+            b.finish(Box::new(move |v: &[Fp2]| g.at(v).mul(v[0]).mul(v[1]).mul(v[1])), vec![])
         }
         SC_TZC => {
             let tau = tr.challenge_fp2_vec(lt);
-            let mu = tr.challenge_fp2_vec(6);
+            let mu = tr.challenge_fp2_vec(6 + n_pad);
             let nu = nonzero(tr.challenge_fp2_vec(2))?;
+            let zeta = if pad_on { nonzero(tr.challenge_fp2_vec(1))?[0] } else { Fp2::ZERO };
             // Table indices are CAPTURED from the builder, never written as
             // literals (defect D-1 of the code review: a hand-written list had
             // drifted from the code it documented). The nine sub-slices of each
@@ -744,16 +856,40 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 b.a_slice(lay.limb_off_m(kk), lt, rho(0..lt), 0)?;
             }
             let hosted = vec![(SC_SS, nu[0]), (SC_SSM, nu[1])];
+            // **S9 part 4.** `Dom::T`'s four ZERO-rule planes are exactly the
+            // four pushed above; the term is batched on `zeta` and weighted by
+            // the slot's extra `mu`. The two HOST terms take `supp_T`, because
+            // `SC_SS` / `SC_SSM`'s summands now run over the true columns only
+            // and a padded row's claimed sum is zero, not `NORM_CEPS`
+            // (finding S9-F8). Neither raises the slot's degree, so `SC_TZC`
+            // is NOT one of the eight `INDICATOR_SLOT_DOMAIN` slots.
+            let gt = Gate(b.supp(Dom::T, cube));
+            let mut pz = PadTerm::none();
+            if pad_on {
+                let planes: Result<Vec<usize>, String> = super::pad::zero_rule_a_planes(sh, ids, Dom::T)
+                    .iter()
+                    .map(|p| match *p {
+                        q if q == ids.at(A_D) => Ok(i_d),
+                        q if q == ids.at(A_DSQ) => Ok(i_dsq),
+                        q if q == ids.at(A_DM) => Ok(i_dm),
+                        q if q == ids.at(A_DSQM) => Ok(i_dsqm),
+                        q => Err(format!("private block: Dom::T plane {q} is outside SC_TZC's pad-zero group")),
+                    })
+                    .collect();
+                pz.mu = mu[6];
+                pz.add(gt.0, &planes?, zeta);
+            }
             let poly = move |v: &[Fp2]| {
                 let l3 = |o: usize| v[o].add(v[o + 1].mul(p1)).add(v[o + 2].mul(p2));
                 let (d, dsq, dl, a1, a2) = (v[i_d], v[i_dsq], l3(i_limb), l3(i_limb + 3), l3(i_limb + 6));
                 let (dm, dsqm, dlm, a1m, a2m) = (v[i_dm], v[i_dsqm], l3(i_limbm), l3(i_limbm + 3), l3(i_limbm + 6));
                 let zc = mu[0].mul(dsq.sub(d.mul(d))).add(mu[1].mul(d.sub(dl))).add(mu[2].mul(d.double().sub(a1).sub(a2)));
                 let zc = zc.add(mu[3].mul(dsqm.sub(dm.mul(dm)))).add(mu[4].mul(dm.sub(dlm))).add(mu[5].mul(dm.double().sub(a1m).sub(a2m)));
+                let g = gt.at(v);
                 v[i_tau]
-                    .mul(zc)
-                    .add(nu[0].mul(v[i_rt]).mul(dsq.add(a1).sub(k(NORM_CEPS))))
-                    .add(nu[1].mul(v[i_rt2]).mul(dsqm.add(a1m).sub(k(NORM_CEPS))))
+                    .mul(zc.add(pz.eval(v)))
+                    .add(nu[0].mul(v[i_rt]).mul(g).mul(dsq.add(a1).sub(k(NORM_CEPS))))
+                    .add(nu[1].mul(v[i_rt2]).mul(g).mul(dsqm.add(a1m).sub(k(NORM_CEPS))))
             };
             b.finish(Box::new(poly), hosted)
         }
@@ -761,12 +897,24 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
         // moves into the two-lookup branch and the slot's degree is 4 (T1 C.1)
         SC_LZC => {
             let tau = tr.challenge_fp2_vec(sh.log(Dom::L));
+            // S9 part 4: this slot batches its helpers with the all-ones
+            // vector and draws no `mu`, so the pad term's weight is drawn
+            // here. The LogUp arm itself is never gated (§3.7a).
+            let mu_pad = if pad_on { tr.challenge_fp2() } else { Fp2::ZERO };
+            let zeta = if pad_on { nonzero(tr.challenge_fp2_vec(1))?[0] } else { Fp2::ZERO };
             b.eq(&tau, 0);
             let idx = b.a_range(ids.at(A_LIMB), ids.at(A_LIMBM))?;
             let h0 = b.h(hids.first_helper(Dom::L))?;
             let lks = lk_tables(lay, Dom::L, &idx, g_u8);
             let mu = vec![Fp2::ONE; sh.helpers(Dom::L)];
-            b.finish(Box::new(move |v: &[Fp2]| v[0].mul(helper_sum(v, &lks, h0, alpha, &mu))), vec![])
+            let mut pz = PadTerm::none();
+            if pad_on {
+                let si = b.supp(Dom::L, cube);
+                let planes: Vec<usize> = super::pad::zero_rule_a_planes(sh, ids, Dom::L).iter().map(|p| b.tab(*p)).collect();
+                pz.mu = mu_pad;
+                pz.add(si, &planes, zeta);
+            }
+            b.finish(Box::new(move |v: &[Fp2]| v[0].mul(helper_sum(v, &lks, h0, alpha, &mu).add(pz.eval(v)))), vec![])
         }
         SC_RS => {
             pts.p_ht = tr.challenge_fp2_vec(sh.log(Dom::Ht));
@@ -776,7 +924,12 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.public(causal_mask_at(sh));
             b.a(ids.at(A_E))?;
             b.a(ids.at(A_ZSEL))?;
-            b.finish(Box::new(move |v: &[Fp2]| v[0].mul(v[1].mul(v[2]).add(lam.mul(v[3])))), vec![])
+            // P-1: the row sums run over the padded `Dom::S` cube, so the
+            // SUMMAND takes `supp_S`; `SC_SZC`'s matching host term takes
+            // `supp_Ht`, which is constant in `j` and so leaves `per_row`
+            // alone.
+            let g = Gate(b.supp(Dom::S, cube));
+            b.finish(Box::new(move |v: &[Fp2]| g.at(v).mul(v[0]).mul(v[1].mul(v[2]).add(lam.mul(v[3])))), vec![])
         }
         SC_QMM | SC_KMM | SC_VMM | SC_WO => {
             if slot == SC_QMM || slot == SC_WO {
@@ -872,8 +1025,9 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
         SC_DZC => {
             let tau = tr.challenge_fp2_vec(sh.log(Dom::D));
             let n_help = sh.helpers(Dom::D);
-            let mu = tr.challenge_fp2_vec(11 + n_help);
+            let mu = tr.challenge_fp2_vec(11 + n_help + n_pad);
             let nu = nonzero(tr.challenge_fp2_vec(2))?;
+            let zeta = if pad_on { nonzero(tr.challenge_fp2_vec(1))?[0] } else { Fp2::ZERO };
             b.eq(&tau, 0);
             b.eq(&pts.p_a, 0);
             b.eq(&pts.p_z, 0);
@@ -895,6 +1049,20 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             let lks = lk_tables(lay, Dom::D, &idx, g_u8);
             let (k_num, k_dv, k_den) = (k(2 * NORM_CN), k(1 << NORM_TN), k(1 << (NORM_TN + 1)));
             let hosted = vec![(SC_WO, nu[0]), (SC_DMM, nu[1])];
+            // **S9 part 4 on `Dom::D`.** Every one of the domain's planes is
+            // ZERO-rule, and all of them are already pushed by `a_range`, so
+            // the term costs no new claim site. `gd` gates the eleven
+            // inhomogeneous clauses and BOTH host terms: `SC_WO` / `SC_DMM`
+            // publish a matmul output whose weight matrix vanishes off the
+            // support (ruling P-2), so their claimed value is already zero on
+            // a padded position and the gated host matches it.
+            let gd = Gate(b.supp(Dom::D, cube));
+            let mut pz = PadTerm::none();
+            if pad_on {
+                let planes: Vec<usize> = super::pad::zero_rule_a_planes(sh, ids, Dom::D).iter().map(|p| b.tab(*p)).collect();
+                pz.mu = mu[11 + n_help];
+                pz.add(gd.0, &planes, zeta);
+            }
             let poly = move |v: &[Fp2]| {
                 let at = |p: usize| v[idx[p]];
                 let l2 = |o: usize| at(o).add(at(o + 1).mul(p1));
@@ -915,13 +1083,14 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 let c8 = x2.add(k(32768)).sub(l2(A_X2L0));
                 let c9 = x2.sub(x1).sub(z16);
                 let c10 = z16.add(k(32768)).sub(l2(A_ZL0));
-                let mut zc = helper_sum(v, &lks, h0, alpha, &mu[11..]);
+                let g = gd.at(v);
+                let mut zc = helper_sum(v, &lks, h0, alpha, &mu[11..]).add(pz.eval(v));
                 for (m, c) in mu.iter().zip([c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10]) {
-                    zc = zc.add(m.mul(c));
+                    zc = zc.add(m.mul(g).mul(c));
                 }
                 let host_wo = k(1 << SH_AO).mul(ao).add(at(A_RAL)).sub(k(1 << (SH_AO - 1)));
                 let host_dmm = k(1 << SH_Z).mul(z16).add(at(A_RDL)).sub(k(1 << (SH_Z - 1)));
-                v[0].mul(zc).add(nu[0].mul(v[1]).mul(host_wo)).add(nu[1].mul(v[2]).mul(host_dmm))
+                v[0].mul(zc).add(nu[0].mul(v[1]).mul(g).mul(host_wo)).add(nu[1].mul(v[2]).mul(g).mul(host_dmm))
             };
             b.finish(Box::new(poly), hosted)
         }
@@ -931,8 +1100,9 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
         SC_FZC => {
             let tau = tr.challenge_fp2_vec(sh.log(Dom::F));
             let n_help = sh.helpers(Dom::F);
-            let mu = tr.challenge_fp2_vec(4 + n_help);
+            let mu = tr.challenge_fp2_vec(4 + n_help + n_pad);
             let nu = nonzero(tr.challenge_fp2_vec(2))?;
+            let zeta = if pad_on { nonzero(tr.challenge_fp2_vec(1))?[0] } else { Fp2::ZERO };
             b.eq(&tau, 0);
             b.eq(&pts.p_g, 0);
             b.eq(&pts.p_u, 0);
@@ -946,6 +1116,17 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             let i_fact = b.h(hids.fact())?;
             let lks = lk_tables(lay, Dom::F, &idx, g_u8);
             let hosted = vec![(SC_GMM, nu[0]), (SC_UMM, nu[1])];
+            // S9 part 4 on `Dom::F`. `f_act` is the activation PAIR LOOKUP's
+            // helper relation — the LogUp arm — and is NOT gated: gating it
+            // would drop the padded positions out of the value-0 identity
+            // while their multiplicities still count them (§3.7a).
+            let gf = Gate(b.supp(Dom::F, cube));
+            let mut pz = PadTerm::none();
+            if pad_on {
+                let planes: Vec<usize> = super::pad::zero_rule_a_planes(sh, ids, Dom::F).iter().map(|p| b.tab(*p)).collect();
+                pz.mu = mu[4 + n_help];
+                pz.add(gf.0, &planes, zeta);
+            }
             let poly = move |v: &[Fp2]| {
                 let at = |p: usize| v[idx[p]];
                 let l2 = |o: usize| at(o).add(at(o + 1).mul(p1));
@@ -954,14 +1135,15 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 let f1 = u16.add(k(32768)).sub(l2(A_UL0));
                 let f2 = h16.add(k(32768)).sub(l2(A_HL0));
                 let f_act = v[i_fact].mul(alpha.sub(g8.add(k(128)).add(beta.mul(a16)).add(g_act))).sub(Fp2::ONE);
-                let mut zc = helper_sum(v, &lks, h0, alpha, &mu[4..]);
-                for (m, c) in mu.iter().zip([f0, f1, f2, f_act]) {
-                    zc = zc.add(m.mul(c));
+                let g = gf.at(v);
+                let mut zc = helper_sum(v, &lks, h0, alpha, &mu[4..]).add(mu[3].mul(f_act)).add(pz.eval(v));
+                for (m, c) in mu.iter().zip([f0, f1, f2]) {
+                    zc = zc.add(m.mul(g).mul(c));
                 }
                 let host_g = k(1 << SH_G).mul(g8).add(at(A_RGL)).sub(k(1 << (SH_G - 1)));
                 // SH_U = 0: no coefficient, no constant, no remainder (T2 A.4)
                 let host_u = u16;
-                v[0].mul(zc).add(nu[0].mul(v[1]).mul(host_g)).add(nu[1].mul(v[2]).mul(host_u))
+                v[0].mul(zc).add(nu[0].mul(v[1]).mul(g).mul(host_g)).add(nu[1].mul(v[2]).mul(g).mul(host_u))
             };
             b.finish(Box::new(poly), hosted)
         }
@@ -971,8 +1153,9 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             let log = sh.log(dom);
             let tau = tr.challenge_fp2_vec(log);
             let n_help = sh.helpers(dom);
-            let mu = tr.challenge_fp2_vec(1 + n_help);
+            let mu = tr.challenge_fp2_vec(1 + n_help + n_pad);
             let nu = nonzero(tr.challenge_fp2_vec(2))?;
+            let zeta = if pad_on { nonzero(tr.challenge_fp2_vec(1))?[0] } else { Fp2::ZERO };
             b.eq(&tau, 0);
             b.eq(if q { &pts.pq } else { &pts.pk }, 0);
             b.eq(if q { &pts.p_o } else { &pts.pv }, 0);
@@ -996,11 +1179,23 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             let lks = lk_tables(lay, dom, &idx, g_u8);
             let half = k(1 << (SH_QKV - 1));
             let hosted = if q { vec![(SC_QMM, nu[0]), (SC_PV, nu[1])] } else { vec![(SC_KMM, nu[0]), (SC_VMM, nu[1])] };
+            // S9 part 4 on `Dom::Q` / `Dom::Kv`. The RoPE clause is
+            // inhomogeneous (the `2^(SH_ROPE-1)` bias) and takes the gate; so
+            // do both host terms. The PARTNER slice `iflip` reads the same
+            // plane at a flipped coordinate and needs no group of its own.
+            let gq = Gate(b.supp(dom, cube));
+            let mut pz = PadTerm::none();
+            if pad_on {
+                let planes: Vec<usize> = super::pad::zero_rule_a_planes(sh, ids, dom).iter().map(|p| b.tab(*p)).collect();
+                pz.mu = mu[1 + n_help];
+                pz.add(gq.0, &planes, zeta);
+            }
             let poly = move |v: &[Fp2]| {
                 let at = |p: usize| v[idx[p]];
                 let (rot, rot_rem) = (v[i_rot], v[i_rot_rem]);
                 let rope = v[ic].mul(v[i_src]).add(v[is].mul(v[iflip])).sub(k(1 << SH_ROPE).mul(rot)).sub(rot_rem).add(k(1 << (SH_ROPE - 1)));
-                let zc = mu[0].mul(rope).add(helper_sum(v, &lks, h0, alpha, &mu[1..]));
+                let g = gq.at(v);
+                let zc = mu[0].mul(g).mul(rope).add(helper_sum(v, &lks, h0, alpha, &mu[1..])).add(pz.eval(v));
                 let (host1, host2) = if q {
                     (
                         k(1 << SH_QKV).mul(at(A_Q8)).add(at(A_RQL)).sub(half),
@@ -1009,15 +1204,16 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 } else {
                     (k(1 << SH_QKV).mul(at(A_K8)).add(at(A_RKL)).sub(half), k(1 << SH_QKV).mul(at(A_V8)).add(at(A_RVL)).sub(half))
                 };
-                v[0].mul(zc).add(nu[0].mul(v[1]).mul(host1)).add(nu[1].mul(v[2]).mul(host2))
+                v[0].mul(zc).add(nu[0].mul(v[1]).mul(g).mul(host1)).add(nu[1].mul(v[2]).mul(g).mul(host2))
             };
             b.finish(Box::new(poly), hosted)
         }
         SC_SZC => {
             let tau = tr.challenge_fp2_vec(sh.log(Dom::S));
             let n_help = sh.helpers(Dom::S);
-            let mu = tr.challenge_fp2_vec(5 + n_help + 1);
+            let mu = tr.challenge_fp2_vec(5 + n_help + 1 + n_pad);
             let nu = nonzero(tr.challenge_fp2_vec(2))?;
+            let zeta = if pad_on { nonzero(tr.challenge_fp2_vec(1))?[0] } else { Fp2::ZERO };
             let lam = pts.lam_z;
             b.eq(&tau, 0);
             b.eq(&pts.p_ht, 0);
@@ -1042,6 +1238,27 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             // j positions of the S cube per Ht position) * (Sum(p_ht) + lam_z)
             let per_row = (sh.size(Dom::S) / sh.size(Dom::Ht)) as i64;
             let hosted = vec![(SC_RS, nu[0].mul(k(per_row))), (SC_SCORE, nu[1])];
+            // **S9 part 4 on `Dom::S` AND `Dom::Ht` (finding S9-F7).** This
+            // slot is the only host of two domains: `Dom::Ht` has no
+            // zero-check of its own and its two planes (`A_MX`, `A_SUM`) are
+            // read here on the LEADING coordinates, so its indicator is
+            // lifted over the trailing `j` axis and carries its own group.
+            // `supp_S` would be WRONG for them: it is 0 wherever `j` pads,
+            // which would force a TRUE row's maximum to zero. `host_rs` takes
+            // the LIFTED `supp_Ht` and not `supp_S`, because it is constant
+            // in `j` and `per_row` must stay the full `t_pad`.
+            let ght = Gate(b.supp(Dom::Ht, cube));
+            let gs = Gate(b.supp(Dom::S, cube));
+            let mut pz = PadTerm::none();
+            if pad_on {
+                pz.mu = mu[5 + n_help + 1];
+                if super::pad::zero_rule_a_planes(sh, ids, Dom::Ht) != vec![ids.at(A_MX), ids.at(A_SUM)] {
+                    return Err("private block: a Dom::Ht plane is outside SC_SZC's pad-zero group".into());
+                }
+                pz.add(ght.0, &[imx, isum], zeta);
+                let planes: Vec<usize> = super::pad::zero_rule_a_planes(sh, ids, Dom::S).iter().map(|p| b.tab(*p)).collect();
+                pz.add(gs.0, &planes, zeta);
+            }
             let poly = move |v: &[Fp2]| {
                 let at = |p: usize| v[idx[p]];
                 let (mask, s8, zsel, e, p, sum) = (v[im], at(A_S8), at(A_ZSEL), at(A_E), at(A_P), v[isum]);
@@ -1054,13 +1271,14 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 let c3 = limbs(v, &i_sg).add(sr).add(Fp2::ONE).sub(sum);
                 let c4 = p.sub(limbs(v, &i_pl));
                 let cx = v[ihx].mul(alpha.sub(delta.add(beta.mul(e)).add(g_exp))).sub(Fp2::ONE);
-                let mut zc = helper_sum(v, &lks, h0, alpha, &mu[5..5 + n_help]).add(mu[5 + n_help].mul(cx));
+                let g = gs.at(v);
+                let mut zc = helper_sum(v, &lks, h0, alpha, &mu[5..5 + n_help]).add(mu[5 + n_help].mul(cx)).add(pz.eval(v));
                 for (m, c) in mu.iter().zip([c0, c1, c2, c3, c4]) {
-                    zc = zc.add(m.mul(c));
+                    zc = zc.add(m.mul(g).mul(c));
                 }
                 let host_rs = sum.add(lam);
                 let host_s = k(1 << SH_S).mul(s8).add(at(A_RSL)).sub(k(1 << (SH_S - 1)));
-                v[0].mul(zc).add(nu[0].mul(v[1]).mul(host_rs)).add(nu[1].mul(v[2]).mul(host_s))
+                v[0].mul(zc).add(nu[0].mul(v[1]).mul(ght.at(v)).mul(host_rs)).add(nu[1].mul(v[2]).mul(g).mul(host_s))
             };
             b.finish(Box::new(poly), hosted)
         }
@@ -1069,7 +1287,8 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
         SC_TAB => {
             let tab_len = sh.size(Dom::Tab);
             let tau = tr.challenge_fp2_vec(sh.log(Dom::Tab));
-            let mu = tr.challenge_fp2_vec(3);
+            let mu = tr.challenge_fp2_vec(3 + n_pad);
+            let zeta = if pad_on { nonzero(tr.challenge_fp2_vec(1))?[0] } else { Fp2::ZERO };
             let th = hids.table_helpers();
             b.eq(&tau, 0);
             b.a(ids.at(A_MU8))?;
@@ -1081,11 +1300,28 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.a(ids.at(A_MACT))?;
             b.h(th[2])?;
             b.public(table_values_act_at(tab_len, ctx.ff, beta, g_act));
+            // **S9 part 4 on `Dom::Tab`.** After the P-3 lift the table row
+            // sits in a cube `1 << log_cols` wide, and the three histograms
+            // AND the three table helpers are ZERO above index 255 — the fact
+            // the lift rests on. The three helpers are already implied by
+            // `r0` / `r1` / `r2` (a zero multiplicity forces a zero helper as
+            // long as the padded table value is not `alpha`); the term states
+            // the memo's table outright rather than relying on that.
+            let mut pz = PadTerm::none();
+            if pad_on {
+                let si = b.supp(Dom::Tab, cube);
+                if super::pad::zero_rule_h_planes(sh, Dom::Tab) != th.to_vec() {
+                    return Err("private block: a Dom::Tab helper is outside SC_TAB's pad-zero group".into());
+                }
+                pz.mu = mu[3];
+                pz.add(si, &[1, 4, 7], zeta);
+                pz.add(si, &[2, 5, 8], zeta);
+            }
             let poly = move |v: &[Fp2]| {
                 let r0 = v[2].mul(alpha.sub(v[3])).sub(v[1]);
                 let r1 = v[5].mul(alpha.sub(v[6])).sub(v[4]);
                 let r2 = v[8].mul(alpha.sub(v[9])).sub(v[7]);
-                v[0].mul(mu[0].mul(r0).add(mu[1].mul(r1)).add(mu[2].mul(r2)))
+                v[0].mul(mu[0].mul(r0).add(mu[1].mul(r1)).add(mu[2].mul(r2)).add(pz.eval(v)))
             };
             b.finish(Box::new(poly), vec![])
         }
