@@ -61,6 +61,7 @@
 mod argument;
 mod layout;
 mod protocol;
+mod shape;
 mod wire;
 mod witness;
 

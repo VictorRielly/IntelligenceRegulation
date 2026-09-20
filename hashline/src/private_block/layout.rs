@@ -437,6 +437,8 @@ pub(crate) fn helpers(dom: Dom) -> (usize, usize) {
 }
 
 pub(crate) const LOOKUP_DOMS: [Dom; 6] = [Dom::L, Dom::D, Dom::F, Dom::Q, Dom::Kv, Dom::S];
+/// the nine domains, in the fixed order the layout lays planes out in
+pub(crate) const ALL_DOMS: [Dom; 9] = [Dom::T, Dom::Ht, Dom::L, Dom::D, Dom::Q, Dom::Kv, Dom::S, Dom::F, Dom::Tab];
 
 // ---- the CFS slots, in transcript order (T2 section C.3) ---------------------
 pub(crate) const N_SLOTS: usize = 23;
@@ -590,7 +592,11 @@ pub(crate) fn mask_specs() -> Vec<(usize, usize)> {
     SLOTS.iter().map(|&(n, e, d)| (n + e, d)).collect()
 }
 
-fn rows_of(log: usize) -> usize {
+/// rows a plane of `1 << log` elements occupies at THIS profile's row width.
+/// Superseded for layout construction by `shape::Shape::rows_of` (S5); kept
+/// as the toy profile's own statement of the rule, and asserted equal to the
+/// shape's in `grow_tests`.
+pub(crate) fn rows_of(log: usize) -> usize {
     (1usize << log).div_ceil(N)
 }
 
@@ -612,12 +618,35 @@ pub(crate) struct Layout {
 }
 
 impl Layout {
+    /// **S5.** The row geometry is now computed from a SHAPE
+    /// (`shape::Shape::toy`), not read off the plane table: the plane list,
+    /// the rows each plane takes, the claim-site counts, the slot table and
+    /// the opening-group counts all come from there. The frozen toy constants
+    /// stay exactly where they were and become the GATE — if the shape-driven
+    /// layout ever differs from them by one plane, one site or one row, this
+    /// panics before a byte is committed. That is what lets the same code
+    /// serve the rung and the 125M shapes later (steps S6..S13) without the
+    /// toy profile moving.
     pub(crate) fn new() -> Layout {
+        let sh = super::shape::Shape::toy();
+        let n = 1usize << sh.log_cols;
+        let a_doms = sh.a_plane_doms();
+        let h_doms = sh.h_plane_doms();
+        assert_eq!(a_doms.len(), N_A, "the shape-driven A plane list is not the declared one");
+        assert_eq!(h_doms.len(), N_H, "the shape-driven H plane list is not the declared one");
+        assert!((0..N_A).all(|p| a_doms[p] == a_dom(p)), "a shape-driven A plane sits on another domain");
+        assert!((0..N_H).all(|p| h_doms[p] == h_dom(p)), "a shape-driven H plane sits on another domain");
+        let (a_sites, h_sites) = sh.claim_sites();
+        assert_eq!(a_sites, A_SITES, "the shape-driven A claim sites are not the declared ones");
+        assert_eq!(h_sites, H_SITES, "the shape-driven H claim sites are not the declared ones");
+        assert_eq!(sh.slots(), SLOTS, "the shape-driven slot table is not the declared one");
+        assert_eq!((sh.a_groups(), sh.h_groups()), (A_GROUPS, H_GROUPS), "the shape-driven opening groups are not the declared ones");
+        assert_eq!(n, N, "the shape's row width is not this profile's");
         let mut row = 0usize;
         let mut a_off = Vec::with_capacity(N_A);
-        for p in 0..N_A {
-            a_off.push(row * N);
-            row += rows_of(a_dom(p).log());
+        for d in &a_doms {
+            a_off.push(row * n);
+            row += sh.rows_of(*d);
         }
         let a_data_rows = row;
         let mut a_prefix = vec![0usize; N_SLOTS + 1];
@@ -631,9 +660,9 @@ impl Layout {
         let a_rows = a_prox + 2;
         let mut row = 0usize;
         let mut h_off = Vec::with_capacity(N_H);
-        for p in 0..N_H {
-            let r = rows_of(h_dom(p).log());
-            h_off.push((row * N, (row + r) * N));
+        for d in &h_doms {
+            let r = sh.rows_of(*d);
+            h_off.push((row * n, (row + r) * n));
             row += 2 * r;
         }
         let h_data_rows = row;

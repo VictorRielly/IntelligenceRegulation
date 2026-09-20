@@ -232,3 +232,240 @@ fn the_lift_is_a_no_op_at_the_toy() {
     assert_eq!(SLOTS[SC_TAB].0, 8);
     assert_eq!(SLOTS[SC_ZS].0, 8);
 }
+
+// ------------------------------------------------- S5: the shape-driven layout
+
+use super::shape::{ReceiptBytes, Shape, Totals};
+
+/// Every number the shape-driven layout must produce for one shape. The three
+/// instances below are transcribed from the INDEPENDENT Python model's output
+/// (`results/zk60_block125m_lane/model_{toy,rung,m125}.json`, produced by
+/// `scripts/zk60_private_block_layout_model.py`). The two were written from
+/// the same memo but not from each other, so an agreement is evidence and a
+/// disagreement is a finding.
+struct Expected {
+    a_planes: usize,
+    h_planes: usize,
+    a_data_rows: usize,
+    h_data_rows: usize,
+    a_rows: usize,
+    h_rows: usize,
+    a_sites: usize,
+    h_sites: usize,
+    a_groups: usize,
+    h_groups: usize,
+    largest_slot_length: usize,
+    main_rounds: usize,
+    extension_rounds: usize,
+    u8_per_domain: [usize; 6],
+    u8_lookups: usize,
+    exp_pairs: usize,
+    act_pairs: usize,
+    receipt_total: usize,
+}
+
+const MODEL_TOY: Expected = Expected {
+    a_planes: 81,
+    h_planes: 51,
+    a_data_rows: 213,
+    h_data_rows: 280,
+    a_rows: 455,
+    h_rows: 384,
+    a_sites: 120,
+    h_sites: 51,
+    a_groups: 35,
+    h_groups: 9,
+    largest_slot_length: 50,
+    main_rounds: 159,
+    extension_rounds: 25,
+    u8_per_domain: [1_024, 19_456, 4_608, 6_656, 3_072, 26_624],
+    u8_lookups: 61_440,
+    exp_pairs: 2_048,
+    act_pairs: 512,
+    receipt_total: 2_816_472,
+};
+
+const MODEL_RUNG: Expected = Expected {
+    a_planes: 83,
+    h_planes: 52,
+    a_data_rows: 377,
+    h_data_rows: 470,
+    a_rows: 623,
+    h_rows: 576,
+    a_sites: 122,
+    h_sites: 52,
+    a_groups: 36,
+    h_groups: 9,
+    largest_slot_length: 72,
+    main_rounds: 215,
+    extension_rounds: 25,
+    u8_per_domain: [2_048, 155_648, 73_728, 53_248, 12_288, 122_880],
+    u8_lookups: 419_840,
+    exp_pairs: 8_192,
+    act_pairs: 8_192,
+    // the memo's §9a table says 4,173,032; the model's extra 176 B is
+    // `SC_KVZC`'s support indicator, which §9a's own domain paragraph
+    // requires because `Dom::Kv` pads at the rung (lane finding B-F3, open
+    // for the security owner). The Rust agrees with the model, not with the
+    // table.
+    receipt_total: 4_173_208,
+};
+
+const MODEL_M125: Expected = Expected {
+    a_planes: 83,
+    h_planes: 50,
+    a_data_rows: 5_435,
+    h_data_rows: 7_018,
+    a_rows: 5_681,
+    h_rows: 7_120,
+    a_sites: 122,
+    h_sites: 50,
+    a_groups: 36,
+    h_groups: 9,
+    largest_slot_length: 117,
+    main_rounds: 332,
+    extension_rounds: 25,
+    u8_per_domain: [32_768, 17_825_792, 9_437_184, 6_815_744, 1_572_864, 62_914_560],
+    u8_lookups: 98_598_912,
+    exp_pairs: 4_194_304,
+    act_pairs: 1_048_576,
+    receipt_total: 40_750_024,
+};
+
+fn check_against_model(sh: &Shape, want: &Expected) {
+    let t: Totals = sh.totals();
+    assert_eq!(t.a_planes, want.a_planes, "{}: A planes", sh.name);
+    assert_eq!(t.h_planes, want.h_planes, "{}: H planes", sh.name);
+    assert_eq!(t.a_data_rows, want.a_data_rows, "{}: A data rows", sh.name);
+    assert_eq!(t.h_data_rows, want.h_data_rows, "{}: H data rows", sh.name);
+    assert_eq!(t.a_rows, want.a_rows, "{}: A rows", sh.name);
+    assert_eq!(t.h_rows, want.h_rows, "{}: H rows", sh.name);
+    assert_eq!(t.m_rows, 50, "{}: M rows", sh.name);
+    assert_eq!(t.a_sites, want.a_sites, "{}: A claim sites", sh.name);
+    assert_eq!(t.h_sites, want.h_sites, "{}: H claim sites", sh.name);
+    assert_eq!(t.a_groups, want.a_groups, "{}: A opening groups", sh.name);
+    assert_eq!(t.h_groups, want.h_groups, "{}: H opening groups", sh.name);
+    assert_eq!(t.functionals, 34, "{}: functionals", sh.name);
+    assert_eq!(t.largest_slot_length, want.largest_slot_length, "{}: largest slot L", sh.name);
+    assert!(t.largest_slot_length + 256 <= 512, "{}: the mask budget L + 256 <= 512 is broken", sh.name);
+    assert_eq!(t.main_rounds, want.main_rounds, "{}: main rounds", sh.name);
+    assert_eq!(t.extension_rounds, want.extension_rounds, "{}: extension rounds", sh.name);
+    assert_eq!(t.u8_per_domain, want.u8_per_domain.to_vec(), "{}: U8 lookups per domain", sh.name);
+    assert_eq!(t.u8_lookups, want.u8_lookups, "{}: U8 lookups", sh.name);
+    assert_eq!(t.exp_pairs, want.exp_pairs, "{}: exp pairs", sh.name);
+    assert_eq!(t.act_pairs, want.act_pairs, "{}: act pairs", sh.name);
+    assert_eq!(t.receipt_bytes.total, want.receipt_total, "{}: receipt bytes", sh.name);
+    // B-3 must be closed at EVERY shape, or that shape produces no receipt
+    assert_eq!(t.logup_sum_claim_keys, 1, "{}: the LogUp sum claim raises more than one column-weight key", sh.name);
+}
+
+/// **S5, the toy instance.** The shape-driven layout reproduces every number
+/// the module's own tests assert about the toy. `Layout::new` already panics
+/// if it does not — this test says so where it can be read.
+#[test]
+fn the_shape_driven_layout_reproduces_the_toy_exactly() {
+    let sh = Shape::toy();
+    check_against_model(&sh, &MODEL_TOY);
+    let lay = Layout::new();
+    assert_eq!((lay.a_data_rows, lay.a_rows, lay.h_data_rows, lay.h_rows), (A_DATA_ROWS, A_ROWS, H_DATA_ROWS, H_ROWS));
+    assert_eq!(sh.claim_sites(), (A_SITES, H_SITES));
+    assert_eq!(sh.slots(), SLOTS);
+    assert_eq!(sh.profile, std::str::from_utf8(PROFILE).unwrap(), "the toy shape's profile id is this module's");
+    // the two statements of the row rule agree at the toy
+    for dom in ALL_DOMS {
+        assert_eq!(sh.rows_of(dom), rows_of(dom.log()), "{dom:?}: rows");
+        assert_eq!(sh.log(dom), dom.log(), "{dom:?}: log");
+        assert_eq!(sh.size(dom), dom.len(), "{dom:?}: size");
+    }
+    // and the lookup lists: the shape's per-position counts are the layout's
+    for dom in LOOKUP_DOMS {
+        assert_eq!(sh.lookups_per_position(dom), lookups(dom).len(), "{dom:?}: lookups per position");
+        assert_eq!(sh.helpers(dom), helpers(dom).1, "{dom:?}: helper planes");
+    }
+    // B-F5: `Dom::L` is the ONE domain that already pads at the toy — nine of
+    // its sixteen limb sub-planes are used. `SC_LZC` is homogeneous and takes
+    // no indicator, so no toy byte moves for it.
+    assert_eq!(sh.padded_domains(), vec![Dom::L], "the toy's padded domains");
+}
+
+/// **S5, the two new shapes.** Layouts only: nothing is proved at either.
+#[test]
+fn the_shape_driven_layout_matches_the_python_model_at_the_rung_and_at_125m() {
+    check_against_model(&Shape::rung(), &MODEL_RUNG);
+    check_against_model(&Shape::m125(), &MODEL_M125);
+}
+
+/// **S5, the derived calibration.** The two integer windows and the limb
+/// counts they force come from the shape, not from a literal — which is what
+/// step S8 will need. The toy's are the module's own constants.
+#[test]
+fn the_integer_windows_come_from_the_shape() {
+    let toy = Shape::toy();
+    assert_eq!((toy.norm_wrho, toy.wrho_s), (NORM_WRHO, WRHO_S), "the toy's windows are the module's constants");
+    assert_eq!((toy.limbs_norm(), toy.limbs_sigma_s(), toy.limbs_p()), (4, 2, 2));
+    assert!(!toy.norm_top_is_full_byte(), "the toy keeps its four `scaled` norm lookups");
+    // memo §9a: the rung's honest window is 31 and its softmax needs a THIRD
+    // limb, which the toy's 14-bit window does not
+    let rung = Shape::rung();
+    assert_eq!((rung.norm_wrho, rung.wrho_s), (31, 17));
+    assert_eq!((rung.limbs_norm(), rung.limbs_sigma_s()), (4, 3));
+    assert!(!rung.norm_top_is_full_byte());
+    // memo §3.3: width 768 needs NORM_WRHO = 32, which fills its top limb and
+    // so drops the four now-redundant `scaled` lookups (C-6)
+    let m125 = Shape::m125();
+    assert_eq!((m125.norm_wrho, m125.wrho_s), (32, 18));
+    assert_eq!((m125.limbs_norm(), m125.limbs_sigma_s()), (4, 3));
+    assert!(m125.norm_top_is_full_byte(), "at 32 bits the top norm limb is exactly full");
+    // the Python model's `D_max` for the three shapes, digit for digit
+    assert_eq!((toy.d_max, rung.d_max, m125.d_max), (131_068, 321_049, 908_065), "isqrt(1 + width * 32767^2)");
+}
+
+/// **S5, the construction refusals.** A shape the construction cannot express
+/// is refused BY NAME at construction, not by an assertion deep inside a
+/// numeric helper (trap T-2, which is a prover panic today).
+#[test]
+fn an_inexpressible_shape_is_refused_at_construction_by_name() {
+    let mk = |t, d, f, h, dh, kv| Shape::new("probe", "probe/1", t, d, f, h, dh, kv, 8, 8, 9, 7, None, None, None, None);
+    // the Q/D coincidence: the padded head slots must tile the padded width
+    let err = mk(32, 16, 16, 2, 4, 1).expect_err("d_pad != h_pad * head_dim must be refused");
+    assert_eq!(err, "private block shape: d_pad differs from h_pad * head_dim");
+    // T-8: the RoPE partner bit is addressed as `log - log2(head_dim)`
+    let err = mk(32, 48, 16, 2, 24, 1).expect_err("a non-power-of-two head dimension must be refused");
+    assert_eq!(err, "private block shape: the head dimension is not an even power of two");
+    // grouped-query attention needs a whole group
+    let err = mk(32, 16, 16, 2, 8, 3).expect_err("kv heads that do not divide the query heads must be refused");
+    assert_eq!(err, "private block shape: the query heads do not divide into the key-value heads");
+    let err = mk(0, 16, 16, 2, 8, 1).expect_err("a zero axis must be refused");
+    assert_eq!(err, "private block shape: an axis is zero");
+    // and the three shapes the lane uses are all accepted
+    for sh in [Shape::toy(), Shape::rung(), Shape::m125()] {
+        assert_eq!(sh.d_pad, sh.h_pad * sh.head_dim, "{}", sh.name);
+    }
+}
+
+/// **S5, the profile rule (D17).** Each shape carries its OWN profile id: a
+/// new shape is a new profile BESIDE the toy, never an edit of it, because
+/// the profile is transcript-bound.
+#[test]
+fn every_shape_has_its_own_profile_id() {
+    let ids: Vec<&str> = [Shape::toy(), Shape::rung(), Shape::m125()].iter().map(|s| s.profile).collect();
+    let distinct: std::collections::HashSet<&str> = ids.iter().copied().collect();
+    assert_eq!(distinct.len(), ids.len(), "two shapes share a profile id: {ids:?}");
+    assert_eq!(ids[0], std::str::from_utf8(PROFILE).unwrap(), "the toy's profile id must not move");
+}
+
+/// **S5, the receipt part by part** at 125M, against memo §7.1's table — the
+/// figure the whole memory and cost model rests on.
+#[test]
+fn the_125m_receipt_is_reproduced_part_by_part() {
+    let r: ReceiptBytes = Shape::m125().receipt_bytes();
+    assert_eq!(r.a_opening, 21_626_880, "A opening");
+    assert_eq!(r.h_opening, 17_385_472, "H opening");
+    assert_eq!(r.endpoint_openings, 1_466_368, "two endpoint openings");
+    assert_eq!(r.mask_opening, 243_712, "M opening");
+    assert_eq!(r.slots, 27_456, "23 slots");
+    assert_eq!(r.header_and_three_roots, 136, "header + three roots");
+    assert_eq!(r.total, 40_750_024, "one 125M block");
+    // and the toy's, which the wire format actually produces
+    assert_eq!(Shape::toy().receipt_bytes().total, 2_816_472);
+}

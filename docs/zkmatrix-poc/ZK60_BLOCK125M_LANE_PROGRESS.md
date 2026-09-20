@@ -37,7 +37,7 @@ changes* (files outside those two trees), for the hand-back: **none.**
 | **S1 split `U8_LEN` from `N`** | DONE | `…/s1-run2.log:140` — **61 passed / 0 failed / 2 ignored**; toy receipt still 2,816,472 B |
 | **S2 free the witness and lookup buffers** | DONE | `…/s2-run1.log:140` — **61 passed / 0 failed / 2 ignored**; toy receipt still 2,816,472 B; digest gate held |
 | **S4 lookup-summation repair** | DONE | failing first: `…/s4-failing-test.log:158-159` (the refusal, by name); repaired: `…/s4-run2-repaired.log:145` — **66 passed / 0 failed / 2 ignored**; toy receipt 2,816,472 B, digest gate held |
-| **S5 shape-driven layout** | — | |
+| **S5 shape-driven layout** | DONE | `…/s5-run2.log:151` — **72 passed / 0 failed / 2 ignored**; toy receipt 2,816,472 B, digest gate held; toy, rung and 125M totals all equal the Python model's |
 
 ## The toy freeze gate this stage added
 
@@ -82,6 +82,8 @@ flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attent
 | 10 | the Rust command with `--include-ignored <the S4 test>`, BEFORE the repair | `…/s4-failing-test.log` | the S4 test FAILS at `grow_tests.rs:163` with `"private block: claim parts with different column weights"`; the two other failures are the two `capture` gates that `--include-ignored` also runs |
 | 11 | the Rust command, filter `private_`, with the S4 test still ignored | `…/s4-run1-ignored.log` | 63 passed, 0 failed, 3 ignored, 29.36 s |
 | 12 | the Rust command, filter `private_`, after the S4 repair | `…/s4-run2-repaired.log` | **66 passed, 0 failed, 2 ignored**, 27.83 s |
+| 13 | the Rust command, filter `private_`, after S5 | `…/s5-run1.log` | 71 passed, 1 failed — ONE difference against the Python model, `D_max` at 125M; the model is right (908,065) and the Rust test's literal was a typo. The layout itself agreed everywhere |
+| 14 | the same, literal corrected | `…/s5-run2.log` | **72 passed, 0 failed, 2 ignored**, 27.90 s; 8 warnings, the same 8 the baseline had |
 
 ## Findings
 
@@ -271,6 +273,60 @@ multiplicities are zero) holds structurally — `prove_inner` writes only
 multiplicity planes to `Dom::Tab` so that a plane moved to another domain
 would fail here.
 
+**S5-F1 (the Rust and the Python agree at all three shapes, with ONE
+exception that is the PYTHON's finding, not a new one).** The Rust
+`shape::Shape` and the Python model were written from the same memo, three
+weeks and one agent apart, and not from each other. Every total agrees:
+
+| quantity | toy | rung | 125M |
+|---|---:|---:|---:|
+| `A` planes / `H` planes | 81 / 51 | 83 / 52 | 83 / 50 |
+| `A` data rows / `A` rows | 213 / 455 | 377 / 623 | 5,435 / 5,681 |
+| `H` data rows / `H` rows | 280 / 384 | 470 / 576 | 7,018 / 7,120 |
+| claim sites `A` / `H` | 120 / 51 | 122 / 52 | 122 / 50 |
+| opening groups `A` / `H` | 35 / 9 | 36 / 9 | 36 / 9 |
+| largest slot `L` | 50 | 72 | 117 |
+| main / extension rounds | 159 / 25 | 215 / 25 | 332 / 25 |
+| U8 lookups | 61,440 | 419,840 | 98,598,912 |
+| exp / act pairs | 2,048 / 512 | 8,192 / 8,192 | 4,194,304 / 1,048,576 |
+| **receipt** | **2,816,472** | **4,173,208** | **40,750,024** |
+
+The one exception is the RUNG RECEIPT, and it is finding B-F3 unchanged: the
+Rust gives 4,173,208 B where §9a's table says 4,173,032 B, for exactly the
+same reason the Python did — `SC_KVZC` carries a support indicator because
+`Dom::Kv` pads at the rung, which §9a's own domain paragraph requires and its
+table does not price. **Two independent implementations now say the memo's
+rung receipt line is 176 B light.** That remains a question for the security
+owner, not a defect: either the rung receipt is 4,173,208 B, or `supp_Kv`
+does not gate `SC_KVZC`'s inhomogeneous RoPE constraint. The 125M receipt is
+reproduced PART BY PART against §7.1 — `A` 21,626,880 + `H` 17,385,472 +
+endpoints 1,466,368 + `M` 243,712 + slots 27,456 + 136.
+
+One literal in the Rust TEST was wrong on the first run (`D_max` at 125M,
+908,079 instead of 908,065) and the model caught it. That is the oracle
+working: the disagreement was in the transcription, not in either layout.
+
+**S5-F2 (what S5 did NOT do, so the next agent does not assume it).**
+`Layout::new` now builds the toy's row geometry from `Shape::toy()` and
+asserts the result against every frozen toy constant, so the two cannot
+drift. But **only the LAYOUT is shape-driven.** The argument is not: the
+witness builder, the claim points, the RoPE tables, the causal mask, the
+`limb_off` stride and `h_u_rows` still read the toy's `T`, `D`, `N` literals,
+and `describe()` (whose digest is transcript-bound) is still the toy's text.
+There is deliberately NO `Layout::for_shape(&other)`, because a half-general
+`Layout` would be a trap. Making the argument shape-driven is S6..S11.
+`Shape::rung()` and `Shape::m125()` exist as counted layouts and as distinct
+profile ids; nothing is proved at either.
+
+**S5-F3 (the construction refusals trap T-2 asks for now exist, by name).**
+`Shape::new` refuses a zero axis, a head dimension that is not a power of two
+(T-8's `cf[log - log2(dh)]`), a padded width that is not a power of two
+(T-2), `d_pad != h_pad * head_dim` (the `Q`/`D` coincidence) and query heads
+that do not divide into the key-value heads. Each is a named `Err`, tested by
+its string. The prover panic T-2 describes (`fold_rows_i8`'s
+`assert_eq!(w.len(), rows)`) is not yet replaced at the call site — that is
+S5's construction-time half done and S7's argument-side half still open.
+
 **No disagreement between the memo's rules and `layout.rs` was found at the
 toy shape**: every rule the memo states reproduces the Rust's own numbers.
 The differences above are all at shapes that do not exist yet.
@@ -282,6 +338,28 @@ privacy argument, not a privacy result.
 
 ## NEXT
 
-S2 (free the witness and lookup buffers after their last use, the point after
-`protocol.rs:351` in the memo numbering), then S4 (the lookup-summation
-repair, failing test first), then S5 (the shape-driven layout).
+**S1, S2, S4 and S5 are done and green (72 passed / 0 failed / 2 ignored, the
+two ignored being the two pre-existing `capture::native_capture_saved_receipt`
+gates). The toy receipt is 2,816,472 B and the pinned schedule digest has not
+moved at any commit.**
+
+The next agent takes **S6**: generalise `private-block-kernel` over the same
+`Shape`, with the acceptance of §9 — the existing 1,200-case parity run at
+the toy shape reproduces exactly (905 accept, 295 refuse, same site, same
+string, every plane element for element) and the toy receipt stays
+2,816,472 B. `private-block-kernel` is a separate crate and is NOT on the
+do-not-touch list, but it is OUTSIDE `hashline/src/private_block*`, so every
+edit to it belongs in its own commit and on the shared-file list above.
+
+Two things to read first, both in this file: **S5-F2**, which says exactly
+how much of the module is shape-driven (the layout, and nothing else — there
+is deliberately no `Layout::for_shape(&other)`), and **S5-F1 / B-F3**, the
+176-byte rung-receipt difference that two independent implementations now
+report against §9a's table and that needs a security-owner ruling before the
+rung's receipt size is quoted anywhere.
+
+Three items are waiting on the security owner, none of them blocking S6:
+S1-F1 (a one-line correction to §1.3 T-1 and the §9 S1 row: `argument.rs:898`
+is `Dom::Tab.len()`, not the table size), S5-F1 (the rung receipt), and S3's
+decision 2, which changes the 125M `Dom::D` lookup list and so the `H` row
+total (C-6) — `Shape::lookups_per_position` is where that ruling lands.
