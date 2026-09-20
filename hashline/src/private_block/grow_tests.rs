@@ -10,7 +10,7 @@
 //! Nothing here establishes a privacy or a soundness property; these are
 //! mechanical acceptance checks that a growth step did what it said.
 
-use super::argument::{table_values_act, table_values_exp, table_values_u8};
+use super::argument::{table_values_act, table_values_act_at, table_values_exp, table_values_exp_at, table_values_u8, table_values_u8_at};
 use super::layout::*;
 use super::protocol::{logup_sum_claim, opening_groups_at};
 use super::*;
@@ -151,7 +151,6 @@ fn the_reconstructed_sum_claim_equals_the_modules_own_at_the_toy() {
 /// FAILS today with exactly that refusal. It is ignored until the repair
 /// lands (ruling P-7: reproduce the failure first).
 #[test]
-#[ignore = "S4 not yet applied: at the rung the sum claim raises three column-weight keys and check_opening refuses (B-3)"]
 fn the_logup_sum_claim_has_one_column_weight_key_at_the_rung() {
     // the module's own lift rule, asked at the rung's row width
     let logs: Vec<(usize, bool)> = RUNG_DOMAINS
@@ -175,4 +174,61 @@ fn the_unlifted_rung_sum_claim_raises_three_keys_and_is_refused() {
     assert_eq!(keys.into_iter().collect::<Vec<_>>(), vec![(0, 256), (0, 512), (0, 1024)], "the three keys memo §9a predicts");
     let err = opening_groups_at(&[claim], RUNG_LOG_COLS).expect_err("three keys must be refused");
     assert_eq!(err, "private block: claim parts with different column weights");
+}
+
+/// **S4, the repair's OWN risk (§4.1 condition 1).** The lift makes the three
+/// table planes longer than the byte class. If the padded positions carried
+/// their own index, the byte range proof would admit `1 << LOG_N` values
+/// instead of 256 — a soundness hole created by the fix for a shape bug. The
+/// padded entries repeat `i mod U8_LEN`, so the SET of proved values is still
+/// exactly the 256 byte rows at any lifted length.
+///
+/// This test guards the fix, not the bug: it passes trivially at the toy's
+/// unlifted length and would fail at a lifted one if the rule were wrong, so
+/// it is run at BOTH.
+#[test]
+fn the_lifted_u8_table_proves_exactly_256_values() {
+    let (blk, _) = BlockPublic::synthetic_fixture();
+    let (public, ff) = (blk.attention(), blk.feed_forward());
+    let (g, beta) = (Fp2::from_u64(7), Fp2::from_u64(11));
+    let set = |v: &[Fp2]| v.iter().copied().collect::<std::collections::HashSet<Fp2>>();
+    let base_u8 = set(&table_values_u8_at(U8_LEN, g));
+    let base_exp = set(&table_values_exp_at(U8_LEN, public, beta, g));
+    let base_act = set(&table_values_act_at(U8_LEN, ff, beta, g));
+    for len in [U8_LEN, 1usize << RUNG_LOG_COLS, 1usize << 14] {
+        let u8_tab = table_values_u8_at(len, g);
+        assert_eq!(u8_tab.len(), len, "the table plane is as long as its domain");
+        let distinct = set(&u8_tab);
+        assert_eq!(distinct.len(), U8_LEN, "a lifted U8 table must still prove exactly {U8_LEN} values, not {len}");
+        // and they are the SAME 256 values the unlifted table proves
+        assert_eq!(distinct, base_u8, "the lift changed WHICH values the U8 table proves");
+        // a value of 300 is not a byte and is in no lifted table
+        assert!(!distinct.contains(&Fp2::from_i64(300).add(g)), "300 is not a byte and must not be provable");
+        // the two paired tables are lifted by the same rule
+        let exp_tab = table_values_exp_at(len, public, beta, g);
+        let act_tab = table_values_act_at(len, ff, beta, g);
+        assert_eq!((exp_tab.len(), act_tab.len()), (len, len));
+        assert_eq!(set(&exp_tab), base_exp, "the lift changed WHICH pairs the exp table proves");
+        assert_eq!(set(&act_tab), base_act, "the lift changed WHICH pairs the act table proves");
+    }
+    // §4.1 condition 2, structurally: the multiplicity planes are as long as
+    // `Dom::Tab` but `prove_inner` writes only `0..U8_LEN` into a
+    // zero-initialised commitment, so every padded multiplicity is zero.
+    assert!(Dom::Tab.len() >= U8_LEN, "the table domain is never shorter than the byte class");
+    assert_eq!(a_dom(A_MU8), Dom::Tab);
+    assert_eq!(a_dom(A_MEXP), Dom::Tab);
+    assert_eq!(a_dom(A_MACT), Dom::Tab);
+}
+
+/// **S4 at the toy: a NO-OP, which is what P-8's byte-identity gate needs.**
+/// Every toy `H` domain already sits at or above `LOG_N`, so the lift moves
+/// nothing, and `SC_TAB`'s and `SC_ZS`'s cubes stay at 8 rounds.
+#[test]
+fn the_lift_is_a_no_op_at_the_toy() {
+    for dom in [Dom::T, Dom::Ht, Dom::L, Dom::D, Dom::Q, Dom::Kv, Dom::S, Dom::F, Dom::Tab] {
+        assert_eq!(dom.log(), dom.natural_log(), "the lift moved {dom:?} at the toy");
+    }
+    assert_eq!(Dom::Tab.len(), U8_LEN, "the toy's table domain IS the byte class");
+    assert_eq!(SLOTS[SC_TAB].0, 8);
+    assert_eq!(SLOTS[SC_ZS].0, 8);
 }

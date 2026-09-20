@@ -36,7 +36,7 @@ changes* (files outside those two trees), for the hand-back: **none.**
 | **S0 baseline on the merged tree** | DONE | `results/zk60_block125m_lane/s-baseline.log:138` — **58 passed / 0 failed / 2 ignored / 67 filtered out**, 27.74 s. The two ignored are the two `capture::native_capture_saved_receipt` gates (they need saved receipt paths). Toy receipt 2,816,472 B asserted by `private_block/tests.rs:108` and `zero_witness_tests.rs:172`, both in the pass list |
 | **S1 split `U8_LEN` from `N`** | DONE | `…/s1-run2.log:140` — **61 passed / 0 failed / 2 ignored**; toy receipt still 2,816,472 B |
 | **S2 free the witness and lookup buffers** | DONE | `…/s2-run1.log:140` — **61 passed / 0 failed / 2 ignored**; toy receipt still 2,816,472 B; digest gate held |
-| **S4 lookup-summation repair** | — | |
+| **S4 lookup-summation repair** | DONE | failing first: `…/s4-failing-test.log:158-159` (the refusal, by name); repaired: `…/s4-run2-repaired.log:145` — **66 passed / 0 failed / 2 ignored**; toy receipt 2,816,472 B, digest gate held |
 | **S5 shape-driven layout** | — | |
 
 ## The toy freeze gate this stage added
@@ -79,6 +79,9 @@ flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attent
 | 7 | filter `private_block::grow_tests`, to CAPTURE the toy schedule digest (a deliberately failing assertion) | `…/s1-digest-capture.log:86` | 2 passed, 1 failed — the digest read off the failure message |
 | 8 | the Rust command, filter `private_`, after S1 + the digest pin | `…/s1-run2.log` | **61 passed, 0 failed, 2 ignored**, 27.87 s |
 | 9 | the Rust command, filter `private_`, after S2 | `…/s2-run1.log` | **61 passed, 0 failed, 2 ignored**, 27.93 s |
+| 10 | the Rust command with `--include-ignored <the S4 test>`, BEFORE the repair | `…/s4-failing-test.log` | the S4 test FAILS at `grow_tests.rs:163` with `"private block: claim parts with different column weights"`; the two other failures are the two `capture` gates that `--include-ignored` also runs |
+| 11 | the Rust command, filter `private_`, with the S4 test still ignored | `…/s4-run1-ignored.log` | 63 passed, 0 failed, 3 ignored, 29.36 s |
+| 12 | the Rust command, filter `private_`, after the S4 repair | `…/s4-run2-repaired.log` | **66 passed, 0 failed, 2 ignored**, 27.83 s |
 
 ## Findings
 
@@ -236,6 +239,37 @@ the acceptance — "peak RSS of the toy example does not rise" — is not
 measured here: at the toy the four buffers total about 2 MB, which is below
 the run-to-run noise of this box, and the figure that matters (9.6 GiB against
 11.0 GiB) is S14's, on a quiesced box.
+
+**S4-F1 (the failure, reproduced before the fix, and how).** The module cannot
+be instantiated at any geometry but the toy's until S5, so — as the brief
+allows — B-3 is reproduced at the level of the claim-building and the opening
+check, with a constructed layout. Three things make that honest rather than a
+private re-implementation:
+
+1. `part_key_at` and `opening_groups_at` are the REAL functions, now taking
+   the row-width log as a parameter; `check_opening` calls them at `LOG_N`.
+2. The claim reconstruction (`sum_claim_from_logs`) is shown to reproduce the
+   module's own `logup_sum_claim(&Layout::new())` at the toy, part for part,
+   in its own test.
+3. The rung's nine natural domain logs come from §9a's own domain paragraph.
+
+Before the repair the test failed with exactly
+`"private block: claim parts with different column weights"`; after it, one
+group. A second test, `the_unlifted_rung_sum_claim_raises_three_keys_and_is_refused`,
+keeps the bug on the record permanently: the three keys are `([], 0, 256)`,
+`([], 0, 512)`, `([], 0, 1024)` — §9a's three, and the Python model's (B-F6).
+
+**S4-F2 (the repair's own risk is closed in one place).** Condition 1 of §4.1
+— padded table positions must REPEAT an existing entry, or the byte range
+proof admits `1 << LOG_N` values instead of 256 — is now a single rule shared
+by all three tables: entry `i` is built from `i % U8_LEN`. It is tested at
+three lengths (256, the rung's 1,024, 125M's 16,384) by the SET of values
+each table proves, not by its length: the set must be the same 256 the
+unlifted table proves, and 300 must not be in it. Condition 2 (padded
+multiplicities are zero) holds structurally — `prove_inner` writes only
+`0..U8_LEN` into a zero-initialised commitment — and the test pins the three
+multiplicity planes to `Dom::Tab` so that a plane moved to another domain
+would fail here.
 
 **No disagreement between the memo's rules and `layout.rs` was found at the
 toy shape**: every rule the memo states reproduces the Rust's own numbers.

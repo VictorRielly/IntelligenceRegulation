@@ -117,12 +117,28 @@ pub(crate) enum Dom {
 /// At the toy every `H` domain is already at or above `LOG_N = 8`, so the
 /// question has never arisen.
 ///
-/// **NOT YET REPAIRED.** This body states, in one place, what the module does
-/// TODAY: the domain's log ignores the row width entirely. It is written down
-/// so that B-3 can be reproduced as a failing test at a geometry this module
-/// cannot yet be instantiated at (ruling P-7). The repair replaces the body.
-pub(crate) fn domain_log_at(natural: usize, _carries_h_planes: bool, _log_n: usize) -> usize {
-    natural
+/// **THE REPAIR (ruling P-3).** A domain that carries `H` planes and whose
+/// natural log sits BELOW the row width is lifted TO the row width.
+/// `rows_of` is 1 either way below the row width, so the lift costs no
+/// committed row, no claim site and no slot.
+///
+/// Two conditions travel with it, and neither is discharged here:
+///  * the padded TABLE positions must repeat an existing entry
+///    (`argument::table_values_*` build entry `i` from `i % U8_LEN`), so the
+///    proved set is still exactly the `U8_LEN` byte values. Get this wrong
+///    and the byte range proof admits `1 << log_n` values — a soundness hole
+///    created by the fix for a shape bug;
+///  * the padded MULTIPLICITIES must be zero, which they are: `prove_inner`
+///    writes only `0..U8_LEN` into a zero-initialised plane.
+///
+/// At the toy this function is the identity: every `H` domain is already at
+/// or above `LOG_N = 8` (`Tab` is exactly 8), so no toy byte moves.
+pub(crate) fn domain_log_at(natural: usize, carries_h_planes: bool, log_n: usize) -> usize {
+    if carries_h_planes && natural < log_n {
+        log_n
+    } else {
+        natural
+    }
 }
 
 impl Dom {

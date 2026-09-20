@@ -520,10 +520,23 @@ fn rope_tables(public: &AttentionPublic, heads: usize) -> (Vec<Fp2>, Vec<Fp2>) {
 }
 
 pub(crate) fn table_values_u8(g_u8: Fp2) -> Vec<Fp2> {
-    (0..U8_LEN as i64).map(|i| k(i).add(g_u8)).collect()
+    table_values_u8_at(Dom::Tab.len(), g_u8)
+}
+/// THE P-3 LIFT'S FIRST CONDITION, in one place for all three tables: at a
+/// lifted `Dom::Tab` the table plane is longer than the byte class, and every
+/// padded position must REPEAT an existing entry — entry `i` is built from
+/// `i % U8_LEN`. The set of proved values is then still exactly the `U8_LEN`
+/// byte rows, whatever the row width is. Building the pad from `i` itself
+/// would let the range proof admit `1 << LOG_N` values, which is a soundness
+/// hole created by the fix for a shape bug (§4.1 condition 1).
+pub(crate) fn table_values_u8_at(len: usize, g_u8: Fp2) -> Vec<Fp2> {
+    (0..len).map(|i| k((i % U8_LEN) as i64).add(g_u8)).collect()
 }
 pub(crate) fn table_values_exp(public: &AttentionPublic, beta: Fp2, g_exp: Fp2) -> Vec<Fp2> {
-    (0..U8_LEN).map(|i| k(i as i64).add(beta.mul(k(public.exp[i]))).add(g_exp)).collect()
+    table_values_exp_at(Dom::Tab.len(), public, beta, g_exp)
+}
+pub(crate) fn table_values_exp_at(len: usize, public: &AttentionPublic, beta: Fp2, g_exp: Fp2) -> Vec<Fp2> {
+    (0..len).map(|x| x % U8_LEN).map(|i| k(i as i64).add(beta.mul(k(public.exp[i]))).add(g_exp)).collect()
 }
 /// The activation table's public rows `i + beta * act[i] + g_act`, the exp
 /// table's construction verbatim under a third tag. Binding the PAIR is a
@@ -531,7 +544,10 @@ pub(crate) fn table_values_exp(public: &AttentionPublic, beta: Fp2, g_exp: Fp2) 
 /// `u16 = 0` the product relation pins nothing about `a16`, and this is the
 /// only other relation `a16` appears in.
 pub(crate) fn table_values_act(ff: &FeedForwardPublic, beta: Fp2, g_act: Fp2) -> Vec<Fp2> {
-    (0..U8_LEN).map(|i| k(i as i64).add(beta.mul(k(i64::from(ff.act[i])))).add(g_act)).collect()
+    table_values_act_at(Dom::Tab.len(), ff, beta, g_act)
+}
+pub(crate) fn table_values_act_at(len: usize, ff: &FeedForwardPublic, beta: Fp2, g_act: Fp2) -> Vec<Fp2> {
+    (0..len).map(|x| x % U8_LEN).map(|i| k(i as i64).add(beta.mul(k(i64::from(ff.act[i])))).add(g_act)).collect()
 }
 
 /// Draw the slot's challenges and build its tables and polynomial. Identical on both sides.
