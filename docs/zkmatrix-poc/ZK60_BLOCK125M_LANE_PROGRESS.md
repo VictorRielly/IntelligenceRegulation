@@ -1332,16 +1332,91 @@ positions than Q suggests.
    test recording which relations read `A_LIMB` / `A_LIMBM` on the toy's
    padded `Dom::L`, and the closed forms asserted equal to the builder's
    support table at the rung.
-2. **S11 — the hidden endpoints at the rung** (C1 … C8, ADDITIVELY). The
-   single place to start is `endpoint_geometry` in `protocol.rs`, which now
-   refuses any non-toy endpoint geometry by name, and `IoSpec::seams()` in
-   `private_block.rs`, which still builds both `SeamSpec`s from the toy's `T`
-   and `D`. Check whether C1 … C8 can be done without touching
-   `private_seam.rs`'s existing entry points (they are byte-frozen; new
-   entry points go BESIDE them).
+2. **S11 — the hidden endpoints at the rung.** ASSESSED in the section
+   below, not implemented: C1 … C8 are the FFN io path's and are not owed
+   here, the rung needs NO forbidden file and no `private_seam.rs` change,
+   and the three edits are named (S11-F3). **It is blocked on ONE ruling**
+   (S11-F4): the padded endpoint puts the rung receipt 23,960 B over
+   `MAX_WIRE_BYTES`. Get the ruling, then make the three edits.
 3. **S12 — the rung end to end**, as stage 5's NEXT item 4 states it.
 
 Standing rules unchanged: run the filter before every commit of Rust code and
 record the counts here; the toy receipt is 2,816,472 B and the schedule
 digest is the literal pin; nothing runs at the 125M shape; the empty-diff
 check must print nothing.
+
+### S11 assessed, NOT implemented — what the rung endpoints really need (04:5x)
+
+The brief asks, before anything is built, whether the accepted change list
+C1 … C8 of `ZK60_PRIVATE_ENDPOINTS_AT_SCALE.md` needs a FORBIDDEN file. Read
+against the code, the answer has two halves.
+
+**S11-F1 — C1 … C8 are written for the FFN private-IO path, not for this
+block.** C1 edits `hashline/src/zk.rs:2354, :3493`; C2 edits
+`zk_ffn_fresh_wire.rs` and `zk_ffn_fresh_io.rs`; C7 and C8 build "the new io
+module" beside them. All of those are forbidden on this lane, and **none of
+them is on the private block's endpoint path**: the block borrows only
+`private_seam::prepare`, `SeamSpec` and `PreparedPlane::into_ffn_endpoint`,
+and runs its own `SC_IO_IN` / `SC_IO_OUT` slots. So C1, C2, C3, C7, C8, C9
+and C10 are **not owed by this lane at all**; C4/C5 (`SeamSpecG`) and C6 (the
+`mu`-batched multi-block seam) are the only two that could be, and neither is
+needed at the rung — see S11-F3.
+
+**S11-F2 — the frozen `SeamSpec` refuses the rung's TRUE endpoint shape, and
+accepts its PADDED one exactly.** `SeamSpec::new` requires both axes to be
+powers of two and `2 <= rows*cols <= 2^12` (`private_seam.rs:66-72`), so
+`(24, 96)` is refused by name. `(t_pad, d_pad) = (32, 128)` is accepted, with
+`len` **4,096 — exactly at the frozen ceiling**. Its derived geometry is
+`data_rows = 4096/256 = 16`, `commitment_rows = 16 + MASK_ROWS(5) = 21`. At
+the toy `(32, 16)` gives 512, 2 and 7, which is the frozen `ENDPOINT_ROWS`,
+and the toy's `t_pad`/`d_pad` ARE 32 and 16, so the toy's own call does not
+move by one word.
+
+**S11-F3 — the rung endpoints need NO forbidden file and no `private_seam.rs`
+change.** Committing the endpoint on the PADDED `Dom::D` cube is what makes
+the rest fall out, because `B::endpoint` already asks for `log =
+sh.log(Dom::D)` (`argument.rs:489`), which is 12 at the rung: a 4,096-word
+endpoint is exactly the slice the slot already claims. Three edits, all in
+this lane's files:
+
+1. `private_block.rs`'s `IoSpec::seams()` builds both `SeamSpec`s from the
+   toy's `T` and `D` literals; it must take them from the shape's `t_pad` and
+   `d_pad` (a shaped constructor beside the existing one — the toy's values
+   are unchanged).
+2. `argument.rs`'s `B::endpoint` hard-codes `mask_row: 2`, the toy's terminal
+   pair. It is `data_rows`, i.e. `sh.endpoint_rows - 5`.
+3. `protocol.rs`'s `endpoint_geometry` (added in stage 6) generalises to
+   `data = endpoint_rows - 5`, `prox = data + 2`, which reproduces the toy's
+   `(7, 2, 4)`.
+
+**S11-F4, A RULING IS NEEDED — the padded endpoint breaks the 4 MiB wire
+bound at the rung, and the shape's endpoint numbers are wrong either way.**
+`Shape::rung()` declares `endpoint_rows = 14` and `endpoint_inv_rate = 4`.
+Neither matches the seam: 14 is the TRUE shape's row count, which
+`SeamSpec::new` refuses, and the seam's `INV_RATE` is the frozen **8**
+(`private_seam.rs:31`), hashed into every `SeamSpec::digest()` and therefore
+not editable. With the padded endpoint the two endpoint openings cost
+`2 x [(1+1)(256+256)(16) + 256(8 + 21*8 + 32 + 11*32)] = 319,488 B` against
+the model's 274,432 B, so the modelled rung receipt goes from **4,173,208 B
+to 4,218,264 B — 23,960 B OVER `MAX_WIRE_BYTES` (4 MiB)**. Three ways out,
+for the security owner to choose:
+
+* raise `MAX_WIRE_BYTES` for the new profile (it is nowhere absorbed, the
+  same argument C2 makes for its FFN analogue) — the smallest change, and it
+  is a bound, not a security property;
+* keep the endpoint at the TRUE 2,304 words with C6's `mu`-batched
+  multi-block claim (endpoint 14 rows, and with the seam's rate 8 the receipt
+  is 4,189,592 B, 4,712 B under the bound — a margin nobody should want);
+* a `SeamSpecG` (C4/C5) with a wider rate or a wider `log_cols`.
+
+**Not a rung question but recorded: 125M cannot use the frozen seam at all.**
+Its endpoint plane is 512 x 768 = 393,216 words, `log_len = 19` against
+`MAX_LOG_LEN = 12`, so C4/C5's `SeamSpecG` is genuinely required there. It is
+also why `Shape::m125()`'s `endpoint_rows = 29` assumes `endpoint_log_n = 14`
+while the seam's `LOG_COLS` is the frozen 8.
+
+**Consequence for S12's acceptance number.** The 4,173,208 B target now has a
+known correction pending this ruling; `the_codec_length_is_the_models_at_every_shape`
+pins the codec to the model, so whichever way the ruling goes, the model's
+`endpoint_rows` / `endpoint_inv_rate` move together with the codec and the
+test keeps them honest.
