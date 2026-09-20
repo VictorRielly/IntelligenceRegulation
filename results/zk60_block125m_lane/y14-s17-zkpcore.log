@@ -1,0 +1,58 @@
+===== y14-s17-zkpcore =====
+    Finished `release` profile [optimized] target(s) in 0.01s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/zkp_core-784800963e6a1ad3)
+
+running 50 tests
+test ffn_v3::proof::tests::dummy_round_trips_and_sizes_agree ... ok
+test ffn_v3::proof::tests::log_cols_zero_groups_follow_the_pcs_grouping ... ok
+test ffn_v3::proof::tests::malformed_bytes_are_refused_never_panic ... ok
+test ffn_v3::proof::tests::oversized_query_count_is_a_shape_error_not_a_panic ... ok
+test ffn_v3::proof::tests::shape_of_the_tiny_and_the_125m_statements ... ok
+test ffn_v3::proof::tests::unsupported_shifts_and_dimensions_are_shape_errors_before_any_read ... ok
+test ffn_v3::statement::tests::layout_shape_rule_and_offsets ... ok
+test ffn_v3::statement::tests::statement_check_refuses_unsupported_shifts_and_dimensions ... ok
+test ffn_v3::statement::tests::tags_and_windows ... ok
+test field::tests::add_sub_match_reference ... ok
+test field::tests::ext_arith ... ok
+test field::tests::inverse_and_batch ... ok
+test field::tests::mul_matches_u128_reference ... ok
+test field::tests::two_adic_roots ... ok
+test hashtag::tests::all_eight_keys_are_pairwise_distinct ... ok
+test hashtag::tests::an_unkeyed_hasher_is_the_legacy_call_and_a_keyed_one_is_not ... ok
+test hashtag::tests::the_context_strings_are_the_dispositions ... ok
+test hashtag::tests::the_four_keys_of_each_tagged_profile_are_pinned ... ok
+test hashtag::tests::the_legacy_rule_has_no_key_anywhere ... ok
+test merkle::tests::a_keyed_node_separates_and_a_wrong_node_key_fails_the_path ... ok
+test merkle::tests::paths_verify_and_tampers_fail ... ok
+test mle::tests::deferred_integer_rows_match_base_field_at_signed_and_field_edges ... ok
+test mle::tests::deferred_rows_refuse_integer_overflow_before_reading_the_matrix ... ok
+test mle::tests::deferred_zero_rows_with_nonzero_extension_weights ... ok
+test mle::tests::eq_table_sums_to_one_and_matches_point ... ok
+test mle::tests::interpolation ... ok
+test mle::tests::matrix_folds_are_tensor_evaluations ... ok
+test mle::tests::mle_eval_at_boolean_points_is_lookup ... ok
+test ntt::tests::ntt_matches_naive_and_roundtrips ... ok
+test ntt::tests::rs_encode_is_evaluation ... ok
+test pcs::tag_tests::a_column_digest_under_three_rules_is_three_digests ... ok
+test pcs::tag_tests::a_salted_leaf_is_a_merkle_node_under_the_legacy_rule_and_is_not_under_a_tag ... ok
+test pcs::tag_tests::a_tagged_commitment_is_refused_under_the_legacy_rule_and_the_reverse ... ok
+test pcs::tag_tests::a_tagged_commitment_never_offers_its_columns_to_the_backend ... ok
+test pcs::tag_tests::a_tagged_commitment_opens_and_verifies_under_its_own_tag ... ok
+test pcs::tag_tests::the_tag_does_not_move_one_byte_of_the_generator ... ok
+test pcs::tag_tests::the_tagged_verifier_refuses_a_path_of_the_wrong_length ... ok
+test pcs::tests::commit_open_verify_and_tampers ... ok
+test pcs::zk_tests::zk_commit_open_verify_and_tampers ... ok
+test pcs::zk_tests::zk_openings_are_uniform_and_every_site_is_masked ... ok
+test rng::tests::entropy_errors_do_not_produce_a_generator ... ok
+test rng::tests::rng_is_deterministic_and_domain_separated ... ok
+test sumcheck::tests::product_sumcheck_roundtrip_and_tamper ... ok
+test sumcheck::tests::zero_check_with_eq ... ok
+test sumcheck::zk_tests::cfs_mask_rounds_match_brute_force ... ok
+test sumcheck::zk_tests::masked_zero_check_with_extension_roundtrip ... ok
+test tables::tests::all_frozen_members_regenerate_to_their_pins ... ok
+test transcript::tests::a_keyed_transcript_separates_and_its_clone_does_not ... ok
+test transcript::tests::deterministic_and_sensitive ... ok
+test transcript::tests::the_unkeyed_transcript_is_unchanged ... ok
+
+test result: ok. 50 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.90s
+

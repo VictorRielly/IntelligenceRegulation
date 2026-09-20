@@ -4485,3 +4485,87 @@ nothing else — all four in `transcript.rs`, all four the permitted sites:
    replay).
 4. Re-measure the 125M timing when a quiesced box is available; the tag is
    expected not to move it, and expected is not measured.
+
+### Tests and commands of stage 17
+
+All through the shared build lock, `CARGO_TARGET_DIR=.../wt-zk60-attention-compile/hashline/target`, `--release --offline -j 2 -- --test-threads=1`.
+
+| command | log | result |
+|---|---|---|
+| `zkp-core --lib` (first) | `y1-s17-zkpcore.log` | **50 passed / 0 failed**, 0 warnings, exit 0 |
+| hashline `--lib zk_cfs` (a compile gate for the shared change) | `y2-s17-hashline-compile.log` | builds, **13 warnings** — the stage-16 baseline's 13 |
+| hashline `--lib private_block::hash_domain` (the lane plumbing compiles) | `y3-s17-lane-compile.log` | 13 passed / 0 failed, exit 0 |
+| hashline `--lib private_block::hash_tag_tests` (a first, FAILED, run: an import) | `y4-s17-tagtests.log` | exit 101, the import fixed |
+| the same, `--nocapture` | `y5-s17-tagtests.log` | **3 passed / 0 failed**, exit 0; the cross-rule refusals printed |
+| hashline `--lib private_block::run_tests`, `--nocapture` | `y6-s17-runtests.log` | **19 passed / 0 failed / 2 ignored**, 68.40 s, exit 0 |
+| hashline `--lib private_block::run_capture_tests` | `y7-s17-capturetests.log` | **11 passed / 0 failed / 1 ignored**, 13.78 s, exit 0 |
+| **the gate**: hashline `--lib private_` | `y8-s17-private.log` | **214 passed / 0 failed / 6 ignored**, 316.69 s, exit 0, **13 warnings** |
+| hashline `--lib pcs` | `y9-s17-pcs.log` | 6 passed / 0 failed |
+| hashline `--lib merkle` | `y10-s17-merkle.log` | 2 passed / 0 failed |
+| hashline `--lib transcript` | `y11-s17-transcript.log` | 3 passed / 0 failed |
+| hashline `--lib mask` | `y12-s17-mask.log` | 17 passed / 0 failed |
+| hashline `--lib zk::` | `y13-s17-zk.log` | 25 passed / 0 failed |
+| `zkp-core --lib` (final) | `y14-s17-zkpcore.log` | **50 passed / 0 failed**, exit 0 |
+| **the gate again**, after the last edit | `y15-s17-private-final.log` | **214 passed / 0 failed / 6 ignored**, 354.92 s, exit 0 |
+| `python3 -m unittest discover -s tests` | `y16-s17-python.log` | **1,153 run, 3 failures, 7 errors, 68 skipped** — see finding S17-F1 |
+
+**Against the stage-16 baseline of 208 / 0 / 6: +6 tests** in the `private_`
+filter (three in `hash_tag_tests`, two in `run_tests`, one in
+`run_capture_tests`), and **+13 in `zkp-core`** (37 -> 50). Not one existing
+test was changed, weakened or removed anywhere in this stage.
+
+**The warning count is the baseline's 13, and it is the SAME 13.** Compared
+site by site against `x2-s16-filter.log`: `review_tests.rs:16`,
+`attention.rs:787`, `run.rs` (559 -> 570, moved by my insertions),
+`rung_tests.rs:284`, `attention.rs:1046/1086/2025/2077/2859`, `run_capture.rs`
+(191 -> 194 and 276 -> 284), `attention.rs:1593/1932`. No new warning is
+attributable to this change.
+
+### FINDING S17-F1 — three Python gates now refuse, BY DESIGN, because a pinned source moved
+
+`python3 -m unittest discover -s tests` exits 1. Ten results are not passes,
+and they split cleanly:
+
+**Seven are this worktree's environment, not this stage.** Six want the 125M
+regression export (`results/m125_ffn_export*/layer00_X.bin`), which is not in
+this worktree — `test_uagb1_pass` (×2), `test_uagb1_pass_agg`,
+`test_uagb1_tblind` (×2), `test_zkmatrix_native_backends::test_ring_freeze_check`
+— and one wants four retained captures that are not here either
+(`test_zk60_endpoint_view::test_plan_does_not_read_captured_output_values`:
+"0 != 4, mandatory retained captures absent"). None of them reads anything
+this stage wrote.
+
+**Three ARE caused by this stage, and they are the gates doing their job.**
+`results/zk60_round22_captures.json` and `results/zk60_round19_validation.json`
+each pin the SHA-256 of ten Rust sources as the ANALYSIS DEPENDENCIES of a
+previous review. Three of those ten are files this stage was authorised to
+change:
+
+| pinned path | manifest | HEAD now |
+|---|---|---|
+| `hashline/src/zk.rs` | `c5b54753…` | `d4280962…` |
+| `zkp-core/src/pcs.rs` | `2d914956…` | `6b8d1bfa…` |
+| `zkp-core/src/transcript.rs` | `31ce3c9a…` | `cc9752d0…` |
+
+so `test_zk60_mvp_security_probe::SourceBound::test_pins_match_round22_manifest`,
+`test_zk60_mvp_security_probe::Scope::test_diagnostic_does_not_close_security_requirements`
+("producer source does not match the capture manifest") and
+`test_zk60_io_review_gate::ReviewAcceptance::test_empty_directory_cannot_report_success`
+("changed analysis dependency: hashline/src/zk.rs") all refuse. The other
+seven pinned files — `private_seam.rs`, the five `zk_ffn_*` files and
+`zkp-core/src/sumcheck.rs` — still match, which is itself worth having: it is
+independent evidence that the change touched exactly the three files it
+claims to.
+
+**This is NOT repaired here, deliberately.** Re-pinning those manifests would
+erase exactly the signal they exist to raise, and both files are outside this
+lane. The correct disposition is the integrator's and the security owner's:
+the round-22 / round-19 analyses were argued on a particular text of
+`zk.rs`, `pcs.rs` and `transcript.rs`, and somebody has to decide whether the
+additive change preserves what those analyses concluded before the pins are
+re-taken. The change is additive and the three legacy functions those
+analyses concern keep their bodies — `mask_commit`, `mask_verify`,
+`commit_zk_owned_with`, `verify_zk`, `salt_leaf`, `hash_columns` are
+unchanged text, and the only edited legacy bodies are the four transcript
+sites listed above — so the expected answer is "yes, re-pin", but that is a
+RULING and not this lane's to make.
