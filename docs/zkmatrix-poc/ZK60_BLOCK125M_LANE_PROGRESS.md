@@ -3778,3 +3778,44 @@ lengths `[1, 1, 22, 3, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 56, 15, 13, 24, 17, 6,
 pair the gate reported and the two rows by which `H`'s `data_rows` 470
 exceeds its 468 `"data"` rows; and each manifest pins all seven source files
 including `plane_index.rs`.
+
+---
+
+## Stage 16 — the two hash-domain guards (2026-09-20, 14:2x–)
+
+**Lane-only. No proof byte of any profile may move.** This stage implements
+rulings **T-3** and **T-4** of
+`docs/zkmatrix-poc/ZK60_D19_HASH_TAG_DISPOSITION.md` (the security owner's
+disposition of the scoping memo `ZK60_D19_HASH_TAG_SCOPING.md`):
+
+* **T-3** — the length guard `no_commitment_has_a_node_shaped_column`
+  (`layout.rs`, the hard-coded `{5, 8}`) becomes a SHAPE-DRIVEN check that
+  rebuilds this profile's whole set of NON-column hash-input lengths and
+  refuses, by name, any commitment whose `8 · rows` lands on one.
+* **T-4** — the Merkle PATH LENGTH is checked explicitly by the lane before
+  the core verifier is called, instead of being an implicit consequence of
+  the wire format's fixed path count.
+
+### Status
+
+`SKELETON` — opened at 14:26. Sections below are filled as the work lands.
+
+### S16-1 — the failing tests, first
+
+(to be filled)
+
+### S16-2 — T-3, the completed length guard
+
+(to be filled)
+
+### S16-3 — T-4, the explicit path-length check
+
+(to be filled)
+
+### Files this stage wrote, and the shared-file list
+
+(to be filled)
+
+### Tests and commands of stage 16
+
+(to be filled)
