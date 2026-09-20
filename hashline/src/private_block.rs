@@ -69,6 +69,13 @@ mod witness;
 mod grow_tests;
 #[cfg(test)]
 mod norm_alias;
+// STEP S9, PREPARED: the pad rule's SPECIFICATION (support indicators, the
+// per-plane ZERO / EXEMPT table) and its two acceptance tests PZ-1 and PZ-2,
+// written before the term itself. It is `cfg(test)` only because the term is
+// not built yet: when `argument::define` carries the pad-zero term this
+// module moves into the library beside `layout` and `witness`.
+#[cfg(test)]
+mod pad;
 #[cfg(test)]
 mod parity;
 #[cfg(test)]
