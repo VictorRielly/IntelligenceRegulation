@@ -6,12 +6,19 @@ delegated implementer). Everything else on the box is read-only for this lane.
 
 Parts A and B were **purely additive**. Since 2026-09-20 the lane also works
 the change list of `ZK60_PRIVATE_BLOCK_125M_LAYOUT.md` §9 — Codex has
-confirmed the lane owns it, shared constants included. **This stage is S1, S2,
-S4, S5** (S3 is a ruling, already made; S6–S15 are later).
+confirmed the lane owns it, shared constants included. Stage 1 was S1, S2,
+S4, S5 (S3 is a ruling, already made). **Stage 2 (2026-09-20 01:00–02:00) is
+S6 and S7**; S8–S15 are later.
 
-**Nothing outside `hashline/src/private_block*` and
-`hashline/src/private_attention*` is edited.** Running list of *shared-file
-changes* (files outside those two trees), for the hand-back: **none.**
+**Running list of *shared-file changes*** (files outside
+`hashline/src/private_block*` and `hashline/src/private_attention*`), for the
+hand-back to the integrator:
+
+| file | commit | what |
+|---|---|---|
+| `private-block-kernel/src/lib.rs`, `src/shaped.rs` (new), `src/shaped_tests.rs` (new) | `cc94698` | S6 part 1: the reference kernel generalised over a shape; the fixed entry points became thin wrappers at `Shape::toy()`. It is a **dev-dependency** of `hashline` (`Cargo.toml:37-42`), so nothing enters the library or the binary. The one behavioural note is finding **S6-F3** below (`run_block`'s stack frame) |
+
+Nothing else outside those two trees is edited.
 
 ## The two parts
 
@@ -38,6 +45,11 @@ changes* (files outside those two trees), for the hand-back: **none.**
 | **S2 free the witness and lookup buffers** | DONE | `…/s2-run1.log:140` — **61 passed / 0 failed / 2 ignored**; toy receipt still 2,816,472 B; digest gate held |
 | **S4 lookup-summation repair** | DONE | failing first: `…/s4-failing-test.log:158-159` (the refusal, by name); repaired: `…/s4-run2-repaired.log:145` — **66 passed / 0 failed / 2 ignored**; toy receipt 2,816,472 B, digest gate held |
 | **S5 shape-driven layout** | DONE | `…/s5-run2.log:151` — **72 passed / 0 failed / 2 ignored**; toy receipt 2,816,472 B, digest gate held; toy, rung and 125M totals all equal the Python model's |
+| **S6 the reference kernel over a shape** | DONE | `…/s6-kernel-run2.log:22` — kernel crate **15 passed / 0 failed** (was 10); `…/s6-run1.log:152` — hashline **72 passed / 0 failed / 2 ignored**, toy unmoved |
+| **S6 the witness builder over the same shape** | DONE | `…/s6-run3.log:160` — **72 passed / 0 failed / 2 ignored**; toy receipt 2,816,472 B, digest gate held |
+| **S6 acceptance: witness parity AT THE RUNG** | DONE | `…/s7-run3.log:155` — **76 passed / 0 failed / 2 ignored**; 160 rung cases, **131 accepted by both, 29 refused identically**, 21 planes element for element on every true coordinate |
+| **S7 grouped-query attention (group 3)** | DONE | failing first: `…/s7-failing-test.log:123` (`kr8` differs from the kernel in 14 of 768 elements) and `:103` (the grouping property); after: `…/s7-run1.log:118` — **6 passed / 0 failed** in the parity module |
+| **S8 the two integer windows** | NOT STARTED | the boundary is named by the `check_plane_table` refusal (finding S6-F2) |
 
 ## The toy freeze gate this stage added
 
@@ -84,6 +96,17 @@ flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attent
 | 12 | the Rust command, filter `private_`, after the S4 repair | `…/s4-run2-repaired.log` | **66 passed, 0 failed, 2 ignored**, 27.83 s |
 | 13 | the Rust command, filter `private_`, after S5 | `…/s5-run1.log` | 71 passed, 1 failed — ONE difference against the Python model, `D_max` at 125M; the model is right (908,065) and the Rust test's literal was a typo. The layout itself agreed everywhere |
 | 14 | the same, literal corrected | `…/s5-run2.log` | **72 passed, 0 failed, 2 ignored**, 27.90 s; 8 warnings, the same 8 the baseline had |
+| 15 | the Rust command, filter `private_`, stage-2 baseline | `…/s6-baseline.log` | 72 passed, 0 failed, 2 ignored, 28.10 s |
+| 16 | the kernel crate's own suite, same command shape, `--manifest-path …/private-block-kernel/Cargo.toml`, stage-2 baseline | `…/s6-kernel-baseline.log` | 10 passed, 0 failed (+1 ignored integration gate) |
+| 17 | the kernel suite, after the `shaped` module | `…/s6-kernel-run1.log` | 10 passed, 0 failed — compiled and passed first attempt |
+| 18 | the kernel suite, with the five new shaped tests | `…/s6-kernel-run2.log` | **15 passed, 0 failed** |
+| 19 | the Rust command, filter `private_`, after the kernel change | `…/s6-run1.log` | **72 passed, 0 failed, 2 ignored**, 28.12 s |
+| 20 | the same, after the shape-driven witness | `…/s6-run2.log` | 72 passed, 0 failed, 2 ignored, 30.08 s (one new unused-import warning, fixed next) |
+| 21 | the same, import trimmed, grouping deliberately NOT yet applied | `…/s6-run3.log` | **72 passed, 0 failed, 2 ignored**, 28.19 s, 9 warnings — the baseline's 9 |
+| 22 | filter `private_block::parity`, the rung tests BEFORE S7 (a deliberately failing run) | `…/s7-failing-test.log` | 3 passed, **2 failed** — `kr8` differs from the kernel in 14 of 768 elements; the grouping property fails on the first head |
+| 23 | the same, after S7 | `…/s7-run1.log` | **6 passed, 0 failed**; 160 rung cases, 131 accepted / 29 refused by both |
+| 24 | the Rust command, filter `private_`, after S7 | `…/s7-run2.log` | 76 passed, 0 failed, 2 ignored, 28.86 s (one new unused-variable warning, fixed next) |
+| 25 | the same, warning cleared | `…/s7-run3.log` | **76 passed, 0 failed, 2 ignored**, 28.46 s, 9 warnings — the baseline's 9 |
 
 ## Findings
 
@@ -327,6 +350,88 @@ its string. The prover panic T-2 describes (`fold_rows_i8`'s
 `assert_eq!(w.len(), rows)`) is not yet replaced at the call site — that is
 S5's construction-time half done and S7's argument-side half still open.
 
+**S6-F1 (the kernel already had the group; the witness did not — and only a
+real second key-value head could tell).** `private-block-kernel::run_block`
+has carried `let group = H / HKV; let kvo = (h / group) * DH;` since it was
+written, so its grouped-query attention was correct all along. The witness
+builder did NOT: it called `rotate(&k8, 1, ..)` and indexed `kr8[j * KV + i]`
+and `v8[j * KV + i]` with no key-value offset. At the toy `HKV = 1` makes the
+two identical, which is why 1,200 parity cases never saw it. The rung is the
+first shape at which they differ, and they differ at the FIRST plane the
+key-value rotation touches: `kr8`, 14 of 768 elements on case 0
+(`s7-failing-test.log:123`). **The lesson for the remaining steps: a literal
+that happens to equal 1 at the toy is invisible to every toy test, however
+many cases it runs.** The memo's pin list is the only inventory of them.
+
+**S6-F2 (what S6 deliberately does NOT generalise, and the refusal that says
+so).** The `A_*` plane ids of `layout.rs` are LITERAL indices, and the plane
+LIST moves with two of the shape's windows: `limbs_norm` (the norm remainder,
+four bytes at the toy, the rung and 125M) and `limbs_sigma_s` (the softmax
+remainder, TWO at the toy and at the S6 rung fixture, **three** at
+`Shape::rung()`'s `F_E = 12` and at 125M). A third `sigma_s` limb adds two
+planes to `Dom::S` and so shifts every id above `A_SG1`. Rather than let a
+shape silently write the wrong planes, `witness::check_plane_table` refuses by
+name — *"private block: this shape's A plane list differs from the pinned
+one"* — and the rung parity fixture therefore uses the rung's GEOMETRY at the
+toy's softmax calibration (`F_E = 9`, at which `Sum <= 24 * 512 = 12,288`
+still fits `2^14`). **Moving that refusal is the first thing S8 has to do**;
+the geometry work S6 and S7 are about is orthogonal to it and is complete.
+Note the rung fixture's own profile id
+(`hashline-zk-mr1/private-block-rung-t24-parity/1`) is distinct from
+`Shape::rung()`'s, as D17 requires; neither proves anything.
+
+**S6-F3 (a real, small cost to the kernel, for the security owner and for
+whoever owns the zkVM image).** Making the kernel shape-driven without
+allocating means the general path takes ONE flat scratch buffer, and
+`run_block` — the fixed toy entry point — puts that buffer plus the trace
+buffer in its own stack frame. Before, the compiler could overlap the dozen
+fixed arrays whose lifetimes do not overlap; a flat buffer cannot be
+overlapped. The toy scratch is 14,624 `i64` = **117 KB**, and the trace a
+further 8,928 `i64` = 71 KB when a trace is asked for. Natively this is
+nothing. In a RISC Zero guest it is not nothing, and the crate's stated
+purpose is to run unchanged there. **Mitigation is already in the API and
+costs no work:** a guest calls `shaped::run_shaped` with buffers of its own
+(a `static mut`, a heap block, or a reused arena) instead of `run_block`, and
+the two sizes are exported as `TOY_SCRATCH_I64` / `TOY_TRACE_I64`. No caller
+in this repository is affected — `hashline` takes the crate as a
+DEV-dependency and every use is a native test — but `private-model-kernel`
+and `zkvm-block/model` reference the crate in their own documentation and
+should be told. **This is the one thing in stage 2 that is worth a ruling.**
+
+**S6-F4 (the pad is zero, and that is a fact, not an argument).** Every
+witness plane is now exactly its padded domain's length, and every position
+outside the true support is left at ZERO — including `A_E`, which memo
+§3.7a's table lists as EXEMPT from the pad-zero rule. The rung parity test
+asserts the all-zero pad on all seven padded domains as a *description of
+today's builder*, so that S9 either keeps it or changes it deliberately. It
+is **not** a claim that a zero pad is sound: nothing yet CONSTRAINS the pad,
+which is exactly blocking item B-1, and it is why no receipt can be produced
+at a padded shape before S9.
+
+**S6-F5 (what can and cannot be exercised at the rung today).** CAN: the
+integer witness, element for element against the reference kernel, on every
+true coordinate of 21 planes; the refusal sites and their order; the
+no-wraparound bounds of §3; the layout totals (S5); the grouping, as a
+property. CANNOT, and no test pretends otherwise: an honest rung PROOF,
+because the pad is unconstrained (S9), the row geometry is still the toy's
+`log_cols = 8` (S10) and the endpoints are one-block (S11). The argument is
+still instantiable only at the toy (S5-F2 unchanged) — the one S7 site that
+reaches it, `rope_tables`, is now shape-driven and is tested as a pure
+function at both shapes. **No `#[ignore]`d end-to-end rung test was left
+behind**, deliberately: an ignored test that cannot even be constructed is a
+worse marker than this paragraph and the `check_plane_table` refusal. The
+next agent adds the end-to-end rung gate when S9–S11 make it constructible.
+
+**S6-F6 (the rung sweep's own numbers, for whoever tunes it next).** 160
+cases on a 8 x 4 x 5 band/gain/input grid with an independent feed-forward
+band: **131 accepted by both, 29 refused identically by both**, across six
+sites (`Q` 3, `K` 1, `QR` 1, `FFN gate` 2, `residual 1` 3, `residual 2` 19).
+The band is narrower than the toy's ([0, 1, 2, 4, 8, 16, 48, 127] against the
+toy's thirteen values up to 127) for a counted reason: at 96 inputs per
+accumulation instead of 16, a full off-diagonal band leaves the int8 class
+six times sooner, and a wider band would turn the whole sweep into `score`
+refusals and prove nothing about the accepted path.
+
 **No disagreement between the memo's rules and `layout.rs` was found at the
 toy shape**: every rule the memo states reproduces the Rust's own numbers.
 The differences above are all at shapes that do not exist yet.
@@ -338,28 +443,59 @@ privacy argument, not a privacy result.
 
 ## NEXT
 
-**S1, S2, S4 and S5 are done and green (72 passed / 0 failed / 2 ignored, the
-two ignored being the two pre-existing `capture::native_capture_saved_receipt`
-gates). The toy receipt is 2,816,472 B and the pinned schedule digest has not
-moved at any commit.**
+**S1, S2, S4, S5, S6 and S7 are done and green: 76 passed / 0 failed / 2
+ignored on `--lib private_` (`s7-run3.log:155`) and 15 passed / 0 failed on
+the kernel crate (`s6-kernel-run2.log:22`). The toy receipt is 2,816,472 B
+and the pinned schedule digest has not moved at any commit of either
+stage.**
 
-The next agent takes **S6**: generalise `private-block-kernel` over the same
-`Shape`, with the acceptance of §9 — the existing 1,200-case parity run at
-the toy shape reproduces exactly (905 accept, 295 refuse, same site, same
-string, every plane element for element) and the toy receipt stays
-2,816,472 B. `private-block-kernel` is a separate crate and is NOT on the
-do-not-touch list, but it is OUTSIDE `hashline/src/private_block*`, so every
-edit to it belongs in its own commit and on the shared-file list above.
+The next agent takes **S8, the two integer windows**, and the FIRST thing it
+does is read **S6-F2**: the `A_*` plane ids are literal, the plane list moves
+with `limbs_sigma_s`, and `witness::check_plane_table` refuses any shape whose
+list differs from the pinned one. S8 has to move that boundary, in this
+order:
 
-Two things to read first, both in this file: **S5-F2**, which says exactly
-how much of the module is shape-driven (the layout, and nothing else — there
-is deliberately no `Layout::for_shape(&other)`), and **S5-F1 / B-F3**, the
-176-byte rung-receipt difference that two independent implementations now
-report against §9a's table and that needs a security-owner ruling before the
-rung's receipt size is quoted anywhere.
+1. **The softmax window** (`WRHO_S 14 -> 18`, memo §3.8 row 10): a third
+   `sigma_s` limb is **+2 planes on `Dom::S`**, which shifts every `A_*` id
+   above `A_SG1` (`A_G8` .. `A_MACT`) and every range in `layout::a_dom`.
+   Make the ids shape-derived (or add the two planes and re-pin), then
+   `check_plane_table` can accept `Shape::rung()` itself and the rung parity
+   fixture `parity::rung_parity_shape()` can be retired in favour of it. The
+   failing test to write first is the honest rung witness at `F_E = 12`,
+   which refuses today with *"softmax quotient/remainder"* because
+   `Sum <= 24 * 2^12 = 98,304 > 2^14`. Also needs `scaled(l2, 64)`.
+2. **The norm window** (`NORM_WRHO 29 -> 32`, row 9) with the norm-range
+   lane's direct byte-limb pins in `private_block/norm_alias.rs` and ruling
+   P-5 (`wrho` 29, THREE limbs for `D`). The witness and the kernel ALREADY
+   take `norm_wrho` from the shape (S6), and the rung's honest 31 is asserted
+   by `the_memo_section_three_bounds_hold_at_the_rung`; what is left is the
+   ARGUMENT side — the four `1 << (32 - wrho)` coefficient rewrites
+   (`layout.rs:344`, `:346`, `:348`, `:352`-`:363`), dropping the four
+   redundant `scaled` lookups when the top limb is full (C-6,
+   `Shape::norm_top_is_full_byte`), and the module's integer premise text.
+   Note row 9's margin is **0.21 bits** at 125M.
+3. The norm-range lane `zk60-private-norm-range` is a PREREQUISITE of the
+   norm half (P-5) and its alias tamper tests are the non-negotiable
+   acceptance (D16 item 6).
 
-Three items are waiting on the security owner, none of them blocking S6:
+Then S9 (the pad rule — and see **S6-F4**: the pad is zero today and nothing
+constrains it), S10 (the column count), S11 (the endpoints), after which
+S12's end-to-end rung gate becomes constructible for the first time (**S6-F5**
+says exactly what is and is not exercisable before then).
+
+**One ruling is waiting on the security owner from this stage: S6-F3** — the
+kernel's fixed `run_block` now carries a 117 KB scratch buffer (plus 71 KB
+for a trace) in its stack frame, where the compiler used to overlap the
+fixed arrays. It is nothing natively and not nothing in a zkVM guest; the
+mitigation is already in the API (`shaped::run_shaped` with caller buffers,
+sizes exported as `TOY_SCRATCH_I64` / `TOY_TRACE_I64`) and no caller in this
+repository is affected, but `private-model-kernel` and `zkvm-block/model`
+name the crate and their owners should hear it.
+
+Four items from stage 1 are still waiting and none of them blocks S8:
 S1-F1 (a one-line correction to §1.3 T-1 and the §9 S1 row: `argument.rs:898`
-is `Dom::Tab.len()`, not the table size), S5-F1 (the rung receipt), and S3's
-decision 2, which changes the 125M `Dom::D` lookup list and so the `H` row
-total (C-6) — `Shape::lookups_per_position` is where that ruling lands.
+is `Dom::Tab.len()`, not the table size), S5-F1 / B-F3 (the 176-byte
+rung-receipt difference two independent implementations report against §9a's
+table), S3's decision 2 (it changes the 125M `Dom::D` lookup list and so the
+`H` row total, C-6 — `Shape::lookups_per_position` is where it lands), and
+**S6-F3** above.
