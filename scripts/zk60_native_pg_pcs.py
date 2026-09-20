@@ -390,9 +390,17 @@ class RoleLayout:
 class RolePreimage:
     """One commitment's preimage of the captured view at a FIXED hidden input."""
 
-    def __init__(self, layout, data):
-        """`data` maps a data row index to its 256 message values (Fp)."""
+    def __init__(self, layout, data, pad_width=PAD):
+        """`data` maps a data row index to its 256 message values (Fp).
+
+        `pad_width` exists ONLY for the rank-loss control: it is the number of
+        pad symbols the commitment is modelled as having.  At the receipt's
+        own budget (256 pads against d <= 256 distinct opened columns) every
+        row's pad polynomial can meet the opened columns; below d it cannot,
+        and the gate must then find no preimage.  An honest run passes 256.
+        """
         self.L = layout
+        self.pad_width = pad_width
         self.data = data
         self.fail: list[str] = []
         self.steps = []
@@ -526,7 +534,15 @@ class RolePreimage:
             for j in L.nodes_j:
                 mv = sum(map(mul, msg, L.emsg[j])) % P if nz else 0
                 vals.append((L.colval[j][i] - mv) % P * inv(L.znj[j]) % P)
-            self.X[i][MSG:] = L.lag.coeffs(vals) + [0] * (PAD - L.d)
+            co = L.lag.coeffs(vals)
+            if self.pad_width < L.d and any(co[self.pad_width:]):
+                self.fail.append(
+                    f"{L.name}: row {i} -- NO PREIMAGE: {self.pad_width} pad symbols "
+                    f"cannot meet {L.d} distinct opened columns (the interpolant of "
+                    f"the required values has degree {max(k for k, c in enumerate(co) if c)})"
+                )
+                return
+            self.X[i][MSG:] = co + [0] * (PAD - L.d)
         for gi in L.order:  # the same order as the msg block, for the same reason
             if self.fail:
                 return
