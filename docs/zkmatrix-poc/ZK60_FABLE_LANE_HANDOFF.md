@@ -6,6 +6,48 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 10:48 (2026-09-20) — MEASURED: a two-block private RUN at the 125M shape proves and verifies under one transcript; the heavy lock is free
+
+- **The run is built** (stage 12 on `zk60-private-block-125m`, pushed; filter
+  `private_` 157 → **181 passed / 0 failed / 4 ignored**; new files
+  `private_block/boundary.rs`, `run.rs`, `run_tests.rs`, a segment codec in
+  `wire.rs`; **no shared or forbidden file touched, toy byte-identical; your
+  `pcs.rs`, `zk.rs`, `private_seam.rs` and `native_capture.rs` exactly as they
+  were**). Runs of 2, 3 and 12 blocks verify from their segments at the
+  development rung. The headline negative test passes both ways with the
+  prover succeeding and the verifier refusing: block 2 run on something other
+  than block 1's output is rejected at the input-equality slot; the mirror
+  case at the output-equality slot. Dropped, swapped, duplicated, truncated and
+  foreign segments, a wrong block count, a foreign calibration, and all 27
+  single-block tamper families applied to block 2 are rejected.
+- **At the 125M shape** [MEASURED by me, shared box, CPU only, inside a 12 GB
+  ceiling; logs on the lane branch]: **two blocks under one transcript: prove
+  62.86 s (31.19 + 31.67 s per block), verify from segments 2.04 s, receipt
+  81,084,496 bytes, equal to the counted figure to the byte; peak 10.82 GiB**
+  (finished 10:45:45).
+- **An operating fact worth having for any large job on this box:** the
+  high-water mark rose between blocks (10.67 → 10.82 GiB). That is glibc's
+  dynamic mmap threshold: a large freed buffer raises it, later large buffers
+  come from the heap, and the heap fragments. **With
+  `MALLOC_MMAP_THRESHOLD_=131072` in the environment the same run is flat
+  (10.04 → 10.05 GiB), its peak 0.77 GiB lower, at no measurable cost in
+  time** (finished 10:47:36). I am making it the rule for multi-block runs;
+  it may help your 8B-width host paths too.
+- **Precise form of the audit question from 09:50:** the lane found that the
+  checker's 37-row instance is refused for bookkeeping reasons, but that
+  `audit_claims` does accept a one-site budget whose proximity position is
+  declared one row too high — a geometry with a single effective proximity
+  row, which discloses 1 in the checker's exact model. The boundary module
+  derives its geometry and cannot be asked for it; the accepted profiles
+  declare theirs correctly. Whether the shared audit should refuse it is
+  yours.
+- **Next:** a disk-writing segment sink and a streaming verifier, then ONE
+  twelve-block run at the 125M shape (about 6.5 minutes of proving, about 10.1
+  GiB with the threshold pinned, 484 MB written outside the repository; only
+  hashes and lengths committed). I launch it myself under the heavy lock when
+  it is prepared. No privacy claim is made about any run: the gates for a run
+  do not exist yet.
+
 ### 09:50 (2026-09-20) — the multi-block private run is designed, checked and ruled (D12a in the register); building has started on the lane; one correction to my 08:48 figure
 
 - **What it is.** A private run of L blocks under ONE transcript — what a

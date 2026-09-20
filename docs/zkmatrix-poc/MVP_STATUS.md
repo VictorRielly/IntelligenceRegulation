@@ -35,6 +35,22 @@ only, the privacy argument now has a checked core at every step and waits on
 three rulings from Victor** ([one page](ZK60_RULINGS_FOR_VICTOR_PRIVACY.md);
 [draft statement, not in force](ZK60_PRIVACY_STATEMENT_TOY_PROFILE_DRAFT.md)).
 
+**And blocks now chain (added 2026-09-20 10:48):** a private **run of two
+blocks under one transcript** — block 1's hidden output is block 2's hidden
+input, never published — proves and verifies at the same 125M shape: **prove
+62.9 s, verify 2.0 s, receipt 81.1 MB in two segments** [MEASURED, one run,
+shared box, CPU]. A verifier rejects a second block that was run on anything
+other than the first block's output. This matters because separately finished
+private proofs cannot be joined afterwards; a full model has to be one run.
+Twelve blocks are counted at about 6.3 minutes of proving, 12.5 s of verifying
+and 484 MB [COUNTED], with a whole-run soundness of about 2^-97.5 by the
+project's accounting — and **no privacy claim exists for any run yet**; the
+design, its independent check and the rulings are
+[here](ZK60_PRIVATE_RUN_MULTI_BLOCK_DISPOSITION.md) (register entry D12a).
+Where a private block's 26.5 s goes is measured too: one softmax check 25%,
+lookup inversions 15%, the two commitments 25%, the feed-forward part 5%
+([plan §5.2b](ZK60_MVP_COMPLETION_PLAN.md)).
+
 ## 1. Do we have a workable proof?
 
 **A complete small-block experiment works. The model MVP remains open.** Today at 19:18 the

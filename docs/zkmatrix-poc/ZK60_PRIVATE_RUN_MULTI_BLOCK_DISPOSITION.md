@@ -104,6 +104,51 @@ each boundary plane ranked jointly, the shared-pair and single-proximity-row
 controls included; capture by a NEW run-capture module, never by editing the
 integrator's capture writer. No privacy statement about any run before it.
 
+## 2a. Built and measured (10:48, 2026-09-20), and rulings on the build's findings
+
+**The run exists** [MEASURED by the lane, `zk60-private-block-125m`, stage 12;
+I read the final log: filter `private_` 181 passed / 0 failed / 4 ignored; no
+shared or forbidden file touched; toy byte-identical]. At the development
+rung, runs of 2, 3 and 12 blocks verify from their segments (12 blocks: prove
+5.87 s, verify 1.16 s, 49,217,600 bytes, equal to the counted figure). **The
+headline negative test passes both ways, with the prover succeeding and the
+VERIFIER refusing:** block 2 run on something other than block 1's output is
+rejected at the input-equality slot; a boundary holding block 2's input where
+block 1's output differs, at the output-equality slot. Dropped, swapped,
+duplicated, truncated and foreign segments, a wrong block count, a foreign
+calibration and all 27 single-block tamper families applied to block 2 are
+rejected; a boundary scale disagreement does not construct; the all-zero
+hidden input proves and verifies as a run.
+
+**At the 125M shape, two blocks under one transcript** [MEASURED by me, one
+run each, shared box, CPU only, inside a 12 GB ceiling; evidence on the lane
+branch]: **prove 62.86 s (31.19 + 31.67 s per block, witnesses built just in
+time), verify from segments 2.04 s, receipt 81,084,496 bytes in two segments,
+equal to the counted figure to the byte; peak 10.82 GiB** (finished 10:45).
+The high-water mark rose between blocks, 10.67 then 10.82 GiB. **That rise is
+allocator fragmentation**: the same run with `MALLOC_MMAP_THRESHOLD_=131072`
+gives 10.04 then 10.05 GiB, flat, peak 10.05 GiB, at no measurable cost
+(prove 64.07 s; finished 10:47). **Operating rule: large multi-block runs are
+launched with that variable set**, and their tests print the mark after every
+block.
+
+Rulings on the build's findings: **U-1** — the check's 37-row *instance* does
+not reproduce in the two-site geometry (it is refused for bookkeeping
+reasons), but its conclusion stands in another instance the lane found: a
+one-site budget with the proximity position declared one row too high, which
+`audit_claims` accepts. M-1's derived row count closes it for boundaries; the
+question of the shared audit stays with the integrator. **U-2** — moot under
+M-7 (external endpoints unchanged). **U-3** — accepted: the transcript type
+has no counter accessor and lives in a forbidden file, so a segment header
+carries a 32-byte position tag squeezed from a *discarded clone*; it is a
+public function of public transcript data, re-derived and compared by the
+verifier, never absorbed, never adopted; framing is 120 bytes per segment and
+the counted totals use it. **U-4** — explained and closed by the allocator
+finding above. **U-5** — accepted: the end-of-run "every claim discharged"
+check is built; an "opened exactly once" table is not a runtime check because
+each segment's content is fixed by the verifier's own statement. **U-6** and
+the byte reconciliation: accepted; twelve blocks count to 484,100,736 bytes.
+
 ## 3. What I reviewed myself, and what was delegated
 
 I read the check's hand-back report. M-7's choice (keep the external
