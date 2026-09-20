@@ -1,5 +1,15 @@
 # Direct-plane host optimization review — 2026-09-19
 
+**Review correction status:** `04894c7` on isolated branch
+`integrate/zk60-host-review-20260919`, based on final delivery `06a3df9`,
+resolves all three findings below. Five tiling and three cache tests pass
+in CPU and GPU-feature binaries; three upload host tests include exact
+pre-device refusal under both strategy settings. All source/binary/log pins
+rechecked. Actual-device and proof-byte validation on combined main remains
+required. The final delivered measurement is 1.405x for the weight commit
+at 125M and 2.23 seconds COUNTED at 8B; it supersedes the initial nine-second
+estimate discussed below.
+
 Reviewed Claude's code commit `d7cc938d5e149715be81050f69cf955f93ab5273`
 (lane tip `df745e1`). This is an integration review of the proposed speed
 change, not a merged change or a new timing result. The lane remains with

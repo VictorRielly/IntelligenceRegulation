@@ -1,0 +1,37 @@
+{
+  "binary": "hashline/target/release/deps/hashline-bae859507f0c14ad",
+  "binary_sha256": "e31d848991cc0b17a709b197f6168ff7a204ae1331278061674456a5db68096b",
+  "runs": [
+    {
+      "name": "private-ffn-fold-0",
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/deps/hashline-bae859507f0c14ad",
+        "zk::fresh_poc::io::tests",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "mode": "0",
+      "exit_code": 0,
+      "tests_passed": 6,
+      "elapsed_shared_seconds": 1.6200462369961315,
+      "log_sha256": "4580693c53ba3e910fefda24c1719c8bd431fb1520293368bd32fe3fb640dc1a"
+    },
+    {
+      "name": "private-ffn-fold-1",
+      "argv": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/deps/hashline-bae859507f0c14ad",
+        "zk::fresh_poc::io::tests",
+        "--test-threads=2",
+        "--nocapture"
+      ],
+      "mode": "1",
+      "exit_code": 0,
+      "tests_passed": 6,
+      "elapsed_shared_seconds": 1.7207114169941633,
+      "log_sha256": "d3305a2be9decd1359d7dfd55e0add00ae7b0e7f290200be87dfe4496c858a39"
+    }
+  ],
+  "scope": "repaired private-IO FFN P1/P3 and rejection controls with fold off/on; no privacy acceptance",
+  "state": "passed",
+  "source_hashes_rechecked": 92
+}

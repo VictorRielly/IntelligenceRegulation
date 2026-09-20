@@ -1,0 +1,138 @@
+pass: 12 layers x 512 tokens (log_cols 14, inv_rate 4, col checks 256, threads 2)
+[UPERF3-XX] gpu init: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB), NVRTC compile 3.54s
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0133 | total 0.1336 s
+[UPERF3-AJ]   streamed commit rows 520 2^14 -> 2^16 in 5 chunks of <= 128 (2 B/elem on the wire): h2d visible 0.0298 | total 0.1677 s
+[UPERF3-AC]   commit rows 432 2^14 -> 2^16 (226 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 432 2^14 -> 2^16 in 4 chunks of <= 128: ntt 0.0913 | hash 0.0311 | total 0.1249 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0143 s | rounds 0.0161 s | folds 0.0039 s | sync/absorb 0.0010 s | total 0.0358 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0036 s | rounds 0.0044 s | folds 0.0016 s | sync/absorb 0.0010 s | total 0.0109 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0043 s
+[UPERF3-AC]   chunked re-encode + gather rows 520 (5 chunks, fused): 0.0082 s
+[UPERF3-AC]   chunked re-encode + gather rows 432 (4 chunks, fused): 0.0064 s
+  layer  0: prove 0.634 s, 5573568 B
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0103 | total 0.0145 s
+[UPERF3-AJ]   streamed commit rows 520 2^14 -> 2^16 in 5 chunks of <= 128 (2 B/elem on the wire): h2d visible 0.0131 | total 0.0178 s
+[UPERF3-AC]   commit rows 432 2^14 -> 2^16 (226 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 432 2^14 -> 2^16 in 4 chunks of <= 128: ntt 0.0094 | hash 0.0022 | total 0.0127 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0030 s | rounds 0.0162 s | folds 0.0044 s | sync/absorb 0.0010 s | total 0.0250 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0011 s | rounds 0.0043 s | folds 0.0008 s | sync/absorb 0.0007 s | total 0.0073 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0044 s
+[UPERF3-AC]   chunked re-encode + gather rows 520 (5 chunks, fused): 0.0072 s
+[UPERF3-AC]   chunked re-encode + gather rows 432 (4 chunks, fused): 0.0061 s
+  layer  1: prove 0.182 s, 5568692 B
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0110 | total 0.0151 s
+[UPERF3-AJ]   streamed commit rows 520 2^14 -> 2^16 in 5 chunks of <= 128 (2 B/elem on the wire): h2d visible 0.0170 | total 0.0229 s
+[UPERF3-AC]   commit rows 432 2^14 -> 2^16 (226 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 432 2^14 -> 2^16 in 4 chunks of <= 128: ntt 0.0081 | hash 0.0018 | total 0.0110 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0030 s | rounds 0.0162 s | folds 0.0039 s | sync/absorb 0.0015 s | total 0.0250 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0011 s | rounds 0.0043 s | folds 0.0007 s | sync/absorb 0.0006 s | total 0.0069 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0049 s
+[UPERF3-AC]   chunked re-encode + gather rows 520 (5 chunks, fused): 0.0082 s
+[UPERF3-AC]   chunked re-encode + gather rows 432 (4 chunks, fused): 0.0061 s
+  layer  2: prove 0.198 s, 5570752 B
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0114 | total 0.0156 s
+[UPERF3-AJ]   streamed commit rows 520 2^14 -> 2^16 in 5 chunks of <= 128 (2 B/elem on the wire): h2d visible 0.0149 | total 0.0195 s
+[UPERF3-AC]   commit rows 432 2^14 -> 2^16 (226 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 432 2^14 -> 2^16 in 4 chunks of <= 128: ntt 0.0080 | hash 0.0017 | total 0.0108 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0030 s | rounds 0.0161 s | folds 0.0040 s | sync/absorb 0.0011 s | total 0.0245 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0009 s | rounds 0.0042 s | folds 0.0008 s | sync/absorb 0.0006 s | total 0.0069 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0045 s
+[UPERF3-AC]   chunked re-encode + gather rows 520 (5 chunks, fused): 0.0072 s
+[UPERF3-AC]   chunked re-encode + gather rows 432 (4 chunks, fused): 0.0061 s
+  layer  3: prove 0.192 s, 5571020 B
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0101 | total 0.0141 s
+[UPERF3-AJ]   streamed commit rows 520 2^14 -> 2^16 in 5 chunks of <= 128 (2 B/elem on the wire): h2d visible 0.0138 | total 0.0184 s
+[UPERF3-AC]   commit rows 432 2^14 -> 2^16 (226 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 432 2^14 -> 2^16 in 4 chunks of <= 128: ntt 0.0082 | hash 0.0019 | total 0.0116 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0030 s | rounds 0.0160 s | folds 0.0037 s | sync/absorb 0.0007 s | total 0.0239 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0012 s | rounds 0.0042 s | folds 0.0008 s | sync/absorb 0.0005 s | total 0.0070 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0042 s
+[UPERF3-AC]   chunked re-encode + gather rows 520 (5 chunks, fused): 0.0072 s
+[UPERF3-AC]   chunked re-encode + gather rows 432 (4 chunks, fused): 0.0062 s
+  layer  4: prove 0.184 s, 5572032 B
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0103 | total 0.0144 s
+[UPERF3-AJ]   streamed commit rows 520 2^14 -> 2^16 in 5 chunks of <= 128 (2 B/elem on the wire): h2d visible 0.0151 | total 0.0201 s
+[UPERF3-AC]   commit rows 432 2^14 -> 2^16 (226 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 432 2^14 -> 2^16 in 4 chunks of <= 128: ntt 0.0081 | hash 0.0019 | total 0.0121 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0031 s | rounds 0.0169 s | folds 0.0039 s | sync/absorb 0.0015 s | total 0.0261 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0012 s | rounds 0.0043 s | folds 0.0007 s | sync/absorb 0.0005 s | total 0.0071 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0040 s
+[UPERF3-AC]   chunked re-encode + gather rows 520 (5 chunks, fused): 0.0073 s
+[UPERF3-AC]   chunked re-encode + gather rows 432 (4 chunks, fused): 0.0059 s
+  layer  5: prove 0.185 s, 5568832 B
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0102 | total 0.0142 s
+[UPERF3-AJ]   streamed commit rows 520 2^14 -> 2^16 in 5 chunks of <= 128 (2 B/elem on the wire): h2d visible 0.0141 | total 0.0187 s
+[UPERF3-AC]   commit rows 432 2^14 -> 2^16 (226 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 432 2^14 -> 2^16 in 4 chunks of <= 128: ntt 0.0081 | hash 0.0018 | total 0.0113 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0030 s | rounds 0.0162 s | folds 0.0040 s | sync/absorb 0.0012 s | total 0.0249 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0012 s | rounds 0.0045 s | folds 0.0009 s | sync/absorb 0.0007 s | total 0.0077 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0046 s
+[UPERF3-AC]   chunked re-encode + gather rows 520 (5 chunks, fused): 0.0073 s
+[UPERF3-AC]   chunked re-encode + gather rows 432 (4 chunks, fused): 0.0062 s
+  layer  6: prove 0.183 s, 5568436 B
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0108 | total 0.0150 s
+[UPERF3-AJ]   streamed commit rows 520 2^14 -> 2^16 in 5 chunks of <= 128 (2 B/elem on the wire): h2d visible 0.0139 | total 0.0184 s
+[UPERF3-AC]   commit rows 432 2^14 -> 2^16 (226 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 432 2^14 -> 2^16 in 4 chunks of <= 128: ntt 0.0081 | hash 0.0018 | total 0.0112 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0031 s | rounds 0.0161 s | folds 0.0038 s | sync/absorb 0.0010 s | total 0.0244 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0012 s | rounds 0.0043 s | folds 0.0009 s | sync/absorb 0.0009 s | total 0.0078 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0045 s
+[UPERF3-AC]   chunked re-encode + gather rows 520 (5 chunks, fused): 0.0072 s
+[UPERF3-AC]   chunked re-encode + gather rows 432 (4 chunks, fused): 0.0062 s
+  layer  7: prove 0.183 s, 5568832 B
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0106 | total 0.0146 s
+[UPERF3-AJ]   streamed commit rows 520 2^14 -> 2^16 in 5 chunks of <= 128 (2 B/elem on the wire): h2d visible 0.0161 | total 0.0210 s
+[UPERF3-AC]   commit rows 432 2^14 -> 2^16 (226 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 432 2^14 -> 2^16 in 4 chunks of <= 128: ntt 0.0081 | hash 0.0019 | total 0.0113 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0030 s | rounds 0.0163 s | folds 0.0039 s | sync/absorb 0.0013 s | total 0.0247 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0008 s | rounds 0.0044 s | folds 0.0009 s | sync/absorb 0.0008 s | total 0.0075 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0046 s
+[UPERF3-AC]   chunked re-encode + gather rows 520 (5 chunks, fused): 0.0069 s
+[UPERF3-AC]   chunked re-encode + gather rows 432 (4 chunks, fused): 0.0062 s
+  layer  8: prove 0.187 s, 5568960 B
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0115 | total 0.0150 s
+[UPERF3-AJ]   streamed commit rows 520 2^14 -> 2^16 in 5 chunks of <= 128 (2 B/elem on the wire): h2d visible 0.0144 | total 0.0192 s
+[UPERF3-AC]   commit rows 432 2^14 -> 2^16 (226 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 432 2^14 -> 2^16 in 4 chunks of <= 128: ntt 0.0081 | hash 0.0018 | total 0.0113 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0029 s | rounds 0.0159 s | folds 0.0037 s | sync/absorb 0.0008 s | total 0.0237 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0008 s | rounds 0.0042 s | folds 0.0008 s | sync/absorb 0.0005 s | total 0.0066 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0040 s
+[UPERF3-AC]   chunked re-encode + gather rows 520 (5 chunks, fused): 0.0072 s
+[UPERF3-AC]   chunked re-encode + gather rows 432 (4 chunks, fused): 0.0061 s
+  layer  9: prove 0.181 s, 5568960 B
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0104 | total 0.0143 s
+[UPERF3-AJ]   streamed commit rows 520 2^14 -> 2^16 in 5 chunks of <= 128 (2 B/elem on the wire): h2d visible 0.0139 | total 0.0187 s
+[UPERF3-AC]   commit rows 432 2^14 -> 2^16 (226 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 432 2^14 -> 2^16 in 4 chunks of <= 128: ntt 0.0081 | hash 0.0018 | total 0.0116 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0030 s | rounds 0.0162 s | folds 0.0051 s | sync/absorb 0.0009 s | total 0.0257 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0012 s | rounds 0.0042 s | folds 0.0007 s | sync/absorb 0.0005 s | total 0.0070 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0046 s
+[UPERF3-AC]   chunked re-encode + gather rows 520 (5 chunks, fused): 0.0072 s
+[UPERF3-AC]   chunked re-encode + gather rows 432 (4 chunks, fused): 0.0058 s
+  layer 10: prove 0.185 s, 5570368 B
+[UPERF3-AJ]   streamed commit rows 288 2^14 -> 2^16 in 3 chunks of <= 128 (1 B/elem on the wire): h2d visible 0.0115 | total 0.0151 s
+[UPERF3-AJ]   streamed commit rows 520 2^14 -> 2^16 in 5 chunks of <= 128 (2 B/elem on the wire): h2d visible 0.0141 | total 0.0189 s
+[UPERF3-AC]   commit rows 432 2^14 -> 2^16 (226 MB): CHUNKED (by size)
+[UPERF3-AC]   chunked commit rows 432 2^14 -> 2^16 in 4 chunks of <= 128: ntt 0.0081 | hash 0.0019 | total 0.0122 s
+[UPERF3-XX] zero-check kind 0 (2^20 x 13): tables 0.0028 s | rounds 0.0161 s | folds 0.0039 s | sync/absorb 0.0011 s | total 0.0244 s
+[UPERF3-XX] zero-check kind 1 (2^17 x 15): tables 0.0011 s | rounds 0.0041 s | folds 0.0007 s | sync/absorb 0.0006 s | total 0.0069 s
+[UPERF3-AC]   chunked re-encode + gather rows 288 (3 chunks, fused): 0.0044 s
+[UPERF3-AC]   chunked re-encode + gather rows 520 (5 chunks, fused): 0.0069 s
+[UPERF3-AC]   chunked re-encode + gather rows 432 (4 chunks, fused): 0.0062 s
+  layer 11: prove 0.184 s, 5574476 B
+prover phases (summed over layers):
+      commit W                  0.442 s
+      commit A                  0.760 s
+      helpers + commit H        0.448 s
+      matmul g/u                0.104 s
+      matmul d                  0.112 s
+      zero-check 20             0.309 s
+      zero-check 17             0.090 s
+      pcs openings              0.363 s
+  gpu device-side (summed): h2d 0.322 s (261 MB) | ntt 0.537 s | hash 0.070 s | sumcheck 0.398 s | fold 0.118 s | helpers 0.096 s | d2h 0.000 s (137 MB) | vram peak 1793 MB
+  gpu chunked [UPERF3-AC]: chunked commits 36 | opening re-encode 0.215 s
+PROOF sha256 50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d (66844928 B)
+  proof written to /tmp/zk60-rowfold-proof-gates-jkwdqny9/gpu-chunked-v2.proof
+PASS ACCEPT: 12 x 512: witness load+chain 3.21 s | PROVE 2.68 s | VERIFY 0.34 s | proof 66844928 B (66.8 MB) | 2.899e10 MACs | 1.082e10 proven MAC/s (prove wall) | wall 6.33 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":3.212430536,"prove_s":2.679894288,"serialize_s":0.099472572,"proof_ready_s":5.991913145,"verify_s":0.341622186,"verified":true,"proof_bytes":66844928,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}

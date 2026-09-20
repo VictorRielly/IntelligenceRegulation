@@ -1,0 +1,16 @@
+{
+  "state": "passed",
+  "source_pins": 92,
+  "storage_source_pins": 125,
+  "proof_gates": 12,
+  "native_receipts": 4,
+  "private_ffn_checks_per_mode": 6,
+  "model_scale_speed_claim": false,
+  "privacy_acceptance": false,
+  "report_hashes": {
+    "integration/validation.json": "76dfc8bc4c45d6c66aa4afd4da59dadcf10e399736d4b1ba063feb68fa80d810",
+    "storage-gate/validation.json": "6efe9385464e73f130c259d56913bbbd92542251a4968bc94d861f7b418b49a3",
+    "integration/private-ffn-fold.json": "aed24ed7c8da8f4568c227e0a4840571851ace0a200162b12cb11e6885c5405a",
+    "integration/floors-v10-tests.json": "3dfb66f073b66a89d1e4ad96b1dcc1fd0f12a885a075147765a73de1d4ea6532"
+  }
+}

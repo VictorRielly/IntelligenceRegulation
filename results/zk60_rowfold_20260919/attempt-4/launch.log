@@ -1,0 +1,14 @@
+START arithmetic-1
+PASS arithmetic-1
+START arithmetic-0
+PASS arithmetic-0
+START bench-build
+PASS bench-build
+START bench-0-0
+PASS bench-0-0
+START bench-1-1
+PASS bench-1-1
+START bench-2-1
+PASS bench-2-1
+START bench-3-0
+PASS bench-3-0
