@@ -1,0 +1,41 @@
+(a) scalar identities, 20000 random draws each
+  wedge(c, c*U) == Norm(c)                       failures 0
+  wedge(lam*c, lam*c*U) == Norm(lam)*Norm(c)     failures 0
+  Norm(x) == 0 only at x == 0 (Fp2 is a field):  held
+  Norm(0) = 0, wedge(0, 0) = 0
+
+(b) synthetic roles with the real combinatorics: the tool's own k0
+role                                            rows  gens  rk(P1)  rk|nd  k0   minor  =prod?
+block A   (455 rows, 120 claims, 35 groups)      455    72      72     72   0 nonzero    True
+block H   (384 rows,  52 claims,  9 groups)      384    20      20     20   0 nonzero    True
+attn  A   (306 rows,  75 claims, 30 groups)      306    62      62     62   0 nonzero    True
+attn  H   (290 rows,  36 claims,  8 groups)      290    18      18     18   0 nonzero    True
+endpoint  (  7 rows,   1 claim,   1 group)         7     4       4      4   0 nonzero    True
+
+(b') negative controls on the block-H shape (each must break k0 = 0)
+  one cm zero in group 0                     k0 =  0   chosen minor ZERO
+  EVERY cm of group 0 zero                   k0 =  2   chosen minor ZERO
+  one lambda zero in group 0                 k0 =  0   chosen minor ZERO
+  EVERY lambda of group 0 zero               k0 =  0   chosen minor ZERO
+  cm of the zero-sum (u) claim zero          k0 =  2   chosen minor ZERO
+  proximity pair Fp-dependent                k0 =  0   chosen minor ZERO
+  two claims share one reserved pair         k0 = 16   chosen minor ZERO
+
+READING, control by control.
+ * ONE zero cm or lambda kills the minor taken at THAT member's pair but
+   not k0: another member of the same group still carries the group.  The
+   lemma therefore needs, per group, ONE member with lambda*cm != 0, and
+   the code refuses when ANY of them is zero -- strictly stronger.
+ * EVERY cm of a group zero is the real danger: the group vector is then
+   nonzero on the data rows and zero on every non-data row, i.e. a bare
+   functional of the hidden data.  k0 jumps to 2 (512 Fp disclosed).
+   audit_claims' zero-coefficient refusal is what forbids it.
+ * EVERY lambda of a group zero leaves k0 = 0: the group vector is then
+   identically zero, which discloses nothing.  The refusal on lambda = 0
+   is therefore conservative for THIS event (it is there for soundness).
+ * A dependent proximity pair also leaves k0 = 0 at this shape: the
+   proximity vector is random on the other 104 non-data rows and keeps
+   its two generators independent there.  The refusal is again
+   conservative -- but the u-row argument of section 3.3 does use it.
+ * Two claims sharing one reserved pair is the one control that breaks
+   the rank badly (k0 = 16 here), and audit_claims refuses it.

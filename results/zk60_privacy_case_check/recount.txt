@@ -1,0 +1,61 @@
+== layout ==
+sum L_s = 583   max L_s = 50   (draft: 583 / 50)
+M_ROWS = 50 (draft 50); slot terminals = 173 (draft 173)
+
+== receipt bytes (wire.rs::encoded_len recomputed) ==
+header+roots        136
+slots               14672
+mask opening        243712
+A opening           1327104
+H opening           968704
+endpoint opening x2 262144
+TOTAL               2816472   (measured / draft: 2816472)
+
+== byte classes ==
+roots (3x32)                                            96
+group vectors (46 x 512 Fp2)                        376832
+PCS proximity vectors (4 x 512 Fp2)                  32768
+opened column values (5 x 256 x rows x 8B)         1849344
+column indices (5 x 256 x 8B)                        10240
+leaf salts (5 x 256 x 32B)                           40960
+auth paths (4 x 256 x 11 + 256 x 12) x 32B          458752
+M opening q (1024 Fp2)                               16384
+M proximity (1024 Fp2)                               16384
+subtotal (openings + roots)                        2801760   (draft 2801760)
+residue = slots + wire framing                       14712   (draft 14712)
+  of which the 40-byte wire envelope                    40
+  of which slot payload                              14672
+hash material (salts + paths)  499712  = 17.7 % of the receipt (draft 499712 / 17.7 %)
+one endpoint opening 131072 B, of which hash 98304 B = 75 %
+
+== fp() draws in one toy block proof ==
+A mask rows  (455-213)*256        61952
+A pads       455*256             116480
+H mask rows  (384-280)*256        26624
+H zero-sum rows 2*255               510
+H pads       384*256              98304
+23 CFS masks 2*sum L_s             1166
+M pads       46*256               11776
+b,u          4*1024                4096
+endpoints  2*(5+7)*256             6144
+TOTAL                            327052  = 2^18.319   (draft 327052, 2^18.3)
+bytes32 salt draws (not fp): 12288 = 12288
+
+== fp() reduction bias (rng.rs:72-77, Fp::from_u128) ==
+2^128 mod p = 18446744065119617025   = p - 2^32 ? True
+residues appearing 18446744078004518912 times: 18446744065119617025;  appearing 18446744078004518911 times: 4294967296
+exact TV distance per draw = 1.262177e-29 = 2^-96.0000  (D9: 2^-96)
+toy block           : 327052 draws -> total <= 2^-77.68
+draft's 125M count  : 9257800 draws -> total <= 2^-72.86
+
+== the zero-LogUp-denominator event ==
+U8 lookup values 61440 (layout test asserts 61440: True)
+exp 2048, act 512, table helpers 768
+denominators drawn = 64768 = 2^15.983
+|Fp2| = p^2 = 2^128.0000
+union bound = 64768/|Fp2| = 2^-112.017   (draft: about 2^-113)
+
+== Merkle exposure per 2048-leaf tree (my own model) ==
+distinct opened leaves 240.7 (draft 240.7)
+leaf digests revealed  453.1 (draft 453.2); of unopened columns 212.4 (draft 212.5)
+nodes revealed (all levels, incl. leaves) 1652.8; draft 1654.8 of 4095 = 40.4 %

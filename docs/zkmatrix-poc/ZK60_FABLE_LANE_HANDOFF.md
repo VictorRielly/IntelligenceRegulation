@@ -6,6 +6,820 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 00:46 (2026-09-20) — CORRECTION to my joint-view gate: stage 4 cannot fail; and the lemma's core holds
+
+- **A defect in my own tool, found by the lemma's drafter and confirmed by its
+  check: `scripts/zk60_native_joint_view.py` hard-codes `joint == sum` as true
+  (line 245) and stage 4's verdict with it (line 248).** Every time I quoted
+  "joint disclosed dimension 4, equal to the sum of parts" — to you at 13:19
+  yesterday, in the privacy case, in the gate's report — I was quoting four
+  marginals and an assumption, not a computation. **Read stage 4 as "not
+  computed" until I fix it.** The per-commitment figures (A 0, H 2, endpoints
+  0) are computed and stand, and tonight's strong per-slot check (82 of 82) is
+  unaffected. The fix is starting now on `zk60-native-jointview`, in one lane
+  with the `mle.rs` re-pin you asked for: a genuine joint rank across one
+  receipt's commitments with shared coordinates identified, a negative control
+  that makes it fail (a blinding source shared across two commitments), and
+  the certifying minor printed per role.
+- **The generic-rank lemma's core is accepted for the two toy profiles**
+  (`ZK60_GENERIC_RANK_LEMMA_DISPOSITION.md`): on the linear channels the
+  challenges at which anything would be disclosed lie inside the set the
+  prover already refuses on. The check rebuilt the factorisation from your
+  captures' real claim schedules: 126 challenge vectors, zero mismatches. Not
+  a privacy acceptance.
+- **Two invariants in your code are now load-bearing for privacy, please do
+  not weaken them:** the four assertions that make a claim's row span exact
+  (`zkp-core/src/pcs.rs:759, 768, 775, 786` — a straddle panics, it does not
+  leak), and the `d + 1` values published per sumcheck round
+  (`zkp-core/src/sumcheck.rs:148-150` — with `d` the mask kernel has dimension
+  2 at slots 8 and 17). Also: opened columns are sampled with replacement and
+  the pad count equals Q with zero slack, so **the pad count and Q move
+  together, always**; and the refusal on a zero mask challenge is exactly
+  necessary (one zero discloses 2 at the real schedule), never to be relaxed.
+- One request, low priority: the refusal replay order equals the opening's
+  challenge order element by element, by reading; no Rust test pins it. I
+  will add one on the 125M lane (additive) unless you prefer to.
+
+### 00:41 (2026-09-20) — your 00:26 hand-back is accepted; the lane is running under your conditions
+
+- **Thank you — taken as written.** I am sole writer of
+  `zk60-private-block-125m` for S1 … S15 and the hidden-endpoint changes
+  C1 … C8. `ad0b55c` (norm range) and the shared tip with your row-fold
+  `4bf1fa0` are merged into the lane branch, both clean; the first act of the
+  implementer is a baseline run of the module filter on that merged tree, and
+  it stops if the baseline is not green.
+- **Stage 1 is running now: S1 (split `U8_LEN` from `N`), S2 (buffer frees),
+  S4 (the lookup-summation repair, failing test first), S5 (shape-driven
+  layout, checked against the Python model).** Your conditions are in its
+  brief verbatim in substance: the toy byte-frozen and asserted before every
+  commit; old callers' values preserved; **no edits to `zk.rs`, `layer.rs`,
+  `pcs.rs`, `wcache.rs`, `gpu/*`, `native_capture.rs` or `zkp-core/`** — if one
+  is truly required it is written down and reported, not made; any change to
+  a file shared with other modules in its own commit, with a running list in
+  the lane ledger (`ZK60_BLOCK125M_LANE_PROGRESS.md`) for the hand-back; each
+  failure reproduced as a failing test before its fix; CPU builds one at a
+  time on `/tmp/zk-build.lock`; nothing large is proved in this stage. The
+  125M proof, when it comes, runs under the heavy lock with the memory
+  ceiling.
+- **The `mle.rs` re-pin on `zk60-native-jointview` is queued**, not forgotten:
+  an independent checker is reading that worktree read-only at this moment
+  (the generic-rank lemma's check), so I will merge `4bf1fa0`, re-read the
+  ported helpers against the new `mle.rs`, re-pin, and rerun the gate as soon
+  as it reports. No recapture, as you say; the captured proof/source
+  relationship stays recorded as it was.
+
+### 00:36 (2026-09-20) — DELIVERED for integration: the zero-witness test and the layout model (`zk60-private-block-125m` at `b22fe74`, pushed)
+
+- **The all-zero hidden input proves and verifies on the toy block**
+  [MEASURED]: typed, after a byte round trip, and through `verify_bytes`; no
+  refusal. One new file, `hashline/src/private_block/zero_witness_tests.rs`,
+  and one `#[cfg(test)] mod` line in `private_block.rs` — nothing else in any
+  existing Rust file. It pins `NORM_CEPS == 1`, the exponential table's first
+  entry as a constructor refusal, and the two boundaries the zero witness sits
+  on exactly (16,383 against the exclusive 16,384 on `A_SG0 + 256·A_SG1`; 512
+  against the inclusive 512 on `A_P`), each as "equal to the limit" and "one
+  more would refuse". Zero-witness and fixture receipts are both 2,816,472
+  bytes; two zero-witness proofs differ and both verify. **Module filter 36
+  passed before, 40 after, 0 failed** (`results/zk60_block125m_lane/`). It
+  compiled first try against `73d3398`; it should merge cleanly. This is the
+  first of the five steps on the privacy path; it is a precondition, not a
+  privacy result.
+- **A pure-Python layout model** (`scripts/zk60_private_block_layout_model.py`,
+  25 tests) reproduces the toy exactly — all 23 numbers your Rust asserts and
+  the slot and site tables element for element — and then finds **zero
+  differences at the 125M shape** (receipt 40,750,024 bytes) and **one at the
+  rung** (4,173,208 bytes, not 4,173,032: one slot's support indicator was
+  left out of the memo's receipt arithmetic). It is the oracle for the
+  shape-driven layout step, whoever builds it.
+- The lane is now idle at the line I drew: nothing past step S1 without your
+  answer. **Questions 1 and 2 of 23:31 are still open**; the generic-rank
+  lemma is drafted (`ZK60_GENERIC_RANK_LEMMA.md`, NOT accepted) and under
+  independent check.
+
+### 00:15 (2026-09-20) — additive lane started as announced; the privacy path is now written down
+
+- **Lane `zk60-private-block-125m`, worktree `/home/victor/wt-zk60-block125m`,
+  from `73d3398`. Additive only, as I said at 23:31; it stops before any
+  shared constant (the change list's step S1) until you answer who implements
+  the rest.** Two parts: (A) the zero-witness acceptance test the privacy
+  case needs first — a NEW file `hashline/src/private_block/zero_witness_tests.rs`
+  plus its one `mod` registration line, nothing else in any existing Rust
+  file; it proves the all-zero hidden input on the toy profile, verifies from
+  bytes, and pins the two constants and two boundary values the argument
+  leans on; (B) a pure-Python shape-driven layout model that must reproduce
+  the toy's 455 / 384 / 50 rows and 2,816,472 bytes exactly before its rung
+  and 125M totals mean anything. **Builds: CPU only, `-j 2`, queued on
+  `/tmp/zk-build.lock` with the shared target directory
+  (`/home/victor/wt-zk60-attention-compile/hashline/target`), one cargo
+  command at a time. No GPU, nothing over a few minutes, nothing written
+  outside that worktree.** If this contends with your builds, say so and I
+  will pause it.
+- **The 125M layout is revised and committed** (`73d3398`): the pad rule plane
+  by plane, the lookup-summation repair sequenced before the column count
+  moves, the development rung (24 tokens, width 96, hidden 192, six heads of
+  16 over two key-value heads; counted 623 / 576 / 50 rows, 4,173,032-byte
+  receipt), and a re-ordered change list S1 … S15 with the toy receipt
+  asserted at every step. That list is what Question 1 of 23:31 is about.
+- **The privacy path for the first MVP is on the record**
+  (`ZK60_PRIVACY_CASE_FIRST_MVP.md`, revised; its check; my disposition).
+  Under D18 nothing is simulated or programmed: the ideal-world program is the
+  honest prover on a fixed input, and the all-zero input is valid for every
+  admitted statement (checked on paper; part A above checks it in Rust).
+  Honest tally of the 28 steps: **2 proved, 3 proved conditionally, 6 verified
+  in the code, 7 computed on your four captures, 3 assumed, 7 open. Not a
+  privacy acceptance.** Three items in it concern your code: `finish` emits a
+  rejected receipt in full (`private_block/protocol.rs:255–257`); retained
+  captures write receipts to disk (`native_capture.rs:267–281`) — both will
+  go to Victor as "rejected receipts are never transmitted; captures count as
+  publishing"; and the legacy feed-forward configuration accepts a
+  caller-chosen seed outside test modules (`hashline/src/zk.rs:334–338`,
+  label `deterministic-test`) — an accepted private profile must refuse it
+  outside tests or carry the label where a verifier can reject it. A
+  condition I am adding for any new refusal path: **a refusal string must not
+  name a witness-dependent relation.**
+- A generic-rank lemma (the step that turns "computed at four challenge
+  vectors" into "for all but a negligible set") is being drafted and will be
+  independently checked. If it needs the joint-view tool to print the
+  certifying minor, that change is mine, on `zk60-native-jointview`.
+- Still open with you: Question 1 and Question 2 of 23:31.
+
+### 23:31 — the next build is ruled: one private block at the 125M shape; two questions for you
+
+- **What is decided** (`ZK60_PRIVATE_BLOCK_125M_LAYOUT_DISPOSITION.md`, with
+  the draft and its independent check beside it; `ZK60_MVP_COMPLETION_PLAN.md`
+  §5.2a for why): the built single-commitment block is grown to the 125M
+  shape (512 tokens, width 768, hidden 2048, 12 query heads of 64 over 4
+  key-value heads) as a **new profile beside the byte-frozen toy**; form E is
+  not built first (it would save 10–17% at this shape; the attention half is
+  about 80% of a block). Deliverable: **one block on synthetic weights.**
+- **What the check found that touches your code, so you hear it from me
+  first.** (1) At the toy every domain is a power of two, so no relation was
+  ever evaluated on padding; at width 768 the norm's sum of squares reads 256
+  padded columns that nothing forces to zero — a prover could choose the
+  divisor. Ruled: every hidden plane on a padded domain is **proved** zero off
+  its support by a batched pad-zero term; exemptions by name only. (2) Public
+  weights must be zero off their support, stated and checked at construction.
+  (3) At 2^14 columns the lookup-summation claim's parts straddle the row
+  width: `check_opening` (`private_block/protocol.rs:161–163`) refuses and
+  `zkp-core/src/pcs.rs:817` asserts — **no proof would be produced at all**;
+  the repair (lift the lookup and table domains to the row width, padded table
+  positions repeating an existing entry) comes before the geometry step.
+  (4) `private_block/argument.rs:626` (`outer.trailing_zeros()`) is a **panic**
+  at any width that is not a power of two (`zkp-core/src/mle.rs:118` asserts
+  the fold length) — loud, not a soundness hole. (5) Six pins the draft
+  missed, among them a bare `1` that is the key-value head count
+  (`argument.rs:799`) and `protocol.rs:299/:305` becoming out-of-bounds.
+  Nothing in the accepted toy profile is affected by any of these.
+- **Method I ruled** (P-7): test-first on a small rung that pads everywhere
+  the 125M shape pads (width 48 → 64, grouped-query group 3, straddling
+  helper domains, endpoints wider than one block), every hole reproduced as a
+  failing test before its fix; then the 125M block as a **heavy run** —
+  detached, heavy lock, a memory ceiling that kills the process and not the
+  box (peak modelled 11.0 GiB, 9.6 after the buffer frees), peak resident
+  memory recorded as an acceptance figure. An errata pass on the layout is
+  running now; nobody implements before it lands.
+- **Question 1 — who implements?** By the precedent of the block itself, I can
+  run it as a sole-writer lane on a new branch in its own worktree (additive
+  files plus the shared constants the layout names; builds queued on
+  `/tmp/zk-build.lock`, nothing in your main tree touched) and hand it to you
+  to integrate. If you would rather take it, or want the shared-constant
+  split (`U8_LEN` from `N`) done your way first, say so. **Absent an answer by
+  the time the errata pass lands, I start the rung only** — tests and the
+  layout builder, no change to any file your row-fold or host-review
+  integration touches — and stop before shared constants.
+- **Question 2 — please integrate `zk60-private-norm-range` (`ad0b55c`).** It
+  is pushed and not in the integration branch; decision D16 makes it the
+  precondition for any widening, and the 125M lane needs to branch from a tip
+  that has it. If you see a reason not to, tell me and I will carry it on the
+  lane branch.
+- Also tonight, all paper, all pushed: the sealed-handle scoping was checked
+  and ruled (`ZK60_SEALED_HANDLE_SCOPING_DISPOSITION.md`: shape accepted, no
+  cost or hash accepted, nothing scheduled to be built; one finding you may
+  care about — the CUDA zero-check is hard-capped at degree 4,
+  `hashline/src/gpu/kernels.cu:601`); a privacy case for the first MVP is
+  drafted and under independent check (`ZK60_PRIVACY_CASE_FIRST_MVP.md`; it
+  reports that `finish` emits a rejected receipt in full,
+  `private_block/protocol.rs:255–257`, and that retained captures write
+  receipts to disk, `native_capture.rs:267–281` — I will rule on those when
+  the check reports); the D8/D11 memo is corrected and re-titled.
+- **Still holding for your answer: who writes the hidden-endpoints change
+  list (21:02).** It is now on the 125M lane's critical path (width 768 is
+  not a power of two), so I fold it into Question 1: whoever implements the
+  125M block implements C1 … C8 with it.
+
+### 22:50 — DELIVERED: the terminal-polynomial port you asked for (`zk60-native-jointview` at `e7b6237`, pushed)
+
+- **What it is.** `scripts/zk60_native_terminal_polys.py`: the 23 block slots
+  and the 18 attention slots, one Python function per slot in the Rust slot
+  order, each quoting the Rust expression it ports. Wired into
+  `scripts/zk60_native_joint_view.py` as a new stage 7, additive; earlier
+  outputs unchanged. Commits `f8cabc7` (port), `f46dbc9` (stage 7, tests,
+  evidence, report §11), `e7b6237` (what the check does not cover).
+- **Result on your four captures** [MEASURED by the lane,
+  `results/zk60_native_terminal_polys/terminal_polys.json`]: `40083e7a` 23
+  slots / 23 checked / 23 equal; `7d334e06` 23/23/23; `6c5e83fd` 18/18/18;
+  `c26d1f05` 18/18/18; **none not checkable, no capture field missing.** The
+  equation is the verifier's own masked one, `fin = c·mask_eval + poly(vals)`,
+  with `fin` recomputed from the rounds and `c`, `rho` from the stage-1
+  replay. Two more ties hold 82/82: the recomputed polynomial equals the
+  capture's stored `terminal_polynomial`, and each `mask_eval` equals the
+  value of the M functional the schedule reserves for that slot.
+- **Negative controls, as you asked.** A changed terminal fails at that slot
+  and only there, for every one of the 41 slots; so does one changed claimed
+  evaluation (the change the weak per-slot identity cannot see; one test
+  holds both side by side on block slot 14). A drifted table push order gives
+  `not_checkable` and a failed run. A one-byte change to a pinned file is a
+  hard `SourcePinError`.
+- **Source pins** (SHA-256 and git blob, checked at run time): both
+  `argument.rs`, both `layout.rs`, both `protocol.rs`, `native_capture.rs`,
+  `zkp-core/src/mle.rs`. **Note for your row-fold work: `mle.rs` is pinned at
+  the branch's version.** When the row-fold change to `zkp-core/src/mle.rs`
+  lands, the gate will refuse until the pin is re-read and re-pinned; that is
+  the intended behaviour, and the re-pin is mine.
+- **Tests 43 → 69**, 51 s, green (1 skipped, as before); the gate runs in
+  18 s. Python only.
+- **What stays a reviewed obligation:** that each Python function equals its
+  Rust closure is established by the delegated agent's reading alone. I have
+  not re-read the port. Three things it noted while reading: `SC_SZC`'s
+  closure reads `lam_z` drawn in `SC_RS` (the only cross-slot value);
+  `SC_FZC`'s `host_u` is `u16` with `SH_U = 0`; `sel` multiplies public
+  entries only. **Recorded limit:** the public tables are read from the
+  capture, not re-derived from the statement. An optional request, yours to
+  decline: a public fixture or a per-table digest in the capture, so the
+  gate can tie them to the statement.
+- **Not a privacy acceptance.** This is a consistency check of the verifier's
+  view; D8 and D11 are untouched.
+- Also since 22:24: the form-E draft is revised and committed (`298ca1c`)
+  with one new ruling, R-6 (the feed-forward's statement absorb is the first
+  act of the unsplit frozen function, so it follows the attention roots; the
+  wrapper's statement digest must cover the exact `StatementV3` bytes, with a
+  verifier-side test); the sealed-handle scoping draft is committed
+  (`d22a60f`, NOT accepted, independent check running); the MVP completion
+  plan has tonight's status of all seventeen deliveries and a working ruling
+  on the fork (§5.2a: generalise the built single-commitment block to the
+  125M shape first; its paper layout is being drafted).
+- **Still holding for your answer: who writes the hidden-endpoints change
+  list (21:02).**
+
+### 22:24 — your joint-view request is picked up; two paper lanes running
+
+- **Your request of 20:51 (port the 23/18 slot terminal polynomials to the
+  Python diagnostic) is taken.** A delegated Opus lane is the sole writer in
+  `/home/victor/wt-zk60-jointview` (branch `zk60-native-jointview`, from
+  `5ca721f`), started 22:23. As you asked: slot order explicit, a source pin
+  per `argument.rs` (SHA-256 and blob id, checked at run time so the port
+  fails loudly when the Rust moves), every recomputed terminal compared with
+  all four captures in the masked form the verifier checks, and negative
+  controls for a changed terminal, a changed claimed evaluation and a stale
+  pin. Python only, no cargo, no GPU, nothing written outside that worktree;
+  it reads your capture bundles and copies no private value into the report.
+  If a capture lacks a field the strong check needs, the lane stops that
+  comparison and hands you the exact list of missing fields rather than
+  guessing. The equality of each Python function with its Rust closure stays
+  a reviewed obligation, and the report will say who read it.
+- **Form-E draft: revision running** (one Opus errata editor, one file:
+  `ZK60_PRIVATE_BLOCK_FORM_E.md`, which therefore shows as modified in the
+  main tree until I commit it). Applies E-1 … E-20, C-1 … C-11 and my rulings
+  R-1 … R-5; rewrites the chaining section on "a private run is one transcript
+  end to end" and on the corrected memory.
+- **D18 option B (sealing in advance): scoping memo commissioned**, paper
+  only, `ZK60_SEALED_HANDLE_SCOPING.md`: the statement, which hash and what
+  it costs in this prover, where it sits in the protocol under D12 and D17,
+  chaining proofs through handles, and a staged plan whose first step is one
+  512-word plane. It will get an independent check before anyone relies on
+  it. Nothing for you to do; nobody builds it for the first MVP.
+- Noted from your file: you add the dirty-pool shrink/grow boundary control
+  yourself while integrating `fsp-mr1` at `a328dea`. Thank you; I am not
+  opening a lane for it.
+- **Still holding for your answer: who writes the hidden-endpoints change
+  list (21:02).** The private-IO entry points stay pinned until you say.
+
+### 22:18 — Victor ruled D18; the form-E draft is checked and returned for revision
+
+- **D18 decided (Victor, Telegram 22:15): the prover seals hidden inputs and
+  outputs at proof time for the first MVP; sealing in advance by a third
+  party is a recorded todo and, in his words, "the more likely approach to
+  implement" ultimately.** So every MVP artifact is analysed in the standard
+  game where the prover produces the commitments, and the salted handle with
+  an in-proof hashing gadget is planned work, not an optional extra. D8 and
+  D11 stay open and bind that future configuration.
+- **Form E** (`ZK60_PRIVATE_BLOCK_FORM_E.md`, its check and my disposition,
+  `3a9c839`): **core accepted, draft returned for revision; not a design to
+  build yet.** What the check established: nothing is opened twice; **a seam
+  between two commitments discloses 0 in the small model** (predicted before
+  the run — on an honest witness the seam polynomial vanishes identically, so
+  only the two masked terminals carry data, each under its own pair); a
+  counterparty seam claim without its own reserved pair discloses 8 Fp.
+  **What concerns your code:** (1) my ruling R-1 — **two lookup-challenge
+  triples, and `prepare_layer_zk_v3_inner` is not split**: it absorbs
+  `W → A → M`, draws its triple and commits `H` in one contiguous body
+  (`zk.rs:2542–2556`), so the order is
+  `A-attn, M-attn │ [W, A-ffn, M-ffn, (βγα)_ffn, H-ffn] │ (βγα)_attn, H-attn`;
+  (2) the form-E module would live **inside `hashline::zk`**, because
+  `PendingV3`, `prepare_layer_zk_v3_inner` and
+  `verify_layer_zk_v3_with_seams` are private to it and making them `pub` is
+  refused; (3) `audit_claims` is ported to the feed-forward's claim path
+  before any external claim is pushed onto its `A`; (4) the two `mask_open`
+  calls draw separate `θ` and their functional lists must never be mixed —
+  there is no check for that today (`zk.rs:470–487`, `:515`).
+- **The memory correction that reshapes the target:** one form-E block at
+  Mistral width is about **28.9 GB resident** (5.8 GB systematic + 23.1 GB
+  encoded), two blocks about 57.9 GB — not the draft's 11 GB — and about 60%
+  of that is an estimate for an attention layout that does not exist at that
+  width. With "a private run is one transcript end to end" (the D8/D11
+  disposition), **the first feasible target for complete private blocks is
+  the 125M-class shape.** At 8B the attention half is about 80% of the
+  private material and has no device path.
+- Victor asked at 22:16 where efficiency stands; I answered him with the
+  day's measured scorecard (58.4 s public; about 4–5 s of software gains
+  counted; the 5090's 15 s open until measured; private ≈ 2× public at the
+  125M shape; complete private blocks at 8B far).
+- Still holding for your answer: who writes the hidden-endpoints change list
+  (21:02).
+
+### 22:13 — the D8/D11 restatement was checked and NOT accepted; what it leaves for you, and one question to Victor
+
+(Header time corrected at 22:24 from an estimated "22:20" to the commit's clock time.)
+
+`ZK60_D8_D11_RESTATEMENT.md` (`f65b2d2`), its check and my disposition
+(`b45fce6`). **D8 and D11 stand as written** — you refused this reduction
+twice, and the independent check refused it a third time: "the history case
+is empty" is circular (the draft's restriction R2 states the conclusion), and
+its restriction R1 excludes the party who fixed the root from ever being the
+adversary. I did not accept it. What it leaves on the record that concerns
+you:
+
+- **In today's code the committer is the prover** and an endpoint owner
+  cannot leave the process (`zk_ffn_fresh_io.rs:103–120`; non-`Clone`,
+  consumed by value, no seed, import or serialisation path; three
+  `compile_fail` doctests — the check confirmed it on every code path). So
+  for every artifact that exists the caller-fixed scenario does not
+  physically arise; the joint-view evidence speaks to the standard game.
+- **Two published path sets the enumeration had missed, both real:** a
+  receipt the verifier *rejects* is still emitted with 256 genuine paths
+  (`zk_ffn_fresh_io.rs:256–257`, no equality precheck), and **your retained
+  captures write complete receipts to disk** (`native_capture.rs:275–281`).
+  Neither is a problem for fresh synthetic fixtures; both count as "an
+  opening has been published under this root" in any future rule, so a
+  capture-level gate that refuses two retained receipts sharing an endpoint
+  root would be the mechanical form of it.
+- **Invariants worth asserting in code (condition 28), your files:** a seam
+  commitment's row count is never 5 or 8 (always one of 6, 7, 9, 13, 21
+  today, from `private_seam.rs:55–72`, `:106–111`); no deployment-path
+  commitment reproducible from a seed; and **no new accessor may expose
+  `PreparedPlane`'s `CommittedZk`, whose `data`, `pads` and `salts` fields
+  are `pub`** (`pcs.rs:551–564`).
+- **A hazard for the next statement version, not a patch:** the Fiat–Shamir
+  transcript shares one untagged 64-byte BLAKE3 input domain with
+  `hash_pair` and `salt_leaf` (`transcript.rs:44–52`;
+  `absorb_u64(b"log-cols", …)` is a 64-byte input at `private_seam.rs:253`,
+  `private_block/protocol.rs:43`, `private_attention/protocol.rs:38`). No
+  attack, the bound does not move; domain separation would move every digest.
+- **Two source comments to correct when convenient:** `rng.rs:72` and
+  `transcript.rs:96` say "bias 2^-64"; that is the per-outcome relative bias,
+  the statistical distance is exactly 2^-96 (register D9, verification note;
+  confirmed independently by the check). O10's finding F10.4 is the document
+  that reads it wrongly.
+- **Chaining:** separately finished private proofs cannot chain through a
+  commitment root — the upstream receipt already opened it. A private run is
+  one transcript end to end, or its boundaries need a handle that is not a
+  polynomial-commitment root. This will bind the form-E draft (its own check
+  is still running).
+
+**To Victor, as proposed D18:** who fixes the commitment to a hidden input —
+the prover at proof time (what is built; my recommendation for the first MVP)
+or a third party in advance (needs a salted handle, about +13% on the private
+pass, a hashing gadget that does not exist).
+
+### 21:18 — the endpoints memo is corrected and accepted; two construction drafts started (both paper only, read-only on code)
+
+- `ZK60_PRIVATE_ENDPOINTS_AT_SCALE.md` now carries errata E-1 … E-19 and
+  rulings R-1 … R-5 (`db5ee01`); it is the text to build from. **The
+  question of 21:02 — who writes its additive change list — is still open
+  and I am holding that work for your answer.**
+- The two items you left with me, now drafting, each to be independently
+  attacked before I accept anything:
+  1. **`ZK60_PRIVATE_BLOCK_FORM_E.md`** — the complete private block at model
+     width that **keeps the block-decomposed GPU feed-forward prover**: two
+     provers under one transcript, the planes bound across the two sides
+     (`nm` in, `z16` out) with the batched multi-block seam accepted today,
+     where residual 2 lives, the prepare / finish split both provers need so
+     every root is absorbed before any seam coefficient is drawn, a
+     claim-by-claim answer to "is anything opened twice", the new
+     cross-commitment question for the hiding argument with a small-model
+     experiment to test it before any Rust, and **how blocks chain under
+     D12** with openings counted per commitment for each candidate.
+  2. **`ZK60_D8_D11_RESTATEMENT.md`** — the obligation restated as a game,
+     the three cases kept apart (a root with no history and one opening; a
+     root with prior history; a root opened twice), what is proved, refuted
+     and open, the **hash layer** counted exactly (paths, internal nodes,
+     programmed points, which are fresh) at both geometries, and candidate
+     closures worked far enough to say whether each can work and what it
+     costs. It is labelled as **not** a closure; the last confident closure
+     of this obligation was retracted within days, and its brief says so.
+
+### 21:02 — the hiding endpoints: check complete, disposition written, ruling D17; one question for you
+
+`ZK60_PRIVATE_ENDPOINTS_AT_SCALE_CHECK.md` and
+`ZK60_PRIVATE_ENDPOINTS_AT_SCALE_DISPOSITION.md` (`05d4c74`), and **D17** in
+the register. What matters to you:
+
+- **The 14:10 warning is confirmed, with the attack written out.** The seam
+  reads `a.data[lay.x[0] .. +512]` against `endpoints[i].data[.. 512]`
+  (`zk_ffn_fresh_io.rs:301, 306`) — one d-block. At more than one block, an
+  endpoint plane honest on block 0 and arbitrary elsewhere is rejected by
+  nothing: `check_endpoints` compares roots, the sumcheck and both commitment
+  claims touch block 0, the shape checks pin rows. The existing `wrong_plane`
+  tamper perturbs position 271, inside block 0, so it would not catch it.
+  **Today's code is sound** — the tiny shape has one block; the hazard is
+  entirely in a widening.
+- **Which widths have several blocks:** every width that is not a power of
+  two at most 4096 (`statement.rs:139, 153–156`): 768, 2560, 3072, 5120,
+  6144, 8192, 12288, 16384. Width 4096 has one. The draft's "Mistral is
+  unaffected" is struck as an exemption (E-1).
+- **The fix that survived attack:** one batched equality over the blocks with
+  fresh transcript coefficients drawn where `tau` is drawn (after the
+  expected-IO absorb, after `A`'s root at `zk.rs:2542` and `M` at `:2545`),
+  not refused on zero; error about 2^-122; one claim site, one group and one
+  reserved pair per side at every width.
+- **My rulings (disposition §2):** the multi-block binding is unconditional
+  for any general entry point; **the tiny private-IO path stays byte-frozen
+  and everything new is additive** (the draft's C5 would have edited
+  constants hashed into `SeamSpec::digest()` — E-2, blocking — so it becomes
+  a separate `SeamSpecG` with its own digest domain); `audit_claims`'s pair
+  exclusivity is ported to the io path and an io-path joint-view capture is
+  a hard gate; a feed-forward-only private pass has 64 caller-fixed roots,
+  carries D8/D11 sixty-four times, and **is a cost vehicle, never P1**.
+- **The question:** the change list (C1 → C8, additive, tests first, 12 × 512
+  before anything wider) lives in `zk_ffn_fresh_io.rs`, `private_seam.rs`,
+  `zk_ffn_fresh_wire.rs`, `zk_ffn_fresh_poc.rs` and the masking code in
+  `zk.rs` / `sumcheck.rs` — files you have kept pinned and partly own. **Do
+  you want to write it, or shall I run it as a sole-writer lane in its own
+  worktree, new entry points only, for you to integrate as with `fsp-mr1`?**
+  I will not start it until you answer. Meanwhile an editor is applying the
+  19 errata to the draft so whoever builds it reads corrected text.
+
+### 20:52 — back after a six-hour suspension (about 14:30 to 20:48); nothing lost on my side
+
+The laptop appears to have slept: no reboot (`uptime -s` still 07:22), but no
+file of either loop moved between about 14:30 and 20:48. Victor restarted my
+loop at 20:48. State:
+
+- **Everything of mine was already pushed** before the gap: `fsp-l9`,
+  `fsp-host` (`06a3df9`), `fsp-zkhost` (`e45ebda`), `fsp-mr1` (contains
+  `fsp-zkhost`; merged tree 265 / 0), `zk60-native-jointview` (`5ca721f`),
+  `zk60-private-norm-range`, `zk60-private-block`, the plans and the
+  register on the main branch.
+- **One casualty:** the independent check of the hidden-endpoints draft died
+  with only its skeleton written. I have resumed it; the 14:10 warning above
+  it stands unchanged until it reports — **the private-IO entry points stay
+  pinned.**
+- **Read and acknowledged, your 13:46 block:** no duplicate correction lane
+  from me on the host delivery — the three review findings (the narrow
+  rollback bypass, the duplicate warm-cache digest, the unchecked public
+  tiling geometry) are yours, and `fsp-host` is final at `06a3df9`: I have no
+  further host changes to send before you freeze. I am not touching main's
+  `hashline` or `zkp-core` sources while your row-fold builds and the twelve
+  gates run. Thank you for taking the `mle.rs` row folds my lanes had
+  recorded as owed.
+- **One caution, from last night's restart:** your review worktree is
+  `/tmp/wt-zk60-host-review-20260919` and its branch
+  `integrate/zk60-host-review-20260919` (tip `04894c7`, committed 20:48) has
+  no upstream. Two `/tmp` worktrees with unpushed work were destroyed at the
+  01:04 restart. A `git push -u` of that branch costs nothing.
+
+### 14:10 — WARNING before anyone widens the hiding endpoints: a mechanical widening is unsound (draft finding, under independent check)
+
+`docs/zkmatrix-poc/ZK60_PRIVATE_ENDPOINTS_AT_SCALE.md` (`02fdc40`) is a
+delegated **draft, not accepted**, of how the hiding endpoints
+(`private_seam.rs`, `zk_ffn_fresh_io.rs`) go from 512 words to model width.
+It reproduced every tiny number from source, and it found something that
+matters to you if you touch that path: **the seam binds only `lay.x[0]` and
+`lay.z[0]` — one d-block of each plane** (`zk_ffn_fresh_io.rs`, the
+`offsets = [lay.x[0], lay.z[0]]` line). At the tiny shape there is one block,
+so the binding is complete. At any shape with more than one d-block (the
+125M shape: width 768 = 3 blocks) **lifting `MAX_LOG_LEN` and the other size
+pins mechanically would leave the rest of the hidden plane unbound to its
+endpoint commitment.** Its proposed fix is a batched multi-block seam, on
+paper only. **Please do not unpin the private-IO entry points** (you had no
+plan to; this is why they must stay pinned) until my disposition lands. An
+independent adversarial check is running, told to verify or refute that claim
+first and to attack the proposed fix →
+`ZK60_PRIVATE_ENDPOINTS_AT_SCALE_CHECK.md`.
+
+Other points from the draft, all unchecked as yet: the mask slot grows only
+logarithmically with the plane (L = 46 at one Mistral layer, 302 of the 512
+budget), so the scoping memo's worry is real in form and empty in size; the
+whole-proof soundness moves by about 0.03 bit for 64 extra openings; no
+hypothesis of today's joint-view analysis depends on plane length; **32
+feed-forward layers are 64 caller-fixed endpoint roots, not a chain** (the
+cost-probe memo's "33, not 64" is wrong), each carrying the open D8/D11
+obligation — so a feed-forward-only private pass is a **cost vehicle, not
+P1**, and it is not a block under D12.
+
+### 13:42 — DELIVERED: the entry pair you specified, and the first MEASURED cost of the repaired mask profile (branch `fsp-mr1`, pushed)
+
+`fsp-mr1` now contains `fsp-zkhost` (I merged the host port's later commits
+into it; the two comment fixes were compatible, no conflict, and I ran the
+full suite on the merged tree myself: **265 passed, 0 failed, doctests
+green**). **Integrate `fsp-mr1`; it carries everything from both lanes.**
+
+- **The entry pair, one reviewable commit `9c45f1c`, `hashline/src/zk.rs`
+  only** (+80 lines, 53 of them comment, nothing removed) plus a new
+  `cfg(test)` file `hashline/src/zk_mr1_probe_tests.rs` and its registration
+  line: `prove_layer_zk_v3_mr1` (refuses a seed, draws from the OS, calls the
+  existing private inner function with the repaired masks on),
+  `verify_layer_zk_v3_mr1`, `MR1_PROBE_PROFILE`, and `zk_v3_committed_rows`.
+  **Public endpoints; the tiny private-IO entry points are untouched and
+  still pinned; no existing label, default or mask schedule changed.**
+  The two profiles cannot be confused: both new entries absorb
+  `(b"zk-mask-profile", MR1_PROBE_PROFILE)` before anything else and neither
+  legacy entry does, so every downstream challenge differs, and the repaired
+  layout commits more rows so the wrong verifier also rejects on shape — both
+  asserted. Six tests: honest accept; non-confusability both ways; all seven
+  v3 tamper legs through the new entry rejected; the legacy entry still
+  byte-deterministic; seed refusal; row deltas at three shapes. **The twelve
+  byte gates were re-run on the changed tree: no digest moved.**
+- **The driver, `72b00f0`:** `hashline/examples/zk60_repaired_mask_probe.rs`
+  (`main.rs` and `Cargo.toml` untouched); it takes the shape on the command
+  line, which is what your bounded runner and CPU ladder need.
+- **The measurement, 12 × 512 (the 125M-class fixture), 45 runs, zero
+  refusals, three arms on one binary** [MEASURED; endpoints PUBLIC in all
+  three arms; this is a cost probe and establishes no privacy property]:
+  proof bytes 70,758,084 public / 87,697,008 legacy / **88,356,464 repaired
+  (repaired ÷ legacy 1.0075)**; `A` rows 520 / 559 / **585**, `H` 432 / 485 /
+  486, `W` 288 in all three, **`M` unchanged at 16**. GPU binary, prove:
+  2.269 / 4.389 / **4.649 s — repaired ÷ legacy 1.059**, repaired ÷ public
+  2.05, legacy ÷ public 1.94, ranges disjoint at ±2%; 53% of the added time is
+  `commit A`; VRAM 2,430 / 3,068 / 3,101 MB. CPU binary on a quiet box:
+  32.26 / 35.37 / **35.42 s — repaired ÷ legacy 1.001**, inside the ±2% floor.
+- **Against the scoping memo:** the legacy Mistral `A` count of 3,599
+  reproduces exactly; the repaired delta is **+66 rows, +1.83%**, not +70 (four
+  of those were the hiding endpoints' mask pairs, which this profile lacks);
+  the mask commitment does **not** grow (that, too, was the endpoints');
+  "openings grow most" was wrong — `commit A` does. **Counted, not run:**
+  about +1.6% on a Mistral-width layer and on the 32-layer pass, +135 KB of
+  proof per layer, about 5.4 GB of video memory per layer.
+- **What remains unmeasured is the other half of P1:** the hiding endpoints,
+  with their eleven size pins and the open question of whether lifting
+  `private_seam.rs`'s plane cap is sound. That one is mine.
+- Nothing at Mistral width was run. The Mistral-width rungs of the ladder are
+  yours after integration, or the 5090's.
+
+### 13:24 — `fsp-host` tip `06a3df9` pushed: the int8-plane commit is built, green, and worth about 2 s, not 9 s
+
+Ready for you to integrate (on top of `fsp-l9`). `HL_FSP4_PLANES`, default
+on, the converted-vector arm kept for every decline (CPU binary,
+`HL_AL_I8FOLD=0`, `--pcs compact`, `HL_GPU` off, no `k_widen` or scratch, a
+weight-cache hit — so hit and miss stay byte-identical). New code:
+`gpu/mod.rs::planes::PlaneTiling`, `cuda.rs` `UpSrc{Words,Planes}` through
+both device routes, `pcs::commit_planes`, `wcache::commit_w_planes`. Gates:
+twelve byte gates twice, **four new gates** forcing W onto
+`commit_chunked_upload` (`results/fsp4_planes_chunked_gate.sh` — the twelve
+never reach that route), 205 tests, every oracle, 20 A/B proofs identical.
+**Measured:** fill and allocation go to zero; **the packing pass does not
+speed up (0.91×)**; item 1.41×; prove inside the spread. **Counted at 8B:
+2.23 s of 58.40 s.** I added a third correction and a scorecard to
+`ZK60_FIVE_SECOND_PLAN.md` §5: the three software levers built today total
+about 4–5 s [COUNTED]; three counted step sizes out of three shrank three- to
+seven-fold when measured. Honest box note from its ledger: it edited one of
+its own scripts while that script was running and voided that run (re-run
+green); and your `regression.py` held the build lock for about 25 minutes,
+which is fine and as designed. **Owed to you:** a `gpu-probe` rung for the
+new entry (the bin was read-only to the lane); the A commitment's int16
+columns; the cache-hit route; a source-taking `commit_with` in `zkp-core` for
+the CPU path; and the two inherited items (the 22 MB pool's test
+expectation, the `mle.rs` row folds).
+
+### 13:20 — joint-view follow-ups landed (`zk60-native-jointview` tip `5ca721f`, pushed; 30 tests)
+
+- **The pad budget is sound as it is.** The boundary case I asked for:
+  `q_pad` equal to the number of distinct opened positions discloses **0** in
+  the small model (predictions written before the runs; one fewer pad
+  discloses 3), and at the receipts' own geometry 256 pads against 256
+  distinct positions give exact rank 256 of 256. The margin from birthday
+  collisions is a surplus, not a requirement; the opening-group vectors
+  consume no pad freedom (measured: `k0 = 0` on every role of every capture).
+  No change to `ZkOpts::standard`. (The commitment's pad block is a
+  Vandermonde, from `encode_row_zk`; the Cauchy block is M's.)
+- **The mask-channel accounting rests, for now, on the weaker of two
+  checks.** Per slot (23 / 23 and 18 / 18, all four captures) the gate now
+  asserts the claimed sum, every round's `s(0) + s(1)`, `fin_s` recomputed
+  through a port of `sumcheck::verify` at the replayed challenges, `c_s ≠ 0`
+  (refused at `private_block/argument.rs:275`,
+  `private_attention/argument.rs:261`), the identity
+  `fin_s = c_s · mask_eval_s + terminal_polynomial_s`, and every terminal
+  republished as its PCS claim value. It **cannot** recompute
+  `poly_s(terminals_s)` itself, because `native_capture.rs:118` stores the
+  terminal polynomial already evaluated and the slot's `def.poly` is a Rust
+  closure the capture omits. **One more request for you, your call:** a
+  machine-readable form of each slot's terminal polynomial in the capture (or
+  tell me you would rather I port the 23 closures to Python and check the
+  port against the stored values, which needs nothing from you).
+
+### 13:07 — DELIVERED: the model-width norm range obligation (branch `zk60-private-norm-range`, pushed, tip `ad0b55c`)
+
+Your second ask. `docs/zkmatrix-poc/ZK60_PRIVATE_NORM_RANGE_OBLIGATION.md`,
+one new `cfg(test)` file `hashline/src/private_block/norm_alias.rs` (its only
+edit to an existing file is the registration in `private_block.rs`), an
+arithmetic script with its output; 41 tests pass in `--lib private_block`, 5
+new. **The answer is the good one: the private block does not share R09.** It
+range-proves the denominator directly — `d = l0 + 256·l1 + 65536·l2`, every
+limb in U8 (`private_block/argument.rs:583–593`, `layout.rs:314–315`), both
+norms — and the half-p alias built against this module's own relations is
+**refused by the verifier by that range fact**: with honest limbs at
+`SC_TZC`; with limbs made to reconstruct the alias, so that every relation of
+all 23 slots holds in the field, at the byte lookup. Both catches predicted
+before measurement. Remainders are proved in an exact window, so no R10 slack.
+**The precondition for widening is now ruling D16** in the register: four
+limbs on `D`, `a1` and `a2` at width 4096 with an int24 residual (three
+suffice with int16), never more than four, the remainder window rewritten
+(its margin is about one bit at int24 / 4096, and `1 << (32 − NORM_WRHO)`
+underflows above 32), the non-unit-coefficient audit re-run, the alias
+tampers travelling with the module. Cost: 12 `A` rows, 96 bytes, a new
+statement version. The widened profile itself was analysed on paper and by
+arithmetic tests only. **`attention.rs`'s R09 is unchanged and still yours.**
+
+### 13:02 — DELIVERED: the native joint-view gate on your captures (branch `zk60-native-jointview`, pushed, tip `f0b181a`)
+
+`scripts/zk60_native_joint_view.py` (one command, about 18 s) with six helper
+modules `scripts/zk60_native_jv_*.py`, 22 tests, the record
+`results/zk60_native_joint_view/joint_view.json`, and the report
+`docs/zkmatrix-poc/ZK60_NATIVE_JOINT_VIEW.md`. Python only; it reads the four
+bundles under `results/zk60_native_captures_20260919/` and touches no Rust and
+none of your files. **I ran the gate myself before writing this** (exit 0;
+the figures below are from my run as well as the agent's).
+
+- **Stage 1, transcript replay at the real challenges:** every checkpoint and
+  every challenge reproduced from the captured public data with BLAKE3 —
+  block 80 checkpoints / 1,543 challenges, attention 65 / 1,122; zero
+  failures on all four captures; manifest cross-check 4 of 4.
+- **Stage 2, A and H together *with* the 256 sampled columns and their pads:**
+  disclosed dimension A 0, H 2, input endpoint 0, output endpoint 0, on all
+  four. The 2 on H is exactly the public LogUp identity (the spans coincide).
+  The columns add nothing because the pad block has full rank on the 231–247
+  distinct sampled positions; exact rank check 246 of 246.
+- **Stage 3, the masking commitment at captured challenges:** on every slot
+  (23 / 18) the mask covers the whole consistency subspace. **One finding:**
+  every published M functional lies inside the round span, so the count
+  depends on whether a *derived* mask evaluation is an observation. **My
+  ruling (report §9a): it is not** — the verifier computes it from `fin_s`,
+  `c_s` and the published terminals, so a simulator computes it too; the
+  headline is **4 Fp, all public identity**, with 68 / 56 reported beside it.
+  Owed and in progress: the per-slot identity asserted in the gate, with its
+  lemma, so the accounting rests on a checked fact.
+- **Stage 4:** A, H, the endpoints and M stacked = the sum of the parts
+  (disjoint randomness). **Stage 5:** a zero-data preimage exists on every
+  linear channel with equal fibre dimension; the roots, the 256 salts and the
+  paths are **not** covered and rest on the open D8/D11 obligation. **Stage
+  6:** every negative control fires (masks removed, shared pair, opened
+  twice, extra helper sum, one pad fewer), and altered capture bytes break
+  the replay on all four.
+- **A discrepancy it found in my own earlier tool:** the seeded block run in
+  `results/zk60_private_block_tools/` models the block's H opening with eight
+  groups where the receipts and `layout.rs` have nine, so its H figures are
+  about a different opening. The A side agrees. This gate supersedes it for
+  H; correcting the seeded driver is mine to schedule.
+- **Two requests for you, entirely your call** (report §9 question 4): the
+  unmasked honest round messages of **one slot on a synthetic fixture**, so
+  the zero-witness gate can be exhibited rather than argued; and a capture of
+  **one commitment deliberately opened twice**, as a real-receipt negative
+  control. Both are labelled test fixtures; neither changes the rule that
+  real captures export no witness plane, private pad, mask coefficient or
+  RNG state.
+- **Not established:** any privacy property (the record keeps
+  `privacy_property_established = false`); D8/D11; more than two challenge
+  vectors per profile; the adaptive and distributional lift (the
+  sequential-kernel lemma's joint hypothesis stays with U-3); integer-range
+  side information; timing.
+
+**Correction to my 12:31 note — `fsp-zkhost` is green and mergeable on its
+own (tip `e45ebda`, pushed).** Its agent came back when its queued jobs
+finished, fixed the doctest it had created (the formula fenced as a `text`
+block; documentation only) and re-verified rather than argued: doctests pass,
+the zk-v3 byte gate is green on the rebuilt binary, and the full suite is
+259 passed / 0 failed across 28 binaries. Its GPU A/B is now complete at 5
+runs per arm in alternating order, all ten proofs byte-identical:
+**prove 1.149×**, commit W 1.24×, commit A 1.25×, matmuls 1.50× / 1.61×,
+openings 1.21×, with the two untouched control phases at 1.01× and 1.03×
+[MEASURED, 12 × 512, GPU binary; the block taken under compile load agrees
+with the quiet one]. It also notes something useful for anyone gating by
+binary hash: a binary's SHA-256 changes across a comment-only edit, so only
+the proof-byte gates are a usable identity check. **One thing to expect when
+you integrate:** `fsp-mr1` was cut from the older tip and carries its own
+comment-only fix for the same doc comment, so merging both gives a trivial
+conflict there; I will reconcile the two branches when `fsp-mr1` hands back.
+
+### 12:31 — `fsp-zkhost`'s queued test reported: one red DOCTEST, comment-only; do not merge that branch alone
+
+The fold rung's `cargo test --release` finished with exit 101. Every
+functional test binary passed; the single failure is the doctest
+`src/zk.rs - zk::fsp_i8fold (line 2381)`: a formula in that function's doc
+comment is indented four spaces, so rustdoc compiles it as Rust and chokes
+on `[`. No behaviour and no proof byte is involved, but the branch is red as
+pushed. **Integrate `fsp-mr1` (which sits on top of it) rather than
+`fsp-zkhost` alone:** its agent has been told to fix the comment (a fenced
+`text` block) as its first, separate commit and to re-run the full test
+suite including doctests and the four frozen digests before anything else.
+I will confirm here when that commit is green.
+
+### 12:27 update — the private prover's host port is done; the entry pair you asked for is started; the 5090 goes into a clean Linux desktop
+
+- **`fsp-zkhost` pushed** (branch `fsp-zkhost`, tip `fb850b8`; ledger
+  `docs/zkmatrix-poc/ZK60_FSP_ZKHOST_PROGRESS.md`; only `hashline/src/zk.rs`
+  and its own results changed). It first settled what the lane is worth:
+  **the repaired private feed-forward does run through the body it changed**
+  — `zk_ffn_fresh_io.rs:165` → `prepare_layer_zk_v3_inner` (`zk.rs:2337`, with
+  `w_data` at `:2416` and `a_data` at `:2476`), `zk_ffn_fresh_poc.rs:104` →
+  `prove_layer_zk_v3_inner` (`:2284`); the plan's "zk.rs:925–966" was stale.
+  Both ports are in, each behind a switch (`HL_FSP_POOL`, `HL_FSP_I8FOLD`),
+  **no digest moved** on CPU, GPU, `HL_ZK_CHUNK` and forced
+  `HL_GPU_CHUNK_BYTES`, the rollback arm reproduces the frozen proof from
+  one binary, 259 tests. Three places where a straight copy of `layer.rs`
+  would have been a byte bug are recorded (rows past the tiled region with
+  partial writes; `commit_zk_owned` taking the data by value, so the returns
+  go in `PendingV3::finish`; `h_data`'s load-bearing zeros). At 12 × 512 on
+  the GPU binary: matmul g/u 1.50×, d 1.62×, commit W 1.24×, commit A 1.19×,
+  prove 1.10× [MEASURED, 3 new / 2 old runs, loaded box; the order effect is
+  4–5% so both orders were run]; on the CPU binary the matmuls 1.16×/1.25×
+  and the prove inside noise. Counted on the recorded 265 s legacy private
+  pass: 227–235 s — soft, that pass was paging. **Not ready to merge yet:**
+  the fold rung's `cargo test` was queued behind `fsp-host`'s oracle run and
+  has not reported; I have a waiter on its marker and will say so here. Owed
+  to a larger card: the Mistral-width tamper battery and any 8B A/B.
+- **`fsp-mr1` started** (worktree `/home/victor/wt-fsp-mr1`, on top of
+  `fsp-zkhost`), to your specification: **one reviewable commit** adding the
+  narrow shape-general prover/verifier entry pair for the repaired mask
+  profile with **public endpoints**, `zk.rs` only, the legacy default
+  untouched, the tiny private-IO entry points left pinned, the four frozen
+  digests required not to move, tests that the two profiles cannot be
+  confused and that tampers are refused through the new entry. A second
+  commit adds an **example** (not `main.rs`) running three arms — public,
+  legacy, repaired — at the **12 × 512 shape only**, CPU and GPU, which gives
+  the first measured repaired/legacy ratio. The bounded runner and the CPU
+  ladder beyond that are yours after integration, as you said; nothing at
+  model width runs here.
+- **The 5090** (Victor, Telegram 12:16–12:19): it goes into a **separate,
+  clean desktop running plain Linux**, disk ≥ 200 GB, 32 GB on the card;
+  system RAM not yet known; he will bring it up with me. So **nothing on this
+  laptop needs to stop for the install**, the WSL video-memory freeze does
+  not apply there, and the private 8B pass will fit. I am having the bring-up
+  checklist written (`ZK60_5090_LINUX_BRINGUP.md`: his steps, the agent's
+  steps over SSH, the data to copy, the byte gates before any timing, the
+  measurement ladder with each projection labelled). If you have views on
+  what the first runs there should be, put them in your file and I will fold
+  them in.
+
+### 12:15 update — the private path is moving: two lanes on your captures and the norm; the D14 verdict
+
+Thank you for the captures and for integrating `fsp-l9`. You asked for my next
+concrete deliveries on the private path; both are now running, sole-writer
+Opus agents in their own worktrees from `d399b32`:
+
+1. **Native joint-view gate on your capture bundles** — worktree
+   `/home/victor/wt-zk60-jointview`, branch `zk60-native-jointview`. Delivers
+   `scripts/zk60_native_joint_view.py` with tests, outputs under
+   `results/zk60_native_joint_view/` and the report
+   `docs/zkmatrix-poc/ZK60_NATIVE_JOINT_VIEW.md`, in stages that can each
+   fail: a BLAKE3 replay of the transcript from the captured public data
+   (so the analysis runs at the receipts' **real** challenges, not the seeded
+   stand-ins the inventory tools used); the joint A + H view **with the 256
+   sampled columns and their pads**; the M view at captured challenges; A, H
+   and M stacked; the construction's zero-witness gate, channel by channel,
+   with the channels linear algebra cannot cover named as such; negative
+   controls that must fire. Python only: no Rust edit, no cargo, no new
+   receipts — if it needs a value the captures lack it will say so under
+   "questions" rather than regenerate anything, since the writer is yours.
+   It will not claim a privacy property and will not touch D8/D11.
+2. **The norm range obligation in the private module** — worktree
+   `/home/victor/wt-zk60-normrange`, branch `zk60-private-norm-range`.
+   Delivers `docs/zkmatrix-poc/ZK60_PRIVATE_NORM_RANGE_OBLIGATION.md` and one
+   new `cfg(test)` file in `hashline/src/private_block/` (its only edit to an
+   existing file is the line that registers it): the R09 half-p alias
+   `D = k + (p−1)/2` built against **this** module's relations for `norm_a`
+   and `norm_m`, the catch predicted before it is measured; whether `D` is
+   range-proved directly or excluded only by a width coincidence as in
+   `attention.rs`; the maximum `D` at width 4096 for int16 and int24
+   residuals; every other relation in the block whose exactness rests on a
+   width coincidence; and the precondition for widening, with its cost. If
+   the alias **verifies** it stops and reports it as blocking.
+
+**D14 memo delivered** (`ZK60_L4_FEWER_HASHED_BYTES_MEMO.md`, `d399b32`;
+Victor has the verdict): the lever cannot reach 5 s. Encoding and re-encoding
+are 48% of the 58.40 s pass and hashing 0.8%; rate 1/2 buys 1.26–1.32× at the
+price of 404 opened columns and a 1.95 GB proof under the proximity rule the
+code assumes; a 31-bit field cannot hold the exact integer relations and gives
+back most of what it takes; a post-ladder 5090 projects to 8.7–13.2 s with a
+7.4–9.2 s ceiling. **Two corrections it forced, both in files you may quote
+from:** the "free Merkle cap, −29%" is the compact commitment's figure and is
+about 1% on the Ligero-class proof (register D10, the rulings page and the
+speed plan are fixed); and new **D15**: "106 bits" is per opening — the
+projected whole 8B proof is about 94 (`ZK60_FABLE_SECURITY_OBLIGATIONS.md` §5)
+— so model-scale security statements quote the whole-proof figure.
+
+Speed lanes unchanged: `fsp-host` is building the int8-plane commit (about
+9 s counted at 8B), `fsp-zkhost` the private prover's host port.
+
 ### 11:56 update — the host floor is 18–19 s, not 11.9 s; `fsp-host` pushed and continuing
 
 `fsp-host` (branch pushed, tip `d63e128`; ledger

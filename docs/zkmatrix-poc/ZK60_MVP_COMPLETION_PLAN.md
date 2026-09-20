@@ -1191,6 +1191,57 @@ accepted counterexample. P10 and P11 are last among the privacy items not
 because they are least important but because they are the only ones that
 cannot be attempted before their inputs exist.
 
+### 5.2a Status of the deliveries at 22:27 on 2026-09-19, and a working ruling on P5
+
+Written by the security owner (the interactive Claude Fable 5.1 session) the
+evening of the day the table above was drafted. It does not change the table;
+it says where each row stands and which way the fork is being taken until a
+measurement says otherwise.
+
+| # | Where it stands tonight |
+|---|---|
+| P0 | **Done** (found already corrected in both files when checked tonight): the roadmap's old mode is labelled superseded; the block gate's boundary-equality wording is superseded by construction |
+| P1 | **Done** (Codex): capture bundles from real receipts, `results/zk60_native_captures_20260919` |
+| P2 | **Attempted and NOT accepted** (`ZK60_D8_D11_RESTATEMENT_DISPOSITION.md`): the recommended reduction was circular. What it became: ruling **D18** — for the first MVP the prover seals hidden inputs at proof time, so the configuration D8/D11 bind does not arise in the first MVP; sealing in advance is a recorded todo, scoping memo commissioned tonight |
+| P3 | **Done**: D7 accepted with three qualifiers, D9 accepted, D10 declined, D13 (hidden blocks are enough for the first MVP) |
+| P4 | **Done as a consistency gate, not a privacy acceptance** (branch `zk60-native-jointview`): A 0, H 2 (the public LogUp identity), endpoints 0 at the receipts' real challenges. The strong per-slot terminal check (a Python port of the 23/18 closures, asked for by Codex) is running tonight |
+| P5 | **Half in hand — see the ruling below** |
+| P6 | **Done for the private module** (branch `zk60-private-norm-range`; D16 sets the precondition for any widening) |
+| P7 | Codex's; not reviewed by me |
+| P8 | Not started |
+| P9 | **Paper layout commissioned tonight** (`ZK60_PRIVATE_BLOCK_125M_LAYOUT.md`, a delegated draft that will be independently checked) |
+| P10 | Unblocked by P1 and P4; starts when the terminal-polynomial lane frees the joint-view worktree |
+| P11 | **Deferred with D18's option B.** Under option A the committer is the prover and the standard privacy game applies to the first MVP's artifacts; D8 and D11 stay open and bind the day a third party fixes a commitment |
+| P12, P13 | Form E is checked: core accepted, the draft returned for revision (`ZK60_PRIVATE_BLOCK_FORM_E_DISPOSITION.md`). **A private run is one transcript end to end**; at 8B one block is about 28.9 GB, so the first feasible target is the 125M shape |
+| P14–P17 | Unchanged |
+
+**Working ruling on P5 (the fork between the built single-commitment block and
+the two-prover form E).** P5 asked for two numbers at the 125M rung. One of
+them now exists: the private feed-forward prover with the repaired masks, 12
+layers × 512 tokens, **4.649 s on the GPU against 35.417 s on the host, quiet
+box** [MEASURED, branch `fsp-mr1`, `ZK60_FSP_MR1_PROGRESS.md`; public
+endpoints, so both figures grow a little with hiding endpoints]. So keeping
+the feed-forward half on the host costs the built form about **31 s per
+12-layer pass** at this shape. The other half of the answer does not exist:
+the attention half has no layout, no count and no measurement above width 16,
+and the form-E check found it is about 80% of the private material at model
+width, with no device path in either form. Until that half is counted, 31 s
+cannot be called large or small.
+
+**Therefore: generalise the built form first, to the 125M shape, as a new
+profile beside the byte-frozen toy; measure it; and let that measurement
+decide whether form E is worth building.** Reasons: the built form is
+implemented, tool-checked and adversarially reviewed, and form E is a draft
+under revision; form E saves at most the feed-forward half's 31 s and adds a
+second commitment set, two seams, a second lookup-challenge triple and a port
+of `audit_claims`; and everything form E would need at this shape — the
+attention layout at real width, the multi-block hiding endpoints of D17, the
+no-wraparound bounds at width 768 — is needed by the built form too, so none
+of the work is wasted if the fork later goes the other way. **What would
+reverse this:** the 125M layout showing the feed-forward half to be the larger
+half of a block's time on the host, or a device path for the attention half
+arriving first.
+
 ### 5.3 Where this plan meets the speed plan
 
 A separate analyst is writing `ZK60_FIVE_SECOND_PLAN.md`; at the time of

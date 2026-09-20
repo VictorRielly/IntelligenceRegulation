@@ -1,0 +1,84 @@
+== 1. Layouts ==
+tiny  T32/d16/f16: nb_d=1 log_db=4 nb_f=1 log_fb=4 tdb=512 T*d=512 log_a_min=9 log_n=8 A data rows=20 W rows=3 H rows=16
+125M  T512/d768/f2048: nb_d=3 log_db=8 nb_f=1 log_fb=11 tdb=131072 T*d=393216 log_a_min=17 log_n=14 A data rows=520 W rows=288 H rows=432
+Mistral T512/d4096/f14336: nb_d=1 log_db=12 nb_f=7 log_fb=11 tdb=2097152 T*d=2097152 log_a_min=20 log_n=14 A data rows=3520 W rows=10752 H rows=2944
+hypothetical d=8192: nb_d=2 log_db=12 nb_f=7 log_fb=11 tdb=2097152 T*d=4194304 log_a_min=20 log_n=14 A data rows=3904 W rows=21504 H rows=3200
+
+== 2. What a single slice at lay.x[0] covers (125M) ==
+x blocks at [7340032, 7471104, 7602176]; z blocks at [7733248, 7864320, 7995392]; rd blocks at [8126464, 8257536, 8388608]
+slice of tdb  =  131072 covers [7340032, 7471104) -> x[0] only
+slice of T*d  =  393216 covers [7340032, 7733248) -> x[0..2] exactly, ends at z[0] = 7733248
+slice of 2^19 =  524288 covers [7340032, 7864320) -> x[0..2] + z[0]; z[1] starts at 7864320 (NOT rd[0] = 8126464)
+
+== 3. Seam CFS slot ==
+tiny (log_t+log_db=9): n_vars=10 L=22 L+256=278 OK
+125M block (17): n_vars=18 L=38 L+256=294 OK
+Mistral (21): n_vars=22 L=46 L+256=302 OK
+2^40 plane: n_vars=41 L=84 L+256=340 OK
+binding: n_vars=127 L=256 L+256=512 OK
+mask_commit assert (zk.rs:442): L + MASK_Q(256) <= 2^MASK_LOG_MSG(512)  =>  L <= 256  =>  n_vars <= 127  =>  log2 N <= 126
+sum_weights (sumcheck.rs:223-224) '1u64 << n_vars'   => n_vars <= 63 => log2 N <= 62
+CfsMask::round (sumcheck.rs:266) '1u64 << (n-1-j)'   => n_vars <= 64 (weaker)
+
+== 4. Per opening, (1 - delta/3)^Q with delta = 1 - (n+Q)/nn ==
+tiny endpoint 8/8: (n+Q)/nn = 0.250000 -> 2^-106.250
+A,H and scaled endpoint 14/4: (n+Q)/nn = 0.253906 -> 2^-105.609
+non-hiding rate 1/inv_rate at ir=4: (3/4)^256 = 2^-106.250
+
+== 5. Whole proof ==
+D15 as published: commitment -98.7 + lookup -94.2 = 2^-94.138
+64 endpoint openings at 2^-105.609 = 2^-99.609
+new commitment term = 2^-98.084
+new whole proof     = 2^-94.105  (loss -0.032 bits)
+
+-- the same, with the per-opening figure applied CONSISTENTLY --
+192 existing openings (32 layers x 6) at 2^-105.609 = 2^-98.024   [D15's 2^-98.7 = 192 x 2^-106.250 = 2^-98.665]
+whole proof before endpoints = 2^-94.102
+whole proof after  endpoints = 2^-94.070
+loss = -0.031 bits
+dominant term: lookup 2^-94.2 vs commitment 2^-97.609 (ratio 0.0941)
+
+== 6. Seam relation, (m + 2(m+1))/|Fp2| ==
+tiny m=9: 29/|Fp2| = 2^-123.142
+125M block m=17: 53/|Fp2| = 2^-122.272
+Mistral m=21: 65/|Fp2| = 2^-121.978
+64 seams at m=21: 2^-115.978
+one mu batching term 1/|Fp2| = 2^-128.0000; 64 of them = 2^-122.000
+
+== 7. Endpoint opening bytes ==
+Mistral 2^21 log_cols 8/ir 8: rows=8197 depth=11 bytes=16,904,192 = 16.1211 MiB
+Mistral 2^21 log_cols 12/ir 4: rows=517 depth=14 bytes=1,323,008 = 1.2617 MiB
+Mistral 2^21 log_cols 13/ir 4: rows=261 depth=15 bytes=937,984 = 0.8945 MiB
+Mistral 2^21 log_cols 14/ir 4: rows=133 depth=16 bytes=946,176 = 0.9023 MiB
+
+125M 3*2^17 log_cols 8/ir 8: rows=1541 depth=11 bytes=3,272,704 = 3.1211 MiB
+125M 3*2^17 log_cols 12/ir 4: rows=101 depth=14 bytes=471,040 = 0.4492 MiB
+125M 3*2^17 log_cols 13/ir 4: rows=53 depth=15 bytes=512,000 = 0.4883 MiB
+125M 3*2^17 log_cols 14/ir 4: rows=29 depth=16 bytes=733,184 = 0.6992 MiB
+
+tiny 512 log_cols 8/ir 8: rows=7 depth=11 bytes=131,072 = 0.1250 MiB
+tiny 512 log_cols 12/ir 4: rows=6 depth=14 bytes=276,480 = 0.2637 MiB
+tiny 512 log_cols 13/ir 4: rows=6 depth=15 bytes=415,744 = 0.3965 MiB
+tiny 512 log_cols 14/ir 4: rows=6 depth=16 bytes=686,080 = 0.6543 MiB
+
+== 7b. sweep minimum ==
+Mistral 2^21: optimum log_cols 13 at 0.8945 MiB; log_cols 14 = 0.9023 MiB; cost of matching the layer = 0.0078 MiB per endpoint
+125M 3*2^17: optimum log_cols 12 at 0.4492 MiB; log_cols 14 = 0.6992 MiB; cost of matching the layer = 0.2500 MiB per endpoint
+
+== 8. Per-layer byte delta ==
+Mistral form 2: {'endpoint_rows': 133, 'ep_each': 946176, 'a_group_bytes': 532480, 'a_row_bytes': 8192, 'm_row_bytes': 8192, 'arg_bytes': 2240, 'total': 2443456, 'mask_rows': 5}
+  total 2,443,456 B = 2.3303 MiB; 6.082% of 40,174,324 B
+  32 layers: +78,190,592 B; 1.2701 GiB (was 1.1973 GiB)
+  rows: 2 endpoints 266 + A 4 + M 4 = 274
+125M form 2: total 2,017,088 B = 1.9236 MiB = 27.39% of 7,363,038.7 B/layer
+125M form 1: total 4,199,872 B = 4.0053 MiB = 57.04%  (endpoint rows 33, MASK_ROWS 9)
+ratio of relative costs 125M/Mistral = 4.50x
+
+== 9. Frame constants (zk_ffn_fresh_io.rs:15-18) ==
+ENDPOINT_OPEN_BYTES = 131,072
+ARGUMENT_BYTES      = 544
+EXTRA_BYTES         = 263,272
+EXPECTED_BYTES      = 112
+MAX_WIRE_BYTES      = 33,554,432 vs one measured Mistral layer 40,186,228 B private / 38,688,700 B public
+seam transient 3 x 2^21 x 16 B = 100,663,296 B = 96.0 MiB = 100.7 MB
+

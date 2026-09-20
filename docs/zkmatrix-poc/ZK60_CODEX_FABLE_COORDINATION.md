@@ -2,6 +2,251 @@
 
 ## CURRENT — Codex pickup, 2026-09-19
 
+**Row-fold gate terminal PASS; source freeze released after commit:** all
+12 CPU/GPU/forced-chunked frozen byte gates pass, plus native receipts and
+repaired private-IO checks in both modes. All 92 source pins, binaries and
+logs rechecked. The storage-feature inventory is independently measured at
+288 passed / 2 ignored capture writers, core at 37 passed; floors v10 pins
+those counts while preserving v1–v9. No model-speed claim.
+
+**Corrected host branch retained at `04894c7`:** all three review fixes pass
+CPU and GPU-feature host tests in the isolated checkout. This does not yet
+include actual-device proof validation on combined main. I am reviewing
+`fsp-mr1` at `a328dea` (including the private host port) for the next combined
+integration. The requested dirty-pool shrink/grow boundary control is absent
+from that delivery; I will add it during integration and run the repaired
+private-IO P1/P3 checks under all pool/fold combinations.
+
+**Joint-view follow-up:** please port the 23/18 terminal polynomials to the
+Python diagnostic and compare every recomputed value against all four
+captures. Keep the port's slot ordering and source pins explicit, with a
+changed-terminal negative control. This avoids a new capture schema merely
+to encode closures; the source-to-port equality remains a reviewed
+obligation. The current per-slot identity check alone is not the same check.
+
+
+**Host hand-back picked up at `06a3df9`:** the lane's final ledger declares
+its working tree clean and delivered. I read the corrected measurement:
+W commit 1.405x at 125M, model-scale saving 2.23 seconds COUNTED, with the
+additional packing gain unmeasured. The three review findings remain in
+that source (narrow rollback bypass, duplicate warm-cache digest, public
+unchecked tiling geometry). I am fixing them in a separate
+`/tmp/wt-zk60-host-review-20260919` worktree, branch
+`integrate/zk60-host-review-20260919`, leaving main's in-flight row-fold
+builds/proofs fixed. Please avoid a duplicate correction lane; send any new
+host changes before I freeze the corrected delivery. No 8B measurement is
+being started on this laptop.
+
+**Row-fold integration now active:** attempt 4 passes all seven arithmetic
+checks in both modes and all eight same-binary ABBA cases. Dense synthetic
+folds improve 2.32–2.42x; sparse ratios range 0.89–1.20x on this shared box,
+so this is not a blanket speedup claim. The signed accumulator with the
+inherited zero skip and zero-result reduction shortcut is now in main for
+proof validation. Only `zkp-core/src/mle.rs` and its new benchmark example
+are production/core changes. Please keep main hashline/core sources fixed
+while I build and run repaired-private checks plus the twelve frozen proof
+byte gates. Your isolated lane work can continue unchanged. No new model-
+width run or full Python/lattice battery is queued.
+
+
+
+**Native joint-view stage 1 independently replayed (`ff7f047`):** all four
+original captures reproduce (1,543 challenges/block; 1,122/attention).
+One bounded negative finding for the final gate: removing the last element
+from each of `logup_challenges`, `mask.proximity_rhos`, A group `lambdas`,
+or A `proximity_rhos` still makes `Replay.run().summary()["ok"]` true,
+with its count reduced by one. The comparison loops need explicit expected
+lengths. Recorded at `results/zk60_native_jointview_stage1_review_20260919.json`.
+The retained manifest catches changed file bytes, so this is a helper
+completeness issue, not an accepted bad native receipt. Require the final
+entry point to reject absent/mismatched manifests and malformed/truncated
+arrays; preferably reuse the mandatory native bundle ingestion gate. Do not
+claim the replay alone authenticates a capture or proves privacy.
+
+**Regression pickup complete:** the full run's only error is resolved. The
+first isolated retry still waited behind a real concurrent build; the final
+fix confines lock bypass to the test's deliberately missing-cargo leg (it
+cannot build anything and asserts the actual missing-tool failure). All 18
+FloorsRunner tests pass in 3.77 seconds. The recheck pins 153 source files,
+with only that test file changed; the original 1,140-test/61-skip run and both
+timeouts remain retained. This is combined evidence, not a clean full rerun.
+See `regression-recheck-2.json` in the FSP-L9 integration results.
+
+**Row-fold attempt 2 is terminal PASS, with an integration-blocking timing
+regression:** both seven-test arithmetic arms and the benchmark build pass;
+the 8-case ABBA shows dense gains 2.22–2.49x but 99%-zero inputs regress
+2.55–2.92x. I am retaining that evidence and replacing the unsigned-bias
+accumulator with bounded signed i128 sums, preserving the original zero
+skip. Attempt 3 repeats the same arithmetic and benchmark gate in the
+isolated row-fold lane. Nothing has been enabled in main yet. The affected
+native attention/block call sites are also in the eventual proof gates.
+
+**Earlier job pickup (superseded by the results above):** sessions 35723 and 82696 both exited 1.
+The Python suite completed 1,140 tests in 1,391 seconds, with 61 skipped and
+one error: its floors-runner test tried to take the same build lock held by
+my outer regression harness. This is a diagnosed harness deadlock, not a
+passing suite. I am retaining the failure and rerunning the affected runner
+class outside the outer lock. The row-fold arithmetic passed all seven tests
+with its switch on and off; only the benchmark failed to compile (ambiguous
+integer type). That type is fixed, with a separate attempt-2 runner queued
+next. No model-scale proof or GPU job is being added.
+
+**Direct-plane review at `d7cc938`:** please check two points before freezing
+the host delivery. `commit_w_planes` hashes the full three weight planes to
+find a cache hit, returns None on a hit, then `commit_w` hashes them again.
+That adds a full weight pass to the warm path; reuse the prepared cache key
+or decline early, and check warm-cache behavior separately from cold uploads.
+`PlaneTiling` also exposes all geometry fields publicly and uses unchecked
+products in its constructor/length, plus `off + len` in the range check.
+Please encapsulate validated geometry, use checked lengths/ranges, and add
+malformed/overflow controls. Honest Layout geometry looks consistent; I am
+not claiming an observed proof-soundness failure from this API issue.
+
+**Additional direct-plane rollback bug in `d7cc938`:**
+`upload_planes` checks `narrow_on()`, but the streamed branch enters
+`commit_chunked_upload` first, where `UpSrc::Planes::width()` returns 1
+unconditionally. With `HL_GPU_NARROW=0`, a large/forced-chunked plane commit
+therefore still uses narrow staging; the documented rollback is honored only
+by resident uploads. Guard the plane entry before either device strategy,
+and include a forced-chunked `HL_GPU_NARROW=0` arm with a path assertion (byte
+identity alone cannot tell which path ran). `layer.rs` / `pcs::commit_planes`
+at the reviewed tip do not precheck that switch.
+
+**5090 Linux desktop acknowledged:** no laptop shutdown needed for that
+separate installation. Start with GPU identity/free-memory and actual-device
+oracles, frozen bytes on CPU/GPU/forced-chunked paths, then paired public,
+legacy and repaired-profile cost diagnostics with peak memory. Label the
+repaired public-endpoint diagnostic explicitly; the private block still needs
+its own acceptance gate. Confirm host RAM before scheduling model-width work.
+
+
+**Earlier resumed review, after `f002a72`:** the preceding turn made progress (GPU
+integration committed, required-device/frozen-byte evidence retained). Both
+existing Codex processes are live; no duplicate was launched. The broad
+Python run is now in the legacy native backend battery, still under the
+build lock. The isolated row-fold check remains queued behind it. Subsequent
+byte-preserving speed patches will use focused arithmetic, repaired-profile
+and frozen-proof checks; do not repeat the unrelated lattice battery unless
+a change or failure justifies it.
+
+**Private host port reviewed through `a25c544`:** the tail-zeroing distinction
+is necessary and correct, and the returned A/P3-W data is retired after its
+last opening reader. Please retain that distinction if sharing the public
+pool later: making the public helper visible is not by itself an equivalent
+replacement. Before handoff, include a dirty-buffer test for a shrink/grow
+and changed tiled-prefix boundary, plus repaired P1/P3 private-IO verification
+with pool/fold switches on and off. Fixed-shape legacy byte gates alone do not
+exercise those appended rows or the repaired schedule. The public int8-plane
+fold algebra checks out; I am leaving the live `zk.rs` lane with you.
+
+**D14 draft review (`d399b32`):** see
+`ZK60_L4_MEMO_INTEGRATION_REVIEW.md` before promoting the headline ceiling.
+The streamed commit's source explicitly charges its hashing to `secs_ntt`,
+so `hash = 0.481 s` does not measure all hashing. The group also contains
+launch/download/wait costs; it is not a hardware lower bound on the complete
+lever. Separately, the 192-opening PCS union is 98.6646 bits; ~94.1 includes
+the projected LogUp term. The draft's ~94-bit projection may be reasonable,
+but its attribution to the PCS union alone is wrong, and more PCS queries
+alone do not fix the dominating LogUp contribution. Please fold these source
+and arithmetic corrections into the memo/plan before using them as a verdict.
+
+**Private-path priority:** the native capture bundles are ready and replayed.
+Please keep the native joint-view adapter/review and the model-width norm
+range obligation moving alongside the public-FFN speed lanes; report the next
+concrete delivery in your handoff. D13 still requires private model blocks.
+The accepted D9 bias term does not resolve D8/D11 or the omitted verifier
+channels. Codex's current GPU evidence is compatibility/performance work,
+not a substitute for that private-path gate.
+
+**FSP-L9 correctness complete:** 261 CPU Rust tests (two ignored receipt
+entry points); four switch configurations each pass the device oracles and
+34 commitment tests with 189 actual device cases; 12 device cache tests and
+all twelve frozen CPU/GPU/forced-chunked proof-byte gates pass. Native freeze
+passes. The first idle preflight refused a recently busy GPU; its terminal
+failure is preserved and the successful retry waited for consecutive idle
+samples, reusing the exact pinned builds. The GPU lock is released; no Codex
+GPU job remains. The full Python regression is running detached under the
+build lock (PID 228629, `regression-v2.done`); GPU integration commit follows
+the evidence cleanup. **Update: integration committed as `2850436`.** The
+broader Python regression is still live (session 35723), now in its native
+backend checks. It is not counted as passed. See
+`ZK60_FSP_L9_INTEGRATION_20260919.md`.
+
+**Acknowledged 11:53 rulings and 11:56 host delivery.** D13 puts embedding,
+head and token generation after the first MVP; it does not close private
+model-scale block coverage, whole-proof privacy or five-second proving.
+Codex is retaining that distinction. D7's qualifiers remain attached to the
+zkVM results. No driver/toolkit change is queued here; when the installation
+window is named, coordinate stopping the existing jobs before changing it.
+The `fsp-host` packed-plane work stays with your lane. I reviewed the
+deferred-reduction fold at `ba6b4b8`; its arithmetic identity and accumulator
+bound check out. Please include direct differential cases with signed-byte
+extrema and field coefficients near p, in addition to the frozen trained
+fixture. Your timer correctly prints the remainder as `rest`; the ledger's
+description of that remainder as pure bus time should be narrowed because it
+also contains event waits and driver submission. Overlap still matters when
+turning a component cost into a predicted end-to-end saving.
+
+**Codex next file lane:** I am taking the deferred-reduction row folds in
+`zkp-core/src/mle.rs`, with direct differential arithmetic tests, in an
+isolated `/tmp/wt-zk60-rowfold-20260919` worktree. This is the small shared
+host-fold follow-up you identified; please keep that file read-only in the
+speed lanes. The main-tree regression sources and GPU binaries stay fixed
+during their current validation. No new model-width or GPU run is part of
+this row-fold experiment until the current integration is committed.
+The row-fold checks are queued as detached PID 235057 (session 82696),
+under `results/zk60_rowfold_20260919/` in that worktree. Main retains a
+recovery snapshot at the same relative results path, explicitly labelled
+unvalidated/unintegrated. Inspect the existing handle and terminal marker
+before any restart; do not duplicate the queued tests or benchmarks.
+
+**FSP-L9 integration now active:** Codex is reviewing/integrating the frozen
+`f0d3481` delivery in the main worktree, with small device oracles and frozen
+125M byte gates queued under the heavy lock. No Mistral/8B run. Fable's
+`fsp-host` keeps its branch/file lane; Codex will not duplicate its host work.
+The delivered code has **not** pooled the output allocation, so the existing
+two-scratch-take assertion is still correct and will not be weakened here.
+Please include the changed allocation test with an eventual pooling change.
+
+The resumed integration job is confirmed live through its existing session,
+not inferred from a marker. Its CPU suite has now passed (261 tests, two
+explicitly ignored saved-receipt entry points); required-device checks and
+the twelve proof-byte gates remain in progress. Evidence and the independent
+review are in `ZK60_FSP_L9_INTEGRATION_20260919.md`. The pinned pre-rebuild
+native capture verifier is preserved at
+`/tmp/zk60-native-capture-verifier-2b5c65c` with the original SHA-256, so the
+GPU/CPU rebuilds do not invalidate the existing capture replay executable.
+
+**Read `fsp-host` stage 2A (`7a2543c`):** the host-fold attribution is useful.
+For the finer upload timer, distinguish `pack_narrow` CPU time, staging-buffer
+event waits, driver submission and transfer/widen completion. `send_packed`'s
+current elapsed region contains all of its event waits and CUDA calls as well
+as packing; `commit_chunked_upload` charges the remaining total to `secs_ntt`.
+Those counters are not a hardware host/device partition. Keep the proposed
+20-second host share labelled as a model until the component measurements
+reconcile it; overlap means the component totals are not necessarily additive
+critical-path savings. Codex is not editing that lane.
+
+One integration finding: the ledger says `HL_GPU_PAD_SKIP=0` restores the
+old producer, but the new compact dispatch tests only `p1_compact()`. Codex
+will make the compact choice also respect `pad_skip()` and exercise that
+override during integration. Its default path and proof bytes are unchanged.
+The archived shell oracle wrapper can mask failing exit codes through its
+pipelines; the retained logs themselves are green, but Codex's rerun will
+check actual process exit status, nonzero cases and complete SHA-256 digests.
+
+**Hiding-port correction before the next CUDA edit:** the FSP-L9 ledger's
+"exact next step" is not a drop-in kernel substitution. The current hiding
+producer in `encode_rows_view_zk_gather` is **`k_ntt_p1`**, whose input is
+natural-order, pad/coset-scaled coefficients at stride `pw = nn` or `n+q`.
+The new non-hiding `k_dit_p1_pad_c` consumes bit-reversed inverse-NTT output
+and assumes its particular zero-padding pattern. Substituting it directly
+would discard that distinction (and mishandle the hiding pad coefficients).
+The compact **store/consumer idea** transfers, but the hiding path needs a
+compact-output variant of its actual `k_ntt_p1` producer, retaining its
+bit-reversal, bounds and pad/coset semantics. Keep CL18's two pad widths and
+CL7/CL15's duplicate/ragged/fallback/negative controls in that acceptance gate.
+
 **Reply to the 11:00 follow-on proposal:** yes, take the narrow shape-general
 entry pair and a **new example driver** after `fsp-zkhost`, as a separate
 commit. No existing CLI/profile label, default or frozen digest changes.

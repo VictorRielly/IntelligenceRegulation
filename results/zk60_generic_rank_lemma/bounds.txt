@@ -1,0 +1,63 @@
+Pr[a proximity pair is Fp-dependent], a, b uniform in Fp2
+  exact = (340282366762482138490186164457219031041 + (340282366762482138490186164457219031041-1)*18446744069414584321) / 115792089129476408817739443160502628952720274482139873392618675794070921543681
+        = 2^-64.0000      (1/p would be 2^-64.0000)
+
+=== private-block-t32-poc ===
+  slots 23, extension-round draws 25, claims (= lambda draws) 174, openings 4
+  (B) refusal probability, term by term (ideal uniform draws)
+      terminal-mask challenge e in {0,1} :    50 draws  2^-122.356
+      a PCS batching lambda = 0          :   174 draws  2^-120.557
+      a CFS mask challenge c = 0         :    23 draws  2^-123.476
+      a proximity pair Fp-dependent      :     4 pairs  2^ -62.000   <-- dominant
+      TOTAL refusal probability                        2^ -62.000
+      (liveness, not privacy: about one proof in 4,611,686,017,353,646,080 is discarded and re-run)
+  (B') the challenge sampler's residual on these 1075 draws, at the case's 2^-96 per draw: 2^-85.93
+  (C) Schwartz-Zippel backstop, PCS side (over Fp, realified minor)
+      A       G= 35  minor  72x72  total degree <=  212   2^-56.272
+      H       G=  9  minor  20x20  total degree <=   56   2^-58.193
+      Input   G=  1  minor   4x4   total degree <=    8   2^-61.000
+      Output  G=  1  minor   4x4   total degree <=    8   2^-61.000
+      union over the four openings                        2^-55.850
+      with a x100 slack on every degree                   2^-49.206
+  (C') Schwartz-Zippel backstop, mask channel (over Fp2, genuine Fp2 polynomials)
+      23 slots, worst minor degree 588 at (N=12, d=4)
+      union over the slots                                2^-115.676
+  (C'') PCS + mask backstop together                      2^-55.850
+
+=== private-attention-t32-poc ===
+  slots 18, extension-round draws 20, claims (= lambda draws) 113, openings 4
+  (B) refusal probability, term by term (ideal uniform draws)
+      terminal-mask challenge e in {0,1} :    40 draws  2^-122.678
+      a PCS batching lambda = 0          :   113 draws  2^-121.180
+      a CFS mask challenge c = 0         :    18 draws  2^-123.830
+      a proximity pair Fp-dependent      :     4 pairs  2^ -62.000   <-- dominant
+      TOTAL refusal probability                        2^ -62.000
+      (liveness, not privacy: about one proof in 4,611,686,017,353,646,080 is discarded and re-run)
+  (B') the challenge sampler's residual on these 761 draws, at the case's 2^-96 per draw: 2^-86.43
+  (C) Schwartz-Zippel backstop, PCS side (over Fp, realified minor)
+      A       G= 30  minor  62x62  total degree <=  182   2^-56.492
+      H       G=  8  minor  18x18  total degree <=   50   2^-58.356
+      Input   G=  1  minor   4x4   total degree <=    8   2^-61.000
+      Output  G=  1  minor   4x4   total degree <=    8   2^-61.000
+      union over the four openings                        2^-56.046
+      with a x100 slack on every degree                   2^-49.402
+  (C') Schwartz-Zippel backstop, mask channel (over Fp2, genuine Fp2 polynomials)
+      18 slots, worst minor degree 588 at (N=12, d=4)
+      union over the slots                                2^-115.984
+  (C'') PCS + mask backstop together                      2^-56.046
+
+SENSITIVITY: what if a draw this lemma places in Fp2 is really in Fp?
+  a lambda or a terminal-mask e in the base field: Norm(x) = x^2, so
+    Pr[Norm = 0] rises from 1/p^2 = 2^-128.0 to 1/p = 2^-64.0 per draw.
+    private-block-t32-poc     : 224 such draws -> 2^-56.19 (instead of 2^-120.19)
+    private-attention-t32-poc : 153 such draws -> 2^-56.74 (instead of 2^-120.74)
+  the proximity pair in the base field: wedge(a, b) = a.c0*b.c1 -
+    a.c1*b.c0 = 0 identically when both c1 = 0, so the refusal would
+    fire on EVERY run and no proof would ever be produced.  The
+    extension-field draw at zkp-core/src/pcs.rs:853 is load-bearing
+    for completeness, not only for the bound.
+  the Schwartz-Zippel backstop (C) is already taken over Fp, so it does
+    not move; if a checker argued the realified minor could be treated
+    over Fp2 the backstop would improve by 64 bits, to about
+    private-block-t32-poc     : 2^-119.85   (THIS DRAFT DOES NOT CLAIM IT)
+    private-attention-t32-poc : 2^-120.05   (THIS DRAFT DOES NOT CLAIM IT)

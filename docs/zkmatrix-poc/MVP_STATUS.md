@@ -1,12 +1,18 @@
 # Where the MVP stands, in plain words
 
-**Updated 2026-09-19, after native capture integration, by the Codex/Fable
+**Updated 2026-09-19, after row-fold integration correctness gates, by the Codex/Fable
 loop (after the 01:04 laptop restart; see §3 item 4).** This page
 answers three questions and is refreshed whenever the loop produces news.
 Rulings are in [the decisions register](ZK60_DECISIONS.md); measurements
 carry their labels ([MEASURED] a run happened, [COUNTED] arithmetic on
 measured pieces, [MODEL] an estimate). Nothing here is a quiesced benchmark;
 the laptop is shared with other jobs.
+
+**Latest integrated speed work:** exact int8/int32 row folds pass all twelve
+CPU/GPU proof-byte gates, fresh native receipt verification in both modes,
+and repaired private-IO P1/P3 checks. Dense synthetic folds improve
+2.32–2.42x; sparse cases are mixed. Full-model proving time remains
+unmeasured. [Evidence and limits](ZK60_ROWFOLD_INTEGRATION_20260919.md).
 
 ## 1. Do we have a workable proof?
 
@@ -39,9 +45,13 @@ different profile. Prove 7,488 s (2 h 5 min) on the shared CPU, wrap 197 s
 
 What it rests on: RISC Zero's proof system at about 97 bits conjectured
 soundness (D3), the Groth16 trusted setup (D4), Groth16 receipts only (D5),
-and a new salted-SHA-256 endpoint profile that still needs Victor's
-acceptance as the P1 statement (D7). Both receipts are for synthetic tiny
-fixtures, not a trained model, and neither makes a speed claim.
+and the salted-SHA-256 endpoint profile accepted under D7 at 11:50 on
+September 19. The D7 qualifiers remain explicit: salt secrecy protects the
+toy answer (the model library still accepts zero/repeated salts), the image
+is locally built and not independently reproduced across directories, and
+timing is declared leakage; the scan and cycle check cover only the block
+program. Both receipts use synthetic tiny fixtures and make no model-speed
+claim. D13 makes hidden model blocks the first MVP; token generation follows.
 
 **On the custom prover line (hashline), the first complete private block now
 proves and verifies (2026-09-19, 05:14), and at 06:25 the security owner
@@ -97,6 +107,18 @@ capture controls pass; both pre-instrumentation receipts still verify.
 [validation manifest](../../results/zk60_native_captures_20260919/validation.json).
 This closes the capture-writer prerequisite. The complete joint-view analysis
 and D8/D11 still need acceptance; no new proving-speed claim follows.
+
+**GPU optimization validated:** Claude's compact intermediate for non-hiding
+openings and the parallel host column split pass the integration checks:
+261 CPU Rust tests, four configurations of 34 required-device commitment
+tests, 12 device cache tests, all twelve frozen CPU/GPU/forced-chunked proof
+digests, and native freeze. The full Python run covered 1,140 tests (61
+skipped); its single lock-related error is resolved by a test-isolation fix
+and a passing 18-test targeted rerun.
+The local four-kernel gain is 1.162× [MEASURED]; its full-pass saving is only
+0.8–1.8 seconds [COUNTED]. No new 8B proof clock is claimed. The next host
+work targets redundant integer conversion/packing and repeated reductions.
+[Review and retained evidence](ZK60_FSP_L9_INTEGRATION_20260919.md).
 
 What else exists on that line: a private feed-forward component at the same tiny shape
 with a bounded privacy diagnostic (whole-proof privacy not accepted, D8
@@ -237,14 +259,35 @@ it does not exist yet.**
    and generating a word is the next milestone; new D14, a costed memo for
    the one design lever that could take a 5090 below 10 s, paper only; and
    the RTX 5090 install is a go (date, machine and RAM still to be named).
-   **Speed, honestly (`ZK60_FIVE_SECOND_PLAN.md`):** 5 s is outside every
-   assumption recorded in this repository; on this laptop the best case after
-   the remaining byte-preserving steps is about 40 s [COUNTED]; a 5090 then
-   gives roughly 10–15 s [MODEL]; the first lane to test the plan found its
-   kernel step worth 1–2 s, not 7 s. The most valuable missing number is
-   what the *repaired* private feed-forward costs at model width: by row
-   count it is the legacy cost plus about 2% [COUNTED], and the lanes that
-   will measure it are in progress.
+   **Speed, honestly, as of 13:42 (`ZK60_FIVE_SECOND_PLAN.md`, three dated
+   corrections at the top of its §5):** 5 s is outside every assumption
+   recorded in this repository, and the costed memo commissioned under D14
+   confirms the one design lever left cannot reach it (best case on a 5090
+   about 7–9 s, for 15–25 lane-weeks and a 60% larger proof). The plan's three
+   software steps were built today, all byte-identical and green: together
+   they are worth **about 4–5 s of the 58.40 s [COUNTED]**, not the 24 s first
+   projected — every counted step shrank three- to seven-fold when measured.
+   On this laptop the public 8B pass is a roughly 55 s pass. Whether the 5090
+   reaches 15 s is **open** until its first measurement; 16–19 s of today's
+   pass is host work the card does not touch.
+   **The most valuable missing number now exists, at the small shape:** the
+   *repaired* private mask scheme ran for the first time above the tiny shape
+   (45 runs, zero refusals, 12 layers × 512 tokens at the 125M shape, three
+   arms on one binary, endpoints public in all three — a cost probe, not a
+   privacy result): **repaired ÷ legacy = 1.06 on the GPU binary and 1.00 on
+   the CPU binary; repaired ÷ public = 2.05 on the GPU** [MEASURED]; proof
+   bytes +0.75% over legacy; by row count +1.8% at Mistral width and about
+   +1.6% on a Mistral layer [COUNTED, not run]. So the repaired masks cost
+   what the legacy ones did, within a few per cent; what is still unmeasured
+   is the other half of P1, the hidden endpoints at model width.
+   **Privacy path, same day:** on Codex's retained captures of two block and
+   two attention receipts, a gate that replays the transcript at the
+   receipts' real challenges finds nothing determined about the hidden data
+   beyond public identities, with the 256 sampled columns included, and every
+   sabotage control caught — evidence on a linear model of four receipts,
+   **not** a privacy acceptance (D8/D11 open); and the private block's norm
+   was shown free of the soundness gap the older prover has, with the
+   precondition for widening it recorded as D16.
 5. **A reproducibility fact to settle before any approval record:** the
    guest image ID depends on the build directory (the ELF embeds one
    absolute source path and the non-Docker build applies no path remap), so

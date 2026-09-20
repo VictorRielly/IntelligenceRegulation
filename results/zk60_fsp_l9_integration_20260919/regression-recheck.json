@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "test_hashline_cl_gpu_gates.FloorsRunner"
+  ],
+  "elapsed_shared_seconds": 124.1510051419973,
+  "error": "targeted recheck exit 1",
+  "exit_code": 1,
+  "original_log_sha256": "2a4f7079c13f58905f1ecacd8fbeeb8e973b70b542695908ded5a8d6789e9c35",
+  "original_report_sha256": "cd796d5046b645bbe23bbc9179b61275cb0ca5e3e77a2df0bc1f84baaf56aa3b",
+  "outer_build_lock_during_tests": false,
+  "previous_result": "regression-v2.json",
+  "recheck_log_sha256": "2c5c0e8e26206a12be24a82acb720f682525947ec0c7e52c03a476a62c010e83",
+  "runner_sha256": "b43e8302c6ffaebbf6033bd5c455c34ad0746334fd1b13980cc207d5d768276c",
+  "state": "failed"
+}

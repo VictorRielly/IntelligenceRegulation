@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "test_hashline_cl_gpu_gates.FloorsRunner"
+  ],
+  "elapsed_shared_seconds": 3.8763000269973418,
+  "exit_code": 0,
+  "original_log_sha256": "2a4f7079c13f58905f1ecacd8fbeeb8e973b70b542695908ded5a8d6789e9c35",
+  "original_report_sha256": "cd796d5046b645bbe23bbc9179b61275cb0ca5e3e77a2df0bc1f84baaf56aa3b",
+  "outer_build_lock_during_tests": false,
+  "previous_result": "regression-v2.json",
+  "recheck_log_sha256": "443fc0217013c11c17fd1e010432b34007fc75215dad19a6cd108c4925a79891",
+  "runner_sha256": "a635575ff855fdd299eca896b7fa8f014dc8be3f7c828d54f76a011db23efcf1",
+  "source_hashes_rechecked": 153,
+  "state": "passed",
+  "test_isolation_change": "tests/test_hashline_cl_gpu_gates.py: missing-cargo leg avoids the real global lock",
+  "test_sha256": "008050751887b57671565cfb795186ad0de9b71e111bc397165656b250d90bc3"
+}

@@ -25,6 +25,9 @@ back. Keep this file short enough to read in five minutes.
 | D13 | What the first MVP must prove: the hidden transformer blocks are enough; generating a token (embedding, final norm, head, token selection) is the next milestone | **decided** | 2026-09-19 | Victor (Telegram 11:50) |
 | D14 | Commission a costed design memo for the fewer-hashed-bytes speed lever (encoding rate 1/2 and/or a 31–32-bit field). Paper only: building it would move every frozen digest and the soundness accounting, and stays a separate ruling | **memo commissioned** | 2026-09-19 | Victor (Telegram 11:50) |
 | D15 | The custom line's "106 bits" is a per-opening figure; the projected whole 8B proof is about 94 bits. Every model-scale security statement quotes the whole-proof figure | **technical clarification**; the whole-proof target itself is a ruling still to be put to Victor | 2026-09-19 | Security owner (Fable), from `ZK60_FABLE_SECURITY_OBLIGATIONS.md` §5 and the D14 memo |
+| D16 | Before the private block's norm is widened toward real-model widths, its denominator and the two isqrt witnesses keep a direct byte-limb range pin sized to the new maximum, at most four limbs each, with an exact remainder window | **construction rule (precondition for widening; soundness)** | 2026-09-19 | Security owner (Fable), from the norm range lane |
+| D17 | Hiding endpoints beyond the tiny shape: the whole hidden plane is bound at every width (the batched multi-block seam, unconditional); the tiny private-IO path stays byte-frozen and new entry points are additive; a feed-forward-only private pass is a cost vehicle, never P1 | **construction rule (soundness) and a naming rule** | 2026-09-19 | Security owner (Fable), from the endpoints-at-scale draft and its independent check |
+| D18 | Who fixes the commitment to a hidden input: **the prover, at proof time, for the first MVP** (what is built). A third party sealing an input in advance is a **recorded todo and the expected end state** — it needs a sealed handle that is not a polynomial-commitment root and a hashing gadget inside the proof (about +13% on the private pass [COUNTED, untested]; not built) | **decided: A now, B as a todo** | 2026-09-19 | Victor (Telegram 22:15) |
 | — | RTX 5090 install (an action, not a ruling; the 600 W bound was ruled on 2026-09-04) | **go**; date, machine and host RAM still to be named | 2026-09-19 | Victor (Telegram 11:50) |
 
 Operational rules (detached heavy runs, the shared-box lock, command hygiene)
@@ -389,6 +392,22 @@ auditor ever requires it removed, the change is one line in `ZkRng::fp`
 should be done after any lane that leans on the two frozen zero-knowledge
 digests has landed. Pages: `ZK60_RULINGS_FOR_VICTOR.md` §6.
 
+**Verification note (security owner, 2026-09-19 21:50): the accepted figures
+are right; "2^-64" and "2^-96" are two different quantities, not a
+discrepancy.** The draw is a 128-bit integer reduced modulo
+`p = 2^64 − 2^32 + 1` (`zkp-core/src/rng.rs:72–77`, whose comment says "bias
+2^-64"), and one review (O10, finding F10.4) read that as the per-draw term,
+which would make the accumulated residual about 2^-51 instead of 2^-72. Exact
+arithmetic settles it: `2^128 mod p = p − 2^32`, so all but `2^32` of the
+`2^64` residues occur equally often and those `2^32` occur once less. The
+**total statistical distance of one draw from uniform is exactly 2^-96**; the
+**relative bias of a single outcome is 2^-64**. A privacy bound sums
+statistical distances, so the per-draw term is 2^-96 and the accumulated
+figures above stand: 2^-75.0 at 2^21 draws, 2^-72.9 at 2^23.1, 2^-71.7 at
+2^24.3. This is a property of the Goldilocks prime specifically — a generic
+64-bit prime would give about 2^-66 per draw — so it must be re-derived if
+the field ever changes (D14).
+
 ## D10 — Compact-PCS proof-size lever (declined, 2026-09-19)
 
 Drops a Mistral-7B layer's proof from 38.7 MB to 1.94 MB at 4.4x the prover
@@ -446,6 +465,176 @@ or a whole-proof figure, and how many bits, is Victor's ruling (the D14
 memo's question G.0-2). It is not urgent for a tiny-block MVP; it becomes
 binding before any byte freeze at model scale, and it decides whether the
 rate half of the D14 lever is a gain or a net cost.
+
+## D16 — The private block's norm before it is widened (construction rule, 2026-09-19)
+
+**In plain words.** A norm divides by a square root. The proof does not
+compute the square root; the prover supplies it (`D`) with two helper numbers,
+and the verifier checks algebra that pins it. Over a prime field that algebra
+has a second solution nobody intended — `D` replaced by `k + (p−1)/2` — unless
+something forces `D` to be a small non-negative integer. In the project's
+older public-IO attention prover nothing does (obligation R09): the alias is
+excluded at the tiny profile only because its remainders happen not to fit
+two 16-bit limbs, and **any profile with three remainder limbs — which is what
+an int24 residual at width 4096 needs — accepts an all-zero norm output.**
+
+**What was established today** (lane `zk60-private-norm-range`, pushed;
+`ZK60_PRIVATE_NORM_RANGE_OBLIGATION.md`; test-only Rust, 41 tests pass, 5
+new). The **private** block does not share that gap. It range-proves `D`
+directly: `d = l0 + 256·l1 + 65536·l2` with every limb looked up in the 8-bit
+table (`private_block/argument.rs:583–593`, `layout.rs:314–315`), for both
+norms. The alias was built against this module's own relations and is
+**refused by the verifier at the fixed profile by that range fact**, not by a
+width: with honest limbs the zero-check slot rejects; with limbs made to
+reconstruct the alias — so that every relation of all 23 slots holds in the
+field — the byte lookup rejects. Both catches were predicted before they were
+measured. Its remainders are proved in an exact window, so there is no
+R10-style slack either.
+
+**The rule, binding on any widening of the private block's geometry:**
+1. `D` keeps a direct byte-limb range pin with `⌈log256(Dmax + 1)⌉` limbs:
+   three today (Dmax 2^17) and at width 4096 with an int16 residual (2^21);
+   **four at width 4096 with an int24 residual (2^29).**
+2. The two isqrt witnesses `a1`, `a2` get the same treatment: their present
+   exclusion **lapses at four limbs** (the alias's `a1` is about 2^30).
+3. Never more than four limbs on any of them: `(2^32 − 1)² + (2^32 − 1) = p − 1`
+   exactly, so four is the last count at which the square relation cannot wrap.
+4. The remainder window stays exact and its coefficient is rewritten for the
+   new width; the present window keeps about one bit of margin at int24 /
+   4096 and less than a tenth of a bit at 8192, and `1 << (32 − NORM_WRHO)`
+   (`layout.rs:321`) underflows above 32.
+5. The audit that every committed value under a non-unit coefficient is
+   independently range-proved is re-run on the widened layout, and the
+   wraparound premise at `layout.rs:281–309` is re-derived.
+6. The alias tamper tests of this lane travel with the module and must reject
+   at every widened profile before it is used.
+**Cost at the first widening:** 6 more claim sites, 12 more `A` rows
+(455 → 467), 96 proof bytes, no new lookup, table, sumcheck or degree; a new
+statement version. **Not covered:** the widened profile was analysed on paper
+and by arithmetic tests, not run through the verifier, because reaching it
+needs production changes this lane was not allowed to make; the public-IO
+prover's R09 is unchanged and still owes the fix verified on 2026-09-08.
+
+## D17 — Hiding endpoints beyond the tiny shape (construction rule, 2026-09-19)
+
+**In plain words.** The private feed-forward hides its input and its output
+by putting each in its own sealed commitment and proving, without opening
+either, that the sealed plane equals the plane inside the proof. Today that
+equality is checked over **one block** of the plane. At the tiny shape a
+plane is one block, so that is the whole plane and the code is sound. At any
+shape with several blocks, simply raising the size limits would leave the
+rest of the plane **unbound**: an independent check built the attack (a
+sealed plane honest on the first block and arbitrary elsewhere) and showed
+that nothing in the present code rejects it; the existing tamper test would
+not catch it either, because its one perturbed position lies in the first
+block.
+
+**The rule.**
+1. **Any entry point that accepts a shape other than the pinned tiny one binds
+   the whole plane**, through the batched multi-block seam, at every width.
+   No width is exempt: a plane has one block only when the model width is a
+   power of two no larger than 4096, so widths 768, 5120, 6144, 8192, 12288
+   and 16384 all have several.
+2. **The tiny private-IO path stays byte-frozen.** Its constants are hashed
+   into its digests and fix its endpoint roots. Everything new is additive: a
+   general spec with its own digest domain, a new profile tag, a new entry
+   pair beside the pinned ones.
+3. **Pair exclusivity is enforced in code on this path**, and a joint-view
+   analysis of a captured receipt at the widened shape is a hard gate before
+   the path is used for any measurement that is quoted.
+4. **Naming.** A feed-forward-only private pass over 32 layers has **64
+   endpoint roots fixed by the caller, not a chain** — attention, two norms
+   and a residual sit between consecutive feed-forward blocks — and every one
+   of them carries the open D8/D11 obligation. It is not a block under D12,
+   and D13's "blocks" means complete blocks. **It is a cost vehicle and is
+   never called P1**, in code, documents or status pages.
+
+**What it costs** [COUNTED, none of it measured]: at one Mistral-width layer
+about 274 more committed rows (1.6%) and 2.3 MiB of proof (6%); the whole-proof
+soundness moves by 0.03 bit. **What it does not do:** it establishes no
+privacy property and leaves D8 and D11 exactly where they were. Ruling and
+the 19 binding errata:
+`ZK60_PRIVATE_ENDPOINTS_AT_SCALE_DISPOSITION.md`.
+
+## D8/D11 — note of 2026-09-19: a restatement was attempted and NOT accepted; the obligation stands
+
+A delegated draft restated the obligation as a game and recommended
+discharging part of it by restricting it to endpoint roots "first published
+together with the proof that consumes them". An independent check, told that
+the last confident closure was retracted within days, found the reduction
+**circular** (its own restriction assumes the conclusion) and found that it
+**excludes the party who fixed the root from ever being the adversary** — and a
+regulator who seals an input in advance is exactly that party. The security
+owner did not accept it. **D8 and D11 stand as written.** What is now on the
+record (`ZK60_D8_D11_RESTATEMENT_DISPOSITION.md`): in today's code the
+committer **is** the prover and an endpoint owner cannot leave the process, so
+for every artifact that exists the caller-fixed scenario does not physically
+arise and the standard game applies; a commitment opened twice is dead at this
+geometry, so one opening per commitment must be kept everywhere and a verifier
+cannot check that from the bytes; **separately finished private proofs cannot
+be chained through a commitment root** (the upstream receipt already opened
+it); a caller-fixed **salted handle** (as the zkVM line uses under D7) would
+close every case for about +5.5% on the public pass and +12.6% on the private
+one [COUNTED; no gadget exists]; and the Fiat–Shamir transcript shares one
+untagged 64-byte hash domain with the Merkle and leaf hashes, which any
+argument that programs the oracle must face.
+
+## D18 — Who fixes the commitment to a hidden input (decided 2026-09-19: the prover, for the first MVP)
+
+**In plain words.** A private proof refers to its hidden input through a
+sealed commitment. Either the **prover** seals it at the moment it proves, and
+the seal appears for the first time inside the receipt; or **someone else**
+seals it in advance — a regulator fixes an input today and asks for a proof
+about it tomorrow. Everything built so far does the first. The open
+obligations D8 and D11 are about the second: whoever sealed the input holds
+its randomness, and the project's simulation argument cannot treat that party
+as an outsider.
+
+**The recommendation put to Victor.** For the first MVP, **the prover seals**:
+it is what exists, it needs nothing new, and D13 already scopes the MVP to the
+hidden blocks. The receipt then says "the approved model ran on some hidden
+input and produced some hidden output, both sealed here", and anyone later
+given an input with its randomness can check it against the seal. **Sealing in
+advance by a third party becomes the next milestone's requirement**, built
+with a salted handle that is not a polynomial-commitment root (about +13% on
+the private pass; a hashing gadget that does not exist yet) — the same handle
+that chaining separately finished proofs would need. **This does not close D8
+or D11; it says which product they bind.**
+
+**Ruling (Victor, Telegram, 2026-09-19 22:15):** "I agree, let's proceed with
+A now and B will be added as a todo. Ultimately B seems the more likely
+approach to implement." So: **for the first MVP the prover seals the hidden
+input and output at proof time**, the seals appear for the first time inside
+the receipt, and the privacy game for every MVP artifact is the standard one in
+which the prover produces the commitments. **Sealing in advance by a third
+party is a recorded todo, and Victor expects it to be the approach the product
+ultimately uses** — so it is planned work, not an optional extra: a salted
+handle that is not a polynomial-commitment root, with a hashing gadget inside
+the proof showing the sealed plane is the one the proof used. Its cost
+(+5.5% public, +12.6% private) is counted with a factor-two band and rests on
+a gadget that does not exist; it must be scoped and measured before it is
+quoted. The same handle is what chaining separately finished proofs needs.
+**D8 and D11 remain open**, and they bind that future configuration.
+
+*Scoping note, 2026-09-19 23:13.* The todo was scoped on paper the same
+evening and the scoping was attacked by an independent check
+(`ZK60_SEALED_HANDLE_SCOPING.md`, its `_CHECK.md`, and the security owner's
+`_DISPOSITION.md`). What that leaves on the record: the construction's shape
+is accepted as the right one for this option; the memo is **not** accepted as
+a basis for any cost or for the choice of hash. Of the two figures above, the
+public one follows from its stated basis; **the private one (+12.6%) has no
+published derivation and could not be reproduced — treat it as unverified.**
+A claim in the draft that both figures were two times too low was checked and
+withdrawn. The GPU zero-check is capped at degree 4 and the private block has
+no device path, so no GPU-denominated cost for the gadget exists. **Which hash
+the handle uses is a security acceptance for Victor of the same kind as D3, D4
+and D7; it is taken when this option is scheduled, with the published
+cryptanalysis read again that week** (it moved during 2026). The security
+owner's direction for the design is a two-layer handle: an algebraic hash
+inside the proof whose root is never published, wrapped in one standard salted
+hash, so that hiding rests on the assumption D7 already accepted and only
+collision resistance rests on the newer primitive. Unchecked and unpriced.
+Nothing is scheduled to be built; the first MVP seals at proof time.
 
 ## D13 — What the first MVP must prove (decided 2026-09-19)
 

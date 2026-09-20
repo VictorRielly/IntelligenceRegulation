@@ -1,0 +1,24 @@
+private-block-t32-poc (23 slots)
+  rho = uniform            slots 23   rank R != dim C: 0   sum_weights outside rowspace(R): 0   eval_weights outside rowspace(R): 0
+  rho = all zero           slots 23   rank R != dim C: 0   sum_weights outside rowspace(R): 0   eval_weights outside rowspace(R): 0
+  rho = all one            slots 23   rank R != dim C: 0   sum_weights outside rowspace(R): 0   eval_weights outside rowspace(R): 0
+  rho = all equal          slots 23   rank R != dim C: 0   sum_weights outside rowspace(R): 0   eval_weights outside rowspace(R): 0
+  rho = in the base field  slots 23   rank R != dim C: 0   sum_weights outside rowspace(R): 0   eval_weights outside rowspace(R): 0
+
+private-attention-t32-poc (18 slots)
+  rho = uniform            slots 18   rank R != dim C: 0   sum_weights outside rowspace(R): 0   eval_weights outside rowspace(R): 0
+  rho = all zero           slots 18   rank R != dim C: 0   sum_weights outside rowspace(R): 0   eval_weights outside rowspace(R): 0
+  rho = all one            slots 18   rank R != dim C: 0   sum_weights outside rowspace(R): 0   eval_weights outside rowspace(R): 0
+  rho = all equal          slots 18   rank R != dim C: 0   sum_weights outside rowspace(R): 0   eval_weights outside rowspace(R): 0
+  rho = in the base field  slots 18   rank R != dim C: 0   sum_weights outside rowspace(R): 0   eval_weights outside rowspace(R): 0
+
+Negative control: perturb the round matrix (drop the last round) and the
+two facts must fail.
+  rank of R without its last round = 28 (dim C = 31)
+  eval_weights still inside rowspace? False   (want False)
+  sum_weights  still inside rowspace? True   (want True: it lives in round 0)
+
+CONCLUSION.  Both mask-channel facts hold at every rho tried, including
+degenerate ones the protocol would refuse.  They are identities in the
+challenges, so no Schwartz-Zippel term is owed for the M channel's
+`uncovered = 0` or for `rank_F mod rounds = 0`.

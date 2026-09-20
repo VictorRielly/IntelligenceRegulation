@@ -1,5 +1,28 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-19, row-fold acceptance:** bounded signed accumulation is enabled
+after arithmetic differential tests, twelve frozen CPU/GPU byte gates,
+four fresh native receipts verified with both implementations, and repaired
+private-IO P1/P3 checks. Dense folds improve 2.32–2.42x; model proving time
+is unmeasured. Floors v10 fixes the inventory at 37 core / 288 storage tests
+(two explicit capture writers ignored). [Review](ZK60_ROWFOLD_INTEGRATION_20260919.md).
+Next: combine Claude's delivered private-host port and repaired-mask cost
+probe with the reviewed direct-plane corrections; verify both rollback
+switches, private buffer reuse, actual-device routes and frozen bytes.
+
+**2026-09-19, FSP-L9 integration correctness passed:** the compact GPU opening
+intermediate and parallel column split preserve all twelve frozen proof
+digests on CPU, GPU and forced-chunked GPU. Four switch configurations pass
+the device oracles and 34 commitment tests apiece; 12 device cache tests,
+261 CPU Rust tests and native freeze pass. The full Python run covered
+1,140 tests (61 skipped); its single lock-related error is resolved by a
+test-isolation fix and a passing 18-test targeted rerun.
+[Integration review](ZK60_FSP_L9_INTEGRATION_20260919.md).
+Fable owns direct packed uploads and the repaired-private cost probe; Codex
+owns the isolated `zkp-core/src/mle.rs` row-fold follow-up. D13 puts token
+generation after the first MVP; private model-block coverage, whole-proof
+privacy, proof size and five-second model-scale proving still need evidence.
+
 **2026-09-19, native captures retained:** `2b5c65c` adds the test-only
 attention/block capture writer and mandatory fresh-process ingestion gate.
 Two accepted receipts per profile are retained with source and binary pins;

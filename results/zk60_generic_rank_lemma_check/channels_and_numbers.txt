@@ -1,0 +1,73 @@
+
+==========================================================================
+4a. A / H / endpoint pad block  (pcs.rs::encode_row_zk, n=256, nn=2048)
+==========================================================================
+  order check: 7^(p-1) == 1?  True
+  7^2048 == 1?  False   (needed: False)
+  7^4096 == 1?  False   (needed: False)
+  distinct coset nodes x_j = 7 w^j over all 2048 positions: 2048
+  Z_n(x_j) = x_j^256 - 1 zero anywhere on the encoded domain: 0 of 2048
+  any coset node inside the size-256 subgroup (a systematic position): 0 of 2048
+  40083e7a block A     : 256 draws, 246 distinct, pad-block rank 246 (= distinct: True), q_pad 256, slack 10
+  40083e7a block H     : 256 draws, 242 distinct, pad-block rank 242 (= distinct: True), q_pad 256, slack 14
+  40083e7a block Input : 256 draws, 246 distinct, pad-block rank 246 (= distinct: True), q_pad 256, slack 10
+  40083e7a block Output: 256 draws, 241 distinct, pad-block rank 241 (= distinct: True), q_pad 256, slack 15
+  256 DISTINCT positions (the collision-free boundary): rank 256 of 256
+  negative control, one repeated position: rank 255 of 256 (must be 255)
+  negative control, 257 distinct positions vs 256 pads: rank 256 of 257 rows (must be 256 -- the budget is EXACTLY spent)
+
+==========================================================================
+4b. M pad block (zk.rs::mask_commit, m=512 msg, dom=4096, MASK_Q=256)
+==========================================================================
+  distinct nodes y_j over all 4096: 4096
+  z_j = y_j^512 - 1 zero anywhere: 0
+  any y_j equal to a message node w^t: 0 of 4096
+  pad positions [0,256), 256 random opened columns: Cauchy rank 256 of 256
+  pad positions [50,306), 256 random opened columns: Cauchy rank 256 of 256
+
+==========================================================================
+3. the mask channel: dim ker R and the published functionals
+==========================================================================
+  rho regime uniform    : dim ker R in [1]  slots with ker != 1: 0/23   sum_weights outside span: 0   eval_weights outside span: 0
+  rho regime all zero   : dim ker R in [1]  slots with ker != 1: 0/23   sum_weights outside span: 0   eval_weights outside span: 0
+  rho regime all one    : dim ker R in [1]  slots with ker != 1: 0/23   sum_weights outside span: 0   eval_weights outside span: 0
+  rho regime all equal  : dim ker R in [1]  slots with ker != 1: 0/23   sum_weights outside span: 0   eval_weights outside span: 0
+  rho regime small ints : dim ker R in [1]  slots with ker != 1: 0/23   sum_weights outside span: 0   eval_weights outside span: 0
+  -- negative control: drop the LAST round from R --
+    slot 17 (N=12, d=4): rank without the last round 45; sum_weights still inside: True; eval_weights still inside: False
+  -- negative control: only d values per round (X = 0..d-1) --
+    slot 8 (N=5, d=2): dim ker = 2 (1 when all d+1 values are published)
+    slot 17 (N=12, d=4): dim ker = 2 (1 when all d+1 values are published)
+
+==========================================================================
+2.2/3.7  is the tool's k0 an Fp rank of the realification?  a two-row counterexample
+==========================================================================
+  rho = [1, u];  non-data rows = {0}, data rows = {1}
+  Fp2 row rank of rho restricted to the non-data rows: 1  (= G+1 = 1, FULL)
+  tool's k0 = rank_Fp(gens) - rank_Fp(gens|non-data) = 2 - 1 = 1
+  => FULL Fp2 row rank on the non-data rows does NOT imply k0 = 0.
+     The event the tool measures is the Fp rank of the REALIFICATION,
+     i.e. the Fp2-independence of {rho_g} TOGETHER WITH their
+     conjugates.  Conjugation is x -> x^p, so Schwartz-Zippel over
+     Fp2 on the (G+1)x(G+1) minor bounds a different event.
+
+==========================================================================
+5. the numbers, recomputed
+==========================================================================
+  (B) refusal probability, per proof
+    block      e in {0,1} 2^-122.36   lambda=0 2^-120.56   c=0 2^-123.48   prox wedge 2^-62.0000   TOTAL 2^-62.0000
+    attention  e in {0,1} 2^-122.68   lambda=0 2^-121.18   c=0 2^-123.83   prox wedge 2^-62.0000   TOTAL 2^-62.0000
+    one proximity opening exactly: 2^-64.000000
+  (C) Schwartz-Zippel backstop on the realified minor, over Fp
+    block      degrees [212, 56, 8, 8]  union 2^-55.85   (x100 slack: 2^-49.21)
+    attention  degrees [182, 50, 8, 8]  union 2^-56.05   (x100 slack: 2^-49.40)
+  for comparison, the CHECK's sketch: G_sketch = groups + prox,
+  degree 3 per entry, minor G_sketch x G_sketch, over Fp2:
+    block      degrees [108, 30, 6, 6]  union 2^-120.77
+    attention  degrees [93, 27, 6, 6]  union 2^-120.96
+  (B') sampler residual on this lemma's own draws, at 2^-96 per draw
+    block      1075 draws -> 2^-85.93
+    attention  761 draws -> 2^-86.43
+  sensitivity: if lambda and e were BASE-field draws
+    block      224 such draws -> 2^-56.19 (vs 2^-120.19 in Fp2)
+    attention  153 such draws -> 2^-56.74 (vs 2^-120.74 in Fp2)

@@ -1,0 +1,400 @@
+=== capture 40083e7a block role A [uniform lambdas] ===
+    rows: 455
+    data: 213
+    nondata: 242
+    claims: 120
+    groups: 35
+    gens: 72
+    u_rows: []
+    site_rows: (213, 452)
+    prox_rows: [453, 454]
+    part_rows_exact: 360
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 0
+    sum_claims: 0
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 120
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(72, 72)]
+=== capture 40083e7a block role H [uniform lambdas] ===
+    rows: 384
+    data: 278
+    nondata: 106
+    claims: 52
+    groups: 9
+    gens: 20
+    u_rows: [278, 279]
+    site_rows: (280, 381)
+    prox_rows: [382, 383]
+    part_rows_exact: 306
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 2
+    sum_claims: 1
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 52
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(20, 20)]
+=== capture 40083e7a block role Input [uniform lambdas] ===
+    rows: 7
+    data: 2
+    nondata: 5
+    claims: 1
+    groups: 1
+    gens: 4
+    u_rows: []
+    site_rows: (2, 3)
+    prox_rows: [4, 5, 6]
+    part_rows_exact: 3
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 0
+    sum_claims: 0
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 1
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(4, 4)]
+=== capture 40083e7a block role Output [uniform lambdas] ===
+    rows: 7
+    data: 2
+    nondata: 5
+    claims: 1
+    groups: 1
+    gens: 4
+    u_rows: []
+    site_rows: (2, 3)
+    prox_rows: [4, 5, 6]
+    part_rows_exact: 3
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 0
+    sum_claims: 0
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 1
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(4, 4)]
+=== capture 6c5e83fd attention role A [uniform lambdas] ===
+    rows: 306
+    data: 154
+    nondata: 152
+    claims: 75
+    groups: 30
+    gens: 62
+    u_rows: []
+    site_rows: (154, 303)
+    prox_rows: [304, 305]
+    part_rows_exact: 225
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 0
+    sum_claims: 0
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 75
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(62, 62)]
+=== capture 6c5e83fd attention role H [uniform lambdas] ===
+    rows: 290
+    data: 216
+    nondata: 74
+    claims: 36
+    groups: 8
+    gens: 18
+    u_rows: [216, 217]
+    site_rows: (218, 287)
+    prox_rows: [288, 289]
+    part_rows_exact: 210
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 2
+    sum_claims: 1
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 36
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(18, 18)]
+=== capture 6c5e83fd attention role Input [uniform lambdas] ===
+    rows: 7
+    data: 2
+    nondata: 5
+    claims: 1
+    groups: 1
+    gens: 4
+    u_rows: []
+    site_rows: (2, 3)
+    prox_rows: [4, 5, 6]
+    part_rows_exact: 3
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 0
+    sum_claims: 0
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 1
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(4, 4)]
+=== capture 6c5e83fd attention role Output [uniform lambdas] ===
+    rows: 7
+    data: 2
+    nondata: 5
+    claims: 1
+    groups: 1
+    gens: 4
+    u_rows: []
+    site_rows: (2, 3)
+    prox_rows: [4, 5, 6]
+    part_rows_exact: 3
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 0
+    sum_claims: 0
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 1
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(4, 4)]
+=== capture 7d334e06 block role A [uniform lambdas] ===
+    rows: 455
+    data: 213
+    nondata: 242
+    claims: 120
+    groups: 35
+    gens: 72
+    u_rows: []
+    site_rows: (213, 452)
+    prox_rows: [453, 454]
+    part_rows_exact: 360
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 0
+    sum_claims: 0
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 120
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(72, 72)]
+=== capture 7d334e06 block role H [uniform lambdas] ===
+    rows: 384
+    data: 278
+    nondata: 106
+    claims: 52
+    groups: 9
+    gens: 20
+    u_rows: [278, 279]
+    site_rows: (280, 381)
+    prox_rows: [382, 383]
+    part_rows_exact: 306
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 2
+    sum_claims: 1
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 52
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(20, 20)]
+=== capture 7d334e06 block role Input [uniform lambdas] ===
+    rows: 7
+    data: 2
+    nondata: 5
+    claims: 1
+    groups: 1
+    gens: 4
+    u_rows: []
+    site_rows: (2, 3)
+    prox_rows: [4, 5, 6]
+    part_rows_exact: 3
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 0
+    sum_claims: 0
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 1
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(4, 4)]
+=== capture 7d334e06 block role Output [uniform lambdas] ===
+    rows: 7
+    data: 2
+    nondata: 5
+    claims: 1
+    groups: 1
+    gens: 4
+    u_rows: []
+    site_rows: (2, 3)
+    prox_rows: [4, 5, 6]
+    part_rows_exact: 3
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 0
+    sum_claims: 0
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 1
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(4, 4)]
+=== capture c26d1f05 attention role A [uniform lambdas] ===
+    rows: 306
+    data: 154
+    nondata: 152
+    claims: 75
+    groups: 30
+    gens: 62
+    u_rows: []
+    site_rows: (154, 303)
+    prox_rows: [304, 305]
+    part_rows_exact: 225
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 0
+    sum_claims: 0
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 75
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(62, 62)]
+=== capture c26d1f05 attention role H [uniform lambdas] ===
+    rows: 290
+    data: 216
+    nondata: 74
+    claims: 36
+    groups: 8
+    gens: 18
+    u_rows: [216, 217]
+    site_rows: (218, 287)
+    prox_rows: [288, 289]
+    part_rows_exact: 210
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 2
+    sum_claims: 1
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 36
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(18, 18)]
+=== capture c26d1f05 attention role Input [uniform lambdas] ===
+    rows: 7
+    data: 2
+    nondata: 5
+    claims: 1
+    groups: 1
+    gens: 4
+    u_rows: []
+    site_rows: (2, 3)
+    prox_rows: [4, 5, 6]
+    part_rows_exact: 3
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 0
+    sum_claims: 0
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 1
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(4, 4)]
+=== capture c26d1f05 attention role Output [uniform lambdas] ===
+    rows: 7
+    data: 2
+    nondata: 5
+    claims: 1
+    groups: 1
+    gens: 4
+    u_rows: []
+    site_rows: (2, 3)
+    prox_rows: [4, 5, 6]
+    part_rows_exact: 3
+    part_rows_over: 0
+    part_rows_under: 0
+    straddling_parts: 0
+    claims_touching_prox_or_bad: 0
+    claims_evaluating_u: 0
+    sum_claims: 0
+    pairs_shared: 0
+    pair_weights_are_cm_cmU: 1
+    trials: 3
+    det_mismatch: 0
+    det_zero: 0
+    rank_trials: 2
+    k0_nonzero: 0
+    (rank,rank|nd): [(4, 4)]

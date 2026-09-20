@@ -1,0 +1,8 @@
+{"kind":"i8","rows":512,"cols":768,"sparse":false,"threads":2,"repeats":11,"best_s":0.000928319,"median_s":0.00098372,"reference_equal":true}
+{"kind":"i32","rows":512,"cols":768,"sparse":false,"threads":2,"repeats":11,"best_s":0.000986979,"median_s":0.000998523,"reference_equal":true}
+{"kind":"i8","rows":512,"cols":768,"sparse":true,"threads":2,"repeats":11,"best_s":0.000147152,"median_s":0.000150418,"reference_equal":true}
+{"kind":"i32","rows":512,"cols":768,"sparse":true,"threads":2,"repeats":11,"best_s":0.000137386,"median_s":0.000148885,"reference_equal":true}
+{"kind":"i8","rows":512,"cols":2048,"sparse":false,"threads":2,"repeats":11,"best_s":0.001769028,"median_s":0.001997439,"reference_equal":true}
+{"kind":"i32","rows":512,"cols":2048,"sparse":false,"threads":2,"repeats":11,"best_s":0.001956443,"median_s":0.002302591,"reference_equal":true}
+{"kind":"i8","rows":512,"cols":2048,"sparse":true,"threads":2,"repeats":11,"best_s":0.000241234,"median_s":0.000260084,"reference_equal":true}
+{"kind":"i32","rows":512,"cols":2048,"sparse":true,"threads":2,"repeats":11,"best_s":0.00025932,"median_s":0.000314462,"reference_equal":true}

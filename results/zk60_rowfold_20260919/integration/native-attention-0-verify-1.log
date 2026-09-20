@@ -1,0 +1,4 @@
+ACCEPT: 2245800 bytes verified in 0.016 s
+refused: first root corrupted
+refused: an argument word corrupted
+refused: the last path byte corrupted

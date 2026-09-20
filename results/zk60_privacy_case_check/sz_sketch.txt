@@ -1,0 +1,15 @@
+commitment                                G    R   minor degree   bound
+A                                          36  242       108      2^-121.2
+H                                          10  104        30      2^-123.1
+Input endpoint                              2    5         6      2^-125.4
+Output endpoint                             2    5         6      2^-125.4
+M (50 rows, 46 coefficient rows + b,u)     47    4   (R < G: the reduction's k0 = 0 cannot be a full-rank condition on this block; the M channel needs its own argument)
+
+union over the commitments that fit the shape: 2^-120.8
+with a x100 slack on every degree:            2^-114.1
+
+For comparison, the terms already on the page:
+  fp() bias at the toy shape   2^-77.7
+  LogUp collision (recounted)  2^-112.0
+So on this sketch the generic-rank term would NOT dominate: closing U-3(a)
+changes a LABEL (computed -> proved), not the size of the bound.

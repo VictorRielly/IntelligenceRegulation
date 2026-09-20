@@ -1,0 +1,14 @@
+    Finished `release` profile [optimized] target(s) in 0.01s
+     Running unittests src/lib.rs (zkp-core/target/release/deps/zkp_core-a6ba652bb22b7524)
+
+running 7 tests
+test mle::tests::deferred_rows_refuse_integer_overflow_before_reading_the_matrix ... ok
+test mle::tests::deferred_zero_rows_cancel_the_shift_with_nonzero_extension_weights ... ok
+test mle::tests::eq_table_sums_to_one_and_matches_point ... ok
+test mle::tests::interpolation ... ok
+test mle::tests::matrix_folds_are_tensor_evaluations ... ok
+test mle::tests::mle_eval_at_boolean_points_is_lookup ... ok
+test mle::tests::deferred_integer_rows_match_base_field_at_signed_and_field_edges ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.01s
+

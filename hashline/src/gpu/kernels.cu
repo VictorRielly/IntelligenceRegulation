@@ -374,6 +374,65 @@ extern "C" __global__ void k_ntt_p2_gather_sp(const u64* __restrict__ a, const u
     }
 }
 
+// [FSP-L9] `k_ntt_p2_gather_sp` reading the COMPACT intermediate that
+// `k_dit_p1_pad_c` writes. The ONLY difference is where the tile is
+// loaded from: the dense form gathers `r[t * NTT_BLK + qlist[base + jc]]`
+// out of the full 2^log_n-wide row; the compact form reads
+// `r[t * nqp + base + jc]` out of the nt x nqp block the producer wrote,
+// which holds exactly the same value at exactly that residue (by the
+// producer's store). Everything after the load — the twiddles
+// `tws[tl * NTT_BLK + qlist[base + jc]]`, the operand pairs, the stage
+// order, the `sel` lookup and the store — is byte for byte the dense
+// kernel's. The compact read is also CONTIGUOUS in `jc` where the dense
+// one was a scatter.
+extern "C" __global__ void k_ntt_p2_gather_spc(const u64* __restrict__ a, const u64* __restrict__ tw, int log_n, u64 scale,
+                                               const int* __restrict__ sel, u64* __restrict__ out, int row0, int rows_total,
+                                               const int* __restrict__ qlist, int nq, int nqp) {
+    __shared__ u64 sh[P2SP_NC * 32];
+    const int lt = log_n - NTT_LOG_BLK;
+    const int nt = 1 << lt;
+    const int row = blockIdx.y;
+    const int base = blockIdx.x * P2SP_NC;
+    const int nc_real = nq - base;
+    const int span = nt * P2SP_NC;
+    const u64* r = a + (size_t)row * (size_t)nt * (size_t)nqp;
+    for (int q = threadIdx.x; q < span; q += blockDim.x) {
+        int t = q >> P2SP_LNC, jc = q & (P2SP_NC - 1);
+        sh[q] = r[(size_t)t * (size_t)nqp + base + jc];
+    }
+    __syncthreads();
+    for (int st = NTT_LOG_BLK + 1; st <= log_n; st++) {
+        const int hs = st - 1 - NTT_LOG_BLK;
+        const int halft = 1 << hs;
+        const u64* tws = tw + ((size_t)1 << (st - 1)) - 1;
+        for (int b = threadIdx.x; b < (span >> 1); b += blockDim.x) {
+            int jc = b & (P2SP_NC - 1);
+            int tb = b >> P2SP_LNC;
+            int tl = tb & (halft - 1);
+            int t = ((tb >> hs) << (hs + 1)) + tl;
+            u64 w = tws[(size_t)tl * NTT_BLK + qlist[base + jc]];
+            int i = t * P2SP_NC + jc;
+            int ip = i + halft * P2SP_NC;
+            u64 u = sh[i];
+            u64 v = gl_mul(sh[ip], w);
+            sh[i] = gl_add(u, v);
+            sh[ip] = gl_sub(u, v);
+        }
+        __syncthreads();
+    }
+    for (int q = threadIdx.x; q < span; q += blockDim.x) {
+        int t = q >> P2SP_LNC, jc = q & (P2SP_NC - 1);
+        if (jc >= nc_real) continue;
+        int col = t * NTT_BLK + qlist[base + jc];
+        int c = sel[col];
+        if (c >= 0) {
+            u64 v = sh[q];
+            if (scale != 1ULL) v = gl_mul(v, scale);
+            out[(size_t)c * (size_t)rows_total + (size_t)(row0 + row)] = v;
+        }
+    }
+}
+
 // [rung 1] Column gather for the PCS opening: out[c * rows + i] = enc[i * nn + idx[c]].
 extern "C" __global__ void k_gather_cols(const u64* __restrict__ enc, u64* __restrict__ out, const int* __restrict__ idx,
                                          int rows, int nn, int q) {
@@ -1032,6 +1091,46 @@ extern "C" __global__ void k_dot_slices(const u64* __restrict__ data, const int*
 // (rev_{log_nn}(m R) == rev_{log_n}(m)) and every other position is 0 —
 // a contiguous load. Values: the same evaluations (unique), as before.
 
+// [FSP-L9] THE SHARED-MEMORY LAYOUT PERMUTATION that removes the residual
+// bank conflicts of the CONTIGUOUS-TILE kernels' low stages.
+//
+// What the conflict is. Shared memory is 32 banks of 4 bytes; a warp's
+// 64-bit access is served in two phases of 16 threads, and a phase is
+// conflict-free exactly when its 16 u64 indices are DISTINCT mod 16. At
+// stage `st` the tile index is `i = ((b >> (st-1)) << st) + (b & (half-1))`
+// with `half = 2^(st-1)`, so within a half-warp the four varying bits of
+// `b` land on i's bits {0..st-2} and {st..4}: bit `st-1` of i is always 0
+// and bit 4 of i is OUTSIDE the low nibble. Sixteen threads therefore
+// reach only EIGHT distinct banks for every st <= 4 — a 2-way conflict on
+// both legs of the butterfly and on both stores. From st = 5 on, i's low
+// nibble is `b & 15` and the access is already conflict-free.
+//
+// The fix. Store the tile element `x` at `x ^ (bit4(x) ? 15 : 0)`. This is
+// an involution, hence a bijection of [0, bs) for every bs that is 16 or
+// less (identity) or a multiple of 32 — which is every tile this file
+// launches — so it is purely a RELABELLING OF SHARED ADDRESSES: the same
+// values, the same operand pairs, the same twiddles, the same order, the
+// same global loads and stores. Byte-identical by construction.
+//
+// Why it works, for every stage at once. Write m(x) = bit4(x) ? 15 : 0.
+// Within a half-warp and for st <= 4 one has i >> 4 == b >> 3, so the two
+// groups of eight threads (b3 = 0 and b3 = 1) get m = 0 and m = 15. The
+// eight low nibbles of each group all carry bit (st-1) = 0; XOR by 15
+// flips that bit for the second group, so the two groups of eight land in
+// disjoint halves of the sixteen banks — 16 distinct. For st >= 5, i >> 4
+// is constant across the half-warp, so the permutation is a fixed XOR and
+// preserves the conflict-free pattern it already had. The contiguous
+// load/store loops (16 consecutive q) likewise get a fixed XOR.
+//
+// The partner index comes free: `i` has bit (st-1) = 0, so i + half ==
+// i | half, and bit 4 of that equals bit 4 of i unless half == 16 (where
+// it flips). Hence SWZ(i + half) == SWZ(i) ^ hx with hx = half, except
+// hx = 31 when half == 16 — one XOR, hoisted per stage.
+__device__ __forceinline__ int shz(int x) {
+    return x ^ ((int)((((unsigned)x >> 4) & 1u) * 15u));
+}
+__device__ __forceinline__ int shz_if(bool on, int x) { return on ? shz(x) : x; }
+
 template <bool FAST>
 __device__ __forceinline__ void dif_pa_body(u64* sh, const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw, int log_n) {
     const int n = 1 << log_n;
@@ -1085,8 +1184,10 @@ extern "C" __global__ void k_dif_pa_f(const u64* __restrict__ src, u64* __restri
     dif_pa_body<true>(sh, src, dst, tw, log_n);
 }
 
-extern "C" __global__ void k_dif_pb(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw, int log_n, u64 scale) {
-    __shared__ u64 sh[NTT_BLK];
+// [FSP-L9] SWZ = true is the same kernel on the permuted shared layout
+// documented above (`shz`). Nothing else changes.
+template <bool SWZ>
+__device__ __forceinline__ void dif_pb_body(u64* sh, const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw, int log_n, u64 scale) {
     const int n = 1 << log_n;
     const int lb = log_n < NTT_LOG_BLK ? log_n : NTT_LOG_BLK;
     const int bs = 1 << lb;
@@ -1095,27 +1196,40 @@ extern "C" __global__ void k_dif_pb(const u64* __restrict__ src, u64* __restrict
     const int blk = blockIdx.x - row * blocks_per_row;
     const u64* s = src + (size_t)row * (size_t)n + (size_t)blk * (size_t)bs;
     u64* d = dst + (size_t)row * (size_t)n + (size_t)blk * (size_t)bs;
-    for (int q = threadIdx.x; q < bs; q += blockDim.x) sh[q] = s[q];
+    for (int q = threadIdx.x; q < bs; q += blockDim.x) sh[shz_if(SWZ, q)] = s[q];
     __syncthreads();
     for (int st = lb; st >= 1; st--) {
         const int half = 1 << (st - 1);
+        const int hx = (half == 16) ? 31 : half;
         const u64* tws = tw + (half - 1);
         for (int b = threadIdx.x; b < (bs >> 1); b += blockDim.x) {
             int k = b & (half - 1);
             int i = ((b >> (st - 1)) << st) + k;
+            int si = shz_if(SWZ, i);
+            int sp = SWZ ? (si ^ hx) : (i + half);
             u64 w = tws[k];
-            u64 u = sh[i];
-            u64 v = sh[i + half];
-            sh[i] = gl_add(u, v);
-            sh[i + half] = gl_mul(gl_sub(u, v), w);
+            u64 u = sh[si];
+            u64 v = sh[sp];
+            sh[si] = gl_add(u, v);
+            sh[sp] = gl_mul(gl_sub(u, v), w);
         }
         __syncthreads();
     }
     for (int q = threadIdx.x; q < bs; q += blockDim.x) {
-        u64 v = sh[q];
+        u64 v = sh[shz_if(SWZ, q)];
         if (scale != 1ULL) v = gl_mul(v, scale);
         d[q] = v;
     }
+}
+
+extern "C" __global__ void k_dif_pb(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw, int log_n, u64 scale) {
+    __shared__ u64 sh[NTT_BLK];
+    dif_pb_body<false>(sh, src, dst, tw, log_n, scale);
+}
+
+extern "C" __global__ void k_dif_pb_z(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw, int log_n, u64 scale) {
+    __shared__ u64 sh[NTT_BLK];
+    dif_pb_body<true>(sh, src, dst, tw, log_n, scale);
 }
 
 // The forward DIT's first pass with the bit-reversed-order coefficient
@@ -1134,7 +1248,11 @@ extern "C" __global__ void k_dif_pb(const u64* __restrict__ src, u64* __restrict
 // a block.) Byte-identical, rb fewer stages and rb fewer barriers, on the
 // largest kernel of both the commit encode and the opening re-encode.
 // SKIP = false is the original, for the A/B (`HL_GPU_PAD_SKIP=0`).
-template <bool SKIP>
+// [FSP-L9] SWZ = true is the same kernel on the permuted shared layout
+// documented at `shz` above. With SKIP the surviving low stages are
+// rb+1 .. 4 (rb = 2 at every shape of the 8B pass, so stages 3 and 4),
+// which are exactly the ones that were still 2-way conflicted.
+template <bool SKIP, bool SWZ>
 __device__ __forceinline__ void dit_p1_pad_body(u64* sh, const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw,
                                                 int log_n, int n_src, int rb) {
     const int n = 1 << log_n;
@@ -1149,36 +1267,117 @@ __device__ __forceinline__ void dit_p1_pad_body(u64* sh, const u64* __restrict__
     const int st0 = (SKIP && rb > 0 && rb <= lb) ? rb : 0;
     for (int q = threadIdx.x; q < bs; q += blockDim.x) {
         int x = blk * bs + q;
-        sh[q] = (st0 != 0 || (x & mask) == 0) ? s[x >> rb] : 0ULL;
+        sh[shz_if(SWZ, q)] = (st0 != 0 || (x & mask) == 0) ? s[x >> rb] : 0ULL;
     }
     __syncthreads();
     for (int st = st0 + 1; st <= lb; st++) {
         const int half = 1 << (st - 1);
+        const int hx = (half == 16) ? 31 : half;
         const u64* tws = tw + (half - 1);
         for (int b = threadIdx.x; b < (bs >> 1); b += blockDim.x) {
             int k = b & (half - 1);
             int i = ((b >> (st - 1)) << st) + k;
+            int si = shz_if(SWZ, i);
+            int sp = SWZ ? (si ^ hx) : (i + half);
             u64 w = tws[k];
-            u64 u = sh[i];
-            u64 v = gl_mul(sh[i + half], w);
-            sh[i] = gl_add(u, v);
-            sh[i + half] = gl_sub(u, v);
+            u64 u = sh[si];
+            u64 v = gl_mul(sh[sp], w);
+            sh[si] = gl_add(u, v);
+            sh[sp] = gl_sub(u, v);
         }
         __syncthreads();
     }
-    for (int q = threadIdx.x; q < bs; q += blockDim.x) d[q] = sh[q];
+    for (int q = threadIdx.x; q < bs; q += blockDim.x) d[q] = sh[shz_if(SWZ, q)];
 }
 
 extern "C" __global__ void k_dit_p1_pad(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw,
                                         int log_n, int n_src, int rb) {
     __shared__ u64 sh[NTT_BLK];
-    dit_p1_pad_body<false>(sh, src, dst, tw, log_n, n_src, rb);
+    dit_p1_pad_body<false, false>(sh, src, dst, tw, log_n, n_src, rb);
 }
 
 extern "C" __global__ void k_dit_p1_pad_s(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw,
                                           int log_n, int n_src, int rb) {
     __shared__ u64 sh[NTT_BLK];
-    dit_p1_pad_body<true>(sh, src, dst, tw, log_n, n_src, rb);
+    dit_p1_pad_body<true, false>(sh, src, dst, tw, log_n, n_src, rb);
+}
+
+extern "C" __global__ void k_dit_p1_pad_sz(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw,
+                                           int log_n, int n_src, int rb) {
+    __shared__ u64 sh[NTT_BLK];
+    dit_p1_pad_body<true, true>(sh, src, dst, tw, log_n, n_src, rb);
+}
+
+// [FSP-L9] THE COMPACT OUTPUT — the other half of lane AO's item 1: "its
+// 537 MB of writes per chunk are read exactly once by the very next
+// kernel, so the two can be fused".
+//
+// A full fusion is impossible: the consumer `k_ntt_p2_gather_sp` needs one
+// element from EVERY one of the row's `nt` blocks, i.e. the whole
+// 2^log_n-wide row (512 KB at the 8B shape) in one thread block. What CAN
+// be done is to stop writing what the consumer never reads. In the pruned
+// opening the consumer touches only the `nq` distinct residues
+// `qq = col mod NTT_BLK` of the sampled columns — 244 of 4,096 at the 8B
+// draw — so 94% of this kernel's 4,096 stores per block are dead.
+//
+// This kernel is `k_dit_p1_pad_s` with the final store loop replaced by a
+// store of just those residues, in the consumer's own order:
+//     dst[(row * nt + blk) * nqp + jc] = sh[qlist[jc]],  jc < nqp
+// where `blk` IS the consumer's block index `t` (the tile is `NTT_BLK`
+// wide and `blk` walks the row), and `nqp` is `qlist`'s PADDED length, so
+// the padding lanes simply re-store a duplicate — no address is written
+// twice and no branch is needed. Every stage, every twiddle, every
+// operand pair and every global LOAD is `k_dit_p1_pad_s`'s, unchanged;
+// the transform is identical and only dead stores disappear. Requires
+// lb == NTT_LOG_BLK, which log_n > NTT_LOG_BLK guarantees, and that is
+// exactly the condition the pruned consumer already needs.
+template <bool SWZ>
+__device__ __forceinline__ void dit_p1_pad_c_body(u64* sh, const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw,
+                                                  int log_n, int n_src, int rb, const int* __restrict__ qlist, int nqp) {
+    const int n = 1 << log_n;
+    const int bs = NTT_BLK;
+    const int blocks_per_row = n >> NTT_LOG_BLK;
+    const int row = blockIdx.x / blocks_per_row;
+    const int blk = blockIdx.x - row * blocks_per_row;
+    const u64* s = src + (size_t)row * (size_t)n_src;
+    u64* d = dst + ((size_t)row * (size_t)blocks_per_row + (size_t)blk) * (size_t)nqp;
+    const int mask = (1 << rb) - 1;
+    const int st0 = (rb > 0 && rb <= NTT_LOG_BLK) ? rb : 0;
+    for (int q = threadIdx.x; q < bs; q += blockDim.x) {
+        int x = blk * bs + q;
+        sh[shz_if(SWZ, q)] = (st0 != 0 || (x & mask) == 0) ? s[x >> rb] : 0ULL;
+    }
+    __syncthreads();
+    for (int st = st0 + 1; st <= NTT_LOG_BLK; st++) {
+        const int half = 1 << (st - 1);
+        const int hx = (half == 16) ? 31 : half;
+        const u64* tws = tw + (half - 1);
+        for (int b = threadIdx.x; b < (bs >> 1); b += blockDim.x) {
+            int k = b & (half - 1);
+            int i = ((b >> (st - 1)) << st) + k;
+            int si = shz_if(SWZ, i);
+            int sp = SWZ ? (si ^ hx) : (i + half);
+            u64 w = tws[k];
+            u64 u = sh[si];
+            u64 v = gl_mul(sh[sp], w);
+            sh[si] = gl_add(u, v);
+            sh[sp] = gl_sub(u, v);
+        }
+        __syncthreads();
+    }
+    for (int jc = threadIdx.x; jc < nqp; jc += blockDim.x) d[jc] = sh[shz_if(SWZ, qlist[jc])];
+}
+
+extern "C" __global__ void k_dit_p1_pad_c(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw,
+                                          int log_n, int n_src, int rb, const int* __restrict__ qlist, int nqp) {
+    __shared__ u64 sh[NTT_BLK];
+    dit_p1_pad_c_body<false>(sh, src, dst, tw, log_n, n_src, rb, qlist, nqp);
+}
+
+extern "C" __global__ void k_dit_p1_pad_cz(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw,
+                                           int log_n, int n_src, int rb, const int* __restrict__ qlist, int nqp) {
+    __shared__ u64 sh[NTT_BLK];
+    dit_p1_pad_c_body<true>(sh, src, dst, tw, log_n, n_src, rb, qlist, nqp);
 }
 
 // [UPERF3-ZA] The ZK row encoding's coefficient step (new kernel; nothing

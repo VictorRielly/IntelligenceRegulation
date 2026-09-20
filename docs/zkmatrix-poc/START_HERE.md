@@ -1,5 +1,20 @@
 # START HERE — the proof project in plain words
 
+**Latest, 2026-09-19:** exact integer row folds pass all twelve frozen
+CPU/GPU proof-byte gates and repaired-private checks. Dense synthetic folds
+improve 2.32–2.42x; sparse ratios are mixed and full-model speed is unmeasured.
+[Row-fold integration](ZK60_ROWFOLD_INTEGRATION_20260919.md).
+
+**Latest, 2026-09-19:** the GPU opening optimization passes independent
+device checks and all twelve CPU/GPU proof-byte gates; native freeze passes.
+Its local kernel gain is measured, but its 0.8–1.8-second full-pass saving
+remains an estimate. [Integration review](ZK60_FSP_L9_INTEGRATION_20260919.md).
+The full Python run covered 1,140 tests (61 skipped); its one lock-related
+error is resolved by a test-isolation fix and an 18-test targeted rerun.
+Under the new D13 ruling, the
+first MVP proves hidden model blocks; token generation follows. Model-scale
+private-block coverage and five-second proving remain open.
+
 **Current integration, 2026-09-19:** the native attention and complete tiny
 block are now in the main worktree, with tests and independent receipt
 verification passing. [Integration and measurements](ZK60_ATTENTION_INTEGRATION_20260919.md).

@@ -35,6 +35,13 @@ const FUNCS: &[&str] = &[
     // DIT's first pass dropped. Same values, byte for byte.
     "k_dif_pa_f", "k_ntt_p2_f", "k_ntt_p2_gather_f", "k_dit_p1_pad_s",
     "k_ntt_p2_gather_sp",
+    // [FSP-L9] the same two contiguous-tile transforms on the permuted
+    // shared-memory layout that removes the low stages' 2-way bank
+    // conflicts (kernels.cu `shz`). Same values, byte for byte.
+    "k_dit_p1_pad_sz", "k_dif_pb_z",
+    // [FSP-L9] the opening's expand transform writing only the residues its
+    // one consumer reads, and that consumer reading the compact block.
+    "k_dit_p1_pad_c", "k_dit_p1_pad_cz", "k_ntt_p2_gather_spc",
 ];
 const SC_THREADS: u32 = 256;
 const SC_MAX_BLOCKS: u32 = 1024;
@@ -71,10 +78,64 @@ fn pad_skip() -> bool {
     static V: OnceLock<bool> = OnceLock::new();
     *V.get_or_init(|| std::env::var("HL_GPU_PAD_SKIP").map(|v| v != "0").unwrap_or(true))
 }
+/// [FSP-L9] lever L9, the bank-conflict item lane AO named and did not
+/// take — BUILT, MEASURED, AND WITHDRAWN. `HL_GPU_SMEM_SWZ=1` selects
+/// `k_dit_p1_pad_sz`, which is `k_dit_p1_pad_s` on a permuted
+/// shared-memory layout (kernels.cu `shz`) that provably removes the
+/// 2-way bank conflicts of the surviving low stages (3 and 4 at every
+/// shape of the 8B pass). It is a relabelling of shared addresses only:
+/// the same operand pairs, the same twiddles, the same order, the same
+/// global loads and stores — byte-identical.
+///
+/// It is **slower**. ABBA over four processes at 1,024 / 3,584 / 10,752
+/// rows: 0.897x-1.012x, eleven of twelve measurements below parity, mean
+/// about 0.93x (`results/fsp2_ab_s2.log`). The four extra integer
+/// operations per butterfly cost more than the conflicts save, which
+/// prices the residual conflicts at only about 4% of this kernel — not
+/// the gap to the memory roof. DEFAULT OFF; kept behind the switch so the
+/// measurement is reproducible and a future lane does not re-derive it.
+fn smem_swz() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_GPU_SMEM_SWZ").map(|v| v != "0").unwrap_or(false))
+}
+/// [FSP-L9] the same permutation for `k_dif_pb`, and the same verdict:
+/// 0.814x-0.936x over the same twelve measurements. `k_dif_pb` already
+/// runs at 168-197 GB/s (66-77% of the 256 GB/s roof) on a quiet box, so
+/// there was little there to win. DEFAULT OFF; `HL_GPU_SMEM_SWZ_PB=1`
+/// turns it on.
+fn smem_swz_pb() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_GPU_SMEM_SWZ_PB").map(|v| v != "0").unwrap_or(false))
+}
 fn kn_dif_pa() -> &'static str { if ntt_fast() { "k_dif_pa_f" } else { "k_dif_pa" } }
 fn kn_ntt_p2() -> &'static str { if ntt_fast() { "k_ntt_p2_f" } else { "k_ntt_p2" } }
 fn kn_ntt_p2_gather() -> &'static str { if ntt_fast() { "k_ntt_p2_gather_f" } else { "k_ntt_p2_gather" } }
-fn kn_dit_p1_pad() -> &'static str { if pad_skip() { "k_dit_p1_pad_s" } else { "k_dit_p1_pad" } }
+fn kn_dit_p1_pad() -> &'static str {
+    match (pad_skip(), smem_swz()) {
+        (true, true) => "k_dit_p1_pad_sz",
+        (true, false) => "k_dit_p1_pad_s",
+        (false, _) => "k_dit_p1_pad",
+    }
+}
+fn kn_dif_pb() -> &'static str { if smem_swz_pb() { "k_dif_pb_z" } else { "k_dif_pb" } }
+
+/// [FSP-L9] lever L9, the OTHER half of lane AO's item 1: the expand
+/// transform's 537 MB of stores per chunk are read exactly once, by the
+/// very next kernel, which in the PRUNED opening reads only the ~250
+/// residues `col mod 4096` of the sampled columns. `k_dit_p1_pad_c`
+/// stores only those, in the consumer's own order, and
+/// `k_ntt_p2_gather_spc` reads that compact block instead of gathering
+/// out of the full encoded row. Same stages, same twiddles, same operand
+/// pairs, same global loads — the dead 94% of the stores disappear and
+/// the consumer's scattered load becomes a contiguous one.
+/// `HL_GPU_P1_COMPACT=0` restores the pair lane AO left
+/// (`k_dit_p1_pad_s` + `k_ntt_p2_gather_sp`). Used only where the pruned
+/// residue list exists, i.e. only on the NON-hiding chunked opening.
+fn p1_compact() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_GPU_P1_COMPACT").map(|v| v != "0").unwrap_or(true))
+}
+fn kn_dit_p1_pad_c() -> &'static str { if smem_swz() { "k_dit_p1_pad_cz" } else { "k_dit_p1_pad_c" } }
 
 /// [UPERF3-AO] lever L9 rung 3: the column count of one pruned tile
 /// (kernels.cu `P2SP_NC`). The opening's compact residue list is padded to
@@ -1249,18 +1310,50 @@ fn reenc_bench_at(g: &mut Gpu, rows: usize) {
 
     let (t_pa, t_pa_f) = if log_n > NTT_LOG_BLK { (bench_pa!("k_dif_pa"), bench_pa!("k_dif_pa_f")) } else { (0.0, 0.0) };
 
-    let pb = dev.get_func(MODULE, "k_dif_pb").unwrap();
-    let t_pb = timed!({
-        for &(_r0, rc) in &plan {
-            let bpr = 1u32 << (log_n - log_n.min(NTT_LOG_BLK));
-            let cfg = LaunchConfig { grid_dim: (rc as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
-            let cptr: sys::CUdeviceptr = *d_coef.get().device_ptr();
-            unsafe { pb.clone().launch(cfg, (cptr, d_coef.get_mut(), ti, log_n as i32, scale)) }.unwrap();
-        }
-    });
+    // [FSP-L9] both arms of `k_dif_pb` too (plain and swizzled shared layout)
+    macro_rules! bench_pb {
+        ($name:expr) => {{
+            let pb = dev.get_func(MODULE, $name).unwrap();
+            timed!({
+                for &(_r0, rc) in &plan {
+                    let bpr = 1u32 << (log_n - log_n.min(NTT_LOG_BLK));
+                    let cfg = LaunchConfig { grid_dim: (rc as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+                    let cptr: sys::CUdeviceptr = *d_coef.get().device_ptr();
+                    unsafe { pb.clone().launch(cfg, (cptr, d_coef.get_mut(), ti, log_n as i32, scale)) }.unwrap();
+                }
+            })
+        }};
+    }
+    let t_pb = bench_pb!("k_dif_pb");
+    let t_pb_z = bench_pb!("k_dif_pb_z");
 
     let t_p1 = bench_p1!("k_dit_p1_pad");
     let t_p1_s = bench_p1!("k_dit_p1_pad_s");
+    // [FSP-L9] the swizzled-shared-layout arm of the biggest kernel
+    let t_p1_sz = bench_p1!("k_dit_p1_pad_sz");
+    // [FSP-L9] the COMPACT producer/consumer pair
+    let nqp = qs.len();
+    let compact_ok = log_nn > NTT_LOG_BLK && log_nn - NTT_LOG_BLK <= 5;
+    let t_p1_c = if compact_ok {
+        let f = dev.get_func(MODULE, "k_dit_p1_pad_c").unwrap();
+        timed!({
+            for &(_r0, rc) in &plan {
+                let bpr = 1u32 << (log_nn - log_nn.min(NTT_LOG_BLK));
+                let cfg = LaunchConfig { grid_dim: (rc as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+                unsafe { f.clone().launch(cfg, (d_coef.get(), d_enc.get_mut(), tf, log_nn as i32, n as i32, rb as i32, &d_ql, nqp as i32)) }.unwrap();
+            }
+        })
+    } else { 0.0 };
+    let t_p2g_spc = if compact_ok {
+        let f = dev.get_func(MODULE, "k_ntt_p2_gather_spc").unwrap();
+        let gx = (nq.div_ceil(P2SP_NC)) as u32;
+        timed!({
+            for &(r0, rc) in &plan {
+                let cfg = LaunchConfig { grid_dim: (gx, rc as u32, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+                unsafe { f.clone().launch(cfg, (d_enc.get(), tf, log_nn as i32, 1u64, &d_sel, &mut d_out, r0 as i32, rows as i32, &d_ql, nq as i32, nqp as i32)) }.unwrap();
+            }
+        })
+    } else { 0.0 };
 
     let (t_p2, t_p2_f) = if log_nn > NTT_LOG_BLK { (bench_p2!("k_ntt_p2"), bench_p2!("k_ntt_p2_f")) } else { (0.0, 0.0) };
     let (t_p2g, t_p2g_f) = if log_nn > NTT_LOG_BLK { (bench_p2g!("k_ntt_p2_gather"), bench_p2g!("k_ntt_p2_gather_f")) } else { (0.0, 0.0) };
@@ -1308,6 +1401,10 @@ fn reenc_bench_at(g: &mut Gpu, rows: usize) {
     let kern = t_pa + t_pb + t_p1 + t_p2g;
     let kern_f = t_pa_f + t_pb + t_p1_s + t_p2g_f;
     let kern_sp = t_pa_f + t_pb + t_p1_s + t_p2g_sp;
+    // [FSP-L9] the four kernels with this lane's two swizzled forms in
+    let kern_z = t_pa_f + t_pb_z + t_p1_sz + t_p2g_sp;
+    // [FSP-L9] the four kernels with the COMPACT producer/consumer pair in
+    let kern_c = t_pa_f + t_pb + t_p1_c + t_p2g_spc;
     let line = |name: &str, t: f64, b: f64, gb: f64| {
         eprintln!(
             "[UPERF3-AO]   {name:<18} {t:.5} s  {:>6.2}% of the four  {:>8.2} e9 bf/s  {:>7.1} GB/s",
@@ -1356,6 +1453,23 @@ fn reenc_bench_at(g: &mut Gpu, rows: usize) {
     );
     ab("p2_gather_f -> sp", t_p2g_f, t_p2g_sp);
     ab("four kernels (sp)", kern, kern_sp);
+    eprintln!("[FSP-L9]   --- the swizzled shared layout on the two contiguous-tile kernels ---");
+    line("k_dit_p1_pad_sz", t_p1_sz, bf_p1_s, gb_p1);
+    line("k_dif_pb_z", t_pb_z, bf_pb, gb_pb);
+    ab("p1_pad_s -> _sz", t_p1_s, t_p1_sz);
+    ab("dif_pb -> _z", t_pb, t_pb_z);
+    ab("four kernels (sp+z)", kern_sp, kern_z);
+    eprintln!("[FSP-L9]   --- the compact producer/consumer pair (the opening's expand transform writes only what its consumer reads) ---");
+    let nt_c = 1usize << (log_nn.saturating_sub(NTT_LOG_BLK));
+    let gb_p1_c = (rows * n * 8) as f64 + (rows * nt_c * nqp * 8) as f64;
+    eprintln!("[FSP-L9]   its global traffic is {:.0} MB against {:.0} MB (reads unchanged, stores {:.1}x fewer)",
+        gb_p1_c / 1e6, gb_p1 / 1e6, (rows * nn) as f64 / (rows * nt_c * nqp) as f64);
+    line("k_dit_p1_pad_c", t_p1_c, bf_p1_s, gb_p1_c);
+    eprintln!("[FSP-L9]   k_ntt_p2_gather_spc {t_p2g_spc:.5} s");
+    ab("p1_pad_s -> _c", t_p1_s, t_p1_c);
+    ab("p2g_sp -> _spc", t_p2g_sp, t_p2g_spc);
+    ab("the pair sp -> c", t_p1_s + t_p2g_sp, t_p1_c + t_p2g_spc);
+    ab("four kernels sp -> c", kern_sp, kern_c);
     eprintln!(
         "[UPERF3-AO]   four kernels {kern:.5} s | d2h {t_d2h:.5} s | columns_chunked {full:.5} s => launch/alloc/host residue {:.5} s ({:.1}%)",
         full - kern - t_d2h,
@@ -1903,13 +2017,13 @@ impl Gpu {
             let tiles = 1u32 << (log_n - NTT_LOG_BLK);
             let cfg = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             unsafe { pa.launch(cfg, (data, &mut *coef, ti, log_n as i32)) }.map_err(|e| format!("k_dif_pa: {e}"))?;
-            let pb = self.dev.get_func(MODULE, "k_dif_pb").ok_or("k_dif_pb missing")?;
+            let pb = self.dev.get_func(MODULE, kn_dif_pb()).ok_or("k_dif_pb missing")?;
             let bpr = 1u32 << (log_n - NTT_LOG_BLK);
             let cfg = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             let cptr: sys::CUdeviceptr = *coef.device_ptr();
             unsafe { pb.launch(cfg, (cptr, &mut *coef, ti, log_n as i32, scale)) }.map_err(|e| format!("k_dif_pb: {e}"))?;
         } else {
-            let pb = self.dev.get_func(MODULE, "k_dif_pb").ok_or("k_dif_pb missing")?;
+            let pb = self.dev.get_func(MODULE, kn_dif_pb()).ok_or("k_dif_pb missing")?;
             let cfg = LaunchConfig { grid_dim: (rows as u32, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             unsafe { pb.launch(cfg, (data, &mut *coef, ti, log_n as i32, scale)) }.map_err(|e| format!("k_dif_pb: {e}"))?;
         }
@@ -1934,9 +2048,18 @@ impl Gpu {
     /// `k_ntt_p2` store + the `k_gather_cols_off` load, 2/3 of the
     /// re-encode's traffic on the encoded matrix, are gone). Identical
     /// values: the same kernels, the same twiddles, the same order.
+    ///
+    /// [FSP-L9] `sp` is `(the padded residue list, its real length nq, its
+    /// padded length nqp)`. With `HL_GPU_P1_COMPACT` on, the expand
+    /// transform writes only those `nqp` residues per block into `enc` (a
+    /// `rows x nt x nqp` block, 4 MB instead of 64 MB of stores per chunk
+    /// at the 8B shape) and the pruned consumer reads them contiguously.
+    /// `enc` is still the full-size scratch, so nothing about the
+    /// allocation changes; what changes is how much of it is touched.
+    #[allow(clippy::too_many_arguments)]
     fn encode_rows_view_gather(&self, data: &CudaView<u64>, coef: &mut CudaSlice<u64>, enc: &mut CudaSlice<u64>, rows: usize, log_n: u32, log_nn: u32,
                                d_sel: &CudaSlice<i32>, out: &mut CudaSlice<u64>, row0: usize, rows_total: usize,
-                               sp: Option<(&CudaSlice<i32>, usize)>) -> Result<(), String> {
+                               sp: Option<(&CudaSlice<i32>, usize, usize)>) -> Result<(), String> {
         if log_nn <= NTT_LOG_BLK {
             return Err("gather fusion needs log_nn > NTT_LOG_BLK".into());
         }
@@ -1950,30 +2073,46 @@ impl Gpu {
             let tiles = 1u32 << (log_n - NTT_LOG_BLK);
             let cfg = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             unsafe { pa.launch(cfg, (data, &mut *coef, ti, log_n as i32)) }.map_err(|e| format!("k_dif_pa: {e}"))?;
-            let pb = self.dev.get_func(MODULE, "k_dif_pb").ok_or("k_dif_pb missing")?;
+            let pb = self.dev.get_func(MODULE, kn_dif_pb()).ok_or("k_dif_pb missing")?;
             let bpr = 1u32 << (log_n - NTT_LOG_BLK);
             let cfg = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             let cptr: sys::CUdeviceptr = *coef.device_ptr();
             unsafe { pb.launch(cfg, (cptr, &mut *coef, ti, log_n as i32, scale)) }.map_err(|e| format!("k_dif_pb: {e}"))?;
         } else {
-            let pb = self.dev.get_func(MODULE, "k_dif_pb").ok_or("k_dif_pb missing")?;
+            let pb = self.dev.get_func(MODULE, kn_dif_pb()).ok_or("k_dif_pb missing")?;
             let cfg = LaunchConfig { grid_dim: (rows as u32, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             unsafe { pb.launch(cfg, (data, &mut *coef, ti, log_n as i32, scale)) }.map_err(|e| format!("k_dif_pb: {e}"))?;
         }
         let rb = log_nn - log_n;
-        let p1 = self.dev.get_func(MODULE, kn_dit_p1_pad()).ok_or("k_dit_p1_pad missing")?;
         let lb = log_nn.min(NTT_LOG_BLK);
         let bpr = 1u32 << (log_nn - lb);
         let cfg = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
-        unsafe { p1.launch(cfg, (&*coef, &mut *enc, tf, log_nn as i32, (1usize << log_n) as i32, rb as i32)) }.map_err(|e| format!("k_dit_p1_pad: {e}"))?;
+        // [FSP-L9] the compact producer/consumer pair, when the caller
+        // supplied the pruned residue list and the switch is on.
+        let compact = sp.map(|(_, _, nqp)| nqp).filter(|_| p1_compact() && pad_skip());
+        if let (Some(nqp), Some((ql, _, _))) = (compact, sp) {
+            assert!(enc.len() >= rows * (1usize << (log_nn - NTT_LOG_BLK)) * nqp, "[FSP-L9] compact scratch too small");
+            let p1 = self.dev.get_func(MODULE, kn_dit_p1_pad_c()).ok_or("k_dit_p1_pad_c missing")?;
+            unsafe { p1.launch(cfg, (&*coef, &mut *enc, tf, log_nn as i32, (1usize << log_n) as i32, rb as i32, ql, nqp as i32)) }
+                .map_err(|e| format!("k_dit_p1_pad_c: {e}"))?;
+        } else {
+            let p1 = self.dev.get_func(MODULE, kn_dit_p1_pad()).ok_or("k_dit_p1_pad missing")?;
+            unsafe { p1.launch(cfg, (&*coef, &mut *enc, tf, log_nn as i32, (1usize << log_n) as i32, rb as i32)) }.map_err(|e| format!("k_dit_p1_pad: {e}"))?;
+        }
         // [UPERF3-AO] rung 3: the pruned form when the caller supplied the
         // compact residue list; otherwise the dense fused kernel.
-        if let Some((ql, nq)) = sp {
-            let p2 = self.dev.get_func(MODULE, "k_ntt_p2_gather_sp").ok_or("k_ntt_p2_gather_sp missing")?;
+        if let Some((ql, nq, nqp)) = sp {
             let gx = ((nq + P2SP_NC - 1) / P2SP_NC) as u32;
             let cfg2 = LaunchConfig { grid_dim: (gx, rows as u32, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
-            unsafe { p2.launch(cfg2, (&*enc, tf, log_nn as i32, 1u64, d_sel, &mut *out, row0 as i32, rows_total as i32, ql, nq as i32)) }
-                .map_err(|e| format!("k_ntt_p2_gather_sp: {e}"))?;
+            if compact.is_some() {
+                let p2 = self.dev.get_func(MODULE, "k_ntt_p2_gather_spc").ok_or("k_ntt_p2_gather_spc missing")?;
+                unsafe { p2.launch(cfg2, (&*enc, tf, log_nn as i32, 1u64, d_sel, &mut *out, row0 as i32, rows_total as i32, ql, nq as i32, nqp as i32)) }
+                    .map_err(|e| format!("k_ntt_p2_gather_spc: {e}"))?;
+            } else {
+                let p2 = self.dev.get_func(MODULE, "k_ntt_p2_gather_sp").ok_or("k_ntt_p2_gather_sp missing")?;
+                unsafe { p2.launch(cfg2, (&*enc, tf, log_nn as i32, 1u64, d_sel, &mut *out, row0 as i32, rows_total as i32, ql, nq as i32)) }
+                    .map_err(|e| format!("k_ntt_p2_gather_sp: {e}"))?;
+            }
         } else {
             let p2 = self.dev.get_func(MODULE, kn_ntt_p2_gather()).ok_or("k_ntt_p2_gather missing")?;
             let tiles = 1u32 << (log_nn - NTT_LOG_BLK);
@@ -2174,11 +2313,13 @@ impl Gpu {
         let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
         let d_idx = dev.htod_sync_copy(p.device_index_list()).map_err(|e| e.to_string())?;
         note_raw_alloc(p.device_index_list().len() * 4);
-        let sp_list: Option<(CudaSlice<i32>, usize)> = match &p.residues {
+        // [FSP-L9] the third element is the list's PADDED length, which is the
+        // row stride of the compact intermediate.
+        let sp_list: Option<(CudaSlice<i32>, usize, usize)> = match &p.residues {
             Some((qs, nq)) => {
                 let b = dev.htod_sync_copy(qs).map_err(|e| e.to_string())?;
                 note_raw_alloc(qs.len() * 4);
-                Some((b, *nq))
+                Some((b, *nq, qs.len()))
             }
             None => None,
         };
@@ -2189,7 +2330,7 @@ impl Gpu {
         for &(r0, rc) in &plan {
             let view = dc.data.get().slice(r0 * n..(r0 + rc) * n);
             if fused {
-                let sp = sp_list.as_ref().map(|(b, n)| (b, *n));
+                let sp = sp_list.as_ref().map(|(b, k, kp)| (b, *k, *kp));
                 self.encode_rows_view_gather(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn, &d_idx, &mut d_out, r0, rows, sp)?;
             } else {
                 self.encode_rows_view(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn)?;
@@ -2204,12 +2345,26 @@ impl Gpu {
             eprintln!("[UPERF3-AC]   chunked re-encode + gather rows {rows} ({} chunks{}): {dt:.4} s", plan.len(), if fused { ", fused" } else { "" });
         }
         stats_with(|s| { s.secs_reenc += dt; s.bytes_d2h += (rows * cols_out * 8) as u64; });
-        Ok((0..q)
-            .map(|c| {
-                let s0 = p.out_slot(c) * rows;
-                out[s0..s0 + rows].iter().map(|&v| Fp(v)).collect()
-            })
-            .collect())
+        // [FSP-L9] lane AO's item 2, the host tail: this was a SERIAL loop
+        // copying `q * rows` field elements (2.75 M at the 8B W shape, 22 MB)
+        // into `q` vectors one element at a time. The `q` destinations are
+        // disjoint and each is a straight copy of a contiguous run, so the
+        // split is embarrassingly parallel and the values are unchanged --
+        // `Fp` is `#[repr(transparent)]` over `u64`, so each column is a
+        // memcpy of `out[s0 .. s0 + rows]`. Duplicated indices still take
+        // their slot from `out_slot`, exactly as before.
+        use rayon::prelude::*;
+        let mut cols: Vec<Vec<Fp>> = (0..q).map(|_| Vec::new()).collect();
+        cols.par_iter_mut().enumerate().for_each(|(c, dst)| {
+            let s0 = p.out_slot(c) * rows;
+            let src: &[u64] = &out[s0..s0 + rows];
+            // SAFETY: Fp is #[repr(transparent)] over u64 (zkp-core field.rs),
+            // so the two slices have identical layout; this is the same
+            // element-for-element copy the map above performed.
+            let src: &[Fp] = unsafe { std::slice::from_raw_parts(src.as_ptr() as *const Fp, rows) };
+            dst.extend_from_slice(src);
+        });
+        Ok(cols)
     }
 }
 
@@ -3254,14 +3409,14 @@ impl Gpu {
             let tiles = 1u32 << (log_n - NTT_LOG_BLK);
             let cfg = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             unsafe { pa.launch(cfg, (data, &mut *coef, ti, log_n as i32)) }.map_err(|e| format!("k_dif_pa: {e}"))?;
-            let pb = self.dev.get_func(MODULE, "k_dif_pb").ok_or("k_dif_pb missing")?;
+            let pb = self.dev.get_func(MODULE, kn_dif_pb()).ok_or("k_dif_pb missing")?;
             let bpr = 1u32 << (log_n - NTT_LOG_BLK);
             let cfg = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             // in place: the raw pointer as the source (each block reads its own range before writing it)
             let cptr: sys::CUdeviceptr = *coef.device_ptr();
             unsafe { pb.launch(cfg, (cptr, &mut *coef, ti, log_n as i32, scale)) }.map_err(|e| format!("k_dif_pb: {e}"))?;
         } else {
-            let pb = self.dev.get_func(MODULE, "k_dif_pb").ok_or("k_dif_pb missing")?;
+            let pb = self.dev.get_func(MODULE, kn_dif_pb()).ok_or("k_dif_pb missing")?;
             let cfg = LaunchConfig { grid_dim: (rows as u32, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
             unsafe { pb.launch(cfg, (data, &mut *coef, ti, log_n as i32, scale)) }.map_err(|e| format!("k_dif_pb: {e}"))?;
         }

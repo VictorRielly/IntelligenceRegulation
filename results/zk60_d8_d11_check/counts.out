@@ -1,0 +1,65 @@
+--- nn = 2048, depth = 11, draws = 256 ---
+distinct opened leaves          240.7015
+A_1..A_depth                    226.6054, 201.6081, 162.0071, 110.8126, 62.8642, 31.9906, 16.0000, 8.0000, 4.0000, 2.0000, 1.0000
+leaf digests revealed           453.2108  (= 240.7015 opened + 212.5093 unopened)
+internal nodes revealed (1..10)  1200.5652
+total distinct nodes revealed   1654.7760 of 4095  = 40.41 %
+distinct sibling digests        587.1865  of 2816 emitted slots
+honest queries to build tree    2048 cols + 2048 leaves + 2047 nodes = 6143
+A_(depth-1) (the top pair)      2.000000000000   deficit 2 - A = 2^-255.0
+
+--- nn = 65536, depth = 16, draws = 256 ---
+distinct opened leaves          255.5026
+A_1..A_depth                    255.0065, 254.0181, 252.0565, 248.1935, 240.7015, 226.6054, 201.6081, 162.0071, 110.8126, 62.8642, 31.9906, 16.0000, 8.0000, 4.0000, 2.0000, 1.0000
+leaf digests revealed           510.0130  (= 255.5026 opened + 254.5104 unopened)
+internal nodes revealed (1..15)  3643.7150
+total distinct nodes revealed   4154.7280 of 131071  = 3.17 %
+distinct sibling digests        1822.3614  of 4096 emitted slots
+honest queries to build tree    65536 cols + 65536 leaves + 65535 nodes = 196607
+A_(depth-1) (the top pair)      2.000000000000   deficit 2 - A = 2^-255.0
+
+--- opening bytes ---
+tiny endpoint  rows=7 depth=11 n+Q=512 : 131072
+log_cols14/inv_rate4, 2^21 plane: rows = 128 (+5 mask) = 133 depth = 16, n+Q = 16384+256 = 16640
+   bytes: 946176
+log_cols8/inv_rate8, 2^21 plane: rows = 8192 (+5) = 8197 depth = 11, n+Q = 512
+   bytes: 16904192
+
+--- reduction bias of a 128-bit draw reduced mod p ---
+p = 2^64 - 2^32 + 1 = 18446744069414584321
+2^128 mod p = 18446744065119617025   p - 2^32 = 18446744065119617025  equal: True
+floor(2^128/p) = q, remainder s = 18446744065119617025 = p - 2^32 -> 18446744065119617025 residues occur 18446744078004518912 times, 4294967296 residues occur 18446744078004518911 times (p - s = 2^32: True)
+total statistical distance = 1.262177e-29 = 2^-96.000000
+relative bias of one over-represented outcome = 2^-96.000000
+relative bias of one under-represented outcome = 2^-64.000000
+  tiny endpoint pair (O10 F10.4's 6144) : 6144 * 2^-96 = 2^-83.42
+  a tiny proof, 2^21 draws              : 2097152 * 2^-96 = 2^-75.00
+  125M, 2^23.1 draws                    : 8990687 * 2^-96 = 2^-72.90
+  8B, 2^24.3 draws                      : 20655175 * 2^-96 = 2^-71.70
+
+--- section 4.2 arithmetic ---
+model plane 2^21 words as int16 = 4194304 B = 65536 compressions/endpoint
+pass H = 2.296e+09, committed words = 9.777e+09
+  optimistic  : lookups 2.621e+08 = 11.4% of H ; words 1.638e+08 = 1.68% of committed
+  central     : lookups 5.243e+08 = 22.8% of H ; words 3.277e+08 = 3.35% of committed
+  pessimistic : lookups 1.049e+09 = 45.7% of H ; words 6.554e+08 = 6.70% of committed
+central seconds on the 58.40 s public pass: 1.27 (helpers) + 1.96 (commit) = 3.23 s  -> 5.5 % of the pass
+if the pass ever reaches 5 s by a uniform 11.7x speedup, the same relative cost is 0.28 s = 5.5 % of the 5 s budget
+tiny: 16 compressions/endpoint, extra lookups 128000 = 37.7% of H_tiny=339456, extra words 80000
+   tiny committed words, A: 179712
+   tiny committed words, H: 339456
+   tiny committed words, M: 5120
+   tiny committed words, endpoints x2: 3584
+   tiny committed words total (message part) 527872 -> extra words are 15.2%
+
+--- transcript absorb input lengths (zkp-core/src/transcript.rs:44-52) ---
+  absorb(b'rows'        ,   8 B) -> 60 B
+  absorb(b'log-cols'    ,   8 B) -> 64 B  <-- 64 bytes: SAME DOMAIN as hash_pair / salt_leaf
+  absorb(b'layer'       ,   8 B) -> 61 B
+  absorb(b't_rows'      ,   8 B) -> 62 B
+  absorb(b'io-side'     ,   8 B) -> 63 B
+  absorb(b'pb-slot'     ,   8 B) -> 63 B
+  absorb(b'pa-slot'     ,   8 B) -> 63 B
+  absorb(b'expected-IO' , 112 B) -> 171 B
+  squeeze_bytes -> 32 + len(b'squeeze')=7 + 8 = 47 B
+

@@ -1,0 +1,13 @@
+{
+  "worktree": "/tmp/wt-zk60-rowfold-20260919",
+  "branch": "perf/zk60-rowfold-20260919",
+  "base": "586eccdfbf86f0b8afff7425b5b3c350d76da8f7",
+  "state": "accepted after full integration gates",
+  "model_scale_speed_claim": false,
+  "integrated": true,
+  "candidate_sha256": "020249211e1abb7b7cf38acaa9c4e780c6a3b712d3cedef41e9af6173ffa75d1",
+  "final_attempt": "attempt-4/validation.json",
+  "integration": "integration/validation.json",
+  "audit": "integration/audit.json",
+  "privacy_acceptance": false
+}

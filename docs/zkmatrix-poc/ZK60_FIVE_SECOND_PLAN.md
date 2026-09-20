@@ -630,6 +630,42 @@ distinguishes them, and it costs one detached job.**
 
 ## 5. The integrated plan to five seconds
 
+> **THIRD CORRECTION (orchestrator, 2026-09-19 13:24): the int8-plane commit
+> is built and it is worth about 2 s, not the "about 9 s" the correction
+> below this one records.** Lane `fsp-host`, tip `06a3df9`, pushed. Built
+> behind `HL_FSP4_PLANES` with the converted-vector arm kept for every
+> decline; green on the twelve byte gates twice, on four **new** gates that
+> force W onto the chunked upload route the twelve never reach, on 205 tests
+> and every device oracle; 20 A/B proofs byte-identical. **What it measured**
+> [12 × 512, GPU binary, alternating, 5 per arm]: the conversion fill and its
+> allocation go to zero, as counted; but **the host packing pass does not
+> speed up — 0.0450 → 0.0495 s, 0.91×** — because tiling the int8 planes
+> into the staging buffer costs what packing the converted vector cost. (The
+> first cut was 2.3× *slower*, one task per 256-byte row; fixed.) The item
+> goes 0.222 → 0.158 s, 1.41×, every new-arm run below every old-arm run; the
+> prove total moves inside the 16% spread and is not claimed. **Counted at
+> 8B: only the fill (1.652 s) and the allocation (0.580 s) come out —
+> 2.23 s of 58.40 s, 1.040×.** The host share becomes 15.9–16.9 s. An upside
+> to about 6.5 s exists only as [MODEL] and would need the tiling moved to the
+> device (upload the raw planes, tile with a kernel); one 8B pass per arm with
+> `HL_FSP4_TIMING=1` decides between the two.
+>
+> **Scorecard after one day of testing this plan on real code** — every lane
+> green, byte-identical, and honest about its size: kernel fusion 0.8–1.8 s;
+> deferred-reduction fold 1.0–1.25 s; int8-plane commit 2.23 s; **about
+> 4–5 s of 58.40 s in total [COUNTED], i.e. about 53–54 s**, not the 34 s
+> this page first projected nor the 45 s of the second correction. Three
+> counted step sizes out of three shrank by a factor of three to seven when
+> measured. **Treat every remaining [COUNTED] and [MODEL] second on this page
+> accordingly.** The honest reading for this laptop: the public 8B pass is a
+> ~55 s pass, and software byte-preserving work moves it by single-digit per
+> cents. What can move it by factors is hardware (the 5090, where the host
+> share of 16–19 s then dominates and the desktop's CPU and memory matter as
+> much as the card) and design (which the D14 memo prices at 1.3× for a
+> 1.95 GB proof). **5 s is not reachable; 15 s on the 5090 is now an open
+> question rather than a plausible one, and the first measurement on that
+> machine is what answers it.**
+
 > **SECOND CORRECTION, FROM THE HOST-FLOOR LANE (orchestrator, 2026-09-19
 > 11:56). The host floor is 18–19 s of the 58.40 s, not 11.9 s, and step 4
 > is worth more than this page says.** Lane `fsp-host` (branch `fsp-host`,

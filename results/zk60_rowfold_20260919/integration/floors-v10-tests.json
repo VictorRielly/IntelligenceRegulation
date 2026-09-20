@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_hashline_cl_gpu_gates.py"
+  ],
+  "exit_code": 0,
+  "source_hashes": {
+    "scripts/hashline_cl_gpu_gates.py": "86f66c176b5226ddb5ca91a4ab644495a324606d5456db479bf4f1eb9b3f766a",
+    "tests/test_hashline_cl_gpu_gates.py": "18a31313f46b5aec86c336c95175e40f2d593ca6f25363f604fc49a527fc6a5c",
+    "results/cl1_floors.sh": "5d95cbd7242473ab164e2d738c712e0bdb3e62ba2453299e0c59d939bca30e60"
+  },
+  "log_sha256": "d0b2a36a03dea5072091598311140a5b937ca7d0b05025a388aff315e4fb4ef2",
+  "state": "passed"
+}

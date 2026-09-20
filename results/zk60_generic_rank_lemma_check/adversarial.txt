@@ -1,0 +1,44 @@
+profile: hashline-zk-mr1/private-block-t32-poc/1
+
+### role H: 384 rows, 52 claims, 9 groups, generators 2(G+1) = 20
+  uniform lambdas, uniform cm          det==product True  det_zero 0/3  k0 0
+  lambdas in the BASE field            det==product True  det_zero 0/3  k0 0
+  lambdas purely IMAGINARY             det==product True  det_zero 0/3  k0 0
+  every lambda EQUAL                   det==product True  det_zero 0/3  k0 0
+  every lambda = U                     det==product True  det_zero 0/3  k0 0
+  cm in the BASE field                 det==product True  det_zero 0/3  k0 0
+  cm with ZERO real part               det==product True  det_zero 0/3  k0 0
+  cm = U for every claim               det==product True  det_zero 0/3  k0 0
+  cm tiny integers                     det==product True  det_zero 0/3  k0 0
+  lambdas base AND cm base             det==product True  det_zero 0/3  k0 0
+  lambdas imag AND cm imag             det==product True  det_zero 0/3  k0 0
+  proximity pair Fp-DEPENDENT          det==product True  det_zero 3/3  k0 0
+  proximity vector in the BASE field   det==product True  det_zero 3/3  k0 0
+  -- negative controls (each SHOULD break something) --
+  one cm zero (claim 0)                det==product True  det_zero True  k0 2
+  EVERY cm of group 0 zero             det==product True  det_zero True  k0 2
+  one lambda zero (group 0, member 0)  det==product True  det_zero True  k0 0
+  EVERY lambda of group 0 zero         det==product True  det_zero True  k0 0
+  claims 0 and 1 share one reserved pair det==product False det_zero True  k0 0
+
+### role A: 455 rows, 120 claims, 35 groups, generators 2(G+1) = 72
+  uniform lambdas, uniform cm          det==product True  det_zero 0/3  k0 0
+  lambdas in the BASE field            det==product True  det_zero 0/3  k0 0
+  lambdas purely IMAGINARY             det==product True  det_zero 0/3  k0 0
+  every lambda EQUAL                   det==product True  det_zero 0/3  k0 0
+  every lambda = U                     det==product True  det_zero 0/3  k0 0
+  cm in the BASE field                 det==product True  det_zero 0/3  k0 0
+  cm with ZERO real part               det==product True  det_zero 0/3  k0 0
+  cm = U for every claim               det==product True  det_zero 0/3  k0 0
+  cm tiny integers                     det==product True  det_zero 0/3  k0 0
+  lambdas base AND cm base             det==product True  det_zero 0/3  k0 0
+  lambdas imag AND cm imag             det==product True  det_zero 0/3  k0 0
+  proximity pair Fp-DEPENDENT          det==product True  det_zero 3/3  k0 0
+  proximity vector in the BASE field   det==product True  det_zero 3/3  k0 0
+  -- negative controls (each SHOULD break something) --
+  one cm zero (claim 0)                det==product True  det_zero True  k0 2
+  EVERY cm of group 0 zero             det==product True  det_zero True  k0 2
+  one lambda zero (group 0, member 0)  det==product True  det_zero True  k0 0
+  EVERY lambda of group 0 zero         det==product True  det_zero True  k0 0
+  claims 0 and 1 share one reserved pair det==product False det_zero True  k0 2
+

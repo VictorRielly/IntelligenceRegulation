@@ -1,0 +1,81 @@
+{
+  "current": "bench-build",
+  "error": "bench-build: exit 101",
+  "model_scale_speed_claim": false,
+  "proof_byte_gates_run": false,
+  "runner_sha256": "670c88198ee25238687f561f617a73badd80f85d5af29d79b3b04960e76b60e5",
+  "runs": [
+    {
+      "argv": [
+        "/home/victor/.cargo/bin/cargo",
+        "test",
+        "--release",
+        "--offline",
+        "--locked",
+        "-j",
+        "2",
+        "--manifest-path",
+        "zkp-core/Cargo.toml",
+        "--lib",
+        "mle::tests",
+        "--",
+        "--test-threads=2"
+      ],
+      "elapsed_shared_seconds": 17.031451836999622,
+      "environment": {
+        "HL_FSP_ROW_FOLD": "1"
+      },
+      "exit_code": 0,
+      "name": "arithmetic-1"
+    },
+    {
+      "argv": [
+        "/home/victor/.cargo/bin/cargo",
+        "test",
+        "--release",
+        "--offline",
+        "--locked",
+        "-j",
+        "2",
+        "--manifest-path",
+        "zkp-core/Cargo.toml",
+        "--lib",
+        "mle::tests",
+        "--",
+        "--test-threads=2"
+      ],
+      "elapsed_shared_seconds": 0.0641878899987205,
+      "environment": {
+        "HL_FSP_ROW_FOLD": "0"
+      },
+      "exit_code": 0,
+      "name": "arithmetic-0"
+    },
+    {
+      "argv": [
+        "/home/victor/.cargo/bin/cargo",
+        "build",
+        "--release",
+        "--offline",
+        "--locked",
+        "-j",
+        "2",
+        "--manifest-path",
+        "zkp-core/Cargo.toml",
+        "--example",
+        "row_fold_bench"
+      ],
+      "elapsed_shared_seconds": 5.031760932004545,
+      "environment": {},
+      "exit_code": 101,
+      "name": "bench-build"
+    }
+  ],
+  "source_hashes": {
+    "zkp-core/Cargo.lock": "24fb1de3953c017d54113014882b05c4c52b941f900ef50f3c2554f06523fc7b",
+    "zkp-core/Cargo.toml": "b9038a52f34e0ee8313aa93eec656ff62ea29571a04b3df7f3db349d623ba842",
+    "zkp-core/examples/row_fold_bench.rs": "b4c8e245626260bde62e1460c9dfc3e249658ee023ab7bf878539504f773d137",
+    "zkp-core/src/mle.rs": "7c22df2f165fa05cd1fc9b10ea363712b520910b71d0c7ec24eb12208b527c12"
+  },
+  "state": "failed"
+}

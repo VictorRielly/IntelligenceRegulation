@@ -216,10 +216,12 @@ class SuiteDefinition(unittest.TestCase):
         # describable — and everything but the oracle expectation is identical.
         v1, v2, v3 = gg.suite(1), gg.suite(2), gg.suite(3)
         # [ZK60-CL18] v3 = CL18's 189; [ZK60-CL21] v4 = v3 + the core cases; v5 adds storage
-        self.assertEqual(gg.DEFAULT_SUITE, 9)
+        self.assertEqual(gg.DEFAULT_SUITE, 10)
         self.assertEqual(gg.case_definition(7, "storage_tests")["expect"]["passed"], 218)
         self.assertEqual(gg.case_definition(8, "storage_tests")["expect"]["passed"], 220)
         self.assertEqual(gg.case_definition(9, "storage_tests")["expect"]["passed"], 227)
+        self.assertEqual(gg.case_definition(10, "core_tests")["expect"], {"passed": 37, "failed": 0, "ignored": 0})
+        self.assertEqual(gg.case_definition(10, "storage_tests")["expect"], {"passed": 288, "failed": 0, "ignored": 2})
         self.assertEqual(gg.case_definition(1, "oracle_gpu")["expect"]["executed_cases"], 49)
         self.assertEqual(gg.case_definition(2, "oracle_gpu")["expect"]["executed_cases"], 141)
         self.assertEqual(gg.case_definition(3, "oracle_gpu")["expect"]["executed_cases"], 189)
@@ -413,6 +415,19 @@ class Validator(unittest.TestCase):
         self.assertFalse(gg.validate_manifest([])["ok"])
         self.assertFalse(gg.validate_manifest(dict(green(), suite_version=9))["ok"])
         self.assertFalse(gg.validate_manifest(dict(green(), schema=3))["ok"])
+
+    def test_v10_inventory_is_exact_and_does_not_change_archived_v9(self):
+        for version in (9, 10):
+            m = green(suite_version=version)
+            self.assertTrue(gg.validate_manifest(m)["ok"])
+        for case, key, value in (("core_tests", "passed", 32),
+                                 ("storage_tests", "passed", 227),
+                                 ("storage_tests", "passed", 287),
+                                 ("storage_tests", "ignored", 3)):
+            with self.subTest(case=case, key=key, value=value):
+                m = green(suite_version=10)
+                record_of(m, case)["test_results"][0][key] = value
+                self.assertFalse(gg.validate_manifest(m)["ok"])
 
     # ------------------------------------------------ [CL21] source identity
     def refused4(self, needle, mutate=None, **kw):
@@ -1214,12 +1229,29 @@ class FloorsRunner(unittest.TestCase):
         scratch = os.path.join(self.tmp.name, "real ok")
         e = {k: v for k, v in os.environ.items() if k not in ("HL_FLOORS_GATES", "HL_FLOORS_REPO", "HL_FLOORS_SUITE_VERSION")}
         e["PATH"] = os.pathsep.join(p for p in e.get("PATH", "").split(os.pathsep) if not os.path.isfile(os.path.join(p, "cargo")))
+        # This leg tests source identity and manifest creation, then the
+        # missing-cargo failure. It must not wait behind unrelated builds
+        # (or deadlock if its parent suite holds the global build lock).
+        # Forward only the expected first build command without locking;
+        # cargo is absent from PATH, so no actual build can occur here.
+        no_cargo_bin = os.path.join(self.tmp.name, "missing cargo bin")
+        os.makedirs(no_cargo_bin)
+        no_cargo_flock = os.path.join(no_cargo_bin, "flock")
+        with open(no_cargo_flock, "w", encoding="utf-8") as fh:
+            fh.write('#!/bin/bash\n'
+                     '[[ "$1" == /tmp/zk-build.lock && "$2" == cargo && "$3" == build ]] || exit 98\n'
+                     'shift\n'
+                     'exec "$@"\n')
+        os.chmod(no_cargo_flock, 0o755)
+        e["PATH"] = no_cargo_bin + os.pathsep + e["PATH"]
         r = subprocess.run(["bash", _FLOORS, "--repo", clean, "--gates", _SRC, "--v3-export", self.export, scratch],
                            capture_output=True, text=True, env=e, timeout=120)
         self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
         self.assertIn("present 1", r.stdout)
         self.assertNotIn("nothing was built", r.stdout)
         self.assertIn("FAILURE: build_cpu", r.stdout)
+        with open(os.path.join(scratch, "build_cpu.out"), encoding="utf-8") as fh:
+            self.assertIn("cargo: not found", fh.read())
         m = gg.load_manifest(os.path.join(scratch, "manifest.json"))
         self.assertEqual(m["source"]["crates"]["zkp_core"]["tree"], git(clean, "rev-parse", "HEAD:zkp-core"))
         self.assertEqual(m["source"]["head"], git(clean, "rev-parse", "HEAD"))
