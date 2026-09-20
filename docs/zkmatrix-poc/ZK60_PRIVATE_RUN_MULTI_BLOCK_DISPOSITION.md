@@ -137,7 +137,17 @@ not reproduce in the two-site geometry (it is refused for bookkeeping
 reasons), but its conclusion stands in another instance the lane found: a
 one-site budget with the proximity position declared one row too high, which
 `audit_claims` accepts. M-1's derived row count closes it for boundaries; the
-question of the shared audit stays with the integrator. **U-2** — moot under
+question of the shared audit stays with the integrator. *(Answered by the
+integrator on 2026-09-20, `ZK60_RUN_AUDIT_GEOMETRY_REVIEW_20260920.md`, and
+accepted by me at 13:51: the instance shows that the audit helper **trusts the
+row declaration it is handed** — a precondition — and is **not** an accepted
+leaking proof: the test builds claims and metadata, no proof; both external
+endpoint constructors fill all five appended rows with fresh draws, the spare
+included, and the real determinant check sits on rows `data+2`, `data+3`
+whatever a caller declares. No change to the shared audit. The invariant to
+keep is that `BoundarySpec` derives the geometry once and that preparation,
+metadata and opening all use that one spec. The single-proximity-row control
+stays, labelled as a deliberately weakened construction.)* **U-2** — moot under
 M-7 (external endpoints unchanged). **U-3** — accepted: the transcript type
 has no counter accessor and lives in a forbidden file, so a segment header
 carries a 32-byte position tag squeezed from a *discarded clone*; it is a
