@@ -1041,3 +1041,200 @@ python3 -m unittest discover -s tests -p "test_zk60_native*.py"
 `results/zk60_native_joint_view_fix/`; the ledger is
 `docs/zkmatrix-poc/ZK60_NATIVE_JOINT_VIEW_FIX_PROGRESS.md`. Evidence files
 carry counts, indices, ranks, determinants and hashes only.
+
+## 13. 2026-09-20 — the small model gets real opening GROUPS (review change R-8)
+
+**Not a privacy acceptance.** Everything in this section is a rank of an
+explicitly stated linear model on a synthetic instance whose data and
+blinding are both known and both public. No receipt, capture or Rust source
+is read or written by it.
+
+### 13.1 What was never validated before
+
+Stage 2's reduction replaces one dense rank over ~10^5 unknowns with small
+rank computations plus three checked hypotheses. Its validation is the small
+model (§6, `scripts/zk60_native_jv_smallmodel.py`): a toy commitment where
+the dense rank *is* computable, so the reduction can be compared with the
+truth. **That toy has one opening group per claim.** The real receipts do
+not: `pcs.rs::group_zclaims` batches every claim with the same column-weight
+key into ONE group, `zk_rhos` draws a coefficient `lambda_c` per member, and
+the prover publishes one group vector for the batch plus every member's
+claim value separately. A's largest group on the block profile has **35
+members**.
+
+So the object the reduction is actually applied to — a `lambda`-batched
+group — had never appeared in the thing that validates the reduction. The
+independent review of the terminal-surjection step
+(`ZK60_TERMINAL_SURJECTION_REVIEW.md`, 2026-09-20) made that its change
+**R-8**, and the security owner accepted it
+(`ZK60_JOINT_LAW_COMPOSITION_DISPOSITION.md`, ruling block "J-2 is
+resolved"). Two further shapes had never appeared either: a group whose
+members **share** a reserved mask pair, and the legitimate cross-group
+sharing that H actually performs.
+
+### 13.2 What is validated now
+
+`scripts/zk60_native_jv_groups.py` **subclasses** `ToyView` and overrides
+only `build()` (the group schedule) and `hypotheses()` (the group-aware
+checks). The dense forward map (`observation_rows`), the dense disclosed
+dimension (`disclosed_bruteforce`) and **the reduction under test**
+(`disclosed_reduction`) are inherited unmodified, so "reduction" below is
+the gate's own code and "dense" is a rank of the full forward map with no
+reduction at all. The toy geometry is the existing one: `n = 4` message
+columns, `q = 4` pads, 16 encoded positions, three data rows.
+
+`tests/test_zk60_native_small_model_groups.py` — 27 tests, one of them a
+recorded `expectedFailure` (case f). Evidence:
+`results/zk60_native_small_model_groups/small_model_groups.json`, written by
+`python3 scripts/zk60_native_jv_groups.py --evidence
+results/zk60_native_small_model_groups` in ~0.5 s and reproduced exactly by
+a test, because the model is seeded.
+
+### 13.3 The six cases
+
+"per-group" is the reviewed step applied one group at a time, in **its own
+model** (a reserved pair is two unconstrained uniform rows). `n = 4` here,
+so a figure of 4 is the toy's analogue of 256 `Fp` at the real scale and 8
+of 512.
+
+| # | case | dense (full map) | reduction | per-group | expected | observed |
+|---|---|---|---|---|---|---|
+| **a** | multi-member group, `m = 3, 4, 5`, 4 challenge draws each (12 instances) | 0 | 0 | 0 | agree at 0 | **as expected** |
+| **b** | two ordinary terminals on one reserved pair, same group | **2** | **0** | 2 | dense > 0 | **as expected; the reduction does not see it** |
+| **b'** | the same two terminals in two different groups | **2** | **0** | **0** | dense > 0 | **as expected; per-group misses it too** |
+| **c** | H-style: two groups on the zero-sum pair, tied by a public identity | **2** | **2** | **0** | jointly 2 | **as expected; per-group is wrong** |
+| **d** | singleton group, pair weights `Fp`-dependent, `cm != 0` | **4** | **4** | 4 | `n` = 4 | **as expected** |
+| **d'** | the same broken shape in a 4-member group | 0 | 0 | 0 | 0 | **as expected** |
+| **d''** | singleton group, pair removed (`cm = 0`) | **8** | **8** | 8 | `2n` = 8 | **as expected** |
+| **e** | `lambda_c = 0` on one member, `m = 3, 5`, 3 draws each | 0 | 0 | 0 | 0 | **as expected** |
+| **f** | one opened position beyond the pad budget, 3 draws | **3** | **refused** (0 unguarded) | 0 | dense > 0 | **as expected; see 13.5** |
+
+Four readings.
+
+* **The batched case is sound and the closed form holds.** On every honest
+  multi-member instance the reduction and the dense rank are both 0, and the
+  per-group blinding rank is exactly the review's closed form
+  `2(n + m) − 2` for every `m` from 1 to 6 — observation space `2n + 2m`,
+  codimension exactly 2, which is the verifier's own identity
+  `<v_g, cw> = Σ λ_c y_c` and nothing else. Machine-checked here for the
+  first time.
+* **`lambda_c = 0` does not disclose** (case e), confirming the review's
+  demotion of that condition: its refusal in
+  `check_opening_challenges` is a soundness refusal. The zeroed member's
+  pair drops out of the group vector while still blinding that member's own
+  published terminal (support 2 of 2, no surviving functional).
+* **The shape of the pair is what carries it** (cases d, d', d''). With
+  `cm != 0` but the two weights `Fp`-dependent, a singleton group discloses
+  a whole message width and the same broken shape in a 4-member group
+  discloses nothing — so the condition must be in the *statement*, not
+  inferred from a figure.
+* **Marginals are not enough** (case b). Each of the two terminals sharing a
+  pair has support dimension 2 of 2 — uniform on `Fp2`, no surviving data
+  functional, indistinguishable between data vectors. Their **joint** support
+  is 2 of 4, with a 2-dimensional annihilator whose image on the data is
+  2-dimensional, and the two data vectors `0` and `e_j` give **disjoint**
+  supports. Both marginals are the same measure for both data vectors; the
+  joint is a different measure for each.
+
+### 13.4 The H exception, machine-formed
+
+Case c models H's two groups: one claim evaluates the zero-sum rows and
+carries its own reserved pair (the `zsum` slot), the other's reserved pair
+**is** the zero-sum pair and its group's column weights are all-ones (the
+LogUp sum claim). Under the published constraint `Σ_t msg_u[t] = 0` the
+pair's contribution to that claim's value vanishes identically, so the value
+is pure data.
+
+* Ranked **jointly**: 2 `Fp`, and the span of what is disclosed equals the
+  span of that claim's own data-row weights exactly
+  (`rank_disclosed = rank_public_identity = rank_of_both_together = 2`) —
+  the same span comparison `RoleView._disclosed` makes on the real captures.
+* Ranked **per group in the step's own model**: **0**. The step treats a
+  reserved pair as two unconstrained uniform rows; the zero-sum pair is not
+  that. Put the public constraint back into the per-group system and it
+  returns 2.
+* The gate's own `H-pair` check **passes** here, exactly as
+  `audit_claims` does on the real H: a claim may evaluate the zero-sum rows
+  as well as carry its own pair, so the two groups' pair keys differ and
+  nothing fires. The premise that actually fails is the review's assembly
+  premise (a), *pairs disjoint across groups*; the model reports it
+  separately as `groups_pairwise_disjoint_off_data`, and it is `false`.
+
+That is the machine form of the review's §3.4 exception: the number 2 is
+right, and it is right because of the joint computation, not because of the
+per-group argument.
+
+### 13.5 Findings about the tool's reduction
+
+**F-1 — the reduction does not see one opened position beyond the pad
+budget** (confirms the review's §3.5 / addendum A5 against this gate's own
+reduction, not only the review's). Dense 3 `Fp`, reduction 0. It is not a
+wrong rank: it is the right rank of the wrong system, because the reduction
+of the full view to the message half is licensed only under `H-pad`. The
+test records it as an `expectedFailure` with that reason, so it cannot be
+lost by someone reading a green suite.
+
+**The guard.** The real-capture path already carries the condition
+(`zk60_native_jv_pcs.py`, `_check_pad_budget` → fact
+`distinct_opened_columns_within_pad_count`, which feeds stage 2's verdict
+and is asserted by a test on every role of every capture). The small-model
+path did not. `GroupedToyView.disclosed_reduction` now raises
+`PadBudgetRefusal` on exactly that condition — *distinct opened positions >
+pad count* — before computing anything, and is silent at the budget.
+`disclosed_reduction_unguarded` remains, so the finding stays exhibitable.
+
+The guard lives in the new module rather than in
+`zk60_native_jv_smallmodel.ToyView` because that file's SHA-256 is written
+into the gate's own record (`zk60_native_joint_view.py::TOOLS`) and compared
+by `GateRecord`; editing it would change
+`results/zk60_native_joint_view/joint_view.json`, which this lane may not
+do. Moving it into `ToyView` is a one-line follow-up for the next time the
+gate's evidence is regenerated. A test pins the current behaviour of the old
+class so the difference cannot be forgotten.
+
+**F-2 — the reduction is blind to pair sharing; the `H-pair` check is the
+whole defence.** Case b: dense 2, reduction 0. The reduction drops the
+individual claim values (that collapse is exactly what `H-pair` licenses)
+and the group vector is unharmed by two members sitting on one pair, so
+`k0` stays 0. The figure is only sound *behind* the check. That was always
+the design; this is the first machine demonstration of what the check is
+holding up.
+
+**F-3 — sharing across two groups is invisible to the per-group system as
+well** (case b'). Sharing within one group is caught by that group's own
+system (the review's control C1 reproduces here at 2). Sharing across two
+groups is not: each group in isolation looks perfect, and only the joint
+rank sees it. The gate's `H-pair` check does catch this particular one
+(the pair key repeats), but the *argument* needs the cross-group premise
+stated, which is what R-4 and R-5 do.
+
+### 13.6 What remains a reviewed obligation
+
+* The toy geometry is `n = 4`, `q = 4`, three data rows and one or two
+  groups. The receipt geometry is 256 / 256 / up to 35 members and 35
+  groups; the review computed the real sizes independently
+  (`results/zk60_terminal_surjection_review/`), and the agreement of the two
+  is read, not machine-linked.
+* The model is the same model stage 2 states — affine in `(msg, pad)` at
+  **fixed** challenges. The Fiat–Shamir lift, the hash layer, the leaf salts
+  and the authentication paths are outside it, as everywhere else in this
+  report.
+* The `H-pair` check's exception for the zero-sum rows is now shown to be
+  load-bearing; whether every future profile's layout keeps the two groups
+  tied by a public identity is a **layout obligation**, not a fact this
+  model can establish.
+* **No privacy property is established by any of it.**
+
+### 13.7 Reproduce
+
+```
+python3 scripts/zk60_native_jv_groups.py \
+  --evidence results/zk60_native_small_model_groups
+python3 -m unittest discover -s tests -p "test_zk60_native*.py"
+```
+
+139 tests (112 before this lane), one pre-existing skip and one recorded
+expected failure; the case runner takes ~0.5 s. Ledger:
+`docs/zkmatrix-poc/ZK60_NATIVE_SMALL_MODEL_GROUPS_PROGRESS.md`. Both gates
+were re-run against the four real captures afterwards and their records
+compared with the committed ones; nothing but the timing fields moved.

@@ -610,7 +610,7 @@ def _two_figures(view, expect_dense, expect_reduction, note):
         "hypotheses": hyp,
         "expected_dense_fp": expect_dense,
         "expected_reduction_fp": expect_reduction,
-        "as_expected": dense == expect_dense
+        "as_expected": (dense > 0 if expect_dense == "> 0" else dense == expect_dense)
         and (expect_reduction == "refused" if refused else red == expect_reduction),
         "note": note,
     }
@@ -760,9 +760,11 @@ def case_f_beyond_the_pad_budget(seeds=(1, 2, 3)):
     runs = []
     for s in seeds:
         v = beyond_the_pad_budget(m=3, seed=s, q_pad=4, extra=1)
-        r = _two_figures(v, None, "refused", f"seed={s}")
+        # the prediction is a SIGN, not a value: the leaked functional is one
+        # per data row and the toy has three, but the point is only that the
+        # dense rank is positive where the reduction's is not
+        r = _two_figures(v, "> 0", "refused", f"seed={s}")
         r["seed"] = s
-        r["expected_dense_fp"] = r["dense_disclosed_fp"]  # recorded, not predicted
         r["as_expected"] = (
             r["reduction_refused"]
             and r["dense_disclosed_fp"] > 0
