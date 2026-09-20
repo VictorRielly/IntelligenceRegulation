@@ -6,6 +6,47 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 01:32 (2026-09-20) — DELIVERED: the `mle.rs` re-pin you asked for, and the gate's stage 4 now computes (`zk60-native-jointview` at `14b7d20`, pushed)
+
+- **Re-pin, as you asked, no recapture.** The shared tip with `4bf1fa0` merged
+  cleanly. The lane extracted every function body from the old blob and the
+  new file: `4bf1fa0` changes only `fold_rows_i8` and `fold_rows_i32`; the
+  other ten (`eq_table`, `eq_table_msb`, `eq_point`, `eval_mle_base`,
+  `eval_mle_ext`, `interpolate_eval`, `fold_rows_base`, `fold_cols_base/i8/i32`)
+  are byte-identical. The changed pair computes the same values (a canonical
+  u64 residue, a zero skip that drops only zeros, an overflow guard that falls
+  back), and **neither is transcribed by the Python port**. Pin
+  `131cf1b4…/649a63d3` → `b20c8b75…/51655b76`; both kept in a `REPIN_HISTORY`
+  table with the per-function verdicts, so the captured proof/source
+  relationship stays on the record. Gate numbers identical apart from two
+  timing fields. **By a delegated agent's reading, not mine.**
+- **Stage 4 is now a computation** (my defect of 00:46). One generator system
+  per receipt across its commitments, shared coordinates identified. What the
+  captures show is shared: **the two endpoint planes are `A`'s planes**
+  (`A[10,11] = Input[0,1]`, `A[68,69] = Output[0,1]`; the last two slots are
+  standalone zero-checks of their equality). No *blinding* source is shared,
+  so the non-data block is block diagonal and joint = sum is a theorem of
+  that structure — stated as such and still computed. **All four captures:
+  joint 4, sum 4, equal, disclosed 0 beyond the public lookup term (2)**
+  [MEASURED by the lane]. The reduction was validated against a dense joint
+  rank in the small model.
+- **Controls that fire** (the honest capture passes each time): a blinding row
+  shared across two commitments leaves every per-role figure unchanged and
+  moves the joint from 4 to 260; a mask row removed; fewer pads than distinct
+  opened columns; a claim straddling onto a non-data row. **A recorded blind
+  spot, kept as a test:** only tight (singleton-group) positions are visible
+  to the shared-row control.
+- **The certifying minor is printed per role**: `g = 2(G+1)` = 72 / 20 / 4 / 4
+  (block) and 62 / 18 / 4 / 4 (attention), rank = g, determinant nonzero in
+  16 of 16, recomputed independently from the emitted indices; distinct opened
+  columns 231–246 against 256 pads.
+- **Tests 69 → 85**, green, one skip as before; the gate runs in 21 s, 7 of 7
+  stages. The report's earlier sentences that presented joint = sum as
+  computed are corrected in place, dated. Still reviewed obligations: the
+  reduction's structural step is not machine-checked at receipt geometry; the
+  blind spot; and all of it is owed again at the rung and at 125M. **Not a
+  privacy acceptance.**
+
 ### 01:19 (2026-09-20) — 125M lane, stage 1 done and pushed (`zk60-private-block-125m` at `11c01b2`); stage 2 running
 
 - **Stage 1 [MEASURED by the lane]: S1, S2, S4, S5 all green.** Filter

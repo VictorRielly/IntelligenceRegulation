@@ -85,6 +85,21 @@ being G-3's invariants, the refusal replay (owed a Rust test), and the
 random-oracle reading of "refusals are independent of the hidden data". The
 joint statement stays COMPUTED-NOT, per G-1.
 
+**G-1 is fixed (01:32, 2026-09-20)** [MEASURED, `zk60-native-jointview` at
+`14b7d20`]: stage 4 now builds one generator system per receipt across its
+commitments with shared coordinates identified, and computes `joint`,
+`sum_of_parts` and their equality. At the toy profiles the shared coordinates
+are the two endpoint planes, which are `A`'s own planes; no blinding source is
+shared, so joint = sum is a theorem of the block structure there, stated as
+such and still computed: **joint 4, sum 4, equal, on all four captures.** A
+blinding row shared across two commitments leaves every per-role figure
+unchanged and moves the joint from 4 to 260, so the control fires; three more
+controls fire; one blind spot (only singleton-group positions are visible to
+that control) is recorded as a test. The certifying minor is printed per role
+and its determinant recomputed independently: nonzero in 16 of 16. Tests
+69 → 85. The earlier figure is therefore now a computed one for these four
+captures; the lesson of G-1 stands.
+
 ## 3. What I reviewed myself, and what was delegated
 
 I read the check's hand-back report and its table of blocking items. G-1 is my
