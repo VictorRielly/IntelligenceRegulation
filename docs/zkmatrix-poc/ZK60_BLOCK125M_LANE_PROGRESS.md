@@ -127,8 +127,8 @@ private-block-kernel/src/shaped_tests.rs
 | **S6 acceptance: witness parity AT THE RUNG** | DONE | `…/s7-run3.log:155` — **76 passed / 0 failed / 2 ignored**; 160 rung cases, **131 accepted by both, 29 refused identically**, 21 planes element for element on every true coordinate |
 | **S7 grouped-query attention (group 3)** | DONE | failing first: `…/s7-failing-test.log:123` (`kr8` differs from the kernel in 14 of 768 elements) and `:103` (the grouping property); after: `…/s7-run1.log:118` — **6 passed / 0 failed** in the parity module |
 | **S8 preparation: both windows reproduced as failures** | DONE | `…/s8-run4.log:158` — **79 passed / 0 failed / 3 ignored**; the norm and softmax windows each refuse an honest rung witness by name at the toy's setting and accept at the rung's; the deliverable is captured failing in `…/s8-ignored-test.log:82` |
-| **S8 the change itself** | NOT STARTED | the argument still carries the toy's coefficients as literals and the `A_*` ids are still literal indices (findings S6-F2, S8-F1) |
 | **JOB K un-share the reference kernel** | DONE | `fd72f48`, `2b0ebc4`, `7b2f1b3`; see the JOB K section below. Frozen crate back to 10/0 (+1 ignored), `private-model-kernel` 19/0, hashline **82 / 0 / 3** (`k4-hashline.log:165`), toy unmoved. TWO PATHS AWAIT DELETION |
+| **S8 the change itself** | **DONE** | `7f8e549` (the ids, the lookups, the premise) and `a21ffd7` (P-5's alias cases, the parity fixture retired). The deliverable test `the_rung_at_its_own_calibration_has_an_honest_witness` is un-ignored and green; hashline **86 / 0 / 2** (`s8-run7.log:165`), toy receipt 2,816,472 B and the digest unmoved |
 
 ## The toy freeze gate this stage added
 
@@ -197,6 +197,13 @@ flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attent
 | 34 | the same shape, `--manifest-path …/private-model-kernel/Cargo.toml`, after the restore | `…/k3-model-kernel.log` | **19 passed, 0 failed** |
 | 35 | the Rust command, filter `private_`, after all of JOB K | `…/k4-hashline.log` | **82 passed, 0 failed, 3 ignored**, 30.44 s, 9 warnings |
 | 36 | filter `…::the_shaped_kernel`, `--nocapture`, to read the cross-parity split off the test's own line | `…/k5-crossparity-counts.log:75` | 905 accepted by both crates, 295 refused identically |
+| 37 | filter `private_block::grow_tests`, first attempt at the S8 ids | `…/s8-compile1.log:109` | 16 passed, **1 failed** — the plane-table refusal no longer fires, exactly as intended; the old test had to become a test of the MAP |
+| 38 | the same, the test rewritten and the deliverable un-ignored | `…/s8-compile2.log:104` | **19 passed, 0 failed, 0 ignored** |
+| 39 | the Rust command, filter `private_`, after S8's ids, lookups and premise | `…/s8-run5.log:170` | **84 passed, 0 failed, 2 ignored**, 29.98 s |
+| 40 | filter `private_block::norm_alias`, after the two P-5 cases | `…/s8-alias1.log:98` | **7 passed, 0 failed** (was 5) |
+| 41 | filter `private_block::parity`, `--nocapture`, the sweep moved to `Shape::rung()` | `…/s8-parity-rung.log:110` | **9 passed, 0 failed**; 160 rung cases, 131 accepted by both, 29 refused identically |
+| 42 | the Rust command, filter `private_`, after all of S8 (two new warnings) | `…/s8-run6.log:178` | 86 passed, 0 failed, 2 ignored, 11 warnings |
+| 43 | the same, the two warnings cleared | `…/s8-run7.log:165` | **86 passed, 0 failed, 2 ignored**, 28.74 s, 9 warnings — the baseline's 9 |
 
 ## Findings
 
@@ -558,6 +565,76 @@ The one test that states the deliverable,
 **`#[ignore]`d with its reason** and its failure captured
 (`s8-ignored-test.log:82`). It is the only ignored test this lane added.
 
+## Stage 3 (2026-09-20, after job K): S8 done
+
+**S8-F2 (what made the ids expressible, and why no toy byte could move).**
+`layout::Ids` is built from a SEGMENT TABLE — (first toy id, toy length, this
+shape's length, domain) for eighteen plane groups — and `Ids::new` refuses
+unless the list it builds equals `Shape::a_plane_doms()` element for element.
+Those two are independent statements of memo §2.4's plane list, written from
+the memo and not from each other, so the map cannot quietly disagree with the
+counted layout. Three groups have a length that is not a literal: each norm's
+`rho`/`sigma` limbs (`limbs_norm`, 4 everywhere), the softmax quotient's
+(`limbs_p`, 2 everywhere, fixed by `F_P`) and the softmax remainder's
+(`limbs_sigma_s`, **2 at the toy, 3 at the rung and at 125M**). At two limbs
+the map is the IDENTITY — asserted, and that is the whole reason the toy
+cannot move — and at three it puts `A_SG*` one up, everything above `Dom::S`
+two up, and **nothing below `Dom::S` anywhere**.
+
+**S8-F3 (the one plane id still read as a literal, with its one-line fix).**
+`Witness::output()` reads `A_X2`. That id sits below the `Dom::S` limb groups
+but ABOVE the two norm limb groups, so it is stable exactly while
+`limbs_norm == 4` — which it is at the toy (window 29), the rung (31) and
+125M (32, `D_max = 908,065`, four limbs exactly, C-9's ceiling). A shape
+needing a fifth norm limb is refused BY NAME at `build_shaped`
+(*"this shape's norm remainder needs a different number of byte limbs"*) and
+tested; the fix, when a shape needs it, is to carry the output plane's id in
+the `Witness` — one field, plus the eight `Witness { planes: … }` sites in
+`tamper.rs`. It was NOT done now because no shape on the roadmap reaches it
+and an untested generality is worse than a named refusal.
+
+**S8-F4 (the top-limb coefficient is one formula, and C-6 falls out of it).**
+The memo states the norm coefficient as the `1 << (32 - wrho)` idiom and the
+softmax one as `scaled(l2, 64)`. Both are the same rule: a window of `w` bits
+held in `l` byte limbs leaves `8l - w` slack bits in the top limb, so the
+lookup that forbids them is `scaled(top, 1 << (8l - w))`. It gives 8 at the
+toy and 2 at the rung for the norm, and 4 / 128 / 64 for the softmax pair at
+the toy / rung / 125M; and at 125M `8l == w` makes the norm coefficient 1, a
+lookup that says nothing, so `lookups_at` DROPS all four — that is C-6,
+derived rather than special-cased, and it moves `Dom::D` from 38 lookups per
+position to 34. The counts are gated against `Shape::lookups_per_position`,
+which counts the same list from §4 without building it, at all three shapes.
+
+**S8-F5 (the rung's third limb is exercised, not merely allowed).** The
+deliverable test does not stop at "a witness exists": it asserts that some
+`sigma_s` on the rung's causal support needs its THIRD byte limb (a value
+above 2^16, which the two-limb form could not have written at all — the
+completeness failure S8 removes), that all three limb planes are byte planes,
+and that `sigma_s + rho_s + 1 = Sum` closes over the integers at every causal
+position inside the 17-bit window.
+
+**S8-F6 (what P-5 got, and what it is still owed).** D16 item 6 asks that the
+norm-range lane's alias tampers reject AT THE NEW PROFILE. `prove_inner` is
+toy-only until S10/S11 (finding S5-F2), so the end-to-end form cannot be
+built yet and is **owed again at S12**. What was built instead is the same
+statement at the level where the relation is decided, in two cases: the
+widening moves `wrho`, a bound on `rho`/`sigma` in `limbs_norm` limbs, while
+the alias is excluded by (R2), a bound on `d` in the three isqrt limbs, and
+the second does not move at any of the three shapes (`D_max` and `2 D_max`
+stay inside 2^24 even at 125M, and `den_max` saturates each shape's window,
+which is what makes `wrho` §3.3's completeness bound and nothing else); and
+on a REAL honest rung witness, three rows, the alias satisfies (R1), (R3),
+(R4) in `F_p` and the only false relation is (R2), in both of the prover's
+two forms. This is recorded as the smaller claim it is.
+
+**S8-F7 (the parity fixture is gone, and the split did not move).** The
+160-case witness-vs-kernel sweep now runs at `Shape::rung()` itself — `F_E`
+12, a 17-bit window, three limbs — instead of the rung geometry at the toy's
+softmax calibration. The verdicts are unchanged (131 accepted by both, 29
+refused identically), which is worth noting: the third limb changes what the
+witness WRITES, not what either implementation DECIDES, exactly as a
+completeness fix should.
+
 **No disagreement between the memo's rules and `layout.rs` was found at the
 toy shape**: every rule the memo states reproduces the Rust's own numbers.
 The differences above are all at shapes that do not exist yet.
@@ -569,64 +646,43 @@ privacy argument, not a privacy result.
 
 ## NEXT
 
-**S1, S2, S4, S5, S6 and S7 are done and green, and S8's two failures are
-reproduced but NOT fixed: 79 passed / 0 failed / 3 ignored on `--lib
-private_` (`s8-run4.log:158`) and 15 passed / 0 failed on the kernel crate
-(`s6-kernel-run2.log:22`). The toy receipt is 2,816,472 B and the pinned
-schedule digest has not moved at any commit of either stage.**
+**JOB K, S8 and their ledger entries are done and green: 86 passed / 0 failed
+/ 2 ignored on `--lib private_` (`s8-run7.log:165`), 5 / 0 on the new
+`private-block-kernel-shaped` crate, 10 / 0 (+1 ignored) on the frozen
+`private-block-kernel` — its `11c01b2` counts — and 19 / 0 on
+`private-model-kernel`. The toy receipt is 2,816,472 B and the pinned
+schedule digest has not moved at any commit of any stage. The two ignored
+tests are the two `capture::native_capture_saved_receipt` gates, which need
+saved receipt paths; this lane has left NO ignored test behind.**
 
-The next agent finishes **S8, the two integer windows**. Both failures are
-already written as tests it can run in a fifth of a second (finding
-**S8-F1** has the table and the exact inventory of what is left), and the
-deliverable is stated as one `#[ignore]`d test,
-`grow_tests::the_rung_at_its_own_calibration_has_an_honest_witness`, whose
-failure today is captured at `s8-ignored-test.log:82`. The FIRST thing to
-read is **S6-F2**: the `A_*` plane ids are literal, the plane list moves with
-`limbs_sigma_s`, and `witness::check_plane_table` refuses any shape whose
-list differs from the pinned one. S8 has to move that boundary, in this
-order:
+**FIRST, for the orchestrator:** delete
+`private-block-kernel/src/shaped.rs` and
+`private-block-kernel/src/shaped_tests.rs`. They are unreferenced and do not
+enter any build, but until they are gone
+`git diff --stat 11c01b2 -- private-block-kernel private-model-kernel
+zkvm-block` is not empty and job K's acceptance is not literally met.
 
-1. **The softmax window** (`WRHO_S 14 -> 18`, memo §3.8 row 10): a third
-   `sigma_s` limb is **+2 planes on `Dom::S`**, which shifts every `A_*` id
-   above `A_SG1` (`A_G8` .. `A_MACT`) and every range in `layout::a_dom`.
-   Make the ids shape-derived (or add the two planes and re-pin), then
-   `check_plane_table` can accept `Shape::rung()` itself and the rung parity
-   fixture `parity::rung_parity_shape()` can be retired in favour of it. The
-   failing test to write first is the honest rung witness at `F_E = 12`,
-   which refuses today with *"softmax quotient/remainder"* because
-   `Sum <= 24 * 2^12 = 98,304 > 2^14`. Also needs `scaled(l2, 64)`.
-2. **The norm window** (`NORM_WRHO 29 -> 32`, row 9) with the norm-range
-   lane's direct byte-limb pins in `private_block/norm_alias.rs` and ruling
-   P-5 (`wrho` 29, THREE limbs for `D`). The witness and the kernel ALREADY
-   take `norm_wrho` from the shape (S6), and the rung's honest 31 is asserted
-   by `the_memo_section_three_bounds_hold_at_the_rung`; what is left is the
-   ARGUMENT side — the four `1 << (32 - wrho)` coefficient rewrites
-   (`layout.rs:344`, `:346`, `:348`, `:352`-`:363`), dropping the four
-   redundant `scaled` lookups when the top limb is full (C-6,
-   `Shape::norm_top_is_full_byte`), and the module's integer premise text.
-   Note row 9's margin is **0.21 bits** at 125M.
-3. The norm-range lane `zk60-private-norm-range` is a PREREQUISITE of the
-   norm half (P-5) and its alias tamper tests are the non-negotiable
-   acceptance (D16 item 6).
+The next agent does **S9, the pad rule (ruling P-1, memo §3.7a)** — see the
+S9 section of this ledger for where it stands — and then S10 (the column
+count) and S11 (the hidden endpoints), after which S12's end-to-end rung
+gate becomes constructible for the first time (finding **S6-F5** says
+exactly what is and is not exercisable before then).
 
-Then S9 (the pad rule — and see **S6-F4**: the pad is zero today and nothing
-constrains it), S10 (the column count), S11 (the endpoints), after which
-S12's end-to-end rung gate becomes constructible for the first time (**S6-F5**
-says exactly what is and is not exercisable before then).
+Still waiting on the security owner, none of them blocking S9:
 
-**One ruling is waiting on the security owner from this stage: S6-F3** — the
-kernel's fixed `run_block` now carries a 117 KB scratch buffer (plus 71 KB
-for a trace) in its stack frame, where the compiler used to overlap the
-fixed arrays. It is nothing natively and not nothing in a zkVM guest; the
-mitigation is already in the API (`shaped::run_shaped` with caller buffers,
-sizes exported as `TOY_SCRATCH_I64` / `TOY_TRACE_I64`) and no caller in this
-repository is affected, but `private-model-kernel` and `zkvm-block/model`
-name the crate and their owners should hear it.
+* **S8-F3** — `Witness::output()` reads `A_X2` as a literal; a fifth norm
+  limb is refused by name rather than supported. Fix is one field when a
+  shape needs it.
+* **S8-F6 / P-5** — the alias tampers are discharged at the relation level
+  at the rung; the END-TO-END form at a new profile is owed again at S12.
+* **S5-F1 / B-F3** — the 176-byte rung-receipt difference two independent
+  implementations report against §9a's table (`SC_KVZC`'s support
+  indicator). S9 is the step that decides it: if `supp_Kv` gates
+  `SC_KVZC`'s inhomogeneous RoPE constraint, the rung receipt is
+  4,173,208 B.
+* **S1-F1** — a one-line correction to §1.3 T-1 and the §9 S1 row
+  (`argument.rs:898` is `Dom::Tab.len()`, not the table size).
+* **S3's decision 2** — the narrower input class; it changes the 125M
+  `Dom::D` lookup list and so the `H` row total (C-6).
+* **K-F2** — finding S6-F3 no longer needs a ruling for the zkVM image.
 
-Four items from stage 1 are still waiting and none of them blocks S8:
-S1-F1 (a one-line correction to §1.3 T-1 and the §9 S1 row: `argument.rs:898`
-is `Dom::Tab.len()`, not the table size), S5-F1 / B-F3 (the 176-byte
-rung-receipt difference two independent implementations report against §9a's
-table), S3's decision 2 (it changes the 125M `Dom::D` lookup list and so the
-`H` row total, C-6 — `Shape::lookups_per_position` is where it lands), and
-**S6-F3** above.
