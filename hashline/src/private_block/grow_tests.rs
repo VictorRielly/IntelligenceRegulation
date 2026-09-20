@@ -341,7 +341,19 @@ const MODEL_M125: Expected = Expected {
     u8_lookups: 98_598_912,
     exp_pairs: 4_194_304,
     act_pairs: 1_048_576,
-    receipt_total: 40_750_024,
+    // **S11b: +32,768 B on top of the model's 40,750,024 (finding S11b-F1).**
+    // The Python model priced 125M's endpoints at the memo's 29 commitment
+    // rows, which come from the TRUE `512 x 768 = 393,216`-word plane. What
+    // this module commits is the PADDED `Dom::D` cube, `t_pad * d_pad = 512 *
+    // 1024 = 2^19` words — the slice `SC_IO_IN` / `SC_IO_OUT` already claim —
+    // so at `endpoint_log_n = 14` the endpoint has 32 data rows and 37
+    // commitment rows, and the two openings cost
+    // `2 * [(1+1)(16384+256)(16) + 256(8 + 37*8 + 32 + 16*32)] = 1,499,136 B`
+    // against the model's 1,466,368 B. The PYTHON MODEL IS UNCHANGED; the
+    // difference and its cause are in the lane ledger. Padding is also what
+    // removes the need for the memo's C6 `mu`-batched multi-block claim: the
+    // padded plane IS a power of two.
+    receipt_total: 40_782_792,
 };
 
 fn check_against_model(sh: &Shape, want: &Expected) {
@@ -473,11 +485,14 @@ fn the_125m_receipt_is_reproduced_part_by_part() {
     let r: ReceiptBytes = Shape::m125().receipt_bytes();
     assert_eq!(r.a_opening, 21_626_880, "A opening");
     assert_eq!(r.h_opening, 17_385_472, "H opening");
-    assert_eq!(r.endpoint_openings, 1_466_368, "two endpoint openings");
+    // S11b: 1,499,136 and not the memo's 1,466,368 — the endpoint is the
+    // PADDED `2^19`-word `Dom::D` cube (37 commitment rows), not the true
+    // 393,216-word plane (29). See `MODEL_M125`.
+    assert_eq!(r.endpoint_openings, 1_499_136, "two endpoint openings");
     assert_eq!(r.mask_opening, 243_712, "M opening");
     assert_eq!(r.slots, 27_456, "23 slots");
     assert_eq!(r.header_and_three_roots, 136, "header + three roots");
-    assert_eq!(r.total, 40_750_024, "one 125M block");
+    assert_eq!(r.total, 40_782_792, "one 125M block");
     // and the toy's, which the wire format actually produces
     assert_eq!(Shape::toy().receipt_bytes().total, 2_816_472);
 }
@@ -1152,7 +1167,7 @@ fn the_pcs_parameters_come_from_the_shape_and_the_pad_count_tracks_the_opened_co
 /// to reach and the 125M frame exceeds it many times over.
 #[test]
 fn the_codec_length_is_the_models_at_every_shape() {
-    for (sh, want) in [(Shape::toy(), 2_816_472usize), (Shape::rung(), 4_218_264), (Shape::m125(), Shape::m125().receipt_bytes().total)] {
+    for (sh, want) in [(Shape::toy(), 2_816_472usize), (Shape::rung(), 4_218_264), (Shape::rung_g(), 4_234_648), (Shape::m125(), Shape::m125().receipt_bytes().total)] {
         let lay = Layout::for_shape(&sh).expect("the shape is well formed");
         assert_eq!(sh.receipt_bytes().total, want, "{}: the model's receipt total", sh.name);
         assert_eq!(super::wire::encoded_len(&lay), want, "{}: the codec's frame length differs from the model", sh.name);
@@ -1177,9 +1192,14 @@ fn the_codec_length_is_the_models_at_every_shape() {
 /// statement about this lane, not a soundness one.
 #[test]
 fn a_shape_wider_than_the_ntt_tables_is_refused_by_name() {
-    for sh in [Shape::toy(), Shape::rung()] {
+    // S11b: the rung-G profile's endpoint encodes over 2^(10 + 2) = 2^12,
+    // exactly the module's table — which is one reason its inverse rate is
+    // 4 and not the frozen seam's 8, which would need 2^13
+    for sh in [Shape::toy(), Shape::rung(), Shape::rung_g()] {
         super::protocol::fits_the_ntt_tables(&sh).unwrap_or_else(|e| panic!("{}: {e}", sh.name));
     }
+    let g = Shape::rung_g();
+    assert_eq!(g.endpoint_log_n + g.endpoint_inv_rate.trailing_zeros() as usize, 12, "the rung-G endpoint's encoding domain");
     let err = super::protocol::fits_the_ntt_tables(&Shape::m125()).expect_err("125M must be refused");
     assert!(err.contains("exceeds the module's NTT tables"), "{err}");
 }
@@ -1202,7 +1222,7 @@ fn a_shape_wider_than_the_ntt_tables_is_refused_by_name() {
 /// six non-test files of the block path, which is a superset of the labels.
 #[test]
 fn no_commitment_column_and_no_domain_label_can_be_confused_with_a_hash_input() {
-    for sh in [Shape::toy(), Shape::rung(), Shape::m125()] {
+    for sh in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::m125()] {
         let lay = Layout::for_shape(&sh).expect("the shape is well formed");
         for (what, r) in [("A", lay.a_rows), ("H", lay.h_rows), ("M", M_ROWS), ("endpoint", sh.endpoint_rows)] {
             assert!(r != 5 && r != 8, "{}: the {what} commitment has {r} rows (C-H4)", sh.name);
@@ -1214,8 +1234,11 @@ fn no_commitment_column_and_no_domain_label_can_be_confused_with_a_hash_input() 
     assert!(super::layout::no_commitment_has_a_node_shaped_column(&[("probe", 5)]).is_err(), "5 rows is the 40-byte refill format");
 
     // C-H4': every byte-string literal of the block path's own source
-    let sources: [(&str, &str); 7] = [
+    let sources: [(&str, &str); 8] = [
         ("argument.rs", include_str!("argument.rs")),
+        // S11b: the generalised endpoint's own domain label is on the block
+        // path too, so it is scanned with the rest
+        ("endpoint_g.rs", include_str!("endpoint_g.rs")),
         ("layout.rs", include_str!("layout.rs")),
         ("protocol.rs", include_str!("protocol.rs")),
         ("wire.rs", include_str!("wire.rs")),
@@ -1324,4 +1347,68 @@ fn the_pad_count_is_at_least_the_number_of_opened_columns() {
         let vec_words = (1usize << sh.log_cols) + q_pad;
         assert_eq!(r.a_opening, (sh.a_groups() + 1) * vec_words * 16 + sh.opened_cols * (8 + lay.a_rows * 8 + 32 + ((1usize << sh.log_cols) * sh.inv_rate).trailing_zeros() as usize * 32), "{}: the A opening's clear vectors are n + Q words", sh.name);
     }
+}
+
+// --------------------------------------------- S11b: the generalised endpoint
+
+/// **S11b.** The RUNG-G profile is the rung's geometry with a different
+/// endpoint, and nothing else: every counted number of the layout is the
+/// rung's, and the receipt differs by the two endpoint openings alone.
+#[test]
+fn the_rung_g_profile_is_the_rung_with_a_different_endpoint() {
+    let (r, g) = (Shape::rung(), Shape::rung_g());
+    assert_ne!(r.profile, g.profile, "a new endpoint is a NEW profile, never an edit of one (D17)");
+    // the block geometry is identical
+    assert_eq!((r.tokens, r.width, r.hidden, r.q_heads, r.head_dim, r.kv_heads), (g.tokens, g.width, g.hidden, g.q_heads, g.head_dim, g.kv_heads));
+    assert_eq!((r.log_cols, r.inv_rate, r.opened_cols, r.f_e), (g.log_cols, g.inv_rate, g.opened_cols, g.f_e));
+    // the endpoint is not
+    assert_eq!((r.endpoint_rows, r.endpoint_log_n, r.endpoint_inv_rate, r.endpoint_general), (21, 8, 8, false), "the frozen-seam rung's endpoint moved");
+    assert_eq!((g.endpoint_rows, g.endpoint_log_n, g.endpoint_inv_rate, g.endpoint_general), (9, 10, 4, true), "the rung-G endpoint");
+    // MORE THAN ONE data row per endpoint, as 125M will have
+    assert_eq!(g.endpoint_rows - 5, 4, "the rung-G endpoint must exercise several data rows");
+    assert_eq!(Shape::m125().endpoint_rows - 5, 32, "125M's endpoint data rows");
+    // every counted total but the receipt is the rung's
+    let (tr, tg) = (r.totals(), g.totals());
+    assert_eq!((tr.a_rows, tr.h_rows, tr.a_sites, tr.h_sites, tr.a_groups, tr.h_groups), (tg.a_rows, tg.h_rows, tg.a_sites, tg.h_sites, tg.a_groups, tg.h_groups));
+    assert_eq!((tr.main_rounds, tr.extension_rounds, tr.u8_lookups, tr.exp_pairs, tr.act_pairs), (tg.main_rounds, tg.extension_rounds, tg.u8_lookups, tg.exp_pairs, tg.act_pairs));
+    let (br, bg) = (tr.receipt_bytes, tg.receipt_bytes);
+    assert_eq!((br.slots, br.mask_opening, br.a_opening, br.h_opening), (bg.slots, bg.mask_opening, bg.a_opening, bg.h_opening), "only the endpoint openings may differ");
+    assert_eq!((br.endpoint_openings, bg.endpoint_openings), (319_488, 335_872), "the two endpoint opening costs");
+    assert_eq!(bg.total - br.total, 16_384, "the rung-G frame's excess over the rung's");
+    // and the shaped endpoint statement derives the declared geometry
+    let spec = IoSpec::new_shaped(&g, [5u8; 32], 0, 0).expect("the rung-G endpoint spec");
+    spec.validate().expect("the declared endpoint rows are what the parameters give");
+}
+
+/// **S11b, STEP 5: the 125M shape CONSTRUCTS.** Nothing is proved here and
+/// nothing may be: this asserts that the shaped layout, the wire format and
+/// the endpoint statement all build at 125M and agree on their counted
+/// numbers, and that what still refuses at 125M refuses BY NAME.
+#[test]
+fn the_125m_shape_constructs_and_what_still_refuses_says_so_by_name() {
+    let sh = Shape::m125();
+    assert!(sh.endpoint_general, "125M cannot use the frozen seam");
+    let lay = Layout::for_shape(&sh).expect("the 125M layout builds");
+    // the counted rows
+    assert_eq!((lay.a_rows, lay.h_rows), (5_681, 7_120), "125M's committed rows");
+    assert_eq!((sh.endpoint_rows, sh.endpoint_log_n, sh.endpoint_inv_rate), (37, 14, 4), "125M's endpoint geometry");
+    assert_eq!(super::protocol::endpoint_geometry(&sh).expect("the geometry"), (37, 32, 34), "125M's (rows, data, prox)");
+    // the counted receipt, codec and model agreeing
+    let r = sh.receipt_bytes();
+    assert_eq!(r.endpoint_openings, 1_499_136, "125M's two endpoint openings");
+    assert_eq!(r.total, 40_782_792, "125M's counted receipt");
+    assert_eq!(super::wire::encoded_len(&lay), r.total, "the codec's frame length differs from the model at 125M");
+    // the endpoint STATEMENT builds at 125M, with no witness and no proof
+    let spec = IoSpec::new_shaped(&sh, [11u8; 32], 0, 0).expect("the 125M endpoint spec builds");
+    spec.validate().expect("125M's declared endpoint rows are what its parameters give");
+    // WHAT STILL REFUSES AT 125M, by name. (1) the module's single NTT
+    // table: 125M encodes `A`/`H` and its endpoints over 2^16 and the module
+    // builds 2^12. The table is built in THIS LANE's files
+    // (`protocol.rs`'s `NTT_LOG` and `private_block.rs`'s `prepare_endpoints`),
+    // not in a forbidden one, but raising it is a measurement question and
+    // not this step's.
+    let e = super::protocol::fits_the_ntt_tables(&sh).expect_err("125M must be refused by name");
+    assert!(e.contains("exceeds the module's NTT tables") && e.contains("2^16"), "{e}");
+    // (2) the frozen seam, which cannot carry the plane at all
+    assert!(crate::private_seam::SeamSpec::new([11u8; 32], sh.t_pad, sh.d_pad, 0, 41, 42).is_err(), "the frozen seam must refuse 125M's endpoint plane");
 }

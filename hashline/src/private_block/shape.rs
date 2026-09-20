@@ -105,6 +105,11 @@ pub(crate) struct Shape {
     pub endpoint_rows: usize,
     pub endpoint_log_n: usize,
     pub endpoint_inv_rate: usize,
+    /// **S11b.** Does this shape's endpoint ride the GENERALISED endpoint of
+    /// `endpoint_g.rs` instead of the frozen `private_seam.rs`? Derived in
+    /// [`Shape::new`] from the declared endpoint parameters; never set by
+    /// hand.
+    pub endpoint_general: bool,
     /// the two integer windows, overridable for a development-only calibration
     pub norm_wrho: u32,
     pub wrho_s: u32,
@@ -174,6 +179,7 @@ impl Shape {
             return Err("private block shape: the row geometry is out of range".into());
         }
         let d_max = isqrt_i128(NORM_CEPS + width as i128 * INT16_MAX * INT16_MAX);
+        let (e_log_n, e_rate) = (endpoint_log_n.unwrap_or(log_cols), endpoint_inv_rate.unwrap_or(inv_rate));
         Ok(Shape {
             name,
             profile,
@@ -188,8 +194,21 @@ impl Shape {
             opened_cols: COL_CHECKS,
             f_e,
             endpoint_rows,
-            endpoint_log_n: endpoint_log_n.unwrap_or(log_cols),
-            endpoint_inv_rate: endpoint_inv_rate.unwrap_or(inv_rate),
+            endpoint_log_n: e_log_n,
+            endpoint_inv_rate: e_rate,
+            // **S11b.** The frozen `private_seam.rs` carries this shape's
+            // endpoint only when all four of its module constants are what
+            // the shape declares: a plane of at most `2^MAX_LOG_LEN = 4,096`
+            // words (`private_seam.rs:69`), `LOG_COLS = 8` (`:28`) and
+            // `INV_RATE = 8` (`:30`), the last two hashed into every
+            // `SeamSpec::digest()` and so not editable. Otherwise the
+            // endpoint is the generalised one of `endpoint_g.rs`. This is a
+            // DERIVATION and not a flag so that a shape cannot declare
+            // parameters the machinery it selects does not honour: the toy
+            // and the frozen-seam rung satisfy all three conditions and do
+            // not move, the rung-G profile and 125M fail them by their own
+            // declared parameters.
+            endpoint_general: !(t_pad * d_pad <= 4096 && e_log_n == 8 && e_rate == 8),
             // §3.3: the norm quotient's window is `tn + 1 + bits(D_max)`
             norm_wrho: norm_wrho.unwrap_or(NORM_TN + 1 + bit_length(d_max)),
             // §3.4: `Sum <= T * 2^F_E` and `sigma_s < Sum`
@@ -242,9 +261,59 @@ impl Shape {
         .expect("the rung shape is well formed")
     }
 
+    /// **THE RUNG-G PROFILE (S11b).** The development rung's geometry exactly
+    /// — same tokens, width, hidden, heads, row width, rate and calibration,
+    /// so every one of its counted layout numbers but the endpoint's is the
+    /// rung's — carried on the GENERALISED endpoint instead of the frozen
+    /// seam. It is a NEW profile beside the rung (D17), so it has its own
+    /// transcript and its own digests, and the frozen-seam rung keeps
+    /// working unchanged beside it.
+    ///
+    /// Its endpoint takes the DEFAULTS, `endpoint_log_n = log_cols = 10` and
+    /// `endpoint_inv_rate = inv_rate = 4`, which is exactly the
+    /// configuration 125M uses. The padded `(32, 128)` plane is 4,096 words,
+    /// so `4096 / 2^10 = 4` data rows — MORE THAN ONE, as 125M's 32 will be,
+    /// which the frozen seam's 16 also were but at a row width the 125M
+    /// shape cannot use — and `4 + MASK_ROWS = 9` commitment rows.
+    /// Development grade, never a deliverable.
+    pub(crate) fn rung_g() -> Shape {
+        Shape::new(
+            "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)",
+            "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
+            24,
+            96,
+            192,
+            6,
+            16,
+            2,
+            10,
+            4,
+            12,
+            9,
+            None,
+            None,
+            None,
+            None,
+        )
+        .expect("the rung-G shape is well formed")
+    }
+
     /// THE 125M-CLASS BLOCK (memo §2). A counted layout only, at this step.
+    ///
+    /// **S11b: 37 endpoint rows, not the 29 of memo §6.** The memo costed the
+    /// endpoint at the TRUE `512 x 768 = 393,216`-word plane, which is three
+    /// blocks of `2^17` and not a power of two, and therefore needs C6's
+    /// `mu`-batched multi-block claim. What this module commits is the
+    /// PADDED `Dom::D` cube — `t_pad * d_pad = 512 * 1024 = 2^19` words,
+    /// which IS a power of two — because that is the slice `SC_IO_IN` /
+    /// `SC_IO_OUT` already claim (finding S11-F3, and the same route S11a
+    /// took at the rung). At `endpoint_log_n = 14` that is `2^19 / 2^14 = 32`
+    /// data rows and `32 + MASK_ROWS = 37` commitment rows, against the
+    /// memo's 24 and 29, and two endpoint openings of 749,568 B against its
+    /// 733,184 B. **Padding is what removes the need for C6 here**: there is
+    /// no non-power-of-two plane left to batch over (finding S11b-F1).
     pub(crate) fn m125() -> Shape {
-        Shape::new("125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)", "hashline-zk-mr1/private-block-m125/1", 512, 768, 2048, 12, 64, 4, 14, 4, 9, 29, None, None, None, None)
+        Shape::new("125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)", "hashline-zk-mr1/private-block-m125/1", 512, 768, 2048, 12, 64, 4, 14, 4, 9, 37, None, None, None, None)
             .expect("the 125M shape is well formed")
     }
 

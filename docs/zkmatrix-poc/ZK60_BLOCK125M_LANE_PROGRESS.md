@@ -1811,3 +1811,227 @@ profile satisfy all four conditions and do not move by one byte; the new
 rung-G profile and 125M fail them by their declared parameters. The rule is
 a derivation rather than a flag so that a shape cannot silently declare
 parameters the machinery it selects does not honour.
+
+### What was built (steps 2-5 of the brief)
+
+**A new module, `hashline/src/private_block/endpoint_g.rs`**, library code
+beside `layout` and `witness`. It holds `EndpointSpecG` (the statement, its
+refusals and its digest), `PreparedPlaneG` (the owner: no `Clone`, no data
+getter, no repeated opening, consumed by `into_endpoint`), a generalised
+`check_ntt` and `prepare`. **`private_seam.rs` is not edited and not
+reachable beyond its public API.**
+
+**The wiring, all inside the lane's own files.**
+
+* `shape.rs`: a derived field `Shape::endpoint_general`, `Shape::rung_g()`,
+  and 125M's endpoint corrected from 29 rows to 37.
+* `private_block.rs`: `IoSpec` carries the shape's endpoint parameters and
+  which construction they select; `IoSpec::validate` replaces the bare
+  `seams()` call and additionally refuses a shape whose declared
+  `endpoint_rows` is not what its own parameters give; `Endpoints` holds an
+  `EndpointOwner` enum with one variant per construction; `prepare_endpoints`
+  builds the frozen `NttTables::new(12)` on the frozen path (so no toy byte
+  moves) and the table its own encoding domain needs on the generalised one.
+* `protocol.rs`: `check_endpoints` asks `IoSpec` for the two committed
+  planes instead of unwrapping the frozen owner; the verifier validates the
+  spec instead of calling `seams()`. **The verifier needed NO other change**
+  — it already built its endpoint `PcsParams` from `sh.endpoint_log_n`,
+  `sh.endpoint_inv_rate` and `sh.opened_cols` (S11a), and
+  `check_endpoint_opening` and the wire's `Dim::endpoint` were already
+  shape-driven.
+
+**Visibility widened this stage:** `protocol::endpoint_geometry` from private
+to `pub(super)`, so the 125M construction test can assert `(rows, data,
+prox)`. Nothing else.
+
+### The rung-G profile, measured
+
+`Shape::rung_g()` is the rung's geometry — same tokens, width, hidden,
+heads, `log_cols`, rate and calibration — with the generalised endpoint and
+its own profile string `hashline-zk-mr1/private-block-rung-g-t24-dev/1`.
+Endpoint: **9 commitment rows, 4 data rows**, row width `2^10`, inverse
+rate 4, 256 opened columns. The frozen-seam rung (21 rows, `2^8`, rate 8)
+keeps working beside it, unchanged.
+
+| | rung (frozen seam) | rung-G (generalised) |
+|---|---:|---:|
+| endpoint rows / data rows | 21 / 16 | 9 / 4 |
+| endpoint row width / inverse rate | 2^8 / 8 | 2^10 / 4 |
+| two endpoint openings | 319,488 B | 335,872 B |
+| receipt | 4,218,264 B | **4,234,648 B** |
+| per-endpoint-opening soundness (memo §2.2's count) | 2^-67.3 | **2^-96.15** |
+
+Everything the rung battery asks was re-run on the new profile and passed on
+the FIRST run: the honest proof verifies in typed form and **from the
+bytes**, the frame is the counted length and a one-byte-short frame is
+refused; the ALL-ZERO hidden input proves and verifies at the same length;
+PZ-1 and PZ-2 are rejected by the verifier; **all 27 tamper families** are
+rejected; ruling P-5's half-`p` isqrt alias is rejected end to end on two
+`norm_a` rows.
+
+**Two endpoint tamper families, new this stage**
+(`an_endpoint_that_seals_a_different_plane_is_rejected`, run on BOTH rung
+profiles). The witness is honest and only the plane the endpoint owner
+SEALED moves by one word — at a true support position, and at a PADDED
+position — for the input endpoint and for the output endpoint, eight cases.
+All eight are rejected, and the honest endpoints of the same witness still
+verify in the same test, so the rejection is the tamper and not the
+machinery. The pad case is the one the pad rule makes possible: `A_X`'s and
+`A_X2`'s padded columns are forced to zero by ruling P-1's pad-zero term and
+the equality slot claims the WHOLE padded `Dom::D` cube, so a nonzero word
+in the endpoint's pad has nothing on the witness side to match.
+
+### The 125M shape: it CONSTRUCTS, and what still refuses
+
+`the_125m_shape_constructs_and_what_still_refuses_says_so_by_name`. Nothing
+is proved and nothing may be. What now builds at 125M: the shaped layout
+(`A` 5,681 rows, `H` 7,120 rows), the endpoint geometry `(37, 32, 34)`, the
+endpoint STATEMENT (`EndpointSpecG` at the padded `512 x 1024 = 2^19`-word
+plane, row width `2^14`, rate 4 — 32 data rows, 37 commitment rows), the
+`IoSpec` with its rows check, the counted receipt **40,782,792 B** and
+`wire::encoded_len` agreeing with it digit for digit.
+
+**What still refuses at 125M, by name:**
+
+1. `protocol::fits_the_ntt_tables` — 125M encodes `A`, `H` AND its endpoints
+   over `2^16` and the module builds `2^12` (`protocol::NTT_LOG`). **This is
+   NOT a forbidden file**: the table is built in `protocol.rs`
+   (`NttTables::new(NTT_LOG)`, twice) and in `private_block.rs`
+   (`prepare_endpoints`), both this lane's. Raising `NTT_LOG` to 16 is a
+   one-constant change — but see finding S11b-F3: it would break the toy.
+2. The frozen seam, by `MAX_LOG_LEN`, which is the whole reason this module
+   exists.
+3. Everything else the earlier stages recorded: the memo's §7 model puts one
+   125M block at **11.81 GB peak resident (11.00 GiB)**, or 10.31 GB
+   (9.60 GiB) after S2's two drops, on a 15.4 GiB box — ruling P-6's
+   detached, memory-capped, quiesced run. The padded endpoint adds **+10.5 MB**
+   to that model (`37 x 16,384 x 8 x 5 = 24.2 MB` per endpoint against the
+   memo's 19.0 MB at 29 rows), which changes nothing about the decision.
+
+### Findings
+
+**S11b-F1 — PADDING REMOVES THE NEED FOR THE MEMO'S C6.** §6 requires C6's
+`mu`-batched multi-block seam at 125M because the TRUE endpoint plane
+`512 x 768 = 393,216` is three blocks of `2^17` and not a power of two. But
+this module does not commit the true plane: the slice `SC_IO_IN` /
+`SC_IO_OUT` claim is the PADDED `Dom::D` cube, `t_pad * d_pad = 512 * 1024 =
+2^19`, which IS a power of two. A single-slice endpoint therefore carries
+125M, exactly as it carries the rung (S11-F3). Consequences: C4/C5 are owed
+(they are this module), **C6 is NOT owed by this lane**, and 125M's endpoint
+is 37 commitment rows and 1,499,136 B of receipt against the memo's 29 and
+1,466,368 B — the whole of the +32,768 B by which the Rust now exceeds the
+Python model at 125M. The Python model is NOT edited, as the ruling directs.
+*For the security owner: this is a simplification of an accepted design, so
+it is recorded rather than acted on further. The cost of the padded route is
+the 32,768 B; the benefit is that the batched claim, its four binding
+conditions and its extra per-endpoint soundness term are all avoided.*
+
+**S11b-F2 — the C-H4 refusal is unreachable for this construction, and is
+kept anyway.** The padded plane and the row width are both powers of two, so
+the data-row count is a power of two and `data + MASK_ROWS` is one of 6, 7,
+9, 13, 21, 37, ... — never the forbidden 5 (0 data rows) or 8 (3 data rows).
+`EndpointSpecG::new` calls the refusal regardless, as a guard against a
+future change to `MASK_ROWS`, and
+`a_node_shaped_endpoint_column_is_unreachable_and_still_refused` proves the
+unreachability over every plane and row width up to `2^24` and exercises the
+refusal directly so that it cannot rot.
+
+**S11b-F3 — RAISING `NTT_LOG` WOULD BREAK THE TOY, and the fix is already in
+place.** The frozen seam's `check_ntt` (`private_seam.rs:167-174`) demands
+`ntt.max_log == 12` EXACTLY, with 13 roots and 2,048-entry twiddle tables.
+So a future step that raises `protocol::NTT_LOG` to 16 for 125M must NOT
+hand that table to `private_seam::prepare`. This lane's
+`prepare_endpoints` already builds its table per construction — `new(12)`
+on the frozen path, `new(enc_log)` on the generalised one — so the toy and
+the frozen rung keep their exact table whatever `NTT_LOG` becomes. The
+generalised `check_ntt` accepts any canonical table that COVERS the needed
+domain, and a test asserts both halves of this: the frozen seam refuses a
+`2^16` table and the generalised endpoint accepts it.
+
+**S11b-F4, for the security owner — the endpoint's PCS parameters are not in
+the transcript's parameter line.** `protocol::parameter_line` carries
+`log_cols`, `inv_rate` and `Q` of the `A`/`H` commitments but not the
+endpoint's three. They are bound in two other ways — the profile string is
+the transcript's domain and one profile is one shape, and the verifier reads
+them from its OWN shape and would reject any commitment of another geometry
+at the PCS — so nothing is unbound today. The line is nonetheless the
+natural place for them, and the toy's line is frozen, so this is a question
+about the NEXT profile string rather than a defect. *Not acted on; recorded
+for ruling.*
+
+**S11b-F5 — the generalised endpoint adds NO claim, so `audit_claims` is
+untouched.** The brief asks that every claim the generalised endpoint adds go
+through `audit_claims`. It adds none: the endpoint raises exactly one claim
+with three parts, as it always did, and only the row NUMBER of its reserved
+pair moves (`argument::B::endpoint` takes it from `sh.endpoint_rows - 5`,
+S11a). The endpoint's own discipline is `protocol::check_endpoint_opening`,
+which is `audit_claims`' analogue for a commitment that does NOT end in its
+proximity pair (`prox + 2 = rows - 1`, which `audit_claims` refuses by its
+first check) — it verifies the three part row-ranges, the nonzero
+coefficients and the PCS challenge refusals, and it was already shape-driven.
+Neither check was relaxed.
+
+### Runs
+
+| log | command | result |
+|---|---|---|
+| `results/zk60_block125m_lane/s8b-baseline.log` | the filter, before any change | **116 passed / 0 failed / 2 ignored**, 48.13 s |
+| `s11b-eg1.log` | `--lib private_block::endpoint_g` | compile errors: two `expect_err`s need `Debug`, which neither `CommittedZk` nor `PreparedPlaneG` has (by design — no data getter). Fixed by matching the refusals |
+| `s11b-eg2.log` | the same | 7 passed / 1 failed — the C-H4 case asked for a 3-data-row plane, which cannot exist (finding S11b-F2) |
+| `s11b-run1.log` | the filter | 132 passed / 2 failed: the C-H4' source scan found the frozen seam's 28-byte label QUOTED IN A COMMENT of the new module (the scan reads source text, so a citation is indistinguishable from a label — the test was right), and `the_125m_receipt_is_reproduced_part_by_part` still carried the memo's endpoint figure |
+| `s11b-run2.log` | the filter, `--nocapture` | **134 passed / 0 failed / 2 ignored**, 72.70 s |
+
+Diagnostics from `s11b-run2.log` (shared box, NOT a measurement): rung-G
+**prove 0.41 s, verify from bytes 0.10 s, frame 4,234,648 B, peak RSS
+95 MiB**; the frozen-seam rung beside it, prove 0.51 s, verify 0.09 s, frame
+4,218,264 B. All eight endpoint tampers are rejected **by the verifier at
+slot 21 (`IO-in endpoint equality`) and slot 22 (`IO-out endpoint
+equality`)** — the right relation in every case, on both profiles.
+
+### The toy freeze gate, after this stage
+
+Unmoved: receipt **2,816,472 B**, the literal schedule digest, the frozen
+parameter line, `MAX_WIRE_BYTES` and `encoded_len()`, all asserted by the
+tests that were green before and are green now. The toy's endpoint still
+goes through `private_seam::prepare` with `NttTables::new(12)`, byte for
+byte.
+
+**Shared-file changes this stage: NONE.** Every file touched is
+`hashline/src/private_block.rs` or under `hashline/src/private_block/`:
+`endpoint_g.rs` (new), `shape.rs`, `protocol.rs`, `grow_tests.rs`,
+`rung_tests.rs`. The empty-diff check
+`git --no-pager -C /home/victor/wt-zk60-block125m diff --stat 11c01b2 --
+private-block-kernel private-model-kernel zkvm-block` prints nothing.
+
+### NEXT: exactly what the next agent should do, in order
+
+1. **The rung CAPTURE for the joint-view gate is still the blocker on any
+   privacy statement** (finding C-F5, unchanged from stage 7). The tools need
+   a schema-3 capture and `native_capture.rs` is a FORBIDDEN file that
+   hard-codes `pcs_params()` with no shape and `log_cols: 8`. The
+   orchestrator must ask the integrator for a shape-parameterised capture
+   writer. Until then nothing at either rung profile has been through the
+   rank / CFS / disclosure tools and **no privacy statement may be made
+   about either**. The generalised endpoint makes this MORE urgent, not
+   less: it is a new commitment geometry (9 rows, row width 2^10) that no
+   privacy tool has ever seen.
+2. **Ruling wanted on S11b-F1** — the padded endpoint removes the need for
+   the memo's C6 batched seam at 125M, at a cost of 32,768 B of receipt.
+   Recorded, not acted on.
+3. **The 125M run itself is now one constant and one measurement away**, and
+   neither should be done casually: raise `protocol::NTT_LOG` from 12 to 16
+   (a lane file — but read finding S11b-F3 FIRST: the frozen seam refuses any
+   table but `new(12)`, and `prepare_endpoints` is already written so that
+   this keeps working), then run ONE block under ruling P-6's conditions —
+   detached, `flock /tmp/zk-heavy.lock`, a memory ceiling that kills the
+   process rather than the box, nothing else running — with peak resident
+   memory recorded beside the wall clock. The model says 11.00 GiB peak
+   (9.60 GiB after S2's two drops) on a 15.4 GiB box. **Do not run it from a
+   session that is also building.**
+4. **S9-F4 is still open** (the closed forms are the constructor but
+   `Tab::Pub` still materialises a vector on both sides: 168 MB of indicator
+   tables at 125M).
+5. **The remaining tamper arms**: the moved-multiplicity family still needs a
+   prover-side hook rather than a witness edit, and stays a toy case.
+6. Re-read the toy freeze gate before every commit: receipt 2,816,472 B, the
+   literal schedule digest, and the empty-diff check must print nothing.

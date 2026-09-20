@@ -274,7 +274,7 @@ const ENDPOINT_MASK_ROWS: usize = 5;
 /// `MAX_LOG_LEN` 12) and the frozen seam cannot carry it at all, so a
 /// generalised endpoint must be built BESIDE `private_seam.rs` and the rung
 /// re-run with it before anything runs at 125M.
-fn endpoint_geometry(sh: &Shape) -> Result<(usize, usize, usize), String> {
+pub(super) fn endpoint_geometry(sh: &Shape) -> Result<(usize, usize, usize), String> {
     let rows = sh.endpoint_rows;
     if rows <= ENDPOINT_MASK_ROWS {
         return Err(format!("private block: endpoint geometry of {rows} rows has no data rows"));
@@ -349,9 +349,8 @@ fn write_h(h: &mut [Fp], off: (usize, usize), col: &[Fp2]) {
 
 fn check_endpoints(sh: &Shape, expected: &ExpectedIo, endpoints: Endpoints) -> Result<[pcs::CommittedZk; 2], String> {
     let (rows, _, _) = endpoint_geometry(sh)?;
-    let [si, so] = expected.spec.seams()?;
-    let input = endpoints.input.into_ffn_endpoint(&si)?;
-    let output = endpoints.output.into_ffn_endpoint(&so)?;
+    // S11b: whichever construction this profile's endpoints ride
+    let [input, output] = expected.spec.into_committed(endpoints)?;
     if input.commitment().root != expected.input || output.commitment().root != expected.output {
         return Err("private block: expected endpoint root mismatch".into());
     }
@@ -590,7 +589,9 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     fits_the_ntt_tables(sh)?;
     let lay = Layout::for_shape(sh)?;
     super::wire::validate(receipt, &lay)?;
-    expected.spec.seams()?;
+    // S11b: whichever endpoint construction this profile carries, its
+    // statements must be well formed and their geometry the shape's
+    expected.spec.validate()?;
     let ntt = NttTables::new(NTT_LOG);
     let params = pcs_params_at(sh);
     let zko = ZkOpts::standard(&params);

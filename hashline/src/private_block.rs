@@ -59,6 +59,12 @@
 //! Transcript, ownership and openings: `protocol.rs`. Bounded codec: `wire.rs`.
 
 mod argument;
+// STEP S11b: the GENERALISED hidden endpoint, built ADDITIVELY beside the
+// FROZEN `private_seam.rs` (which this lane does not edit). The frozen seam
+// carries the toy and the rung profiles at exactly its 4,096-word ceiling;
+// every wider shape — the rung-G profile and 125M — takes its endpoint
+// parameters from the `Shape` through this module.
+mod endpoint_g;
 mod layout;
 // STEP S9: the pad rule of ruling P-1 — the support indicators, the per-plane
 // ZERO / EXEMPT table and the slot map. Part 4 built the term itself in
@@ -93,8 +99,9 @@ mod zero_witness_tests;
 use crate::field::Fp;
 use crate::merkle::Digest;
 use crate::ntt::NttTables;
-use crate::pcs::OpeningZk;
+use crate::pcs::{self, OpeningZk};
 use crate::private_seam::{self, PreparedPlane, SeamSpec, Side};
+use endpoint_g::{EndpointSpecG, PreparedPlaneG};
 use crate::zk::MaskOpening;
 // `D` left this list at S11a: `IoSpec` now takes the endpoint plane's extent
 // from its shape (`t_pad`, `d_pad`) instead of the toy's two literals.
@@ -436,6 +443,17 @@ pub struct IoSpec {
     /// what it was.
     t_pad: usize,
     d_pad: usize,
+    /// **S11b.** The shape's endpoint PCS parameters and which of the two
+    /// endpoint constructions carries them: the FROZEN `private_seam.rs`
+    /// (`general == false`, the toy and the rung profiles) or the
+    /// GENERALISED `endpoint_g.rs` (`general == true`, the rung-G profile
+    /// and 125M). All three are derived by [`shape::Shape::new`]; nothing
+    /// here chooses them.
+    general: bool,
+    endpoint_log_n: usize,
+    endpoint_inv_rate: usize,
+    endpoint_rows: usize,
+    opened_cols: usize,
 }
 
 impl IoSpec {
@@ -454,9 +472,33 @@ impl IoSpec {
         if (input_scale, output_scale) != ENDPOINT_SCALES {
             return Err("private block: endpoint scales are pinned to the approved calibration (0, 0)".into());
         }
-        let spec = Self { context, input_scale, output_scale, t_pad: sh.t_pad, d_pad: sh.d_pad };
-        spec.seams()?;
+        let spec = Self {
+            context,
+            input_scale,
+            output_scale,
+            t_pad: sh.t_pad,
+            d_pad: sh.d_pad,
+            general: sh.endpoint_general,
+            endpoint_log_n: sh.endpoint_log_n,
+            endpoint_inv_rate: sh.endpoint_inv_rate,
+            endpoint_rows: sh.endpoint_rows,
+            opened_cols: sh.opened_cols,
+        };
+        spec.validate()?;
         Ok(spec)
+    }
+
+    /// **S11b.** Build whichever endpoint statements this spec carries, and
+    /// check that their derived commitment geometry is the one the shape
+    /// DECLARES. A shape whose `endpoint_rows` disagrees with what its own
+    /// parameters give is refused here, at construction, instead of at the
+    /// first proof.
+    pub(crate) fn validate(&self) -> Result<(), String> {
+        let rows = if self.general { self.endpoints_g()?[0].commitment_rows() } else { self.seams()?[0].len().div_ceil(1usize << self.endpoint_log_n) + endpoint_g::MASK_ROWS };
+        if rows != self.endpoint_rows {
+            return Err(format!("private block: this shape declares {} endpoint rows, its endpoint parameters give {rows}", self.endpoint_rows));
+        }
+        Ok(())
     }
     /// the padded endpoint plane's word count, `t_pad * d_pad`
     pub(crate) fn plane_len(&self) -> usize {
@@ -474,6 +516,32 @@ impl IoSpec {
     fn seams(&self) -> Result<[SeamSpec; 2], String> {
         let (t, d) = (self.t_pad, self.d_pad);
         Ok([SeamSpec::new(self.context, t, d, self.input_scale, 41, 42)?, SeamSpec::new(self.context, t, d, self.output_scale, 43, 44)?])
+    }
+
+    /// **S11b.** The same two statements on the GENERALISED endpoint: the
+    /// same context, the same padded plane and the same slot pairs, with the
+    /// PCS parameters taken from the shape instead of from
+    /// `private_seam.rs`'s four constants.
+    fn endpoints_g(&self) -> Result<[EndpointSpecG; 2], String> {
+        let (t, d, l, r) = (self.t_pad, self.d_pad, self.endpoint_log_n, self.endpoint_inv_rate);
+        let q = self.opened_cols;
+        Ok([EndpointSpecG::new(self.context, t, d, self.input_scale, 41, 42, l, r, q)?, EndpointSpecG::new(self.context, t, d, self.output_scale, 43, 44, l, r, q)?])
+    }
+
+    /// **S11b.** The two committed endpoint planes, whichever construction
+    /// carries them, in (input, output) order. The owners are consumed.
+    pub(crate) fn into_committed(&self, owners: Endpoints) -> Result<[pcs::CommittedZk; 2], String> {
+        match (owners.input, owners.output) {
+            (EndpointOwner::Frozen(i), EndpointOwner::Frozen(o)) if !self.general => {
+                let [si, so] = self.seams()?;
+                Ok([i.into_ffn_endpoint(&si)?, o.into_ffn_endpoint(&so)?])
+            }
+            (EndpointOwner::General(i), EndpointOwner::General(o)) if self.general => {
+                let [si, so] = self.endpoints_g()?;
+                Ok([i.into_endpoint(&si)?, o.into_endpoint(&so)?])
+            }
+            _ => Err("private block: the endpoint owners are not this profile's".into()),
+        }
     }
 }
 
@@ -529,23 +597,52 @@ impl ExpectedIo {
 /// }
 /// ```
 pub struct Endpoints {
-    input: PreparedPlane,
-    output: PreparedPlane,
+    input: EndpointOwner,
+    output: EndpointOwner,
+}
+
+/// **S11b.** One committed endpoint plane, on whichever of the two
+/// constructions its profile selects. Neither variant has a `Clone`, a data
+/// getter or a repeated-opening method, and both are consumed by value.
+enum EndpointOwner {
+    /// the FROZEN `private_seam.rs` (the toy and the rung profiles)
+    Frozen(PreparedPlane),
+    /// the GENERALISED `endpoint_g.rs` (the rung-G profile and 125M)
+    General(PreparedPlaneG),
+}
+
+impl EndpointOwner {
+    fn root(&self) -> Digest {
+        match self {
+            EndpointOwner::Frozen(p) => p.commitment().root,
+            EndpointOwner::General(p) => p.commitment().root,
+        }
+    }
 }
 
 /// The endpoint owner's step: commit the private input and output planes with
 /// fresh OS randomness. `output` is whatever the owner fixes; a value other
 /// than the block output makes every later proof fail verification.
 pub fn prepare_endpoints(spec: IoSpec, input: &[i16], output: &[i16]) -> Result<(ExpectedIo, Endpoints), String> {
-    let [si, so] = spec.seams()?;
+    spec.validate()?;
     if input.len() != spec.plane_len() || output.len() != spec.plane_len() {
         return Err("private block: endpoint shape".into());
     }
-    let ntt = NttTables::new(12);
     let words = |v: &[i16]| -> Vec<Fp> { v.iter().map(|x| Fp::from_i64(i64::from(*x))).collect() };
-    let input = private_seam::prepare(&si, Side::Right, &words(input), &ntt)?;
-    let output = private_seam::prepare(&so, Side::Right, &words(output), &ntt)?;
-    let expected = ExpectedIo::from_roots(spec, input.commitment().root, output.commitment().root);
+    // **S11b.** The frozen seam pins EXACTLY `NttTables::new(12)`
+    // (`private_seam.rs:167-174`), so the toy and rung profiles keep building
+    // that table and no toy byte moves; the generalised endpoint builds the
+    // table its own encoding domain needs.
+    let (input, output) = if spec.general {
+        let [si, so] = spec.endpoints_g()?;
+        let ntt = NttTables::new(si.enc_log().max(so.enc_log()));
+        (EndpointOwner::General(endpoint_g::prepare(&si, &words(input), &ntt)?), EndpointOwner::General(endpoint_g::prepare(&so, &words(output), &ntt)?))
+    } else {
+        let [si, so] = spec.seams()?;
+        let ntt = NttTables::new(12);
+        (EndpointOwner::Frozen(private_seam::prepare(&si, Side::Right, &words(input), &ntt)?), EndpointOwner::Frozen(private_seam::prepare(&so, Side::Right, &words(output), &ntt)?))
+    };
+    let expected = ExpectedIo::from_roots(spec, input.root(), output.root());
     Ok((expected, Endpoints { input, output }))
 }
 

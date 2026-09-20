@@ -29,6 +29,14 @@ use super::*;
 /// the model's TRUE `(24, 96)` pricing (finding S11-F4).
 const RUNG_BYTES: usize = 4_218_264;
 
+/// **S11b: the RUNG-G profile's counted frame.** The same block at the same
+/// shape with the GENERALISED endpoint: the rung's 4,218,264 B less the
+/// frozen seam's two openings (319,488 B, 21 rows at row width 2^8 and rate
+/// 8) plus the generalised ones (335,872 B, 9 rows at row width 2^10 and
+/// rate 4). `Shape::receipt_bytes`, `wire::encoded_len` and
+/// `the_codec_length_is_the_models_at_every_shape` all agree on it.
+const RUNG_G_BYTES: usize = 4_234_648;
+
 /// Peak resident memory of this process, in MiB — Linux `VmHWM`, read for the
 /// record only. It is a whole-process high-water mark on a SHARED box, so it
 /// bounds this proof's cost from above and is not a measurement of it.
@@ -51,12 +59,15 @@ fn rung_context() -> Digest {
 /// The rung statement and an honest witness for it. `zero` selects the
 /// ALL-ZERO hidden input — the fixed input of the privacy case — instead of
 /// `grow_tests`' tame one.
-fn rung_parts(zero: bool) -> (Shape, BlockPublic, Witness) {
-    let sh = Shape::rung();
-    let (public, ff, tame) = super::grow_tests::tame_case(&sh);
+fn rung_parts_at(sh: &Shape, zero: bool) -> (Shape, BlockPublic, Witness) {
+    let (public, ff, tame) = super::grow_tests::tame_case(sh);
     let input = if zero { vec![0i16; sh.tokens * sh.width] } else { tame };
-    let w = witness::build_shaped(&sh, &public, &ff, &input).expect("the rung's honest witness");
-    (sh, BlockPublic::new(public, ff), w)
+    let w = witness::build_shaped(sh, &public, &ff, &input).expect("the rung's honest witness");
+    (sh.clone(), BlockPublic::new(public, ff), w)
+}
+
+fn rung_parts(zero: bool) -> (Shape, BlockPublic, Witness) {
+    rung_parts_at(&Shape::rung(), zero)
 }
 
 /// The two caller-fixed endpoints of a rung witness. They commit the PADDED
@@ -64,10 +75,24 @@ fn rung_parts(zero: bool) -> (Shape, BlockPublic, Witness) {
 /// that is the slice `SC_IO_IN` / `SC_IO_OUT` claim, and `SeamSpec::new`
 /// refuses the true `(24, 96)` plane outright (S11-F2).
 fn endpoints_of(sh: &Shape, w: &Witness) -> (ExpectedIo, Endpoints) {
+    endpoints_of_t(sh, w, None)
+}
+
+/// The same, with ONE word of ONE committed endpoint plane changed — the
+/// endpoint owner sealing something other than the witness it proves about.
+/// `tamper` is `(which endpoint: 0 input / 1 output, position in the padded
+/// plane, delta)`. The WITNESS is untouched, so nothing but the equality
+/// slot `SC_IO_IN` / `SC_IO_OUT` can notice.
+fn endpoints_of_t(sh: &Shape, w: &Witness, tamper: Option<(usize, usize, i16)>) -> (ExpectedIo, Endpoints) {
     let ids = Ids::new(sh).expect("the rung has a plane map");
     let plane = |p: usize| -> Vec<i16> { w.planes[p].iter().map(|v| i16::try_from(*v).expect("an endpoint word outside int16")).collect() };
     let spec = IoSpec::new_shaped(sh, rung_context(), 0, 0).expect("the rung endpoint spec");
-    prepare_endpoints(spec, &plane(ids.at(A_X)), &plane(ids.at(A_X2))).expect("the rung endpoint owners")
+    let (mut a, mut b) = (plane(ids.at(A_X)), plane(ids.at(A_X2)));
+    if let Some((which, at, delta)) = tamper {
+        let p = if which == 0 { &mut a } else { &mut b };
+        p[at] += delta;
+    }
+    prepare_endpoints(spec, &a, &b).expect("the rung endpoint owners")
 }
 
 /// prove the rung for a witness, returning the policy, the receipt and its
@@ -83,17 +108,29 @@ fn prove_rung(sh: &Shape, blk: &BlockPublic, w: Witness) -> Result<(ExpectedIo, 
 /// fresh verifier call, and its frame is the counted length.
 #[test]
 fn the_honest_rung_proof_verifies_from_bytes() {
-    let (sh, blk, w) = rung_parts(false);
+    the_honest_proof_verifies_from_bytes_at(&Shape::rung(), RUNG_BYTES);
+}
+
+/// **S11b's ACCEPTANCE.** The same, on the RUNG-G profile: the generalised
+/// endpoint, at a row width and rate the frozen seam cannot offer, and a
+/// geometry with four data rows per endpoint as 125M will have thirty-two.
+#[test]
+fn the_honest_rung_g_proof_verifies_from_bytes() {
+    the_honest_proof_verifies_from_bytes_at(&Shape::rung_g(), RUNG_G_BYTES);
+}
+
+fn the_honest_proof_verifies_from_bytes_at(shape: &Shape, want: usize) {
+    let (sh, blk, w) = rung_parts_at(shape, false);
     let t0 = std::time::Instant::now();
     let (expected, receipt, bytes) = prove_rung(&sh, &blk, w).expect("the honest rung prover");
     let prove_s = t0.elapsed().as_secs_f64();
-    assert_eq!(bytes.len(), RUNG_BYTES, "the rung frame is not the counted length");
+    assert_eq!(bytes.len(), want, "the rung frame is not the counted length");
     // typed form first, then the only form that counts: from the bytes
     verify_inner_at(&sh, &blk, &expected, &receipt).expect("the rung receipt verifies in typed form");
     let t1 = std::time::Instant::now();
     verify_bytes_at(&sh, &blk, &expected, &bytes).expect("the rung receipt verifies from bytes");
     let verify_s = t1.elapsed().as_secs_f64();
-    eprintln!("S12a rung end to end: prove {prove_s:.2} s, verify from bytes {verify_s:.2} s, frame {} B, peak RSS {:.0} MiB (shared box, diagnostics only)", bytes.len(), peak_rss_mib());
+    eprintln!("{} end to end: prove {prove_s:.2} s, verify from bytes {verify_s:.2} s, frame {} B, endpoint {} rows at 2^{} / rate {}, peak RSS {:.0} MiB (shared box, diagnostics only)", sh.name, bytes.len(), sh.endpoint_rows, sh.endpoint_log_n, sh.endpoint_inv_rate, peak_rss_mib());
     // a truncated or lengthened frame is refused before anything is parsed
     assert!(verify_bytes_at(&sh, &blk, &expected, &bytes[..bytes.len() - 1]).is_err(), "a short rung frame was accepted");
 }
@@ -103,12 +140,22 @@ fn the_honest_rung_proof_verifies_from_bytes() {
 /// A precondition of the privacy argument, not a privacy result.
 #[test]
 fn the_all_zero_hidden_input_proves_and_verifies_at_the_rung() {
-    let (sh, blk, w) = rung_parts(true);
+    the_all_zero_hidden_input_proves_at(&Shape::rung(), RUNG_BYTES);
+}
+
+/// The same on the RUNG-G profile.
+#[test]
+fn the_all_zero_hidden_input_proves_and_verifies_at_the_rung_g() {
+    the_all_zero_hidden_input_proves_at(&Shape::rung_g(), RUNG_G_BYTES);
+}
+
+fn the_all_zero_hidden_input_proves_at(shape: &Shape, want: usize) {
+    let (sh, blk, w) = rung_parts_at(shape, true);
     let ids = Ids::new(&sh).expect("the rung has a plane map");
     assert!(w.planes[ids.at(A_X)].iter().all(|v| *v == 0), "the zero input's x_in plane is not zero");
     assert!(w.planes[ids.at(A_X2)].iter().all(|v| *v == 0), "the zero input's block output is not zero");
     let (expected, _, bytes) = prove_rung(&sh, &blk, w).expect("the all-zero rung input is a valid witness");
-    assert_eq!(bytes.len(), RUNG_BYTES, "the frame length moves with the hidden input");
+    assert_eq!(bytes.len(), want, "the frame length moves with the hidden input");
     verify_bytes_at(&sh, &blk, &expected, &bytes).expect("the zero-witness rung receipt verifies from bytes");
 }
 
@@ -117,7 +164,17 @@ fn the_all_zero_hidden_input_proves_and_verifies_at_the_rung() {
 /// showed nothing saw it; here the pad-zero term must make the VERIFIER reject.
 #[test]
 fn pz1_end_to_end_a_lone_nonzero_pad_value_is_rejected_by_the_verifier() {
-    let (sh, blk, mut w) = rung_parts(false);
+    pz1_at(&Shape::rung());
+}
+
+/// PZ-1 on the RUNG-G profile.
+#[test]
+fn pz1_end_to_end_at_the_rung_g_profile() {
+    pz1_at(&Shape::rung_g());
+}
+
+fn pz1_at(shape: &Shape) {
+    let (sh, blk, mut w) = rung_parts_at(shape, false);
     let ids = Ids::new(&sh).expect("the rung has a plane map");
     let supp = super::pad::indicator_table(&sh, Dom::D);
     let pad_pos = (0..sh.size(Dom::D)).find(|i| supp[*i] == 0).expect("Dom::D pads at the rung");
@@ -131,7 +188,17 @@ fn pz1_end_to_end_a_lone_nonzero_pad_value_is_rejected_by_the_verifier() {
 /// under a norm divisor the prover chose.
 #[test]
 fn pz2_end_to_end_a_consistently_adjusted_pad_is_rejected_by_the_verifier() {
-    let (sh, blk, mut w) = rung_parts(false);
+    pz2_at(&Shape::rung());
+}
+
+/// PZ-2 on the RUNG-G profile.
+#[test]
+fn pz2_end_to_end_at_the_rung_g_profile() {
+    pz2_at(&Shape::rung_g());
+}
+
+fn pz2_at(shape: &Shape) {
+    let (sh, blk, mut w) = rung_parts_at(shape, false);
     let ids = Ids::new(&sh).expect("the rung has a plane map");
     let t = 0usize;
     let (px, pd, pdsq, plimb) = (ids.at(A_X), ids.at(A_D), ids.at(A_DSQ), ids.at(A_LIMB));
@@ -205,7 +272,17 @@ fn every_rung_lookup_is_a_genuine_table_row() {
 /// caught by the WRONG relation is visible in the log.
 #[test]
 fn every_toy_tamper_family_is_rejected_at_the_rung() {
-    let sh = Shape::rung();
+    every_toy_tamper_family_is_rejected_at(&Shape::rung());
+}
+
+/// The same twenty-seven families on the RUNG-G profile.
+#[test]
+fn every_toy_tamper_family_is_rejected_at_the_rung_g_profile() {
+    every_toy_tamper_family_is_rejected_at(&Shape::rung_g());
+}
+
+fn every_toy_tamper_family_is_rejected_at(shape: &Shape) {
+    let sh = shape.clone();
     let ids = Ids::new(&sh).expect("the rung has a plane map");
     // one true-support position of each cube: index 0 is `(t 0, i 0)`,
     // `(t 0, j 0)`, `(head slot 0, t 0, j 0)` and so on, and head slot 0 is
@@ -247,9 +324,53 @@ fn every_toy_tamper_family_is_rejected_at_the_rung() {
     // by_the_logup_sum_claim`); what the rung adds for that arm is
     // `every_rung_lookup_is_a_genuine_table_row` above.
     for (name, plane, at, delta) in cases {
-        let (_, blk, mut w) = rung_parts(false);
+        let (_, blk, mut w) = rung_parts_at(&sh, false);
         w.planes[plane][at] += delta;
         assert_rejected(&sh, &blk, w, name);
+    }
+}
+
+/// **THE TWO ENDPOINT TAMPER FAMILIES (S11b), which only an endpoint the
+/// prover does not control can express.** The witness is honest and the
+/// receipt is built from it; what moves is ONE word of the plane the
+/// endpoint owner SEALED. Nothing in the block's arithmetic reads the
+/// endpoint commitment: the only thing that binds it to the proof is the
+/// equality slot `SC_IO_IN` / `SC_IO_OUT` over the WHOLE PADDED plane, so
+/// each of these must be rejected by the verifier and by nothing else.
+///
+/// The PAD case is the interesting one. `A_X`'s and `A_X2`'s padded columns
+/// are forced to zero by ruling P-1's pad-zero term, and the equality slot
+/// claims the whole padded `Dom::D` cube, so a nonzero word in the
+/// ENDPOINT's pad has nothing on the witness side to match it.
+#[test]
+fn an_endpoint_that_seals_a_different_plane_is_rejected() {
+    for shape in [Shape::rung(), Shape::rung_g()] {
+        let (sh, blk, w) = rung_parts_at(&shape, false);
+        // a TRUE support position, `(t 0, i 0)`, and a PADDED one — the
+        // first column past the true width of token row 0
+        let pad_at = sh.width;
+        assert!(pad_at < sh.d_pad, "the rung's Dom::D pads");
+        for (which, what) in [(0usize, "the input endpoint"), (1, "the output endpoint")] {
+            for (at, where_) in [(0usize, "a true support position"), (pad_at, "a padded position")] {
+                let (_, _, w) = rung_parts_at(&shape, false);
+                let (expected, owners) = endpoints_of_t(&sh, &w, Some((which, at, 1)));
+                let label = format!("{}: {what} sealing {where_}", sh.name);
+                match prove_inner_at(&sh, &blk, w, &expected, owners) {
+                    Err(e) => eprintln!("{label}: refused by the prover: {e}"),
+                    Ok((receipt, _)) => {
+                        let bytes = receipt.to_bytes_at(&sh, &blk, &expected).expect("the frame encodes");
+                        let e = verify_bytes_at(&sh, &blk, &expected, &bytes).err().unwrap_or_else(|| panic!("{label}: a receipt against a foreign endpoint VERIFIED"));
+                        eprintln!("{label}: rejected by the verifier: {e}");
+                    }
+                }
+            }
+        }
+        // and the honest endpoints of the same witness still verify, so the
+        // rejection above is the tamper and not the machinery
+        let (expected, receipt, bytes) = prove_rung(&sh, &blk, w).expect("the honest prover");
+        verify_bytes_at(&sh, &blk, &expected, &bytes).expect("the honest endpoints verify");
+        assert_eq!(bytes.len(), if sh.endpoint_general { RUNG_G_BYTES } else { RUNG_BYTES }, "{}: frame length", sh.name);
+        drop(receipt);
     }
 }
 
@@ -261,11 +382,21 @@ fn every_toy_tamper_family_is_rejected_at_the_rung() {
 /// at the rung.
 #[test]
 fn the_norm_range_alias_is_rejected_end_to_end_at_the_rung() {
-    let sh = Shape::rung();
+    the_norm_range_alias_is_rejected_at(&Shape::rung());
+}
+
+/// The alias on the RUNG-G profile.
+#[test]
+fn the_norm_range_alias_is_rejected_end_to_end_at_the_rung_g() {
+    the_norm_range_alias_is_rejected_at(&Shape::rung_g());
+}
+
+fn the_norm_range_alias_is_rejected_at(shape: &Shape) {
+    let sh = shape.clone();
     let ids = Ids::new(&sh).expect("the rung has a plane map");
     let half = super::norm_alias::half_p_minus_one();
     for (t, form) in [(0usize, "norm_a row 0"), (1, "norm_a row 1")] {
-        let (_, blk, mut w) = rung_parts(false);
+        let (_, blk, mut w) = rung_parts_at(&sh, false);
         let d = crate::field::Fp::from_i64(w.planes[ids.at(A_D)][t]).add(half);
         // form (a): the limbs are left honest, so (R2) is the one relation
         // the alias cannot satisfy
