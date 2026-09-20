@@ -140,7 +140,10 @@ private-block-kernel/src/shaped_tests.rs
 | **Shaped argument, step C part 2 — the shaped `protocol` (and `wire`)** | **DONE** | `0dfdeb4`; `s6c-run1.log:185` **104 / 0 / 4**. Every line of the inventory ticked off (checklist in the stage 6 section); `prove_inner_at` / `verify_inner_at` are the shaped pair and the old pair is each at `Shape::toy()` |
 | **S10 — the rung's PCS parameters** | **DONE** (it fell out of step C part 2) | `0dfdeb4`; `pcs_params_at` is `log_cols` / `inv_rate` / `opened_cols`, asserted 8/8/256, **10/4/256**, 14/4/256 at the three shapes, with the pad count equal to the opened-column count |
 | **The hash layer's code conditions C-H1 / C-H4 / C-H4′ / C-H8** | **DONE** | `dcaec94`; `s6d-run2.log:188` **107 / 0 / 4**. C-H4 is a refusal inside `Layout::for_shape` (every shape); C-H4′ scans the module's own source; finding **C2-F1** recorded |
-| **S9 part 4, S11, S12** | **NOT STARTED** | see the stage 6 NEXT |
+| **S9 part 4 — the pad-zero term itself** | **DONE** | `793c943`; `s9d-run2.log:188` **109 / 0 / 2** (PZ-1 and PZ-2 un-ignored). See stage 7 |
+| **S11a — the rung endpoints on the frozen seam** | **DONE** | `513a4ec`; the three ruled edits, `Shape::rung()`'s endpoint numbers corrected to 21 rows / inverse rate 8, the per-profile wire bound, receipt 4,218,264 B |
+| **S12a — the rung END TO END** | **DONE** | `513a4ec`, `9a2b559`; **an honest rung proof VERIFIES FROM BYTES** — prove 0.49 s, verify 0.10 s, frame 4,218,264 B, peak RSS 74 MiB. `s12a-filter4.log:203` **116 / 0 / 2** |
+| **S11b, S12b (the tamper battery's remaining arms, a rung capture)** | **NOT STARTED** | see the stage 7 NEXT |
 | **S8 the change itself** | **DONE** | `7f8e549` (the ids, the lookups, the premise) and `a21ffd7` (P-5's alias cases, the parity fixture retired). The deliverable test `the_rung_at_its_own_calibration_has_an_honest_witness` is un-ignored and green; hashline **86 / 0 / 2** (`s8-run7.log:165`), toy receipt 2,816,472 B and the digest unmoved |
 
 ## The toy freeze gate this stage added
@@ -1420,3 +1423,277 @@ known correction pending this ruling; `the_codec_length_is_the_models_at_every_s
 pins the codec to the model, so whichever way the ruling goes, the model's
 `endpoint_rows` / `endpoint_inv_rate` move together with the codec and the
 test keeps them honest.
+
+## Stage 7 (2026-09-20, 05:0x–05:5x): S9 part 4, S11a, S12a — THE RUNG PROVES
+
+Commits `793c943` (S9 part 4), `513a4ec` (S11a + S12a), `9a2b559` (the rung
+tamper battery). The headline: **an honest proof at the development rung
+verifies from its bytes in a fresh verifier call** — prove **0.49 s**, verify
+**0.10 s**, frame **4,218,264 B** exactly as counted, peak resident memory
+**74 MiB** (a whole-process high-water mark on a shared box; diagnostic only,
+not a measurement of the proof). That is a CORRECTNESS milestone for the rung
+profile and nothing more: no privacy check has been run at this shape, the
+rung is development grade by ruling P-7, and no receipt from it is shown to
+anyone.
+
+### Runs
+
+| # | command | log | result |
+|---|---|---|---|
+| 32 | the standard filter, baseline for the stage | `s7-baseline.log:187` | **107 / 0 / 4** |
+| 33 | the filter, after the pad-zero term | `s9d-compile1.log:188` | **109 / 0 / 2** — PZ-1 and PZ-2 un-ignored and passing |
+| 34 | the filter, after the indicator-count test | `s9d-run2.log:188` | **109 / 0 / 2** |
+| 35 | the filter, first S11a attempt | `s11a-compile1.log:216` | **107 / 2** — the two model tests, by design: the codec now says 4,218,264 B |
+| 36 | `cargo build --release` (no `cfg(test)`), because `pad` left `cfg(test)` | `s11a-libbuild2.log:255` | Finished, no warning from `pad.rs` |
+| 37 | the filter, after the rung receipt length and the per-profile bound | `s11a-run3.log:188` | **109 / 0 / 2** |
+| 38 | `--lib private_block::rung_tests`, the first rung proof | `s12a-run1.log` | panic in `helper_sum` — **finding S12-F1** |
+| 39 | the same, after S12-F1 | `s12a-run2.log:80` | `mask schedule audit: a claim does not carry exactly its own reserved pair` — **finding S12-F2** |
+| 40 | the same, after S12-F2 | `s12a-run3.log:82` | `H: pcs zk: group 8: <v, c> != combined claim` — **finding S12-F3** |
+| 41 | the same, with the lookup diagnostic | `s12a-run5.log:86` | `the exp pair at (head slot 0, t 24, j 0) is not a table row` |
+| 42 | the same, after S12-F3 | `s12a-run7.log:90` | **5 / 0** — `prove 0.49 s, verify from bytes 0.10 s, frame 4218264 B, peak RSS 74 MiB` |
+| 43 | the filter | `s12a-filter1.log:220` | **112 / 2** — the two tests that asserted an all-zero `A_E` pad |
+| 44 | the filter, after those two were corrected to the memo's TABLE | `s12a-filter3.log:201` | **114 / 0 / 2** |
+| 45 | the rung tamper battery | `s12a-tampers1.log` | 27 of 28 rejected by the verifier; the 28th is not expressible as a witness edit |
+| 46 | the filter, final | `s12a-filter4.log:203` | **116 / 0 / 2** |
+
+**No new shared-file change.** Everything this stage touched is inside
+`hashline/src/private_block*` (`private_block.rs`, `argument.rs`, `pad.rs`,
+`parity.rs`, `protocol.rs`, `shape.rs`, `wire.rs`, `witness.rs`,
+`grow_tests.rs`, `norm_alias.rs`, and the new `rung_tests.rs`). The
+empty-diff check `git --no-pager diff --stat 11c01b2 -- private-block-kernel
+private-model-kernel zkvm-block` prints nothing.
+
+### S9 part 4 — what the term is
+
+Per padded domain, ONE batched term inside the host slot's `eq(tau) * (..)`
+bracket:
+
+```
+mu_pad * sum_groups (1 - supp(x)) * sum_j zeta^j * plane_j(x)
+```
+
+over that domain's ZERO-rule `A` planes in plane order, EXEMPT planes never
+entering a group. One fresh `zeta` per host slot, refused on zero through the
+existing witness-independent `nonzero` helper (its string names no relation
+and no plane), and one more entry of the slot's `mu`. The support factor goes
+on the inhomogeneous clauses `c*` and on every host term of the eight
+`INDICATOR_SLOT_DOMAIN` slots, and NEVER on the LogUp arm (`helper_sum`,
+`SC_SZC`'s `cx`, `SC_FZC`'s `f_act`). Everything is gated on
+`Shape::carries_pad_rule()`.
+
+**No new claim site, mask pair or opening group.** Every plane the term needs
+is already read by its host slot (`a_range` pushes the whole domain), so
+`audit_claims`' pair-exclusivity check sees exactly the claims it saw before.
+
+**PZ-1 and PZ-2** are un-ignored and pass at the level they are written:
+ruling P-1's own relation is now part of `every_checkable_relation_holds`.
+Before the term they FAILED there. END TO END (S12a) they are rejected BY THE
+VERIFIER, PZ-1 at slot 14 (`SC_DZC`, the pad-zero term itself) and PZ-2 at
+slot 2 (`SC_TZC`, the newly gated host term).
+
+**The toy carries none of it**, and three things say so: the frozen 2,816,472
+byte receipt and the literal schedule digest are unmoved after every commit;
+`pad::tests::the_toy_profiles_padded_planes_and_what_constrains_them` asserts
+`zero_rule_a_planes` and `zero_rule_h_planes` are EMPTY at the toy for every
+domain; and `grow_tests::the_slot_definitions_are_built_from_the_shape` now
+counts the public tables slot by slot and requires the toy's count to be
+unchanged while the rung's is exactly the twelve `pad::indicator_slots`
+declares.
+
+**The toy documentation test.** The same test now also answers the ruling's
+question in full: the only two slots that touch a `Dom::L` plane at the toy
+are `SC_LZC` (the whole domain, but only through the ungated LogUp arm) and
+`SC_TZC` (nine fixed sub-slices `[k*t_pad, k*t_pad + t_pad)`), and since
+`tokens == t_pad` at the toy those nine slices are EXACTLY the support — so
+**no toy relation reads a padded position**, and a future relation that did
+would fail the test.
+
+**The closed forms.** `pad::indicator_table` builds the indicator from the
+closed multilinear form where one exists and from the builder's support table
+otherwise; `the_closed_forms_equal_the_tables` asserts the two agree entry for
+entry at all three shapes, and the table stays the definition of record. Eight
+of the rung's nine padded domains have a closed form (`Dom::L` has none, as
+the memo says). **S9-F4 is NOT closed**: `Tab::Pub` still holds a
+materialised vector on both sides, so this is an optimisation of the
+CONSTRUCTOR only.
+
+**The closest slot is unchanged**: toy 50, rung **72** (`SC_SZC`, with
+`SC_FZC` tying it), 125M **117** (`SC_SZC`), and `L + 256 <= 512` holds on
+every slot of every shape. The term itself is degree 3 in every host slot and
+never raises a declared degree; the support factor raises exactly the eight
+slots the degree table already declared.
+
+### S9-F7 (new) — the memo's slot map is wrong for `Dom::Ht` and `Dom::T`
+
+`indicator_slots` listed neither as carrying a table. Both are wrong and the
+code is corrected:
+
+* **`Dom::Ht` cannot ride on `supp_S`** (§3.7a open question 2). `supp_S` is
+  zero wherever the `j` axis pads, so a term `(1 - supp_S) * A_MX` would force
+  a TRUE row's maximum to zero. `Dom::Ht`'s two planes get their own group in
+  `SC_SZC`, on a `supp_Ht` lifted over the trailing `j` axis (a public table
+  over the `Dom::S` cube, constant in `j`). `host_rs` takes the same lifted
+  factor and not `supp_S`, so `per_row` stays the full `t_pad`.
+* **`Dom::T` has four ZERO-rule planes** by the memo's own table and no term
+  at all was planned. Its host is `SC_TZC`, whose cube IS `Dom::T`.
+
+The rung therefore materialises **twelve** indicator tables, not ten.
+
+### S9-F8 (new) — gating a claimed sum forces gating its host
+
+`SC_SS` / `SC_SSM`'s summands take `supp_D` (that is where blocking item B-1
+lives), so a padded token row's claimed sum becomes 0. `SC_TZC`'s two host
+terms say that sum equals `dsq + a1 - NORM_CEPS`, which at a zeroed padded row
+is `-NORM_CEPS != 0`. They must therefore take `supp_T`. The memo's list of
+gated slots ("the inhomogeneous clauses of `SC_DZC`, `SC_QZC`, `SC_KVZC`,
+`SC_SZC`, `SC_FZC`") does not include `SC_TZC` and is incomplete. Gating them
+costs no degree.
+
+The symmetric question for the six MATMUL slots resolves the other way and is
+recorded here so nobody re-opens it: their host terms ARE gated, but their own
+summands are NOT, because the hosted value already vanishes on the pad — the
+folded weight vector is zero off the support (ruling P-2) and the input plane
+is zero at a padded row, so `supp(x) * host(x)` and the matmul output agree on
+the whole cube.
+
+### C2-F1 — recorded, no change (the security owner's ruling)
+
+The soundness count uses the DRAWS (independent uniform samples) and the
+privacy count uses the DISTINCT indices against the pad count, which the code
+already checks. Nothing is deduplicated.
+
+### S11a — the rung endpoints on the frozen seam
+
+The three edits the ruling names, all inside the lane, with no change to
+`private_seam.rs`:
+
+1. `IoSpec` carries the endpoint plane's PADDED extent and builds both
+   `SeamSpec`s from it (`new_shaped` beside `new`; the toy's `(T, D)` are
+   unchanged, and `prepare_endpoints` checks `t_pad * d_pad` words).
+2. `B::endpoint`'s terminal pair is `endpoint_rows - 5`, not the literal 2.
+3. `endpoint_geometry` is `(rows, rows - 5, rows - 3)`, with the toy's frozen
+   `(7, 2, 4)` asserted.
+
+`Shape::rung()`'s endpoint parameters are corrected to what that route
+actually gives: **21 commitment rows** (the padded `(32, 128)` plane is 4,096
+words, exactly the seam's ceiling; `4096 / 256 = 16` data rows plus
+`MASK_ROWS = 5`) and the seam's frozen **inverse rate 8**. The declared 14 and
+4 were the TRUE shape's and matched nothing.
+
+**The rung receipt is 4,218,264 B** — the Python model's 4,173,208 plus
+45,056 B, because the model priced the endpoints at the TRUE `(24, 96)` plane
+that `SeamSpec::new` refuses outright. **The Python model is NOT edited**, as
+the ruling directs; the difference and its cause are recorded here and in
+`grow_tests::MODEL_RUNG`'s comment, and the codec, `Shape::receipt_bytes` and
+the Rust expectation all agree on the new number.
+
+**The wire bound is per profile.** `MAX_WIRE_BYTES` keeps its name and its
+4 MiB value as the TOY's bound and a toy frame over it is still refused. Every
+other profile is bounded by its own `Shape::receipt_bytes().total` — the
+number `decode` already requires equality with — under an absolute
+`MAX_WIRE_BYTES_ANY = 64 MiB` ceiling, so no shape can ask for an unbounded
+frame. The rung frame is **23,960 B over** the toy constant, which is why the
+bound had to move at all; `the_codec_length_is_the_models_at_every_shape` pins
+all of it.
+
+**S11b is still owed and nothing at 125M may run before it.** 125M's endpoint
+plane is 512 x 768 = 393,216 words, `log_len` 19 against the seam's
+`MAX_LOG_LEN` 12: the frozen seam cannot carry it at all. A generalised
+endpoint (C4/C5's `SeamSpecG`) must be built ADDITIVELY beside
+`private_seam.rs`, and **the rung re-run with it** before anything runs at
+125M.
+
+### S12a — three bugs no earlier test could see
+
+Each was reproduced by the end-to-end test before it was fixed. All three had
+been invisible for the same reason: the slot-definition sweep BUILDS every
+slot's polynomial at the rung and never EVALUATES it, and nothing else had
+ever proved at a shape that is not the toy.
+
+* **S12-F1 — `lk_tables` resolved shaped plane ids through the toy-indexed
+  map.** `Layout::lookups` names its planes by SHAPED id; `a_range`'s `idx` is
+  indexed by TOY id. They coincide at the toy and at every plane below the
+  first growing limb group. At the rung the third `sigma_s` limb shifts every
+  `Dom::F` and `Dom::Tab` plane by one and the index ran off the end
+  (`index out of bounds: the len is 30 but the index is 18446744073709551615`).
+  Fixed by resolving through `B::shaped`.
+* **S12-F2 — the reserved mask pair was addressed at the toy's row width.**
+  `build_claim` and `mask_eval` used the module constants `N` / `LOG_N`. The
+  row width is the COMMITMENT's: `log_cols` (10 at the rung) for `A` and `H`,
+  the seam's frozen 8 (carried as `endpoint_log_n`) for the two endpoints.
+  Both are 8 at the toy. `audit_claims`' pair-exclusivity check caught it by
+  name — **it was not relaxed**, and this is a concrete instance of why that
+  check is the whole defence.
+* **S12-F3 — `A_E`'s padded positions must be genuine exp-table rows.** The
+  LogUp arm is never gated (§3.7a), so `protocol::exp_deltas` reads the WHOLE
+  padded `Dom::S` cube, and the prover's histogram folds any pair that is not
+  a table row into entry 0 where only the value-0 identity notices it. At a
+  padded token row `A_MX` and `A_S8` are 0, so the pair is `(delta 0, e 0)`
+  while `exp[0] = 2^F_E != 0`; the proof died at `H: pcs zk: group 8`. This is
+  exactly why the memo's table EXEMPTS `A_E` (`pad::a_rule`). The witness
+  builder now fills `A_E` over the whole cube from the committed `A_S8` with
+  `exp_deltas`' own formula, which on a true position recomputes the value it
+  already wrote — so the toy does not move by one word. **The two tests that
+  asserted an all-zero pad now assert the memo's TABLE**: every ZERO-rule
+  plane vanishes off its support and the one EXEMPT plane does not (and is
+  asserted NOT to, so a regression to zeros fails loudly).
+
+**A new test names this obligation once and for all**:
+`rung_tests::every_rung_lookup_is_a_genuine_table_row` runs the prover's own
+three "hit" conditions position by position and reports which lookup left its
+table, with the coordinates and whether each axis is true or padded.
+
+### S12a — what the rung now shows
+
+* an honest rung proof verifies in typed form AND from bytes, in a fresh
+  verifier call, with a one-byte-short frame refused;
+* the frame is **4,218,264 B**, the wire format's own prediction;
+* the ALL-ZERO hidden input proves and verifies at the rung, at the same frame
+  length;
+* PZ-1 and PZ-2 are rejected BY THE VERIFIER (slots 14 and 2);
+* **27 tampers, one representative of every toy tamper family, on TRUE
+  support positions so the pad rule is never what catches them, are all
+  rejected by the verifier from the bytes**, each at the slot its relation
+  lives in (the log prints which, so a tamper caught by the wrong relation is
+  visible). The three histograms are the one family that cannot be expressed
+  as a witness edit — the prover derives them — and stay a toy case;
+* ruling P-5's half-`p` isqrt alias is rejected end to end on two `norm_a`
+  rows, in the form `norm_alias` proves is the hard one: (R1), (R3), (R4) all
+  hold in `F_p` and only the byte-limb reconstruction (R2) is false;
+* diagnostics (shared box, NOT a measurement): prove 0.49 s, verify from bytes
+  0.10 s, peak resident memory 74 MiB.
+
+### Visibility widened this stage (each because a step required it)
+
+| item | from | to | why |
+|---|---|---|---|
+| `mod pad` | `#[cfg(test)]` | library | `argument::define` now calls it |
+| `protocol::lookup_values` / `act_indices` / `exp_deltas` | private | `pub(super)` | `every_rung_lookup_is_a_genuine_table_row` runs the prover's own hit conditions |
+| `norm_alias::half_p_minus_one` / `to_plane` | private | `pub(super)` | the end-to-end alias tamper at the rung |
+| `Receipt::to_bytes_at` / `from_bytes_at`, `verify_bytes_at`, `IoSpec::new_shaped` | new | `pub(crate)` | a rung receipt has to round-trip through bytes |
+
+### NEXT: exactly what the next agent should do, in order
+
+1. **A rung CAPTURE for the joint-view gate (finding C-F5).** The privacy
+   tools need a schema-3 capture at the rung, and `native_capture.rs` — a
+   FORBIDDEN file — hard-codes `pcs_params()` with no shape and
+   `Commitment { .., log_cols: 8 }` as a literal. **The orchestrator must ask
+   the integrator for a shape-parameterised capture writer**; this lane may
+   not edit it. Until then nothing at the rung has been through the rank / CFS
+   / disclosure tools, and **no privacy statement may be made about the rung**.
+2. **S11b — the generalised endpoint**, built ADDITIVELY beside
+   `private_seam.rs` (C4/C5's `SeamSpecG`), and **the rung re-run with it**.
+   Nothing runs at 125M before that: the frozen seam refuses 125M's endpoint
+   by `MAX_LOG_LEN` and the layout already refuses 125M by name for lack of
+   NTT tables.
+3. **The remaining tamper arms at the rung**: the two endpoint families
+   (`block_output_cannot_be_chosen`, `an_output_endpoint_committing_xres1`)
+   and the moved-multiplicity family, which needs a prover-side hook rather
+   than a witness edit.
+4. **S9-F4, still open for the security owner**: the closed forms are the
+   CONSTRUCTOR but `Tab::Pub` still materialises a vector on both sides. At
+   125M that is 168 MB of indicator tables on top of §7.1's 9.6 GiB and a
+   verifier `eval_mle_ext` over 2^22 twice. Taking the closed form all the way
+   into the polynomial would leave 0.26 MB.
+5. Re-read the toy freeze gate before every commit: receipt 2,816,472 B, the
+   literal schedule digest, and the empty-diff check must print nothing.
