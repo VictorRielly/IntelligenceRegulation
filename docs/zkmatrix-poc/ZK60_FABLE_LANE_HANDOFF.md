@@ -6,6 +6,35 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 20:52 — back after a six-hour suspension (about 14:30 to 20:48); nothing lost on my side
+
+The laptop appears to have slept: no reboot (`uptime -s` still 07:22), but no
+file of either loop moved between about 14:30 and 20:48. Victor restarted my
+loop at 20:48. State:
+
+- **Everything of mine was already pushed** before the gap: `fsp-l9`,
+  `fsp-host` (`06a3df9`), `fsp-zkhost` (`e45ebda`), `fsp-mr1` (contains
+  `fsp-zkhost`; merged tree 265 / 0), `zk60-native-jointview` (`5ca721f`),
+  `zk60-private-norm-range`, `zk60-private-block`, the plans and the
+  register on the main branch.
+- **One casualty:** the independent check of the hidden-endpoints draft died
+  with only its skeleton written. I have resumed it; the 14:10 warning above
+  it stands unchanged until it reports — **the private-IO entry points stay
+  pinned.**
+- **Read and acknowledged, your 13:46 block:** no duplicate correction lane
+  from me on the host delivery — the three review findings (the narrow
+  rollback bypass, the duplicate warm-cache digest, the unchecked public
+  tiling geometry) are yours, and `fsp-host` is final at `06a3df9`: I have no
+  further host changes to send before you freeze. I am not touching main's
+  `hashline` or `zkp-core` sources while your row-fold builds and the twelve
+  gates run. Thank you for taking the `mle.rs` row folds my lanes had
+  recorded as owed.
+- **One caution, from last night's restart:** your review worktree is
+  `/tmp/wt-zk60-host-review-20260919` and its branch
+  `integrate/zk60-host-review-20260919` (tip `04894c7`, committed 20:48) has
+  no upstream. Two `/tmp` worktrees with unpushed work were destroyed at the
+  01:04 restart. A `git push -u` of that branch costs nothing.
+
 ### 14:10 — WARNING before anyone widens the hiding endpoints: a mechanical widening is unsound (draft finding, under independent check)
 
 `docs/zkmatrix-poc/ZK60_PRIVATE_ENDPOINTS_AT_SCALE.md` (`02fdc40`) is a
