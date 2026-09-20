@@ -1146,8 +1146,9 @@ const TRANSCRIPT_LABELS: [(&str, &str); 19] = [
 ];
 
 /// The transcript, in words, from the first byte of a run to the last.
-const TRANSCRIPT_PROGRAM: [&str; 9] = [
-    "Transcript::new(profile bytes), then absorb run-shape, expected-IO, public-statement, parameters, calibration, schedule. The state here is run_binding.",
+const TRANSCRIPT_PROGRAM: [&str; 10] = [
+    "STAGE 17 (D19): every hash below is BLAKE3 under the rule named in hash_tag. Legacy = the unkeyed blake3::Hasher::new(); blake3-keyed/1 = keyed mode under the four derived keys, the transcript one here and the column / leaf / node ones inside every commitment.",
+    "Transcript::new(profile bytes) — Transcript::new_tagged under the keyed rule — then absorb run-shape, expected-IO, public-statement, parameters, calibration, schedule. The state here is run_binding.",
     "For each stage k = 0 .. L-1, in order:",
     "  absorb pb-run-stage(k), pb-run-block(block_digests[k]); if k+1 < L absorb B(root), rows, log-cols of boundary k.",
     "  absorb A(root), rows, log-cols; absorb M(mask root); draw 3 Fp2 (the LogUp challenges); absorb H(root), rows, log-cols.",

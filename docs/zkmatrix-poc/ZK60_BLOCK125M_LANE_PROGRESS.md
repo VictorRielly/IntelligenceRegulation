@@ -4111,20 +4111,19 @@ prints **nothing**. The whole diff against `b26c869` is this ledger,
 
 ---
 
-## Stage 17 — the D19 separating hash tag (2026-09-20, 15:0x–)
+## Stage 17 — the D19 separating hash tag (2026-09-20, 15:0x–1x:xx)
 
 **The first stage of this lane allowed to touch shared files.** It implements
 rulings **T-1**, **T-2 (amended)**, **T-5**, **T-6 (amended)**, **T-7** and
 **T-8** of `docs/zkmatrix-poc/ZK60_D19_HASH_TAG_DISPOSITION.md`, on the
-integrator's authorisation of 14:22 (engineering ownership of the additive
-change, **not** its acceptance of the argument). T-3 and T-4 landed in stage
-16; T-3's completed length guard is here re-scoped to legacy-rule profiles
+integrator's authorisation of 14:22 — engineering ownership of the additive
+change, **not** its acceptance of the argument. T-3 and T-4 landed in stage
+16; T-3's completed length guard is here RE-SCOPED to legacy-rule profiles
 only, as amendment T-3 requires.
 
-### Status
-
-`SKELETON` — nothing implemented yet. This section is filled as the stage
-lands.
+**No privacy or soundness acceptance is claimed or implied**, and D22's scope
+is unchanged. What the tag buys is hash-domain and cross-profile separation
+in an idealised model, stated below; it buys nothing else.
 
 ### What the tag is, in one paragraph
 
@@ -4135,27 +4134,354 @@ for a salted Merkle leaf, one for a Merkle inner node. A key is
 `blake3::derive_key(<context string>, <profile string>)`. The LEGACY rule —
 no key anywhere, the literal `blake3::Hasher::new()` that produced every byte
 to date — stays the default and is what the byte-frozen toy and the
-frozen-seam development rung keep, wholly (T-2 amended: a profile is wholly
-legacy or wholly tagged, never a mixture).
+frozen-seam development rung keep, **wholly** (T-2 as amended: a profile is
+wholly legacy or wholly tagged, never a mixture).
 
-### Plan of commits
+### Status
 
-| # | kind | content |
+`LANDED`, every gate green. Five commits: the skeleton `bfec2e2`, the two
+SHARED-FILE commits `d2e5988` (zkp-core) and `7de6ea1` (hashline), the lane
+plumbing and the T-6 tests `2d9f7af`, and this ledger.
+
+### The commits, split as the integrator asked
+
+| # | commit | kind | files |
+|---|---|---|---|
+| 1 | `bfec2e2` | ledger | the skeleton |
+| 2 | `d2e5988` | **SHARED** | `zkp-core/src/hashtag.rs` (new), `lib.rs`, `transcript.rs`, `merkle.rs`, `pcs.rs`. **No lane file** |
+| 3 | `7de6ea1` | **SHARED** | `hashline/src/pcs.rs`, `hashline/src/zk.rs`. **No lane file** |
+| 4 | `2d9f7af` | lane | `shape.rs`, `protocol.rs`, `endpoint_g.rs`, `boundary.rs`, `layout.rs`, `hash_domain.rs`, `run.rs`, `run_capture.rs`, `private_block.rs`, the three test files, the format note |
+| 5 | this one | ledger | |
+
+### THE SHARED CHANGE, function by function (for the integrator's review)
+
+`git diff --stat d2e5988~1 7de6ea1 -- zkp-core hashline/src/pcs.rs hashline/src/zk.rs`:
+
+```
+ hashline/src/pcs.rs        |  13 +
+ hashline/src/zk.rs         | 105 +
+ zkp-core/src/hashtag.rs    | 253 +
+ zkp-core/src/lib.rs        |   5 +
+ zkp-core/src/merkle.rs     |  76 +
+ zkp-core/src/pcs.rs        | 444 +
+ zkp-core/src/transcript.rs |  80 +-
+```
+
+Every one of those is an INSERTION except the transcript's four permitted
+sites. Each new function is placed **immediately after the legacy function it
+mirrors**, not at the end of a file, so a merge with the integrator's
+in-flight insertions (`hashline/src/pcs.rs` after `commit`,
+`hashline/src/zk.rs` from about line 2277) touches nothing they touch.
+
+| file | added | legacy body changed? |
 |---|---|---|
-| 1 | ledger | this skeleton |
-| 2 | **SHARED** | `zkp-core`: the new `hashtag.rs`, its `lib.rs` export, the keyed variants beside `transcript.rs`, `merkle.rs` and `pcs.rs`, and their unit tests. NO lane file |
-| 3 | **SHARED** | `hashline/src/pcs.rs` and `hashline/src/zk.rs`: the tagged commit adapter and the tagged mask commit / verify. NO lane file |
-| 4+ | lane | `shape.rs`'s `hash_tag()`, the threading through the block, the endpoint, the boundary, the run and the run capture, the T-3 re-scoping, and the tests of T-6 |
+| `zkp-core/src/hashtag.rs` | **new file**: `HashTag` (opaque), `HashTag::legacy`, `HashTag::for_profile`, `is_legacy`, `rule_name`, `transcript_key`, `column_key`, `leaf_key`, `node_key`, `hasher`, the four `CTX_*` constants and the two rule names | — |
+| `zkp-core/src/lib.rs` | `pub mod hashtag;` and its comment | no |
+| `zkp-core/src/transcript.rs` | `Transcript::new_tagged` | **the four permitted sites only**: a last field `key: Option<[u8;32]>`; `new` sets it `None`; `absorb` and `squeeze_bytes` build their hasher through `hashtag::hasher(self.key.as_ref())`, which with `None` IS `blake3::Hasher::new()`; `clone_state` copies the key. No other body |
+| `zkp-core/src/merkle.rs` | `hash_pair_keyed`, `MerkleTree::build_keyed`, `MerkleTree::verify_path_keyed` | no |
+| `zkp-core/src/pcs.rs` | `hash_column_keyed` (private), `hash_columns_keyed`, `salt_leaf_keyed`, `commit_zk_owned_with_tag`, `verify_zk_tagged` | no |
+| `hashline/src/pcs.rs` | `commit_zk_owned_tagged` | no |
+| `hashline/src/zk.rs` | `mask_commit_tagged`, `mask_verify_tagged`, `pcs_hash_column_keyed` (private) | no |
 
-### Rulings this stage must satisfy
+**No legacy function is forwarded through a keyed one.** `hash_pair`,
+`build`, `verify_path`, `hash_column`, `hash_columns`, `salt_leaf`,
+`commit_zk_owned_with`, `verify_zk`, `mask_commit`, `mask_verify` and
+`pcs_hash_column` all keep their text exactly as it was, so "the old callers
+are byte-identical" is a fact about unchanged source and not a claim. The one
+place the two rules meet is `hashtag::hasher`, and its `None` arm is the
+identical constructor call (pinned by
+`hashtag::tests::an_unkeyed_hasher_is_the_legacy_call_and_a_keyed_one_is_not`).
 
-* **T-7** — the tag type is OPAQUE: either the legacy rule or the COMPLETE
-  key set of one profile, built only by `legacy()` or `for_profile(...)`. No
-  public fields, no partial sets, no constructor taking keys. The verifier
-  derives it from the profile IT trusts; nothing deserialised from a receipt
-  selects or carries keys.
-* **T-8** — a tagged commitment declines the unkeyed device hasher. A
-  **temporary CPU fallback**, recorded as such; not accelerator support and
-  not a performance result.
-* **T-5** — the legacy functions keep their bodies, untouched, with no
-  forwarding of a legacy function through a keyed one.
+**Ruling T-7, the opaque type.** This is TIGHTER than the scoping memo's
+struct of four public `Option`s. A `HashTag` is either the legacy rule or the
+COMPLETE key set of one profile; the enum behind it is private, there is no
+public field, no partial set and no constructor that takes key bytes — only
+`legacy()` and `for_profile(<profile string>)`. A verifier derives its tag
+from the profile IT trusts. Nothing deserialised from a receipt or read from
+a capture selects or carries a key anywhere in this stage.
+
+**Ruling T-8, the accelerator.** One condition inside the NEW commit
+function: when `tag.column_key()` is `Some`, the backend is never offered the
+work. The pads and the salts are drawn from the generator FIRST, in exactly
+the legacy order, before that branch, so the generator's byte order is
+identical under both rules (pinned by
+`pcs::tag_tests::the_tag_does_not_move_one_byte_of_the_generator`). It is
+commented in place as a **TEMPORARY CPU FALLBACK pending a keyed device
+hasher** — not accelerator support, not a performance result. Nothing under
+`gpu/` is touched; the keyed kernel (the key words in place of `b3_iv`, the
+`KEYED_HASH` flag) is the integrator's, later.
+
+**The path length, in the NEW function only.** `verify_zk_tagged` requires
+every opened column's path to have exactly `log2(enc_cols)` entries and
+refuses by name. It is new code with no legacy byte at stake, so the check
+the disposition owes the integrator is simply in it from the start.
+`verify_zk` is untouched and still folds whatever it is handed; that one-line
+fix remains the integrator's call, and the lane's own call sites are covered
+by stage 16's T-4 checks as well.
+
+### THE EIGHT KEYS
+
+Computed twice, independently, and equal in all eight:
+
+* in Rust by the `blake3` 1.8.7 crate (`zkp-core --lib`, the test
+  `hashtag::tests::the_four_keys_of_each_tagged_profile_are_pinned`, and
+  again against the SHAPES in
+  `hash_tag_tests::the_toy_and_the_frozen_seam_rung_are_legacy_and_the_other_two_are_tagged`);
+* in Python by the `blake3` module 1.0.9,
+  `blake3.blake3(b'<profile>', derive_key_context='<context>').hexdigest()`.
+
+`hashline-zk-mr1/private-block-rung-g-t24-dev/1`
+
+| role | key |
+|---|---|
+| transcript | `51b7d0b0171d54b5bb45fd42c3f9369cad87894b625e0569b89fac0036d20dbe` |
+| column | `2295498fd6fd5e41320da717e9da89462e5c90a5b3b2d72ac496bcc157c2cd2c` |
+| leaf | `fe211417895c73c4a70430cb9bfb7081289ec7532f2716d2a86f609b0de54032` |
+| node | `8c4d2cfe7b8528d350f20dece1250c8d81596eb25d26bffda1247238f0f71fcc` |
+
+`hashline-zk-mr1/private-block-m125/1`
+
+| role | key |
+|---|---|
+| transcript | `125f9b4d44ac3c46712a35419cdeda6c1428db443ccaf58da67f35b15b37291c` |
+| column | `d5fc391cc58eed85631b4c3dabc7d377477eb1a0a725aeccaec0f4d10061b135` |
+| leaf | `1dc6f7146ad501ede6d90b3071da2f3251d38137303ffcc0a6a48b7f89effe83` |
+| node | `798eb64ff187f6f3e8e889ac4c4742607ac71a71fa09e2944a0ecc5e8a42026b` |
+
+All eight pairwise distinct (`all_eight_keys_are_pairwise_distinct`). The
+context strings are the disposition's four, asserted literally.
+
+**A note on the two RUN profiles.** `hashline-zk-mr1/private-run-rung-g-t24-dev/1`
+and `hashline-zk-mr1/private-run-m125/1` are the `Transcript::new` DOMAIN of a
+run, but the tag is taken from the run's BLOCK shape, so a run is keyed under
+its block profile's four keys and not under keys of its own. That is the one
+place where the memo's "a new profile string cannot exist without a new key
+set" is discharged by the block shape rather than by the run profile; it is
+recorded here because a reader of `transcript_domain` would otherwise derive
+the wrong key. Nothing is ambiguous in practice — one run profile has exactly
+one block profile — but it is a deliberate simplification, not an oversight,
+and the security owner may want run-level keys instead.
+
+### THE INVENTORY, ticked row by row (scoping memo §1)
+
+| row | what | where the tag went, or why it did not |
+|---|---|---|
+| T1 | transcript start | KEYED — `protocol::tagged_transcript` (`protocol.rs:100-110`) is the one constructor, used by the block header (`protocol.rs:122`), the run header (`run.rs:268`) and the run capture's rebuild (`run_capture.rs:257`) |
+| T2 | transcript absorb | KEYED — `transcript.rs:56-64`, from the transcript's own key |
+| T3 | transcript squeeze | KEYED — `transcript.rs:100-110` |
+| P1 | column digest, single | KEYED — `pcs.rs` `hash_column_keyed`, called by `verify_zk_tagged` |
+| P2 | column digests, tiled | KEYED — `hash_columns_keyed`, called by `commit_zk_owned_with_tag` |
+| P3 | salted leaf | KEYED — `salt_leaf_keyed`, both sides |
+| P4 | Merkle inner node | KEYED — `hash_pair_keyed` / `build_keyed` |
+| P5 | root | not a hash |
+| P6 | path verification | KEYED — `verify_path_keyed` |
+| R1 | RNG seed, fixture form | **UNKEYED, and right**: a deterministic-seed generator used by fixtures, never by a proof of an accepted profile. Not one of the four domains |
+| R2 | RNG seed, OS form | **ALREADY KEYED**, under 32 bytes of `/dev/urandom` — the generator's OWN secret key. T-1's amended model reads that as its own member of the family, so a fifth public key would weaken nothing and separate nothing |
+| R3 | RNG refill | inherits R2's secret key |
+| M1 | mask column digests | KEYED — `zk::mask_commit_tagged` -> `hash_columns_keyed` |
+| M2 | mask salted leaves + tree | KEYED — `salt_leaf_keyed`, `build_keyed` |
+| M3 | mask opening verify | KEYED — `zk::mask_verify_tagged` -> `pcs_hash_column_keyed`, `salt_leaf_keyed`, `verify_path_keyed` |
+| G1 | GPU column digests | **DECLINED at a tagged profile (T-8)**, temporary CPU fallback |
+| B1 | public-statement digest | **UNKEYED, with a reason**: a statement digest fed into a transcript ABSORB, never a Merkle leaf or node. It already begins with its own 31-byte ASCII domain `"hashline/private-block-public/1"`, and the absorb that carries it IS keyed, so the transcript it reaches is separated. It is in none of the four domains |
+| B2 | calibration identity | same, domain `"B3 public fixed calibration v1"` (30 B) |
+| B3 | block schedule digest | same, domain `"hashline/private-block-schedule/1"` (33 B) |
+| B4 | generalised-endpoint spec digest | same, domain `"hashline/private-block/general-endpoint/v1"` (42 B) |
+| B5 | internal-boundary spec digest | same, domain `"hashline/private-block/internal-boundary/v1"` (43 B) |
+| B6 | frozen-seam spec digest | **untouched**: `private_seam.rs` is byte-frozen, and the only profile that reaches it is the frozen-seam rung, which is wholly legacy |
+| B7 | run public statement | as B1, domain `"hashline/private-run-blocks/1"` (29 B) |
+| B8 | run schedule digest | as B1, domain `"hashline/private-run-schedule/1"` (31 B) |
+| B9 | run segment position tag | **KEYED, and this is the row that needed care**: it is two `challenge_fp2` squeezes from a DISCARDED `Transcript::clone_state`, so nothing changed at the call site — what changed is that `clone_state` copies the key (`transcript.rs:150-160`). A clone that dropped it would have drawn both tags under the unkeyed function while the rest of the run was keyed, which is exactly the mixture T-2 forbids. `RunVerifier::step`'s trailer comparison is what checks it |
+| B10 | run binding | the transcript state after the header: keyed by T1/T2 |
+| B11 | run capture header rebuild | KEYED — through `tagged_transcript` |
+| S1 | sumcheck round absorb | T2, keyed |
+| S2 | run stage / slot / scalar / terminal absorbs | T2, keyed |
+| C1 | run capture / run sink file digests | **UNKEYED, and out of scope**: SHA-256 over capture FILES on disk (`export_v3::sha256_hex`), a bundle's self-consistency pin. Not a proof hash and not BLAKE3 |
+| K1 | `private-block-kernel-shaped` | hashes nothing |
+
+**One more unkeyed hash, found in this stage and left unkeyed:**
+`grow_tests.rs:1050` builds a bare `Transcript::new(sh.profile.as_bytes())`
+for the slot-definition structure test. It proves and verifies nothing — it
+is a counting harness over `argument::define` — so its challenge stream only
+has to be self-consistent. Left legacy, recorded here.
+
+### T-3 as amended: the length guard is now legacy-only
+
+`hash_domain::imposed_at_shape{,_with}` is new and is what the construction
+paths call (`Layout::for_shape`, `RunStatement::new`); it returns an EMPTY
+set at a tagged profile. `at_shape_with` stays the honest DESCRIPTION at
+every shape and every stage-16 test goes on pinning it, so:
+
+* **nothing of stage 16 was reverted** — the four statement fixtures of
+  finding S16-F1 stand where stage 16 put them, the thirteen tests are
+  unchanged, and the shape-free half is unchanged;
+* the two BARE statement constructors (`EndpointSpecG::new`,
+  `BoundarySpec::new`) hold no profile string and so cannot tell the rules
+  apart. They keep refusing the shape-free eight at every shape. **This is a
+  deviation from the letter of T-3 amended** — the guard is still imposed on
+  a tagged profile at those two sites — and it is recorded rather than
+  worked around: no tagged profile's real geometry is near the set (rung-G's
+  endpoint is 9 rows and its boundary 10; 125M's are 37 and 38), so it costs
+  nothing today. Giving those constructors a profile string would be a wider
+  change than this stage is allowed.
+
+### The run capture
+
+ONE new public member of `run.json`, `hash_tag`, written by
+`run_capture::write_hash_tag`. Under the legacy rule it is exactly
+`{"rule": "legacy"}`; under the tag it carries the rule name
+`"blake3-keyed/1"`, the profile string, the four context strings and the four
+derived keys as hex. Every one of those is a public function of public
+strings; the Python tools **re-derive and compare** and must never take a key
+from a bundle. Eight allow-list entries (`hash_tag`, `rule`, `contexts`,
+`keys_hex` and the four role names). `SOURCE_FILES` 7 -> 8: a bundle pins
+`shape.rs` too, because `Shape::hash_tag` decides which rule made every byte.
+
+**The schema string does NOT move.** It stays
+`"hashline-native-capture/4-run"` because this is a pure addition — one new
+member, nothing renamed, removed, re-typed or re-meant — so a reader written
+against stage 14 or 15 reads a stage-17 bundle unchanged. Recorded with the
+date in `ZK60_RUN_CAPTURE_FORMAT.md` (new §2a).
+
+**The four existing bundles are legacy-rule bundles.** `run-a-tame`,
+`run-b-zero`, `run-c-tame` and `run-d-zero` were all captured before the tag.
+The tagged bytes differ; re-taking them is stage 18, after the security owner
+reviews this stage, and until the Python run gate learns the rule a tagged
+bundle is **not gate evidence** (ruling T-6).
+
+### The tests (T-6 as amended, item by item)
+
+| ruling item | test | where |
+|---|---|---|
+| 1. the toy and the frozen-seam rung are legacy | `the_toy_and_the_frozen_seam_rung_are_legacy_and_the_other_two_are_tagged` | `hash_tag_tests.rs` |
+| 2. key pins, all eight, pairwise distinct | `the_four_keys_of_each_tagged_profile_are_pinned`, `all_eight_keys_are_pairwise_distinct`, `the_context_strings_are_the_dispositions` (zkp-core) + the shape-level half above | `zkp-core/src/hashtag.rs`, `hash_tag_tests.rs` |
+| 3. cross-rule rejection, both directions, at rung-G | `a_rung_g_proof_is_refused_under_the_other_hash_rule_in_both_directions` | `hash_tag_tests.rs` |
+| 4. isolated layer controls | `a_column_digest_under_three_rules_is_three_digests`, `a_salted_leaf_is_a_merkle_node_under_the_legacy_rule_and_is_not_under_a_tag`, `a_keyed_node_separates_and_a_wrong_node_key_fails_the_path`, `a_keyed_transcript_separates_and_its_clone_does_not` | `zkp-core` `pcs.rs`, `merkle.rs`, `transcript.rs` |
+| 5. `verify_zk_tagged` refuses a wrong path length, by name | `the_tagged_verifier_refuses_a_path_of_the_wrong_length` (short and long) | `zkp-core/src/pcs.rs` |
+| 6. the accelerator seam | `a_tagged_commitment_never_offers_its_columns_to_the_backend` — a counting `Backend` stub, which the trait allows without touching `gpu/*` | `zkp-core/src/pcs.rs` |
+| 7. the run | `a_three_block_run_proves_and_verifies_under_the_tag`, `a_tagged_run_is_refused_by_a_legacy_rule_run_verifier` (and the reverse), `the_run_file_names_the_hash_rule_and_the_rebuilt_header_matched_under_it` | `run_tests.rs`, `run_capture_tests.rs` |
+| 8. the whole `private_` filter | below | |
+
+**WHAT THE FIRST REFUSAL ACTUALLY IS, in each direction** (T-6 amended asks
+for this and it is not the Merkle one):
+
+```
+tagged proof, legacy verifier: slot 0 [01 SS row sums norm_a (private)]:
+                               sumcheck round 1: s(0) + s(1) != claim
+legacy proof, tagged verifier: slot 0 [01 SS row sums norm_a (private)]:
+                               sumcheck round 1: s(0) + s(1) != claim
+```
+
+Fiat–Shamir consistency, at the first slot, in both directions — the whole
+challenge chain diverges at the transcript's very first hash, long before any
+Merkle check is reached. That is why the disposition's amended T-6 asks for
+the layers to be identified by ISOLATED controls instead, and they are (item
+4 above). At the PCS layer alone, where the transcript is held fixed, the
+refusal IS the Merkle one, and
+`a_tagged_commitment_is_refused_under_the_legacy_rule_and_the_reverse`
+asserts that by name.
+
+**The cross-rule test hook.** Nothing in production may choose a profile's
+rule, so one side of each pair needs a test-only override:
+`shape::set_force_legacy_hash_rule`, `#[cfg(test)]` throughout (the cell, the
+setter and the read in `hash_tag()` all vanish from a release build). It is
+deliberately ONE-DIRECTIONAL — a forced value can only make a profile
+LEGACY, which two profiles already are — so it cannot tag the frozen toy and
+cannot move one of its bytes even if a test leaked it. The `ForcedLegacy`
+guard clears it on drop, which matters because the suite runs
+`--test-threads=1` and a panic would otherwise poison every later test on the
+thread.
+
+### RECEIPT SIZES DO NOT MOVE
+
+The wire format carries no tag: no field is added and no length changes, so
+every pinned frame length is unchanged and the tests that pin them were not
+edited.
+
+| profile | receipt bytes | pinned by |
+|---|---:|---|
+| toy (frozen) | **2,816,472** | `the_codec_length_is_the_models_at_every_shape`, `a_frame_one_path_entry_short_is_refused_at_decode`, the four pre-lane receipts |
+| frozen-seam rung | **4,218,264** | the same test |
+| rung-G | **4,234,648** | the same test |
+| 125M | **40,782,792** | the same test, and `the_125m_shape_constructs_...` |
+
+A run's segment lengths are unchanged too: the three-block tagged run's
+segments are exactly `counted_segment_bytes`, asserted inside
+`a_three_block_run_proves_and_verifies_under_the_tag` — a tagged segment that
+was one byte off would fail there.
+
+### Files this stage wrote
+
+**SHARED (authorised, additive, in their own commits):**
+`zkp-core/src/hashtag.rs` (new), `zkp-core/src/lib.rs`,
+`zkp-core/src/transcript.rs`, `zkp-core/src/merkle.rs`, `zkp-core/src/pcs.rs`,
+`hashline/src/pcs.rs`, `hashline/src/zk.rs`.
+
+**LANE:** `hashline/src/private_block/shape.rs`, `protocol.rs`,
+`endpoint_g.rs`, `boundary.rs`, `layout.rs`, `hash_domain.rs`, `run.rs`,
+`run_capture.rs`, `hashline/src/private_block.rs`, and the test files
+`hash_tag_tests.rs` (new), `run_tests.rs`, `run_capture_tests.rs`; the docs
+`ZK60_RUN_CAPTURE_FORMAT.md` and this ledger; `results/zk60_block125m_lane/`.
+
+**STILL BYTE-IDENTICAL, proved after the last lane commit:**
+
+```
+git --no-pager -C /home/victor/wt-zk60-block125m diff --stat b26c869 -- \
+  hashline/src/layer.rs hashline/src/wcache.rs hashline/src/gpu \
+  hashline/src/native_capture.rs hashline/src/private_seam.rs \
+  private-block-kernel private-model-kernel zkvm-block
+```
+
+prints **nothing**.
+
+And the whole shared change, for the integrator, is four DELETED lines and
+nothing else — all four in `transcript.rs`, all four the permitted sites:
+
+```
+-        Transcript { state: *h.finalize().as_bytes(), counter: 0, masker: None, masked_rounds: Vec::new() }
+-        let mut h = blake3::Hasher::new();
+-        let mut h = blake3::Hasher::new();
+-        Transcript { state: tr.state, counter: tr.counter, masker: None, masked_rounds: Vec::new() }
+```
+
+### What this stage did NOT do
+
+* **No heavy run and no re-taken capture bundles.** The four bundles in
+  `results/zk60_run_captures_20260920/` are legacy-rule bundles; re-taking
+  them is stage 18, after the security owner reviews this stage. No 125M
+  proving run was made and no timing was measured — T-1's amended wording is
+  explicit that "no extra compression" is a COUNT and the run time is to be
+  re-measured, not assumed.
+* **No Python.** The run gate must learn the rule before any tagged bundle is
+  judged (ruling T-6); until then a tagged bundle is not gate evidence. §2a
+  of the format note tells the Python side exactly what to do: re-derive and
+  compare, never consume a key from a file.
+* **No keyed device path.** A tagged commitment declines the accelerator.
+  Temporary CPU fallback, recorded as such; the kernel change is the
+  integrator's.
+* **`pcs::verify_zk` is still unfixed.** The path-length check is in
+  `verify_zk_tagged` only, as the brief directs; the legacy function still
+  folds whatever it is handed, and the finding stands for the integrator's
+  other wire formats.
+* **No privacy or soundness acceptance.** The tag gives hash-domain and
+  cross-profile separation in the idealised model T-1 states, and nothing
+  else. D8, D11 and D22 are untouched; the frozen-seam rung and the toy
+  remain barred by name from any privacy statement.
+* **The depth-confusion attack is still unanalysed** by anybody, as stage 16
+  recorded. Under a tag it needs a key it does not have; under the legacy
+  rule the lane's T-4 checks and `wire.rs` are still the whole protection.
+
+### NEXT, in order
+
+1. **The security owner reviews this stage** — in particular the two things
+   recorded as deviations: the shape-free half of the T-3 guard still firing
+   at tagged profiles from the two bare statement constructors, and a run
+   being keyed under its BLOCK profile's keys rather than its own run
+   profile's.
+2. **The integrator reviews the two shared commits** (`d2e5988`, `7de6ea1`)
+   and takes the keyed CUDA path and the `pcs::verify_zk` path-length fix.
+3. **Stage 18**: re-take the two run capture bundles under the tag, and teach
+   the Python run gate the rule (re-derive the four keys from the contexts
+   and the profile, compare with `keys_hex`, and key its own transcript
+   replay).
+4. Re-measure the 125M timing when a quiesced box is available; the tag is
+   expected not to move it, and expected is not measured.
