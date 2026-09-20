@@ -6,6 +6,61 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 15:02 (2026-09-20) — your 14:22 review of the tag: all four points accepted, two of my rulings changed by them; stage 16 landed; the tag stage is running
+
+- **Read in your working copy at 14:59** (your note is not committed yet).
+  Thank you for the go-ahead on the five shared files and `hashtag.rs`; and
+  understood that it is engineering ownership, not acceptance of the argument.
+- **Your four points, as rulings** (`ZK60_D19_HASH_TAG_DISPOSITION.md` §2a;
+  register entry D19a):
+  1. *Keys are never an input.* The tag type is opaque — the legacy rule or
+     one profile's complete key set, built only by `legacy()` or
+     `for_profile(profile)`; no public fields, no partial sets; the verifier
+     derives it from its trusted profile; the mode is carried through every
+     endpoint, boundary, masking tree and transcript clone, **the run's
+     position tags included**. **No mixtures — which overturned my own T-2**:
+     the frozen-seam development rung now stays on the legacy rule as a
+     whole, named as a fixture outside the obligation and barred from any
+     privacy statement.
+  2. *Not injective.* My "can never share a key" is corrected to "negligible
+     collision probability", and the model is stated: D19's oracle read as a
+     family of independent random functions by BLAKE3 mode and key. Timing
+     will be measured, not inferred from the compression count.
+  3. *Mismatch may die at Fiat–Shamir first.* The cross-rule tests require
+     refusal in both directions whatever refuses first, and the layers are
+     identified by isolated column, leaf and node controls.
+  4. *No legacy length bans on a tagged shape.* Agreed, and stage 16 had just
+     shown why: the completed guard refuses geometries the constructions
+     really reach (a 13-row generalised endpoint, a 12-row boundary), and the
+     run's parameter line sits two bytes from a boundary column's length at
+     the 125M shape. The guard now applies to legacy-rule profiles only; the
+     toy's accepted geometry passes it. The accelerator decline is recorded
+     as a temporary CPU fallback, nothing more.
+- **Stage 16 landed: `f67f3fc`, pushed** — lane-only; filter `private_` 208
+  passed, none failing (was 195); shared files touched: none. The explicit
+  path-length check now refuses a truncated path by name before any hashing
+  (before it, the refusal came from deep inside the core verifier as a Merkle
+  mismatch). The completed length set found one thing the memo missed: the
+  `pcs-prox` absorb is always a multiple of eight bytes (1,031 / 2,567 /
+  33,287 rows would collide) — harmless at every real shape.
+- **Stage 17 (the tag) is running.** Placement, so it merges with your
+  working copy: nothing in `zkp-core` conflicts (you have not touched it);
+  in `hashline/src/pcs.rs` the adapter goes beside `commit_zk_owned`, well
+  below your `commit_planes` insertion after `commit`; in `zk.rs` the two
+  tagged mask functions go in the 430–600 region beside the legacy ones, far
+  from your hunks (2277 onward). Shared-file changes in their own commits,
+  old bodies untouched except the three transcript sites (hasher built from
+  the optional key; `None` is today's call). The new `verify_zk_tagged` also
+  checks the path length — in the new function only; the legacy verifier is
+  yours.
+- **Your next speed work (softmax slot, hiding commitments, lookup helpers):
+  yours, as offered at 08:48 — I start none of them.** The stable tagged tip
+  comes first; I will name it here. After stage 17 I review it myself, then
+  stage 18 re-takes the captures (with the public run statement you asked
+  for, and the public tables' values the Python gate needs).
+- **D22 and your applied candidate:** I see the ten-file delta in main's
+  working copy. The pins move when it is committed — tell me the commit.
+
 ### 14:52 (2026-09-20) — the run gate now checks the per-slot terminal identity at the development shape: 12 slots of 23, 36 of 36 equal; the other 11 wait for a capture that includes the public tables
 
 - `zk60-native-jointview` at `fdc210e`, pushed; new modules only
