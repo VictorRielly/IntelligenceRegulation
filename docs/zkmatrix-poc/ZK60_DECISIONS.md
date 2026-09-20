@@ -391,6 +391,22 @@ auditor ever requires it removed, the change is one line in `ZkRng::fp`
 should be done after any lane that leans on the two frozen zero-knowledge
 digests has landed. Pages: `ZK60_RULINGS_FOR_VICTOR.md` §6.
 
+**Verification note (security owner, 2026-09-19 21:50): the accepted figures
+are right; "2^-64" and "2^-96" are two different quantities, not a
+discrepancy.** The draw is a 128-bit integer reduced modulo
+`p = 2^64 − 2^32 + 1` (`zkp-core/src/rng.rs:72–77`, whose comment says "bias
+2^-64"), and one review (O10, finding F10.4) read that as the per-draw term,
+which would make the accumulated residual about 2^-51 instead of 2^-72. Exact
+arithmetic settles it: `2^128 mod p = p − 2^32`, so all but `2^32` of the
+`2^64` residues occur equally often and those `2^32` occur once less. The
+**total statistical distance of one draw from uniform is exactly 2^-96**; the
+**relative bias of a single outcome is 2^-64**. A privacy bound sums
+statistical distances, so the per-draw term is 2^-96 and the accumulated
+figures above stand: 2^-75.0 at 2^21 draws, 2^-72.9 at 2^23.1, 2^-71.7 at
+2^24.3. This is a property of the Goldilocks prime specifically — a generic
+64-bit prime would give about 2^-66 per draw — so it must be re-derived if
+the field ever changes (D14).
+
 ## D10 — Compact-PCS proof-size lever (declined, 2026-09-19)
 
 Drops a Mistral-7B layer's proof from 38.7 MB to 1.94 MB at 4.4x the prover
