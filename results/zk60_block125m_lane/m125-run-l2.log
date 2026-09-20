@@ -1,0 +1,12 @@
+Running scope as unit: run-r2d56fd32c8674458a1ac2a6f80f6d2b9.scope
+
+running 1 test
+test private_block::run_tests::private_run_125m_two_blocks ... 125M RUN L=2: chain built (2 witnesses, dropped) in 9.86 s, peak RSS so far 0.71 GiB
+125M RUN L=2: block 0: prove 31.19 s, high-water mark after it 10.67 GiB
+125M RUN L=2: block 1: prove 31.67 s, high-water mark after it 10.82 GiB
+125M RUN L=2: segments [40033336, 41051160] B, counted [40033336, 41051160] B, total 81084496 B
+125M RUN L=2 RESULT: prove 62.86 s ([31.19, 31.67] per block), verify from segments 2.04 s, receipt 81084496 B in 2 segments, peak RSS 10.82 GiB (shared box) — a CORRECTNESS result, not a privacy one
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 251 filtered out; finished in 74.91s
+
