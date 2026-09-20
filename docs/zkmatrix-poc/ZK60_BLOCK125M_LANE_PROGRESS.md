@@ -4572,34 +4572,407 @@ RULING and not this lane's to make.
 
 ---
 
-## Stage 18 — the tagged length guard, the public run statement beside the segments, and the re-taken bundles (2026-09-20, 15:5x–)
+## Stage 18 — the tagged length guard, the public run statement beside the segments, and the re-taken bundles (2026-09-20, 15:5x–16:4x)
 
-**Lane-only. NO shared file may change in this stage**, and no heavy run is
-launched from here: nothing that proves at the 125M shape, no `--ignored`
-125M test, no GPU. The development-rung capture tests are the heaviest thing
-run.
-
-**SKELETON — nothing below is done yet.** Three items:
-
-1. **Item 1 (ruling T-3 as amended, stage 17's recorded deviation).** The
-   shape-free half of the length guard still fires from `EndpointSpecG::new`
-   and `BoundarySpec::new` at TAGGED profiles, because those two constructors
-   hold no profile string. Fix it lane-side so the row-count guard applies
-   under the LEGACY rule only, while still refusing the legacy-rule profiles'
-   dangerous counts by name. Failing-first evidence required.
-2. **Item 2 (the integrator's request).** Retain the PUBLIC run statement
-   beside a run's segments, so that a FRESH process can rebuild the
-   verifier's statement and verify the run from the files on disk plus the
-   public shape and weights recipe. Only public values; every one traced to
-   where the verifier consumes it. Ruling D21 applies: the file is written
-   only after the whole run has verified in process.
-3. **Item 3.** Re-take the two gate capture bundles under the D19 tag, with
-   `HL_RUN_CAPTURE_PUBLIC_TABLES=1`, as `run-e-tame-tagged` and
-   `run-f-zero-tagged`.
+**Lane-only. NO shared file changed**, and no heavy run was launched from
+here: nothing proved at the 125M shape, no `--ignored` 125M test, no GPU.
+The heaviest thing run is the development-rung capture and run tests.
 
 **No privacy or soundness acceptance is claimed or implied by any of it.**
+D22's scope is unchanged, the toy and the frozen-seam rung remain barred by
+name from any privacy statement, and the run privacy gate of ruling M-8 has
+still never been met.
 
 ### Status
 
-`SKELETON`.
+`LANDED`, every gate green. Six commits: the skeleton `cff534b`, item 1
+FAILING-FIRST `bf5e61e`, item 1 FIXED `6e6ab25`, item 2 `facc057`, item 3
+(the bundles) `041c740`, and this ledger.
 
+### Item 1 — the length guard no longer fires on a tagged profile (T-3 amended)
+
+**What stage 17 left.** `hash_domain::imposed_at_shape_with` had already made
+the SHAPE-DRIVEN set legacy-only, but the two BARE statement constructors —
+`EndpointSpecG::new` and `BoundarySpec::new` — hold no profile string, so
+they went on imposing the SHAPE-FREE half of the set at every profile. Stage
+17 recorded that as a deviation from the letter of amendment T-3 rather than
+working around it.
+
+**The change, and why it is the smallest honest one.** Each constructor gains
+a `new_with_tag(..., tag: &HashTag)`, and `new` becomes that at
+`HashTag::legacy()`. This is stage 17's own pattern (`verify_zk_tagged`,
+`mask_commit_tagged`, `commit_zk_owned_with_tag`), it leaves every existing
+call site byte-identical, and the default is the FAIL-CLOSED one: a caller
+with no tag to offer still gets the whole set.
+`layout::no_commitment_has_a_node_shaped_column_under` is the tagged form of
+the guard and `hash_domain::imposed_shape_free(tag)` decides — the shape-free
+set under the legacy rule, an EMPTY set under a tag. `shape_free()` itself is
+untouched and every stage-16 test still pins it, exactly as `at_shape_with`
+stayed the honest description in stage 17.
+
+**The two production call sites now pass the rule the shape derives:**
+`IoSpec::endpoints_g` passes `self.hash_tag` (taken once from the shape in
+`IoSpec::new_shaped`, ruling T-7: the key set is never an input), and
+`RunStatement::boundary_spec` passes `sh.hash_tag()`. Those are the only two
+non-test callers in the crate.
+
+**FAILING FIRST** (`z1-s18-failing-first.log`, **13 passed / 2 failed**, exit
+101, an intended FAILED result, committed at `bf5e61e`). The commit threads
+the tag through every caller and `imposed_shape_free` DELIBERATELY IGNORES
+it, so that commit's behaviour is byte for byte stage 17's. The two failures,
+as the run printed them:
+
+```
+a TAGGED 13-row generalised endpoint must construct (T-3 amended):
+  "private block: the general endpoint commitment has 13 rows, whose column
+   hashes to 104 bytes — the same length as the transcript absorb of
+   `sc-round` with 48 bytes of data
+   (zkp-core/src/sumcheck.rs:109, :154; hashline/src/zk.rs:994) (C-H4)"
+
+5 rows was refused under a tag: private block: the general endpoint
+  commitment has 5 rows, whose column hashes to 40 bytes — the same length as
+  the generator's refill block (C-H4)
+```
+
+**AFTER THE FIX** (`z2-s18-item1-fixed.log`, **15 passed / 0 failed**, exit 0,
+commit `6e6ab25`): one line of `imposed_shape_free`.
+
+**The two new tests.**
+
+| test | what it pins |
+|---|---|
+| `the_length_guard_does_not_fire_at_a_tagged_profiles_statement_constructors` | a TAGGED 13-row generalised endpoint (`32 x 32` plane over a `2^7` row width: `2^3` data rows + `MASK_ROWS`) and a TAGGED 12-row boundary (the same plane over `2^8`: 4 data rows + `2*3` + 2) both CONSTRUCT; the same two geometries under the legacy rule — both through the explicit `HashTag::legacy()` and through the bare constructor — are still refused BY NAME, with the byte count and the colliding absorb in the message; every OTHER refusal of both constructors still fires under a tag (ruling M-1's declared-row check, the power-of-two axes, the pad count, the site count); and no accepted profile's real geometry (endpoint 9 and 37, boundary 10 and 38) is in the set |
+| `the_constructors_guard_is_unchanged_under_the_legacy_rule` | all eight shape-free counts refused under the legacy rule and clear under a tag, and the toy's own 455 / 384 / 50 / 7 still pass |
+
+**Stage 16's four moved statement fixtures were NOT restored.** They sit at
+geometries the completed guard refuses, and they call the BARE constructors,
+which are legacy-rule by definition — so restoring them would mean rewriting
+them to build under a tag, which changes what each test is about. Not
+trivial, so left where stage 16 put them, with stage 16's comments in place.
+
+**What this does NOT change.** No proof byte of any profile, no receipt
+length, no accepted geometry. The set itself is unchanged; only the set of
+profiles it is IMPOSED on is, and that set is now the same at all four sites
+(`Layout::for_shape`, `RunStatement::new`, and the two constructors).
+
+### Item 2 — the PUBLIC run statement, retained beside the segments
+
+**Why.** A run leaves `L` segment files in `HL_PB_RUN_DIR` and nothing else.
+The segments are the PROOF; they are not the STATEMENT, and no verifier can
+do anything with them without one. Everything the statement is made of lived
+only inside the process that proved the run, so the twelve-block 125M run
+would leave 484 MB of receipt that no later process could check. This is the
+integrator's request, and it is met by a new `cfg(test)` module
+`hashline/src/private_block/run_statement_file.rs`.
+
+**The layout on disk.** The segments were at the TOP LEVEL of the run
+directory and they stay there, with their names and their bytes unchanged:
+
+```
+<run dir>/segment-000.bin … segment-(L-1).bin
+<run dir>/statement/run-statement.json
+```
+
+`run_sink::segment_paths` is widened by exactly one allowed NAME, which must
+be a DIRECTORY; a plain FILE called `statement`, an extra segment beyond `L`,
+a leftover `.partial` and every other foreign entry are refused before a byte
+of any segment is read, as before (the stage-13 negative battery's
+`notes.txt` case still fires, unchanged). That widening is the whole cost of
+putting the statement inside the directory the verifier scans, and it is
+recorded here as the one behavioural change to a shared-in-the-lane file.
+
+**Schema** `hashline-private-run-statement/1`. JSON, one top-level member per
+line, no space between a key and its colon (so `run_capture::keys_of` reads
+it too), every digest / root / key / byte string lower-case hex. Format note:
+`ZK60_RUN_CAPTURE_FORMAT.md` §11.
+
+#### THE PUBLIC-VALUE TRACE: every member, and where the VERIFIER consumes it
+
+All line numbers are `hashline/src/private_block/run.rs` at commit `facc057`.
+`RunVerifier::start` is `:562`, `RunVerifier::step` is `:581`,
+`verify_run_from_dir` is `:783`.
+
+| member | what it is | where the verifier consumes it |
+|---|---|---|
+| `run_profile` | the run's transcript domain | `:271` `protocol::tagged_transcript(sh, self.rs.profile.as_bytes())`, reached from `:572` |
+| `block_profile` | the per-block shape's profile | `:271` (the tag is derived from it, `:574`) |
+| `blocks` (`L`) | the stage count | `:564` (the verifier's own `L` against the block list), `:788` `segment_paths(dir, l)` |
+| `shape.*` | tokens, width, hidden, heads, head_dim, the padded plane, the endpoint parameters | the verifier builds its OWN `Shape` from `block_profile` and the file's numbers are COMPARED with it; the shape drives `:585` `stage_layout`, `:661` / `:693` the endpoint commitments |
+| `run_shape_words` | the seven `u64` of the `run-shape` word | `:276` `tr.absorb(b"run-shape", …)` |
+| `context` | the run context digest | `:175` `BoundarySpec::new_with_tag(self.context, …)`, and `IoSpec`'s own field, validated at `:568` |
+| `expected_io.input_root` | the external INPUT endpoint's commitment | `:661` `protocol::commitment(st.expected.input, …)` → `:666` `pcs::verify_zk_tagged` |
+| `expected_io.output_root` | the external OUTPUT endpoint's commitment | `:693` → `:698` |
+| `expected_io.input_scale`, `output_scale` | the endpoint policy's scales | `:131` (`RunStatement::new`'s agreement check) and `:568` `st.expected.spec.validate()` |
+| `expected_io.rows`, `data_rows`, `log_n`, `inv_rate` | the endpoint commitment's geometry | `:661`, `:693`, and `protocol::endpoint_pcs_params` at `:570` |
+| `expected_io.policy_bytes`, `policy_sha256` | `ExpectedIo::to_bytes` | `:277` `tr.absorb(b"expected-IO", …)` |
+| `block_digests[k]` | block `k`'s public statement digest | `:602` `tr.absorb(b"pb-run-block", &st.block_digests[k])`, and `:181` → `:278` through `public_statement()` |
+| `block_scales`, `boundary_scales` | ruling M-4's one scale per boundary | `:126-135` (the agreement refusal), `:174` (each boundary's scale) |
+| `calibration` | the calibration identity | `:280` `tr.absorb(b"calibration", …)` |
+| `derived.public_statement_digest` | `H(block digests)` | `:181`, absorbed at `:278` |
+| `derived.parameter_line` | the human-readable geometry line (S11b-F4) | `:195`, absorbed at `:279`, and inside the schedule digest at `:253` |
+| `derived.schedule_digest` | the run's schedule | `:246`, absorbed at `:281` |
+| `derived.run_binding` | the transcript state after the header | `:573` `let binding = tr.state()`, compared against every segment's header at `:587` `wire::decode_segment(…, &self.binding, …)` |
+| `stage_lines[k]` | what stage `k` commits, claims and opens | `:213`, inside the schedule digest at `:256` |
+| `hash_tag.rule` / `profile` / `contexts` / `keys_hex` | which hash rule made every byte | `:574` `tag: sh.hash_tag()` — the VERIFIER'S own, from the profile it trusts; the file's copy is only ever COMPARED (ruling T-7) |
+| `internal_boundaries[k].*` | each boundary's scale, sites, rows, site rows, proximity row, PCS parameters and statement digest | `:172-176` `boundary_spec`, consumed at `:605-606` (the root absorb), `:633` (the commitment) and `:636` (`verify_zk_tagged`) |
+| `segments[].file`, `bytes`, `sha256` | the receipt on disk | `:788` `segment_paths`, `:793` the bytes read and stepped |
+
+**Nothing else is in the file.** The remaining members are provenance and
+prose: `schema`, `kind`, `written_by`, `what_this_is`, `source_commit`,
+`digest_encoding`, `public_weights.{recipe,description,digest_domain,values_in_this_file}`,
+`not_in_this_file`, `ruling_d21`, and the `row_rule` / `committed_at_stage` /
+`opened_at_stage` / `directory` labels. **No witness value, no hidden plane,
+no pad, no salt, no blinding row, no mask coefficient, no prover randomness,
+no timing and no memory figure.** A rung statement file is **5,977 B**.
+
+**THE PUBLIC WEIGHTS ARE NOT DUMPED.** The verifier's statement holds one
+DIGEST per block, so the file names a deterministic RECIPE
+(`private_block::grow_tests::tame_case(<block profile's Shape>)`, the same
+public fixture for every block) and the reader REGENERATES the weights and
+checks them against `block_digests`. The WRITER checks it too, before writing
+anything: a run whose blocks the named recipe does not reproduce gets no
+statement file. The writer regenerates ONE block and compares its digest
+against all `L`, so nothing of the `L`-fold cost (110 MB at 125M) is paid.
+
+**RULING D21, structurally.** `verify_then_write` is the only writer and it
+calls `run::verify_run_from_dir` FIRST; it writes nothing, and does not even
+create the `statement/` directory, unless that returns `Ok`. So the presence
+of the file is itself the statement that this run verified in the process
+that made it.
+
+**What the reader does, and what it refuses.** `read(dir)` takes ONLY the
+file and this build's public shape and recipe. It rebuilds `IoSpec`,
+`ExpectedIo`, `RunShape` and `RunStatement`, then RECOMPUTES every derived
+member and refuses by name on any mismatch — the run binding first, because
+it is a function of every public word of the header — re-derives the four
+hash keys from the contexts and the profile and compares them with
+`keys_hex` (never consuming one, T-7), compares every boundary's derived
+geometry and statement digest, and reads each segment file once to check its
+length and SHA-256. `verify_from_disk(dir)` is `read` plus
+`verify_run_from_dir` in a FRESH `RunVerifier`.
+
+**The six new tests** (in `run_tests.rs`, beside the runs):
+
+| test | what it establishes |
+|---|---|
+| `a_run_is_rebuilt_from_its_statement_file_alone_and_verifies_in_a_fresh_verifier` | **the sufficiency test the integrator asked for**: a three-block TAGGED rung run, written to a directory, then rebuilt from the files on disk plus the recipe and verified from its segments. The directory holds exactly `segment-000.bin`, `segment-001.bin`, `segment-002.bin`, `statement` |
+| `a_statement_file_with_one_byte_changed_is_refused` | EIGHT one-byte mutations, each refused by the name of the member that moved: the input endpoint commitment and the output endpoint commitment (both land on **the run binding**), the declared run binding, the declared endpoint policy bytes, a block's public digest, the calibration identity, a boundary's statement digest, and a segment's SHA-256. The honest file verifies again afterwards |
+| `every_key_of_a_run_statement_is_on_the_allow_list` | 95 key occurrences, every one on the declared allow list of 84, AND every entry of the list actually emitted — so the list cannot drift into a wish list |
+| `a_failed_run_leaves_no_statement_file` | **D21**: one byte flipped in the middle of segment 1, `verify_then_write` refuses, and the directory holds three entries and no `statement/`. With the segment restored the statement appears |
+| `the_run_directory_allows_the_statement_directory_and_nothing_else` | the one allowed entry is a NAME and a KIND: `notes.txt` is still refused by name, and a FILE called `statement` is refused by name |
+| `the_statement_files_json_reader_is_strict` | the hand-written reader: what it accepts, and eleven refusals (a repeated key, a trailing byte, a trailing comma, an unterminated object or string, a float, an exponent, a `\u` escape, a bare word, a single-quoted string, an empty input) plus the digest accessor's |
+
+**The reader is a hundred lines of hand-written JSON** because this crate has
+no JSON dependency and this is not the place to add one. It is strict — no
+float, no `\u`, no repeated key, no trailing byte — and the WRITER refuses to
+emit a string that is not printable ASCII, so `{:?}`'s escaping is JSON's.
+
+**Wired into the heavy test.** `private_run_125m_twelve_blocks` now calls
+`run_statement_file::verify_then_write` in place of its bare
+`verify_run_from_dir`; the verification time it reports is the one measured
+inside that call, around the verification only. **Its two-block sibling
+`private_run_125m_two_blocks` keeps its segments IN MEMORY and has no run
+directory at all**, so there is nothing to write a statement beside; that is
+a correction to the brief's assumption and not an omission. Neither heavy
+test was run from this lane.
+
+**One cost to know about**: at 125M the writer re-reads all twelve segment
+files (484 MB, one at a time, at most one resident) to pin their SHA-256
+independently of the sink's own record. That is seconds of I/O at the end of
+a seven-minute run and it adds no memory.
+
+### Item 3 — the two bundles re-taken under the tag, with the public tables
+
+**Why they had to be re-taken, two reasons.** (1) Stage 17's D19 tag moved
+every proof byte of the two TAGGED profiles, so `run-a-tame`, `run-b-zero`,
+`run-c-tame` and `run-d-zero` are the verifier's view of runs made under a
+rule this profile no longer uses. (2) All four were taken with
+`public_tables_included: false`, and the Python run gate could close the
+per-slot terminal identity `fin = c·mask_eval + poly(terminals)` at only
+twelve of the twenty-three slots because the other eleven read a PUBLIC table
+whose values it would not guess at.
+
+**The new writer** is `run_capture_tests::write_the_tagged_gate_bundles`,
+`#[ignore]`d beside the stage-15 one, which is left untouched. It REFUSES to
+run unless `HL_RUN_CAPTURE_PUBLIC_TABLES=1` is set and asserts, before
+writing, that the shape is tagged and that the bundle names the keyed rule.
+
+**Why including the public tables' values publishes nothing.** A slot's
+public table is a function of the PUBLIC statement and that stage's
+challenges, and weights are public under this project's privacy model (P1
+hides inputs, outputs and intermediate activations). They were opt-in only
+because of size — and they turn out to cost far less than stage 14 feared.
+
+**MEASURED, one write, 2026-09-20 16:22, exit 0 (`z5-s18-tagged-bundles.log`),
+source pin `facc0574a3fe5817c24720157e802b33085a85d8`.**
+
+| bundle | `run.json` | stage files | `manifest.json["total_bytes"]` | on disk |
+|---|---:|---:|---:|---:|
+| `run-e-tame-tagged` | 35,804 B | 13,468,627 / 13,541,592 / 14,207,655 | **41,256,627 B** | 41,258,387 B |
+| `run-f-zero-tagged` | 35,807 B | 13,469,129 / 13,533,563 / 14,208,372 | **41,249,809 B** | 41,251,569 B |
+
+**82.5 MB for the pair**, each **41.3 MB** — well inside the 120 MB ceiling
+this stage was given, and only **2.75 MB per bundle** more than stage 15's
+38.5 MB. The public tables were expected to dominate; at this shape 93 tables
+of 92,192 values render to under 3 MB because almost every value is small.
+The segments (12,413,432 B per run) are not written; each stage file pins its
+own by length and SHA-256.
+
+**SANITY, CHECKED ON THE FILES AS COMMITTED** (`python3`, after the write):
+
+* **every manifest entry** — five files per bundle (`run.json`, three stage
+  files, `README.md`) — matches its recorded byte length AND its recorded
+  SHA-256. Nothing is missing and nothing has drifted.
+* **`hash_tag`** carries `"rule":"blake3-keyed/1"`, the block profile
+  `hashline-zk-mr1/private-block-rung-g-t24-dev/1`, the four context strings
+  verbatim, and the four keys — which are stage 17's eight pinned keys to the
+  character (`51b7d0b0…`, `2295498f…`, `fe211417…`, `8c4d2cfe…`).
+* **`public_tables_included` is `true`** and there are **93 public tables**
+  in each bundle's three stage files, **all 93 carrying values**, and for all
+  93 the SHA-256 recorded is the SHA-256 of the concatenated 16-byte
+  little-endian `Fp2` encodings of exactly the values included. **0
+  mismatches.**
+* **the plane index table is byte-identical across `e` and `f`**: 22,411
+  bytes, SHA-256 `fb4cb87242f1892b4b412eb9a29f1c9cbb4870e5ce56611d1aa574c407c1367b`
+  — the same 22,411 bytes and the same `fb4cb872…` prefix stage 15 recorded
+  for `run-c-tame` / `run-d-zero`, which is the across-bundle equality the
+  Rust test also checks in memory against the table the layout derives.
+* both bundles' own self-consistency is what
+  `a_three_block_rung_g_run_is_captured_and_the_bundle_is_self_consistent`
+  and `every_key_of_a_bundle_is_on_the_allow_list` check in process; both are
+  in the green filter below.
+
+**Nothing was deleted, moved or rewritten.** The four older bundles stay byte
+for byte where they are and their own `README.md` files are NOT edited (each
+`manifest.json` pins its own README by length and SHA-256). The parent
+`results/zk60_run_captures_20260920/README.md` is rewritten instead: it says
+which four are legacy-rule and superseded for gate purposes, which two are
+tagged, what the tag means in a bundle and the one rule about it (re-derive,
+never consume), and what the public tables are. The directory now holds
+**226 MB** in six bundles, which is the cost of keeping the old four rather
+than replacing them.
+
+**They are still not gate evidence.** Ruling T-6: the Python run gate has to
+learn the D19 rule before a tagged bundle is judged. These two are the INPUT
+to that work.
+
+### Files this stage wrote, and the shared-file list
+
+**Shared files touched: NONE.**
+
+| file | what |
+|---|---|
+| `private_block/run_statement_file.rs` | **new.** The writer, the reader, the allow list and the JSON reader |
+| `private_block/hash_domain.rs` | `imposed_shape_free` (T-3 amended at the two bare constructors) |
+| `private_block/layout.rs` | `no_commitment_has_a_node_shaped_column_under`; the old name is it at `HashTag::legacy()` |
+| `private_block/endpoint_g.rs`, `boundary.rs` | `new_with_tag`; `new` is it at the legacy rule |
+| `private_block.rs` | `IoSpec::endpoints_g` passes the spec's own tag; one `mod run_statement_file;` line |
+| `private_block/run.rs` | `boundary_spec` passes the shape's tag |
+| `private_block/run_sink.rs` | `STATEMENT_DIR`, and `segment_paths` allows exactly that one directory |
+| `private_block/run_tests.rs` | six new tests; the heavy twelve-block test retains its statement |
+| `private_block/hash_domain_tests.rs` | two new tests |
+| `private_block/run_capture_tests.rs` | the tagged gate-bundle writer |
+| docs | `ZK60_RUN_CAPTURE_FORMAT.md` (§11 and the stage-18 header note), this ledger |
+| results | `results/zk60_block125m_lane/z*-s18-*.log`, the two new bundles and the parent README |
+
+**THE FORBIDDEN-FILES PROOF**, run after the last code commit:
+
+```
+git --no-pager -C /home/victor/wt-zk60-block125m diff --stat 9ded619 -- \
+  zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs \
+  hashline/src/wcache.rs hashline/src/gpu hashline/src/native_capture.rs \
+  hashline/src/private_block/native_capture.rs \
+  hashline/src/private_block/private_seam.rs hashline/src/private_seam.rs \
+  private-block-kernel private-model-kernel zkvm-block
+```
+
+prints **nothing**. The whole diff against `9ded619` is this ledger, `ZK60_RUN_CAPTURE_FORMAT.md`, `results/`, and eleven files under `hashline/src/private_block*`.
+
+### RECEIPT SIZES DO NOT MOVE
+
+| profile | receipt bytes | pinned by |
+|---|---:|---|
+| toy (frozen) | **2,816,472** | `the_codec_length_is_the_models_at_every_shape`, `a_frame_one_path_entry_short_is_refused_at_decode` |
+| frozen-seam rung | **4,218,264** | the same test |
+| rung-G | **4,234,648** | the same test |
+| 125M | **40,782,792** | the same test, and `private_block_125m_one_block`'s own assertion |
+
+The twelve-block 125M run's counted segment lengths are unchanged too:
+40,033,336 / 40,301,624 x10 / 41,051,160, total **484,100,736 B**, pinned by
+`the_twelve_block_125m_receipt_is_the_counted_484_100_736_bytes`, which is in
+the pass list.
+
+### Tests and commands of stage 18
+
+All through the shared build lock, `CARGO_TARGET_DIR=.../wt-zk60-attention-compile/hashline/target`, `--release --offline -j 2 -- --test-threads=1`.
+
+| command | log | result |
+|---|---|---|
+| **failing first**: `--lib private_block::hash_domain` | `z1-s18-failing-first.log` | **13 passed / 2 failed**, exit 101, the intended FAILED result |
+| the same, after the fix | `z2-s18-item1-fixed.log` | **15 passed / 0 failed**, exit 0 |
+| `--lib private_block::run_tests`, `--nocapture` | `z3-s18-statement.log` | 24 passed / **1 failed** — the `\u` case of the JSON reader test was written with the escape already expanded, so the input carried a literal `A`; the test's source was corrected to spell the two characters |
+| `--lib private_block::run` (run, run_capture and run_statement together) | `z4-s18-run-filter.log` | **51 passed / 0 failed / 4 ignored**, 135.25 s, exit 0 |
+| the tagged bundles, `write_the_tagged_gate_bundles -- --ignored` | `z5-s18-tagged-bundles.log` | **1 passed / 0 failed**, exit 0, 3.96 s; the two bundles written, 82.5 MB |
+| **the gate**: `--lib private_` | `z6-s18-private-filter.log` | **222 passed / 0 failed / 7 ignored**, 67 filtered out, 313.79 s, exit 0, **13 warnings** — the stage-17 baseline of 214 / 0 / 6 plus the eight new tests and the one new `#[ignore]`d bundle writer. Not one existing test was changed, weakened or removed |
+| the heavy binary: `--lib --no-run` | `z7-s18-norun.log` | exit 0, relinked nothing (0.04 s): `hashline-70a7a72f73401de5`, 12,531,168 B, mtime **16:22**, newer than every source file of this lane (the latest is `run_statement_file.rs` at 16:19) |
+
+### THE TWO HEAVY RUNS, PREPARED AND NOT LAUNCHED
+
+The binary is built and is newer than every source file of this lane
+(`z7-s18-norun.log`). **Re-read its mtime before launching**: the target
+directory is shared with another worktree.
+
+```
+/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5
+```
+
+**A.** The tagged twelve-block 125M run, which now also RETAINS ITS PUBLIC
+STATEMENT at `<HL_PB_RUN_DIR>/statement/run-statement.json` (written only
+after the run verifies, ruling D21). The directory must exist and be EMPTY;
+the test refuses otherwise.
+
+```
+mkdir -p /home/victor/zk60-artifacts/m125-run-l12
+```
+
+```
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 env MALLOC_MMAP_THRESHOLD_=131072 HL_PB_RUN_DIR=/home/victor/zk60-artifacts/m125-run-l12 HL_PB_TIMING=0 HL_TEST_SOURCE_COMMIT=041c740 /home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::run_tests::private_run_125m_twelve_blocks >> /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run-l12.log 2>&1; echo $? > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run-l12.done' >/dev/null 2>&1 &
+```
+
+**B.** The single-block 125M timing run. `HL_PB_TIMING=1` turns on the phase
+clock (stage 11); it writes nothing to disk and takes no run directory.
+
+```
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 env MALLOC_MMAP_THRESHOLD_=131072 HL_PB_TIMING=1 /home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block >> /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-one-block-s18.log 2>&1; echo $? > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-one-block-s18.done' >/dev/null 2>&1 &
+```
+
+Both take the HEAVY lock, so enqueuing B immediately behind A is right: it
+blocks on the lock and self-starts. **A timing caveat that is not new to
+this stage**: this lane's build shape is `CARGO_PROFILE_RELEASE_LTO=false
+CARGO_PROFILE_RELEASE_CODEGEN_UNITS=8`, which every stage since 9 has used,
+so B is comparable with this lane's earlier 125M figures and NOT with a
+default-profile (`lto = "fat"`, one codegen unit) build.
+
+### What this stage did NOT do
+
+* **No heavy run.** No 125M proof, no `--ignored` 125M test, no GPU, no
+  timing. The twelve-block 125M run and the single-block 125M timing run are
+  the security owner's to launch; the two commands are above.
+* **No Python.** The run gate still has to learn the D19 rule before a tagged
+  bundle is judged (ruling T-6). The two new bundles are the INPUT to that
+  work, not evidence from it.
+* **No privacy or soundness acceptance**, and no statement about any run.
+* **`pcs::verify_zk` is still unfixed** and finding S17-F1's three refusing
+  Python source-pin gates are still refusing: both are outside this lane and
+  are the integrator's and the security owner's to dispose of.
+* **Stage 16's four moved fixtures were not restored** (see item 1).
+
+### NEXT, in order
+
+1. **The security owner launches the twelve-block 125M run**, which now
+   retains its public statement, and the single-block 125M timing run.
+2. **The Python run gate learns the D19 rule** and reads
+   `run-e-tame-tagged` / `run-f-zero-tagged`, whose public tables carry their
+   values, and closes the eleven per-slot terminal checks it could not.
+3. **The integrator reviews** stage 17's two shared commits and takes the
+   keyed CUDA path and the `pcs::verify_zk` path-length fix.
