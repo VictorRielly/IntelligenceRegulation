@@ -35,6 +35,19 @@ only, the privacy argument now has a checked core at every step and waits on
 three rulings from Victor** ([one page](ZK60_RULINGS_FOR_VICTOR_PRIVACY.md);
 [draft statement, not in force](ZK60_PRIVACY_STATEMENT_TOY_PROFILE_DRAFT.md)).
 
+**First privacy acceptance on the fast line (2026-09-20 13:46, register
+D22):** the **toy private block** — one block, 32 tokens, width 16, public
+synthetic weights — is accepted as private by the security owner, in the model
+Victor accepted the same day (D19 the hash as an ideal random function, D20
+timing/memory/power out of scope with refusals kept in, D21 rejected receipts
+never sent and captures counted as publishing): a verifier's view is within
+about 2^-77.7 per proof of one that does not depend on the hidden data. **For
+that one small artifact and nothing else** — not the 125M block below, not any
+multi-block run, not real weights, not sealing in advance. It is an argument
+whose every step survived one independent attack, not a proof the security
+owner re-derived; [the statement](ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md) lists
+its residuals, the seven conditions under which it lapses and what reopens it.
+
 **ALL TWELVE BLOCKS, ONE PROOF (added 2026-09-20 11:25):** a **private run of
 all twelve transformer blocks at the 125M shape — hidden input, hidden output,
 every activation and every block-to-block boundary hidden — proves and

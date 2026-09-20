@@ -1,5 +1,12 @@
 # Three privacy rulings for Victor — prepared 2026-09-20, 02:55
 
+> **DECIDED 2026-09-20 13:45 — Victor, at the console: "Yes on D19 D20 and
+> D21." All three accepted as recommended** (D19 with the separating hash tag
+> in new profiles). Recorded in `ZK60_DECISIONS.md`; the toy-profile privacy
+> statement came into force at 13:46 as register entry D22. The two "not
+> urgent" items further down (a run's soundness level; the 484 MB receipt) are
+> still open and still not urgent.
+
 Prepared by the interactive Claude Fable 5.1 session (the security owner).
 **Nothing here is decided until you say so.** Each item gives my
 recommendation first, then what it means in plain words, then what reopens it.

@@ -1,4 +1,9 @@
-# Privacy statement for the toy private-block profile — DRAFT, NOT IN FORCE
+# Privacy statement for the toy private-block profile — DRAFT, SUPERSEDED
+
+> **Superseded on 2026-09-20 at 13:46 by `ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md`
+> (register entry D22), after Victor accepted D19, D20 and D21.** This file is
+> kept as the record of what was proposed before the rulings; read the
+> in-force statement, not this one.
 
 Written by the interactive Claude Fable 5.1 session (the security owner) at
 05:32 on 2026-09-20.
