@@ -135,8 +135,10 @@ private-block-kernel/src/shaped_tests.rs
 | **S9 part 3b — the indicators (S9-F3) and the slot budget** | **DONE** | `2798148`; the table is the definition, the closed forms are asserted equal to it where they exist, `L + 256 <= 512` re-asserted at all three shapes |
 | **S9 part 4 — the pad-zero term itself** | **NOT BUILT** — it lives in `argument::define`, which is still toy-only; it is blocked by stage 3's step 2 (the shaped argument), not by anything in S9 | see the NEXT section |
 | **Shaped argument, step A — the H plane id map** | **DONE** | `0493be3`; `s9b-hids2.log:179` **98 / 0 / 4**. Built and tested, NOT wired into `argument.rs` / `protocol.rs` |
-| **Shaped argument, steps B, C — `Layout::for_shape`, the shaped `define` and `protocol`** | **NOT STARTED** | the ordered plan and the complete literal inventory are in the NEXT section |
-| **S10, S11, S12** | **NOT STARTED** — all three are prover/verifier side and blocked by step C | — |
+| **Shaped argument, step B — `Layout::for_shape`** | **DONE** | `a6ed423`; `s5b-run2.log:180` **99 / 0 / 4**. The layout owns its `Shape`, `Ids` and `HIds`; `Layout::new()` is `for_shape(&Shape::toy())` plus the frozen assertions. `describe()` byte-identical FIRST TRY, its six header lines now pinned verbatim on top of the digest pin |
+| **Shaped argument, step C part 1 — the shaped `define`** | **DONE** | `522b9c3`; `s5c-run2.log:181` **100 / 0 / 4**. Every toy literal gone from the 23 slot definitions; new sweep test builds all 23 at the toy AND at the rung and pins trap T-3 |
+| **Shaped argument, step C part 2 — the shaped `protocol` (and `wire`)** | **NOT STARTED** — this is what still blocks a rung PROOF | the literal inventory is in the NEXT section |
+| **S10, S11, S12** | **NOT STARTED** — all three are prover/verifier side and blocked by step C part 2 | — |
 | **S8 the change itself** | **DONE** | `7f8e549` (the ids, the lookups, the premise) and `a21ffd7` (P-5's alias cases, the parity fixture retired). The deliverable test `the_rung_at_its_own_calibration_has_an_honest_witness` is un-ignored and green; hashline **86 / 0 / 2** (`s8-run7.log:165`), toy receipt 2,816,472 B and the digest unmoved |
 
 ## The toy freeze gate this stage added
@@ -225,6 +227,13 @@ flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attent
 | 53 | `git --no-pager diff --stat 11c01b2 -- private-block-kernel private-model-kernel zkvm-block` | — | **empty**: JOB K's acceptance is now literally met (the orchestrator's K4 deleted the two leftover paths) |
 | 54 | the Rust command, filter `private_`, with `HIds` (step A) | `…/s9b-hids1.log:187` | 98 passed, 0 failed, 4 ignored, 29.26 s, 9 warnings (one new unused `mut`) |
 | 55 | the same, the warning cleared | `…/s9b-hids2.log:179` | **98 passed, 0 failed, 4 ignored**, 31.50 s, **8 warnings — the baseline's 8** |
+| 56 | **stage 5 baseline**, the Rust command, filter `private_` | `…/s5-baseline.log:178` | **98 passed, 0 failed, 4 ignored**, 29.16 s, 8 warnings |
+| 57 | the same, after step B (`Layout::for_shape`), before its test | `…/s5b-run1.log:200` | 98 passed, 0 failed, 4 ignored, 29.34 s; the frozen digest test in the pass list, so `describe()` was byte-identical FIRST TRY |
+| 58 | the same, with step B's test | `…/s5b-run2.log:180` | **99 passed, 0 failed, 4 ignored**, 29.28 s, **8 warnings — the baseline's 8** |
+| 59 | the same, after step C part 1 (the shaped `define`), before its test | `…/s5c-compile1.log:194` | 99 passed, 0 failed, 4 ignored, 29.14 s, 9 warnings (one new unused `p3`) |
+| 60 | the same, with step C's slot sweep at the toy and the rung | `…/s5c-run1.log:187` | **100 passed, 0 failed, 4 ignored**, 29.30 s, 9 warnings (`causal_mask` now unused) |
+| 61 | the same, the toy's literal `causal_mask` kept as an oracle and asserted | `…/s5c-run2.log:181` | **100 passed, 0 failed, 4 ignored**, 29.25 s, **8 warnings — the baseline's 8** |
+| 62 | `git --no-pager diff --stat 11c01b2 -- private-block-kernel private-model-kernel zkvm-block` | — | **empty**, after step C |
 
 ## Findings
 
@@ -906,12 +915,61 @@ prefix predicate and a two-bit term. The memo's open question 1 (table
 versus closed form) therefore has a different answer at the rung than at
 125M, and the tables built here are the conservative form the memo prices.
 
+## Stage 5 (2026-09-20): steps B and C part 1, commits `a6ed423`, `522b9c3`
+
+Both commits touch `hashline/src/private_block/` only (`layout.rs`,
+`argument.rs`, `grow_tests.rs`). **No new shared-file change**, and
+`git --no-pager diff --stat 11c01b2 -- private-block-kernel
+private-model-kernel zkvm-block` is empty after each.
+
+**C-F1 — the schedule digest and the profile id (a judgement call, for the
+record).** The toy's first `describe()` line opens with `private-block-t32/1`,
+which is NOT the toy's profile id (`hashline-zk-mr1/private-block-t32-poc/1`)
+and is transcript-bound through `schedule_digest`. Normalising it would move
+every toy byte, so the shape-driven `describe()` keeps it verbatim **for the
+toy profile and only for it** and puts `sh.profile` there for every other
+shape. Consequence worth stating: the toy's own schedule digest does not
+separate two shapes of identical geometry under different profile ids — the
+profile string is what separates them, and it enters the transcript
+separately (`Transcript::new(PROFILE)`). For every NEW profile the digest
+separates them too, which is asserted. Nothing about the toy changed; this
+is a description of what was already true.
+
+**C-F2 — two public tables had to become padded, and one of them is not yet
+sound on the pad.** A slot's public table must be as long as the slot's
+CUBE. At the rung the dense causal mask (`h * t * t` = 4,608) and the dense
+RoPE tables (`tokens * heads * head_dim` = 2,304) are shorter than their
+cubes (8,192 and 4,096), so `causal_mask_at` and `rope_tables_at` lay them
+on the PADDED stride. The mask keys on `(t, j)` and so is 1 on a padded head
+slot, which is M-3 as written. The RoPE tables are ZERO off the support,
+like the public weights of P-2 — but the clause they enter carries
+`+ 2^(SH_ROPE - 1)`, so a zeroed pad does NOT make it vanish there. **That
+is exactly what the support indicator of S9 part 4 is for**, and until it
+lands a rung definition is a definition, not a sound argument. The same
+holds for the two `gamma` tables of `SC_DZC`, which are zero off the width's
+support by P-2 but sit in inhomogeneous clauses.
+
+**C-F3 — `Ids::at(A_SG1)` is not the last `sigma_s` limb.** The segment
+table maps only the TOY's two ids of a growing group, so at a shape with
+three limbs `at(A_SG1)` is the SECOND limb, not the last. Any `a_range`
+that ends inside a growing group must end at the group's own accessor
+(`ids.sg(ls - 1)`), and `SC_SZC` now does. A range that ended at
+`ids.at(A_SG1)` would have silently dropped the third limb from the LogUp
+arm at the rung. Worth a second pair of eyes if another growing group is
+ever added.
+
+**C-F4 — what step C does NOT establish.** A definition that builds at the
+rung is not a proof. No rung receipt exists, `protocol.rs` is unchanged,
+the pad rule is not in the argument, and no privacy statement is made at
+any shape but the toy — and none there either.
+
 ## NEXT
 
 **Where the lane stands.** JOB K, S8, **S9 parts 1, 2 and 3** (commit
-`2798148`) and **step A of the shaped argument** (commit `0493be3`) are
-DONE. **98 passed / 0 failed / 4 ignored** on `--lib private_`
-(`s9b-hids2.log:179`), 8 warnings — the baseline's 8. The toy receipt is
+`2798148`), **steps A, B and C part 1 of the shaped argument** (commits
+`0493be3`, `a6ed423`, `522b9c3`) are DONE. **100 passed / 0 failed / 4
+ignored** on `--lib private_` (`s5c-run2.log:181`), 8 warnings — the
+baseline's 8. The toy receipt is
 2,816,472 B and the pinned schedule digest has not moved at any commit of
 any stage. `git --no-pager diff --stat 11c01b2 -- private-block-kernel
 private-model-kernel zkvm-block` is **empty**, so JOB K's acceptance is now
@@ -926,11 +984,12 @@ Of the four ignored tests, two are the pre-existing
 and two are **PZ-1 and PZ-2**, still ignored ON PURPOSE (they are un-ignored
 at S12, when a rung receipt exists).
 
-**WHAT IS BLOCKING EVERYTHING ELSE, in one sentence.** S9 part 4 (the
-pad-zero term), S10, S11 and S12 all live on the prover/verifier side, and
-`argument.rs` + `protocol.rs` are still TOY-ONLY (finding S5-F2 unchanged).
-Nothing further can be built until they run over a `Shape`. That is the next
-agent's whole job, and the order below is the cheapest one.
+**WHAT IS BLOCKING EVERYTHING ELSE, in one sentence.** `argument.rs` now
+runs over a `Shape` (step C part 1), so the remaining blocker is
+`protocol.rs` + `wire.rs`: `prove_inner` / `verify_inner` still build the
+toy's PCS parameters, the toy's transcript, the toy's row width and the toy's
+opening-group counts, so no rung receipt can be produced. S9 part 4, S10,
+S11 and S12 all sit behind that one file.
 
 ### Step A — the H-side plane id map (finding S9-F6). **DONE, commit `0493be3`.**
 
@@ -956,65 +1015,117 @@ which are correct at the toy and only at the toy, and `layout::helpers(dom)`
 (the literal match at `layout.rs:632`) still exists. Replacing both is part
 of step C.
 
-### Step B — `Layout::for_shape`. The substrate; the toy is the gate.
+### Step B — `Layout::for_shape`. **DONE, commit `a6ed423`.**
 
-`Layout::new()` (`layout.rs:836`) is ALREADY built from `Shape::toy()` and
-asserted against the frozen constants — the work is to let it take any
-shape. It needs to own `Shape`, `Ids` and `HIds`, and:
+The layout owns its `Shape`, `Ids` and `HIds`, plus `a_sites`, `h_sites`,
+`slots` and the row width `n`; `lookups(dom)` is `lookups_at`,
+`a_planes`/`h_planes` are the id maps' lengths, `h_u_rows` reads
+`hids.u()` and `n`, and both limb offsets read `ids.at(A_LIMB)` and
+`sh.t_pad`. `Layout::new()` is `for_shape(&Shape::toy())` plus every frozen
+assertion, so all 29 call sites are untouched, and construction REFUSES BY
+NAME (through `Ids::new` / `HIds::new`) any shape whose plane list is not
+the one the segment tables describe.
 
-* `a_sites()` / `h_sites()` return `&[usize]` from the shape's
-  `claim_sites()` instead of `&'static A_SITES` / `H_SITES`; add `slots()`;
-* `lookups(dom)` → `lookups_at(&self.sh, &self.ids, dom)` (already exists);
-* `a_planes()` / `h_planes()` → `0..ids.n_a()` / `0..hids.n_h()`;
-* `h_u_rows()` and `limb_off*` replace the literals `N` and `T` with
-  `self.n` and `self.sh.t_pad`, and `a_off[A_LIMB]` with
-  `a_off[ids.at(A_LIMB)]`;
-* `Layout::new()` stays `for_shape(&Shape::toy())` PLUS the frozen
-  assertions, so all 29 `Layout::new()` call sites are untouched;
-* **`describe()` is the delicate one** — its text is transcript-bound
-  through `schedule_digest()`, and `grow_tests::the_toy_schedule_digest_is_frozen`
-  pins the digest as a literal. Make it shape-driven
-  (`T{tokens} d{width} H{q_heads} KV{kv_heads} dh{head_dim} F{hidden};
-  n={1<<log_cols} inv_rate={inv_rate} Q={opened_cols}`, the calibration line
-  from `sh.norm_wrho` / `sh.f_e` / `sh.wrho_s`, the slot lines from
-  `sh.slots()` and the shape's claim sites) and let that one test decide
-  whether it is byte-identical. Every value in the toy's current text is
-  reproduced by the toy shape — checked: `norm_wrho` 29, `wrho_s` 14,
-  `f_e` 9 all come out of `Shape::toy()` — so this should land first try.
+**`describe()` was byte-identical first try** (`s5b-run1.log`, taken before
+its own test existed: the digest pin was already in the pass list). Its six
+header lines are now pinned VERBATIM by
+`the_layout_is_built_from_a_shape_and_the_toy_is_one_instance`, on top of
+the literal digest, so a future edit is told WHICH line moved. One judgement
+call is recorded here: the toy's first line opens with a legacy label
+`private-block-t32/1` that is NOT its profile id and is transcript-bound, so
+it is kept verbatim for the toy profile **and only for it**; every new
+profile puts its own profile id there. That is also what makes the schedule
+digest separate two shapes of identical geometry (asserted for the rung and
+125M, and between them) — see finding C-F1.
 
-### Step C — the shaped argument and protocol. THE CORE.
+### Step C part 1 — the shaped `define`. **DONE, commit `522b9c3`.**
 
-`argument::define` (`argument.rs:565-968`) and `protocol.rs` carry the toy's
-literals. The complete inventory, so the next agent does not have to find
-them:
+Every item of the literal inventory below is done, in `argument.rs` only:
+
+| item | becomes | state |
+|---|---|---|
+| `challenge_fp2_vec(5)` — the token axis | `lg(sh.t_pad)` | done |
+| `challenge_fp2_vec(9)` — a `Dom::D` / `Dom::L` cube | `sh.log(dom)` | done |
+| `challenge_fp2_vec(1)` — the head axis | `lg(sh.h_pad)` | done |
+| `(3)` / `(4)` — head dim / an outer width | `lg(sh.head_dim)`, `lg(sh.d_pad)`, `lg(sh.f_pad)` | done |
+| `rho(0..k)` on every `a_at` / `a_slice` | the axis's own log | done |
+| `D`, `KV`, `F`, `T` as matmul widths | `d_pad`, `kv_heads*head_dim`, `f_pad`, `t_pad` | done |
+| `causal_mask()`, `rope_tables()` | `causal_mask_at`, `rope_tables_at` (padded stride) | done |
+| `A_*` literals | `ids.at(..)`, `ids.nr/ns/mr/ms/pl/sr/sg(k)` | done |
+| `H_*` literals | `hids.first_helper/helper/sexp/fact/table_helpers/u` | done |
+| `argument.rs:799`'s bare `1` (M-1) | `sh.kv_heads` | done (S7) |
+| `layout::helpers(dom)`'s literal match | `Layout::helpers` = `(hids.first_helper, sh.helpers)` | done; the free `helpers(dom)` survives as the toy oracle |
+| `SLOTS` / `slot_terms` inside `run_slot` and `sum_weights` | `SlotDef.sh`'s `slots()` / `slot_terms()` | done |
+| `a_dom(p).log()` / `h_dom(p).log()` inside `B` | `sh.log(ids.dom(p))` / `sh.log(hids.dom(p))` | done |
+| `B::endpoint`'s literal `log: 9` | `sh.log(Dom::D)` | done as far as ONE block goes; **S11 owes the multi-block seam** |
+
+The three slots that change MEANING were taken first, and each is tested:
+`SC_SCORE` / `SC_PV` read the key-value factor at the QUERY head's group
+(trap T-3, C-1: the group is the top `log2(kv_heads)` entries of `r_h`);
+`SC_SZC` addresses the `rho_s` / `sigma_s` groups through `Ids::sr` / `sg`
+and runs its `a_range` to `ids.sg(ls - 1)`, because `Ids::at(A_SG1)` is NOT
+the last limb when there are three; `SC_QZC` / `SC_KVZC` put the RoPE
+partner bit at `log - log2(head_dim)` (T-8).
+
+`the_slot_definitions_are_built_from_the_shape` builds all 23 slots at the
+toy AND at the rung and checks: every definition builds (so `B::finish`'s
+site-count refusal passed), every PUBLIC table is exactly the slot's cube,
+every PRIVATE coordinate list is its own domain's log with free coordinates
+inside the cube and a DECLARED extension round, the private terminal count
+is the shape's, and the key-value claim point's group coordinate is
+literally the same field element as the head challenge's first coordinate.
+It also asserts the two new shape-driven public tables against the toy's
+own literals entry for entry.
+
+### Step C part 2 — the shaped `protocol.rs` (and `wire.rs`). **NOT STARTED. Do this next.**
+
+Nothing else in the plan can move until a rung receipt can be produced.
+`argument.rs` is clean; these are the toy literals that remain, all in
+`protocol.rs` unless said otherwise (line numbers as of `522b9c3`):
 
 | what | where | becomes |
 |---|---|---|
-| `tr.challenge_fp2_vec(5)` — the token axis | `SC_SS`, `SC_SSM`, `SC_TZC` (twice), `SC_RS` reads 6, `SC_QMM`'s `r_q`, `SC_SCORE`'s `r_t`/`r_j`, `SC_PV`'s `r_t`, `SC_GMM`'s `r_tf`, `SC_DMM`'s `r_td` | `log2(t_pad)` |
-| `challenge_fp2_vec(9)` — a `Dom::D` / `Dom::L` cube | `SC_LZC`, `SC_DZC` | `sh.log(dom)` |
-| `challenge_fp2_vec(1)` — the head axis | `SC_SCORE`, `SC_PV` | `log2(h_pad)` |
-| `challenge_fp2_vec(3)` / `(4)` — the head dim / an outer width | `SC_SCORE`'s `cq`, `SC_PV`'s `r_i`, the three FFN `r_j` | `log2(head_dim)`, `log2(f_pad)` etc. |
-| `rho(0..k)` | every `a_at` / `a_slice` coordinate list | the domain's own log minus the fixed prefix |
-| `D`, `KV`, `F`, `T` as matmul widths | `SC_QMM..SC_WO` (`outer`), `SC_GMM..SC_DMM` (`rows`, `cols`), the two `gamma` public tables at `SC_DZC` | `d_pad`, `kv_heads*head_dim`, `f_pad`, `t_pad` |
-| `causal_mask()`, `rope_tables()` | `SC_RS`, `SC_QZC`, `SC_KVZC` | shape-driven; `rope_tables` already is (S7), `causal_mask` keys on `(t, j)` and is 1 on every padded head (M-3) |
-| `A_*` literals | throughout | `ids.at(..)`, as `witness.rs` already does |
-| `H_*` literals | `b.h(H_D0 + j)` etc. | step A's `HIds` |
-| `argument.rs:799`'s bare `1` | `SC_KVZC`'s RoPE table | `kv_heads` (M-1) |
+| `pcs_params()` — `LOG_N`, `inv_rate: 8`, `num_col_checks: 256` | `protocol.rs:21` | `sh.log_cols`, `sh.inv_rate`, `sh.opened_cols` (this is **S10**: at the rung `log_cols` 10, rate 1/4, Q 256) |
+| `Transcript::new(PROFILE)` | `:29` | `sh.profile.as_bytes()` — the new profile string, never the toy's (D17) |
+| `absorb_root`'s `LOG_N`, `commitment`'s `log_cols` | `:43`, `:47` | `sh.log_cols` |
+| `part_rows`'s `N` | `:105` | `lay.n()` |
+| `opening_groups_at(claims, LOG_N)`, `check_opening(.., LOG_N)` | `:89`, `:188` | `sh.log_cols` |
+| `A_GROUPS` / `H_GROUPS` at the two `check_opening` call sites | `:448`, `:451`, `:510`, `:516` | `sh.a_groups()` / `sh.h_groups()` |
+| `ENDPOINT_ROWS = 7`, `ENDPOINT_PROX = 4` | `:204`, `:205` | `sh.endpoint_rows` and its own prox; **S11** |
+| every `lay.a_off[A_*]`, `lay.h_off[H_*]` in `prove_inner` | `:341-343`, `:381-383`, `:405-407` | `ids.at(..)` / `hids.table_helpers()` / `hids.sexp()` / `hids.fact()` |
+| `wit.planes.len() != N_A`, `a_dom(*p).len()` | `:298` | `ids.n_a()`, `sh.size(ids.dom(p))` |
+| `a_data`/`h_data` sized `* N`, the zero-sum row loop `0..N-1` | `:309`, `:368`, `:418-423` | `lay.n()` |
+| `exp_deltas`'s `% T`, `A_S8` / `A_MX` / `A_G8` literals | `:236-246` | `sh.t_pad`, `ids.at(..)` |
+| `wire.rs`: `A_GROUPS`, `H_GROUPS`, `ENDPOINT_ROWS`, `HEADER`, the slot/mask sizes | `wire.rs:32-35`, `:62`, `:168` | the shape's; `Shape::receipt_bytes()` already models every part |
+| `private_block.rs:98`'s `PROFILE` const | — | keep for the toy; the shaped entry points take the profile from the shape |
 
-**Do it as a NEW PROFILE beside the toy** (`Shape::rung()`'s profile string
-`hashline-zk-mr1/private-block-rung-t24-dev/1`, its own transcript). The
-brief allows the toy to become `Shape::toy()` of the same code ONLY if every
-toy byte and the schedule digest stay identical, asserted before each
-commit — which, given `Layout::new` already routes through `Shape::toy()`,
-is the cheaper path and the one step B sets up. **Work slot by slot**, and
-take the three slots whose relation CHANGES MEANING at the rung first, since
-they are where a shape-driven rewrite can be silently wrong:
-`SC_QZC`/`SC_SCORE`/`SC_PV` (grouped heads: the claim point's `kv`
-coordinates come from the query head's challenge, trap T-3), `SC_SZC` (the
-third `sigma_s` limb), and `SC_DZC` (the four `1 << (32 - wrho)`
-coefficients, now `1 << (8 * limbs - window)` — finding S8-F4).
+**Shape of the change.** `prove_inner` / `verify_inner` take a `BlockPublic`,
+which carries no shape. Add `prove_inner_at(sh, ..)` / `verify_inner_at(sh, ..)`
+with the current pair as `Shape::toy()` wrappers, exactly as `AttentionPublic::new`
+is `new_shaped(&Shape::toy(), ..)` — that is the pattern the lane already
+uses and it keeps every toy caller and every toy byte where it is. A rung
+receipt then needs a rung witness (`witness::build_at`, already shaped, S6)
+and rung endpoints (S11).
 
-### Step D — S9 part 4, the pad-zero term. Ready to write the moment C lands.
+### Step D — S9 part 4, the pad-zero term. Writable NOW (it lives in `define`, which is shaped as of `522b9c3`).
+
+It can be written before or after step C part 2 — `define` is already
+shape-driven, so nothing blocks it, and finding C-F2 names two tables
+(RoPE, `gamma`) whose inhomogeneous clauses are the reason it is owed. Two
+extra obligations from the security owner's rulings this stage:
+
+* **the toy documentation test.** Add ONE test at the TOY shape recording
+  the toy-padding finding: it asserts WHICH relations read `A_LIMB` /
+  `A_LIMBM` on `Dom::L` and that none of them reads a padded position, so
+  that a future relation that did would fail the test. The toy is NOT
+  changed; in every NEW profile those two planes are covered by the
+  pad-zero term like any other plane.
+* **the closed forms (S9-F4).** Use `closed_form_indicator` wherever it
+  exists, so that no large indicator table is materialised at 125M,
+  PROVIDED each closed form is asserted equal to the builder's support
+  table at the rung, exhaustively. The definition of record stays "the
+  builder's public support table". `supp_L` has no closed form, so its
+  table stays.
 
 Everything it needs already exists in `pad.rs`:
 `support_indicator(shape, dom)` (the table), `closed_form_indicator`
@@ -1047,6 +1158,34 @@ ADDITIVELY beside the frozen `private_seam.rs` entry points) and **S12**
 (the rung end to end; un-ignore PZ-1 and PZ-2 in their END-TO-END form; the
 P-5 alias tampers end to end; the zero-witness test at the rung; every toy
 tamper re-run at the rung shape).
+
+### NEXT: exactly what the next agent should do, in order
+
+1. **Step C part 2 — `protocol.rs` + `wire.rs`** (the table above is the
+   complete literal inventory). Add `prove_inner_at(sh, ..)` /
+   `verify_inner_at(sh, ..)` with the current pair as `Shape::toy()`
+   wrappers; the toy's code path and every toy byte stay where they are.
+   **S10 falls out of it**: `pcs_params()` becomes the shape's `log_cols`,
+   `inv_rate` and `opened_cols`, which at the rung is 10 / 4 / 256, and the
+   S4 lookup-summation test must stay green.
+2. **S9 part 4 — the pad-zero term**, with the toy documentation test and
+   the closed forms (step D above). Not blocked by 1; take it first if
+   `protocol.rs` looks like more than one sitting.
+3. **S11 — the hidden endpoints at the rung** (C1..C8, ADDITIVELY; the tiny
+   private-IO path and `private_seam.rs`'s entry points stay byte-frozen).
+   `B::endpoint`'s log is already shape-driven, which is correct only while
+   the endpoint fits ONE block; at `nb_d = 3` it does not.
+4. **S12 — the rung end to end**: an honest rung proof verifies from bytes;
+   the receipt length against the Python model's 4,173,208 B, any
+   difference explained plane by plane; PZ-1 and PZ-2 un-ignored END TO END
+   and rejected BY THE VERIFIER; the P-5 alias tampers end to end; the
+   all-zero hidden input at the rung; every toy tamper re-run at the rung.
+
+Standing rules for whoever picks this up: run the filter before every
+commit of Rust code and record the counts here; the toy receipt is
+2,816,472 B and the schedule digest is the literal pin; nothing runs at the
+125M shape; `git --no-pager diff --stat 11c01b2 -- private-block-kernel
+private-model-kernel zkvm-block` must print nothing.
 
 ### Still waiting on the security owner (none of them blocking)
 
