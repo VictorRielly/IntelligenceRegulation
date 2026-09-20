@@ -129,6 +129,11 @@ private-block-kernel/src/shaped_tests.rs
 | **S8 preparation: both windows reproduced as failures** | DONE | `…/s8-run4.log:158` — **79 passed / 0 failed / 3 ignored**; the norm and softmax windows each refuse an honest rung witness by name at the toy's setting and accept at the rung's; the deliverable is captured failing in `…/s8-ignored-test.log:82` |
 | **JOB K un-share the reference kernel** | DONE | `fd72f48`, `2b0ebc4`, `7b2f1b3`; see the JOB K section below. Frozen crate back to 10/0 (+1 ignored), `private-model-kernel` 19/0, hashline **82 / 0 / 3** (`k4-hashline.log:165`), toy unmoved. TWO PATHS AWAIT DELETION |
 | **S9 the pad rule (P-1)** | **PREPARED** — both acceptance tests reproduced as failures, the specification built, the TERM NOT BUILT | `f3ce0ba`; see the S9 section. `s9-pz-failing.log:83,:89`; spec `s9-pad1.log:85` 6/0/2; filter `s9-run1.log:172` **92 / 0 / 4** |
+| **S9 part 1 — the head permutation (S9-F2)** | **DONE** | `2798148`; `s9b-compile2.log:203` is the deliberate failing run (2 failed: the plane the kernel disagrees with, and the rung test's own head index); `s9b-run2.log:178` **97 / 0 / 4** |
+| **S9 part 2 — the profile gate (S9-F1)** | **DONE** | `2798148`; `Shape::carries_pad_rule`, tested including a shape with the TOY'S geometry under a new profile id |
+| **S9 part 3 — ruling P-2, the public weights** | **DONE** | `2798148`; both §9a cases refused by name, plus the folded-vector form |
+| **S9 part 3b — the indicators (S9-F3) and the slot budget** | **DONE** | `2798148`; the table is the definition, the closed forms are asserted equal to it where they exist, `L + 256 <= 512` re-asserted at all three shapes |
+| **S9 part 4 — the pad-zero term itself** | **NOT BUILT** — it lives in `argument::define`, which is still toy-only; it is blocked by stage 3's step 2 (the shaped argument), not by anything in S9 | see the NEXT section |
 | **S8 the change itself** | **DONE** | `7f8e549` (the ids, the lookups, the premise) and `a21ffd7` (P-5's alias cases, the parity fixture retired). The deliverable test `the_rung_at_its_own_calibration_has_an_honest_witness` is un-ignored and green; hashline **86 / 0 / 2** (`s8-run7.log:165`), toy receipt 2,816,472 B and the digest unmoved |
 
 ## The toy freeze gate this stage added
@@ -208,6 +213,13 @@ flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attent
 | 44 | filter `private_block::pad`, the S9 specification | `…/s9-pad1.log:85` | **6 passed, 0 failed, 2 ignored** |
 | 45 | filter `…::pad::tests::pz`, `--include-ignored` (a deliberately failing run) | `…/s9-pz-failing.log:83, :89` | **2 failed** — PZ-1 and PZ-2, each with its own message |
 | 46 | the Rust command, filter `private_`, after the S9 preparation | `…/s9-run1.log:172` | **92 passed, 0 failed, 4 ignored**, 28.70 s, 9 warnings |
+| 47 | the Rust command, filter `private_`, on the JOB-K4 tip (stage-4 baseline) | `…/s9b-baseline.log:172` | **92 passed, 0 failed, 4 ignored**, 28.91 s, **8 warnings** |
+| 48 | the same, the head-permutation expectation written FIRST (a deliberately failing run) | `…/s9b-compile2.log:203` | 91 passed, **2 failed** — the rung honest-witness test at its own head index, and `parity`: *"case 0: plane q8 differs from the kernel in 90 of 2304 elements (first at index Some(48))"*, i.e. exactly the 3 of 6 query heads the permutation moves |
+| 49 | the same, the permutation landed | `…/s9b-compile3.log:183` | **93 passed, 0 failed, 4 ignored**, 29.28 s |
+| 50 | the same, with P-2 and the indicator/slot tests (a deliberately failing run: the folded-vector test had `Wq`'s inner axis wrong) | `…/s9b-compile4.log:207` | 96 passed, **1 failed** — *"Wq: the folded weight is nonzero at unsupported input index 48"*, which is the test asserting `Wq`'s INPUT axis is `Dom::Q`; it is `Dom::D` |
+| 51 | the same, corrected | `…/s9b-run1.log:195` | **97 passed, 0 failed, 4 ignored**, 29.12 s, 9 warnings (one new unused variable) |
+| 52 | the same, the warning cleared | `…/s9b-run2.log:178` | **97 passed, 0 failed, 4 ignored**, 29.09 s, **8 warnings — the baseline's 8** |
+| 53 | `git --no-pager diff --stat 11c01b2 -- private-block-kernel private-model-kernel zkvm-block` | — | **empty**: JOB K's acceptance is now literally met (the orchestrator's K4 deleted the two leftover paths) |
 
 ## Findings
 
@@ -685,8 +697,8 @@ also passes all of them, and that is the failure.
   from the enlarged sum of squares. Every relation still holds, with a
   divisor the prover chose. That is B-1 itself.
 
-**S9-F1 (the toy is NOT a no-pad shape, and the rule must be gated by
-PROFILE).** The brief's standing condition is that at the toy nothing pads,
+**S9-F1 — RESOLVED in stage 4 (see "the profile gate" below). (the toy is
+NOT a no-pad shape, and the rule must be gated by PROFILE).** The brief's standing condition is that at the toy nothing pads,
 so the pad-zero machinery must be ABSENT from the toy's transcript. But
 `Dom::L` pads at the toy — nine of sixteen limb sub-planes carry the isqrt
 witness, 288 true of 512 (finding B-F5) — so a rule of the form "add the
@@ -699,8 +711,8 @@ introduced here. Tested by
 `the_toy_already_pads_one_domain_and_must_not_gain_the_term`, which also
 records the toy's own would-be table: 2 ZERO, 1 EXEMPT.
 
-**S9-F2 (a prerequisite inside S9 that is not built: the head
-permutation).** `witness::build_shaped` indexes query heads CONTIGUOUSLY
+**S9-F2 — RESOLVED in stage 4 (see "the head permutation" below). (a
+prerequisite inside S9 that is not built: the head permutation).** `witness::build_shaped` indexes query heads CONTIGUOUSLY
 (`g.dix(t, h * head_dim + i)`, `h` in `0 .. q_heads`), so today's padded head
 slots are the TAIL of the head axis — `{6, 7}` at the rung — while
 correction C-1 and ruling P-2 require them INTERLEAVED, `{3, 7}`, one per
@@ -712,7 +724,176 @@ indicators mean anything**, and it moves the witness's plane layout, the
 kernel-index map `Geom::support`, the `SC_WO` folded weight order and P-2's
 "head-permuted" construction refusal together.
 
-**S9-F3 (the memo's indicator formulas are 125M-only).** §3.7a gives
+## Stage 4 (2026-09-20, after JOB K4): S9 parts 1–3, commit `2798148`
+
+Everything below is in ONE commit, all of it inside
+`hashline/src/private_block*`. **No new shared-file change**: the table at
+the top of this ledger is unchanged, and the three frozen crates still print
+an empty diff against `11c01b2` (command 53).
+
+### S9-F2, RESOLVED — the head permutation
+
+`Shape::head_slot(h) = (h / group) * slots_per_kv_group + h % group`, with
+`group = q_heads / kv_heads`. Each key-value group owns a CONTIGUOUS BLOCK of
+padded head slots and its padding falls at the end of its OWN block, so
+
+* the padded slots are `{3, 7}` at the rung and `{3, 7, 11, 15}` at 125M
+  (correction C-1), never a contiguous tail;
+* the key-value head is the slot's HIGH bits —
+  `kv_of_slot(sl) = sl >> log_slots_per_kv_group` — which is the
+  fixed-coordinate relation the ruling asks for, asserted against
+  `h / group` at all three shapes;
+* `Shape::new` gains a named refusal, *"the key-value heads do not divide the
+  padded head count"*, because `kv_heads | q_heads` is not enough.
+
+**Where it lands.** `Geom::support(Dom::Q)` (a new arm: `Dom::Q` no longer
+shares `Dom::D`'s, which is §3.7a note 1 in code), `Geom::support(Dom::S)`,
+`Geom::support(Dom::Ht)`; the score loop, the softmax loop and the PV loop of
+`witness::build_shaped`; the `A_RO0` / `A_RO1` write loop, which had to move
+out of the `Dom::D` loop because those two are `Dom::Q` planes; and
+`parity::compare_shaped`, where `q8`, `qr8` and `o8` now compare on
+`Dom::Q`'s support (they were compared on `Dom::D`'s, and at the toy the two
+are the same list). At the toy the map is the identity, so no toy byte moves
+and no toy test could have seen the difference — the lesson of S6-F1 again.
+
+**The failing run that came first** is `s9b-compile2.log:203`: `q8` differs
+from the kernel in **90 of 2,304** elements, which is exactly the 3 of 6 rung
+query heads the permutation moves (`3 * 24 * 16 = 1,152` positions, of which
+90 differ in that case's values).
+
+### S9-F1, RESOLVED — the profile gate
+
+`Shape::carries_pad_rule()` is `profile != TOY_PROFILE` and nothing else. The
+degree accounting in `Shape::slots` is gated by it. The test builds a shape
+with the TOY'S OWN GEOMETRY under a new profile id and shows it carries the
+rule while the toy does not — the one case a domain-driven gate could not
+tell apart, and the reason the gate cannot be "does this domain pad".
+
+### S9-F3, RESOLVED — the indicator is the builder's support table
+
+`pad::support_indicator(s, dom)` is now DEFINED as the 0/1 table of
+`Geom::support(dom)`. A closed form is an optimisation:
+`pad::closed_form_indicator` factors the predicate axis by axis into the two
+forms §3.7a uses — `prod (1 - b_k)` when the true extent is a power of two,
+`1 - prod b_k` when the PAD is — and `the_closed_forms_equal_the_tables`
+asserts the product equals the table entry for entry at all three shapes. The
+memo's own expressions come straight out of the factors at 125M: `supp_D`
+top bit 9, `supp_Q` 7, `supp_S` 19, `supp_Ht` 10, and `supp_Tab` the
+all-zero product over bits 8..13. **`supp_L` has no product form at any
+shape** (`[k < 9]` with 9 neither a power of two nor a complement of one) —
+exactly what the memo says, and the correction to the earlier reading of
+S9-F3: it is not that the memo's formulas are 125M-only, it is that ONE of
+them was never a product. At the rung every predicate is still a product,
+because `24 = 32 − 8`, `96 = 128 − 32` and `192 = 256 − 64` are all
+complements of powers of two.
+
+**What the verifier must evaluate, and what it costs** (`indicator_costs`,
+one row per padded domain: the table length, the number of SLOTS that
+materialise it — `table_of` clones a public table per slot,
+`argument.rs:206` — and the bytes at one `Fp2` per entry per slot):
+
+| shape | `Dom` | length | slots | bytes |
+|---|---|---:|---:|---:|
+| 125M | `D` | 2^19 | 3 (`SC_SS`, `SC_SSM`, `SC_DZC`) | 25.2 MB |
+| 125M | `Q` | 2^19 | 1 (`SC_QZC`) | 8.4 MB |
+| 125M | `S` | 2^22 | 2 (`SC_RS`, `SC_SZC`) | **134.2 MB** |
+| 125M | `Ht` | 2^13 | 0 — it rides in `SC_SZC` on `supp_S` (open question 2) | 0 |
+| 125M | `L`, `Tab` | 2^14 each | 1 each | 0.26 MB each |
+| **125M total** | | | | **≈ 168 MB** |
+| rung (7 padded domains) | | | | **704,512 B** |
+
+**S9-F4 (new, for the security owner).** 168 MB of materialised indicator
+tables at 125M is the price of the memo's conservative "priced as tables"
+choice, and it is prover memory ON TOP of §7.1's 9.6 GiB, plus a verifier
+`eval_mle_ext` over 2^22 twice. Five of the six have a closed form that the
+code now produces and checks; taking it would leave only `supp_L`'s 0.26 MB.
+This is open question 1 of §3.7a with a number attached, and it is the kind
+of thing S14's peak-RSS acceptance will notice.
+
+### Ruling P-2 — the public weights
+
+`AttentionPublic::new_shaped` and `FeedForwardPublic::new_shaped` now take
+the **zero-padded, head-permuted** matrices: every axis is the PADDED extent
+(`d_pad`, `f_pad`, and `kv_heads * head_dim`, which does not pad), and every
+entry off the destination axis's support is refused BY NAME at construction.
+Two strings, so §9a's two cases are told apart:
+
+| case | refusal |
+|---|---|
+| a `Wq` entry at a padded WIDTH column, a `Wg` entry past the hidden width, a gain past the model width | *"private block: a public weight is nonzero at a padded width index"* |
+| a `Wq` ROW at a padded head slot; **a `Wo` whose input columns are in true-head order instead of slot order** (§9a's named second case) | *"private block: a public weight is nonzero at a padded head slot"* |
+
+The check is ENTRYWISE, which is strictly stronger than the memo's "the
+folded weight vector vanishes off its support": folding is a linear
+combination over the other axis, so an entrywise-zero block folds to zero at
+every challenge while a folded vector could vanish at one point and not
+another. `the_folded_weight_vectors_vanish_off_support` ties the two together
+by folding each matrix the way its slot folds it (`fold_rows_i8` for the four
+attention matrices, `fold_cols_i8` for the three feed-forward ones) and
+asserting the folded vector vanishes off the INNER axis's support — with a
+guard that the fold is not identically zero, so the check says something.
+
+**The padder lives in TEST code** (`grow_tests::pad_attention_weights`,
+`pad_ff_weights`, `pad_matrix`), which is the point: the library's checker is
+not checking its own output. At the toy every padded extent equals its true
+extent and `head_slot` is the identity, so the accepted set of statements
+does not move by one word and the public `AttentionPublic::new` /
+`FeedForwardPublic::new` signatures and length checks are unchanged.
+
+**S9-F5 (a consequence worth recording).** The witness builder's matmuls now
+fold over the PADDED inner index (`d_pad`, `f_pad`) rather than the true one,
+because that is what the argument's matmul slots do and what trap T-2 /
+`argument.rs:626` is about. At 125M the QKV/`Wo` accumulations therefore do
+`1024` instead of `768` multiply-adds per output, about +33% on those four
+matmuls in the WITNESS BUILDER only (the proof cost is unchanged — the
+sumcheck already runs over the padded cube). Nothing on the toy moves.
+
+### The toy-padding check the ruling asked for
+
+**Which planes the accepted toy profile places on a padded domain, and what
+constrains them.** The toy pads exactly one domain, `Dom::L` (288 true of
+512, nine of sixteen limb sub-planes). Two planes sit there, `A_LIMB` and
+`A_LIMBM`, and under the memo's table **both are ZERO-rule**; their shared
+LogUp helper `H_L` is EXEMPT. So yes — **two ZERO-rule planes sit on a padded
+domain in the accepted toy profile.**
+
+**What constrains that pad today.** Exactly two things, both checked in
+`the_toy_profiles_padded_planes_and_what_constrains_them`:
+
+1. the two `byte` U8 lookups on those planes (`lookups_at(toy, Dom::L)` is
+   precisely `[byte(A_LIMB), byte(A_LIMBM)]`, no constant, coefficient 1).
+   The LogUp arm is never gated by an indicator (§3.7a is explicit that it
+   must not be), so these are active on the WHOLE padded domain and prove
+   every padded entry lies in `[0, 256)`;
+2. nothing else. `SC_TZC` reads the nine USED sub-slices at their fixed
+   offsets and never touches sub-planes 9..16; `SC_LZC` is homogeneous.
+
+**So the toy's pad is proved to be BYTES and is not proved to be ZERO.** The
+honest builder writes zeros there (asserted on a real toy witness), so no
+honest toy byte moves and the frozen receipt is unaffected. A dishonest
+prover could write any byte in those 224 positions: it would shift the U8
+multiplicity histogram consistently and break no relation, so it is extra
+prover freedom inside the committed material rather than a break of the
+block's input/output statement — the padded positions feed no claimed sum and
+no constraint group. **Reported, not fixed** (D17: the toy profile is
+frozen). The security owner may want it on the record next to the toy
+profile's other accepted deviations.
+
+**S9-F6 (the H-side plane ids are still literals, and they MOVE).** The A
+plane ids became a shape-driven map in S8 (`Ids`). The **H** side did not:
+`H_L`, `H_D0`, `H_Q0`, `H_KV0`, `H_S0`, `H_SEXP`, `H_F0`, `H_FACT`,
+`H_GU8`, `H_GEXP`, `H_GACT`, `H_U` and `h_dom` are literal indices into a
+51-plane list, and `Shape::h_plane_doms()` already says the list is 52 at the
+rung (the third `sigma_s` limb adds one `Dom::S` helper, shifting `H_F0`
+upward by one) and 50 at 125M (C-6 drops four `Dom::D` lookups, so that block
+holds 17 helpers, not 19). **An `Ids`-style segment map for the H planes is a
+prerequisite of the shaped argument** and does not exist. It is the exact
+analogue of S8-F2 and should be built the same way, with the same
+construction refusal when the built list differs from
+`Shape::h_plane_doms()`.
+
+**S9-F3 (superseded by the RESOLVED entry above; kept for the record).**
+§3.7a gives
 `supp_D = 1 - b9 b8` and friends as closed forms on a single axis. At the
 **rung the token axis pads too** (24 of 32), so no rung indicator is a
 single two-bit product: `supp_D` is `[t < 24] and [i < 96]`, a product of a
@@ -722,70 +903,168 @@ versus closed form) therefore has a different answer at the rung than at
 
 ## NEXT
 
-**JOB K and S8 are DONE; S9 is PREPARED test-first and its term is NOT
-built. 92 passed / 0 failed / 4 ignored on `--lib private_`
-(`s9-run1.log:172`), 5 / 0 on the new
-`private-block-kernel-shaped` crate, 10 / 0 (+1 ignored) on the frozen
-`private-block-kernel` — its `11c01b2` counts — and 19 / 0 on
-`private-model-kernel`. The toy receipt is 2,816,472 B and the pinned
-schedule digest has not moved at any commit of any stage. Of the four
-ignored tests, two are the pre-existing `capture::native_capture_saved_receipt`
-gates (they need saved receipt paths) and two are **PZ-1 and PZ-2**, left
-ignored ON PURPOSE with their failure captured at `s9-pz-failing.log:83`
-and `:89`.**
+**Where the lane stands.** JOB K, S8 and **S9 parts 1, 2 and 3 are DONE**
+(commit `2798148`). **97 passed / 0 failed / 4 ignored** on `--lib private_`
+(`s9b-run2.log:178`), 8 warnings — the baseline's 8. The toy receipt is
+2,816,472 B and the pinned schedule digest has not moved at any commit of
+any stage. `git --no-pager diff --stat 11c01b2 -- private-block-kernel
+private-model-kernel zkvm-block` is **empty**, so JOB K's acceptance is now
+literally met. The other crates were not touched in stage 4 and their last
+recorded counts stand: 5 / 0 on `private-block-kernel-shaped`
+(`k1-shaped-crate.log`), 10 / 0 (+1 ignored) on the frozen
+`private-block-kernel` (`k2-frozen-crate.log`), 19 / 0 on
+`private-model-kernel` (`k3-model-kernel.log`).
 
-**FIRST, for the orchestrator:** delete
-`private-block-kernel/src/shaped.rs` and
-`private-block-kernel/src/shaped_tests.rs`. They are unreferenced and do not
-enter any build, but until they are gone
-`git diff --stat 11c01b2 -- private-block-kernel private-model-kernel
-zkvm-block` is not empty and job K's acceptance is not literally met.
+Of the four ignored tests, two are the pre-existing
+`capture::native_capture_saved_receipt` gates (they need saved receipt paths)
+and two are **PZ-1 and PZ-2**, still ignored ON PURPOSE (they are un-ignored
+at S12, when a rung receipt exists).
 
-The next agent **finishes S9**. The S9 section above says exactly what
-exists. In order:
+**WHAT IS BLOCKING EVERYTHING ELSE, in one sentence.** S9 part 4 (the
+pad-zero term), S10, S11 and S12 all live on the prover/verifier side, and
+`argument.rs` + `protocol.rs` are still TOY-ONLY (finding S5-F2 unchanged).
+Nothing further can be built until they run over a `Shape`. That is the next
+agent's whole job, and the order below is the cheapest one.
 
-1. **The head permutation (finding S9-F2), first** — nothing in the
-   `Dom::Q` / `Dom::S` indicators is correct until the builder's head
-   layout is the interleaved one. It moves `witness::build_shaped`'s head
-   indexing, `Geom::support(Dom::Q | Dom::S | Dom::Ht)`, the parity
-   comparison's map, `SC_WO`'s folded weight order and P-2's
-   "not head-permuted" construction refusal together. The failing test is
-   already written: `pad::tests::the_memos_head_layout_is_not_yet_the_builders`
-   asserts the two DISAGREE, so it must be inverted when the permutation
-   lands.
-2. **The profile gate (finding S9-F1)** — the pad rule is carried by a
-   profile, never by "does this domain pad", or `Dom::L` puts a term in the
-   toy's `SC_LZC` and every toy byte moves.
-3. **P-2, the public weights**, which is buildable TODAY and needs no
-   receipt: a construction-time check in `AttentionPublic::new_shaped` /
-   `FeedForwardPublic::new_shaped` that every folded weight vector vanishes
-   off the DESTINATION axis's support, plus the second case (a matrix that
-   is not head-permuted) refused by name.
-4. **The term itself** in `argument::define`, with its `mu_pad`, its one
-   fresh `ζ` refused on zero (witness-independently), the support factor on
-   the inhomogeneous groups, the host terms, `SC_SS` / `SC_SSM` and
-   `SC_RS`, and the exemptions excluded from those summations. Then
-   re-check `L + 256 <= 512` on every slot and ASSERT what you get (the
-   memo counts the closest at `L = 117`).
-5. Un-ignore **PZ-1** and **PZ-2** at S12, when S10 (the column count) and
-   S11 (the hidden endpoints) make a rung receipt constructible — finding
-   **S6-F5** says exactly what is and is not exercisable before then.
+### Step A — the H-side plane id map (finding S9-F6). Half a day, self-contained.
 
-Still waiting on the security owner, none of them blocking S9:
+The A plane ids became `layout::Ids` in S8; the H ids did not. `H_L`,
+`H_D0`, `H_D_LAST`, `H_Q0`, `H_KV0`, `H_S0`, `H_SEXP`, `H_F0`, `H_FACT`,
+`H_GU8`, `H_GEXP`, `H_GACT`, `H_U`, `N_H` and `h_dom` are literals
+(`layout.rs:405-433`), and the list is **52 at the rung** (the third
+`sigma_s` limb adds one `Dom::S` helper, pushing `H_SEXP` and everything
+above it up by one) and **50 at 125M** (C-6 drops four `Dom::D` lookups, so
+that block is 17 helpers, not 19). Build `HIds` exactly as S8 built `Ids`:
+a segment table `(first toy id, toy length, this shape's length, domain)`,
+a `new` that REFUSES unless the list it builds equals
+`Shape::h_plane_doms()` element for element, and an assertion that the map
+is the IDENTITY at the toy. `layout::helpers(dom)` (a match on literals,
+`layout.rs:632`) becomes `(HIds::first(dom), Shape::helpers(dom))`.
 
+### Step B — `Layout::for_shape`. The substrate; the toy is the gate.
+
+`Layout::new()` (`layout.rs:836`) is ALREADY built from `Shape::toy()` and
+asserted against the frozen constants — the work is to let it take any
+shape. It needs to own `Shape`, `Ids` and `HIds`, and:
+
+* `a_sites()` / `h_sites()` return `&[usize]` from the shape's
+  `claim_sites()` instead of `&'static A_SITES` / `H_SITES`; add `slots()`;
+* `lookups(dom)` → `lookups_at(&self.sh, &self.ids, dom)` (already exists);
+* `a_planes()` / `h_planes()` → `0..ids.n_a()` / `0..hids.n_h()`;
+* `h_u_rows()` and `limb_off*` replace the literals `N` and `T` with
+  `self.n` and `self.sh.t_pad`, and `a_off[A_LIMB]` with
+  `a_off[ids.at(A_LIMB)]`;
+* `Layout::new()` stays `for_shape(&Shape::toy())` PLUS the frozen
+  assertions, so all 29 `Layout::new()` call sites are untouched;
+* **`describe()` is the delicate one** — its text is transcript-bound
+  through `schedule_digest()`, and `grow_tests::the_toy_schedule_digest_is_frozen`
+  pins the digest as a literal. Make it shape-driven
+  (`T{tokens} d{width} H{q_heads} KV{kv_heads} dh{head_dim} F{hidden};
+  n={1<<log_cols} inv_rate={inv_rate} Q={opened_cols}`, the calibration line
+  from `sh.norm_wrho` / `sh.f_e` / `sh.wrho_s`, the slot lines from
+  `sh.slots()` and the shape's claim sites) and let that one test decide
+  whether it is byte-identical. Every value in the toy's current text is
+  reproduced by the toy shape — checked: `norm_wrho` 29, `wrho_s` 14,
+  `f_e` 9 all come out of `Shape::toy()` — so this should land first try.
+
+### Step C — the shaped argument and protocol. THE CORE.
+
+`argument::define` (`argument.rs:565-968`) and `protocol.rs` carry the toy's
+literals. The complete inventory, so the next agent does not have to find
+them:
+
+| what | where | becomes |
+|---|---|---|
+| `tr.challenge_fp2_vec(5)` — the token axis | `SC_SS`, `SC_SSM`, `SC_TZC` (twice), `SC_RS` reads 6, `SC_QMM`'s `r_q`, `SC_SCORE`'s `r_t`/`r_j`, `SC_PV`'s `r_t`, `SC_GMM`'s `r_tf`, `SC_DMM`'s `r_td` | `log2(t_pad)` |
+| `challenge_fp2_vec(9)` — a `Dom::D` / `Dom::L` cube | `SC_LZC`, `SC_DZC` | `sh.log(dom)` |
+| `challenge_fp2_vec(1)` — the head axis | `SC_SCORE`, `SC_PV` | `log2(h_pad)` |
+| `challenge_fp2_vec(3)` / `(4)` — the head dim / an outer width | `SC_SCORE`'s `cq`, `SC_PV`'s `r_i`, the three FFN `r_j` | `log2(head_dim)`, `log2(f_pad)` etc. |
+| `rho(0..k)` | every `a_at` / `a_slice` coordinate list | the domain's own log minus the fixed prefix |
+| `D`, `KV`, `F`, `T` as matmul widths | `SC_QMM..SC_WO` (`outer`), `SC_GMM..SC_DMM` (`rows`, `cols`), the two `gamma` public tables at `SC_DZC` | `d_pad`, `kv_heads*head_dim`, `f_pad`, `t_pad` |
+| `causal_mask()`, `rope_tables()` | `SC_RS`, `SC_QZC`, `SC_KVZC` | shape-driven; `rope_tables` already is (S7), `causal_mask` keys on `(t, j)` and is 1 on every padded head (M-3) |
+| `A_*` literals | throughout | `ids.at(..)`, as `witness.rs` already does |
+| `H_*` literals | `b.h(H_D0 + j)` etc. | step A's `HIds` |
+| `argument.rs:799`'s bare `1` | `SC_KVZC`'s RoPE table | `kv_heads` (M-1) |
+
+**Do it as a NEW PROFILE beside the toy** (`Shape::rung()`'s profile string
+`hashline-zk-mr1/private-block-rung-t24-dev/1`, its own transcript). The
+brief allows the toy to become `Shape::toy()` of the same code ONLY if every
+toy byte and the schedule digest stay identical, asserted before each
+commit — which, given `Layout::new` already routes through `Shape::toy()`,
+is the cheaper path and the one step B sets up. **Work slot by slot**, and
+take the three slots whose relation CHANGES MEANING at the rung first, since
+they are where a shape-driven rewrite can be silently wrong:
+`SC_QZC`/`SC_SCORE`/`SC_PV` (grouped heads: the claim point's `kv`
+coordinates come from the query head's challenge, trap T-3), `SC_SZC` (the
+third `sigma_s` limb), and `SC_DZC` (the four `1 << (32 - wrho)`
+coefficients, now `1 << (8 * limbs - window)` — finding S8-F4).
+
+### Step D — S9 part 4, the pad-zero term. Ready to write the moment C lands.
+
+Everything it needs already exists in `pad.rs`:
+`support_indicator(shape, dom)` (the table), `closed_form_indicator`
+(the optimisation), `indicator_slots(dom)` (which slots carry it),
+`a_rule` / `h_rule` (the ZERO / EXEMPT table, reproducing the memo's
+64 / 35 / 1 at 125M and 85 / 49 / 1 at the rung), and
+`Shape::carries_pad_rule()` (the gate). What to build, per §3.7a:
+
+1. in each hosting slot of `indicator_slots`, ONE fresh challenge `zeta`
+   drawn in that slot's challenge block and **refused on zero** through the
+   existing `nonzero(..)` helper (witness-independent: the refusal string
+   names no relation and no plane), and one more entry of the slot's `mu`;
+2. the term `mu_pad * (1 - supp(x)) * sum_j zeta^j * plane_j(x)` over the
+   domain's ZERO-rule planes in plane order, EXEMPT planes excluded;
+3. the support factor `supp` on the inhomogeneous constraint groups `c*` of
+   `SC_DZC` / `SC_QZC` / `SC_SZC` / `SC_KVZC` / `SC_FZC`, on every host term
+   in those slots, on `SC_SS` / `SC_SSM`'s summands and on `SC_RS`'s summand
+   and its hosted `host_rs` — and **NOT** on the LogUp arm (`helper_sum`,
+   `SC_SZC`'s `cx`), which is the one thing the pad rule must never gate;
+4. gate the whole of 1–3 on `Shape::carries_pad_rule()`, never on
+   `Shape::pads(dom)`;
+5. re-run `every_slot_fits_the_mask_budget_with_the_indicator` — it already
+   asserts the closest slot (toy 50, rung **72** at `SC_SZC` and `SC_FZC`,
+   125M **117** at `SC_SZC`) and will fail loudly if a degree moves.
+
+Then **S10** (log_cols 10, `Q` 256, the pad count and the opened columns
+moving together; S4's lookup-summation repair test must stay green),
+**S11** (the endpoints at `nb_d = 3` with their own `log_n` 8, C1..C8,
+ADDITIVELY beside the frozen `private_seam.rs` entry points) and **S12**
+(the rung end to end; un-ignore PZ-1 and PZ-2 in their END-TO-END form; the
+P-5 alias tampers end to end; the zero-witness test at the rung; every toy
+tamper re-run at the rung shape).
+
+### Still waiting on the security owner (none of them blocking)
+
+* **S9-F4 (new)** — 168 MB of materialised indicator tables at 125M, on top
+  of §7.1's 9.6 GiB, and a verifier `eval_mle_ext` over 2^22 twice. Five of
+  the six padded domains have a closed form the code now produces and checks
+  against the table; taking it would leave 0.26 MB. This is §3.7a open
+  question 1 with a number attached.
+* **The toy-padding finding (this stage)** — two ZERO-rule planes
+  (`A_LIMB`, `A_LIMBM`) sit on a padded domain in the ACCEPTED toy profile,
+  and what constrains their pad today is only the two `byte` U8 lookups: the
+  224 padded positions are proved to be BYTES, not zero. Reported, not
+  fixed (D17). Worth recording beside the toy profile's other accepted
+  deviations.
+* **S5-F1 / B-F3** — the 176-byte rung-receipt difference against §9a's
+  table (`SC_KVZC`'s support indicator). S9's part 4 is the step that
+  decides it: `indicator_slots(Dom::Kv) = [SC_KVZC]` in the code as written,
+  i.e. the lane's reading is that the rung receipt is **4,173,208 B**.
 * **S8-F3** — `Witness::output()` reads `A_X2` as a literal; a fifth norm
-  limb is refused by name rather than supported. Fix is one field when a
-  shape needs it.
+  limb is refused by name rather than supported.
 * **S8-F6 / P-5** — the alias tampers are discharged at the relation level
-  at the rung; the END-TO-END form at a new profile is owed again at S12.
-* **S5-F1 / B-F3** — the 176-byte rung-receipt difference two independent
-  implementations report against §9a's table (`SC_KVZC`'s support
-  indicator). S9 is the step that decides it: if `supp_Kv` gates
-  `SC_KVZC`'s inhomogeneous RoPE constraint, the rung receipt is
-  4,173,208 B.
+  at the rung; the END-TO-END form is owed again at S12.
 * **S1-F1** — a one-line correction to §1.3 T-1 and the §9 S1 row
   (`argument.rs:898` is `Dom::Tab.len()`, not the table size).
 * **S3's decision 2** — the narrower input class; it changes the 125M
   `Dom::D` lookup list and so the `H` row total (C-6).
-* **K-F2** — finding S6-F3 no longer needs a ruling for the zkVM image.
+* **A memo correction (S9-F3)** — §3.7a's indicator table gives `supp_L` as
+  "a 5-bit prefix predicate, not a product", which is right; the lane's
+  earlier reading that ALL the closed forms are 125M-only is wrong and is
+  corrected above. Every other predicate is a product at the rung too,
+  because 24, 96 and 192 are all complements of powers of two.
 
+Nothing is written outside this worktree, and no witness value, salt or
+private plane appears in any evidence file: counts, sizes, booleans and
+digests only. A rung proof that verifies would be a CORRECTNESS milestone;
+the privacy checks are owed again at every new shape.
